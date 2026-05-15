@@ -14987,7 +14987,6 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             if (tabName === 'history' && rpgEnabled()) setTimeout(renderRPGPanel, 50);
             if (tabName === 'game') setTimeout(() => {
                 renderGameTab();
-                _appendAdventureContainer();
             }, 50);
             // Scroll en haut à chaque changement d'onglet
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -18558,7 +18557,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
         function renderGameTab() {
             const tab = $el('gameTab');
-            if (!tab || !rpgEnabled()) return;
+            if (!tab) return;
+
+            // Always append adventure container regardless of RPG mode
+            _appendAdventureContainer();
+
+            if (!rpgEnabled()) return; // RPG section only if enabled
             showSkeleton('gameTab', 3, 'rows');
             requestAnimationFrame(() => setTimeout(() => {
 

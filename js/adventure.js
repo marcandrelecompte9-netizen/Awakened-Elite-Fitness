@@ -144,7 +144,7 @@ function renderAdventureDisabled() {
 
 function renderHunterCard() {
     const rpgData = (typeof rpgLoad==='function') ? rpgLoad() : { muscles:{}, profile:{xp:0} };
-    const totalXP = rpgData?.profile?.xp || 0;
+    const totalXP = rpgData?.profile?.xp || Object.values(rpgData?.muscles||{}).reduce((s,m)=>s+(m.xp||0),0);
     const level   = (typeof rpgLevelFromXP==='function') ? rpgLevelFromXP(totalXP) : 1;
     const xpHigh  = (typeof rpgXPForLevel==='function') ? rpgXPForLevel(level+1) : 1000;
     const xpLow   = (typeof rpgXPForLevel==='function') ? rpgXPForLevel(level) : 0;
@@ -154,8 +154,24 @@ function renderHunterCard() {
     const rank = level<5?{r:'E',c:'#94a3b8'}:level<15?{r:'D',c:'#22c55e'}:level<30?{r:'C',c:'#3b82f6'}:level<50?{r:'B',c:'#a855f7'}:level<70?{r:'A',c:'#f59e0b'}:{r:'S',c:'#ef4444'};
     const stats = [{icon:'⚔️',label:'Force',val:10+eqStats.strength,c:'#ef4444'},{icon:'⚡',label:'Agilité',val:10+eqStats.agility,c:'#f59e0b'},{icon:'💚',label:'Endurance',val:10+eqStats.endurance,c:'#22c55e'},{icon:'💙',label:'Vitalité',val:10+eqStats.vitality,c:'#3b82f6'}];
     const maxS = Math.max(...stats.map(s=>s.val),20);
+
+    // Check if RPG mode is enabled
+    const rpgOn = typeof rpgEnabled === 'function' ? rpgEnabled() : localStorage.getItem('fitproGameMode') === '1';
+    const rpgWarning = !rpgOn ? `
+        <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:10px 12px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;">
+            <div>
+                <div style="font-size:0.72em;font-weight:700;color:#fbbf24;">Mode RPG désactivé</div>
+                <div style="font-size:0.65em;color:#475569;">Active-le pour accumuler de l'XP</div>
+            </div>
+            <button onclick="if(typeof setRPGMode==='function')setRPGMode(true);else localStorage.setItem('fitproGameMode','1');renderAdventureTab();"
+                    style="padding:6px 12px;border-radius:8px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);color:#fbbf24;font-size:0.72em;font-weight:700;cursor:pointer;white-space:nowrap;">
+                ⚡ Activer
+            </button>
+        </div>` : '';
+
     return `<div style="background:linear-gradient(160deg,#0a001a,#00081a,#0a001a);border:1px solid rgba(168,85,247,0.22);border-radius:20px;padding:18px;margin-bottom:12px;box-shadow:0 0 30px rgba(168,85,247,0.07);position:relative;overflow:hidden;">
         <div style="position:absolute;top:-30px;right:-30px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(168,85,247,0.12),transparent 70%);pointer-events:none;"></div>
+        ${rpgWarning}
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
             <div style="display:flex;align-items:center;gap:10px;">
                 <div style="width:44px;height:44px;border-radius:12px;background:${rank.c}20;border:1.5px solid ${rank.c}60;display:flex;align-items:center;justify-content:center;font-size:1.3em;font-weight:900;color:${rank.c};box-shadow:0 0 14px ${rank.c}30;">${rank.r}</div>
@@ -171,7 +187,7 @@ function renderHunterCard() {
         </div>
         <div style="margin-bottom:14px;">
             <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-                <span style="font-size:0.6em;color:rgba(255,255,255,0.3);font-weight:600;">XP</span>
+                <span style="font-size:0.6em;color:rgba(255,255,255,0.3);font-weight:600;">XP TOTAL</span>
                 <span style="font-size:0.6em;color:rgba(168,85,247,0.7);font-weight:700;">${totalXP.toLocaleString()} / ${xpHigh.toLocaleString()}</span>
             </div>
             <div style="height:5px;background:rgba(255,255,255,0.05);border-radius:99px;overflow:hidden;">
