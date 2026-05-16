@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════
-// FitPro Elite — Exercise Visuals v3 — 436 exercices couverts
+// Awakened — Exercise Visuals v3 — 436 exercices couverts
 // ═══════════════════════════════════════════════════════════════════
 (function() {
 'use strict';
@@ -698,8 +698,27 @@ function generic_muscle(muscle, phase) {
   return wrap(id,b);
 }
 
+// ── IMAGE MAP — exercices avec vraies images ─────────────────────────
+// Clé = nom exact de l'exercice, valeur = chemin du fichier image
+var EXERCISE_IMAGES = {
+  'Ab Wheel Knee Rollout': 'images/exercises/Ab_wheel_knee_rollout.png',
+};
+
+function hasExerciseImage(name) {
+  return !!(name && EXERCISE_IMAGES[name]);
+}
+
+function toImgHTML(src, name) {
+  return '<img src="'+src+'" alt="'+name+'" style="width:220px;height:220px;object-fit:cover;border-radius:12px;display:block;" loading="lazy"/>';
+}
+
 // ── MAIN DISPATCHER — couvre les 436 exercices ───────────────────────
 function getExerciseVisual(name, muscle, phase) {
+  // ── Vrai image si disponible ──────────────────────────────────────
+  if (name && EXERCISE_IMAGES[name]) {
+    return toImgHTML(EXERCISE_IMAGES[name], name);
+  }
+
   var n=(name||'').toLowerCase();
   phase=phase||'start';
 

@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════════
-// FitPro Elite — Équipements & Sets
+// Awakened — Équipements & Sets
 // Style Solo Leveling — chaque équipement est lié à un muscle entraîné
 // ═══════════════════════════════════════════════════════════════════════
 

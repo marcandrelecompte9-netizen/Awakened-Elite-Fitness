@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════════
-// FitPro Elite — Système d'Aventure v2 (Solo Leveling)
+// Awakened — Système d'Aventure v2 (Solo Leveling)
 // ═══════════════════════════════════════════════════════════════════════
 (function() {
 'use strict';

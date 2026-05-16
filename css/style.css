@@ -1,4 +1,4 @@
-/* FitPro Elite — Styles */
+/* Awakened — Styles */
 
 
         * {
@@ -345,6 +345,22 @@
 
         .exercise-svg-container {
             position: relative;
+            width: 220px;
+            height: 220px;
+            flex-shrink: 0;
+        }
+
+        .exercise-svg-container svg {
+            width: 220px;
+            height: 220px;
+        }
+
+        .exercise-svg-container img {
+            width: 220px;
+            height: 220px;
+            object-fit: cover;
+            border-radius: 12px;
+            display: block;
         }
 
         .exercise-card-content {

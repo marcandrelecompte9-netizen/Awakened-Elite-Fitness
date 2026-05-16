@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════════
-// FitPro Elite — Système de Défis (Style Solo Leveling)
+// Awakened — Système de Défis (Style Solo Leveling)
 // "Le Système" impose des défis. Échec = conséquences.
 // ═══════════════════════════════════════════════════════════════════════
 

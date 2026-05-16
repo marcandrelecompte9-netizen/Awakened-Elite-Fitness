@@ -1,4 +1,4 @@
-// FitPro Elite — Main Application
+// Awakened — Main Application
 
 // Exercise Database with 200+ exercises
         // exerciseDatabase loaded from exercises.js
@@ -7627,7 +7627,7 @@
                 allData['_backupMeta'] = JSON.stringify({
                     version: '2.0',
                     date: new Date().toISOString(),
-                    appName: 'FitPro Elite',
+                    appName: 'Awakened',
                     keys: Object.keys(allData).length,
                     sizeMB: (totalBytes / 1024 / 1024).toFixed(2)
                 });
@@ -7637,7 +7637,7 @@
                 const url      = URL.createObjectURL(dataBlob);
                 const link     = document.createElement('a');
                 link.href      = url;
-                link.download  = `FitProElite-Backup-${new Date().toISOString().split('T')[0]}.json`;
+                link.download  = `Awakened-Backup-${new Date().toISOString().split('T')[0]}.json`;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
@@ -15054,6 +15054,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 setTimeout(updateWeightUnitLabels, 200); // ✅ Colorer les boutons unité
                 setTimeout(loadAvailableWeightsUI, 250); // ✅ Charger les poids disponibles
                 setTimeout(initGlobalRestUI, 280); // ✅ Init repos global
+                setTimeout(initHunterMode, 100); // ✅ Sync toggle Mode Chasseur
                 // Update current profile name in settings
                 const profile = getUserProfile();
                 const profileNameElement = document.getElementById('currentProfileNameSettings');
@@ -15541,7 +15542,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             }).join('');
 
             const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
-            <title>FitPro — Historique</title>
+            <title>Awakened — Historique</title>
             <style>
                 body { font-family: Arial, sans-serif; padding: 24px; color: #1e293b; }
                 h1 { color: #16a34a; }
@@ -15556,7 +15557,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 tr:nth-child(even) td { background: #f8fafc; }
                 @media print { body { padding: 10px; } }
             </style></head><body>
-            <h1>💪 FitPro — Historique des séances</h1>
+            <h1>💪 Awakened — Historique des séances</h1>
             <div class="meta">Exporté le ${now} · ${history.length} séances au total</div>
             <div class="stats">
                 <div class="stat"><div class="stat-val">${stats.workouts || 0}</div><div class="stat-lbl">Séances</div></div>
@@ -15574,7 +15575,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const url  = URL.createObjectURL(blob);
             const a    = document.createElement('a');
             a.href = url;
-            a.download = `fitpro-historique-${new Date().toISOString().slice(0,10)}.html`;
+            a.download = `awakened-historique-${new Date().toISOString().slice(0,10)}.html`;
             a.click();
             URL.revokeObjectURL(url);
             showToast('📄 Export téléchargé !', 'success', 2500);
@@ -16251,9 +16252,14 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 const difficultyClass = `difficulty-${exercise.difficulty.toLowerCase().replace('é', 'e')}`;
                 const svgStart = getExerciseVisual(exercise.name, exercise.muscle, 'start');
                 const svgEnd = getExerciseVisual(exercise.name, exercise.muscle, 'end');
+                const _hasImg = typeof hasExerciseImage === 'function' && hasExerciseImage(exercise.name);
                 
                 card.innerHTML = `
                     <div class="exercise-image">
+                        ${_hasImg ? `
+                        <div style="width:100%;height:100%;position:relative;">
+                            <img src="${EXERCISE_IMAGES[exercise.name]}" alt="${exercise.name}" style="width:100%;height:100%;object-fit:cover;display:block;" loading="lazy"/>
+                        </div>` : `
                         <div class="exercise-animation">
                             <div class="exercise-svg-container">
                                 ${svgStart}
@@ -16264,7 +16270,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                                 ${svgEnd}
                                 <div class="position-label position-end">Fin</div>
                             </div>
-                        </div>
+                        </div>`}
                         <!-- Favorite button (top-right) -->
                         <button class="favorite-btn" 
                                 onclick="toggleFavorite('${exercise.name.replace(/'/g, "\\'")}'); event.stopPropagation();"
@@ -16446,9 +16452,14 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const difficultyClass = `difficulty-${exercise.difficulty.toLowerCase().replace('é', 'e')}`;
             const svgStart = getExerciseVisual(exercise.name, exercise.muscle, 'start');
             const svgEnd = getExerciseVisual(exercise.name, exercise.muscle, 'end');
+            const _hasImg2 = typeof hasExerciseImage === 'function' && hasExerciseImage(exercise.name);
             
             document.getElementById('modalDifficulty').innerHTML = 
                 `<div class="exercise-image" style="margin: 15px 0; height: 340px; border-radius: 12px;">
+                    ${_hasImg2 ? `
+                    <div style="width:100%;height:100%;position:relative;">
+                        <img src="${EXERCISE_IMAGES[exercise.name]}" alt="${exercise.name}" style="width:100%;height:100%;object-fit:cover;border-radius:12px;display:block;" loading="lazy"/>
+                    </div>` : `
                     <div class="exercise-animation">
                         <div class="exercise-svg-container">
                             ${svgStart}
@@ -16459,7 +16470,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                             ${svgEnd}
                             <div class="position-label position-end">Fin</div>
                         </div>
-                    </div>
+                    </div>`}
                 </div>
                 <div class="difficulty-badge ${difficultyClass}" style="display: inline-block; margin: 10px 0;">${exercise.difficulty}</div>`;
             
@@ -17043,11 +17054,15 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             
             const svgStart = getExerciseVisual(exerciseName, muscleGuess, 'start');
             const svgEnd = getExerciseVisual(exerciseName, muscleGuess, 'end');
+            const _hasImg3 = typeof hasExerciseImage === 'function' && hasExerciseImage(exerciseName);
             
             const imagesDiv = document.createElement('div');
             imagesDiv.className = 'exercise-timer-images';
             imagesDiv.style.cssText = 'display: flex; gap: 20px; align-items: center; justify-content: center; margin: 20px auto; max-width: 700px; width: 100%;';
-            imagesDiv.innerHTML = `
+            imagesDiv.innerHTML = _hasImg3 ? `
+                <div style="width:100%;max-width:500px;border-radius:14px;overflow:hidden;">
+                    <img src="${EXERCISE_IMAGES[exerciseName]}" alt="${exerciseName}" style="width:100%;display:block;border-radius:14px;" loading="lazy"/>
+                </div>` : `
                 <div style="flex: 1; display: flex; flex-direction: column; align-items: center; min-width: 0;">
                     <div style="width: 100%; max-width: 260px; aspect-ratio: 1; opacity: 1;">${svgStart}</div>
                     <span style="font-size: 0.9em; margin-top: 8px; opacity: 0.8; font-weight: 600; color: #4ade80;">▶ Début</span>
@@ -18451,7 +18466,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 <!-- Exercices -->
                 <div style="margin-bottom:18px;">${exLines}</div>
                 <!-- Watermark -->
-                <div style="text-align:center;font-size:0.7em;color:rgba(255,255,255,0.35);margin-bottom:16px;">FitPro Elite · fitpro.app</div>
+                <div style="text-align:center;font-size:0.7em;color:rgba(255,255,255,0.35);margin-bottom:16px;">Awakened · awakened.app</div>
                 <!-- Actions -->
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
                     <button onclick="doShareSummary()" style="background:linear-gradient(135deg,#16a34a,#15803d);color:white;border:none;border-radius:12px;padding:12px;font-weight:700;cursor:pointer;font-size:0.9em;">
@@ -18484,7 +18499,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     return `• ${name}`;
                 }),
                 '',
-                '📱 FitPro Elite'
+                '📱 Awakened'
             ].filter(l => l !== undefined).join('\n');
         }
 
@@ -20216,6 +20231,47 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 if (gTitle) gTitle.textContent = t.title;
                 if (gLevel) gLevel.textContent = profileLevel;
                 if (gXP)    gXP.textContent    = profileXP.toLocaleString();
+            }
+        }
+
+        function toggleHunterMode(enabled) {
+            if (typeof setAdventureEnabled === 'function') setAdventureEnabled(enabled);
+            else localStorage.setItem('fitpro_adventure_enabled', enabled ? 'true' : 'false');
+            const slider  = document.getElementById('hunterModeSlider');
+            const thumb   = document.getElementById('hunterModeThumb');
+            const preview = document.getElementById('hunterModePreview');
+            if (slider)  slider.style.background = enabled ? '#7c3aed' : '#ccc';
+            if (thumb)   thumb.style.transform   = enabled ? 'translateX(24px)' : 'translateX(0)';
+            if (preview) preview.style.display   = enabled ? 'block' : 'none';
+            if (enabled) {
+                const inv = typeof getInventory === 'function' ? getInventory() : [];
+                const countEl = document.getElementById('hunterInvCount');
+                if (countEl) countEl.textContent = inv.length + ' item' + (inv.length !== 1 ? 's' : '') + ' dans l\'inventaire';
+                if (typeof renderAdventureTab === 'function') setTimeout(renderAdventureTab, 100);
+                if (typeof renderGameTab === 'function') setTimeout(renderGameTab, 150);
+                showToast('⚔️ Mode Chasseur activé ! Entraîne-toi pour obtenir des équipements.', 'success', 3500);
+            } else {
+                if (typeof renderAdventureTab === 'function') setTimeout(renderAdventureTab, 100);
+                showToast('Mode Chasseur désactivé.', 'info', 2000);
+            }
+        }
+
+        function initHunterMode() {
+            const enabled = typeof getAdventureEnabled === 'function'
+                ? getAdventureEnabled()
+                : localStorage.getItem('fitpro_adventure_enabled') === 'true';
+            const toggle  = document.getElementById('hunterModeToggle');
+            const slider  = document.getElementById('hunterModeSlider');
+            const thumb   = document.getElementById('hunterModeThumb');
+            const preview = document.getElementById('hunterModePreview');
+            if (toggle)  toggle.checked          = enabled;
+            if (slider)  slider.style.background = enabled ? '#7c3aed' : '#ccc';
+            if (thumb)   thumb.style.transform   = enabled ? 'translateX(24px)' : 'translateX(0)';
+            if (preview) preview.style.display   = enabled ? 'block' : 'none';
+            if (enabled) {
+                const inv = typeof getInventory === 'function' ? getInventory() : [];
+                const countEl = document.getElementById('hunterInvCount');
+                if (countEl) countEl.textContent = inv.length + ' item' + (inv.length !== 1 ? 's' : '') + ' dans l\'inventaire';
             }
         }
 
@@ -22833,7 +22889,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
         // ==================== EASTER EGG: CREDITS ====================
         window.showCredits = function() {
-            return "FitPro Elite — Développé par Marc-André Lecompte 💪";
+            return "Awakened — Développé par Marc-André Lecompte 💪";
         };
         // =============================================================
 
@@ -23400,7 +23456,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         function registerServiceWorker() {
             if (!('serviceWorker' in navigator)) return;
 
-            const CACHE_VER = 'fitpro-v3';
+            const CACHE_VER = 'awakened-v3';
             const swCode = `
 const CACHE = '${CACHE_VER}';
 
@@ -23490,7 +23546,7 @@ self.addEventListener('message', e => {
             // Cacher la bannière si déjà installée
             window.addEventListener('appinstalled', () => {
                 hideInstallBanner();
-                showToast('🎉 FitPro Elite installé sur votre appareil !', 'success', 4000);
+                showToast('🎉 Awakened installé sur votre appareil !', 'success', 4000);
             });
 
             // Sur iOS : pas de beforeinstallprompt — montrer guide manuel
@@ -23949,7 +24005,7 @@ self.addEventListener('message', e => {
 
             const screens = [
                 {
-                    emoji: '🏋️', title: 'Bienvenue dans FitPro Elite',
+                    emoji: '🏋️', title: 'Bienvenue dans Awakened',
                     text: 'Ton coach fitness personnel. Lance une séance IA en 1 tap depuis l\'onglet <strong style="color:#16a34a;">Séances</strong> — l\'IA choisit les exercices selon tes muscles, ton niveau et ton historique.',
                     btn: 'Suivant →'
                 },
@@ -24069,6 +24125,7 @@ self.addEventListener('message', e => {
             checkSmartNotifications();
             loadAdvancedMode();
             setTimeout(initGameMode, 800);
+            setTimeout(initHunterMode, 850);
         renderEquipmentGrid();
             renderMuscleGrid();
             updateHomeMuscleCount(); // Update muscle count on home

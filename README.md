@@ -1,4 +1,4 @@
-# FitPro Elite
+# Awakened
 
 ## Structure du projet
 

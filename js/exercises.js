@@ -1,4 +1,4 @@
-// FitPro Elite — Exercise Database
+// Awakened — Exercise Database
 
 const exerciseDatabase = [
             // PECTORAUX

@@ -2268,7 +2268,36 @@
                 </div>
             </div>
 
-            <!-- Profile Management Section -->
+            <!-- Mode Chasseur (Aventure) -->
+            <div class="card" id="hunterModeCard">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                    <div>
+                        <h2 style="color:#7c3aed;margin:0 0 4px;">⚔️ Mode Chasseur</h2>
+                        <p style="margin:0;color:#666;font-size:0.88em;">Reçois des équipements en t'entraînant, gère ton inventaire et bâtis ton chasseur.</p>
+                    </div>
+                    <label style="position:relative;display:inline-block;width:52px;height:28px;flex-shrink:0;margin-left:14px;">
+                        <input type="checkbox" id="hunterModeToggle" onchange="toggleHunterMode(this.checked)"
+                               style="opacity:0;width:0;height:0;position:absolute;">
+                        <span id="hunterModeSlider" style="position:absolute;cursor:pointer;inset:0;background:#ccc;border-radius:28px;transition:0.3s;">
+                            <span style="position:absolute;height:22px;width:22px;left:3px;bottom:3px;background:white;border-radius:50%;transition:0.3s;display:block;" id="hunterModeThumb"></span>
+                        </span>
+                    </label>
+                </div>
+                <div id="hunterModePreview" style="display:none;background:linear-gradient(160deg,#0a001a,#00081a);border-radius:12px;padding:14px;color:white;">
+                    <div style="font-size:0.8em;opacity:0.75;margin-bottom:6px;">Drops d'équipement · max 2/jour</div>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div style="font-size:2em;">🎒</div>
+                        <div>
+                            <div style="font-weight:800;font-size:1em;" id="hunterInvCount">0 item(s) dans l'inventaire</div>
+                            <div style="font-size:0.78em;opacity:0.7;">Entraîne-toi pour obtenir des équipements</div>
+                        </div>
+                    </div>
+                    <button onclick="switchTab('game')"
+                            style="margin-top:10px;width:100%;padding:8px;background:rgba(124,58,237,0.2);border:1px solid rgba(124,58,237,0.4);border-radius:10px;color:white;font-size:0.85em;font-weight:700;cursor:pointer;">
+                        ⚔️ Voir mon équipement →
+                    </button>
+                </div>
+            </div>
             <div class="card">
                 <h2 style="color: #16a34a; margin-bottom: 20px;">👥 Gestion des Profils</h2>
                 <p style="color: #666; margin-bottom: 20px;">

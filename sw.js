@@ -1,7 +1,7 @@
-// FitPro Elite — Service Worker
+// Awakened — Service Worker
 // Enables offline support and PWA installation
 
-const CACHE_NAME = 'fitpro-v1';
+const CACHE_NAME = 'awakened-v1';
 const ASSETS = [
   '/',
   '/index.html',
