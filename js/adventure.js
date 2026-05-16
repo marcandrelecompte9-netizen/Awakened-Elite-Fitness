@@ -55,16 +55,132 @@ function getRarityInfo(id) { return RARITIES[id] || RARITIES.common; }
 function getSetById(id) { return EQUIPMENT_SETS[id] || null; }
 
 // ── EQUIP ────────────────────────────────────────────────────────────────
+// ── Rang chasseur et rang item sur la même échelle ────────────────────
+// Chasseur : E=0, D=1, C=2, B=3, A=4, S=5
+// Items    : common→E(0), rare→C(2), epic→A(4), legendary→S(5)
+// Règle    : item_rank <= hunter_rank + 2
+function getHunterRankIndex() {
+    const rpgData = (typeof rpgLoad === 'function') ? rpgLoad() : {};
+    const totalXP = Object.values(rpgData.muscles || {}).reduce((s,m) => s + (m.xp||0), 0);
+    const level   = (typeof rpgLevelFromXP === 'function') ? rpgLevelFromXP(totalXP) : 1;
+    // Correspond exactement aux RPG_RANKS : E=0, D=1, C=2, B=3, A=4, S=5, SS=6, SSS=7, National=8
+    return level < 6  ? 0 :
+           level < 11 ? 1 :
+           level < 16 ? 2 :
+           level < 21 ? 3 :
+           level < 26 ? 4 :
+           level < 31 ? 5 :
+           level < 36 ? 6 :
+           level < 41 ? 7 : 8;
+}
+
+function getItemRankValue(rarity) {
+    return { common: 0, rare: 2, epic: 4, legendary: 5 }[rarity] || 0;
+}
+
+// Niveau de muscle minimum requis par rareté
+const MUSCLE_LEVEL_REQ = { common: 1, rare: 5, epic: 12, legendary: 25 };
+
+// Noms de muscles français → clés dans rpgLoad().muscles
+const MUSCLE_FR_MAP = {
+    'Pectoraux':'Pectoraux','Dos':'Dos','Quadriceps':'Quadriceps','Fessiers':'Fessiers',
+    'Abdominaux':'Abdominaux','Épaules':'Épaules','Biceps':'Biceps','Triceps':'Triceps',
+    'Ischio-jambiers':'Ischio-jambiers','Mollets':'Mollets','Trapèzes':'Trapèzes',
+    'Avant-bras':'Avant-bras','Obliques':'Obliques','Cardio':'Cardio',
+};
+
+function getMuscleLevel(muscleName) {
+    if (typeof rpgLoad !== 'function' || typeof rpgLevelFromXP !== 'function') return 1;
+    const rpgData = rpgLoad();
+    const muscles = rpgData.muscles || {};
+
+    if (muscleName === 'Corps entier') {
+        // Utiliser le niveau du muscle le plus haut
+        const levels = Object.values(muscles).map(m => rpgLevelFromXP(m.xp || 0));
+        return levels.length ? Math.max(...levels) : 1;
+    }
+
+    const key = MUSCLE_FR_MAP[muscleName] || muscleName;
+    const m = muscles[key];
+    return m ? rpgLevelFromXP(m.xp || 0) : 0;
+}
+
+function canEquipItem(item) {
+    // Condition 1 : rang du chasseur
+    const hunterRank = getHunterRankIndex();
+    const itemRank   = getItemRankValue(item.rarity);
+    if (itemRank > hunterRank + 2) return false;
+
+    // Condition 2 : niveau du muscle lié
+    const reqLevel    = MUSCLE_LEVEL_REQ[item.rarity] || 1;
+    const muscleLevel = getMuscleLevel(item.muscle);
+    if (muscleLevel < reqLevel) return false;
+
+    return true;
+}
+
+// Retourne les détails du blocage (null si équipable)
+function getEquipBlockReason(item) {
+    const hunterRankIndex = getHunterRankIndex();
+    const itemRank        = getItemRankValue(item.rarity);
+    const hunterNames     = ['E','D','C','B','A','S','SS','SSS','National'];
+
+    if (itemRank > hunterRankIndex + 2) {
+        const minHunterRank = Math.max(0, itemRank - 2);
+        return {
+            reason: 'rank_too_low',
+            label:  `Rang chasseur ${hunterNames[minHunterRank]} requis`,
+            detail: `Ton rang : ${hunterNames[hunterRankIndex]} · Requis : ${hunterNames[minHunterRank]}`,
+        };
+    }
+
+    const reqLevel    = MUSCLE_LEVEL_REQ[item.rarity] || 1;
+    const muscleLevel = getMuscleLevel(item.muscle);
+    if (muscleLevel < reqLevel) {
+        const muscleName = item.muscle === 'Corps entier' ? 'ton meilleur muscle' : item.muscle;
+        return {
+            reason: 'muscle_too_weak',
+            label:  `${muscleName} niv. ${reqLevel} requis`,
+            detail: `${muscleName} : niv. ${muscleLevel} · Requis : niv. ${reqLevel}`,
+        };
+    }
+
+    return null;
+}
+
+function getItemRankValue(rarity) {
+    // Rang minimum d'item sur l'échelle 0-8 (E=0, D=1, C=2, B=3, A=4, S=5, SS=6, SSS=7, National=8)
+    return { common: 0, rare: 2, epic: 5, legendary: 7 }[rarity] || 0;
+}
+
+function getRequiredRankLabel(rarity) {
+    const itemRank = getItemRankValue(rarity);
+    const minHunterRank = Math.max(0, itemRank - 2);
+    return ['E','D','C','B','A','S','SS','SSS','National'][minHunterRank] || 'E';
+}
+
 function equipItem(invId) {
     const inv = getInventory();
     const entry = inv.find(e => e.id === invId);
-    if (!entry) return false;
+    if (!entry) return { success: false, reason: 'Item introuvable' };
     const item = getItemById(entry.itemId);
-    if (!item) return false;
+    if (!item) return { success: false, reason: 'Item invalide' };
+
+    const block = getEquipBlockReason(item);
+    if (block) {
+        return {
+            success:   false,
+            reason:    block.reason,
+            label:     block.label,
+            detail:    block.detail,
+            itemName:  item.name,
+        };
+    }
+
     const eq = getEquipped();
     eq[item.slot] = invId;
     saveEquipped(eq);
-    return true;
+    return { success: true };
 }
 function unequipSlot(slot) { const eq = getEquipped(); eq[slot] = null; saveEquipped(eq); }
 function getEquippedItems() {
@@ -93,7 +209,7 @@ function getSetBonuses() {
 }
 function getPlayerEquipStats() {
     const eqItems = getEquippedItems(), setBonuses = getSetBonuses();
-    const stats = { strength:0, agility:0, endurance:0, vitality:0 };
+    const stats = { STR:0, AGI:0, VIT:0, END:0, PER:0, SEN:0 };
     for (const item of Object.values(eqItems)) {
         if (!item) continue;
         for (const [s,v] of Object.entries(item.stats||{})) stats[s] = (stats[s]||0)+v;
@@ -105,24 +221,100 @@ function getPlayerEquipStats() {
 }
 
 // ── DROP SYSTEM ──────────────────────────────────────────────────────────
-function tryEquipmentDrop(muscle) {
+function tryEquipmentDrop(muscle, workoutQuality) {
     if (!getAdventureEnabled()) return null;
     const daily = getDailyDrops();
     if (daily.count >= MAX_DROPS_PER_DAY) return null;
-    if (Math.random() > 0.65) return null;
+
+    // ── Qualité de l'entraînement (0 à 1) ────────────────────────────
+    // workoutQuality = { exerciseCount, durationSeconds, skipRatio }
+    const wq = workoutQuality || {};
+    const exCount    = Math.max(1, wq.exerciseCount || 1);
+    const durationS  = Math.max(0, wq.durationSeconds || 0);
+    const skipRatio  = Math.min(1, Math.max(0, wq.skipRatio || 0)); // 0 = aucun skip, 1 = tout skipé
+
+    // Score basé sur le nombre d'exercices (1 ex = très faible, 8+ = max)
+    const exScore = Math.min(1, (exCount - 1) / 7);
+
+    // Score basé sur la durée (< 5min = très faible, 30min+ = max)
+    const durationScore = Math.min(1, durationS / (30 * 60));
+
+    // Malus de skip (0 = aucun malus, 1 = -70%)
+    const skipMalus = 1 - (skipRatio * 0.70);
+
+    // Score qualité final (0 à 1)
+    const qualityScore = ((exScore * 0.4) + (durationScore * 0.6)) * skipMalus;
+
+    // Chance de base qu'un drop se produise selon la qualité
+    // 1 exercice: ~10%, entraînement complet: ~75%
+    const baseDrop = 0.10 + (qualityScore * 0.65);
+    if (Math.random() > baseDrop) return null;
+
+    // ── Rang du chasseur ──────────────────────────────────────────────
+    const rpgData = (typeof rpgLoad === 'function') ? rpgLoad() : {};
+    const totalXP = Object.values(rpgData.muscles || {}).reduce((s,m) => s + (m.xp||0), 0);
+    const hunterLevel = (typeof rpgLevelFromXP === 'function') ? rpgLevelFromXP(totalXP) : 1;
+
+    // 0=E(1-5), 1=D(6-10), 2=C(11-15), 3=B(16-20), 4=A(21-25), 5=S(26-30), 6=SS(31-35), 7=SSS(36-40), 8=National(41+)
+    const hunterRankIndex = hunterLevel < 6  ? 0 :
+                            hunterLevel < 11 ? 1 :
+                            hunterLevel < 16 ? 2 :
+                            hunterLevel < 21 ? 3 :
+                            hunterLevel < 26 ? 4 :
+                            hunterLevel < 31 ? 5 :
+                            hunterLevel < 36 ? 6 :
+                            hunterLevel < 41 ? 7 : 8;
+
+    // ── Table de probabilités par rang ────────────────────────────────
+    // [common, rare, epic, legendary]
+    const rankTables = [
+    //  [common, rare,  epic,  legendary]
+        [0.94,   0.06,  0.00,  0.00],  // E  (1-5)
+        [0.84,   0.15,  0.01,  0.00],  // D  (6-10)
+        [0.70,   0.24,  0.06,  0.00],  // C  (11-15)
+        [0.55,   0.30,  0.14,  0.01],  // B  (16-20)
+        [0.40,   0.34,  0.22,  0.04],  // A  (21-25)
+        [0.28,   0.36,  0.28,  0.08],  // S  (26-30)
+        [0.18,   0.32,  0.35,  0.15],  // SS (31-35)
+        [0.10,   0.25,  0.40,  0.25],  // SSS(36-40)
+        [0.05,   0.18,  0.42,  0.35],  // National (41+)
+    ];
+
+    // La qualité d'entraînement pousse vers les raretés plus hautes
+    // qualityScore > 0.7 : +1 rang effectif (jusqu'à S)
+    // qualityScore < 0.3 : -1 rang effectif (jusqu'à E)
+    let effectiveRank = hunterRankIndex;
+    if (qualityScore >= 0.75) effectiveRank = Math.min(5, effectiveRank + 1);
+    else if (qualityScore <= 0.25) effectiveRank = Math.max(0, effectiveRank - 1);
+
+    const table = rankTables[effectiveRank];
+
+    // Tirage de la rareté
     const roll = Math.random();
-    let cumul = 0, rarity = 'common';
-    for (const [id,r] of Object.entries(RARITIES)) { cumul += r.dropRate; if (roll <= cumul) { rarity = id; break; } }
-    const candidates = EQUIPMENT_DATABASE.filter(i => i.rarity === rarity && (i.muscle === muscle || i.muscle === 'Corps entier'));
+    let cumul = 0;
+    const rarityOrder = ['common', 'rare', 'epic', 'legendary'];
+    let rarity = 'common';
+    for (let i = 0; i < rarityOrder.length; i++) {
+        cumul += table[i];
+        if (roll <= cumul) { rarity = rarityOrder[i]; break; }
+    }
+
+    // ── Sélection de l'item ──────────────────────────────────────────
+    const candidates = EQUIPMENT_DATABASE.filter(i =>
+        i.rarity === rarity && (i.muscle === muscle || i.muscle === 'Corps entier')
+    );
     const pool = candidates.length > 0 ? candidates : EQUIPMENT_DATABASE.filter(i => i.rarity === rarity);
     if (!pool.length) return null;
-    const item = pool[Math.floor(Math.random()*pool.length)];
+
+    const item = pool[Math.floor(Math.random() * pool.length)];
     const inv = getInventory();
-    inv.unshift({ itemId:item.id, obtainedAt:new Date().toISOString(), id:Date.now() });
+    inv.unshift({ itemId: item.id, obtainedAt: new Date().toISOString(), id: Date.now() });
     saveInventory(inv);
     daily.count++;
     saveDailyDrops(daily);
-    return { item, rarity:RARITIES[rarity] };
+
+    // Retourner aussi la qualité pour le modal
+    return { item, rarity: RARITIES[rarity], qualityScore, effectiveRank };
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -156,7 +348,7 @@ function renderHunterCard() {
     const xpPct   = Math.min(100, Math.round(((totalXP-xpLow)/Math.max(1,xpHigh-xpLow))*100));
     const daily   = getDailyDrops();
     const eqStats = getPlayerEquipStats();
-    const rank = level<5?{r:'E',c:'#94a3b8'}:level<15?{r:'D',c:'#22c55e'}:level<30?{r:'C',c:'#3b82f6'}:level<50?{r:'B',c:'#a855f7'}:level<70?{r:'A',c:'#f59e0b'}:{r:'S',c:'#ef4444'};
+    const rank = level<6?{r:'E',c:'#6b7280'}:level<11?{r:'D',c:'#92400e'}:level<16?{r:'C',c:'#15803d'}:level<21?{r:'B',c:'#1d4ed8'}:level<26?{r:'A',c:'#7c3aed'}:level<31?{r:'S',c:'#d97706'}:level<36?{r:'SS',c:'#ea580c'}:level<41?{r:'SSS',c:'#be185d'}:{r:'National',c:'#f59e0b'};
     const stats = [{icon:'⚔️',label:'Force',val:10+eqStats.strength,c:'#ef4444'},{icon:'⚡',label:'Agilité',val:10+eqStats.agility,c:'#f59e0b'},{icon:'💚',label:'Endurance',val:10+eqStats.endurance,c:'#22c55e'},{icon:'💙',label:'Vitalité',val:10+eqStats.vitality,c:'#3b82f6'}];
     const maxS = Math.max(...stats.map(s=>s.val),20);
 
@@ -360,7 +552,7 @@ function renderEquipmentPanel() {
         ">
             <!-- Stat bars -->
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px 14px;margin-bottom:10px;">
-                ${[['⚔️','ATK',eqStats.strength,'#ef4444'],['⚡','AGI',eqStats.agility,'#f59e0b'],['💚','END',eqStats.endurance,'#22c55e'],['💙','VIT',eqStats.vitality,'#3b82f6']].map(([icon,label,val,c])=>`
+                ${[['⚔️','STR',eqStats.STR||0,'#ef4444'],['⚡','AGI',eqStats.AGI||0,'#f59e0b'],['💚','END',eqStats.END||0,'#22c55e'],['💙','VIT',eqStats.VIT||0,'#3b82f6'],['👁️','PER',eqStats.PER||0,'#06b6d4'],['🌀','SEN',eqStats.SEN||0,'#a855f7']].map(([icon,label,val,c])=>`
                 <div style="display:flex;align-items:center;gap:5px;">
                     <span style="font-size:0.7em;">${icon}</span>
                     <span style="font-size:0.58em;color:rgba(6,182,212,0.5);font-weight:700;width:22px;">${label}</span>
@@ -464,7 +656,7 @@ function showItemDetail(itemId, context, invId) {
         <div style="background:#0a0a0a;border-radius:12px;padding:12px;margin-bottom:12px;border:1px solid #1a1a1a;">
             <div style="font-size:0.56em;color:#1e293b;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;">Statistiques</div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
-                ${[['⚔️','Force','strength','#ef4444'],['⚡','Agilité','agility','#f59e0b'],['💚','Endurance','endurance','#22c55e'],['💙','Vitalité','vitality','#3b82f6']].map(([icon,label,key,c])=>`
+                ${[['⚔️','STR','STR','#ef4444'],['⚡','AGI','AGI','#f59e0b'],['💚','END','END','#22c55e'],['💙','VIT','VIT','#3b82f6'],['👁️','PER','PER','#06b6d4'],['🌀','SEN','SEN','#a855f7']].map(([icon,label,key,c])=>`
                 <div style="display:flex;align-items:center;gap:6px;background:#0d0d0d;padding:7px 9px;border-radius:8px;border:1px solid #1a1a1a;">
                     <span style="font-size:0.82em;">${icon}</span>
                     <span style="font-size:0.68em;color:#1e293b;flex:1;">${label}</span>
@@ -476,16 +668,22 @@ function showItemDetail(itemId, context, invId) {
         <div style="font-size:0.7em;color:#1e293b;font-style:italic;text-align:center;margin-bottom:16px;line-height:1.5;">${item.lore}</div>
         ${context==='inventory'&&invId?`<div style="display:flex;gap:8px;">${isEq?
             `<button onclick="unequipSlot('${item.slot}');renderAdventureTab();document.getElementById('itemDetailModal').remove();" style="flex:1;padding:13px;border-radius:13px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.18);color:#f87171;font-weight:700;cursor:pointer;font-size:0.83em;">✕ Déséquiper</button>` :
-            `<button onclick="equipItem(${invId});renderAdventureTab();document.getElementById('itemDetailModal').remove();" style="flex:1;padding:13px;border-radius:13px;background:linear-gradient(135deg,${r.color},${r.color}bb);border:none;color:white;font-weight:800;cursor:pointer;font-size:0.85em;box-shadow:0 4px 14px ${r.glow};">⚔️ Équiper</button>`
+            `<button onclick="tryEquipWithFeedback(${invId},function(){document.getElementById('itemDetailModal')?.remove();});" style="flex:1;padding:13px;border-radius:13px;background:linear-gradient(135deg,${r.color},${r.color}bb);border:none;color:white;font-weight:800;cursor:pointer;font-size:0.85em;box-shadow:0 4px 14px ${r.glow};">⚔️ Équiper</button>`
         }</div>` : `<button onclick="document.getElementById('itemDetailModal').remove();" style="width:100%;padding:12px;border-radius:12px;background:#0a0a0a;border:1px solid #1a1a1a;color:#334155;font-weight:700;cursor:pointer;font-size:0.82em;">Fermer</button>`}
     </div><style>@keyframes slideUpModal{from{transform:translateY(60px);opacity:0}to{transform:translateY(0);opacity:1}}</style>`;
     modal.addEventListener('click', e=>{ if(e.target===modal) modal.remove(); });
     document.body.appendChild(modal);
 }
 
-function showDropModal(item, rarityInfo) {
+function showDropModal(item, rarityInfo, qualityScore) {
     if (!item) return;
     document.getElementById('dropModal')?.remove();
+
+    const qScore = Math.round((qualityScore || 0.5) * 100);
+    const qColor = qScore >= 75 ? '#22c55e' : qScore >= 50 ? '#f59e0b' : '#94a3b8';
+    const qLabel = qScore >= 75 ? '⭐ Excellent' : qScore >= 50 ? '👍 Bon' : qScore >= 25 ? '😐 Faible' : '⚠️ Très faible';
+    const qBars  = Math.round(qScore / 20); // 0 à 5 barres
+
     const modal = document.createElement('div');
     modal.id = 'dropModal';
     modal.style.cssText = 'position:fixed;inset:0;z-index:10001;background:rgba(0,0,0,0.92);display:flex;align-items:center;justify-content:center;padding:20px;';
@@ -494,9 +692,20 @@ function showDropModal(item, rarityInfo) {
         <div style="font-size:4em;margin-bottom:8px;filter:drop-shadow(0 0 18px ${rarityInfo.glow});animation:iconBounce 0.6s ease 0.15s both;">${item.icon}</div>
         <div style="font-size:1.1em;font-weight:900;color:white;margin-bottom:4px;">${item.name}</div>
         <div style="font-size:0.68em;padding:2px 10px;border-radius:99px;background:${rarityInfo.bg};color:${rarityInfo.color};border:1px solid ${rarityInfo.color}38;display:inline-block;margin-bottom:10px;font-weight:800;">${rarityInfo.labelFull}</div>
-        <div style="font-size:0.75em;color:#334155;margin-bottom:16px;line-height:1.5;">${item.description}</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:16px;">
-            ${[['⚔️','Force','strength','#ef4444'],['⚡','Agi.','agility','#f59e0b'],['💚','End.','endurance','#22c55e'],['💙','Vita.','vitality','#3b82f6']].map(([icon,label,key,c])=>`<div style="background:#111;border-radius:7px;padding:5px;border:1px solid #1a1a1a;"><span style="font-size:0.72em;">${icon}</span><span style="font-size:0.62em;color:#1e293b;"> ${label} </span><span style="font-size:0.75em;font-weight:800;color:${c};">+${item.stats[key]||0}</span></div>`).join('')}
+        <div style="font-size:0.75em;color:#334155;margin-bottom:8px;line-height:1.5;">${item.description}</div>
+        ${item.passive ? `<div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.18);border-radius:8px;padding:7px 10px;margin-bottom:10px;"><span style="font-size:0.62em;color:#22c55e;font-weight:700;text-transform:uppercase;letter-spacing:1px;">⚡ Passif</span><div style="font-size:0.7em;color:#4ade80;margin-top:2px;line-height:1.4;">${item.passive}</div></div>` : ''}
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:12px;">
+            ${[['⚔️','STR','STR','#ef4444'],['⚡','AGI','AGI','#f59e0b'],['💚','END','END','#22c55e'],['💙','VIT','VIT','#3b82f6'],['👁️','PER','PER','#06b6d4'],['🌀','SEN','SEN','#a855f7']].map(([icon,label,key,c])=>`<div style="background:#111;border-radius:7px;padding:5px;border:1px solid #1a1a1a;"><span style="font-size:0.72em;">${icon}</span><span style="font-size:0.62em;color:#1e293b;"> ${label} </span><span style="font-size:0.75em;font-weight:800;color:${c};">+${item.stats[key]||0}</span></div>`).join('')}
+        </div>
+        <!-- Qualité de l'entraînement -->
+        <div style="background:#111;border:1px solid #1a1a1a;border-radius:12px;padding:10px 12px;margin-bottom:14px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+                <span style="font-size:0.65em;color:#334155;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Qualité séance</span>
+                <span style="font-size:0.7em;color:${qColor};font-weight:800;">${qLabel}</span>
+            </div>
+            <div style="display:flex;gap:3px;">
+                ${Array.from({length:5}, (_,i) => `<div style="flex:1;height:5px;border-radius:99px;background:${i < qBars ? qColor : '#1e293b'};"></div>`).join('')}
+            </div>
         </div>
         <button onclick="document.getElementById('dropModal').remove();renderAdventureTab();" style="width:100%;padding:13px;border-radius:13px;border:none;cursor:pointer;background:linear-gradient(135deg,${rarityInfo.color},${rarityInfo.color}bb);color:white;font-size:0.9em;font-weight:800;box-shadow:0 4px 18px ${rarityInfo.glow};">🎒 Ajouter à l'inventaire</button>
     </div><style>@keyframes dropPop{from{transform:scale(0.7);opacity:0}to{transform:scale(1);opacity:1}}@keyframes iconBounce{0%{transform:scale(0)}60%{transform:scale(1.2)}100%{transform:scale(1)}}</style>`;
@@ -563,7 +772,7 @@ function showRPGEquipmentModal(defaultTab) {
         const eq = getEquipped();
         const eqItems = getEquippedItems();
         const st = getPlayerEquipStats();
-        const baseSt = { strength: 10, agility: 10, endurance: 10, vitality: 10 };
+        const baseSt = { STR: 10, AGI: 10, VIT: 10, END: 10, PER: 5, SEN: 5 };
         const gearScore = Object.values(eqItems).reduce((s, item) => {
             if (!item) return s;
             return s + Object.values(item.stats || {}).reduce((a, b) => a + b, 0);
@@ -633,10 +842,12 @@ function showRPGEquipmentModal(defaultTab) {
                 <!-- Titre section stats -->
                 <div style="background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.2);border-radius:10px;padding:10px 12px;">
                     <div style="font-size:0.52em;color:rgba(6,182,212,0.5);font-weight:800;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">◈ Statistiques</div>
-                    ${statBar('⚔️','Attaque', baseSt.strength + st.strength, '#ef4444')}
-                    ${statBar('🛡️','Défense', baseSt.vitality + st.vitality, '#3b82f6')}
-                    ${statBar('⚡','Agilité', baseSt.agility + st.agility, '#f59e0b')}
-                    ${statBar('💚','Endurance', baseSt.endurance + st.endurance, '#22c55e')}
+                    ${statBar('⚔️','STR', baseSt.STR + (st.STR||0), '#ef4444')}
+                    ${statBar('⚡','AGI', baseSt.AGI + (st.AGI||0), '#f59e0b')}
+                    ${statBar('💚','END', baseSt.END + (st.END||0), '#22c55e')}
+                    ${statBar('💙','VIT', baseSt.VIT + (st.VIT||0), '#3b82f6')}
+                    ${statBar('👁️','PER', baseSt.PER + (st.PER||0), '#06b6d4')}
+                    ${statBar('🌀','SEN', baseSt.SEN + (st.SEN||0), '#a855f7')}
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:8px;border-top:1px solid rgba(6,182,212,0.1);">
                         <span style="font-size:0.55em;color:rgba(245,158,11,0.7);font-weight:700;text-transform:uppercase;letter-spacing:1.5px;">Gear Score</span>
                         <span style="font-size:0.9em;font-weight:900;color:#fbbf24;">${gearScore}</span>
@@ -690,13 +901,23 @@ function showRPGEquipmentModal(defaultTab) {
                     ${items.map(({entry, item}) => {
                         const isEq = eqIds.has(entry.id);
                         const r2 = getRarityInfo(item.rarity);
+                        const block = !isEq ? getEquipBlockReason(item) : null;
+                        const locked = !!block;
+                        const lockLabel = locked ? (block.reason === 'muscle_too_weak'
+                            ? `💪 ${block.label}`
+                            : `🔒 ${block.label}`)
+                            : '';
                         return `<div onclick="window._rpgInvSelectItem('${item.id}',${entry.id})" style="
-                            background:${r2.bg};border:1.5px solid ${isEq ? r2.color : r2.color+'28'};
+                            background:${locked ? 'rgba(0,0,0,0.5)' : r2.bg};
+                            border:1.5px solid ${isEq ? r2.color : locked ? 'rgba(255,255,255,0.05)' : r2.color+'28'};
                             border-radius:10px;padding:8px 5px;cursor:pointer;text-align:center;
-                            box-shadow:${isEq ? `0 0 8px ${r2.glow}` : 'none'};position:relative;">
+                            box-shadow:${isEq ? `0 0 8px ${r2.glow}` : 'none'};position:relative;
+                            opacity:${locked ? '0.55' : '1'};">
                             ${isEq ? `<div style="position:absolute;top:2px;right:3px;font-size:0.42em;color:${r2.color};font-weight:900;">ON</div>` : ''}
-                            <div style="font-size:1.6em;margin-bottom:2px;">${item.icon}</div>
-                            <div style="font-size:0.5em;font-weight:700;color:${r2.color};line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">${item.name}</div>
+                            ${locked ? `<div style="position:absolute;top:1px;left:2px;font-size:0.48em;">${block.reason==='muscle_too_weak'?'💪':'🔒'}</div>` : ''}
+                            <div style="font-size:1.6em;margin-bottom:2px;${locked?'filter:grayscale(0.7);':''}">${item.icon}</div>
+                            <div style="font-size:0.5em;font-weight:700;color:${locked ? '#334155' : r2.color};line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">${item.name}</div>
+                            ${locked ? `<div style="font-size:0.42em;color:#ef4444;font-weight:700;margin-top:2px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">${lockLabel}</div>` : ''}
                         </div>`;
                     }).join('')}
                 </div>
@@ -728,7 +949,7 @@ function showRPGEquipmentModal(defaultTab) {
             </div>
             <div style="font-size:0.62em;color:#334155;margin-bottom:8px;line-height:1.5;">${item.description}</div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:8px;">
-                ${[['⚔️','Force','strength','#ef4444'],['⚡','Agilité','agility','#f59e0b'],['💚','Endurance','endurance','#22c55e'],['💙','Vitalité','vitality','#3b82f6']].map(([icon,label,key,c])=>`
+                ${[['⚔️','STR','STR','#ef4444'],['⚡','AGI','AGI','#f59e0b'],['💚','END','END','#22c55e'],['💙','VIT','VIT','#3b82f6'],['👁️','PER','PER','#06b6d4'],['🌀','SEN','SEN','#a855f7']].map(([icon,label,key,c])=>`
                 <div style="display:flex;align-items:center;gap:4px;background:rgba(0,0,0,0.3);padding:4px 6px;border-radius:7px;border:1px solid #1a2535;">
                     <span style="font-size:0.7em;">${icon}</span>
                     <span style="font-size:0.58em;color:#334155;flex:1;">${label}</span>
@@ -740,7 +961,7 @@ function showRPGEquipmentModal(defaultTab) {
             <div style="display:flex;gap:6px;margin-top:4px;">
                 ${isEq
                     ? `<button onclick="unequipSlot('${item.slot}');window._rpgRefreshEquipView();document.getElementById('rpgEqItemDetail') && window._rpgRefreshDetail(null,null,null);" style="flex:1;padding:8px;border-radius:10px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#f87171;font-weight:700;cursor:pointer;font-size:0.72em;">✕ Déséquiper</button>`
-                    : `<button onclick="equipItem(${invId});window._rpgRefreshEquipView();window._rpgRefreshDetail('${itemId}','inventory',${invId});" style="flex:1;padding:8px;border-radius:10px;background:linear-gradient(135deg,${r.color},${r.color}aa);border:none;color:white;font-weight:800;cursor:pointer;font-size:0.72em;box-shadow:0 2px 10px ${r.glow};">⚔️ Équiper</button>`
+                    : `<button onclick="tryEquipWithFeedback(${invId});" style="flex:1;padding:8px;border-radius:10px;background:linear-gradient(135deg,${r.color},${r.color}aa);border:none;color:white;font-weight:800;cursor:pointer;font-size:0.72em;box-shadow:0 2px 10px ${r.glow};">⚔️ Équiper</button>`
                 }
             </div>` : ''}`;
         selectedInvId = invId;
@@ -873,7 +1094,7 @@ function showRPGEquipmentModal(defaultTab) {
             </div>
             <div style="font-size:0.78em;color:#475569;margin-bottom:12px;line-height:1.6;">${item.description}</div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:12px;">
-                ${[['⚔️','Force','strength','#ef4444'],['⚡','Agilité','agility','#f59e0b'],['💚','Endurance','endurance','#22c55e'],['💙','Vitalité','vitality','#3b82f6']].map(([icon,label,key,c])=>`
+                ${[['⚔️','STR','STR','#ef4444'],['⚡','AGI','AGI','#f59e0b'],['💚','END','END','#22c55e'],['💙','VIT','VIT','#3b82f6'],['👁️','PER','PER','#06b6d4'],['🌀','SEN','SEN','#a855f7']].map(([icon,label,key,c])=>`
                 <div style="display:flex;align-items:center;gap:6px;background:rgba(0,0,0,0.4);padding:7px 9px;border-radius:9px;border:1px solid #1a2535;">
                     <span style="font-size:0.85em;">${icon}</span>
                     <span style="font-size:0.68em;color:#1e293b;flex:1;">${label}</span>
@@ -889,7 +1110,7 @@ function showRPGEquipmentModal(defaultTab) {
                 ${context === 'inventory' && invId != null
                     ? (isEq
                         ? `<button onclick="unequipSlot('${item.slot}');window._rpgRefreshEquipView();document.getElementById('rpgItemDetailSheet').remove();" style="flex:1;padding:13px;border-radius:13px;background:rgba(239,68,68,0.09);border:1px solid rgba(239,68,68,0.2);color:#f87171;font-weight:700;cursor:pointer;font-size:0.83em;">✕ Déséquiper</button>`
-                        : `<button onclick="equipItem(${invId});window._rpgRefreshEquipView();document.getElementById('rpgItemDetailSheet').remove();" style="flex:1;padding:13px;border-radius:13px;background:linear-gradient(135deg,${r.color},${r.color}bb);border:none;color:white;font-weight:800;cursor:pointer;font-size:0.85em;box-shadow:0 4px 16px ${r.glow};">⚔️ Équiper</button>`)
+                        : `<button onclick="tryEquipWithFeedback(${invId},function(){document.getElementById('rpgItemDetailSheet')?.remove();});" style="flex:1;padding:13px;border-radius:13px;background:linear-gradient(135deg,${r.color},${r.color}bb);border:none;color:white;font-weight:800;cursor:pointer;font-size:0.85em;box-shadow:0 4px 16px ${r.glow};">⚔️ Équiper</button>`)
                     : `<button onclick="document.getElementById('rpgItemDetailSheet').remove();" style="flex:1;padding:13px;border-radius:13px;background:#0a1525;border:1px solid #1a2535;color:#475569;font-weight:700;cursor:pointer;font-size:0.82em;">Fermer</button>`
                 }
             </div>
@@ -917,6 +1138,45 @@ window.getItemById           = getItemById;
 window.getRarityInfo         = getRarityInfo;
 window.getSetById            = getSetById;
 window.equipItem             = equipItem;
+window.canEquipItem          = canEquipItem;
+window.getHunterRankIndex    = getHunterRankIndex;
+window.getItemRankValue      = getItemRankValue;
+window.getRequiredRankLabel  = getRequiredRankLabel;
+
+// Handler global avec feedback visuel — à utiliser partout à la place de equipItem()
+window.tryEquipWithFeedback = function(invId, onSuccess) {
+    const result = equipItem(invId);
+    if (result.success) {
+        if (typeof onSuccess === 'function') onSuccess();
+        if (typeof renderAdventureTab === 'function') renderAdventureTab();
+        if (typeof window._rpgRefreshEquipView === 'function') window._rpgRefreshEquipView();
+    } else if (result.reason === 'rank_too_low' || result.reason === 'muscle_too_weak') {
+        const isMuscle = result.reason === 'muscle_too_weak';
+        document.getElementById('rankBlockModal')?.remove();
+        const m = document.createElement('div');
+        m.id = 'rankBlockModal';
+        m.style.cssText = 'position:fixed;inset:0;z-index:10200;background:rgba(0,0,0,0.88);display:flex;align-items:center;justify-content:center;padding:20px;';
+        m.innerHTML = `<div style="width:100%;max-width:300px;background:#0d0d0d;border-radius:20px;padding:24px 20px;text-align:center;border:2px solid rgba(239,68,68,0.5);box-shadow:0 0 40px rgba(239,68,68,0.12);animation:dropPop 0.3s ease;">
+            <div style="font-size:2.5em;margin-bottom:10px;">${isMuscle ? '💪' : '🔒'}</div>
+            <div style="font-size:0.58em;color:rgba(239,68,68,0.7);font-weight:800;text-transform:uppercase;letter-spacing:3px;margin-bottom:8px;">
+                ${isMuscle ? 'Muscle trop faible' : 'Rang insuffisant'}
+            </div>
+            <div style="font-size:0.95em;font-weight:800;color:white;margin-bottom:10px;">${result.itemName || ''}</div>
+            <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:12px;padding:12px 14px;margin-bottom:14px;">
+                <div style="font-size:0.78em;font-weight:700;color:#f87171;margin-bottom:4px;">⛔ ${result.label}</div>
+                <div style="font-size:0.7em;color:#475569;line-height:1.6;">${result.detail}</div>
+            </div>
+            <div style="font-size:0.7em;color:#334155;margin-bottom:14px;line-height:1.55;">
+                ${isMuscle
+                    ? 'Entraîne ce groupe musculaire pour augmenter son niveau et déverrouiller cet équipement.'
+                    : 'Continue de t\'entraîner pour augmenter ton rang de chasseur et débloquer cet équipement.'}
+            </div>
+            <button onclick="document.getElementById('rankBlockModal').remove()" style="width:100%;padding:11px;border-radius:12px;border:none;background:rgba(239,68,68,0.15);color:#f87171;font-weight:700;cursor:pointer;font-size:0.85em;">Compris</button>
+        </div>`;
+        m.addEventListener('click', e => { if (e.target === m) m.remove(); });
+        document.body.appendChild(m);
+    }
+};
 window.unequipSlot           = unequipSlot;
 window.getEquippedItems      = getEquippedItems;
 window.getSetBonuses         = getSetBonuses;

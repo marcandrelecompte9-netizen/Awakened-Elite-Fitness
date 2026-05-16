@@ -3735,6 +3735,7 @@
         let timerInterval = null;
         let isPaused = false;
         let workoutStartTime = null;
+        let _workoutSkipCount = 0; // Compteur de skips pour la qualité de drop
         let isMuted    = localStorage.getItem('fitproMuted') === 'true';
         let isVibOff   = localStorage.getItem('fitproVibOff') === 'true';
         let useKg      = localStorage.getItem('fitproUseKg') === 'true'; // false par défaut → lbs
@@ -4745,7 +4746,7 @@
                 // Standard workout flow (intelligent, plan, superset, circuit)
                 currentWorkout = pendingWorkout;
                 currentExerciseIndex = 0;
-                workoutStartTime = Date.now();
+                workoutStartTime = Date.now(); _workoutSkipCount = 0;
                 
                 renderExerciseProgressList();
                 updateMusclesOverview();
@@ -6797,7 +6798,7 @@
                 currentWorkout = workout;
                 currentWorkout.type = 'intelligent';
                 currentExerciseIndex = 0;
-                workoutStartTime = Date.now();
+                workoutStartTime = Date.now(); _workoutSkipCount = 0;
                 
                 // Afficher le badge de séance intelligente
                 const badge = document.getElementById('workoutTypeBadge');
@@ -16477,7 +16478,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             currentWorkout.type = 'predefined';
             currentWorkout.programType = type;
             currentExerciseIndex = 0;
-            workoutStartTime = Date.now();
+            workoutStartTime = Date.now(); _workoutSkipCount = 0;
             
             // Afficher le badge de programme
             const badge = document.getElementById('workoutTypeBadge');
@@ -18172,6 +18173,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         }
 
         function skipExercise() {
+            // Compter le skip pour la qualité de drop (si vrai exercice)
+            const _curEx = currentWorkout?.exercises?.[currentExerciseIndex];
+            if (_curEx && !_curEx.isRest && !_curEx.isInfo) _workoutSkipCount++;
+
             // Nettoyer le timer de repos inter-séries si actif
             if (setRestInterval) { clearInterval(setRestInterval); setRestInterval = null; }
             hideGlobalRestBanner();
@@ -18696,87 +18701,24 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const cardRank = document.createElement('div');
             cardRank.className = 'card';
             cardRank.style.cssText = `background:linear-gradient(135deg,#0D0D0D,#111318);border:1.5px solid ${rank.color}44;`;
-            const rankPct = nextRank ? Math.round((profileXP-rank.xpMin)/(nextRank.xpMin-rank.xpMin)*100) : 100;
+            const rankPct = nextRank ? Math.round((profileLevel - rank.levelMin) / (nextRank.levelMin - rank.levelMin) * 100) : 100;
             cardRank.innerHTML = `
                 <div style="display:flex;align-items:center;justify-content:space-between;">
                     <div>
                         <div style="font-size:0.65em;color:rgba(255,255,255,0.4);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Rang actuel</div>
                         <div style="font-size:2.6em;font-weight:900;color:${rank.color};line-height:1;">${rank.emoji} ${rank.id}</div>
-                        ${nextRank ? `<div style="font-size:0.7em;color:rgba(255,255,255,0.4);margin-top:4px;">${(nextRank.xpMin-profileXP).toLocaleString()} XP → rang ${nextRank.id}</div>` : '<div style="font-size:0.7em;color:#fbbf24;margin-top:4px;">⭐ Rang maximum !</div>'}
+                        ${nextRank ? `<div style="font-size:0.7em;color:rgba(255,255,255,0.4);margin-top:4px;">Niv. ${nextRank.levelMin - profileLevel} restant(s) → rang ${nextRank.id}</div>` : '<div style="font-size:0.7em;color:#fbbf24;margin-top:4px;">⭐ Rang maximum !</div>'}
                     </div>
                     <div style="font-size:4em;opacity:0.1;">${rank.emoji}</div>
                 </div>
                 ${nextRank ? `<div style="background:rgba(255,255,255,0.08);border-radius:99px;height:5px;margin-top:10px;overflow:hidden;"><div style="height:100%;background:${rank.color};border-radius:99px;width:${rankPct}%;transition:width 1s ease;"></div></div>` : ''}`;
 
             // ── 3. QUÊTES QUOTIDIENNES ───────────────────────────────
-            const cardDaily = document.createElement('div');
-            cardDaily.className = 'card';
-            const doneDaily = dailyQuests.filter(q=>q.done).length;
-            cardDaily.innerHTML = `
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-                    <h3 style="margin:0;color:#e2e8f0;">⚡ Quêtes du jour</h3>
-                    <span style="font-size:0.72em;background:rgba(245,158,11,0.15);color:#fbbf24;padding:2px 8px;border-radius:99px;font-weight:700;">${doneDaily}/${dailyQuests.length}</span>
-                </div>
-                <div style="font-size:0.72em;color:#6b7280;margin-bottom:10px;">⏰ ${dailyTimeLeft}</div>
-                <div style="display:flex;flex-direction:column;gap:7px;">
-                    ${dailyQuests.map(q => `
-                    <div style="background:${q.done?'rgba(34,197,94,0.1)':'#222328'};border:1.5px solid ${q.done?'rgba(34,197,94,0.4)':'#252830'};border-radius:10px;padding:10px 12px;">
-                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:${q.done?'0':'5px'};">
-                            <span style="font-size:0.85em;font-weight:700;color:${q.done?'#34d399':'#e2e8f0'};">${q.emoji||'⚡'} ${q.done?'✅ ':''}${q.name}</span>
-                            <span style="font-size:0.75em;font-weight:800;color:#4ade80;">+${q.xpReward} XP</span>
-                        </div>
-                        ${!q.done ? `<div style="background:rgba(255,255,255,0.1);border-radius:99px;height:4px;overflow:hidden;"><div style="height:100%;background:linear-gradient(90deg,#fbbf24,#f59e0b);border-radius:99px;width:${Math.round(q.progress/q.target*100)}%;"></div></div><div style="font-size:0.68em;color:#6b7280;margin-top:2px;">${q.progress}/${q.target}</div>` : ''}
-                    </div>`).join('')}
-                </div>`;
-            tab.appendChild(cardDaily);
 
-            // ── 4. QUÊTES HEBDOMADAIRES ──────────────────────────────
-            const cardWeekly = document.createElement('div');
-            cardWeekly.className = 'card';
-            const doneWeekly = quests.filter(q=>q.done).length;
-            cardWeekly.innerHTML = `
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-                    <h3 style="margin:0;color:#e2e8f0;">📜 Quêtes de la semaine</h3>
-                    <span style="font-size:0.72em;background:rgba(22,163,74,0.15);color:#4ade80;padding:2px 8px;border-radius:99px;font-weight:700;">${doneWeekly}/${quests.length}</span>
-                </div>
-                <div style="display:flex;flex-direction:column;gap:8px;">
-                    ${quests.map(q => `
-                    <div style="background:${q.done?'rgba(34,197,94,0.1)':'#222328'};border:1.5px solid ${q.done?'rgba(34,197,94,0.4)':'#252830'};border-radius:12px;padding:12px 14px;">
-                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:${q.done?'0':'6px'};">
-                            <div style="font-weight:700;font-size:0.88em;color:${q.done?'#34d399':'#e2e8f0'};">${q.done?'✅':'🔲'} ${q.name}</div>
-                            <div style="font-size:0.78em;font-weight:800;color:#4ade80;">+${q.xpReward} XP</div>
-                        </div>
-                        ${!q.done ? `<div style="background:rgba(255,255,255,0.1);border-radius:99px;height:5px;overflow:hidden;"><div style="height:100%;background:linear-gradient(90deg,#16a34a,#15803d);border-radius:99px;width:${Math.round(q.progress/q.target*100)}%;"></div></div><div style="font-size:0.7em;color:#6b7280;margin-top:3px;">${q.progress}/${q.target}</div>` : ''}
-                    </div>`).join('')}
-                </div>`;
-            tab.appendChild(cardWeekly);
 
-            // ── 5. BOSS DE LA SEMAINE ────────────────────────────────
-            const cardBoss = document.createElement('div');
-            cardBoss.className = 'card';
-            cardBoss.style.cssText = 'background:linear-gradient(135deg,#450a0a,#7f1d1d);color:white;border:1.5px solid #ef444444;';
-            const bossHPpct = Math.round(bossState.dmgDealt / bossState.boss.hp * 100);
-            cardBoss.innerHTML = `
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-                    <h3 style="margin:0;color:white;">👹 Boss de la semaine</h3>
-                    ${bossState.defeated ? '<span style="font-size:0.72em;background:#22c55e;padding:2px 8px;border-radius:99px;">✅ Vaincu</span>' : ''}
-                </div>
-                <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
-                    <div style="font-size:2.2em;">${bossState.boss.emoji}</div>
-                    <div style="flex:1;">
-                        <div style="font-weight:800;font-size:0.95em;">${bossState.boss.name}</div>
-                        <div style="font-size:0.7em;opacity:0.7;">${bossState.boss.muscles.join(' · ')}</div>
-                    </div>
-                    <div style="text-align:right;">
-                        <div style="font-size:1.1em;font-weight:900;color:#fca5a5;">${bossState.dmgDealt}/${bossState.boss.hp}</div>
-                        <div style="font-size:0.65em;opacity:0.6;">PV infligés</div>
-                    </div>
-                </div>
-                <div style="background:rgba(255,255,255,0.15);border-radius:99px;height:8px;overflow:hidden;margin-bottom:6px;">
-                    <div style="height:100%;background:linear-gradient(90deg,#ef4444,#dc2626);border-radius:99px;width:${bossHPpct}%;transition:width 1s;"></div>
-                </div>
-                <div style="font-size:0.7em;opacity:0.6;">Entraîne ces muscles pour infliger des dégâts ! +${bossState.boss.reward.xp} XP si vaincu.</div>`;
-            tab.appendChild(cardBoss);
+
+
+
 
             // ── 6. CLASSEMENT MUSCLES ────────────────────────────────
             const cardMuscles = document.createElement('div');
@@ -18856,32 +18798,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     }).join('')}
                 </div>`;
 
-            // ── 10. DONJONS ──────────────────────────────────────────
-            const cardDungeons = document.createElement('div');
-            cardDungeons.className = 'card';
-            cardDungeons.innerHTML = `<h3 style="margin:0 0 12px;color:#0F1014;">💠 Donjons</h3>
-                <div style="display:flex;flex-direction:column;gap:10px;">
-                    ${RPG_DUNGEONS.map(d => {
-                        const st = rpgGetDungeonStatus(d.id);
-                        const dc = d.difficulty==='Légendaire'?'#be185d':d.difficulty==='Élite'?'#166534':'#1d4ed8';
-                        return `<div style="background:linear-gradient(135deg,${st.available?'#0D0D0D':'#0D0D0D'},#0F101422);border:1.5px solid ${st.available?dc+'66':'rgba(255,255,255,0.08)'};border-radius:14px;padding:14px;">
-                            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-                                <span style="font-size:1.8em;">${d.emoji}</span>
-                                <div style="flex:1;">
-                                    <div style="font-weight:800;font-size:0.88em;color:white;">${d.name}</div>
-                                    <span style="font-size:0.65em;font-weight:700;color:${dc};background:${dc}22;padding:1px 6px;border-radius:99px;">${d.difficulty}</span>
-                                    <span style="font-size:0.65em;color:#fbbf24;font-weight:700;margin-left:6px;">×${d.xpMult} XP</span>
-                                </div>
-                            </div>
-                            <div style="font-size:0.75em;color:rgba(255,255,255,0.5);margin-bottom:10px;">${d.description}</div>
-                            ${st.available
-                                ? `<button onclick="rpgStartDungeon('${d.id}')" style="width:100%;padding:10px;background:linear-gradient(135deg,${dc},${dc}cc);color:white;border:none;border-radius:10px;font-weight:800;cursor:pointer;font-size:0.82em;touch-action:manipulation;">⚔️ Entrer dans le donjon</button>`
-                                : `<div style="text-align:center;font-size:0.75em;color:rgba(255,255,255,0.3);padding:6px;">⏳ Disponible dans ${Math.ceil(d.cooldownDays-st.daysSince)} jour(s)</div>`
-                            }
-                        </div>`;
-                    }).join('')}
-                </div>`;
-            tab.appendChild(cardDungeons);
+
 
             // ── 11. JOURNAL LEVEL UP ─────────────────────────────────
             let cardLog = null;
@@ -18923,46 +18840,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
 
 
-            // ── 10. OBJECTIF IA PERSONNALISÉ ─────────────────────────
-            const aiObjective = rpgGetAIObjective(data, muscles);
-            const cardAI = document.createElement('div');
-            cardAI.className = 'card';
-            cardAI.style.cssText = 'background:linear-gradient(135deg,#0D0D0D,#111318);border:1.5px solid rgba(6,182,212,0.35);';
-            cardAI.innerHTML = `
-                <div style="display:flex;align-items:flex-start;gap:10px;">
-                    <div style="font-size:1.8em;flex-shrink:0;">🤖</div>
-                    <div>
-                        <div style="font-weight:800;font-size:0.88em;color:#22d3ee;margin-bottom:4px;">Objectif IA du jour</div>
-                        <div style="font-size:0.85em;color:#e2e8f0;line-height:1.5;">${aiObjective.text}</div>
-                        <div style="margin-top:8px;display:inline-block;background:#06b6d4;color:white;padding:3px 10px;border-radius:99px;font-size:0.72em;font-weight:700;">+${aiObjective.xpBonus} XP bonus si complété</div>
-                    </div>
-                </div>`;
-            tab.appendChild(cardAI);
 
-            // ── 11. DÉFI CONTRE SOI-MÊME ─────────────────────────────
-            const selfChallenge = rpgGetSelfChallenge();
-            const cardChallenge = document.createElement('div');
-            cardChallenge.className = 'card';
-            const chColor = selfChallenge.winning ? '#34d399' : '#fbbf24';
-            cardChallenge.innerHTML = `
-                <h3 style="margin:0 0 10px;color:#e2e8f0;">⚔️ Défi contre toi-même</h3>
-                <div style="background:#222328;border-radius:12px;padding:12px;border:1px solid #252830;">
-                    <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;text-align:center;">
-                        <div>
-                            <div style="font-size:0.65em;color:#94a3b8;font-weight:700;text-transform:uppercase;margin-bottom:4px;">Cette semaine</div>
-                            <div style="font-size:1.6em;font-weight:900;color:#4ade80;">${selfChallenge.thisWeek}</div>
-                            <div style="font-size:0.68em;color:#6b7280;">séances</div>
-                        </div>
-                        <div style="font-size:1.2em;">${selfChallenge.winning ? '🏆' : '😤'}</div>
-                        <div>
-                            <div style="font-size:0.65em;color:#94a3b8;font-weight:700;text-transform:uppercase;margin-bottom:4px;">Semaine passée</div>
-                            <div style="font-size:1.6em;font-weight:900;color:#6b7280;">${selfChallenge.lastWeek}</div>
-                            <div style="font-size:0.68em;color:#6b7280;">séances</div>
-                        </div>
-                    </div>
-                    <div style="margin-top:10px;text-align:center;font-size:0.82em;color:${chColor};font-weight:700;">${selfChallenge.message}</div>
-                </div>`;
-            tab.appendChild(cardChallenge);
+
+
 
             // ── 12. SAISON ───────────────────────────────────────────
             const season = rpgGetCurrentSeason();
@@ -19048,14 +18928,15 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         // 🎭 LORE / NARRATION
         // ══════════════════════════════════════════════════════════════
         const RPG_LORE = {
-            'E':  { title:'Les Premiers Pas',      text:'Tu étais un simple mortel, ignorant de ta propre force. Le premier entraînement fut douloureux. Mais tu es revenu.' },
-            'D':  { title:'L\'Éveil',               text:'Quelque chose a changé. Tes muscles se souviennent. La douleur se transforme en discipline. Les autres commencent à remarquer.' },
-            'C':  { title:'Le Serment',             text:'Tu n\'es plus un débutant. Chaque série est un serment tenu envers toi-même. Les abandons sont devenus incompréhensibles.' },
-            'B':  { title:'La Transformation',     text:'Ton corps est devenu un outil forgé par ta volonté. Là où tu voyais des limites, tu vois maintenant des paliers à franchir.' },
-            'A':  { title:'L\'Élite',               text:'Peu atteignent ce niveau. Tu n\'entraînes plus — tu perfectionnes. Chaque mouvement est calculé, chaque repos est stratégique.' },
-            'S':  { title:'La Voie du Chasseur',   text:'Les mortels ordinaires ne comprennent plus ton engagement. Tu vis dans une autre dimension de l\'effort humain.' },
-            'SS': { title:'Rang des Légendes',      text:'On raconte des histoires sur des gens comme toi. L\'effort n\'est plus une contrainte — c\'est ton état naturel.' },
-            'SSS':{ title:'Au-delà des Limites',   text:'Tu as atteint ce que d\'autres pensaient impossible. Mais tu le sais : ce n\'est pas la fin. C\'est une renaissance.' },
+            'E':       { title:'Les Premiers Pas',      text:'Tu étais un simple mortel, ignorant de ta propre force. Le premier entraînement fut douloureux. Mais tu es revenu.' },
+            'D':       { title:'L\'Éveil',               text:'Quelque chose a changé. Tes muscles se souviennent. La douleur se transforme en discipline. Les autres commencent à remarquer.' },
+            'C':       { title:'Le Serment',             text:'Tu n\'es plus un débutant. Chaque série est un serment tenu envers toi-même. Les abandons sont devenus incompréhensibles.' },
+            'B':       { title:'La Transformation',     text:'Ton corps est devenu un outil forgé par ta volonté. Là où tu voyais des limites, tu vois maintenant des paliers à franchir.' },
+            'A':       { title:'L\'Élite',               text:'Peu atteignent ce niveau. Tu n\'entraînes plus — tu perfectionnes. Chaque mouvement est calculé, chaque repos est stratégique.' },
+            'S':       { title:'La Voie du Chasseur',   text:'Les mortels ordinaires ne comprennent plus ton engagement. Tu vis dans une autre dimension de l\'effort humain.' },
+            'SS':      { title:'Rang des Légendes',      text:'On raconte des histoires sur des gens comme toi. L\'effort n\'est plus une contrainte — c\'est ton état naturel.' },
+            'SSS':     { title:'Au-delà des Limites',   text:'Tu as atteint ce que d\'autres pensaient impossible. Mais tu le sais : ce n\'est pas la fin. C\'est une renaissance.' },
+            'National':{ title:'Le Monarque',            text:'Il n\'existe aucun mot pour décrire ce que tu es devenu. Le Système lui-même s\'incline. Tu es la limite absolue.' },
         };
         function rpgGetLore(rankId) { return RPG_LORE[rankId] || RPG_LORE['E']; }
 
@@ -19307,7 +19188,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         const RPG_DECAY_PCT     = 0.03;   // 3%/jour après grace
         const RPG_PROFILE_GRACE = 14;     // grace profil plus longue
         const RPG_PROFILE_DECAY = 0.01;   // 1%/jour profil
-        const RPG_LEVEL_BASE    = 100;    // XP(N) = BASE × N^1.6
+        const RPG_LEVEL_BASE    = 50;     // XP(N) = BASE × N^1.6  — Option B : ~400 séances pour rang National
         const RPG_LEVEL_EXP     = 1.6;
 
         // ══════════════════════════════════════════════════════════════
@@ -19543,24 +19424,27 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
         // ── RANGS E→SSS ──────────────────────────────────────────────
         const RPG_RANKS = [
-            { id:'E',   label:'E',   emoji:'⬛', color:'#6b7280', xpMin:0      },
-            { id:'D',   label:'D',   emoji:'🟫', color:'#92400e', xpMin:500    },
-            { id:'C',   label:'C',   emoji:'🟩', color:'#15803d', xpMin:2000   },
-            { id:'B',   label:'B',   emoji:'🟦', color:'#1d4ed8', xpMin:5000   },
-            { id:'A',   label:'A',   emoji:'🟪', color:'#166534', xpMin:10000  },
-            { id:'S',   label:'S',   emoji:'🟨', color:'#d97706', xpMin:20000  },
-            { id:'SS',  label:'SS',  emoji:'🔶', color:'#ea580c', xpMin:40000  },
-            { id:'SSS', label:'SSS', emoji:'💠', color:'#be185d', xpMin:80000  },
+            { id:'E',        label:'E',        emoji:'⬛', color:'#6b7280', levelMin:1   },
+            { id:'D',        label:'D',        emoji:'🟫', color:'#92400e', levelMin:6   },
+            { id:'C',        label:'C',        emoji:'🟩', color:'#15803d', levelMin:11  },
+            { id:'B',        label:'B',        emoji:'🟦', color:'#1d4ed8', levelMin:16  },
+            { id:'A',        label:'A',        emoji:'🟪', color:'#7c3aed', levelMin:21  },
+            { id:'S',        label:'S',        emoji:'🟨', color:'#d97706', levelMin:26  },
+            { id:'SS',       label:'SS',       emoji:'🔶', color:'#ea580c', levelMin:31  },
+            { id:'SSS',      label:'SSS',      emoji:'💠', color:'#be185d', levelMin:36  },
+            { id:'National', label:'National', emoji:'🌟', color:'#f59e0b', levelMin:41  },
         ];
 
         function rpgGetRank(totalXP) {
+            const level = rpgLevelFromXP(totalXP);
             let rank = RPG_RANKS[0];
-            for (const r of RPG_RANKS) { if (totalXP >= r.xpMin) rank = r; }
+            for (const r of RPG_RANKS) { if (level >= r.levelMin) rank = r; }
             return rank;
         }
         function rpgNextRank(totalXP) {
+            const level = rpgLevelFromXP(totalXP);
             for (let i = RPG_RANKS.length - 1; i >= 0; i--) {
-                if (totalXP < RPG_RANKS[i].xpMin) continue;
+                if (level < RPG_RANKS[i].levelMin) continue;
                 return RPG_RANKS[i + 1] || null;
             }
             return RPG_RANKS[1];
@@ -19767,7 +19651,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 _dungeonId: dungeonId,
                 _dungeonXpMult: dungeon.xpMult
             };
-            workoutStartTime = Date.now();
+            workoutStartTime = Date.now(); _workoutSkipCount = 0;
             currentExerciseIndex = 0;
             // Aller sur l'onglet Séances et lancer proprement
             switchTab('workouts');
@@ -20157,6 +20041,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         // ── Toggle Mode Jeu ──────────────────────────────────────────
         function toggleGameMode(enabled) {
             localStorage.setItem('fitproGameMode', enabled ? '1' : '0');
+            // Activer aussi le mode chasseur en même temps
+            if (typeof setAdventureEnabled === 'function') setAdventureEnabled(enabled);
+            else localStorage.setItem('fitpro_adventure_enabled', enabled ? 'true' : 'false');
+
             const slider  = document.getElementById('gameModeSlider');
             const thumb   = document.getElementById('gameModeThumb');
             const preview = document.getElementById('gameModePreview');
@@ -20166,9 +20054,13 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             if (preview) preview.style.display   = enabled ? 'block' : 'none';
             if (navTab)  navTab.style.display    = enabled ? '' : 'none';
             if (enabled) {
+                // Mettre à jour compteur inventaire dans la preview
+                const inv = typeof getInventory === 'function' ? getInventory() : [];
+                const countEl = document.getElementById('hunterInvCount');
+                if (countEl) countEl.textContent = inv.length + ' item' + (inv.length !== 1 ? 's' : '');
                 rpgApplyDecay();
                 renderGameTab();
-                showToast('🎮 Mode Jeu activé ! Entraîne-toi pour gagner de l\'XP.', 'success', 3000);
+                showToast('🎮⚔️ Mode Jeu & Chasseur activés !', 'success', 3000);
             } else {
                 const activeTab = document.querySelector('.tab-content.active');
                 if (activeTab && activeTab.id === 'gameTab') switchTab('home');
@@ -20204,6 +20096,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 if (gTitle) gTitle.textContent = t.title;
                 if (gLevel) gLevel.textContent = profileLevel;
                 if (gXP)    gXP.textContent    = profileXP.toLocaleString();
+                // Sync inventaire chasseur
+                const inv = typeof getInventory === 'function' ? getInventory() : [];
+                const countEl = document.getElementById('hunterInvCount');
+                if (countEl) countEl.textContent = inv.length + ' item' + (inv.length !== 1 ? 's' : '');
             }
         }
 
@@ -20312,8 +20208,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             // ⚔️ Tentative de drop d'équipement (mode aventure)
             try {
                 if (typeof tryEquipmentDrop === 'function' && typeof getAdventureEnabled === 'function' && getAdventureEnabled()) {
-                    // Déterminer le muscle principal de la séance
                     const realEx = (currentWorkout?.exercises || []).filter(e => !e.isRest && !e.isInfo);
+
+                    // Muscle principal
                     const muscleCount = {};
                     realEx.forEach(ex => {
                         const db = exerciseDatabase.find(e => e.name === ex.name);
@@ -20321,11 +20218,20 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         muscleCount[m] = (muscleCount[m] || 0) + 1;
                     });
                     const mainMuscle = Object.entries(muscleCount).sort((a,b) => b[1]-a[1])[0]?.[0] || 'Corps entier';
-                    
-                    const result = tryEquipmentDrop(mainMuscle);
+
+                    // Qualité de l'entraînement
+                    const durationSeconds = (Date.now() - workoutStartTime) / 1000;
+                    const totalSkipped = typeof _workoutSkipCount !== 'undefined' ? _workoutSkipCount : 0;
+                    const skipRatio = realEx.length > 0 ? Math.min(1, totalSkipped / realEx.length) : 0;
+                    const workoutQuality = {
+                        exerciseCount:   realEx.length,
+                        durationSeconds: durationSeconds,
+                        skipRatio:       skipRatio,
+                    };
+
+                    const result = tryEquipmentDrop(mainMuscle, workoutQuality);
                     if (result) {
-                        // Délai pour afficher après l'écran de fin
-                        setTimeout(() => showDropModal(result.item, result.rarity), 1800);
+                        setTimeout(() => showDropModal(result.item, result.rarity, result.qualityScore), 1800);
                     }
                 }
             } catch(e) { console.warn('Adventure drop error:', e); }
@@ -20335,6 +20241,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 if (typeof checkChallengeOnWorkoutComplete === 'function') {
                     checkChallengeOnWorkoutComplete();
                 }
+                // Si le défi vient d'être complété/échoué → générer le suivant
+                setTimeout(() => {
+                    if (typeof tryGenerateChallengeAfterWorkout === 'function') {
+                        tryGenerateChallengeAfterWorkout();
+                    }
+                }, 8000); // Après les modals de résultat
             } catch(e) { console.warn('Challenge check error:', e); }
             
             // CHECK IF THIS IS A PLAN SESSION AND MARK IT COMPLETE
@@ -21686,7 +21598,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 _celebrityColor: program.color,
                 _celebPhase:     prog.phaseKey,
             };
-            workoutStartTime = Date.now();
+            workoutStartTime = Date.now(); _workoutSkipCount = 0;
             currentExerciseIndex = 0;
 
             // Enregistrer la séance pour le suivi
@@ -22424,7 +22336,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             
             currentWorkout = workout;
             currentExerciseIndex = 0;
-            workoutStartTime = Date.now();
+            workoutStartTime = Date.now(); _workoutSkipCount = 0;
             
             // Show badge
             const badge = document.getElementById('workoutTypeBadge');
