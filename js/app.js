@@ -14111,7 +14111,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         }
 
         // Exercise SVG — V45 Ultra Premium
-        function getExerciseSVG(exerciseName, muscle, position) {
+        function getExerciseVisual(exerciseName, muscle, position) {
             var nm = (exerciseName||'').toLowerCase();
             var S  = (position||'start') === 'start';
             var id = 'g'+Math.random().toString(36).slice(2,7);
@@ -16249,8 +16249,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 };
                 
                 const difficultyClass = `difficulty-${exercise.difficulty.toLowerCase().replace('é', 'e')}`;
-                const svgStart = getExerciseSVG(exercise.name, exercise.muscle, 'start');
-                const svgEnd = getExerciseSVG(exercise.name, exercise.muscle, 'end');
+                const svgStart = getExerciseVisual(exercise.name, exercise.muscle, 'start');
+                const svgEnd = getExerciseVisual(exercise.name, exercise.muscle, 'end');
                 
                 card.innerHTML = `
                     <div class="exercise-image">
@@ -16444,8 +16444,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             document.getElementById('modalTips').textContent = exercise.tips;
             
             const difficultyClass = `difficulty-${exercise.difficulty.toLowerCase().replace('é', 'e')}`;
-            const svgStart = getExerciseSVG(exercise.name, exercise.muscle, 'start');
-            const svgEnd = getExerciseSVG(exercise.name, exercise.muscle, 'end');
+            const svgStart = getExerciseVisual(exercise.name, exercise.muscle, 'start');
+            const svgEnd = getExerciseVisual(exercise.name, exercise.muscle, 'end');
             
             document.getElementById('modalDifficulty').innerHTML = 
                 `<div class="exercise-image" style="margin: 15px 0; height: 340px; border-radius: 12px;">
@@ -17041,8 +17041,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             else if (nameLower.includes('traction')) muscleGuess = 'Dos';
             else if (nameLower.includes('fente')) muscleGuess = 'Quadriceps';
             
-            const svgStart = getExerciseSVG(exerciseName, muscleGuess, 'start');
-            const svgEnd = getExerciseSVG(exerciseName, muscleGuess, 'end');
+            const svgStart = getExerciseVisual(exerciseName, muscleGuess, 'start');
+            const svgEnd = getExerciseVisual(exerciseName, muscleGuess, 'end');
             
             const imagesDiv = document.createElement('div');
             imagesDiv.className = 'exercise-timer-images';
@@ -23301,7 +23301,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 if (!items.length) return '';
                 let s = '<div class="swap-section-title">' + title + '</div>';
                 items.forEach(ex => {
-                    const svg = getExerciseSVG(ex.name, ex.muscle, 'start');
+                    const svg = getExerciseVisual(ex.name, ex.muscle, 'start');
                     const diffColors = {'Débutant':'#10b981','Intermédiaire':'#f59e0b','Avancé':'#ef4444'};
                     const dc = diffColors[ex.difficulty] || '#6b7280';
                     s += `<div class="swap-card" onclick="confirmSwapExercise('${ex.name.replace(/'/g,"\\'")}')">

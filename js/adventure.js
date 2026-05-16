@@ -1,6 +1,25 @@
 // ═══════════════════════════════════════════════════════════════════════
 // FitPro Elite — Système d'Aventure v2 (Solo Leveling)
 // ═══════════════════════════════════════════════════════════════════════
+(function() {
+'use strict';
+
+// RARITIES locaux (étendus) — indépendants de items.js
+const RARITIES = {
+    common:    { id:'common',    label:'E', labelFull:'Commun',     color:'#94a3b8', bg:'rgba(148,163,184,0.10)', glow:'rgba(148,163,184,0.18)', dropRate:0.60 },
+    rare:      { id:'rare',      label:'C', labelFull:'Rare',       color:'#3b82f6', bg:'rgba(59,130,246,0.10)',  glow:'rgba(59,130,246,0.28)',  dropRate:0.28 },
+    epic:      { id:'epic',      label:'A', labelFull:'Épique',     color:'#a855f7', bg:'rgba(168,85,247,0.10)', glow:'rgba(168,85,247,0.38)', dropRate:0.10 },
+    legendary: { id:'legendary', label:'S', labelFull:'Légendaire', color:'#f59e0b', bg:'rgba(245,158,11,0.10)', glow:'rgba(245,158,11,0.45)', dropRate:0.02 },
+};
+const SLOTS = {
+    head:      { label:'Tête',       icon:'⛑️' },
+    chest:     { label:'Torse',      icon:'🛡️' },
+    hands:     { label:'Mains',      icon:'🥊' },
+    legs:      { label:'Jambes',     icon:'🦵' },
+    feet:      { label:'Pieds',      icon:'👟' },
+    weapon:    { label:'Arme',       icon:'⚔️' },
+    accessory: { label:'Accessoire', icon:'💍' },
+};
 
 const ADVENTURE_STORAGE = {
     enabled:    'fitpro_adventure_enabled',
@@ -884,3 +903,29 @@ function showRPGEquipmentModal(defaultTab) {
     buildModal();
     modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
 }
+
+// ── Exposer les fonctions nécessaires globalement ─────────────────────
+window.getAdventureEnabled   = getAdventureEnabled;
+window.setAdventureEnabled   = setAdventureEnabled;
+window.getInventory          = getInventory;
+window.saveInventory         = saveInventory;
+window.getEquipped           = getEquipped;
+window.saveEquipped          = saveEquipped;
+window.getDailyDrops         = getDailyDrops;
+window.saveDailyDrops        = saveDailyDrops;
+window.getItemById           = getItemById;
+window.getRarityInfo         = getRarityInfo;
+window.getSetById            = getSetById;
+window.equipItem             = equipItem;
+window.unequipSlot           = unequipSlot;
+window.getEquippedItems      = getEquippedItems;
+window.getSetBonuses         = getSetBonuses;
+window.getPlayerEquipStats   = getPlayerEquipStats;
+window.tryEquipmentDrop      = tryEquipmentDrop;
+window.renderAdventureTab    = renderAdventureTab;
+window.showItemDetail        = showItemDetail;
+window.showDropModal         = showDropModal;
+window.initAdventureSystem   = initAdventureSystem;
+window.showRPGEquipmentModal = showRPGEquipmentModal;
+
+})(); // end IIFE
