@@ -816,6 +816,8 @@ function getExerciseVisual(name, muscle, phase) {
   return generic_muscle(muscle, phase);
 }
 
-window.getExerciseVisual = getExerciseVisual;
+window.getExerciseVisual  = getExerciseVisual;
+window.hasExerciseImage   = hasExerciseImage;
+window.EXERCISE_IMAGES    = EXERCISE_IMAGES;
 
 })();

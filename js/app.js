@@ -13544,10 +13544,6 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const settingsTab = document.getElementById('settingsTab');
             if (!settingsTab) return;
             
-            // Check if already initialized
-            if (settingsTab.dataset.accordionInit === 'true') return;
-            settingsTab.dataset.accordionInit = 'true';
-            
             const cards = settingsTab.querySelectorAll('.card');
             
             cards.forEach(card => {
