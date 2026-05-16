@@ -488,6 +488,17 @@ const EQUIPMENT_DATABASE = [
         passive:'Éternité : +50% XP permanent · impossible d\'échouer une séance si porté.',
         description:'Un collier qui défie le temps. Porté par les légendes, transmis aux dignes.',
         lore:'"Ce collier a été porté par dix-sept chasseurs. Tous sont devenus Rang S."' },
+
+    // ══════════════════════════════════════════════
+    // ► CONSOMMABLES SPÉCIAUX (drop ultra-rare)
+    // ══════════════════════════════════════════════
+
+    {   id:'tome_of_awakening', name:'Tome de l\'Éveil', icon:'📜', slot:'consumable', rarity:'legendary', set:null,
+        muscle:'Corps entier', consumable:true,
+        stats:{ STR:0, AGI:0, VIT:0, END:0, PER:0, SEN:0 },
+        passive:'Permet de changer de classe une fois. Détruit à l\'usage.',
+        description:'Un parchemin ancien gravé dans une langue oubliée. Le Système le délivre rarement.',
+        lore:'"Le Système ne change pas ses choix. Sauf si tu lui en donnes une raison."' },
 ];
 
 // ── HELPERS ─────────────────────────────────────────────────────────

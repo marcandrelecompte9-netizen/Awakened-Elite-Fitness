@@ -217,6 +217,46 @@ function getPlayerEquipStats() {
     for (const {bonus} of setBonuses) {
         for (const [s,v] of Object.entries(bonus.stats||{})) stats[s] = (stats[s]||0)+v;
     }
+    // Ajouter les points de stats alloués par le joueur
+    try {
+        const sp = JSON.parse(localStorage.getItem('fitproStatPoints') || 'null');
+        if (sp && sp.allocated) {
+            for (const [s,v] of Object.entries(sp.allocated)) stats[s] = (stats[s]||0)+(v||0);
+        }
+    } catch(e) {}
+    // Ajouter les bonus de stats permanents de la classe (évolution incluse)
+    try {
+        const classId = localStorage.getItem('fitproRPGClass');
+        if (classId && typeof RPG_CLASSES !== 'undefined') {
+            const cls = RPG_CLASSES.find(c => c.id === classId);
+            if (cls) {
+                // Récupérer l'évolution actuelle si disponible
+                let statBonus = cls.statBonus || {};
+                if (typeof CLASS_EVOLUTIONS !== 'undefined' && CLASS_EVOLUTIONS[classId]) {
+                    const data = JSON.parse(localStorage.getItem('fitproRPG')||'{}');
+                    const totalXP = Object.values(data.muscles||{}).reduce((s,m)=>s+(m.xp||0),0)
+                                  + parseInt(localStorage.getItem('fitproRPGLifetimeXP')||'0');
+                    const level = typeof rpgLevelFromXP === 'function' ? rpgLevelFromXP(totalXP) : 1;
+                    const evos = CLASS_EVOLUTIONS[classId];
+                    if (level >= 26 && evos[1]) statBonus = evos[1].statBonus;
+                    else if (level >= 16 && evos[0]) statBonus = evos[0].statBonus;
+                }
+                for (const [s,v] of Object.entries(statBonus)) stats[s] = (stats[s]||0)+(v||0);
+            }
+        }
+    } catch(e) {}
+    // Ajouter les bonus de stats des compétences débloquées
+    try {
+        const unlocked = JSON.parse(localStorage.getItem('fitproRPGSkills') || '[]');
+        if (typeof rpgGetSkillTree === 'function') {
+            const tree = rpgGetSkillTree();
+            tree.filter(s => unlocked.includes(s.id)).forEach(s => {
+                if (s.effect && s.effect.statBonus) {
+                    for (const [k,v] of Object.entries(s.effect.statBonus)) stats[k] = (stats[k]||0)+(v||0);
+                }
+            });
+        }
+    } catch(e) {}
     return stats;
 }
 
@@ -225,6 +265,24 @@ function tryEquipmentDrop(muscle, workoutQuality) {
     if (!getAdventureEnabled()) return null;
     const daily = getDailyDrops();
     if (daily.count >= MAX_DROPS_PER_DAY) return null;
+
+    // ── Drop ultra-rare du Tome de l'Éveil (0.5%) ────────────────────
+    // Conditions : avoir déjà une classe ET ne pas déjà avoir un tome
+    try {
+        const hasClass = !!localStorage.getItem('fitproRPGClass');
+        const inv = getInventory();
+        const hasTome = inv.some(e => e.itemId === 'tome_of_awakening');
+        if (hasClass && !hasTome && Math.random() < 0.005) {
+            const tome = EQUIPMENT_DATABASE.find(i => i.id === 'tome_of_awakening');
+            if (tome) {
+                inv.unshift({ itemId: tome.id, obtainedAt: new Date().toISOString(), id: Date.now() });
+                saveInventory(inv);
+                daily.count++;
+                saveDailyDrops(daily);
+                return { item: tome, rarity: RARITIES.legendary, qualityScore: 1.0, effectiveRank: 5, isSpecial: true };
+            }
+        }
+    } catch(e) {}
 
     // ── Qualité de l'entraînement (0 à 1) ────────────────────────────
     // workoutQuality = { exerciseCount, durationSeconds, skipRatio }

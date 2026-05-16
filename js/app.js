@@ -18665,7 +18665,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     </div>
                 </div>
                 <button onclick="rpgShowDetailsPanel()" style="width:100%;margin-top:14px;padding:12px;background:rgba(255,255,255,0.1);border:1.5px solid rgba(255,255,255,0.25);border-radius:12px;color:white;font-weight:700;cursor:pointer;font-size:0.88em;touch-action:manipulation;">
-                    📊 Détails — Rang · Muscles · Classe · Compétences · Saison
+                    📊 Détails — Rang · Muscles · Classe · Compétences
                 </button>
                 <div style="margin-top:12px;padding:11px 14px;background:rgba(255,255,255,0.04);border-left:3px solid ${rank.color};border-radius:0 10px 10px 0;">
                     <div style="font-size:0.68em;color:${rank.color};font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;">${rank.emoji} ${rank.id} — ${rpgGetLore(rank.id).title}</div>
@@ -18696,6 +18696,11 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             cardEquipShortcut.appendChild(btnEquip);
             cardEquipShortcut.appendChild(btnInv);
             tab.appendChild(cardEquipShortcut);
+
+            // ── 1bis. POINTS DE STATS ─────────────────────────────────
+            const cardStatPoints = document.createElement('div');
+            cardStatPoints.innerHTML = renderStatPointsCard(profileLevel);
+            tab.appendChild(cardStatPoints.firstElementChild);
 
             // ── 2. RANG ──────────────────────────────────────────────
             const cardRank = document.createElement('div');
@@ -18750,57 +18755,117 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             // ── 7. CLASSE DE PERSONNAGE ──────────────────────────────
             const cardClass = document.createElement('div');
             cardClass.className = 'card';
-            cardClass.innerHTML = `<h3 style="margin:0 0 12px;color:#e2e8f0;">🎭 Classe</h3>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-                    ${RPG_CLASSES.map(cls => {
-                        const active = currentClass && currentClass.id === cls.id;
-                        return `<div onclick="rpgSetClass('${cls.id}')" style="background:${active?'linear-gradient(135deg,#1A0A00,#166534)':'#222328'};border:2px solid ${active?'#16a34a':'#252830'};border-radius:12px;padding:12px;cursor:pointer;transition:all 0.2s;">
-                            <div style="font-size:1.5em;margin-bottom:4px;">${cls.emoji}</div>
-                            <div style="font-weight:800;font-size:0.85em;color:${active?'white':'#e2e8f0'};">${cls.name}</div>
-                            <div style="font-size:0.65em;color:${active?'rgba(255,255,255,0.75)':'#94a3b8'};margin-top:2px;">${cls.desc}</div>
-                        </div>`;
-                    }).join('')}
-                </div>`;
+            const _classUnlocked = rpgIsClassUnlocked();
+            const _evolved = _classUnlocked ? rpgGetEvolvedClass() : null;
+            const _hasTome = typeof rpgHasTomeOfAwakening === 'function' && rpgHasTomeOfAwakening();
+
+            if (!_classUnlocked) {
+                cardClass.style.cssText = 'background:linear-gradient(160deg,#0a0a0a,#0d0d0d);border:1.5px dashed rgba(168,85,247,0.2);';
+                cardClass.innerHTML = `
+                    <div style="text-align:center;padding:14px 8px;">
+                        <div style="font-size:2.2em;margin-bottom:8px;opacity:0.4;">🔒</div>
+                        <div style="font-size:0.65em;color:rgba(168,85,247,0.5);font-weight:800;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;">◈ Awakening ◈</div>
+                        <div style="font-size:1em;font-weight:900;color:#475569;margin-bottom:4px;">Classe verrouillée</div>
+                        <div style="font-size:0.78em;color:#334155;line-height:1.5;margin-bottom:10px;">Atteins le <strong style="color:#a855f7">rang D (niveau 6)</strong> pour que le Système t'éveille à ta vraie voie.</div>
+                        <div style="display:inline-block;background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.2);border-radius:99px;padding:3px 12px;font-size:0.7em;color:#a855f7;font-weight:700;">Niv. ${profileLevel} / 6</div>
+                    </div>`;
+            } else if (_evolved) {
+                // Has class - show evolved version
+                const evoStage = _evolved.evolution; // 0, 1, 2
+                const evoLabels = ['Base','Évoluée','Suprême'];
+                const evoBadgeColor = evoStage === 2 ? '#f59e0b' : evoStage === 1 ? '#a855f7' : '#64748b';
+                const nextEvoText = evoStage === 0 ? '→ Évolution au rang B (niv. 16)'
+                                  : evoStage === 1 ? '→ Évolution suprême au rang S (niv. 26)'
+                                  : '✦ Forme suprême atteinte';
+
+                cardClass.style.cssText = `background:linear-gradient(160deg,#0a0a0a,#0d0d0d);border:1.5px solid ${_evolved.color}44;${evoStage>0?`box-shadow:0 0 24px ${_evolved.color}20;`:''}`;
+                cardClass.innerHTML = `
+                    <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:12px;">
+                        <div style="font-size:2.5em;flex-shrink:0;filter:drop-shadow(0 0 12px ${_evolved.color}60);">${_evolved.emoji}</div>
+                        <div style="flex:1;min-width:0;">
+                            <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;flex-wrap:wrap;">
+                                <span style="font-size:0.55em;color:${_evolved.color};opacity:0.7;font-weight:800;text-transform:uppercase;letter-spacing:2px;">Ta voie</span>
+                                <span style="background:${evoBadgeColor}25;border:1px solid ${evoBadgeColor}50;color:${evoBadgeColor};font-size:0.5em;font-weight:900;padding:1px 7px;border-radius:99px;letter-spacing:1px;">${evoLabels[evoStage].toUpperCase()}</span>
+                            </div>
+                            <div style="font-size:1.05em;font-weight:900;color:white;line-height:1.15;">${_evolved.name}</div>
+                            <div style="font-size:0.68em;color:${_evolved.color};font-style:italic;opacity:0.85;margin-top:2px;">${_evolved.tagline}</div>
+                        </div>
+                    </div>
+                    <div style="background:${_evolved.bg};border:1px solid ${_evolved.color}25;border-radius:10px;padding:8px 11px;margin-bottom:10px;">
+                        <div style="font-size:0.58em;color:${_evolved.color};font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">⚡ Passif</div>
+                        <div style="font-size:0.72em;color:#e2e8f0;line-height:1.4;">${_evolved.passive}</div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:0.68em;">
+                        <span style="color:#475569;">${nextEvoText}</span>
+                    </div>
+                    <button onclick="showClassSelectionModal()" style="width:100%;padding:10px;border-radius:10px;border:1px solid ${_hasTome?'#fbbf2440':_evolved.color+'20'};background:${_hasTome?'rgba(245,158,11,0.08)':_evolved.bg};color:${_hasTome?'#fbbf24':'#475569'};font-size:0.78em;font-weight:700;cursor:pointer;">
+                        ${_hasTome ? '📜 Utiliser le Tome de l\'Éveil' : '🔒 Changer de classe (Tome requis)'}
+                    </button>`;
+            } else {
+                // Unlocked but not chosen
+                cardClass.style.cssText = 'background:linear-gradient(160deg,#0a0a0a,#1a0a2e);border:2px solid rgba(168,85,247,0.5);box-shadow:0 0 24px rgba(168,85,247,0.15);';
+                cardClass.innerHTML = `
+                    <div style="text-align:center;padding:8px;">
+                        <div style="font-size:0.6em;color:#a855f7;font-weight:900;text-transform:uppercase;letter-spacing:3px;margin-bottom:4px;animation:pulse 2s ease-in-out infinite;">◈ AWAKENING DISPONIBLE ◈</div>
+                        <div style="font-size:2.5em;margin:8px 0;">🌑</div>
+                        <div style="font-size:1.1em;font-weight:900;color:white;margin-bottom:4px;">Le Système t'a éveillé</div>
+                        <div style="font-size:0.78em;color:#94a3b8;line-height:1.5;margin-bottom:14px;">Choisis ta classe. Le premier choix est gratuit — les suivants exigeront le <strong style="color:#fbbf24">Tome de l'Éveil</strong>.</div>
+                        <button onclick="showClassSelectionModal()" style="width:100%;padding:13px;border-radius:12px;border:none;background:linear-gradient(135deg,#7c3aed,#a855f7);color:white;font-size:0.92em;font-weight:800;cursor:pointer;box-shadow:0 4px 16px rgba(168,85,247,0.4);">
+                            ⚔️ Choisir ma voie
+                        </button>
+                    </div>`;
+            }
 
             // ── 8. ARBRE DE COMPÉTENCES ──────────────────────────────
             const cardSkills = document.createElement('div');
             cardSkills.className = 'card';
+            const _skillTree = typeof rpgGetSkillTree === 'function' ? rpgGetSkillTree() : [];
+            const _baseSkills  = _skillTree.filter(s => s.type === 'base' || !s.type);
+            const _classSkills = _skillTree.filter(s => s.type === 'class');
+            const _classInfo   = currentClass ? RPG_CLASSES.find(c => c.id === currentClass.id) : null;
+
+            function _renderSkill(sk) {
+                const done  = unlockedSkills.includes(sk.id);
+                const canDo = !done && profileLevel >= sk.req.level;
+                const accent = sk.type === 'class' && _classInfo ? _classInfo.color : '#22c55e';
+                return `<div onclick="${canDo?`rpgUnlockSkill('${sk.id}')`:''}" style="
+                    background:${done?accent+'15':canDo?accent+'10':'#0d1018'};
+                    border:1.5px solid ${done?accent+'66':canDo?accent+'44':'rgba(255,255,255,0.05)'};
+                    border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:10px;
+                    ${canDo?'cursor:pointer;':''}opacity:${done||canDo?1:0.5};">
+                    <span style="font-size:1.3em;flex-shrink:0;">${sk.emoji}</span>
+                    <div style="flex:1;min-width:0;">
+                        <div style="font-weight:700;font-size:0.83em;color:${done?accent:'#e2e8f0'};">${done?'✅ ':''}${sk.name}</div>
+                        <div style="font-size:0.68em;color:#94a3b8;line-height:1.4;">${sk.desc}</div>
+                    </div>
+                    <div style="font-size:0.7em;font-weight:700;color:${canDo?accent:'#475569'};flex-shrink:0;">Niv.${sk.req.level}</div>
+                </div>`;
+            }
+
             cardSkills.innerHTML = `
-                <h3 style="margin:0 0 12px;color:#e2e8f0;">🌳 Compétences <span style="font-size:0.72em;background:rgba(22,163,74,0.15);color:#4ade80;padding:2px 8px;border-radius:99px;">${unlockedSkills.length}/${SKILL_TREE.length}</span></h3>
-                <div style="display:flex;flex-direction:column;gap:8px;">
-                    ${SKILL_TREE.map(sk => {
-                        const done  = unlockedSkills.includes(sk.id);
-                        const canDo = !done && profileLevel >= sk.req.level;
-                        return `<div onclick="${canDo?`rpgUnlockSkill('${sk.id}')`:''}" style="background:${done?'rgba(34,197,94,0.1)':canDo?'rgba(22,163,74,0.08)':'#222328'};border:1.5px solid ${done?'rgba(34,197,94,0.4)':canDo?'rgba(22,163,74,0.4)':'#252830'};border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:10px;${canDo?'cursor:pointer;':''}opacity:${done||canDo?1:0.45};">
-                            <span style="font-size:1.3em;">${sk.emoji}</span>
-                            <div style="flex:1;">
-                                <div style="font-weight:700;font-size:0.83em;color:${done?'#34d399':'#e2e8f0'};">${done?'✅ ':''}${sk.name}</div>
-                                <div style="font-size:0.7em;color:#94a3b8;">${sk.desc}</div>
-                            </div>
-                            <div style="font-size:0.7em;font-weight:700;color:${canDo?'#4ade80':'#6b7280'};flex-shrink:0;">Niv.${sk.req.level}</div>
-                        </div>`;
-                    }).join('')}
-                </div>`;
+                <h3 style="margin:0 0 12px;color:#e2e8f0;">🌳 Compétences <span style="font-size:0.7em;background:rgba(34,197,94,0.15);color:#4ade80;padding:2px 8px;border-radius:99px;font-weight:700;">${unlockedSkills.length}/${_skillTree.length}</span></h3>
 
-            // ── 9. EXPLOITS ──────────────────────────────────────────
-            const cardAch = document.createElement('div');
-            cardAch.className = 'card';
-            cardAch.innerHTML = `
-                <h3 style="margin:0 0 12px;color:#e2e8f0;">🏆 Exploits <span style="font-size:0.72em;background:rgba(245,158,11,0.15);color:#fbbf24;padding:2px 8px;border-radius:99px;">${unlockedAch.length}/${ACHIEVEMENTS.length}</span></h3>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-                    ${ACHIEVEMENTS.map(a => {
-                        const done = unlockedAch.includes(a.id);
-                        return `<div style="background:${done?'rgba(251,191,36,0.1)':'#222328'};border:1px solid ${done?'rgba(251,191,36,0.4)':'#252830'};border-radius:10px;padding:10px;text-align:center;${!done?'opacity:0.45':''}">
-                            <div style="font-size:1.4em;">${a.emoji}</div>
-                            <div style="font-weight:700;font-size:0.72em;color:${done?'#fbbf24':'#94a3b8'};margin-top:3px;">${a.name}</div>
-                            <div style="font-size:0.62em;color:#6b7280;margin-top:2px;">${a.desc}</div>
-                        </div>`;
-                    }).join('')}
-                </div>`;
+                <!-- Compétences de base -->
+                <div style="font-size:0.58em;color:rgba(255,255,255,0.4);font-weight:800;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;">◈ Compétences universelles</div>
+                <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
+                    ${_baseSkills.map(_renderSkill).join('')}
+                </div>
 
+                <!-- Compétences de classe -->
+                ${_classSkills.length > 0 ? `
+                    <div style="font-size:0.58em;color:${_classInfo?_classInfo.color:'#a855f7'};font-weight:800;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;">◈ Voie du ${_classInfo?_classInfo.name:'Chasseur'}</div>
+                    <div style="display:flex;flex-direction:column;gap:8px;">
+                        ${_classSkills.map(_renderSkill).join('')}
+                    </div>
+                ` : `
+                    <div style="background:rgba(168,85,247,0.05);border:1px dashed rgba(168,85,247,0.2);border-radius:10px;padding:14px;text-align:center;">
+                        <div style="font-size:1.6em;margin-bottom:6px;opacity:0.4;">🔒</div>
+                        <div style="font-size:0.78em;color:#475569;font-weight:700;margin-bottom:2px;">Compétences de classe verrouillées</div>
+                        <div style="font-size:0.7em;color:#334155;">Choisis ta classe au rang D pour les débloquer.</div>
+                    </div>
+                `}`;
 
-
-            // ── 11. JOURNAL LEVEL UP ─────────────────────────────────
+                        // ── 11. JOURNAL LEVEL UP ─────────────────────────────────
             let cardLog = null;
             if (lvLog.length > 0) {
                 cardLog = document.createElement('div');
@@ -18844,47 +18909,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
 
 
-            // ── 12. SAISON ───────────────────────────────────────────
-            const season = rpgGetCurrentSeason();
-            const cardSeason = document.createElement('div');
-            cardSeason.className = 'card';
-            cardSeason.style.cssText = 'background:linear-gradient(135deg,#1a0533,#1A0A00);color:white;border:1.5px solid rgba(34,197,94,0.3);';
-            const seasonPct = Math.round(season.currentPoints / season.maxPoints * 100);
-            cardSeason.innerHTML = `
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-                    <div>
-                        <div style="font-size:0.65em;letter-spacing:2px;opacity:0.5;text-transform:uppercase;">Saison ${season.number}</div>
-                        <div style="font-weight:900;font-size:1em;">${season.name}</div>
-                    </div>
-                    <div style="text-align:right;">
-                        <div style="font-size:0.65em;opacity:0.5;">Fin dans</div>
-                        <div style="font-weight:800;color:#4ade80;">${season.daysLeft}j</div>
-                    </div>
-                </div>
-                <div style="background:rgba(255,255,255,0.1);border-radius:99px;height:6px;overflow:hidden;margin-bottom:6px;">
-                    <div class="rpg-bar-anim" data-pct="${seasonPct}" style="height:100%;background:linear-gradient(90deg,#4ade80,#166534);border-radius:99px;width:0%;"></div>
-                </div>
-                <div style="display:flex;justify-content:space-between;font-size:0.68em;opacity:0.5;margin-bottom:12px;">
-                    <span>${season.currentPoints} pts</span><span>${season.maxPoints} pts (palier max)</span>
-                </div>
-                <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                    ${season.tiers.map(t => {
-                        const done = season.currentPoints >= t.pts;
-                        const isCurrent = !done && season.tiers.filter(x=>x.pts<=season.currentPoints).length === season.tiers.indexOf(t);
-                        return `<div style="flex:1;min-width:60px;background:${done?'rgba(34,197,94,0.3)':'rgba(255,255,255,0.07)'};border:1px solid ${done?'#4ade80':'rgba(255,255,255,0.1)'};border-radius:8px;padding:7px 4px;text-align:center;">
-                            <div style="font-size:1.1em;">${t.emoji}</div>
-                            <div style="font-size:0.62em;opacity:${done?1:0.5};margin-top:2px;">${t.label}</div>
-                            <div style="font-size:0.6em;opacity:0.4;">${t.pts}pts</div>
-                        </div>`;
-                    }).join('')}
-                </div>`;
-
-            // ── Panel détails (masqué — ouvert via bouton 📊) ──────────
+                        // ── Panel détails (masqué — ouvert via bouton 📊) ──────────
             // Les cartes détails sont directement dans ce panel, jamais dans tab
             const detailsPanel = document.createElement('div');
             detailsPanel.id = 'rpgDetailsContainer';
             detailsPanel.style.display = 'none';
-            [cardRank, cardMuscles, cardClass, cardSkills, cardAch, cardSeason, cardPrestige, cardLog]
+            [cardRank, cardMuscles, cardClass, cardSkills, cardPrestige, cardLog]
                 .filter(Boolean)
                 .forEach(card => detailsPanel.appendChild(card));
             tab.appendChild(detailsPanel);
@@ -19269,40 +19299,387 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
         // ── CLASSE DE PERSONNAGE ─────────────────────────────────────
         const RPG_CLASSES = [
-            { id:'warrior', name:'Guerrier',  emoji:'⚔️', desc:'Force brute. +20% XP pour Pectoraux, Dos, Quadriceps',
-              bonusMuscles:['Pectoraux','Dos','Quadriceps'], xpBonus:0.20,
-              aiBoost:['force','puissance','compound'] },
-            { id:'mage',    name:'Mage',      emoji:'🔮', desc:'Corps et esprit. +20% XP pour Abdominaux, Mollets, Avant-bras',
-              bonusMuscles:['Abdominaux','Mollets','Avant-bras'], xpBonus:0.20,
-              aiBoost:['mobilité','cardio','hiit'] },
-            { id:'archer',  name:'Archer',    emoji:'🏹', desc:'Précision. +20% XP pour Épaules, Biceps, Triceps',
-              bonusMuscles:['Épaules','Biceps','Triceps'], xpBonus:0.20,
-              aiBoost:['isolation','haut du corps'] },
-            { id:'paladin', name:'Paladin',   emoji:'🛡️', desc:'Endurance. +20% XP pour Ischio-jambiers, Fessiers, Trapèzes',
-              bonusMuscles:['Ischio-jambiers','Fessiers','Trapèzes'], xpBonus:0.20,
-              aiBoost:['endurance','récupération','étirement'] },
+            {
+                id:'shadow_assassin',
+                name:'Assassin des Ombres',
+                emoji:'🗡️',
+                tagline:'Frappe rapide, frappe fatale.',
+                desc:'Spécialiste de l\'agilité et de la précision. Tu n\'attends pas. Tu agis avant que les autres ne te voient.',
+                bonusMuscles:['Biceps','Avant-bras','Mollets'],
+                xpBonus:0.25,
+                statBonus:{ AGI:3, PER:2 },
+                passive:'Frappe critique : +10% chance de drop épique',
+                aiBoost:['agilité','explosivité','vitesse'],
+                color:'#a855f7',
+                bg:'rgba(168,85,247,0.10)',
+            },
+            {
+                id:'iron_berserker',
+                name:'Berserker de Fer',
+                emoji:'⚔️',
+                tagline:'La force brute est une religion.',
+                desc:'Spécialiste de la force pure. Les compound lourds sont ton domaine. Tu casses tout ce que tu touches.',
+                bonusMuscles:['Pectoraux','Dos','Quadriceps'],
+                xpBonus:0.25,
+                statBonus:{ STR:4, END:1 },
+                passive:'Rage du Berserker : +15% XP sur les exercices de force pure',
+                aiBoost:['force','puissance','compound'],
+                color:'#ef4444',
+                bg:'rgba(239,68,68,0.10)',
+            },
+            {
+                id:'titan_guardian',
+                name:'Gardien Titan',
+                emoji:'🛡️',
+                tagline:'Indestructible. Inarrêtable.',
+                desc:'Spécialiste de la vitalité et de l\'endurance. Rien ne te brise. Tu portes l\'équipe sur ton dos.',
+                bonusMuscles:['Trapèzes','Fessiers','Ischio-jambiers'],
+                xpBonus:0.25,
+                statBonus:{ VIT:3, END:2 },
+                passive:'Forteresse vivante : -20% pénalités de stats sur tes équipements',
+                aiBoost:['endurance','résistance','volume'],
+                color:'#3b82f6',
+                bg:'rgba(59,130,246,0.10)',
+            },
+            {
+                id:'storm_archer',
+                name:'Archer des Tempêtes',
+                emoji:'🏹',
+                tagline:'Vois. Tire. Tue.',
+                desc:'Spécialiste de la perception et de la précision. Chaque mouvement est calculé, chaque répétition compte.',
+                bonusMuscles:['Épaules','Triceps','Abdominaux'],
+                xpBonus:0.25,
+                statBonus:{ PER:3, AGI:2 },
+                passive:'Œil du chasseur : voit les drops 1 niveau supérieur',
+                aiBoost:['précision','isolation','tonification'],
+                color:'#06b6d4',
+                bg:'rgba(6,182,212,0.10)',
+            },
+            {
+                id:'arcane_mage',
+                name:'Mage Arcane',
+                emoji:'🔮',
+                tagline:'Le corps est un vaisseau pour la volonté.',
+                desc:'Spécialiste de la connexion mental-musculaire. Mobilité, contrôle, conscience parfaite du corps.',
+                bonusMuscles:['Abdominaux','Obliques','Cardio'],
+                xpBonus:0.25,
+                statBonus:{ SEN:4, PER:1 },
+                passive:'Mana profond : tous les exercices techniques donnent +30% XP',
+                aiBoost:['mobilité','cardio','hiit','technique'],
+                color:'#22c55e',
+                bg:'rgba(34,197,94,0.10)',
+            },
+            {
+                id:'monarch_aspirant',
+                name:'Aspirant Monarque',
+                emoji:'🌑',
+                tagline:'Polyvalent. Inégal. Légendaire.',
+                desc:'Aucune spécialité. Tout est ton domaine. La voie la plus difficile, mais la plus libre.',
+                bonusMuscles:['Pectoraux','Dos','Quadriceps','Épaules','Abdominaux','Biceps'],
+                xpBonus:0.12,
+                statBonus:{ STR:1, AGI:1, VIT:1, END:1, PER:1, SEN:1 },
+                passive:'Voie du Monarque : 5% chance de drop deux items au lieu d\'un',
+                aiBoost:['varié','complet','équilibré'],
+                color:'#f59e0b',
+                bg:'rgba(245,158,11,0.10)',
+            },
         ];
+
+        // ── ÉVOLUTIONS DE CLASSE ─────────────────────────────────────
+        // Chaque classe a 3 paliers : Base (D-A), Évoluée (B-A), Suprême (S+)
+        const CLASS_EVOLUTIONS = {
+            shadow_assassin: [
+                { rank:'B', name:'Lame Spectrale', emoji:'⚜️', tagline:'Plus rapide que ton regard.',
+                  passive:'Lame fantôme : +20% chance de drop épique · -10% pénalités stats',
+                  statBonus:{ AGI:6, PER:4, STR:2 }, xpBonus:0.35 },
+                { rank:'S', name:'Tueur Royal des Ombres', emoji:'🌑', tagline:'L\'ombre du Monarque elle-même.',
+                  passive:'Mort silencieuse : +35% chance de drop épique · +10% drop légendaire · attaque double 10%',
+                  statBonus:{ AGI:12, PER:8, STR:5, SEN:4 }, xpBonus:0.50 },
+            ],
+            iron_berserker: [
+                { rank:'B', name:'Berserker de Sang', emoji:'🩸', tagline:'La douleur me nourrit.',
+                  passive:'Furie sanguine : +25% XP compounds · +5% chance de doubler XP',
+                  statBonus:{ STR:8, END:3, VIT:3 }, xpBonus:0.35 },
+                { rank:'S', name:'Avatar de la Rage', emoji:'👹', tagline:'Je suis la colère incarnée.',
+                  passive:'Colère absolue : +40% XP compounds · 15% chance de tripler · immunité à xp_curse',
+                  statBonus:{ STR:14, END:6, VIT:6, AGI:2 }, xpBonus:0.50 },
+            ],
+            titan_guardian: [
+                { rank:'B', name:'Mur de Fer', emoji:'⚒️', tagline:'Inarrêtable, immobile, infini.',
+                  passive:'Mur vivant : -35% pénalités stats · Communs → Rares 25%',
+                  statBonus:{ VIT:6, END:5, STR:3 }, xpBonus:0.35 },
+                { rank:'S', name:'Atlas Immortel', emoji:'🪨', tagline:'Je porte le monde sur mes épaules.',
+                  passive:'Atlas : -50% pénalités · Communs → Rares · immunité à muscle_decay',
+                  statBonus:{ VIT:12, END:10, STR:6, SEN:3 }, xpBonus:0.50 },
+            ],
+            storm_archer: [
+                { rank:'B', name:'Sniper Céleste', emoji:'🎯', tagline:'Aucune cible ne m\'échappe.',
+                  passive:'Vision parfaite : drops +2 niveaux supérieurs · +15% PER',
+                  statBonus:{ PER:6, AGI:4, SEN:3 }, xpBonus:0.35 },
+                { rank:'S', name:'Œil du Système', emoji:'👁️‍🗨️', tagline:'Je vois ce que le Système voit.',
+                  passive:'Omniscience : drops +1 niveau · +25% PER · révèle 1 stat cachée',
+                  statBonus:{ PER:14, AGI:8, SEN:6, STR:2 }, xpBonus:0.50 },
+            ],
+            arcane_mage: [
+                { rank:'B', name:'Sorcier Cosmique', emoji:'✨', tagline:'Le corps n\'est qu\'illusion.',
+                  passive:'Mana absolu : +50% XP exercices techniques · +1 point stat / niveau',
+                  statBonus:{ SEN:7, PER:4, AGI:3 }, xpBonus:0.35 },
+                { rank:'S', name:'Architecte de la Réalité', emoji:'🌌', tagline:'Je façonne le monde par ma volonté.',
+                  passive:'Création pure : +75% XP techniques · +2 points stats / niveau · clear penalty 1×/30j',
+                  statBonus:{ SEN:14, PER:8, AGI:6, VIT:3 }, xpBonus:0.50 },
+            ],
+            monarch_aspirant: [
+                { rank:'B', name:'Héritier du Monarque', emoji:'👑', tagline:'Je porte le sang du Souverain.',
+                  passive:'Sang royal : 10% chance drop double · +2 toutes stats permanent',
+                  statBonus:{ STR:3, AGI:3, VIT:3, END:3, PER:3, SEN:3 }, xpBonus:0.22 },
+                { rank:'S', name:'Monarque des Ombres', emoji:'🌑', tagline:'Le Système m\'obéit.',
+                  passive:'Autorité absolue : 20% chance drop double · +5 toutes stats · +15% drops Légendaires',
+                  statBonus:{ STR:7, AGI:7, VIT:7, END:7, PER:7, SEN:7 }, xpBonus:0.35 },
+            ],
+        };
+
+        function rpgGetEvolvedClass() {
+            const base = rpgGetClass();
+            if (!base) return null;
+            const data = rpgLoad();
+            const totalXP = Object.values(data.muscles||{}).reduce((s,m)=>s+(m.xp||0),0)
+                          + parseInt(localStorage.getItem('fitproRPGLifetimeXP')||'0');
+            const level = rpgLevelFromXP(totalXP);
+            const evolutions = CLASS_EVOLUTIONS[base.id] || [];
+            if (level >= 26 && evolutions[1]) return { ...base, ...evolutions[1], baseId: base.id, evolution: 2 };
+            if (level >= 16 && evolutions[0]) return { ...base, ...evolutions[0], baseId: base.id, evolution: 1 };
+            return { ...base, baseId: base.id, evolution: 0 };
+        }
+
+        function rpgHasTomeOfAwakening() {
+            try {
+                const inv = JSON.parse(localStorage.getItem('fitpro_inventory') || '[]');
+                return inv.some(e => e.itemId === 'tome_of_awakening');
+            } catch(e) { return false; }
+        }
+
+        function rpgConsumeTomeOfAwakening() {
+            try {
+                const inv = JSON.parse(localStorage.getItem('fitpro_inventory') || '[]');
+                const idx = inv.findIndex(e => e.itemId === 'tome_of_awakening');
+                if (idx === -1) return false;
+                inv.splice(idx, 1);
+                localStorage.setItem('fitpro_inventory', JSON.stringify(inv));
+                return true;
+            } catch(e) { return false; }
+        }
+
+        // Rang minimum requis pour choisir une classe
+        const CLASS_UNLOCK_RANK = 'D';  // Rang D = niveau 6+
+
+        function rpgIsClassUnlocked() {
+            try {
+                const data = rpgLoad();
+                const totalXP = Object.values(data.muscles||{}).reduce((s,m)=>s+(m.xp||0),0)
+                              + parseInt(localStorage.getItem('fitproRPGLifetimeXP')||'0');
+                const level = rpgLevelFromXP(totalXP);
+                return level >= 6; // rang D
+            } catch(e) { return false; }
+        }
 
         function rpgGetClass() {
             const id = localStorage.getItem('fitproRPGClass');
             return RPG_CLASSES.find(c=>c.id===id) || null;
         }
         function rpgSetClass(classId) {
-            localStorage.setItem('fitproRPGClass', classId);
+            if (!rpgIsClassUnlocked()) {
+                showToast('⛔ Atteins le rang D pour choisir ta classe.', 'error', 3000);
+                return;
+            }
             const cls = RPG_CLASSES.find(c=>c.id===classId);
-            showToast(`${cls.emoji} Classe ${cls.name} choisie !`, 'success', 3000);
-            if (typeof renderGameTab === 'function') renderGameTab();
+            if (!cls) return;
+
+            const current = rpgGetClass();
+
+            // ── Premier choix = gratuit ──────────────────────────────
+            if (!current) {
+                localStorage.setItem('fitproRPGClass', classId);
+                showToast(`${cls.emoji} Classe ${cls.name} choisie ! Tu es éveillé.`, 'success', 3500);
+                if (typeof renderGameTab === 'function') renderGameTab();
+                return;
+            }
+
+            // ── Même classe = rien à faire ───────────────────────────
+            if (current.id === classId) return;
+
+            // ── Changement de classe = nécessite le Tome ─────────────
+            if (!rpgHasTomeOfAwakening()) {
+                showToast('📜 Le Tome de l\'Éveil est requis pour changer de classe.', 'error', 4000);
+                return;
+            }
+
+            // Confirmation + consommation du Tome
+            showAlert(
+                `⚠️ Changer de classe ?\n\nTu perdras les bonus de ${current.emoji} ${current.name} et gagneras ceux de ${cls.emoji} ${cls.name}.\n\nLe Tome de l'Éveil sera CONSOMMÉ.\n\nLes points de stats alloués sont conservés.`,
+                'warning',
+                'Utiliser le Tome de l\'Éveil',
+                () => {
+                    if (!rpgConsumeTomeOfAwakening()) {
+                        showToast('Erreur : Tome introuvable.', 'error', 2500);
+                        return;
+                    }
+                    localStorage.setItem('fitproRPGClass', classId);
+                    showToast(`📜 Tome consommé ! Tu es maintenant ${cls.emoji} ${cls.name}.`, 'success', 4000);
+                    if (typeof renderGameTab === 'function') renderGameTab();
+                }
+            );
+        }
+
+        function showClassSelectionModal() {
+            if (!rpgIsClassUnlocked()) {
+                showToast('⛔ Atteins le rang D pour choisir ta classe.', 'error', 3000);
+                return;
+            }
+            document.getElementById('classSelectModal')?.remove();
+            const current = rpgGetClass();
+            const modal = document.createElement('div');
+            modal.id = 'classSelectModal';
+            modal.style.cssText = 'position:fixed;inset:0;z-index:10100;background:rgba(0,0,0,0.94);display:flex;align-items:flex-end;justify-content:center;padding:0;';
+
+            modal.innerHTML = `<div style="
+                width:100%;max-width:480px;
+                background:linear-gradient(160deg,#030810,#060c18);
+                border-radius:22px 22px 0 0;
+                border-top:2px solid rgba(168,85,247,0.4);
+                max-height:92vh;display:flex;flex-direction:column;overflow:hidden;
+            ">
+                <div style="width:36px;height:3px;background:#1a2535;border-radius:99px;margin:10px auto 0;flex-shrink:0;"></div>
+                <div style="padding:14px 18px 8px;flex-shrink:0;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                        <div>
+                            <div style="font-size:0.6em;color:rgba(168,85,247,0.6);font-weight:900;text-transform:uppercase;letter-spacing:3px;margin-bottom:3px;">◈ AWAKENING ◈</div>
+                            <div style="font-size:1em;font-weight:900;color:white;">Choisis ta voie</div>
+                        </div>
+                        <button onclick="document.getElementById('classSelectModal').remove()" style="width:30px;height:30px;border-radius:50%;background:#0a1525;border:1px solid rgba(168,85,247,0.2);color:#475569;font-size:0.95em;cursor:pointer;">✕</button>
+                    </div>
+                    <div style="font-size:0.72em;color:#475569;line-height:1.5;">${current ? 'Classe actuelle : <strong style="color:'+current.color+'">'+current.emoji+' '+current.name+'</strong>' : 'Le Système a évalué tes capacités. Choisis la voie qui te ressemble.'}</div>
+                </div>
+                <div style="flex:1;overflow-y:auto;padding:6px 16px 24px;-webkit-overflow-scrolling:touch;">
+                    ${RPG_CLASSES.map(cls => {
+                        const isCurrent = current && current.id === cls.id;
+                        return `<div onclick="rpgSetClass('${cls.id}');document.getElementById('classSelectModal').remove();" style="
+                            background:${cls.bg};
+                            border:${isCurrent?2:1.5}px solid ${cls.color}${isCurrent?'':'44'};
+                            border-radius:16px;padding:14px;margin-bottom:10px;cursor:pointer;
+                            box-shadow:${isCurrent?`0 0 20px ${cls.color}30`:'none'};
+                            ">
+                            <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:8px;">
+                                <div style="font-size:2.2em;flex-shrink:0;filter:drop-shadow(0 0 8px ${cls.color}50);">${cls.emoji}</div>
+                                <div style="flex:1;min-width:0;">
+                                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px;">
+                                        <span style="font-size:1em;font-weight:900;color:${cls.color};">${cls.name}</span>
+                                        ${isCurrent?`<span style="font-size:0.55em;background:${cls.color};color:#000;font-weight:900;padding:2px 7px;border-radius:99px;letter-spacing:1px;">ACTIVE</span>`:''}
+                                    </div>
+                                    <div style="font-size:0.72em;color:${cls.color};opacity:0.7;font-style:italic;">${cls.tagline}</div>
+                                </div>
+                            </div>
+                            <div style="font-size:0.74em;color:#cbd5e1;line-height:1.5;margin-bottom:10px;">${cls.desc}</div>
+
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;">
+                                <div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:6px 8px;border:1px solid rgba(255,255,255,0.04);">
+                                    <div style="font-size:0.55em;color:#475569;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">XP Bonus</div>
+                                    <div style="font-size:0.78em;font-weight:800;color:${cls.color};">+${Math.round(cls.xpBonus*100)}% sur ${cls.bonusMuscles.length<=3?cls.bonusMuscles.join(', '):'muscles spécialisés'}</div>
+                                </div>
+                                <div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:6px 8px;border:1px solid rgba(255,255,255,0.04);">
+                                    <div style="font-size:0.55em;color:#475569;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Stats permanents</div>
+                                    <div style="font-size:0.78em;font-weight:800;color:${cls.color};">${Object.entries(cls.statBonus).map(([k,v])=>`+${v} ${k}`).join(' · ')}</div>
+                                </div>
+                            </div>
+                            <div style="background:${cls.bg};border:1px solid ${cls.color}25;border-radius:8px;padding:7px 10px;">
+                                <div style="font-size:0.6em;color:${cls.color};font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">⚡ Passif unique</div>
+                                <div style="font-size:0.72em;color:#e2e8f0;line-height:1.4;">${cls.passive}</div>
+                            </div>
+                        </div>`;
+                    }).join('')}
+                </div>
+            </div>`;
+            modal.addEventListener('click', e=>{ if(e.target===modal) modal.remove(); });
+            document.body.appendChild(modal);
         }
 
         // ── ARBRE DE COMPÉTENCES ──────────────────────────────────────
-        const SKILL_TREE = [
-            { id:'iron_will',    name:'Volonté de Fer',   emoji:'💪', desc:'+10% XP sur tous les muscles',         req:{level:5},  effect:{xpAll:0.10} },
-            { id:'compound_pro', name:'Maître Compound',  emoji:'🏋️', desc:'+25% XP sur exercices polyarticulaires', req:{level:10}, effect:{xpCompound:0.25} },
-            { id:'streak_lord',  name:'Seigneur du Streak',emoji:'🔥', desc:'Streak bonus commence dès 2 jours',    req:{level:15}, effect:{streakStart:2} },
-            { id:'no_decay',     name:'Corps d\'Acier',   emoji:'🛡️', desc:'Grace de 10 jours avant le decay',     req:{level:20}, effect:{graceExtend:3} },
-            { id:'loot_master',  name:'Maître du Butin',  emoji:'📦', desc:'Double chance de coffre Épique',        req:{level:25}, effect:{epicChance:2} },
-            { id:'xp_surge',     name:'Sursaut d\'XP',    emoji:'⚡', desc:'+30% XP global permanent',             req:{level:30}, effect:{xpAll:0.30} },
+        // ── COMPÉTENCES DE BASE (toutes classes) ──────────────────────
+        const SKILL_TREE_BASE = [
+            { id:'iron_will',    name:'Volonté de Fer',     emoji:'💪', desc:'+10% XP sur tous les muscles',           req:{level:3},  effect:{xpAll:0.10}, type:'base' },
+            { id:'compound_pro', name:'Maître Compound',    emoji:'🏋️', desc:'+25% XP sur exercices polyarticulaires', req:{level:8},  effect:{xpCompound:0.25}, type:'base' },
+            { id:'streak_lord',  name:'Seigneur du Streak', emoji:'🔥', desc:'Streak bonus commence dès 2 jours',      req:{level:12}, effect:{streakStart:2}, type:'base' },
+            { id:'no_decay',     name:'Corps d\'Acier',     emoji:'🛡️', desc:'Grace de 10 jours avant le decay',       req:{level:18}, effect:{graceExtend:3}, type:'base' },
+            { id:'xp_surge',     name:'Sursaut d\'XP',      emoji:'⚡', desc:'+30% XP global permanent',               req:{level:30}, effect:{xpAll:0.30}, type:'base' },
         ];
+
+        // ── COMPÉTENCES SPÉCIFIQUES PAR CLASSE ─────────────────────────
+        const SKILL_TREE_BY_CLASS = {
+            shadow_assassin: [
+                { id:'sa_shadow_step', name:'Pas de l\'Ombre',         emoji:'👤', desc:'+5 AGI permanent',                                     req:{level:7},  effect:{statBonus:{AGI:5}}, type:'class' },
+                { id:'sa_critical',    name:'Frappe Critique',         emoji:'💥', desc:'10% chance d\'XP doublé sur exercices d\'isolation',  req:{level:11}, effect:{critChance:0.10}, type:'class' },
+                { id:'sa_silent_hunt', name:'Chasse Silencieuse',      emoji:'🌑', desc:'+20% chance de drop épique',                            req:{level:15}, effect:{epicDropBonus:0.20}, type:'class' },
+                { id:'sa_phantom',     name:'Marche Fantôme',          emoji:'💨', desc:'Esquive 15% des pénalités de défi échoué',              req:{level:20}, effect:{penaltyDodge:0.15}, type:'class' },
+                { id:'sa_assassinate', name:'Assassinat',              emoji:'🗡️', desc:'15% chance de drop épique → drop légendaire',           req:{level:25}, effect:{epicToLegendary:0.15}, type:'class' },
+                { id:'sa_void_blade',  name:'Lame du Vide',            emoji:'⚜️', desc:'+10 AGI · +8 PER · +10% chance double drop',           req:{level:32}, effect:{statBonus:{AGI:10,PER:8},doubleDropChance:0.10}, type:'class' },
+            ],
+            iron_berserker: [
+                { id:'ib_bloodlust',   name:'Soif de Sang',            emoji:'🩸', desc:'+5 STR permanent',                                      req:{level:7},  effect:{statBonus:{STR:5}}, type:'class' },
+                { id:'ib_overpower',   name:'Force Brute',             emoji:'💪', desc:'+30% XP sur les exercices de force pure',               req:{level:11}, effect:{xpHeavy:0.30}, type:'class' },
+                { id:'ib_iron_skin',   name:'Peau de Fer',             emoji:'🛡️', desc:'-25% pénalités stats sur tes équipements',              req:{level:15}, effect:{equipPenaltyReduction:0.25}, type:'class' },
+                { id:'ib_rampage',     name:'Saccage',                 emoji:'⚒️', desc:'5% chance de tripler l\'XP d\'une série',             req:{level:20}, effect:{rampageChance:0.05}, type:'class' },
+                { id:'ib_immortal',    name:'Cœur Immortel',           emoji:'❤️\u200d🔥', desc:'Immunité totale à xp_curse',                    req:{level:25}, effect:{immuneXPCurse:true}, type:'class' },
+                { id:'ib_war_god',     name:'Dieu de la Guerre',       emoji:'👹', desc:'+12 STR · +6 END · 10% chance de doubler XP',          req:{level:32}, effect:{statBonus:{STR:12,END:6},doubleXPChance:0.10}, type:'class' },
+            ],
+            titan_guardian: [
+                { id:'tg_unbreakable', name:'Inébranlable',            emoji:'🏔️', desc:'+5 VIT permanent',                                      req:{level:7},  effect:{statBonus:{VIT:5}}, type:'class' },
+                { id:'tg_endurance',   name:'Endurance Légendaire',    emoji:'💚', desc:'+30% XP sur séances >45 min',                           req:{level:11}, effect:{xpLongSession:0.30}, type:'class' },
+                { id:'tg_fortress',    name:'Forteresse Vivante',      emoji:'🏰', desc:'-35% pénalités de défi échoué',                         req:{level:15}, effect:{penaltyReduction:0.35}, type:'class' },
+                { id:'tg_regen',       name:'Régénération',            emoji:'💖', desc:'Récupère 1 niveau de muscle perdu / semaine',           req:{level:20}, effect:{weeklyRegen:1}, type:'class' },
+                { id:'tg_aegis',       name:'Égide du Titan',          emoji:'🛡️', desc:'Immunité totale à muscle_decay',                        req:{level:25}, effect:{immuneMuscleDecay:true}, type:'class' },
+                { id:'tg_atlas',       name:'Force d\'Atlas',          emoji:'🪨', desc:'+10 VIT · +6 END · -50% toutes pénalités',             req:{level:32}, effect:{statBonus:{VIT:10,END:6},penaltyReduction:0.50}, type:'class' },
+            ],
+            storm_archer: [
+                { id:'as_eagle_eye',   name:'Œil d\'Aigle',            emoji:'👁️', desc:'+5 PER permanent',                                      req:{level:7},  effect:{statBonus:{PER:5}}, type:'class' },
+                { id:'as_precision',   name:'Précision Mortelle',      emoji:'🎯', desc:'+25% XP sur les exercices d\'isolation',                req:{level:11}, effect:{xpIsolation:0.25}, type:'class' },
+                { id:'as_far_sight',   name:'Vision Lointaine',        emoji:'🔭', desc:'Voit les drops +1 niveau supérieur',                    req:{level:15}, effect:{dropReveal:1}, type:'class' },
+                { id:'as_wind_walker', name:'Marcheur du Vent',        emoji:'💨', desc:'+15% chance de drop épique',                            req:{level:20}, effect:{epicDropBonus:0.15}, type:'class' },
+                { id:'as_omniscient',  name:'Omniscience',             emoji:'👁️\u200d🗨️', desc:'Révèle les stats cachées des items',          req:{level:25}, effect:{revealHiddenStats:true}, type:'class' },
+                { id:'as_system_eye',  name:'Œil du Système',          emoji:'🌀', desc:'+10 PER · +6 AGI · drops +2 niveaux',                   req:{level:32}, effect:{statBonus:{PER:10,AGI:6},dropReveal:2}, type:'class' },
+            ],
+            arcane_mage: [
+                { id:'am_meditation',  name:'Méditation',              emoji:'🧘', desc:'+5 SEN permanent',                                      req:{level:7},  effect:{statBonus:{SEN:5}}, type:'class' },
+                { id:'am_mana_flow',   name:'Flux de Mana',            emoji:'💠', desc:'+40% XP sur les exercices techniques',                  req:{level:11}, effect:{xpTechnical:0.40}, type:'class' },
+                { id:'am_arcane_pact', name:'Pacte Arcanique',         emoji:'🔮', desc:'+1 point de stat bonus à chaque niveau',                req:{level:15}, effect:{extraStatPoint:1}, type:'class' },
+                { id:'am_dispel',      name:'Dissipation',             emoji:'✨', desc:'Peut effacer 1 pénalité active / 30 jours',             req:{level:20}, effect:{dispelMonthly:true}, type:'class' },
+                { id:'am_telepathy',   name:'Télépathie Musculaire',   emoji:'🌌', desc:'+30% XP sur mobilité et étirements',                    req:{level:25}, effect:{xpMobility:0.30}, type:'class' },
+                { id:'am_reality_warp',name:'Faille de Réalité',       emoji:'🌠', desc:'+10 SEN · +6 PER · +2 stat points / niveau',           req:{level:32}, effect:{statBonus:{SEN:10,PER:6},extraStatPoint:2}, type:'class' },
+            ],
+            monarch_aspirant: [
+                { id:'ma_balanced',    name:'Équilibre Parfait',       emoji:'⚖️', desc:'+3 dans toutes les stats',                              req:{level:7},  effect:{statBonus:{STR:3,AGI:3,VIT:3,END:3,PER:3,SEN:3}}, type:'class' },
+                { id:'ma_versatile',   name:'Adaptabilité',            emoji:'🔀', desc:'+15% XP sur TOUS les exercices',                        req:{level:11}, effect:{xpAll:0.15}, type:'class' },
+                { id:'ma_royal_blood', name:'Sang Royal',              emoji:'👑', desc:'10% chance de drop double item',                        req:{level:15}, effect:{doubleDropChance:0.10}, type:'class' },
+                { id:'ma_command',     name:'Commandement',            emoji:'⚔️', desc:'+20% XP sur compounds + isolations',                    req:{level:20}, effect:{xpCompound:0.20,xpIsolation:0.20}, type:'class' },
+                { id:'ma_throne',      name:'Le Trône',                emoji:'🪑', desc:'+25% chance de drop légendaire',                        req:{level:25}, effect:{legendaryDropBonus:0.25}, type:'class' },
+                { id:'ma_sovereign',   name:'Souveraineté Absolue',    emoji:'🌑', desc:'+8 toutes stats · 20% double drop · +50% XP',           req:{level:32}, effect:{statBonus:{STR:8,AGI:8,VIT:8,END:8,PER:8,SEN:8},doubleDropChance:0.20,xpAll:0.50}, type:'class' },
+            ],
+        };
+
+        function rpgGetSkillTree() {
+            const cls = rpgGetClass();
+            const classSkills = cls ? (SKILL_TREE_BY_CLASS[cls.id] || []) : [];
+            return [...SKILL_TREE_BASE, ...classSkills];
+        }
+
+        // SKILL_TREE alias dynamique
+        function _getSKILL_TREE() { return rpgGetSkillTree(); }
+        const SKILL_TREE = new Proxy([], {
+            get(_, p) {
+                const tree = _getSKILL_TREE();
+                if (p === 'length') return tree.length;
+                if (typeof tree[p] === 'function') return tree[p].bind(tree);
+                return tree[p];
+            }
+        });
 
         function rpgGetUnlockedSkills() {
             try { return JSON.parse(localStorage.getItem('fitproRPGSkills')||'[]'); } catch(e) { return []; }
@@ -19410,6 +19787,105 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         }
 
         // ── HOOK XP avec effets compétences + classe ──────────────────
+        // ════════════════════════════════════════════════════════════
+        // SYSTÈME DE POINTS DE STATS — 4 points par level de profil
+        // ════════════════════════════════════════════════════════════
+        const STAT_POINTS_PER_LEVEL = 4;
+        const STAT_POINT_STATS = ['STR','AGI','VIT','END','PER','SEN'];
+        const STAT_POINT_LABELS = { STR:'⚔️ Force', AGI:'⚡ Agilité', VIT:'💙 Vitalité', END:'💚 Endurance', PER:'👁️ Perception', SEN:'🌀 Sens' };
+        const STAT_POINT_COLORS = { STR:'#ef4444', AGI:'#f59e0b', VIT:'#3b82f6', END:'#22c55e', PER:'#06b6d4', SEN:'#a855f7' };
+
+        function statPointsLoad() {
+            try { return JSON.parse(localStorage.getItem('fitproStatPoints') || 'null') || { available:0, allocated:{STR:0,AGI:0,VIT:0,END:0,PER:0,SEN:0}, lastLevel:1 }; }
+            catch(e) { return { available:0, allocated:{STR:0,AGI:0,VIT:0,END:0,PER:0,SEN:0}, lastLevel:1 }; }
+        }
+        function statPointsSave(sp) { localStorage.setItem('fitproStatPoints', JSON.stringify(sp)); }
+
+        function statPointsGetAllocated() { return statPointsLoad().allocated; }
+
+        function statPointsCheckLevelUp(currentProfileLevel) {
+            const sp = statPointsLoad();
+            const lastLevel = sp.lastLevel || 1;
+            if (currentProfileLevel > lastLevel) {
+                const levelsGained = currentProfileLevel - lastLevel;
+                sp.available += levelsGained * STAT_POINTS_PER_LEVEL;
+                sp.lastLevel = currentProfileLevel;
+                statPointsSave(sp);
+            }
+        }
+
+        function statPointsAllocate(stat, amount) {
+            if (!STAT_POINT_STATS.includes(stat)) return false;
+            const sp = statPointsLoad();
+            amount = amount || 1;
+            if (sp.available < amount) return false;
+            sp.available -= amount;
+            sp.allocated[stat] = (sp.allocated[stat] || 0) + amount;
+            statPointsSave(sp);
+            renderGameTab();
+            return true;
+        }
+
+        function statPointsReset() {
+            const sp = statPointsLoad();
+            const totalAllocated = Object.values(sp.allocated).reduce((a,b)=>a+b,0);
+            sp.available += totalAllocated;
+            sp.allocated = {STR:0,AGI:0,VIT:0,END:0,PER:0,SEN:0};
+            statPointsSave(sp);
+            renderGameTab();
+            showToast('Points de stats réinitialisés.','info',2000);
+        }
+
+        function renderStatPointsCard(profileLevel) {
+            const sp = statPointsLoad();
+            // S'assurer que le niveau est à jour
+            statPointsCheckLevelUp(profileLevel);
+            const spFresh = statPointsLoad();
+            const hasPoints = spFresh.available > 0;
+            const totalAllocated = Object.values(spFresh.allocated).reduce((a,b)=>a+b,0);
+
+            return `<div class="card" style="background:linear-gradient(160deg,#080c14,#0d1220);border:1.5px solid ${hasPoints?'rgba(245,158,11,0.45)':'rgba(255,255,255,0.06)'};${hasPoints?'box-shadow:0 0 20px rgba(245,158,11,0.12);':''}">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+                    <div>
+                        <div style="font-size:0.58em;color:rgba(245,158,11,0.6);font-weight:800;text-transform:uppercase;letter-spacing:2px;margin-bottom:2px;">◈ Points de Stats</div>
+                        <div style="font-size:0.95em;font-weight:900;color:white;">Distribution de Stats</div>
+                    </div>
+                    <div style="text-align:right;flex-shrink:0;">
+                        ${hasPoints ? `<div style="background:rgba(245,158,11,0.15);border:1.5px solid rgba(245,158,11,0.4);border-radius:99px;padding:4px 12px;font-size:0.78em;font-weight:900;color:#fbbf24;">${spFresh.available} pt${spFresh.available>1?'s':''} dispo</div>` : `<div style="font-size:0.68em;color:#334155;">${totalAllocated} pts alloués</div>`}
+                    </div>
+                </div>
+
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+                    ${STAT_POINT_STATS.map(stat => {
+                        const val = spFresh.allocated[stat] || 0;
+                        const col = STAT_POINT_COLORS[stat];
+                        const label = STAT_POINT_LABELS[stat];
+                        return `<div style="background:#0a0e18;border:1px solid rgba(255,255,255,0.05);border-radius:12px;padding:10px 12px;">
+                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+                                <span style="font-size:0.72em;font-weight:700;color:${col};">${label}</span>
+                                <span style="font-size:0.88em;font-weight:900;color:${col};">+${val}</span>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:6px;">
+                                <button onclick="statPointsAllocate('${stat}',-1)" style="width:26px;height:26px;border-radius:7px;border:1px solid rgba(255,255,255,0.1);background:#111;color:#fff;font-size:1em;cursor:pointer;display:flex;align-items:center;justify-content:center;${val===0?'opacity:0.3;pointer-events:none;':''}">−</button>
+                                <div style="flex:1;height:5px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden;">
+                                    <div style="height:100%;width:${Math.min(100,val*5)}%;background:${col};border-radius:99px;transition:width 0.3s;"></div>
+                                </div>
+                                <button onclick="statPointsAllocate('${stat}',1)" style="width:26px;height:26px;border-radius:7px;border:1px solid ${col}40;background:${col}18;color:${col};font-size:1em;cursor:pointer;display:flex;align-items:center;justify-content:center;${spFresh.available===0?'opacity:0.3;pointer-events:none;':''}">+</button>
+                            </div>
+                        </div>`;
+                    }).join('')}
+                </div>
+
+                ${totalAllocated > 0 ? `
+                <button onclick="statPointsReset()" style="width:100%;padding:8px;border-radius:10px;border:1px solid rgba(239,68,68,0.2);background:rgba(239,68,68,0.06);color:#f87171;font-size:0.75em;font-weight:700;cursor:pointer;">
+                    🔄 Réinitialiser tous les points (${totalAllocated} pts)
+                </button>` : `
+                <div style="font-size:0.68em;color:#1e293b;text-align:center;padding:4px 0;">
+                    ${hasPoints ? '⬆️ Tu as des points à distribuer — alloue-les !' : 'Monte de niveau pour obtenir des points · +4 pts/niveau'}
+                </div>`}
+            </div>`;
+        }
+
         function rpgApplyXPMultipliers(baseXP, muscleName, exerciseType) {
             let mult = 1;
             const prestige = rpgGetPrestigeLevel();
@@ -19913,17 +20389,27 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         }
 
         function rpgShowLevelUp(muscle, level) {
-            // Son et vibration si activés
             try { playBeep(); } catch(e) {}
             try { vibrate([100,50,200,50,300]); } catch(e) {}
+
+            // Vérifier si un level de profil a été atteint → donner des points
+            const _lifeXP = Object.values((rpgLoad().muscles||{})).reduce((s,m)=>s+(m.xp||0),0)
+                          + parseInt(localStorage.getItem('fitproRPGLifetimeXP')||'0');
+            statPointsCheckLevelUp(rpgLevelFromXP(_lifeXP));
+
             const overlay = document.createElement('div');
             overlay.style.cssText = 'position:fixed;inset:0;z-index:30000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);animation:fadeIn 0.2s;';
+            const sp = statPointsLoad();
+            const pointsMsg = sp.available > 0
+                ? `<div style="margin-top:12px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.35);border-radius:10px;padding:8px 12px;font-size:0.78em;color:#fbbf24;font-weight:700;">⭐ +4 points de stats disponibles !</div>`
+                : '';
             overlay.innerHTML = `
                 <div style="background:linear-gradient(160deg,#0F1014,#166534);border-radius:24px;padding:36px 32px;max-width:320px;width:90%;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,0.5);animation:slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);">
                     <div style="font-size:3.5em;margin-bottom:12px;animation:pulse-warning 0.8s infinite;">⬆️</div>
                     <div style="font-size:0.82em;font-weight:700;letter-spacing:1.5px;color:#4ade80;text-transform:uppercase;margin-bottom:6px;">Level Up !</div>
                     <div style="font-size:1.6em;font-weight:900;color:white;margin-bottom:4px;">${muscle}</div>
                     <div style="font-size:2.8em;font-weight:900;color:#fbbf24;letter-spacing:-2px;">Niv. ${level}</div>
+                    ${pointsMsg}
                     <div style="margin-top:16px;font-size:0.85em;color:rgba(255,255,255,0.6);">Continue comme ça ! 💪</div>
                     <button onclick="this.closest('[style*=\"fixed\"]').remove()" style="margin-top:20px;width:100%;padding:12px;background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.25);border-radius:12px;color:white;font-weight:700;cursor:pointer;font-size:0.95em;">Super !</button>
                 </div>`;
@@ -19931,7 +20417,6 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             launchConfetti();
             setTimeout(() => { if (overlay.parentNode) overlay.remove(); }, 6000);
         }
-
         function rpgShowXPPop(xp, muscle) {
             // Petit toast discret +XP
             const el = document.createElement('div');
@@ -22897,9 +23382,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     qQuote.style.fontStyle = 'italic';
                 }
             }
-            // Volume hebdo par muscle
+            // Volume hebdo retiré — gardé en cache si besoin futur
             const volEl = $el('weeklyVolumeWidget');
-            if (volEl) volEl.innerHTML = renderWeeklyVolumeWidget();
+            if (volEl) volEl.innerHTML = '';
         }
 
         // ══════════════════════════════════════════════════════════
@@ -24011,6 +24496,20 @@ self.addEventListener('message', e => {
             loadAdvancedMode();
             setTimeout(initGameMode, 800);
             setTimeout(initHunterMode, 850);
+            // Initialiser le suivi des points de stats (1× pour ne pas donner rétroactivement)
+            setTimeout(() => {
+                try {
+                    const sp = statPointsLoad();
+                    if (!localStorage.getItem('fitproStatPoints')) {
+                        // Premier usage : aligner lastLevel sur le niveau actuel pour ne pas créditer le passé
+                        const data = rpgLoad();
+                        const totalXP = Object.values(data.muscles||{}).reduce((s,m)=>s+(m.xp||0),0)
+                                      + parseInt(localStorage.getItem('fitproRPGLifetimeXP')||'0');
+                        sp.lastLevel = rpgLevelFromXP(totalXP);
+                        statPointsSave(sp);
+                    }
+                } catch(e) {}
+            }, 900);
         renderEquipmentGrid();
             renderMuscleGrid();
             updateHomeMuscleCount(); // Update muscle count on home

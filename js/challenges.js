@@ -1297,12 +1297,14 @@ function renderChallengeSection() {
         const urgentColor = isUrgent ? '#ef4444' : '#a855f7';
 
         challengeHtml = `
-            <div style="
+            <div onclick="showActiveChallengeDetails()" style="
                 background:linear-gradient(135deg,#0a0a14,#14001e);
                 border:1.5px solid ${urgentColor}40;
                 border-radius:16px;padding:16px;margin-bottom:14px;
                 box-shadow:0 0 20px ${urgentColor}15;
-            ">
+                cursor:pointer;transition:all 0.2s;
+            " onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 24px ${urgentColor}30';"
+               onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 0 20px ${urgentColor}15';">
                 <!-- Header -->
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
                     <div style="font-size:0.62em;color:${urgentColor};font-weight:700;text-transform:uppercase;letter-spacing:2px;">
@@ -1316,12 +1318,13 @@ function renderChallengeSection() {
                 <!-- Mission -->
                 <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;">
                     <span style="font-size:1.8em;flex-shrink:0;">${challenge.icon}</span>
-                    <div>
+                    <div style="flex:1;min-width:0;">
                         <div style="font-size:0.95em;font-weight:800;color:white;line-height:1.4;">${challenge.label}</div>
                         <div style="font-size:0.72em;color:rgba(255,255,255,0.4);margin-top:4px;">
                             Progression : ${progress} / ${challenge.target} ${challenge.units}
                         </div>
                     </div>
+                    <div style="font-size:0.7em;color:rgba(255,255,255,0.3);flex-shrink:0;margin-top:2px;">›</div>
                 </div>
 
                 <!-- Barre progress -->
@@ -1337,6 +1340,10 @@ function renderChallengeSection() {
                         <span style="font-size:0.72em;color:rgba(255,255,255,0.5);">${challenge.penaltyName}</span>
                     </div>
                 </div>
+
+                <div style="text-align:center;margin-top:10px;font-size:0.65em;color:rgba(168,85,247,0.5);letter-spacing:1px;">
+                    ◈ TAP POUR LES DÉTAILS ◈
+                </div>
             </div>`;
     }
 
@@ -1345,28 +1352,8 @@ function renderChallengeSection() {
 
 // ── Patch renderAdventureTab pour inclure les défis ─────────────────────
 // This function REPLACES the one in adventure.js once challenges.js loads
-function renderAdventureTab() {
-    const container = document.getElementById('adventureContainer');
-    if (!container) return;
-
-    if (!getAdventureEnabled()) {
-        container.innerHTML = typeof renderAdventureDisabled === 'function'
-            ? renderAdventureDisabled()
-            : '<div style="text-align:center;padding:40px;color:#64748b;">Mode aventure désactivé.</div>';
-        return;
-    }
-
-    // Build full adventure HTML
-    container.innerHTML = `
-        ${renderChallengeSection()}
-        ${typeof renderPlayerCard      === 'function' ? renderPlayerCard()      : ''}
-        ${typeof renderEquipmentSlots  === 'function' ? renderEquipmentSlots()  : ''}
-        ${typeof renderSetBonusesCard  === 'function' ? renderSetBonusesCard()  : ''}
-        ${typeof renderInventoryCard   === 'function' ? renderInventoryCard()   : ''}
-    `;
-
-    startChallengeTimer();
-}
+// ── renderAdventureTab géré dans adventure.js (qui inclut déjà renderChallengeSection si dispo) ───
+// Pas de duplication ici pour éviter d'écraser la version complète d'adventure.js
 
 // ── Timer live pour le compte à rebours du défi ─────────────────────────
 let _challengeTimerInterval = null;
@@ -1423,6 +1410,90 @@ function initChallengeSystem() {
 function tryGenerateChallengeAfterWorkout() {
     // Intentionnellement vide — les défis arrivent à l'ouverture, pas après chaque séance
 }
+
+// Affiche les détails complets du défi en cours (rouvre le modal d'émission)
+function showActiveChallengeDetails() {
+    const challenge = getActiveChallenge();
+    if (!challenge || challenge.status !== 'active') return;
+
+    // Calculer la progression actuelle pour l'afficher
+    const progress = getChallengeProgress(challenge);
+    const pct = Math.min(100, Math.round((progress / challenge.target) * 100));
+    const deadline = new Date(challenge.deadline);
+    const msLeft = deadline - Date.now();
+    const hoursLeft = Math.max(0, Math.floor(msLeft / 3600000));
+    const minsLeft  = Math.max(0, Math.floor((msLeft % 3600000) / 60000));
+    const dateStr   = deadline.toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long', hour:'2-digit', minute:'2-digit' });
+    const isLeg     = challenge.isLegendary;
+
+    document.getElementById('challengeIssuedModal')?.remove();
+
+    const borderColor = isLeg ? '#f59e0b' : 'rgba(168,85,247,0.5)';
+    const glowColor   = isLeg ? 'rgba(245,158,11,0.4)' : 'rgba(168,85,247,0.2)';
+    const accentColor = isLeg ? '#f59e0b' : '#a855f7';
+    const btnBg       = isLeg ? 'linear-gradient(135deg,#92400e,#d97706)' : 'linear-gradient(135deg,#7c3aed,#4f46e5)';
+
+    const modal = document.createElement('div');
+    modal.id = 'challengeIssuedModal';
+    modal.style.cssText = `
+        position:fixed;inset:0;z-index:10002;
+        background:${isLeg ? 'rgba(0,0,0,0.97)' : 'rgba(0,0,0,0.95)'};
+        display:flex;align-items:center;justify-content:center;
+        padding:20px;animation:fadeIn 0.3s ease;
+    `;
+
+    modal.innerHTML = `
+        <div style="
+            width:100%;max-width:380px;background:#0a0a0a;border-radius:24px;
+            padding:28px 22px;text-align:center;
+            border:${isLeg ? '2px' : '1.5px'} solid ${borderColor};
+            box-shadow:0 0 80px ${glowColor};
+            position:relative;overflow:hidden;max-height:92vh;overflow-y:auto;
+        ">
+            ${isLeg ? `<div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(245,158,11,0.08),transparent 60%);pointer-events:none;"></div>` : ''}
+
+            <div style="font-size:0.65em;color:${accentColor};font-weight:700;text-transform:uppercase;letter-spacing:4px;margin-bottom:10px;">
+                ${isLeg ? '✦ DÉFI LÉGENDAIRE ✦' : '📜 DÉFI ACTIF'}
+            </div>
+
+            <div style="font-size:${isLeg?'4':'3.5'}em;margin-bottom:14px;">${challenge.icon}</div>
+
+            ${challenge.issueMessage ? `<div style="font-size:0.78em;color:${accentColor};font-style:italic;margin-bottom:16px;line-height:1.5;opacity:0.85;">"${challenge.issueMessage}"</div>` : ''}
+
+            <!-- Mission -->
+            <div style="background:rgba(${isLeg?'245,158,11':'168,85,247'},0.08);border:1px solid rgba(${isLeg?'245,158,11':'168,85,247'},0.25);border-radius:14px;padding:16px;margin-bottom:14px;">
+                <div style="font-size:0.65em;color:rgba(255,255,255,0.4);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Mission</div>
+                <div style="font-size:0.95em;font-weight:800;color:white;line-height:1.4;margin-bottom:10px;">${challenge.label}</div>
+
+                <div style="height:8px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden;margin-bottom:8px;">
+                    <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#7c3aed,#a855f7);border-radius:99px;"></div>
+                </div>
+                <div style="font-size:0.72em;color:rgba(255,255,255,0.5);">${progress} / ${challenge.target} ${challenge.units} · <span style="color:${accentColor};font-weight:700;">${pct}%</span></div>
+                <div style="font-size:0.7em;color:rgba(255,255,255,0.4);margin-top:6px;">⏰ ${hoursLeft}h ${minsLeft}m · échéance ${dateStr}</div>
+                ${isLeg ? `<div style="margin-top:10px;display:inline-block;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);border-radius:99px;padding:3px 12px;font-size:0.66em;color:#f59e0b;font-weight:700;">✦ Réussite = +5000 XP + Drop garanti</div>` : ''}
+            </div>
+
+            <!-- Pénalité en cas d'échec -->
+            <div style="background:rgba(239,68,68,${isLeg?'0.12':'0.08'});border:${isLeg?'2':'1'}px solid rgba(239,68,68,${isLeg?'0.4':'0.2'});border-radius:12px;padding:12px;margin-bottom:20px;text-align:left;">
+                <div style="font-size:0.62em;color:#ef4444;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">⛓️ Pénalité en cas d'échec</div>
+                <div style="font-size:0.88em;font-weight:800;color:#f87171;margin-bottom:4px;">${challenge.penaltyIcon} ${challenge.penaltyName}</div>
+                <div style="font-size:0.72em;color:rgba(255,255,255,0.5);line-height:1.5;">${challenge.penaltyDesc}</div>
+            </div>
+
+            <button onclick="document.getElementById('challengeIssuedModal').remove();"
+                    style="width:100%;padding:13px;border-radius:13px;border:none;cursor:pointer;
+                           background:${btnBg};color:white;font-size:0.9em;font-weight:800;">
+                ⚔️ Fermer
+            </button>
+        </div>
+    `;
+    modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+    document.body.appendChild(modal);
+}
+
+window.showActiveChallengeDetails = showActiveChallengeDetails;
+window.renderChallengeSection     = renderChallengeSection;
+window.startChallengeTimer        = startChallengeTimer;
 
 // Exposer globalement
 window.tryGenerateChallengeAfterWorkout = tryGenerateChallengeAfterWorkout;
