@@ -713,6 +713,33 @@ var EXERCISE_IMAGES = {
   'Ball leg raise':                'images/exercises/Ball_leg_raise.webp',
   'Ball pike':                     'images/exercises/Ball_Pike.webp',
   'Ball Russian twist':            'images/exercises/Ball_Russian_twist.webp',
+  'Ball planche':                  'images/exercises/Ball_planche.webp',
+  'Ball push-up':                  'images/exercises/Ball_push-up.webp',
+  'Ball wall squat':               'images/exercises/Ball_wall_squat.webp',
+  'Band Chest Press':              'images/exercises/Band_Chest_Press.webp',
+  'Band Face Pull':                'images/exercises/Band_Face_Pull.webp',
+  'Band Pull Apart':               'images/exercises/Band_Pull_Apart.webp',
+  'Banded Deadlift':               'images/exercises/Banded_Deadlift.webp',
+  'Banded Glute Bridge':           'images/exercises/Banded_Glute_Bridge.webp',
+  'Banded Squats':                 'images/exercises/Banded_Squats.webp',
+  'Barbell Row':                   'images/exercises/Barbell_Row.webp',
+  'Battle ropes gym':              'images/exercises/Battle_ropes_gym.webp',
+  'Bear crawl':                    'images/exercises/Bear_crawl.webp',
+  'Bench Press':                   'images/exercises/Bench_Press.webp',
+  'Bench Press Smith machine':     'images/exercises/Bench_Press_Smith_machine.webp',
+  'Bench Step-up':                 'images/exercises/Bench_Step-up.webp',
+  'Bent-over row prise large':     'images/exercises/Bent-over_row_prise_large.webp',
+  'Bicep Curl machine':            'images/exercises/Biceps_curl_machine.webp',
+  'Curl biceps machine':           'images/exercises/Biceps_curl_machine.webp',
+  'Biceps curl élastique':         'images/exercises/Biceps_curl_élastique.webp',
+  'Bicycle crunch':                'images/exercises/Bicycle_crunch.webp',
+  'Box Jump - Emphasis Mollets':   'images/exercises/Box_Jump_Emphasis_Mollets.webp',
+  'Box jumps':                     'images/exercises/Box_jumps.webp',
+  'Bras croisés poitrine':         'images/exercises/Bras_croisés_poitrine.webp',
+  'Burpees':                       'images/exercises/Burpees.webp',
+  'Burpees légers':                'images/exercises/Burpees_légers.webp',
+  'Cable Crossover':               'images/exercises/Cable_Crossover.webp',
+  'Cable crossover':               'images/exercises/Cable_Crossover.webp',
 };
 
 function hasExerciseImage(name) {
@@ -769,7 +796,8 @@ function _buildLazyImg(src, name, extraStyle) {
   // Lazy loading natif du navigateur — fiable et simple
   var baseStyle = 'width:100%;height:100%;object-fit:cover;display:block;background:#0d1220;' + (extraStyle || '');
   var safeName = (name || '').replace(/"/g, '&quot;');
-  return '<img src="' + src + '" alt="' + safeName + '" style="' + baseStyle + '" loading="lazy" decoding="async"/>';
+  // onerror : si l'image ne charge pas, on cache pour ne pas montrer de carré gris cassé
+  return '<img src="' + src + '" alt="' + safeName + '" style="' + baseStyle + '" loading="lazy" decoding="async" onerror="this.style.display=\'none\';this.parentElement&&(this.parentElement.style.display=\'none\')"/>';
 }
 
 function toImgHTML(src, name) {

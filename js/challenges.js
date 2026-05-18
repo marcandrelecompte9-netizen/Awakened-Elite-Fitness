@@ -1278,12 +1278,11 @@ function renderChallengeSection() {
     let challengeHtml = '';
     if (!challenge || challenge.status !== 'active') {
         // Pas de défi actif — afficher option d'en générer un
-        const canGenerate = !challenge || challenge.status !== 'active';
         challengeHtml = `
-            <div style="background:#0f0f0f;border:1.5px dashed rgba(168,85,247,0.2);border-radius:16px;padding:20px;text-align:center;margin-bottom:14px;">
-                <div style="font-size:1.8em;margin-bottom:8px;opacity:0.3;">📜</div>
-                <div style="font-weight:700;color:#334155;margin-bottom:4px;">Aucun défi actif</div>
-                <div style="font-size:0.78em;color:#1e293b;">Le Système t'observe… peut-être reviendra-t-il.</div>
+            <div style="background:linear-gradient(160deg,#0a0e18,#0F1014);border:1.5px dashed rgba(168,85,247,0.3);border-radius:16px;padding:20px;text-align:center;margin-bottom:14px;">
+                <div style="font-size:2em;margin-bottom:10px;opacity:0.5;">📜</div>
+                <div style="font-weight:800;color:#c084fc;margin-bottom:6px;font-size:0.95em;letter-spacing:0.5px;">Aucun défi actif</div>
+                <div style="font-size:0.78em;color:#94a3b8;line-height:1.5;">Le Système t'observe…<br/>peut-être reviendra-t-il à ta prochaine séance.</div>
             </div>`;
     } else {
         const progress = getChallengeProgress(challenge);

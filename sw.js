@@ -1,7 +1,7 @@
 // Awakened — Service Worker
 // Enables full offline support and PWA installation
 
-const CACHE_NAME = 'awakened-v5';
+const CACHE_NAME = 'awakened-v6';
 const ASSETS = [
   '/',
   '/index.html',

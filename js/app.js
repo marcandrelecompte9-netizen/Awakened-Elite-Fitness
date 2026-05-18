@@ -252,71 +252,71 @@
                 const todayCompleted = activeChallenge.completedDays.includes(today.toISOString().split('T')[0]);
 
                 activeDisplay.innerHTML = `
-                    <div style="background: linear-gradient(135deg, ${activeChallenge.color}15 0%, ${activeChallenge.color}05 100%); padding: 30px; border-radius: 16px; border: 2px solid ${activeChallenge.color}40; margin-bottom: 30px;">
-                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 20px;">
-                            <div>
-                                <div style="font-size: 3em; margin-bottom: 10px;">${activeChallenge.emoji}</div>
-                                <h3 style="margin: 0 0 10px 0; color: ${activeChallenge.color};">${activeChallenge.name}</h3>
-                                <p style="margin: 0; color: #666; font-size: 0.95em;">${activeChallenge.description}</p>
+                    <div style="background: linear-gradient(160deg, #0a0e18 0%, #0F1014 100%); padding: 24px; border-radius: 18px; border: 1.5px solid ${activeChallenge.color}50; margin-bottom: 24px; box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 0 0 1px ${activeChallenge.color}10 inset;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; gap: 12px;">
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="font-size: 2.6em; margin-bottom: 8px; filter: drop-shadow(0 0 12px ${activeChallenge.color}80); line-height: 1;">${activeChallenge.emoji}</div>
+                                <h3 style="margin: 0 0 6px 0; color: white; font-weight: 900; font-size: 1.15em;">${activeChallenge.name}</h3>
+                                <p style="margin: 0; color: #94a3b8; font-size: 0.85em; line-height: 1.5;">${activeChallenge.description}</p>
                             </div>
-                            <button onclick="abandonChallenge()" class="btn" style="background: #ef4444; padding: 8px 16px; font-size: 0.9em;">
-                                ❌ Abandonner
+                            <button onclick="abandonChallenge()" style="background: rgba(239,68,68,0.1); color: #f87171; border: 1px solid rgba(239,68,68,0.3); border-radius: 10px; padding: 7px 11px; font-size: 0.78em; font-weight: 800; cursor: pointer; flex-shrink: 0;">
+                                ✕ Abandonner
                             </button>
                         </div>
 
                         <!-- Progress Bar -->
-                        <div style="margin: 20px 0;">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                                <span style="font-weight: 600; color: ${activeChallenge.color};">Progression</span>
-                                <span style="font-weight: 600; color: ${activeChallenge.color};">${daysCompleted}/${activeChallenge.duration} jours (${progressPercent}%)</span>
+                        <div style="margin: 18px 0;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                                <span style="font-weight: 800; color: ${activeChallenge.color}; font-size: 0.78em; letter-spacing: 0.5px;">PROGRESSION</span>
+                                <span style="font-weight: 800; color: ${activeChallenge.color}; font-size: 0.82em;">${daysCompleted}/${activeChallenge.duration} jours · ${progressPercent}%</span>
                             </div>
-                            <div style="background: #e5e7eb; height: 24px; border-radius: 12px; overflow: hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);">
-                                <div style="width: ${progressPercent}%; height: 100%; background: linear-gradient(90deg, ${activeChallenge.color} 0%, ${activeChallenge.color}dd 100%); transition: width 0.5s ease; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.85em;">
-                                    ${progressPercent > 20 ? progressPercent + '%' : ''}
+                            <div style="background: rgba(255,255,255,0.04); height: 18px; border-radius: 99px; overflow: hidden; border: 1px solid rgba(255,255,255,0.06);">
+                                <div style="width: ${progressPercent}%; height: 100%; background: linear-gradient(90deg, ${activeChallenge.color} 0%, ${activeChallenge.color}cc 100%); transition: width 0.5s ease; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 0.72em; box-shadow: 0 0 12px ${activeChallenge.color}80;">
+                                    ${progressPercent > 25 ? progressPercent + '%' : ''}
                                 </div>
                             </div>
                         </div>
 
                         <!-- Stats -->
-                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 20px 0;">
-                            <div style="text-align: center; padding: 15px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                                <div style="font-size: 2em; margin-bottom: 5px;">🔥</div>
-                                <div style="font-size: 1.8em; font-weight: bold; color: ${activeChallenge.color};">${activeChallenge.currentStreak}</div>
-                                <div style="font-size: 0.85em; color: #666;">Série actuelle</div>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 16px 0;">
+                            <div style="text-align: center; padding: 12px 8px; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(255,255,255,0.06);">
+                                <div style="font-size: 1.5em; margin-bottom: 4px;">🔥</div>
+                                <div style="font-size: 1.5em; font-weight: 900; color: ${activeChallenge.color}; line-height: 1;">${activeChallenge.currentStreak}</div>
+                                <div style="font-size: 0.66em; color: #94a3b8; margin-top: 4px; font-weight: 700;">Série actuelle</div>
                             </div>
-                            <div style="text-align: center; padding: 15px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                                <div style="font-size: 2em; margin-bottom: 5px;">⭐</div>
-                                <div style="font-size: 1.8em; font-weight: bold; color: ${activeChallenge.color};">${activeChallenge.bestStreak}</div>
-                                <div style="font-size: 0.85em; color: #666;">Meilleure série</div>
+                            <div style="text-align: center; padding: 12px 8px; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(255,255,255,0.06);">
+                                <div style="font-size: 1.5em; margin-bottom: 4px;">⭐</div>
+                                <div style="font-size: 1.5em; font-weight: 900; color: ${activeChallenge.color}; line-height: 1;">${activeChallenge.bestStreak}</div>
+                                <div style="font-size: 0.66em; color: #94a3b8; margin-top: 4px; font-weight: 700;">Meilleure série</div>
                             </div>
-                            <div style="text-align: center; padding: 15px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                                <div style="font-size: 2em; margin-bottom: 5px;">📅</div>
-                                <div style="font-size: 1.8em; font-weight: bold; color: ${activeChallenge.color};">${activeChallenge.duration - daysCompleted}</div>
-                                <div style="font-size: 0.85em; color: #666;">Jours restants</div>
+                            <div style="text-align: center; padding: 12px 8px; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(255,255,255,0.06);">
+                                <div style="font-size: 1.5em; margin-bottom: 4px;">📅</div>
+                                <div style="font-size: 1.5em; font-weight: 900; color: ${activeChallenge.color}; line-height: 1;">${activeChallenge.duration - daysCompleted}</div>
+                                <div style="font-size: 0.66em; color: #94a3b8; margin-top: 4px; font-weight: 700;">Jours restants</div>
                             </div>
                         </div>
 
                         <!-- Today's Action -->
                         ${todayCompleted ? `
-                            <div style="background: #10b98120; padding: 20px; border-radius: 12px; text-align: center; border: 2px solid #10b981;">
-                                <div style="font-size: 3em; margin-bottom: 10px;">✅</div>
-                                <div style="font-size: 1.2em; font-weight: 600; color: #10b981;">Défi complété aujourd'hui !</div>
-                                <div style="color: #059669; margin-top: 8px;">Revenez demain pour continuer 💪</div>
+                            <div style="background: rgba(16,185,129,0.08); padding: 16px; border-radius: 13px; text-align: center; border: 1.5px solid rgba(16,185,129,0.3);">
+                                <div style="font-size: 2.4em; margin-bottom: 6px;">✅</div>
+                                <div style="font-size: 1em; font-weight: 800; color: #4ade80;">Défi complété aujourd'hui !</div>
+                                <div style="color: #94a3b8; margin-top: 5px; font-size: 0.82em;">Revenez demain pour continuer 💪</div>
                             </div>
                         ` : `
-                            <button onclick="completeTodayChallenge()" class="btn" style="width: 100%; padding: 20px; font-size: 1.1em; background: linear-gradient(135deg, ${activeChallenge.color} 0%, ${activeChallenge.color}dd 100%);">
+                            <button onclick="completeTodayChallenge()" style="width: 100%; padding: 14px; font-size: 0.95em; font-weight: 800; background: linear-gradient(135deg, ${activeChallenge.color} 0%, ${activeChallenge.color}cc 100%); color: white; border: none; border-radius: 13px; cursor: pointer; box-shadow: 0 6px 22px ${activeChallenge.color}30; letter-spacing: 0.5px;">
                                 ✅ Marquer aujourd'hui comme complété
                             </button>
-                            <div style="text-align: center; margin-top: 15px; padding: 15px; background: #fef3c7; border-radius: 8px; border: 1px solid #fbbf24;">
-                                <div style="font-weight: 600; color: #92400e; margin-bottom: 5px;">🎯 Objectif du jour</div>
-                                <div style="color: #78350f;">${activeChallenge.goal}</div>
+                            <div style="text-align: center; margin-top: 12px; padding: 11px 14px; background: rgba(251,191,36,0.08); border-radius: 11px; border: 1px solid rgba(251,191,36,0.25);">
+                                <div style="font-weight: 800; color: #fbbf24; margin-bottom: 3px; font-size: 0.72em; letter-spacing: 1px;">🎯 OBJECTIF DU JOUR</div>
+                                <div style="color: #fde68a; font-size: 0.88em; font-weight: 600;">${activeChallenge.goal}</div>
                             </div>
                         `}
 
                         <!-- Tips -->
-                        <div style="margin-top: 20px; padding: 15px; background: white; border-radius: 12px; border-left: 4px solid ${activeChallenge.color};">
-                            <div style="font-weight: 600; color: ${activeChallenge.color}; margin-bottom: 8px;">💡 Conseil</div>
-                            <div style="color: #666;">${activeChallenge.tips}</div>
+                        <div style="margin-top: 16px; padding: 12px 14px; background: rgba(255,255,255,0.02); border-radius: 11px; border-left: 3px solid ${activeChallenge.color};">
+                            <div style="font-weight: 800; color: ${activeChallenge.color}; margin-bottom: 4px; font-size: 0.72em; letter-spacing: 0.5px;">💡 CONSEIL</div>
+                            <div style="color: #cbd5e1; font-size: 0.82em; line-height: 1.5;">${activeChallenge.tips}</div>
                         </div>
                     </div>
                 `;
@@ -330,30 +330,30 @@
                 const challengesList = document.getElementById('challengesList');
                 if (!challengesList) return;
                 challengesList.innerHTML = challengesDatabase.map(challenge => `
-                    <div style="background: linear-gradient(135deg, ${challenge.color}10 0%, ${challenge.color}05 100%); padding: 25px; border-radius: 16px; margin-bottom: 20px; border: 2px solid ${challenge.color}30; cursor: pointer; transition: all 0.3s ease;" onclick="showChallengeDetails('${challenge.id}')">
-                        <div style="display: flex; gap: 20px; align-items: start;">
-                            <div style="font-size: 4em; line-height: 1;">${challenge.emoji}</div>
-                            <div style="flex: 1;">
-                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
-                                    <h3 style="margin: 0; color: ${challenge.color};">${challenge.name}</h3>
-                                    <span style="background: ${challenge.color}20; color: ${challenge.color}; padding: 4px 12px; border-radius: 20px; font-size: 0.85em; font-weight: 600;">${challenge.difficulty}</span>
+                    <div style="background: linear-gradient(160deg, #0a0e18 0%, #0F1014 100%); padding: 20px; border-radius: 16px; margin-bottom: 16px; border: 1.5px solid ${challenge.color}40; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 18px rgba(0,0,0,0.25), 0 0 0 1px ${challenge.color}10 inset;" onclick="showChallengeDetails('${challenge.id}')">
+                        <div style="display: flex; gap: 16px; align-items: flex-start;">
+                            <div style="font-size: 3em; line-height: 1; filter: drop-shadow(0 0 8px ${challenge.color}60); flex-shrink: 0;">${challenge.emoji}</div>
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 8px; flex-wrap: wrap;">
+                                    <h3 style="margin: 0; color: white; font-size: 1.05em; font-weight: 900;">${challenge.name}</h3>
+                                    <span style="background: ${challenge.color}15; color: ${challenge.color}; padding: 3px 10px; border-radius: 99px; font-size: 0.7em; font-weight: 800; border: 1px solid ${challenge.color}40; letter-spacing: 0.5px;">${challenge.difficulty}</span>
                                 </div>
-                                <p style="margin: 0 0 15px 0; color: #666;">${challenge.description}</p>
-                                
-                                <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px;">
+                                <p style="margin: 0 0 12px 0; color: #94a3b8; font-size: 0.85em; line-height: 1.45;">${challenge.description}</p>
+
+                                <div style="display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 14px;">
                                     ${challenge.benefits.map(b => `
-                                        <span style="background: white; padding: 6px 12px; border-radius: 20px; font-size: 0.85em; color: #666; border: 1px solid #e5e7eb;">
+                                        <span style="background: rgba(255,255,255,0.04); padding: 4px 10px; border-radius: 99px; font-size: 0.72em; color: #cbd5e1; border: 1px solid rgba(255,255,255,0.08); font-weight: 600;">
                                             ✓ ${b}
                                         </span>
                                     `).join('')}
                                 </div>
 
-                                <div style="display: flex; gap: 10px; align-items: center;">
-                                    <button onclick="event.stopPropagation(); startChallenge('${challenge.id}')" class="btn" style="background: linear-gradient(135deg, ${challenge.color} 0%, ${challenge.color}dd 100%); flex: 1;">
+                                <div style="display: flex; gap: 8px; align-items: center;">
+                                    <button onclick="event.stopPropagation(); startChallenge('${challenge.id}')" style="background: linear-gradient(135deg, ${challenge.color} 0%, ${challenge.color}cc 100%); color: white; border: none; border-radius: 11px; padding: 11px 14px; font-size: 0.85em; font-weight: 800; flex: 1; cursor: pointer; box-shadow: 0 4px 14px ${challenge.color}30;">
                                         🚀 Commencer ce défi
                                     </button>
-                                    <div style="padding: 10px 15px; background: white; border-radius: 8px; font-weight: 600; color: ${challenge.color}; border: 2px solid ${challenge.color}40;">
-                                        📅 ${challenge.duration} jours
+                                    <div style="padding: 9px 12px; background: rgba(255,255,255,0.03); border-radius: 10px; font-weight: 700; color: ${challenge.color}; border: 1px solid ${challenge.color}40; font-size: 0.8em;">
+                                        📅 ${challenge.duration}j
                                     </div>
                                 </div>
                             </div>
@@ -3779,6 +3779,11 @@
                 const oneDayMs = 24 * 60 * 60 * 1000;
                 if (Date.now() - last < oneDayMs) return; // Déjà fait aujourd'hui
 
+                // Ne pas backup si pas de données significatives
+                const backup = exportAllUserData();
+                const hasData = backup && backup.data && Object.keys(backup.data).length > 3;
+                if (!hasData) return;
+
                 // Ouvrir/créer la DB
                 const req = indexedDB.open('AwakenedBackups', 1);
                 req.onupgradeneeded = (e) => {
@@ -3791,7 +3796,6 @@
                     const db = e.target.result;
                     const tx = db.transaction(['backups'], 'readwrite');
                     const store = tx.objectStore('backups');
-                    const backup = exportAllUserData();
                     store.add(backup);
                     // Garder seulement les 7 derniers
                     const getAll = store.getAll();
@@ -4153,7 +4157,7 @@
                 const state = {
                     workout: currentWorkout,
                     exerciseIndex: typeof currentExerciseIndex !== 'undefined' ? currentExerciseIndex : 0,
-                    setIndex: typeof currentSetIndex !== 'undefined' ? currentSetIndex : 0,
+                    setIndex: typeof currentSetNumber !== 'undefined' ? currentSetNumber : 1,
                     startTime: typeof workoutStartTime !== 'undefined' ? workoutStartTime : Date.now(),
                     savedAt: Date.now(),
                 };
@@ -4306,20 +4310,24 @@
 
         function startSmartWorkout() {
             const sug = getSmartWorkoutSuggestion();
-            // Aller dans l'onglet workouts et pré-cocher les muscles suggérés
+            // Mapper les noms (dbName) → ids
+            const muscleIds = (typeof availableMuscles !== 'undefined') ?
+                availableMuscles.filter(m => sug.muscles.includes(m.dbName) || sug.muscles.includes(m.name)).map(m => m.id) : [];
+
             switchTab('workouts');
             setTimeout(() => {
                 try {
-                    // Décocher tout d'abord
-                    document.querySelectorAll('input[name="muscleGroup"]').forEach(cb => cb.checked = false);
-                    // Cocher les muscles suggérés
-                    sug.muscles.forEach(m => {
-                        const cb = document.querySelector(`input[name="muscleGroup"][value="${m}"]`);
-                        if (cb) cb.checked = true;
-                    });
-                    showToast(`🎯 Suggestion : ${sug.muscles.join(', ')}`, 'info', 3000);
+                    if (typeof selectedMuscles !== 'undefined' && muscleIds.length > 0) {
+                        // Vider et appliquer les nouveaux muscles
+                        selectedMuscles.length = 0;
+                        muscleIds.forEach(id => selectedMuscles.push(id));
+                        if (typeof saveMuscles === 'function') saveMuscles();
+                        if (typeof renderMuscleGrid === 'function') renderMuscleGrid();
+                        if (typeof updateHomeMuscleCount === 'function') updateHomeMuscleCount();
+                    }
+                    showToast(`🎯 Muscles suggérés : ${sug.muscles.join(', ')}`, 'info', 3000);
                 } catch(e) { console.warn('Smart suggestion failed:', e); }
-            }, 200);
+            }, 250);
         }
 
         function resumeActiveWorkout() {
@@ -4327,7 +4335,7 @@
             if (!state) return;
             currentWorkout = state.workout;
             if (typeof currentExerciseIndex !== 'undefined') currentExerciseIndex = state.exerciseIndex || 0;
-            if (typeof currentSetIndex !== 'undefined')      currentSetIndex      = state.setIndex || 0;
+            if (typeof currentSetNumber !== 'undefined')     currentSetNumber     = state.setIndex || 1;
             if (typeof workoutStartTime !== 'undefined')     workoutStartTime     = state.startTime || Date.now();
 
             // Aller à l'écran d'exercice
@@ -4336,9 +4344,11 @@
                 try {
                     document.getElementById('exerciseSelection')?.style.setProperty('display', 'none');
                     const exView = document.getElementById('exerciseView');
-                    if (exView) exView.style.display = 'block';
-                    if (typeof showExercise === 'function') showExercise();
-                    if (typeof startTimer === 'function') startTimer();
+                    if (exView) {
+                        exView.classList.remove('hidden');
+                        exView.style.display = 'block';
+                    }
+                    if (typeof startExercise === 'function') startExercise();
                     showToast('▶ Séance reprise', 'success', 2000);
                 } catch(e) { console.warn('Resume failed:', e); }
             }, 100);
@@ -8598,11 +8608,13 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         
         // Modal management
         function openWorkoutModeModal() {
-            document.getElementById('workoutModeModal').classList.add('active');
+            const m = document.getElementById('workoutModeModal');
+            if (m) m.classList.add('active');
         }
-        
+
         function closeWorkoutModeModal() {
-            document.getElementById('workoutModeModal').classList.remove('active');
+            const m = document.getElementById('workoutModeModal');
+            if (m) m.classList.remove('active');
         }
         
         function selectWorkoutMode(mode) {
@@ -17093,9 +17105,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
         function loadStats() {
             const stats = JSON.parse(localStorage.getItem('workoutStats') || '{"workouts": 0, "minutes": 0, "streak": 0, "lastWorkout": null}');
-            document.getElementById('totalWorkouts').textContent = stats.workouts;
-            document.getElementById('totalMinutes').textContent = stats.minutes;
-            document.getElementById('streak').textContent = stats.streak;
+            const w = document.getElementById('totalWorkouts');
+            const m = document.getElementById('totalMinutes');
+            const s = document.getElementById('streak');
+            if (w) w.textContent = stats.workouts;
+            if (m) m.textContent = stats.minutes;
+            if (s) s.textContent = stats.streak;
             return stats;
         }
 
@@ -18064,6 +18079,11 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             if (currentExerciseIndex >= currentWorkout.exercises.length) {
                 completeWorkout();
                 return;
+            }
+
+            // 📊 Mise à jour du chip volume à chaque transition d'exercice
+            if (typeof updateLiveVolumeChip === 'function') {
+                setTimeout(updateLiveVolumeChip, 50);
             }
 
             // Fermer l'overlay repos si un exercice normal démarre
@@ -19684,6 +19704,13 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             currentCardioSession = null; cardioMode = null;
             cardioInterval = null; cardioTimeElapsed = 0;
             currentExerciseIndex = 0; isPaused = false;
+            // Nettoyer les données de séance abandonnée
+            try {
+                localStorage.removeItem('fitproSessionSets');
+                if (typeof clearActiveWorkoutState === 'function') clearActiveWorkoutState();
+                if (typeof exitFullscreenMode === 'function') exitFullscreenMode();
+                if (typeof _currentSessionSets !== 'undefined') _currentSessionSets = {};
+            } catch(e) {}
             releaseWakeLock();
             backToHome();
         }
@@ -22167,9 +22194,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             }
             
             // ── Remplir l'écran de complétion enrichi ──
-            document.getElementById('completionTime').textContent = totalMinutes;
+            const _setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+            _setText('completionTime', totalMinutes);
             const realExercises = currentWorkout.exercises.filter(ex => !ex.isRest && !ex.isInfo);
-            document.getElementById('completionExercises').textContent = realExercises.length;
+            _setText('completionExercises', realExercises.length);
 
             // Calories précises : formule MET × poids_kg × heures
             const profile = getUserProfile();
@@ -22182,7 +22210,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         wName.includes('mobility') || wName.includes('récup') || wName.includes('stretch') || wName.includes('étir') ? 3 :
                         wName.includes('force') || wName.includes('strength') ? 5 : 6;
             const kcal = Math.round(MET * weightKg * (totalMinutes / 60));
-            document.getElementById('completionCalories').textContent = kcal;
+            _setText('completionCalories', kcal);
 
             // Volume total (séries × reps × poids) — basé sur les séries de CETTE séance
             let totalVolume = 0;
@@ -25315,85 +25343,6 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         // Auto-expand nav when switching tabs on mobile
         const _origSwitchTab = typeof switchTab === 'function' ? switchTab : null;
 
-        // ── Service Worker robuste — offline-first ─────────────────
-        function registerServiceWorker() {
-            if (!('serviceWorker' in navigator)) return;
-
-            const CACHE_VER = 'awakened-v3';
-            const swCode = `
-const CACHE = '${CACHE_VER}';
-
-// ── Install : mise en cache de la page principale ──────────
-self.addEventListener('install', e => {
-    e.waitUntil(
-        caches.open(CACHE)
-            .then(c => c.addAll([location.href]))
-            .then(() => self.skipWaiting())
-            .catch(() => self.skipWaiting()) // Ne jamais bloquer l'install
-    );
-});
-
-// ── Activate : purge des anciens caches ───────────────────
-self.addEventListener('activate', e => {
-    e.waitUntil(
-        caches.keys()
-            .then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
-            .then(() => self.clients.claim())
-    );
-});
-
-// ── Fetch : Stale-While-Revalidate pour navigation ────────
-self.addEventListener('fetch', e => {
-    const req = e.request;
-
-    // Ignorer les requêtes non-GET et les API externes
-    if (req.method !== 'GET') return;
-    if (!req.url.startsWith(self.location.origin)) return;
-
-    e.respondWith(
-        caches.open(CACHE).then(cache => {
-            return cache.match(req).then(cached => {
-                // Lancer la mise à jour en arrière-plan
-                const fetchPromise = fetch(req).then(fresh => {
-                    if (fresh && fresh.status === 200) {
-                        cache.put(req, fresh.clone());
-                    }
-                    return fresh;
-                }).catch(() => null);
-
-                // Retourner immédiatement le cache si disponible (offline-first)
-                return cached || fetchPromise || new Response(
-                    '<h1>Mode hors-ligne</h1><p>L\'application sera disponible dès le retour en ligne.</p>',
-                    { headers: { 'Content-Type': 'text/html' } }
-                );
-            });
-        })
-    );
-});
-
-// ── Message : forcer mise à jour du cache ────────────────
-self.addEventListener('message', e => {
-    if (e.data === 'SKIP_WAITING') self.skipWaiting();
-});
-`;
-            const blob = new Blob([swCode], { type: 'application/javascript' });
-            const swUrl = URL.createObjectURL(blob);
-            navigator.serviceWorker.register(swUrl)
-                .then(reg => {
-                    // Vérifier si une mise à jour est disponible
-                    reg.addEventListener('updatefound', () => {
-                        const newSW = reg.installing;
-                        if (newSW) {
-                            newSW.addEventListener('statechange', () => {
-                                if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
-                                    showToast('🔄 Mise à jour disponible — rechargez la page', 'info', 6000);
-                                }
-                            });
-                        }
-                    });
-                })
-                .catch(() => { /* SW non supporté dans ce contexte */ });
-        }
 
         // ── Bannière d'installation ────────────────────────────────
         let deferredInstallPrompt = null;
@@ -26032,7 +25981,8 @@ self.addEventListener('message', e => {
                     if (sessionMode === 'gym') _updateGymSubBtns();
                 }, 300); // colorier les bons boutons
             }, 500);
-            registerServiceWorker();
+            // SW déjà enregistré via index.html (sw.js) — pas besoin de registerServiceWorker
+            // registerServiceWorker();
             initPWAInstall();
             initSwipeGestures();
             initMobileNav();
