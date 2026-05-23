@@ -1,7 +1,8 @@
 // Awakened — Service Worker
 // Enables full offline support and PWA installation
+// Strategy: network-first for code files (HTML/JS/CSS), cache-first for assets (images/fonts)
 
-const CACHE_NAME = 'awakened-v30';
+const CACHE_NAME = 'awakened-v36';
 const ASSETS = [
   '/',
   '/index.html',
@@ -20,6 +21,11 @@ const ASSETS = [
   'https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/tabler-icons.min.css'
 ];
 
+// Identifie les fichiers critiques (code) → network-first pour avoir les MAJ immédiates
+function isCodeFile(url) {
+  return /\.(html|js|css)(\?|$)/.test(url) || url.endsWith('/');
+}
+
 // Install — cache all core assets
 self.addEventListener('install', e => {
   e.waitUntil(
@@ -36,16 +42,42 @@ self.addEventListener('activate', e => {
   );
 });
 
-// Fetch — cache-first strategy with auto-cache for images
+// Fetch — network-first for code (HTML/JS/CSS), cache-first for assets
 self.addEventListener('fetch', e => {
-  // Ignorer les requêtes non-GET (POST, PUT...)
   if (e.request.method !== 'GET') return;
 
+  const url = e.request.url;
+
+  // 🌐 NETWORK-FIRST pour les fichiers de code (HTML, JS, CSS)
+  // → les modifications de code apparaissent immédiatement
+  if (isCodeFile(url)) {
+    e.respondWith(
+      fetch(e.request)
+        .then(response => {
+          if (response && response.status === 200) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
+          }
+          return response;
+        })
+        .catch(() => {
+          // Offline : retourner du cache
+          return caches.match(e.request).then(cached => {
+            if (cached) return cached;
+            if (e.request.mode === 'navigate') return caches.match('/index.html');
+            return new Response('', { status: 503, statusText: 'Offline' });
+          });
+        })
+    );
+    return;
+  }
+
+  // 💾 CACHE-FIRST pour les assets (images, fonts, etc.)
   e.respondWith(
     caches.match(e.request).then(cached => {
       if (cached) {
-        // Pour les images d'exercices : refresh en arrière-plan
-        if (e.request.url.includes('/images/exercises/')) {
+        // Refresh en arrière-plan pour les images d'exercices
+        if (url.includes('/images/exercises/')) {
           fetch(e.request).then(response => {
             if (response && response.status === 200) {
               caches.open(CACHE_NAME).then(c => c.put(e.request, response));
@@ -57,15 +89,12 @@ self.addEventListener('fetch', e => {
       return fetch(e.request).then(response => {
         if (!response || response.status !== 200 || response.type === 'opaque') return response;
         const clone = response.clone();
-        // Cache automatique pour : images, fonts, JS, CSS
-        const url = e.request.url;
         if (url.includes('/images/') || url.includes('.webp') || url.includes('.png') ||
-            url.includes('.woff') || url.includes('.js') || url.includes('.css')) {
+            url.includes('.woff') || url.includes('.svg')) {
           caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
         }
         return response;
       }).catch(() => {
-        // Offline fallback
         if (e.request.mode === 'navigate') return caches.match('/index.html');
         return new Response('', { status: 503, statusText: 'Offline' });
       });

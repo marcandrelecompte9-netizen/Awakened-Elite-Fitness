@@ -12443,957 +12443,1539 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         
         // ========== ROUTINES/TEMPLATES SYSTEM ==========
         
-        // ═══════════════════════════════════════════════════════════════
-        // 🔄 ROUTINES — Système refait (Phase 6)
-        // ═══════════════════════════════════════════════════════════════
-        //
-        // Architecture :
-        // - Routine = { id, name, emoji, color, muscles, exercises[], day, created, fromTemplate }
-        // - Templates = blueprints qui GÉNÈRENT de vraies routines avec exercices
-        // - Plan hebdo : { lundi: routineId, mardi: routineId, ... }
-        //
-
-        const ROUTINE_DAYS = ['lun','mar','mer','jeu','ven','sam','dim'];
-        const ROUTINE_DAY_LABELS = { lun:'Lun', mar:'Mar', mer:'Mer', jeu:'Jeu', ven:'Ven', sam:'Sam', dim:'Dim' };
-
         function getRoutines() {
-            try {
-                const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
-                const key = profileId ? `routines_${profileId}` : 'routines';
-                return JSON.parse(localStorage.getItem(key) || '[]');
-            } catch(e) { return []; }
+            const profileId = getCurrentProfileId();
+            const key = profileId ? `routines_${profileId}` : 'routines';
+            const saved = localStorage.getItem(key);
+            try { return saved ? JSON.parse(saved) : []; } catch(e) { return []; }
         }
-        window.getRoutines = getRoutines;
 
-        function saveRoutines(routines) {
-            try {
-                const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
-                const key = profileId ? `routines_${profileId}` : 'routines';
-                localStorage.setItem(key, JSON.stringify(routines));
-            } catch(e) {}
-        }
-        window.saveRoutines = saveRoutines;
-
-        // Plan hebdomadaire
-        function getWeeklyPlan() {
-            try {
-                const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
-                const key = profileId ? `weeklyPlan_${profileId}` : 'weeklyPlan';
-                return JSON.parse(localStorage.getItem(key) || '{}');
-            } catch(e) { return {}; }
-        }
-        window.getWeeklyPlan = getWeeklyPlan;
-
-        function saveWeeklyPlan(plan) {
-            try {
-                const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
-                const key = profileId ? `weeklyPlan_${profileId}` : 'weeklyPlan';
-                localStorage.setItem(key, JSON.stringify(plan));
-            } catch(e) {}
-        }
-        window.saveWeeklyPlan = saveWeeklyPlan;
-
-        // ─── GÉNÉRATEUR D'EXERCICES par muscles cibles ────────────────
-        /**
-         * Génère une liste d'exercices intelligents pour des muscles donnés
-         * @param {string[]} muscles - ex: ['Pectoraux', 'Épaules', 'Triceps']
-         * @param {Object} opts - { count, level, equipment, mixCardio }
-         */
-        function generateExercisesForMuscles(muscles, opts = {}) {
-            const count = opts.count || 6;
-            const level = opts.level || 'Intermédiaire';
-            const result = [];
-            const usedNames = new Set();
-            // Filtrer DB par muscle ciblé
-            const db = (typeof exerciseDatabase !== 'undefined') ? exerciseDatabase : [];
-            if (db.length === 0) return [];
-            // Stratégie : ~1-2 compounds par muscle principal, puis variations
-            // Préférer Intermédiaire/Débutant si level Débutant, etc.
-            const levelPreference = level === 'Débutant'
-                ? ['Débutant', 'Intermédiaire']
-                : level === 'Avancé'
-                ? ['Avancé', 'Intermédiaire']
-                : ['Intermédiaire', 'Débutant', 'Avancé'];
-            // Pour chaque muscle ciblé, choisir 1-2 exos
-            const perMuscle = Math.max(1, Math.ceil(count / muscles.length));
-            for (const muscle of muscles) {
-                let candidates = db.filter(ex =>
-                    ex.muscle === muscle &&
-                    !ex.isRest && !ex.isInfo &&
-                    !usedNames.has(ex.name)
-                );
-                // Trier par préférence de niveau
-                candidates.sort((a, b) => {
-                    const ia = levelPreference.indexOf(a.difficulty);
-                    const ib = levelPreference.indexOf(b.difficulty);
-                    return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
-                });
-                // Prendre les N meilleurs + un peu d'aléa
-                const picks = candidates.slice(0, Math.min(perMuscle * 3, candidates.length));
-                // Mélanger légèrement
-                picks.sort(() => Math.random() - 0.4);
-                for (let i = 0; i < Math.min(perMuscle, picks.length); i++) {
-                    const ex = picks[i];
-                    result.push({
-                        name: ex.name,
-                        muscle: ex.muscle,
-                        sets: 3,
-                        reps: ex.reps || 10,
-                        rest: 60,
-                        mode: ex.mode || 'reps',
-                        duration: ex.duration || 45
-                    });
-                    usedNames.add(ex.name);
-                    if (result.length >= count) break;
-                }
-                if (result.length >= count) break;
-            }
-            return result;
-        }
-        window.generateExercisesForMuscles = generateExercisesForMuscles;
-
-        // ─── TEMPLATES de routines populaires ──────────────────────────
+        // ═══════════════════════════════════════════════════════════════
+        // TEMPLATES PRÉFAITS — Programmes populaires en 1 clic
+        // ═══════════════════════════════════════════════════════════════
         const WORKOUT_TEMPLATES = [
             {
                 id: 'ppl',
-                name: 'Push Pull Legs',
+                name: 'Push Pull Legs (PPL)',
                 emoji: '💪',
-                color: '#ef4444',
-                description: '6 jours/sem. Cycle complet hypertrophie : poussées, tractions, jambes répétés 2× par semaine.',
+                description: 'Classique 6 jours/semaine. Push (poussées), Pull (tractions), Legs (jambes) répétés 2× par semaine. Idéal pour hypertrophie.',
                 level: 'Intermédiaire',
                 days: 6,
+                color: '#ef4444',
                 sessions: [
-                    { name: 'Push', muscles: ['Pectoraux','Épaules','Triceps'], emoji: '⛹️' },
-                    { name: 'Pull', muscles: ['Dos','Biceps'], emoji: '🪝' },
-                    { name: 'Legs', muscles: ['Quadriceps','Fessiers','Ischio-jambiers','Mollets'], emoji: '🦵' },
+                    { name: 'Push (Pectoraux/Épaules/Triceps)', muscles: ['Pectoraux','Épaules','Triceps'], duration: 60 },
+                    { name: 'Pull (Dos/Biceps)',                muscles: ['Dos','Biceps'],                  duration: 55 },
+                    { name: 'Legs (Jambes complètes)',          muscles: ['Quadriceps','Fessiers','Ischio-jambiers','Mollets'], duration: 65 },
+                    { name: 'Push (Pectoraux/Épaules/Triceps)', muscles: ['Pectoraux','Épaules','Triceps'], duration: 60 },
+                    { name: 'Pull (Dos/Biceps)',                muscles: ['Dos','Biceps'],                  duration: 55 },
+                    { name: 'Legs (Jambes complètes)',          muscles: ['Quadriceps','Fessiers','Ischio-jambiers','Mollets'], duration: 65 },
                 ],
-                weeklyPattern: { lun:0, mar:1, mer:2, jeu:0, ven:1, sam:2 } // dim repos
             },
             {
                 id: 'upper_lower',
-                name: 'Upper / Lower',
+                name: 'Upper / Lower Split',
                 emoji: '⚖️',
-                color: '#3b82f6',
-                description: '4 jours/sem. Alternance haut/bas avec récupération entre. Excellent équilibre force et volume.',
+                description: 'Programme 4 jours/semaine. Alternance haut du corps / bas du corps avec 1 jour de repos entre. Excellent équilibre fréquence/récupération.',
                 level: 'Intermédiaire',
                 days: 4,
+                color: '#3b82f6',
                 sessions: [
-                    { name: 'Upper Power', muscles: ['Pectoraux','Dos','Épaules','Triceps','Biceps'], emoji: '💪' },
-                    { name: 'Lower Power', muscles: ['Quadriceps','Fessiers','Ischio-jambiers'], emoji: '🏋️' },
-                    { name: 'Upper Hyper', muscles: ['Pectoraux','Dos','Épaules','Triceps','Biceps'], emoji: '🔥' },
-                    { name: 'Lower Hyper', muscles: ['Quadriceps','Fessiers','Ischio-jambiers','Mollets'], emoji: '🦿' },
+                    { name: 'Upper Power (force)',     muscles: ['Pectoraux','Dos','Épaules','Triceps','Biceps'], duration: 70 },
+                    { name: 'Lower Power (force)',     muscles: ['Quadriceps','Fessiers','Ischio-jambiers'], duration: 65 },
+                    { name: 'Upper Hypertrophy',       muscles: ['Pectoraux','Dos','Épaules','Triceps','Biceps'], duration: 65 },
+                    { name: 'Lower Hypertrophy',       muscles: ['Quadriceps','Fessiers','Ischio-jambiers','Mollets'], duration: 60 },
                 ],
-                weeklyPattern: { lun:0, mar:1, jeu:2, ven:3 }
             },
             {
                 id: 'full_body_3x',
-                name: 'Full Body 3×',
-                emoji: '🌟',
-                color: '#22c55e',
-                description: '3 jours/sem. Tout le corps à chaque séance. Idéal débutants ou retour après pause.',
+                name: 'Full Body 3×/sem',
+                emoji: '🏋️',
+                description: 'Idéal pour débutants. Tout le corps 3 fois par semaine. Excellent pour apprendre les bases et progresser rapidement.',
                 level: 'Débutant',
                 days: 3,
+                color: '#10b981',
                 sessions: [
-                    { name: 'Full Body A', muscles: ['Pectoraux','Dos','Quadriceps','Abdominaux'], emoji: '🌅' },
-                    { name: 'Full Body B', muscles: ['Épaules','Fessiers','Ischio-jambiers','Biceps','Triceps'], emoji: '☀️' },
-                    { name: 'Full Body C', muscles: ['Dos','Pectoraux','Quadriceps','Mollets','Abdominaux'], emoji: '🌇' },
+                    { name: 'Full Body A',  muscles: ['Pectoraux','Dos','Quadriceps','Abdominaux'], duration: 50 },
+                    { name: 'Full Body B',  muscles: ['Épaules','Fessiers','Ischio-jambiers','Abdominaux'], duration: 50 },
+                    { name: 'Full Body C',  muscles: ['Pectoraux','Dos','Quadriceps','Biceps','Triceps'], duration: 55 },
                 ],
-                weeklyPattern: { lun:0, mer:1, ven:2 }
             },
             {
                 id: 'arnold_split',
                 name: 'Arnold Split',
-                emoji: '🏆',
-                color: '#a855f7',
-                description: '6 jours/sem. Méthode légendaire de Schwarzenegger. Antagonistes regroupés.',
+                emoji: '👑',
+                description: '6 jours/semaine, style Arnold Schwarzenegger. Combinaisons antagonistes (Pec+Dos, Bras, Jambes). Pour avancés cherchant le volume max.',
                 level: 'Avancé',
                 days: 6,
+                color: '#f59e0b',
                 sessions: [
-                    { name: 'Pec/Dos', muscles: ['Pectoraux','Dos'], emoji: '⚡' },
-                    { name: 'Épaules/Bras', muscles: ['Épaules','Biceps','Triceps'], emoji: '🦾' },
-                    { name: 'Jambes/Lombaires', muscles: ['Quadriceps','Fessiers','Ischio-jambiers','Mollets'], emoji: '🦵' },
-                    { name: 'Pec/Dos', muscles: ['Pectoraux','Dos'], emoji: '⚡' },
-                    { name: 'Épaules/Bras', muscles: ['Épaules','Biceps','Triceps'], emoji: '🦾' },
-                    { name: 'Jambes/Lombaires', muscles: ['Quadriceps','Fessiers','Ischio-jambiers','Mollets'], emoji: '🦵' },
+                    { name: 'Pectoraux + Dos',           muscles: ['Pectoraux','Dos'],         duration: 80 },
+                    { name: 'Épaules + Bras',            muscles: ['Épaules','Biceps','Triceps'], duration: 75 },
+                    { name: 'Jambes',                    muscles: ['Quadriceps','Fessiers','Ischio-jambiers','Mollets'], duration: 75 },
+                    { name: 'Pectoraux + Dos',           muscles: ['Pectoraux','Dos'],         duration: 80 },
+                    { name: 'Épaules + Bras',            muscles: ['Épaules','Biceps','Triceps'], duration: 75 },
+                    { name: 'Jambes',                    muscles: ['Quadriceps','Fessiers','Ischio-jambiers','Mollets'], duration: 75 },
                 ],
-                weeklyPattern: { lun:0, mar:1, mer:2, jeu:3, ven:4, sam:5 }
             },
             {
                 id: 'bro_split',
-                name: 'Bro Split',
-                emoji: '🍖',
-                color: '#f59e0b',
-                description: '5 jours/sem. Un muscle = un jour. Volume élevé par groupe musculaire.',
+                name: 'Bro Split (5 jours)',
+                emoji: '🔥',
+                description: 'Classique bodybuilding. Un groupe musculaire par jour pour focus maximum. Volume élevé par séance.',
                 level: 'Intermédiaire',
                 days: 5,
+                color: '#a855f7',
                 sessions: [
-                    { name: 'Pectoraux', muscles: ['Pectoraux','Triceps'], emoji: '💢' },
-                    { name: 'Dos', muscles: ['Dos','Biceps'], emoji: '🪝' },
-                    { name: 'Épaules', muscles: ['Épaules','Trapèzes'], emoji: '🛡️' },
-                    { name: 'Jambes', muscles: ['Quadriceps','Fessiers','Ischio-jambiers','Mollets'], emoji: '🦵' },
-                    { name: 'Bras', muscles: ['Biceps','Triceps','Avant-bras'], emoji: '💪' },
+                    { name: 'Pectoraux',           muscles: ['Pectoraux'],         duration: 60 },
+                    { name: 'Dos',                 muscles: ['Dos'],               duration: 60 },
+                    { name: 'Jambes',              muscles: ['Quadriceps','Fessiers','Ischio-jambiers','Mollets'], duration: 70 },
+                    { name: 'Épaules',             muscles: ['Épaules'],           duration: 55 },
+                    { name: 'Bras (Biceps+Triceps)', muscles: ['Biceps','Triceps'], duration: 55 },
                 ],
-                weeklyPattern: { lun:0, mar:1, mer:2, jeu:3, ven:4 }
             },
             {
-                id: 'minimalist',
-                name: 'Minimaliste 2×',
-                emoji: '🎯',
-                color: '#06b6d4',
-                description: '2 jours/sem. Pour ultra-occupés. Compound focus. Résultats avec peu de temps.',
+                id: 'starting_strength',
+                name: 'Starting Strength',
+                emoji: '⚡',
+                description: 'Programme légendaire pour débutants. Focus sur 5 exercices clés (squat, bench, deadlift, OHP, row). Progression linéaire.',
                 level: 'Débutant',
-                days: 2,
+                days: 3,
+                color: '#22c55e',
                 sessions: [
-                    { name: 'Full Body A', muscles: ['Pectoraux','Dos','Quadriceps'], emoji: '🅰️' },
-                    { name: 'Full Body B', muscles: ['Épaules','Fessiers','Abdominaux'], emoji: '🅱️' },
+                    { name: 'Séance A',  muscles: ['Quadriceps','Pectoraux','Dos'], duration: 55 },
+                    { name: 'Séance B',  muscles: ['Quadriceps','Épaules','Dos'],   duration: 55 },
+                    { name: 'Séance A',  muscles: ['Quadriceps','Pectoraux','Dos'], duration: 55 },
                 ],
-                weeklyPattern: { mar:0, ven:1 }
             },
             {
                 id: 'home_bodyweight',
-                name: 'Maison · Poids du corps',
+                name: 'Maison (poids du corps)',
                 emoji: '🏠',
-                color: '#10b981',
-                description: '4 jours/sem. Sans matériel. Idéal voyage, télétravail, débutants.',
-                level: 'Débutant',
+                description: 'Aucun équipement requis. 4 séances/semaine pour maintenir/progresser sans matériel.',
+                level: 'Tous niveaux',
                 days: 4,
+                color: '#06b6d4',
                 sessions: [
-                    { name: 'Push-up Day', muscles: ['Pectoraux','Triceps','Épaules'], emoji: '🤸' },
-                    { name: 'Squat Day', muscles: ['Quadriceps','Fessiers','Mollets'], emoji: '🦵' },
-                    { name: 'Pull Day', muscles: ['Dos','Biceps','Abdominaux'], emoji: '🤲' },
-                    { name: 'Core Day', muscles: ['Abdominaux','Obliques','Corps entier'], emoji: '🔥' },
+                    { name: 'Haut du corps',  muscles: ['Pectoraux','Épaules','Triceps'], duration: 35 },
+                    { name: 'Bas du corps',   muscles: ['Quadriceps','Fessiers','Ischio-jambiers'], duration: 40 },
+                    { name: 'Tirage + Core',  muscles: ['Dos','Biceps','Abdominaux'],     duration: 35 },
+                    { name: 'Full Body Hiit', muscles: ['Pectoraux','Dos','Quadriceps','Fessiers','Abdominaux'], duration: 30 },
                 ],
-                weeklyPattern: { lun:0, mar:1, jeu:2, ven:3 }
             },
             {
-                id: 'athlete_perf',
-                name: 'Athlète Performance',
-                emoji: '🏅',
-                color: '#fbbf24',
-                description: '4 jours/sem. Mix force, explosivité et conditionnement. Pour sportifs.',
-                level: 'Avancé',
+                id: 'female_glutes',
+                name: 'Programme Fessiers',
+                emoji: '🍑',
+                description: 'Focus principal sur le développement des fessiers. 4 séances/sem avec fessiers travaillés 3×.',
+                level: 'Tous niveaux',
                 days: 4,
+                color: '#ec4899',
                 sessions: [
-                    { name: 'Force Max', muscles: ['Pectoraux','Dos','Quadriceps'], emoji: '🏋️' },
-                    { name: 'Explosivité', muscles: ['Corps entier','Cardio'], emoji: '💥' },
-                    { name: 'Volume Haut', muscles: ['Pectoraux','Épaules','Biceps','Triceps'], emoji: '📈' },
-                    { name: 'Volume Bas', muscles: ['Quadriceps','Fessiers','Ischio-jambiers','Mollets'], emoji: '🦿' },
+                    { name: 'Fessiers Heavy',  muscles: ['Fessiers','Ischio-jambiers'],   duration: 60 },
+                    { name: 'Haut du corps',   muscles: ['Pectoraux','Dos','Épaules'],    duration: 50 },
+                    { name: 'Fessiers Volume', muscles: ['Fessiers','Quadriceps'],        duration: 55 },
+                    { name: 'Core + Cardio',   muscles: ['Abdominaux','Obliques'],        duration: 35 },
                 ],
-                weeklyPattern: { lun:0, mar:1, jeu:2, ven:3 }
-            }
+            },
         ];
-        window.WORKOUT_TEMPLATES = WORKOUT_TEMPLATES;
 
-        // ─── IMPORT d'un template (avec génération d'exercices) ────────
-        /**
-         * Import un template : crée 1 routine par session avec exercices générés
-         * Et propose d'assigner au plan hebdo
-         */
-        function importTemplate(templateId) {
-            const t = WORKOUT_TEMPLATES.find(x => x.id === templateId);
-            if (!t) return;
-            const routines = getRoutines();
-            const createdIds = [];
+        // ═══════════════════════════════════════════════════════════════
+        // PROGRAMMES MULTI-SEMAINES — Progression automatique
+        // ═══════════════════════════════════════════════════════════════
+        const PROGRESSIVE_PROGRAMS = [
+            {
+                id: 'noob_4w',
+                name: '4 semaines · Débutant',
+                emoji: '🌱',
+                description: 'Programme progressif pour débuter. Volume croissant, intensité contrôlée.',
+                weeks: 4,
+                level: 'Débutant',
+                color: '#10b981',
+                progressionType: 'volume', // Augmentation du volume
+                baseTemplate: 'full_body_3x',
+                weeklyConfig: [
+                    { week:1, sets:3, reps:10, rest:90, intensity:'Légère',  note:'Apprentissage des mouvements' },
+                    { week:2, sets:3, reps:12, rest:75, intensity:'Modérée', note:'Volume +20%, charge stable' },
+                    { week:3, sets:4, reps:10, rest:60, intensity:'Modérée', note:'4ème série ajoutée' },
+                    { week:4, sets:4, reps:12, rest:60, intensity:'Soutenue',note:'Volume max, prépa cycle suivant' },
+                ],
+            },
+            {
+                id: 'force_4w',
+                name: '4 semaines · Force pure',
+                emoji: '💥',
+                description: 'Linear Progression style. Charges en hausse chaque semaine, reps en baisse.',
+                weeks: 4,
+                level: 'Intermédiaire',
+                color: '#ef4444',
+                progressionType: 'intensity', // Augmentation de la charge
+                baseTemplate: 'starting_strength',
+                weeklyConfig: [
+                    { week:1, sets:5, reps:8,  rest:120, intensity:'70%', note:'Base, technique propre' },
+                    { week:2, sets:5, reps:6,  rest:150, intensity:'75%', note:'+5kg sur les compounds' },
+                    { week:3, sets:5, reps:5,  rest:180, intensity:'82%', note:'+5kg, repos plus long' },
+                    { week:4, sets:5, reps:3,  rest:210, intensity:'88%', note:'Test 1RM possible' },
+                ],
+            },
+            {
+                id: 'hypertrophy_6w',
+                name: '6 semaines · Hypertrophie',
+                emoji: '🔥',
+                description: 'Bloc complet d\'hypertrophie. Volume élevé, congestion maximale.',
+                weeks: 6,
+                level: 'Intermédiaire',
+                color: '#f59e0b',
+                progressionType: 'volume',
+                baseTemplate: 'ppl',
+                weeklyConfig: [
+                    { week:1, sets:3, reps:12, rest:75, intensity:'70%',  note:'Volume initial' },
+                    { week:2, sets:4, reps:12, rest:75, intensity:'72%',  note:'+1 série par exercice' },
+                    { week:3, sets:4, reps:10, rest:90, intensity:'78%',  note:'Charges +5%, reps légèrement plus bas' },
+                    { week:4, sets:4, reps:8,  rest:90, intensity:'82%',  note:'Pic de volume + intensité' },
+                    { week:5, sets:5, reps:8,  rest:90, intensity:'82%',  note:'+1 série, charges stables' },
+                    { week:6, sets:3, reps:10, rest:75, intensity:'65%',  note:'Décharge, reset pour cycle suivant' },
+                ],
+            },
+            {
+                id: 'cut_8w',
+                name: '8 semaines · Sèche / Maintien',
+                emoji: '⚡',
+                description: 'Volume maintenu, focus densité. Idéal pour préserver le muscle en sèche.',
+                weeks: 8,
+                level: 'Avancé',
+                color: '#06b6d4',
+                progressionType: 'density', // Densité (moins de repos)
+                baseTemplate: 'upper_lower',
+                weeklyConfig: [
+                    { week:1, sets:4, reps:10, rest:90, intensity:'75%', note:'Base + cardio léger' },
+                    { week:2, sets:4, reps:10, rest:75, intensity:'75%', note:'Repos réduit -15s' },
+                    { week:3, sets:4, reps:12, rest:60, intensity:'72%', note:'+2 reps, densité ↑' },
+                    { week:4, sets:5, reps:10, rest:60, intensity:'75%', note:'+1 série' },
+                    { week:5, sets:4, reps:12, rest:45, intensity:'70%', note:'Repos court, congestion' },
+                    { week:6, sets:5, reps:12, rest:45, intensity:'70%', note:'Pic de densité' },
+                    { week:7, sets:4, reps:15, rest:30, intensity:'65%', note:'Endurance musculaire' },
+                    { week:8, sets:3, reps:15, rest:60, intensity:'60%', note:'Décharge finale' },
+                ],
+            },
+        ];
 
-            t.sessions.forEach((s, i) => {
-                const exercises = generateExercisesForMuscles(s.muscles, {
-                    count: 6,
-                    level: t.level
-                });
-                const routineId = 'r_' + Date.now() + '_' + i + '_' + Math.floor(Math.random() * 1000);
-                routines.push({
-                    id: routineId,
-                    name: `${t.emoji} ${s.name}`,
-                    emoji: s.emoji || t.emoji,
-                    color: t.color,
-                    description: `${t.name} · Jour ${i+1}/${t.days}`,
-                    muscles: s.muscles,
-                    exercises,
-                    level: t.level,
-                    fromTemplate: t.id,
-                    fromTemplateSessionIdx: i,
-                    created: new Date().toISOString()
-                });
-                createdIds.push(routineId);
-            });
-            saveRoutines(routines);
-
-            // Assigner au plan hebdo si pattern dispo
-            if (t.weeklyPattern) {
-                const plan = getWeeklyPlan();
-                Object.entries(t.weeklyPattern).forEach(([day, sessionIdx]) => {
-                    plan[day] = createdIds[sessionIdx];
-                });
-                saveWeeklyPlan(plan);
-            }
-
-            document.getElementById('templatePreviewModal')?.remove();
-            document.getElementById('templatesModal')?.remove();
-            if (typeof showToast === 'function') {
-                showToast(`✅ ${t.name} importé · ${t.sessions.length} séances + plan hebdo`, 'success', 3500);
-            }
-            renderRoutinesList();
-            renderWeeklyPlanCard();
+        function showProgressiveProgramsModal() {
+            document.getElementById('progressiveProgsModal')?.remove();
+            const modal = document.createElement('div');
+            modal.id = 'progressiveProgsModal';
+            modal.style.cssText = 'position:fixed;inset:0;z-index:10100;background:rgba(0,0,0,0.93);display:flex;align-items:flex-end;justify-content:center;padding:0;';
+            modal.innerHTML = `
+                <div style="width:100%;max-width:520px;background:#0F1014;border-radius:22px 22px 0 0;max-height:92vh;display:flex;flex-direction:column;border-top:2px solid #a855f7;">
+                    <div style="width:36px;height:3px;background:#334155;border-radius:99px;margin:10px auto 0;flex-shrink:0;"></div>
+                    <div style="padding:14px 18px 8px;flex-shrink:0;border-bottom:1px solid rgba(168,85,247,0.15);">
+                        <div style="display:flex;align-items:center;justify-content:space-between;">
+                            <div>
+                                <div style="font-size:0.6em;color:#c084fc;font-weight:900;letter-spacing:2px;margin-bottom:3px;">◈ PROGRAMMES PROGRESSIFS</div>
+                                <div style="font-size:1em;font-weight:900;color:white;">Plans multi-semaines</div>
+                            </div>
+                            <button onclick="document.getElementById('progressiveProgsModal').remove()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#f87171;width:32px;height:32px;border-radius:50%;font-size:0.9em;cursor:pointer;flex-shrink:0;">✕</button>
+                        </div>
+                        <div style="font-size:0.72em;color:#94a3b8;margin-top:6px;line-height:1.5;">Progression automatique sur 4 à 8 semaines. Charges, reps et repos évoluent chaque semaine.</div>
+                    </div>
+                    <div style="flex:1;overflow-y:auto;padding:10px 14px 18px;-webkit-overflow-scrolling:touch;">
+                        ${PROGRESSIVE_PROGRAMS.map(p => `
+                            <div onclick="previewProgressiveProgram('${p.id}')" style="
+                                background:linear-gradient(160deg,${p.color}10,transparent);
+                                border:1.5px solid ${p.color}30;border-radius:14px;
+                                padding:13px;margin-bottom:10px;cursor:pointer;display:flex;align-items:flex-start;gap:12px;">
+                                <div style="font-size:1.8em;flex-shrink:0;filter:drop-shadow(0 0 8px ${p.color}50);">${p.emoji}</div>
+                                <div style="flex:1;min-width:0;">
+                                    <div style="font-size:0.95em;font-weight:900;color:white;margin-bottom:2px;">${p.name}</div>
+                                    <div style="font-size:0.7em;color:${p.color};font-weight:700;margin-bottom:4px;">${p.weeks} semaines · ${p.level}</div>
+                                    <div style="font-size:0.72em;color:#94a3b8;line-height:1.4;">${p.description}</div>
+                                </div>
+                                <div style="font-size:1em;color:#475569;flex-shrink:0;">›</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>`;
+            dismissOnBackdrop(modal);
+            document.body.appendChild(modal);
         }
-        window.importTemplate = importTemplate;
 
-        // ─── PREVIEW d'un template avant import ────────────────────────
+        function previewProgressiveProgram(progId) {
+            const p = PROGRESSIVE_PROGRAMS.find(x => x.id === progId);
+            if (!p) return;
+            document.getElementById('progPreviewModal')?.remove();
+            const modal = document.createElement('div');
+            modal.id = 'progPreviewModal';
+            modal.style.cssText = 'position:fixed;inset:0;z-index:10101;background:rgba(0,0,0,0.96);display:flex;align-items:center;justify-content:center;padding:18px;';
+            modal.innerHTML = `
+                <div style="width:100%;max-width:440px;background:#0F1014;border-radius:22px;padding:22px;border:2px solid ${p.color}40;max-height:90vh;overflow-y:auto;">
+                    <div style="text-align:center;margin-bottom:14px;">
+                        <div style="font-size:3em;margin-bottom:6px;filter:drop-shadow(0 0 12px ${p.color}80);">${p.emoji}</div>
+                        <div style="font-size:1.15em;font-weight:900;color:white;">${p.name}</div>
+                        <div style="font-size:0.74em;color:${p.color};font-weight:700;margin-top:3px;">${p.weeks} semaines · ${p.level}</div>
+                    </div>
+                    <div style="font-size:0.82em;color:#cbd5e1;line-height:1.5;background:rgba(255,255,255,0.03);border-radius:10px;padding:11px 14px;margin-bottom:14px;">${p.description}</div>
+
+                    <div style="font-size:0.62em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:8px;text-transform:uppercase;">◈ Progression hebdomadaire</div>
+                    ${p.weeklyConfig.map(w => `
+                        <div style="background:#1a1d24;border-left:3px solid ${p.color};border-radius:8px;padding:10px 12px;margin-bottom:6px;">
+                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;">
+                                <div style="font-size:0.74em;color:${p.color};font-weight:800;">SEMAINE ${w.week}</div>
+                                <div style="font-size:0.7em;color:#cbd5e1;font-weight:700;">${w.intensity}</div>
+                            </div>
+                            <div style="font-size:0.78em;color:white;font-weight:700;">${w.sets}×${w.reps} reps · Repos ${w.rest}s</div>
+                            <div style="font-size:0.68em;color:#94a3b8;margin-top:3px;font-style:italic;">${w.note}</div>
+                        </div>
+                    `).join('')}
+
+                    <div style="background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.2);border-radius:10px;padding:10px 12px;margin-top:10px;">
+                        <div style="font-size:0.65em;color:#c084fc;font-weight:800;letter-spacing:1px;margin-bottom:3px;">⚡ Comment ça marche</div>
+                        <div style="font-size:0.72em;color:#cbd5e1;line-height:1.5;">L'app suit ta progression et te suggère les bons sets/reps/repos chaque séance selon la semaine actuelle du programme.</div>
+                    </div>
+
+                    <div style="display:flex;gap:8px;margin-top:14px;">
+                        <button onclick="document.getElementById('progPreviewModal').remove()" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#cbd5e1;border-radius:11px;padding:11px;font-size:0.85em;font-weight:700;cursor:pointer;">
+                            Annuler
+                        </button>
+                        <button onclick="activateProgressiveProgram('${p.id}')" style="flex:2;background:linear-gradient(135deg,${p.color},${p.color}cc);border:none;color:white;border-radius:11px;padding:11px;font-size:0.88em;font-weight:800;cursor:pointer;">
+                            🚀 Démarrer ce programme
+                        </button>
+                    </div>
+                </div>`;
+            dismissOnBackdrop(modal);
+            document.body.appendChild(modal);
+        }
+
+        function activateProgressiveProgram(progId) {
+            const p = PROGRESSIVE_PROGRAMS.find(x => x.id === progId);
+            if (!p) return;
+            localStorage.setItem('fitproActiveProgram', JSON.stringify({
+                id: p.id,
+                startDate: Date.now(),
+                weeks: p.weeks,
+            }));
+            // Importer les routines du template de base
+            const base = WORKOUT_TEMPLATES.find(t => t.id === p.baseTemplate);
+            if (base) importTemplate(base.id);
+            document.getElementById('progPreviewModal')?.remove();
+            document.getElementById('progressiveProgsModal')?.remove();
+            showToast(`🚀 ${p.name} activé ! Bonne progression.`, 'success', 3500);
+            updateHomeStats();
+        }
+
+        function getActiveProgressiveProgram() {
+            try {
+                const raw = localStorage.getItem('fitproActiveProgram');
+                if (!raw) return null;
+                const active = JSON.parse(raw);
+                const prog = PROGRESSIVE_PROGRAMS.find(p => p.id === active.id);
+                if (!prog) return null;
+                const weeksSince = Math.floor((Date.now() - active.startDate) / (7 * 24 * 60 * 60 * 1000));
+                if (weeksSince >= prog.weeks) {
+                    // Programme terminé
+                    localStorage.removeItem('fitproActiveProgram');
+                    return null;
+                }
+                const config = prog.weeklyConfig[weeksSince] || prog.weeklyConfig[prog.weeklyConfig.length - 1];
+                return { program: prog, currentWeek: weeksSince + 1, config };
+            } catch(e) { return null; }
+        }
+
+        function showTemplatesModal() {
+            document.getElementById('templatesModal')?.remove();
+            const modal = document.createElement('div');
+            modal.id = 'templatesModal';
+            modal.style.cssText = 'position:fixed;inset:0;z-index:10100;background:rgba(0,0,0,0.93);display:flex;align-items:flex-end;justify-content:center;padding:0;';
+            modal.innerHTML = `
+                <div style="width:100%;max-width:520px;background:#0F1014;border-radius:22px 22px 0 0;max-height:92vh;display:flex;flex-direction:column;border-top:2px solid rgba(34,197,94,0.3);">
+                    <div style="width:36px;height:3px;background:#334155;border-radius:99px;margin:10px auto 0;flex-shrink:0;"></div>
+                    <div style="padding:14px 18px 8px;flex-shrink:0;border-bottom:1px solid rgba(34,197,94,0.1);">
+                        <div style="display:flex;align-items:center;justify-content:space-between;">
+                            <div>
+                                <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;margin-bottom:3px;">◈ TEMPLATES POPULAIRES</div>
+                                <div style="font-size:1em;font-weight:900;color:white;">Choisir un programme</div>
+                            </div>
+                            <button onclick="document.getElementById('templatesModal').remove()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#f87171;width:32px;height:32px;border-radius:50%;font-size:0.9em;cursor:pointer;flex-shrink:0;">✕</button>
+                        </div>
+                        <div style="font-size:0.72em;color:#94a3b8;margin-top:6px;line-height:1.5;">8 programmes éprouvés. Tap pour les détails et l'import.</div>
+                    </div>
+                    <div style="flex:1;overflow-y:auto;padding:10px 14px 18px;-webkit-overflow-scrolling:touch;">
+                        ${WORKOUT_TEMPLATES.map(t => `
+                            <div onclick="previewTemplate('${t.id}')" style="
+                                background:linear-gradient(160deg,${t.color}10,transparent);
+                                border:1.5px solid ${t.color}30;border-radius:14px;
+                                padding:13px;margin-bottom:10px;cursor:pointer;display:flex;align-items:flex-start;gap:12px;">
+                                <div style="font-size:1.8em;flex-shrink:0;filter:drop-shadow(0 0 8px ${t.color}50);">${t.emoji}</div>
+                                <div style="flex:1;min-width:0;">
+                                    <div style="font-size:0.95em;font-weight:900;color:white;margin-bottom:2px;">${t.name}</div>
+                                    <div style="font-size:0.7em;color:${t.color};font-weight:700;margin-bottom:4px;">${t.days} jours/sem · ${t.level}</div>
+                                    <div style="font-size:0.72em;color:#94a3b8;line-height:1.4;">${t.description}</div>
+                                </div>
+                                <div style="font-size:1em;color:#475569;flex-shrink:0;">›</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>`;
+            dismissOnBackdrop(modal);
+            document.body.appendChild(modal);
+        }
+
         function previewTemplate(templateId) {
             const t = WORKOUT_TEMPLATES.find(x => x.id === templateId);
             if (!t) return;
             document.getElementById('templatePreviewModal')?.remove();
             const modal = document.createElement('div');
             modal.id = 'templatePreviewModal';
-            modal.style.cssText = 'position:fixed;inset:0;z-index:10200;background:rgba(0,0,0,0.95);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:14px;';
-
-            // Génère un exemple d'exercices pour preview
-            const sampleSessionExercises = t.sessions.map(s => ({
-                session: s,
-                exs: generateExercisesForMuscles(s.muscles, { count: 6, level: t.level })
-            }));
-
+            modal.style.cssText = 'position:fixed;inset:0;z-index:10101;background:rgba(0,0,0,0.96);display:flex;align-items:center;justify-content:center;padding:18px;';
             modal.innerHTML = `
-                <div style="width:100%;max-width:480px;background:#0F1014;border:1.5px solid ${t.color}55;border-radius:20px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.6),0 0 40px ${t.color}30;">
-                    <!-- Header -->
-                    <div style="background:linear-gradient(135deg,${t.color}25,${t.color}05);padding:18px 20px;border-bottom:1px solid ${t.color}30;flex-shrink:0;">
-                        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;">
-                            <div style="display:flex;align-items:center;gap:10px;min-width:0;">
-                                <div style="font-size:2em;line-height:1;filter:drop-shadow(0 0 10px ${t.color}80);flex-shrink:0;">${t.emoji}</div>
-                                <div style="min-width:0;">
-                                    <div style="font-size:1.05em;font-weight:900;color:white;">${t.name}</div>
-                                    <div style="font-size:0.7em;color:${t.color};font-weight:700;">${t.days} jours/sem · ${t.level}</div>
-                                </div>
-                            </div>
-                            <button onclick="document.getElementById('templatePreviewModal').remove()" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;width:32px;height:32px;border-radius:50%;font-size:0.9em;cursor:pointer;flex-shrink:0;">✕</button>
+                <div style="width:100%;max-width:420px;background:#0F1014;border-radius:22px;padding:22px;border:2px solid ${t.color}40;max-height:88vh;overflow-y:auto;">
+                    <div style="text-align:center;margin-bottom:14px;">
+                        <div style="font-size:3em;margin-bottom:6px;filter:drop-shadow(0 0 12px ${t.color}80);">${t.emoji}</div>
+                        <div style="font-size:1.15em;font-weight:900;color:white;">${t.name}</div>
+                        <div style="font-size:0.74em;color:${t.color};font-weight:700;margin-top:3px;">${t.days} jours/sem · ${t.level}</div>
+                    </div>
+                    <div style="font-size:0.82em;color:#cbd5e1;line-height:1.5;background:rgba(255,255,255,0.03);border-radius:10px;padding:11px 14px;margin-bottom:14px;">${t.description}</div>
+
+                    <div style="font-size:0.62em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:8px;text-transform:uppercase;">◈ Séances de la semaine</div>
+                    ${t.sessions.map((s, i) => `
+                        <div style="background:#1a1d24;border-left:3px solid ${t.color};border-radius:8px;padding:10px 12px;margin-bottom:6px;">
+                            <div style="font-size:0.62em;color:${t.color};font-weight:800;margin-bottom:2px;">JOUR ${i+1}</div>
+                            <div style="font-size:0.85em;color:white;font-weight:700;line-height:1.3;">${s.name}</div>
+                            <div style="font-size:0.66em;color:#94a3b8;margin-top:2px;">⏱️ ${s.duration} min · ${s.muscles.join(' · ')}</div>
                         </div>
-                        <div style="font-size:0.78em;color:#cbd5e1;line-height:1.5;">${t.description}</div>
-                    </div>
+                    `).join('')}
 
-                    <!-- Sessions preview -->
-                    <div style="flex:1;overflow-y:auto;padding:14px 18px;-webkit-overflow-scrolling:touch;">
-                        ${sampleSessionExercises.map((ses, i) => `
-                            <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:11px 13px;margin-bottom:9px;">
-                                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-                                    <div style="font-size:1.2em;line-height:1;">${ses.session.emoji}</div>
-                                    <div style="flex:1;min-width:0;">
-                                        <div style="font-weight:800;color:white;font-size:0.88em;">${ses.session.name}</div>
-                                        <div style="font-size:0.65em;color:#94a3b8;">${ses.session.muscles.join(' · ')}</div>
-                                    </div>
-                                </div>
-                                <div style="font-size:0.72em;color:#64748b;line-height:1.5;background:rgba(0,0,0,0.25);padding:7px 9px;border-radius:7px;">
-                                    ${ses.exs.slice(0, 4).map(e => `• ${e.name}`).join('<br>')}
-                                    ${ses.exs.length > 4 ? `<br><span style="color:${t.color}cc;">+ ${ses.exs.length - 4} autres</span>` : ''}
-                                </div>
-                            </div>
-                        `).join('')}
-
-                        ${t.weeklyPattern ? `
-                            <div style="margin-top:14px;background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.2);border-radius:10px;padding:10px 12px;">
-                                <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:1.5px;margin-bottom:6px;">📅 PLAN HEBDO INCLUS</div>
-                                <div style="display:flex;gap:4px;flex-wrap:wrap;">
-                                    ${ROUTINE_DAYS.map(d => {
-                                        const sessionIdx = t.weeklyPattern[d];
-                                        const has = typeof sessionIdx === 'number';
-                                        return `<div style="flex:1;min-width:34px;text-align:center;padding:6px 4px;border-radius:6px;background:${has?t.color+'25':'rgba(255,255,255,0.03)'};border:1px solid ${has?t.color+'50':'rgba(255,255,255,0.05)'};">
-                                            <div style="font-size:0.55em;color:${has?t.color:'#475569'};font-weight:800;">${ROUTINE_DAY_LABELS[d]}</div>
-                                            <div style="font-size:0.85em;color:white;line-height:1;margin-top:2px;">${has?t.sessions[sessionIdx].emoji:'·'}</div>
-                                        </div>`;
-                                    }).join('')}
-                                </div>
-                            </div>` : ''}
-                    </div>
-
-                    <!-- Action -->
-                    <div style="padding:14px 18px;border-top:1px solid rgba(255,255,255,0.05);flex-shrink:0;">
-                        <button onclick="importTemplate('${t.id}')" style="width:100%;background:linear-gradient(135deg,${t.color},${t.color}cc);border:none;color:white;border-radius:12px;padding:14px;font-weight:900;font-size:0.95em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${t.color}40;">📥 IMPORTER CE PROGRAMME</button>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(modal);
-            modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
-        }
-        window.previewTemplate = previewTemplate;
-
-        // ─── MODAL liste des templates ─────────────────────────────────
-        function showTemplatesModal() {
-            document.getElementById('templatesModal')?.remove();
-            const modal = document.createElement('div');
-            modal.id = 'templatesModal';
-            modal.style.cssText = 'position:fixed;inset:0;z-index:10100;background:rgba(0,0,0,0.93);backdrop-filter:blur(8px);display:flex;align-items:flex-end;justify-content:center;padding:0;';
-            modal.innerHTML = `
-                <div style="width:100%;max-width:520px;background:#0F1014;border-radius:22px 22px 0 0;max-height:92vh;display:flex;flex-direction:column;border-top:2px solid rgba(168,85,247,0.3);">
-                    <div style="width:36px;height:3px;background:#334155;border-radius:99px;margin:10px auto 0;flex-shrink:0;"></div>
-                    <div style="padding:14px 18px 8px;flex-shrink:0;border-bottom:1px solid rgba(168,85,247,0.1);">
-                        <div style="display:flex;align-items:center;justify-content:space-between;">
-                            <div>
-                                <div style="font-size:0.6em;color:#c084fc;font-weight:900;letter-spacing:2px;margin-bottom:3px;">📚 TEMPLATES</div>
-                                <div style="font-size:1em;font-weight:900;color:white;">Choisir un programme</div>
-                            </div>
-                            <button onclick="document.getElementById('templatesModal').remove()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#f87171;width:32px;height:32px;border-radius:50%;font-size:0.9em;cursor:pointer;flex-shrink:0;">✕</button>
-                        </div>
-                        <div style="font-size:0.72em;color:#94a3b8;margin-top:6px;line-height:1.5;">${WORKOUT_TEMPLATES.length} programmes éprouvés. Tap pour les détails et l'import.</div>
-                    </div>
-                    <div style="flex:1;overflow-y:auto;padding:10px 14px 18px;-webkit-overflow-scrolling:touch;">
-                        ${WORKOUT_TEMPLATES.map(t => `
-                            <div onclick="previewTemplate('${t.id}')" style="background:linear-gradient(160deg,${t.color}10,transparent);border:1.5px solid ${t.color}30;border-radius:14px;padding:13px;margin-bottom:10px;cursor:pointer;display:flex;align-items:flex-start;gap:12px;">
-                                <div style="font-size:1.8em;flex-shrink:0;filter:drop-shadow(0 0 8px ${t.color}60);">${t.emoji}</div>
-                                <div style="flex:1;min-width:0;">
-                                    <div style="font-size:0.95em;font-weight:900;color:white;margin-bottom:2px;">${t.name}</div>
-                                    <div style="font-size:0.7em;color:${t.color};font-weight:700;margin-bottom:4px;">${t.days} jours/sem · ${t.level}</div>
-                                    <div style="font-size:0.72em;color:#94a3b8;line-height:1.4;">${t.description}</div>
-                                </div>
-                                <div style="color:${t.color};font-size:1.2em;flex-shrink:0;align-self:center;">›</div>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(modal);
-            modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
-        }
-        window.showTemplatesModal = showTemplatesModal;
-
-        // ═══════════════════════════════════════════════════════════════
-        // 📅 PLAN HEBDO — affichage en haut de l'onglet Routines
-        // ═══════════════════════════════════════════════════════════════
-        function renderWeeklyPlanCard() {
-            const container = document.getElementById('weeklyPlanCard');
-            if (!container) return;
-            const plan = getWeeklyPlan();
-            const routines = getRoutines();
-            const todayIdx = (new Date().getDay() + 6) % 7; // lundi = 0
-
-            const hasPlan = Object.values(plan).some(v => v);
-            if (!hasPlan) {
-                container.innerHTML = '';
-                container.style.display = 'none';
-                return;
-            }
-            container.style.display = 'block';
-
-            container.innerHTML = `
-                <div class="card" style="background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(34,197,94,0.25);padding:14px 16px;margin-bottom:14px;">
-                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-                        <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;">📅 SEMAINE</div>
-                        <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(34,197,94,0.25),transparent);"></div>
-                        <button onclick="openWeeklyPlanEditor()" style="background:none;border:none;color:#94a3b8;font-size:0.7em;cursor:pointer;font-weight:700;">✏️ Modifier</button>
-                    </div>
-                    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;">
-                        ${ROUTINE_DAYS.map((d, i) => {
-                            const routineId = plan[d];
-                            const routine = routines.find(r => r.id === routineId);
-                            const isToday = i === todayIdx;
-                            const borderColor = isToday ? '#22c55e' : (routine ? (routine.color || '#475569') : 'rgba(255,255,255,0.05)');
-                            const bgColor = isToday ? 'rgba(34,197,94,0.12)' : (routine ? `${routine.color}10` : 'rgba(255,255,255,0.02)');
-                            return `<div onclick="${routine ? `startRoutineById('${routineId}')` : `openWeeklyPlanEditor('${d}')`}" style="cursor:pointer;background:${bgColor};border:1.5px solid ${borderColor};border-radius:9px;padding:7px 4px;text-align:center;${isToday ? 'box-shadow:0 0 10px rgba(34,197,94,0.3);' : ''}">
-                                <div style="font-size:0.55em;color:${isToday?'#4ade80':'#94a3b8'};font-weight:800;letter-spacing:0.5px;">${ROUTINE_DAY_LABELS[d]}</div>
-                                <div style="font-size:1.1em;line-height:1;margin-top:3px;">${routine ? routine.emoji : '·'}</div>
-                                ${isToday ? '<div style="font-size:0.5em;color:#4ade80;font-weight:900;margin-top:2px;">AUJ.</div>' : ''}
-                            </div>`;
-                        }).join('')}
-                    </div>
-                </div>
-            `;
-        }
-        window.renderWeeklyPlanCard = renderWeeklyPlanCard;
-
-        function openWeeklyPlanEditor(focusDay) {
-            const plan = getWeeklyPlan();
-            const routines = getRoutines();
-            document.getElementById('weeklyPlanEditorModal')?.remove();
-            const modal = document.createElement('div');
-            modal.id = 'weeklyPlanEditorModal';
-            modal.style.cssText = 'position:fixed;inset:0;z-index:10150;background:rgba(0,0,0,0.92);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:14px;';
-            modal.innerHTML = `
-                <div style="width:100%;max-width:440px;background:#0F1014;border:1px solid rgba(34,197,94,0.3);border-radius:18px;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;">
-                    <div style="padding:16px 18px;border-bottom:1px solid rgba(34,197,94,0.15);display:flex;align-items:center;justify-content:space-between;">
-                        <div>
-                            <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;">📅 PLAN HEBDO</div>
-                            <div style="font-size:1em;font-weight:900;color:white;margin-top:2px;">Modifier la semaine</div>
-                        </div>
-                        <button onclick="document.getElementById('weeklyPlanEditorModal').remove();renderWeeklyPlanCard();" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#f87171;width:32px;height:32px;border-radius:50%;font-size:0.9em;cursor:pointer;">✓</button>
-                    </div>
-                    <div style="flex:1;overflow-y:auto;padding:14px 16px;-webkit-overflow-scrolling:touch;">
-                        ${ROUTINE_DAYS.map(d => {
-                            const currentRoutineId = plan[d];
-                            const currentRoutine = routines.find(r => r.id === currentRoutineId);
-                            return `<div style="margin-bottom:10px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:11px 12px;">
-                                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;">
-                                    <span style="font-size:0.78em;font-weight:800;color:white;">${ROUTINE_DAY_LABELS[d]}edi</span>
-                                    ${currentRoutine ? `<button onclick="setWeeklyDay('${d}',null);" style="background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.25);border-radius:6px;padding:3px 8px;font-size:0.65em;font-weight:700;cursor:pointer;">✕ Retirer</button>` : ''}
-                                </div>
-                                <select onchange="setWeeklyDay('${d}', this.value || null)" style="width:100%;background:#0a0e18;border:1px solid rgba(255,255,255,0.08);color:white;border-radius:8px;padding:9px 11px;font-size:0.82em;">
-                                    <option value="">— Repos —</option>
-                                    ${routines.map(r => `<option value="${r.id}" ${r.id === currentRoutineId ? 'selected' : ''}>${r.emoji||'🏋️'} ${r.name}</option>`).join('')}
-                                </select>
-                            </div>`;
-                        }).join('')}
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(modal);
-            modal.addEventListener('click', e => { if (e.target === modal) { modal.remove(); renderWeeklyPlanCard(); } });
-        }
-        window.openWeeklyPlanEditor = openWeeklyPlanEditor;
-
-        function setWeeklyDay(day, routineId) {
-            const plan = getWeeklyPlan();
-            if (routineId) plan[day] = routineId;
-            else delete plan[day];
-            saveWeeklyPlan(plan);
-        }
-        window.setWeeklyDay = setWeeklyDay;
-
-        // ═══════════════════════════════════════════════════════════════
-        // 📋 RENDER : Liste des routines
-        // ═══════════════════════════════════════════════════════════════
-        function renderRoutinesList() {
-            const container = document.getElementById('routinesList');
-            const noMsg = document.getElementById('noRoutinesMessage');
-            if (!container) return;
-            const routines = getRoutines();
-
-            // Render plan hebdo en parallèle
-            renderWeeklyPlanCard();
-
-            if (routines.length === 0) {
-                container.style.display = 'none';
-                if (noMsg) noMsg.style.display = 'block';
-                return;
-            }
-            container.style.display = 'flex';
-            container.style.flexDirection = 'column';
-            container.style.gap = '10px';
-            if (noMsg) noMsg.style.display = 'none';
-
-            container.innerHTML = routines.map((r, idx) => {
-                const color = r.color || '#22c55e';
-                const exCount = (r.exercises || []).length;
-                return `
-                <div style="background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${color}30;border-left:3px solid ${color};border-radius:12px;padding:13px 14px;">
-                    <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:9px;">
-                        <div style="font-size:1.5em;line-height:1;flex-shrink:0;filter:drop-shadow(0 0 6px ${color}60);">${r.emoji || '🏋️'}</div>
-                        <div style="flex:1;min-width:0;">
-                            <div style="font-weight:800;color:white;font-size:0.92em;line-height:1.3;">${r.name}</div>
-                            ${r.description ? `<div style="font-size:0.7em;color:#94a3b8;margin-top:2px;">${r.description}</div>` : ''}
-                            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:5px;font-size:0.65em;color:#64748b;font-weight:600;">
-                                <span>📋 ${exCount} exo${exCount>1?'s':''}</span>
-                                ${r.level ? `<span>· ${r.level}</span>` : ''}
-                                ${r.muscles && r.muscles.length ? `<span>· ${r.muscles.slice(0,2).join('/')}${r.muscles.length>2?'…':''}</span>` : ''}
-                            </div>
-                        </div>
-                    </div>
-                    ${exCount > 0 ? `
-                        <div style="background:rgba(0,0,0,0.25);border-radius:7px;padding:7px 9px;font-size:0.7em;color:#94a3b8;line-height:1.5;margin-bottom:9px;">
-                            ${r.exercises.slice(0,3).map(e => `• ${e.name}`).join('<br>')}
-                            ${exCount > 3 ? `<br><span style="color:${color}cc;">+ ${exCount - 3} autres</span>` : ''}
-                        </div>` : `
-                        <div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:7px;padding:8px 10px;font-size:0.7em;color:#fca5a5;text-align:center;margin-bottom:9px;">⚠ Aucun exercice — édite ou supprime</div>`}
-                    <div style="display:flex;gap:6px;">
-                        <button onclick="startRoutine(${idx})" ${exCount === 0 ? 'disabled' : ''} style="flex:1;padding:10px;border-radius:8px;background:${exCount > 0 ? `linear-gradient(135deg,${color},${color}cc)` : 'rgba(255,255,255,0.05)'};border:none;color:${exCount > 0 ? 'white' : '#475569'};font-weight:800;font-size:0.82em;cursor:${exCount > 0 ? 'pointer' : 'not-allowed'};letter-spacing:0.5px;${exCount > 0 ? `box-shadow:0 3px 10px ${color}30;` : ''}">▶ DÉMARRER</button>
-                        <button onclick="editRoutine(${idx})" style="padding:10px 12px;border-radius:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#cbd5e1;font-weight:700;font-size:0.78em;cursor:pointer;">✏️</button>
-                        <button onclick="deleteRoutine(${idx})" style="padding:10px 12px;border-radius:8px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:#f87171;font-weight:700;font-size:0.78em;cursor:pointer;">🗑️</button>
+                    <div style="display:flex;gap:8px;margin-top:14px;">
+                        <button onclick="document.getElementById('templatePreviewModal').remove()" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#cbd5e1;border-radius:11px;padding:11px;font-size:0.85em;font-weight:700;cursor:pointer;">
+                            Annuler
+                        </button>
+                        <button onclick="importTemplate('${t.id}')" style="flex:2;background:linear-gradient(135deg,${t.color},${t.color}cc);border:none;color:white;border-radius:11px;padding:11px;font-size:0.88em;font-weight:800;cursor:pointer;">
+                            📥 Importer ce programme
+                        </button>
                     </div>
                 </div>`;
-            }).join('');
+            dismissOnBackdrop(modal);
+            document.body.appendChild(modal);
         }
-        window.renderRoutinesList = renderRoutinesList;
 
-        // ═══════════════════════════════════════════════════════════════
-        // ▶️ DÉMARRER une routine
-        // ═══════════════════════════════════════════════════════════════
-        function startRoutine(index) {
+        function importTemplate(templateId) {
+            const t = WORKOUT_TEMPLATES.find(x => x.id === templateId);
+            if (!t) return;
             const routines = getRoutines();
-            const routine = routines[index];
-            if (!routine) {
-                if (typeof showAlert === 'function') showAlert('Routine introuvable.', 'error', 'Erreur');
-                return;
-            }
-            if (!routine.exercises || routine.exercises.length === 0) {
-                if (typeof showAlert === 'function') {
-                    showAlert('Cette routine n\'a pas d\'exercices. Édite-la pour en ajouter.', 'warning', 'Routine vide');
-                }
-                return;
-            }
+            // Créer une routine pour chaque séance du template
+            t.sessions.forEach((s, i) => {
+                routines.push({
+                    name: `${t.emoji} ${t.name} · Jour ${i+1} (${s.name})`,
+                    muscles: s.muscles,
+                    duration: s.duration,
+                    level: t.level,
+                    fromTemplate: t.id,
+                    created: new Date().toISOString(),
+                });
+            });
+            saveRoutines(routines);
+            document.getElementById('templatePreviewModal')?.remove();
+            document.getElementById('templatesModal')?.remove();
+            showToast(`✅ ${t.sessions.length} séances importées dans tes routines`, 'success', 3000);
+            if (typeof renderRoutinesList === 'function') renderRoutinesList();
+        }
 
-            // Construire le workout
+        function saveRoutines(routines) {
+            const profileId = getCurrentProfileId();
+            const key = profileId ? `routines_${profileId}` : 'routines';
+            localStorage.setItem(key, JSON.stringify(routines));
+        }
+        
+        function renderRoutinesList() {
+            const routines = getRoutines();
+            const container = document.getElementById('routinesList');
+            const noRoutinesMsg = document.getElementById('noRoutinesMessage');
+            
+            if (!container) return;
+            
+            if (routines.length === 0) {
+                container.style.display = 'none';
+                if (noRoutinesMsg) noRoutinesMsg.style.display = 'block';
+                return;
+            }
+            
+            container.style.display = 'flex';
+            if (noRoutinesMsg) noRoutinesMsg.style.display = 'none';
+            
+            container.style.flexDirection = 'column';
+            container.style.gap = '15px';
+            
+            container.innerHTML = routines.map((routine, index) => `
+                <div style="background: white; border-radius: 16px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-left: 4px solid #16a34a;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                        <div style="flex: 1;">
+                            <h4 style="color: #16a34a; margin: 0 0 8px 0; font-size: 1.2em;">${routine.name}</h4>
+                            ${routine.description ? `<p style="color: #666; margin: 0 0 10px 0; font-size: 0.9em;">${routine.description}</p>` : ''}
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap; font-size: 0.85em; color: #999;">
+                                <span>📋 ${routine.exercises.length} exercice${routine.exercises.length > 1 ? 's' : ''}</span>
+                                ${routine.day ? `<span>📅 ${routine.day}</span>` : ''}
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button onclick="startRoutine(${index})" class="btn" 
+                                    style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 10px 20px; font-size: 0.9em;">
+                                ▶️ Démarrer
+                            </button>
+                            <button onclick="showRoutineOptions(${index})" class="btn btn-secondary" 
+                                    style="padding: 10px 15px; font-size: 0.9em;">
+                                ⋮
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Exercise List Preview -->
+                    <div style="background: #f9fafb; padding: 12px; border-radius: 8px; margin-top: 12px;">
+                        <div style="font-weight: 600; color: #16a34a; margin-bottom: 8px; font-size: 0.85em;">Exercices :</div>
+                        <div style="font-size: 0.85em; color: #666;">
+                            ${routine.exercises.slice(0, 3).map(ex => `• ${ex.name}`).join('<br>')}
+                            ${routine.exercises.length > 3 ? `<br>... et ${routine.exercises.length - 3} autre${routine.exercises.length - 3 > 1 ? 's' : ''}` : ''}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function renderTemplatesList() {
+            const container = document.getElementById('templatesList');
+            if (!container) return;
+            
+            const templates = getTemplates();
+            
+            container.innerHTML = templates.map((template, index) => `
+                <div style="background: linear-gradient(135deg, #f59e0b15 0%, #f59e0b05 100%); border-radius: 16px; padding: 20px; border-left: 4px solid #f59e0b;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                        <div style="flex: 1;">
+                            <h4 style="color: #f59e0b; margin: 0 0 8px 0; font-size: 1.1em;">${template.name}</h4>
+                            <p style="color: #666; margin: 0 0 10px 0; font-size: 0.85em;">${template.description}</p>
+                            <div style="font-size: 0.8em; color: #999;">
+                                📋 ${template.exercises.length} exercices • 💪 ${template.level}
+                            </div>
+                        </div>
+                        <button onclick="useTemplate(${index})" class="btn" 
+                                style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 10px 20px; font-size: 0.9em; white-space: nowrap;">
+                            ➕ Utiliser
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function getTemplates() {
+            return [
+                {
+                    name: "Push Day (PPL)",
+                    description: "Pectoraux, épaules et triceps - Push/Pull/Legs split",
+                    level: "Intermédiaire",
+                    exercises: [
+                        { name: "Développé couché haltères", sets: 4, reps: 8 },
+                        { name: "Incline Bench Press", sets: 3, reps: 10 },
+                        { name: "Écarté couché haltères", sets: 3, reps: 12 },
+                        { name: "Développé militaire haltères", sets: 4, reps: 8 },
+                        { name: "Élévations latérales", sets: 3, reps: 12 },
+                        { name: "Extension poulie haute", sets: 3, reps: 12 }
+                    ]
+                },
+                {
+                    name: "Pull Day (PPL)",
+                    description: "Dos, biceps et arrière d'épaules - Push/Pull/Legs split",
+                    level: "Intermédiaire",
+                    exercises: [
+                        { name: "Tractions", sets: 4, reps: 8 },
+                        { name: "Rowing haltère un bras", sets: 4, reps: 10 },
+                        { name: "Tirage vertical large", sets: 3, reps: 12 },
+                        { name: "Face pulls", sets: 3, reps: 15 },
+                        { name: "Curl biceps haltères", sets: 3, reps: 12 },
+                        { name: "Curl marteau", sets: 3, reps: 12 }
+                    ]
+                },
+                {
+                    name: "Leg Day (PPL)",
+                    description: "Jambes complètes - Push/Pull/Legs split",
+                    level: "Intermédiaire",
+                    exercises: [
+                        { name: "Squats", sets: 4, reps: 8 },
+                        { name: "Fentes marchées", sets: 3, reps: 12 },
+                        { name: "Leg curls", sets: 3, reps: 12 },
+                        { name: "Extensions jambes", sets: 3, reps: 15 },
+                        { name: "Calf Raises debout", sets: 4, reps: 15 }
+                    ]
+                },
+                {
+                    name: "Full Body Débutant",
+                    description: "Corps complet 3x par semaine",
+                    level: "Débutant",
+                    exercises: [
+                        { name: "Squats", sets: 3, reps: 10 },
+                        { name: "Pompes classiques", sets: 3, reps: 12 },
+                        { name: "Rowing haltère un bras", sets: 3, reps: 10 },
+                        { name: "Développé militaire haltères", sets: 3, reps: 10 },
+                        { name: "Planche", sets: 3, reps: 30 }
+                    ]
+                }
+            ];
+        }
+        
+        function openCreateRoutineModal() {
+            // Create modal overlay
+            const overlay = document.createElement('div');
+            overlay.id = 'createRoutineModalOverlay';
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.85);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+                animation: fadeIn 0.3s;
+            `;
+            
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                background: white;
+                border-radius: 20px;
+                max-width: 600px;
+                width: 100%;
+                max-height: 90vh;
+                overflow-y: auto;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                animation: slideUp 0.3s;
+            `;
+            
+            modal.innerHTML = `
+                <div style="padding: 30px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                        <h2 style="color: #16a34a; margin: 0;">➕ Créer une Routine</h2>
+                        <button onclick="closeCreateRoutineModal()" style="background: none; border: none; font-size: 1.5em; cursor: pointer; color: #999;">✕</button>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">Nom de la routine *</label>
+                        <input type="text" id="newRoutineName" placeholder="Ex: Ma routine Lundi" 
+                               style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #e5e7eb; font-size: 1em;">
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">Description (optionnel)</label>
+                        <textarea id="newRoutineDescription" placeholder="Ex: Push day - Pectoraux, épaules, triceps" 
+                                  style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #e5e7eb; font-size: 1em; min-height: 60px; resize: vertical;"></textarea>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">Jour (optionnel)</label>
+                        <select id="newRoutineDay" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #e5e7eb; font-size: 1em;">
+                            <option value="">Aucun jour spécifique</option>
+                            <option value="Lundi">Lundi</option>
+                            <option value="Mardi">Mardi</option>
+                            <option value="Mercredi">Mercredi</option>
+                            <option value="Jeudi">Jeudi</option>
+                            <option value="Vendredi">Vendredi</option>
+                            <option value="Samedi">Samedi</option>
+                            <option value="Dimanche">Dimanche</option>
+                        </select>
+                    </div>
+                    
+                    <div style="background: linear-gradient(135deg, #16a34a15 0%, #15803d05 100%); padding: 15px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid #16a34a;">
+                        <div style="font-weight: 600; color: #16a34a; margin-bottom: 5px;">💡 Astuce</div>
+                        <div style="color: #666; font-size: 0.9em;">Vous pourrez ajouter des exercices après la création de la routine.</div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px;">
+                        <button onclick="closeCreateRoutineModal()" class="btn btn-secondary" style="flex: 1; padding: 15px;">
+                            Annuler
+                        </button>
+                        <button onclick="saveNewRoutine()" class="btn" 
+                                style="background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); flex: 1; padding: 15px;">
+                            ✅ Créer
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
+            
+            // Focus on name input
+            setTimeout(() => {
+                const nameInput = document.getElementById('newRoutineName');
+                if (nameInput) nameInput.focus();
+            }, 100);
+        }
+        
+        function closeCreateRoutineModal() {
+            const overlay = document.getElementById('createRoutineModalOverlay');
+            if (overlay) {
+                overlay.remove();
+            }
+        }
+        
+        function saveNewRoutine() {
+            const nameInput = document.getElementById('newRoutineName');
+            const descInput = document.getElementById('newRoutineDescription');
+            const dayInput = document.getElementById('newRoutineDay');
+            
+            const name = nameInput ? nameInput.value.trim() : '';
+            const description = descInput ? descInput.value.trim() : '';
+            const day = dayInput ? dayInput.value : '';
+            
+            if (!name) {
+                showAlert('Veuillez entrer un nom pour cette routine.', 'warning', 'Nom requis');
+                if (nameInput) nameInput.focus();
+                return;
+            }
+            
+            // Create new routine
+            const newRoutine = {
+                name: name,
+                description: description,
+                day: day,
+                exercises: [], // Empty for now - will add later
+                createdAt: new Date().toISOString()
+            };
+            
+            // Save to routines
+            const routines = getRoutines();
+            routines.push(newRoutine);
+            saveRoutines(routines);
+            
+            // Close modal
+            closeCreateRoutineModal();
+            
+            // Refresh list
+            renderRoutinesList();
+            
+            // Show success
+            showToast(`✅ Routine "${name}" créée ! Vous pouvez maintenant y ajouter des exercices.`);
+        }
+        
+        function startRoutine(index) {
+            
+            const routines = getRoutines();
+            
+            const routine = routines[index];
+            
+            if (!routine) {
+                showAlert('Routine introuvable.', 'error', 'Erreur');
+                return;
+            }
+            
+            
+            // Switch to workouts tab FIRST
+            switchTab('workouts');
+            
+            // Create workout from routine
             const workout = {
                 name: routine.name,
-                description: routine.description || 'Routine personnalisée',
-                type: 'routine',
-                fromRoutine: true,
-                routineIndex: index,
-                exercises: routine.exercises.map(ex => {
+                description: routine.description || `Routine personnalisée`,
+                exercises: routine.exercises.map((ex, i) => {
+                    
+                    // Find full exercise data from database
                     const fullEx = exerciseDatabase.find(e => e.name === ex.name);
+                    
                     if (fullEx) {
-                        return {
+                        // Clone exercise and add routine-specific data
+                        // IMPORTANT: le mode sauvegardé dans la routine prime sur le mode de la DB
+                        const result = {
                             ...fullEx,
-                            sets: ex.sets || 3,
+                            sets: ex.sets || fullEx.sets || 3,
                             reps: ex.reps || fullEx.reps || 10,
                             duration: ex.duration || fullEx.duration || 45,
-                            mode: ex.mode || fullEx.mode || 'reps',
-                            rest: ex.rest || 60
+                            mode: ex.mode || 'reps'  // respecter le mode choisi à la création
                         };
+                        return result;
                     }
-                    // Fallback : exercice non trouvé en DB
+                    // If not found, create minimal exercise object with defaults
                     return {
                         ...ex,
                         type: 'exercise',
-                        muscle: ex.muscle || 'Corps entier',
+                        muscle: 'Autre',
                         difficulty: 'Intermédiaire',
                         equipment: ['Matériel divers'],
                         description: ex.name,
                         instructions: ['Exercice personnalisé'],
+                        duration: ex.duration || 60,
                         sets: ex.sets || 3,
                         reps: ex.reps || 10,
-                        duration: ex.duration || 45,
                         mode: ex.mode || 'reps'
                     };
-                })
+                }),
+                type: 'routine',
+                fromRoutine: true,
+                routineName: routine.name,
+                mode: 'mixed'  // exercices peuvent avoir des modes différents
             };
-
-            // Démarrer via le système existant
-            currentWorkout = workout;
-            currentExerciseIndex = 0;
-            currentSetNumber = 1;
-            workoutStartTime = Date.now();
-            if (typeof _workoutSkipCount !== 'undefined') _workoutSkipCount = 0;
-            if (typeof completedSets !== 'undefined') completedSets = [];
-
-            // Aller à l'onglet workouts
-            if (typeof switchTab === 'function') switchTab('workouts');
-
-            setTimeout(() => {
-                document.getElementById('workoutSelection')?.style.setProperty('display', 'none');
-                document.getElementById('exerciseSelection')?.style.setProperty('display', 'none');
-                ['aiWorkoutPanel', 'celebrityPanel', 'planningPanel'].forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) el.style.display = 'none';
-                });
-                const exView = document.getElementById('exerciseView');
-                if (exView) {
-                    exView.classList.remove('hidden');
-                    exView.style.display = 'block';
+            
+            
+            
+            // Check if function exists
+            if (typeof showWorkoutPreparation === 'function') {
+                try {
+                    showWorkoutPreparation(workout);
+                    showToast(`🔄 Routine "${routine.name}" démarrée !`);
+                } catch (error) {
+                    showAlert('Erreur lors du démarrage : ' + error.message, 'error', 'Erreur');
                 }
-                document.body.classList.add('in-session');
-
-                // Badge
-                const badge = document.getElementById('workoutTypeBadge');
-                if (badge) {
-                    const color = routine.color || '#22c55e';
-                    badge.innerHTML = `🔄 ${routine.name}`;
-                    badge.style.background = `linear-gradient(135deg, ${color} 0%, ${color}dd 100%)`;
-                    badge.style.display = 'block';
-                }
-
-                if (typeof renderExerciseProgressList === 'function') renderExerciseProgressList();
-                if (typeof updateMusclesOverview === 'function') updateMusclesOverview();
-                if (typeof startExercise === 'function') startExercise();
-            }, 100);
-        }
-        window.startRoutine = startRoutine;
-
-        function startRoutineById(id) {
-            const routines = getRoutines();
-            const idx = routines.findIndex(r => r.id === id);
-            if (idx >= 0) startRoutine(idx);
-        }
-        window.startRoutineById = startRoutineById;
-
-        // ═══════════════════════════════════════════════════════════════
-        // 🗑️ Supprimer une routine
-        // ═══════════════════════════════════════════════════════════════
-        function deleteRoutine(index) {
-            const routines = getRoutines();
-            const r = routines[index];
-            if (!r) return;
-            if (!confirm(`Supprimer "${r.name}" ?`)) return;
-            // Nettoyer aussi le plan hebdo si la routine était assignée
-            const plan = getWeeklyPlan();
-            Object.keys(plan).forEach(d => { if (plan[d] === r.id) delete plan[d]; });
-            saveWeeklyPlan(plan);
-            routines.splice(index, 1);
-            saveRoutines(routines);
-            renderRoutinesList();
-            if (typeof showToast === 'function') showToast('🗑️ Routine supprimée', 'info', 2000);
-        }
-        window.deleteRoutine = deleteRoutine;
-
-        // ═══════════════════════════════════════════════════════════════
-        // ✏️ Éditer une routine (ajout/suppression d'exercices)
-        // ═══════════════════════════════════════════════════════════════
-        let _editingRoutineIdx = null;
-
-        function editRoutine(index) {
-            const routines = getRoutines();
-            const r = routines[index];
-            if (!r) return;
-            _editingRoutineIdx = index;
-            _showRoutineEditor(r);
-        }
-        window.editRoutine = editRoutine;
-
-        function _showRoutineEditor(routine) {
-            document.getElementById('routineEditorModal')?.remove();
-            const color = routine.color || '#22c55e';
-            const modal = document.createElement('div');
-            modal.id = 'routineEditorModal';
-            modal.style.cssText = 'position:fixed;inset:0;z-index:10100;background:rgba(0,0,0,0.95);backdrop-filter:blur(8px);display:flex;align-items:flex-end;justify-content:center;padding:0;';
-            modal.innerHTML = `
-                <div style="width:100%;max-width:520px;background:#0F1014;border-radius:22px 22px 0 0;max-height:92vh;display:flex;flex-direction:column;border-top:2px solid ${color}50;">
-                    <div style="width:36px;height:3px;background:#334155;border-radius:99px;margin:10px auto 0;flex-shrink:0;"></div>
-                    <div style="padding:12px 18px 10px;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,0.05);">
-                        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-                            <div style="min-width:0;flex:1;">
-                                <div style="font-size:0.6em;color:${color};font-weight:900;letter-spacing:2px;margin-bottom:2px;">✏️ ÉDITER</div>
-                                <input id="routineEditNameInput" value="${(routine.name||'').replace(/"/g,'&quot;')}" style="width:100%;background:transparent;border:none;border-bottom:1px dashed rgba(255,255,255,0.15);color:white;font-size:1em;font-weight:900;padding:3px 0;outline:none;">
-                            </div>
-                            <button onclick="_saveRoutineEdit()" style="background:linear-gradient(135deg,${color},${color}cc);border:none;color:white;border-radius:9px;padding:8px 14px;font-size:0.78em;font-weight:900;cursor:pointer;flex-shrink:0;">✓ OK</button>
-                        </div>
-                    </div>
-                    <div style="flex:1;overflow-y:auto;padding:12px 16px;-webkit-overflow-scrolling:touch;" id="routineEditorExercises">
-                        ${_renderEditorExercises(routine)}
-                    </div>
-                    <div style="padding:10px 16px;border-top:1px solid rgba(255,255,255,0.05);flex-shrink:0;display:flex;gap:6px;">
-                        <button onclick="_addExerciseToEditingRoutine()" style="flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:white;border-radius:9px;padding:11px;font-weight:800;font-size:0.82em;cursor:pointer;">＋ Ajouter exercice</button>
-                        <button onclick="_regenerateRoutineExercises()" ${(!routine.muscles || routine.muscles.length === 0) ? 'disabled' : ''} style="flex:1;background:${(routine.muscles && routine.muscles.length) ? 'rgba(168,85,247,0.15)' : 'rgba(255,255,255,0.03)'};border:1px solid ${(routine.muscles && routine.muscles.length) ? 'rgba(168,85,247,0.3)' : 'rgba(255,255,255,0.05)'};color:${(routine.muscles && routine.muscles.length) ? '#c084fc' : '#475569'};border-radius:9px;padding:11px;font-weight:800;font-size:0.82em;cursor:${(routine.muscles && routine.muscles.length) ? 'pointer' : 'not-allowed'};">🎲 Régénérer</button>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(modal);
-        }
-
-        function _renderEditorExercises(routine) {
-            const exs = routine.exercises || [];
-            if (exs.length === 0) {
-                return '<div style="text-align:center;padding:30px 18px;color:#475569;font-size:0.82em;font-style:italic;">Aucun exercice. Ajoute-en !</div>';
+            } else {
+                showAlert('Erreur interne. Rechargez la page.', 'error', 'Erreur');
             }
-            return exs.map((ex, i) => `
-                <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:10px;padding:10px 12px;margin-bottom:7px;display:flex;align-items:center;gap:9px;">
-                    <div style="flex:1;min-width:0;">
-                        <div style="font-weight:700;color:white;font-size:0.85em;">${ex.name}</div>
-                        <div style="font-size:0.65em;color:#64748b;margin-top:2px;">${ex.muscle || 'Corps'} · ${ex.sets || 3}×${ex.reps || 10}${ex.mode === 'timer' || ex.mode === 'duration' ? 's' : ''}</div>
-                    </div>
-                    <button onclick="_removeExerciseFromEditing(${i})" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#f87171;border-radius:7px;padding:6px 10px;font-size:0.7em;font-weight:700;cursor:pointer;flex-shrink:0;">✕</button>
-                </div>
-            `).join('');
         }
-
-        function _saveRoutineEdit() {
-            if (_editingRoutineIdx === null) return;
-            const routines = getRoutines();
-            const r = routines[_editingRoutineIdx];
-            if (!r) return;
-            const nameInput = document.getElementById('routineEditNameInput');
-            if (nameInput) r.name = nameInput.value.trim() || r.name;
-            saveRoutines(routines);
-            document.getElementById('routineEditorModal')?.remove();
-            _editingRoutineIdx = null;
-            renderRoutinesList();
-            if (typeof showToast === 'function') showToast('✓ Routine sauvegardée', 'success', 1800);
-        }
-        window._saveRoutineEdit = _saveRoutineEdit;
-
-        function _removeExerciseFromEditing(exIdx) {
-            if (_editingRoutineIdx === null) return;
-            const routines = getRoutines();
-            const r = routines[_editingRoutineIdx];
-            if (!r || !r.exercises) return;
-            r.exercises.splice(exIdx, 1);
-            saveRoutines(routines);
-            const cont = document.getElementById('routineEditorExercises');
-            if (cont) cont.innerHTML = _renderEditorExercises(r);
-        }
-        window._removeExerciseFromEditing = _removeExerciseFromEditing;
-
-        function _regenerateRoutineExercises() {
-            if (_editingRoutineIdx === null) return;
-            const routines = getRoutines();
-            const r = routines[_editingRoutineIdx];
-            if (!r || !r.muscles || r.muscles.length === 0) return;
-            if (!confirm(`Régénérer les exercices de "${r.name}" ? (les exercices actuels seront remplacés)`)) return;
-            r.exercises = generateExercisesForMuscles(r.muscles, { count: 6, level: r.level || 'Intermédiaire' });
-            saveRoutines(routines);
-            const cont = document.getElementById('routineEditorExercises');
-            if (cont) cont.innerHTML = _renderEditorExercises(r);
-            if (typeof showToast === 'function') showToast('🎲 Exercices régénérés', 'success', 1800);
-        }
-        window._regenerateRoutineExercises = _regenerateRoutineExercises;
-
-        function _addExerciseToEditingRoutine() {
-            if (_editingRoutineIdx === null) return;
-            _openExercisePickerForRoutine();
-        }
-        window._addExerciseToEditingRoutine = _addExerciseToEditingRoutine;
-
-        // Picker simple pour ajouter un exercice
-        function _openExercisePickerForRoutine() {
-            document.getElementById('exercisePickerModal')?.remove();
-            const db = typeof exerciseDatabase !== 'undefined' ? exerciseDatabase : [];
-            const muscles = [...new Set(db.map(e => e.muscle).filter(Boolean))].sort();
-
-            const modal = document.createElement('div');
-            modal.id = 'exercisePickerModal';
-            modal.style.cssText = 'position:fixed;inset:0;z-index:10200;background:rgba(0,0,0,0.95);backdrop-filter:blur(8px);display:flex;align-items:flex-end;justify-content:center;padding:0;';
-            modal.innerHTML = `
-                <div style="width:100%;max-width:480px;background:#0F1014;border-radius:20px 20px 0 0;max-height:88vh;display:flex;flex-direction:column;border-top:2px solid #22c55e50;">
-                    <div style="width:36px;height:3px;background:#334155;border-radius:99px;margin:10px auto 0;flex-shrink:0;"></div>
-                    <div style="padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.05);flex-shrink:0;">
-                        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px;">
-                            <div style="font-size:0.85em;font-weight:900;color:white;">Choisir un exercice</div>
-                            <button onclick="document.getElementById('exercisePickerModal').remove()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#f87171;width:30px;height:30px;border-radius:50%;font-size:0.9em;cursor:pointer;">✕</button>
-                        </div>
-                        <input id="exPickerSearch" oninput="_filterExPicker()" placeholder="🔍 Chercher un exercice..." style="width:100%;background:#0a0e18;border:1px solid rgba(255,255,255,0.08);color:white;border-radius:9px;padding:9px 12px;font-size:0.82em;outline:none;">
-                        <div id="exPickerMuscleFilter" style="display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;">
-                            <button onclick="_setExPickerMuscle(null,this)" data-muscle="" style="background:#22c55e;color:white;border:none;border-radius:99px;padding:5px 10px;font-size:0.68em;font-weight:800;cursor:pointer;">Tous</button>
-                            ${muscles.map(m => `<button onclick="_setExPickerMuscle('${m}',this)" data-muscle="${m}" style="background:rgba(255,255,255,0.05);color:#cbd5e1;border:1px solid rgba(255,255,255,0.08);border-radius:99px;padding:5px 10px;font-size:0.68em;font-weight:700;cursor:pointer;">${m}</button>`).join('')}
-                        </div>
-                    </div>
-                    <div id="exPickerList" style="flex:1;overflow-y:auto;padding:8px 14px 14px;-webkit-overflow-scrolling:touch;">
-                        ${_renderExPickerList(db)}
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(modal);
-            window._exPickerState = { search: '', muscle: null };
-        }
-
-        function _renderExPickerList(items) {
-            if (!items.length) return '<div style="text-align:center;padding:24px;color:#475569;font-size:0.82em;font-style:italic;">Aucun exercice trouvé</div>';
-            return items.slice(0, 80).map(ex => `
-                <div onclick="_pickExerciseForRoutine('${(ex.name||'').replace(/'/g,'\\\'')}')" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:9px;padding:9px 11px;margin-bottom:5px;cursor:pointer;display:flex;align-items:center;gap:8px;">
-                    <div style="flex:1;min-width:0;">
-                        <div style="font-weight:700;color:white;font-size:0.82em;">${ex.name}</div>
-                        <div style="font-size:0.62em;color:#64748b;margin-top:1px;">${ex.muscle || 'Corps'} · ${ex.difficulty || ''}</div>
-                    </div>
-                    <div style="color:#22c55e;font-size:1em;flex-shrink:0;">＋</div>
-                </div>
-            `).join('');
-        }
-
-        function _filterExPicker() {
-            const search = (document.getElementById('exPickerSearch')?.value || '').toLowerCase().trim();
-            const state = window._exPickerState || {};
-            state.search = search;
-            const db = typeof exerciseDatabase !== 'undefined' ? exerciseDatabase : [];
-            let filtered = db.filter(e => !e.isRest && !e.isInfo);
-            if (state.muscle) filtered = filtered.filter(e => e.muscle === state.muscle);
-            if (search) filtered = filtered.filter(e => (e.name || '').toLowerCase().includes(search));
-            const list = document.getElementById('exPickerList');
-            if (list) list.innerHTML = _renderExPickerList(filtered);
-        }
-        window._filterExPicker = _filterExPicker;
-
-        function _setExPickerMuscle(muscle, btn) {
-            window._exPickerState = window._exPickerState || {};
-            window._exPickerState.muscle = muscle;
-            // Reset btn styles
-            document.querySelectorAll('#exPickerMuscleFilter button').forEach(b => {
-                b.style.background = 'rgba(255,255,255,0.05)';
-                b.style.color = '#cbd5e1';
-                b.style.border = '1px solid rgba(255,255,255,0.08)';
-            });
-            btn.style.background = '#22c55e';
-            btn.style.color = 'white';
-            btn.style.border = 'none';
-            _filterExPicker();
-        }
-        window._setExPickerMuscle = _setExPickerMuscle;
-
-        function _pickExerciseForRoutine(exName) {
-            if (_editingRoutineIdx === null) return;
-            const db = typeof exerciseDatabase !== 'undefined' ? exerciseDatabase : [];
-            const ex = db.find(e => e.name === exName);
-            if (!ex) return;
-            const routines = getRoutines();
-            const r = routines[_editingRoutineIdx];
-            if (!r) return;
-            r.exercises = r.exercises || [];
-            r.exercises.push({
-                name: ex.name,
-                muscle: ex.muscle,
-                sets: 3,
-                reps: ex.reps || 10,
-                duration: ex.duration || 45,
-                mode: ex.mode || 'reps',
-                rest: 60
-            });
-            saveRoutines(routines);
-            const cont = document.getElementById('routineEditorExercises');
-            if (cont) cont.innerHTML = _renderEditorExercises(r);
-            document.getElementById('exercisePickerModal')?.remove();
-            if (typeof showToast === 'function') showToast(`+ ${ex.name}`, 'success', 1500);
-        }
-        window._pickExerciseForRoutine = _pickExerciseForRoutine;
-
-        // ═══════════════════════════════════════════════════════════════
-        // ➕ Créer une routine manuellement
-        // ═══════════════════════════════════════════════════════════════
-        function openCreateRoutineModal() {
-            const name = prompt('Nom de la nouvelle routine ?');
-            if (!name || !name.trim()) return;
-            const routines = getRoutines();
-            const newRoutine = {
-                id: 'r_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
-                name: name.trim(),
-                emoji: '🏋️',
-                color: '#22c55e',
-                description: '',
-                muscles: [],
-                exercises: [],
-                created: new Date().toISOString()
-            };
-            routines.push(newRoutine);
-            saveRoutines(routines);
-            renderRoutinesList();
-            // Ouvrir l'éditeur directement
-            _editingRoutineIdx = routines.length - 1;
-            _showRoutineEditor(newRoutine);
-        }
-        window.openCreateRoutineModal = openCreateRoutineModal;
-
-        // ═══════════════════════════════════════════════════════════════
-        // 🚀 PROGRAMMES PROGRESSIFS (stub minimal pour compat)
-        // ═══════════════════════════════════════════════════════════════
-        function showProgressiveProgramsModal() {
-            if (typeof showToast === 'function') {
-                showToast('🚀 Programmes progressifs : utilise les templates pour l\'instant', 'info', 3000);
-            }
-            showTemplatesModal();
-        }
-        window.showProgressiveProgramsModal = showProgressiveProgramsModal;
-
-        // Compat : renderTemplatesList (appelé ailleurs)
-        function renderTemplatesList() {
-            const container = document.getElementById('templatesList');
-            if (!container) return;
-            container.innerHTML = WORKOUT_TEMPLATES.slice(0, 4).map(t => `
-                <div onclick="previewTemplate('${t.id}')" style="background:linear-gradient(160deg,${t.color}10,transparent);border:1px solid ${t.color}30;border-radius:11px;padding:11px 12px;cursor:pointer;display:flex;align-items:center;gap:10px;">
-                    <div style="font-size:1.5em;flex-shrink:0;filter:drop-shadow(0 0 6px ${t.color}50);">${t.emoji}</div>
-                    <div style="flex:1;min-width:0;">
-                        <div style="font-size:0.85em;font-weight:800;color:white;">${t.name}</div>
-                        <div style="font-size:0.65em;color:${t.color};font-weight:700;">${t.days} jours/sem · ${t.level}</div>
-                    </div>
-                    <div style="color:${t.color};font-size:1em;flex-shrink:0;">›</div>
-                </div>
-            `).join('') + `<div style="text-align:center;margin-top:8px;"><button onclick="showTemplatesModal()" style="background:transparent;border:1px solid rgba(255,255,255,0.1);color:#94a3b8;border-radius:8px;padding:8px 18px;font-size:0.78em;font-weight:700;cursor:pointer;">Voir tous les ${WORKOUT_TEMPLATES.length} templates →</button></div>`;
-        }
-        window.renderTemplatesList = renderTemplatesList;
-
-        // Compat : useTemplate / showRoutineOptions (anciens appels)
-        function useTemplate(index) {
-            // Maintenant les templates sont importés via previewTemplate / importTemplate
-            if (WORKOUT_TEMPLATES[index]) previewTemplate(WORKOUT_TEMPLATES[index].id);
-        }
-        window.useTemplate = useTemplate;
-
+        
         function showRoutineOptions(index) {
             const routines = getRoutines();
-            const r = routines[index];
-            if (!r) return;
-            if (confirm(`Que faire avec "${r.name}" ?\n\nOK = Éditer\nAnnuler = Rien`)) editRoutine(index);
+            const routine = routines[index];
+            
+            if (!routine) return;
+            
+            // Create options modal
+            const overlay = document.createElement('div');
+            overlay.id = 'routineOptionsOverlay';
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.7);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+                animation: fadeIn 0.2s;
+            `;
+            
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                background: white;
+                border-radius: 20px;
+                max-width: 400px;
+                width: 100%;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                animation: slideUp 0.2s;
+            `;
+            
+            modal.innerHTML = `
+                <div style="padding: 25px;">
+                    <h3 style="color: #16a34a; margin: 0 0 20px 0;">${routine.name}</h3>
+                    
+                    <button onclick="editRoutine(${index}); document.getElementById('routineOptionsOverlay').remove();" 
+                            class="btn" 
+                            style="width: 100%; background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); margin-bottom: 10px; padding: 15px; font-size: 1em;">
+                        ✏️ Éditer la routine
+                    </button>
+                    
+                    <button onclick="duplicateRoutine(${index}); document.getElementById('routineOptionsOverlay').remove();" 
+                            class="btn btn-secondary" 
+                            style="width: 100%; margin-bottom: 10px; padding: 15px; font-size: 1em;">
+                        📋 Dupliquer
+                    </button>
+                    
+                    <button onclick="deleteRoutine(${index}); document.getElementById('routineOptionsOverlay').remove();" 
+                            class="btn" 
+                            style="width: 100%; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); margin-bottom: 15px; padding: 15px; font-size: 1em;">
+                        🗑️ Supprimer
+                    </button>
+                    
+                    <button onclick="document.getElementById('routineOptionsOverlay').remove();" 
+                            class="btn btn-secondary" 
+                            style="width: 100%; padding: 12px;">
+                        Annuler
+                    </button>
+                </div>
+            `;
+            
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
         }
-        window.showRoutineOptions = showRoutineOptions;
+        
+        function deleteRoutine(index) {
+            const routines = getRoutines();
+            const routine = routines[index];
+            
+            if (!routine) return;
+            
+            showConfirm(`Supprimer la routine "${routine.name}" ? Cette action est irréversible.`, function() {
+                routines.splice(index, 1);
+                saveRoutines(routines);
+                renderRoutinesList();
+                showToast(`🗑️ Routine "${routine.name}" supprimée !`);
+            }, null, { title: 'Supprimer la routine ?', icon: '🗑️', confirmLabel: 'Supprimer', danger: true });
+        }
+        
+        function duplicateRoutine(index) {
+            const routines = getRoutines();
+            const routine = routines[index];
+            
+            if (!routine) return;
+            
+            // Create copy
+            const copy = {
+                ...routine,
+                name: routine.name + ' (Copie)',
+                createdAt: new Date().toISOString()
+            };
+            
+            routines.push(copy);
+            saveRoutines(routines);
+            renderRoutinesList();
+            showToast(`📋 Routine dupliquée : "${copy.name}"`);
+        }
+        
+        function editRoutine(index) {
+            const routines = getRoutines();
+            const routine = routines[index];
+            
+            if (!routine) return;
+            
+            // Store current editing routine
+            window.currentEditingRoutineIndex = index;
+            
+            // Create edit modal
+            const overlay = document.createElement('div');
+            overlay.id = 'editRoutineOverlay';
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.85);
+                z-index: 10001;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+                animation: fadeIn 0.3s;
+                overflow-y: auto;
+            `;
+            
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                background: white;
+                border-radius: 20px;
+                max-width: 700px;
+                width: 100%;
+                max-height: 90vh;
+                overflow-y: auto;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                animation: slideUp 0.3s;
+                margin: 20px 0;
+            `;
+            
+            modal.innerHTML = `
+                <div style="padding: 30px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                        <h2 style="color: #16a34a; margin: 0;">✏️ Éditer ${routine.name}</h2>
+                        <button onclick="closeEditRoutine()" style="background: none; border: none; font-size: 1.5em; cursor: pointer; color: #999;">✕</button>
+                    </div>
+                    
+                    <!-- Routine Info -->
+                    <div style="margin-bottom: 25px;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">Nom de la routine</label>
+                        <input type="text" id="editRoutineName" value="${routine.name}" 
+                               style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #e5e7eb; font-size: 1em;">
+                    </div>
+                    
+                    <div style="margin-bottom: 25px;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">Description</label>
+                        <textarea id="editRoutineDescription" 
+                                  style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #e5e7eb; font-size: 1em; min-height: 60px; resize: vertical;">${routine.description || ''}</textarea>
+                    </div>
+                    
+                    <!-- Exercises List -->
+                    <div style="margin-bottom: 25px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h3 style="color: #16a34a; margin: 0;">Exercices (${routine.exercises.length})</h3>
+                            <button onclick="addExerciseToRoutine()" class="btn" 
+                                    style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 10px 20px; font-size: 0.9em;">
+                                ➕ Ajouter
+                            </button>
+                        </div>
+                        
+                        <div id="editRoutineExercisesList" style="display: flex; flex-direction: column; gap: 10px;">
+                            <!-- Exercises will be rendered here -->
+                        </div>
+                        
+                        <div id="noExercisesInRoutine" style="display: none; text-align: center; padding: 40px; color: #999;">
+                            <div style="font-size: 3em; margin-bottom: 10px;">📋</div>
+                            <div style="font-size: 1em;">Aucun exercice dans cette routine</div>
+                            <div style="font-size: 0.9em; margin-top: 5px;">Cliquez sur "➕ Ajouter" pour commencer</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Save/Cancel -->
+                    <div style="display: flex; gap: 10px; margin-top: 25px;">
+                        <button onclick="closeEditRoutine()" class="btn btn-secondary" style="flex: 1; padding: 15px;">
+                            Annuler
+                        </button>
+                        <button onclick="saveEditedRoutine()" class="btn" 
+                                style="background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); flex: 1; padding: 15px;">
+                            ✅ Enregistrer
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
+            
+            // Render exercises
+            renderEditRoutineExercises();
+        }
+        
+        function renderEditRoutineExercises() {
+            const routines = getRoutines();
+            const index = window.currentEditingRoutineIndex;
+            const routine = routines[index];
+            
+            if (!routine) return;
+            
+            const container = document.getElementById('editRoutineExercisesList');
+            const noExercisesMsg = document.getElementById('noExercisesInRoutine');
+            
+            if (!container) return;
+            
+            if (routine.exercises.length === 0) {
+                container.style.display = 'none';
+                if (noExercisesMsg) noExercisesMsg.style.display = 'block';
+                return;
+            }
+            
+            container.style.display = 'flex';
+            if (noExercisesMsg) noExercisesMsg.style.display = 'none';
+            
+            container.innerHTML = routine.exercises.map((ex, exIndex) => {
+                const isTimer = (ex.mode === 'timer');
+                const modeColor = isTimer ? '#0ea5e9' : '#16a34a';
+                const modeLabel = isTimer ? '⏱️ Timer' : '💪 Reps';
+                return `
+                <div style="background: #f9fafb; padding: 15px; border-radius: 12px; border-left: 4px solid ${modeColor};">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; color: #333; margin-bottom: 5px;">${ex.name}</div>
+                            <div style="margin-bottom:8px;">
+                                <button onclick="toggleRoutineExMode(${exIndex})"
+                                    style="background:${isTimer?'#0ea5e920':'#16a34a20'};color:${modeColor};border:1.5px solid ${modeColor};border-radius:99px;padding:3px 12px;font-size:0.78em;font-weight:700;cursor:pointer;">
+                                    ${modeLabel}
+                                </button>
+                            </div>
+                            <div style="display: flex; gap: 15px; font-size: 0.9em; color: #666;">
+                                <div>
+                                    <label style="font-size: 0.8em; color: #999; display: block; margin-bottom: 3px;">Séries</label>
+                                    <input type="number" value="${ex.sets || 3}" min="1" max="10" 
+                                           onchange="updateExerciseConfig(${exIndex}, 'sets', this.value)"
+                                           style="width: 60px; padding: 5px; border-radius: 6px; border: 1px solid #e5e7eb; text-align: center;">
+                                </div>
+                                ${isTimer ? `
+                                <div>
+                                    <label style="font-size: 0.8em; color: #999; display: block; margin-bottom: 3px;">Durée (sec)</label>
+                                    <input type="number" value="${ex.duration || 45}" min="5" max="300" 
+                                           onchange="updateExerciseConfig(${exIndex}, 'duration', this.value)"
+                                           style="width: 70px; padding: 5px; border-radius: 6px; border: 1px solid #e5e7eb; text-align: center;">
+                                </div>` : `
+                                <div>
+                                    <label style="font-size: 0.8em; color: #999; display: block; margin-bottom: 3px;">Reps</label>
+                                    <input type="number" value="${ex.reps || 10}" min="1" max="50" 
+                                           onchange="updateExerciseConfig(${exIndex}, 'reps', this.value)"
+                                           style="width: 60px; padding: 5px; border-radius: 6px; border: 1px solid #e5e7eb; text-align: center;">
+                                </div>`}
+                            </div>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 5px;">
+                            ${exIndex > 0 ? `<button onclick="moveExerciseUp(${exIndex})" class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.9em;">⬆️</button>` : ''}
+                            ${exIndex < routine.exercises.length - 1 ? `<button onclick="moveExerciseDown(${exIndex})" class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.9em;">⬇️</button>` : ''}
+                            <button onclick="removeExerciseFromRoutine(${exIndex})" class="btn" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); padding: 5px 10px; font-size: 0.9em;">❌</button>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+        
+
+        function toggleRoutineExMode(exIndex) {
+            const routines = getRoutines();
+            const index = window.currentEditingRoutineIndex;
+            const routine = routines[index];
+            if (!routine || !routine.exercises[exIndex]) return;
+            const ex = routine.exercises[exIndex];
+            ex.mode = (ex.mode === 'timer') ? 'reps' : 'timer';
+            if (ex.mode === 'timer' && !ex.duration) ex.duration = 45;
+            if (ex.mode === 'reps'  && !ex.reps)     ex.reps = 10;
+            saveRoutines(routines);
+            renderEditRoutineExercises();
+        }
+
+        function updateExerciseConfig(exIndex, field, value) {
+            const routines = getRoutines();
+            const index = window.currentEditingRoutineIndex;
+            const routine = routines[index];
+            
+            if (!routine || !routine.exercises[exIndex]) return;
+            
+            routine.exercises[exIndex][field] = parseInt(value);
+            saveRoutines(routines);
+        }
+        
+        function moveExerciseUp(exIndex) {
+            const routines = getRoutines();
+            const index = window.currentEditingRoutineIndex;
+            const routine = routines[index];
+            
+            if (!routine || exIndex === 0) return;
+            
+            // Swap with previous
+            [routine.exercises[exIndex - 1], routine.exercises[exIndex]] = 
+            [routine.exercises[exIndex], routine.exercises[exIndex - 1]];
+            
+            saveRoutines(routines);
+            renderEditRoutineExercises();
+        }
+        
+        function moveExerciseDown(exIndex) {
+            const routines = getRoutines();
+            const index = window.currentEditingRoutineIndex;
+            const routine = routines[index];
+            
+            if (!routine || exIndex === routine.exercises.length - 1) return;
+            
+            // Swap with next
+            [routine.exercises[exIndex], routine.exercises[exIndex + 1]] = 
+            [routine.exercises[exIndex + 1], routine.exercises[exIndex]];
+            
+            saveRoutines(routines);
+            renderEditRoutineExercises();
+        }
+        
+        function removeExerciseFromRoutine(exIndex) {
+            const routines = getRoutines();
+            const index = window.currentEditingRoutineIndex;
+            const routine = routines[index];
+            
+            if (!routine) return;
+            
+            const exerciseName = routine.exercises[exIndex].name;
+            showConfirm(`Retirer "${exerciseName}" de la routine ?`, function() {
+                routine.exercises.splice(exIndex, 1);
+                saveRoutines(routines);
+                renderEditRoutineExercises();
+                showToast('❌ Exercice retiré');
+            }, null, { title: 'Retirer l\'exercice ?', icon: '❌', confirmLabel: 'Retirer', danger: true });
+        }
+        
+        function addExerciseToRoutine() {
+            // Create exercise selector modal
+            const overlay = document.createElement('div');
+            overlay.id = 'exerciseSelectorOverlay';
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.9);
+                z-index: 10002;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+                animation: fadeIn 0.3s;
+                overflow-y: auto;
+            `;
+            
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                background: white;
+                border-radius: 20px;
+                max-width: 800px;
+                width: 100%;
+                max-height: 90vh;
+                overflow-y: auto;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                animation: slideUp 0.3s;
+                margin: 20px 0;
+            `;
+            
+            modal.innerHTML = `
+                <div style="padding: 30px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                        <h2 style="color: #16a34a; margin: 0;">➕ Ajouter un exercice</h2>
+                        <button onclick="closeExerciseSelector()" style="background: none; border: none; font-size: 1.5em; cursor: pointer; color: #999;">✕</button>
+                    </div>
+                    
+                    <!-- Search -->
+                    <div style="margin-bottom: 20px;">
+                        <input type="text" id="exerciseSearchInput" placeholder="🔍 Rechercher par nom, muscle ou équipement..." 
+                               oninput="filterExerciseSelector()"
+                               style="width: 100%; padding: 15px; border-radius: 12px; border: 2px solid #e5e7eb; font-size: 1em;">
+                    </div>
+                    
+                    <!-- Filters row: Muscle + Equipment + Difficulty -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px;">
+                        <div>
+                            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #333; font-size: 0.85em;">💪 Muscle</label>
+                            <select id="muscleFilterSelector" onchange="filterExerciseSelector()" 
+                                    style="width: 100%; padding: 10px; border-radius: 8px; border: 2px solid #e5e7eb; font-size: 0.85em;">
+                                <option value="">Tous</option>
+                                <option value="Pectoraux">💪 Pectoraux</option>
+                                <option value="Dos">🦸 Dos</option>
+                                <option value="Épaules">🏋️ Épaules</option>
+                                <option value="Biceps">💪 Biceps</option>
+                                <option value="Triceps">🔱 Triceps</option>
+                                <option value="Trapèzes">🏔️ Trapèzes</option>
+                                <option value="Quadriceps">🦵 Quadriceps</option>
+                                <option value="Ischio-jambiers">🦵 Ischio</option>
+                                <option value="Fessiers">🍑 Fessiers</option>
+                                <option value="Abdominaux">🔥 Abdos</option>
+                                <option value="Obliques">🌀 Obliques</option>
+                                <option value="Mollets">👟 Mollets</option>
+                                <option value="Avant-bras">🤜 Avant-bras</option>
+                                <option value="Cardio">❤️ Cardio</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #333; font-size: 0.85em;">🏋️ Équipement</label>
+                            <select id="equipmentFilterSelector" onchange="filterExerciseSelector()" 
+                                    style="width: 100%; padding: 10px; border-radius: 8px; border: 2px solid #e5e7eb; font-size: 0.85em;">
+                                <option value="">Tous</option>
+                                <option value="Poids du corps">Corps</option>
+                                <option value="Haltères">Haltères</option>
+                                <option value="Barre">Barre</option>
+                                <option value="Kettlebell">Kettlebell</option>
+                                <option value="Élastique">Élastique</option>
+                                <option value="Machine">Machine</option>
+                                <option value="TRX">TRX</option>
+                                <option value="Swiss Ball">Swiss Ball</option>
+                                <option value="Medicine Ball">Med. Ball</option>
+                                <option value="Banc">Banc</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #333; font-size: 0.85em;">📊 Niveau</label>
+                            <select id="difficultyFilterSelector" onchange="filterExerciseSelector()"
+                                    style="width: 100%; padding: 10px; border-radius: 8px; border: 2px solid #e5e7eb; font-size: 0.85em;">
+                                <option value="">Tous</option>
+                                <option value="Débutant">Débutant</option>
+                                <option value="Intermédiaire">Intermédiaire</option>
+                                <option value="Avancé">Avancé</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Exercise Count -->
+                    <div style="margin-bottom: 15px; color: #666; font-size: 0.9em;">
+                        <span id="exerciseSelectorCount">0 exercices</span>
+                    </div>
+                    
+                    <!-- Exercise List -->
+                    <div id="exerciseSelectorList" style="display: flex; flex-direction: column; gap: 10px; max-height: 400px; overflow-y: auto; padding: 5px;">
+                        <!-- Exercises will be rendered here -->
+                    </div>
+                </div>
+            `;
+            
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
+            
+            // Initial render
+            renderExerciseSelector();
+            
+            // Focus search
+            setTimeout(() => {
+                const searchInput = document.getElementById('exerciseSearchInput');
+                if (searchInput) searchInput.focus();
+            }, 100);
+        }
+        
+        function renderExerciseSelector() {
+            const container = document.getElementById('exerciseSelectorList');
+            const countEl = document.getElementById('exerciseSelectorCount');
+            if (!container) return;
+
+            // Get filters
+            const searchTerm    = (document.getElementById('exerciseSearchInput')?.value || '').toLowerCase();
+            const muscleValue   = document.getElementById('muscleFilterSelector')?.value || '';
+            const equipmentValue= document.getElementById('equipmentFilterSelector')?.value || '';
+            const diffValue     = document.getElementById('difficultyFilterSelector')?.value || '';
+
+            // Filter exercises
+            let filtered = exerciseDatabase.filter(ex => {
+                if (ex.type === 'warmup' || ex.type === 'stretch' || ex.type === 'rest' || ex.type === 'info') return false;
+                if (searchTerm) {
+                    const nameMatch   = ex.name.toLowerCase().includes(searchTerm);
+                    const muscleMatch = (ex.muscle || '').toLowerCase().includes(searchTerm);
+                    const equipMatch  = (ex.equipment || []).some(e => e.toLowerCase().includes(searchTerm));
+                    if (!nameMatch && !muscleMatch && !equipMatch) return false;
+                }
+                if (muscleValue    && ex.muscle !== muscleValue) return false;
+                if (equipmentValue && !(ex.equipment || ['Poids du corps']).some(e => e === equipmentValue)) return false;
+                if (diffValue      && ex.difficulty !== diffValue) return false;
+                return true;
+            });
+
+            // Recent exercises (top 5 from performance history) — shown only when no filter active
+            let recentSection = '';
+            if (!searchTerm && !muscleValue && !equipmentValue && !diffValue) {
+                try {
+                    const perfs = getExercisePerformances();
+                    const recentNames = Object.entries(perfs)
+                        .filter(([, sessions]) => sessions.length > 0)
+                        .sort((a, b) => {
+                            const da = new Date(a[1][a[1].length-1]?.date || 0);
+                            const db2 = new Date(b[1][b[1].length-1]?.date || 0);
+                            return db2 - da;
+                        })
+                        .slice(0, 5)
+                        .map(([name]) => name);
+                    const recentExs = recentNames.map(n => exerciseDatabase.find(e => e.name === n)).filter(Boolean);
+                    if (recentExs.length > 0) {
+                        recentSection = `<div style="margin-bottom:16px;">
+                            <div style="font-size:0.72em;font-weight:800;color:#16a34a;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;padding:6px 10px;background:rgba(22,163,74,0.08);border-radius:8px;">⏱ Récemment utilisés</div>
+                            ${recentExs.map(ex => `
+                                <div onclick="selectExerciseForRoutine('${ex.name.replace(/'/g,"\\'")}', '${ex.muscle || ''}')"
+                                     style="padding:10px 12px;border-radius:10px;background:#f0fdf4;border:1px solid #bbf7d0;cursor:pointer;margin-bottom:6px;display:flex;align-items:center;gap:10px;">
+                                    <div style="flex:1;">
+                                        <div style="font-weight:700;font-size:0.9em;color:#166534;">${ex.name}</div>
+                                        <div style="font-size:0.72em;color:#16a34a;">${ex.muscle || ''}</div>
+                                    </div>
+                                    <span style="font-size:0.68em;background:#dcfce7;color:#166534;padding:2px 7px;border-radius:99px;font-weight:700;">+ Ajouter</span>
+                                </div>`).join('')}
+                        </div>`;
+                    }
+                } catch(e) {}
+            }
+
+            // Update count
+            if (countEl) countEl.textContent = `${filtered.length} exercice${filtered.length > 1 ? 's' : ''}`;
+
+            // Empty state
+            if (filtered.length === 0) {
+                container.innerHTML = recentSection + `<div style="text-align:center;padding:60px 20px;color:#999;">
+                    <div style="font-size:3em;margin-bottom:15px;">🔍</div>
+                    <div style="font-size:1.1em;">Aucun exercice trouvé</div>
+                    <div style="font-size:0.9em;margin-top:5px;">Essayez avec d'autres filtres</div>
+                </div>`;
+                return;
+            }
+            
+            // Group by muscle
+            const byMuscle = {};
+            filtered.forEach(ex => {
+                const muscle = ex.muscle || 'Autre';
+                if (!byMuscle[muscle]) {
+                    byMuscle[muscle] = [];
+                }
+                byMuscle[muscle].push(ex);
+            });
+            
+            // Muscle emojis
+            const muscleEmojis = {
+                'Pectoraux': '💪',
+                'Dos': '🦸',
+                'Épaules': '🏋️',
+                'Biceps': '💪',
+                'Triceps': '🔱',
+                'Quadriceps': '🦵',
+                'Ischio-jambiers': '🦵',
+                'Fessiers': '🍑',
+                'Mollets': '👟',
+                'Abdominaux': '🔥',
+                'Cardio': '❤️',
+                'Autre': '🏋️'
+            };
+            
+            container.innerHTML = Object.keys(byMuscle).map(muscle => {
+                const exercises = byMuscle[muscle];
+                const emoji = muscleEmojis[muscle] || '🏋️';
+                
+                return `
+                    <div style="margin-bottom: 15px;">
+                        <div style="font-weight: 700; color: #16a34a; margin-bottom: 10px; font-size: 0.95em;">
+                            ${emoji} ${muscle} (${exercises.length})
+                        </div>
+                        ${exercises.map(ex => {
+                            const equipment = ex.equipment && ex.equipment.length > 0 
+                                ? ex.equipment.join(', ') 
+                                : 'Poids du corps';
+                            
+                            return `
+                                <div onclick="selectExerciseForRoutine('${ex.name.replace(/'/g, "\\'")}', '${muscle}')" 
+                                     style="background: white; padding: 15px; border-radius: 12px; border: 2px solid #e5e7eb; cursor: pointer; transition: all 0.2s; margin-bottom: 8px;"
+                                     onmouseover="this.style.borderColor='#16a34a'; this.style.transform='translateX(5px)';"
+                                     onmouseout="this.style.borderColor='#e5e7eb'; this.style.transform='translateX(0)';">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div style="flex: 1;">
+                                            <div style="font-weight: 600; color: #333; margin-bottom: 3px;">${ex.name}</div>
+                                            <div style="font-size: 0.85em; color: #666;">
+                                                🏋️ ${equipment} • ${ex.difficulty || 'Intermédiaire'}
+                                            </div>
+                                        </div>
+                                        <div style="background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); color: white; padding: 8px 15px; border-radius: 8px; font-weight: 600; font-size: 0.9em;">
+                                            ➕ Ajouter
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = recentSection + container.innerHTML;
+        }
+        
+        function filterExerciseSelector() {
+            renderExerciseSelector();
+        }
+        
+        function selectExerciseForRoutine(exerciseName, muscle) {
+            const routines = getRoutines();
+            const index = window.currentEditingRoutineIndex;
+            const routine = routines[index];
+            
+            if (!routine) {
+                showAlert('Routine introuvable.', 'error', 'Erreur');
+                return;
+            }
+            
+            // Find full exercise
+            const exercise = exerciseDatabase.find(ex => ex.name === exerciseName);
+            
+            if (!exercise) {
+                showAlert('Exercice introuvable.', 'error', 'Erreur');
+                return;
+            }
+            
+            // Check if already in routine
+            const alreadyExists = routine.exercises.some(ex => ex.name === exerciseName);
+            if (alreadyExists) {
+                showToast(`"${exerciseName}" est déjà dans cette routine !`, 'warning');
+                return;
+            }
+            
+            // Add to routine — modal pour choisir mode timer ou reps
+            const modeOverlay = document.createElement('div');
+            modeOverlay.style.cssText = 'position:fixed;inset:0;z-index:10003;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;padding:20px;';
+            modeOverlay.innerHTML = `<div style="background:white;border-radius:20px;padding:28px;max-width:360px;width:100%;text-align:center;">
+                <div style="font-size:1.8em;margin-bottom:6px;">⚙️</div>
+                <h3 style="margin:0 0 6px;color:#0F1014;">${exercise.name}</h3>
+                <p style="color:#6b7280;font-size:0.88em;margin:0 0 20px;">Choisir le mode pour cet exercice</p>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                    <button id="modeRepsBtn" onclick="confirmAddToRoutine('${exercise.name.replace(/'/g,"\'")}','reps')" 
+                            style="padding:16px;background:linear-gradient(135deg,#16a34a,#15803d);color:white;border:none;border-radius:12px;font-weight:800;cursor:pointer;font-size:0.95em;">
+                        💪 Reps<br><span style="font-size:0.78em;opacity:0.8;">Séries × répétitions</span>
+                    </button>
+                    <button id="modeTimerBtn" onclick="confirmAddToRoutine('${exercise.name.replace(/'/g,"\'")}','timer')"
+                            style="padding:16px;background:linear-gradient(135deg,#15803d,#166534);color:white;border:none;border-radius:12px;font-weight:800;cursor:pointer;font-size:0.95em;">
+                        ⏱️ Timer<br><span style="font-size:0.78em;opacity:0.8;">Durée en secondes</span>
+                    </button>
+                </div>
+                <button onclick="this.closest('[style*=fixed]').remove()" style="margin-top:12px;width:100%;padding:10px;background:#f3f4f6;border:none;border-radius:10px;cursor:pointer;color:#6b7280;">Annuler</button>
+            </div>`;
+            document.body.appendChild(modeOverlay);
+            // Store pending exercise name for confirmAddToRoutine
+            window._pendingRoutineExercise = exercise.name;
+            return; // confirmAddToRoutine will actually add it
+            
+            // Note: saveRoutines etc. called from confirmAddToRoutine
+        }
+        
+
+        function confirmAddToRoutine(exerciseName, mode) {
+            // Fermer le modal de mode
+            document.querySelectorAll('[style*="z-index:10003"]').forEach(el => el.remove());
+            
+            const routines = getRoutines();
+            const index = window.currentEditingRoutineIndex;
+            const routine = routines[index];
+            if (!routine) return;
+            
+            const exercise = exerciseDatabase.find(ex => ex.name === exerciseName);
+            if (!exercise) return;
+            
+            if (mode === 'timer') {
+                routine.exercises.push({
+                    name: exercise.name,
+                    sets: 3,
+                    duration: exercise.duration || 45,
+                    mode: 'timer'
+                });
+            } else {
+                routine.exercises.push({
+                    name: exercise.name,
+                    sets: 3,
+                    reps: 10,
+                    mode: 'reps'
+                });
+            }
+            saveRoutines(routines);
+            closeExerciseSelector();
+            renderEditRoutineExercises();
+            showToast('✅ "' + exerciseName + '" ajouté en mode ' + (mode === 'timer' ? 'Timer ⏱️' : 'Reps 💪') + ' !');
+        }
+
+        function closeExerciseSelector() {
+            const overlay = document.getElementById('exerciseSelectorOverlay');
+            if (overlay) overlay.remove();
+        }
+        
+        function closeEditRoutine() {
+            const overlay = document.getElementById('editRoutineOverlay');
+            if (overlay) overlay.remove();
+            window.currentEditingRoutineIndex = null;
+        }
+        
+        function saveEditedRoutine() {
+            const routines = getRoutines();
+            const index = window.currentEditingRoutineIndex;
+            const routine = routines[index];
+            
+            if (!routine) return;
+            
+            // Get updated values
+            const nameInput = document.getElementById('editRoutineName');
+            const descInput = document.getElementById('editRoutineDescription');
+            
+            if (nameInput && nameInput.value.trim()) {
+                routine.name = nameInput.value.trim();
+            }
+            
+            if (descInput) {
+                routine.description = descInput.value.trim();
+            }
+            
+            saveRoutines(routines);
+            closeEditRoutine();
+            renderRoutinesList();
+            showToast(`✅ Routine "${routine.name}" enregistrée !`);
+        }
+        
+        function useTemplate(index) {
+            const templates = getTemplates();
+            const template = templates[index];
+            
+            if (!template) return;
+            
+            // Add template as a routine
+            const routines = getRoutines();
+            routines.push({
+                name: template.name,
+                description: template.description,
+                exercises: template.exercises,
+                isTemplate: true,
+                createdAt: new Date().toISOString()
+            });
+            
+            saveRoutines(routines);
+            renderRoutinesList();
+            showToast(`✅ Template "${template.name}" ajouté à vos routines !`);
+        }
         
         // ========== PR TRACKING SYSTEM ==========
         
@@ -16343,9 +16925,6 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 // Initialize routines
                 renderRoutinesList();
                 renderTemplatesList();
-            } else if (tabName === 'program') {
-                // Initialize Programme tab
-                if (typeof renderProgramTab === 'function') renderProgramTab();
             } else if (tabName === 'settings') {
                 // Initialize accordions
                 initializeSettingsAccordions();
@@ -26954,191 +27533,6 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             return { week, phaseKey, phase: CELEBRITY_PHASES[phaseKey], totalWeeks:12, sessionsCompleted: sessions[programId] || 0, pct: Math.round((week-1)/11*100) };
         }
 
-        // ═══════════════════════════════════════════════════════════════
-        // 📋 ONGLET PROGRAMME — Affichage du programme actif
-        // ═══════════════════════════════════════════════════════════════
-        function renderProgramTab() {
-            const container = document.getElementById('programTabContent');
-            if (!container) return;
-
-            const celeb = getActiveCelebrity();
-
-            if (!celeb) {
-                container.innerHTML = _renderProgramEmptyState();
-                return;
-            }
-
-            const prog = getCelebProgression(celeb.id);
-            const todayIdx = (new Date().getDay() + 6) % 7; // lun=0
-            const todaySplit = celeb.splits && celeb.splits[todayIdx] ? celeb.splits[todayIdx] : null;
-            const isRest = todaySplit && /repos|🛌/i.test(todaySplit.name);
-
-            container.innerHTML = `
-            <!-- ═══ HERO PERSONNALITÉ ═══ -->
-            <div class="card" style="background:linear-gradient(160deg,#0F1014 0%,${celeb.color}25 60%,${celeb.color}45 100%);color:white;padding:22px 20px;border:1px solid ${celeb.color}40;position:relative;overflow:hidden;">
-                <div style="position:absolute;top:-40px;right:-30px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,${celeb.color}30 0%,transparent 70%);pointer-events:none;"></div>
-                <div style="position:relative;z-index:1;">
-                    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px;">
-                        <div style="min-width:0;flex:1;">
-                            <div style="font-size:0.6em;color:${celeb.color};font-weight:900;letter-spacing:3px;margin-bottom:4px;">📋 PROGRAMME ACTIF</div>
-                            <div style="display:flex;align-items:center;gap:10px;">
-                                <div style="font-size:2.5em;line-height:1;filter:drop-shadow(0 0 12px ${celeb.color}80);flex-shrink:0;">${celeb.emoji}</div>
-                                <div style="min-width:0;">
-                                    <h2 style="margin:0;color:white;font-size:1.25em;font-weight:900;line-height:1.2;letter-spacing:-0.3px;">${celeb.nickname}</h2>
-                                    <div style="font-size:0.75em;color:rgba(255,255,255,0.7);margin-top:2px;font-weight:600;">${celeb.name}</div>
-                                </div>
-                            </div>
-                            <div style="margin-top:10px;display:flex;gap:5px;flex-wrap:wrap;">
-                                <span style="background:rgba(255,255,255,0.12);color:white;padding:3px 9px;border-radius:99px;font-size:0.68em;font-weight:700;border:1px solid rgba(255,255,255,0.18);">${celeb.level}</span>
-                                <span style="background:rgba(255,255,255,0.12);color:white;padding:3px 9px;border-radius:99px;font-size:0.68em;font-weight:700;border:1px solid rgba(255,255,255,0.18);">${celeb.focus}</span>
-                                <span style="background:rgba(255,255,255,0.12);color:white;padding:3px 9px;border-radius:99px;font-size:0.68em;font-weight:700;border:1px solid rgba(255,255,255,0.18);">${celeb.days}j/sem</span>
-                            </div>
-                        </div>
-                        <button onclick="showCelebrityPrograms()" style="background:rgba(255,255,255,0.15);color:white;border:1px solid rgba(255,255,255,0.3);border-radius:10px;padding:7px 11px;font-size:0.82em;font-weight:700;cursor:pointer;flex-shrink:0;">⚙️</button>
-                    </div>
-
-                    <!-- Citation -->
-                    <div style="background:rgba(0,0,0,0.25);border-left:3px solid ${celeb.color};border-radius:0 10px 10px 0;padding:10px 14px;font-style:italic;color:rgba(255,255,255,0.85);font-size:0.82em;line-height:1.5;">
-                        ${celeb.quote}
-                    </div>
-                </div>
-            </div>
-
-            <!-- ═══ PROGRESSION 12 SEMAINES ═══ -->
-            <div class="card" style="padding:16px 18px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${prog.phase.color}30;">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-                    <div>
-                        <div style="font-size:0.58em;color:${prog.phase.color};font-weight:900;letter-spacing:2px;margin-bottom:2px;">◈ PROGRESSION</div>
-                        <h3 style="margin:0;color:white;font-size:1em;font-weight:900;">Semaine ${prog.week} / 12</h3>
-                    </div>
-                    <div style="text-align:right;">
-                        <div style="font-size:0.85em;font-weight:800;color:${prog.phase.color};">${prog.phase.label}</div>
-                        <div style="font-size:0.65em;color:#94a3b8;margin-top:2px;">Sem. ${prog.phase.weeks}</div>
-                    </div>
-                </div>
-
-                <!-- Phases visuelles -->
-                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:12px;">
-                    ${['phase1','phase2','phase3'].map((k, i) => {
-                        const ph = CELEBRITY_PHASES[k];
-                        const isActive = k === prog.phaseKey;
-                        const isPast = (i+1) * 4 < prog.week;
-                        return `<div style="background:${isActive ? ph.color+'20' : 'rgba(255,255,255,0.03)'};border:1px solid ${isActive ? ph.color : (isPast ? ph.color+'50' : 'rgba(255,255,255,0.05)')};border-radius:9px;padding:8px 6px;text-align:center;${isPast ? 'opacity:0.65;' : ''}">
-                            <div style="font-size:0.85em;font-weight:900;color:${isActive ? ph.color : (isPast ? ph.color : '#475569')};line-height:1;">${ph.label}</div>
-                            <div style="font-size:0.55em;color:#64748b;margin-top:3px;font-weight:700;">SEM ${ph.weeks}</div>
-                            ${isActive ? '<div style="font-size:0.5em;color:'+ph.color+';font-weight:900;margin-top:2px;letter-spacing:1px;">ACTIVE</div>' : (isPast ? '<div style="font-size:0.65em;color:'+ph.color+';margin-top:1px;">✓</div>' : '')}
-                        </div>`;
-                    }).join('')}
-                </div>
-
-                <!-- Barre de progression -->
-                <div style="height:7px;background:rgba(255,255,255,0.05);border-radius:99px;overflow:hidden;margin-bottom:6px;">
-                    <div style="height:100%;width:${prog.pct}%;background:linear-gradient(90deg,${prog.phase.color},${prog.phase.color}cc);border-radius:99px;transition:width 0.8s;box-shadow:0 0 8px ${prog.phase.color}60;"></div>
-                </div>
-                <div style="display:flex;justify-content:space-between;font-size:0.65em;color:#64748b;font-weight:700;">
-                    <span>${prog.pct}% complété</span>
-                    <span>${prog.sessionsCompleted} séances faites</span>
-                </div>
-
-                <!-- Description phase -->
-                <div style="margin-top:10px;padding:9px 11px;background:${prog.phase.color}08;border:1px solid ${prog.phase.color}20;border-radius:9px;font-size:0.75em;color:#cbd5e1;line-height:1.5;font-style:italic;">
-                    💡 ${prog.phase.desc}
-                </div>
-            </div>
-
-            <!-- ═══ SPLIT DE LA SEMAINE ═══ -->
-            ${celeb.splits ? `
-            <div class="card" style="padding:16px 18px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(255,255,255,0.06);">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-                    <h3 style="margin:0;color:white;font-size:1em;font-weight:900;">📅 Split hebdomadaire</h3>
-                </div>
-                <div style="display:flex;flex-direction:column;gap:6px;">
-                    ${celeb.splits.map((s, i) => {
-                        const isToday = i === todayIdx;
-                        const isRestDay = /repos|🛌/i.test(s.name);
-                        return `<div style="display:flex;align-items:center;gap:10px;padding:10px 11px;background:${isToday ? celeb.color+'20' : 'rgba(255,255,255,0.02)'};border:1px solid ${isToday ? celeb.color+'60' : 'rgba(255,255,255,0.05)'};border-radius:10px;${isToday ? 'box-shadow:0 0 12px '+celeb.color+'30;' : ''}">
-                            <div style="font-size:0.7em;font-weight:900;color:${isToday ? celeb.color : '#64748b'};width:32px;letter-spacing:1px;flex-shrink:0;">${s.day}</div>
-                            <div style="flex:1;min-width:0;font-size:0.85em;font-weight:${isToday ? '800' : '600'};color:${isRestDay ? '#94a3b8' : 'white'};">${s.name}</div>
-                            ${isToday ? `<span style="background:${celeb.color};color:white;padding:2px 8px;border-radius:99px;font-size:0.55em;font-weight:900;letter-spacing:1px;flex-shrink:0;">AUJ.</span>` : ''}
-                        </div>`;
-                    }).join('')}
-                </div>
-            </div>` : ''}
-
-            <!-- ═══ EXERCICES SIGNATURE ═══ -->
-            ${celeb.exercises && celeb.exercises.length > 0 ? `
-            <div class="card" style="padding:16px 18px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(255,255,255,0.06);">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-                    <h3 style="margin:0;color:white;font-size:1em;font-weight:900;">⚡ Exercices signature</h3>
-                    <span style="font-size:0.65em;color:#94a3b8;font-weight:700;">${celeb.exercises.length} exos</span>
-                </div>
-                <div style="display:flex;flex-direction:column;gap:6px;">
-                    ${celeb.exercises.slice(0, 6).map(ex => `
-                        <div style="display:flex;align-items:center;gap:10px;padding:9px 11px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:9px;">
-                            <div style="flex:1;min-width:0;">
-                                <div style="font-size:0.82em;font-weight:700;color:white;">${ex.name}</div>
-                                ${ex.note ? `<div style="font-size:0.65em;color:#94a3b8;margin-top:2px;font-style:italic;">${ex.note}</div>` : ''}
-                            </div>
-                            <div style="background:${celeb.color}15;color:${celeb.color};border:1px solid ${celeb.color}30;padding:3px 9px;border-radius:6px;font-size:0.72em;font-weight:800;flex-shrink:0;">${ex.sets}×${ex.reps}</div>
-                        </div>
-                    `).join('')}
-                    ${celeb.exercises.length > 6 ? `<div style="text-align:center;padding:8px;font-size:0.72em;color:#475569;font-style:italic;">+ ${celeb.exercises.length - 6} autres exercices</div>` : ''}
-                </div>
-            </div>` : ''}
-
-            <!-- ═══ CONSEILS DE LA PERSONNALITÉ ═══ -->
-            ${celeb.tips && celeb.tips.length > 0 ? `
-            <div class="card" style="padding:16px 18px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(255,255,255,0.06);">
-                <h3 style="margin:0 0 12px 0;color:white;font-size:1em;font-weight:900;">💡 Conseils de ${celeb.nickname}</h3>
-                <div style="display:flex;flex-direction:column;gap:7px;">
-                    ${celeb.tips.map(t => `
-                        <div style="display:flex;align-items:flex-start;gap:10px;padding:9px 11px;background:rgba(255,255,255,0.02);border-left:2px solid ${celeb.color};border-radius:0 8px 8px 0;">
-                            <div style="font-size:1.1em;line-height:1;flex-shrink:0;">${t.emoji}</div>
-                            <div style="flex:1;min-width:0;font-size:0.78em;color:#cbd5e1;line-height:1.5;">${t.text}</div>
-                        </div>
-                    `).join('')}
-                </div>
-            </div>` : ''}
-
-            <!-- ═══ ACTIONS ═══ -->
-            <div class="card" style="padding:16px 18px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(255,255,255,0.06);">
-                <h3 style="margin:0 0 12px 0;color:white;font-size:0.95em;font-weight:900;">⚙️ Actions</h3>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-                    <button onclick="showCelebrityPrograms()" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.35);color:#c084fc;border-radius:10px;padding:12px 8px;font-weight:800;font-size:0.78em;cursor:pointer;">🔄 Changer programme</button>
-                    <button onclick="if(confirm('Réinitialiser à la semaine 1 ?')) resetCelebrityProgram('${celeb.id}');" style="background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.35);color:#fbbf24;border-radius:10px;padding:12px 8px;font-weight:800;font-size:0.78em;cursor:pointer;">↻ Réinitialiser progression</button>
-                </div>
-                <button onclick="if(confirm('Arrêter \\'${celeb.nickname}\\' ?')) { setActiveCelebrity(null); renderProgramTab(); if(typeof showToast === 'function') showToast('Programme arrêté', 'info', 2500); }" style="width:100%;margin-top:8px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:#f87171;border-radius:10px;padding:11px;font-weight:700;font-size:0.76em;cursor:pointer;">✕ Quitter ce programme</button>
-            </div>
-            `;
-        }
-        window.renderProgramTab = renderProgramTab;
-
-        function _renderProgramEmptyState() {
-            // Affiche un picker élégant avec preview des programmes phares
-            const previews = (typeof CELEBRITY_PROGRAMS !== 'undefined' ? CELEBRITY_PROGRAMS : []).slice(0, 6);
-            return `
-            <div class="card" style="text-align:center;padding:32px 20px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(168,85,247,0.25);">
-                <div style="font-size:3.5em;margin-bottom:12px;filter:drop-shadow(0 0 16px rgba(168,85,247,0.4));">📋</div>
-                <div style="font-size:0.62em;color:#c084fc;font-weight:900;letter-spacing:3px;margin-bottom:8px;">◇ AUCUN PROGRAMME ACTIF ◇</div>
-                <h2 style="margin:0 0 6px 0;color:white;font-size:1.2em;font-weight:900;">Choisis ton mentor</h2>
-                <p style="color:#94a3b8;font-size:0.85em;line-height:1.55;margin:0 0 20px 0;">Suis les méthodes d'entraînement de personnalités légendaires pour atteindre tes objectifs.</p>
-
-                ${previews.length > 0 ? `
-                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px;">
-                    ${previews.map(p => `
-                        <div onclick="setActiveCelebrity('${p.id}'); renderProgramTab();" style="background:linear-gradient(135deg,${p.color}25,${p.color}05);border:1px solid ${p.color}40;border-radius:11px;padding:11px 6px;cursor:pointer;text-align:center;">
-                            <div style="font-size:1.8em;line-height:1;margin-bottom:4px;filter:drop-shadow(0 0 6px ${p.color}80);">${p.emoji}</div>
-                            <div style="font-size:0.65em;font-weight:900;color:white;line-height:1.2;">${p.nickname}</div>
-                            <div style="font-size:0.55em;color:${p.color};font-weight:700;margin-top:2px;">${p.level}</div>
-                        </div>
-                    `).join('')}
-                </div>` : ''}
-
-                <button onclick="showCelebrityPrograms()" style="width:100%;background:linear-gradient(135deg,#a855f7,#7c3aed);border:none;color:white;border-radius:12px;padding:14px;font-weight:900;font-size:0.9em;letter-spacing:0.5px;cursor:pointer;box-shadow:0 4px 16px rgba(168,85,247,0.4);">📚 VOIR TOUS LES PROGRAMMES</button>
-            </div>
-            `;
-        }
-
         function recordCelebritySession(programId) {
             const sessions = JSON.parse(localStorage.getItem(CELEBRITY_SESSIONS_KEY) || '{}');
             sessions[programId] = (sessions[programId] || 0) + 1;
@@ -28653,147 +29047,19 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             showWorkoutPreparation(workout);
         }
 
-        // ═══════════════════════════════════════════════════════════════
-        // 🎯 CARTE "AUJOURD'HUI" — Action prioritaire de l'utilisateur
-        // ═══════════════════════════════════════════════════════════════
-        function renderTodayActionCard() {
-            const container = document.getElementById('todayActionCard');
-            if (!container) return;
-
-            const blocks = [];
-
-            // 1. Routine du jour (plan hebdo)
-            try {
-                if (typeof getWeeklyPlan === 'function' && typeof getRoutines === 'function') {
-                    const plan = getWeeklyPlan();
-                    const todayIdx = (new Date().getDay() + 6) % 7;
-                    const days = ['lun','mar','mer','jeu','ven','sam','dim'];
-                    const todayKey = days[todayIdx];
-                    const todayRoutineId = plan[todayKey];
-                    if (todayRoutineId) {
-                        const routines = getRoutines();
-                        const r = routines.find(x => x.id === todayRoutineId);
-                        if (r && r.exercises && r.exercises.length > 0) {
-                            const color = r.color || '#22c55e';
-                            blocks.push(`
-                            <div style="background:linear-gradient(135deg,${color}25,${color}05);border:1.5px solid ${color}50;border-radius:14px;padding:14px;margin-bottom:10px;cursor:pointer;" onclick="startRoutineById('${todayRoutineId}')">
-                                <div style="display:flex;align-items:center;gap:11px;">
-                                    <div style="font-size:2em;line-height:1;filter:drop-shadow(0 0 8px ${color}80);flex-shrink:0;">${r.emoji||'🏋️'}</div>
-                                    <div style="flex:1;min-width:0;">
-                                        <div style="font-size:0.58em;color:${color};font-weight:900;letter-spacing:2px;margin-bottom:2px;">📅 ROUTINE DU JOUR</div>
-                                        <div style="font-size:0.95em;font-weight:900;color:white;line-height:1.2;">${r.name}</div>
-                                        <div style="font-size:0.7em;color:#94a3b8;margin-top:2px;">${r.exercises.length} exercices · ${r.muscles?.slice(0,3).join(' · ') || 'Multi-muscles'}</div>
-                                    </div>
-                                    <div style="background:${color};color:white;border-radius:10px;padding:8px 12px;font-size:0.78em;font-weight:900;letter-spacing:0.5px;flex-shrink:0;">▶ START</div>
-                                </div>
-                            </div>`);
-                        }
-                    }
-                }
-            } catch(e) {}
-
-            // 2. Faille active (la plus avancée en danger)
-            try {
-                if (typeof awakRiftsLoad === 'function') {
-                    if (typeof awakUpdateRiftsState === 'function') awakUpdateRiftsState();
-                    const rifts = awakRiftsLoad().filter(r => !r.completed);
-                    if (rifts.length > 0) {
-                        // Priorité : breach > unstable > stable
-                        const stateOrder = { breach: 0, exploded: 0, unstable: 1, stable: 2 };
-                        rifts.sort((a, b) => (stateOrder[a.state] || 9) - (stateOrder[b.state] || 9));
-                        const r = rifts[0];
-                        const theme = (typeof RIFT_THEMES !== 'undefined') ? RIFT_THEMES.find(t => t.id === r.themeId) : null;
-                        const color = theme?.color || r.narrativeData?.color || '#a855f7';
-                        const stateLabel = { stable:'Stable', unstable:'⚠ Instable', breach:'🔴 Brèche', exploded:'💥 Explosée' }[r.state] || r.state;
-                        const time = (typeof awakRiftTimeRemaining === 'function') ? awakRiftTimeRemaining(r) : { label: '?' };
-                        const displayName = r.discovered ? r.name : '???';
-                        blocks.push(`
-                        <div style="background:linear-gradient(135deg,${color}25,${color}05);border:1.5px solid ${color}50;border-radius:14px;padding:14px;margin-bottom:10px;cursor:pointer;" onclick="switchTab('game')">
-                            <div style="display:flex;align-items:center;gap:11px;">
-                                <div style="font-size:2em;line-height:1;filter:drop-shadow(0 0 8px ${color}80);flex-shrink:0;">${theme?.emoji || r.narrativeData?.themeEmoji || '🌀'}</div>
-                                <div style="flex:1;min-width:0;">
-                                    <div style="font-size:0.58em;color:${color};font-weight:900;letter-spacing:2px;margin-bottom:2px;">🌀 FAILLE ACTIVE</div>
-                                    <div style="font-size:0.95em;font-weight:900;color:white;line-height:1.2;">${displayName}</div>
-                                    <div style="font-size:0.7em;color:#94a3b8;margin-top:2px;">Rang ${r.rank} · ${stateLabel} · ${time.label}</div>
-                                </div>
-                                <div style="color:${color};font-size:1.3em;flex-shrink:0;">›</div>
-                            </div>
-                        </div>`);
-                    }
-                }
-            } catch(e) {}
-
-            // 3. Monstres échappés en chasse
-            try {
-                if (typeof awakGetActiveMonsters === 'function') {
-                    const monsters = awakGetActiveMonsters();
-                    if (monsters.length > 0) {
-                        const alphaCount = monsters.filter(m => m.isAlpha).length;
-                        blocks.push(`
-                        <div style="background:linear-gradient(135deg,rgba(239,68,68,0.15),rgba(239,68,68,0.03));border:1.5px solid rgba(239,68,68,0.4);border-radius:14px;padding:14px;margin-bottom:10px;cursor:pointer;" onclick="switchTab('game')">
-                            <div style="display:flex;align-items:center;gap:11px;">
-                                <div style="font-size:2em;line-height:1;filter:drop-shadow(0 0 8px rgba(239,68,68,0.7));flex-shrink:0;">👹</div>
-                                <div style="flex:1;min-width:0;">
-                                    <div style="font-size:0.58em;color:#f87171;font-weight:900;letter-spacing:2px;margin-bottom:2px;">👹 ${monsters.length} MONSTRE${monsters.length>1?'S':''} ÉCHAPPÉ${monsters.length>1?'S':''}</div>
-                                    <div style="font-size:0.88em;font-weight:800;color:white;line-height:1.2;">${alphaCount > 0 ? `⚠ ${alphaCount} Alpha · ` : ''}Chasse recommandée</div>
-                                    <div style="font-size:0.7em;color:#94a3b8;margin-top:2px;">Tes séances normales sont handicapées</div>
-                                </div>
-                                <div style="color:#f87171;font-size:1.3em;flex-shrink:0;">›</div>
-                            </div>
-                        </div>`);
-                    }
-                }
-            } catch(e) {}
-
-            // Fallback : rien à faire aujourd'hui
-            if (blocks.length === 0) {
-                blocks.push(`
-                <div style="background:linear-gradient(135deg,rgba(34,197,94,0.1),rgba(34,197,94,0.02));border:1.5px solid rgba(34,197,94,0.3);border-radius:14px;padding:18px;margin-bottom:10px;text-align:center;">
-                    <div style="font-size:2.2em;margin-bottom:8px;">✨</div>
-                    <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;margin-bottom:4px;">PRÊT POUR L'AVENTURE</div>
-                    <div style="font-size:0.9em;color:white;font-weight:700;margin-bottom:4px;">Pas de routine aujourd'hui</div>
-                    <div style="font-size:0.78em;color:#94a3b8;line-height:1.5;">Lance une séance ou importe un template depuis l'onglet Routines pour bâtir ton plan hebdomadaire.</div>
-                </div>`);
-            }
-
-            container.innerHTML = blocks.join('');
-        }
-        window.renderTodayActionCard = renderTodayActionCard;
-
         function updateHomeStats() {
             const stats = loadStats();
             const qEl = document.getElementById('homeStatWorkouts');
             const sEl = document.getElementById('homeStatStreak');
             const mEl = document.getElementById('homeStatMinutes');
-            const wEl = document.getElementById('homeStatWeek');
             const qQuote = document.getElementById('homeQuote');
             // 🔢 CountUp pour stats — animation premium 0 → target
             if (qEl) countUpTo(qEl, stats.workouts || 0, { duration: 800 });
             if (sEl) countUpTo(sEl, stats.streak || 0, { duration: 800, suffix: '🔥' });
             if (mEl) countUpTo(mEl, stats.minutes || 0, { duration: 900 });
-
-            // Stat "séances cette semaine"
-            if (wEl) {
-                try {
-                    const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
-                    const histKey = profileId ? `profile_${profileId}_workoutHistory` : 'workoutHistory';
-                    const history = JSON.parse(localStorage.getItem(histKey) || '[]');
-                    const now = new Date();
-                    const dayOfWeek = (now.getDay() + 6) % 7; // lun=0
-                    const monday = new Date(now);
-                    monday.setDate(now.getDate() - dayOfWeek);
-                    monday.setHours(0,0,0,0);
-                    const weekCount = history.filter(w => {
-                        const d = new Date(w.date || w.completedAt || 0);
-                        return d >= monday;
-                    }).length;
-                    wEl.textContent = `${weekCount}/7`;
-                } catch(e) { wEl.textContent = '0/7'; }
-            }
-
-            // 🎯 Carte "Aujourd'hui" — action prioritaire
-            renderTodayActionCard();
-
+            // 🧠 Bouton intelligent
+            const smartEl = document.getElementById('smartStartContainer');
+            if (smartEl) smartEl.innerHTML = renderSmartStartButton();
             // 📅 Suggestion hebdomadaire
             const weekSugEl = document.getElementById('weeklySuggestionCard');
             if (weekSugEl) weekSugEl.innerHTML = renderWeeklySuggestionCard();
@@ -28803,6 +29069,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     renderActivityHeatmap('activityHeatmapCard', 26);
                 }
             } catch(e) { console.warn('Heatmap render error:', e); }
+            // 📊 Refresh dashboard
+            updateHomeDashboard();
             // 🎯 Weekly challenge
             try { const ch = JSON.parse(localStorage.getItem('fitproWeeklyChallenge')||'null'); if(ch) renderWeeklyChallenge(ch); else generateWeeklyChallenge(); } catch(e) {}
             if (qQuote) {

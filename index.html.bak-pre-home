@@ -234,10 +234,6 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
                 Routines
             </button>
-            <button class="nav-tab" onclick="switchTab('program')" aria-label="Programme">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-                Programme
-            </button>
             <button class="nav-tab" onclick="switchTab('history')" aria-label="Historique">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
                 Historique
@@ -267,109 +263,141 @@
 
         <!-- Home Tab -->
         <div id="homeTab" class="tab-content active">
-
-            <!-- ═══ 1. AUJOURD'HUI : ce que je dois faire ═══ -->
-            <div id="todayActionCard"></div>
-
-            <!-- ═══ 2. ACTIONS RAPIDES ═══ -->
-            <div class="card" style="padding:14px 16px;">
-                <div style="font-size:0.6em;color:#94a3b8;font-weight:900;letter-spacing:2px;margin-bottom:10px;">⚡ ACTIONS RAPIDES</div>
-                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
-                    <button onclick="switchTab('workouts'); window.scrollTo(0,0);" style="background:linear-gradient(135deg,#22c55e,#16a34a);border:none;color:white;border-radius:12px;padding:13px 10px;font-weight:800;font-size:0.85em;cursor:pointer;box-shadow:0 3px 12px rgba(34,197,94,0.3);">🏋️ Démarrer séance</button>
-                    <button onclick="switchTab('routines');" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.4);color:#c084fc;border-radius:12px;padding:13px 10px;font-weight:800;font-size:0.85em;cursor:pointer;">🔄 Routines</button>
-                    <button onclick="switchTab('game');" style="background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.4);color:#fbbf24;border-radius:12px;padding:13px 10px;font-weight:800;font-size:0.85em;cursor:pointer;">🌌 Failles</button>
-                    <button onclick="switchTab('exercises');" style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.4);color:#60a5fa;border-radius:12px;padding:13px 10px;font-weight:800;font-size:0.85em;cursor:pointer;">📚 Exercices</button>
-                </div>
-            </div>
-
-            <!-- ═══ 3. PROFIL & STATS GLOBALES (1 seul bloc consolidé) ═══ -->
-            <div class="card" id="profileCard" style="background: linear-gradient(160deg, #0F1014 0%, #1A0A00 50%, #166534 100%); color: white; overflow: hidden; position: relative; padding:18px;">
+            <!-- Hero Card -->
+            <div class="card" id="profileCard" style="background: linear-gradient(160deg, #0F1014 0%, #1A0A00 50%, #166534 100%); color: white; overflow: hidden; position: relative;">
+                <!-- Déco fond -->
                 <div style="position:absolute;top:-30px;right:-20px;width:140px;height:140px;background:radial-gradient(circle,rgba(255,255,255,0.1) 0%,transparent 70%);pointer-events:none;"></div>
                 <div style="position:relative;z-index:1;">
-                    <!-- Header utilisateur -->
-                    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;gap:10px;">
-                        <div style="min-width:0;flex:1;">
-                            <div style="font-size:0.72em;color:rgba(196,181,253,0.9);font-weight:600;letter-spacing:0.8px;margin-bottom:2px;">Bon entraînement 👋</div>
-                            <h3 style="margin:0;color:white;font-size:1.35em;font-weight:900;letter-spacing:-0.5px;"><span id="userName">Athlète</span></h3>
-                            <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;">
-                                <span style="background:rgba(255,255,255,0.15);color:white;padding:3px 9px;border-radius:99px;font-size:0.7em;font-weight:600;border:1px solid rgba(255,255,255,0.2);">🎯 <span id="userGoal">-</span></span>
-                                <span style="background:rgba(255,255,255,0.15);color:white;padding:3px 9px;border-radius:99px;font-size:0.7em;font-weight:600;border:1px solid rgba(255,255,255,0.2);">⚡ <span id="userLevel">Débutant</span></span>
-                                <span id="activeCelebBadge" style="display:none;padding:3px 9px;border-radius:99px;font-size:0.7em;font-weight:700;border:1px solid rgba(255,255,255,0.3);cursor:pointer;" onclick="switchTab('program')"></span>
+                    <!-- Ligne 1 : nom + réglages -->
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
+                        <div>
+                            <div style="font-size:0.78em;color:rgba(196,181,253,0.9);font-weight:600;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;">Bon entraînement 👋</div>
+                            <h3 style="margin:0;color:white;font-size:1.5em;font-weight:900;letter-spacing:-0.5px;"><span id="userName">Athlète</span></h3>
+                            <div style="margin-top:6px;display:flex;gap:8px;flex-wrap:wrap;">
+                                <span style="background:rgba(255,255,255,0.15);color:white;padding:3px 10px;border-radius:20px;font-size:0.78em;font-weight:600;border:1px solid rgba(255,255,255,0.25);">🎯 <span id="userGoal">-</span></span>
+                                <span style="background:rgba(255,255,255,0.15);color:white;padding:3px 10px;border-radius:20px;font-size:0.78em;font-weight:600;border:1px solid rgba(255,255,255,0.25);">⚡ <span id="userLevel">Débutant</span></span>
+                                <span id="activeCelebBadge" style="display:none;padding:3px 10px;border-radius:20px;font-size:0.78em;font-weight:700;border:1px solid rgba(255,255,255,0.3);cursor:pointer;" onclick="showCelebrityPrograms()"></span>
                             </div>
-                            <div id="activeCelebBanner" style="display:none;align-items:center;gap:12px;margin-top:10px;padding:10px 14px;border-radius:12px;border:1.5px solid rgba(255,255,255,0.2);cursor:pointer;" onclick="switchTab('program')"></div>
+                            <!-- Bannière personnalité active -->
+                            <div id="activeCelebBanner" style="display:none;align-items:center;gap:12px;margin-top:10px;padding:10px 14px;border-radius:12px;border:1.5px solid rgba(255,255,255,0.2);cursor:pointer;" onclick="showCelebrityPrograms()"></div>
                         </div>
-                        <button onclick="switchTab('settings')" style="background:rgba(255,255,255,0.15);color:white;border:1px solid rgba(255,255,255,0.3);border-radius:10px;padding:7px 11px;font-size:0.85em;font-weight:600;cursor:pointer;flex-shrink:0;">⚙️</button>
+                        <button onclick="switchTab('settings')" style="background:rgba(255,255,255,0.15);color:white;border:1px solid rgba(255,255,255,0.3);border-radius:12px;padding:8px 12px;font-size:0.85em;font-weight:600;cursor:pointer;flex-shrink:0;">⚙️</button>
                     </div>
-
-                    <!-- Stats consolidées : 4 mesures -->
-                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">
-                        <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:9px 4px;text-align:center;border:1px solid rgba(255,255,255,0.13);">
-                            <div id="homeStatWorkouts" style="font-size:1.45em;font-weight:900;color:white;letter-spacing:-1px;line-height:1;">0</div>
-                            <div style="font-size:0.58em;color:rgba(255,255,255,0.65);margin-top:3px;font-weight:700;letter-spacing:0.3px;">SÉANCES</div>
+                    <!-- Stats rapides -->
+                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;">
+                        <div style="background:rgba(255,255,255,0.1);border-radius:12px;padding:10px 6px;text-align:center;border:1px solid rgba(255,255,255,0.15);">
+                            <div id="homeStatWorkouts" style="font-size:1.7em;font-weight:900;color:white;letter-spacing:-1px;">0</div>
+                            <div style="font-size:0.68em;color:rgba(255,255,255,0.7);margin-top:2px;font-weight:600;">SÉANCES</div>
                         </div>
-                        <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:9px 4px;text-align:center;border:1px solid rgba(255,255,255,0.13);">
-                            <div id="homeStatStreak" style="font-size:1.45em;font-weight:900;color:#fbbf24;letter-spacing:-1px;line-height:1;">0🔥</div>
-                            <div style="font-size:0.58em;color:rgba(255,255,255,0.65);margin-top:3px;font-weight:700;letter-spacing:0.3px;">STREAK</div>
+                        <div style="background:rgba(255,255,255,0.1);border-radius:12px;padding:10px 6px;text-align:center;border:1px solid rgba(255,255,255,0.15);">
+                            <div id="homeStatStreak" style="font-size:1.7em;font-weight:900;color:#fbbf24;letter-spacing:-1px;">0🔥</div>
+                            <div style="font-size:0.68em;color:rgba(255,255,255,0.7);margin-top:2px;font-weight:600;">STREAK</div>
                         </div>
-                        <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:9px 4px;text-align:center;border:1px solid rgba(255,255,255,0.13);">
-                            <div id="homeStatMinutes" style="font-size:1.45em;font-weight:900;color:white;letter-spacing:-1px;line-height:1;">0</div>
-                            <div style="font-size:0.58em;color:rgba(255,255,255,0.65);margin-top:3px;font-weight:700;letter-spacing:0.3px;">MINUTES</div>
-                        </div>
-                        <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:9px 4px;text-align:center;border:1px solid rgba(255,255,255,0.13);">
-                            <div id="homeStatWeek" style="font-size:1.45em;font-weight:900;color:#4ade80;letter-spacing:-1px;line-height:1;">0/7</div>
-                            <div style="font-size:0.58em;color:rgba(255,255,255,0.65);margin-top:3px;font-weight:700;letter-spacing:0.3px;">SEMAINE</div>
+                        <div style="background:rgba(255,255,255,0.1);border-radius:12px;padding:10px 6px;text-align:center;border:1px solid rgba(255,255,255,0.15);">
+                            <div id="homeStatMinutes" style="font-size:1.7em;font-weight:900;color:white;letter-spacing:-1px;">0</div>
+                            <div style="font-size:0.68em;color:rgba(255,255,255,0.7);margin-top:2px;font-weight:600;">MINUTES</div>
                         </div>
                     </div>
+                    <!-- Citation du jour -->
+                    <div style="background:rgba(255,255,255,0.1);border-radius:12px;padding:12px 14px;margin-bottom:16px;border:1px solid rgba(255,255,255,0.15);">
+                        <div style="font-size:0.7em;color:rgba(196,181,253,0.9);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;">✨ Citation du jour</div>
+                        <div id="homeQuote" style="font-size:0.88em;color:white;font-style:italic;line-height:1.5;font-weight:500;">"Le succès n'est pas final, l'échec n'est pas fatal."</div>
+                        <div id="homeQuoteAuthor" style="font-size:0.68em;color:rgba(255,255,255,0.45);margin-top:4px;font-weight:600;text-align:right;"></div>
+                    </div>
+                    <!-- CTA intelligent (rendu dynamique) -->
+                    <div id="smartStartContainer"></div>
                 </div>
             </div>
 
-            <!-- ═══ 4. DÉFI DE LA SEMAINE ═══ -->
-            <div id="weekChallengeCard" style="border-radius:20px;overflow:hidden;border:1px solid rgba(234,179,8,0.25);box-shadow:0 4px 20px rgba(234,179,8,0.08);background:#1a1400;margin-bottom:16px;">
+            <!-- ══ DASHBOARD SEMAINE ══════════════════════════════════════ -->
+            <div id="weekDashboardCard" style="background:#111827;border-radius:20px;padding:16px 16px 14px;margin-bottom:0;border:1px solid rgba(74,222,128,0.15);box-shadow:0 4px 20px rgba(0,0,0,0.2);">
+
+                <!-- Row 1: Streak + Sessions semaine -->
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+                    <div style="background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);border-radius:14px;padding:12px 10px;text-align:center;">
+                        <div id="dashStreak" style="font-size:1.9em;font-weight:900;color:#fbbf24;letter-spacing:-1px;">0🔥</div>
+                        <div style="font-size:0.65em;color:rgba(255,255,255,0.5);margin-top:2px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Streak jours</div>
+                    </div>
+                    <div style="background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);border-radius:14px;padding:12px 10px;text-align:center;">
+                        <div id="dashWeekSessions" style="font-size:1.9em;font-weight:900;color:#4ade80;letter-spacing:-1px;">0/7</div>
+                        <div style="font-size:0.65em;color:rgba(255,255,255,0.5);margin-top:2px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Séances semaine</div>
+                    </div>
+                </div>
+
+                <!-- Row 2: Prochain muscle recommandé + dernier PR -->
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                    <div style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);border-radius:14px;padding:12px 10px;">
+                        <div style="font-size:0.6em;color:rgba(165,180,252,0.7);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">🎯 Muscle recommandé</div>
+                        <div id="dashNextMuscle" style="font-size:0.9em;font-weight:800;color:white;line-height:1.3;">—</div>
+                    </div>
+                    <div style="background:rgba(234,179,8,0.08);border:1px solid rgba(234,179,8,0.2);border-radius:14px;padding:12px 10px;">
+                        <div style="font-size:0.6em;color:rgba(253,224,71,0.7);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">🏆 Dernier PR</div>
+                        <div id="dashLastPR" style="font-size:0.82em;font-weight:800;color:white;line-height:1.3;">—</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ══ DÉFI HEBDOMADAIRE ══════════════════════════════════════ -->
+            <div id="weekChallengeCard" style="border-radius:20px;overflow:hidden;border:1px solid rgba(234,179,8,0.25);box-shadow:0 4px 20px rgba(234,179,8,0.08);background:#1a1400;">
                 <div style="height:2px;background:linear-gradient(90deg,transparent,#fbbf24,#f59e0b,transparent);"></div>
                 <div style="padding:14px 16px 16px;">
                     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-                        <div style="font-size:0.6rem;font-weight:900;letter-spacing:2.5px;color:rgba(253,224,71,0.7);">🎯 DÉFI HEBDO</div>
-                        <span id="challengeBadge" style="font-size:0.58rem;font-weight:800;padding:2px 8px;border-radius:99px;background:rgba(251,191,36,0.15);border:1px solid rgba(251,191,36,0.3);color:#fbbf24;">En cours</span>
+                        <div style="font-size:0.62rem;font-weight:700;letter-spacing:3px;color:rgba(253,224,71,0.6);text-transform:uppercase;">🎯 Défi de la semaine</div>
+                        <span id="challengeBadge" style="font-size:0.6rem;font-weight:800;padding:2px 8px;border-radius:99px;background:rgba(251,191,36,0.15);border:1px solid rgba(251,191,36,0.3);color:#fbbf24;">En cours</span>
                     </div>
-                    <div id="challengeTitle" style="font-size:0.95em;font-weight:800;color:white;margin-bottom:4px;">Générer mon défi…</div>
-                    <div id="challengeDesc" style="font-size:0.74em;color:rgba(255,255,255,0.5);margin-bottom:10px;line-height:1.4;"></div>
-                    <div style="height:7px;background:rgba(255,255,255,0.07);border-radius:99px;overflow:hidden;margin-bottom:6px;">
+                    <div id="challengeTitle" style="font-size:1em;font-weight:800;color:white;margin-bottom:4px;">Générer mon défi…</div>
+                    <div id="challengeDesc" style="font-size:0.78em;color:rgba(255,255,255,0.5);margin-bottom:10px;line-height:1.4;"></div>
+                    <div style="height:8px;background:rgba(255,255,255,0.07);border-radius:99px;overflow:hidden;margin-bottom:6px;">
                         <div id="challengeBar" style="height:100%;background:linear-gradient(90deg,#fbbf24,#f59e0b);border-radius:99px;width:0%;transition:width 0.8s ease;"></div>
                     </div>
                     <div style="display:flex;justify-content:space-between;align-items:center;">
-                        <div id="challengeProgress" style="font-size:0.7em;color:rgba(255,255,255,0.5);font-weight:600;"></div>
-                        <button onclick="generateWeeklyChallenge(true)" style="font-size:0.66em;padding:3px 10px;border-radius:99px;background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.2);color:#fbbf24;cursor:pointer;font-weight:700;">🔄 Nouveau</button>
+                        <div id="challengeProgress" style="font-size:0.72em;color:rgba(255,255,255,0.5);font-weight:600;"></div>
+                        <button onclick="generateWeeklyChallenge(true)" style="font-size:0.68em;padding:3px 10px;border-radius:99px;background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.2);color:#fbbf24;cursor:pointer;font-weight:700;">🔄 Nouveau</button>
                     </div>
                 </div>
             </div>
 
-            <!-- ═══ 5. INDEX DE FORME DU JOUR ═══ -->
-            <div class="card" id="fitnessIndexCard" style="padding:18px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(34,197,94,0.18);position:relative;overflow:hidden;">
+            <!-- ══ SUGGESTION HEBDOMADAIRE ════════════════════════════════ -->
+            <div id="weeklySuggestionCard"></div>
+
+            <!-- 📅 Heatmap d'activité (style GitHub) -->
+            <div id="activityHeatmapCard" class="activity-heatmap"></div>
+
+            <!-- Fitness Index of the Day -->
+            <div class="card" id="fitnessIndexCard" style="padding:20px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(34,197,94,0.18);position:relative;overflow:hidden;">
+                <!-- Glow accent -->
                 <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#22c55e,transparent);opacity:0.6;"></div>
 
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:8px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;gap:8px;">
                     <div>
                         <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;margin-bottom:3px;">◈ FORME DU JOUR</div>
-                        <h3 style="margin:0;color:white;font-size:1em;font-weight:900;">💪 Comment te sens-tu ?</h3>
+                        <h3 style="margin:0;color:white;font-size:1.05em;font-weight:900;">💪 Comment te sens-tu ?</h3>
                     </div>
                     <div id="fitnessAutoSuggestBadge" style="display:none;"></div>
                 </div>
 
+                <!-- Volume hebdomadaire par muscle -->
                 <div id="weeklyVolumeWidget" style="display:none;"></div>
                 <div id="weeklyMuscleVolume" style="margin-bottom:14px;"></div>
 
-                <div style="display:flex;align-items:center;gap:18px;margin-bottom:12px;">
-                    <div style="position:relative;width:90px;height:90px;flex-shrink:0;">
+                <!-- Jauge circulaire avec presets -->
+                <div style="display:flex;align-items:center;gap:18px;margin-bottom:14px;">
+                    <!-- Cercle de score -->
+                    <div style="position:relative;width:96px;height:96px;flex-shrink:0;">
                         <svg viewBox="0 0 100 100" style="width:100%;height:100%;transform:rotate(-90deg);">
+                            <!-- Background circle -->
                             <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="7"/>
+                            <!-- Progress circle (animated via JS) -->
                             <circle id="fitnessIndexProgressCircle" cx="50" cy="50" r="42" fill="none"
                                     stroke="#22c55e" stroke-width="7" stroke-linecap="round"
                                     stroke-dasharray="263.89" stroke-dashoffset="79.17"
-                                    style="transition:stroke-dashoffset 0.8s cubic-bezier(0.16,1,0.3,1),stroke 0.4s;filter:drop-shadow(0 0 8px rgba(34,197,94,0.5));"/>
+                                    style="transition:stroke-dashoffset 0.8s cubic-bezier(0.16,1,0.3,1),stroke 0.4s;
+                                           filter:drop-shadow(0 0 8px rgba(34,197,94,0.5));"/>
                         </svg>
                         <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-                            <div id="fitnessIndexDisplay" style="font-size:1.9em;font-weight:900;color:#4ade80;line-height:1;letter-spacing:-1px;">7</div>
-                            <div style="font-size:0.6em;color:#94a3b8;font-weight:700;letter-spacing:1px;margin-top:1px;">/ 10</div>
+                            <div id="fitnessIndexDisplay" style="font-size:2em;font-weight:900;color:#4ade80;line-height:1;letter-spacing:-1px;">7</div>
+                            <div style="font-size:0.62em;color:#94a3b8;font-weight:700;letter-spacing:1px;margin-top:1px;">/ 10</div>
                         </div>
                     </div>
 
@@ -377,58 +405,104 @@
                         <input type="range" id="fitnessIndexSlider" min="1" max="10" value="7"
                                style="width:100%;cursor:pointer;height:6px;"
                                oninput="updateFitnessIndex(this.value)"
-                               aria-label="Indice de forme du jour de 1 à 10">
-                        <div style="display:flex;justify-content:space-between;margin-top:7px;font-size:0.68em;color:#64748b;font-weight:700;">
+                               aria-label="Indice de forme du jour de 1 à 10"
+                               aria-valuemin="1" aria-valuemax="10" aria-valuenow="7">
+                        <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:0.7em;color:#64748b;font-weight:700;">
                             <span>1</span><span>5</span><span>10</span>
                         </div>
-                        <div style="display:flex;gap:5px;margin-top:9px;">
-                            <button onclick="setFitnessIndex(2)" class="no-ripple" style="flex:1;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);color:#fca5a5;border-radius:8px;padding:6px 4px;font-size:0.7em;font-weight:800;cursor:pointer;">😴</button>
-                            <button onclick="setFitnessIndex(5)" class="no-ripple" style="flex:1;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);color:#fbbf24;border-radius:8px;padding:6px 4px;font-size:0.7em;font-weight:800;cursor:pointer;">😐</button>
-                            <button onclick="setFitnessIndex(8)" class="no-ripple" style="flex:1;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.3);color:#4ade80;border-radius:8px;padding:6px 4px;font-size:0.7em;font-weight:800;cursor:pointer;">🔥</button>
+                        <!-- Presets rapides -->
+                        <div style="display:flex;gap:5px;margin-top:10px;">
+                            <button onclick="setFitnessIndex(2)" class="no-ripple" style="flex:1;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);color:#fca5a5;border-radius:9px;padding:7px 4px;font-size:0.72em;font-weight:800;cursor:pointer;">😴 Faible</button>
+                            <button onclick="setFitnessIndex(5)" class="no-ripple" style="flex:1;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);color:#fbbf24;border-radius:9px;padding:7px 4px;font-size:0.72em;font-weight:800;cursor:pointer;">😐 Moyen</button>
+                            <button onclick="setFitnessIndex(8)" class="no-ripple" style="flex:1;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.3);color:#4ade80;border-radius:9px;padding:7px 4px;font-size:0.72em;font-weight:800;cursor:pointer;">🔥 Au top</button>
                         </div>
                     </div>
                 </div>
 
-                <div id="fitnessFactors" style="display:none;margin-bottom:10px;"></div>
+                <!-- Facteurs (pourquoi cet indice ?) -->
+                <div id="fitnessFactors" style="display:none;margin-bottom:12px;"></div>
 
-                <div id="fitnessAdvice" style="padding:11px 13px;border-radius:11px;font-size:0.82em;line-height:1.5;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.25);color:#e2e8f0;">
+                <!-- Advice box améliorée -->
+                <div id="fitnessAdvice" style="padding:13px 14px;border-radius:12px;font-size:0.85em;line-height:1.5;
+                     background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.25);color:#e2e8f0;">
                     💡 Vous êtes en bonne forme ! Séance normale recommandée.
                 </div>
             </div>
 
-            <!-- ═══ 6. HEATMAP D'ACTIVITÉ ═══ -->
-            <div id="activityHeatmapCard" class="activity-heatmap"></div>
+            <!-- Weekly Plan -->
+            <div class="card" id="weeklyPlanCard">
+                <h3 style="margin-bottom: 15px; color: #16a34a;">📅 Votre semaine</h3>
+                <div id="weeklyPlanContainer">
+                    <!-- Weekly plan will be rendered here -->
+                </div>
+                <button class="btn btn-secondary" onclick="generateWeeklyPlan()" style="width: 100%; margin-top: 15px;">
+                    🔄 Générer plan de la semaine
+                </button>
+            </div>
 
-            <!-- ═══ 7. SUGGESTION HEBDO (générée par IA) ═══ -->
-            <div id="weeklySuggestionCard"></div>
-
-            <!-- ═══ 8. ÉTAT DE RÉCUPÉRATION MUSCULAIRE ═══ -->
+            <!-- Muscle Recovery Status -->
             <div class="card">
-                <h3 style="margin-bottom: 8px; color: #16a34a; font-size: 1em;">💪 Récupération musculaire</h3>
-                <p style="font-size: 0.78em; color: #94a3b8; margin-bottom: 12px;">
-                    Temps minimum : 48h par groupe musculaire
+                <h3 style="margin-bottom: 15px; color: #16a34a;">💪 État de récupération musculaire</h3>
+                <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;">
+                    Temps minimum de récupération : 48h par groupe musculaire
                 </p>
-                <div id="muscleRecoveryContainer"></div>
+                <div id="muscleRecoveryContainer">
+                    <!-- Muscle recovery status will be rendered here -->
+                </div>
             </div>
 
-            <!-- ═══ 9. CITATION DU JOUR (discret, en bas) ═══ -->
-            <div class="card" style="padding:13px 16px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(196,181,253,0.15);">
-                <div style="font-size:0.62em;color:rgba(196,181,253,0.7);font-weight:900;letter-spacing:2px;margin-bottom:6px;">✨ CITATION DU JOUR</div>
-                <div id="homeQuote" style="font-size:0.85em;color:#e2e8f0;font-style:italic;line-height:1.55;font-weight:500;">"Le succès n'est pas final, l'échec n'est pas fatal."</div>
-                <div id="homeQuoteAuthor" style="font-size:0.65em;color:rgba(255,255,255,0.4);margin-top:5px;font-weight:600;text-align:right;"></div>
+            <div class="card">
+                <h3 style="margin-bottom: 20px; color: #16a34a;">📊 Vos Statistiques</h3>
+                <div class="stats">
+                    <div class="stat-box">
+                        <div class="stat-value" id="totalWorkouts">0</div>
+                        <div class="stat-label">Séances</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="totalMinutes">0</div>
+                        <div class="stat-label">Minutes</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="streak">0</div>
+                        <div class="stat-label">Série</div>
+                    </div>
+                </div>
             </div>
 
-            <!-- ═══ Stats hidden (compat avec code existant) ═══ -->
-            <div style="display:none;">
-                <span id="totalWorkouts">0</span>
-                <span id="totalMinutes">0</span>
-                <span id="streak">0</span>
-                <span id="dashStreak">0🔥</span>
-                <span id="dashWeekSessions">0/7</span>
-                <span id="dashNextMuscle">—</span>
-                <span id="dashLastPR">—</span>
-                <span id="smartStartContainer"></span>
-                <span id="weeklyPlanContainer"></span>
+            <div class="card">
+
+                <div style="margin-bottom: 15px;">
+                    <h3 style="margin: 0; color: #16a34a;">🚀 Démarrage rapide</h3>
+                </div>
+
+                <!-- Description Séance intelligente -->
+                <div style="margin: 10px 0 15px 0; padding: 15px; background: rgba(34,197,94,0.1); border-radius: 12px; font-size: 0.9em; color: #e2e8f0; border-left: 4px solid #22c55e;">
+                    <strong style="color: #22c55e; font-size: 1.1em;">🧠 Séance 100% Autonome - L'app décide TOUT !</strong><br><br>
+                    <div style="margin-top: 10px; line-height: 1.7;">
+                        <strong>✨ Analyse intelligente :</strong><br>
+                        • 📊 Historique d\'entraînement (7-14 derniers jours)<br>
+                        • 😴 Niveau de fatigue et récupération musculaire<br>
+                        • 📈 Fréquence et régularité de vos séances<br>
+                        • 💪 Indice de forme du jour<br><br>
+
+                        <strong>🎯 Décisions automatiques :</strong><br>
+                        • Type de séance (Full body / Split / Cardio / Récupération)<br>
+                        • Intensité (60% → 120% selon votre forme)<br>
+                        • Durée (15, 30, 45 ou 60 min)<br>
+                        • Exercices et ordre optimal<br><br>
+
+                        <strong style="color: #22c55e;">👉 Allez dans l'onglet "Séances" pour démarrer !</strong>
+                    </div>
+                </div>
+
+                <button class="btn" onclick="switchTab('workouts'); window.scrollTo(0, 0);"
+                        aria-label="Choisir parmi les programmes prédéfinis">
+                    🔥 Choisir un programme
+                </button>
+                <button class="btn btn-secondary" onclick="switchTab('exercises')"
+                        aria-label="Explorer la bibliothèque complète d'exercices">
+                    📚 Explorer les exercices
+                </button>
             </div>
         </div>
 
@@ -470,13 +544,6 @@
                         📚 Voir les templates
                     </button>
                 </div>
-            </div>
-        </div>
-
-        <!-- Programme Tab -->
-        <div id="programTab" class="tab-content">
-            <div id="programTabContent">
-                <!-- Rendered dynamically by renderProgramTab() -->
             </div>
         </div>
 
@@ -1217,7 +1284,7 @@
                 </div>
 
                 <!-- Personnalité Connue Card — redesigned -->
-                <div onclick="switchTab(&#39;program&#39;)" style="
+                <div onclick="showCelebrityPrograms()" style="
                     cursor:pointer;
                     border-radius:20px;
                     overflow:hidden;
@@ -2220,13 +2287,6 @@
         <!-- Custom Workout Tab -->
         <!-- Settings Tab -->
         <div id="settingsTab" class="tab-content">
-
-            <!-- 🔖 Version -->
-            <div class="card" style="background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(34,197,94,0.15);padding:12px 14px;text-align:center;">
-                <div style="font-size:0.6em;color:#64748b;font-weight:800;letter-spacing:2px;">VERSION</div>
-                <div style="font-size:0.95em;color:#4ade80;font-weight:900;margin-top:3px;letter-spacing:1px;">v36 · awakened</div>
-                <button onclick="if(confirm('Forcer la mise à jour de l\\'app ?\\n\\nCela rechargera la page et nettoiera le cache.')) { if('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(rs => Promise.all(rs.map(r => r.unregister()))).then(() => location.reload(true)); }" style="margin-top:10px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:#4ade80;border-radius:9px;padding:8px 14px;font-size:0.75em;font-weight:800;cursor:pointer;">🔄 Forcer la mise à jour</button>
-            </div>
 
             <!-- 💾 Sauvegardes -->
             <div class="card" onclick="showBackupManagerModal()" style="cursor:pointer;display:flex;align-items:center;gap:14px;">
