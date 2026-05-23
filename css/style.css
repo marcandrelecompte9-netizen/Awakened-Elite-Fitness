@@ -5781,3 +5781,14 @@ html, body {
         padding-top: env(safe-area-inset-top) !important;
     }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════ */
+/* Animations Awakened — toujours disponibles                                */
+/* ═══════════════════════════════════════════════════════════════════════ */
+@keyframes awakPointsPulse {
+    0%,100% { transform: scale(1); box-shadow: 0 2px 8px rgba(245,158,11,0.4); }
+    50% { transform: scale(1.06); box-shadow: 0 3px 14px rgba(245,158,11,0.7); }
+}
+@keyframes awakFadeIn { from{opacity:0} to{opacity:1} }
+@keyframes awakFadeOut { from{opacity:1} to{opacity:0} }
+@keyframes awakBlink { 50% { opacity: 0.3; } }

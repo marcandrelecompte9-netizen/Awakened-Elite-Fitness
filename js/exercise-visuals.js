@@ -731,7 +731,7 @@ var EXERCISE_IMAGES = {
   'Bent-over row prise large':     'images/exercises/Bent-over_row_prise_large.webp',
   'Bicep Curl machine':            'images/exercises/Biceps_curl_machine.webp',
   'Curl biceps machine':           'images/exercises/Biceps_curl_machine.webp',
-  'Biceps curl élastique':         'images/exercises/Biceps_curl_élastique.webp',
+  'Curl élastique':         'images/exercises/Biceps_curl_élastique.webp',
   'Bicycle crunch':                'images/exercises/Bicycle_crunch.webp',
   'Box Jump - Emphasis Mollets':   'images/exercises/Box_Jump_Emphasis_Mollets.webp',
   'Box jumps':                     'images/exercises/Box_jumps.webp',

@@ -3362,7 +3362,7 @@
                         sessions: [
                             { day: 'Lundi', name: 'Corps entier progression', exercises: ['Squats', 'Développé militaire', 'Fentes avant', 'Planche', 'Burpees'], duration: 35 },
                             { day: 'Mercredi', name: 'HIIT débutant', exercises: ['High knees', 'Jump squats', 'Squats', 'Mountain climbers', 'Planche'], duration: 30 },
-                            { day: 'Vendredi', name: 'Split haut/bas', exercises: ['Tractions assistées', 'Dips triceps', 'Squats bulgare', 'Fentes avant', 'Mollets debout'], duration: 35 }
+                            { day: 'Vendredi', name: 'Split haut/bas', exercises: ['Tractions assistées', 'Dips triceps', 'Squats bulgare', 'Fentes avant', 'Calf Raises debout'], duration: 35 }
                         ]
                     },
                     {
@@ -3370,7 +3370,7 @@
                         title: 'Intensification',
                         description: 'Augmentation de la difficulté',
                         sessions: [
-                            { day: 'Lundi', name: 'Push/Pull split', exercises: ['Pompes classiques', 'Tractions pronation', 'Développé militaire', 'Rowing barre', 'Fentes avant'], duration: 40 },
+                            { day: 'Lundi', name: 'Push/Pull split', exercises: ['Pompes classiques', 'Tractions pronation', 'Développé militaire', 'Barbell Row', 'Fentes avant'], duration: 40 },
                             { day: 'Mercredi', name: 'Cardio intense', exercises: ['Burpees', 'High knees', 'Mountain climbers', 'Jumping jacks', 'Burpees'], duration: 35 },
                             { day: 'Vendredi', name: 'Jambes + Core', exercises: ['Squats', 'Hip thrust', 'Glute bridge', 'Crunch', 'Planche', 'Russian twist'], duration: 40 }
                         ]
@@ -3382,7 +3382,7 @@
                         sessions: [
                             { day: 'Lundi', name: 'Circuit complet', exercises: ['Burpees', 'Tractions pronation', 'Squats', 'Planche', 'Mountain climbers', 'Fentes avant'], duration: 45 },
                             { day: 'Mercredi', name: 'HIIT max', exercises: ['Jump squats', 'Dips triceps', 'High knees', 'Burpees', 'Planche'], duration: 40 },
-                            { day: 'Vendredi', name: 'Full body challenge', exercises: ['Squats', 'Pompes classiques', 'Rowing barre', 'Dips triceps', 'Planche', 'Crunch'], duration: 45 }
+                            { day: 'Vendredi', name: 'Full body challenge', exercises: ['Squats', 'Pompes classiques', 'Barbell Row', 'Dips triceps', 'Planche', 'Crunch'], duration: 45 }
                         ]
                     }
                 ]
@@ -3403,9 +3403,9 @@
                     description: i < 2 ? 'Créer la base' : i < 4 ? 'Augmenter intensité' : i < 6 ? 'Maximum effort' : 'Consolidation',
                     sessions: [
                         { day: 'Lundi', name: 'HIIT Total Body', exercises: ['Burpees', 'Jump squats', 'Mountain climbers', i % 2 === 0 ? 'Pompes classiques' : 'Dips triceps', 'High knees'], duration: 35 },
-                        { day: 'Mardi', name: 'Musculation Upper', exercises: [i % 3 === 0 ? 'Pompes classiques' : i % 3 === 1 ? 'Développé couché haltères' : 'Tractions pronation', 'Dips triceps', i % 2 === 0 ? 'Tractions pronation' : 'Rowing barre', 'Superman', 'Planche'], duration: 40 },
+                        { day: 'Mardi', name: 'Musculation Upper', exercises: [i % 3 === 0 ? 'Pompes classiques' : i % 3 === 1 ? 'Développé couché haltères' : 'Tractions pronation', 'Dips triceps', i % 2 === 0 ? 'Tractions pronation' : 'Barbell Row', 'Superman', 'Planche'], duration: 40 },
                         { day: 'Jeudi', name: 'HIIT Cardio Blast', exercises: ['Jumping jacks', 'Burpees', 'High knees', 'Mountain climbers', 'Sprint sur place'], duration: 30 },
-                        { day: 'Vendredi', name: 'Musculation Lower', exercises: ['Squats', i % 2 === 0 ? 'Fentes avant' : 'Squats bulgare', 'Hip thrust', 'Mollets debout', 'Glute bridge'], duration: 40 },
+                        { day: 'Vendredi', name: 'Musculation Lower', exercises: ['Squats', i % 2 === 0 ? 'Fentes avant' : 'Squats bulgare', 'Hip thrust', 'Calf Raises debout', 'Glute bridge'], duration: 40 },
                         { day: 'Samedi', name: 'Circuit Metabolic', exercises: ['Burpees', 'Burpees', 'Squats', i % 3 === 0 ? 'Pompes classiques' : i % 3 === 1 ? 'Dips triceps' : 'Tractions pronation', 'Mountain climbers'], duration: 35 }
                     ]
                 }))
@@ -3426,9 +3426,9 @@
                     description: i < 3 ? 'Phase adaptation' : i < 6 ? 'Phase volume' : i < 9 ? 'Phase intensité' : 'Maintien gains',
                     sessions: [
                         { day: 'Lundi', name: 'Push (Pecs/Épaules/Triceps)', exercises: [i % 3 === 0 ? 'Pompes classiques' : i % 3 === 1 ? 'Développé couché haltères' : 'Développé incliné haltères', 'Dips triceps', i % 2 === 0 ? 'Pompes inclinées' : 'Élévations latérales', 'Extensions triceps corde', 'Développé militaire'], duration: 50 },
-                        { day: 'Mardi', name: 'Pull (Dos/Biceps)', exercises: ['Tractions pronation', i % 2 === 0 ? 'Rowing barre' : 'Rowing haltère un bras', 'Superman', 'Curl biceps haltères', 'Rowing haltère un bras'], duration: 50 },
-                        { day: 'Jeudi', name: 'Legs (Jambes)', exercises: [i % 2 === 0 ? 'Squats' : 'Squats bulgare', 'Fentes avant', 'Hip thrust', 'Mollets debout', i % 2 === 0 ? 'Soulevé de terre jambes tendues' : 'Fentes marchées'], duration: 50 },
-                        { day: 'Vendredi', name: 'Upper (Haut corps)', exercises: [i % 3 === 0 ? 'Pompes classiques' : i % 3 === 1 ? 'Développé couché haltères' : 'Dips triceps', 'Tractions pronation', i % 2 === 0 ? 'Dips triceps' : 'Rowing barre', 'Curl biceps', 'Extensions triceps'], duration: 45 },
+                        { day: 'Mardi', name: 'Pull (Dos/Biceps)', exercises: ['Tractions pronation', i % 2 === 0 ? 'Barbell Row' : 'Rowing haltère un bras', 'Superman', 'Curl biceps haltères', 'Rowing haltère un bras'], duration: 50 },
+                        { day: 'Jeudi', name: 'Legs (Jambes)', exercises: [i % 2 === 0 ? 'Squats' : 'Squats bulgare', 'Fentes avant', 'Hip thrust', 'Calf Raises debout', i % 2 === 0 ? 'Soulevé de terre jambes tendues' : 'Fentes marchées'], duration: 50 },
+                        { day: 'Vendredi', name: 'Upper (Haut corps)', exercises: [i % 3 === 0 ? 'Pompes classiques' : i % 3 === 1 ? 'Développé couché haltères' : 'Dips triceps', 'Tractions pronation', i % 2 === 0 ? 'Dips triceps' : 'Barbell Row', 'Curl biceps', 'Extensions triceps'], duration: 45 },
                         { day: 'Samedi', name: 'Lower + Core', exercises: ['Squats', 'Glute bridge', i % 2 === 0 ? 'Fentes avant' : 'Squats bulgare', 'Planche', 'Crunch'], duration: 45 }
                     ]
                 }))
@@ -3448,9 +3448,9 @@
                     title: i < 2 ? 'Base force' : i < 4 ? 'Peak force' : 'Test force',
                     description: i < 2 ? 'Créer base' : i < 4 ? 'Maximiser force' : 'Tester limites',
                     sessions: [
-                        { day: 'Lundi', name: 'Squat Focus', exercises: [i % 2 === 0 ? 'Squats' : 'Squats', 'Squats bulgare', i % 2 === 0 ? 'Fentes avant' : 'Squats bulgare', 'Mollets debout'], duration: 50 },
+                        { day: 'Lundi', name: 'Squat Focus', exercises: [i % 2 === 0 ? 'Squats' : 'Squats', 'Squats bulgare', i % 2 === 0 ? 'Fentes avant' : 'Squats bulgare', 'Calf Raises debout'], duration: 50 },
                         { day: 'Mercredi', name: 'Push Focus', exercises: [i % 3 === 0 ? 'Pompes classiques' : i % 3 === 1 ? 'Développé couché haltères' : 'Développé militaire', i % 2 === 0 ? 'Pompes déclinées' : 'Dips triceps', 'Dips triceps', i % 2 === 0 ? 'Pompes diamant' : 'Extensions triceps corde'], duration: 45 },
-                        { day: 'Vendredi', name: 'Pull Focus', exercises: ['Tractions pronation', i % 2 === 0 ? 'Rowing barre' : 'Rowing haltère un bras', 'Superman', 'Rowing haltère un bras'], duration: 45 },
+                        { day: 'Vendredi', name: 'Pull Focus', exercises: ['Tractions pronation', i % 2 === 0 ? 'Barbell Row' : 'Rowing haltère un bras', 'Superman', 'Rowing haltère un bras'], duration: 45 },
                         { day: 'Samedi', name: 'Full Power', exercises: ['Squats', i % 2 === 0 ? 'Pompes classiques' : 'Dips triceps', 'Tractions pronation', 'Burpees'], duration: 40 }
                     ]
                 }))
@@ -4834,25 +4834,25 @@
         const machineTypes = [
             { id: 'cable', name: 'Poulie/Câble', icon: '🎯', exercises: [
                 'Cable Fly','Cable fly','Cable crossover','Cable Crossover','Cable Pull Through','Cable Crunch','Cable Crunch à genoux',
-                'Cable biceps curl','Cable triceps pushdown','Cable Kickbacks','Extension poulie haute',
+                'Cable biceps curl','Tricep Pushdown câble','Cable Kickbacks','Extension poulie haute',
                 'Cable Fly bas vers haut','Cable Fly haut vers bas','Lateral Raise cable','Face Pull câble','Face pull câble',
                 'Élévations latérales câble','Élévations frontales câble','Cable Front Raise','Upright Row câble',
                 'Straight Arm Pushdown','Low Cable Row','Tirage poulie basse câble','Tirage poulie haute face',
                 'Tirage unilatéral câble','Tirage dos poulie haute','Tirage horizontal machine',
                 'Cable Pull-Through','Cable Romanian Deadlift','Cable Squat','Woodchop câble haut-bas',
-                'Tricep Pushdown câble','Tricep Pushdown corde','Overhead Tricep câble','Kickback triceps câble','Pushdown câble corde',
+                'Tricep Pushdown câble','Tricep Pushdown corde','Overhead Tricep câble','Kickback triceps câble','Tricep Pushdown corde',
                 'Curl câble barre droite','Curl câble unilatéral','Cable Hammer Curl',
-                'Romanian deadlift cable','Kickback fessiers câble','Cable biceps curl'
+                'Cable Romanian Deadlift','Kickback fessiers câble','Cable biceps curl'
             ]},
             { id: 'legmachine', name: 'Machines jambes', icon: '🦵', svg: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#0F1014" stroke-linecap="round"><rect x="10" y="12" width="14" height="76" rx="5" fill="#FFF3E0" stroke="#16a34a" stroke-width="2"/><rect x="76" y="12" width="14" height="76" rx="5" fill="#FFF3E0" stroke="#16a34a" stroke-width="2"/><rect x="24" y="28" width="52" height="36" rx="8" fill="#16a34a" stroke="#16a34a" stroke-width="0"/><rect x="30" y="34" width="40" height="24" rx="6" fill="#4ade80"/><rect x="28" y="62" width="14" height="24" rx="4" fill="#FFF3E0" stroke="#16a34a" stroke-width="2"/><rect x="58" y="62" width="14" height="24" rx="4" fill="#FFF3E0" stroke="#16a34a" stroke-width="2"/><rect x="22" y="84" width="56" height="6" rx="3" fill="#16a34a"/></svg>', exercises: [
-                'Leg Press','Leg extension machine','Hack squat machine','Presse à jambes 45°','Presse à jambes horizontale',
-                'Smith machine squat','Adduction machine (intérieur)','Sissy squat machine',
-                'Presse à jambes','Hack Squat machine','Leg Press 45°','Sissy Squat machine',
+                'Leg Press','Leg Extension','Hack squat machine','Leg Press 45°','Presse à jambes horizontale',
+                'Squat Smith machine','Adduction machine (intérieur)','Sissy squat machine',
+                'Leg Press','Hack Squat','Leg Press 45°','Sissy Squat',
                 'Leg Extension','Squat Smith machine','Lunges Smith machine',
-                'Leg Curl Machine','Leg curl machine','Leg curl machine allongé','Leg curl machine assis',
+                'Leg Curl Machine','Leg curl machine','Leg Curl couché','Leg Curl assis',
                 'Leg Curl couché','Leg Curl assis',
                 'Hip Adduction machine','Hip Abduction machine','Glute machine abduction','Abduction machine (fessiers)',
-                'Mollets presse à jambes','Mollets debout machine','Mollets assis machine','Calf raise machine assise','Calf Raise Smith machine',
+                'Mollets presse à jambes','Mollets debout machine','Calf raise machine assise','Calf raise machine assise','Mollets debout machine',
                 'Hip thrust machine','Glute Kickback machine','Hip Thrust Smith machine'
             ]},
             { id: 'backmachine', name: 'Machines dos', icon: '🏋️', svg: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="none"><rect x="42" y="6" width="16" height="56" rx="5" fill="#FFF3E0" stroke="#16a34a" stroke-width="2"/><circle cx="50" cy="10" r="10" fill="white" stroke="#16a34a" stroke-width="3"/><rect x="20" y="56" width="60" height="8" rx="4" fill="#16a34a"/><line x1="26" y1="60" x2="26" y2="90" stroke="#16a34a" stroke-width="3" stroke-linecap="round"/><line x1="74" y1="60" x2="74" y2="90" stroke="#16a34a" stroke-width="3" stroke-linecap="round"/><rect x="32" y="72" width="36" height="14" rx="5" fill="#4ade80"/><rect x="20" y="87" width="60" height="8" rx="4" fill="#FFF3E0" stroke="#16a34a" stroke-width="2"/><line x1="50" y1="20" x2="30" y2="56" stroke="#16a34a" stroke-width="3" stroke-dasharray="4 3"/><line x1="50" y1="20" x2="70" y2="56" stroke="#16a34a" stroke-width="3" stroke-dasharray="4 3"/></svg>', exercises: [
@@ -4863,17 +4863,17 @@
             ]},
             { id: 'chestmachine', name: 'Machines pectoraux', icon: '💪', svg: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="none"><rect x="38" y="10" width="24" height="80" rx="6" fill="#FFF3E0" stroke="#16a34a" stroke-width="2"/><rect x="44" y="16" width="12" height="68" rx="4" fill="#4ade80" opacity="0.4"/><rect x="8" y="30" width="32" height="12" rx="5" fill="#16a34a"/><rect x="60" y="30" width="32" height="12" rx="5" fill="#16a34a"/><rect x="8" y="22" width="14" height="28" rx="6" fill="#FFF3E0" stroke="#16a34a" stroke-width="2"/><rect x="78" y="22" width="14" height="28" rx="6" fill="#FFF3E0" stroke="#16a34a" stroke-width="2"/><rect x="44" y="44" width="12" height="20" rx="4" fill="#16a34a"/></svg>', exercises: [
                 'Cable Fly','Cable fly','Cable crossover','Cable Crossover',
-                'Pec deck machine','Pec Deck (Butterfly)','Presse pectoraux machine','Pec deck (papillon machine)',
-                'Tirage poitrine câble haut','Développé incliné machine','Smith machine développé couché',
+                'Pec deck machine','Pec Deck (Butterfly)','Presse pectoraux machine','Pec Deck (Butterfly)',
+                'Tirage poitrine câble haut','Développé incliné machine','Bench Press Smith machine',
                 'Chest press incliné câble','Chest Press machine','Cable Fly bas vers haut','Cable Fly haut vers bas',
                 'Decline Chest Press machine','Bench Press Smith machine'
             ]},
             { id: 'shouldermachine', name: 'Machines épaules', icon: '🏋️', svg: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="none"><rect x="30" y="55" width="40" height="35" rx="6" fill="#FFF3E0" stroke="#16a34a" stroke-width="2"/><rect x="35" y="62" width="30" height="22" rx="4" fill="#4ade80" opacity="0.5"/><rect x="20" y="30" width="14" height="40" rx="5" fill="#16a34a"/><rect x="66" y="30" width="14" height="40" rx="5" fill="#16a34a"/><rect x="16" y="14" width="6" height="20" rx="3" fill="#FFF3E0" stroke="#16a34a" stroke-width="2"/><rect x="78" y="14" width="6" height="20" rx="3" fill="#FFF3E0" stroke="#16a34a" stroke-width="2"/><rect x="10" y="10" width="18" height="7" rx="3" fill="#16a34a"/><rect x="72" y="10" width="18" height="7" rx="3" fill="#16a34a"/><rect x="34" y="44" width="32" height="14" rx="4" fill="#FFF3E0" stroke="#16a34a" stroke-width="2"/></svg>', exercises: [
-                'Presse épaules machine','Presse épaules unilatérale','Shoulder Press machine','Shoulder Press Smith machine',
+                'Shoulder Press machine','Presse épaules unilatérale','Shoulder Press machine','Shoulder Press Smith machine',
                 'Rear Delt machine'
             ]},
             { id: 'armmachine', name: 'Machines bras', icon: '💪', svg: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="none"><rect x="38" y="52" width="24" height="38" rx="5" fill="#FFF3E0" stroke="#16a34a" stroke-width="2"/><polygon points="20,52 80,52 72,28 28,28" fill="#16a34a"/><polygon points="24,50 76,50 70,30 30,30" fill="#4ade80" opacity="0.6"/><rect x="14" y="10" width="10" height="44" rx="4" fill="#FFF3E0" stroke="#16a34a" stroke-width="2"/><rect x="76" y="10" width="10" height="44" rx="4" fill="#FFF3E0" stroke="#16a34a" stroke-width="2"/><rect x="10" y="6" width="18" height="8" rx="3" fill="#16a34a"/><rect x="72" y="6" width="18" height="8" rx="3" fill="#16a34a"/><line x1="24" y1="14" x2="76" y2="14" stroke="#16a34a" stroke-width="4" stroke-linecap="round"/></svg>', exercises: [
-                'Curl biceps machine','Bicep Curl machine','Curl Preacher machine','Preacher Curl machine',
+                'Curl biceps machine','Bicep Curl machine','Preacher Curl machine','Preacher Curl machine',
                 'Extension triceps machine','Tricep Machine dips'
             ]},
             { id: 'absmachine', name: 'Machines abdos', icon: '🔥', svg: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="none"><rect x="10" y="8" width="14" height="84" rx="5" fill="#FFF3E0" stroke="#16a34a" stroke-width="2"/><circle cx="17" cy="16" r="9" fill="white" stroke="#16a34a" stroke-width="3"/><rect x="56" y="20" width="32" height="8" rx="3" fill="#16a34a" opacity="0.9"/><rect x="56" y="32" width="32" height="8" rx="3" fill="#16a34a" opacity="0.7"/><rect x="56" y="44" width="32" height="8" rx="3" fill="#16a34a" opacity="0.5"/><rect x="56" y="56" width="32" height="8" rx="3" fill="#16a34a" opacity="0.3"/><rect x="54" y="16" width="36" height="52" rx="4" stroke="#16a34a" stroke-width="2"/><path d="M 24 16 Q 50 16 56 36" stroke="#16a34a" stroke-width="3" stroke-dasharray="5 3"/><rect x="34" y="64" width="20" height="24" rx="4" fill="#4ade80" opacity="0.6" stroke="#16a34a" stroke-width="2"/></svg>', exercises: [
@@ -9378,6 +9378,54 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             // Récupérer l'exercice courant depuis la source de vérité globale
             const currentEx = currentWorkout?.exercises?.[currentExerciseIndex];
 
+            // 🌀 RIFT DAMAGE — si on est dans une Faille, inflige des dégâts
+            if (currentWorkout._isRift && typeof awakDealDamageToWave === 'function' && !isWarmup) {
+                try {
+                    const result = awakDealDamageToWave(reps, weight);
+                    if (result) {
+                        const dmgText = result.isCrit ? `💥 CRIT! -${result.damage} HP` : `⚔ -${result.damage} HP`;
+                        showToast(dmgText, result.isCrit ? 'success' : 'info', 1500);
+                        if (typeof hapticTap === 'function') hapticTap(result.isCrit ? [40, 30, 60] : 20);
+                        if (result.killed) {
+                            // Vague vaincue
+                            setTimeout(() => {
+                                showToast('💀 Vague éliminée !', 'success', 2000);
+                                // Quitter la séance et reprendre le combat
+                                setTimeout(() => {
+                                    if (typeof _doQuitWorkout === 'function') _doQuitWorkout();
+                                    setTimeout(() => {
+                                        if (typeof awakAdvanceToNextWave === 'function') awakAdvanceToNextWave();
+                                    }, 600);
+                                }, 1200);
+                            }, 800);
+                        }
+                    }
+                } catch(e) { console.warn('Rift damage error:', e); }
+            }
+
+            // 🏹 HUNT DAMAGE — si on est dans une chasse, inflige des dégâts au monstre
+            if (currentWorkout._isHunt && typeof awakDealDamageToMonster === 'function' && !isWarmup) {
+                try {
+                    const result = awakDealDamageToMonster(reps, weight);
+                    if (result) {
+                        const dmgText = result.isCrit ? `💥 CRIT! -${result.damage} HP` : `🎯 -${result.damage} HP`;
+                        showToast(dmgText, result.isCrit ? 'success' : 'info', 1500);
+                        if (typeof hapticTap === 'function') hapticTap(result.isCrit ? [40, 30, 60] : 20);
+                        if (result.killed) {
+                            setTimeout(() => {
+                                showToast('💀 Monstre éliminé !', 'success', 2000);
+                                setTimeout(() => {
+                                    if (typeof _doQuitWorkout === 'function') _doQuitWorkout();
+                                    setTimeout(() => {
+                                        if (typeof awakCompleteHunt === 'function') awakCompleteHunt();
+                                    }, 600);
+                                }, 1200);
+                            }, 800);
+                        }
+                    }
+                } catch(e) { console.warn('Hunt damage error:', e); }
+            }
+
             completedSets.push({ reps, weight, warmup: isWarmup, set: currentSetNumber });
 
             // Historique séries + RPE inline (DOIT être avant la détection PR pour que _pr puisse être attaché)
@@ -12950,7 +12998,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         { name: "Fentes marchées", sets: 3, reps: 12 },
                         { name: "Leg curls", sets: 3, reps: 12 },
                         { name: "Extensions jambes", sets: 3, reps: 15 },
-                        { name: "Mollets debout", sets: 4, reps: 15 }
+                        { name: "Calf Raises debout", sets: 4, reps: 15 }
                     ]
                 },
                 {
@@ -19799,7 +19847,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 legs: {
                     name: '🦵 Leg Day — Quadriceps · Ischio · Fessiers',
                     exercises: [
-                        'Squat barre haut', 'Presse à jambes', 'Leg Extension',
+                        'Squat barre haut', 'Leg Press', 'Leg Extension',
                         'Leg Curl couché', 'Hip Thrust Smith machine', 'Glute Kickback machine',
                         'Calf raise machine assise'
                     ]
@@ -19816,8 +19864,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 lower_a: {
                     name: '⬇️ Lower A — Quad Focus',
                     exercises: [
-                        'Squat barre haut', 'Presse à jambes', 'Leg Extension',
-                        'Romanian Deadlift barre', 'Calf Raise Smith machine'
+                        'Squat barre haut', 'Leg Press', 'Leg Extension',
+                        'Romanian Deadlift barre', 'Mollets debout machine'
                     ]
                 }
             },
@@ -19827,7 +19875,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     exercises: [
                         'Squat barre haut', 'Développé couché barre', 'Lat Pulldown prise large',
                         'Shoulder Press machine', 'Leg Curl couché', 'Tricep Pushdown câble',
-                        'Bicep Curl machine', 'Presse à jambes'
+                        'Bicep Curl machine', 'Leg Press'
                     ]
                 }
             }
@@ -20530,21 +20578,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             cardStatPoints.innerHTML = renderStatPointsCard(profileLevel);
             tab.appendChild(cardStatPoints.firstElementChild);
 
-            // ── 2. RANG ──────────────────────────────────────────────
-            const cardRank = document.createElement('div');
-            cardRank.className = 'card';
-            cardRank.style.cssText = `background:linear-gradient(135deg,#0D0D0D,#111318);border:1.5px solid ${rank.color}44;`;
-            const rankPct = nextRank ? Math.round((profileLevel - rank.levelMin) / (nextRank.levelMin - rank.levelMin) * 100) : 100;
-            cardRank.innerHTML = `
-                <div style="display:flex;align-items:center;justify-content:space-between;">
-                    <div>
-                        <div style="font-size:0.65em;color:rgba(255,255,255,0.4);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Rang actuel</div>
-                        <div style="font-size:2.6em;font-weight:900;color:${rank.color};line-height:1;">${rank.emoji} ${rank.id}</div>
-                        ${nextRank ? `<div style="font-size:0.7em;color:rgba(255,255,255,0.4);margin-top:4px;">Niv. ${nextRank.levelMin - profileLevel} restant(s) → rang ${nextRank.id}</div>` : '<div style="font-size:0.7em;color:#fbbf24;margin-top:4px;">⭐ Rang maximum !</div>'}
-                    </div>
-                    <div style="font-size:4em;opacity:0.1;">${rank.emoji}</div>
-                </div>
-                ${nextRank ? `<div style="background:rgba(255,255,255,0.08);border-radius:99px;height:5px;margin-top:10px;overflow:hidden;"><div style="height:100%;background:${rank.color};border-radius:99px;width:${rankPct}%;transition:width 1s ease;"></div></div>` : ''}`;
+            // ── 2. RANG (supprimé — affiché uniquement dans la Awakened Power Card) ──
+            const cardRank = null; // gardé pour ne pas casser les références ailleurs
 
             // ── 3. QUÊTES QUOTIDIENNES ───────────────────────────────
 
@@ -21563,11 +21598,56 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const lastLevel = sp.lastLevel || 1;
             if (currentProfileLevel > lastLevel) {
                 const levelsGained = currentProfileLevel - lastLevel;
-                sp.available += levelsGained * STAT_POINTS_PER_LEVEL;
+                const pointsGained = levelsGained * STAT_POINTS_PER_LEVEL;
+                sp.available += pointsGained;
                 sp.lastLevel = currentProfileLevel;
                 statPointsSave(sp);
+                // 🎯 Notification spécifique au level up PERSONNAGE (séparée du muscle)
+                if (typeof rpgShowCharacterLevelUp === 'function') {
+                    // Asynchrone pour ne pas chevaucher le popup muscle level up
+                    setTimeout(() => rpgShowCharacterLevelUp(currentProfileLevel, pointsGained), 1800);
+                }
+                return pointsGained;
             }
+            return 0;
         }
+
+        /**
+         * Affiche une notification spécifique pour un level up PERSONNAGE
+         * (différente de rpgShowLevelUp qui est pour les muscles)
+         */
+        function rpgShowCharacterLevelUp(newLevel, pointsGained) {
+            try { playBeep(); } catch(e) {}
+            try { vibrate([80, 50, 120, 50, 80, 50, 200]); } catch(e) {}
+
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;inset:0;z-index:30001;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);animation:fadeIn 0.25s;';
+            overlay.innerHTML = `
+                <div style="background:linear-gradient(160deg,#0F1014,#0a0e18 60%,#1a1330);border:1.5px solid rgba(245,158,11,0.4);border-radius:24px;padding:32px 28px;max-width:340px;width:90%;text-align:center;box-shadow:0 24px 60px rgba(245,158,11,0.2),0 0 80px rgba(245,158,11,0.1);animation:slideUp 0.4s cubic-bezier(0.34,1.56,0.64,1);position:relative;overflow:hidden;">
+                    <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,#f59e0b,transparent);"></div>
+                    <div style="font-size:0.65em;color:rgba(245,158,11,0.7);font-weight:900;letter-spacing:3px;margin-bottom:10px;">◇ NIVEAU PERSONNAGE ◇</div>
+                    <div style="font-size:3.5em;margin-bottom:8px;animation:pulse-warning 1s infinite;">⭐</div>
+                    <div style="font-size:0.85em;font-weight:800;letter-spacing:1.5px;color:#fbbf24;text-transform:uppercase;margin-bottom:4px;">Tu montes en puissance</div>
+                    <div style="font-size:3.2em;font-weight:900;color:#fbbf24;letter-spacing:-2px;line-height:1;text-shadow:0 0 20px rgba(245,158,11,0.5);">Niv. ${newLevel}</div>
+                    <div style="margin-top:20px;background:linear-gradient(135deg,rgba(245,158,11,0.18),rgba(245,158,11,0.08));border:1px solid rgba(245,158,11,0.4);border-radius:14px;padding:14px 16px;">
+                        <div style="font-size:1.8em;font-weight:900;color:#fbbf24;line-height:1;">+${pointsGained}</div>
+                        <div style="font-size:0.72em;color:#94a3b8;font-weight:700;letter-spacing:1px;margin-top:3px;">POINT${pointsGained>1?'S':''} D'ATTRIBUT</div>
+                    </div>
+                    <div style="margin-top:14px;font-size:0.78em;color:rgba(255,255,255,0.5);font-style:italic;">À distribuer dans tes stats</div>
+                    <button onclick="this.closest('[style*=\\'fixed\\']').remove()" style="margin-top:18px;width:100%;padding:13px;background:linear-gradient(135deg,#f59e0b,#d97706);border:none;border-radius:12px;color:white;font-weight:900;cursor:pointer;font-size:0.95em;letter-spacing:1px;box-shadow:0 4px 16px rgba(245,158,11,0.4);">DISTRIBUER ➜</button>
+                </div>`;
+            document.body.appendChild(overlay);
+            // Clic sur le bouton → ferme l'overlay et ouvre le modal d'allocation
+            overlay.querySelector('button').addEventListener('click', () => {
+                overlay.remove();
+                if (typeof awakOpenStatPointsModal === 'function') {
+                    setTimeout(() => awakOpenStatPointsModal(), 200);
+                }
+            });
+            // Clic backdrop = fermer
+            overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+        }
+        window.rpgShowCharacterLevelUp = rpgShowCharacterLevelUp;
 
         function statPointsAllocate(stat, amount) {
             if (!STAT_POINT_STATS.includes(stat)) return false;
@@ -21729,12 +21809,17 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             // Stats d'équipement + sets + classe (déjà géré par getPlayerEquipStats)
             const equip = typeof getPlayerEquipStats === 'function' ? getPlayerEquipStats() : {};
 
+            // 🎭 Phase 4 : bonus des compagnons actifs
+            const compBonus = typeof awakCompanionsGetActiveBonuses === 'function'
+                ? awakCompanionsGetActiveBonuses() : {};
+
             const total = {};
             for (const stat of ['STR','AGI','VIT','END','PER','SEN']) {
                 total[stat] = (base[stat] || 0)
                             + (auto[stat] || 0)
                             + (manual[stat] || 0)
-                            + (equip[stat] || 0);
+                            + (equip[stat] || 0)
+                            + (compBonus[stat] || 0);
             }
             return total;
         }
@@ -21777,8 +21862,13 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 }
             } catch(e) {}
 
-            // 5. Compagnons actifs (Phase 4 — pour l'instant 0)
-            // TODO Phase 4 : score += awakGetActiveCompanionsBonus();
+            // 5. Compagnons actifs : bonus selon nombre
+            try {
+                if (typeof awakCompanionsGetActive === 'function') {
+                    const activeComps = awakCompanionsGetActive();
+                    score += activeComps.length * 150; // 150 points par compagnon actif
+                }
+            } catch(e) {}
 
             return Math.round(score);
         }
@@ -21930,6 +22020,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     @keyframes awakFadeIn { from{opacity:0} to{opacity:1} }
                     @keyframes awakFadeOut { from{opacity:1} to{opacity:0} }
                     @keyframes awakBlink { 50% { opacity: 0.3; } }
+                    @keyframes awakPointsPulse {
+                        0%,100% { transform: scale(1); box-shadow: 0 2px 8px rgba(245,158,11,0.4); }
+                        50% { transform: scale(1.06); box-shadow: 0 3px 14px rgba(245,158,11,0.7); }
+                    }
                 `;
                 document.head.appendChild(styles);
             }
@@ -21979,6 +22073,14 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     if (messages) {
                         setTimeout(() => awakShowSystemMessage(messages), 1500);
                     }
+                    // ✨ Phase 5 : check faille narrative au rank up
+                    try { setTimeout(() => {
+                        if (typeof awakCheckNarrativeRifts === 'function') awakCheckNarrativeRifts();
+                    }, 6000); } catch(e) {}
+                    // 🌑 Phase 5 : peut-être un glitch
+                    try { setTimeout(() => {
+                        if (typeof awakArchitectMaybeGlitch === 'function') awakArchitectMaybeGlitch();
+                    }, 9000); } catch(e) {}
                 }
                 localStorage.setItem('awakLastRankSeen', currentRank.id);
             }
@@ -22060,6 +22162,2952 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         window.awakRunMigrationIfNeeded = awakRunMigrationIfNeeded;
 
         // ═══════════════════════════════════════════════════════════════
+        // 🌀 SYSTÈME DE FAILLES (Rifts) — Cœur du gameplay RPG
+        // ═══════════════════════════════════════════════════════════════
+        //
+        // Une Faille = mission RPG narrative
+        // - Apparition aléatoire (2-5/semaine, rang ±1 du joueur)
+        // - Vagues de monstres à vaincre avec exercices ciblés
+        // - Boss final avec mécanique unique
+        // - Récompenses : XP, loot, fragments
+        // - Si non fermée à temps → monstre s'échappe
+        //
+
+        const RIFT_STORAGE_KEY = 'awakRifts';
+        const RIFT_LAST_GENERATED_KEY = 'awakRiftLastGen';
+        const RIFT_MAX_ACTIVE = 3;
+        const RIFT_COOLDOWN_HOURS = 14; // entre 2 générations possibles
+        const RIFT_LIFETIME_DAYS = { E: 5, D: 5, C: 6, B: 6, A: 7, S: 8 };
+
+        // ── THÈMES DE FAILLES ─────────────────────────────────────────
+        // Chaque thème détermine l'ambiance et le type d'exercices proposés
+        const RIFT_THEMES = [
+            {
+                id: 'frozen_city',
+                name: 'Ville Figée',
+                emoji: '🏙️',
+                color: '#06b6d4',
+                description: 'Une ville où le temps s\'est arrêté. Les habitants sont devenus des statues qui s\'animent au passage.',
+                briefing: 'Mouvement lent. Force pure. Le temps t\'aidera ici.',
+                primaryStat: 'STR',
+                exerciseFilter: ex => /squat|deadlift|press|bench|développé|soulevé|barre|haltère/.test((ex.name || '').toLowerCase())
+            },
+            {
+                id: 'organic_desert',
+                name: 'Désert Organique',
+                emoji: '🌵',
+                color: '#f59e0b',
+                description: 'Une étendue infinie de chair pulsante et de sable brûlant. Tout y est vivant.',
+                briefing: 'Tu vas avoir chaud. Tiens bon. Adapte-toi.',
+                primaryStat: 'END',
+                exerciseFilter: ex => /cardio|course|run|hiit|burpee|jumping/.test((ex.name || '').toLowerCase())
+                                       || ex.type === 'cardio'
+            },
+            {
+                id: 'underground_ocean',
+                name: 'Océan Souterrain',
+                emoji: '🌊',
+                color: '#3b82f6',
+                description: 'Un océan sans fin sous la terre. Les créatures qui y nagent n\'ont jamais vu la lumière.',
+                briefing: 'Respire. Bouge fluide. Endurance.',
+                primaryStat: 'END',
+                exerciseFilter: ex => /natation|swim|cardio|rope|corde/.test((ex.name || '').toLowerCase())
+                                       || ex.type === 'cardio'
+            },
+            {
+                id: 'inverted_reality',
+                name: 'Réalité Inversée',
+                emoji: '🪞',
+                color: '#a855f7',
+                description: 'Tout est à l\'envers. La gravité, la logique, les couleurs. Même toi, peut-être.',
+                briefing: 'Tes réflexes vont mentir. Concentre-toi.',
+                primaryStat: 'PER',
+                exerciseFilter: ex => /équilibre|unilatéral|single|pistol|turkish|pallof|planche/.test((ex.name || '').toLowerCase())
+            },
+            {
+                id: 'living_hospital',
+                name: 'Hôpital Vivant',
+                emoji: '🏥',
+                color: '#22c55e',
+                description: 'Les murs respirent. Les couloirs guérissent. Les patients ne sont jamais sortis.',
+                briefing: 'Souplesse. Récupération. Le lieu t\'observe.',
+                primaryStat: 'SEN',
+                exerciseFilter: ex => /étirement|stretch|yoga|mobilité|mobility/.test((ex.name || '').toLowerCase())
+                                       || ex.type === 'stretch' || ex.type === 'mobility'
+            },
+            {
+                id: 'dimensional_train',
+                name: 'Train Dimensionnel',
+                emoji: '🚂',
+                color: '#ef4444',
+                description: 'Un train qui traverse les réalités. Tu ne sais pas combien de wagons il a. Personne ne sait.',
+                briefing: 'Vagues rapides. Pas de répit. Cadence.',
+                primaryStat: 'VIT',
+                exerciseFilter: ex => /hiit|tabata|circuit|burpee|jumping|mountain|sprint/.test((ex.name || '').toLowerCase())
+            }
+        ];
+
+        // ── MONSTRES PAR THÈME ─────────────────────────────────────────
+        const RIFT_MONSTERS = {
+            frozen_city: [
+                { name: 'Statue Animée', emoji: '🗿', baseHp: 100 },
+                { name: 'Habitant Cristallisé', emoji: '👤', baseHp: 130 },
+                { name: 'Gardien de Glace', emoji: '🛡️', baseHp: 180 },
+                { name: 'Sentinelle Figée', emoji: '⚔️', baseHp: 220 }
+            ],
+            organic_desert: [
+                { name: 'Ver des Sables', emoji: '🐍', baseHp: 90 },
+                { name: 'Scarabée Vivant', emoji: '🪲', baseHp: 110 },
+                { name: 'Mante Chitineuse', emoji: '🦗', baseHp: 170 },
+                { name: 'Léviathan Organique', emoji: '🐲', baseHp: 240 }
+            ],
+            underground_ocean: [
+                { name: 'Anguille Aveugle', emoji: '🐍', baseHp: 100 },
+                { name: 'Méduse Profonde', emoji: '🪼', baseHp: 130 },
+                { name: 'Kraken Mineur', emoji: '🐙', baseHp: 200 },
+                { name: 'Léviathan des Abysses', emoji: '🐋', baseHp: 260 }
+            ],
+            inverted_reality: [
+                { name: 'Reflet Brisé', emoji: '🪞', baseHp: 110 },
+                { name: 'Écho de Toi-même', emoji: '👁️', baseHp: 150 },
+                { name: 'Ombre Inversée', emoji: '🌫️', baseHp: 200 },
+                { name: 'Anti-Soi', emoji: '🌀', baseHp: 280 }
+            ],
+            living_hospital: [
+                { name: 'Patient Oublié', emoji: '👤', baseHp: 90 },
+                { name: 'Infirmière Suturée', emoji: '🩹', baseHp: 130 },
+                { name: 'Chirurgien Perdu', emoji: '⚕️', baseHp: 180 },
+                { name: 'Cœur Battant des Murs', emoji: '💗', baseHp: 250 }
+            ],
+            dimensional_train: [
+                { name: 'Voyageur Sans Visage', emoji: '🎭', baseHp: 100 },
+                { name: 'Contrôleur du Néant', emoji: '🎫', baseHp: 140 },
+                { name: 'Conducteur Spectral', emoji: '👻', baseHp: 190 },
+                { name: 'Locomotive Vivante', emoji: '🚂', baseHp: 270 }
+            ]
+        };
+
+        // ── PRÉFIXES UNIQUES POUR LES NOMS DE FAILLES ──────────────────
+        // Le nom est révélé seulement à l'entrée (le scénario le précise)
+        const RIFT_NAME_PREFIXES = [
+            'la Faille de', 'la Brèche de', 'la Déchirure de', 'l\'Ouverture de',
+            'l\'Antre de', 'la Cicatrice de', 'le Couloir de', 'le Seuil de'
+        ];
+
+        function awakRiftsLoad() {
+            try {
+                const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
+                const key = profileId ? `${RIFT_STORAGE_KEY}_${profileId}` : RIFT_STORAGE_KEY;
+                return JSON.parse(localStorage.getItem(key) || '[]');
+            } catch(e) { return []; }
+        }
+
+        function awakRiftsSave(rifts) {
+            try {
+                const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
+                const key = profileId ? `${RIFT_STORAGE_KEY}_${profileId}` : RIFT_STORAGE_KEY;
+                localStorage.setItem(key, JSON.stringify(rifts));
+            } catch(e) {}
+        }
+
+        /**
+         * Génère une nouvelle Faille aléatoire
+         * Rang basé sur le rang du joueur (±1)
+         */
+        function awakGenerateRift(forceRank) {
+            const playerRank = awakGetRank();
+            const rankIds = ['E', 'D', 'C', 'B', 'A', 'S'];
+            const playerRankIdx = rankIds.indexOf(playerRank.id);
+
+            // Faille ±1 du rang du joueur, jamais au-dessus du max
+            let riftRank;
+            if (forceRank) {
+                riftRank = forceRank;
+            } else {
+                // 60% même rang, 25% +1, 15% -1
+                const r = Math.random();
+                let offset = 0;
+                if (r < 0.6) offset = 0;
+                else if (r < 0.85) offset = 1;
+                else offset = -1;
+
+                let targetIdx = Math.max(0, Math.min(rankIds.length - 1, playerRankIdx + offset));
+                // Joueur E ne reçoit pas S
+                riftRank = rankIds[targetIdx];
+            }
+
+            // Choisir un thème aléatoire
+            const theme = RIFT_THEMES[Math.floor(Math.random() * RIFT_THEMES.length)];
+
+            // Préfixe + nom thématique
+            const prefix = RIFT_NAME_PREFIXES[Math.floor(Math.random() * RIFT_NAME_PREFIXES.length)];
+            const fullName = `${prefix} ${theme.name}`;
+
+            // Nombre de vagues + difficulté basés sur le rang
+            const rankConfigs = {
+                E: { waves: 5, hpMult: 1.0, recommendedPower: 0,    minStat: 0 },
+                D: { waves: 6, hpMult: 1.4, recommendedPower: 500,  minStat: 15 },
+                C: { waves: 7, hpMult: 1.9, recommendedPower: 1200, minStat: 30 },
+                B: { waves: 8, hpMult: 2.5, recommendedPower: 2200, minStat: 50 },
+                A: { waves: 9, hpMult: 3.2, recommendedPower: 3800, minStat: 70 },
+                S: { waves: 10, hpMult: 4.5, recommendedPower: 6500, minStat: 100 }
+            };
+            const config = rankConfigs[riftRank];
+
+            // Générer les vagues
+            const monstersForTheme = RIFT_MONSTERS[theme.id];
+
+            // 🎭 Phase 4 : bonus compagnons (boss HP cut)
+            const compBonus = typeof awakCompanionsGetActiveBonuses === 'function'
+                ? awakCompanionsGetActiveBonuses() : {};
+            const bossHpCut = compBonus.bossHpCut || 0;
+
+            const waves = [];
+            for (let i = 0; i < config.waves; i++) {
+                const isBossWave = (i === config.waves - 1);
+                const monster = isBossWave
+                    ? monstersForTheme[monstersForTheme.length - 1] // Boss = dernier monstre
+                    : monstersForTheme[Math.min(i, monstersForTheme.length - 2)];
+
+                let hp = Math.round(monster.baseHp * config.hpMult * (isBossWave ? 2.5 : 1));
+                // Dr Halberd : -20% HP boss
+                if (isBossWave && bossHpCut > 0) {
+                    hp = Math.round(hp * (1 - bossHpCut));
+                }
+
+                waves.push({
+                    index: i,
+                    isBoss: isBossWave,
+                    name: isBossWave ? `${monster.name} (Boss)` : monster.name,
+                    emoji: monster.emoji,
+                    hpMax: hp,
+                    hpCurrent: hp,
+                    // Boss : mécanique unique aléatoire
+                    bossMech: isBossWave ? awakPickBossMechanic() : null
+                });
+            }
+
+            const lifetimeDays = RIFT_LIFETIME_DAYS[riftRank];
+
+            return {
+                id: 'rift_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+                createdAt: Date.now(),
+                expiresAt: Date.now() + lifetimeDays * 24 * 60 * 60 * 1000,
+                rank: riftRank,
+                themeId: theme.id,
+                name: fullName,
+                discovered: false, // pas encore entrée pour la 1ère fois
+                state: 'stable', // stable → unstable → breach → exploded
+                waves,
+                currentWaveIdx: 0,
+                recommendedPower: config.recommendedPower,
+                minStatRequired: config.minStat,
+                primaryStat: theme.primaryStat,
+                attempts: 0,
+                completed: false
+            };
+        }
+
+        /**
+         * Mécaniques de Boss
+         */
+        function awakPickBossMechanic() {
+            const mechanics = [
+                { id: 'phases',   name: 'Phases', desc: 'Le boss change de pattern à 50% HP' },
+                { id: 'weakness', name: 'Faiblesse', desc: 'Le boss subit ×2 dégâts d\'une stat précise' },
+                { id: 'enrage',   name: 'Enrage', desc: 'Le boss s\'enrage après X minutes' },
+                { id: 'adds',     name: 'Invocations', desc: 'Le boss invoque des renforts' }
+            ];
+            return mechanics[Math.floor(Math.random() * mechanics.length)];
+        }
+
+        /**
+         * Met à jour les états des Failles existantes (vieillissement)
+         */
+        function awakUpdateRiftsState() {
+            const rifts = awakRiftsLoad();
+            const now = Date.now();
+            let changed = false;
+
+            for (const r of rifts) {
+                if (r.completed) continue;
+                const lifetime = r.expiresAt - r.createdAt;
+                const elapsed = now - r.createdAt;
+                const ratio = elapsed / lifetime;
+
+                let newState = r.state;
+                if (ratio >= 1.2) newState = 'exploded';       // 6+ jours après expiration
+                else if (ratio >= 1.0) newState = 'breach';     // expiré → un monstre s'échappe
+                else if (ratio >= 0.65) newState = 'unstable';  // ~4-5 jours = renforcée
+                else newState = 'stable';
+
+                if (newState !== r.state) {
+                    r.state = newState;
+                    // Si la faille passe en breach, monstre s'échappe (TODO Phase 3)
+                    // Si la faille passe en exploded, plusieurs monstres
+                    changed = true;
+                }
+            }
+
+            // Nettoyer les failles complétées/explosées de plus de 7 jours
+            const cleaned = rifts.filter(r => {
+                if (r.completed && now - r.createdAt > 7 * 24 * 60 * 60 * 1000) return false;
+                if (r.state === 'exploded' && now - r.expiresAt > 7 * 24 * 60 * 60 * 1000) return false;
+                return true;
+            });
+
+            if (changed || cleaned.length !== rifts.length) {
+                awakRiftsSave(cleaned);
+            }
+
+            // 👹 Phase 3 : vérifier si des monstres doivent s'échapper
+            try {
+                if (typeof awakCheckRiftsForMonsterSpawn === 'function') {
+                    awakCheckRiftsForMonsterSpawn();
+                }
+            } catch(e) {}
+
+            return cleaned;
+        }
+        window.awakUpdateRiftsState = awakUpdateRiftsState;
+
+        /**
+         * Tente de générer une nouvelle Faille (respect cooldown + max actives)
+         * Retourne la Faille générée ou null
+         */
+        function awakTryGenerateRift() {
+            const rifts = awakUpdateRiftsState();
+            const activeRifts = rifts.filter(r => !r.completed && r.state !== 'exploded');
+
+            // Max 3 failles actives simultanées
+            if (activeRifts.length >= RIFT_MAX_ACTIVE) return null;
+
+            // Cooldown : pas plus d'une faille par X heures
+            const lastGen = parseInt(localStorage.getItem(RIFT_LAST_GENERATED_KEY) || '0');
+            const now = Date.now();
+            if (now - lastGen < RIFT_COOLDOWN_HOURS * 60 * 60 * 1000) return null;
+
+            // Probabilité d'apparition : 70% si conditions remplies
+            if (Math.random() > 0.7) return null;
+
+            const newRift = awakGenerateRift();
+            rifts.push(newRift);
+            awakRiftsSave(rifts);
+            localStorage.setItem(RIFT_LAST_GENERATED_KEY, String(now));
+
+            return newRift;
+        }
+        window.awakTryGenerateRift = awakTryGenerateRift;
+
+        /**
+         * Récupère les failles actives (non complétées, non explosées)
+         */
+        function awakGetActiveRifts() {
+            return awakUpdateRiftsState().filter(r => !r.completed && r.state !== 'exploded');
+        }
+        window.awakGetActiveRifts = awakGetActiveRifts;
+
+        function awakGetRiftById(id) {
+            return awakRiftsLoad().find(r => r.id === id);
+        }
+        window.awakGetRiftById = awakGetRiftById;
+
+        /**
+         * Calcule le temps restant pour une Faille (en heures arrondies)
+         */
+        function awakRiftTimeRemaining(rift) {
+            let expiresAt = rift.expiresAt;
+            // 🎭 Phase 4 : Maître Chen — riftDurationCut (perçu seulement)
+            // On ne touche pas à la valeur stockée, juste l'affichage
+            try {
+                if (typeof awakCompanionsGetActiveBonuses === 'function') {
+                    const compBonus = awakCompanionsGetActiveBonuses();
+                    if (compBonus.riftDurationCut) {
+                        const lifetime = rift.expiresAt - rift.createdAt;
+                        expiresAt = rift.createdAt + lifetime * (1 - compBonus.riftDurationCut);
+                    }
+                }
+            } catch(e) {}
+
+            const ms = expiresAt - Date.now();
+            if (ms <= 0) return { expired: true, label: 'Expirée' };
+            const hours = Math.floor(ms / (60 * 60 * 1000));
+            const days = Math.floor(hours / 24);
+            if (days >= 1) return { expired: false, label: `${days}j ${hours % 24}h` };
+            return { expired: false, label: `${hours}h` };
+        }
+        window.awakRiftTimeRemaining = awakRiftTimeRemaining;
+
+        /**
+         * Étoiles de difficulté (recommandation visuelle)
+         * Compare power du joueur vs recommandé
+         */
+        function awakRiftDifficulty(rift) {
+            const power = awakGetPowerScore();
+            const ratio = power / Math.max(1, rift.recommendedPower);
+            if (ratio >= 1.5) return { stars: 1, color: '#22c55e', label: 'Trivial', emoji: '☆' };
+            if (ratio >= 1.1) return { stars: 2, color: '#4ade80', label: 'Facile', emoji: '★☆' };
+            if (ratio >= 0.85) return { stars: 3, color: '#f59e0b', label: 'Équilibré', emoji: '★★★' };
+            if (ratio >= 0.6) return { stars: 4, color: '#fb923c', label: 'Difficile', emoji: '★★★★' };
+            return { stars: 5, color: '#ef4444', label: 'Périlleux', emoji: '★★★★★' };
+        }
+        window.awakRiftDifficulty = awakRiftDifficulty;
+
+        // ═══════════════════════════════════════════════════════════════
+        // 🎨 RENDER : Affichage des Failles actives
+        // ═══════════════════════════════════════════════════════════════
+        function renderActiveRiftsCard() {
+            const rifts = awakGetActiveRifts();
+            if (rifts.length === 0) return '';
+
+            const stateColors = {
+                stable: { bg: 'rgba(74,222,128,0.06)', border: 'rgba(74,222,128,0.25)', accent: '#4ade80' },
+                unstable: { bg: 'rgba(245,158,11,0.06)', border: 'rgba(245,158,11,0.3)', accent: '#fbbf24' },
+                breach: { bg: 'rgba(239,68,68,0.08)', border: 'rgba(239,68,68,0.35)', accent: '#f87171' }
+            };
+            const stateLabels = {
+                stable: 'STABLE',
+                unstable: 'INSTABLE',
+                breach: 'BRÈCHE'
+            };
+
+            return `
+            <div class="card" style="background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(168,85,247,0.25);padding:18px;margin-bottom:14px;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+                    <div style="font-size:0.6em;color:#c084fc;font-weight:900;letter-spacing:2px;">◈ FAILLES ACTIVES</div>
+                    <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(168,85,247,0.3),transparent);"></div>
+                    <div style="font-size:0.7em;color:#94a3b8;font-weight:700;">${rifts.length}/${RIFT_MAX_ACTIVE}</div>
+                </div>
+
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                ${rifts.map(rift => {
+                    let theme = RIFT_THEMES.find(t => t.id === rift.themeId);
+                    if (!theme && rift.isNarrative && rift.narrativeData) {
+                        theme = { color: rift.narrativeData.color, emoji: rift.narrativeData.themeEmoji };
+                    }
+                    if (!theme) return '';
+                    const time = awakRiftTimeRemaining(rift);
+                    const diff = awakRiftDifficulty(rift);
+                    const stateColor = stateColors[rift.state] || stateColors.stable;
+                    const stateLabel = stateLabels[rift.state] || rift.state.toUpperCase();
+                    const displayName = rift.discovered ? rift.name : '???';
+                    const isNarrativeBadge = rift.isNarrative ? '<span style="background:#fbbf24;color:black;padding:0 4px;border-radius:3px;font-size:0.55em;font-weight:900;letter-spacing:1px;margin-right:4px;">◇ UNIQUE</span>' : '';
+
+                    return `
+                    <div onclick="awakOpenRiftBriefing('${rift.id}')" style="cursor:pointer;background:${stateColor.bg};border:1px solid ${stateColor.border};border-radius:12px;padding:14px 12px;transition:transform 0.15s ease;">
+                        <div style="display:flex;align-items:center;gap:11px;">
+                            <div style="font-size:1.9em;line-height:1;flex-shrink:0;filter:drop-shadow(0 0 6px ${theme.color}80);">${theme.emoji}</div>
+                            <div style="flex:1;min-width:0;">
+                                <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:3px;">
+                                    ${isNarrativeBadge}
+                                    <span style="background:${theme.color}25;color:${theme.color};border:1px solid ${theme.color}50;padding:1px 6px;border-radius:5px;font-size:0.62em;font-weight:900;letter-spacing:1px;">${rift.rank}</span>
+                                    <span style="font-weight:800;color:white;font-size:0.92em;">${displayName}</span>
+                                </div>
+                                <div style="display:flex;gap:8px;align-items:center;font-size:0.7em;color:#94a3b8;font-weight:600;">
+                                    <span style="color:${stateColor.accent};font-weight:800;">◈ ${stateLabel}</span>
+                                    <span>·</span>
+                                    <span>⏱ ${time.label}</span>
+                                    <span>·</span>
+                                    <span style="color:${diff.color};">${diff.emoji}</span>
+                                </div>
+                            </div>
+                            <div style="color:#64748b;font-size:1.2em;flex-shrink:0;">›</div>
+                        </div>
+                    </div>`;
+                }).join('')}
+                </div>
+            </div>`;
+        }
+        window.renderActiveRiftsCard = renderActiveRiftsCard;
+
+        // ═══════════════════════════════════════════════════════════════
+        // 🎬 ÉCRAN D'ENTRÉE / BRIEFING D'UNE FAILLE
+        // ═══════════════════════════════════════════════════════════════
+        function awakOpenRiftBriefing(riftId) {
+            const rift = awakGetRiftById(riftId);
+            if (!rift) return;
+            // 🌌 Pour les Failles narratives, utiliser leurs données propres comme theme
+            let theme = RIFT_THEMES.find(t => t.id === rift.themeId);
+            if (!theme && rift.isNarrative && rift.narrativeData) {
+                theme = {
+                    id: rift.themeId,
+                    name: rift.narrativeData.name,
+                    emoji: rift.narrativeData.themeEmoji,
+                    color: rift.narrativeData.color,
+                    description: rift.narrativeData.description,
+                    briefing: rift.narrativeData.briefing,
+                    primaryStat: rift.primaryStat,
+                    exerciseFilter: rift.narrativeData.exerciseFilter
+                };
+            }
+            if (!theme) return;
+            const time = awakRiftTimeRemaining(rift);
+            const diff = awakRiftDifficulty(rift);
+            const playerPower = awakGetPowerScore();
+            const playerStats = awakGetTotalStats();
+
+            // Marquer comme découverte
+            if (!rift.discovered) {
+                const rifts = awakRiftsLoad();
+                const r = rifts.find(x => x.id === riftId);
+                if (r) { r.discovered = true; awakRiftsSave(rifts); }
+            }
+
+            const modal = document.createElement('div');
+            modal.className = 'modal active';
+            modal.id = 'awakRiftBriefingModal';
+            modal.style.cssText = 'background:rgba(0,0,0,0.9);backdrop-filter:blur(12px);';
+
+            modal.innerHTML = `
+            <div class="modal-content" style="max-width:520px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:hidden;border-radius:20px;">
+                <!-- Header thématique -->
+                <div style="background:linear-gradient(135deg,${theme.color}25,${theme.color}05);padding:24px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;">
+                    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
+                    <div style="font-size:3.5em;line-height:1;margin-bottom:8px;filter:drop-shadow(0 0 14px ${theme.color}90);">${theme.emoji}</div>
+                    <div style="display:inline-block;background:${theme.color}25;color:${theme.color};border:1px solid ${theme.color}50;padding:3px 10px;border-radius:7px;font-size:0.7em;font-weight:900;letter-spacing:2px;margin-bottom:8px;">RANG ${rift.rank}</div>
+                    <h2 style="margin:0;color:white;font-size:1.3em;font-weight:900;letter-spacing:0.5px;">${rift.name}</h2>
+                    <div style="margin-top:8px;color:#94a3b8;font-size:0.82em;line-height:1.5;font-style:italic;">${theme.description}</div>
+                </div>
+
+                <!-- Briefing du Système -->
+                <div style="padding:18px 22px;background:rgba(0,0,0,0.3);border-bottom:1px solid rgba(255,255,255,0.06);">
+                    <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;margin-bottom:6px;">⚙ SYSTÈME</div>
+                    <div style="color:#cbd5e1;font-size:0.88em;line-height:1.5;font-style:italic;">${theme.briefing}</div>
+                </div>
+
+                <!-- Stats critiques -->
+                <div style="padding:18px 22px;">
+                    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px;">
+                        <!-- Temps -->
+                        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:11px;padding:11px;">
+                            <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:4px;">⏱ TEMPS</div>
+                            <div style="font-size:1.1em;font-weight:900;color:white;">${time.label}</div>
+                        </div>
+                        <!-- Difficulté -->
+                        <div style="background:rgba(255,255,255,0.03);border:1px solid ${diff.color}40;border-radius:11px;padding:11px;">
+                            <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:4px;">◈ DIFFICULTÉ</div>
+                            <div style="font-size:0.9em;font-weight:900;color:${diff.color};">${diff.emoji}</div>
+                            <div style="font-size:0.65em;color:${diff.color};font-weight:700;margin-top:2px;">${diff.label}</div>
+                        </div>
+                        <!-- Power Score -->
+                        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:11px;padding:11px;">
+                            <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:4px;">⚡ TON POWER</div>
+                            <div style="font-size:1.1em;font-weight:900;color:white;">${playerPower.toLocaleString('fr-FR')}</div>
+                            <div style="font-size:0.62em;color:#64748b;margin-top:2px;">recommandé : ${rift.recommendedPower.toLocaleString('fr-FR')}</div>
+                        </div>
+                        <!-- Stat dominante -->
+                        <div style="background:rgba(255,255,255,0.03);border:1px solid ${theme.color}40;border-radius:11px;padding:11px;">
+                            <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:4px;">⚔ ATTRIBUT</div>
+                            <div style="font-size:1.1em;font-weight:900;color:${theme.color};">${rift.primaryStat}</div>
+                            <div style="font-size:0.62em;color:#64748b;margin-top:2px;">${playerStats[rift.primaryStat] || 0} pts actuels</div>
+                        </div>
+                    </div>
+
+                    <!-- Vagues prévues -->
+                    <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);border-radius:11px;padding:11px;margin-bottom:14px;">
+                        <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:8px;">◈ VAGUES (${rift.waves.length})</div>
+                        <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                            ${rift.waves.map((w, i) => `
+                                <div style="width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:0.85em;background:${w.isBoss ? 'linear-gradient(135deg,'+theme.color+'40,'+theme.color+'20)' : 'rgba(255,255,255,0.05)'};border:1px solid ${w.isBoss ? theme.color : 'rgba(255,255,255,0.08)'};">
+                                    ${w.isBoss ? '👑' : w.emoji}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- 🧪 Consommables actifs (Phase 5) -->
+                    ${(() => {
+                        const activeConsum = JSON.parse(localStorage.getItem('awakActiveConsumables') || '[]');
+                        if (activeConsum.length === 0) return '';
+                        return `
+                        <div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.25);border-radius:11px;padding:11px;margin-bottom:14px;">
+                            <div style="font-size:0.6em;color:#4ade80;font-weight:800;letter-spacing:1.5px;margin-bottom:6px;">🧪 PRÉPARATION ACTIVE</div>
+                            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                                ${activeConsum.map(id => {
+                                    const item = CONSUMABLES.find(c => c.id === id);
+                                    if (!item) return '';
+                                    return `<div style="background:${item.color}15;border:1px solid ${item.color}40;padding:4px 8px;border-radius:6px;font-size:0.7em;color:${item.color};font-weight:700;">${item.emoji} ${item.name}</div>`;
+                                }).join('')}
+                            </div>
+                        </div>`;
+                    })()}
+
+                    <!-- Actions -->
+                    <div style="display:flex;gap:8px;">
+                        <button onclick="document.getElementById('awakRiftBriefingModal').remove()" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;border-radius:11px;padding:14px;font-weight:800;font-size:0.85em;cursor:pointer;">↩ Plus tard</button>
+                        <button onclick="awakStartRift('${rift.id}')" style="flex:2;background:linear-gradient(135deg,${theme.color},${theme.color}dd);border:none;color:white;border-radius:11px;padding:14px;font-weight:900;font-size:0.9em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${theme.color}40;">⚔ ENTRER</button>
+                    </div>
+                </div>
+            </div>`;
+
+            document.body.appendChild(modal);
+            dismissOnBackdrop(modal);
+        }
+        window.awakOpenRiftBriefing = awakOpenRiftBriefing;
+
+        // ═══════════════════════════════════════════════════════════════
+        // ⚔️ COMBAT EN VAGUES — état de session de Faille
+        // ═══════════════════════════════════════════════════════════════
+        let awakActiveRiftSession = null;
+
+        function awakStartRift(riftId) {
+            const rift = awakGetRiftById(riftId);
+            if (!rift) return;
+            const theme = RIFT_THEMES.find(t => t.id === rift.themeId) || {
+                id: rift.themeId, name: rift.name, emoji: '◇', color: '#a855f7',
+                description: '', briefing: '', primaryStat: rift.primaryStat,
+                exerciseFilter: ex => true
+            };
+
+            // 🧪 Phase 5 : appliquer effets consommables (HP cut sur vagues)
+            const consumEffects = typeof awakConsumablesGetActiveEffects === 'function'
+                ? awakConsumablesGetActiveEffects() : {};
+
+            // Réinitialiser les HP de toutes les vagues (au cas où retry)
+            rift.waves.forEach(w => {
+                let hpMax = w.hpMax;
+                if (consumEffects.hpCut) {
+                    hpMax = Math.round(hpMax * (1 - consumEffects.hpCut));
+                }
+                w.hpMax = hpMax;
+                w.hpCurrent = hpMax;
+                // Reset boss mechanics flags
+                w._phaseTriggered = false;
+                w._weaknessRevealed = false;
+                w._enraged = false;
+                w._addSpawned = false;
+                w._hitCount = 0;
+            });
+            rift.currentWaveIdx = 0;
+            rift.attempts = (rift.attempts || 0) + 1;
+
+            awakActiveRiftSession = {
+                rift,
+                theme,
+                startTime: Date.now(),
+                totalDamageDealt: 0,
+                exercisesUsed: [],
+                workout: null
+            };
+
+            // Fermer le briefing
+            document.getElementById('awakRiftBriefingModal')?.remove();
+
+            // 💬 Phase 4 : dialogue compagnon
+            try { setTimeout(() => awakCompanionShowDialogue('onFightStart'), 800); } catch(e) {}
+
+            // Afficher l'écran de combat
+            awakShowRiftCombatScreen();
+        }
+        window.awakStartRift = awakStartRift;
+
+        function awakShowRiftCombatScreen() {
+            const session = awakActiveRiftSession;
+            if (!session) return;
+            const { rift, theme } = session;
+            const currentWave = rift.waves[rift.currentWaveIdx];
+            if (!currentWave) {
+                // Toutes les vagues vaincues → victoire
+                awakCompleteRift();
+                return;
+            }
+
+            // Modal full screen pour le combat
+            document.getElementById('awakRiftCombatModal')?.remove();
+            const modal = document.createElement('div');
+            modal.id = 'awakRiftCombatModal';
+            modal.className = 'modal active';
+            modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(8px);';
+
+            // Exercices proposés (filtrés par thème)
+            const exercises = awakGetExercisesForRift(rift, 4);
+
+            const hpPercent = Math.max(0, Math.round((currentWave.hpCurrent / currentWave.hpMax) * 100));
+            const hpColor = hpPercent > 60 ? '#22c55e' : hpPercent > 30 ? '#f59e0b' : '#ef4444';
+
+            modal.innerHTML = `
+            <div class="modal-content" style="max-width:540px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:hidden;border-radius:20px;max-height:92vh;display:flex;flex-direction:column;">
+                <!-- Header : vague actuelle -->
+                <div style="background:linear-gradient(135deg,${theme.color}20,transparent);padding:18px 20px;border-bottom:1px solid ${theme.color}25;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                        <span style="font-size:0.6em;color:${theme.color};font-weight:900;letter-spacing:2px;">⚔ VAGUE ${rift.currentWaveIdx + 1} / ${rift.waves.length}${currentWave.isBoss ? ' · BOSS' : ''}</span>
+                        <button onclick="awakAbandonRift()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:8px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:14px;">
+                        <div style="font-size:3em;line-height:1;filter:drop-shadow(0 0 10px ${theme.color}80);">${currentWave.emoji}</div>
+                        <div style="flex:1;">
+                            <div style="font-weight:900;color:white;font-size:1.1em;margin-bottom:5px;">${currentWave.name}</div>
+                            <div style="background:rgba(255,255,255,0.05);height:14px;border-radius:99px;overflow:hidden;border:1px solid rgba(255,255,255,0.05);position:relative;">
+                                <div style="width:${hpPercent}%;height:100%;background:linear-gradient(90deg,${hpColor},${hpColor}cc);transition:width 0.5s cubic-bezier(0.16,1,0.3,1);box-shadow:0 0 8px ${hpColor}80;"></div>
+                                <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:0.65em;font-weight:900;color:white;text-shadow:0 0 4px black;letter-spacing:1px;">${currentWave.hpCurrent} / ${currentWave.hpMax} HP</div>
+                            </div>
+                            ${currentWave.isBoss && currentWave.bossMech ? `<div style="margin-top:6px;font-size:0.68em;color:${theme.color};font-weight:700;">⚠ Mécanique : ${currentWave.bossMech.name} — ${currentWave.bossMech.desc}</div>` : ''}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Choix d'exercices -->
+                <div style="padding:18px 20px;overflow-y:auto;flex:1;">
+                    <div style="font-size:0.62em;color:#94a3b8;font-weight:800;letter-spacing:2px;margin-bottom:10px;">◈ EXERCICE POUR ATTAQUER</div>
+                    <div style="display:flex;flex-direction:column;gap:8px;">
+                        ${exercises.map((ex, i) => `
+                            <button onclick="awakPickRiftExercise(${i})" data-exidx="${i}" class="awak-rift-ex-btn" style="text-align:left;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);color:white;border-radius:11px;padding:12px 14px;cursor:pointer;transition:all 0.2s;">
+                                <div style="display:flex;align-items:center;gap:10px;">
+                                    <div style="font-size:1.5em;flex-shrink:0;">${ex.emoji || '💪'}</div>
+                                    <div style="flex:1;min-width:0;">
+                                        <div style="font-weight:800;font-size:0.92em;margin-bottom:2px;">${ex.name}</div>
+                                        <div style="font-size:0.7em;color:#94a3b8;font-weight:600;">${ex.muscle || 'Multi'} · ${ex.estDmg} dgts/série</div>
+                                    </div>
+                                    <div style="color:${theme.color};font-size:1.1em;flex-shrink:0;">⚔</div>
+                                </div>
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>`;
+
+            document.body.appendChild(modal);
+            // On stocke les exercices proposés pour les retrouver
+            awakActiveRiftSession.currentExercises = exercises;
+        }
+        window.awakShowRiftCombatScreen = awakShowRiftCombatScreen;
+
+        /**
+         * Sélectionne des exercices pour une Faille selon son thème
+         */
+        function awakGetExercisesForRift(rift, count) {
+            let theme = RIFT_THEMES.find(t => t.id === rift.themeId);
+            if (!theme && rift.isNarrative && rift.narrativeData) {
+                theme = {
+                    primaryStat: rift.primaryStat,
+                    exerciseFilter: rift.narrativeData.exerciseFilter
+                };
+            }
+            if (!theme || !theme.exerciseFilter) return [];
+            const playerStats = awakGetTotalStats();
+
+            // Tous les exos qui matchent le thème
+            const pool = (typeof exerciseDatabase !== 'undefined' ? exerciseDatabase : [])
+                .filter(ex => theme.exerciseFilter(ex));
+
+            // Mélanger
+            const shuffled = pool.sort(() => Math.random() - 0.5).slice(0, count);
+
+            // Calculer le dégât estimé par série
+            return shuffled.map(ex => {
+                // Formule : 15 base + stat principale × 0.5
+                const baseDmg = 15;
+                const statBonus = Math.round((playerStats[theme.primaryStat] || 0) * 0.5);
+                return {
+                    ...ex,
+                    emoji: getThemeExerciseEmoji(ex),
+                    estDmg: baseDmg + statBonus
+                };
+            });
+        }
+
+        function getThemeExerciseEmoji(ex) {
+            const name = (ex.name || '').toLowerCase();
+            if (/squat|deadlift|soulevé/.test(name)) return '🏋️';
+            if (/jump|saut|burpee|plyo/.test(name)) return '⚡';
+            if (/cardio|course|run|swim/.test(name)) return '🏃';
+            if (/curl|biceps/.test(name)) return '💪';
+            if (/press|bench|développé/.test(name)) return '🔨';
+            if (/stretch|étir|yoga|mobil/.test(name)) return '🧘';
+            if (/pull|tirage|row/.test(name)) return '🪢';
+            return '⚔️';
+        }
+
+        /**
+         * Le joueur a choisi un exercice — on lance la séance pour cet exercice
+         */
+        function awakPickRiftExercise(exIdx) {
+            const session = awakActiveRiftSession;
+            if (!session) return;
+            const exercise = session.currentExercises[exIdx];
+            if (!exercise) return;
+
+            // Fermer le modal combat temporairement
+            document.getElementById('awakRiftCombatModal')?.remove();
+
+            // Créer une "séance" mini pour cet exercice unique
+            const miniWorkout = {
+                name: `⚔ ${session.rift.name}`,
+                _isRift: true,
+                _riftId: session.rift.id,
+                _waveIdx: session.rift.currentWaveIdx,
+                exercises: [{
+                    ...exercise,
+                    sets: 3, // 3 séries par exercice de faille
+                    reps: exercise.reps || 12,
+                    rest: 45,
+                    _baseName: exercise.name
+                }]
+            };
+
+            // Démarrer la séance via le système existant
+            currentWorkout = miniWorkout;
+            currentExerciseIndex = 0;
+            currentSetNumber = 1;
+            workoutStartTime = workoutStartTime || Date.now();
+
+            // Aller à l'écran d'exercice
+            switchTab('workouts');
+            setTimeout(() => {
+                document.getElementById('exerciseSelection')?.style.setProperty('display', 'none');
+                const exView = document.getElementById('exerciseView');
+                if (exView) {
+                    exView.classList.remove('hidden');
+                    exView.style.display = 'block';
+                }
+                if (typeof startExercise === 'function') startExercise();
+            }, 100);
+        }
+        window.awakPickRiftExercise = awakPickRiftExercise;
+
+        /**
+         * Inflige des dégâts à la vague actuelle
+         * Appelé à la fin de chaque série pendant un combat de Faille
+         */
+        function awakDealDamageToWave(reps, weightKg) {
+            const session = awakActiveRiftSession;
+            if (!session) return;
+            const rift = session.rift;
+            const currentWave = rift.waves[rift.currentWaveIdx];
+            if (!currentWave) return;
+            const theme = session.theme;
+            const playerStats = awakGetTotalStats();
+
+            // 🎭 Phase 4 : bonus compagnons
+            const compBonus = typeof awakCompanionsGetActiveBonuses === 'function'
+                ? awakCompanionsGetActiveBonuses() : {};
+
+            // 🧪 Phase 5 : effets consommables actifs
+            const consumEffects = typeof awakConsumablesGetActiveEffects === 'function'
+                ? awakConsumablesGetActiveEffects() : {};
+
+            // Formule de dégâts : base + reps × (1 + stat/100) + chance crit
+            const base = 5;
+            const primaryStatValue = (playerStats[theme.primaryStat] || 0) * (1 + (consumEffects[theme.primaryStat] || 0));
+            const statMult = 1 + primaryStatValue / 100;
+            const baseDamage = base + (reps || 1) * statMult;
+            // Bonus poids (si lourd)
+            const weightBonus = weightKg > 0 ? Math.floor(weightKg / 10) : 0;
+
+            // Critique : 5% + 1% par 10 points de PER + bonus compagnons + consommables
+            const critChance = 0.05 + (playerStats.PER || 0) / 1000 + (compBonus.critChance || 0) + (consumEffects.critBonus || 0);
+            const isCrit = Math.random() < critChance;
+            let finalDamage = Math.round((baseDamage + weightBonus) * (isCrit ? 2 : 1));
+
+            // Bonus boss (Marcus Ironfist)
+            if (currentWave.isBoss && compBonus.dmgBoss) {
+                finalDamage = Math.round(finalDamage * (1 + compBonus.dmgBoss));
+            }
+
+            // 👑 Phase 5 : boss mechanics actives
+            // Faiblesse → ×2 dégâts sur la stat révélée
+            if (currentWave.isBoss && currentWave.weaknessStat === theme.primaryStat) {
+                finalDamage = Math.round(finalDamage * 2);
+            }
+            // Enrage → -25% dégâts subis
+            if (currentWave.isBoss && currentWave._enraged) {
+                finalDamage = Math.round(finalDamage * 0.75);
+            }
+
+            // 👹 Phase 3 : handicap "reduce_stats" diminue les dégâts
+            try {
+                if (typeof awakGetActiveHandicaps === 'function') {
+                    const handicaps = awakGetActiveHandicaps();
+                    if (handicaps.reduce_stats > 0) {
+                        finalDamage = Math.round(finalDamage * (1 - handicaps.reduce_stats / 100));
+                    }
+                }
+            } catch(e) {}
+
+            const prevHpPercent = (currentWave.hpCurrent / currentWave.hpMax) * 100;
+            currentWave.hpCurrent = Math.max(0, currentWave.hpCurrent - finalDamage);
+            const newHpPercent = (currentWave.hpCurrent / currentWave.hpMax) * 100;
+            session.totalDamageDealt += finalDamage;
+
+            // 👑 Phase 5 : déclencher mécaniques boss aux seuils
+            const bossMessages = (typeof awakApplyBossMechanic === 'function')
+                ? awakApplyBossMechanic(currentWave, prevHpPercent, newHpPercent) : null;
+            if (bossMessages) {
+                bossMessages.forEach(m => {
+                    setTimeout(() => {
+                        if (typeof showToast === 'function') showToast(m.text, m.type, 3000);
+                        if (typeof awakCompanionShowDialogue === 'function') {
+                            setTimeout(() => awakCompanionShowDialogue('onBossPhase'), 800);
+                        }
+                    }, 600);
+                });
+            }
+
+            // 💬 Phase 4 : dialogue compagnon contextuel
+            try {
+                if (isCrit && Math.random() < 0.4) awakCompanionShowDialogue('onCrit');
+            } catch(e) {}
+
+            return { damage: finalDamage, isCrit, killed: currentWave.hpCurrent <= 0 };
+        }
+        window.awakDealDamageToWave = awakDealDamageToWave;
+
+        function awakAdvanceToNextWave() {
+            const session = awakActiveRiftSession;
+            if (!session) return;
+            session.rift.currentWaveIdx++;
+            if (session.rift.currentWaveIdx >= session.rift.waves.length) {
+                awakCompleteRift();
+            } else {
+                awakShowRiftCombatScreen();
+            }
+        }
+        window.awakAdvanceToNextWave = awakAdvanceToNextWave;
+
+        function awakAbandonRift() {
+            const session = awakActiveRiftSession;
+            if (!session) return;
+            if (!confirm('Abandonner cette Faille ? Tu pourras réessayer plus tard.')) return;
+            awakActiveRiftSession = null;
+            document.getElementById('awakRiftCombatModal')?.remove();
+            switchTab('game');
+        }
+        window.awakAbandonRift = awakAbandonRift;
+
+        /**
+         * Faille terminée → écran de victoire + récompenses
+         */
+        function awakCompleteRift() {
+            const session = awakActiveRiftSession;
+            if (!session) return;
+            const { rift, theme } = session;
+            const playerPower = awakGetPowerScore();
+
+            // Marquer comme complétée
+            const rifts = awakRiftsLoad();
+            const r = rifts.find(x => x.id === rift.id);
+            if (r) {
+                r.completed = true;
+                r.completedAt = Date.now();
+                awakRiftsSave(rifts);
+            }
+
+            // Calculer la note finale (F → SSS)
+            const duration = Date.now() - session.startTime;
+            const minutes = duration / 60000;
+            const idealTime = rift.waves.length * 4; // 4 min/vague idéal
+
+            let grade = 'F';
+            if (minutes <= idealTime * 0.7) grade = 'SSS';
+            else if (minutes <= idealTime * 0.9) grade = 'SS';
+            else if (minutes <= idealTime * 1.1) grade = 'S';
+            else if (minutes <= idealTime * 1.3) grade = 'A';
+            else if (minutes <= idealTime * 1.6) grade = 'B';
+            else if (minutes <= idealTime * 2.0) grade = 'C';
+            else grade = 'D';
+
+            const gradeColors = {
+                SSS: '#fbbf24', SS: '#f59e0b', S: '#ef4444',
+                A: '#a855f7', B: '#3b82f6', C: '#22c55e', D: '#94a3b8', F: '#64748b'
+            };
+
+            // XP bonus selon rang + grade
+            const xpByRank = { E: 200, D: 400, C: 700, B: 1100, A: 1700, S: 2500 };
+            const gradeMult = { SSS: 1.5, SS: 1.3, S: 1.2, A: 1.0, B: 0.9, C: 0.8, D: 0.7, F: 0.5 };
+            const xpReward = Math.round(xpByRank[rift.rank] * gradeMult[grade]);
+
+            document.getElementById('awakRiftCombatModal')?.remove();
+            const modal = document.createElement('div');
+            modal.id = 'awakRiftRewardModal';
+            modal.className = 'modal active';
+            modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
+
+            modal.innerHTML = `
+            <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:hidden;border-radius:20px;">
+                <!-- Bannière FAILLE FERMÉE -->
+                <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
+                    <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,${theme.color},transparent);animation:awakBlink 1.5s ease-in-out infinite;"></div>
+                    <div style="font-size:0.65em;color:${theme.color};font-weight:900;letter-spacing:3px;margin-bottom:8px;">◇ FAILLE FERMÉE ◇</div>
+                    <div style="font-size:3.5em;line-height:1;margin-bottom:8px;filter:drop-shadow(0 0 18px ${theme.color}b0);">${theme.emoji}</div>
+                    <h2 style="margin:0 0 8px 0;color:white;font-size:1.15em;font-weight:900;">${rift.name}</h2>
+                    <div style="font-size:0.8em;color:#94a3b8;">${Math.round(minutes)} min · ${session.totalDamageDealt} dégâts totaux</div>
+                </div>
+
+                <!-- Note -->
+                <div style="padding:20px 22px;text-align:center;">
+                    <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:2px;margin-bottom:6px;">◈ NOTE FINALE</div>
+                    <div style="font-size:4em;font-weight:900;color:${gradeColors[grade]};line-height:1;letter-spacing:-2px;text-shadow:0 0 24px ${gradeColors[grade]}90;margin-bottom:4px;">${grade}</div>
+                </div>
+
+                <!-- Récompenses -->
+                <div style="padding:0 22px 18px 22px;">
+                    <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:2px;margin-bottom:10px;">◈ RÉCOMPENSES</div>
+                    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:11px;padding:14px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                            <span style="color:#cbd5e1;font-size:0.9em;font-weight:700;">⚡ Power Score</span>
+                            <span style="color:${theme.color};font-weight:900;">+${xpReward}</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <span style="color:#cbd5e1;font-size:0.9em;font-weight:700;">⚔ Rang vaincu</span>
+                            <span style="color:white;font-weight:900;">${rift.rank}</span>
+                        </div>
+                    </div>
+
+                    <!-- Message Système -->
+                    <div style="margin-top:14px;padding:12px 14px;background:rgba(74,222,128,0.08);border-left:3px solid #4ade80;border-radius:8px;">
+                        <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;margin-bottom:4px;">⚙ SYSTÈME</div>
+                        <div style="color:#cbd5e1;font-size:0.85em;font-style:italic;line-height:1.5;">${getSystemMessageForGrade(grade)}</div>
+                    </div>
+                </div>
+
+                <!-- Action -->
+                <div style="padding:0 22px 22px 22px;">
+                    <button onclick="document.getElementById('awakRiftRewardModal').remove();awakActiveRiftSession=null;switchTab('game');" style="width:100%;background:linear-gradient(135deg,${theme.color},${theme.color}dd);border:none;color:white;border-radius:11px;padding:14px;font-weight:900;font-size:0.95em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${theme.color}40;">✓ CONTINUER</button>
+                </div>
+            </div>`;
+
+            document.body.appendChild(modal);
+
+            // Distribuer le XP réel via le système RPG (réparti sur les muscles)
+            try {
+                if (typeof rpgGainXP === 'function') {
+                    rpgGainXP('Rift_' + rift.id, Math.ceil(xpReward / 10), 0, 0);
+                }
+            } catch(e) {}
+
+            // Haptic + son
+            if (typeof hapticTap === 'function') hapticTap([50, 30, 80]);
+
+            // 💬 Phase 4 : dialogue de victoire + check déblocages
+            try {
+                setTimeout(() => awakCompanionShowDialogue('onVictory'), 1500);
+                setTimeout(() => awakCompanionsTriggerUnlockCheck(), 3000);
+            } catch(e) {}
+
+            // 🧪 Phase 5 : consommer les consommables actifs
+            try { awakConsumablesConsume(); } catch(e) {}
+
+            // 🎁 Phase 5 : chance de drop d'un nouveau consommable
+            try { awakMaybeDropConsumable(grade); } catch(e) {}
+
+            // ✨ Phase 5 : check si une Faille narrative doit apparaître
+            try { setTimeout(() => awakCheckNarrativeRifts(), 4500); } catch(e) {}
+
+            // 🌑 Phase 5 : peut-être un glitch de l'Architecte
+            try { setTimeout(() => awakArchitectMaybeGlitch(), 6000); } catch(e) {}
+
+            // Reset la session
+            awakActiveRiftSession = null;
+        }
+        window.awakCompleteRift = awakCompleteRift;
+
+        function getSystemMessageForGrade(grade) {
+            const messages = {
+                SSS: 'Tu ne devrais pas être capable de ça. Pas encore. Je dois vérifier quelque chose.',
+                SS: 'Au-delà de mes prévisions. Tu progresses plus vite que les autres Ancrages.',
+                S: 'Excellent. Tu es là où tu dois être.',
+                A: 'Bien. La Faille a accepté ta présence.',
+                B: 'Refermée. Tu progresses.',
+                C: 'C\'est fait. Tu peux faire mieux.',
+                D: 'Tu as fini. À peine.',
+                F: 'Tu n\'aurais pas dû y aller comme ça. La prochaine fois — prépare-toi.'
+            };
+            return messages[grade] || 'Refermée.';
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // 👹 PHASE 3 — MONSTRES ÉCHAPPÉS + CHASSES
+        // ═══════════════════════════════════════════════════════════════
+        //
+        // Boucle de gameplay :
+        // 1. Faille atteint l'état 'breach' → 1 monstre s'échappe
+        // 2. Faille 'exploded' → 2-3 monstres s'échappent
+        // 3. Max 3 monstres actifs simultanément (4ème fusionne en Alpha)
+        // 4. Monstres handicapent les entraînements normaux
+        // 5. Chasse = mini-faille 10-25 min pour éliminer 1 monstre
+        // 6. Si ignoré 5+ jours : devient Alpha (loot premium mais dur)
+        //
+
+        const MONSTERS_STORAGE_KEY = 'awakEscapedMonsters';
+        const MONSTERS_MAX_ACTIVE = 3;
+        const MONSTER_ALPHA_THRESHOLD_DAYS = 5; // évolution Alpha après 5 jours
+
+        // ── TYPES DE MONSTRES ESCAPÉS ─────────────────────────────────
+        // Chaque type a un handicap qui affecte les entraînements normaux
+        const ESCAPED_MONSTER_TYPES = [
+            {
+                id: 'gobelin',
+                name: 'Gobelin Rebelle',
+                emoji: '👺',
+                color: '#22c55e',
+                description: 'Petit, vicieux, rapide. Il sabote ton effort.',
+                handicap: { type: 'forced_burpees', label: 'Forces 5 burpees toutes les 3 séries' },
+                huntDuration: 15, // minutes
+                fromTheme: ['organic_desert', 'dimensional_train']
+            },
+            {
+                id: 'loup',
+                name: 'Loup d\'Ombre',
+                emoji: '🐺',
+                color: '#64748b',
+                description: 'Il hurle dans ton dos. Ton corps se contracte.',
+                handicap: { type: 'extra_rest', label: '+30s de repos imposé entre séries' },
+                huntDuration: 18,
+                fromTheme: ['frozen_city', 'underground_ocean']
+            },
+            {
+                id: 'chevalier',
+                name: 'Chevalier Brisé',
+                emoji: '⚔️',
+                color: '#a855f7',
+                description: 'Une armure ambulante avec une volonté propre.',
+                handicap: { type: 'extra_set', label: '+1 série par exercice' },
+                huntDuration: 22,
+                fromTheme: ['inverted_reality', 'frozen_city']
+            },
+            {
+                id: 'spectre',
+                name: 'Spectre Médical',
+                emoji: '👻',
+                color: '#06b6d4',
+                description: 'Il flotte dans tes mouvements. Tu perds tes repères.',
+                handicap: { type: 'reduce_xp', label: 'XP réduite de 20% par séance' },
+                huntDuration: 16,
+                fromTheme: ['living_hospital', 'inverted_reality']
+            },
+            {
+                id: 'parasite',
+                name: 'Parasite Croissant',
+                emoji: '🦠',
+                color: '#f59e0b',
+                description: 'Quelque chose grandit en toi. Ne réfléchis pas.',
+                handicap: { type: 'reduce_stats', label: '-15% sur tes dégâts en Faille' },
+                huntDuration: 20,
+                fromTheme: ['organic_desert', 'living_hospital']
+            },
+            {
+                id: 'ombre',
+                name: 'Ombre Fragmentée',
+                emoji: '🌫️',
+                color: '#ef4444',
+                description: 'Elle te suit. Elle copie tes gestes. Mais en retard.',
+                handicap: { type: 'block_drops', label: 'Aucun loot pendant ses entraînements' },
+                huntDuration: 14,
+                fromTheme: ['dimensional_train', 'underground_ocean']
+            }
+        ];
+
+        function awakMonstersLoad() {
+            try {
+                const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
+                const key = profileId ? `${MONSTERS_STORAGE_KEY}_${profileId}` : MONSTERS_STORAGE_KEY;
+                return JSON.parse(localStorage.getItem(key) || '[]');
+            } catch(e) { return []; }
+        }
+
+        function awakMonstersSave(monsters) {
+            try {
+                const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
+                const key = profileId ? `${MONSTERS_STORAGE_KEY}_${profileId}` : MONSTERS_STORAGE_KEY;
+                localStorage.setItem(key, JSON.stringify(monsters));
+            } catch(e) {}
+        }
+
+        /**
+         * Génère un monstre échappé à partir d'une Faille en brèche
+         * @param {Object} rift - La Faille source
+         * @param {Boolean} isExplosion - Si la faille a explosé (multi-monstres)
+         */
+        function awakSpawnEscapedMonsters(rift, isExplosion) {
+            const monsters = awakMonstersLoad();
+            const active = monsters.filter(m => !m.defeated);
+
+            // Combien de monstres à générer
+            const count = isExplosion ? 2 : 1;
+
+            // Choisir le type selon le thème de la Faille
+            const theme = rift.themeId;
+            const candidates = ESCAPED_MONSTER_TYPES.filter(t => t.fromTheme.includes(theme));
+            const pool = candidates.length > 0 ? candidates : ESCAPED_MONSTER_TYPES;
+
+            const spawned = [];
+            for (let i = 0; i < count; i++) {
+                // Si on dépasse la limite, fusionner avec un Alpha
+                if (active.length + spawned.length >= MONSTERS_MAX_ACTIVE) {
+                    // Trouver le plus ancien monstre actif et le transformer en Alpha
+                    const oldest = active.sort((a, b) => a.spawnedAt - b.spawnedAt)[0];
+                    if (oldest && !oldest.isAlpha) {
+                        oldest.isAlpha = true;
+                        oldest.alphaSince = Date.now();
+                    }
+                    continue;
+                }
+
+                const type = pool[Math.floor(Math.random() * pool.length)];
+                const hpBase = { E: 50, D: 90, C: 140, B: 200, A: 280, S: 380 }[rift.rank] || 100;
+
+                spawned.push({
+                    id: 'monster_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+                    typeId: type.id,
+                    spawnedAt: Date.now(),
+                    fromRiftRank: rift.rank,
+                    fromRiftName: rift.name,
+                    fromRiftId: rift.id,
+                    hpMax: hpBase,
+                    hpCurrent: hpBase,
+                    isAlpha: false,
+                    defeated: false,
+                    huntsAttempted: 0
+                });
+            }
+
+            monsters.push(...spawned);
+            awakMonstersSave(monsters);
+            return spawned;
+        }
+        window.awakSpawnEscapedMonsters = awakSpawnEscapedMonsters;
+
+        /**
+         * Met à jour l'état des monstres (transformation Alpha si vieux)
+         */
+        function awakUpdateMonstersState() {
+            const monsters = awakMonstersLoad();
+            const now = Date.now();
+            let changed = false;
+
+            for (const m of monsters) {
+                if (m.defeated) continue;
+                const daysSinceSpawn = (now - m.spawnedAt) / (24 * 60 * 60 * 1000);
+
+                // Évolution en Alpha après 5 jours
+                if (!m.isAlpha && daysSinceSpawn >= MONSTER_ALPHA_THRESHOLD_DAYS) {
+                    m.isAlpha = true;
+                    m.alphaSince = now;
+                    // Boost HP en devenant Alpha
+                    m.hpMax = Math.round(m.hpMax * 1.5);
+                    m.hpCurrent = m.hpMax;
+                    changed = true;
+                }
+            }
+
+            // Nettoyer les monstres vaincus depuis plus de 7 jours
+            const cleaned = monsters.filter(m => {
+                if (m.defeated && m.defeatedAt && now - m.defeatedAt > 7 * 24 * 60 * 60 * 1000) return false;
+                return true;
+            });
+
+            if (changed || cleaned.length !== monsters.length) {
+                awakMonstersSave(cleaned);
+            }
+            return cleaned;
+        }
+        window.awakUpdateMonstersState = awakUpdateMonstersState;
+
+        function awakGetActiveMonsters() {
+            return awakUpdateMonstersState().filter(m => !m.defeated);
+        }
+        window.awakGetActiveMonsters = awakGetActiveMonsters;
+
+        function awakGetMonsterById(id) {
+            return awakMonstersLoad().find(m => m.id === id);
+        }
+        window.awakGetMonsterById = awakGetMonsterById;
+
+        /**
+         * Hook : vérifie si une Faille passe en breach/exploded et spawn les monstres
+         * À appeler après awakUpdateRiftsState
+         */
+        function awakCheckRiftsForMonsterSpawn() {
+            const rifts = awakRiftsLoad();
+            const monsters = awakMonstersLoad();
+            let changed = false;
+
+            for (const rift of rifts) {
+                if (rift.completed) continue;
+
+                // Si la faille est en breach et qu'on n'a pas encore spawn → spawn
+                if (rift.state === 'breach' && !rift._breachSpawned) {
+                    const spawned = awakSpawnEscapedMonsters(rift, false);
+                    if (spawned.length > 0) {
+                        rift._breachSpawned = true;
+                        changed = true;
+                        // Notification
+                        setTimeout(() => {
+                            if (typeof showToast === 'function') {
+                                showToast(`👹 ${spawned[0].typeId === 'gobelin' ? 'Un gobelin' : 'Un monstre'} s'est échappé de la Faille`, 'warning', 5000);
+                            }
+                        }, 1000);
+                    }
+                }
+
+                // Si explosée → 2 monstres
+                if (rift.state === 'exploded' && !rift._explosionSpawned) {
+                    awakSpawnEscapedMonsters(rift, true);
+                    rift._explosionSpawned = true;
+                    changed = true;
+                    setTimeout(() => {
+                        if (typeof showToast === 'function') {
+                            showToast(`💥 La Faille a explosé ! Plusieurs monstres s'échappent.`, 'warning', 6000);
+                        }
+                    }, 1000);
+                }
+            }
+
+            if (changed) awakRiftsSave(rifts);
+        }
+        window.awakCheckRiftsForMonsterSpawn = awakCheckRiftsForMonsterSpawn;
+
+        /**
+         * Récupère le handicap global actif (somme de tous les monstres)
+         * Utilisé par les entraînements normaux
+         */
+        function awakGetActiveHandicaps() {
+            const active = awakGetActiveMonsters();
+            const handicaps = {
+                forced_burpees: 0,      // nombre de monstres avec ce handicap
+                extra_rest: 0,           // secondes additionnelles
+                extra_set: 0,            // sets supplémentaires
+                reduce_xp: 0,            // pourcentage de réduction
+                reduce_stats: 0,         // pourcentage de réduction
+                block_drops: false
+            };
+
+            for (const m of active) {
+                const type = ESCAPED_MONSTER_TYPES.find(t => t.id === m.typeId);
+                if (!type || !type.handicap) continue;
+                const mult = m.isAlpha ? 2 : 1; // Alpha = handicap doublé
+
+                switch(type.handicap.type) {
+                    case 'forced_burpees': handicaps.forced_burpees += mult; break;
+                    case 'extra_rest':     handicaps.extra_rest += 30 * mult; break;
+                    case 'extra_set':      handicaps.extra_set += mult; break;
+                    case 'reduce_xp':      handicaps.reduce_xp += 20 * mult; break;
+                    case 'reduce_stats':   handicaps.reduce_stats += 15 * mult; break;
+                    case 'block_drops':    handicaps.block_drops = true; break;
+                }
+            }
+
+            handicaps.reduce_xp = Math.min(handicaps.reduce_xp, 60); // cap à 60%
+            handicaps.reduce_stats = Math.min(handicaps.reduce_stats, 50);
+            handicaps.totalMonsters = active.length;
+            handicaps.alphaCount = active.filter(m => m.isAlpha).length;
+
+            return handicaps;
+        }
+        window.awakGetActiveHandicaps = awakGetActiveHandicaps;
+
+        // ═══════════════════════════════════════════════════════════════
+        // 🏹 SYSTÈME DE CHASSE (mini-Faille pour vaincre un monstre)
+        // ═══════════════════════════════════════════════════════════════
+        let awakActiveHuntSession = null;
+
+        function awakStartHunt(monsterId) {
+            const monster = awakGetMonsterById(monsterId);
+            if (!monster || monster.defeated) return;
+            const type = ESCAPED_MONSTER_TYPES.find(t => t.id === monster.typeId);
+            if (!type) return;
+
+            // Anti-découragement : si >2 monstres actifs, raccourcir la chasse
+            const active = awakGetActiveMonsters();
+            let duration = type.huntDuration;
+            if (active.length > 2) duration = Math.max(10, duration - 5);
+
+            // Reset HP au cas où retry
+            monster.hpCurrent = monster.hpMax;
+            monster.huntsAttempted = (monster.huntsAttempted || 0) + 1;
+            const monsters = awakMonstersLoad();
+            const idx = monsters.findIndex(m => m.id === monsterId);
+            if (idx >= 0) {
+                monsters[idx] = monster;
+                awakMonstersSave(monsters);
+            }
+
+            awakActiveHuntSession = {
+                monster,
+                type,
+                duration,
+                startTime: Date.now(),
+                totalDamage: 0
+            };
+
+            // Fermer modal détail si ouvert
+            document.getElementById('awakMonsterDetailModal')?.remove();
+
+            // Lancer l'écran de chasse
+            awakShowHuntScreen();
+        }
+        window.awakStartHunt = awakStartHunt;
+
+        function awakShowHuntScreen() {
+            const session = awakActiveHuntSession;
+            if (!session) return;
+            const { monster, type } = session;
+
+            // Choisir 4 exercices de chasse (variés)
+            const huntExercises = awakGetHuntExercises(type, 4);
+
+            const hpPercent = Math.max(0, Math.round((monster.hpCurrent / monster.hpMax) * 100));
+            const hpColor = hpPercent > 60 ? '#22c55e' : hpPercent > 30 ? '#f59e0b' : '#ef4444';
+            const alphaClass = monster.isAlpha ? 'ALPHA · ' : '';
+
+            document.getElementById('awakHuntCombatModal')?.remove();
+            const modal = document.createElement('div');
+            modal.id = 'awakHuntCombatModal';
+            modal.className = 'modal active';
+            modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(8px);';
+
+            modal.innerHTML = `
+            <div class="modal-content" style="max-width:520px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow:hidden;border-radius:20px;max-height:92vh;display:flex;flex-direction:column;">
+                <!-- Header chasse -->
+                <div style="background:linear-gradient(135deg,${type.color}25,transparent);padding:18px 20px;border-bottom:1px solid ${type.color}30;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                        <span style="font-size:0.6em;color:${type.color};font-weight:900;letter-spacing:2px;">🏹 CHASSE ${alphaClass}${session.duration} MIN</span>
+                        <button onclick="awakAbandonHunt()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:8px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:14px;">
+                        <div style="font-size:3em;line-height:1;filter:drop-shadow(0 0 10px ${type.color}80);">${type.emoji}</div>
+                        <div style="flex:1;">
+                            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">
+                                ${monster.isAlpha ? '<span style="background:#ef4444;color:white;padding:1px 6px;border-radius:4px;font-size:0.55em;font-weight:900;letter-spacing:1px;">ALPHA</span>' : ''}
+                                <span style="font-weight:900;color:white;font-size:1.1em;">${type.name}</span>
+                            </div>
+                            <div style="background:rgba(255,255,255,0.05);height:14px;border-radius:99px;overflow:hidden;border:1px solid rgba(255,255,255,0.05);position:relative;">
+                                <div style="width:${hpPercent}%;height:100%;background:linear-gradient(90deg,${hpColor},${hpColor}cc);transition:width 0.5s cubic-bezier(0.16,1,0.3,1);box-shadow:0 0 8px ${hpColor}80;"></div>
+                                <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:0.65em;font-weight:900;color:white;text-shadow:0 0 4px black;letter-spacing:1px;">${monster.hpCurrent} / ${monster.hpMax} HP</div>
+                            </div>
+                            <div style="margin-top:5px;font-size:0.68em;color:#94a3b8;font-style:italic;">${type.description}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Exercices de chasse -->
+                <div style="padding:18px 20px;overflow-y:auto;flex:1;">
+                    <div style="font-size:0.62em;color:#94a3b8;font-weight:800;letter-spacing:2px;margin-bottom:10px;">◈ TRAQUER AVEC :</div>
+                    <div style="display:flex;flex-direction:column;gap:8px;">
+                        ${huntExercises.map((ex, i) => `
+                            <button onclick="awakPickHuntExercise(${i})" style="text-align:left;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);color:white;border-radius:11px;padding:12px 14px;cursor:pointer;transition:all 0.2s;">
+                                <div style="display:flex;align-items:center;gap:10px;">
+                                    <div style="font-size:1.5em;flex-shrink:0;">${ex.emoji || '🏹'}</div>
+                                    <div style="flex:1;min-width:0;">
+                                        <div style="font-weight:800;font-size:0.92em;margin-bottom:2px;">${ex.name}</div>
+                                        <div style="font-size:0.7em;color:#94a3b8;font-weight:600;">${ex.muscle || 'Multi'} · ~${ex.estDmg} dgts/série</div>
+                                    </div>
+                                    <div style="color:${type.color};font-size:1.1em;flex-shrink:0;">🎯</div>
+                                </div>
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>`;
+
+            document.body.appendChild(modal);
+            awakActiveHuntSession.currentExercises = huntExercises;
+        }
+        window.awakShowHuntScreen = awakShowHuntScreen;
+
+        /**
+         * Sélectionne 4 exercices variés pour la chasse (court & intense)
+         * Cardio + force mixed
+         */
+        function awakGetHuntExercises(monsterType, count) {
+            const pool = (typeof exerciseDatabase !== 'undefined' ? exerciseDatabase : []);
+
+            // Filtres exercices courts/intenses : cardio, plyo, burpees, etc.
+            const huntPool = pool.filter(ex => {
+                const n = (ex.name || '').toLowerCase();
+                return /burpee|jump|plyo|sprint|hiit|squat|push|pompe|jack|climber/.test(n);
+            });
+
+            const playerStats = typeof awakGetTotalStats === 'function' ? awakGetTotalStats() : {};
+            const totalStat = Object.values(playerStats).reduce((s, v) => s + v, 0);
+
+            const shuffled = huntPool.sort(() => Math.random() - 0.5).slice(0, count);
+            return shuffled.map(ex => ({
+                ...ex,
+                emoji: getThemeExerciseEmoji(ex),
+                estDmg: 20 + Math.round(totalStat * 0.3)
+            }));
+        }
+
+        function awakPickHuntExercise(exIdx) {
+            const session = awakActiveHuntSession;
+            if (!session) return;
+            const exercise = session.currentExercises[exIdx];
+            if (!exercise) return;
+
+            document.getElementById('awakHuntCombatModal')?.remove();
+
+            // Mini séance de chasse
+            const huntWorkout = {
+                name: `🏹 Chasse — ${session.type.name}`,
+                _isHunt: true,
+                _monsterId: session.monster.id,
+                exercises: [{
+                    ...exercise,
+                    sets: 2,
+                    reps: exercise.reps || 12,
+                    rest: 30,
+                    _baseName: exercise.name
+                }]
+            };
+
+            currentWorkout = huntWorkout;
+            currentExerciseIndex = 0;
+            currentSetNumber = 1;
+            workoutStartTime = workoutStartTime || Date.now();
+
+            switchTab('workouts');
+            setTimeout(() => {
+                document.getElementById('exerciseSelection')?.style.setProperty('display', 'none');
+                const exView = document.getElementById('exerciseView');
+                if (exView) {
+                    exView.classList.remove('hidden');
+                    exView.style.display = 'block';
+                }
+                if (typeof startExercise === 'function') startExercise();
+            }, 100);
+        }
+        window.awakPickHuntExercise = awakPickHuntExercise;
+
+        /**
+         * Inflige des dégâts au monstre pendant une chasse
+         */
+        function awakDealDamageToMonster(reps, weightKg) {
+            const session = awakActiveHuntSession;
+            if (!session) return;
+            const monster = session.monster;
+
+            const playerStats = awakGetTotalStats();
+            const totalStat = Object.values(playerStats).reduce((s, v) => s + v, 0);
+
+            const base = 8;
+            const damage = base + (reps || 1) * (1 + totalStat / 200) + Math.floor((weightKg || 0) / 10);
+            const critChance = 0.08 + (playerStats.PER || 0) / 800;
+            const isCrit = Math.random() < critChance;
+            const finalDamage = Math.round(damage * (isCrit ? 2 : 1));
+
+            monster.hpCurrent = Math.max(0, monster.hpCurrent - finalDamage);
+            session.totalDamage += finalDamage;
+
+            return { damage: finalDamage, isCrit, killed: monster.hpCurrent <= 0 };
+        }
+        window.awakDealDamageToMonster = awakDealDamageToMonster;
+
+        function awakCompleteHunt() {
+            const session = awakActiveHuntSession;
+            if (!session) return;
+            const { monster, type } = session;
+
+            // Marquer comme vaincu
+            const monsters = awakMonstersLoad();
+            const idx = monsters.findIndex(m => m.id === monster.id);
+            if (idx >= 0) {
+                monsters[idx].defeated = true;
+                monsters[idx].defeatedAt = Date.now();
+                awakMonstersSave(monsters);
+            }
+
+            // Récompenses : XP bonus + bonus Alpha
+            const rankXP = { E: 100, D: 200, C: 350, B: 500, A: 750, S: 1000 }[monster.fromRiftRank] || 200;
+            const alphaBonus = monster.isAlpha ? 2 : 1;
+            const xpReward = rankXP * alphaBonus;
+
+            document.getElementById('awakHuntCombatModal')?.remove();
+            const modal = document.createElement('div');
+            modal.id = 'awakHuntRewardModal';
+            modal.className = 'modal active';
+            modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
+
+            modal.innerHTML = `
+            <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow:hidden;border-radius:20px;">
+                <!-- Header victoire -->
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;">
+                    <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
+                    <div style="font-size:3.2em;line-height:1;margin-bottom:6px;filter:drop-shadow(0 0 16px ${type.color}b0);">${type.emoji}</div>
+                    <h2 style="margin:0 0 4px 0;color:white;font-size:1.05em;font-weight:900;">${type.name}</h2>
+                    <div style="font-size:0.75em;color:#94a3b8;">${Math.round((Date.now() - session.startTime) / 60000)} min · ${session.totalDamage} dégâts</div>
+                </div>
+
+                <!-- Récompenses -->
+                <div style="padding:18px 22px;">
+                    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:11px;padding:14px;margin-bottom:14px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                            <span style="color:#cbd5e1;font-size:0.9em;font-weight:700;">⚡ Power Score</span>
+                            <span style="color:${type.color};font-weight:900;">+${xpReward}</span>
+                        </div>
+                        ${monster.isAlpha ? `
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <span style="color:#fbbf24;font-size:0.9em;font-weight:700;">🌟 Bonus Alpha</span>
+                            <span style="color:#fbbf24;font-weight:900;">×2</span>
+                        </div>` : ''}
+                    </div>
+
+                    <!-- Message Système -->
+                    <div style="padding:12px 14px;background:rgba(74,222,128,0.08);border-left:3px solid #4ade80;border-radius:8px;">
+                        <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;margin-bottom:4px;">⚙ SYSTÈME</div>
+                        <div style="color:#cbd5e1;font-size:0.85em;font-style:italic;line-height:1.5;">${monster.isAlpha ? 'Il était devenu fort. Trop fort. Bien joué.' : 'Une menace de moins. Continue.'}</div>
+                    </div>
+
+                    <button onclick="document.getElementById('awakHuntRewardModal').remove();awakActiveHuntSession=null;switchTab('game');" style="width:100%;margin-top:14px;background:linear-gradient(135deg,${type.color},${type.color}dd);border:none;color:white;border-radius:11px;padding:14px;font-weight:900;font-size:0.95em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${type.color}40;">✓ CONTINUER</button>
+                </div>
+            </div>`;
+
+            document.body.appendChild(modal);
+
+            // XP réel
+            try {
+                if (typeof rpgGainXP === 'function') {
+                    rpgGainXP('Hunt_' + monster.id, Math.ceil(xpReward / 10), 0, 0);
+                }
+            } catch(e) {}
+
+            if (typeof hapticTap === 'function') hapticTap([50, 30, 80]);
+
+            // 🎭 Phase 4 : check déblocages compagnons après chasse
+            try { setTimeout(() => awakCompanionsTriggerUnlockCheck(), 2500); } catch(e) {}
+
+            awakActiveHuntSession = null;
+        }
+        window.awakCompleteHunt = awakCompleteHunt;
+
+        function awakAbandonHunt() {
+            const session = awakActiveHuntSession;
+            if (!session) return;
+            if (!confirm('Abandonner la chasse ? Le monstre reste en liberté.')) return;
+            awakActiveHuntSession = null;
+            document.getElementById('awakHuntCombatModal')?.remove();
+            switchTab('game');
+        }
+        window.awakAbandonHunt = awakAbandonHunt;
+
+        // ═══════════════════════════════════════════════════════════════
+        // 🎨 RENDER : Affichage des monstres échappés (onglet Jeu)
+        // ═══════════════════════════════════════════════════════════════
+        function renderEscapedMonstersCard() {
+            const monsters = awakGetActiveMonsters();
+            if (monsters.length === 0) return '';
+
+            const alphaCount = monsters.filter(m => m.isAlpha).length;
+            const handicaps = awakGetActiveHandicaps();
+
+            return `
+            <div class="card" style="background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(239,68,68,0.3);padding:18px;margin-bottom:14px;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+                    <div style="font-size:0.6em;color:#f87171;font-weight:900;letter-spacing:2px;">👹 MONSTRES ÉCHAPPÉS</div>
+                    <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(239,68,68,0.3),transparent);"></div>
+                    <div style="font-size:0.7em;color:#94a3b8;font-weight:700;">${monsters.length}${alphaCount > 0 ? ` (${alphaCount}α)` : ''}</div>
+                </div>
+
+                <!-- Handicaps actifs résumés -->
+                ${handicaps.totalMonsters > 0 ? `
+                <div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:10px 12px;margin-bottom:12px;">
+                    <div style="font-size:0.6em;color:#fca5a5;font-weight:800;letter-spacing:1px;margin-bottom:5px;">◈ HANDICAPS ACTIFS</div>
+                    <div style="font-size:0.75em;color:#cbd5e1;line-height:1.6;">
+                        ${handicaps.forced_burpees > 0 ? `<div>🦣 Burpees forcés (×${handicaps.forced_burpees})</div>` : ''}
+                        ${handicaps.extra_rest > 0 ? `<div>⏱ +${handicaps.extra_rest}s de repos imposé</div>` : ''}
+                        ${handicaps.extra_set > 0 ? `<div>➕ +${handicaps.extra_set} série(s) par exercice</div>` : ''}
+                        ${handicaps.reduce_xp > 0 ? `<div>📉 XP réduit de ${handicaps.reduce_xp}%</div>` : ''}
+                        ${handicaps.reduce_stats > 0 ? `<div>⚔️ -${handicaps.reduce_stats}% dégâts en Faille</div>` : ''}
+                        ${handicaps.block_drops ? `<div>🚫 Aucun loot pendant les séances</div>` : ''}
+                    </div>
+                </div>` : ''}
+
+                <div style="display:flex;flex-direction:column;gap:8px;">
+                ${monsters.map(m => {
+                    const type = ESCAPED_MONSTER_TYPES.find(t => t.id === m.typeId);
+                    if (!type) return '';
+                    const days = Math.floor((Date.now() - m.spawnedAt) / (24 * 60 * 60 * 1000));
+                    const dayLabel = days === 0 ? 'aujourd\'hui' : `il y a ${days}j`;
+                    return `
+                    <div onclick="awakOpenMonsterDetail('${m.id}')" style="cursor:pointer;background:rgba(255,255,255,0.02);border:1px solid ${m.isAlpha ? 'rgba(239,68,68,0.4)' : 'rgba(255,255,255,0.06)'};border-radius:11px;padding:11px 12px;transition:transform 0.15s ease;">
+                        <div style="display:flex;align-items:center;gap:11px;">
+                            <div style="font-size:1.8em;line-height:1;flex-shrink:0;filter:drop-shadow(0 0 6px ${type.color}80);">${type.emoji}</div>
+                            <div style="flex:1;min-width:0;">
+                                <div style="display:flex;align-items:center;gap:5px;margin-bottom:2px;flex-wrap:wrap;">
+                                    ${m.isAlpha ? '<span style="background:#ef4444;color:white;padding:1px 5px;border-radius:4px;font-size:0.55em;font-weight:900;letter-spacing:1px;">ALPHA</span>' : ''}
+                                    <span style="font-weight:800;color:white;font-size:0.9em;">${type.name}</span>
+                                </div>
+                                <div style="font-size:0.68em;color:#94a3b8;font-weight:600;">⏱ ${dayLabel} · 🩸 ${m.hpMax} HP</div>
+                            </div>
+                            <div style="color:${type.color};font-size:1.2em;flex-shrink:0;">›</div>
+                        </div>
+                    </div>`;
+                }).join('')}
+                </div>
+            </div>`;
+        }
+        window.renderEscapedMonstersCard = renderEscapedMonstersCard;
+
+        /**
+         * Modal de détail d'un monstre avec bouton CHASSER
+         */
+        function awakOpenMonsterDetail(monsterId) {
+            const monster = awakGetMonsterById(monsterId);
+            if (!monster || monster.defeated) return;
+            const type = ESCAPED_MONSTER_TYPES.find(t => t.id === monster.typeId);
+            if (!type) return;
+
+            const active = awakGetActiveMonsters();
+            const huntDuration = active.length > 2 ? Math.max(10, type.huntDuration - 5) : type.huntDuration;
+            const days = Math.floor((Date.now() - monster.spawnedAt) / (24 * 60 * 60 * 1000));
+
+            document.getElementById('awakMonsterDetailModal')?.remove();
+            const modal = document.createElement('div');
+            modal.id = 'awakMonsterDetailModal';
+            modal.className = 'modal active';
+            modal.style.cssText = 'background:rgba(0,0,0,0.92);backdrop-filter:blur(12px);';
+
+            modal.innerHTML = `
+            <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow:hidden;border-radius:20px;">
+                <!-- Header thématique -->
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;">
+                    <div style="font-size:3.5em;line-height:1;margin-bottom:8px;filter:drop-shadow(0 0 14px ${type.color}90);">${type.emoji}</div>
+                    ${monster.isAlpha ? '<div style="display:inline-block;background:#ef4444;color:white;padding:3px 10px;border-radius:7px;font-size:0.65em;font-weight:900;letter-spacing:2px;margin-bottom:8px;">⚠ ALPHA</div>' : ''}
+                    <h2 style="margin:0;color:white;font-size:1.3em;font-weight:900;">${type.name}</h2>
+                    <div style="margin-top:8px;color:#94a3b8;font-size:0.82em;font-style:italic;">${type.description}</div>
+                </div>
+
+                <!-- Infos -->
+                <div style="padding:18px 22px;">
+                    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px;">
+                        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:11px;padding:11px;">
+                            <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:4px;">🩸 HP</div>
+                            <div style="font-size:1.1em;font-weight:900;color:white;">${monster.hpMax}</div>
+                        </div>
+                        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:11px;padding:11px;">
+                            <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:4px;">⏱ DURÉE</div>
+                            <div style="font-size:1.1em;font-weight:900;color:white;">${huntDuration} min${active.length > 2 ? ' ↓' : ''}</div>
+                        </div>
+                    </div>
+
+                    <!-- Handicap actif -->
+                    <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:11px;padding:11px;margin-bottom:14px;">
+                        <div style="font-size:0.6em;color:#fca5a5;font-weight:800;letter-spacing:1px;margin-bottom:5px;">◈ HANDICAP IMPOSÉ</div>
+                        <div style="font-size:0.85em;color:#cbd5e1;font-weight:600;">${type.handicap.label}${monster.isAlpha ? ' <span style="color:#fca5a5;font-weight:900;">(doublé en Alpha)</span>' : ''}</div>
+                    </div>
+
+                    <!-- Lore court -->
+                    <div style="background:rgba(74,222,128,0.06);border-left:3px solid #4ade80;border-radius:8px;padding:10px 12px;margin-bottom:14px;">
+                        <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;margin-bottom:3px;">⚙ SYSTÈME</div>
+                        <div style="color:#cbd5e1;font-size:0.78em;font-style:italic;line-height:1.5;">
+                            ${monster.isAlpha
+                                ? 'Il s\'est stabilisé. Plus difficile maintenant. Mais le récompenser sera plus généreux.'
+                                : `Échappé ${days === 0 ? 'aujourd\'hui' : `il y a ${days} jour${days > 1 ? 's' : ''}`}. ${days >= 3 ? 'Il devient dangereux.' : 'Élimine-le rapidement.'}`}
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div style="display:flex;gap:8px;">
+                        <button onclick="document.getElementById('awakMonsterDetailModal').remove()" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;border-radius:11px;padding:14px;font-weight:800;font-size:0.85em;cursor:pointer;">↩ Plus tard</button>
+                        <button onclick="awakStartHunt('${monster.id}')" style="flex:2;background:linear-gradient(135deg,${type.color},${type.color}dd);border:none;color:white;border-radius:11px;padding:14px;font-weight:900;font-size:0.9em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${type.color}40;">🏹 CHASSER</button>
+                    </div>
+                </div>
+            </div>`;
+
+            document.body.appendChild(modal);
+            dismissOnBackdrop(modal);
+        }
+        window.awakOpenMonsterDetail = awakOpenMonsterDetail;
+
+        // ═══════════════════════════════════════════════════════════════
+        // 🎭 PHASE 4 — COMPAGNONS HUMAINS (8 Ancrages alliés)
+        // ═══════════════════════════════════════════════════════════════
+        //
+        // Boucle :
+        // - 0 compagnon au départ
+        // - Débloqués via milestones (séances, niveaux, monstres vaincus...)
+        // - Max 3 actifs simultanément (slots)
+        // - Bonus stats passifs + dialogues contextuels
+        // - Avatar visible dans l'UI des Failles/Chasses
+        //
+
+        const COMPANIONS_STORAGE_KEY = 'awakCompanions';
+        const COMPANIONS_ACTIVE_KEY = 'awakCompanionsActive';
+        const COMPANIONS_MAX_ACTIVE = 3;
+
+        // ── 8 COMPAGNONS HUMAINS ───────────────────────────────────────
+        const COMPANIONS = [
+            {
+                id: 'marcus',
+                name: 'Marcus Ironfist',
+                title: 'Le Brutal',
+                emoji: '💪',
+                color: '#ef4444',
+                description: 'Ancien champion poids lourds. Sa Loi : amplification de force brute.',
+                lore: 'Il a survécu à 3 Failles rang A en solo. Son corps porte les marques de chaque combat.',
+                bonus: { stat: 'STR', mult: 0.18, label: '+18% STR · +10% dégâts boss' },
+                bonusDetails: { dmgBoss: 0.10 },
+                unlockCondition: { type: 'workouts', value: 10, label: 'Termine 10 séances' },
+                dialogues: {
+                    onFightStart: ['On va leur défoncer le crâne.', 'Tu sens cette adrénaline ?', 'Ne retiens rien.'],
+                    onCrit: ['ÇA c\'est de la force !', 'Encore !', 'Voilà !'],
+                    onBossPhase: ['Le boss s\'agite. Tant mieux.', 'Continue à frapper.'],
+                    onVictory: ['Bien joué.', 'C\'était propre.', 'On remet ça quand tu veux.']
+                }
+            },
+            {
+                id: 'kira',
+                name: 'Kira Shadowstep',
+                title: 'L\'Ombre',
+                emoji: '🗡️',
+                color: '#a855f7',
+                description: 'Ses mouvements sont devenus impossibles à anticiper. Loi du déplacement absolu.',
+                lore: 'Elle disait être assassin avant l\'arrivée du Système. Personne ne l\'a jamais vue rater.',
+                bonus: { stat: 'AGI', mult: 0.20, label: '+20% AGI · +5% chance critique' },
+                bonusDetails: { critChance: 0.05 },
+                unlockCondition: { type: 'rifts_completed', value: 3, label: 'Ferme 3 Failles' },
+                dialogues: {
+                    onFightStart: ['Reste discret.', 'L\'opportunité viendra.', 'Vise les points faibles.'],
+                    onCrit: ['Parfait.', 'C\'est exactement ça.', '...précis.'],
+                    onBossPhase: ['Le moment est venu.', 'Maintenant.'],
+                    onVictory: ['Élégant.', 'Tu apprends vite.', '...continue.']
+                }
+            },
+            {
+                id: 'chen',
+                name: 'Maître Chen',
+                title: 'Le Sage',
+                emoji: '🧘',
+                color: '#06b6d4',
+                description: 'Maître d\'arts martiaux ancien. Il voit ce que les autres ne voient pas.',
+                lore: 'Il étudie les Failles depuis le début. Il pense que le Système n\'est pas notre ami.',
+                bonus: { stat: 'PER', mult: 0.15, label: '+15% PER · -10% durée Failles' },
+                bonusDetails: { riftDurationCut: 0.10 },
+                unlockCondition: { type: 'rank', value: 'C', label: 'Atteins le rang C' },
+                dialogues: {
+                    onFightStart: ['Respire. Observe.', 'Le combat est dans ta tête.', 'Calme-toi.'],
+                    onCrit: ['Bien vu.', 'Tu apprends.', 'Voilà la voie.'],
+                    onBossPhase: ['Adapte-toi. Le boss aussi le fait.', 'Sa stratégie change. La tienne aussi.'],
+                    onVictory: ['Sagesse acquise.', 'Tu progresses.', 'Bien.']
+                }
+            },
+            {
+                id: 'jules',
+                name: 'Jules Beastmode',
+                title: 'Le Pilier',
+                emoji: '🛡️',
+                color: '#22c55e',
+                description: 'Endurance surhumaine. Capable de tenir des heures sans plier.',
+                lore: 'Ancien marathonien militaire. A passé 73h dans une Faille avant qu\'on le trouve. Vivant.',
+                bonus: { stat: 'END', mult: 0.25, label: '+25% END · vagues plus tenaces' },
+                bonusDetails: { extraWaveTime: true },
+                unlockCondition: { type: 'monsters_hunted', value: 2, label: 'Vaincre 2 monstres échappés' },
+                dialogues: {
+                    onFightStart: ['Long combat ? Tant mieux.', 'Garde ton souffle.', 'Tu peux tenir plus.'],
+                    onCrit: ['Et encore !', 'Continue !', 'C\'est ça !'],
+                    onBossPhase: ['On l\'aura à l\'usure.', 'Pas de pause.'],
+                    onVictory: ['Bien tenu.', 'Voilà ce qu\'on appelle un effort.', 'On en avait sous le pied.']
+                }
+            },
+            {
+                id: 'elise',
+                name: 'Élise Vorn',
+                title: 'La Médic',
+                emoji: '💚',
+                color: '#34d399',
+                description: 'Médecin pendant la première vague de Failles. Loi de régénération partielle.',
+                lore: 'Elle a sauvé plus d\'Ancrages que le Système n\'en a créé. Le Noyau la déteste.',
+                bonus: { stat: 'SEN', mult: 0.20, label: '+20% SEN · récup +30%' },
+                bonusDetails: { recovery: 0.30 },
+                unlockCondition: { type: 'workouts', value: 25, label: 'Termine 25 séances' },
+                dialogues: {
+                    onFightStart: ['Sois prudent.', 'Je veille sur toi.', 'On rentre tous les deux.'],
+                    onCrit: ['Excellent.', 'Bien placé.', 'Continue comme ça.'],
+                    onBossPhase: ['Reste concentré. Je gère le reste.', 'Ne paniques pas.'],
+                    onVictory: ['Tu es entier. C\'est l\'essentiel.', 'Bien joué. Repose-toi.', 'Bravo.']
+                }
+            },
+            {
+                id: 'halberd',
+                name: 'Dr. Halberd',
+                title: 'Le Stratège',
+                emoji: '🔬',
+                color: '#fbbf24',
+                description: 'Scientifique. Il analyse les Failles en temps réel et trouve leurs faiblesses.',
+                lore: 'Il était dans l\'équipe qui a découvert l\'existence de l\'Architecte du Silence. Personne ne l\'a cru.',
+                bonus: { stat: 'PER', mult: 0.10, label: '-20% HP boss · révèle faiblesses' },
+                bonusDetails: { bossHpCut: 0.20, revealWeakness: true },
+                unlockCondition: { type: 'rifts_completed', value: 8, label: 'Ferme 8 Failles' },
+                dialogues: {
+                    onFightStart: ['Analyse en cours...', 'Schéma détecté.', 'Voilà sa stratégie.'],
+                    onCrit: ['Vecteur optimal.', 'Calculé.', 'Précis.'],
+                    onBossPhase: ['Le boss change de phase. Adaptes-toi.', 'Pattern numéro 2.'],
+                    onVictory: ['Hypothèse confirmée.', 'Données précieuses.', 'Excellent.']
+                }
+            },
+            {
+                id: 'storm',
+                name: 'Ryker "Storm"',
+                title: 'Le Tempête',
+                emoji: '⚡',
+                color: '#3b82f6',
+                description: 'Vitesse pure. Il s\'est entraîné dans le Train Dimensionnel pendant 6 mois.',
+                lore: 'Il dit que la vitesse, c\'est juste de la décision. Il décide plus vite que sa peur.',
+                bonus: { stat: 'VIT', mult: 0.18, label: '+18% VIT · bonus cardio/HIIT' },
+                bonusDetails: { cardioBoost: 0.25 },
+                unlockCondition: { type: 'rank', value: 'B', label: 'Atteins le rang B' },
+                dialogues: {
+                    onFightStart: ['Vite.', 'Pas le temps.', 'On y va.'],
+                    onCrit: ['Top.', '!', 'Plus vite.'],
+                    onBossPhase: ['Change de rythme.', 'Boost.'],
+                    onVictory: ['Rapide.', 'Fini.', 'Pas mal.']
+                }
+            },
+            {
+                id: 'yuna',
+                name: 'Yuna Veilbreaker',
+                title: 'La Mystique',
+                emoji: '🌀',
+                color: '#c084fc',
+                description: 'Elle entend le Noyau. Le Système la traite avec méfiance — c\'est mauvais signe.',
+                lore: 'Elle voit ce qui n\'existe pas encore. Elle a déjà sauvé l\'humanité au moins une fois — mais on a oublié.',
+                bonus: { stat: 'SEN', mult: 0.10, label: 'Bonus loots rares · double drop' },
+                bonusDetails: { rareLootBoost: 0.5, doubleDropChance: 0.1 },
+                unlockCondition: { type: 'rank', value: 'A', label: 'Atteins le rang A' },
+                dialogues: {
+                    onFightStart: ['Il y a quelque chose ici.', 'Tu n\'es pas seul.', 'Quelque chose t\'observe.'],
+                    onCrit: ['Le Noyau aime ça.', 'Étrange...', 'Continue.'],
+                    onBossPhase: ['Il se réveille vraiment maintenant.', 'Sois prudent.'],
+                    onVictory: ['Quelque chose s\'est passé. Je l\'ai senti.', 'Ce n\'était pas qu\'une victoire.', '...intéressant.']
+                }
+            }
+        ];
+
+        function awakCompanionsLoad() {
+            try {
+                const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
+                const key = profileId ? `${COMPANIONS_STORAGE_KEY}_${profileId}` : COMPANIONS_STORAGE_KEY;
+                const stored = JSON.parse(localStorage.getItem(key) || 'null');
+                if (stored) return stored;
+                // Default : aucun compagnon débloqué
+                return { unlocked: [], stats: { workouts: 0, rifts: 0, monsters: 0 } };
+            } catch(e) { return { unlocked: [], stats: { workouts: 0, rifts: 0, monsters: 0 } }; }
+        }
+
+        function awakCompanionsSave(data) {
+            try {
+                const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
+                const key = profileId ? `${COMPANIONS_STORAGE_KEY}_${profileId}` : COMPANIONS_STORAGE_KEY;
+                localStorage.setItem(key, JSON.stringify(data));
+            } catch(e) {}
+        }
+
+        function awakCompanionsGetActive() {
+            try {
+                const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
+                const key = profileId ? `${COMPANIONS_ACTIVE_KEY}_${profileId}` : COMPANIONS_ACTIVE_KEY;
+                return JSON.parse(localStorage.getItem(key) || '[]');
+            } catch(e) { return []; }
+        }
+
+        function awakCompanionsSetActive(ids) {
+            try {
+                const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
+                const key = profileId ? `${COMPANIONS_ACTIVE_KEY}_${profileId}` : COMPANIONS_ACTIVE_KEY;
+                // Limiter à MAX
+                const limited = (ids || []).slice(0, COMPANIONS_MAX_ACTIVE);
+                localStorage.setItem(key, JSON.stringify(limited));
+            } catch(e) {}
+        }
+        window.awakCompanionsGetActive = awakCompanionsGetActive;
+
+        function awakGetCompanionById(id) {
+            return COMPANIONS.find(c => c.id === id);
+        }
+        window.awakGetCompanionById = awakGetCompanionById;
+
+        /**
+         * Vérifie si les conditions de déblocage sont remplies et débloque
+         * les compagnons éligibles. Retourne ceux nouvellement débloqués.
+         */
+        function awakCompanionsCheckUnlocks() {
+            const data = awakCompanionsLoad();
+            const newlyUnlocked = [];
+
+            // Calculer les stats actuelles
+            const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
+            const histKey = profileId ? `profile_${profileId}_workoutHistory` : 'workoutHistory';
+            const history = JSON.parse(localStorage.getItem(histKey) || '[]');
+            const totalWorkouts = history.length;
+
+            const rifts = awakRiftsLoad();
+            const completedRifts = rifts.filter(r => r.completed).length;
+
+            const monsters = awakMonstersLoad();
+            const defeatedMonsters = monsters.filter(m => m.defeated).length;
+
+            const currentRank = awakGetRank();
+            const rankIds = ['E', 'D', 'C', 'B', 'A', 'S'];
+            const currentRankIdx = rankIds.indexOf(currentRank.id);
+
+            for (const comp of COMPANIONS) {
+                if (data.unlocked.includes(comp.id)) continue;
+
+                let unlocked = false;
+                const cond = comp.unlockCondition;
+                switch(cond.type) {
+                    case 'workouts': unlocked = totalWorkouts >= cond.value; break;
+                    case 'rifts_completed': unlocked = completedRifts >= cond.value; break;
+                    case 'monsters_hunted': unlocked = defeatedMonsters >= cond.value; break;
+                    case 'rank': {
+                        const requiredIdx = rankIds.indexOf(cond.value);
+                        unlocked = currentRankIdx >= requiredIdx;
+                        break;
+                    }
+                }
+
+                if (unlocked) {
+                    data.unlocked.push(comp.id);
+                    newlyUnlocked.push(comp);
+                }
+            }
+
+            // Mettre à jour les stats
+            data.stats = { workouts: totalWorkouts, rifts: completedRifts, monsters: defeatedMonsters };
+            awakCompanionsSave(data);
+
+            return newlyUnlocked;
+        }
+        window.awakCompanionsCheckUnlocks = awakCompanionsCheckUnlocks;
+
+        /**
+         * Calcule le bonus total des compagnons actifs (utilisé par awakGetTotalStats indirectement)
+         */
+        function awakCompanionsGetActiveBonuses() {
+            const active = awakCompanionsGetActive();
+            const bonuses = {
+                STR: 0, AGI: 0, VIT: 0, END: 0, PER: 0, SEN: 0,
+                critChance: 0, dmgBoss: 0, bossHpCut: 0, riftDurationCut: 0,
+                cardioBoost: 0, recovery: 0, rareLootBoost: 0, doubleDropChance: 0,
+                revealWeakness: false, extraWaveTime: false
+            };
+
+            const playerStats = (() => {
+                // On évite la récursion : on prend les stats sans les bonus compagnons
+                const base = { STR:10, AGI:10, VIT:10, END:10, PER:5, SEN:5 };
+                const auto = awakAutoStatsLoad();
+                const manual = statPointsGetAllocated();
+                const equip = typeof getPlayerEquipStats === 'function' ? getPlayerEquipStats() : {};
+                const total = {};
+                for (const s of ['STR','AGI','VIT','END','PER','SEN']) {
+                    total[s] = (base[s] || 0) + (auto[s] || 0) + (manual[s] || 0) + (equip[s] || 0);
+                }
+                return total;
+            })();
+
+            for (const compId of active) {
+                const comp = awakGetCompanionById(compId);
+                if (!comp) continue;
+                // Bonus stat principal (% de la stat actuelle)
+                const stat = comp.bonus.stat;
+                if (stat && comp.bonus.mult) {
+                    bonuses[stat] = (bonuses[stat] || 0) + Math.round((playerStats[stat] || 0) * comp.bonus.mult);
+                }
+                // Détails additionnels
+                const d = comp.bonusDetails || {};
+                if (d.critChance) bonuses.critChance += d.critChance;
+                if (d.dmgBoss) bonuses.dmgBoss += d.dmgBoss;
+                if (d.bossHpCut) bonuses.bossHpCut += d.bossHpCut;
+                if (d.riftDurationCut) bonuses.riftDurationCut += d.riftDurationCut;
+                if (d.cardioBoost) bonuses.cardioBoost += d.cardioBoost;
+                if (d.recovery) bonuses.recovery += d.recovery;
+                if (d.rareLootBoost) bonuses.rareLootBoost += d.rareLootBoost;
+                if (d.doubleDropChance) bonuses.doubleDropChance += d.doubleDropChance;
+                if (d.revealWeakness) bonuses.revealWeakness = true;
+                if (d.extraWaveTime) bonuses.extraWaveTime = true;
+            }
+            return bonuses;
+        }
+        window.awakCompanionsGetActiveBonuses = awakCompanionsGetActiveBonuses;
+
+        /**
+         * Toggle un compagnon dans la liste des actifs
+         */
+        function awakCompanionToggleActive(compId) {
+            const data = awakCompanionsLoad();
+            if (!data.unlocked.includes(compId)) return false;
+
+            const active = awakCompanionsGetActive();
+            const idx = active.indexOf(compId);
+            if (idx >= 0) {
+                active.splice(idx, 1);
+            } else {
+                if (active.length >= COMPANIONS_MAX_ACTIVE) {
+                    if (typeof showToast === 'function') showToast(`Max ${COMPANIONS_MAX_ACTIVE} compagnons actifs`, 'warning', 2500);
+                    return false;
+                }
+                active.push(compId);
+            }
+            awakCompanionsSetActive(active);
+            // Rafraîchir l'affichage
+            if (typeof renderAdventureTab === 'function') renderAdventureTab();
+            return true;
+        }
+        window.awakCompanionToggleActive = awakCompanionToggleActive;
+
+        /**
+         * Cinématique de déblocage (apparition d'un nouveau compagnon)
+         */
+        function awakShowCompanionUnlocked(companion) {
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;inset:0;z-index:99998;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.92);backdrop-filter:blur(10px);animation:awakFadeIn 0.4s;padding:20px;';
+
+            overlay.innerHTML = `
+                <div style="max-width:420px;width:100%;background:linear-gradient(160deg,#0a0e18,#0F1014,${companion.color}15);border:1.5px solid ${companion.color}50;border-radius:24px;padding:32px 26px;text-align:center;box-shadow:0 24px 60px ${companion.color}20,0 0 80px ${companion.color}15;animation:slideUp 0.5s cubic-bezier(0.34,1.56,0.64,1);">
+                    <div style="font-size:0.6em;color:${companion.color};font-weight:900;letter-spacing:3px;margin-bottom:14px;">◇ NOUVEL ANCRAGE RENCONTRÉ ◇</div>
+                    <div style="font-size:4em;line-height:1;margin-bottom:12px;filter:drop-shadow(0 0 20px ${companion.color}b0);animation:awakBlink 2s infinite;">${companion.emoji}</div>
+                    <h2 style="margin:0;color:white;font-size:1.4em;font-weight:900;letter-spacing:0.5px;">${companion.name}</h2>
+                    <div style="font-size:0.85em;color:${companion.color};font-weight:800;margin-top:3px;letter-spacing:1px;">${companion.title}</div>
+                    <div style="margin-top:14px;color:#cbd5e1;font-size:0.85em;line-height:1.55;font-style:italic;">${companion.description}</div>
+
+                    <div style="margin-top:18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:11px;padding:11px 13px;">
+                        <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:4px;">◈ BONUS</div>
+                        <div style="color:${companion.color};font-weight:800;font-size:0.85em;">${companion.bonus.label}</div>
+                    </div>
+
+                    <div style="margin-top:14px;padding:11px 12px;background:rgba(74,222,128,0.08);border-left:3px solid #4ade80;border-radius:8px;">
+                        <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;margin-bottom:3px;">⚙ SYSTÈME</div>
+                        <div style="color:#cbd5e1;font-size:0.78em;font-style:italic;line-height:1.5;text-align:left;">${companion.lore}</div>
+                    </div>
+
+                    <button onclick="this.closest('[style*=\\'fixed\\']').remove()" style="margin-top:18px;width:100%;background:linear-gradient(135deg,${companion.color},${companion.color}dd);border:none;color:white;border-radius:12px;padding:14px;font-weight:900;font-size:0.95em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${companion.color}40;">✓ CONTINUER</button>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+            overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+            if (typeof hapticTap === 'function') hapticTap([50, 50, 100, 50, 150]);
+        }
+        window.awakShowCompanionUnlocked = awakShowCompanionUnlocked;
+
+        /**
+         * Vérifie les déblocages et affiche les cinématiques le cas échéant
+         * À appeler après chaque événement (fin séance, fin faille, etc.)
+         */
+        function awakCompanionsTriggerUnlockCheck() {
+            const newlyUnlocked = awakCompanionsCheckUnlocks();
+            if (newlyUnlocked.length === 0) return;
+
+            // Afficher la cinématique pour chaque compagnon (séquencé)
+            newlyUnlocked.forEach((comp, i) => {
+                setTimeout(() => awakShowCompanionUnlocked(comp), i * 3500 + 2000);
+            });
+        }
+        window.awakCompanionsTriggerUnlockCheck = awakCompanionsTriggerUnlockCheck;
+
+        // ═══════════════════════════════════════════════════════════════
+        // 💬 DIALOGUES DE COMPAGNONS (pendant Failles/Chasses)
+        // ═══════════════════════════════════════════════════════════════
+        function awakCompanionShowDialogue(context, opts) {
+            const active = awakCompanionsGetActive();
+            if (active.length === 0) return;
+            // Choisir un compagnon actif au hasard
+            const compId = active[Math.floor(Math.random() * active.length)];
+            const comp = awakGetCompanionById(compId);
+            if (!comp || !comp.dialogues || !comp.dialogues[context]) return;
+            const lines = comp.dialogues[context];
+            const line = lines[Math.floor(Math.random() * lines.length)];
+
+            // Affichage en bas de l'écran (notification courte avec avatar)
+            const dialog = document.createElement('div');
+            dialog.style.cssText = `position:fixed;bottom:90px;left:50%;transform:translateX(-50%);z-index:25000;max-width:340px;width:90%;background:linear-gradient(135deg,#0F1014,#0a0e18);border:1px solid ${comp.color}50;border-radius:14px;padding:11px 14px;box-shadow:0 10px 28px rgba(0,0,0,0.5);animation:slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);`;
+            dialog.innerHTML = `
+                <div style="display:flex;align-items:flex-start;gap:10px;">
+                    <div style="font-size:1.8em;line-height:1;flex-shrink:0;filter:drop-shadow(0 0 6px ${comp.color}80);">${comp.emoji}</div>
+                    <div style="flex:1;min-width:0;">
+                        <div style="font-size:0.6em;color:${comp.color};font-weight:900;letter-spacing:1.5px;margin-bottom:2px;">${comp.name}</div>
+                        <div style="color:#e2e8f0;font-size:0.82em;font-style:italic;line-height:1.4;">"${line}"</div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(dialog);
+            setTimeout(() => {
+                dialog.style.transition = 'opacity 0.4s, transform 0.4s';
+                dialog.style.opacity = '0';
+                dialog.style.transform = 'translateX(-50%) translateY(20px)';
+                setTimeout(() => dialog.remove(), 500);
+            }, opts?.duration || 3500);
+        }
+        window.awakCompanionShowDialogue = awakCompanionShowDialogue;
+
+        // ═══════════════════════════════════════════════════════════════
+        // 🎨 RENDER : Carte Compagnons dans l'onglet Jeu
+        // ═══════════════════════════════════════════════════════════════
+        function renderCompanionsCard() {
+            // Toujours faire un check rapide (au cas où l'utilisateur ouvre l'onglet pour la 1ère fois)
+            awakCompanionsCheckUnlocks();
+
+            const data = awakCompanionsLoad();
+            const unlocked = data.unlocked || [];
+            const active = awakCompanionsGetActive();
+
+            // Si aucun compagnon débloqué, ne pas afficher la carte
+            // (sera révélée au premier unlock)
+            if (unlocked.length === 0) {
+                // Afficher un teaser discret avec la 1ère condition de déblocage
+                const next = COMPANIONS[0]; // Marcus en premier
+                const data2 = awakCompanionsLoad();
+                const progress = data2.stats?.workouts || 0;
+                return `
+                <div class="card" style="background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(255,255,255,0.06);padding:14px 16px;margin-bottom:14px;opacity:0.7;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div style="font-size:1.8em;opacity:0.4;filter:grayscale(1);">🎭</div>
+                        <div style="flex:1;min-width:0;">
+                            <div style="font-size:0.6em;color:#94a3b8;font-weight:900;letter-spacing:2px;margin-bottom:2px;">◈ COMPAGNONS</div>
+                            <div style="font-size:0.78em;color:#64748b;font-style:italic;">Un premier Ancrage te trouvera bientôt...</div>
+                            <div style="margin-top:6px;height:4px;background:rgba(255,255,255,0.04);border-radius:99px;overflow:hidden;">
+                                <div style="width:${Math.min(100, (progress/next.unlockCondition.value)*100)}%;height:100%;background:linear-gradient(90deg,#475569,#94a3b8);"></div>
+                            </div>
+                            <div style="margin-top:4px;font-size:0.62em;color:#475569;">${progress}/${next.unlockCondition.value} séances</div>
+                        </div>
+                    </div>
+                </div>`;
+            }
+
+            const allCompanions = COMPANIONS.map(c => {
+                const isUnlocked = unlocked.includes(c.id);
+                const isActive = active.includes(c.id);
+                return { ...c, unlocked: isUnlocked, active: isActive };
+            });
+
+            // Stats compagnons
+            const unlockedCount = unlocked.length;
+            const totalCount = COMPANIONS.length;
+            const activeCount = active.length;
+
+            return `
+            <div class="card" style="background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(192,132,252,0.25);padding:18px;margin-bottom:14px;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+                    <div style="font-size:0.6em;color:#c084fc;font-weight:900;letter-spacing:2px;">🎭 ANCRAGES ALLIÉS</div>
+                    <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(192,132,252,0.3),transparent);"></div>
+                    <div style="font-size:0.7em;color:#94a3b8;font-weight:700;">${activeCount}/${COMPANIONS_MAX_ACTIVE} actifs · ${unlockedCount}/${totalCount} débloqués</div>
+                </div>
+
+                <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+                ${allCompanions.map(c => {
+                    if (!c.unlocked) {
+                        return `<div onclick="awakOpenCompanionLocked('${c.id}')" style="cursor:pointer;background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.1);border-radius:11px;padding:11px 6px;text-align:center;opacity:0.45;">
+                            <div style="font-size:1.6em;filter:grayscale(1) brightness(0.5);">🔒</div>
+                            <div style="font-size:0.55em;color:#64748b;font-weight:700;margin-top:3px;letter-spacing:0.5px;">?</div>
+                        </div>`;
+                    }
+                    const borderColor = c.active ? c.color : 'rgba(255,255,255,0.08)';
+                    const bgColor = c.active ? `${c.color}15` : 'rgba(255,255,255,0.02)';
+                    return `<div onclick="awakOpenCompanionDetail('${c.id}')" style="cursor:pointer;background:${bgColor};border:1.5px solid ${borderColor};border-radius:11px;padding:11px 6px;text-align:center;${c.active ? `box-shadow:0 0 12px ${c.color}30;` : ''}transition:all 0.2s;">
+                        <div style="font-size:1.7em;filter:drop-shadow(0 0 6px ${c.color}80);${c.active ? '' : 'opacity:0.85;'}">${c.emoji}</div>
+                        <div style="font-size:0.58em;color:${c.color};font-weight:800;margin-top:3px;letter-spacing:0.5px;line-height:1.2;">${c.name.split(' ')[0]}</div>
+                        ${c.active ? `<div style="margin-top:2px;font-size:0.5em;background:${c.color};color:white;border-radius:99px;padding:0 4px;font-weight:900;letter-spacing:0.5px;display:inline-block;">ACTIF</div>` : ''}
+                    </div>`;
+                }).join('')}
+                </div>
+            </div>`;
+        }
+        window.renderCompanionsCard = renderCompanionsCard;
+
+        /**
+         * Détail d'un compagnon débloqué (modal avec option toggle actif)
+         */
+        function awakOpenCompanionDetail(compId) {
+            const comp = awakGetCompanionById(compId);
+            if (!comp) return;
+            const active = awakCompanionsGetActive();
+            const isActive = active.includes(compId);
+            const canActivate = active.length < COMPANIONS_MAX_ACTIVE;
+
+            document.getElementById('awakCompanionDetailModal')?.remove();
+            const modal = document.createElement('div');
+            modal.id = 'awakCompanionDetailModal';
+            modal.className = 'modal active';
+            modal.style.cssText = 'background:rgba(0,0,0,0.92);backdrop-filter:blur(10px);';
+
+            modal.innerHTML = `
+            <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${comp.color}50;padding:0;overflow:hidden;border-radius:20px;">
+                <!-- Header thématique -->
+                <div style="background:linear-gradient(135deg,${comp.color}25,${comp.color}05);padding:26px 22px;text-align:center;border-bottom:1px solid ${comp.color}30;">
+                    <div style="font-size:4em;line-height:1;margin-bottom:8px;filter:drop-shadow(0 0 16px ${comp.color}b0);">${comp.emoji}</div>
+                    <h2 style="margin:0;color:white;font-size:1.3em;font-weight:900;">${comp.name}</h2>
+                    <div style="font-size:0.82em;color:${comp.color};font-weight:800;margin-top:3px;letter-spacing:1px;">${comp.title}</div>
+                </div>
+
+                <div style="padding:20px 22px;">
+                    <!-- Description -->
+                    <div style="color:#cbd5e1;font-size:0.85em;line-height:1.6;font-style:italic;margin-bottom:14px;text-align:center;">${comp.description}</div>
+
+                    <!-- Bonus -->
+                    <div style="background:rgba(255,255,255,0.03);border:1px solid ${comp.color}30;border-radius:12px;padding:13px;margin-bottom:14px;">
+                        <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:5px;">◈ BONUS PASSIF</div>
+                        <div style="color:${comp.color};font-weight:800;font-size:0.95em;">${comp.bonus.label}</div>
+                    </div>
+
+                    <!-- Lore -->
+                    <div style="background:rgba(74,222,128,0.06);border-left:3px solid #4ade80;border-radius:8px;padding:11px 13px;margin-bottom:18px;">
+                        <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;margin-bottom:4px;">⚙ DOSSIER SYSTÈME</div>
+                        <div style="color:#cbd5e1;font-size:0.8em;font-style:italic;line-height:1.55;">${comp.lore}</div>
+                    </div>
+
+                    <!-- Action toggle -->
+                    <button onclick="awakCompanionToggleActive('${comp.id}');document.getElementById('awakCompanionDetailModal').remove();"
+                        style="width:100%;background:${isActive ? 'rgba(239,68,68,0.15)' : (canActivate ? `linear-gradient(135deg,${comp.color},${comp.color}dd)` : 'rgba(255,255,255,0.05)')};border:${isActive ? '1.5px solid rgba(239,68,68,0.4)' : 'none'};color:${isActive ? '#f87171' : (canActivate ? 'white' : '#64748b')};border-radius:11px;padding:14px;font-weight:900;font-size:0.95em;letter-spacing:1px;cursor:${(canActivate || isActive) ? 'pointer' : 'not-allowed'};box-shadow:${isActive || !canActivate ? 'none' : `0 4px 16px ${comp.color}40`};">
+                        ${isActive ? '✕ RETIRER DE L\'ÉQUIPE' : (canActivate ? '✓ ACTIVER COMME COMPAGNON' : `⚠ MAX ${COMPANIONS_MAX_ACTIVE} ACTIFS`)}
+                    </button>
+
+                    <button onclick="document.getElementById('awakCompanionDetailModal').remove()" style="width:100%;margin-top:8px;background:transparent;border:1px solid rgba(255,255,255,0.1);color:#94a3b8;border-radius:11px;padding:10px;font-weight:700;font-size:0.82em;cursor:pointer;">Fermer</button>
+                </div>
+            </div>`;
+
+            document.body.appendChild(modal);
+            dismissOnBackdrop(modal);
+        }
+        window.awakOpenCompanionDetail = awakOpenCompanionDetail;
+
+        /**
+         * Aperçu d'un compagnon non encore débloqué (montre seulement la condition)
+         */
+        function awakOpenCompanionLocked(compId) {
+            const comp = awakGetCompanionById(compId);
+            if (!comp) return;
+            const data = awakCompanionsLoad();
+            const cond = comp.unlockCondition;
+
+            // Progression actuelle
+            let current = 0;
+            switch(cond.type) {
+                case 'workouts': current = data.stats?.workouts || 0; break;
+                case 'rifts_completed': current = data.stats?.rifts || 0; break;
+                case 'monsters_hunted': current = data.stats?.monsters || 0; break;
+                case 'rank': {
+                    const rankIds = ['E', 'D', 'C', 'B', 'A', 'S'];
+                    current = rankIds.indexOf(awakGetRank().id);
+                    break;
+                }
+            }
+            const goal = cond.type === 'rank' ? ['E', 'D', 'C', 'B', 'A', 'S'].indexOf(cond.value) : cond.value;
+            const pct = Math.min(100, Math.round((current / Math.max(1, goal)) * 100));
+
+            document.getElementById('awakCompanionLockedModal')?.remove();
+            const modal = document.createElement('div');
+            modal.id = 'awakCompanionLockedModal';
+            modal.className = 'modal active';
+            modal.style.cssText = 'background:rgba(0,0,0,0.92);backdrop-filter:blur(10px);';
+
+            modal.innerHTML = `
+            <div class="modal-content" style="max-width:380px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(255,255,255,0.1);padding:24px 22px;border-radius:18px;text-align:center;">
+                <div style="font-size:3em;line-height:1;margin-bottom:8px;filter:grayscale(1) brightness(0.6);">🔒</div>
+                <div style="font-size:0.65em;color:#94a3b8;font-weight:900;letter-spacing:2px;margin-bottom:6px;">◇ ANCRAGE NON CONTACTÉ ◇</div>
+                <div style="color:#cbd5e1;font-size:0.85em;font-style:italic;line-height:1.55;margin-bottom:16px;">"Quelqu'un se prépare à te trouver. Mais pas encore."</div>
+
+                <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:11px;padding:12px;">
+                    <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:5px;">◈ CONDITION</div>
+                    <div style="color:white;font-weight:700;font-size:0.85em;margin-bottom:8px;">${cond.label}</div>
+                    <div style="height:6px;background:rgba(255,255,255,0.04);border-radius:99px;overflow:hidden;">
+                        <div style="width:${pct}%;height:100%;background:linear-gradient(90deg,#3b82f6,#8b5cf6);border-radius:99px;transition:width 0.6s;"></div>
+                    </div>
+                    <div style="font-size:0.62em;color:#64748b;margin-top:5px;">${current} / ${goal}</div>
+                </div>
+
+                <button onclick="document.getElementById('awakCompanionLockedModal').remove()" style="width:100%;margin-top:16px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#cbd5e1;border-radius:11px;padding:11px;font-weight:700;font-size:0.85em;cursor:pointer;">Fermer</button>
+            </div>`;
+
+            document.body.appendChild(modal);
+            dismissOnBackdrop(modal);
+        }
+        window.awakOpenCompanionLocked = awakOpenCompanionLocked;
+
+        // ═══════════════════════════════════════════════════════════════
+        // ✨ PHASE 5 — POLISH & ÉVÉNEMENTS NARRATIFS
+        // ═══════════════════════════════════════════════════════════════
+        //
+        // - Failles narratives spéciales (uniques, lore propre)
+        // - Items consommables (élixirs de préparation)
+        // - Événements Architecte du Silence (glitches UI rares)
+        // - Boss mechanics actives (les phases changent vraiment le combat)
+        //
+
+        // ── FAILLES NARRATIVES SPÉCIALES ───────────────────────────────
+        // Différentes des Failles aléatoires : déclenchées par milestones
+        // Lore propre, récompense unique, marquent l'histoire
+        const NARRATIVE_RIFTS_KEY = 'awakNarrativeRiftsSeen';
+
+        const NARRATIVE_RIFTS = [
+            {
+                id: 'first_breach',
+                name: 'Le Premier Souvenir',
+                emoji: '◇',
+                color: '#a855f7',
+                description: 'Une Faille qui ressemble à un lieu de ton enfance. Mais quelque chose ne va pas.',
+                briefing: 'Tu reconnais cet endroit. Mais ce n\'est pas tout à fait ça. Avance prudemment.',
+                trigger: { type: 'rank', value: 'D', label: 'Atteindre le rang D' },
+                rewards: { xp: 1500, message: 'Tu as vu quelque chose que tu ne devrais pas voir. Le Système le sait.' },
+                rank: 'C',
+                waves: 5,
+                hpMult: 1.8,
+                primaryStat: 'PER',
+                themeEmoji: '🏚️',
+                exerciseFilter: ex => /squat|press|push|pompe|pull/.test((ex.name || '').toLowerCase())
+            },
+            {
+                id: 'whispering_tower',
+                name: 'La Tour qui Murmure',
+                emoji: '🗼',
+                color: '#06b6d4',
+                description: 'Une tour qui n\'existe pas dans la réalité, mais que tout le monde voit parfois en rêve.',
+                briefing: 'Ne réponds pas aux voix. Continue à monter. Le Système te guidera.',
+                trigger: { type: 'rifts_completed', value: 5, label: 'Fermer 5 Failles' },
+                rewards: { xp: 2500, message: 'Les voix se sont tues. Quelque chose les a fait taire. Pas toi.' },
+                rank: 'B',
+                waves: 7,
+                hpMult: 2.4,
+                primaryStat: 'SEN',
+                themeEmoji: '🌫️',
+                exerciseFilter: ex => /stretch|étir|mobilité|yoga|équilibre|planche/.test((ex.name || '').toLowerCase())
+            },
+            {
+                id: 'silent_one',
+                name: 'Le Silencieux',
+                emoji: '◯',
+                color: '#64748b',
+                description: 'Un fragment où il n\'y a plus rien. Plus de son. Plus de couleur. Plus de mémoire.',
+                briefing: 'L\'Architecte du Silence a touché ce lieu. Ne reste pas trop longtemps. Frappe vite.',
+                trigger: { type: 'rank', value: 'A', label: 'Atteindre le rang A' },
+                rewards: { xp: 5000, message: 'Tu l\'as vu, n\'est-ce pas ? Il t\'a regardé aussi.' },
+                rank: 'A',
+                waves: 8,
+                hpMult: 3.5,
+                primaryStat: 'VIT',
+                themeEmoji: '🌑',
+                exerciseFilter: ex => /burpee|hiit|sprint|jumping|jump|circuit|tabata/.test((ex.name || '').toLowerCase())
+            },
+            {
+                id: 'last_door',
+                name: 'La Dernière Porte',
+                emoji: '⛩️',
+                color: '#fbbf24',
+                description: 'Le Système ne te parle plus depuis ton entrée. Tu es seul. Pour la première fois.',
+                briefing: 'Pas de briefing cette fois. Tu vas comprendre par toi-même.',
+                trigger: { type: 'rank', value: 'S', label: 'Atteindre le rang S' },
+                rewards: { xp: 10000, message: 'Il était temps. Le Système est revenu. Mais quelque chose en lui a changé.' },
+                rank: 'S',
+                waves: 10,
+                hpMult: 5.0,
+                primaryStat: 'STR',
+                themeEmoji: '🌟',
+                exerciseFilter: ex => /deadlift|squat|press|bench|développé|soulevé/.test((ex.name || '').toLowerCase())
+            }
+        ];
+
+        function awakNarrativeRiftsSeenLoad() {
+            try {
+                const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
+                const key = profileId ? `${NARRATIVE_RIFTS_KEY}_${profileId}` : NARRATIVE_RIFTS_KEY;
+                return JSON.parse(localStorage.getItem(key) || '[]');
+            } catch(e) { return []; }
+        }
+
+        function awakNarrativeRiftsMarkSeen(id) {
+            const seen = awakNarrativeRiftsSeenLoad();
+            if (!seen.includes(id)) {
+                seen.push(id);
+                const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
+                const key = profileId ? `${NARRATIVE_RIFTS_KEY}_${profileId}` : NARRATIVE_RIFTS_KEY;
+                localStorage.setItem(key, JSON.stringify(seen));
+            }
+        }
+
+        /**
+         * Check si une Faille narrative doit apparaître
+         * Appelée après chaque événement majeur (rank up, fin faille)
+         */
+        function awakCheckNarrativeRifts() {
+            const seen = awakNarrativeRiftsSeenLoad();
+            const rifts = awakRiftsLoad();
+            // Pas plus d'une faille narrative active à la fois
+            if (rifts.some(r => r.isNarrative && !r.completed)) return null;
+
+            const rankIds = ['E', 'D', 'C', 'B', 'A', 'S'];
+            const currentRankIdx = rankIds.indexOf(awakGetRank().id);
+            const completedRifts = rifts.filter(r => r.completed && !r.isNarrative).length;
+
+            for (const narrative of NARRATIVE_RIFTS) {
+                if (seen.includes(narrative.id)) continue;
+
+                let triggered = false;
+                const t = narrative.trigger;
+                switch(t.type) {
+                    case 'rank': {
+                        const requiredIdx = rankIds.indexOf(t.value);
+                        triggered = currentRankIdx >= requiredIdx;
+                        break;
+                    }
+                    case 'rifts_completed': triggered = completedRifts >= t.value; break;
+                }
+
+                if (triggered) {
+                    // Spawn une Faille spéciale
+                    const newRift = awakGenerateNarrativeRift(narrative);
+                    rifts.push(newRift);
+                    awakRiftsSave(rifts);
+                    awakNarrativeRiftsMarkSeen(narrative.id);
+
+                    // Notification narrative (vibrer + message)
+                    setTimeout(() => awakShowNarrativeRiftAppearance(narrative), 1500);
+                    return newRift;
+                }
+            }
+            return null;
+        }
+        window.awakCheckNarrativeRifts = awakCheckNarrativeRifts;
+
+        /**
+         * Génère une Faille à partir d'un template narratif
+         */
+        function awakGenerateNarrativeRift(narrative) {
+            const monstersForTheme = RIFT_MONSTERS.inverted_reality; // base
+            const waves = [];
+            for (let i = 0; i < narrative.waves; i++) {
+                const isBossWave = (i === narrative.waves - 1);
+                const monster = isBossWave
+                    ? monstersForTheme[monstersForTheme.length - 1]
+                    : monstersForTheme[Math.min(i, monstersForTheme.length - 2)];
+                const hp = Math.round(monster.baseHp * narrative.hpMult * (isBossWave ? 2.5 : 1));
+                waves.push({
+                    index: i,
+                    isBoss: isBossWave,
+                    name: isBossWave ? `${monster.name} (Boss)` : monster.name,
+                    emoji: monster.emoji,
+                    hpMax: hp,
+                    hpCurrent: hp,
+                    bossMech: isBossWave ? awakPickBossMechanic() : null
+                });
+            }
+
+            return {
+                id: 'narrative_' + narrative.id + '_' + Date.now(),
+                isNarrative: true,
+                narrativeId: narrative.id,
+                createdAt: Date.now(),
+                expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000, // 30 jours (longue durée)
+                rank: narrative.rank,
+                themeId: 'narrative_' + narrative.id,
+                name: narrative.name,
+                discovered: true, // déjà nommée
+                state: 'stable',
+                waves,
+                currentWaveIdx: 0,
+                recommendedPower: { E: 200, D: 800, C: 1800, B: 3000, A: 5000, S: 8000 }[narrative.rank],
+                minStatRequired: 30,
+                primaryStat: narrative.primaryStat,
+                attempts: 0,
+                completed: false,
+                // Données narratives
+                narrativeData: narrative
+            };
+        }
+
+        /**
+         * Cinématique d'apparition d'une Faille narrative
+         */
+        function awakShowNarrativeRiftAppearance(narrative) {
+            // Vibration plus intense
+            if (typeof vibrate === 'function') vibrate([100, 50, 100, 50, 200]);
+
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;inset:0;z-index:99997;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);animation:awakFadeIn 0.6s;padding:20px;';
+
+            overlay.innerHTML = `
+                <div style="max-width:440px;width:100%;background:linear-gradient(160deg,#0a0e18,#0F1014,${narrative.color}10);border:1.5px solid ${narrative.color}50;border-radius:24px;padding:34px 26px;text-align:center;box-shadow:0 24px 80px ${narrative.color}30,0 0 120px ${narrative.color}20;animation:slideUp 0.6s cubic-bezier(0.34,1.56,0.64,1);">
+                    <div style="font-size:0.6em;color:${narrative.color};font-weight:900;letter-spacing:3px;margin-bottom:14px;animation:awakBlink 2s infinite;">◇ FAILLE EXCEPTIONNELLE ◇</div>
+                    <div style="font-size:4.5em;line-height:1;margin-bottom:14px;filter:drop-shadow(0 0 24px ${narrative.color}b0);">${narrative.themeEmoji}</div>
+                    <h2 style="margin:0;color:white;font-size:1.4em;font-weight:900;letter-spacing:0.5px;">${narrative.name}</h2>
+                    <div style="margin-top:12px;color:#cbd5e1;font-size:0.85em;line-height:1.6;font-style:italic;">${narrative.description}</div>
+
+                    <div style="margin-top:18px;padding:13px 14px;background:rgba(74,222,128,0.06);border-left:3px solid #4ade80;border-radius:8px;">
+                        <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;margin-bottom:4px;">⚙ SYSTÈME</div>
+                        <div style="color:#cbd5e1;font-size:0.85em;font-style:italic;line-height:1.5;text-align:left;">${narrative.briefing}</div>
+                    </div>
+
+                    <button onclick="this.closest('[style*=\\'fixed\\']').remove()" style="margin-top:18px;width:100%;background:linear-gradient(135deg,${narrative.color},${narrative.color}dd);border:none;color:white;border-radius:12px;padding:14px;font-weight:900;font-size:0.95em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${narrative.color}60;">✓ COMPRIS</button>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+            overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+        }
+        window.awakShowNarrativeRiftAppearance = awakShowNarrativeRiftAppearance;
+
+        // ═══════════════════════════════════════════════════════════════
+        // 🧪 ITEMS CONSOMMABLES — Préparation pour Failles difficiles
+        // ═══════════════════════════════════════════════════════════════
+        const CONSUMABLES_STORAGE_KEY = 'awakConsumables';
+
+        const CONSUMABLES = [
+            {
+                id: 'elixir_force',
+                name: 'Élixir de Force',
+                emoji: '⚔️',
+                color: '#ef4444',
+                description: 'Amplifie ta force pendant une Faille.',
+                effect: { stat: 'STR', mult: 0.25 },
+                duration: 'next_rift'
+            },
+            {
+                id: 'pierre_volonte',
+                name: 'Pierre de Volonté',
+                emoji: '🪨',
+                color: '#a855f7',
+                description: 'Affaiblit les vagues d\'une Faille de 15%.',
+                effect: { hpCut: 0.15 },
+                duration: 'next_rift'
+            },
+            {
+                id: 'fragment_temps',
+                name: 'Fragment de Temps',
+                emoji: '⏳',
+                color: '#06b6d4',
+                description: 'Double tes critiques pendant 1 Faille.',
+                effect: { critBonus: 0.10 },
+                duration: 'next_rift'
+            },
+            {
+                id: 'larme_systeme',
+                name: 'Larme du Système',
+                emoji: '💧',
+                color: '#22c55e',
+                description: 'Récupère 30% HP de toutes les vagues vaincues si tu rates.',
+                effect: { revive: true },
+                duration: 'next_rift'
+            }
+        ];
+
+        function awakConsumablesLoad() {
+            try {
+                const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
+                const key = profileId ? `${CONSUMABLES_STORAGE_KEY}_${profileId}` : CONSUMABLES_STORAGE_KEY;
+                return JSON.parse(localStorage.getItem(key) || '{}');
+            } catch(e) { return {}; }
+        }
+
+        function awakConsumablesSave(data) {
+            try {
+                const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
+                const key = profileId ? `${CONSUMABLES_STORAGE_KEY}_${profileId}` : CONSUMABLES_STORAGE_KEY;
+                localStorage.setItem(key, JSON.stringify(data));
+            } catch(e) {}
+        }
+
+        function awakConsumablesAdd(itemId, count = 1) {
+            const data = awakConsumablesLoad();
+            data[itemId] = (data[itemId] || 0) + count;
+            awakConsumablesSave(data);
+        }
+        window.awakConsumablesAdd = awakConsumablesAdd;
+
+        function awakConsumablesGetCount(itemId) {
+            return awakConsumablesLoad()[itemId] || 0;
+        }
+
+        /**
+         * Active un consommable pour la prochaine Faille
+         */
+        function awakConsumablesUse(itemId) {
+            const data = awakConsumablesLoad();
+            if (!data[itemId] || data[itemId] <= 0) {
+                showToast('Tu n\'as pas cet objet', 'warning', 2000);
+                return false;
+            }
+            data[itemId]--;
+            awakConsumablesSave(data);
+
+            // Marquer comme actif pour la prochaine Faille
+            const active = JSON.parse(localStorage.getItem('awakActiveConsumables') || '[]');
+            active.push(itemId);
+            localStorage.setItem('awakActiveConsumables', JSON.stringify(active));
+
+            const item = CONSUMABLES.find(c => c.id === itemId);
+            showToast(`${item.emoji} ${item.name} activé pour ta prochaine Faille`, 'success', 3000);
+            return true;
+        }
+        window.awakConsumablesUse = awakConsumablesUse;
+
+        function awakConsumablesGetActiveEffects() {
+            const active = JSON.parse(localStorage.getItem('awakActiveConsumables') || '[]');
+            const effects = { STR: 0, AGI: 0, VIT: 0, END: 0, PER: 0, SEN: 0, hpCut: 0, critBonus: 0, revive: false };
+            for (const id of active) {
+                const item = CONSUMABLES.find(c => c.id === id);
+                if (!item) continue;
+                const e = item.effect;
+                if (e.stat && e.mult) effects[e.stat] += e.mult;
+                if (e.hpCut) effects.hpCut += e.hpCut;
+                if (e.critBonus) effects.critBonus += e.critBonus;
+                if (e.revive) effects.revive = true;
+            }
+            return effects;
+        }
+        window.awakConsumablesGetActiveEffects = awakConsumablesGetActiveEffects;
+
+        function awakConsumablesConsume() {
+            localStorage.removeItem('awakActiveConsumables');
+        }
+        window.awakConsumablesConsume = awakConsumablesConsume;
+
+        // ═══════════════════════════════════════════════════════════════
+        // 🌑 ARCHITECTE DU SILENCE — Glitches UI subtils
+        // ═══════════════════════════════════════════════════════════════
+        // Apparitions très rares, selon le rang du joueur
+        // L'Architecte "efface" temporairement des éléments de l'UI
+        const ARCHITECT_LAST_GLITCH_KEY = 'awakArchitectLastGlitch';
+        const ARCHITECT_GLITCH_COOLDOWN_HOURS = 48;
+
+        function awakArchitectMaybeGlitch() {
+            // Conditions : rang >= C, cooldown 48h, probabilité 5%
+            const rank = awakGetRank();
+            const rankIds = ['E', 'D', 'C', 'B', 'A', 'S'];
+            if (rankIds.indexOf(rank.id) < 2) return; // pas avant C
+
+            const lastGlitch = parseInt(localStorage.getItem(ARCHITECT_LAST_GLITCH_KEY) || '0');
+            if (Date.now() - lastGlitch < ARCHITECT_GLITCH_COOLDOWN_HOURS * 60 * 60 * 1000) return;
+
+            // Probabilité augmente avec le rang : C=3%, B=5%, A=8%, S=12%
+            const probs = { C: 0.03, B: 0.05, A: 0.08, S: 0.12 };
+            if (Math.random() > (probs[rank.id] || 0)) return;
+
+            localStorage.setItem(ARCHITECT_LAST_GLITCH_KEY, String(Date.now()));
+
+            // Choisir un glitch
+            const glitches = [
+                () => awakArchitectMessageGlitch(),
+                () => awakArchitectFlickerGlitch(),
+                () => awakArchitectStaticBurst()
+            ];
+            const chosen = glitches[Math.floor(Math.random() * glitches.length)];
+            setTimeout(chosen, 1500);
+        }
+        window.awakArchitectMaybeGlitch = awakArchitectMaybeGlitch;
+
+        function awakArchitectMessageGlitch() {
+            const messages = [
+                `⚙ SYS▓▓ÈME\n*Il y a quelque chose que je ne te dis pas.*\n*Pas maintenant.*\n▓▓▓▓▓▓▓▓`,
+                `▓▓▓▓▓▓\n*Tu n'es pas le premier.*\n*Tu ne seras pas le dernier.*\n*Continue.*\n▓▓▓▓▓▓`,
+                `⚙ SYSTÈME\n*Quelque chose nous écoute.*\n*Ne réponds pas.*\n*▓▓▓▓▓*`,
+                `⚙ ▓▓SYS▓▓\n*Il sait que tu existes maintenant.*\n*Trop tard.*\n`
+            ];
+            const msg = messages[Math.floor(Math.random() * messages.length)];
+
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;inset:0;z-index:99996;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.95);backdrop-filter:blur(8px);font-family:"Courier New",monospace;animation:awakFadeIn 0.3s;cursor:pointer;';
+            overlay.innerHTML = `
+                <div style="max-width:420px;padding:30px;color:#94a3b8;font-size:0.95em;line-height:1.8;white-space:pre-wrap;text-shadow:0 0 8px rgba(148,163,184,0.3);text-align:center;font-style:italic;animation:awakBlink 0.6s 3;">
+                    ${msg}
+                </div>
+            `;
+            document.body.appendChild(overlay);
+            overlay.addEventListener('click', () => overlay.remove());
+            // Auto-close after 4s
+            setTimeout(() => overlay.remove(), 4000);
+            if (typeof vibrate === 'function') vibrate([20, 20, 20, 20, 50]);
+        }
+
+        function awakArchitectFlickerGlitch() {
+            // Fait clignoter rapidement tout l'écran
+            const flicker = document.createElement('div');
+            flicker.style.cssText = 'position:fixed;inset:0;z-index:99995;background:black;pointer-events:none;opacity:0;';
+            document.body.appendChild(flicker);
+
+            let count = 0;
+            const interval = setInterval(() => {
+                flicker.style.opacity = (count % 2 === 0) ? '0.85' : '0';
+                count++;
+                if (count >= 6) {
+                    clearInterval(interval);
+                    setTimeout(() => flicker.remove(), 200);
+                }
+            }, 80);
+            if (typeof vibrate === 'function') vibrate([15, 30, 15, 30, 15]);
+        }
+
+        function awakArchitectStaticBurst() {
+            // Bandeau de static qui traverse l'écran
+            const burst = document.createElement('div');
+            burst.style.cssText = `
+                position:fixed;left:0;right:0;top:50%;transform:translateY(-50%);
+                height:80px;z-index:99994;pointer-events:none;
+                background:repeating-linear-gradient(0deg,rgba(255,255,255,0.08),rgba(0,0,0,0.4) 2px,rgba(255,255,255,0.06) 4px);
+                opacity:0;animation:awakStaticBurst 0.7s forwards;
+            `;
+            // Ajouter l'animation si pas présente
+            if (!document.getElementById('awakArchitectAnims')) {
+                const style = document.createElement('style');
+                style.id = 'awakArchitectAnims';
+                style.textContent = `
+                    @keyframes awakStaticBurst {
+                        0% { opacity: 0; transform: translateY(-50%) scaleY(0.2); }
+                        20% { opacity: 1; transform: translateY(-50%) scaleY(1); }
+                        80% { opacity: 1; }
+                        100% { opacity: 0; transform: translateY(-50%) scaleY(0.2); }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            document.body.appendChild(burst);
+            setTimeout(() => burst.remove(), 800);
+            if (typeof vibrate === 'function') vibrate([10, 10, 10, 10, 10]);
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // 👑 BOSS MECHANICS — Implémentation des effets réels
+        // ═══════════════════════════════════════════════════════════════
+        /**
+         * Appliquer la mécanique d'un boss à un combat en cours
+         * Retourne des messages à afficher
+         */
+        function awakApplyBossMechanic(wave, prevHpPercent, currentHpPercent) {
+            if (!wave.isBoss || !wave.bossMech) return null;
+            const mech = wave.bossMech;
+            const messages = [];
+
+            switch(mech.id) {
+                case 'phases': {
+                    // À 50% HP : message + bonus dégâts boss
+                    if (prevHpPercent > 50 && currentHpPercent <= 50 && !wave._phaseTriggered) {
+                        wave._phaseTriggered = true;
+                        messages.push({ text: '⚠ Le boss change de phase !', type: 'warning' });
+                        // Le boss devient agressif : il enrage légèrement
+                        wave.hpMax = Math.round(wave.hpMax * 0.85); // -15% HP restant
+                        wave.hpCurrent = Math.round(wave.hpCurrent * 0.85);
+                    }
+                    break;
+                }
+                case 'weakness': {
+                    // Au tap d'entrée, révéler la faiblesse (déjà fait via UI)
+                    if (!wave._weaknessRevealed) {
+                        wave._weaknessRevealed = true;
+                        const stats = ['STR', 'AGI', 'VIT', 'END', 'PER', 'SEN'];
+                        wave.weaknessStat = stats[Math.floor(Math.random() * stats.length)];
+                        messages.push({ text: `🎯 Faiblesse révélée : ${wave.weaknessStat}`, type: 'info' });
+                    }
+                    break;
+                }
+                case 'enrage': {
+                    // Après 5 séries, enrage : -10% reps efficaces (boss subit moins)
+                    wave._hitCount = (wave._hitCount || 0) + 1;
+                    if (wave._hitCount === 5 && !wave._enraged) {
+                        wave._enraged = true;
+                        messages.push({ text: '💢 Le boss s\'enrage ! Il subit -25% dégâts', type: 'warning' });
+                    }
+                    break;
+                }
+                case 'adds': {
+                    // À 50% HP, spawn un add : +1 mini wave intercalée
+                    if (prevHpPercent > 50 && currentHpPercent <= 50 && !wave._addSpawned) {
+                        wave._addSpawned = true;
+                        messages.push({ text: '👹 Le boss invoque un renfort !', type: 'warning' });
+                        // Pour simplifier : on ajoute du HP au boss = "renfort"
+                        wave.hpCurrent += Math.round(wave.hpMax * 0.20);
+                    }
+                    break;
+                }
+            }
+            return messages;
+        }
+        window.awakApplyBossMechanic = awakApplyBossMechanic;
+
+        // ═══════════════════════════════════════════════════════════════
+        // 🎨 RENDER : Carte Inventaire (consommables)
+        // ═══════════════════════════════════════════════════════════════
+        function renderConsumablesCard() {
+            const data = awakConsumablesLoad();
+            const owned = Object.entries(data).filter(([id, n]) => n > 0);
+            // Si rien possédé, pas afficher
+            if (owned.length === 0) return '';
+
+            return `
+            <div class="card" style="background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(34,197,94,0.25);padding:16px;margin-bottom:14px;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+                    <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;">🧪 CONSOMMABLES</div>
+                    <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(34,197,94,0.3),transparent);"></div>
+                    <div style="font-size:0.7em;color:#94a3b8;font-weight:700;">${owned.reduce((s, [_, n]) => s + n, 0)} objet(s)</div>
+                </div>
+
+                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
+                ${owned.map(([id, count]) => {
+                    const item = CONSUMABLES.find(c => c.id === id);
+                    if (!item) return '';
+                    return `
+                    <button onclick="awakOpenConsumableDetail('${id}')" style="background:rgba(255,255,255,0.03);border:1px solid ${item.color}40;border-radius:11px;padding:11px 9px;text-align:left;cursor:pointer;color:white;">
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <div style="font-size:1.4em;line-height:1;">${item.emoji}</div>
+                            <div style="flex:1;min-width:0;">
+                                <div style="font-size:0.72em;font-weight:800;color:${item.color};line-height:1.2;">${item.name}</div>
+                                <div style="font-size:0.6em;color:#94a3b8;font-weight:700;margin-top:2px;">×${count}</div>
+                            </div>
+                        </div>
+                    </button>`;
+                }).join('')}
+                </div>
+            </div>`;
+        }
+        window.renderConsumablesCard = renderConsumablesCard;
+
+        function awakOpenConsumableDetail(itemId) {
+            const item = CONSUMABLES.find(c => c.id === itemId);
+            if (!item) return;
+            const count = awakConsumablesGetCount(itemId);
+            const activeNow = (JSON.parse(localStorage.getItem('awakActiveConsumables') || '[]')).includes(itemId);
+
+            document.getElementById('awakConsumableModal')?.remove();
+            const modal = document.createElement('div');
+            modal.id = 'awakConsumableModal';
+            modal.className = 'modal active';
+            modal.style.cssText = 'background:rgba(0,0,0,0.92);backdrop-filter:blur(10px);';
+
+            modal.innerHTML = `
+            <div class="modal-content" style="max-width:400px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${item.color}50;padding:0;overflow:hidden;border-radius:20px;">
+                <div style="background:linear-gradient(135deg,${item.color}25,${item.color}05);padding:24px 22px;text-align:center;border-bottom:1px solid ${item.color}30;">
+                    <div style="font-size:3.5em;line-height:1;margin-bottom:8px;filter:drop-shadow(0 0 14px ${item.color}b0);">${item.emoji}</div>
+                    <h2 style="margin:0;color:white;font-size:1.2em;font-weight:900;">${item.name}</h2>
+                    <div style="margin-top:6px;font-size:0.78em;color:#94a3b8;font-weight:700;">×${count} en stock</div>
+                </div>
+                <div style="padding:20px 22px;">
+                    <div style="color:#cbd5e1;font-size:0.88em;line-height:1.55;font-style:italic;margin-bottom:16px;text-align:center;">${item.description}</div>
+
+                    ${activeNow
+                        ? `<div style="background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.35);border-radius:11px;padding:12px;text-align:center;color:#4ade80;font-weight:800;font-size:0.85em;">✓ Activé pour ta prochaine Faille</div>`
+                        : `<button onclick="awakConsumablesUse('${item.id}');document.getElementById('awakConsumableModal').remove();" style="width:100%;background:linear-gradient(135deg,${item.color},${item.color}dd);border:none;color:white;border-radius:12px;padding:14px;font-weight:900;font-size:0.92em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${item.color}40;">🧪 UTILISER</button>`
+                    }
+                    <button onclick="document.getElementById('awakConsumableModal').remove()" style="width:100%;margin-top:8px;background:transparent;border:1px solid rgba(255,255,255,0.1);color:#94a3b8;border-radius:11px;padding:10px;font-weight:700;font-size:0.82em;cursor:pointer;">Fermer</button>
+                </div>
+            </div>`;
+
+            document.body.appendChild(modal);
+            dismissOnBackdrop(modal);
+        }
+        window.awakOpenConsumableDetail = awakOpenConsumableDetail;
+
+        // ═══════════════════════════════════════════════════════════════
+        // 🎁 BONUS — Drop de consommables en récompense de Faille
+        // ═══════════════════════════════════════════════════════════════
+        /**
+         * Donne un consommable aléatoire après une Faille réussie
+         * Probabilité selon grade
+         */
+        function awakMaybeDropConsumable(grade) {
+            const probs = { SSS: 1.0, SS: 0.8, S: 0.6, A: 0.4, B: 0.2, C: 0.05, D: 0.0, F: 0.0 };
+            const prob = probs[grade] || 0;
+            if (Math.random() > prob) return null;
+
+            // Choisir un consommable aléatoirement
+            const item = CONSUMABLES[Math.floor(Math.random() * CONSUMABLES.length)];
+            awakConsumablesAdd(item.id, 1);
+
+            // Notification
+            setTimeout(() => {
+                if (typeof showToast === 'function') {
+                    showToast(`${item.emoji} ${item.name} obtenu !`, 'success', 4000);
+                }
+            }, 2500);
+
+            return item;
+        }
+        window.awakMaybeDropConsumable = awakMaybeDropConsumable;
+
+        // ═══════════════════════════════════════════════════════════════
         // 🎨 RENDER : Carte Power Score + Rang dans l'onglet Jeu
         // ═══════════════════════════════════════════════════════════════
         function renderAwakenedPowerCard() {
@@ -22067,6 +25115,15 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const stats = awakGetTotalStats();
             const rank = progress.current;
             const next = progress.next;
+
+            // Points de stats disponibles ?
+            const sp = typeof statPointsLoad === 'function' ? statPointsLoad() : { available: 0 };
+            const availablePoints = sp.available || 0;
+
+            // Niveau RPG actuel
+            const rpgData = typeof rpgLoad === 'function' ? rpgLoad() : { profile: { xp: 0 } };
+            const totalXP = rpgData?.profile?.xp || 0;
+            const level = typeof rpgLevelFromXP === 'function' ? rpgLevelFromXP(totalXP) : 1;
 
             const statRows = [
                 { key: 'STR', icon: '⚔️', color: '#ef4444', label: 'Force' },
@@ -22085,14 +25142,19 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:18px;">
                     <div style="flex:1;min-width:0;">
                         <div style="font-size:0.6em;color:${rank.color};font-weight:900;letter-spacing:2px;margin-bottom:3px;">◈ AWAKENED ANCRAGE</div>
-                        <div style="display:flex;align-items:baseline;gap:10px;">
+                        <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;">
                             <span style="font-size:2em;font-weight:900;color:${rank.color};line-height:1;letter-spacing:1px;text-shadow:0 0 12px ${rank.color}60;">${rank.id}</span>
-                            <span style="font-size:0.78em;color:#94a3b8;font-weight:700;">${rank.desc}</span>
+                            <span style="font-size:0.7em;color:#64748b;font-weight:600;">Niv. ${level}</span>
                         </div>
+                        <div style="font-size:0.7em;color:#94a3b8;font-weight:600;margin-top:3px;">${rank.desc}</div>
                     </div>
                     <div style="text-align:right;">
                         <div style="font-size:0.58em;color:#64748b;font-weight:700;letter-spacing:1.5px;">POWER SCORE</div>
                         <div style="font-size:1.5em;font-weight:900;color:white;letter-spacing:-1px;line-height:1.1;" id="awakPowerScoreDisplay">${progress.power.toLocaleString('fr-FR')}</div>
+                        ${availablePoints > 0
+                            ? `<button onclick="awakOpenStatPointsModal()" style="margin-top:8px;background:linear-gradient(135deg,#f59e0b,#d97706);border:none;color:white;padding:5px 11px;border-radius:99px;font-size:0.68em;font-weight:900;cursor:pointer;letter-spacing:0.5px;box-shadow:0 2px 8px rgba(245,158,11,0.4);animation:awakPointsPulse 1.6s ease-in-out infinite;display:inline-flex;align-items:center;gap:4px;">⬆ ${availablePoints} pt${availablePoints>1?'s':''}</button>`
+                            : `<button onclick="awakOpenStatPointsModal()" style="margin-top:8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);color:#64748b;padding:5px 11px;border-radius:99px;font-size:0.66em;font-weight:700;cursor:pointer;letter-spacing:0.5px;">⚙ Stats</button>`
+                        }
                     </div>
                 </div>
 
@@ -22153,54 +25215,93 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         }
 
         function renderStatPointsCard(profileLevel) {
-            const sp = statPointsLoad();
-            // S'assurer que le niveau est à jour
+            // 🌌 Carte supprimée — remplacée par un bouton dans Awakened Power Card
+            // qui ouvre awakOpenStatPointsModal()
+            // On garde le check du level-up pour s'assurer que les points sont bien crédités
             statPointsCheckLevelUp(profileLevel);
-            const spFresh = statPointsLoad();
-            const hasPoints = spFresh.available > 0;
-            const totalAllocated = Object.values(spFresh.allocated).reduce((a,b)=>a+b,0);
-
-            return `<div id="statPointsCard" class="card" style="background:linear-gradient(160deg,#080c14,#0d1220);border:1.5px solid ${hasPoints?'rgba(245,158,11,0.45)':'rgba(255,255,255,0.06)'};${hasPoints?'box-shadow:0 0 20px rgba(245,158,11,0.12);':''}">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-                    <div>
-                        <div style="font-size:0.58em;color:rgba(245,158,11,0.6);font-weight:800;text-transform:uppercase;letter-spacing:2px;margin-bottom:2px;">◈ Points de Stats</div>
-                        <div style="font-size:0.95em;font-weight:900;color:white;">Distribution de Stats</div>
-                    </div>
-                    <div style="text-align:right;flex-shrink:0;">
-                        ${hasPoints ? `<div style="background:rgba(245,158,11,0.15);border:1.5px solid rgba(245,158,11,0.4);border-radius:99px;padding:4px 12px;font-size:0.78em;font-weight:900;color:#fbbf24;">${spFresh.available} pt${spFresh.available>1?'s':''} dispo</div>` : `<div style="font-size:0.68em;color:#334155;">${totalAllocated} pts alloués</div>`}
-                    </div>
-                </div>
-
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
-                    ${STAT_POINT_STATS.map(stat => {
-                        const val = spFresh.allocated[stat] || 0;
-                        const col = STAT_POINT_COLORS[stat];
-                        const label = STAT_POINT_LABELS[stat];
-                        return `<div style="background:#0a0e18;border:1px solid rgba(255,255,255,0.05);border-radius:12px;padding:10px 12px;">
-                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-                                <span style="font-size:0.72em;font-weight:700;color:${col};">${label}</span>
-                                <span style="font-size:0.88em;font-weight:900;color:${col};">+${val}</span>
-                            </div>
-                            <div style="display:flex;align-items:center;gap:6px;">
-                                <button onclick="statPointsAllocate('${stat}',-1)" style="width:26px;height:26px;border-radius:7px;border:1px solid rgba(255,255,255,0.1);background:#111;color:#fff;font-size:1em;cursor:pointer;display:flex;align-items:center;justify-content:center;${val===0?'opacity:0.3;pointer-events:none;':''}">−</button>
-                                <div style="flex:1;height:5px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden;">
-                                    <div style="height:100%;width:${Math.min(100,val*5)}%;background:${col};border-radius:99px;transition:width 0.3s;"></div>
-                                </div>
-                                <button onclick="statPointsAllocate('${stat}',1)" style="width:26px;height:26px;border-radius:7px;border:1px solid ${col}40;background:${col}18;color:${col};font-size:1em;cursor:pointer;display:flex;align-items:center;justify-content:center;${spFresh.available===0?'opacity:0.3;pointer-events:none;':''}">+</button>
-                            </div>
-                        </div>`;
-                    }).join('')}
-                </div>
-
-                ${totalAllocated > 0 ? `
-                <button onclick="statPointsReset()" style="width:100%;padding:8px;border-radius:10px;border:1px solid rgba(239,68,68,0.2);background:rgba(239,68,68,0.06);color:#f87171;font-size:0.75em;font-weight:700;cursor:pointer;">
-                    🔄 Réinitialiser tous les points (${totalAllocated} pts)
-                </button>` : `
-                <div style="font-size:0.68em;color:#1e293b;text-align:center;padding:4px 0;">
-                    ${hasPoints ? '⬆️ Tu as des points à distribuer — alloue-les !' : 'Monte de niveau pour obtenir des points · +4 pts/niveau'}
-                </div>`}
-            </div>`;
+            return `<div id="statPointsCard" style="display:none;"></div>`;
         }
+
+        // ═══════════════════════════════════════════════════════════════
+        // 🎯 MODAL — Allocation des points de stats (popup)
+        // ═══════════════════════════════════════════════════════════════
+        function awakOpenStatPointsModal() {
+            const sp = statPointsLoad();
+            const hasPoints = sp.available > 0;
+            const totalAllocated = Object.values(sp.allocated).reduce((a,b)=>a+b,0);
+
+            document.getElementById('awakStatPointsModal')?.remove();
+            const modal = document.createElement('div');
+            modal.id = 'awakStatPointsModal';
+            modal.className = 'modal active';
+            modal.style.cssText = 'background:rgba(0,0,0,0.92);backdrop-filter:blur(10px);';
+
+            modal.innerHTML = `
+            <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${hasPoints ? 'rgba(245,158,11,0.45)' : 'rgba(255,255,255,0.1)'};padding:0;border-radius:18px;overflow:hidden;">
+                <!-- Header -->
+                <div style="background:linear-gradient(135deg,rgba(245,158,11,0.15),transparent);padding:18px 22px;border-bottom:1px solid rgba(255,255,255,0.06);">
+                    <div style="display:flex;align-items:center;justify-content:space-between;">
+                        <div>
+                            <div style="font-size:0.58em;color:rgba(245,158,11,0.7);font-weight:900;letter-spacing:2px;margin-bottom:3px;">◈ DISTRIBUTION DES STATS</div>
+                            <div style="font-size:1.05em;font-weight:900;color:white;">Points d'attribut</div>
+                        </div>
+                        <button onclick="document.getElementById('awakStatPointsModal').remove()" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:1.1em;display:flex;align-items:center;justify-content:center;">×</button>
+                    </div>
+                    ${hasPoints
+                        ? `<div style="margin-top:10px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.35);border-radius:10px;padding:8px 12px;text-align:center;">
+                              <div style="font-size:1.3em;font-weight:900;color:#fbbf24;">${sp.available} pt${sp.available>1?'s':''} disponible${sp.available>1?'s':''}</div>
+                          </div>`
+                        : `<div style="margin-top:10px;font-size:0.72em;color:#475569;text-align:center;font-style:italic;">Aucun point à distribuer. Monte de niveau pour en gagner (+4 pts/niveau)</div>`
+                    }
+                </div>
+
+                <!-- Stats grid -->
+                <div style="padding:18px 22px;">
+                    <div id="awakStatPointsList" style="display:grid;grid-template-columns:1fr;gap:8px;">
+                        ${STAT_POINT_STATS.map(stat => {
+                            const val = sp.allocated[stat] || 0;
+                            const col = STAT_POINT_COLORS[stat];
+                            const label = STAT_POINT_LABELS[stat];
+                            return `<div style="background:#0a0e18;border:1px solid rgba(255,255,255,0.05);border-radius:12px;padding:11px 13px;">
+                                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;">
+                                    <span style="font-size:0.78em;font-weight:800;color:${col};letter-spacing:0.5px;">${label}</span>
+                                    <span style="font-size:1em;font-weight:900;color:${col};">+${val}</span>
+                                </div>
+                                <div style="display:flex;align-items:center;gap:8px;">
+                                    <button onclick="awakStatPointsAllocate('${stat}',-1)" style="width:32px;height:32px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:#111;color:#fff;font-size:1.1em;cursor:pointer;display:flex;align-items:center;justify-content:center;${val===0?'opacity:0.3;pointer-events:none;':''}">−</button>
+                                    <div style="flex:1;height:6px;background:rgba(255,255,255,0.05);border-radius:99px;overflow:hidden;">
+                                        <div style="height:100%;width:${Math.min(100,val*5)}%;background:${col};border-radius:99px;transition:width 0.3s;box-shadow:0 0 6px ${col}60;"></div>
+                                    </div>
+                                    <button onclick="awakStatPointsAllocate('${stat}',1)" style="width:32px;height:32px;border-radius:8px;border:1px solid ${col}40;background:${col}18;color:${col};font-size:1.1em;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;${sp.available===0?'opacity:0.3;pointer-events:none;':''}">+</button>
+                                </div>
+                            </div>`;
+                        }).join('')}
+                    </div>
+                </div>
+
+                <!-- Footer actions -->
+                <div style="padding:14px 22px 18px;border-top:1px solid rgba(255,255,255,0.05);">
+                    ${totalAllocated > 0
+                        ? `<button onclick="if(confirm('Réinitialiser les ${totalAllocated} pts ?')) { statPointsReset(); awakOpenStatPointsModal(); }" style="width:100%;padding:11px;border-radius:10px;border:1px solid rgba(239,68,68,0.25);background:rgba(239,68,68,0.08);color:#f87171;font-size:0.82em;font-weight:800;cursor:pointer;">🔄 Réinitialiser tous les points (${totalAllocated})</button>`
+                        : `<div style="font-size:0.7em;color:#334155;text-align:center;padding:4px 0;font-style:italic;">Pas encore de points alloués</div>`
+                    }
+                </div>
+            </div>`;
+
+            document.body.appendChild(modal);
+            dismissOnBackdrop(modal);
+        }
+        window.awakOpenStatPointsModal = awakOpenStatPointsModal;
+
+        // Wrapper qui rafraîchit le modal après allocation
+        function awakStatPointsAllocate(stat, delta) {
+            statPointsAllocate(stat, delta);
+            // Rafraîchir le modal
+            awakOpenStatPointsModal();
+            // Rafraîchir la Power Card
+            if (typeof renderAdventureTab === 'function') renderAdventureTab();
+        }
+        window.awakStatPointsAllocate = awakStatPointsAllocate;
 
         function rpgApplyXPMultipliers(baseXP, muscleName, exerciseType) {
             let mult = 1;
@@ -22211,6 +25312,19 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             if (effects.xpCompound && exerciseType === 'compound') mult += effects.xpCompound;
             const cls = rpgGetClass();
             if (cls && cls.bonusMuscles.includes(muscleName)) mult += cls.xpBonus;
+
+            // 👹 Phase 3 : handicaps des monstres échappés (réduction XP)
+            // Sauf si on est dans une Faille/Chasse (qui sont des "réponses" aux monstres)
+            try {
+                if (typeof awakGetActiveHandicaps === 'function'
+                    && currentWorkout && !currentWorkout._isRift && !currentWorkout._isHunt) {
+                    const handicaps = awakGetActiveHandicaps();
+                    if (handicaps.reduce_xp > 0) {
+                        mult *= (1 - handicaps.reduce_xp / 100);
+                    }
+                }
+            } catch(e) {}
+
             return Math.round(baseXP * mult);
         }
 
@@ -22508,16 +25622,53 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         function rpgEnabled() { return localStorage.getItem('fitproGameMode') === '1'; }
 
         // ── Calcul XP d'une série ────────────────────────────────────
+        // ═══════════════════════════════════════════════════════════════
+        // 🛡️ ANTI-ABUS XP — Plafonds raisonnables
+        // ═══════════════════════════════════════════════════════════════
+        const XP_MAX_REPS_PER_SET = 100;     // au-delà = improbable physiquement
+        const XP_MAX_PER_SET      = 250;     // hard cap par série
+        const XP_MAX_PER_WORKOUT  = 3000;    // hard cap par séance entière
+        const XP_WORKOUT_TRACKING_KEY = 'fitproWorkoutXpTracker';
+
+        function rpgGetWorkoutXpEarned() {
+            try {
+                const data = JSON.parse(localStorage.getItem(XP_WORKOUT_TRACKING_KEY) || 'null');
+                if (!data) return 0;
+                // Reset si une nouvelle séance a démarré
+                if (data.startTime !== (workoutStartTime || 0)) return 0;
+                return data.xp || 0;
+            } catch(e) { return 0; }
+        }
+
+        function rpgAddWorkoutXpEarned(xp) {
+            try {
+                const startTime = workoutStartTime || 0;
+                let data = JSON.parse(localStorage.getItem(XP_WORKOUT_TRACKING_KEY) || 'null');
+                if (!data || data.startTime !== startTime) {
+                    data = { startTime, xp: 0 };
+                }
+                data.xp += xp;
+                localStorage.setItem(XP_WORKOUT_TRACKING_KEY, JSON.stringify(data));
+            } catch(e) {}
+        }
+
+        function rpgResetWorkoutXpTracker() {
+            try { localStorage.removeItem(XP_WORKOUT_TRACKING_KEY); } catch(e) {}
+        }
+        window.rpgResetWorkoutXpTracker = rpgResetWorkoutXpTracker;
+
         function rpgXPForSet(exerciseName, reps, weightKg, isTimer, timerSeconds) {
             const ex = exerciseDatabase.find(e => e.name === exerciseName);
             const diffMult = ex?.difficulty === 'Avancé' ? 1.8 : ex?.difficulty === 'Intermédiaire' ? 1.4 : 1.0;
             // Timer mode : utiliser la durée de l'exercice si timerSeconds est 0
             if (isTimer || (reps === 0 && weightKg === 0)) {
-                const secs = timerSeconds || ex?.duration || 30;
-                return Math.max(2, Math.floor(secs / 8 * diffMult));
+                const secs = Math.min(timerSeconds || ex?.duration || 30, 600); // max 10 min par "série" timer
+                return Math.max(2, Math.min(XP_MAX_PER_SET, Math.floor(secs / 8 * diffMult)));
             }
-            const vol = (reps || 1) * (1 + (weightKg || 0) / 20);
-            return Math.max(1, Math.floor(vol * diffMult));
+            // 🛡️ Cap les reps à un maximum raisonnable
+            const cappedReps = Math.min(reps || 1, XP_MAX_REPS_PER_SET);
+            const vol = cappedReps * (1 + (weightKg || 0) / 20);
+            return Math.max(1, Math.min(XP_MAX_PER_SET, Math.floor(vol * diffMult)));
         }
 
         // ── Gain XP après une série ─────────────────────────────────
@@ -22536,7 +25687,32 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 const _dur = timerDuration || (ex?.duration) || 0;
                 const _baseXP = Math.round(rpgXPForSet(exerciseName, reps, weightKg, isTimerMode, _dur) * _bonus);
                 const _exType = (typeof classifyExercise === 'function') ? classifyExercise({name:exerciseName}) : 'isolation';
-                const xpGained = rpgApplyXPMultipliers(_baseXP, muscle, _exType);
+                let xpGained = rpgApplyXPMultipliers(_baseXP, muscle, _exType);
+
+                // 🛡️ Cap final par série après tous les multiplicateurs
+                xpGained = Math.min(xpGained, XP_MAX_PER_SET);
+
+                // 🛡️ Cap par SÉANCE : si déjà atteint le plafond, plus de gain
+                const earnedThisWorkout = rpgGetWorkoutXpEarned();
+                if (earnedThisWorkout >= XP_MAX_PER_WORKOUT) {
+                    // Plafond atteint, on ne donne plus d'XP
+                    // Afficher le message une seule fois par séance pour éviter le spam
+                    if (!window._xpCapMessageShown || window._xpCapMessageShownAt !== (workoutStartTime || 0)) {
+                        rpgShowXPPop(0, muscle, '🛡️ Plafond XP atteint');
+                        window._xpCapMessageShown = true;
+                        window._xpCapMessageShownAt = (workoutStartTime || 0);
+                    }
+                    return;
+                }
+                // Ajuster pour ne pas dépasser le plafond
+                if (earnedThisWorkout + xpGained > XP_MAX_PER_WORKOUT) {
+                    xpGained = XP_MAX_PER_WORKOUT - earnedThisWorkout;
+                }
+
+                if (xpGained <= 0) return;
+
+                rpgAddWorkoutXpEarned(xpGained);
+
                 const data = rpgLoad();
                 if (!data.muscles[muscle]) data.muscles[muscle] = { xp: 0, lastTrained: null };
                 const prev = data.muscles[muscle].xp;
@@ -22715,17 +25891,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
             const overlay = document.createElement('div');
             overlay.style.cssText = 'position:fixed;inset:0;z-index:30000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);animation:fadeIn 0.2s;';
-            const sp = statPointsLoad();
-            const pointsMsg = sp.available > 0
-                ? `<div style="margin-top:12px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.35);border-radius:10px;padding:8px 12px;font-size:0.78em;color:#fbbf24;font-weight:700;">⭐ +4 points de stats disponibles !</div>`
-                : '';
             overlay.innerHTML = `
                 <div style="background:linear-gradient(160deg,#0F1014,#166534);border-radius:24px;padding:36px 32px;max-width:320px;width:90%;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,0.5);animation:slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);">
                     <div style="font-size:3.5em;margin-bottom:12px;animation:pulse-warning 0.8s infinite;">⬆️</div>
-                    <div style="font-size:0.82em;font-weight:700;letter-spacing:1.5px;color:#4ade80;text-transform:uppercase;margin-bottom:6px;">Level Up !</div>
+                    <div style="font-size:0.82em;font-weight:700;letter-spacing:1.5px;color:#4ade80;text-transform:uppercase;margin-bottom:6px;">Muscle Level Up</div>
                     <div style="font-size:1.6em;font-weight:900;color:white;margin-bottom:4px;">${muscle}</div>
                     <div style="font-size:2.8em;font-weight:900;color:#fbbf24;letter-spacing:-2px;">Niv. ${level}</div>
-                    ${pointsMsg}
                     <div style="margin-top:16px;font-size:0.85em;color:rgba(255,255,255,0.6);">Continue comme ça ! 💪</div>
                     <button onclick="this.closest('[style*=\"fixed\"]').remove()" style="margin-top:20px;width:100%;padding:12px;background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.25);border-radius:12px;color:white;font-weight:700;cursor:pointer;font-size:0.95em;">Super !</button>
                 </div>`;
@@ -22733,11 +25904,16 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             launchConfetti();
             setTimeout(() => { if (overlay.parentNode) overlay.remove(); }, 6000);
         }
-        function rpgShowXPPop(xp, muscle) {
-            // Petit toast discret +XP
+        function rpgShowXPPop(xp, muscle, customText) {
+            // Petit toast discret +XP (ou message custom comme '🛡️ Plafond atteint')
             const el = document.createElement('div');
-            el.textContent = `+${xp} XP 💪`;
-            el.style.cssText = `position:fixed;right:16px;bottom:90px;z-index:20000;background:linear-gradient(135deg,#16a34a,#15803d);color:white;padding:6px 14px;border-radius:99px;font-size:0.82em;font-weight:800;pointer-events:none;animation:slideInRight 0.3s ease;`;
+            if (customText) {
+                el.textContent = customText;
+                el.style.cssText = `position:fixed;right:16px;bottom:90px;z-index:20000;background:linear-gradient(135deg,#64748b,#475569);color:white;padding:6px 14px;border-radius:99px;font-size:0.78em;font-weight:800;pointer-events:none;animation:slideInRight 0.3s ease;`;
+            } else {
+                el.textContent = `+${xp} XP 💪`;
+                el.style.cssText = `position:fixed;right:16px;bottom:90px;z-index:20000;background:linear-gradient(135deg,#16a34a,#15803d);color:white;padding:6px 14px;border-radius:99px;font-size:0.82em;font-weight:800;pointer-events:none;animation:slideInRight 0.3s ease;`;
+            }
             document.body.appendChild(el);
             setTimeout(() => {
                 el.style.transition = 'opacity 0.4s';
@@ -23031,33 +26207,63 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 }
             } catch(e) {}
 
+            // 🌀 AWAKENED — Tenter de générer une Faille après séance (pas si c'est une Faille)
+            try {
+                if (!currentWorkout._isRift && typeof awakTryGenerateRift === 'function') {
+                    setTimeout(() => {
+                        const newRift = awakTryGenerateRift();
+                        if (newRift && typeof showToast === 'function') {
+                            setTimeout(() => showToast('🌀 Une Faille s\'est ouverte', 'info', 4000), 4000);
+                        }
+                    }, 2500);
+                }
+            } catch(e) {}
+
+            // 🎭 Phase 4 : check déblocages compagnons après séance
+            try {
+                if (typeof awakCompanionsTriggerUnlockCheck === 'function') {
+                    setTimeout(() => awakCompanionsTriggerUnlockCheck(), 3500);
+                }
+            } catch(e) {}
+
             // ⚔️ Tentative de drop d'équipement (mode aventure)
             try {
                 if (typeof tryEquipmentDrop === 'function' && typeof getAdventureEnabled === 'function' && getAdventureEnabled()) {
-                    const realEx = (currentWorkout?.exercises || []).filter(e => !e.isRest && !e.isInfo);
+                    // 👹 Phase 3 : si un monstre bloque les drops, on saute
+                    const handicaps = (typeof awakGetActiveHandicaps === 'function') ? awakGetActiveHandicaps() : null;
+                    const blockedByMonster = handicaps && handicaps.block_drops && !currentWorkout._isRift && !currentWorkout._isHunt;
 
-                    // Muscle principal
-                    const muscleCount = {};
-                    realEx.forEach(ex => {
-                        const db = exerciseDatabase.find(e => e.name === ex.name);
-                        const m = db?.muscle || ex.muscle || 'Corps entier';
-                        muscleCount[m] = (muscleCount[m] || 0) + 1;
-                    });
-                    const mainMuscle = Object.entries(muscleCount).sort((a,b) => b[1]-a[1])[0]?.[0] || 'Corps entier';
+                    if (blockedByMonster) {
+                        // Notification subtile
+                        setTimeout(() => {
+                            if (typeof showToast === 'function') showToast('🚫 Un monstre bloque tes loots', 'warning', 3000);
+                        }, 1500);
+                    } else {
+                        const realEx = (currentWorkout?.exercises || []).filter(e => !e.isRest && !e.isInfo);
 
-                    // Qualité de l'entraînement
-                    const durationSeconds = (Date.now() - workoutStartTime) / 1000;
-                    const totalSkipped = typeof _workoutSkipCount !== 'undefined' ? _workoutSkipCount : 0;
-                    const skipRatio = realEx.length > 0 ? Math.min(1, totalSkipped / realEx.length) : 0;
-                    const workoutQuality = {
-                        exerciseCount:   realEx.length,
-                        durationSeconds: durationSeconds,
-                        skipRatio:       skipRatio,
-                    };
+                        // Muscle principal
+                        const muscleCount = {};
+                        realEx.forEach(ex => {
+                            const db = exerciseDatabase.find(e => e.name === ex.name);
+                            const m = db?.muscle || ex.muscle || 'Corps entier';
+                            muscleCount[m] = (muscleCount[m] || 0) + 1;
+                        });
+                        const mainMuscle = Object.entries(muscleCount).sort((a,b) => b[1]-a[1])[0]?.[0] || 'Corps entier';
 
-                    const result = tryEquipmentDrop(mainMuscle, workoutQuality);
-                    if (result) {
-                        setTimeout(() => showDropModal(result.item, result.rarity, result.qualityScore), 1800);
+                        // Qualité de l'entraînement
+                        const durationSeconds = (Date.now() - workoutStartTime) / 1000;
+                        const totalSkipped = typeof _workoutSkipCount !== 'undefined' ? _workoutSkipCount : 0;
+                        const skipRatio = realEx.length > 0 ? Math.min(1, totalSkipped / realEx.length) : 0;
+                        const workoutQuality = {
+                            exerciseCount:   realEx.length,
+                            durationSeconds: durationSeconds,
+                            skipRatio:       skipRatio,
+                        };
+
+                        const result = tryEquipmentDrop(mainMuscle, workoutQuality);
+                        if (result) {
+                            setTimeout(() => showDropModal(result.item, result.rarity, result.qualityScore), 1800);
+                        }
                     }
                 }
             } catch(e) { console.warn('Adventure drop error:', e); }
@@ -23316,7 +26522,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     { name:'Soulevé de terre',             sets:4, reps:6,  mode:'reps', rest:180 },
                     { name:'Tractions pronation',          sets:4, reps:8,  mode:'reps', rest:90 },
                     { name:'Développé militaire haltères', sets:4, reps:10, mode:'reps', rest:90 },
-                    { name:'Rowing barre',                 sets:4, reps:10, mode:'reps', rest:90 },
+                    { name:'Barbell Row',                 sets:4, reps:10, mode:'reps', rest:90 },
                     { name:'Curl biceps haltères',         sets:3, reps:12, mode:'reps', rest:60 },
                     { name:'Extensions nuque haltère',    sets:3, reps:12, mode:'reps', rest:60 },
                     { name:'Leg Press',                    sets:4, reps:15, mode:'reps', rest:90 },
@@ -23381,7 +26587,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     { name:'Développé couché barre',  sets:5, reps:5, mode:'reps', rest:180 },
                     { name:'Squat barre haut',         sets:5, reps:5, mode:'reps', rest:180 },
                     { name:'Tractions pronation',      sets:4, reps:8, mode:'reps', rest:120 },
-                    { name:'Rowing barre',             sets:4, reps:8, mode:'reps', rest:120 },
+                    { name:'Barbell Row',             sets:4, reps:8, mode:'reps', rest:120 },
                     { name:'Curl biceps haltères',     sets:3, reps:10, mode:'reps', rest:60 },
                     { name:'Dips triceps',             sets:3, reps:10, mode:'reps', rest:60 },
                 ]
@@ -23650,7 +26856,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 ],
                 exercises: [
                     { name:'Développé militaire haltères', sets:5, reps:10, mode:'reps', rest:90 },
-                    { name:'Rowing barre',                 sets:5, reps:10, mode:'reps', rest:90 },
+                    { name:'Barbell Row',                 sets:5, reps:10, mode:'reps', rest:90 },
                     { name:'Tractions pronation',          sets:4, reps:12, mode:'reps', rest:75 },
                     { name:'Planche',              sets:4, duration:90, mode:'timer', rest:30 },
                     { name:'Russian twist',               sets:4, reps:25, mode:'reps', rest:30 },
@@ -23686,7 +26892,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     { name:'Squat barre haut',             sets:6, reps:5,  mode:'reps', rest:240, note:'Profond, plein ROM' },
                     { name:'Développé couché barre',       sets:5, reps:6,  mode:'reps', rest:180 },
                     { name:'Tractions pronation',          sets:5, reps:8,  mode:'reps', rest:150, note:'Avec ceinture + poids' },
-                    { name:'Rowing barre',                 sets:5, reps:8,  mode:'reps', rest:150 },
+                    { name:'Barbell Row',                 sets:5, reps:8,  mode:'reps', rest:150 },
                     { name:'Développé militaire haltères', sets:5, reps:8,  mode:'reps', rest:150 },
                     { name:'Leg Press',                    sets:6, reps:10, mode:'reps', rest:120 },
                     { name:'Curl biceps haltères',         sets:4, reps:10, mode:'reps', rest:90 },
@@ -26564,14 +29770,14 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
         // Référence stats de performance des stars (charges typiques en kg)
         const CELEBRITY_BENCHMARK = {
-            rock:       { 'Développé couché barre':180, 'Squat barre haut':230, 'Soulevé de terre':300, 'Tractions pronation':null, 'Rowing barre':140 },
+            rock:       { 'Développé couché barre':180, 'Squat barre haut':230, 'Soulevé de terre':300, 'Tractions pronation':null, 'Barbell Row':140 },
             thor:       { 'Développé couché barre':140, 'Squat barre haut':180, 'Soulevé de terre':220, 'Tractions pronation':null, 'Rowing haltère':50 },
-            wolverine:  { 'Développé couché barre':150, 'Squat barre haut':180, 'Soulevé de terre':200, 'Tractions pronation':null, 'Rowing barre':120 },
+            wolverine:  { 'Développé couché barre':150, 'Squat barre haut':180, 'Soulevé de terre':200, 'Tractions pronation':null, 'Barbell Row':120 },
             cbum:       { 'Développé couché barre':160, 'Squat barre haut':200, 'Soulevé de terre':240, 'Hip thrust barre':220, 'Leg Press':400 },
             ronaldo:    { 'Squat barre haut':200, 'Soulevé de terre':180, 'Développé couché barre':120, 'Hip thrust barre':160, 'Burpees':null },
             mayweather: { 'Développé couché barre':100, 'Rowing haltère':40, 'Développé militaire haltères':35 },
-            phelps:     { 'Développé militaire haltères':60, 'Rowing barre':100, 'Tractions pronation':null, 'Hip thrust barre':120 },
-            ronnie:     { 'Développé couché barre':220, 'Squat barre haut':280, 'Soulevé de terre':360, 'Rowing barre':200, 'Leg Press':500 },
+            phelps:     { 'Développé militaire haltères':60, 'Barbell Row':100, 'Tractions pronation':null, 'Hip thrust barre':120 },
+            ronnie:     { 'Développé couché barre':220, 'Squat barre haut':280, 'Soulevé de terre':360, 'Barbell Row':200, 'Leg Press':500 },
             wonderwoman:{ 'Squat barre haut':80, 'Hip thrust barre':100, 'Développé couché haltères':30, 'Tractions pronation':null },
             zendaya:    { 'Squat barre haut':50, 'Hip thrust barre':70, 'Fentes avant':20 },
             beyonce:    { 'Hip thrust barre':80, 'Squat barre haut':60, 'Développé couché haltères':20 },
@@ -26862,13 +30068,20 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             // Initialiser le suivi des points de stats (1× pour ne pas donner rétroactivement)
             setTimeout(() => {
                 try {
+                    const data = rpgLoad();
+                    const totalXP = Object.values(data.muscles||{}).reduce((s,m)=>s+(m.xp||0),0)
+                                  + parseInt(localStorage.getItem('fitproRPGLifetimeXP')||'0');
+                    const currentLevel = rpgLevelFromXP(totalXP);
                     const sp = statPointsLoad();
-                    if (!localStorage.getItem('fitproStatPoints')) {
-                        // Premier usage : aligner lastLevel sur le niveau actuel pour ne pas créditer le passé
-                        const data = rpgLoad();
-                        const totalXP = Object.values(data.muscles||{}).reduce((s,m)=>s+(m.xp||0),0)
-                                      + parseInt(localStorage.getItem('fitproRPGLifetimeXP')||'0');
-                        sp.lastLevel = rpgLevelFromXP(totalXP);
+
+                    // Premier usage OU lastLevel obsolète (sauvegarde antérieure à la feature)
+                    // Si lastLevel = 1 et qu'on est déjà niveau > 1, c'est qu'on n'a jamais aligné
+                    // on évite alors de créditer rétroactivement tout l'historique
+                    const needsInit = !localStorage.getItem('fitproStatPoints')
+                                   || (sp.lastLevel === 1 && currentLevel > 1 && sp.available === 0);
+
+                    if (needsInit) {
+                        sp.lastLevel = currentLevel;
                         statPointsSave(sp);
                     }
                 } catch(e) {}

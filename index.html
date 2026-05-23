@@ -3660,6 +3660,30 @@
             // 🌌 AWAKENED — Migration depuis l'XP existant (1x seulement)
             if (typeof awakRunMigrationIfNeeded === 'function') awakRunMigrationIfNeeded();
 
+            // 🌀 AWAKENED — Tenter de générer une nouvelle Faille
+            if (typeof awakTryGenerateRift === 'function') {
+                setTimeout(() => {
+                    // Update state first (vieillissement + spawn monstres si breach)
+                    if (typeof awakUpdateRiftsState === 'function') awakUpdateRiftsState();
+                    if (typeof awakUpdateMonstersState === 'function') awakUpdateMonstersState();
+
+                    const newRift = awakTryGenerateRift();
+                    if (newRift) {
+                        // Notification subtile
+                        setTimeout(() => {
+                            if (typeof showToast === 'function') {
+                                showToast('🌀 Une Faille s\'est ouverte', 'info', 4000);
+                            }
+                        }, 3000);
+                    }
+
+                    // 🌑 Phase 5 : peut-être un glitch de l'Architecte au démarrage
+                    if (typeof awakArchitectMaybeGlitch === 'function') {
+                        setTimeout(() => awakArchitectMaybeGlitch(), 10000);
+                    }
+                }, 5000);
+            }
+
             // 🎯 Activer les micro-interactions (ripple + haptic)
             if (typeof _initRippleEffect === 'function') _initRippleEffect();
 

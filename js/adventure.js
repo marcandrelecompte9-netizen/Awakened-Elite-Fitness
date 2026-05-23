@@ -345,7 +345,31 @@ function tryEquipmentDrop(muscle, workoutQuality) {
     if (qualityScore >= 0.75) effectiveRank = Math.min(5, effectiveRank + 1);
     else if (qualityScore <= 0.25) effectiveRank = Math.max(0, effectiveRank - 1);
 
-    const table = rankTables[effectiveRank];
+    // 🎭 Phase 4 : Yuna Veilbreaker — rareLootBoost
+    let rareLootMult = 1;
+    let doubleDropChance = 0;
+    try {
+        if (typeof awakCompanionsGetActiveBonuses === 'function') {
+            const compBonus = awakCompanionsGetActiveBonuses();
+            if (compBonus.rareLootBoost) rareLootMult = 1 + compBonus.rareLootBoost;
+            if (compBonus.doubleDropChance) doubleDropChance = compBonus.doubleDropChance;
+        }
+    } catch(e) {}
+
+    const baseTable = rankTables[effectiveRank];
+    // Si Yuna est active, redistribuer les probas vers les hautes raretés
+    const table = rareLootMult > 1
+        ? baseTable.map((p, idx) => {
+            // Renforcer rare/epic/legendary et réduire common
+            if (idx === 0) return p / rareLootMult;
+            return p * rareLootMult;
+        })
+        : baseTable;
+    // Re-normaliser
+    if (rareLootMult > 1) {
+        const sum = table.reduce((s,v) => s+v, 0);
+        for (let i = 0; i < table.length; i++) table[i] = table[i] / sum;
+    }
 
     // Tirage de la rareté
     const roll = Math.random();
@@ -427,26 +451,15 @@ function renderHunterCard() {
     return `<div style="background:linear-gradient(160deg,#0a001a,#00081a,#0a001a);border:1px solid rgba(168,85,247,0.22);border-radius:20px;padding:18px;margin-bottom:12px;box-shadow:0 0 30px rgba(168,85,247,0.07);position:relative;overflow:hidden;">
         <div style="position:absolute;top:-30px;right:-30px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(168,85,247,0.12),transparent 70%);pointer-events:none;"></div>
         ${rpgWarning}
+        <!-- Header épuré : juste Équipement + Drops -->
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-            <div style="display:flex;align-items:center;gap:10px;">
-                <div style="width:44px;height:44px;border-radius:12px;background:${rank.c}20;border:1.5px solid ${rank.c}60;display:flex;align-items:center;justify-content:center;font-size:1.3em;font-weight:900;color:${rank.c};box-shadow:0 0 14px ${rank.c}30;">${rank.r}</div>
-                <div>
-                    <div style="font-size:0.58em;color:rgba(255,255,255,0.3);font-weight:700;text-transform:uppercase;letter-spacing:2px;">Rang Chasseur</div>
-                    <div style="font-size:1em;font-weight:900;color:white;">Niveau ${level}</div>
-                </div>
+            <div>
+                <div style="font-size:0.58em;color:rgba(168,85,247,0.7);font-weight:900;letter-spacing:2px;">◈ ÉQUIPEMENT</div>
+                <div style="font-size:0.95em;font-weight:800;color:white;margin-top:2px;">Stats d'équipement</div>
             </div>
             <div style="text-align:right;">
-                <div style="font-size:0.58em;color:rgba(255,255,255,0.3);font-weight:700;">Drops</div>
+                <div style="font-size:0.58em;color:rgba(255,255,255,0.3);font-weight:700;letter-spacing:1px;">DROPS / JOUR</div>
                 <div style="font-size:1em;font-weight:900;color:${daily.count<MAX_DROPS_PER_DAY?'#a855f7':'#334155'};">${daily.count}/${MAX_DROPS_PER_DAY}</div>
-            </div>
-        </div>
-        <div style="margin-bottom:14px;">
-            <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-                <span style="font-size:0.6em;color:rgba(255,255,255,0.3);font-weight:600;">XP TOTAL</span>
-                <span style="font-size:0.6em;color:rgba(168,85,247,0.7);font-weight:700;">${totalXP.toLocaleString()} / ${xpHigh.toLocaleString()}</span>
-            </div>
-            <div style="height:5px;background:rgba(255,255,255,0.05);border-radius:99px;overflow:hidden;">
-                <div style="height:100%;width:${xpPct}%;background:linear-gradient(90deg,#7c3aed,#a855f7);border-radius:99px;box-shadow:0 0 6px rgba(168,85,247,0.4);transition:width 0.8s;"></div>
             </div>
         </div>
         <div style="display:flex;flex-direction:column;gap:6px;">
@@ -684,7 +697,23 @@ function renderAdventureTab() {
     // 🌌 AWAKENED Power Card en haut (Power Score + Rang E→S)
     const awakenedCard = (typeof window.renderAwakenedPowerCard === 'function')
         ? window.renderAwakenedPowerCard() : '';
+    // 🌀 Failles actives
+    const riftsCard = (typeof window.renderActiveRiftsCard === 'function')
+        ? window.renderActiveRiftsCard() : '';
+    // 👹 Monstres échappés (Phase 3)
+    const monstersCard = (typeof window.renderEscapedMonstersCard === 'function')
+        ? window.renderEscapedMonstersCard() : '';
+    // 🎭 Compagnons (Phase 4)
+    const companionsCard = (typeof window.renderCompanionsCard === 'function')
+        ? window.renderCompanionsCard() : '';
+    // 🧪 Consommables (Phase 5)
+    const consumablesCard = (typeof window.renderConsumablesCard === 'function')
+        ? window.renderConsumablesCard() : '';
     container.innerHTML = awakenedCard
+        + monstersCard
+        + riftsCard
+        + companionsCard
+        + consumablesCard
         + renderHunterCard()
         + (typeof renderChallengeSection==='function' ? renderChallengeSection() : '');
     if (typeof startChallengeTimer==='function') startChallengeTimer();
@@ -783,6 +812,96 @@ function initAdventureSystem() { /* Adventure is separate from RPG */ }
 // ═══════════════════════════════════════════════════════════════════════
 // MODAL ÉQUIPEMENT RPG — Accessible depuis l'onglet Jeu
 // ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
+// 🎯 POPUP DÉTAIL ITEM — par-dessus le modal d'équipement
+// ═══════════════════════════════════════════════════════════════════════
+function showItemPopup(item, invId, equippedSlot) {
+    if (!item) return;
+    document.getElementById('itemPopupModal')?.remove();
+
+    const r = getRarityInfo(item.rarity);
+    const block = getEquipBlockReason(item);
+    const isEquipped = equippedSlot !== null && equippedSlot !== undefined;
+    const set = item.set ? getSetById(item.set) : null;
+
+    const modal = document.createElement('div');
+    modal.id = 'itemPopupModal';
+    modal.className = 'modal active';
+    modal.style.cssText = `position:fixed;inset:0;z-index:99990;background:rgba(0,0,0,0.85);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:16px;animation:awakFadeIn 0.25s;`;
+
+    // Stats à afficher
+    const stats = Object.entries(item.stats || {}).filter(([_,v]) => v > 0);
+
+    modal.innerHTML = `
+        <div style="max-width:380px;width:100%;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1.5px solid ${r.color}55;border-radius:20px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.6),0 0 40px ${r.glow};animation:slideUp 0.35s cubic-bezier(0.34,1.56,0.64,1);">
+
+            <!-- Header rareté -->
+            <div style="background:linear-gradient(135deg,${r.color}25,${r.color}05);padding:18px 20px;text-align:center;border-bottom:1px solid ${r.color}30;position:relative;">
+                <button onclick="document.getElementById('itemPopupModal').remove()" style="position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;cursor:pointer;font-size:0.9em;font-weight:700;display:flex;align-items:center;justify-content:center;">✕</button>
+
+                <div style="font-size:3em;line-height:1;margin-bottom:8px;filter:drop-shadow(0 0 14px ${r.glow});">${item.icon}</div>
+                <div style="font-weight:900;color:white;font-size:1.05em;line-height:1.3;margin-bottom:4px;">${item.name}</div>
+                <div style="display:inline-block;background:${r.color}25;color:${r.color};border:1px solid ${r.color}50;padding:2px 8px;border-radius:6px;font-size:0.6em;font-weight:900;letter-spacing:1.5px;">${(r.labelFull || r.label || '').toUpperCase()}</div>
+                ${isEquipped ? `<div style="margin-top:6px;display:inline-block;background:rgba(34,197,94,0.18);color:#4ade80;border:1px solid rgba(34,197,94,0.35);padding:2px 8px;border-radius:6px;font-size:0.62em;font-weight:800;letter-spacing:1px;">✓ ÉQUIPÉ</div>` : ''}
+            </div>
+
+            <!-- Corps -->
+            <div style="padding:16px 20px;">
+                <!-- Description -->
+                <div style="font-size:0.78em;color:#cbd5e1;line-height:1.55;font-style:italic;margin-bottom:14px;text-align:center;">${item.description || ''}</div>
+
+                <!-- Passif -->
+                ${item.passive ? `
+                <div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.25);border-radius:10px;padding:10px 12px;margin-bottom:12px;">
+                    <div style="font-size:0.58em;color:#22c55e;font-weight:900;letter-spacing:2px;margin-bottom:4px;">⚡ EFFET PASSIF</div>
+                    <div style="font-size:0.8em;color:#4ade80;line-height:1.4;font-weight:600;">${item.passive}</div>
+                </div>` : ''}
+
+                <!-- Stats -->
+                ${stats.length > 0 ? `
+                <div style="margin-bottom:12px;">
+                    <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:6px;">◈ STATISTIQUES</div>
+                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;">
+                        ${stats.map(([k,v]) => `
+                            <div style="background:#0a0e18;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:6px 4px;text-align:center;">
+                                <div style="font-size:0.55em;color:#64748b;font-weight:800;letter-spacing:0.5px;">${k}</div>
+                                <div style="font-size:1em;color:${r.color};font-weight:900;line-height:1.1;">+${v}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>` : ''}
+
+                <!-- Set bonus -->
+                ${set ? `
+                <div style="background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.25);border-radius:10px;padding:10px 12px;margin-bottom:12px;">
+                    <div style="font-size:0.58em;color:#c084fc;font-weight:900;letter-spacing:2px;margin-bottom:4px;">🏛️ SET — ${set.name.toUpperCase()}</div>
+                    <div style="font-size:0.7em;color:#cbd5e1;line-height:1.4;">${set.description || ''}</div>
+                </div>` : ''}
+
+                <!-- Actions -->
+                <div style="display:flex;gap:8px;margin-top:14px;">
+                    ${isEquipped ? `
+                        <button onclick="unequipSlot('${equippedSlot}');renderAdventureTab();document.getElementById('itemPopupModal').remove();if(typeof rebuild==='function')rebuild();" style="flex:1;padding:13px;border-radius:11px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;font-weight:800;cursor:pointer;font-size:0.85em;">✕ Déséquiper</button>
+                    ` : (invId !== null && invId !== undefined ? (block ? `
+                        <button disabled style="flex:1;padding:13px;border-radius:11px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);color:#f87171;font-weight:700;font-size:0.82em;">${block.reason === 'muscle_too_weak' ? '💪' : '🔒'} ${block.label}</button>
+                    ` : `
+                        <button onclick="tryEquipWithFeedback(${invId},function(){document.getElementById('itemPopupModal')?.remove();});" style="flex:1;padding:13px;border-radius:11px;background:linear-gradient(135deg,${r.color},${r.color}cc);border:none;color:white;font-weight:900;cursor:pointer;font-size:0.88em;letter-spacing:0.5px;box-shadow:0 4px 14px ${r.glow};">⚔️ ÉQUIPER</button>
+                    `) : '')}
+                </div>
+
+                <button onclick="document.getElementById('itemPopupModal').remove()" style="width:100%;margin-top:8px;padding:10px;border-radius:11px;background:transparent;border:1px solid rgba(255,255,255,0.08);color:#94a3b8;font-weight:700;cursor:pointer;font-size:0.78em;">Fermer</button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+    // Click outside to close
+    modal.addEventListener('click', e => {
+        if (e.target === modal) modal.remove();
+    });
+}
+window.showItemPopup = showItemPopup;
+
 function showRPGEquipmentModal(defaultTab) {
     document.getElementById('rpgEquipModal')?.remove();
 
@@ -1044,15 +1163,6 @@ function showRPGEquipmentModal(defaultTab) {
                 ${renderInventoryGrid()}
             </div>
 
-            <!-- ━━━ DÉTAILS DE L'OBJET ━━━ -->
-            <div style="background:linear-gradient(160deg,rgba(34,197,94,0.04),transparent);
-                       border:1px solid rgba(34,197,94,0.18);border-radius:14px;position:relative;
-                       padding:18px 14px 14px;">
-                <div style="position:absolute;top:6px;left:10px;font-size:0.5em;color:#22c55e;font-weight:800;letter-spacing:2px;">◈ DÉTAILS DE L'OBJET</div>
-                <div style="margin-top:6px;">
-                    ${renderItemDetails()}
-                </div>
-            </div>
         </div>`;
     }
 
@@ -1061,23 +1171,16 @@ function showRPGEquipmentModal(defaultTab) {
         const eqItems = getEquippedItems();
         const item = eqItems[slotId];
         if (item) {
-            selectedItem = item;
-            const eq = getEquipped();
-            selectedInvId = null; // équipé, pas un item de l'inventaire à équiper
-            rebuild();
-        } else {
-            selectedItem = null;
-            selectedInvId = null;
-            rebuild();
+            // 🎯 Ouvre une popup au-dessus du modal d'équipement
+            showItemPopup(item, null, slotId);
         }
     };
 
     window._rpgEqInvSelect = function(itemId, invId) {
         const item = getItemById(itemId);
         if (!item) return;
-        selectedItem = item;
-        selectedInvId = invId;
-        rebuild();
+        // 🎯 Ouvre une popup au-dessus du modal d'équipement
+        showItemPopup(item, invId, null);
     };
 
     window._rpgEqEquipSelected = function() {
