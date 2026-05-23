@@ -7313,7 +7313,19 @@
         }
         
         function getTodayPlanMuscles() {
-            // Lire depuis le bon endroit (profil ou défaut)
+            // 📅 NOUVEAU : Plan hebdo manuel en priorité (Phase 6)
+            if (typeof getManualPlanTodayMuscles === 'function') {
+                const manualToday = getManualPlanTodayMuscles();
+                if (manualToday && manualToday.muscles && manualToday.muscles.length > 0) {
+                    return {
+                        muscles: manualToday.muscles,
+                        focus: manualToday.label || manualToday.muscles.join(' · '),
+                        intensity: 'moderate'
+                    };
+                }
+            }
+
+            // Fallback : ancien plan (généré par bouton "Générer plan de la semaine")
             const profileId = getCurrentProfileId();
             const saved = profileId
                 ? getProfileData(profileId, 'weeklyPlan')
@@ -8028,21 +8040,290 @@
             return structured;
         }
 
+        // ═══════════════════════════════════════════════════════════════
+        // 📅 PLAN HEBDOMADAIRE MANUEL — Onglet Séances
+        // ═══════════════════════════════════════════════════════════════
+        // Différent du plan Routines (qui assigne des routines aux jours).
+        // Celui-ci assigne des MUSCLES par jour pour guider la séance IA.
+        //
+        const MANUAL_PLAN_KEY = 'manualWeeklyPlan';
+        const MANUAL_PLAN_DAYS = ['lun','mar','mer','jeu','ven','sam','dim'];
+        const MANUAL_PLAN_DAY_LABELS = { lun:'Lundi', mar:'Mardi', mer:'Mercredi', jeu:'Jeudi', ven:'Vendredi', sam:'Samedi', dim:'Dimanche' };
+        const MANUAL_PLAN_DAY_SHORT = { lun:'Lun', mar:'Mar', mer:'Mer', jeu:'Jeu', ven:'Ven', sam:'Sam', dim:'Dim' };
+
+        // Presets pour aider l'utilisateur à créer son plan rapidement
+        const MANUAL_PLAN_PRESETS = [
+            { id: 'ppl', name: 'Push Pull Legs', emoji: '💪', plan: {
+                lun: { muscles: ['Pectoraux','Épaules','Triceps'], label: 'Push' },
+                mar: { muscles: ['Dos','Biceps'], label: 'Pull' },
+                mer: { muscles: ['Quadriceps','Fessiers','Ischio-jambiers','Mollets'], label: 'Legs' },
+                jeu: { muscles: ['Pectoraux','Épaules','Triceps'], label: 'Push' },
+                ven: { muscles: ['Dos','Biceps'], label: 'Pull' },
+                sam: { muscles: ['Quadriceps','Fessiers','Ischio-jambiers','Mollets'], label: 'Legs' }
+            }},
+            { id: 'ul', name: 'Upper / Lower', emoji: '⚖️', plan: {
+                lun: { muscles: ['Pectoraux','Dos','Épaules','Triceps','Biceps'], label: 'Upper' },
+                mar: { muscles: ['Quadriceps','Fessiers','Ischio-jambiers','Mollets'], label: 'Lower' },
+                jeu: { muscles: ['Pectoraux','Dos','Épaules','Triceps','Biceps'], label: 'Upper' },
+                ven: { muscles: ['Quadriceps','Fessiers','Ischio-jambiers','Mollets'], label: 'Lower' }
+            }},
+            { id: 'fb3', name: 'Full Body 3×', emoji: '🌟', plan: {
+                lun: { muscles: ['Pectoraux','Dos','Quadriceps','Abdominaux'], label: 'Full Body A' },
+                mer: { muscles: ['Épaules','Fessiers','Ischio-jambiers','Biceps','Triceps'], label: 'Full Body B' },
+                ven: { muscles: ['Dos','Pectoraux','Quadriceps','Mollets','Abdominaux'], label: 'Full Body C' }
+            }},
+            { id: 'bro', name: 'Bro Split', emoji: '🍖', plan: {
+                lun: { muscles: ['Pectoraux','Triceps'], label: 'Pectoraux' },
+                mar: { muscles: ['Dos','Biceps'], label: 'Dos' },
+                mer: { muscles: ['Épaules','Trapèzes'], label: 'Épaules' },
+                jeu: { muscles: ['Quadriceps','Fessiers','Ischio-jambiers','Mollets'], label: 'Jambes' },
+                ven: { muscles: ['Biceps','Triceps','Avant-bras'], label: 'Bras' }
+            }}
+        ];
+
+        function getManualWeeklyPlan() {
+            try {
+                const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
+                const key = profileId ? `${MANUAL_PLAN_KEY}_${profileId}` : MANUAL_PLAN_KEY;
+                return JSON.parse(localStorage.getItem(key) || '{}');
+            } catch(e) { return {}; }
+        }
+        window.getManualWeeklyPlan = getManualWeeklyPlan;
+
+        function saveManualWeeklyPlan(plan) {
+            try {
+                const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
+                const key = profileId ? `${MANUAL_PLAN_KEY}_${profileId}` : MANUAL_PLAN_KEY;
+                localStorage.setItem(key, JSON.stringify(plan));
+            } catch(e) {}
+        }
+        window.saveManualWeeklyPlan = saveManualWeeklyPlan;
+
+        function getManualPlanTodayMuscles() {
+            const plan = getManualWeeklyPlan();
+            const todayKey = MANUAL_PLAN_DAYS[(new Date().getDay() + 6) % 7];
+            const today = plan[todayKey];
+            if (!today || !today.muscles || today.muscles.length === 0) return null;
+            return today;
+        }
+        window.getManualPlanTodayMuscles = getManualPlanTodayMuscles;
+
+        function renderManualWeeklyPlanCard() {
+            const container = document.getElementById('manualWeeklyPlanCard');
+            if (!container) return;
+
+            const plan = getManualWeeklyPlan();
+            const hasPlan = Object.keys(plan).length > 0 && Object.values(plan).some(d => d && d.muscles && d.muscles.length > 0);
+            const todayIdx = (new Date().getDay() + 6) % 7;
+            const todayKey = MANUAL_PLAN_DAYS[todayIdx];
+            const today = plan[todayKey];
+
+            if (!hasPlan) {
+                // Empty state — invitation à créer un plan
+                container.innerHTML = `
+                <div style="border-radius:20px;background:linear-gradient(135deg,#1a0533 0%,#0d0221 100%);border:1.5px solid rgba(168,85,247,0.3);padding:16px 18px;margin-bottom:14px;box-shadow:0 8px 24px rgba(168,85,247,0.1);">
+                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:11px;">
+                        <div style="font-size:2em;line-height:1;flex-shrink:0;filter:drop-shadow(0 0 8px rgba(168,85,247,0.5));">📅</div>
+                        <div style="flex:1;min-width:0;">
+                            <div style="font-size:0.6em;color:#c084fc;font-weight:900;letter-spacing:2px;margin-bottom:2px;">PLAN HEBDO</div>
+                            <h3 style="color:white;margin:0;font-size:1em;font-weight:900;">Définis tes jours d'entraînement</h3>
+                            <div style="font-size:0.75em;color:rgba(255,255,255,0.6);margin-top:4px;line-height:1.4;">La Séance Intelligente suivra automatiquement les muscles du jour.</div>
+                        </div>
+                    </div>
+                    <button onclick="openManualPlanEditor()" style="width:100%;background:linear-gradient(135deg,#a855f7,#7c3aed);border:none;color:white;border-radius:11px;padding:12px;font-weight:900;font-size:0.88em;cursor:pointer;letter-spacing:0.5px;box-shadow:0 4px 14px rgba(168,85,247,0.35);">✨ CRÉER MON PLAN</button>
+                </div>`;
+                return;
+            }
+
+            // Plan existe → afficher avec aujourd'hui mis en évidence
+            const todayHasMuscles = today && today.muscles && today.muscles.length > 0;
+
+            container.innerHTML = `
+            <div style="border-radius:20px;background:linear-gradient(135deg,#0a1628 0%,#0d1f3c 100%);border:1.5px solid rgba(34,197,94,0.3);padding:14px 16px;margin-bottom:14px;box-shadow:0 8px 24px rgba(34,197,94,0.08);">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;gap:10px;">
+                    <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1;">
+                        <div style="font-size:1.6em;line-height:1;flex-shrink:0;filter:drop-shadow(0 0 6px rgba(74,222,128,0.5));">📅</div>
+                        <div style="min-width:0;flex:1;">
+                            <div style="font-size:0.58em;color:#4ade80;font-weight:900;letter-spacing:2px;">PLAN HEBDO</div>
+                            <div style="font-size:0.92em;font-weight:900;color:white;line-height:1.2;">Mon programme manuel</div>
+                        </div>
+                    </div>
+                    <button onclick="openManualPlanEditor()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#cbd5e1;border-radius:8px;padding:6px 11px;font-size:0.7em;font-weight:800;cursor:pointer;flex-shrink:0;">✏️</button>
+                </div>
+
+                <!-- Aujourd'hui -->
+                ${todayHasMuscles ? `
+                <div style="background:rgba(74,222,128,0.12);border:1.5px solid rgba(74,222,128,0.45);border-radius:12px;padding:11px 13px;margin-bottom:10px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;">
+                        <span style="font-size:0.55em;color:#4ade80;font-weight:900;letter-spacing:2px;">⚡ AUJOURD'HUI · ${MANUAL_PLAN_DAY_LABELS[todayKey].toUpperCase()}</span>
+                    </div>
+                    <div style="font-size:0.92em;font-weight:800;color:white;margin-bottom:6px;">${today.label || today.muscles.join(' · ')}</div>
+                    <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                        ${today.muscles.map(m => `<span style="background:rgba(74,222,128,0.18);color:#86efac;border:1px solid rgba(74,222,128,0.3);padding:2px 8px;border-radius:99px;font-size:0.7em;font-weight:700;">${m}</span>`).join('')}
+                    </div>
+                </div>
+                ` : `
+                <div style="background:rgba(148,163,184,0.08);border:1px solid rgba(148,163,184,0.2);border-radius:12px;padding:11px 13px;margin-bottom:10px;text-align:center;">
+                    <div style="font-size:0.55em;color:#94a3b8;font-weight:900;letter-spacing:2px;margin-bottom:3px;">${MANUAL_PLAN_DAY_LABELS[todayKey].toUpperCase()}</div>
+                    <div style="font-size:0.82em;color:#94a3b8;font-weight:700;">🛌 Jour de repos</div>
+                </div>
+                `}
+
+                <!-- Mini barre des 7 jours -->
+                <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;">
+                    ${MANUAL_PLAN_DAYS.map((d, i) => {
+                        const dayData = plan[d];
+                        const has = dayData && dayData.muscles && dayData.muscles.length > 0;
+                        const isToday = i === todayIdx;
+                        return `<div style="text-align:center;padding:5px 2px;border-radius:6px;background:${isToday ? 'rgba(74,222,128,0.18)' : (has ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.02)')};border:1px solid ${isToday ? 'rgba(74,222,128,0.5)' : 'rgba(255,255,255,0.06)'};">
+                            <div style="font-size:0.55em;color:${isToday ? '#4ade80' : (has ? '#cbd5e1' : '#475569')};font-weight:800;">${MANUAL_PLAN_DAY_SHORT[d]}</div>
+                            <div style="font-size:0.7em;margin-top:2px;">${has ? '●' : '·'}</div>
+                        </div>`;
+                    }).join('')}
+                </div>
+            </div>`;
+        }
+        window.renderManualWeeklyPlanCard = renderManualWeeklyPlanCard;
+
+        // ─── ÉDITEUR du plan manuel ───────────────────────────────────
+        function openManualPlanEditor() {
+            const plan = getManualWeeklyPlan();
+            const muscles = ['Pectoraux','Dos','Épaules','Biceps','Triceps','Quadriceps','Ischio-jambiers','Fessiers','Mollets','Abdominaux','Obliques','Trapèzes','Avant-bras','Cardio'];
+
+            document.getElementById('manualPlanEditorModal')?.remove();
+            const modal = document.createElement('div');
+            modal.id = 'manualPlanEditorModal';
+            modal.style.cssText = 'position:fixed;inset:0;z-index:10150;background:rgba(0,0,0,0.94);backdrop-filter:blur(10px);display:flex;align-items:flex-end;justify-content:center;padding:0;';
+
+            modal.innerHTML = `
+            <div style="width:100%;max-width:520px;background:#0F1014;border-radius:22px 22px 0 0;max-height:92vh;display:flex;flex-direction:column;border-top:2px solid rgba(168,85,247,0.4);">
+                <div style="width:36px;height:3px;background:#334155;border-radius:99px;margin:10px auto 0;flex-shrink:0;"></div>
+
+                <div style="padding:13px 18px 10px;flex-shrink:0;border-bottom:1px solid rgba(168,85,247,0.15);">
+                    <div style="display:flex;align-items:center;justify-content:space-between;">
+                        <div>
+                            <div style="font-size:0.6em;color:#c084fc;font-weight:900;letter-spacing:2px;margin-bottom:2px;">📅 PLAN HEBDO</div>
+                            <h2 style="margin:0;color:white;font-size:1em;font-weight:900;">Définir ma semaine</h2>
+                        </div>
+                        <button onclick="document.getElementById('manualPlanEditorModal').remove();renderManualWeeklyPlanCard();" style="background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.35);color:#4ade80;border-radius:9px;padding:7px 14px;font-weight:900;font-size:0.78em;cursor:pointer;">✓ Terminer</button>
+                    </div>
+                </div>
+
+                <div style="flex:1;overflow-y:auto;padding:12px 16px 18px;-webkit-overflow-scrolling:touch;">
+
+                    <!-- Presets rapides -->
+                    <div style="margin-bottom:14px;">
+                        <div style="font-size:0.6em;color:#94a3b8;font-weight:900;letter-spacing:2px;margin-bottom:6px;">⚡ APPLIQUER UN PRESET</div>
+                        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;">
+                            ${MANUAL_PLAN_PRESETS.map(p => `
+                                <button onclick="applyManualPlanPreset('${p.id}')" style="background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.25);color:#c084fc;border-radius:10px;padding:10px 8px;font-size:0.78em;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:7px;justify-content:center;">
+                                    <span style="font-size:1.1em;">${p.emoji}</span>${p.name}
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- 7 jours -->
+                    <div style="font-size:0.6em;color:#94a3b8;font-weight:900;letter-spacing:2px;margin-bottom:6px;">📆 SEMAINE</div>
+                    <div id="manualPlanDaysEditor">
+                        ${MANUAL_PLAN_DAYS.map(d => {
+                            const dayData = plan[d] || { muscles: [], label: '' };
+                            return `
+                            <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:11px;padding:10px 12px;margin-bottom:7px;">
+                                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;gap:8px;">
+                                    <span style="font-size:0.85em;font-weight:800;color:white;">${MANUAL_PLAN_DAY_LABELS[d]}</span>
+                                    ${dayData.muscles && dayData.muscles.length > 0 ? `<button onclick="clearManualPlanDay('${d}')" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#f87171;border-radius:6px;padding:3px 9px;font-size:0.65em;font-weight:700;cursor:pointer;">🛌 Repos</button>` : ''}
+                                </div>
+                                <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                                    ${muscles.map(m => {
+                                        const active = (dayData.muscles || []).includes(m);
+                                        return `<button onclick="toggleManualPlanMuscle('${d}','${m}')" style="background:${active ? 'rgba(74,222,128,0.18)' : 'rgba(255,255,255,0.03)'};border:1px solid ${active ? 'rgba(74,222,128,0.45)' : 'rgba(255,255,255,0.08)'};color:${active ? '#86efac' : '#94a3b8'};border-radius:6px;padding:4px 8px;font-size:0.7em;font-weight:${active ? '800' : '600'};cursor:pointer;">${m}</button>`;
+                                    }).join('')}
+                                </div>
+                                ${dayData.muscles && dayData.muscles.length > 0 ? `
+                                <div style="margin-top:7px;font-size:0.7em;color:#64748b;font-style:italic;">${dayData.muscles.length} muscle${dayData.muscles.length>1?'s':''} sélectionné${dayData.muscles.length>1?'s':''}</div>
+                                ` : `
+                                <div style="margin-top:7px;font-size:0.7em;color:#475569;font-style:italic;">Aucun muscle · jour de repos</div>
+                                `}
+                            </div>
+                            `;
+                        }).join('')}
+                    </div>
+
+                    <button onclick="clearManualPlan()" style="width:100%;margin-top:10px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);color:#f87171;border-radius:10px;padding:11px;font-weight:700;font-size:0.78em;cursor:pointer;">🗑️ Effacer tout le plan</button>
+                </div>
+            </div>
+            `;
+            document.body.appendChild(modal);
+            modal.addEventListener('click', e => {
+                if (e.target === modal) { modal.remove(); renderManualWeeklyPlanCard(); }
+            });
+        }
+        window.openManualPlanEditor = openManualPlanEditor;
+
+        function toggleManualPlanMuscle(dayKey, muscle) {
+            const plan = getManualWeeklyPlan();
+            if (!plan[dayKey]) plan[dayKey] = { muscles: [], label: '' };
+            const idx = plan[dayKey].muscles.indexOf(muscle);
+            if (idx >= 0) plan[dayKey].muscles.splice(idx, 1);
+            else plan[dayKey].muscles.push(muscle);
+            // Auto-label
+            plan[dayKey].label = plan[dayKey].muscles.slice(0, 3).join(' · ');
+            saveManualWeeklyPlan(plan);
+            openManualPlanEditor(); // re-render
+        }
+        window.toggleManualPlanMuscle = toggleManualPlanMuscle;
+
+        function clearManualPlanDay(dayKey) {
+            const plan = getManualWeeklyPlan();
+            delete plan[dayKey];
+            saveManualWeeklyPlan(plan);
+            openManualPlanEditor();
+        }
+        window.clearManualPlanDay = clearManualPlanDay;
+
+        function applyManualPlanPreset(presetId) {
+            const preset = MANUAL_PLAN_PRESETS.find(p => p.id === presetId);
+            if (!preset) return;
+            if (!confirm(`Appliquer le preset "${preset.name}" ? (remplacera ton plan actuel)`)) return;
+            saveManualWeeklyPlan(JSON.parse(JSON.stringify(preset.plan)));
+            openManualPlanEditor();
+            if (typeof showToast === 'function') showToast(`✅ Plan "${preset.name}" appliqué`, 'success', 2500);
+        }
+        window.applyManualPlanPreset = applyManualPlanPreset;
+
+        function clearManualPlan() {
+            if (!confirm('Effacer tout le plan hebdomadaire ?')) return;
+            saveManualWeeklyPlan({});
+            openManualPlanEditor();
+            if (typeof showToast === 'function') showToast('🗑️ Plan effacé', 'info', 2000);
+        }
+        window.clearManualPlan = clearManualPlan;
+
         function generateIntelligentWorkout() {
             const profile = getUserProfile();
             const fitnessIndex = getFitnessIndex();
             const equipmentNames = getSelectedEquipmentNames();
             const blacklist = getExerciseBlacklist();
 
-            // ── Muscles : override manuel/plan > réglages > tous ──────────
+            // 📅 PRIORITÉ #1 : Plan hebdo manuel (muscles du jour)
+            const manualPlanToday = (typeof getManualPlanTodayMuscles === 'function') ? getManualPlanTodayMuscles() : null;
+
+            // ── Muscles : plan manuel > override session > réglages > tous ──────────
             const _overrideMuscles = window._overrideSessionMuscles || null;
             if (_overrideMuscles) window._overrideSessionMuscles = null;
 
-            const selectedMuscles = _overrideMuscles || getSelectedMuscleNames();
+            // Plan hebdo manuel passe en priorité absolue
+            const selectedMuscles = manualPlanToday
+                ? manualPlanToday.muscles
+                : (_overrideMuscles || getSelectedMuscleNames());
 
             // ✅ If no muscles selected, use ALL muscles
             const allMuscles = ['Pectoraux', 'Dos', 'Épaules', 'Biceps', 'Triceps', 'Abdominaux', 'Quadriceps', 'Ischio-jambiers', 'Fessiers', 'Mollets', 'Avant-bras', 'Trapèzes', 'Obliques'];
             let workingMuscles = selectedMuscles.length > 0 ? selectedMuscles : allMuscles;
+
+            // Mémo : si plan manuel actif, on l'indique dans le workout généré
+            const _planLabel = manualPlanToday ? (manualPlanToday.label || manualPlanToday.muscles.join(' · ')) : null;
             
             // ✅ NEW: Get recent exercises to avoid repetition
             const recentHistory = getWorkoutHistory().slice(0, 3); // Last 3 workouts
@@ -9461,10 +9742,13 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             // Save performance (work sets only)
             if (!isWarmup && currentEx) {
                 const wKg = useKg ? weight : Math.round(weight * 0.453592 * 10) / 10;
-                if (reps > 0) savePerformance(currentEx._baseName || currentEx.name, reps, wKg || null);
+                // Bloquer savePerformance et XP pendant Failles/Chasses
+                if (!currentWorkout._isRift && !currentWorkout._isHunt) {
+                    if (reps > 0) savePerformance(currentEx._baseName || currentEx.name, reps, wKg || null);
+                    // 🎮 Gain XP RPG — accordé dès qu'une série est complétée
+                    rpgGainXP(currentEx._baseName || currentEx.name, reps || 1, wKg || 0);
+                }
                 vibrate([30, 20, 60]);
-                // 🎮 Gain XP RPG — accordé dès qu'une série est complétée (même sans reps saisis)
-                rpgGainXP(currentEx._baseName || currentEx.name, reps || 1, wKg || 0);
             }
 
             // Reset inputs
@@ -9477,6 +9761,47 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
             const totalSets = totalSetsPlanned + warmupSetsCount;
             if (currentSetNumber > totalSets) {
+                // 🌀 RIFT / 🏹 HUNT : ne pas terminer la séance, retourner au combat
+                if (currentWorkout && (currentWorkout._isRift || currentWorkout._isHunt)) {
+                    const isRift = currentWorkout._isRift;
+                    showToast(`✅ ${totalSetsPlanned} séries complètes`, 'success', 1500);
+                    vibrate([60, 30, 80]);
+
+                    // Vérifier si le monstre/vague est mort
+                    let killed = false;
+                    if (isRift && awakActiveRiftSession) {
+                        const wave = awakActiveRiftSession.rift.waves[awakActiveRiftSession.rift.currentWaveIdx];
+                        killed = wave && wave.hpCurrent <= 0;
+                    } else if (!isRift && awakActiveHuntSession) {
+                        killed = awakActiveHuntSession.monster.hpCurrent <= 0;
+                    }
+
+                    setTimeout(() => {
+                        // Quitter la séance proprement
+                        if (typeof _doQuitWorkout === 'function') _doQuitWorkout();
+
+                        setTimeout(() => {
+                            if (killed) {
+                                // Vague/monstre mort, avancer ou terminer
+                                if (isRift && typeof awakAdvanceToNextWave === 'function') {
+                                    awakAdvanceToNextWave();
+                                } else if (!isRift && typeof awakCompleteHunt === 'function') {
+                                    awakCompleteHunt();
+                                }
+                            } else {
+                                // Pas mort : revenir au modal combat pour rechoisir un exo
+                                if (isRift && typeof awakShowRiftCombatScreen === 'function') {
+                                    awakShowRiftCombatScreen();
+                                } else if (!isRift && typeof awakShowHuntScreen === 'function') {
+                                    awakShowHuntScreen();
+                                }
+                            }
+                        }, 400);
+                    }, 1000);
+                    return;
+                }
+
+                // Séance normale : compléter
                 showToast(`✅ ${totalSetsPlanned} séries complètes !`, 'success', 2000);
                 vibrate([100, 50, 200]);
                 setTimeout(() => skipExercise(), 800);
@@ -16314,7 +16639,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             // Highlight nav button
             const navButtons = document.querySelectorAll('.nav-tab');
             navButtons.forEach((btn, index) => {
-                const tabs = ['home', 'workouts', 'routines', 'history', 'exercises', 'calculators', 'challenges', 'settings', 'custom', 'game'];
+                const tabs = ['home', 'workouts', 'routines', 'program', 'history', 'exercises', 'calculators', 'challenges', 'settings', 'game'];
                 if (tabs[index] === tabName) {
                     btn.classList.add('active');
                 }
@@ -16329,6 +16654,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 renderActivePlan();
                 renderLocationBtns();
                 renderDeloadBanner();
+                // 📅 Render le plan hebdo manuel (Phase 6)
+                if (typeof renderManualWeeklyPlanCard === 'function') renderManualWeeklyPlanCard();
             } else if (tabName === 'exercises') {
                 // Check if filters are active, if not show welcome screen
                 filterExercises();
@@ -22214,23 +22541,32 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const consumEffects = typeof awakConsumablesGetActiveEffects === 'function'
                 ? awakConsumablesGetActiveEffects() : {};
 
-            // Réinitialiser les HP de toutes les vagues (au cas où retry)
-            rift.waves.forEach(w => {
-                let hpMax = w.hpMax;
-                if (consumEffects.hpCut) {
-                    hpMax = Math.round(hpMax * (1 - consumEffects.hpCut));
-                }
-                w.hpMax = hpMax;
-                w.hpCurrent = hpMax;
-                // Reset boss mechanics flags
-                w._phaseTriggered = false;
-                w._weaknessRevealed = false;
-                w._enraged = false;
-                w._addSpawned = false;
-                w._hitCount = 0;
-            });
-            rift.currentWaveIdx = 0;
-            rift.attempts = (rift.attempts || 0) + 1;
+            // 💾 Vérifier si la Faille est déjà en cours (HP entamés sur la vague actuelle)
+            const currentWaveIdx = rift.currentWaveIdx || 0;
+            const currentWave = rift.waves[currentWaveIdx];
+            const isInProgress = currentWave && currentWave.hpCurrent < currentWave.hpMax;
+
+            if (!isInProgress) {
+                // Première entrée OU après abandon → reset les HP
+                rift.waves.forEach((w, i) => {
+                    // Ne reset que les vagues pas encore vaincues
+                    if (i < currentWaveIdx) return; // vague déjà passée, garde HP=0
+                    let hpMax = w.hpMax;
+                    if (consumEffects.hpCut) {
+                        hpMax = Math.round(hpMax * (1 - consumEffects.hpCut));
+                    }
+                    w.hpMax = hpMax;
+                    w.hpCurrent = hpMax;
+                    // Reset boss mechanics flags
+                    w._phaseTriggered = false;
+                    w._weaknessRevealed = false;
+                    w._enraged = false;
+                    w._addSpawned = false;
+                    w._hitCount = 0;
+                });
+                if (currentWaveIdx === 0) rift.attempts = (rift.attempts || 0) + 1;
+            }
+            // Sinon : on reprend là où on en était (HP intacts)
 
             awakActiveRiftSession = {
                 rift,
@@ -22510,6 +22846,16 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const newHpPercent = (currentWave.hpCurrent / currentWave.hpMax) * 100;
             session.totalDamageDealt += finalDamage;
 
+            // 💾 PERSISTER l'état dans localStorage (sinon HP réinitialisés au prochain load)
+            try {
+                const allRifts = awakRiftsLoad();
+                const idx = allRifts.findIndex(r => r.id === rift.id);
+                if (idx >= 0) {
+                    allRifts[idx] = rift; // remplace par la version modifiée
+                    awakRiftsSave(allRifts);
+                }
+            } catch(e) { console.warn('Failed to persist rift state:', e); }
+
             // 👑 Phase 5 : déclencher mécaniques boss aux seuils
             const bossMessages = (typeof awakApplyBossMechanic === 'function')
                 ? awakApplyBossMechanic(currentWave, prevHpPercent, newHpPercent) : null;
@@ -22537,6 +22883,14 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const session = awakActiveRiftSession;
             if (!session) return;
             session.rift.currentWaveIdx++;
+
+            // 💾 Persister la progression
+            try {
+                const allRifts = awakRiftsLoad();
+                const idx = allRifts.findIndex(r => r.id === session.rift.id);
+                if (idx >= 0) { allRifts[idx] = session.rift; awakRiftsSave(allRifts); }
+            } catch(e) {}
+
             if (session.rift.currentWaveIdx >= session.rift.waves.length) {
                 awakCompleteRift();
             } else {
@@ -26958,13 +27312,20 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         // 📋 ONGLET PROGRAMME — Affichage du programme actif
         // ═══════════════════════════════════════════════════════════════
         function renderProgramTab() {
+            console.log('[ProgramTab] renderProgramTab called');
             const container = document.getElementById('programTabContent');
-            if (!container) return;
+            console.log('[ProgramTab] container:', !!container);
+            if (!container) {
+                console.warn('[ProgramTab] programTabContent NOT FOUND in DOM');
+                return;
+            }
 
-            const celeb = getActiveCelebrity();
+            const celeb = (typeof getActiveCelebrity === 'function') ? getActiveCelebrity() : null;
+            console.log('[ProgramTab] active celebrity:', celeb ? celeb.id : 'none');
 
             if (!celeb) {
                 container.innerHTML = _renderProgramEmptyState();
+                console.log('[ProgramTab] Empty state rendered');
                 return;
             }
 
@@ -27003,6 +27364,28 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     </div>
                 </div>
             </div>
+
+            <!-- ═══ CTA DÉMARRER SÉANCE DU JOUR ═══ -->
+            ${isRest ? `
+                <div class="card" style="padding:18px 20px;text-align:center;background:linear-gradient(135deg,rgba(148,163,184,0.1),rgba(148,163,184,0.02));border:1px solid rgba(148,163,184,0.3);">
+                    <div style="font-size:2.5em;margin-bottom:6px;">🛌</div>
+                    <div style="font-size:0.62em;color:#94a3b8;font-weight:900;letter-spacing:2px;margin-bottom:4px;">JOUR DE REPOS</div>
+                    <div style="font-size:0.95em;color:white;font-weight:800;">${todaySplit ? todaySplit.name : 'Repos'}</div>
+                    <div style="font-size:0.75em;color:#64748b;margin-top:6px;">Profite de ta récupération. Reviens demain !</div>
+                </div>
+            ` : (todaySplit ? `
+                <div class="card" style="padding:18px 20px;background:linear-gradient(135deg,${celeb.color}25,${celeb.color}05);border:1.5px solid ${celeb.color}60;">
+                    <div style="display:flex;align-items:center;gap:11px;margin-bottom:12px;">
+                        <div style="font-size:2em;line-height:1;filter:drop-shadow(0 0 8px ${celeb.color}80);flex-shrink:0;">⚡</div>
+                        <div style="flex:1;min-width:0;">
+                            <div style="font-size:0.58em;color:${celeb.color};font-weight:900;letter-spacing:2px;margin-bottom:2px;">SÉANCE DU JOUR</div>
+                            <div style="font-size:1em;font-weight:900;color:white;line-height:1.2;">${todaySplit.name}</div>
+                            <div style="font-size:0.7em;color:#94a3b8;margin-top:2px;">${prog.phase.label} · Sem. ${prog.week}/${prog.totalWeeks}</div>
+                        </div>
+                    </div>
+                    <button onclick="startCelebrityWorkoutToday()" style="width:100%;background:linear-gradient(135deg,${celeb.color},${celeb.color}cc);border:none;color:white;border-radius:12px;padding:15px;font-weight:900;font-size:1em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 20px ${celeb.color}50;">▶ DÉMARRER LA SÉANCE</button>
+                </div>
+            ` : '')}
 
             <!-- ═══ PROGRESSION 12 SEMAINES ═══ -->
             <div class="card" style="padding:16px 18px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${prog.phase.color}30;">
@@ -27056,10 +27439,13 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     ${celeb.splits.map((s, i) => {
                         const isToday = i === todayIdx;
                         const isRestDay = /repos|🛌/i.test(s.name);
+                        const dayKeys = ['lun','mar','mer','jeu','ven','sam','dim'];
+                        const dayKey = dayKeys[i];
                         return `<div style="display:flex;align-items:center;gap:10px;padding:10px 11px;background:${isToday ? celeb.color+'20' : 'rgba(255,255,255,0.02)'};border:1px solid ${isToday ? celeb.color+'60' : 'rgba(255,255,255,0.05)'};border-radius:10px;${isToday ? 'box-shadow:0 0 12px '+celeb.color+'30;' : ''}">
                             <div style="font-size:0.7em;font-weight:900;color:${isToday ? celeb.color : '#64748b'};width:32px;letter-spacing:1px;flex-shrink:0;">${s.day}</div>
                             <div style="flex:1;min-width:0;font-size:0.85em;font-weight:${isToday ? '800' : '600'};color:${isRestDay ? '#94a3b8' : 'white'};">${s.name}</div>
                             ${isToday ? `<span style="background:${celeb.color};color:white;padding:2px 8px;border-radius:99px;font-size:0.55em;font-weight:900;letter-spacing:1px;flex-shrink:0;">AUJ.</span>` : ''}
+                            ${!isRestDay ? `<button onclick="startCelebrityWorkoutToday('${dayKey}')" style="background:${isToday ? celeb.color : 'rgba(255,255,255,0.05)'};color:${isToday ? 'white' : '#94a3b8'};border:1px solid ${isToday ? celeb.color : 'rgba(255,255,255,0.1)'};border-radius:7px;padding:5px 10px;font-size:0.65em;font-weight:800;cursor:pointer;flex-shrink:0;letter-spacing:0.5px;">▶</button>` : ''}
                         </div>`;
                     }).join('')}
                 </div>
@@ -27192,6 +27578,184 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 + '<button onclick="if(confirm(\'Recommencer à la semaine 1 ?\')){resetCelebrityProgram(\'' + p.id + '\');document.getElementById(\'celebrityDetailOverlay\')?.remove();showCelebrityDetail(\'' + p.id + '\');}" style="margin-top:10px;width:100%;padding:8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:rgba(255,255,255,0.3);font-size:0.72em;font-weight:700;cursor:pointer;">\u{1F504} Recommencer depuis la semaine 1</button>'
                 + '</div>';
         }
+
+        // ═══════════════════════════════════════════════════════════════
+        // 🚀 DÉMARRER UNE SÉANCE depuis le programme actif
+        // ═══════════════════════════════════════════════════════════════
+        /**
+         * Démarre la séance du jour selon le split du programme actif
+         * @param {string} dayKey - optional: 'lun', 'mar', etc. Sinon utilise aujourd'hui
+         */
+        function startCelebrityWorkoutToday(dayKey) {
+            const celeb = getActiveCelebrity();
+            if (!celeb) {
+                if (typeof showAlert === 'function') {
+                    showAlert('Aucun programme actif. Choisis-en un d\'abord.', 'warning', 'Programme requis');
+                }
+                return;
+            }
+
+            const dayMap = { lun:0, mar:1, mer:2, jeu:3, ven:4, sam:5, dim:6 };
+            const todayIdx = dayKey ? dayMap[dayKey] : (new Date().getDay() + 6) % 7;
+            const splitInfo = celeb.splits && celeb.splits[todayIdx];
+
+            if (!splitInfo) {
+                showAlert('Pas de split prévu pour ce jour.', 'warning', 'Repos');
+                return;
+            }
+
+            // Jour de repos
+            if (/repos|🛌/i.test(splitInfo.name)) {
+                if (typeof showAlert === 'function') {
+                    showAlert(`${splitInfo.name} — Profite de ta récupération !`, 'info', '🛌 Jour de repos');
+                }
+                return;
+            }
+
+            // Identifier les muscles ciblés du jour
+            const muscles = _splitNameToMuscles(splitInfo.name);
+            if (!muscles || muscles.length === 0) {
+                showAlert('Impossible de déterminer les muscles ciblés.', 'error', 'Erreur');
+                return;
+            }
+
+            // Filtrer les exercices du programme correspondant aux muscles du jour
+            const allExercises = celeb.exercises || [];
+            let dayExercises = allExercises.filter(ex => {
+                const fullEx = exerciseDatabase.find(e => e.name === ex.name);
+                if (!fullEx) return false;
+                return muscles.some(m => fullEx.muscle === m);
+            });
+
+            // Si trop peu d'exos signature, compléter avec génération
+            if (dayExercises.length < 4 && typeof generateExercisesForMuscles === 'function') {
+                const generated = generateExercisesForMuscles(muscles, {
+                    count: 6 - dayExercises.length,
+                    level: celeb.level || 'Intermédiaire'
+                });
+                // Éviter doublons
+                const existingNames = new Set(dayExercises.map(e => e.name));
+                generated.forEach(g => {
+                    if (!existingNames.has(g.name)) dayExercises.push(g);
+                });
+            }
+
+            // Limiter à 6-8 exercices max pour pas surcharger
+            dayExercises = dayExercises.slice(0, 8);
+
+            if (dayExercises.length === 0) {
+                showAlert('Aucun exercice disponible pour cette séance.', 'error', 'Erreur');
+                return;
+            }
+
+            // Appliquer le scaling de phase (Adaptation/Progression/Intensification)
+            const prog = getCelebProgression(celeb.id);
+            const scaledExercises = dayExercises.map(ex => {
+                const fullEx = exerciseDatabase.find(e => e.name === ex.name) || ex;
+                return {
+                    ...fullEx,
+                    sets: Math.max(1, Math.round((ex.sets || 3) * prog.phase.setsScale)),
+                    reps: ex.reps || fullEx.reps || 10,
+                    rest: Math.round((ex.rest || 60) * prog.phase.restScale),
+                    mode: ex.mode || fullEx.mode || 'reps',
+                    _baseName: ex.name,
+                    _celebNote: ex.note
+                };
+            });
+
+            // Construire le workout
+            const workout = {
+                name: `${celeb.emoji} ${celeb.nickname} · ${splitInfo.name}`,
+                description: `Programme ${celeb.nickname} · Sem. ${prog.week}/${prog.totalWeeks} · ${prog.phase.label}`,
+                type: 'celebrity',
+                fromCelebrity: celeb.id,
+                celebColor: celeb.color,
+                celebPhase: prog.phaseKey,
+                exercises: scaledExercises
+            };
+
+            // Démarrer via le système standard
+            currentWorkout = workout;
+            currentExerciseIndex = 0;
+            currentSetNumber = 1;
+            workoutStartTime = Date.now();
+            if (typeof _workoutSkipCount !== 'undefined') _workoutSkipCount = 0;
+            if (typeof completedSets !== 'undefined') completedSets = [];
+
+            // Compter la séance dans le programme
+            if (typeof recordCelebritySession === 'function') {
+                recordCelebritySession(celeb.id);
+            }
+
+            if (typeof switchTab === 'function') switchTab('workouts');
+
+            setTimeout(() => {
+                document.getElementById('workoutSelection')?.style.setProperty('display', 'none');
+                document.getElementById('exerciseSelection')?.style.setProperty('display', 'none');
+                ['aiWorkoutPanel', 'celebrityPanel', 'planningPanel'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.style.display = 'none';
+                });
+                const exView = document.getElementById('exerciseView');
+                if (exView) {
+                    exView.classList.remove('hidden');
+                    exView.style.display = 'block';
+                }
+                document.body.classList.add('in-session');
+
+                const badge = document.getElementById('workoutTypeBadge');
+                if (badge) {
+                    badge.innerHTML = `${celeb.emoji} ${celeb.nickname} · ${splitInfo.name}`;
+                    badge.style.background = `linear-gradient(135deg, ${celeb.color} 0%, ${celeb.color}dd 100%)`;
+                    badge.style.display = 'block';
+                }
+
+                if (typeof renderExerciseProgressList === 'function') renderExerciseProgressList();
+                if (typeof updateMusclesOverview === 'function') updateMusclesOverview();
+                if (typeof startExercise === 'function') startExercise();
+            }, 100);
+        }
+        window.startCelebrityWorkoutToday = startCelebrityWorkoutToday;
+
+        /**
+         * Mappe le nom d'un split vers les muscles ciblés
+         */
+        function _splitNameToMuscles(name) {
+            const lower = (name || '').toLowerCase();
+            const muscles = [];
+            // Détection par mots-clés
+            if (/poitrine|pec|pect/i.test(lower)) muscles.push('Pectoraux');
+            if (/dos|back|rowing|traction/i.test(lower)) muscles.push('Dos');
+            if (/épaule|epaule|shoulder|delt/i.test(lower)) muscles.push('Épaules');
+            if (/biceps/i.test(lower)) muscles.push('Biceps');
+            if (/triceps/i.test(lower)) muscles.push('Triceps');
+            if (/bras|arm/i.test(lower) && muscles.length === 0) muscles.push('Biceps', 'Triceps');
+            if (/jambe|leg|quadri|squat/i.test(lower)) muscles.push('Quadriceps', 'Fessiers', 'Ischio-jambiers', 'Mollets');
+            if (/fessier|glute|squat/i.test(lower) && !muscles.includes('Fessiers')) muscles.push('Fessiers');
+            if (/cardio|hiit|course|running/i.test(lower)) muscles.push('Cardio');
+            if (/abs|abdo|core/i.test(lower)) muscles.push('Abdominaux');
+            if (/corps entier|full body|total/i.test(lower)) {
+                return ['Pectoraux', 'Dos', 'Quadriceps', 'Épaules', 'Abdominaux'];
+            }
+            if (/cou|trap|trapèze/i.test(lower)) muscles.push('Trapèzes');
+            if (/mollet|calf/i.test(lower)) muscles.push('Mollets');
+            return [...new Set(muscles)]; // dédupliquer
+        }
+
+        /**
+         * Réinitialise un programme (semaine 1, 0 séance)
+         */
+        function resetCelebrityProgram(programId) {
+            try {
+                localStorage.setItem(CELEBRITY_START_KEY + '_' + programId, new Date().toISOString());
+                const sessions = JSON.parse(localStorage.getItem(CELEBRITY_SESSIONS_KEY) || '{}');
+                sessions[programId] = 0;
+                localStorage.setItem(CELEBRITY_SESSIONS_KEY, JSON.stringify(sessions));
+                if (typeof showToast === 'function') showToast('🔄 Programme réinitialisé à la semaine 1', 'success', 2500);
+                if (typeof renderProgramTab === 'function') renderProgramTab();
+            } catch(e) { console.warn(e); }
+        }
+        window.resetCelebrityProgram = resetCelebrityProgram;
 
         function setActiveCelebrity(programId) {
             const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
@@ -28662,6 +29226,31 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
             const blocks = [];
 
+            // 0. Séance du jour selon programme actif (priorité MAX)
+            try {
+                if (typeof getActiveCelebrity === 'function') {
+                    const celeb = getActiveCelebrity();
+                    if (celeb && celeb.splits) {
+                        const todayIdx = (new Date().getDay() + 6) % 7;
+                        const todaySplit = celeb.splits[todayIdx];
+                        if (todaySplit && !/repos|🛌/i.test(todaySplit.name)) {
+                            blocks.push(`
+                            <div style="background:linear-gradient(135deg,${celeb.color}25,${celeb.color}05);border:1.5px solid ${celeb.color}60;border-radius:14px;padding:14px;margin-bottom:10px;cursor:pointer;" onclick="startCelebrityWorkoutToday()">
+                                <div style="display:flex;align-items:center;gap:11px;">
+                                    <div style="font-size:2em;line-height:1;filter:drop-shadow(0 0 8px ${celeb.color}80);flex-shrink:0;">${celeb.emoji}</div>
+                                    <div style="flex:1;min-width:0;">
+                                        <div style="font-size:0.58em;color:${celeb.color};font-weight:900;letter-spacing:2px;margin-bottom:2px;">📋 ${celeb.nickname.toUpperCase()}</div>
+                                        <div style="font-size:0.95em;font-weight:900;color:white;line-height:1.2;">${todaySplit.name}</div>
+                                        <div style="font-size:0.7em;color:#94a3b8;margin-top:2px;">Séance du jour selon ton programme</div>
+                                    </div>
+                                    <div style="background:${celeb.color};color:white;border-radius:10px;padding:8px 12px;font-size:0.78em;font-weight:900;letter-spacing:0.5px;flex-shrink:0;">▶ START</div>
+                                </div>
+                            </div>`);
+                        }
+                    }
+                }
+            } catch(e) {}
+
             // 1. Routine du jour (plan hebdo)
             try {
                 if (typeof getWeeklyPlan === 'function' && typeof getRoutines === 'function') {
@@ -29149,6 +29738,16 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
         function showSwapExercise() {
             if (!currentWorkout) return;
+
+            // 🌀 Bloquer dans les Failles/Chasses
+            if (currentWorkout._isRift || currentWorkout._isHunt) {
+                const label = currentWorkout._isRift ? 'une Faille' : 'une Chasse';
+                if (typeof showAlert === 'function') {
+                    showAlert(`Tu es dans ${label}. Tu ne peux pas changer d'exercice. Termine ou abandonne.`, 'warning', '⚔ Combat en cours');
+                }
+                return;
+            }
+
             const exercise = currentWorkout.exercises[currentExerciseIndex];
             if (!exercise || exercise.isRest || exercise.isInfo) return;
 
