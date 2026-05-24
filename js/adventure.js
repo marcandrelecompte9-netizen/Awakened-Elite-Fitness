@@ -694,9 +694,7 @@ function renderAdventureTab() {
     const container = document.getElementById('adventureContainer');
     if (!container) return;
     if (!getAdventureEnabled()) { container.innerHTML = renderAdventureDisabled(); return; }
-    // 🌌 AWAKENED Power Card en haut (Power Score + Rang E→S)
-    const awakenedCard = (typeof window.renderAwakenedPowerCard === 'function')
-        ? window.renderAwakenedPowerCard() : '';
+    // 🌌 AWAKENED Power Card est maintenant fusionnée dans la carte Profil (renderGameTab)
     // 🌀 Failles actives
     const riftsCard = (typeof window.renderActiveRiftsCard === 'function')
         ? window.renderActiveRiftsCard() : '';
@@ -709,12 +707,10 @@ function renderAdventureTab() {
     // 🧪 Consommables (Phase 5)
     const consumablesCard = (typeof window.renderConsumablesCard === 'function')
         ? window.renderConsumablesCard() : '';
-    container.innerHTML = awakenedCard
-        + monstersCard
+    container.innerHTML = monstersCard
         + riftsCard
         + companionsCard
         + consumablesCard
-        + renderHunterCard()
         + (typeof renderChallengeSection==='function' ? renderChallengeSection() : '');
     if (typeof startChallengeTimer==='function') startChallengeTimer();
 }

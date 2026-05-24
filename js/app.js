@@ -7780,7 +7780,10 @@
             let selectedExercises = [];
 
             // Prioritiser les exercices signature si une personnalité est active
-            const _activeCeleb = getActiveCelebrity();
+            // 📅 MAIS : si plan hebdo manuel actif, on dissocie complètement (séance libre)
+            const _manualPlanActive = (typeof getManualPlanTodayMuscles === 'function')
+                && getManualPlanTodayMuscles() !== null;
+            const _activeCeleb = _manualPlanActive ? null : getActiveCelebrity();
 
             // Pour chaque muscle ciblé, ajouter au moins 2 exercices
             decisions.targetMuscles.forEach(muscle => {
@@ -7937,6 +7940,13 @@
         }
 
         function actuallyStartRandomWorkout() {
+            // 📅 Diagnostic : indiquer d'où viennent les muscles
+            const _manualToday = (typeof getManualPlanTodayMuscles === 'function') ? getManualPlanTodayMuscles() : null;
+            if (_manualToday && _manualToday.muscles && _manualToday.muscles.length > 0) {
+                if (typeof showToast === 'function') {
+                    showToast(`📅 Plan hebdo : ${_manualToday.label || _manualToday.muscles.join(' · ')}`, 'info', 2500);
+                }
+            }
             // This is called after duration selection
             const workout = generateIntelligentWorkout();
             if (!workout) return;
@@ -9650,6 +9660,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
         function completeCurrentSet() {
             if (!currentWorkout) return; // garde: séance déjà terminée
+            // 🌀 Verrou : éviter double-traitement de la fin de Faille
+            if (window._riftEndingFlow) return;
             const repsInput   = document.getElementById('quickRepsInput');
             const weightInput = document.getElementById('quickWeightInput');
             const reps   = parseInt(repsInput?.value) || 0;
@@ -9663,6 +9675,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             if (currentWorkout._isRift && typeof awakDealDamageToWave === 'function' && !isWarmup) {
                 try {
                     console.log('🌀 Rift damage attempt:', { reps, weight, riftId: currentWorkout._riftId, session: !!awakActiveRiftSession });
+                    if (!awakActiveRiftSession) {
+                        // ⚠️ Session perdue : afficher une alerte visible
+                        showToast('⚠️ Session faille perdue · Rechargement', 'error', 2500);
+                    }
                     const result = awakDealDamageToWave(reps, weight);
                     console.log('🌀 Rift damage result:', result);
                     if (result) {
@@ -9763,6 +9779,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             if (currentSetNumber > totalSets) {
                 // 🌀 RIFT / 🏹 HUNT : ne pas terminer la séance, retourner au combat
                 if (currentWorkout && (currentWorkout._isRift || currentWorkout._isHunt)) {
+                    window._riftEndingFlow = true; // 🔒 verrou
                     const isRift = currentWorkout._isRift;
                     showToast(`✅ ${totalSetsPlanned} séries complètes`, 'success', 1500);
                     vibrate([60, 30, 80]);
@@ -9780,6 +9797,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         // Quitter la séance proprement
                         if (typeof _doQuitWorkout === 'function') _doQuitWorkout();
 
+                        // 🛡️ FORCE cacher le completionView au cas où
+                        const cv = document.getElementById('completionView');
+                        if (cv) { cv.classList.add('hidden'); cv.style.display = 'none'; }
+
                         setTimeout(() => {
                             if (killed) {
                                 // Vague/monstre mort, avancer ou terminer
@@ -9796,6 +9817,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                                     awakShowHuntScreen();
                                 }
                             }
+                            window._riftEndingFlow = false; // 🔓 libérer verrou
                         }, 400);
                     }, 1000);
                     return;
@@ -13189,9 +13211,29 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const todayIdx = (new Date().getDay() + 6) % 7; // lundi = 0
 
             const hasPlan = Object.values(plan).some(v => v);
+
+            // Empty state visible si aucun plan + au moins une routine existe
             if (!hasPlan) {
-                container.innerHTML = '';
-                container.style.display = 'none';
+                if (routines.length === 0) {
+                    // Pas de routines = on cache (l'utilisateur doit d'abord créer/importer)
+                    container.innerHTML = '';
+                    container.style.display = 'none';
+                    return;
+                }
+                // Routines existent mais pas de plan → invitation
+                container.style.display = 'block';
+                container.innerHTML = `
+                <div class="card" style="background:linear-gradient(160deg,#0a0e18,#0F1014);border:1.5px dashed rgba(34,197,94,0.4);padding:14px 16px;margin-bottom:14px;">
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+                        <div style="font-size:1.6em;line-height:1;filter:drop-shadow(0 0 6px rgba(74,222,128,0.5));">📅</div>
+                        <div style="flex:1;min-width:0;">
+                            <div style="font-size:0.58em;color:#4ade80;font-weight:900;letter-spacing:2px;">PLAN HEBDO</div>
+                            <div style="font-size:0.88em;font-weight:800;color:white;">Assigner mes routines aux jours</div>
+                        </div>
+                    </div>
+                    <div style="font-size:0.75em;color:#94a3b8;line-height:1.5;margin-bottom:11px;">Choisis quelle routine faire chaque jour. Elle apparaîtra sur la carte "Aujourd'hui" à l'accueil.</div>
+                    <button onclick="openWeeklyPlanEditor()" style="width:100%;background:linear-gradient(135deg,#22c55e,#16a34a);border:none;color:white;border-radius:10px;padding:11px;font-weight:900;font-size:0.85em;cursor:pointer;letter-spacing:0.5px;">✨ CRÉER MON PLAN HEBDO</button>
+                </div>`;
                 return;
             }
             container.style.display = 'block';
@@ -13225,6 +13267,15 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         function openWeeklyPlanEditor(focusDay) {
             const plan = getWeeklyPlan();
             const routines = getRoutines();
+
+            // Si aucune routine, on ne peut pas créer de plan
+            if (routines.length === 0) {
+                if (typeof showAlert === 'function') {
+                    showAlert('Tu n\'as aucune routine. Crée-en une ou importe un template d\'abord.', 'warning', 'Routines requises');
+                }
+                return;
+            }
+
             document.getElementById('weeklyPlanEditorModal')?.remove();
             const modal = document.createElement('div');
             modal.id = 'weeklyPlanEditorModal';
@@ -13244,7 +13295,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                             const currentRoutine = routines.find(r => r.id === currentRoutineId);
                             return `<div style="margin-bottom:10px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:11px 12px;">
                                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;">
-                                    <span style="font-size:0.78em;font-weight:800;color:white;">${ROUTINE_DAY_LABELS[d]}edi</span>
+                                    <span style="font-size:0.78em;font-weight:800;color:white;">${({lun:'Lundi',mar:'Mardi',mer:'Mercredi',jeu:'Jeudi',ven:'Vendredi',sam:'Samedi',dim:'Dimanche'})[d]}</span>
                                     ${currentRoutine ? `<button onclick="setWeeklyDay('${d}',null);" style="background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.25);border-radius:6px;padding:3px 8px;font-size:0.65em;font-weight:700;cursor:pointer;">✕ Retirer</button>` : ''}
                                 </div>
                                 <select onchange="setWeeklyDay('${d}', this.value || null)" style="width:100%;background:#0a0e18;border:1px solid rgba(255,255,255,0.08);color:white;border-radius:8px;padding:9px 11px;font-size:0.82em;">
@@ -20282,49 +20333,122 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             // ══════════════════════════════════════════════════════════
             tab.innerHTML = '';
 
-            // ── 1. CARTE PROFIL ──────────────────────────────────────
+            // ── 1. CARTE PROFIL FUSIONNÉE (Profil + AWAKENED ANCRAGE) ──
             const cardProfile = document.createElement('div');
             cardProfile.className = 'card';
-            cardProfile.style.cssText = 'background:linear-gradient(135deg,#0D0D0D,#0F1014,#1A0A00);color:white;overflow:hidden;border:1.5px solid rgba(34,197,94,0.3);';
+
+            // Données AWAKENED pour fusion
+            const awakProgress = typeof awakGetRankProgress === 'function' ? awakGetRankProgress() : null;
+            const awakStats = typeof awakGetTotalStats === 'function' ? awakGetTotalStats() : null;
+            const awakRank = awakProgress ? awakProgress.current : null;
+            const awakNext = awakProgress ? awakProgress.next : null;
+            const sp = typeof statPointsLoad === 'function' ? statPointsLoad() : { available: 0 };
+            const availablePoints = sp.available || 0;
+            const rankColor = awakRank ? awakRank.color : '#22c55e';
+
+            cardProfile.style.cssText = 'background:linear-gradient(135deg,#0D0D0D,#0F1014,#1A0A00);color:white;overflow:hidden;border:1.5px solid '+rankColor+'40;padding:20px;margin-bottom:14px;position:relative;';
+
+            const awakStatRows = [
+                { key: 'STR', icon: '⚔️', color: '#ef4444', label: 'Force' },
+                { key: 'AGI', icon: '⚡', color: '#f59e0b', label: 'Agilité' },
+                { key: 'VIT', icon: '💨', color: '#3b82f6', label: 'Vitesse' },
+                { key: 'END', icon: '💚', color: '#22c55e', label: 'Endurance' },
+                { key: 'PER', icon: '👁️', color: '#06b6d4', label: 'Perception' },
+                { key: 'SEN', icon: '🌀', color: '#a855f7', label: 'Sensorialité' }
+            ];
+
             cardProfile.innerHTML = `
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-                    <div>
-                        <div style="font-size:0.65em;letter-spacing:2px;opacity:0.5;text-transform:uppercase;margin-bottom:4px;">Carte de Joueur ${rpgGetPrestigeLevel()>0?'<span style="background:rgba(251,191,36,0.25);color:#fbbf24;padding:1px 6px;border-radius:99px;font-size:0.9em;">⭐×'+rpgGetPrestigeLevel()+'</span>':''}</div>
-                        <div style="font-size:1.6em;font-weight:900;line-height:1;">${title.emoji} ${title.title}</div>
+                <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${rankColor},transparent);opacity:0.6;"></div>
+
+                <!-- Header : Rang (SEUL, plus de titre "Recrue") + Niveau + Prestige -->
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:16px;">
+                    <div style="flex:1;min-width:0;">
+                        <div style="font-size:0.6em;letter-spacing:2px;opacity:0.55;text-transform:uppercase;margin-bottom:4px;">
+                            Carte de Joueur ${rpgGetPrestigeLevel()>0?'<span style="background:rgba(251,191,36,0.25);color:#fbbf24;padding:1px 6px;border-radius:99px;font-size:0.9em;">⭐×'+rpgGetPrestigeLevel()+'</span>':''}
+                        </div>
+                        ${awakRank ? `
+                            <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;">
+                                <span style="font-size:2.4em;font-weight:900;color:${awakRank.color};line-height:1;letter-spacing:1px;text-shadow:0 0 14px ${awakRank.color}60;">${awakRank.id}</span>
+                                <span style="font-size:0.78em;color:#94a3b8;font-weight:600;">Niveau ${profileLevel}</span>
+                            </div>
+                            <div style="font-size:0.7em;color:#94a3b8;font-weight:600;margin-top:4px;">${awakRank.desc}</div>
+                        ` : `
+                            <div style="font-size:2em;font-weight:900;line-height:1;">Niveau ${profileLevel}</div>
+                        `}
                     </div>
-                    <div style="text-align:right;">
-                        <div style="font-size:0.55em;opacity:0.5;text-transform:uppercase;letter-spacing:1px;">Niveau permanent</div>
-                        <div style="font-size:3em;font-weight:900;line-height:1;color:#fbbf24;">${profileLevel}</div>
+                    <div style="text-align:right;flex-shrink:0;">
+                        <div style="font-size:0.55em;opacity:0.55;letter-spacing:1.5px;font-weight:700;">POWER SCORE</div>
+                        <div style="font-size:1.6em;font-weight:900;line-height:1.1;color:white;letter-spacing:-1px;" id="awakPowerScoreDisplay">${awakProgress ? awakProgress.power.toLocaleString('fr-FR') : profileXP.toLocaleString('fr-FR')}</div>
+                        ${availablePoints > 0
+                            ? `<button onclick="awakOpenStatPointsModal()" style="margin-top:7px;background:linear-gradient(135deg,#f59e0b,#d97706);border:none;color:white;padding:5px 11px;border-radius:99px;font-size:0.68em;font-weight:900;cursor:pointer;letter-spacing:0.5px;box-shadow:0 2px 8px rgba(245,158,11,0.4);">⬆ ${availablePoints} pt${availablePoints>1?'s':''}</button>`
+                            : `<button onclick="awakOpenStatPointsModal()" style="margin-top:7px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;padding:5px 11px;border-radius:99px;font-size:0.66em;font-weight:700;cursor:pointer;">⚙ Stats</button>`
+                        }
                     </div>
                 </div>
-                <div style="background:rgba(255,255,255,0.12);border-radius:99px;height:8px;overflow:hidden;margin-bottom:4px;">
+
+                <!-- Barre XP vers prochain niveau -->
+                <div style="background:rgba(255,255,255,0.08);border-radius:99px;height:8px;overflow:hidden;margin-bottom:4px;">
                     <div class="rpg-bar-anim" data-pct="${pct}" style="height:100%;background:${barColor(profileLevel)};border-radius:99px;width:0%;"></div>
                 </div>
-                <div style="display:flex;justify-content:space-between;font-size:0.68em;opacity:0.5;margin-bottom:14px;">
-                    <span>${(lifetimeXP-xpLow).toLocaleString()} XP (cumulatif)</span>
-                    <span>→ niv.${profileLevel+1} dans ${(xpHigh-lifetimeXP).toLocaleString()} XP</span>
+                <div style="display:flex;justify-content:space-between;font-size:0.65em;opacity:0.55;margin-bottom:14px;">
+                    <span>${(lifetimeXP-xpLow).toLocaleString()} XP</span>
+                    <span>→ niv. ${profileLevel+1} dans ${(xpHigh-lifetimeXP).toLocaleString()} XP</span>
                 </div>
-                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
-                    <div style="background:rgba(255,255,255,0.08);border-radius:10px;padding:10px;text-align:center;">
-                        <div style="font-size:1.3em;font-weight:900;color:#4ade80;">${profileXP.toLocaleString()}</div>
-                        <div style="font-size:0.62em;opacity:0.6;margin-top:2px;">XP TOTAL</div>
+
+                <!-- Barre rang AWAKENED vers prochain rang -->
+                ${awakProgress && awakNext ? `
+                    <div style="margin-bottom:14px;">
+                        <div style="display:flex;justify-content:space-between;margin-bottom:5px;font-size:0.65em;font-weight:700;">
+                            <span style="color:${awakRank.color};">Rang ${awakRank.id}</span>
+                            <span style="color:#94a3b8;">${awakProgress.pointsNeeded} pts → ${awakNext.id}</span>
+                            <span style="color:${awakNext.color};">${awakNext.id}</span>
+                        </div>
+                        <div style="background:rgba(255,255,255,0.05);height:6px;border-radius:99px;overflow:hidden;">
+                            <div style="width:${awakProgress.percent}%;height:100%;background:linear-gradient(90deg,${awakRank.color},${awakNext.color});box-shadow:0 0 8px ${awakRank.color}60;"></div>
+                        </div>
                     </div>
-                    <div style="background:rgba(255,255,255,0.08);border-radius:10px;padding:10px;text-align:center;">
-                        <div style="font-size:1.3em;font-weight:900;color:#fbbf24;">🔥 ${streak}</div>
-                        <div style="font-size:0.62em;opacity:0.6;margin-top:2px;">STREAK</div>
+                ` : (awakProgress && !awakNext ? `
+                    <div style="margin-bottom:14px;text-align:center;padding:9px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:9px;">
+                        <div style="font-size:0.65em;color:#fca5a5;font-weight:800;letter-spacing:1px;">◇ RANG MAXIMUM ATTEINT ◇</div>
                     </div>
-                    <div style="background:rgba(255,255,255,0.08);border-radius:10px;padding:10px;text-align:center;">
-                        <div style="font-size:1.3em;font-weight:900;color:#34d399;">${muscles.length}</div>
-                        <div style="font-size:0.62em;opacity:0.6;margin-top:2px;">MUSCLES</div>
+                ` : '')}
+
+                <!-- Stats globales (XP / Streak / Muscles) -->
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;">
+                    <div style="background:rgba(255,255,255,0.06);border-radius:10px;padding:10px;text-align:center;">
+                        <div style="font-size:1.2em;font-weight:900;color:#4ade80;">${profileXP.toLocaleString()}</div>
+                        <div style="font-size:0.6em;opacity:0.6;margin-top:2px;letter-spacing:0.5px;font-weight:700;">XP</div>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.06);border-radius:10px;padding:10px;text-align:center;">
+                        <div style="font-size:1.2em;font-weight:900;color:#fbbf24;">🔥 ${streak}</div>
+                        <div style="font-size:0.6em;opacity:0.6;margin-top:2px;letter-spacing:0.5px;font-weight:700;">STREAK</div>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.06);border-radius:10px;padding:10px;text-align:center;">
+                        <div style="font-size:1.2em;font-weight:900;color:#34d399;">${muscles.length}</div>
+                        <div style="font-size:0.6em;opacity:0.6;margin-top:2px;letter-spacing:0.5px;font-weight:700;">MUSCLES</div>
                     </div>
                 </div>
-                <button onclick="rpgShowDetailsPanel()" style="width:100%;margin-top:14px;padding:12px;background:rgba(255,255,255,0.1);border:1.5px solid rgba(255,255,255,0.25);border-radius:12px;color:white;font-weight:700;cursor:pointer;font-size:0.88em;touch-action:manipulation;">
-                    📊 Détails — Rang · Muscles · Classe · Compétences
-                </button>
-                <div style="margin-top:12px;padding:11px 14px;background:rgba(255,255,255,0.04);border-left:3px solid ${rank.color};border-radius:0 10px 10px 0;">
-                    <div style="font-size:0.68em;color:${rank.color};font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;">${rank.emoji} ${rank.id} — ${rpgGetLore(rank.id).title}</div>
-                    <div style="font-size:0.8em;color:rgba(255,255,255,0.65);line-height:1.55;font-style:italic;">"${rpgGetLore(rank.id).text.length > 100 ? rpgGetLore(rank.id).text.slice(0,100) + '…' : rpgGetLore(rank.id).text}"</div>
-                </div>`;
+
+                <!-- Attributs AWAKENED (6 stats : STR/AGI/VIT/END/PER/SEN) -->
+                ${awakStats ? `
+                    <div style="margin-bottom:14px;">
+                        <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:7px;">◈ ATTRIBUTS</div>
+                        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
+                            ${awakStatRows.map(s => `
+                                <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:9px;padding:8px 6px;text-align:center;">
+                                    <div style="font-size:1em;line-height:1;margin-bottom:3px;">${s.icon}</div>
+                                    <div style="font-size:0.58em;color:#64748b;font-weight:700;letter-spacing:0.5px;">${s.key}</div>
+                                    <div style="font-size:0.95em;font-weight:900;color:${s.color};line-height:1.2;">${awakStats[s.key] || 0}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+
+                <!-- Bouton Détails -->
+                <button onclick="rpgShowDetailsPanel()" style="width:100%;padding:11px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:11px;color:white;font-weight:700;cursor:pointer;font-size:0.82em;">
+                    📊 Détails — Muscles · Classe · Compétences
+                </button>`;
             tab.appendChild(cardProfile);
 
             // ── BOUTON ACCÈS RAPIDE ÉQUIPEMENT RPG ───────────────────
@@ -22778,6 +22902,13 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 if (typeof renderExerciseProgressList === 'function') renderExerciseProgressList();
                 if (typeof updateMusclesOverview === 'function') updateMusclesOverview();
                 if (typeof startExercise === 'function') startExercise();
+
+                // 💡 Instructions claires pour l'utilisateur
+                setTimeout(() => {
+                    if (typeof showToast === 'function') {
+                        showToast('⚔ Saisis tes reps avant "Terminer série" pour infliger des dégâts !', 'info', 4000);
+                    }
+                }, 800);
             }, 100);
         }
         window.awakPickRiftExercise = awakPickRiftExercise;
@@ -22804,10 +22935,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 ? awakConsumablesGetActiveEffects() : {};
 
             // Formule de dégâts : base + reps × (1 + stat/100) + chance crit
-            const base = 5;
+            const base = 15; // ⚔ Augmenté pour visibilité (était 5)
             const primaryStatValue = (playerStats[theme.primaryStat] || 0) * (1 + (consumEffects[theme.primaryStat] || 0));
             const statMult = 1 + primaryStatValue / 100;
-            const baseDamage = base + (reps || 1) * statMult;
+            const baseDamage = base + (reps || 1) * statMult * 2; // ×2 sur reps
             // Bonus poids (si lourd)
             const weightBonus = weightKg > 0 ? Math.floor(weightKg / 10) : 0;
 
