@@ -3555,9 +3555,9 @@
             
             renderActivePlan();
             
-            // Scroll to active plan
+            // Scroll to active plan (si le container existe encore)
             setTimeout(() => {
-                document.getElementById('activePlanContainer').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                document.getElementById('activePlanContainer')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }, 300);
         }
 
@@ -9658,10 +9658,182 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             updateSetIndicator();
         }
 
+        // ═══════════════════════════════════════════════════════════════
+        // 🌀 RIFT/HUNT : Fonction dédiée pour terminer une série de combat
+        // Bulletproof — prend le contrôle total, indépendante du flow normal
+        // ═══════════════════════════════════════════════════════════════
+        function awakRiftHuntCompleteSet() {
+            // Verrou anti double-clic
+            if (window._riftEndingFlow) return;
+
+            const isRift = currentWorkout && currentWorkout._isRift;
+            const isHunt = currentWorkout && currentWorkout._isHunt;
+            if (!isRift && !isHunt) return;
+
+            // Lire reps/poids saisis
+            const repsInput   = document.getElementById('quickRepsInput');
+            const weightInput = document.getElementById('quickWeightInput');
+            const reps   = parseInt(repsInput?.value) || 0;
+            const weight = parseFloat(weightInput?.value) || 0;
+
+            console.log('⚔ Rift/Hunt set complete:', { reps, weight, isRift, isHunt, setNumber: currentSetNumber });
+
+            // 1️⃣ INFLIGER LES DÉGÂTS
+            let damageResult = null;
+            let monsterKilled = false;
+            try {
+                if (isRift) {
+                    if (!awakActiveRiftSession) {
+                        showToast('⚠️ Session faille perdue', 'error', 2500);
+                        // Force quitter et retourner à l'onglet jeu
+                        _forceExitRiftSession();
+                        return;
+                    }
+                    damageResult = awakDealDamageToWave(reps, weight);
+                } else if (isHunt) {
+                    if (!awakActiveHuntSession) {
+                        showToast('⚠️ Session chasse perdue', 'error', 2500);
+                        _forceExitRiftSession();
+                        return;
+                    }
+                    damageResult = awakDealDamageToMonster(reps, weight);
+                }
+                console.log('⚔ Damage result:', damageResult);
+            } catch (e) {
+                console.error('⚔ Damage error:', e);
+            }
+
+            // 2️⃣ Afficher dégâts
+            if (damageResult) {
+                const symbol = isRift ? '⚔' : '🎯';
+                const dmgText = damageResult.isCrit ? `💥 CRIT! -${damageResult.damage} HP` : `${symbol} -${damageResult.damage} HP`;
+                showToast(dmgText, damageResult.isCrit ? 'success' : 'info', 1800);
+                if (typeof hapticTap === 'function') hapticTap(damageResult.isCrit ? [40, 30, 60] : 25);
+                monsterKilled = damageResult.killed;
+            } else {
+                showToast('⚠️ Aucun dégât infligé', 'warning', 2000);
+            }
+
+            // 3️⃣ Vibration de feedback
+            vibrate([30, 20, 60]);
+
+            // 4️⃣ Logger la série pour visuel
+            if (typeof completedSets !== 'undefined') {
+                completedSets.push({ reps, weight, warmup: false, set: currentSetNumber });
+            }
+            if (typeof renderCompletedSetsLog === 'function') renderCompletedSetsLog();
+
+            // 5️⃣ Reset inputs
+            if (repsInput) repsInput.value = '';
+            if (weightInput) weightInput.value = '';
+
+            // 6️⃣ Incrémenter série + déterminer si on quitte ou continue
+            currentSetNumber++;
+            if (typeof updateSetIndicator === 'function') updateSetIndicator();
+
+            const totalSets = 3; // mini séance Faille/Hunt = 3 séries
+            const allSetsDone = currentSetNumber > totalSets;
+
+            // Si monstre mort OU toutes les séries faites → quitter la séance
+            if (monsterKilled || allSetsDone) {
+                window._riftEndingFlow = true; // 🔒 verrou
+                const reason = monsterKilled
+                    ? (isRift ? '💀 Vague éliminée !' : '💀 Monstre éliminé !')
+                    : `✅ ${totalSets} séries complètes`;
+                showToast(reason, 'success', 2000);
+
+                // Attendre que le toast s'affiche puis quitter proprement
+                setTimeout(() => {
+                    _forceExitRiftSession();
+
+                    // Reprendre le flow approprié après un petit délai
+                    setTimeout(() => {
+                        if (monsterKilled) {
+                            if (isRift && typeof awakAdvanceToNextWave === 'function') {
+                                awakAdvanceToNextWave();
+                            } else if (isHunt && typeof awakCompleteHunt === 'function') {
+                                awakCompleteHunt();
+                            }
+                        } else {
+                            // Pas mort → revenir au combat pour rechoisir
+                            if (isRift && typeof awakShowRiftCombatScreen === 'function') {
+                                awakShowRiftCombatScreen();
+                            } else if (isHunt && typeof awakShowHuntScreen === 'function') {
+                                awakShowHuntScreen();
+                            }
+                        }
+                        window._riftEndingFlow = false; // 🔓
+                    }, 500);
+                }, 1200);
+                return;
+            }
+
+            // Pas terminé → démarrer repos inter-séries
+            const restSec = 30; // Repos rapide pendant les Failles
+            if (typeof startSetRest === 'function') {
+                startSetRest(restSec);
+            }
+        }
+        window.awakRiftHuntCompleteSet = awakRiftHuntCompleteSet;
+
+        /**
+         * Force le nettoyage de la séance + masque TOUTES les vues
+         * Bulletproof : ne dépend de rien d'autre
+         */
+        function _forceExitRiftSession() {
+            // 1. Clear tous les timers possibles
+            try {
+                clearInterval(timerInterval);
+                clearInterval(cardioInterval);
+                if (typeof setRestInterval !== 'undefined' && setRestInterval) {
+                    clearInterval(setRestInterval); setRestInterval = null;
+                }
+                if (typeof hideGlobalRestBanner === 'function') hideGlobalRestBanner();
+                if (typeof hideRestOverlay === 'function') hideRestOverlay();
+            } catch(e) {}
+
+            // 2. Reset workout state
+            currentWorkout = null;
+            currentExerciseIndex = 0;
+            currentSetNumber = 1;
+            if (typeof _workoutSkipCount !== 'undefined') _workoutSkipCount = 0;
+            if (typeof completedSets !== 'undefined') completedSets = [];
+
+            // 3. FORCE cacher toutes les vues de séance
+            const exView = document.getElementById('exerciseView');
+            if (exView) {
+                exView.classList.add('hidden');
+                exView.style.display = 'none';
+            }
+            const cv = document.getElementById('completionView');
+            if (cv) {
+                cv.classList.add('hidden');
+                cv.style.display = 'none';
+            }
+            document.body.classList.remove('in-session');
+            document.body.classList.remove('session-fullscreen');
+
+            // 4. Nettoyage divers
+            try {
+                if (typeof clearActiveWorkoutState === 'function') clearActiveWorkoutState();
+                if (typeof exitFullscreenMode === 'function') exitFullscreenMode();
+                localStorage.removeItem('fitproSessionSets');
+            } catch(e) {}
+
+            console.log('✅ Rift session force-exited cleanly');
+        }
+        window._forceExitRiftSession = _forceExitRiftSession;
+
         function completeCurrentSet() {
             if (!currentWorkout) return; // garde: séance déjà terminée
             // 🌀 Verrou : éviter double-traitement de la fin de Faille
             if (window._riftEndingFlow) return;
+
+            // 🌀 RIFT/HUNT : prendre le contrôle TOTAL dès la première ligne
+            if (currentWorkout && (currentWorkout._isRift || currentWorkout._isHunt)) {
+                return awakRiftHuntCompleteSet();
+            }
+
             const repsInput   = document.getElementById('quickRepsInput');
             const weightInput = document.getElementById('quickWeightInput');
             const reps   = parseInt(repsInput?.value) || 0;
@@ -9670,60 +9842,6 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
             // Récupérer l'exercice courant depuis la source de vérité globale
             const currentEx = currentWorkout?.exercises?.[currentExerciseIndex];
-
-            // 🌀 RIFT DAMAGE — si on est dans une Faille, inflige des dégâts
-            if (currentWorkout._isRift && typeof awakDealDamageToWave === 'function' && !isWarmup) {
-                try {
-                    console.log('🌀 Rift damage attempt:', { reps, weight, riftId: currentWorkout._riftId, session: !!awakActiveRiftSession });
-                    if (!awakActiveRiftSession) {
-                        // ⚠️ Session perdue : afficher une alerte visible
-                        showToast('⚠️ Session faille perdue · Rechargement', 'error', 2500);
-                    }
-                    const result = awakDealDamageToWave(reps, weight);
-                    console.log('🌀 Rift damage result:', result);
-                    if (result) {
-                        const dmgText = result.isCrit ? `💥 CRIT! -${result.damage} HP` : `⚔ -${result.damage} HP`;
-                        showToast(dmgText, result.isCrit ? 'success' : 'info', 1500);
-                        if (typeof hapticTap === 'function') hapticTap(result.isCrit ? [40, 30, 60] : 20);
-                        if (result.killed) {
-                            // Vague vaincue
-                            setTimeout(() => {
-                                showToast('💀 Vague éliminée !', 'success', 2000);
-                                // Quitter la séance et reprendre le combat
-                                setTimeout(() => {
-                                    if (typeof _doQuitWorkout === 'function') _doQuitWorkout();
-                                    setTimeout(() => {
-                                        if (typeof awakAdvanceToNextWave === 'function') awakAdvanceToNextWave();
-                                    }, 600);
-                                }, 1200);
-                            }, 800);
-                        }
-                    }
-                } catch(e) { console.warn('Rift damage error:', e); }
-            }
-
-            // 🏹 HUNT DAMAGE — si on est dans une chasse, inflige des dégâts au monstre
-            if (currentWorkout._isHunt && typeof awakDealDamageToMonster === 'function' && !isWarmup) {
-                try {
-                    const result = awakDealDamageToMonster(reps, weight);
-                    if (result) {
-                        const dmgText = result.isCrit ? `💥 CRIT! -${result.damage} HP` : `🎯 -${result.damage} HP`;
-                        showToast(dmgText, result.isCrit ? 'success' : 'info', 1500);
-                        if (typeof hapticTap === 'function') hapticTap(result.isCrit ? [40, 30, 60] : 20);
-                        if (result.killed) {
-                            setTimeout(() => {
-                                showToast('💀 Monstre éliminé !', 'success', 2000);
-                                setTimeout(() => {
-                                    if (typeof _doQuitWorkout === 'function') _doQuitWorkout();
-                                    setTimeout(() => {
-                                        if (typeof awakCompleteHunt === 'function') awakCompleteHunt();
-                                    }, 600);
-                                }, 1200);
-                            }, 800);
-                        }
-                    }
-                } catch(e) { console.warn('Hunt damage error:', e); }
-            }
 
             completedSets.push({ reps, weight, warmup: isWarmup, set: currentSetNumber });
 
@@ -9777,53 +9895,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
             const totalSets = totalSetsPlanned + warmupSetsCount;
             if (currentSetNumber > totalSets) {
-                // 🌀 RIFT / 🏹 HUNT : ne pas terminer la séance, retourner au combat
-                if (currentWorkout && (currentWorkout._isRift || currentWorkout._isHunt)) {
-                    window._riftEndingFlow = true; // 🔒 verrou
-                    const isRift = currentWorkout._isRift;
-                    showToast(`✅ ${totalSetsPlanned} séries complètes`, 'success', 1500);
-                    vibrate([60, 30, 80]);
-
-                    // Vérifier si le monstre/vague est mort
-                    let killed = false;
-                    if (isRift && awakActiveRiftSession) {
-                        const wave = awakActiveRiftSession.rift.waves[awakActiveRiftSession.rift.currentWaveIdx];
-                        killed = wave && wave.hpCurrent <= 0;
-                    } else if (!isRift && awakActiveHuntSession) {
-                        killed = awakActiveHuntSession.monster.hpCurrent <= 0;
-                    }
-
-                    setTimeout(() => {
-                        // Quitter la séance proprement
-                        if (typeof _doQuitWorkout === 'function') _doQuitWorkout();
-
-                        // 🛡️ FORCE cacher le completionView au cas où
-                        const cv = document.getElementById('completionView');
-                        if (cv) { cv.classList.add('hidden'); cv.style.display = 'none'; }
-
-                        setTimeout(() => {
-                            if (killed) {
-                                // Vague/monstre mort, avancer ou terminer
-                                if (isRift && typeof awakAdvanceToNextWave === 'function') {
-                                    awakAdvanceToNextWave();
-                                } else if (!isRift && typeof awakCompleteHunt === 'function') {
-                                    awakCompleteHunt();
-                                }
-                            } else {
-                                // Pas mort : revenir au modal combat pour rechoisir un exo
-                                if (isRift && typeof awakShowRiftCombatScreen === 'function') {
-                                    awakShowRiftCombatScreen();
-                                } else if (!isRift && typeof awakShowHuntScreen === 'function') {
-                                    awakShowHuntScreen();
-                                }
-                            }
-                            window._riftEndingFlow = false; // 🔓 libérer verrou
-                        }, 400);
-                    }, 1000);
-                    return;
-                }
-
-                // Séance normale : compléter
+                // Séance normale : compléter (Rifts/Hunts sont déjà gérées en début de fonction)
                 showToast(`✅ ${totalSetsPlanned} séries complètes !`, 'success', 2000);
                 vibrate([100, 50, 200]);
                 setTimeout(() => skipExercise(), 800);
@@ -13293,13 +13365,34 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         ${ROUTINE_DAYS.map(d => {
                             const currentRoutineId = plan[d];
                             const currentRoutine = routines.find(r => r.id === currentRoutineId);
-                            return `<div style="margin-bottom:10px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:11px 12px;">
-                                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;">
-                                    <span style="font-size:0.78em;font-weight:800;color:white;">${({lun:'Lundi',mar:'Mardi',mer:'Mercredi',jeu:'Jeudi',ven:'Vendredi',sam:'Samedi',dim:'Dimanche'})[d]}</span>
-                                    ${currentRoutine ? `<button onclick="setWeeklyDay('${d}',null);" style="background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.25);border-radius:6px;padding:3px 8px;font-size:0.65em;font-weight:700;cursor:pointer;">✕ Retirer</button>` : ''}
+                            const dayLabel = ({lun:'Lundi',mar:'Mardi',mer:'Mercredi',jeu:'Jeudi',ven:'Vendredi',sam:'Samedi',dim:'Dimanche'})[d];
+                            const todayIdx = (new Date().getDay() + 6) % 7;
+                            const dayIdx = ['lun','mar','mer','jeu','ven','sam','dim'].indexOf(d);
+                            const isToday = dayIdx === todayIdx;
+
+                            return `<div style="margin-bottom:10px;background:${isToday ? 'rgba(34,197,94,0.06)' : 'rgba(255,255,255,0.02)'};border:1.5px solid ${isToday ? 'rgba(34,197,94,0.3)' : (currentRoutine ? (currentRoutine.color || '#22c55e') + '40' : 'rgba(255,255,255,0.06)')};border-radius:11px;padding:11px 13px;">
+                                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;">
+                                    <div style="display:flex;align-items:center;gap:7px;">
+                                        <span style="font-size:0.82em;font-weight:800;color:white;">${dayLabel}</span>
+                                        ${isToday ? '<span style="background:#22c55e;color:white;padding:1px 7px;border-radius:99px;font-size:0.55em;font-weight:900;letter-spacing:1px;">AUJ.</span>' : ''}
+                                    </div>
+                                    ${currentRoutine ? `<button onclick="setWeeklyDay('${d}',null);" style="background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.25);border-radius:6px;padding:3px 9px;font-size:0.65em;font-weight:700;cursor:pointer;">✕ Retirer</button>` : ''}
                                 </div>
-                                <select onchange="setWeeklyDay('${d}', this.value || null)" style="width:100%;background:#0a0e18;border:1px solid rgba(255,255,255,0.08);color:white;border-radius:8px;padding:9px 11px;font-size:0.82em;">
-                                    <option value="">— Repos —</option>
+
+                                ${currentRoutine ? `
+                                    <div style="background:linear-gradient(135deg,${currentRoutine.color || '#22c55e'}20,${currentRoutine.color || '#22c55e'}05);border:1px solid ${currentRoutine.color || '#22c55e'}40;border-radius:9px;padding:8px 11px;margin-bottom:8px;display:flex;align-items:center;gap:9px;">
+                                        <span style="font-size:1.3em;line-height:1;">${currentRoutine.emoji || '🏋️'}</span>
+                                        <div style="flex:1;min-width:0;">
+                                            <div style="font-size:0.82em;font-weight:800;color:white;line-height:1.2;">${currentRoutine.name}</div>
+                                            <div style="font-size:0.65em;color:#94a3b8;margin-top:1px;">${(currentRoutine.exercises||[]).length} exos</div>
+                                        </div>
+                                    </div>
+                                ` : `
+                                    <div style="background:rgba(148,163,184,0.06);border:1px dashed rgba(148,163,184,0.25);border-radius:9px;padding:8px 11px;margin-bottom:8px;text-align:center;font-size:0.78em;color:#64748b;font-weight:700;">🛌 Jour de repos</div>
+                                `}
+
+                                <select onchange="setWeeklyDay('${d}', this.value || null)" style="width:100%;background:#0a0e18;border:1px solid rgba(255,255,255,0.1);color:white;border-radius:8px;padding:10px 12px;font-size:0.82em;cursor:pointer;">
+                                    <option value="">— Choisir une routine ou Repos —</option>
                                     ${routines.map(r => `<option value="${r.id}" ${r.id === currentRoutineId ? 'selected' : ''}>${r.emoji||'🏋️'} ${r.name}</option>`).join('')}
                                 </select>
                             </div>`;
@@ -13314,9 +13407,32 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
         function setWeeklyDay(day, routineId) {
             const plan = getWeeklyPlan();
-            if (routineId) plan[day] = routineId;
-            else delete plan[day];
+            if (routineId && routineId !== 'null' && routineId !== '') {
+                plan[day] = routineId;
+            } else {
+                delete plan[day];
+            }
             saveWeeklyPlan(plan);
+
+            // 🔄 Re-render le modal pour montrer le changement
+            if (document.getElementById('weeklyPlanEditorModal')) {
+                openWeeklyPlanEditor();
+            }
+
+            // 🔄 Re-render aussi la carte principale (visible derrière le modal)
+            if (typeof renderWeeklyPlanCard === 'function') renderWeeklyPlanCard();
+
+            // ✓ Toast de confirmation
+            if (typeof showToast === 'function') {
+                const routines = getRoutines();
+                const routine = routines.find(r => r.id === routineId);
+                const dayLabel = ({lun:'Lundi',mar:'Mardi',mer:'Mercredi',jeu:'Jeudi',ven:'Vendredi',sam:'Samedi',dim:'Dimanche'})[day] || day;
+                if (routine) {
+                    showToast(`✓ ${dayLabel} → ${routine.name}`, 'success', 1500);
+                } else {
+                    showToast(`🛌 ${dayLabel} → Repos`, 'info', 1500);
+                }
+            }
         }
         window.setWeeklyDay = setWeeklyDay;
 

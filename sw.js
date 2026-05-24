@@ -2,7 +2,7 @@
 // Enables full offline support and PWA installation
 // Strategy: network-first for code files (HTML/JS/CSS), cache-first for assets (images/fonts)
 
-const CACHE_NAME = 'awakened-v44';
+const CACHE_NAME = 'awakened-v49';
 const ASSETS = [
   '/',
   '/index.html',
@@ -16,6 +16,8 @@ const ASSETS = [
   '/manifest.json',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
+  '/images/avatars/avatar_homme.png',
+  '/images/avatars/avatar_femme.png',
   'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
   'https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap',
   'https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/tabler-icons.min.css'

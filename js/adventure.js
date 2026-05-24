@@ -474,6 +474,29 @@ function renderHunterCard() {
     </div>`;
 }
 
+// ═══════════════════════════════════════════════════════════════
+// 🎭 AVATAR : Choix homme / femme
+// ═══════════════════════════════════════════════════════════════
+function toggleAvatarGender() {
+    const current = localStorage.getItem('fitproAvatarGender') || 'homme';
+    const next = current === 'homme' ? 'femme' : 'homme';
+    localStorage.setItem('fitproAvatarGender', next);
+
+    // Toast de confirmation
+    if (typeof showToast === 'function') {
+        const emoji = next === 'femme' ? '👩' : '👨';
+        showToast(`${emoji} Avatar : ${next === 'femme' ? 'Femme' : 'Homme'}`, 'info', 1800);
+    }
+
+    // Re-render le panel d'équipement
+    const modal = document.getElementById('rpgEquipmentModal');
+    if (modal && typeof showRPGEquipmentModal === 'function') {
+        modal.remove();
+        showRPGEquipmentModal();
+    }
+}
+window.toggleAvatarGender = toggleAvatarGender;
+
 function renderEquipmentPanel() {
     const eqItems = getEquippedItems(), eq = getEquipped();
     const setBonuses = getSetBonuses();
@@ -522,32 +545,24 @@ function renderEquipmentPanel() {
     }
 
     // Character silhouette SVG
-    const silhouette = `<svg viewBox="0 0 80 180" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:70px;height:160px;filter:drop-shadow(0 0 12px rgba(6,182,212,0.6));">
-        <!-- Head -->
-        <ellipse cx="40" cy="20" rx="13" ry="15" fill="rgba(6,182,212,0.15)" stroke="rgba(6,182,212,0.5)" stroke-width="1"/>
-        <!-- Neck -->
-        <rect x="35" y="33" width="10" height="8" rx="2" fill="rgba(6,182,212,0.12)" stroke="rgba(6,182,212,0.4)" stroke-width="0.8"/>
-        <!-- Torso -->
-        <path d="M18 42 Q16 70 18 95 L62 95 Q64 70 62 42 Q52 38 40 38 Q28 38 18 42Z" fill="rgba(6,182,212,0.1)" stroke="rgba(6,182,212,0.45)" stroke-width="1"/>
-        <!-- Left arm -->
-        <path d="M18 44 Q8 52 7 75 Q6 88 10 98 L16 96 Q14 84 14 72 Q15 58 20 50Z" fill="rgba(6,182,212,0.08)" stroke="rgba(6,182,212,0.35)" stroke-width="0.8"/>
-        <!-- Right arm -->
-        <path d="M62 44 Q72 52 73 75 Q74 88 70 98 L64 96 Q66 84 66 72 Q65 58 60 50Z" fill="rgba(6,182,212,0.08)" stroke="rgba(6,182,212,0.35)" stroke-width="0.8"/>
-        <!-- Left hand -->
-        <ellipse cx="11" cy="102" rx="6" ry="7" fill="rgba(6,182,212,0.1)" stroke="rgba(6,182,212,0.35)" stroke-width="0.8"/>
-        <!-- Right hand -->
-        <ellipse cx="69" cy="102" rx="6" ry="7" fill="rgba(6,182,212,0.1)" stroke="rgba(6,182,212,0.35)" stroke-width="0.8"/>
-        <!-- Left leg -->
-        <path d="M22 95 Q19 125 18 150 L30 152 Q32 127 34 95Z" fill="rgba(6,182,212,0.08)" stroke="rgba(6,182,212,0.35)" stroke-width="0.8"/>
-        <!-- Right leg -->
-        <path d="M58 95 Q61 125 62 150 L50 152 Q48 127 46 95Z" fill="rgba(6,182,212,0.08)" stroke="rgba(6,182,212,0.35)" stroke-width="0.8"/>
-        <!-- Left foot -->
-        <ellipse cx="24" cy="156" rx="9" ry="5" fill="rgba(6,182,212,0.1)" stroke="rgba(6,182,212,0.35)" stroke-width="0.8"/>
-        <!-- Right foot -->
-        <ellipse cx="56" cy="156" rx="9" ry="5" fill="rgba(6,182,212,0.1)" stroke="rgba(6,182,212,0.35)" stroke-width="0.8"/>
-        <!-- Center line glow -->
-        <line x1="40" y1="38" x2="40" y2="95" stroke="rgba(6,182,212,0.2)" stroke-width="0.5" stroke-dasharray="3,3"/>
-    </svg>`;
+    // 🎭 Avatar : Homme ou Femme (selon préférence utilisateur)
+    const avatarGender = localStorage.getItem('fitproAvatarGender') || 'homme';
+    const avatarPath = avatarGender === 'femme'
+        ? 'images/avatars/avatar_femme.png'
+        : 'images/avatars/avatar_homme.png';
+
+    const silhouette = `
+        <div style="position:relative;width:130px;height:230px;display:flex;align-items:center;justify-content:center;">
+            <img src="${avatarPath}"
+                 alt="Avatar ${avatarGender}"
+                 style="max-width:100%;max-height:100%;object-fit:contain;filter:drop-shadow(0 0 12px rgba(6,182,212,0.4));"
+                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+            <!-- Fallback si image ne charge pas -->
+            <div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;color:rgba(6,182,212,0.5);font-size:0.7em;text-align:center;">Avatar non disponible</div>
+
+            <!-- Bouton toggle homme/femme -->
+            <button onclick="toggleAvatarGender()" style="position:absolute;top:-6px;right:-6px;background:rgba(6,182,212,0.18);border:1px solid rgba(6,182,212,0.45);color:#67e8f9;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:1em;display:flex;align-items:center;justify-content:center;box-shadow:0 0 10px rgba(6,182,212,0.3);" title="Changer d'avatar">${avatarGender === 'femme' ? '👨' : '👩'}</button>
+        </div>`;
 
     // Set bonuses
     const seen = {};
