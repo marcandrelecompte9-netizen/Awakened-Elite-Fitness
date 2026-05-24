@@ -9615,33 +9615,62 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const total = totalSetsPlanned + warmupSetsCount;
             const isWarmup = currentSetNumber <= warmupSetsCount;
             if (isWarmup) {
-                el.innerHTML = `🔥 Échauffement ${currentSetNumber}/${warmupSetsCount}`;
+                el.innerHTML = `🔥 ÉCHAUFFEMENT EN COURS`;
                 el.style.color = '#fbbf24';
             } else {
-                const workSet = currentSetNumber - warmupSetsCount;
-                el.innerHTML = `📊 Série ${workSet} / ${totalSetsPlanned}`;
+                el.innerHTML = `▸ SÉRIE EN COURS`;
                 el.style.color = '#4ade80';
             }
-            // Rendre les dots de progression
+            // Rendre les badges "SÉRIE N" cyberpunk
             const dotsEl = document.getElementById('setProgressDots');
             if (dotsEl) {
                 let dotsHTML = '';
                 // Dots d'échauffement (jaune)
                 for (let i = 1; i <= warmupSetsCount; i++) {
-                    const cls = i < currentSetNumber ? 'warmup done' : i === currentSetNumber ? 'current' : 'warmup';
-                    dotsHTML += `<span class="set-progress-dot ${cls}"></span>`;
+                    const isDone = i < currentSetNumber;
+                    const isCurrent = i === currentSetNumber;
+                    const bg = isDone ? 'rgba(251,191,36,0.15)' : isCurrent ? 'linear-gradient(135deg,#fbbf24,#f59e0b)' : 'rgba(251,191,36,0.05)';
+                    const border = isCurrent ? '#fbbf24' : isDone ? 'rgba(251,191,36,0.5)' : 'rgba(251,191,36,0.2)';
+                    const color = isCurrent ? '#1e293b' : '#fbbf24';
+                    const icon = isDone ? '✓' : isCurrent ? '⚡' : '🔥';
+                    const shadow = isCurrent ? 'box-shadow:0 0 12px rgba(251,191,36,0.5);' : '';
+                    dotsHTML += `<div style="background:${bg};border:1px solid ${border};color:${color};padding:5px 9px;border-radius:6px;font-size:0.6em;font-weight:900;letter-spacing:1px;text-transform:uppercase;${shadow}min-width:50px;text-align:center;">${icon} ECHAUF.${warmupSetsCount > 1 ? ' '+i : ''}</div>`;
                 }
                 // Séparateur visuel si échauffement
                 if (warmupSetsCount > 0 && totalSetsPlanned > 0) {
-                    dotsHTML += `<span style="width:1px;background:rgba(148,163,184,0.2);align-self:stretch;margin:0 2px;"></span>`;
+                    dotsHTML += `<span style="width:1px;background:rgba(74,222,128,0.2);align-self:stretch;margin:0 4px;"></span>`;
                 }
-                // Dots de séries de travail
+                // Badges "SÉRIE N" de travail (cyberpunk pills)
                 for (let i = 1; i <= totalSetsPlanned; i++) {
                     const setNum = warmupSetsCount + i;
-                    const cls = setNum < currentSetNumber ? 'done' : setNum === currentSetNumber ? 'current' : 'todo';
-                    dotsHTML += `<span class="set-progress-dot ${cls}"></span>`;
+                    const isDone = setNum < currentSetNumber;
+                    const isCurrent = setNum === currentSetNumber;
+                    const isPending = setNum > currentSetNumber;
+
+                    let bg, border, color, icon, shadow = '';
+                    if (isDone) {
+                        bg = 'rgba(34,197,94,0.12)';
+                        border = 'rgba(74,222,128,0.4)';
+                        color = '#4ade80';
+                        icon = '✓';
+                    } else if (isCurrent) {
+                        bg = 'linear-gradient(135deg,#16a34a,#22c55e,#4ade80)';
+                        border = '#4ade80';
+                        color = 'white';
+                        icon = '⚡';
+                        shadow = 'box-shadow:0 0 16px rgba(74,222,128,0.6);';
+                    } else {
+                        bg = 'rgba(255,255,255,0.03)';
+                        border = 'rgba(255,255,255,0.1)';
+                        color = '#475569';
+                        icon = '🔒';
+                    }
+                    dotsHTML += `<div style="background:${bg};border:1px solid ${border};color:${color};padding:6px 10px;border-radius:6px;font-size:0.62em;font-weight:900;letter-spacing:1px;text-transform:uppercase;${shadow}min-width:62px;text-align:center;">${icon} SÉRIE ${i}</div>`;
                 }
                 dotsEl.innerHTML = dotsHTML;
+                dotsEl.style.flexWrap = 'wrap';
+                dotsEl.style.gap = '6px';
+                dotsEl.style.justifyContent = 'center';
             }
         }
 

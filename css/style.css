@@ -5792,3 +5792,170 @@ html, body {
 @keyframes awakFadeIn { from{opacity:0} to{opacity:1} }
 @keyframes awakFadeOut { from{opacity:1} to{opacity:0} }
 @keyframes awakBlink { 50% { opacity: 0.3; } }
+
+/* ═══════════════════════════════════════════════════════════════════════ */
+/* CYBERPUNK SESSION UI — Style HUD vert néon                              */
+/* ═══════════════════════════════════════════════════════════════════════ */
+
+/* Card cyberpunk avec coins HUD décoratifs */
+.cyber-card {
+    position: relative;
+    background: linear-gradient(160deg, #050810 0%, #0a0e18 50%, #050810 100%);
+    border: 1px solid rgba(34,197,94,0.25);
+    border-radius: 14px;
+    box-shadow:
+        0 0 20px rgba(34,197,94,0.05),
+        inset 0 0 30px rgba(34,197,94,0.02),
+        0 4px 16px rgba(0,0,0,0.4);
+}
+
+/* 4 coins HUD verts décoratifs */
+.cyber-card::before,
+.cyber-card::after,
+.cyber-card > .cyber-corner-tl,
+.cyber-card > .cyber-corner-tr,
+.cyber-card > .cyber-corner-bl,
+.cyber-card > .cyber-corner-br {
+    pointer-events: none;
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    z-index: 1;
+}
+.cyber-card::before {
+    top: -1px; left: -1px;
+    border-top: 2px solid #4ade80;
+    border-left: 2px solid #4ade80;
+    border-top-left-radius: 14px;
+    content: '';
+}
+.cyber-card::after {
+    bottom: -1px; right: -1px;
+    border-bottom: 2px solid #4ade80;
+    border-right: 2px solid #4ade80;
+    border-bottom-right-radius: 14px;
+    content: '';
+}
+
+/* Header label cyberpunk (ex: "EXERCICE 4/6" / "FOCUS MUSCULAIRE") */
+.cyber-label {
+    font-size: 0.62em;
+    color: #4ade80;
+    font-weight: 900;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    text-shadow: 0 0 8px rgba(74,222,128,0.4);
+}
+
+/* Bouton cyberpunk principal (vert glow) */
+.cyber-btn-primary {
+    background: linear-gradient(135deg, #16a34a 0%, #22c55e 50%, #4ade80 100%) !important;
+    color: white !important;
+    border: 1px solid #4ade80 !important;
+    box-shadow:
+        0 0 20px rgba(74,222,128,0.4),
+        inset 0 1px 0 rgba(255,255,255,0.2),
+        0 4px 12px rgba(34,197,94,0.3) !important;
+    font-weight: 900 !important;
+    letter-spacing: 1px !important;
+    text-transform: uppercase !important;
+    position: relative;
+    overflow: hidden;
+}
+.cyber-btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    animation: cyberScan 3s infinite;
+}
+@keyframes cyberScan {
+    0%, 100% { left: -100%; }
+    50% { left: 100%; }
+}
+
+/* Pulse glow on important cards */
+@keyframes cyberPulse {
+    0%, 100% {
+        box-shadow:
+            0 0 20px rgba(34,197,94,0.05),
+            inset 0 0 30px rgba(34,197,94,0.02),
+            0 4px 16px rgba(0,0,0,0.4);
+    }
+    50% {
+        box-shadow:
+            0 0 30px rgba(34,197,94,0.15),
+            inset 0 0 40px rgba(34,197,94,0.05),
+            0 4px 20px rgba(0,0,0,0.4);
+    }
+}
+.cyber-pulse {
+    animation: cyberPulse 3s ease-in-out infinite;
+}
+
+/* Set indicator dots — refined cyberpunk */
+.cyber-set-dot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 64px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.7em;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    border: 1px solid;
+    transition: all 0.2s;
+}
+.cyber-set-dot.done {
+    background: rgba(34,197,94,0.12);
+    border-color: rgba(34,197,94,0.4);
+    color: #4ade80;
+}
+.cyber-set-dot.current {
+    background: linear-gradient(135deg, #16a34a, #22c55e);
+    border-color: #4ade80;
+    color: white;
+    box-shadow: 0 0 16px rgba(74,222,128,0.5);
+    animation: cyberPulse 1.5s ease-in-out infinite;
+}
+.cyber-set-dot.pending {
+    background: rgba(255,255,255,0.03);
+    border-color: rgba(255,255,255,0.1);
+    color: #475569;
+}
+
+/* Scan line animée background */
+.cyber-scanlines::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+        180deg,
+        transparent 0px,
+        transparent 3px,
+        rgba(34,197,94,0.015) 3px,
+        rgba(34,197,94,0.015) 4px
+    );
+    border-radius: inherit;
+}
+
+/* Big number HUD style (ex: chrono, reps) */
+.cyber-big-number {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 900;
+    color: white;
+    letter-spacing: -1px;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 20px rgba(74,222,128,0.4);
+}
+
+/* Glow accent line (top/bottom of cards) */
+.cyber-glow-line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #4ade80, transparent);
+    opacity: 0.6;
+}
+

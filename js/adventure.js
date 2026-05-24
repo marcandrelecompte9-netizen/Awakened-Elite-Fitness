@@ -488,11 +488,13 @@ function toggleAvatarGender() {
         showToast(`${emoji} Avatar : ${next === 'femme' ? 'Femme' : 'Homme'}`, 'info', 1800);
     }
 
-    // Re-render le panel d'équipement
-    const modal = document.getElementById('rpgEquipmentModal');
-    if (modal && typeof showRPGEquipmentModal === 'function') {
-        modal.remove();
-        showRPGEquipmentModal();
+    // Re-render le VRAI modal d'équipement (rpgEquipModal)
+    const rpgModal = document.getElementById('rpgEquipModal');
+    if (rpgModal && typeof showRPGEquipmentModal === 'function') {
+        // Récupérer l'onglet actif courant (equip/inventory)
+        const activeTab = rpgModal.dataset.currentTab || 'equip';
+        rpgModal.remove();
+        showRPGEquipmentModal(activeTab);
     }
 }
 window.toggleAvatarGender = toggleAvatarGender;
@@ -968,33 +970,44 @@ function showRPGEquipmentModal(defaultTab) {
                 ${SLOT_LAYOUT_LEFT.map(renderSlot).join('')}
             </div>
 
-            <!-- Silhouette -->
+            <!-- Silhouette → AVATAR PNG (Homme / Femme) -->
             <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:110px;">
-                <div style="position:relative;width:120px;height:200px;">
+                <div style="position:relative;width:130px;height:220px;">
                     <!-- Glow halo -->
                     <div style="position:absolute;inset:-20px;border-radius:50%;
-                        background:radial-gradient(circle at 50% 30%,rgba(34,197,94,0.25),transparent 60%);"></div>
-                    <!-- Silhouette SVG -->
-                    <svg viewBox="0 0 100 180" style="position:relative;width:100%;height:100%;">
-                        <defs>
-                            <linearGradient id="bodyGr" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stop-color="#1f2937"/>
-                                <stop offset="100%" stop-color="#0a0d14"/>
-                            </linearGradient>
-                            <filter id="glowF"><feGaussianBlur stdDeviation="1"/></filter>
-                        </defs>
-                        <!-- Outline halo -->
-                        <circle cx="50" cy="22" r="9" fill="url(#bodyGr)" stroke="#22c55e" stroke-width="0.5" opacity="0.6"/>
-                        <path d="M 35 35 Q 50 30 65 35 L 70 60 Q 70 80 65 90 L 60 110 L 60 130 L 58 168 L 52 168 L 50 132 L 48 132 L 46 168 L 40 168 L 42 130 L 40 110 L 35 90 Q 30 80 30 60 Z"
-                              fill="url(#bodyGr)" stroke="#22c55e" stroke-width="0.4" opacity="0.85"/>
-                        <!-- Subtle muscle hints -->
-                        <path d="M 40 45 Q 50 47 60 45" stroke="#16a34a" stroke-width="0.3" fill="none" opacity="0.5"/>
-                        <path d="M 42 70 L 48 70 M 52 70 L 58 70" stroke="#16a34a" stroke-width="0.3" opacity="0.4"/>
-                    </svg>
+                        background:radial-gradient(circle at 50% 30%,rgba(34,197,94,0.25),transparent 60%);pointer-events:none;"></div>
+
+                    <!-- Avatar image -->
+                    ${(() => {
+                        const gender = localStorage.getItem('fitproAvatarGender') || 'homme';
+                        const path = gender === 'femme' ? 'images/avatars/avatar_femme.png' : 'images/avatars/avatar_homme.png';
+                        const toggleIcon = gender === 'femme' ? '👨' : '👩';
+                        return `
+                            <img src="${path}"
+                                 alt="Avatar ${gender}"
+                                 style="position:relative;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 0 10px rgba(34,197,94,0.4));z-index:1;"
+                                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+                            <!-- Fallback -->
+                            <div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;color:rgba(74,222,128,0.5);font-size:0.65em;text-align:center;position:absolute;inset:0;">Avatar<br>indisponible</div>
+
+                            <!-- Bouton toggle Homme/Femme -->
+                            <button onclick="window.toggleAvatarGender && window.toggleAvatarGender()"
+                                    title="Changer d'avatar"
+                                    style="position:absolute;top:-4px;right:-4px;
+                                           background:rgba(34,197,94,0.18);border:1px solid rgba(74,222,128,0.5);
+                                           color:#4ade80;width:32px;height:32px;border-radius:50%;
+                                           cursor:pointer;font-size:1em;
+                                           display:flex;align-items:center;justify-content:center;
+                                           box-shadow:0 0 10px rgba(34,197,94,0.3);z-index:2;">
+                                ${toggleIcon}
+                            </button>
+                        `;
+                    })()}
+
                     <!-- Base circle (pedestal) -->
                     <div style="position:absolute;bottom:-12px;left:50%;transform:translateX(-50%);width:90px;height:18px;
                         border-radius:50%;background:radial-gradient(ellipse,#22c55e44,transparent 70%);
-                        border:1px solid #22c55e66;"></div>
+                        border:1px solid #22c55e66;pointer-events:none;"></div>
                 </div>
             </div>
 
