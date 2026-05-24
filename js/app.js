@@ -18869,24 +18869,44 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const svgEnd = getExerciseVisual(exerciseName, muscleGuess, 'end');
             const _imgKey3 = exercise._baseName || exerciseName;
             const _imgSrc3 = window.EXERCISE_IMAGES && (window.EXERCISE_IMAGES[_imgKey3] || window.EXERCISE_IMAGES[exerciseName]);
-            
+
+            // 🎨 NOUVEAU FRAME CYBERPUNK pour le visuel d'exercice
+            const visualFrame = document.getElementById('exerciseVisualFrame');
+            const visualContent = document.getElementById('exerciseVisualContent');
+            const visualMuscleTag = document.getElementById('visualMuscleTag');
+
+            if (visualFrame && visualContent && !exercise.isRest && !exercise.isInfo) {
+                visualFrame.style.display = 'block';
+                // Tag muscle dans le coin haut droite
+                if (visualMuscleTag) {
+                    visualMuscleTag.textContent = exerciseFromDB?.muscle || muscleGuess || '';
+                }
+                // Contenu visuel
+                if (_imgSrc3) {
+                    visualContent.innerHTML = '<div style="width:100%;max-width:480px;aspect-ratio:1.21;border-radius:10px;overflow:hidden;background:#000;">' + window.buildLazyImg(_imgSrc3, exerciseName, 'border-radius:10px;width:100%;height:100%;object-fit:cover;') + '</div>';
+                } else {
+                    visualContent.innerHTML = `
+                    <div style="display:flex;gap:12px;align-items:center;justify-content:center;width:100%;flex-wrap:wrap;">
+                        <div style="flex:1;display:flex;flex-direction:column;align-items:center;min-width:120px;max-width:200px;">
+                            <div style="width:100%;aspect-ratio:1;border-radius:10px;background:rgba(34,197,94,0.04);border:1px solid rgba(74,222,128,0.2);padding:8px;display:flex;align-items:center;justify-content:center;">${svgStart}</div>
+                            <span style="font-size:0.62em;margin-top:8px;font-weight:900;color:#4ade80;letter-spacing:2px;text-transform:uppercase;text-shadow:0 0 6px rgba(74,222,128,0.4);">▶ DÉBUT</span>
+                        </div>
+                        <div style="font-size:2em;color:#4ade80;flex-shrink:0;text-shadow:0 0 12px rgba(74,222,128,0.5);font-weight:900;">⟶</div>
+                        <div style="flex:1;display:flex;flex-direction:column;align-items:center;min-width:120px;max-width:200px;">
+                            <div style="width:100%;aspect-ratio:1;border-radius:10px;background:rgba(168,85,247,0.04);border:1px solid rgba(168,85,247,0.3);padding:8px;display:flex;align-items:center;justify-content:center;">${svgEnd}</div>
+                            <span style="font-size:0.62em;margin-top:8px;font-weight:900;color:#a855f7;letter-spacing:2px;text-transform:uppercase;text-shadow:0 0 6px rgba(168,85,247,0.4);">■ FIN</span>
+                        </div>
+                    </div>`;
+                }
+            } else if (visualFrame) {
+                // Pour les exercices de repos/info, masquer le frame
+                visualFrame.style.display = 'none';
+            }
+
+            // Ancien rendu DOM (gardé pour compatibilité avec d'autres modes mais désactivé)
             const imagesDiv = document.createElement('div');
             imagesDiv.className = 'exercise-timer-images';
-            imagesDiv.style.cssText = 'display: flex; gap: 20px; align-items: center; justify-content: center; margin: 20px auto; max-width: 700px; width: 100%;';
-            if (_imgSrc3) {
-                imagesDiv.innerHTML = '<div style="width:100%;max-width:500px;aspect-ratio:1.21;border-radius:14px;overflow:hidden;">' + window.buildLazyImg(_imgSrc3, exerciseName, 'border-radius:14px;') + '</div>';
-            } else {
-                imagesDiv.innerHTML = `
-                <div style="flex: 1; display: flex; flex-direction: column; align-items: center; min-width: 0;">
-                    <div style="width: 100%; max-width: 260px; aspect-ratio: 1; opacity: 1;">${svgStart}</div>
-                    <span style="font-size: 0.9em; margin-top: 8px; opacity: 0.8; font-weight: 600; color: #4ade80;">▶ Début</span>
-                </div>
-                <div style="font-size: 2em; opacity: 0.5; flex-shrink: 0;">→</div>
-                <div style="flex: 1; display: flex; flex-direction: column; align-items: center; min-width: 0;">
-                    <div style="width: 100%; max-width: 260px; aspect-ratio: 1; opacity: 1;">${svgEnd}</div>
-                    <span style="font-size: 0.9em; margin-top: 8px; opacity: 0.8; font-weight: 600; color: #ef4444;">■ Fin</span>
-                </div>`;
-            }
+            imagesDiv.style.display = 'none'; // Caché — remplacé par le frame ci-dessus
             const exerciseNameElement = document.getElementById('exerciseName');
             exerciseNameElement.parentNode.insertBefore(imagesDiv, exerciseNameElement.nextSibling);
             

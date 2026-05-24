@@ -961,60 +961,89 @@ function showRPGEquipmentModal(defaultTab) {
         </div>`;
     }
 
-    // ─── Génère le panneau personnage central ────────────────────────
+    // ─── Génère le panneau personnage central (REFONTE : avatar GIGANT + slots positionnés absolument) ───
     function renderCharacterPanel() {
-        return `
-        <div style="display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 4px;">
-            <!-- Slots gauche -->
-            <div style="display:flex;flex-direction:column;gap:7px;flex-shrink:0;">
-                ${SLOT_LAYOUT_LEFT.map(renderSlot).join('')}
-            </div>
+        const gender = localStorage.getItem('fitproAvatarGender') || 'homme';
+        const path = gender === 'femme' ? 'images/avatars/avatar_femme.png' : 'images/avatars/avatar_homme.png';
+        const toggleIcon = gender === 'femme' ? '👨' : '👩';
 
-            <!-- Silhouette → AVATAR PNG (Homme / Femme) -->
-            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:110px;">
-                <div style="position:relative;width:130px;height:220px;">
-                    <!-- Glow halo -->
-                    <div style="position:absolute;inset:-20px;border-radius:50%;
-                        background:radial-gradient(circle at 50% 30%,rgba(34,197,94,0.25),transparent 60%);pointer-events:none;"></div>
+        // Génère un slot positionné absolument sur l'avatar
+        function renderFloatingSlot(slot, position) {
+            const eqItems = getEquippedItems();
+            const item = eqItems[slot.id];
+            const r = item ? getRarityInfo(item.rarity) : null;
+            const bg = item ? r.bg : 'rgba(10,14,24,0.85)';
+            const border = item ? r.color : 'rgba(34,197,94,0.45)';
+            const glow = item ? `box-shadow:0 0 14px ${r.glow},inset 0 0 8px ${r.glow};` : 'box-shadow:0 0 10px rgba(34,197,94,0.15);';
 
-                    <!-- Avatar image -->
-                    ${(() => {
-                        const gender = localStorage.getItem('fitproAvatarGender') || 'homme';
-                        const path = gender === 'femme' ? 'images/avatars/avatar_femme.png' : 'images/avatars/avatar_homme.png';
-                        const toggleIcon = gender === 'femme' ? '👨' : '👩';
-                        return `
-                            <img src="${path}"
-                                 alt="Avatar ${gender}"
-                                 style="position:relative;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 0 10px rgba(34,197,94,0.4));z-index:1;"
-                                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
-                            <!-- Fallback -->
-                            <div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;color:rgba(74,222,128,0.5);font-size:0.65em;text-align:center;position:absolute;inset:0;">Avatar<br>indisponible</div>
-
-                            <!-- Bouton toggle Homme/Femme -->
-                            <button onclick="window.toggleAvatarGender && window.toggleAvatarGender()"
-                                    title="Changer d'avatar"
-                                    style="position:absolute;top:-4px;right:-4px;
-                                           background:rgba(34,197,94,0.18);border:1px solid rgba(74,222,128,0.5);
-                                           color:#4ade80;width:32px;height:32px;border-radius:50%;
-                                           cursor:pointer;font-size:1em;
-                                           display:flex;align-items:center;justify-content:center;
-                                           box-shadow:0 0 10px rgba(34,197,94,0.3);z-index:2;">
-                                ${toggleIcon}
-                            </button>
-                        `;
-                    })()}
-
-                    <!-- Base circle (pedestal) -->
-                    <div style="position:absolute;bottom:-12px;left:50%;transform:translateX(-50%);width:90px;height:18px;
-                        border-radius:50%;background:radial-gradient(ellipse,#22c55e44,transparent 70%);
-                        border:1px solid #22c55e66;pointer-events:none;"></div>
+            return `<div style="position:absolute;${position};z-index:3;display:flex;flex-direction:column;align-items:center;gap:2px;">
+                <div onclick="window._rpgEqSelectSlot('${slot.id}')" style="
+                    width:52px;height:52px;border-radius:10px;cursor:pointer;
+                    background:${bg};border:2px solid ${border};${glow}
+                    display:flex;align-items:center;justify-content:center;
+                    position:relative;transition:transform 0.15s;backdrop-filter:blur(6px);">
+                    ${item
+                        ? `<span style="font-size:1.5em;line-height:1;">${item.icon}</span>
+                           <span style="position:absolute;top:1px;right:2px;font-size:0.42em;font-weight:900;color:${r.color};">${r.label}</span>`
+                        : `<span style="font-size:1.2em;opacity:0.4;">${slot.icon}</span>`
+                    }
                 </div>
-            </div>
+                <div style="font-size:0.5em;color:rgba(255,255,255,0.65);font-weight:800;letter-spacing:1px;text-shadow:0 1px 3px rgba(0,0,0,0.9);background:rgba(0,0,0,0.5);padding:1px 5px;border-radius:4px;">${slot.label}</div>
+            </div>`;
+        }
 
-            <!-- Slots droite -->
-            <div style="display:flex;flex-direction:column;gap:7px;flex-shrink:0;">
-                ${SLOT_LAYOUT_RIGHT.map(renderSlot).join('')}
-            </div>
+        return `
+        <div style="position:relative;width:100%;height:420px;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:12px;background:radial-gradient(ellipse at center,rgba(34,197,94,0.08),transparent 70%);">
+
+            <!-- Glow halo derrière l'avatar -->
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+                width:280px;height:380px;
+                background:radial-gradient(ellipse at 50% 40%,rgba(34,197,94,0.25),rgba(168,85,247,0.08) 50%,transparent 75%);
+                pointer-events:none;z-index:0;"></div>
+
+            <!-- AVATAR GIGANT au centre -->
+            <img src="${path}"
+                 alt="Avatar ${gender}"
+                 style="position:relative;height:100%;max-height:420px;width:auto;object-fit:contain;
+                        filter:drop-shadow(0 0 24px rgba(34,197,94,0.5)) drop-shadow(0 0 50px rgba(34,197,94,0.2));z-index:1;"
+                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+
+            <!-- Fallback -->
+            <div style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;color:rgba(74,222,128,0.6);font-size:0.8em;text-align:center;">Avatar indisponible</div>
+
+            <!-- Piédestal en bas -->
+            <div style="position:absolute;bottom:10px;left:50%;transform:translateX(-50%);width:200px;height:20px;
+                border-radius:50%;background:radial-gradient(ellipse,rgba(34,197,94,0.4),transparent 70%);
+                border:1px solid rgba(34,197,94,0.5);pointer-events:none;z-index:2;
+                box-shadow:0 0 16px rgba(34,197,94,0.4);"></div>
+
+            <!-- ═══ SLOTS ÉQUIPEMENT FLOTTANTS ═══ -->
+
+            <!-- COLONNE GAUCHE -->
+            ${renderFloatingSlot({id:'head',label:'TÊTE',icon:'⛑️'}, 'top:8px;left:8px')}
+            ${renderFloatingSlot({id:'weapon',label:'ARME',icon:'⚔️'}, 'top:90px;left:8px')}
+            ${renderFloatingSlot({id:'hands',label:'MAINS',icon:'🥊'}, 'top:172px;left:8px')}
+            ${renderFloatingSlot({id:'legs',label:'JAMBES',icon:'🦵'}, 'top:254px;left:8px')}
+            ${renderFloatingSlot({id:'accessory',label:'ANNEAU',icon:'💍'}, 'top:336px;left:8px')}
+
+            <!-- COLONNE DROITE -->
+            ${renderFloatingSlot({id:'chest',label:'TORSE',icon:'🛡️'}, 'top:8px;right:8px')}
+            ${renderFloatingSlot({id:'feet',label:'PIEDS',icon:'👟'}, 'top:90px;right:8px')}
+
+            <!-- Bouton toggle Homme/Femme (en haut à droite, sous slot chest) -->
+            <button onclick="window.toggleAvatarGender && window.toggleAvatarGender()"
+                    title="Changer d'avatar"
+                    style="position:absolute;top:172px;right:8px;z-index:4;
+                           background:linear-gradient(135deg,rgba(34,197,94,0.25),rgba(168,85,247,0.15));
+                           border:1.5px solid rgba(74,222,128,0.6);
+                           color:#4ade80;width:52px;height:52px;border-radius:10px;
+                           cursor:pointer;font-size:1.4em;
+                           display:flex;align-items:center;justify-content:center;
+                           box-shadow:0 0 14px rgba(34,197,94,0.4);
+                           backdrop-filter:blur(6px);">
+                ${toggleIcon}
+            </button>
+            <div style="position:absolute;top:230px;right:8px;z-index:4;font-size:0.48em;color:rgba(255,255,255,0.65);font-weight:800;letter-spacing:1px;background:rgba(0,0,0,0.5);padding:1px 5px;border-radius:4px;text-shadow:0 1px 3px rgba(0,0,0,0.9);width:52px;text-align:center;">SEXE</div>
         </div>`;
     }
 
