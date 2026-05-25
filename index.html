@@ -19,7 +19,7 @@
     <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/tabler-icons.min.css" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=54">
+    <link rel="stylesheet" href="css/style.css?v=56">
 </head>
 <body>
 
@@ -165,20 +165,20 @@
         <!-- ═══════════ BANNIÈRE AWAKENED ═══════════ -->
         <div id="appHeader" style="
                 border-radius: 14px;
-                margin-bottom: 12px;
+                margin: 0 auto 12px;
                 padding: 0;
                 position: relative;
                 overflow: hidden;
                 background: #000;
                 border: 1px solid rgba(74,222,128,0.2);
                 box-shadow: 0 6px 24px rgba(0,0,0,0.5), 0 0 24px rgba(74,222,128,0.06);
-                height: 110px;
-                max-height: 130px;">
+                width: 100%;
+                max-width: 460px;">
 
-            <!-- Bannière image -->
-            <img src="images/banner.png?v=54"
+            <!-- Bannière image : ratio préservé -->
+            <img src="images/banner.png?v=56"
                  alt="Awakened Elite Fitness"
-                 style="width:100%;height:100%;display:block;object-fit:cover;object-position:center 35%;" />
+                 style="width:100%;height:auto;display:block;" />
 
             <!-- Top glow accent line (subtile) -->
             <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#4ade80,#a855f7,transparent);opacity:0.5;pointer-events:none;"></div>
@@ -2101,7 +2101,7 @@
             <!-- 🔖 Version -->
             <div class="card" style="background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(34,197,94,0.15);padding:12px 14px;text-align:center;">
                 <div style="font-size:0.6em;color:#64748b;font-weight:800;letter-spacing:2px;">VERSION</div>
-                <div style="font-size:0.95em;color:#4ade80;font-weight:900;margin-top:3px;letter-spacing:1px;">v54 · awakened</div>
+                <div style="font-size:0.95em;color:#4ade80;font-weight:900;margin-top:3px;letter-spacing:1px;">v56 · awakened</div>
                 <button onclick="if(confirm('Forcer la mise à jour de l\\'app ?\\n\\nCela rechargera la page et nettoiera le cache.')) { if('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(rs => Promise.all(rs.map(r => r.unregister()))).then(() => location.reload(true)); }" style="margin-top:10px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:#4ade80;border-radius:9px;padding:8px 14px;font-size:0.75em;font-weight:800;cursor:pointer;">🔄 Forcer la mise à jour</button>
             </div>
 
@@ -3428,12 +3428,12 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/exercises.js?v=54"></script>
-    <script src="data/items.js?v=54"></script>
-    <script src="js/adventure.js?v=54"></script>
-    <script src="js/challenges.js?v=54"></script>
-    <script src="js/exercise-visuals.js?v=54"></script>
-    <script src="js/app.js?v=54"></script>
+    <script src="js/exercises.js?v=56"></script>
+    <script src="data/items.js?v=56"></script>
+    <script src="js/adventure.js?v=56"></script>
+    <script src="js/challenges.js?v=56"></script>
+    <script src="js/exercise-visuals.js?v=56"></script>
+    <script src="js/app.js?v=56"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>

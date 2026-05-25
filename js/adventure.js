@@ -961,7 +961,7 @@ function showRPGEquipmentModal(defaultTab) {
         </div>`;
     }
 
-    // ─── Génère le panneau personnage central (REFONTE : avatar GIGANT + slots positionnés absolument) ───
+    // ─── Génère le panneau personnage central (REFONTE V2 : avatar FULL WIDTH + slots overlay) ───
     function renderCharacterPanel() {
         const gender = localStorage.getItem('fitproAvatarGender') || 'homme';
         const path = gender === 'femme' ? 'images/avatars/avatar_femme.png' : 'images/avatars/avatar_homme.png';
@@ -972,78 +972,82 @@ function showRPGEquipmentModal(defaultTab) {
             const eqItems = getEquippedItems();
             const item = eqItems[slot.id];
             const r = item ? getRarityInfo(item.rarity) : null;
-            const bg = item ? r.bg : 'rgba(10,14,24,0.85)';
-            const border = item ? r.color : 'rgba(34,197,94,0.45)';
-            const glow = item ? `box-shadow:0 0 14px ${r.glow},inset 0 0 8px ${r.glow};` : 'box-shadow:0 0 10px rgba(34,197,94,0.15);';
+            const bg = item ? r.bg : 'rgba(10,14,24,0.7)';
+            const border = item ? r.color : 'rgba(34,197,94,0.5)';
+            const glow = item ? `box-shadow:0 0 14px ${r.glow},inset 0 0 8px ${r.glow};` : 'box-shadow:0 0 12px rgba(34,197,94,0.25),0 2px 8px rgba(0,0,0,0.5);';
 
-            return `<div style="position:absolute;${position};z-index:3;display:flex;flex-direction:column;align-items:center;gap:2px;">
+            return `<div style="position:absolute;${position};z-index:5;display:flex;flex-direction:column;align-items:center;gap:3px;">
                 <div onclick="window._rpgEqSelectSlot('${slot.id}')" style="
-                    width:52px;height:52px;border-radius:10px;cursor:pointer;
+                    width:54px;height:54px;border-radius:10px;cursor:pointer;
                     background:${bg};border:2px solid ${border};${glow}
                     display:flex;align-items:center;justify-content:center;
-                    position:relative;transition:transform 0.15s;backdrop-filter:blur(6px);">
+                    position:relative;transition:transform 0.15s;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);">
                     ${item
-                        ? `<span style="font-size:1.5em;line-height:1;">${item.icon}</span>
+                        ? `<span style="font-size:1.55em;line-height:1;filter:drop-shadow(0 0 4px rgba(0,0,0,0.8));">${item.icon}</span>
                            <span style="position:absolute;top:1px;right:2px;font-size:0.42em;font-weight:900;color:${r.color};">${r.label}</span>`
-                        : `<span style="font-size:1.2em;opacity:0.4;">${slot.icon}</span>`
+                        : `<span style="font-size:1.3em;opacity:0.55;filter:drop-shadow(0 0 4px rgba(0,0,0,0.8));">${slot.icon}</span>`
                     }
                 </div>
-                <div style="font-size:0.5em;color:rgba(255,255,255,0.65);font-weight:800;letter-spacing:1px;text-shadow:0 1px 3px rgba(0,0,0,0.9);background:rgba(0,0,0,0.5);padding:1px 5px;border-radius:4px;">${slot.label}</div>
+                <div style="font-size:0.5em;color:rgba(255,255,255,0.85);font-weight:900;letter-spacing:1.5px;text-shadow:0 1px 3px rgba(0,0,0,0.95),0 0 6px rgba(0,0,0,0.8);background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:4px;border:1px solid rgba(74,222,128,0.3);">${slot.label}</div>
             </div>`;
         }
 
         return `
-        <div style="position:relative;width:100%;height:420px;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:12px;background:radial-gradient(ellipse at center,rgba(34,197,94,0.08),transparent 70%);">
+        <div style="position:relative;width:100%;aspect-ratio:1066/1476;max-height:700px;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:12px;background:#000;">
 
-            <!-- Glow halo derrière l'avatar -->
-            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-                width:280px;height:380px;
-                background:radial-gradient(ellipse at 50% 40%,rgba(34,197,94,0.25),rgba(168,85,247,0.08) 50%,transparent 75%);
-                pointer-events:none;z-index:0;"></div>
-
-            <!-- AVATAR GIGANT au centre -->
+            <!-- AVATAR FULL SIZE (prend toute la largeur) -->
             <img src="${path}"
                  alt="Avatar ${gender}"
-                 style="position:relative;height:100%;max-height:420px;width:auto;object-fit:contain;
-                        filter:drop-shadow(0 0 24px rgba(34,197,94,0.5)) drop-shadow(0 0 50px rgba(34,197,94,0.2));z-index:1;"
+                 style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;z-index:1;
+                        filter:drop-shadow(0 0 24px rgba(34,197,94,0.3));"
                  onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
 
-            <!-- Fallback -->
+            <!-- Fallback si image absente -->
             <div style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;color:rgba(74,222,128,0.6);font-size:0.8em;text-align:center;">Avatar indisponible</div>
 
-            <!-- Piédestal en bas -->
-            <div style="position:absolute;bottom:10px;left:50%;transform:translateX(-50%);width:200px;height:20px;
-                border-radius:50%;background:radial-gradient(ellipse,rgba(34,197,94,0.4),transparent 70%);
-                border:1px solid rgba(34,197,94,0.5);pointer-events:none;z-index:2;
-                box-shadow:0 0 16px rgba(34,197,94,0.4);"></div>
+            <!-- Overlay subtil pour mieux voir les slots -->
+            <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,0.45) 0%,transparent 18%,transparent 82%,rgba(0,0,0,0.45) 100%);pointer-events:none;z-index:2;"></div>
 
-            <!-- ═══ SLOTS ÉQUIPEMENT FLOTTANTS ═══ -->
+            <!-- Glow scan-lines -->
+            <div style="position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0,transparent 4px,rgba(74,222,128,0.02) 4px,rgba(74,222,128,0.02) 5px);pointer-events:none;z-index:3;"></div>
+
+            <!-- ═══ SLOTS ÉQUIPEMENT FLOTTANTS (par-dessus l'avatar) ═══ -->
 
             <!-- COLONNE GAUCHE -->
-            ${renderFloatingSlot({id:'head',label:'TÊTE',icon:'⛑️'}, 'top:8px;left:8px')}
-            ${renderFloatingSlot({id:'weapon',label:'ARME',icon:'⚔️'}, 'top:90px;left:8px')}
-            ${renderFloatingSlot({id:'hands',label:'MAINS',icon:'🥊'}, 'top:172px;left:8px')}
-            ${renderFloatingSlot({id:'legs',label:'JAMBES',icon:'🦵'}, 'top:254px;left:8px')}
-            ${renderFloatingSlot({id:'accessory',label:'ANNEAU',icon:'💍'}, 'top:336px;left:8px')}
+            ${renderFloatingSlot({id:'head',label:'TÊTE',icon:'⛑️'}, 'top:14px;left:10px')}
+            ${renderFloatingSlot({id:'weapon',label:'ARME',icon:'⚔️'}, 'top:110px;left:10px')}
+            ${renderFloatingSlot({id:'hands',label:'MAINS',icon:'🥊'}, 'top:206px;left:10px')}
+            ${renderFloatingSlot({id:'legs',label:'JAMBES',icon:'🦵'}, 'top:302px;left:10px')}
+            ${renderFloatingSlot({id:'accessory',label:'ANNEAU',icon:'💍'}, 'top:398px;left:10px')}
 
             <!-- COLONNE DROITE -->
-            ${renderFloatingSlot({id:'chest',label:'TORSE',icon:'🛡️'}, 'top:8px;right:8px')}
-            ${renderFloatingSlot({id:'feet',label:'PIEDS',icon:'👟'}, 'top:90px;right:8px')}
+            ${renderFloatingSlot({id:'chest',label:'TORSE',icon:'🛡️'}, 'top:14px;right:10px')}
+            ${renderFloatingSlot({id:'feet',label:'PIEDS',icon:'👟'}, 'top:110px;right:10px')}
 
-            <!-- Bouton toggle Homme/Femme (en haut à droite, sous slot chest) -->
+            <!-- Bouton toggle Homme/Femme (sous le slot PIEDS) -->
             <button onclick="window.toggleAvatarGender && window.toggleAvatarGender()"
                     title="Changer d'avatar"
-                    style="position:absolute;top:172px;right:8px;z-index:4;
-                           background:linear-gradient(135deg,rgba(34,197,94,0.25),rgba(168,85,247,0.15));
-                           border:1.5px solid rgba(74,222,128,0.6);
-                           color:#4ade80;width:52px;height:52px;border-radius:10px;
-                           cursor:pointer;font-size:1.4em;
+                    style="position:absolute;top:206px;right:10px;z-index:5;
+                           background:linear-gradient(135deg,rgba(34,197,94,0.3),rgba(168,85,247,0.25));
+                           border:2px solid rgba(74,222,128,0.6);
+                           color:#4ade80;width:54px;height:54px;border-radius:10px;
+                           cursor:pointer;font-size:1.5em;
                            display:flex;align-items:center;justify-content:center;
-                           box-shadow:0 0 14px rgba(34,197,94,0.4);
-                           backdrop-filter:blur(6px);">
+                           box-shadow:0 0 14px rgba(34,197,94,0.4),0 2px 8px rgba(0,0,0,0.5);
+                           backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);">
                 ${toggleIcon}
             </button>
-            <div style="position:absolute;top:230px;right:8px;z-index:4;font-size:0.48em;color:rgba(255,255,255,0.65);font-weight:800;letter-spacing:1px;background:rgba(0,0,0,0.5);padding:1px 5px;border-radius:4px;text-shadow:0 1px 3px rgba(0,0,0,0.9);width:52px;text-align:center;">SEXE</div>
+            <div style="position:absolute;top:264px;right:10px;z-index:5;font-size:0.5em;color:rgba(255,255,255,0.85);font-weight:900;letter-spacing:1.5px;background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:4px;border:1px solid rgba(74,222,128,0.3);width:54px;text-align:center;box-sizing:border-box;text-shadow:0 1px 3px rgba(0,0,0,0.95);">SEXE</div>
+
+            <!-- Coins HUD décoratifs -->
+            <div style="position:absolute;top:0;left:0;width:24px;height:24px;border-top:2px solid #4ade80;border-left:2px solid #4ade80;border-top-left-radius:12px;box-shadow:0 0 10px rgba(74,222,128,0.5);pointer-events:none;z-index:4;"></div>
+            <div style="position:absolute;top:0;right:0;width:24px;height:24px;border-top:2px solid #4ade80;border-right:2px solid #4ade80;border-top-right-radius:12px;box-shadow:0 0 10px rgba(74,222,128,0.5);pointer-events:none;z-index:4;"></div>
+            <div style="position:absolute;bottom:0;left:0;width:24px;height:24px;border-bottom:2px solid #4ade80;border-left:2px solid #4ade80;border-bottom-left-radius:12px;box-shadow:0 0 10px rgba(74,222,128,0.5);pointer-events:none;z-index:4;"></div>
+            <div style="position:absolute;bottom:0;right:0;width:24px;height:24px;border-bottom:2px solid #4ade80;border-right:2px solid #4ade80;border-bottom-right-radius:12px;box-shadow:0 0 10px rgba(74,222,128,0.5);pointer-events:none;z-index:4;"></div>
+
+            <!-- Glow line top/bottom -->
+            <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#4ade80,transparent);z-index:4;pointer-events:none;"></div>
+            <div style="position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#4ade80,transparent);z-index:4;pointer-events:none;"></div>
         </div>`;
     }
 
@@ -1191,10 +1195,10 @@ function showRPGEquipmentModal(defaultTab) {
         <div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px;">
 
             <!-- ━━━ PERSONNAGE ━━━ -->
-            <div style="background:linear-gradient(160deg,rgba(34,197,94,0.04),transparent);
-                       border:1px solid rgba(34,197,94,0.18);border-radius:14px;position:relative;
-                       padding:8px 8px 12px;margin-bottom:14px;">
-                <div style="position:absolute;top:4px;left:8px;font-size:0.5em;color:#22c55e;font-weight:800;letter-spacing:2px;">◈ PERSONNAGE</div>
+            <div style="background:#000;
+                       border:1px solid rgba(34,197,94,0.3);border-radius:14px;position:relative;
+                       padding:0;margin-bottom:14px;overflow:hidden;">
+                <div style="position:absolute;top:8px;left:50%;transform:translateX(-50%);font-size:0.5em;color:#4ade80;font-weight:900;letter-spacing:3px;z-index:10;text-shadow:0 0 8px rgba(74,222,128,0.6),0 1px 4px rgba(0,0,0,0.9);background:rgba(0,0,0,0.6);padding:3px 10px;border-radius:4px;border:1px solid rgba(74,222,128,0.3);">◈ PERSONNAGE ◈</div>
                 ${renderCharacterPanel()}
             </div>
 
