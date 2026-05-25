@@ -1747,13 +1747,31 @@
             background: rgba(0,0,0,0.7);
             z-index: 1000;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
             padding: 20px;
         }
 
         .modal.active {
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
+        }
+
+        /* 📱 Sur mobile, padding réduit + ajout padding bottom pour qu'on puisse scroller jusqu'aux boutons */
+        @media (max-width: 600px) {
+            .modal {
+                padding: 12px 12px 60px;
+            }
+            .modal.active {
+                align-items: flex-start;
+            }
+        }
+
+        /* Centrer verticalement les petits modals sur grand écran */
+        @media (min-width: 601px) {
+            .modal.active {
+                align-items: center;
+            }
         }
 
         .modal-content {
@@ -4775,7 +4793,7 @@
         #restOverlay {
             display: none;
             position: fixed; inset: 0; z-index: 9990;
-            background: #090e14;
+            background: linear-gradient(160deg, #020510 0%, #050810 50%, #020510 100%);
             flex-direction: column;
             align-items: center; justify-content: center;
             text-align: center;
@@ -4784,6 +4802,30 @@
             gap: 0;
         }
         #restOverlay.active { display: flex; }
+
+        /* Scan lines cyberpunk over overlay */
+        #restOverlay::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(180deg,
+                transparent 0px, transparent 3px,
+                rgba(74,222,128,0.025) 3px, rgba(74,222,128,0.025) 4px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Corner accents */
+        #restOverlay::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background:
+                linear-gradient(90deg, transparent 0%, transparent 95%, rgba(74,222,128,0.1) 100%),
+                linear-gradient(0deg, transparent 0%, transparent 95%, rgba(74,222,128,0.1) 100%);
+            z-index: 0;
+        }
 
         @keyframes restFadeIn {
             from { opacity: 0; }
@@ -4799,14 +4841,16 @@
             100% { transform: scale(1); opacity:1; }
         }
         @keyframes restPulseGlow {
-            0%, 100% { filter: drop-shadow(0 0 8px rgba(34,197,94,0.35)); }
-            50%       { filter: drop-shadow(0 0 22px rgba(34,197,94,0.7)); }
+            0%, 100% { filter: drop-shadow(0 0 12px rgba(74,222,128,0.5)); }
+            50%      { filter: drop-shadow(0 0 28px rgba(74,222,128,0.85)) drop-shadow(0 0 50px rgba(74,222,128,0.3)); }
         }
 
         #restLabelTop {
-            font-size: 0.62rem; font-weight: 700; letter-spacing: 4px;
-            color: rgba(255,255,255,0.28); text-transform: uppercase;
+            font-size: 0.6rem; font-weight: 900; letter-spacing: 5px;
+            color: #4ade80; text-transform: uppercase;
             margin-bottom: 14px;
+            text-shadow: 0 0 12px rgba(74,222,128,0.6);
+            position: relative; z-index: 1;
         }
 
         /* ── Ring wrap ── */
@@ -4816,9 +4860,14 @@
             height: clamp(160px, 48vw, 210px);
             flex-shrink: 0;
             animation: restPulseGlow 2.4s ease-in-out infinite;
+            z-index: 1;
         }
         #restRingSVG {
             width: 100%; height: 100%;
+        }
+        #restRingArc {
+            stroke: #4ade80 !important;
+            filter: drop-shadow(0 0 8px rgba(74,222,128,0.7));
         }
         #restCountDisplay {
             position: absolute;
@@ -4827,44 +4876,77 @@
             font-size: clamp(3.2rem, 16vw, 5.5rem);
             font-weight: 900; color: white; line-height: 1;
             letter-spacing: -3px;
+            text-shadow: 0 0 28px rgba(74,222,128,0.5);
+            font-variant-numeric: tabular-nums;
         }
         #restSecLabel {
             position: absolute;
             bottom: 24%; left: 50%;
             transform: translateX(-50%);
-            font-size: 0.72rem; font-weight: 700; letter-spacing: 2px;
-            color: rgba(255,255,255,0.35); text-transform: uppercase;
+            font-size: 0.68rem; font-weight: 900; letter-spacing: 3px;
+            color: #4ade80; text-transform: uppercase;
+            text-shadow: 0 0 6px rgba(74,222,128,0.4);
         }
 
         #restLabelBottom {
-            font-size: 0.68rem; font-weight: 600; letter-spacing: 2px;
-            color: #22c55e; text-transform: uppercase; margin-top: 10px;
+            font-size: 0.7rem; font-weight: 900; letter-spacing: 3px;
+            color: #4ade80; text-transform: uppercase; margin-top: 12px;
+            text-shadow: 0 0 8px rgba(74,222,128,0.5);
+            position: relative; z-index: 1;
         }
 
         /* ── Carte prochain exercice ── */
         #restNextCard {
-            background: rgba(34,197,94,0.07);
-            border: 1px solid rgba(34,197,94,0.2);
-            border-radius: 20px;
+            background: linear-gradient(160deg, rgba(34,197,94,0.06), rgba(168,85,247,0.04));
+            border: 1px solid rgba(74,222,128,0.35);
+            border-radius: 14px;
             padding: 16px 24px 18px;
             margin-top: 22px;
             max-width: 320px; width: 100%;
             animation: restCardSlide 0.45s cubic-bezier(0.34,1.2,0.64,1) both;
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 0 24px rgba(34,197,94,0.1), 0 8px 24px rgba(0,0,0,0.4);
+        }
+        #restNextCard::before,
+        #restNextCard::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            pointer-events: none;
+        }
+        #restNextCard::before {
+            top: -1px; left: -1px;
+            border-top: 2px solid #4ade80;
+            border-left: 2px solid #4ade80;
+            border-top-left-radius: 14px;
+        }
+        #restNextCard::after {
+            bottom: -1px; right: -1px;
+            border-bottom: 2px solid #4ade80;
+            border-right: 2px solid #4ade80;
+            border-bottom-right-radius: 14px;
         }
         #restNextLabel {
-            font-size: 0.58rem; color: rgba(34,197,94,0.7);
-            letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 8px;
-            font-weight: 700;
+            font-size: 0.56rem; color: #4ade80;
+            letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px;
+            font-weight: 900;
+            text-shadow: 0 0 6px rgba(74,222,128,0.5);
         }
         #restNextEmoji {
             font-size: 2.2em; line-height: 1;
             margin-bottom: 6px;
             animation: restEmojiPop 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.15s both;
             display: block;
+            filter: drop-shadow(0 0 10px rgba(74,222,128,0.4));
         }
         #restNextName {
-            font-size: 1.1rem; font-weight: 800; color: white;
+            font-size: 1.05rem; font-weight: 900; color: white;
             line-height: 1.25; margin-bottom: 6px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            text-shadow: 0 0 16px rgba(74,222,128,0.3);
         }
         #restNextMuscle {
             display: inline-block;
@@ -4901,40 +4983,73 @@
         #restBtns {
             display: flex; gap: 10px; margin-top: 20px;
             width: 100%; max-width: 320px;
+            position: relative; z-index: 1;
         }
         .rest-btn-adj {
             flex: 1; padding: 13px 0;
-            background: rgba(255,255,255,0.06);
-            border: 1px solid rgba(255,255,255,0.12);
-            border-radius: 14px; color: rgba(255,255,255,0.6);
-            font-size: 0.88rem; font-weight: 700; cursor: pointer;
-            transition: background 0.2s;
+            background: rgba(34,197,94,0.06);
+            border: 1.5px solid rgba(74,222,128,0.3);
+            border-radius: 8px; color: #4ade80;
+            font-size: 0.78rem; font-weight: 900; cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            box-shadow: 0 0 10px rgba(34,197,94,0.1);
         }
-        .rest-btn-adj:active { background: rgba(255,255,255,0.13); }
+        .rest-btn-adj:active {
+            background: rgba(34,197,94,0.18);
+            transform: scale(0.97);
+            box-shadow: 0 0 16px rgba(34,197,94,0.3);
+        }
         #restSkipBtn {
             flex: 2; padding: 13px 0;
-            background: linear-gradient(135deg, #22c55e, #16a34a);
-            border: none; border-radius: 14px; color: white;
-            font-size: 0.95rem; font-weight: 800; cursor: pointer;
-            box-shadow: 0 4px 20px rgba(34, 197, 94, 0.3);
-            transition: transform 0.15s;
+            background: linear-gradient(135deg, #16a34a, #22c55e, #4ade80);
+            border: 1.5px solid #4ade80;
+            border-radius: 8px; color: white;
+            font-size: 0.88rem; font-weight: 900; cursor: pointer;
+            box-shadow: 0 0 24px rgba(74, 222, 128, 0.5), 0 4px 12px rgba(34, 197, 94, 0.3);
+            transition: all 0.15s;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+        }
+        #restSkipBtn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: cyberScan 3s infinite;
         }
         #restSkipBtn:active { transform: scale(0.97); }
 
         /* ── COMPTE À REBOURS 3-2-1 ─────────────────────────────── */
         #countdownOverlay {
             position: fixed; inset: 0; z-index: 99998;
-            background: linear-gradient(160deg, #0F1014 0%, #1A0A00 60%, #166534 100%);
+            background: linear-gradient(160deg, #020510 0%, #050810 50%, #0a0e18 100%);
             display: none;
             align-items: center; justify-content: center;
             flex-direction: column; text-align: center;
+            overflow: hidden;
+        }
+        #countdownOverlay::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(180deg,
+                transparent 0px, transparent 4px,
+                rgba(74,222,128,0.03) 4px, rgba(74,222,128,0.03) 5px);
+            pointer-events: none;
         }
         #countdownOverlay.active { display: flex; }
         #countdownNumber {
             font-family: 'Outfit', sans-serif;
             font-size: 14rem; font-weight: 900; color: white;
             letter-spacing: -8px; line-height: 1;
-            text-shadow: 0 0 60px rgba(34,197,94,0.6);
+            text-shadow: 0 0 80px rgba(74,222,128,0.8), 0 0 30px rgba(74,222,128,0.6);
+            position: relative;
+            z-index: 1;
         }
         #countdownOverlay.active #countdownNumber {
             animation: countPop 0.5s cubic-bezier(0.34,1.56,0.64,1);
@@ -4944,13 +5059,20 @@
             to   { transform: scale(1);   opacity: 1; }
         }
         #countdownExerciseName {
-            color: rgba(196,181,253,0.9); font-size: 1.3em;
-            font-weight: 700; margin-top: 10px; letter-spacing: -0.3px;
+            color: #4ade80; font-size: 1.2em;
+            font-weight: 900; margin-top: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-shadow: 0 0 12px rgba(74,222,128,0.5);
+            position: relative;
+            z-index: 1;
         }
         #countdownLabel {
-            color: rgba(255,255,255,0.5); font-size: 0.9em;
-            font-weight: 500; margin-top: 6px; text-transform: uppercase;
-            letter-spacing: 1.5px;
+            color: rgba(255,255,255,0.5); font-size: 0.78em;
+            font-weight: 900; margin-top: 8px; text-transform: uppercase;
+            letter-spacing: 3px;
+            position: relative;
+            z-index: 1;
         }
     
 

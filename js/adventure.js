@@ -183,6 +183,27 @@ function equipItem(invId) {
     return { success: true };
 }
 function unequipSlot(slot) { const eq = getEquipped(); eq[slot] = null; saveEquipped(eq); }
+
+// 🗑️ Supprimer un item de l'inventaire (irréversible)
+function discardItem(invId) {
+    const inv = getInventory();
+    const entryIdx = inv.findIndex(e => e.id === invId);
+    if (entryIdx === -1) return { success: false, reason: 'Item introuvable' };
+
+    // Vérifier qu'il n'est pas équipé
+    const eq = getEquipped();
+    for (const slot of Object.keys(eq)) {
+        if (eq[slot] === invId) {
+            return { success: false, reason: 'Item équipé — déséquiper d\'abord' };
+        }
+    }
+
+    const removed = inv.splice(entryIdx, 1)[0];
+    saveInventory(inv);
+    return { success: true, removed };
+}
+window.discardItem = discardItem;
+
 function getEquippedItems() {
     const eq = getEquipped(), inv = getInventory(), result = {};
     for (const [slot, invId] of Object.entries(eq)) {
@@ -902,6 +923,12 @@ function showItemPopup(item, invId, equippedSlot) {
                     `) : '')}
                 </div>
 
+                <!-- 🗑️ Bouton supprimer (seulement si non équipé et présent dans l'inventaire) -->
+                ${(!isEquipped && invId !== null && invId !== undefined) ? `
+                <button onclick="confirmDiscardItem(${invId}, '${(item.name || '').replace(/'/g, '\\\'')}', '${r.color}')" style="width:100%;margin-top:8px;padding:10px;border-radius:11px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.25);color:#f87171;font-weight:800;cursor:pointer;font-size:0.78em;letter-spacing:0.5px;display:flex;align-items:center;justify-content:center;gap:6px;">
+                    🗑️ Supprimer cet item
+                </button>` : ''}
+
                 <button onclick="document.getElementById('itemPopupModal').remove()" style="width:100%;margin-top:8px;padding:10px;border-radius:11px;background:transparent;border:1px solid rgba(255,255,255,0.08);color:#94a3b8;font-weight:700;cursor:pointer;font-size:0.78em;">Fermer</button>
             </div>
         </div>
@@ -914,6 +941,241 @@ function showItemPopup(item, invId, equippedSlot) {
     });
 }
 window.showItemPopup = showItemPopup;
+
+// 🗑️ Modal de confirmation pour la suppression d'un item
+function confirmDiscardItem(invId, itemName, color) {
+    document.getElementById('discardConfirmModal')?.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'discardConfirmModal';
+    modal.className = 'modal active';
+    modal.style.cssText = `position:fixed;inset:0;z-index:99995;background:rgba(0,0,0,0.92);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:20px;animation:awakFadeIn 0.2s;`;
+
+    modal.innerHTML = `
+        <div style="max-width:360px;width:100%;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1.5px solid rgba(239,68,68,0.5);border-radius:16px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.7),0 0 40px rgba(239,68,68,0.2);animation:slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);">
+
+            <!-- Header rouge avec icône -->
+            <div style="background:linear-gradient(135deg,rgba(239,68,68,0.25),rgba(239,68,68,0.05));padding:18px 20px;text-align:center;border-bottom:1px solid rgba(239,68,68,0.3);">
+                <div style="font-size:2.6em;line-height:1;margin-bottom:6px;filter:drop-shadow(0 0 14px rgba(239,68,68,0.5));">🗑️</div>
+                <div style="font-weight:900;color:white;font-size:1em;letter-spacing:0.5px;margin-bottom:4px;text-transform:uppercase;">SUPPRIMER L'ITEM ?</div>
+                <div style="font-size:0.55em;color:#f87171;font-weight:900;letter-spacing:2.5px;text-transform:uppercase;">◈ ACTION IRRÉVERSIBLE ◈</div>
+            </div>
+
+            <!-- Corps -->
+            <div style="padding:18px 20px;text-align:center;">
+                <div style="font-size:0.85em;color:#cbd5e1;line-height:1.55;margin-bottom:12px;">Tu es sur le point de supprimer définitivement :</div>
+
+                <div style="background:rgba(255,255,255,0.04);border:1px solid ${color}50;border-radius:10px;padding:12px;margin-bottom:14px;">
+                    <div style="font-size:0.95em;font-weight:900;color:${color};line-height:1.3;">${itemName}</div>
+                </div>
+
+                <div style="font-size:0.72em;color:#f87171;font-weight:700;line-height:1.5;margin-bottom:16px;background:rgba(239,68,68,0.05);padding:8px 12px;border-radius:8px;border:1px solid rgba(239,68,68,0.2);">
+                    ⚠️ Cette action ne peut pas être annulée. L'item sera perdu pour toujours.
+                </div>
+
+                <!-- Boutons -->
+                <div style="display:flex;gap:8px;">
+                    <button onclick="document.getElementById('discardConfirmModal').remove()" style="flex:1;padding:12px;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#cbd5e1;font-weight:800;cursor:pointer;font-size:0.82em;letter-spacing:0.5px;">
+                        ✕ Annuler
+                    </button>
+                    <button onclick="executeDiscardItem(${invId})" style="flex:1;padding:12px;border-radius:10px;background:linear-gradient(135deg,#dc2626,#ef4444);border:1px solid #ef4444;color:white;font-weight:900;cursor:pointer;font-size:0.85em;letter-spacing:1px;text-transform:uppercase;box-shadow:0 4px 16px rgba(239,68,68,0.4);">
+                        🗑️ Supprimer
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+    modal.addEventListener('click', e => {
+        if (e.target === modal) modal.remove();
+    });
+}
+window.confirmDiscardItem = confirmDiscardItem;
+
+// Exécute la suppression après confirmation
+function executeDiscardItem(invId) {
+    const inv = getInventory();
+    const entry = inv.find(e => e.id === invId);
+    const item = entry ? getItemById(entry.itemId) : null;
+    const itemName = item ? item.name : 'Item';
+
+    const result = discardItem(invId);
+
+    // Ferme les modals
+    document.getElementById('discardConfirmModal')?.remove();
+    document.getElementById('itemPopupModal')?.remove();
+
+    if (result.success) {
+        if (typeof showToast === 'function') {
+            showToast(`🗑️ "${itemName}" supprimé`, 'info', 2000);
+        }
+        if (typeof vibrate === 'function') vibrate([30, 20, 30]);
+
+        // Re-render les vues
+        if (typeof renderAdventureTab === 'function') renderAdventureTab();
+        // Si on est dans le modal d'équipement, le re-render aussi
+        const rpgModal = document.getElementById('rpgEquipModal');
+        if (rpgModal && typeof showRPGEquipmentModal === 'function') {
+            const activeTab = rpgModal.dataset.currentTab || 'inventory';
+            rpgModal.remove();
+            showRPGEquipmentModal(activeTab);
+        }
+    } else {
+        if (typeof showToast === 'function') {
+            showToast(`⚠️ ${result.reason || 'Impossible de supprimer'}`, 'error', 2500);
+        }
+    }
+}
+window.executeDiscardItem = executeDiscardItem;
+
+// 🧹 Modal de nettoyage en masse de l'inventaire
+function openInventoryCleanupModal() {
+    document.getElementById('inventoryCleanupModal')?.remove();
+
+    const inv = getInventory();
+    const eq = getEquipped();
+    const equippedIds = new Set(Object.values(eq).filter(Boolean));
+
+    // Grouper les items par rareté (seulement non équipés)
+    const byRarity = {};
+    inv.forEach(entry => {
+        if (equippedIds.has(entry.id)) return; // skip équipés
+        const item = getItemById(entry.itemId);
+        if (!item) return;
+        const rarity = item.rarity || 'common';
+        if (!byRarity[rarity]) byRarity[rarity] = [];
+        byRarity[rarity].push({ entry, item });
+    });
+
+    // Ordre d'affichage des raretés
+    const rarityOrder = ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic'];
+    const rarityRows = rarityOrder
+        .filter(rar => byRarity[rar] && byRarity[rar].length > 0)
+        .map(rar => {
+            const r = getRarityInfo(rar);
+            const items = byRarity[rar];
+            return `<div style="background:rgba(255,255,255,0.02);border:1px solid ${r.color}40;border-radius:10px;padding:10px 12px;margin-bottom:8px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <span style="color:${r.color};font-weight:900;font-size:0.75em;letter-spacing:1.5px;text-transform:uppercase;">${r.labelFull || r.label || rar}</span>
+                        <span style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#cbd5e1;padding:2px 7px;border-radius:99px;font-size:0.6em;font-weight:800;">${items.length}</span>
+                    </div>
+                    <button onclick="confirmBulkDiscard('${rar}', ${items.length})" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:6px;padding:4px 10px;font-size:0.62em;font-weight:900;cursor:pointer;letter-spacing:0.5px;">
+                        🗑️ Tout supprimer
+                    </button>
+                </div>
+                <div style="display:flex;flex-wrap:wrap;gap:3px;">
+                    ${items.slice(0, 10).map(({item}) => `<span style="font-size:1.1em;filter:drop-shadow(0 0 4px ${r.glow});">${item.icon}</span>`).join('')}
+                    ${items.length > 10 ? `<span style="font-size:0.65em;color:#94a3b8;align-self:center;margin-left:4px;">+${items.length - 10}</span>` : ''}
+                </div>
+            </div>`;
+        })
+        .join('');
+
+    const totalNonEquipped = Object.values(byRarity).reduce((s, arr) => s + arr.length, 0);
+
+    const modal = document.createElement('div');
+    modal.id = 'inventoryCleanupModal';
+    modal.className = 'modal active';
+    modal.style.cssText = `position:fixed;inset:0;z-index:99996;background:rgba(0,0,0,0.92);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:16px;animation:awakFadeIn 0.25s;`;
+
+    modal.innerHTML = `
+        <div style="max-width:420px;width:100%;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1.5px solid rgba(239,68,68,0.4);border-radius:16px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.7),0 0 40px rgba(239,68,68,0.15);max-height:85vh;display:flex;flex-direction:column;animation:slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);">
+
+            <!-- Header -->
+            <div style="background:linear-gradient(135deg,rgba(239,68,68,0.18),rgba(239,68,68,0.04));padding:16px 20px;border-bottom:1px solid rgba(239,68,68,0.3);position:relative;flex-shrink:0;">
+                <button onclick="document.getElementById('inventoryCleanupModal').remove()" style="position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;cursor:pointer;font-size:0.9em;font-weight:700;display:flex;align-items:center;justify-content:center;">✕</button>
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <div style="font-size:2em;line-height:1;filter:drop-shadow(0 0 10px rgba(239,68,68,0.4));">🧹</div>
+                    <div>
+                        <div style="font-size:0.95em;font-weight:900;color:white;line-height:1.2;text-transform:uppercase;letter-spacing:0.5px;">Nettoyage Inventaire</div>
+                        <div style="font-size:0.62em;color:#f87171;font-weight:900;letter-spacing:2px;text-transform:uppercase;margin-top:2px;">${totalNonEquipped} items non équipés</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Corps scrollable -->
+            <div style="padding:14px 16px;overflow-y:auto;flex:1;">
+                ${rarityRows || `
+                    <div style="text-align:center;padding:30px 20px;color:#94a3b8;font-size:0.85em;">
+                        <div style="font-size:2.4em;margin-bottom:8px;opacity:0.6;">✨</div>
+                        <div style="font-weight:700;">Inventaire propre !</div>
+                        <div style="font-size:0.85em;color:#64748b;margin-top:4px;">Aucun item à nettoyer.</div>
+                    </div>
+                `}
+
+                ${totalNonEquipped > 0 ? `
+                <div style="background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.2);border-radius:8px;padding:10px 12px;margin-top:8px;font-size:0.72em;color:#f87171;line-height:1.5;">
+                    ⚠️ <strong>Action irréversible.</strong> Les items équipés sont protégés et ne peuvent pas être supprimés.
+                </div>
+                ` : ''}
+            </div>
+
+            <!-- Footer -->
+            <div style="padding:12px 16px;border-top:1px solid rgba(255,255,255,0.06);flex-shrink:0;">
+                <button onclick="document.getElementById('inventoryCleanupModal').remove()" style="width:100%;padding:11px;border-radius:9px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#cbd5e1;font-weight:800;cursor:pointer;font-size:0.82em;letter-spacing:0.5px;">
+                    Fermer
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+    modal.addEventListener('click', e => {
+        if (e.target === modal) modal.remove();
+    });
+}
+window.openInventoryCleanupModal = openInventoryCleanupModal;
+
+// Confirmation pour suppression en masse par rareté
+function confirmBulkDiscard(rarity, count) {
+    const r = getRarityInfo(rarity);
+    if (!confirm(`⚠️ Supprimer définitivement ${count} item(s) de rareté ${(r.labelFull || r.label || rarity).toUpperCase()} ?\n\nCette action est irréversible.`)) {
+        return;
+    }
+
+    const inv = getInventory();
+    const eq = getEquipped();
+    const equippedIds = new Set(Object.values(eq).filter(Boolean));
+
+    let removedCount = 0;
+    const newInv = inv.filter(entry => {
+        if (equippedIds.has(entry.id)) return true; // garde équipés
+        const item = getItemById(entry.itemId);
+        if (!item) return true;
+        const itemRarity = item.rarity || 'common';
+        if (itemRarity === rarity) {
+            removedCount++;
+            return false;
+        }
+        return true;
+    });
+
+    saveInventory(newInv);
+
+    if (typeof showToast === 'function') {
+        showToast(`🗑️ ${removedCount} item(s) ${(r.label || rarity)} supprimé(s)`, 'info', 2500);
+    }
+    if (typeof vibrate === 'function') vibrate([40, 30, 60]);
+
+    // Re-render le modal de nettoyage
+    document.getElementById('inventoryCleanupModal')?.remove();
+    openInventoryCleanupModal();
+
+    // Re-render le modal d'équipement
+    const rpgModal = document.getElementById('rpgEquipModal');
+    if (rpgModal && typeof showRPGEquipmentModal === 'function') {
+        const activeTab = rpgModal.dataset.currentTab || 'inventory';
+        rpgModal.remove();
+        showRPGEquipmentModal(activeTab);
+    }
+
+    if (typeof renderAdventureTab === 'function') renderAdventureTab();
+}
+window.confirmBulkDiscard = confirmBulkDiscard;
+
+
 
 function showRPGEquipmentModal(defaultTab) {
     document.getElementById('rpgEquipModal')?.remove();
@@ -1217,6 +1479,9 @@ function showRPGEquipmentModal(defaultTab) {
                        border:1px solid rgba(34,197,94,0.18);border-radius:14px;position:relative;
                        padding:18px 6px 10px;margin-bottom:14px;">
                 <div style="position:absolute;top:6px;left:10px;font-size:0.5em;color:#22c55e;font-weight:800;letter-spacing:2px;">◈ INVENTAIRE</div>
+                <button onclick="openInventoryCleanupModal()" style="position:absolute;top:4px;right:6px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:6px;padding:3px 9px;font-size:0.55em;font-weight:900;letter-spacing:1.5px;cursor:pointer;text-transform:uppercase;display:flex;align-items:center;gap:4px;">
+                    🗑️ Nettoyer
+                </button>
                 ${renderInventoryGrid()}
             </div>
 

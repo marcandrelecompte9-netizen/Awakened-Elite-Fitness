@@ -10016,39 +10016,57 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 return;
             }
             log.style.display = 'block';
+
+            // Style container global cyberpunk
+            log.style.cssText = 'display:block;margin-bottom:12px;padding:10px 12px;background:linear-gradient(160deg,#020510,#0a0e18);border:1px solid rgba(74,222,128,0.25);border-radius:10px;position:relative;';
+
             const unit = useKg ? 'kg' : 'lbs';
             const exName = currentWorkout?.exercises?.[currentExerciseIndex];
             const exKey  = exName ? (exName._baseName || exName.name) : null;
 
-            log.innerHTML = completedSets.map((s, i) => {
+            const headerHTML = `<div style="font-size:0.55em;color:#4ade80;font-weight:900;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:8px;text-shadow:0 0 6px rgba(74,222,128,0.4);">◈ HISTORIQUE DES SÉRIES</div>`;
+
+            const rowsHTML = completedSets.map((s, i) => {
                 const isWarmup = s.warmup;
                 const workSetNum = isWarmup ? 0 : completedSets.filter((x,j)=>!x.warmup&&j<=i).length;
                 const wText = s.weight > 0 ? ` × ${s.weight} ${unit}` : '';
-                let label = isWarmup ? '🔥 Échauffement' : `✅ Série ${workSetNum}`;
+
+                // Couleurs selon type
+                const bgRow = isWarmup
+                    ? 'linear-gradient(90deg,rgba(251,191,36,0.08),rgba(251,191,36,0.02))'
+                    : 'linear-gradient(90deg,rgba(34,197,94,0.1),rgba(34,197,94,0.02))';
+                const borderLeft = isWarmup ? '#fbbf24' : '#4ade80';
+                const labelColor = isWarmup ? '#fbbf24' : '#4ade80';
+
+                let label = isWarmup
+                    ? `🔥 ÉCHAUFFEMENT`
+                    : `✓ SÉRIE ${workSetNum}`;
                 let cmpBadge = '';
                 let prBadge  = '';
 
                 // PR badges
                 if (s._pr && s._pr.length > 0) {
                     const icons = { weight:'🏆', reps:'💪', volume:'📊' };
-                    prBadge = `<span style="background:linear-gradient(135deg,#fbbf24,#d97706);color:white;padding:1px 6px;border-radius:99px;font-size:0.65em;font-weight:900;letter-spacing:0.5px;">${s._pr.map(t => icons[t] || '🏆').join('')} PR</span>`;
+                    prBadge = `<span style="background:linear-gradient(135deg,#fbbf24,#d97706);color:white;padding:2px 7px;border-radius:4px;font-size:0.6em;font-weight:900;letter-spacing:1px;box-shadow:0 0 8px rgba(251,191,36,0.5);text-transform:uppercase;">${s._pr.map(t => icons[t] || '🏆').join('')} PR</span>`;
                 }
 
                 // Comparaison avec dernière séance
                 if (!isWarmup && exKey && s.weight > 0) {
                     const cmp = getComparisonIndicator(exKey, workSetNum, s.reps, s.weight);
                     if (cmp) {
-                        if (cmp.dir === 'up')      cmpBadge = `<span style="color:#22c55e;font-size:0.72em;font-weight:900;" title="Mieux que ${cmp.prev.weight}kg × ${cmp.prev.reps}">↑</span>`;
-                        else if (cmp.dir === 'down') cmpBadge = `<span style="color:#f87171;font-size:0.72em;font-weight:900;" title="Inférieur à ${cmp.prev.weight}kg × ${cmp.prev.reps}">↓</span>`;
-                        else if (cmp.dir === 'same') cmpBadge = `<span style="color:#94a3b8;font-size:0.7em;font-weight:700;" title="Identique à la dernière fois">=</span>`;
+                        if (cmp.dir === 'up')      cmpBadge = `<span style="color:#4ade80;font-size:0.82em;font-weight:900;text-shadow:0 0 6px rgba(74,222,128,0.5);" title="Mieux que ${cmp.prev.weight}kg × ${cmp.prev.reps}">▲</span>`;
+                        else if (cmp.dir === 'down') cmpBadge = `<span style="color:#f87171;font-size:0.82em;font-weight:900;text-shadow:0 0 6px rgba(248,113,113,0.5);" title="Inférieur à ${cmp.prev.weight}kg × ${cmp.prev.reps}">▼</span>`;
+                        else if (cmp.dir === 'same') cmpBadge = `<span style="color:#64748b;font-size:0.75em;font-weight:900;" title="Identique à la dernière fois">═</span>`;
                     }
                 }
 
-                return `<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 8px;background:rgba(255,255,255,0.1);border-radius:8px;margin-bottom:4px;font-size:0.82em;font-weight:600;color:#ffffff;gap:6px;">
-                    <span style="display:flex;align-items:center;gap:6px;">${label}${cmpBadge}${prBadge}</span>
-                    <span>${s.reps > 0 ? s.reps + ' reps' + wText : 'Complétée'}</span>
+                return `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:${bgRow};border-left:3px solid ${borderLeft};border-radius:0 6px 6px 0;margin-bottom:4px;font-size:0.78em;font-weight:700;color:#e2e8f0;gap:8px;">
+                    <span style="display:flex;align-items:center;gap:8px;color:${labelColor};letter-spacing:0.5px;text-transform:uppercase;font-size:0.92em;">${label}${cmpBadge}${prBadge}</span>
+                    <span style="font-variant-numeric:tabular-nums;color:white;font-weight:900;">${s.reps > 0 ? s.reps + ' reps' + wText : '✓ OK'}</span>
                 </div>`;
             }).join('');
+
+            log.innerHTML = headerHTML + rowsHTML;
         }
 
         // ── VOLUME HEBDOMADAIRE PAR MUSCLE ─────────────────────
@@ -18404,41 +18422,72 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 const item = document.createElement('div');
                 item.className = 'progress-item';
                 item.id = `progress-item-${index}`;
-                
-                if (index < currentExerciseIndex) {
-                    item.classList.add('completed');
-                } else if (index === currentExerciseIndex) {
-                    item.classList.add('current');
+
+                const isCompleted = index < currentExerciseIndex;
+                const isCurrent = index === currentExerciseIndex;
+                const isUpcoming = index > currentExerciseIndex;
+
+                if (isCompleted) item.classList.add('completed');
+                else if (isCurrent) item.classList.add('current');
+                else item.classList.add('upcoming');
+
+                // Style cyberpunk dynamique
+                let bg, border, iconColor, iconBg, textColor, glow;
+                if (isCompleted) {
+                    bg = 'linear-gradient(90deg,rgba(34,197,94,0.06),transparent)';
+                    border = 'rgba(74,222,128,0.35)';
+                    iconColor = '#4ade80';
+                    iconBg = 'rgba(34,197,94,0.18)';
+                    textColor = 'rgba(74,222,128,0.7)';
+                    glow = '';
+                } else if (isCurrent) {
+                    bg = 'linear-gradient(90deg,rgba(34,197,94,0.18),rgba(74,222,128,0.06))';
+                    border = '#4ade80';
+                    iconColor = 'white';
+                    iconBg = 'linear-gradient(135deg,#16a34a,#22c55e,#4ade80)';
+                    textColor = 'white';
+                    glow = 'box-shadow:0 0 16px rgba(74,222,128,0.3),inset 0 0 12px rgba(74,222,128,0.04);';
                 } else {
-                    item.classList.add('upcoming');
+                    bg = 'rgba(255,255,255,0.02)';
+                    border = 'rgba(255,255,255,0.08)';
+                    iconColor = '#475569';
+                    iconBg = 'rgba(255,255,255,0.04)';
+                    textColor = '#94a3b8';
+                    glow = '';
                 }
-                
+
+                item.style.cssText = `display:flex;align-items:center;gap:10px;padding:9px 11px;background:${bg};border:1px solid ${border};border-radius:8px;margin-bottom:5px;transition:all 0.2s;${glow}`;
+
                 const minutes = Math.floor(exercise.duration / 60);
                 const seconds = exercise.duration % 60;
-                const durationText = minutes > 0 ? `${minutes}:${String(seconds).padStart(2, '0')} min` : `${seconds}s`;
-                
+                const durationText = minutes > 0 ? `${minutes}:${String(seconds).padStart(2, '0')}` : `${seconds}s`;
+
                 // Find exercise type from database to add badge
                 const exerciseFromDB = exerciseDatabase.find(ex => ex.name === exercise.name);
                 let exerciseNameHTML = exercise.name;
-                
+                let typeBadge = '';
+
                 if (exerciseFromDB) {
                     if (exerciseFromDB.type === 'warmup') {
-                        exerciseNameHTML = `<span style="display: inline-block; background: #fbbf24; color: white; padding: 2px 6px; border-radius: 8px; font-size: 0.7em; margin-right: 5px;">🏃‍♂️</span>${exercise.name}`;
+                        typeBadge = `<span style="display:inline-block;background:rgba(251,191,36,0.15);border:1px solid rgba(251,191,36,0.4);color:#fbbf24;padding:1px 5px;border-radius:4px;font-size:0.55em;font-weight:900;letter-spacing:1px;margin-right:5px;text-transform:uppercase;">🏃 ÉCHAUF.</span>`;
                     } else if (exerciseFromDB.type === 'stretch') {
-                        exerciseNameHTML = `<span style="display: inline-block; background: #22c55e; color: white; padding: 2px 6px; border-radius: 8px; font-size: 0.7em; margin-right: 5px;">🧘</span>${exercise.name}`;
+                        typeBadge = `<span style="display:inline-block;background:rgba(34,197,94,0.15);border:1px solid rgba(74,222,128,0.4);color:#4ade80;padding:1px 5px;border-radius:4px;font-size:0.55em;font-weight:900;letter-spacing:1px;margin-right:5px;text-transform:uppercase;">🧘 ÉTIR.</span>`;
                     }
                 }
-                
+
+                const checkIcon = isCompleted ? '✓' : isCurrent ? '▶' : (index + 1);
+                const iconShadow = isCurrent ? 'box-shadow:0 0 12px rgba(74,222,128,0.5);' : '';
+
                 item.innerHTML = `
-                    <div class="progress-checkbox">
-                        ${index < currentExerciseIndex ? '✓' : index === currentExerciseIndex ? '▶' : ''}
+                    <div class="progress-checkbox" style="width:32px;height:32px;border-radius:7px;background:${iconBg};color:${iconColor};display:flex;align-items:center;justify-content:center;font-size:0.85em;font-weight:900;flex-shrink:0;${iconShadow}border:1px solid ${border};">
+                        ${checkIcon}
                     </div>
-                    <div class="progress-item-content">
-                        <div class="progress-item-name">${exerciseNameHTML}</div>
-                        <div class="progress-item-duration">${durationText}</div>
+                    <div class="progress-item-content" style="flex:1;min-width:0;">
+                        <div class="progress-item-name" style="font-size:0.85em;font-weight:${isCurrent ? '900' : '700'};color:${textColor};line-height:1.3;letter-spacing:${isCurrent ? '0.3px' : '0'};${isCurrent ? 'text-transform:uppercase;text-shadow:0 0 6px rgba(74,222,128,0.3);' : ''}">${typeBadge}${exerciseNameHTML}</div>
+                        <div class="progress-item-duration" style="font-size:0.62em;color:${isCompleted ? 'rgba(74,222,128,0.5)' : isCurrent ? '#4ade80' : '#64748b'};font-weight:700;margin-top:2px;letter-spacing:0.5px;font-variant-numeric:tabular-nums;">⏱ ${durationText}</div>
                     </div>
                 `;
-                
+
                 container.appendChild(item);
             });
             
@@ -18496,7 +18545,96 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             }
         }
 
+        // ═══════════════════════════════════════════════════════════════
+        // ⏱ CHRONO SESSION TOTAL (temps depuis le début de la séance)
+        // ═══════════════════════════════════════════════════════════════
+        let _sessionTimerInterval = null;
+        function _updateSessionTimerDisplay() {
+            const el = document.getElementById('sessionTimerValue');
+            if (!el || !workoutStartTime) return;
+            const elapsedSec = Math.floor((Date.now() - workoutStartTime) / 1000);
+            const hh = Math.floor(elapsedSec / 3600);
+            const mm = Math.floor((elapsedSec % 3600) / 60);
+            const ss = elapsedSec % 60;
+            const pad = (n) => String(n).padStart(2, '0');
+            el.textContent = hh > 0
+                ? `${hh}:${pad(mm)}:${pad(ss)}`
+                : `${pad(mm)}:${pad(ss)}`;
+        }
+        function startSessionTimer() {
+            stopSessionTimer();
+            _updateSessionTimerDisplay();
+            _sessionTimerInterval = setInterval(_updateSessionTimerDisplay, 1000);
+        }
+        function stopSessionTimer() {
+            if (_sessionTimerInterval) {
+                clearInterval(_sessionTimerInterval);
+                _sessionTimerInterval = null;
+            }
+        }
+        window.startSessionTimer = startSessionTimer;
+        window.stopSessionTimer = stopSessionTimer;
+
+        // ═══════════════════════════════════════════════════════════════
+        // 📝 NOTES PERSONNELLES par exercice (persistant entre séances)
+        // ═══════════════════════════════════════════════════════════════
+        function _getExerciseNotesKey() {
+            const pid = (typeof getCurrentProfileId === 'function') ? getCurrentProfileId() : null;
+            return `exerciseNotes_${pid || 'default'}`;
+        }
+        function _loadAllExerciseNotes() {
+            try { return JSON.parse(localStorage.getItem(_getExerciseNotesKey()) || '{}'); }
+            catch(e) { return {}; }
+        }
+        function _saveAllExerciseNotes(notes) {
+            try { localStorage.setItem(_getExerciseNotesKey(), JSON.stringify(notes)); } catch(e) {}
+        }
+        function loadExerciseNoteForCurrent() {
+            const textarea = document.getElementById('exerciseNotesInput');
+            if (!textarea || !currentWorkout) return;
+            const ex = currentWorkout.exercises[currentExerciseIndex];
+            if (!ex) return;
+            const exKey = ex._baseName || ex.name;
+            const notes = _loadAllExerciseNotes();
+            textarea.value = notes[exKey] || '';
+        }
+        window.loadExerciseNoteForCurrent = loadExerciseNoteForCurrent;
+
+        let _noteSaveTimer = null;
+        function saveCurrentExerciseNote() {
+            const textarea = document.getElementById('exerciseNotesInput');
+            if (!textarea || !currentWorkout) return;
+            const ex = currentWorkout.exercises[currentExerciseIndex];
+            if (!ex) return;
+            const exKey = ex._baseName || ex.name;
+            const value = textarea.value.trim();
+
+            // Debounce de sauvegarde
+            if (_noteSaveTimer) clearTimeout(_noteSaveTimer);
+            _noteSaveTimer = setTimeout(() => {
+                const notes = _loadAllExerciseNotes();
+                if (value) {
+                    notes[exKey] = value;
+                } else {
+                    delete notes[exKey];
+                }
+                _saveAllExerciseNotes(notes);
+
+                // Feedback visuel "✓ ENREGISTRÉ"
+                const indicator = document.getElementById('exerciseNotesSavedIndicator');
+                if (indicator) {
+                    indicator.style.display = 'inline-block';
+                    setTimeout(() => { indicator.style.display = 'none'; }, 1500);
+                }
+            }, 500);
+        }
+        window.saveCurrentExerciseNote = saveCurrentExerciseNote;
+
         function startExercise() {
+            // ⏱ Démarrer le chrono de session si pas déjà actif
+            if (typeof startSessionTimer === 'function' && workoutStartTime) {
+                if (!_sessionTimerInterval) startSessionTimer();
+            }
             if (currentExerciseIndex >= currentWorkout.exercises.length) {
                 completeWorkout();
                 return;
@@ -18647,9 +18785,35 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         'Cardio': '❤️',
                         'Corps entier': '🤸‍♂️'
                     };
-                    const emoji = muscleEmojis[exerciseFromDB.muscle] || '💪';
-                    muscleBadge.innerHTML = `${emoji} ${exerciseFromDB.muscle}`;
-                    muscleBadge.style.display = 'inline-block';
+
+                    // 🎯 Construction des pills séparées : muscle principal + secondaires
+                    const allMuscles = [exerciseFromDB.muscle];
+                    if (Array.isArray(exerciseFromDB.secondaryMuscles)) {
+                        exerciseFromDB.secondaryMuscles.forEach(m => {
+                            if (m && !allMuscles.includes(m)) allMuscles.push(m);
+                        });
+                    }
+
+                    const pills = allMuscles.map((muscle, idx) => {
+                        const emoji = muscleEmojis[muscle] || '💪';
+                        const isPrimary = idx === 0;
+                        const bg = isPrimary ? 'rgba(34,197,94,0.18)' : 'rgba(34,197,94,0.06)';
+                        const border = isPrimary ? 'rgba(74,222,128,0.6)' : 'rgba(74,222,128,0.3)';
+                        const color = isPrimary ? '#4ade80' : '#94e8b0';
+                        const glow = isPrimary ? 'box-shadow:0 0 10px rgba(74,222,128,0.2);' : '';
+                        return `<span style="display:inline-flex;align-items:center;gap:4px;background:${bg};border:1px solid ${border};color:${color};padding:5px 11px;border-radius:99px;font-size:0.7em;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;${glow}">
+                            <span style="font-size:0.95em;line-height:1;">${emoji}</span>
+                            <span>${muscle}</span>
+                        </span>`;
+                    }).join('');
+
+                    // Container flexbox pour aligner les pills avec un séparateur " · "
+                    muscleBadge.innerHTML = `<div style="display:inline-flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center;">${pills}</div>`;
+                    muscleBadge.style.display = 'block';
+                    muscleBadge.style.background = 'transparent';
+                    muscleBadge.style.border = 'none';
+                    muscleBadge.style.padding = '0';
+                    muscleBadge.style.boxShadow = 'none';
                 } else {
                     muscleBadge.style.display = 'none';
                 }
@@ -18697,6 +18861,25 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     equipmentBadges.innerHTML = '';
                     equipmentBadges.style.display = 'none';
                 }
+            }
+
+            // 🏋️ Mise à jour du chip "Type de résistance" dans la card SÉRIE
+            const resistanceChip = document.getElementById('resistanceTypeChip');
+            const resistanceText = document.getElementById('resistanceTypeText');
+            if (resistanceChip && resistanceText) {
+                if (exerciseFromDB && exerciseFromDB.equipment && exerciseFromDB.equipment.length > 0 && !exercise.isRest && !exercise.isInfo) {
+                    // Prendre le premier équipement (= résistance principale)
+                    const mainEquip = exerciseFromDB.equipment[0];
+                    resistanceText.textContent = mainEquip;
+                    resistanceChip.style.display = 'block';
+                } else {
+                    resistanceChip.style.display = 'none';
+                }
+            }
+
+            // 📝 Charger les notes personnelles pour cet exercice
+            if (typeof loadExerciseNoteForCurrent === 'function' && !exercise.isRest && !exercise.isInfo) {
+                setTimeout(loadExerciseNoteForCurrent, 50);
             }
             
             // SPECIAL DISPLAY FOR REST PERIODS — overlay plein écran
@@ -20565,7 +20748,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     <div style="margin-bottom:14px;">
                         <div style="display:flex;justify-content:space-between;margin-bottom:5px;font-size:0.65em;font-weight:700;">
                             <span style="color:${awakRank.color};">Rang ${awakRank.id}</span>
-                            <span style="color:#94a3b8;">${awakProgress.pointsNeeded} pts → ${awakNext.id}</span>
+                            <span style="color:#94a3b8;">${awakProgress.pointsNeeded} niv. → ${awakNext.id}</span>
                             <span style="color:${awakNext.color};">${awakNext.id}</span>
                         </div>
                         <div style="background:rgba(255,255,255,0.05);height:6px;border-radius:99px;overflow:hidden;">
@@ -21945,48 +22128,63 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
          * RANG E → S basé sur Power Score
          * Plus simple que les 9 rangs Solo Leveling, plus thématique
          */
+        // 🌌 RANGS basés sur le NIVEAU du joueur (et non plus sur le Power Score)
+        // Logique : plus tu prends des niveaux (= XP cumulé via séances), plus ton rang monte
         const AWAKENED_RANKS = [
-            { id: 'E', name: 'Rang E', threshold:    0, color: '#94a3b8', emoji: '◦',  desc: 'Anomalie détectée' },
-            { id: 'D', name: 'Rang D', threshold:  500, color: '#10b981', emoji: '◆',  desc: 'Premier seuil' },
-            { id: 'C', name: 'Rang C', threshold: 1200, color: '#3b82f6', emoji: '◆◆', desc: 'Stable' },
-            { id: 'B', name: 'Rang B', threshold: 2200, color: '#a855f7', emoji: '◇◇◆', desc: 'Confirmé' },
-            { id: 'A', name: 'Rang A', threshold: 3800, color: '#f59e0b', emoji: '✦✦✦', desc: 'Élite' },
-            { id: 'S', name: 'Rang S', threshold: 6500, color: '#ef4444', emoji: '✦S✦', desc: 'Exception cosmique' }
+            { id: 'E',   name: 'Rang E',   threshold:   1, color: '#94a3b8', emoji: '◦',    desc: 'Anomalie détectée' },
+            { id: 'D',   name: 'Rang D',   threshold:  10, color: '#10b981', emoji: '◆',    desc: 'Premier seuil' },
+            { id: 'C',   name: 'Rang C',   threshold:  20, color: '#3b82f6', emoji: '◆◆',   desc: 'Stable' },
+            { id: 'B',   name: 'Rang B',   threshold:  35, color: '#a855f7', emoji: '◇◇◆',  desc: 'Confirmé' },
+            { id: 'A',   name: 'Rang A',   threshold:  55, color: '#f59e0b', emoji: '✦✦✦',  desc: 'Élite' },
+            { id: 'S',   name: 'Rang S',   threshold:  80, color: '#ef4444', emoji: '✦S✦',  desc: 'Exception cosmique' },
+            { id: 'SS',  name: 'Rang SS',  threshold: 120, color: '#ec4899', emoji: '✦SS✦', desc: 'Légende vivante' },
+            { id: 'SSS', name: 'Rang SSS', threshold: 200, color: '#fbbf24', emoji: '✦SSS✦', desc: 'Au-delà des limites' }
         ];
 
+        // Helper : récupère le niveau actuel du joueur
+        function _awakGetCurrentLevel() {
+            try {
+                const rpg = (typeof rpgLoad === 'function') ? rpgLoad() : null;
+                const lifetimeXP = (rpg && rpg.profile && rpg.profile.lifetimeXP) || (rpg && rpg.profile && rpg.profile.xp) || 0;
+                return (typeof rpgLevelFromXP === 'function') ? rpgLevelFromXP(lifetimeXP) : 1;
+            } catch(e) { return 1; }
+        }
+
         function awakGetRank() {
-            const power = awakGetPowerScore();
-            // Trouver le rang le plus élevé atteint
+            const level = _awakGetCurrentLevel();
+            // Trouver le rang le plus élevé atteint selon le NIVEAU
             let current = AWAKENED_RANKS[0];
             for (const rank of AWAKENED_RANKS) {
-                if (power >= rank.threshold) current = rank;
+                if (level >= rank.threshold) current = rank;
             }
             return current;
         }
         window.awakGetRank = awakGetRank;
 
         function awakGetNextRank() {
-            const power = awakGetPowerScore();
+            const level = _awakGetCurrentLevel();
             for (const rank of AWAKENED_RANKS) {
-                if (power < rank.threshold) return rank;
+                if (level < rank.threshold) return rank;
             }
             return null; // Rang max atteint
         }
         window.awakGetNextRank = awakGetNextRank;
 
         function awakGetRankProgress() {
+            const level = _awakGetCurrentLevel();
             const power = awakGetPowerScore();
             const current = awakGetRank();
             const next = awakGetNextRank();
-            if (!next) return { percent: 100, current, next: null, power };
+            if (!next) return { percent: 100, current, next: null, power, level, pointsNeeded: 0 };
             const range = next.threshold - current.threshold;
-            const progress = power - current.threshold;
+            const progress = level - current.threshold;
             return {
                 percent: Math.min(100, Math.max(0, Math.round((progress / range) * 100))),
                 current,
                 next,
                 power,
-                pointsNeeded: Math.max(0, next.threshold - power)
+                level,
+                pointsNeeded: Math.max(0, next.threshold - level) // niveaux restants avant prochain rang
             };
         }
         window.awakGetRankProgress = awakGetRankProgress;
@@ -22723,10 +22921,11 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const modal = document.createElement('div');
             modal.className = 'modal active';
             modal.id = 'awakRiftBriefingModal';
-            modal.style.cssText = 'background:rgba(0,0,0,0.9);backdrop-filter:blur(12px);';
+            // 📱 Fix mobile : scroll fiable avec align-items:flex-start sur petits écrans
+            modal.style.cssText = 'background:rgba(0,0,0,0.9);backdrop-filter:blur(12px);align-items:flex-start;padding:12px 12px 40px;overflow-y:auto;-webkit-overflow-scrolling:touch;';
 
             modal.innerHTML = `
-            <div class="modal-content" style="max-width:520px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:hidden;border-radius:20px;">
+            <div class="modal-content" style="max-width:520px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto 0;">
                 <!-- Header thématique -->
                 <div style="background:linear-gradient(135deg,${theme.color}25,${theme.color}05);padding:24px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
@@ -22893,7 +23092,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const modal = document.createElement('div');
             modal.id = 'awakRiftCombatModal';
             modal.className = 'modal active';
-            modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(8px);';
+            // 📱 Fix mobile : scroll fiable
+            modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(8px);align-items:flex-start;padding:12px 12px 40px;overflow-y:auto;-webkit-overflow-scrolling:touch;';
 
             // Exercices proposés (filtrés par thème)
             const exercises = awakGetExercisesForRift(rift, 4);
@@ -22902,7 +23102,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const hpColor = hpPercent > 60 ? '#22c55e' : hpPercent > 30 ? '#f59e0b' : '#ef4444';
 
             modal.innerHTML = `
-            <div class="modal-content" style="max-width:540px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:hidden;border-radius:20px;max-height:92vh;display:flex;flex-direction:column;">
+            <div class="modal-content" style="max-width:540px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto 0;display:flex;flex-direction:column;">
                 <!-- Header : vague actuelle -->
                 <div style="background:linear-gradient(135deg,${theme.color}20,transparent);padding:18px 20px;border-bottom:1px solid ${theme.color}25;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
@@ -25294,7 +25494,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     <div style="margin-bottom:18px;">
                         <div style="display:flex;justify-content:space-between;margin-bottom:5px;font-size:0.7em;font-weight:700;">
                             <span style="color:${rank.color};">${rank.id}</span>
-                            <span style="color:#94a3b8;">${progress.pointsNeeded} pts vers ${next.id}</span>
+                            <span style="color:#94a3b8;">${progress.pointsNeeded} niveaux vers ${next.id}</span>
                             <span style="color:${next.color};">${next.id}</span>
                         </div>
                         <div style="background:rgba(255,255,255,0.05);height:8px;border-radius:99px;overflow:hidden;border:1px solid rgba(255,255,255,0.05);">
@@ -28274,6 +28474,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             // Clear ALL timers
             clearInterval(timerInterval);
             clearInterval(cardioInterval);
+            if (typeof stopSessionTimer === 'function') stopSessionTimer();
             if (amrapTimerInterval) {
                 clearInterval(amrapTimerInterval);
                 amrapTimerInterval = null;
