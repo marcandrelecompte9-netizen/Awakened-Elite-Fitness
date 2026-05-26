@@ -18636,6 +18636,23 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 if (!_sessionTimerInterval) startSessionTimer();
             }
             if (currentExerciseIndex >= currentWorkout.exercises.length) {
+                // 🌀 RIFT/HUNT : ne PAS appeler completeWorkout (qui affiche l'écran de fin de séance)
+                // À la place, forcer l'exit propre et retourner au modal combat
+                if (currentWorkout && (currentWorkout._isRift || currentWorkout._isHunt)) {
+                    console.log('⚠ Rift/Hunt : éviter completeWorkout, force exit');
+                    const isRift = currentWorkout._isRift;
+                    if (typeof _forceExitRiftSession === 'function') {
+                        _forceExitRiftSession();
+                    }
+                    setTimeout(() => {
+                        if (isRift && typeof awakShowRiftCombatScreen === 'function') {
+                            awakShowRiftCombatScreen();
+                        } else if (!isRift && typeof awakShowHuntScreen === 'function') {
+                            awakShowHuntScreen();
+                        }
+                    }, 300);
+                    return;
+                }
                 completeWorkout();
                 return;
             }
@@ -19354,7 +19371,77 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         vibrate(200);
                         playSound();
                         speak("Exercice terminé");
-                        
+
+                        // 🌀 RIFT/HUNT : 1 timer fini = 1 attaque infligée, retour combat
+                        if (currentWorkout && (currentWorkout._isRift || currentWorkout._isHunt)) {
+                            window._riftEndingFlow = true; // 🔒 lock
+
+                            const isRift = currentWorkout._isRift;
+                            const _timerEx = currentWorkout?.exercises?.[currentExerciseIndex];
+                            // Équivalent reps = durée / 3 (ex: 30s → ~10 reps de dégâts)
+                            const equivReps = Math.max(5, Math.round((_timerEx?.duration || 30) / 3));
+
+                            // Infliger les dégâts directement
+                            try {
+                                let damageResult = null;
+                                if (isRift && typeof awakDealDamageToWave === 'function' && awakActiveRiftSession) {
+                                    damageResult = awakDealDamageToWave(equivReps, 0);
+                                } else if (!isRift && typeof awakDealDamageToMonster === 'function' && awakActiveHuntSession) {
+                                    damageResult = awakDealDamageToMonster(equivReps, 0);
+                                }
+                                if (damageResult) {
+                                    const symbol = isRift ? '⚔' : '🎯';
+                                    const dmgText = damageResult.isCrit
+                                        ? `💥 CRIT! -${damageResult.damage} HP`
+                                        : `${symbol} -${damageResult.damage} HP`;
+                                    showToast(dmgText, damageResult.isCrit ? 'success' : 'info', 1800);
+                                    if (typeof hapticTap === 'function') hapticTap(damageResult.isCrit ? [40, 30, 60] : 25);
+
+                                    const monsterKilled = damageResult.killed;
+                                    setTimeout(() => {
+                                        showToast(monsterKilled
+                                            ? (isRift ? '💀 Vague éliminée !' : '💀 Monstre éliminé !')
+                                            : '⚔ Attaque terminée — retour au combat',
+                                            'success', 1800);
+
+                                        if (typeof _forceExitRiftSession === 'function') {
+                                            _forceExitRiftSession();
+                                        }
+                                        setTimeout(() => {
+                                            if (monsterKilled) {
+                                                if (isRift && typeof awakAdvanceToNextWave === 'function') {
+                                                    awakAdvanceToNextWave();
+                                                } else if (!isRift && typeof awakCompleteHunt === 'function') {
+                                                    awakCompleteHunt();
+                                                }
+                                            } else {
+                                                if (isRift && typeof awakShowRiftCombatScreen === 'function') {
+                                                    awakShowRiftCombatScreen();
+                                                } else if (!isRift && typeof awakShowHuntScreen === 'function') {
+                                                    awakShowHuntScreen();
+                                                }
+                                            }
+                                            window._riftEndingFlow = false;
+                                        }, 500);
+                                    }, 1200);
+                                } else {
+                                    // Aucun damage — sortir quand même
+                                    showToast('⚠️ Aucun dégât infligé', 'warning', 1500);
+                                    if (typeof _forceExitRiftSession === 'function') _forceExitRiftSession();
+                                    setTimeout(() => {
+                                        if (isRift && typeof awakShowRiftCombatScreen === 'function') {
+                                            awakShowRiftCombatScreen();
+                                        }
+                                        window._riftEndingFlow = false;
+                                    }, 800);
+                                }
+                            } catch(e) {
+                                console.error('Rift timer error:', e);
+                                window._riftEndingFlow = false;
+                            }
+                            return; // ⛔ Ne PAS poursuivre avec le flow séance normale
+                        }
+
                         // Auto-advance to next exercise (no feedback modal)
                         // 🎮 Gain XP RPG pour mode timer — capturer l'index AVANT incrément
                         if (rpgEnabled()) {
