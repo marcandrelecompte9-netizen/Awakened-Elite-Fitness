@@ -4567,43 +4567,71 @@
             position: sticky; top: 0; background: white; z-index: 1;
         }
         .swap-section-title {
-            font-size: 0.72em; font-weight: 700; text-transform: uppercase;
-            letter-spacing: 1px; color: #9ca3af; padding: 12px 20px 6px;
+            font-size: 0.72em; font-weight: 900; text-transform: uppercase;
+            letter-spacing: 2px; color: #4ade80; padding: 12px 20px 6px;
+            text-shadow: 0 0 6px rgba(74,222,128,0.3);
         }
         .swap-card {
             display: flex; align-items: center; gap: 14px;
             padding: 14px 20px; cursor: pointer;
             transition: background 0.15s;
-            border-bottom: 1px solid #f9f9f9;
+            border-bottom: 1px solid rgba(74,222,128,0.08);
         }
-        .swap-card:hover { background: #FFF3E0; }
-        .swap-card:active { background: #FFF3E0; }
+        .swap-card:hover { background: rgba(34,197,94,0.06); }
+        .swap-card:active { background: rgba(34,197,94,0.1); }
         .swap-card-img {
             width: 56px; height: 56px; border-radius: 12px;
-            background: linear-gradient(135deg,#1A0A00,#166534);
+            background: linear-gradient(135deg,#0a0e18,#020510);
+            border: 1px solid rgba(74,222,128,0.25);
             flex-shrink: 0; overflow: hidden;
         }
         .swap-card-img svg { width: 100%; height: 100%; }
         .swap-card-info { flex: 1; min-width: 0; }
         .swap-card-name {
-            font-weight: 700; font-size: 0.97em;
-            color: #0F1014; margin-bottom: 3px;
+            font-weight: 800; font-size: 0.97em;
+            color: white; margin-bottom: 3px;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
         .swap-card-meta {
-            font-size: 0.8em; color: #6b7280;
+            font-size: 0.8em; color: #94a3b8;
             display: flex; gap: 8px; flex-wrap: wrap;
         }
         .swap-badge {
-            padding: 2px 8px; border-radius: 99px;
-            font-size: 0.78em; font-weight: 600;
+            padding: 3px 10px; border-radius: 99px;
+            font-size: 0.74em; font-weight: 900;
+            letter-spacing: 0.5px;
+            border: 1px solid;
         }
-        .swap-badge-same  { background: #d1fae5; color: #065f46; }
-        .swap-badge-other { background: #fef3c7; color: #92400e; }
-        .swap-badge-diff  { background: #fee2e2; color: #991b1b; }
-        .swap-badge-easier { background: #FFF3E0; color: #166534; }
+        /* Vert vif pour Équipement identique */
+        .swap-badge-same  {
+            background: rgba(34,197,94,0.15);
+            color: #4ade80;
+            border-color: rgba(74,222,128,0.5);
+            text-shadow: 0 0 6px rgba(74,222,128,0.4);
+        }
+        /* Jaune vif pour Équipement différent (dispo) */
+        .swap-badge-other {
+            background: rgba(251,191,36,0.15);
+            color: #fbbf24;
+            border-color: rgba(251,191,36,0.5);
+            text-shadow: 0 0 6px rgba(251,191,36,0.4);
+        }
+        /* Rouge vif pour Équipement à prévoir */
+        .swap-badge-diff  {
+            background: rgba(239,68,68,0.15);
+            color: #f87171;
+            border-color: rgba(239,68,68,0.5);
+            text-shadow: 0 0 6px rgba(239,68,68,0.4);
+        }
+        /* Violet pour Plus facile */
+        .swap-badge-easier {
+            background: rgba(168,85,247,0.15);
+            color: #c084fc;
+            border-color: rgba(168,85,247,0.5);
+            text-shadow: 0 0 6px rgba(168,85,247,0.4);
+        }
         .swap-empty {
-            text-align: center; padding: 32px 20px; color: #9ca3af;
+            text-align: center; padding: 32px 20px; color: #94a3b8;
         }
         body.dark-mode #swapModalBox {
             background: #181A1F;
@@ -6120,5 +6148,76 @@ html, body {
     background: rgba(34,197,94,0.06);
     border-left-color: #4ade80;
     transform: translateX(2px);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════ */
+/* INPUTS REPS / POIDS — Visibilité sur mobile                              */
+/* ═══════════════════════════════════════════════════════════════════════ */
+#quickRepsInput::placeholder,
+#quickWeightInput::placeholder {
+    color: rgba(74,222,128,0.4) !important;
+    font-weight: 700 !important;
+}
+
+#quickRepsInput:focus,
+#quickWeightInput:focus {
+    background: rgba(74,222,128,0.12) !important;
+    box-shadow: 0 0 0 1px rgba(74,222,128,0.5), 0 0 16px rgba(74,222,128,0.2) !important;
+}
+
+/* Hide spinners on number inputs */
+#quickRepsInput::-webkit-outer-spin-button,
+#quickRepsInput::-webkit-inner-spin-button,
+#quickWeightInput::-webkit-outer-spin-button,
+#quickWeightInput::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+#quickRepsInput,
+#quickWeightInput {
+    -moz-appearance: textfield;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════ */
+/* INPUTS REPS / POIDS — Responsive mobile                                  */
+/* ═══════════════════════════════════════════════════════════════════════ */
+
+/* Par défaut (mobile et plus) : font plus modérée pour entrer dans le cadre */
+#quickRepsInput,
+#quickWeightInput {
+    font-size: 1.6em !important;
+    padding: 8px 2px !important;
+    min-width: 50px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Écrans très étroits (< 380px) : encore plus compact */
+@media (max-width: 380px) {
+    .reps-weight-grid {
+        gap: 8px !important;
+    }
+    #quickRepsInput,
+    #quickWeightInput {
+        font-size: 1.4em !important;
+        letter-spacing: -0.5px !important;
+    }
+    /* Boutons +/- plus petits */
+    .reps-weight-grid button[onclick*="quickRepsInput"],
+    .reps-weight-grid button[onclick*="quickWeightInput"] {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 1.05em !important;
+    }
+}
+
+/* Tablette et plus : font plus grosse */
+@media (min-width: 600px) {
+    #quickRepsInput,
+    #quickWeightInput {
+        font-size: 2em !important;
+    }
 }
 

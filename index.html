@@ -19,7 +19,7 @@
     <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/tabler-icons.min.css" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=62">
+    <link rel="stylesheet" href="css/style.css?v=65">
 </head>
 <body>
 
@@ -176,7 +176,7 @@
                 max-width: 900px;">
 
             <!-- Bannière image : ratio préservé -->
-            <img src="images/banner.png?v=62"
+            <img src="images/banner.png?v=65"
                  alt="Awakened Elite Fitness"
                  style="width:100%;height:auto;display:block;" />
 
@@ -1355,6 +1355,35 @@
                         <div id="equipmentBadges" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:10px;"></div>
                         <div class="timer-display" id="timerDisplay" style="font-size:3.8em;font-weight:900;color:white;letter-spacing:-3px;margin:18px 0 4px;font-variant-numeric:tabular-nums;text-shadow:0 0 32px rgba(74,222,128,0.5),0 0 60px rgba(74,222,128,0.2);font-family:'Outfit',sans-serif;">00:45</div>
 
+                                            <!-- ━━━ FRAME VISUEL EXERCICE (cyberpunk HUD) ━━━ -->
+                    <div id="exerciseVisualFrame" style="display:none;margin:14px 0 16px;position:relative;background:linear-gradient(160deg,#020510,#0a0e18 50%,#020510);border:1px solid rgba(74,222,128,0.35);border-radius:14px;overflow:hidden;box-shadow:0 0 24px rgba(34,197,94,0.08),0 8px 32px rgba(0,0,0,0.5),inset 0 0 50px rgba(34,197,94,0.04);min-height:240px;">
+
+                        <!-- Coins HUD décoratifs avec glow -->
+                        <div style="position:absolute;top:-1px;left:-1px;width:22px;height:22px;border-top:2px solid #4ade80;border-left:2px solid #4ade80;border-top-left-radius:14px;box-shadow:0 0 10px rgba(74,222,128,0.5);pointer-events:none;z-index:2;"></div>
+                        <div style="position:absolute;top:-1px;right:-1px;width:22px;height:22px;border-top:2px solid #4ade80;border-right:2px solid #4ade80;border-top-right-radius:14px;box-shadow:0 0 10px rgba(74,222,128,0.5);pointer-events:none;z-index:2;"></div>
+                        <div style="position:absolute;bottom:-1px;left:-1px;width:22px;height:22px;border-bottom:2px solid #4ade80;border-left:2px solid #4ade80;border-bottom-left-radius:14px;box-shadow:0 0 10px rgba(74,222,128,0.5);pointer-events:none;z-index:2;"></div>
+                        <div style="position:absolute;bottom:-1px;right:-1px;width:22px;height:22px;border-bottom:2px solid #4ade80;border-right:2px solid #4ade80;border-bottom-right-radius:14px;box-shadow:0 0 10px rgba(74,222,128,0.5);pointer-events:none;z-index:2;"></div>
+
+                        <!-- Scan lines décoratives -->
+                        <div style="position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0,transparent 3px,rgba(74,222,128,0.015) 3px,rgba(74,222,128,0.015) 4px);pointer-events:none;z-index:1;"></div>
+
+                        <!-- Logo "A" Awakened watermark en haut -->
+                        <div style="position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:2;font-family:'Outfit',sans-serif;font-size:1.6em;font-weight:900;color:rgba(74,222,128,0.18);letter-spacing:-2px;line-height:1;pointer-events:none;text-shadow:0 0 12px rgba(74,222,128,0.3);">⩘</div>
+
+                        <!-- Label "DÉMONSTRATION" -->
+                        <div style="position:absolute;top:14px;left:14px;z-index:2;font-size:0.55em;font-weight:900;color:#4ade80;letter-spacing:2.5px;text-transform:uppercase;text-shadow:0 0 6px rgba(74,222,128,0.4);">◈ DÉMONSTRATION</div>
+
+                        <!-- Tag muscle en haut à droite -->
+                        <div id="visualMuscleTag" style="position:absolute;top:12px;right:14px;z-index:2;font-size:0.55em;font-weight:900;color:#a855f7;letter-spacing:1.5px;background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.3);padding:3px 8px;border-radius:4px;text-transform:uppercase;"></div>
+
+                        <!-- Contenu visuel (SVG positions Début/Fin) -->
+                        <div id="exerciseVisualContent" style="position:relative;z-index:1;padding:40px 14px 14px;min-height:240px;display:flex;align-items:center;justify-content:center;"></div>
+
+                        <!-- Glow lines top et bottom -->
+                        <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(74,222,128,0.6),transparent);z-index:2;pointer-events:none;"></div>
+                        <div style="position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(74,222,128,0.6),transparent);z-index:2;pointer-events:none;"></div>
+                    </div>
+
                         <!-- Optional Tracking Inputs (visible only in REPS mode) -->
                         <div id="repsTrackingInputs" style="display: none; margin: 18px auto 0; max-width: 480px;">
                             <div style="background:linear-gradient(160deg,#020510 0%,#0a0e18 50%,#020510 100%);padding:20px 18px;border-radius:14px;border:1px solid rgba(74,222,128,0.3);box-shadow:0 8px 32px rgba(0,0,0,0.5),0 0 24px rgba(34,197,94,0.06),inset 0 0 40px rgba(34,197,94,0.02);position:relative;overflow:hidden;">
@@ -1395,7 +1424,7 @@
                                 <div id="loadSuggestionContainer"></div>
 
                                 <!-- Inputs reps + poids GROS chiffres style screenshot -->
-                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+                                <div class="reps-weight-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
                                     <!-- REPS - GROS CHIFFRES -->
                                     <div style="background:linear-gradient(180deg,#020510,#0a0e18);padding:14px 10px;border-radius:10px;border:1px solid rgba(74,222,128,0.3);position:relative;overflow:hidden;">
                                         <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#4ade80,transparent);opacity:0.5;"></div>
@@ -1403,7 +1432,7 @@
                                         <div style="display:flex;align-items:center;gap:6px;">
                                             <button type="button" onclick="document.getElementById('quickRepsInput').stepDown();document.getElementById('quickRepsInput').dispatchEvent(new Event('input'));" style="width:38px;height:38px;border-radius:50%;background:rgba(74,222,128,0.12);border:1.5px solid rgba(74,222,128,0.5);color:#4ade80;font-size:1.2em;font-weight:900;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 0 8px rgba(74,222,128,0.2);transition:all 0.2s;">−</button>
                                             <input type="number" id="quickRepsInput" min="1" max="200" placeholder="10"
-                                                   style="flex:1;min-width:0;padding:4px 0;font-size:2em;font-weight:900;border:none;border-radius:8px;text-align:center;background:transparent;color:#4ade80;text-shadow:0 0 16px rgba(74,222,128,0.5);font-variant-numeric:tabular-nums;letter-spacing:-1px;" />
+                                                   style="flex:1;min-width:0;padding:6px 4px;font-size:1.9em;font-weight:900;border:none;border-radius:8px;text-align:center;background:rgba(74,222,128,0.06);color:#ffffff;text-shadow:0 0 12px rgba(74,222,128,0.6);font-variant-numeric:tabular-nums;letter-spacing:-1px;outline:none;" />
                                             <button type="button" onclick="document.getElementById('quickRepsInput').stepUp();document.getElementById('quickRepsInput').dispatchEvent(new Event('input'));" style="width:38px;height:38px;border-radius:50%;background:rgba(74,222,128,0.12);border:1.5px solid rgba(74,222,128,0.5);color:#4ade80;font-size:1.2em;font-weight:900;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 0 8px rgba(74,222,128,0.2);transition:all 0.2s;">+</button>
                                         </div>
                                     </div>
@@ -1414,7 +1443,7 @@
                                         <div style="display:flex;align-items:center;gap:6px;">
                                             <button type="button" onclick="(function(){var i=document.getElementById('quickWeightInput');i.value=Math.max(0,(parseFloat(i.value)||0)-2.5);i.dispatchEvent(new Event('input'));})()" style="width:38px;height:38px;border-radius:50%;background:rgba(74,222,128,0.12);border:1.5px solid rgba(74,222,128,0.5);color:#4ade80;font-size:1.2em;font-weight:900;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 0 8px rgba(74,222,128,0.2);transition:all 0.2s;">−</button>
                                             <input type="number" id="quickWeightInput" min="0" step="0.5" placeholder="0"
-                                                   style="flex:1;min-width:0;padding:4px 0;font-size:2em;font-weight:900;border:none;border-radius:8px;text-align:center;background:transparent;color:#4ade80;text-shadow:0 0 16px rgba(74,222,128,0.5);font-variant-numeric:tabular-nums;letter-spacing:-1px;" />
+                                                   style="flex:1;min-width:0;padding:6px 4px;font-size:1.9em;font-weight:900;border:none;border-radius:8px;text-align:center;background:rgba(74,222,128,0.06);color:#ffffff;text-shadow:0 0 12px rgba(74,222,128,0.6);font-variant-numeric:tabular-nums;letter-spacing:-1px;outline:none;" />
                                             <button type="button" onclick="(function(){var i=document.getElementById('quickWeightInput');i.value=(parseFloat(i.value)||0)+2.5;i.dispatchEvent(new Event('input'));})()" style="width:38px;height:38px;border-radius:50%;background:rgba(74,222,128,0.12);border:1.5px solid rgba(74,222,128,0.5);color:#4ade80;font-size:1.2em;font-weight:900;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 0 8px rgba(74,222,128,0.2);transition:all 0.2s;">+</button>
                                         </div>
                                     </div>
@@ -1492,20 +1521,13 @@
                                 </button>
                             </div>
 
-                            <!-- Rangée contextuelle : Machine occupée -->
+                            <!-- Rangée contextuelle : Machine occupée seulement -->
                             <div id="contextualBtns" style="display:none;gap:8px;">
-                                <button id="swapBtn" onclick="showSwapExercise()" aria-label="Remplacer"
-                                        style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;
-                                               padding:10px;border-radius:12px;cursor:pointer;transition:all 0.15s;
-                                               background:rgba(245,158,11,0.15);border:1.5px solid rgba(245,158,11,0.4);
-                                               color:#fbbf24;font-size:0.85em;font-weight:700;">
-                                    🔄 Remplacer
-                                </button>
                                 <button id="machineOccupiedBtn" onclick="showMachineOccupiedSwap()" aria-label="Machine occupée"
                                         style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;
-                                               padding:10px;border-radius:12px;cursor:pointer;transition:all 0.15s;
-                                               background:rgba(239,68,68,0.12);border:1.5px solid rgba(239,68,68,0.35);
-                                               color:#f87171;font-size:0.85em;font-weight:700;">
+                                               padding:10px;border-radius:10px;cursor:pointer;transition:all 0.15s;
+                                               background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.35);
+                                               color:#f87171;font-size:0.72em;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;">
                                     🚫 Machine occupée
                                 </button>
                             </div>
@@ -1515,38 +1537,7 @@
                             📋 Voir instructions
                         </div>
 
-                        </div><!-- /timer zone -->
-
-                    <!-- ━━━ FRAME VISUEL EXERCICE (cyberpunk HUD) ━━━ -->
-                    <div id="exerciseVisualFrame" style="display:none;margin:14px 0 16px;position:relative;background:linear-gradient(160deg,#020510,#0a0e18 50%,#020510);border:1px solid rgba(74,222,128,0.35);border-radius:14px;overflow:hidden;box-shadow:0 0 24px rgba(34,197,94,0.08),0 8px 32px rgba(0,0,0,0.5),inset 0 0 50px rgba(34,197,94,0.04);min-height:240px;">
-
-                        <!-- Coins HUD décoratifs avec glow -->
-                        <div style="position:absolute;top:-1px;left:-1px;width:22px;height:22px;border-top:2px solid #4ade80;border-left:2px solid #4ade80;border-top-left-radius:14px;box-shadow:0 0 10px rgba(74,222,128,0.5);pointer-events:none;z-index:2;"></div>
-                        <div style="position:absolute;top:-1px;right:-1px;width:22px;height:22px;border-top:2px solid #4ade80;border-right:2px solid #4ade80;border-top-right-radius:14px;box-shadow:0 0 10px rgba(74,222,128,0.5);pointer-events:none;z-index:2;"></div>
-                        <div style="position:absolute;bottom:-1px;left:-1px;width:22px;height:22px;border-bottom:2px solid #4ade80;border-left:2px solid #4ade80;border-bottom-left-radius:14px;box-shadow:0 0 10px rgba(74,222,128,0.5);pointer-events:none;z-index:2;"></div>
-                        <div style="position:absolute;bottom:-1px;right:-1px;width:22px;height:22px;border-bottom:2px solid #4ade80;border-right:2px solid #4ade80;border-bottom-right-radius:14px;box-shadow:0 0 10px rgba(74,222,128,0.5);pointer-events:none;z-index:2;"></div>
-
-                        <!-- Scan lines décoratives -->
-                        <div style="position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0,transparent 3px,rgba(74,222,128,0.015) 3px,rgba(74,222,128,0.015) 4px);pointer-events:none;z-index:1;"></div>
-
-                        <!-- Logo "A" Awakened watermark en haut -->
-                        <div style="position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:2;font-family:'Outfit',sans-serif;font-size:1.6em;font-weight:900;color:rgba(74,222,128,0.18);letter-spacing:-2px;line-height:1;pointer-events:none;text-shadow:0 0 12px rgba(74,222,128,0.3);">⩘</div>
-
-                        <!-- Label "DÉMONSTRATION" -->
-                        <div style="position:absolute;top:14px;left:14px;z-index:2;font-size:0.55em;font-weight:900;color:#4ade80;letter-spacing:2.5px;text-transform:uppercase;text-shadow:0 0 6px rgba(74,222,128,0.4);">◈ DÉMONSTRATION</div>
-
-                        <!-- Tag muscle en haut à droite -->
-                        <div id="visualMuscleTag" style="position:absolute;top:12px;right:14px;z-index:2;font-size:0.55em;font-weight:900;color:#a855f7;letter-spacing:1.5px;background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.3);padding:3px 8px;border-radius:4px;text-transform:uppercase;"></div>
-
-                        <!-- Contenu visuel (SVG positions Début/Fin) -->
-                        <div id="exerciseVisualContent" style="position:relative;z-index:1;padding:40px 14px 14px;min-height:240px;display:flex;align-items:center;justify-content:center;"></div>
-
-                        <!-- Glow lines top et bottom -->
-                        <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(74,222,128,0.6),transparent);z-index:2;pointer-events:none;"></div>
-                        <div style="position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(74,222,128,0.6),transparent);z-index:2;pointer-events:none;"></div>
-                    </div>
-
-                    <!-- Instructions (collapsibles sur mobile) -->
+                        </div><!-- /timer zone -->                    <!-- Instructions (collapsibles sur mobile) -->
                     <div class="exercise-description-box" id="exerciseDescriptionBox" style="background:linear-gradient(160deg,#050810,#0a0e18 50%,#050810);border:1px solid rgba(74,222,128,0.2);border-radius:12px;padding:14px;position:relative;">
                         <!-- Coins HUD subtils -->
                         <div style="position:absolute;top:-1px;left:-1px;width:14px;height:14px;border-top:1.5px solid rgba(74,222,128,0.5);border-left:1.5px solid rgba(74,222,128,0.5);border-top-left-radius:12px;pointer-events:none;"></div>
@@ -1560,22 +1551,6 @@
                             </button>
                         </div>
                         <ul id="exerciseInstructions"></ul>
-                    </div>
-
-                    <!-- 📝 NOTES PERSONNELLES (par exercice, persistant) -->
-                    <div class="personal-notes-box" style="background:linear-gradient(160deg,#050810,#0a0e18 50%,#050810);border:1px solid rgba(168,85,247,0.2);border-radius:12px;padding:14px;position:relative;margin-top:14px;">
-                        <!-- Coins HUD subtils violet -->
-                        <div style="position:absolute;top:-1px;left:-1px;width:14px;height:14px;border-top:1.5px solid rgba(168,85,247,0.5);border-left:1.5px solid rgba(168,85,247,0.5);border-top-left-radius:12px;pointer-events:none;"></div>
-                        <div style="position:absolute;bottom:-1px;right:-1px;width:14px;height:14px;border-bottom:1.5px solid rgba(168,85,247,0.5);border-right:1.5px solid rgba(168,85,247,0.5);border-bottom-right-radius:12px;pointer-events:none;"></div>
-
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-                            <h4 style="margin:0;font-size:0.7em;font-weight:900;color:#c084fc;letter-spacing:2.5px;text-transform:uppercase;text-shadow:0 0 6px rgba(168,85,247,0.4);">✎ NOTES PERSONNELLES</h4>
-                            <span id="exerciseNotesSavedIndicator" style="font-size:0.55em;color:#4ade80;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;display:none;">✓ ENREGISTRÉ</span>
-                        </div>
-                        <textarea id="exerciseNotesInput"
-                                  placeholder="Écrire une note pour cet exercice (technique, ressenti, ajustements...)"
-                                  oninput="saveCurrentExerciseNote()"
-                                  style="width:100%;min-height:60px;padding:10px 12px;background:rgba(168,85,247,0.04);border:1px solid rgba(168,85,247,0.2);border-radius:8px;color:#e2e8f0;font-size:0.82em;font-family:'Outfit',sans-serif;resize:vertical;outline:none;box-sizing:border-box;line-height:1.5;"></textarea>
                     </div>
 
                     <!-- Bouton programme séance (mobile) -->
@@ -2170,7 +2145,7 @@
             <!-- 🔖 Version -->
             <div class="card" style="background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(34,197,94,0.15);padding:12px 14px;text-align:center;">
                 <div style="font-size:0.6em;color:#64748b;font-weight:800;letter-spacing:2px;">VERSION</div>
-                <div style="font-size:0.95em;color:#4ade80;font-weight:900;margin-top:3px;letter-spacing:1px;">v62 · awakened</div>
+                <div style="font-size:0.95em;color:#4ade80;font-weight:900;margin-top:3px;letter-spacing:1px;">v65 · awakened</div>
                 <button onclick="if(confirm('Forcer la mise à jour de l\\'app ?\\n\\nCela rechargera la page et nettoiera le cache.')) { if('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(rs => Promise.all(rs.map(r => r.unregister()))).then(() => location.reload(true)); }" style="margin-top:10px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:#4ade80;border-radius:9px;padding:8px 14px;font-size:0.75em;font-weight:800;cursor:pointer;">🔄 Forcer la mise à jour</button>
             </div>
 
@@ -3497,12 +3472,12 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/exercises.js?v=62"></script>
-    <script src="data/items.js?v=62"></script>
-    <script src="js/adventure.js?v=62"></script>
-    <script src="js/challenges.js?v=62"></script>
-    <script src="js/exercise-visuals.js?v=62"></script>
-    <script src="js/app.js?v=62"></script>
+    <script src="js/exercises.js?v=65"></script>
+    <script src="data/items.js?v=65"></script>
+    <script src="js/adventure.js?v=65"></script>
+    <script src="js/challenges.js?v=65"></script>
+    <script src="js/exercise-visuals.js?v=65"></script>
+    <script src="js/app.js?v=65"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>
