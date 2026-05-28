@@ -9967,6 +9967,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             try {
                 clearInterval(timerInterval);
                 clearInterval(cardioInterval);
+                if (typeof stopSessionTimer === 'function') stopSessionTimer();
                 if (typeof setRestInterval !== 'undefined' && setRestInterval) {
                     clearInterval(setRestInterval); setRestInterval = null;
                 }
@@ -19324,6 +19325,25 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 if (repsTrackingDiv) {
                     repsTrackingDiv.style.display = 'block';
 
+                    // 🏋️ En Faille/Chasse : masquer le champ poids (poids du corps uniquement)
+                    const weightCard = document.getElementById('quickWeightCard');
+                    if (weightCard) {
+                        const isRiftOrHunt = currentWorkout && (currentWorkout._isRift || currentWorkout._isHunt);
+                        if (isRiftOrHunt) {
+                            weightCard.style.display = 'none';
+                            // Forcer le poids à 0
+                            const wi = document.getElementById('quickWeightInput');
+                            if (wi) wi.value = '0';
+                            // La card reps prend toute la largeur
+                            const grid = weightCard.parentElement;
+                            if (grid) grid.style.gridTemplateColumns = '1fr';
+                        } else {
+                            weightCard.style.display = '';
+                            const grid = weightCard.parentElement;
+                            if (grid) grid.style.gridTemplateColumns = '1fr 1fr';
+                        }
+                    }
+
                     // Init sets tracker for gym mode
                     initSetsTracker(exercise);
 
@@ -20626,6 +20646,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             if (window.speechSynthesis) window.speechSynthesis.cancel();
             clearInterval(timerInterval);
             clearInterval(cardioInterval);
+            if (typeof stopSessionTimer === 'function') stopSessionTimer();
             clearInterval(setRestInterval); setRestInterval = null;
             hideGlobalRestBanner();
             hideRestOverlay();
@@ -22422,11 +22443,13 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             { id: 'SSS', name: 'Rang SSS', threshold: 200, color: '#fbbf24', emoji: '✦SSS✦', desc: 'Au-delà des limites' }
         ];
 
-        // Helper : récupère le niveau actuel du joueur
+        // Helper : récupère le niveau actuel du joueur (même calcul que la carte profil)
         function _awakGetCurrentLevel() {
             try {
-                const rpg = (typeof rpgLoad === 'function') ? rpgLoad() : null;
-                const lifetimeXP = (rpg && rpg.profile && rpg.profile.lifetimeXP) || (rpg && rpg.profile && rpg.profile.xp) || 0;
+                const data = (typeof rpgLoad === 'function') ? rpgLoad() : null;
+                if (!data || !data.muscles) return 1;
+                const profileXP = Object.values(data.muscles).reduce((s, m) => s + (m.xp || 0), 0);
+                const lifetimeXP = profileXP + parseInt(localStorage.getItem('fitproRPGLifetimeXP') || '0');
                 return (typeof rpgLevelFromXP === 'function') ? rpgLevelFromXP(lifetimeXP) : 1;
             } catch(e) { return 1; }
         }
@@ -23508,12 +23531,21 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             if (!theme || !theme.exerciseFilter) return [];
             const playerStats = awakGetTotalStats();
 
-            // Tous les exos qui matchent le thème
+            // Tous les exos qui matchent le thème — MAIS poids du corps uniquement
             const pool = (typeof exerciseDatabase !== 'undefined' ? exerciseDatabase : [])
+                .filter(ex => theme.exerciseFilter(ex))
+                .filter(ex => {
+                    // 🏋️ Failles = poids du corps uniquement (pas de triche au poids + thématique)
+                    const eq = ex.equipment || [];
+                    return eq.length === 0 || eq.includes('Poids du corps') || eq.includes('Aucun');
+                });
+
+            // Si le filtre poids du corps vide le pool, fallback sur tout le thème
+            const finalPool = pool.length >= 2 ? pool : (typeof exerciseDatabase !== 'undefined' ? exerciseDatabase : [])
                 .filter(ex => theme.exerciseFilter(ex));
 
             // Mélanger
-            const shuffled = pool.sort(() => Math.random() - 0.5).slice(0, count);
+            const shuffled = finalPool.sort(() => Math.random() - 0.5).slice(0, count);
 
             // Calculer le dégât estimé par série
             return shuffled.map(ex => {
@@ -23685,6 +23717,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const theme = session.theme;
             const playerStats = awakGetTotalStats();
 
+            // 🛡️ ANTI-TRICHE : plafonner les reps et le poids
+            // Reps max réaliste = 50 (au-delà c'est de la triche)
+            // Poids ignoré en Faille (poids du corps uniquement)
+            const cappedReps = Math.min(Math.max(1, reps || 1), 50);
+            const cappedWeight = 0; // Failles = poids du corps, le poids ne compte pas
+
             // 🎯 Calculer tous les bonus stats actifs
             const bonuses = awakComputeStatBonuses(playerStats, currentWave.isBoss);
 
@@ -23696,14 +23734,18 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const consumEffects = typeof awakConsumablesGetActiveEffects === 'function'
                 ? awakConsumablesGetActiveEffects() : {};
 
-            // Formule de dégâts : base + reps × (1 + stat thématique/100) — la stat principale du thème reste boost
+            // Formule de dégâts : base + reps × (1 + stat thématique/100)
             const base = 15;
             const primaryStatValue = (playerStats[theme.primaryStat] || 0) * (1 + (consumEffects[theme.primaryStat] || 0));
             const statMult = 1 + primaryStatValue / 100;
-            const baseDamage = base + (reps || 1) * statMult * 2;
-            const weightBonus = weightKg > 0 ? Math.floor(weightKg / 10) : 0;
+            const baseDamage = base + cappedReps * statMult * 2;
+            const weightBonus = 0; // pas de bonus poids en Faille
 
             let finalDamage = baseDamage + weightBonus;
+
+            // 🛡️ Plafond absolu de dégâts par série (anti-triche ultime)
+            // Empêche de tuer un monstre en 1 série, même avec crit + double + tous les bonus
+            const maxDamagePerHit = Math.max(40, Math.round(currentWave.hpMax * 0.45));
 
             // ⚔️ STR : multiplicateur dégâts global (toujours actif)
             finalDamage *= bonuses.damageMult;
@@ -23751,6 +23793,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             } catch(e) {}
 
             finalDamage = Math.max(1, Math.round(finalDamage));
+
+            // 🛡️ Appliquer le plafond anti-triche (max 45% des HP max du monstre par série)
+            const wasCapped = finalDamage > maxDamagePerHit;
+            finalDamage = Math.min(finalDamage, maxDamagePerHit);
 
             // 🔥 Afficher les procs spéciaux après les dégâts
             const procToasts = [];
@@ -24490,18 +24536,42 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const monster = session.monster;
 
             const playerStats = awakGetTotalStats();
-            const totalStat = Object.values(playerStats).reduce((s, v) => s + v, 0);
+
+            // 🎯 Utiliser le système de bonus stats unifié (comme les Failles)
+            const bonuses = (typeof awakComputeStatBonuses === 'function')
+                ? awakComputeStatBonuses(playerStats, false) : null;
 
             const base = 8;
-            const damage = base + (reps || 1) * (1 + totalStat / 200) + Math.floor((weightKg || 0) / 10);
-            const critChance = 0.08 + (playerStats.PER || 0) / 800;
+            let damage = base + (reps || 1) * 2 + Math.floor((weightKg || 0) / 10);
+
+            // ⚔️ STR : multiplicateur dégâts
+            if (bonuses) damage *= bonuses.damageMult;
+
+            // ⚡ AGI : chance critique
+            const critChance = bonuses ? (0.05 + bonuses.critChance) : 0.08;
             const isCrit = Math.random() < critChance;
-            const finalDamage = Math.round(damage * (isCrit ? 2 : 1));
+            if (isCrit) damage *= 2;
+
+            // 💨 VIT : double attaque
+            let isDouble = false;
+            if (bonuses && Math.random() < bonuses.doubleChance) {
+                isDouble = true;
+                damage += damage * 0.5;
+            }
+
+            const finalDamage = Math.max(1, Math.round(damage));
 
             monster.hpCurrent = Math.max(0, monster.hpCurrent - finalDamage);
             session.totalDamage += finalDamage;
 
-            return { damage: finalDamage, isCrit, killed: monster.hpCurrent <= 0 };
+            // Procs visibles
+            if (isDouble) {
+                setTimeout(() => {
+                    if (typeof showToast === 'function') showToast('⚡ DOUBLE ATTAQUE !', 'success', 1600);
+                }, 700);
+            }
+
+            return { damage: finalDamage, isCrit, isDouble, killed: monster.hpCurrent <= 0 };
         }
         window.awakDealDamageToMonster = awakDealDamageToMonster;
 
@@ -24519,10 +24589,15 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 awakMonstersSave(monsters);
             }
 
-            // Récompenses : XP bonus + bonus Alpha
+            // Récompenses : XP bonus + bonus Alpha + bonus SEN
             const rankXP = { E: 100, D: 200, C: 350, B: 500, A: 750, S: 1000 }[monster.fromRiftRank] || 200;
             const alphaBonus = monster.isAlpha ? 2 : 1;
-            const xpReward = rankXP * alphaBonus;
+            let xpReward = rankXP * alphaBonus;
+            // 🌀 SEN : bonus XP
+            try {
+                const b = (typeof awakComputeStatBonuses === 'function') ? awakComputeStatBonuses() : null;
+                if (b) xpReward = Math.round(xpReward * b.xpMult);
+            } catch(e) {}
 
             document.getElementById('awakHuntCombatModal')?.remove();
             const modal = document.createElement('div');
@@ -27483,9 +27558,18 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                                                         streak >= 3 ? 'Belle régularité !' : 'Continuez comme ça !';
             }
 
-            document.getElementById('exerciseView').classList.add('hidden'); document.body.classList.remove('in-session');
+            const _exViewEnd = document.getElementById('exerciseView');
+            if (_exViewEnd) {
+                _exViewEnd.style.removeProperty('display'); // enlève le display inline résiduel
+                _exViewEnd.classList.add('hidden');         // .hidden !important fait le reste
+            }
+            document.body.classList.remove('in-session');
             document.body.classList.remove('session-fullscreen'); _sessionFullscreen = false;
-            document.getElementById('completionView').classList.remove('hidden');
+            const _cvEnd = document.getElementById('completionView');
+            if (_cvEnd) {
+                _cvEnd.style.removeProperty('display');
+                _cvEnd.classList.remove('hidden');
+            }
             window.scrollTo({ top: 0, behavior: 'smooth' });
             hideGlobalRestBanner();
             // 📊 Bilan enrichi

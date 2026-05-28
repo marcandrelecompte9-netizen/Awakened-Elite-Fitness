@@ -739,6 +739,15 @@ var EXERCISE_IMAGES = {
   'Burpees':                       'images/exercises/Burpees.webp',
   'Burpees légers':                'images/exercises/Burpees_légers.webp',
   'Cable Crossover':               'images/exercises/Cable_Crossover.webp',
+  'Cable Crunch':                  'images/exercises/Cable_Crunch.webp',
+  'Cable Crunch à genoux':         'images/exercises/Cable_Crunch_a_genoux.webp',
+  'Cable Fly':                     'images/exercises/Cable_Fly.webp',
+  'Cable Fly bas vers haut':       'images/exercises/Cable_Fly_bas_vers_haut.webp',
+  'Cable Fly haut vers bas':       'images/exercises/Cable_Fly_haut_vers_bas.webp',
+  'Cable Front Raise':             'images/exercises/Cable_Front_Raise.webp',
+  'Cable Hammer Curl':             'images/exercises/Cable_Hammer_Curl.webp',
+  'Cable Kickbacks':               'images/exercises/Cable_Kickbacks.webp',
+  'Cable Pull Through':            'images/exercises/Cable_Pull_Through.webp',
 };
 
 function hasExerciseImage(name) {

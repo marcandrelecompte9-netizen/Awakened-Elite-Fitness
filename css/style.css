@@ -615,7 +615,7 @@
         }
 
         .hidden {
-            display: none;
+            display: none !important;
         }
 
         /* Exercise Search Results */
