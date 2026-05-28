@@ -6221,3 +6221,51 @@ html, body {
     }
 }
 
+
+/* ═══════════════════════════════════════════════════════════════════════ */
+/* CYBERPUNK MODAL ANIMATIONS                                               */
+/* ═══════════════════════════════════════════════════════════════════════ */
+@keyframes awakFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+@keyframes awakFadeOut {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════ */
+/* COMBAT ANIMATIONS — HP bars, hits, dodges                                */
+/* ═══════════════════════════════════════════════════════════════════════ */
+
+/* Flash rouge quand le joueur prend des dégâts */
+@keyframes playerHpDamage {
+    0%   { background: linear-gradient(90deg, #ef4444, #dc2626); box-shadow: 0 0 24px #ef4444; }
+    100% { background: var(--hp-color, linear-gradient(90deg, #4ade80, #22c55e)); box-shadow: 0 0 8px var(--hp-shadow, rgba(74,222,128,0.5)); }
+}
+.player-hp-damaged {
+    animation: playerHpDamage 0.6s ease;
+}
+
+/* Flash vert quand le joueur se soigne */
+@keyframes playerHpHeal {
+    0%   { background: linear-gradient(90deg, #86efac, #4ade80); box-shadow: 0 0 24px #4ade80; }
+    100% { background: var(--hp-color, linear-gradient(90deg, #4ade80, #22c55e)); box-shadow: 0 0 8px var(--hp-shadow, rgba(74,222,128,0.5)); }
+}
+.player-hp-healed {
+    animation: playerHpHeal 0.8s ease;
+}
+
+/* Shake quand on encaisse */
+@keyframes hpShake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-4px); }
+    40% { transform: translateX(4px); }
+    60% { transform: translateX(-2px); }
+    80% { transform: translateX(2px); }
+}
+.combat-shake {
+    animation: hpShake 0.4s ease;
+}
+

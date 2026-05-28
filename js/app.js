@@ -26,30 +26,121 @@
         }
 
         function showConfirm(message, onConfirm, onCancel, opts = {}) {
-            const title = opts.title || 'Confirmation';
-            const confirmLabel = opts.confirmLabel || '✅ Confirmer';
-            const cancelLabel = opts.cancelLabel || '❌ Annuler';
-            const confirmColor = opts.danger ? '#ef4444' : '#16a34a';
+            const title = opts.title || 'CONFIRMATION';
+            const confirmLabel = opts.confirmLabel || 'Confirmer';
+            const cancelLabel = opts.cancelLabel || 'Annuler';
+            const isDanger = !!opts.danger;
+            const accentColor = isDanger ? '#ef4444' : '#4ade80';
+            const accentRgb = isDanger ? '239,68,68' : '74,222,128';
+            const icon = opts.icon || (isDanger ? '⚠' : '◈');
+            const subtitle = opts.subtitle || (isDanger ? '◈ ACTION IRRÉVERSIBLE ◈' : '◈ VEUILLEZ CONFIRMER ◈');
+
+            const id = 'cyberconfirm_' + Date.now();
+
             const overlay = document.createElement('div');
-            overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);animation:fadeIn 0.2s';
-            const box = document.createElement('div');
-            box.style.cssText = 'background:white;border-radius:20px;padding:28px 24px;max-width:420px;width:100%;box-shadow:0 24px 48px rgba(0,0,0,0.2);animation:slideUp 0.25s cubic-bezier(0.34,1.56,0.64,1);text-align:center;';
-            const id = 'confirm_' + Date.now();
-            box.innerHTML = `
-                <div style="font-size:2.5em;margin-bottom:12px;">${opts.icon||'🤔'}</div>
-                <h3 style="margin:0 0 10px;color:#0F1014;font-size:1.15em;">${title}</h3>
-                <p style="color:#475569;line-height:1.6;margin:0 0 22px;font-size:0.97em;">${message}</p>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-                    <button id="${id}_cancel" style="background:#f3f4f6;color:#374151;border:1.5px solid #e5e7eb;padding:12px;border-radius:99px;font-size:0.97em;font-weight:600;cursor:pointer;">${cancelLabel}</button>
-                    <button id="${id}_ok" style="background:linear-gradient(135deg,${confirmColor},${confirmColor}dd);color:white;border:none;padding:12px;border-radius:99px;font-size:0.97em;font-weight:700;cursor:pointer;">${confirmLabel}</button>
+            overlay.id = id;
+            overlay.style.cssText = `
+                position:fixed;inset:0;
+                background:rgba(0,0,0,0.92);
+                backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+                z-index:99999;
+                display:flex;align-items:center;justify-content:center;
+                padding:20px;
+                animation:awakFadeIn 0.2s ease;
+            `;
+
+            overlay.innerHTML = `
+                <div style="
+                    max-width:380px;width:100%;
+                    background:linear-gradient(160deg,#0a0e18 0%,#0F1014 50%,#0a0e18 100%);
+                    border:1.5px solid rgba(${accentRgb},0.5);
+                    border-radius:16px;overflow:hidden;
+                    box-shadow:0 24px 60px rgba(0,0,0,0.7),0 0 40px rgba(${accentRgb},0.2);
+                    animation:slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);
+                    position:relative;
+                ">
+                    <!-- Corner accents HUD -->
+                    <div style="position:absolute;top:-1px;left:-1px;width:18px;height:18px;border-top:2px solid ${accentColor};border-left:2px solid ${accentColor};border-top-left-radius:16px;box-shadow:0 0 10px rgba(${accentRgb},0.6);pointer-events:none;"></div>
+                    <div style="position:absolute;top:-1px;right:-1px;width:18px;height:18px;border-top:2px solid ${accentColor};border-right:2px solid ${accentColor};border-top-right-radius:16px;box-shadow:0 0 10px rgba(${accentRgb},0.6);pointer-events:none;"></div>
+                    <div style="position:absolute;bottom:-1px;left:-1px;width:18px;height:18px;border-bottom:2px solid ${accentColor};border-left:2px solid ${accentColor};border-bottom-left-radius:16px;box-shadow:0 0 10px rgba(${accentRgb},0.6);pointer-events:none;"></div>
+                    <div style="position:absolute;bottom:-1px;right:-1px;width:18px;height:18px;border-bottom:2px solid ${accentColor};border-right:2px solid ${accentColor};border-bottom-right-radius:16px;box-shadow:0 0 10px rgba(${accentRgb},0.6);pointer-events:none;"></div>
+
+                    <!-- Scan lines -->
+                    <div style="position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0,transparent 3px,rgba(${accentRgb},0.02) 3px,rgba(${accentRgb},0.02) 4px);pointer-events:none;"></div>
+
+                    <!-- Glow accent top -->
+                    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${accentColor},transparent);opacity:0.6;pointer-events:none;"></div>
+
+                    <!-- Header -->
+                    <div style="padding:22px 24px 14px;text-align:center;position:relative;z-index:1;">
+                        <div style="font-size:2.5em;line-height:1;margin-bottom:8px;filter:drop-shadow(0 0 16px rgba(${accentRgb},0.5));">${icon}</div>
+                        <div style="font-size:0.58em;color:${accentColor};font-weight:900;letter-spacing:3px;text-transform:uppercase;margin-bottom:6px;text-shadow:0 0 8px rgba(${accentRgb},0.5);">${subtitle}</div>
+                        <div style="font-size:1.05em;font-weight:900;color:white;letter-spacing:0.5px;text-transform:uppercase;text-shadow:0 0 18px rgba(${accentRgb},0.3);">${title}</div>
+                    </div>
+
+                    <!-- Message -->
+                    <div style="padding:0 24px 18px;text-align:center;position:relative;z-index:1;">
+                        <div style="font-size:0.88em;color:#cbd5e1;line-height:1.55;">${message}</div>
+                    </div>
+
+                    <!-- Boutons -->
+                    <div style="padding:0 20px 20px;display:grid;grid-template-columns:1fr 1.2fr;gap:10px;position:relative;z-index:1;">
+                        <button id="${id}_cancel" style="
+                            background:rgba(255,255,255,0.04);
+                            border:1px solid rgba(255,255,255,0.12);
+                            color:#cbd5e1;
+                            padding:13px 8px;border-radius:10px;
+                            font-size:0.78em;font-weight:900;
+                            letter-spacing:1.5px;text-transform:uppercase;
+                            cursor:pointer;
+                            transition:all 0.15s;
+                            touch-action:manipulation;
+                            -webkit-tap-highlight-color:transparent;
+                        ">${cancelLabel}</button>
+                        <button id="${id}_ok" style="
+                            background:linear-gradient(135deg,${isDanger?'#dc2626':'#16a34a'},${accentColor});
+                            border:1px solid ${accentColor};
+                            color:white;
+                            padding:13px 8px;border-radius:10px;
+                            font-size:0.85em;font-weight:900;
+                            letter-spacing:1.5px;text-transform:uppercase;
+                            cursor:pointer;
+                            box-shadow:0 0 20px rgba(${accentRgb},0.4),0 4px 14px rgba(${accentRgb},0.25);
+                            transition:all 0.15s;
+                            touch-action:manipulation;
+                            -webkit-tap-highlight-color:transparent;
+                            position:relative;
+                            overflow:hidden;
+                        ">${confirmLabel}</button>
+                    </div>
                 </div>
             `;
-            overlay.setAttribute('data-confirm', id);
-            overlay.appendChild(box);
+
             document.body.appendChild(overlay);
-            document.getElementById(id+'_ok').onclick = () => { overlay.remove(); if(onConfirm) onConfirm(); };
-            document.getElementById(id+'_cancel').onclick = () => { overlay.remove(); if(onCancel) onCancel(); };
+
+            const close = (cb) => {
+                overlay.style.animation = 'awakFadeOut 0.18s ease';
+                setTimeout(() => {
+                    overlay.remove();
+                    if (cb) cb();
+                }, 170);
+            };
+
+            document.getElementById(id+'_ok').onclick = () => {
+                if (typeof hapticTap === 'function') hapticTap(isDanger ? [30, 30, 50] : 20);
+                close(onConfirm);
+            };
+            document.getElementById(id+'_cancel').onclick = () => {
+                if (typeof hapticTap === 'function') hapticTap(10);
+                close(onCancel);
+            };
+
+            // Tap hors modal pour annuler
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) close(onCancel);
+            });
         }
+        window.showConfirm = showConfirm;
 
         // ═══════════════════════════════════════════════════════════════
         // 🎯 POLISH HELPERS — Micro-interactions, animations, haptics
@@ -3933,16 +4024,27 @@
                         showToast('❌ Fichier de sauvegarde invalide', 'error', 3000);
                         return;
                     }
-                    if (!confirm(`Restaurer cette sauvegarde du ${new Date(backup.exportedAt).toLocaleDateString('fr-FR')} ?\n\nLes données actuelles seront REMPLACÉES.`)) return;
-                    // Sauvegarde de sécurité avant restauration
-                    const safety = exportAllUserData();
-                    sessionStorage.setItem('awakened_pre_restore_safety', JSON.stringify(safety));
-                    // Effacer les clés actuelles et restaurer
-                    Object.keys(backup.data).forEach(k => {
-                        localStorage.setItem(k, backup.data[k]);
-                    });
-                    showToast('✅ Restauration réussie ! Rechargement...', 'success', 2000);
-                    setTimeout(() => location.reload(), 1500);
+                    showConfirm(
+                        `Sauvegarde du <strong style="color:#4ade80">${new Date(backup.exportedAt).toLocaleDateString('fr-FR')}</strong>. Toutes les données actuelles seront <strong style="color:#f87171">remplacées</strong> par celles de cette sauvegarde.`,
+                        () => {
+                            const safety = exportAllUserData();
+                            sessionStorage.setItem('awakened_pre_restore_safety', JSON.stringify(safety));
+                            Object.keys(backup.data).forEach(k => {
+                                localStorage.setItem(k, backup.data[k]);
+                            });
+                            showToast('✅ Restauration réussie ! Rechargement...', 'success', 2000);
+                            setTimeout(() => location.reload(), 1500);
+                        },
+                        null,
+                        {
+                            title: 'Restaurer cette sauvegarde ?',
+                            subtitle: '◈ DONNÉES REMPLACÉES ◈',
+                            icon: '💾',
+                            confirmLabel: '↻ Restaurer',
+                            cancelLabel: '↩ Annuler',
+                            danger: true
+                        }
+                    );
                 } catch(err) {
                     showToast('❌ Erreur : fichier corrompu', 'error', 3000);
                     console.error(err);
@@ -4014,10 +4116,23 @@
                 getReq.onsuccess = () => {
                     const backup = getReq.result;
                     if (!backup) { showToast('Sauvegarde introuvable', 'error', 2000); return; }
-                    if (!confirm(`Restaurer la sauvegarde du ${new Date(backup.exportedAt).toLocaleString('fr-FR')} ?`)) return;
-                    Object.keys(backup.data).forEach(k => localStorage.setItem(k, backup.data[k]));
-                    showToast('✅ Restauration réussie ! Rechargement...', 'success', 1500);
-                    setTimeout(() => location.reload(), 1500);
+                    showConfirm(
+                        `Sauvegarde du <strong style="color:#4ade80">${new Date(backup.exportedAt).toLocaleString('fr-FR')}</strong>. Les données actuelles seront remplacées.`,
+                        () => {
+                            Object.keys(backup.data).forEach(k => localStorage.setItem(k, backup.data[k]));
+                            showToast('✅ Restauration réussie ! Rechargement...', 'success', 1500);
+                            setTimeout(() => location.reload(), 1500);
+                        },
+                        null,
+                        {
+                            title: 'Restaurer la sauvegarde ?',
+                            subtitle: '◈ DONNÉES REMPLACÉES ◈',
+                            icon: '💾',
+                            confirmLabel: '↻ Restaurer',
+                            cancelLabel: '↩ Annuler',
+                            danger: true
+                        }
+                    );
                 };
             };
         }
@@ -4534,11 +4649,24 @@
         }
 
         function abandonActiveWorkout() {
-            if (!confirm('Abandonner la séance en cours ? Tous les progrès non sauvegardés seront perdus.')) return;
-            clearActiveWorkoutState();
-            currentWorkout = null;
-            if (typeof renderHomeTab === 'function') renderHomeTab();
-            showToast('Séance abandonnée', 'info', 2000);
+            showConfirm(
+                'Tous les progrès non sauvegardés seront perdus.',
+                () => {
+                    clearActiveWorkoutState();
+                    currentWorkout = null;
+                    if (typeof renderHomeTab === 'function') renderHomeTab();
+                    showToast('Séance abandonnée', 'info', 2000);
+                },
+                null,
+                {
+                    title: 'Abandonner la séance ?',
+                    subtitle: '◈ PROGRESSION PERDUE ◈',
+                    icon: '⏸',
+                    confirmLabel: '✕ Abandonner',
+                    cancelLabel: '↩ Continuer',
+                    danger: true
+                }
+            );
         }
 
         // ═══════════════════════════════════════════════════════════════
@@ -8295,18 +8423,43 @@
         function applyManualPlanPreset(presetId) {
             const preset = MANUAL_PLAN_PRESETS.find(p => p.id === presetId);
             if (!preset) return;
-            if (!confirm(`Appliquer le preset "${preset.name}" ? (remplacera ton plan actuel)`)) return;
-            saveManualWeeklyPlan(JSON.parse(JSON.stringify(preset.plan)));
-            openManualPlanEditor();
-            if (typeof showToast === 'function') showToast(`✅ Plan "${preset.name}" appliqué`, 'success', 2500);
+            showConfirm(
+                `Le preset "<strong style="color:#4ade80">${preset.name}</strong>" remplacera ton plan hebdomadaire actuel.`,
+                () => {
+                    saveManualWeeklyPlan(JSON.parse(JSON.stringify(preset.plan)));
+                    openManualPlanEditor();
+                    if (typeof showToast === 'function') showToast(`✅ Plan "${preset.name}" appliqué`, 'success', 2500);
+                },
+                null,
+                {
+                    title: 'Appliquer ce preset ?',
+                    subtitle: '◈ NOUVEAU PLAN HEBDO ◈',
+                    icon: '📋',
+                    confirmLabel: '✓ Appliquer',
+                    cancelLabel: '↩ Annuler'
+                }
+            );
         }
         window.applyManualPlanPreset = applyManualPlanPreset;
 
         function clearManualPlan() {
-            if (!confirm('Effacer tout le plan hebdomadaire ?')) return;
-            saveManualWeeklyPlan({});
-            openManualPlanEditor();
-            if (typeof showToast === 'function') showToast('🗑️ Plan effacé', 'info', 2000);
+            showConfirm(
+                'Tous les muscles assignés aux jours de la semaine seront supprimés. Tu pourras reconstruire ton plan ensuite.',
+                () => {
+                    saveManualWeeklyPlan({});
+                    openManualPlanEditor();
+                    if (typeof showToast === 'function') showToast('🗑️ Plan effacé', 'info', 2000);
+                },
+                null,
+                {
+                    title: 'Effacer tout le plan ?',
+                    subtitle: '◈ RÉINITIALISATION ◈',
+                    icon: '🗑️',
+                    confirmLabel: '🗑️ Effacer',
+                    cancelLabel: '↩ Annuler',
+                    danger: true
+                }
+            );
         }
         window.clearManualPlan = clearManualPlan;
 
@@ -13646,15 +13799,27 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const routines = getRoutines();
             const r = routines[index];
             if (!r) return;
-            if (!confirm(`Supprimer "${r.name}" ?`)) return;
-            // Nettoyer aussi le plan hebdo si la routine était assignée
-            const plan = getWeeklyPlan();
-            Object.keys(plan).forEach(d => { if (plan[d] === r.id) delete plan[d]; });
-            saveWeeklyPlan(plan);
-            routines.splice(index, 1);
-            saveRoutines(routines);
-            renderRoutinesList();
-            if (typeof showToast === 'function') showToast('🗑️ Routine supprimée', 'info', 2000);
+            showConfirm(
+                `La routine "<strong style="color:#f87171">${r.name}</strong>" sera supprimée définitivement. Le plan hebdomadaire sera mis à jour automatiquement.`,
+                () => {
+                    const plan = getWeeklyPlan();
+                    Object.keys(plan).forEach(d => { if (plan[d] === r.id) delete plan[d]; });
+                    saveWeeklyPlan(plan);
+                    routines.splice(index, 1);
+                    saveRoutines(routines);
+                    renderRoutinesList();
+                    if (typeof showToast === 'function') showToast('🗑️ Routine supprimée', 'info', 2000);
+                },
+                null,
+                {
+                    title: 'Supprimer cette routine ?',
+                    subtitle: '◈ ACTION IRRÉVERSIBLE ◈',
+                    icon: '🗑️',
+                    confirmLabel: '🗑️ Supprimer',
+                    cancelLabel: '↩ Annuler',
+                    danger: true
+                }
+            );
         }
         window.deleteRoutine = deleteRoutine;
 
@@ -13750,12 +13915,24 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const routines = getRoutines();
             const r = routines[_editingRoutineIdx];
             if (!r || !r.muscles || r.muscles.length === 0) return;
-            if (!confirm(`Régénérer les exercices de "${r.name}" ? (les exercices actuels seront remplacés)`)) return;
-            r.exercises = generateExercisesForMuscles(r.muscles, { count: 6, level: r.level || 'Intermédiaire' });
-            saveRoutines(routines);
-            const cont = document.getElementById('routineEditorExercises');
-            if (cont) cont.innerHTML = _renderEditorExercises(r);
-            if (typeof showToast === 'function') showToast('🎲 Exercices régénérés', 'success', 1800);
+            showConfirm(
+                `Les exercices actuels de "<strong style="color:#4ade80">${r.name}</strong>" seront remplacés par de nouveaux exercices générés aléatoirement.`,
+                () => {
+                    r.exercises = generateExercisesForMuscles(r.muscles, { count: 6, level: r.level || 'Intermédiaire' });
+                    saveRoutines(routines);
+                    const cont = document.getElementById('routineEditorExercises');
+                    if (cont) cont.innerHTML = _renderEditorExercises(r);
+                    if (typeof showToast === 'function') showToast('🎲 Exercices régénérés', 'success', 1800);
+                },
+                null,
+                {
+                    title: 'Régénérer les exercices ?',
+                    subtitle: '◈ NOUVEAU TIRAGE ◈',
+                    icon: '🎲',
+                    confirmLabel: '🎲 Régénérer',
+                    cancelLabel: '↩ Annuler'
+                }
+            );
         }
         window._regenerateRoutineExercises = _regenerateRoutineExercises;
 
@@ -13930,7 +14107,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const routines = getRoutines();
             const r = routines[index];
             if (!r) return;
-            if (confirm(`Que faire avec "${r.name}" ?\n\nOK = Éditer\nAnnuler = Rien`)) editRoutine(index);
+            // Action directe : ouvrir l'éditeur (était une question OK/Annuler peu utile)
+            editRoutine(index);
         }
         window.showRoutineOptions = showRoutineOptions;
         
@@ -20309,27 +20487,43 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             if (currentWorkout && (currentWorkout._isRift || currentWorkout._isHunt)) {
                 const isRift = currentWorkout._isRift;
                 const label = isRift ? 'cette Faille' : 'cette Chasse';
-                if (!confirm(`Skipper ici abandonnera ${label}. Continuer ?`)) return;
-                // Abandonner proprement
-                if (isRift) {
-                    if (typeof _doQuitWorkout === 'function') _doQuitWorkout();
-                    setTimeout(() => {
-                        if (typeof awakAbandonRift === 'function') {
-                            // Bypass la confirmation interne
-                            awakActiveRiftSession = null;
-                            document.getElementById('awakRiftCombatModal')?.remove();
+
+                // Logique d'abandon encapsulée pour callback du modal
+                const doAbandon = () => {
+                    if (isRift) {
+                        if (typeof _doQuitWorkout === 'function') _doQuitWorkout();
+                        setTimeout(() => {
+                            if (typeof awakAbandonRift === 'function') {
+                                // Bypass la confirmation interne
+                                awakActiveRiftSession = null;
+                                document.getElementById('awakRiftCombatModal')?.remove();
+                                if (typeof switchTab === 'function') switchTab('game');
+                            }
+                        }, 400);
+                    } else {
+                        if (typeof _doQuitWorkout === 'function') _doQuitWorkout();
+                        setTimeout(() => {
+                            awakActiveHuntSession = null;
+                            document.getElementById('awakHuntCombatModal')?.remove();
                             if (typeof switchTab === 'function') switchTab('game');
-                        }
-                    }, 400);
-                } else {
-                    if (typeof _doQuitWorkout === 'function') _doQuitWorkout();
-                    setTimeout(() => {
-                        awakActiveHuntSession = null;
-                        document.getElementById('awakHuntCombatModal')?.remove();
-                        if (typeof switchTab === 'function') switchTab('game');
-                    }, 400);
-                }
-                if (typeof showToast === 'function') showToast(`✕ ${isRift ? 'Faille' : 'Chasse'} abandonnée — tu pourras réessayer`, 'warning', 3000);
+                        }, 400);
+                    }
+                    if (typeof showToast === 'function') showToast(`✕ ${isRift ? 'Faille' : 'Chasse'} abandonnée — tu pourras réessayer`, 'warning', 3000);
+                };
+
+                showConfirm(
+                    `Passer cet exercice abandonnera ${label}. Tu pourras réessayer plus tard.`,
+                    doAbandon,
+                    null,
+                    {
+                        title: isRift ? 'Abandonner la Faille ?' : 'Abandonner la Chasse ?',
+                        subtitle: '◈ FUITE DU COMBAT ◈',
+                        icon: isRift ? '⚔' : '🎯',
+                        confirmLabel: '✕ Abandonner',
+                        cancelLabel: '↩ Rester',
+                        danger: true
+                    }
+                );
                 return;
             }
 
@@ -22527,9 +22721,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
         const RIFT_STORAGE_KEY = 'awakRifts';
         const RIFT_LAST_GENERATED_KEY = 'awakRiftLastGen';
-        const RIFT_MAX_ACTIVE = 3;
-        const RIFT_COOLDOWN_HOURS = 14; // entre 2 générations possibles
-        const RIFT_LIFETIME_DAYS = { E: 5, D: 5, C: 6, B: 6, A: 7, S: 8 };
+        const RIFT_MAX_ACTIVE = 2;             // Max 2 simultanées (au lieu de 3)
+        const RIFT_COOLDOWN_HOURS = 48;        // 2 jours entre 2 spawns (au lieu de 14h)
+        const RIFT_LIFETIME_DAYS = { E: 8, D: 8, C: 10, B: 10, A: 14, S: 14 }; // Plus de temps pour les faire
+        const RIFT_SPAWN_PROBABILITY = 0.35;   // 35% si conditions remplies (au lieu de 70%)
+        const RIFT_MIN_SESSION_MINUTES = 15;   // Vraie séance requise (>15 min)
+        const RIFT_MIN_EXERCISES = 5;          // Au moins 5 exercices complétés
 
         // ── THÈMES DE FAILLES ─────────────────────────────────────────
         // Chaque thème détermine l'ambiance et le type d'exercices proposés
@@ -22827,20 +23024,26 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
          * Tente de générer une nouvelle Faille (respect cooldown + max actives)
          * Retourne la Faille générée ou null
          */
-        function awakTryGenerateRift() {
+        function awakTryGenerateRift(sessionContext) {
             const rifts = awakUpdateRiftsState();
             const activeRifts = rifts.filter(r => !r.completed && r.state !== 'exploded');
 
-            // Max 3 failles actives simultanées
+            // Max 2 failles actives simultanées (au lieu de 3)
             if (activeRifts.length >= RIFT_MAX_ACTIVE) return null;
 
-            // Cooldown : pas plus d'une faille par X heures
+            // Cooldown : 48h entre 2 failles
             const lastGen = parseInt(localStorage.getItem(RIFT_LAST_GENERATED_KEY) || '0');
             const now = Date.now();
             if (now - lastGen < RIFT_COOLDOWN_HOURS * 60 * 60 * 1000) return null;
 
-            // Probabilité d'apparition : 70% si conditions remplies
-            if (Math.random() > 0.7) return null;
+            // 🎯 NOUVEAU : qualité de séance requise (vraie séance, pas une mini)
+            if (sessionContext) {
+                if (sessionContext.durationMin < RIFT_MIN_SESSION_MINUTES) return null;
+                if (sessionContext.exercisesCompleted < RIFT_MIN_EXERCISES) return null;
+            }
+
+            // Probabilité d'apparition : 35% si conditions remplies (au lieu de 70%)
+            if (Math.random() > RIFT_SPAWN_PROBABILITY) return null;
 
             const newRift = awakGenerateRift();
             rifts.push(newRift);
@@ -23209,6 +23412,62 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     </div>
                 </div>
 
+                <!-- 💚 BARRE HP JOUEUR -->
+                ${(() => {
+                    const maxHP = (typeof awakGetPlayerMaxHP === 'function') ? awakGetPlayerMaxHP() : 100;
+                    const curHP = (typeof awakGetPlayerHP === 'function') ? awakGetPlayerHP() : maxHP;
+                    const pPct = Math.max(0, Math.round((curHP / maxHP) * 100));
+                    const pColor = pPct > 60 ? '#4ade80' : pPct > 30 ? '#fbbf24' : '#ef4444';
+                    return `
+                    <div style="padding:10px 20px;background:rgba(34,197,94,0.04);border-bottom:1px solid rgba(74,222,128,0.15);">
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <span style="font-size:1.2em;line-height:1;filter:drop-shadow(0 0 6px rgba(74,222,128,0.5));">💚</span>
+                            <div style="flex:1;">
+                                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+                                    <span style="font-size:0.55em;color:#4ade80;font-weight:900;letter-spacing:2px;text-transform:uppercase;text-shadow:0 0 6px rgba(74,222,128,0.4);">◈ VITALITÉ</span>
+                                    <span id="playerHpText" style="font-size:0.65em;color:white;font-weight:900;font-variant-numeric:tabular-nums;">${curHP} / ${maxHP} HP</span>
+                                </div>
+                                <div style="background:rgba(0,0,0,0.5);height:8px;border-radius:99px;overflow:hidden;border:1px solid rgba(255,255,255,0.05);">
+                                    <div id="playerHpBar" style="width:${pPct}%;height:100%;background:linear-gradient(90deg,${pColor},${pColor}cc);transition:width 0.6s cubic-bezier(0.16,1,0.3,1);box-shadow:0 0 8px ${pColor}80;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                })()}
+
+                <!-- 🎯 BONUS ACTIFS (stats) -->
+                ${(() => {
+                    if (typeof awakComputeStatBonuses !== 'function') return '';
+                    const b = awakComputeStatBonuses(null, currentWave.isBoss);
+                    const items = [];
+                    if (b.raw.STR > 0) items.push({ emoji: '⚔️', color: '#ef4444', label: `+${Math.round((b.damageMult - 1) * 100)}% DGTS`, tip: `STR ${b.raw.STR}` });
+                    if (b.raw.AGI > 0) items.push({ emoji: '⚡', color: '#fbbf24', label: `${Math.round(b.critChance * 100)}% CRIT`, tip: `AGI ${b.raw.AGI}` });
+                    if (b.raw.VIT > 0) items.push({ emoji: '💨', color: '#3b82f6', label: `${Math.round(b.doubleChance * 100)}% × 2`, tip: `VIT ${b.raw.VIT}` });
+                    if (b.raw.END > 0) items.push({ emoji: '💚', color: '#4ade80', label: `+${b.hpRegen} HP/série`, tip: `END ${b.raw.END}` });
+                    if (b.raw.PER > 0) {
+                        if (currentWave.isBoss) {
+                            items.push({ emoji: '👁', color: '#a855f7', label: `+${Math.round(b.bossBonus * 100)}% BOSS`, tip: `PER ${b.raw.PER}` });
+                        }
+                        items.push({ emoji: '🛡', color: '#a855f7', label: `${Math.round(b.dodgeChance * 100)}% ESQ.`, tip: `PER ${b.raw.PER}` });
+                    }
+                    if (b.raw.SEN > 0) items.push({ emoji: '🌀', color: '#ec4899', label: `+${Math.round((b.xpMult - 1) * 100)}% XP`, tip: `SEN ${b.raw.SEN}` });
+
+                    if (items.length === 0) return '';
+
+                    return `
+                    <div style="padding:10px 20px;background:rgba(0,0,0,0.4);border-bottom:1px solid rgba(255,255,255,0.05);">
+                        <div style="font-size:0.55em;color:#94a3b8;font-weight:900;letter-spacing:2px;margin-bottom:6px;text-transform:uppercase;">◈ BONUS ACTIFS</div>
+                        <div style="display:flex;flex-wrap:wrap;gap:5px;">
+                            ${items.map(i => `
+                                <span title="${i.tip}" style="display:inline-flex;align-items:center;gap:4px;background:${i.color}15;border:1px solid ${i.color}50;color:${i.color};padding:3px 8px;border-radius:99px;font-size:0.6em;font-weight:900;letter-spacing:0.5px;text-shadow:0 0 4px ${i.color}50;">
+                                    <span style="font-size:0.95em;line-height:1;">${i.emoji}</span>
+                                    <span>${i.label}</span>
+                                </span>
+                            `).join('')}
+                        </div>
+                    </div>`;
+                })()}
+
                 <!-- Choix d'exercices -->
                 <div style="padding:18px 20px;overflow-y:auto;flex:1;">
                     <div style="font-size:0.62em;color:#94a3b8;font-weight:800;letter-spacing:2px;margin-bottom:10px;">◈ EXERCICE POUR ATTAQUER</div>
@@ -23369,6 +23628,54 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
          * Inflige des dégâts à la vague actuelle
          * Appelé à la fin de chaque série pendant un combat de Faille
          */
+        // ═══════════════════════════════════════════════════════════════
+        // 🎯 SYSTÈME DE BONUS PAR STAT — Effets en combat
+        // ═══════════════════════════════════════════════════════════════
+        // STR : +1% dégâts par point
+        // AGI : +0.5% chance crit par point
+        // VIT : +1% chance double attaque par point
+        // END : Régénération HP joueur + résistance contre-attaques
+        // PER : +1% dégâts vs boss + chance esquive
+        // SEN : +1% XP gagnée + chance loot rare (à la fin de Faille)
+        // ═══════════════════════════════════════════════════════════════
+
+        // Helper : calcule les bonus actifs basés sur les stats
+        function awakComputeStatBonuses(playerStats, isBoss) {
+            const stats = playerStats || (typeof awakGetTotalStats === 'function' ? awakGetTotalStats() : {});
+            return {
+                // ⚔️ STR : multiplicateur dégâts généraux
+                damageMult: 1 + (stats.STR || 0) * 0.01,
+
+                // ⚡ AGI : chance critique
+                critChance: (stats.AGI || 0) * 0.005, // 0.5% par point
+
+                // 💨 VIT : chance double attaque
+                doubleChance: (stats.VIT || 0) * 0.01, // 1% par point
+
+                // 💚 END : régénération HP joueur (sera utilisé plus tard pour HP joueur)
+                hpRegen: Math.floor((stats.END || 0) / 2),
+
+                // 👁️ PER : bonus dégâts vs boss + esquive
+                bossBonus: isBoss ? (stats.PER || 0) * 0.01 : 0,
+                dodgeChance: (stats.PER || 0) * 0.003, // 0.3% par point
+
+                // 🌀 SEN : bonus XP + loot
+                xpMult: 1 + (stats.SEN || 0) * 0.01,
+                rareLootBonus: (stats.SEN || 0) * 0.005,
+
+                // Valeurs raw pour affichage
+                raw: {
+                    STR: stats.STR || 0,
+                    AGI: stats.AGI || 0,
+                    VIT: stats.VIT || 0,
+                    END: stats.END || 0,
+                    PER: stats.PER || 0,
+                    SEN: stats.SEN || 0
+                }
+            };
+        }
+        window.awakComputeStatBonuses = awakComputeStatBonuses;
+
         function awakDealDamageToWave(reps, weightKg) {
             const session = awakActiveRiftSession;
             if (!session) return;
@@ -23378,6 +23685,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const theme = session.theme;
             const playerStats = awakGetTotalStats();
 
+            // 🎯 Calculer tous les bonus stats actifs
+            const bonuses = awakComputeStatBonuses(playerStats, currentWave.isBoss);
+
             // 🎭 Phase 4 : bonus compagnons
             const compBonus = typeof awakCompanionsGetActiveBonuses === 'function'
                 ? awakCompanionsGetActiveBonuses() : {};
@@ -23386,32 +23696,48 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const consumEffects = typeof awakConsumablesGetActiveEffects === 'function'
                 ? awakConsumablesGetActiveEffects() : {};
 
-            // Formule de dégâts : base + reps × (1 + stat/100) + chance crit
-            const base = 15; // ⚔ Augmenté pour visibilité (était 5)
+            // Formule de dégâts : base + reps × (1 + stat thématique/100) — la stat principale du thème reste boost
+            const base = 15;
             const primaryStatValue = (playerStats[theme.primaryStat] || 0) * (1 + (consumEffects[theme.primaryStat] || 0));
             const statMult = 1 + primaryStatValue / 100;
-            const baseDamage = base + (reps || 1) * statMult * 2; // ×2 sur reps
-            // Bonus poids (si lourd)
+            const baseDamage = base + (reps || 1) * statMult * 2;
             const weightBonus = weightKg > 0 ? Math.floor(weightKg / 10) : 0;
 
-            // Critique : 5% + 1% par 10 points de PER + bonus compagnons + consommables
-            const critChance = 0.05 + (playerStats.PER || 0) / 1000 + (compBonus.critChance || 0) + (consumEffects.critBonus || 0);
-            const isCrit = Math.random() < critChance;
-            let finalDamage = Math.round((baseDamage + weightBonus) * (isCrit ? 2 : 1));
+            let finalDamage = baseDamage + weightBonus;
 
-            // Bonus boss (Marcus Ironfist)
+            // ⚔️ STR : multiplicateur dégâts global (toujours actif)
+            finalDamage *= bonuses.damageMult;
+
+            // 👁️ PER : bonus dégâts contre boss
+            if (currentWave.isBoss && bonuses.bossBonus > 0) {
+                finalDamage *= (1 + bonuses.bossBonus);
+            }
+
+            // ⚡ AGI : chance critique (×2 dégâts)
+            // critique = bonus AGI + base 5% + bonus compagnons/consumables
+            const critChance = 0.05 + bonuses.critChance + (compBonus.critChance || 0) + (consumEffects.critBonus || 0);
+            const isCrit = Math.random() < critChance;
+            if (isCrit) finalDamage *= 2;
+
+            // 💨 VIT : chance double attaque (×1.5 dégâts au total)
+            const isDouble = Math.random() < bonuses.doubleChance;
+            let doubleDamage = 0;
+            if (isDouble) {
+                doubleDamage = Math.round(finalDamage * 0.5);
+                finalDamage += doubleDamage;
+            }
+
+            // Bonus boss (Marcus Ironfist - compagnon)
             if (currentWave.isBoss && compBonus.dmgBoss) {
-                finalDamage = Math.round(finalDamage * (1 + compBonus.dmgBoss));
+                finalDamage = finalDamage * (1 + compBonus.dmgBoss);
             }
 
             // 👑 Phase 5 : boss mechanics actives
-            // Faiblesse → ×2 dégâts sur la stat révélée
             if (currentWave.isBoss && currentWave.weaknessStat === theme.primaryStat) {
-                finalDamage = Math.round(finalDamage * 2);
+                finalDamage = finalDamage * 2;
             }
-            // Enrage → -25% dégâts subis
             if (currentWave.isBoss && currentWave._enraged) {
-                finalDamage = Math.round(finalDamage * 0.75);
+                finalDamage = finalDamage * 0.75;
             }
 
             // 👹 Phase 3 : handicap "reduce_stats" diminue les dégâts
@@ -23419,27 +23745,36 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 if (typeof awakGetActiveHandicaps === 'function') {
                     const handicaps = awakGetActiveHandicaps();
                     if (handicaps.reduce_stats > 0) {
-                        finalDamage = Math.round(finalDamage * (1 - handicaps.reduce_stats / 100));
+                        finalDamage = finalDamage * (1 - handicaps.reduce_stats / 100);
                     }
                 }
             } catch(e) {}
+
+            finalDamage = Math.max(1, Math.round(finalDamage));
+
+            // 🔥 Afficher les procs spéciaux après les dégâts
+            const procToasts = [];
+            if (isDouble) procToasts.push({ msg: `⚡ DOUBLE ATTAQUE ! +${Math.round(doubleDamage)} HP`, type: 'success' });
+            if (currentWave.isBoss && bonuses.bossBonus > 0) {
+                procToasts.push({ msg: `👁 Faiblesse détectée (+${Math.round(bonuses.bossBonus * 100)}% vs boss)`, type: 'info' });
+            }
 
             const prevHpPercent = (currentWave.hpCurrent / currentWave.hpMax) * 100;
             currentWave.hpCurrent = Math.max(0, currentWave.hpCurrent - finalDamage);
             const newHpPercent = (currentWave.hpCurrent / currentWave.hpMax) * 100;
             session.totalDamageDealt += finalDamage;
 
-            // 💾 PERSISTER l'état dans localStorage (sinon HP réinitialisés au prochain load)
+            // 💾 PERSISTER l'état dans localStorage
             try {
                 const allRifts = awakRiftsLoad();
                 const idx = allRifts.findIndex(r => r.id === rift.id);
                 if (idx >= 0) {
-                    allRifts[idx] = rift; // remplace par la version modifiée
+                    allRifts[idx] = rift;
                     awakRiftsSave(allRifts);
                 }
             } catch(e) { console.warn('Failed to persist rift state:', e); }
 
-            // 👑 Phase 5 : déclencher mécaniques boss aux seuils
+            // 👑 Phase 5 : mécaniques boss aux seuils
             const bossMessages = (typeof awakApplyBossMechanic === 'function')
                 ? awakApplyBossMechanic(currentWave, prevHpPercent, newHpPercent) : null;
             if (bossMessages) {
@@ -23458,7 +23793,30 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 if (isCrit && Math.random() < 0.4) awakCompanionShowDialogue('onCrit');
             } catch(e) {}
 
-            return { damage: finalDamage, isCrit, killed: currentWave.hpCurrent <= 0 };
+            // 🎉 Afficher les procs spéciaux (séquentiellement)
+            procToasts.forEach((p, i) => {
+                setTimeout(() => {
+                    if (typeof showToast === 'function') showToast(p.msg, p.type, 1800);
+                }, 800 + i * 500);
+            });
+
+            // 💚 END : régénération HP joueur à chaque série complétée
+            if (bonuses.hpRegen > 0 && currentWave.hpCurrent > 0) {
+                setTimeout(() => awakHealPlayer(bonuses.hpRegen), 1500);
+            }
+
+            // 🩸 Boss contre-attaque si pas mort
+            if (currentWave.isBoss && currentWave.hpCurrent > 0) {
+                awakBossCounterAttack(currentWave);
+            }
+
+            return {
+                damage: finalDamage,
+                isCrit,
+                isDouble,
+                bossWeakness: currentWave.isBoss && bonuses.bossBonus > 0,
+                killed: currentWave.hpCurrent <= 0
+            };
         }
         window.awakDealDamageToWave = awakDealDamageToWave;
 
@@ -23477,7 +23835,24 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             if (session.rift.currentWaveIdx >= session.rift.waves.length) {
                 awakCompleteRift();
             } else {
-                awakShowRiftCombatScreen();
+                // 💚 Heal entre vagues : 25% HP max + bonus END
+                if (typeof awakGetPlayerMaxHP === 'function' && typeof awakHealPlayer === 'function') {
+                    const maxHP = awakGetPlayerMaxHP();
+                    const bonuses = (typeof awakComputeStatBonuses === 'function')
+                        ? awakComputeStatBonuses() : { hpRegen: 0 };
+                    const baseHeal = Math.round(maxHP * 0.25);
+                    const totalHeal = baseHeal + (bonuses.hpRegen || 0) * 2; // ×2 entre vagues
+                    setTimeout(() => {
+                        if (typeof showToast === 'function') {
+                            showToast(`🌟 Vague terminée ! Tu reprends ton souffle...`, 'success', 2200);
+                        }
+                        setTimeout(() => {
+                            awakHealPlayer(totalHeal);
+                        }, 700);
+                    }, 400);
+                }
+
+                setTimeout(() => awakShowRiftCombatScreen(), 1500);
             }
         }
         window.awakAdvanceToNextWave = awakAdvanceToNextWave;
@@ -23485,10 +23860,23 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         function awakAbandonRift() {
             const session = awakActiveRiftSession;
             if (!session) return;
-            if (!confirm('Abandonner cette Faille ? Tu pourras réessayer plus tard.')) return;
-            awakActiveRiftSession = null;
-            document.getElementById('awakRiftCombatModal')?.remove();
-            switchTab('game');
+            showConfirm(
+                'Tu pourras réessayer cette Faille plus tard. Toute la progression de combat sera perdue.',
+                () => {
+                    awakActiveRiftSession = null;
+                    document.getElementById('awakRiftCombatModal')?.remove();
+                    switchTab('game');
+                },
+                null,
+                {
+                    title: 'Abandonner la Faille ?',
+                    subtitle: '◈ FUITE DU COMBAT ◈',
+                    icon: '⚔',
+                    confirmLabel: '✕ Fuir',
+                    cancelLabel: '↩ Rester',
+                    danger: true
+                }
+            );
         }
         window.awakAbandonRift = awakAbandonRift;
 
@@ -23532,7 +23920,13 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             // XP bonus selon rang + grade
             const xpByRank = { E: 200, D: 400, C: 700, B: 1100, A: 1700, S: 2500 };
             const gradeMult = { SSS: 1.5, SS: 1.3, S: 1.2, A: 1.0, B: 0.9, C: 0.8, D: 0.7, F: 0.5 };
-            const xpReward = Math.round(xpByRank[rift.rank] * gradeMult[grade]);
+            let xpReward = Math.round(xpByRank[rift.rank] * gradeMult[grade]);
+
+            // 🌀 SEN : bonus XP
+            const bonuses = awakComputeStatBonuses();
+            const xpBeforeBonus = xpReward;
+            xpReward = Math.round(xpReward * bonuses.xpMult);
+            const xpBonusAmount = xpReward - xpBeforeBonus;
 
             document.getElementById('awakRiftCombatModal')?.remove();
             const modal = document.createElement('div');
@@ -24191,10 +24585,23 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         function awakAbandonHunt() {
             const session = awakActiveHuntSession;
             if (!session) return;
-            if (!confirm('Abandonner la chasse ? Le monstre reste en liberté.')) return;
-            awakActiveHuntSession = null;
-            document.getElementById('awakHuntCombatModal')?.remove();
-            switchTab('game');
+            showConfirm(
+                'Le monstre restera en liberté. Tu pourras retenter la chasse plus tard.',
+                () => {
+                    awakActiveHuntSession = null;
+                    document.getElementById('awakHuntCombatModal')?.remove();
+                    switchTab('game');
+                },
+                null,
+                {
+                    title: 'Abandonner la chasse ?',
+                    subtitle: '◈ LE MONSTRE S\'ENFUIT ◈',
+                    icon: '🏃',
+                    confirmLabel: '✕ Fuir',
+                    cancelLabel: '🎯 Continuer',
+                    danger: true
+                }
+            );
         }
         window.awakAbandonHunt = awakAbandonHunt;
 
@@ -25427,6 +25834,214 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         window.awakApplyBossMechanic = awakApplyBossMechanic;
 
         // ═══════════════════════════════════════════════════════════════
+        // 💚 SYSTÈME HP JOUEUR — Pour END et PER en combat
+        // ═══════════════════════════════════════════════════════════════
+        // Le joueur a des HP qui se vident quand le boss contre-attaque.
+        // - END : régénération HP par série complétée
+        // - PER : chance d'esquiver les contre-attaques
+        // - HP max = 100 + END × 5 (donc plus d'END = plus de HP max aussi)
+        // ═══════════════════════════════════════════════════════════════
+
+        function awakGetPlayerMaxHP() {
+            const stats = typeof awakGetTotalStats === 'function' ? awakGetTotalStats() : {};
+            return 100 + (stats.END || 0) * 5;
+        }
+        window.awakGetPlayerMaxHP = awakGetPlayerMaxHP;
+
+        function awakGetPlayerHP() {
+            const session = awakActiveRiftSession;
+            if (!session) return awakGetPlayerMaxHP();
+            if (typeof session.playerHP !== 'number') {
+                session.playerHP = awakGetPlayerMaxHP();
+            }
+            return session.playerHP;
+        }
+        window.awakGetPlayerHP = awakGetPlayerHP;
+
+        function awakDamagePlayer(damage, source) {
+            const session = awakActiveRiftSession;
+            if (!session) return { dodged: false, dead: false };
+
+            const bonuses = awakComputeStatBonuses();
+            // 👁️ PER : chance d'esquiver
+            if (Math.random() < bonuses.dodgeChance) {
+                if (typeof showToast === 'function') {
+                    showToast('👁 ESQUIVÉ ! Tu as anticipé l\'attaque', 'info', 2000);
+                }
+                if (typeof hapticTap === 'function') hapticTap([20, 30, 20]);
+                return { dodged: true, dead: false };
+            }
+
+            if (typeof session.playerHP !== 'number') session.playerHP = awakGetPlayerMaxHP();
+            session.playerHP = Math.max(0, session.playerHP - damage);
+
+            // Toast contre-attaque
+            if (typeof showToast === 'function') {
+                showToast(`🩸 ${source || 'Le monstre'} riposte ! -${damage} HP`, 'error', 2200);
+            }
+            if (typeof hapticTap === 'function') hapticTap([60, 40, 60]);
+
+            // Mise à jour UI HP joueur + animations
+            const playerHpEl = document.getElementById('playerHpBar');
+            const playerHpText = document.getElementById('playerHpText');
+            const combatModal = document.getElementById('awakRiftCombatModal');
+            if (playerHpEl) {
+                const pct = Math.round((session.playerHP / awakGetPlayerMaxHP()) * 100);
+                playerHpEl.style.width = pct + '%';
+                playerHpEl.classList.remove('player-hp-damaged');
+                void playerHpEl.offsetWidth; // restart animation
+                playerHpEl.classList.add('player-hp-damaged');
+            }
+            if (playerHpText) {
+                playerHpText.textContent = `${session.playerHP} / ${awakGetPlayerMaxHP()} HP`;
+            }
+            if (combatModal) {
+                combatModal.classList.remove('combat-shake');
+                void combatModal.offsetWidth;
+                combatModal.classList.add('combat-shake');
+            }
+
+            // Mort du joueur
+            if (session.playerHP <= 0) {
+                setTimeout(() => {
+                    awakShowGameOverModal(source);
+                }, 800);
+                return { dodged: false, dead: true };
+            }
+
+            return { dodged: false, dead: false };
+        }
+        window.awakDamagePlayer = awakDamagePlayer;
+
+        // 💀 Game Over modal cyberpunk
+        function awakShowGameOverModal(monsterName) {
+            // Fermer le modal de combat
+            document.getElementById('awakRiftCombatModal')?.remove();
+            document.getElementById('gameOverModal')?.remove();
+
+            const overlay = document.createElement('div');
+            overlay.id = 'gameOverModal';
+            overlay.style.cssText = `
+                position:fixed;inset:0;
+                background:rgba(0,0,0,0.95);
+                backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+                z-index:100000;
+                display:flex;align-items:center;justify-content:center;
+                padding:20px;
+                animation:awakFadeIn 0.4s ease;
+            `;
+
+            overlay.innerHTML = `
+                <div style="
+                    max-width:400px;width:100%;
+                    background:linear-gradient(160deg,#0a0e18 0%,#1a0a0a 50%,#0a0e18 100%);
+                    border:2px solid #ef4444;
+                    border-radius:18px;overflow:hidden;
+                    box-shadow:0 24px 60px rgba(0,0,0,0.8),0 0 60px rgba(239,68,68,0.4);
+                    animation:slideUp 0.45s cubic-bezier(0.34,1.56,0.64,1);
+                    position:relative;
+                    text-align:center;
+                ">
+                    <!-- Coins HUD rouges -->
+                    <div style="position:absolute;top:-1px;left:-1px;width:24px;height:24px;border-top:2px solid #ef4444;border-left:2px solid #ef4444;border-top-left-radius:18px;box-shadow:0 0 12px rgba(239,68,68,0.6);"></div>
+                    <div style="position:absolute;top:-1px;right:-1px;width:24px;height:24px;border-top:2px solid #ef4444;border-right:2px solid #ef4444;border-top-right-radius:18px;box-shadow:0 0 12px rgba(239,68,68,0.6);"></div>
+                    <div style="position:absolute;bottom:-1px;left:-1px;width:24px;height:24px;border-bottom:2px solid #ef4444;border-left:2px solid #ef4444;border-bottom-left-radius:18px;box-shadow:0 0 12px rgba(239,68,68,0.6);"></div>
+                    <div style="position:absolute;bottom:-1px;right:-1px;width:24px;height:24px;border-bottom:2px solid #ef4444;border-right:2px solid #ef4444;border-bottom-right-radius:18px;box-shadow:0 0 12px rgba(239,68,68,0.6);"></div>
+
+                    <!-- Scan lines -->
+                    <div style="position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0,transparent 3px,rgba(239,68,68,0.04) 3px,rgba(239,68,68,0.04) 4px);pointer-events:none;"></div>
+
+                    <!-- Glow accent top -->
+                    <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,#ef4444,transparent);"></div>
+
+                    <div style="padding:36px 24px 28px;position:relative;z-index:1;">
+                        <div style="font-size:5em;line-height:1;margin-bottom:10px;filter:drop-shadow(0 0 24px rgba(239,68,68,0.6));animation:awakFadeIn 0.8s ease;">💀</div>
+                        <div style="font-size:0.65em;color:#ef4444;font-weight:900;letter-spacing:5px;text-transform:uppercase;margin-bottom:8px;text-shadow:0 0 12px rgba(239,68,68,0.7);">◈ VOUS ÊTES VAINCU ◈</div>
+                        <div style="font-size:1.6em;font-weight:900;color:white;letter-spacing:-1px;text-transform:uppercase;text-shadow:0 0 24px rgba(239,68,68,0.4);margin-bottom:14px;">GAME OVER</div>
+                        <div style="font-size:0.88em;color:#cbd5e1;line-height:1.6;margin-bottom:6px;">
+                            <strong style="color:#ef4444">${monsterName || 'L\'ennemi'}</strong> t'a vaincu.
+                        </div>
+                        <div style="font-size:0.78em;color:#94a3b8;line-height:1.5;font-style:italic;margin-bottom:24px;">
+                            La Faille te rejette dans le monde réel.<br>Reprends des forces et reviens plus puissant.
+                        </div>
+
+                        <button onclick="document.getElementById('gameOverModal').remove();if(typeof switchTab==='function')switchTab('game');" style="
+                            width:100%;
+                            background:linear-gradient(135deg,#dc2626,#ef4444);
+                            border:1px solid #ef4444;
+                            color:white;
+                            padding:14px 18px;
+                            border-radius:11px;
+                            font-size:0.95em;font-weight:900;
+                            letter-spacing:2px;text-transform:uppercase;
+                            cursor:pointer;
+                            box-shadow:0 0 24px rgba(239,68,68,0.4),0 6px 20px rgba(239,68,68,0.25);
+                            position:relative;overflow:hidden;
+                        ">
+                            ↩ RETOURNER AU SANCTUAIRE
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(overlay);
+            awakActiveRiftSession = null;
+
+            if (typeof hapticTap === 'function') hapticTap([100, 50, 100, 50, 200]);
+        }
+        window.awakShowGameOverModal = awakShowGameOverModal;
+
+        function awakHealPlayer(amount) {
+            const session = awakActiveRiftSession;
+            if (!session) return;
+            if (typeof session.playerHP !== 'number') session.playerHP = awakGetPlayerMaxHP();
+
+            const maxHP = awakGetPlayerMaxHP();
+            const before = session.playerHP;
+            session.playerHP = Math.min(maxHP, session.playerHP + amount);
+            const actuallyHealed = session.playerHP - before;
+
+            if (actuallyHealed > 0 && typeof showToast === 'function') {
+                showToast(`💚 +${actuallyHealed} HP (END régénération)`, 'success', 1600);
+            }
+
+            // Update UI + animation heal
+            const playerHpEl = document.getElementById('playerHpBar');
+            const playerHpText = document.getElementById('playerHpText');
+            if (playerHpEl) {
+                const pct = Math.round((session.playerHP / maxHP) * 100);
+                playerHpEl.style.width = pct + '%';
+                playerHpEl.classList.remove('player-hp-healed');
+                void playerHpEl.offsetWidth;
+                playerHpEl.classList.add('player-hp-healed');
+            }
+            if (playerHpText) {
+                playerHpText.textContent = `${session.playerHP} / ${maxHP} HP`;
+            }
+        }
+        window.awakHealPlayer = awakHealPlayer;
+
+        // 🎯 Contre-attaque du boss après une série du joueur
+        // Appelée après chaque awakDealDamageToWave si c'est un boss
+        function awakBossCounterAttack(wave) {
+            if (!wave || !wave.isBoss) return;
+            // 30% chance de contre-attaque par défaut
+            const counterChance = wave._enraged ? 0.5 : 0.3;
+            if (Math.random() >= counterChance) return;
+
+            // Dégâts du boss : 8-20 selon rang
+            const rankIdx = ['E','D','C','B','A','S','SS','SSS'].indexOf(wave.rank || 'E');
+            const baseDmg = 8 + rankIdx * 3;
+            const variance = Math.floor(Math.random() * 6);
+            const dmg = baseDmg + variance;
+
+            setTimeout(() => {
+                awakDamagePlayer(dmg, wave.name);
+            }, 1200);
+        }
+        window.awakBossCounterAttack = awakBossCounterAttack;
+
+        // ═══════════════════════════════════════════════════════════════
         // 🎨 RENDER : Carte Inventaire (consommables)
         // ═══════════════════════════════════════════════════════════════
         function renderConsumablesCard() {
@@ -26630,8 +27245,16 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             // 🌀 AWAKENED — Tenter de générer une Faille après séance (pas si c'est une Faille)
             try {
                 if (!currentWorkout._isRift && typeof awakTryGenerateRift === 'function') {
+                    // Contexte de séance : seule une vraie séance peut ouvrir une Faille
+                    const sessionDurationMin = workoutStartTime
+                        ? Math.floor((Date.now() - workoutStartTime) / 60000)
+                        : 0;
+                    const sessionContext = {
+                        durationMin: sessionDurationMin,
+                        exercisesCompleted: currentExerciseIndex || 0
+                    };
                     setTimeout(() => {
-                        const newRift = awakTryGenerateRift();
+                        const newRift = awakTryGenerateRift(sessionContext);
                         if (newRift && typeof showToast === 'function') {
                             setTimeout(() => showToast('🌀 Une Faille s\'est ouverte', 'info', 4000), 4000);
                         }
@@ -28074,9 +28697,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 <h3 style="margin:0 0 12px 0;color:white;font-size:0.95em;font-weight:900;">⚙️ Actions</h3>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
                     <button onclick="showCelebrityPrograms()" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.35);color:#c084fc;border-radius:10px;padding:12px 8px;font-weight:800;font-size:0.78em;cursor:pointer;">🔄 Changer programme</button>
-                    <button onclick="if(confirm('Réinitialiser à la semaine 1 ?')) resetCelebrityProgram('${celeb.id}');" style="background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.35);color:#fbbf24;border-radius:10px;padding:12px 8px;font-weight:800;font-size:0.78em;cursor:pointer;">↻ Réinitialiser progression</button>
+                    <button onclick="confirmResetCelebrityProgram('${celeb.id}')" style="background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.35);color:#fbbf24;border-radius:10px;padding:12px 8px;font-weight:800;font-size:0.78em;cursor:pointer;">↻ Réinitialiser progression</button>
                 </div>
-                <button onclick="if(confirm('Arrêter \\'${celeb.nickname}\\' ?')) { setActiveCelebrity(null); renderProgramTab(); if(typeof showToast === 'function') showToast('Programme arrêté', 'info', 2500); }" style="width:100%;margin-top:8px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:#f87171;border-radius:10px;padding:11px;font-weight:700;font-size:0.76em;cursor:pointer;">✕ Quitter ce programme</button>
+                <button onclick="confirmQuitCelebrityProgram('${celeb.nickname.replace(/'/g, "\\'")}')" style="width:100%;margin-top:8px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:#f87171;border-radius:10px;padding:11px;font-weight:700;font-size:0.76em;cursor:pointer;">✕ Quitter ce programme</button>
             </div>
             `;
         }
@@ -28118,6 +28741,72 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             return { ...ex, sets: Math.max(1, Math.round(ex.sets * prog.phase.setsScale)), _rest: Math.round((ex.rest || ex._rest || 90) * prog.phase.restScale) };
         }
 
+        // ═══════════════════════════════════════════════════════════════
+        // 🎬 Wrappers de confirmation cyberpunk pour les programmes célébrité
+        // ═══════════════════════════════════════════════════════════════
+        function confirmResetCelebrityProgram(programId) {
+            showConfirm(
+                'Toute ta progression dans ce programme sera réinitialisée. Tu repartiras de la semaine 1.',
+                () => {
+                    resetCelebrityProgram(programId);
+                    if (typeof renderProgramTab === 'function') renderProgramTab();
+                    if (typeof showToast === 'function') showToast('↻ Progression réinitialisée', 'info', 2500);
+                },
+                null,
+                {
+                    title: 'Réinitialiser à la semaine 1 ?',
+                    subtitle: '◈ PROGRESSION REMISE À ZÉRO ◈',
+                    icon: '↻',
+                    confirmLabel: '↻ Réinitialiser',
+                    cancelLabel: '↩ Annuler',
+                    danger: true
+                }
+            );
+        }
+        window.confirmResetCelebrityProgram = confirmResetCelebrityProgram;
+
+        function confirmQuitCelebrityProgram(celebNickname) {
+            showConfirm(
+                `Le programme "<strong style="color:#f87171">${celebNickname}</strong>" sera arrêté. Tu garderas ta progression actuelle pour pouvoir le reprendre plus tard.`,
+                () => {
+                    setActiveCelebrity(null);
+                    if (typeof renderProgramTab === 'function') renderProgramTab();
+                    if (typeof showToast === 'function') showToast('Programme arrêté', 'info', 2500);
+                },
+                null,
+                {
+                    title: 'Quitter ce programme ?',
+                    subtitle: '◈ ARRÊT DU SUIVI ◈',
+                    icon: '✕',
+                    confirmLabel: '✕ Quitter',
+                    cancelLabel: '↩ Rester',
+                    danger: true
+                }
+            );
+        }
+        window.confirmQuitCelebrityProgram = confirmQuitCelebrityProgram;
+
+        function confirmRestartCelebrityFromWeek1(programId) {
+            showConfirm(
+                'Tu vas recommencer ce programme depuis la semaine 1. Toute la progression actuelle sera perdue.',
+                () => {
+                    resetCelebrityProgram(programId);
+                    document.getElementById('celebrityDetailOverlay')?.remove();
+                    if (typeof showCelebrityDetail === 'function') showCelebrityDetail(programId);
+                },
+                null,
+                {
+                    title: 'Recommencer depuis la semaine 1 ?',
+                    subtitle: '◈ NOUVEAU DÉPART ◈',
+                    icon: '🔄',
+                    confirmLabel: '🔄 Recommencer',
+                    cancelLabel: '↩ Annuler',
+                    danger: true
+                }
+            );
+        }
+        window.confirmRestartCelebrityFromWeek1 = confirmRestartCelebrityFromWeek1;
+
         function resetCelebrityProgram(programId) {
             localStorage.removeItem(CELEBRITY_START_KEY + '_' + programId);
             const sessions = JSON.parse(localStorage.getItem(CELEBRITY_SESSIONS_KEY) || '{}');
@@ -28158,7 +28847,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 + '<div style="display:flex;align-items:center;gap:3px;justify-content:space-between;margin-bottom:10px;">' + dots + '</div>'
                 + '<div style="display:flex;gap:6px;margin-bottom:10px;">' + phaseBlocks + '</div>'
                 + '<div style="font-size:0.75em;color:rgba(255,255,255,0.5);line-height:1.4;">' + prog.phase.desc + ' <span style="color:' + prog.phase.color + ';font-weight:700;">(' + scaleLabel + ')</span></div>'
-                + '<button onclick="if(confirm(\'Recommencer à la semaine 1 ?\')){resetCelebrityProgram(\'' + p.id + '\');document.getElementById(\'celebrityDetailOverlay\')?.remove();showCelebrityDetail(\'' + p.id + '\');}" style="margin-top:10px;width:100%;padding:8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:rgba(255,255,255,0.3);font-size:0.72em;font-weight:700;cursor:pointer;">\u{1F504} Recommencer depuis la semaine 1</button>'
+                + '<button onclick="confirmRestartCelebrityFromWeek1(\'' + p.id + '\')" style="margin-top:10px;width:100%;padding:8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:rgba(255,255,255,0.3);font-size:0.72em;font-weight:700;cursor:pointer;">\u{1F504} Recommencer depuis la semaine 1</button>'
                 + '</div>';
         }
 

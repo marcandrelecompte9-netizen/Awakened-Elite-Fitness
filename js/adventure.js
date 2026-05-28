@@ -377,6 +377,16 @@ function tryEquipmentDrop(muscle, workoutQuality) {
         }
     } catch(e) {}
 
+    // 🌀 SEN : bonus chance de loot rare (depuis les stats joueur)
+    try {
+        if (typeof window.awakComputeStatBonuses === 'function') {
+            const bonuses = window.awakComputeStatBonuses();
+            if (bonuses.rareLootBonus > 0) {
+                rareLootMult += bonuses.rareLootBonus;
+            }
+        }
+    } catch(e) {}
+
     const baseTable = rankTables[effectiveRank];
     // Si Yuna est active, redistribuer les probas vers les hautes raretés
     const table = rareLootMult > 1
@@ -896,12 +906,25 @@ function showItemPopup(item, invId, equippedSlot) {
                 <div style="margin-bottom:12px;">
                     <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:6px;">◈ STATISTIQUES</div>
                     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;">
-                        ${stats.map(([k,v]) => `
+                        ${stats.map(([k,v]) => {
+                            // 🎯 Effet combat de chaque stat
+                            const effects = {
+                                STR: `+${v}% dgts`,
+                                AGI: `+${(v*0.5).toFixed(1)}% crit`,
+                                VIT: `+${v}% × 2`,
+                                END: `+${v*5} HP max`,
+                                PER: `+${v}% vs boss`,
+                                SEN: `+${v}% XP`
+                            };
+                            const effectText = effects[k] || '';
+                            return `
                             <div style="background:#0a0e18;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:6px 4px;text-align:center;">
                                 <div style="font-size:0.55em;color:#64748b;font-weight:800;letter-spacing:0.5px;">${k}</div>
                                 <div style="font-size:1em;color:${r.color};font-weight:900;line-height:1.1;">+${v}</div>
+                                ${effectText ? `<div style="font-size:0.48em;color:#4ade80;font-weight:700;margin-top:2px;letter-spacing:0.3px;">${effectText}</div>` : ''}
                             </div>
-                        `).join('')}
+                        `;
+                        }).join('')}
                     </div>
                 </div>` : ''}
 
@@ -1131,47 +1154,68 @@ window.openInventoryCleanupModal = openInventoryCleanupModal;
 // Confirmation pour suppression en masse par rareté
 function confirmBulkDiscard(rarity, count) {
     const r = getRarityInfo(rarity);
-    if (!confirm(`⚠️ Supprimer définitivement ${count} item(s) de rareté ${(r.labelFull || r.label || rarity).toUpperCase()} ?\n\nCette action est irréversible.`)) {
-        return;
-    }
+    const rarityLabel = (r.labelFull || r.label || rarity).toUpperCase();
 
-    const inv = getInventory();
-    const eq = getEquipped();
-    const equippedIds = new Set(Object.values(eq).filter(Boolean));
+    const doDiscard = () => {
+        const inv = getInventory();
+        const eq = getEquipped();
+        const equippedIds = new Set(Object.values(eq).filter(Boolean));
 
-    let removedCount = 0;
-    const newInv = inv.filter(entry => {
-        if (equippedIds.has(entry.id)) return true; // garde équipés
-        const item = getItemById(entry.itemId);
-        if (!item) return true;
-        const itemRarity = item.rarity || 'common';
-        if (itemRarity === rarity) {
-            removedCount++;
-            return false;
+        let removedCount = 0;
+        const newInv = inv.filter(entry => {
+            if (equippedIds.has(entry.id)) return true; // garde équipés
+            const item = getItemById(entry.itemId);
+            if (!item) return true;
+            const itemRarity = item.rarity || 'common';
+            if (itemRarity === rarity) {
+                removedCount++;
+                return false;
+            }
+            return true;
+        });
+
+        saveInventory(newInv);
+
+        if (typeof showToast === 'function') {
+            showToast(`🗑️ ${removedCount} item(s) ${(r.label || rarity)} supprimé(s)`, 'info', 2500);
         }
-        return true;
-    });
+        if (typeof vibrate === 'function') vibrate([40, 30, 60]);
 
-    saveInventory(newInv);
+        // Re-render le modal de nettoyage
+        document.getElementById('inventoryCleanupModal')?.remove();
+        openInventoryCleanupModal();
 
-    if (typeof showToast === 'function') {
-        showToast(`🗑️ ${removedCount} item(s) ${(r.label || rarity)} supprimé(s)`, 'info', 2500);
+        // Re-render le modal d'équipement
+        const rpgModal = document.getElementById('rpgEquipModal');
+        if (rpgModal && typeof showRPGEquipmentModal === 'function') {
+            const activeTab = rpgModal.dataset.currentTab || 'inventory';
+            rpgModal.remove();
+            showRPGEquipmentModal(activeTab);
+        }
+
+        if (typeof renderAdventureTab === 'function') renderAdventureTab();
+    };
+
+    if (typeof window.showConfirm === 'function') {
+        window.showConfirm(
+            `<strong style="color:${r.color}">${count} item(s)</strong> de rareté <strong style="color:${r.color}">${rarityLabel}</strong> seront supprimés définitivement. Cette action ne peut pas être annulée.`,
+            doDiscard,
+            null,
+            {
+                title: 'Supprimer en masse ?',
+                subtitle: '◈ ACTION IRRÉVERSIBLE ◈',
+                icon: '🗑️',
+                confirmLabel: `🗑️ Supprimer ${count}`,
+                cancelLabel: '↩ Annuler',
+                danger: true
+            }
+        );
+    } else {
+        // Fallback
+        if (confirm(`⚠️ Supprimer définitivement ${count} item(s) de rareté ${rarityLabel} ?\n\nCette action est irréversible.`)) {
+            doDiscard();
+        }
     }
-    if (typeof vibrate === 'function') vibrate([40, 30, 60]);
-
-    // Re-render le modal de nettoyage
-    document.getElementById('inventoryCleanupModal')?.remove();
-    openInventoryCleanupModal();
-
-    // Re-render le modal d'équipement
-    const rpgModal = document.getElementById('rpgEquipModal');
-    if (rpgModal && typeof showRPGEquipmentModal === 'function') {
-        const activeTab = rpgModal.dataset.currentTab || 'inventory';
-        rpgModal.remove();
-        showRPGEquipmentModal(activeTab);
-    }
-
-    if (typeof renderAdventureTab === 'function') renderAdventureTab();
 }
 window.confirmBulkDiscard = confirmBulkDiscard;
 

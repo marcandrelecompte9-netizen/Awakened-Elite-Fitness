@@ -19,7 +19,7 @@
     <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/tabler-icons.min.css" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=66">
+    <link rel="stylesheet" href="css/style.css?v=72">
 </head>
 <body>
 
@@ -176,7 +176,7 @@
                 max-width: 900px;">
 
             <!-- Bannière image : ratio préservé -->
-            <img src="images/banner.png?v=66"
+            <img src="images/banner.png?v=72"
                  alt="Awakened Elite Fitness"
                  style="width:100%;height:auto;display:block;" />
 
@@ -1286,40 +1286,47 @@
             <!-- Exercise View (shown during workout) -->
             <div id="exerciseView" class="hidden">
                 <!-- ── Barre top sci-fi cyberpunk ── -->
-                <div id="workoutTopBar" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;background:linear-gradient(180deg,#020510 0%,#050810 100%);gap:8px;border-bottom:1px solid rgba(74,222,128,0.25);position:relative;box-shadow:0 4px 20px rgba(0,0,0,0.5),inset 0 -1px 0 rgba(74,222,128,0.15);">
+                <div id="workoutTopBar" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;background:linear-gradient(180deg,#020510 0%,#050810 100%);gap:6px;border-bottom:1px solid rgba(74,222,128,0.25);position:relative;box-shadow:0 4px 20px rgba(0,0,0,0.5),inset 0 -1px 0 rgba(74,222,128,0.15);flex-wrap:wrap;">
                     <!-- Glow accent line bottom -->
                     <div style="position:absolute;bottom:-1px;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent 10%,#4ade80 40%,#22c55e 60%,transparent 90%);box-shadow:0 0 8px #4ade80;"></div>
                     <!-- Corner accents top -->
                     <div style="position:absolute;top:0;left:0;width:16px;height:16px;border-top:2px solid #4ade80;border-left:2px solid #4ade80;opacity:0.8;"></div>
                     <div style="position:absolute;top:0;right:0;width:16px;height:16px;border-top:2px solid #4ade80;border-right:2px solid #4ade80;opacity:0.8;"></div>
 
-                    <div id="workoutTopTitle" style="font-size:0.68em;color:#4ade80;font-weight:900;letter-spacing:2.5px;text-transform:uppercase;flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;text-shadow:0 0 8px rgba(74,222,128,0.3);"></div>
-                    <!-- ⏱ Chrono session totale -->
-                    <div id="sessionTimerChip" style="display:flex;align-items:center;gap:5px;font-size:0.7em;background:rgba(34,197,94,0.1);border:1px solid rgba(74,222,128,0.4);padding:6px 10px;border-radius:6px;flex-shrink:0;color:#4ade80;font-weight:900;letter-spacing:0.5px;font-variant-numeric:tabular-nums;text-shadow:0 0 6px rgba(74,222,128,0.4);">
-                        <span style="font-size:1em;line-height:1;">⏱</span>
-                        <span id="sessionTimerValue">00:00</span>
+                    <!-- Groupe gauche : titre + chrono + volume -->
+                    <div style="display:flex;align-items:center;gap:6px;flex:1;min-width:0;overflow:hidden;">
+                        <div id="workoutTopTitle" style="font-size:0.62em;color:#4ade80;font-weight:900;letter-spacing:2px;text-transform:uppercase;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;text-shadow:0 0 8px rgba(74,222,128,0.3);min-width:0;"></div>
+                        <!-- ⏱ Chrono session totale -->
+                        <div id="sessionTimerChip" style="display:flex;align-items:center;gap:4px;font-size:0.65em;background:rgba(34,197,94,0.1);border:1px solid rgba(74,222,128,0.4);padding:5px 8px;border-radius:6px;flex-shrink:0;color:#4ade80;font-weight:900;letter-spacing:0.5px;font-variant-numeric:tabular-nums;text-shadow:0 0 6px rgba(74,222,128,0.4);">
+                            <span style="font-size:1em;line-height:1;">⏱</span>
+                            <span id="sessionTimerValue">00:00</span>
+                        </div>
+                        <div id="liveVolumeChip" style="font-size:0.62em;background:rgba(34,197,94,0.1);border:1px solid rgba(74,222,128,0.4);padding:5px 9px;border-radius:6px;flex-shrink:0;color:#4ade80;font-weight:700;letter-spacing:0.5px;"></div>
                     </div>
-                    <div id="liveVolumeChip" style="font-size:0.66em;background:rgba(34,197,94,0.1);border:1px solid rgba(74,222,128,0.4);padding:6px 11px;border-radius:6px;flex-shrink:0;color:#4ade80;font-weight:700;letter-spacing:0.5px;"></div>
-                    <button onclick="toggleFullscreenMode()" title="Plein écran"
-                            style="background:rgba(34,197,94,0.1);color:#4ade80;border:1px solid rgba(74,222,128,0.4);
-                                   border-radius:8px;padding:6px 10px;font-size:1em;font-weight:700;cursor:pointer;
-                                   min-width:36px;min-height:36px;flex-shrink:0;touch-action:manipulation;transition:all 0.2s;">
-                        ⛶
-                    </button>
-                    <button onclick="toggleWorkoutOptionsPanel()"
-                            style="background:rgba(255,255,255,0.04);color:#cbd5e1;border:1px solid rgba(255,255,255,0.12);
-                                   border-radius:8px;padding:6px 12px;font-size:1.05em;font-weight:700;cursor:pointer;
-                                   min-width:36px;min-height:36px;flex-shrink:0;touch-action:manipulation;letter-spacing:2px;">
-                        ⋯
-                    </button>
-                    <button id="quitBtn"
-                            style="background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.4);
-                                   border-radius:8px;padding:6px 11px;font-size:0.72em;font-weight:900;cursor:pointer;
-                                   min-height:36px;flex-shrink:0;display:flex;align-items:center;gap:4px;letter-spacing:1px;
-                                   touch-action:manipulation;-webkit-tap-highlight-color:rgba(239,68,68,0.3);"
-                            onclick="quitWorkout()">
-                        ✕ QUITTER
-                    </button>
+
+                    <!-- Groupe droite : actions (toujours visibles) -->
+                    <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+                        <button onclick="toggleFullscreenMode()" title="Plein écran"
+                                style="background:rgba(34,197,94,0.1);color:#4ade80;border:1px solid rgba(74,222,128,0.4);
+                                       border-radius:8px;padding:6px 9px;font-size:0.95em;font-weight:700;cursor:pointer;
+                                       min-width:34px;min-height:34px;flex-shrink:0;touch-action:manipulation;transition:all 0.2s;">
+                            ⛶
+                        </button>
+                        <button onclick="toggleWorkoutOptionsPanel()"
+                                style="background:rgba(255,255,255,0.04);color:#cbd5e1;border:1px solid rgba(255,255,255,0.12);
+                                       border-radius:8px;padding:6px 10px;font-size:1em;font-weight:700;cursor:pointer;
+                                       min-width:34px;min-height:34px;flex-shrink:0;touch-action:manipulation;letter-spacing:2px;">
+                            ⋯
+                        </button>
+                        <button id="quitBtn"
+                                style="background:rgba(239,68,68,0.12);color:#f87171;border:1px solid rgba(239,68,68,0.45);
+                                       border-radius:8px;padding:6px 10px;font-size:0.7em;font-weight:900;cursor:pointer;
+                                       min-height:34px;flex-shrink:0;display:flex;align-items:center;gap:4px;letter-spacing:1px;
+                                       touch-action:manipulation;-webkit-tap-highlight-color:rgba(239,68,68,0.3);"
+                                onclick="quitWorkout()">
+                            ✕ QUITTER
+                        </button>
+                    </div>
                 </div>
                 <div class="card workout-main-card cyber-scanlines" style="background:linear-gradient(160deg,#050810 0%,#0a0e18 50%,#050810 100%);border:1px solid rgba(74,222,128,0.18);border-radius:0;border-top:none;box-shadow:0 0 40px rgba(34,197,94,0.04) inset;color:#e2e8f0;position:relative;overflow:hidden;">
                     <!-- Scan lines decorative -->
@@ -1531,10 +1538,6 @@
                                     🚫 Machine occupée
                                 </button>
                             </div>
-                        </div>
-                        <!-- Lien voir instructions (mobile seulement) -->
-                        <div id="showInstructionsLink" style="display:none;" onclick="toggleMobileInstructions()">
-                            📋 Voir instructions
                         </div>
 
                         </div><!-- /timer zone -->                    <!-- Instructions (collapsibles sur mobile) -->
@@ -2145,7 +2148,7 @@
             <!-- 🔖 Version -->
             <div class="card" style="background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(34,197,94,0.15);padding:12px 14px;text-align:center;">
                 <div style="font-size:0.6em;color:#64748b;font-weight:800;letter-spacing:2px;">VERSION</div>
-                <div style="font-size:0.95em;color:#4ade80;font-weight:900;margin-top:3px;letter-spacing:1px;">v66 · awakened</div>
+                <div style="font-size:0.95em;color:#4ade80;font-weight:900;margin-top:3px;letter-spacing:1px;">v72 · awakened</div>
                 <button onclick="if(confirm('Forcer la mise à jour de l\\'app ?\\n\\nCela rechargera la page et nettoiera le cache.')) { if('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(rs => Promise.all(rs.map(r => r.unregister()))).then(() => location.reload(true)); }" style="margin-top:10px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:#4ade80;border-radius:9px;padding:8px 14px;font-size:0.75em;font-weight:800;cursor:pointer;">🔄 Forcer la mise à jour</button>
             </div>
 
@@ -3472,12 +3475,12 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/exercises.js?v=66"></script>
-    <script src="data/items.js?v=66"></script>
-    <script src="js/adventure.js?v=66"></script>
-    <script src="js/challenges.js?v=66"></script>
-    <script src="js/exercise-visuals.js?v=66"></script>
-    <script src="js/app.js?v=66"></script>
+    <script src="js/exercises.js?v=72"></script>
+    <script src="data/items.js?v=72"></script>
+    <script src="js/adventure.js?v=72"></script>
+    <script src="js/challenges.js?v=72"></script>
+    <script src="js/exercise-visuals.js?v=72"></script>
+    <script src="js/app.js?v=72"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>
