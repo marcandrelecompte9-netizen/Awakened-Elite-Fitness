@@ -20,7 +20,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=95">
+    <link rel="stylesheet" href="css/style.css?v=96">
 </head>
 <body>
 
@@ -177,7 +177,7 @@
                 max-width: 900px;">
 
             <!-- Bannière image : ratio préservé -->
-            <img src="images/banner.png?v=95"
+            <img src="images/banner.png?v=96"
                  alt="Awakened Elite Fitness"
                  style="width:100%;height:auto;display:block;" />
 
@@ -983,12 +983,12 @@
                         <button class="btn" onclick="selectWorkoutMode('timer')"
                                 style="padding: 25px; text-align: left; background: linear-gradient(135deg, #06b6d4 0%, #0284c7 100%);">
                             <div style="display: flex; align-items: center; gap: 15px;">
-                                <div style="font-size: 3em;">⏱️</div>
+                                <div style="flex-shrink:0;display:flex;"><svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg></div>
                                 <div style="flex: 1;">
                                     <div style="font-size: 1.4em; font-weight: 700; margin-bottom: 5px;">Mode Timer</div>
                                     <div style="font-size: 0.95em; opacity: 0.95;">
                                         Parfait pour cardio, HIIT, endurance<br>
-                                        ⏱️ Exercices chronométrés • 🔥 Brûle calories
+                                        Exercices chronométrés · Brûle calories
                                     </div>
                                 </div>
                             </div>
@@ -998,12 +998,12 @@
                         <button class="btn" onclick="selectWorkoutMode('reps')"
                                 style="padding: 25px; text-align: left; background: linear-gradient(135deg, #22c55e 0%, #166534 100%);">
                             <div style="display: flex; align-items: center; gap: 15px;">
-                                <div style="font-size: 3em;">💪</div>
+                                <div style="flex-shrink:0;display:flex;"><svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5 17.5 17.5"/><path d="M3 6l3-3 3 3-3 3z"/><path d="M21 18l-3 3-3-3 3-3z"/><path d="M3.5 8.5 1.5 10.5"/><path d="M20.5 15.5 22.5 13.5"/></svg></div>
                                 <div style="flex: 1;">
                                     <div style="font-size: 1.4em; font-weight: 700; margin-bottom: 5px;">Mode Répétitions</div>
                                     <div style="font-size: 0.95em; opacity: 0.95;">
                                         Idéal pour hypertrophie, force, muscle<br>
-                                        📊 Tracking reps + poids • 📈 Suivi progression
+                                        Tracking reps + poids · Suivi progression
                                     </div>
                                 </div>
                             </div>
@@ -1013,12 +1013,12 @@
                         <button class="btn" onclick="selectWorkoutMode('hybrid')"
                                 style="padding: 25px; text-align: left; background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);">
                             <div style="display: flex; align-items: center; gap: 15px;">
-                                <div style="font-size: 3em;">🔥</div>
+                                <div style="flex-shrink:0;display:flex;"><svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c1 3 4 5 4 9a4 4 0 0 1-8 0c0-1 .5-2 1-2.5C9 10 12 8 12 2z"/><path d="M8 11a4 4 0 1 0 8 0c0-3-2-4-2-4"/></svg></div>
                                 <div style="flex: 1;">
                                     <div style="font-size: 1.4em; font-weight: 700; margin-bottom: 5px;">Mode Hybride (Optimal)</div>
                                     <div style="font-size: 0.95em; opacity: 0.95;">
                                         Le meilleur des 2 mondes<br>
-                                        💪 Force (reps) + 🔥 Cardio (timer) • 🏆 Transformation physique
+                                        Force (reps) + Cardio (timer) · Transformation physique
                                     </div>
                                 </div>
                             </div>
@@ -2173,7 +2173,7 @@
             <!-- 🔖 Version -->
             <div class="card" style="background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(34,197,94,0.15);padding:12px 14px;text-align:center;">
                 <div style="font-size:0.6em;color:#64748b;font-weight:800;letter-spacing:2px;">VERSION</div>
-                <div style="font-size:0.95em;color:#4ade80;font-weight:900;margin-top:3px;letter-spacing:1px;">v95 · awakened</div>
+                <div style="font-size:0.95em;color:#4ade80;font-weight:900;margin-top:3px;letter-spacing:1px;">v96 · awakened</div>
                 <button onclick="if(confirm('Forcer la mise à jour de l\\'app ?\\n\\nCela rechargera la page et nettoiera le cache.')) { if('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(rs => Promise.all(rs.map(r => r.unregister()))).then(() => location.reload(true)); }" style="margin-top:10px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:#4ade80;border-radius:9px;padding:8px 14px;font-size:0.75em;font-weight:800;cursor:pointer;">🔄 Forcer la mise à jour</button>
             </div>
 
@@ -3500,12 +3500,12 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/exercises.js?v=95"></script>
-    <script src="data/items.js?v=95"></script>
-    <script src="js/adventure.js?v=95"></script>
-    <script src="js/challenges.js?v=95"></script>
-    <script src="js/exercise-visuals.js?v=95"></script>
-    <script src="js/app.js?v=95"></script>
+    <script src="js/exercises.js?v=96"></script>
+    <script src="data/items.js?v=96"></script>
+    <script src="js/adventure.js?v=96"></script>
+    <script src="js/challenges.js?v=96"></script>
+    <script src="js/exercise-visuals.js?v=96"></script>
+    <script src="js/app.js?v=96"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>

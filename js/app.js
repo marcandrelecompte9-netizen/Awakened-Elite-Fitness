@@ -11508,22 +11508,23 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         function showManualMusclePickerModal() {
             _manualSelectedMuscles = []; // toujours partir à zéro
 
+            const _mSvg = (p) => `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
             const allMuscles = [
-                { id: 'Pectoraux',        icon: '💪', label: 'Pectoraux' },
-                { id: 'Dos',              icon: '🔙', label: 'Dos' },
-                { id: 'Épaules',          icon: '🏋️', label: 'Épaules' },
-                { id: 'Biceps',           icon: '💪', label: 'Biceps' },
-                { id: 'Triceps',          icon: '🔱', label: 'Triceps' },
-                { id: 'Trapèzes',         icon: '🏔️', label: 'Trapèzes' },
-                { id: 'Quadriceps',       icon: '🦵', label: 'Quadriceps' },
-                { id: 'Ischio-jambiers',  icon: '🦵', label: 'Ischio' },
-                { id: 'Fessiers',         icon: '🍑', label: 'Fessiers' },
-                { id: 'Abdominaux',       icon: '🔥', label: 'Abdos' },
-                { id: 'Obliques',         icon: '🌀', label: 'Obliques' },
-                { id: 'Mollets',          icon: '🦶', label: 'Mollets' },
-                { id: 'Avant-bras',       icon: '🤜', label: 'Avant-bras' },
-                { id: 'Adducteurs',       icon: '🦵', label: 'Adducteurs' },
-                { id: 'Cardio',           icon: '🏃', label: 'Cardio' },
+                { id: 'Pectoraux',        label: 'Pectoraux',  svg: _mSvg('<path d="M3 7c3-1 6-1 9 1 3-2 6-2 9-1"/><path d="M3 7c0 4 2 6 5 6 2 0 3-1 4-3"/><path d="M21 7c0 4-2 6-5 6-2 0-3-1-4-3"/>') },
+                { id: 'Dos',              label: 'Dos',        svg: _mSvg('<path d="M12 3v18"/><path d="M12 6c-2 1-5 1-7 0"/><path d="M12 6c2 1 5 1 7 0"/><path d="M12 11c-2 1-4 1-6 0"/><path d="M12 11c2 1 4 1 6 0"/>') },
+                { id: 'Épaules',          label: 'Épaules',    svg: _mSvg('<circle cx="6" cy="9" r="3"/><circle cx="18" cy="9" r="3"/><path d="M9 10c1 2 5 2 6 0"/>') },
+                { id: 'Biceps',           label: 'Biceps',     svg: _mSvg('<path d="M7 4v6a4 4 0 0 0 4 4h1"/><path d="M7 10c-2 1-3 3-3 6"/><circle cx="9" cy="9" r="2.5"/>') },
+                { id: 'Triceps',          label: 'Triceps',    svg: _mSvg('<path d="M17 4v6a4 4 0 0 1-4 4h-1"/><path d="M17 10c2 1 3 3 3 6"/><circle cx="15" cy="9" r="2.5"/>') },
+                { id: 'Trapèzes',         label: 'Trapèzes',   svg: _mSvg('<path d="M12 4 4 8v3l8-2 8 2V8z"/><path d="M12 4v14"/>') },
+                { id: 'Quadriceps',       label: 'Quadriceps', svg: _mSvg('<path d="M9 3v8a3 3 0 0 0 6 0V3"/><path d="M9 11l-1 10"/><path d="M15 11l1 10"/>') },
+                { id: 'Ischio-jambiers',  label: 'Ischio',     svg: _mSvg('<path d="M9 21v-8a3 3 0 0 1 6 0v8"/><path d="M9 13l-1-10"/><path d="M15 13l1-10"/>') },
+                { id: 'Fessiers',         label: 'Fessiers',   svg: _mSvg('<path d="M12 4v6"/><path d="M12 10c-4 0-6 2-6 5a3 3 0 0 0 6 0"/><path d="M12 10c4 0 6 2 6 5a3 3 0 0 1-6 0"/>') },
+                { id: 'Abdominaux',       label: 'Abdos',      svg: _mSvg('<rect x="8" y="4" width="8" height="16" rx="2"/><line x1="12" y1="4" x2="12" y2="20"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="14" x2="16" y2="14"/>') },
+                { id: 'Obliques',         label: 'Obliques',   svg: _mSvg('<path d="M8 4l8 16"/><path d="M16 4 8 20"/><rect x="6" y="4" width="12" height="16" rx="2"/>') },
+                { id: 'Mollets',          label: 'Mollets',    svg: _mSvg('<path d="M10 3c0 4-2 6-2 10a4 4 0 0 0 8 0c0-4-2-6-2-10"/><path d="M12 17v4"/>') },
+                { id: 'Avant-bras',       label: 'Avant-bras', svg: _mSvg('<path d="M5 6c4 0 8 4 14 12"/><circle cx="6" cy="6" r="2"/><path d="M16 20l3-3"/>') },
+                { id: 'Adducteurs',       label: 'Adducteurs', svg: _mSvg('<path d="M8 3v7c0 4 1 7 4 11"/><path d="M16 3v7c0 4-1 7-4 11"/>') },
+                { id: 'Cardio',           label: 'Cardio',     svg: _mSvg('<path d="M3 12h4l2-6 4 12 2-6h6"/>') },
             ];
 
             const overlay = document.createElement('div');
@@ -11534,9 +11535,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const grid = allMuscles.map(m => `
                 <button id="mmpBtn_${m.id.replace(/[^a-zA-Z]/g,'_')}"
                     onclick="toggleManualMuscle('${m.id}')"
-                    style="padding:12px 8px;border-radius:14px;border:1px solid #2E2F35;background:#222328;cursor:pointer;text-align:center;transition:all 0.18s;min-width:0;">
+                    style="padding:12px 8px;border-radius:14px;border:1px solid #2E2F35;background:#222328;cursor:pointer;text-align:center;transition:all 0.18s;min-width:0;color:#94a3b8;">
                     <div style="width:40px;height:40px;margin:0 auto 4px;display:flex;align-items:center;justify-content:center;">
-                        ${m.svg ? m.svg : `<span style="font-size:1.6em">${m.icon}</span>`}
+                        ${m.svg ? m.svg : `<span style="font-size:1.6em">${m.icon || ''}</span>`}
                     </div>
                     <div style="font-size:0.75em;font-weight:600;color:#94a3b8;">${m.label}</div>
                 </button>`).join('');
@@ -11604,6 +11605,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             btn.style.borderColor = active ? '#4ade80' : '#2E2F35';
             btn.style.transform   = active ? 'scale(1.04)' : '';
             btn.style.boxShadow   = active ? '0 0 14px rgba(74,222,128,0.4)' : '';
+            btn.style.color       = active ? 'white' : '#94a3b8';
             btn.querySelectorAll('div').forEach(d => d.style.color = active ? 'white' : '#94a3b8');
         }
 
@@ -11615,6 +11617,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 btn.style.borderColor = '#2E2F35';
                 btn.style.transform   = '';
                 btn.style.boxShadow   = '';
+                btn.style.color       = '#94a3b8';
                 btn.querySelectorAll('div').forEach(d => d.style.color = '#94a3b8');
             });
             muscles.forEach(m => _highlightMuscleBtn(m, true));
