@@ -4599,6 +4599,22 @@
                     <div style="font-size:1.4em;flex-shrink:0;position:relative;z-index:1;">▶</div>
                 </button>
                 <div style="font-size:0.7em;color:#94a3b8;margin-top:6px;text-align:center;font-style:italic;">${sug.reason}</div>
+
+                <!-- ☀️ Bouton Réveil matinal -->
+                <button onclick="showMorningRoutineModal()" style="
+                    width:100%;margin-top:10px;background:linear-gradient(135deg,#f59e0b 0%,#f97316 50%,#ea580c 100%);color:white;border:none;
+                    border-radius:14px;padding:13px 18px;font-size:0.95em;font-weight:800;cursor:pointer;
+                    box-shadow:0 4px 18px rgba(245,158,11,0.3);position:relative;overflow:hidden;
+                    text-align:left;display:flex;align-items:center;gap:11px;">
+                    <div style="position:absolute;top:0;right:0;width:100px;height:100px;background:radial-gradient(circle,rgba(255,255,255,0.18),transparent 70%);"></div>
+                    <div style="font-size:1.9em;flex-shrink:0;">☀️</div>
+                    <div style="flex:1;min-width:0;position:relative;z-index:1;">
+                        <div style="font-size:0.6em;letter-spacing:2px;opacity:0.9;font-weight:700;">RÉVEIL DU CORPS</div>
+                        <div style="font-size:0.95em;font-weight:900;line-height:1.2;margin-top:2px;">Routine matinale</div>
+                        <div style="font-size:0.68em;opacity:0.85;margin-top:2px;">Mobilité douce · 3 niveaux · sans matériel</div>
+                    </div>
+                    <div style="font-size:1.3em;flex-shrink:0;position:relative;z-index:1;">▶</div>
+                </button>
             </div>`;
         }
 
@@ -4623,6 +4639,189 @@
                 } catch(e) { console.warn('Smart suggestion failed:', e); }
             }, 250);
         }
+
+        // ═══════════════════════════════════════════════════════════════
+        // ☀️ ROUTINES MATINALES — 3 niveaux, mobilité fitness classique
+        // ═══════════════════════════════════════════════════════════════
+        // Basé sur la science : mobilité dynamique > étirements statiques le matin.
+        // Objectif : circulation, amplitude articulaire, réveil — sans matériel.
+        const MORNING_ROUTINES = [
+            {
+                id: 'morning_gentle',
+                name: 'Réveil Doux',
+                emoji: '🌅',
+                color: '#fbbf24',
+                duration: '~5 min',
+                level: 'Débutant',
+                desc: 'Mobilité articulaire en douceur pour dérouiller le corps au réveil.',
+                exercises: [
+                    { name: 'Respiration profonde',      mode: 'duration', duration: 40, sets: 1 },
+                    { name: 'Cercles de bras',           mode: 'duration', duration: 30, sets: 1 },
+                    { name: 'Rotations thoraciques',     mode: 'duration', duration: 40, sets: 1 },
+                    { name: 'Cat-Cow',                   mode: 'duration', duration: 45, sets: 1 },
+                    { name: 'Cercles hanche',            mode: 'duration', duration: 40, sets: 1 },
+                    { name: 'Cercles chevilles',         mode: 'duration', duration: 30, sets: 1 },
+                    { name: 'Étirement complet debout',  mode: 'duration', duration: 30, sets: 1 },
+                ]
+            },
+            {
+                id: 'morning_energize',
+                name: 'Réveil Énergisant',
+                emoji: '⚡',
+                color: '#f97316',
+                duration: '~8 min',
+                level: 'Intermédiaire',
+                desc: 'Mobilité dynamique + activation cardio légère pour booster l\'énergie.',
+                exercises: [
+                    { name: 'Respiration profonde',          mode: 'duration', duration: 30, sets: 1 },
+                    { name: 'Cercles de bras',               mode: 'duration', duration: 30, sets: 1 },
+                    { name: 'Cat-Cow',                       mode: 'duration', duration: 40, sets: 1 },
+                    { name: 'Balancements jambe arrière',    mode: 'duration', duration: 40, sets: 1 },
+                    { name: 'Fentes dynamiques',             mode: 'duration', duration: 45, sets: 1 },
+                    { name: 'Montées de genoux sur place',   mode: 'duration', duration: 40, sets: 1 },
+                    { name: 'Jumping Jacks légers',          mode: 'duration', duration: 40, sets: 1 },
+                    { name: 'Inchworm',                      mode: 'duration', duration: 40, sets: 1 },
+                    { name: 'Étirement complet debout',      mode: 'duration', duration: 30, sets: 1 },
+                ]
+            },
+            {
+                id: 'morning_power',
+                name: 'Réveil Puissance',
+                emoji: '🔥',
+                color: '#ef4444',
+                duration: '~10 min',
+                level: 'Avancé',
+                desc: 'Mobilité + renforcement léger + cardio pour un démarrage complet.',
+                exercises: [
+                    { name: 'Cercles de bras',               mode: 'duration', duration: 30, sets: 1 },
+                    { name: 'Rotations thoraciques',         mode: 'duration', duration: 40, sets: 1 },
+                    { name: 'Cat-Cow',                       mode: 'duration', duration: 40, sets: 1 },
+                    { name: 'Glute bridge léger',            mode: 'reps',     reps: 12,     sets: 2 },
+                    { name: 'Squats poids corps légers',     mode: 'reps',     reps: 15,     sets: 2 },
+                    { name: 'Fentes dynamiques',             mode: 'duration', duration: 45, sets: 1 },
+                    { name: 'Dead bug lent',                 mode: 'duration', duration: 40, sets: 1 },
+                    { name: 'Superman dynamique',            mode: 'duration', duration: 40, sets: 1 },
+                    { name: 'Montées de genoux sur place',   mode: 'duration', duration: 45, sets: 1 },
+                    { name: 'Jumping Jacks légers',          mode: 'duration', duration: 45, sets: 1 },
+                    { name: 'Étirement complet debout',      mode: 'duration', duration: 30, sets: 1 },
+                ]
+            }
+        ];
+
+        function showMorningRoutineModal() {
+            document.getElementById('morningRoutineModal')?.remove();
+            const overlay = document.createElement('div');
+            overlay.id = 'morningRoutineModal';
+            overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:10200;display:flex;align-items:flex-end;justify-content:center;padding:0;';
+            overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+
+            const cards = MORNING_ROUTINES.map(r => `
+                <button onclick="startMorningRoutine('${r.id}')" style="
+                    width:100%;text-align:left;background:linear-gradient(135deg,${r.color}18,${r.color}08);
+                    border:1.5px solid ${r.color}55;border-radius:14px;padding:14px;margin-bottom:10px;cursor:pointer;
+                    display:flex;align-items:center;gap:13px;transition:transform 0.15s;"
+                    onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">
+                    <div style="font-size:2.1em;flex-shrink:0;">${r.emoji}</div>
+                    <div style="flex:1;min-width:0;">
+                        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                            <span style="font-weight:900;font-size:0.98em;color:#0F1014;">${r.name}</span>
+                            <span style="font-size:0.62em;font-weight:800;color:white;background:${r.color};padding:2px 7px;border-radius:99px;">${r.level}</span>
+                        </div>
+                        <div style="font-size:0.74em;color:#64748b;line-height:1.4;margin-top:3px;">${r.desc}</div>
+                        <div style="font-size:0.68em;color:${r.color};font-weight:800;margin-top:4px;">⏱ ${r.duration} · ${r.exercises.length} mouvements</div>
+                    </div>
+                    <div style="font-size:1.3em;color:${r.color};flex-shrink:0;">▶</div>
+                </button>
+            `).join('');
+
+            overlay.innerHTML = `
+                <div style="background:white;border-radius:22px 22px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:88vh;overflow-y:auto;">
+                    <div style="width:40px;height:4px;background:#e5e7eb;border-radius:99px;margin:0 auto 16px;"></div>
+                    <div style="text-align:center;margin-bottom:8px;">
+                        <div style="font-size:2.4em;line-height:1;">☀️</div>
+                        <h3 style="margin:6px 0 4px;color:#0F1014;">Routine matinale</h3>
+                        <p style="margin:0 0 16px;font-size:0.78em;color:#64748b;line-height:1.5;">Réveille ton corps en douceur. Choisis ton niveau — aucun matériel requis.</p>
+                    </div>
+                    ${cards}
+                    <button onclick="document.getElementById('morningRoutineModal').remove()" class="btn btn-secondary" style="width:100%;margin-top:6px;">Fermer</button>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+            if (typeof hapticTap === 'function') hapticTap(30);
+        }
+        window.showMorningRoutineModal = showMorningRoutineModal;
+
+        function startMorningRoutine(routineId) {
+            const routine = MORNING_ROUTINES.find(r => r.id === routineId);
+            if (!routine) return;
+            document.getElementById('morningRoutineModal')?.remove();
+
+            // Construire le workout au format standard
+            const workout = {
+                name: `${routine.emoji} ${routine.name}`,
+                description: routine.desc,
+                type: 'morning',
+                fromMorning: true,
+                exercises: routine.exercises.map(ex => {
+                    const fullEx = exerciseDatabase.find(e => e.name === ex.name);
+                    if (fullEx) {
+                        return {
+                            ...fullEx,
+                            sets: ex.sets || 1,
+                            reps: ex.reps || fullEx.reps || 12,
+                            duration: ex.duration || fullEx.duration || 40,
+                            mode: ex.mode || fullEx.mode || 'duration',
+                            rest: 20
+                        };
+                    }
+                    return {
+                        name: ex.name, type: 'exercise', muscle: 'Corps entier',
+                        difficulty: 'Débutant', equipment: ['Poids du corps'],
+                        description: ex.name, instructions: ['Mouvement de mobilité matinale'],
+                        sets: ex.sets || 1, reps: ex.reps || 12,
+                        duration: ex.duration || 40, mode: ex.mode || 'duration', rest: 20
+                    };
+                })
+            };
+
+            // Démarrer via le système existant
+            currentWorkout = workout;
+            currentExerciseIndex = 0;
+            currentSetNumber = 1;
+            workoutStartTime = Date.now();
+            if (typeof _workoutSkipCount !== 'undefined') _workoutSkipCount = 0;
+            if (typeof completedSets !== 'undefined') completedSets = [];
+
+            switchTab('workouts');
+            setTimeout(() => {
+                document.getElementById('workoutSelection')?.style.setProperty('display', 'none');
+                document.getElementById('exerciseSelection')?.style.setProperty('display', 'none');
+                ['aiWorkoutPanel', 'celebrityPanel', 'planningPanel'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.style.display = 'none';
+                });
+                const exView = document.getElementById('exerciseView');
+                if (exView) {
+                    exView.classList.remove('hidden');
+                    exView.style.display = 'block';
+                }
+                document.body.classList.add('in-session');
+
+                const badge = document.getElementById('workoutTypeBadge');
+                if (badge) {
+                    badge.innerHTML = `${routine.emoji} ${routine.name}`;
+                    badge.style.background = `linear-gradient(135deg, ${routine.color} 0%, ${routine.color}dd 100%)`;
+                    badge.style.display = 'block';
+                }
+
+                if (typeof renderExerciseProgressList === 'function') renderExerciseProgressList();
+                if (typeof updateMusclesOverview === 'function') updateMusclesOverview();
+                if (typeof startExercise === 'function') startExercise();
+            }, 100);
+
+            if (typeof showToast === 'function') showToast(`${routine.emoji} ${routine.name} — Bonne séance !`, 'success', 2500);
+        }
+        window.startMorningRoutine = startMorningRoutine;
 
         function resumeActiveWorkout() {
             const state = loadActiveWorkoutState();
@@ -7796,63 +7995,97 @@
         function showDecisionExplanation(decisions) {
             let typeLabel = '';
             let typeEmoji = '';
-            
+            let typeAccent = '#4ade80';
+
             switch(decisions.workoutType) {
                 case 'recovery':
-                    typeLabel = 'Récupération Active';
-                    typeEmoji = '🧘';
-                    break;
+                    typeLabel = 'Récupération Active'; typeEmoji = '🧘'; typeAccent = '#06b6d4'; break;
                 case 'fullbody':
-                    typeLabel = 'Corps entier';
-                    typeEmoji = '💪';
-                    break;
+                    typeLabel = 'Corps Entier'; typeEmoji = '💪'; typeAccent = '#4ade80'; break;
                 case 'split':
-                    typeLabel = 'Split Ciblé';
-                    typeEmoji = '🎯';
-                    break;
+                    typeLabel = 'Split Ciblé'; typeEmoji = '🎯'; typeAccent = '#a855f7'; break;
                 case 'cardio':
-                    typeLabel = 'Cardio & Core';
-                    typeEmoji = '🏃';
-                    break;
+                    typeLabel = 'Cardio & Core'; typeEmoji = '🏃'; typeAccent = '#f59e0b'; break;
+                default:
+                    typeLabel = 'Séance'; typeEmoji = '⚡'; break;
             }
-            
-            const modalHTML = `
-                <div style="text-align: center; margin-bottom: 25px;">
-                    <div style="font-size: 5em; margin-bottom: 15px; animation: pulse 1.5s infinite;">${typeEmoji}</div>
-                    <h2 style="color: #16a34a; margin: 0; font-size: 1.8em;">${typeLabel}</h2>
-                    <div style="font-size: 1.4em; color: #666; margin-top: 10px; font-weight: bold;">
-                        ${decisions.duration} minutes • Intensité ${Math.round(decisions.intensity * 100)}%
+
+            const intensityPct = Math.round(decisions.intensity * 100);
+
+            // Overlay plein écran cyberpunk (indépendant du durationModal)
+            document.getElementById('smartAnalysisOverlay')?.remove();
+            const overlay = document.createElement('div');
+            overlay.id = 'smartAnalysisOverlay';
+            overlay.style.cssText = `position:fixed;inset:0;background:rgba(0,0,0,0.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);z-index:100000;display:flex;align-items:center;justify-content:center;padding:18px;animation:awakFadeIn 0.35s ease;`;
+
+            const reasoningHtml = (decisions.reasoning || []).map((reason, i) => `
+                <div style="display:flex;gap:9px;align-items:flex-start;padding:9px 11px;background:rgba(74,222,128,0.04);border:1px solid rgba(74,222,128,0.12);border-radius:9px;margin-bottom:6px;opacity:0;animation:awakFadeIn 0.4s ease ${0.15 + i*0.1}s forwards;">
+                    <span style="color:${typeAccent};font-size:0.85em;flex-shrink:0;line-height:1.5;">▸</span>
+                    <span style="font-size:0.76em;color:#cbd5e1;line-height:1.5;">${reason}</span>
+                </div>
+            `).join('');
+
+            overlay.innerHTML = `
+                <div style="max-width:430px;width:100%;max-height:90vh;overflow-y:auto;background:linear-gradient(160deg,#0a0e18 0%,#0F1014 60%,#0a0e18 100%);border:2px solid ${typeAccent};border-radius:18px;box-shadow:0 24px 70px rgba(0,0,0,0.85),0 0 60px ${typeAccent}40;position:relative;animation:slideUp 0.45s cubic-bezier(0.34,1.56,0.64,1);">
+                    <!-- Coins HUD -->
+                    <div style="position:absolute;top:-1px;left:-1px;width:22px;height:22px;border-top:2px solid ${typeAccent};border-left:2px solid ${typeAccent};border-top-left-radius:18px;box-shadow:0 0 12px ${typeAccent}66;"></div>
+                    <div style="position:absolute;top:-1px;right:-1px;width:22px;height:22px;border-top:2px solid ${typeAccent};border-right:2px solid ${typeAccent};border-top-right-radius:18px;box-shadow:0 0 12px ${typeAccent}66;"></div>
+                    <div style="position:absolute;bottom:-1px;left:-1px;width:22px;height:22px;border-bottom:2px solid ${typeAccent};border-left:2px solid ${typeAccent};border-bottom-left-radius:18px;box-shadow:0 0 12px ${typeAccent}66;"></div>
+                    <div style="position:absolute;bottom:-1px;right:-1px;width:22px;height:22px;border-bottom:2px solid ${typeAccent};border-right:2px solid ${typeAccent};border-bottom-right-radius:18px;box-shadow:0 0 12px ${typeAccent}66;"></div>
+                    <!-- Scan lines -->
+                    <div style="position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0,transparent 3px,${typeAccent}08 3px,${typeAccent}08 4px);pointer-events:none;border-radius:18px;"></div>
+                    <!-- Glow top -->
+                    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${typeAccent},transparent);"></div>
+
+                    <div style="padding:26px 22px 20px;position:relative;z-index:1;">
+                        <!-- En-tête analyse -->
+                        <div style="text-align:center;margin-bottom:18px;">
+                            <div style="font-size:0.56em;color:${typeAccent};font-weight:900;letter-spacing:4px;text-transform:uppercase;margin-bottom:10px;text-shadow:0 0 10px ${typeAccent}77;">◈ ANALYSE DU SYSTÈME ◈</div>
+                            <div style="font-size:4em;line-height:1;margin-bottom:8px;filter:drop-shadow(0 0 20px ${typeAccent}77);animation:awakPulse 1.6s ease-in-out infinite;">${typeEmoji}</div>
+                            <div style="font-size:1.5em;font-weight:900;color:white;letter-spacing:-0.5px;text-transform:uppercase;text-shadow:0 0 20px ${typeAccent}44;">${typeLabel}</div>
+                        </div>
+
+                        <!-- Stats durée / intensité -->
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">
+                            <div style="background:rgba(255,255,255,0.03);border:1px solid ${typeAccent}33;border-radius:11px;padding:11px;text-align:center;">
+                                <div style="font-size:0.52em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px;">Durée</div>
+                                <div style="font-size:1.3em;font-weight:900;color:${typeAccent};">${decisions.duration}<span style="font-size:0.5em;color:#94a3b8;"> min</span></div>
+                            </div>
+                            <div style="background:rgba(255,255,255,0.03);border:1px solid ${typeAccent}33;border-radius:11px;padding:11px;text-align:center;">
+                                <div style="font-size:0.52em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px;">Intensité</div>
+                                <div style="font-size:1.3em;font-weight:900;color:${typeAccent};">${intensityPct}<span style="font-size:0.5em;color:#94a3b8;">%</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Raisonnement -->
+                        ${reasoningHtml ? `
+                        <div style="margin-bottom:16px;">
+                            <div style="font-size:0.54em;color:#94a3b8;font-weight:900;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">◈ Décisions tactiques</div>
+                            ${reasoningHtml}
+                        </div>` : ''}
+
+                        <!-- Muscles ciblés -->
+                        <div style="background:${typeAccent}0f;border:1px solid ${typeAccent}33;border-radius:11px;padding:13px;text-align:center;">
+                            <div style="font-size:0.54em;color:${typeAccent};font-weight:900;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">⊕ Cibles verrouillées</div>
+                            <div style="font-size:0.9em;color:white;font-weight:700;line-height:1.5;">${(decisions.targetMuscles || []).join(' · ')}</div>
+                        </div>
+
+                        <!-- Indicateur de chargement -->
+                        <div style="margin-top:16px;text-align:center;">
+                            <div style="font-size:0.62em;color:${typeAccent};font-weight:800;letter-spacing:2px;text-transform:uppercase;animation:awakPulse 1.2s ease-in-out infinite;">⟳ Génération du protocole…</div>
+                        </div>
                     </div>
                 </div>
-                
-                <div style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 25px; border-radius: 15px; margin: 25px 0; border-left: 5px solid #16a34a;">
-                    <h3 style="color: #16a34a; margin-top: 0; font-size: 1.3em;">🧠 Analyse intelligente</h3>
-                    ${decisions.reasoning.map(reason => 
-                        `<div style="padding: 12px; margin: 8px 0; background: white; border-radius: 8px; border-left: 3px solid #4ade80;">
-                            ${reason}
-                        </div>`
-                    ).join('')}
-                </div>
-                
-                <div style="background: rgba(34,197,94,0.1); padding: 20px; border-radius: 15px; margin: 25px 0; text-align: center; border: 1px solid rgba(34,197,94,0.25);">
-                    <div style="font-size: 1.1em; font-weight: bold; color: #22c55e; margin-bottom: 10px;">💪 Muscles ciblés</div>
-                    <div style="font-size: 1.2em; color: #333;">${decisions.targetMuscles.join(' • ')}</div>
-                </div>
             `;
-            
-            const modal = document.getElementById('durationModal');
-            const modalHeader = modal.querySelector('.modal-header h2');
-            const modalBody = modal.querySelector('p');
-            
-            modalHeader.textContent = '🧠 Séance Intelligente';
-            modalBody.innerHTML = modalHTML;
-            modal.classList.add('active');
-            
-            // Launch directly to duration selection after brief display
+            document.body.appendChild(overlay);
+            if (typeof hapticTap === 'function') hapticTap([40, 30, 60]);
+
+            // Passer à la sélection de durée après l'affichage
             setTimeout(() => {
-                modal.classList.remove('active');
-                openDurationModal();
-            }, 1500);
+                overlay.remove();
+                if (typeof showDurationModal === 'function') showDurationModal();
+                else if (typeof openDurationModal === 'function') openDurationModal();
+            }, 2200);
         }
         
         function generateRecoveryWorkout() {

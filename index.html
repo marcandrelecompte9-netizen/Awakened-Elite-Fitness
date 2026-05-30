@@ -20,7 +20,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=85">
+    <link rel="stylesheet" href="css/style.css?v=87">
 </head>
 <body>
 
@@ -177,7 +177,7 @@
                 max-width: 900px;">
 
             <!-- Bannière image : ratio préservé -->
-            <img src="images/banner.png?v=85"
+            <img src="images/banner.png?v=87"
                  alt="Awakened Elite Fitness"
                  style="width:100%;height:auto;display:block;" />
 
@@ -1022,33 +1022,33 @@
 
             <!-- Duration Selection Modal -->
             <div id="durationModal" class="modal">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h2>⏱️ Choisissez la durée</h2>
-                        <button class="close-btn" onclick="closeDurationModal()">×</button>
+                <div class="modal-content" style="background:linear-gradient(160deg,#0a0e18,#0F1014);border:2px solid rgba(74,222,128,0.4);box-shadow:0 24px 60px rgba(0,0,0,0.8),0 0 50px rgba(74,222,128,0.2);">
+                    <div class="modal-header" style="border:none;">
+                        <h2 style="color:#4ade80;text-shadow:0 0 12px rgba(74,222,128,0.4);font-size:1.1em;letter-spacing:1px;">⏱️ DURÉE DU PROTOCOLE</h2>
+                        <button class="close-btn" onclick="closeDurationModal()" style="color:#94a3b8;">×</button>
                     </div>
-                    <p style="margin: 20px 0; color: #666;">Sélectionnez la durée souhaitée pour votre séance. L'application générera automatiquement les exercices adaptés à votre profil.</p>
+                    <p style="margin:14px 0 4px;color:#94a3b8;font-size:0.82em;line-height:1.5;">Sélectionne la durée. Le Système génère automatiquement les exercices adaptés à ton profil et ton lieu.</p>
 
-                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 20px;">
-                        <button class="btn" onclick="selectDuration(15)" style="padding: 25px;">
-                            <div style="font-size: 2em; margin-bottom: 10px;">⚡</div>
-                            <div style="font-size: 1.3em;">15 min</div>
-                            <div style="font-size: 0.9em; opacity: 0.8; margin-top: 5px;">Rapide</div>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 18px;">
+                        <button onclick="selectDuration(15)" style="padding:20px 12px;background:rgba(74,222,128,0.06);border:1.5px solid rgba(74,222,128,0.3);border-radius:14px;color:#e2e8f0;cursor:pointer;transition:transform 0.15s;" onmousedown="this.style.transform='scale(0.97)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">
+                            <div style="font-size: 2em; margin-bottom: 8px;">⚡</div>
+                            <div style="font-size: 1.25em;font-weight:900;color:#4ade80;">15 min</div>
+                            <div style="font-size: 0.72em; color:#94a3b8; margin-top: 4px;letter-spacing:1px;text-transform:uppercase;">Éclair</div>
                         </button>
-                        <button class="btn" onclick="selectDuration(30)" style="padding: 25px;">
-                            <div style="font-size: 2em; margin-bottom: 10px;">🔥</div>
-                            <div style="font-size: 1.3em;">30 min</div>
-                            <div style="font-size: 0.9em; opacity: 0.8; margin-top: 5px;">Standard</div>
+                        <button onclick="selectDuration(30)" style="padding:20px 12px;background:rgba(74,222,128,0.06);border:1.5px solid rgba(74,222,128,0.3);border-radius:14px;color:#e2e8f0;cursor:pointer;transition:transform 0.15s;" onmousedown="this.style.transform='scale(0.97)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">
+                            <div style="font-size: 2em; margin-bottom: 8px;">🔥</div>
+                            <div style="font-size: 1.25em;font-weight:900;color:#4ade80;">30 min</div>
+                            <div style="font-size: 0.72em; color:#94a3b8; margin-top: 4px;letter-spacing:1px;text-transform:uppercase;">Standard</div>
                         </button>
-                        <button class="btn" onclick="selectDuration(45)" style="padding: 25px;">
-                            <div style="font-size: 2em; margin-bottom: 10px;">💪</div>
-                            <div style="font-size: 1.3em;">45 min</div>
-                            <div style="font-size: 0.9em; opacity: 0.8; margin-top: 5px;">Intense</div>
+                        <button onclick="selectDuration(45)" style="padding:20px 12px;background:rgba(245,158,11,0.06);border:1.5px solid rgba(245,158,11,0.3);border-radius:14px;color:#e2e8f0;cursor:pointer;transition:transform 0.15s;" onmousedown="this.style.transform='scale(0.97)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">
+                            <div style="font-size: 2em; margin-bottom: 8px;">💪</div>
+                            <div style="font-size: 1.25em;font-weight:900;color:#fbbf24;">45 min</div>
+                            <div style="font-size: 0.72em; color:#94a3b8; margin-top: 4px;letter-spacing:1px;text-transform:uppercase;">Intense</div>
                         </button>
-                        <button class="btn" onclick="selectDuration(60)" style="padding: 25px;">
-                            <div style="font-size: 2em; margin-bottom: 10px;">🏆</div>
-                            <div style="font-size: 1.3em;">60 min</div>
-                            <div style="font-size: 0.9em; opacity: 0.8; margin-top: 5px;">Maximum</div>
+                        <button onclick="selectDuration(60)" style="padding:20px 12px;background:rgba(239,68,68,0.06);border:1.5px solid rgba(239,68,68,0.3);border-radius:14px;color:#e2e8f0;cursor:pointer;transition:transform 0.15s;" onmousedown="this.style.transform='scale(0.97)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">
+                            <div style="font-size: 2em; margin-bottom: 8px;">🏆</div>
+                            <div style="font-size: 1.25em;font-weight:900;color:#f87171;">60 min</div>
+                            <div style="font-size: 0.72em; color:#94a3b8; margin-top: 4px;letter-spacing:1px;text-transform:uppercase;">Maximum</div>
                         </button>
                     </div>
                 </div>
@@ -2149,7 +2149,7 @@
             <!-- 🔖 Version -->
             <div class="card" style="background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(34,197,94,0.15);padding:12px 14px;text-align:center;">
                 <div style="font-size:0.6em;color:#64748b;font-weight:800;letter-spacing:2px;">VERSION</div>
-                <div style="font-size:0.95em;color:#4ade80;font-weight:900;margin-top:3px;letter-spacing:1px;">v85 · awakened</div>
+                <div style="font-size:0.95em;color:#4ade80;font-weight:900;margin-top:3px;letter-spacing:1px;">v87 · awakened</div>
                 <button onclick="if(confirm('Forcer la mise à jour de l\\'app ?\\n\\nCela rechargera la page et nettoiera le cache.')) { if('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(rs => Promise.all(rs.map(r => r.unregister()))).then(() => location.reload(true)); }" style="margin-top:10px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:#4ade80;border-radius:9px;padding:8px 14px;font-size:0.75em;font-weight:800;cursor:pointer;">🔄 Forcer la mise à jour</button>
             </div>
 
@@ -3476,12 +3476,12 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/exercises.js?v=85"></script>
-    <script src="data/items.js?v=85"></script>
-    <script src="js/adventure.js?v=85"></script>
-    <script src="js/challenges.js?v=85"></script>
-    <script src="js/exercise-visuals.js?v=85"></script>
-    <script src="js/app.js?v=85"></script>
+    <script src="js/exercises.js?v=87"></script>
+    <script src="data/items.js?v=87"></script>
+    <script src="js/adventure.js?v=87"></script>
+    <script src="js/challenges.js?v=87"></script>
+    <script src="js/exercise-visuals.js?v=87"></script>
+    <script src="js/app.js?v=87"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>
