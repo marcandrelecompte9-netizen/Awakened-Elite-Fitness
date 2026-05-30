@@ -12,6 +12,7 @@
     <!-- PWA -->
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link rel="icon" type="image/png" href="icons/icon-192.png">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -749,27 +750,27 @@
 
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
                         <div>
-                            <label data-weight-unit style="display: block; font-weight: 600; margin-bottom: 5px; color: #333;">⚖️ Poids (lbs)</label>
+                            <span data-weight-unit style="display: block; font-weight: 600; margin-bottom: 5px; color: #333;">⚖️ Poids (lbs)</span>
                             <input type="number" id="measureWeight" step="0.1" placeholder="Ex: 165" style="width: 100%; padding: 10px; border-radius: 8px; border: 2px solid #e5e7eb;">
                         </div>
                         <div>
-                            <label style="display: block; font-weight: 600; margin-bottom: 5px; color: #333;">📏 Taille (pouces)</label>
+                            <span style="display: block; font-weight: 600; margin-bottom: 5px; color: #333;">📏 Taille (pouces)</span>
                             <input type="number" id="measureHeight" step="0.1" placeholder="Ex: 175" style="width: 100%; padding: 10px; border-radius: 8px; border: 2px solid #e5e7eb;">
                         </div>
                         <div>
-                            <label style="display: block; font-weight: 600; margin-bottom: 5px; color: #333;">🟢 Tour de taille (pouces)</label>
+                            <span style="display: block; font-weight: 600; margin-bottom: 5px; color: #333;">🟢 Tour de taille (pouces)</span>
                             <input type="number" id="measureWaist" step="0.1" placeholder="Ex: 32" style="width: 100%; padding: 10px; border-radius: 8px; border: 2px solid #e5e7eb;">
                         </div>
                         <div>
-                            <label style="display: block; font-weight: 600; margin-bottom: 5px; color: #333;">🍑 Tour de hanches (pouces)</label>
+                            <span style="display: block; font-weight: 600; margin-bottom: 5px; color: #333;">🍑 Tour de hanches (pouces)</span>
                             <input type="number" id="measureHips" step="0.1" placeholder="Ex: 38" style="width: 100%; padding: 10px; border-radius: 8px; border: 2px solid #e5e7eb;">
                         </div>
                         <div>
-                            <label style="display: block; font-weight: 600; margin-bottom: 5px; color: #333;">💪 Biceps (pouces)</label>
+                            <span style="display: block; font-weight: 600; margin-bottom: 5px; color: #333;">💪 Biceps (pouces)</span>
                             <input type="number" id="measureBiceps" step="0.1" placeholder="Ex: 14" style="width: 100%; padding: 10px; border-radius: 8px; border: 2px solid #e5e7eb;">
                         </div>
                         <div>
-                            <label style="display: block; font-weight: 600; margin-bottom: 5px; color: #333;">🦵 Cuisses (pouces)</label>
+                            <span style="display: block; font-weight: 600; margin-bottom: 5px; color: #333;">🦵 Cuisses (pouces)</span>
                             <input type="number" id="measureThighs" step="0.1" placeholder="Ex: 22" style="width: 100%; padding: 10px; border-radius: 8px; border: 2px solid #e5e7eb;">
                         </div>
                     </div>
@@ -1435,7 +1436,7 @@
                                     <!-- REPS - GROS CHIFFRES -->
                                     <div style="background:linear-gradient(180deg,#020510,#0a0e18);padding:14px 10px;border-radius:10px;border:1px solid rgba(74,222,128,0.3);position:relative;overflow:hidden;">
                                         <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#4ade80,transparent);opacity:0.5;"></div>
-                                        <label style="display:block;font-size:0.6em;font-weight:900;margin-bottom:8px;color:#4ade80;text-transform:uppercase;letter-spacing:2.5px;text-align:center;text-shadow:0 0 6px rgba(74,222,128,0.4);">RÉPÉTITIONS</label>
+                                        <span style="display:block;font-size:0.6em;font-weight:900;margin-bottom:8px;color:#4ade80;text-transform:uppercase;letter-spacing:2.5px;text-align:center;text-shadow:0 0 6px rgba(74,222,128,0.4);">RÉPÉTITIONS</span>
                                         <div style="display:flex;align-items:center;gap:6px;">
                                             <button type="button" onclick="document.getElementById('quickRepsInput').stepDown();document.getElementById('quickRepsInput').dispatchEvent(new Event('input'));" style="width:38px;height:38px;border-radius:50%;background:rgba(74,222,128,0.12);border:1.5px solid rgba(74,222,128,0.5);color:#4ade80;font-size:1.2em;font-weight:900;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 0 8px rgba(74,222,128,0.2);transition:all 0.2s;">−</button>
                                             <input type="number" id="quickRepsInput" min="1" max="200" placeholder="10"
@@ -1446,7 +1447,7 @@
                                     <!-- POIDS - GROS CHIFFRES -->
                                     <div id="quickWeightCard" style="background:linear-gradient(180deg,#020510,#0a0e18);padding:14px 10px;border-radius:10px;border:1px solid rgba(74,222,128,0.3);position:relative;overflow:hidden;">
                                         <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#4ade80,transparent);opacity:0.5;"></div>
-                                        <label style="display:block;font-size:0.6em;font-weight:900;margin-bottom:8px;color:#4ade80;text-transform:uppercase;letter-spacing:2.5px;text-align:center;text-shadow:0 0 6px rgba(74,222,128,0.4);"><span data-weight-unit>CHARGE (KG)</span></label>
+                                        <span style="display:block;font-size:0.6em;font-weight:900;margin-bottom:8px;color:#4ade80;text-transform:uppercase;letter-spacing:2.5px;text-align:center;text-shadow:0 0 6px rgba(74,222,128,0.4);"><span data-weight-unit>CHARGE (KG)</span></span>
                                         <div style="display:flex;align-items:center;gap:6px;">
                                             <button type="button" onclick="(function(){var i=document.getElementById('quickWeightInput');i.value=Math.max(0,(parseFloat(i.value)||0)-2.5);i.dispatchEvent(new Event('input'));})()" style="width:38px;height:38px;border-radius:50%;background:rgba(74,222,128,0.12);border:1.5px solid rgba(74,222,128,0.5);color:#4ade80;font-size:1.2em;font-weight:900;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 0 8px rgba(74,222,128,0.2);transition:all 0.2s;">−</button>
                                             <input type="number" id="quickWeightInput" min="0" step="0.5" placeholder="0"
@@ -1907,7 +1908,7 @@
 
                 <!-- Exercise Selector -->
                 <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px;">
-                    <label style="display: block; font-weight: 600; margin-bottom: 10px; color: #333;">🏋️ Choisir un exercice</label>
+                    <span style="display: block; font-weight: 600; margin-bottom: 10px; color: #333;">🏋️ Choisir un exercice</span>
                     <select id="progressGraphExercise" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #e5e7eb; font-size: 1em;">
                         <option value="">-- Sélectionner un exercice --</option>
                     </select>
@@ -1990,11 +1991,11 @@
 
                 <div class="filters">
                     <div class="filter-group">
-                        <label>🔍 Rechercher</label>
+                        <span>🔍 Rechercher</span>
                         <input type="text" id="searchInput" placeholder="Nom de l'exercice..." oninput="filterExercises()">
                     </div>
                     <div class="filter-group">
-                        <label>💪 Groupe musculaire</label>
+                        <span>💪 Groupe musculaire</span>
                         <select id="muscleFilter" onchange="filterExercises()">
                             <option value="">Tous</option>
                             <option value="Pectoraux">Pectoraux</option>
@@ -2015,7 +2016,7 @@
                         </select>
                     </div>
                     <div class="filter-group">
-                        <label>📊 Difficulté</label>
+                        <span>📊 Difficulté</span>
                         <select id="difficultyFilter" onchange="filterExercises()">
                             <option value="">Toutes</option>
                             <option value="Débutant">Débutant</option>
@@ -2024,7 +2025,7 @@
                         </select>
                     </div>
                     <div class="filter-group">
-                        <label>🏋️ Équipement</label>
+                        <span>🏋️ Équipement</span>
                         <select id="equipmentFilter" onchange="filterExercises()">
                             <option value="">Tous</option>
                             <option value="Poids du corps">Poids du corps</option>
@@ -2045,7 +2046,7 @@
                         </select>
                     </div>
                     <div class="filter-group">
-                        <label style="opacity: 0;">Reset</label>
+                        <span style="opacity: 0;">Reset</span>
                         <button class="btn btn-secondary" onclick="resetFilters()" style="padding: 12px; width: 100%;">
                             🔄 Réinitialiser
                         </button>
@@ -2297,7 +2298,7 @@
                         </label>
 
                         <div id="dailyTimeSelector" style="display: none; margin-left: 32px;">
-                            <label style="display: block; margin-bottom: 5px; font-size: 0.9em; color: #666;">⏰ Heure du rappel</label>
+                            <span style="display: block; margin-bottom: 5px; font-size: 0.9em; color: #666;">⏰ Heure du rappel</span>
                             <input type="time" id="dailyReminderTime" onchange="saveReminderSettings()" value="18:00" style="padding: 10px; border-radius: 8px; border: 2px solid #e5e7eb; font-size: 1em;">
                         </div>
                     </div>
@@ -2383,7 +2384,7 @@
                         </label>
 
                         <div style="margin-top: 15px;">
-                            <label style="display: block; font-size: 0.9em; font-weight: 600; color: #333; margin-bottom: 8px;">🎚️ Sensibilité de l'adaptation</label>
+                            <span style="display: block; font-size: 0.9em; font-weight: 600; color: #333; margin-bottom: 8px;">🎚️ Sensibilité de l'adaptation</span>
                             <select id="aiDJSensitivity" onchange="saveAIWorkoutDJSettings()" style="width: 100%; padding: 10px; border-radius: 8px; border: 2px solid #e5e7eb; font-size: 0.9em;">
                                 <option value="conservative">Conservatrice (petits ajustements)</option>
                                 <option value="moderate" selected>Modérée (équilibrée)</option>
@@ -2528,21 +2529,21 @@
                 </p>
                 <div style="display:grid;gap:10px;">
                     <div>
-                        <label style="font-size:0.82em;font-weight:700;color:#374151;margin-bottom:6px;display:block;">🔵 Haltères disponibles (lbs ou kg)</label>
+                        <span style="font-size:0.82em;font-weight:700;color:#374151;margin-bottom:6px;display:block;">🔵 Haltères disponibles (lbs ou kg)</span>
                         <input id="dumbbellWeightsInput" type="text" placeholder="ex: 5, 10, 15, 20, 25, 35, 45"
                             style="width:100%;padding:10px 12px;border:2px solid #e5e7eb;border-radius:10px;font-size:0.92em;"
                             oninput="previewAvailWeights('dumbbells', this.value)">
                         <div id="dumbbellPreview" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;min-height:28px;"></div>
                     </div>
                     <div>
-                        <label style="font-size:0.82em;font-weight:700;color:#374151;margin-bottom:6px;display:block;">🔴 Barre (barbell) — plaques disponibles</label>
+                        <span style="font-size:0.82em;font-weight:700;color:#374151;margin-bottom:6px;display:block;">🔴 Barre (barbell) — plaques disponibles</span>
                         <input id="barbellWeightsInput" type="text" placeholder="ex: 2.5, 5, 10, 25, 35, 45"
                             style="width:100%;padding:10px 12px;border:2px solid #e5e7eb;border-radius:10px;font-size:0.92em;"
                             oninput="previewAvailWeights('barbell', this.value)">
                         <div id="barbellPreview" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;min-height:28px;"></div>
                     </div>
                     <div>
-                        <label style="font-size:0.82em;font-weight:700;color:#374151;margin-bottom:6px;display:block;">🟢 Câble / Machine — crans</label>
+                        <span style="font-size:0.82em;font-weight:700;color:#374151;margin-bottom:6px;display:block;">🟢 Câble / Machine — crans</span>
                         <input id="cableWeightsInput" type="text" placeholder="ex: 5, 10, 15, 20, 25, 30, 40, 50"
                             style="width:100%;padding:10px 12px;border:2px solid #e5e7eb;border-radius:10px;font-size:0.92em;"
                             oninput="previewAvailWeights('cable', this.value)">
@@ -2636,17 +2637,17 @@
             <div style="background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 20px;">
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
                     <div>
-                        <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">🏋️ Exercice</label>
+                        <span style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">🏋️ Exercice</span>
                         <select id="rm-exercise" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #e5e7eb; font-size: 1em;">
                             <option value="">Sélectionner...</option>
                         </select>
                     </div>
                     <div>
-                        <label data-weight-unit style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">⚖️ Poids soulevé (lbs)</label>
+                        <span data-weight-unit style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">⚖️ Poids soulevé (lbs)</span>
                         <input type="number" id="rm-weight" placeholder="Ex: 135" step="5" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #e5e7eb; font-size: 1em;">
                     </div>
                     <div>
-                        <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">💪 Répétitions réussies</label>
+                        <span style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">💪 Répétitions réussies</span>
                         <input type="number" id="rm-reps" placeholder="Ex: 8" min="1" max="20" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #e5e7eb; font-size: 1em;">
                     </div>
                 </div>
@@ -2685,12 +2686,12 @@
             <div style="background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 20px;">
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
                     <div>
-                        <label data-weight-unit style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">🎯 Poids cible (lbs)</label>
+                        <span data-weight-unit style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">🎯 Poids cible (lbs)</span>
                         <input type="number" id="plateTargetWeight" placeholder="Ex: 225" step="5"
                                style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #e5e7eb; font-size: 1.2em; font-weight: 600;">
                     </div>
                     <div>
-                        <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">🏋️ Type de barre</label>
+                        <span style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">🏋️ Type de barre</span>
                         <select id="plateBarType" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #e5e7eb; font-size: 1em;">
                             <option value="45">Olympique (45 lbs)</option>
                             <option value="35">Standard (35 lbs)</option>
@@ -2886,9 +2887,9 @@
             </div>
             <div class="modal-body">
                 <div style="margin-bottom: 20px;">
-                    <label style="display: block; font-weight: bold; margin-bottom: 8px; color: #16a34a;">
+                    <span style="display: block; font-weight: bold; margin-bottom: 8px; color: #16a34a;">
                         👤 Nom du profil
-                    </label>
+                    </span>
                     <input type="text"
                            id="profileEditorName"
                            placeholder="Ex: Papa, Maman, Sophie..."
@@ -2896,9 +2897,9 @@
                 </div>
 
                 <div style="margin-bottom: 20px;">
-                    <label style="display: block; font-weight: bold; margin-bottom: 8px; color: #16a34a;">
+                    <span style="display: block; font-weight: bold; margin-bottom: 8px; color: #16a34a;">
                         😊 Avatar
-                    </label>
+                    </span>
                     <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px;">
                         <div onclick="selectAvatar('👨')" class="avatar-option" data-avatar="👨">👨</div>
                         <div onclick="selectAvatar('👩')" class="avatar-option" data-avatar="👩">👩</div>
@@ -2938,7 +2939,7 @@
                    aria-label="Votre nom ou surnom"
                    style="width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #e0e0e0; border-radius: 8px;">
 
-            <label style="display: block; margin: 15px 0 8px 0; font-weight: bold; color: #16a34a;">🎯 Objectif principal</label>
+            <span style="display: block; margin: 15px 0 8px 0; font-weight: bold; color: #16a34a;">🎯 Objectif principal</span>
             <select id="profileGoal"
                     aria-label="Sélectionnez votre objectif principal d\'entraînement"
                     style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px;">
@@ -2950,7 +2951,7 @@
                 <option value="flexibility">🧘 Souplesse</option>
             </select>
 
-            <label style="display: block; margin: 15px 0 8px 0; font-weight: bold; color: #16a34a;">📊 Niveau actuel</label>
+            <span style="display: block; margin: 15px 0 8px 0; font-weight: bold; color: #16a34a;">📊 Niveau actuel</span>
             <select id="profileLevel" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px;"
                     onchange="updateLevelDescription()"
                     aria-label="Sélectionnez votre niveau d'expérience en musculation">
@@ -2964,11 +2965,11 @@
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
                 <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #16a34a; font-size: 0.9em;">🎂 Âge (optionnel)</label>
+                    <span style="display: block; margin-bottom: 5px; font-weight: bold; color: #16a34a; font-size: 0.9em;">🎂 Âge (optionnel)</span>
                     <input id="profileAge" type="number" placeholder="Ex: 30" min="10" max="100" style="padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; width: 100%;">
                 </div>
                 <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #16a34a; font-size: 0.9em;">⚖️ Poids en kg (optionnel)</label>
+                    <span style="display: block; margin-bottom: 5px; font-weight: bold; color: #16a34a; font-size: 0.9em;">⚖️ Poids en kg (optionnel)</span>
                     <input id="profileWeight" type="number" placeholder="Ex: 70" min="30" max="200" style="padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; width: 100%;">
                 </div>
             </div>
@@ -3017,7 +3018,7 @@
             <div class="modal-body">
                 <p style="color: #666; margin-bottom: 20px;">Enchaînez 2-3 exercices sans repos entre eux. Parfait pour intensifier l'entraînement !</p>
 
-                <label style="display: block; margin-bottom: 10px; font-weight: bold; color: #16a34a;">Nom du superset</label>
+                <span style="display: block; margin-bottom: 10px; font-weight: bold; color: #16a34a;">Nom du superset</span>
                 <input type="text" id="supersetName" placeholder="Ex: Pecs + Dos" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; margin-bottom: 15px;">
 
                 <!-- Filtres exercices superset -->
@@ -3077,14 +3078,14 @@
                 </button>
 
                 <div style="background: #FFF3E0; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 10px; font-weight: bold; color: #16a34a;">⏱️ Configuration</label>
+                    <span style="display: block; margin-bottom: 10px; font-weight: bold; color: #16a34a;">⏱️ Configuration</span>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                         <div>
-                            <label style="display: block; margin-bottom: 5px; color: #666; font-size: 0.9em;">Sets par exercice</label>
+                            <span style="display: block; margin-bottom: 5px; color: #666; font-size: 0.9em;">Sets par exercice</span>
                             <input type="number" id="supersetSets" value="3" min="1" max="10" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px;">
                         </div>
                         <div>
-                            <label style="display: block; margin-bottom: 5px; color: #666; font-size: 0.9em;">Repos après superset (sec)</label>
+                            <span style="display: block; margin-bottom: 5px; color: #666; font-size: 0.9em;">Repos après superset (sec)</span>
                             <input type="number" id="supersetRest" value="90" min="30" max="300" step="15" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px;">
                         </div>
                     </div>
@@ -3107,7 +3108,7 @@
             <div class="modal-body">
                 <p style="color: #666; margin-bottom: 20px;">Créez un circuit de 4-6 exercices à répéter plusieurs fois. Excellent pour le cardio et la force !</p>
 
-                <label style="display: block; margin-bottom: 10px; font-weight: bold; color: #10b981;">Nom du circuit</label>
+                <span style="display: block; margin-bottom: 10px; font-weight: bold; color: #10b981;">Nom du circuit</span>
                 <input type="text" id="circuitName" placeholder="Ex: Full Body Blast" style="width: 100%; padding: 12px; border: 2px solid #6ee7b7; border-radius: 8px; margin-bottom: 15px; background: #f0fdf4; color: #065f46;">
 
                 <!-- Filtres exercices circuit -->
@@ -3167,14 +3168,14 @@
                 </button>
 
                 <div style="background: #ecfdf5; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 10px; font-weight: bold; color: #10b981;">⏱️ Configuration</label>
+                    <span style="display: block; margin-bottom: 10px; font-weight: bold; color: #10b981;">⏱️ Configuration</span>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                         <div>
-                            <label style="display: block; margin-bottom: 5px; color: #666; font-size: 0.9em;">Nombre de rounds</label>
+                            <span style="display: block; margin-bottom: 5px; color: #666; font-size: 0.9em;">Nombre de rounds</span>
                             <input type="number" id="circuitRounds" value="3" min="1" max="10" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px;">
                         </div>
                         <div>
-                            <label style="display: block; margin-bottom: 5px; color: #666; font-size: 0.9em;">Repos entre rounds (sec)</label>
+                            <span style="display: block; margin-bottom: 5px; color: #666; font-size: 0.9em;">Repos entre rounds (sec)</span>
                             <input type="number" id="circuitRest" value="120" min="30" max="300" step="15" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px;">
                         </div>
                     </div>
@@ -3197,11 +3198,11 @@
             <div class="modal-body">
                 <p style="color: #666; margin-bottom: 20px;"><strong>As Many Rounds As Possible</strong> - Faites le maximum de tours en temps limité !</p>
 
-                <label style="display: block; margin-bottom: 10px; font-weight: bold; color: #ef4444;">Nom du AMRAP</label>
+                <span style="display: block; margin-bottom: 10px; font-weight: bold; color: #ef4444;">Nom du AMRAP</span>
                 <input type="text" id="amrapName" placeholder="Ex: 20min Challenge" style="width: 100%; padding: 12px; border: 2px solid #fca5a5; border-radius: 8px; margin-bottom: 15px; background: #fff5f5; color: #7f1d1d;">
 
                 <div style="background: #fee2e2; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 10px; font-weight: bold; color: #ef4444;">⏱️ Durée totale</label>
+                    <span style="display: block; margin-bottom: 10px; font-weight: bold; color: #ef4444;">⏱️ Durée totale</span>
                     <select id="amrapDuration" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px;">
                         <option value="600">10 minutes</option>
                         <option value="900">15 minutes</option>
@@ -3294,7 +3295,7 @@
                 <h2>📝 Comment s'est passée votre séance ?</h2>
             </div>
 
-            <label style="display: block; margin: 20px 0 10px 0; font-weight: bold;">Difficulté perçue</label>
+            <span style="display: block; margin: 20px 0 10px 0; font-weight: bold;">Difficulté perçue</span>
             <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;">
                 <button class="feedback-btn" data-type="difficulty" data-value="1" onclick="selectFeedback('difficulty', 1)">1<br>😊</button>
                 <button class="feedback-btn" data-type="difficulty" data-value="2" onclick="selectFeedback('difficulty', 2)">2<br>🙂</button>
@@ -3303,7 +3304,7 @@
                 <button class="feedback-btn" data-type="difficulty" data-value="5" onclick="selectFeedback('difficulty', 5)">5<br>😰</button>
             </div>
 
-            <label style="display: block; margin: 20px 0 10px 0; font-weight: bold;">Niveau d\'énergie après</label>
+            <span style="display: block; margin: 20px 0 10px 0; font-weight: bold;">Niveau d\'énergie après</span>
             <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;">
                 <button class="feedback-btn" data-type="energy" data-value="1" onclick="selectFeedback('energy', 1)">1<br>😴</button>
                 <button class="feedback-btn" data-type="energy" data-value="2" onclick="selectFeedback('energy', 2)">2<br>😪</button>
@@ -3350,9 +3351,9 @@
             </div>
             <div class="modal-body">
                 <div style="margin-bottom: 20px;">
-                    <label style="display: block; font-weight: bold; margin-bottom: 8px; color: #16a34a;">
+                    <span style="display: block; font-weight: bold; margin-bottom: 8px; color: #16a34a;">
                         📝 Nom du programme
-                    </label>
+                    </span>
                     <input type="text"
                            id="programName"
                            placeholder="Ex: Jour Poussée, Corps entier, Routine Matinale..."
@@ -3360,9 +3361,9 @@
                 </div>
 
                 <div style="margin-bottom: 20px;">
-                    <label style="display: block; font-weight: bold; margin-bottom: 8px; color: #16a34a;">
+                    <span style="display: block; font-weight: bold; margin-bottom: 8px; color: #16a34a;">
                         💪 Exercices du programme
-                    </label>
+                    </span>
                     <div id="programExercisesList" style="min-height: 100px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 2px dashed #d1d5db;">
                         <p style="text-align: center; color: #999;">Aucun exercice ajouté</p>
                     </div>
@@ -3444,7 +3445,7 @@
                         </label>
                     </div>
                     <div style="display: flex; align-items: center; gap: 10px;">
-                        <label style="color: #78350f; font-weight: 500;">Durée du repos :</label>
+                        <span style="color: #78350f; font-weight: 500;">Durée du repos :</span>
                         <input type="number"
                                id="autoRestDuration"
                                value="60"
