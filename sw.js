@@ -2,7 +2,7 @@
 // Enables full offline support and PWA installation
 // Strategy: network-first for code files (HTML/JS/CSS), cache-first for assets (images/fonts)
 
-const CACHE_NAME = 'awakened-v76';
+const CACHE_NAME = 'awakened-v81';
 const ASSETS = [
   '/',
   '/index.html',
@@ -29,10 +29,17 @@ function isCodeFile(url) {
   return /\.(html|js|css)(\?|$)/.test(url) || url.endsWith('/');
 }
 
-// Install — cache all core assets
+// Install — cache all core assets (résilient : un fichier manquant ne casse pas tout)
 self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting())
+    caches.open(CACHE_NAME).then(cache => {
+      // Cache chaque asset individuellement pour qu'un 404 ne fasse pas échouer toute l'install
+      return Promise.allSettled(
+        ASSETS.map(url => cache.add(url).catch(err => {
+          console.warn('[SW] Asset non mis en cache:', url, err);
+        }))
+      );
+    }).then(() => self.skipWaiting())
   );
 });
 

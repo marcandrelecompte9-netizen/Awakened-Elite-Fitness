@@ -5156,10 +5156,13 @@
             if (saved) {
                 try { selectedEquipment = JSON.parse(saved); } catch(e) { selectedEquipment = ['bodyweight']; }
             } else {
-                // Tout coché par défaut sauf machines cardio spécialisées (tapis, rameur, vélo, etc.)
-                selectedEquipment = availableEquipment
-                    .filter(eq => !['treadmill','rower','bike','elliptical','stairmaster','battleropes'].includes(eq.id))
-                    .map(eq => eq.id);
+                // Pas de données sauvegardées : utiliser l'équipement du lieu actif
+                const activeLoc = getActiveLocation();
+                if (activeLoc) {
+                    selectedEquipment = [...activeLoc.equipment];
+                } else {
+                    selectedEquipment = ['bodyweight'];
+                }
             }
             
             // Load selected machines
@@ -5167,9 +5170,14 @@
             if (savedMachines) {
                 try { selectedMachines = JSON.parse(savedMachines); } catch(e) { selectedMachines = []; }
             } else {
-                // Default: all machines if Machine is selected
-                if (selectedEquipment.includes('machine')) {
+                // Pas de données sauvegardées : utiliser les machines du lieu actif
+                const activeLoc = getActiveLocation();
+                if (activeLoc && activeLoc.machines !== undefined) {
+                    selectedMachines = [...activeLoc.machines];
+                } else if (selectedEquipment.includes('machine')) {
                     selectedMachines = machineTypes.map(m => m.id);
+                } else {
+                    selectedMachines = [];
                 }
             }
             
@@ -7156,12 +7164,12 @@
             // Sélectionner une variante ALÉATOIRE
             const randomPlan = plans[Math.floor(Math.random() * plans.length)];
             
-            saveWeeklyPlan(randomPlan);
+            saveAutoWeeklyPlan(randomPlan);
             renderWeeklyPlan();
             speak("Nouveau plan généré");
         }
 
-        function saveWeeklyPlan(plan) {
+        function saveAutoWeeklyPlan(plan) {
             const profileId = getCurrentProfileId();
             const planData = JSON.stringify({
                 plan: plan,
@@ -7423,7 +7431,7 @@
                 }
             });
             
-            saveWeeklyPlan(manualPlanData);
+            saveAutoWeeklyPlan(manualPlanData);
             renderWeeklyPlan();
             closeManualPlanEditor();
             speak("Plan personnalisé sauvegardé");
@@ -21243,17 +21251,19 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 const done  = unlockedSkills.includes(sk.id);
                 const canDo = !done && profileLevel >= sk.req.level;
                 const accent = sk.type === 'class' && _classInfo ? _classInfo.color : '#22c55e';
+                const activateBtn = canDo ? `<div style="font-size:0.65em;font-weight:800;color:#0d1018;background:${accent};padding:3px 8px;border-radius:6px;flex-shrink:0;letter-spacing:0.5px;">ACTIVER</div>` : `<div style="font-size:0.7em;font-weight:700;color:${done?accent:'#475569'};flex-shrink:0;">Niv.${sk.req.level}</div>`;
                 return `<div onclick="${canDo?`rpgUnlockSkill('${sk.id}')`:''}" style="
                     background:${done?accent+'15':canDo?accent+'10':'#0d1018'};
                     border:1.5px solid ${done?accent+'66':canDo?accent+'44':'rgba(255,255,255,0.05)'};
                     border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:10px;
-                    ${canDo?'cursor:pointer;':''}opacity:${done||canDo?1:0.5};">
+                    ${canDo?'cursor:pointer;box-shadow:0 0 10px '+accent+'33;':''}opacity:${done||canDo?1:0.5};
+                    transition:transform 0.15s;" ${canDo?'onmouseenter="this.style.transform='scale(1.02)'" onmouseleave="this.style.transform='scale(1)'"':''}>
                     <span style="font-size:1.3em;flex-shrink:0;">${sk.emoji}</span>
                     <div style="flex:1;min-width:0;">
                         <div style="font-weight:700;font-size:0.83em;color:${done?accent:'#e2e8f0'};">${done?'✅ ':''}${sk.name}</div>
                         <div style="font-size:0.68em;color:#94a3b8;line-height:1.4;">${sk.desc}</div>
                     </div>
-                    <div style="font-size:0.7em;font-weight:700;color:${canDo?accent:'#475569'};flex-shrink:0;">Niv.${sk.req.level}</div>
+                    ${activateBtn}
                 </div>`;
             }
 
@@ -22615,6 +22625,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
          * Doit être appelée APRÈS completeWorkout()
          */
         function awakTriggerFirstContactIfNeeded() {
+            if (!rpgEnabled()) return false;
             if (awakHasMetSystem()) return false;
             // Délai pour ne pas chevaucher l'écran de complétion
             setTimeout(() => {
@@ -23155,6 +23166,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     <div style="font-size:0.6em;color:#c084fc;font-weight:900;letter-spacing:2px;">◈ FAILLES ACTIVES</div>
                     <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(168,85,247,0.3),transparent);"></div>
                     <div style="font-size:0.7em;color:#94a3b8;font-weight:700;">${rifts.length}/${RIFT_MAX_ACTIVE}</div>
+                    <button onclick="awakShowRiftInfoModal()" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.4);color:#c084fc;width:26px;height:26px;border-radius:7px;cursor:pointer;font-size:0.85em;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;" title="Comment fonctionnent les failles ?">ℹ</button>
                 </div>
 
                 <div style="display:flex;flex-direction:column;gap:10px;">
@@ -23197,6 +23209,68 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             </div>`;
         }
         window.renderActiveRiftsCard = renderActiveRiftsCard;
+
+        function awakShowRiftInfoModal() {
+            document.getElementById('awakRiftInfoModal')?.remove();
+            const modal = document.createElement('div');
+            modal.id = 'awakRiftInfoModal';
+            modal.className = 'modal active';
+            modal.style.cssText = 'background:rgba(0,0,0,0.92);backdrop-filter:blur(10px);z-index:10001;';
+
+            const sections = [
+                {
+                    icon: '🌀', color: '#a855f7', title: 'Qu'est-ce qu'une Faille ?',
+                    text: 'Une Faille est un donjon temporaire qui apparaît après une séance d'entraînement. Elle contient des vagues de monstres à vaincre en complétant des séries d'exercices ciblés. Chaque série inflige des dégâts aux monstres.'
+                },
+                {
+                    icon: '⏱', color: '#f59e0b', title: 'Durée & états',
+                    text: 'Chaque Faille a une limite de temps selon son rang. Elle passe de STABLE → INSTABLE → BRÈCHE au fil du temps. Si elle expire sans être fermée, un monstre s'échappe et t'inflige des malus.'
+                },
+                {
+                    icon: '🩸', color: '#ef4444', title: 'Contre-attaques',
+                    text: 'Les monstres normaux ont 15% de chance de te blesser après chaque série. Les boss contre-attaquent à 30% (50% s'ils sont enragés). Si tes HP tombent à 0, c'est le Game Over et la Faille est perdue.'
+                },
+                {
+                    icon: '👁️', color: '#06b6d4', title: 'Esquive',
+                    text: 'L'attribut Perception te donne une chance d'esquiver les attaques ennemies (+0.3% par point). En cas d'esquive, aucun dégât n'est reçu.'
+                },
+                {
+                    icon: '💚', color: '#22c55e', title: 'Régénération HP',
+                    text: 'L'attribut Endurance régénère des HP à chaque série complétée (+1 HP par 2 points d'END). Les consommables de l'inventaire peuvent également soigner.'
+                },
+                {
+                    icon: '⚔️', color: '#fbbf24', title: 'Rangs & récompenses',
+                    text: 'Les Failles ont des rangs de E à SSS. Plus le rang est élevé, plus les monstres sont puissants et les récompenses importantes. Des failles narratives uniques (◇ UNIQUE) apparaissent lors de certains rank-ups.'
+                },
+            ];
+
+            modal.innerHTML = \`
+            <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(168,85,247,0.35);padding:0;border-radius:18px;overflow:hidden;">
+                <div style="background:linear-gradient(135deg,rgba(168,85,247,0.15),transparent);padding:18px 22px;border-bottom:1px solid rgba(255,255,255,0.06);">
+                    <div style="display:flex;align-items:center;justify-content:space-between;">
+                        <div>
+                            <div style="font-size:0.58em;color:rgba(168,85,247,0.8);font-weight:900;letter-spacing:2px;margin-bottom:3px;">◈ GUIDE</div>
+                            <div style="font-size:1.05em;font-weight:900;color:white;">Comment fonctionnent les Failles ?</div>
+                        </div>
+                        <button onclick="document.getElementById('awakRiftInfoModal').remove()" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:1.1em;display:flex;align-items:center;justify-content:center;">×</button>
+                    </div>
+                </div>
+                <div style="padding:16px 22px 20px;display:flex;flex-direction:column;gap:10px;max-height:70vh;overflow-y:auto;">
+                    \${sections.map(s => \`
+                    <div style="background:#0a0e18;border:1px solid \${s.color}22;border-left:3px solid \${s.color};border-radius:10px;padding:11px 14px;">
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+                            <span style="font-size:1.1em;">\${s.icon}</span>
+                            <span style="font-weight:900;font-size:0.83em;color:\${s.color};">\${s.title}</span>
+                        </div>
+                        <div style="font-size:0.72em;color:#94a3b8;line-height:1.6;">\${s.text}</div>
+                    </div>\`).join('')}
+                </div>
+            </div>\`;
+
+            document.body.appendChild(modal);
+            dismissOnBackdrop(modal);
+        }
+        window.awakShowRiftInfoModal = awakShowRiftInfoModal;
 
         // ═══════════════════════════════════════════════════════════════
         // 🎬 ÉCRAN D'ENTRÉE / BRIEFING D'UNE FAILLE
@@ -23531,18 +23605,26 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             if (!theme || !theme.exerciseFilter) return [];
             const playerStats = awakGetTotalStats();
 
-            // Tous les exos qui matchent le thème — MAIS poids du corps uniquement
+            // Filtre commun : seulement de VRAIS exercices (pas échauffement/étirement/info)
+            const isCombatExercise = (ex) => {
+                const t = ex.type || 'exercise';
+                return t === 'exercise'; // exclut warmup, stretch, info
+            };
+
+            // Tous les exos qui matchent le thème — VRAIS exercices + poids du corps uniquement
             const pool = (typeof exerciseDatabase !== 'undefined' ? exerciseDatabase : [])
                 .filter(ex => theme.exerciseFilter(ex))
+                .filter(isCombatExercise)
                 .filter(ex => {
                     // 🏋️ Failles = poids du corps uniquement (pas de triche au poids + thématique)
                     const eq = ex.equipment || [];
                     return eq.length === 0 || eq.includes('Poids du corps') || eq.includes('Aucun');
                 });
 
-            // Si le filtre poids du corps vide le pool, fallback sur tout le thème
+            // Si le filtre poids du corps vide le pool, fallback sur tout le thème (mais toujours sans warmup/stretch)
             const finalPool = pool.length >= 2 ? pool : (typeof exerciseDatabase !== 'undefined' ? exerciseDatabase : [])
-                .filter(ex => theme.exerciseFilter(ex));
+                .filter(ex => theme.exerciseFilter(ex))
+                .filter(isCombatExercise);
 
             // Mélanger
             const shuffled = finalPool.sort(() => Math.random() - 0.5).slice(0, count);
@@ -23804,6 +23886,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             if (currentWave.isBoss && bonuses.bossBonus > 0) {
                 procToasts.push({ msg: `👁 Faiblesse détectée (+${Math.round(bonuses.bossBonus * 100)}% vs boss)`, type: 'info' });
             }
+            if (wasCapped) {
+                procToasts.push({ msg: `🛡 Dégâts plafonnés — continue tes séries !`, type: 'info' });
+            }
 
             const prevHpPercent = (currentWave.hpCurrent / currentWave.hpMax) * 100;
             currentWave.hpCurrent = Math.max(0, currentWave.hpCurrent - finalDamage);
@@ -23851,8 +23936,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 setTimeout(() => awakHealPlayer(bonuses.hpRegen), 1500);
             }
 
-            // 🩸 Boss contre-attaque si pas mort
-            if (currentWave.isBoss && currentWave.hpCurrent > 0) {
+            // 🩸 Contre-attaque si le monstre/boss est encore en vie
+            if (currentWave.hpCurrent > 0) {
                 awakBossCounterAttack(currentWave);
             }
 
@@ -24472,6 +24557,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
             // Filtres exercices courts/intenses : cardio, plyo, burpees, etc.
             const huntPool = pool.filter(ex => {
+                const t = ex.type || 'exercise';
+                if (t !== 'exercise') return false; // pas d'échauffement/étirement/info
                 const n = (ex.name || '').toLowerCase();
                 return /burpee|jump|plyo|sprint|hiit|squat|push|pompe|jack|climber/.test(n);
             });
@@ -26099,15 +26186,19 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         // 🎯 Contre-attaque du boss après une série du joueur
         // Appelée après chaque awakDealDamageToWave si c'est un boss
         function awakBossCounterAttack(wave) {
-            if (!wave || !wave.isBoss) return;
-            // 30% chance de contre-attaque par défaut
-            const counterChance = wave._enraged ? 0.5 : 0.3;
+            if (!wave) return;
+            // Monstres normaux : 15% de chance · Boss : 30% (50% si enragé)
+            const counterChance = wave.isBoss
+                ? (wave._enraged ? 0.5 : 0.3)
+                : 0.15;
             if (Math.random() >= counterChance) return;
 
-            // Dégâts du boss : 8-20 selon rang
             const rankIdx = ['E','D','C','B','A','S','SS','SSS'].indexOf(wave.rank || 'E');
-            const baseDmg = 8 + rankIdx * 3;
-            const variance = Math.floor(Math.random() * 6);
+            // Boss : 8-35 dmg selon rang · Monstres normaux : 4-18 dmg (moitié)
+            const baseDmg = wave.isBoss
+                ? 8 + rankIdx * 3
+                : 4 + Math.floor(rankIdx * 1.5);
+            const variance = Math.floor(Math.random() * (wave.isBoss ? 6 : 4));
             const dmg = baseDmg + variance;
 
             setTimeout(() => {
@@ -26353,7 +26444,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                             <div style="font-size:0.58em;color:rgba(245,158,11,0.7);font-weight:900;letter-spacing:2px;margin-bottom:3px;">◈ DISTRIBUTION DES STATS</div>
                             <div style="font-size:1.05em;font-weight:900;color:white;">Points d'attribut</div>
                         </div>
-                        <button onclick="document.getElementById('awakStatPointsModal').remove()" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:1.1em;display:flex;align-items:center;justify-content:center;">×</button>
+                        <div style="display:flex;gap:8px;align-items:center;">
+                            <button onclick="awakShowStatInfoModal()" style="background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.4);color:#818cf8;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:1em;font-weight:900;display:flex;align-items:center;justify-content:center;" title="Explication des attributs">ℹ</button>
+                            <button onclick="document.getElementById('awakStatPointsModal').remove()" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:1.1em;display:flex;align-items:center;justify-content:center;">×</button>
+                        </div>
                     </div>
                     ${hasPoints
                         ? `<div style="margin-top:10px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.35);border-radius:10px;padding:8px 12px;text-align:center;">
@@ -26412,6 +26506,63 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             if (typeof renderAdventureTab === 'function') renderAdventureTab();
         }
         window.awakStatPointsAllocate = awakStatPointsAllocate;
+
+        function awakShowStatInfoModal() {
+            document.getElementById('awakStatInfoModal')?.remove();
+            const modal = document.createElement('div');
+            modal.id = 'awakStatInfoModal';
+            modal.className = 'modal active';
+            modal.style.cssText = 'background:rgba(0,0,0,0.92);backdrop-filter:blur(10px);z-index:10001;';
+
+            const stats = [
+                { key:'STR', icon:'⚔️', color:'#ef4444', label:'Force',
+                  desc:'Augmente les dégâts infligés aux monstres et aux boss.',
+                  effect:'+1% dégâts par point' },
+                { key:'AGI', icon:'⚡', color:'#f59e0b', label:'Agilité',
+                  desc:'Augmente la chance de réaliser une attaque critique (×2 dégâts).',
+                  effect:'+0.5% chance critique par point' },
+                { key:'VIT', icon:'💙', color:'#3b82f6', label:'Vitalité',
+                  desc:'Augmente la chance de frapper deux fois d'affilée lors d'une série.',
+                  effect:'+1% chance double attaque par point' },
+                { key:'END', icon:'💚', color:'#22c55e', label:'Endurance',
+                  desc:'Régénère des points de vie entre les vagues de monstres.',
+                  effect:'+1 HP régénéré par 2 points' },
+                { key:'PER', icon:'👁️', color:'#06b6d4', label:'Perception',
+                  desc:'Augmente les dégâts contre les boss et la chance d'esquiver leurs attaques.',
+                  effect:'+1% dégâts boss · +0.3% esquive par point' },
+                { key:'SEN', icon:'🌀', color:'#a855f7', label:'Sens',
+                  desc:'Augmente l'XP gagnée et les chances d'obtenir des loots rares.',
+                  effect:'+1% XP · +0.5% loot rare par point' },
+            ];
+
+            modal.innerHTML = \`
+            <div class="modal-content" style="max-width:460px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(99,102,241,0.35);padding:0;border-radius:18px;overflow:hidden;">
+                <div style="background:linear-gradient(135deg,rgba(99,102,241,0.15),transparent);padding:18px 22px;border-bottom:1px solid rgba(255,255,255,0.06);">
+                    <div style="display:flex;align-items:center;justify-content:space-between;">
+                        <div>
+                            <div style="font-size:0.58em;color:rgba(99,102,241,0.8);font-weight:900;letter-spacing:2px;margin-bottom:3px;">◈ GUIDE</div>
+                            <div style="font-size:1.05em;font-weight:900;color:white;">Effets des attributs</div>
+                        </div>
+                        <button onclick="document.getElementById('awakStatInfoModal').remove()" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:1.1em;display:flex;align-items:center;justify-content:center;">×</button>
+                    </div>
+                </div>
+                <div style="padding:16px 22px 20px;display:flex;flex-direction:column;gap:10px;">
+                    \${stats.map(s => \`
+                    <div style="background:#0a0e18;border:1px solid \${s.color}22;border-left:3px solid \${s.color};border-radius:10px;padding:11px 14px;">
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                            <span style="font-size:1.1em;">\${s.icon}</span>
+                            <span style="font-weight:900;font-size:0.85em;color:\${s.color};">\${s.label}</span>
+                        </div>
+                        <div style="font-size:0.72em;color:#94a3b8;margin-bottom:5px;line-height:1.5;">\${s.desc}</div>
+                        <div style="font-size:0.68em;font-weight:700;color:\${s.color};background:\${s.color}15;padding:3px 8px;border-radius:6px;display:inline-block;">\${s.effect}</div>
+                    </div>\`).join('')}
+                </div>
+            </div>\`;
+
+            document.body.appendChild(modal);
+            dismissOnBackdrop(modal);
+        }
+        window.awakShowStatInfoModal = awakShowStatInfoModal;
 
         function rpgApplyXPMultipliers(baseXP, muscleName, exerciseType) {
             let mult = 1;
@@ -28891,15 +29042,6 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         }
         window.confirmRestartCelebrityFromWeek1 = confirmRestartCelebrityFromWeek1;
 
-        function resetCelebrityProgram(programId) {
-            localStorage.removeItem(CELEBRITY_START_KEY + '_' + programId);
-            const sessions = JSON.parse(localStorage.getItem(CELEBRITY_SESSIONS_KEY) || '{}');
-            delete sessions[programId];
-            lsSet(CELEBRITY_SESSIONS_KEY, JSON.stringify(sessions));
-            showToast('\u{1F504} Programme réinitialisé — Semaine 1', 'success', 2500);
-            setActiveCelebrity(programId);
-        }
-
         function renderCelebProgressCard(p, prog) {
             const phaseList = [
                 { key:'phase1', label:'Adaptation',  weeks:'1-4',  color:'#10b981' },
@@ -29169,7 +29311,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 };
             });
 
-            saveWeeklyPlan(plan);
+            saveAutoWeeklyPlan(plan);
             renderWeeklyPlan();
             showToast(`📅 Plan de ${program.nickname} appliqué à ta semaine !`, 'success', 3500);
         }
