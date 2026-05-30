@@ -896,6 +896,16 @@ function applyChallengeReward(challenge) {
 function generateChallenge() {
     if (!getAdventureEnabled()) return null;
 
+    // 🔒 Les défis du Système n'apparaissent qu'à partir du rang D (niveau 6),
+    // pour ne pas décourager les nouveaux chasseurs (rang E).
+    if (typeof getPlayerRankInfo === 'function') {
+        const info = getPlayerRankInfo();
+        const rankOrder = ['E','D','C','B','A','S','SS','SSS','National'];
+        if (rankOrder.indexOf(info.rankId) < rankOrder.indexOf('D')) {
+            return null;
+        }
+    }
+
     const existing = getActiveSystemChallenge();
     if (existing && !isChallengeExpired(existing)) return existing;
 
@@ -1245,6 +1255,16 @@ function showChallengeResultModal(challenge, success, message, penaltyData, rewa
 // ═══════════════════════════════════════════════════════════════════════
 function renderChallengeSection() {
     if (!getAdventureEnabled()) return '';
+
+    // 🔒 Cacher toute la section des défis avant le rang D (niveau 6),
+    // pour ne pas décourager les nouveaux chasseurs.
+    if (typeof getPlayerRankInfo === 'function') {
+        const info = getPlayerRankInfo();
+        const rankOrder = ['E','D','C','B','A','S','SS','SSS','National'];
+        if (rankOrder.indexOf(info.rankId) < rankOrder.indexOf('D')) {
+            return '';
+        }
+    }
 
     // Vérifier expiration au rendu
     const challenge = getActiveSystemChallenge();

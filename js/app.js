@@ -10591,6 +10591,20 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             document.body.classList.remove('in-session');
             document.body.classList.remove('session-fullscreen');
 
+            // 3bis. 🔧 RESTAURER l'écran de sélection de séance (avait été masqué à l'entrée de la Faille)
+            // Sans ça, l'onglet Séance reste vide après un exercice en Faille.
+            const wSel = document.getElementById('workoutSelection');
+            if (wSel) {
+                wSel.classList.remove('hidden');
+                wSel.style.removeProperty('display');
+            }
+            const eSel = document.getElementById('exerciseSelection');
+            if (eSel) eSel.style.removeProperty('display');
+            ['aiWorkoutPanel', 'celebrityPanel', 'planningPanel'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.removeProperty('display');
+            });
+
             // 4. Nettoyage divers
             try {
                 if (typeof clearActiveWorkoutState === 'function') clearActiveWorkoutState();
@@ -21780,10 +21794,34 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     </div>
                 ` : ''}
 
-                <!-- Bouton Détails -->
-                <button onclick="rpgShowDetailsPanel()" style="width:100%;padding:11px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:11px;color:white;font-weight:700;cursor:pointer;font-size:0.82em;">
-                    📊 Détails — Muscles · Classe · Compétences
-                </button>`;
+                <!-- Bouton Détails — accès Compétences, Classe, Muscles -->
+                ${(() => {
+                    const _tree = typeof rpgGetSkillTree === 'function' ? rpgGetSkillTree() : [];
+                    const _unlockable = _tree.filter(sk => !unlockedSkills.includes(sk.id) && profileLevel >= (sk.req ? sk.req.level : 999)).length;
+                    const _badge = _unlockable > 0
+                        ? `<span style="background:#4ade80;color:#04210f;font-size:0.6em;font-weight:900;padding:3px 8px;border-radius:99px;box-shadow:0 0 12px rgba(74,222,128,0.6);animation:skillPulse 1.8s ease-in-out infinite;white-space:nowrap;">${_unlockable} à débloquer !</span>`
+                        : '';
+                    return `
+                    <button onclick="rpgShowDetailsPanel()" style="
+                        width:100%;padding:16px 18px;margin-top:4px;
+                        background:linear-gradient(135deg,rgba(34,197,94,0.16),rgba(22,163,74,0.08));
+                        border:1.5px solid rgba(74,222,128,0.5);border-radius:14px;color:white;
+                        cursor:pointer;text-align:left;display:flex;align-items:center;gap:13px;
+                        box-shadow:0 0 18px rgba(74,222,128,0.12);transition:transform 0.15s;"
+                        onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">
+                        <div style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:11px;background:rgba(74,222,128,0.15);border:1px solid rgba(74,222,128,0.4);color:#4ade80;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6"/><path d="M12 8c-3 0-5 2-5 5v2a5 5 0 0 0 10 0v-2c0-3-2-5-5-5z"/><path d="M7 15H4"/><path d="M20 15h-3"/><path d="M9 22h6"/><circle cx="12" cy="13" r="1.5"/></svg>
+                        </div>
+                        <div style="flex:1;min-width:0;">
+                            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                                <span style="font-weight:900;font-size:0.95em;color:#e2e8f0;">Compétences & Attributs</span>
+                                ${_badge}
+                            </div>
+                            <div style="font-size:0.68em;color:#94a3b8;margin-top:3px;line-height:1.4;">Arbre de compétences · Classe · Stats détaillées par muscle</div>
+                        </div>
+                        <div style="font-size:1.4em;color:#4ade80;flex-shrink:0;">›</div>
+                    </button>`;
+                })()}`;
             tab.appendChild(cardProfile);
 
             // ── BOUTON ACCÈS RAPIDE ÉQUIPEMENT RPG ───────────────────
@@ -27242,6 +27280,21 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             for (const r of RPG_RANKS) { if (level >= r.levelMin) rank = r; }
             return rank;
         }
+
+        // Helper global : rang actuel du joueur (id 'E','D','C'...) + niveau — utilisable depuis challenges.js
+        function getPlayerRankInfo() {
+            try {
+                const data = rpgLoad();
+                const profileXP = Object.values(data.muscles).reduce((s, m) => s + (m.xp || 0), 0);
+                const lifetimeXP = profileXP + parseInt(localStorage.getItem('fitproRPGLifetimeXP') || '0');
+                const level = rpgLevelFromXP(lifetimeXP);
+                const rank = rpgGetRank(lifetimeXP);
+                return { level, rankId: rank.id, rankLabel: rank.label };
+            } catch(e) {
+                return { level: 1, rankId: 'E', rankLabel: 'E' };
+            }
+        }
+        window.getPlayerRankInfo = getPlayerRankInfo;
         function rpgNextRank(totalXP) {
             const level = rpgLevelFromXP(totalXP);
             for (let i = RPG_RANKS.length - 1; i >= 0; i--) {
@@ -32810,3 +32863,32 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             if (overlay) overlay.remove();
             if (fireworks) fireworks.remove();
         }
+        // ═══════════════════════════════════════════════════════════════
+        // 🔄 MISE À JOUR FORCÉE ROBUSTE — vide caches + SW + recharge
+        // ═══════════════════════════════════════════════════════════════
+        async function forceAppUpdate() {
+            try {
+                showToast && showToast('🔄 Nettoyage du cache…', 'info', 1500);
+
+                // 1. Vider TOUS les caches (CacheStorage)
+                if ('caches' in window) {
+                    const keys = await caches.keys();
+                    await Promise.all(keys.map(k => caches.delete(k)));
+                }
+
+                // 2. Désinscrire tous les Service Workers
+                if ('serviceWorker' in navigator) {
+                    const regs = await navigator.serviceWorker.getRegistrations();
+                    await Promise.all(regs.map(r => r.unregister()));
+                }
+
+                // 3. Recharger avec cache-busting (force le rechargement réseau)
+                const url = new URL(window.location.href);
+                url.searchParams.set('_refresh', Date.now());
+                window.location.replace(url.toString());
+            } catch (e) {
+                // En dernier recours : rechargement simple
+                window.location.reload();
+            }
+        }
+        window.forceAppUpdate = forceAppUpdate;

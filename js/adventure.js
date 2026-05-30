@@ -1229,16 +1229,17 @@ function showRPGEquipmentModal(defaultTab) {
 
     // ─── Layout des slots autour du personnage ───────────────────────
     // L = gauche, R = droite (chaque côté = liste verticale)
+    const _slotSvg = (p) => `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
     const SLOT_LAYOUT_LEFT  = [
-        { id:'head',      label:'TÊTE',     icon:'⛑️' },
-        { id:'weapon',    label:'ARME',     icon:'⚔️' },
-        { id:'hands',     label:'MAINS',    icon:'🥊' },
-        { id:'legs',      label:'JAMBES',   icon:'🦵' },
-        { id:'accessory', label:'ANNEAU',   icon:'💍' },
+        { id:'head',      label:'TÊTE',     icon:'⛑️', svg:_slotSvg('<path d="M4 13a8 8 0 0 1 16 0"/><path d="M2 13h20"/><path d="M2 13v2a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1v-2"/><line x1="12" y1="5" x2="12" y2="2"/>') },
+        { id:'weapon',    label:'ARME',     icon:'⚔️', svg:_slotSvg('<path d="M14.5 17.5 3 6V3h3l11.5 11.5"/><path d="m13 19 6-6"/><path d="m16 16 4 4"/><path d="m19 21 2-2"/>') },
+        { id:'hands',     label:'MAINS',    icon:'🥊', svg:_slotSvg('<path d="M7 11V7a2 2 0 0 1 4 0v3"/><path d="M11 9a2 2 0 0 1 4 0v1"/><path d="M15 10a2 2 0 0 1 4 0v4a6 6 0 0 1-6 6h-2a5 5 0 0 1-3.6-1.5L4 15.5a1.8 1.8 0 0 1 2.5-2.5L8 14"/>') },
+        { id:'legs',      label:'JAMBES',   icon:'🦵', svg:_slotSvg('<path d="M9 3v8l-1 10h3l1-7 1 7h3l-1-12V3"/>') },
+        { id:'accessory', label:'ANNEAU',   icon:'💍', svg:_slotSvg('<circle cx="12" cy="14" r="6"/><path d="M9 8 8 3h8l-1 5"/>') },
     ];
     const SLOT_LAYOUT_RIGHT = [
-        { id:'chest',     label:'TORSE',    icon:'🛡️' },
-        { id:'feet',      label:'PIEDS',    icon:'👟' },
+        { id:'chest',     label:'TORSE',    icon:'🛡️', svg:_slotSvg('<path d="M12 3 5 6v6a9 9 0 0 0 7 8 9 9 0 0 0 7-8V6z"/>') },
+        { id:'feet',      label:'PIEDS',    icon:'👟', svg:_slotSvg('<path d="M2 17h13l5-1c1-.2 2-1 2-2 0-1-1-1.5-2-2l-6-3-2-3H6l1 6-5 3z"/><path d="M2 17v2h20v-2"/>') },
     ];
 
     // ─── Génère un slot d'équipement ─────────────────────────────────
@@ -1261,7 +1262,7 @@ function showRPGEquipmentModal(defaultTab) {
                 ${item
                     ? `<span style="font-size:1.6em;line-height:1;">${item.icon}</span>
                        <span style="position:absolute;top:1px;right:2px;font-size:0.42em;font-weight:900;color:${r.color};">${r.label}</span>`
-                    : `<span style="font-size:1.3em;opacity:0.25;">${slot.icon}</span>`
+                    : `<span style="opacity:0.3;color:#4ade80;display:flex;">${slot.svg || `<span style="font-size:1.3em;">${slot.icon}</span>`}</span>`
                 }
             </div>
         </div>`;
@@ -1291,7 +1292,7 @@ function showRPGEquipmentModal(defaultTab) {
                     ${item
                         ? `<span style="font-size:1.55em;line-height:1;filter:drop-shadow(0 0 4px rgba(0,0,0,0.8));">${item.icon}</span>
                            <span style="position:absolute;top:1px;right:2px;font-size:0.42em;font-weight:900;color:${r.color};">${r.label}</span>`
-                        : `<span style="font-size:1.3em;opacity:0.55;filter:drop-shadow(0 0 4px rgba(0,0,0,0.8));">${slot.icon}</span>`
+                        : `<span style="opacity:0.7;color:#4ade80;display:flex;filter:drop-shadow(0 0 4px rgba(0,0,0,0.8));">${slot.svg || `<span style="font-size:1.3em;">${slot.icon}</span>`}</span>`
                     }
                 </div>
                 <div style="font-size:0.5em;color:rgba(255,255,255,0.85);font-weight:900;letter-spacing:1.5px;text-shadow:0 1px 3px rgba(0,0,0,0.95),0 0 6px rgba(0,0,0,0.8);background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:4px;border:1px solid rgba(74,222,128,0.3);">${slot.label}</div>
