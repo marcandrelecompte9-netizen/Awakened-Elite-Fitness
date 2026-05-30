@@ -8306,8 +8306,14 @@
                         </div>
 
                         <!-- Indicateur de chargement -->
-                        <div style="margin-top:16px;text-align:center;">
-                            <div style="font-size:0.62em;color:${typeAccent};font-weight:800;letter-spacing:2px;text-transform:uppercase;animation:awakPulse 1.2s ease-in-out infinite;">⟳ Génération du protocole…</div>
+                        <div style="margin-top:16px;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                                <span style="font-size:0.62em;color:${typeAccent};font-weight:800;letter-spacing:2px;text-transform:uppercase;">⟳ Génération du protocole</span>
+                                <span id="smartAnalysisPct" style="font-size:0.62em;color:#94a3b8;font-weight:800;">0%</span>
+                            </div>
+                            <div style="background:rgba(255,255,255,0.06);border-radius:99px;height:6px;overflow:hidden;border:1px solid ${typeAccent}22;">
+                                <div id="smartAnalysisBar" style="height:100%;width:0%;border-radius:99px;background:linear-gradient(90deg,${typeAccent},${typeAccent}aa);box-shadow:0 0 10px ${typeAccent}88;transition:width 0.1s linear;"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -8315,8 +8321,22 @@
             document.body.appendChild(overlay);
             if (typeof hapticTap === 'function') hapticTap([40, 30, 60]);
 
+            // Animer la barre de progression sur la durée d'affichage
+            const _analysisDuration = 2200;
+            const _bar = document.getElementById('smartAnalysisBar');
+            const _pct = document.getElementById('smartAnalysisPct');
+            const _startT = Date.now();
+            const _barTimer = setInterval(() => {
+                const elapsed = Date.now() - _startT;
+                const ratio = Math.min(1, elapsed / _analysisDuration);
+                if (_bar) _bar.style.width = (ratio * 100) + '%';
+                if (_pct) _pct.textContent = Math.round(ratio * 100) + '%';
+                if (ratio >= 1) clearInterval(_barTimer);
+            }, 60);
+
             // Passer à la suite après l'affichage
             setTimeout(() => {
+                clearInterval(_barTimer);
                 overlay.remove();
                 if (typeof onComplete === 'function') {
                     // Vrai parcours : durée déjà choisie, on lance directement
@@ -11287,7 +11307,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         function showMuscleChoiceModal() {
             const overlay = document.createElement('div');
             overlay.id = 'muscleChoiceOverlay';
-            overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:10100;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn 0.2s;';
+            overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:10100;display:flex;align-items:center;justify-content:center;padding:20px;animation:awakFadeIn 0.3s ease;';
+            overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
 
             const todayPlanData = getTodayPlanMuscles();
             const isRestDay = todayPlanData && (
@@ -11341,14 +11362,16 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                    </div>`;
 
             overlay.innerHTML = `
-                <div style="background:linear-gradient(160deg,#0a0e18,#0F1014);border-radius:18px;padding:26px 22px;max-width:400px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,0.8),0 0 50px rgba(74,222,128,0.2);border:2px solid rgba(74,222,128,0.4);position:relative;">
+                <div style="background:linear-gradient(160deg,#0a0e18,#0F1014);border-radius:18px;padding:26px 22px;max-width:400px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,0.8),0 0 50px rgba(74,222,128,0.2);border:2px solid rgba(74,222,128,0.4);position:relative;overflow:hidden;animation:slideUp 0.4s cubic-bezier(0.34,1.56,0.64,1);">
+                    <div style="position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0,transparent 3px,rgba(74,222,128,0.03) 3px,rgba(74,222,128,0.03) 4px);pointer-events:none;border-radius:18px;"></div>
+                    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#4ade80,transparent);"></div>
                     <div style="position:absolute;top:-1px;left:-1px;width:20px;height:20px;border-top:2px solid #4ade80;border-left:2px solid #4ade80;border-top-left-radius:18px;"></div>
                     <div style="position:absolute;top:-1px;right:-1px;width:20px;height:20px;border-top:2px solid #4ade80;border-right:2px solid #4ade80;border-top-right-radius:18px;"></div>
                     <div style="position:absolute;bottom:-1px;left:-1px;width:20px;height:20px;border-bottom:2px solid #4ade80;border-left:2px solid #4ade80;border-bottom-left-radius:18px;"></div>
                     <div style="position:absolute;bottom:-1px;right:-1px;width:20px;height:20px;border-bottom:2px solid #4ade80;border-right:2px solid #4ade80;border-bottom-right-radius:18px;"></div>
                     <div style="text-align:center;margin-bottom:20px;position:relative;z-index:1;">
                         <div style="font-size:0.54em;color:#4ade80;font-weight:900;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;text-shadow:0 0 10px rgba(74,222,128,0.5);">◈ PROTOCOLE DE CIBLAGE ◈</div>
-                        <div style="font-size:2.8em;margin-bottom:8px;">🎯</div>
+                        <div style="font-size:2.8em;margin-bottom:8px;filter:drop-shadow(0 0 14px rgba(74,222,128,0.4));">🎯</div>
                         <h2 style="margin:0 0 6px;color:#e2e8f0;font-size:1.3em;">Choix des muscles</h2>
                         <p style="margin:0;color:#94a3b8;font-size:0.88em;">Qui décide des muscles à travailler aujourd'hui ?</p>
                     </div>
@@ -11392,6 +11415,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     </button>
                 </div>`;
             document.body.appendChild(overlay);
+            if (typeof hapticTap === 'function') hapticTap(20);
         }
 
         function getWeeklyPlanToday() {
@@ -11467,7 +11491,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
             const overlay = document.createElement('div');
             overlay.id = 'manualMuscleOverlay';
-            overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:10101;display:flex;align-items:flex-end;justify-content:center;padding:0;animation:fadeIn 0.2s;';
+            overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:10101;display:flex;align-items:flex-end;justify-content:center;padding:0;animation:awakFadeIn 0.3s ease;';
+            overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
 
             const grid = allMuscles.map(m => `
                 <button id="mmpBtn_${m.id.replace(/[^a-zA-Z]/g,'_')}"
@@ -11480,7 +11505,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 </button>`).join('');
 
             overlay.innerHTML = `
-                <div style="background:linear-gradient(160deg,#0a0e18,#0F1014);border-radius:18px 18px 0 0;padding:22px 20px calc(22px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(0,0,0,0.6);border-top:2px solid rgba(74,222,128,0.4);">
+                <div style="background:linear-gradient(160deg,#0a0e18,#0F1014);border-radius:18px 18px 0 0;padding:22px 20px calc(22px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(0,0,0,0.6);border-top:2px solid rgba(74,222,128,0.4);animation:slideUpSheet 0.35s cubic-bezier(0.16,1,0.3,1);">
                     <div style="width:40px;height:4px;background:#2E2F35;border-radius:99px;margin:0 auto 16px;"></div>
                     <div style="font-size:0.54em;color:#4ade80;font-weight:900;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;text-align:center;">◈ SÉLECTION DES CIBLES ◈</div>
                     <h2 style="margin:0 0 6px;color:#e2e8f0;font-size:1.2em;text-align:center;">💪 Choisir mes muscles</h2>
@@ -11571,7 +11596,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     el.innerHTML = `<span style="color:#f59e0b;">⚠️ Maximum atteint (6/6)</span> : ${_manualSelectedMuscles.join(', ')}`;
                 } else {
                     el.textContent = `${n}/6 sélectionné${n>1?'s':''} : ${_manualSelectedMuscles.join(', ')}`;
-                    el.style.color = '#16a34a';
+                    el.style.color = '#4ade80';
                 }
             }
             if (btn) {
@@ -11673,6 +11698,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         function renderWeeklyMuscleVolume() {
             const el = $el('weeklyMuscleVolume');
             if (!el) return;
+            // Bloc "Volume cette semaine" retiré de la carte Forme du jour (à la demande)
+            el.innerHTML = '';
+            el.style.display = 'none';
+            return;
             const history = getWorkoutHistory();
             const now = new Date();
             const weekAgo = new Date(now); weekAgo.setDate(now.getDate()-7);
