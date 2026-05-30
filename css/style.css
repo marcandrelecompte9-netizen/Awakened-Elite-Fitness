@@ -6254,3 +6254,11 @@ html, body {
     animation: hpShake 0.4s ease;
 }
 
+
+/* ═══════════════════════════════════════════════════════════════════════ */
+/* SKILL UNLOCK — pulse pour attirer l'attention sur les compétences dispo */
+/* ═══════════════════════════════════════════════════════════════════════ */
+@keyframes skillPulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50%      { transform: scale(1.06); opacity: 0.85; }
+}
