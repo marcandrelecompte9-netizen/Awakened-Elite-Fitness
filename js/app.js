@@ -8229,20 +8229,32 @@
         
         function showDecisionExplanation(decisions, onComplete) {
             let typeLabel = '';
-            let typeEmoji = '';
+            let typeSvg = '';
             let typeAccent = '#4ade80';
+
+            // SVG icons épurés par type de séance
+            const _svgIcon = (paths, accent) => `<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="${accent}" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`;
 
             switch(decisions.workoutType) {
                 case 'recovery':
-                    typeLabel = 'Récupération Active'; typeEmoji = '🧘'; typeAccent = '#06b6d4'; break;
+                    typeLabel = 'Récupération Active'; typeAccent = '#06b6d4';
+                    typeSvg = _svgIcon('<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>', typeAccent);
+                    break;
                 case 'fullbody':
-                    typeLabel = 'Corps Entier'; typeEmoji = '💪'; typeAccent = '#4ade80'; break;
+                    typeLabel = 'Corps Entier'; typeAccent = '#4ade80';
+                    typeSvg = _svgIcon('<path d="M6.5 6.5 17.5 17.5"/><path d="M21 21l-1-1"/><path d="M3 3l1 1"/><path d="M18 6l1.5-1.5a1.4 1.4 0 0 1 2 2L20 8"/><path d="M6 18l-1.5 1.5a1.4 1.4 0 0 1-2-2L4 16"/><path d="M16 8l-1.5-1.5"/><path d="M8 16l1.5 1.5"/>', typeAccent);
+                    break;
                 case 'split':
-                    typeLabel = 'Split Ciblé'; typeEmoji = '🎯'; typeAccent = '#a855f7'; break;
+                    typeLabel = 'Split Ciblé'; typeAccent = '#a855f7';
+                    typeSvg = _svgIcon('<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><line x1="12" y1="1.5" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22.5"/><line x1="1.5" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22.5" y2="12"/>', typeAccent);
+                    break;
                 case 'cardio':
-                    typeLabel = 'Cardio & Core'; typeEmoji = '🏃'; typeAccent = '#f59e0b'; break;
+                    typeLabel = 'Cardio & Core'; typeAccent = '#f59e0b';
+                    typeSvg = _svgIcon('<path d="M3 12h4l2-6 4 12 2-6h6"/>', typeAccent);
+                    break;
                 default:
-                    typeLabel = 'Séance'; typeEmoji = '⚡'; break;
+                    typeLabel = 'Séance'; typeAccent = '#4ade80';
+                    typeSvg = _svgIcon('<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>', typeAccent);
             }
 
             const intensityPct = Math.round(decisions.intensity * 100);
@@ -8276,7 +8288,7 @@
                         <!-- En-tête analyse -->
                         <div style="text-align:center;margin-bottom:18px;">
                             <div style="font-size:0.56em;color:${typeAccent};font-weight:900;letter-spacing:4px;text-transform:uppercase;margin-bottom:10px;text-shadow:0 0 10px ${typeAccent}77;">◈ ANALYSE DU SYSTÈME ◈</div>
-                            <div style="font-size:4em;line-height:1;margin-bottom:8px;filter:drop-shadow(0 0 20px ${typeAccent}77);animation:awakPulse 1.6s ease-in-out infinite;">${typeEmoji}</div>
+                            <div style="line-height:1;margin-bottom:8px;filter:drop-shadow(0 0 20px ${typeAccent}77);animation:awakPulse 1.6s ease-in-out infinite;display:flex;justify-content:center;">${typeSvg}</div>
                             <div style="font-size:1.5em;font-weight:900;color:white;letter-spacing:-0.5px;text-transform:uppercase;text-shadow:0 0 20px ${typeAccent}44;">${typeLabel}</div>
                         </div>
 
@@ -11328,7 +11340,11 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     <div style="position:absolute;top:-1px;right:-1px;width:20px;height:20px;border-top:2px solid #22d3ee;border-right:2px solid #22d3ee;border-top-right-radius:18px;"></div>
                     <div style="text-align:center;margin-bottom:20px;">
                         <div style="font-size:0.54em;color:#22d3ee;font-weight:900;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;">◈ RÉCUPÉRATION ◈</div>
-                        <div style="font-size:3em;margin-bottom:8px;">😴</div>
+                        <div style="margin-bottom:8px;display:flex;justify-content:center;filter:drop-shadow(0 0 14px rgba(6,182,212,0.4));">
+                            <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>
+                            </svg>
+                        </div>
                         <h2 style="margin:0 0 6px;color:#e2e8f0;font-size:1.3em;">Jour de repos prévu</h2>
                         <div style="background:rgba(6,182,212,0.12);border:1px solid rgba(6,182,212,0.3);border-radius:10px;padding:10px 14px;margin:12px 0;font-size:0.85em;color:#22d3ee;">
                             📅 Plan du jour : <strong>${aiPlan || 'Repos'}</strong>
@@ -11371,7 +11387,13 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     <div style="position:absolute;bottom:-1px;right:-1px;width:20px;height:20px;border-bottom:2px solid #4ade80;border-right:2px solid #4ade80;border-bottom-right-radius:18px;"></div>
                     <div style="text-align:center;margin-bottom:20px;position:relative;z-index:1;">
                         <div style="font-size:0.54em;color:#4ade80;font-weight:900;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;text-shadow:0 0 10px rgba(74,222,128,0.5);">◈ PROTOCOLE DE CIBLAGE ◈</div>
-                        <div style="font-size:2.8em;margin-bottom:8px;filter:drop-shadow(0 0 14px rgba(74,222,128,0.4));">🎯</div>
+                        <div style="margin-bottom:8px;display:flex;justify-content:center;filter:drop-shadow(0 0 14px rgba(74,222,128,0.4));">
+                            <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/>
+                                <line x1="12" y1="1.5" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22.5"/>
+                                <line x1="1.5" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22.5" y2="12"/>
+                            </svg>
+                        </div>
                         <h2 style="margin:0 0 6px;color:#e2e8f0;font-size:1.3em;">Choix des muscles</h2>
                         <p style="margin:0;color:#94a3b8;font-size:0.88em;">Qui décide des muscles à travailler aujourd'hui ?</p>
                     </div>
@@ -11384,7 +11406,15 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         box-shadow:0 4px 16px rgba(22,163,74,0.35);transition:transform 0.15s;"
                         onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">
                         <div style="display:flex;align-items:center;gap:14px;">
-                            <div style="font-size:2em;flex-shrink:0;">🤖</div>
+                            <div style="flex-shrink:0;display:flex;">
+                                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="6" y="6" width="12" height="12" rx="2"/><rect x="9" y="9" width="6" height="6" rx="1"/>
+                                    <line x1="9" y1="3" x2="9" y2="6"/><line x1="15" y1="3" x2="15" y2="6"/>
+                                    <line x1="9" y1="18" x2="9" y2="21"/><line x1="15" y1="18" x2="15" y2="21"/>
+                                    <line x1="3" y1="9" x2="6" y2="9"/><line x1="3" y1="15" x2="6" y2="15"/>
+                                    <line x1="18" y1="9" x2="21" y2="9"/><line x1="18" y1="15" x2="21" y2="15"/>
+                                </svg>
+                            </div>
                             <div>
                                 <div style="font-weight:700;font-size:1em;margin-bottom:3px;">Laisser le Système choisir</div>
                                 <div style="font-size:0.82em;opacity:0.9;">Basé sur ton plan hebdomadaire, ta récupération et ton objectif</div>
@@ -11400,7 +11430,14 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         cursor:pointer;text-align:left;margin-bottom:16px;transition:all 0.15s;"
                         onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">
                         <div style="display:flex;align-items:center;gap:14px;">
-                            <div style="font-size:2em;flex-shrink:0;">✋</div>
+                            <div style="flex-shrink:0;display:flex;">
+                                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V12"/>
+                                    <path d="M11 12V4.5a1.5 1.5 0 0 1 3 0V12"/>
+                                    <path d="M14 12.5V6.5a1.5 1.5 0 0 1 3 0V14"/>
+                                    <path d="M17 13v-1.5a1.5 1.5 0 0 1 3 0V16a6 6 0 0 1-6 6h-2a7 7 0 0 1-5-2l-3-3a1.5 1.5 0 0 1 2.1-2.1L8 15.5"/>
+                                </svg>
+                            </div>
                             <div>
                                 <div style="font-weight:700;font-size:1em;margin-bottom:3px;color:#e2e8f0;">Je choisis mes muscles</div>
                                 <div style="font-size:0.82em;color:#94a3b8;">Sélectionner manuellement les groupes à travailler</div>
@@ -21748,7 +21785,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
             // ── BOUTON ACCÈS RAPIDE ÉQUIPEMENT RPG ───────────────────
             const cardEquipShortcut = document.createElement('div');
-            cardEquipShortcut.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px;';
+            cardEquipShortcut.style.cssText = 'margin-bottom:4px;';
 
             const _adv = typeof getAdventureEnabled === 'function' ? getAdventureEnabled() : false;
             const _eqIt = typeof getEquippedItems === 'function' ? getEquippedItems() : {};
@@ -21757,17 +21794,11 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const _gs = typeof getPlayerEquipStats === 'function' ? (() => { const s = getPlayerEquipStats(); return (s.strength||0)+(s.agility||0)+(s.endurance||0)+(s.vitality||0); })() : 0;
 
             const btnEquip = document.createElement('button');
-            btnEquip.style.cssText = 'display:flex;align-items:center;gap:10px;padding:13px 14px;background:linear-gradient(135deg,#020b18,#030e1f);border:1.5px solid rgba(6,182,212,' + (_adv?'0.45':'0.18') + ');border-radius:14px;cursor:pointer;text-align:left;touch-action:manipulation;';
-            btnEquip.innerHTML = '<div style="font-size:1.5em;flex-shrink:0;">⚔️</div><div style="min-width:0;"><div style="font-size:0.62em;color:rgba(6,182,212,0.5);font-weight:700;text-transform:uppercase;letter-spacing:1px;">Équipement</div><div style="font-weight:800;color:' + (_adv?'#e2e8f0':'#334155') + ';font-size:0.85em;">' + _eqCount + '/7 slots</div><div style="font-size:0.62em;color:#f59e0b;margin-top:1px;">' + (_adv?'GS '+_gs:'Mode aventure off') + '</div></div>';
+            btnEquip.style.cssText = 'width:100%;display:flex;align-items:center;gap:12px;padding:14px 16px;background:linear-gradient(135deg,#020b18,#030e1f);border:1.5px solid rgba(6,182,212,' + (_adv?'0.45':'0.18') + ');border-radius:14px;cursor:pointer;text-align:left;touch-action:manipulation;';
+            btnEquip.innerHTML = '<div style="font-size:1.5em;flex-shrink:0;">⚔️</div><div style="flex:1;min-width:0;"><div style="font-size:0.62em;color:rgba(6,182,212,0.5);font-weight:700;text-transform:uppercase;letter-spacing:1px;">Équipement & Inventaire</div><div style="font-weight:800;color:' + (_adv?'#e2e8f0':'#334155') + ';font-size:0.85em;">' + _eqCount + '/7 slots · ' + _inv.length + ' item' + (_inv.length!==1?'s':'') + '</div><div style="font-size:0.62em;color:#f59e0b;margin-top:1px;">' + (_adv?'GS '+_gs:'Mode aventure off') + '</div></div><div style="font-size:1.3em;color:rgba(6,182,212,0.6);flex-shrink:0;">›</div>';
             btnEquip.addEventListener('click', function() { showRPGEquipmentModal('equip'); });
 
-            const btnInv = document.createElement('button');
-            btnInv.style.cssText = 'display:flex;align-items:center;gap:10px;padding:13px 14px;background:linear-gradient(135deg,#0a0014,#00081a);border:1.5px solid rgba(168,85,247,' + (_adv?'0.4':'0.15') + ');border-radius:14px;cursor:pointer;text-align:left;touch-action:manipulation;';
-            btnInv.innerHTML = '<div style="font-size:1.5em;flex-shrink:0;">🎒</div><div style="min-width:0;"><div style="font-size:0.62em;color:rgba(168,85,247,0.5);font-weight:700;text-transform:uppercase;letter-spacing:1px;">Inventaire</div><div style="font-weight:800;color:' + (_adv?'#e2e8f0':'#334155') + ';font-size:0.85em;">' + _inv.length + ' item' + (_inv.length!==1?'s':'') + '</div><div style="font-size:0.62em;color:rgba(168,85,247,' + (_adv?'0.7':'0.3') + ');margin-top:1px;">Tap pour gérer</div></div>';
-            btnInv.addEventListener('click', function() { showRPGEquipmentModal('inventory'); });
-
             cardEquipShortcut.appendChild(btnEquip);
-            cardEquipShortcut.appendChild(btnInv);
             tab.appendChild(cardEquipShortcut);
 
             // ── 1bis. POINTS DE STATS ─────────────────────────────────
