@@ -4641,6 +4641,241 @@
         }
 
         // ═══════════════════════════════════════════════════════════════
+        // ⚡ PROTOCOLES EXPRESS — mini-circuits prêts à l'emploi (style DareBee)
+        // ═══════════════════════════════════════════════════════════════
+        // Circuits originaux à reps fixes. Format : on enchaîne les exercices,
+        // X tours (sets). Poids du corps + haltères. Pas de RPG, fitness pur.
+        const EXPRESS_CIRCUITS = [
+            {
+                id: 'circuit_fullbody_fire',
+                name: 'Brasier',
+                emoji: '🔥',
+                color: '#ef4444',
+                focus: 'Corps entier',
+                type: 'Force',
+                difficulty: 3,
+                sets: 3,
+                rest: 60,
+                equipment: 'Poids du corps',
+                desc: 'Circuit corps entier qui monte la température. Grands groupes musculaires enchaînés.',
+                exercises: [
+                    { name: 'Squat classique', reps: 20 },
+                    { name: 'Pompes classiques', reps: 12 },
+                    { name: 'Fentes arrière', reps: 16 },
+                    { name: 'Mountain climbers', reps: 30 },
+                    { name: 'Burpees', reps: 8 },
+                ]
+            },
+            {
+                id: 'circuit_core_steel',
+                name: 'Noyau d\'Acier',
+                emoji: '🎯',
+                color: '#a855f7',
+                focus: 'Abdos / Core',
+                type: 'Force',
+                difficulty: 2,
+                sets: 3,
+                rest: 45,
+                equipment: 'Poids du corps',
+                desc: 'Gainage et abdos sous toutes les coutures pour un centre solide.',
+                exercises: [
+                    { name: 'Crunch classique', reps: 20 },
+                    { name: 'Planche', duration: 40 },
+                    { name: 'Russian twist', reps: 30 },
+                    { name: 'Leg raises', reps: 15 },
+                    { name: 'Hollow hold', duration: 30 },
+                ]
+            },
+            {
+                id: 'circuit_hiit_storm',
+                name: 'Tempête',
+                emoji: '⚡',
+                color: '#f59e0b',
+                focus: 'Cardio / HIIT',
+                type: 'Cardio',
+                difficulty: 3,
+                sets: 4,
+                rest: 40,
+                equipment: 'Poids du corps',
+                desc: 'Explosif et cardio. Fait grimper le cœur et brûle un max.',
+                exercises: [
+                    { name: 'Jumping jacks', reps: 40 },
+                    { name: 'High knees', reps: 40 },
+                    { name: 'Jump squat', reps: 15 },
+                    { name: 'Burpees', reps: 10 },
+                    { name: 'Skater jumps', reps: 24 },
+                ]
+            },
+            {
+                id: 'circuit_upper_forge',
+                name: 'Forge du Haut',
+                emoji: '💪',
+                color: '#22c55e',
+                focus: 'Haut du corps',
+                type: 'Force',
+                difficulty: 3,
+                sets: 3,
+                rest: 60,
+                equipment: 'Haltères',
+                desc: 'Pectoraux, dos, épaules et bras avec haltères. Le haut du corps complet.',
+                exercises: [
+                    { name: 'Développé couché haltères', reps: 12 },
+                    { name: 'Rowing haltère un bras', reps: 12 },
+                    { name: 'Développé militaire haltères', reps: 10 },
+                    { name: 'Curl biceps haltères', reps: 12 },
+                    { name: 'Extensions nuque haltère', reps: 12 },
+                ]
+            },
+            {
+                id: 'circuit_legs_titan',
+                name: 'Jambes de Titan',
+                emoji: '🦵',
+                color: '#3b82f6',
+                focus: 'Bas du corps',
+                type: 'Force',
+                difficulty: 4,
+                sets: 4,
+                rest: 75,
+                equipment: 'Haltères',
+                desc: 'Quadriceps, fessiers et ischios. Des jambes solides comme le roc.',
+                exercises: [
+                    { name: 'Goblet Squat', reps: 15 },
+                    { name: 'Fentes marchées', reps: 20 },
+                    { name: 'Romanian deadlift', reps: 12 },
+                    { name: 'Hip thrust', reps: 15 },
+                    { name: 'Sauts mollets', reps: 25 },
+                ]
+            },
+            {
+                id: 'circuit_express_5',
+                name: 'Éclair Express',
+                emoji: '⏱️',
+                color: '#06b6d4',
+                focus: 'Corps entier',
+                type: 'Cardio',
+                difficulty: 1,
+                sets: 2,
+                rest: 30,
+                equipment: 'Poids du corps',
+                desc: 'Ultra-rapide quand le temps manque. 2 tours et c\'est plié.',
+                exercises: [
+                    { name: 'Jumping jacks', reps: 30 },
+                    { name: 'Squat classique', reps: 15 },
+                    { name: 'Pompes classiques', reps: 10 },
+                    { name: 'Mountain climbers', reps: 20 },
+                ]
+            }
+        ];
+
+        function showExpressCircuitsSection() {
+            // Génère le HTML des fiches (injecté dans #expressCircuitsGrid)
+            const grid = document.getElementById('expressCircuitsGrid');
+            if (!grid) return;
+            const diffLabel = (d) => '◆'.repeat(d) + '◇'.repeat(4 - d);
+            grid.innerHTML = EXPRESS_CIRCUITS.map(c => {
+                const totalMoves = c.exercises.length;
+                return `
+                <div onclick="startExpressCircuit('${c.id}')" style="
+                    cursor:pointer;background:linear-gradient(150deg,${c.color}12,${c.color}04);
+                    border:1.5px solid ${c.color}44;border-radius:16px;padding:15px;position:relative;overflow:hidden;
+                    transition:transform 0.15s;"
+                    onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">
+                    <div style="position:absolute;top:-1px;left:-1px;width:18px;height:18px;border-top:2px solid ${c.color};border-left:2px solid ${c.color};border-top-left-radius:16px;"></div>
+                    <div style="position:absolute;top:-1px;right:-1px;width:18px;height:18px;border-top:2px solid ${c.color};border-right:2px solid ${c.color};border-top-right-radius:16px;"></div>
+                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+                        <div style="font-size:2.1em;flex-shrink:0;">${c.emoji}</div>
+                        <div style="flex:1;min-width:0;">
+                            <div style="font-weight:900;font-size:1.05em;color:white;line-height:1.1;">${c.name}</div>
+                            <div style="font-size:0.66em;color:${c.color};font-weight:800;letter-spacing:0.5px;margin-top:3px;">${diffLabel(c.difficulty)} · ${c.equipment}</div>
+                        </div>
+                        <div style="font-size:1.3em;color:${c.color};flex-shrink:0;opacity:0.7;">▶</div>
+                    </div>
+                    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px;">
+                        <span style="font-size:0.6em;font-weight:800;color:${c.color};background:${c.color}1a;padding:3px 8px;border-radius:99px;text-transform:uppercase;letter-spacing:0.5px;">${c.focus}</span>
+                        <span style="font-size:0.6em;font-weight:800;color:#94a3b8;background:rgba(255,255,255,0.05);padding:3px 8px;border-radius:99px;text-transform:uppercase;letter-spacing:0.5px;">${c.type}</span>
+                        <span style="font-size:0.6em;font-weight:800;color:#94a3b8;background:rgba(255,255,255,0.05);padding:3px 8px;border-radius:99px;text-transform:uppercase;letter-spacing:0.5px;">${c.sets} tours · ${totalMoves} mvts</span>
+                    </div>
+                    <div style="font-size:0.72em;color:#94a3b8;line-height:1.4;">${c.desc}</div>
+                </div>`;
+            }).join('');
+        }
+        window.showExpressCircuitsSection = showExpressCircuitsSection;
+
+        function startExpressCircuit(circuitId) {
+            const circuit = EXPRESS_CIRCUITS.find(c => c.id === circuitId);
+            if (!circuit) return;
+
+            // Construire la liste d'exercices répétée selon le nombre de tours (sets)
+            const exercises = [];
+            for (let tour = 1; tour <= circuit.sets; tour++) {
+                circuit.exercises.forEach(ex => {
+                    const fullEx = exerciseDatabase.find(e => e.name === ex.name);
+                    const base = fullEx ? { ...fullEx } : {
+                        name: ex.name, type: 'exercise', muscle: 'Corps entier',
+                        difficulty: 'Intermédiaire', equipment: ['Poids du corps'],
+                        instructions: ['Exercice du circuit']
+                    };
+                    exercises.push({
+                        ...base,
+                        sets: 1,
+                        reps: ex.reps || base.reps || 12,
+                        duration: ex.duration || 40,
+                        mode: ex.duration ? 'duration' : 'reps',
+                        rest: 15,
+                        _circuitTour: tour,
+                        _circuitTotal: circuit.sets,
+                        name: base.name + (circuit.sets > 1 ? ` (Tour ${tour}/${circuit.sets})` : '')
+                    });
+                    // Repos entre exercices (sauf dernier du dernier tour)
+                });
+                // Repos entre les tours
+                if (tour < circuit.sets) {
+                    exercises.push({ name: 'Repos', duration: circuit.rest, isRest: true, mode: 'timer' });
+                }
+            }
+
+            const workout = {
+                name: `${circuit.emoji} ${circuit.name}`,
+                description: circuit.desc,
+                type: 'express',
+                fromExpress: true,
+                exercises: exercises
+            };
+
+            currentWorkout = workout;
+            currentExerciseIndex = 0;
+            currentSetNumber = 1;
+            workoutStartTime = Date.now();
+            if (typeof _workoutSkipCount !== 'undefined') _workoutSkipCount = 0;
+            if (typeof completedSets !== 'undefined') completedSets = [];
+
+            switchTab('workouts');
+            setTimeout(() => {
+                document.getElementById('workoutSelection')?.style.setProperty('display', 'none');
+                const exView = document.getElementById('exerciseView');
+                if (exView) {
+                    exView.classList.remove('hidden');
+                    exView.style.display = 'block';
+                }
+                document.body.classList.add('in-session');
+
+                const badge = document.getElementById('workoutTypeBadge');
+                if (badge) {
+                    badge.innerHTML = `${circuit.emoji} ${circuit.name}`;
+                    badge.style.background = `linear-gradient(135deg, ${circuit.color} 0%, ${circuit.color}dd 100%)`;
+                    badge.style.display = 'block';
+                }
+
+                if (typeof renderExerciseProgressList === 'function') renderExerciseProgressList();
+                if (typeof updateMusclesOverview === 'function') updateMusclesOverview();
+                if (typeof startExercise === 'function') startExercise();
+            }, 100);
+
+            if (typeof showToast === 'function') showToast(`${circuit.emoji} ${circuit.name} — ${circuit.sets} tours !`, 'success', 2500);
+        }
+        window.startExpressCircuit = startExpressCircuit;
+
+        // ═══════════════════════════════════════════════════════════════
         // ☀️ ROUTINES MATINALES — 3 niveaux, mobilité fitness classique
         // ═══════════════════════════════════════════════════════════════
         // Basé sur la science : mobilité dynamique > étirements statiques le matin.
@@ -11067,18 +11302,21 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             // ── JOUR DE REPOS ─────────────────────────────────────────
             if (isRestDay) {
                 overlay.innerHTML = `
-                <div style="background:#1A1B20;border-radius:22px;padding:28px 24px;max-width:380px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.6);border:1px solid #252830;">
+                <div style="background:linear-gradient(160deg,#0a0e18,#0F1014);border-radius:18px;padding:26px 22px;max-width:400px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,0.8),0 0 50px rgba(6,182,212,0.18);border:2px solid rgba(6,182,212,0.4);position:relative;">
+                    <div style="position:absolute;top:-1px;left:-1px;width:20px;height:20px;border-top:2px solid #22d3ee;border-left:2px solid #22d3ee;border-top-left-radius:18px;"></div>
+                    <div style="position:absolute;top:-1px;right:-1px;width:20px;height:20px;border-top:2px solid #22d3ee;border-right:2px solid #22d3ee;border-top-right-radius:18px;"></div>
                     <div style="text-align:center;margin-bottom:20px;">
+                        <div style="font-size:0.54em;color:#22d3ee;font-weight:900;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;">◈ RÉCUPÉRATION ◈</div>
                         <div style="font-size:3em;margin-bottom:8px;">😴</div>
                         <h2 style="margin:0 0 6px;color:#e2e8f0;font-size:1.3em;">Jour de repos prévu</h2>
-                        <div style="background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);border-radius:10px;padding:10px 14px;margin:12px 0;font-size:0.85em;color:#34d399;">
+                        <div style="background:rgba(6,182,212,0.12);border:1px solid rgba(6,182,212,0.3);border-radius:10px;padding:10px 14px;margin:12px 0;font-size:0.85em;color:#22d3ee;">
                             📅 Plan du jour : <strong>${aiPlan || 'Repos'}</strong>
                         </div>
-                        <p style="margin:0;color:#94a3b8;font-size:0.88em;">La récupération est essentielle pour progresser. Vos muscles se reconstruisent pendant le repos.</p>
+                        <p style="margin:0;color:#94a3b8;font-size:0.88em;">La récupération est essentielle pour progresser. Tes muscles se reconstruisent pendant le repos.</p>
                     </div>
                     <button onclick="document.getElementById('muscleChoiceOverlay').remove()" style="
                         width:100%;padding:14px;border-radius:14px;border:none;
-                        background:linear-gradient(135deg,#10b981,#059669);color:white;
+                        background:linear-gradient(135deg,#06b6d4,#0891b2);color:white;
                         cursor:pointer;font-weight:700;font-size:1em;margin-bottom:10px;">
                         😴 Respecter le repos
                     </button>
@@ -11099,12 +11337,17 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                        📅 Plan du jour : <strong>${aiPlan}</strong>
                    </div>`
                 : `<div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px 14px;margin-top:10px;font-size:0.82em;color:#94a3b8;">
-                       📊 L'IA se base sur vos muscles récents, votre niveau et votre objectif.
+                       📊 Le Système se base sur tes muscles récents, ton niveau et ton objectif.
                    </div>`;
 
             overlay.innerHTML = `
-                <div style="background:#1A1B20;border-radius:22px;padding:28px 24px;max-width:380px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.6);border:1px solid #252830;">
-                    <div style="text-align:center;margin-bottom:20px;">
+                <div style="background:linear-gradient(160deg,#0a0e18,#0F1014);border-radius:18px;padding:26px 22px;max-width:400px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,0.8),0 0 50px rgba(74,222,128,0.2);border:2px solid rgba(74,222,128,0.4);position:relative;">
+                    <div style="position:absolute;top:-1px;left:-1px;width:20px;height:20px;border-top:2px solid #4ade80;border-left:2px solid #4ade80;border-top-left-radius:18px;"></div>
+                    <div style="position:absolute;top:-1px;right:-1px;width:20px;height:20px;border-top:2px solid #4ade80;border-right:2px solid #4ade80;border-top-right-radius:18px;"></div>
+                    <div style="position:absolute;bottom:-1px;left:-1px;width:20px;height:20px;border-bottom:2px solid #4ade80;border-left:2px solid #4ade80;border-bottom-left-radius:18px;"></div>
+                    <div style="position:absolute;bottom:-1px;right:-1px;width:20px;height:20px;border-bottom:2px solid #4ade80;border-right:2px solid #4ade80;border-bottom-right-radius:18px;"></div>
+                    <div style="text-align:center;margin-bottom:20px;position:relative;z-index:1;">
+                        <div style="font-size:0.54em;color:#4ade80;font-weight:900;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;text-shadow:0 0 10px rgba(74,222,128,0.5);">◈ PROTOCOLE DE CIBLAGE ◈</div>
                         <div style="font-size:2.8em;margin-bottom:8px;">🎯</div>
                         <h2 style="margin:0 0 6px;color:#e2e8f0;font-size:1.3em;">Choix des muscles</h2>
                         <p style="margin:0;color:#94a3b8;font-size:0.88em;">Qui décide des muscles à travailler aujourd'hui ?</p>
@@ -11114,13 +11357,14 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     <button onclick="onMuscleChoiceAI()" style="
                         width:100%;padding:18px 16px;border-radius:16px;border:2px solid transparent;
                         background:linear-gradient(135deg,#16a34a,#15803d);color:white;
-                        cursor:pointer;text-align:left;margin-bottom:12px;
-                        box-shadow:0 4px 16px rgba(22,163,74,0.35);transition:transform 0.15s;">
+                        cursor:pointer;text-align:left;margin-bottom:12px;position:relative;z-index:1;
+                        box-shadow:0 4px 16px rgba(22,163,74,0.35);transition:transform 0.15s;"
+                        onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">
                         <div style="display:flex;align-items:center;gap:14px;">
                             <div style="font-size:2em;flex-shrink:0;">🤖</div>
                             <div>
-                                <div style="font-weight:700;font-size:1em;margin-bottom:3px;">Laisser l'IA choisir</div>
-                                <div style="font-size:0.82em;opacity:0.9;">Basé sur votre plan hebdomadaire, récupération et objectif</div>
+                                <div style="font-weight:700;font-size:1em;margin-bottom:3px;">Laisser le Système choisir</div>
+                                <div style="font-size:0.82em;opacity:0.9;">Basé sur ton plan hebdomadaire, ta récupération et ton objectif</div>
                             </div>
                         </div>
                         ${aiHint}
@@ -11128,9 +11372,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
                     <!-- Option Manuel -->
                     <button onclick="onMuscleChoiceManual()" style="
-                        width:100%;padding:18px 16px;border-radius:16px;
-                        border:1px solid #2E2F35;background:rgba(255,255,255,0.04);
-                        cursor:pointer;text-align:left;margin-bottom:16px;transition:all 0.15s;">
+                        width:100%;padding:18px 16px;border-radius:16px;position:relative;z-index:1;
+                        border:1.5px solid rgba(74,222,128,0.3);background:rgba(74,222,128,0.06);
+                        cursor:pointer;text-align:left;margin-bottom:16px;transition:all 0.15s;"
+                        onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">
                         <div style="display:flex;align-items:center;gap:14px;">
                             <div style="font-size:2em;flex-shrink:0;">✋</div>
                             <div>
@@ -11141,7 +11386,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     </button>
 
                     <button onclick="document.getElementById('muscleChoiceOverlay').remove()" style="
-                        width:100%;padding:11px;border-radius:12px;border:none;
+                        width:100%;padding:11px;border-radius:12px;border:none;position:relative;z-index:1;
                         background:rgba(255,255,255,0.06);color:#6b7280;cursor:pointer;font-size:0.9em;">
                         Annuler
                     </button>
@@ -11235,10 +11480,11 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 </button>`).join('');
 
             overlay.innerHTML = `
-                <div style="background:#1A1B20;border-radius:22px 22px 0 0;padding:24px 20px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(0,0,0,0.5);border-top:1px solid #252830;">
-                    <div style="width:40px;height:4px;background:#2E2F35;border-radius:99px;margin:0 auto 18px;"></div>
-                    <h2 style="margin:0 0 6px;color:#e2e8f0;font-size:1.2em;">💪 Choisir mes muscles</h2>
-                    <p style="margin:0 0 16px;color:#94a3b8;font-size:0.85em;">Sélectionne les groupes musculaires à travailler aujourd'hui.</p>
+                <div style="background:linear-gradient(160deg,#0a0e18,#0F1014);border-radius:18px 18px 0 0;padding:22px 20px calc(22px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(0,0,0,0.6);border-top:2px solid rgba(74,222,128,0.4);">
+                    <div style="width:40px;height:4px;background:#2E2F35;border-radius:99px;margin:0 auto 16px;"></div>
+                    <div style="font-size:0.54em;color:#4ade80;font-weight:900;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;text-align:center;">◈ SÉLECTION DES CIBLES ◈</div>
+                    <h2 style="margin:0 0 6px;color:#e2e8f0;font-size:1.2em;text-align:center;">💪 Choisir mes muscles</h2>
+                    <p style="margin:0 0 16px;color:#94a3b8;font-size:0.85em;text-align:center;">Sélectionne les groupes musculaires à travailler aujourd'hui.</p>
 
                     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;" id="muscleBtnGrid">
                         ${grid}
@@ -11293,8 +11539,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const btn = document.getElementById('mmpBtn_' + muscleId.replace(/[^a-zA-Z]/g,'_'));
             if (!btn) return;
             btn.style.background  = active ? 'linear-gradient(135deg,#16a34a,#15803d)' : '#222328';
-            btn.style.borderColor = active ? '#16a34a' : '#2E2F35';
+            btn.style.borderColor = active ? '#4ade80' : '#2E2F35';
             btn.style.transform   = active ? 'scale(1.04)' : '';
+            btn.style.boxShadow   = active ? '0 0 14px rgba(74,222,128,0.4)' : '';
             btn.querySelectorAll('div').forEach(d => d.style.color = active ? 'white' : '#94a3b8');
         }
 
@@ -11305,6 +11552,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 btn.style.background  = '#222328';
                 btn.style.borderColor = '#2E2F35';
                 btn.style.transform   = '';
+                btn.style.boxShadow   = '';
                 btn.querySelectorAll('div').forEach(d => d.style.color = '#94a3b8');
             });
             muscles.forEach(m => _highlightMuscleBtn(m, true));
@@ -17377,6 +17625,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 renderDeloadBanner();
                 // 📅 Render le plan hebdo manuel (Phase 6)
                 if (typeof renderManualWeeklyPlanCard === 'function') renderManualWeeklyPlanCard();
+                // ⚡ Render les protocoles express (mini-circuits)
+                if (typeof showExpressCircuitsSection === 'function') showExpressCircuitsSection();
             } else if (tabName === 'exercises') {
                 // Check if filters are active, if not show welcome screen
                 filterExercises();
