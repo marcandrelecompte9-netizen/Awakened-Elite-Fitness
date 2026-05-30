@@ -7992,7 +7992,7 @@
             return decisions;
         }
         
-        function showDecisionExplanation(decisions) {
+        function showDecisionExplanation(decisions, onComplete) {
             let typeLabel = '';
             let typeEmoji = '';
             let typeAccent = '#4ade80';
@@ -8080,11 +8080,17 @@
             document.body.appendChild(overlay);
             if (typeof hapticTap === 'function') hapticTap([40, 30, 60]);
 
-            // Passer à la sélection de durée après l'affichage
+            // Passer à la suite après l'affichage
             setTimeout(() => {
                 overlay.remove();
-                if (typeof showDurationModal === 'function') showDurationModal();
-                else if (typeof openDurationModal === 'function') openDurationModal();
+                if (typeof onComplete === 'function') {
+                    // Vrai parcours : durée déjà choisie, on lance directement
+                    onComplete();
+                } else if (typeof showDurationModal === 'function') {
+                    showDurationModal();
+                } else if (typeof openDurationModal === 'function') {
+                    openDurationModal();
+                }
             }, 2200);
         }
         
@@ -8320,14 +8326,95 @@
             const workout = generateIntelligentWorkout();
             if (!workout) return;
 
+            // 🛡 Protection : vérifier qu'il y a de vrais exercices (pas juste échauffement/étirements)
+            const realExercises = (workout.exercises || []).filter(ex =>
+                ex && !ex.isRest && !ex.isInfo &&
+                ex.type !== 'warmup' && ex.type !== 'stretch' &&
+                ex.name !== 'Repos'
+            );
+            if (realExercises.length === 0) {
+                if (typeof showAlert === 'function') {
+                    showAlert(
+                        "Aucun exercice ne correspond aux muscles et équipements de ton lieu actuel. Essaie d'ajouter des équipements à ton lieu (✏️) ou de sélectionner d'autres muscles.",
+                        'warning',
+                        'Impossible de générer la séance'
+                    );
+                } else if (typeof showToast === 'function') {
+                    showToast("⚠️ Aucun exercice disponible — vérifie les équipements de ton lieu", 'error', 4000);
+                }
+                return;
+            }
+
             workout.type = 'random'; // Type interne
-            
+
             // Store badge info for later
             workout.badgeHTML = '🧠 Séance Intelligente';
             workout.badgeStyle = 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)';
-            
-            // ✅ Use AI Workout DJ Quick Check (or skip if disabled)
-            startQuickCheck(workout);
+
+            // ◈ Afficher l'écran d'analyse cyberpunk, puis lancer
+            const decisions = _buildDecisionsFromWorkout(workout, realExercises);
+            showDecisionExplanation(decisions, () => {
+                // ✅ Use AI Workout DJ Quick Check (or skip if disabled)
+                startQuickCheck(workout);
+            });
+        }
+
+        // Construit un objet "decisions" d'affichage à partir du workout réellement généré
+        function _buildDecisionsFromWorkout(workout, realExercises) {
+            // Muscles ciblés (déduplication)
+            const muscles = [...new Set(realExercises.map(ex => ex.muscle).filter(Boolean))];
+
+            // Déterminer le type de séance selon les muscles
+            const lower = muscles.map(m => (m || '').toLowerCase());
+            let workoutType = 'fullbody';
+            const hasCardio = lower.some(m => m.includes('cardio'));
+            const distinctMuscles = muscles.filter(m => !(m || '').toLowerCase().includes('cardio'));
+            if (hasCardio && distinctMuscles.length <= 1) {
+                workoutType = 'cardio';
+            } else if (distinctMuscles.length <= 3) {
+                workoutType = 'split';
+            } else {
+                workoutType = 'fullbody';
+            }
+
+            // Intensité : déduite de la durée + mode
+            let intensity = 0.9;
+            if (selectedDuration >= 60) intensity = 1.2;
+            else if (selectedDuration >= 45) intensity = 1.1;
+            else if (selectedDuration >= 30) intensity = 1.0;
+            else intensity = 0.85;
+
+            // Raisons construites depuis le contexte réel
+            const reasoning = [];
+            const manualPlan = (typeof getManualPlanTodayMuscles === 'function') ? getManualPlanTodayMuscles() : null;
+            if (manualPlan && manualPlan.muscles && manualPlan.muscles.length > 0) {
+                reasoning.push(`📅 Plan hebdomadaire du jour : ${manualPlan.label || manualPlan.muscles.join(', ')}`);
+            }
+            // Muscles fatigués évités
+            try {
+                const fatigued = (typeof getFatiguedMuscles === 'function') ? getFatiguedMuscles() : [];
+                if (fatigued && fatigued.length > 0) {
+                    reasoning.push(`💤 Muscles en récupération évités : ${fatigued.join(', ')}`);
+                }
+            } catch(e) {}
+            // Blessures évitées
+            try {
+                const injured = (typeof getInjuredMuscleNames === 'function') ? getInjuredMuscleNames() : [];
+                if (injured && injured.length > 0) {
+                    reasoning.push(`🤕 Muscles blessés évités : ${injured.join(', ')}`);
+                }
+            } catch(e) {}
+            reasoning.push(`🎯 ${realExercises.length} exercices sélectionnés selon ton profil`);
+            const modeLabel = { timer: 'chronométré', reps: 'répétitions', hybrid: 'hybride' }[selectedWorkoutMode] || 'adapté';
+            reasoning.push(`⚙️ Mode ${modeLabel} · ${selectedDuration} min`);
+
+            return {
+                workoutType,
+                intensity,
+                duration: selectedDuration,
+                targetMuscles: muscles.length > 0 ? muscles : ['Corps entier'],
+                reasoning
+            };
         }
 
         // ========== PRO ENHANCEMENT - STRUCTURED WORKOUT GENERATION ==========
