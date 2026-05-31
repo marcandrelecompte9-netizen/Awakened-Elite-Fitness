@@ -7,7 +7,9 @@
 // RARITIES locaux (étendus) — indépendants de items.js
 const RARITIES = {
     common:    { id:'common',    label:'E', labelFull:'Commun',     color:'#94a3b8', bg:'rgba(148,163,184,0.10)', glow:'rgba(148,163,184,0.18)', dropRate:0.60 },
+    uncommon:  { id:'uncommon',  label:'D', labelFull:'Peu Commun', color:'#22c55e', bg:'rgba(34,197,94,0.10)',   glow:'rgba(34,197,94,0.26)',   dropRate:0.40 },
     rare:      { id:'rare',      label:'C', labelFull:'Rare',       color:'#3b82f6', bg:'rgba(59,130,246,0.10)',  glow:'rgba(59,130,246,0.28)',  dropRate:0.28 },
+    superior:  { id:'superior',  label:'B', labelFull:'Supérieur',  color:'#06b6d4', bg:'rgba(6,182,212,0.10)',   glow:'rgba(6,182,212,0.34)',   dropRate:0.18 },
     epic:      { id:'epic',      label:'A', labelFull:'Épique',     color:'#a855f7', bg:'rgba(168,85,247,0.10)', glow:'rgba(168,85,247,0.38)', dropRate:0.10 },
     legendary: { id:'legendary', label:'S', labelFull:'Légendaire', color:'#f59e0b', bg:'rgba(245,158,11,0.10)', glow:'rgba(245,158,11,0.45)', dropRate:0.02 },
 };
@@ -57,29 +59,28 @@ function getSetById(id) { return EQUIPMENT_SETS[id] || null; }
 // ── EQUIP ────────────────────────────────────────────────────────────────
 // ── Rang chasseur et rang item sur la même échelle ────────────────────
 // Chasseur : E=0, D=1, C=2, B=3, A=4, S=5
-// Items    : common→E(0), rare→C(2), epic→A(4), legendary→S(5)
+// Items    : common→E(0), uncommon→D(1), rare→C(2), superior→B(3), epic→A(4), legendary→S(5)
 // Règle    : item_rank <= hunter_rank + 2
 function getHunterRankIndex() {
     const rpgData = (typeof rpgLoad === 'function') ? rpgLoad() : {};
     const totalXP = Object.values(rpgData.muscles || {}).reduce((s,m) => s + (m.xp||0), 0);
     const level   = (typeof rpgLevelFromXP === 'function') ? rpgLevelFromXP(totalXP) : 1;
-    // Correspond exactement aux RPG_RANKS : E=0, D=1, C=2, B=3, A=4, S=5, SS=6, SSS=7, National=8
-    return level < 6  ? 0 :
-           level < 11 ? 1 :
-           level < 16 ? 2 :
-           level < 21 ? 3 :
-           level < 26 ? 4 :
-           level < 31 ? 5 :
-           level < 36 ? 6 :
-           level < 41 ? 7 : 8;
+    // Seuils alignés : E=1, D=10, C=20, B=35, A=55, S=80, SS=120, SSS=200
+    return level < 10  ? 0 :
+           level < 20  ? 1 :
+           level < 35  ? 2 :
+           level < 55  ? 3 :
+           level < 80  ? 4 :
+           level < 120 ? 5 :
+           level < 200 ? 6 : 7;
 }
 
 function getItemRankValue(rarity) {
-    return { common: 0, rare: 2, epic: 4, legendary: 5 }[rarity] || 0;
+    return { common: 0, uncommon: 1, rare: 2, superior: 3, epic: 4, legendary: 5 }[rarity] || 0;
 }
 
 // Niveau de muscle minimum requis par rareté
-const MUSCLE_LEVEL_REQ = { common: 1, rare: 5, epic: 12, legendary: 25 };
+const MUSCLE_LEVEL_REQ = { common: 1, uncommon: 3, rare: 5, superior: 8, epic: 12, legendary: 25 };
 
 // Noms de muscles français → clés dans rpgLoad().muscles
 const MUSCLE_FR_MAP = {
@@ -149,8 +150,8 @@ function getEquipBlockReason(item) {
 }
 
 function getItemRankValue(rarity) {
-    // Rang minimum d'item sur l'échelle 0-8 (E=0, D=1, C=2, B=3, A=4, S=5, SS=6, SSS=7, National=8)
-    return { common: 0, rare: 2, epic: 5, legendary: 7 }[rarity] || 0;
+    // Rang d'item sur l'échelle : E=0, D=1, C=2, B=3, A=4, S=5
+    return { common: 0, uncommon: 1, rare: 2, superior: 3, epic: 4, legendary: 5 }[rarity] || 0;
 }
 
 function getRequiredRankLabel(rarity) {
@@ -325,8 +326,8 @@ function tryEquipmentDrop(muscle, workoutQuality) {
     const qualityScore = ((exScore * 0.4) + (durationScore * 0.6)) * skipMalus;
 
     // Chance de base qu'un drop se produise selon la qualité
-    // 1 exercice: ~10%, entraînement complet: ~75%
-    const baseDrop = 0.10 + (qualityScore * 0.65);
+    // Légère hausse : 1 exercice ~15%, entraînement complet ~85%
+    const baseDrop = 0.15 + (qualityScore * 0.70);
     if (Math.random() > baseDrop) return null;
 
     // ── Rang du chasseur ──────────────────────────────────────────────
@@ -334,36 +335,34 @@ function tryEquipmentDrop(muscle, workoutQuality) {
     const totalXP = Object.values(rpgData.muscles || {}).reduce((s,m) => s + (m.xp||0), 0);
     const hunterLevel = (typeof rpgLevelFromXP === 'function') ? rpgLevelFromXP(totalXP) : 1;
 
-    // 0=E(1-5), 1=D(6-10), 2=C(11-15), 3=B(16-20), 4=A(21-25), 5=S(26-30), 6=SS(31-35), 7=SSS(36-40), 8=National(41+)
-    const hunterRankIndex = hunterLevel < 6  ? 0 :
-                            hunterLevel < 11 ? 1 :
-                            hunterLevel < 16 ? 2 :
-                            hunterLevel < 21 ? 3 :
-                            hunterLevel < 26 ? 4 :
-                            hunterLevel < 31 ? 5 :
-                            hunterLevel < 36 ? 6 :
-                            hunterLevel < 41 ? 7 : 8;
+    // Seuils alignés sur le système de rang affiché : E=1, D=10, C=20, B=35, A=55, S=80, SS=120, SSS=200
+    const hunterRankIndex = hunterLevel < 10  ? 0 :
+                            hunterLevel < 20  ? 1 :
+                            hunterLevel < 35  ? 2 :
+                            hunterLevel < 55  ? 3 :
+                            hunterLevel < 80  ? 4 :
+                            hunterLevel < 120 ? 5 :
+                            hunterLevel < 200 ? 6 : 7;
 
     // ── Table de probabilités par rang ────────────────────────────────
-    // [common, rare, epic, legendary]
+    // [common(E), uncommon(D), rare(C), superior(B), epic(A), legendary(S)]
     const rankTables = [
-    //  [common, rare,  epic,  legendary]
-        [0.94,   0.06,  0.00,  0.00],  // E  (1-5)
-        [0.84,   0.15,  0.01,  0.00],  // D  (6-10)
-        [0.70,   0.24,  0.06,  0.00],  // C  (11-15)
-        [0.55,   0.30,  0.14,  0.01],  // B  (16-20)
-        [0.40,   0.34,  0.22,  0.04],  // A  (21-25)
-        [0.28,   0.36,  0.28,  0.08],  // S  (26-30)
-        [0.18,   0.32,  0.35,  0.15],  // SS (31-35)
-        [0.10,   0.25,  0.40,  0.25],  // SSS(36-40)
-        [0.05,   0.18,  0.42,  0.35],  // National (41+)
+    //  [E,     D,     C,     B,     A,     S    ]
+        [0.80,  0.16,  0.04,  0.00,  0.00,  0.00],  // E  (niv 1-9)
+        [0.55,  0.28,  0.13,  0.04,  0.00,  0.00],  // D  (niv 10-19)
+        [0.38,  0.28,  0.22,  0.10,  0.02,  0.00],  // C  (niv 20-34)
+        [0.25,  0.24,  0.26,  0.16,  0.08,  0.01],  // B  (niv 35-54)
+        [0.15,  0.18,  0.26,  0.22,  0.16,  0.03],  // A  (niv 55-79)
+        [0.08,  0.13,  0.22,  0.25,  0.24,  0.08],  // S  (niv 80-119)
+        [0.04,  0.08,  0.18,  0.25,  0.30,  0.15],  // SS (niv 120-199)
+        [0.02,  0.05,  0.13,  0.22,  0.33,  0.25],  // SSS(niv 200+)
     ];
 
     // La qualité d'entraînement pousse vers les raretés plus hautes
     // qualityScore > 0.7 : +1 rang effectif (jusqu'à S)
     // qualityScore < 0.3 : -1 rang effectif (jusqu'à E)
     let effectiveRank = hunterRankIndex;
-    if (qualityScore >= 0.75) effectiveRank = Math.min(5, effectiveRank + 1);
+    if (qualityScore >= 0.75) effectiveRank = Math.min(7, effectiveRank + 1);
     else if (qualityScore <= 0.25) effectiveRank = Math.max(0, effectiveRank - 1);
 
     // 🎭 Phase 4 : Yuna Veilbreaker — rareLootBoost
@@ -405,7 +404,7 @@ function tryEquipmentDrop(muscle, workoutQuality) {
     // Tirage de la rareté
     const roll = Math.random();
     let cumul = 0;
-    const rarityOrder = ['common', 'rare', 'epic', 'legendary'];
+    const rarityOrder = ['common', 'uncommon', 'rare', 'superior', 'epic', 'legendary'];
     let rarity = 'common';
     for (let i = 0; i < rarityOrder.length; i++) {
         cumul += table[i];
@@ -873,8 +872,8 @@ function showItemPopup(item, invId, equippedSlot) {
     modal.className = 'modal active';
     modal.style.cssText = `position:fixed;inset:0;z-index:99990;background:rgba(0,0,0,0.85);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:16px;animation:awakFadeIn 0.25s;`;
 
-    // Stats à afficher
-    const stats = Object.entries(item.stats || {}).filter(([_,v]) => v > 0);
+    // Stats à afficher (positives ET négatives pour les items maudits)
+    const stats = Object.entries(item.stats || {}).filter(([_,v]) => v !== 0);
 
     modal.innerHTML = `
         <div style="max-width:380px;width:100%;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1.5px solid ${r.color}55;border-radius:20px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.6),0 0 40px ${r.glow};animation:slideUp 0.35s cubic-bezier(0.34,1.56,0.64,1);">
@@ -894,11 +893,11 @@ function showItemPopup(item, invId, equippedSlot) {
                 <!-- Description -->
                 <div style="font-size:0.78em;color:#cbd5e1;line-height:1.55;font-style:italic;margin-bottom:14px;text-align:center;">${item.description || ''}</div>
 
-                <!-- Passif -->
+                <!-- Passif / Malédiction -->
                 ${item.passive ? `
-                <div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.25);border-radius:10px;padding:10px 12px;margin-bottom:12px;">
-                    <div style="font-size:0.58em;color:#22c55e;font-weight:900;letter-spacing:2px;margin-bottom:4px;">⚡ EFFET PASSIF</div>
-                    <div style="font-size:0.8em;color:#4ade80;line-height:1.4;font-weight:600;">${item.passive}</div>
+                <div style="background:${item.cursed?'rgba(168,85,247,0.10)':'rgba(34,197,94,0.08)'};border:1px solid ${item.cursed?'rgba(168,85,247,0.35)':'rgba(34,197,94,0.25)'};border-radius:10px;padding:10px 12px;margin-bottom:12px;">
+                    <div style="font-size:0.58em;color:${item.cursed?'#c084fc':'#22c55e'};font-weight:900;letter-spacing:2px;margin-bottom:4px;">${item.cursed?'☠️ MALÉDICTION':'⚡ EFFET PASSIF'}</div>
+                    <div style="font-size:0.8em;color:${item.cursed?'#d8b4fe':'#4ade80'};line-height:1.4;font-weight:600;">${item.passive}</div>
                 </div>` : ''}
 
                 <!-- Stats -->
@@ -907,21 +906,25 @@ function showItemPopup(item, invId, equippedSlot) {
                     <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:6px;">◈ STATISTIQUES</div>
                     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;">
                         ${stats.map(([k,v]) => {
+                            const neg = v < 0;
+                            const av = Math.abs(v);
                             // 🎯 Effet combat de chaque stat
                             const effects = {
-                                STR: `+${v}% dgts`,
-                                AGI: `+${(v*0.5).toFixed(1)}% crit`,
-                                VIT: `+${v}% × 2`,
-                                END: `+${v*5} HP max`,
-                                PER: `+${v}% vs boss`,
-                                SEN: `+${v}% XP`
+                                STR: `${neg?'-':'+'}${av}% dgts`,
+                                AGI: `${neg?'-':'+'}${(av*0.5).toFixed(1)}% crit`,
+                                VIT: `${neg?'-':'+'}${av}% × 2`,
+                                END: `${neg?'-':'+'}${av*5} HP max`,
+                                PER: `${neg?'-':'+'}${av}% vs boss`,
+                                SEN: `${neg?'-':'+'}${av}% XP`
                             };
                             const effectText = effects[k] || '';
+                            const statColor = neg ? '#f87171' : r.color;
+                            const effColor = neg ? '#f87171' : '#4ade80';
                             return `
-                            <div style="background:#0a0e18;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:6px 4px;text-align:center;">
+                            <div style="background:#0a0e18;border:1px solid ${neg?'rgba(239,68,68,0.25)':'rgba(255,255,255,0.06)'};border-radius:8px;padding:6px 4px;text-align:center;">
                                 <div style="font-size:0.55em;color:#64748b;font-weight:800;letter-spacing:0.5px;">${k}</div>
-                                <div style="font-size:1em;color:${r.color};font-weight:900;line-height:1.1;">+${v}</div>
-                                ${effectText ? `<div style="font-size:0.48em;color:#4ade80;font-weight:700;margin-top:2px;letter-spacing:0.3px;">${effectText}</div>` : ''}
+                                <div style="font-size:1em;color:${statColor};font-weight:900;line-height:1.1;">${neg?'':'+'}${v}</div>
+                                ${effectText ? `<div style="font-size:0.48em;color:${effColor};font-weight:700;margin-top:2px;letter-spacing:0.3px;">${effectText}</div>` : ''}
                             </div>
                         `;
                         }).join('')}
@@ -1072,7 +1075,7 @@ function openInventoryCleanupModal() {
     });
 
     // Ordre d'affichage des raretés
-    const rarityOrder = ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic'];
+    const rarityOrder = ['common', 'uncommon', 'rare', 'superior', 'epic', 'legendary'];
     const rarityRows = rarityOrder
         .filter(rar => byRarity[rar] && byRarity[rar].length > 0)
         .map(rar => {
@@ -1283,6 +1286,10 @@ function showRPGEquipmentModal(defaultTab) {
             const border = item ? r.color : 'rgba(34,197,94,0.5)';
             const glow = item ? `box-shadow:0 0 14px ${r.glow},inset 0 0 8px ${r.glow};` : 'box-shadow:0 0 12px rgba(34,197,94,0.25),0 2px 8px rgba(0,0,0,0.5);';
 
+            // Récupérer le SVG depuis les définitions complètes (les objets inline n'ont pas le svg)
+            const fullSlot = [...SLOT_LAYOUT_LEFT, ...SLOT_LAYOUT_RIGHT].find(s => s.id === slot.id);
+            const slotSvg = (slot.svg) || (fullSlot && fullSlot.svg) || `<span style="font-size:1.3em;">${slot.icon || ''}</span>`;
+
             return `<div style="position:absolute;${position};z-index:5;display:flex;flex-direction:column;align-items:center;gap:3px;">
                 <div onclick="window._rpgEqSelectSlot('${slot.id}')" style="
                     width:54px;height:54px;border-radius:10px;cursor:pointer;
@@ -1292,7 +1299,7 @@ function showRPGEquipmentModal(defaultTab) {
                     ${item
                         ? `<span style="font-size:1.55em;line-height:1;filter:drop-shadow(0 0 4px rgba(0,0,0,0.8));">${item.icon}</span>
                            <span style="position:absolute;top:1px;right:2px;font-size:0.42em;font-weight:900;color:${r.color};">${r.label}</span>`
-                        : `<span style="opacity:0.7;color:#4ade80;display:flex;filter:drop-shadow(0 0 4px rgba(0,0,0,0.8));">${slot.svg || `<span style="font-size:1.3em;">${slot.icon}</span>`}</span>`
+                        : `<span style="opacity:0.7;color:#4ade80;display:flex;filter:drop-shadow(0 0 4px rgba(0,0,0,0.8));">${slotSvg}</span>`
                     }
                 </div>
                 <div style="font-size:0.5em;color:rgba(255,255,255,0.85);font-weight:900;letter-spacing:1.5px;text-shadow:0 1px 3px rgba(0,0,0,0.95),0 0 6px rgba(0,0,0,0.8);background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:4px;border:1px solid rgba(74,222,128,0.3);">${slot.label}</div>
@@ -1418,10 +1425,10 @@ function showRPGEquipmentModal(defaultTab) {
                     <div style="font-size:0.62em;color:#4ade80;line-height:1.35;">${selectedItem.passive}</div>
                 </div>` : ''}
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px;margin-bottom:8px;">
-                ${Object.entries(selectedItem.stats||{}).filter(([_,v]) => v > 0).map(([k,v]) => `
-                    <div style="background:#0a0e18;border:1px solid rgba(255,255,255,0.04);border-radius:5px;padding:3px;text-align:center;">
+                ${Object.entries(selectedItem.stats||{}).filter(([_,v]) => v !== 0).map(([k,v]) => `
+                    <div style="background:#0a0e18;border:1px solid ${v<0?'rgba(239,68,68,0.25)':'rgba(255,255,255,0.04)'};border-radius:5px;padding:3px;text-align:center;">
                         <div style="font-size:0.5em;color:#475569;font-weight:700;">${k}</div>
-                        <div style="font-size:0.7em;color:${r.color};font-weight:900;">+${v}</div>
+                        <div style="font-size:0.7em;color:${v<0?'#f87171':r.color};font-weight:900;">${v<0?'':'+'}${v}</div>
                     </div>`).join('')}
             </div>
             ${selectedInvId ? `

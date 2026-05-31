@@ -21898,7 +21898,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         <div style="font-size:2.2em;margin-bottom:8px;opacity:0.4;">🔒</div>
                         <div style="font-size:0.65em;color:rgba(168,85,247,0.5);font-weight:800;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;">◈ Awakening ◈</div>
                         <div style="font-size:1em;font-weight:900;color:#475569;margin-bottom:4px;">Classe verrouillée</div>
-                        <div style="font-size:0.78em;color:#334155;line-height:1.5;margin-bottom:10px;">Atteins le <strong style="color:#a855f7">rang D (niveau 6)</strong> pour que le Système t'éveille à ta vraie voie.</div>
+                        <div style="font-size:0.78em;color:#334155;line-height:1.5;margin-bottom:10px;">Atteins le <strong style="color:#a855f7">rang D (niveau 10)</strong> pour que le Système t'éveille à ta vraie voie.</div>
                         <div style="display:inline-block;background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.2);border-radius:99px;padding:3px 12px;font-size:0.7em;color:#a855f7;font-weight:700;">Niv. ${profileLevel} / 6</div>
                     </div>`;
             } else if (_evolved) {
@@ -22543,15 +22543,22 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         }
 
         // Rang minimum requis pour choisir une classe
-        const CLASS_UNLOCK_RANK = 'D';  // Rang D = niveau 6+
+        const CLASS_UNLOCK_RANK = 'D';  // Rang D = niveau 10+
 
         function rpgIsClassUnlocked() {
             try {
+                // Utilise le rang AFFICHÉ (awakGetRank, D = niveau 10) pour rester cohérent
+                if (typeof awakGetRank === 'function') {
+                    const rankId = awakGetRank().id;
+                    const order = ['E','D','C','B','A','S','SS','SSS'];
+                    return order.indexOf(rankId) >= order.indexOf(CLASS_UNLOCK_RANK);
+                }
+                // Fallback : niveau 10 = rang D
                 const data = rpgLoad();
                 const totalXP = Object.values(data.muscles||{}).reduce((s,m)=>s+(m.xp||0),0)
                               + parseInt(localStorage.getItem('fitproRPGLifetimeXP')||'0');
                 const level = rpgLevelFromXP(totalXP);
-                return level >= 6; // rang D
+                return level >= 10; // rang D
             } catch(e) { return false; }
         }
 
@@ -27264,14 +27271,13 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         // ── RANGS E→SSS ──────────────────────────────────────────────
         const RPG_RANKS = [
             { id:'E',        label:'E',        emoji:'⬛', color:'#6b7280', levelMin:1   },
-            { id:'D',        label:'D',        emoji:'🟫', color:'#92400e', levelMin:6   },
-            { id:'C',        label:'C',        emoji:'🟩', color:'#15803d', levelMin:11  },
-            { id:'B',        label:'B',        emoji:'🟦', color:'#1d4ed8', levelMin:16  },
-            { id:'A',        label:'A',        emoji:'🟪', color:'#7c3aed', levelMin:21  },
-            { id:'S',        label:'S',        emoji:'🟨', color:'#d97706', levelMin:26  },
-            { id:'SS',       label:'SS',       emoji:'🔶', color:'#ea580c', levelMin:31  },
-            { id:'SSS',      label:'SSS',      emoji:'💠', color:'#be185d', levelMin:36  },
-            { id:'National', label:'National', emoji:'🌟', color:'#f59e0b', levelMin:41  },
+            { id:'D',        label:'D',        emoji:'🟫', color:'#92400e', levelMin:10  },
+            { id:'C',        label:'C',        emoji:'🟩', color:'#15803d', levelMin:20  },
+            { id:'B',        label:'B',        emoji:'🟦', color:'#1d4ed8', levelMin:35  },
+            { id:'A',        label:'A',        emoji:'🟪', color:'#7c3aed', levelMin:55  },
+            { id:'S',        label:'S',        emoji:'🟨', color:'#d97706', levelMin:80  },
+            { id:'SS',       label:'SS',       emoji:'🔶', color:'#ea580c', levelMin:120 },
+            { id:'SSS',      label:'SSS',      emoji:'💠', color:'#be185d', levelMin:200 },
         ];
 
         function rpgGetRank(totalXP) {
@@ -27282,14 +27288,21 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         }
 
         // Helper global : rang actuel du joueur (id 'E','D','C'...) + niveau — utilisable depuis challenges.js
+        // Utilise awakGetRank (système AFFICHÉ : D = niveau 10) pour rester cohérent partout.
         function getPlayerRankInfo() {
             try {
                 const data = rpgLoad();
                 const profileXP = Object.values(data.muscles).reduce((s, m) => s + (m.xp || 0), 0);
                 const lifetimeXP = profileXP + parseInt(localStorage.getItem('fitproRPGLifetimeXP') || '0');
                 const level = rpgLevelFromXP(lifetimeXP);
-                const rank = rpgGetRank(lifetimeXP);
-                return { level, rankId: rank.id, rankLabel: rank.label };
+                let rankId = 'E';
+                if (typeof awakGetRank === 'function') {
+                    rankId = awakGetRank().id;
+                } else {
+                    const rank = rpgGetRank(lifetimeXP);
+                    rankId = rank.id;
+                }
+                return { level, rankId, rankLabel: rankId };
             } catch(e) {
                 return { level: 1, rankId: 'E', rankLabel: 'E' };
             }
@@ -29003,6 +29016,410 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 ]
             },
 
+            // ══════════════════════════════════════════════════════════
+            // ► PROS DU FITNESS — HOMMES
+            // ══════════════════════════════════════════════════════════
+            {
+                id: 'cavaliere', gender: 'homme',
+                name: 'Jeff Cavaliere',
+                nickname: 'ATHLEAN-X',
+                emoji: '🔬',
+                color: '#22c55e',
+                description: 'Entraînement basé sur la science. Chaque exercice justifié, zéro blabla, résultats athlétiques.',
+                quote: '"Le meilleur exercice est celui que tu fais avec une forme parfaite."',
+                level: 'Intermédiaire', levelColor: '#16a34a', focus: 'Force fonctionnelle & Science',
+                days: 5, rest: 75, duration: '50-70 min', calories: '~600 kcal',
+                splits: [
+                    { day:'Lun', name:'Poitrine & Dos' }, { day:'Mar', name:'Jambes' },
+                    { day:'Mer', name:'Épaules & Bras' }, { day:'Jeu', name:'Core & Conditionnement' },
+                    { day:'Ven', name:'Corps entier athlétique' }, { day:'Sam', name:'Cardio léger' },
+                    { day:'Dim', name:'Repos 🛌' },
+                ],
+                tips: [
+                    { emoji:'🧠', text:'Privilégie la qualité du mouvement à la charge — la forme avant l\'ego' },
+                    { emoji:'🎯', text:'Chaque exercice doit avoir une raison d\'être dans ton programme' },
+                    { emoji:'🥗', text:'Mange selon tes objectifs — la nutrition fait 50% du résultat' },
+                    { emoji:'🔄', text:'Travaille les muscles négligés (rotateurs, postérieurs) pour rester sans blessure' },
+                ],
+                exercises: [
+                    { name:'Développé couché haltères',    sets:4, reps:10, mode:'reps', rest:75 },
+                    { name:'Tractions pronation',          sets:4, reps:8,  mode:'reps', rest:90, note:'Contrôle total' },
+                    { name:'Barbell Row',                  sets:3, reps:10, mode:'reps', rest:75 },
+                    { name:'Développé militaire haltères', sets:3, reps:10, mode:'reps', rest:75 },
+                    { name:'Romanian Deadlift barre',      sets:3, reps:10, mode:'reps', rest:90 },
+                    { name:'Face Pull câble',              sets:3, reps:15, mode:'reps', rest:45, note:'Santé des épaules' },
+                    { name:'Curl alternés',                sets:3, reps:12, mode:'reps', rest:60 },
+                    { name:'Ab Wheel Rollout',             sets:3, reps:10, mode:'reps', rest:60 },
+                ]
+            },
+            {
+                id: 'heria', gender: 'homme',
+                name: 'Chris Heria',
+                nickname: 'THENX',
+                emoji: '🤸',
+                color: '#f59e0b',
+                description: 'Maîtrise du poids du corps. Calisthénie pure : muscle-ups, planches, contrôle absolu. 6j/sem.',
+                quote: '"Ton corps est la seule salle de sport dont tu as besoin."',
+                level: 'Avancé', levelColor: '#d97706', focus: 'Calisthénie & Contrôle',
+                days: 6, rest: 45, duration: '60-120 min', calories: '~650 kcal',
+                splits: [
+                    { day:'Lun', name:'Poitrine & Triceps' }, { day:'Mar', name:'Dos & Biceps' },
+                    { day:'Mer', name:'Jambes & Core' }, { day:'Jeu', name:'Skills (muscle-up, planche)' },
+                    { day:'Ven', name:'Full body calisthénie' }, { day:'Sam', name:'Mobilité & Cardio' },
+                    { day:'Dim', name:'Repos 🛌' },
+                ],
+                tips: [
+                    { emoji:'🧘', text:'Étire-toi avant ET après — la mobilité est la base de la calisthénie' },
+                    { emoji:'⏱️', text:'Time under tension : contrôle chaque rép, lentement' },
+                    { emoji:'🎯', text:'Maîtrise les bases (pompes, tractions, dips) avant les skills avancés' },
+                    { emoji:'🔥', text:'2-3h d\'entraînement avec beaucoup de stretch et de cardio' },
+                ],
+                exercises: [
+                    { name:'Pompes classiques',     sets:4, reps:20, mode:'reps', rest:45 },
+                    { name:'Tractions pronation',   sets:4, reps:10, mode:'reps', rest:60, note:'Strictes' },
+                    { name:'Parallel Bar Dips',     sets:4, reps:12, mode:'reps', rest:60 },
+                    { name:'Pompes archer',         sets:3, reps:10, mode:'reps', rest:60, note:'Chaque côté' },
+                    { name:'Pike push-ups',         sets:3, reps:12, mode:'reps', rest:60 },
+                    { name:'Pistol squat',          sets:3, reps:8,  mode:'reps', rest:60, note:'Chaque jambe' },
+                    { name:'Hollow hold',           sets:3, duration:40, mode:'timer', rest:30 },
+                    { name:'Planche',               sets:3, duration:45, mode:'timer', rest:30 },
+                ]
+            },
+            {
+                id: 'panda', gender: 'homme',
+                name: 'Simeon Panda',
+                nickname: 'Mr Aesthetic',
+                emoji: '🐼',
+                color: '#3b82f6',
+                description: 'Bodybuilding esthétique. Volume, isolation, recherche de la symétrie parfaite.',
+                quote: '"La constance bat le talent quand le talent n\'est pas constant."',
+                level: 'Avancé', levelColor: '#2563eb', focus: 'Hypertrophie & Esthétique',
+                days: 6, rest: 75, duration: '75-90 min', calories: '~700 kcal',
+                splits: [
+                    { day:'Lun', name:'Poitrine' }, { day:'Mar', name:'Dos' },
+                    { day:'Mer', name:'Jambes' }, { day:'Jeu', name:'Épaules' },
+                    { day:'Ven', name:'Bras' }, { day:'Sam', name:'Core & Points faibles' },
+                    { day:'Dim', name:'Repos 🛌' },
+                ],
+                tips: [
+                    { emoji:'🪞', text:'Travaille la connexion muscle-esprit — sens chaque contraction' },
+                    { emoji:'🍗', text:'Protéines à chaque repas pour soutenir l\'hypertrophie' },
+                    { emoji:'📏', text:'Cherche la symétrie — équilibre gauche/droite et haut/bas' },
+                    { emoji:'⏳', text:'Le physique se construit sur des années de constance, pas des semaines' },
+                ],
+                exercises: [
+                    { name:'Développé couché barre',       sets:4, reps:12, mode:'reps', rest:75 },
+                    { name:'Développé incliné barre',     sets:4, reps:12, mode:'reps', rest:75 },
+                    { name:'Lat Pulldown prise large',     sets:4, reps:12, mode:'reps', rest:75 },
+                    { name:'Barbell Row',                  sets:4, reps:10, mode:'reps', rest:75 },
+                    { name:'Développé Arnold',             sets:4, reps:12, mode:'reps', rest:60 },
+                    { name:'Lateral Raise cable',          sets:4, reps:15, mode:'reps', rest:45 },
+                    { name:'Curl barre EZ',                sets:4, reps:12, mode:'reps', rest:60 },
+                    { name:'Extensions nuque haltère',     sets:4, reps:12, mode:'reps', rest:60 },
+                ]
+            },
+            {
+                id: 'nippard', gender: 'homme',
+                name: 'Jeff Nippard',
+                nickname: 'Powerbuilder',
+                emoji: '📊',
+                color: '#a855f7',
+                description: 'Powerbuilding : le meilleur du bodybuilding et du powerlifting. Force ET volume, basé sur la science.',
+                quote: '"Combiner les plages de répétitions est supérieur pour la croissance musculaire."',
+                level: 'Avancé', levelColor: '#9333ea', focus: 'Force & Hypertrophie',
+                days: 5, rest: 120, duration: '60-75 min', calories: '~650 kcal',
+                splits: [
+                    { day:'Lun', name:'Poitrine & Triceps (lourd)' }, { day:'Mar', name:'Dos & Biceps (lourd)' },
+                    { day:'Mer', name:'Jambes (lourd)' }, { day:'Jeu', name:'Haut du corps (volume)' },
+                    { day:'Ven', name:'Bas du corps (volume)' }, { day:'Sam', name:'Repos actif' },
+                    { day:'Dim', name:'Repos 🛌' },
+                ],
+                tips: [
+                    { emoji:'🏋️', text:'Combine lourd (3-5 reps) et volume (8-12 reps) pour force + muscle' },
+                    { emoji:'📈', text:'Surcharge progressive : ajoute du poids ou des reps chaque semaine' },
+                    { emoji:'🔬', text:'Suis tes performances — les données guident la progression' },
+                    { emoji:'🛌', text:'Salle complète requise : la progression suppose les mêmes mouvements' },
+                ],
+                exercises: [
+                    { name:'Développé couché barre',       sets:4, reps:5,  mode:'reps', rest:180, note:'Lourd, force' },
+                    { name:'Squat barre haut',             sets:4, reps:5,  mode:'reps', rest:180, note:'Lourd' },
+                    { name:'Soulevé de terre',             sets:3, reps:5,  mode:'reps', rest:180 },
+                    { name:'Développé incliné barre',     sets:3, reps:10, mode:'reps', rest:90, note:'Volume' },
+                    { name:'Barbell Row',                  sets:4, reps:8,  mode:'reps', rest:90 },
+                    { name:'Lat Pulldown',                 sets:3, reps:12, mode:'reps', rest:60 },
+                    { name:'Curl barre',                   sets:3, reps:10, mode:'reps', rest:60 },
+                    { name:'Leg Curl assis',               sets:3, reps:12, mode:'reps', rest:60 },
+                ]
+            },
+            {
+                id: 'goggins', gender: 'homme',
+                name: 'David Goggins',
+                nickname: 'Carré sa tête',
+                emoji: '💀',
+                color: '#ef4444',
+                description: 'Endurance extrême et mental d\'acier. Repousser ses limites, encore et encore. Pas pour les faibles.',
+                quote: '"Quand tu penses avoir fini, tu n\'es qu\'à 40% de tes capacités."',
+                level: 'Extrême', levelColor: '#dc2626', focus: 'Endurance & Mental',
+                days: 6, rest: 30, duration: '60-120 min', calories: '~1000 kcal',
+                splits: [
+                    { day:'Lun', name:'Course longue + Core' }, { day:'Mar', name:'Calisthénie volume' },
+                    { day:'Mer', name:'Course + Pompes/Tractions' }, { day:'Jeu', name:'Endurance jambes' },
+                    { day:'Ven', name:'Full body haute densité' }, { day:'Sam', name:'Course longue' },
+                    { day:'Dim', name:'Récup active' },
+                ],
+                tips: [
+                    { emoji:'🧠', text:'Le mental cède avant le corps — apprends à dépasser l\'inconfort' },
+                    { emoji:'🏃', text:'Cours tous les jours, même quand tu n\'en as pas envie' },
+                    { emoji:'🔁', text:'Volume élevé de pompes et tractions quotidiennes' },
+                    { emoji:'❄️', text:'Cherche l\'inconfort volontairement pour forger le mental' },
+                ],
+                exercises: [
+                    { name:'Pompes classiques',     sets:5, reps:25, mode:'reps', rest:30 },
+                    { name:'Tractions pronation',   sets:5, reps:12, mode:'reps', rest:45 },
+                    { name:'Burpees',               sets:4, reps:20, mode:'reps', rest:30 },
+                    { name:'Mountain climbers',     sets:4, duration:60, mode:'timer', rest:30 },
+                    { name:'Squat classique',       sets:4, reps:30, mode:'reps', rest:30 },
+                    { name:'Fentes marchées',       sets:3, reps:20, mode:'reps', rest:30 },
+                    { name:'Planche',               sets:4, duration:60, mode:'timer', rest:30 },
+                    { name:'Jumping jacks',         sets:3, duration:90, mode:'timer', rest:20 },
+                ]
+            },
+            {
+                id: 'hannibal', gender: 'homme',
+                name: 'Hannibal For King',
+                nickname: 'Street Legend',
+                emoji: '🏙️',
+                color: '#64748b',
+                description: 'Pionnier du street workout. Tout au poids du corps, dans la rue, force et endurance pures.',
+                quote: '"Pas d\'excuses. La rue est ta salle de sport."',
+                level: 'Avancé', levelColor: '#475569', focus: 'Street Workout',
+                days: 5, rest: 60, duration: '60-90 min', calories: '~600 kcal',
+                splits: [
+                    { day:'Lun', name:'Tractions & Dips volume' }, { day:'Mar', name:'Pompes & Core' },
+                    { day:'Mer', name:'Jambes au poids du corps' }, { day:'Jeu', name:'Skills & Explosivité' },
+                    { day:'Ven', name:'Full body street' }, { day:'Sam', name:'Cardio léger' },
+                    { day:'Dim', name:'Repos 🛌' },
+                ],
+                tips: [
+                    { emoji:'🔁', text:'Volume élevé : enchaîne les séries de tractions et dips' },
+                    { emoji:'💪', text:'Maîtrise ton poids de corps avant de chercher les figures' },
+                    { emoji:'🌳', text:'Pas besoin de salle — une barre et le sol suffisent' },
+                    { emoji:'📈', text:'Progresse en ajoutant des répétitions, pas du poids' },
+                ],
+                exercises: [
+                    { name:'Tractions pronation',   sets:5, reps:12, mode:'reps', rest:60, note:'Volume max' },
+                    { name:'Parallel Bar Dips',     sets:5, reps:15, mode:'reps', rest:60 },
+                    { name:'Pompes diamant',        sets:4, reps:20, mode:'reps', rest:45 },
+                    { name:'Tractions supination',  sets:4, reps:10, mode:'reps', rest:60 },
+                    { name:'Pompes explosives',     sets:4, reps:12, mode:'reps', rest:60 },
+                    { name:'Pistol squat',          sets:3, reps:10, mode:'reps', rest:60, note:'Chaque jambe' },
+                    { name:'Leg raises',            sets:4, reps:15, mode:'reps', rest:45 },
+                    { name:'Hollow hold',           sets:3, duration:45, mode:'timer', rest:30 },
+                ]
+            },
+
+            // ══════════════════════════════════════════════════════════
+            // ► PROS DU FITNESS — FEMMES
+            // ══════════════════════════════════════════════════════════
+            {
+                id: 'girvan', gender: 'femme',
+                name: 'Caroline Girvan',
+                nickname: 'CGX',
+                emoji: '🔥',
+                color: '#ef4444',
+                description: 'HIIT intense et musculation sans temps mort. Programmes en follow-along, brutalement efficaces.',
+                quote: '"La discipline est de choisir entre ce que tu veux maintenant et ce que tu veux le plus."',
+                level: 'Avancé', levelColor: '#dc2626', focus: 'HIIT & Force',
+                days: 5, rest: 45, duration: '40-50 min', calories: '~550 kcal',
+                splits: [
+                    { day:'Lun', name:'Bas du corps' }, { day:'Mar', name:'Haut du corps' },
+                    { day:'Mer', name:'HIIT full body' }, { day:'Jeu', name:'Jambes & Fessiers' },
+                    { day:'Ven', name:'Haut + Core' }, { day:'Sam', name:'Cardio léger' },
+                    { day:'Dim', name:'Repos 🛌' },
+                ],
+                tips: [
+                    { emoji:'⏱️', text:'Peu de repos entre les séries — garde l\'intensité élevée' },
+                    { emoji:'🏋️', text:'Haltères + poids du corps : pas besoin de machines' },
+                    { emoji:'💪', text:'Contrôle chaque rép, sens le muscle travailler' },
+                    { emoji:'📅', text:'Constance sur 4-6 semaines pour des résultats visibles' },
+                ],
+                exercises: [
+                    { name:'Goblet Squat',                 sets:4, reps:15, mode:'reps', rest:45 },
+                    { name:'Romanian deadlift',            sets:4, reps:12, mode:'reps', rest:45 },
+                    { name:'Hip thrust',                   sets:4, reps:15, mode:'reps', rest:45 },
+                    { name:'Développé couché haltères',    sets:3, reps:12, mode:'reps', rest:45 },
+                    { name:'Rowing haltère un bras',       sets:3, reps:12, mode:'reps', rest:45 },
+                    { name:'Fentes marchées',              sets:3, reps:20, mode:'reps', rest:45 },
+                    { name:'Burpees',                      sets:4, reps:12, mode:'reps', rest:30 },
+                    { name:'Planche',                      sets:3, duration:45, mode:'timer', rest:30 },
+                ]
+            },
+            {
+                id: 'chloeting', gender: 'femme',
+                name: 'Chloe Ting',
+                nickname: 'Shred Challenge',
+                emoji: '✨',
+                color: '#ec4899',
+                description: 'Challenges abdos et full body sans matériel. Accessible, à faire chez soi, populaire mondialement.',
+                quote: '"Les résultats demandent du temps — fais confiance au processus."',
+                level: 'Débutant', levelColor: '#db2777', focus: 'Abdos & Sans matériel',
+                days: 5, rest: 30, duration: '25-40 min', calories: '~350 kcal',
+                splits: [
+                    { day:'Lun', name:'Abdos intense' }, { day:'Mar', name:'Full body' },
+                    { day:'Mer', name:'Abdos + Cardio' }, { day:'Jeu', name:'Bas du corps' },
+                    { day:'Ven', name:'Full body shred' }, { day:'Sam', name:'Étirements' },
+                    { day:'Dim', name:'Repos 🛌' },
+                ],
+                tips: [
+                    { emoji:'🏠', text:'Aucun matériel nécessaire — juste un tapis et de la volonté' },
+                    { emoji:'📆', text:'Suis le challenge sur 2 semaines pour voir les premiers résultats' },
+                    { emoji:'🥗', text:'L\'alimentation compte autant que l\'entraînement pour les abdos' },
+                    { emoji:'💧', text:'Reste régulière — mieux vaut court et quotidien que long et rare' },
+                ],
+                exercises: [
+                    { name:'Crunch classique',      sets:3, reps:20, mode:'reps', rest:30 },
+                    { name:'Bicycle crunch',        sets:3, reps:30, mode:'reps', rest:30 },
+                    { name:'Leg raises',            sets:3, reps:15, mode:'reps', rest:30 },
+                    { name:'Mountain climbers',     sets:3, duration:40, mode:'timer', rest:30 },
+                    { name:'Planche',               sets:3, duration:40, mode:'timer', rest:30 },
+                    { name:'Hollow hold',           sets:3, duration:30, mode:'timer', rest:30 },
+                    { name:'Jumping jacks',         sets:3, duration:45, mode:'timer', rest:20 },
+                    { name:'Squat classique',       sets:3, reps:20, mode:'reps', rest:30 },
+                ]
+            },
+            {
+                id: 'cummings', gender: 'femme',
+                name: 'Sydney Cummings',
+                nickname: 'Coach Syd',
+                emoji: '💪',
+                color: '#22c55e',
+                description: 'Force full body et HIIT structurés. Nouveaux entraînements quotidiens, équilibre muscle et cardio.',
+                quote: '"Présente-toi pour toi-même, chaque jour."',
+                level: 'Intermédiaire', levelColor: '#16a34a', focus: 'Force & HIIT',
+                days: 5, rest: 60, duration: '45-60 min', calories: '~500 kcal',
+                splits: [
+                    { day:'Lun', name:'Haut du corps force' }, { day:'Mar', name:'Bas du corps' },
+                    { day:'Mer', name:'HIIT & Cardio' }, { day:'Jeu', name:'Full body' },
+                    { day:'Ven', name:'Force & Core' }, { day:'Sam', name:'Récup active' },
+                    { day:'Dim', name:'Repos 🛌' },
+                ],
+                tips: [
+                    { emoji:'🏋️', text:'Utilise des haltères pour progresser en force semaine après semaine' },
+                    { emoji:'🔄', text:'Varie les stimuli : force, HIIT, full body en alternance' },
+                    { emoji:'💧', text:'Hydrate-toi et nourris ton corps pour soutenir l\'effort' },
+                    { emoji:'📅', text:'La régularité prime — montre-toi chaque jour' },
+                ],
+                exercises: [
+                    { name:'Développé couché haltères',    sets:4, reps:12, mode:'reps', rest:60 },
+                    { name:'Goblet Squat',                 sets:4, reps:15, mode:'reps', rest:60 },
+                    { name:'Rowing haltère un bras',       sets:3, reps:12, mode:'reps', rest:60 },
+                    { name:'Romanian deadlift',            sets:3, reps:12, mode:'reps', rest:60 },
+                    { name:'Développé militaire haltères', sets:3, reps:12, mode:'reps', rest:60 },
+                    { name:'Curl alternés',                sets:3, reps:12, mode:'reps', rest:45 },
+                    { name:'Burpees',                      sets:3, reps:15, mode:'reps', rest:30 },
+                    { name:'Planche',                      sets:3, duration:45, mode:'timer', rest:30 },
+                ]
+            },
+            {
+                id: 'robertson', gender: 'femme',
+                name: 'Heather Robertson',
+                nickname: 'At-Home Pro',
+                emoji: '🏠',
+                color: '#06b6d4',
+                description: 'Entraînements maison structurés, format intervalle. Équilibre force, cardio et mobilité.',
+                quote: '"Un entraînement à la fois, un jour à la fois."',
+                level: 'Intermédiaire', levelColor: '#0891b2', focus: 'Maison & Équilibre',
+                days: 5, rest: 45, duration: '30-45 min', calories: '~420 kcal',
+                splits: [
+                    { day:'Lun', name:'Haut du corps' }, { day:'Mar', name:'Bas du corps' },
+                    { day:'Mer', name:'HIIT cardio' }, { day:'Jeu', name:'Full body' },
+                    { day:'Ven', name:'Core & Mobilité' }, { day:'Sam', name:'Marche/Cardio léger' },
+                    { day:'Dim', name:'Repos 🛌' },
+                ],
+                tips: [
+                    { emoji:'⏱️', text:'Format intervalle : travaille par blocs de temps minutés' },
+                    { emoji:'🏠', text:'Tout se fait à la maison avec un minimum de matériel' },
+                    { emoji:'🧘', text:'N\'oublie pas la mobilité pour rester sans blessure' },
+                    { emoji:'📲', text:'Suis une structure claire — pas besoin d\'improviser' },
+                ],
+                exercises: [
+                    { name:'Pompes classiques',     sets:3, reps:12, mode:'reps', rest:40 },
+                    { name:'Goblet Squat',          sets:4, reps:15, mode:'reps', rest:45 },
+                    { name:'Fentes arrière',        sets:3, reps:16, mode:'reps', rest:40 },
+                    { name:'Rowing haltère un bras',sets:3, reps:12, mode:'reps', rest:45 },
+                    { name:'Hip thrust',            sets:3, reps:15, mode:'reps', rest:45 },
+                    { name:'Mountain climbers',     sets:3, duration:40, mode:'timer', rest:30 },
+                    { name:'Bicycle crunch',        sets:3, reps:30, mode:'reps', rest:30 },
+                    { name:'Planche',               sets:3, duration:40, mode:'timer', rest:30 },
+                ]
+            },
+            {
+                id: 'cela', gender: 'femme',
+                name: 'Krissy Cela',
+                nickname: 'Tone & Sculpt',
+                emoji: '🏋️‍♀️',
+                color: '#a855f7',
+                description: 'Musculation féminine en salle. Construire de la force et sculpter, programmes structurés sur le gym.',
+                quote: '"Soulève des poids, deviens forte, sens-toi puissante."',
+                level: 'Intermédiaire', levelColor: '#9333ea', focus: 'Musculation & Sculpt',
+                days: 5, rest: 75, duration: '50-70 min', calories: '~520 kcal',
+                splits: [
+                    { day:'Lun', name:'Fessiers & Jambes' }, { day:'Mar', name:'Dos & Épaules' },
+                    { day:'Mer', name:'Jambes & Quadriceps' }, { day:'Jeu', name:'Poitrine & Bras' },
+                    { day:'Ven', name:'Fessiers & Core' }, { day:'Sam', name:'Cardio léger' },
+                    { day:'Dim', name:'Repos 🛌' },
+                ],
+                tips: [
+                    { emoji:'🍑', text:'Cible les fessiers avec hip thrust et romanian deadlift' },
+                    { emoji:'📈', text:'Surcharge progressive : augmente les charges graduellement' },
+                    { emoji:'💪', text:'N\'aie pas peur des poids lourds — ils sculptent sans "grossir"' },
+                    { emoji:'🥗', text:'Mange suffisamment de protéines pour construire du muscle' },
+                ],
+                exercises: [
+                    { name:'Hip thrust barre',             sets:4, reps:12, mode:'reps', rest:75 },
+                    { name:'Romanian Deadlift barre',      sets:4, reps:12, mode:'reps', rest:75 },
+                    { name:'Squat barre haut',             sets:4, reps:12, mode:'reps', rest:90 },
+                    { name:'Lat Pulldown',                 sets:3, reps:12, mode:'reps', rest:60 },
+                    { name:'Développé militaire haltères', sets:3, reps:12, mode:'reps', rest:60 },
+                    { name:'Leg Curl assis',               sets:3, reps:15, mode:'reps', rest:60 },
+                    { name:'Cable Crunch',                 sets:3, reps:15, mode:'reps', rest:45 },
+                    { name:'Lateral Raise cable',          sets:3, reps:15, mode:'reps', rest:45 },
+                ]
+            },
+            {
+                id: 'pamela', gender: 'femme',
+                name: 'Pamela Reif',
+                nickname: 'Pam',
+                emoji: '🎀',
+                color: '#ec4899',
+                description: 'HIIT sans matériel, format follow-along rythmé en musique. Court, intense, à faire partout.',
+                quote: '"Pas d\'excuses — 20 minutes suffisent si tu te donnes à fond."',
+                level: 'Intermédiaire', levelColor: '#db2777', focus: 'HIIT sans matériel',
+                days: 5, rest: 20, duration: '20-40 min', calories: '~400 kcal',
+                splits: [
+                    { day:'Lun', name:'HIIT full body' }, { day:'Mar', name:'Abdos intense' },
+                    { day:'Mer', name:'Bas du corps' }, { day:'Jeu', name:'Cardio dance/HIIT' },
+                    { day:'Ven', name:'Full body burn' }, { day:'Sam', name:'Stretch' },
+                    { day:'Dim', name:'Repos 🛌' },
+                ],
+                tips: [
+                    { emoji:'🎵', text:'Entraîne-toi en musique, suis le rythme pour rester motivée' },
+                    { emoji:'⏱️', text:'Format minuté : à fond pendant l\'effort, courte récup' },
+                    { emoji:'🏠', text:'Zéro matériel — juste ton poids de corps et un tapis' },
+                    { emoji:'🔥', text:'20-40 min suffisent si l\'intensité est au rendez-vous' },
+                ],
+                exercises: [
+                    { name:'Jumping jacks',         sets:3, duration:40, mode:'timer', rest:20 },
+                    { name:'Squat classique',       sets:3, reps:20, mode:'reps', rest:20 },
+                    { name:'Mountain climbers',     sets:3, duration:40, mode:'timer', rest:20 },
+                    { name:'Burpees',               sets:3, reps:12, mode:'reps', rest:20 },
+                    { name:'Crunch classique',      sets:3, reps:25, mode:'reps', rest:20 },
+                    { name:'Bicycle crunch',        sets:3, reps:30, mode:'reps', rest:20 },
+                    { name:'Fentes dynamiques',     sets:3, reps:20, mode:'reps', rest:20 },
+                    { name:'Planche',               sets:3, duration:40, mode:'timer', rest:20 },
+                ]
+            },
+
         ];
                 function showCelebrityPrograms() {
             document.getElementById('celebrityOverlay')?.remove();
@@ -29097,6 +29514,13 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     </div>
                 </div>
                 ${activeSection}
+                <!-- Avertissement non-affiliation -->
+                <div style="background:rgba(148,163,184,0.06);border:1px solid rgba(148,163,184,0.18);border-radius:12px;padding:10px 12px;margin-bottom:14px;display:flex;align-items:flex-start;gap:9px;">
+                    <span style="font-size:0.95em;flex-shrink:0;line-height:1.3;">ℹ️</span>
+                    <div style="font-size:0.68em;color:rgba(255,255,255,0.42);line-height:1.45;">
+                        Programmes <strong style="color:rgba(255,255,255,0.6);">inspirés</strong> du style d'entraînement public de ces personnalités. Cette application n'est <strong style="color:rgba(255,255,255,0.6);">ni affiliée, ni approuvée, ni sponsorisée</strong> par elles. Noms cités à titre de référence uniquement.
+                    </div>
+                </div>
                 <!-- Filtre genre -->
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
                     <button id="_celebGender_homme" onclick="_renderCelebList('homme')"
@@ -29218,6 +29642,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 </div>
                 <div style="background:${p.color}12;border-left:3px solid ${p.color};border-radius:0 12px 12px 0;padding:11px 14px;margin-bottom:16px;">
                     <div style="font-size:0.83em;color:rgba(255,255,255,0.8);font-style:italic;line-height:1.6;">${p.quote}</div>
+                    <div style="font-size:0.62em;color:rgba(255,255,255,0.3);margin-top:6px;">Citation publique attribuée — programme inspiré, sans affiliation.</div>
                 </div>
                 ${isActive ? renderCelebProgressCard(p, getCelebProgression(p.id)) : ''}
                 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:16px;">
