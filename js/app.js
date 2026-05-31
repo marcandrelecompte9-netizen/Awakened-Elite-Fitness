@@ -21821,6 +21821,44 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 })()}`;
             tab.appendChild(cardProfile);
 
+            // ── 📖 BOUTON JOURNAL DU CHASSEUR (narratif) ───────────────
+            const cardStory = document.createElement('div');
+            cardStory.style.cssText = 'margin-bottom:4px;';
+            // Badge si un nouveau chapitre est dispo mais pas encore vu
+            const _storyNew = (() => {
+                try {
+                    const info = typeof getPlayerRankInfo === 'function' ? getPlayerRankInfo() : {rankId:'E'};
+                    const order = ['E','D','C','B','A','S','SS','SSS'];
+                    const idx = order.indexOf(info.rankId);
+                    const chs = (typeof window._storyGet === 'function') ? null : null;
+                    // compter les chapitres rang atteints non vus
+                    let n = 0;
+                    ['ch_D','ch_C','ch_B','ch_A','ch_S'].forEach((cid, i) => {
+                        const rk = ['D','C','B','A','S'][i];
+                        if (order.indexOf(rk) <= idx && localStorage.getItem('fitproStorySeen_'+cid) !== '1') n++;
+                    });
+                    if (localStorage.getItem('fitproStorySeen_prologue') !== '1') n++;
+                    return n;
+                } catch(e) { return 0; }
+            })();
+            cardStory.innerHTML = `
+                <button onclick="showStoryJournal()" style="
+                    width:100%;padding:14px 16px;margin-top:4px;
+                    background:linear-gradient(135deg,rgba(168,85,247,0.14),rgba(168,85,247,0.05));
+                    border:1.5px solid rgba(168,85,247,0.4);border-radius:14px;color:white;
+                    cursor:pointer;text-align:left;display:flex;align-items:center;gap:13px;">
+                    <div style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:11px;background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.4);font-size:1.3em;">📖</div>
+                    <div style="flex:1;min-width:0;">
+                        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                            <span style="font-weight:900;font-size:0.95em;color:#e2e8f0;">Journal du Chasseur</span>
+                            ${_storyNew > 0 ? `<span style="background:#a855f7;color:white;font-size:0.6em;font-weight:900;padding:3px 8px;border-radius:99px;box-shadow:0 0 12px rgba(168,85,247,0.6);animation:skillPulse 1.8s ease-in-out infinite;">${_storyNew} nouveau${_storyNew>1?'x':''} !</span>` : ''}
+                        </div>
+                        <div style="font-size:0.68em;color:#94a3b8;margin-top:3px;line-height:1.4;">Ton histoire, dévoilée à chaque rang franchi</div>
+                    </div>
+                    <div style="font-size:1.4em;color:#c084fc;flex-shrink:0;">›</div>
+                </button>`;
+            tab.appendChild(cardStory);
+
             // ── BOUTON ACCÈS RAPIDE ÉQUIPEMENT RPG ───────────────────
             const cardEquipShortcut = document.createElement('div');
             cardEquipShortcut.style.cssText = 'margin-bottom:4px;';
@@ -23651,12 +23689,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
             // Nombre de vagues + difficulté basés sur le rang
             const rankConfigs = {
-                E: { waves: 5, hpMult: 1.0, recommendedPower: 0,    minStat: 0 },
-                D: { waves: 6, hpMult: 1.4, recommendedPower: 500,  minStat: 15 },
-                C: { waves: 7, hpMult: 1.9, recommendedPower: 1200, minStat: 30 },
-                B: { waves: 8, hpMult: 2.5, recommendedPower: 2200, minStat: 50 },
-                A: { waves: 9, hpMult: 3.2, recommendedPower: 3800, minStat: 70 },
-                S: { waves: 10, hpMult: 4.5, recommendedPower: 6500, minStat: 100 }
+                E: { waves: 2, hpMult: 0.8, recommendedPower: 0,    minStat: 0 },
+                D: { waves: 2, hpMult: 1.0, recommendedPower: 500,  minStat: 15 },
+                C: { waves: 3, hpMult: 1.3, recommendedPower: 1200, minStat: 30 },
+                B: { waves: 3, hpMult: 1.7, recommendedPower: 2200, minStat: 50 },
+                A: { waves: 3, hpMult: 2.1, recommendedPower: 3800, minStat: 70 },
+                S: { waves: 3, hpMult: 2.6, recommendedPower: 6500, minStat: 100 }
             };
             const config = rankConfigs[riftRank];
 
@@ -23676,7 +23714,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     : monstersForTheme[Math.min(i, monstersForTheme.length - 2)];
 
                 // Boss bien plus coriace (×4) — un vrai combat de plusieurs séries même surpuissant
-                let hp = Math.round(monster.baseHp * config.hpMult * (isBossWave ? 4.0 : 1));
+                // Boss légèrement plus coriace qu'un monstre normal (×1.6) — combat court
+                let hp = Math.round(monster.baseHp * config.hpMult * (isBossWave ? 1.6 : 1));
                 // Dr Halberd : -20% HP boss
                 if (isBossWave && bossHpCut > 0) {
                     hp = Math.round(hp * (1 - bossHpCut));
@@ -24273,20 +24312,35 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 return t === 'exercise'; // exclut warmup, stretch, info
             };
 
-            // Tous les exos qui matchent le thème — VRAIS exercices + poids du corps uniquement
+            // 🔁 Failles = pas d'exercices ISOMÉTRIQUES (tenues de position qui se mesurent
+            // en durée, pas en répétitions). Le cardio (jumping jacks, burpees...) reste autorisé.
+            const isRepsExercise = (ex) => {
+                const name = (ex.name || '').toLowerCase();
+                // Uniquement les tenues isométriques (impossible à compter en reps)
+                const isometricKeywords = [
+                    'planche', 'plank', 'gainage', 'hold', 'hollow', 'wall sit',
+                    'chaise murale', 'isométrique', 'isometrique', 'vacuum',
+                    'superman', 'dead bug', 'bird dog', 'l-sit', 'l sit'
+                ];
+                return !isometricKeywords.some(kw => name.includes(kw));
+            };
+
+            // Tous les exos qui matchent le thème — VRAIS exercices + poids du corps + REPS uniquement
             const pool = (typeof exerciseDatabase !== 'undefined' ? exerciseDatabase : [])
                 .filter(ex => theme.exerciseFilter(ex))
                 .filter(isCombatExercise)
+                .filter(isRepsExercise)
                 .filter(ex => {
                     // 🏋️ Failles = poids du corps uniquement (pas de triche au poids + thématique)
                     const eq = ex.equipment || [];
                     return eq.length === 0 || eq.includes('Poids du corps') || eq.includes('Aucun');
                 });
 
-            // Si le filtre poids du corps vide le pool, fallback sur tout le thème (mais toujours sans warmup/stretch)
+            // Si le filtre vide le pool, fallback sur le thème + reps (mais toujours sans warmup/stretch/timer)
             const finalPool = pool.length >= 2 ? pool : (typeof exerciseDatabase !== 'undefined' ? exerciseDatabase : [])
                 .filter(ex => theme.exerciseFilter(ex))
-                .filter(isCombatExercise);
+                .filter(isCombatExercise)
+                .filter(isRepsExercise);
 
             // Mélanger
             const shuffled = finalPool.sort(() => Math.random() - 0.5).slice(0, count);
@@ -24343,6 +24397,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     sets: 3,
                     reps: fullEx.reps || 12,
                     rest: 45,
+                    mode: 'reps',        // 🔁 Failles = toujours en répétitions, jamais en timer
+                    duration: undefined, // on retire toute durée pour éviter le mode timer
                     _baseName: fullEx.name
                 }]
             };
@@ -24520,21 +24576,21 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 }
             }
 
-            // Formule de dégâts : base + reps × (1 + stat thématique/100)
-            const base = 15;
+            // Formule de dégâts : base + reps × (1 + stat thématique/100) × 4
+            // Base relevée pour que même un débutant batte une vague en ~2 séries.
+            const base = 30;
             const primaryStatValue = (playerStats[theme.primaryStat] || 0) * (1 + (consumEffects[theme.primaryStat] || 0));
             const statMult = 1 + primaryStatValue / 100;
-            const baseDamage = base + cappedReps * statMult * 2;
+            const baseDamage = base + cappedReps * statMult * 4;
             const weightBonus = 0; // pas de bonus poids en Faille
 
             let finalDamage = baseDamage + weightBonus;
 
             // 🛡️ Plafond absolu de dégâts par série (anti-triche ultime)
             // Empêche de tuer un monstre en 1 série, même avec crit + double + tous les bonus
-            // Plafond anti-triche : 45% des HP/série pour monstres normaux, 22% pour les boss
-            // (un boss exige donc au moins ~5 séries, même surpuissant — vrai combat)
-            const capPct = currentWave.isBoss ? 0.22 : 0.45;
-            const maxDamagePerHit = Math.max(40, Math.round(currentWave.hpMax * capPct));
+            // Plafond anti-triche : 50% des HP par série (boss comme monstres).
+            // Garantit qu'aucun ennemi ne prend plus de ~2-3 séries → Failles courtes.
+            const maxDamagePerHit = Math.max(40, Math.round(currentWave.hpMax * 0.50));
 
             // ⚔️ STR : multiplicateur dégâts global (toujours actif)
             finalDamage *= bonuses.damageMult;
@@ -24806,7 +24862,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:hidden;border-radius:20px;">
+            <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
                     <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,${theme.color},transparent);animation:awakBlink 1.5s ease-in-out infinite;"></div>
@@ -24844,8 +24900,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 </div>
 
                 <!-- Action -->
-                <div style="padding:0 22px 22px 22px;">
-                    <button onclick="document.getElementById('awakRiftRewardModal').remove();awakActiveRiftSession=null;switchTab('game');" style="width:100%;background:linear-gradient(135deg,${theme.color},${theme.color}dd);border:none;color:white;border-radius:11px;padding:14px;font-weight:900;font-size:0.95em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${theme.color}40;">✓ CONTINUER</button>
+                <div style="padding:14px 22px 22px 22px;position:sticky;bottom:0;background:linear-gradient(180deg,transparent,#0F1014 30%);">
+                    <button onclick="document.getElementById('awakRiftRewardModal').remove();awakActiveRiftSession=null;switchTab('game');" style="width:100%;background:linear-gradient(135deg,${theme.color},${theme.color}dd);border:none;color:white;border-radius:11px;padding:16px;font-weight:900;font-size:0.95em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${theme.color}40;">✓ CONTINUER</button>
                 </div>
             </div>`;
 
@@ -25433,7 +25489,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow:hidden;border-radius:20px;">
+            <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
                 <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
@@ -25585,7 +25641,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             modal.style.cssText = 'background:rgba(0,0,0,0.92);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow:hidden;border-radius:20px;">
+            <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
                 <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;">
                     <div style="font-size:3.5em;line-height:1;margin-bottom:8px;filter:drop-shadow(0 0 14px ${type.color}90);">${type.emoji}</div>
@@ -26147,7 +26203,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             modal.style.cssText = 'background:rgba(0,0,0,0.92);backdrop-filter:blur(10px);';
 
             modal.innerHTML = `
-            <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${comp.color}50;padding:0;overflow:hidden;border-radius:20px;">
+            <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${comp.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
                 <div style="background:linear-gradient(135deg,${comp.color}25,${comp.color}05);padding:26px 22px;text-align:center;border-bottom:1px solid ${comp.color}30;">
                     <div style="font-size:4em;line-height:1;margin-bottom:8px;filter:drop-shadow(0 0 16px ${comp.color}b0);">${comp.emoji}</div>
@@ -26265,7 +26321,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 trigger: { type: 'rank', value: 'D', label: 'Atteindre le rang D' },
                 rewards: { xp: 1500, message: 'Tu as vu quelque chose que tu ne devrais pas voir. Le Système le sait.' },
                 rank: 'C',
-                waves: 5,
+                waves: 3,
                 hpMult: 1.8,
                 primaryStat: 'PER',
                 themeEmoji: '🏚️',
@@ -26281,7 +26337,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 trigger: { type: 'rifts_completed', value: 5, label: 'Fermer 5 Failles' },
                 rewards: { xp: 2500, message: 'Les voix se sont tues. Quelque chose les a fait taire. Pas toi.' },
                 rank: 'B',
-                waves: 7,
+                waves: 3,
                 hpMult: 2.4,
                 primaryStat: 'SEN',
                 themeEmoji: '🌫️',
@@ -26297,7 +26353,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 trigger: { type: 'rank', value: 'A', label: 'Atteindre le rang A' },
                 rewards: { xp: 5000, message: 'Tu l\'as vu, n\'est-ce pas ? Il t\'a regardé aussi.' },
                 rank: 'A',
-                waves: 8,
+                waves: 4,
                 hpMult: 3.5,
                 primaryStat: 'VIT',
                 themeEmoji: '🌑',
@@ -26313,7 +26369,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 trigger: { type: 'rank', value: 'S', label: 'Atteindre le rang S' },
                 rewards: { xp: 10000, message: 'Il était temps. Le Système est revenu. Mais quelque chose en lui a changé.' },
                 rank: 'S',
-                waves: 10,
+                waves: 4,
                 hpMult: 5.0,
                 primaryStat: 'STR',
                 themeEmoji: '🌟',
@@ -28075,6 +28131,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 rpgApplyDecay();
                 renderGameTab();
                 showToast('🎮⚔️ Mode Jeu & Chasseur activés !', 'success', 3000);
+                // 📖 Prologue narratif au premier éveil
+                if (typeof triggerStoryPrologue === 'function') {
+                    setTimeout(() => triggerStoryPrologue(), 600);
+                }
             } else {
                 const activeTab = document.querySelector('.tab-content.active');
                 if (activeTab && activeTab.id === 'gameTab') switchTab('home');
@@ -28241,6 +28301,13 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             try {
                 if (typeof awakCheckRankUp === 'function') {
                     awakCheckRankUp();
+                }
+            } catch(e) {}
+
+            // 📖 NARRATIF — Vérifier si un nouveau chapitre d'histoire se débloque
+            try {
+                if (typeof checkStoryRankUnlock === 'function') {
+                    setTimeout(() => checkStoryRankUnlock(), 4500); // après les autres pop-ups
                 }
             } catch(e) {}
 
@@ -33393,3 +33460,231 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             }
         }
         window.forceAppUpdate = forceAppUpdate;
+
+        // ═══════════════════════════════════════════════════════════════
+        // 📖 SYSTÈME NARRATIF — Le Réveil (prologue + chapitres par rang)
+        // ═══════════════════════════════════════════════════════════════
+        // Ton : mélange épique / motivant / mystérieux.
+        // L'histoire se dévoile à mesure que le joueur monte en rang.
+
+        const STORY_CHAPTERS = [
+            {
+                id: 'prologue',
+                trigger: 'awaken',          // au moment de l'éveil (activation du mode)
+                rankId: null,
+                title: 'L\'Éveil',
+                subtitle: '◈ PROLOGUE ◈',
+                color: '#4ade80',
+                pages: [
+                    "Pendant des années, tu as vécu comme les autres. Métro, écran, sommeil. Un corps qui s'éteignait doucement.",
+                    "Puis, un matin, une fenêtre est apparue. Visible de toi seul.",
+                    "« Vous avez été sélectionné. Le Système vous reconnaît comme Joueur. »",
+                    "Personne ne sait d'où viennent les Failles. Ces déchirures où rôdent des créatures que seuls les Éveillés peuvent affronter.",
+                    "La plupart des Joueurs restent rang E toute leur vie. Faibles. Oubliés.",
+                    "Mais le Système murmure une promesse : ceux qui s'entraînent sans relâche peuvent dépasser toute limite.",
+                    "Chaque répétition te renforce. Chaque séance te rapproche de ce que tu pourrais devenir.",
+                    "Ton éveil commence maintenant. Jusqu'où iras-tu, Chasseur ?"
+                ]
+            },
+            {
+                id: 'ch_D',
+                trigger: 'rank', rankId: 'D',
+                title: 'Le Premier Seuil',
+                subtitle: '◈ CHAPITRE I — RANG D ◈',
+                color: '#10b981',
+                pages: [
+                    "Tu n'es plus une simple anomalie. Le Système t'a classé rang D.",
+                    "Les autres Chasseurs commencent à sentir ta présence. Quelque chose en toi a changé.",
+                    "Une rumeur circule dans les Failles : un Monarque déchu se réveillerait, lui aussi. Une ombre qui grandit en miroir de la tienne.",
+                    "Le Système reste silencieux à ce sujet. Mais tu sens que ta progression n'est pas un hasard.",
+                    "Continue. Le seuil suivant t'attend."
+                ]
+            },
+            {
+                id: 'ch_C',
+                trigger: 'rank', rankId: 'C',
+                title: 'L\'Écho des Failles',
+                subtitle: '◈ CHAPITRE II — RANG C ◈',
+                color: '#3b82f6',
+                pages: [
+                    "Rang C. Tu tiens désormais debout là où la plupart s'effondrent.",
+                    "Les Failles que tu affrontes sont plus profondes, plus anciennes. Elles semblent... t'attendre.",
+                    "Dans l'une d'elles, une inscription : « Le Monarque revient toujours. Et avec lui, la Faille finale. »",
+                    "Le Système t'envoie un message rare : « Continue. Tu n'es pas encore prêt. Mais tu le seras. »",
+                    "Pour la première fois, tu comprends que ton entraînement a un but plus grand que toi."
+                ]
+            },
+            {
+                id: 'ch_B',
+                trigger: 'rank', rankId: 'B',
+                title: 'La Marque du Monarque',
+                subtitle: '◈ CHAPITRE III — RANG B ◈',
+                color: '#a855f7',
+                pages: [
+                    "Rang B. Une élite que peu atteignent.",
+                    "L'ombre adverse a maintenant un nom dans les murmures des Failles : le Monarque du Déclin. Il se nourrit de ceux qui abandonnent.",
+                    "Chaque fois qu'un Chasseur renonce, il grandit. Chaque fois que tu persistes, tu l'affaiblis.",
+                    "Le Système te le confirme enfin : « Ta discipline est une arme. La seule qu'il craint. »",
+                    "La course est lancée. Lui ou toi."
+                ]
+            },
+            {
+                id: 'ch_A',
+                trigger: 'rank', rankId: 'A',
+                title: 'Au Bord du Gouffre',
+                subtitle: '◈ CHAPITRE IV — RANG A ◈',
+                color: '#f59e0b',
+                pages: [
+                    "Rang A. Tu marches désormais parmi les légendes vivantes.",
+                    "Le Monarque du Déclin a senti ta montée. Les Failles s'agitent, plus violentes, comme prises de panique.",
+                    "Le Système t'avertit : « La Faille finale s'ouvrira bientôt. Lui et toi y entrerez. Un seul en ressortira. »",
+                    "Tout ce que tu as construit — chaque série, chaque goutte de sueur — t'a mené ici.",
+                    "Il ne reste qu'un seuil avant l'affrontement ultime."
+                ]
+            },
+            {
+                id: 'ch_S',
+                trigger: 'rank', rankId: 'S',
+                title: 'Le Monarque',
+                subtitle: '◈ CHAPITRE V — RANG S ◈',
+                color: '#ef4444',
+                pages: [
+                    "Rang S. Tu as atteint ce que presque personne n'atteint.",
+                    "La Faille finale s'ouvre devant toi. Au fond, une silhouette familière t'attend : le Monarque du Déclin.",
+                    "« Tu aurais pu abandonner mille fois, » gronde-t-il. « Comme tous les autres. »",
+                    "« Mais tu es revenu. Encore. Et encore. »",
+                    "Le Système prononce ses derniers mots : « Ce n'est plus moi qui te juge. C'est toi. Montre-lui qui tu es devenu. »",
+                    "Tu lèves les yeux. Tu n'as plus peur. Le vrai Monarque, désormais, c'est toi."
+                ]
+            }
+        ];
+
+        function _storySeenKey(id) { return 'fitproStorySeen_' + id; }
+        function storyChapterSeen(id) { return localStorage.getItem(_storySeenKey(id)) === '1'; }
+        function markStoryChapterSeen(id) { localStorage.setItem(_storySeenKey(id), '1'); }
+
+        // Affiche un chapitre en plein écran cinématique (pages successives)
+        function showStoryChapter(chapter, onDone) {
+            if (!chapter) return;
+            document.getElementById('storyOverlay')?.remove();
+            let page = 0;
+
+            const overlay = document.createElement('div');
+            overlay.id = 'storyOverlay';
+            overlay.style.cssText = 'position:fixed;inset:0;z-index:11000;background:radial-gradient(circle at 50% 30%, #0a0e18, #050608);display:flex;align-items:center;justify-content:center;padding:24px;animation:awakFadeIn 0.6s ease;';
+
+            const render = () => {
+                const isLast = page >= chapter.pages.length - 1;
+                const c = chapter.color;
+                overlay.innerHTML = `
+                    <div style="max-width:480px;width:100%;text-align:center;position:relative;">
+                        <div style="position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0,transparent 3px,${c}06 3px,${c}06 4px);pointer-events:none;"></div>
+                        <div style="font-size:0.6em;color:${c};font-weight:900;letter-spacing:4px;text-transform:uppercase;margin-bottom:14px;text-shadow:0 0 12px ${c}80;">${chapter.subtitle}</div>
+                        <div style="font-size:1.6em;font-weight:900;color:white;margin-bottom:28px;letter-spacing:1px;">${chapter.title}</div>
+                        <div key="${page}" style="min-height:120px;display:flex;align-items:center;justify-content:center;animation:awakFadeIn 0.7s ease;">
+                            <p style="font-size:1.05em;line-height:1.75;color:#e2e8f0;font-style:italic;margin:0;">${chapter.pages[page]}</p>
+                        </div>
+                        <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin:24px 0;">
+                            ${chapter.pages.map((_, i) => `<div style="width:${i===page?'20px':'6px'};height:6px;border-radius:99px;background:${i===page?c:'rgba(255,255,255,0.2)'};transition:all 0.3s;"></div>`).join('')}
+                        </div>
+                        <button id="storyNextBtn" style="background:linear-gradient(135deg,${c},${c}cc);border:none;color:white;font-weight:800;font-size:0.95em;padding:13px 32px;border-radius:99px;cursor:pointer;box-shadow:0 4px 20px ${c}50;letter-spacing:0.5px;">
+                            ${isLast ? '⚔ Commencer' : 'Continuer ›'}
+                        </button>
+                        ${!isLast ? `<div style="margin-top:14px;"><button id="storySkipBtn" style="background:none;border:none;color:rgba(255,255,255,0.35);font-size:0.78em;cursor:pointer;text-decoration:underline;">Passer l'introduction</button></div>` : ''}
+                    </div>`;
+
+                overlay.querySelector('#storyNextBtn').onclick = () => {
+                    if (isLast) {
+                        markStoryChapterSeen(chapter.id);
+                        overlay.style.animation = 'awakFadeIn 0.4s ease reverse';
+                        setTimeout(() => { overlay.remove(); if (typeof onDone === 'function') onDone(); }, 380);
+                    } else {
+                        page++; render();
+                    }
+                };
+                const skip = overlay.querySelector('#storySkipBtn');
+                if (skip) skip.onclick = () => {
+                    markStoryChapterSeen(chapter.id);
+                    overlay.remove();
+                    if (typeof onDone === 'function') onDone();
+                };
+            };
+            render();
+            document.body.appendChild(overlay);
+            if (typeof hapticTap === 'function') hapticTap([30, 40, 30]);
+        }
+        window.showStoryChapter = showStoryChapter;
+
+        // Déclenche le prologue (à l'éveil / activation du mode)
+        function triggerStoryPrologue() {
+            const prologue = STORY_CHAPTERS.find(c => c.id === 'prologue');
+            if (prologue && !storyChapterSeen('prologue')) {
+                showStoryChapter(prologue);
+            }
+        }
+        window.triggerStoryPrologue = triggerStoryPrologue;
+
+        // Vérifie si un nouveau chapitre de rang doit se déclencher (appelé après gain de niveau/rang)
+        function checkStoryRankUnlock() {
+            try {
+                if (typeof getAdventureEnabled === 'function' && !getAdventureEnabled()) return;
+                const info = typeof getPlayerRankInfo === 'function' ? getPlayerRankInfo() : null;
+                if (!info) return;
+                const order = ['E','D','C','B','A','S','SS','SSS'];
+                const playerIdx = order.indexOf(info.rankId);
+                // Trouver le chapitre de rang le plus élevé atteint et pas encore vu
+                const eligible = STORY_CHAPTERS.filter(c =>
+                    c.trigger === 'rank' &&
+                    order.indexOf(c.rankId) <= playerIdx &&
+                    order.indexOf(c.rankId) >= 0 &&
+                    !storyChapterSeen(c.id)
+                );
+                if (eligible.length > 0) {
+                    // Afficher le plus bas non-vu d'abord (progression ordonnée)
+                    eligible.sort((a,b) => order.indexOf(a.rankId) - order.indexOf(b.rankId));
+                    showStoryChapter(eligible[0]);
+                }
+            } catch(e) {}
+        }
+        window.checkStoryRankUnlock = checkStoryRankUnlock;
+
+        // Permet de revoir les chapitres débloqués (galerie depuis l'onglet Jeu)
+        function showStoryJournal() {
+            document.getElementById('storyJournalOverlay')?.remove();
+            const info = typeof getPlayerRankInfo === 'function' ? getPlayerRankInfo() : { rankId:'E' };
+            const order = ['E','D','C','B','A','S','SS','SSS'];
+            const playerIdx = order.indexOf(info.rankId);
+
+            const overlay = document.createElement('div');
+            overlay.id = 'storyJournalOverlay';
+            overlay.style.cssText = 'position:fixed;inset:0;z-index:10800;background:rgba(0,0,0,0.85);backdrop-filter:blur(10px);display:flex;align-items:flex-end;justify-content:center;';
+            overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+
+            const rows = STORY_CHAPTERS.map(c => {
+                const unlocked = c.trigger === 'awaken' ? storyChapterSeen('prologue') || true
+                    : order.indexOf(c.rankId) <= playerIdx;
+                const seen = storyChapterSeen(c.id);
+                return `<div ${unlocked ? `onclick="document.getElementById('storyJournalOverlay').remove();(function(){const ch=window._storyGet('${c.id}');if(ch)showStoryChapter(ch);})()"` : ''}
+                    style="background:${unlocked?`linear-gradient(135deg,${c.color}14,${c.color}05)`:'rgba(255,255,255,0.03)'};border:1px solid ${unlocked?c.color+'40':'rgba(255,255,255,0.08)'};border-radius:14px;padding:14px 16px;margin-bottom:10px;cursor:${unlocked?'pointer':'default'};display:flex;align-items:center;gap:13px;${unlocked?'':'opacity:0.5;'}">
+                    <div style="font-size:1.4em;flex-shrink:0;">${unlocked ? (seen?'📖':'✨') : '🔒'}</div>
+                    <div style="flex:1;min-width:0;">
+                        <div style="font-size:0.58em;color:${unlocked?c.color:'#64748b'};font-weight:800;letter-spacing:1.5px;">${c.subtitle}</div>
+                        <div style="font-weight:800;color:${unlocked?'white':'#64748b'};font-size:0.95em;margin-top:2px;">${unlocked ? c.title : '? ? ?'}</div>
+                    </div>
+                    ${unlocked ? `<div style="color:${c.color};font-size:1.1em;">›</div>` : `<div style="font-size:0.6em;color:#64748b;">Rang ${c.rankId}</div>`}
+                </div>`;
+            }).join('');
+
+            const sheet = document.createElement('div');
+            sheet.style.cssText = 'background:#0D0D0D;border-radius:24px 24px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.innerHTML = `
+                <div style="width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:99px;margin:0 auto 18px;"></div>
+                <h2 style="margin:0 0 4px;color:white;font-size:1.15em;font-weight:900;">📖 Journal du Chasseur</h2>
+                <p style="margin:0 0 18px;color:rgba(255,255,255,0.4);font-size:0.8em;">Ton histoire se dévoile à mesure que tu montes en rang.</p>
+                ${rows}
+                <button onclick="document.getElementById('storyJournalOverlay').remove()" style="margin-top:10px;width:100%;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:12px;color:rgba(255,255,255,0.5);font-weight:700;cursor:pointer;">Fermer</button>`;
+            overlay.appendChild(sheet);
+            document.body.appendChild(overlay);
+        }
+        window.showStoryJournal = showStoryJournal;
+        window._storyGet = (id) => STORY_CHAPTERS.find(c => c.id === id);
