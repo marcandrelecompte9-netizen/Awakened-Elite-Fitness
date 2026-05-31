@@ -1727,12 +1727,20 @@
             
             .nav-tabs {
                 overflow-x: auto;
+                overflow-y: hidden;
                 flex-wrap: nowrap;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;          /* Firefox */
+                scroll-snap-type: x proximity;
             }
-            
+            .nav-tabs::-webkit-scrollbar { display: none; }  /* Chrome/Safari */
+
             .nav-tab {
                 white-space: nowrap;
-                flex-shrink: 0;
+                flex: 0 0 auto;        /* ne pas compresser : largeur selon contenu */
+                min-width: 60px;       /* assez large pour le texte + icône */
+                padding: 8px 10px 7px; /* un peu d'air horizontal */
+                scroll-snap-align: start;
             }
         }
 
@@ -3693,7 +3701,10 @@
                 gap: 0 !important;
                 display: flex !important;
                 flex-wrap: nowrap !important;
-                overflow: visible !important;
+                overflow-x: auto !important;
+                overflow-y: hidden !important;
+                -webkit-overflow-scrolling: touch !important;
+                scrollbar-width: none !important;
                 box-shadow: 0 -2px 16px rgba(0,0,0,0.12) !important;
                 border-top: 1px solid rgba(0,0,0,0.08) !important;
                 border-left: none !important; border-right: none !important; border-bottom: none !important;
@@ -3703,6 +3714,7 @@
                 -webkit-backdrop-filter: blur(20px) !important;
                 transition: transform 0.3s cubic-bezier(0.4,0,0.2,1) !important;
             }
+            .card.nav-tabs::-webkit-scrollbar { display: none !important; }
             .card.nav-tabs.nav-collapsed {
                 transform: translateY(calc(100% - 16px)) !important;
             }
@@ -3728,7 +3740,8 @@
                 border-top-color: rgba(22,163,74,0.2) !important;
             }
             .nav-tab {
-                flex: 1 !important;
+                flex: 0 0 auto !important;
+                width: 64px !important;
                 display: flex !important;
                 flex-direction: column !important;
                 align-items: center !important;
@@ -3741,6 +3754,7 @@
                 white-space: nowrap !important;
                 overflow: hidden !important;
                 line-height: 1.1 !important;
+                scroll-snap-align: start !important;
             }
             .nav-tab[onclick="toggleDarkMode()"] {
                 margin-left: 0 !important;
@@ -6269,4 +6283,24 @@ html, body {
 @keyframes awakPulse {
     0%, 100% { transform: scale(1); opacity: 1; }
     50%      { transform: scale(1.08); opacity: 0.82; }
+}
+
+/* ☠️ Aura des items maudits équipés */
+@keyframes cursedAura {
+    0%, 100% { box-shadow: 0 0 8px rgba(168,85,247,0.5), inset 0 0 6px rgba(168,85,247,0.4), 0 0 0 0 rgba(168,85,247,0.4); }
+    50%      { box-shadow: 0 0 18px rgba(168,85,247,0.9), inset 0 0 10px rgba(168,85,247,0.6), 0 0 0 3px rgba(168,85,247,0.15); }
+}
+.cursed-slot {
+    animation: cursedAura 1.8s ease-in-out infinite;
+    border-color: #a855f7 !important;
+}
+.cursed-slot::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 12px;
+    background: radial-gradient(circle at 50% 50%, rgba(168,85,247,0.25), transparent 70%);
+    pointer-events: none;
+    animation: cursedAura 1.8s ease-in-out infinite;
+    z-index: -1;
 }

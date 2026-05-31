@@ -4,6 +4,12 @@
 (function() {
 'use strict';
 
+// 🚹🚺 Icônes SVG silhouette homme / femme (pour le bouton de changement d'avatar)
+const GENDER_SVG = {
+    homme: `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4.5" r="2.5"/><path d="M9 9h6a1 1 0 0 1 1 1v5h-2v6h-4v-6H8v-5a1 1 0 0 1 1-1z"/></svg>`,
+    femme: `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4.5" r="2.5"/><path d="M12 8c-2 0-3 1.2-3.5 3l-1.3 5h2.3l.5 5h4l.5-5h2.3l-1.3-5C15 9.2 14 8 12 8z"/></svg>`
+};
+
 // RARITIES locaux (étendus) — indépendants de items.js
 const RARITIES = {
     common:    { id:'common',    label:'E', labelFull:'Commun',     color:'#94a3b8', bg:'rgba(148,163,184,0.10)', glow:'rgba(148,163,184,0.18)', dropRate:0.60 },
@@ -236,8 +242,17 @@ function getPlayerEquipStats() {
         if (!item) continue;
         for (const [s,v] of Object.entries(item.stats||{})) stats[s] = (stats[s]||0)+v;
     }
-    for (const {bonus} of setBonuses) {
-        for (const [s,v] of Object.entries(bonus.stats||{})) stats[s] = (stats[s]||0)+v;
+    // ☠️ MALÉDICTION disableOtherPassives : annule les bonus de set
+    let _disablePassives = false;
+    try {
+        for (const it of Object.values(eqItems)) {
+            if (it && it.cursed && it.curse && (it.curse.type === 'disableOtherPassives')) { _disablePassives = true; break; }
+        }
+    } catch(e) {}
+    if (!_disablePassives) {
+        for (const {bonus} of setBonuses) {
+            for (const [s,v] of Object.entries(bonus.stats||{})) stats[s] = (stats[s]||0)+v;
+        }
     }
     // Ajouter les points de stats alloués par le joueur
     try {
@@ -282,7 +297,97 @@ function getPlayerEquipStats() {
     return stats;
 }
 
-// ── DROP SYSTEM ──────────────────────────────────────────────────────────
+// ── EFFETS DE MALÉDICTION ────────────────────────────────────────────────
+// Agrège les effets `curse` des items maudits équipés.
+function getActiveCurseEffects() {
+    const eqItems = (typeof getEquippedItems === 'function') ? getEquippedItems() : {};
+    const eff = {
+        xpMalus: 0,            // réduction % d'XP (cumulé)
+        lootMalus: 0,          // réduction % chance de loot
+        healMalus: 0,          // réduction % régén HP
+        bossWeak: 0,           // réduction % dégâts vs boss
+        hpDrain: 0,            // % HP max drainé par vague
+        backfire: 0,           // proba que l'attaque se retourne
+        jam: 0,                // proba de coup perdu
+        noXpChance: 0,         // proba qu'une série ne donne pas d'XP
+        firstHitMiss: false,   // le 1er coup du combat rate
+        noHealBetweenWaves: false,
+        disableOtherPassives: false,
+        labels: []             // descriptions actives (pour affichage)
+    };
+    for (const item of Object.values(eqItems)) {
+        if (!item || !item.cursed || !item.curse) continue;
+        const c = item.curse;
+        // Effet principal
+        switch (c.type) {
+            case 'xpMalus':    eff.xpMalus   += (c.value || 0); break;
+            case 'lootMalus':  eff.lootMalus += (c.value || 0); break;
+            case 'healMalus':  eff.healMalus += (c.value || 0); break;
+            case 'bossWeak':   eff.bossWeak  += (c.value || 0); break;
+            case 'hpDrain':    eff.hpDrain   += (c.value || 0); break;
+            case 'backfire':   eff.backfire   = Math.max(eff.backfire, c.value || 0); break;
+            case 'jam':        eff.jam        = Math.max(eff.jam, c.value || 0); break;
+            case 'noXpChance': eff.noXpChance = Math.max(eff.noXpChance, c.value || 0); break;
+            case 'firstHitMiss':        eff.firstHitMiss = true; break;
+            case 'noHealBetweenWaves':  eff.noHealBetweenWaves = true; break;
+            case 'disableOtherPassives':eff.disableOtherPassives = true; break;
+        }
+        // Effets secondaires (items légendaires à double malédiction)
+        if (c.xpMalus)   eff.xpMalus   += c.xpMalus;
+        if (c.lootMalus) eff.lootMalus += c.lootMalus;
+        if (c.label) eff.labels.push(c.label);
+    }
+    // Plafonner les malus % à 80% pour éviter les valeurs absurdes
+    eff.xpMalus   = Math.min(0.8, eff.xpMalus);
+    eff.lootMalus = Math.min(0.8, eff.lootMalus);
+    eff.healMalus = Math.min(0.8, eff.healMalus);
+    eff.bossWeak  = Math.min(0.8, eff.bossWeak);
+    return eff;
+}
+window.getActiveCurseEffects = getActiveCurseEffects;
+
+// ── EFFETS D'ANNEAUX ─────────────────────────────────────────────────────
+// Agrège les `ringEffect` des accessoires équipés (combat + progression).
+function getActiveRingEffects() {
+    const eqItems = (typeof getEquippedItems === 'function') ? getEquippedItems() : {};
+    const eff = {
+        crit: 0,        // +% chance critique
+        double: 0,      // +% chance double attaque
+        dodge: 0,       // +% chance esquive
+        bossDmg: 0,     // +% dégâts vs boss
+        hpRegen: 0,     // +% régénération HP entre vagues
+        xpGain: 0,      // +% XP gagnée
+        lootChance: 0,  // +% chance de loot
+        rareLoot: 0,    // +% chance de loot rare
+        recovery: 0,    // -% temps de récupération musculaire
+        questXp: 0,     // +% XP des quêtes
+        firstShield: false, // encaisse le 1er coup
+        labels: []
+    };
+    for (const item of Object.values(eqItems)) {
+        if (!item || !item.ringEffect) continue;
+        const e = item.ringEffect;
+        switch (e.type) {
+            case 'crit':        eff.crit       += e.value; break;
+            case 'double':      eff.double     += e.value; break;
+            case 'dodge':       eff.dodge      += e.value; break;
+            case 'bossDmg':     eff.bossDmg    += e.value; break;
+            case 'hpRegen':     eff.hpRegen    += e.value; break;
+            case 'xpGain':      eff.xpGain     += e.value; break;
+            case 'lootChance':  eff.lootChance += e.value; break;
+            case 'rareLoot':    eff.rareLoot   += e.value; break;
+            case 'recovery':    eff.recovery   += e.value; break;
+            case 'questXp':     eff.questXp    += e.value; break;
+            case 'firstShield': eff.firstShield = true; break;
+        }
+        if (e.label) eff.labels.push(e.label);
+    }
+    return eff;
+}
+window.getActiveRingEffects = getActiveRingEffects;
+
+
+
 function tryEquipmentDrop(muscle, workoutQuality) {
     if (!getAdventureEnabled()) return null;
     const daily = getDailyDrops();
@@ -327,7 +432,17 @@ function tryEquipmentDrop(muscle, workoutQuality) {
 
     // Chance de base qu'un drop se produise selon la qualité
     // Légère hausse : 1 exercice ~15%, entraînement complet ~85%
-    const baseDrop = 0.15 + (qualityScore * 0.70);
+    let baseDrop = 0.15 + (qualityScore * 0.70);
+    // 💍 ANNEAU : bonus de chance de loot
+    if (typeof getActiveRingEffects === 'function') {
+        const _r = getActiveRingEffects();
+        if (_r.lootChance > 0) baseDrop = baseDrop * (1 + _r.lootChance);
+    }
+    // ☠️ MALÉDICTION : réduction de la chance de loot
+    if (typeof getActiveCurseEffects === 'function') {
+        const _c = getActiveCurseEffects();
+        if (_c.lootMalus > 0) baseDrop = baseDrop * (1 - _c.lootMalus);
+    }
     if (Math.random() > baseDrop) return null;
 
     // ── Rang du chasseur ──────────────────────────────────────────────
@@ -593,7 +708,7 @@ function renderEquipmentPanel() {
             <div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;color:rgba(6,182,212,0.5);font-size:0.7em;text-align:center;">Avatar non disponible</div>
 
             <!-- Bouton toggle homme/femme -->
-            <button onclick="toggleAvatarGender()" style="position:absolute;top:-6px;right:-6px;background:rgba(6,182,212,0.18);border:1px solid rgba(6,182,212,0.45);color:#67e8f9;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:1em;display:flex;align-items:center;justify-content:center;box-shadow:0 0 10px rgba(6,182,212,0.3);" title="Changer d'avatar">${avatarGender === 'femme' ? '👨' : '👩'}</button>
+            <button onclick="toggleAvatarGender()" style="position:absolute;top:-6px;right:-6px;background:rgba(6,182,212,0.18);border:1px solid rgba(6,182,212,0.45);color:#67e8f9;width:30px;height:30px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 0 10px rgba(6,182,212,0.3);" title="Changer d'avatar">${avatarGender === 'femme' ? GENDER_SVG.homme : GENDER_SVG.femme}</button>
         </div>`;
 
     // Set bonuses
@@ -898,6 +1013,14 @@ function showItemPopup(item, invId, equippedSlot) {
                 <div style="background:${item.cursed?'rgba(168,85,247,0.10)':'rgba(34,197,94,0.08)'};border:1px solid ${item.cursed?'rgba(168,85,247,0.35)':'rgba(34,197,94,0.25)'};border-radius:10px;padding:10px 12px;margin-bottom:12px;">
                     <div style="font-size:0.58em;color:${item.cursed?'#c084fc':'#22c55e'};font-weight:900;letter-spacing:2px;margin-bottom:4px;">${item.cursed?'☠️ MALÉDICTION':'⚡ EFFET PASSIF'}</div>
                     <div style="font-size:0.8em;color:${item.cursed?'#d8b4fe':'#4ade80'};line-height:1.4;font-weight:600;">${item.passive}</div>
+                    ${item.cursed && item.curse && item.curse.label ? `<div style="margin-top:7px;padding-top:7px;border-top:1px solid rgba(168,85,247,0.2);font-size:0.72em;color:#f0abfc;font-weight:700;display:flex;align-items:center;gap:5px;"><span>⚠️</span> ${item.curse.label}</div>` : ''}
+                </div>` : ''}
+
+                <!-- 💍 Effet d'anneau -->
+                ${item.ringEffect ? `
+                <div style="background:rgba(34,211,238,0.08);border:1px solid rgba(34,211,238,0.3);border-radius:10px;padding:10px 12px;margin-bottom:12px;">
+                    <div style="font-size:0.58em;color:#22d3ee;font-weight:900;letter-spacing:2px;margin-bottom:4px;">💍 EFFET D'ANNEAU</div>
+                    <div style="font-size:0.85em;color:#67e8f9;line-height:1.4;font-weight:800;">${item.ringEffect.label}</div>
                 </div>` : ''}
 
                 <!-- Stats -->
@@ -1251,20 +1374,21 @@ function showRPGEquipmentModal(defaultTab) {
         const eqItems = getEquippedItems();
         const item = eqItems[slot.id];
         const r = item ? getRarityInfo(item.rarity) : null;
-        const bg = item ? r.bg : 'rgba(34,197,94,0.04)';
-        const border = item ? r.color : 'rgba(34,197,94,0.35)';
-        const glow = item ? `box-shadow:0 0 12px ${r.glow}, inset 0 0 8px ${r.glow};` : '';
+        const isCursed = item && item.cursed;
+        const bg = item ? (isCursed ? 'rgba(168,85,247,0.12)' : r.bg) : 'rgba(34,197,94,0.04)';
+        const border = item ? (isCursed ? '#a855f7' : r.color) : 'rgba(34,197,94,0.35)';
+        const glow = item ? (isCursed ? '' : `box-shadow:0 0 12px ${r.glow}, inset 0 0 8px ${r.glow};`) : '';
 
         return `<div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
             <div style="font-size:0.55em;color:rgba(255,255,255,0.55);font-weight:700;letter-spacing:1.5px;">${slot.label}</div>
-            <div onclick="window._rpgEqSelectSlot('${slot.id}')" style="
+            <div onclick="window._rpgEqSelectSlot('${slot.id}')" class="${isCursed ? 'cursed-slot' : ''}" style="
                 width:56px;height:56px;border-radius:10px;cursor:pointer;flex-shrink:0;
                 background:${bg};border:2px solid ${border};${glow}
                 display:flex;align-items:center;justify-content:center;
                 position:relative;transition:transform 0.15s;">
                 ${item
-                    ? `<span style="font-size:1.6em;line-height:1;">${item.icon}</span>
-                       <span style="position:absolute;top:1px;right:2px;font-size:0.42em;font-weight:900;color:${r.color};">${r.label}</span>`
+                    ? `<span style="font-size:1.6em;line-height:1;${isCursed ? 'filter:drop-shadow(0 0 6px rgba(168,85,247,0.9));' : ''}">${item.icon}</span>
+                       <span style="position:absolute;top:1px;right:2px;font-size:0.42em;font-weight:900;color:${isCursed ? '#c084fc' : r.color};">${isCursed ? '☠' : r.label}</span>`
                     : `<span style="opacity:0.3;color:#4ade80;display:flex;">${slot.svg || `<span style="font-size:1.3em;">${slot.icon}</span>`}</span>`
                 }
             </div>
@@ -1275,34 +1399,35 @@ function showRPGEquipmentModal(defaultTab) {
     function renderCharacterPanel() {
         const gender = localStorage.getItem('fitproAvatarGender') || 'homme';
         const path = gender === 'femme' ? 'images/avatars/avatar_femme.png' : 'images/avatars/avatar_homme.png';
-        const toggleIcon = gender === 'femme' ? '👨' : '👩';
+        const toggleIcon = gender === 'femme' ? GENDER_SVG.homme : GENDER_SVG.femme;
 
         // Génère un slot positionné absolument sur l'avatar
         function renderFloatingSlot(slot, position) {
             const eqItems = getEquippedItems();
             const item = eqItems[slot.id];
             const r = item ? getRarityInfo(item.rarity) : null;
-            const bg = item ? r.bg : 'rgba(10,14,24,0.7)';
-            const border = item ? r.color : 'rgba(34,197,94,0.5)';
-            const glow = item ? `box-shadow:0 0 14px ${r.glow},inset 0 0 8px ${r.glow};` : 'box-shadow:0 0 12px rgba(34,197,94,0.25),0 2px 8px rgba(0,0,0,0.5);';
+            const isCursed = item && item.cursed;
+            const bg = item ? (isCursed ? 'rgba(168,85,247,0.14)' : r.bg) : 'rgba(10,14,24,0.7)';
+            const border = item ? (isCursed ? '#a855f7' : r.color) : 'rgba(34,197,94,0.5)';
+            const glow = item ? (isCursed ? '' : `box-shadow:0 0 14px ${r.glow},inset 0 0 8px ${r.glow};`) : 'box-shadow:0 0 12px rgba(34,197,94,0.25),0 2px 8px rgba(0,0,0,0.5);';
 
             // Récupérer le SVG depuis les définitions complètes (les objets inline n'ont pas le svg)
             const fullSlot = [...SLOT_LAYOUT_LEFT, ...SLOT_LAYOUT_RIGHT].find(s => s.id === slot.id);
             const slotSvg = (slot.svg) || (fullSlot && fullSlot.svg) || `<span style="font-size:1.3em;">${slot.icon || ''}</span>`;
 
             return `<div style="position:absolute;${position};z-index:5;display:flex;flex-direction:column;align-items:center;gap:3px;">
-                <div onclick="window._rpgEqSelectSlot('${slot.id}')" style="
+                <div onclick="window._rpgEqSelectSlot('${slot.id}')" class="${isCursed ? 'cursed-slot' : ''}" style="
                     width:54px;height:54px;border-radius:10px;cursor:pointer;
                     background:${bg};border:2px solid ${border};${glow}
                     display:flex;align-items:center;justify-content:center;
                     position:relative;transition:transform 0.15s;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);">
                     ${item
-                        ? `<span style="font-size:1.55em;line-height:1;filter:drop-shadow(0 0 4px rgba(0,0,0,0.8));">${item.icon}</span>
-                           <span style="position:absolute;top:1px;right:2px;font-size:0.42em;font-weight:900;color:${r.color};">${r.label}</span>`
+                        ? `<span style="font-size:1.55em;line-height:1;filter:drop-shadow(0 0 4px rgba(0,0,0,0.8))${isCursed ? ' drop-shadow(0 0 6px rgba(168,85,247,0.9))' : ''};">${item.icon}</span>
+                           <span style="position:absolute;top:1px;right:2px;font-size:0.42em;font-weight:900;color:${isCursed ? '#c084fc' : r.color};">${isCursed ? '☠' : r.label}</span>`
                         : `<span style="opacity:0.7;color:#4ade80;display:flex;filter:drop-shadow(0 0 4px rgba(0,0,0,0.8));">${slotSvg}</span>`
                     }
                 </div>
-                <div style="font-size:0.5em;color:rgba(255,255,255,0.85);font-weight:900;letter-spacing:1.5px;text-shadow:0 1px 3px rgba(0,0,0,0.95),0 0 6px rgba(0,0,0,0.8);background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:4px;border:1px solid rgba(74,222,128,0.3);">${slot.label}</div>
+                <div style="font-size:0.5em;color:rgba(255,255,255,0.85);font-weight:900;letter-spacing:1.5px;text-shadow:0 1px 3px rgba(0,0,0,0.95),0 0 6px rgba(0,0,0,0.8);background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:4px;border:1px solid ${isCursed ? 'rgba(168,85,247,0.5)' : 'rgba(74,222,128,0.3)'};">${slot.label}</div>
             </div>`;
         }
 
@@ -1349,7 +1474,7 @@ function showRPGEquipmentModal(defaultTab) {
                            display:flex;align-items:center;justify-content:center;
                            box-shadow:0 0 14px rgba(34,197,94,0.4),0 2px 8px rgba(0,0,0,0.5);
                            backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);">
-                ${toggleIcon}
+                <span style="display:flex;width:30px;height:30px;">${toggleIcon.replace('width="17" height="17"', 'width="30" height="30"')}</span>
             </button>
             <div style="position:absolute;top:264px;right:10px;z-index:5;font-size:0.5em;color:rgba(255,255,255,0.85);font-weight:900;letter-spacing:1.5px;background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:4px;border:1px solid rgba(74,222,128,0.3);width:54px;text-align:center;box-sizing:border-box;text-shadow:0 1px 3px rgba(0,0,0,0.95);">SEXE</div>
 
@@ -1423,6 +1548,11 @@ function showRPGEquipmentModal(defaultTab) {
                 <div style="background:rgba(34,197,94,0.07);border:1px solid rgba(34,197,94,0.18);border-radius:6px;padding:5px 8px;margin-bottom:6px;">
                     <div style="font-size:0.52em;color:#22c55e;font-weight:800;letter-spacing:1px;">⚡ PASSIF</div>
                     <div style="font-size:0.62em;color:#4ade80;line-height:1.35;">${selectedItem.passive}</div>
+                </div>` : ''}
+            ${selectedItem.ringEffect ? `
+                <div style="background:rgba(34,211,238,0.08);border:1px solid rgba(34,211,238,0.3);border-radius:6px;padding:5px 8px;margin-bottom:6px;">
+                    <div style="font-size:0.52em;color:#22d3ee;font-weight:800;letter-spacing:1px;">💍 EFFET D'ANNEAU</div>
+                    <div style="font-size:0.64em;color:#67e8f9;line-height:1.35;font-weight:700;">${selectedItem.ringEffect.label}</div>
                 </div>` : ''}
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px;margin-bottom:8px;">
                 ${Object.entries(selectedItem.stats||{}).filter(([_,v]) => v !== 0).map(([k,v]) => `

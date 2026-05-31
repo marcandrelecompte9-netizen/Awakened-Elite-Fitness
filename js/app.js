@@ -21775,12 +21775,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 <!-- Attributs AWAKENED (6 stats : STR/AGI/VIT/END/PER/SEN) -->
                 ${awakStats ? `
                     <div style="margin-bottom:14px;">
-                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;gap:6px;">
+                        <div style="display:flex;align-items:center;margin-bottom:7px;gap:8px;">
                             <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;">◈ ATTRIBUTS</div>
-                            <div style="display:flex;gap:5px;">
-                                <button onclick="awakShowAttributesInfo()" style="background:rgba(34,197,94,0.12);border:1px solid rgba(74,222,128,0.4);color:#4ade80;border-radius:99px;padding:3px 9px;font-size:0.6em;font-weight:800;cursor:pointer;white-space:nowrap;">ⓘ Attributs</button>
-                                <button onclick="awakShowRiftHelp()" style="background:rgba(168,85,247,0.12);border:1px solid rgba(192,132,252,0.4);color:#c084fc;border-radius:99px;padding:3px 9px;font-size:0.6em;font-weight:800;cursor:pointer;white-space:nowrap;">ⓘ Failles</button>
-                            </div>
+                            <button onclick="awakShowAttributesInfo()" style="background:rgba(34,197,94,0.12);border:1px solid rgba(74,222,128,0.4);color:#4ade80;border-radius:99px;padding:2px 8px;font-size:0.6em;font-weight:800;cursor:pointer;white-space:nowrap;line-height:1.2;">ⓘ Aide</button>
                         </div>
                         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
                             ${awakStatRows.map(s => `
@@ -23678,7 +23675,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     ? monstersForTheme[monstersForTheme.length - 1] // Boss = dernier monstre
                     : monstersForTheme[Math.min(i, monstersForTheme.length - 2)];
 
-                let hp = Math.round(monster.baseHp * config.hpMult * (isBossWave ? 2.5 : 1));
+                // Boss bien plus coriace (×4) — un vrai combat de plusieurs séries même surpuissant
+                let hp = Math.round(monster.baseHp * config.hpMult * (isBossWave ? 4.0 : 1));
                 // Dr Halberd : -20% HP boss
                 if (isBossWave && bossHpCut > 0) {
                     hp = Math.round(hp * (1 - bossHpCut));
@@ -24420,26 +24418,47 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         // Helper : calcule les bonus actifs basés sur les stats
         function awakComputeStatBonuses(playerStats, isBoss) {
             const stats = playerStats || (typeof awakGetTotalStats === 'function' ? awakGetTotalStats() : {});
+            const ring = (typeof getActiveRingEffects === 'function') ? getActiveRingEffects() : {};
+
+            // 📉 Rendement décroissant : au-delà d'un seuil, chaque point compte moins.
+            // En dessous du seuil = linéaire ; au-dessus = croissance en racine carrée.
+            // Évite que les stats énormes (400+) donnent des bonus absurdes.
+            const dim = (val, soft) => {
+                val = val || 0;
+                if (val <= soft) return val;
+                return soft + Math.sqrt((val - soft) * soft); // courbe douce au-delà du seuil
+            };
+            const SOFT = 100; // seuil de rendement plein (~rang A/B)
+
+            const eStr = dim(stats.STR, SOFT);
+            const eAgi = dim(stats.AGI, SOFT);
+            const eVit = dim(stats.VIT, SOFT);
+            const ePer = dim(stats.PER, SOFT);
+
+            // Plafonds durs sur les probabilités (gardent du hasard et de la tension)
+            const CAP_CRIT = 0.50, CAP_DOUBLE = 0.35, CAP_DODGE = 0.40, CAP_BOSS = 1.50;
+
             return {
-                // ⚔️ STR : multiplicateur dégâts généraux
-                damageMult: 1 + (stats.STR || 0) * 0.01,
+                // ⚔️ STR : multiplicateur dégâts généraux (rendement décroissant)
+                damageMult: 1 + eStr * 0.01,
 
-                // ⚡ AGI : chance critique
-                critChance: (stats.AGI || 0) * 0.005, // 0.5% par point
+                // ⚡ AGI : chance critique (plafond 50%)
+                critChance: Math.min(CAP_CRIT, eAgi * 0.005 + (ring.crit || 0)),
 
-                // 💨 VIT : chance double attaque
-                doubleChance: (stats.VIT || 0) * 0.01, // 1% par point
+                // 💨 VIT : chance double attaque (plafond 35%)
+                doubleChance: Math.min(CAP_DOUBLE, eVit * 0.01 + (ring.double || 0)),
 
-                // 💚 END : régénération HP joueur (sera utilisé plus tard pour HP joueur)
+                // 💚 END : régénération HP joueur
                 hpRegen: Math.floor((stats.END || 0) / 2),
+                hpRegenMult: 1 + (ring.hpRegen || 0),
 
-                // 👁️ PER : bonus dégâts vs boss + esquive
-                bossBonus: isBoss ? (stats.PER || 0) * 0.01 : 0,
-                dodgeChance: (stats.PER || 0) * 0.003, // 0.3% par point
+                // 👁️ PER : bonus dégâts vs boss (plafond +150%) + esquive (plafond 40%)
+                bossBonus: isBoss ? Math.min(CAP_BOSS, ePer * 0.01 + (ring.bossDmg || 0)) : 0,
+                dodgeChance: Math.min(CAP_DODGE, ePer * 0.003 + (ring.dodge || 0)),
 
-                // 🌀 SEN : bonus XP + loot
-                xpMult: 1 + (stats.SEN || 0) * 0.01,
-                rareLootBonus: (stats.SEN || 0) * 0.005,
+                // 🌀 SEN : bonus XP + loot (XP non plafonné, c'est une récompense)
+                xpMult: 1 + (stats.SEN || 0) * 0.01 + (ring.xpGain || 0),
+                rareLootBonus: (stats.SEN || 0) * 0.005 + (ring.rareLoot || 0),
 
                 // Valeurs raw pour affichage
                 raw: {
@@ -24480,6 +24499,27 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const consumEffects = typeof awakConsumablesGetActiveEffects === 'function'
                 ? awakConsumablesGetActiveEffects() : {};
 
+            // ☠️ MALÉDICTIONS : effets des items maudits équipés
+            const curse = typeof getActiveCurseEffects === 'function' ? getActiveCurseEffects() : null;
+            let curseToasts = [];
+            if (curse) {
+                // firstHitMiss : le tout premier coup du combat rate
+                if (curse.firstHitMiss && !session._firstHitDone) {
+                    session._firstHitDone = true;
+                    curseToasts.push({ msg: '☠️ Malédiction : ton premier coup rate !', type: 'warning' });
+                    if (typeof showToast === 'function') curseToasts.forEach(t => showToast(t.msg, t.type, 2500));
+                    if (typeof awakRenderRiftCombat === 'function') awakRenderRiftCombat();
+                    return; // aucun dégât
+                }
+                session._firstHitDone = true;
+                // jam : l'arme se bloque, coup perdu
+                if (curse.jam > 0 && Math.random() < curse.jam) {
+                    if (typeof showToast === 'function') showToast('☠️ Ton arme maudite se bloque — coup perdu !', 'warning', 2500);
+                    if (typeof awakRenderRiftCombat === 'function') awakRenderRiftCombat();
+                    return;
+                }
+            }
+
             // Formule de dégâts : base + reps × (1 + stat thématique/100)
             const base = 15;
             const primaryStatValue = (playerStats[theme.primaryStat] || 0) * (1 + (consumEffects[theme.primaryStat] || 0));
@@ -24491,7 +24531,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
             // 🛡️ Plafond absolu de dégâts par série (anti-triche ultime)
             // Empêche de tuer un monstre en 1 série, même avec crit + double + tous les bonus
-            const maxDamagePerHit = Math.max(40, Math.round(currentWave.hpMax * 0.45));
+            // Plafond anti-triche : 45% des HP/série pour monstres normaux, 22% pour les boss
+            // (un boss exige donc au moins ~5 séries, même surpuissant — vrai combat)
+            const capPct = currentWave.isBoss ? 0.22 : 0.45;
+            const maxDamagePerHit = Math.max(40, Math.round(currentWave.hpMax * capPct));
 
             // ⚔️ STR : multiplicateur dégâts global (toujours actif)
             finalDamage *= bonuses.damageMult;
@@ -24538,6 +24581,16 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 }
             } catch(e) {}
 
+            // ☠️ MALÉDICTION : -dégâts contre les boss
+            if (curse && currentWave.isBoss && curse.bossWeak > 0) {
+                finalDamage = finalDamage * (1 - curse.bossWeak);
+            }
+            // ☠️ MALÉDICTION : backfire — l'attaque se retourne (dégâts fortement réduits)
+            if (curse && curse.backfire > 0 && Math.random() < curse.backfire) {
+                finalDamage = finalDamage * 0.25;
+                curseToasts.push({ msg: '☠️ L\'attaque se retourne contre toi ! Dégâts réduits', type: 'warning' });
+            }
+
             finalDamage = Math.max(1, Math.round(finalDamage));
 
             // 🛡️ Appliquer le plafond anti-triche (max 45% des HP max du monstre par série)
@@ -24546,6 +24599,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
             // 🔥 Afficher les procs spéciaux après les dégâts
             const procToasts = [];
+            if (curseToasts.length) procToasts.push(...curseToasts);
             if (isDouble) procToasts.push({ msg: `⚡ DOUBLE ATTAQUE ! +${Math.round(doubleDamage)} HP`, type: 'success' });
             if (currentWave.isBoss && bonuses.bossBonus > 0) {
                 procToasts.push({ msg: `👁 Faiblesse détectée (+${Math.round(bonuses.bossBonus * 100)}% vs boss)`, type: 'info' });
@@ -24630,13 +24684,25 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             if (session.rift.currentWaveIdx >= session.rift.waves.length) {
                 awakCompleteRift();
             } else {
-                // 💚 Heal entre vagues : 25% HP max + bonus END
-                if (typeof awakGetPlayerMaxHP === 'function' && typeof awakHealPlayer === 'function') {
+                // ☠️ MALÉDICTIONS entre vagues
+                const _curse = typeof getActiveCurseEffects === 'function' ? getActiveCurseEffects() : null;
+
+                // hpDrain : draine un % des HP max à chaque nouvelle vague
+                if (_curse && _curse.hpDrain > 0 && typeof awakGetPlayerMaxHP === 'function' && typeof awakDamagePlayer === 'function') {
+                    const drain = Math.round(awakGetPlayerMaxHP() * _curse.hpDrain);
+                    setTimeout(() => {
+                        awakDamagePlayer(drain);
+                        if (typeof showToast === 'function') showToast(`☠️ Malédiction : ${drain} HP drainés`, 'warning', 2200);
+                    }, 300);
+                }
+
+                // 💚 Heal entre vagues : 25% HP max + bonus END (sauf si malédiction noHeal)
+                if (!(_curse && _curse.noHealBetweenWaves) && typeof awakGetPlayerMaxHP === 'function' && typeof awakHealPlayer === 'function') {
                     const maxHP = awakGetPlayerMaxHP();
                     const bonuses = (typeof awakComputeStatBonuses === 'function')
                         ? awakComputeStatBonuses() : { hpRegen: 0 };
                     const baseHeal = Math.round(maxHP * 0.25);
-                    const totalHeal = baseHeal + (bonuses.hpRegen || 0) * 2; // ×2 entre vagues
+                    const totalHeal = Math.round((baseHeal + (bonuses.hpRegen || 0) * 2) * (bonuses.hpRegenMult || 1)); // ×2 entre vagues, ×anneau
                     setTimeout(() => {
                         if (typeof showToast === 'function') {
                             showToast(`🌟 Vague terminée ! Tu reprends ton souffle...`, 'success', 2200);
@@ -24645,6 +24711,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                             awakHealPlayer(totalHeal);
                         }, 700);
                     }, 400);
+                } else if (_curse && _curse.noHealBetweenWaves) {
+                    setTimeout(() => {
+                        if (typeof showToast === 'function') showToast('☠️ Malédiction : aucun soin entre les vagues', 'warning', 2400);
+                    }, 500);
                 }
 
                 setTimeout(() => awakShowRiftCombatScreen(), 1500);
@@ -24722,6 +24792,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const xpBeforeBonus = xpReward;
             xpReward = Math.round(xpReward * bonuses.xpMult);
             const xpBonusAmount = xpReward - xpBeforeBonus;
+
+            // ☠️ MALÉDICTION : réduction d'XP des items maudits
+            const _curse = typeof getActiveCurseEffects === 'function' ? getActiveCurseEffects() : null;
+            if (_curse && _curse.xpMalus > 0) {
+                xpReward = Math.round(xpReward * (1 - _curse.xpMalus));
+            }
 
             document.getElementById('awakRiftCombatModal')?.remove();
             const modal = document.createElement('div');
