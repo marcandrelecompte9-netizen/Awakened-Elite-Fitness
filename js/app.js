@@ -5007,7 +5007,7 @@
                     <div style="font-size:2.1em;flex-shrink:0;">${r.emoji}</div>
                     <div style="flex:1;min-width:0;">
                         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                            <span style="font-weight:900;font-size:0.98em;color:#0F1014;">${r.name}</span>
+                            <span style="font-weight:900;font-size:0.98em;color:#ffffff;">${r.name}</span>
                             <span style="font-size:0.62em;font-weight:800;color:white;background:${r.color};padding:2px 7px;border-radius:99px;">${r.level}</span>
                         </div>
                         <div style="font-size:0.74em;color:#64748b;line-height:1.4;margin-top:3px;">${r.desc}</div>
@@ -5027,7 +5027,7 @@
                     <div style="font-size:2.1em;flex-shrink:0;">⭐</div>
                     <div style="flex:1;min-width:0;">
                         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                            <span style="font-weight:900;font-size:0.98em;color:#0F1014;">Ma Routine</span>
+                            <span style="font-weight:900;font-size:0.98em;color:#ffffff;">Ma Routine</span>
                             <span style="font-size:0.62em;font-weight:800;color:white;background:#a855f7;padding:2px 7px;border-radius:99px;">Perso</span>
                         </div>
                         <div style="font-size:0.74em;color:#64748b;line-height:1.4;margin-top:3px;">${custom && custom.length ? `Ta routine sur mesure (${custom.length} exercices)` : 'Pas encore créée — appuie sur Personnaliser ci-dessous'}</div>
@@ -5036,17 +5036,17 @@
                 </button>`;
 
             overlay.innerHTML = `
-                <div style="background:white;border-radius:22px 22px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:88vh;overflow-y:auto;">
-                    <div style="width:40px;height:4px;background:#e5e7eb;border-radius:99px;margin:0 auto 16px;"></div>
+                <div style="background:#0D0D0D;border:1px solid rgba(255,255,255,0.08);border-radius:22px 22px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+                    <div style="width:40px;height:4px;background:rgba(255,255,255,0.2);border-radius:99px;margin:0 auto 16px;"></div>
                     <div style="text-align:center;margin-bottom:8px;">
                         <div style="font-size:2.4em;line-height:1;">☀️</div>
-                        <h3 style="margin:6px 0 4px;color:#0F1014;">Routine matinale</h3>
-                        <p style="margin:0 0 16px;font-size:0.78em;color:#64748b;line-height:1.5;">Réveille ton corps en douceur. Choisis ton niveau — aucun matériel requis.</p>
+                        <h3 style="margin:6px 0 4px;color:#ffffff;">Routine matinale</h3>
+                        <p style="margin:0 0 16px;font-size:0.78em;color:#94a3b8;line-height:1.5;">Réveille ton corps en douceur. Choisis ton niveau — aucun matériel requis.</p>
                     </div>
                     ${cards}
                     ${customCard}
-                    <button onclick="showCustomMorningEditor()" style="width:100%;margin-top:2px;margin-bottom:6px;padding:12px;background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.35);border-radius:12px;color:#a855f7;font-weight:800;font-size:0.85em;cursor:pointer;">✏️ Personnaliser ma routine</button>
-                    <button onclick="document.getElementById('morningRoutineModal').remove()" class="btn btn-secondary" style="width:100%;">Fermer</button>
+                    <button onclick="showCustomMorningEditor()" style="width:100%;margin-top:2px;margin-bottom:6px;padding:12px;background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.4);border-radius:12px;color:#c084fc;font-weight:800;font-size:0.85em;cursor:pointer;">✏️ Personnaliser ma routine</button>
+                    <button onclick="document.getElementById('morningRoutineModal').remove()" style="width:100%;padding:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:12px;color:#94a3b8;font-weight:700;cursor:pointer;">Fermer</button>
                 </div>
             `;
             document.body.appendChild(overlay);
@@ -6335,7 +6335,20 @@
         
         function startPreparedWorkout() {
             if (!pendingWorkout) return;
-            
+
+            // 🏃 Proposer un cardio d'échauffement optionnel (une seule fois par séance)
+            if (!pendingWorkout._cardioAsked && typeof proposeCardioWarmup === 'function') {
+                pendingWorkout._cardioAsked = true;
+                proposeCardioWarmup(function(cardioEx) {
+                    if (cardioEx) {
+                        // Insérer le cardio en tête de séance
+                        pendingWorkout.exercises.unshift(cardioEx);
+                    }
+                    startPreparedWorkout(); // relancer maintenant que le choix est fait
+                });
+                return; // attendre le choix
+            }
+
             // Hide preparation, show exercise view
             document.getElementById('preparationView').classList.add('hidden');
             document.getElementById('exerciseView').classList.remove('hidden'); document.body.classList.add('in-session');
@@ -20772,6 +20785,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 { label:'🏋️ Poids libres', ids:['barbell','dumbbells','kettlebell','medicineball'] },
                 { label:'🤸 Cardio', ids:['treadmill','bike','elliptical','stairmaster','rower','jumprope','battleropes'] },
                 { label:'📦 Accessoires', ids:['bench','trx','parallelbars','abwheel','swissball','resistance'] },
+                { label:'🌳 Plein air / Strongman', ids:['tire','sled','sandbag','pool'] },
                 { label:'🧍 Corps', ids:['bodyweight'] },
             ];
 
@@ -35064,3 +35078,137 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             document.body.appendChild(overlay);
         }
         window.showSystemAnalysis = showSystemAnalysis;
+
+        // ═══════════════════════════════════════════════════════════════
+        // 🏃 CARDIO D'ÉCHAUFFEMENT OPTIONNEL (avant la séance)
+        // ═══════════════════════════════════════════════════════════════
+        // Propose un cardio court (2-10 min) au choix avant de démarrer la séance.
+        // L'activité dépend de l'équipement du lieu ; durée réglable.
+
+        // Activités cardio possibles (filtrées selon l'équipement dispo)
+        const CARDIO_WARMUP_OPTIONS = [
+            { name: 'Corde à sauter',     emoji: '🪢', equip: 'Corde à sauter',  exName: 'Jump Rope Basic' },
+            { name: 'Tapis roulant',      emoji: '🏃', equip: 'Tapis roulant',   exName: 'Tapis roulant marche rapide' },
+            { name: 'Vélo stationnaire',  emoji: '🚴', equip: 'Vélo stationnaire', exName: 'Vélo stationnaire' },
+            { name: 'Rameur',             emoji: '🚣', equip: 'Rameur',          exName: 'Rameur (rowing machine)' },
+            { name: 'Marche sur place',   emoji: '🚶', equip: null,              exName: 'Marche sur place active' },
+            { name: 'Jumping jacks',      emoji: '🤸', equip: null,              exName: 'Jumping jacks' },
+            { name: 'Montées de genoux',  emoji: '🦵', equip: null,              exName: 'Montées de genoux sur place' }
+        ];
+
+        let _pendingCardioCallback = null;
+
+        function proposeCardioWarmup(onDone) {
+            _pendingCardioCallback = onDone;
+            document.getElementById('cardioWarmupOverlay')?.remove();
+
+            // Filtrer les activités selon l'équipement du lieu
+            const equip = (typeof getSelectedEquipmentNames === 'function') ? getSelectedEquipmentNames() : [];
+            const options = CARDIO_WARMUP_OPTIONS.filter(o => !o.equip || equip.includes(o.equip));
+
+            const overlay = document.createElement('div');
+            overlay.id = 'cardioWarmupOverlay';
+            overlay.style.cssText = 'position:fixed;inset:0;z-index:10600;background:rgba(0,0,0,0.85);backdrop-filter:blur(10px);display:flex;align-items:flex-end;justify-content:center;';
+
+            const optButtons = options.map((o,i) => `
+                <button onclick="_selectCardioWarmup(${i})" data-cardio-idx="${i}" class="cardio-warmup-opt" style="
+                    display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:12px 14px;margin-bottom:7px;
+                    background:rgba(34,211,238,0.06);border:1.5px solid rgba(34,211,238,0.25);border-radius:11px;cursor:pointer;color:#e2e8f0;">
+                    <span style="font-size:1.5em;">${o.emoji}</span>
+                    <span style="flex:1;font-size:0.88em;font-weight:700;">${o.name}</span>
+                    <span class="cardio-check" style="font-size:1.1em;color:#22d3ee;opacity:0;">✓</span>
+                </button>`).join('');
+
+            const sheet = document.createElement('div');
+            sheet.style.cssText = 'background:#0D0D0D;border:1px solid rgba(255,255,255,0.08);border-radius:24px 24px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;';
+            sheet.innerHTML = `
+                <div style="width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:99px;margin:0 auto 18px;"></div>
+                <div style="text-align:center;margin-bottom:18px;">
+                    <div style="font-size:2em;">🏃</div>
+                    <h2 style="margin:6px 0 4px;color:white;font-size:1.15em;font-weight:900;">Cardio d'échauffement ?</h2>
+                    <p style="margin:0;color:#94a3b8;font-size:0.78em;line-height:1.5;">Optionnel — élève ta température avant la séance. Choisis l'activité et la durée.</p>
+                </div>
+
+                <div style="font-size:0.6em;color:#22d3ee;font-weight:900;letter-spacing:2px;margin-bottom:8px;">ACTIVITÉ</div>
+                ${optButtons}
+
+                <div style="font-size:0.6em;color:#22d3ee;font-weight:900;letter-spacing:2px;margin:16px 0 8px;">DURÉE</div>
+                <div id="cardioDurationRow" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;">
+                    ${[2,3,5,7,10].map((m,i) => `
+                        <button onclick="_setCardioDuration(${m})" data-dur="${m}" class="cardio-dur-btn" style="
+                            flex:1;min-width:52px;padding:11px 0;border-radius:10px;cursor:pointer;font-weight:800;font-size:0.85em;
+                            background:${m===5?'rgba(34,211,238,0.15)':'rgba(255,255,255,0.04)'};
+                            border:1px solid ${m===5?'#22d3ee':'rgba(255,255,255,0.1)'};
+                            color:${m===5?'#22d3ee':'#94a3b8'};">${m} min</button>`).join('')}
+                </div>
+
+                <button onclick="_confirmCardioWarmup()" id="cardioConfirmBtn" style="width:100%;padding:14px;background:linear-gradient(135deg,#22d3ee,#0891b2);border:none;border-radius:12px;color:white;font-weight:900;font-size:0.95em;cursor:pointer;margin-bottom:8px;box-shadow:0 4px 16px rgba(34,211,238,0.3);opacity:0.5;pointer-events:none;">▶ Ajouter le cardio</button>
+                <button onclick="_skipCardioWarmup()" style="width:100%;padding:13px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:12px;color:#94a3b8;font-weight:700;cursor:pointer;">Passer — démarrer directement</button>`;
+            overlay.appendChild(sheet);
+            document.body.appendChild(overlay);
+
+            // État de sélection
+            window._cardioWarmupState = { optionIdx: null, duration: 5, options };
+        }
+
+        function _selectCardioWarmup(idx) {
+            const st = window._cardioWarmupState;
+            if (!st) return;
+            st.optionIdx = idx;
+            document.querySelectorAll('.cardio-warmup-opt').forEach((btn, i) => {
+                const sel = i === idx;
+                btn.style.background = sel ? 'rgba(34,211,238,0.15)' : 'rgba(34,211,238,0.06)';
+                btn.style.borderColor = sel ? '#22d3ee' : 'rgba(34,211,238,0.25)';
+                const chk = btn.querySelector('.cardio-check');
+                if (chk) chk.style.opacity = sel ? '1' : '0';
+            });
+            const confirmBtn = document.getElementById('cardioConfirmBtn');
+            if (confirmBtn) { confirmBtn.style.opacity = '1'; confirmBtn.style.pointerEvents = 'auto'; }
+        }
+        window._selectCardioWarmup = _selectCardioWarmup;
+
+        function _setCardioDuration(min) {
+            const st = window._cardioWarmupState;
+            if (!st) return;
+            st.duration = min;
+            document.querySelectorAll('.cardio-dur-btn').forEach(btn => {
+                const sel = parseInt(btn.dataset.dur) === min;
+                btn.style.background = sel ? 'rgba(34,211,238,0.15)' : 'rgba(255,255,255,0.04)';
+                btn.style.borderColor = sel ? '#22d3ee' : 'rgba(255,255,255,0.1)';
+                btn.style.color = sel ? '#22d3ee' : '#94a3b8';
+            });
+        }
+        window._setCardioDuration = _setCardioDuration;
+
+        function _confirmCardioWarmup() {
+            const st = window._cardioWarmupState;
+            if (!st || st.optionIdx === null) return;
+            const opt = st.options[st.optionIdx];
+            const durationSec = st.duration * 60;
+            // Construire l'exercice cardio
+            const cardioEx = {
+                name: opt.name,
+                muscle: 'Cardio',
+                mode: 'timer',
+                duration: durationSec,
+                sets: 1,
+                type: 'warmup',
+                equipment: opt.equip ? [opt.equip] : ['Poids du corps'],
+                instructions: [`${st.duration} minutes de ${opt.name.toLowerCase()}`, 'Rythme progressif et régulier', 'Élève ta fréquence cardiaque en douceur'],
+                _isCardioWarmup: true
+            };
+            document.getElementById('cardioWarmupOverlay')?.remove();
+            const cb = _pendingCardioCallback;
+            _pendingCardioCallback = null;
+            if (cb) cb(cardioEx);
+        }
+        window._confirmCardioWarmup = _confirmCardioWarmup;
+
+        function _skipCardioWarmup() {
+            document.getElementById('cardioWarmupOverlay')?.remove();
+            const cb = _pendingCardioCallback;
+            _pendingCardioCallback = null;
+            if (cb) cb(null);
+        }
+        window._skipCardioWarmup = _skipCardioWarmup;
+        window.proposeCardioWarmup = proposeCardioWarmup;
