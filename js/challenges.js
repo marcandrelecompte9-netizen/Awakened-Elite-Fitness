@@ -639,6 +639,22 @@ function getActivePenalties() {
     } catch(e) { return []; }
 }
 function addPenalty(penaltyData) {
+    // 🌳 COMPÉTENCES : esquive / réduction des pénalités de défi
+    try {
+        const sk = (typeof rpgGetActiveEffects === 'function') ? rpgGetActiveEffects() : {};
+        // penaltyDodge : chance d'éviter complètement la pénalité
+        if (sk.penaltyDodge && Math.random() < sk.penaltyDodge) {
+            if (typeof showToast === 'function') showToast('💨 Pénalité esquivée grâce à ta compétence !', 'success', 2800);
+            return;
+        }
+        // penaltyReduction : réduit l'intensité de la pénalité (XP perdue, durée)
+        if (sk.penaltyReduction && penaltyData) {
+            const r = Math.min(0.8, sk.penaltyReduction);
+            if (typeof penaltyData.xpLoss === 'number') penaltyData.xpLoss = Math.round(penaltyData.xpLoss * (1 - r));
+            if (typeof penaltyData.value === 'number')  penaltyData.value  = penaltyData.value * (1 - r);
+            if (typeof penaltyData.durationDays === 'number') penaltyData.durationDays = Math.max(1, Math.round(penaltyData.durationDays * (1 - r)));
+        }
+    } catch(e) {}
     const penalties = getActivePenalties();
     penalties.push(penaltyData);
     localStorage.setItem(CHALLENGE_STORAGE.penalties, JSON.stringify(penalties));

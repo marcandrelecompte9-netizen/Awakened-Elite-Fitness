@@ -238,9 +238,19 @@ function getSetBonuses() {
 function getPlayerEquipStats() {
     const eqItems = getEquippedItems(), setBonuses = getSetBonuses();
     const stats = { STR:0, AGI:0, VIT:0, END:0, PER:0, SEN:0 };
+    // 🌳 COMPÉTENCE equipPenaltyReduction (Peau de Fer) : atténue les stats négatives des équipements
+    let _penaltyRed = 0;
+    try {
+        const sk = (typeof rpgGetActiveEffects === 'function') ? rpgGetActiveEffects() : {};
+        _penaltyRed = Math.min(0.9, sk.equipPenaltyReduction || 0);
+    } catch(e) {}
     for (const item of Object.values(eqItems)) {
         if (!item) continue;
-        for (const [s,v] of Object.entries(item.stats||{})) stats[s] = (stats[s]||0)+v;
+        for (const [s,v] of Object.entries(item.stats||{})) {
+            let val = v;
+            if (val < 0 && _penaltyRed > 0) val = Math.ceil(val * (1 - _penaltyRed)); // malus réduit
+            stats[s] = (stats[s]||0)+val;
+        }
     }
     // ☠️ MALÉDICTION disableOtherPassives : annule les bonus de set
     let _disablePassives = false;
@@ -362,6 +372,9 @@ function getActiveRingEffects() {
         recovery: 0,    // -% temps de récupération musculaire
         questXp: 0,     // +% XP des quêtes
         firstShield: false, // encaisse le 1er coup
+        compFailReduce: 0,  // -% risque d'échec missions compagnons
+        compSpeed: 0,       // -% durée missions compagnons
+        compStamina: 0,     // +% récup endurance compagnons
         labels: []
     };
     for (const item of Object.values(eqItems)) {
@@ -379,6 +392,14 @@ function getActiveRingEffects() {
             case 'recovery':    eff.recovery   += e.value; break;
             case 'questXp':     eff.questXp    += e.value; break;
             case 'firstShield': eff.firstShield = true; break;
+            case 'compFailReduce': eff.compFailReduce += e.value; break;
+            case 'compSpeed':      eff.compSpeed      += e.value; break;
+            case 'compStamina':    eff.compStamina    += e.value; break;
+            case 'compAll':
+                eff.compFailReduce += e.value;
+                eff.compSpeed      += e.value;
+                eff.compStamina    += e.value;
+                break;
         }
         if (e.label) eff.labels.push(e.label);
     }
@@ -526,11 +547,31 @@ function tryEquipmentDrop(muscle, workoutQuality) {
         if (roll <= cumul) { rarity = rarityOrder[i]; break; }
     }
 
+    // 🌳 COMPÉTENCES : amélioration de rareté selon les skills débloqués
+    try {
+        const sk = (typeof rpgGetActiveEffects === 'function') ? rpgGetActiveEffects() : {};
+        // epicDropBonus : chance de promouvoir un drop rare/superior vers épique
+        if (sk.epicDropBonus && (rarity === 'rare' || rarity === 'superior') && Math.random() < sk.epicDropBonus) {
+            rarity = 'epic';
+        }
+        // legendaryDropBonus : chance de promouvoir un épique vers légendaire
+        if (sk.legendaryDropBonus && rarity === 'epic' && Math.random() < sk.legendaryDropBonus) {
+            rarity = 'legendary';
+        }
+        // epicToLegendary : un drop épique devient légendaire
+        if (sk.epicToLegendary && rarity === 'epic' && Math.random() < sk.epicToLegendary) {
+            rarity = 'legendary';
+        }
+    } catch(e) {}
+
     // ── Sélection de l'item ──────────────────────────────────────────
-    const candidates = EQUIPMENT_DATABASE.filter(i =>
+    // Les items 'riftOnly' ne droppent QUE dans les Failles (pas en séance normale).
+    const allowRiftOnly = (typeof arguments !== 'undefined' && arguments.length > 0 && arguments[arguments.length-1] === 'rift');
+    const dbPool = EQUIPMENT_DATABASE.filter(i => allowRiftOnly ? true : !i.riftOnly);
+    const candidates = dbPool.filter(i =>
         i.rarity === rarity && (i.muscle === muscle || i.muscle === 'Corps entier')
     );
-    const pool = candidates.length > 0 ? candidates : EQUIPMENT_DATABASE.filter(i => i.rarity === rarity);
+    const pool = candidates.length > 0 ? candidates : dbPool.filter(i => i.rarity === rarity);
     if (!pool.length) return null;
 
     const item = pool[Math.floor(Math.random() * pool.length)];
@@ -1017,11 +1058,18 @@ function showItemPopup(item, invId, equippedSlot) {
                 </div>` : ''}
 
                 <!-- 💍 Effet d'anneau -->
-                ${item.ringEffect ? `
-                <div style="background:rgba(34,211,238,0.08);border:1px solid rgba(34,211,238,0.3);border-radius:10px;padding:10px 12px;margin-bottom:12px;">
-                    <div style="font-size:0.58em;color:#22d3ee;font-weight:900;letter-spacing:2px;margin-bottom:4px;">💍 EFFET D'ANNEAU</div>
-                    <div style="font-size:0.85em;color:#67e8f9;line-height:1.4;font-weight:800;">${item.ringEffect.label}</div>
-                </div>` : ''}
+                ${item.ringEffect ? (() => {
+                    const isCmd = ['compFailReduce','compSpeed','compStamina','compAll'].includes(item.ringEffect.type);
+                    const ec = isCmd ? '#f5b942' : '#22d3ee';
+                    const ecLight = isCmd ? '#fcd34d' : '#67e8f9';
+                    const ecBg = isCmd ? 'rgba(245,185,66,0.10)' : 'rgba(34,211,238,0.08)';
+                    const ecBd = isCmd ? 'rgba(245,185,66,0.4)' : 'rgba(34,211,238,0.3)';
+                    const label = isCmd ? '👑 ANNEAU DE COMMANDEMENT' : '💍 EFFET D\'ANNEAU';
+                    return `<div style="background:${ecBg};border:1px solid ${ecBd};border-radius:10px;padding:10px 12px;margin-bottom:12px;">
+                        <div style="font-size:0.58em;color:${ec};font-weight:900;letter-spacing:2px;margin-bottom:4px;">${label}</div>
+                        <div style="font-size:0.85em;color:${ecLight};line-height:1.4;font-weight:800;">${item.ringEffect.label}</div>
+                    </div>`;
+                })() : ''}
 
                 <!-- Stats -->
                 ${stats.length > 0 ? `
@@ -1549,11 +1597,18 @@ function showRPGEquipmentModal(defaultTab) {
                     <div style="font-size:0.52em;color:#22c55e;font-weight:800;letter-spacing:1px;">⚡ PASSIF</div>
                     <div style="font-size:0.62em;color:#4ade80;line-height:1.35;">${selectedItem.passive}</div>
                 </div>` : ''}
-            ${selectedItem.ringEffect ? `
-                <div style="background:rgba(34,211,238,0.08);border:1px solid rgba(34,211,238,0.3);border-radius:6px;padding:5px 8px;margin-bottom:6px;">
-                    <div style="font-size:0.52em;color:#22d3ee;font-weight:800;letter-spacing:1px;">💍 EFFET D'ANNEAU</div>
-                    <div style="font-size:0.64em;color:#67e8f9;line-height:1.35;font-weight:700;">${selectedItem.ringEffect.label}</div>
-                </div>` : ''}
+            ${selectedItem.ringEffect ? (() => {
+                const isCmd = ['compFailReduce','compSpeed','compStamina','compAll'].includes(selectedItem.ringEffect.type);
+                const ec = isCmd ? '#f5b942' : '#22d3ee';
+                const ecLight = isCmd ? '#fcd34d' : '#67e8f9';
+                const ecBg = isCmd ? 'rgba(245,185,66,0.10)' : 'rgba(34,211,238,0.08)';
+                const ecBd = isCmd ? 'rgba(245,185,66,0.4)' : 'rgba(34,211,238,0.3)';
+                const label = isCmd ? '👑 COMMANDEMENT' : '💍 EFFET D\'ANNEAU';
+                return `<div style="background:${ecBg};border:1px solid ${ecBd};border-radius:6px;padding:5px 8px;margin-bottom:6px;">
+                    <div style="font-size:0.52em;color:${ec};font-weight:800;letter-spacing:1px;">${label}</div>
+                    <div style="font-size:0.64em;color:${ecLight};line-height:1.35;font-weight:700;">${selectedItem.ringEffect.label}</div>
+                </div>`;
+            })() : ''}
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px;margin-bottom:8px;">
                 ${Object.entries(selectedItem.stats||{}).filter(([_,v]) => v !== 0).map(([k,v]) => `
                     <div style="background:#0a0e18;border:1px solid ${v<0?'rgba(239,68,68,0.25)':'rgba(255,255,255,0.04)'};border-radius:5px;padding:3px;text-align:center;">

@@ -840,7 +840,7 @@ function _getPlaceholderSVG() {
 // Crée un <img> en lazy loading
 function _buildLazyImg(src, name, extraStyle) {
   // Lazy loading natif du navigateur — fiable et simple
-  var baseStyle = 'width:100%;height:100%;object-fit:cover;display:block;background:#0d1220;' + (extraStyle || '');
+  var baseStyle = 'width:100%;height:100%;object-fit:contain;display:block;background:#0d1220;' + (extraStyle || '');
   var safeName = (name || '').replace(/"/g, '&quot;');
   // Encoder l'URL pour les caractères spéciaux (é, è, à, etc.) — encode chaque segment de path
   var safeSrc = src.split('/').map(function(seg, i) {
@@ -851,7 +851,7 @@ function _buildLazyImg(src, name, extraStyle) {
 }
 
 function toImgHTML(src, name) {
-  return '<img src="'+src+'" alt="'+name+'" style="width:220px;height:220px;object-fit:cover;border-radius:12px;display:block;" loading="lazy"/>';
+  return '<img src="'+src+'" alt="'+name+'" style="width:220px;height:220px;object-fit:contain;background:#0a0e18;border-radius:12px;display:block;" loading="lazy"/>';
 }
 
 // ── MAIN DISPATCHER — couvre les 436 exercices ───────────────────────

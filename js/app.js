@@ -11672,6 +11672,11 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         // ========== WORKOUT HISTORY ==========
         function saveWorkoutToHistory(workout, duration) {
             const history = getWorkoutHistory();
+
+            // 💪 Les compagnons récupèrent de l'endurance quand le joueur s'entraîne
+            try { if (typeof awakCompanionsRecoverFromWorkout === 'function') awakCompanionsRecoverFromWorkout(); } catch(e) {}
+            // 👁️ Le Monarque du Déclin recule quand le joueur s'entraîne
+            try { if (typeof awakMonarchOnWorkout === 'function') awakMonarchOnWorkout(); } catch(e) {}
             
             // Ensure duration is in minutes - convert if in seconds
             let durationInMinutes;
@@ -19923,7 +19928,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 }
                 // Contenu visuel
                 if (_imgSrc3) {
-                    visualContent.innerHTML = '<div style="width:100%;max-width:480px;aspect-ratio:1.21;border-radius:10px;overflow:hidden;background:#000;">' + window.buildLazyImg(_imgSrc3, exerciseName, 'border-radius:10px;width:100%;height:100%;object-fit:cover;') + '</div>';
+                    visualContent.innerHTML = '<div style="width:100%;max-width:480px;aspect-ratio:1.21;border-radius:10px;overflow:hidden;background:#0a0e18;">' + window.buildLazyImg(_imgSrc3, exerciseName, 'border-radius:10px;width:100%;height:100%;object-fit:contain;') + '</div>';
                 } else {
                     visualContent.innerHTML = `
                     <div style="display:flex;gap:12px;align-items:center;justify-content:center;width:100%;flex-wrap:wrap;">
@@ -21617,6 +21622,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const tab = $el('gameTab');
             if (!tab) return;
 
+            // 🎭 Finaliser les missions de compagnons terminées
+            try { if (typeof awakCheckCompanionMissions === 'function') awakCheckCompanionMissions(); } catch(e) {}
+
             // Always append adventure container regardless of RPG mode
             _appendAdventureContainer();
 
@@ -21675,6 +21683,30 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             // RENDU — on vide et reconstruit
             // ══════════════════════════════════════════════════════════
             tab.innerHTML = '';
+
+            // ── ⚙️ MESSAGE VIVANT DU SYSTÈME ───────────────────────────
+            try {
+                const sysMsg = typeof awakGetSystemMessage === 'function' ? awakGetSystemMessage() : null;
+                if (sysMsg) {
+                    const toneColors = {
+                        good:    { c:'#4ade80', bg:'rgba(74,222,128,0.08)', bd:'rgba(74,222,128,0.3)' },
+                        warn:    { c:'#f59e0b', bg:'rgba(245,158,11,0.08)', bd:'rgba(245,158,11,0.3)' },
+                        neutral: { c:'#22d3ee', bg:'rgba(34,211,238,0.07)', bd:'rgba(34,211,238,0.28)' }
+                    };
+                    const tc = toneColors[sysMsg.tone] || toneColors.neutral;
+                    const cardSys = document.createElement('div');
+                    cardSys.style.cssText = 'margin-bottom:12px;';
+                    cardSys.innerHTML = `
+                        <div style="background:${tc.bg};border:1px solid ${tc.bd};border-left:3px solid ${tc.c};border-radius:10px;padding:11px 14px;display:flex;align-items:flex-start;gap:10px;">
+                            <span style="font-size:0.9em;flex-shrink:0;color:${tc.c};font-weight:900;letter-spacing:1px;">⚙</span>
+                            <div style="flex:1;min-width:0;">
+                                <div style="font-size:0.52em;color:${tc.c};font-weight:900;letter-spacing:2px;margin-bottom:3px;">SYSTÈME</div>
+                                <div style="font-size:0.8em;color:#cbd5e1;line-height:1.45;font-style:italic;">${sysMsg.text}</div>
+                            </div>
+                        </div>`;
+                    tab.appendChild(cardSys);
+                }
+            } catch(e) {}
 
             // ── 1. CARTE PROFIL FUSIONNÉE (Profil + AWAKENED ANCRAGE) ──
             const cardProfile = document.createElement('div');
@@ -21821,6 +21853,43 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 })()}`;
             tab.appendChild(cardProfile);
 
+            // ── 👁️ JAUGE DU MONARQUE DU DÉCLIN (arc antagoniste) ───────
+            try {
+                const mPower = typeof awakGetMonarchPower === 'function' ? awakGetMonarchPower() : 0;
+                if (mPower > 0) {
+                    let mState, mColor, mMsg;
+                    if (mPower >= 80) {
+                        mState = 'MENACE IMMINENTE'; mColor = '#ef4444';
+                        mMsg = "Le Monarque du Déclin est à son apogée. Reprends l'entraînement avant qu'il ne te dépasse.";
+                    } else if (mPower >= 50) {
+                        mState = 'EN ÉVEIL'; mColor = '#f59e0b';
+                        mMsg = "Le Monarque gagne en puissance dans ton absence. Ne le laisse pas grandir.";
+                    } else {
+                        mState = 'TAPI DANS L\'OMBRE'; mColor = '#a855f7';
+                        mMsg = "Le Monarque du Déclin observe. Chaque séance le repousse.";
+                    }
+                    const cardMonarch = document.createElement('div');
+                    cardMonarch.style.cssText = 'margin-bottom:12px;';
+                    cardMonarch.innerHTML = `
+                        <div style="background:linear-gradient(135deg,${mColor}1a,rgba(10,14,24,0.6));border:1px solid ${mColor}50;border-radius:14px;padding:14px 16px;position:relative;overflow:hidden;">
+                            <div style="position:absolute;top:0;right:0;font-size:3.5em;opacity:0.08;line-height:1;padding:6px;">👁️</div>
+                            <div style="display:flex;align-items:center;gap:9px;margin-bottom:9px;">
+                                <span style="font-size:1.2em;">👁️</span>
+                                <div style="flex:1;">
+                                    <div style="font-weight:900;color:#e2e8f0;font-size:0.85em;">Le Monarque du Déclin</div>
+                                    <div style="font-size:0.58em;color:${mColor};font-weight:900;letter-spacing:1.5px;margin-top:1px;">${mState}</div>
+                                </div>
+                                <div style="font-size:1.1em;font-weight:900;color:${mColor};">${mPower}%</div>
+                            </div>
+                            <div style="background:rgba(0,0,0,0.4);border-radius:99px;height:7px;overflow:hidden;margin-bottom:8px;">
+                                <div style="height:100%;width:${mPower}%;background:linear-gradient(90deg,${mColor}aa,${mColor});border-radius:99px;transition:width 0.6s;box-shadow:0 0 8px ${mColor}80;"></div>
+                            </div>
+                            <div style="font-size:0.68em;color:#94a3b8;line-height:1.45;font-style:italic;">${mMsg}</div>
+                        </div>`;
+                    tab.appendChild(cardMonarch);
+                }
+            } catch(e) {}
+
             // ── 📖 BOUTON JOURNAL DU CHASSEUR (narratif) ───────────────
             const cardStory = document.createElement('div');
             cardStory.style.cssText = 'margin-bottom:4px;';
@@ -21858,6 +21927,94 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     <div style="font-size:1.4em;color:#c084fc;flex-shrink:0;">›</div>
                 </button>`;
             tab.appendChild(cardStory);
+
+            // ── ⚠️ BOUTON MALUS ACTIFS ─────────────────────────────────
+            try {
+                const malusCount = typeof awakCountActiveMalus === 'function' ? awakCountActiveMalus() : 0;
+                const cardMalus = document.createElement('div');
+                cardMalus.style.cssText = 'margin-bottom:4px;';
+                const mColor = malusCount > 0 ? '#ef4444' : '#475569';
+                cardMalus.innerHTML = `
+                    <button onclick="showActiveMalusScreen()" style="
+                        width:100%;padding:14px 16px;margin-top:4px;
+                        background:${malusCount > 0 ? 'linear-gradient(135deg,rgba(239,68,68,0.14),rgba(239,68,68,0.05))' : 'rgba(255,255,255,0.03)'};
+                        border:1.5px solid ${malusCount > 0 ? 'rgba(239,68,68,0.4)' : 'rgba(255,255,255,0.1)'};border-radius:14px;color:white;
+                        cursor:pointer;text-align:left;display:flex;align-items:center;gap:13px;">
+                        <div style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:11px;background:${malusCount > 0 ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.05)'};border:1px solid ${malusCount > 0 ? 'rgba(239,68,68,0.4)' : 'rgba(255,255,255,0.1)'};font-size:1.3em;">⚠️</div>
+                        <div style="flex:1;min-width:0;">
+                            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                                <span style="font-weight:900;font-size:0.95em;color:#e2e8f0;">Malus actifs</span>
+                                ${malusCount > 0 ? `<span style="background:#ef4444;color:white;font-size:0.6em;font-weight:900;padding:3px 8px;border-radius:99px;">${malusCount}</span>` : ''}
+                            </div>
+                            <div style="font-size:0.68em;color:#94a3b8;margin-top:3px;line-height:1.4;">${malusCount > 0 ? 'Malédictions, pénalités et handicaps en cours' : 'Aucun malus — tu es en pleine forme'}</div>
+                        </div>
+                        <div style="font-size:1.4em;color:${mColor};flex-shrink:0;">›</div>
+                    </button>`;
+                tab.appendChild(cardMalus);
+            } catch(e) {}
+
+            // ── 🎭 BANDEAU MISSION DE COMPAGNONS EN COURS ──────────────
+            try {
+                const mission = typeof awakGetOngoingMission === 'function' ? awakGetOngoingMission() : null;
+                if (mission) {
+                    const remaining = Math.max(0, mission.endsAt - Date.now());
+                    const hrs = remaining / 3600000;
+                    const remTxt = hrs >= 1 ? `${hrs.toFixed(1)} h` : `${Math.max(1, Math.round(hrs*60))} min`;
+                    const compNames = (mission.companions || []).map(id => {
+                        const c = typeof awakGetCompanionById === 'function' ? awakGetCompanionById(id) : null;
+                        return c ? (c.emoji || '') + ' ' + c.name : '';
+                    }).filter(Boolean).join(', ');
+                    const progress = Math.min(100, Math.round(((Date.now() - mission.startedAt) / (mission.endsAt - mission.startedAt)) * 100));
+                    const cardMission = document.createElement('div');
+                    cardMission.style.cssText = 'margin-bottom:4px;';
+                    cardMission.innerHTML = `
+                        <div style="background:linear-gradient(135deg,rgba(168,85,247,0.15),rgba(168,85,247,0.05));border:1.5px solid rgba(168,85,247,0.45);border-radius:14px;padding:14px 16px;margin-top:4px;">
+                            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                                <div style="font-size:1.4em;animation:skillPulse 1.8s ease-in-out infinite;">🎭</div>
+                                <div style="flex:1;min-width:0;">
+                                    <div style="font-weight:900;color:#e2e8f0;font-size:0.9em;">Mission en cours</div>
+                                    <div style="font-size:0.7em;color:#c084fc;margin-top:1px;">Faille « ${mission.riftName} » · retour dans ${remTxt}</div>
+                                </div>
+                            </div>
+                            <div style="background:rgba(0,0,0,0.3);border-radius:99px;height:6px;overflow:hidden;">
+                                <div style="height:100%;width:${progress}%;background:linear-gradient(90deg,#a855f7,#c084fc);border-radius:99px;transition:width 0.5s;"></div>
+                            </div>
+                            ${compNames ? `<div style="font-size:0.62em;color:#94a3b8;margin-top:7px;">⚔ ${compNames}</div>` : ''}
+                        </div>`;
+                    tab.appendChild(cardMission);
+                }
+            } catch(e) {}
+
+            // ── 🩸 BANDEAU COMPAGNONS BLESSÉS ──────────────────────────
+            try {
+                const injuredIds = typeof awakGetInjuredCompanionIds === 'function' ? awakGetInjuredCompanionIds() : [];
+                if (injuredIds.length > 0) {
+                    const rows = injuredIds.map(id => {
+                        const c = typeof awakGetCompanionById === 'function' ? awakGetCompanionById(id) : null;
+                        if (!c) return '';
+                        const rem = typeof awakCompanionInjuryRemaining === 'function' ? awakCompanionInjuryRemaining(id) : 0;
+                        const days = Math.floor(rem / 86400000);
+                        const hours = Math.floor((rem % 86400000) / 3600000);
+                        const remTxt = days > 0 ? `${days}j ${hours}h` : `${hours}h`;
+                        return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                            <span style="font-size:1em;filter:grayscale(0.6);">${c.emoji}</span>
+                            <span style="font-size:0.78em;color:#cbd5e1;font-weight:700;flex:1;">${c.name}</span>
+                            <span style="font-size:0.68em;color:#f87171;font-weight:700;">rétabli dans ${remTxt}</span>
+                        </div>`;
+                    }).filter(Boolean).join('');
+                    const cardInjured = document.createElement('div');
+                    cardInjured.style.cssText = 'margin-bottom:4px;';
+                    cardInjured.innerHTML = `
+                        <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:14px;padding:13px 16px;margin-top:4px;">
+                            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                                <span style="font-size:1.2em;">🩸</span>
+                                <span style="font-weight:900;color:#f87171;font-size:0.85em;">Compagnons en convalescence</span>
+                            </div>
+                            ${rows}
+                        </div>`;
+                    tab.appendChild(cardInjured);
+                }
+            } catch(e) {}
 
             // ── BOUTON ACCÈS RAPIDE ÉQUIPEMENT RPG ───────────────────
             const cardEquipShortcut = document.createElement('div');
@@ -22382,10 +22539,16 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
         // ── Bonus streak ─────────────────────────────────────────────
         function rpgStreakBonus(streak) {
+            // 🌳 COMPÉTENCE streakStart (Seigneur du Streak) : le bonus démarre plus tôt
+            try {
+                const sk = (typeof rpgGetActiveEffects === 'function') ? rpgGetActiveEffects() : {};
+                if (sk.streakStart) streak += (3 - sk.streakStart); // ex: streakStart=2 → +1 jour effectif
+            } catch(e) {}
             if (streak >= 30) return 2.0;
             if (streak >= 14) return 1.5;
             if (streak >= 7)  return 1.25;
             if (streak >= 3)  return 1.1;
+            if (streak >= 2)  return 1.05;
             return 1.0;
         }
 
@@ -22731,7 +22894,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         const SKILL_TREE_BY_CLASS = {
             shadow_assassin: [
                 { id:'sa_shadow_step', name:'Pas de l\'Ombre',         emoji:'👤', desc:'+5 AGI permanent',                                     req:{level:7},  effect:{statBonus:{AGI:5}}, type:'class' },
-                { id:'sa_critical',    name:'Frappe Critique',         emoji:'💥', desc:'10% chance d\'XP doublé sur exercices d\'isolation',  req:{level:11}, effect:{critChance:0.10}, type:'class' },
+                { id:'sa_critical',    name:'Frappe Critique',         emoji:'💥', desc:'+10% chance de critique en Faille',  req:{level:11}, effect:{critChance:0.10}, type:'class' },
                 { id:'sa_silent_hunt', name:'Chasse Silencieuse',      emoji:'🌑', desc:'+20% chance de drop épique',                            req:{level:15}, effect:{epicDropBonus:0.20}, type:'class' },
                 { id:'sa_phantom',     name:'Marche Fantôme',          emoji:'💨', desc:'Esquive 15% des pénalités de défi échoué',              req:{level:20}, effect:{penaltyDodge:0.15}, type:'class' },
                 { id:'sa_assassinate', name:'Assassinat',              emoji:'🗡️', desc:'15% chance de drop épique → drop légendaire',           req:{level:25}, effect:{epicToLegendary:0.15}, type:'class' },
@@ -22739,34 +22902,34 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             ],
             iron_berserker: [
                 { id:'ib_bloodlust',   name:'Soif de Sang',            emoji:'🩸', desc:'+5 STR permanent',                                      req:{level:7},  effect:{statBonus:{STR:5}}, type:'class' },
-                { id:'ib_overpower',   name:'Force Brute',             emoji:'💪', desc:'+30% XP sur les exercices de force pure',               req:{level:11}, effect:{xpHeavy:0.30}, type:'class' },
+                { id:'ib_overpower',   name:'Force Brute',             emoji:'💪', desc:'+30% XP sur les exercices de force pure',               req:{level:11}, effect:{xpCompound:0.30}, type:'class' },
                 { id:'ib_iron_skin',   name:'Peau de Fer',             emoji:'🛡️', desc:'-25% pénalités stats sur tes équipements',              req:{level:15}, effect:{equipPenaltyReduction:0.25}, type:'class' },
                 { id:'ib_rampage',     name:'Saccage',                 emoji:'⚒️', desc:'5% chance de tripler l\'XP d\'une série',             req:{level:20}, effect:{rampageChance:0.05}, type:'class' },
-                { id:'ib_immortal',    name:'Cœur Immortel',           emoji:'❤️\u200d🔥', desc:'Immunité totale à xp_curse',                    req:{level:25}, effect:{immuneXPCurse:true}, type:'class' },
+                { id:'ib_immortal',    name:'Cœur Immortel',           emoji:'❤️\u200d🔥', desc:'+8 END permanent (cœur indestructible)', req:{level:25}, effect:{statBonus:{END:8}}, type:'class' },
                 { id:'ib_war_god',     name:'Dieu de la Guerre',       emoji:'👹', desc:'+12 STR · +6 END · 10% chance de doubler XP',          req:{level:32}, effect:{statBonus:{STR:12,END:6},doubleXPChance:0.10}, type:'class' },
             ],
             titan_guardian: [
                 { id:'tg_unbreakable', name:'Inébranlable',            emoji:'🏔️', desc:'+5 VIT permanent',                                      req:{level:7},  effect:{statBonus:{VIT:5}}, type:'class' },
-                { id:'tg_endurance',   name:'Endurance Légendaire',    emoji:'💚', desc:'+30% XP sur séances >45 min',                           req:{level:11}, effect:{xpLongSession:0.30}, type:'class' },
+                { id:'tg_endurance',   name:'Endurance Légendaire',    emoji:'💚', desc:'+15% XP global (endurance)', req:{level:11}, effect:{xpAll:0.15}, type:'class' },
                 { id:'tg_fortress',    name:'Forteresse Vivante',      emoji:'🏰', desc:'-35% pénalités de défi échoué',                         req:{level:15}, effect:{penaltyReduction:0.35}, type:'class' },
-                { id:'tg_regen',       name:'Régénération',            emoji:'💖', desc:'Récupère 1 niveau de muscle perdu / semaine',           req:{level:20}, effect:{weeklyRegen:1}, type:'class' },
+                { id:'tg_regen',       name:'Régénération',            emoji:'💖', desc:'+6 VIT · +2 jours avant le déclin', req:{level:20}, effect:{statBonus:{VIT:6},graceExtend:2}, type:'class' },
                 { id:'tg_aegis',       name:'Égide du Titan',          emoji:'🛡️', desc:'Immunité totale à muscle_decay',                        req:{level:25}, effect:{immuneMuscleDecay:true}, type:'class' },
                 { id:'tg_atlas',       name:'Force d\'Atlas',          emoji:'🪨', desc:'+10 VIT · +6 END · -50% toutes pénalités',             req:{level:32}, effect:{statBonus:{VIT:10,END:6},penaltyReduction:0.50}, type:'class' },
             ],
             storm_archer: [
                 { id:'as_eagle_eye',   name:'Œil d\'Aigle',            emoji:'👁️', desc:'+5 PER permanent',                                      req:{level:7},  effect:{statBonus:{PER:5}}, type:'class' },
                 { id:'as_precision',   name:'Précision Mortelle',      emoji:'🎯', desc:'+25% XP sur les exercices d\'isolation',                req:{level:11}, effect:{xpIsolation:0.25}, type:'class' },
-                { id:'as_far_sight',   name:'Vision Lointaine',        emoji:'🔭', desc:'Voit les drops +1 niveau supérieur',                    req:{level:15}, effect:{dropReveal:1}, type:'class' },
+                { id:'as_far_sight',   name:'Vision Lointaine',        emoji:'🔭', desc:'+12% chance de loot rare ou mieux', req:{level:15}, effect:{epicDropBonus:0.12}, type:'class' },
                 { id:'as_wind_walker', name:'Marcheur du Vent',        emoji:'💨', desc:'+15% chance de drop épique',                            req:{level:20}, effect:{epicDropBonus:0.15}, type:'class' },
-                { id:'as_omniscient',  name:'Omniscience',             emoji:'👁️\u200d🗨️', desc:'Révèle les stats cachées des items',          req:{level:25}, effect:{revealHiddenStats:true}, type:'class' },
-                { id:'as_system_eye',  name:'Œil du Système',          emoji:'🌀', desc:'+10 PER · +6 AGI · drops +2 niveaux',                   req:{level:32}, effect:{statBonus:{PER:10,AGI:6},dropReveal:2}, type:'class' },
+                { id:'as_omniscient',  name:'Omniscience',             emoji:'👁️\u200d🗨️', desc:'+15% chance de loot épique', req:{level:25}, effect:{epicDropBonus:0.15}, type:'class' },
+                { id:'as_system_eye',  name:'Œil du Système',          emoji:'🌀', desc:'+10 PER · +6 AGI · +20% loot épique', req:{level:32}, effect:{statBonus:{PER:10,AGI:6},epicDropBonus:0.20}, type:'class' },
             ],
             arcane_mage: [
                 { id:'am_meditation',  name:'Méditation',              emoji:'🧘', desc:'+5 SEN permanent',                                      req:{level:7},  effect:{statBonus:{SEN:5}}, type:'class' },
-                { id:'am_mana_flow',   name:'Flux de Mana',            emoji:'💠', desc:'+40% XP sur les exercices techniques',                  req:{level:11}, effect:{xpTechnical:0.40}, type:'class' },
+                { id:'am_mana_flow',   name:'Flux de Mana',            emoji:'💠', desc:'+40% XP sur les exercices techniques',                  req:{level:11}, effect:{xpIsolation:0.40}, type:'class' },
                 { id:'am_arcane_pact', name:'Pacte Arcanique',         emoji:'🔮', desc:'+1 point de stat bonus à chaque niveau',                req:{level:15}, effect:{extraStatPoint:1}, type:'class' },
-                { id:'am_dispel',      name:'Dissipation',             emoji:'✨', desc:'Peut effacer 1 pénalité active / 30 jours',             req:{level:20}, effect:{dispelMonthly:true}, type:'class' },
-                { id:'am_telepathy',   name:'Télépathie Musculaire',   emoji:'🌌', desc:'+30% XP sur mobilité et étirements',                    req:{level:25}, effect:{xpMobility:0.30}, type:'class' },
+                { id:'am_dispel',      name:'Dissipation',             emoji:'✨', desc:'20% chance d\'esquiver une pénalité de défi', req:{level:20}, effect:{penaltyDodge:0.20}, type:'class' },
+                { id:'am_telepathy',   name:'Télépathie Musculaire',   emoji:'🌌', desc:'+15% XP global (mobilité)', req:{level:25}, effect:{xpAll:0.15}, type:'class' },
                 { id:'am_reality_warp',name:'Faille de Réalité',       emoji:'🌠', desc:'+10 SEN · +6 PER · +2 stat points / niveau',           req:{level:32}, effect:{statBonus:{SEN:10,PER:6},extraStatPoint:2}, type:'class' },
             ],
             monarch_aspirant: [
@@ -22814,10 +22977,25 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const unlocked = rpgGetUnlockedSkills();
             const effects = {};
             SKILL_TREE.filter(s=>unlocked.includes(s.id)).forEach(s => {
-                Object.assign(effects, s.effect);
+                for (const [key, val] of Object.entries(s.effect || {})) {
+                    if (key === 'statBonus' && typeof val === 'object') {
+                        // Additionner les bonus de stats (ne pas écraser)
+                        effects.statBonus = effects.statBonus || {};
+                        for (const [stat, amt] of Object.entries(val)) {
+                            effects.statBonus[stat] = (effects.statBonus[stat] || 0) + amt;
+                        }
+                    } else if (typeof val === 'number') {
+                        // Additionner les effets numériques (xpAll, critChance, etc.)
+                        effects[key] = (effects[key] || 0) + val;
+                    } else {
+                        // Booléens et autres : prendre la valeur
+                        effects[key] = val;
+                    }
+                }
             });
             return effects;
         }
+        window.rpgGetActiveEffects = rpgGetActiveEffects;
 
         // ── PRESTIGE ─────────────────────────────────────────────────
         function rpgGetPrestigeLevel() {
@@ -22922,7 +23100,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const lastLevel = sp.lastLevel || 1;
             if (currentProfileLevel > lastLevel) {
                 const levelsGained = currentProfileLevel - lastLevel;
-                const pointsGained = levelsGained * STAT_POINTS_PER_LEVEL;
+                // 🌳 COMPÉTENCE extraStatPoint (Pacte Arcanique / Faille de Réalité) : points bonus par niveau
+                const _sk = (typeof rpgGetActiveEffects === 'function') ? rpgGetActiveEffects() : {};
+                const perLevel = STAT_POINTS_PER_LEVEL + (_sk.extraStatPoint || 0);
+                const pointsGained = levelsGained * perLevel;
                 sp.available += pointsGained;
                 sp.lastLevel = currentProfileLevel;
                 statPointsSave(sp);
@@ -24091,6 +24272,33 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         <button onclick="document.getElementById('awakRiftBriefingModal').remove()" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;border-radius:11px;padding:14px;font-weight:800;font-size:0.85em;cursor:pointer;">↩ Plus tard</button>
                         <button onclick="awakStartRift('${rift.id}')" style="flex:2;background:linear-gradient(135deg,${theme.color},${theme.color}dd);border:none;color:white;border-radius:11px;padding:14px;font-weight:900;font-size:0.9em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${theme.color}40;">⚔ ENTRER</button>
                     </div>
+                    ${(() => {
+                        const check = typeof awakCanDelegateRift === 'function' ? awakCanDelegateRift(rift) : {ok:false};
+                        const dur = typeof awakCompanionMissionDuration === 'function' ? awakCompanionMissionDuration(rift.rank) : 0;
+                        const hrs = dur/3600000;
+                        const durTxt = hrs >= 1 ? `${hrs.toFixed(1)} h` : `${Math.round(hrs*60)} min`;
+                        if (check.ok) {
+                            const failPct = typeof awakCompanionMissionFailChance === 'function' ? Math.round(awakCompanionMissionFailChance(rift.rank)*100) : 0;
+                            const riskColor = failPct >= 40 ? '#ef4444' : (failPct >= 20 ? '#f59e0b' : '#4ade80');
+                            const nActive = typeof awakCompanionsGetActive === 'function' ? awakCompanionsGetActive().length : 0;
+                            const maxActive = (typeof COMPANIONS_MAX_ACTIVE !== 'undefined') ? COMPANIONS_MAX_ACTIVE : 3;
+                            const canAddMore = nActive < maxActive;
+                            const avgStam = typeof awakActiveCompanionsAvgStamina === 'function' ? awakActiveCompanionsAvgStamina() : 100;
+                            const stamColor = avgStam >= 70 ? '#4ade80' : (avgStam >= 35 ? '#f59e0b' : '#ef4444');
+                            const tired = avgStam < 35;
+                            return `<button onclick="awakDelegateRiftToCompanions('${rift.id}')" style="width:100%;margin-top:8px;background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.4);color:#c084fc;border-radius:11px;padding:13px;font-weight:800;font-size:0.82em;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;">
+                                <span>🎭 Envoyer mes compagnons <span style="opacity:0.7;font-weight:600;">(${durTxt}, sans loot)</span></span>
+                                <span style="font-size:0.85em;color:${riskColor};font-weight:700;">⚠ Risque d'échec : ${failPct}% &nbsp;·&nbsp; ${nActive} compagnon${nActive>1?'s':''}</span>
+                                <span style="display:flex;align-items:center;gap:6px;width:100%;max-width:200px;">
+                                    <span style="font-size:0.7em;color:${stamColor};font-weight:700;white-space:nowrap;">💪 ${avgStam}%</span>
+                                    <span style="flex:1;height:5px;background:rgba(0,0,0,0.3);border-radius:99px;overflow:hidden;"><span style="display:block;height:100%;width:${avgStam}%;background:${stamColor};border-radius:99px;"></span></span>
+                                </span>
+                            </button>
+                            ${tired ? `<div style="font-size:0.66em;color:#f87171;text-align:center;margin-top:5px;line-height:1.4;">😮‍💨 Tes compagnons sont fatigués — risque accru. Fais une séance ou laisse-les se reposer.</div>` : (canAddMore ? `<div style="font-size:0.66em;color:#64748b;text-align:center;margin-top:5px;line-height:1.4;">💡 Active plus de compagnons pour réduire le risque</div>` : '')}`;
+                        } else {
+                            return `<div style="width:100%;margin-top:8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);color:#64748b;border-radius:11px;padding:11px;font-size:0.72em;text-align:center;">🎭 Délégation indisponible — ${check.reason}</div>`;
+                        }
+                    })()}
                 </div>
             </div>`;
 
@@ -24601,8 +24809,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             }
 
             // ⚡ AGI : chance critique (×2 dégâts)
-            // critique = bonus AGI + base 5% + bonus compagnons/consumables
-            const critChance = 0.05 + bonuses.critChance + (compBonus.critChance || 0) + (consumEffects.critBonus || 0);
+            // critique = bonus AGI + base 5% + compagnons + consommables + COMPÉTENCE
+            const _skillEff = (typeof rpgGetActiveEffects === 'function') ? rpgGetActiveEffects() : {};
+            const critChance = 0.05 + bonuses.critChance + (compBonus.critChance || 0) + (consumEffects.critBonus || 0) + (_skillEff.critChance || 0);
             const isCrit = Math.random() < critChance;
             if (isCrit) finalDamage *= 2;
 
@@ -24855,6 +25064,35 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 xpReward = Math.round(xpReward * (1 - _curse.xpMalus));
             }
 
+            // ⬥ BUTIN EXCLUSIF DE FAILLE — chance d'obtenir un item riftOnly du rang de la Faille
+            let riftLoot = null;
+            try {
+                if (typeof EQUIPMENT_DATABASE !== 'undefined' && typeof getInventory === 'function') {
+                    // Rareté du butin liée au rang de la Faille (E→common ... S→legendary, avec variance)
+                    const rankToRarity = { E:'common', D:'uncommon', C:'rare', B:'superior', A:'epic', S:'legendary' };
+                    const baseRarity = rankToRarity[rift.rank] || 'common';
+                    const order = ['common','uncommon','rare','superior','epic','legendary'];
+                    const bi = order.indexOf(baseRarity);
+                    // 70% rareté du rang, 20% un cran en dessous, 10% un cran au-dessus
+                    const r2 = Math.random();
+                    let pickRarity = baseRarity;
+                    if (r2 > 0.9 && bi < order.length-1) pickRarity = order[bi+1];
+                    else if (r2 < 0.2 && bi > 0) pickRarity = order[bi-1];
+                    // Chance de drop selon le grade (meilleur grade = plus de chance)
+                    const dropChanceByGrade = { SSS:0.9, SS:0.8, S:0.7, A:0.6, B:0.5, C:0.4, D:0.3, F:0.2 };
+                    if (Math.random() < (dropChanceByGrade[grade] || 0.4)) {
+                        const riftPool = EQUIPMENT_DATABASE.filter(i => i.riftOnly && i.rarity === pickRarity);
+                        if (riftPool.length) {
+                            const won = riftPool[Math.floor(Math.random() * riftPool.length)];
+                            const inv = getInventory();
+                            inv.unshift({ itemId: won.id, obtainedAt: new Date().toISOString(), id: Date.now() });
+                            if (typeof saveInventory === 'function') saveInventory(inv);
+                            riftLoot = won;
+                        }
+                    }
+                }
+            } catch(e) {}
+
             document.getElementById('awakRiftCombatModal')?.remove();
             const modal = document.createElement('div');
             modal.id = 'awakRiftRewardModal';
@@ -24891,6 +25129,20 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                             <span style="color:white;font-weight:900;">${rift.rank}</span>
                         </div>
                     </div>
+
+                    ${riftLoot ? (() => {
+                        const lr = (typeof RARITIES !== 'undefined' && RARITIES[riftLoot.rarity]) ? RARITIES[riftLoot.rarity] : { color:'#a855f7', label:'?' };
+                        return `<div style="margin-top:12px;background:linear-gradient(135deg,${lr.color}1f,${lr.color}0a);border:1.5px solid ${lr.color}66;border-radius:12px;padding:14px;animation:awakFadeIn 0.6s ease 0.3s both;">
+                            <div style="font-size:0.58em;color:${lr.color};font-weight:900;letter-spacing:2px;margin-bottom:8px;">⬥ BUTIN DE FAILLE</div>
+                            <div style="display:flex;align-items:center;gap:11px;">
+                                <div style="font-size:1.8em;filter:drop-shadow(0 0 8px ${lr.color}aa);">${riftLoot.icon}</div>
+                                <div style="flex:1;min-width:0;">
+                                    <div style="font-weight:900;color:white;font-size:0.92em;">${riftLoot.name}</div>
+                                    <div style="font-size:0.68em;color:${lr.color};font-weight:800;">Rareté ${lr.label} · exclusif Faille</div>
+                                </div>
+                            </div>
+                        </div>`;
+                    })() : ''}
 
                     <!-- Message Système -->
                     <div style="margin-top:14px;padding:12px 14px;background:rgba(74,222,128,0.08);border-left:3px solid #4ade80;border-radius:8px;">
@@ -26998,12 +27250,13 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const rankIdx = ['E','D','C','B','A','S','SS','SSS'].indexOf(wave.rank || 'E');
             let baseDmg, variance;
             if (isBoss) {
-                baseDmg = 8 + rankIdx * 3;
-                variance = Math.floor(Math.random() * 6);
+                // Boss : dégâts renforcés pour un vrai danger en fin de Faille
+                baseDmg = 14 + rankIdx * 5;
+                variance = Math.floor(Math.random() * 8);
             } else {
-                // Monstres normaux : dégâts plus modestes
-                baseDmg = 4 + rankIdx * 2;
-                variance = Math.floor(Math.random() * 4);
+                // Monstres normaux : dégâts modérés mais sensibles
+                baseDmg = 7 + rankIdx * 3;
+                variance = Math.floor(Math.random() * 5);
             }
             const dmg = baseDmg + variance;
 
@@ -27128,7 +27381,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             modal.style.cssText = 'background:rgba(0,0,0,0.92);backdrop-filter:blur(10px);';
 
             modal.innerHTML = `
-            <div class="modal-content" style="max-width:400px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${item.color}50;padding:0;overflow:hidden;border-radius:20px;">
+            <div class="modal-content" style="max-width:400px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${item.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <div style="background:linear-gradient(135deg,${item.color}25,${item.color}05);padding:24px 22px;text-align:center;border-bottom:1px solid ${item.color}30;">
                     <div style="font-size:3.5em;line-height:1;margin-bottom:8px;filter:drop-shadow(0 0 14px ${item.color}b0);">${item.emoji}</div>
                     <h2 style="margin:0;color:white;font-size:1.2em;font-weight:900;">${item.name}</h2>
@@ -27382,6 +27635,15 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const effects = rpgGetActiveEffects();
             if (effects.xpAll) mult += effects.xpAll;
             if (effects.xpCompound && exerciseType === 'compound') mult += effects.xpCompound;
+            if (effects.xpIsolation && exerciseType === 'isolation') mult += effects.xpIsolation;
+            // 🎲 doubleXPChance : chance de doubler l'XP de la série
+            if (effects.doubleXPChance && Math.random() < effects.doubleXPChance) {
+                mult *= 2;
+            }
+            // ⚒️ rampageChance : chance de tripler l'XP de la série
+            if (effects.rampageChance && Math.random() < effects.rampageChance) {
+                mult *= 3;
+            }
             const cls = rpgGetClass();
             if (cls && cls.bonusMuscles.includes(muscleName)) mult += cls.xpBonus;
 
@@ -27843,17 +28105,22 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             let changed = false;
             let decayAlerts = [];
 
+            // 🌳 COMPÉTENCES : immunité au decay / extension de la période de grâce
+            const _sk = (typeof rpgGetActiveEffects === 'function') ? rpgGetActiveEffects() : {};
+            if (_sk.immuneMuscleDecay) return; // Égide du Titan : aucun decay
+            const graceDays = RPG_GRACE_DAYS + (_sk.graceExtend || 0);
+
             Object.entries(data.muscles).forEach(([muscle, info]) => {
                 if (!info.lastTrained) return;
                 const daysSince = (now - new Date(info.lastTrained)) / 86400000;
-                const daysOverGrace = daysSince - RPG_GRACE_DAYS;
+                const daysOverGrace = daysSince - graceDays;
 
                 if (daysOverGrace > 0 && info.xp > 0) {
                     const prevLevel = rpgLevelFromXP(info.xp);
                     const loss = Math.ceil(info.xp * RPG_DECAY_PCT * daysOverGrace);
                     info.xp = Math.max(0, info.xp - loss);
                     changed = true;
-                } else if (daysSince >= RPG_GRACE_DAYS - 1 && daysSince < RPG_GRACE_DAYS) {
+                } else if (daysSince >= graceDays - 1 && daysSince < graceDays) {
                     // Alerte : 1 jour avant le début du decay
                     decayAlerts.push(muscle);
                 }
@@ -33688,3 +33955,726 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         }
         window.showStoryJournal = showStoryJournal;
         window._storyGet = (id) => STORY_CHAPTERS.find(c => c.id === id);
+
+        // ═══════════════════════════════════════════════════════════════
+        // 🎭 MISSIONS DE COMPAGNONS — fermer une Faille sans exercices
+        // ═══════════════════════════════════════════════════════════════
+        // Le joueur envoie ses compagnons actifs fermer une Faille de rang ≤ au sien.
+        // Mission en temps réel (quelques heures selon le rang, réduit par la puissance
+        // des compagnons). Récompense : la Faille est fermée, mais AUCUN loot ni XP de combat.
+
+        const COMPANION_MISSIONS_KEY = 'awakCompanionMissions';
+
+        function _compMissionKey() {
+            const pid = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
+            return pid ? `${COMPANION_MISSIONS_KEY}_${pid}` : COMPANION_MISSIONS_KEY;
+        }
+        function awakLoadCompanionMissions() {
+            try { return JSON.parse(localStorage.getItem(_compMissionKey()) || '{}'); }
+            catch(e) { return {}; }
+        }
+        function awakSaveCompanionMissions(m) {
+            try { localStorage.setItem(_compMissionKey(), JSON.stringify(m)); } catch(e) {}
+        }
+
+        // Durée de base d'une mission selon le rang de la Faille (en heures)
+        const COMPANION_MISSION_HOURS = { E: 1, D: 2, C: 3, B: 4, A: 6, S: 8 };
+
+        // Probabilité d'échec selon le rang de la Faille (faible en E, élevée en S)
+        const COMPANION_MISSION_FAIL_CHANCE = { E: 0.05, D: 0.10, C: 0.18, B: 0.28, A: 0.40, S: 0.55 };
+
+        // Durée d'indisponibilité des compagnons après un échec (5 jours)
+        const COMPANION_INJURY_DAYS = 5;
+        const COMPANION_INJURY_KEY = 'awakCompanionInjured';
+
+        // ── ENDURANCE DES COMPAGNONS (anti-spam) ──────────────────────
+        // Chaque compagnon a une endurance 0-100%. Une mission la fait chuter.
+        // Elle remonte avec le temps réel ET quand le joueur fait des séances.
+        // Une endurance basse augmente le risque d'échec.
+        const COMPANION_STAMINA_KEY = 'awakCompanionStamina';
+        const STAMINA_COST_PER_MISSION = 40;   // % perdu par mission
+        const STAMINA_RECOVER_PER_DAY = 25;     // % récupéré par jour réel
+        const STAMINA_RECOVER_PER_WORKOUT = 15; // % récupéré par séance du joueur
+
+        function _compStaminaKey() {
+            const pid = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
+            return pid ? `${COMPANION_STAMINA_KEY}_${pid}` : COMPANION_STAMINA_KEY;
+        }
+        // Structure : { companionId: { value: 0-100, lastUpdate: timestamp } }
+        function awakLoadCompanionStamina() {
+            try { return JSON.parse(localStorage.getItem(_compStaminaKey()) || '{}'); }
+            catch(e) { return {}; }
+        }
+        function awakSaveCompanionStamina(s) {
+            try { localStorage.setItem(_compStaminaKey(), JSON.stringify(s)); } catch(e) {}
+        }
+        // Récupère l'endurance actuelle d'un compagnon (applique la régén temps réel)
+        function awakGetCompanionStamina(id) {
+            const data = awakLoadCompanionStamina();
+            let entry = data[id];
+            if (!entry) return 100; // jamais utilisé = pleine forme
+            const now = Date.now();
+            const daysPassed = (now - (entry.lastUpdate || now)) / 86400000;
+            const ring = typeof getActiveRingEffects === 'function' ? getActiveRingEffects() : {};
+            const staminaMult = 1 + (ring.compStamina || 0);
+            const recovered = daysPassed * STAMINA_RECOVER_PER_DAY * staminaMult;
+            return Math.min(100, Math.round((entry.value || 0) + recovered));
+        }
+        window.awakGetCompanionStamina = awakGetCompanionStamina;
+        // Applique un changement d'endurance (négatif = mission, positif = repos/séance)
+        function awakAdjustCompanionStamina(id, delta) {
+            const data = awakLoadCompanionStamina();
+            const current = awakGetCompanionStamina(id); // valeur à jour
+            const next = Math.max(0, Math.min(100, current + delta));
+            data[id] = { value: next, lastUpdate: Date.now() };
+            awakSaveCompanionStamina(data);
+            return next;
+        }
+        window.awakAdjustCompanionStamina = awakAdjustCompanionStamina;
+        // Récupération quand le joueur fait une séance (tous les compagnons)
+        function awakCompanionsRecoverFromWorkout() {
+            if (typeof COMPANIONS === 'undefined') return;
+            const data = awakLoadCompanionStamina();
+            const ring = typeof getActiveRingEffects === 'function' ? getActiveRingEffects() : {};
+            const gain = STAMINA_RECOVER_PER_WORKOUT * (1 + (ring.compStamina || 0));
+            let changed = false;
+            for (const comp of COMPANIONS) {
+                const cur = awakGetCompanionStamina(comp.id);
+                if (cur < 100) {
+                    data[comp.id] = { value: Math.min(100, cur + gain), lastUpdate: Date.now() };
+                    changed = true;
+                }
+            }
+            if (changed) awakSaveCompanionStamina(data);
+        }
+        window.awakCompanionsRecoverFromWorkout = awakCompanionsRecoverFromWorkout;
+        // Endurance moyenne des compagnons actifs (pour le calcul de risque)
+        function awakActiveCompanionsAvgStamina() {
+            const active = typeof awakCompanionsGetActive === 'function' ? awakCompanionsGetActive() : [];
+            if (active.length === 0) return 100;
+            const sum = active.reduce((s, id) => s + awakGetCompanionStamina(id), 0);
+            return Math.round(sum / active.length);
+        }
+        window.awakActiveCompanionsAvgStamina = awakActiveCompanionsAvgStamina;
+
+        function _compInjuryKey() {
+            const pid = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
+            return pid ? `${COMPANION_INJURY_KEY}_${pid}` : COMPANION_INJURY_KEY;
+        }
+        // Map { companionId: timestampDeRetour }
+        function awakLoadInjuredCompanions() {
+            try { return JSON.parse(localStorage.getItem(_compInjuryKey()) || '{}'); }
+            catch(e) { return {}; }
+        }
+        function awakSaveInjuredCompanions(m) {
+            try { localStorage.setItem(_compInjuryKey(), JSON.stringify(m)); } catch(e) {}
+        }
+        // Nettoie les compagnons rétablis et renvoie la liste des IDs encore indisponibles
+        function awakGetInjuredCompanionIds() {
+            const injured = awakLoadInjuredCompanions();
+            const now = Date.now();
+            let changed = false;
+            for (const id of Object.keys(injured)) {
+                if (now >= injured[id]) { delete injured[id]; changed = true; }
+            }
+            if (changed) awakSaveInjuredCompanions(injured);
+            return Object.keys(injured);
+        }
+        window.awakGetInjuredCompanionIds = awakGetInjuredCompanionIds;
+        // Temps restant (ms) avant rétablissement d'un compagnon
+        function awakCompanionInjuryRemaining(id) {
+            const injured = awakLoadInjuredCompanions();
+            if (!injured[id]) return 0;
+            return Math.max(0, injured[id] - Date.now());
+        }
+        window.awakCompanionInjuryRemaining = awakCompanionInjuryRemaining;
+
+        // Calcule la durée d'une mission pour une Faille (réduite par le nb de compagnons actifs)
+        function awakCompanionMissionDuration(riftRank) {
+            const baseHours = COMPANION_MISSION_HOURS[riftRank] || 2;
+            const active = typeof awakCompanionsGetActive === 'function' ? awakCompanionsGetActive() : [];
+            const n = active.length;
+            // Chaque compagnon actif réduit la durée de 15% (max ~45% à 3 compagnons)
+            const reduction = Math.min(0.45, n * 0.15);
+            let hours = baseHours * (1 - reduction);
+            // 💍 ANNEAU de commandement : accélère les missions
+            const ring = typeof getActiveRingEffects === 'function' ? getActiveRingEffects() : {};
+            if (ring.compSpeed > 0) hours = hours * (1 - Math.min(0.7, ring.compSpeed));
+            return Math.max(0.5, hours) * 60 * 60 * 1000; // en ms
+        }
+
+        // Probabilité d'échec d'une mission (rang de la Faille, réduite un peu par le nb de compagnons)
+        function awakCompanionMissionFailChance(riftRank) {
+            const base = COMPANION_MISSION_FAIL_CHANCE[riftRank] != null ? COMPANION_MISSION_FAIL_CHANCE[riftRank] : 0.25;
+            const active = typeof awakCompanionsGetActive === 'function' ? awakCompanionsGetActive() : [];
+            // Plus il y a de compagnons, plus le risque chute (réduction RELATIVE forte).
+            const extra = Math.max(0, active.length - 1);
+            let failChance = base * Math.pow(0.70, extra);
+            // 💪 ENDURANCE : des compagnons fatigués échouent plus souvent.
+            // À 100% endurance : pas de pénalité. À 0% : risque presque doublé (+90%).
+            const avgStamina = typeof awakActiveCompanionsAvgStamina === 'function' ? awakActiveCompanionsAvgStamina() : 100;
+            const fatiguePenalty = 1 + (1 - avgStamina / 100) * 0.9;
+            failChance = failChance * fatiguePenalty;
+            // 💍 ANNEAU de commandement : réduit le risque d'échec
+            const ring = typeof getActiveRingEffects === 'function' ? getActiveRingEffects() : {};
+            if (ring.compFailReduce > 0) failChance = failChance * (1 - Math.min(0.8, ring.compFailReduce));
+            return Math.max(0.02, Math.min(0.95, failChance));
+        }
+        window.awakCompanionMissionFailChance = awakCompanionMissionFailChance;
+
+        // Peut-on déléguer cette Faille ? (rang ≤ joueur, compagnons dispo, pas déjà en mission)
+        function awakCanDelegateRift(rift) {
+            if (!rift || rift.completed) return { ok:false, reason:'Faille déjà fermée' };
+            const active = typeof awakCompanionsGetActive === 'function' ? awakCompanionsGetActive() : [];
+            if (active.length === 0) return { ok:false, reason:'Aucun compagnon actif' };
+            // Compagnons blessés (indisponibles après un échec) ?
+            const injured = typeof awakGetInjuredCompanionIds === 'function' ? awakGetInjuredCompanionIds() : [];
+            const availableActive = active.filter(id => !injured.includes(id));
+            if (availableActive.length === 0) {
+                return { ok:false, reason:'Tes compagnons récupèrent de leurs blessures' };
+            }
+            // Rang de la Faille ≤ rang du joueur
+            const rankIds = ['E','D','C','B','A','S','SS','SSS'];
+            const playerRank = typeof awakGetRank === 'function' ? awakGetRank().id : 'E';
+            if (rankIds.indexOf(rift.rank) > rankIds.indexOf(playerRank)) {
+                return { ok:false, reason:`Rang trop élevé (ton rang : ${playerRank})` };
+            }
+            // Compagnons déjà en mission ?
+            const missions = awakLoadCompanionMissions();
+            if (missions[rift.id]) return { ok:false, reason:'Mission déjà en cours' };
+            // Un seul groupe de compagnons : pas 2 missions en parallèle
+            const ongoing = Object.values(missions).find(m => !m.done);
+            if (ongoing) return { ok:false, reason:'Tes compagnons sont déjà en mission' };
+            return { ok:true };
+        }
+        window.awakCanDelegateRift = awakCanDelegateRift;
+
+        // Lance la mission de délégation
+        function awakDelegateRiftToCompanions(riftId) {
+            const rifts = typeof awakRiftsLoad === 'function' ? awakRiftsLoad() : [];
+            const rift = rifts.find(r => r.id === riftId);
+            if (!rift) return;
+            const check = awakCanDelegateRift(rift);
+            if (!check.ok) {
+                if (typeof showToast === 'function') showToast('⚠️ ' + check.reason, 'warning', 2500);
+                return;
+            }
+            const active = awakCompanionsGetActive();
+            const duration = awakCompanionMissionDuration(rift.rank);
+            // 🎲 Tirage du résultat dès le départ (révélé à la fin)
+            const failChance = awakCompanionMissionFailChance(rift.rank);
+            const willFail = Math.random() < failChance;
+            const missions = awakLoadCompanionMissions();
+            missions[riftId] = {
+                riftId,
+                riftName: rift.name,
+                riftRank: rift.rank,
+                companions: active.slice(),
+                startedAt: Date.now(),
+                endsAt: Date.now() + duration,
+                willFail,
+                done: false
+            };
+            awakSaveCompanionMissions(missions);
+
+            // 💪 Coût d'endurance : chaque compagnon engagé se fatigue
+            if (typeof awakAdjustCompanionStamina === 'function') {
+                active.forEach(id => awakAdjustCompanionStamina(id, -STAMINA_COST_PER_MISSION));
+            }
+
+            document.getElementById('awakRiftBriefingModal')?.remove();
+            const hrs = (duration / 3600000);
+            const txt = hrs >= 1 ? `${hrs.toFixed(1)} h` : `${Math.round(hrs*60)} min`;
+            if (typeof showToast === 'function') {
+                showToast(`🎭 Tes compagnons partent fermer « ${rift.name} » — retour dans ${txt}`, 'success', 4000);
+            }
+            if (typeof renderGameTab === 'function') renderGameTab();
+        }
+        window.awakDelegateRiftToCompanions = awakDelegateRiftToCompanions;
+
+        // Vérifie les missions terminées et ferme les Failles concernées (appelé à l'ouverture du jeu)
+        function awakCheckCompanionMissions() {
+            const missions = awakLoadCompanionMissions();
+            let changed = false;
+            const finishedMissions = [];
+            const now = Date.now();
+            for (const riftId of Object.keys(missions)) {
+                const m = missions[riftId];
+                if (m.done) continue;
+                if (now >= m.endsAt) {
+                    if (m.willFail) {
+                        // ❌ ÉCHEC : la Faille reste ouverte, les compagnons sont blessés 5 jours
+                        const injured = awakLoadInjuredCompanions();
+                        const recoverAt = now + COMPANION_INJURY_DAYS * 24 * 60 * 60 * 1000;
+                        (m.companions || []).forEach(id => { injured[id] = recoverAt; });
+                        awakSaveInjuredCompanions(injured);
+                        m.failed = true;
+                    } else {
+                        // ✅ SUCCÈS : fermer la Faille (sans loot ni XP de combat)
+                        const rifts = typeof awakRiftsLoad === 'function' ? awakRiftsLoad() : [];
+                        const rift = rifts.find(r => r.id === riftId);
+                        if (rift && !rift.completed) {
+                            rift.completed = true;
+                            rift.completedBy = 'companions';
+                            rift.currentWaveIdx = (rift.waves || []).length;
+                            if (typeof awakRiftsSave === 'function') awakRiftsSave(rifts);
+                        }
+                        m.failed = false;
+                    }
+                    m.done = true;
+                    m.storyShown = false;
+                    finishedMissions.push(m);
+                    changed = true;
+                }
+            }
+            if (changed) {
+                awakSaveCompanionMissions(missions);
+                // Afficher le récit de la première mission terminée (les autres en toast)
+                const toShow = finishedMissions.find(m => !m.storyShown);
+                if (toShow && typeof awakShowMissionStory === 'function') {
+                    toShow.storyShown = true;
+                    awakSaveCompanionMissions(missions);
+                    setTimeout(() => awakShowMissionStory(toShow), 700);
+                }
+                finishedMissions.slice(1).forEach(m => {
+                    if (typeof showToast === 'function') {
+                        setTimeout(() => showToast(`🎭 Faille « ${m.riftName} » fermée par tes compagnons !`, 'success', 3500), 500);
+                    }
+                });
+            }
+            return finishedMissions.map(m => m.riftName);
+        }
+        window.awakCheckCompanionMissions = awakCheckCompanionMissions;
+
+        // Y a-t-il une mission en cours ? (pour l'affichage)
+        function awakGetOngoingMission() {
+            const missions = awakLoadCompanionMissions();
+            return Object.values(missions).find(m => !m.done) || null;
+        }
+        window.awakGetOngoingMission = awakGetOngoingMission;
+
+        // ═══════════════════════════════════════════════════════════════
+        // 🎭 RÉCIT DE MISSION — compte-rendu de ce que les compagnons ont vécu
+        // ═══════════════════════════════════════════════════════════════
+
+        // Fragments narratifs piochés selon le rang de la Faille (intensité croissante)
+        const MISSION_STORY_FRAGMENTS = {
+            intro: [
+                "La Faille s'est refermée derrière {leader} et son groupe dès leur entrée.",
+                "L'air était lourd quand {leader} a franchi le seuil de la Faille.",
+                "{leader} a mené l'expédition dans les profondeurs de la Faille.",
+                "Le groupe s'est enfoncé dans l'obscurité, {leader} en tête."
+            ],
+            middle_low: [
+                "Les premières créatures n'ont pas fait le poids. Affaire réglée en quelques minutes.",
+                "Rien de bien méchant : des monstres de bas étage, vite balayés.",
+                "Une promenade de santé pour des combattants de leur trempe.",
+                "Le groupe a nettoyé les lieux sans transpirer."
+            ],
+            middle_mid: [
+                "Les vagues s'enchaînaient. {member} a dû puiser dans ses réserves.",
+                "Un combat tendu au cœur de la Faille — mais le groupe a tenu bon.",
+                "Quelques blessures, rien de grave. {member} a couvert les autres.",
+                "La résistance était réelle, mais le groupe avait l'avantage."
+            ],
+            middle_high: [
+                "Le boss était redoutable. {leader} a failli flancher avant de renverser le combat.",
+                "Un affrontement brutal. {member} a encaissé pour protéger le groupe.",
+                "La Faille était instable, prête à exploser. Le timing était serré.",
+                "Le gardien des lieux ne comptait pas céder. Le combat fut acharné."
+            ],
+            outro: [
+                "La Faille s'est effondrée sur elle-même. Mission accomplie.",
+                "Le groupe est ressorti victorieux, la Faille neutralisée.",
+                "Plus aucune menace. {leader} a donné le signal du retour.",
+                "La déchirure s'est scellée. Le danger est écarté."
+            ],
+            fail_middle: [
+                "Mais la Faille cachait bien plus de dangers que prévu.",
+                "L'embuscade fut totale. Le groupe s'est retrouvé encerclé.",
+                "Le gardien était d'un tout autre niveau. Impossible à vaincre cette fois.",
+                "La Faille s'est déstabilisée brutalement, piégeant le groupe."
+            ],
+            fail_outro: [
+                "{leader} a ordonné la retraite. Tous sont rentrés, mais gravement blessés.",
+                "Le groupe a battu en retraite de justesse. Il faudra du temps pour récupérer.",
+                "Mission avortée. {member} a porté les blessés jusqu'à la sortie.",
+                "La Faille reste ouverte. Le groupe a besoin de plusieurs jours de repos."
+            ]
+        };
+
+        function _pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+        function awakBuildMissionStory(mission) {
+            const comps = (mission.companions || []).map(id =>
+                typeof awakGetCompanionById === 'function' ? awakGetCompanionById(id) : null
+            ).filter(Boolean);
+            const leader = comps[0] ? `${comps[0].emoji} ${comps[0].name}` : 'Le groupe';
+            const member = comps[1] ? `${comps[1].emoji} ${comps[1].name}` : leader;
+
+            const rankIds = ['E','D','C','B','A','S','SS','SSS'];
+            const idx = rankIds.indexOf(mission.riftRank);
+            let middlePool;
+            if (idx <= 1) middlePool = MISSION_STORY_FRAGMENTS.middle_low;
+            else if (idx <= 3) middlePool = MISSION_STORY_FRAGMENTS.middle_mid;
+            else middlePool = MISSION_STORY_FRAGMENTS.middle_high;
+
+            const fill = (s) => s.replace(/\{leader\}/g, `<strong style="color:#c084fc;">${leader}</strong>`)
+                                  .replace(/\{member\}/g, `<strong style="color:#c084fc;">${member}</strong>`);
+
+            if (mission.failed) {
+                return [
+                    fill(_pick(MISSION_STORY_FRAGMENTS.intro)),
+                    fill(_pick(MISSION_STORY_FRAGMENTS.fail_middle)),
+                    fill(_pick(MISSION_STORY_FRAGMENTS.fail_outro))
+                ];
+            }
+
+            return [
+                fill(_pick(MISSION_STORY_FRAGMENTS.intro)),
+                fill(_pick(middlePool)),
+                fill(_pick(MISSION_STORY_FRAGMENTS.outro))
+            ];
+        }
+
+        // Affiche le récit de mission dans un modal
+        function awakShowMissionStory(mission) {
+            if (!mission) return;
+            document.getElementById('missionStoryOverlay')?.remove();
+            const story = awakBuildMissionStory(mission);
+            const comps = (mission.companions || []).map(id =>
+                typeof awakGetCompanionById === 'function' ? awakGetCompanionById(id) : null
+            ).filter(Boolean);
+
+            const failed = !!mission.failed;
+            const accent = failed ? '#ef4444' : '#a855f7';
+            const accentLight = failed ? '#f87171' : '#c084fc';
+
+            const overlay = document.createElement('div');
+            overlay.id = 'missionStoryOverlay';
+            overlay.style.cssText = 'position:fixed;inset:0;z-index:11000;background:rgba(0,0,0,0.88);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:24px;animation:awakFadeIn 0.5s ease;';
+            overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+
+            overlay.innerHTML = `
+                <div style="max-width:440px;width:100%;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${accent}66;border-radius:20px;overflow:hidden;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+                    <div style="background:linear-gradient(135deg,${accent}40,${accent}14);padding:22px;text-align:center;border-bottom:1px solid ${accent}40;">
+                        <div style="font-size:2.2em;margin-bottom:6px;">${failed ? '🩸' : '🎭'}</div>
+                        <div style="font-size:0.6em;color:${accentLight};font-weight:900;letter-spacing:3px;">${failed ? 'MISSION ÉCHOUÉE' : 'RAPPORT DE MISSION'}</div>
+                        <div style="font-size:1.15em;font-weight:900;color:white;margin-top:6px;">« ${mission.riftName} »</div>
+                        <div style="font-size:0.7em;color:#94a3b8;margin-top:4px;">Faille rang ${mission.riftRank} · ${failed ? 'toujours active' : 'neutralisée'}</div>
+                    </div>
+                    <div style="padding:22px;">
+                        ${story.map((p, i) => `
+                            <div style="display:flex;gap:11px;margin-bottom:16px;align-items:flex-start;">
+                                <div style="flex-shrink:0;width:24px;height:24px;border-radius:50%;background:${accent}26;border:1px solid ${accent}66;display:flex;align-items:center;justify-content:center;font-size:0.65em;color:${accentLight};font-weight:900;">${i+1}</div>
+                                <p style="margin:0;font-size:0.92em;line-height:1.6;color:#e2e8f0;font-style:italic;">${p}</p>
+                            </div>`).join('')}
+
+                        ${failed ? `<div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:12px;padding:12px 14px;margin-bottom:16px;text-align:center;">
+                            <div style="font-size:0.78em;color:#f87171;font-weight:800;">🩸 Tes compagnons sont indisponibles 5 jours</div>
+                            <div style="font-size:0.68em;color:#94a3b8;margin-top:4px;line-height:1.4;">Le temps de soigner leurs blessures. La Faille reste ouverte.</div>
+                        </div>` : ''}
+
+                        <div style="background:${accent}12;border:1px solid ${accent}33;border-radius:12px;padding:12px 14px;margin-top:8px;margin-bottom:18px;">
+                            <div style="font-size:0.58em;color:${accentLight};font-weight:900;letter-spacing:1.5px;margin-bottom:8px;">⚔ ÉQUIPE DÉPLOYÉE</div>
+                            ${comps.map(c => `<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+                                <span style="font-size:1.1em;">${c.emoji}</span>
+                                <span style="font-size:0.82em;color:#e2e8f0;font-weight:700;">${c.name}</span>
+                                <span style="font-size:0.68em;color:#64748b;">· ${c.title}</span>
+                            </div>`).join('')}
+                        </div>
+
+                        <button onclick="document.getElementById('missionStoryOverlay').remove();if(typeof renderGameTab==='function')renderGameTab();" style="width:100%;background:linear-gradient(135deg,${accent},${accentLight});border:none;color:white;border-radius:12px;padding:15px;font-weight:900;font-size:0.95em;letter-spacing:0.5px;cursor:pointer;box-shadow:0 4px 16px ${accent}66;">${failed ? '✓ Compris' : '✓ Parfait'}</button>
+                    </div>
+                </div>`;
+            document.body.appendChild(overlay);
+            if (typeof hapticTap === 'function') hapticTap([30,40,30]);
+        }
+        window.awakShowMissionStory = awakShowMissionStory;
+
+        // ═══════════════════════════════════════════════════════════════
+        // ⚙️ LE SYSTÈME RÉAGIT — messages contextuels vivants
+        // ═══════════════════════════════════════════════════════════════
+        // Le Système "observe" le joueur et commente sa régularité, ses records, ses absences.
+        // Affiché en haut de l'onglet Jeu, change selon le contexte réel.
+
+        function awakGetSystemMessage() {
+            try {
+                const history = typeof getWorkoutHistory === 'function' ? getWorkoutHistory() : [];
+                const now = Date.now();
+                const dayMs = 86400000;
+
+                // Dernière séance
+                let lastWorkoutTime = 0;
+                history.forEach(w => {
+                    const t = new Date(w.date || w.completedAt || w.timestamp || 0).getTime();
+                    if (t > lastWorkoutTime) lastWorkoutTime = t;
+                });
+                const daysSince = lastWorkoutTime ? Math.floor((now - lastWorkoutTime) / dayMs) : 999;
+
+                // Séances cette semaine
+                const weekAgo = now - 7 * dayMs;
+                const thisWeek = history.filter(w => {
+                    const t = new Date(w.date || w.completedAt || w.timestamp || 0).getTime();
+                    return t >= weekAgo;
+                }).length;
+
+                // Séance aujourd'hui ?
+                const today = new Date(); today.setHours(0,0,0,0);
+                const doneToday = history.some(w => {
+                    const t = new Date(w.date || w.completedAt || w.timestamp || 0).getTime();
+                    return t >= today.getTime();
+                });
+
+                // ── Choix du message selon le contexte (priorité décroissante) ──
+                let pool;
+                if (history.length === 0) {
+                    pool = [
+                        { tone:'neutral', text:"Le Système t'observe. Ta première séance déterminera ton potentiel." },
+                        { tone:'neutral', text:"Aucune donnée de combat enregistrée. Le Système attend." }
+                    ];
+                } else if (doneToday) {
+                    pool = [
+                        { tone:'good', text:"Séance enregistrée aujourd'hui. Le Système approuve ta discipline." },
+                        { tone:'good', text:"Tu t'es présenté. C'est ce qui sépare les Chasseurs des autres." },
+                        { tone:'good', text:"Données du jour validées. Ta puissance progresse silencieusement." }
+                    ];
+                } else if (daysSince >= 7) {
+                    pool = [
+                        { tone:'warn', text:`${daysSince} jours d'absence. Le Système note ton silence... et le Monarque aussi.` },
+                        { tone:'warn', text:"Une longue absence. Ta puissance commence à régresser, Chasseur." },
+                        { tone:'warn', text:"Le Système t'avait choisi. Comptes-tu honorer ce choix ?" }
+                    ];
+                } else if (daysSince >= 3) {
+                    pool = [
+                        { tone:'warn', text:`${daysSince} jours sans entraînement. Le Système attend ton retour.` },
+                        { tone:'warn', text:"L'inactivité a un coût. Reprends avant que le Déclin ne s'installe." }
+                    ];
+                } else if (thisWeek >= 4) {
+                    pool = [
+                        { tone:'good', text:`${thisWeek} séances cette semaine. Le Système détecte une anomalie de discipline.` },
+                        { tone:'good', text:"Ta constance est remarquable. Peu de Chasseurs tiennent ce rythme." }
+                    ];
+                } else {
+                    pool = [
+                        { tone:'neutral', text:"Le Système surveille ta progression. Reste régulier." },
+                        { tone:'neutral', text:"Chaque séance compte. Le Monarque ne dort jamais." },
+                        { tone:'neutral', text:"Ta prochaine séance renforcera ton Éveil." }
+                    ];
+                }
+                return pool[Math.floor(Math.random() * pool.length)];
+            } catch(e) {
+                return null;
+            }
+        }
+        window.awakGetSystemMessage = awakGetSystemMessage;
+
+        // ═══════════════════════════════════════════════════════════════
+        // 👁️ ARC ANTAGONISTE — Le Monarque du Déclin
+        // ═══════════════════════════════════════════════════════════════
+        // Une jauge de puissance (0-100). Monte avec l'inactivité, baisse quand le joueur s'entraîne.
+        // À 100, le Monarque "menace" — incitation narrative à reprendre.
+
+        const MONARCH_KEY = 'awakMonarchPower';
+        const MONARCH_RISE_PER_DAY = 8;       // +8 par jour d'inactivité
+        const MONARCH_DROP_PER_WORKOUT = 20;  // -20 par séance
+
+        function _monarchKey() {
+            const pid = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
+            return pid ? `${MONARCH_KEY}_${pid}` : MONARCH_KEY;
+        }
+        function awakLoadMonarch() {
+            try {
+                const d = JSON.parse(localStorage.getItem(_monarchKey()) || 'null');
+                return d || { power: 0, lastUpdate: Date.now() };
+            } catch(e) { return { power: 0, lastUpdate: Date.now() }; }
+        }
+        function awakSaveMonarch(d) {
+            try { localStorage.setItem(_monarchKey(), JSON.stringify(d)); } catch(e) {}
+        }
+        // Recalcule la puissance actuelle (applique la montée liée à l'inactivité)
+        function awakGetMonarchPower() {
+            const d = awakLoadMonarch();
+            // Jours depuis la dernière séance du joueur
+            const history = typeof getWorkoutHistory === 'function' ? getWorkoutHistory() : [];
+            let lastWorkoutTime = 0;
+            history.forEach(w => {
+                const t = new Date(w.date || w.completedAt || w.timestamp || 0).getTime();
+                if (t > lastWorkoutTime) lastWorkoutTime = t;
+            });
+            const now = Date.now();
+            const daysSinceWorkout = lastWorkoutTime ? (now - lastWorkoutTime) / 86400000 : 0;
+            // Le Monarque grandit avec les jours d'inactivité au-delà de 1 jour
+            let power = d.power || 0;
+            if (daysSinceWorkout > 1) {
+                const idleDays = daysSinceWorkout - 1;
+                const lastCalcDays = (now - (d.lastUpdate || now)) / 86400000;
+                power += Math.min(idleDays, lastCalcDays) * MONARCH_RISE_PER_DAY;
+            }
+            return Math.max(0, Math.min(100, Math.round(power)));
+        }
+        window.awakGetMonarchPower = awakGetMonarchPower;
+        // Le joueur a fait une séance : le Monarque recule
+        function awakMonarchOnWorkout() {
+            const cur = awakGetMonarchPower();
+            awakSaveMonarch({ power: Math.max(0, cur - MONARCH_DROP_PER_WORKOUT), lastUpdate: Date.now() });
+        }
+        window.awakMonarchOnWorkout = awakMonarchOnWorkout;
+        // Synchronise la puissance stockée (à appeler à l'ouverture)
+        function awakMonarchSync() {
+            const cur = awakGetMonarchPower();
+            awakSaveMonarch({ power: cur, lastUpdate: Date.now() });
+            return cur;
+        }
+        window.awakMonarchSync = awakMonarchSync;
+
+        // ═══════════════════════════════════════════════════════════════
+        // ⚠️ ÉCRAN RÉCAPITULATIF DES MALUS ACTIFS
+        // ═══════════════════════════════════════════════════════════════
+        // Regroupe les 3 sources de malus : malédictions d'équipement,
+        // pénalités de défi, et handicaps de monstres échappés.
+
+        function awakCollectActiveMalus() {
+            const malus = { curses: [], penalties: [], handicaps: [] };
+
+            // 1️⃣ MALÉDICTIONS d'équipement (items maudits équipés)
+            try {
+                const eq = (typeof getEquippedItems === 'function') ? getEquippedItems() : {};
+                for (const item of Object.values(eq)) {
+                    if (!item || !item.cursed) continue;
+                    // Malus de stats négatives
+                    const negStats = Object.entries(item.stats || {})
+                        .filter(([_, v]) => v < 0)
+                        .map(([k, v]) => `${k} ${v}`);
+                    malus.curses.push({
+                        name: item.name,
+                        icon: item.icon || '☠️',
+                        curseLabel: item.curse ? item.curse.label : null,
+                        negStats
+                    });
+                }
+            } catch(e) {}
+
+            // 2️⃣ PÉNALITÉS de défi échoué
+            try {
+                const pens = (typeof getActivePenalties === 'function') ? getActivePenalties() : [];
+                const now = Date.now();
+                for (const p of pens) {
+                    // Ignorer les pénalités expirées
+                    if (p.expiresAt && now > p.expiresAt) continue;
+                    let remaining = null;
+                    if (p.expiresAt) {
+                        const h = Math.max(0, (p.expiresAt - now) / 3600000);
+                        remaining = h >= 24 ? `${Math.floor(h/24)}j ${Math.floor(h%24)}h` : `${Math.ceil(h)}h`;
+                    }
+                    malus.penalties.push({
+                        name: p.penaltyName || p.name || p.label || 'Pénalité',
+                        icon: p.penaltyIcon || p.icon || '⚠️',
+                        desc: p.penaltyDesc || p.desc || _penaltyTypeLabel(p.type),
+                        remaining
+                    });
+                }
+            } catch(e) {}
+
+            // 3️⃣ HANDICAPS de monstres échappés
+            try {
+                if (typeof awakGetActiveHandicaps === 'function') {
+                    const h = awakGetActiveHandicaps();
+                    if (h.forced_burpees > 0) malus.handicaps.push({ icon:'🔥', text:`${h.forced_burpees} série(s) de burpees forcée(s) avant chaque séance` });
+                    if (h.extra_rest > 0)     malus.handicaps.push({ icon:'⏱️', text:`+${h.extra_rest}s de repos imposé` });
+                    if (h.extra_set > 0)      malus.handicaps.push({ icon:'➕', text:`+${h.extra_set} série(s) supplémentaire(s)` });
+                    if (h.reduce_xp > 0)      malus.handicaps.push({ icon:'📉', text:`−${h.reduce_xp}% XP gagnée` });
+                    if (h.reduce_stats > 0)   malus.handicaps.push({ icon:'💢', text:`−${h.reduce_stats}% stats d'équipement` });
+                    if (h.block_drops)        malus.handicaps.push({ icon:'🚫', text:`Drops d'équipement bloqués` });
+                }
+            } catch(e) {}
+
+            return malus;
+        }
+        window.awakCollectActiveMalus = awakCollectActiveMalus;
+
+        function _penaltyTypeLabel(type) {
+            const labels = {
+                slot_lock: 'Un emplacement d\'équipement est scellé',
+                level_regression: 'Régression de niveau de muscle',
+                xp_loss: 'Perte d\'XP',
+                double_penalty: 'Double pénalité',
+                item_destroyed: 'Item détruit'
+            };
+            return labels[type] || 'Effet négatif actif';
+        }
+
+        function awakCountActiveMalus() {
+            const m = awakCollectActiveMalus();
+            return m.curses.length + m.penalties.length + m.handicaps.length;
+        }
+        window.awakCountActiveMalus = awakCountActiveMalus;
+
+        function showActiveMalusScreen() {
+            document.getElementById('activeMalusOverlay')?.remove();
+            const m = awakCollectActiveMalus();
+            const total = m.curses.length + m.penalties.length + m.handicaps.length;
+
+            const overlay = document.createElement('div');
+            overlay.id = 'activeMalusOverlay';
+            overlay.style.cssText = 'position:fixed;inset:0;z-index:10800;background:rgba(0,0,0,0.85);backdrop-filter:blur(10px);display:flex;align-items:flex-end;justify-content:center;';
+            overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+
+            const section = (title, color, icon, items) => {
+                if (!items.length) return '';
+                return `<div style="margin-bottom:16px;">
+                    <div style="font-size:0.62em;color:${color};font-weight:900;letter-spacing:1.5px;margin-bottom:8px;">${icon} ${title} (${items.length})</div>
+                    ${items.join('')}
+                </div>`;
+            };
+
+            const curseItems = m.curses.map(c => `
+                <div style="background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.3);border-radius:11px;padding:11px 13px;margin-bottom:8px;">
+                    <div style="display:flex;align-items:center;gap:9px;margin-bottom:${c.curseLabel || c.negStats.length ? '6px' : '0'};">
+                        <span style="font-size:1.1em;">${c.icon}</span>
+                        <span style="font-weight:800;color:#e2e8f0;font-size:0.85em;">${c.name}</span>
+                    </div>
+                    ${c.negStats.length ? `<div style="font-size:0.7em;color:#f87171;font-weight:700;margin-bottom:3px;">📉 ${c.negStats.join(' · ')}</div>` : ''}
+                    ${c.curseLabel ? `<div style="font-size:0.7em;color:#c084fc;font-weight:600;">⚠️ ${c.curseLabel}</div>` : ''}
+                </div>`);
+
+            const penItems = m.penalties.map(p => `
+                <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:11px;padding:11px 13px;margin-bottom:8px;">
+                    <div style="display:flex;align-items:center;gap:9px;">
+                        <span style="font-size:1.1em;">${p.icon}</span>
+                        <div style="flex:1;min-width:0;">
+                            <div style="font-weight:800;color:#e2e8f0;font-size:0.85em;">${p.name}</div>
+                            ${p.desc ? `<div style="font-size:0.68em;color:#fca5a5;margin-top:2px;line-height:1.35;">${p.desc}</div>` : ''}
+                        </div>
+                        ${p.remaining ? `<span style="font-size:0.62em;color:#fca5a5;font-weight:700;white-space:nowrap;">${p.remaining}</span>` : ''}
+                    </div>
+                </div>`);
+
+            const handItems = m.handicaps.map(h => `
+                <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.3);border-radius:11px;padding:10px 13px;margin-bottom:8px;display:flex;align-items:center;gap:9px;">
+                    <span style="font-size:1.05em;">${h.icon}</span>
+                    <span style="font-size:0.78em;color:#fcd34d;font-weight:600;">${h.text}</span>
+                </div>`);
+
+            const sheet = document.createElement('div');
+            sheet.style.cssText = 'background:#0D0D0D;border-radius:24px 24px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;-webkit-overflow-scrolling:touch;';
+            sheet.innerHTML = `
+                <div style="width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:99px;margin:0 auto 18px;"></div>
+                <h2 style="margin:0 0 4px;color:white;font-size:1.15em;font-weight:900;">⚠️ Malus actifs ${total > 0 ? `<span style="font-size:0.7em;background:rgba(239,68,68,0.15);color:#f87171;padding:2px 9px;border-radius:99px;">${total}</span>` : ''}</h2>
+                <p style="margin:0 0 18px;color:rgba(255,255,255,0.4);font-size:0.8em;">Tout ce qui t'affaiblit actuellement, regroupé ici.</p>
+                ${total === 0 ? `
+                    <div style="text-align:center;padding:30px 20px;">
+                        <div style="font-size:2.5em;margin-bottom:10px;">✨</div>
+                        <div style="color:#4ade80;font-weight:800;font-size:0.95em;">Aucun malus actif</div>
+                        <div style="color:rgba(255,255,255,0.4);font-size:0.78em;margin-top:6px;line-height:1.5;">Tu es au sommet de ta forme, Chasseur. Aucune malédiction, pénalité ou handicap ne t'affecte.</div>
+                    </div>
+                ` : `
+                    ${section('Malédictions d\'équipement', '#c084fc', '☠️', curseItems)}
+                    ${section('Pénalités de défi', '#f87171', '⚔️', penItems)}
+                    ${section('Handicaps de monstres', '#fcd34d', '👹', handItems)}
+                `}
+                <button onclick="document.getElementById('activeMalusOverlay').remove()" style="margin-top:8px;width:100%;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:12px;color:rgba(255,255,255,0.5);font-weight:700;cursor:pointer;">Fermer</button>`;
+            overlay.appendChild(sheet);
+            document.body.appendChild(overlay);
+        }
+        window.showActiveMalusScreen = showActiveMalusScreen;
