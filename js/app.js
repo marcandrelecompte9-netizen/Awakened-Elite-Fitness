@@ -1843,6 +1843,11 @@
         }
         
         // ===== 6. FONCTION : ÉCHAUFFEMENT PROGRESSIF 3 PHASES =====
+        // Pioche N exercices au hasard dans un pool (variété à chaque séance)
+        function _pickWarmup(pool, n) {
+            const shuffled = [...pool].sort(() => Math.random() - 0.5);
+            return shuffled.slice(0, Math.min(n, pool.length));
+        }
         function generateProgressiveWarmup(targetMuscles, intensity) {
             const warmup = [];
             
@@ -1867,10 +1872,15 @@
                 : [
                                                           ];
 
-            // Fallback si aucune machine cardio dispo : marche sur place neutre
-            const cardioToAdd = cardioExercises.length > 0 ? cardioExercises : [
-                { name: "Marche sur place active", duration: 90, mode: 'timer', muscle: 'Cardio', equipment: ['Poids du corps'], type: 'warmup', instructions: ["Marche dynamique sur place", "Bras actifs", "Augmenter le rythme"] }
+            // Fallback si aucune machine cardio dispo : pool cardio maison varié
+            const homeCardioPool = [
+                { name: "Marche sur place active", duration: 90, mode: 'timer', muscle: 'Cardio', equipment: ['Poids du corps'], type: 'warmup', instructions: ["Marche dynamique sur place", "Bras actifs", "Augmenter le rythme"] },
+                { name: "Montées de genoux légères", duration: 75, mode: 'timer', muscle: 'Cardio', equipment: ['Poids du corps'], type: 'warmup', instructions: ["Genoux à hauteur de hanche", "Rythme modéré", "Bras coordonnés"] },
+                { name: "Jumping jacks d'échauffement", duration: 75, mode: 'timer', muscle: 'Cardio', equipment: ['Poids du corps'], type: 'warmup', instructions: ["Mouvement ample et léger", "Rythme régulier", "Respirez"] },
+                { name: "Talons-fesses légers", duration: 75, mode: 'timer', muscle: 'Cardio', equipment: ['Poids du corps'], type: 'warmup', instructions: ["Talons vers les fessiers", "Sur place ou en avançant", "Rythme contrôlé"] },
+                { name: "Pas chassés latéraux", duration: 70, mode: 'timer', muscle: 'Cardio', equipment: ['Poids du corps'], type: 'warmup', instructions: ["Déplacements latéraux", "Restez sur l'avant des pieds", "Dynamique"] }
             ];
+            const cardioToAdd = cardioExercises.length > 0 ? cardioExercises : _pickWarmup(homeCardioPool, 1);
             warmup.push(...cardioToAdd);
             
             // PHASE 2 : Mobilité Articulaire (2-3 min)
@@ -1887,17 +1897,27 @@
             const hasUpperBody = targetMuscles.some(m => !lowerBodyMuscles.includes(m));
             
             if (hasUpperBody) {
-                warmup.push(
+                // 🔀 Pool mobilité haut du corps — 2 tirés au hasard pour varier
+                const upperPool = [
                     { name: "Rotations épaules", duration: 60, mode: "timer", muscle: "Épaules", equipment: ["Poids du corps"], type: "warmup", instructions: ["Cercles avant puis arrière", "Amplitude maximale"] },
-                    { name: "Cercles bras", duration: 60, mode: "timer", muscle: "Épaules", equipment: ["Poids du corps"], type: "warmup", instructions: ["Bras tendus, grands cercles", "Alternez le sens"] }
-                );
+                    { name: "Cercles bras", duration: 60, mode: "timer", muscle: "Épaules", equipment: ["Poids du corps"], type: "warmup", instructions: ["Bras tendus, grands cercles", "Alternez le sens"] },
+                    { name: "Rotations thoraciques", duration: 50, mode: "timer", muscle: "Dos", equipment: ["Poids du corps"], type: "warmup", instructions: ["Mains sur les épaules", "Rotation lente du buste"] },
+                    { name: "Cercles de poignets et coudes", duration: 45, mode: "timer", muscle: "Avant-bras", equipment: ["Poids du corps"], type: "warmup", instructions: ["Cercles des poignets", "Puis flexions des coudes"] },
+                    { name: "Étirements dynamiques bras croisés", duration: 50, mode: "timer", muscle: "Épaules", equipment: ["Poids du corps"], type: "warmup", instructions: ["Balancez les bras croisés devant", "Puis ouvrez en grand"] }
+                ];
+                warmup.push(..._pickWarmup(upperPool, 2));
             }
-            
+
             if (hasLowerBody) {
-                warmup.push(
+                // 🔀 Pool mobilité bas du corps — 2 tirés au hasard
+                const lowerPool = [
                     { name: "Rotations hanches", duration: 60, mode: "timer", muscle: "Fessiers", equipment: ["Poids du corps"], type: "warmup", instructions: ["Cercles avec les hanches", "Amplitude complète"] },
-                    { name: "Flexions genoux", duration: 60, mode: "timer", muscle: "Quadriceps", equipment: ["Poids du corps"], type: "warmup", instructions: ["Montez genoux alternés", "Amplitude contrôlée"] }
-                );
+                    { name: "Flexions genoux", duration: 60, mode: "timer", muscle: "Quadriceps", equipment: ["Poids du corps"], type: "warmup", instructions: ["Montez genoux alternés", "Amplitude contrôlée"] },
+                    { name: "Balancements de jambe", duration: 50, mode: "timer", muscle: "Ischio-jambiers", equipment: ["Poids du corps"], type: "warmup", instructions: ["Balancez une jambe d'avant en arrière", "Appui sur un support"] },
+                    { name: "Cercles de chevilles", duration: 40, mode: "timer", muscle: "Mollets", equipment: ["Poids du corps"], type: "warmup", instructions: ["Rotations des chevilles", "Les deux sens"] },
+                    { name: "Fentes marchées dynamiques", duration: 55, mode: "timer", muscle: "Quadriceps", equipment: ["Poids du corps"], type: "warmup", instructions: ["Fentes en avançant", "Buste droit"] }
+                ];
+                warmup.push(..._pickWarmup(lowerPool, 2));
             }
             
             // PHASE 3 : Activation Musculaire (2-3 min)
@@ -1978,15 +1998,18 @@
                 ]
             });
             
-            // Ajouter étirements dans l'ordre optimal
+            // Ajouter étirements dans l'ordre optimal (variété : on pioche au hasard parmi les variantes)
             orderedMuscles.forEach(muscle => {
                 const duration = stretchDurations[muscle] || 30;
-                
-                // Trouver exercice d'étirement pour ce muscle
-                const stretchExercise = exerciseDatabase.find(ex => 
+
+                // 🔀 Toutes les variantes d'étirement pour ce muscle → choisir aléatoirement
+                const variants = exerciseDatabase.filter(ex =>
                     ex.type === 'stretch' && ex.muscle === muscle
                 );
-                
+                const stretchExercise = variants.length > 0
+                    ? variants[Math.floor(Math.random() * variants.length)]
+                    : null;
+
                 if (stretchExercise) {
                     stretches.push({
                         ...stretchExercise,
@@ -2005,11 +2028,14 @@
             orderedMuscles.forEach(muscle => {
                 const antagonist = muscleAntagonists[muscle];
                 if (antagonist && !musclesWorked.has(antagonist)) {
-                    // Muscle antagoniste pas travaillé, ajouter léger étirement
-                    const antagonistStretch = exerciseDatabase.find(ex => 
+                    // Muscle antagoniste pas travaillé, ajouter léger étirement (variante aléatoire)
+                    const antVariants = exerciseDatabase.filter(ex =>
                         ex.type === 'stretch' && ex.muscle === antagonist
                     );
-                    
+                    const antagonistStretch = antVariants.length > 0
+                        ? antVariants[Math.floor(Math.random() * antVariants.length)]
+                        : null;
+
                     if (antagonistStretch && stretches.length < 10) { // Limiter nombre total
                         stretches.push({
                             ...antagonistStretch,
@@ -4880,68 +4906,84 @@
         // ═══════════════════════════════════════════════════════════════
         // Basé sur la science : mobilité dynamique > étirements statiques le matin.
         // Objectif : circulation, amplitude articulaire, réveil — sans matériel.
+        const MORNING_POOLS = {
+            mobility: [
+                { name: 'Cercles de bras',           mode: 'duration', duration: 30 },
+                { name: 'Rotations thoraciques',     mode: 'duration', duration: 40 },
+                { name: 'Cat-Cow',                   mode: 'duration', duration: 45 },
+                { name: 'Cercles hanche',            mode: 'duration', duration: 40 },
+                { name: 'Cercles chevilles',         mode: 'duration', duration: 30 },
+                { name: 'Rotations tronc',           mode: 'duration', duration: 40 },
+                { name: 'Rotations poignets',        mode: 'duration', duration: 25 },
+                { name: 'Cobra',                     mode: 'duration', duration: 35 },
+            ],
+            activation: [
+                { name: 'Glute bridge léger',        mode: 'reps',     reps: 12,  sets: 2 },
+                { name: 'Squats poids corps légers', mode: 'reps',     reps: 15,  sets: 2 },
+                { name: 'Fentes dynamiques',         mode: 'duration', duration: 45 },
+                { name: 'Dead bug lent',             mode: 'duration', duration: 40 },
+                { name: 'Superman dynamique',        mode: 'duration', duration: 40 },
+                { name: 'Inchworm',                  mode: 'duration', duration: 40 },
+                { name: 'Balancements jambe arrière',mode: 'duration', duration: 40 },
+            ],
+            cardio: [
+                { name: 'Montées de genoux sur place', mode: 'duration', duration: 40 },
+                { name: 'Jumping Jacks légers',        mode: 'duration', duration: 40 },
+            ],
+            finish: [
+                { name: 'Étirement complet debout',  mode: 'duration', duration: 30 },
+                { name: 'Étirement latéral debout',  mode: 'duration', duration: 30 },
+                { name: 'Étirement quadriceps debout',mode: 'duration', duration: 30 },
+                { name: 'Pigeon pose',               mode: 'duration', duration: 40 },
+            ]
+        };
+
+        const MORNING_RECIPES = {
+            morning_gentle:   { mobility: 4, activation: 0, cardio: 0, finish: 1, breathStart: true },
+            morning_energize: { mobility: 3, activation: 2, cardio: 1, finish: 1, breathStart: true },
+            morning_power:    { mobility: 2, activation: 3, cardio: 2, finish: 1, breathStart: false }
+        };
+
         const MORNING_ROUTINES = [
-            {
-                id: 'morning_gentle',
-                name: 'Réveil Doux',
-                emoji: '🌅',
-                color: '#fbbf24',
-                duration: '~5 min',
-                level: 'Débutant',
-                desc: 'Mobilité articulaire en douceur pour dérouiller le corps au réveil.',
-                exercises: [
-                    { name: 'Respiration profonde',      mode: 'duration', duration: 40, sets: 1 },
-                    { name: 'Cercles de bras',           mode: 'duration', duration: 30, sets: 1 },
-                    { name: 'Rotations thoraciques',     mode: 'duration', duration: 40, sets: 1 },
-                    { name: 'Cat-Cow',                   mode: 'duration', duration: 45, sets: 1 },
-                    { name: 'Cercles hanche',            mode: 'duration', duration: 40, sets: 1 },
-                    { name: 'Cercles chevilles',         mode: 'duration', duration: 30, sets: 1 },
-                    { name: 'Étirement complet debout',  mode: 'duration', duration: 30, sets: 1 },
-                ]
-            },
-            {
-                id: 'morning_energize',
-                name: 'Réveil Énergisant',
-                emoji: '⚡',
-                color: '#f97316',
-                duration: '~8 min',
-                level: 'Intermédiaire',
-                desc: 'Mobilité dynamique + activation cardio légère pour booster l\'énergie.',
-                exercises: [
-                    { name: 'Respiration profonde',          mode: 'duration', duration: 30, sets: 1 },
-                    { name: 'Cercles de bras',               mode: 'duration', duration: 30, sets: 1 },
-                    { name: 'Cat-Cow',                       mode: 'duration', duration: 40, sets: 1 },
-                    { name: 'Balancements jambe arrière',    mode: 'duration', duration: 40, sets: 1 },
-                    { name: 'Fentes dynamiques',             mode: 'duration', duration: 45, sets: 1 },
-                    { name: 'Montées de genoux sur place',   mode: 'duration', duration: 40, sets: 1 },
-                    { name: 'Jumping Jacks légers',          mode: 'duration', duration: 40, sets: 1 },
-                    { name: 'Inchworm',                      mode: 'duration', duration: 40, sets: 1 },
-                    { name: 'Étirement complet debout',      mode: 'duration', duration: 30, sets: 1 },
-                ]
-            },
-            {
-                id: 'morning_power',
-                name: 'Réveil Puissance',
-                emoji: '🔥',
-                color: '#ef4444',
-                duration: '~10 min',
-                level: 'Avancé',
-                desc: 'Mobilité + renforcement léger + cardio pour un démarrage complet.',
-                exercises: [
-                    { name: 'Cercles de bras',               mode: 'duration', duration: 30, sets: 1 },
-                    { name: 'Rotations thoraciques',         mode: 'duration', duration: 40, sets: 1 },
-                    { name: 'Cat-Cow',                       mode: 'duration', duration: 40, sets: 1 },
-                    { name: 'Glute bridge léger',            mode: 'reps',     reps: 12,     sets: 2 },
-                    { name: 'Squats poids corps légers',     mode: 'reps',     reps: 15,     sets: 2 },
-                    { name: 'Fentes dynamiques',             mode: 'duration', duration: 45, sets: 1 },
-                    { name: 'Dead bug lent',                 mode: 'duration', duration: 40, sets: 1 },
-                    { name: 'Superman dynamique',            mode: 'duration', duration: 40, sets: 1 },
-                    { name: 'Montées de genoux sur place',   mode: 'duration', duration: 45, sets: 1 },
-                    { name: 'Jumping Jacks légers',          mode: 'duration', duration: 45, sets: 1 },
-                    { name: 'Étirement complet debout',      mode: 'duration', duration: 30, sets: 1 },
-                ]
-            }
+            { id: 'morning_gentle',   name: 'Réveil Doux',       emoji: '🌅', color: '#fbbf24', duration: '~5 min',  level: 'Débutant',
+              desc: 'Mobilité articulaire en douceur pour dérouiller le corps au réveil.' },
+            { id: 'morning_energize', name: 'Réveil Énergisant', emoji: '⚡', color: '#f97316', duration: '~8 min',  level: 'Intermédiaire',
+              desc: 'Mobilité dynamique + activation cardio légère pour booster l’énergie.' },
+            { id: 'morning_power',    name: 'Réveil Puissance',  emoji: '🔥', color: '#ef4444', duration: '~10 min', level: 'Avancé',
+              desc: 'Mobilité + renforcement léger + cardio pour un démarrage complet.' }
         ];
+
+        function _pickFromPool(pool, n) {
+            if (n <= 0) return [];
+            const shuffled = [...pool].sort(() => Math.random() - 0.5);
+            return shuffled.slice(0, Math.min(n, pool.length)).map(ex => ({ ...ex, sets: ex.sets || 1 }));
+        }
+
+        function buildMorningExercises(routineId) {
+            const recipe = MORNING_RECIPES[routineId] || MORNING_RECIPES.morning_gentle;
+            let list = [];
+            if (recipe.breathStart) list.push({ name: 'Respiration profonde', mode: 'duration', duration: 40, sets: 1 });
+            list = list.concat(_pickFromPool(MORNING_POOLS.mobility, recipe.mobility));
+            list = list.concat(_pickFromPool(MORNING_POOLS.activation, recipe.activation));
+            list = list.concat(_pickFromPool(MORNING_POOLS.cardio, recipe.cardio));
+            list = list.concat(_pickFromPool(MORNING_POOLS.finish, recipe.finish));
+            return list;
+        }
+        window.buildMorningExercises = buildMorningExercises;
+
+        function _customMorningKey() {
+            const pid = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
+            return pid ? `fitproCustomMorning_${pid}` : 'fitproCustomMorning';
+        }
+        function loadCustomMorningRoutine() {
+            try { return JSON.parse(localStorage.getItem(_customMorningKey()) || 'null'); }
+            catch(e) { return null; }
+        }
+        function saveCustomMorningRoutine(exercises) {
+            try { localStorage.setItem(_customMorningKey(), JSON.stringify(exercises || [])); } catch(e) {}
+        }
+        window.loadCustomMorningRoutine = loadCustomMorningRoutine;
+        window.saveCustomMorningRoutine = saveCustomMorningRoutine;
 
         function showMorningRoutineModal() {
             document.getElementById('morningRoutineModal')?.remove();
@@ -4950,7 +4992,13 @@
             overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:10200;display:flex;align-items:flex-end;justify-content:center;padding:0;';
             overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
 
-            const cards = MORNING_ROUTINES.map(r => `
+            const cards = MORNING_ROUTINES.map(r => {
+                const exCount = (MORNING_RECIPES[r.id] ? (
+                    (MORNING_RECIPES[r.id].breathStart ? 1 : 0) +
+                    MORNING_RECIPES[r.id].mobility + MORNING_RECIPES[r.id].activation +
+                    MORNING_RECIPES[r.id].cardio + MORNING_RECIPES[r.id].finish
+                ) : 6);
+                return `
                 <button onclick="startMorningRoutine('${r.id}')" style="
                     width:100%;text-align:left;background:linear-gradient(135deg,${r.color}18,${r.color}08);
                     border:1.5px solid ${r.color}55;border-radius:14px;padding:14px;margin-bottom:10px;cursor:pointer;
@@ -4963,11 +5011,29 @@
                             <span style="font-size:0.62em;font-weight:800;color:white;background:${r.color};padding:2px 7px;border-radius:99px;">${r.level}</span>
                         </div>
                         <div style="font-size:0.74em;color:#64748b;line-height:1.4;margin-top:3px;">${r.desc}</div>
-                        <div style="font-size:0.68em;color:${r.color};font-weight:800;margin-top:4px;">⏱ ${r.duration} · ${r.exercises.length} mouvements</div>
+                        <div style="font-size:0.68em;color:${r.color};font-weight:800;margin-top:4px;">⏱ ${r.duration} · ~${exCount} mouvements · 🔀 varie à chaque fois</div>
                     </div>
                     <div style="font-size:1.3em;color:${r.color};flex-shrink:0;">▶</div>
                 </button>
-            `).join('');
+            `;}).join('');
+
+            // Carte routine personnalisée
+            const custom = loadCustomMorningRoutine();
+            const customCard = `
+                <button onclick="startMorningRoutine('morning_custom')" style="
+                    width:100%;text-align:left;background:linear-gradient(135deg,#a855f718,#a855f708);
+                    border:1.5px solid #a855f755;border-radius:14px;padding:14px;margin-bottom:10px;cursor:pointer;
+                    display:flex;align-items:center;gap:13px;">
+                    <div style="font-size:2.1em;flex-shrink:0;">⭐</div>
+                    <div style="flex:1;min-width:0;">
+                        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                            <span style="font-weight:900;font-size:0.98em;color:#0F1014;">Ma Routine</span>
+                            <span style="font-size:0.62em;font-weight:800;color:white;background:#a855f7;padding:2px 7px;border-radius:99px;">Perso</span>
+                        </div>
+                        <div style="font-size:0.74em;color:#64748b;line-height:1.4;margin-top:3px;">${custom && custom.length ? `Ta routine sur mesure (${custom.length} exercices)` : 'Pas encore créée — appuie sur Personnaliser ci-dessous'}</div>
+                    </div>
+                    <div style="font-size:1.3em;color:#a855f7;flex-shrink:0;">${custom && custom.length ? '▶' : '＋'}</div>
+                </button>`;
 
             overlay.innerHTML = `
                 <div style="background:white;border-radius:22px 22px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:88vh;overflow-y:auto;">
@@ -4978,7 +5044,9 @@
                         <p style="margin:0 0 16px;font-size:0.78em;color:#64748b;line-height:1.5;">Réveille ton corps en douceur. Choisis ton niveau — aucun matériel requis.</p>
                     </div>
                     ${cards}
-                    <button onclick="document.getElementById('morningRoutineModal').remove()" class="btn btn-secondary" style="width:100%;margin-top:6px;">Fermer</button>
+                    ${customCard}
+                    <button onclick="showCustomMorningEditor()" style="width:100%;margin-top:2px;margin-bottom:6px;padding:12px;background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.35);border-radius:12px;color:#a855f7;font-weight:800;font-size:0.85em;cursor:pointer;">✏️ Personnaliser ma routine</button>
+                    <button onclick="document.getElementById('morningRoutineModal').remove()" class="btn btn-secondary" style="width:100%;">Fermer</button>
                 </div>
             `;
             document.body.appendChild(overlay);
@@ -4987,8 +5055,22 @@
         window.showMorningRoutineModal = showMorningRoutineModal;
 
         function startMorningRoutine(routineId) {
-            const routine = MORNING_ROUTINES.find(r => r.id === routineId);
-            if (!routine) return;
+            // Routine personnalisée ?
+            let routine, sourceExercises;
+            if (routineId === 'morning_custom') {
+                const custom = loadCustomMorningRoutine();
+                if (!custom || custom.length === 0) {
+                    if (typeof showToast === 'function') showToast('Crée d\'abord ta routine personnalisée', 'info', 2500);
+                    return;
+                }
+                routine = { emoji: '⭐', name: 'Ma Routine', desc: 'Ta routine matinale personnalisée.' };
+                sourceExercises = custom;
+            } else {
+                routine = MORNING_ROUTINES.find(r => r.id === routineId);
+                if (!routine) return;
+                // 🔀 Génération dynamique : exercices différents à chaque réveil
+                sourceExercises = buildMorningExercises(routineId);
+            }
             document.getElementById('morningRoutineModal')?.remove();
 
             // Construire le workout au format standard
@@ -4997,7 +5079,7 @@
                 description: routine.desc,
                 type: 'morning',
                 fromMorning: true,
-                exercises: routine.exercises.map(ex => {
+                exercises: sourceExercises.map(ex => {
                     const fullEx = exerciseDatabase.find(e => e.name === ex.name);
                     if (fullEx) {
                         return {
@@ -5057,6 +5139,84 @@
             if (typeof showToast === 'function') showToast(`${routine.emoji} ${routine.name} — Bonne séance !`, 'success', 2500);
         }
         window.startMorningRoutine = startMorningRoutine;
+
+        // ── ÉDITEUR DE ROUTINE MATINALE PERSONNALISÉE ──────────────────
+        function showCustomMorningEditor() {
+            document.getElementById('morningRoutineModal')?.remove();
+            document.getElementById('customMorningEditor')?.remove();
+
+            // Pool d'exercices matinaux disponibles (tous les pools réunis)
+            const allMorning = [
+                ...MORNING_POOLS.mobility, ...MORNING_POOLS.activation,
+                ...MORNING_POOLS.cardio, ...MORNING_POOLS.finish,
+                { name: 'Respiration profonde', mode: 'duration', duration: 40 }
+            ];
+            // Dédupliquer par nom
+            const seen = new Set();
+            const pool = allMorning.filter(e => { if (seen.has(e.name)) return false; seen.add(e.name); return true; });
+
+            let current = loadCustomMorningRoutine() || [];
+
+            const overlay = document.createElement('div');
+            overlay.id = 'customMorningEditor';
+            overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);z-index:10300;display:flex;align-items:flex-end;justify-content:center;';
+            overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+
+            function render() {
+                const selectedNames = current.map(e => e.name);
+                const poolHtml = pool.map(ex => {
+                    const isSel = selectedNames.includes(ex.name);
+                    return `<button onclick="_toggleMorningEx('${ex.name.replace(/'/g,"\\'")}')" style="
+                        display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:9px 11px;margin-bottom:5px;
+                        background:${isSel ? 'rgba(168,85,247,0.15)' : 'rgba(255,255,255,0.03)'};
+                        border:1px solid ${isSel ? 'rgba(168,85,247,0.5)' : 'rgba(255,255,255,0.08)'};
+                        border-radius:9px;cursor:pointer;color:white;">
+                        <span style="font-size:1em;color:${isSel ? '#a855f7' : '#475569'};">${isSel ? '✓' : '+'}</span>
+                        <span style="flex:1;font-size:0.8em;font-weight:${isSel ? '800' : '500'};color:${isSel ? '#e2e8f0' : '#94a3b8'};">${ex.name}</span>
+                        <span style="font-size:0.62em;color:#64748b;">${ex.mode === 'reps' ? (ex.reps+' reps') : (ex.duration+'s')}</span>
+                    </button>`;
+                }).join('');
+
+                overlay.innerHTML = `
+                    <div style="background:#0D0D0D;border-radius:22px 22px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+                        <div style="width:40px;height:4px;background:rgba(255,255,255,0.2);border-radius:99px;margin:0 auto 16px;"></div>
+                        <div style="text-align:center;margin-bottom:14px;">
+                            <div style="font-size:2em;">⭐</div>
+                            <h3 style="margin:6px 0 4px;color:white;">Ma routine matinale</h3>
+                            <p style="margin:0;font-size:0.76em;color:#94a3b8;">Sélectionne tes exercices. ${current.length} choisi${current.length>1?'s':''}.</p>
+                        </div>
+                        <div style="margin-bottom:14px;">${poolHtml}</div>
+                        <button onclick="_saveCustomMorning()" style="width:100%;padding:14px;background:linear-gradient(135deg,#a855f7,#c084fc);border:none;border-radius:12px;color:white;font-weight:900;cursor:pointer;margin-bottom:8px;box-shadow:0 4px 16px rgba(168,85,247,0.4);">💾 Sauvegarder ma routine</button>
+                        <button onclick="document.getElementById('customMorningEditor').remove();showMorningRoutineModal();" style="width:100%;padding:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:#94a3b8;font-weight:700;cursor:pointer;">↩ Retour</button>
+                    </div>`;
+            }
+
+            window._toggleMorningEx = (name) => {
+                const idx = current.findIndex(e => e.name === name);
+                if (idx >= 0) {
+                    current.splice(idx, 1);
+                } else {
+                    const ex = pool.find(e => e.name === name);
+                    if (ex) current.push({ ...ex, sets: ex.sets || 1 });
+                }
+                render();
+            };
+            window._saveCustomMorning = () => {
+                if (current.length === 0) {
+                    if (typeof showToast === 'function') showToast('Sélectionne au moins un exercice', 'info', 2000);
+                    return;
+                }
+                saveCustomMorningRoutine(current);
+                if (typeof showToast === 'function') showToast('⭐ Routine personnalisée sauvegardée !', 'success', 2500);
+                overlay.remove();
+                showMorningRoutineModal();
+            };
+
+            render();
+            document.body.appendChild(overlay);
+            if (typeof hapticTap === 'function') hapticTap(30);
+        }
+        window.showCustomMorningEditor = showCustomMorningEditor;
 
         function resumeActiveWorkout() {
             const state = loadActiveWorkoutState();
@@ -5172,8 +5332,18 @@
             try {
                 const saved = JSON.parse(localStorage.getItem('fitproLocations') || 'null');
                 if (saved) {
-                    // Migration : s'assurer que les lieux mode 'home' n'ont pas de machines/équipements de salle
+                    // Migration : ajouter le lieu "Extérieur" s'il manque (utilisateurs existants)
                     let changed = false;
+                    if (!saved.some(loc => loc.id === 'outdoor')) {
+                        // Insérer Extérieur juste après Maison (ou en 2e position)
+                        const homeIdx = saved.findIndex(loc => loc.id === 'home');
+                        const outdoorLoc = { id: 'outdoor', name: 'Extérieur', icon: '🌳', mode: 'home',
+                            equipment: ['bodyweight','resistance','jumprope','parallelbars','kettlebell','tire','sled','sandbag'], machines: [] };
+                        if (homeIdx >= 0) saved.splice(homeIdx + 1, 0, outdoorLoc);
+                        else saved.unshift(outdoorLoc);
+                        changed = true;
+                    }
+                    // Migration : s'assurer que les lieux mode 'home' n'ont pas de machines/équipements de salle
                     const gymOnlyEquip = ['barbell','treadmill','bike','elliptical','stairmaster','rower','battleropes','parallelbars'];
                     saved.forEach(loc => {
                         if (loc.mode === 'home') {
@@ -5181,8 +5351,12 @@
                                 loc.machines = [];
                                 changed = true;
                             }
-                            if (loc.equipment && loc.equipment.some(e => gymOnlyEquip.includes(e))) {
-                                loc.equipment = loc.equipment.filter(e => !gymOnlyEquip.includes(e));
+                            // L'extérieur peut garder les barres de parc (parallelbars)
+                            const stripList = loc.id === 'outdoor'
+                                ? gymOnlyEquip.filter(e => e !== 'parallelbars')
+                                : gymOnlyEquip;
+                            if (loc.equipment && loc.equipment.some(e => stripList.includes(e))) {
+                                loc.equipment = loc.equipment.filter(e => !stripList.includes(e));
                                 if (loc.equipment.length === 0) loc.equipment = ['bodyweight'];
                                 changed = true;
                             }
@@ -5195,6 +5369,9 @@
                 const defaults = [
                     { id: 'home', name: 'Maison', icon: '🏠', mode: 'home',
                       equipment: ['bodyweight','dumbbells','resistance','jumprope'],
+                      machines: [] },
+                    { id: 'outdoor', name: 'Extérieur', icon: '🌳', mode: 'home',
+                      equipment: ['bodyweight','resistance','jumprope','parallelbars','kettlebell','tire','sled','sandbag'],
                       machines: [] },
                     { id: 'gym1', name: 'Gym principal', icon: '🏋️', mode: 'gym',
                       equipment: ['bodyweight','dumbbells','barbell','machine','bench','parallelbars'],
@@ -5531,6 +5708,30 @@
                 name: 'Barres parallèles', 
                 svgIcon: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="white"><rect x="28" y="20" width="10" height="60" rx="4"/><rect x="62" y="20" width="10" height="60" rx="4"/><rect x="22" y="75" width="10" height="15" rx="3"/><rect x="68" y="75" width="10" height="15" rx="3"/><rect x="16" y="20" width="12" height="22" rx="10"/><rect x="72" y="20" width="12" height="22" rx="10"/></svg>',
                 dbName: 'Barres parallèles' 
+            },
+            { 
+                id: 'tire', 
+                name: 'Pneu / Strongman', 
+                svgIcon: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="white"><circle cx="50" cy="50" r="36" fill="none" stroke="white" stroke-width="12"/><circle cx="50" cy="50" r="16" fill="none" stroke="white" stroke-width="5"/><line x1="50" y1="8" x2="50" y2="22" stroke="white" stroke-width="4"/><line x1="50" y1="78" x2="50" y2="92" stroke="white" stroke-width="4"/><line x1="8" y1="50" x2="22" y2="50" stroke="white" stroke-width="4"/><line x1="78" y1="50" x2="92" y2="50" stroke="white" stroke-width="4"/><line x1="22" y1="22" x2="32" y2="32" stroke="white" stroke-width="4"/><line x1="68" y1="68" x2="78" y2="78" stroke="white" stroke-width="4"/><line x1="78" y1="22" x2="68" y2="32" stroke="white" stroke-width="4"/><line x1="32" y1="68" x2="22" y2="78" stroke="white" stroke-width="4"/></svg>',
+                dbName: 'Pneu / Strongman' 
+            },
+            { 
+                id: 'pool', 
+                name: 'Piscine', 
+                svgIcon: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"><path d="M 10 40 Q 22 30 34 40 T 58 40 T 82 40 T 90 40"/><path d="M 10 58 Q 22 48 34 58 T 58 58 T 82 58 T 90 58"/><path d="M 10 76 Q 22 66 34 76 T 58 76 T 82 76 T 90 76"/><circle cx="68" cy="22" r="8" fill="white" stroke="none"/></svg>',
+                dbName: 'Piscine' 
+            },
+            { 
+                id: 'sled', 
+                name: 'Traîneau', 
+                svgIcon: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="white"><rect x="20" y="60" width="50" height="8" rx="2"/><rect x="24" y="36" width="6" height="24" rx="2"/><rect x="60" y="36" width="6" height="24" rx="2"/><rect x="18" y="32" width="54" height="8" rx="3"/><rect x="38" y="20" width="8" height="20" rx="2" opacity="0.6"/><line x1="70" y1="64" x2="92" y2="50" stroke="white" stroke-width="5" stroke-linecap="round"/><rect x="86" y="42" width="10" height="6" rx="3"/><circle cx="28" cy="74" r="5"/><circle cx="62" cy="74" r="5"/></svg>',
+                dbName: 'Traîneau' 
+            },
+            { 
+                id: 'sandbag', 
+                name: 'Sac de sable', 
+                svgIcon: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="white"><path d="M 30 30 Q 50 22 70 30 L 74 74 Q 50 84 26 74 Z"/><path d="M 30 30 Q 50 38 70 30" fill="none" stroke="#16a34a" stroke-width="2" opacity="0.4"/><line x1="34" y1="46" x2="66" y2="46" stroke="#16a34a" stroke-width="2" opacity="0.3"/><line x1="34" y1="58" x2="66" y2="58" stroke="#16a34a" stroke-width="2" opacity="0.3"/><rect x="40" y="20" width="20" height="10" rx="3" opacity="0.7"/></svg>',
+                dbName: 'Sac de sable' 
             },
             { 
                 id: 'abwheel', 
@@ -11161,20 +11362,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             updateProgress();
             renderExerciseProgressList();
             
-            // Get muscle badge
+            // Note : le muscle est déjà affiché via #muscleBadge (mis à jour dynamiquement),
+            // donc on n'ajoute pas de second badge ici pour éviter le doublon.
             let muscleBadgeHTML = '';
-            if (exerciseFromDB && exerciseFromDB.muscle) {
-                const muscleEmojis = {
-                    'Pectoraux': '💪', 'Dos': '🦸', 'Épaules': '🏋️',
-                    'Biceps': '💪', 'Triceps': '🔱', 'Abdominaux': '🔥',
-                    'Quadriceps': '🦵', 'Ischio-jambiers': '🦿', 'Fessiers': '🍑',
-                    'Mollets': '👟', 'Cardio': '❤️', 'Corps entier': '🤸‍♂️'
-                };
-                const emoji = muscleEmojis[exerciseFromDB.muscle] || '💪';
-                muscleBadgeHTML = `<div style="display: inline-block; background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); color: white; padding: 8px 16px; border-radius: 20px; font-size: 0.9em; margin-top: 10px; font-weight: bold;">
-                    ${emoji} ${exerciseFromDB.muscle}
-                </div>`;
-            }
             
             // Build interface
             const container = document.getElementById('exerciseView');
@@ -21697,11 +21887,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     const cardSys = document.createElement('div');
                     cardSys.style.cssText = 'margin-bottom:12px;';
                     cardSys.innerHTML = `
-                        <div style="background:${tc.bg};border:1px solid ${tc.bd};border-left:3px solid ${tc.c};border-radius:10px;padding:11px 14px;display:flex;align-items:flex-start;gap:10px;">
+                        <div onclick="showSystemAnalysis()" style="background:${tc.bg};border:1px solid ${tc.bd};border-left:3px solid ${tc.c};border-radius:10px;padding:11px 14px;display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
                             <span style="font-size:0.9em;flex-shrink:0;color:${tc.c};font-weight:900;letter-spacing:1px;">⚙</span>
                             <div style="flex:1;min-width:0;">
                                 <div style="font-size:0.52em;color:${tc.c};font-weight:900;letter-spacing:2px;margin-bottom:3px;">SYSTÈME</div>
                                 <div style="font-size:0.8em;color:#cbd5e1;line-height:1.45;font-style:italic;">${sysMsg.text}</div>
+                                <div style="font-size:0.62em;color:${tc.c};font-weight:800;margin-top:6px;">⚙ Voir l'analyse détaillée →</div>
                             </div>
                         </div>`;
                     tab.appendChild(cardSys);
@@ -22091,7 +22282,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         <div style="font-size:0.65em;color:rgba(168,85,247,0.5);font-weight:800;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;">◈ Awakening ◈</div>
                         <div style="font-size:1em;font-weight:900;color:#475569;margin-bottom:4px;">Classe verrouillée</div>
                         <div style="font-size:0.78em;color:#334155;line-height:1.5;margin-bottom:10px;">Atteins le <strong style="color:#a855f7">rang D (niveau 10)</strong> pour que le Système t'éveille à ta vraie voie.</div>
-                        <div style="display:inline-block;background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.2);border-radius:99px;padding:3px 12px;font-size:0.7em;color:#a855f7;font-weight:700;">Niv. ${profileLevel} / 6</div>
+                        <div style="display:inline-block;background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.2);border-radius:99px;padding:3px 12px;font-size:0.7em;color:#a855f7;font-weight:700;">Niv. ${profileLevel} / 10</div>
                     </div>`;
             } else if (_evolved) {
                 // Has class - show evolved version
@@ -23568,6 +23759,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
          * Doit être appelée APRÈS completeWorkout()
          */
         function awakTriggerFirstContactIfNeeded() {
+            // 🔒 Pas de premier contact si le mode Aventure/Chasseur n'est pas activé
+            if (typeof getAdventureEnabled === 'function' && !getAdventureEnabled()) return false;
             if (awakHasMetSystem()) return false;
             // Délai pour ne pas chevaucher l'écran de complétion
             setTimeout(() => {
@@ -23952,6 +24145,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
          * Met à jour les états des Failles existantes (vieillissement)
          */
         function awakUpdateRiftsState() {
+            // 🔒 Aucune logique de Faille si le mode Aventure/Chasseur n'est pas activé
+            if (typeof getAdventureEnabled === 'function' && !getAdventureEnabled()) {
+                return (typeof awakRiftsLoad === 'function') ? awakRiftsLoad() : [];
+            }
             const rifts = awakRiftsLoad();
             const now = Date.now();
             let changed = false;
@@ -28580,7 +28777,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
             // 🌀 AWAKENED — Tenter de générer une Faille après séance (pas si c'est une Faille)
             try {
-                if (!currentWorkout._isRift && typeof awakTryGenerateRift === 'function') {
+                const advOn = typeof getAdventureEnabled === 'function' ? getAdventureEnabled() : false;
+                if (advOn && !currentWorkout._isRift && typeof awakTryGenerateRift === 'function') {
                     // Contexte de séance : seule une vraie séance peut ouvrir une Faille
                     const sessionDurationMin = workoutStartTime
                         ? Math.floor((Date.now() - workoutStartTime) / 60000)
@@ -32616,14 +32814,16 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const panel = document.getElementById('workoutOptionsPanel');
             if (!panel) return;
             panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-            // Fermer si clic ailleurs
+            // Fermer si clic ailleurs (en dehors du panneau et du bouton menu)
             if (panel.style.display === 'block') {
                 setTimeout(() => {
                     document.addEventListener('click', function closer(e) {
-                        if (!panel.contains(e.target) && e.target.id !== 'workoutOptionsBtn') {
+                        const menuBtn = document.getElementById('sessionMenuBtn');
+                        const clickedMenuBtn = menuBtn && menuBtn.contains(e.target);
+                        if (!panel.contains(e.target) && !clickedMenuBtn) {
                             panel.style.display = 'none';
+                            document.removeEventListener('click', closer);
                         }
-                        document.removeEventListener('click', closer);
                     });
                 }, 50);
             }
@@ -32647,9 +32847,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
         function initMobileWorkoutUI() {
             const isMobile = window.innerWidth <= 640;
-            const optBtn   = document.getElementById('workoutOptionsBtn');
             const progBtn  = document.getElementById('showProgramBtn');
-            if (optBtn)  optBtn.style.display  = isMobile ? 'flex' : 'none';
             if (progBtn) progBtn.style.display  = isMobile ? 'block' : 'none';
         }
 
@@ -34678,3 +34876,191 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             document.body.appendChild(overlay);
         }
         window.showActiveMalusScreen = showActiveMalusScreen;
+
+        // ═══════════════════════════════════════════════════════════════
+        // ⚙️ ANALYSE DÉTAILLÉE DU SYSTÈME — conseils personnalisés
+        // ═══════════════════════════════════════════════════════════════
+        // Le Système examine les données réelles du joueur (muscles, fréquence,
+        // équilibre) et donne des conseils concrets. Fonctionne même hors mode Jeu.
+
+        function awakAnalyzePlayer() {
+            const analysis = { neglected: [], imbalances: [], frequency: null, decaying: [], topMuscles: [], summary: '', priority: null };
+            try {
+                const data = (typeof rpgLoad === 'function') ? rpgLoad() : { muscles: {} };
+                const muscles = data.muscles || {};
+                const now = Date.now();
+                const allGroups = ['Pectoraux','Dos','Épaules','Biceps','Triceps','Abdominaux','Quadriceps','Ischio-jambiers','Fessiers','Mollets','Trapèzes','Obliques','Avant-bras'];
+
+                // Niveau par muscle (via XP)
+                const lvl = {};
+                const daysSince = {};
+                allGroups.forEach(m => {
+                    const info = muscles[m];
+                    lvl[m] = info && info.xp ? (typeof rpgLevelFromXP === 'function' ? rpgLevelFromXP(info.xp) : Math.floor(info.xp/100)) : 0;
+                    daysSince[m] = (info && info.lastTrained) ? Math.floor((now - new Date(info.lastTrained).getTime())/86400000) : null;
+                });
+
+                // 1️⃣ MUSCLES NÉGLIGÉS (jamais ou pas depuis 10+ jours)
+                allGroups.forEach(m => {
+                    if (daysSince[m] === null && lvl[m] === 0) {
+                        analysis.neglected.push({ muscle: m, days: null, never: true });
+                    } else if (daysSince[m] !== null && daysSince[m] >= 10) {
+                        analysis.neglected.push({ muscle: m, days: daysSince[m], never: false });
+                    }
+                });
+                analysis.neglected.sort((a,b) => (b.days||999) - (a.days||999));
+
+                // 2️⃣ DÉSÉQUILIBRES antagonistes (différence de niveau significative)
+                const pairs = [['Pectoraux','Dos'],['Quadriceps','Ischio-jambiers'],['Biceps','Triceps']];
+                pairs.forEach(([a,b]) => {
+                    const la = lvl[a], lb = lvl[b];
+                    const diff = Math.abs(la - lb);
+                    if (diff >= 3 && (la > 0 || lb > 0)) {
+                        const strong = la > lb ? a : b;
+                        const weak = la > lb ? b : a;
+                        analysis.imbalances.push({ strong, weak, diff, strongLvl: Math.max(la,lb), weakLvl: Math.min(la,lb) });
+                    }
+                });
+
+                // 3️⃣ MUSCLES EN DÉCLIN (entraînés mais inactifs 5-9 jours = zone de decay)
+                allGroups.forEach(m => {
+                    if (daysSince[m] !== null && daysSince[m] >= 5 && daysSince[m] < 10 && lvl[m] > 0) {
+                        analysis.decaying.push({ muscle: m, days: daysSince[m] });
+                    }
+                });
+
+                // 4️⃣ FRÉQUENCE d'entraînement (séances sur 7 et 30 jours)
+                const history = (typeof getWorkoutHistory === 'function') ? getWorkoutHistory() : [];
+                const week = history.filter(w => (now - new Date(w.date||w.completedAt||w.timestamp||0).getTime()) <= 7*86400000).length;
+                const month = history.filter(w => (now - new Date(w.date||w.completedAt||w.timestamp||0).getTime()) <= 30*86400000).length;
+                analysis.frequency = { week, month, perWeekAvg: Math.round(month/4.3*10)/10 };
+
+                // 5️⃣ TOP muscles (les plus développés)
+                analysis.topMuscles = allGroups
+                    .filter(m => lvl[m] > 0)
+                    .sort((a,b) => lvl[b]-lvl[a])
+                    .slice(0,3)
+                    .map(m => ({ muscle: m, level: lvl[m] }));
+
+                // PRIORITÉ : le conseil le plus important à donner
+                if (history.length === 0) {
+                    analysis.priority = { type:'start', text:"Commence ta première séance pour que je puisse analyser ta progression." };
+                } else if (week === 0) {
+                    analysis.priority = { type:'inactive', text:"Aucune séance cette semaine. Reprends pour maintenir tes acquis." };
+                } else if (analysis.imbalances.length > 0) {
+                    const im = analysis.imbalances[0];
+                    analysis.priority = { type:'imbalance', text:`Déséquilibre détecté : ton ${im.weak} (niv ${im.weakLvl}) est en retard sur ton ${im.strong} (niv ${im.strongLvl}). Priorise le ${im.weak}.` };
+                } else if (analysis.neglected.length > 0) {
+                    const n = analysis.neglected[0];
+                    analysis.priority = { type:'neglected', text: n.never ? `Tu n'as jamais travaillé ${n.muscle}. Pense à l'intégrer.` : `${n.muscle} négligé depuis ${n.days} jours. Il serait temps.` };
+                } else if (week < 2) {
+                    analysis.priority = { type:'frequency', text:`Seulement ${week} séance cette semaine. Vise 3+ pour progresser plus vite.` };
+                } else {
+                    analysis.priority = { type:'good', text:`Belle régularité (${week} séances cette semaine) et bon équilibre. Continue ainsi.` };
+                }
+
+                return analysis;
+            } catch(e) {
+                return analysis;
+            }
+        }
+        window.awakAnalyzePlayer = awakAnalyzePlayer;
+
+        function showSystemAnalysis() {
+            document.getElementById('systemAnalysisOverlay')?.remove();
+            const a = awakAnalyzePlayer();
+
+            const overlay = document.createElement('div');
+            overlay.id = 'systemAnalysisOverlay';
+            overlay.style.cssText = 'position:fixed;inset:0;z-index:10700;background:rgba(0,0,0,0.85);backdrop-filter:blur(10px);display:flex;align-items:flex-end;justify-content:center;';
+            overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+
+            const section = (title, color, icon, contentHtml) => `
+                <div style="margin-bottom:16px;">
+                    <div style="font-size:0.62em;color:${color};font-weight:900;letter-spacing:1.5px;margin-bottom:8px;">${icon} ${title}</div>
+                    ${contentHtml}
+                </div>`;
+
+            // Priorité (le conseil principal)
+            const prColors = { good:'#4ade80', start:'#22d3ee', inactive:'#f59e0b', imbalance:'#f59e0b', neglected:'#f59e0b', frequency:'#22d3ee' };
+            const prc = prColors[a.priority?.type] || '#22d3ee';
+            const priorityHtml = a.priority ? `
+                <div style="background:linear-gradient(135deg,${prc}1f,${prc}08);border:1px solid ${prc}55;border-left:3px solid ${prc};border-radius:12px;padding:14px 16px;margin-bottom:18px;">
+                    <div style="font-size:0.56em;color:${prc};font-weight:900;letter-spacing:2px;margin-bottom:6px;">⚙ CONSEIL PRIORITAIRE</div>
+                    <div style="font-size:0.88em;color:#e2e8f0;line-height:1.5;font-style:italic;">${a.priority.text}</div>
+                </div>` : '';
+
+            // Déséquilibres
+            const imbalHtml = a.imbalances.length ? section('Déséquilibres musculaires', '#f59e0b', '⚖️',
+                a.imbalances.map(im => `
+                    <div style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.25);border-radius:10px;padding:10px 12px;margin-bottom:6px;">
+                        <div style="font-size:0.8em;color:#e2e8f0;font-weight:700;">${im.strong} (niv ${im.strongLvl}) ↔ ${im.weak} (niv ${im.weakLvl})</div>
+                        <div style="font-size:0.68em;color:#fcd34d;margin-top:3px;">Écart de ${im.diff} niveaux — renforce ton ${im.weak}</div>
+                    </div>`).join('')
+            ) : '';
+
+            // Muscles négligés
+            const neglHtml = a.neglected.length ? section('Muscles négligés', '#ef4444', '🚨',
+                `<div style="display:flex;flex-wrap:wrap;gap:6px;">${a.neglected.slice(0,8).map(n =>
+                    `<span style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;padding:4px 10px;border-radius:99px;font-size:0.72em;font-weight:700;">${n.muscle}${n.never ? ' (jamais)' : ' · '+n.days+'j'}</span>`
+                ).join('')}</div>`
+            ) : '';
+
+            // En déclin
+            const decayHtml = a.decaying.length ? section('Bientôt en déclin', '#fb923c', '⏳',
+                `<div style="display:flex;flex-wrap:wrap;gap:6px;">${a.decaying.map(d =>
+                    `<span style="background:rgba(251,146,60,0.1);border:1px solid rgba(251,146,60,0.3);color:#fdba74;padding:4px 10px;border-radius:99px;font-size:0.72em;font-weight:700;">${d.muscle} · ${d.days}j</span>`
+                ).join('')}</div>
+                <div style="font-size:0.66em;color:#94a3b8;margin-top:6px;line-height:1.4;">Ces muscles approchent de la zone de régression. Un entraînement bientôt préservera tes gains.</div>`
+            ) : '';
+
+            // Fréquence
+            const f = a.frequency;
+            const freqColor = f && f.week >= 3 ? '#4ade80' : (f && f.week >= 1 ? '#f59e0b' : '#ef4444');
+            const freqHtml = f ? section('Fréquence d\'entraînement', '#22d3ee', '📊',
+                `<div style="display:flex;gap:10px;">
+                    <div style="flex:1;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:10px;text-align:center;">
+                        <div style="font-size:1.4em;font-weight:900;color:${freqColor};">${f.week}</div>
+                        <div style="font-size:0.6em;color:#94a3b8;font-weight:700;">CETTE SEMAINE</div>
+                    </div>
+                    <div style="flex:1;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:10px;text-align:center;">
+                        <div style="font-size:1.4em;font-weight:900;color:#e2e8f0;">${f.month}</div>
+                        <div style="font-size:0.6em;color:#94a3b8;font-weight:700;">30 JOURS</div>
+                    </div>
+                    <div style="flex:1;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:10px;text-align:center;">
+                        <div style="font-size:1.4em;font-weight:900;color:#e2e8f0;">${f.perWeekAvg}</div>
+                        <div style="font-size:0.6em;color:#94a3b8;font-weight:700;">MOY/SEM</div>
+                    </div>
+                </div>`
+            ) : '';
+
+            // Top muscles
+            const topHtml = a.topMuscles.length ? section('Tes points forts', '#a855f7', '🏆',
+                `<div style="display:flex;flex-wrap:wrap;gap:6px;">${a.topMuscles.map((t,i) =>
+                    `<span style="background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.3);color:#c084fc;padding:4px 10px;border-radius:99px;font-size:0.72em;font-weight:700;">${['🥇','🥈','🥉'][i]||''} ${t.muscle} · niv ${t.level}</span>`
+                ).join('')}</div>`
+            ) : '';
+
+            const hasContent = imbalHtml || neglHtml || decayHtml || topHtml;
+
+            const sheet = document.createElement('div');
+            sheet.style.cssText = 'background:#0D0D0D;border-radius:24px 24px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;';
+            sheet.innerHTML = `
+                <div style="width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:99px;margin:0 auto 18px;"></div>
+                <div style="text-align:center;margin-bottom:16px;">
+                    <div style="font-size:2em;">⚙️</div>
+                    <h2 style="margin:6px 0 4px;color:white;font-size:1.15em;font-weight:900;">Analyse du Système</h2>
+                    <p style="margin:0;color:rgba(255,255,255,0.4);font-size:0.78em;">Examen détaillé de ta progression et conseils.</p>
+                </div>
+                ${priorityHtml}
+                ${freqHtml}
+                ${imbalHtml}
+                ${neglHtml}
+                ${decayHtml}
+                ${topHtml}
+                ${!hasContent && f && f.month === 0 ? `<div style="text-align:center;padding:20px;color:#94a3b8;font-size:0.82em;line-height:1.5;">Fais quelques séances et je pourrai analyser tes muscles, détecter les déséquilibres et te guider précisément.</div>` : ''}
+                <button onclick="document.getElementById('systemAnalysisOverlay').remove()" style="margin-top:8px;width:100%;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:12px;color:rgba(255,255,255,0.6);font-weight:700;cursor:pointer;">Fermer</button>`;
+            overlay.appendChild(sheet);
+            document.body.appendChild(overlay);
+        }
+        window.showSystemAnalysis = showSystemAnalysis;
