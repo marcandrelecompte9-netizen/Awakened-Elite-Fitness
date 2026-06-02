@@ -4372,6 +4372,12 @@
                                 <div style="font-size:0.78em;color:${c};font-weight:800;flex-shrink:0;align-self:center;">${e.duration < 60 ? e.duration+'s' : Math.round(e.duration/60)+'min'}</div>
                             </div>`;
                         }).join('')}
+                        <div style="background:rgba(34,211,238,0.06);border:1px solid rgba(34,211,238,0.2);border-radius:10px;padding:10px 12px;margin-top:6px;display:flex;gap:9px;align-items:flex-start;">
+                            <span style="font-size:1em;flex-shrink:0;">💡</span>
+                            <div style="font-size:0.68em;color:#94a3b8;line-height:1.45;">
+                                <strong style="color:#22d3ee;">Échauffement dynamique avant, étirements statiques après.</strong> Les mouvements dynamiques préparent les muscles sans réduire la performance, contrairement aux étirements tenus, à garder pour la fin de séance.
+                            </div>
+                        </div>
                         <button onclick="document.getElementById('warmupModal').remove()" style="width:100%;background:linear-gradient(135deg,#f59e0b,#d97706);color:white;border:none;border-radius:12px;padding:13px;font-size:0.95em;font-weight:800;cursor:pointer;margin-top:8px;">
                             ✓ Échauffement terminé — Commencer la séance
                         </button>
@@ -18235,6 +18241,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         // 🎯 DÉFI HEBDOMADAIRE AUTO
         // ══════════════════════════════════════════════════════════════════
         function generateWeeklyChallenge(force = false) {
+            // Carte défi hebdo retirée de l'accueil — génération désactivée.
+            return null;
+            // eslint-disable-next-line no-unreachable
             const key = 'fitproWeeklyChallenge';
             const saved = localStorage.getItem(key);
             const now = new Date();
@@ -18305,6 +18314,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         }
 
         function renderWeeklyChallenge(challenge) {
+            // Carte défi hebdo retirée de l'accueil — fonction neutralisée.
+            if (!document.getElementById('challengeTitle')) return;
             if (!challenge) return;
             const progress = getChallengeProgress(challenge);
             const pct = Math.round((progress / challenge.target) * 100);
@@ -35087,13 +35098,13 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
         // Activités cardio possibles (filtrées selon l'équipement dispo)
         const CARDIO_WARMUP_OPTIONS = [
-            { name: 'Corde à sauter',     emoji: '🪢', equip: 'Corde à sauter',  exName: 'Jump Rope Basic' },
-            { name: 'Tapis roulant',      emoji: '🏃', equip: 'Tapis roulant',   exName: 'Tapis roulant marche rapide' },
-            { name: 'Vélo stationnaire',  emoji: '🚴', equip: 'Vélo stationnaire', exName: 'Vélo stationnaire' },
-            { name: 'Rameur',             emoji: '🚣', equip: 'Rameur',          exName: 'Rameur (rowing machine)' },
-            { name: 'Marche sur place',   emoji: '🚶', equip: null,              exName: 'Marche sur place active' },
-            { name: 'Jumping jacks',      emoji: '🤸', equip: null,              exName: 'Jumping jacks' },
-            { name: 'Montées de genoux',  emoji: '🦵', equip: null,              exName: 'Montées de genoux sur place' }
+            { name: 'Corde à sauter',     emoji: '🪢', equip: 'Corde à sauter' },
+            { name: 'Tapis roulant',      emoji: '🏃', equip: 'Tapis roulant' },
+            { name: 'Vélo stationnaire',  emoji: '🚴', equip: 'Vélo stationnaire' },
+            { name: 'Rameur',             emoji: '🚣', equip: 'Rameur' },
+            { name: 'Marche sur place',   emoji: '🚶', equip: null },
+            { name: 'Jumping jacks',      emoji: '🤸', equip: null },
+            { name: 'Montées de genoux',  emoji: '🦵', equip: null }
         ];
 
         let _pendingCardioCallback = null;
