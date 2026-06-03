@@ -28534,7 +28534,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const gLevel = document.getElementById('gameProfileLevel');
             const gXP    = document.getElementById('gameProfileXP');
             if (gEmoji) gEmoji.textContent = title.emoji;
-            if (gTitle) gTitle.textContent = title.title;
+            if (gTitle) gTitle.textContent = typeof awakGetRank === 'function' ? awakGetRank().name : title.title;
             if (gLevel) gLevel.textContent = profileLevel;
             if (gXP)    gXP.textContent    = profileXP.toLocaleString();
 
@@ -28656,7 +28656,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 const gLevel = document.getElementById('gameProfileLevel');
                 const gXP    = document.getElementById('gameProfileXP');
                 if (gEmoji) gEmoji.textContent = t.emoji;
-                if (gTitle) gTitle.textContent = t.title;
+                if (gTitle) gTitle.textContent = typeof awakGetRank === 'function' ? awakGetRank().name : t.title;
                 if (gLevel) gLevel.textContent = profileLevel;
                 if (gXP)    gXP.textContent    = profileXP.toLocaleString();
                 // Sync inventaire chasseur
