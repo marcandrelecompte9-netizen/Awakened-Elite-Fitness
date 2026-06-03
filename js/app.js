@@ -2944,8 +2944,7 @@
 
         function nextSupersetExercise() {
             if (!currentSupersetWorkout) return;
-            
-            currentSupersetWorkout.currentExerciseIndex++;
+            if (window.speechSynthesis) window.speechSynthesis.cancel();
             
             if (currentSupersetWorkout.currentExerciseIndex >= currentSupersetWorkout.exercises.length) {
                 // Superset round completed
@@ -3171,8 +3170,7 @@
 
         function nextCircuitExercise() {
             if (!currentCircuitWorkout) return;
-            
-            currentCircuitWorkout.currentExerciseIndex++;
+            if (window.speechSynthesis) window.speechSynthesis.cancel();
             
             if (currentCircuitWorkout.currentExerciseIndex >= currentCircuitWorkout.exercises.length) {
                 // Round completed
@@ -3409,8 +3407,7 @@
 
         function nextAMRAPExercise() {
             if (!currentAMRAPWorkout) return;
-            
-            currentAMRAPWorkout.currentExerciseIndex++;
+            if (window.speechSynthesis) window.speechSynthesis.cancel();
             
             if (currentAMRAPWorkout.currentExerciseIndex >= currentAMRAPWorkout.exercises.length) {
                 currentAMRAPWorkout.currentExerciseIndex = 0;
@@ -6952,7 +6949,10 @@
                 if (voices.length > 0) {
                     setVoice();
                 } else {
-                    window.speechSynthesis.onvoiceschanged = setVoice;
+                    window.speechSynthesis.onvoiceschanged = () => {
+                        window.speechSynthesis.onvoiceschanged = null;
+                        setVoice();
+                    };
                 }
             }
         }
@@ -19921,15 +19921,16 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     equipmentBadges.innerHTML = exerciseFromDB.equipment.map(eq => {
                         const icon = equipIcons[eq] || '🏋️';
                         return `<span style="
-                            display:inline-flex;align-items:center;gap:5px;
-                            background:rgba(255,255,255,0.18);
-                            border:1px solid rgba(255,255,255,0.3);
-                            color:white;
-                            padding:4px 10px;
-                            border-radius:20px;
-                            font-size:0.78em;
-                            font-weight:600;
-                            backdrop-filter:blur(6px);
+                            display:inline-flex;align-items:center;gap:4px;
+                            background:rgba(168,85,247,0.1);
+                            border:1px solid rgba(168,85,247,0.3);
+                            color:#c084fc;
+                            padding:3px 8px;
+                            border-radius:4px;
+                            font-size:0.55em;
+                            font-weight:900;
+                            letter-spacing:1px;
+                            text-transform:uppercase;
                         ">${icon} ${eq}</span>`;
                     }).join('');
                     equipmentBadges.style.display = 'flex';
@@ -21495,8 +21496,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             }
             
             clearInterval(timerInterval);
-
-            // 🎮 XP RPG pour mode timer — accordé même si l'utilisateur skip manuellement
+            if (window.speechSynthesis) window.speechSynthesis.cancel();
             if (rpgEnabled()) {
                 try {
                     const _skipEx = currentWorkout?.exercises?.[currentExerciseIndex];

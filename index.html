@@ -20,7 +20,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=156">
+    <link rel="stylesheet" href="css/style.css?v=163">
 </head>
 <body>
 
@@ -177,7 +177,7 @@
                 max-width: 900px;">
 
             <!-- Bannière image : ratio préservé -->
-            <img src="images/banner.png?v=156"
+            <img src="images/banner.png?v=163"
                  alt="Awakened Elite Fitness"
                  style="width:100%;height:auto;display:block;" />
 
@@ -1360,12 +1360,8 @@
                         <!-- Exercise number with HUD corners -->
                         <div class="exercise-number" id="exerciseNumber" style="font-size:0.65em;color:#4ade80;font-weight:900;letter-spacing:3.5px;text-transform:uppercase;margin-bottom:8px;text-shadow:0 0 8px rgba(74,222,128,0.5);">Exercise 1/10</div>
                         <div class="exercise-name" id="exerciseName" style="font-size:1.75em;font-weight:900;color:white;letter-spacing:-0.5px;line-height:1.05;margin-bottom:12px;text-transform:uppercase;text-shadow:0 0 24px rgba(74,222,128,0.25);">Échauffement</div>
-                        <!-- Muscle Indicator (Tags style cyberpunk) -->
-                        <div id="muscleBadge" style="display:inline-block;background:rgba(34,197,94,0.1);border:1px solid rgba(74,222,128,0.5);color:#4ade80;padding:6px 16px;border-radius:4px;font-size:0.72em;margin-top:4px;font-weight:900;letter-spacing:2px;text-transform:uppercase;box-shadow:0 0 12px rgba(74,222,128,0.15);">
-                            💪 PECTORAUX
-                        </div>
-                        <!-- Équipement requis -->
-                        <div id="equipmentBadges" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:6px;margin-bottom:14px;"></div>
+                        <!-- Muscle Indicator (Tags style cyberpunk) - conservé pour JS, masqué visuellement -->
+                        <div id="muscleBadge" style="display:none;"></div>
                         <div class="timer-display" id="timerDisplay" style="font-size:3.8em;font-weight:900;color:white;letter-spacing:-3px;margin:18px 0 4px;font-variant-numeric:tabular-nums;text-shadow:0 0 32px rgba(74,222,128,0.5),0 0 60px rgba(74,222,128,0.2);font-family:'Outfit',sans-serif;">00:45</div>
 
                                             <!-- ━━━ FRAME VISUEL EXERCICE (cyberpunk HUD) ━━━ -->
@@ -1388,6 +1384,9 @@
 
                         <!-- Tag muscle en haut à droite -->
                         <div id="visualMuscleTag" style="position:absolute;top:12px;right:14px;z-index:2;font-size:0.55em;font-weight:900;color:#a855f7;letter-spacing:1.5px;background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.3);padding:3px 8px;border-radius:4px;text-transform:uppercase;"></div>
+
+                        <!-- Équipement requis (sous le tag mauve) -->
+                        <div id="equipmentBadges" style="position:absolute;top:32px;right:14px;z-index:2;display:flex;flex-wrap:wrap;gap:4px;justify-content:flex-end;max-width:160px;"></div>
 
                         <!-- Contenu visuel (SVG positions Début/Fin) -->
                         <div id="exerciseVisualContent" style="position:relative;z-index:1;padding:40px 14px 14px;min-height:240px;display:flex;align-items:center;justify-content:center;"></div>
@@ -3478,12 +3477,12 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/exercises.js?v=156"></script>
-    <script src="data/items.js?v=156"></script>
-    <script src="js/adventure.js?v=156"></script>
-    <script src="js/challenges.js?v=156"></script>
-    <script src="js/exercise-visuals.js?v=156"></script>
-    <script src="js/app.js?v=156"></script>
+    <script src="js/exercises.js?v=163"></script>
+    <script src="data/items.js?v=163"></script>
+    <script src="js/adventure.js?v=163"></script>
+    <script src="js/challenges.js?v=163"></script>
+    <script src="js/exercise-visuals.js?v=163"></script>
+    <script src="js/app.js?v=163"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>
