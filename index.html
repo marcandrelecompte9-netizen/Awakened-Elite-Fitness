@@ -20,7 +20,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=177">
+    <link rel="stylesheet" href="css/style.css?v=178">
 </head>
 <body>
 
@@ -177,7 +177,7 @@
                 max-width: 900px;">
 
             <!-- Bannière image : ratio préservé -->
-            <img src="images/banner.png?v=177"
+            <img src="images/banner.png?v=178"
                  alt="Awakened Elite Fitness"
                  style="width:100%;height:auto;display:block;" />
 
@@ -2607,6 +2607,20 @@
                     • <strong>Supprimer profil</strong> : Supprime UNIQUEMENT le profil actuel<br>
                     • <strong>Réinitialiser</strong> : Supprime TOUTES les données de TOUS les profils (irréversible !)
                 </div>
+
+                <!-- 🔧 Mode développeur (test de l'histoire) -->
+                <div style="margin-top: 20px; padding: 16px; background: rgba(168,85,247,0.06); border-radius: 10px; border: 1px dashed rgba(168,85,247,0.4);">
+                    <div style="font-weight: 800; color: #a855f7; font-size: 0.85em; letter-spacing: 1px; margin-bottom: 4px;">🔧 MODE DÉVELOPPEUR</div>
+                    <div style="font-size: 0.78em; color: #94a3b8; margin-bottom: 12px;">Outils de test pour visualiser l'histoire et la progression. Le mode jeu doit être activé.</div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button class="btn" onclick="awakAdminLevelUp(1)" style="flex:1; min-width:120px; background: linear-gradient(135deg,#a855f7,#7c3aed); display:flex; align-items:center; justify-content:center; gap:8px;">
+                            <span>⬆️ +1 Niveau</span>
+                        </button>
+                        <button class="btn" onclick="awakAdminLevelUp(5)" style="flex:1; min-width:120px; background: linear-gradient(135deg,#7c3aed,#6d28d9); display:flex; align-items:center; justify-content:center; gap:8px;">
+                            <span>⏫ +5 Niveaux</span>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -3532,16 +3546,16 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/exercises.js?v=177"></script>
-    <script src="data/items.js?v=177"></script>
-    <script src="js/adventure.js?v=177"></script>
-    <script src="js/challenges.js?v=177"></script>
-    <script src="js/exercise-visuals.js?v=177"></script>
-    <script src="js/strength-standards.js?v=177"></script>
-    <script src="js/system-cards.js?v=177"></script>
-    <script src="js/share-card.js?v=177"></script>
-    <script src="js/story-events.js?v=177"></script>
-    <script src="js/app.js?v=177"></script>
+    <script src="js/exercises.js?v=178"></script>
+    <script src="data/items.js?v=178"></script>
+    <script src="js/adventure.js?v=178"></script>
+    <script src="js/challenges.js?v=178"></script>
+    <script src="js/exercise-visuals.js?v=178"></script>
+    <script src="js/strength-standards.js?v=178"></script>
+    <script src="js/system-cards.js?v=178"></script>
+    <script src="js/share-card.js?v=178"></script>
+    <script src="js/story-events.js?v=178"></script>
+    <script src="js/app.js?v=178"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>

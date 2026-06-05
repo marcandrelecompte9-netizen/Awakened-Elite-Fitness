@@ -23831,6 +23831,34 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             } catch(e) { return 1; }
         }
 
+        // 🔧 ADMIN/DEBUG — Monte d'exactement 1 niveau (pour tester l'histoire).
+        // Ajoute l'XP manquante via fitproRPGLifetimeXP, sans toucher aux muscles.
+        function awakAdminLevelUp(n) {
+            try {
+                n = n || 1;
+                for (let i = 0; i < n; i++) {
+                    const curLevel = _awakGetCurrentLevel();
+                    const data = (typeof rpgLoad === 'function') ? rpgLoad() : null;
+                    const profileXP = (data && data.muscles)
+                        ? Object.values(data.muscles).reduce((s, m) => s + (m.xp || 0), 0) : 0;
+                    const lifetime = profileXP + parseInt(localStorage.getItem('fitproRPGLifetimeXP') || '0');
+                    const xpNext = rpgXPForLevel(curLevel + 1);
+                    const need = Math.max(1, xpNext - lifetime);
+                    const cur = parseInt(localStorage.getItem('fitproRPGLifetimeXP') || '0');
+                    localStorage.setItem('fitproRPGLifetimeXP', String(cur + need));
+                }
+                const newLevel = _awakGetCurrentLevel();
+                // Rafraîchir l'UI et déclencher les vérifs narratives
+                if (typeof renderGameTab === 'function') { try { renderGameTab(); } catch(e) {} }
+                if (typeof checkStoryRankUnlock === 'function') { try { setTimeout(checkStoryRankUnlock, 300); } catch(e) {} }
+                if (typeof awakCheckStoryFragments === 'function') { try { setTimeout(awakCheckStoryFragments, 600); } catch(e) {} }
+                if (typeof storyCheckEvents === 'function') { try { storyCheckEvents({ delay: 900 }); } catch(e) {} }
+                if (typeof showToast === 'function') showToast('🔧 Niveau ' + newLevel + ' (admin)', 'info', 2000);
+                return newLevel;
+            } catch(e) { return null; }
+        }
+        window.awakAdminLevelUp = awakAdminLevelUp;
+
         function awakGetRank() {
             const level = _awakGetCurrentLevel();
             // Trouver le rang le plus élevé atteint selon le NIVEAU
