@@ -1841,6 +1841,25 @@ window.unequipSlot           = unequipSlot;
 window.getEquippedItems      = getEquippedItems;
 window.getSetBonuses         = getSetBonuses;
 window.getPlayerEquipStats   = getPlayerEquipStats;
+// Octroie un item légendaire garanti (pour les Failles Anomalie / événements).
+// Retourne { item, rarity, isSpecial } ou null.
+function grantGuaranteedLegendary(muscle) {
+    try {
+        const pool = EQUIPMENT_DATABASE.filter(i =>
+            i.rarity === 'legendary' && (!muscle || i.muscle === muscle || i.muscle === 'Corps entier')
+        );
+        const fallback = EQUIPMENT_DATABASE.filter(i => i.rarity === 'legendary');
+        const chosen = (pool.length ? pool : fallback);
+        if (!chosen.length) return null;
+        const item = chosen[Math.floor(Math.random() * chosen.length)];
+        const inv = getInventory();
+        inv.unshift({ itemId: item.id, obtainedAt: new Date().toISOString(), id: Date.now() });
+        saveInventory(inv);
+        return { item, rarity: RARITIES.legendary, qualityScore: 1.0, effectiveRank: 5, isSpecial: true };
+    } catch(e) { return null; }
+}
+window.grantGuaranteedLegendary = grantGuaranteedLegendary;
+
 window.tryEquipmentDrop      = tryEquipmentDrop;
 window.renderAdventureTab    = renderAdventureTab;
 window.showItemDetail        = showItemDetail;

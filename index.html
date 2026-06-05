@@ -20,7 +20,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=163">
+    <link rel="stylesheet" href="css/style.css?v=173">
 </head>
 <body>
 
@@ -177,7 +177,7 @@
                 max-width: 900px;">
 
             <!-- Bannière image : ratio préservé -->
-            <img src="images/banner.png?v=163"
+            <img src="images/banner.png?v=173"
                  alt="Awakened Elite Fitness"
                  style="width:100%;height:auto;display:block;" />
 
@@ -2620,6 +2620,61 @@
             </p>
         </div>
 
+        <!-- Force Réelle / Percentiles -->
+        <div class="card">
+            <h2 style="color: #16a34a; margin-bottom: 20px;">⚡ Force Réelle — Ton Rang Mondial</h2>
+            <div style="background: linear-gradient(135deg, #a855f715 0%, #a855f705 100%); padding: 16px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid #a855f7;">
+                <div style="font-size:0.9em;color:#9ca3af;line-height:1.5;">
+                    Le Système analyse ta puissance et la compare au reste du monde. Entre tes données et découvre ton percentile et ton niveau réel.
+                </div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:14px;">
+                <div>
+                    <label style="display:block;font-weight:700;font-size:0.85em;color:#9ca3af;margin-bottom:6px;">Exercice</label>
+                    <select id="frcExercise" style="width:100%;padding:12px;border-radius:10px;background:#1e293b;color:#fff;border:1px solid rgba(255,255,255,0.12);font-size:1em;">
+                        <option value="Développé couché">Développé couché</option>
+                        <option value="Squat">Squat</option>
+                        <option value="Soulevé de terre">Soulevé de terre</option>
+                        <option value="Tractions">Tractions (lestées)</option>
+                        <option value="Développé militaire">Développé militaire</option>
+                    </select>
+                </div>
+
+                <div style="display:flex;gap:10px;">
+                    <div style="flex:1;">
+                        <label style="display:block;font-weight:700;font-size:0.85em;color:#9ca3af;margin-bottom:6px;">Sexe</label>
+                        <select id="frcSex" style="width:100%;padding:12px;border-radius:10px;background:#1e293b;color:#fff;border:1px solid rgba(255,255,255,0.12);font-size:1em;">
+                            <option value="homme">Homme</option>
+                            <option value="femme">Femme</option>
+                        </select>
+                    </div>
+                    <div style="flex:1;">
+                        <label style="display:block;font-weight:700;font-size:0.85em;color:#9ca3af;margin-bottom:6px;">Poids corps (kg)</label>
+                        <input id="frcBodyweight" type="number" inputmode="decimal" placeholder="75" style="width:100%;padding:12px;border-radius:10px;background:#1e293b;color:#fff;border:1px solid rgba(255,255,255,0.12);font-size:1em;box-sizing:border-box;">
+                    </div>
+                </div>
+
+                <div style="display:flex;gap:10px;">
+                    <div style="flex:1;">
+                        <label style="display:block;font-weight:700;font-size:0.85em;color:#9ca3af;margin-bottom:6px;">Charge (kg)</label>
+                        <input id="frcWeight" type="number" inputmode="decimal" placeholder="100" style="width:100%;padding:12px;border-radius:10px;background:#1e293b;color:#fff;border:1px solid rgba(255,255,255,0.12);font-size:1em;box-sizing:border-box;">
+                    </div>
+                    <div style="flex:1;">
+                        <label style="display:block;font-weight:700;font-size:0.85em;color:#9ca3af;margin-bottom:6px;">Répétitions</label>
+                        <input id="frcReps" type="number" inputmode="numeric" placeholder="1" value="1" style="width:100%;padding:12px;border-radius:10px;background:#1e293b;color:#fff;border:1px solid rgba(255,255,255,0.12);font-size:1em;box-sizing:border-box;">
+                    </div>
+                </div>
+                <div style="font-size:0.75em;color:#6b7280;margin-top:-6px;">Pour les tractions, entre la charge ajoutée (0 si poids du corps seul).</div>
+
+                <button onclick="computeForceReelle()" style="width:100%;padding:14px;background:linear-gradient(135deg,#a855f7,#7c3aed);color:white;border:none;border-radius:12px;font-weight:800;cursor:pointer;font-size:1em;letter-spacing:0.5px;">
+                    ⚡ ANALYSER MA FORCE
+                </button>
+            </div>
+
+            <div id="frcResult" style="display:none;margin-top:20px;"></div>
+        </div>
+
         <!-- 1RM Calculator -->
         <div class="card">
             <h2 style="color: #16a34a; margin-bottom: 20px;">💪 Calculateur 1RM (One Rep Max)</h2>
@@ -3477,12 +3532,15 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/exercises.js?v=163"></script>
-    <script src="data/items.js?v=163"></script>
-    <script src="js/adventure.js?v=163"></script>
-    <script src="js/challenges.js?v=163"></script>
-    <script src="js/exercise-visuals.js?v=163"></script>
-    <script src="js/app.js?v=163"></script>
+    <script src="js/exercises.js?v=173"></script>
+    <script src="data/items.js?v=173"></script>
+    <script src="js/adventure.js?v=173"></script>
+    <script src="js/challenges.js?v=173"></script>
+    <script src="js/exercise-visuals.js?v=173"></script>
+    <script src="js/strength-standards.js?v=173"></script>
+    <script src="js/system-cards.js?v=173"></script>
+    <script src="js/share-card.js?v=173"></script>
+    <script src="js/app.js?v=173"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>

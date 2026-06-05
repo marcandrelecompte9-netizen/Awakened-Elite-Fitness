@@ -771,7 +771,7 @@ var EXERCISE_IMAGES = {
   'Jump Rope Basic':               'images/exercises/Jump_Rope_Basic.webp',
   'Inchworm':                      'images/exercises/Inchworm.webp',
   'Inchworm avec pompe':           'images/exercises/Inchworm_avec_pompe.webp',
-  'Jumping jacks':                 'images/exercises/Jumping_jacks.webp',
+  'Jumping Jacks légers':          'images/exercises/Jumping_Jacks_légers.webp',
   'Kettlebell Clean':              'images/exercises/Kettlebell_Clean.webp',
   'Kettlebell Goblet Squat':       'images/exercises/Kettlebell_Goblet_Squat.webp',
   'Kettlebell Snatch':             'images/exercises/Kettlebell_Snatch.webp',

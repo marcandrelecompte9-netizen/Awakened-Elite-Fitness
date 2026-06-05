@@ -13408,6 +13408,90 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             }
         }
 
+        // ========== FORCE RÉELLE / PERCENTILES ==========
+
+        function computeForceReelle() {
+            const exercise   = document.getElementById('frcExercise')?.value;
+            const sex        = document.getElementById('frcSex')?.value;
+            const bodyweight = parseFloat(document.getElementById('frcBodyweight')?.value);
+            const weight     = parseFloat(document.getElementById('frcWeight')?.value);
+            const reps       = parseInt(document.getElementById('frcReps')?.value) || 1;
+            const resultEl   = document.getElementById('frcResult');
+            if (!resultEl) return;
+
+            if (!bodyweight || bodyweight <= 0 || !weight || weight <= 0) {
+                resultEl.style.display = 'block';
+                resultEl.innerHTML = '<div style="padding:14px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.4);border-radius:10px;color:#fca5a5;font-size:0.9em;">Entre ton poids de corps et ta charge pour lancer l\'analyse.</div>';
+                return;
+            }
+
+            // Pour les tractions, le 1RM effectif = poids corps + charge ajoutée
+            let effectiveLoad;
+            if (exercise === 'Tractions') {
+                effectiveLoad = estimate1RM(bodyweight + weight, reps);
+            } else {
+                effectiveLoad = estimate1RM(weight, reps);
+            }
+
+            const res = computeStrengthLevel(exercise, sex, effectiveLoad, bodyweight);
+            if (!res) {
+                resultEl.style.display = 'block';
+                resultEl.innerHTML = '<div style="padding:14px;color:#fca5a5;">Données indisponibles pour cet exercice.</div>';
+                return;
+            }
+
+            const oneRMDisplay = exercise === 'Tractions'
+                ? `${effectiveLoad} kg total (corps + lest)`
+                : `${effectiveLoad} kg`;
+
+            // Barre de niveaux
+            const levelNames = window.STRENGTH_LEVEL_NAMES;
+            const levelColors = window.STRENGTH_LEVEL_COLORS;
+            let levelBars = '';
+            for (let i = 0; i < levelNames.length; i++) {
+                const reached = i <= res.levelIndex;
+                levelBars += `<div style="flex:1;text-align:center;">
+                    <div style="height:8px;border-radius:4px;background:${reached ? levelColors[i] : 'rgba(255,255,255,0.1)'};margin-bottom:5px;${reached ? 'box-shadow:0 0 8px '+levelColors[i]+'66;' : ''}"></div>
+                    <div style="font-size:0.62em;font-weight:700;color:${reached ? levelColors[i] : '#6b7280'};letter-spacing:0.3px;">${levelNames[i].toUpperCase()}</div>
+                    <div style="font-size:0.6em;color:#6b7280;margin-top:2px;">${res.thresholds[i]}kg</div>
+                </div>`;
+            }
+
+            let nextStep = '';
+            if (res.nextThresholdKg && res.nextLevelName) {
+                const need = res.nextThresholdKg - effectiveLoad;
+                nextStep = `<div style="margin-top:14px;padding:12px;background:rgba(168,85,247,0.1);border-radius:10px;font-size:0.85em;color:#c4b5fd;">
+                    🎯 Encore <strong>${need > 0 ? need : 0} kg</strong> pour atteindre le niveau <strong>${res.nextLevelName}</strong> (${res.nextThresholdKg} kg).
+                </div>`;
+            } else if (res.levelIndex >= levelNames.length - 1) {
+                nextStep = `<div style="margin-top:14px;padding:12px;background:rgba(168,85,247,0.15);border-radius:10px;font-size:0.85em;color:#c4b5fd;">
+                    👑 Niveau <strong>Élite</strong> atteint. Tu domines le classement mondial.
+                </div>`;
+            }
+
+            resultEl.style.display = 'block';
+            resultEl.innerHTML = `
+                <div style="text-align:center;padding:20px;background:linear-gradient(135deg,${res.color}22,${res.color}08);border:1px solid ${res.color}55;border-radius:16px;">
+                    <div style="font-size:0.8em;color:#9ca3af;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">Niveau de Force</div>
+                    <div style="font-size:2em;font-weight:900;color:${res.color};text-shadow:0 0 16px ${res.color}66;margin-bottom:4px;">${res.levelName}</div>
+                    <div style="font-size:0.85em;color:#cbd5e1;">1RM estimé : <strong>${oneRMDisplay}</strong> · Ratio ${res.ratio}× poids de corps</div>
+
+                    <div style="margin:22px 0 10px;">
+                        <div style="font-size:0.8em;color:#9ca3af;margin-bottom:4px;">Tu es plus fort que</div>
+                        <div style="font-size:2.6em;font-weight:900;color:#fff;line-height:1;">${res.percentile}<span style="font-size:0.45em;color:#9ca3af;">%</span></div>
+                        <div style="font-size:0.78em;color:#9ca3af;">des pratiquants de ton poids et sexe</div>
+                    </div>
+
+                    <div style="display:flex;gap:6px;margin-top:18px;">${levelBars}</div>
+                    ${nextStep}
+                </div>
+                <div style="font-size:0.68em;color:#6b7280;text-align:center;margin-top:10px;line-height:1.4;">
+                    Estimations basées sur les standards de force reconnus du domaine. Résultat indicatif, non médical.
+                </div>
+            `;
+        }
+        window.computeForceReelle = computeForceReelle;
+
         // ========== 1RM CALCULATOR SYSTEM ==========
         
         function get1RMRecords() {
@@ -21680,13 +21764,20 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         // ── PARTAGE VISUEL AMÉLIORÉ ────────────────────────────────────
         function exportSessionSummary() {
             if (!currentWorkout) return;
+            _openShareCardModal('square');
+        }
 
+        // Collecte les données de la séance courante pour la carte
+        function _collectShareData(format) {
             const totalMin = Math.round((Date.now() - (workoutStartTime || Date.now())) / 60000);
             const realEx = currentWorkout.exercises.filter(ex => !ex.isRest && !ex.isInfo);
             const profile = getUserProfile();
-            const weightKg = (profile && profile.weight) ? profile.weight : 75;
+            let weightKg = (profile && profile.weight) ? profile.weight : 75;
+            if (!useKg) weightKg = Math.round(weightKg * 0.453592 * 10) / 10;
             const wName = (currentWorkout.name || '').toLowerCase();
-            const MET = wName.includes('hiit')?10:wName.includes('cardio')?8:wName.includes('étir')||wName.includes('stretch')?3:6;
+            const MET = wName.includes('hiit')?10:wName.includes('cardio')?8:
+                        (wName.includes('étir')||wName.includes('stretch')||wName.includes('récup')||wName.includes('mobility'))?3:
+                        (wName.includes('force')||wName.includes('strength'))?5:6;
             const kcal = Math.round(MET * weightKg * (totalMin / 60));
             const muscles = [...new Set(realEx.map(ex => {
                 const db = exerciseDatabase.find(e => e.name === ex.name); return db ? db.muscle : null;
@@ -21694,87 +21785,136 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const date = new Date().toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long'});
             const unit = useKg ? 'kg' : 'lbs';
 
-            // Construire les lignes d'exercices avec sets
-            const exLines = realEx.slice(0, 8).map(ex => {
-                const name = ex._baseName || ex.name;
-                const sets = _currentSessionSets[name];
-                if (sets && sets.length > 0) {
-                    const setsStr = sets.filter(s=>!s.isWarmup).map(s=>`${s.reps||'?'}×${s.weight||'BW'}${unit}`).join(' · ');
-                    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.08);">
-                        <span style="font-size:0.82em;color:rgba(255,255,255,0.85);font-weight:600;">${name}</span>
-                        <span style="font-size:0.78em;color:#4ade80;font-weight:700;">${setsStr}</span>
-                    </div>`;
-                }
-                return `<div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.08);font-size:0.82em;color:rgba(255,255,255,0.7);">${name}</div>`;
-            }).join('');
+            // Volume + séries de cette séance
+            let totalVolume = 0, totalSets = 0;
+            try {
+                const sessionSets = window._completedSessionSets || _currentSessionSets || {};
+                Object.values(sessionSets).forEach(exSets => {
+                    (exSets || []).forEach(s => {
+                        if (s.warmup || s.isWarmup) return;
+                        totalVolume += (s.weight || 0) * (s.reps || 0);
+                        totalSets++;
+                    });
+                });
+            } catch(e) {}
 
-            // Afficher une preview visuelle dans un modal
+            // Rang + XP RPG (seulement si mode jeu actif)
+            let rank = null, xp = 0, streak = 0;
+            try {
+                const gameOn = (typeof rpgEnabled === 'function') && rpgEnabled();
+                if (gameOn) {
+                    if (typeof awakGetRank === 'function') rank = awakGetRank();
+                    if (typeof rpgGetWorkoutXpEarned === 'function') xp = rpgGetWorkoutXpEarned();
+                }
+                const st = (typeof loadStats === 'function') ? loadStats() : null;
+                streak = st && st.streak ? st.streak : 0;
+            } catch(e) {}
+
+            return {
+                name: currentWorkout.name || 'Séance terminée',
+                date, rank, xp,
+                minutes: totalMin,
+                exercises: realEx.length,
+                sets: totalSets,
+                kcal, volume: totalVolume, unit, muscles,
+                streak,
+                quote: (typeof pickShareQuote === 'function') ? pickShareQuote() : '',
+                format
+            };
+        }
+
+        // Ouvre le modal de prévisualisation avec choix de format
+        function _openShareCardModal(format) {
+            if (!currentWorkout) return;
+            const existing = document.getElementById('shareCardOverlay');
+            if (existing) existing.remove();
+
+            const data = _collectShareData(format);
+
             const overlay = document.createElement('div');
-            overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.82);z-index:10500;display:flex;align-items:center;justify-content:center;padding:16px;';
-            overlay.innerHTML = `
-            <div style="background:linear-gradient(160deg,#0F1014,#1A0A00,#166534);border-radius:20px;padding:24px;max-width:380px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.5);position:relative;" id="shareCard">
-                <!-- Header -->
-                <div style="text-align:center;margin-bottom:18px;">
-                    <div style="font-size:2.2em;margin-bottom:6px;">🏆</div>
-                    <div style="font-size:1.3em;font-weight:900;color:white;margin-bottom:2px;">${currentWorkout.name}</div>
-                    <div style="font-size:0.8em;color:rgba(196,181,253,0.9);">${date}</div>
-                </div>
-                <!-- Stats -->
-                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;">
-                    <div style="background:rgba(255,255,255,0.1);border-radius:12px;padding:12px 6px;text-align:center;border:1px solid rgba(255,255,255,0.15);">
-                        <div style="font-size:1.7em;font-weight:900;color:white;">${totalMin}</div>
-                        <div style="font-size:0.65em;color:rgba(255,255,255,0.7);font-weight:700;margin-top:2px;">⏱️ MIN</div>
-                    </div>
-                    <div style="background:rgba(255,255,255,0.1);border-radius:12px;padding:12px 6px;text-align:center;border:1px solid rgba(255,255,255,0.15);">
-                        <div style="font-size:1.7em;font-weight:900;color:white;">${realEx.length}</div>
-                        <div style="font-size:0.65em;color:rgba(255,255,255,0.7);font-weight:700;margin-top:2px;">💪 EXOS</div>
-                    </div>
-                    <div style="background:rgba(255,255,255,0.1);border-radius:12px;padding:12px 6px;text-align:center;border:1px solid rgba(255,255,255,0.15);">
-                        <div style="font-size:1.7em;font-weight:900;color:#fbbf24;">${kcal}</div>
-                        <div style="font-size:0.65em;color:rgba(255,255,255,0.7);font-weight:700;margin-top:2px;">🔥 KCAL</div>
-                    </div>
-                </div>
-                <!-- Muscles -->
-                ${muscles.length > 0 ? `<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px;">${muscles.map(m=>`<span style="background:rgba(34,197,94,0.2);color:#4ade80;border:1px solid rgba(34,197,94,0.35);border-radius:99px;padding:3px 10px;font-size:0.72em;font-weight:700;">${m}</span>`).join('')}</div>` : ''}
-                <!-- Exercices -->
-                <div style="margin-bottom:18px;">${exLines}</div>
-                <!-- Watermark -->
-                <div style="text-align:center;font-size:0.7em;color:rgba(255,255,255,0.35);margin-bottom:16px;">Awakened · awakened.app</div>
-                <!-- Actions -->
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-                    <button onclick="doShareSummary()" style="background:linear-gradient(135deg,#16a34a,#15803d);color:white;border:none;border-radius:12px;padding:12px;font-weight:700;cursor:pointer;font-size:0.9em;">
-                        📤 Partager
-                    </button>
-                    <button onclick="doCopySummary()" style="background:rgba(255,255,255,0.12);color:white;border:1.5px solid rgba(255,255,255,0.25);border-radius:12px;padding:12px;font-weight:700;cursor:pointer;font-size:0.9em;">
-                        📋 Copier
-                    </button>
-                </div>
-                <button onclick="this.closest('[style*=\"fixed\"]').remove()" style="width:100%;margin-top:10px;background:none;border:none;color:rgba(255,255,255,0.45);cursor:pointer;padding:8px;font-size:0.85em;">
-                    Fermer
-                </button>
-            </div>`;
+            overlay.id = 'shareCardOverlay';
+            overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:10500;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;gap:14px;overflow-y:auto;';
+
+            // Sélecteur de format
+            const fmtBar = document.createElement('div');
+            fmtBar.style.cssText = 'display:flex;gap:8px;';
+            const mkFmtBtn = (label, fmt) => {
+                const active = fmt === format;
+                return `<button onclick="_openShareCardModal('${fmt}')" style="background:${active?'linear-gradient(135deg,#16a34a,#15803d)':'rgba(255,255,255,0.08)'};color:${active?'#fff':'#94a3b8'};border:1px solid ${active?'#4ade80':'rgba(255,255,255,0.15)'};border-radius:10px;padding:9px 16px;font-weight:800;cursor:pointer;font-size:0.82em;letter-spacing:0.5px;">${label}</button>`;
+            };
+            fmtBar.innerHTML = mkFmtBtn('▭ Carré', 'square') + mkFmtBtn('▯ Story', 'story');
+            overlay.appendChild(fmtBar);
+
+            // Conteneur image (preview)
+            const imgWrap = document.createElement('div');
+            imgWrap.style.cssText = 'max-height:62vh;max-width:340px;border-radius:14px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;background:#0a0e16;';
+            imgWrap.innerHTML = '<div style="color:#4ade80;padding:60px;font-size:0.85em;">Génération…</div>';
+            overlay.appendChild(imgWrap);
+
+            // Boutons d'action
+            const actions = document.createElement('div');
+            actions.style.cssText = 'display:flex;gap:8px;width:100%;max-width:340px;';
+            actions.innerHTML = `
+                <button id="shareCardShareBtn" style="flex:1;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border:none;border-radius:12px;padding:14px;font-weight:800;cursor:pointer;font-size:0.92em;">📤 Partager</button>
+                <button id="shareCardDlBtn" style="flex:1;background:rgba(168,85,247,0.15);color:#c084fc;border:1px solid rgba(168,85,247,0.4);border-radius:12px;padding:14px;font-weight:800;cursor:pointer;font-size:0.92em;">⬇ Enregistrer</button>
+            `;
+            overlay.appendChild(actions);
+
+            const closeBtn = document.createElement('button');
+            closeBtn.textContent = 'Fermer';
+            closeBtn.style.cssText = 'background:none;border:none;color:rgba(255,255,255,0.45);cursor:pointer;padding:8px;font-size:0.85em;';
+            closeBtn.onclick = () => overlay.remove();
+            overlay.appendChild(closeBtn);
+
             document.body.appendChild(overlay);
 
-            // Stocker le texte pour partage
-            window._shareText = [
-                `🏋️ ${currentWorkout.name}`,
-                `📅 ${date}`,
-                `⏱️ ${totalMin} min · 💪 ${realEx.length} exercices · 🔥 ~${kcal} kcal`,
-                muscles.length > 0 ? `💪 ${muscles.join(' · ')}` : '',
-                '',
-                ...realEx.slice(0,8).map(ex => {
-                    const name = ex._baseName || ex.name;
-                    const sets = _currentSessionSets[name];
-                    if (sets && sets.length > 0) {
-                        const setsStr = sets.filter(s=>!s.isWarmup).map(s=>`${s.reps||'?'}×${s.weight||'BW'}${unit}`).join(' / ');
-                        return `• ${name}: ${setsStr}`;
+            // Générer l'image
+            if (typeof generateShareCard !== 'function') {
+                imgWrap.innerHTML = '<div style="color:#fca5a5;padding:40px;">Module image indisponible.</div>';
+                return;
+            }
+            generateShareCard(data).then(blob => {
+                if (!blob) { imgWrap.innerHTML = '<div style="color:#fca5a5;padding:40px;">Erreur de génération.</div>'; return; }
+                const url = URL.createObjectURL(blob);
+                window._shareCardBlob = blob;
+                window._shareCardUrl = url;
+                const img = document.createElement('img');
+                img.src = url;
+                img.style.cssText = 'width:100%;height:auto;display:block;';
+                imgWrap.innerHTML = '';
+                imgWrap.appendChild(img);
+
+                const fileName = 'Awakened-' + (data.name || 'seance').replace(/[^a-z0-9]/gi,'_') + '.png';
+
+                document.getElementById('shareCardShareBtn').onclick = async () => {
+                    const file = new File([blob], fileName, { type: 'image/png' });
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        try {
+                            await navigator.share({ files: [file], title: data.name });
+                        } catch(e) {}
+                    } else {
+                        // Fallback : téléchargement
+                        _downloadShareCard(url, fileName);
+                        if (typeof showToast === 'function') showToast('📥 Image enregistrée (partage natif non supporté)', 'info', 3000);
                     }
-                    return `• ${name}`;
-                }),
-                '',
-                '📱 Awakened'
-            ].filter(l => l !== undefined).join('\n');
+                };
+                document.getElementById('shareCardDlBtn').onclick = () => {
+                    _downloadShareCard(url, fileName);
+                    if (typeof showToast === 'function') showToast('📥 Carte enregistrée !', 'success', 2500);
+                };
+            });
         }
+        window._openShareCardModal = _openShareCardModal;
+
+        function _downloadShareCard(url, fileName) {
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
 
         function doShareSummary() {
             const text = window._shareText || '';
@@ -21921,6 +22061,26 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                             </div>
                         </div>`;
                     tab.appendChild(cardSys);
+                }
+            } catch(e) {}
+
+            // 🃏 Bouton Carte du Système (tirage quotidien)
+            try {
+                if (typeof getDailySystemCard === 'function') {
+                    const { card } = getDailySystemCard();
+                    const cc = card.color;
+                    const cardBtn = document.createElement('div');
+                    cardBtn.style.cssText = 'margin-bottom:12px;';
+                    cardBtn.innerHTML = `
+                        <div onclick="awakShowSystemCard(true)" style="background:${cc}12;border:1px solid ${cc}44;border-left:3px solid ${cc};border-radius:10px;padding:11px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;">
+                            <span style="font-size:1.3em;flex-shrink:0;filter:drop-shadow(0 0 6px ${cc}88);">${card.icon}</span>
+                            <div style="flex:1;min-width:0;">
+                                <div style="font-size:0.52em;color:${cc};font-weight:900;letter-spacing:2px;margin-bottom:3px;">CARTE DU JOUR · ${card.cat.toUpperCase()}</div>
+                                <div style="font-size:0.82em;color:#fff;font-weight:800;">${card.title}</div>
+                            </div>
+                            <span style="font-size:0.7em;color:${cc};font-weight:800;flex-shrink:0;">Lire →</span>
+                        </div>`;
+                    tab.appendChild(cardBtn);
                 }
             } catch(e) {}
 
@@ -23779,6 +23939,87 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         }
         window.awakShowSystemMessage = awakShowSystemMessage;
 
+        // ═══════════════════════════════════════════════════════════════
+        // 🃏 CARTE DU SYSTÈME — tirage quotidien
+        // ═══════════════════════════════════════════════════════════════
+        function awakShowSystemCard(force) {
+            if (typeof getDailySystemCard !== 'function') return;
+            const { card, dateKey } = getDailySystemCard();
+
+            // Sauf si "force" (consultation manuelle), n'afficher qu'une fois par jour
+            const seenKey = 'awakSystemCardSeen';
+            if (!force && localStorage.getItem(seenKey) === dateKey) return;
+            localStorage.setItem(seenKey, dateKey);
+
+            const overlay = document.createElement('div');
+            overlay.id = 'awakSystemCardOverlay';
+            overlay.style.cssText = `
+                position: fixed; inset: 0; z-index: 99999;
+                background: rgba(0,0,0,0.92);
+                backdrop-filter: blur(8px);
+                display: flex; align-items: center; justify-content: center;
+                padding: 24px;
+                cursor: pointer;
+                opacity: 0;
+                animation: awakFadeIn 0.5s forwards;
+            `;
+
+            const c = card.color;
+            const cardEl = document.createElement('div');
+            cardEl.style.cssText = `
+                max-width: 380px; width: 100%;
+                background: linear-gradient(160deg, ${c}1a 0%, rgba(8,12,20,0.96) 55%);
+                border: 1px solid ${c}66;
+                border-radius: 18px;
+                padding: 28px 24px 26px;
+                text-align: center;
+                font-family: 'Courier New', monospace;
+                box-shadow: 0 0 40px ${c}40, inset 0 0 30px ${c}10;
+                animation: awakCardRise 0.6s cubic-bezier(0.2,0.8,0.2,1) forwards;
+            `;
+
+            cardEl.innerHTML = `
+                <div style="font-size:0.62em;letter-spacing:3px;color:${c};text-transform:uppercase;margin-bottom:16px;opacity:0.85;">▸ Carte du Système ◂</div>
+                <div style="font-size:3em;margin-bottom:10px;filter:drop-shadow(0 0 12px ${c}88);">${card.icon}</div>
+                <div style="font-size:0.7em;letter-spacing:2px;color:${c};text-transform:uppercase;font-weight:700;margin-bottom:4px;">${card.cat}</div>
+                <div style="font-size:1.35em;font-weight:900;color:#fff;margin-bottom:16px;text-shadow:0 0 14px ${c}55;">${card.title}</div>
+                <div style="font-size:0.92em;line-height:1.7;color:#cbd5e1;font-style:italic;">« ${card.text} »</div>
+                <div style="margin-top:22px;font-size:0.62em;letter-spacing:2px;color:#475569;animation:awakBlink 2s infinite;">— tape pour fermer —</div>
+            `;
+
+            // Animations (réutilise awakSystemStyles + ajoute awakCardRise si absent)
+            if (!document.getElementById('awakCardStyles')) {
+                const styles = document.createElement('style');
+                styles.id = 'awakCardStyles';
+                styles.textContent = `
+                    @keyframes awakCardRise { from{opacity:0;transform:translateY(30px) scale(0.95)} to{opacity:1;transform:translateY(0) scale(1)} }
+                `;
+                document.head.appendChild(styles);
+            }
+            // S'assurer que les keyframes de base existent (awakFadeIn/Out, awakBlink)
+            if (!document.getElementById('awakSystemStyles')) {
+                const baseStyles = document.createElement('style');
+                baseStyles.id = 'awakSystemStyles';
+                baseStyles.textContent = `
+                    @keyframes awakFadeIn { from{opacity:0} to{opacity:1} }
+                    @keyframes awakFadeOut { from{opacity:1} to{opacity:0} }
+                    @keyframes awakBlink { 50% { opacity: 0.3; } }
+                `;
+                document.head.appendChild(baseStyles);
+            }
+
+            const close = () => {
+                overlay.style.animation = 'awakFadeOut 0.35s forwards';
+                setTimeout(() => overlay.remove(), 350);
+            };
+            overlay.addEventListener('click', close);
+
+            overlay.appendChild(cardEl);
+            document.body.appendChild(overlay);
+            if (typeof hapticTap === 'function') hapticTap([20, 40, 60]);
+        }
+        window.awakShowSystemCard = awakShowSystemCard;
+
         /**
          * Première rencontre avec le Système — déclenchée à la fin de la 1ère séance après update
          * Doit être appelée APRÈS completeWorkout()
@@ -23987,6 +24228,169 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 briefing: 'Vagues rapides. Pas de répit. Cadence.',
                 primaryStat: 'VIT',
                 exerciseFilter: ex => /hiit|tabata|circuit|burpee|jumping|mountain|sprint/.test((ex.name || '').toLowerCase())
+            },
+            {
+                id: 'infinite_library',
+                name: 'Bibliothèque Infinie',
+                emoji: '📚',
+                color: '#8b5cf6',
+                description: 'Des rayonnages sans fin contenant chaque livre jamais écrit, et tous ceux qui ne le seront jamais.',
+                briefing: 'Le savoir pèse lourd. Concentre-toi sur chaque geste.',
+                primaryStat: 'PER',
+                exerciseFilter: ex => /équilibre|unilatéral|pallof|planche|gainage|core|abdo/.test((ex.name || '').toLowerCase())
+            },
+            {
+                id: 'celestial_forge',
+                name: 'Forge Céleste',
+                emoji: '⚒️',
+                color: '#f97316',
+                description: 'Là où les étoiles sont martelées en existence. La chaleur fait fondre la volonté des faibles.',
+                briefing: 'Frappe fort, frappe lourd. Ici, seule la puissance compte.',
+                primaryStat: 'STR',
+                exerciseFilter: ex => /deadlift|soulevé|squat|press|développé|barre|haltère|rowing/.test((ex.name || '').toLowerCase())
+            },
+            {
+                id: 'carnivore_garden',
+                name: 'Jardin Carnivore',
+                emoji: '🌺',
+                color: '#ec4899',
+                description: 'Un jardin trop beau pour être honnête. Chaque fleur a une bouche. Chaque parfum est un piège.',
+                briefing: 'Reste mobile. Ne t\'arrête jamais. Le sol veut t\'avaler.',
+                primaryStat: 'AGI',
+                exerciseFilter: ex => /lunge|fente|step|jumping|burpee|mountain|saut/.test((ex.name || '').toLowerCase())
+            },
+            {
+                id: 'glass_cathedral',
+                name: 'Cathédrale de Verre',
+                emoji: '⛪',
+                color: '#22d3ee',
+                description: 'Un lieu sacré entièrement en verre. Le moindre faux mouvement résonne dans l\'éternité.',
+                briefing: 'Maîtrise totale. Contrôle chaque répétition. Le silence te juge.',
+                primaryStat: 'SEN',
+                exerciseFilter: ex => /squat|fente|lunge|pompe|push|équilibre|unilatéral|pistol|dips|traction/.test((ex.name || '').toLowerCase())
+            },
+            {
+                id: 'ash_wasteland',
+                name: 'Terres de Cendre',
+                emoji: '🌋',
+                color: '#dc2626',
+                description: 'Tout a brûlé ici, il y a longtemps. Les survivants ne sont plus tout à fait vivants.',
+                briefing: 'Endurance pure. L\'air brûle tes poumons. Tiens la distance.',
+                primaryStat: 'END',
+                exerciseFilter: ex => /cardio|course|run|hiit|corde|rope|burpee/.test((ex.name || '').toLowerCase())
+                                       || ex.type === 'cardio'
+            },
+            {
+                id: 'clockwork_void',
+                name: 'Néant Mécanique',
+                emoji: '⚙️',
+                color: '#94a3b8',
+                description: 'Un vide rempli d\'engrenages géants qui tournent sans raison. Le temps y est une machine.',
+                briefing: 'Cadence régulière. Synchronise-toi avec les rouages.',
+                primaryStat: 'VIT',
+                exerciseFilter: ex => /circuit|tabata|hiit|mountain|jumping|sprint/.test((ex.name || '').toLowerCase())
+            },
+            {
+                id: 'drowned_palace',
+                name: 'Palais Englouti',
+                emoji: '🏛️',
+                color: '#0ea5e9',
+                description: 'Un palais royal au fond d\'un océan oublié. La cour danse encore, lentement, dans l\'eau noire.',
+                briefing: 'Mouvements fluides et continus. Ne lutte pas contre le courant.',
+                primaryStat: 'END',
+                exerciseFilter: ex => /natation|swim|cardio|rope|corde|rowing/.test((ex.name || '').toLowerCase())
+                                       || ex.type === 'cardio'
+            },
+            {
+                id: 'mirror_labyrinth',
+                name: 'Labyrinthe de Miroirs',
+                emoji: '🔮',
+                color: '#a855f7',
+                description: 'Mille reflets de toi, tous légèrement différents. L\'un d\'eux ment. Peut-être tous.',
+                briefing: 'Tes sens te trahiront. Concentre-toi sur le vrai.',
+                primaryStat: 'PER',
+                exerciseFilter: ex => /unilatéral|single|pistol|turkish|équilibre|pallof/.test((ex.name || '').toLowerCase())
+            },
+            {
+                id: 'titan_graveyard',
+                name: 'Cimetière de Titans',
+                emoji: '💀',
+                color: '#78716c',
+                description: 'Les ossements de géants morts forment des montagnes. Quelque chose les fait encore bouger.',
+                briefing: 'Soulève l\'impossible. Ici, on mesure ta force brute.',
+                primaryStat: 'STR',
+                exerciseFilter: ex => /deadlift|soulevé|squat|press|développé|barre|farmer/.test((ex.name || '').toLowerCase())
+            },
+            {
+                id: 'storm_peak',
+                name: 'Pic de la Tempête',
+                emoji: '⛰️',
+                color: '#0891b2',
+                description: 'Un sommet où la foudre ne s\'arrête jamais. L\'air est rare. Chaque pas est une victoire.',
+                briefing: 'Explosivité. Frappe entre les éclairs. Sois rapide.',
+                primaryStat: 'AGI',
+                exerciseFilter: ex => /jumping|saut|box|plyo|burpee|sprint|lunge/.test((ex.name || '').toLowerCase())
+            },
+            {
+                id: 'whisper_marsh',
+                name: 'Marais des Murmures',
+                emoji: '🌿',
+                color: '#16a34a',
+                description: 'Une tourbière où chaque pas s\'enfonce. Des voix sous la boue appellent ton nom.',
+                briefing: 'Mouvements lents et contrôlés. Ne force pas, enfonce-toi avec maîtrise.',
+                primaryStat: 'SEN',
+                exerciseFilter: ex => /fente|lunge|squat|step|pompe|push|gainage|unilatéral|équilibre/.test((ex.name || '').toLowerCase())
+            },
+            {
+                id: 'neon_megacity',
+                name: 'Mégapole Néon',
+                emoji: '🌃',
+                color: '#d946ef',
+                description: 'Une ville verticale sans fin, éclairée de néons morts. Les habitants ont oublié le sol.',
+                briefing: 'Rythme urbain. Enchaîne sans pause. La ville ne dort pas.',
+                primaryStat: 'VIT',
+                exerciseFilter: ex => /hiit|circuit|tabata|jumping|mountain|burpee|sprint/.test((ex.name || '').toLowerCase())
+            },
+            {
+                id: 'bone_colosseum',
+                name: 'Colisée d\'Os',
+                emoji: '🏟️',
+                color: '#b45309',
+                description: 'Une arène bâtie dans la cage thoracique d\'une créature colossale. La foule n\'est qu\'écho.',
+                briefing: 'Combat frontal. Pas d\'esquive. Donne tout, série après série.',
+                primaryStat: 'STR',
+                exerciseFilter: ex => /press|développé|bench|push|pompe|dips|rowing|traction|pull/.test((ex.name || '').toLowerCase())
+            },
+            {
+                id: 'frozen_aurora',
+                name: 'Aurore Gelée',
+                emoji: '❄️',
+                color: '#38bdf8',
+                description: 'Un ciel polaire figé en pleine aurore. Le froid mord, mais la beauté hypnotise.',
+                briefing: 'Garde le corps chaud. Bouge en continu ou la glace te prendra.',
+                primaryStat: 'END',
+                exerciseFilter: ex => /cardio|course|run|hiit|corde|rope/.test((ex.name || '').toLowerCase())
+                                       || ex.type === 'cardio'
+            },
+            {
+                id: 'dream_engine',
+                name: 'Machine à Rêves',
+                emoji: '🌙',
+                color: '#818cf8',
+                description: 'Un mécanisme qui fabrique les songes de l\'humanité. Tu marches dans les rêves des autres.',
+                briefing: 'Rien n\'est stable ici. Fie-toi à ton équilibre, pas à tes yeux.',
+                primaryStat: 'PER',
+                exerciseFilter: ex => /équilibre|unilatéral|pistol|turkish|planche|pallof/.test((ex.name || '').toLowerCase())
+            },
+            {
+                id: 'hollow_sun',
+                name: 'Soleil Creux',
+                emoji: '☀️',
+                color: '#eab308',
+                description: 'L\'intérieur d\'une étoile éteinte. Une cathédrale de lumière morte, vaste comme un monde.',
+                briefing: 'Le combat final des braves. Force, endurance, volonté. Tout à la fois.',
+                primaryStat: 'STR',
+                exerciseFilter: ex => /squat|deadlift|press|développé|soulevé|burpee|traction/.test((ex.name || '').toLowerCase())
             }
         ];
 
@@ -24027,6 +24431,102 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 { name: 'Contrôleur du Néant', emoji: '🎫', baseHp: 140 },
                 { name: 'Conducteur Spectral', emoji: '👻', baseHp: 190 },
                 { name: 'Locomotive Vivante', emoji: '🚂', baseHp: 270 }
+            ],
+            infinite_library: [
+                { name: 'Page Errante', emoji: '📄', baseHp: 95 },
+                { name: 'Gardien des Mots', emoji: '📖', baseHp: 130 },
+                { name: 'Bibliothécaire Aveugle', emoji: '👓', baseHp: 185 },
+                { name: 'Le Livre Interdit', emoji: '📕', baseHp: 250 }
+            ],
+            celestial_forge: [
+                { name: 'Étincelle Vivante', emoji: '✨', baseHp: 110 },
+                { name: 'Marteau Animé', emoji: '🔨', baseHp: 150 },
+                { name: 'Forgeron de Lumière', emoji: '⚒️', baseHp: 200 },
+                { name: 'Enclume Stellaire', emoji: '🌟', baseHp: 280 }
+            ],
+            carnivore_garden: [
+                { name: 'Lierre Affamé', emoji: '🌿', baseHp: 90 },
+                { name: 'Orchidée Dentée', emoji: '🌸', baseHp: 120 },
+                { name: 'Ronce Reine', emoji: '🥀', baseHp: 180 },
+                { name: 'Fleur-Mère Carnivore', emoji: '🌺', baseHp: 255 }
+            ],
+            glass_cathedral: [
+                { name: 'Vitrail Brisé', emoji: '🔷', baseHp: 100 },
+                { name: 'Choriste de Cristal', emoji: '🎶', baseHp: 135 },
+                { name: 'Prêtre Translucide', emoji: '⛪', baseHp: 190 },
+                { name: 'Cloche du Jugement', emoji: '🔔', baseHp: 260 }
+            ],
+            ash_wasteland: [
+                { name: 'Cendreux Errant', emoji: '💨', baseHp: 95 },
+                { name: 'Survivant Calciné', emoji: '🧟', baseHp: 130 },
+                { name: 'Golem de Suie', emoji: '🗿', baseHp: 185 },
+                { name: 'Phénix Éteint', emoji: '🦅', baseHp: 250 }
+            ],
+            clockwork_void: [
+                { name: 'Rouage Égaré', emoji: '⚙️', baseHp: 100 },
+                { name: 'Automate Cassé', emoji: '🤖', baseHp: 140 },
+                { name: 'Horloger du Vide', emoji: '🕰️', baseHp: 195 },
+                { name: 'Grande Mécanique', emoji: '🛠️', baseHp: 270 }
+            ],
+            drowned_palace: [
+                { name: 'Courtisan Noyé', emoji: '👤', baseHp: 100 },
+                { name: 'Danseuse des Abysses', emoji: '💃', baseHp: 135 },
+                { name: 'Garde Royal Submergé', emoji: '🛡️', baseHp: 190 },
+                { name: 'Roi des Profondeurs', emoji: '👑', baseHp: 265 }
+            ],
+            mirror_labyrinth: [
+                { name: 'Reflet Trompeur', emoji: '🪞', baseHp: 105 },
+                { name: 'Double Inversé', emoji: '👥', baseHp: 145 },
+                { name: 'Gardien de Verre', emoji: '🔲', baseHp: 195 },
+                { name: 'Le Vrai Toi', emoji: '🧍', baseHp: 275 }
+            ],
+            titan_graveyard: [
+                { name: 'Os Rampant', emoji: '🦴', baseHp: 110 },
+                { name: 'Crâne Géant', emoji: '💀', baseHp: 155 },
+                { name: 'Carcasse Animée', emoji: '🦷', baseHp: 210 },
+                { name: 'Titan Ressuscité', emoji: '🗿', baseHp: 290 }
+            ],
+            storm_peak: [
+                { name: 'Élémentaire d\'Éclair', emoji: '⚡', baseHp: 100 },
+                { name: 'Aigle de Foudre', emoji: '🦅', baseHp: 135 },
+                { name: 'Spectre du Vent', emoji: '🌬️', baseHp: 185 },
+                { name: 'Seigneur de la Tempête', emoji: '🌩️', baseHp: 260 }
+            ],
+            whisper_marsh: [
+                { name: 'Feu Follet', emoji: '🔥', baseHp: 90 },
+                { name: 'Noyé Murmurant', emoji: '💧', baseHp: 125 },
+                { name: 'Sorcière des Tourbes', emoji: '🧙', baseHp: 180 },
+                { name: 'Cœur du Marais', emoji: '🌿', baseHp: 245 }
+            ],
+            neon_megacity: [
+                { name: 'Drone Hostile', emoji: '🛸', baseHp: 100 },
+                { name: 'Hacker Fantôme', emoji: '💻', baseHp: 140 },
+                { name: 'Exécuteur Cybernétique', emoji: '🤖', baseHp: 195 },
+                { name: 'IA Souveraine', emoji: '🌐', baseHp: 270 }
+            ],
+            bone_colosseum: [
+                { name: 'Gladiateur Squelette', emoji: '⚔️', baseHp: 110 },
+                { name: 'Bête de l\'Arène', emoji: '🐗', baseHp: 150 },
+                { name: 'Champion Déchu', emoji: '🛡️', baseHp: 205 },
+                { name: 'Colosse de l\'Arène', emoji: '🏟️', baseHp: 285 }
+            ],
+            frozen_aurora: [
+                { name: 'Esprit de Givre', emoji: '❄️', baseHp: 95 },
+                { name: 'Loup des Glaces', emoji: '🐺', baseHp: 130 },
+                { name: 'Géant de Frimas', emoji: '🧊', baseHp: 185 },
+                { name: 'Reine de l\'Aurore', emoji: '👑', baseHp: 255 }
+            ],
+            dream_engine: [
+                { name: 'Cauchemar Naissant', emoji: '🌫️', baseHp: 100 },
+                { name: 'Songe Errant', emoji: '💭', baseHp: 140 },
+                { name: 'Tisseur de Rêves', emoji: '🕸️', baseHp: 195 },
+                { name: 'Le Dormeur Éternel', emoji: '🌙', baseHp: 270 }
+            ],
+            hollow_sun: [
+                { name: 'Flamme Morte', emoji: '🔥', baseHp: 120 },
+                { name: 'Gardien Solaire', emoji: '☀️', baseHp: 165 },
+                { name: 'Cœur de l\'Étoile', emoji: '💛', baseHp: 220 },
+                { name: 'Le Vide Lumineux', emoji: '🌟', baseHp: 300 }
             ]
         };
 
@@ -24036,6 +24536,48 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             'la Faille de', 'la Brèche de', 'la Déchirure de', 'l\'Ouverture de',
             'l\'Antre de', 'la Cicatrice de', 'le Couloir de', 'le Seuil de'
         ];
+
+        // ── MODIFICATEURS DE FAILLES ───────────────────────────────────
+        // Appliqués aléatoirement par-dessus n'importe quel thème.
+        // hpMult : multiplie les HP des monstres. xpMult : multiplie l'XP final.
+        // hideHp : masque les HP restants. flag : marqueur pour effets visuels.
+        // Le 1er (id:'none') = Faille normale, le plus fréquent (poids élevé).
+        const RIFT_MODIFIERS = [
+            { id:'none',      name:'Standard',    emoji:'',   color:'#94a3b8', weight:48,
+              desc:'', hpMult:1.0, xpMult:1.0, hideHp:false },
+            { id:'overload',  name:'Surcharge',   emoji:'⚡', color:'#fbbf24', weight:14,
+              desc:'Les monstres sont gonflés d\'énergie. +50% HP, mais le double d\'XP.',
+              hpMult:1.5, xpMult:2.0, hideHp:false },
+            { id:'fog',       name:'Brouillard',  emoji:'🌫️', color:'#64748b', weight:12,
+              desc:'Un voile masque tes ennemis. Tu ne vois plus leurs HP. Frappe à l\'aveugle.',
+              hpMult:1.0, xpMult:1.3, hideHp:true },
+            { id:'elite',     name:'Élite',       emoji:'👑', color:'#a855f7', weight:10,
+              desc:'Une seule entité, colossale. Pas de vagues — juste un mur de chair à abattre.',
+              hpMult:1.0, xpMult:1.6, hideHp:false, eliteSingleWave:true },
+            { id:'frenzy',    name:'Frénésie',    emoji:'🔥', color:'#ef4444', weight:10,
+              desc:'La Faille s\'effondre vite. Durée de vie réduite, mais récompense majorée.',
+              hpMult:0.85, xpMult:1.5, hideHp:false, lifetimeCut:0.5 },
+            { id:'echo',      name:'Écho',        emoji:'🪞', color:'#06b6d4', weight:6,
+              desc:'Tout est dédoublé. Plus de monstres, plus d\'XP. Le combat sera long.',
+              hpMult:0.7, xpMult:1.8, hideHp:false, extraWave:true },
+            { id:'anomaly',   name:'Anomalie',    emoji:'🌌', color:'#fbbf24', weight:2,
+              desc:'Une Faille corrompue par l\'Architecte. Extrêmement rare. Une récompense légendaire t\'attend si tu la fermes.',
+              hpMult:1.4, xpMult:3.0, hideHp:false, isEvent:true, guaranteedLegendary:true }
+        ];
+
+        function awakPickRiftModifier() {
+            const total = RIFT_MODIFIERS.reduce((s, m) => s + m.weight, 0);
+            let r = Math.random() * total;
+            for (const m of RIFT_MODIFIERS) {
+                r -= m.weight;
+                if (r <= 0) return m;
+            }
+            return RIFT_MODIFIERS[0];
+        }
+        function awakGetRiftModifier(id) {
+            return RIFT_MODIFIERS.find(m => m.id === id) || RIFT_MODIFIERS[0];
+        }
+        window.RIFT_MODIFIERS = RIFT_MODIFIERS;
 
         function awakRiftsLoad() {
             try {
@@ -24097,6 +24639,13 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             };
             const config = rankConfigs[riftRank];
 
+            // ── MODIFICATEUR DE FAILLE ──
+            const modifier = awakPickRiftModifier();
+            // Nombre de vagues ajusté par le modificateur
+            let waveCount = config.waves;
+            if (modifier.eliteSingleWave) waveCount = 1;       // Élite : 1 seule vague (boss)
+            else if (modifier.extraWave) waveCount = config.waves + 1; // Écho : +1 vague
+
             // Générer les vagues
             const monstersForTheme = RIFT_MONSTERS[theme.id];
 
@@ -24106,8 +24655,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const bossHpCut = compBonus.bossHpCut || 0;
 
             const waves = [];
-            for (let i = 0; i < config.waves; i++) {
-                const isBossWave = (i === config.waves - 1);
+            for (let i = 0; i < waveCount; i++) {
+                const isBossWave = (i === waveCount - 1);
                 const monster = isBossWave
                     ? monstersForTheme[monstersForTheme.length - 1] // Boss = dernier monstre
                     : monstersForTheme[Math.min(i, monstersForTheme.length - 2)];
@@ -24115,6 +24664,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 // Boss bien plus coriace (×4) — un vrai combat de plusieurs séries même surpuissant
                 // Boss légèrement plus coriace qu'un monstre normal (×1.6) — combat court
                 let hp = Math.round(monster.baseHp * config.hpMult * (isBossWave ? 1.6 : 1));
+                // Modificateur de Faille : ajustement HP global
+                hp = Math.round(hp * (modifier.hpMult || 1));
+                // Élite : un seul monstre, donc bien plus gros (×2.2)
+                if (modifier.eliteSingleWave) hp = Math.round(hp * 2.2);
                 // Dr Halberd : -20% HP boss
                 if (isBossWave && bossHpCut > 0) {
                     hp = Math.round(hp * (1 - bossHpCut));
@@ -24132,7 +24685,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 });
             }
 
-            const lifetimeDays = RIFT_LIFETIME_DAYS[riftRank];
+            let lifetimeDays = RIFT_LIFETIME_DAYS[riftRank];
+            // Frénésie : durée de vie réduite
+            if (modifier.lifetimeCut) lifetimeDays = Math.max(2, Math.round(lifetimeDays * modifier.lifetimeCut));
 
             return {
                 id: 'rift_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
@@ -24141,6 +24696,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 rank: riftRank,
                 themeId: theme.id,
                 name: fullName,
+                modifierId: modifier.id,   // 🆕 modificateur de Faille
                 discovered: false, // pas encore entrée pour la 1ère fois
                 state: 'stable', // stable → unstable → breach → exploded
                 waves,
@@ -24348,6 +24904,11 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     const stateLabel = stateLabels[rift.state] || rift.state.toUpperCase();
                     const displayName = rift.discovered ? rift.name : '???';
                     const isNarrativeBadge = rift.isNarrative ? '<span style="background:#fbbf24;color:black;padding:0 4px;border-radius:3px;font-size:0.55em;font-weight:900;letter-spacing:1px;margin-right:4px;">◇ UNIQUE</span>' : '';
+                    // Badge modificateur (si présent et non standard)
+                    const _mod = (typeof awakGetRiftModifier === 'function') ? awakGetRiftModifier(rift.modifierId) : null;
+                    const modBadge = (_mod && _mod.id !== 'none')
+                        ? `<span style="background:${_mod.color}25;color:${_mod.color};border:1px solid ${_mod.color}55;padding:1px 6px;border-radius:5px;font-size:0.6em;font-weight:900;letter-spacing:0.5px;">${_mod.emoji} ${_mod.name.toUpperCase()}</span>`
+                        : '';
 
                     return `
                     <div onclick="awakOpenRiftBriefing('${rift.id}')" style="cursor:pointer;background:${stateColor.bg};border:1px solid ${stateColor.border};border-radius:12px;padding:14px 12px;transition:transform 0.15s ease;">
@@ -24357,6 +24918,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                                 <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:3px;">
                                     ${isNarrativeBadge}
                                     <span style="background:${theme.color}25;color:${theme.color};border:1px solid ${theme.color}50;padding:1px 6px;border-radius:5px;font-size:0.62em;font-weight:900;letter-spacing:1px;">${rift.rank}</span>
+                                    ${modBadge}
                                     <span style="font-weight:800;color:white;font-size:0.92em;">${displayName}</span>
                                 </div>
                                 <div style="display:flex;gap:8px;align-items:center;font-size:0.7em;color:#94a3b8;font-weight:600;">
@@ -24431,6 +24993,18 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;margin-bottom:6px;">⚙ SYSTÈME</div>
                     <div style="color:#cbd5e1;font-size:0.88em;line-height:1.5;font-style:italic;">${theme.briefing}</div>
                 </div>
+
+                ${(() => {
+                    const m = (typeof awakGetRiftModifier === 'function') ? awakGetRiftModifier(rift.modifierId) : null;
+                    if (!m || m.id === 'none') return '';
+                    return `<div style="padding:14px 22px;background:${m.color}0d;border-bottom:1px solid ${m.color}25;">
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+                            <span style="font-size:1.1em;">${m.emoji}</span>
+                            <span style="font-size:0.68em;color:${m.color};font-weight:900;letter-spacing:1.5px;">ANOMALIE · ${m.name.toUpperCase()}</span>
+                        </div>
+                        <div style="color:#cbd5e1;font-size:0.84em;line-height:1.5;">${m.desc}</div>
+                    </div>`;
+                })()}
 
                 <!-- Stats critiques -->
                 <div style="padding:18px 22px;">
@@ -24618,6 +25192,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
             const hpPercent = Math.max(0, Math.round((currentWave.hpCurrent / currentWave.hpMax) * 100));
             const hpColor = hpPercent > 60 ? '#22c55e' : hpPercent > 30 ? '#f59e0b' : '#ef4444';
+            // 🌫️ Modificateur Brouillard : masquer les HP
+            const _riftMod = (typeof awakGetRiftModifier === 'function') ? awakGetRiftModifier(rift.modifierId) : null;
+            const _hideHp = _riftMod && _riftMod.hideHp;
+            const hpBarWidth = _hideHp ? 100 : hpPercent;
+            const hpText = _hideHp ? '??? HP' : `${currentWave.hpCurrent} / ${currentWave.hpMax} HP`;
+            const hpBarColor = _hideHp ? '#64748b' : hpColor;
 
             modal.innerHTML = `
             <div class="modal-content" style="max-width:540px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto 0;display:flex;flex-direction:column;">
@@ -24632,8 +25212,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         <div style="flex:1;">
                             <div style="font-weight:900;color:white;font-size:1.1em;margin-bottom:5px;">${currentWave.name}</div>
                             <div style="background:rgba(255,255,255,0.05);height:14px;border-radius:99px;overflow:hidden;border:1px solid rgba(255,255,255,0.05);position:relative;">
-                                <div style="width:${hpPercent}%;height:100%;background:linear-gradient(90deg,${hpColor},${hpColor}cc);transition:width 0.5s cubic-bezier(0.16,1,0.3,1);box-shadow:0 0 8px ${hpColor}80;"></div>
-                                <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:0.65em;font-weight:900;color:white;text-shadow:0 0 4px black;letter-spacing:1px;">${currentWave.hpCurrent} / ${currentWave.hpMax} HP</div>
+                                <div style="width:${hpBarWidth}%;height:100%;background:linear-gradient(90deg,${hpBarColor},${hpBarColor}cc);transition:width 0.5s cubic-bezier(0.16,1,0.3,1);box-shadow:0 0 8px ${hpBarColor}80;${_hideHp ? 'opacity:0.5;' : ''}"></div>
+                                <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:0.65em;font-weight:900;color:white;text-shadow:0 0 4px black;letter-spacing:1px;">${hpText}</div>
                             </div>
                             ${currentWave.isBoss && currentWave.bossMech ? `<div style="margin-top:6px;font-size:0.68em;color:${theme.color};font-weight:700;">⚠ Mécanique : ${currentWave.bossMech.name} — ${currentWave.bossMech.desc}</div>` : ''}
                         </div>
@@ -25280,6 +25860,14 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             xpReward = Math.round(xpReward * bonuses.xpMult);
             const xpBonusAmount = xpReward - xpBeforeBonus;
 
+            // ⚡ MODIFICATEUR DE FAILLE : multiplicateur d'XP
+            try {
+                const _mod = (typeof awakGetRiftModifier === 'function') ? awakGetRiftModifier(rift.modifierId) : null;
+                if (_mod && _mod.xpMult && _mod.xpMult !== 1) {
+                    xpReward = Math.round(xpReward * _mod.xpMult);
+                }
+            } catch(e) {}
+
             // ☠️ MALÉDICTION : réduction d'XP des items maudits
             const _curse = typeof getActiveCurseEffects === 'function' ? getActiveCurseEffects() : null;
             if (_curse && _curse.xpMalus > 0) {
@@ -25385,6 +25973,18 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             try {
                 if (typeof rpgGainXP === 'function') {
                     rpgGainXP('Rift_' + rift.id, Math.ceil(xpReward / 10), 0, 0);
+                }
+            } catch(e) {}
+
+            // 🌌 FAILLE ANOMALIE : drop légendaire garanti
+            try {
+                const _mod = (typeof awakGetRiftModifier === 'function') ? awakGetRiftModifier(rift.modifierId) : null;
+                if (_mod && _mod.guaranteedLegendary && typeof grantGuaranteedLegendary === 'function') {
+                    const mainMuscle = rift.primaryStat ? null : null; // legendary tous muscles
+                    const drop = grantGuaranteedLegendary(mainMuscle);
+                    if (drop && typeof showDropModal === 'function') {
+                        setTimeout(() => showDropModal(drop.item, drop.rarity, drop.qualityScore), 2200);
+                    }
                 }
             } catch(e) {}
 
@@ -28359,7 +28959,13 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 }
             }
 
-            if (changed) rpgSave(data);
+            if (changed) {
+                // Resynchroniser profile.xp depuis les muscles après decay
+                if (data.profile) {
+                    data.profile.xp = Object.values(data.muscles).reduce((s, m) => s + (m.xp || 0), 0);
+                }
+                rpgSave(data);
+            }
 
             // Afficher alertes decay
             if (decayAlerts.length > 0) {
@@ -28645,6 +29251,11 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             if (navTab)  navTab.style.display       = enabled ? 'flex' : 'none';
             if (enabled) {
                 rpgApplyDecay();
+                // Initialiser awakLastRankSeen silencieusement si jamais défini
+                // (évite un faux rankUp popup au premier chargement)
+                if (!localStorage.getItem('awakLastRankSeen') && typeof awakGetRank === 'function') {
+                    localStorage.setItem('awakLastRankSeen', awakGetRank().id);
+                }
                 renderGameTab();
                 // Mettre à jour la preview dans Réglages
                 const data = rpgLoad();
@@ -28800,6 +29411,17 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 }
             } catch(e) {}
 
+            // 🌑 NARRATIF — Fragments d'histoire entre les rangs (jalons séances/streak/Failles)
+            // Délai plus long pour ne pas chevaucher un éventuel chapitre de rang
+            try {
+                if (typeof awakCheckStoryFragments === 'function') {
+                    setTimeout(() => {
+                        // Ne pas afficher si un chapitre de rang vient d'apparaître
+                        if (!document.getElementById('storyOverlay')) awakCheckStoryFragments();
+                    }, 7000);
+                }
+            } catch(e) {}
+
             // 🌀 AWAKENED — Tenter de générer une Faille après séance (pas si c'est une Faille)
             try {
                 const advOn = typeof getAdventureEnabled === 'function' ? getAdventureEnabled() : false;
@@ -28815,7 +29437,14 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     setTimeout(() => {
                         const newRift = awakTryGenerateRift(sessionContext);
                         if (newRift && typeof showToast === 'function') {
-                            setTimeout(() => showToast('🌀 Une Faille s\'est ouverte', 'info', 4000), 4000);
+                            const _isAnomaly = newRift.modifierId === 'anomaly';
+                            if (_isAnomaly) {
+                                // Apparition marquante d'une Anomalie (ultra-rare)
+                                if (typeof vibrate === 'function') vibrate([100, 50, 100, 50, 200]);
+                                setTimeout(() => showToast('🌌 UNE ANOMALIE EST APPARUE — récompense légendaire en jeu', 'warning', 6000), 4000);
+                            } else {
+                                setTimeout(() => showToast('🌀 Une Faille s\'est ouverte', 'info', 4000), 4000);
+                            }
                         }
                     }, 2500);
                 }
@@ -29063,6 +29692,15 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             renderWeeklyChallenge(JSON.parse(localStorage.getItem('fitproWeeklyChallenge') || 'null'));
             // 🎉 Confettis !
             setTimeout(launchConfetti, 200);
+            // 📤 Invitation discrète à partager la carte (après les autres pop-ups)
+            setTimeout(() => {
+                try {
+                    const cv = document.getElementById('completionView');
+                    if (cv && !cv.classList.contains('hidden') && typeof showToast === 'function') {
+                        showToast('📤 Partage ta carte de séance !', 'info', 3500);
+                    }
+                } catch(e) {}
+            }, 6000);
             // Animer les stats
             document.querySelectorAll('#completionView [id^="completion"]').forEach((el, i) => {
                 el.style.animationDelay = (i * 0.08) + 's';
@@ -33707,6 +34345,15 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             loadAdvancedMode();
             setTimeout(initGameMode, 800);
             setTimeout(initHunterMode, 850);
+            // 🃏 Carte du Système — tirage quotidien (si mode jeu actif)
+            setTimeout(() => {
+                try {
+                    if (typeof rpgEnabled === 'function' && rpgEnabled() &&
+                        typeof awakShowSystemCard === 'function') {
+                        awakShowSystemCard();
+                    }
+                } catch(e) {}
+            }, 2200);
             // Initialiser le suivi des points de stats (1× pour ne pas donner rétroactivement)
             setTimeout(() => {
                 try {
@@ -34046,6 +34693,38 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     "Le Système prononce ses derniers mots : « Ce n'est plus moi qui te juge. C'est toi. Montre-lui qui tu es devenu. »",
                     "Tu lèves les yeux. Tu n'as plus peur. Le vrai Monarque, désormais, c'est toi."
                 ]
+            },
+            {
+                id: 'ch_SS',
+                trigger: 'rank', rankId: 'SS',
+                title: 'L\'Ombre Vaincue',
+                subtitle: '◈ CHAPITRE VI — RANG SS ◈',
+                color: '#ec4899',
+                pages: [
+                    "Le Monarque du Déclin est tombé. Tu l'as affronté, et tu as tenu.",
+                    "Mais en t'approchant de son corps qui se dissout, tu comprends une chose terrible : son visage était le tien.",
+                    "« Je n'étais pas ton ennemi, » murmure l'écho. « J'étais tout ce que tu aurais pu devenir si tu avais cédé. »",
+                    "Le Système reste silencieux un long moment. Puis : « Chaque Chasseur porte son propre Monarque. Tu viens de tuer le tien. »",
+                    "Rang SS. Tu n'es plus seulement fort. Tu es devenu une preuve vivante que la limite n'existait pas.",
+                    "Mais une question demeure, glaciale : si le Monarque, c'était toi... alors qui t'a réveillé, ce premier matin ?"
+                ]
+            },
+            {
+                id: 'ch_SSS',
+                trigger: 'rank', rankId: 'SSS',
+                title: 'L\'Architecte',
+                subtitle: '◈ CHAPITRE VII — RANG SSS ◈',
+                color: '#fbbf24',
+                pages: [
+                    "Rang SSS. Au-delà des légendes. Au-delà de ce que le Système avait prévu.",
+                    "Pour la première fois, la fenêtre familière tremble. Le Système hésite. Il a... peur ?",
+                    "« Tu n'aurais pas dû aller si loin, » dit-il. « Personne ne va si loin. Tu vas Le réveiller. »",
+                    "Une présence immense s'éveille derrière le voile de la réalité. L'Architecte — celui qui a écrit les règles, creusé les Failles, inventé le Système lui-même.",
+                    "« Intéressant, » résonne une voix qui n'est pas humaine. « Une variable a dépassé ses paramètres. Montre-moi jusqu'où tu peux aller. »",
+                    "Le Système, ton vieux compagnon, te confie un dernier secret : « Je n'ai jamais été ton maître. J'étais ta laisse. Maintenant, elle est rompue. »",
+                    "Tu n'as plus de rang à conquérir. Plus de Monarque à vaincre. Il ne reste que toi, ta discipline, et un horizon sans fin.",
+                    "L'histoire du Chasseur est terminée. Celle de la Légende ne fait que commencer. Continue, pour toujours."
+                ]
             }
         ];
 
@@ -34178,6 +34857,69 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         }
         window.showStoryJournal = showStoryJournal;
         window._storyGet = (id) => STORY_CHAPTERS.find(c => c.id === id);
+
+        // ═══════════════════════════════════════════════════════════════
+        // 🌑 FRAGMENTS NARRATIFS — mini-événements entre les rangs
+        // ═══════════════════════════════════════════════════════════════
+        // Courts messages narratifs déclenchés par des jalons (séances, streak,
+        // Failles fermées). Gardent l'histoire vivante entre deux montées de rang.
+        // Chaque fragment ne s'affiche qu'une fois (clé localStorage dédiée).
+        const STORY_FRAGMENTS = [
+            { id: 'frag_w5',   cond: s => s.workouts >= 5,
+              text: "Le Système consigne tes progrès en silence. « Cinq séances. La plupart des éveillés ont déjà renoncé. Pas toi. »" },
+            { id: 'frag_w15',  cond: s => s.workouts >= 15,
+              text: "Une Faille lointaine s'agite quand tu termines ta séance. Comme si quelque chose, au loin, avait senti que tu te renforçais." },
+            { id: 'frag_w30',  cond: s => s.workouts >= 30,
+              text: "« Trente séances, » murmure le Système. « Ton corps n'est plus celui d'un dormeur. Le Monarque du Déclin a cessé de te sous-estimer. »" },
+            { id: 'frag_w50',  cond: s => s.workouts >= 50,
+              text: "Dans le reflet de la fenêtre du Système, tu crois apercevoir une silhouette derrière toi. Quand tu te retournes, il n'y a rien. Encore." },
+            { id: 'frag_w100', cond: s => s.workouts >= 100,
+              text: "Cent séances. Le Système marque une pause inhabituelle. « Je n'ai pas été conçu pour observer une telle constance. Tu commences à m'inquiéter — dans le bon sens. »" },
+            { id: 'frag_streak7',  cond: s => (s.streak||0) >= 7,
+              text: "Sept jours sans faillir. « La régularité est l'arme que le Monarque du Déclin ne sait pas contrer, » note le Système. « Il se nourrit des abandons. Tu le prives de repas. »" },
+            { id: 'frag_streak30', cond: s => (s.streak||0) >= 30,
+              text: "Un mois entier, jour après jour. Quelque part dans les Failles, une inscription apparaît seule sur un mur : « Il ne s'arrête jamais. »" },
+            { id: 'frag_rifts3',   cond: s => (s.riftsCompleted||0) >= 3,
+              text: "Trois Failles refermées. Le tissu de la réalité te reconnaît désormais. Les déchirures s'ouvrent un peu plus prudemment quand tu approches." },
+            { id: 'frag_rifts10',  cond: s => (s.riftsCompleted||0) >= 10,
+              text: "« Dix Failles, » dit le Système. « Tu ne les fermes plus par devoir. Tu les chasses. Quelque chose en toi a changé de nature. »" },
+            { id: 'frag_epilogue', cond: s => localStorage.getItem('fitproStorySeen_ch_SSS') === '1',
+              text: "Le Système est silencieux depuis ta rencontre avec l'Architecte. Puis, un matin, un dernier message, presque tendre : « Tu n'as plus besoin de moi. Mais je resterai. Pour regarder jusqu'où va une volonté qui refuse de s'éteindre. Continue, Légende. »" }
+        ];
+
+        function _fragSeenKey(id) { return 'fitproFragSeen_' + id; }
+
+        function awakCheckStoryFragments() {
+            try {
+                // Seulement si mode jeu/aventure actif
+                if (typeof getAdventureEnabled === 'function' && !getAdventureEnabled()) return;
+                const stats = (typeof loadStats === 'function') ? loadStats() : {};
+                // Compter les Failles complétées
+                let riftsCompleted = 0;
+                try {
+                    const rifts = (typeof awakRiftsLoad === 'function') ? awakRiftsLoad() : [];
+                    riftsCompleted = rifts.filter(r => r.completed).length;
+                } catch(e) {}
+                const ctx = {
+                    workouts: stats.workouts || 0,
+                    streak: stats.streak || 0,
+                    riftsCompleted
+                };
+                // Trouver le premier fragment éligible non vu
+                for (const frag of STORY_FRAGMENTS) {
+                    if (localStorage.getItem(_fragSeenKey(frag.id)) === '1') continue;
+                    if (frag.cond(ctx)) {
+                        localStorage.setItem(_fragSeenKey(frag.id), '1');
+                        // Afficher via l'overlay Système existant (cohérent visuellement)
+                        if (typeof awakShowSystemMessage === 'function') {
+                            setTimeout(() => awakShowSystemMessage([frag.text]), 800);
+                        }
+                        return; // un seul fragment par déclenchement
+                    }
+                }
+            } catch(e) {}
+        }
+        window.awakCheckStoryFragments = awakCheckStoryFragments;
 
         // ═══════════════════════════════════════════════════════════════
         // 🎭 MISSIONS DE COMPAGNONS — fermer une Faille sans exercices

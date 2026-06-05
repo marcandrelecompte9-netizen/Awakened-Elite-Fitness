@@ -1,0 +1,87 @@
+// ═══════════════════════════════════════════════════════════════════
+// Awakened — Cartes du Système (tirage quotidien)
+// ═══════════════════════════════════════════════════════════════════
+// 5 catégories, ton Solo Leveling intense — le Système s'adresse au Joueur.
+// Tirage déterministe par jour (même carte toute la journée).
+// ═══════════════════════════════════════════════════════════════════
+(function() {
+'use strict';
+
+const SYSTEM_CARDS = [
+    // ── DISCIPLINE ───────────────────────────────────────────────
+    { cat: 'Discipline', color: '#a855f7', icon: '⛓️', title: 'Le Contrat', text: "La motivation est une flamme. La discipline est le réacteur. Tu ne ressens rien aujourd'hui ? Lève-toi quand même. C'est ainsi qu'on devient inarrêtable." },
+    { cat: 'Discipline', color: '#a855f7', icon: '⛓️', title: 'Aucune Excuse', text: "Le Système n'accepte pas les excuses, Joueur. Il n'enregistre que les actions. Ce que tu fais maintenant définit ce que tu deviendras." },
+    { cat: 'Discipline', color: '#a855f7', icon: '⛓️', title: 'La Répétition', text: "Les faibles cherchent le confort. Toi, tu cherches la répétition. Chaque jour identique te rapproche d'une transformation que les autres jugeront soudaine." },
+    { cat: 'Discipline', color: '#a855f7', icon: '⛓️', title: 'Le Serment Silencieux', text: "Personne ne te regarde. C'est exactement là que se forge ta valeur. La discipline est ce que tu fais quand le monde a le dos tourné." },
+    { cat: 'Discipline', color: '#a855f7', icon: '⛓️', title: 'Tenir la Ligne', text: "Un jour manqué appelle un deuxième. Le Système le sait. Ne romps pas la chaîne — ta version future te jugera sur ce seul instant." },
+    { cat: 'Discipline', color: '#a855f7', icon: '⛓️', title: 'Le Prix', text: "Tout ce que tu veux est de l'autre côté de l'effort que tu évites. Paie le prix aujourd'hui. Le Système enregistre chaque versement." },
+    { cat: 'Discipline', color: '#a855f7', icon: '⛓️', title: 'Forge Intérieure', text: "Le corps suit. C'est l'esprit qui doit d'abord plier l'acier. Décide une fois, puis n'aie plus jamais à décider." },
+    { cat: 'Discipline', color: '#a855f7', icon: '⛓️', title: 'Routine de Chasseur', text: "Les monstres ne préviennent pas. Ton entraînement non plus ne devrait pas attendre l'envie. Prépare-toi avant que la Faille ne s'ouvre." },
+    { cat: 'Discipline', color: '#a855f7', icon: '⛓️', title: 'Constance', text: "L'intensité impressionne. La constance transforme. Le Système récompense celui qui revient, pas celui qui brille une fois." },
+    { cat: 'Discipline', color: '#a855f7', icon: '⛓️', title: 'Maître de Soi', text: "Celui qui se commande à lui-même n'a besoin d'aucun maître. Aujourd'hui, donne-toi un ordre. Et obéis." },
+
+    // ── FORCE ────────────────────────────────────────────────────
+    { cat: 'Force', color: '#ef4444', icon: '⚔️', title: 'Lève le Poids', text: "La charge ne ment pas. Elle ne connaît ni ton humeur ni tes excuses. Elle ne cède qu'à la force réelle. Va la chercher." },
+    { cat: 'Force', color: '#ef4444', icon: '⚔️', title: 'Briser ses Limites', text: "La dernière répétition, celle qui brûle, celle que tu veux abandonner — c'est la seule qui compte. Le reste n'était qu'échauffement." },
+    { cat: 'Force', color: '#ef4444', icon: '⚔️', title: 'Le Fardeau Choisi', text: "Tu portes volontairement un poids pour ne pas être écrasé par ceux que la vie t'imposera. Entraîne-toi à porter, Joueur." },
+    { cat: 'Force', color: '#ef4444', icon: '⚔️', title: 'Croissance', text: "Le muscle se déchire pour se reconstruire plus fort. Tout ce qui te fait grandir commence par une rupture. N'aie pas peur de la tension." },
+    { cat: 'Force', color: '#ef4444', icon: '⚔️', title: 'Puissance Réelle', text: "Le Système ne mesure pas tes intentions. Il mesure ce que tu soulèves, ce que tu endures, ce que tu achèves. Sois mesurable." },
+    { cat: 'Force', color: '#ef4444', icon: '⚔️', title: 'Le Corps-Arme', text: "Ton corps est la seule arme que tu emporteras partout. Affûte-la. Un Chasseur négligé est un Chasseur déjà vaincu." },
+    { cat: 'Force', color: '#ef4444', icon: '⚔️', title: 'Surcharge', text: "Ce qui ne progresse pas régresse. Ajoute une répétition, un kilo, une seconde. Le Système exige toujours un peu plus que hier." },
+    { cat: 'Force', color: '#ef4444', icon: '⚔️', title: 'Rugir en Silence', text: "La vraie force n'a pas besoin de se montrer. Elle se révèle dans l'instant critique, quand tout le monde abandonne et que toi, tu tiens." },
+    { cat: 'Force', color: '#ef4444', icon: '⚔️', title: 'Forger l\'Acier', text: "On ne devient pas fort en évitant le poids. On devient fort en l'embrassant jour après jour. Entre dans la Faille." },
+    { cat: 'Force', color: '#ef4444', icon: '⚔️', title: 'Sans Pitié', text: "Sois impitoyable envers ta faiblesse, pas envers toi-même. La différence : l'une te détruit, l'autre te bâtit." },
+
+    // ── FOCUS ────────────────────────────────────────────────────
+    { cat: 'Focus', color: '#06b6d4', icon: '🎯', title: 'Une Seule Cible', text: "Le Chasseur qui poursuit deux proies n'en attrape aucune. Aujourd'hui, une intention. Un objectif. Frappe-le jusqu'à ce qu'il tombe." },
+    { cat: 'Focus', color: '#06b6d4', icon: '🎯', title: 'Présence Totale', text: "Ton esprit vagabonde pendant la série ? Tu perds. Sois entièrement dans le mouvement. Le Système récompense la présence, pas la présence physique." },
+    { cat: 'Focus', color: '#06b6d4', icon: '🎯', title: 'Le Bruit du Monde', text: "Coupe les notifications. Coupe les doutes. Coupe les voix. Dans le silence, le Joueur entend enfin le Système — et lui-même." },
+    { cat: 'Focus', color: '#06b6d4', icon: '🎯', title: 'Intention Claire', text: "Avant de soulever, sache pourquoi. Un mouvement sans intention est un mouvement gaspillé. Le focus précède la force." },
+    { cat: 'Focus', color: '#06b6d4', icon: '🎯', title: 'Maintenant', text: "Le passé est verrouillé. Le futur n'existe pas encore. La seule Faille que tu peux affronter est celle qui s'ouvre maintenant. Entre." },
+    { cat: 'Focus', color: '#06b6d4', icon: '🎯', title: 'Connexion Esprit-Muscle', text: "Sens le muscle travailler. Dirige ta conscience dans la fibre. C'est là que naît la vraie croissance — dans l'attention, pas la quantité." },
+    { cat: 'Focus', color: '#06b6d4', icon: '🎯', title: 'Élaguer', text: "Retire tout ce qui ne te rend pas plus fort. Distractions, plaintes, comparaisons. Le Chasseur affûté ne garde que l'essentiel." },
+    { cat: 'Focus', color: '#06b6d4', icon: '🎯', title: 'Le Prochain Pas', text: "Ne regarde pas le sommet, il t'écrasera de son ombre. Regarde la prochaine répétition. Puis la suivante. C'est ainsi qu'on gravit." },
+    { cat: 'Focus', color: '#06b6d4', icon: '🎯', title: 'Discipline du Regard', text: "Là où va ton attention va ton énergie. Aujourd'hui, fixe ton objectif et refuse de détourner les yeux." },
+    { cat: 'Focus', color: '#06b6d4', icon: '🎯', title: 'Le Calme du Prédateur', text: "Avant l'effort explosif, le calme absolu. Respire. Concentre. Puis libère tout. La maîtrise précède la puissance." },
+
+    // ── SAGESSE ──────────────────────────────────────────────────
+    { cat: 'Sagesse', color: '#4ade80', icon: '📜', title: 'Le Repos est une Arme', text: "Même le Monarque dort. Le muscle ne grandit pas pendant l'effort, mais pendant la récupération. Respecte le repos comme tu respectes l'effort." },
+    { cat: 'Sagesse', color: '#4ade80', icon: '📜', title: 'Patience du Chasseur', text: "Les niveaux ne se sautent pas. On les gravit. Méfie-toi de qui te promet la puissance sans le temps. Le Système ne triche pas." },
+    { cat: 'Sagesse', color: '#4ade80', icon: '📜', title: 'Écoute ton Corps', text: "La douleur qui enseigne diffère de la douleur qui détruit. Apprends à distinguer. Un Chasseur blessé ne chasse plus." },
+    { cat: 'Sagesse', color: '#4ade80', icon: '📜', title: 'Le Long Jeu', text: "Tu ne construis pas pour aujourd'hui. Tu construis pour la version de toi dans dix ans. Plante l'arbre dont tu n'as pas encore l'ombre." },
+    { cat: 'Sagesse', color: '#4ade80', icon: '📜', title: 'Comparaison Mortelle', text: "Le seul adversaire dont le Système tient le compte, c'est toi d'hier. Les autres Chasseurs suivent leur propre Faille. Suis la tienne." },
+    { cat: 'Sagesse', color: '#4ade80', icon: '📜', title: 'Nourris la Machine', text: "Tu ne peux pas reconstruire un corps avec rien. Mange pour ta force, dors pour ta croissance. La négligence annule l'effort." },
+    { cat: 'Sagesse', color: '#4ade80', icon: '📜', title: 'L\'Échec Enseigne', text: "Une série ratée n'est pas une défaite — c'est une donnée. Le Système apprend de chaque échec. Toi aussi tu le devrais." },
+    { cat: 'Sagesse', color: '#4ade80', icon: '📜', title: 'Simplicité', text: "Les débutants cherchent la complexité. Les maîtres reviennent au simple, exécuté parfaitement, mille fois. Maîtrise les bases." },
+    { cat: 'Sagesse', color: '#4ade80', icon: '📜', title: 'Le Corps se Souvient', text: "Chaque séance s'inscrit dans ta chair, même invisible. Rien n'est perdu. Le Système comptabilise tout, même ce que tu oublies." },
+    { cat: 'Sagesse', color: '#4ade80', icon: '📜', title: 'Ralentir pour Durer', text: "Celui qui sprinte au départ s'effondre avant l'arrivée. Construis un rythme que tu peux tenir des années. La durée bat l'intensité." },
+
+    // ── COURAGE ──────────────────────────────────────────────────
+    { cat: 'Courage', color: '#f59e0b', icon: '🔥', title: 'Franchir la Peur', text: "La Faille t'effraie ? Bien. Le courage n'est pas l'absence de peur, c'est avancer malgré elle. Entre, Joueur. Le Système t'observe." },
+    { cat: 'Courage', color: '#f59e0b', icon: '🔥', title: 'Le Premier Pas', text: "Le plus dur n'est pas la centième répétition. C'est de commencer. Une fois en mouvement, tu es déjà plus fort que celui qui hésite encore." },
+    { cat: 'Courage', color: '#f59e0b', icon: '🔥', title: 'Affronter le Miroir', text: "Le monstre le plus difficile à vaincre porte ton visage. Aujourd'hui, affronte-le. Le Système ne peut pas le faire à ta place." },
+    { cat: 'Courage', color: '#f59e0b', icon: '🔥', title: 'Au-delà du Confort', text: "Rien ne pousse dans la zone de confort. Tout ce que tu désires t'attend dans l'inconfort que tu fuis. Va vers la résistance." },
+    { cat: 'Courage', color: '#f59e0b', icon: '🔥', title: 'Se Relever', text: "Tomber n'est pas l'échec. Rester à terre l'est. Le Système ne compte pas tes chutes — il compte tes relèvements." },
+    { cat: 'Courage', color: '#f59e0b', icon: '🔥', title: 'Contre les Doutes', text: "Une voix te dit que tu n'y arriveras pas. Cette voix a menti à des milliers avant toi. Prouve-lui qu'elle a tort, une répétition à la fois." },
+    { cat: 'Courage', color: '#f59e0b', icon: '🔥', title: 'L\'Éveil', text: "Chaque Chasseur a connu un instant où il a décidé de ne plus être faible. Que ce jour soit le tien. Réveille-toi, Joueur." },
+    { cat: 'Courage', color: '#f59e0b', icon: '🔥', title: 'Seul Face à la Faille', text: "Personne ne soulèvera le poids à ta place. Personne ne courra pour toi. Cette solitude n'est pas une malédiction — c'est ta preuve de force." },
+    { cat: 'Courage', color: '#f59e0b', icon: '🔥', title: 'Brûler les Vaisseaux', text: "Engage-toi totalement. Le demi-effort produit le demi-résultat et le double-regret. Donne tout, ou ne commence pas." },
+    { cat: 'Courage', color: '#f59e0b', icon: '🔥', title: 'Devenir le Monarque', text: "Tu as commencé Rang E, comme tous. Mais le Système l'a vu : tu refuses de t'arrêter. C'est ainsi que naissent les Monarques." }
+];
+
+// Tirage déterministe basé sur la date (même carte toute la journée)
+function getDailySystemCard() {
+    const today = new Date().toISOString().split('T')[0]; // AAAA-MM-JJ
+    // Hash simple de la date → index stable
+    let hash = 0;
+    for (let i = 0; i < today.length; i++) {
+        hash = ((hash << 5) - hash + today.charCodeAt(i)) | 0;
+    }
+    const idx = Math.abs(hash) % SYSTEM_CARDS.length;
+    return { card: SYSTEM_CARDS[idx], dateKey: today };
+}
+
+window.SYSTEM_CARDS        = SYSTEM_CARDS;
+window.getDailySystemCard  = getDailySystemCard;
+
+})();

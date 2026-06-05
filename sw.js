@@ -2,13 +2,16 @@
 // Enables full offline support and PWA installation
 // Strategy: network-first for code files (HTML/JS/CSS), cache-first for assets (images/fonts)
 
-const CACHE_NAME = 'awakened-v163';
+const CACHE_NAME = 'awakened-v173';
 const ASSETS = [
   '/',
   '/index.html',
   '/css/style.css',
   '/js/exercises.js',
   '/js/exercise-visuals.js',
+  '/js/strength-standards.js',
+  '/js/system-cards.js',
+  '/js/share-card.js',
   '/js/app.js',
   '/js/adventure.js',
   '/js/challenges.js',
