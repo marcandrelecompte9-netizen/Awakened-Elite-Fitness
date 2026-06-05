@@ -18698,6 +18698,54 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             lsSet('workoutStats', JSON.stringify(stats));
         }
 
+        // 📖 HISTOIRE — Détermine l'assiduité du joueur pour la fin (L'Ancre vs L'Écho).
+        // Renvoie true (assidu) si AU MOINS une condition est vraie :
+        //   B) ≥50% des semaines écoulées contenaient ≥2 entraînements
+        //   C) le meilleur streak atteint 14 jours
+        function awakIsPlayerDedicated() {
+            try {
+                const stats = loadStats();
+                // Condition C : record de streak
+                if ((stats.bestStreak || stats.streak || 0) >= 14) return true;
+
+                // Condition B : régularité hebdomadaire
+                const pid = (typeof getCurrentProfileId === 'function') ? getCurrentProfileId() : null;
+                const key = pid ? `profile_${pid}_workoutHistory` : 'workoutHistory';
+                let history = [];
+                try { history = JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) {}
+                if (!history.length) {
+                    try { history = JSON.parse(localStorage.getItem('workoutHistory') || '[]'); } catch(e) {}
+                }
+                if (history.length < 2) return false;
+
+                // Regrouper les séances par semaine (clé = lundi de la semaine)
+                const weekSet = {};
+                let firstDate = null;
+                history.forEach(w => {
+                    const d = new Date(w.date);
+                    if (isNaN(d)) return;
+                    if (!firstDate || d < firstDate) firstDate = d;
+                    const monday = new Date(d);
+                    monday.setHours(0,0,0,0);
+                    monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
+                    const wk = monday.toISOString().split('T')[0];
+                    weekSet[wk] = (weekSet[wk] || 0) + 1;
+                });
+                if (!firstDate) return false;
+
+                // Nombre total de semaines écoulées depuis la première séance
+                const now = new Date();
+                const weeksElapsed = Math.max(1, Math.ceil((now - firstDate) / (7 * 24 * 60 * 60 * 1000)));
+                // Semaines "actives" = au moins 2 entraînements
+                const activeWeeks = Object.values(weekSet).filter(c => c >= 2).length;
+
+                return (activeWeeks / weeksElapsed) >= 0.5;
+            } catch(e) {
+                return false;
+            }
+        }
+        window.awakIsPlayerDedicated = awakIsPlayerDedicated;
+
         // ========== AUTO-PROGRESSION SYSTEM ==========
         
         let selectedDifficulty = 3;
@@ -26786,6 +26834,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         const COMPANIONS = [
             {
                 id: 'marcus',
+                image: 'images/companions/marcus.webp',
                 name: 'Marcus Ironfist',
                 title: 'Le Brutal',
                 emoji: '💪',
@@ -26804,6 +26853,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             },
             {
                 id: 'kira',
+                image: 'images/companions/kira.webp',
                 name: 'Kira Shadowstep',
                 title: 'L\'Ombre',
                 emoji: '🗡️',
@@ -26822,6 +26872,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             },
             {
                 id: 'chen',
+                image: 'images/companions/chen.webp',
                 name: 'Maître Chen',
                 title: 'Le Sage',
                 emoji: '🧘',
@@ -26858,6 +26909,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             },
             {
                 id: 'elise',
+                image: 'images/companions/elise.webp',
                 name: 'Élise Vorn',
                 title: 'La Médic',
                 emoji: '💚',
@@ -26912,6 +26964,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             },
             {
                 id: 'yuna',
+                image: 'images/companions/yuna.webp',
                 name: 'Yuna Veilbreaker',
                 title: 'La Mystique',
                 emoji: '🌀',
@@ -27112,7 +27165,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             overlay.innerHTML = `
                 <div style="max-width:420px;width:100%;background:linear-gradient(160deg,#0a0e18,#0F1014,${companion.color}15);border:1.5px solid ${companion.color}50;border-radius:24px;padding:32px 26px;text-align:center;box-shadow:0 24px 60px ${companion.color}20,0 0 80px ${companion.color}15;animation:slideUp 0.5s cubic-bezier(0.34,1.56,0.64,1);">
                     <div style="font-size:0.6em;color:${companion.color};font-weight:900;letter-spacing:3px;margin-bottom:14px;">◇ NOUVEL ANCRAGE RENCONTRÉ ◇</div>
-                    <div style="font-size:4em;line-height:1;margin-bottom:12px;filter:drop-shadow(0 0 20px ${companion.color}b0);animation:awakBlink 2s infinite;">${companion.emoji}</div>
+                    ${companion.image
+                        ? `<img src="${companion.image}" alt="${companion.name}" style="width:100%;max-width:280px;border-radius:14px;margin-bottom:12px;box-shadow:0 0 28px ${companion.color}66;" onerror="this.outerHTML='<div style=\\'font-size:4em;line-height:1;margin-bottom:12px;\\'>${companion.emoji}</div>';" />`
+                        : `<div style="font-size:4em;line-height:1;margin-bottom:12px;filter:drop-shadow(0 0 20px ${companion.color}b0);animation:awakBlink 2s infinite;">${companion.emoji}</div>`}
                     <h2 style="margin:0;color:white;font-size:1.4em;font-weight:900;letter-spacing:0.5px;">${companion.name}</h2>
                     <div style="font-size:0.85em;color:${companion.color};font-weight:800;margin-top:3px;letter-spacing:1px;">${companion.title}</div>
                     <div style="margin-top:14px;color:#cbd5e1;font-size:0.85em;line-height:1.55;font-style:italic;">${companion.description}</div>
@@ -27280,7 +27335,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${comp.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
                 <div style="background:linear-gradient(135deg,${comp.color}25,${comp.color}05);padding:26px 22px;text-align:center;border-bottom:1px solid ${comp.color}30;">
-                    <div style="font-size:4em;line-height:1;margin-bottom:8px;filter:drop-shadow(0 0 16px ${comp.color}b0);">${comp.emoji}</div>
+                    ${comp.image
+                        ? `<img src="${comp.image}" alt="${comp.name}" style="width:100%;max-width:300px;border-radius:14px;margin-bottom:10px;box-shadow:0 0 24px ${comp.color}55;" onerror="this.outerHTML='<div style=\\'font-size:4em;line-height:1;margin-bottom:8px;\\'>${comp.emoji}</div>';" />`
+                        : `<div style="font-size:4em;line-height:1;margin-bottom:8px;filter:drop-shadow(0 0 16px ${comp.color}b0);">${comp.emoji}</div>`}
                     <h2 style="margin:0;color:white;font-size:1.3em;font-weight:900;">${comp.name}</h2>
                     <div style="font-size:0.82em;color:${comp.color};font-weight:800;margin-top:3px;letter-spacing:1px;">${comp.title}</div>
                 </div>
@@ -29374,6 +29431,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             stats.workouts++;
             stats.minutes += totalMinutes;
             stats.streak = updateStreak(stats);
+            // 🏆 Record de streak (pour la fin de l'histoire + statistiques)
+            if (!stats.bestStreak || stats.streak > stats.bestStreak) {
+                stats.bestStreak = stats.streak;
+            }
             stats.lastWorkout = new Date().toISOString();
             saveStats(stats);
             
@@ -29419,6 +29480,13 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         // Ne pas afficher si un chapitre de rang vient d'apparaître
                         if (!document.getElementById('storyOverlay')) awakCheckStoryFragments();
                     }, 7000);
+                }
+            } catch(e) {}
+
+            // 📖 NARRATIF — Moteur d'événements (rencontres, faits amusants, dialogues)
+            try {
+                if (typeof storyCheckEvents === 'function') {
+                    storyCheckEvents({ delay: 9000 });
                 }
             } catch(e) {}
 
