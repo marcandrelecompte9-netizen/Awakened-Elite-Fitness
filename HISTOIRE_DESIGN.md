@@ -214,3 +214,11 @@ Image Nabdano lui-même : ✅ FAITE (nabdano.webp — assis, visage caché, qui 
 - Modifications chirurgicales. Une étape = un build testé.
 - Toujours vérifier les références avant de supprimer (compagnons retirés).
 - Respecter le versioning cache + sw.js à chaque build.
+
+## SYSTÈME DE PORTES NARRATIVES (v199)
+4 scènes-clés EXIGENT d'avoir complété la Faille narrative correspondante (bloque toute la suite de l'histoire tant que non faite) :
+- niv 33 « Ce que Je Suis » -> Faille first_breach (Le Premier Souvenir, rang D)
+- niv 35 « Le Nom » -> Faille whispering_tower (La Tour qui Murmure, 5 failles)
+- niv 65 « Presque Tendre » -> Faille silent_one (Le Silencieux, rang A)
+- niv 75 « La Dernière Porte » -> Faille last_door (La Dernière Porte, rang S)
+Trigger 'levelAndNarrativeRift'. storyPickEvent() return null si porte bloquée (ne saute pas). Toast d'invitation 1x/jour via storyMaybeHintNarrativeRift.

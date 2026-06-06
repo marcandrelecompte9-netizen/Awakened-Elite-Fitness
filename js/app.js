@@ -24198,10 +24198,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     try { setTimeout(() => {
                         if (typeof awakCheckNarrativeRifts === 'function') awakCheckNarrativeRifts();
                     }, 6000); } catch(e) {}
-                    // 🌑 Phase 5 : peut-être un glitch
-                    try { setTimeout(() => {
-                        if (typeof awakArchitectMaybeGlitch === 'function') awakArchitectMaybeGlitch();
-                    }, 9000); } catch(e) {}
+                    // 🌑 [GLITCH DE L'ARCHITECTE DÉSACTIVÉ — ancienne narration, remplacée par Nabdano]
+                    // try { setTimeout(() => {
+                    //     if (typeof awakArchitectMaybeGlitch === 'function') awakArchitectMaybeGlitch();
+                    // }, 9000); } catch(e) {}
                 }
                 localStorage.setItem('awakLastRankSeen', currentRank.id);
             }
@@ -24356,8 +24356,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 description: 'Les murs respirent. Les couloirs guérissent. Les patients ne sont jamais sortis.',
                 briefing: 'Souplesse. Récupération. Le lieu t\'observe.',
                 primaryStat: 'SEN',
-                exerciseFilter: ex => /étirement|stretch|yoga|mobilité|mobility/.test((ex.name || '').toLowerCase())
-                                       || ex.type === 'stretch' || ex.type === 'mobility'
+                exerciseFilter: ex => /fente|lunge|squat|unilatéral|pistol|step|pompe|push|mountain|burpee/.test((ex.name || '').toLowerCase())
             },
             {
                 id: 'dimensional_train',
@@ -25453,7 +25452,14 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     exerciseFilter: rift.narrativeData.exerciseFilter
                 };
             }
-            if (!theme || !theme.exerciseFilter) return [];
+            // 🛡️ Si le thème est introuvable ou n'a pas de filtre (Faille d'ancien format,
+            // themeId obsolète…), on ne retourne JAMAIS vide : thème de secours = tout accepter.
+            if (!theme || typeof theme.exerciseFilter !== 'function') {
+                theme = {
+                    primaryStat: (rift && rift.primaryStat) || 'STR',
+                    exerciseFilter: () => true
+                };
+            }
             const playerStats = awakGetTotalStats();
 
             // Filtre commun : seulement de VRAIS exercices (pas échauffement/étirement/info)
@@ -26158,8 +26164,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             // ✨ Phase 5 : check si une Faille narrative doit apparaître
             try { setTimeout(() => awakCheckNarrativeRifts(), 4500); } catch(e) {}
 
-            // 🌑 Phase 5 : peut-être un glitch de l'Architecte
-            try { setTimeout(() => awakArchitectMaybeGlitch(), 6000); } catch(e) {}
+            // 🌑 [GLITCH DE L'ARCHITECTE DÉSACTIVÉ — ancienne narration]
+            // try { setTimeout(() => awakArchitectMaybeGlitch(), 6000); } catch(e) {}
 
             // Reset la session
             awakActiveRiftSession = null;
@@ -29513,12 +29519,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 }
             } catch(e) { console.warn('Awakened auto-stats error:', e); }
 
-            // 🌌 AWAKENED — Premier contact avec le Système (1ère séance)
-            try {
-                if (typeof awakTriggerFirstContactIfNeeded === 'function') {
-                    awakTriggerFirstContactIfNeeded();
-                }
-            } catch(e) {}
+            // 🌌 AWAKENED — [ANCIEN PREMIER CONTACT DÉSACTIVÉ — remplacé par « Première Trace » du moteur d'événements]
+            // try { if (typeof awakTriggerFirstContactIfNeeded === 'function') awakTriggerFirstContactIfNeeded(); } catch(e) {}
 
             // 🌌 AWAKENED — Détection de montée de rang
             try {
@@ -29694,14 +29696,13 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const nameEl = document.getElementById('completionWorkoutName');
             if (nameEl) nameEl.textContent = currentWorkout.name || 'Séance terminée 💪';
 
-            // 🎉 Image de victoire Esen/Nyra : seulement après la rencontre (mode jeu + rencontre vue)
+            // 🎉 Image de victoire Esen/Nyra : dès que le mode jeu est actif.
             // Alterne aléatoirement entre les deux héros à chaque séance.
             try {
                 const heroImg = document.getElementById('completionHeroImage');
                 if (heroImg) {
-                    const rencontreVue = localStorage.getItem('awakStoryEvt_evt_rencontre') === '1';
                     const jeuActif = (typeof rpgEnabled === 'function') && rpgEnabled();
-                    if (rencontreVue && jeuActif) {
+                    if (jeuActif) {
                         const hero = Math.random() < 0.5 ? 'esen' : 'nyra';
                         const imgTag = heroImg.querySelector('img');
                         if (imgTag) {

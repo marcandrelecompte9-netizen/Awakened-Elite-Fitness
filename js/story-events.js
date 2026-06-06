@@ -71,6 +71,78 @@ const STORY_EVENTS = [
         }
     },
     {
+        id: 'evt_n6_cocasse',
+        type: 'fait',
+        trigger: { kind: 'level', value: 6 },
+        once: true,
+        content: { speaker: 'nyra', title: 'Concentration ?', image: 'images/story/cocasse_1.webp',
+            pages: ["Nyra t'étire la joue pendant que tu frappes le sac. « Quoi ? Je teste ta concentration ! »"] }
+    },
+    {
+        id: 'evt_n8_cocasse',
+        type: 'fait',
+        trigger: { kind: 'level', value: 8 },
+        once: true,
+        content: { speaker: 'esen', title: 'Poids Supplémentaire', image: 'images/story/cocasse_2.webp',
+            pages: ["Esen s'est assis sur le dos de Nyra en pleine pompe, sirotant tranquillement. « Tranquille... t'es qu'une machine. »"] }
+    },
+    {
+        id: 'evt_n10_cocasse',
+        type: 'fait',
+        trigger: { kind: 'level', value: 10 },
+        once: true,
+        content: { speaker: 'nyra', title: 'Patatrac', image: 'images/story/cocasse_3.webp',
+            pages: ["Esen trébuche en plein combat. Nyra éclate de rire en finissant le monstre à sa place. « AHAHAHA ! »"] }
+    },
+    {
+        id: 'evt_n12_cocasse',
+        type: 'fait',
+        trigger: { kind: 'level', value: 12 },
+        once: true,
+        content: { speaker: 'nyra', title: 'Festin Mérité', image: 'images/story/cocasse_4.webp',
+            pages: ["Après la séance, ils s'effondrent devant une montagne de nourriture. « Mmmh, trop bon ! » Nyra ne mâche même plus."] }
+    },
+    {
+        id: 'evt_n14_cocasse',
+        type: 'fait',
+        trigger: { kind: 'level', value: 14 },
+        once: true,
+        content: { speaker: 'nyra', title: 'Attrape-moi', image: 'images/story/cocasse_5.webp',
+            pages: ["« Attrape-moi si tu peux ! » Esen file devant. Nyra le poursuit dans toute la ville. « ESEN, T'ES MORT !! »"] }
+    },
+    {
+        id: 'evt_n16_cocasse',
+        type: 'fait',
+        trigger: { kind: 'level', value: 16 },
+        once: true,
+        content: { speaker: 'esen', title: 'Petit Conseil', image: 'images/story/cocasse_6.webp',
+            pages: ["Assis dans l'herbe, Esen pointe le front de Nyra du doigt. « La prochaine fois, réfléchis avant de foncer. » Elle boude."] }
+    },
+    {
+        id: 'evt_n18_cocasse',
+        type: 'fait',
+        trigger: { kind: 'level', value: 18 },
+        once: true,
+        content: { speaker: 'nyra', title: 'Toute ta Puissance ?', image: 'images/story/cocasse_7.webp',
+            pages: ["Nyra te nargue après un combat. « Alors... c'est ça toute ta puissance ? » Esen, blasé : « ... »"] }
+    },
+    {
+        id: 'evt_n20_cocasse',
+        type: 'fait',
+        trigger: { kind: 'level', value: 20 },
+        once: true,
+        content: { speaker: 'systeme', title: 'Bivouac', image: 'images/story/cocasse_8.webp',
+            pages: ["La nuit, près du feu, face à une Faille lointaine. Personne ne parle. Pour une fois, le silence est doux."] }
+    },
+    {
+        id: 'evt_n22_cocasse',
+        type: 'fait',
+        trigger: { kind: 'level', value: 22 },
+        once: true,
+        content: { speaker: 'esen', title: 'Elle ne Ralentit Jamais', image: 'images/story/repos_avant_faille.webp',
+            pages: ["Nyra court sur le tapis, infatigable. Esen la regarde, les mains dans les poches. Il ne le dira jamais, mais il l'admire."] }
+    },
+    {
         id: 'evt_n7_fait_nyra',
         type: 'fait',
         trigger: { kind: 'level', value: 7 },
@@ -275,7 +347,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n33_ambiance_systeme_revelation',
         type: 'ambiance',
-        trigger: { kind: 'level', value: 33 },
+        trigger: { kind: 'levelAndNarrativeRift', value: 33, narrativeId: 'first_breach' },
         once: true,
         content: {
             speaker: 'systeme',
@@ -291,7 +363,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n35_ambiance_nabdano_nom',
         type: 'ambiance',
-        trigger: { kind: 'level', value: 35 },
+        trigger: { kind: 'levelAndNarrativeRift', value: 35, narrativeId: 'whispering_tower' },
         once: true,
         content: {
             speaker: 'systeme',
@@ -493,7 +565,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n65_ambiance_nabdano',
         type: 'ambiance',
-        trigger: { kind: 'level', value: 65 },
+        trigger: { kind: 'levelAndNarrativeRift', value: 65, narrativeId: 'silent_one' },
         once: true,
         content: {
             speaker: 'nabdano',
@@ -525,7 +597,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n75_ambiance_porte',
         type: 'ambiance',
-        trigger: { kind: 'level', value: 75 },
+        trigger: { kind: 'levelAndNarrativeRift', value: 75, narrativeId: 'last_door' },
         once: true,
         content: {
             speaker: 'systeme',
@@ -559,8 +631,22 @@ function storyEventEligible(evt, ctx) {
             const order = ['E','D','C','B','A','S','SS','SSS'];
             return order.indexOf(ctx.rank || 'E') >= order.indexOf(t.value);
         }
+        case 'levelAndNarrativeRift': {
+            // Exige le niveau ATTEINT *et* la Faille narrative complétée
+            const lvlOk = (ctx.level || 0) >= t.value;
+            const riftOk = awakNarrativeRiftDone(t.narrativeId);
+            return lvlOk && riftOk;
+        }
         default: return false;
     }
+}
+
+// Une Faille narrative est-elle complétée ?
+function awakNarrativeRiftDone(narrativeId) {
+    try {
+        const rifts = (typeof awakRiftsLoad === 'function') ? awakRiftsLoad() : [];
+        return rifts.some(r => r.isNarrative && r.narrativeId === narrativeId && r.completed);
+    } catch(e) { return false; }
 }
 
 // ── CONTEXTE JOUEUR (lecture seule, défensive) ─────────────────────
@@ -583,6 +669,23 @@ function storyBuildContext() {
 function storyPickEvent() {
     const ctx = storyBuildContext();
     for (const evt of STORY_EVENTS) {
+        // Si déjà vu, passer au suivant
+        if ((evt.once !== false) && storyEventSeen(evt.id)) continue;
+
+        // 🚧 PORTE NARRATIVE : événement-clé qui exige une Faille narrative.
+        // Si le niveau est atteint mais la Faille pas encore faite, on BLOQUE
+        // toute la suite de l'histoire (return null) au lieu de sauter cet événement.
+        if (evt.trigger && evt.trigger.kind === 'levelAndNarrativeRift') {
+            const lvlReached = (ctx.level || 0) >= evt.trigger.value;
+            const riftDone = awakNarrativeRiftDone(evt.trigger.narrativeId);
+            if (lvlReached && !riftDone) {
+                // Le joueur a le niveau mais doit d'abord faire la Faille → stop ici
+                return null;
+            }
+            if (lvlReached && riftDone) return evt; // débloqué
+            continue; // niveau pas atteint → cet événement n'est pas encore concerné
+        }
+
         if (storyEventEligible(evt, ctx)) return evt;
     }
     return null;
@@ -610,12 +713,12 @@ function storyShowEvent(evt) {
     function render() {
         const isLast = pageIdx >= pages.length - 1;
         overlay.innerHTML = `
-            <div style="max-width:400px;width:100%;background:linear-gradient(165deg,${color}14,rgba(8,12,20,0.97) 60%);
-                        border:1px solid ${color}55;border-radius:18px;padding:0;overflow:hidden;
+            <div style="max-width:400px;width:100%;max-height:90vh;overflow-y:auto;background:linear-gradient(165deg,${color}14,rgba(8,12,20,0.97) 60%);
+                        border:1px solid ${color}55;border-radius:18px;padding:0;overflow-x:hidden;
                         box-shadow:0 0 44px ${color}33;animation:awakCardRise 0.5s cubic-bezier(0.2,0.8,0.2,1);">
                 ${image ? `
-                    <div style="width:100%;background:#05070c;display:flex;align-items:center;justify-content:center;border-bottom:1px solid ${color}30;">
-                        <img src="${image}" alt="${char.name}" style="width:100%;max-height:300px;object-fit:cover;display:block;"
+                    <div style="width:100%;background:#05070c;border-bottom:1px solid ${color}30;">
+                        <img src="${image}" alt="${char.name}" style="width:100%;height:auto;max-height:55vh;object-fit:contain;display:block;"
                              onerror="this.parentElement.style.display='none';" />
                     </div>` : ''}
                 <div style="padding:22px 22px 18px;">
@@ -676,12 +779,54 @@ function storyCheckEvents(opts) {
             document.getElementById('storyEventOverlay') ||
             document.getElementById('awakSystemCardOverlay')) return false;
         const evt = storyPickEvent();
-        if (!evt) return false;
+        if (!evt) {
+            // Histoire peut-être bloquée par une Faille narrative non faite → inviter
+            storyMaybeHintNarrativeRift(opts);
+            return false;
+        }
         if (evt.once !== false) storyEventMarkSeen(evt.id);
         const delay = (opts && opts.delay) || 0;
         setTimeout(() => storyShowEvent(evt), delay);
         return true;
     } catch(e) { return false; }
+}
+
+// Noms lisibles des Failles narratives (pour l'invitation)
+const NARRATIVE_RIFT_NAMES = {
+    first_breach: 'Le Premier Souvenir',
+    whispering_tower: 'La Tour qui Murmure',
+    silent_one: 'Le Silencieux',
+    last_door: 'La Dernière Porte'
+};
+
+// Si l'histoire est bloquée par une porte (niveau atteint, Faille non faite),
+// afficher un indice incitant le joueur à compléter la Faille narrative.
+function storyMaybeHintNarrativeRift(opts) {
+    try {
+        const ctx = storyBuildContext();
+        for (const evt of STORY_EVENTS) {
+            if ((evt.once !== false) && storyEventSeen(evt.id)) continue;
+            if (evt.trigger && evt.trigger.kind === 'levelAndNarrativeRift') {
+                const lvlReached = (ctx.level || 0) >= evt.trigger.value;
+                const riftDone = awakNarrativeRiftDone(evt.trigger.narrativeId);
+                if (lvlReached && !riftDone) {
+                    // Ne pas spammer : une fois par jour max
+                    const dayKey = new Date().toDateString();
+                    const shownKey = 'awakRiftHint_' + evt.trigger.narrativeId;
+                    if (localStorage.getItem(shownKey) === dayKey) return;
+                    localStorage.setItem(shownKey, dayKey);
+                    const name = NARRATIVE_RIFT_NAMES[evt.trigger.narrativeId] || 'une Faille particulière';
+                    const delay = (opts && opts.delay) || 0;
+                    setTimeout(() => {
+                        if (typeof showToast === 'function') {
+                            showToast('🌌 L\'histoire ne peut continuer sans franchir « ' + name +' ». Ouvre l\'onglet Failles.', 'info', 6000);
+                        }
+                    }, delay);
+                    return; // une seule invitation à la fois (la plus précoce)
+                }
+            }
+        }
+    } catch(e) {}
 }
 
 // ── RÉACTION D'UN HÉROS (déçu mais bienveillant) ───────────────────
@@ -722,8 +867,8 @@ function awakShowHeroReaction(reason) {
         overlay.style.cssText = 'position:fixed;inset:0;z-index:99997;background:rgba(0,0,0,0.93);backdrop-filter:blur(9px);display:flex;align-items:center;justify-content:center;padding:22px;opacity:0;animation:awakFadeIn 0.45s forwards;';
         overlay.innerHTML = `
             <div style="max-width:400px;width:100%;background:linear-gradient(165deg,${color}14,rgba(8,12,20,0.97) 60%);border:1px solid ${color}55;border-radius:18px;overflow:hidden;box-shadow:0 0 44px ${color}33;animation:awakCardRise 0.5s cubic-bezier(0.2,0.8,0.2,1);">
-                <div style="width:100%;background:#05070c;display:flex;align-items:center;justify-content:center;border-bottom:1px solid ${color}30;">
-                    <img src="${img}" alt="${heroName}" style="width:100%;max-height:320px;object-fit:cover;object-position:top;display:block;" onerror="this.parentElement.style.display='none';" />
+                <div style="width:100%;background:#05070c;border-bottom:1px solid ${color}30;">
+                    <img src="${img}" alt="${heroName}" style="width:100%;height:auto;max-height:55vh;object-fit:contain;display:block;" onerror="this.parentElement.style.display='none';" />
                 </div>
                 <div style="padding:22px;">
                     <div style="font-size:0.62em;letter-spacing:2px;color:${color};font-weight:900;text-transform:uppercase;margin-bottom:8px;">${heroName}</div>
