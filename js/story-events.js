@@ -44,6 +44,7 @@ const STORY_EVENTS = [
         content: {
             speaker: 'systeme',
             title: 'Première Trace',
+            image: 'images/story/monde_efface.webp',
             pages: [
                 "Tu as bougé. Le monde l'a senti.",
                 "C'est infime. Une vibration dans le silence blanc. Mais le Système la consigne : tu existes encore."
@@ -66,6 +67,474 @@ const STORY_EVENTS = [
                 "L'autre — Esen — ne répond pas tout de suite. Il observe. Puis, simplement : « On survit mieux à deux. »",
                 "Le Système consigne, à sa façon froide : « Deux Ancres. Vos signaux se renforcent quand vous êtes proches. Curieux. »",
                 "Vous ne le savez pas encore, mais à partir d'ici, vous ne marcherez plus seuls."
+            ]
+        }
+    },
+    {
+        id: 'evt_n7_fait_nyra',
+        type: 'fait',
+        trigger: { kind: 'level', value: 7 },
+        once: true,
+        content: {
+            speaker: 'nyra',
+            title: 'Pari Stupide',
+            pages: [
+                "Nyra te lance un regard en coin pendant l'échauffement. « Pari : tu lâches avant moi aujourd'hui. »",
+                "Esen, sans lever les yeux : « Elle dit ça à chaque fois. » Un silence. « Elle a perdu à chaque fois. »",
+                "Nyra fait mine d'être vexée, mais elle sourit. Dans un monde qui s'efface, c'est sa façon à elle de rester accrochée : transformer la survie en jeu."
+            ]
+        }
+    },
+    {
+        id: 'evt_n9_ambiance_oubli',
+        type: 'ambiance',
+        trigger: { kind: 'level', value: 9 },
+        once: true,
+        content: {
+            speaker: 'systeme',
+            title: 'Ce qui manque',
+            pages: [
+                "Le Système hésite, puis affiche : « Question. Te souviens-tu du nom de la rue où tu as grandi ? »",
+                "Tu cherches. Le mot est là, tout proche... et pourtant il glisse, comme de l'eau entre les doigts.",
+                "« C'est normal, » dit le Système, presque doux. « Le monde s'efface par les bords. Les noms partent en premier. Continue de bouger. Tant que tu bouges, tu gardes le tien. »"
+            ]
+        }
+    },
+    {
+        id: 'evt_n11_dialogue_duo',
+        type: 'dialogue',
+        trigger: { kind: 'level', value: 11 },
+        once: true,
+        content: {
+            speaker: 'esen',
+            title: 'Deux Silences',
+            pages: [
+                "Après l'effort, vous restez assis sans parler. Esen regarde le vide blanc au loin.",
+                "« Tu te demandes pourquoi on continue, » dit Nyra. Ce n'est pas une question.",
+                "Esen met du temps à répondre. « Non. Je me demande ce qui se passerait si l'un de nous arrêtait. »",
+                "Nyra ne rit pas, cette fois. « Alors arrête de te poser la question. Et moi j'arrêterai de me la poser aussi. » Marché conclu, sans serrer la main."
+            ]
+        }
+    },
+    {
+        id: 'evt_n13_fait_systeme',
+        type: 'fait',
+        trigger: { kind: 'level', value: 13 },
+        once: true,
+        content: {
+            speaker: 'systeme',
+            title: 'Statistique Inutile',
+            pages: [
+                "Le Système affiche soudain : « Information : tu as soulevé, poussé ou déplacé l'équivalent du poids d'un petit immeuble depuis ton éveil. »",
+                "Un court silence. « Cette donnée n'a aucune utilité tactique. Je voulais juste que tu le saches. »",
+                "Tu jurerais presque que ce fragment de monde, accroché à toi, est... fier ?"
+            ]
+        }
+    },
+    {
+        id: 'evt_n15_ambiance_traces',
+        type: 'ambiance',
+        trigger: { kind: 'level', value: 15 },
+        once: true,
+        content: {
+            speaker: 'systeme',
+            title: 'Des Pas Anciens',
+            image: 'images/story/traces.webp',
+            pages: [
+                "Dans une Faille, tu remarques des marques au sol. Des traces de pas, profondes, sûres. Quelqu'un de puissant est passé ici. Avant.",
+                "Elles s'arrêtent net au milieu du néant. Comme si la personne s'était simplement... assise. Et n'était jamais repartie.",
+                "Le Système reste silencieux un long moment. Puis : « Ne regarde pas trop longtemps ces traces. Avance. »"
+            ]
+        }
+    },
+    {
+        id: 'evt_n17_fait_nyra',
+        type: 'fait',
+        trigger: { kind: 'level', value: 17 },
+        once: true,
+        content: {
+            speaker: 'nyra',
+            title: 'Collection de Cailloux',
+            pages: [
+                "Nyra te montre une poignée de petits cailloux luisants. « À chaque Faille fermée, j'en garde un. »",
+                "« C'est idiot, je sais. Mais quand un endroit s'efface, il ne reste rien. Alors moi, je garde une preuve qu'il a existé. »",
+                "Elle en glisse un dans ta main sans te regarder. « Tiens. Celui-là, c'est pour la fois où tu as failli abandonner et où tu ne l'as pas fait. »"
+            ]
+        }
+    },
+    {
+        id: 'evt_n19_ambiance_systeme',
+        type: 'ambiance',
+        trigger: { kind: 'level', value: 19 },
+        once: true,
+        content: {
+            speaker: 'systeme',
+            title: 'Aveu à Demi-Mot',
+            pages: [
+                "« Je vais te dire quelque chose que je ne devrais pas, » affiche le Système.",
+                "« Je ne suis pas infini. Chaque jour où tu ne bouges pas, je deviens plus faible. Plus pâle. »",
+                "« Ce n'est pas un reproche. C'est juste... une vérité que je porte seul depuis longtemps. »"
+            ]
+        }
+    },
+    {
+        id: 'evt_n21_dialogue_duo',
+        type: 'dialogue',
+        trigger: { kind: 'level', value: 21 },
+        once: true,
+        content: {
+            speaker: 'nyra',
+            title: 'La Question',
+            pages: [
+                "« Tu crois qu'on s'en sortira ? » demande Nyra, pour une fois sans ironie.",
+                "Esen réfléchit. « Je crois qu'on tiendra. C'est déjà ça. »",
+                "« Pas la même chose, » murmure-t-elle.",
+                "« Non, » admet Esen. « Mais c'est ce qu'on a. » Et étrangement, ça suffit à Nyra pour sourire de nouveau."
+            ]
+        }
+    },
+    {
+        id: 'evt_n23_fait_leger',
+        type: 'fait',
+        trigger: { kind: 'level', value: 23 },
+        once: true,
+        content: {
+            speaker: 'nyra',
+            title: 'Concours de Grimaces',
+            pages: [
+                "Avant un combat tendu, Nyra te fait une grimace ridicule. « Règle numéro un : on ne meurt pas en ayant l'air sérieux. »",
+                "Même Esen laisse échapper quelque chose qui ressemble dangereusement à un rire.",
+                "Le Système, déconcerté : « Vos signaux de stress viennent de chuter de 40%. Je ne comprends pas la méthode. Mais elle fonctionne. »"
+            ]
+        }
+    },
+    {
+        id: 'evt_n25_ambiance_oubli',
+        type: 'ambiance',
+        trigger: { kind: 'level', value: 25 },
+        once: true,
+        content: {
+            speaker: 'systeme',
+            title: 'Plus Dense',
+            pages: [
+                "« Analyse : ta présence est devenue plus... dense, » affiche le Système. « Le monde a plus de mal à t'effacer qu'avant. »",
+                "« Les choses auxquelles tu tiens reviennent, parfois. Une odeur. Un visage. Un nom que tu croyais perdu. »",
+                "« C'est ça, devenir une Ancre. Tu ne te contentes plus de résister. Tu commences à ramener ce qui était parti. »"
+            ]
+        }
+    },
+    {
+        id: 'evt_n27_dialogue_esen',
+        type: 'dialogue',
+        trigger: { kind: 'level', value: 27 },
+        once: true,
+        content: {
+            speaker: 'esen',
+            title: 'Ce qu\'Esen Garde',
+            pages: [
+                "Tu surprends Esen, seul, fixant une vieille photo à moitié effacée. Le visage dessus a disparu.",
+                "« Je ne sais plus qui c'était, » dit-il sans se retourner. « Mais je sais que je tenais à cette personne. Alors je garde la photo. »",
+                "« C'est pour ça que je m'entraîne. Pas pour moi. Pour ne plus jamais laisser un visage s'effacer. »",
+                "C'est la phrase la plus longue que tu l'aies jamais entendu prononcer."
+            ]
+        }
+    },
+    {
+        id: 'evt_n29_ambiance_nabdano',
+        type: 'ambiance',
+        trigger: { kind: 'level', value: 29 },
+        once: true,
+        content: {
+            speaker: 'systeme',
+            title: 'Une Inscription',
+            image: 'images/story/inscription_nabdano.webp',
+            pages: [
+                "Sur un mur de Faille, une phrase gravée d'une main qui tremblait : « J'étais le plus fort. J'ai porté le monde. »",
+                "Et en dessous, plus profond, comme arraché : « Et un jour, je l'ai posé. »",
+                "Le Système, d'une voix que tu ne lui connaissais pas : « ...Continue. Il vaut mieux que tu sois plus fort avant de comprendre qui a écrit ça. »"
+            ]
+        }
+    },
+    {
+        id: 'evt_n31_dialogue_duo',
+        type: 'dialogue',
+        trigger: { kind: 'level', value: 31 },
+        once: true,
+        content: {
+            speaker: 'nyra',
+            title: 'L\'Inscription, à Deux',
+            image: 'images/story/dos_a_dos.webp',
+            pages: [
+                "Nyra a vu l'inscription, elle aussi. Pour une fois, elle ne plaisante pas.",
+                "« Quelqu'un d'aussi fort que ça... qui a juste arrêté. » Elle frissonne. « Ça me fait plus peur que tous les monstres. »",
+                "Esen pose une main sur son épaule. Un geste rare. « C'est pour ça qu'on est deux. On se surveille. Si l'un de nous commence à vouloir s'asseoir... »",
+                "« ...l'autre le force à se relever, » termine Nyra. Vous le pensez tous les trois, le Système y compris."
+            ]
+        }
+    },
+    {
+        id: 'evt_n33_ambiance_systeme_revelation',
+        type: 'ambiance',
+        trigger: { kind: 'level', value: 33 },
+        once: true,
+        content: {
+            speaker: 'systeme',
+            title: 'Ce que Je Suis',
+            pages: [
+                "« Tu es assez fort, maintenant. Tu mérites la vérité, » affiche le Système.",
+                "« Je ne suis pas un dieu. Ni un programme. Je suis le dernier fragment de ce monde qui a refusé de s'effacer. »",
+                "« Quand tout a commencé à pâlir, je me suis accroché à la seule chose encore solide : toi. Tant que tu tiens, j'existe. »",
+                "« Je ne t'ai jamais guidé par bonté. Je m'accroche à toi pour survivre. Voilà. Maintenant tu sais. »"
+            ]
+        }
+    },
+    {
+        id: 'evt_n35_ambiance_nabdano_nom',
+        type: 'ambiance',
+        trigger: { kind: 'level', value: 35 },
+        once: true,
+        content: {
+            speaker: 'systeme',
+            title: 'Le Nom',
+            pages: [
+                "« Celui qui a écrit cette inscription... il était comme toi. La plus grande Ancre que ce monde ait connue. »",
+                "« Il a porté le monde seul, trop longtemps. Et un jour, la fatigue a gagné. Il s'est assis. Son propre fragment — son Système — s'est éteint, faute de quelqu'un pour le tenir. »",
+                "« Et l'effacement s'est répandu depuis lui, comme une fissure. Les survivants l'appellent par un nom, maintenant. »",
+                "« Nabdano. Retiens-le. Tôt ou tard, il voudra que tu t'assoies, toi aussi. »"
+            ]
+        }
+    },
+    {
+        id: 'evt_n37_fait_respiration',
+        type: 'fait',
+        trigger: { kind: 'level', value: 37 },
+        once: true,
+        content: {
+            speaker: 'nyra',
+            title: 'Malgré Tout',
+            pages: [
+                "Le nom de Nabdano pèse sur vous trois depuis des jours. Alors Nyra décrète : « Pause. Aujourd'hui on ne sauve pas le monde. »",
+                "Elle invente un jeu débile : nommer à voix haute une chose qui vaut encore la peine d'exister. Le café chaud. Le bruit de la pluie. Un certain silence partagé.",
+                "Esen, après un long moment, dit un seul mot, en te regardant : « Ça. » Nyra rougit et change vite de sujet. Mais elle l'a entendu."
+            ]
+        }
+    },
+    {
+        id: 'evt_n39_ambiance_voix',
+        type: 'ambiance',
+        trigger: { kind: 'level', value: 39 },
+        once: true,
+        content: {
+            speaker: 'nabdano',
+            title: 'La Voix Familière',
+            pages: [
+                "Pour la première fois, pendant un combat, une créature ne grogne pas. Elle parle. Avec ta voix.",
+                "« Tu es fatigué. Je le sens d'ici. Pourquoi continuer à porter tout ça ? »",
+                "« Personne ne te jugera si tu t'assois. Au contraire. Le repos est si doux. Laisse-moi te montrer. »",
+                "Le Système coupe net : « N'écoute pas. C'est lui. Il a trouvé une fissure dans ta tête. Avance. AVANCE. »"
+            ]
+        }
+    },
+    {
+        id: 'evt_n41_dialogue_duo',
+        type: 'dialogue',
+        trigger: { kind: 'level', value: 41 },
+        once: true,
+        content: {
+            speaker: 'nyra',
+            title: 'Promesse',
+            pages: [
+                "« Il m'a parlé aussi, » avoue Nyra, plus pâle que d'habitude. « Avec ma propre voix. Il connaît exactement quoi dire. »",
+                "« Alors on fait une promesse, » dit Esen. « Le jour où l'un de nous l'écoute... l'autre n'abandonne pas. Il vient le chercher. »",
+                "Nyra te regarde. « Toi aussi tu promets ? »",
+                "Le pacte est scellé entre vous trois. Contre une voix qui porte vos propres mots."
+            ]
+        }
+    },
+    {
+        id: 'evt_n43_ambiance_systeme_peur',
+        type: 'ambiance',
+        trigger: { kind: 'level', value: 43 },
+        once: true,
+        content: {
+            speaker: 'systeme',
+            title: 'La Peur du Système',
+            pages: [
+                "« Je dois t'avouer quelque chose, » affiche le Système, ses lettres vacillant légèrement.",
+                "« J'ai peur. Pas de disparaître. De disparaître en sachant que je t'ai entraîné trop loin, vers lui. »",
+                "« Mais je préfère ça à te regarder t'asseoir. Alors je reste. Jusqu'au bout. Avec toi. »"
+            ]
+        }
+    },
+    {
+        id: 'evt_n45_ambiance_approche',
+        type: 'ambiance',
+        trigger: { kind: 'level', value: 45 },
+        once: true,
+        content: {
+            speaker: 'systeme',
+            title: 'Au Bout du Couloir',
+            pages: [
+                "Les Failles changent. Elles convergent toutes vers un même endroit, loin, où le blanc de l'oubli est le plus épais.",
+                "« C'est là qu'il est, » dit le Système. « Assis, au centre de tout ce qu'il a effacé. Il t'attend. Il sait que tu viens. »",
+                "Tu sens Esen et Nyra de chaque côté de toi. Personne ne parle. Personne ne ralentit."
+            ]
+        }
+    },
+    {
+        id: 'evt_n47_ambiance_nabdano',
+        type: 'ambiance',
+        trigger: { kind: 'level', value: 47 },
+        once: true,
+        content: {
+            speaker: 'nabdano',
+            title: 'Il Connaît Ton Nom',
+            pages: [
+                "La voix revient, plus calme, plus intime. Elle connaît ton nom maintenant. Celui que tu croyais avoir oublié.",
+                "« Tu vois ? Moi je m'en souviens. De ton nom. De ta fatigue. De chaque matin où tu as hésité à te lever. »",
+                "« Je ne suis pas ton ennemi. Je suis le seul qui te comprenne vraiment. Viens. Assieds-toi près de moi. »"
+            ]
+        }
+    },
+    {
+        id: 'evt_n49_dialogue_duo',
+        type: 'dialogue',
+        trigger: { kind: 'level', value: 49 },
+        once: true,
+        content: {
+            speaker: 'nyra',
+            title: 'Tenir la Main',
+            image: 'images/story/moment_suspendu.webp',
+            pages: [
+                "La voix de Nabdano est partout maintenant. Difficile de penser. Difficile d'avancer.",
+                "Sans un mot, Nyra prend ta main. De l'autre côté, Esen pose la sienne sur ton épaule.",
+                "« Tant qu'on se touche, » dit Nyra, « il ne peut pas nous prendre un par un. »",
+                "Le Système, presque ému : « Trois signaux. Entrelacés. Je n'ai jamais rien vu d'aussi difficile à effacer. »"
+            ]
+        }
+    },
+    {
+        id: 'evt_n51_fait_souvenir',
+        type: 'fait',
+        trigger: { kind: 'level', value: 51 },
+        once: true,
+        content: {
+            speaker: 'systeme',
+            title: 'Un Visage Revient',
+            pages: [
+                "Quelque chose d'étrange arrive. En t'entraînant, un souvenir que tu croyais effacé refait surface, net, intact.",
+                "Un visage. Une voix. Quelqu'un qui comptait, et que l'Oubli t'avait pris.",
+                "« Tu vois ? » dit le Système. « Plus tu deviens réel, plus tu ramènes ce qui était perdu. C'est l'exact opposé de ce que fait Nabdano. Vous êtes deux forces contraires. »"
+            ]
+        }
+    },
+    {
+        id: 'evt_n53_ambiance_doute',
+        type: 'ambiance',
+        trigger: { kind: 'level', value: 53 },
+        once: true,
+        content: {
+            speaker: 'nabdano',
+            title: 'Le Doute',
+            pages: [
+                "« Regarde tout ce que tu ramènes, » murmure Nabdano. « Et regarde comme ça te coûte. Chaque jour. Encore. »",
+                "« Moi aussi, j'ai ramené des choses, autrefois. Pendant des siècles. Jusqu'à ce que je comprenne que ça ne finit jamais. »",
+                "« Ce n'est pas de la faiblesse, de vouloir que ça s'arrête. C'est de la lucidité. »",
+                "Pour la première fois, une partie de toi comprend ce qu'il ressent. Et c'est ça, le plus effrayant."
+            ]
+        }
+    },
+    {
+        id: 'evt_n55_dialogue_esen',
+        type: 'dialogue',
+        trigger: { kind: 'level', value: 55 },
+        once: true,
+        content: {
+            speaker: 'esen',
+            title: 'Pourquoi Esen Tient',
+            pages: [
+                "« Tu l'écoutes, » constate Esen. Pas de reproche. Juste un fait.",
+                "« Moi aussi je l'entends. Et il a raison sur une chose : ça ne finit jamais. »",
+                "« Mais c'est exactement pour ça qu'il faut continuer. Pas parce que ça finira. Parce que les gens qu'on porte méritent qu'on tienne encore un jour. Et puis encore un. »",
+                "Il te regarde. « Toi aussi, tu mérites que quelqu'un tienne pour toi. C'est ce que je fais. »"
+            ]
+        }
+    },
+    {
+        id: 'evt_n57_fait_nyra',
+        type: 'fait',
+        trigger: { kind: 'level', value: 57 },
+        once: true,
+        content: {
+            speaker: 'nyra',
+            title: 'Le Caillou Rendu',
+            pages: [
+                "Nyra fouille dans sa collection de cailloux. Elle en cherche un précis, le trouve, te le tend.",
+                "« Le tout premier que j'ai ramassé. Avant de te connaître. J'étais seule, ce jour-là, et j'ai failli m'asseoir. »",
+                "« Garde-le. Comme ça, si un jour c'est moi qui flanche... tu auras une preuve que j'ai tenu une fois. Et tu me forceras à recommencer. »"
+            ]
+        }
+    },
+    {
+        id: 'evt_n61_ambiance_proche',
+        type: 'ambiance',
+        trigger: { kind: 'level', value: 61 },
+        once: true,
+        content: {
+            speaker: 'systeme',
+            title: 'Le Seuil',
+            pages: [
+                "Vous y êtes presque. Le vide blanc est si dense qu'il avale les sons. Chaque pas demande une volonté pure.",
+                "« Au-delà de ce seuil, je ne pourrai plus beaucoup t'aider, » dit le Système. « Là où il est, je suis trop faible. C'est son territoire. »",
+                "« Quoi qu'il te dise... souviens-toi que tu n'es pas venu seul. C'est la seule chose qu'il n'a jamais eue, lui. »"
+            ]
+        }
+    },
+    {
+        id: 'evt_n65_ambiance_nabdano',
+        type: 'ambiance',
+        trigger: { kind: 'level', value: 65 },
+        once: true,
+        content: {
+            speaker: 'nabdano',
+            title: 'Presque Tendre',
+            image: 'images/story/nabdano.webp',
+            pages: [
+                "« Tu es plus proche que quiconque ne l'a jamais été, » dit Nabdano. Sa voix n'a plus rien de menaçant. Juste une infinie fatigue.",
+                "« Quand tu me verras, tu comprendras. Je ne suis pas un monstre. Je suis seulement... quelqu'un qui s'est arrêté. »",
+                "« Et une part de toi, déjà, se demande si j'ai eu tort. »"
+            ]
+        }
+    },
+    {
+        id: 'evt_n70_dialogue_duo',
+        type: 'dialogue',
+        trigger: { kind: 'level', value: 70 },
+        once: true,
+        content: {
+            speaker: 'nyra',
+            title: 'Avant la Fin',
+            pages: [
+                "La veille du seuil final, vous restez éveillés tous les trois, en silence.",
+                "« Si on en sort, » dit Nyra sans regarder personne, « il faudra qu'on se dise des choses. Des vraies. »",
+                "Esen hoche la tête, lentement. « Si on en sort. »",
+                "Personne ne finit la phrase. Mais quelque chose, entre vous, vient d'être promis."
+            ]
+        }
+    },
+    {
+        id: 'evt_n75_ambiance_porte',
+        type: 'ambiance',
+        trigger: { kind: 'level', value: 75 },
+        once: true,
+        content: {
+            speaker: 'systeme',
+            title: 'La Dernière Porte',
+            image: 'images/story/face_effacement.webp',
+            pages: [
+                "Devant vous, le centre de l'effacement. Une étendue blanche, infinie, silencieuse. Et au milieu, une silhouette assise.",
+                "Le Système, d'une voix presque éteinte : « C'est lui. Nabdano. »",
+                "« Va. Je reste avec toi autant que je le peux. Et n'oublie pas... tu es venu à trois. »"
             ]
         }
     }
@@ -215,8 +684,76 @@ function storyCheckEvents(opts) {
     } catch(e) { return false; }
 }
 
+// ── RÉACTION D'UN HÉROS (déçu mais bienveillant) ───────────────────
+// reason : 'streak' | 'absence' | 'abandon'
+// Affiche Esen ou Nyra (aléatoire) avec un message motivant, jamais culpabilisant.
+function awakShowHeroReaction(reason) {
+    try {
+        // Seulement si mode jeu actif ET rencontre déjà faite
+        const jeuActif = (typeof rpgEnabled === 'function') && rpgEnabled();
+        const rencontreVue = localStorage.getItem('awakStoryEvt_evt_rencontre') === '1';
+        if (!jeuActif || !rencontreVue) return false;
+        if (document.getElementById('storyEventOverlay') || document.getElementById('heroReactionOverlay')) return false;
+
+        const hero = Math.random() < 0.5 ? 'esen' : 'nyra';
+        const heroName = hero === 'esen' ? 'Esen' : 'Nyra';
+        const color = hero === 'esen' ? '#4ade80' : '#a855f7';
+        const img = 'images/story/' + hero + '_fache.webp';
+
+        // Messages bienveillants par contexte et par perso
+        const messages = {
+            streak: {
+                esen: "« Ta série s'est brisée. Ce n'est pas grave. Ce qui compte, c'est que tu sois revenu. On recommence. »",
+                nyra: "« Bon. T'as lâché ta série. » Elle soupire, puis sourit malgré elle. « Allez, on s'en fiche. Recommence avec moi. »"
+            },
+            absence: {
+                esen: "« Tu es parti un moment. » Un silence. « Le monde a un peu pâli. Mais tu es là maintenant. C'est tout ce qui compte. »",
+                nyra: "« Te revoilà, toi ! » Elle croise les bras, faussement vexée. « J'ai failli m'inquiéter. Bon. On reprend où on s'était arrêtés ? »"
+            },
+            abandon: {
+                esen: "« Tu t'es arrêté en cours de route. » Il te regarde, sans reproche. « La prochaine fois, va au bout. Je sais que tu peux. »",
+                nyra: "« Hé, t'abandonnes pas comme ça ! » Elle fronce les sourcils. « ...Bon, ça arrive. Mais la prochaine, tu finis. Promis ? »"
+            }
+        };
+        const msg = (messages[reason] && messages[reason][hero]) || messages.streak[hero];
+
+        const overlay = document.createElement('div');
+        overlay.id = 'heroReactionOverlay';
+        overlay.style.cssText = 'position:fixed;inset:0;z-index:99997;background:rgba(0,0,0,0.93);backdrop-filter:blur(9px);display:flex;align-items:center;justify-content:center;padding:22px;opacity:0;animation:awakFadeIn 0.45s forwards;';
+        overlay.innerHTML = `
+            <div style="max-width:400px;width:100%;background:linear-gradient(165deg,${color}14,rgba(8,12,20,0.97) 60%);border:1px solid ${color}55;border-radius:18px;overflow:hidden;box-shadow:0 0 44px ${color}33;animation:awakCardRise 0.5s cubic-bezier(0.2,0.8,0.2,1);">
+                <div style="width:100%;background:#05070c;display:flex;align-items:center;justify-content:center;border-bottom:1px solid ${color}30;">
+                    <img src="${img}" alt="${heroName}" style="width:100%;max-height:320px;object-fit:cover;object-position:top;display:block;" onerror="this.parentElement.style.display='none';" />
+                </div>
+                <div style="padding:22px;">
+                    <div style="font-size:0.62em;letter-spacing:2px;color:${color};font-weight:900;text-transform:uppercase;margin-bottom:8px;">${heroName}</div>
+                    <div style="font-size:0.95em;line-height:1.65;color:#e2e8f0;">${msg}</div>
+                    <button id="heroReactClose" style="margin-top:18px;width:100%;background:${color}22;border:1px solid ${color}66;color:${color};font-weight:800;padding:11px;border-radius:10px;cursor:pointer;font-size:0.9em;">On y retourne</button>
+                </div>
+            </div>`;
+        // keyframes (réutilise celles existantes)
+        if (!document.getElementById('awakSystemStyles')) {
+            const s = document.createElement('style'); s.id = 'awakSystemStyles';
+            s.textContent = '@keyframes awakFadeIn{from{opacity:0}to{opacity:1}}@keyframes awakFadeOut{from{opacity:1}to{opacity:0}}@keyframes awakCardRise{from{opacity:0;transform:translateY(26px) scale(0.96)}to{opacity:1;transform:translateY(0) scale(1)}}';
+            document.head.appendChild(s);
+        }
+        document.body.appendChild(overlay);
+        const close = () => { overlay.style.animation = 'awakFadeOut 0.35s forwards'; setTimeout(() => overlay.remove(), 350); };
+        const btn = document.getElementById('heroReactClose');
+        if (btn) btn.onclick = close;
+        overlay.onclick = (e) => { if (e.target === overlay) close(); };
+        return true;
+    } catch(e) { return false; }
+}
+
 // ── EXPORTS ────────────────────────────────────────────────────────
 window.STORY_EVENTS       = STORY_EVENTS;
+window.STORY_CHARS        = STORY_CHARS;
+window.storyCheckEvents   = storyCheckEvents;
+window.storyShowEvent     = storyShowEvent;
+window.storyPickEvent     = storyPickEvent;
+window.storyEventEligible = storyEventEligible;
+window.awakShowHeroReaction = awakShowHeroReaction;
 window.STORY_CHARS        = STORY_CHARS;
 window.storyCheckEvents   = storyCheckEvents;
 window.storyShowEvent     = storyShowEvent;

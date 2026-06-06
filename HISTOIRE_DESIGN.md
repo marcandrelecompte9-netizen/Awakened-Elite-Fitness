@@ -148,9 +148,13 @@ Assidu si **≥50% des semaines ont eu ≥2 entraînements OU record de streak �
 ### Scènes de duo (UNE seule série, montre Esen + Nyra ensemble)
 Le joueur s'identifie à l'un, l'autre est le partenaire. Pas de doublon par genre.
 1. **La rencontre** (rang D-C) — ils se croisent, méfiance, auras qui ne se touchent pas ✅ FAITE (images/story/rencontre.webp, evt_rencontre)
-2. **Dos à dos** (rang B) — encerclés, ils se protègent, auras qui se mêlent
-3. **Le moment suspendu** (rang A) — assis côte à côte, regard, main presque tendue
-4. **Face à l'effacement** (rang S) — debout face au vide de Nabdano, auras fusionnées
+2. **Dos à dos** (rang B) — encerclés, ils se protègent, auras qui se mêlent ✅ FAITE (dos_a_dos.webp, evt niv 31)
+3. **Le moment suspendu** (rang A) — assis côte à côte, regard, main presque tendue ✅ FAITE (moment_suspendu.webp, evt niv 49)
+4. **Face à l'effacement** (rang S) — debout face au vide de Nabdano, auras fusionnées ✅ FAITE (face_effacement.webp, evt niv 75)
+
+Images d'arc additionnelles FAITES : monde_efface.webp (prologue), traces.webp (niv 15), inscription_nabdano.webp (niv 29)
+Images de FIN en réserve (pour arc SS/SSS) : fin_ancre.webp (L'Ancre/assidu), fin_echo.webp (L'Écho/irrégulier)
+Image Nabdano lui-même : ✅ FAITE (nabdano.webp — assis, visage caché, qui s'efface — evt niv 65 « Presque Tendre »)
 
 ---
 

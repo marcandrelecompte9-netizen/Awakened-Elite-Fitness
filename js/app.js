@@ -21546,6 +21546,31 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             isPaused = !isPaused;
             const btn = document.getElementById('pauseBtn');
             if (btn) btn.innerHTML = isPaused ? '▶️ Reprendre' : '⏸️ Pause';
+
+            // Overlay de pause avec image de repos Esen/Nyra (si mode jeu + rencontre vue)
+            try {
+                const existing = document.getElementById('awakPauseOverlay');
+                if (isPaused) {
+                    const jeuActif = (typeof rpgEnabled === 'function') && rpgEnabled();
+                    const rencontreVue = localStorage.getItem('awakStoryEvt_evt_rencontre') === '1';
+                    if (!existing && jeuActif && rencontreVue) {
+                        const ov = document.createElement('div');
+                        ov.id = 'awakPauseOverlay';
+                        ov.style.cssText = 'position:fixed;inset:0;z-index:99990;background:rgba(0,0,0,0.92);backdrop-filter:blur(8px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;opacity:0;animation:awakFadeIn 0.4s forwards;';
+                        ov.innerHTML = `
+                            <div style="max-width:420px;width:100%;border-radius:18px;overflow:hidden;border:1px solid rgba(251,191,36,0.3);box-shadow:0 0 40px rgba(0,0,0,0.6);">
+                                <img src="images/story/repos.webp" alt="Repos" style="width:100%;display:block;" onerror="this.style.display='none';" />
+                            </div>
+                            <div style="color:#fbbf24;font-weight:900;letter-spacing:3px;font-size:0.7em;margin-top:18px;text-transform:uppercase;">⏸ En Pause</div>
+                            <div style="color:#94a3b8;font-size:0.85em;margin-top:6px;text-align:center;max-width:320px;">Reprends ton souffle. Esen et Nyra aussi font une pause.</div>
+                            <button onclick="togglePause()" style="margin-top:20px;background:rgba(251,191,36,0.18);border:1px solid rgba(251,191,36,0.5);color:#fbbf24;font-weight:800;padding:13px 32px;border-radius:12px;cursor:pointer;font-size:0.95em;">▶️ Reprendre</button>`;
+                        document.body.appendChild(ov);
+                    }
+                } else if (existing) {
+                    existing.style.animation = 'awakFadeOut 0.3s forwards';
+                    setTimeout(() => existing.remove(), 300);
+                }
+            } catch(e) {}
         }
 
         function skipExercise() {
@@ -21710,11 +21735,24 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 if (typeof exitFullscreenMode === 'function') exitFullscreenMode();
                 if (typeof _currentSessionSets !== 'undefined') _currentSessionSets = {};
             } catch(e) {}
+            // 🖤 Réaction héros si la séance était entamée depuis un moment (vrai abandon, pas faux départ)
+            let _wasEngaged = false;
+            try {
+                if (workoutStartTime) {
+                    const mins = (Date.now() - workoutStartTime) / 60000;
+                    _wasEngaged = mins >= 2;
+                }
+            } catch(e) {}
             releaseWakeLock();
             backToHome();
+            if (_wasEngaged) {
+                try {
+                    if (typeof awakShowHeroReaction === 'function') {
+                        setTimeout(() => awakShowHeroReaction('abandon'), 600);
+                    }
+                } catch(e) {}
+            }
         }
-
-        // ========== PRO ENHANCEMENT - SOCIAL SHARING ==========
         function generateWorkoutSummaryText(workout, stats) {
             const emojis = ['💪', '🔥', '⚡', '🏆', '💯', '🎯'];
             const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
@@ -22277,6 +22315,24 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 })()}`;
             tab.appendChild(cardProfile);
 
+            // ── BOUTON ÉQUIPEMENT RPG (juste sous Compétences & Attributs) ──
+            const cardEquipShortcut = document.createElement('div');
+            cardEquipShortcut.style.cssText = 'margin-top:8px;margin-bottom:4px;';
+
+            const _adv = typeof getAdventureEnabled === 'function' ? getAdventureEnabled() : false;
+            const _eqIt = typeof getEquippedItems === 'function' ? getEquippedItems() : {};
+            const _eqCount = Object.values(_eqIt).filter(Boolean).length;
+            const _inv = typeof getInventory === 'function' ? getInventory() : [];
+            const _gs = typeof getPlayerEquipStats === 'function' ? (() => { const s = getPlayerEquipStats(); return (s.strength||0)+(s.agility||0)+(s.endurance||0)+(s.vitality||0); })() : 0;
+
+            const btnEquip = document.createElement('button');
+            btnEquip.style.cssText = 'width:100%;display:flex;align-items:center;gap:13px;padding:16px 18px;background:linear-gradient(135deg,rgba(6,182,212,0.16),rgba(8,145,178,0.08));border:1.5px solid rgba(6,182,212,' + (_adv?'0.5':'0.25') + ');border-radius:14px;cursor:pointer;text-align:left;touch-action:manipulation;box-shadow:0 0 18px rgba(6,182,212,0.1);';
+            btnEquip.innerHTML = '<div style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:11px;background:rgba(6,182,212,0.15);border:1px solid rgba(6,182,212,0.4);font-size:1.4em;">⚔️</div><div style="flex:1;min-width:0;"><div style="font-weight:900;font-size:0.95em;color:#e2e8f0;">Équipement &amp; Inventaire</div><div style="font-size:0.68em;color:#94a3b8;margin-top:3px;line-height:1.4;">' + _eqCount + '/7 slots · ' + _inv.length + ' item' + (_inv.length!==1?'s':'') + ' · ' + (_adv?('GS '+_gs):'Mode aventure off') + '</div></div><div style="font-size:1.4em;color:#06b6d4;flex-shrink:0;">›</div>';
+            btnEquip.addEventListener('click', function() { showRPGEquipmentModal('equip'); });
+
+            cardEquipShortcut.appendChild(btnEquip);
+            tab.appendChild(cardEquipShortcut);
+
             // ── 👁️ JAUGE DU MONARQUE DU DÉCLIN [ANCIENNE HISTOIRE — MASQUÉE] ───
             // Remplacée par la nouvelle histoire « Le Monde qui s'efface ».
             try {
@@ -22441,23 +22497,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 }
             } catch(e) {}
 
-            // ── BOUTON ACCÈS RAPIDE ÉQUIPEMENT RPG ───────────────────
-            const cardEquipShortcut = document.createElement('div');
-            cardEquipShortcut.style.cssText = 'margin-bottom:4px;';
-
-            const _adv = typeof getAdventureEnabled === 'function' ? getAdventureEnabled() : false;
-            const _eqIt = typeof getEquippedItems === 'function' ? getEquippedItems() : {};
-            const _eqCount = Object.values(_eqIt).filter(Boolean).length;
-            const _inv = typeof getInventory === 'function' ? getInventory() : [];
-            const _gs = typeof getPlayerEquipStats === 'function' ? (() => { const s = getPlayerEquipStats(); return (s.strength||0)+(s.agility||0)+(s.endurance||0)+(s.vitality||0); })() : 0;
-
-            const btnEquip = document.createElement('button');
-            btnEquip.style.cssText = 'width:100%;display:flex;align-items:center;gap:12px;padding:14px 16px;background:linear-gradient(135deg,#020b18,#030e1f);border:1.5px solid rgba(6,182,212,' + (_adv?'0.45':'0.18') + ');border-radius:14px;cursor:pointer;text-align:left;touch-action:manipulation;';
-            btnEquip.innerHTML = '<div style="font-size:1.5em;flex-shrink:0;">⚔️</div><div style="flex:1;min-width:0;"><div style="font-size:0.62em;color:rgba(6,182,212,0.5);font-weight:700;text-transform:uppercase;letter-spacing:1px;">Équipement & Inventaire</div><div style="font-weight:800;color:' + (_adv?'#e2e8f0':'#334155') + ';font-size:0.85em;">' + _eqCount + '/7 slots · ' + _inv.length + ' item' + (_inv.length!==1?'s':'') + '</div><div style="font-size:0.62em;color:#f59e0b;margin-top:1px;">' + (_adv?'GS '+_gs:'Mode aventure off') + '</div></div><div style="font-size:1.3em;color:rgba(6,182,212,0.6);flex-shrink:0;">›</div>';
-            btnEquip.addEventListener('click', function() { showRPGEquipmentModal('equip'); });
-
-            cardEquipShortcut.appendChild(btnEquip);
-            tab.appendChild(cardEquipShortcut);
+            // ── BOUTON ÉQUIPEMENT RPG : déplacé juste sous le bouton Compétences ──
+            // (voir ajout après tab.appendChild(cardProfile))
 
             // ── 1bis. POINTS DE STATS ─────────────────────────────────
             const cardStatPoints = document.createElement('div');
@@ -25446,10 +25487,22 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 });
 
             // Si le filtre vide le pool, fallback sur le thème + reps (mais toujours sans warmup/stretch/timer)
-            const finalPool = pool.length >= 2 ? pool : (typeof exerciseDatabase !== 'undefined' ? exerciseDatabase : [])
+            let finalPool = pool.length >= 2 ? pool : (typeof exerciseDatabase !== 'undefined' ? exerciseDatabase : [])
                 .filter(ex => theme.exerciseFilter(ex))
                 .filter(isCombatExercise)
                 .filter(isRepsExercise);
+
+            // 🛡️ FALLBACK ULTIME : si le filtre du thème ne donne toujours rien d'utilisable,
+            // prendre n'importe quel exercice de combat au poids du corps (jamais zéro exercice).
+            if (finalPool.length < 2) {
+                finalPool = (typeof exerciseDatabase !== 'undefined' ? exerciseDatabase : [])
+                    .filter(isCombatExercise)
+                    .filter(isRepsExercise)
+                    .filter(ex => {
+                        const eq = ex.equipment || [];
+                        return eq.length === 0 || eq.includes('Poids du corps') || eq.includes('Aucun');
+                    });
+            }
 
             // Mélanger
             const shuffled = finalPool.sort(() => Math.random() - 0.5).slice(0, count);
@@ -27476,7 +27529,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 hpMult: 2.4,
                 primaryStat: 'SEN',
                 themeEmoji: '🌫️',
-                exerciseFilter: ex => /stretch|étir|mobilité|yoga|équilibre|planche/.test((ex.name || '').toLowerCase())
+                exerciseFilter: ex => /fente|lunge|squat|pompe|push|step|unilatéral|jumping|mountain/.test((ex.name || '').toLowerCase())
             },
             {
                 id: 'silent_one',
@@ -29436,7 +29489,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             let stats = loadStats();
             stats.workouts++;
             stats.minutes += totalMinutes;
+            const _prevStreak = stats.streak || 0;
             stats.streak = updateStreak(stats);
+            // Détecter une série brisée (avait une belle série, retombée à 1)
+            const _streakBroken = (_prevStreak >= 3 && stats.streak === 1);
             // 🏆 Record de streak (pour la fin de l'histoire + statistiques)
             if (!stats.bestStreak || stats.streak > stats.bestStreak) {
                 stats.bestStreak = stats.streak;
@@ -29479,7 +29535,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
             // 📖 NARRATIF — Moteur d'événements (rencontres, faits amusants, dialogues) « Le Monde qui s'efface »
             try {
-                if (typeof storyCheckEvents === 'function') {
+                if (_streakBroken && typeof awakShowHeroReaction === 'function') {
+                    // Série brisée : un héros réagit (bienveillant), prioritaire sur l'événement normal
+                    setTimeout(() => awakShowHeroReaction('streak'), 4500);
+                } else if (typeof storyCheckEvents === 'function') {
                     storyCheckEvents({ delay: 4500 });
                 }
             } catch(e) {}
@@ -29634,6 +29693,27 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             // Nom séance
             const nameEl = document.getElementById('completionWorkoutName');
             if (nameEl) nameEl.textContent = currentWorkout.name || 'Séance terminée 💪';
+
+            // 🎉 Image de victoire Esen/Nyra : seulement après la rencontre (mode jeu + rencontre vue)
+            // Alterne aléatoirement entre les deux héros à chaque séance.
+            try {
+                const heroImg = document.getElementById('completionHeroImage');
+                if (heroImg) {
+                    const rencontreVue = localStorage.getItem('awakStoryEvt_evt_rencontre') === '1';
+                    const jeuActif = (typeof rpgEnabled === 'function') && rpgEnabled();
+                    if (rencontreVue && jeuActif) {
+                        const hero = Math.random() < 0.5 ? 'esen' : 'nyra';
+                        const imgTag = heroImg.querySelector('img');
+                        if (imgTag) {
+                            imgTag.src = 'images/story/' + hero + '_victoire.webp';
+                            imgTag.alt = (hero === 'esen' ? 'Esen' : 'Nyra');
+                        }
+                        heroImg.style.display = 'block';
+                    } else {
+                        heroImg.style.display = 'none';
+                    }
+                }
+            } catch(e) {}
 
             // Muscles travaillés
             const muscles = [...new Set(realExercises
@@ -34416,6 +34496,22 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     }
                 } catch(e) {}
             }, 2200);
+
+            // 🖤 Réaction héros au RETOUR après une absence prolongée (≥ 4 jours)
+            setTimeout(() => {
+                try {
+                    const stats = (typeof loadStats === 'function') ? loadStats() : {};
+                    if (stats.lastWorkout && typeof awakShowHeroReaction === 'function') {
+                        const days = (Date.now() - new Date(stats.lastWorkout)) / (1000*60*60*24);
+                        const todayKey = new Date().toDateString();
+                        const alreadyShown = localStorage.getItem('awakAbsenceReactShown') === todayKey;
+                        if (days >= 4 && !alreadyShown) {
+                            localStorage.setItem('awakAbsenceReactShown', todayKey);
+                            awakShowHeroReaction('absence');
+                        }
+                    }
+                } catch(e) {}
+            }, 3200);
             // Initialiser le suivi des points de stats (1× pour ne pas donner rétroactivement)
             setTimeout(() => {
                 try {
@@ -34882,27 +34978,33 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         // Permet de revoir les chapitres débloqués (galerie depuis l'onglet Jeu)
         function showStoryJournal() {
             document.getElementById('storyJournalOverlay')?.remove();
-            const info = typeof getPlayerRankInfo === 'function' ? getPlayerRankInfo() : { rankId:'E' };
-            const order = ['E','D','C','B','A','S','SS','SSS'];
-            const playerIdx = order.indexOf(info.rankId);
 
             const overlay = document.createElement('div');
             overlay.id = 'storyJournalOverlay';
             overlay.style.cssText = 'position:fixed;inset:0;z-index:10800;background:rgba(0,0,0,0.85);backdrop-filter:blur(10px);display:flex;align-items:flex-end;justify-content:center;';
             overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
 
-            const rows = STORY_CHAPTERS.map(c => {
-                const unlocked = c.trigger === 'awaken' ? storyChapterSeen('prologue') || true
-                    : order.indexOf(c.rankId) <= playerIdx;
-                const seen = storyChapterSeen(c.id);
-                return `<div ${unlocked ? `onclick="document.getElementById('storyJournalOverlay').remove();(function(){const ch=window._storyGet('${c.id}');if(ch)showStoryChapter(ch);})()"` : ''}
-                    style="background:${unlocked?`linear-gradient(135deg,${c.color}14,${c.color}05)`:'rgba(255,255,255,0.03)'};border:1px solid ${unlocked?c.color+'40':'rgba(255,255,255,0.08)'};border-radius:14px;padding:14px 16px;margin-bottom:10px;cursor:${unlocked?'pointer':'default'};display:flex;align-items:center;gap:13px;${unlocked?'':'opacity:0.5;'}">
-                    <div style="font-size:1.4em;flex-shrink:0;">${unlocked ? (seen?'📖':'✨') : '🔒'}</div>
+            // Nouvelle histoire « Le Monde qui s'efface » : liste des événements vus / à venir
+            const events = (typeof window.STORY_EVENTS !== 'undefined') ? window.STORY_EVENTS : [];
+            const chars = (typeof window.STORY_CHARS !== 'undefined') ? window.STORY_CHARS : {};
+            let seenCount = 0;
+
+            const rows = events.map((evt, idx) => {
+                const seen = localStorage.getItem('awakStoryEvt_' + evt.id) === '1';
+                if (seen) seenCount++;
+                const c = (evt.content && chars[evt.content.speaker]) ? chars[evt.content.speaker] : { color:'#4ade80' };
+                const color = c.color || '#4ade80';
+                const title = (evt.content && evt.content.title) ? evt.content.title : 'Souvenir';
+                // Étiquette discrète du type d'événement
+                const typeLabel = ({ rencontre:'RENCONTRE', fait:'INSTANT', ambiance:'FRAGMENT', dialogue:'ÉCHANGE' })[evt.type] || 'FRAGMENT';
+                return `<div ${seen ? `onclick="document.getElementById('storyJournalOverlay').remove();(function(){const e=(window.STORY_EVENTS||[]).find(x=>x.id==='${evt.id}');if(e&&window.storyShowEvent)window.storyShowEvent(e);})()"` : ''}
+                    style="background:${seen?`linear-gradient(135deg,${color}14,${color}05)`:'rgba(255,255,255,0.03)'};border:1px solid ${seen?color+'40':'rgba(255,255,255,0.08)'};border-radius:14px;padding:14px 16px;margin-bottom:10px;cursor:${seen?'pointer':'default'};display:flex;align-items:center;gap:13px;${seen?'':'opacity:0.45;'}">
+                    <div style="font-size:1.4em;flex-shrink:0;">${seen ? '📖' : '🔒'}</div>
                     <div style="flex:1;min-width:0;">
-                        <div style="font-size:0.58em;color:${unlocked?c.color:'#64748b'};font-weight:800;letter-spacing:1.5px;">${c.subtitle}</div>
-                        <div style="font-weight:800;color:${unlocked?'white':'#64748b'};font-size:0.95em;margin-top:2px;">${unlocked ? c.title : '? ? ?'}</div>
+                        <div style="font-size:0.55em;color:${seen?color:'#64748b'};font-weight:800;letter-spacing:1.5px;">${typeLabel}</div>
+                        <div style="font-weight:800;color:${seen?'white':'#64748b'};font-size:0.95em;margin-top:2px;">${seen ? title : '? ? ?'}</div>
                     </div>
-                    ${unlocked ? `<div style="color:${c.color};font-size:1.1em;">›</div>` : `<div style="font-size:0.6em;color:#64748b;">Rang ${c.rankId}</div>`}
+                    ${seen ? `<div style="color:${color};font-size:1.1em;">›</div>` : `<div style="font-size:0.6em;color:#64748b;">À venir</div>`}
                 </div>`;
             }).join('');
 
@@ -34911,8 +35013,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             sheet.innerHTML = `
                 <div style="width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:99px;margin:0 auto 18px;"></div>
                 <h2 style="margin:0 0 4px;color:white;font-size:1.15em;font-weight:900;">📖 Journal du Chasseur</h2>
-                <p style="margin:0 0 18px;color:rgba(255,255,255,0.4);font-size:0.8em;">Ton histoire se dévoile à mesure que tu montes en rang.</p>
-                ${rows}
+                <p style="margin:0 0 18px;color:rgba(255,255,255,0.4);font-size:0.8em;">${seenCount} souvenir${seenCount>1?'s':''} retrouvé${seenCount>1?'s':''}. Ton histoire se dévoile à mesure que tu t'entraînes.</p>
+                ${rows || '<p style="color:rgba(255,255,255,0.4);font-size:0.85em;text-align:center;padding:20px;">Aucun souvenir pour l\'instant. Continue de t\'entraîner.</p>'}
                 <button onclick="document.getElementById('storyJournalOverlay').remove()" style="margin-top:10px;width:100%;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:12px;color:rgba(255,255,255,0.5);font-weight:700;cursor:pointer;">Fermer</button>`;
             overlay.appendChild(sheet);
             document.body.appendChild(overlay);
