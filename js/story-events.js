@@ -53,7 +53,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_rencontre',
         type: 'rencontre',
-        trigger: { kind: 'rank', value: 'D' },
+        trigger: { kind: 'level', value: 5 },
         once: true,
         content: {
             speaker: 'systeme',

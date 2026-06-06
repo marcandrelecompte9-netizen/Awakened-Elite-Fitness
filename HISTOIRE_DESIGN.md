@@ -186,8 +186,13 @@ Le joueur s'identifie à l'un, l'autre est le partenaire. Pas de doublon par gen
 ## 9. ÉTAT D'AVANCEMENT (code)
 
 - ✅ v174 : `bestStreak` tracké + `awakIsPlayerDedicated()` (logique des fins)
-- ⬜ Réduire 8 → 5 compagnons (avec garde anti-casse)
-- ⬜ Déblocage compagnons par scénario
+- ✅ v175 : 5 images de compagnons branchées
+- ✅ v176 : moteur d'événements narratifs (fondation)
+- ✅ v177 : scène « La Rencontre » Esen/Nyra
+- ✅ v178 : bouton admin montée de niveau
+- ✅ v179 : ancienne histoire (Monarque) désactivée
+- ✅ v180 : rencontre au niveau 5 + bouton reset histoire
+- ✅ v181 : réduction 8→5 compagnons + déblocage par rang (D/C/B/A/S) + nettoyage saves orphelines
 - ⬜ Système Failles d'Histoire jouables (texte → séance → texte, bloquant)
 - ⬜ Réécrire chapitres de rang en univers « Monde qui s'efface »
 - ⬜ Fragments par niveau (faire évoluer `STORY_FRAGMENTS`)

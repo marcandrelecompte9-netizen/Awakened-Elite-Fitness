@@ -22277,10 +22277,11 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 })()}`;
             tab.appendChild(cardProfile);
 
-            // ── 👁️ JAUGE DU MONARQUE DU DÉCLIN (arc antagoniste) ───────
+            // ── 👁️ JAUGE DU MONARQUE DU DÉCLIN [ANCIENNE HISTOIRE — MASQUÉE] ───
+            // Remplacée par la nouvelle histoire « Le Monde qui s'efface ».
             try {
                 const mPower = typeof awakGetMonarchPower === 'function' ? awakGetMonarchPower() : 0;
-                if (mPower > 0) {
+                if (false && mPower > 0) {
                     let mState, mColor, mMsg;
                     if (mPower >= 80) {
                         mState = 'MENACE IMMINENTE'; mColor = '#ef4444';
@@ -23850,14 +23851,36 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 const newLevel = _awakGetCurrentLevel();
                 // Rafraîchir l'UI et déclencher les vérifs narratives
                 if (typeof renderGameTab === 'function') { try { renderGameTab(); } catch(e) {} }
-                if (typeof checkStoryRankUnlock === 'function') { try { setTimeout(checkStoryRankUnlock, 300); } catch(e) {} }
-                if (typeof awakCheckStoryFragments === 'function') { try { setTimeout(awakCheckStoryFragments, 600); } catch(e) {} }
-                if (typeof storyCheckEvents === 'function') { try { storyCheckEvents({ delay: 900 }); } catch(e) {} }
+                // [ANCIENNE HISTOIRE DÉSACTIVÉE] — on ne déclenche que le nouveau moteur d'événements
+                if (typeof storyCheckEvents === 'function') { try { storyCheckEvents({ delay: 600 }); } catch(e) {} }
                 if (typeof showToast === 'function') showToast('🔧 Niveau ' + newLevel + ' (admin)', 'info', 2000);
                 return newLevel;
             } catch(e) { return null; }
         }
         window.awakAdminLevelUp = awakAdminLevelUp;
+
+        // 🔧 ADMIN/DEBUG — Efface les marqueurs d'événements narratifs (pour les revoir).
+        // Ne touche PAS à la progression, l'XP, les niveaux ou l'inventaire.
+        function awakAdminResetStory() {
+            try {
+                const toRemove = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const k = localStorage.key(i);
+                    if (!k) continue;
+                    // Marqueurs du nouveau moteur + anciens chapitres/fragments
+                    if (k.indexOf('awakStoryEvt_') === 0 ||
+                        k.indexOf('fitproStorySeen_') === 0 ||
+                        k.indexOf('fitproFragSeen_') === 0 ||
+                        k.indexOf('awakSystemCardSeen') === 0) {
+                        toRemove.push(k);
+                    }
+                }
+                toRemove.forEach(k => localStorage.removeItem(k));
+                if (typeof showToast === 'function') showToast('🔄 Histoire réinitialisée (' + toRemove.length + ' marqueurs effacés)', 'success', 2500);
+                return toRemove.length;
+            } catch(e) { return 0; }
+        }
+        window.awakAdminResetStory = awakAdminResetStory;
 
         function awakGetRank() {
             const level = _awakGetCurrentLevel();
@@ -26871,7 +26894,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 lore: 'Il a survécu à 3 Failles rang A en solo. Son corps porte les marques de chaque combat.',
                 bonus: { stat: 'STR', mult: 0.18, label: '+18% STR · +10% dégâts boss' },
                 bonusDetails: { dmgBoss: 0.10 },
-                unlockCondition: { type: 'workouts', value: 10, label: 'Termine 10 séances' },
+                unlockCondition: { type: 'rank', value: 'D', label: 'Atteins le rang D' },
                 dialogues: {
                     onFightStart: ['On va leur défoncer le crâne.', 'Tu sens cette adrénaline ?', 'Ne retiens rien.'],
                     onCrit: ['ÇA c\'est de la force !', 'Encore !', 'Voilà !'],
@@ -26890,7 +26913,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 lore: 'Elle disait être assassin avant l\'arrivée du Système. Personne ne l\'a jamais vue rater.',
                 bonus: { stat: 'AGI', mult: 0.20, label: '+20% AGI · +5% chance critique' },
                 bonusDetails: { critChance: 0.05 },
-                unlockCondition: { type: 'rifts_completed', value: 3, label: 'Ferme 3 Failles' },
+                unlockCondition: { type: 'rank', value: 'C', label: 'Atteins le rang C' },
                 dialogues: {
                     onFightStart: ['Reste discret.', 'L\'opportunité viendra.', 'Vise les points faibles.'],
                     onCrit: ['Parfait.', 'C\'est exactement ça.', '...précis.'],
@@ -26909,30 +26932,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 lore: 'Il étudie les Failles depuis le début. Il pense que le Système n\'est pas notre ami.',
                 bonus: { stat: 'PER', mult: 0.15, label: '+15% PER · -10% durée Failles' },
                 bonusDetails: { riftDurationCut: 0.10 },
-                unlockCondition: { type: 'rank', value: 'C', label: 'Atteins le rang C' },
+                unlockCondition: { type: 'rank', value: 'S', label: 'Atteins le rang S' },
                 dialogues: {
                     onFightStart: ['Respire. Observe.', 'Le combat est dans ta tête.', 'Calme-toi.'],
                     onCrit: ['Bien vu.', 'Tu apprends.', 'Voilà la voie.'],
                     onBossPhase: ['Adapte-toi. Le boss aussi le fait.', 'Sa stratégie change. La tienne aussi.'],
                     onVictory: ['Sagesse acquise.', 'Tu progresses.', 'Bien.']
-                }
-            },
-            {
-                id: 'jules',
-                name: 'Jules Beastmode',
-                title: 'Le Pilier',
-                emoji: '🛡️',
-                color: '#22c55e',
-                description: 'Endurance surhumaine. Capable de tenir des heures sans plier.',
-                lore: 'Ancien marathonien militaire. A passé 73h dans une Faille avant qu\'on le trouve. Vivant.',
-                bonus: { stat: 'END', mult: 0.25, label: '+25% END · vagues plus tenaces' },
-                bonusDetails: { extraWaveTime: true },
-                unlockCondition: { type: 'monsters_hunted', value: 2, label: 'Vaincre 2 monstres échappés' },
-                dialogues: {
-                    onFightStart: ['Long combat ? Tant mieux.', 'Garde ton souffle.', 'Tu peux tenir plus.'],
-                    onCrit: ['Et encore !', 'Continue !', 'C\'est ça !'],
-                    onBossPhase: ['On l\'aura à l\'usure.', 'Pas de pause.'],
-                    onVictory: ['Bien tenu.', 'Voilà ce qu\'on appelle un effort.', 'On en avait sous le pied.']
                 }
             },
             {
@@ -26946,48 +26951,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 lore: 'Elle a sauvé plus d\'Ancrages que le Système n\'en a créé. Le Noyau la déteste.',
                 bonus: { stat: 'SEN', mult: 0.20, label: '+20% SEN · récup +30%' },
                 bonusDetails: { recovery: 0.30 },
-                unlockCondition: { type: 'workouts', value: 25, label: 'Termine 25 séances' },
+                unlockCondition: { type: 'rank', value: 'B', label: 'Atteins le rang B' },
                 dialogues: {
                     onFightStart: ['Sois prudent.', 'Je veille sur toi.', 'On rentre tous les deux.'],
                     onCrit: ['Excellent.', 'Bien placé.', 'Continue comme ça.'],
                     onBossPhase: ['Reste concentré. Je gère le reste.', 'Ne paniques pas.'],
                     onVictory: ['Tu es entier. C\'est l\'essentiel.', 'Bien joué. Repose-toi.', 'Bravo.']
-                }
-            },
-            {
-                id: 'halberd',
-                name: 'Dr. Halberd',
-                title: 'Le Stratège',
-                emoji: '🔬',
-                color: '#fbbf24',
-                description: 'Scientifique. Il analyse les Failles en temps réel et trouve leurs faiblesses.',
-                lore: 'Il était dans l\'équipe qui a découvert l\'existence de l\'Architecte du Silence. Personne ne l\'a cru.',
-                bonus: { stat: 'PER', mult: 0.10, label: '-20% HP boss · révèle faiblesses' },
-                bonusDetails: { bossHpCut: 0.20, revealWeakness: true },
-                unlockCondition: { type: 'rifts_completed', value: 8, label: 'Ferme 8 Failles' },
-                dialogues: {
-                    onFightStart: ['Analyse en cours...', 'Schéma détecté.', 'Voilà sa stratégie.'],
-                    onCrit: ['Vecteur optimal.', 'Calculé.', 'Précis.'],
-                    onBossPhase: ['Le boss change de phase. Adaptes-toi.', 'Pattern numéro 2.'],
-                    onVictory: ['Hypothèse confirmée.', 'Données précieuses.', 'Excellent.']
-                }
-            },
-            {
-                id: 'storm',
-                name: 'Ryker "Storm"',
-                title: 'Le Tempête',
-                emoji: '⚡',
-                color: '#3b82f6',
-                description: 'Vitesse pure. Il s\'est entraîné dans le Train Dimensionnel pendant 6 mois.',
-                lore: 'Il dit que la vitesse, c\'est juste de la décision. Il décide plus vite que sa peur.',
-                bonus: { stat: 'VIT', mult: 0.18, label: '+18% VIT · bonus cardio/HIIT' },
-                bonusDetails: { cardioBoost: 0.25 },
-                unlockCondition: { type: 'rank', value: 'B', label: 'Atteins le rang B' },
-                dialogues: {
-                    onFightStart: ['Vite.', 'Pas le temps.', 'On y va.'],
-                    onCrit: ['Top.', '!', 'Plus vite.'],
-                    onBossPhase: ['Change de rythme.', 'Boost.'],
-                    onVictory: ['Rapide.', 'Fini.', 'Pas mal.']
                 }
             },
             {
@@ -27034,7 +27003,14 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             try {
                 const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
                 const key = profileId ? `${COMPANIONS_ACTIVE_KEY}_${profileId}` : COMPANIONS_ACTIVE_KEY;
-                return JSON.parse(localStorage.getItem(key) || '[]');
+                const raw = JSON.parse(localStorage.getItem(key) || '[]');
+                // Filtrer les compagnons retirés du jeu (anciennes sauvegardes : jules/halberd/storm)
+                const valid = raw.filter(id => COMPANIONS.some(c => c.id === id));
+                // Si nettoyage nécessaire, réécrire la liste assainie
+                if (valid.length !== raw.length) {
+                    try { localStorage.setItem(key, JSON.stringify(valid)); } catch(e) {}
+                }
+                return valid;
             } catch(e) { return []; }
         }
 
@@ -29311,9 +29287,11 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 rpgApplyDecay();
                 renderGameTab();
                 showToast('🎮⚔️ Mode Jeu & Chasseur activés !', 'success', 3000);
-                // 📖 Prologue narratif au premier éveil
-                if (typeof triggerStoryPrologue === 'function') {
-                    setTimeout(() => triggerStoryPrologue(), 600);
+                // 📖 [ANCIEN PROLOGUE MONARQUE DÉSACTIVÉ — nouvelle histoire via le moteur d'événements]
+                // if (typeof triggerStoryPrologue === 'function') setTimeout(() => triggerStoryPrologue(), 600);
+                // Nouveau : laisser le moteur d'événements gérer l'éveil
+                if (typeof storyCheckEvents === 'function') {
+                    setTimeout(() => storyCheckEvents({ delay: 600 }), 600);
                 }
             } else {
                 const activeTab = document.querySelector('.tab-content.active');
@@ -29493,28 +29471,16 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 }
             } catch(e) {}
 
-            // 📖 NARRATIF — Vérifier si un nouveau chapitre d'histoire se débloque
-            try {
-                if (typeof checkStoryRankUnlock === 'function') {
-                    setTimeout(() => checkStoryRankUnlock(), 4500); // après les autres pop-ups
-                }
-            } catch(e) {}
+            // 📖 NARRATIF — [ANCIENNE HISTOIRE DÉSACTIVÉE — remplacée par le moteur d'événements]
+            // Les chapitres/fragments du Monarque du Déclin ne se déclenchent plus.
+            // (Code conservé mais non appelé, pour migration ultérieure.)
+            // try { if (typeof checkStoryRankUnlock === 'function') setTimeout(() => checkStoryRankUnlock(), 4500); } catch(e) {}
+            // try { if (typeof awakCheckStoryFragments === 'function') setTimeout(() => { if (!document.getElementById('storyOverlay')) awakCheckStoryFragments(); }, 7000); } catch(e) {}
 
-            // 🌑 NARRATIF — Fragments d'histoire entre les rangs (jalons séances/streak/Failles)
-            // Délai plus long pour ne pas chevaucher un éventuel chapitre de rang
-            try {
-                if (typeof awakCheckStoryFragments === 'function') {
-                    setTimeout(() => {
-                        // Ne pas afficher si un chapitre de rang vient d'apparaître
-                        if (!document.getElementById('storyOverlay')) awakCheckStoryFragments();
-                    }, 7000);
-                }
-            } catch(e) {}
-
-            // 📖 NARRATIF — Moteur d'événements (rencontres, faits amusants, dialogues)
+            // 📖 NARRATIF — Moteur d'événements (rencontres, faits amusants, dialogues) « Le Monde qui s'efface »
             try {
                 if (typeof storyCheckEvents === 'function') {
-                    storyCheckEvents({ delay: 9000 });
+                    storyCheckEvents({ delay: 4500 });
                 }
             } catch(e) {}
 
