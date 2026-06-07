@@ -54,7 +54,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_rencontre',
         type: 'rencontre',
-        trigger: { kind: 'level', value: 5 },
+        trigger: { kind: 'level', value: 2 },
         once: true,
         content: {
             speaker: 'systeme',
@@ -72,80 +72,89 @@ const STORY_EVENTS = [
     },
     {
         id: 'evt_n6_cocasse',
+        minor: true,  // exclu du Journal d'aventure (scène légère)
         type: 'fait',
-        trigger: { kind: 'level', value: 6 },
+        trigger: { kind: 'xp', value: 1350 },
         once: true,
-        content: { speaker: 'nyra', title: 'Concentration ?', image: 'images/story/cocasse_1.webp',
+        content: { speaker: 'nyra', title: 'Concentration ?', image: 'images/story/cocasse_7.webp',
             pages: ["Nyra t'étire la joue pendant que tu frappes le sac. « Quoi ? Je teste ta concentration ! »"] }
     },
     {
         id: 'evt_n8_cocasse',
+        minor: true,  // exclu du Journal d'aventure (scène légère)
         type: 'fait',
-        trigger: { kind: 'level', value: 8 },
+        trigger: { kind: 'xp', value: 3320 },
         once: true,
-        content: { speaker: 'esen', title: 'Poids Supplémentaire', image: 'images/story/cocasse_2.webp',
+        content: { speaker: 'esen', title: 'Poids Supplémentaire', image: 'images/story/cocasse_6.webp',
             pages: ["Esen s'est assis sur le dos de Nyra en pleine pompe, sirotant tranquillement. « Tranquille... t'es qu'une machine. »"] }
     },
     {
         id: 'evt_n10_cocasse',
+        minor: true,  // exclu du Journal d'aventure (scène légère)
         type: 'fait',
-        trigger: { kind: 'level', value: 10 },
+        trigger: { kind: 'xp', value: 6180 },
         once: true,
         content: { speaker: 'nyra', title: 'Patatrac', image: 'images/story/cocasse_3.webp',
             pages: ["Esen trébuche en plein combat. Nyra éclate de rire en finissant le monstre à sa place. « AHAHAHA ! »"] }
     },
     {
         id: 'evt_n12_cocasse',
+        minor: true,  // exclu du Journal d'aventure (scène légère)
         type: 'fait',
-        trigger: { kind: 'level', value: 12 },
+        trigger: { kind: 'xp', value: 9220 },
         once: true,
-        content: { speaker: 'nyra', title: 'Festin Mérité', image: 'images/story/cocasse_4.webp',
+        content: { speaker: 'nyra', title: 'Festin Mérité', image: 'images/story/cocasse_2.webp',
             pages: ["Après la séance, ils s'effondrent devant une montagne de nourriture. « Mmmh, trop bon ! » Nyra ne mâche même plus."] }
     },
     {
         id: 'evt_n14_cocasse',
+        minor: true,  // exclu du Journal d'aventure (scène légère)
         type: 'fait',
-        trigger: { kind: 'level', value: 14 },
+        trigger: { kind: 'xp', value: 14780 },
         once: true,
-        content: { speaker: 'nyra', title: 'Attrape-moi', image: 'images/story/cocasse_5.webp',
+        content: { speaker: 'nyra', title: 'Attrape-moi', image: 'images/story/cocasse_1.webp',
             pages: ["« Attrape-moi si tu peux ! » Esen file devant. Nyra le poursuit dans toute la ville. « ESEN, T'ES MORT !! »"] }
     },
     {
         id: 'evt_n16_cocasse',
+        minor: true,  // exclu du Journal d'aventure (scène légère)
         type: 'fait',
-        trigger: { kind: 'level', value: 16 },
+        trigger: { kind: 'xp', value: 22020 },
         once: true,
-        content: { speaker: 'esen', title: 'Petit Conseil', image: 'images/story/cocasse_6.webp',
+        content: { speaker: 'esen', title: 'Petit Conseil', image: 'images/story/cocasse_4.webp',
             pages: ["Assis dans l'herbe, Esen pointe le front de Nyra du doigt. « La prochaine fois, réfléchis avant de foncer. » Elle boude."] }
     },
     {
         id: 'evt_n18_cocasse',
+        minor: true,  // exclu du Journal d'aventure (scène légère)
         type: 'fait',
-        trigger: { kind: 'level', value: 18 },
+        trigger: { kind: 'xp', value: 30290 },
         once: true,
-        content: { speaker: 'nyra', title: 'Toute ta Puissance ?', image: 'images/story/cocasse_7.webp',
+        content: { speaker: 'nyra', title: 'Toute ta Puissance ?', image: 'images/story/cocasse_5.webp',
             pages: ["Nyra te nargue après un combat. « Alors... c'est ça toute ta puissance ? » Esen, blasé : « ... »"] }
     },
     {
         id: 'evt_n20_cocasse',
+        minor: true,  // exclu du Journal d'aventure (scène légère)
         type: 'fait',
-        trigger: { kind: 'level', value: 20 },
+        trigger: { kind: 'xp', value: 41210 },
         once: true,
-        content: { speaker: 'systeme', title: 'Bivouac', image: 'images/story/cocasse_8.webp',
+        content: { speaker: 'systeme', title: 'Bivouac', image: 'images/story/repos_avant_faille.webp',
             pages: ["La nuit, près du feu, face à une Faille lointaine. Personne ne parle. Pour une fois, le silence est doux."] }
     },
     {
         id: 'evt_n22_cocasse',
+        minor: true,  // exclu du Journal d'aventure (scène légère)
         type: 'fait',
-        trigger: { kind: 'level', value: 22 },
+        trigger: { kind: 'xp', value: 54270 },
         once: true,
-        content: { speaker: 'esen', title: 'Elle ne Ralentit Jamais', image: 'images/story/repos_avant_faille.webp',
+        content: { speaker: 'esen', title: 'Elle ne Ralentit Jamais', image: 'images/story/cocasse_8.webp',
             pages: ["Nyra court sur le tapis, infatigable. Esen la regarde, les mains dans les poches. Il ne le dira jamais, mais il l'admire."] }
     },
     {
         id: 'evt_n7_fait_nyra',
         type: 'fait',
-        trigger: { kind: 'level', value: 7 },
+        trigger: { kind: 'xp', value: 1860 },
         once: true,
         content: {
             speaker: 'nyra',
@@ -160,7 +169,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n9_ambiance_oubli',
         type: 'ambiance',
-        trigger: { kind: 'level', value: 9 },
+        trigger: { kind: 'xp', value: 4190 },
         once: true,
         content: {
             speaker: 'systeme',
@@ -175,7 +184,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n11_dialogue_duo',
         type: 'dialogue',
-        trigger: { kind: 'level', value: 11 },
+        trigger: { kind: 'xp', value: 7790 },
         once: true,
         content: {
             speaker: 'esen',
@@ -191,7 +200,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n13_fait_systeme',
         type: 'fait',
-        trigger: { kind: 'level', value: 13 },
+        trigger: { kind: 'xp', value: 12360 },
         once: true,
         content: {
             speaker: 'systeme',
@@ -206,7 +215,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n15_ambiance_traces',
         type: 'ambiance',
-        trigger: { kind: 'level', value: 15 },
+        trigger: { kind: 'xp', value: 18900 },
         once: true,
         content: {
             speaker: 'systeme',
@@ -222,7 +231,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n17_fait_nyra',
         type: 'fait',
-        trigger: { kind: 'level', value: 17 },
+        trigger: { kind: 'xp', value: 27220 },
         once: true,
         content: {
             speaker: 'nyra',
@@ -237,7 +246,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n19_ambiance_systeme',
         type: 'ambiance',
-        trigger: { kind: 'level', value: 19 },
+        trigger: { kind: 'xp', value: 34410 },
         once: true,
         content: {
             speaker: 'systeme',
@@ -252,7 +261,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n21_dialogue_duo',
         type: 'dialogue',
-        trigger: { kind: 'level', value: 21 },
+        trigger: { kind: 'xp', value: 46190 },
         once: true,
         content: {
             speaker: 'nyra',
@@ -268,7 +277,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n23_fait_leger',
         type: 'fait',
-        trigger: { kind: 'level', value: 23 },
+        trigger: { kind: 'xp', value: 58910 },
         once: true,
         content: {
             speaker: 'nyra',
@@ -283,7 +292,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n25_ambiance_oubli',
         type: 'ambiance',
-        trigger: { kind: 'level', value: 25 },
+        trigger: { kind: 'xp', value: 75010 },
         once: true,
         content: {
             speaker: 'systeme',
@@ -298,7 +307,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n27_dialogue_esen',
         type: 'dialogue',
-        trigger: { kind: 'level', value: 27 },
+        trigger: { kind: 'xp', value: 93570 },
         once: true,
         content: {
             speaker: 'esen',
@@ -314,7 +323,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n29_ambiance_nabdano',
         type: 'ambiance',
-        trigger: { kind: 'level', value: 29 },
+        trigger: { kind: 'xp', value: 108490 },
         once: true,
         content: {
             speaker: 'systeme',
@@ -330,7 +339,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n31_dialogue_duo',
         type: 'dialogue',
-        trigger: { kind: 'level', value: 31 },
+        trigger: { kind: 'xp', value: 136470 },
         once: true,
         content: {
             speaker: 'nyra',
@@ -379,7 +388,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n37_fait_respiration',
         type: 'fait',
-        trigger: { kind: 'level', value: 37 },
+        trigger: { kind: 'xp', value: 215370 },
         once: true,
         content: {
             speaker: 'nyra',
@@ -394,7 +403,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n39_ambiance_voix',
         type: 'ambiance',
-        trigger: { kind: 'level', value: 39 },
+        trigger: { kind: 'xp', value: 247080 },
         once: true,
         content: {
             speaker: 'nabdano',
@@ -410,7 +419,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n41_dialogue_duo',
         type: 'dialogue',
-        trigger: { kind: 'level', value: 41 },
+        trigger: { kind: 'xp', value: 284760 },
         once: true,
         content: {
             speaker: 'nyra',
@@ -426,7 +435,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n43_ambiance_systeme_peur',
         type: 'ambiance',
-        trigger: { kind: 'level', value: 43 },
+        trigger: { kind: 'xp', value: 313910 },
         once: true,
         content: {
             speaker: 'systeme',
@@ -441,7 +450,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n45_ambiance_approche',
         type: 'ambiance',
-        trigger: { kind: 'level', value: 45 },
+        trigger: { kind: 'xp', value: 357440 },
         once: true,
         content: {
             speaker: 'systeme',
@@ -456,7 +465,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n47_ambiance_nabdano',
         type: 'ambiance',
-        trigger: { kind: 'level', value: 47 },
+        trigger: { kind: 'xp', value: 400430 },
         once: true,
         content: {
             speaker: 'nabdano',
@@ -471,7 +480,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n49_dialogue_duo',
         type: 'dialogue',
-        trigger: { kind: 'level', value: 49 },
+        trigger: { kind: 'xp', value: 450800 },
         once: true,
         content: {
             speaker: 'nyra',
@@ -488,7 +497,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n51_fait_souvenir',
         type: 'fait',
-        trigger: { kind: 'level', value: 51 },
+        trigger: { kind: 'xp', value: 504880 },
         once: true,
         content: {
             speaker: 'systeme',
@@ -503,7 +512,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n53_ambiance_doute',
         type: 'ambiance',
-        trigger: { kind: 'level', value: 53 },
+        trigger: { kind: 'xp', value: 562760 },
         once: true,
         content: {
             speaker: 'nabdano',
@@ -519,7 +528,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n55_dialogue_esen',
         type: 'dialogue',
-        trigger: { kind: 'level', value: 55 },
+        trigger: { kind: 'xp', value: 606790 },
         once: true,
         content: {
             speaker: 'esen',
@@ -535,7 +544,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n57_fait_nyra',
         type: 'fait',
-        trigger: { kind: 'level', value: 57 },
+        trigger: { kind: 'xp', value: 665940 },
         once: true,
         content: {
             speaker: 'nyra',
@@ -550,7 +559,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n61_ambiance_proche',
         type: 'ambiance',
-        trigger: { kind: 'level', value: 61 },
+        trigger: { kind: 'xp', value: 806990 },
         once: true,
         content: {
             speaker: 'systeme',
@@ -581,7 +590,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n70_dialogue_duo',
         type: 'dialogue',
-        trigger: { kind: 'level', value: 70 },
+        trigger: { kind: 'xp', value: 1162610 },
         once: true,
         content: {
             speaker: 'nyra',
@@ -626,6 +635,7 @@ function storyEventEligible(evt, ctx) {
         case 'always':   return true;
         case 'workouts': return (ctx.workouts || 0) >= t.value;
         case 'level':    return (ctx.level || 0) >= t.value;
+        case 'xp':       return (ctx.xp || 0) >= t.value;
         case 'rifts':    return (ctx.rifts || 0) >= t.value;
         case 'rank': {
             const order = ['E','D','C','B','A','S','SS','SSS'];
@@ -651,13 +661,22 @@ function awakNarrativeRiftDone(narrativeId) {
 
 // ── CONTEXTE JOUEUR (lecture seule, défensive) ─────────────────────
 function storyBuildContext() {
-    const ctx = { workouts: 0, level: 0, rifts: 0, rank: 'E' };
+    const ctx = { workouts: 0, level: 0, rifts: 0, rank: 'E', xp: 0 };
     try {
         const stats = (typeof loadStats === 'function') ? loadStats() : {};
         ctx.workouts = stats.workouts || 0;
     } catch(e) {}
     try { if (typeof _awakGetCurrentLevel === 'function') ctx.level = _awakGetCurrentLevel(); } catch(e) {}
     try { if (typeof awakGetRank === 'function') ctx.rank = awakGetRank().id; } catch(e) {}
+    // XP totale accumulée (cohérente avec le niveau affiché sur la carte)
+    try {
+        if (typeof rpgLoad === 'function') {
+            const data = rpgLoad();
+            const muscleXP = (data && data.muscles) ? Object.values(data.muscles).reduce((s,m)=>s+(m.xp||0),0) : 0;
+            const lifetime = parseInt(localStorage.getItem('fitproRPGLifetimeXP') || '0');
+            ctx.xp = muscleXP + lifetime;
+        }
+    } catch(e) {}
     try {
         const rifts = (typeof awakRiftsLoad === 'function') ? awakRiftsLoad() : [];
         ctx.rifts = rifts.filter(r => r.completed).length;
@@ -836,8 +855,7 @@ function awakShowHeroReaction(reason) {
     try {
         // Seulement si mode jeu actif ET rencontre déjà faite
         const jeuActif = (typeof rpgEnabled === 'function') && rpgEnabled();
-        const rencontreVue = localStorage.getItem('awakStoryEvt_evt_rencontre') === '1';
-        if (!jeuActif || !rencontreVue) return false;
+        if (!jeuActif) return false;
         if (document.getElementById('storyEventOverlay') || document.getElementById('heroReactionOverlay')) return false;
 
         const hero = Math.random() < 0.5 ? 'esen' : 'nyra';

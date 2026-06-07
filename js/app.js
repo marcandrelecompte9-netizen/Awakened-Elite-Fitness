@@ -21552,8 +21552,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 const existing = document.getElementById('awakPauseOverlay');
                 if (isPaused) {
                     const jeuActif = (typeof rpgEnabled === 'function') && rpgEnabled();
-                    const rencontreVue = localStorage.getItem('awakStoryEvt_evt_rencontre') === '1';
-                    if (!existing && jeuActif && rencontreVue) {
+                    if (!existing && jeuActif) {
                         const ov = document.createElement('div');
                         ov.id = 'awakPauseOverlay';
                         ov.style.cssText = 'position:fixed;inset:0;z-index:99990;background:rgba(0,0,0,0.92);backdrop-filter:blur(8px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;opacity:0;animation:awakFadeIn 0.4s forwards;';
@@ -22293,32 +22292,23 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         ? `<span style="background:#4ade80;color:#04210f;font-size:0.6em;font-weight:900;padding:3px 8px;border-radius:99px;box-shadow:0 0 12px rgba(74,222,128,0.6);animation:skillPulse 1.8s ease-in-out infinite;white-space:nowrap;">${_unlockable} à débloquer !</span>`
                         : '';
                     return `
-                    <button onclick="rpgShowDetailsPanel()" style="
-                        width:100%;padding:16px 18px;margin-top:4px;
+                    <button onclick="rpgShowDetailsPanel()" id="awakBtnCompetences" style="
+                        flex:1;min-width:0;padding:14px 12px;margin-top:4px;
                         background:linear-gradient(135deg,rgba(34,197,94,0.16),rgba(22,163,74,0.08));
                         border:1.5px solid rgba(74,222,128,0.5);border-radius:14px;color:white;
-                        cursor:pointer;text-align:left;display:flex;align-items:center;gap:13px;
-                        box-shadow:0 0 18px rgba(74,222,128,0.12);transition:transform 0.15s;"
+                        cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px;
+                        box-shadow:0 0 18px rgba(74,222,128,0.12);transition:transform 0.15s;position:relative;"
                         onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">
-                        <div style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:11px;background:rgba(74,222,128,0.15);border:1px solid rgba(74,222,128,0.4);color:#4ade80;">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6"/><path d="M12 8c-3 0-5 2-5 5v2a5 5 0 0 0 10 0v-2c0-3-2-5-5-5z"/><path d="M7 15H4"/><path d="M20 15h-3"/><path d="M9 22h6"/><circle cx="12" cy="13" r="1.5"/></svg>
+                        <div style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:11px;background:rgba(74,222,128,0.15);border:1px solid rgba(74,222,128,0.4);color:#4ade80;">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6"/><path d="M12 8c-3 0-5 2-5 5v2a5 5 0 0 0 10 0v-2c0-3-2-5-5-5z"/><path d="M7 15H4"/><path d="M20 15h-3"/><path d="M9 22h6"/><circle cx="12" cy="13" r="1.5"/></svg>
                         </div>
-                        <div style="flex:1;min-width:0;">
-                            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                                <span style="font-weight:900;font-size:0.95em;color:#e2e8f0;">Compétences & Attributs</span>
-                                ${_badge}
-                            </div>
-                            <div style="font-size:0.68em;color:#94a3b8;margin-top:3px;line-height:1.4;">Arbre de compétences · Classe · Stats détaillées par muscle</div>
-                        </div>
-                        <div style="font-size:1.4em;color:#4ade80;flex-shrink:0;">›</div>
+                        <span style="font-weight:900;font-size:0.9em;color:#e2e8f0;line-height:1.2;">Compétences</span>
+                        ${_badge ? `<span style="position:absolute;top:-7px;right:-4px;">${_badge}</span>` : ''}
                     </button>`;
                 })()}`;
             tab.appendChild(cardProfile);
 
-            // ── BOUTON ÉQUIPEMENT RPG (juste sous Compétences & Attributs) ──
-            const cardEquipShortcut = document.createElement('div');
-            cardEquipShortcut.style.cssText = 'margin-top:8px;margin-bottom:4px;';
-
+            // ── BOUTON ÉQUIPEMENT RPG (à DROITE de Compétences) ──
             const _adv = typeof getAdventureEnabled === 'function' ? getAdventureEnabled() : false;
             const _eqIt = typeof getEquippedItems === 'function' ? getEquippedItems() : {};
             const _eqCount = Object.values(_eqIt).filter(Boolean).length;
@@ -22326,12 +22316,20 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const _gs = typeof getPlayerEquipStats === 'function' ? (() => { const s = getPlayerEquipStats(); return (s.strength||0)+(s.agility||0)+(s.endurance||0)+(s.vitality||0); })() : 0;
 
             const btnEquip = document.createElement('button');
-            btnEquip.style.cssText = 'width:100%;display:flex;align-items:center;gap:13px;padding:16px 18px;background:linear-gradient(135deg,rgba(6,182,212,0.16),rgba(8,145,178,0.08));border:1.5px solid rgba(6,182,212,' + (_adv?'0.5':'0.25') + ');border-radius:14px;cursor:pointer;text-align:left;touch-action:manipulation;box-shadow:0 0 18px rgba(6,182,212,0.1);';
-            btnEquip.innerHTML = '<div style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:11px;background:rgba(6,182,212,0.15);border:1px solid rgba(6,182,212,0.4);font-size:1.4em;">⚔️</div><div style="flex:1;min-width:0;"><div style="font-weight:900;font-size:0.95em;color:#e2e8f0;">Équipement &amp; Inventaire</div><div style="font-size:0.68em;color:#94a3b8;margin-top:3px;line-height:1.4;">' + _eqCount + '/7 slots · ' + _inv.length + ' item' + (_inv.length!==1?'s':'') + ' · ' + (_adv?('GS '+_gs):'Mode aventure off') + '</div></div><div style="font-size:1.4em;color:#06b6d4;flex-shrink:0;">›</div>';
+            btnEquip.style.cssText = 'flex:1;min-width:0;display:flex;align-items:center;gap:10px;padding:14px 12px;background:linear-gradient(135deg,rgba(6,182,212,0.16),rgba(8,145,178,0.08));border:1.5px solid rgba(6,182,212,' + (_adv?'0.5':'0.25') + ');border-radius:14px;cursor:pointer;text-align:left;touch-action:manipulation;box-shadow:0 0 18px rgba(6,182,212,0.1);';
+            btnEquip.innerHTML = '<div style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:11px;background:rgba(6,182,212,0.15);border:1px solid rgba(6,182,212,0.4);font-size:1.3em;">⚔️</div><span style="font-weight:900;font-size:0.9em;color:#e2e8f0;line-height:1.2;">Équipement</span>';
             btnEquip.addEventListener('click', function() { showRPGEquipmentModal('equip'); });
 
-            cardEquipShortcut.appendChild(btnEquip);
-            tab.appendChild(cardEquipShortcut);
+            // Conteneur flex : Compétences (déplacé) à gauche + Équipement à droite
+            const rowBtns = document.createElement('div');
+            rowBtns.style.cssText = 'display:flex;gap:8px;align-items:stretch;margin-top:8px;margin-bottom:4px;';
+            const btnComp = document.getElementById('awakBtnCompetences');
+            if (btnComp) {
+                btnComp.style.marginTop = '0';
+                rowBtns.appendChild(btnComp); // déplace le bouton Compétences dans la rangée
+            }
+            rowBtns.appendChild(btnEquip);
+            tab.appendChild(rowBtns);
 
             // ── 👁️ JAUGE DU MONARQUE DU DÉCLIN [ANCIENNE HISTOIRE — MASQUÉE] ───
             // Remplacée par la nouvelle histoire « Le Monde qui s'efface ».
@@ -24197,6 +24195,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     // ✨ Phase 5 : check faille narrative au rank up
                     try { setTimeout(() => {
                         if (typeof awakCheckNarrativeRifts === 'function') awakCheckNarrativeRifts();
+                        if (typeof awakCheckCompanionRifts === 'function') awakCheckCompanionRifts();
                     }, 6000); } catch(e) {}
                     // 🌑 [GLITCH DE L'ARCHITECTE DÉSACTIVÉ — ancienne narration, remplacée par Nabdano]
                     // try { setTimeout(() => {
@@ -24875,6 +24874,13 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
             for (const r of rifts) {
                 if (r.completed) continue;
+                // 🛡️ Les Failles narratives n'expirent JAMAIS : elles attendent le joueur
+                // indéfiniment. Sans ça, une Faille-clé pourrait disparaître et bloquer
+                // définitivement la progression de l'histoire (porte narrative).
+                if (r.isNarrative) {
+                    if (r.state !== 'stable') { r.state = 'stable'; changed = true; }
+                    continue;
+                }
                 const lifetime = r.expiresAt - r.createdAt;
                 const elapsed = now - r.createdAt;
                 const ratio = elapsed / lifetime;
@@ -24895,6 +24901,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
             // Nettoyer les failles complétées/explosées de plus de 7 jours
             const cleaned = rifts.filter(r => {
+                // 🛡️ Une Faille narrative non complétée n'est JAMAIS supprimée
+                if (r.isNarrative && !r.completed) return true;
                 if (r.completed && now - r.createdAt > 7 * 24 * 60 * 60 * 1000) return false;
                 if (r.state === 'exploded' && now - r.expiresAt > 7 * 24 * 60 * 60 * 1000) return false;
                 return true;
@@ -24966,6 +24974,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
          * Calcule le temps restant pour une Faille (en heures arrondies)
          */
         function awakRiftTimeRemaining(rift) {
+            // 🛡️ Les Failles narratives n'expirent jamais : pas de compte à rebours
+            if (rift && rift.isNarrative) {
+                return { expired: false, label: 'Permanente', permanent: true };
+            }
             let expiresAt = rift.expiresAt;
             // 🎭 Phase 4 : Maître Chen — riftDurationCut (perçu seulement)
             // On ne touche pas à la valeur stockée, juste l'affichage
@@ -25834,6 +25846,14 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             }
 
             const prevHpPercent = (currentWave.hpCurrent / currentWave.hpMax) * 100;
+
+            // ⚔️🤝 Mécanique UNIQUE de Faille de compagnon : modifie les dégâts du coup
+            if (currentWave.isBoss && currentWave.companionMech && typeof awakApplyCompanionMech === 'function') {
+                const cm = awakApplyCompanionMech(currentWave, finalDamage, prevHpPercent);
+                finalDamage = cm.damage;
+                if (cm.toasts) cm.toasts.forEach(t => procToasts.push(t));
+            }
+
             currentWave.hpCurrent = Math.max(0, currentWave.hpCurrent - finalDamage);
             const newHpPercent = (currentWave.hpCurrent / currentWave.hpMax) * 100;
             session.totalDamageDealt += finalDamage;
@@ -26152,7 +26172,19 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             // 💬 Phase 4 : dialogue de victoire + check déblocages
             try {
                 setTimeout(() => awakCompanionShowDialogue('onVictory'), 1500);
-                setTimeout(() => awakCompanionsTriggerUnlockCheck(), 3000);
+                // 🤝 Faille de compagnon : jouer la mini-scène de rencontre PUIS la pop-up de déblocage
+                if (rift.isCompanionRift && rift.companionId) {
+                    setTimeout(() => {
+                        awakShowCompanionMeeting(rift.companionId, () => {
+                            // Après la scène, débloquer + pop-up officielle
+                            if (typeof awakCompanionsTriggerUnlockCheck === 'function') {
+                                awakCompanionsTriggerUnlockCheck();
+                            }
+                        });
+                    }, 3000);
+                } else {
+                    setTimeout(() => awakCompanionsTriggerUnlockCheck(), 3000);
+                }
             } catch(e) {}
 
             // 🧪 Phase 5 : consommer les consommables actifs
@@ -26163,6 +26195,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
             // ✨ Phase 5 : check si une Faille narrative doit apparaître
             try { setTimeout(() => awakCheckNarrativeRifts(), 4500); } catch(e) {}
+            // 🤝 Check si une Faille de compagnon doit apparaître
+            try { setTimeout(() => { if (typeof awakCheckCompanionRifts === 'function') awakCheckCompanionRifts(); }, 5200); } catch(e) {}
 
             // 🌑 [GLITCH DE L'ARCHITECTE DÉSACTIVÉ — ancienne narration]
             // try { setTimeout(() => awakArchitectMaybeGlitch(), 6000); } catch(e) {}
@@ -26953,7 +26987,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 lore: 'Il a survécu à 3 Failles rang A en solo. Son corps porte les marques de chaque combat.',
                 bonus: { stat: 'STR', mult: 0.18, label: '+18% STR · +10% dégâts boss' },
                 bonusDetails: { dmgBoss: 0.10 },
-                unlockCondition: { type: 'rank', value: 'D', label: 'Atteins le rang D' },
+                unlockCondition: { type: 'companionRift', riftId: 'rift_marcus', label: 'Complète la Faille de Marcus' },
                 dialogues: {
                     onFightStart: ['On va leur défoncer le crâne.', 'Tu sens cette adrénaline ?', 'Ne retiens rien.'],
                     onCrit: ['ÇA c\'est de la force !', 'Encore !', 'Voilà !'],
@@ -26972,7 +27006,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 lore: 'Elle disait être assassin avant l\'arrivée du Système. Personne ne l\'a jamais vue rater.',
                 bonus: { stat: 'AGI', mult: 0.20, label: '+20% AGI · +5% chance critique' },
                 bonusDetails: { critChance: 0.05 },
-                unlockCondition: { type: 'rank', value: 'C', label: 'Atteins le rang C' },
+                unlockCondition: { type: 'companionRift', riftId: 'rift_kira', label: 'Complète la Faille de Kira' },
                 dialogues: {
                     onFightStart: ['Reste discret.', 'L\'opportunité viendra.', 'Vise les points faibles.'],
                     onCrit: ['Parfait.', 'C\'est exactement ça.', '...précis.'],
@@ -26991,7 +27025,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 lore: 'Il étudie les Failles depuis le début. Il pense que le Système n\'est pas notre ami.',
                 bonus: { stat: 'PER', mult: 0.15, label: '+15% PER · -10% durée Failles' },
                 bonusDetails: { riftDurationCut: 0.10 },
-                unlockCondition: { type: 'rank', value: 'S', label: 'Atteins le rang S' },
+                unlockCondition: { type: 'companionRift', riftId: 'rift_chen', label: 'Complète la Faille de Chen' },
                 dialogues: {
                     onFightStart: ['Respire. Observe.', 'Le combat est dans ta tête.', 'Calme-toi.'],
                     onCrit: ['Bien vu.', 'Tu apprends.', 'Voilà la voie.'],
@@ -27010,7 +27044,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 lore: 'Elle a sauvé plus d\'Ancrages que le Système n\'en a créé. Le Noyau la déteste.',
                 bonus: { stat: 'SEN', mult: 0.20, label: '+20% SEN · récup +30%' },
                 bonusDetails: { recovery: 0.30 },
-                unlockCondition: { type: 'rank', value: 'B', label: 'Atteins le rang B' },
+                unlockCondition: { type: 'companionRift', riftId: 'rift_elise', label: 'Complète la Faille d\'Élise' },
                 dialogues: {
                     onFightStart: ['Sois prudent.', 'Je veille sur toi.', 'On rentre tous les deux.'],
                     onCrit: ['Excellent.', 'Bien placé.', 'Continue comme ça.'],
@@ -27029,7 +27063,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 lore: 'Elle voit ce qui n\'existe pas encore. Elle a déjà sauvé l\'humanité au moins une fois — mais on a oublié.',
                 bonus: { stat: 'SEN', mult: 0.10, label: 'Bonus loots rares · double drop' },
                 bonusDetails: { rareLootBoost: 0.5, doubleDropChance: 0.1 },
-                unlockCondition: { type: 'rank', value: 'A', label: 'Atteins le rang A' },
+                unlockCondition: { type: 'companionRift', riftId: 'rift_yuna', label: 'Complète la Faille de Yuna' },
                 dialogues: {
                     onFightStart: ['Il y a quelque chose ici.', 'Tu n\'es pas seul.', 'Quelque chose t\'observe.'],
                     onCrit: ['Le Noyau aime ça.', 'Étrange...', 'Continue.'],
@@ -27122,6 +27156,11 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     case 'workouts': unlocked = totalWorkouts >= cond.value; break;
                     case 'rifts_completed': unlocked = completedRifts >= cond.value; break;
                     case 'monsters_hunted': unlocked = defeatedMonsters >= cond.value; break;
+                    case 'companionRift': {
+                        // Débloqué quand la Faille de compagnon dédiée est complétée
+                        unlocked = rifts.some(r => r.isCompanionRift && r.companionRiftId === cond.riftId && r.completed);
+                        break;
+                    }
                     case 'rank': {
                         const requiredIdx = rankIds.indexOf(cond.value);
                         unlocked = currentRankIdx >= requiredIdx;
@@ -27222,6 +27261,16 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
          * Cinématique de déblocage (apparition d'un nouveau compagnon)
          */
         function awakShowCompanionUnlocked(companion) {
+            // Anti-doublon : ne pas montrer 2× la pop-up du même compagnon,
+            // ni par-dessus la scène de rencontre en cours.
+            try {
+                if (document.getElementById('awakCompanionMeetingOverlay')) return;
+                const shownKey = 'awakCompanionPopupShown';
+                const shown = JSON.parse(localStorage.getItem(shownKey) || '[]');
+                if (shown.includes(companion.id)) return;
+                shown.push(companion.id);
+                localStorage.setItem(shownKey, JSON.stringify(shown));
+            } catch(e) {}
             const overlay = document.createElement('div');
             overlay.style.cssText = 'position:fixed;inset:0;z-index:99998;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.92);backdrop-filter:blur(10px);animation:awakFadeIn 0.4s;padding:20px;';
 
@@ -27268,6 +27317,275 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             });
         }
         window.awakCompanionsTriggerUnlockCheck = awakCompanionsTriggerUnlockCheck;
+
+        // ═══════════════════════════════════════════════════════════════
+        // ⚔️🤝 FAILLES DE COMPAGNON (uniques, déclenchées par XP, une à la fois)
+        // Compléter la Faille débloque le compagnon associé (+ pop-up).
+        // ═══════════════════════════════════════════════════════════════
+        const COMPANION_RIFTS_SEEN_KEY = 'awakCompanionRiftsSeen';
+
+        // Mini-scènes de RENCONTRE jouées à la fin de la Faille de compagnon (avant la pop-up)
+        // Ton cohérent avec « Le Monde qui s'efface » : sobre, un peu mélancolique, jamais bavard.
+        const COMPANION_MEETINGS = {
+            marcus: {
+                color: '#ef4444', emoji: '💪', image: 'images/story/rencontre_marcus.webp',
+                pages: [
+                    "Le dernier monstre se dissout. Une silhouette massive était restée en retrait. « Costaud », souffle Nyra en s'étirant. « Presque autant que moi. » Esen, lui, ne dit rien — il jauge l'inconnu du regard.",
+                    "L'homme s'avance et fait craquer ses poings. « Pas mal. La plupart abandonnent avant la troisième vague. J'ai arrêté de compter ceux qui ont lâché. »",
+                    "« Marcus. Si tu continues à frapper aussi fort, je te suis. » Nyra lève un pouce. Esen hoche lentement la tête : il l'accepte."
+                ]
+            },
+            kira: {
+                color: '#a855f7', emoji: '🗡️', image: 'images/story/rencontre_kira.webp',
+                pages: [
+                    "Tu n'as jamais vraiment vu ton adversaire. « Tu as senti ça aussi ? » murmure Esen, rare dans ses mots. Nyra scrute les ombres. « Quelqu'un nous observe depuis le début. »",
+                    "Une silhouette se révèle, assise sur une arête de la Faille. « Tu m'as forcée à me montrer. C'est rare. »",
+                    "« Kira. Je marche avec ceux qui ne ratent pas. » Nyra sourit, intriguée. « Oh, je l'aime bien, elle. » Esen reste silencieux, mais ne la quitte pas des yeux."
+                ]
+            },
+            elise: {
+                color: '#34d399', emoji: '💚', image: 'images/story/rencontre_elise.webp',
+                pages: [
+                    "Au milieu des ruines du refuge, une femme range des bandages. « Personne n'est blessé », constate Esen, presque surpris. Nyra pose une main sur ton épaule. « Tu vois ? On forme une bonne équipe. »",
+                    "La femme relève les yeux. « Tu es entier. Tu sais combien arrivent ici en morceaux ? Trop. »",
+                    "« Élise. Quelqu'un doit veiller à ce que vous rentriez entiers. » Nyra rit doucement. « Enfin quelqu'un de raisonnable dans ce groupe. » Esen esquisse l'ombre d'un sourire."
+                ]
+            },
+            yuna: {
+                color: '#c084fc', emoji: '🌀', image: 'images/story/rencontre_yuna.webp',
+                pages: [
+                    "Les échos se taisent. Nyra frissonne, pour une fois sans blague. « Cet endroit me donne la chair de poule. » Esen reste immobile : « ...Quelque chose nous attendait. »",
+                    "Une jeune femme te fixe, comme si elle te reconnaissait d'un futur que tu n'as pas vécu. « Je t'avais déjà vu. Le Noyau me l'a montré. Toi... et eux deux aussi. »",
+                    "« Yuna. Je reste près de vous. Ce qui vient, je préfère le voir arriver à plusieurs. » Esen et Nyra échangent un regard — elle en sait plus qu'elle ne dit."
+                ]
+            },
+            chen: {
+                color: '#06b6d4', emoji: '🧘', image: 'images/story/rencontre_chen.webp',
+                pages: [
+                    "Au sommet, le silence est total. « Même moi je me tais ici », chuchote Nyra, impressionnée. Esen s'incline légèrement devant le vieil homme assis en méditation.",
+                    "Le maître ouvre les yeux. « Beaucoup montent vite, et redescendent plus vite encore. Vous, vous êtes revenus. Encore. Et encore. »",
+                    "« Maître Chen. La constance est la seule force que le Monde ne peut pas effacer. Vous l'avez, tous les trois. Je vous accompagne. » Nyra, exceptionnellement, ne trouve rien à répondre."
+                ]
+            }
+        };
+
+        // Joue la mini-scène de rencontre puis appelle un callback (la pop-up de déblocage)
+        function awakShowCompanionMeeting(companionId, onDone) {
+            const meet = COMPANION_MEETINGS[companionId];
+            const comp = (typeof awakGetCompanionById === 'function') ? awakGetCompanionById(companionId) : null;
+            if (!meet || !comp) { if (onDone) onDone(); return; }
+
+            let page = 0;
+            const overlay = document.createElement('div');
+            overlay.id = 'awakCompanionMeetingOverlay';
+            overlay.style.cssText = 'position:fixed;inset:0;z-index:99996;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.93);backdrop-filter:blur(10px);animation:awakFadeIn 0.4s;padding:20px;';
+
+            function render() {
+                const isLast = page >= meet.pages.length - 1;
+                overlay.innerHTML = `
+                    <div style="max-width:440px;width:100%;background:linear-gradient(160deg,#0a0e18,#0F1014,${meet.color}12);border:1.5px solid ${meet.color}45;border-radius:24px;padding:28px 24px;box-shadow:0 24px 60px ${meet.color}22;animation:slideUp 0.45s cubic-bezier(0.34,1.56,0.64,1);">
+                        <div style="text-align:center;margin-bottom:18px;">
+                            <div style="width:96px;height:96px;margin:0 auto 12px;border-radius:18px;overflow:hidden;border:2px solid ${meet.color}60;box-shadow:0 0 28px ${meet.color}30;background:#0a0e18;">
+                                <img src="${meet.image || comp.image}" alt="${comp.name}" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.onerror=null;this.src='${comp.image||''}';this.onerror=function(){this.parentElement.innerHTML='<div style=\\'font-size:2.4em;line-height:96px;\\'>${meet.emoji}</div>';};" />
+                            </div>
+                            <div style="font-size:0.6em;letter-spacing:3px;color:${meet.color};font-weight:900;text-transform:uppercase;">Rencontre</div>
+                        </div>
+                        <p style="color:rgba(255,255,255,0.85);font-size:0.92em;line-height:1.6;margin:0 0 22px;text-align:center;min-height:80px;">${meet.pages[page]}</p>
+                        <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:16px;">
+                            ${meet.pages.map((_,i)=>`<div style="width:7px;height:7px;border-radius:50%;background:${i===page?meet.color:'rgba(255,255,255,0.2)'};"></div>`).join('')}
+                        </div>
+                        <button id="awakMeetNext" style="width:100%;padding:13px;background:linear-gradient(135deg,${meet.color},${meet.color}cc);border:none;border-radius:12px;color:white;font-weight:900;font-size:0.9em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${meet.color}40;">${isLast ? '✦ ' + comp.name.toUpperCase() + ' REJOINT' : 'Continuer ›'}</button>
+                    </div>`;
+                overlay.querySelector('#awakMeetNext').onclick = () => {
+                    if (page < meet.pages.length - 1) { page++; render(); }
+                    else { overlay.remove(); if (onDone) onDone(); }
+                };
+            }
+            render();
+            document.body.appendChild(overlay);
+        }
+        window.awakShowCompanionMeeting = awakShowCompanionMeeting;
+
+        // Seuils XP ≈ aux anciens rangs (D≈6681, C≈43429, B≈191525, A≈628904, S≈1678531)
+        const COMPANION_RIFTS = [
+            {
+                id: 'rift_marcus', companionId: 'marcus', companionMech: 'mur_de_fer',
+                name: 'L\'Arène du Brutal',
+                emoji: '💪', color: '#ef4444',
+                description: 'Une Faille saturée de rage pure. Une présence puissante t\'y attend — et te jauge.',
+                briefing: 'Quelqu\'un veut voir si tu tiens le choc. Frappe fort. Il n\'aime pas la faiblesse.',
+                xpRequired: 6681,
+                rank: 'D', waves: 3, hpMult: 1.6, primaryStat: 'STR', themeEmoji: '🥊',
+                exerciseFilter: ex => /pompe|push|squat|press|fente|burpee/.test((ex.name || '').toLowerCase())
+            },
+            {
+                id: 'rift_kira', companionId: 'kira', companionMech: 'insaisissable',
+                name: 'Le Dédale de l\'Ombre',
+                emoji: '🗡️', color: '#a855f7',
+                description: 'Un labyrinthe où les ombres bougent seules. Une silhouette te suit sans jamais se montrer.',
+                briefing: 'Reste vif. Elle teste tes réflexes. Si tu es trop lent, elle ne se montrera pas.',
+                xpRequired: 43429,
+                rank: 'C', waves: 3, hpMult: 2.2, primaryStat: 'AGI', themeEmoji: '🌑',
+                exerciseFilter: ex => /jumping|jump|mountain|burpee|sprint|fente|lunge/.test((ex.name || '').toLowerCase())
+            },
+            {
+                id: 'rift_elise', companionId: 'elise', companionMech: 'regeneration',
+                name: 'Le Refuge Brisé',
+                emoji: '💚', color: '#34d399',
+                description: 'Les ruines d\'un ancien dispensaire de Faille. Quelqu\'un y soigne encore les blessés.',
+                briefing: 'Tiens bon jusqu\'au bout. Elle ne rejoint que ceux qui refusent d\'abandonner.',
+                xpRequired: 191525,
+                rank: 'B', waves: 3, hpMult: 2.8, primaryStat: 'SEN', themeEmoji: '🏥',
+                exerciseFilter: ex => /squat|fente|lunge|pompe|push|step|gainage|planche|pull/.test((ex.name || '').toLowerCase())
+            },
+            {
+                id: 'rift_yuna', companionId: 'yuna', companionMech: 'echos_du_noyau',
+                name: 'L\'Écho du Noyau',
+                emoji: '🌀', color: '#c084fc',
+                description: 'Une Faille qui ne devrait pas exister. Une voix y murmure des choses que tu n\'as pas encore vécues.',
+                briefing: 'Le Système se méfie de ce lieu. Quelqu\'un t\'y attend, qui entend ce que lui n\'entend pas.',
+                xpRequired: 628904,
+                rank: 'A', waves: 4, hpMult: 3.4, primaryStat: 'PER', themeEmoji: '🔮',
+                exerciseFilter: ex => /squat|press|pompe|push|pull|fente|burpee|jumping/.test((ex.name || '').toLowerCase())
+            },
+            {
+                id: 'rift_chen', companionId: 'chen', companionMech: 'posture_parfaite',
+                name: 'Le Sommet du Sage',
+                emoji: '🧘', color: '#06b6d4',
+                description: 'Au plus haut d\'une Faille interminable, un vieux maître observe ceux qui montent jusqu\'à lui.',
+                briefing: 'Peu arrivent jusqu\'ici. Il ne parle qu\'à ceux qui ont prouvé leur constance.',
+                xpRequired: 1678531,
+                rank: 'S', waves: 4, hpMult: 4.0, primaryStat: 'PER', themeEmoji: '⛰️',
+                exerciseFilter: ex => /squat|press|pompe|push|pull|fente|burpee|gainage/.test((ex.name || '').toLowerCase())
+            }
+        ];
+
+        function awakCompanionRiftsSeenLoad() {
+            try {
+                const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
+                const key = profileId ? `${COMPANION_RIFTS_SEEN_KEY}_${profileId}` : COMPANION_RIFTS_SEEN_KEY;
+                return JSON.parse(localStorage.getItem(key) || '[]');
+            } catch(e) { return []; }
+        }
+        function awakCompanionRiftsMarkSeen(id) {
+            try {
+                const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
+                const key = profileId ? `${COMPANION_RIFTS_SEEN_KEY}_${profileId}` : COMPANION_RIFTS_SEEN_KEY;
+                const seen = awakCompanionRiftsSeenLoad();
+                if (!seen.includes(id)) { seen.push(id); localStorage.setItem(key, JSON.stringify(seen)); }
+            } catch(e) {}
+        }
+
+        // XP totale accumulée (cohérente avec le niveau carte)
+        function awakGetTotalXP() {
+            try {
+                const data = rpgLoad();
+                const muscleXP = (data && data.muscles) ? Object.values(data.muscles).reduce((s,m)=>s+(m.xp||0),0) : 0;
+                const lifetime = parseInt(localStorage.getItem('fitproRPGLifetimeXP') || '0');
+                return muscleXP + lifetime;
+            } catch(e) { return 0; }
+        }
+
+        // Vérifie s'il faut faire apparaître une Faille de compagnon (UNE à la fois)
+        function awakCheckCompanionRifts() {
+            const rifts = awakRiftsLoad();
+            // Une seule Faille de compagnon active (non complétée) à la fois
+            if (rifts.some(r => r.isCompanionRift && !r.completed)) return null;
+
+            const seen = awakCompanionRiftsSeenLoad();
+            const compData = awakCompanionsLoad();
+            const totalXP = awakGetTotalXP();
+
+            for (const cr of COMPANION_RIFTS) {
+                if (seen.includes(cr.id)) continue;
+                // Si le compagnon est déjà débloqué (ancienne sauvegarde), ne pas re-spawn
+                if (compData.unlocked && compData.unlocked.includes(cr.companionId)) {
+                    awakCompanionRiftsMarkSeen(cr.id);
+                    continue;
+                }
+                if (totalXP >= cr.xpRequired) {
+                    const newRift = awakGenerateCompanionRift(cr);
+                    rifts.push(newRift);
+                    awakRiftsSave(rifts);
+                    awakCompanionRiftsMarkSeen(cr.id);
+                    setTimeout(() => awakShowCompanionRiftAppearance(cr), 1500);
+                    return newRift; // une seule à la fois
+                }
+            }
+            return null;
+        }
+        window.awakCheckCompanionRifts = awakCheckCompanionRifts;
+
+        // Infos (nom + description) des mécaniques uniques de Faille de compagnon
+        function awakCompanionMechInfo(mechId) {
+            const M = {
+                mur_de_fer:      { id: 'mur_de_fer',      name: 'Mur de Fer',      desc: 'Ne prend que 40% des dégâts, sauf sur tes gros coups (force brute)' },
+                insaisissable:   { id: 'insaisissable',   name: 'Insaisissable',   desc: 'Esquive 1 coup sur 3 tant qu\'il est au-dessus de 50% PV' },
+                regeneration:    { id: 'regeneration',    name: 'Régénération',    desc: 'Se soigne s\'il a le temps — enchaîne tes séries sans pause' },
+                echos_du_noyau:  { id: 'echos_du_noyau',  name: 'Échos du Noyau',  desc: 'Se dédouble à 66% et 33% PV — combat d\'endurance' },
+                posture_parfaite:{ id: 'posture_parfaite',name: 'Posture Parfaite',desc: 'Alterne sa garde : 1 coup sur 2 ne fait que 50%' }
+            };
+            return M[mechId] || { id: mechId, name: 'Mécanique', desc: '' };
+        }
+        window.awakCompanionMechInfo = awakCompanionMechInfo;
+
+        function awakGenerateCompanionRift(cr) {
+            const monstersForTheme = RIFT_MONSTERS.inverted_reality;
+            const waves = [];
+            for (let i = 0; i < cr.waves; i++) {
+                const isBossWave = (i === cr.waves - 1);
+                const monster = isBossWave
+                    ? monstersForTheme[monstersForTheme.length - 1]
+                    : monstersForTheme[Math.min(i, monstersForTheme.length - 2)];
+                const hp = Math.round(monster.baseHp * cr.hpMult * (isBossWave ? 2.5 : 1));
+                waves.push({
+                    index: i, isBoss: isBossWave,
+                    name: isBossWave ? `${monster.name} (Boss)` : monster.name,
+                    emoji: monster.emoji, hpMax: hp, hpCurrent: hp,
+                    bossMech: isBossWave ? awakCompanionMechInfo(cr.companionMech) : null,
+                    companionMech: isBossWave ? cr.companionMech : null
+                });
+            }
+            return {
+                id: 'companion_' + cr.id + '_' + Date.now(),
+                isNarrative: true,        // bénéficie de la protection anti-expiration
+                isCompanionRift: true,
+                companionRiftId: cr.id,
+                companionId: cr.companionId,
+                createdAt: Date.now(),
+                expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000,
+                rank: cr.rank,
+                themeId: 'companion_' + cr.id,
+                name: cr.name,
+                discovered: true,
+                state: 'stable',
+                waves, currentWaveIdx: 0,
+                recommendedPower: { E: 200, D: 800, C: 1800, B: 3000, A: 5000, S: 8000 }[cr.rank],
+                minStatRequired: 30,
+                primaryStat: cr.primaryStat,
+                attempts: 0, completed: false,
+                narrativeData: cr  // réutilise le rendu narratif (briefing, couleur…)
+            };
+        }
+
+        // Cinématique d'apparition d'une Faille de compagnon
+        function awakShowCompanionRiftAppearance(cr) {
+            try { if (navigator.vibrate) navigator.vibrate([60, 40, 60]); } catch(e) {}
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;inset:0;z-index:99997;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.9);backdrop-filter:blur(8px);animation:awakFadeIn 0.4s;padding:20px;';
+            overlay.onclick = () => overlay.remove();
+            overlay.innerHTML = `
+                <div style="max-width:420px;width:100%;background:linear-gradient(160deg,#0a0e18,#0F1014,${cr.color}15);border:1.5px solid ${cr.color}55;border-radius:24px;padding:30px 24px;text-align:center;box-shadow:0 24px 60px ${cr.color}25;animation:slideUp 0.5s cubic-bezier(0.34,1.56,0.64,1);">
+                    <div style="font-size:0.6em;letter-spacing:3px;color:${cr.color};font-weight:900;text-transform:uppercase;">Faille spéciale détectée</div>
+                    <div style="font-size:3em;margin:14px 0;">${cr.themeEmoji || cr.emoji}</div>
+                    <h2 style="margin:0 0 6px;color:white;font-size:1.3em;font-weight:900;">${cr.name}</h2>
+                    <div style="display:inline-block;margin:0 0 14px;padding:4px 12px;border-radius:99px;background:${cr.color}20;border:1px solid ${cr.color}50;color:${cr.color};font-size:0.7em;font-weight:800;">🤝 Un allié potentiel t'y attend</div>
+                    <p style="color:rgba(255,255,255,0.65);font-size:0.85em;line-height:1.5;margin:0 0 10px;">${cr.description}</p>
+                    <p style="color:rgba(255,255,255,0.45);font-size:0.78em;line-height:1.45;margin:0 0 20px;font-style:italic;">${cr.briefing}</p>
+                    <button onclick="this.closest('div[style*=fixed]')?.remove();" style="width:100%;padding:13px;background:linear-gradient(135deg,${cr.color},${cr.color}cc);border:none;border-radius:12px;color:white;font-weight:900;font-size:0.9em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${cr.color}40;">VOIR DANS LES FAILLES</button>
+                </div>`;
+            document.body.appendChild(overlay);
+        }
 
         // ═══════════════════════════════════════════════════════════════
         // 💬 DIALOGUES DE COMPAGNONS (pendant Failles/Chasses)
@@ -27984,6 +28302,98 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             return messages;
         }
         window.awakApplyBossMechanic = awakApplyBossMechanic;
+
+        /**
+         * ⚔️🤝 Mécaniques UNIQUES des Failles de compagnon.
+         * Modifie les dégâts du coup courant (vrai effet de combat).
+         * Retourne { damage, toasts:[] }.
+         */
+        function awakApplyCompanionMech(wave, incomingDamage, prevHpPercent) {
+            const toasts = [];
+            let dmg = incomingDamage;
+            const now = Date.now();
+
+            switch (wave.companionMech) {
+                case 'mur_de_fer': {
+                    // Marcus — Mur de Fer : encaisse, sauf gros coups.
+                    // Établit un seuil "gros coup" = 1.5× la moyenne des coups vus.
+                    wave._hitsSeen = (wave._hitsSeen || 0) + 1;
+                    wave._dmgSum = (wave._dmgSum || 0) + incomingDamage;
+                    const avg = wave._dmgSum / wave._hitsSeen;
+                    const seuilGrosCoup = avg * 1.4;
+                    if (incomingDamage >= seuilGrosCoup) {
+                        // Gros coup : passe le mur (dégâts pleins + petit bonus)
+                        dmg = Math.round(incomingDamage * 1.15);
+                        toasts.push({ msg: '💥 Tu brises le Mur de Fer !', type: 'success' });
+                    } else {
+                        // Coup normal : bloqué à 40%
+                        dmg = Math.round(incomingDamage * 0.40);
+                        toasts.push({ msg: '🛡 Mur de Fer : frappe plus fort !', type: 'info' });
+                    }
+                    break;
+                }
+                case 'insaisissable': {
+                    // Kira — esquive 1 coup sur 3 tant que >50% HP
+                    if (prevHpPercent > 50) {
+                        wave._dodgeCounter = (wave._dodgeCounter || 0) + 1;
+                        if (wave._dodgeCounter % 3 === 0) {
+                            dmg = 0;
+                            toasts.push({ msg: '💨 Insaisissable : le coup est esquivé !', type: 'warning' });
+                        }
+                    } else if (!wave._exposed) {
+                        wave._exposed = true;
+                        toasts.push({ msg: '🎯 L\'ombre ne peut plus esquiver !', type: 'success' });
+                    }
+                    break;
+                }
+                case 'regeneration': {
+                    // Élise — se soigne tous les 3 coups, SAUF si les coups s'enchaînent vite (<25s)
+                    wave._regenCount = (wave._regenCount || 0) + 1;
+                    const last = wave._lastHitTime || 0;
+                    const fast = (now - last) < 25000; // moins de 25s depuis le dernier coup
+                    wave._lastHitTime = now;
+                    if (wave._regenCount % 3 === 0) {
+                        if (fast) {
+                            toasts.push({ msg: '⛔ Tu l\'empêches de se soigner !', type: 'success' });
+                        } else {
+                            const heal = Math.round(wave.hpMax * 0.08);
+                            wave.hpCurrent = Math.min(wave.hpMax, wave.hpCurrent + heal);
+                            toasts.push({ msg: `💚 Régénération : +${heal} PV — enchaîne plus vite !`, type: 'warning' });
+                        }
+                    }
+                    break;
+                }
+                case 'echos_du_noyau': {
+                    // Yuna — se dédouble à 66% et 33% : +15% HP max (combat d'endurance)
+                    const afterPct = ((wave.hpCurrent - incomingDamage) / wave.hpMax) * 100;
+                    if (prevHpPercent > 66 && afterPct <= 66 && !wave._echo1) {
+                        wave._echo1 = true;
+                        const add = Math.round(wave.hpMax * 0.15);
+                        wave.hpCurrent += add;
+                        toasts.push({ msg: '🌀 Un écho du Noyau se manifeste (+PV)', type: 'warning' });
+                    } else if (prevHpPercent > 33 && afterPct <= 33 && !wave._echo2) {
+                        wave._echo2 = true;
+                        const add = Math.round(wave.hpMax * 0.15);
+                        wave.hpCurrent += add;
+                        toasts.push({ msg: '🌀 Dernier écho ! Tiens bon.', type: 'warning' });
+                    }
+                    break;
+                }
+                case 'posture_parfaite': {
+                    // Chen — alterne sa garde : 1 coup sur 2 ne fait que 50%
+                    wave._guardCount = (wave._guardCount || 0) + 1;
+                    if (wave._guardCount % 2 === 0) {
+                        dmg = Math.round(incomingDamage * 0.50);
+                        toasts.push({ msg: '🧘 Garde parfaite : coup amorti', type: 'info' });
+                    } else {
+                        toasts.push({ msg: '⚡ Garde ouverte : frappe !', type: 'success' });
+                    }
+                    break;
+                }
+            }
+            return { damage: dmg, toasts };
+        }
+        window.awakApplyCompanionMech = awakApplyCompanionMech;
 
         // ═══════════════════════════════════════════════════════════════
         // 💚 SYSTÈME HP JOUEUR — Pour END et PER en combat
@@ -29577,6 +29987,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             try {
                 if (typeof awakCompanionsTriggerUnlockCheck === 'function') {
                     setTimeout(() => awakCompanionsTriggerUnlockCheck(), 3500);
+                }
+                // 🤝 Apparition d'une Faille de compagnon selon l'XP accumulée
+                if (typeof awakCheckCompanionRifts === 'function') {
+                    setTimeout(() => awakCheckCompanionRifts(), 5500);
                 }
             } catch(e) {}
 
@@ -34986,7 +35400,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
 
             // Nouvelle histoire « Le Monde qui s'efface » : liste des événements vus / à venir
-            const events = (typeof window.STORY_EVENTS !== 'undefined') ? window.STORY_EVENTS : [];
+            // Les scènes légères (minor: cocasse) sont exclues — seules les scènes importantes figurent au journal.
+            const allEvents = (typeof window.STORY_EVENTS !== 'undefined') ? window.STORY_EVENTS : [];
+            const events = allEvents.filter(e => !e.minor);
             const chars = (typeof window.STORY_CHARS !== 'undefined') ? window.STORY_CHARS : {};
             let seenCount = 0;
 

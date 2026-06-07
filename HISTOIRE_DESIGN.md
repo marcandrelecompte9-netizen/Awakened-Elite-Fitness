@@ -222,3 +222,36 @@ Image Nabdano lui-même : ✅ FAITE (nabdano.webp — assis, visage caché, qui 
 - niv 65 « Presque Tendre » -> Faille silent_one (Le Silencieux, rang A)
 - niv 75 « La Dernière Porte » -> Faille last_door (La Dernière Porte, rang S)
 Trigger 'levelAndNarrativeRift'. storyPickEvent() return null si porte bloquée (ne saute pas). Toast d'invitation 1x/jour via storyMaybeHintNarrativeRift.
+
+## DÉCLENCHEMENT PAR XP (v211)
+Les événements narratifs se déclenchent désormais selon l'XP TOTALE accumulée (seuils irréguliers, ex: 1350, 3320, 6180 XP…) au lieu de niveaux ronds — effet moins prévisible. Trigger 'xp'. Ordre des scènes préservé (seuils croissants). Exceptions : la Rencontre reste 'level' niv 2 ; les 4 portes narratives restent 'levelAndNarrativeRift'. ctx.xp = somme XP musculaires + lifetimeXP (cohérent avec le niveau carte).
+
+## JOURNAL : SCÈNES MINEURES EXCLUES (v211)
+Les 9 scènes « cocasse » (légères/humoristiques) ont la propriété minor:true et sont EXCLUES du Journal du Chasseur. Seules les 32 scènes importantes y figurent. showStoryJournal filtre via !e.minor.
+
+## FAILLES DE COMPAGNON (v212)
+Les 5 compagnons ne se débloquent plus par rang, mais en COMPLÉTANT une Faille de compagnon dédiée et UNIQUE.
+- COMPANION_RIFTS : rift_marcus (6681 XP≈rang D), rift_kira (43429≈C), rift_elise (191525≈B), rift_yuna (628904≈A), rift_chen (1678531≈S).
+- Apparaissent selon l'XP totale accumulée, UNE seule à la fois (la suivante apparaît quand la précédente est faite/le compagnon débloqué).
+- isCompanionRift:true + isNarrative:true (bénéficient de la protection anti-expiration v210).
+- awakCheckCompanionRifts() appelé en fin de séance, fin de Faille, rank-up.
+- Cinématique d'apparition awakShowCompanionRiftAppearance (mentionne « un allié potentiel t'y attend »).
+- Compléter la Faille → awakCompanionsCheckUnlocks (case 'companionRift') → débloque → pop-up existante awakShowCompanionUnlocked.
+- unlockCondition des compagnons changée de type:'rank' → type:'companionRift' avec riftId.
+- Sécurité ancienne sauvegarde : si compagnon déjà unlocked, la Faille est marquée seen sans re-spawn.
+
+## MÉCANIQUES UNIQUES DES FAILLES DE COMPAGNON (v213)
+Chaque Faille de compagnon a une mécanique de combat INÉDITE (champ companionMech sur la Faille + sur la boss wave), appliquée via awakApplyCompanionMech(wave, dmg, prevHp%) qui modifie les dégâts du coup et renvoie des toasts. Affichée dans l'UI combat via bossMech (awakCompanionMechInfo).
+- Marcus / mur_de_fer : coups normaux réduits à 40%, gros coups (≥1.4× moyenne) passent à 115%. Récompense la force brute.
+- Kira / insaisissable : esquive 1 coup/3 tant que >50% PV ; sous 50% ne peut plus esquiver.
+- Élise / regeneration : +8% PV tous les 3 coups SAUF si coups enchaînés <25s. Récompense le rythme.
+- Yuna / echos_du_noyau : +15% PV max à 66% et 33% PV (endurance).
+- Chen / posture_parfaite : 1 coup/2 réduit à 50% (lire le rythme pair/impair).
+awakApplyBossMechanic ignore ces ids custom (pas de conflit).
+
+## SCÈNES DE RENCONTRE DES COMPAGNONS (v214)
+À la fin d'une Faille de compagnon, une mini-scène de rencontre (COMPANION_MEETINGS) se joue AVANT la pop-up de déblocage.
+- awakShowCompanionMeeting(companionId, onDone) : overlay paginé (3 pages), portrait du compagnon, ton « Le Monde qui s'efface ».
+- Flux dans awakCompleteRift : si rift.isCompanionRift → awakShowCompanionMeeting(...) puis onDone → awakCompanionsTriggerUnlockCheck (pop-up).
+- Anti-doublon : awakShowCompanionUnlocked bloque si overlay rencontre présent OU si déjà montrée (localStorage awakCompanionPopupShown).
+- Textes : Marcus (défi/respect), Kira (rare de la forcer à se montrer), Élise (veiller à ce que tu rentres entier), Yuna (déjà vu dans le Noyau), Chen (la constance que le Monde ne peut effacer).
