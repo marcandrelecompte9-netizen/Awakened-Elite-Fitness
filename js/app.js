@@ -22104,9 +22104,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const tab = $el('gameTab');
             if (!tab) return;
 
-            // 🌫️ Intro d'éveil au tout premier rendu de l'onglet Jeu (une seule fois, tous chemins confondus :
-            // activation du mode, clic sur l'onglet, ou boot avec mode déjà actif). Auto-gardé par son flag.
-            if (typeof awakShowGameTabIntro === 'function') awakShowGameTabIntro();
+            // 🌫️ Onboarding au tout premier rendu de l'onglet Jeu (une seule fois, tous chemins confondus :
+            // activation du mode, clic sur l'onglet, ou boot avec mode déjà actif). Fenêtre explicative PUIS prologue.
+            if (typeof awakShowGameOnboarding === 'function') awakShowGameOnboarding();
 
             // 🎭 Finaliser les missions de compagnons terminées
             try { if (typeof awakCheckCompanionMissions === 'function') awakCheckCompanionMissions(); } catch(e) {}
@@ -24122,6 +24122,79 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             if (typeof hapticTap === 'function') hapticTap([30, 50, 80]);
         }
         window.awakShowSystemMessage = awakShowSystemMessage;
+
+        // ═══════════════════════════════════════════════════════════════
+        // 📘 FENÊTRE EXPLICATIVE — « Comment fonctionne le jeu » (avant le Prologue)
+        // Affichée une seule fois par profil, PUIS enchaîne sur le Prologue narratif.
+        // ═══════════════════════════════════════════════════════════════
+        const AWAKENED_GAME_GUIDE_KEY = 'awakGameGuideSeen';
+        let _awakGameGuideActive = false;
+        function awakShowGameGuide(onDone) {
+            try {
+                if (localStorage.getItem(AWAKENED_GAME_GUIDE_KEY) === 'true') { if (typeof onDone === 'function') onDone(); return; }
+                if (_awakGameGuideActive) return;
+                _awakGameGuideActive = true;
+
+                const overlay = document.createElement('div');
+                overlay.id = 'awakGameGuideOverlay';
+                overlay.style.cssText = `position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.94);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;animation:awakFadeIn 0.5s forwards;`;
+
+                const rows = [
+                    ['🏋️','Tes séances = ta puissance','Chaque entraînement réel te rapporte de l\'XP et te fait progresser.'],
+                    ['🏅','Niveaux & Rangs','Tu montes en niveau et gravis les rangs de chasseur, de E jusqu\'à S.'],
+                    ['📊','Attributs','À chaque niveau, tu répartis des points (Force, Agilité, Vitalité…) qui pèsent dans tes combats.'],
+                    ['🌀','Failles & Combat','Des Failles s\'ouvrent. Tu les affrontes en t\'entraînant : tes répétitions infligent les dégâts, les monstres ripostent.'],
+                    ['🤝','Compagnons','En progressant, tu débloques des alliés aux pouvoirs uniques.'],
+                    ['📖','Une histoire','Un récit se dévoile au fil de ton éveil.']
+                ];
+                const rowsHtml = rows.map(r => `
+                    <div style="display:flex;gap:14px;align-items:flex-start;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.06);">
+                        <div style="font-size:1.55em;flex-shrink:0;width:34px;text-align:center;filter:drop-shadow(0 0 8px rgba(6,182,212,0.5));">${r[0]}</div>
+                        <div style="flex:1;min-width:0;">
+                            <div style="font-weight:800;color:#e2e8f0;font-size:0.97em;margin-bottom:2px;">${r[1]}</div>
+                            <div style="color:#94a3b8;font-size:0.84em;line-height:1.5;">${r[2]}</div>
+                        </div>
+                    </div>`).join('');
+
+                const card = document.createElement('div');
+                card.style.cssText = `max-width:460px;width:100%;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(6,182,212,0.4);border-radius:20px;padding:26px 22px;box-shadow:0 24px 60px rgba(0,0,0,0.8),0 0 60px rgba(6,182,212,0.15);animation:slideUp 0.45s cubic-bezier(0.34,1.56,0.64,1);`;
+                card.innerHTML = `
+                    <div style="text-align:center;margin-bottom:6px;font-size:0.62em;letter-spacing:3px;color:#06b6d4;text-transform:uppercase;font-family:'Courier New',monospace;">▸ Système d'éveil ◂</div>
+                    <div style="text-align:center;font-size:1.4em;font-weight:900;color:#fff;margin-bottom:6px;text-shadow:0 0 16px rgba(6,182,212,0.5);">Bienvenue, Chasseur</div>
+                    <div style="text-align:center;color:#94a3b8;font-size:0.88em;line-height:1.6;margin-bottom:18px;">Le Système relie tes entraînements réels à ta progression. Voici comment ça fonctionne.</div>
+                    ${rowsHtml}
+                    <div style="margin-top:16px;padding:12px 14px;background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.25);border-radius:12px;color:#cbd5e1;font-size:0.82em;line-height:1.6;text-align:center;font-style:italic;">Ta progression reflète tes efforts réels. Plus tu t'entraînes, plus tu deviens fort — pour de vrai.</div>
+                    <button id="awakGuideStartBtn" style="margin-top:18px;width:100%;padding:14px;background:linear-gradient(135deg,#06b6d4,#0891b2);border:none;border-radius:14px;color:#fff;font-weight:900;font-size:1em;letter-spacing:1px;cursor:pointer;box-shadow:0 8px 24px rgba(6,182,212,0.35);">Je suis prêt</button>`;
+
+                overlay.appendChild(card);
+                document.body.appendChild(overlay);
+
+                const finish = () => {
+                    try { localStorage.setItem(AWAKENED_GAME_GUIDE_KEY, 'true'); } catch(e) {}
+                    _awakGameGuideActive = false;
+                    try { overlay.remove(); } catch(e) {}
+                    if (typeof onDone === 'function') setTimeout(onDone, 250);
+                };
+                const btn = card.querySelector('#awakGuideStartBtn');
+                if (btn) btn.addEventListener('click', finish);
+            } catch(e) {
+                _awakGameGuideActive = false;
+                if (typeof onDone === 'function') onDone();
+            }
+        }
+        window.awakShowGameGuide = awakShowGameGuide;
+
+        // 🎬 Orchestrateur d'onboarding : fenêtre explicative PUIS prologue narratif.
+        function awakShowGameOnboarding() {
+            try {
+                if (localStorage.getItem(AWAKENED_GAME_GUIDE_KEY) !== 'true') {
+                    awakShowGameGuide(() => { if (typeof awakShowGameTabIntro === 'function') awakShowGameTabIntro(); });
+                } else {
+                    if (typeof awakShowGameTabIntro === 'function') awakShowGameTabIntro();
+                }
+            } catch(e) {}
+        }
+        window.awakShowGameOnboarding = awakShowGameOnboarding;
 
         // 🌫️ INTRO — Prologue d'éveil au 1er passage sur l'onglet Jeu (une seule fois).
         // Pose le monde qui s'efface / l'Ancre, SANS faire parler le Système (réservé à « Première Trace »).
@@ -33391,7 +33464,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             
             // 🎮 Données de jeu propres à chaque profil (RPG, items, stats, équipement de gym).
             // Stockées sous profile_<id>_<clé> ; les clés "principales" sont le set de travail du profil actif.
-            const GAME_KEYS = ['fitproRPG','fitproRPGLifetimeXP','fitproRPGPrestige','fitproRPGClass','fitproRPGXPHistory','fitproRPGSkills','fitproRPGMilestones','fitproLevelUpLog','fitproAchievements','awakLastRankSeen','awakRiftLastGen','workoutStats','selectedEquipment','fitpro_inventory','fitpro_equipped','fitpro_daily_drops'];
+            const GAME_KEYS = ['fitproRPG','fitproRPGLifetimeXP','fitproRPGPrestige','fitproRPGClass','fitproRPGXPHistory','fitproRPGSkills','fitproRPGMilestones','fitproLevelUpLog','fitproAchievements','fitproStatPoints','awakLastRankSeen','awakRiftLastGen','awakGameGuideSeen','awakGameTabIntroSeen','awakFirstContactDone','workoutStats','selectedEquipment','fitpro_inventory','fitpro_equipped','fitpro_daily_drops'];
+            // Préfixes de clés DYNAMIQUES propres au profil (journal narratif : awakStoryEvt_<id> ; indices quotidiens : awakRiftHint_<id>)
+            const GAME_KEY_PREFIXES = ['awakStoryEvt_', 'awakRiftHint_'];
 
             // 1) Sauver les données de jeu du profil COURANT avant de le quitter
             const prevProfileId = getCurrentProfileId();
@@ -33401,6 +33476,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     if (v !== null) localStorage.setItem(`profile_${prevProfileId}_${k}`, v);
                     else localStorage.removeItem(`profile_${prevProfileId}_${k}`);
                 });
+                // Clés dynamiques (journal narratif) : on copie le set de travail vers l'espace du profil quitté
+                Object.keys(localStorage)
+                    .filter(k => GAME_KEY_PREFIXES.some(p => k.startsWith(p)))
+                    .forEach(k => {
+                        localStorage.setItem(`profile_${prevProfileId}_${k}`, localStorage.getItem(k));
+                    });
             }
 
             // Save current profile ID
@@ -33430,6 +33511,17 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 if (v !== null) localStorage.setItem(k, v);
                 else localStorage.removeItem(k);
             });
+            // Clés dynamiques (journal narratif) : vider le set de travail, puis restaurer celui du profil cible
+            Object.keys(localStorage)
+                .filter(k => GAME_KEY_PREFIXES.some(p => k.startsWith(p)))
+                .forEach(k => localStorage.removeItem(k));
+            const _dynPrefix = `profile_${profileId}_`;
+            Object.keys(localStorage)
+                .filter(k => k.startsWith(_dynPrefix) && GAME_KEY_PREFIXES.some(p => k.startsWith(_dynPrefix + p)))
+                .forEach(k => {
+                    const realKey = k.substring(_dynPrefix.length);
+                    localStorage.setItem(realKey, localStorage.getItem(k));
+                });
             
             // Reload the app
             speak(`Profil ${profile.name} activé`);

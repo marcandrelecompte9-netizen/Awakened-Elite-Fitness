@@ -6329,3 +6329,29 @@ html, body {
     color: #e2e8f0;
 }
 .wkt-filter-box input::placeholder { color: #94a3b8; }
+
+/* ── Builders Superset / Circuit / AMRAP : thème sombre cohérent ──────
+   Les champs avaient des fonds clairs en inline qui cassaient le dark mode
+   (la règle globale n'avait pas de !important). On force ici. */
+body.dark-mode .wkt-builder input,
+body.dark-mode .wkt-builder select,
+body.dark-mode .wkt-builder textarea {
+    background: #1c1c1c !important;
+    color: #f1f5f9 !important;
+    border-color: #334155 !important;
+}
+body.dark-mode .wkt-builder select option { background: #1c1c1c; color: #f1f5f9; }
+body.dark-mode .wkt-builder input::placeholder { color: #94a3b8; }
+/* Panneaux pastel → versions sombres neutres (le texte d'accent reste coloré) */
+body.dark-mode .wkt-builder div[style*="#fee2e2"],
+body.dark-mode .wkt-builder div[style*="#ecfdf5"],
+body.dark-mode .wkt-builder div[style*="#fff4e6"],
+body.dark-mode .wkt-builder div[style*="#fff5f5"],
+body.dark-mode .wkt-builder div[style*="#fff8f6"],
+body.dark-mode .wkt-builder div[style*="#f0fdf4"],
+body.dark-mode .wkt-builder div[style*="#fffbeb"],
+body.dark-mode .wkt-builder div[style*="#f9fafb"],
+body.dark-mode .wkt-builder div[style*="#f8f9fa"] {
+    background: rgba(255,255,255,0.04) !important;
+    border-color: rgba(255,255,255,0.1) !important;
+}
