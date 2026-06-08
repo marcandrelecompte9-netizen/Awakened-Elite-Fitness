@@ -11558,7 +11558,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             // ── JOUR DE REPOS ─────────────────────────────────────────
             if (isRestDay) {
                 overlay.innerHTML = `
-                <div style="background:linear-gradient(160deg,#0a0e18,#0F1014);border-radius:18px;padding:26px 22px;max-width:400px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,0.8),0 0 50px rgba(6,182,212,0.18);border:2px solid rgba(6,182,212,0.4);position:relative;">
+                <div style="background:linear-gradient(160deg,#0a0e18,#0F1014);border-radius:18px;padding:26px 22px;max-width:400px;width:100%;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;box-shadow:0 24px 60px rgba(0,0,0,0.8),0 0 50px rgba(6,182,212,0.18);border:2px solid rgba(6,182,212,0.4);position:relative;">
                     <div style="position:absolute;top:-1px;left:-1px;width:20px;height:20px;border-top:2px solid #22d3ee;border-left:2px solid #22d3ee;border-top-left-radius:18px;"></div>
                     <div style="position:absolute;top:-1px;right:-1px;width:20px;height:20px;border-top:2px solid #22d3ee;border-right:2px solid #22d3ee;border-top-right-radius:18px;"></div>
                     <div style="text-align:center;margin-bottom:20px;">
@@ -11601,7 +11601,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                    </div>`;
 
             overlay.innerHTML = `
-                <div style="background:linear-gradient(160deg,#0a0e18,#0F1014);border-radius:18px;padding:26px 22px;max-width:400px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,0.8),0 0 50px rgba(74,222,128,0.2);border:2px solid rgba(74,222,128,0.4);position:relative;overflow:hidden;animation:slideUp 0.4s cubic-bezier(0.34,1.56,0.64,1);">
+                <div style="background:linear-gradient(160deg,#0a0e18,#0F1014);border-radius:18px;padding:26px 22px;max-width:400px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,0.8),0 0 50px rgba(74,222,128,0.2);border:2px solid rgba(74,222,128,0.4);position:relative;overflow:hidden auto;-webkit-overflow-scrolling:touch;max-height:90vh;animation:slideUp 0.4s cubic-bezier(0.34,1.56,0.64,1);">
                     <div style="position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0,transparent 3px,rgba(74,222,128,0.03) 3px,rgba(74,222,128,0.03) 4px);pointer-events:none;border-radius:18px;"></div>
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#4ade80,transparent);"></div>
                     <div style="position:absolute;top:-1px;left:-1px;width:20px;height:20px;border-top:2px solid #4ade80;border-left:2px solid #4ade80;border-top-left-radius:18px;"></div>
@@ -13417,6 +13417,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const weight     = parseFloat(document.getElementById('frcWeight')?.value);
             const reps       = parseInt(document.getElementById('frcReps')?.value) || 1;
             const resultEl   = document.getElementById('frcResult');
+            const unit       = useKg ? 'kg' : 'lbs';
             if (!resultEl) return;
 
             if (!bodyweight || bodyweight <= 0 || !weight || weight <= 0) {
@@ -13441,8 +13442,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             }
 
             const oneRMDisplay = exercise === 'Tractions'
-                ? `${effectiveLoad} kg total (corps + lest)`
-                : `${effectiveLoad} kg`;
+                ? `${effectiveLoad} ${unit} total (corps + lest)`
+                : `${effectiveLoad} ${unit}`;
 
             // Barre de niveaux
             const levelNames = window.STRENGTH_LEVEL_NAMES;
@@ -13453,7 +13454,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 levelBars += `<div style="flex:1;text-align:center;">
                     <div style="height:8px;border-radius:4px;background:${reached ? levelColors[i] : 'rgba(255,255,255,0.1)'};margin-bottom:5px;${reached ? 'box-shadow:0 0 8px '+levelColors[i]+'66;' : ''}"></div>
                     <div style="font-size:0.62em;font-weight:700;color:${reached ? levelColors[i] : '#6b7280'};letter-spacing:0.3px;">${levelNames[i].toUpperCase()}</div>
-                    <div style="font-size:0.6em;color:#6b7280;margin-top:2px;">${res.thresholds[i]}kg</div>
+                    <div style="font-size:0.6em;color:#6b7280;margin-top:2px;">${res.thresholds[i]}${unit}</div>
                 </div>`;
             }
 
@@ -13461,7 +13462,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             if (res.nextThresholdKg && res.nextLevelName) {
                 const need = res.nextThresholdKg - effectiveLoad;
                 nextStep = `<div style="margin-top:14px;padding:12px;background:rgba(168,85,247,0.1);border-radius:10px;font-size:0.85em;color:#c4b5fd;">
-                    🎯 Encore <strong>${need > 0 ? need : 0} kg</strong> pour atteindre le niveau <strong>${res.nextLevelName}</strong> (${res.nextThresholdKg} kg).
+                    🎯 Encore <strong>${need > 0 ? need : 0} ${unit}</strong> pour atteindre le niveau <strong>${res.nextLevelName}</strong> (${res.nextThresholdKg} ${unit}).
                 </div>`;
             } else if (res.levelIndex >= levelNames.length - 1) {
                 nextStep = `<div style="margin-top:14px;padding:12px;background:rgba(168,85,247,0.15);border-radius:10px;font-size:0.85em;color:#c4b5fd;">
@@ -21524,6 +21525,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     el.textContent = '⚖️ Poids (' + unit + ')';
                 }
             });
+
+            // ⚡ Force Réelle — libellés des champs selon l'unité choisie (kg/lbs)
+            const frcBWLbl = document.getElementById('frcBodyweightLabel');
+            if (frcBWLbl) frcBWLbl.textContent = 'Poids corps (' + unit + ')';
+            const frcWLbl = document.getElementById('frcWeightLabel');
+            if (frcWLbl) frcWLbl.textContent = 'Charge (' + unit + ')';
         }
 
         function toggleMute() {
@@ -21541,6 +21548,46 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             showToast(isVibOff ? '📳 Vibration désactivée' : '📳 Vibration activée', 'info', 1500);
         }
 
+        // ── Overlay de pause : mode plein écran (image) ↔ mode réduit (barre flottante) ──
+        const _AWAK_PAUSE_FULL_STYLE = 'position:fixed;inset:0;z-index:99990;background:rgba(0,0,0,0.92);backdrop-filter:blur(8px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;opacity:0;animation:awakFadeIn 0.4s forwards;';
+        // Mode réduit : petite barre flottante qui NE couvre PAS l'écran → on voit le programme/les infos.
+        const _AWAK_PAUSE_MINI_STYLE = 'position:fixed;right:14px;bottom:90px;z-index:99990;background:rgba(10,10,12,0.96);backdrop-filter:blur(8px);border:1px solid rgba(251,191,36,0.3);border-radius:14px;padding:8px 10px;box-shadow:0 8px 28px rgba(0,0,0,0.55);';
+        function _awakPauseFullHTML() {
+            return `
+                <div style="max-width:420px;width:100%;border-radius:18px;overflow:hidden;border:1px solid rgba(251,191,36,0.3);box-shadow:0 0 40px rgba(0,0,0,0.6);">
+                    <img src="images/story/repos.webp" alt="Repos" style="width:100%;display:block;" onerror="this.style.display='none';" />
+                </div>
+                <div style="color:#fbbf24;font-weight:900;letter-spacing:3px;font-size:0.7em;margin-top:18px;text-transform:uppercase;">⏸ En Pause</div>
+                <div style="color:#94a3b8;font-size:0.85em;margin-top:6px;text-align:center;max-width:320px;">Reprends ton souffle. Esen et Nyra aussi font une pause.</div>
+                <div style="display:flex;gap:10px;margin-top:20px;">
+                    <button onclick="awakPauseToggleMinimize()" style="background:rgba(148,163,184,0.15);border:1px solid rgba(148,163,184,0.4);color:#cbd5e1;font-weight:800;padding:13px 20px;border-radius:12px;cursor:pointer;font-size:0.9em;">🗕 Réduire</button>
+                    <button onclick="togglePause()" style="background:rgba(251,191,36,0.18);border:1px solid rgba(251,191,36,0.5);color:#fbbf24;font-weight:800;padding:13px 24px;border-radius:12px;cursor:pointer;font-size:0.95em;">▶️ Reprendre</button>
+                </div>`;
+        }
+        function _awakPauseMiniHTML() {
+            return `
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <img src="images/story/repos.webp" alt="" style="width:42px;height:42px;object-fit:cover;border-radius:9px;border:1px solid rgba(251,191,36,0.3);" onerror="this.style.display='none';" />
+                    <span style="color:#fbbf24;font-weight:800;letter-spacing:1px;font-size:0.78em;white-space:nowrap;">⏸ En pause</span>
+                    <button onclick="awakPauseToggleMinimize()" title="Agrandir" style="background:rgba(148,163,184,0.15);border:1px solid rgba(148,163,184,0.4);color:#cbd5e1;font-weight:800;padding:8px 11px;border-radius:9px;cursor:pointer;font-size:0.8em;">⤢</button>
+                    <button onclick="togglePause()" style="background:rgba(251,191,36,0.2);border:1px solid rgba(251,191,36,0.5);color:#fbbf24;font-weight:800;padding:8px 13px;border-radius:9px;cursor:pointer;font-size:0.8em;white-space:nowrap;">▶️ Reprendre</button>
+                </div>`;
+        }
+        function awakPauseToggleMinimize() {
+            const ov = document.getElementById('awakPauseOverlay');
+            if (!ov) return;
+            if (ov.dataset.mini === '1') {
+                ov.dataset.mini = '0';
+                ov.style.cssText = _AWAK_PAUSE_FULL_STYLE;
+                ov.innerHTML = _awakPauseFullHTML();
+            } else {
+                ov.dataset.mini = '1';
+                ov.style.cssText = _AWAK_PAUSE_MINI_STYLE;
+                ov.innerHTML = _awakPauseMiniHTML();
+            }
+        }
+        window.awakPauseToggleMinimize = awakPauseToggleMinimize;
+
         function togglePause() {
             if (!currentWorkout) return;
             isPaused = !isPaused;
@@ -21555,14 +21602,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     if (!existing && jeuActif) {
                         const ov = document.createElement('div');
                         ov.id = 'awakPauseOverlay';
-                        ov.style.cssText = 'position:fixed;inset:0;z-index:99990;background:rgba(0,0,0,0.92);backdrop-filter:blur(8px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;opacity:0;animation:awakFadeIn 0.4s forwards;';
-                        ov.innerHTML = `
-                            <div style="max-width:420px;width:100%;border-radius:18px;overflow:hidden;border:1px solid rgba(251,191,36,0.3);box-shadow:0 0 40px rgba(0,0,0,0.6);">
-                                <img src="images/story/repos.webp" alt="Repos" style="width:100%;display:block;" onerror="this.style.display='none';" />
-                            </div>
-                            <div style="color:#fbbf24;font-weight:900;letter-spacing:3px;font-size:0.7em;margin-top:18px;text-transform:uppercase;">⏸ En Pause</div>
-                            <div style="color:#94a3b8;font-size:0.85em;margin-top:6px;text-align:center;max-width:320px;">Reprends ton souffle. Esen et Nyra aussi font une pause.</div>
-                            <button onclick="togglePause()" style="margin-top:20px;background:rgba(251,191,36,0.18);border:1px solid rgba(251,191,36,0.5);color:#fbbf24;font-weight:800;padding:13px 32px;border-radius:12px;cursor:pointer;font-size:0.95em;">▶️ Reprendre</button>`;
+                        ov.dataset.mini = '0';
+                        ov.style.cssText = _AWAK_PAUSE_FULL_STYLE;
+                        ov.innerHTML = _awakPauseFullHTML();
                         document.body.appendChild(ov);
                     }
                 } else if (existing) {
@@ -22061,6 +22103,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         function renderGameTab() {
             const tab = $el('gameTab');
             if (!tab) return;
+
+            // 🌫️ Intro d'éveil au tout premier rendu de l'onglet Jeu (une seule fois, tous chemins confondus :
+            // activation du mode, clic sur l'onglet, ou boot avec mode déjà actif). Auto-gardé par son flag.
+            if (typeof awakShowGameTabIntro === 'function') awakShowGameTabIntro();
 
             // 🎭 Finaliser les missions de compagnons terminées
             try { if (typeof awakCheckCompanionMissions === 'function') awakCheckCompanionMissions(); } catch(e) {}
@@ -23800,7 +23846,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
          */
         function awakGetPowerScore() {
             const data = typeof rpgLoad === 'function' ? rpgLoad() : { xp: 0 };
-            const level = typeof rpgGetLevel === 'function' ? rpgGetLevel(data.xp || 0) : 1;
+            const level = typeof _awakGetCurrentLevel === 'function' ? _awakGetCurrentLevel() : 1;
             const stats = awakGetTotalStats();
 
             // 1. Bonus niveau (50 par niveau)
@@ -24077,6 +24123,51 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         }
         window.awakShowSystemMessage = awakShowSystemMessage;
 
+        // 🌫️ INTRO — Prologue d'éveil au 1er passage sur l'onglet Jeu (une seule fois).
+        // Pose le monde qui s'efface / l'Ancre, SANS faire parler le Système (réservé à « Première Trace »).
+        const AWAKENED_GAMETAB_INTRO_KEY = 'awakGameTabIntroSeen';
+        const AWAKENED_GAMETAB_INTRO = [
+            `*Tu n'avais pas remarqué.*`,
+            `*Que le monde s'efface.*`,
+            ``,
+            `*Les bords des choses pâlissent. Des gens, des lieux, des jours entiers glissent dans un silence blanc — et personne ne s'en souvient.*`,
+            ``,
+            `*Presque personne.*`,
+            ``,
+            `*Toi, tu es encore là. Plus net que le reste.*`,
+            `*Assez réel pour que ça fasse mal.*`,
+            ``,
+            `*Quelque chose t'observe depuis ce silence.*`,
+            `*Quelque chose qui, lui aussi, refuse de disparaître.*`,
+            ``,
+            `*Reste. Tiens.*`,
+            `*On verra jusqu'où tu peux tenir.*`
+        ];
+        let _awakGameTabIntroActive = false;
+        function awakShowGameTabIntro() {
+            try {
+                if (localStorage.getItem(AWAKENED_GAMETAB_INTRO_KEY) === 'true') return;
+                if (_awakGameTabIntroActive) return; // anti-double affichage dans la session
+                _awakGameTabIntroActive = true;
+                setTimeout(() => {
+                    try {
+                        if (typeof awakShowSystemMessage === 'function') {
+                            awakShowSystemMessage(AWAKENED_GAMETAB_INTRO, {
+                                onClose: () => {
+                                    // Marqué SEULEMENT après que l'intro a réellement été vue et fermée
+                                    try { localStorage.setItem(AWAKENED_GAMETAB_INTRO_KEY, 'true'); } catch(e) {}
+                                    _awakGameTabIntroActive = false;
+                                }
+                            });
+                        } else {
+                            _awakGameTabIntroActive = false;
+                        }
+                    } catch(e) { _awakGameTabIntroActive = false; }
+                }, 650);
+            } catch(e) {}
+        }
+        window.awakShowGameTabIntro = awakShowGameTabIntro;
+
         // ═══════════════════════════════════════════════════════════════
         // 🃏 CARTE DU SYSTÈME — tirage quotidien
         // ═══════════════════════════════════════════════════════════════
@@ -24301,6 +24392,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         const RIFT_SPAWN_PROBABILITY = 0.35;   // 35% si conditions remplies (au lieu de 70%)
         const RIFT_MIN_SESSION_MINUTES = 15;   // Vraie séance requise (>15 min)
         const RIFT_MIN_EXERCISES = 5;          // Au moins 5 exercices complétés
+        const RIFT_MIN_PLAYER_LEVEL = 3;       // 🔒 Pacing : pas de Failles normales tout au début (un peu après le niv. 2)
 
         // ── THÈMES DE FAILLES ─────────────────────────────────────────
         // Chaque thème détermine l'ambiance et le type d'exercices proposés
@@ -24928,6 +25020,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
          * Retourne la Faille générée ou null
          */
         function awakTryGenerateRift(sessionContext) {
+            // 🔒 Pacing : aucune Faille normale tant que le joueur débute (un peu après le niveau 2).
+            if (typeof _awakGetCurrentLevel === 'function' && _awakGetCurrentLevel() < RIFT_MIN_PLAYER_LEVEL) return null;
+
             const rifts = awakUpdateRiftsState();
             const activeRifts = rifts.filter(r => !r.completed && r.state !== 'exploded');
 
@@ -25744,33 +25839,33 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     session._firstHitDone = true;
                     curseToasts.push({ msg: '☠️ Malédiction : ton premier coup rate !', type: 'warning' });
                     if (typeof showToast === 'function') curseToasts.forEach(t => showToast(t.msg, t.type, 2500));
-                    if (typeof awakRenderRiftCombat === 'function') awakRenderRiftCombat();
+                    if (typeof awakShowRiftCombatScreen === 'function') awakShowRiftCombatScreen();
                     return; // aucun dégât
                 }
                 session._firstHitDone = true;
                 // jam : l'arme se bloque, coup perdu
                 if (curse.jam > 0 && Math.random() < curse.jam) {
                     if (typeof showToast === 'function') showToast('☠️ Ton arme maudite se bloque — coup perdu !', 'warning', 2500);
-                    if (typeof awakRenderRiftCombat === 'function') awakRenderRiftCombat();
+                    if (typeof awakShowRiftCombatScreen === 'function') awakShowRiftCombatScreen();
                     return;
                 }
             }
 
-            // Formule de dégâts : base + reps × (1 + stat thématique/100) × 4
-            // Base relevée pour que même un débutant batte une vague en ~2 séries.
+            // Formule de dégâts : ATTAQUE DE BASE pilotée par les stats du joueur + équipement.
+            // Les répétitions ne sont qu'un PETIT bonus : +1% par rep, plafonné à 50 reps (max +50%).
             const base = 30;
             const primaryStatValue = (playerStats[theme.primaryStat] || 0) * (1 + (consumEffects[theme.primaryStat] || 0));
-            const statMult = 1 + primaryStatValue / 100;
-            const baseDamage = base + cappedReps * statMult * 4;
-            const weightBonus = 0; // pas de bonus poids en Faille
+            // Attaque de base = socle + stat thématique (qui inclut déjà les bonus d'équipement) → cœur des dégâts.
+            const baseAttack = base + primaryStatValue * 0.5;
+            // Bonus reps : +1% par répétition (cappedReps est déjà plafonné à 50 → +50% au maximum).
+            const repBonus = 1 + cappedReps * 0.01;
 
-            let finalDamage = baseDamage + weightBonus;
+            let finalDamage = baseAttack * repBonus;
 
             // 🛡️ Plafond absolu de dégâts par série (anti-triche ultime)
             // Empêche de tuer un monstre en 1 série, même avec crit + double + tous les bonus
-            // Plafond anti-triche : 50% des HP par série (boss comme monstres).
-            // Garantit qu'aucun ennemi ne prend plus de ~2-3 séries → Failles courtes.
-            const maxDamagePerHit = Math.max(40, Math.round(currentWave.hpMax * 0.50));
+            // Plafond anti-triche : 35% des HP par série (boss comme monstres).
+            const maxDamagePerHit = Math.max(40, Math.round(currentWave.hpMax * 0.35));
 
             // ⚔️ STR : multiplicateur dégâts global (toujours actif)
             finalDamage *= bonuses.damageMult;
@@ -26690,8 +26785,14 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const bonuses = (typeof awakComputeStatBonuses === 'function')
                 ? awakComputeStatBonuses(playerStats, false) : null;
 
-            const base = 8;
-            let damage = base + (reps || 1) * 2 + Math.floor((weightKg || 0) / 10);
+            // Même modèle que les Failles : ATTAQUE DE BASE pilotée par les stats du joueur + équipement.
+            // Reps = simple bonus +1% par rep, plafonné à 50 (max +50%). Poids ignoré (comme en Faille).
+            const base = 30;
+            const cappedReps = Math.min(Math.max(1, reps || 1), 50);
+            const primaryStatValue = playerStats.STR || 0; // Chasse = force pure (pas de thème)
+            const baseAttack = base + primaryStatValue * 0.5;
+            const repBonus = 1 + cappedReps * 0.01;
+            let damage = baseAttack * repBonus;
 
             // ⚔️ STR : multiplicateur dégâts
             if (bonuses) damage *= bonuses.damageMult;
@@ -26708,7 +26809,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 damage += damage * 0.5;
             }
 
-            const finalDamage = Math.max(1, Math.round(damage));
+            let finalDamage = Math.max(1, Math.round(damage));
+            // 🛡️ Plafond anti one-shot : max 35% des PV max par coup (comme en Faille)
+            finalDamage = Math.min(finalDamage, Math.max(40, Math.round((monster.hpMax || finalDamage) * 0.35)));
 
             monster.hpCurrent = Math.max(0, monster.hpCurrent - finalDamage);
             session.totalDamage += finalDamage;
@@ -27275,7 +27378,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             overlay.style.cssText = 'position:fixed;inset:0;z-index:99998;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.92);backdrop-filter:blur(10px);animation:awakFadeIn 0.4s;padding:20px;';
 
             overlay.innerHTML = `
-                <div style="max-width:420px;width:100%;background:linear-gradient(160deg,#0a0e18,#0F1014,${companion.color}15);border:1.5px solid ${companion.color}50;border-radius:24px;padding:32px 26px;text-align:center;box-shadow:0 24px 60px ${companion.color}20,0 0 80px ${companion.color}15;animation:slideUp 0.5s cubic-bezier(0.34,1.56,0.64,1);">
+                <div style="max-width:420px;width:100%;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;background:linear-gradient(160deg,#0a0e18,#0F1014,${companion.color}15);border:1.5px solid ${companion.color}50;border-radius:24px;padding:32px 26px;text-align:center;box-shadow:0 24px 60px ${companion.color}20,0 0 80px ${companion.color}15;animation:slideUp 0.5s cubic-bezier(0.34,1.56,0.64,1);">
                     <div style="font-size:0.6em;color:${companion.color};font-weight:900;letter-spacing:3px;margin-bottom:14px;">◇ NOUVEL ANCRAGE RENCONTRÉ ◇</div>
                     ${companion.image
                         ? `<img src="${companion.image}" alt="${companion.name}" style="width:100%;max-width:280px;border-radius:14px;margin-bottom:12px;box-shadow:0 0 28px ${companion.color}66;" onerror="this.outerHTML='<div style=\\'font-size:4em;line-height:1;margin-bottom:12px;\\'>${companion.emoji}</div>';" />`
@@ -27383,10 +27486,11 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             function render() {
                 const isLast = page >= meet.pages.length - 1;
                 overlay.innerHTML = `
-                    <div style="max-width:440px;width:100%;background:linear-gradient(160deg,#0a0e18,#0F1014,${meet.color}12);border:1.5px solid ${meet.color}45;border-radius:24px;padding:28px 24px;box-shadow:0 24px 60px ${meet.color}22;animation:slideUp 0.45s cubic-bezier(0.34,1.56,0.64,1);">
+                    <div style="max-width:440px;width:100%;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;background:linear-gradient(160deg,#0a0e18,#0F1014,${meet.color}12);border:1.5px solid ${meet.color}45;border-radius:24px;padding:28px 24px;box-shadow:0 24px 60px ${meet.color}22;animation:slideUp 0.45s cubic-bezier(0.34,1.56,0.64,1);">
                         <div style="text-align:center;margin-bottom:18px;">
-                            <div style="width:96px;height:96px;margin:0 auto 12px;border-radius:18px;overflow:hidden;border:2px solid ${meet.color}60;box-shadow:0 0 28px ${meet.color}30;background:#0a0e18;">
-                                <img src="${meet.image || comp.image}" alt="${comp.name}" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.onerror=null;this.src='${comp.image||''}';this.onerror=function(){this.parentElement.innerHTML='<div style=\\'font-size:2.4em;line-height:96px;\\'>${meet.emoji}</div>';};" />
+                            <div style="width:100%;border-radius:16px;overflow:hidden;border:2px solid ${meet.color}55;box-shadow:0 0 32px ${meet.color}33;background:#0a0e18;margin:0 auto 14px;">
+                                <img src="${meet.image || comp.image}" alt="${comp.name}" style="width:100%;height:auto;display:block;" onerror="this.onerror=null;this.src='${comp.image||''}';this.onerror=function(){this.parentElement.innerHTML='<div style=\\'font-size:3.6em;line-height:200px;text-align:center;\\'>${meet.emoji}</div>';};" />
+                            </div>
                             </div>
                             <div style="font-size:0.6em;letter-spacing:3px;color:${meet.color};font-weight:900;text-transform:uppercase;">Rencontre</div>
                         </div>
@@ -27497,18 +27601,21 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const totalXP = awakGetTotalXP();
 
             for (const cr of COMPANION_RIFTS) {
-                if (seen.includes(cr.id)) continue;
-                // Si le compagnon est déjà débloqué (ancienne sauvegarde), ne pas re-spawn
+                // Compagnon déjà débloqué → rien à faire
                 if (compData.unlocked && compData.unlocked.includes(cr.companionId)) {
                     awakCompanionRiftsMarkSeen(cr.id);
                     continue;
                 }
+                // Une Faille pour ce compagnon existe déjà dans la liste → ne pas dupliquer
+                if (rifts.some(r => r.isCompanionRift && r.companionRiftId === cr.id)) continue;
                 if (totalXP >= cr.xpRequired) {
                     const newRift = awakGenerateCompanionRift(cr);
                     rifts.push(newRift);
                     awakRiftsSave(rifts);
+                    const firstTime = !seen.includes(cr.id);
                     awakCompanionRiftsMarkSeen(cr.id);
-                    setTimeout(() => awakShowCompanionRiftAppearance(cr), 1500);
+                    // Cinématique d'apparition seulement la 1re fois (pas de rejeu après abandon/perte)
+                    if (firstTime) setTimeout(() => awakShowCompanionRiftAppearance(cr), 1500);
                     return newRift; // une seule à la fois
                 }
             }
@@ -28589,12 +28696,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             if (!wave || wave.hpCurrent <= 0) return;
 
             const isBoss = !!wave.isBoss;
-            // Chance de contre-attaque : monstres normaux 15%, boss 30% (50% si enragé)
+            // Chance de contre-attaque : monstres normaux 65%, boss 85% (100% si enragé)
             let counterChance;
             if (isBoss) {
-                counterChance = wave._enraged ? 0.5 : 0.3;
+                counterChance = wave._enraged ? 1.0 : 0.85;
             } else {
-                counterChance = 0.15;
+                counterChance = 0.65;
             }
             if (Math.random() >= counterChance) return;
 
@@ -28912,7 +29019,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             modal.style.cssText = 'background:rgba(0,0,0,0.92);backdrop-filter:blur(10px);';
 
             modal.innerHTML = `
-            <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${hasPoints ? 'rgba(245,158,11,0.45)' : 'rgba(255,255,255,0.1)'};padding:0;border-radius:18px;overflow:hidden;">
+            <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${hasPoints ? 'rgba(245,158,11,0.45)' : 'rgba(255,255,255,0.1)'};padding:0;border-radius:18px;overflow:hidden auto;-webkit-overflow-scrolling:touch;max-height:90vh;">
                 <!-- Header -->
                 <div style="background:linear-gradient(135deg,rgba(245,158,11,0.15),transparent);padding:18px 22px;border-bottom:1px solid rgba(255,255,255,0.06);">
                     <div style="display:flex;align-items:center;justify-content:space-between;">
@@ -29936,6 +30043,13 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             try {
                 if (typeof awakCheckRankUp === 'function') {
                     awakCheckRankUp();
+                }
+            } catch(e) {}
+
+            // 🌌 AWAKENED — Apparition fiable des Failles de compagnon (découplée du rank-up)
+            try {
+                if (typeof awakCheckCompanionRifts === 'function') {
+                    setTimeout(() => { try { awakCheckCompanionRifts(); } catch(e) {} }, 5000);
                 }
             } catch(e) {}
 
@@ -33275,6 +33389,20 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 return;
             }
             
+            // 🎮 Données de jeu propres à chaque profil (RPG, items, stats, équipement de gym).
+            // Stockées sous profile_<id>_<clé> ; les clés "principales" sont le set de travail du profil actif.
+            const GAME_KEYS = ['fitproRPG','fitproRPGLifetimeXP','fitproRPGPrestige','fitproRPGClass','fitproRPGXPHistory','fitproRPGSkills','fitproRPGMilestones','fitproLevelUpLog','fitproAchievements','awakLastRankSeen','awakRiftLastGen','workoutStats','selectedEquipment','fitpro_inventory','fitpro_equipped','fitpro_daily_drops'];
+
+            // 1) Sauver les données de jeu du profil COURANT avant de le quitter
+            const prevProfileId = getCurrentProfileId();
+            if (prevProfileId && prevProfileId !== profileId) {
+                GAME_KEYS.forEach(k => {
+                    const v = localStorage.getItem(k);
+                    if (v !== null) localStorage.setItem(`profile_${prevProfileId}_${k}`, v);
+                    else localStorage.removeItem(`profile_${prevProfileId}_${k}`);
+                });
+            }
+
             // Save current profile ID
             localStorage.setItem('currentProfileId', profileId);
             
@@ -33294,6 +33422,13 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 } else {
                     localStorage.removeItem(key);
                 }
+            });
+
+            // 2) Charger les données de jeu du profil CIBLE (ou repartir vierge si aucune)
+            GAME_KEYS.forEach(k => {
+                const v = localStorage.getItem(`profile_${profileId}_${k}`);
+                if (v !== null) localStorage.setItem(k, v);
+                else localStorage.removeItem(k);
             });
             
             // Reload the app

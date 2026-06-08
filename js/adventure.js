@@ -69,7 +69,12 @@ function getSetById(id) { return EQUIPMENT_SETS[id] || null; }
 // Règle    : item_rank <= hunter_rank + 2
 function getHunterRankIndex() {
     const rpgData = (typeof rpgLoad === 'function') ? rpgLoad() : {};
-    const totalXP = Object.values(rpgData.muscles || {}).reduce((s,m) => s + (m.xp||0), 0);
+    const muscleXP = Object.values(rpgData.muscles || {}).reduce((s,m) => s + (m.xp||0), 0);
+    // Aligner sur le rang AFFICHÉ (_awakGetCurrentLevel) : muscle XP + XP cumulée à vie.
+    // Sans le lifetime, le rang d'équipement diverge du rang réel du joueur.
+    let lifetimeXP = 0;
+    try { lifetimeXP = parseInt(localStorage.getItem('fitproRPGLifetimeXP') || '0') || 0; } catch(e) {}
+    const totalXP = muscleXP + lifetimeXP;
     const level   = (typeof rpgLevelFromXP === 'function') ? rpgLevelFromXP(totalXP) : 1;
     // Seuils alignés : E=1, D=10, C=20, B=35, A=55, S=80, SS=120, SSS=200
     return level < 10  ? 0 :

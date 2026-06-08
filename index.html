@@ -20,7 +20,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=216">
+    <link rel="stylesheet" href="css/style.css?v=234">
 </head>
 <body>
 
@@ -177,7 +177,7 @@
                 max-width: 900px;">
 
             <!-- Bannière image : ratio préservé -->
-            <img src="images/banner.png?v=216"
+            <img src="images/banner.png?v=234"
                  alt="Awakened Elite Fitness"
                  style="width:100%;height:auto;display:block;" />
 
@@ -2671,14 +2671,14 @@
                         </select>
                     </div>
                     <div style="flex:1;">
-                        <label style="display:block;font-weight:700;font-size:0.85em;color:#9ca3af;margin-bottom:6px;">Poids corps (kg)</label>
+                        <label id="frcBodyweightLabel" style="display:block;font-weight:700;font-size:0.85em;color:#9ca3af;margin-bottom:6px;">Poids corps (kg)</label>
                         <input id="frcBodyweight" type="number" inputmode="decimal" placeholder="75" style="width:100%;padding:12px;border-radius:10px;background:#1e293b;color:#fff;border:1px solid rgba(255,255,255,0.12);font-size:1em;box-sizing:border-box;">
                     </div>
                 </div>
 
                 <div style="display:flex;gap:10px;">
                     <div style="flex:1;">
-                        <label style="display:block;font-weight:700;font-size:0.85em;color:#9ca3af;margin-bottom:6px;">Charge (kg)</label>
+                        <label id="frcWeightLabel" style="display:block;font-weight:700;font-size:0.85em;color:#9ca3af;margin-bottom:6px;">Charge (kg)</label>
                         <input id="frcWeight" type="number" inputmode="decimal" placeholder="100" style="width:100%;padding:12px;border-radius:10px;background:#1e293b;color:#fff;border:1px solid rgba(255,255,255,0.12);font-size:1em;box-sizing:border-box;">
                     </div>
                     <div style="flex:1;">
@@ -3099,7 +3099,7 @@
                 <input type="text" id="supersetName" placeholder="Ex: Pecs + Dos" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; margin-bottom: 15px;">
 
                 <!-- Filtres exercices superset -->
-                <div style="background: #fff8f6; border: 1px solid #bbf7d0; border-radius: 10px; padding: 12px; margin-bottom: 15px;">
+                <div class="wkt-filter-box" style="background: #fff8f6; border: 1px solid #bbf7d0; border-radius: 10px; padding: 12px; margin-bottom: 15px;">
                     <div style="font-size: 0.8em; font-weight: 700; color: #16a34a; margin-bottom: 8px;">🔍 Filtrer les exercices dans les listes</div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px;">
                         <input type="text" id="supersetSearchFilter" placeholder="Rechercher..." oninput="updateSupersetOptions()"
@@ -3189,7 +3189,7 @@
                 <input type="text" id="circuitName" placeholder="Ex: Full Body Blast" style="width: 100%; padding: 12px; border: 2px solid #6ee7b7; border-radius: 8px; margin-bottom: 15px; background: #f0fdf4; color: #065f46;">
 
                 <!-- Filtres exercices circuit -->
-                <div style="background: #f0fdf4; border: 1px solid #a7f3d0; border-radius: 10px; padding: 12px; margin-bottom: 15px;">
+                <div class="wkt-filter-box" style="background: #f0fdf4; border: 1px solid #a7f3d0; border-radius: 10px; padding: 12px; margin-bottom: 15px;">
                     <div style="font-size: 0.8em; font-weight: 700; color: #10b981; margin-bottom: 8px;">🔍 Filtrer les exercices dans les listes</div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px;">
                         <input type="text" id="circuitSearchFilter" placeholder="Rechercher..." oninput="updateCircuitOptions()"
@@ -3289,7 +3289,7 @@
                 </div>
 
                 <!-- Filtres exercices AMRAP -->
-                <div style="background: #fff5f5; border: 1px solid #fecaca; border-radius: 10px; padding: 12px; margin-bottom: 15px;">
+                <div class="wkt-filter-box" style="background: #fff5f5; border: 1px solid #fecaca; border-radius: 10px; padding: 12px; margin-bottom: 15px;">
                     <div style="font-size: 0.8em; font-weight: 700; color: #ef4444; margin-bottom: 8px;">🔍 Filtrer les exercices dans les listes</div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px;">
                         <input type="text" id="amrapSearchFilter" placeholder="Rechercher..." oninput="updateAMRAPOptions()"
@@ -3553,16 +3553,16 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/exercises.js?v=216"></script>
-    <script src="data/items.js?v=216"></script>
-    <script src="js/adventure.js?v=216"></script>
-    <script src="js/challenges.js?v=216"></script>
-    <script src="js/exercise-visuals.js?v=216"></script>
-    <script src="js/strength-standards.js?v=216"></script>
-    <script src="js/system-cards.js?v=216"></script>
-    <script src="js/share-card.js?v=216"></script>
-    <script src="js/story-events.js?v=216"></script>
-    <script src="js/app.js?v=216"></script>
+    <script src="js/exercises.js?v=234"></script>
+    <script src="data/items.js?v=234"></script>
+    <script src="js/adventure.js?v=234"></script>
+    <script src="js/challenges.js?v=234"></script>
+    <script src="js/exercise-visuals.js?v=234"></script>
+    <script src="js/strength-standards.js?v=234"></script>
+    <script src="js/system-cards.js?v=234"></script>
+    <script src="js/share-card.js?v=234"></script>
+    <script src="js/story-events.js?v=234"></script>
+    <script src="js/app.js?v=234"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>
