@@ -60,13 +60,27 @@ const STORY_EVENTS = [
             speaker: 'systeme',
             title: 'La Rencontre',
             image: 'images/story/rencontre.webp',
+            pageImages: [
+                null, null, null, null, null,
+                'images/story/rencontre_cocasse1.webp',
+                'images/story/rencontre_cocasse1.webp',
+                'images/story/rencontre_cocasse2.webp',
+                'images/story/rencontre_cocasse2.webp',
+                'images/story/rencontre_cocasse3.webp',
+                'images/story/rencontre_cocasse3.webp'
+            ],
             pages: [
                 "Un couloir que le monde a presque oublié. Les murs se défont en poussière lumineuse, verte d'un côté, violette de l'autre.",
                 "Quelqu'un se tient là. Une autre silhouette qui ne s'efface pas. Comme toi, elle tient debout dans ce qui s'effondre.",
                 "« Tiens. Un autre qui refuse de disparaître. » La voix est légère, presque amusée. « Moi c'est Nyra. Et toi, tu as l'air du genre silencieux. »",
                 "L'autre — Esen — ne répond pas tout de suite. Il observe. Puis, simplement : « On survit mieux à deux. »",
                 "Le Système consigne, à sa façon froide : « Deux Ancres. Vos signaux se renforcent quand vous êtes proches. Curieux. »",
-                "Vous ne le savez pas encore, mais à partir d'ici, vous ne marcherez plus seuls."
+                "À peine les présentations faites, Nyra tourne autour d'Esen comme un chat trop curieux. « Silencieux, sérieux, baraqué... » Elle lui pince la joue. « Oh, toi et moi, on va bien rigoler. »",
+                "Esen, parfaitement immobile : « ...Ne fais pas ça. » Nyra recommence aussitôt, morte de rire. Le Système, pince-sans-rire : « Compatibilité des Ancres : élevée. Patience d'Esen : en chute libre. »",
+                "Plus tard, Nyra fanfaronne sur sa technique imparable. Sans un mot, Esen lui prend sa boisson et en boit une gorgée, tranquille.",
+                "« HÉ ! C'était la mienne ! » Il la lui rend, impassible. « ...Imparable, en effet. » Pour une fois, c'est elle qui reste bouche bée.",
+                "Le soir, après l'effort, Nyra imite la voix grave et le sérieux d'Esen. L'imitation est si parfaite que même lui ne parvient pas à retenir un infime sourire.",
+                "« ...Ridicule, » lâche-t-il. Mais il ne s'en va pas. Le Système consigne quelque chose de nouveau : « Lien établi. À partir d'ici, vous ne marcherez plus seuls. »"
             ]
         }
     },
@@ -731,6 +745,7 @@ function storyShowEvent(evt) {
 
     function render() {
         const isLast = pageIdx >= pages.length - 1;
+        const image = (c.pageImages && c.pageImages[pageIdx]) ? c.pageImages[pageIdx] : (c.image || char.image);
         overlay.innerHTML = `
             <div style="max-width:400px;width:100%;max-height:90vh;overflow-y:auto;background:linear-gradient(165deg,${color}14,rgba(8,12,20,0.97) 60%);
                         border:1px solid ${color}55;border-radius:18px;padding:0;overflow-x:hidden;

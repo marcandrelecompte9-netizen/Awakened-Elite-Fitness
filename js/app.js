@@ -24199,93 +24199,23 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 if (_awakEpicIntroActive) return;
                 _awakEpicIntroActive = true;
 
-                // 🔊 Audio synthétisé (Web Audio API) — respecte le mute global (fitproMuted)
-                let audioCtx = null, masterGain = null; const droneNodes = [];
-                const audioOn = (localStorage.getItem('fitproMuted') !== 'true');
-                const initAudio = () => {
-                    if (!audioOn || audioCtx) return;
-                    try {
-                        const AC = window.AudioContext || window.webkitAudioContext;
-                        if (!AC) return;
-                        audioCtx = new AC();
-                        masterGain = audioCtx.createGain();
-                        masterGain.gain.value = 0.0001;
-                        masterGain.connect(audioCtx.destination);
-                        const filter = audioCtx.createBiquadFilter();
-                        filter.type = 'lowpass'; filter.frequency.value = 420; filter.connect(masterGain);
-                        [55, 82.5, 110].forEach((f, i) => {
-                            const o = audioCtx.createOscillator();
-                            o.type = (i === 2) ? 'triangle' : 'sawtooth';
-                            o.frequency.value = f; o.detune.value = (i - 1) * 6;
-                            const g = audioCtx.createGain(); g.gain.value = (i === 2) ? 0.12 : 0.2;
-                            o.connect(g); g.connect(filter); o.start(); droneNodes.push(o);
-                        });
-                        const lfo = audioCtx.createOscillator(); lfo.frequency.value = 0.08;
-                        const lfoGain = audioCtx.createGain(); lfoGain.gain.value = 160;
-                        lfo.connect(lfoGain); lfoGain.connect(filter.frequency); lfo.start(); droneNodes.push(lfo);
-                        const t = audioCtx.currentTime;
-                        masterGain.gain.setValueAtTime(0.0001, t);
-                        masterGain.gain.exponentialRampToValueAtTime(0.16, t + 2.5);
-                    } catch(e) { audioCtx = null; }
-                };
-                const resumeAudio = () => { try { if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); } catch(e){} };
-                const playBootBlips = () => {
-                    if (!audioCtx) return;
-                    try {
-                        const t0 = audioCtx.currentTime;
-                        [880, 1320, 990, 1480].forEach((f, i) => {
-                            const t = t0 + i * 0.18;
-                            const o = audioCtx.createOscillator(); o.type = 'square'; o.frequency.value = f;
-                            const g = audioCtx.createGain();
-                            g.gain.setValueAtTime(0.0001, t);
-                            g.gain.exponentialRampToValueAtTime(0.08, t + 0.01);
-                            g.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
-                            o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t + 0.14);
-                        });
-                    } catch(e){}
-                };
-                const playTitleHit = () => {
-                    if (!audioCtx) return;
-                    try {
-                        const t = audioCtx.currentTime;
-                        const o = audioCtx.createOscillator(); o.type = 'sine';
-                        o.frequency.setValueAtTime(220, t); o.frequency.exponentialRampToValueAtTime(40, t + 0.6);
-                        const g = audioCtx.createGain();
-                        g.gain.setValueAtTime(0.0001, t);
-                        g.gain.exponentialRampToValueAtTime(0.5, t + 0.02);
-                        g.gain.exponentialRampToValueAtTime(0.0001, t + 1.2);
-                        o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t + 1.3);
-                        const buf = audioCtx.createBuffer(1, Math.floor(audioCtx.sampleRate * 0.6), audioCtx.sampleRate);
-                        const d = buf.getChannelData(0);
-                        for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
-                        const noise = audioCtx.createBufferSource(); noise.buffer = buf;
-                        const nf = audioCtx.createBiquadFilter(); nf.type = 'highpass'; nf.frequency.value = 600;
-                        const ng = audioCtx.createGain(); ng.gain.setValueAtTime(0.22, t); ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.6);
-                        noise.connect(nf); nf.connect(ng); ng.connect(audioCtx.destination); noise.start(t);
-                        if (masterGain) { masterGain.gain.cancelScheduledValues(t); masterGain.gain.setValueAtTime(0.16, t); masterGain.gain.linearRampToValueAtTime(0.22, t + 0.3); masterGain.gain.linearRampToValueAtTime(0.16, t + 1.5); }
-                    } catch(e){}
-                };
-                const stopAudio = () => {
-                    if (!audioCtx) return;
-                    try {
-                        const t = audioCtx.currentTime;
-                        if (masterGain) { masterGain.gain.cancelScheduledValues(t); masterGain.gain.setValueAtTime(Math.max(0.0002, masterGain.gain.value || 0.16), t); masterGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.6); }
-                        setTimeout(() => { try { droneNodes.forEach(n => { try { n.stop && n.stop(); } catch(e){} }); audioCtx.close(); } catch(e){} audioCtx = null; }, 700);
-                    } catch(e){}
-                };
-                initAudio(); resumeAudio();
+                const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
                 if (!document.getElementById('awakEpicIntroStyle')) {
                     const st = document.createElement('style');
                     st.id = 'awakEpicIntroStyle';
                     st.textContent = `
-                        @keyframes awakBeatIn { from{opacity:0;transform:translateY(10px);filter:blur(3px)} to{opacity:1;transform:translateY(0);filter:blur(0)} }
-                        @keyframes awakTitleSlam { 0%{opacity:0;transform:scale(2.6);filter:blur(14px)} 55%{opacity:1;transform:scale(0.92);filter:blur(0)} 75%{transform:scale(1.04)} 100%{transform:scale(1)} }
-                        @keyframes awakEpicFlash { 0%{opacity:0} 10%{opacity:0.92} 100%{opacity:0} }
-                        @keyframes awakBootGlitch { 0%,100%{text-shadow:0 0 8px rgba(74,222,128,0.6)} 25%{text-shadow:-2px 0 #ec4899,2px 0 #22d3ee} 50%{text-shadow:2px 0 #ec4899,-2px 0 #22d3ee} 75%{text-shadow:-1px 0 #ec4899,1px 0 #22d3ee} }
-                        @keyframes awakTitleGlow { 0%,100%{text-shadow:0 0 24px rgba(6,182,212,0.7),0 0 50px rgba(6,182,212,0.4)} 50%{text-shadow:0 0 36px rgba(6,182,212,0.95),0 0 80px rgba(6,182,212,0.55)} }
+                        @keyframes awakWordIn { from{opacity:0;transform:translateY(14px);filter:blur(6px)} to{opacity:1;transform:translateY(0);filter:blur(0)} }
+                        @keyframes awakLetterIn { 0%{opacity:0;transform:translateY(-60px) scale(1.6);filter:blur(10px)} 60%{opacity:1;transform:translateY(4px) scale(0.96);filter:blur(0)} 100%{opacity:1;transform:translateY(0) scale(1)} }
+                        @keyframes awakShockwave { from{transform:translate(-50%,-50%) scale(0.1);opacity:0.85} to{transform:translate(-50%,-50%) scale(3.6);opacity:0} }
+                        @keyframes awakShake { 0%,100%{transform:translate(0,0)} 20%{transform:translate(-7px,4px)} 40%{transform:translate(6px,-5px)} 60%{transform:translate(-4px,-3px)} 80%{transform:translate(3px,5px)} }
+                        @keyframes awakEpicFlash { 0%{opacity:0} 8%{opacity:0.95} 100%{opacity:0} }
+                        @keyframes awakBootGlitch { 0%,100%{text-shadow:0 0 8px rgba(74,222,128,0.5)} 25%{text-shadow:-2px 0 #ec4899,2px 0 #22d3ee} 50%{text-shadow:2px 0 #ec4899,-2px 0 #22d3ee} 75%{text-shadow:-1px 0 #ec4899,1px 0 #22d3ee} }
+                        @keyframes awakCursorBlink { 0%,49%{opacity:1} 50%,100%{opacity:0} }
+                        @keyframes awakTitleGlow { 0%,100%{text-shadow:0 0 26px rgba(6,182,212,0.75),0 0 60px rgba(6,182,212,0.4)} 50%{text-shadow:0 0 40px rgba(6,182,212,1),0 0 95px rgba(6,182,212,0.6)} }
                         @keyframes awakKenBurns { from{transform:scale(1)} to{transform:scale(1.12)} }
-                        @keyframes awakFissure { 0%{transform:translateX(-50%) scaleY(0);opacity:0} 55%{opacity:1} 100%{transform:translateX(-50%) scaleY(1);opacity:0.95} }
+                        @keyframes awakFissureGrow { 0%{transform:translateX(-50%) rotate(var(--ang,0deg)) scaleY(0);opacity:0} 55%{opacity:1} 100%{transform:translateX(-50%) rotate(var(--ang,0deg)) scaleY(1);opacity:0.95} }
+                        @keyframes awakBeatIn { from{opacity:0;transform:translateY(10px);filter:blur(3px)} to{opacity:1;transform:translateY(0);filter:blur(0)} }
                     `;
                     document.head.appendChild(st);
                 }
@@ -24293,12 +24223,22 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 const overlay = document.createElement('div');
                 overlay.id = 'awakEpicIntroOverlay';
                 overlay.style.cssText = `position:fixed;inset:0;z-index:100002;background:#04060c;display:flex;align-items:center;justify-content:center;padding:32px 24px;cursor:pointer;opacity:0;animation:awakFadeIn 0.8s forwards;overflow:hidden;`;
+                setTimeout(() => { try { overlay.style.opacity = '1'; } catch(e) {} }, 900);
 
+                // ── Couches de fond ──────────────────────────────────────
                 const scan = document.createElement('div');
-                scan.style.cssText = `position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(180deg,transparent 0,transparent 3px,rgba(255,255,255,0.018) 3px,rgba(255,255,255,0.018) 4px);`;
+                scan.style.cssText = `position:absolute;inset:0;pointer-events:none;z-index:2;background:repeating-linear-gradient(180deg,transparent 0,transparent 3px,rgba(255,255,255,0.018) 3px,rgba(255,255,255,0.018) 4px);`;
                 overlay.appendChild(scan);
 
-                // 🖼️ Fond PAR BEAT « le monde qui s'efface » — un visuel par phrase, fondu + fallback gracieux
+                const vignette = document.createElement('div');
+                vignette.style.cssText = `position:absolute;inset:0;pointer-events:none;z-index:2;background:radial-gradient(ellipse at center, transparent 52%, rgba(0,0,0,0.55) 100%);`;
+                overlay.appendChild(vignette);
+
+                const flash = document.createElement('div');
+                flash.style.cssText = `position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:4;`;
+                overlay.appendChild(flash);
+
+                // 🖼️ Fond PAR BEAT — un visuel par phrase, fondu + fallback gracieux
                 const beatImages = [
                     'images/story/intro_beat1.webp',
                     'images/story/intro_beat2.webp',
@@ -24325,27 +24265,33 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     }, 240);
                 };
 
-                // ✨ Particules « poussière qui s'efface » (canvas, sans image)
+                // ✨ Particules « poussière qui s'efface » — deux profondeurs (parallaxe)
                 const canvas = document.createElement('canvas');
                 canvas.style.cssText = `position:absolute;inset:0;z-index:1;pointer-events:none;`;
                 canvas.width = window.innerWidth; canvas.height = window.innerHeight;
                 overlay.appendChild(canvas);
                 const ctx = canvas.getContext('2d');
-                const PW = canvas.width, PH = canvas.height;
                 const parts = [];
-                for (let i = 0; i < 64; i++) parts.push({
-                    x: Math.random()*PW, y: Math.random()*PH, r: Math.random()*1.8 + 0.4,
-                    vx: (Math.random()-0.5)*0.25, vy: -(Math.random()*0.4 + 0.1),
-                    a: Math.random()*0.5 + 0.1, da: (Math.random()*0.004 + 0.001) * (Math.random() < 0.5 ? 1 : -1)
+                const mkPart = (far) => ({
+                    x: Math.random()*canvas.width, y: Math.random()*canvas.height,
+                    r: far ? (Math.random()*0.9 + 0.3) : (Math.random()*1.9 + 0.7),
+                    vx: (Math.random()-0.5) * (far ? 0.10 : 0.30),
+                    vy: -(Math.random()*0.35 + 0.05) * (far ? 0.5 : 1.1),
+                    a: Math.random()*0.5 + 0.08,
+                    da: (Math.random()*0.004 + 0.001) * (Math.random() < 0.5 ? 1 : -1),
+                    far
                 });
+                for (let i = 0; i < 42; i++) parts.push(mkPart(true));
+                for (let i = 0; i < 34; i++) parts.push(mkPart(false));
                 let raf = null;
                 const tick = () => {
-                    ctx.clearRect(0,0,PW,PH);
+                    const W = canvas.width, H = canvas.height;
+                    ctx.clearRect(0,0,W,H);
                     for (const p of parts) {
                         p.x += p.vx; p.y += p.vy; p.a += p.da;
-                        if (p.a > 0.7 || p.a < 0.04) p.da *= -1;
-                        if (p.y < -6) { p.y = PH + 6; p.x = Math.random()*PW; }
-                        if (p.x < -6) p.x = PW + 6; else if (p.x > PW + 6) p.x = -6;
+                        if (p.a > (p.far ? 0.45 : 0.7) || p.a < 0.04) p.da *= -1;
+                        if (p.y < -6) { p.y = H + 6; p.x = Math.random()*W; }
+                        if (p.x < -6) p.x = W + 6; else if (p.x > W + 6) p.x = -6;
                         ctx.beginPath();
                         ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
                         ctx.fillStyle = 'rgba(226,232,240,' + Math.max(0, p.a).toFixed(2) + ')';
@@ -24354,38 +24300,116 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     raf = requestAnimationFrame(tick);
                 };
                 tick();
+                const onResize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+                window.addEventListener('resize', onResize);
 
-                // 💥 Fissure de lumière (animée au boot du Système)
-                const fissure = document.createElement('div');
-                fissure.style.cssText = `position:absolute;left:50%;top:0;bottom:0;width:2px;transform:translateX(-50%) scaleY(0);transform-origin:center;background:linear-gradient(to bottom,transparent,rgba(6,182,212,0.9),#ffffff,rgba(6,182,212,0.9),transparent);box-shadow:0 0 30px 8px rgba(6,182,212,0.55);z-index:1;opacity:0;pointer-events:none;`;
-                overlay.appendChild(fissure);
+                // 💥 Fissures ramifiées (3 éclats, légèrement inclinés, en cascade)
+                const fissures = [];
+                [['44%','-7deg','0s'],['50%','0deg','0.10s'],['57%','8deg','0.18s']].forEach(cfg => {
+                    const f = document.createElement('div');
+                    f.style.cssText = `position:absolute;left:${cfg[0]};top:0;bottom:0;width:2px;--ang:${cfg[1]};transform:translateX(-50%) rotate(${cfg[1]}) scaleY(0);transform-origin:center;background:linear-gradient(to bottom,transparent,rgba(6,182,212,0.9),#ffffff,rgba(6,182,212,0.9),transparent);box-shadow:0 0 30px 8px rgba(6,182,212,0.5);z-index:1;opacity:0;pointer-events:none;`;
+                    f._delay = cfg[2];
+                    overlay.appendChild(f);
+                    fissures.push(f);
+                });
 
-                // 🖼️ Emplacement key-art du titre — facultatif (dégradation gracieuse)
+                // 💍 Onde de choc du titre
+                const shock = document.createElement('div');
+                shock.style.cssText = `position:absolute;left:50%;top:50%;width:240px;height:240px;border-radius:50%;border:2px solid rgba(6,182,212,0.8);box-shadow:0 0 40px rgba(6,182,212,0.5), inset 0 0 30px rgba(6,182,212,0.3);transform:translate(-50%,-50%) scale(0.1);opacity:0;pointer-events:none;z-index:3;`;
+                overlay.appendChild(shock);
+
+                // 🖼️ Key-art du titre — facultative (dégradation gracieuse)
                 const titleArt = document.createElement('img');
                 titleArt.src = 'images/story/intro_titre.webp';
                 titleArt.style.cssText = `position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);max-width:82%;max-height:72%;z-index:1;opacity:0;transition:opacity 1.5s ease;pointer-events:none;filter:drop-shadow(0 0 40px rgba(6,182,212,0.35));`;
                 titleArt.onerror = () => { try { titleArt.remove(); } catch(e) {} };
                 overlay.appendChild(titleArt);
 
-                // 📝 Légende d'épilogue (bas d'écran, scrim sombre pour rester lisible sur image vive)
-                const epiCaption = document.createElement('div');
-                epiCaption.style.cssText = `position:absolute;left:0;right:0;bottom:0;z-index:3;padding:64px 28px 46px;text-align:center;background:linear-gradient(to top, rgba(4,6,12,0.94), rgba(4,6,12,0.6) 55%, transparent);opacity:0;transition:opacity 0.8s ease;pointer-events:none;`;
-                overlay.appendChild(epiCaption);
-
-                const flash = document.createElement('div');
-                flash.style.cssText = `position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;`;
-                overlay.appendChild(flash);
-
                 const stage = document.createElement('div');
-                stage.style.cssText = `position:relative;z-index:2;max-width:560px;width:100%;text-align:center;`;
+                stage.style.cssText = `position:relative;z-index:3;max-width:560px;width:100%;text-align:center;`;
                 overlay.appendChild(stage);
 
+                // 📝 Légende des cartes (bas d'écran, scrim sombre pour la lisibilité)
+                const epiCaption = document.createElement('div');
+                epiCaption.style.cssText = `position:absolute;left:0;right:0;bottom:0;z-index:3;padding:64px 28px 58px;text-align:center;background:linear-gradient(to top, rgba(4,6,12,0.94), rgba(4,6,12,0.6) 55%, transparent);opacity:0;transition:opacity 0.8s ease;pointer-events:none;`;
+                overlay.appendChild(epiCaption);
+
+                // ⏭ Bouton Passer + ● points de progression
                 const skip = document.createElement('button');
                 skip.textContent = 'Passer ›';
-                skip.style.cssText = `position:absolute;top:16px;right:16px;z-index:5;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.55);padding:8px 14px;border-radius:20px;font-size:0.8em;font-weight:700;cursor:pointer;letter-spacing:1px;`;
+                skip.style.cssText = `position:absolute;top:16px;right:16px;z-index:6;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.55);padding:8px 14px;border-radius:20px;font-size:0.8em;font-weight:700;cursor:pointer;letter-spacing:1px;`;
                 overlay.appendChild(skip);
 
+                const dotsBar = document.createElement('div');
+                dotsBar.style.cssText = `position:absolute;left:0;right:0;bottom:14px;z-index:6;display:flex;justify-content:center;gap:7px;pointer-events:none;`;
+                overlay.appendChild(dotsBar);
+
                 document.body.appendChild(overlay);
+
+                // 🔊 Son synthétisé (Web Audio, aucun fichier) — activé au premier toucher
+                let AC = null, masterGain = null, droneOsc = [];
+                const audio = {
+                    ensure() {
+                        try {
+                            if (AC) { if (AC.state === 'suspended') AC.resume(); return; }
+                            const Ctx = window.AudioContext || window.webkitAudioContext;
+                            if (!Ctx) return;
+                            AC = new Ctx();
+                            masterGain = AC.createGain();
+                            masterGain.gain.value = 0.0001;
+                            masterGain.connect(AC.destination);
+                            const lp = AC.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 220; lp.connect(masterGain);
+                            [55, 55.7].forEach(fr => {
+                                const o = AC.createOscillator(); o.type = 'sawtooth'; o.frequency.value = fr;
+                                const g = AC.createGain(); g.gain.value = 0.07;
+                                o.connect(g); g.connect(lp); o.start(); droneOsc.push(o);
+                            });
+                            masterGain.gain.linearRampToValueAtTime(0.45, AC.currentTime + 2.5);
+                        } catch(e) {}
+                    },
+                    blip() {
+                        try {
+                            if (!AC) return;
+                            const o = AC.createOscillator(); o.type = 'sine'; o.frequency.value = 740;
+                            const g = AC.createGain();
+                            g.gain.setValueAtTime(0.0001, AC.currentTime);
+                            g.gain.exponentialRampToValueAtTime(0.10, AC.currentTime + 0.015);
+                            g.gain.exponentialRampToValueAtTime(0.0001, AC.currentTime + 0.16);
+                            o.connect(g); g.connect(AC.destination);
+                            o.start(); o.stop(AC.currentTime + 0.18);
+                        } catch(e) {}
+                    },
+                    impact() {
+                        try {
+                            if (!AC) return;
+                            const o = AC.createOscillator(); o.type = 'sine';
+                            o.frequency.setValueAtTime(140, AC.currentTime);
+                            o.frequency.exponentialRampToValueAtTime(36, AC.currentTime + 0.5);
+                            const g = AC.createGain();
+                            g.gain.setValueAtTime(0.55, AC.currentTime);
+                            g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + 0.9);
+                            o.connect(g); g.connect(AC.destination);
+                            o.start(); o.stop(AC.currentTime + 1);
+                            const len = Math.floor(AC.sampleRate * 0.4);
+                            const buf = AC.createBuffer(1, len, AC.sampleRate);
+                            const d = buf.getChannelData(0);
+                            for (let i = 0; i < len; i++) d[i] = (Math.random()*2 - 1) * Math.pow(1 - i/len, 2.2);
+                            const n = AC.createBufferSource(); n.buffer = buf;
+                            const hp = AC.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 900;
+                            const ng = AC.createGain(); ng.gain.value = 0.22;
+                            n.connect(hp); hp.connect(ng); ng.connect(AC.destination); n.start();
+                        } catch(e) {}
+                    },
+                    stop() {
+                        try {
+                            if (!AC) return;
+                            masterGain.gain.linearRampToValueAtTime(0.0001, AC.currentTime + 0.5);
+                            const ac = AC, osc = droneOsc; AC = null; droneOsc = [];
+                            setTimeout(() => { try { osc.forEach(o => o.stop()); ac.close(); } catch(e) {} }, 700);
+                        } catch(e) {}
+                    }
+                };
+                overlay.addEventListener('pointerdown', () => audio.ensure(), { passive: true });
 
                 const fmt = (txt) => String(txt)
                     .replace(/\*\*([^*]+)\*\*/g, '<strong style="color:#22c55e;letter-spacing:2px;">$1</strong>')
@@ -24404,34 +24428,72 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 } catch(e) {}
 
                 const beats = [];
+                let bootTimer = null;
+
+                // ── 1) Narration de l'effacement : lignes révélées en cascade ──
                 narrativeBeats.forEach((text, i) => {
-                    beats.push({ hold: 3200, render: () => {
+                    beats.push({ hold: 3400, render: () => {
                         setBeatBg(beatImages[i]);
-                        stage.innerHTML = `<div style="font-size:1.25em;line-height:1.85;color:#e2e8f0;font-family:'Courier New',monospace;animation:awakBeatIn 1s ease forwards;">${fmt(text)}</div>`;
+                        epiCaption.style.opacity = '0';
+                        const lines = String(text).split('\n').map((ln, j) =>
+                            `<div style="opacity:0;animation:awakWordIn 0.9s ease ${(j*0.45).toFixed(2)}s forwards;">${fmt(ln)}</div>`
+                        ).join('');
+                        stage.innerHTML = `<div style="font-size:1.28em;line-height:1.9;color:#e2e8f0;font-family:'Courier New',monospace;text-shadow:0 2px 14px rgba(0,0,0,0.9);">${lines}</div>`;
+                        audio.blip();
                     }});
                 });
-                beats.push({ hold: 2800, render: () => {
+
+                // ── 2) Boot du Système : machine à écrire + curseur + fissures ──
+                beats.push({ hold: 4400, render: () => {
                     setBeatBg(null);
-                    fissure.style.animation = 'none'; void fissure.offsetWidth; fissure.style.animation = 'awakFissure 0.7s ease forwards';
-                    stage.innerHTML = `<div style="font-family:'Courier New',monospace;color:#4ade80;font-size:1.05em;line-height:2;text-align:left;display:inline-block;animation:awakBootGlitch 0.9s steps(2) 2, awakBeatIn 0.5s ease;">▸ signal détecté dans le silence<br>▸ une présence refuse de s'effacer<br>▸ ancre identifiée<br>▸ <strong style="color:#22c55e;">système d'éveil — initialisation…</strong></div>`;
-                    if (typeof hapticTap === 'function') hapticTap([20,40,20,40]);
-                    playBootBlips();
-                }});
-                beats.push({ hold: 3000, render: () => {
-                    setBeatBg(null);
-                    fissure.style.animation = 'none'; fissure.style.opacity = '0';
-                    if (titleArt && titleArt.parentNode) titleArt.style.opacity = '0.5';
-                    flash.style.animation = 'none'; void flash.offsetWidth; flash.style.animation = 'awakEpicFlash 0.8s ease forwards';
-                    stage.innerHTML = `
-                        <div style="font-size:0.6em;letter-spacing:6px;color:#06b6d4;text-transform:uppercase;margin-bottom:14px;font-family:'Courier New',monospace;opacity:0;animation:awakBeatIn 0.8s ease 0.5s forwards;">▸ tu es éveillé ◂</div>
-                        <div style="font-size:3.4em;font-weight:900;letter-spacing:4px;color:#fff;animation:awakTitleSlam 0.9s cubic-bezier(0.2,0.9,0.2,1) forwards, awakTitleGlow 2.6s ease 0.9s infinite;">AWAKENED</div>
-                        <div style="margin-top:18px;font-size:0.95em;color:#94a3b8;font-style:italic;opacity:0;animation:awakBeatIn 0.9s ease 1s forwards;">Lève-toi, Chasseur.</div>
-                        <div style="margin-top:30px;font-size:0.62em;letter-spacing:2px;color:#475569;opacity:0;animation:awakBeatIn 0.9s ease 1.6s forwards;">— tape pour commencer —</div>`;
-                    if (typeof hapticTap === 'function') hapticTap([80,40,160]);
-                    playTitleHit();
+                    epiCaption.style.opacity = '0';
+                    fissures.forEach(f => { f.style.animation = 'none'; void f.offsetWidth; f.style.animation = `awakFissureGrow 0.7s ease ${f._delay} forwards`; });
+                    stage.innerHTML = `<div id="awakBootBox" style="font-family:'Courier New',monospace;color:#4ade80;font-size:1.02em;line-height:2;text-align:left;display:inline-block;min-height:8em;animation:awakBootGlitch 0.9s steps(2) 3;text-shadow:0 0 8px rgba(74,222,128,0.5);"></div>`;
+                    const box = stage.querySelector('#awakBootBox');
+                    const lines = ['▸ signal détecté dans le silence', '▸ une présence refuse de s\'effacer', '▸ ancre identifiée', '▸ SYSTÈME D\'ÉVEIL — INITIALISATION…'];
+                    const cursor = '<span style="display:inline-block;width:0.55em;height:1em;vertical-align:-0.15em;background:#4ade80;animation:awakCursorBlink 0.8s steps(1) infinite;"></span>';
+                    let li = 0, ci = 0, doneTxt = '';
+                    if (bootTimer) { clearInterval(bootTimer); bootTimer = null; }
+                    bootTimer = setInterval(() => {
+                        if (!box || !box.isConnected) { clearInterval(bootTimer); bootTimer = null; return; }
+                        ci++;
+                        if (ci >= lines[li].length) {
+                            doneTxt += lines[li] + '<br>';
+                            li++; ci = 0;
+                            audio.blip();
+                            if (typeof hapticTap === 'function') hapticTap(15);
+                            if (li >= lines.length) {
+                                clearInterval(bootTimer); bootTimer = null;
+                                box.innerHTML = doneTxt + cursor;
+                                return;
+                            }
+                        }
+                        box.innerHTML = doneTxt + lines[li].slice(0, ci) + cursor;
+                    }, 26);
                 }});
 
-                // ── Les Failles : le réel se déchire, partout sur la Terre ──
+                // ── 3) Titre AWAKENED : lettres + onde de choc + flash + secousse ──
+                beats.push({ hold: 3600, render: () => {
+                    setBeatBg(null);
+                    epiCaption.style.opacity = '0';
+                    fissures.forEach(f => { f.style.animation = 'none'; f.style.opacity = '0'; });
+                    if (titleArt && titleArt.parentNode) titleArt.style.opacity = '0.5';
+                    flash.style.animation = 'none'; void flash.offsetWidth; flash.style.animation = 'awakEpicFlash 0.9s ease 0.4s forwards';
+                    shock.style.animation = 'none'; void shock.offsetWidth; shock.style.animation = 'awakShockwave 1.1s cubic-bezier(0.2,0.8,0.3,1) 0.45s forwards';
+                    if (!reduceMotion) { overlay.style.animation = 'none'; void overlay.offsetWidth; overlay.style.animation = 'awakShake 0.5s ease 0.5s 1'; }
+                    const letters = 'AWAKENED'.split('').map((c, k) =>
+                        `<span style="display:inline-block;opacity:0;animation:awakLetterIn 0.55s cubic-bezier(0.2,0.9,0.2,1) ${(0.35 + k*0.07).toFixed(2)}s forwards;">${c}</span>`
+                    ).join('');
+                    stage.innerHTML = `
+                        <div style="font-size:0.6em;letter-spacing:6px;color:#06b6d4;text-transform:uppercase;margin-bottom:14px;font-family:'Courier New',monospace;opacity:0;animation:awakBeatIn 0.8s ease 1.15s forwards;">▸ tu es éveillé ◂</div>
+                        <div style="font-size:3.4em;font-weight:900;letter-spacing:5px;color:#fff;animation:awakTitleGlow 2.6s ease 1.3s infinite;">${letters}</div>
+                        <div style="margin-top:18px;font-size:0.95em;color:#94a3b8;font-style:italic;opacity:0;animation:awakBeatIn 0.9s ease 1.5s forwards;">Lève-toi, Chasseur.</div>
+                        <div style="margin-top:30px;font-size:0.62em;letter-spacing:2px;color:#475569;opacity:0;animation:awakBeatIn 0.9s ease 2s forwards;">— tape pour continuer —</div>`;
+                    setTimeout(() => audio.impact(), 430);
+                    if (typeof hapticTap === 'function') setTimeout(() => hapticTap([90,40,180]), 430);
+                }});
+
+                // ── 4) Les Failles : de simples portails, partout sur la Terre ──
                 const failles = [
                     { img: 'images/story/intro_faille1.webp', text: `*Là où le monde s'efface, des Failles s'ouvrent.*` },
                     { img: 'images/story/intro_faille2.webp', text: `*De simples portails — mais il en surgit partout sur la Terre.*` },
@@ -24444,10 +24506,11 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         stage.innerHTML = '';
                         epiCaption.style.opacity = '1';
                         epiCaption.innerHTML = `<div style="font-size:1.05em;line-height:1.7;color:#e2e8f0;font-family:'Courier New',monospace;animation:awakBeatIn 0.9s ease;">${fmt(fa.text)}</div>`;
+                        audio.blip();
                     }});
                 });
 
-                // ── Épilogue : d'autres tiennent aussi, séparés, dans un monde encore vivant ──
+                // ── 5) Épilogue : d'autres tiennent aussi, séparés, dans un monde encore vivant ──
                 const epilogue = [
                     { img: 'images/story/intro_duo_separes.webp', text: `*Tu n'es pas seul à tenir.*\n*Ailleurs, d'autres refusent de s'effacer — chacun de leur côté.*` },
                     { img: 'images/story/intro_duo_entrainement.webp', text: `*Et comme toi, ils s'éveillent.*\n*Un entraînement, puis un autre. C'est ainsi qu'on résiste.*` }
@@ -24459,14 +24522,29 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         stage.innerHTML = '';
                         epiCaption.style.opacity = '1';
                         epiCaption.innerHTML = `<div style="font-size:1.05em;line-height:1.7;color:#e2e8f0;font-family:'Courier New',monospace;animation:awakBeatIn 0.9s ease;">${fmt(ep.text)}</div>`;
+                        audio.blip();
                     }});
+                });
+
+                // ● Points de progression
+                const dots = beats.map(() => {
+                    const d = document.createElement('div');
+                    d.style.cssText = `width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.18);transition:background 0.3s ease, transform 0.3s ease;`;
+                    dotsBar.appendChild(d);
+                    return d;
+                });
+                const setDot = (i) => dots.forEach((d, k) => {
+                    d.style.background = k === i ? 'rgba(6,182,212,0.95)' : (k < i ? 'rgba(6,182,212,0.35)' : 'rgba(255,255,255,0.18)');
+                    d.style.transform = k === i ? 'scale(1.35)' : 'scale(1)';
                 });
 
                 let idx = -1, timer = null;
                 const finish = () => {
                     if (timer) { clearTimeout(timer); timer = null; }
+                    if (bootTimer) { clearInterval(bootTimer); bootTimer = null; }
                     if (raf) { cancelAnimationFrame(raf); raf = null; }
-                    stopAudio();
+                    window.removeEventListener('resize', onResize);
+                    audio.stop();
                     try { localStorage.setItem(AWAKENED_EPIC_INTRO_KEY, 'true'); } catch(e) {}
                     try { localStorage.setItem(AWAKENED_GAMETAB_INTRO_KEY, 'true'); } catch(e) {} // prologue absorbé
                     _awakEpicIntroActive = false;
@@ -24475,13 +24553,15 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 };
                 const next = () => {
                     if (timer) { clearTimeout(timer); timer = null; }
+                    if (bootTimer) { clearInterval(bootTimer); bootTimer = null; }
                     idx++;
                     if (idx >= beats.length) { finish(); return; }
+                    setDot(idx);
                     beats[idx].render();
                     timer = setTimeout(next, beats[idx].hold);
                 };
 
-                overlay.addEventListener('click', () => { resumeAudio(); next(); });
+                overlay.addEventListener('click', () => { next(); });
                 skip.addEventListener('click', (e) => { e.stopPropagation(); finish(); });
                 setTimeout(next, 900);
             } catch(e) {
