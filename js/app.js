@@ -5802,9 +5802,10 @@
             if (saved) {
                 try { selectedEquipment = JSON.parse(saved); } catch(e) { selectedEquipment = ['bodyweight']; }
             } else {
-                // Tout coché par défaut sauf machines cardio spécialisées (tapis, rameur, vélo, etc.)
+                // Tout coché par défaut sauf les machines (catégorie « Machine » + cardio spécialisés) :
+                // par défaut on est à la Maison, où les machines de salle ne devraient pas être présélectionnées.
                 selectedEquipment = availableEquipment
-                    .filter(eq => !['treadmill','rower','bike','elliptical','stairmaster','battleropes'].includes(eq.id))
+                    .filter(eq => !['machine','treadmill','rower','bike','elliptical','stairmaster','battleropes'].includes(eq.id))
                     .map(eq => eq.id);
             }
             
@@ -24184,13 +24185,321 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         }
         window.awakShowGameGuide = awakShowGameGuide;
 
-        // 🎬 Orchestrateur d'onboarding : fenêtre explicative PUIS prologue narratif.
+        // ═══════════════════════════════════════════════════════════════
+        // 🎬 CINÉMATIQUE D'ÉVEIL — introduction épique (Palier 1)
+        // Texte narratif révélé beat par beat → boot du Système → titre AWAKENED.
+        // Joue une fois par profil, absorbe le prologue. Tap = avancer ; bouton Passer.
+        // ═══════════════════════════════════════════════════════════════
+        const AWAKENED_EPIC_INTRO_KEY = 'awakEpicIntroSeen';
+        let _awakEpicIntroActive = false;
+        function awakShowEpicIntro(onDone) {
+            const done = () => { if (typeof onDone === 'function') onDone(); };
+            try {
+                if (localStorage.getItem(AWAKENED_EPIC_INTRO_KEY) === 'true') { done(); return; }
+                if (_awakEpicIntroActive) return;
+                _awakEpicIntroActive = true;
+
+                // 🔊 Audio synthétisé (Web Audio API) — respecte le mute global (fitproMuted)
+                let audioCtx = null, masterGain = null; const droneNodes = [];
+                const audioOn = (localStorage.getItem('fitproMuted') !== 'true');
+                const initAudio = () => {
+                    if (!audioOn || audioCtx) return;
+                    try {
+                        const AC = window.AudioContext || window.webkitAudioContext;
+                        if (!AC) return;
+                        audioCtx = new AC();
+                        masterGain = audioCtx.createGain();
+                        masterGain.gain.value = 0.0001;
+                        masterGain.connect(audioCtx.destination);
+                        const filter = audioCtx.createBiquadFilter();
+                        filter.type = 'lowpass'; filter.frequency.value = 420; filter.connect(masterGain);
+                        [55, 82.5, 110].forEach((f, i) => {
+                            const o = audioCtx.createOscillator();
+                            o.type = (i === 2) ? 'triangle' : 'sawtooth';
+                            o.frequency.value = f; o.detune.value = (i - 1) * 6;
+                            const g = audioCtx.createGain(); g.gain.value = (i === 2) ? 0.12 : 0.2;
+                            o.connect(g); g.connect(filter); o.start(); droneNodes.push(o);
+                        });
+                        const lfo = audioCtx.createOscillator(); lfo.frequency.value = 0.08;
+                        const lfoGain = audioCtx.createGain(); lfoGain.gain.value = 160;
+                        lfo.connect(lfoGain); lfoGain.connect(filter.frequency); lfo.start(); droneNodes.push(lfo);
+                        const t = audioCtx.currentTime;
+                        masterGain.gain.setValueAtTime(0.0001, t);
+                        masterGain.gain.exponentialRampToValueAtTime(0.16, t + 2.5);
+                    } catch(e) { audioCtx = null; }
+                };
+                const resumeAudio = () => { try { if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); } catch(e){} };
+                const playBootBlips = () => {
+                    if (!audioCtx) return;
+                    try {
+                        const t0 = audioCtx.currentTime;
+                        [880, 1320, 990, 1480].forEach((f, i) => {
+                            const t = t0 + i * 0.18;
+                            const o = audioCtx.createOscillator(); o.type = 'square'; o.frequency.value = f;
+                            const g = audioCtx.createGain();
+                            g.gain.setValueAtTime(0.0001, t);
+                            g.gain.exponentialRampToValueAtTime(0.08, t + 0.01);
+                            g.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
+                            o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t + 0.14);
+                        });
+                    } catch(e){}
+                };
+                const playTitleHit = () => {
+                    if (!audioCtx) return;
+                    try {
+                        const t = audioCtx.currentTime;
+                        const o = audioCtx.createOscillator(); o.type = 'sine';
+                        o.frequency.setValueAtTime(220, t); o.frequency.exponentialRampToValueAtTime(40, t + 0.6);
+                        const g = audioCtx.createGain();
+                        g.gain.setValueAtTime(0.0001, t);
+                        g.gain.exponentialRampToValueAtTime(0.5, t + 0.02);
+                        g.gain.exponentialRampToValueAtTime(0.0001, t + 1.2);
+                        o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t + 1.3);
+                        const buf = audioCtx.createBuffer(1, Math.floor(audioCtx.sampleRate * 0.6), audioCtx.sampleRate);
+                        const d = buf.getChannelData(0);
+                        for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
+                        const noise = audioCtx.createBufferSource(); noise.buffer = buf;
+                        const nf = audioCtx.createBiquadFilter(); nf.type = 'highpass'; nf.frequency.value = 600;
+                        const ng = audioCtx.createGain(); ng.gain.setValueAtTime(0.22, t); ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.6);
+                        noise.connect(nf); nf.connect(ng); ng.connect(audioCtx.destination); noise.start(t);
+                        if (masterGain) { masterGain.gain.cancelScheduledValues(t); masterGain.gain.setValueAtTime(0.16, t); masterGain.gain.linearRampToValueAtTime(0.22, t + 0.3); masterGain.gain.linearRampToValueAtTime(0.16, t + 1.5); }
+                    } catch(e){}
+                };
+                const stopAudio = () => {
+                    if (!audioCtx) return;
+                    try {
+                        const t = audioCtx.currentTime;
+                        if (masterGain) { masterGain.gain.cancelScheduledValues(t); masterGain.gain.setValueAtTime(Math.max(0.0002, masterGain.gain.value || 0.16), t); masterGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.6); }
+                        setTimeout(() => { try { droneNodes.forEach(n => { try { n.stop && n.stop(); } catch(e){} }); audioCtx.close(); } catch(e){} audioCtx = null; }, 700);
+                    } catch(e){}
+                };
+                initAudio(); resumeAudio();
+
+                if (!document.getElementById('awakEpicIntroStyle')) {
+                    const st = document.createElement('style');
+                    st.id = 'awakEpicIntroStyle';
+                    st.textContent = `
+                        @keyframes awakBeatIn { from{opacity:0;transform:translateY(10px);filter:blur(3px)} to{opacity:1;transform:translateY(0);filter:blur(0)} }
+                        @keyframes awakTitleSlam { 0%{opacity:0;transform:scale(2.6);filter:blur(14px)} 55%{opacity:1;transform:scale(0.92);filter:blur(0)} 75%{transform:scale(1.04)} 100%{transform:scale(1)} }
+                        @keyframes awakEpicFlash { 0%{opacity:0} 10%{opacity:0.92} 100%{opacity:0} }
+                        @keyframes awakBootGlitch { 0%,100%{text-shadow:0 0 8px rgba(74,222,128,0.6)} 25%{text-shadow:-2px 0 #ec4899,2px 0 #22d3ee} 50%{text-shadow:2px 0 #ec4899,-2px 0 #22d3ee} 75%{text-shadow:-1px 0 #ec4899,1px 0 #22d3ee} }
+                        @keyframes awakTitleGlow { 0%,100%{text-shadow:0 0 24px rgba(6,182,212,0.7),0 0 50px rgba(6,182,212,0.4)} 50%{text-shadow:0 0 36px rgba(6,182,212,0.95),0 0 80px rgba(6,182,212,0.55)} }
+                        @keyframes awakKenBurns { from{transform:scale(1)} to{transform:scale(1.12)} }
+                        @keyframes awakFissure { 0%{transform:translateX(-50%) scaleY(0);opacity:0} 55%{opacity:1} 100%{transform:translateX(-50%) scaleY(1);opacity:0.95} }
+                    `;
+                    document.head.appendChild(st);
+                }
+
+                const overlay = document.createElement('div');
+                overlay.id = 'awakEpicIntroOverlay';
+                overlay.style.cssText = `position:fixed;inset:0;z-index:100002;background:#04060c;display:flex;align-items:center;justify-content:center;padding:32px 24px;cursor:pointer;opacity:0;animation:awakFadeIn 0.8s forwards;overflow:hidden;`;
+
+                const scan = document.createElement('div');
+                scan.style.cssText = `position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(180deg,transparent 0,transparent 3px,rgba(255,255,255,0.018) 3px,rgba(255,255,255,0.018) 4px);`;
+                overlay.appendChild(scan);
+
+                // 🖼️ Fond PAR BEAT « le monde qui s'efface » — un visuel par phrase, fondu + fallback gracieux
+                const beatImages = [
+                    'images/story/intro_beat1.webp',
+                    'images/story/intro_beat2.webp',
+                    'images/story/intro_beat3.webp',
+                    'images/story/intro_beat4.webp',
+                    'images/story/intro_beat5.webp',
+                    'images/story/intro_beat6.webp'
+                ];
+                const bgImg = document.createElement('img');
+                bgImg.style.cssText = `position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:0;transition:opacity 0.9s ease;`;
+                overlay.appendChild(bgImg);
+                let _bgToken = 0;
+                const setBeatBg = (src, op) => {
+                    op = (typeof op === 'number') ? op : 0.30;
+                    const myToken = ++_bgToken;
+                    bgImg.style.opacity = '0';
+                    if (!src) return;
+                    setTimeout(() => {
+                        if (myToken !== _bgToken) return; // un beat plus récent a pris la main
+                        bgImg.onload = () => { if (myToken === _bgToken) { bgImg.style.animation = 'awakKenBurns 8s ease-out forwards'; bgImg.style.opacity = String(op); } };
+                        bgImg.onerror = () => { bgImg.style.opacity = '0'; };
+                        bgImg.style.animation = 'none';
+                        bgImg.src = src;
+                    }, 240);
+                };
+
+                // ✨ Particules « poussière qui s'efface » (canvas, sans image)
+                const canvas = document.createElement('canvas');
+                canvas.style.cssText = `position:absolute;inset:0;z-index:1;pointer-events:none;`;
+                canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+                overlay.appendChild(canvas);
+                const ctx = canvas.getContext('2d');
+                const PW = canvas.width, PH = canvas.height;
+                const parts = [];
+                for (let i = 0; i < 64; i++) parts.push({
+                    x: Math.random()*PW, y: Math.random()*PH, r: Math.random()*1.8 + 0.4,
+                    vx: (Math.random()-0.5)*0.25, vy: -(Math.random()*0.4 + 0.1),
+                    a: Math.random()*0.5 + 0.1, da: (Math.random()*0.004 + 0.001) * (Math.random() < 0.5 ? 1 : -1)
+                });
+                let raf = null;
+                const tick = () => {
+                    ctx.clearRect(0,0,PW,PH);
+                    for (const p of parts) {
+                        p.x += p.vx; p.y += p.vy; p.a += p.da;
+                        if (p.a > 0.7 || p.a < 0.04) p.da *= -1;
+                        if (p.y < -6) { p.y = PH + 6; p.x = Math.random()*PW; }
+                        if (p.x < -6) p.x = PW + 6; else if (p.x > PW + 6) p.x = -6;
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+                        ctx.fillStyle = 'rgba(226,232,240,' + Math.max(0, p.a).toFixed(2) + ')';
+                        ctx.fill();
+                    }
+                    raf = requestAnimationFrame(tick);
+                };
+                tick();
+
+                // 💥 Fissure de lumière (animée au boot du Système)
+                const fissure = document.createElement('div');
+                fissure.style.cssText = `position:absolute;left:50%;top:0;bottom:0;width:2px;transform:translateX(-50%) scaleY(0);transform-origin:center;background:linear-gradient(to bottom,transparent,rgba(6,182,212,0.9),#ffffff,rgba(6,182,212,0.9),transparent);box-shadow:0 0 30px 8px rgba(6,182,212,0.55);z-index:1;opacity:0;pointer-events:none;`;
+                overlay.appendChild(fissure);
+
+                // 🖼️ Emplacement key-art du titre — facultatif (dégradation gracieuse)
+                const titleArt = document.createElement('img');
+                titleArt.src = 'images/story/intro_titre.webp';
+                titleArt.style.cssText = `position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);max-width:82%;max-height:72%;z-index:1;opacity:0;transition:opacity 1.5s ease;pointer-events:none;filter:drop-shadow(0 0 40px rgba(6,182,212,0.35));`;
+                titleArt.onerror = () => { try { titleArt.remove(); } catch(e) {} };
+                overlay.appendChild(titleArt);
+
+                // 📝 Légende d'épilogue (bas d'écran, scrim sombre pour rester lisible sur image vive)
+                const epiCaption = document.createElement('div');
+                epiCaption.style.cssText = `position:absolute;left:0;right:0;bottom:0;z-index:3;padding:64px 28px 46px;text-align:center;background:linear-gradient(to top, rgba(4,6,12,0.94), rgba(4,6,12,0.6) 55%, transparent);opacity:0;transition:opacity 0.8s ease;pointer-events:none;`;
+                overlay.appendChild(epiCaption);
+
+                const flash = document.createElement('div');
+                flash.style.cssText = `position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;`;
+                overlay.appendChild(flash);
+
+                const stage = document.createElement('div');
+                stage.style.cssText = `position:relative;z-index:2;max-width:560px;width:100%;text-align:center;`;
+                overlay.appendChild(stage);
+
+                const skip = document.createElement('button');
+                skip.textContent = 'Passer ›';
+                skip.style.cssText = `position:absolute;top:16px;right:16px;z-index:5;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.55);padding:8px 14px;border-radius:20px;font-size:0.8em;font-weight:700;cursor:pointer;letter-spacing:1px;`;
+                overlay.appendChild(skip);
+
+                document.body.appendChild(overlay);
+
+                const fmt = (txt) => String(txt)
+                    .replace(/\*\*([^*]+)\*\*/g, '<strong style="color:#22c55e;letter-spacing:2px;">$1</strong>')
+                    .replace(/\*([^*]+)\*/g, '<em style="color:#cbd5e1;font-style:italic;">$1</em>')
+                    .replace(/\n/g, '<br>');
+
+                // Beats narratifs construits depuis le prologue (source unique de vérité)
+                const narrativeBeats = [];
+                try {
+                    let curB = [];
+                    (AWAKENED_GAMETAB_INTRO || []).forEach(line => {
+                        if (String(line).trim() === '') { if (curB.length) { narrativeBeats.push(curB.join('\n')); curB = []; } }
+                        else curB.push(line);
+                    });
+                    if (curB.length) narrativeBeats.push(curB.join('\n'));
+                } catch(e) {}
+
+                const beats = [];
+                narrativeBeats.forEach((text, i) => {
+                    beats.push({ hold: 3200, render: () => {
+                        setBeatBg(beatImages[i]);
+                        stage.innerHTML = `<div style="font-size:1.25em;line-height:1.85;color:#e2e8f0;font-family:'Courier New',monospace;animation:awakBeatIn 1s ease forwards;">${fmt(text)}</div>`;
+                    }});
+                });
+                beats.push({ hold: 2800, render: () => {
+                    setBeatBg(null);
+                    fissure.style.animation = 'none'; void fissure.offsetWidth; fissure.style.animation = 'awakFissure 0.7s ease forwards';
+                    stage.innerHTML = `<div style="font-family:'Courier New',monospace;color:#4ade80;font-size:1.05em;line-height:2;text-align:left;display:inline-block;animation:awakBootGlitch 0.9s steps(2) 2, awakBeatIn 0.5s ease;">▸ signal détecté dans le silence<br>▸ une présence refuse de s'effacer<br>▸ ancre identifiée<br>▸ <strong style="color:#22c55e;">système d'éveil — initialisation…</strong></div>`;
+                    if (typeof hapticTap === 'function') hapticTap([20,40,20,40]);
+                    playBootBlips();
+                }});
+                beats.push({ hold: 3000, render: () => {
+                    setBeatBg(null);
+                    fissure.style.animation = 'none'; fissure.style.opacity = '0';
+                    if (titleArt && titleArt.parentNode) titleArt.style.opacity = '0.5';
+                    flash.style.animation = 'none'; void flash.offsetWidth; flash.style.animation = 'awakEpicFlash 0.8s ease forwards';
+                    stage.innerHTML = `
+                        <div style="font-size:0.6em;letter-spacing:6px;color:#06b6d4;text-transform:uppercase;margin-bottom:14px;font-family:'Courier New',monospace;opacity:0;animation:awakBeatIn 0.8s ease 0.5s forwards;">▸ tu es éveillé ◂</div>
+                        <div style="font-size:3.4em;font-weight:900;letter-spacing:4px;color:#fff;animation:awakTitleSlam 0.9s cubic-bezier(0.2,0.9,0.2,1) forwards, awakTitleGlow 2.6s ease 0.9s infinite;">AWAKENED</div>
+                        <div style="margin-top:18px;font-size:0.95em;color:#94a3b8;font-style:italic;opacity:0;animation:awakBeatIn 0.9s ease 1s forwards;">Lève-toi, Chasseur.</div>
+                        <div style="margin-top:30px;font-size:0.62em;letter-spacing:2px;color:#475569;opacity:0;animation:awakBeatIn 0.9s ease 1.6s forwards;">— tape pour commencer —</div>`;
+                    if (typeof hapticTap === 'function') hapticTap([80,40,160]);
+                    playTitleHit();
+                }});
+
+                // ── Les Failles : le réel se déchire, partout sur la Terre ──
+                const failles = [
+                    { img: 'images/story/intro_faille1.webp', text: `*Là où le monde s'efface, des Failles s'ouvrent.*` },
+                    { img: 'images/story/intro_faille2.webp', text: `*De simples portails — mais il en surgit partout sur la Terre.*` },
+                    { img: 'images/story/intro_faille3.webp', text: `*Derrière chacun, ce qui reste se décide.*\n*Et c'est là que tu entres.*` }
+                ];
+                failles.forEach(fa => {
+                    beats.push({ hold: 3600, render: () => {
+                        setBeatBg(fa.img, 0.8);
+                        if (titleArt && titleArt.parentNode) titleArt.style.opacity = '0';
+                        stage.innerHTML = '';
+                        epiCaption.style.opacity = '1';
+                        epiCaption.innerHTML = `<div style="font-size:1.05em;line-height:1.7;color:#e2e8f0;font-family:'Courier New',monospace;animation:awakBeatIn 0.9s ease;">${fmt(fa.text)}</div>`;
+                    }});
+                });
+
+                // ── Épilogue : d'autres tiennent aussi, séparés, dans un monde encore vivant ──
+                const epilogue = [
+                    { img: 'images/story/intro_duo_separes.webp', text: `*Tu n'es pas seul à tenir.*\n*Ailleurs, d'autres refusent de s'effacer — chacun de leur côté.*` },
+                    { img: 'images/story/intro_duo_entrainement.webp', text: `*Et comme toi, ils s'éveillent.*\n*Un entraînement, puis un autre. C'est ainsi qu'on résiste.*` }
+                ];
+                epilogue.forEach(ep => {
+                    beats.push({ hold: 3600, render: () => {
+                        setBeatBg(ep.img, 0.85);
+                        if (titleArt && titleArt.parentNode) titleArt.style.opacity = '0';
+                        stage.innerHTML = '';
+                        epiCaption.style.opacity = '1';
+                        epiCaption.innerHTML = `<div style="font-size:1.05em;line-height:1.7;color:#e2e8f0;font-family:'Courier New',monospace;animation:awakBeatIn 0.9s ease;">${fmt(ep.text)}</div>`;
+                    }});
+                });
+
+                let idx = -1, timer = null;
+                const finish = () => {
+                    if (timer) { clearTimeout(timer); timer = null; }
+                    if (raf) { cancelAnimationFrame(raf); raf = null; }
+                    stopAudio();
+                    try { localStorage.setItem(AWAKENED_EPIC_INTRO_KEY, 'true'); } catch(e) {}
+                    try { localStorage.setItem(AWAKENED_GAMETAB_INTRO_KEY, 'true'); } catch(e) {} // prologue absorbé
+                    _awakEpicIntroActive = false;
+                    overlay.style.animation = 'awakFadeIn 0.5s reverse forwards';
+                    setTimeout(() => { try { overlay.remove(); } catch(e) {} done(); }, 480);
+                };
+                const next = () => {
+                    if (timer) { clearTimeout(timer); timer = null; }
+                    idx++;
+                    if (idx >= beats.length) { finish(); return; }
+                    beats[idx].render();
+                    timer = setTimeout(next, beats[idx].hold);
+                };
+
+                overlay.addEventListener('click', () => { resumeAudio(); next(); });
+                skip.addEventListener('click', (e) => { e.stopPropagation(); finish(); });
+                setTimeout(next, 900);
+            } catch(e) {
+                _awakEpicIntroActive = false;
+                done();
+            }
+        }
+        window.awakShowEpicIntro = awakShowEpicIntro;
+
+        // 🎬 Orchestrateur d'onboarding : cinématique épique → fenêtre explicative.
         function awakShowGameOnboarding() {
             try {
-                if (localStorage.getItem(AWAKENED_GAME_GUIDE_KEY) !== 'true') {
-                    awakShowGameGuide(() => { if (typeof awakShowGameTabIntro === 'function') awakShowGameTabIntro(); });
-                } else {
-                    if (typeof awakShowGameTabIntro === 'function') awakShowGameTabIntro();
+                if (localStorage.getItem(AWAKENED_EPIC_INTRO_KEY) !== 'true') {
+                    awakShowEpicIntro(() => {
+                        if (localStorage.getItem(AWAKENED_GAME_GUIDE_KEY) !== 'true') awakShowGameGuide(() => {});
+                    });
+                } else if (localStorage.getItem(AWAKENED_GAME_GUIDE_KEY) !== 'true') {
+                    awakShowGameGuide(() => {});
                 }
             } catch(e) {}
         }
@@ -28645,8 +28954,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
             // Mort du joueur
             if (session.playerHP <= 0) {
+                const lostXP = awakApplyDeathPenalty(session);
                 setTimeout(() => {
-                    awakShowGameOverModal(source);
+                    awakShowGameOverModal(source, lostXP);
                 }, 800);
                 return { dodged: false, dead: true };
             }
@@ -28655,8 +28965,45 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         }
         window.awakDamagePlayer = awakDamagePlayer;
 
+        // 💀 Pénalités de mort : perte d'XP + réinitialisation COMPLÈTE des vagues de la Faille
+        function awakApplyDeathPenalty(session) {
+            let lostXP = 0;
+            // 1) Perte d'XP — 30 % du palier du niveau en cours, prélevée sur le pool ajustable
+            //    (ne touche jamais aux XP musculaires réelles ; bornée à 0).
+            try {
+                const lvl = (typeof _awakGetCurrentLevel === 'function') ? _awakGetCurrentLevel() : 1;
+                const band = (typeof rpgXPThisLevel === 'function') ? rpgXPThisLevel(lvl) : 0;
+                const penalty = Math.round(band * 0.30);
+                const cur = parseInt(localStorage.getItem('fitproRPGLifetimeXP') || '0');
+                const next = Math.max(0, cur - penalty);
+                lostXP = cur - next;
+                localStorage.setItem('fitproRPGLifetimeXP', String(next));
+            } catch(e) {}
+            // 2) Réinitialisation de TOUTES les vagues (y compris celles déjà vaincues)
+            try {
+                if (session && session.rift && session.rift.id && typeof awakRiftsLoad === 'function') {
+                    const rifts = awakRiftsLoad();
+                    const r = rifts.find(x => x.id === session.rift.id);
+                    if (r && Array.isArray(r.waves)) {
+                        r.waves.forEach(w => {
+                            w.hpCurrent = w.hpMax;
+                            w._phaseTriggered = false;
+                            w._weaknessRevealed = false;
+                            w._enraged = false;
+                            w._addSpawned = false;
+                            w._hitCount = 0;
+                        });
+                        r.currentWaveIdx = 0;
+                        if (typeof awakRiftsSave === 'function') awakRiftsSave(rifts);
+                    }
+                }
+            } catch(e) {}
+            return lostXP;
+        }
+        window.awakApplyDeathPenalty = awakApplyDeathPenalty;
+
         // 💀 Game Over modal cyberpunk
-        function awakShowGameOverModal(monsterName) {
+        function awakShowGameOverModal(monsterName, lostXP) {
             // Fermer le modal de combat
             document.getElementById('awakRiftCombatModal')?.remove();
             document.getElementById('gameOverModal')?.remove();
@@ -28703,8 +29050,13 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         <div style="font-size:0.88em;color:#cbd5e1;line-height:1.6;margin-bottom:6px;">
                             <strong style="color:#ef4444">${monsterName || 'L\'ennemi'}</strong> t'a vaincu.
                         </div>
-                        <div style="font-size:0.78em;color:#94a3b8;line-height:1.5;font-style:italic;margin-bottom:24px;">
+                        <div style="font-size:0.78em;color:#94a3b8;line-height:1.5;font-style:italic;margin-bottom:18px;">
                             La Faille te rejette dans le monde réel.<br>Reprends des forces et reviens plus puissant.
+                        </div>
+                        <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.35);border-radius:12px;padding:13px 14px;margin-bottom:22px;text-align:left;">
+                            <div style="font-size:0.6em;color:#ef4444;font-weight:900;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;text-align:center;">⚠ Conséquences</div>
+                            ${(lostXP && lostXP > 0) ? `<div style="font-size:0.82em;color:#fca5a5;margin-bottom:5px;">💀 −${lostXP.toLocaleString('fr-FR')} XP perdus</div>` : ''}
+                            <div style="font-size:0.82em;color:#fca5a5;">🌀 Toutes les vagues de la Faille ont été réinitialisées</div>
                         </div>
 
                         <button onclick="document.getElementById('gameOverModal').remove();if(typeof switchTab==='function')switchTab('game');" style="
@@ -28783,12 +29135,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             let baseDmg, variance;
             if (isBoss) {
                 // Boss : dégâts renforcés pour un vrai danger en fin de Faille
-                baseDmg = 14 + rankIdx * 5;
-                variance = Math.floor(Math.random() * 8);
+                baseDmg = 32 + rankIdx * 10;
+                variance = Math.floor(Math.random() * 13);
             } else {
-                // Monstres normaux : dégâts modérés mais sensibles
-                baseDmg = 7 + rankIdx * 3;
-                variance = Math.floor(Math.random() * 5);
+                // Monstres normaux : dégâts plus mordants
+                baseDmg = 18 + rankIdx * 7;
+                variance = Math.floor(Math.random() * 9);
             }
             const dmg = baseDmg + variance;
 
@@ -33464,7 +33816,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             
             // 🎮 Données de jeu propres à chaque profil (RPG, items, stats, équipement de gym).
             // Stockées sous profile_<id>_<clé> ; les clés "principales" sont le set de travail du profil actif.
-            const GAME_KEYS = ['fitproRPG','fitproRPGLifetimeXP','fitproRPGPrestige','fitproRPGClass','fitproRPGXPHistory','fitproRPGSkills','fitproRPGMilestones','fitproLevelUpLog','fitproAchievements','fitproStatPoints','awakLastRankSeen','awakRiftLastGen','awakGameGuideSeen','awakGameTabIntroSeen','awakFirstContactDone','workoutStats','selectedEquipment','fitpro_inventory','fitpro_equipped','fitpro_daily_drops'];
+            const GAME_KEYS = ['fitproRPG','fitproRPGLifetimeXP','fitproRPGPrestige','fitproRPGClass','fitproRPGXPHistory','fitproRPGSkills','fitproRPGMilestones','fitproLevelUpLog','fitproAchievements','fitproStatPoints','awakLastRankSeen','awakRiftLastGen','awakEpicIntroSeen','awakGameGuideSeen','awakGameTabIntroSeen','awakFirstContactDone','workoutStats','selectedEquipment','fitpro_inventory','fitpro_equipped','fitpro_daily_drops'];
             // Préfixes de clés DYNAMIQUES propres au profil (journal narratif : awakStoryEvt_<id> ; indices quotidiens : awakRiftHint_<id>)
             const GAME_KEY_PREFIXES = ['awakStoryEvt_', 'awakRiftHint_'];
 
