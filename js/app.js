@@ -24432,7 +24432,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
                 // ── 1) Narration de l'effacement : lignes révélées en cascade ──
                 narrativeBeats.forEach((text, i) => {
-                    beats.push({ hold: 3400, render: () => {
+                    beats.push({ hold: 7500, render: () => {
                         setBeatBg(beatImages[i]);
                         epiCaption.style.opacity = '0';
                         const lines = String(text).split('\n').map((ln, j) =>
@@ -24444,7 +24444,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 });
 
                 // ── 2) Boot du Système : machine à écrire + curseur + fissures ──
-                beats.push({ hold: 4400, render: () => {
+                beats.push({ hold: 9500, render: () => {
                     setBeatBg(null);
                     epiCaption.style.opacity = '0';
                     fissures.forEach(f => { f.style.animation = 'none'; void f.offsetWidth; f.style.animation = `awakFissureGrow 0.7s ease ${f._delay} forwards`; });
@@ -24473,7 +24473,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 }});
 
                 // ── 3) Titre AWAKENED : lettres + onde de choc + flash + secousse ──
-                beats.push({ hold: 3600, render: () => {
+                beats.push({ hold: 7500, render: () => {
                     setBeatBg(null);
                     epiCaption.style.opacity = '0';
                     fissures.forEach(f => { f.style.animation = 'none'; f.style.opacity = '0'; });
@@ -24486,7 +24486,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     ).join('');
                     stage.innerHTML = `
                         <div style="font-size:0.6em;letter-spacing:6px;color:#06b6d4;text-transform:uppercase;margin-bottom:14px;font-family:'Courier New',monospace;opacity:0;animation:awakBeatIn 0.8s ease 1.15s forwards;">▸ tu es éveillé ◂</div>
-                        <div style="font-size:3.4em;font-weight:900;letter-spacing:5px;color:#fff;animation:awakTitleGlow 2.6s ease 1.3s infinite;">${letters}</div>
+                        <div style="font-size:clamp(1.8em,11vw,3.4em);font-weight:900;letter-spacing:0.04em;white-space:nowrap;color:#fff;animation:awakTitleGlow 2.6s ease 1.3s infinite;">${letters}</div>
                         <div style="margin-top:18px;font-size:0.95em;color:#94a3b8;font-style:italic;opacity:0;animation:awakBeatIn 0.9s ease 1.5s forwards;">Lève-toi, Chasseur.</div>
                         <div style="margin-top:30px;font-size:0.62em;letter-spacing:2px;color:#475569;opacity:0;animation:awakBeatIn 0.9s ease 2s forwards;">— tape pour continuer —</div>`;
                     setTimeout(() => audio.impact(), 430);
@@ -24500,7 +24500,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     { img: 'images/story/intro_faille3.webp', text: `*Derrière chacun, ce qui reste se décide.*\n*Et c'est là que tu entres.*` }
                 ];
                 failles.forEach(fa => {
-                    beats.push({ hold: 3600, render: () => {
+                    beats.push({ hold: 7500, render: () => {
                         setBeatBg(fa.img, 0.8);
                         if (titleArt && titleArt.parentNode) titleArt.style.opacity = '0';
                         stage.innerHTML = '';
@@ -24516,7 +24516,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     { img: 'images/story/intro_duo_entrainement.webp', text: `*Et comme toi, ils s'éveillent.*\n*Un entraînement, puis un autre. C'est ainsi qu'on résiste.*` }
                 ];
                 epilogue.forEach(ep => {
-                    beats.push({ hold: 3600, render: () => {
+                    beats.push({ hold: 7500, render: () => {
                         setBeatBg(ep.img, 0.85);
                         if (titleArt && titleArt.parentNode) titleArt.style.opacity = '0';
                         stage.innerHTML = '';

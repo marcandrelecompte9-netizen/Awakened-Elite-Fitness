@@ -59,28 +59,26 @@ const STORY_EVENTS = [
         content: {
             speaker: 'systeme',
             title: 'La Rencontre',
-            image: 'images/story/rencontre.webp',
+            image: 'images/story/rencontre_1.webp',
             pageImages: [
-                null, null, null, null, null,
-                'images/story/rencontre_cocasse1.webp',
-                'images/story/rencontre_cocasse1.webp',
-                'images/story/rencontre_cocasse2.webp',
-                'images/story/rencontre_cocasse2.webp',
-                'images/story/rencontre_cocasse3.webp',
-                'images/story/rencontre_cocasse3.webp'
+                'images/story/rencontre_1.webp',
+                'images/story/rencontre_2.webp',
+                'images/story/rencontre_3.webp',
+                'images/story/rencontre_4.webp',
+                'images/story/rencontre_5.webp',
+                'images/story/rencontre_6.webp',
+                'images/story/rencontre_7.webp',
+                'images/story/rencontre_8.webp'
             ],
             pages: [
-                "Un couloir que le monde a presque oublié. Les murs se défont en poussière lumineuse, verte d'un côté, violette de l'autre.",
-                "Quelqu'un se tient là. Une autre silhouette qui ne s'efface pas. Comme toi, elle tient debout dans ce qui s'effondre.",
-                "« Tiens. Un autre qui refuse de disparaître. » La voix est légère, presque amusée. « Moi c'est Nyra. Et toi, tu as l'air du genre silencieux. »",
-                "L'autre — Esen — ne répond pas tout de suite. Il observe. Puis, simplement : « On survit mieux à deux. »",
-                "Le Système consigne, à sa façon froide : « Deux Ancres. Vos signaux se renforcent quand vous êtes proches. Curieux. »",
-                "À peine les présentations faites, Nyra tourne autour d'Esen comme un chat trop curieux. « Silencieux, sérieux, baraqué... » Elle lui pince la joue. « Oh, toi et moi, on va bien rigoler. »",
-                "Esen, parfaitement immobile : « ...Ne fais pas ça. » Nyra recommence aussitôt, morte de rire. Le Système, pince-sans-rire : « Compatibilité des Ancres : élevée. Patience d'Esen : en chute libre. »",
-                "Plus tard, Nyra fanfaronne sur sa technique imparable. Sans un mot, Esen lui prend sa boisson et en boit une gorgée, tranquille.",
-                "« HÉ ! C'était la mienne ! » Il la lui rend, impassible. « ...Imparable, en effet. » Pour une fois, c'est elle qui reste bouche bée.",
-                "Le soir, après l'effort, Nyra imite la voix grave et le sérieux d'Esen. L'imitation est si parfaite que même lui ne parvient pas à retenir un infime sourire.",
-                "« ...Ridicule, » lâche-t-il. Mais il ne s'en va pas. Le Système consigne quelque chose de nouveau : « Lien établi. À partir d'ici, vous ne marcherez plus seuls. »"
+                "Un monstre file dans une rue ordinaire. Quelqu'un le pourchasse, vive et acharnée. Elle l'a presque…",
+                "Une silhouette calme surgit. Un seul geste net. Le monstre se dissout en fumée avant qu'elle ne l'atteigne.",
+                "Elle s'arrête net. Lui baisse à peine les yeux sur ce qu'il reste. Vos regards se croisent pour la première fois.",
+                "« C'était MON monstre ! Je l'avais ! » Il hausse une épaule. « Il allait s'échapper. » « ...T'es du genre agaçant, toi. »",
+                "Pas le temps de se chamailler : d'autres monstres surgissent dans la rue. D'instinct, ils se placent dos à dos.",
+                "Un monstre bien plus gros fend la rue. Fini de jouer. Ils s'élancent ensemble, parfaitement synchrones.",
+                "Au même instant — son poing, sa lame. Le monstre explose en fumée. Un silence. Ils se regardent, essoufflés.",
+                "« ...Pas mal, le silencieux. » Esen esquisse le plus petit des demi-sourires. « On survit mieux à deux. — Moi c'est Nyra. » Le Système consigne, froid : « Deux Ancres. Vos signaux se renforcent quand vous êtes proches. Curieux. » À partir d'ici, vous ne marcherez plus seuls."
             ]
         }
     },
