@@ -20,7 +20,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=260">
+    <link rel="stylesheet" href="css/style.css?v=266">
 </head>
 <body>
 
@@ -122,7 +122,7 @@
     <div id="pwaInstallBanner" style="
             display:none; position:fixed; bottom:72px; left:10px; right:10px;
             z-index:99996; background:linear-gradient(135deg,#0F1014,#1A0A00);
-            border-radius:18px; padding:14px 16px; box-shadow:0 8px 32px rgba(0,0,0,0.35);
+            border-radius:20px; padding:14px 16px; box-shadow:0 8px 32px rgba(0,0,0,0.35);
             align-items:center; gap:14px; border:1px solid rgba(255,255,255,0.15);
             animation:slideUpSheet 0.4s cubic-bezier(0.34,1.2,0.64,1);">
         <div style="font-size:2.2em;flex-shrink:0;">💪</div>
@@ -145,7 +145,7 @@
     <div id="pwaIOSBanner" style="
             display:none; position:fixed; bottom:72px; left:10px; right:10px;
             z-index:99996; background:linear-gradient(135deg,#0F1014,#166534);
-            border-radius:18px; padding:16px; box-shadow:0 8px 32px rgba(0,0,0,0.35);
+            border-radius:20px; padding:16px; box-shadow:0 8px 32px rgba(0,0,0,0.35);
             flex-direction:column; gap:10px; border:1px solid rgba(255,255,255,0.15);
             animation:slideUpSheet 0.4s cubic-bezier(0.34,1.2,0.64,1);">
         <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -177,7 +177,7 @@
                 max-width: 900px;">
 
             <!-- Bannière image : ratio préservé -->
-            <img src="images/banner.png?v=260"
+            <img src="images/banner.png?v=266"
                  alt="Awakened Elite Fitness"
                  style="width:100%;height:auto;display:block;" />
 
@@ -244,15 +244,15 @@
             <div class="card" style="padding:14px 16px;">
                 <div style="font-size:0.6em;color:#94a3b8;font-weight:900;letter-spacing:2px;margin-bottom:10px;">⚡ ACTIONS RAPIDES</div>
                 <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
-                    <button onclick="switchTab('workouts'); window.scrollTo(0,0);" style="background:linear-gradient(135deg,#22c55e,#16a34a);border:none;color:white;border-radius:12px;padding:13px 10px;font-weight:800;font-size:0.85em;cursor:pointer;box-shadow:0 3px 12px rgba(34,197,94,0.3);">🏋️ Démarrer séance</button>
-                    <button onclick="switchTab('routines');" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.4);color:#c084fc;border-radius:12px;padding:13px 10px;font-weight:800;font-size:0.85em;cursor:pointer;">🔄 Routines</button>
-                    <button onclick="switchTab('game');" style="background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.4);color:#fbbf24;border-radius:12px;padding:13px 10px;font-weight:800;font-size:0.85em;cursor:pointer;">🌌 Failles</button>
-                    <button onclick="switchTab('exercises');" style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.4);color:#60a5fa;border-radius:12px;padding:13px 10px;font-weight:800;font-size:0.85em;cursor:pointer;">📚 Exercices</button>
+                    <button onclick="switchTab('workouts'); window.scrollTo(0,0);" style="background:linear-gradient(135deg,#22c55e,#16a34a);border:none;color:white;border-radius:14px;padding:13px 10px;font-weight:800;font-size:0.85em;cursor:pointer;box-shadow:0 3px 12px rgba(34,197,94,0.3);">🏋️ Démarrer séance</button>
+                    <button onclick="switchTab('routines');" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.4);color:#c084fc;border-radius:14px;padding:13px 10px;font-weight:800;font-size:0.85em;cursor:pointer;">🔄 Routines</button>
+                    <button onclick="switchTab('game');" style="background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.4);color:#fbbf24;border-radius:14px;padding:13px 10px;font-weight:800;font-size:0.85em;cursor:pointer;">🌌 Failles</button>
+                    <button onclick="switchTab('exercises');" style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.4);color:#60a5fa;border-radius:14px;padding:13px 10px;font-weight:800;font-size:0.85em;cursor:pointer;">📚 Exercices</button>
                 </div>
                 <!-- ☀️ Bouton Réveil matinal -->
                 <button onclick="showMorningRoutineModal()" style="
                     width:100%;margin-top:8px;background:linear-gradient(135deg,#c2410c 0%,#9a3412 50%,#7c2d12 100%);color:white;border:none;
-                    border-radius:12px;padding:13px 16px;font-size:0.95em;font-weight:800;cursor:pointer;
+                    border-radius:14px;padding:13px 16px;font-size:0.95em;font-weight:800;cursor:pointer;
                     box-shadow:0 3px 14px rgba(154,52,18,0.4);position:relative;overflow:hidden;
                     text-align:left;display:flex;align-items:center;gap:11px;">
                     <div style="position:absolute;top:0;right:0;width:90px;height:90px;background:radial-gradient(circle,rgba(255,255,255,0.15),transparent 70%);"></div>
@@ -295,7 +295,7 @@
                                 <span style="background:rgba(255,255,255,0.15);color:white;padding:3px 9px;border-radius:99px;font-size:0.7em;font-weight:600;border:1px solid rgba(255,255,255,0.2);">⚡ <span id="userLevel">Débutant</span></span>
                                 <span id="activeCelebBadge" style="display:none;padding:3px 9px;border-radius:99px;font-size:0.7em;font-weight:700;border:1px solid rgba(255,255,255,0.3);cursor:pointer;" onclick="switchTab('program')"></span>
                             </div>
-                            <div id="activeCelebBanner" style="display:none;align-items:center;gap:12px;margin-top:10px;padding:10px 14px;border-radius:12px;border:1.5px solid rgba(255,255,255,0.2);cursor:pointer;" onclick="switchTab('program')"></div>
+                            <div id="activeCelebBanner" style="display:none;align-items:center;gap:12px;margin-top:10px;padding:10px 14px;border-radius:14px;border:1.5px solid rgba(255,255,255,0.2);cursor:pointer;" onclick="switchTab('program')"></div>
                         </div>
                         <button onclick="switchTab('settings')" style="background:rgba(255,255,255,0.15);color:white;border:1px solid rgba(255,255,255,0.3);border-radius:10px;padding:7px 11px;font-size:0.85em;font-weight:600;cursor:pointer;flex-shrink:0;">⚙️</button>
                     </div>
@@ -362,16 +362,16 @@
                             <span>1</span><span>5</span><span>10</span>
                         </div>
                         <div style="display:flex;gap:5px;margin-top:9px;">
-                            <button onclick="setFitnessIndex(2)" class="no-ripple" style="flex:1;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);color:#fca5a5;border-radius:8px;padding:6px 4px;font-size:0.7em;font-weight:800;cursor:pointer;">😴</button>
-                            <button onclick="setFitnessIndex(5)" class="no-ripple" style="flex:1;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);color:#fbbf24;border-radius:8px;padding:6px 4px;font-size:0.7em;font-weight:800;cursor:pointer;">😐</button>
-                            <button onclick="setFitnessIndex(8)" class="no-ripple" style="flex:1;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.3);color:#4ade80;border-radius:8px;padding:6px 4px;font-size:0.7em;font-weight:800;cursor:pointer;">🔥</button>
+                            <button onclick="setFitnessIndex(2)" class="no-ripple" style="flex:1;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);color:#fca5a5;border-radius:10px;padding:6px 4px;font-size:0.7em;font-weight:800;cursor:pointer;">😴</button>
+                            <button onclick="setFitnessIndex(5)" class="no-ripple" style="flex:1;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);color:#fbbf24;border-radius:10px;padding:6px 4px;font-size:0.7em;font-weight:800;cursor:pointer;">😐</button>
+                            <button onclick="setFitnessIndex(8)" class="no-ripple" style="flex:1;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.3);color:#4ade80;border-radius:10px;padding:6px 4px;font-size:0.7em;font-weight:800;cursor:pointer;">🔥</button>
                         </div>
                     </div>
                 </div>
 
                 <div id="fitnessFactors" style="display:none;margin-bottom:10px;"></div>
 
-                <div id="fitnessAdvice" style="padding:11px 13px;border-radius:11px;font-size:0.82em;line-height:1.5;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.25);color:#e2e8f0;">
+                <div id="fitnessAdvice" style="padding:11px 13px;border-radius:10px;font-size:0.82em;line-height:1.5;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.25);color:#e2e8f0;">
                     💡 Vous êtes en bonne forme ! Séance normale recommandée.
                 </div>
             </div>
@@ -477,7 +477,7 @@
             <!-- PR Tracker Section -->
             <div class="card">
                 <h2 style="color: #f59e0b; margin-bottom: 20px;">💪 Personal Records (PRs)</h2>
-                <div style="background: linear-gradient(135deg, #f59e0b15 0%, #f59e0b05 100%); padding: 20px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid #f59e0b;">
+                <div style="background: linear-gradient(135deg, #f59e0b15 0%, #f59e0b05 100%); padding: 20px; border-radius: 14px; margin-bottom: 20px; border-left: 4px solid #f59e0b;">
                     <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
                         <div style="font-size: 2.5em;">🔥</div>
                         <div>
@@ -488,15 +488,15 @@
 
                     <!-- PR Summary Stats -->
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-top: 15px;">
-                        <div style="background: white; padding: 15px; border-radius: 8px; text-align: center;">
+                        <div style="background: white; padding: 15px; border-radius: 10px; text-align: center;">
                             <div style="font-size: 2em; font-weight: bold; color: #f59e0b;" id="totalPRsCount">0</div>
                             <div style="font-size: 0.85em; color: #666; margin-top: 5px;">PRs Total</div>
                         </div>
-                        <div style="background: white; padding: 15px; border-radius: 8px; text-align: center;">
+                        <div style="background: white; padding: 15px; border-radius: 10px; text-align: center;">
                             <div style="font-size: 2em; font-weight: bold; color: #10b981;" id="recentPRsCount">0</div>
                             <div style="font-size: 0.85em; color: #666; margin-top: 5px;">Cette semaine</div>
                         </div>
-                        <div style="background: white; padding: 15px; border-radius: 8px; text-align: center;">
+                        <div style="background: white; padding: 15px; border-radius: 10px; text-align: center;">
                             <div style="font-size: 2em; font-weight: bold; color: #16a34a;" id="thisMonthPRsCount">0</div>
                             <div style="font-size: 0.85em; color: #666; margin-top: 5px;">Ce mois</div>
                         </div>
@@ -537,7 +537,7 @@
             <div class="card">
                 <h2 style="color: #16a34a; margin-bottom: 20px;">📊 Analyse RPE (Intensité d\'entraînement)</h2>
 
-                <div style="background: linear-gradient(135deg, #16a34a15 0%, #15803d05 100%); padding: 20px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid #16a34a;">
+                <div style="background: linear-gradient(135deg, #16a34a15 0%, #15803d05 100%); padding: 20px; border-radius: 14px; margin-bottom: 20px; border-left: 4px solid #16a34a;">
                     <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
                         <div style="font-size: 2.5em;">💪</div>
                         <div>
@@ -548,15 +548,15 @@
 
                     <!-- RPE Summary Stats -->
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-top: 15px;">
-                        <div style="background: white; padding: 15px; border-radius: 8px; text-align: center;">
+                        <div style="background: white; padding: 15px; border-radius: 10px; text-align: center;">
                             <div style="font-size: 2em; font-weight: bold; color: #16a34a;" id="avgRPEGlobal">-</div>
                             <div style="font-size: 0.85em; color: #666; margin-top: 5px;">RPE Moyen Global</div>
                         </div>
-                        <div style="background: white; padding: 15px; border-radius: 8px; text-align: center;">
+                        <div style="background: white; padding: 15px; border-radius: 10px; text-align: center;">
                             <div style="font-size: 2em; font-weight: bold; color: #10b981;" id="avgRPEWeek">-</div>
                             <div style="font-size: 0.85em; color: #666; margin-top: 5px;">Cette Semaine</div>
                         </div>
-                        <div style="background: white; padding: 15px; border-radius: 8px; text-align: center;">
+                        <div style="background: white; padding: 15px; border-radius: 10px; text-align: center;">
                             <div style="font-size: 2em; font-weight: bold; color: #f59e0b;" id="totalRPEEntries">0</div>
                             <div style="font-size: 0.85em; color: #666; margin-top: 5px;">Séries Notées</div>
                         </div>
@@ -564,7 +564,7 @@
                 </div>
 
                 <!-- Fatigue Indicator -->
-                <div id="fatigueIndicator" style="display: none; background: linear-gradient(135deg, #ef444415 0%, #ef444405 100%); padding: 20px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid #ef4444;">
+                <div id="fatigueIndicator" style="display: none; background: linear-gradient(135deg, #ef444415 0%, #ef444405 100%); padding: 20px; border-radius: 14px; margin-bottom: 20px; border-left: 4px solid #ef4444;">
                     <div style="display: flex; align-items: center; gap: 15px;">
                         <div style="font-size: 2em;">⚠️</div>
                         <div>
@@ -590,7 +590,7 @@
                 <!-- RPE Trend Graph -->
                 <div style="margin-top: 20px;">
                     <h3 style="color: #16a34a; margin-bottom: 15px;">Tendance RPE (30 derniers jours)</h3>
-                    <div style="position: relative; height: 300px; background: white; border-radius: 12px; padding: 15px;">
+                    <div style="position: relative; height: 300px; background: white; border-radius: 14px; padding: 15px;">
                         <canvas id="rpeTrendChart"></canvas>
                     </div>
                 </div>
@@ -634,7 +634,7 @@
                 </div>
 
                 <!-- Canvas pour le graphique -->
-                <div style="position: relative; height: 400px; background: white; border-radius: 12px; padding: 15px;">
+                <div style="position: relative; height: 400px; background: white; border-radius: 14px; padding: 15px;">
                     <canvas id="progressChart"></canvas>
                 </div>
 
@@ -649,28 +649,28 @@
 
                 <!-- Main Stats Grid -->
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px;">
-                    <div class="stat-card" style="background: linear-gradient(135deg, #16a34a15 0%, #16a34a05 100%); padding: 20px; border-radius: 12px; border-left: 4px solid #16a34a;">
+                    <div class="stat-card" style="background: linear-gradient(135deg, #16a34a15 0%, #16a34a05 100%); padding: 20px; border-radius: 14px; border-left: 4px solid #16a34a;">
                         <div style="font-size: 2em; margin-bottom: 10px;">💪</div>
                         <div style="font-size: 2.5em; font-weight: bold; color: #16a34a;" id="advTotalVolume">0</div>
                         <div style="font-weight: 600; color: #333; margin-top: 5px;">Volume Total</div>
                         <div style="font-size: 0.85em; color: #666; margin-top: 5px;">exercices effectués</div>
                     </div>
 
-                    <div class="stat-card" style="background: linear-gradient(135deg, #10b98115 0%, #10b98105 100%); padding: 20px; border-radius: 12px; border-left: 4px solid #10b981;">
+                    <div class="stat-card" style="background: linear-gradient(135deg, #10b98115 0%, #10b98105 100%); padding: 20px; border-radius: 14px; border-left: 4px solid #10b981;">
                         <div style="font-size: 2em; margin-bottom: 10px;">⭐</div>
                         <div style="font-size: 1.8em; font-weight: bold; color: #10b981;" id="advFavoriteExercise">-</div>
                         <div style="font-weight: 600; color: #333; margin-top: 5px;">Exercice Préféré</div>
                         <div style="font-size: 0.85em; color: #666; margin-top: 5px;" id="advFavoriteCount">le plus pratiqué</div>
                     </div>
 
-                    <div class="stat-card" style="background: linear-gradient(135deg, #ef444415 0%, #ef444405 100%); padding: 20px; border-radius: 12px; border-left: 4px solid #ef4444;">
+                    <div class="stat-card" style="background: linear-gradient(135deg, #ef444415 0%, #ef444405 100%); padding: 20px; border-radius: 14px; border-left: 4px solid #ef4444;">
                         <div style="font-size: 2em; margin-bottom: 10px;">🔥</div>
                         <div style="font-size: 2.5em; font-weight: bold; color: #ef4444;" id="advLongestStreak">0</div>
                         <div style="font-weight: 600; color: #333; margin-top: 5px;">Plus Long Streak</div>
                         <div style="font-size: 0.85em; color: #666; margin-top: 5px;">jours consécutifs</div>
                     </div>
 
-                    <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b15 0%, #f59e0b05 100%); padding: 20px; border-radius: 12px; border-left: 4px solid #f59e0b;">
+                    <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b15 0%, #f59e0b05 100%); padding: 20px; border-radius: 14px; border-left: 4px solid #f59e0b;">
                         <div style="font-size: 2em; margin-bottom: 10px;">🏆</div>
                         <div style="font-size: 2.5em; font-weight: bold; color: #f59e0b;" id="advBestWeek">0</div>
                         <div style="font-weight: 600; color: #333; margin-top: 5px;">Meilleure Semaine</div>
@@ -679,7 +679,7 @@
                 </div>
 
                 <!-- Top 10 Exercises -->
-                <div style="background: white; padding: 20px; border-radius: 12px; border: 2px solid #e5e7eb; margin-bottom: 20px;">
+                <div style="background: white; padding: 20px; border-radius: 14px; border: 2px solid #e5e7eb; margin-bottom: 20px;">
                     <h3 style="color: #16a34a; margin-top: 0;">🏅 Top 10 Exercices</h3>
                     <div id="topExercisesList" style="display: flex; flex-direction: column; gap: 8px;">
                         <!-- Will be populated by JS -->
@@ -687,7 +687,7 @@
                 </div>
 
                 <!-- Muscle Distribution -->
-                <div style="background: white; padding: 20px; border-radius: 12px; border: 2px solid #e5e7eb; margin-bottom: 20px;">
+                <div style="background: white; padding: 20px; border-radius: 14px; border: 2px solid #e5e7eb; margin-bottom: 20px;">
                     <h3 style="color: #16a34a; margin-top: 0;">💪 Répartition Musculaire</h3>
                     <div id="muscleDistributionBars" style="display: flex; flex-direction: column; gap: 10px;">
                         <!-- Will be populated by JS -->
@@ -695,7 +695,7 @@
                 </div>
 
                 <!-- Insights -->
-                <div style="background: linear-gradient(135deg, #fbbf2410 0%, #fbbf2405 100%); padding: 20px; border-radius: 12px; border: 2px solid #fbbf24;">
+                <div style="background: linear-gradient(135deg, #fbbf2410 0%, #fbbf2405 100%); padding: 20px; border-radius: 14px; border: 2px solid #fbbf24;">
                     <h3 style="color: #d97706; margin-top: 0;">💡 Insights & Recommandations</h3>
                     <div id="insightsList" style="display: flex; flex-direction: column; gap: 10px;">
                         <!-- Will be populated by JS -->
@@ -707,7 +707,7 @@
             <div class="card">
                 <h2 style="color: #16a34a; margin-bottom: 20px;">📸 Photos de Progression</h2>
 
-                <div style="background: linear-gradient(135deg, #16a34a15 0%, #15803d05 100%); padding: 20px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid #16a34a;">
+                <div style="background: linear-gradient(135deg, #16a34a15 0%, #15803d05 100%); padding: 20px; border-radius: 14px; margin-bottom: 20px; border-left: 4px solid #16a34a;">
                     <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
                         <div style="font-size: 2.5em;">📷</div>
                         <div>
@@ -738,7 +738,7 @@
             <div class="card">
                 <h2 style="color: #16a34a; margin-bottom: 20px;">📏 Mesures Corporelles</h2>
 
-                <div style="background: linear-gradient(135deg, #10b98115 0%, #10b98105 100%); padding: 20px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid #10b981;">
+                <div style="background: linear-gradient(135deg, #10b98115 0%, #10b98105 100%); padding: 20px; border-radius: 14px; margin-bottom: 20px; border-left: 4px solid #10b981;">
                     <div style="display: flex; align-items: center; gap: 15px;">
                         <div style="font-size: 2.5em;">📐</div>
                         <div>
@@ -756,33 +756,33 @@
                 </div>
 
                 <!-- Measurement Form (hidden by default) -->
-                <div id="measurementForm" style="display: none; background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 25px;">
+                <div id="measurementForm" style="display: none; background: white; padding: 25px; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 25px;">
                     <h3 style="margin-top: 0; color: #10b981;">📊 Nouvelles mesures</h3>
 
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
                         <div>
                             <span data-weight-unit style="display: block; font-weight: 600; margin-bottom: 5px; color: #333;">⚖️ Poids (lbs)</span>
-                            <input type="number" id="measureWeight" step="0.1" placeholder="Ex: 165" style="width: 100%; padding: 10px; border-radius: 8px; border: 2px solid #e5e7eb;">
+                            <input type="number" id="measureWeight" step="0.1" placeholder="Ex: 165" style="width: 100%; padding: 10px; border-radius: 10px; border: 2px solid #e5e7eb;">
                         </div>
                         <div>
                             <span style="display: block; font-weight: 600; margin-bottom: 5px; color: #333;">📏 Taille (pouces)</span>
-                            <input type="number" id="measureHeight" step="0.1" placeholder="Ex: 175" style="width: 100%; padding: 10px; border-radius: 8px; border: 2px solid #e5e7eb;">
+                            <input type="number" id="measureHeight" step="0.1" placeholder="Ex: 175" style="width: 100%; padding: 10px; border-radius: 10px; border: 2px solid #e5e7eb;">
                         </div>
                         <div>
                             <span style="display: block; font-weight: 600; margin-bottom: 5px; color: #333;">🟢 Tour de taille (pouces)</span>
-                            <input type="number" id="measureWaist" step="0.1" placeholder="Ex: 32" style="width: 100%; padding: 10px; border-radius: 8px; border: 2px solid #e5e7eb;">
+                            <input type="number" id="measureWaist" step="0.1" placeholder="Ex: 32" style="width: 100%; padding: 10px; border-radius: 10px; border: 2px solid #e5e7eb;">
                         </div>
                         <div>
                             <span style="display: block; font-weight: 600; margin-bottom: 5px; color: #333;">🍑 Tour de hanches (pouces)</span>
-                            <input type="number" id="measureHips" step="0.1" placeholder="Ex: 38" style="width: 100%; padding: 10px; border-radius: 8px; border: 2px solid #e5e7eb;">
+                            <input type="number" id="measureHips" step="0.1" placeholder="Ex: 38" style="width: 100%; padding: 10px; border-radius: 10px; border: 2px solid #e5e7eb;">
                         </div>
                         <div>
                             <span style="display: block; font-weight: 600; margin-bottom: 5px; color: #333;">💪 Biceps (pouces)</span>
-                            <input type="number" id="measureBiceps" step="0.1" placeholder="Ex: 14" style="width: 100%; padding: 10px; border-radius: 8px; border: 2px solid #e5e7eb;">
+                            <input type="number" id="measureBiceps" step="0.1" placeholder="Ex: 14" style="width: 100%; padding: 10px; border-radius: 10px; border: 2px solid #e5e7eb;">
                         </div>
                         <div>
                             <span style="display: block; font-weight: 600; margin-bottom: 5px; color: #333;">🦵 Cuisses (pouces)</span>
-                            <input type="number" id="measureThighs" step="0.1" placeholder="Ex: 22" style="width: 100%; padding: 10px; border-radius: 8px; border: 2px solid #e5e7eb;">
+                            <input type="number" id="measureThighs" step="0.1" placeholder="Ex: 22" style="width: 100%; padding: 10px; border-radius: 10px; border: 2px solid #e5e7eb;">
                         </div>
                     </div>
 
@@ -806,7 +806,7 @@
             <div class="card" style="background: linear-gradient(135deg, #06b6d410 0%, #06b6d405 100%); border: 2px solid #06b6d440;">
                 <h2 style="color: #06b6d4; margin-bottom: 20px;">🏃 Statistiques Cardio</h2>
 
-                <div style="background: linear-gradient(135deg, #06b6d415 0%, #06b6d405 100%); padding: 20px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid #06b6d4;">
+                <div style="background: linear-gradient(135deg, #06b6d415 0%, #06b6d405 100%); padding: 20px; border-radius: 14px; margin-bottom: 20px; border-left: 4px solid #06b6d4;">
                     <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
                         <div style="font-size: 2.5em;">📊</div>
                         <div>
@@ -817,23 +817,23 @@
 
                     <!-- Global Stats Grid -->
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-top: 15px;">
-                        <div style="background: white; padding: 15px; border-radius: 8px; text-align: center;">
+                        <div style="background: white; padding: 15px; border-radius: 10px; text-align: center;">
                             <div style="font-size: 2em; font-weight: bold; color: #06b6d4;" id="totalCardioSessions">0</div>
                             <div style="font-size: 0.85em; color: #666; margin-top: 5px;">Séances</div>
                         </div>
-                        <div style="background: white; padding: 15px; border-radius: 8px; text-align: center;">
+                        <div style="background: white; padding: 15px; border-radius: 10px; text-align: center;">
                             <div style="font-size: 2em; font-weight: bold; color: #06b6d4;" id="totalCardioDistance">0</div>
                             <div style="font-size: 0.85em; color: #666; margin-top: 5px;">km Total</div>
                         </div>
-                        <div style="background: white; padding: 15px; border-radius: 8px; text-align: center;">
+                        <div style="background: white; padding: 15px; border-radius: 10px; text-align: center;">
                             <div style="font-size: 2em; font-weight: bold; color: #06b6d4;" id="totalCardioDuration">0h</div>
                             <div style="font-size: 0.85em; color: #666; margin-top: 5px;">Temps Total</div>
                         </div>
-                        <div style="background: white; padding: 15px; border-radius: 8px; text-align: center;">
+                        <div style="background: white; padding: 15px; border-radius: 10px; text-align: center;">
                             <div style="font-size: 2em; font-weight: bold; color: #06b6d4;" id="totalCardioCalories">0</div>
                             <div style="font-size: 0.85em; color: #666; margin-top: 5px;">Calories</div>
                         </div>
-                        <div style="background: white; padding: 15px; border-radius: 8px; text-align: center;">
+                        <div style="background: white; padding: 15px; border-radius: 10px; text-align: center;">
                             <div style="font-size: 2em; font-weight: bold; color: #06b6d4;" id="avgCardioSpeed">0</div>
                             <div style="font-size: 0.85em; color: #666; margin-top: 5px;">km/h Moy.</div>
                         </div>
@@ -844,22 +844,22 @@
                 <div style="margin-bottom: 25px;">
                     <h3 style="color: #06b6d4; margin-bottom: 15px;">🏆 Records Personnels</h3>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px;">
-                        <div style="background: white; padding: 15px; border-radius: 12px; border-left: 4px solid #f59e0b;">
+                        <div style="background: white; padding: 15px; border-radius: 14px; border-left: 4px solid #f59e0b;">
                             <div style="font-size: 0.85em; color: #666; margin-bottom: 5px;">📏 Plus longue distance</div>
                             <div style="font-size: 1.5em; font-weight: 700; color: #f59e0b;" id="bestDistance">-- km</div>
                             <div style="font-size: 0.8em; color: #999; margin-top: 3px;" id="bestDistanceDate">--</div>
                         </div>
-                        <div style="background: white; padding: 15px; border-radius: 12px; border-left: 4px solid #10b981;">
+                        <div style="background: white; padding: 15px; border-radius: 14px; border-left: 4px solid #10b981;">
                             <div style="font-size: 0.85em; color: #666; margin-bottom: 5px;">🚀 Plus rapide</div>
                             <div style="font-size: 1.5em; font-weight: 700; color: #10b981;" id="bestSpeed">-- km/h</div>
                             <div style="font-size: 0.8em; color: #999; margin-top: 3px;" id="bestSpeedDate">--</div>
                         </div>
-                        <div style="background: white; padding: 15px; border-radius: 12px; border-left: 4px solid #22c55e;">
+                        <div style="background: white; padding: 15px; border-radius: 14px; border-left: 4px solid #22c55e;">
                             <div style="font-size: 0.85em; color: #666; margin-bottom: 5px;">⏱️ Plus longue durée</div>
                             <div style="font-size: 1.5em; font-weight: 700; color: #22c55e;" id="bestDuration">-- min</div>
                             <div style="font-size: 0.8em; color: #999; margin-top: 3px;" id="bestDurationDate">--</div>
                         </div>
-                        <div style="background: white; padding: 15px; border-radius: 12px; border-left: 4px solid #ef4444;">
+                        <div style="background: white; padding: 15px; border-radius: 14px; border-left: 4px solid #ef4444;">
                             <div style="font-size: 0.85em; color: #666; margin-bottom: 5px;">🔥 Plus de calories</div>
                             <div style="font-size: 1.5em; font-weight: 700; color: #ef4444;" id="bestCalories">-- kcal</div>
                             <div style="font-size: 0.8em; color: #999; margin-top: 3px;" id="bestCaloriesDate">--</div>
@@ -870,7 +870,7 @@
                 <!-- Chart -->
                 <div style="margin-bottom: 25px;">
                     <h3 style="color: #06b6d4; margin-bottom: 15px;">📈 Progression</h3>
-                    <div style="background: white; border-radius: 12px; padding: 15px;">
+                    <div style="background: white; border-radius: 14px; padding: 15px;">
                         <canvas id="cardioProgressChart" style="max-height: 300px;"></canvas>
                     </div>
                 </div>
@@ -880,7 +880,7 @@
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                         <h3 style="color: #06b6d4; margin: 0;">📋 Historique des séances</h3>
                         <select id="cardioActivityFilter" onchange="filterCardioSessions()"
-                                style="padding: 8px 12px; border-radius: 8px; border: 2px solid #06b6d4; color: #06b6d4; font-weight: 600;">
+                                style="padding: 8px 12px; border-radius: 10px; border: 2px solid #06b6d4; color: #06b6d4; font-weight: 600;">
                             <option value="all">Toutes activités</option>
                             <option value="running">🏃 Course</option>
                             <option value="cycling">🚴 Vélo</option>
@@ -933,7 +933,7 @@
                 <div style="margin-bottom:14px;">
                     <input type="text" id="historySearchInput" placeholder="🔍 Rechercher une séance..."
                            oninput="filterWorkoutHistory(window._histFilter||'all')"
-                           style="width:100%;padding:12px 14px;border:2px solid #e5e7eb;border-radius:12px;font-size:1em;margin-bottom:10px;"
+                           style="width:100%;padding:12px 14px;border:2px solid #e5e7eb;border-radius:14px;font-size:1em;margin-bottom:10px;"
                            onfocus="this.style.borderColor='#16a34a'" onblur="this.style.borderColor='#e5e7eb'">
                     <div style="display:flex;gap:8px;flex-wrap:wrap;">
                         <button onclick="filterWorkoutHistory('all')" id="filterAll" class="btn"
@@ -1080,10 +1080,10 @@
                             <div style="font-weight:700;color:#92400e;font-size:0.9em;">Salle bondée — Mode adapté</div>
                             <div style="font-size:0.75em;color:#78350f;" id="busyGymEquipCount">Tap pour choisir les équipements disponibles</div>
                         </div>
-                        <button onclick="event.stopPropagation();deactivateBusyGym();" style="margin-left:auto;background:#ef4444;color:white;border:none;border-radius:8px;padding:4px 10px;font-size:0.78em;cursor:pointer;">✕</button>
+                        <button onclick="event.stopPropagation();deactivateBusyGym();" style="margin-left:auto;background:#ef4444;color:white;border:none;border-radius:10px;padding:4px 10px;font-size:0.78em;cursor:pointer;">✕</button>
                     </div>
                 </div>
-                <button id="activateBusyGymBtn" onclick="showBusyGymModal()" style="display:none;width:100%;padding:10px;border-radius:12px;border:2px dashed #f59e0b;background:#fffbeb;color:#92400e;font-weight:600;font-size:0.85em;cursor:pointer;margin-bottom:8px;">
+                <button id="activateBusyGymBtn" onclick="showBusyGymModal()" style="display:none;width:100%;padding:10px;border-radius:14px;border:2px dashed #f59e0b;background:#fffbeb;color:#92400e;font-weight:600;font-size:0.85em;cursor:pointer;margin-bottom:8px;">
                     🏃 Salle bondée — choisir équipements disponibles
                 </button>
 
@@ -1092,13 +1092,13 @@
                     <p style="font-size:0.8em;color:#6b7280;margin:0 0 8px;text-align:center;">Type d'exercices au gym :</p>
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
                         <button id="gymMachineOnlyBtn" onclick="setGymBodyweightMode(false)"
-                            style="padding:10px 8px;border-radius:12px;border:2px solid #e5e7eb;background:#f9fafb;cursor:pointer;text-align:center;transition:all 0.2s;">
+                            style="padding:10px 8px;border-radius:14px;border:2px solid #e5e7eb;background:#f9fafb;cursor:pointer;text-align:center;transition:all 0.2s;">
                             <div style="font-size:1.4em;margin-bottom:4px;">🤖</div>
                             <div style="font-weight:700;font-size:0.82em;color:#374151;">Machines seulement</div>
                             <div style="font-size:0.7em;color:#6b7280;margin-top:2px;">Câbles · Presses</div>
                         </button>
                         <button id="gymMixedBtn" onclick="setGymBodyweightMode(true)"
-                            style="padding:10px 8px;border-radius:12px;border:2px solid #e5e7eb;background:#f9fafb;cursor:pointer;text-align:center;transition:all 0.2s;">
+                            style="padding:10px 8px;border-radius:14px;border:2px solid #e5e7eb;background:#f9fafb;cursor:pointer;text-align:center;transition:all 0.2s;">
                             <div style="font-size:1.4em;margin-bottom:4px;">🤖💪</div>
                             <div style="font-weight:700;font-size:0.82em;color:#374151;">Machines + Corps</div>
                             <div style="font-size:0.7em;color:#6b7280;margin-top:2px;">Tractions · Dips</div>
@@ -1170,8 +1170,8 @@
                     <div style="padding:16px 18px 18px;display:flex;align-items:center;gap:16px;">
                         <!-- Icon with glow -->
                         <div style="position:relative;flex-shrink:0;">
-                            <div style="width:60px;height:60px;border-radius:18px;background:linear-gradient(135deg,rgba(74,222,128,0.25),rgba(34,197,94,0.15));display:flex;align-items:center;justify-content:center;font-size:2.2em;border:1px solid rgba(74,222,128,0.35);">🎲</div>
-                            <div style="position:absolute;inset:0;border-radius:18px;box-shadow:0 0 20px 5px rgba(74,222,128,0.18);pointer-events:none;"></div>
+                            <div style="width:60px;height:60px;border-radius:20px;background:linear-gradient(135deg,rgba(74,222,128,0.25),rgba(34,197,94,0.15));display:flex;align-items:center;justify-content:center;font-size:2.2em;border:1px solid rgba(74,222,128,0.35);">🎲</div>
+                            <div style="position:absolute;inset:0;border-radius:20px;box-shadow:0 0 20px 5px rgba(74,222,128,0.18);pointer-events:none;"></div>
                         </div>
 
                         <div style="flex:1;min-width:0;">
@@ -1320,13 +1320,13 @@
                     <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
                         <button onclick="toggleFullscreenMode()" title="Plein écran"
                                 style="background:rgba(34,197,94,0.1);color:#4ade80;border:1px solid rgba(74,222,128,0.4);
-                                       border-radius:8px;padding:6px 9px;font-size:0.95em;font-weight:700;cursor:pointer;
+                                       border-radius:10px;padding:6px 9px;font-size:0.95em;font-weight:700;cursor:pointer;
                                        min-width:34px;min-height:34px;flex-shrink:0;touch-action:manipulation;transition:all 0.2s;">
                             ⛶
                         </button>
                         <button id="quitBtn"
                                 style="background:rgba(239,68,68,0.12);color:#f87171;border:1px solid rgba(239,68,68,0.45);
-                                       border-radius:8px;padding:6px 10px;font-size:0.7em;font-weight:900;cursor:pointer;
+                                       border-radius:10px;padding:6px 10px;font-size:0.7em;font-weight:900;cursor:pointer;
                                        min-height:34px;flex-shrink:0;display:flex;align-items:center;gap:4px;letter-spacing:1px;
                                        touch-action:manipulation;-webkit-tap-highlight-color:rgba(239,68,68,0.3);"
                                 onclick="quitWorkout()">
@@ -1359,10 +1359,10 @@
                         </div>
                         <!-- Exercise number with HUD corners -->
                         <div class="exercise-number" id="exerciseNumber" style="font-size:0.65em;color:#4ade80;font-weight:900;letter-spacing:3.5px;text-transform:uppercase;margin-bottom:8px;text-shadow:0 0 8px rgba(74,222,128,0.5);">Exercise 1/10</div>
-                        <div class="exercise-name" id="exerciseName" style="font-size:1.75em;font-weight:900;color:white;letter-spacing:-0.5px;line-height:1.05;margin-bottom:12px;text-transform:uppercase;text-shadow:0 0 24px rgba(74,222,128,0.25);">Échauffement</div>
+                        <div class="exercise-name" id="exerciseName" style="font-family:var(--font-display);font-size:1.85em;font-weight:700;color:white;letter-spacing:-0.5px;line-height:1.05;margin-bottom:12px;text-transform:uppercase;text-shadow:0 0 24px rgba(74,222,128,0.25);">Échauffement</div>
                         <!-- Muscle Indicator (Tags style cyberpunk) - conservé pour JS, masqué visuellement -->
                         <div id="muscleBadge" style="display:none;"></div>
-                        <div class="timer-display" id="timerDisplay" style="font-size:3.8em;font-weight:900;color:white;letter-spacing:-3px;margin:18px 0 4px;font-variant-numeric:tabular-nums;text-shadow:0 0 32px rgba(74,222,128,0.5),0 0 60px rgba(74,222,128,0.2);font-family:'Outfit',sans-serif;">00:45</div>
+                        <div class="timer-display" id="timerDisplay" style="font-size:3.8em;font-weight:900;color:white;letter-spacing:-3px;margin:18px 0 4px;font-variant-numeric:tabular-nums;text-shadow:0 0 32px rgba(74,222,128,0.5),0 0 60px rgba(74,222,128,0.2);font-family:var(--font-display);">00:45</div>
 
                                             <!-- ━━━ FRAME VISUEL EXERCICE (cyberpunk HUD) ━━━ -->
                     <div id="exerciseVisualFrame" style="display:none;margin:14px 0 16px;position:relative;background:linear-gradient(160deg,#020510,#0a0e18 50%,#020510);border:1px solid rgba(74,222,128,0.35);border-radius:14px;overflow:hidden;box-shadow:0 0 24px rgba(34,197,94,0.08),0 8px 32px rgba(0,0,0,0.5),inset 0 0 50px rgba(34,197,94,0.04);min-height:240px;">
@@ -1383,7 +1383,7 @@
                         <div style="position:absolute;top:14px;left:14px;z-index:2;font-size:0.55em;font-weight:900;color:#4ade80;letter-spacing:2.5px;text-transform:uppercase;text-shadow:0 0 6px rgba(74,222,128,0.4);">◈ DÉMONSTRATION</div>
 
                         <!-- Tag muscle en haut à droite -->
-                        <div id="visualMuscleTag" style="position:absolute;top:12px;right:14px;z-index:2;font-size:0.55em;font-weight:900;color:#a855f7;letter-spacing:1.5px;background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.3);padding:3px 8px;border-radius:4px;text-transform:uppercase;"></div>
+                        <div id="visualMuscleTag" style="position:absolute;top:12px;right:14px;z-index:2;font-size:0.55em;font-weight:900;color:#a855f7;letter-spacing:1.5px;background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.3);padding:3px 8px;border-radius:6px;text-transform:uppercase;"></div>
 
                         <!-- Équipement requis (sous le tag mauve) -->
                         <div id="equipmentBadges" style="position:absolute;top:32px;right:14px;z-index:2;display:flex;flex-wrap:wrap;gap:4px;justify-content:flex-end;max-width:160px;"></div>
@@ -1420,9 +1420,9 @@
                                 <div id="warmupSetsRow" style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:8px 11px;background:rgba(251,191,36,0.06);border-radius:6px;border:1px solid rgba(251,191,36,0.25);">
                                     <span style="font-size:0.72em;color:#fbbf24;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;">🔥 ÉCHAUFFEMENT</span>
                                     <div style="margin-left:auto;display:flex;gap:5px;">
-                                        <button id="warmupBtn0" onclick="addWarmupSet(0)" style="background:#fbbf24;color:#1e293b;border:none;border-radius:5px;padding:4px 11px;font-size:0.7em;font-weight:900;cursor:pointer;letter-spacing:0.5px;">AUCUNE</button>
-                                        <button id="warmupBtn1" onclick="addWarmupSet(1)" style="background:transparent;color:#fbbf24;border:1px solid #fbbf24;border-radius:5px;padding:4px 11px;font-size:0.7em;font-weight:900;cursor:pointer;letter-spacing:0.5px;">×1</button>
-                                        <button id="warmupBtn2" onclick="addWarmupSet(2)" style="background:transparent;color:#fbbf24;border:1px solid #fbbf24;border-radius:5px;padding:4px 11px;font-size:0.7em;font-weight:900;cursor:pointer;letter-spacing:0.5px;">×2</button>
+                                        <button id="warmupBtn0" onclick="addWarmupSet(0)" style="background:#fbbf24;color:#1e293b;border:none;border-radius:6px;padding:4px 11px;font-size:0.7em;font-weight:900;cursor:pointer;letter-spacing:0.5px;">AUCUNE</button>
+                                        <button id="warmupBtn1" onclick="addWarmupSet(1)" style="background:transparent;color:#fbbf24;border:1px solid #fbbf24;border-radius:6px;padding:4px 11px;font-size:0.7em;font-weight:900;cursor:pointer;letter-spacing:0.5px;">×1</button>
+                                        <button id="warmupBtn2" onclick="addWarmupSet(2)" style="background:transparent;color:#fbbf24;border:1px solid #fbbf24;border-radius:6px;padding:4px 11px;font-size:0.7em;font-weight:900;cursor:pointer;letter-spacing:0.5px;">×2</button>
                                     </div>
                                 </div>
 
@@ -1430,7 +1430,7 @@
                                 <div id="completedSetsLog" style="margin-bottom:10px;display:none;"></div>
 
                                 <!-- 🚀 Surcharge progressive suggestion -->
-                                <div id="progressiveOverloadBanner" style="display:none;margin-bottom:10px;padding:10px 12px;background:linear-gradient(135deg,rgba(22,163,74,0.18),rgba(74,222,128,0.1));border:1px solid rgba(74,222,128,0.4);border-radius:8px;font-size:0.78em;color:#4ade80;font-weight:700;line-height:1.4;"></div>
+                                <div id="progressiveOverloadBanner" style="display:none;margin-bottom:10px;padding:10px 12px;background:linear-gradient(135deg,rgba(22,163,74,0.18),rgba(74,222,128,0.1));border:1px solid rgba(74,222,128,0.4);border-radius:10px;font-size:0.78em;color:#4ade80;font-weight:700;line-height:1.4;"></div>
 
                                 <!-- 💡 Suggestion de charge intelligente -->
                                 <div id="loadSuggestionContainer"></div>
@@ -1444,7 +1444,7 @@
                                         <div style="display:flex;align-items:center;gap:6px;">
                                             <button type="button" onclick="document.getElementById('quickRepsInput').stepDown();document.getElementById('quickRepsInput').dispatchEvent(new Event('input'));" style="width:38px;height:38px;border-radius:50%;background:rgba(74,222,128,0.12);border:1.5px solid rgba(74,222,128,0.5);color:#4ade80;font-size:1.2em;font-weight:900;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 0 8px rgba(74,222,128,0.2);transition:all 0.2s;">−</button>
                                             <input type="number" id="quickRepsInput" min="1" max="200" placeholder="10"
-                                                   style="flex:1;min-width:0;padding:6px 4px;font-size:1.9em;font-weight:900;border:none;border-radius:8px;text-align:center;background:rgba(74,222,128,0.06);color:#ffffff;text-shadow:0 0 12px rgba(74,222,128,0.6);font-variant-numeric:tabular-nums;letter-spacing:-1px;outline:none;" />
+                                                   style="flex:1;min-width:0;padding:6px 4px;font-size:1.9em;font-weight:900;border:none;border-radius:10px;text-align:center;background:rgba(74,222,128,0.06);color:#ffffff;text-shadow:0 0 12px rgba(74,222,128,0.6);font-variant-numeric:tabular-nums;letter-spacing:-1px;outline:none;" />
                                             <button type="button" onclick="document.getElementById('quickRepsInput').stepUp();document.getElementById('quickRepsInput').dispatchEvent(new Event('input'));" style="width:38px;height:38px;border-radius:50%;background:rgba(74,222,128,0.12);border:1.5px solid rgba(74,222,128,0.5);color:#4ade80;font-size:1.2em;font-weight:900;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 0 8px rgba(74,222,128,0.2);transition:all 0.2s;">+</button>
                                         </div>
                                     </div>
@@ -1455,7 +1455,7 @@
                                         <div style="display:flex;align-items:center;gap:6px;">
                                             <button type="button" onclick="(function(){var i=document.getElementById('quickWeightInput');i.value=Math.max(0,(parseFloat(i.value)||0)-2.5);i.dispatchEvent(new Event('input'));})()" style="width:38px;height:38px;border-radius:50%;background:rgba(74,222,128,0.12);border:1.5px solid rgba(74,222,128,0.5);color:#4ade80;font-size:1.2em;font-weight:900;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 0 8px rgba(74,222,128,0.2);transition:all 0.2s;">−</button>
                                             <input type="number" id="quickWeightInput" min="0" step="0.5" placeholder="0"
-                                                   style="flex:1;min-width:0;padding:6px 4px;font-size:1.9em;font-weight:900;border:none;border-radius:8px;text-align:center;background:rgba(74,222,128,0.06);color:#ffffff;text-shadow:0 0 12px rgba(74,222,128,0.6);font-variant-numeric:tabular-nums;letter-spacing:-1px;outline:none;" />
+                                                   style="flex:1;min-width:0;padding:6px 4px;font-size:1.9em;font-weight:900;border:none;border-radius:10px;text-align:center;background:rgba(74,222,128,0.06);color:#ffffff;text-shadow:0 0 12px rgba(74,222,128,0.6);font-variant-numeric:tabular-nums;letter-spacing:-1px;outline:none;" />
                                             <button type="button" onclick="(function(){var i=document.getElementById('quickWeightInput');i.value=(parseFloat(i.value)||0)+2.5;i.dispatchEvent(new Event('input'));})()" style="width:38px;height:38px;border-radius:50%;background:rgba(74,222,128,0.12);border:1.5px solid rgba(74,222,128,0.5);color:#4ade80;font-size:1.2em;font-weight:900;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 0 8px rgba(74,222,128,0.2);transition:all 0.2s;">+</button>
                                         </div>
                                     </div>
@@ -1546,7 +1546,7 @@
                         </div>
 
                         </div><!-- /timer zone -->                    <!-- Instructions (collapsibles sur mobile) -->
-                    <div class="exercise-description-box" id="exerciseDescriptionBox" style="background:linear-gradient(160deg,#050810,#0a0e18 50%,#050810);border:1px solid rgba(74,222,128,0.2);border-radius:12px;padding:14px;position:relative;">
+                    <div class="exercise-description-box" id="exerciseDescriptionBox" style="background:linear-gradient(160deg,#050810,#0a0e18 50%,#050810);border:1px solid rgba(74,222,128,0.2);border-radius:14px;padding:14px;position:relative;">
                         <!-- Coins HUD subtils -->
                         <div style="position:absolute;top:-1px;left:-1px;width:14px;height:14px;border-top:1.5px solid rgba(74,222,128,0.5);border-left:1.5px solid rgba(74,222,128,0.5);border-top-left-radius:12px;pointer-events:none;"></div>
                         <div style="position:absolute;bottom:-1px;right:-1px;width:14px;height:14px;border-bottom:1.5px solid rgba(74,222,128,0.5);border-right:1.5px solid rgba(74,222,128,0.5);border-bottom-right-radius:12px;pointer-events:none;"></div>
@@ -1563,25 +1563,25 @@
 
                     <!-- Bouton programme séance (mobile) -->
                     <button id="showProgramBtn" onclick="toggleMobileProgram()"
-                            style="display:none;width:100%;padding:10px;background:rgba(22,163,74,0.12);border:1px solid rgba(22,163,74,0.2);border-radius:12px;color:#16a34a;font-weight:600;font-size:0.85em;cursor:pointer;margin-bottom:6px;">
+                            style="display:none;width:100%;padding:10px;background:rgba(22,163,74,0.12);border:1px solid rgba(22,163,74,0.2);border-radius:14px;color:#16a34a;font-weight:600;font-size:0.85em;cursor:pointer;margin-bottom:6px;">
                         📋 Programme de la séance
                     </button>
                 </div>
 
                 <!-- Panel options flottant -->
-                <div id="workoutOptionsPanel" style="display:none;position:fixed;left:50%;bottom:16px;transform:translateX(-50%);background:#1e293b;border:1px solid rgba(255,255,255,0.12);border-radius:16px;padding:12px;box-shadow:0 8px 32px rgba(0,0,0,0.6);z-index:201;width:calc(100% - 24px);max-width:340px;max-height:70vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
-                    <button onclick="toggleSessionFavorite();toggleWorkoutOptionsPanel();" id="sessionFavBtn" style="display:block;width:100%;padding:10px 14px;text-align:left;border:none;background:none;cursor:pointer;font-size:0.9em;border-radius:8px;color:#e2e8f0;">🤍 Favori</button>
-                    <button onclick="toggleSessionFullscreen();toggleWorkoutOptionsPanel();" id="fullscreenBtn" style="display:block;width:100%;padding:10px 14px;text-align:left;border:none;background:none;cursor:pointer;font-size:0.9em;border-radius:8px;color:#e2e8f0;">⛶ Plein écran</button>
+                <div id="workoutOptionsPanel" style="display:none;position:fixed;left:50%;bottom:16px;transform:translateX(-50%);background:#1e293b;border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:12px;box-shadow:0 8px 32px rgba(0,0,0,0.6);z-index:201;width:calc(100% - 24px);max-width:340px;max-height:70vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+                    <button onclick="toggleSessionFavorite();toggleWorkoutOptionsPanel();" id="sessionFavBtn" style="display:block;width:100%;padding:10px 14px;text-align:left;border:none;background:none;cursor:pointer;font-size:0.9em;border-radius:10px;color:#e2e8f0;">🤍 Favori</button>
+                    <button onclick="toggleSessionFullscreen();toggleWorkoutOptionsPanel();" id="fullscreenBtn" style="display:block;width:100%;padding:10px 14px;text-align:left;border:none;background:none;cursor:pointer;font-size:0.9em;border-radius:10px;color:#e2e8f0;">⛶ Plein écran</button>
                     <hr style="margin:6px 0;border:none;border-top:1px solid rgba(255,255,255,0.1);">
-                    <button onclick="toggleMute();toggleWorkoutOptionsPanel();" style="display:block;width:100%;padding:10px 14px;text-align:left;border:none;background:none;cursor:pointer;font-size:0.9em;border-radius:8px;color:#e2e8f0;" id="optMuteBtn">🔊 Son</button>
-                    <button onclick="toggleVib();toggleWorkoutOptionsPanel();" style="display:block;width:100%;padding:10px 14px;text-align:left;border:none;background:none;cursor:pointer;font-size:0.9em;border-radius:8px;color:#e2e8f0;" id="optVibBtn">📳 Vibreur</button>
-                    <button onclick="toggleWeightUnit();toggleWorkoutOptionsPanel();" style="display:block;width:100%;padding:10px 14px;text-align:left;border:none;background:none;cursor:pointer;font-size:0.9em;border-radius:8px;color:#e2e8f0;" id="optUnitBtn">⚖️ Unité</button>
+                    <button onclick="toggleMute();toggleWorkoutOptionsPanel();" style="display:block;width:100%;padding:10px 14px;text-align:left;border:none;background:none;cursor:pointer;font-size:0.9em;border-radius:10px;color:#e2e8f0;" id="optMuteBtn">🔊 Son</button>
+                    <button onclick="toggleVib();toggleWorkoutOptionsPanel();" style="display:block;width:100%;padding:10px 14px;text-align:left;border:none;background:none;cursor:pointer;font-size:0.9em;border-radius:10px;color:#e2e8f0;" id="optVibBtn">📳 Vibreur</button>
+                    <button onclick="toggleWeightUnit();toggleWorkoutOptionsPanel();" style="display:block;width:100%;padding:10px 14px;text-align:left;border:none;background:none;cursor:pointer;font-size:0.9em;border-radius:10px;color:#e2e8f0;" id="optUnitBtn">⚖️ Unité</button>
                     <hr style="margin:6px 0;border:none;border-top:1px solid rgba(255,255,255,0.1);">
-                    <button onclick="showSwapExercise();toggleWorkoutOptionsPanel();" style="display:block;width:100%;padding:10px 14px;text-align:left;border:none;background:none;cursor:pointer;font-size:0.9em;border-radius:8px;color:#e2e8f0;">🔄 Remplacer</button>
-                    <button onclick="toggleMobileInstructions();toggleWorkoutOptionsPanel();" style="display:block;width:100%;padding:10px 14px;text-align:left;border:none;background:none;cursor:pointer;font-size:0.9em;border-radius:8px;color:#e2e8f0;">📋 Instructions</button>
+                    <button onclick="showSwapExercise();toggleWorkoutOptionsPanel();" style="display:block;width:100%;padding:10px 14px;text-align:left;border:none;background:none;cursor:pointer;font-size:0.9em;border-radius:10px;color:#e2e8f0;">🔄 Remplacer</button>
+                    <button onclick="toggleMobileInstructions();toggleWorkoutOptionsPanel();" style="display:block;width:100%;padding:10px 14px;text-align:left;border:none;background:none;cursor:pointer;font-size:0.9em;border-radius:10px;color:#e2e8f0;">📋 Instructions</button>
                     <hr style="margin:6px 0;border:none;border-top:1px solid rgba(255,255,255,0.1);">
-                    <button onclick="triggerDropSet();toggleWorkoutOptionsPanel();" style="display:block;width:100%;padding:10px 14px;text-align:left;border:none;background:none;cursor:pointer;font-size:0.9em;border-radius:8px;color:#e2e8f0;">⬇️ Drop Set</button>
-                    <button onclick="triggerRestPause();toggleWorkoutOptionsPanel();" style="display:block;width:100%;padding:10px 14px;text-align:left;border:none;background:none;cursor:pointer;font-size:0.9em;border-radius:8px;color:#e2e8f0;">⏸ Rest-Pause</button>
+                    <button onclick="triggerDropSet();toggleWorkoutOptionsPanel();" style="display:block;width:100%;padding:10px 14px;text-align:left;border:none;background:none;cursor:pointer;font-size:0.9em;border-radius:10px;color:#e2e8f0;">⬇️ Drop Set</button>
+                    <button onclick="triggerRestPause();toggleWorkoutOptionsPanel();" style="display:block;width:100%;padding:10px 14px;text-align:left;border:none;background:none;cursor:pointer;font-size:0.9em;border-radius:10px;color:#e2e8f0;">⏸ Rest-Pause</button>
                     <hr style="margin:6px 0;border:none;border-top:1px solid rgba(255,255,255,0.1);">
                     <div style="padding:6px 14px 4px;font-size:0.75em;color:#94a3b8;font-weight:700;">😓 Difficulté (RPE)</div>
                     <div style="display:flex;gap:4px;padding:0 10px 8px;">
@@ -1598,11 +1598,11 @@
                         <button onclick="setInlineRest(120);toggleWorkoutOptionsPanel();" style="flex:1;padding:6px 0;border-radius:6px;border:1px solid #334155;background:#1e293b;color:#e2e8f0;font-size:0.78em;font-weight:700;cursor:pointer;min-width:44px;">2min</button>
                         <button onclick="setInlineRest(180);toggleWorkoutOptionsPanel();" style="flex:1;padding:6px 0;border-radius:6px;border:1px solid #334155;background:#1e293b;color:#e2e8f0;font-size:0.78em;font-weight:700;cursor:pointer;min-width:44px;">3min</button>
                     </div>
-                    <button onclick="toggleProgressListPopup();toggleWorkoutOptionsPanel();" style="display:block;width:100%;padding:10px 14px;text-align:left;border:none;background:none;cursor:pointer;font-size:0.9em;border-radius:8px;color:#e2e8f0;">📋 Voir programme</button>
+                    <button onclick="toggleProgressListPopup();toggleWorkoutOptionsPanel();" style="display:block;width:100%;padding:10px 14px;text-align:left;border:none;background:none;cursor:pointer;font-size:0.9em;border-radius:10px;color:#e2e8f0;">📋 Voir programme</button>
                 </div>
 
                 <!-- Exercise Progress List -->
-                <div class="card exercise-progress-list" id="exerciseProgressListCard" style="background:linear-gradient(160deg,#050810,#0a0e18 50%,#050810);border:1px solid rgba(74,222,128,0.2);border-radius:12px;position:relative;padding:14px;">
+                <div class="card exercise-progress-list" id="exerciseProgressListCard" style="background:linear-gradient(160deg,#050810,#0a0e18 50%,#050810);border:1px solid rgba(74,222,128,0.2);border-radius:14px;position:relative;padding:14px;">
                     <!-- Coins HUD subtils -->
                     <div style="position:absolute;top:-1px;left:-1px;width:14px;height:14px;border-top:1.5px solid rgba(74,222,128,0.5);border-left:1.5px solid rgba(74,222,128,0.5);border-top-left-radius:12px;pointer-events:none;"></div>
                     <div style="position:absolute;bottom:-1px;right:-1px;width:14px;height:14px;border-bottom:1.5px solid rgba(74,222,128,0.5);border-right:1.5px solid rgba(74,222,128,0.5);border-bottom-right-radius:12px;pointer-events:none;"></div>
@@ -1613,15 +1613,15 @@
                     </div>
                     <div id="progressListBody">
                     <div class="progress-stats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;">
-                        <div class="progress-stat" style="background:rgba(34,197,94,0.06);border:1px solid rgba(74,222,128,0.3);border-radius:8px;padding:10px 8px;text-align:center;">
+                        <div class="progress-stat" style="background:rgba(34,197,94,0.06);border:1px solid rgba(74,222,128,0.3);border-radius:10px;padding:10px 8px;text-align:center;">
                             <div class="progress-stat-value" id="completedCount" style="font-size:1.4em;font-weight:900;color:#4ade80;font-variant-numeric:tabular-nums;text-shadow:0 0 10px rgba(74,222,128,0.4);">0</div>
                             <div class="progress-stat-label" style="font-size:0.55em;color:#94a3b8;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;margin-top:3px;">Complétés</div>
                         </div>
-                        <div class="progress-stat" style="background:rgba(168,85,247,0.06);border:1px solid rgba(168,85,247,0.3);border-radius:8px;padding:10px 8px;text-align:center;">
+                        <div class="progress-stat" style="background:rgba(168,85,247,0.06);border:1px solid rgba(168,85,247,0.3);border-radius:10px;padding:10px 8px;text-align:center;">
                             <div class="progress-stat-value" id="remainingCount" style="font-size:1.4em;font-weight:900;color:#c084fc;font-variant-numeric:tabular-nums;text-shadow:0 0 10px rgba(168,85,247,0.4);">0</div>
                             <div class="progress-stat-label" style="font-size:0.55em;color:#94a3b8;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;margin-top:3px;">Restants</div>
                         </div>
-                        <div class="progress-stat" style="background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.3);border-radius:8px;padding:10px 8px;text-align:center;">
+                        <div class="progress-stat" style="background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.3);border-radius:10px;padding:10px 8px;text-align:center;">
                             <div class="progress-stat-value" id="totalDuration" style="font-size:1.4em;font-weight:900;color:#fbbf24;font-variant-numeric:tabular-nums;text-shadow:0 0 10px rgba(251,191,36,0.4);">0</div>
                             <div class="progress-stat-label" style="font-size:0.55em;color:#94a3b8;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;margin-top:3px;">Min totales</div>
                         </div>
@@ -1648,7 +1648,7 @@
                     </div>
 
                     <!-- Quick Check Instructions -->
-                    <div id="quickCheckInstructions" style="background: linear-gradient(135deg, #16a34a15 0%, #15803d05 100%); padding: 25px; border-radius: 16px; margin-bottom: 25px; border-left: 4px solid #16a34a;">
+                    <div id="quickCheckInstructions" style="background: linear-gradient(135deg, #16a34a15 0%, #15803d05 100%); padding: 25px; border-radius: 14px; margin-bottom: 25px; border-left: 4px solid #16a34a;">
                         <h3 style="color: #16a34a; margin-top: 0;">📋 Quick Check (60 secondes)</h3>
                         <p style="margin-bottom: 15px; line-height: 1.6;">Je vais te faire faire 2 exercices rapides pour évaluer ta forme aujourd'hui :</p>
                         <div style="display: grid; gap: 12px;">
@@ -1669,7 +1669,7 @@
 
                     <!-- Quick Check Exercise Display (hidden initially) -->
                     <div id="quickCheckExerciseDisplay" style="display: none; text-align: center; margin-bottom: 25px;">
-                        <div style="background: linear-gradient(135deg, #ef444415 0%, #ef444405 100%); padding: 30px; border-radius: 16px; border: 3px solid #ef4444;">
+                        <div style="background: linear-gradient(135deg, #ef444415 0%, #ef444405 100%); padding: 30px; border-radius: 14px; border: 3px solid #ef4444;">
                             <div style="font-size: 0.9em; color: #666; margin-bottom: 10px;">Test <span id="currentTestNumber">1</span>/2</div>
                             <h3 style="color: #ef4444; font-size: 2em; margin: 10px 0;" id="currentTestExercise">Squats</h3>
                             <div style="font-size: 5em; font-weight: 800; color: #ef4444; margin: 20px 0;" id="quickCheckTimer">30</div>
@@ -1684,7 +1684,7 @@
 
                     <!-- Difficulty Rating (hidden initially) -->
                     <div id="difficultyRating" style="display: none; margin-bottom: 25px;">
-                        <div style="background: linear-gradient(135deg, #fbbf2415 0%, #fbbf2405 100%); padding: 25px; border-radius: 16px; border-left: 4px solid #fbbf24;">
+                        <div style="background: linear-gradient(135deg, #fbbf2415 0%, #fbbf2405 100%); padding: 25px; border-radius: 14px; border-left: 4px solid #fbbf24;">
                             <h3 style="color: #f59e0b; margin-top: 0;">💪 Comment tu t'es senti ?</h3>
                             <p style="margin-bottom: 20px; color: #666;">Sur une échelle de 1 à 10, quelle difficulté as-tu ressenti ?</p>
 
@@ -1732,14 +1732,14 @@
                         </p>
 
                         <!-- Équipements -->
-                        <div style="background: linear-gradient(160deg,rgba(34,197,94,0.06),rgba(34,197,94,0.02)); padding: 18px; border-radius: 12px; margin-bottom: 14px; border: 1px solid rgba(74,222,128,0.3);position:relative;">
+                        <div style="background: linear-gradient(160deg,rgba(34,197,94,0.06),rgba(34,197,94,0.02)); padding: 18px; border-radius: 14px; margin-bottom: 14px; border: 1px solid rgba(74,222,128,0.3);position:relative;">
                             <div style="font-size:0.62em;color:#4ade80;font-weight:900;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:14px;text-shadow:0 0 6px rgba(74,222,128,0.4);text-align:left;">◈ ÉQUIPEMENT REQUIS</div>
                             <div id="prepEquipmentList" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
                             </div>
                         </div>
 
                         <!-- Liste des exercices -->
-                        <div style="background: rgba(255,255,255,0.02); padding: 18px; border-radius: 12px; margin-bottom: 14px; border: 1px solid rgba(255,255,255,0.08);">
+                        <div style="background: rgba(255,255,255,0.02); padding: 18px; border-radius: 14px; margin-bottom: 14px; border: 1px solid rgba(255,255,255,0.08);">
                             <div style="font-size:0.62em;color:#94a3b8;font-weight:900;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:14px;text-align:left;">◈ PROGRAMME</div>
                             <div id="prepExercisesList" style="max-height: 300px; overflow-y: auto;">
                             </div>
@@ -1770,7 +1770,7 @@
                             </button>
                         </div>
 
-                        <div style="margin-top: 16px; font-size: 0.72em; color: #4ade80;font-weight:700;letter-spacing:0.5px;background:rgba(34,197,94,0.05);border:1px solid rgba(74,222,128,0.2);border-radius:8px;padding:10px 14px;">
+                        <div style="margin-top: 16px; font-size: 0.72em; color: #4ade80;font-weight:700;letter-spacing:0.5px;background:rgba(34,197,94,0.05);border:1px solid rgba(74,222,128,0.2);border-radius:10px;padding:10px 14px;">
                             💡 Prenez le temps de préparer votre espace et votre matériel
                         </div>
                     </div>
@@ -1901,7 +1901,7 @@
             <div class="card">
                 <h2 style="color: #16a34a; margin-bottom: 20px;">📈 Graphiques de Progression</h2>
 
-                <div style="background: linear-gradient(135deg, #16a34a15 0%, #15803d05 100%); padding: 20px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid #16a34a;">
+                <div style="background: linear-gradient(135deg, #16a34a15 0%, #15803d05 100%); padding: 20px; border-radius: 14px; margin-bottom: 20px; border-left: 4px solid #16a34a;">
                     <div style="display: flex; align-items: center; gap: 15px;">
                         <div style="font-size: 2.5em;">📊</div>
                         <div>
@@ -1912,9 +1912,9 @@
                 </div>
 
                 <!-- Exercise Selector -->
-                <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px;">
+                <div style="background: white; padding: 20px; border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px;">
                     <span style="display: block; font-weight: 600; margin-bottom: 10px; color: #333;">🏋️ Choisir un exercice</span>
-                    <select id="progressGraphExercise" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #e5e7eb; font-size: 1em;">
+                    <select id="progressGraphExercise" style="width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #e5e7eb; font-size: 1em;">
                         <option value="">-- Sélectionner un exercice --</option>
                     </select>
                 </div>
@@ -1949,14 +1949,14 @@
                     </div>
 
                     <!-- Graph Canvas Container -->
-                    <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px;">
+                    <div style="background: white; padding: 20px; border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px;">
                         <div style="position: relative; height: 400px;">
                             <canvas id="exerciseProgressChart"></canvas>
                         </div>
                     </div>
 
                     <!-- Graph Stats -->
-                    <div id="exerciseGraphStats" style="background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); padding: 20px; border-radius: 12px;">
+                    <div id="exerciseGraphStats" style="background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); padding: 20px; border-radius: 14px;">
                         <!-- Stats will be populated by JavaScript -->
                     </div>
                 </div>
@@ -2155,7 +2155,7 @@
             <div class="card" style="background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(34,197,94,0.15);padding:12px 14px;text-align:center;">
                 <div style="font-size:0.6em;color:#64748b;font-weight:800;letter-spacing:2px;">VERSION</div>
                 <div style="font-size:0.95em;color:#4ade80;font-weight:900;margin-top:3px;letter-spacing:1px;">v0.85 · awakened</div>
-                <button onclick="if(confirm('Forcer la mise à jour de l\\'app ?\\n\\nCela nettoiera complètement le cache et rechargera la dernière version.')) forceAppUpdate();" style="margin-top:10px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:#4ade80;border-radius:9px;padding:8px 14px;font-size:0.75em;font-weight:800;cursor:pointer;">🔄 Forcer la mise à jour</button>
+                <button onclick="if(confirm('Forcer la mise à jour de l\\'app ?\\n\\nCela nettoiera complètement le cache et rechargera la dernière version.')) forceAppUpdate();" style="margin-top:10px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:#4ade80;border-radius:10px;padding:8px 14px;font-size:0.75em;font-weight:800;cursor:pointer;">🔄 Forcer la mise à jour</button>
             </div>
 
             <!-- 💾 Sauvegardes -->
@@ -2180,7 +2180,7 @@
                     </div>
                     <label style="position:relative;display:inline-block;width:46px;height:26px;flex-shrink:0;">
                         <input type="checkbox" id="periodizationToggle" onchange="setPeriodizationEnabled(this.checked)" style="opacity:0;width:0;height:0;position:absolute;">
-                        <span id="periodizationSlider" style="position:absolute;cursor:pointer;inset:0;background:#334155;border-radius:26px;transition:0.3s;">
+                        <span id="periodizationSlider" style="position:absolute;cursor:pointer;inset:0;background:#334155;border-radius:20px;transition:0.3s;">
                             <span id="periodizationThumb" style="position:absolute;height:20px;width:20px;left:3px;bottom:3px;background:white;border-radius:50%;transition:0.3s;display:block;"></span>
                         </span>
                     </label>
@@ -2199,7 +2199,7 @@
                     </div>
                     <label style="position:relative;display:inline-block;width:46px;height:26px;flex-shrink:0;">
                         <input type="checkbox" id="warmupToggle" onchange="setWarmupEnabled(this.checked)" style="opacity:0;width:0;height:0;position:absolute;">
-                        <span id="warmupSlider" style="position:absolute;cursor:pointer;inset:0;background:#334155;border-radius:26px;transition:0.3s;">
+                        <span id="warmupSlider" style="position:absolute;cursor:pointer;inset:0;background:#334155;border-radius:20px;transition:0.3s;">
                             <span id="warmupThumb" style="position:absolute;height:20px;width:20px;left:3px;bottom:3px;background:white;border-radius:50%;transition:0.3s;display:block;"></span>
                         </span>
                     </label>
@@ -2216,12 +2216,12 @@
                     <label style="position:relative;display:inline-block;width:52px;height:28px;flex-shrink:0;margin-left:14px;">
                         <input type="checkbox" id="gameModeToggle" onchange="toggleGameMode(this.checked)"
                                style="opacity:0;width:0;height:0;position:absolute;">
-                        <span id="gameModeSlider" style="position:absolute;cursor:pointer;inset:0;background:#ccc;border-radius:28px;transition:0.3s;">
+                        <span id="gameModeSlider" style="position:absolute;cursor:pointer;inset:0;background:#ccc;border-radius:20px;transition:0.3s;">
                             <span style="position:absolute;content:'';height:22px;width:22px;left:3px;bottom:3px;background:white;border-radius:50%;transition:0.3s;display:block;" id="gameModeThumb"></span>
                         </span>
                     </label>
                 </div>
-                <div id="gameModePreview" style="display:none;background:linear-gradient(160deg,#0F1014,#0a001a);border-radius:12px;padding:14px;color:white;">
+                <div id="gameModePreview" style="display:none;background:linear-gradient(160deg,#0F1014,#0a001a);border-radius:14px;padding:14px;color:white;">
                     <div style="display:flex;gap:12px;margin-bottom:10px;">
                         <div style="flex:1;">
                             <div style="font-size:0.7em;opacity:0.6;margin-bottom:4px;">Niveau profil</div>
@@ -2267,7 +2267,7 @@
                     </button>
                 </div>
 
-                <div style="background: #FFF3E0; padding: 15px; border-radius: 8px; font-size: 0.9em; color: #666;">
+                <div style="background: #FFF3E0; padding: 15px; border-radius: 10px; font-size: 0.9em; color: #666;">
                     💡 <strong>Profil actuel :</strong> <span id="currentProfileNameSettings" style="color: #16a34a; font-weight: bold;">...</span>
                 </div>
             </div>
@@ -2276,7 +2276,7 @@
             <div class="card">
                 <h2 style="color: #16a34a; margin-bottom: 20px;">🔔 Rappels Intelligents</h2>
 
-                <div style="background: linear-gradient(135deg, #fbbf2415 0%, #fbbf2405 100%); padding: 20px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid #fbbf24;">
+                <div style="background: linear-gradient(135deg, #fbbf2415 0%, #fbbf2405 100%); padding: 20px; border-radius: 14px; margin-bottom: 20px; border-left: 4px solid #fbbf24;">
                     <div style="display: flex; align-items: center; gap: 15px;">
                         <div style="font-size: 2.5em;">⏰</div>
                         <div>
@@ -2293,7 +2293,7 @@
 
                 <!-- Reminder Settings -->
                 <div id="reminderSettings" style="display: none;">
-                    <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 15px;">
+                    <div style="background: white; padding: 20px; border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 15px;">
                         <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; margin-bottom: 15px;">
                             <input type="checkbox" id="dailyReminder" onchange="saveReminderSettings()" style="width: 20px; height: 20px;">
                             <div>
@@ -2304,11 +2304,11 @@
 
                         <div id="dailyTimeSelector" style="display: none; margin-left: 32px;">
                             <span style="display: block; margin-bottom: 5px; font-size: 0.9em; color: #666;">⏰ Heure du rappel</span>
-                            <input type="time" id="dailyReminderTime" onchange="saveReminderSettings()" value="18:00" style="padding: 10px; border-radius: 8px; border: 2px solid #e5e7eb; font-size: 1em;">
+                            <input type="time" id="dailyReminderTime" onchange="saveReminderSettings()" value="18:00" style="padding: 10px; border-radius: 10px; border: 2px solid #e5e7eb; font-size: 1em;">
                         </div>
                     </div>
 
-                    <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 15px;">
+                    <div style="background: white; padding: 20px; border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 15px;">
                         <label style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
                             <input type="checkbox" id="inactiveReminder" onchange="saveReminderSettings()" style="width: 20px; height: 20px;">
                             <div>
@@ -2318,7 +2318,7 @@
                         </label>
                     </div>
 
-                    <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <div style="background: white; padding: 20px; border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                         <label style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
                             <input type="checkbox" id="goalReminder" onchange="saveReminderSettings()" style="width: 20px; height: 20px;">
                             <div>
@@ -2334,7 +2334,7 @@
             <div class="card">
                 <h2 style="color: #16a34a; margin-bottom: 20px;">🎧 AI Workout DJ</h2>
 
-                <div style="background: linear-gradient(135deg, #16a34a15 0%, #15803d05 100%); padding: 20px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid #16a34a;">
+                <div style="background: linear-gradient(135deg, #16a34a15 0%, #15803d05 100%); padding: 20px; border-radius: 14px; margin-bottom: 20px; border-left: 4px solid #16a34a;">
                     <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
                         <div style="font-size: 2.5em;">🎧</div>
                         <div>
@@ -2356,7 +2356,7 @@
                 </div>
 
                 <!-- Enable/Disable Toggle -->
-                <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <div style="background: white; padding: 20px; border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                     <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">
                         <div style="flex: 1;">
                             <div style="font-weight: 600; color: #333; margin-bottom: 5px;">🎯 Activer AI Workout DJ</div>
@@ -2390,7 +2390,7 @@
 
                         <div style="margin-top: 15px;">
                             <span style="display: block; font-size: 0.9em; font-weight: 600; color: #333; margin-bottom: 8px;">🎚️ Sensibilité de l'adaptation</span>
-                            <select id="aiDJSensitivity" onchange="saveAIWorkoutDJSettings()" style="width: 100%; padding: 10px; border-radius: 8px; border: 2px solid #e5e7eb; font-size: 0.9em;">
+                            <select id="aiDJSensitivity" onchange="saveAIWorkoutDJSettings()" style="width: 100%; padding: 10px; border-radius: 10px; border: 2px solid #e5e7eb; font-size: 0.9em;">
                                 <option value="conservative">Conservatrice (petits ajustements)</option>
                                 <option value="moderate" selected>Modérée (équilibrée)</option>
                                 <option value="aggressive">Agressive (gros changements)</option>
@@ -2407,7 +2407,7 @@
                 <h3>🤕 Récupération musculaire</h3>
 
                 <!-- Injured Muscles Management -->
-                <div id="injuredMusclesInfo" style="margin-bottom: 16px; padding: 16px; background: #fee2e2; border-radius: 12px; border: 2px solid #ef4444; display: none;">
+                <div id="injuredMusclesInfo" style="margin-bottom: 16px; padding: 16px; background: #fee2e2; border-radius: 14px; border: 2px solid #ef4444; display: none;">
                     <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
                         <div style="font-size: 1.8em;">🤕</div>
                         <div>
@@ -2422,7 +2422,7 @@
                 </div>
 
                 <!-- Reset Muscle Recovery -->
-                <div style="padding: 16px; background: #fff4e6; border-radius: 12px; border: 2px solid #fed7aa;">
+                <div style="padding: 16px; background: #fff4e6; border-radius: 14px; border: 2px solid #fed7aa;">
                     <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
                         <div style="font-size: 1.8em;">🔄</div>
                         <div>
@@ -2460,7 +2460,7 @@
                     </div>
                 </div>
 
-                <div style="background: #FFF3E0; padding: 20px; border-radius: 12px; margin-top: 20px;">
+                <div style="background: #FFF3E0; padding: 20px; border-radius: 14px; margin-top: 20px;">
                     <p style="margin: 0; color: #666; font-size: 0.95em;">
                         💡 <strong>Conseil :</strong> L'échauffement prépare vos muscles et réduit les risques de blessure.
                         Les étirements favorisent la récupération et la flexibilité. Nous recommandons de garder les deux activés !
@@ -2491,7 +2491,7 @@
                     </div>
                 </div>
 
-                <div style="background: #fff4e6; padding: 20px; border-radius: 12px; margin-top: 20px;">
+                <div style="background: #fff4e6; padding: 20px; border-radius: 14px; margin-top: 20px;">
                     <p style="margin: 0; color: #666; font-size: 0.95em;">
                         🎤 <strong>Info :</strong> Le guidage vocal utilise la synthèse vocale de votre appareil.
                         Vous entendrez le nom des exercices, les transitions et les comptes à rebours.
@@ -2563,7 +2563,7 @@
             <!-- Install PWA Card -->
             <div class="card">
                 <h3 style="margin:0 0 12px;color:#16a34a;">📱 Installer l'application</h3>
-                <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;padding:14px;background:linear-gradient(135deg,#0F1014,#1A0A00);border-radius:12px;">
+                <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;padding:14px;background:linear-gradient(135deg,#0F1014,#1A0A00);border-radius:14px;">
                     <div style="font-size:2.2em;flex-shrink:0;">💪</div>
                     <div>
                         <div style="font-weight:700;color:white;margin-bottom:2px;">Awakened Elite Fitness</div>
@@ -2604,7 +2604,7 @@
                     </button>
                 </div>
 
-                <div style="margin-top: 15px; padding: 15px; background: #fef3c7; border-radius: 8px; border-left: 4px solid #f59e0b; font-size: 0.9em; color: #92400e;">
+                <div style="margin-top: 15px; padding: 15px; background: #fef3c7; border-radius: 10px; border-left: 4px solid #f59e0b; font-size: 0.9em; color: #92400e;">
                     <strong>⚠️ Attention :</strong><br>
                     • <strong>Exporter</strong> : Télécharge un fichier JSON avec toutes vos données<br>
                     • <strong>Importer</strong> : Restaure des données depuis un fichier JSON<br>
@@ -2644,7 +2644,7 @@
         <!-- Force Réelle / Percentiles -->
         <div class="card">
             <h2 style="color: #16a34a; margin-bottom: 20px;">⚡ Force Réelle — Ton Rang Mondial</h2>
-            <div style="background: linear-gradient(135deg, #a855f715 0%, #a855f705 100%); padding: 16px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid #a855f7;">
+            <div style="background: linear-gradient(135deg, #a855f715 0%, #a855f705 100%); padding: 16px; border-radius: 14px; margin-bottom: 20px; border-left: 4px solid #a855f7;">
                 <div style="font-size:0.9em;color:#9ca3af;line-height:1.5;">
                     Le Système analyse ta puissance et la compare au reste du monde. Entre tes données et découvre ton percentile et ton niveau réel.
                 </div>
@@ -2688,7 +2688,7 @@
                 </div>
                 <div style="font-size:0.75em;color:#6b7280;margin-top:-6px;">Pour les tractions, entre la charge ajoutée (0 si poids du corps seul).</div>
 
-                <button onclick="computeForceReelle()" style="width:100%;padding:14px;background:linear-gradient(135deg,#a855f7,#7c3aed);color:white;border:none;border-radius:12px;font-weight:800;cursor:pointer;font-size:1em;letter-spacing:0.5px;">
+                <button onclick="computeForceReelle()" style="width:100%;padding:14px;background:linear-gradient(135deg,#a855f7,#7c3aed);color:white;border:none;border-radius:14px;font-weight:800;cursor:pointer;font-size:1em;letter-spacing:0.5px;">
                     ⚡ ANALYSER MA FORCE
                 </button>
             </div>
@@ -2700,7 +2700,7 @@
         <div class="card">
             <h2 style="color: #16a34a; margin-bottom: 20px;">💪 Calculateur 1RM (One Rep Max)</h2>
 
-            <div style="background: linear-gradient(135deg, #ef444415 0%, #ef444405 100%); padding: 20px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid #ef4444;">
+            <div style="background: linear-gradient(135deg, #ef444415 0%, #ef444405 100%); padding: 20px; border-radius: 14px; margin-bottom: 20px; border-left: 4px solid #ef4444;">
                 <div style="display: flex; align-items: center; gap: 15px;">
                     <div style="font-size: 2.5em;">🏋️</div>
                     <div>
@@ -2711,21 +2711,21 @@
             </div>
 
             <!-- Calculator Form -->
-            <div style="background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 20px;">
+            <div style="background: white; padding: 25px; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 20px;">
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
                     <div>
                         <span style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">🏋️ Exercice</span>
-                        <select id="rm-exercise" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #e5e7eb; font-size: 1em;">
+                        <select id="rm-exercise" style="width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #e5e7eb; font-size: 1em;">
                             <option value="">Sélectionner...</option>
                         </select>
                     </div>
                     <div>
                         <span data-weight-unit style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">⚖️ Poids soulevé (lbs)</span>
-                        <input type="number" id="rm-weight" placeholder="Ex: 135" step="5" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #e5e7eb; font-size: 1em;">
+                        <input type="number" id="rm-weight" placeholder="Ex: 135" step="5" style="width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #e5e7eb; font-size: 1em;">
                     </div>
                     <div>
                         <span style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">💪 Répétitions réussies</span>
-                        <input type="number" id="rm-reps" placeholder="Ex: 8" min="1" max="20" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #e5e7eb; font-size: 1em;">
+                        <input type="number" id="rm-reps" placeholder="Ex: 8" min="1" max="20" style="width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #e5e7eb; font-size: 1em;">
                     </div>
                 </div>
 
@@ -2749,7 +2749,7 @@
         <div class="card">
             <h2 style="color: #f59e0b; margin-bottom: 20px;">🧮 Calculateur de Plaques</h2>
 
-            <div style="background: linear-gradient(135deg, #f59e0b15 0%, #f59e0b05 100%); padding: 20px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid #f59e0b;">
+            <div style="background: linear-gradient(135deg, #f59e0b15 0%, #f59e0b05 100%); padding: 20px; border-radius: 14px; margin-bottom: 20px; border-left: 4px solid #f59e0b;">
                 <div style="display: flex; align-items: center; gap: 15px;">
                     <div style="font-size: 2.5em;">💿</div>
                     <div>
@@ -2760,16 +2760,16 @@
             </div>
 
             <!-- Calculator Input -->
-            <div style="background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 20px;">
+            <div style="background: white; padding: 25px; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 20px;">
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
                     <div>
                         <span data-weight-unit style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">🎯 Poids cible (lbs)</span>
                         <input type="number" id="plateTargetWeight" placeholder="Ex: 225" step="5"
-                               style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #e5e7eb; font-size: 1.2em; font-weight: 600;">
+                               style="width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #e5e7eb; font-size: 1.2em; font-weight: 600;">
                     </div>
                     <div>
                         <span style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">🏋️ Type de barre</span>
-                        <select id="plateBarType" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #e5e7eb; font-size: 1em;">
+                        <select id="plateBarType" style="width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #e5e7eb; font-size: 1em;">
                             <option value="45">Olympique (45 lbs)</option>
                             <option value="35">Standard (35 lbs)</option>
                             <option value="15">Curl (15 lbs)</option>
@@ -2793,7 +2793,7 @@
         <div class="card">
             <h2 style="color: #16a34a; margin-bottom: 20px;">💪 Calculateur RPE (Rate of Perceived Exertion)</h2>
 
-            <div style="background: linear-gradient(135deg, #16a34a15 0%, #15803d05 100%); padding: 20px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid #16a34a;">
+            <div style="background: linear-gradient(135deg, #16a34a15 0%, #15803d05 100%); padding: 20px; border-radius: 14px; margin-bottom: 20px; border-left: 4px solid #16a34a;">
                 <div style="display: flex; align-items: center; gap: 15px;">
                     <div style="font-size: 2.5em;">📊</div>
                     <div>
@@ -2804,7 +2804,7 @@
             </div>
 
             <!-- RPE Explanation -->
-            <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px;">
+            <div style="background: white; padding: 20px; border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px;">
                 <h3 style="color: #16a34a; margin-bottom: 15px;">📖 Qu'est-ce que le RPE ?</h3>
                 <p style="line-height: 1.6; color: #666; margin-bottom: 15px;">
                     Le <strong>RPE (Rate of Perceived Exertion)</strong> est une échelle subjective de 1 à 10 qui mesure
@@ -2819,12 +2819,12 @@
             </div>
 
             <!-- RPE Scale -->
-            <div style="background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 20px;">
+            <div style="background: white; padding: 25px; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 20px;">
                 <h3 style="color: #16a34a; margin-bottom: 20px;">🎯 Échelle RPE</h3>
 
                 <div id="rpeScale" style="display: grid; gap: 10px;">
                     <!-- RPE 1-3: Very Easy -->
-                    <div class="rpe-button" onclick="selectRPECalculator(1)" data-rpe="1" style="padding: 15px; border: 3px solid #e5e7eb; border-radius: 12px; background: white; cursor: pointer; display: grid; grid-template-columns: 60px 1fr; align-items: center; gap: 15px; transition: all 0.3s;">
+                    <div class="rpe-button" onclick="selectRPECalculator(1)" data-rpe="1" style="padding: 15px; border: 3px solid #e5e7eb; border-radius: 14px; background: white; cursor: pointer; display: grid; grid-template-columns: 60px 1fr; align-items: center; gap: 15px; transition: all 0.3s;">
                         <div style="font-size: 1.8em; font-weight: 800; text-align: center; color: #10b981;">1</div>
                         <div>
                             <div style="font-weight: 700; font-size: 1em; color: #10b981;">Très Facile</div>
@@ -2832,7 +2832,7 @@
                         </div>
                     </div>
 
-                    <div class="rpe-button" onclick="selectRPECalculator(2)" data-rpe="2" style="padding: 15px; border: 3px solid #e5e7eb; border-radius: 12px; background: white; cursor: pointer; display: grid; grid-template-columns: 60px 1fr; align-items: center; gap: 15px; transition: all 0.3s;">
+                    <div class="rpe-button" onclick="selectRPECalculator(2)" data-rpe="2" style="padding: 15px; border: 3px solid #e5e7eb; border-radius: 14px; background: white; cursor: pointer; display: grid; grid-template-columns: 60px 1fr; align-items: center; gap: 15px; transition: all 0.3s;">
                         <div style="font-size: 1.8em; font-weight: 800; text-align: center; color: #22c55e;">2</div>
                         <div>
                             <div style="font-weight: 700; font-size: 1em; color: #22c55e;">Très Facile</div>
@@ -2840,7 +2840,7 @@
                         </div>
                     </div>
 
-                    <div class="rpe-button" onclick="selectRPECalculator(3)" data-rpe="3" style="padding: 15px; border: 3px solid #e5e7eb; border-radius: 12px; background: white; cursor: pointer; display: grid; grid-template-columns: 60px 1fr; align-items: center; gap: 15px; transition: all 0.3s;">
+                    <div class="rpe-button" onclick="selectRPECalculator(3)" data-rpe="3" style="padding: 15px; border: 3px solid #e5e7eb; border-radius: 14px; background: white; cursor: pointer; display: grid; grid-template-columns: 60px 1fr; align-items: center; gap: 15px; transition: all 0.3s;">
                         <div style="font-size: 1.8em; font-weight: 800; text-align: center; color: #4ade80;">3</div>
                         <div>
                             <div style="font-weight: 700; font-size: 1em; color: #4ade80;">Facile</div>
@@ -2848,7 +2848,7 @@
                         </div>
                     </div>
 
-                    <div class="rpe-button" onclick="selectRPECalculator(4)" data-rpe="4" style="padding: 15px; border: 3px solid #e5e7eb; border-radius: 12px; background: white; cursor: pointer; display: grid; grid-template-columns: 60px 1fr; align-items: center; gap: 15px; transition: all 0.3s;">
+                    <div class="rpe-button" onclick="selectRPECalculator(4)" data-rpe="4" style="padding: 15px; border: 3px solid #e5e7eb; border-radius: 14px; background: white; cursor: pointer; display: grid; grid-template-columns: 60px 1fr; align-items: center; gap: 15px; transition: all 0.3s;">
                         <div style="font-size: 1.8em; font-weight: 800; text-align: center; color: #84cc16;">4</div>
                         <div>
                             <div style="font-weight: 700; font-size: 1em; color: #84cc16;">Modéré</div>
@@ -2856,7 +2856,7 @@
                         </div>
                     </div>
 
-                    <div class="rpe-button" onclick="selectRPECalculator(5)" data-rpe="5" style="padding: 15px; border: 3px solid #e5e7eb; border-radius: 12px; background: white; cursor: pointer; display: grid; grid-template-columns: 60px 1fr; align-items: center; gap: 15px; transition: all 0.3s;">
+                    <div class="rpe-button" onclick="selectRPECalculator(5)" data-rpe="5" style="padding: 15px; border: 3px solid #e5e7eb; border-radius: 14px; background: white; cursor: pointer; display: grid; grid-template-columns: 60px 1fr; align-items: center; gap: 15px; transition: all 0.3s;">
                         <div style="font-size: 1.8em; font-weight: 800; text-align: center; color: #a3e635;">5</div>
                         <div>
                             <div style="font-weight: 700; font-size: 1em; color: #a3e635;">Modéré</div>
@@ -2864,7 +2864,7 @@
                         </div>
                     </div>
 
-                    <div class="rpe-button" onclick="selectRPECalculator(6)" data-rpe="6" style="padding: 15px; border: 3px solid #e5e7eb; border-radius: 12px; background: white; cursor: pointer; display: grid; grid-template-columns: 60px 1fr; align-items: center; gap: 15px; transition: all 0.3s;">
+                    <div class="rpe-button" onclick="selectRPECalculator(6)" data-rpe="6" style="padding: 15px; border: 3px solid #e5e7eb; border-radius: 14px; background: white; cursor: pointer; display: grid; grid-template-columns: 60px 1fr; align-items: center; gap: 15px; transition: all 0.3s;">
                         <div style="font-size: 1.8em; font-weight: 800; text-align: center; color: #fbbf24;">6</div>
                         <div>
                             <div style="font-weight: 700; font-size: 1em; color: #fbbf24;">Difficile</div>
@@ -2872,7 +2872,7 @@
                         </div>
                     </div>
 
-                    <div class="rpe-button" onclick="selectRPECalculator(7)" data-rpe="7" style="padding: 15px; border: 3px solid #e5e7eb; border-radius: 12px; background: white; cursor: pointer; display: grid; grid-template-columns: 60px 1fr; align-items: center; gap: 15px; transition: all 0.3s;">
+                    <div class="rpe-button" onclick="selectRPECalculator(7)" data-rpe="7" style="padding: 15px; border: 3px solid #e5e7eb; border-radius: 14px; background: white; cursor: pointer; display: grid; grid-template-columns: 60px 1fr; align-items: center; gap: 15px; transition: all 0.3s;">
                         <div style="font-size: 1.8em; font-weight: 800; text-align: center; color: #f59e0b;">7</div>
                         <div>
                             <div style="font-weight: 700; font-size: 1em; color: #f59e0b;">Difficile</div>
@@ -2880,7 +2880,7 @@
                         </div>
                     </div>
 
-                    <div class="rpe-button" onclick="selectRPECalculator(8)" data-rpe="8" style="padding: 15px; border: 3px solid #e5e7eb; border-radius: 12px; background: white; cursor: pointer; display: grid; grid-template-columns: 60px 1fr; align-items: center; gap: 15px; transition: all 0.3s;">
+                    <div class="rpe-button" onclick="selectRPECalculator(8)" data-rpe="8" style="padding: 15px; border: 3px solid #e5e7eb; border-radius: 14px; background: white; cursor: pointer; display: grid; grid-template-columns: 60px 1fr; align-items: center; gap: 15px; transition: all 0.3s;">
                         <div style="font-size: 1.8em; font-weight: 800; text-align: center; color: #f97316;">8</div>
                         <div>
                             <div style="font-weight: 700; font-size: 1em; color: #f97316;">Très Difficile</div>
@@ -2888,7 +2888,7 @@
                         </div>
                     </div>
 
-                    <div class="rpe-button" onclick="selectRPECalculator(9)" data-rpe="9" style="padding: 15px; border: 3px solid #e5e7eb; border-radius: 12px; background: white; cursor: pointer; display: grid; grid-template-columns: 60px 1fr; align-items: center; gap: 15px; transition: all 0.3s;">
+                    <div class="rpe-button" onclick="selectRPECalculator(9)" data-rpe="9" style="padding: 15px; border: 3px solid #e5e7eb; border-radius: 14px; background: white; cursor: pointer; display: grid; grid-template-columns: 60px 1fr; align-items: center; gap: 15px; transition: all 0.3s;">
                         <div style="font-size: 1.8em; font-weight: 800; text-align: center; color: #ea580c;">9</div>
                         <div>
                             <div style="font-weight: 700; font-size: 1em; color: #ea580c;">Très Difficile</div>
@@ -2896,7 +2896,7 @@
                         </div>
                     </div>
 
-                    <div class="rpe-button" onclick="selectRPECalculator(10)" data-rpe="10" style="padding: 15px; border: 3px solid #e5e7eb; border-radius: 12px; background: white; cursor: pointer; display: grid; grid-template-columns: 60px 1fr; align-items: center; gap: 15px; transition: all 0.3s;">
+                    <div class="rpe-button" onclick="selectRPECalculator(10)" data-rpe="10" style="padding: 15px; border: 3px solid #e5e7eb; border-radius: 14px; background: white; cursor: pointer; display: grid; grid-template-columns: 60px 1fr; align-items: center; gap: 15px; transition: all 0.3s;">
                         <div style="font-size: 1.8em; font-weight: 800; text-align: center; color: #dc2626;">10</div>
                         <div>
                             <div style="font-weight: 700; font-size: 1em; color: #dc2626;">Maximum Absolu</div>
@@ -2905,7 +2905,7 @@
                     </div>
                 </div>
 
-                <div id="rpeFeedback" style="display: none; margin-top: 20px; padding: 20px; border-radius: 12px; background: linear-gradient(135deg, #16a34a15 0%, #15803d05 100%); border-left: 4px solid #16a34a;">
+                <div id="rpeFeedback" style="display: none; margin-top: 20px; padding: 20px; border-radius: 14px; background: linear-gradient(135deg, #16a34a15 0%, #15803d05 100%); border-left: 4px solid #16a34a;">
                     <!-- Feedback will be shown here -->
                 </div>
             </div>
@@ -2970,7 +2970,7 @@
                     <input type="text"
                            id="profileEditorName"
                            placeholder="Ex: Papa, Maman, Sophie..."
-                           style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1em;">
+                           style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1em;">
                 </div>
 
                 <div style="margin-bottom: 20px;">
@@ -3014,12 +3014,12 @@
             </div>
             <input id="profileName" placeholder="Votre nom"
                    aria-label="Votre nom ou surnom"
-                   style="width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #e0e0e0; border-radius: 8px;">
+                   style="width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #e0e0e0; border-radius: 10px;">
 
             <span style="display: block; margin: 15px 0 8px 0; font-weight: bold; color: #16a34a;">🎯 Objectif principal</span>
             <select id="profileGoal"
                     aria-label="Sélectionnez votre objectif principal d\'entraînement"
-                    style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px;">
+                    style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px;">
                 <option value="weight_loss">🔥 Perte de poids</option>
                 <option value="muscle_gain">💪 Prise de masse</option>
                 <option value="strength">🏋️ Force</option>
@@ -3029,29 +3029,29 @@
             </select>
 
             <span style="display: block; margin: 15px 0 8px 0; font-weight: bold; color: #16a34a;">📊 Niveau actuel</span>
-            <select id="profileLevel" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px;"
+            <select id="profileLevel" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px;"
                     onchange="updateLevelDescription()"
                     aria-label="Sélectionnez votre niveau d'expérience en musculation">
                 <option value="beginner" selected>Débutant (0-6 mois)</option>
                 <option value="intermediate">Intermédiaire (6-24 mois)</option>
                 <option value="advanced">Avancé (2+ ans)</option>
             </select>
-            <div id="levelDescription" style="margin-top: 10px; padding: 12px; background: #FFF3E0; border-radius: 8px; font-size: 0.9em; color: #555;">
+            <div id="levelDescription" style="margin-top: 10px; padding: 12px; background: #FFF3E0; border-radius: 10px; font-size: 0.9em; color: #555;">
                 💡 <strong>Débutant :</strong> Séances équilibrées avec 40% d'exercices de base (squats, pompes), 50% d'isolation et 10% de finition. Repos de 60s entre séries.
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
                 <div>
                     <span style="display: block; margin-bottom: 5px; font-weight: bold; color: #16a34a; font-size: 0.9em;">🎂 Âge (optionnel)</span>
-                    <input id="profileAge" type="number" placeholder="Ex: 30" min="10" max="100" style="padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; width: 100%;">
+                    <input id="profileAge" type="number" placeholder="Ex: 30" min="10" max="100" style="padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; width: 100%;">
                 </div>
                 <div>
                     <span style="display: block; margin-bottom: 5px; font-weight: bold; color: #16a34a; font-size: 0.9em;">⚖️ Poids en kg (optionnel)</span>
-                    <input id="profileWeight" type="number" placeholder="Ex: 70" min="30" max="200" style="padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; width: 100%;">
+                    <input id="profileWeight" type="number" placeholder="Ex: 70" min="30" max="200" style="padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; width: 100%;">
                 </div>
             </div>
 
-            <div style="margin-top: 10px; padding: 12px; background: #FFF3E0; border-radius: 8px; font-size: 0.85em; color: #555;">
+            <div style="margin-top: 10px; padding: 12px; background: #FFF3E0; border-radius: 10px; font-size: 0.85em; color: #555;">
                 💡 <strong>Informations optionnelles</strong> : Ces données permettent d'affiner les recommandations (durée de repos, intensité) mais ne sont pas obligatoires pour utiliser l'application.
             </div>
 
@@ -3067,14 +3067,14 @@
                 <button class="close-btn" onclick="closeYouTubeModal()">×</button>
             </div>
             <div class="modal-body">
-                <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; background: #000; border-radius: 12px;">
+                <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; background: #000; border-radius: 14px;">
                     <iframe id="youtubeIframe"
                             style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowfullscreen>
                     </iframe>
                 </div>
-                <div style="margin-top: 15px; padding: 15px; background: #FFF3E0; border-radius: 8px; font-size: 0.9em; color: #555;">
+                <div style="margin-top: 15px; padding: 15px; background: #FFF3E0; border-radius: 10px; font-size: 0.9em; color: #555;">
                     💡 Regardez attentivement la démonstration pour reproduire le mouvement correctement
                 </div>
                 <a id="ytFallbackLink" href="#" target="_blank" rel="noopener"
@@ -3096,7 +3096,7 @@
                 <p style="color: #666; margin-bottom: 20px;">Enchaînez 2-3 exercices sans repos entre eux. Parfait pour intensifier l'entraînement !</p>
 
                 <span style="display: block; margin-bottom: 10px; font-weight: bold; color: #16a34a;">Nom du superset</span>
-                <input type="text" id="supersetName" placeholder="Ex: Pecs + Dos" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; margin-bottom: 15px;">
+                <input type="text" id="supersetName" placeholder="Ex: Pecs + Dos" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; margin-bottom: 15px;">
 
                 <!-- Filtres exercices superset -->
                 <div class="wkt-filter-box" style="background: #fff8f6; border: 1px solid #bbf7d0; border-radius: 10px; padding: 12px; margin-bottom: 15px;">
@@ -3154,16 +3154,16 @@
                     ➕ Ajouter un exercice (max 3)
                 </button>
 
-                <div style="background: #FFF3E0; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <div style="background: #FFF3E0; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
                     <span style="display: block; margin-bottom: 10px; font-weight: bold; color: #16a34a;">⏱️ Configuration</span>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                         <div>
                             <span style="display: block; margin-bottom: 5px; color: #666; font-size: 0.9em;">Sets par exercice</span>
-                            <input type="number" id="supersetSets" value="3" min="1" max="10" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px;">
+                            <input type="number" id="supersetSets" value="3" min="1" max="10" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 10px;">
                         </div>
                         <div>
                             <span style="display: block; margin-bottom: 5px; color: #666; font-size: 0.9em;">Repos après superset (sec)</span>
-                            <input type="number" id="supersetRest" value="90" min="30" max="300" step="15" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px;">
+                            <input type="number" id="supersetRest" value="90" min="30" max="300" step="15" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 10px;">
                         </div>
                     </div>
                 </div>
@@ -3186,7 +3186,7 @@
                 <p style="color: #666; margin-bottom: 20px;">Créez un circuit de 4-6 exercices à répéter plusieurs fois. Excellent pour le cardio et la force !</p>
 
                 <span style="display: block; margin-bottom: 10px; font-weight: bold; color: #10b981;">Nom du circuit</span>
-                <input type="text" id="circuitName" placeholder="Ex: Full Body Blast" style="width: 100%; padding: 12px; border: 2px solid #6ee7b7; border-radius: 8px; margin-bottom: 15px; background: #f0fdf4; color: #065f46;">
+                <input type="text" id="circuitName" placeholder="Ex: Full Body Blast" style="width: 100%; padding: 12px; border: 2px solid #6ee7b7; border-radius: 10px; margin-bottom: 15px; background: #f0fdf4; color: #065f46;">
 
                 <!-- Filtres exercices circuit -->
                 <div class="wkt-filter-box" style="background: #f0fdf4; border: 1px solid #a7f3d0; border-radius: 10px; padding: 12px; margin-bottom: 15px;">
@@ -3244,16 +3244,16 @@
                     ➕ Ajouter un exercice (max 6)
                 </button>
 
-                <div style="background: #ecfdf5; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <div style="background: #ecfdf5; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
                     <span style="display: block; margin-bottom: 10px; font-weight: bold; color: #10b981;">⏱️ Configuration</span>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                         <div>
                             <span style="display: block; margin-bottom: 5px; color: #666; font-size: 0.9em;">Nombre de rounds</span>
-                            <input type="number" id="circuitRounds" value="3" min="1" max="10" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px;">
+                            <input type="number" id="circuitRounds" value="3" min="1" max="10" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 10px;">
                         </div>
                         <div>
                             <span style="display: block; margin-bottom: 5px; color: #666; font-size: 0.9em;">Repos entre rounds (sec)</span>
-                            <input type="number" id="circuitRest" value="120" min="30" max="300" step="15" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px;">
+                            <input type="number" id="circuitRest" value="120" min="30" max="300" step="15" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 10px;">
                         </div>
                     </div>
                 </div>
@@ -3276,11 +3276,11 @@
                 <p style="color: #666; margin-bottom: 20px;"><strong>As Many Rounds As Possible</strong> - Faites le maximum de tours en temps limité !</p>
 
                 <span style="display: block; margin-bottom: 10px; font-weight: bold; color: #ef4444;">Nom du AMRAP</span>
-                <input type="text" id="amrapName" placeholder="Ex: 20min Challenge" style="width: 100%; padding: 12px; border: 2px solid #fca5a5; border-radius: 8px; margin-bottom: 15px; background: #fff5f5; color: #7f1d1d;">
+                <input type="text" id="amrapName" placeholder="Ex: 20min Challenge" style="width: 100%; padding: 12px; border: 2px solid #fca5a5; border-radius: 10px; margin-bottom: 15px; background: #fff5f5; color: #7f1d1d;">
 
-                <div style="background: #fee2e2; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <div style="background: #fee2e2; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
                     <span style="display: block; margin-bottom: 10px; font-weight: bold; color: #ef4444;">⏱️ Durée totale</span>
-                    <select id="amrapDuration" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px;">
+                    <select id="amrapDuration" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px;">
                         <option value="600">10 minutes</option>
                         <option value="900">15 minutes</option>
                         <option value="1200" selected>20 minutes</option>
@@ -3434,14 +3434,14 @@
                     <input type="text"
                            id="programName"
                            placeholder="Ex: Jour Poussée, Corps entier, Routine Matinale..."
-                           style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1em;">
+                           style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1em;">
                 </div>
 
                 <div style="margin-bottom: 20px;">
                     <span style="display: block; font-weight: bold; margin-bottom: 8px; color: #16a34a;">
                         💪 Exercices du programme
                     </span>
-                    <div id="programExercisesList" style="min-height: 100px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 2px dashed #d1d5db;">
+                    <div id="programExercisesList" style="min-height: 100px; padding: 15px; background: #f8f9fa; border-radius: 10px; border: 2px dashed #d1d5db;">
                         <p style="text-align: center; color: #999;">Aucun exercice ajouté</p>
                     </div>
                 </div>
@@ -3477,7 +3477,7 @@
             <div class="modal-body">
                 <!-- Filters -->
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 20px;">
-                    <select id="pickerMuscleFilter" onchange="filterPickerExercises()" style="padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px;">
+                    <select id="pickerMuscleFilter" onchange="filterPickerExercises()" style="padding: 10px; border: 2px solid #e0e0e0; border-radius: 10px;">
                         <option value="">Tous les muscles</option>
                         <option value="Pectoraux">Pectoraux</option>
                         <option value="Dos">Dos</option>
@@ -3490,7 +3490,7 @@
                         <option value="Fessiers">Fessiers</option>
                         <option value="Mollets">Mollets</option>
                     </select>
-                    <select id="pickerEquipmentFilter" onchange="filterPickerExercises()" style="padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px;">
+                    <select id="pickerEquipmentFilter" onchange="filterPickerExercises()" style="padding: 10px; border: 2px solid #e0e0e0; border-radius: 10px;">
                         <option value="">Tous les équipements</option>
                         <option value="Poids du corps">Poids du corps</option>
                         <option value="Haltères">Haltères</option>
@@ -3506,7 +3506,7 @@
                            id="pickerSearchInput"
                            placeholder="Rechercher..."
                            onkeyup="filterPickerExercises()"
-                           style="padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px;">
+                           style="padding: 10px; border: 2px solid #e0e0e0; border-radius: 10px;">
                 </div>
 
                 <div id="pickerExercisesList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; max-height: 500px; overflow-y: auto;">
@@ -3514,7 +3514,7 @@
                 </div>
 
                 <!-- Auto-insert rest periods option -->
-                <div style="margin-top: 20px; padding: 20px; background: #fff4e6; border-radius: 12px; border: 2px solid #fed7aa;">
+                <div style="margin-top: 20px; padding: 20px; background: #fff4e6; border-radius: 14px; border: 2px solid #fed7aa;">
                     <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
                         <input type="checkbox" id="autoInsertRest" checked style="width: 20px; height: 20px; cursor: pointer;">
                         <label for="autoInsertRest" style="cursor: pointer; font-weight: 600; color: #92400e; margin: 0;">
@@ -3553,16 +3553,16 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/exercises.js?v=260"></script>
-    <script src="data/items.js?v=260"></script>
-    <script src="js/adventure.js?v=260"></script>
-    <script src="js/challenges.js?v=260"></script>
-    <script src="js/exercise-visuals.js?v=260"></script>
-    <script src="js/strength-standards.js?v=260"></script>
-    <script src="js/system-cards.js?v=260"></script>
-    <script src="js/share-card.js?v=260"></script>
-    <script src="js/story-events.js?v=260"></script>
-    <script src="js/app.js?v=260"></script>
+    <script src="js/exercises.js?v=266"></script>
+    <script src="data/items.js?v=266"></script>
+    <script src="js/adventure.js?v=266"></script>
+    <script src="js/challenges.js?v=266"></script>
+    <script src="js/exercise-visuals.js?v=266"></script>
+    <script src="js/strength-standards.js?v=266"></script>
+    <script src="js/system-cards.js?v=266"></script>
+    <script src="js/share-card.js?v=266"></script>
+    <script src="js/story-events.js?v=266"></script>
+    <script src="js/app.js?v=266"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>

@@ -54,7 +54,7 @@
                     max-width:380px;width:100%;
                     background:linear-gradient(160deg,#0a0e18 0%,#0F1014 50%,#0a0e18 100%);
                     border:1.5px solid rgba(${accentRgb},0.5);
-                    border-radius:16px;overflow:hidden;
+                    border-radius:14px;overflow:hidden;
                     box-shadow:0 24px 60px rgba(0,0,0,0.7),0 0 40px rgba(${accentRgb},0.2);
                     animation:slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);
                     position:relative;
@@ -522,7 +522,7 @@
                 const todayCompleted = activeChallenge.completedDays.includes(today.toISOString().split('T')[0]);
 
                 activeDisplay.innerHTML = `
-                    <div style="background: linear-gradient(160deg, #0a0e18 0%, #0F1014 100%); padding: 24px; border-radius: 18px; border: 1.5px solid ${activeChallenge.color}50; margin-bottom: 24px; box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 0 0 1px ${activeChallenge.color}10 inset;">
+                    <div style="background: linear-gradient(160deg, #0a0e18 0%, #0F1014 100%); padding: 24px; border-radius: 20px; border: 1.5px solid ${activeChallenge.color}50; margin-bottom: 24px; box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 0 0 1px ${activeChallenge.color}10 inset;">
                         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; gap: 12px;">
                             <div style="flex: 1; min-width: 0;">
                                 <div style="font-size: 2.6em; margin-bottom: 8px; filter: drop-shadow(0 0 12px ${activeChallenge.color}80); line-height: 1;">${activeChallenge.emoji}</div>
@@ -549,17 +549,17 @@
 
                         <!-- Stats -->
                         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 16px 0;">
-                            <div style="text-align: center; padding: 12px 8px; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(255,255,255,0.06);">
+                            <div style="text-align: center; padding: 12px 8px; background: rgba(255,255,255,0.03); border-radius: 14px; border: 1px solid rgba(255,255,255,0.06);">
                                 <div style="font-size: 1.5em; margin-bottom: 4px;">🔥</div>
                                 <div style="font-size: 1.5em; font-weight: 900; color: ${activeChallenge.color}; line-height: 1;">${activeChallenge.currentStreak}</div>
                                 <div style="font-size: 0.66em; color: #94a3b8; margin-top: 4px; font-weight: 700;">Série actuelle</div>
                             </div>
-                            <div style="text-align: center; padding: 12px 8px; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(255,255,255,0.06);">
+                            <div style="text-align: center; padding: 12px 8px; background: rgba(255,255,255,0.03); border-radius: 14px; border: 1px solid rgba(255,255,255,0.06);">
                                 <div style="font-size: 1.5em; margin-bottom: 4px;">⭐</div>
                                 <div style="font-size: 1.5em; font-weight: 900; color: ${activeChallenge.color}; line-height: 1;">${activeChallenge.bestStreak}</div>
                                 <div style="font-size: 0.66em; color: #94a3b8; margin-top: 4px; font-weight: 700;">Meilleure série</div>
                             </div>
-                            <div style="text-align: center; padding: 12px 8px; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(255,255,255,0.06);">
+                            <div style="text-align: center; padding: 12px 8px; background: rgba(255,255,255,0.03); border-radius: 14px; border: 1px solid rgba(255,255,255,0.06);">
                                 <div style="font-size: 1.5em; margin-bottom: 4px;">📅</div>
                                 <div style="font-size: 1.5em; font-weight: 900; color: ${activeChallenge.color}; line-height: 1;">${activeChallenge.duration - daysCompleted}</div>
                                 <div style="font-size: 0.66em; color: #94a3b8; margin-top: 4px; font-weight: 700;">Jours restants</div>
@@ -568,23 +568,23 @@
 
                         <!-- Today's Action -->
                         ${todayCompleted ? `
-                            <div style="background: rgba(16,185,129,0.08); padding: 16px; border-radius: 13px; text-align: center; border: 1.5px solid rgba(16,185,129,0.3);">
+                            <div style="background: rgba(16,185,129,0.08); padding: 16px; border-radius: 14px; text-align: center; border: 1.5px solid rgba(16,185,129,0.3);">
                                 <div style="font-size: 2.4em; margin-bottom: 6px;">✅</div>
                                 <div style="font-size: 1em; font-weight: 800; color: #4ade80;">Défi complété aujourd'hui !</div>
                                 <div style="color: #94a3b8; margin-top: 5px; font-size: 0.82em;">Revenez demain pour continuer 💪</div>
                             </div>
                         ` : `
-                            <button onclick="completeTodayChallenge()" style="width: 100%; padding: 14px; font-size: 0.95em; font-weight: 800; background: linear-gradient(135deg, ${activeChallenge.color} 0%, ${activeChallenge.color}cc 100%); color: white; border: none; border-radius: 13px; cursor: pointer; box-shadow: 0 6px 22px ${activeChallenge.color}30; letter-spacing: 0.5px;">
+                            <button onclick="completeTodayChallenge()" style="width: 100%; padding: 14px; font-size: 0.95em; font-weight: 800; background: linear-gradient(135deg, ${activeChallenge.color} 0%, ${activeChallenge.color}cc 100%); color: white; border: none; border-radius: 14px; cursor: pointer; box-shadow: 0 6px 22px ${activeChallenge.color}30; letter-spacing: 0.5px;">
                                 ✅ Marquer aujourd'hui comme complété
                             </button>
-                            <div style="text-align: center; margin-top: 12px; padding: 11px 14px; background: rgba(251,191,36,0.08); border-radius: 11px; border: 1px solid rgba(251,191,36,0.25);">
+                            <div style="text-align: center; margin-top: 12px; padding: 11px 14px; background: rgba(251,191,36,0.08); border-radius: 10px; border: 1px solid rgba(251,191,36,0.25);">
                                 <div style="font-weight: 800; color: #fbbf24; margin-bottom: 3px; font-size: 0.72em; letter-spacing: 1px;">🎯 OBJECTIF DU JOUR</div>
                                 <div style="color: #fde68a; font-size: 0.88em; font-weight: 600;">${activeChallenge.goal}</div>
                             </div>
                         `}
 
                         <!-- Tips -->
-                        <div style="margin-top: 16px; padding: 12px 14px; background: rgba(255,255,255,0.02); border-radius: 11px; border-left: 3px solid ${activeChallenge.color};">
+                        <div style="margin-top: 16px; padding: 12px 14px; background: rgba(255,255,255,0.02); border-radius: 10px; border-left: 3px solid ${activeChallenge.color};">
                             <div style="font-weight: 800; color: ${activeChallenge.color}; margin-bottom: 4px; font-size: 0.72em; letter-spacing: 0.5px;">💡 CONSEIL</div>
                             <div style="color: #cbd5e1; font-size: 0.82em; line-height: 1.5;">${activeChallenge.tips}</div>
                         </div>
@@ -600,7 +600,7 @@
                 const challengesList = document.getElementById('challengesList');
                 if (!challengesList) return;
                 challengesList.innerHTML = challengesDatabase.map(challenge => `
-                    <div style="background: linear-gradient(160deg, #0a0e18 0%, #0F1014 100%); padding: 20px; border-radius: 16px; margin-bottom: 16px; border: 1.5px solid ${challenge.color}40; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 18px rgba(0,0,0,0.25), 0 0 0 1px ${challenge.color}10 inset;" onclick="showChallengeDetails('${challenge.id}')">
+                    <div style="background: linear-gradient(160deg, #0a0e18 0%, #0F1014 100%); padding: 20px; border-radius: 14px; margin-bottom: 16px; border: 1.5px solid ${challenge.color}40; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 18px rgba(0,0,0,0.25), 0 0 0 1px ${challenge.color}10 inset;" onclick="showChallengeDetails('${challenge.id}')">
                         <div style="display: flex; gap: 16px; align-items: flex-start;">
                             <div style="font-size: 3em; line-height: 1; filter: drop-shadow(0 0 8px ${challenge.color}60); flex-shrink: 0;">${challenge.emoji}</div>
                             <div style="flex: 1; min-width: 0;">
@@ -619,7 +619,7 @@
                                 </div>
 
                                 <div style="display: flex; gap: 8px; align-items: center;">
-                                    <button onclick="event.stopPropagation(); startChallenge('${challenge.id}')" style="background: linear-gradient(135deg, ${challenge.color} 0%, ${challenge.color}cc 100%); color: white; border: none; border-radius: 11px; padding: 11px 14px; font-size: 0.85em; font-weight: 800; flex: 1; cursor: pointer; box-shadow: 0 4px 14px ${challenge.color}30;">
+                                    <button onclick="event.stopPropagation(); startChallenge('${challenge.id}')" style="background: linear-gradient(135deg, ${challenge.color} 0%, ${challenge.color}cc 100%); color: white; border: none; border-radius: 10px; padding: 11px 14px; font-size: 0.85em; font-weight: 800; flex: 1; cursor: pointer; box-shadow: 0 4px 14px ${challenge.color}30;">
                                         🚀 Commencer ce défi
                                     </button>
                                     <div style="padding: 9px 12px; background: rgba(255,255,255,0.03); border-radius: 10px; font-weight: 700; color: ${challenge.color}; border: 1px solid ${challenge.color}40; font-size: 0.8em;">
@@ -785,7 +785,7 @@
                     <!-- Activity Type -->
                     <div style="margin-bottom: 25px;">
                         <label style="display: block; font-weight: 600; margin-bottom: 10px; color: #333;">Type d'activité :</label>
-                        <select id="cardioActivityType" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #e5e7eb; font-size: 1em;">
+                        <select id="cardioActivityType" style="width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #e5e7eb; font-size: 1em;">
                             <option value="running">🏃 Course à pied</option>
                             <option value="cycling">🚴 Vélo</option>
                             <option value="walking">🚶 Marche</option>
@@ -802,11 +802,11 @@
                         <label style="display: block; font-weight: 600; margin-bottom: 10px; color: #333;">Système d'unités :</label>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                             <button onclick="selectCardioUnit('metric')" id="metricBtn" 
-                                    style="padding: 12px; border-radius: 8px; border: 2px solid #06b6d4; background: #06b6d4; color: white; font-weight: 600; cursor: pointer;">
+                                    style="padding: 12px; border-radius: 10px; border: 2px solid #06b6d4; background: #06b6d4; color: white; font-weight: 600; cursor: pointer;">
                                 Métrique (km)
                             </button>
                             <button onclick="selectCardioUnit('imperial')" id="imperialBtn"
-                                    style="padding: 12px; border-radius: 8px; border: 2px solid #e5e7eb; background: white; color: #333; font-weight: 600; cursor: pointer;">
+                                    style="padding: 12px; border-radius: 10px; border: 2px solid #e5e7eb; background: white; color: #333; font-weight: 600; cursor: pointer;">
                                 Impérial (miles)
                             </button>
                         </div>
@@ -1044,32 +1044,32 @@
                 : '--';
             
             grid.innerHTML = `
-                <div style="background: white; padding: 15px; border-radius: 12px; border: 2px solid #0ea5e9; text-align: center;">
+                <div style="background: white; padding: 15px; border-radius: 14px; border: 2px solid #0ea5e9; text-align: center;">
                     <div style="font-size: 0.85em; color: #666; margin-bottom: 5px;">⏱️ Durée</div>
                     <div style="font-size: 1.5em; font-weight: 700; color: #06b6d4;">${durationText}</div>
                 </div>
                 
-                <div style="background: white; padding: 15px; border-radius: 12px; border: 2px solid #0ea5e9; text-align: center;">
+                <div style="background: white; padding: 15px; border-radius: 14px; border: 2px solid #0ea5e9; text-align: center;">
                     <div style="font-size: 0.85em; color: #666; margin-bottom: 5px;">📏 Distance</div>
                     <div style="font-size: 1.5em; font-weight: 700; color: #06b6d4;">${currentCardioSession.distance.toFixed(2)} ${unitLabel}</div>
                 </div>
                 
-                <div style="background: white; padding: 15px; border-radius: 12px; border: 2px solid #0ea5e9; text-align: center;">
+                <div style="background: white; padding: 15px; border-radius: 14px; border: 2px solid #0ea5e9; text-align: center;">
                     <div style="font-size: 0.85em; color: #666; margin-bottom: 5px;">🚀 Vitesse</div>
                     <div style="font-size: 1.5em; font-weight: 700; color: #06b6d4;">${currentCardioSession.speed.toFixed(1)} ${speedLabel}</div>
                 </div>
                 
-                <div style="background: white; padding: 15px; border-radius: 12px; border: 2px solid #0ea5e9; text-align: center;">
+                <div style="background: white; padding: 15px; border-radius: 14px; border: 2px solid #0ea5e9; text-align: center;">
                     <div style="font-size: 0.85em; color: #666; margin-bottom: 5px;">⏱️ Allure</div>
                     <div style="font-size: 1.5em; font-weight: 700; color: #06b6d4;">${paceText} ${paceLabel}</div>
                 </div>
                 
-                <div style="background: white; padding: 15px; border-radius: 12px; border: 2px solid #0ea5e9; text-align: center;">
+                <div style="background: white; padding: 15px; border-radius: 14px; border: 2px solid #0ea5e9; text-align: center;">
                     <div style="font-size: 0.85em; color: #666; margin-bottom: 5px;">🔥 Calories</div>
                     <div style="font-size: 1.5em; font-weight: 700; color: #06b6d4;">${Math.round(currentCardioSession.calories)}</div>
                 </div>
                 
-                <div style="background: white; padding: 15px; border-radius: 12px; border: 2px solid #0ea5e9; text-align: center;">
+                <div style="background: white; padding: 15px; border-radius: 14px; border: 2px solid #0ea5e9; text-align: center;">
                     <div style="font-size: 0.85em; color: #666; margin-bottom: 5px;">❤️ FC</div>
                     <div style="font-size: 1.5em; font-weight: 700; color: #06b6d4;">${currentCardioSession.heartRate || '--'} bpm</div>
                 </div>
@@ -1429,7 +1429,7 @@
                 const paceText = session.pace > 0 ? `${paceMin}:${String(paceSec).padStart(2, '0')}` : '--';
                 
                 return `
-                    <div style="background: white; padding: 20px; border-radius: 12px; border-left: 4px solid #06b6d4;">
+                    <div style="background: white; padding: 20px; border-radius: 14px; border-left: 4px solid #06b6d4;">
                         <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
                             <div>
                                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
@@ -1446,32 +1446,32 @@
                         </div>
                         
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px;">
-                            <div style="text-align: center; padding: 10px; background: #f8fafc; border-radius: 8px;">
+                            <div style="text-align: center; padding: 10px; background: #f8fafc; border-radius: 10px;">
                                 <div style="font-size: 1.3em; font-weight: 700; color: #06b6d4;">${durationText}</div>
                                 <div style="font-size: 0.75em; color: #666; margin-top: 3px;">Durée</div>
                             </div>
-                            <div style="text-align: center; padding: 10px; background: #f8fafc; border-radius: 8px;">
+                            <div style="text-align: center; padding: 10px; background: #f8fafc; border-radius: 10px;">
                                 <div style="font-size: 1.3em; font-weight: 700; color: #06b6d4;">${session.distance.toFixed(2)}</div>
                                 <div style="font-size: 0.75em; color: #666; margin-top: 3px;">${unitLabel}</div>
                             </div>
                             ${session.speed > 0 ? `
-                                <div style="text-align: center; padding: 10px; background: #f8fafc; border-radius: 8px;">
+                                <div style="text-align: center; padding: 10px; background: #f8fafc; border-radius: 10px;">
                                     <div style="font-size: 1.3em; font-weight: 700; color: #06b6d4;">${session.speed.toFixed(1)}</div>
                                     <div style="font-size: 0.75em; color: #666; margin-top: 3px;">${speedLabel}</div>
                                 </div>
                             ` : ''}
                             ${session.pace > 0 ? `
-                                <div style="text-align: center; padding: 10px; background: #f8fafc; border-radius: 8px;">
+                                <div style="text-align: center; padding: 10px; background: #f8fafc; border-radius: 10px;">
                                     <div style="font-size: 1.3em; font-weight: 700; color: #06b6d4;">${paceText}</div>
                                     <div style="font-size: 0.75em; color: #666; margin-top: 3px;">Allure</div>
                                 </div>
                             ` : ''}
-                            <div style="text-align: center; padding: 10px; background: #f8fafc; border-radius: 8px;">
+                            <div style="text-align: center; padding: 10px; background: #f8fafc; border-radius: 10px;">
                                 <div style="font-size: 1.3em; font-weight: 700; color: #06b6d4;">${Math.round(session.calories)}</div>
                                 <div style="font-size: 0.75em; color: #666; margin-top: 3px;">kcal</div>
                             </div>
                             ${session.heartRate ? `
-                                <div style="text-align: center; padding: 10px; background: #f8fafc; border-radius: 8px;">
+                                <div style="text-align: center; padding: 10px; background: #f8fafc; border-radius: 10px;">
                                     <div style="font-size: 1.3em; font-weight: 700; color: #06b6d4;">${session.heartRate}</div>
                                     <div style="font-size: 0.75em; color: #666; margin-top: 3px;">bpm</div>
                                 </div>
@@ -1515,7 +1515,7 @@
                     document.getElementById('_undoToast')?.remove();
                     showToast('↩️ Action annulée','success',2000);
                 " style="background:rgba(22,163,74,0.2);border:1px solid rgba(22,163,74,0.4);
-                    color:#4ade80;border-radius:8px;padding:6px 14px;font-weight:700;
+                    color:#4ade80;border-radius:10px;padding:6px 14px;font-weight:700;
                     cursor:pointer;font-size:0.85em;white-space:nowrap;">
                     ↩ Annuler
                 </button>
@@ -2502,7 +2502,7 @@
             if (!topList) return;
             if (stats.topExercises.length > 0) {
                 topList.innerHTML = stats.topExercises.map(([name, count], idx) => `
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: ${idx % 2 === 0 ? '#f9fafb' : 'white'}; border-radius: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: ${idx % 2 === 0 ? '#f9fafb' : 'white'}; border-radius: 10px;">
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <span style="font-size: 1.2em; font-weight: bold; color: ${idx === 0 ? '#fbbf24' : idx === 1 ? '#d1d5db' : idx === 2 ? '#cd7f32' : '#16a34a'};">
                                 ${idx + 1}
@@ -2805,21 +2805,21 @@
             const letters = ['A', 'B', 'C'];
             
             container.innerHTML = supersetExercisesList.map((item, idx) => `
-                <div style="background: #f9fafb; padding: 15px; border-radius: 8px; border-left: 4px solid #22c55e;">
+                <div style="background: #f9fafb; padding: 15px; border-radius: 10px; border-left: 4px solid #22c55e;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <span style="font-weight: bold; color: #22c55e; font-size: 1.2em;">${letters[idx]})</span>
                         ${supersetExercisesList.length > 2 ? `
-                            <button onclick="removeSupersetExercise(${idx})" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">✕</button>
+                            <button onclick="removeSupersetExercise(${idx})" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer;">✕</button>
                         ` : ''}
                     </div>
-                    <select id="supersetSelect_${idx}" onchange="supersetExercisesList[${idx}].exercise = this.value" style="width: 100%; padding: 10px; border: 2px solid #bbf7d0; border-radius: 8px; margin-bottom: 10px; background: #fff8f6; color: #166534;">
+                    <select id="supersetSelect_${idx}" onchange="supersetExercisesList[${idx}].exercise = this.value" style="width: 100%; padding: 10px; border: 2px solid #bbf7d0; border-radius: 10px; margin-bottom: 10px; background: #fff8f6; color: #166534;">
                         <option value="">Choisir un exercice...</option>
                     </select>
                     <div style="display: flex; gap: 10px; align-items: center;">
                         <label style="color: #666;">Répétitions :</label>
                         <input type="number" value="${item.reps}" min="1" max="50" 
                                onchange="supersetExercisesList[${idx}].reps = parseInt(this.value)"
-                               style="width: 80px; padding: 8px; border: 2px solid #e0e0e0; border-radius: 8px;">
+                               style="width: 80px; padding: 8px; border: 2px solid #e0e0e0; border-radius: 10px;">
                     </div>
                 </div>
             `).join('');
@@ -3043,21 +3043,21 @@
             if (!container) return;
             
             container.innerHTML = circuitExercisesList.map((item, idx) => `
-                <div style="background: #ecfdf5; padding: 15px; border-radius: 8px; border-left: 4px solid #10b981;">
+                <div style="background: #ecfdf5; padding: 15px; border-radius: 10px; border-left: 4px solid #10b981;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <span style="font-weight: bold; color: #10b981; font-size: 1.2em;">Exercice ${idx + 1}</span>
                         ${circuitExercisesList.length > 4 ? `
-                            <button onclick="removeCircuitExercise(${idx})" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">✕</button>
+                            <button onclick="removeCircuitExercise(${idx})" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer;">✕</button>
                         ` : ''}
                     </div>
-                    <select id="circuitSelect_${idx}" onchange="circuitExercisesList[${idx}].exercise = this.value" style="width: 100%; padding: 10px; border: 2px solid #6ee7b7; border-radius: 8px; margin-bottom: 10px; background: #f0fdf4; color: #065f46;">
+                    <select id="circuitSelect_${idx}" onchange="circuitExercisesList[${idx}].exercise = this.value" style="width: 100%; padding: 10px; border: 2px solid #6ee7b7; border-radius: 10px; margin-bottom: 10px; background: #f0fdf4; color: #065f46;">
                         <option value="">Choisir un exercice...</option>
                     </select>
                     <div style="display: flex; gap: 10px; align-items: center;">
                         <label style="color: #065f46; font-weight: 600;">Répétitions :</label>
                         <input type="number" value="${item.reps}" min="1" max="50" 
                                onchange="circuitExercisesList[${idx}].reps = parseInt(this.value)"
-                               style="width: 80px; padding: 8px; border: 2px solid #6ee7b7; border-radius: 8px; background: #f0fdf4; color: #065f46;">
+                               style="width: 80px; padding: 8px; border: 2px solid #6ee7b7; border-radius: 10px; background: #f0fdf4; color: #065f46;">
                     </div>
                 </div>
             `).join('');
@@ -3263,21 +3263,21 @@
             if (!container) return;
             
             container.innerHTML = amrapExercisesList.map((item, idx) => `
-                <div style="background: #fee2e2; padding: 15px; border-radius: 8px; border-left: 4px solid #ef4444;">
+                <div style="background: #fee2e2; padding: 15px; border-radius: 10px; border-left: 4px solid #ef4444;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <span style="font-weight: bold; color: #ef4444; font-size: 1.2em;">Exercice ${idx + 1}</span>
                         ${amrapExercisesList.length > 3 ? `
-                            <button onclick="removeAMRAPExercise(${idx})" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">✕</button>
+                            <button onclick="removeAMRAPExercise(${idx})" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer;">✕</button>
                         ` : ''}
                     </div>
-                    <select id="amrapSelect_${idx}" onchange="amrapExercisesList[${idx}].exercise = this.value" style="width: 100%; padding: 10px; border: 2px solid #fca5a5; border-radius: 8px; margin-bottom: 10px; background: #fff5f5; color: #7f1d1d;">
+                    <select id="amrapSelect_${idx}" onchange="amrapExercisesList[${idx}].exercise = this.value" style="width: 100%; padding: 10px; border: 2px solid #fca5a5; border-radius: 10px; margin-bottom: 10px; background: #fff5f5; color: #7f1d1d;">
                         <option value="">Choisir un exercice...</option>
                     </select>
                     <div style="display: flex; gap: 10px; align-items: center;">
                         <label style="color: #7f1d1d; font-weight: 600;">Répétitions :</label>
                         <input type="number" value="${item.reps}" min="1" max="50" 
                                onchange="amrapExercisesList[${idx}].reps = parseInt(this.value)"
-                               style="width: 80px; padding: 8px; border: 2px solid #fca5a5; border-radius: 8px; background: #fff5f5; color: #7f1d1d;">
+                               style="width: 80px; padding: 8px; border: 2px solid #fca5a5; border-radius: 10px; background: #fff5f5; color: #7f1d1d;">
                     </div>
                 </div>
             `).join('');
@@ -3601,7 +3601,7 @@
             
             document.getElementById('planModalTitle').innerHTML = `${plan.emoji} ${plan.name}`;
             document.getElementById('planModalContent').innerHTML = `
-                <div style="background: linear-gradient(135deg, ${plan.color}15 0%, ${plan.color}05 100%); padding: 20px; border-radius: 12px; border-left: 4px solid ${plan.color}; margin-bottom: 20px;">
+                <div style="background: linear-gradient(135deg, ${plan.color}15 0%, ${plan.color}05 100%); padding: 20px; border-radius: 14px; border-left: 4px solid ${plan.color}; margin-bottom: 20px;">
                     <p style="font-size: 1.1em; color: #333; margin: 0;">${plan.description}</p>
                 </div>
                 
@@ -3886,14 +3886,14 @@
                             <span style="font-weight: bold; color: #333;">Progression totale</span>
                             <span style="font-weight: bold; color: ${activePlan.color};">${activePlan.progress}%</span>
                         </div>
-                        <div style="width: 100%; height: 25px; background: #e5e7eb; border-radius: 15px; overflow: hidden;">
+                        <div style="width: 100%; height: 25px; background: #e5e7eb; border-radius: 14px; overflow: hidden;">
                             <div style="background: linear-gradient(135deg, ${activePlan.color} 0%, ${activePlan.color}cc 100%); height: 100%; width: ${activePlan.progress}%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.9em; transition: width 0.5s;">
                                 ${activePlan.completedSessions.length} / ${totalSessions}
                             </div>
                         </div>
                     </div>
                     
-                    <div style="background: white; padding: 20px; border-radius: 12px; border-left: 4px solid ${activePlan.color};">
+                    <div style="background: white; padding: 20px; border-radius: 14px; border-left: 4px solid ${activePlan.color};">
                         <h4 style="color: ${activePlan.color}; margin-top: 0; display: flex; align-items: center; gap: 8px;">
                             📍 Semaine ${activePlan.currentWeek} - ${currentWeek.title}
                         </h4>
@@ -4175,10 +4175,10 @@
                         </div>
 
                         <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px;">
-                            <button onclick="downloadBackup()" style="width:100%;padding:13px;background:linear-gradient(135deg,#10b981,#15803d);color:white;border:none;border-radius:12px;font-weight:800;cursor:pointer;font-size:0.92em;">
+                            <button onclick="downloadBackup()" style="width:100%;padding:13px;background:linear-gradient(135deg,#10b981,#15803d);color:white;border:none;border-radius:14px;font-weight:800;cursor:pointer;font-size:0.92em;">
                                 📥 Télécharger une sauvegarde
                             </button>
-                            <label style="width:100%;padding:13px;background:rgba(34,197,94,0.08);color:#4ade80;border:1.5px dashed rgba(34,197,94,0.35);border-radius:12px;font-weight:700;cursor:pointer;font-size:0.88em;text-align:center;display:block;">
+                            <label style="width:100%;padding:13px;background:rgba(34,197,94,0.08);color:#4ade80;border:1.5px dashed rgba(34,197,94,0.35);border-radius:14px;font-weight:700;cursor:pointer;font-size:0.88em;text-align:center;display:block;">
                                 📤 Restaurer depuis un fichier
                                 <input type="file" accept=".json" style="display:none;" onchange="restoreFromFile(this.files[0]);document.getElementById('backupManagerModal').remove();"/>
                             </label>
@@ -4192,7 +4192,7 @@
                                     <div style="font-size:0.82em;color:white;font-weight:700;">${new Date(b.exportedAt).toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'})}</div>
                                     <div style="font-size:0.66em;color:#64748b;">${new Date(b.exportedAt).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})} · ${Object.keys(b.data||{}).length} entrées</div>
                                 </div>
-                                <button onclick="restoreAutoBackup(${b.id})" style="background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.3);border-radius:8px;padding:6px 12px;font-size:0.74em;font-weight:700;cursor:pointer;flex-shrink:0;">Restaurer</button>
+                                <button onclick="restoreAutoBackup(${b.id})" style="background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.3);border-radius:10px;padding:6px 12px;font-size:0.74em;font-weight:700;cursor:pointer;flex-shrink:0;">Restaurer</button>
                             </div>`).join('')}
 
                         <div style="font-size:0.68em;color:#475569;margin-top:14px;text-align:center;line-height:1.5;">
@@ -4343,7 +4343,7 @@
             modal.style.cssText = 'position:fixed;inset:0;z-index:10100;background:rgba(0,0,0,0.95);display:flex;align-items:flex-end;justify-content:center;padding:0;';
 
             modal.innerHTML = `
-                <div style="width:100%;max-width:520px;background:linear-gradient(160deg,#0F1014,#0a0d14);border-radius:22px 22px 0 0;max-height:88vh;display:flex;flex-direction:column;border-top:2px solid #f59e0b;">
+                <div style="width:100%;max-width:520px;background:linear-gradient(160deg,#0F1014,#0a0d14);border-radius:20px 20px 0 0;max-height:88vh;display:flex;flex-direction:column;border-top:2px solid #f59e0b;">
                     <div style="width:36px;height:3px;background:#334155;border-radius:99px;margin:10px auto 0;flex-shrink:0;"></div>
                     <div style="padding:14px 18px 8px;flex-shrink:0;border-bottom:1px solid rgba(245,158,11,0.15);">
                         <div style="display:flex;align-items:center;justify-content:space-between;">
@@ -4375,7 +4375,7 @@
                                 <strong style="color:#22d3ee;">Échauffement dynamique avant, étirements statiques après.</strong> Les mouvements dynamiques préparent les muscles sans réduire la performance, contrairement aux étirements tenus, à garder pour la fin de séance.
                             </div>
                         </div>
-                        <button onclick="document.getElementById('warmupModal').remove()" style="width:100%;background:linear-gradient(135deg,#f59e0b,#d97706);color:white;border:none;border-radius:12px;padding:13px;font-size:0.95em;font-weight:800;cursor:pointer;margin-top:8px;">
+                        <button onclick="document.getElementById('warmupModal').remove()" style="width:100%;background:linear-gradient(135deg,#f59e0b,#d97706);color:white;border:none;border-radius:14px;padding:13px;font-size:0.95em;font-weight:800;cursor:pointer;margin-top:8px;">
                             ✓ Échauffement terminé — Commencer la séance
                         </button>
                     </div>
@@ -4422,14 +4422,14 @@
                         <div style="font-size:1.05em;font-weight:900;color:white;margin-top:3px;">${sessionCount} séance${sessionCount>1?'s':''} cette semaine</div>
                     </div>
                     ${phase ? `
-                        <div style="background:${phase.color}15;border:1.5px solid ${phase.color}40;border-radius:11px;padding:6px 10px;text-align:center;">
+                        <div style="background:${phase.color}15;border:1.5px solid ${phase.color}40;border-radius:10px;padding:6px 10px;text-align:center;">
                             <div style="font-size:0.55em;color:${phase.color};font-weight:800;letter-spacing:1px;">SEM. ${phase.week}/4</div>
                             <div style="font-size:0.78em;font-weight:800;color:white;line-height:1;margin-top:2px;">${phase.emoji} ${phase.name}</div>
                         </div>` : ''}
                 </div>
 
                 ${phase ? `
-                    <div style="background:${phase.color}08;border:1px solid ${phase.color}20;border-radius:11px;padding:10px 12px;margin-bottom:12px;">
+                    <div style="background:${phase.color}08;border:1px solid ${phase.color}20;border-radius:10px;padding:10px 12px;margin-bottom:12px;">
                         <div style="font-size:0.62em;color:${phase.color};font-weight:800;letter-spacing:1px;margin-bottom:3px;">⚡ PHASE EN COURS</div>
                         <div style="font-size:0.82em;color:white;font-weight:700;line-height:1.3;">${phase.goal}</div>
                         <div style="font-size:0.7em;color:#94a3b8;margin-top:4px;display:flex;gap:14px;flex-wrap:wrap;">
@@ -4460,7 +4460,7 @@
 
                 <!-- Bouton échauffement -->
                 ${getWarmupEnabled() && sug.muscles.length > 0 ? `
-                    <button onclick="showAdaptiveWarmupModal(${JSON.stringify(sug.muscles).replace(/"/g, '&quot;')})" style="width:100%;background:rgba(245,158,11,0.08);border:1.5px dashed rgba(245,158,11,0.3);color:#fbbf24;border-radius:11px;padding:11px;font-size:0.82em;font-weight:800;cursor:pointer;">
+                    <button onclick="showAdaptiveWarmupModal(${JSON.stringify(sug.muscles).replace(/"/g, '&quot;')})" style="width:100%;background:rgba(245,158,11,0.08);border:1.5px dashed rgba(245,158,11,0.3);color:#fbbf24;border-radius:10px;padding:11px;font-size:0.82em;font-weight:800;cursor:pointer;">
                         🔥 Échauffement adaptatif (${sug.muscles.join(', ')})
                     </button>` : ''}
             </div>`;
@@ -4590,7 +4590,7 @@
                 return `<div style="margin-bottom:14px;">
                     <button onclick="resumeActiveWorkout()" style="
                         width:100%;background:linear-gradient(135deg,#f59e0b,#d97706);color:white;border:none;
-                        border-radius:16px;padding:16px 20px;font-size:1.05em;font-weight:800;cursor:pointer;
+                        border-radius:14px;padding:16px 20px;font-size:1.05em;font-weight:800;cursor:pointer;
                         box-shadow:0 6px 24px rgba(245,158,11,0.4);position:relative;overflow:hidden;
                         text-align:left;display:flex;align-items:center;gap:12px;">
                         <div style="font-size:2em;flex-shrink:0;animation:pulse 1.5s infinite;">⏸️</div>
@@ -4615,7 +4615,7 @@
             return `<div style="margin-bottom:14px;">
                 <button onclick="startSmartWorkout()" style="
                     width:100%;background:linear-gradient(135deg,#10b981 0%,#059669 50%,#15803d 100%);color:white;border:none;
-                    border-radius:16px;padding:16px 20px;font-size:1.05em;font-weight:800;cursor:pointer;
+                    border-radius:14px;padding:16px 20px;font-size:1.05em;font-weight:800;cursor:pointer;
                     box-shadow:0 6px 24px rgba(16,185,129,0.35);position:relative;overflow:hidden;
                     text-align:left;display:flex;align-items:center;gap:12px;">
                     <div style="position:absolute;top:0;right:0;width:120px;height:120px;background:radial-gradient(circle,rgba(255,255,255,0.15),transparent 70%);"></div>
@@ -4806,7 +4806,7 @@
                 return `
                 <div onclick="startExpressCircuit('${c.id}')" style="
                     cursor:pointer;background:linear-gradient(150deg,${c.color}12,${c.color}04);
-                    border:1.5px solid ${c.color}44;border-radius:16px;padding:15px;position:relative;overflow:hidden;
+                    border:1.5px solid ${c.color}44;border-radius:14px;padding:15px;position:relative;overflow:hidden;
                     transition:transform 0.15s;"
                     onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">
                     <div style="position:absolute;top:-1px;left:-1px;width:18px;height:18px;border-top:2px solid ${c.color};border-left:2px solid ${c.color};border-top-left-radius:16px;"></div>
@@ -5039,7 +5039,7 @@
                 </button>`;
 
             overlay.innerHTML = `
-                <div style="background:#0D0D0D;border:1px solid rgba(255,255,255,0.08);border-radius:22px 22px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+                <div style="background:#0D0D0D;border:1px solid rgba(255,255,255,0.08);border-radius:20px 20px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
                     <div style="width:40px;height:4px;background:rgba(255,255,255,0.2);border-radius:99px;margin:0 auto 16px;"></div>
                     <div style="text-align:center;margin-bottom:8px;">
                         <div style="font-size:2.4em;line-height:1;">☀️</div>
@@ -5048,8 +5048,8 @@
                     </div>
                     ${cards}
                     ${customCard}
-                    <button onclick="showCustomMorningEditor()" style="width:100%;margin-top:2px;margin-bottom:6px;padding:12px;background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.4);border-radius:12px;color:#c084fc;font-weight:800;font-size:0.85em;cursor:pointer;">✏️ Personnaliser ma routine</button>
-                    <button onclick="document.getElementById('morningRoutineModal').remove()" style="width:100%;padding:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:12px;color:#94a3b8;font-weight:700;cursor:pointer;">Fermer</button>
+                    <button onclick="showCustomMorningEditor()" style="width:100%;margin-top:2px;margin-bottom:6px;padding:12px;background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.4);border-radius:14px;color:#c084fc;font-weight:800;font-size:0.85em;cursor:pointer;">✏️ Personnaliser ma routine</button>
+                    <button onclick="document.getElementById('morningRoutineModal').remove()" style="width:100%;padding:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:14px;color:#94a3b8;font-weight:700;cursor:pointer;">Fermer</button>
                 </div>
             `;
             document.body.appendChild(overlay);
@@ -5173,7 +5173,7 @@
                         display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:9px 11px;margin-bottom:5px;
                         background:${isSel ? 'rgba(168,85,247,0.15)' : 'rgba(255,255,255,0.03)'};
                         border:1px solid ${isSel ? 'rgba(168,85,247,0.5)' : 'rgba(255,255,255,0.08)'};
-                        border-radius:9px;cursor:pointer;color:white;">
+                        border-radius:10px;cursor:pointer;color:white;">
                         <span style="font-size:1em;color:${isSel ? '#a855f7' : '#475569'};">${isSel ? '✓' : '+'}</span>
                         <span style="flex:1;font-size:0.8em;font-weight:${isSel ? '800' : '500'};color:${isSel ? '#e2e8f0' : '#94a3b8'};">${ex.name}</span>
                         <span style="font-size:0.62em;color:#64748b;">${ex.mode === 'reps' ? (ex.reps+' reps') : (ex.duration+'s')}</span>
@@ -5181,7 +5181,7 @@
                 }).join('');
 
                 overlay.innerHTML = `
-                    <div style="background:#0D0D0D;border-radius:22px 22px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+                    <div style="background:#0D0D0D;border-radius:20px 20px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
                         <div style="width:40px;height:4px;background:rgba(255,255,255,0.2);border-radius:99px;margin:0 auto 16px;"></div>
                         <div style="text-align:center;margin-bottom:14px;">
                             <div style="font-size:2em;">⭐</div>
@@ -5189,8 +5189,8 @@
                             <p style="margin:0;font-size:0.76em;color:#94a3b8;">Sélectionne tes exercices. ${current.length} choisi${current.length>1?'s':''}.</p>
                         </div>
                         <div style="margin-bottom:14px;">${poolHtml}</div>
-                        <button onclick="_saveCustomMorning()" style="width:100%;padding:14px;background:linear-gradient(135deg,#a855f7,#c084fc);border:none;border-radius:12px;color:white;font-weight:900;cursor:pointer;margin-bottom:8px;box-shadow:0 4px 16px rgba(168,85,247,0.4);">💾 Sauvegarder ma routine</button>
-                        <button onclick="document.getElementById('customMorningEditor').remove();showMorningRoutineModal();" style="width:100%;padding:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:#94a3b8;font-weight:700;cursor:pointer;">↩ Retour</button>
+                        <button onclick="_saveCustomMorning()" style="width:100%;padding:14px;background:linear-gradient(135deg,#a855f7,#c084fc);border:none;border-radius:14px;color:white;font-weight:900;cursor:pointer;margin-bottom:8px;box-shadow:0 4px 16px rgba(168,85,247,0.4);">💾 Sauvegarder ma routine</button>
+                        <button onclick="document.getElementById('customMorningEditor').remove();showMorningRoutineModal();" style="width:100%;padding:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:14px;color:#94a3b8;font-weight:700;cursor:pointer;">↩ Retour</button>
                     </div>`;
             }
 
@@ -5514,14 +5514,19 @@
             if (recentExercises.has(ex.name)) score -= 30;
 
             // Progression : privilégier si l'utilisateur progresse dessus
+            // 🆕 Détectée au POIDS *ou* aux REPS (sinon tout le poids du corps était ignoré)
             const perf = performanceHistory[ex.name];
             if (perf && perf.history && perf.history.length >= 2) {
                 const last = perf.history[perf.history.length - 1];
                 const prev = perf.history[perf.history.length - 2];
-                if (last && prev && last.weight && prev.weight && last.weight > prev.weight) {
-                    score += 15; // progression → on continue
-                }
+                const weightUp = last && prev && last.weight && prev.weight && last.weight > prev.weight;
+                const repsUp   = last && prev && last.reps && prev.reps && last.reps > prev.reps;
+                if (weightUp || repsUp) score += 15; // progression → on continue
                 if (perf.history.length >= 4) score += 5; // historique riche = cohérence
+
+                // 🆕 Ressenti : "très dur" 3 fois de suite → on laisse souffler
+                const last3 = perf.history.slice(-3);
+                if (last3.length === 3 && last3.every(h => (h.difficulty || 0) >= 4)) score -= 12;
             } else if (!perf) {
                 score += 8; // exercice jamais fait = nouveauté
             }
@@ -5531,10 +5536,12 @@
             const profileMap = { 'beginner': 1, 'intermediate': 2, 'advanced': 3 };
             const exLevel = levelMap[ex.difficulty] || 2;
             const userLevel = profileMap[profile.level] || 2;
-            const levelDiff = Math.abs(exLevel - userLevel);
+            const levelDiff = exLevel - userLevel;
             if (levelDiff === 0) score += 12;
-            else if (levelDiff === 1) score += 5;
-            else score -= 10; // trop facile ou trop dur
+            else if (Math.abs(levelDiff) === 1) score += 5;
+            // 🆕 Sécurité : 2 niveaux AU-DESSUS = quasi exclu (un Avancé chez un débutant)
+            else if (levelDiff >= 2) score -= 25;
+            else score -= 10; // trop facile
 
             // Muscle fatigué → pénaliser
             if (fatiguedMuscles && fatiguedMuscles.includes(ex.muscle)) score -= 20;
@@ -5543,6 +5550,36 @@
             const type = classifyExercise(ex);
             if (type === 'compound') score += 10;
             else if (type === 'finisher') score += 3;
+
+            // 🆕 OBJECTIF du profil : il pèse enfin dans le choix
+            const exType = typeof getExerciseType === 'function' ? getExerciseType(ex.name) : 'force';
+            const goal = profile.goal || 'fitness';
+            if (goal === 'weight_loss') {
+                if (exType === 'cardio') score += 10;
+                if (type === 'finisher') score += 6;
+            } else if (goal === 'muscle_gain' || goal === 'strength') {
+                if (type === 'compound') score += 8;       // s'ajoute au +10 générique
+                if (exType === 'force') score += 5;
+                if (exType === 'cardio') score -= 4;
+            } else if (goal === 'endurance') {
+                if (exType === 'cardio') score += 8;
+                if (exType === 'hybrid') score += 5;
+            } else if (goal === 'flexibility') {
+                if (/(étirement|stretch|yoga|mobilité|mobility)/i.test(ex.name)) score += 10;
+            }
+            // 'fitness' (forme générale) = neutre, l'équilibre existant suffit
+
+            // 🆕 ◈ SYNERGIE AWAKENED : le Système cible ta stat la plus faible (mode jeu actif)
+            try {
+                if (typeof rpgEnabled === 'function' && rpgEnabled()
+                    && typeof awakGetTotalStats === 'function' && typeof awakClassifyExerciseStats === 'function') {
+                    const tot = awakGetTotalStats();
+                    const weakest = ['STR','AGI','VIT','END','PER','SEN'].reduce((a,b) => (tot[a]||0) <= (tot[b]||0) ? a : b);
+                    const cls = awakClassifyExerciseStats(ex);
+                    if (cls && cls.main === weakest) score += 7;        // discret : jamais dominant
+                    else if (cls && cls.secondary === weakest) score += 3;
+                }
+            } catch(e) {}
 
             // Petite part d'aléatoire pour éviter la monotonie
             score += (Math.random() * 14) - 7;
@@ -5943,7 +5980,7 @@
             };
             
             const content = document.createElement('div');
-            content.style.cssText = 'background: white; border-radius: 16px; padding: 30px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);';
+            content.style.cssText = 'background: white; border-radius: 14px; padding: 30px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);';
             
             content.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -5971,7 +6008,7 @@
                             <div class="machine-type-item ${isSelected ? 'selected' : ''}" 
                                  onclick="toggleMachine('${machine.id}')" 
                                  data-machine-id="${machine.id}"
-                                 style="position: relative; padding: 15px; background: ${isSelected ? '#FFF3E0' : '#f9fafb'}; border: 2px solid ${isSelected ? '#16a34a' : '#e5e7eb'}; border-radius: 12px; cursor: pointer; text-align: center; transition: all 0.3s;">
+                                 style="position: relative; padding: 15px; background: ${isSelected ? '#FFF3E0' : '#f9fafb'}; border: 2px solid ${isSelected ? '#16a34a' : '#e5e7eb'}; border-radius: 14px; cursor: pointer; text-align: center; transition: all 0.3s;">
                                 <div style="position: absolute; top: 8px; right: 8px; width: 20px; height: 20px; border-radius: 50%; background: ${isSelected ? '#16a34a' : 'transparent'}; border: 2px solid ${isSelected ? '#16a34a' : '#d1d5db'}; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: bold;">
                                     ${isSelected ? '✓' : ''}
                                 </div>
@@ -6259,7 +6296,7 @@
             } else {
                 equipmentList.innerHTML = equipment.map(eq => {
                     const icon = equipmentIcons[eq] || '🏋️';
-                    return `<div style="display:flex;align-items:center;gap:12px;padding:13px 15px;background:rgba(22,163,74,0.08);border-radius:12px;border:1px solid rgba(22,163,74,0.25);">
+                    return `<div style="display:flex;align-items:center;gap:12px;padding:13px 15px;background:rgba(22,163,74,0.08);border-radius:14px;border:1px solid rgba(22,163,74,0.25);">
                         <span style="font-size:1.8em;">${icon}</span>
                         <span style="font-size:0.95em;font-weight:600;color:#e2e8f0;">${eq}</span>
                     </div>`;
@@ -6304,7 +6341,7 @@
                         </div>
                         <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;margin-left:8px;">
                             ${setsReps ? `<div style="font-size:0.75em;font-weight:700;color:#4ade80;background:rgba(22,163,74,0.12);padding:3px 8px;border-radius:6px;">${setsReps}</div>` : ''}
-                            ${difficulty ? `<div style="font-size:0.72em;padding:3px 8px;background:${difficultyColor}22;color:${difficultyColor};border-radius:8px;font-weight:600;white-space:nowrap;">${difficulty}</div>` : ''}
+                            ${difficulty ? `<div style="font-size:0.72em;padding:3px 8px;background:${difficultyColor}22;color:${difficultyColor};border-radius:10px;font-weight:600;white-space:nowrap;">${difficulty}</div>` : ''}
                         </div>
                     </div>`;
                 }).join('');
@@ -6611,7 +6648,7 @@
                         <button class="close-btn" onclick="this.closest('.modal').remove()">×</button>
                     </div>
                     <div class="modal-body">
-                        <div style="background: linear-gradient(135deg, #16a34a15 0%, #15803d15 100%); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                        <div style="background: linear-gradient(135deg, #16a34a15 0%, #15803d15 100%); padding: 20px; border-radius: 14px; margin-bottom: 20px;">
                             <p style="margin: 0; color: #333; font-size: 1.1em; text-align: center;">
                                 🎉 <strong>Excellente progression !</strong><br>
                                 <span style="font-size: 0.9em; color: #666;">L'app a détecté que tu es prêt(e) pour progresser</span>
@@ -6619,7 +6656,7 @@
                         </div>
                         
                         ${suggestions.map((sugg, idx) => `
-                            <div style="background: transparent; border: 2px solid ${sugg.type === 'increase' ? '#10b981' : '#f59e0b'}; border-radius: 12px; padding: 20px; margin-bottom: 15px;">
+                            <div style="background: transparent; border: 2px solid ${sugg.type === 'increase' ? '#10b981' : '#f59e0b'}; border-radius: 14px; padding: 20px; margin-bottom: 15px;">
                                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
                                     <span style="font-size: 1.5em;">${sugg.type === 'increase' ? '📈' : '💡'}</span>
                                     <div>
@@ -7137,7 +7174,7 @@
                             <div style="font-size:0.92em;font-weight:900;color:white;">${celeb.nickname} <span style="font-size:0.75em;font-weight:500;color:rgba(255,255,255,0.5);">— ${prog.phase.label}</span></div>
                             <div style="margin-top:4px;background:rgba(255,255,255,0.1);border-radius:99px;height:3px;overflow:hidden;"><div style="height:100%;background:${prog.phase.color};border-radius:99px;width:${prog.pct}%;"></div></div>
                         </div>
-                        <button onclick="showCelebrityPrograms()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;border-radius:8px;padding:5px 10px;font-size:0.72em;font-weight:700;cursor:pointer;">Changer</button>
+                        <button onclick="showCelebrityPrograms()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;border-radius:10px;padding:5px 10px;font-size:0.72em;font-weight:700;cursor:pointer;">Changer</button>
                     `;
                 } else {
                     celebBanner.style.display = 'none';
@@ -7398,15 +7435,15 @@
             el.innerHTML = `
                 <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:7px;">◈ FACTEURS</div>
                 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
-                    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:9px;padding:8px 6px;text-align:center;">
+                    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:8px 6px;text-align:center;">
                         <div style="font-size:1em;color:${factorColor(sugg.factors.rest.value)};font-weight:900;line-height:1;">${factorIcon(sugg.factors.rest.value)}</div>
                         <div style="font-size:0.62em;color:#cbd5e1;font-weight:700;margin-top:4px;letter-spacing:0.3px;">${sugg.factors.rest.label}</div>
                     </div>
-                    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:9px;padding:8px 6px;text-align:center;">
+                    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:8px 6px;text-align:center;">
                         <div style="font-size:1em;color:${factorColor(sugg.factors.intensity.value)};font-weight:900;line-height:1;">${factorIcon(sugg.factors.intensity.value)}</div>
                         <div style="font-size:0.62em;color:#cbd5e1;font-weight:700;margin-top:4px;letter-spacing:0.3px;">${sugg.factors.intensity.label}</div>
                     </div>
-                    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:9px;padding:8px 6px;text-align:center;">
+                    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:8px 6px;text-align:center;">
                         <div style="font-size:1em;color:${factorColor(sugg.factors.trend.value)};font-weight:900;line-height:1;">${factorIcon(sugg.factors.trend.value)}</div>
                         <div style="font-size:0.62em;color:#cbd5e1;font-weight:700;margin-top:4px;letter-spacing:0.3px;">${sugg.factors.trend.label}</div>
                     </div>
@@ -7429,7 +7466,7 @@
                 el.innerHTML = `
                     <button onclick="setFitnessIndex(${sugg.score})" class="no-ripple"
                             style="background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.35);
-                                   color:#c084fc;border-radius:9px;padding:5px 10px;
+                                   color:#c084fc;border-radius:10px;padding:5px 10px;
                                    font-size:0.7em;font-weight:800;cursor:pointer;
                                    display:flex;align-items:center;gap:5px;letter-spacing:0.3px;">
                         ✨ Suggérer ${sugg.score}
@@ -8487,21 +8524,21 @@
             overlay.style.cssText = `position:fixed;inset:0;background:rgba(0,0,0,0.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);z-index:100000;display:flex;align-items:center;justify-content:center;padding:18px;animation:awakFadeIn 0.35s ease;`;
 
             const reasoningHtml = (decisions.reasoning || []).map((reason, i) => `
-                <div style="display:flex;gap:9px;align-items:flex-start;padding:9px 11px;background:rgba(74,222,128,0.04);border:1px solid rgba(74,222,128,0.12);border-radius:9px;margin-bottom:6px;opacity:0;animation:awakFadeIn 0.4s ease ${0.15 + i*0.1}s forwards;">
+                <div style="display:flex;gap:9px;align-items:flex-start;padding:9px 11px;background:rgba(74,222,128,0.04);border:1px solid rgba(74,222,128,0.12);border-radius:10px;margin-bottom:6px;opacity:0;animation:awakFadeIn 0.4s ease ${0.15 + i*0.1}s forwards;">
                     <span style="color:${typeAccent};font-size:0.85em;flex-shrink:0;line-height:1.5;">▸</span>
                     <span style="font-size:0.76em;color:#cbd5e1;line-height:1.5;">${reason}</span>
                 </div>
             `).join('');
 
             overlay.innerHTML = `
-                <div style="max-width:430px;width:100%;max-height:90vh;overflow-y:auto;background:linear-gradient(160deg,#0a0e18 0%,#0F1014 60%,#0a0e18 100%);border:2px solid ${typeAccent};border-radius:18px;box-shadow:0 24px 70px rgba(0,0,0,0.85),0 0 60px ${typeAccent}40;position:relative;animation:slideUp 0.45s cubic-bezier(0.34,1.56,0.64,1);">
+                <div style="max-width:430px;width:100%;max-height:90vh;overflow-y:auto;background:linear-gradient(160deg,#0a0e18 0%,#0F1014 60%,#0a0e18 100%);border:2px solid ${typeAccent};border-radius:20px;box-shadow:0 24px 70px rgba(0,0,0,0.85),0 0 60px ${typeAccent}40;position:relative;animation:slideUp 0.45s cubic-bezier(0.34,1.56,0.64,1);">
                     <!-- Coins HUD -->
                     <div style="position:absolute;top:-1px;left:-1px;width:22px;height:22px;border-top:2px solid ${typeAccent};border-left:2px solid ${typeAccent};border-top-left-radius:18px;box-shadow:0 0 12px ${typeAccent}66;"></div>
                     <div style="position:absolute;top:-1px;right:-1px;width:22px;height:22px;border-top:2px solid ${typeAccent};border-right:2px solid ${typeAccent};border-top-right-radius:18px;box-shadow:0 0 12px ${typeAccent}66;"></div>
                     <div style="position:absolute;bottom:-1px;left:-1px;width:22px;height:22px;border-bottom:2px solid ${typeAccent};border-left:2px solid ${typeAccent};border-bottom-left-radius:18px;box-shadow:0 0 12px ${typeAccent}66;"></div>
                     <div style="position:absolute;bottom:-1px;right:-1px;width:22px;height:22px;border-bottom:2px solid ${typeAccent};border-right:2px solid ${typeAccent};border-bottom-right-radius:18px;box-shadow:0 0 12px ${typeAccent}66;"></div>
                     <!-- Scan lines -->
-                    <div style="position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0,transparent 3px,${typeAccent}08 3px,${typeAccent}08 4px);pointer-events:none;border-radius:18px;"></div>
+                    <div style="position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0,transparent 3px,${typeAccent}08 3px,${typeAccent}08 4px);pointer-events:none;border-radius:20px;"></div>
                     <!-- Glow top -->
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${typeAccent},transparent);"></div>
 
@@ -8515,11 +8552,11 @@
 
                         <!-- Stats durée / intensité -->
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">
-                            <div style="background:rgba(255,255,255,0.03);border:1px solid ${typeAccent}33;border-radius:11px;padding:11px;text-align:center;">
+                            <div style="background:rgba(255,255,255,0.03);border:1px solid ${typeAccent}33;border-radius:10px;padding:11px;text-align:center;">
                                 <div style="font-size:0.52em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px;">Durée</div>
                                 <div style="font-size:1.3em;font-weight:900;color:${typeAccent};">${decisions.duration}<span style="font-size:0.5em;color:#94a3b8;"> min</span></div>
                             </div>
-                            <div style="background:rgba(255,255,255,0.03);border:1px solid ${typeAccent}33;border-radius:11px;padding:11px;text-align:center;">
+                            <div style="background:rgba(255,255,255,0.03);border:1px solid ${typeAccent}33;border-radius:10px;padding:11px;text-align:center;">
                                 <div style="font-size:0.52em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px;">Intensité</div>
                                 <div style="font-size:1.3em;font-weight:900;color:${typeAccent};">${intensityPct}<span style="font-size:0.5em;color:#94a3b8;">%</span></div>
                             </div>
@@ -8533,7 +8570,7 @@
                         </div>` : ''}
 
                         <!-- Muscles ciblés -->
-                        <div style="background:${typeAccent}0f;border:1px solid ${typeAccent}33;border-radius:11px;padding:13px;text-align:center;">
+                        <div style="background:${typeAccent}0f;border:1px solid ${typeAccent}33;border-radius:10px;padding:13px;text-align:center;">
                             <div style="font-size:0.54em;color:${typeAccent};font-weight:900;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">⊕ Cibles verrouillées</div>
                             <div style="font-size:0.9em;color:white;font-weight:700;line-height:1.5;">${(decisions.targetMuscles || []).join(' · ')}</div>
                         </div>
@@ -9084,7 +9121,7 @@
                             <div style="font-size:0.75em;color:rgba(255,255,255,0.6);margin-top:4px;line-height:1.4;">La Séance Intelligente suivra automatiquement les muscles du jour.</div>
                         </div>
                     </div>
-                    <button onclick="openManualPlanEditor()" style="width:100%;background:linear-gradient(135deg,#a855f7,#7c3aed);border:none;color:white;border-radius:11px;padding:12px;font-weight:900;font-size:0.88em;cursor:pointer;letter-spacing:0.5px;box-shadow:0 4px 14px rgba(168,85,247,0.35);">✨ CRÉER MON PLAN</button>
+                    <button onclick="openManualPlanEditor()" style="width:100%;background:linear-gradient(135deg,#a855f7,#7c3aed);border:none;color:white;border-radius:10px;padding:12px;font-weight:900;font-size:0.88em;cursor:pointer;letter-spacing:0.5px;box-shadow:0 4px 14px rgba(168,85,247,0.35);">✨ CRÉER MON PLAN</button>
                 </div>`;
                 return;
             }
@@ -9102,12 +9139,12 @@
                             <div style="font-size:0.92em;font-weight:900;color:white;line-height:1.2;">Mon programme manuel</div>
                         </div>
                     </div>
-                    <button onclick="openManualPlanEditor()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#cbd5e1;border-radius:8px;padding:6px 11px;font-size:0.7em;font-weight:800;cursor:pointer;flex-shrink:0;">✏️</button>
+                    <button onclick="openManualPlanEditor()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#cbd5e1;border-radius:10px;padding:6px 11px;font-size:0.7em;font-weight:800;cursor:pointer;flex-shrink:0;">✏️</button>
                 </div>
 
                 <!-- Aujourd'hui -->
                 ${todayHasMuscles ? `
-                <div style="background:rgba(74,222,128,0.12);border:1.5px solid rgba(74,222,128,0.45);border-radius:12px;padding:11px 13px;margin-bottom:10px;">
+                <div style="background:rgba(74,222,128,0.12);border:1.5px solid rgba(74,222,128,0.45);border-radius:14px;padding:11px 13px;margin-bottom:10px;">
                     <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;">
                         <span style="font-size:0.55em;color:#4ade80;font-weight:900;letter-spacing:2px;">⚡ AUJOURD'HUI · ${MANUAL_PLAN_DAY_LABELS[todayKey].toUpperCase()}</span>
                     </div>
@@ -9117,7 +9154,7 @@
                     </div>
                 </div>
                 ` : `
-                <div style="background:rgba(148,163,184,0.08);border:1px solid rgba(148,163,184,0.2);border-radius:12px;padding:11px 13px;margin-bottom:10px;text-align:center;">
+                <div style="background:rgba(148,163,184,0.08);border:1px solid rgba(148,163,184,0.2);border-radius:14px;padding:11px 13px;margin-bottom:10px;text-align:center;">
                     <div style="font-size:0.55em;color:#94a3b8;font-weight:900;letter-spacing:2px;margin-bottom:3px;">${MANUAL_PLAN_DAY_LABELS[todayKey].toUpperCase()}</div>
                     <div style="font-size:0.82em;color:#94a3b8;font-weight:700;">🛌 Jour de repos</div>
                 </div>
@@ -9150,7 +9187,7 @@
             modal.style.cssText = 'position:fixed;inset:0;z-index:10150;background:rgba(0,0,0,0.94);backdrop-filter:blur(10px);display:flex;align-items:flex-end;justify-content:center;padding:0;';
 
             modal.innerHTML = `
-            <div style="width:100%;max-width:520px;background:#0F1014;border-radius:22px 22px 0 0;max-height:92vh;display:flex;flex-direction:column;border-top:2px solid rgba(168,85,247,0.4);">
+            <div style="width:100%;max-width:520px;background:#0F1014;border-radius:20px 20px 0 0;max-height:92vh;display:flex;flex-direction:column;border-top:2px solid rgba(168,85,247,0.4);">
                 <div style="width:36px;height:3px;background:#334155;border-radius:99px;margin:10px auto 0;flex-shrink:0;"></div>
 
                 <div style="padding:13px 18px 10px;flex-shrink:0;border-bottom:1px solid rgba(168,85,247,0.15);">
@@ -9159,7 +9196,7 @@
                             <div style="font-size:0.6em;color:#c084fc;font-weight:900;letter-spacing:2px;margin-bottom:2px;">📅 PLAN HEBDO</div>
                             <h2 style="margin:0;color:white;font-size:1em;font-weight:900;">Définir ma semaine</h2>
                         </div>
-                        <button onclick="document.getElementById('manualPlanEditorModal').remove();renderManualWeeklyPlanCard();" style="background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.35);color:#4ade80;border-radius:9px;padding:7px 14px;font-weight:900;font-size:0.78em;cursor:pointer;">✓ Terminer</button>
+                        <button onclick="document.getElementById('manualPlanEditorModal').remove();renderManualWeeklyPlanCard();" style="background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.35);color:#4ade80;border-radius:10px;padding:7px 14px;font-weight:900;font-size:0.78em;cursor:pointer;">✓ Terminer</button>
                     </div>
                 </div>
 
@@ -9183,7 +9220,7 @@
                         ${MANUAL_PLAN_DAYS.map(d => {
                             const dayData = plan[d] || { muscles: [], label: '' };
                             return `
-                            <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:11px;padding:10px 12px;margin-bottom:7px;">
+                            <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:10px 12px;margin-bottom:7px;">
                                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;gap:8px;">
                                     <span style="font-size:0.85em;font-weight:800;color:white;">${MANUAL_PLAN_DAY_LABELS[d]}</span>
                                     ${dayData.muscles && dayData.muscles.length > 0 ? `<button onclick="clearManualPlanDay('${d}')" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#f87171;border-radius:6px;padding:3px 9px;font-size:0.65em;font-weight:700;cursor:pointer;">🛌 Repos</button>` : ''}
@@ -9511,9 +9548,17 @@
                 const exerciseMode = determineExerciseMode(ex.name, selectedWorkoutMode);
                 const lastPerf = getLastPerformance(ex.name);
                 
+                // 🆕 Durée réelle : base de l'exercice (DB + ajustements de progression ±15%)
+                // modulée par l'intensité de la séance. Avant : 60s codé en dur pour tout.
+                const baseDur = (typeof ex.duration === 'number' && ex.duration > 0) ? ex.duration : 60;
+                const isLongCardio = baseDur >= 120; // course, vélo… : durée respectée telle quelle
+                const computedDur = isLongCardio
+                    ? baseDur
+                    : Math.max(20, Math.min(120, Math.round((baseDur * intensity) / 5) * 5));
+
                 const exerciseObj = {
                     ...ex,
-                    duration: 60,
+                    duration: computedDur,
                     mode: exerciseMode, // 'timer' or 'reps'
                     exerciseType: getExerciseType(ex.name) // 'force', 'cardio', 'hybrid'
                 };
@@ -9787,7 +9832,7 @@
                             <p style="margin: 5px 0 0 0; color: #666; font-size: 0.9em;">${rec.message}</p>
                         </div>
                     </div>
-                    <div style="background: white; padding: 10px; border-radius: 8px; margin-top: 10px;">
+                    <div style="background: white; padding: 10px; border-radius: 10px; margin-top: 10px;">
                         <strong>💡 Suggestion :</strong> ${rec.suggestion}
                     </div>
                 </div>
@@ -9924,7 +9969,7 @@
                             </div>
                         </div>
                         ${(goals.workouts.achieved && goals.minutes.achieved) ? 
-                            '<div style="margin-top: 10px; padding: 10px; background: #10b98120; border-radius: 8px; color: #10b981; font-weight: bold; text-align: center;">🏆 Objectifs Atteints !</div>' : 
+                            '<div style="margin-top: 10px; padding: 10px; background: #10b98120; border-radius: 10px; color: #10b981; font-weight: bold; text-align: center;">🏆 Objectifs Atteints !</div>' : 
                             ''}
                     </div>
                     
@@ -11031,7 +11076,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 // PR badges
                 if (s._pr && s._pr.length > 0) {
                     const icons = { weight:'🏆', reps:'💪', volume:'📊' };
-                    prBadge = `<span style="background:linear-gradient(135deg,#fbbf24,#d97706);color:white;padding:2px 7px;border-radius:4px;font-size:0.6em;font-weight:900;letter-spacing:1px;box-shadow:0 0 8px rgba(251,191,36,0.5);text-transform:uppercase;">${s._pr.map(t => icons[t] || '🏆').join('')} PR</span>`;
+                    prBadge = `<span style="background:linear-gradient(135deg,#fbbf24,#d97706);color:white;padding:2px 7px;border-radius:6px;font-size:0.6em;font-weight:900;letter-spacing:1px;box-shadow:0 0 8px rgba(251,191,36,0.5);text-transform:uppercase;">${s._pr.map(t => icons[t] || '🏆').join('')} PR</span>`;
                 }
 
                 // Comparaison avec dernière séance
@@ -11073,7 +11118,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const entries = Object.entries(vol).sort((a, b) => b[1] - a[1]);
             if (entries.length === 0) return '';
             const max = entries[0][1];
-            return `<div style="padding:14px;background:rgba(22,163,74,0.06);border-radius:12px;border:1px solid rgba(22,163,74,0.15);">
+            return `<div style="padding:14px;background:rgba(22,163,74,0.06);border-radius:14px;border:1px solid rgba(22,163,74,0.15);">
                 <div style="font-weight:700;color:#16a34a;margin-bottom:10px;font-size:0.9em;">📊 Volume 7 derniers jours</div>
                 ${entries.slice(0, 6).map(([muscle, count]) => `
                     <div style="margin-bottom:6px;">
@@ -11402,7 +11447,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     ${muscleBadgeHTML}
                     
                     ${lastPerf ? `
-                        <div style="background: linear-gradient(135deg, #10b98120 0%, #10b98110 100%); padding: 20px; border-radius: 12px; margin: 20px 0; border-left: 4px solid #10b981;">
+                        <div style="background: linear-gradient(135deg, #10b98120 0%, #10b98110 100%); padding: 20px; border-radius: 14px; margin: 20px 0; border-left: 4px solid #10b981;">
                             <div style="font-size: 0.9em; color: #047857; font-weight: 600; margin-bottom: 8px;">
                                 📊 Dernière performance
                             </div>
@@ -11429,13 +11474,13 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                             <h4 style="color: #16a34a; margin-bottom: 10px;">📋 Instructions</h4>
                             <ul id="exerciseInstructions" style="list-style: none; padding: 0;">
                                 ${exercise.instructions.map(inst => 
-                                    `<li style="padding: 8px; margin: 5px 0; background: #f8fafc; border-radius: 8px;">• ${inst}</li>`
+                                    `<li style="padding: 8px; margin: 5px 0; background: #f8fafc; border-radius: 10px;">• ${inst}</li>`
                                 ).join('')}
                             </ul>
                         </div>
                     ` : ''}
                     
-                    <div style="background: rgba(255,255,255,0.04); padding: 25px; border-radius: 12px; margin-top: 25px; border: 1px solid #252830;">
+                    <div style="background: rgba(255,255,255,0.04); padding: 25px; border-radius: 14px; margin-top: 25px; border: 1px solid #252830;">
                         <h3 style="color: #16a34a; margin-bottom: 20px;">📝 Enregistrez votre performance</h3>
                         
                         <div style="margin-bottom: 20px;">
@@ -11559,7 +11604,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             // ── JOUR DE REPOS ─────────────────────────────────────────
             if (isRestDay) {
                 overlay.innerHTML = `
-                <div style="background:linear-gradient(160deg,#0a0e18,#0F1014);border-radius:18px;padding:26px 22px;max-width:400px;width:100%;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;box-shadow:0 24px 60px rgba(0,0,0,0.8),0 0 50px rgba(6,182,212,0.18);border:2px solid rgba(6,182,212,0.4);position:relative;">
+                <div style="background:linear-gradient(160deg,#0a0e18,#0F1014);border-radius:20px;padding:26px 22px;max-width:400px;width:100%;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;box-shadow:0 24px 60px rgba(0,0,0,0.8),0 0 50px rgba(6,182,212,0.18);border:2px solid rgba(6,182,212,0.4);position:relative;">
                     <div style="position:absolute;top:-1px;left:-1px;width:20px;height:20px;border-top:2px solid #22d3ee;border-left:2px solid #22d3ee;border-top-left-radius:18px;"></div>
                     <div style="position:absolute;top:-1px;right:-1px;width:20px;height:20px;border-top:2px solid #22d3ee;border-right:2px solid #22d3ee;border-top-right-radius:18px;"></div>
                     <div style="text-align:center;margin-bottom:20px;">
@@ -11602,8 +11647,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                    </div>`;
 
             overlay.innerHTML = `
-                <div style="background:linear-gradient(160deg,#0a0e18,#0F1014);border-radius:18px;padding:26px 22px;max-width:400px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,0.8),0 0 50px rgba(74,222,128,0.2);border:2px solid rgba(74,222,128,0.4);position:relative;overflow:hidden auto;-webkit-overflow-scrolling:touch;max-height:90vh;animation:slideUp 0.4s cubic-bezier(0.34,1.56,0.64,1);">
-                    <div style="position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0,transparent 3px,rgba(74,222,128,0.03) 3px,rgba(74,222,128,0.03) 4px);pointer-events:none;border-radius:18px;"></div>
+                <div style="background:linear-gradient(160deg,#0a0e18,#0F1014);border-radius:20px;padding:26px 22px;max-width:400px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,0.8),0 0 50px rgba(74,222,128,0.2);border:2px solid rgba(74,222,128,0.4);position:relative;overflow:hidden auto;-webkit-overflow-scrolling:touch;max-height:90vh;animation:slideUp 0.4s cubic-bezier(0.34,1.56,0.64,1);">
+                    <div style="position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0,transparent 3px,rgba(74,222,128,0.03) 3px,rgba(74,222,128,0.03) 4px);pointer-events:none;border-radius:20px;"></div>
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#4ade80,transparent);"></div>
                     <div style="position:absolute;top:-1px;left:-1px;width:20px;height:20px;border-top:2px solid #4ade80;border-left:2px solid #4ade80;border-top-left-radius:18px;"></div>
                     <div style="position:absolute;top:-1px;right:-1px;width:20px;height:20px;border-top:2px solid #4ade80;border-right:2px solid #4ade80;border-top-right-radius:18px;"></div>
@@ -11624,7 +11669,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
                     <!-- Option IA -->
                     <button onclick="onMuscleChoiceAI()" style="
-                        width:100%;padding:18px 16px;border-radius:16px;border:2px solid transparent;
+                        width:100%;padding:18px 16px;border-radius:14px;border:2px solid transparent;
                         background:linear-gradient(135deg,#16a34a,#15803d);color:white;
                         cursor:pointer;text-align:left;margin-bottom:12px;position:relative;z-index:1;
                         box-shadow:0 4px 16px rgba(22,163,74,0.35);transition:transform 0.15s;"
@@ -11649,7 +11694,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
                     <!-- Option Manuel -->
                     <button onclick="onMuscleChoiceManual()" style="
-                        width:100%;padding:18px 16px;border-radius:16px;position:relative;z-index:1;
+                        width:100%;padding:18px 16px;border-radius:14px;position:relative;z-index:1;
                         border:1.5px solid rgba(74,222,128,0.3);background:rgba(74,222,128,0.06);
                         cursor:pointer;text-align:left;margin-bottom:16px;transition:all 0.15s;"
                         onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">
@@ -11670,7 +11715,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     </button>
 
                     <button onclick="document.getElementById('muscleChoiceOverlay').remove()" style="
-                        width:100%;padding:11px;border-radius:12px;border:none;position:relative;z-index:1;
+                        width:100%;padding:11px;border-radius:14px;border:none;position:relative;z-index:1;
                         background:rgba(255,255,255,0.06);color:#6b7280;cursor:pointer;font-size:0.9em;">
                         Annuler
                     </button>
@@ -11767,7 +11812,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 </button>`).join('');
 
             overlay.innerHTML = `
-                <div style="background:linear-gradient(160deg,#0a0e18,#0F1014);border-radius:18px 18px 0 0;padding:22px 20px calc(22px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(0,0,0,0.6);border-top:2px solid rgba(74,222,128,0.4);animation:slideUpSheet 0.35s cubic-bezier(0.16,1,0.3,1);">
+                <div style="background:linear-gradient(160deg,#0a0e18,#0F1014);border-radius:20px 20px 0 0;padding:22px 20px calc(22px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(0,0,0,0.6);border-top:2px solid rgba(74,222,128,0.4);animation:slideUpSheet 0.35s cubic-bezier(0.16,1,0.3,1);">
                     <div style="width:40px;height:4px;background:#2E2F35;border-radius:99px;margin:0 auto 16px;"></div>
                     <div style="font-size:0.54em;color:#4ade80;font-weight:900;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;text-align:center;">◈ SÉLECTION DES CIBLES ◈</div>
                     <h2 style="margin:0 0 6px;color:#e2e8f0;font-size:1.2em;text-align:center;">💪 Choisir mes muscles</h2>
@@ -11795,7 +11840,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         ✅ Confirmer et continuer
                     </button>
                     <button onclick="document.getElementById('manualMuscleOverlay').remove();showMuscleChoiceModal();"
-                        style="width:100%;padding:11px;border-radius:12px;border:none;background:rgba(255,255,255,0.06);color:#94a3b8;cursor:pointer;font-size:0.9em;">
+                        style="width:100%;padding:11px;border-radius:14px;border:none;background:rgba(255,255,255,0.06);color:#94a3b8;cursor:pointer;font-size:0.9em;">
                         ← Retour
                     </button>
                 </div>`;
@@ -12078,7 +12123,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 
                 const item = document.createElement('div');
                 item.className = 'history-item';
-                item.style.cssText = 'background: white; border-radius: 16px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 4px solid ' + (isFavorite ? '#fbbf24' : '#16a34a') + ';';
+                item.style.cssText = 'background: white; border-radius: 14px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 4px solid ' + (isFavorite ? '#fbbf24' : '#16a34a') + ';';
                 
                 // Create unique canvas ID for mini chart
                 const chartId = `historyChart-${entry.id}`;
@@ -12115,7 +12160,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     </div>
                     
                     ${Object.keys(muscleVolume).length > 0 ? `
-                        <div style="background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 12px;">
+                        <div style="background: #f8fafc; border-radius: 14px; padding: 15px; margin-bottom: 12px;">
                             <div style="font-size: 0.85em; font-weight: 600; color: #64748b; margin-bottom: 10px;">📊 Volume par muscle</div>
                             <canvas id="${chartId}" style="max-height: 120px;"></canvas>
                         </div>
@@ -12124,7 +12169,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     ${entry.muscles && entry.muscles.length > 0 ? `
                         <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px;">
                             ${entry.muscles.slice(0, 5).map(muscle => 
-                                `<span style="background: rgba(22,163,74,0.1); color: #16a34a; padding: 4px 12px; border-radius: 12px; font-size: 0.8em; font-weight: 600;">${muscle}</span>`
+                                `<span style="background: rgba(22,163,74,0.1); color: #16a34a; padding: 4px 12px; border-radius: 14px; font-size: 0.8em; font-weight: 600;">${muscle}</span>`
                             ).join('')}
                             ${entry.muscles.length > 5 ? `<span style="color: #94a3b8; font-size: 0.8em; padding: 4px 8px;">+${entry.muscles.length - 5}</span>` : ''}
                         </div>
@@ -12393,18 +12438,18 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     </div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                         <div>
-                            <div style="background: white; padding: 10px; border-radius: 8px; margin-bottom: 10px; text-align: center;">
+                            <div style="background: white; padding: 10px; border-radius: 10px; margin-bottom: 10px; text-align: center;">
                                 <strong>Avant</strong> - ${date2}
                             </div>
-                            <img src="${photo2.dataUrl}" style="width: 100%; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
-                            ${photo2.note ? `<div style="background: rgba(255,255,255,0.9); padding: 10px; border-radius: 8px; margin-top: 10px; color: #333;">${photo2.note}</div>` : ''}
+                            <img src="${photo2.dataUrl}" style="width: 100%; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+                            ${photo2.note ? `<div style="background: rgba(255,255,255,0.9); padding: 10px; border-radius: 10px; margin-top: 10px; color: #333;">${photo2.note}</div>` : ''}
                         </div>
                         <div>
-                            <div style="background: white; padding: 10px; border-radius: 8px; margin-bottom: 10px; text-align: center;">
+                            <div style="background: white; padding: 10px; border-radius: 10px; margin-bottom: 10px; text-align: center;">
                                 <strong>Après</strong> - ${date1}
                             </div>
-                            <img src="${photo1.dataUrl}" style="width: 100%; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
-                            ${photo1.note ? `<div style="background: rgba(255,255,255,0.9); padding: 10px; border-radius: 8px; margin-top: 10px; color: #333;">${photo1.note}</div>` : ''}
+                            <img src="${photo1.dataUrl}" style="width: 100%; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+                            ${photo1.note ? `<div style="background: rgba(255,255,255,0.9); padding: 10px; border-radius: 10px; margin-top: 10px; color: #333;">${photo1.note}</div>` : ''}
                         </div>
                     </div>
                 </div>
@@ -12433,16 +12478,16 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             let comparisonHTML = '';
             if (photos.length >= 2) {
                 comparisonHTML = `
-                    <div style="background: linear-gradient(135deg, #10b98115 0%, #10b98105 100%); padding: 20px; border-radius: 12px; margin-bottom: 25px; border-left: 4px solid #10b981;">
+                    <div style="background: linear-gradient(135deg, #10b98115 0%, #10b98105 100%); padding: 20px; border-radius: 14px; margin-bottom: 25px; border-left: 4px solid #10b981;">
                         <div style="font-weight: 700; margin-bottom: 15px;">📊 Comparer deux photos</div>
                         <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; align-items: center;">
-                            <select id="comparePhoto1" style="padding: 10px; border-radius: 8px; border: 2px solid #10b981;">
+                            <select id="comparePhoto1" style="padding: 10px; border-radius: 10px; border: 2px solid #10b981;">
                                 ${photos.map((p, i) => {
                                     const date = new Date(p.date).toLocaleDateString('fr-FR');
                                     return `<option value="${p.id}">${i === 0 ? '📸 Plus récente - ' : ''}${date}</option>`;
                                 }).join('')}
                             </select>
-                            <select id="comparePhoto2" style="padding: 10px; border-radius: 8px; border: 2px solid #10b981;">
+                            <select id="comparePhoto2" style="padding: 10px; border-radius: 10px; border: 2px solid #10b981;">
                                 ${photos.map((p, i) => {
                                     const date = new Date(p.date).toLocaleDateString('fr-FR');
                                     return `<option value="${p.id}" ${i === photos.length - 1 ? 'selected' : ''}>${i === photos.length - 1 ? '📸 Plus ancienne - ' : ''}${date}</option>`;
@@ -12464,14 +12509,14 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 const timeStr = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
                 
                 return `
-                    <div style="background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: transform 0.3s ease;">
+                    <div style="background: white; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: transform 0.3s ease;">
                         <img src="${photo.dataUrl}" style="width: 100%; aspect-ratio: 3/4; object-fit: cover; cursor: pointer;" 
                              onclick="this.requestFullscreen ? this.requestFullscreen() : this.webkitRequestFullscreen()">
                         <div style="padding: 15px;">
                             <div style="font-weight: 600; color: #16a34a; margin-bottom: 5px;">📅 ${dateStr}</div>
                             <div style="font-size: 0.85em; color: #666; margin-bottom: 10px;">⏰ ${timeStr}</div>
                             ${photo.note ? `
-                                <div style="background: #f8fafc; padding: 10px; border-radius: 8px; margin-bottom: 10px; font-size: 0.9em; color: #333;">
+                                <div style="background: #f8fafc; padding: 10px; border-radius: 10px; margin-bottom: 10px; font-size: 0.9em; color: #333;">
                                     📝 ${photo.note}
                                 </div>
                             ` : ''}
@@ -12956,7 +13001,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             
             // Create results display
             const resultsHTML = `
-                <div style="background: linear-gradient(135deg, #10b98115 0%, #10b98105 100%); padding: 30px; border-radius: 16px; margin-bottom: 25px; border-left: 4px solid #10b981; text-align: center;">
+                <div style="background: linear-gradient(135deg, #10b98115 0%, #10b98105 100%); padding: 30px; border-radius: 14px; margin-bottom: 25px; border-left: 4px solid #10b981; text-align: center;">
                     <div style="font-size: 3em; margin-bottom: 15px;">
                         ${score >= 7 ? '🔥' : score >= 4 ? '💪' : '😌'}
                     </div>
@@ -13070,7 +13115,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             
             if (!_notifSupported) {
                 permissionDiv.innerHTML = `
-                    <div style="background: rgba(239,68,68,0.12); padding: 20px; border-radius: 12px; border-left: 4px solid #ef4444;">
+                    <div style="background: rgba(239,68,68,0.12); padding: 20px; border-radius: 14px; border-left: 4px solid #ef4444;">
                         <div style="font-weight: 600; color: #f87171; margin-bottom: 5px;">❌ Notifications non supportées</div>
                         <div style="font-size: 0.9em; color: #94a3b8;">Votre navigateur ne supporte pas les notifications push</div>
                     </div>
@@ -13080,7 +13125,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             
             if (_notifPermission() === 'denied') {
                 permissionDiv.innerHTML = `
-                    <div style="background: rgba(239,68,68,0.12); padding: 20px; border-radius: 12px; border-left: 4px solid #ef4444;">
+                    <div style="background: rgba(239,68,68,0.12); padding: 20px; border-radius: 14px; border-left: 4px solid #ef4444;">
                         <div style="font-weight: 600; color: #f87171; margin-bottom: 5px;">🚫 Notifications bloquées</div>
                         <div style="font-size: 0.9em; color: #94a3b8;">Vous avez bloqué les notifications. Activez-les dans les paramètres de votre navigateur.</div>
                     </div>
@@ -13104,7 +13149,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             
             // Permission granted - show settings
             permissionDiv.innerHTML = `
-                <div style="background: rgba(16,185,129,0.12); padding: 15px; border-radius: 12px; border-left: 4px solid #10b981; margin-bottom: 20px;">
+                <div style="background: rgba(16,185,129,0.12); padding: 15px; border-radius: 14px; border-left: 4px solid #10b981; margin-bottom: 20px;">
                     <div style="font-weight: 600; color: #34d399;">✅ Notifications activées</div>
                 </div>
             `;
@@ -13344,7 +13389,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     </div>
                     <textarea id="noteTextArea" 
                               placeholder="Ex: Bien sentir dans les pecs, descendre plus bas, ce poids est confortable..." 
-                              style="width: 100%; padding: 10px; border-radius: 8px; border: 2px solid #fbbf24; font-size: 0.9em; resize: vertical; min-height: 80px; font-family: inherit;">${currentNote}</textarea>
+                              style="width: 100%; padding: 10px; border-radius: 10px; border: 2px solid #fbbf24; font-size: 0.9em; resize: vertical; min-height: 80px; font-family: inherit;">${currentNote}</textarea>
                     <button onclick="saveExerciseNote('${exerciseName}')" class="btn" style="width: 100%; margin-top: 10px; background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); padding: 10px;">
                         💾 Sauvegarder la note
                     </button>
@@ -13453,7 +13498,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             for (let i = 0; i < levelNames.length; i++) {
                 const reached = i <= res.levelIndex;
                 levelBars += `<div style="flex:1;text-align:center;">
-                    <div style="height:8px;border-radius:4px;background:${reached ? levelColors[i] : 'rgba(255,255,255,0.1)'};margin-bottom:5px;${reached ? 'box-shadow:0 0 8px '+levelColors[i]+'66;' : ''}"></div>
+                    <div style="height:8px;border-radius:6px;background:${reached ? levelColors[i] : 'rgba(255,255,255,0.1)'};margin-bottom:5px;${reached ? 'box-shadow:0 0 8px '+levelColors[i]+'66;' : ''}"></div>
                     <div style="font-size:0.62em;font-weight:700;color:${reached ? levelColors[i] : '#6b7280'};letter-spacing:0.3px;">${levelNames[i].toUpperCase()}</div>
                     <div style="font-size:0.6em;color:#6b7280;margin-top:2px;">${res.thresholds[i]}${unit}</div>
                 </div>`;
@@ -13473,7 +13518,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
             resultEl.style.display = 'block';
             resultEl.innerHTML = `
-                <div style="text-align:center;padding:20px;background:linear-gradient(135deg,${res.color}22,${res.color}08);border:1px solid ${res.color}55;border-radius:16px;">
+                <div style="text-align:center;padding:20px;background:linear-gradient(135deg,${res.color}22,${res.color}08);border:1px solid ${res.color}55;border-radius:14px;">
                     <div style="font-size:0.8em;color:#9ca3af;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">Niveau de Force</div>
                     <div style="font-size:2em;font-weight:900;color:${res.color};text-shadow:0 0 16px ${res.color}66;margin-bottom:4px;">${res.levelName}</div>
                     <div style="font-size:0.85em;color:#cbd5e1;">1RM estimé : <strong>${oneRMDisplay}</strong> · Ratio ${res.ratio}× poids de corps</div>
@@ -13552,7 +13597,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             if (!resultsDiv) return;
             resultsDiv.style.display = 'block';
             resultsDiv.innerHTML = `
-                <div style="background: linear-gradient(135deg, #ef444415 0%, #ef444405 100%); padding: 25px; border-radius: 16px; margin-bottom: 20px; border-left: 4px solid #ef4444;">
+                <div style="background: linear-gradient(135deg, #ef444415 0%, #ef444405 100%); padding: 25px; border-radius: 14px; margin-bottom: 20px; border-left: 4px solid #ef4444;">
                     <div style="text-align: center; margin-bottom: 20px;">
                         <div style="font-size: 0.9em; color: #666; margin-bottom: 5px;">Votre 1RM estimé pour</div>
                         <div style="font-size: 1.3em; font-weight: 700; color: #ef4444; margin-bottom: 5px;">${exercise}</div>
@@ -13560,7 +13605,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         <div style="font-size: 0.85em; color: #666; margin-top: 10px;">Basé sur ${reps} reps @ ${weight} lbs</div>
                     </div>
                     
-                    <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 15px;">
+                    <div style="background: white; padding: 20px; border-radius: 14px; margin-bottom: 15px;">
                         <div style="font-weight: 700; margin-bottom: 15px; color: #333;">📊 Recommandations d\'entraînement</div>
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px;">
                             ${Object.entries(recommendations).map(([percent, lbs]) => {
@@ -13576,7 +13621,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                                 else if (percent === '60%') purpose = 'Récupération';
                                 
                                 return `
-                                    <div style="background: #f8fafc; padding: 12px; border-radius: 8px; text-align: center; border: 2px solid #e5e7eb;">
+                                    <div style="background: #f8fafc; padding: 12px; border-radius: 10px; text-align: center; border: 2px solid #e5e7eb;">
                                         <div style="font-size: 0.75em; color: #666; margin-bottom: 3px;">${percent}</div>
                                         <div style="font-size: 1.3em; font-weight: 700; color: #ef4444;">${lbs}</div>
                                         <div style="font-size: 0.7em; color: #666; margin-top: 3px;">${useKg ? 'kg' : 'lbs'}</div>
@@ -13655,7 +13700,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         ${entries.map(([exercise, record]) => {
                             const date = new Date(record.date).toLocaleDateString('fr-FR');
                             return `
-                                <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-left: 4px solid #ef4444;">
+                                <div style="background: white; padding: 20px; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-left: 4px solid #ef4444;">
                                     <div style="font-weight: 700; color: #333; margin-bottom: 10px; font-size: 1.1em;">${exercise}</div>
                                     <div style="font-size: 2.5em; font-weight: 800; color: #ef4444; margin-bottom: 5px;">${record.oneRM}</div>
                                     <div style="font-size: 0.85em; color: #666; margin-bottom: 15px;">${useKg ? 'kg' : 'lbs'} (1RM)</div>
@@ -13733,14 +13778,14 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             // Display results
             resultsDiv.style.display = 'block';
             resultsDiv.innerHTML = `
-                <div style="background: linear-gradient(135deg, #f59e0b15 0%, #f59e0b05 100%); padding: 25px; border-radius: 16px; border-left: 4px solid #f59e0b; margin-top: 20px;">
+                <div style="background: linear-gradient(135deg, #f59e0b15 0%, #f59e0b05 100%); padding: 25px; border-radius: 14px; border-left: 4px solid #f59e0b; margin-top: 20px;">
                     <div style="text-align: center; margin-bottom: 25px;">
                         <div style="font-size: 1.2em; color: #666; margin-bottom: 10px;">🎯 Poids cible</div>
                         <div style="font-size: 3em; font-weight: 800; color: #f59e0b;">${targetWeight} lbs</div>
                         ${actualTotal !== targetWeight ? `<div style="font-size: 0.9em; color: #ef4444; margin-top: 5px;">Poids réel: ${actualTotal} lbs (différence: ${(actualTotal - targetWeight).toFixed(1)} lbs)</div>` : ''}
                     </div>
                     
-                    <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                    <div style="background: white; padding: 20px; border-radius: 14px; margin-bottom: 20px;">
                         <h3 style="color: #f59e0b; margin-bottom: 15px; text-align: center;">📋 Configuration</h3>
                         <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 20px; align-items: center;">
                             <div style="text-align: right;">
@@ -13754,7 +13799,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                             </div>
                             
                             <div style="text-align: center;">
-                                <div style="background: linear-gradient(135deg, #374151 0%, #1f2937 100%); color: white; padding: 15px; border-radius: 8px; font-weight: 700; font-size: 1.1em;">
+                                <div style="background: linear-gradient(135deg, #374151 0%, #1f2937 100%); color: white; padding: 15px; border-radius: 10px; font-weight: 700; font-size: 1.1em;">
                                     🏋️<br>BARRE<br>${barWeight} lbs
                                 </div>
                             </div>
@@ -13771,7 +13816,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         </div>
                     </div>
                     
-                    <div style="background: #fef3c7; padding: 15px; border-radius: 8px; text-align: center;">
+                    <div style="background: #fef3c7; padding: 15px; border-radius: 10px; text-align: center;">
                         <div style="font-size: 0.9em; color: #92400e; margin-bottom: 8px;">💡 <strong>Astuce :</strong></div>
                         <div style="font-size: 0.85em; color: #78350f;">
                             Mettez toujours les plaques les plus lourdes en premier (près de la barre), puis les plus légères à l'extérieur.
@@ -13779,7 +13824,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     </div>
                     
                     ${plates.length === 0 ? `
-                        <div style="text-align: center; margin-top: 20px; padding: 20px; background: white; border-radius: 12px;">
+                        <div style="text-align: center; margin-top: 20px; padding: 20px; background: white; border-radius: 14px;">
                             <div style="font-size: 2em; margin-bottom: 10px;">✅</div>
                             <div style="font-size: 1.1em; color: #10b981; font-weight: 600;">Utilisez uniquement la barre !</div>
                             <div style="font-size: 0.9em; color: #666; margin-top: 5px;">Aucune plaque nécessaire</div>
@@ -13897,7 +13942,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         ${exerciseName} • ${reps} reps${weight ? ` × ${weight} kg` : ''}
                     </p>
                     
-                    <div style="background: linear-gradient(135deg, #16a34a15 0%, #15803d05 100%); padding: 15px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid #16a34a;">
+                    <div style="background: linear-gradient(135deg, #16a34a15 0%, #15803d05 100%); padding: 15px; border-radius: 14px; margin-bottom: 20px; border-left: 4px solid #16a34a;">
                         <div style="font-weight: 600; color: #16a34a; margin-bottom: 5px;">📊 RPE (Rate of Perceived Exertion)</div>
                         <div style="color: #666; font-size: 0.9em;">Notez l'intensité perçue de 1 (très facile) à 10 (maximum absolu)</div>
                     </div>
@@ -13916,7 +13961,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                                 <button onclick="saveRPEAndContinue('${exerciseName}', ${rpe})" 
                                         onmouseover="this.style.background='linear-gradient(135deg, ${color}15 0%, ${color}05 100%)'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)'"
                                         onmouseout="this.style.background='white'; this.style.transform='translateY(0)'; this.style.boxShadow='none'"
-                                        style="padding: 15px; border: 2px solid ${color}; border-radius: 12px; background: white; cursor: pointer; display: grid; grid-template-columns: 50px 1fr; align-items: center; gap: 12px; transition: all 0.2s;">
+                                        style="padding: 15px; border: 2px solid ${color}; border-radius: 14px; background: white; cursor: pointer; display: grid; grid-template-columns: 50px 1fr; align-items: center; gap: 12px; transition: all 0.2s;">
                                     <div style="font-size: 1.5em; font-weight: 800; text-align: center; color: ${color};">${rpe}</div>
                                     <div style="text-align: left;">
                                         <div style="font-weight: 600; color: ${color};">${label}</div>
@@ -13929,7 +13974,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     <button onclick="skipRPEAndContinue()" 
                             onmouseover="this.style.background='#f9fafb'"
                             onmouseout="this.style.background='white'"
-                            style="width: 100%; padding: 15px; margin-top: 20px; border: 2px solid #e5e7eb; border-radius: 12px; background: white; color: #666; cursor: pointer; font-weight: 600; transition: all 0.2s;">
+                            style="width: 100%; padding: 15px; margin-top: 20px; border: 2px solid #e5e7eb; border-radius: 14px; background: white; color: #666; cursor: pointer; font-weight: 600; transition: all 0.2s;">
                         ⏭️ Passer (pas de RPE)
                     </button>
                 </div>
@@ -14351,7 +14396,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     <!-- Sessions preview -->
                     <div style="flex:1;overflow-y:auto;padding:14px 18px;-webkit-overflow-scrolling:touch;">
                         ${sampleSessionExercises.map((ses, i) => `
-                            <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:11px 13px;margin-bottom:9px;">
+                            <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:11px 13px;margin-bottom:9px;">
                                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
                                     <div style="font-size:1.2em;line-height:1;">${ses.session.emoji}</div>
                                     <div style="flex:1;min-width:0;">
@@ -14359,7 +14404,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                                         <div style="font-size:0.65em;color:#94a3b8;">${ses.session.muscles.join(' · ')}</div>
                                     </div>
                                 </div>
-                                <div style="font-size:0.72em;color:#64748b;line-height:1.5;background:rgba(0,0,0,0.25);padding:7px 9px;border-radius:7px;">
+                                <div style="font-size:0.72em;color:#64748b;line-height:1.5;background:rgba(0,0,0,0.25);padding:7px 9px;border-radius:6px;">
                                     ${ses.exs.slice(0, 4).map(e => `• ${e.name}`).join('<br>')}
                                     ${ses.exs.length > 4 ? `<br><span style="color:${t.color}cc;">+ ${ses.exs.length - 4} autres</span>` : ''}
                                 </div>
@@ -14384,7 +14429,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
                     <!-- Action -->
                     <div style="padding:14px 18px;border-top:1px solid rgba(255,255,255,0.05);flex-shrink:0;">
-                        <button onclick="importTemplate('${t.id}')" style="width:100%;background:linear-gradient(135deg,${t.color},${t.color}cc);border:none;color:white;border-radius:12px;padding:14px;font-weight:900;font-size:0.95em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${t.color}40;">📥 IMPORTER CE PROGRAMME</button>
+                        <button onclick="importTemplate('${t.id}')" style="width:100%;background:linear-gradient(135deg,${t.color},${t.color}cc);border:none;color:white;border-radius:14px;padding:14px;font-weight:900;font-size:0.95em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${t.color}40;">📥 IMPORTER CE PROGRAMME</button>
                     </div>
                 </div>
             `;
@@ -14400,7 +14445,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             modal.id = 'templatesModal';
             modal.style.cssText = 'position:fixed;inset:0;z-index:10100;background:rgba(0,0,0,0.93);backdrop-filter:blur(8px);display:flex;align-items:flex-end;justify-content:center;padding:0;';
             modal.innerHTML = `
-                <div style="width:100%;max-width:520px;background:#0F1014;border-radius:22px 22px 0 0;max-height:92vh;display:flex;flex-direction:column;border-top:2px solid rgba(168,85,247,0.3);">
+                <div style="width:100%;max-width:520px;background:#0F1014;border-radius:20px 20px 0 0;max-height:92vh;display:flex;flex-direction:column;border-top:2px solid rgba(168,85,247,0.3);">
                     <div style="width:36px;height:3px;background:#334155;border-radius:99px;margin:10px auto 0;flex-shrink:0;"></div>
                     <div style="padding:14px 18px 8px;flex-shrink:0;border-bottom:1px solid rgba(168,85,247,0.1);">
                         <div style="display:flex;align-items:center;justify-content:space-between;">
@@ -14484,7 +14529,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                             const isToday = i === todayIdx;
                             const borderColor = isToday ? '#22c55e' : (routine ? (routine.color || '#475569') : 'rgba(255,255,255,0.05)');
                             const bgColor = isToday ? 'rgba(34,197,94,0.12)' : (routine ? `${routine.color}10` : 'rgba(255,255,255,0.02)');
-                            return `<div onclick="${routine ? `startRoutineById('${routineId}')` : `openWeeklyPlanEditor('${d}')`}" style="cursor:pointer;background:${bgColor};border:1.5px solid ${borderColor};border-radius:9px;padding:7px 4px;text-align:center;${isToday ? 'box-shadow:0 0 10px rgba(34,197,94,0.3);' : ''}">
+                            return `<div onclick="${routine ? `startRoutineById('${routineId}')` : `openWeeklyPlanEditor('${d}')`}" style="cursor:pointer;background:${bgColor};border:1.5px solid ${borderColor};border-radius:10px;padding:7px 4px;text-align:center;${isToday ? 'box-shadow:0 0 10px rgba(34,197,94,0.3);' : ''}">
                                 <div style="font-size:0.55em;color:${isToday?'#4ade80':'#94a3b8'};font-weight:800;letter-spacing:0.5px;">${ROUTINE_DAY_LABELS[d]}</div>
                                 <div style="font-size:1.1em;line-height:1;margin-top:3px;">${routine ? routine.emoji : '·'}</div>
                                 ${isToday ? '<div style="font-size:0.5em;color:#4ade80;font-weight:900;margin-top:2px;">AUJ.</div>' : ''}
@@ -14513,7 +14558,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             modal.id = 'weeklyPlanEditorModal';
             modal.style.cssText = 'position:fixed;inset:0;z-index:10150;background:rgba(0,0,0,0.92);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:14px;';
             modal.innerHTML = `
-                <div style="width:100%;max-width:440px;background:#0F1014;border:1px solid rgba(34,197,94,0.3);border-radius:18px;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;">
+                <div style="width:100%;max-width:440px;background:#0F1014;border:1px solid rgba(34,197,94,0.3);border-radius:20px;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;">
                     <div style="padding:16px 18px;border-bottom:1px solid rgba(34,197,94,0.15);display:flex;align-items:center;justify-content:space-between;">
                         <div>
                             <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;">📅 PLAN HEBDO</div>
@@ -14530,7 +14575,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                             const dayIdx = ['lun','mar','mer','jeu','ven','sam','dim'].indexOf(d);
                             const isToday = dayIdx === todayIdx;
 
-                            return `<div style="margin-bottom:10px;background:${isToday ? 'rgba(34,197,94,0.06)' : 'rgba(255,255,255,0.02)'};border:1.5px solid ${isToday ? 'rgba(34,197,94,0.3)' : (currentRoutine ? (currentRoutine.color || '#22c55e') + '40' : 'rgba(255,255,255,0.06)')};border-radius:11px;padding:11px 13px;">
+                            return `<div style="margin-bottom:10px;background:${isToday ? 'rgba(34,197,94,0.06)' : 'rgba(255,255,255,0.02)'};border:1.5px solid ${isToday ? 'rgba(34,197,94,0.3)' : (currentRoutine ? (currentRoutine.color || '#22c55e') + '40' : 'rgba(255,255,255,0.06)')};border-radius:10px;padding:11px 13px;">
                                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;">
                                     <div style="display:flex;align-items:center;gap:7px;">
                                         <span style="font-size:0.82em;font-weight:800;color:white;">${dayLabel}</span>
@@ -14540,7 +14585,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                                 </div>
 
                                 ${currentRoutine ? `
-                                    <div style="background:linear-gradient(135deg,${currentRoutine.color || '#22c55e'}20,${currentRoutine.color || '#22c55e'}05);border:1px solid ${currentRoutine.color || '#22c55e'}40;border-radius:9px;padding:8px 11px;margin-bottom:8px;display:flex;align-items:center;gap:9px;">
+                                    <div style="background:linear-gradient(135deg,${currentRoutine.color || '#22c55e'}20,${currentRoutine.color || '#22c55e'}05);border:1px solid ${currentRoutine.color || '#22c55e'}40;border-radius:10px;padding:8px 11px;margin-bottom:8px;display:flex;align-items:center;gap:9px;">
                                         <span style="font-size:1.3em;line-height:1;">${currentRoutine.emoji || '🏋️'}</span>
                                         <div style="flex:1;min-width:0;">
                                             <div style="font-size:0.82em;font-weight:800;color:white;line-height:1.2;">${currentRoutine.name}</div>
@@ -14548,10 +14593,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                                         </div>
                                     </div>
                                 ` : `
-                                    <div style="background:rgba(148,163,184,0.06);border:1px dashed rgba(148,163,184,0.25);border-radius:9px;padding:8px 11px;margin-bottom:8px;text-align:center;font-size:0.78em;color:#64748b;font-weight:700;">🛌 Jour de repos</div>
+                                    <div style="background:rgba(148,163,184,0.06);border:1px dashed rgba(148,163,184,0.25);border-radius:10px;padding:8px 11px;margin-bottom:8px;text-align:center;font-size:0.78em;color:#64748b;font-weight:700;">🛌 Jour de repos</div>
                                 `}
 
-                                <select onchange="setWeeklyDay('${d}', this.value || null)" style="width:100%;background:#0a0e18;border:1px solid rgba(255,255,255,0.1);color:white;border-radius:8px;padding:10px 12px;font-size:0.82em;cursor:pointer;">
+                                <select onchange="setWeeklyDay('${d}', this.value || null)" style="width:100%;background:#0a0e18;border:1px solid rgba(255,255,255,0.1);color:white;border-radius:10px;padding:10px 12px;font-size:0.82em;cursor:pointer;">
                                     <option value="">— Choisir une routine ou Repos —</option>
                                     ${routines.map(r => `<option value="${r.id}" ${r.id === currentRoutineId ? 'selected' : ''}>${r.emoji||'🏋️'} ${r.name}</option>`).join('')}
                                 </select>
@@ -14622,7 +14667,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 const color = r.color || '#22c55e';
                 const exCount = (r.exercises || []).length;
                 return `
-                <div style="background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${color}30;border-left:3px solid ${color};border-radius:12px;padding:13px 14px;">
+                <div style="background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${color}30;border-left:3px solid ${color};border-radius:14px;padding:13px 14px;">
                     <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:9px;">
                         <div style="font-size:1.5em;line-height:1;flex-shrink:0;filter:drop-shadow(0 0 6px ${color}60);">${r.emoji || '🏋️'}</div>
                         <div style="flex:1;min-width:0;">
@@ -14636,15 +14681,15 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         </div>
                     </div>
                     ${exCount > 0 ? `
-                        <div style="background:rgba(0,0,0,0.25);border-radius:7px;padding:7px 9px;font-size:0.7em;color:#94a3b8;line-height:1.5;margin-bottom:9px;">
+                        <div style="background:rgba(0,0,0,0.25);border-radius:6px;padding:7px 9px;font-size:0.7em;color:#94a3b8;line-height:1.5;margin-bottom:9px;">
                             ${r.exercises.slice(0,3).map(e => `• ${e.name}`).join('<br>')}
                             ${exCount > 3 ? `<br><span style="color:${color}cc;">+ ${exCount - 3} autres</span>` : ''}
                         </div>` : `
-                        <div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:7px;padding:8px 10px;font-size:0.7em;color:#fca5a5;text-align:center;margin-bottom:9px;">⚠ Aucun exercice — édite ou supprime</div>`}
+                        <div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:6px;padding:8px 10px;font-size:0.7em;color:#fca5a5;text-align:center;margin-bottom:9px;">⚠ Aucun exercice — édite ou supprime</div>`}
                     <div style="display:flex;gap:6px;">
-                        <button onclick="startRoutine(${idx})" ${exCount === 0 ? 'disabled' : ''} style="flex:1;padding:10px;border-radius:8px;background:${exCount > 0 ? `linear-gradient(135deg,${color},${color}cc)` : 'rgba(255,255,255,0.05)'};border:none;color:${exCount > 0 ? 'white' : '#475569'};font-weight:800;font-size:0.82em;cursor:${exCount > 0 ? 'pointer' : 'not-allowed'};letter-spacing:0.5px;${exCount > 0 ? `box-shadow:0 3px 10px ${color}30;` : ''}">▶ DÉMARRER</button>
-                        <button onclick="editRoutine(${idx})" style="padding:10px 12px;border-radius:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#cbd5e1;font-weight:700;font-size:0.78em;cursor:pointer;">✏️</button>
-                        <button onclick="deleteRoutine(${idx})" style="padding:10px 12px;border-radius:8px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:#f87171;font-weight:700;font-size:0.78em;cursor:pointer;">🗑️</button>
+                        <button onclick="startRoutine(${idx})" ${exCount === 0 ? 'disabled' : ''} style="flex:1;padding:10px;border-radius:10px;background:${exCount > 0 ? `linear-gradient(135deg,${color},${color}cc)` : 'rgba(255,255,255,0.05)'};border:none;color:${exCount > 0 ? 'white' : '#475569'};font-weight:800;font-size:0.82em;cursor:${exCount > 0 ? 'pointer' : 'not-allowed'};letter-spacing:0.5px;${exCount > 0 ? `box-shadow:0 3px 10px ${color}30;` : ''}">▶ DÉMARRER</button>
+                        <button onclick="editRoutine(${idx})" style="padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#cbd5e1;font-weight:700;font-size:0.78em;cursor:pointer;">✏️</button>
+                        <button onclick="deleteRoutine(${idx})" style="padding:10px 12px;border-radius:10px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:#f87171;font-weight:700;font-size:0.78em;cursor:pointer;">🗑️</button>
                     </div>
                 </div>`;
             }).join('');
@@ -14804,7 +14849,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             modal.id = 'routineEditorModal';
             modal.style.cssText = 'position:fixed;inset:0;z-index:10100;background:rgba(0,0,0,0.95);backdrop-filter:blur(8px);display:flex;align-items:flex-end;justify-content:center;padding:0;';
             modal.innerHTML = `
-                <div style="width:100%;max-width:520px;background:#0F1014;border-radius:22px 22px 0 0;max-height:92vh;display:flex;flex-direction:column;border-top:2px solid ${color}50;">
+                <div style="width:100%;max-width:520px;background:#0F1014;border-radius:20px 20px 0 0;max-height:92vh;display:flex;flex-direction:column;border-top:2px solid ${color}50;">
                     <div style="width:36px;height:3px;background:#334155;border-radius:99px;margin:10px auto 0;flex-shrink:0;"></div>
                     <div style="padding:12px 18px 10px;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,0.05);">
                         <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
@@ -14812,15 +14857,15 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                                 <div style="font-size:0.6em;color:${color};font-weight:900;letter-spacing:2px;margin-bottom:2px;">✏️ ÉDITER</div>
                                 <input id="routineEditNameInput" value="${(routine.name||'').replace(/"/g,'&quot;')}" style="width:100%;background:transparent;border:none;border-bottom:1px dashed rgba(255,255,255,0.15);color:white;font-size:1em;font-weight:900;padding:3px 0;outline:none;">
                             </div>
-                            <button onclick="_saveRoutineEdit()" style="background:linear-gradient(135deg,${color},${color}cc);border:none;color:white;border-radius:9px;padding:8px 14px;font-size:0.78em;font-weight:900;cursor:pointer;flex-shrink:0;">✓ OK</button>
+                            <button onclick="_saveRoutineEdit()" style="background:linear-gradient(135deg,${color},${color}cc);border:none;color:white;border-radius:10px;padding:8px 14px;font-size:0.78em;font-weight:900;cursor:pointer;flex-shrink:0;">✓ OK</button>
                         </div>
                     </div>
                     <div style="flex:1;overflow-y:auto;padding:12px 16px;-webkit-overflow-scrolling:touch;" id="routineEditorExercises">
                         ${_renderEditorExercises(routine)}
                     </div>
                     <div style="padding:10px 16px;border-top:1px solid rgba(255,255,255,0.05);flex-shrink:0;display:flex;gap:6px;">
-                        <button onclick="_addExerciseToEditingRoutine()" style="flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:white;border-radius:9px;padding:11px;font-weight:800;font-size:0.82em;cursor:pointer;">＋ Ajouter exercice</button>
-                        <button onclick="_regenerateRoutineExercises()" ${(!routine.muscles || routine.muscles.length === 0) ? 'disabled' : ''} style="flex:1;background:${(routine.muscles && routine.muscles.length) ? 'rgba(168,85,247,0.15)' : 'rgba(255,255,255,0.03)'};border:1px solid ${(routine.muscles && routine.muscles.length) ? 'rgba(168,85,247,0.3)' : 'rgba(255,255,255,0.05)'};color:${(routine.muscles && routine.muscles.length) ? '#c084fc' : '#475569'};border-radius:9px;padding:11px;font-weight:800;font-size:0.82em;cursor:${(routine.muscles && routine.muscles.length) ? 'pointer' : 'not-allowed'};">🎲 Régénérer</button>
+                        <button onclick="_addExerciseToEditingRoutine()" style="flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:white;border-radius:10px;padding:11px;font-weight:800;font-size:0.82em;cursor:pointer;">＋ Ajouter exercice</button>
+                        <button onclick="_regenerateRoutineExercises()" ${(!routine.muscles || routine.muscles.length === 0) ? 'disabled' : ''} style="flex:1;background:${(routine.muscles && routine.muscles.length) ? 'rgba(168,85,247,0.15)' : 'rgba(255,255,255,0.03)'};border:1px solid ${(routine.muscles && routine.muscles.length) ? 'rgba(168,85,247,0.3)' : 'rgba(255,255,255,0.05)'};color:${(routine.muscles && routine.muscles.length) ? '#c084fc' : '#475569'};border-radius:10px;padding:11px;font-weight:800;font-size:0.82em;cursor:${(routine.muscles && routine.muscles.length) ? 'pointer' : 'not-allowed'};">🎲 Régénérer</button>
                     </div>
                 </div>
             `;
@@ -14838,7 +14883,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         <div style="font-weight:700;color:white;font-size:0.85em;">${ex.name}</div>
                         <div style="font-size:0.65em;color:#64748b;margin-top:2px;">${ex.muscle || 'Corps'} · ${ex.sets || 3}×${ex.reps || 10}${ex.mode === 'timer' || ex.mode === 'duration' ? 's' : ''}</div>
                     </div>
-                    <button onclick="_removeExerciseFromEditing(${i})" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#f87171;border-radius:7px;padding:6px 10px;font-size:0.7em;font-weight:700;cursor:pointer;flex-shrink:0;">✕</button>
+                    <button onclick="_removeExerciseFromEditing(${i})" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#f87171;border-radius:6px;padding:6px 10px;font-size:0.7em;font-weight:700;cursor:pointer;flex-shrink:0;">✕</button>
                 </div>
             `).join('');
         }
@@ -14919,7 +14964,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                             <div style="font-size:0.85em;font-weight:900;color:white;">Choisir un exercice</div>
                             <button onclick="document.getElementById('exercisePickerModal').remove()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#f87171;width:30px;height:30px;border-radius:50%;font-size:0.9em;cursor:pointer;">✕</button>
                         </div>
-                        <input id="exPickerSearch" oninput="_filterExPicker()" placeholder="🔍 Chercher un exercice..." style="width:100%;background:#0a0e18;border:1px solid rgba(255,255,255,0.08);color:white;border-radius:9px;padding:9px 12px;font-size:0.82em;outline:none;">
+                        <input id="exPickerSearch" oninput="_filterExPicker()" placeholder="🔍 Chercher un exercice..." style="width:100%;background:#0a0e18;border:1px solid rgba(255,255,255,0.08);color:white;border-radius:10px;padding:9px 12px;font-size:0.82em;outline:none;">
                         <div id="exPickerMuscleFilter" style="display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;">
                             <button onclick="_setExPickerMuscle(null,this)" data-muscle="" style="background:#22c55e;color:white;border:none;border-radius:99px;padding:5px 10px;font-size:0.68em;font-weight:800;cursor:pointer;">Tous</button>
                             ${muscles.map(m => `<button onclick="_setExPickerMuscle('${m}',this)" data-muscle="${m}" style="background:rgba(255,255,255,0.05);color:#cbd5e1;border:1px solid rgba(255,255,255,0.08);border-radius:99px;padding:5px 10px;font-size:0.68em;font-weight:700;cursor:pointer;">${m}</button>`).join('')}
@@ -14937,7 +14982,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         function _renderExPickerList(items) {
             if (!items.length) return '<div style="text-align:center;padding:24px;color:#475569;font-size:0.82em;font-style:italic;">Aucun exercice trouvé</div>';
             return items.slice(0, 80).map(ex => `
-                <div onclick="_pickExerciseForRoutine('${(ex.name||'').replace(/'/g,'\\\'')}')" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:9px;padding:9px 11px;margin-bottom:5px;cursor:pointer;display:flex;align-items:center;gap:8px;">
+                <div onclick="_pickExerciseForRoutine('${(ex.name||'').replace(/'/g,'\\\'')}')" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:10px;padding:9px 11px;margin-bottom:5px;cursor:pointer;display:flex;align-items:center;gap:8px;">
                     <div style="flex:1;min-width:0;">
                         <div style="font-weight:700;color:white;font-size:0.82em;">${ex.name}</div>
                         <div style="font-size:0.62em;color:#64748b;margin-top:1px;">${ex.muscle || 'Corps'} · ${ex.difficulty || ''}</div>
@@ -15044,7 +15089,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const container = document.getElementById('templatesList');
             if (!container) return;
             container.innerHTML = WORKOUT_TEMPLATES.slice(0, 4).map(t => `
-                <div onclick="previewTemplate('${t.id}')" style="background:linear-gradient(160deg,${t.color}10,transparent);border:1px solid ${t.color}30;border-radius:11px;padding:11px 12px;cursor:pointer;display:flex;align-items:center;gap:10px;">
+                <div onclick="previewTemplate('${t.id}')" style="background:linear-gradient(160deg,${t.color}10,transparent);border:1px solid ${t.color}30;border-radius:10px;padding:11px 12px;cursor:pointer;display:flex;align-items:center;gap:10px;">
                     <div style="font-size:1.5em;flex-shrink:0;filter:drop-shadow(0 0 6px ${t.color}50);">${t.emoji}</div>
                     <div style="flex:1;min-width:0;">
                         <div style="font-size:0.85em;font-weight:800;color:white;">${t.name}</div>
@@ -15052,7 +15097,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     </div>
                     <div style="color:${t.color};font-size:1em;flex-shrink:0;">›</div>
                 </div>
-            `).join('') + `<div style="text-align:center;margin-top:8px;"><button onclick="showTemplatesModal()" style="background:transparent;border:1px solid rgba(255,255,255,0.1);color:#94a3b8;border-radius:8px;padding:8px 18px;font-size:0.78em;font-weight:700;cursor:pointer;">Voir tous les ${WORKOUT_TEMPLATES.length} templates →</button></div>`;
+            `).join('') + `<div style="text-align:center;margin-top:8px;"><button onclick="showTemplatesModal()" style="background:transparent;border:1px solid rgba(255,255,255,0.1);color:#94a3b8;border-radius:10px;padding:8px 18px;font-size:0.78em;font-weight:700;cursor:pointer;">Voir tous les ${WORKOUT_TEMPLATES.length} templates →</button></div>`;
         }
         window.renderTemplatesList = renderTemplatesList;
 
@@ -15377,7 +15422,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 if (prBadges.length === 0) return '';
                 
                 return `
-                    <div style="background: transparent; border: 2px solid #f59e0b; border-radius: 12px; padding: 20px;">
+                    <div style="background: transparent; border: 2px solid #f59e0b; border-radius: 14px; padding: 20px;">
                         <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
                             <div>
                                 <h3 style="margin: 0 0 5px 0; color: #333; font-size: 1.2em;">${exercise}</h3>
@@ -15390,7 +15435,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px;">
                             ${prBadges.map(badge => `
-                                <div style="background: linear-gradient(135deg, #f59e0b15 0%, #f59e0b05 100%); padding: 12px; border-radius: 8px; border-left: 3px solid #f59e0b;">
+                                <div style="background: linear-gradient(135deg, #f59e0b15 0%, #f59e0b05 100%); padding: 12px; border-radius: 10px; border-left: 3px solid #f59e0b;">
                                     <div style="font-size: 1.5em; margin-bottom: 5px;">${badge.icon}</div>
                                     <div style="font-size: 0.75em; color: #999; margin-bottom: 3px;">${badge.label}</div>
                                     <div style="font-size: 1.1em; font-weight: bold; color: #f59e0b; margin-bottom: 2px;">${badge.value}</div>
@@ -15517,7 +15562,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 else label = 'Maximum';
                 
                 return `
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: white; border-radius: 12px; border-left: 4px solid ${color};">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: white; border-radius: 14px; border-left: 4px solid ${color};">
                         <div style="flex: 1;">
                             <div style="font-weight: 600; color: #333; margin-bottom: 3px;">${ex.name}</div>
                             <div style="font-size: 0.85em; color: #666;">${ex.count} série${ex.count > 1 ? 's' : ''} notée${ex.count > 1 ? 's' : ''}</div>
@@ -15741,19 +15786,19 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     
                     statsHtml = `
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                            <div style="background: white; padding: 15px; border-radius: 8px;">
+                            <div style="background: white; padding: 15px; border-radius: 10px;">
                                 <div style="color: #999; font-size: 0.85em; margin-bottom: 5px;">Poids Moyen</div>
                                 <div style="font-size: 1.5em; font-weight: 700; color: #f59e0b;">${avg.toFixed(1)} lbs</div>
                             </div>
-                            <div style="background: white; padding: 15px; border-radius: 8px;">
+                            <div style="background: white; padding: 15px; border-radius: 10px;">
                                 <div style="color: #999; font-size: 0.85em; margin-bottom: 5px;">Maximum</div>
                                 <div style="font-size: 1.5em; font-weight: 700; color: #10b981;">${max} lbs</div>
                             </div>
-                            <div style="background: white; padding: 15px; border-radius: 8px;">
+                            <div style="background: white; padding: 15px; border-radius: 10px;">
                                 <div style="color: #999; font-size: 0.85em; margin-bottom: 5px;">Minimum</div>
                                 <div style="font-size: 1.5em; font-weight: 700; color: #ef4444;">${min} lbs</div>
                             </div>
-                            <div style="background: white; padding: 15px; border-radius: 8px;">
+                            <div style="background: white; padding: 15px; border-radius: 10px;">
                                 <div style="color: #999; font-size: 0.85em; margin-bottom: 5px;">Progression</div>
                                 <div style="font-size: 1.5em; font-weight: 700; color: ${progression >= 0 ? '#10b981' : '#ef4444'};">
                                     ${progression >= 0 ? '+' : ''}${progression.toFixed(1)} lbs
@@ -15782,19 +15827,19 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 
                 statsHtml = `
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                        <div style="background: white; padding: 15px; border-radius: 8px;">
+                        <div style="background: white; padding: 15px; border-radius: 10px;">
                             <div style="color: #999; font-size: 0.85em; margin-bottom: 5px;">Reps Moyennes</div>
                             <div style="font-size: 1.5em; font-weight: 700; color: #16a34a;">${avg.toFixed(1)}</div>
                         </div>
-                        <div style="background: white; padding: 15px; border-radius: 8px;">
+                        <div style="background: white; padding: 15px; border-radius: 10px;">
                             <div style="color: #999; font-size: 0.85em; margin-bottom: 5px;">Maximum</div>
                             <div style="font-size: 1.5em; font-weight: 700; color: #10b981;">${max} reps</div>
                         </div>
-                        <div style="background: white; padding: 15px; border-radius: 8px;">
+                        <div style="background: white; padding: 15px; border-radius: 10px;">
                             <div style="color: #999; font-size: 0.85em; margin-bottom: 5px;">Minimum</div>
                             <div style="font-size: 1.5em; font-weight: 700; color: #ef4444;">${min} reps</div>
                         </div>
-                        <div style="background: white; padding: 15px; border-radius: 8px;">
+                        <div style="background: white; padding: 15px; border-radius: 10px;">
                             <div style="color: #999; font-size: 0.85em; margin-bottom: 5px;">Progression</div>
                             <div style="font-size: 1.5em; font-weight: 700; color: ${progression >= 0 ? '#10b981' : '#ef4444'};">
                                 ${progression >= 0 ? '+' : ''}${progression.toFixed(1)} reps
@@ -15821,19 +15866,19 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     
                     statsHtml = `
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                            <div style="background: white; padding: 15px; border-radius: 8px;">
+                            <div style="background: white; padding: 15px; border-radius: 10px;">
                                 <div style="color: #999; font-size: 0.85em; margin-bottom: 5px;">1RM Moyen</div>
                                 <div style="font-size: 1.5em; font-weight: 700; color: #ef4444;">${avg.toFixed(1)} lbs</div>
                             </div>
-                            <div style="background: white; padding: 15px; border-radius: 8px;">
+                            <div style="background: white; padding: 15px; border-radius: 10px;">
                                 <div style="color: #999; font-size: 0.85em; margin-bottom: 5px;">Maximum</div>
                                 <div style="font-size: 1.5em; font-weight: 700; color: #10b981;">${max} lbs</div>
                             </div>
-                            <div style="background: white; padding: 15px; border-radius: 8px;">
+                            <div style="background: white; padding: 15px; border-radius: 10px;">
                                 <div style="color: #999; font-size: 0.85em; margin-bottom: 5px;">Minimum</div>
                                 <div style="font-size: 1.5em; font-weight: 700; color: #ef4444;">${min} lbs</div>
                             </div>
-                            <div style="background: white; padding: 15px; border-radius: 8px;">
+                            <div style="background: white; padding: 15px; border-radius: 10px;">
                                 <div style="color: #999; font-size: 0.85em; margin-bottom: 5px;">Progression</div>
                                 <div style="font-size: 1.5em; font-weight: 700; color: ${progression >= 0 ? '#10b981' : '#ef4444'};">
                                     ${progression >= 0 ? '+' : ''}${progression.toFixed(1)} lbs
@@ -15862,19 +15907,19 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     
                     statsHtml = `
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                            <div style="background: white; padding: 15px; border-radius: 8px;">
+                            <div style="background: white; padding: 15px; border-radius: 10px;">
                                 <div style="color: #999; font-size: 0.85em; margin-bottom: 5px;">Volume Total</div>
                                 <div style="font-size: 1.5em; font-weight: 700; color: #10b981;">${total.toLocaleString()} lbs</div>
                             </div>
-                            <div style="background: white; padding: 15px; border-radius: 8px;">
+                            <div style="background: white; padding: 15px; border-radius: 10px;">
                                 <div style="color: #999; font-size: 0.85em; margin-bottom: 5px;">Volume Moyen/Séance</div>
                                 <div style="font-size: 1.5em; font-weight: 700; color: #16a34a;">${avg.toFixed(0)} lbs</div>
                             </div>
-                            <div style="background: white; padding: 15px; border-radius: 8px;">
+                            <div style="background: white; padding: 15px; border-radius: 10px;">
                                 <div style="color: #999; font-size: 0.85em; margin-bottom: 5px;">Volume Maximum</div>
                                 <div style="font-size: 1.5em; font-weight: 700; color: #f59e0b;">${max} lbs</div>
                             </div>
-                            <div style="background: white; padding: 15px; border-radius: 8px;">
+                            <div style="background: white; padding: 15px; border-radius: 10px;">
                                 <div style="color: #999; font-size: 0.85em; margin-bottom: 5px;">Séances</div>
                                 <div style="font-size: 1.5em; font-weight: 700; color: #333;">${dataPoints.length}</div>
                             </div>
@@ -16086,7 +16131,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const date = new Date(latest.date).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             
             let summaryHTML = `
-                <div style="background: linear-gradient(135deg, #16a34a15 0%, #15803d05 100%); padding: 20px; border-radius: 12px; margin-bottom: 25px;">
+                <div style="background: linear-gradient(135deg, #16a34a15 0%, #15803d05 100%); padding: 20px; border-radius: 14px; margin-bottom: 25px;">
                     <div style="font-weight: 700; font-size: 1.1em; color: #16a34a; margin-bottom: 15px;">📊 Dernières mesures (${date})</div>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
             `;
@@ -18536,7 +18581,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 h1 { color: #16a34a; }
                 .meta { color: #64748b; font-size: 0.9em; margin-bottom: 20px; }
                 .stats { display: flex; gap: 20px; margin-bottom: 24px; }
-                .stat { background: #f0fdf4; border-radius: 8px; padding: 12px 18px; text-align: center; }
+                .stat { background: #f0fdf4; border-radius: 10px; padding: 12px 18px; text-align: center; }
                 .stat-val { font-size: 1.6em; font-weight: 900; color: #16a34a; }
                 .stat-lbl { font-size: 0.75em; color: #64748b; }
                 table { width: 100%; border-collapse: collapse; font-size: 0.88em; }
@@ -18988,7 +19033,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 background: ${progressionMsg.type === 'success' ? 'linear-gradient(135deg, #4ade80 0%, #22c55e 100%)' : 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)'};
                 color: white;
                 padding: 20px 25px;
-                border-radius: 15px;
+                border-radius: 14px;
                 box-shadow: 0 8px 24px rgba(0,0,0,0.15);
                 z-index: 10000;
                 animation: slideInRight 0.5s ease-out;
@@ -19212,7 +19257,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             // Compact bar list
             let barsHtml = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">';
             Object.entries(statuses).forEach(([muscle, st]) => {
-                barsHtml += `<div style="background:#1e293b;border-radius:8px;padding:6px 8px;border-left:3px solid ${col(st.status)};">
+                barsHtml += `<div style="background:#1e293b;border-radius:10px;padding:6px 8px;border-left:3px solid ${col(st.status)};">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
                         <span style="font-size:0.72em;font-weight:700;color:white;">${muscle}</span>
                         <span style="font-size:0.68em;color:${col(st.status)};font-weight:700;">${label(st)}</span>
@@ -19327,7 +19372,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         <!-- YouTube search button -->
                         <button class="youtube-btn" 
                                 onclick="openYouTubeVideo(null, '${exercise.name.replace(/'/g, "\\'")}'); event.stopPropagation();"
-                                style="width: 100%; margin-top: 10px; padding: 10px; background: #ff0000; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s;">
+                                style="width: 100%; margin-top: 10px; padding: 10px; background: #ff0000; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s;">
                             <span style="font-size: 1.2em;">▶️</span>
                             <span>Rechercher sur YouTube</span>
                         </button>
@@ -19335,7 +19380,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         <button class="blacklist-toggle ${isBlacklisted ? 'active' : ''}" 
                                 onclick="toggleExerciseBlacklist('${exercise.name.replace(/'/g, "\\'")}'); event.stopPropagation();" 
                                 title="${isBlacklisted ? 'Réactiver cet exercice' : 'Désactiver cet exercice'}"
-                                style="width: 100%; margin-top: 10px; padding: 8px; border: 2px solid ${isBlacklisted ? '#ef4444' : '#d1d5db'}; background: ${isBlacklisted ? '#fee2e2' : 'white'}; color: ${isBlacklisted ? '#ef4444' : '#666'}; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.2s;">
+                                style="width: 100%; margin-top: 10px; padding: 8px; border: 2px solid ${isBlacklisted ? '#ef4444' : '#d1d5db'}; background: ${isBlacklisted ? '#fee2e2' : 'white'}; color: ${isBlacklisted ? '#ef4444' : '#666'}; border-radius: 10px; cursor: pointer; font-weight: bold; transition: all 0.2s;">
                             ${isBlacklisted ? '🚫 Désactivé' : '👁️ Actif'}
                         </button>
                     </div>
@@ -19484,11 +19529,11 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const _exKey2 = exercise._baseName || exercise.name;
             const _imgSrc2 = window.EXERCISE_IMAGES && (window.EXERCISE_IMAGES[_exKey2] || window.EXERCISE_IMAGES[exercise.name]);
             const _mediaHTML2 = _imgSrc2
-                ? '<div style="width:100%;height:100%;border-radius:12px;overflow:hidden;">' + window.buildLazyImg(_imgSrc2, exercise.name, 'border-radius:12px;') + '</div>'
+                ? '<div style="width:100%;height:100%;border-radius:14px;overflow:hidden;">' + window.buildLazyImg(_imgSrc2, exercise.name, 'border-radius:14px;') + '</div>'
                 : '<div class="exercise-animation"><div class="exercise-svg-container">' + svgStart + '<div class="position-label position-start">Début</div></div><div class="arrow-indicator">→</div><div class="exercise-svg-container">' + svgEnd + '<div class="position-label position-end">Fin</div></div></div>';
             
             document.getElementById('modalDifficulty').innerHTML = 
-                `<div class="exercise-image" style="margin: 15px 0; height: 340px; border-radius: 12px;">
+                `<div class="exercise-image" style="margin: 15px 0; height: 340px; border-radius: 14px;">
                     ${_mediaHTML2}
                 </div>
                 <div class="difficulty-badge ${difficultyClass}" style="display: inline-block; margin: 10px 0;">${exercise.difficulty}</div>`;
@@ -19649,7 +19694,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     glow = '';
                 }
 
-                item.style.cssText = `display:flex;align-items:center;gap:10px;padding:9px 11px;background:${bg};border:1px solid ${border};border-radius:8px;margin-bottom:5px;transition:all 0.2s;${glow}`;
+                item.style.cssText = `display:flex;align-items:center;gap:10px;padding:9px 11px;background:${bg};border:1px solid ${border};border-radius:10px;margin-bottom:5px;transition:all 0.2s;${glow}`;
 
                 const minutes = Math.floor(exercise.duration / 60);
                 const seconds = exercise.duration % 60;
@@ -19662,9 +19707,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
                 if (exerciseFromDB) {
                     if (exerciseFromDB.type === 'warmup') {
-                        typeBadge = `<span style="display:inline-block;background:rgba(251,191,36,0.15);border:1px solid rgba(251,191,36,0.4);color:#fbbf24;padding:1px 5px;border-radius:4px;font-size:0.55em;font-weight:900;letter-spacing:1px;margin-right:5px;text-transform:uppercase;">🏃 ÉCHAUF.</span>`;
+                        typeBadge = `<span style="display:inline-block;background:rgba(251,191,36,0.15);border:1px solid rgba(251,191,36,0.4);color:#fbbf24;padding:1px 5px;border-radius:6px;font-size:0.55em;font-weight:900;letter-spacing:1px;margin-right:5px;text-transform:uppercase;">🏃 ÉCHAUF.</span>`;
                     } else if (exerciseFromDB.type === 'stretch') {
-                        typeBadge = `<span style="display:inline-block;background:rgba(34,197,94,0.15);border:1px solid rgba(74,222,128,0.4);color:#4ade80;padding:1px 5px;border-radius:4px;font-size:0.55em;font-weight:900;letter-spacing:1px;margin-right:5px;text-transform:uppercase;">🧘 ÉTIR.</span>`;
+                        typeBadge = `<span style="display:inline-block;background:rgba(34,197,94,0.15);border:1px solid rgba(74,222,128,0.4);color:#4ade80;padding:1px 5px;border-radius:6px;font-size:0.55em;font-weight:900;letter-spacing:1px;margin-right:5px;text-transform:uppercase;">🧘 ÉTIR.</span>`;
                     }
                 }
 
@@ -19672,7 +19717,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 const iconShadow = isCurrent ? 'box-shadow:0 0 12px rgba(74,222,128,0.5);' : '';
 
                 item.innerHTML = `
-                    <div class="progress-checkbox" style="width:32px;height:32px;border-radius:7px;background:${iconBg};color:${iconColor};display:flex;align-items:center;justify-content:center;font-size:0.85em;font-weight:900;flex-shrink:0;${iconShadow}border:1px solid ${border};">
+                    <div class="progress-checkbox" style="width:32px;height:32px;border-radius:6px;background:${iconBg};color:${iconColor};display:flex;align-items:center;justify-content:center;font-size:0.85em;font-weight:900;flex-shrink:0;${iconShadow}border:1px solid ${border};">
                         ${checkIcon}
                     </div>
                     <div class="progress-item-content" style="flex:1;min-width:0;">
@@ -19945,6 +19990,14 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 nameEl.style.animation = 'slideInRight 0.35s cubic-bezier(0.22,1,0.36,1) both';
             }
             nameEl.innerHTML = exerciseNameHTML;
+            // 🎨 Repos = ambiance cyan apaisante sur le nom · effort = blanc/vert
+            if (exercise.isRest) {
+                nameEl.style.color = '#67e8f9';
+                nameEl.style.textShadow = '0 0 24px rgba(103,232,249,0.3)';
+            } else {
+                nameEl.style.color = '';
+                nameEl.style.textShadow = '';
+            }
             
             // ✅ NEW: Display progression note if exists
             if (exercise.progressionNote && !exercise.isRest && !exercise.isInfo) {
@@ -20060,7 +20113,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                             border:1px solid rgba(168,85,247,0.3);
                             color:#c084fc;
                             padding:3px 8px;
-                            border-radius:4px;
+                            border-radius:6px;
                             font-size:0.55em;
                             font-weight:900;
                             letter-spacing:1px;
@@ -20231,9 +20284,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 
                 if (nextExerciseFromDB) {
                     if (nextExerciseFromDB.type === 'warmup') {
-                        nextExerciseHTML = `<span style="display: inline-block; background: #fbbf24; color: white; padding: 3px 8px; border-radius: 12px; font-size: 0.7em; margin-right: 6px; font-weight: bold;">🏃‍♂️</span>${nextExercise.name}`;
+                        nextExerciseHTML = `<span style="display: inline-block; background: #fbbf24; color: white; padding: 3px 8px; border-radius: 14px; font-size: 0.7em; margin-right: 6px; font-weight: bold;">🏃‍♂️</span>${nextExercise.name}`;
                     } else if (nextExerciseFromDB.type === 'stretch') {
-                        nextExerciseHTML = `<span style="display: inline-block; background: #22c55e; color: white; padding: 3px 8px; border-radius: 12px; font-size: 0.7em; margin-right: 6px; font-weight: bold;">🧘</span>${nextExercise.name}`;
+                        nextExerciseHTML = `<span style="display: inline-block; background: #22c55e; color: white; padding: 3px 8px; border-radius: 14px; font-size: 0.7em; margin-right: 6px; font-weight: bold;">🧘</span>${nextExercise.name}`;
                     }
                 }
                 
@@ -20698,6 +20751,20 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 const seconds = timeRemaining % 60;
                 timerDisplay.textContent =
                     `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                // 🎨 États visuels : repos = cyan apaisant · effort sous 6s = rouge urgent
+                if (exercise && exercise.isRest) {
+                    timerDisplay.classList.remove('awak-timer-low');
+                    timerDisplay.style.color = '#67e8f9';
+                    timerDisplay.style.textShadow = '0 0 32px rgba(103,232,249,0.45),0 0 60px rgba(103,232,249,0.15)';
+                } else if (timeRemaining <= 5 && timeRemaining > 0) {
+                    timerDisplay.classList.add('awak-timer-low');
+                    timerDisplay.style.color = '';
+                    timerDisplay.style.textShadow = '';
+                } else {
+                    timerDisplay.classList.remove('awak-timer-low');
+                    timerDisplay.style.color = '';
+                    timerDisplay.style.textShadow = '';
+                }
                 return;
             }
             
@@ -20768,7 +20835,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 const btns = items.map(eq => {
                     const sel = busyGymEquipment.includes(eq.id);
                     return `<button data-eqid="${eq.id}" onclick="toggleBusyEquip('${eq.id}',this)"
-                        style="padding:8px 6px;border-radius:12px;border:2px solid ${sel?'#16a34a':'#e5e7eb'};
+                        style="padding:8px 6px;border-radius:14px;border:2px solid ${sel?'#16a34a':'#e5e7eb'};
                         background:${sel?'linear-gradient(135deg,#16a34a,#15803d)':'white'};
                         cursor:pointer;text-align:center;font-size:0.72em;font-weight:700;color:${sel?'white':'#374151'};min-height:60px;">
                         <div style="width:34px;height:34px;margin:0 auto 3px;display:flex;align-items:center;justify-content:center;">${eq.svgIcon||'<span style="font-size:1.3em">'+eq.name[0]+'</span>'}</div>
@@ -20785,7 +20852,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const machineGrid = machineTypes.map(mt => {
                 const sel = busyGymMachines.includes(mt.id);
                 return `<button data-mtid="${mt.id}" onclick="toggleBusyMachine('${mt.id}',this)"
-                    style="padding:8px 6px;border-radius:12px;border:2px solid ${sel?'#16a34a':'#e5e7eb'};
+                    style="padding:8px 6px;border-radius:14px;border:2px solid ${sel?'#16a34a':'#e5e7eb'};
                     background:${sel?'linear-gradient(135deg,#16a34a,#15803d)':'white'};
                     cursor:pointer;text-align:center;font-size:0.72em;font-weight:700;color:${sel?'white':'#374151'};min-height:60px;">
                     <div style="width:34px;height:34px;margin:0 auto 3px;display:flex;align-items:center;justify-content:center;">${mt.svg?'<div style="width:34px;height:34px;filter:'+( sel?'brightness(10)':'none')+'">' + mt.svg + '</div>':mt.icon}</div>
@@ -20793,7 +20860,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 </button>`;
             }).join('');
 
-            overlay.innerHTML = `<div style="background:white;border-radius:22px 22px 0 0;padding:20px 16px;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;">
+            overlay.innerHTML = `<div style="background:white;border-radius:20px 20px 0 0;padding:20px 16px;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;">
                 <div style="width:40px;height:4px;background:#e5e7eb;border-radius:99px;margin:0 auto 14px;"></div>
                 <h3 style="margin:0 0 4px;color:#0F1014;">🏃 Salle bondée</h3>
                 <p style="margin:0 0 14px;font-size:0.82em;color:#6b7280;">Coche les équipements <strong>disponibles maintenant</strong> — décoche ce qui est occupé.</p>
@@ -20802,8 +20869,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     <div style="font-size:0.7em;font-weight:800;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">🔧 Machines & Câbles</div>
                     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px;" id="busyMachineGrid">${machineGrid}</div>
                     <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;">
-                        <button onclick="selectAllBusyMachines(true)" style="padding:6px;border:1px solid #16a34a;border-radius:8px;background:#FFF3E0;color:#16a34a;font-size:0.75em;font-weight:700;cursor:pointer;">✓ Tout cocher</button>
-                        <button onclick="selectAllBusyMachines(false)" style="padding:6px;border:1px solid #e5e7eb;border-radius:8px;background:#f9fafb;color:#6b7280;font-size:0.75em;font-weight:700;cursor:pointer;">✗ Tout décocher</button>
+                        <button onclick="selectAllBusyMachines(true)" style="padding:6px;border:1px solid #16a34a;border-radius:10px;background:rgba(74,222,128,0.12);color:#16a34a;font-size:0.75em;font-weight:700;cursor:pointer;">✓ Tout cocher</button>
+                        <button onclick="selectAllBusyMachines(false)" style="padding:6px;border:1px solid #e5e7eb;border-radius:10px;background:#f9fafb;color:#6b7280;font-size:0.75em;font-weight:700;cursor:pointer;">✗ Tout décocher</button>
                     </div>
                 </div>
 
@@ -20968,7 +21035,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             }).join('');
 
             overlay.innerHTML = `
-            <div style="background:white;border-radius:22px 22px 0 0;padding:20px 16px;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;">
+            <div style="background:white;border-radius:20px 20px 0 0;padding:20px 16px;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;">
                 <div style="width:40px;height:4px;background:#e5e7eb;border-radius:99px;margin:0 auto 14px;"></div>
                 <h3 style="margin:0 0 14px;color:#0F1014;">${editing ? '✏️ Modifier le lieu' : '📍 Nouveau lieu'}</h3>
 
@@ -20984,18 +21051,18 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">
                     <button id="locModeHome"
                         onclick="setLocEditorMode('home')"
-                        style="padding:10px;border:2px solid ${currentMode==='home'?'#16a34a':'#e5e7eb'};border-radius:12px;background:${currentMode==='home'?'linear-gradient(135deg,#16a34a,#15803d)':'#f9fafb'};color:${currentMode==='home'?'white':'#374151'};cursor:pointer;font-weight:700;">🏠 Maison</button>
+                        style="padding:10px;border:2px solid ${currentMode==='home'?'#16a34a':'#e5e7eb'};border-radius:14px;background:${currentMode==='home'?'linear-gradient(135deg,#16a34a,#15803d)':'#f9fafb'};color:${currentMode==='home'?'white':'#374151'};cursor:pointer;font-weight:700;">🏠 Maison</button>
                     <button id="locModeGym"
                         onclick="setLocEditorMode('gym')"
-                        style="padding:10px;border:2px solid ${currentMode==='gym'?'#16a34a':'#e5e7eb'};border-radius:12px;background:${currentMode==='gym'?'linear-gradient(135deg,#16a34a,#15803d)':'#f9fafb'};color:${currentMode==='gym'?'white':'#374151'};cursor:pointer;font-weight:700;">🏋️ Gym</button>
+                        style="padding:10px;border:2px solid ${currentMode==='gym'?'#16a34a':'#e5e7eb'};border-radius:14px;background:${currentMode==='gym'?'linear-gradient(135deg,#16a34a,#15803d)':'#f9fafb'};color:${currentMode==='gym'?'white':'#374151'};cursor:pointer;font-weight:700;">🏋️ Gym</button>
                 </div>
 
                 <!-- Machines (section principale) -->
                 <div style="font-size:0.78em;font-weight:700;color:#0F1014;margin-bottom:6px;">🔧 Machines disponibles</div>
                 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:8px;" id="locMachineGrid">${machineGrid}</div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px;">
-                    <button onclick="selectAllLocMachines(true)" style="padding:6px;border:1px solid #16a34a;border-radius:8px;background:#FFF3E0;color:#16a34a;font-size:0.75em;font-weight:700;cursor:pointer;">✓ Toutes les machines</button>
-                    <button onclick="selectAllLocMachines(false)" style="padding:6px;border:1px solid #e5e7eb;border-radius:8px;background:#f9fafb;color:#6b7280;font-size:0.75em;font-weight:700;cursor:pointer;">✗ Aucune machine</button>
+                    <button onclick="selectAllLocMachines(true)" style="padding:6px;border:1px solid #16a34a;border-radius:10px;background:rgba(74,222,128,0.12);color:#16a34a;font-size:0.75em;font-weight:700;cursor:pointer;">✓ Toutes les machines</button>
+                    <button onclick="selectAllLocMachines(false)" style="padding:6px;border:1px solid #e5e7eb;border-radius:10px;background:#f9fafb;color:#6b7280;font-size:0.75em;font-weight:700;cursor:pointer;">✗ Aucune machine</button>
                 </div>
 
                 <!-- Équipements généraux -->
@@ -21047,8 +21114,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         function setLocEditorMode(mode) {
             const homeBtn = document.getElementById('locModeHome');
             const gymBtn = document.getElementById('locModeGym');
-            const activeStyle = 'padding:10px;border:2px solid #16a34a;border-radius:12px;background:linear-gradient(135deg,#16a34a,#15803d);color:white;cursor:pointer;font-weight:700;';
-            const inactiveStyle = 'padding:10px;border:2px solid #e5e7eb;border-radius:12px;background:#f9fafb;color:#374151;cursor:pointer;font-weight:700;';
+            const activeStyle = 'padding:10px;border:2px solid #16a34a;border-radius:14px;background:linear-gradient(135deg,#16a34a,#15803d);color:white;cursor:pointer;font-weight:700;';
+            const inactiveStyle = 'padding:10px;border:2px solid #e5e7eb;border-radius:14px;background:#f9fafb;color:#374151;cursor:pointer;font-weight:700;';
 
             if (mode === 'home') {
                 if (homeBtn) homeBtn.style.cssText = activeStyle;
@@ -21136,7 +21203,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             overlay.id = 'manageLocOverlay';
             overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:10200;display:flex;align-items:flex-end;justify-content:center;padding:0;';
             overlay.innerHTML = `
-                <div style="background:white;border-radius:22px 22px 0 0;padding:24px 20px;width:100%;max-width:480px;max-height:80vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(0,0,0,0.2);">
+                <div style="background:white;border-radius:20px 20px 0 0;padding:24px 20px;width:100%;max-width:480px;max-height:80vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(0,0,0,0.2);">
                     <div style="width:40px;height:4px;background:#e5e7eb;border-radius:99px;margin:0 auto 18px;"></div>
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
                         <h3 style="margin:0;color:#0F1014;">📍 Mes lieux</h3>
@@ -21150,9 +21217,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                             <div style="font-size:0.78em;color:#6b7280;">${loc.mode==='gym'?'🏋️ Gym':'🏠 Maison'} · ${loc.equipment.length} équipements</div>
                         </div>
                         <div style="display:flex;gap:6px;">
-                            <button onclick="switchLocation('${loc.id}');document.getElementById('manageLocOverlay').remove();" style="background:#10b981;color:white;border:none;border-radius:8px;padding:6px 12px;font-size:0.82em;cursor:pointer;">${loc.id===activeLocationId?'✅ Actif':'Activer'}</button>
-                            <button onclick="document.getElementById('manageLocOverlay').remove();showAddLocationModal('${loc.id}');" style="background:#FFF3E0;color:#16a34a;border:none;border-radius:8px;padding:6px 10px;font-size:0.82em;cursor:pointer;">✏️</button>
-                            ${profiles.length > 1 ? `<button onclick="deleteLocation('${loc.id}')" style="background:#fee2e2;color:#ef4444;border:none;border-radius:8px;padding:6px 10px;font-size:0.82em;cursor:pointer;">🗑️</button>` : ''}
+                            <button onclick="switchLocation('${loc.id}');document.getElementById('manageLocOverlay').remove();" style="background:#10b981;color:white;border:none;border-radius:10px;padding:6px 12px;font-size:0.82em;cursor:pointer;">${loc.id===activeLocationId?'✅ Actif':'Activer'}</button>
+                            <button onclick="document.getElementById('manageLocOverlay').remove();showAddLocationModal('${loc.id}');" style="background:rgba(74,222,128,0.12);color:#16a34a;border:none;border-radius:10px;padding:6px 10px;font-size:0.82em;cursor:pointer;">✏️</button>
+                            ${profiles.length > 1 ? `<button onclick="deleteLocation('${loc.id}')" style="background:rgba(239,68,68,0.15);color:#ef4444;border:none;border-radius:10px;padding:6px 10px;font-size:0.82em;cursor:pointer;">🗑️</button>` : ''}
                         </div>
                     </div>`).join('')}
                     <button onclick="document.getElementById('manageLocOverlay').remove()" class="btn btn-secondary" style="width:100%;margin-top:8px;">Fermer</button>
@@ -21457,7 +21524,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const preview = document.getElementById(type + 'Preview');
             if (!preview) return;
             preview.innerHTML = weights.map(w =>
-                `<span style="background:#FFF3E0;color:#166534;border-radius:8px;padding:3px 10px;font-size:0.82em;font-weight:700;">${w}</span>`
+                `<span style="background:rgba(74,222,128,0.12);color:#166534;border-radius:10px;padding:3px 10px;font-size:0.82em;font-weight:700;">${w}</span>`
             ).join('');
         }
         function saveAllAvailableWeights() {
@@ -21555,23 +21622,23 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         const _AWAK_PAUSE_MINI_STYLE = 'position:fixed;right:14px;bottom:90px;z-index:99990;background:rgba(10,10,12,0.96);backdrop-filter:blur(8px);border:1px solid rgba(251,191,36,0.3);border-radius:14px;padding:8px 10px;box-shadow:0 8px 28px rgba(0,0,0,0.55);';
         function _awakPauseFullHTML() {
             return `
-                <div style="max-width:420px;width:100%;border-radius:18px;overflow:hidden;border:1px solid rgba(251,191,36,0.3);box-shadow:0 0 40px rgba(0,0,0,0.6);">
+                <div style="max-width:420px;width:100%;border-radius:20px;overflow:hidden;border:1px solid rgba(251,191,36,0.3);box-shadow:0 0 40px rgba(0,0,0,0.6);">
                     <img src="images/story/repos.webp" alt="Repos" style="width:100%;display:block;" onerror="this.style.display='none';" />
                 </div>
                 <div style="color:#fbbf24;font-weight:900;letter-spacing:3px;font-size:0.7em;margin-top:18px;text-transform:uppercase;">⏸ En Pause</div>
                 <div style="color:#94a3b8;font-size:0.85em;margin-top:6px;text-align:center;max-width:320px;">Reprends ton souffle. Esen et Nyra aussi font une pause.</div>
                 <div style="display:flex;gap:10px;margin-top:20px;">
-                    <button onclick="awakPauseToggleMinimize()" style="background:rgba(148,163,184,0.15);border:1px solid rgba(148,163,184,0.4);color:#cbd5e1;font-weight:800;padding:13px 20px;border-radius:12px;cursor:pointer;font-size:0.9em;">🗕 Réduire</button>
-                    <button onclick="togglePause()" style="background:rgba(251,191,36,0.18);border:1px solid rgba(251,191,36,0.5);color:#fbbf24;font-weight:800;padding:13px 24px;border-radius:12px;cursor:pointer;font-size:0.95em;">▶️ Reprendre</button>
+                    <button onclick="awakPauseToggleMinimize()" style="background:rgba(148,163,184,0.15);border:1px solid rgba(148,163,184,0.4);color:#cbd5e1;font-weight:800;padding:13px 20px;border-radius:14px;cursor:pointer;font-size:0.9em;">🗕 Réduire</button>
+                    <button onclick="togglePause()" style="background:rgba(251,191,36,0.18);border:1px solid rgba(251,191,36,0.5);color:#fbbf24;font-weight:800;padding:13px 24px;border-radius:14px;cursor:pointer;font-size:0.95em;">▶️ Reprendre</button>
                 </div>`;
         }
         function _awakPauseMiniHTML() {
             return `
                 <div style="display:flex;align-items:center;gap:10px;">
-                    <img src="images/story/repos.webp" alt="" style="width:42px;height:42px;object-fit:cover;border-radius:9px;border:1px solid rgba(251,191,36,0.3);" onerror="this.style.display='none';" />
+                    <img src="images/story/repos.webp" alt="" style="width:42px;height:42px;object-fit:cover;border-radius:10px;border:1px solid rgba(251,191,36,0.3);" onerror="this.style.display='none';" />
                     <span style="color:#fbbf24;font-weight:800;letter-spacing:1px;font-size:0.78em;white-space:nowrap;">⏸ En pause</span>
-                    <button onclick="awakPauseToggleMinimize()" title="Agrandir" style="background:rgba(148,163,184,0.15);border:1px solid rgba(148,163,184,0.4);color:#cbd5e1;font-weight:800;padding:8px 11px;border-radius:9px;cursor:pointer;font-size:0.8em;">⤢</button>
-                    <button onclick="togglePause()" style="background:rgba(251,191,36,0.2);border:1px solid rgba(251,191,36,0.5);color:#fbbf24;font-weight:800;padding:8px 13px;border-radius:9px;cursor:pointer;font-size:0.8em;white-space:nowrap;">▶️ Reprendre</button>
+                    <button onclick="awakPauseToggleMinimize()" title="Agrandir" style="background:rgba(148,163,184,0.15);border:1px solid rgba(148,163,184,0.4);color:#cbd5e1;font-weight:800;padding:8px 11px;border-radius:10px;cursor:pointer;font-size:0.8em;">⤢</button>
+                    <button onclick="togglePause()" style="background:rgba(251,191,36,0.2);border:1px solid rgba(251,191,36,0.5);color:#fbbf24;font-weight:800;padding:8px 13px;border-radius:10px;cursor:pointer;font-size:0.8em;white-space:nowrap;">▶️ Reprendre</button>
                 </div>`;
         }
         function awakPauseToggleMinimize() {
@@ -21983,8 +22050,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const actions = document.createElement('div');
             actions.style.cssText = 'display:flex;gap:8px;width:100%;max-width:340px;';
             actions.innerHTML = `
-                <button id="shareCardShareBtn" style="flex:1;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border:none;border-radius:12px;padding:14px;font-weight:800;cursor:pointer;font-size:0.92em;">📤 Partager</button>
-                <button id="shareCardDlBtn" style="flex:1;background:rgba(168,85,247,0.15);color:#c084fc;border:1px solid rgba(168,85,247,0.4);border-radius:12px;padding:14px;font-weight:800;cursor:pointer;font-size:0.92em;">⬇ Enregistrer</button>
+                <button id="shareCardShareBtn" style="flex:1;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border:none;border-radius:14px;padding:14px;font-weight:800;cursor:pointer;font-size:0.92em;">📤 Partager</button>
+                <button id="shareCardDlBtn" style="flex:1;background:rgba(168,85,247,0.15);color:#c084fc;border:1px solid rgba(168,85,247,0.4);border-radius:14px;padding:14px;font-weight:800;cursor:pointer;font-size:0.92em;">⬇ Enregistrer</button>
             `;
             overlay.appendChild(actions);
 
@@ -22229,7 +22296,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const availablePoints = sp.available || 0;
             const rankColor = awakRank ? awakRank.color : '#22c55e';
 
-            cardProfile.style.cssText = 'background:linear-gradient(135deg,#0D0D0D,#0F1014,#1A0A00);color:white;overflow:hidden;border:1.5px solid '+rankColor+'40;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.classList.add('cyber-scanlines');
+            cardProfile.style.cssText = 'background:linear-gradient(160deg,#101218,#0D0E12 55%,#131017);color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14, inset 0 0 36px rgba(0,0,0,0.45);padding:20px;margin-bottom:14px;position:relative;';
+
+            const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
             const awakStatRows = [
                 { key: 'STR', icon: '⚔️', color: '#ef4444', label: 'Force' },
@@ -22242,16 +22312,17 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
             cardProfile.innerHTML = `
                 <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${rankColor},transparent);opacity:0.6;"></div>
+                ${_cornB('top:7px;left:7px')}${_cornB('top:7px;right:7px')}${_cornB('bottom:7px;left:7px')}${_cornB('bottom:7px;right:7px')}
 
                 <!-- Header : Rang (SEUL, plus de titre "Recrue") + Niveau + Prestige -->
                 <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:16px;">
                     <div style="flex:1;min-width:0;">
-                        <div style="font-size:0.6em;letter-spacing:2px;opacity:0.55;text-transform:uppercase;margin-bottom:4px;">
-                            Carte de Joueur ${rpgGetPrestigeLevel()>0?'<span style="background:rgba(251,191,36,0.25);color:#fbbf24;padding:1px 6px;border-radius:99px;font-size:0.9em;">⭐×'+rpgGetPrestigeLevel()+'</span>':''}
+                        <div style="font-family:var(--font-display);font-size:0.66em;letter-spacing:3px;color:${rankColor}cc;font-weight:700;text-transform:uppercase;margin-bottom:4px;">
+                            ⟨ Carte de Chasseur ⟩ ${rpgGetPrestigeLevel()>0?'<span style="background:rgba(251,191,36,0.25);color:#fbbf24;padding:1px 6px;border-radius:99px;font-size:0.9em;">⭐×'+rpgGetPrestigeLevel()+'</span>':''}
                         </div>
                         ${awakRank ? `
                             <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;">
-                                <span style="font-size:2.4em;font-weight:900;color:${awakRank.color};line-height:1;letter-spacing:1px;text-shadow:0 0 14px ${awakRank.color}60;">${awakRank.id}</span>
+                                <span style="font-family:var(--font-display);font-size:2.8em;font-weight:700;color:${awakRank.color};line-height:1;letter-spacing:0.02em;text-shadow:0 0 16px ${awakRank.color}70;">${awakRank.id}</span>
                                 <span style="font-size:0.78em;color:#94a3b8;font-weight:600;">Niveau ${profileLevel}</span>
                             </div>
                             <div style="font-size:0.7em;color:#94a3b8;font-weight:600;margin-top:4px;">${awakRank.desc}</div>
@@ -22261,7 +22332,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     </div>
                     <div style="text-align:right;flex-shrink:0;">
                         <div style="font-size:0.55em;opacity:0.55;letter-spacing:1.5px;font-weight:700;">POWER SCORE</div>
-                        <div style="font-size:1.6em;font-weight:900;line-height:1.1;color:white;letter-spacing:-1px;" id="awakPowerScoreDisplay">${awakProgress ? awakProgress.power.toLocaleString('fr-FR') : profileXP.toLocaleString('fr-FR')}</div>
+                        <div style="font-family:var(--font-display);font-size:1.75em;font-weight:700;line-height:1.1;color:white;letter-spacing:0;" id="awakPowerScoreDisplay">${awakProgress ? awakProgress.power.toLocaleString('fr-FR') : profileXP.toLocaleString('fr-FR')}</div>
                         ${availablePoints > 0
                             ? `<button onclick="awakOpenStatPointsModal()" style="margin-top:7px;background:linear-gradient(135deg,#f59e0b,#d97706);border:none;color:white;padding:5px 11px;border-radius:99px;font-size:0.68em;font-weight:900;cursor:pointer;letter-spacing:0.5px;box-shadow:0 2px 8px rgba(245,158,11,0.4);">⬆ ${availablePoints} pt${availablePoints>1?'s':''}</button>`
                             : `<button onclick="awakOpenStatPointsModal()" style="margin-top:7px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;padding:5px 11px;border-radius:99px;font-size:0.66em;font-weight:700;cursor:pointer;">⚙ Stats</button>`
@@ -22291,23 +22362,23 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         </div>
                     </div>
                 ` : (awakProgress && !awakNext ? `
-                    <div style="margin-bottom:14px;text-align:center;padding:9px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:9px;">
+                    <div style="margin-bottom:14px;text-align:center;padding:9px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:10px;">
                         <div style="font-size:0.65em;color:#fca5a5;font-weight:800;letter-spacing:1px;">◇ RANG MAXIMUM ATTEINT ◇</div>
                     </div>
                 ` : '')}
 
                 <!-- Stats globales (XP / Streak / Muscles) -->
                 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;">
-                    <div style="background:rgba(255,255,255,0.06);border-radius:10px;padding:10px;text-align:center;">
-                        <div style="font-size:1.2em;font-weight:900;color:#4ade80;">${profileXP.toLocaleString()}</div>
+                    <div style="background:rgba(74,222,128,0.07);border:1px solid rgba(74,222,128,0.18);border-radius:10px;padding:10px;text-align:center;">
+                        <div style="font-family:var(--font-display);font-size:1.3em;font-weight:700;color:#4ade80;">${profileXP.toLocaleString()}</div>
                         <div style="font-size:0.6em;opacity:0.6;margin-top:2px;letter-spacing:0.5px;font-weight:700;">XP</div>
                     </div>
-                    <div style="background:rgba(255,255,255,0.06);border-radius:10px;padding:10px;text-align:center;">
-                        <div style="font-size:1.2em;font-weight:900;color:#fbbf24;">🔥 ${streak}</div>
+                    <div style="background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.18);border-radius:10px;padding:10px;text-align:center;">
+                        <div style="font-family:var(--font-display);font-size:1.3em;font-weight:700;color:#fbbf24;">🔥 ${streak}</div>
                         <div style="font-size:0.6em;opacity:0.6;margin-top:2px;letter-spacing:0.5px;font-weight:700;">STREAK</div>
                     </div>
-                    <div style="background:rgba(255,255,255,0.06);border-radius:10px;padding:10px;text-align:center;">
-                        <div style="font-size:1.2em;font-weight:900;color:#34d399;">${muscles.length}</div>
+                    <div style="background:rgba(52,211,153,0.07);border:1px solid rgba(52,211,153,0.18);border-radius:10px;padding:10px;text-align:center;">
+                        <div style="font-family:var(--font-display);font-size:1.3em;font-weight:700;color:#34d399;">${muscles.length}</div>
                         <div style="font-size:0.6em;opacity:0.6;margin-top:2px;letter-spacing:0.5px;font-weight:700;">MUSCLES</div>
                     </div>
                 </div>
@@ -22321,10 +22392,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         </div>
                         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
                             ${awakStatRows.map(s => `
-                                <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:9px;padding:8px 6px;text-align:center;">
+                                <div style="background:${s.color}0d;border:1px solid ${s.color}2e;border-radius:10px;padding:8px 6px;text-align:center;">
                                     <div style="font-size:1em;line-height:1;margin-bottom:3px;">${s.icon}</div>
-                                    <div style="font-size:0.58em;color:#64748b;font-weight:700;letter-spacing:0.5px;">${s.key}</div>
-                                    <div style="font-size:0.95em;font-weight:900;color:${s.color};line-height:1.2;">${awakStats[s.key] || 0}</div>
+                                    <div style="font-size:0.58em;color:#94a3b8;font-weight:700;letter-spacing:0.5px;">${s.key}</div>
+                                    <div style="font-family:var(--font-display);font-size:1.05em;font-weight:700;color:${s.color};line-height:1.2;">${awakStats[s.key] || 0}</div>
                                 </div>
                             `).join('')}
                         </div>
@@ -22346,7 +22417,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px;
                         box-shadow:0 0 18px rgba(74,222,128,0.12);transition:transform 0.15s;position:relative;"
                         onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">
-                        <div style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:11px;background:rgba(74,222,128,0.15);border:1px solid rgba(74,222,128,0.4);color:#4ade80;">
+                        <div style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:10px;background:rgba(74,222,128,0.15);border:1px solid rgba(74,222,128,0.4);color:#4ade80;">
                             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6"/><path d="M12 8c-3 0-5 2-5 5v2a5 5 0 0 0 10 0v-2c0-3-2-5-5-5z"/><path d="M7 15H4"/><path d="M20 15h-3"/><path d="M9 22h6"/><circle cx="12" cy="13" r="1.5"/></svg>
                         </div>
                         <span style="font-weight:900;font-size:0.9em;color:#e2e8f0;line-height:1.2;">Compétences</span>
@@ -22364,11 +22435,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
             const btnEquip = document.createElement('button');
             btnEquip.style.cssText = 'flex:1;min-width:0;display:flex;align-items:center;gap:10px;padding:14px 12px;background:linear-gradient(135deg,rgba(6,182,212,0.16),rgba(8,145,178,0.08));border:1.5px solid rgba(6,182,212,' + (_adv?'0.5':'0.25') + ');border-radius:14px;cursor:pointer;text-align:left;touch-action:manipulation;box-shadow:0 0 18px rgba(6,182,212,0.1);';
-            btnEquip.innerHTML = '<div style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:11px;background:rgba(6,182,212,0.15);border:1px solid rgba(6,182,212,0.4);font-size:1.3em;">⚔️</div><span style="font-weight:900;font-size:0.9em;color:#e2e8f0;line-height:1.2;">Équipement</span>';
+            btnEquip.innerHTML = '<div style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:10px;background:rgba(6,182,212,0.15);border:1px solid rgba(6,182,212,0.4);font-size:1.3em;">⚔️</div><span style="font-weight:900;font-size:0.9em;color:#e2e8f0;line-height:1.2;">Équipement</span>';
             btnEquip.addEventListener('click', function() { showRPGEquipmentModal('equip'); });
 
             // Conteneur flex : Compétences (déplacé) à gauche + Équipement à droite
             const rowBtns = document.createElement('div');
+            rowBtns.id = 'awakRowBtns';
             rowBtns.style.cssText = 'display:flex;gap:8px;align-items:stretch;margin-top:8px;margin-bottom:4px;';
             const btnComp = document.getElementById('awakBtnCompetences');
             if (btnComp) {
@@ -22442,7 +22514,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     background:linear-gradient(135deg,rgba(168,85,247,0.14),rgba(168,85,247,0.05));
                     border:1.5px solid rgba(168,85,247,0.4);border-radius:14px;color:white;
                     cursor:pointer;text-align:left;display:flex;align-items:center;gap:13px;">
-                    <div style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:11px;background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.4);font-size:1.3em;">📖</div>
+                    <div style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:10px;background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.4);font-size:1.3em;">📖</div>
                     <div style="flex:1;min-width:0;">
                         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
                             <span style="font-weight:900;font-size:0.95em;color:#e2e8f0;">Journal du Chasseur</span>
@@ -22466,7 +22538,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         background:${malusCount > 0 ? 'linear-gradient(135deg,rgba(239,68,68,0.14),rgba(239,68,68,0.05))' : 'rgba(255,255,255,0.03)'};
                         border:1.5px solid ${malusCount > 0 ? 'rgba(239,68,68,0.4)' : 'rgba(255,255,255,0.1)'};border-radius:14px;color:white;
                         cursor:pointer;text-align:left;display:flex;align-items:center;gap:13px;">
-                        <div style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:11px;background:${malusCount > 0 ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.05)'};border:1px solid ${malusCount > 0 ? 'rgba(239,68,68,0.4)' : 'rgba(255,255,255,0.1)'};font-size:1.3em;">⚠️</div>
+                        <div style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:10px;background:${malusCount > 0 ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.05)'};border:1px solid ${malusCount > 0 ? 'rgba(239,68,68,0.4)' : 'rgba(255,255,255,0.1)'};font-size:1.3em;">⚠️</div>
                         <div style="flex:1;min-width:0;">
                             <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
                                 <span style="font-weight:900;font-size:0.95em;color:#e2e8f0;">Malus actifs</span>
@@ -22476,7 +22548,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         </div>
                         <div style="font-size:1.4em;color:${mColor};flex-shrink:0;">›</div>
                     </button>`;
-                tab.appendChild(cardMalus);
+                tab.insertBefore(cardMalus, cardProfile);
             } catch(e) {}
 
             // ── 🎭 BANDEAU MISSION DE COMPAGNONS EN COURS ──────────────
@@ -22507,7 +22579,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                             </div>
                             ${compNames ? `<div style="font-size:0.62em;color:#94a3b8;margin-top:7px;">⚔ ${compNames}</div>` : ''}
                         </div>`;
-                    tab.appendChild(cardMission);
+                    tab.insertBefore(cardMission, cardProfile);
                 }
             } catch(e) {}
 
@@ -22538,7 +22610,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                             </div>
                             ${rows}
                         </div>`;
-                    tab.appendChild(cardInjured);
+                    tab.insertBefore(cardInjured, cardProfile);
                 }
             } catch(e) {}
 
@@ -22645,7 +22717,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         <div style="font-size:2.5em;margin:8px 0;">🌑</div>
                         <div style="font-size:1.1em;font-weight:900;color:white;margin-bottom:4px;">Le Système t'a éveillé</div>
                         <div style="font-size:0.78em;color:#94a3b8;line-height:1.5;margin-bottom:14px;">Choisis ta classe. Le premier choix est gratuit — les suivants exigeront le <strong style="color:#fbbf24">Tome de l'Éveil</strong>.</div>
-                        <button onclick="showClassSelectionModal()" style="width:100%;padding:13px;border-radius:12px;border:none;background:linear-gradient(135deg,#7c3aed,#a855f7);color:white;font-size:0.92em;font-weight:800;cursor:pointer;box-shadow:0 4px 16px rgba(168,85,247,0.4);">
+                        <button onclick="showClassSelectionModal()" style="width:100%;padding:13px;border-radius:14px;border:none;background:linear-gradient(135deg,#7c3aed,#a855f7);color:white;font-size:0.92em;font-weight:800;cursor:pointer;box-shadow:0 4px 16px rgba(168,85,247,0.4);">
                             ⚔️ Choisir ma voie
                         </button>
                     </div>`;
@@ -22746,7 +22818,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 <div style="font-size:0.8em;color:rgba(255,255,255,0.55);margin-bottom:10px;">${canPrestige?'Rang SSS atteint ! Réinitialise ton XP pour un multiplicateur permanent à vie.':'Atteins le rang SSS pour débloquer le Prestige.'}</div>
                 ${canPrestige
                     ? `<button onclick="rpgPrestige()" style="width:100%;padding:12px;background:linear-gradient(135deg,#fbbf24,#d97706);color:white;border:none;border-radius:10px;font-weight:800;cursor:pointer;touch-action:manipulation;">⭐ Activer le Prestige</button>`
-                    : `<div style="background:rgba(255,255,255,0.06);border-radius:8px;padding:8px 12px;font-size:0.75em;color:rgba(255,255,255,0.35);text-align:center;">🔒 Rang SSS requis</div>`}`;
+                    : `<div style="background:rgba(255,255,255,0.06);border-radius:10px;padding:8px 12px;font-size:0.75em;color:rgba(255,255,255,0.35);text-align:center;">🔒 Rang SSS requis</div>`}`;
 
 
 
@@ -22794,7 +22866,15 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const div = document.createElement('div');
             div.id = 'adventureContainer';
             div.style.marginTop = '4px';
-            tab.appendChild(div);
+            // 🗺️ Placement : juste sous la rangée Compétences/Équipement si elle existe
+            // (les Failles sont le cœur du jeu → remontées sous la Carte de Chasseur),
+            // sinon en fin d'onglet (mode RPG désactivé, ou rendu pas encore fait).
+            const anchor = document.getElementById('awakRowBtns');
+            if (anchor && anchor.parentNode === tab) {
+                anchor.insertAdjacentElement('afterend', div);
+            } else {
+                tab.appendChild(div);
+            }
             // Render
             if (typeof renderAdventureTab === 'function') {
                 setTimeout(() => renderAdventureTab(), 50);
@@ -23333,7 +23413,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             modal.innerHTML = `<div style="
                 width:100%;max-width:480px;
                 background:linear-gradient(160deg,#030810,#060c18);
-                border-radius:22px 22px 0 0;
+                border-radius:20px 20px 0 0;
                 border-top:2px solid rgba(168,85,247,0.4);
                 max-height:92vh;display:flex;flex-direction:column;overflow:hidden;
             ">
@@ -23354,7 +23434,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         return `<div onclick="rpgSetClass('${cls.id}');document.getElementById('classSelectModal').remove();" style="
                             background:${cls.bg};
                             border:${isCurrent?2:1.5}px solid ${cls.color}${isCurrent?'':'44'};
-                            border-radius:16px;padding:14px;margin-bottom:10px;cursor:pointer;
+                            border-radius:14px;padding:14px;margin-bottom:10px;cursor:pointer;
                             box-shadow:${isCurrent?`0 0 20px ${cls.color}30`:'none'};
                             ">
                             <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:8px;">
@@ -23370,16 +23450,16 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                             <div style="font-size:0.74em;color:#cbd5e1;line-height:1.5;margin-bottom:10px;">${cls.desc}</div>
 
                             <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;">
-                                <div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:6px 8px;border:1px solid rgba(255,255,255,0.04);">
+                                <div style="background:rgba(0,0,0,0.3);border-radius:10px;padding:6px 8px;border:1px solid rgba(255,255,255,0.04);">
                                     <div style="font-size:0.55em;color:#475569;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">XP Bonus</div>
                                     <div style="font-size:0.78em;font-weight:800;color:${cls.color};">+${Math.round(cls.xpBonus*100)}% sur ${cls.bonusMuscles.length<=3?cls.bonusMuscles.join(', '):'muscles spécialisés'}</div>
                                 </div>
-                                <div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:6px 8px;border:1px solid rgba(255,255,255,0.04);">
+                                <div style="background:rgba(0,0,0,0.3);border-radius:10px;padding:6px 8px;border:1px solid rgba(255,255,255,0.04);">
                                     <div style="font-size:0.55em;color:#475569;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Stats permanents</div>
                                     <div style="font-size:0.78em;font-weight:800;color:${cls.color};">${Object.entries(cls.statBonus).map(([k,v])=>`+${v} ${k}`).join(' · ')}</div>
                                 </div>
                             </div>
-                            <div style="background:${cls.bg};border:1px solid ${cls.color}25;border-radius:8px;padding:7px 10px;">
+                            <div style="background:${cls.bg};border:1px solid ${cls.color}25;border-radius:10px;padding:7px 10px;">
                                 <div style="font-size:0.6em;color:${cls.color};font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">⚡ Passif unique</div>
                                 <div style="font-size:0.72em;color:#e2e8f0;line-height:1.4;">${cls.passive}</div>
                             </div>
@@ -23533,7 +23613,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const overlay = document.createElement('div');
             overlay.style.cssText = 'position:fixed;inset:0;z-index:30004;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.9);backdrop-filter:blur(10px);';
             overlay.innerHTML = `
-                <div style="background:linear-gradient(160deg,#1a0533,#1A0A00,#166534);border:2px solid #fbbf24;border-radius:24px;
+                <div style="background:linear-gradient(160deg,#1a0533,#1A0A00,#166534);border:2px solid #fbbf24;border-radius:20px;
                             padding:36px 28px;max-width:320px;width:90%;text-align:center;
                             box-shadow:0 0 80px #fbbf2466;animation:slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);">
                     <div style="font-size:0.75em;letter-spacing:3px;color:#fbbf24;font-weight:800;text-transform:uppercase;margin-bottom:12px;">PRESTIGE ${prestige}</div>
@@ -23543,7 +23623,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     <div style="background:rgba(251,191,36,0.15);border:1px solid rgba(251,191,36,0.3);border-radius:10px;padding:10px;margin-bottom:16px;">
                         <div style="color:#fbbf24;font-weight:800;">+${prestige * 10}% XP permanent ×${prestige}</div>
                     </div>
-                    <button onclick="this.closest('[style*=fixed]').remove();renderGameTab();" style="width:100%;padding:14px;background:linear-gradient(135deg,#fbbf24,#d97706);color:white;border:none;border-radius:12px;font-weight:800;cursor:pointer;font-size:1em;">
+                    <button onclick="this.closest('[style*=fixed]').remove();renderGameTab();" style="width:100%;padding:14px;background:linear-gradient(135deg,#fbbf24,#d97706);color:white;border:none;border-radius:14px;font-weight:800;cursor:pointer;font-size:1em;">
                         ⭐ Commencer le Prestige ${prestige}
                     </button>
                 </div>`;
@@ -23639,7 +23719,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const overlay = document.createElement('div');
             overlay.style.cssText = 'position:fixed;inset:0;z-index:30001;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);animation:fadeIn 0.25s;';
             overlay.innerHTML = `
-                <div style="background:linear-gradient(160deg,#0F1014,#0a0e18 60%,#1a1330);border:1.5px solid rgba(245,158,11,0.4);border-radius:24px;padding:32px 28px;max-width:340px;width:90%;text-align:center;box-shadow:0 24px 60px rgba(245,158,11,0.2),0 0 80px rgba(245,158,11,0.1);animation:slideUp 0.4s cubic-bezier(0.34,1.56,0.64,1);position:relative;overflow:hidden;">
+                <div style="background:linear-gradient(160deg,#0F1014,#0a0e18 60%,#1a1330);border:1.5px solid rgba(245,158,11,0.4);border-radius:20px;padding:32px 28px;max-width:340px;width:90%;text-align:center;box-shadow:0 24px 60px rgba(245,158,11,0.2),0 0 80px rgba(245,158,11,0.1);animation:slideUp 0.4s cubic-bezier(0.34,1.56,0.64,1);position:relative;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,#f59e0b,transparent);"></div>
                     <div style="font-size:0.65em;color:rgba(245,158,11,0.7);font-weight:900;letter-spacing:3px;margin-bottom:10px;">◇ NIVEAU PERSONNAGE ◇</div>
                     <div style="font-size:3.5em;margin-bottom:8px;animation:pulse-warning 1s infinite;">⭐</div>
@@ -23650,7 +23730,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         <div style="font-size:0.72em;color:#94a3b8;font-weight:700;letter-spacing:1px;margin-top:3px;">POINT${pointsGained>1?'S':''} D'ATTRIBUT</div>
                     </div>
                     <div style="margin-top:14px;font-size:0.78em;color:rgba(255,255,255,0.5);font-style:italic;">À distribuer dans tes stats</div>
-                    <button onclick="this.closest('[style*=fixed]').remove()" style="margin-top:18px;width:100%;padding:13px;background:linear-gradient(135deg,#f59e0b,#d97706);border:none;border-radius:12px;color:white;font-weight:900;cursor:pointer;font-size:0.95em;letter-spacing:1px;box-shadow:0 4px 16px rgba(245,158,11,0.4);">DISTRIBUER ➜</button>
+                    <button onclick="this.closest('[style*=fixed]').remove()" style="margin-top:18px;width:100%;padding:13px;background:linear-gradient(135deg,#f59e0b,#d97706);border:none;border-radius:14px;color:white;font-weight:900;cursor:pointer;font-size:0.95em;letter-spacing:1px;box-shadow:0 4px 16px rgba(245,158,11,0.4);">DISTRIBUER ➜</button>
                 </div>`;
             document.body.appendChild(overlay);
             // Clic sur le bouton → ferme l'overlay et ouvre le modal d'allocation
@@ -24164,7 +24244,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     <div style="text-align:center;font-size:1.4em;font-weight:900;color:#fff;margin-bottom:6px;text-shadow:0 0 16px rgba(6,182,212,0.5);">Bienvenue, Chasseur</div>
                     <div style="text-align:center;color:#94a3b8;font-size:0.88em;line-height:1.6;margin-bottom:18px;">Le Système relie tes entraînements réels à ta progression. Voici comment ça fonctionne.</div>
                     ${rowsHtml}
-                    <div style="margin-top:16px;padding:12px 14px;background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.25);border-radius:12px;color:#cbd5e1;font-size:0.82em;line-height:1.6;text-align:center;font-style:italic;">Ta progression reflète tes efforts réels. Plus tu t'entraînes, plus tu deviens fort — pour de vrai.</div>
+                    <div style="margin-top:16px;padding:12px 14px;background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.25);border-radius:14px;color:#cbd5e1;font-size:0.82em;line-height:1.6;text-align:center;font-style:italic;">Ta progression reflète tes efforts réels. Plus tu t'entraînes, plus tu deviens fort — pour de vrai.</div>
                     <button id="awakGuideStartBtn" style="margin-top:18px;width:100%;padding:14px;background:linear-gradient(135deg,#06b6d4,#0891b2);border:none;border-radius:14px;color:#fff;font-weight:900;font-size:1em;letter-spacing:1px;cursor:pointer;box-shadow:0 8px 24px rgba(6,182,212,0.35);">Je suis prêt</button>`;
 
                 overlay.appendChild(card);
@@ -24513,7 +24593,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 // ── 5) Épilogue : d'autres tiennent aussi, séparés, dans un monde encore vivant ──
                 const epilogue = [
                     { img: 'images/story/intro_duo_separes.webp', text: `*Tu n'es pas seul à tenir.*\n*Ailleurs, d'autres refusent de s'effacer — chacun de leur côté.*` },
-                    { img: 'images/story/intro_duo_entrainement.webp', text: `*Et comme toi, ils s'éveillent.*\n*Un entraînement, puis un autre. C'est ainsi qu'on résiste.*` }
+                    { img: 'images/story/intro_duo_entrainement.webp', text: `*Et comme toi, ils s'éveillent.*\n*Un entraînement, puis un autre. C'est ainsi qu'on résiste.*` },
+                    { img: 'images/story/intro_duo_entrainement.webp', text: `*Ceux que le Système choisit ne restent pas seuls.*\n*Ils rejoignent les AV — l'Association des Veilleurs : celles et ceux qui traquent les Failles et les referment.*\n*Le sigle sur ta tenue, c'est désormais le tien.*` }
                 ];
                 epilogue.forEach(ep => {
                     beats.push({ hold: 7500, render: () => {
@@ -24661,7 +24742,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 max-width: 380px; width: 100%;
                 background: linear-gradient(160deg, ${c}1a 0%, rgba(8,12,20,0.96) 55%);
                 border: 1px solid ${c}66;
-                border-radius: 18px;
+                border-radius: 20px;
                 padding: 28px 24px 26px;
                 text-align: center;
                 font-family: 'Courier New', monospace;
@@ -25611,21 +25692,21 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     const stateColor = stateColors[rift.state] || stateColors.stable;
                     const stateLabel = stateLabels[rift.state] || rift.state.toUpperCase();
                     const displayName = rift.discovered ? rift.name : '???';
-                    const isNarrativeBadge = rift.isNarrative ? '<span style="background:#fbbf24;color:black;padding:0 4px;border-radius:3px;font-size:0.55em;font-weight:900;letter-spacing:1px;margin-right:4px;">◇ UNIQUE</span>' : '';
+                    const isNarrativeBadge = rift.isNarrative ? '<span style="background:#fbbf24;color:black;padding:0 4px;border-radius:6px;font-size:0.55em;font-weight:900;letter-spacing:1px;margin-right:4px;">◇ UNIQUE</span>' : '';
                     // Badge modificateur (si présent et non standard)
                     const _mod = (typeof awakGetRiftModifier === 'function') ? awakGetRiftModifier(rift.modifierId) : null;
                     const modBadge = (_mod && _mod.id !== 'none')
-                        ? `<span style="background:${_mod.color}25;color:${_mod.color};border:1px solid ${_mod.color}55;padding:1px 6px;border-radius:5px;font-size:0.6em;font-weight:900;letter-spacing:0.5px;">${_mod.emoji} ${_mod.name.toUpperCase()}</span>`
+                        ? `<span style="background:${_mod.color}25;color:${_mod.color};border:1px solid ${_mod.color}55;padding:1px 6px;border-radius:6px;font-size:0.6em;font-weight:900;letter-spacing:0.5px;">${_mod.emoji} ${_mod.name.toUpperCase()}</span>`
                         : '';
 
                     return `
-                    <div onclick="awakOpenRiftBriefing('${rift.id}')" style="cursor:pointer;background:${stateColor.bg};border:1px solid ${stateColor.border};border-radius:12px;padding:14px 12px;transition:transform 0.15s ease;">
+                    <div onclick="awakOpenRiftBriefing('${rift.id}')" style="cursor:pointer;background:${stateColor.bg};border:1px solid ${stateColor.border};border-radius:14px;padding:14px 12px;transition:transform 0.15s ease;">
                         <div style="display:flex;align-items:center;gap:11px;">
                             <div style="font-size:1.9em;line-height:1;flex-shrink:0;filter:drop-shadow(0 0 6px ${theme.color}80);">${theme.emoji}</div>
                             <div style="flex:1;min-width:0;">
                                 <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:3px;">
                                     ${isNarrativeBadge}
-                                    <span style="background:${theme.color}25;color:${theme.color};border:1px solid ${theme.color}50;padding:1px 6px;border-radius:5px;font-size:0.62em;font-weight:900;letter-spacing:1px;">${rift.rank}</span>
+                                    <span style="background:${theme.color}25;color:${theme.color};border:1px solid ${theme.color}50;padding:1px 6px;border-radius:6px;font-size:0.62em;font-weight:900;letter-spacing:1px;">${rift.rank}</span>
                                     ${modBadge}
                                     <span style="font-weight:800;color:white;font-size:0.92em;">${displayName}</span>
                                 </div>
@@ -25691,7 +25772,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 <div style="background:linear-gradient(135deg,${theme.color}25,${theme.color}05);padding:24px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <div style="font-size:3.5em;line-height:1;margin-bottom:8px;filter:drop-shadow(0 0 14px ${theme.color}90);">${theme.emoji}</div>
-                    <div style="display:inline-block;background:${theme.color}25;color:${theme.color};border:1px solid ${theme.color}50;padding:3px 10px;border-radius:7px;font-size:0.7em;font-weight:900;letter-spacing:2px;margin-bottom:8px;">RANG ${rift.rank}</div>
+                    <div style="display:inline-block;background:${theme.color}25;color:${theme.color};border:1px solid ${theme.color}50;padding:3px 10px;border-radius:6px;font-size:0.7em;font-weight:900;letter-spacing:2px;margin-bottom:8px;">RANG ${rift.rank}</div>
                     <h2 style="margin:0;color:white;font-size:1.3em;font-weight:900;letter-spacing:0.5px;">${rift.name}</h2>
                     <div style="margin-top:8px;color:#94a3b8;font-size:0.82em;line-height:1.5;font-style:italic;">${theme.description}</div>
                 </div>
@@ -25718,24 +25799,24 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 <div style="padding:18px 22px;">
                     <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px;">
                         <!-- Temps -->
-                        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:11px;padding:11px;">
+                        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:11px;">
                             <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:4px;">⏱ TEMPS</div>
                             <div style="font-size:1.1em;font-weight:900;color:white;">${time.label}</div>
                         </div>
                         <!-- Difficulté -->
-                        <div style="background:rgba(255,255,255,0.03);border:1px solid ${diff.color}40;border-radius:11px;padding:11px;">
+                        <div style="background:rgba(255,255,255,0.03);border:1px solid ${diff.color}40;border-radius:10px;padding:11px;">
                             <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:4px;">◈ DIFFICULTÉ</div>
                             <div style="font-size:0.9em;font-weight:900;color:${diff.color};">${diff.emoji}</div>
                             <div style="font-size:0.65em;color:${diff.color};font-weight:700;margin-top:2px;">${diff.label}</div>
                         </div>
                         <!-- Power Score -->
-                        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:11px;padding:11px;">
+                        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:11px;">
                             <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:4px;">⚡ TON POWER</div>
                             <div style="font-size:1.1em;font-weight:900;color:white;">${playerPower.toLocaleString('fr-FR')}</div>
                             <div style="font-size:0.62em;color:#64748b;margin-top:2px;">recommandé : ${rift.recommendedPower.toLocaleString('fr-FR')}</div>
                         </div>
                         <!-- Stat dominante -->
-                        <div style="background:rgba(255,255,255,0.03);border:1px solid ${theme.color}40;border-radius:11px;padding:11px;">
+                        <div style="background:rgba(255,255,255,0.03);border:1px solid ${theme.color}40;border-radius:10px;padding:11px;">
                             <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:4px;">⚔ ATTRIBUT</div>
                             <div style="font-size:1.1em;font-weight:900;color:${theme.color};">${rift.primaryStat}</div>
                             <div style="font-size:0.62em;color:#64748b;margin-top:2px;">${playerStats[rift.primaryStat] || 0} pts actuels</div>
@@ -25743,7 +25824,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     </div>
 
                     <!-- Vagues prévues -->
-                    <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);border-radius:11px;padding:11px;margin-bottom:14px;">
+                    <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);border-radius:10px;padding:11px;margin-bottom:14px;">
                         <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:8px;">◈ VAGUES (${rift.waves.length})</div>
                         <div style="display:flex;gap:4px;flex-wrap:wrap;">
                             ${rift.waves.map((w, i) => `
@@ -25759,7 +25840,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         const activeConsum = JSON.parse(localStorage.getItem('awakActiveConsumables') || '[]');
                         if (activeConsum.length === 0) return '';
                         return `
-                        <div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.25);border-radius:11px;padding:11px;margin-bottom:14px;">
+                        <div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.25);border-radius:10px;padding:11px;margin-bottom:14px;">
                             <div style="font-size:0.6em;color:#4ade80;font-weight:800;letter-spacing:1.5px;margin-bottom:6px;">🧪 PRÉPARATION ACTIVE</div>
                             <div style="display:flex;gap:6px;flex-wrap:wrap;">
                                 ${activeConsum.map(id => {
@@ -25773,8 +25854,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
                     <!-- Actions -->
                     <div style="display:flex;gap:8px;">
-                        <button onclick="document.getElementById('awakRiftBriefingModal').remove()" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;border-radius:11px;padding:14px;font-weight:800;font-size:0.85em;cursor:pointer;">↩ Plus tard</button>
-                        <button onclick="awakStartRift('${rift.id}')" style="flex:2;background:linear-gradient(135deg,${theme.color},${theme.color}dd);border:none;color:white;border-radius:11px;padding:14px;font-weight:900;font-size:0.9em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${theme.color}40;">⚔ ENTRER</button>
+                        <button onclick="document.getElementById('awakRiftBriefingModal').remove()" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;border-radius:10px;padding:14px;font-weight:800;font-size:0.85em;cursor:pointer;">↩ Plus tard</button>
+                        <button onclick="awakStartRift('${rift.id}')" style="flex:2;background:linear-gradient(135deg,${theme.color},${theme.color}dd);border:none;color:white;border-radius:10px;padding:14px;font-weight:900;font-size:0.9em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${theme.color}40;">⚔ ENTRER</button>
                     </div>
                     ${(() => {
                         const check = typeof awakCanDelegateRift === 'function' ? awakCanDelegateRift(rift) : {ok:false};
@@ -25790,7 +25871,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                             const avgStam = typeof awakActiveCompanionsAvgStamina === 'function' ? awakActiveCompanionsAvgStamina() : 100;
                             const stamColor = avgStam >= 70 ? '#4ade80' : (avgStam >= 35 ? '#f59e0b' : '#ef4444');
                             const tired = avgStam < 35;
-                            return `<button onclick="awakDelegateRiftToCompanions('${rift.id}')" style="width:100%;margin-top:8px;background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.4);color:#c084fc;border-radius:11px;padding:13px;font-weight:800;font-size:0.82em;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;">
+                            return `<button onclick="awakDelegateRiftToCompanions('${rift.id}')" style="width:100%;margin-top:8px;background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.4);color:#c084fc;border-radius:10px;padding:13px;font-weight:800;font-size:0.82em;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;">
                                 <span>🎭 Envoyer mes compagnons <span style="opacity:0.7;font-weight:600;">(${durTxt}, sans loot)</span></span>
                                 <span style="font-size:0.85em;color:${riskColor};font-weight:700;">⚠ Risque d'échec : ${failPct}% &nbsp;·&nbsp; ${nActive} compagnon${nActive>1?'s':''}</span>
                                 <span style="display:flex;align-items:center;gap:6px;width:100%;max-width:200px;">
@@ -25800,7 +25881,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                             </button>
                             ${tired ? `<div style="font-size:0.66em;color:#f87171;text-align:center;margin-top:5px;line-height:1.4;">😮‍💨 Tes compagnons sont fatigués — risque accru. Fais une séance ou laisse-les se reposer.</div>` : (canAddMore ? `<div style="font-size:0.66em;color:#64748b;text-align:center;margin-top:5px;line-height:1.4;">💡 Active plus de compagnons pour réduire le risque</div>` : '')}`;
                         } else {
-                            return `<div style="width:100%;margin-top:8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);color:#64748b;border-radius:11px;padding:11px;font-size:0.72em;text-align:center;">🎭 Délégation indisponible — ${check.reason}</div>`;
+                            return `<div style="width:100%;margin-top:8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);color:#64748b;border-radius:10px;padding:11px;font-size:0.72em;text-align:center;">🎭 Délégation indisponible — ${check.reason}</div>`;
                         }
                     })()}
                 </div>
@@ -25913,7 +25994,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 <div style="background:linear-gradient(135deg,${theme.color}20,transparent);padding:18px 20px;border-bottom:1px solid ${theme.color}25;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                         <span style="font-size:0.6em;color:${theme.color};font-weight:900;letter-spacing:2px;">⚔ VAGUE ${rift.currentWaveIdx + 1} / ${rift.waves.length}${currentWave.isBoss ? ' · BOSS' : ''}</span>
-                        <button onclick="awakAbandonRift()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:8px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
+                        <button onclick="awakAbandonRift()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
                     </div>
                     <div style="display:flex;align-items:center;gap:14px;">
                         <div style="font-size:3em;line-height:1;filter:drop-shadow(0 0 10px ${theme.color}80);">${currentWave.emoji}</div>
@@ -25989,7 +26070,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     <div style="font-size:0.62em;color:#94a3b8;font-weight:800;letter-spacing:2px;margin-bottom:10px;">◈ EXERCICE POUR ATTAQUER</div>
                     <div style="display:flex;flex-direction:column;gap:8px;">
                         ${exercises.map((ex, i) => `
-                            <button onclick="awakPickRiftExercise(${i})" data-exidx="${i}" class="awak-rift-ex-btn" style="text-align:left;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);color:white;border-radius:11px;padding:12px 14px;cursor:pointer;transition:all 0.2s;">
+                            <button onclick="awakPickRiftExercise(${i})" data-exidx="${i}" class="awak-rift-ex-btn" style="text-align:left;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);color:white;border-radius:10px;padding:12px 14px;cursor:pointer;transition:all 0.2s;">
                                 <div style="display:flex;align-items:center;gap:10px;">
                                     <div style="font-size:1.5em;flex-shrink:0;">${ex.emoji || '💪'}</div>
                                     <div style="flex:1;min-width:0;">
@@ -26664,7 +26745,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 <!-- Récompenses -->
                 <div style="padding:0 22px 18px 22px;">
                     <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:2px;margin-bottom:10px;">◈ RÉCOMPENSES</div>
-                    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:11px;padding:14px;">
+                    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:14px;">
                         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
                             <span style="color:#cbd5e1;font-size:0.9em;font-weight:700;">⚡ Power Score</span>
                             <span style="color:${theme.color};font-weight:900;">+${xpReward}</span>
@@ -26677,7 +26758,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
                     ${riftLoot ? (() => {
                         const lr = (typeof RARITIES !== 'undefined' && RARITIES[riftLoot.rarity]) ? RARITIES[riftLoot.rarity] : { color:'#a855f7', label:'?' };
-                        return `<div style="margin-top:12px;background:linear-gradient(135deg,${lr.color}1f,${lr.color}0a);border:1.5px solid ${lr.color}66;border-radius:12px;padding:14px;animation:awakFadeIn 0.6s ease 0.3s both;">
+                        return `<div style="margin-top:12px;background:linear-gradient(135deg,${lr.color}1f,${lr.color}0a);border:1.5px solid ${lr.color}66;border-radius:14px;padding:14px;animation:awakFadeIn 0.6s ease 0.3s both;">
                             <div style="font-size:0.58em;color:${lr.color};font-weight:900;letter-spacing:2px;margin-bottom:8px;">⬥ BUTIN DE FAILLE</div>
                             <div style="display:flex;align-items:center;gap:11px;">
                                 <div style="font-size:1.8em;filter:drop-shadow(0 0 8px ${lr.color}aa);">${riftLoot.icon}</div>
@@ -26690,7 +26771,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     })() : ''}
 
                     <!-- Message Système -->
-                    <div style="margin-top:14px;padding:12px 14px;background:rgba(74,222,128,0.08);border-left:3px solid #4ade80;border-radius:8px;">
+                    <div style="margin-top:14px;padding:12px 14px;background:rgba(74,222,128,0.08);border-left:3px solid #4ade80;border-radius:10px;">
                         <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;margin-bottom:4px;">⚙ SYSTÈME</div>
                         <div style="color:#cbd5e1;font-size:0.85em;font-style:italic;line-height:1.5;">${getSystemMessageForGrade(grade)}</div>
                     </div>
@@ -26698,7 +26779,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
                 <!-- Action -->
                 <div style="padding:14px 22px 22px 22px;position:sticky;bottom:0;background:linear-gradient(180deg,transparent,#0F1014 30%);">
-                    <button onclick="document.getElementById('awakRiftRewardModal').remove();awakActiveRiftSession=null;switchTab('game');" style="width:100%;background:linear-gradient(135deg,${theme.color},${theme.color}dd);border:none;color:white;border-radius:11px;padding:16px;font-weight:900;font-size:0.95em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${theme.color}40;">✓ CONTINUER</button>
+                    <button onclick="document.getElementById('awakRiftRewardModal').remove();awakActiveRiftSession=null;switchTab('game');" style="width:100%;background:linear-gradient(135deg,${theme.color},${theme.color}dd);border:none;color:white;border-radius:10px;padding:16px;font-weight:900;font-size:0.95em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${theme.color}40;">✓ CONTINUER</button>
                 </div>
             </div>`;
 
@@ -27124,13 +27205,13 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 <div style="background:linear-gradient(135deg,${type.color}25,transparent);padding:18px 20px;border-bottom:1px solid ${type.color}30;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
                         <span style="font-size:0.6em;color:${type.color};font-weight:900;letter-spacing:2px;">🏹 CHASSE ${alphaClass}${session.duration} MIN</span>
-                        <button onclick="awakAbandonHunt()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:8px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
+                        <button onclick="awakAbandonHunt()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
                     </div>
                     <div style="display:flex;align-items:center;gap:14px;">
                         <div style="font-size:3em;line-height:1;filter:drop-shadow(0 0 10px ${type.color}80);">${type.emoji}</div>
                         <div style="flex:1;">
                             <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">
-                                ${monster.isAlpha ? '<span style="background:#ef4444;color:white;padding:1px 6px;border-radius:4px;font-size:0.55em;font-weight:900;letter-spacing:1px;">ALPHA</span>' : ''}
+                                ${monster.isAlpha ? '<span style="background:#ef4444;color:white;padding:1px 6px;border-radius:6px;font-size:0.55em;font-weight:900;letter-spacing:1px;">ALPHA</span>' : ''}
                                 <span style="font-weight:900;color:white;font-size:1.1em;">${type.name}</span>
                             </div>
                             <div style="background:rgba(255,255,255,0.05);height:14px;border-radius:99px;overflow:hidden;border:1px solid rgba(255,255,255,0.05);position:relative;">
@@ -27147,7 +27228,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     <div style="font-size:0.62em;color:#94a3b8;font-weight:800;letter-spacing:2px;margin-bottom:10px;">◈ TRAQUER AVEC :</div>
                     <div style="display:flex;flex-direction:column;gap:8px;">
                         ${huntExercises.map((ex, i) => `
-                            <button onclick="awakPickHuntExercise(${i})" style="text-align:left;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);color:white;border-radius:11px;padding:12px 14px;cursor:pointer;transition:all 0.2s;">
+                            <button onclick="awakPickHuntExercise(${i})" style="text-align:left;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);color:white;border-radius:10px;padding:12px 14px;cursor:pointer;transition:all 0.2s;">
                                 <div style="display:flex;align-items:center;gap:10px;">
                                     <div style="font-size:1.5em;flex-shrink:0;">${ex.emoji || '🏹'}</div>
                                     <div style="flex:1;min-width:0;">
@@ -27331,7 +27412,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
                 <!-- Récompenses -->
                 <div style="padding:18px 22px;">
-                    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:11px;padding:14px;margin-bottom:14px;">
+                    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:14px;margin-bottom:14px;">
                         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
                             <span style="color:#cbd5e1;font-size:0.9em;font-weight:700;">⚡ Power Score</span>
                             <span style="color:${type.color};font-weight:900;">+${xpReward}</span>
@@ -27344,12 +27425,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     </div>
 
                     <!-- Message Système -->
-                    <div style="padding:12px 14px;background:rgba(74,222,128,0.08);border-left:3px solid #4ade80;border-radius:8px;">
+                    <div style="padding:12px 14px;background:rgba(74,222,128,0.08);border-left:3px solid #4ade80;border-radius:10px;">
                         <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;margin-bottom:4px;">⚙ SYSTÈME</div>
                         <div style="color:#cbd5e1;font-size:0.85em;font-style:italic;line-height:1.5;">${monster.isAlpha ? 'Il était devenu fort. Trop fort. Bien joué.' : 'Une menace de moins. Continue.'}</div>
                     </div>
 
-                    <button onclick="document.getElementById('awakHuntRewardModal').remove();awakActiveHuntSession=null;switchTab('game');" style="width:100%;margin-top:14px;background:linear-gradient(135deg,${type.color},${type.color}dd);border:none;color:white;border-radius:11px;padding:14px;font-weight:900;font-size:0.95em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${type.color}40;">✓ CONTINUER</button>
+                    <button onclick="document.getElementById('awakHuntRewardModal').remove();awakActiveHuntSession=null;switchTab('game');" style="width:100%;margin-top:14px;background:linear-gradient(135deg,${type.color},${type.color}dd);border:none;color:white;border-radius:10px;padding:14px;font-weight:900;font-size:0.95em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${type.color}40;">✓ CONTINUER</button>
                 </div>
             </div>`;
 
@@ -27433,12 +27514,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     const days = Math.floor((Date.now() - m.spawnedAt) / (24 * 60 * 60 * 1000));
                     const dayLabel = days === 0 ? 'aujourd\'hui' : `il y a ${days}j`;
                     return `
-                    <div onclick="awakOpenMonsterDetail('${m.id}')" style="cursor:pointer;background:rgba(255,255,255,0.02);border:1px solid ${m.isAlpha ? 'rgba(239,68,68,0.4)' : 'rgba(255,255,255,0.06)'};border-radius:11px;padding:11px 12px;transition:transform 0.15s ease;">
+                    <div onclick="awakOpenMonsterDetail('${m.id}')" style="cursor:pointer;background:rgba(255,255,255,0.02);border:1px solid ${m.isAlpha ? 'rgba(239,68,68,0.4)' : 'rgba(255,255,255,0.06)'};border-radius:10px;padding:11px 12px;transition:transform 0.15s ease;">
                         <div style="display:flex;align-items:center;gap:11px;">
                             <div style="font-size:1.8em;line-height:1;flex-shrink:0;filter:drop-shadow(0 0 6px ${type.color}80);">${type.emoji}</div>
                             <div style="flex:1;min-width:0;">
                                 <div style="display:flex;align-items:center;gap:5px;margin-bottom:2px;flex-wrap:wrap;">
-                                    ${m.isAlpha ? '<span style="background:#ef4444;color:white;padding:1px 5px;border-radius:4px;font-size:0.55em;font-weight:900;letter-spacing:1px;">ALPHA</span>' : ''}
+                                    ${m.isAlpha ? '<span style="background:#ef4444;color:white;padding:1px 5px;border-radius:6px;font-size:0.55em;font-weight:900;letter-spacing:1px;">ALPHA</span>' : ''}
                                     <span style="font-weight:800;color:white;font-size:0.9em;">${type.name}</span>
                                 </div>
                                 <div style="font-size:0.68em;color:#94a3b8;font-weight:600;">⏱ ${dayLabel} · 🩸 ${m.hpMax} HP</div>
@@ -27476,7 +27557,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 <!-- Header thématique -->
                 <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;">
                     <div style="font-size:3.5em;line-height:1;margin-bottom:8px;filter:drop-shadow(0 0 14px ${type.color}90);">${type.emoji}</div>
-                    ${monster.isAlpha ? '<div style="display:inline-block;background:#ef4444;color:white;padding:3px 10px;border-radius:7px;font-size:0.65em;font-weight:900;letter-spacing:2px;margin-bottom:8px;">⚠ ALPHA</div>' : ''}
+                    ${monster.isAlpha ? '<div style="display:inline-block;background:#ef4444;color:white;padding:3px 10px;border-radius:6px;font-size:0.65em;font-weight:900;letter-spacing:2px;margin-bottom:8px;">⚠ ALPHA</div>' : ''}
                     <h2 style="margin:0;color:white;font-size:1.3em;font-weight:900;">${type.name}</h2>
                     <div style="margin-top:8px;color:#94a3b8;font-size:0.82em;font-style:italic;">${type.description}</div>
                 </div>
@@ -27484,24 +27565,24 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 <!-- Infos -->
                 <div style="padding:18px 22px;">
                     <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px;">
-                        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:11px;padding:11px;">
+                        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:11px;">
                             <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:4px;">🩸 HP</div>
                             <div style="font-size:1.1em;font-weight:900;color:white;">${monster.hpMax}</div>
                         </div>
-                        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:11px;padding:11px;">
+                        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:11px;">
                             <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:4px;">⏱ DURÉE</div>
                             <div style="font-size:1.1em;font-weight:900;color:white;">${huntDuration} min${active.length > 2 ? ' ↓' : ''}</div>
                         </div>
                     </div>
 
                     <!-- Handicap actif -->
-                    <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:11px;padding:11px;margin-bottom:14px;">
+                    <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:10px;padding:11px;margin-bottom:14px;">
                         <div style="font-size:0.6em;color:#fca5a5;font-weight:800;letter-spacing:1px;margin-bottom:5px;">◈ HANDICAP IMPOSÉ</div>
                         <div style="font-size:0.85em;color:#cbd5e1;font-weight:600;">${type.handicap.label}${monster.isAlpha ? ' <span style="color:#fca5a5;font-weight:900;">(doublé en Alpha)</span>' : ''}</div>
                     </div>
 
                     <!-- Lore court -->
-                    <div style="background:rgba(74,222,128,0.06);border-left:3px solid #4ade80;border-radius:8px;padding:10px 12px;margin-bottom:14px;">
+                    <div style="background:rgba(74,222,128,0.06);border-left:3px solid #4ade80;border-radius:10px;padding:10px 12px;margin-bottom:14px;">
                         <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;margin-bottom:3px;">⚙ SYSTÈME</div>
                         <div style="color:#cbd5e1;font-size:0.78em;font-style:italic;line-height:1.5;">
                             ${monster.isAlpha
@@ -27512,8 +27593,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
                     <!-- Actions -->
                     <div style="display:flex;gap:8px;">
-                        <button onclick="document.getElementById('awakMonsterDetailModal').remove()" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;border-radius:11px;padding:14px;font-weight:800;font-size:0.85em;cursor:pointer;">↩ Plus tard</button>
-                        <button onclick="awakStartHunt('${monster.id}')" style="flex:2;background:linear-gradient(135deg,${type.color},${type.color}dd);border:none;color:white;border-radius:11px;padding:14px;font-weight:900;font-size:0.9em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${type.color}40;">🏹 CHASSER</button>
+                        <button onclick="document.getElementById('awakMonsterDetailModal').remove()" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;border-radius:10px;padding:14px;font-weight:800;font-size:0.85em;cursor:pointer;">↩ Plus tard</button>
+                        <button onclick="awakStartHunt('${monster.id}')" style="flex:2;background:linear-gradient(135deg,${type.color},${type.color}dd);border:none;color:white;border-radius:10px;padding:14px;font-weight:900;font-size:0.9em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${type.color}40;">🏹 CHASSER</button>
                     </div>
                 </div>
             </div>`;
@@ -27840,7 +27921,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             overlay.style.cssText = 'position:fixed;inset:0;z-index:99998;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.92);backdrop-filter:blur(10px);animation:awakFadeIn 0.4s;padding:20px;';
 
             overlay.innerHTML = `
-                <div style="max-width:420px;width:100%;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;background:linear-gradient(160deg,#0a0e18,#0F1014,${companion.color}15);border:1.5px solid ${companion.color}50;border-radius:24px;padding:32px 26px;text-align:center;box-shadow:0 24px 60px ${companion.color}20,0 0 80px ${companion.color}15;animation:slideUp 0.5s cubic-bezier(0.34,1.56,0.64,1);">
+                <div style="max-width:420px;width:100%;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;background:linear-gradient(160deg,#0a0e18,#0F1014,${companion.color}15);border:1.5px solid ${companion.color}50;border-radius:20px;padding:32px 26px;text-align:center;box-shadow:0 24px 60px ${companion.color}20,0 0 80px ${companion.color}15;animation:slideUp 0.5s cubic-bezier(0.34,1.56,0.64,1);">
                     <div style="font-size:0.6em;color:${companion.color};font-weight:900;letter-spacing:3px;margin-bottom:14px;">◇ NOUVEL ANCRAGE RENCONTRÉ ◇</div>
                     ${companion.image
                         ? `<img src="${companion.image}" alt="${companion.name}" style="width:100%;max-width:280px;border-radius:14px;margin-bottom:12px;box-shadow:0 0 28px ${companion.color}66;" onerror="this.outerHTML='<div style=\\'font-size:4em;line-height:1;margin-bottom:12px;\\'>${companion.emoji}</div>';" />`
@@ -27849,17 +27930,17 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     <div style="font-size:0.85em;color:${companion.color};font-weight:800;margin-top:3px;letter-spacing:1px;">${companion.title}</div>
                     <div style="margin-top:14px;color:#cbd5e1;font-size:0.85em;line-height:1.55;font-style:italic;">${companion.description}</div>
 
-                    <div style="margin-top:18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:11px;padding:11px 13px;">
+                    <div style="margin-top:18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:11px 13px;">
                         <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:4px;">◈ BONUS</div>
                         <div style="color:${companion.color};font-weight:800;font-size:0.85em;">${companion.bonus.label}</div>
                     </div>
 
-                    <div style="margin-top:14px;padding:11px 12px;background:rgba(74,222,128,0.08);border-left:3px solid #4ade80;border-radius:8px;">
+                    <div style="margin-top:14px;padding:11px 12px;background:rgba(74,222,128,0.08);border-left:3px solid #4ade80;border-radius:10px;">
                         <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;margin-bottom:3px;">⚙ SYSTÈME</div>
                         <div style="color:#cbd5e1;font-size:0.78em;font-style:italic;line-height:1.5;text-align:left;">${companion.lore}</div>
                     </div>
 
-                    <button onclick="this.closest('[style*=fixed]').remove()" style="margin-top:18px;width:100%;background:linear-gradient(135deg,${companion.color},${companion.color}dd);border:none;color:white;border-radius:12px;padding:14px;font-weight:900;font-size:0.95em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${companion.color}40;">✓ CONTINUER</button>
+                    <button onclick="this.closest('[style*=fixed]').remove()" style="margin-top:18px;width:100%;background:linear-gradient(135deg,${companion.color},${companion.color}dd);border:none;color:white;border-radius:14px;padding:14px;font-weight:900;font-size:0.95em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${companion.color}40;">✓ CONTINUER</button>
                 </div>
             `;
             document.body.appendChild(overlay);
@@ -27948,9 +28029,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             function render() {
                 const isLast = page >= meet.pages.length - 1;
                 overlay.innerHTML = `
-                    <div style="max-width:440px;width:100%;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;background:linear-gradient(160deg,#0a0e18,#0F1014,${meet.color}12);border:1.5px solid ${meet.color}45;border-radius:24px;padding:28px 24px;box-shadow:0 24px 60px ${meet.color}22;animation:slideUp 0.45s cubic-bezier(0.34,1.56,0.64,1);">
+                    <div style="max-width:440px;width:100%;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;background:linear-gradient(160deg,#0a0e18,#0F1014,${meet.color}12);border:1.5px solid ${meet.color}45;border-radius:20px;padding:28px 24px;box-shadow:0 24px 60px ${meet.color}22;animation:slideUp 0.45s cubic-bezier(0.34,1.56,0.64,1);">
                         <div style="text-align:center;margin-bottom:18px;">
-                            <div style="width:100%;border-radius:16px;overflow:hidden;border:2px solid ${meet.color}55;box-shadow:0 0 32px ${meet.color}33;background:#0a0e18;margin:0 auto 14px;">
+                            <div style="width:100%;border-radius:14px;overflow:hidden;border:2px solid ${meet.color}55;box-shadow:0 0 32px ${meet.color}33;background:#0a0e18;margin:0 auto 14px;">
                                 <img src="${meet.image || comp.image}" alt="${comp.name}" style="width:100%;height:auto;display:block;" onerror="this.onerror=null;this.src='${comp.image||''}';this.onerror=function(){this.parentElement.innerHTML='<div style=\\'font-size:3.6em;line-height:200px;text-align:center;\\'>${meet.emoji}</div>';};" />
                             </div>
                             </div>
@@ -27960,7 +28041,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:16px;">
                             ${meet.pages.map((_,i)=>`<div style="width:7px;height:7px;border-radius:50%;background:${i===page?meet.color:'rgba(255,255,255,0.2)'};"></div>`).join('')}
                         </div>
-                        <button id="awakMeetNext" style="width:100%;padding:13px;background:linear-gradient(135deg,${meet.color},${meet.color}cc);border:none;border-radius:12px;color:white;font-weight:900;font-size:0.9em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${meet.color}40;">${isLast ? '✦ ' + comp.name.toUpperCase() + ' REJOINT' : 'Continuer ›'}</button>
+                        <button id="awakMeetNext" style="width:100%;padding:13px;background:linear-gradient(135deg,${meet.color},${meet.color}cc);border:none;border-radius:14px;color:white;font-weight:900;font-size:0.9em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${meet.color}40;">${isLast ? '✦ ' + comp.name.toUpperCase() + ' REJOINT' : 'Continuer ›'}</button>
                     </div>`;
                 overlay.querySelector('#awakMeetNext').onclick = () => {
                     if (page < meet.pages.length - 1) { page++; render(); }
@@ -28144,14 +28225,14 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             overlay.style.cssText = 'position:fixed;inset:0;z-index:99997;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.9);backdrop-filter:blur(8px);animation:awakFadeIn 0.4s;padding:20px;';
             overlay.onclick = () => overlay.remove();
             overlay.innerHTML = `
-                <div style="max-width:420px;width:100%;background:linear-gradient(160deg,#0a0e18,#0F1014,${cr.color}15);border:1.5px solid ${cr.color}55;border-radius:24px;padding:30px 24px;text-align:center;box-shadow:0 24px 60px ${cr.color}25;animation:slideUp 0.5s cubic-bezier(0.34,1.56,0.64,1);">
+                <div style="max-width:420px;width:100%;background:linear-gradient(160deg,#0a0e18,#0F1014,${cr.color}15);border:1.5px solid ${cr.color}55;border-radius:20px;padding:30px 24px;text-align:center;box-shadow:0 24px 60px ${cr.color}25;animation:slideUp 0.5s cubic-bezier(0.34,1.56,0.64,1);">
                     <div style="font-size:0.6em;letter-spacing:3px;color:${cr.color};font-weight:900;text-transform:uppercase;">Faille spéciale détectée</div>
                     <div style="font-size:3em;margin:14px 0;">${cr.themeEmoji || cr.emoji}</div>
                     <h2 style="margin:0 0 6px;color:white;font-size:1.3em;font-weight:900;">${cr.name}</h2>
                     <div style="display:inline-block;margin:0 0 14px;padding:4px 12px;border-radius:99px;background:${cr.color}20;border:1px solid ${cr.color}50;color:${cr.color};font-size:0.7em;font-weight:800;">🤝 Un allié potentiel t'y attend</div>
                     <p style="color:rgba(255,255,255,0.65);font-size:0.85em;line-height:1.5;margin:0 0 10px;">${cr.description}</p>
                     <p style="color:rgba(255,255,255,0.45);font-size:0.78em;line-height:1.45;margin:0 0 20px;font-style:italic;">${cr.briefing}</p>
-                    <button onclick="this.closest('div[style*=fixed]')?.remove();" style="width:100%;padding:13px;background:linear-gradient(135deg,${cr.color},${cr.color}cc);border:none;border-radius:12px;color:white;font-weight:900;font-size:0.9em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${cr.color}40;">VOIR DANS LES FAILLES</button>
+                    <button onclick="this.closest('div[style*=fixed]')?.remove();" style="width:100%;padding:13px;background:linear-gradient(135deg,${cr.color},${cr.color}cc);border:none;border-radius:14px;color:white;font-weight:900;font-size:0.9em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${cr.color}40;">VOIR DANS LES FAILLES</button>
                 </div>`;
             document.body.appendChild(overlay);
         }
@@ -28247,14 +28328,14 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
                 ${allCompanions.map(c => {
                     if (!c.unlocked) {
-                        return `<div onclick="awakOpenCompanionLocked('${c.id}')" style="cursor:pointer;background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.1);border-radius:11px;padding:11px 6px;text-align:center;opacity:0.45;">
+                        return `<div onclick="awakOpenCompanionLocked('${c.id}')" style="cursor:pointer;background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.1);border-radius:10px;padding:11px 6px;text-align:center;opacity:0.45;">
                             <div style="font-size:1.6em;filter:grayscale(1) brightness(0.5);">🔒</div>
                             <div style="font-size:0.55em;color:#64748b;font-weight:700;margin-top:3px;letter-spacing:0.5px;">?</div>
                         </div>`;
                     }
                     const borderColor = c.active ? c.color : 'rgba(255,255,255,0.08)';
                     const bgColor = c.active ? `${c.color}15` : 'rgba(255,255,255,0.02)';
-                    return `<div onclick="awakOpenCompanionDetail('${c.id}')" style="cursor:pointer;background:${bgColor};border:1.5px solid ${borderColor};border-radius:11px;padding:11px 6px;text-align:center;${c.active ? `box-shadow:0 0 12px ${c.color}30;` : ''}transition:all 0.2s;">
+                    return `<div onclick="awakOpenCompanionDetail('${c.id}')" style="cursor:pointer;background:${bgColor};border:1.5px solid ${borderColor};border-radius:10px;padding:11px 6px;text-align:center;${c.active ? `box-shadow:0 0 12px ${c.color}30;` : ''}transition:all 0.2s;">
                         <div style="font-size:1.7em;filter:drop-shadow(0 0 6px ${c.color}80);${c.active ? '' : 'opacity:0.85;'}">${c.emoji}</div>
                         <div style="font-size:0.58em;color:${c.color};font-weight:800;margin-top:3px;letter-spacing:0.5px;line-height:1.2;">${c.name.split(' ')[0]}</div>
                         ${c.active ? `<div style="margin-top:2px;font-size:0.5em;background:${c.color};color:white;border-radius:99px;padding:0 4px;font-weight:900;letter-spacing:0.5px;display:inline-block;">ACTIF</div>` : ''}
@@ -28297,24 +28378,24 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     <div style="color:#cbd5e1;font-size:0.85em;line-height:1.6;font-style:italic;margin-bottom:14px;text-align:center;">${comp.description}</div>
 
                     <!-- Bonus -->
-                    <div style="background:rgba(255,255,255,0.03);border:1px solid ${comp.color}30;border-radius:12px;padding:13px;margin-bottom:14px;">
+                    <div style="background:rgba(255,255,255,0.03);border:1px solid ${comp.color}30;border-radius:14px;padding:13px;margin-bottom:14px;">
                         <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:5px;">◈ BONUS PASSIF</div>
                         <div style="color:${comp.color};font-weight:800;font-size:0.95em;">${comp.bonus.label}</div>
                     </div>
 
                     <!-- Lore -->
-                    <div style="background:rgba(74,222,128,0.06);border-left:3px solid #4ade80;border-radius:8px;padding:11px 13px;margin-bottom:18px;">
+                    <div style="background:rgba(74,222,128,0.06);border-left:3px solid #4ade80;border-radius:10px;padding:11px 13px;margin-bottom:18px;">
                         <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;margin-bottom:4px;">⚙ DOSSIER SYSTÈME</div>
                         <div style="color:#cbd5e1;font-size:0.8em;font-style:italic;line-height:1.55;">${comp.lore}</div>
                     </div>
 
                     <!-- Action toggle -->
                     <button onclick="awakCompanionToggleActive('${comp.id}');document.getElementById('awakCompanionDetailModal').remove();"
-                        style="width:100%;background:${isActive ? 'rgba(239,68,68,0.15)' : (canActivate ? `linear-gradient(135deg,${comp.color},${comp.color}dd)` : 'rgba(255,255,255,0.05)')};border:${isActive ? '1.5px solid rgba(239,68,68,0.4)' : 'none'};color:${isActive ? '#f87171' : (canActivate ? 'white' : '#64748b')};border-radius:11px;padding:14px;font-weight:900;font-size:0.95em;letter-spacing:1px;cursor:${(canActivate || isActive) ? 'pointer' : 'not-allowed'};box-shadow:${isActive || !canActivate ? 'none' : `0 4px 16px ${comp.color}40`};">
+                        style="width:100%;background:${isActive ? 'rgba(239,68,68,0.15)' : (canActivate ? `linear-gradient(135deg,${comp.color},${comp.color}dd)` : 'rgba(255,255,255,0.05)')};border:${isActive ? '1.5px solid rgba(239,68,68,0.4)' : 'none'};color:${isActive ? '#f87171' : (canActivate ? 'white' : '#64748b')};border-radius:10px;padding:14px;font-weight:900;font-size:0.95em;letter-spacing:1px;cursor:${(canActivate || isActive) ? 'pointer' : 'not-allowed'};box-shadow:${isActive || !canActivate ? 'none' : `0 4px 16px ${comp.color}40`};">
                         ${isActive ? '✕ RETIRER DE L\'ÉQUIPE' : (canActivate ? '✓ ACTIVER COMME COMPAGNON' : `⚠ MAX ${COMPANIONS_MAX_ACTIVE} ACTIFS`)}
                     </button>
 
-                    <button onclick="document.getElementById('awakCompanionDetailModal').remove()" style="width:100%;margin-top:8px;background:transparent;border:1px solid rgba(255,255,255,0.1);color:#94a3b8;border-radius:11px;padding:10px;font-weight:700;font-size:0.82em;cursor:pointer;">Fermer</button>
+                    <button onclick="document.getElementById('awakCompanionDetailModal').remove()" style="width:100%;margin-top:8px;background:transparent;border:1px solid rgba(255,255,255,0.1);color:#94a3b8;border-radius:10px;padding:10px;font-weight:700;font-size:0.82em;cursor:pointer;">Fermer</button>
                 </div>
             </div>`;
 
@@ -28354,12 +28435,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             modal.style.cssText = 'background:rgba(0,0,0,0.92);backdrop-filter:blur(10px);';
 
             modal.innerHTML = `
-            <div class="modal-content" style="max-width:380px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(255,255,255,0.1);padding:24px 22px;border-radius:18px;text-align:center;">
+            <div class="modal-content" style="max-width:380px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(255,255,255,0.1);padding:24px 22px;border-radius:20px;text-align:center;">
                 <div style="font-size:3em;line-height:1;margin-bottom:8px;filter:grayscale(1) brightness(0.6);">🔒</div>
                 <div style="font-size:0.65em;color:#94a3b8;font-weight:900;letter-spacing:2px;margin-bottom:6px;">◇ ANCRAGE NON CONTACTÉ ◇</div>
                 <div style="color:#cbd5e1;font-size:0.85em;font-style:italic;line-height:1.55;margin-bottom:16px;">"Quelqu'un se prépare à te trouver. Mais pas encore."</div>
 
-                <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:11px;padding:12px;">
+                <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:12px;">
                     <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:5px;">◈ CONDITION</div>
                     <div style="color:white;font-weight:700;font-size:0.85em;margin-bottom:8px;">${cond.label}</div>
                     <div style="height:6px;background:rgba(255,255,255,0.04);border-radius:99px;overflow:hidden;">
@@ -28368,7 +28449,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     <div style="font-size:0.62em;color:#64748b;margin-top:5px;">${current} / ${goal}</div>
                 </div>
 
-                <button onclick="document.getElementById('awakCompanionLockedModal').remove()" style="width:100%;margin-top:16px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#cbd5e1;border-radius:11px;padding:11px;font-weight:700;font-size:0.85em;cursor:pointer;">Fermer</button>
+                <button onclick="document.getElementById('awakCompanionLockedModal').remove()" style="width:100%;margin-top:16px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#cbd5e1;border-radius:10px;padding:11px;font-weight:700;font-size:0.85em;cursor:pointer;">Fermer</button>
             </div>`;
 
             document.body.appendChild(modal);
@@ -28577,18 +28658,18 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             overlay.style.cssText = 'position:fixed;inset:0;z-index:99997;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);animation:awakFadeIn 0.6s;padding:20px;';
 
             overlay.innerHTML = `
-                <div style="max-width:440px;width:100%;background:linear-gradient(160deg,#0a0e18,#0F1014,${narrative.color}10);border:1.5px solid ${narrative.color}50;border-radius:24px;padding:34px 26px;text-align:center;box-shadow:0 24px 80px ${narrative.color}30,0 0 120px ${narrative.color}20;animation:slideUp 0.6s cubic-bezier(0.34,1.56,0.64,1);">
+                <div style="max-width:440px;width:100%;background:linear-gradient(160deg,#0a0e18,#0F1014,${narrative.color}10);border:1.5px solid ${narrative.color}50;border-radius:20px;padding:34px 26px;text-align:center;box-shadow:0 24px 80px ${narrative.color}30,0 0 120px ${narrative.color}20;animation:slideUp 0.6s cubic-bezier(0.34,1.56,0.64,1);">
                     <div style="font-size:0.6em;color:${narrative.color};font-weight:900;letter-spacing:3px;margin-bottom:14px;animation:awakBlink 2s infinite;">◇ FAILLE EXCEPTIONNELLE ◇</div>
                     <div style="font-size:4.5em;line-height:1;margin-bottom:14px;filter:drop-shadow(0 0 24px ${narrative.color}b0);">${narrative.themeEmoji}</div>
                     <h2 style="margin:0;color:white;font-size:1.4em;font-weight:900;letter-spacing:0.5px;">${narrative.name}</h2>
                     <div style="margin-top:12px;color:#cbd5e1;font-size:0.85em;line-height:1.6;font-style:italic;">${narrative.description}</div>
 
-                    <div style="margin-top:18px;padding:13px 14px;background:rgba(74,222,128,0.06);border-left:3px solid #4ade80;border-radius:8px;">
+                    <div style="margin-top:18px;padding:13px 14px;background:rgba(74,222,128,0.06);border-left:3px solid #4ade80;border-radius:10px;">
                         <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;margin-bottom:4px;">⚙ SYSTÈME</div>
                         <div style="color:#cbd5e1;font-size:0.85em;font-style:italic;line-height:1.5;text-align:left;">${narrative.briefing}</div>
                     </div>
 
-                    <button onclick="this.closest('[style*=fixed]').remove()" style="margin-top:18px;width:100%;background:linear-gradient(135deg,${narrative.color},${narrative.color}dd);border:none;color:white;border-radius:12px;padding:14px;font-weight:900;font-size:0.95em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${narrative.color}60;">✓ COMPRIS</button>
+                    <button onclick="this.closest('[style*=fixed]').remove()" style="margin-top:18px;width:100%;background:linear-gradient(135deg,${narrative.color},${narrative.color}dd);border:none;color:white;border-radius:14px;padding:14px;font-weight:900;font-size:0.95em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${narrative.color}60;">✓ COMPRIS</button>
                 </div>
             `;
             document.body.appendChild(overlay);
@@ -29105,7 +29186,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     max-width:400px;width:100%;
                     background:linear-gradient(160deg,#0a0e18 0%,#1a0a0a 50%,#0a0e18 100%);
                     border:2px solid #ef4444;
-                    border-radius:18px;overflow:hidden;
+                    border-radius:20px;overflow:hidden;
                     box-shadow:0 24px 60px rgba(0,0,0,0.8),0 0 60px rgba(239,68,68,0.4);
                     animation:slideUp 0.45s cubic-bezier(0.34,1.56,0.64,1);
                     position:relative;
@@ -29133,7 +29214,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         <div style="font-size:0.78em;color:#94a3b8;line-height:1.5;font-style:italic;margin-bottom:18px;">
                             La Faille te rejette dans le monde réel.<br>Reprends des forces et reviens plus puissant.
                         </div>
-                        <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.35);border-radius:12px;padding:13px 14px;margin-bottom:22px;text-align:left;">
+                        <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.35);border-radius:14px;padding:13px 14px;margin-bottom:22px;text-align:left;">
                             <div style="font-size:0.6em;color:#ef4444;font-weight:900;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;text-align:center;">⚠ Conséquences</div>
                             ${(lostXP && lostXP > 0) ? `<div style="font-size:0.82em;color:#fca5a5;margin-bottom:5px;">💀 −${lostXP.toLocaleString('fr-FR')} XP perdus</div>` : ''}
                             <div style="font-size:0.82em;color:#fca5a5;">🌀 Toutes les vagues de la Faille ont été réinitialisées</div>
@@ -29145,7 +29226,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                             border:1px solid #ef4444;
                             color:white;
                             padding:14px 18px;
-                            border-radius:11px;
+                            border-radius:10px;
                             font-size:0.95em;font-weight:900;
                             letter-spacing:2px;text-transform:uppercase;
                             cursor:pointer;
@@ -29252,7 +29333,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             `).join('');
 
             overlay.innerHTML = `
-                <div style="max-width:440px;width:100%;max-height:88vh;overflow-y:auto;background:linear-gradient(160deg,#0a0e18,#0F1014);border:2px solid #4ade80;border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,0.8),0 0 50px rgba(74,222,128,0.25);position:relative;">
+                <div style="max-width:440px;width:100%;max-height:88vh;overflow-y:auto;background:linear-gradient(160deg,#0a0e18,#0F1014);border:2px solid #4ade80;border-radius:20px;box-shadow:0 24px 60px rgba(0,0,0,0.8),0 0 50px rgba(74,222,128,0.25);position:relative;">
                     <div style="position:absolute;top:-1px;left:-1px;width:22px;height:22px;border-top:2px solid #4ade80;border-left:2px solid #4ade80;border-top-left-radius:18px;"></div>
                     <div style="position:absolute;top:-1px;right:-1px;width:22px;height:22px;border-top:2px solid #4ade80;border-right:2px solid #4ade80;border-top-right-radius:18px;"></div>
                     <div style="padding:22px 20px 16px;">
@@ -29262,7 +29343,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                             <div style="font-size:1.15em;font-weight:900;color:white;letter-spacing:-0.5px;">${title}</div>
                         </div>
                         <div style="margin-bottom:14px;">${sectionsHtml}</div>
-                        <button onclick="document.getElementById('awakInfoModal').remove()" style="width:100%;background:linear-gradient(135deg,#16a34a,#22c55e);border:none;color:white;padding:13px;border-radius:11px;font-weight:900;font-size:0.9em;letter-spacing:1px;text-transform:uppercase;cursor:pointer;box-shadow:0 4px 16px rgba(34,197,94,0.3);">✓ Compris</button>
+                        <button onclick="document.getElementById('awakInfoModal').remove()" style="width:100%;background:linear-gradient(135deg,#16a34a,#22c55e);border:none;color:white;padding:13px;border-radius:10px;font-weight:900;font-size:0.9em;letter-spacing:1px;text-transform:uppercase;cursor:pointer;box-shadow:0 4px 16px rgba(34,197,94,0.3);">✓ Compris</button>
                     </div>
                 </div>
             `;
@@ -29317,7 +29398,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     const item = CONSUMABLES.find(c => c.id === id);
                     if (!item) return '';
                     return `
-                    <button onclick="awakOpenConsumableDetail('${id}')" style="background:rgba(255,255,255,0.03);border:1px solid ${item.color}40;border-radius:11px;padding:11px 9px;text-align:left;cursor:pointer;color:white;">
+                    <button onclick="awakOpenConsumableDetail('${id}')" style="background:rgba(255,255,255,0.03);border:1px solid ${item.color}40;border-radius:10px;padding:11px 9px;text-align:left;cursor:pointer;color:white;">
                         <div style="display:flex;align-items:center;gap:8px;">
                             <div style="font-size:1.4em;line-height:1;">${item.emoji}</div>
                             <div style="flex:1;min-width:0;">
@@ -29355,10 +29436,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     <div style="color:#cbd5e1;font-size:0.88em;line-height:1.55;font-style:italic;margin-bottom:16px;text-align:center;">${item.description}</div>
 
                     ${activeNow
-                        ? `<div style="background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.35);border-radius:11px;padding:12px;text-align:center;color:#4ade80;font-weight:800;font-size:0.85em;">✓ Activé pour ta prochaine Faille</div>`
-                        : `<button onclick="awakConsumablesUse('${item.id}');document.getElementById('awakConsumableModal').remove();" style="width:100%;background:linear-gradient(135deg,${item.color},${item.color}dd);border:none;color:white;border-radius:12px;padding:14px;font-weight:900;font-size:0.92em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${item.color}40;">🧪 UTILISER</button>`
+                        ? `<div style="background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.35);border-radius:10px;padding:12px;text-align:center;color:#4ade80;font-weight:800;font-size:0.85em;">✓ Activé pour ta prochaine Faille</div>`
+                        : `<button onclick="awakConsumablesUse('${item.id}');document.getElementById('awakConsumableModal').remove();" style="width:100%;background:linear-gradient(135deg,${item.color},${item.color}dd);border:none;color:white;border-radius:14px;padding:14px;font-weight:900;font-size:0.92em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${item.color}40;">🧪 UTILISER</button>`
                     }
-                    <button onclick="document.getElementById('awakConsumableModal').remove()" style="width:100%;margin-top:8px;background:transparent;border:1px solid rgba(255,255,255,0.1);color:#94a3b8;border-radius:11px;padding:10px;font-weight:700;font-size:0.82em;cursor:pointer;">Fermer</button>
+                    <button onclick="document.getElementById('awakConsumableModal').remove()" style="width:100%;margin-top:8px;background:transparent;border:1px solid rgba(255,255,255,0.1);color:#94a3b8;border-radius:10px;padding:10px;font-weight:700;font-size:0.82em;cursor:pointer;">Fermer</button>
                 </div>
             </div>`;
 
@@ -29458,7 +29539,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         </div>
                     </div>
                 ` : `
-                    <div style="margin-bottom:18px;text-align:center;padding:12px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:11px;">
+                    <div style="margin-bottom:18px;text-align:center;padding:12px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:10px;">
                         <div style="font-size:0.7em;color:#fca5a5;font-weight:800;letter-spacing:1px;">◇ RANG MAXIMUM ATTEINT ◇</div>
                     </div>
                 `}
@@ -29468,7 +29549,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     <div style="font-size:0.62em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:8px;">◈ ATTRIBUTS</div>
                     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
                         ${statRows.map(s => `
-                            <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:9px;padding:8px 6px;text-align:center;">
+                            <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:8px 6px;text-align:center;">
                                 <div style="font-size:1em;line-height:1;margin-bottom:3px;">${s.icon}</div>
                                 <div style="font-size:0.62em;color:#64748b;font-weight:700;letter-spacing:0.5px;">${s.key}</div>
                                 <div style="font-size:0.95em;font-weight:900;color:${s.color};line-height:1.2;">${stats[s.key] || 0}</div>
@@ -29524,7 +29605,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             modal.style.cssText = 'background:rgba(0,0,0,0.92);backdrop-filter:blur(10px);';
 
             modal.innerHTML = `
-            <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${hasPoints ? 'rgba(245,158,11,0.45)' : 'rgba(255,255,255,0.1)'};padding:0;border-radius:18px;overflow:hidden auto;-webkit-overflow-scrolling:touch;max-height:90vh;">
+            <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${hasPoints ? 'rgba(245,158,11,0.45)' : 'rgba(255,255,255,0.1)'};padding:0;border-radius:20px;overflow:hidden auto;-webkit-overflow-scrolling:touch;max-height:90vh;">
                 <!-- Header -->
                 <div style="background:linear-gradient(135deg,rgba(245,158,11,0.15),transparent);padding:18px 22px;border-bottom:1px solid rgba(255,255,255,0.06);">
                     <div style="display:flex;align-items:center;justify-content:space-between;">
@@ -29532,7 +29613,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                             <div style="font-size:0.58em;color:rgba(245,158,11,0.7);font-weight:900;letter-spacing:2px;margin-bottom:3px;">◈ DISTRIBUTION DES STATS</div>
                             <div style="font-size:1.05em;font-weight:900;color:white;">Points d'attribut</div>
                         </div>
-                        <button onclick="document.getElementById('awakStatPointsModal').remove()" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:1.1em;display:flex;align-items:center;justify-content:center;">×</button>
+                        <button onclick="document.getElementById('awakStatPointsModal').remove()" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;width:32px;height:32px;border-radius:10px;cursor:pointer;font-size:1.1em;display:flex;align-items:center;justify-content:center;">×</button>
                     </div>
                     ${hasPoints
                         ? `<div style="margin-top:10px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.35);border-radius:10px;padding:8px 12px;text-align:center;">
@@ -29549,17 +29630,17 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                             const val = sp.allocated[stat] || 0;
                             const col = STAT_POINT_COLORS[stat];
                             const label = STAT_POINT_LABELS[stat];
-                            return `<div style="background:#0a0e18;border:1px solid rgba(255,255,255,0.05);border-radius:12px;padding:11px 13px;">
+                            return `<div style="background:#0a0e18;border:1px solid rgba(255,255,255,0.05);border-radius:14px;padding:11px 13px;">
                                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;">
                                     <span style="font-size:0.78em;font-weight:800;color:${col};letter-spacing:0.5px;">${label}</span>
                                     <span style="font-size:1em;font-weight:900;color:${col};">+${val}</span>
                                 </div>
                                 <div style="display:flex;align-items:center;gap:8px;">
-                                    <button onclick="awakStatPointsAllocate('${stat}',-1)" style="width:32px;height:32px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:#111;color:#fff;font-size:1.1em;cursor:pointer;display:flex;align-items:center;justify-content:center;${val===0?'opacity:0.3;pointer-events:none;':''}">−</button>
+                                    <button onclick="awakStatPointsAllocate('${stat}',-1)" style="width:32px;height:32px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);background:#111;color:#fff;font-size:1.1em;cursor:pointer;display:flex;align-items:center;justify-content:center;${val===0?'opacity:0.3;pointer-events:none;':''}">−</button>
                                     <div style="flex:1;height:6px;background:rgba(255,255,255,0.05);border-radius:99px;overflow:hidden;">
                                         <div style="height:100%;width:${Math.min(100,val*5)}%;background:${col};border-radius:99px;transition:width 0.3s;box-shadow:0 0 6px ${col}60;"></div>
                                     </div>
-                                    <button onclick="awakStatPointsAllocate('${stat}',1)" style="width:32px;height:32px;border-radius:8px;border:1px solid ${col}40;background:${col}18;color:${col};font-size:1.1em;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;${sp.available===0?'opacity:0.3;pointer-events:none;':''}">+</button>
+                                    <button onclick="awakStatPointsAllocate('${stat}',1)" style="width:32px;height:32px;border-radius:10px;border:1px solid ${col}40;background:${col}18;color:${col};font-size:1.1em;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;${sp.available===0?'opacity:0.3;pointer-events:none;':''}">+</button>
                                 </div>
                             </div>`;
                         }).join('')}
@@ -29725,7 +29806,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const overlay = document.createElement('div');
             overlay.style.cssText = 'position:fixed;inset:0;z-index:30001;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);';
             overlay.innerHTML = `
-                <div style="background:linear-gradient(160deg,#0D0D0D,#0F1014);border:2px solid ${loot.tier.color};border-radius:24px;
+                <div style="background:linear-gradient(160deg,#0D0D0D,#0F1014);border:2px solid ${loot.tier.color};border-radius:20px;
                             padding:32px 28px;max-width:300px;width:90%;text-align:center;
                             box-shadow:0 0 40px ${loot.tier.color}55;animation:slideUp 0.35s cubic-bezier(0.34,1.56,0.64,1);">
                     <div style="font-size:0.72em;letter-spacing:2px;color:${loot.tier.color};font-weight:800;text-transform:uppercase;margin-bottom:8px;">Coffre ${loot.tier.label}</div>
@@ -29735,7 +29816,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         <div style="font-size:1.6em;font-weight:900;color:${loot.tier.color};margin:8px 0;">${loot.reward.label}</div>
                         <div style="font-size:0.8em;color:rgba(255,255,255,0.5);margin-bottom:16px;">Récompense ajoutée !</div>
                     </div>
-                    <button onclick="this.closest('[style*=fixed]').remove()" style="width:100%;padding:12px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:12px;color:white;font-weight:700;cursor:pointer;margin-top:8px;">
+                    <button onclick="this.closest('[style*=fixed]').remove()" style="width:100%;padding:12px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:14px;color:white;font-weight:700;cursor:pointer;margin-top:8px;">
                         Continuer
                     </button>
                 </div>`;
@@ -30146,7 +30227,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             overlay.style.cssText = 'position:fixed;inset:0;z-index:11000;background:rgba(0,0,0,0.7);display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);';
 
             const sheet = document.createElement('div');
-            sheet.style.cssText = 'background:#0D0D0D;border-radius:22px 22px 0 0;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;padding:20px 0 calc(20px + env(safe-area-inset-bottom,0px));';
+            sheet.style.cssText = 'background:#0D0D0D;border-radius:20px 20px 0 0;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;padding:20px 0 calc(20px + env(safe-area-inset-bottom,0px));';
 
             // Handle bar
             const handle = document.createElement('div');
@@ -30159,7 +30240,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             title.innerHTML = '<span style="font-weight:800;font-size:1.05em;color:white;">📊 Statistiques détaillées</span>';
             const closeBtn = document.createElement('button');
             closeBtn.textContent = '✕';
-            closeBtn.style.cssText = 'background:rgba(255,255,255,0.1);border:none;color:rgba(255,255,255,0.7);border-radius:8px;padding:6px 12px;cursor:pointer;font-weight:700;';
+            closeBtn.style.cssText = 'background:rgba(255,255,255,0.1);border:none;color:rgba(255,255,255,0.7);border-radius:10px;padding:6px 12px;cursor:pointer;font-weight:700;';
             closeBtn.onclick = () => overlay.remove();
             title.appendChild(closeBtn);
             sheet.appendChild(title);
@@ -30190,24 +30271,34 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         }
 
         function rpgShowRankUp(rank) {
+            const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
             const overlay = document.createElement('div');
-            overlay.style.cssText = 'position:fixed;inset:0;z-index:30002;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);';
+            overlay.style.cssText = 'position:fixed;inset:0;z-index:30002;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.88);backdrop-filter:blur(8px);animation:fadeIn 0.25s ease;overflow:hidden;';
             overlay.innerHTML = `
-                <div style="background:linear-gradient(160deg,#0D0D0D,#0F1014);border:2px solid ${rank.color};border-radius:24px;
-                            padding:36px 32px;max-width:320px;width:90%;text-align:center;
-                            box-shadow:0 0 60px ${rank.color}88;animation:slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);">
-                    <div style="font-size:0.72em;letter-spacing:3px;color:${rank.color};font-weight:800;text-transform:uppercase;margin-bottom:12px;">PROMOTION DE RANG</div>
-                    <div style="font-size:5em;margin:8px 0;">${rank.emoji}</div>
-                    <div style="font-size:3.5em;font-weight:900;color:${rank.color};letter-spacing:-2px;line-height:1;">${rank.id}</div>
-                    <div style="font-size:1em;color:rgba(255,255,255,0.7);margin-top:8px;">Rang ${rank.label} atteint !</div>
-                    <button onclick="this.closest('[style*=fixed]').remove()" style="width:100%;margin-top:20px;padding:14px;background:linear-gradient(135deg,${rank.color},${rank.color}cc);color:white;border:none;border-radius:12px;font-weight:800;cursor:pointer;font-size:1em;">
+                <style>
+                    @keyframes awakRankDrop { 0%{opacity:0;transform:translateY(-70px) scale(2.2);} 55%{opacity:1;transform:translateY(4px) scale(0.96);} 100%{opacity:1;transform:translateY(0) scale(1);} }
+                    @keyframes awakRankWave { 0%{transform:translate(-50%,-50%) scale(0.2);opacity:0.85;border-width:3px;} 100%{transform:translate(-50%,-50%) scale(4.2);opacity:0;border-width:1px;} }
+                    @keyframes awakRankShake { 0%,100%{transform:translate(0,0);} 20%{transform:translate(-5px,3px);} 40%{transform:translate(5px,-3px);} 60%{transform:translate(-3px,-2px);} 80%{transform:translate(3px,2px);} }
+                    @keyframes awakRankGlow { 0%,100%{text-shadow:0 0 18px ${rank.color}aa,0 0 50px ${rank.color}55;} 50%{text-shadow:0 0 30px ${rank.color},0 0 80px ${rank.color}88;} }
+                    @media (prefers-reduced-motion: reduce){ .awakRankAnim{animation:none !important;} }
+                </style>
+                <div class="awakRankAnim" style="position:absolute;top:50%;left:50%;width:120px;height:120px;border:3px solid ${rank.color};border-radius:50%;${reduceMotion ? 'display:none;' : `animation:awakRankWave 1.1s ease-out 0.45s 2;`}opacity:0;pointer-events:none;"></div>
+                <div class="awakRankAnim" style="background:linear-gradient(160deg,#0D0D0D,#0F1014);border:2px solid ${rank.color};border-radius:20px;
+                            padding:34px 30px 28px;max-width:330px;width:90%;text-align:center;position:relative;
+                            box-shadow:0 0 60px ${rank.color}66, inset 0 0 40px ${rank.color}11;${reduceMotion ? '' : 'animation:awakRankShake 0.45s ease 0.5s 1;'}">
+                    <div style="font-family:var(--font-display,'Rajdhani',sans-serif);font-size:0.78em;letter-spacing:5px;color:${rank.color};font-weight:700;text-transform:uppercase;margin-bottom:10px;">⟨ Promotion de rang ⟩</div>
+                    <div style="font-size:3.2em;margin:2px 0 6px;">${rank.emoji}</div>
+                    <div class="awakRankAnim" style="font-family:var(--font-display,'Rajdhani',sans-serif);font-size:6em;font-weight:700;color:${rank.color};line-height:0.95;letter-spacing:0.02em;${reduceMotion ? '' : 'animation:awakRankDrop 0.55s cubic-bezier(0.5,1.6,0.4,1) 0.15s both, awakRankGlow 2.4s ease 0.8s infinite;'}">${rank.id}</div>
+                    <div style="font-family:var(--font-display,'Rajdhani',sans-serif);font-size:1.15em;font-weight:600;color:rgba(255,255,255,0.85);margin-top:10px;letter-spacing:0.05em;">Rang ${rank.label} atteint</div>
+                    <div style="font-size:0.78em;color:rgba(255,255,255,0.45);margin-top:6px;font-family:'Courier New',monospace;">[ Système ] Vos signaux se renforcent, Chasseur.</div>
+                    <button onclick="this.closest('[style*=fixed]').remove()" style="width:100%;margin-top:18px;padding:14px;background:linear-gradient(135deg,${rank.color},${rank.color}cc);color:white;border:none;border-radius:14px;font-weight:800;cursor:pointer;font-size:1em;">
                         Continuer ⚡
                     </button>
                 </div>`;
             document.body.appendChild(overlay);
             launchConfetti();
             vibrate([100,50,200,50,300,50,500]);
-            setTimeout(() => { if (overlay.parentNode) overlay.remove(); }, 8000);
+            setTimeout(() => { if (overlay.parentNode) overlay.remove(); }, 9000);
         }
 
         function rpgShowLevelUp(muscle, level) {
@@ -30222,13 +30313,13 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const overlay = document.createElement('div');
             overlay.style.cssText = 'position:fixed;inset:0;z-index:30000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);animation:fadeIn 0.2s;';
             overlay.innerHTML = `
-                <div style="background:linear-gradient(160deg,#0F1014,#166534);border-radius:24px;padding:36px 32px;max-width:320px;width:90%;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,0.5);animation:slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);">
+                <div style="background:linear-gradient(160deg,#0F1014,#166534);border-radius:20px;padding:36px 32px;max-width:320px;width:90%;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,0.5);animation:slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);">
                     <div style="font-size:3.5em;margin-bottom:12px;animation:pulse-warning 0.8s infinite;">⬆️</div>
                     <div style="font-size:0.82em;font-weight:700;letter-spacing:1.5px;color:#4ade80;text-transform:uppercase;margin-bottom:6px;">Muscle Level Up</div>
                     <div style="font-size:1.6em;font-weight:900;color:white;margin-bottom:4px;">${muscle}</div>
                     <div style="font-size:2.8em;font-weight:900;color:#fbbf24;letter-spacing:-2px;">Niv. ${level}</div>
                     <div style="margin-top:16px;font-size:0.85em;color:rgba(255,255,255,0.6);">Continue comme ça ! 💪</div>
-                    <button onclick="this.closest('[style*=\"fixed\"]').remove()" style="margin-top:20px;width:100%;padding:12px;background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.25);border-radius:12px;color:white;font-weight:700;cursor:pointer;font-size:0.95em;">Super !</button>
+                    <button onclick="this.closest('[style*=\"fixed\"]').remove()" style="margin-top:20px;width:100%;padding:12px;background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.25);border-radius:14px;color:white;font-weight:700;cursor:pointer;font-size:0.95em;">Super !</button>
                 </div>`;
             document.body.appendChild(overlay);
             launchConfetti();
@@ -30309,7 +30400,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                                                  'linear-gradient(90deg,#60a5fa,#3b82f6)';
                     const medal = lv >= 50 ? '💎' : lv >= 20 ? '🥇' : lv >= 10 ? '🥈' : lv >= 5 ? '🥉' : '';
 
-                    return `<div style="background:#f8fafc;border-radius:12px;padding:12px 14px;border:1px solid #e5e7eb;">
+                    return `<div style="background:#f8fafc;border-radius:14px;padding:12px 14px;border:1px solid #e5e7eb;">
                         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
                             <div style="font-weight:700;color:#0F1014;font-size:0.92em;">${statusDot} ${muscle} ${medal}</div>
                             <div style="font-size:0.8em;color:#16a34a;font-weight:800;">Niv. ${lv}</div>
@@ -30340,7 +30431,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     const level = parseInt(parts[1]);
                     const muscle = parts.slice(2).join('_');
                     const m = RPG_MILESTONES.find(m => m.level === level);
-                    return m ? `<div style="background:#FFF3E0;border-radius:10px;padding:8px 12px;font-size:0.8em;font-weight:700;color:#166534;">${m.badge} ${muscle} niv.${level}</div>` : '';
+                    return m ? `<div style="background:rgba(74,222,128,0.12);border-radius:10px;padding:8px 12px;font-size:0.8em;font-weight:700;color:#166534;">${m.badge} ${muscle} niv.${level}</div>` : '';
                 }).join('');
             }
         }
@@ -30815,7 +30906,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     } else {
                         verdict = 'Séance courte — récupération possible ?'; emoji = '🌿'; color = '#94a3b8';
                     }
-                    verdictEl.innerHTML = `<div style="background:${color}15;border:1px solid ${color}40;border-radius:12px;padding:11px 14px;text-align:center;">
+                    verdictEl.innerHTML = `<div style="background:${color}15;border:1px solid ${color}40;border-radius:14px;padding:11px 14px;text-align:center;">
                         <div style="font-size:1.5em;margin-bottom:3px;">${emoji}</div>
                         <div style="font-size:0.85em;color:white;font-weight:700;">${verdict}</div>
                     </div>`;
@@ -31881,7 +31972,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 listEl.innerHTML = filtered.map(p => {
                     const isActive = activeCeleb && activeCeleb.id === p.id;
                     return `<div onclick="showCelebrityDetail('${p.id}')"
-                         style="background:linear-gradient(135deg,${p.color}${isActive?'28':'18'},${p.color}08);border:${isActive?'2':'1.5'}px solid ${p.color}${isActive?'80':'50'};border-radius:16px;padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:14px;touch-action:manipulation;">
+                         style="background:linear-gradient(135deg,${p.color}${isActive?'28':'18'},${p.color}08);border:${isActive?'2':'1.5'}px solid ${p.color}${isActive?'80':'50'};border-radius:14px;padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:14px;touch-action:manipulation;">
                             <div style="font-size:2.4em;width:52px;height:52px;border-radius:14px;background:${p.color}20;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${p.emoji}</div>
                             <div style="flex:1;min-width:0;">
                                 <div style="display:flex;align-items:center;gap:6px;margin-bottom:1px;">
@@ -31915,9 +32006,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             overlay.style.cssText = 'position:fixed;inset:0;z-index:10001;background:rgba(0,0,0,0.85);display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);';
 
             const activeSection = activeCeleb ? `
-                <div style="background:linear-gradient(135deg,${activeCeleb.color}25,${activeCeleb.color}10);border:2px solid ${activeCeleb.color}60;border-radius:16px;padding:14px 16px;margin-bottom:14px;">
+                <div style="background:linear-gradient(135deg,${activeCeleb.color}25,${activeCeleb.color}10);border:2px solid ${activeCeleb.color}60;border-radius:14px;padding:14px 16px;margin-bottom:14px;">
                     <div style="display:flex;align-items:center;gap:12px;">
-                        <div style="font-size:2em;width:44px;height:44px;border-radius:12px;background:${activeCeleb.color}25;display:flex;align-items:center;justify-content:center;">${activeCeleb.emoji}</div>
+                        <div style="font-size:2em;width:44px;height:44px;border-radius:14px;background:${activeCeleb.color}25;display:flex;align-items:center;justify-content:center;">${activeCeleb.emoji}</div>
                         <div style="flex:1;">
                             <div style="font-size:0.65em;color:${activeCeleb.color};font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">● Personnalité active</div>
                             <div style="font-weight:900;color:white;font-size:1em;">${activeCeleb.nickname}</div>
@@ -31929,7 +32020,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 </div>` : '';
 
             const sheet = document.createElement('div');
-            sheet.style.cssText = 'background:#0D0D0D;border-radius:24px 24px 0 0;padding:22px 16px;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;padding-bottom:calc(20px + env(safe-area-inset-bottom,0px));';
+            sheet.style.cssText = 'background:#0D0D0D;border-radius:20px 20px 0 0;padding:22px 16px;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;padding-bottom:calc(20px + env(safe-area-inset-bottom,0px));';
             sheet.innerHTML = `
                 <div style="width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:99px;margin:0 auto 18px;"></div>
                 <div style="margin-bottom:14px;">
@@ -31962,7 +32053,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 </div>
                 ${activeSection}
                 <!-- Avertissement non-affiliation -->
-                <div style="background:rgba(148,163,184,0.06);border:1px solid rgba(148,163,184,0.18);border-radius:12px;padding:10px 12px;margin-bottom:14px;display:flex;align-items:flex-start;gap:9px;">
+                <div style="background:rgba(148,163,184,0.06);border:1px solid rgba(148,163,184,0.18);border-radius:14px;padding:10px 12px;margin-bottom:14px;display:flex;align-items:flex-start;gap:9px;">
                     <span style="font-size:0.95em;flex-shrink:0;line-height:1.3;">ℹ️</span>
                     <div style="font-size:0.68em;color:rgba(255,255,255,0.42);line-height:1.45;">
                         Programmes <strong style="color:rgba(255,255,255,0.6);">inspirés</strong> du style d'entraînement public de ces personnalités. Cette application n'est <strong style="color:rgba(255,255,255,0.6);">ni affiliée, ni approuvée, ni sponsorisée</strong> par elles. Noms cités à titre de référence uniquement.
@@ -31971,16 +32062,16 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 <!-- Filtre genre -->
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
                     <button id="_celebGender_homme" onclick="_renderCelebList('homme')"
-                        style="padding:11px;border-radius:12px;border:2px solid rgba(22,163,74,0.6);background:rgba(22,163,74,0.2);color:white;font-size:0.88em;font-weight:800;cursor:pointer;">
+                        style="padding:11px;border-radius:14px;border:2px solid rgba(22,163,74,0.6);background:rgba(22,163,74,0.2);color:white;font-size:0.88em;font-weight:800;cursor:pointer;">
                         💪 Hommes (${CELEBRITY_PROGRAMS.filter(p=>p.gender==='homme').length})
                     </button>
                     <button id="_celebGender_femme" onclick="_renderCelebList('femme')"
-                        style="padding:11px;border-radius:12px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.45);font-size:0.88em;font-weight:600;cursor:pointer;">
+                        style="padding:11px;border-radius:14px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.45);font-size:0.88em;font-weight:600;cursor:pointer;">
                         ✨ Femmes (${CELEBRITY_PROGRAMS.filter(p=>p.gender==='femme').length})
                     </button>
                 </div>
                 <div id="_celebList" style="display:flex;flex-direction:column;gap:10px;"></div>
-                <button onclick="document.getElementById('celebrityOverlay').remove()" style="margin-top:14px;width:100%;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:12px;color:rgba(255,255,255,0.5);font-weight:700;cursor:pointer;">Fermer</button>
+                <button onclick="document.getElementById('celebrityOverlay').remove()" style="margin-top:14px;width:100%;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:14px;color:rgba(255,255,255,0.5);font-weight:700;cursor:pointer;">Fermer</button>
             `;
             overlay.appendChild(sheet);
             overlay.onclick = e => { if(e.target===overlay) overlay.remove(); };
@@ -32046,34 +32137,34 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             overlay.style.cssText = 'position:fixed;inset:0;z-index:10002;background:rgba(0,0,0,0.88);display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);';
             const sheet = document.createElement('div');
             sheet.id = 'celebrityDetailSheet';
-            sheet.style.cssText = `background:linear-gradient(180deg,${p.color}18 0%,#0D0D0D 80px);border-top:3px solid ${p.color};border-radius:24px 24px 0 0;padding:22px 16px;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;padding-bottom:calc(24px + env(safe-area-inset-bottom,0px));`;
+            sheet.style.cssText = `background:linear-gradient(180deg,${p.color}18 0%,#0D0D0D 80px);border-top:3px solid ${p.color};border-radius:20px 20px 0 0;padding:22px 16px;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;padding-bottom:calc(24px + env(safe-area-inset-bottom,0px));`;
 
             const activeCTA = isActive
                 ? `<div style="display:grid;grid-template-columns:1fr 2fr;gap:10px;margin-bottom:8px;">
-                    <button onclick="document.getElementById('celebrityDetailOverlay').remove()" style="padding:13px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:13px;color:rgba(255,255,255,0.6);font-weight:700;cursor:pointer;">← Retour</button>
-                    <button onclick="startCelebrityProgram('${p.id}')" style="padding:13px;background:linear-gradient(135deg,${p.color},${p.color}bb);color:white;border:none;border-radius:13px;font-weight:900;cursor:pointer;">⚡ Démarrer séance</button>
+                    <button onclick="document.getElementById('celebrityDetailOverlay').remove()" style="padding:13px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:14px;color:rgba(255,255,255,0.6);font-weight:700;cursor:pointer;">← Retour</button>
+                    <button onclick="startCelebrityProgram('${p.id}')" style="padding:13px;background:linear-gradient(135deg,${p.color},${p.color}bb);color:white;border:none;border-radius:14px;font-weight:900;cursor:pointer;">⚡ Démarrer séance</button>
                    </div>
                    <button onclick="applyCelebrityWeeklyPlan(CELEBRITY_PROGRAMS.find(x=>x.id==='${p.id}'));document.getElementById('celebrityDetailOverlay').remove();"
-                       style="width:100%;padding:11px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:12px;color:#94a3b8;font-weight:700;cursor:pointer;font-size:0.82em;margin-bottom:8px;">
+                       style="width:100%;padding:11px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:14px;color:#94a3b8;font-weight:700;cursor:pointer;font-size:0.82em;margin-bottom:8px;">
                        📅 Recharger le plan hebdo
                    </button>
                    <button onclick="setActiveCelebrity(null);showToast('Personnalité désactivée','info',2000);document.getElementById('celebrityDetailOverlay').remove();updateProfileDisplay();updateHomeStats();"
-                       style="width:100%;padding:11px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:12px;color:#f87171;font-weight:700;cursor:pointer;font-size:0.82em;">
+                       style="width:100%;padding:11px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:14px;color:#f87171;font-weight:700;cursor:pointer;font-size:0.82em;">
                        ✕ Désactiver ${p.nickname}
                    </button>`
                 : `<div style="display:grid;grid-template-columns:1fr 2fr;gap:10px;margin-bottom:8px;">
-                    <button onclick="document.getElementById('celebrityDetailOverlay').remove()" style="padding:13px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:13px;color:rgba(255,255,255,0.6);font-weight:700;cursor:pointer;">← Retour</button>
-                    <button onclick="startCelebrityProgram('${p.id}')" style="padding:13px;background:linear-gradient(135deg,${p.color},${p.color}bb);color:white;border:none;border-radius:13px;font-weight:900;cursor:pointer;">⚡ Démarrer séance</button>
+                    <button onclick="document.getElementById('celebrityDetailOverlay').remove()" style="padding:13px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:14px;color:rgba(255,255,255,0.6);font-weight:700;cursor:pointer;">← Retour</button>
+                    <button onclick="startCelebrityProgram('${p.id}')" style="padding:13px;background:linear-gradient(135deg,${p.color},${p.color}bb);color:white;border:none;border-radius:14px;font-weight:900;cursor:pointer;">⚡ Démarrer séance</button>
                    </div>
                    <button onclick="applyCelebrityWeeklyPlan(CELEBRITY_PROGRAMS.find(x=>x.id==='${p.id}'));setActiveCelebrity('${p.id}');document.getElementById('celebrityDetailOverlay').remove();updateProfileDisplay();updateHomeStats();"
-                       style="width:100%;padding:12px;background:${p.color}18;border:1.5px solid ${p.color}50;border-radius:13px;color:${p.color};font-weight:800;cursor:pointer;font-size:0.85em;">
+                       style="width:100%;padding:12px;background:${p.color}18;border:1.5px solid ${p.color}50;border-radius:14px;color:${p.color};font-weight:800;cursor:pointer;font-size:0.85em;">
                        ${p.emoji} Activer ${p.nickname} — plan + exercices signature
                    </button>`;
 
             sheet.innerHTML = `
                 <div style="width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:99px;margin:0 auto 18px;"></div>
                 <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
-                    <div style="font-size:3.2em;width:70px;height:70px;border-radius:18px;background:${p.color}25;border:2px solid ${p.color}60;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${p.emoji}</div>
+                    <div style="font-size:3.2em;width:70px;height:70px;border-radius:20px;background:${p.color}25;border:2px solid ${p.color}60;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${p.emoji}</div>
                     <div style="flex:1;">
                         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
                             <div style="font-size:1.5em;font-weight:900;color:white;">${p.nickname}</div>
@@ -32087,7 +32178,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         </div>
                     </div>
                 </div>
-                <div style="background:${p.color}12;border-left:3px solid ${p.color};border-radius:0 12px 12px 0;padding:11px 14px;margin-bottom:16px;">
+                <div style="background:${p.color}12;border-left:3px solid ${p.color};border-radius:0 14px 14px 0;padding:11px 14px;margin-bottom:16px;">
                     <div style="font-size:0.83em;color:rgba(255,255,255,0.8);font-style:italic;line-height:1.6;">${p.quote}</div>
                     <div style="font-size:0.62em;color:rgba(255,255,255,0.3);margin-top:6px;">Citation publique attribuée — programme inspiré, sans affiliation.</div>
                 </div>
@@ -32119,18 +32210,18 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         </div>
                         <div style="font-size:0.82em;color:#94a3b8;line-height:1.5;">${nutr.approach}</div>
                     </div>
-                    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:13px;margin-bottom:10px;">
+                    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:13px;margin-bottom:10px;">
                         <div style="font-size:0.62em;color:#4ade80;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">📝 Note</div>
                         <div style="font-size:0.82em;color:rgba(255,255,255,0.75);line-height:1.5;font-style:italic;">${nutr.note}</div>
                     </div>
-                    <div style="background:rgba(22,163,74,0.1);border:1px solid rgba(22,163,74,0.3);border-radius:12px;padding:13px;">
+                    <div style="background:rgba(22,163,74,0.1);border:1px solid rgba(22,163,74,0.3);border-radius:14px;padding:13px;">
                         <div style="font-size:0.62em;color:#16a34a;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">💡 Conseil pratique</div>
                         <div style="font-size:0.82em;color:rgba(255,255,255,0.75);line-height:1.5;">${nutr.tip}</div>
                     </div>
                 </div>
                 <div id="celebContent_${p.id}_philo" style="display:none;">
                     <div style="display:flex;flex-direction:column;gap:10px;">
-                        ${philo.map(line => `<div style="background:rgba(255,255,255,0.04);border-left:3px solid ${p.color};border-radius:0 12px 12px 0;padding:12px 14px;"><div style="font-size:0.85em;color:rgba(255,255,255,0.82);line-height:1.6;font-style:italic;">${line}</div></div>`).join('')}
+                        ${philo.map(line => `<div style="background:rgba(255,255,255,0.04);border-left:3px solid ${p.color};border-radius:0 14px 14px 0;padding:12px 14px;"><div style="font-size:0.85em;color:rgba(255,255,255,0.82);line-height:1.6;font-style:italic;">${line}</div></div>`).join('')}
                     </div>
                 </div>
                 <div style="position:sticky;bottom:0;background:linear-gradient(0deg,#0D0D0D 70%,transparent);padding-top:16px;margin-top:20px;">
@@ -32383,7 +32474,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                             <div style="font-size:0.7em;color:#94a3b8;margin-top:2px;">${prog.phase.label} · Sem. ${prog.week}/${prog.totalWeeks}</div>
                         </div>
                     </div>
-                    <button onclick="startCelebrityWorkoutToday()" style="width:100%;background:linear-gradient(135deg,${celeb.color},${celeb.color}cc);border:none;color:white;border-radius:12px;padding:15px;font-weight:900;font-size:1em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 20px ${celeb.color}50;">▶ DÉMARRER LA SÉANCE</button>
+                    <button onclick="startCelebrityWorkoutToday()" style="width:100%;background:linear-gradient(135deg,${celeb.color},${celeb.color}cc);border:none;color:white;border-radius:14px;padding:15px;font-weight:900;font-size:1em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 20px ${celeb.color}50;">▶ DÉMARRER LA SÉANCE</button>
                 </div>
             ` : '')}
 
@@ -32406,7 +32497,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         const ph = CELEBRITY_PHASES[k];
                         const isActive = k === prog.phaseKey;
                         const isPast = (i+1) * 4 < prog.week;
-                        return `<div style="background:${isActive ? ph.color+'20' : 'rgba(255,255,255,0.03)'};border:1px solid ${isActive ? ph.color : (isPast ? ph.color+'50' : 'rgba(255,255,255,0.05)')};border-radius:9px;padding:8px 6px;text-align:center;${isPast ? 'opacity:0.65;' : ''}">
+                        return `<div style="background:${isActive ? ph.color+'20' : 'rgba(255,255,255,0.03)'};border:1px solid ${isActive ? ph.color : (isPast ? ph.color+'50' : 'rgba(255,255,255,0.05)')};border-radius:10px;padding:8px 6px;text-align:center;${isPast ? 'opacity:0.65;' : ''}">
                             <div style="font-size:0.85em;font-weight:900;color:${isActive ? ph.color : (isPast ? ph.color : '#475569')};line-height:1;">${ph.label}</div>
                             <div style="font-size:0.55em;color:#64748b;margin-top:3px;font-weight:700;">SEM ${ph.weeks}</div>
                             ${isActive ? '<div style="font-size:0.5em;color:'+ph.color+';font-weight:900;margin-top:2px;letter-spacing:1px;">ACTIVE</div>' : (isPast ? '<div style="font-size:0.65em;color:'+ph.color+';margin-top:1px;">✓</div>' : '')}
@@ -32424,7 +32515,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 </div>
 
                 <!-- Description phase -->
-                <div style="margin-top:10px;padding:9px 11px;background:${prog.phase.color}08;border:1px solid ${prog.phase.color}20;border-radius:9px;font-size:0.75em;color:#cbd5e1;line-height:1.5;font-style:italic;">
+                <div style="margin-top:10px;padding:9px 11px;background:${prog.phase.color}08;border:1px solid ${prog.phase.color}20;border-radius:10px;font-size:0.75em;color:#cbd5e1;line-height:1.5;font-style:italic;">
                     💡 ${prog.phase.desc}
                 </div>
             </div>
@@ -32445,7 +32536,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                             <div style="font-size:0.7em;font-weight:900;color:${isToday ? celeb.color : '#64748b'};width:32px;letter-spacing:1px;flex-shrink:0;">${s.day}</div>
                             <div style="flex:1;min-width:0;font-size:0.85em;font-weight:${isToday ? '800' : '600'};color:${isRestDay ? '#94a3b8' : 'white'};">${s.name}</div>
                             ${isToday ? `<span style="background:${celeb.color};color:white;padding:2px 8px;border-radius:99px;font-size:0.55em;font-weight:900;letter-spacing:1px;flex-shrink:0;">AUJ.</span>` : ''}
-                            ${!isRestDay ? `<button onclick="startCelebrityWorkoutToday('${dayKey}')" style="background:${isToday ? celeb.color : 'rgba(255,255,255,0.05)'};color:${isToday ? 'white' : '#94a3b8'};border:1px solid ${isToday ? celeb.color : 'rgba(255,255,255,0.1)'};border-radius:7px;padding:5px 10px;font-size:0.65em;font-weight:800;cursor:pointer;flex-shrink:0;letter-spacing:0.5px;">▶</button>` : ''}
+                            ${!isRestDay ? `<button onclick="startCelebrityWorkoutToday('${dayKey}')" style="background:${isToday ? celeb.color : 'rgba(255,255,255,0.05)'};color:${isToday ? 'white' : '#94a3b8'};border:1px solid ${isToday ? celeb.color : 'rgba(255,255,255,0.1)'};border-radius:6px;padding:5px 10px;font-size:0.65em;font-weight:800;cursor:pointer;flex-shrink:0;letter-spacing:0.5px;">▶</button>` : ''}
                         </div>`;
                     }).join('')}
                 </div>
@@ -32460,7 +32551,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 </div>
                 <div style="display:flex;flex-direction:column;gap:6px;">
                     ${celeb.exercises.slice(0, 6).map(ex => `
-                        <div style="display:flex;align-items:center;gap:10px;padding:9px 11px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:9px;">
+                        <div style="display:flex;align-items:center;gap:10px;padding:9px 11px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:10px;">
                             <div style="flex:1;min-width:0;">
                                 <div style="font-size:0.82em;font-weight:700;color:white;">${ex.name}</div>
                                 ${ex.note ? `<div style="font-size:0.65em;color:#94a3b8;margin-top:2px;font-style:italic;">${ex.note}</div>` : ''}
@@ -32478,7 +32569,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 <h3 style="margin:0 0 12px 0;color:white;font-size:1em;font-weight:900;">💡 Conseils de ${celeb.nickname}</h3>
                 <div style="display:flex;flex-direction:column;gap:7px;">
                     ${celeb.tips.map(t => `
-                        <div style="display:flex;align-items:flex-start;gap:10px;padding:9px 11px;background:rgba(255,255,255,0.02);border-left:2px solid ${celeb.color};border-radius:0 8px 8px 0;">
+                        <div style="display:flex;align-items:flex-start;gap:10px;padding:9px 11px;background:rgba(255,255,255,0.02);border-left:2px solid ${celeb.color};border-radius:0 10px 10px 0;">
                             <div style="font-size:1.1em;line-height:1;flex-shrink:0;">${t.emoji}</div>
                             <div style="flex:1;min-width:0;font-size:0.78em;color:#cbd5e1;line-height:1.5;">${t.text}</div>
                         </div>
@@ -32512,7 +32603,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 ${previews.length > 0 ? `
                 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px;">
                     ${previews.map(p => `
-                        <div onclick="setActiveCelebrity('${p.id}'); renderProgramTab();" style="background:linear-gradient(135deg,${p.color}25,${p.color}05);border:1px solid ${p.color}40;border-radius:11px;padding:11px 6px;cursor:pointer;text-align:center;">
+                        <div onclick="setActiveCelebrity('${p.id}'); renderProgramTab();" style="background:linear-gradient(135deg,${p.color}25,${p.color}05);border:1px solid ${p.color}40;border-radius:10px;padding:11px 6px;cursor:pointer;text-align:center;">
                             <div style="font-size:1.8em;line-height:1;margin-bottom:4px;filter:drop-shadow(0 0 6px ${p.color}80);">${p.emoji}</div>
                             <div style="font-size:0.65em;font-weight:900;color:white;line-height:1.2;">${p.nickname}</div>
                             <div style="font-size:0.55em;color:${p.color};font-weight:700;margin-top:2px;">${p.level}</div>
@@ -32520,7 +32611,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     `).join('')}
                 </div>` : ''}
 
-                <button onclick="showCelebrityPrograms()" style="width:100%;background:linear-gradient(135deg,#a855f7,#7c3aed);border:none;color:white;border-radius:12px;padding:14px;font-weight:900;font-size:0.9em;letter-spacing:0.5px;cursor:pointer;box-shadow:0 4px 16px rgba(168,85,247,0.4);">📚 VOIR TOUS LES PROGRAMMES</button>
+                <button onclick="showCelebrityPrograms()" style="width:100%;background:linear-gradient(135deg,#a855f7,#7c3aed);border:none;color:white;border-radius:14px;padding:14px;font-weight:900;font-size:0.9em;letter-spacing:0.5px;cursor:pointer;box-shadow:0 4px 16px rgba(168,85,247,0.4);">📚 VOIR TOUS LES PROGRAMMES</button>
             </div>
             `;
         }
@@ -32623,7 +32714,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
             const scaleLabel = prog.phase.setsScale===0.75 ? '-25% séries' : prog.phase.setsScale===1.25 ? '+25% séries' : 'volume normal';
 
-            return '<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:14px 16px;margin-bottom:14px;">'
+            return '<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:14px 16px;margin-bottom:14px;">'
                 + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">'
                 + '<div><div style="font-size:0.62em;color:rgba(255,255,255,0.35);font-weight:800;text-transform:uppercase;letter-spacing:1px;">\u{1F4C8} Programme 12 semaines</div>'
                 + '<div style="font-size:1.05em;font-weight:900;color:' + prog.phase.color + ';margin-top:2px;">Semaine ' + prog.week + ' / 12 — ' + prog.phase.label + '</div></div>'
@@ -32632,7 +32723,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 + '<div style="display:flex;align-items:center;gap:3px;justify-content:space-between;margin-bottom:10px;">' + dots + '</div>'
                 + '<div style="display:flex;gap:6px;margin-bottom:10px;">' + phaseBlocks + '</div>'
                 + '<div style="font-size:0.75em;color:rgba(255,255,255,0.5);line-height:1.4;">' + prog.phase.desc + ' <span style="color:' + prog.phase.color + ';font-weight:700;">(' + scaleLabel + ')</span></div>'
-                + '<button onclick="confirmRestartCelebrityFromWeek1(\'' + p.id + '\')" style="margin-top:10px;width:100%;padding:8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:rgba(255,255,255,0.3);font-size:0.72em;font-weight:700;cursor:pointer;">\u{1F504} Recommencer depuis la semaine 1</button>'
+                + '<button onclick="confirmRestartCelebrityFromWeek1(\'' + p.id + '\')" style="margin-top:10px;width:100%;padding:8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:rgba(255,255,255,0.3);font-size:0.72em;font-weight:700;cursor:pointer;">\u{1F504} Recommencer depuis la semaine 1</button>'
                 + '</div>';
         }
 
@@ -32956,7 +33047,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             div.style.cssText = `
                 max-width:320px;width:90%;margin-top:20px;padding:14px 18px;
                 background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);
-                border-radius:16px;text-align:center;animation:restFadeIn 0.5s ease;
+                border-radius:14px;text-align:center;animation:restFadeIn 0.5s ease;
             `;
             div.innerHTML = `
                 <div style="font-size:1.6em;margin-bottom:6px;">${program.emoji}</div>
@@ -33202,8 +33293,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             displayMatches.forEach(ex => {
                 const exerciseIndex = exerciseDatabase.indexOf(ex);
                 const badge = ex.type === 'warmup' ? '🏃‍♂️' : ex.type === 'stretch' ? '🧘' : '';
-                const typeLabel = ex.type === 'warmup' ? ' <span style="background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 12px; font-size: 0.8em;">Échauffement</span>' : 
-                                 ex.type === 'stretch' ? ' <span style="background: #f0fdf4; color: #15803d; padding: 2px 8px; border-radius: 12px; font-size: 0.8em;">Étirement</span>' : '';
+                const typeLabel = ex.type === 'warmup' ? ' <span style="background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 14px; font-size: 0.8em;">Échauffement</span>' : 
+                                 ex.type === 'stretch' ? ' <span style="background: #f0fdf4; color: #15803d; padding: 2px 8px; border-radius: 14px; font-size: 0.8em;">Étirement</span>' : '';
                 
                 html += `
                     <div class="exercise-result-item" onclick="showExerciseDetail(${exerciseIndex})"
@@ -33305,7 +33396,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         </div>
                     </div>
                     
-                    <div style="margin-bottom: 15px; padding: 12px; background: #f8f9fa; border-radius: 8px; max-height: 150px; overflow-y: auto;">
+                    <div style="margin-bottom: 15px; padding: 12px; background: #f8f9fa; border-radius: 10px; max-height: 150px; overflow-y: auto;">
                         ${program.exercises.slice(0, 5).map(ex => `
                             <div style="display: flex; align-items: center; padding: 4px 0; color: #666; font-size: 0.9em;">
                                 <span style="width: 20px;">•</span>
@@ -33439,7 +33530,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 // Rest period
                 if (ex.type === 'rest') {
                     return `
-                        <div style="display: flex; align-items: center; gap: 10px; padding: 12px; background: #fff4e6; border-radius: 8px; margin-bottom: 8px; border: 2px solid #fed7aa;">
+                        <div style="display: flex; align-items: center; gap: 10px; padding: 12px; background: #fff4e6; border-radius: 10px; margin-bottom: 8px; border: 2px solid #fed7aa;">
                             <div style="display: flex; flex-direction: column; gap: 4px;">
                                 <button onclick="moveProgramExercise(${index}, -1)" 
                                         class="btn" 
@@ -33465,7 +33556,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                                                min="15"
                                                max="300"
                                                step="15"
-                                               style="width: 60px; padding: 4px; border: 1px solid #fed7aa; border-radius: 4px;">
+                                               style="width: 60px; padding: 4px; border: 1px solid #fed7aa; border-radius: 6px;">
                                         secondes
                                     </div>
                                 </div>
@@ -33480,7 +33571,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 }
                 // Regular exercise
                 return `
-                    <div style="display: flex; align-items: center; gap: 10px; padding: 12px; background: white; border-radius: 8px; margin-bottom: 8px; border: 2px solid #e0e0e0;">
+                    <div style="display: flex; align-items: center; gap: 10px; padding: 12px; background: white; border-radius: 10px; margin-bottom: 8px; border: 2px solid #e0e0e0;">
                         <div style="display: flex; flex-direction: column; gap: 4px;">
                             <button onclick="moveProgramExercise(${index}, -1)" 
                                     class="btn" 
@@ -34285,8 +34376,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                             <div style="font-weight:700;color:#713f12;font-size:0.9em;">Déload recommandé — ${deload.weeks} semaines intenses</div>
                             <div style="font-size:0.78em;color:#92400e;margin-top:3px;">Réduis ton volume de 40-50% cette semaine pour optimiser la récupération et les gains.</div>
                             <div style="display:flex;gap:8px;margin-top:8px;">
-                                <button onclick="startDeloadWeek()" style="background:#eab308;color:white;border:none;border-radius:8px;padding:6px 12px;font-size:0.8em;font-weight:700;cursor:pointer;">📋 Séance déload</button>
-                                <button onclick="localStorage.setItem('deloadDismissed_'+new Date().toISOString().slice(0,7),'1');document.getElementById('deloadBanner').remove();" style="background:white;color:#92400e;border:1px solid #eab308;border-radius:8px;padding:6px 12px;font-size:0.8em;cursor:pointer;">Ignorer</button>
+                                <button onclick="startDeloadWeek()" style="background:#eab308;color:white;border:none;border-radius:10px;padding:6px 12px;font-size:0.8em;font-weight:700;cursor:pointer;">📋 Séance déload</button>
+                                <button onclick="localStorage.setItem('deloadDismissed_'+new Date().toISOString().slice(0,7),'1');document.getElementById('deloadBanner').remove();" style="background:white;color:#92400e;border:1px solid #eab308;border-radius:10px;padding:6px 12px;font-size:0.8em;cursor:pointer;">Ignorer</button>
                             </div>
                         </div>
                     </div>`;
@@ -34792,7 +34883,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             overlay.id = 'occupiedOverlay';
             overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:10300;display:flex;align-items:flex-end;justify-content:center;';
             overlay.innerHTML = `
-                <div style="background:white;border-radius:22px 22px 0 0;padding:22px 18px;width:100%;max-width:480px;max-height:75vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(0,0,0,0.25);">
+                <div style="background:white;border-radius:20px 20px 0 0;padding:22px 18px;width:100%;max-width:480px;max-height:75vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(0,0,0,0.25);">
                     <div style="text-align:center;margin-bottom:14px;">
                         <div style="font-size:1.5em;">🚫</div>
                         <h3 style="margin:6px 0 4px;color:#0F1014;">Machine occupée</h3>
@@ -35202,7 +35293,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     <div style="font-size:1.2em;font-weight:800;color:#4ade80;">${lastPerf.reps} reps${lastPerf.weight ? ' × ' + lastPerf.weight + ' kg' + trend : ''}</div>
                     <div style="font-size:0.75em;color:#6b7280;margin-top:2px;">${new Date(lastPerf.date).toLocaleDateString('fr-FR',{day:'numeric',month:'short'})}</div>
                 </div>
-                <div style="font-size:0.72em;color:#34d399;background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);border-radius:8px;padding:5px 10px;font-weight:700;cursor:pointer;" onclick="${reuseClick}">↺ Réutiliser</div>
+                <div style="font-size:0.72em;color:#34d399;background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);border-radius:10px;padding:5px 10px;font-weight:700;cursor:pointer;" onclick="${reuseClick}">↺ Réutiliser</div>
             </div>`;
         }
 
@@ -35225,7 +35316,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 const isActive = s === current;
                 return `<button
                     data-secs="${s}"
-                    style="flex:1;min-width:60px;padding:12px 6px;border-radius:12px;
+                    style="flex:1;min-width:60px;padding:12px 6px;border-radius:14px;
                         border:2px solid ${isActive ? '#16a34a' : '#2E2F35'};
                         background:${isActive ? 'rgba(22,163,74,0.2)' : '#222328'};
                         color:${isActive ? '#4ade80' : '#e2e8f0'};
@@ -35235,13 +35326,13 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             }).join('');
 
             ov.innerHTML = `
-                <div style="background:#1A1B20;border-radius:22px 22px 0 0;padding:22px 20px;width:100%;max-width:480px;border-top:1px solid #252830;">
+                <div style="background:#1A1B20;border-radius:20px 20px 0 0;padding:22px 20px;width:100%;max-width:480px;border-top:1px solid #252830;">
                     <div style="width:40px;height:4px;background:#2E2F35;border-radius:99px;margin:0 auto 16px;"></div>
                     <h3 style="margin:0 0 4px;color:#e2e8f0;font-size:1.1em;">⏱️ Repos après cet exercice</h3>
                     <p style="margin:0 0 14px;color:#94a3b8;font-size:0.82em;word-break:break-word;">${exName.replace(/'/g,'&#39;')}</p>
                     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;">${btnHTML}</div>
                     <button onclick="document.getElementById('_restAdjOverlay').remove()"
-                        style="width:100%;padding:12px;border-radius:12px;border:none;background:rgba(255,255,255,0.06);color:#94a3b8;cursor:pointer;font-size:0.9em;">
+                        style="width:100%;padding:12px;border-radius:14px;border:none;background:rgba(255,255,255,0.06);color:#94a3b8;cursor:pointer;font-size:0.9em;">
                         Annuler
                     </button>
                 </div>`;
@@ -35471,7 +35562,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 const s = screens[idx];
                 const isLast = idx === screens.length - 1;
                 ov.innerHTML = `
-                    <div style="background:#0D0D0D;border-radius:24px 24px 0 0;padding:30px 24px 36px;width:100%;max-width:480px;border-top:3px solid #16a34a;">
+                    <div style="background:#0D0D0D;border-radius:20px 20px 0 0;padding:30px 24px 36px;width:100%;max-width:480px;border-top:3px solid #16a34a;">
                         <!-- Indicateurs -->
                         <div style="display:flex;gap:6px;justify-content:center;margin-bottom:28px;">
                             ${screens.map((_,i) => `<div style="height:4px;border-radius:99px;flex:1;background:${i<=idx?'#16a34a':'rgba(255,255,255,0.15)'}; transition:background 0.3s;"></div>`).join('')}
@@ -36085,13 +36176,13 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             }).join('');
 
             const sheet = document.createElement('div');
-            sheet.style.cssText = 'background:#0D0D0D;border-radius:24px 24px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background:#0D0D0D;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             sheet.innerHTML = `
                 <div style="width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:99px;margin:0 auto 18px;"></div>
                 <h2 style="margin:0 0 4px;color:white;font-size:1.15em;font-weight:900;">📖 Journal du Chasseur</h2>
                 <p style="margin:0 0 18px;color:rgba(255,255,255,0.4);font-size:0.8em;">${seenCount} souvenir${seenCount>1?'s':''} retrouvé${seenCount>1?'s':''}. Ton histoire se dévoile à mesure que tu t'entraînes.</p>
                 ${rows || '<p style="color:rgba(255,255,255,0.4);font-size:0.85em;text-align:center;padding:20px;">Aucun souvenir pour l\'instant. Continue de t\'entraîner.</p>'}
-                <button onclick="document.getElementById('storyJournalOverlay').remove()" style="margin-top:10px;width:100%;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:12px;color:rgba(255,255,255,0.5);font-weight:700;cursor:pointer;">Fermer</button>`;
+                <button onclick="document.getElementById('storyJournalOverlay').remove()" style="margin-top:10px;width:100%;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:14px;color:rgba(255,255,255,0.5);font-weight:700;cursor:pointer;">Fermer</button>`;
             overlay.appendChild(sheet);
             document.body.appendChild(overlay);
         }
@@ -36575,12 +36666,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                                 <p style="margin:0;font-size:0.92em;line-height:1.6;color:#e2e8f0;font-style:italic;">${p}</p>
                             </div>`).join('')}
 
-                        ${failed ? `<div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:12px;padding:12px 14px;margin-bottom:16px;text-align:center;">
+                        ${failed ? `<div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:14px;padding:12px 14px;margin-bottom:16px;text-align:center;">
                             <div style="font-size:0.78em;color:#f87171;font-weight:800;">🩸 Tes compagnons sont indisponibles 5 jours</div>
                             <div style="font-size:0.68em;color:#94a3b8;margin-top:4px;line-height:1.4;">Le temps de soigner leurs blessures. La Faille reste ouverte.</div>
                         </div>` : ''}
 
-                        <div style="background:${accent}12;border:1px solid ${accent}33;border-radius:12px;padding:12px 14px;margin-top:8px;margin-bottom:18px;">
+                        <div style="background:${accent}12;border:1px solid ${accent}33;border-radius:14px;padding:12px 14px;margin-top:8px;margin-bottom:18px;">
                             <div style="font-size:0.58em;color:${accentLight};font-weight:900;letter-spacing:1.5px;margin-bottom:8px;">⚔ ÉQUIPE DÉPLOYÉE</div>
                             ${comps.map(c => `<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
                                 <span style="font-size:1.1em;">${c.emoji}</span>
@@ -36589,7 +36680,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                             </div>`).join('')}
                         </div>
 
-                        <button onclick="document.getElementById('missionStoryOverlay').remove();if(typeof renderGameTab==='function')renderGameTab();" style="width:100%;background:linear-gradient(135deg,${accent},${accentLight});border:none;color:white;border-radius:12px;padding:15px;font-weight:900;font-size:0.95em;letter-spacing:0.5px;cursor:pointer;box-shadow:0 4px 16px ${accent}66;">${failed ? '✓ Compris' : '✓ Parfait'}</button>
+                        <button onclick="document.getElementById('missionStoryOverlay').remove();if(typeof renderGameTab==='function')renderGameTab();" style="width:100%;background:linear-gradient(135deg,${accent},${accentLight});border:none;color:white;border-radius:14px;padding:15px;font-weight:900;font-size:0.95em;letter-spacing:0.5px;cursor:pointer;box-shadow:0 4px 16px ${accent}66;">${failed ? '✓ Compris' : '✓ Parfait'}</button>
                     </div>
                 </div>`;
             document.body.appendChild(overlay);
@@ -36834,7 +36925,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             };
 
             const curseItems = m.curses.map(c => `
-                <div style="background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.3);border-radius:11px;padding:11px 13px;margin-bottom:8px;">
+                <div style="background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.3);border-radius:10px;padding:11px 13px;margin-bottom:8px;">
                     <div style="display:flex;align-items:center;gap:9px;margin-bottom:${c.curseLabel || c.negStats.length ? '6px' : '0'};">
                         <span style="font-size:1.1em;">${c.icon}</span>
                         <span style="font-weight:800;color:#e2e8f0;font-size:0.85em;">${c.name}</span>
@@ -36844,7 +36935,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 </div>`);
 
             const penItems = m.penalties.map(p => `
-                <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:11px;padding:11px 13px;margin-bottom:8px;">
+                <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:11px 13px;margin-bottom:8px;">
                     <div style="display:flex;align-items:center;gap:9px;">
                         <span style="font-size:1.1em;">${p.icon}</span>
                         <div style="flex:1;min-width:0;">
@@ -36856,13 +36947,13 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 </div>`);
 
             const handItems = m.handicaps.map(h => `
-                <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.3);border-radius:11px;padding:10px 13px;margin-bottom:8px;display:flex;align-items:center;gap:9px;">
+                <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.3);border-radius:10px;padding:10px 13px;margin-bottom:8px;display:flex;align-items:center;gap:9px;">
                     <span style="font-size:1.05em;">${h.icon}</span>
                     <span style="font-size:0.78em;color:#fcd34d;font-weight:600;">${h.text}</span>
                 </div>`);
 
             const sheet = document.createElement('div');
-            sheet.style.cssText = 'background:#0D0D0D;border-radius:24px 24px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;-webkit-overflow-scrolling:touch;';
+            sheet.style.cssText = 'background:#0D0D0D;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;-webkit-overflow-scrolling:touch;';
             sheet.innerHTML = `
                 <div style="width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:99px;margin:0 auto 18px;"></div>
                 <h2 style="margin:0 0 4px;color:white;font-size:1.15em;font-weight:900;">⚠️ Malus actifs ${total > 0 ? `<span style="font-size:0.7em;background:rgba(239,68,68,0.15);color:#f87171;padding:2px 9px;border-radius:99px;">${total}</span>` : ''}</h2>
@@ -36878,7 +36969,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     ${section('Pénalités de défi', '#f87171', '⚔️', penItems)}
                     ${section('Handicaps de monstres', '#fcd34d', '👹', handItems)}
                 `}
-                <button onclick="document.getElementById('activeMalusOverlay').remove()" style="margin-top:8px;width:100%;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:12px;color:rgba(255,255,255,0.5);font-weight:700;cursor:pointer;">Fermer</button>`;
+                <button onclick="document.getElementById('activeMalusOverlay').remove()" style="margin-top:8px;width:100%;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:14px;color:rgba(255,255,255,0.5);font-weight:700;cursor:pointer;">Fermer</button>`;
             overlay.appendChild(sheet);
             document.body.appendChild(overlay);
         }
@@ -36992,7 +37083,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const prColors = { good:'#4ade80', start:'#22d3ee', inactive:'#f59e0b', imbalance:'#f59e0b', neglected:'#f59e0b', frequency:'#22d3ee' };
             const prc = prColors[a.priority?.type] || '#22d3ee';
             const priorityHtml = a.priority ? `
-                <div style="background:linear-gradient(135deg,${prc}1f,${prc}08);border:1px solid ${prc}55;border-left:3px solid ${prc};border-radius:12px;padding:14px 16px;margin-bottom:18px;">
+                <div style="background:linear-gradient(135deg,${prc}1f,${prc}08);border:1px solid ${prc}55;border-left:3px solid ${prc};border-radius:14px;padding:14px 16px;margin-bottom:18px;">
                     <div style="font-size:0.56em;color:${prc};font-weight:900;letter-spacing:2px;margin-bottom:6px;">⚙ CONSEIL PRIORITAIRE</div>
                     <div style="font-size:0.88em;color:#e2e8f0;line-height:1.5;font-style:italic;">${a.priority.text}</div>
                 </div>` : '';
@@ -37051,7 +37142,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const hasContent = imbalHtml || neglHtml || decayHtml || topHtml;
 
             const sheet = document.createElement('div');
-            sheet.style.cssText = 'background:#0D0D0D;border-radius:24px 24px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;';
+            sheet.style.cssText = 'background:#0D0D0D;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;';
             sheet.innerHTML = `
                 <div style="width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:99px;margin:0 auto 18px;"></div>
                 <div style="text-align:center;margin-bottom:16px;">
@@ -37066,7 +37157,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 ${decayHtml}
                 ${topHtml}
                 ${!hasContent && f && f.month === 0 ? `<div style="text-align:center;padding:20px;color:#94a3b8;font-size:0.82em;line-height:1.5;">Fais quelques séances et je pourrai analyser tes muscles, détecter les déséquilibres et te guider précisément.</div>` : ''}
-                <button onclick="document.getElementById('systemAnalysisOverlay').remove()" style="margin-top:8px;width:100%;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:12px;color:rgba(255,255,255,0.6);font-weight:700;cursor:pointer;">Fermer</button>`;
+                <button onclick="document.getElementById('systemAnalysisOverlay').remove()" style="margin-top:8px;width:100%;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:14px;color:rgba(255,255,255,0.6);font-weight:700;cursor:pointer;">Fermer</button>`;
             overlay.appendChild(sheet);
             document.body.appendChild(overlay);
         }
@@ -37106,14 +37197,14 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const optButtons = options.map((o,i) => `
                 <button onclick="_selectCardioWarmup(${i})" data-cardio-idx="${i}" class="cardio-warmup-opt" style="
                     display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:12px 14px;margin-bottom:7px;
-                    background:rgba(34,211,238,0.06);border:1.5px solid rgba(34,211,238,0.25);border-radius:11px;cursor:pointer;color:#e2e8f0;">
+                    background:rgba(34,211,238,0.06);border:1.5px solid rgba(34,211,238,0.25);border-radius:10px;cursor:pointer;color:#e2e8f0;">
                     <span style="font-size:1.5em;">${o.emoji}</span>
                     <span style="flex:1;font-size:0.88em;font-weight:700;">${o.name}</span>
                     <span class="cardio-check" style="font-size:1.1em;color:#22d3ee;opacity:0;">✓</span>
                 </button>`).join('');
 
             const sheet = document.createElement('div');
-            sheet.style.cssText = 'background:#0D0D0D;border:1px solid rgba(255,255,255,0.08);border-radius:24px 24px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;';
+            sheet.style.cssText = 'background:#0D0D0D;border:1px solid rgba(255,255,255,0.08);border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;';
             sheet.innerHTML = `
                 <div style="width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:99px;margin:0 auto 18px;"></div>
                 <div style="text-align:center;margin-bottom:18px;">
@@ -37135,8 +37226,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                             color:${m===5?'#22d3ee':'#94a3b8'};">${m} min</button>`).join('')}
                 </div>
 
-                <button onclick="_confirmCardioWarmup()" id="cardioConfirmBtn" style="width:100%;padding:14px;background:linear-gradient(135deg,#22d3ee,#0891b2);border:none;border-radius:12px;color:white;font-weight:900;font-size:0.95em;cursor:pointer;margin-bottom:8px;box-shadow:0 4px 16px rgba(34,211,238,0.3);opacity:0.5;pointer-events:none;">▶ Ajouter le cardio</button>
-                <button onclick="_skipCardioWarmup()" style="width:100%;padding:13px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:12px;color:#94a3b8;font-weight:700;cursor:pointer;">Passer — démarrer directement</button>`;
+                <button onclick="_confirmCardioWarmup()" id="cardioConfirmBtn" style="width:100%;padding:14px;background:linear-gradient(135deg,#22d3ee,#0891b2);border:none;border-radius:14px;color:white;font-weight:900;font-size:0.95em;cursor:pointer;margin-bottom:8px;box-shadow:0 4px 16px rgba(34,211,238,0.3);opacity:0.5;pointer-events:none;">▶ Ajouter le cardio</button>
+                <button onclick="_skipCardioWarmup()" style="width:100%;padding:13px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:14px;color:#94a3b8;font-weight:700;cursor:pointer;">Passer — démarrer directement</button>`;
             overlay.appendChild(sheet);
             document.body.appendChild(overlay);
 
