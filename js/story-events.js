@@ -83,13 +83,67 @@ const STORY_EVENTS = [
         }
     },
     {
+        // ── Niveau ~3 : la dynamique du duo s'installe (suite directe de La Rencontre)
+        id: 'evt_n3_regles_duo',
+        type: 'dialogue',
+        trigger: { kind: 'xp', value: 230 },
+        once: true,
+        content: {
+            speaker: 'nyra',
+            title: 'Les Règles du Duo',
+            image: 'images/story/n3_regles_duo.webp',
+            pages: [
+                "Nyra marche à reculons devant Esen, doigt levé. « Puisqu'on fait équipe maintenant, on pose des règles. Règle numéro un : on ne vole PAS les monstres des autres. »",
+                "Esen, sans ralentir : « Il allait s'échapper. » Nyra plisse les yeux. « Règle numéro deux : on ne REPARLE PLUS de ça. »",
+                "« Règle numéro trois, » continue-t-elle en tapotant le logo AV sur sa tenue, « on s'entraîne TOUS LES JOURS. Le Système nous a choisis, pas question de rouiller. »",
+                "Esen hoche la tête, une seule fois. Venant de lui, c'est un discours entier. Le duo a ses règles. Et désormais, une direction commune."
+            ]
+        }
+    },
+    {
+        // ── Niveau ~4 : worldbuilding — apprendre à sentir les Failles
+        id: 'evt_n4_sentir_failles',
+        type: 'fait',
+        trigger: { kind: 'xp', value: 520 },
+        once: true,
+        content: {
+            speaker: 'esen',
+            title: 'Sentir les Failles',
+            image: 'images/story/n4_sentir_failles.webp',
+            pages: [
+                "Esen s'arrête au milieu du trottoir. « Regarde. » Nyra fronce les sourcils. Rien. Juste la rue, les passants, un lampadaire.",
+                "« L'air, au-dessus de la borne. Il tremble. Comme au-dessus d'un feu. » Il a raison. Une distorsion minuscule, presque rien.",
+                "« Les Failles commencent toutes comme ça. Les gens passent à côté sans les voir. Nous, on les sent. » Il la regarde. « Plus on s'entraîne, plus notre signal est net — et plus on les repère tôt. »",
+                "« C'est le travail des AV. Trouver. Fermer. Avant que ça grandisse. » Il repart comme si de rien n'était. La distorsion, elle, est restée gravée dans sa tête."
+            ]
+        }
+    },
+    {
+        // ── Niveau ~5 : première vraie morsure de l'effacement (mélancolique)
+        id: 'evt_n5_boulangerie',
+        type: 'ambiance',
+        trigger: { kind: 'xp', value: 870 },
+        once: true,
+        content: {
+            speaker: 'nyra',
+            title: 'La Boulangerie',
+            image: 'images/story/n5_boulangerie.webp',
+            pages: [
+                "Nyra vous traîne dans une petite boulangerie. « Meilleurs croissants de la ville. La dame me connaît, vous allez voir. »",
+                "La vendeuse lève les yeux. Sourire poli. « Bonjour. Qu'est-ce que je vous sers ? » Le sourire de Nyra se fige un quart de seconde.",
+                "« ...Trois croissants, » dit-elle d'une voix un peu plus basse. Dehors, elle hausse les épaules. « Elle a dû me confondre. Elle voit du monde. » Personne ne la contredit.",
+                "Esen attend qu'elle soit devant, hors de portée de voix. « Ça a commencé pour elle aussi. » Il croque dans son croissant. « C'est pour ça qu'on s'entraîne. »"
+            ]
+        }
+    },
+    {
         id: 'evt_n6_cocasse',
         minor: true,  // exclu du Journal d'aventure (scène légère)
         type: 'fait',
         trigger: { kind: 'xp', value: 1350 },
         once: true,
         content: { speaker: 'nyra', title: 'Concentration ?', image: 'images/story/cocasse_7.webp',
-            pages: ["Nyra t'étire la joue pendant que tu frappes le sac. « Quoi ? Je teste ta concentration ! »"] }
+            pages: ["Nyra étire la joue d'Esen pendant qu'il frappe le sac. « Quoi ? Je teste ta concentration ! »"] }
     },
     {
         id: 'evt_n8_cocasse',
@@ -143,7 +197,7 @@ const STORY_EVENTS = [
         trigger: { kind: 'xp', value: 30290 },
         once: true,
         content: { speaker: 'nyra', title: 'Toute ta Puissance ?', image: 'images/story/cocasse_5.webp',
-            pages: ["Nyra te nargue après un combat. « Alors... c'est ça toute ta puissance ? » Esen, blasé : « ... »"] }
+            pages: ["Nyra nargue Esen après un combat. « Alors... c'est ça toute ta puissance ? » Esen, blasé : « ... »"] }
     },
     {
         id: 'evt_n20_cocasse',
@@ -171,8 +225,9 @@ const STORY_EVENTS = [
         content: {
             speaker: 'nyra',
             title: 'Pari Stupide',
+            image: 'images/story/n7_pari.webp',
             pages: [
-                "Nyra te lance un regard en coin pendant l'échauffement. « Pari : tu lâches avant moi aujourd'hui. »",
+                "Nyra lance un regard en coin à Esen pendant l'échauffement. « Pari : tu lâches avant moi aujourd'hui. »",
                 "Esen, sans lever les yeux : « Elle dit ça à chaque fois. » Un silence. « Elle a perdu à chaque fois. »",
                 "Nyra fait mine d'être vexée, mais elle sourit. Dans un monde qui s'efface, c'est sa façon à elle de rester accrochée : transformer la survie en jeu."
             ]
@@ -201,6 +256,7 @@ const STORY_EVENTS = [
         content: {
             speaker: 'esen',
             title: 'Deux Silences',
+            image: 'images/story/n11_deux_silences.webp',
             pages: [
                 "Après l'effort, vous restez assis sans parler. Esen regarde le vide blanc au loin.",
                 "« Tu te demandes pourquoi on continue, » dit Nyra. Ce n'est pas une question.",
@@ -249,9 +305,9 @@ const STORY_EVENTS = [
             speaker: 'nyra',
             title: 'Collection de Cailloux',
             pages: [
-                "Nyra te montre une poignée de petits cailloux luisants. « À chaque Faille fermée, j'en garde un. »",
+                "Nyra montre à Esen une poignée de petits cailloux luisants. « À chaque Faille fermée, j'en garde un. »",
                 "« C'est idiot, je sais. Mais quand un endroit s'efface, il ne reste rien. Alors moi, je garde une preuve qu'il a existé. »",
-                "Elle en glisse un dans ta main sans te regarder. « Tiens. Celui-là, c'est pour la fois où tu as failli abandonner et où tu ne l'as pas fait. »"
+                "Elle en glisse un dans la main d'Esen sans le regarder. « Tiens. Celui-là, c'est pour la fois où tu as failli abandonner et où tu ne l'as pas fait. »"
             ]
         }
     },
@@ -278,6 +334,7 @@ const STORY_EVENTS = [
         content: {
             speaker: 'nyra',
             title: 'La Question',
+            image: 'images/story/n21_question.webp',
             pages: [
                 "« Tu crois qu'on s'en sortira ? » demande Nyra, pour une fois sans ironie.",
                 "Esen réfléchit. « Je crois qu'on tiendra. C'est déjà ça. »",
@@ -294,8 +351,9 @@ const STORY_EVENTS = [
         content: {
             speaker: 'nyra',
             title: 'Concours de Grimaces',
+            image: 'images/story/n23_grimaces.webp',
             pages: [
-                "Avant un combat tendu, Nyra te fait une grimace ridicule. « Règle numéro un : on ne meurt pas en ayant l'air sérieux. »",
+                "Avant un combat tendu, Nyra fait une grimace ridicule à Esen. « Règle numéro un : on ne meurt pas en ayant l'air sérieux. »",
                 "Même Esen laisse échapper quelque chose qui ressemble dangereusement à un rire.",
                 "Le Système, déconcerté : « Vos signaux de stress viennent de chuter de 40%. Je ne comprends pas la méthode. Mais elle fonctionne. »"
             ]
@@ -324,11 +382,12 @@ const STORY_EVENTS = [
         content: {
             speaker: 'esen',
             title: 'Ce qu\'Esen Garde',
+            image: 'images/story/n27_photo_esen.webp',
             pages: [
-                "Tu surprends Esen, seul, fixant une vieille photo à moitié effacée. Le visage dessus a disparu.",
+                "Nyra surprend Esen, seul, fixant une vieille photo à moitié effacée. Le visage dessus a disparu.",
                 "« Je ne sais plus qui c'était, » dit-il sans se retourner. « Mais je sais que je tenais à cette personne. Alors je garde la photo. »",
                 "« C'est pour ça que je m'entraîne. Pas pour moi. Pour ne plus jamais laisser un visage s'effacer. »",
-                "C'est la phrase la plus longue que tu l'aies jamais entendu prononcer."
+                "C'est la phrase la plus longue qu'elle l'ait jamais entendu prononcer."
             ]
         }
     },
@@ -408,7 +467,7 @@ const STORY_EVENTS = [
             pages: [
                 "Le nom de Nabdano pèse sur vous trois depuis des jours. Alors Nyra décrète : « Pause. Aujourd'hui on ne sauve pas le monde. »",
                 "Elle invente un jeu débile : nommer à voix haute une chose qui vaut encore la peine d'exister. Le café chaud. Le bruit de la pluie. Un certain silence partagé.",
-                "Esen, après un long moment, dit un seul mot, en te regardant : « Ça. » Nyra rougit et change vite de sujet. Mais elle l'a entendu."
+                "Esen, après un long moment, dit un seul mot, en regardant Nyra : « Ça. » Elle rougit et change vite de sujet. Mais elle l'a entendu."
             ]
         }
     },
@@ -436,11 +495,12 @@ const STORY_EVENTS = [
         content: {
             speaker: 'nyra',
             title: 'Promesse',
+            image: 'images/story/n41_promesse.webp',
             pages: [
                 "« Il m'a parlé aussi, » avoue Nyra, plus pâle que d'habitude. « Avec ma propre voix. Il connaît exactement quoi dire. »",
                 "« Alors on fait une promesse, » dit Esen. « Le jour où l'un de nous l'écoute... l'autre n'abandonne pas. Il vient le chercher. »",
-                "Nyra te regarde. « Toi aussi tu promets ? »",
-                "Le pacte est scellé entre vous trois. Contre une voix qui porte vos propres mots."
+                "Nyra tend sa main, paume vers le bas. Esen pose la sienne dessus. « Promis. »",
+                "Le pacte est scellé. Contre une voix qui porte vos propres mots."
             ]
         }
     },
@@ -470,7 +530,7 @@ const STORY_EVENTS = [
             pages: [
                 "Les Failles changent. Elles convergent toutes vers un même endroit, loin, où le blanc de l'oubli est le plus épais.",
                 "« C'est là qu'il est, » dit le Système. « Assis, au centre de tout ce qu'il a effacé. Il t'attend. Il sait que tu viens. »",
-                "Tu sens Esen et Nyra de chaque côté de toi. Personne ne parle. Personne ne ralentit."
+                "Esen et Nyra marchent épaule contre épaule. Personne ne parle. Personne ne ralentit."
             ]
         }
     },
@@ -500,7 +560,7 @@ const STORY_EVENTS = [
             image: 'images/story/moment_suspendu.webp',
             pages: [
                 "La voix de Nabdano est partout maintenant. Difficile de penser. Difficile d'avancer.",
-                "Sans un mot, Nyra prend ta main. De l'autre côté, Esen pose la sienne sur ton épaule.",
+                "Sans un mot, Nyra prend la main d'Esen. Il ne la retire pas. Personne n'a besoin de parler.",
                 "« Tant qu'on se touche, » dit Nyra, « il ne peut pas nous prendre un par un. »",
                 "Le Système, presque ému : « Trois signaux. Entrelacés. Je n'ai jamais rien vu d'aussi difficile à effacer. »"
             ]
@@ -545,11 +605,12 @@ const STORY_EVENTS = [
         content: {
             speaker: 'esen',
             title: 'Pourquoi Esen Tient',
+            image: 'images/story/n55_esen_tient.webp',
             pages: [
-                "« Tu l'écoutes, » constate Esen. Pas de reproche. Juste un fait.",
+                "« Tu l'écoutes, » constate Esen. Nyra ne nie pas. Pas de reproche. Juste un fait.",
                 "« Moi aussi je l'entends. Et il a raison sur une chose : ça ne finit jamais. »",
                 "« Mais c'est exactement pour ça qu'il faut continuer. Pas parce que ça finira. Parce que les gens qu'on porte méritent qu'on tienne encore un jour. Et puis encore un. »",
-                "Il te regarde. « Toi aussi, tu mérites que quelqu'un tienne pour toi. C'est ce que je fais. »"
+                "Il la regarde. « Toi aussi, tu mérites que quelqu'un tienne pour toi. C'est ce que je fais. »"
             ]
         }
     },
@@ -561,8 +622,9 @@ const STORY_EVENTS = [
         content: {
             speaker: 'nyra',
             title: 'Le Caillou Rendu',
+            image: 'images/story/n57_caillou_rendu.webp',
             pages: [
-                "Nyra fouille dans sa collection de cailloux. Elle en cherche un précis, le trouve, te le tend.",
+                "Nyra fouille dans sa collection de cailloux. Elle en cherche un précis, le trouve, le tend à Esen.",
                 "« Le tout premier que j'ai ramassé. Avant de te connaître. J'étais seule, ce jour-là, et j'ai failli m'asseoir. »",
                 "« Garde-le. Comme ça, si un jour c'est moi qui flanche... tu auras une preuve que j'ai tenu une fois. Et tu me forceras à recommencer. »"
             ]
@@ -607,8 +669,9 @@ const STORY_EVENTS = [
         content: {
             speaker: 'nyra',
             title: 'Avant la Fin',
+            image: 'images/story/n70_avant_fin.webp',
             pages: [
-                "La veille du seuil final, vous restez éveillés tous les trois, en silence.",
+                "La veille du seuil final, vous restez éveillés tous les deux, en silence.",
                 "« Si on en sort, » dit Nyra sans regarder personne, « il faudra qu'on se dise des choses. Des vraies. »",
                 "Esen hoche la tête, lentement. « Si on en sort. »",
                 "Personne ne finit la phrase. Mais quelque chose, entre vous, vient d'être promis."
@@ -627,7 +690,7 @@ const STORY_EVENTS = [
             pages: [
                 "Devant vous, le centre de l'effacement. Une étendue blanche, infinie, silencieuse. Et au milieu, une silhouette assise.",
                 "Le Système, d'une voix presque éteinte : « C'est lui. Nabdano. »",
-                "« Va. Je reste avec toi autant que je le peux. Et n'oublie pas... tu es venu à trois. »"
+                "« Va. Je reste avec toi autant que je le peux. Et n'oublie pas... tu n'es pas venu seul. »"
             ]
         }
     }
@@ -746,7 +809,7 @@ function storyShowEvent(evt) {
         const image = (c.pageImages && c.pageImages[pageIdx]) ? c.pageImages[pageIdx] : (c.image || char.image);
         overlay.innerHTML = `
             <div style="max-width:400px;width:100%;max-height:90vh;overflow-y:auto;background:linear-gradient(165deg,${color}14,rgba(8,12,20,0.97) 60%);
-                        border:1px solid ${color}55;border-radius:18px;padding:0;overflow-x:hidden;
+                        border:1px solid ${color}55;border-radius:20px;padding:0;overflow-x:hidden;
                         box-shadow:0 0 44px ${color}33;animation:awakCardRise 0.5s cubic-bezier(0.2,0.8,0.2,1);">
                 ${image ? `
                     <div style="width:100%;background:#05070c;border-bottom:1px solid ${color}30;">
@@ -887,7 +950,7 @@ function awakShowHeroReaction(reason) {
                 nyra: "« Te revoilà, toi ! » Elle croise les bras, faussement vexée. « J'ai failli m'inquiéter. Bon. On reprend où on s'était arrêtés ? »"
             },
             abandon: {
-                esen: "« Tu t'es arrêté en cours de route. » Il te regarde, sans reproche. « La prochaine fois, va au bout. Je sais que tu peux. »",
+                esen: "« Tu t'es arrêté en cours de route. » Un silence. Sans reproche. « La prochaine fois, va au bout. Je sais que tu peux. »",
                 nyra: "« Hé, t'abandonnes pas comme ça ! » Elle fronce les sourcils. « ...Bon, ça arrive. Mais la prochaine, tu finis. Promis ? »"
             }
         };
@@ -897,7 +960,7 @@ function awakShowHeroReaction(reason) {
         overlay.id = 'heroReactionOverlay';
         overlay.style.cssText = 'position:fixed;inset:0;z-index:99997;background:rgba(0,0,0,0.93);backdrop-filter:blur(9px);display:flex;align-items:center;justify-content:center;padding:22px;opacity:0;animation:awakFadeIn 0.45s forwards;';
         overlay.innerHTML = `
-            <div style="max-width:400px;width:100%;background:linear-gradient(165deg,${color}14,rgba(8,12,20,0.97) 60%);border:1px solid ${color}55;border-radius:18px;overflow:hidden;box-shadow:0 0 44px ${color}33;animation:awakCardRise 0.5s cubic-bezier(0.2,0.8,0.2,1);">
+            <div style="max-width:400px;width:100%;background:linear-gradient(165deg,${color}14,rgba(8,12,20,0.97) 60%);border:1px solid ${color}55;border-radius:20px;overflow:hidden;box-shadow:0 0 44px ${color}33;animation:awakCardRise 0.5s cubic-bezier(0.2,0.8,0.2,1);">
                 <div style="width:100%;background:#05070c;border-bottom:1px solid ${color}30;">
                     <img src="${img}" alt="${heroName}" style="width:100%;height:auto;max-height:55vh;object-fit:contain;display:block;" onerror="this.parentElement.style.display='none';" />
                 </div>

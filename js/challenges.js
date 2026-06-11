@@ -1115,7 +1115,7 @@ function showChallengeIssuedModal(challenge) {
     modal.innerHTML = `
         <div style="
             width:100%;max-width:380px;
-            background:#0a0a0a;border-radius:24px;
+            background:#0a0a0a;border-radius:20px;
             padding:28px 22px;text-align:center;
             border:${isLeg ? '2px' : '1.5px'} solid ${borderColor};
             box-shadow:0 0 80px ${glowColor}, 0 0 200px ${glowColor.replace('0.4','0.1')};
@@ -1149,7 +1149,7 @@ function showChallengeIssuedModal(challenge) {
                 ${isLeg ? `<div style="margin-top:8px;display:inline-block;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);border-radius:99px;padding:3px 12px;font-size:0.68em;color:#f59e0b;font-weight:700;">✦ Réussite = +5000 XP + Drop Épique/Légendaire garanti</div>` : ''}
             </div>
 
-            <div style="background:rgba(239,68,68,${isLeg?'0.12':'0.08'});border:${isLeg?'2':'1'}px solid rgba(239,68,68,${isLeg?'0.4':'0.2'});border-radius:12px;padding:12px;margin-bottom:20px;">
+            <div style="background:rgba(239,68,68,${isLeg?'0.12':'0.08'});border:${isLeg?'2':'1'}px solid rgba(239,68,68,${isLeg?'0.4':'0.2'});border-radius:14px;padding:12px;margin-bottom:20px;">
                 <div style="font-size:0.65em;color:#ef4444;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">⛓️ En cas d'échec</div>
                 <div style="font-size:0.85em;font-weight:700;color:#f87171;">${challenge.penaltyIcon} ${challenge.penaltyName}</div>
                 <div style="font-size:0.72em;color:rgba(255,255,255,0.4);margin-top:4px;">${challenge.penaltyDesc}</div>
@@ -1211,7 +1211,7 @@ function showChallengeResultModal(challenge, success, message, penaltyData, rewa
     modal.innerHTML = `
         <div style="
             width:100%;max-width:380px;
-            background:#0a0a0a;border-radius:24px;
+            background:#0a0a0a;border-radius:20px;
             padding:28px 22px;text-align:center;
             border:1.5px solid ${color};
             box-shadow:0 0 80px ${glow};
@@ -1232,13 +1232,13 @@ function showChallengeResultModal(challenge, success, message, penaltyData, rewa
             </div>
 
             ${!success ? `
-            <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);border-radius:12px;padding:14px;margin-bottom:20px;">
+            <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);border-radius:14px;padding:14px;margin-bottom:20px;">
                 <div style="font-size:0.7em;color:#ef4444;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Pénalité appliquée</div>
                 <div style="font-size:0.9em;font-weight:800;color:#f87171;">${challenge.penaltyIcon} ${challenge.penaltyName}</div>
                 <div style="font-size:0.75em;color:rgba(255,255,255,0.4);margin-top:4px;">${challenge.penaltyDesc}</div>
                 ${instantDetail}
             </div>` : `
-            <div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.22);border-radius:12px;padding:14px;margin-bottom:20px;">
+            <div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.22);border-radius:14px;padding:14px;margin-bottom:20px;">
                 <div style="font-size:0.65em;color:#22c55e;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">🏆 Récompenses obtenues</div>
                 ${(rewardApplied||[]).map(r => `
                 <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(34,197,94,0.1);">
@@ -1319,7 +1319,7 @@ function renderChallengeSection() {
     if (!challenge || challenge.status !== 'active') {
         // Pas de défi actif — afficher option d'en générer un
         challengeHtml = `
-            <div style="background:linear-gradient(160deg,#0a0e18,#0F1014);border:1.5px dashed rgba(168,85,247,0.3);border-radius:16px;padding:20px;text-align:center;margin-bottom:14px;">
+            <div style="background:linear-gradient(160deg,#0a0e18,#0F1014);border:1.5px dashed rgba(168,85,247,0.3);border-radius:14px;padding:20px;text-align:center;margin-bottom:14px;">
                 <div style="font-size:2em;margin-bottom:10px;opacity:0.5;">📜</div>
                 <div style="font-weight:800;color:#c084fc;margin-bottom:6px;font-size:0.95em;letter-spacing:0.5px;">Aucun défi actif</div>
                 <div style="font-size:0.78em;color:#94a3b8;line-height:1.5;">Le Système t'observe…<br/>peut-être reviendra-t-il à ta prochaine séance.</div>
@@ -1339,7 +1339,7 @@ function renderChallengeSection() {
             <div onclick="showActiveChallengeDetails()" style="
                 background:linear-gradient(135deg,#0a0a14,#14001e);
                 border:1.5px solid ${urgentColor}40;
-                border-radius:16px;padding:16px;margin-bottom:14px;
+                border-radius:14px;padding:16px;margin-bottom:14px;
                 box-shadow:0 0 20px ${urgentColor}15;
                 cursor:pointer;transition:all 0.2s;
             " onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 24px ${urgentColor}30';"
@@ -1483,7 +1483,7 @@ function showActiveChallengeDetails() {
 
     modal.innerHTML = `
         <div style="
-            width:100%;max-width:380px;background:#0a0a0a;border-radius:24px;
+            width:100%;max-width:380px;background:#0a0a0a;border-radius:20px;
             padding:28px 22px;text-align:center;
             border:${isLeg ? '2px' : '1.5px'} solid ${borderColor};
             box-shadow:0 0 80px ${glowColor};
@@ -1513,14 +1513,14 @@ function showActiveChallengeDetails() {
             </div>
 
             <!-- Pénalité en cas d'échec -->
-            <div style="background:rgba(239,68,68,${isLeg?'0.12':'0.08'});border:${isLeg?'2':'1'}px solid rgba(239,68,68,${isLeg?'0.4':'0.2'});border-radius:12px;padding:12px;margin-bottom:20px;text-align:left;">
+            <div style="background:rgba(239,68,68,${isLeg?'0.12':'0.08'});border:${isLeg?'2':'1'}px solid rgba(239,68,68,${isLeg?'0.4':'0.2'});border-radius:14px;padding:12px;margin-bottom:20px;text-align:left;">
                 <div style="font-size:0.62em;color:#ef4444;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">⛓️ Pénalité en cas d'échec</div>
                 <div style="font-size:0.88em;font-weight:800;color:#f87171;margin-bottom:4px;">${challenge.penaltyIcon} ${challenge.penaltyName}</div>
                 <div style="font-size:0.72em;color:rgba(255,255,255,0.5);line-height:1.5;">${challenge.penaltyDesc}</div>
             </div>
 
             <button onclick="document.getElementById('challengeIssuedModal').remove();"
-                    style="width:100%;padding:13px;border-radius:13px;border:none;cursor:pointer;
+                    style="width:100%;padding:13px;border-radius:14px;border:none;cursor:pointer;
                            background:${btnBg};color:white;font-size:0.9em;font-weight:800;">
                 ⚔️ Fermer
             </button>

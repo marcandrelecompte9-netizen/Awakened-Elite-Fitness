@@ -634,7 +634,7 @@ function renderHunterCard() {
                 <div style="font-size:0.65em;color:#475569;">Active-le pour accumuler de l'XP</div>
             </div>
             <button onclick="if(typeof setRPGMode==='function')setRPGMode(true);else localStorage.setItem('fitproGameMode','1');renderAdventureTab();"
-                    style="padding:6px 12px;border-radius:8px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);color:#fbbf24;font-size:0.72em;font-weight:700;cursor:pointer;white-space:nowrap;">
+                    style="padding:6px 12px;border-radius:10px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);color:#fbbf24;font-size:0.72em;font-weight:700;cursor:pointer;white-space:nowrap;">
                 ⚡ Activer
             </button>
         </div>` : '';
@@ -661,7 +661,7 @@ function renderHunterCard() {
                 <span style="font-size:0.75em;font-weight:800;color:${s.c};width:24px;text-align:right;">${s.val}</span>
             </div>`).join('')}
         </div>
-        <button onclick="setAdventureEnabled(false);renderAdventureTab();" style="margin-top:12px;width:100%;padding:6px;border-radius:8px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.12);color:#f87171;font-size:0.7em;font-weight:700;cursor:pointer;">✕ Désactiver</button>
+        <button onclick="setAdventureEnabled(false);renderAdventureTab();" style="margin-top:12px;width:100%;padding:6px;border-radius:10px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.12);color:#f87171;font-size:0.7em;font-weight:700;cursor:pointer;">✕ Désactiver</button>
     </div>`;
 }
 
@@ -708,7 +708,7 @@ function renderEquipmentPanel() {
         if (item) {
             const r = getRarityInfo(item.rarity);
             return `<div onclick="showItemDetail('${item.id}','equipped',${invId})" style="
-                width:${dim};height:${dim};border-radius:8px;cursor:pointer;
+                width:${dim};height:${dim};border-radius:10px;cursor:pointer;
                 background:${r.bg};border:1.5px solid ${r.color}60;
                 display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
                 box-shadow:0 0 10px ${r.glow},inset 0 0 8px ${r.bg};
@@ -717,11 +717,11 @@ function renderEquipmentPanel() {
                 <span style="font-size:${size==='large'?'1.5em':'1.2em'};line-height:1;">${item.icon}</span>
                 <span style="font-size:0.42em;color:${r.color};font-weight:700;text-transform:uppercase;letter-spacing:0.5px;padding:0 2px;text-align:center;line-height:1.2;overflow:hidden;max-width:${dim};">${item.name.split(' ').slice(0,2).join(' ')}</span>
                 <div style="position:absolute;top:2px;right:2px;font-size:0.45em;font-weight:900;color:${r.color};">${r.label}</div>
-                <div style="position:absolute;inset:0;border-radius:8px;border:1px solid ${r.color}30;pointer-events:none;"></div>
+                <div style="position:absolute;inset:0;border-radius:10px;border:1px solid ${r.color}30;pointer-events:none;"></div>
             </div>`;
         }
         return `<div style="
-            width:${dim};height:${dim};border-radius:8px;
+            width:${dim};height:${dim};border-radius:10px;
             background:rgba(6,182,212,0.03);
             border:1.5px solid rgba(6,182,212,0.18);
             display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
@@ -772,7 +772,7 @@ function renderEquipmentPanel() {
     <div style="
         background:linear-gradient(160deg,#020b18,#030e1f,#020b18);
         border:1px solid rgba(6,182,212,0.3);
-        border-radius:16px;
+        border-radius:14px;
         padding:0;overflow:hidden;
         margin-bottom:12px;
         box-shadow:0 0 30px rgba(6,182,212,0.08),inset 0 0 40px rgba(6,182,212,0.02);
@@ -882,7 +882,7 @@ function renderInventoryPanel() {
             const items=grouped[rid]; if(!items.length) return '';
             const r=getRarityInfo(rid);
             return `<div style="margin-bottom:10px;">
-                <div style="font-size:0.58em;color:${r.color};font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;padding:2px 7px;background:${r.bg};border-radius:5px;display:inline-block;">Rang ${r.label} · ${r.labelFull} (${items.length})</div>
+                <div style="font-size:0.58em;color:${r.color};font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;padding:2px 7px;background:${r.bg};border-radius:6px;display:inline-block;">Rang ${r.label} · ${r.labelFull} (${items.length})</div>
                 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
                     ${items.map(({entry,item})=>{
                         const isEq=eqIds.has(entry.id);
@@ -932,7 +932,7 @@ function showItemDetail(itemId, context, invId) {
     const modal = document.createElement('div');
     modal.id = 'itemDetailModal';
     modal.style.cssText = 'position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.88);display:flex;align-items:flex-end;justify-content:center;padding:0;';
-    modal.innerHTML = `<div style="width:100%;max-width:460px;background:#0d0d0d;border-radius:24px 24px 0 0;padding:20px 18px 36px;border:1px solid ${r.color}28;border-bottom:none;box-shadow:0 -8px 40px ${r.glow};animation:slideUpModal 0.28s cubic-bezier(0.34,1.2,0.64,1);max-height:88vh;overflow-y:auto;">
+    modal.innerHTML = `<div style="width:100%;max-width:460px;background:#0d0d0d;border-radius:20px 20px 0 0;padding:20px 18px 36px;border:1px solid ${r.color}28;border-bottom:none;box-shadow:0 -8px 40px ${r.glow};animation:slideUpModal 0.28s cubic-bezier(0.34,1.2,0.64,1);max-height:88vh;overflow-y:auto;">
         <div style="width:36px;height:3px;background:#1a1a1a;border-radius:99px;margin:0 auto 18px;"></div>
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
             <div style="width:52px;height:52px;border-radius:14px;flex-shrink:0;background:${r.bg};border:1.5px solid ${r.color}38;display:flex;align-items:center;justify-content:center;font-size:1.8em;box-shadow:0 0 14px ${r.glow};">${item.icon}</div>
@@ -946,11 +946,11 @@ function showItemDetail(itemId, context, invId) {
             <button onclick="document.getElementById('itemDetailModal').remove()" style="width:30px;height:30px;border-radius:50%;background:#111;border:1px solid #1a1a1a;color:#334155;font-size:0.95em;cursor:pointer;flex-shrink:0;">✕</button>
         </div>
         <div style="font-size:0.78em;color:#475569;margin-bottom:14px;line-height:1.6;">${item.description}</div>
-        <div style="background:#0a0a0a;border-radius:12px;padding:12px;margin-bottom:12px;border:1px solid #1a1a1a;">
+        <div style="background:#0a0a0a;border-radius:14px;padding:12px;margin-bottom:12px;border:1px solid #1a1a1a;">
             <div style="font-size:0.56em;color:#1e293b;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;">Statistiques</div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
                 ${[['⚔️','STR','STR','#ef4444'],['⚡','AGI','AGI','#f59e0b'],['💚','END','END','#22c55e'],['💙','VIT','VIT','#3b82f6'],['👁️','PER','PER','#06b6d4'],['🌀','SEN','SEN','#a855f7']].map(([icon,label,key,c])=>`
-                <div style="display:flex;align-items:center;gap:6px;background:#0d0d0d;padding:7px 9px;border-radius:8px;border:1px solid #1a1a1a;">
+                <div style="display:flex;align-items:center;gap:6px;background:#0d0d0d;padding:7px 9px;border-radius:10px;border:1px solid #1a1a1a;">
                     <span style="font-size:0.82em;">${icon}</span>
                     <span style="font-size:0.68em;color:#1e293b;flex:1;">${label}</span>
                     <span style="font-size:0.85em;font-weight:800;color:${c};">+${item.stats[key]||0}</span>
@@ -960,9 +960,9 @@ function showItemDetail(itemId, context, invId) {
         ${set?`<div style="background:rgba(245,158,11,0.05);border:1px solid rgba(245,158,11,0.12);border-radius:10px;padding:9px 11px;margin-bottom:12px;"><div style="font-size:0.62em;color:#f59e0b;font-weight:700;margin-bottom:2px;">${set.icon} Set : ${set.name}</div><div style="font-size:0.68em;color:#334155;">${set.description}</div></div>`:''}
         <div style="font-size:0.7em;color:#1e293b;font-style:italic;text-align:center;margin-bottom:16px;line-height:1.5;">${item.lore}</div>
         ${context==='inventory'&&invId?`<div style="display:flex;gap:8px;">${isEq?
-            `<button onclick="unequipSlot('${item.slot}');renderAdventureTab();document.getElementById('itemDetailModal').remove();" style="flex:1;padding:13px;border-radius:13px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.18);color:#f87171;font-weight:700;cursor:pointer;font-size:0.83em;">✕ Déséquiper</button>` :
-            `<button onclick="tryEquipWithFeedback(${invId},function(){document.getElementById('itemDetailModal')?.remove();});" style="flex:1;padding:13px;border-radius:13px;background:linear-gradient(135deg,${r.color},${r.color}bb);border:none;color:white;font-weight:800;cursor:pointer;font-size:0.85em;box-shadow:0 4px 14px ${r.glow};">⚔️ Équiper</button>`
-        }</div>` : `<button onclick="document.getElementById('itemDetailModal').remove();" style="width:100%;padding:12px;border-radius:12px;background:#0a0a0a;border:1px solid #1a1a1a;color:#334155;font-weight:700;cursor:pointer;font-size:0.82em;">Fermer</button>`}
+            `<button onclick="unequipSlot('${item.slot}');renderAdventureTab();document.getElementById('itemDetailModal').remove();" style="flex:1;padding:13px;border-radius:14px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.18);color:#f87171;font-weight:700;cursor:pointer;font-size:0.83em;">✕ Déséquiper</button>` :
+            `<button onclick="tryEquipWithFeedback(${invId},function(){document.getElementById('itemDetailModal')?.remove();});" style="flex:1;padding:13px;border-radius:14px;background:linear-gradient(135deg,${r.color},${r.color}bb);border:none;color:white;font-weight:800;cursor:pointer;font-size:0.85em;box-shadow:0 4px 14px ${r.glow};">⚔️ Équiper</button>`
+        }</div>` : `<button onclick="document.getElementById('itemDetailModal').remove();" style="width:100%;padding:12px;border-radius:14px;background:#0a0a0a;border:1px solid #1a1a1a;color:#334155;font-weight:700;cursor:pointer;font-size:0.82em;">Fermer</button>`}
     </div><style>@keyframes slideUpModal{from{transform:translateY(60px);opacity:0}to{transform:translateY(0);opacity:1}}</style>`;
     modal.addEventListener('click', e=>{ if(e.target===modal) modal.remove(); });
     document.body.appendChild(modal);
@@ -980,18 +980,18 @@ function showDropModal(item, rarityInfo, qualityScore) {
     const modal = document.createElement('div');
     modal.id = 'dropModal';
     modal.style.cssText = 'position:fixed;inset:0;z-index:10001;background:rgba(0,0,0,0.92);display:flex;align-items:center;justify-content:center;padding:20px;';
-    modal.innerHTML = `<div style="width:100%;max-width:320px;background:#0a0a0a;border-radius:22px;padding:26px 18px;text-align:center;border:2px solid ${rarityInfo.color};box-shadow:0 0 60px ${rarityInfo.glow},0 0 120px ${rarityInfo.glow}40;animation:dropPop 0.5s cubic-bezier(0.34,1.56,0.64,1);">
+    modal.innerHTML = `<div style="width:100%;max-width:320px;background:#0a0a0a;border-radius:20px;padding:26px 18px;text-align:center;border:2px solid ${rarityInfo.color};box-shadow:0 0 60px ${rarityInfo.glow},0 0 120px ${rarityInfo.glow}40;animation:dropPop 0.5s cubic-bezier(0.34,1.56,0.64,1);">
         <div style="font-size:0.58em;color:${rarityInfo.color};font-weight:700;text-transform:uppercase;letter-spacing:4px;margin-bottom:12px;">✦ ITEM OBTENU · RANG ${rarityInfo.label} ✦</div>
         <div style="font-size:4em;margin-bottom:8px;filter:drop-shadow(0 0 18px ${rarityInfo.glow});animation:iconBounce 0.6s ease 0.15s both;">${item.icon}</div>
         <div style="font-size:1.1em;font-weight:900;color:white;margin-bottom:4px;">${item.name}</div>
         <div style="font-size:0.68em;padding:2px 10px;border-radius:99px;background:${rarityInfo.bg};color:${rarityInfo.color};border:1px solid ${rarityInfo.color}38;display:inline-block;margin-bottom:10px;font-weight:800;">${rarityInfo.labelFull}</div>
         <div style="font-size:0.75em;color:#334155;margin-bottom:8px;line-height:1.5;">${item.description}</div>
-        ${item.passive ? `<div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.18);border-radius:8px;padding:7px 10px;margin-bottom:10px;"><span style="font-size:0.62em;color:#22c55e;font-weight:700;text-transform:uppercase;letter-spacing:1px;">⚡ Passif</span><div style="font-size:0.7em;color:#4ade80;margin-top:2px;line-height:1.4;">${item.passive}</div></div>` : ''}
+        ${item.passive ? `<div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.18);border-radius:10px;padding:7px 10px;margin-bottom:10px;"><span style="font-size:0.62em;color:#22c55e;font-weight:700;text-transform:uppercase;letter-spacing:1px;">⚡ Passif</span><div style="font-size:0.7em;color:#4ade80;margin-top:2px;line-height:1.4;">${item.passive}</div></div>` : ''}
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:12px;">
-            ${[['⚔️','STR','STR','#ef4444'],['⚡','AGI','AGI','#f59e0b'],['💚','END','END','#22c55e'],['💙','VIT','VIT','#3b82f6'],['👁️','PER','PER','#06b6d4'],['🌀','SEN','SEN','#a855f7']].map(([icon,label,key,c])=>`<div style="background:#111;border-radius:7px;padding:5px;border:1px solid #1a1a1a;"><span style="font-size:0.72em;">${icon}</span><span style="font-size:0.62em;color:#1e293b;"> ${label} </span><span style="font-size:0.75em;font-weight:800;color:${c};">+${item.stats[key]||0}</span></div>`).join('')}
+            ${[['⚔️','STR','STR','#ef4444'],['⚡','AGI','AGI','#f59e0b'],['💚','END','END','#22c55e'],['💙','VIT','VIT','#3b82f6'],['👁️','PER','PER','#06b6d4'],['🌀','SEN','SEN','#a855f7']].map(([icon,label,key,c])=>`<div style="background:#111;border-radius:6px;padding:5px;border:1px solid #1a1a1a;"><span style="font-size:0.72em;">${icon}</span><span style="font-size:0.62em;color:#1e293b;"> ${label} </span><span style="font-size:0.75em;font-weight:800;color:${c};">+${item.stats[key]||0}</span></div>`).join('')}
         </div>
         <!-- Qualité de l'entraînement -->
-        <div style="background:#111;border:1px solid #1a1a1a;border-radius:12px;padding:10px 12px;margin-bottom:14px;">
+        <div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:10px 12px;margin-bottom:14px;">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
                 <span style="font-size:0.65em;color:#334155;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Qualité séance</span>
                 <span style="font-size:0.7em;color:${qColor};font-weight:800;">${qLabel}</span>
@@ -1000,7 +1000,7 @@ function showDropModal(item, rarityInfo, qualityScore) {
                 ${Array.from({length:5}, (_,i) => `<div style="flex:1;height:5px;border-radius:99px;background:${i < qBars ? qColor : '#1e293b'};"></div>`).join('')}
             </div>
         </div>
-        <button onclick="document.getElementById('dropModal').remove();renderAdventureTab();" style="width:100%;padding:13px;border-radius:13px;border:none;cursor:pointer;background:linear-gradient(135deg,${rarityInfo.color},${rarityInfo.color}bb);color:white;font-size:0.9em;font-weight:800;box-shadow:0 4px 18px ${rarityInfo.glow};">🎒 Ajouter à l'inventaire</button>
+        <button onclick="document.getElementById('dropModal').remove();renderAdventureTab();" style="width:100%;padding:13px;border-radius:14px;border:none;cursor:pointer;background:linear-gradient(135deg,${rarityInfo.color},${rarityInfo.color}bb);color:white;font-size:0.9em;font-weight:800;box-shadow:0 4px 18px ${rarityInfo.glow};">🎒 Ajouter à l'inventaire</button>
     </div><style>@keyframes dropPop{from{transform:scale(0.7);opacity:0}to{transform:scale(1);opacity:1}}@keyframes iconBounce{0%{transform:scale(0)}60%{transform:scale(1.2)}100%{transform:scale(1)}}</style>`;
     modal.addEventListener('click', e=>{ if(e.target===modal) modal.remove(); });
     document.body.appendChild(modal);
@@ -1097,7 +1097,7 @@ function showItemPopup(item, invId, equippedSlot) {
                             const statColor = neg ? '#f87171' : r.color;
                             const effColor = neg ? '#f87171' : '#4ade80';
                             return `
-                            <div style="background:#0a0e18;border:1px solid ${neg?'rgba(239,68,68,0.25)':'rgba(255,255,255,0.06)'};border-radius:8px;padding:6px 4px;text-align:center;">
+                            <div style="background:#0a0e18;border:1px solid ${neg?'rgba(239,68,68,0.25)':'rgba(255,255,255,0.06)'};border-radius:10px;padding:6px 4px;text-align:center;">
                                 <div style="font-size:0.55em;color:#64748b;font-weight:800;letter-spacing:0.5px;">${k}</div>
                                 <div style="font-size:1em;color:${statColor};font-weight:900;line-height:1.1;">${neg?'':'+'}${v}</div>
                                 ${effectText ? `<div style="font-size:0.48em;color:${effColor};font-weight:700;margin-top:2px;letter-spacing:0.3px;">${effectText}</div>` : ''}
@@ -1117,21 +1117,21 @@ function showItemPopup(item, invId, equippedSlot) {
                 <!-- Actions -->
                 <div style="display:flex;gap:8px;margin-top:14px;">
                     ${isEquipped ? `
-                        <button onclick="unequipSlot('${equippedSlot}');renderAdventureTab();document.getElementById('itemPopupModal').remove();if(typeof rebuild==='function')rebuild();" style="flex:1;padding:13px;border-radius:11px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;font-weight:800;cursor:pointer;font-size:0.85em;">✕ Déséquiper</button>
+                        <button onclick="unequipSlot('${equippedSlot}');renderAdventureTab();document.getElementById('itemPopupModal').remove();if(typeof rebuild==='function')rebuild();" style="flex:1;padding:13px;border-radius:10px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;font-weight:800;cursor:pointer;font-size:0.85em;">✕ Déséquiper</button>
                     ` : (invId !== null && invId !== undefined ? (block ? `
-                        <button disabled style="flex:1;padding:13px;border-radius:11px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);color:#f87171;font-weight:700;font-size:0.82em;">${block.reason === 'muscle_too_weak' ? '💪' : '🔒'} ${block.label}</button>
+                        <button disabled style="flex:1;padding:13px;border-radius:10px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);color:#f87171;font-weight:700;font-size:0.82em;">${block.reason === 'muscle_too_weak' ? '💪' : '🔒'} ${block.label}</button>
                     ` : `
-                        <button onclick="tryEquipWithFeedback(${invId},function(){document.getElementById('itemPopupModal')?.remove();});" style="flex:1;padding:13px;border-radius:11px;background:linear-gradient(135deg,${r.color},${r.color}cc);border:none;color:white;font-weight:900;cursor:pointer;font-size:0.88em;letter-spacing:0.5px;box-shadow:0 4px 14px ${r.glow};">⚔️ ÉQUIPER</button>
+                        <button onclick="tryEquipWithFeedback(${invId},function(){document.getElementById('itemPopupModal')?.remove();});" style="flex:1;padding:13px;border-radius:10px;background:linear-gradient(135deg,${r.color},${r.color}cc);border:none;color:white;font-weight:900;cursor:pointer;font-size:0.88em;letter-spacing:0.5px;box-shadow:0 4px 14px ${r.glow};">⚔️ ÉQUIPER</button>
                     `) : '')}
                 </div>
 
                 <!-- 🗑️ Bouton supprimer (seulement si non équipé et présent dans l'inventaire) -->
                 ${(!isEquipped && invId !== null && invId !== undefined) ? `
-                <button onclick="confirmDiscardItem(${invId}, '${(item.name || '').replace(/'/g, '\\\'')}', '${r.color}')" style="width:100%;margin-top:8px;padding:10px;border-radius:11px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.25);color:#f87171;font-weight:800;cursor:pointer;font-size:0.78em;letter-spacing:0.5px;display:flex;align-items:center;justify-content:center;gap:6px;">
+                <button onclick="confirmDiscardItem(${invId}, '${(item.name || '').replace(/'/g, '\\\'')}', '${r.color}')" style="width:100%;margin-top:8px;padding:10px;border-radius:10px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.25);color:#f87171;font-weight:800;cursor:pointer;font-size:0.78em;letter-spacing:0.5px;display:flex;align-items:center;justify-content:center;gap:6px;">
                     🗑️ Supprimer cet item
                 </button>` : ''}
 
-                <button onclick="document.getElementById('itemPopupModal').remove()" style="width:100%;margin-top:8px;padding:10px;border-radius:11px;background:transparent;border:1px solid rgba(255,255,255,0.08);color:#94a3b8;font-weight:700;cursor:pointer;font-size:0.78em;">Fermer</button>
+                <button onclick="document.getElementById('itemPopupModal').remove()" style="width:100%;margin-top:8px;padding:10px;border-radius:10px;background:transparent;border:1px solid rgba(255,255,255,0.08);color:#94a3b8;font-weight:700;cursor:pointer;font-size:0.78em;">Fermer</button>
             </div>
         </div>
     `;
@@ -1154,7 +1154,7 @@ function confirmDiscardItem(invId, itemName, color) {
     modal.style.cssText = `position:fixed;inset:0;z-index:99995;background:rgba(0,0,0,0.92);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:20px;animation:awakFadeIn 0.2s;`;
 
     modal.innerHTML = `
-        <div style="max-width:360px;width:100%;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1.5px solid rgba(239,68,68,0.5);border-radius:16px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.7),0 0 40px rgba(239,68,68,0.2);animation:slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);">
+        <div style="max-width:360px;width:100%;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1.5px solid rgba(239,68,68,0.5);border-radius:14px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.7),0 0 40px rgba(239,68,68,0.2);animation:slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);">
 
             <!-- Header rouge avec icône -->
             <div style="background:linear-gradient(135deg,rgba(239,68,68,0.25),rgba(239,68,68,0.05));padding:18px 20px;text-align:center;border-bottom:1px solid rgba(239,68,68,0.3);">
@@ -1171,7 +1171,7 @@ function confirmDiscardItem(invId, itemName, color) {
                     <div style="font-size:0.95em;font-weight:900;color:${color};line-height:1.3;">${itemName}</div>
                 </div>
 
-                <div style="font-size:0.72em;color:#f87171;font-weight:700;line-height:1.5;margin-bottom:16px;background:rgba(239,68,68,0.05);padding:8px 12px;border-radius:8px;border:1px solid rgba(239,68,68,0.2);">
+                <div style="font-size:0.72em;color:#f87171;font-weight:700;line-height:1.5;margin-bottom:16px;background:rgba(239,68,68,0.05);padding:8px 12px;border-radius:10px;border:1px solid rgba(239,68,68,0.2);">
                     ⚠️ Cette action ne peut pas être annulée. L'item sera perdu pour toujours.
                 </div>
 
@@ -1283,7 +1283,7 @@ function openInventoryCleanupModal() {
     modal.style.cssText = `position:fixed;inset:0;z-index:99996;background:rgba(0,0,0,0.92);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:16px;animation:awakFadeIn 0.25s;`;
 
     modal.innerHTML = `
-        <div style="max-width:420px;width:100%;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1.5px solid rgba(239,68,68,0.4);border-radius:16px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.7),0 0 40px rgba(239,68,68,0.15);max-height:85vh;display:flex;flex-direction:column;animation:slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);">
+        <div style="max-width:420px;width:100%;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1.5px solid rgba(239,68,68,0.4);border-radius:14px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.7),0 0 40px rgba(239,68,68,0.15);max-height:85vh;display:flex;flex-direction:column;animation:slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);">
 
             <!-- Header -->
             <div style="background:linear-gradient(135deg,rgba(239,68,68,0.18),rgba(239,68,68,0.04));padding:16px 20px;border-bottom:1px solid rgba(239,68,68,0.3);position:relative;flex-shrink:0;">
@@ -1308,7 +1308,7 @@ function openInventoryCleanupModal() {
                 `}
 
                 ${totalNonEquipped > 0 ? `
-                <div style="background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.2);border-radius:8px;padding:10px 12px;margin-top:8px;font-size:0.72em;color:#f87171;line-height:1.5;">
+                <div style="background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:10px 12px;margin-top:8px;font-size:0.72em;color:#f87171;line-height:1.5;">
                     ⚠️ <strong>Action irréversible.</strong> Les items équipés sont protégés et ne peuvent pas être supprimés.
                 </div>
                 ` : ''}
@@ -1316,7 +1316,7 @@ function openInventoryCleanupModal() {
 
             <!-- Footer -->
             <div style="padding:12px 16px;border-top:1px solid rgba(255,255,255,0.06);flex-shrink:0;">
-                <button onclick="document.getElementById('inventoryCleanupModal').remove()" style="width:100%;padding:11px;border-radius:9px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#cbd5e1;font-weight:800;cursor:pointer;font-size:0.82em;letter-spacing:0.5px;">
+                <button onclick="document.getElementById('inventoryCleanupModal').remove()" style="width:100%;padding:11px;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#cbd5e1;font-weight:800;cursor:pointer;font-size:0.82em;letter-spacing:0.5px;">
                     Fermer
                 </button>
             </div>
@@ -1480,12 +1480,12 @@ function showRPGEquipmentModal(defaultTab) {
                         : `<span style="opacity:0.7;color:#4ade80;display:flex;filter:drop-shadow(0 0 4px rgba(0,0,0,0.8));">${slotSvg}</span>`
                     }
                 </div>
-                <div style="font-size:0.5em;color:rgba(255,255,255,0.85);font-weight:900;letter-spacing:1.5px;text-shadow:0 1px 3px rgba(0,0,0,0.95),0 0 6px rgba(0,0,0,0.8);background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:4px;border:1px solid ${isCursed ? 'rgba(168,85,247,0.5)' : 'rgba(74,222,128,0.3)'};">${slot.label}</div>
+                <div style="font-size:0.5em;color:rgba(255,255,255,0.85);font-weight:900;letter-spacing:1.5px;text-shadow:0 1px 3px rgba(0,0,0,0.95),0 0 6px rgba(0,0,0,0.8);background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:6px;border:1px solid ${isCursed ? 'rgba(168,85,247,0.5)' : 'rgba(74,222,128,0.3)'};">${slot.label}</div>
             </div>`;
         }
 
         return `
-        <div style="position:relative;width:100%;aspect-ratio:1066/1476;max-height:700px;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:12px;background:#000;">
+        <div style="position:relative;width:100%;aspect-ratio:1066/1476;max-height:700px;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:14px;background:#000;">
 
             <!-- AVATAR FULL SIZE (prend toute la largeur) -->
             <img src="${path}"
@@ -1529,7 +1529,7 @@ function showRPGEquipmentModal(defaultTab) {
                            backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);">
                 <span style="display:flex;width:30px;height:30px;">${toggleIcon.replace('width="17" height="17"', 'width="30" height="30"')}</span>
             </button>
-            <div style="position:absolute;top:264px;right:10px;z-index:5;font-size:0.5em;color:rgba(255,255,255,0.85);font-weight:900;letter-spacing:1.5px;background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:4px;border:1px solid rgba(74,222,128,0.3);width:54px;text-align:center;box-sizing:border-box;text-shadow:0 1px 3px rgba(0,0,0,0.95);">SEXE</div>
+            <div style="position:absolute;top:264px;right:10px;z-index:5;font-size:0.5em;color:rgba(255,255,255,0.85);font-weight:900;letter-spacing:1.5px;background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:6px;border:1px solid rgba(74,222,128,0.3);width:54px;text-align:center;box-sizing:border-box;text-shadow:0 1px 3px rgba(0,0,0,0.95);">SEXE</div>
 
             <!-- Coins HUD décoratifs -->
             <div style="position:absolute;top:0;left:0;width:24px;height:24px;border-top:2px solid #4ade80;border-left:2px solid #4ade80;border-top-left-radius:12px;box-shadow:0 0 10px rgba(74,222,128,0.5);pointer-events:none;z-index:4;"></div>
@@ -1616,17 +1616,17 @@ function showRPGEquipmentModal(defaultTab) {
             })() : ''}
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px;margin-bottom:8px;">
                 ${Object.entries(selectedItem.stats||{}).filter(([_,v]) => v !== 0).map(([k,v]) => `
-                    <div style="background:#0a0e18;border:1px solid ${v<0?'rgba(239,68,68,0.25)':'rgba(255,255,255,0.04)'};border-radius:5px;padding:3px;text-align:center;">
+                    <div style="background:#0a0e18;border:1px solid ${v<0?'rgba(239,68,68,0.25)':'rgba(255,255,255,0.04)'};border-radius:6px;padding:3px;text-align:center;">
                         <div style="font-size:0.5em;color:#475569;font-weight:700;">${k}</div>
                         <div style="font-size:0.7em;color:${v<0?'#f87171':r.color};font-weight:900;">${v<0?'':'+'}${v}</div>
                     </div>`).join('')}
             </div>
             ${selectedInvId ? `
                 ${block ? `
-                    <button disabled style="width:100%;padding:8px;border-radius:8px;border:1px solid rgba(239,68,68,0.3);background:rgba(239,68,68,0.08);color:#f87171;font-size:0.66em;font-weight:700;">
+                    <button disabled style="width:100%;padding:8px;border-radius:10px;border:1px solid rgba(239,68,68,0.3);background:rgba(239,68,68,0.08);color:#f87171;font-size:0.66em;font-weight:700;">
                         ${block.reason === 'muscle_too_weak' ? '💪' : '🔒'} ${block.label}
                     </button>` : `
-                    <button onclick="window._rpgEqEquipSelected()" style="width:100%;padding:8px;border-radius:8px;border:none;background:linear-gradient(135deg,${r.color},${r.color}cc);color:white;font-size:0.7em;font-weight:800;cursor:pointer;">
+                    <button onclick="window._rpgEqEquipSelected()" style="width:100%;padding:8px;border-radius:10px;border:none;background:linear-gradient(135deg,${r.color},${r.color}cc);color:white;font-size:0.7em;font-weight:800;cursor:pointer;">
                         ✓ ÉQUIPER
                     </button>`}
             ` : ''}`;
@@ -1702,7 +1702,7 @@ function showRPGEquipmentModal(defaultTab) {
             <div style="background:#000;
                        border:1px solid rgba(34,197,94,0.3);border-radius:14px;position:relative;
                        padding:0;margin-bottom:14px;overflow:hidden;">
-                <div style="position:absolute;top:8px;left:50%;transform:translateX(-50%);font-size:0.5em;color:#4ade80;font-weight:900;letter-spacing:3px;z-index:10;text-shadow:0 0 8px rgba(74,222,128,0.6),0 1px 4px rgba(0,0,0,0.9);background:rgba(0,0,0,0.6);padding:3px 10px;border-radius:4px;border:1px solid rgba(74,222,128,0.3);">◈ PERSONNAGE ◈</div>
+                <div style="position:absolute;top:8px;left:50%;transform:translateX(-50%);font-size:0.5em;color:#4ade80;font-weight:900;letter-spacing:3px;z-index:10;text-shadow:0 0 8px rgba(74,222,128,0.6),0 1px 4px rgba(0,0,0,0.9);background:rgba(0,0,0,0.6);padding:3px 10px;border-radius:6px;border:1px solid rgba(74,222,128,0.3);">◈ PERSONNAGE ◈</div>
                 ${renderCharacterPanel()}
             </div>
 
@@ -1827,7 +1827,7 @@ window.tryEquipWithFeedback = function(invId, onSuccess) {
                 ${isMuscle ? 'Muscle trop faible' : 'Rang insuffisant'}
             </div>
             <div style="font-size:0.95em;font-weight:800;color:white;margin-bottom:10px;">${result.itemName || ''}</div>
-            <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:12px;padding:12px 14px;margin-bottom:14px;">
+            <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:14px;padding:12px 14px;margin-bottom:14px;">
                 <div style="font-size:0.78em;font-weight:700;color:#f87171;margin-bottom:4px;">⛔ ${result.label}</div>
                 <div style="font-size:0.7em;color:#475569;line-height:1.6;">${result.detail}</div>
             </div>
@@ -1836,7 +1836,7 @@ window.tryEquipWithFeedback = function(invId, onSuccess) {
                     ? 'Entraîne ce groupe musculaire pour augmenter son niveau et déverrouiller cet équipement.'
                     : 'Continue de t\'entraîner pour augmenter ton rang de chasseur et débloquer cet équipement.'}
             </div>
-            <button onclick="document.getElementById('rankBlockModal').remove()" style="width:100%;padding:11px;border-radius:12px;border:none;background:rgba(239,68,68,0.15);color:#f87171;font-weight:700;cursor:pointer;font-size:0.85em;">Compris</button>
+            <button onclick="document.getElementById('rankBlockModal').remove()" style="width:100%;padding:11px;border-radius:14px;border:none;background:rgba(239,68,68,0.15);color:#f87171;font-weight:700;cursor:pointer;font-size:0.85em;">Compris</button>
         </div>`;
         m.addEventListener('click', e => { if (e.target === m) m.remove(); });
         document.body.appendChild(m);

@@ -9531,7 +9531,7 @@
             
             // Build workout structure
             const workout = {
-                name: `Séance intelligente ${userGoals[profile.goal].icon}`,
+                name: `Séance intelligente ${userGoals[profile.goal].icon}${(typeof getActiveCelebrity==='function' && getActiveCelebrity()) ? ' · ⭐ '+getActiveCelebrity().nickname : ''}`,
                 mode: selectedWorkoutMode, // 'timer', 'reps', 'hybrid'
                 exercises: []
             };
@@ -19372,7 +19372,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         <!-- YouTube search button -->
                         <button class="youtube-btn" 
                                 onclick="openYouTubeVideo(null, '${exercise.name.replace(/'/g, "\\'")}'); event.stopPropagation();"
-                                style="width: 100%; margin-top: 10px; padding: 10px; background: #ff0000; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s;">
+                                style="width: 100%; margin-top: 10px; padding: 10px; background: linear-gradient(135deg,#dc2626,#ef4444); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s;">
                             <span style="font-size: 1.2em;">▶️</span>
                             <span>Rechercher sur YouTube</span>
                         </button>
@@ -24327,22 +24327,43 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     'images/story/intro_beat5.webp',
                     'images/story/intro_beat6.webp'
                 ];
-                const bgImg = document.createElement('img');
-                bgImg.style.cssText = `position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:0;transition:opacity 0.9s ease;`;
-                overlay.appendChild(bgImg);
+                // 🎬 Fond : DEUX couches superposées → fondu croisé sans passage au noir.
+                // L'image suivante est préchargée hors écran, puis fondue par-dessus
+                // pendant que l'ancienne s'estompe. Chaque couche a son propre Ken Burns.
+                const _mkBgLayer = () => {
+                    const im = document.createElement('img');
+                    im.style.cssText = `position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:0;transition:opacity 1.4s ease;will-change:opacity,transform;`;
+                    overlay.appendChild(im);
+                    return im;
+                };
+                const _bgLayers = [_mkBgLayer(), _mkBgLayer()];
+                let _bgActive = 0;          // index de la couche visible
                 let _bgToken = 0;
                 const setBeatBg = (src, op) => {
                     op = (typeof op === 'number') ? op : 0.30;
                     const myToken = ++_bgToken;
-                    bgImg.style.opacity = '0';
-                    if (!src) return;
-                    setTimeout(() => {
-                        if (myToken !== _bgToken) return; // un beat plus récent a pris la main
-                        bgImg.onload = () => { if (myToken === _bgToken) { bgImg.style.animation = 'awakKenBurns 8s ease-out forwards'; bgImg.style.opacity = String(op); } };
-                        bgImg.onerror = () => { bgImg.style.opacity = '0'; };
-                        bgImg.style.animation = 'none';
-                        bgImg.src = src;
-                    }, 240);
+                    const cur = _bgLayers[_bgActive];
+                    if (!src) { cur.style.opacity = '0'; return; }
+                    const nxt = _bgLayers[1 - _bgActive];
+                    // Même image, seule l'opacité change (ex. passage 0.30 → 0.8) : pas de swap
+                    if (cur.src && cur.src.endsWith(src)) { cur.style.opacity = String(op); return; }
+                    const pre = new Image();
+                    pre.onload = () => {
+                        if (myToken !== _bgToken) return;       // un beat plus récent a pris la main
+                        nxt.style.transition = 'none';
+                        nxt.style.animation = 'none';
+                        nxt.style.opacity = '0';
+                        nxt.src = src;
+                        // reflow pour réarmer transition + Ken Burns proprement
+                        void nxt.offsetWidth;
+                        nxt.style.transition = 'opacity 1.4s ease';
+                        nxt.style.animation = 'awakKenBurns 9.5s ease-out forwards';
+                        nxt.style.opacity = String(op);          // fondu entrant…
+                        cur.style.opacity = '0';                 // …pendant que l'ancienne sort
+                        _bgActive = 1 - _bgActive;
+                    };
+                    pre.onerror = () => { if (myToken === _bgToken) cur.style.opacity = '0'; };
+                    pre.src = src;
                 };
 
                 // ✨ Particules « poussière qui s'efface » — deux profondeurs (parallaxe)
@@ -25658,7 +25679,17 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         // ═══════════════════════════════════════════════════════════════
         function renderActiveRiftsCard() {
             const rifts = awakGetActiveRifts();
-            if (rifts.length === 0) return '';
+            const _rcorn = (pos) => `<div style="position:absolute;${pos};width:11px;height:11px;border:2px solid rgba(192,132,252,0.7);${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;"></div>`;
+            const _rcorners = _rcorn('top:6px;left:6px')+_rcorn('top:6px;right:6px')+_rcorn('bottom:6px;left:6px')+_rcorn('bottom:6px;right:6px');
+            if (rifts.length === 0) {
+                // ◈ État vide façon Système (avant : rien du tout)
+                return `
+            <div class="card" style="background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(168,85,247,0.16);padding:16px 18px;margin-bottom:14px;position:relative;">
+                ${_rcorners}
+                <div style="font-family:var(--font-display);font-size:0.62em;color:#c084fc;font-weight:700;letter-spacing:2.5px;margin-bottom:6px;">◈ FAILLES</div>
+                <div style="font-size:0.78em;color:#94a3b8;font-family:'Courier New',monospace;">[ Système ] Aucune anomalie détectée pour l'instant. Continue de t'entraîner — ton signal attire les Failles.</div>
+            </div>`;
+            }
 
             const stateColors = {
                 stable: { bg: 'rgba(74,222,128,0.06)', border: 'rgba(74,222,128,0.25)', accent: '#4ade80' },
@@ -25672,9 +25703,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             };
 
             return `
-            <div class="card" style="background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(168,85,247,0.25);padding:18px;margin-bottom:14px;">
+            <div class="card" style="background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(168,85,247,0.25);padding:18px;margin-bottom:14px;position:relative;">
+                ${_rcorners}
                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
-                    <div style="font-size:0.6em;color:#c084fc;font-weight:900;letter-spacing:2px;">◈ FAILLES ACTIVES</div>
+                    <div style="font-family:var(--font-display);font-size:0.64em;color:#c084fc;font-weight:700;letter-spacing:2.5px;">◈ FAILLES ACTIVES</div>
                     <button onclick="awakShowRiftHelp()" style="background:rgba(168,85,247,0.15);border:1px solid rgba(192,132,252,0.4);color:#c084fc;border-radius:99px;padding:3px 9px;font-size:0.6em;font-weight:800;cursor:pointer;flex-shrink:0;">ⓘ Aide</button>
                     <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(168,85,247,0.3),transparent);"></div>
                     <div style="font-size:0.7em;color:#94a3b8;font-weight:700;">${rifts.length}/${RIFT_MAX_ACTIVE}</div>
@@ -32024,8 +32056,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             sheet.innerHTML = `
                 <div style="width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:99px;margin:0 auto 18px;"></div>
                 <div style="margin-bottom:14px;">
-                    <h2 style="margin:0 0 4px;color:white;font-size:1.15em;font-weight:900;">🌟 Programmes Stars</h2>
+                    <h2 style="margin:0 0 4px;color:white;font-size:1.15em;font-weight:700;font-family:var(--font-display);letter-spacing:0.04em;">🌟 Programmes Stars</h2>
                     <p style="margin:0 0 12px;color:rgba(255,255,255,0.4);font-size:0.78em;">Choisis une personnalité — son plan hebdo et ses exercices s\'activent automatiquement</p>
+                    <p style="margin:-6px 0 12px;color:rgba(255,255,255,0.28);font-size:0.62em;">Programmes inspirés de routines rendues publiques — aucune affiliation ni endorsement.</p>
                     <!-- Explication des modes -->
                     <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:13px 14px;display:flex;flex-direction:column;gap:9px;">
                         <div style="display:flex;align-items:flex-start;gap:10px;">
@@ -32159,7 +32192,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                    <button onclick="applyCelebrityWeeklyPlan(CELEBRITY_PROGRAMS.find(x=>x.id==='${p.id}'));setActiveCelebrity('${p.id}');document.getElementById('celebrityDetailOverlay').remove();updateProfileDisplay();updateHomeStats();"
                        style="width:100%;padding:12px;background:${p.color}18;border:1.5px solid ${p.color}50;border-radius:14px;color:${p.color};font-weight:800;cursor:pointer;font-size:0.85em;">
                        ${p.emoji} Activer ${p.nickname} — plan + exercices signature
-                   </button>`;
+                   </button>
+                   ${p.level==='Avancé' ? '<div style="margin-top:8px;font-size:0.7em;color:#fbbf24;background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3);border-radius:10px;padding:8px 10px;">⚠ Programme de niveau avancé — adapte charges et volumes à ton niveau réel.</div>' : ''}
+                   <div style="margin-top:8px;font-size:0.68em;color:#67e8f9;font-family:'Courier New',monospace;">[ Système ] Influence « ${p.focus} » détectée. Ton signal s'adaptera.</div>`;
 
             sheet.innerHTML = `
                 <div style="width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:99px;margin:0 auto 18px;"></div>
