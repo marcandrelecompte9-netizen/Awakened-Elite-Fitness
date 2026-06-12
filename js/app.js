@@ -3601,36 +3601,40 @@
             
             document.getElementById('planModalTitle').innerHTML = `${plan.emoji} ${plan.name}`;
             document.getElementById('planModalContent').innerHTML = `
-                <div style="background: linear-gradient(135deg, ${plan.color}15 0%, ${plan.color}05 100%); padding: 20px; border-radius: 14px; border-left: 4px solid ${plan.color}; margin-bottom: 20px;">
-                    <p style="font-size: 1.1em; color: #333; margin: 0;">${plan.description}</p>
+                <div style="background: linear-gradient(135deg, ${plan.color}18 0%, ${plan.color}06 100%); padding: 16px; border-radius: 14px; border-left: 3px solid ${plan.color}; margin-bottom: 18px;">
+                    <p style="font-size: 0.95em; color: #e2e8f0; margin: 0; line-height: 1.5;">${plan.description}</p>
                 </div>
                 
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px;">
-                    <div style="text-align: center; padding: 15px; background: #f9fafb; border-radius: 10px;">
-                        <div style="font-size: 2em; font-weight: bold; color: ${plan.color};">${plan.duration}</div>
-                        <div style="color: #666; margin-top: 5px;">semaines</div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 22px;">
+                    <div style="text-align: center; padding: 13px 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;">
+                        <div style="font-size: 1.7em; font-weight: 900; color: ${plan.color};">${plan.duration}</div>
+                        <div style="color: #94a3b8; font-size: 0.68em; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-top: 4px;">semaines</div>
                     </div>
-                    <div style="text-align: center; padding: 15px; background: #f9fafb; border-radius: 10px;">
-                        <div style="font-size: 2em; font-weight: bold; color: ${plan.color};">${totalSessions}</div>
-                        <div style="color: #666; margin-top: 5px;">séances</div>
+                    <div style="text-align: center; padding: 13px 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;">
+                        <div style="font-size: 1.7em; font-weight: 900; color: ${plan.color};">${totalSessions}</div>
+                        <div style="color: #94a3b8; font-size: 0.68em; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-top: 4px;">séances</div>
                     </div>
-                    <div style="text-align: center; padding: 15px; background: #f9fafb; border-radius: 10px;">
-                        <div style="font-size: 2em; font-weight: bold; color: ${plan.color};">${plan.frequency}</div>
-                        <div style="color: #666; margin-top: 5px;">par semaine</div>
+                    <div style="text-align: center; padding: 13px 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;">
+                        <div style="font-size: 1.7em; font-weight: 900; color: ${plan.color};">${plan.frequency}</div>
+                        <div style="color: #94a3b8; font-size: 0.68em; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-top: 4px;">par semaine</div>
                     </div>
                 </div>
+
+                <div style="background: rgba(74,222,128,0.06); border: 1px solid rgba(74,222,128,0.2); border-radius: 12px; padding: 12px 14px; margin-bottom: 22px;">
+                    <div style="font-size: 0.82em; color: #cbd5e1; line-height: 1.5;">📈 <strong style="color: #4ade80;">Surcharge progressive</strong> — l'effort augmente chaque semaine (jusqu'à +30%) et les repos se resserrent (60s → 40s). Ton corps n'a pas le temps de s'habituer.</div>
+                </div>
                 
-                <h3 style="color: ${plan.color}; margin-top: 30px;">📈 Progression par semaine</h3>
-                <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 30px;">
+                <h3 style="color: ${plan.color}; margin-top: 24px; font-size: 1em;">📈 Progression par semaine</h3>
+                <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px;">
                     ${plan.weeks.map(week => `
-                        <div style="padding: 15px; background: #f9fafb; border-radius: 10px; border-left: 4px solid ${plan.color};">
-                            <div style="font-weight: bold; color: #333; margin-bottom: 5px;">Semaine ${week.weekNumber} - ${week.title}</div>
-                            <div style="color: #666; font-size: 0.9em;">${week.description} • ${week.sessions.length} séances</div>
+                        <div style="padding: 12px 14px; background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; border-left: 3px solid ${plan.color};">
+                            <div style="font-weight: 800; color: #e2e8f0; font-size: 0.88em; margin-bottom: 3px;">Semaine ${week.weekNumber} — ${week.title}</div>
+                            <div style="color: #94a3b8; font-size: 0.76em;">${week.description} • ${week.sessions.length} séances</div>
                         </div>
                     `).join('')}
                 </div>
                 
-                <button onclick="startPlan('${planId}')" class="btn" style="width: 100%; padding: 15px; font-size: 1.1em; background: linear-gradient(135deg, ${plan.color} 0%, ${plan.color}dd 100%);">
+                <button onclick="startPlan('${planId}')" class="btn" style="width: 100%; padding: 15px; font-size: 1.05em; background: linear-gradient(135deg, ${plan.color} 0%, ${plan.color}dd 100%);">
                     🚀 Commencer ce plan
                 </button>
             `;
@@ -3713,6 +3717,13 @@
                 return ex;
             }
             
+            // 📈 SURCHARGE PROGRESSIVE RÉELLE — l'intensité monte avec les semaines.
+            // Semaine 1 : effort de base, repos 60s. Dernière semaine : +30% de durée d'effort, repos 40s.
+            const _ovProgress = Math.min(1, (weekNumber - 1) / Math.max(1, (activePlan.duration || activePlan.weeks.length) - 1));
+            const _ovMult = 1 + _ovProgress * 0.30;
+            const _ovRest = Math.max(40, Math.round(60 - _ovProgress * 20));
+            const _ovPct = Math.round((_ovMult - 1) * 100);
+
             // Create workout from session with smart adaptation
             const exercises = session.exercises.map(exName => {
                 let ex = findExerciseFlexible(exName);
@@ -3748,7 +3759,7 @@
                     }
                 }
                 
-                return ex ? { ...ex, duration: 60 } : null;
+                return ex ? { ...ex, duration: Math.round((ex.duration || 60) * _ovMult) } : null;
             }).filter(ex => ex);
             
             if (exercises.length === 0) {
@@ -3756,14 +3767,14 @@
                 return;
             }
             
-            // Add rest periods between exercises
+            // Add rest periods between exercises (repos qui se resserre avec les semaines)
             const workoutExercises = [];
             exercises.forEach((ex, index) => {
                 workoutExercises.push(ex);
                 if (index < exercises.length - 1) {
                     workoutExercises.push({ 
                         name: "Repos", 
-                        duration: 60, 
+                        duration: _ovRest, 
                         isRest: true,
                         mode: 'timer'
                     });
@@ -3777,7 +3788,7 @@
                 weekNumber: weekNumber,
                 sessionIndex: sessionIndex,
                 exercises: workoutExercises,
-                badgeHTML: `📅 ${activePlan.emoji} ${activePlan.name} - Semaine ${weekNumber}`,
+                badgeHTML: `📅 ${activePlan.emoji} ${activePlan.name} - Semaine ${weekNumber}${_ovPct > 0 ? ` · 📈 +${_ovPct}%` : ''}`,
                 badgeStyle: `linear-gradient(135deg, ${activePlan.color} 0%, ${activePlan.color}CC 100%)`
             };
             
@@ -3876,50 +3887,50 @@
             const currentWeek = activePlan.weeks[activePlan.currentWeek - 1];
             
             container.innerHTML = `
-                <div class="card" style="background: linear-gradient(135deg, ${activePlan.color}20 0%, ${activePlan.color}05 100%); border: 3px solid ${activePlan.color};">
+                <div class="card" style="background: linear-gradient(135deg, ${activePlan.color}14 0%, ${activePlan.color}04 100%); border: 1.5px solid ${activePlan.color}66;">
                     <h3 style="color: ${activePlan.color}; margin-top: 0; display: flex; align-items: center; gap: 10px;">
-                        ${activePlan.emoji} ${activePlan.name} - EN COURS
+                        ${activePlan.emoji} ${activePlan.name} — EN COURS
                     </h3>
                     
-                    <div style="background: #fff; padding: 15px; border-radius: 10px; margin: 15px 0;">
+                    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 14px; border-radius: 12px; margin: 14px 0;">
                         <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                            <span style="font-weight: bold; color: #333;">Progression totale</span>
-                            <span style="font-weight: bold; color: ${activePlan.color};">${activePlan.progress}%</span>
+                            <span style="font-weight: 800; color: #e2e8f0; font-size: 0.88em;">Progression totale</span>
+                            <span style="font-weight: 900; color: ${activePlan.color};">${activePlan.progress}%</span>
                         </div>
-                        <div style="width: 100%; height: 25px; background: #e5e7eb; border-radius: 14px; overflow: hidden;">
-                            <div style="background: linear-gradient(135deg, ${activePlan.color} 0%, ${activePlan.color}cc 100%); height: 100%; width: ${activePlan.progress}%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.9em; transition: width 0.5s;">
+                        <div style="width: 100%; height: 22px; background: rgba(255,255,255,0.06); border-radius: 14px; overflow: hidden;">
+                            <div style="background: linear-gradient(135deg, ${activePlan.color} 0%, ${activePlan.color}cc 100%); height: 100%; width: ${activePlan.progress}%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 0.78em; transition: width 0.5s;">
                                 ${activePlan.completedSessions.length} / ${totalSessions}
                             </div>
                         </div>
                     </div>
                     
-                    <div style="background: white; padding: 20px; border-radius: 14px; border-left: 4px solid ${activePlan.color};">
-                        <h4 style="color: ${activePlan.color}; margin-top: 0; display: flex; align-items: center; gap: 8px;">
-                            📍 Semaine ${activePlan.currentWeek} - ${currentWeek.title}
+                    <div style="background: rgba(255,255,255,0.025); padding: 16px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.06); border-left: 3px solid ${activePlan.color};">
+                        <h4 style="color: ${activePlan.color}; margin-top: 0; display: flex; align-items: center; gap: 8px; font-size: 0.95em;">
+                            📍 Semaine ${activePlan.currentWeek} — ${currentWeek.title}
                         </h4>
-                        <p style="color: #666; margin-bottom: 20px;">${currentWeek.description}</p>
+                        <p style="color: #94a3b8; margin-bottom: 16px; font-size: 0.82em;">${currentWeek.description}${activePlan.currentWeek > 1 ? ` · 📈 effort +${Math.round(Math.min(1,(activePlan.currentWeek-1)/Math.max(1,(activePlan.duration||activePlan.weeks.length)-1))*30)}%` : ''}</p>
                         
-                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
                             ${currentWeek.sessions.map((session, idx) => {
                                 const sessionKey = `${activePlan.currentWeek}-${idx}`;
                                 const completed = activePlan.completedSessions.includes(sessionKey);
                                 
                                 return `
-                                    <div style="background: ${completed ? '#10b98110' : '#f9fafb'}; padding: 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border: 2px solid ${completed ? '#10b981' : '#e5e7eb'};">
-                                        <div>
-                                            <div style="font-weight: bold; color: #333; margin-bottom: 5px;">
-                                                ${completed ? '✅' : '📌'} ${session.day} - ${session.name}
+                                    <div style="background: ${completed ? 'rgba(74,222,128,0.06)' : 'rgba(255,255,255,0.025)'}; padding: 13px 14px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; gap: 10px; border: 1.5px solid ${completed ? 'rgba(74,222,128,0.4)' : 'rgba(255,255,255,0.1)'};">
+                                        <div style="min-width: 0;">
+                                            <div style="font-weight: 800; color: #e2e8f0; font-size: 0.88em; margin-bottom: 4px;">
+                                                ${completed ? '✅' : '📌'} ${session.day} — ${session.name}
                                             </div>
-                                            <div style="font-size: 0.9em; color: #666;">
+                                            <div style="font-size: 0.76em; color: #94a3b8;">
                                                 ⏱️ ${session.duration} min • ${session.exercises.length} exercices
                                             </div>
                                         </div>
                                         ${!completed ? `
-                                            <button onclick="startPlanSession(${activePlan.currentWeek}, ${idx})" class="btn" style="padding: 10px 20px; white-space: nowrap;">
+                                            <button onclick="startPlanSession(${activePlan.currentWeek}, ${idx})" class="btn" style="padding: 9px 16px; white-space: nowrap; flex-shrink: 0;">
                                                 ▶️ Démarrer
                                             </button>
                                         ` : `
-                                            <span style="color: #10b981; font-size: 2em;">✓</span>
+                                            <span style="color: #4ade80; font-size: 1.6em; flex-shrink: 0;">✓</span>
                                         `}
                                     </div>
                                 `;
@@ -3927,7 +3938,7 @@
                         </div>
                     </div>
                     
-                    <button onclick="abandonPlan()" class="btn btn-secondary" style="width: 100%; margin-top: 20px;">
+                    <button onclick="abandonPlan()" class="btn btn-secondary" style="width: 100%; margin-top: 16px;">
                         ❌ Abandonner le plan
                     </button>
                 </div>
@@ -5327,6 +5338,9 @@
         let isMuted    = localStorage.getItem('fitproMuted') === 'true';
         let isVibOff   = localStorage.getItem('fitproVibOff') === 'true';
         let useKg      = localStorage.getItem('fitproUseKg') === 'true'; // false par défaut → lbs
+        // Les poids sont STOCKÉS en kg ; ces helpers convertissent pour l'affichage selon useKg.
+        function fmtWeightVal(kg) { const v = parseFloat(kg) || 0; return useKg ? Math.round(v * 10) / 10 : Math.round(v * 2.20462 * 10) / 10; }
+        function weightUnit() { return useKg ? 'kg' : 'lbs'; }
         let sessionMode        = localStorage.getItem('fitproSessionMode') || 'home';
         let activeLocationId   = localStorage.getItem('fitproActiveLocation') || 'home';
 
@@ -10428,7 +10442,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const showPrs = filtered;
             const main = showPrs[0];
             const labels = { weight:'POIDS MAX', reps:'REPS MAX', volume:'VOLUME MAX' };
-            const units  = { weight:'kg',         reps:' reps',    volume:'kg·reps' };
+            const _u = weightUnit();
+            const units  = { weight:_u,           reps:' reps',    volume:_u + '·reps' };
+            const _dispVal = (p) => p.type === 'reps' ? p.value : fmtWeightVal(p.value);
 
             const banner = document.createElement('div');
             banner.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:10200;pointer-events:none;animation:prBannerSlide 3.5s ease forwards;';
@@ -10441,7 +10457,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     <span style="font-size:1.4em;">🏆</span>
                     <div>
                         <div style="font-size:0.65em;opacity:0.9;letter-spacing:2px;line-height:1;">NOUVEAU RECORD</div>
-                        <div style="line-height:1.1;margin-top:2px;">${labels[showPrs[0].type]} : ${showPrs[0].value}${units[showPrs[0].type]}</div>
+                        <div style="line-height:1.1;margin-top:2px;">${labels[showPrs[0].type]} : ${_dispVal(showPrs[0])}${units[showPrs[0].type]}</div>
                     </div>
                 </div>`;
             document.body.appendChild(banner);
@@ -15269,16 +15285,16 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 let msg = '';
                 switch(pr.type) {
                     case 'weight':
-                        msg = `💪 Nouveau PR Poids: ${pr.value} lbs × ${pr.reps}`;
+                        msg = `💪 Nouveau PR Poids: ${fmtWeightVal(pr.value)} ${weightUnit()} × ${pr.reps}`;
                         break;
                     case 'reps':
-                        msg = `🔢 Nouveau PR Reps: ${pr.value} reps${pr.weight ? ` @ ${pr.weight} lbs` : ''}`;
+                        msg = `🔢 Nouveau PR Reps: ${pr.value} reps${pr.weight ? ` @ ${fmtWeightVal(pr.weight)} ${weightUnit()}` : ''}`;
                         break;
                     case 'rm':
-                        msg = `🏋️ Nouveau PR 1RM: ${pr.value} ${useKg ? 'kg' : 'lbs'} estimé`;
+                        msg = `🏋️ Nouveau PR 1RM: ${fmtWeightVal(pr.value)} ${weightUnit()} estimé`;
                         break;
                     case 'volume':
-                        msg = `📊 Nouveau PR Volume: ${pr.value} lbs total`;
+                        msg = `📊 Nouveau PR Volume: ${fmtWeightVal(pr.value)} ${weightUnit()} total`;
                         break;
                 }
                 return msg;
@@ -15383,7 +15399,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         type: 'weight',
                         icon: '💪',
                         label: 'Poids',
-                        value: `${exPRs.weight.value} lbs`,
+                        value: `${fmtWeightVal(exPRs.weight.value)} ${weightUnit()}`,
                         detail: `${exPRs.weight.reps} reps`,
                         date: exPRs.weight.date
                     });
@@ -15394,7 +15410,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         icon: '🔢',
                         label: 'Reps',
                         value: `${exPRs.reps.value} reps`,
-                        detail: exPRs.reps.weight ? `@ ${exPRs.reps.weight} lbs` : 'bodyweight',
+                        detail: exPRs.reps.weight ? `@ ${fmtWeightVal(exPRs.reps.weight)} ${weightUnit()}` : 'poids du corps',
                         date: exPRs.reps.date
                     });
                 }
@@ -15403,7 +15419,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         type: 'rm',
                         icon: '🏋️',
                         label: '1RM',
-                        value: `${exPRs.rm.value} lbs`,
+                        value: `${fmtWeightVal(exPRs.rm.value)} ${weightUnit()}`,
                         detail: 'estimé',
                         date: exPRs.rm.date
                     });
@@ -15413,8 +15429,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         type: 'volume',
                         icon: '📊',
                         label: 'Volume',
-                        value: `${exPRs.volume.value} lbs`,
-                        detail: `${exPRs.volume.reps} × ${exPRs.volume.weight}`,
+                        value: `${fmtWeightVal(exPRs.volume.value)} ${weightUnit()}`,
+                        detail: `${exPRs.volume.reps} × ${fmtWeightVal(exPRs.volume.weight)}`,
                         date: exPRs.volume.date
                     });
                 }
@@ -15422,25 +15438,25 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 if (prBadges.length === 0) return '';
                 
                 return `
-                    <div style="background: transparent; border: 2px solid #f59e0b; border-radius: 14px; padding: 20px;">
-                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                    <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(245,158,11,0.35); border-radius: 14px; padding: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
                             <div>
-                                <h3 style="margin: 0 0 5px 0; color: #333; font-size: 1.2em;">${exercise}</h3>
-                                <div style="font-size: 0.85em; color: #999;">
+                                <h3 style="margin: 0 0 4px 0; color: #e2e8f0; font-size: 1.05em; font-weight: 800;">${exercise}</h3>
+                                <div style="font-size: 0.78em; color: #94a3b8;">
                                     ${prBadges.length} record${prBadges.length > 1 ? 's' : ''}
                                 </div>
                             </div>
-                            <div style="font-size: 2em;">🏆</div>
+                            <div style="font-size: 1.7em;">🏆</div>
                         </div>
                         
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px;">
                             ${prBadges.map(badge => `
-                                <div style="background: linear-gradient(135deg, #f59e0b15 0%, #f59e0b05 100%); padding: 12px; border-radius: 10px; border-left: 3px solid #f59e0b;">
-                                    <div style="font-size: 1.5em; margin-bottom: 5px;">${badge.icon}</div>
-                                    <div style="font-size: 0.75em; color: #999; margin-bottom: 3px;">${badge.label}</div>
-                                    <div style="font-size: 1.1em; font-weight: bold; color: #f59e0b; margin-bottom: 2px;">${badge.value}</div>
-                                    <div style="font-size: 0.75em; color: #666;">${badge.detail}</div>
-                                    <div style="font-size: 0.7em; color: #999; margin-top: 5px;">
+                                <div style="background: rgba(245,158,11,0.06); padding: 11px; border-radius: 10px; border-left: 3px solid #f59e0b;">
+                                    <div style="font-size: 1.3em; margin-bottom: 4px;">${badge.icon}</div>
+                                    <div style="font-size: 0.66em; color: #94a3b8; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 3px;">${badge.label}</div>
+                                    <div style="font-size: 1.05em; font-weight: 800; color: #fbbf24; margin-bottom: 2px;">${badge.value}</div>
+                                    <div style="font-size: 0.72em; color: #cbd5e1;">${badge.detail}</div>
+                                    <div style="font-size: 0.66em; color: #94a3b8; margin-top: 5px;">
                                         ${new Date(badge.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
                                     </div>
                                 </div>
@@ -15768,14 +15784,14 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             let chartData, chartLabel, chartColor, statsHtml;
             
             if (type === 'weight') {
-                // Average weight per session
+                // Average weight per session (stocké en kg, affiché selon useKg)
                 const dataPoints = data.filter(d => d.weight).map(d => ({
                     x: new Date(d.date),
-                    y: d.weight
+                    y: fmtWeightVal(d.weight)
                 }));
                 
                 chartData = dataPoints;
-                chartLabel = 'Poids Moyen (lbs)';
+                chartLabel = `Poids Moyen (${weightUnit()})`;
                 chartColor = '#f59e0b';
                 
                 if (dataPoints.length > 0) {
@@ -15788,20 +15804,20 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
                             <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 14px; border-radius: 12px;">
                                 <div style="color: #94a3b8; font-size: 0.68em; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px;">Poids Moyen</div>
-                                <div style="font-size: 1.5em; font-weight: 700; color: #f59e0b;">${avg.toFixed(1)} lbs</div>
+                                <div style="font-size: 1.5em; font-weight: 700; color: #f59e0b;">${avg.toFixed(1)} ${weightUnit()}</div>
                             </div>
                             <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 14px; border-radius: 12px;">
                                 <div style="color: #94a3b8; font-size: 0.68em; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px;">Maximum</div>
-                                <div style="font-size: 1.5em; font-weight: 700; color: #10b981;">${max} lbs</div>
+                                <div style="font-size: 1.5em; font-weight: 700; color: #10b981;">${max} ${weightUnit()}</div>
                             </div>
                             <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 14px; border-radius: 12px;">
                                 <div style="color: #94a3b8; font-size: 0.68em; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px;">Minimum</div>
-                                <div style="font-size: 1.5em; font-weight: 700; color: #ef4444;">${min} lbs</div>
+                                <div style="font-size: 1.5em; font-weight: 700; color: #ef4444;">${min} ${weightUnit()}</div>
                             </div>
                             <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 14px; border-radius: 12px;">
                                 <div style="color: #94a3b8; font-size: 0.68em; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px;">Progression</div>
                                 <div style="font-size: 1.5em; font-weight: 700; color: ${progression >= 0 ? '#10b981' : '#ef4444'};">
-                                    ${progression >= 0 ? '+' : ''}${progression.toFixed(1)} lbs
+                                    ${progression >= 0 ? '+' : ''}${progression.toFixed(1)} ${weightUnit()}
                                 </div>
                             </div>
                         </div>
@@ -15851,7 +15867,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             } else if (type === '1rm') {
                 const dataPoints = data.filter(d => d.weight).map(d => ({
                     x: new Date(d.date),
-                    y: calculateEstimated1RM(d.reps, d.weight)
+                    y: fmtWeightVal(calculateEstimated1RM(d.reps, d.weight))
                 }));
                 
                 chartData = dataPoints;
@@ -15868,20 +15884,20 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
                             <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 14px; border-radius: 12px;">
                                 <div style="color: #94a3b8; font-size: 0.68em; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px;">1RM Moyen</div>
-                                <div style="font-size: 1.5em; font-weight: 700; color: #ef4444;">${avg.toFixed(1)} lbs</div>
+                                <div style="font-size: 1.5em; font-weight: 700; color: #ef4444;">${avg.toFixed(1)} ${weightUnit()}</div>
                             </div>
                             <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 14px; border-radius: 12px;">
                                 <div style="color: #94a3b8; font-size: 0.68em; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px;">Maximum</div>
-                                <div style="font-size: 1.5em; font-weight: 700; color: #10b981;">${max} lbs</div>
+                                <div style="font-size: 1.5em; font-weight: 700; color: #10b981;">${max} ${weightUnit()}</div>
                             </div>
                             <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 14px; border-radius: 12px;">
                                 <div style="color: #94a3b8; font-size: 0.68em; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px;">Minimum</div>
-                                <div style="font-size: 1.5em; font-weight: 700; color: #ef4444;">${min} lbs</div>
+                                <div style="font-size: 1.5em; font-weight: 700; color: #ef4444;">${min} ${weightUnit()}</div>
                             </div>
                             <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 14px; border-radius: 12px;">
                                 <div style="color: #94a3b8; font-size: 0.68em; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px;">Progression</div>
                                 <div style="font-size: 1.5em; font-weight: 700; color: ${progression >= 0 ? '#10b981' : '#ef4444'};">
-                                    ${progression >= 0 ? '+' : ''}${progression.toFixed(1)} lbs
+                                    ${progression >= 0 ? '+' : ''}${progression.toFixed(1)} ${weightUnit()}
                                 </div>
                             </div>
                         </div>
@@ -15893,11 +15909,11 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             } else if (type === 'volume') {
                 const dataPoints = data.filter(d => d.weight).map(d => ({
                     x: new Date(d.date),
-                    y: d.reps * d.weight
+                    y: fmtWeightVal(d.reps * d.weight)
                 }));
                 
                 chartData = dataPoints;
-                chartLabel = 'Volume Total (lbs)';
+                chartLabel = `Volume Total (${weightUnit()})`;
                 chartColor = '#10b981';
                 
                 if (dataPoints.length > 0) {
@@ -15909,15 +15925,15 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
                             <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 14px; border-radius: 12px;">
                                 <div style="color: #94a3b8; font-size: 0.68em; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px;">Volume Total</div>
-                                <div style="font-size: 1.5em; font-weight: 700; color: #10b981;">${total.toLocaleString()} lbs</div>
+                                <div style="font-size: 1.5em; font-weight: 700; color: #10b981;">${total.toLocaleString()} ${weightUnit()}</div>
                             </div>
                             <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 14px; border-radius: 12px;">
                                 <div style="color: #94a3b8; font-size: 0.68em; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px;">Volume Moyen/Séance</div>
-                                <div style="font-size: 1.5em; font-weight: 700; color: #16a34a;">${avg.toFixed(0)} lbs</div>
+                                <div style="font-size: 1.5em; font-weight: 700; color: #16a34a;">${avg.toFixed(0)} ${weightUnit()}</div>
                             </div>
                             <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 14px; border-radius: 12px;">
                                 <div style="color: #94a3b8; font-size: 0.68em; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px;">Volume Maximum</div>
-                                <div style="font-size: 1.5em; font-weight: 700; color: #f59e0b;">${max} lbs</div>
+                                <div style="font-size: 1.5em; font-weight: 700; color: #f59e0b;">${max} ${weightUnit()}</div>
                             </div>
                             <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 14px; border-radius: 12px;">
                                 <div style="color: #94a3b8; font-size: 0.68em; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px;">Séances</div>
@@ -23486,6 +23502,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             { id:'streak_lord',  name:'Seigneur du Streak', emoji:'🔥', desc:'Streak bonus commence dès 2 jours',      req:{level:12}, effect:{streakStart:2}, type:'base' },
             { id:'no_decay',     name:'Corps d\'Acier',     emoji:'🛡️', desc:'Grace de 10 jours avant le decay',       req:{level:18}, effect:{graceExtend:3}, type:'base' },
             { id:'xp_surge',     name:'Sursaut d\'XP',      emoji:'⚡', desc:'+30% XP global permanent',               req:{level:30}, effect:{xpAll:0.30}, type:'base' },
+            // ── ENDGAME : pouvoirs de palier (niv 40 → 120) ──
+            { id:'second_wind',  name:'Second Souffle',     emoji:'🫀', desc:'Survis à un coup fatal à 1 HP (1× par Faille)', req:{level:40}, effect:{secondWind:true}, type:'base' },
+            { id:'vital_drain',  name:'Drain Vital',        emoji:'🩸', desc:'Récupère 6% des dégâts infligés en HP (Failles)', req:{level:55}, effect:{riftLifesteal:0.06}, type:'base' },
+            { id:'transcendence',name:'Transcendance',      emoji:'🌌', desc:'+25% XP global · +1 point de stat par niveau', req:{level:70}, effect:{xpAll:0.25, extraStatPoint:1}, type:'base' },
+            { id:'apex_predator',name:'Apex Prédateur',     emoji:'🐺', desc:'+10% critique · +10% double drop', req:{level:90}, effect:{critChance:0.10, doubleDropChance:0.10}, type:'base' },
+            { id:'limit_break',  name:'Brise-Limites',      emoji:'💥', desc:'+40% XP · +5 toutes stats · 10% double XP', req:{level:120}, effect:{xpAll:0.40, statBonus:{STR:5,AGI:5,VIT:5,END:5,PER:5,SEN:5}, doubleXPChance:0.10}, type:'base' },
         ];
 
         // ── COMPÉTENCES SPÉCIFIQUES PAR CLASSE ─────────────────────────
@@ -23497,6 +23519,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 { id:'sa_phantom',     name:'Marche Fantôme',          emoji:'💨', desc:'Esquive 15% des pénalités de défi échoué',              req:{level:20}, effect:{penaltyDodge:0.15}, type:'class' },
                 { id:'sa_assassinate', name:'Assassinat',              emoji:'🗡️', desc:'15% chance de drop épique → drop légendaire',           req:{level:25}, effect:{epicToLegendary:0.15}, type:'class' },
                 { id:'sa_void_blade',  name:'Lame du Vide',            emoji:'⚜️', desc:'+10 AGI · +8 PER · +10% chance double drop',           req:{level:32}, effect:{statBonus:{AGI:10,PER:8},doubleDropChance:0.10}, type:'class' },
+                { id:'sa_eclipse',     name:'Éclipse Totale',          emoji:'🌑', desc:'+15% critique · +8 AGI · +8 PER',                      req:{level:45}, effect:{critChance:0.15, statBonus:{AGI:8,PER:8}}, type:'class' },
             ],
             iron_berserker: [
                 { id:'ib_bloodlust',   name:'Soif de Sang',            emoji:'🩸', desc:'+5 STR permanent',                                      req:{level:7},  effect:{statBonus:{STR:5}}, type:'class' },
@@ -23505,6 +23528,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 { id:'ib_rampage',     name:'Saccage',                 emoji:'⚒️', desc:'5% chance de tripler l\'XP d\'une série',             req:{level:20}, effect:{rampageChance:0.05}, type:'class' },
                 { id:'ib_immortal',    name:'Cœur Immortel',           emoji:'❤️\u200d🔥', desc:'+8 END permanent (cœur indestructible)', req:{level:25}, effect:{statBonus:{END:8}}, type:'class' },
                 { id:'ib_war_god',     name:'Dieu de la Guerre',       emoji:'👹', desc:'+12 STR · +6 END · 10% chance de doubler XP',          req:{level:32}, effect:{statBonus:{STR:12,END:6},doubleXPChance:0.10}, type:'class' },
+                { id:'ib_titanfall',   name:'Chute du Titan',          emoji:'☄️', desc:'+5% Saccage (triple XP) · +8 STR · +8 END',            req:{level:45}, effect:{rampageChance:0.05, statBonus:{STR:8,END:8}}, type:'class' },
             ],
             titan_guardian: [
                 { id:'tg_unbreakable', name:'Inébranlable',            emoji:'🏔️', desc:'+5 VIT permanent',                                      req:{level:7},  effect:{statBonus:{VIT:5}}, type:'class' },
@@ -23513,6 +23537,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 { id:'tg_regen',       name:'Régénération',            emoji:'💖', desc:'+6 VIT · +2 jours avant le déclin', req:{level:20}, effect:{statBonus:{VIT:6},graceExtend:2}, type:'class' },
                 { id:'tg_aegis',       name:'Égide du Titan',          emoji:'🛡️', desc:'Immunité totale à muscle_decay',                        req:{level:25}, effect:{immuneMuscleDecay:true}, type:'class' },
                 { id:'tg_atlas',       name:'Force d\'Atlas',          emoji:'🪨', desc:'+10 VIT · +6 END · -50% toutes pénalités',             req:{level:32}, effect:{statBonus:{VIT:10,END:6},penaltyReduction:0.50}, type:'class' },
+                { id:'tg_bulwark',     name:'Rempart Éternel',         emoji:'🧱', desc:'+8 VIT · +8 END · -25% pénalités de défi',             req:{level:45}, effect:{statBonus:{VIT:8,END:8}, penaltyReduction:0.25}, type:'class' },
             ],
             storm_archer: [
                 { id:'as_eagle_eye',   name:'Œil d\'Aigle',            emoji:'👁️', desc:'+5 PER permanent',                                      req:{level:7},  effect:{statBonus:{PER:5}}, type:'class' },
@@ -23521,6 +23546,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 { id:'as_wind_walker', name:'Marcheur du Vent',        emoji:'💨', desc:'+15% chance de drop épique',                            req:{level:20}, effect:{epicDropBonus:0.15}, type:'class' },
                 { id:'as_omniscient',  name:'Omniscience',             emoji:'👁️\u200d🗨️', desc:'+15% chance de loot épique', req:{level:25}, effect:{epicDropBonus:0.15}, type:'class' },
                 { id:'as_system_eye',  name:'Œil du Système',          emoji:'🌀', desc:'+10 PER · +6 AGI · +20% loot épique', req:{level:32}, effect:{statBonus:{PER:10,AGI:6},epicDropBonus:0.20}, type:'class' },
+                { id:'as_tempest',     name:'Œil de la Tempête',       emoji:'🌪️', desc:'+20% drop épique · +8 PER · +8 AGI',                 req:{level:45}, effect:{epicDropBonus:0.20, statBonus:{PER:8,AGI:8}}, type:'class' },
             ],
             arcane_mage: [
                 { id:'am_meditation',  name:'Méditation',              emoji:'🧘', desc:'+5 SEN permanent',                                      req:{level:7},  effect:{statBonus:{SEN:5}}, type:'class' },
@@ -23529,6 +23555,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 { id:'am_dispel',      name:'Dissipation',             emoji:'✨', desc:'20% chance d\'esquiver une pénalité de défi', req:{level:20}, effect:{penaltyDodge:0.20}, type:'class' },
                 { id:'am_telepathy',   name:'Télépathie Musculaire',   emoji:'🌌', desc:'+15% XP global (mobilité)', req:{level:25}, effect:{xpAll:0.15}, type:'class' },
                 { id:'am_reality_warp',name:'Faille de Réalité',       emoji:'🌠', desc:'+10 SEN · +6 PER · +2 stat points / niveau',           req:{level:32}, effect:{statBonus:{SEN:10,PER:6},extraStatPoint:2}, type:'class' },
+                { id:'am_ascension',   name:'Ascension Arcanique',     emoji:'🔯', desc:'+1 point de stat par niveau · +8 SEN · +8 PER',        req:{level:45}, effect:{extraStatPoint:1, statBonus:{SEN:8,PER:8}}, type:'class' },
             ],
             monarch_aspirant: [
                 { id:'ma_balanced',    name:'Équilibre Parfait',       emoji:'⚖️', desc:'+3 dans toutes les stats',                              req:{level:7},  effect:{statBonus:{STR:3,AGI:3,VIT:3,END:3,PER:3,SEN:3}}, type:'class' },
@@ -23537,6 +23564,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 { id:'ma_command',     name:'Commandement',            emoji:'⚔️', desc:'+20% XP sur compounds + isolations',                    req:{level:20}, effect:{xpCompound:0.20,xpIsolation:0.20}, type:'class' },
                 { id:'ma_throne',      name:'Le Trône',                emoji:'🪑', desc:'+25% chance de drop légendaire',                        req:{level:25}, effect:{legendaryDropBonus:0.25}, type:'class' },
                 { id:'ma_sovereign',   name:'Souveraineté Absolue',    emoji:'🌑', desc:'+8 toutes stats · 20% double drop · +50% XP',           req:{level:32}, effect:{statBonus:{STR:8,AGI:8,VIT:8,END:8,PER:8,SEN:8},doubleDropChance:0.20,xpAll:0.50}, type:'class' },
+                { id:'ma_dominion',    name:'Dominion',                emoji:'🌍', desc:'+20% XP global · +4 toutes stats',                      req:{level:45}, effect:{xpAll:0.20, statBonus:{STR:4,AGI:4,VIT:4,END:4,PER:4,SEN:4}}, type:'class' },
             ],
         };
 
@@ -24858,6 +24886,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     try { setTimeout(() => {
                         if (typeof awakCheckNarrativeRifts === 'function') awakCheckNarrativeRifts();
                         if (typeof awakCheckCompanionRifts === 'function') awakCheckCompanionRifts();
+                        if (typeof awakCheckWeeklyBoss === 'function') awakCheckWeeklyBoss();
+                        if (typeof awakCheckEveil === 'function') awakCheckEveil();
                     }, 6000); } catch(e) {}
                     // 🌑 [GLITCH DE L'ARCHITECTE DÉSACTIVÉ — ancienne narration, remplacée par Nabdano]
                     // try { setTimeout(() => {
@@ -25361,15 +25391,32 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             { id:'echo',      name:'Écho',        emoji:'🪞', color:'#06b6d4', weight:6,
               desc:'Tout est dédoublé. Plus de monstres, plus d\'XP. Le combat sera long.',
               hpMult:0.7, xpMult:1.8, hideHp:false, extraWave:true },
+            // ── MUTATIONS RANG A+ : règles de combat altérées (débloquées au rang A) ──
+            { id:'bloodmoon', name:'Lune de Sang', emoji:'🌕', color:'#dc2626', weight:8, rankMin:'A',
+              desc:'Aucun soin entre les vagues. Chaque point de vie compte. XP plus que doublée.',
+              hpMult:1.0, xpMult:2.2, hideHp:false, noHeal:true },
+            { id:'tempest',   name:'Tempête',      emoji:'⛈️', color:'#0ea5e9', weight:8, rankMin:'A',
+              desc:'Les monstres frappent 50% plus fort — mais toi aussi (+25%). Un duel déchaîné.',
+              hpMult:1.0, xpMult:1.8, hideHp:false, counterMult:1.5, playerDmgMult:1.25 },
+            { id:'volcanic',  name:'Volcanique',   emoji:'🌋', color:'#ea580c', weight:7, rankMin:'A',
+              desc:'Chaque vague vaincue explose et te brûle (10% de tes HP max). Termine vite.',
+              hpMult:0.9, xpMult:2.0, hideHp:false, eruptPct:0.10 },
             { id:'anomaly',   name:'Anomalie',    emoji:'🌌', color:'#fbbf24', weight:2,
               desc:'Une Faille corrompue par l\'Architecte. Extrêmement rare. Une récompense légendaire t\'attend si tu la fermes.',
-              hpMult:1.4, xpMult:3.0, hideHp:false, isEvent:true, guaranteedLegendary:true }
+              hpMult:1.4, xpMult:3.0, hideHp:false, isEvent:true, guaranteedLegendary:true },
+            { id:'worldboss', name:'Boss Mondial', emoji:'👹', color:'#dc2626', weight:0,
+              desc:'Une entité colossale, unique cette semaine. Tout le monde affronte le même monstre. Récompense légendaire garantie.',
+              hpMult:1.0, xpMult:3.0, hideHp:false, guaranteedLegendary:true }
         ];
 
         function awakPickRiftModifier() {
-            const total = RIFT_MODIFIERS.reduce((s, m) => s + m.weight, 0);
+            // Les mutations rankMin ne sont éligibles qu'à partir du rang indiqué
+            const _order = ['E','D','C','B','A','S','SS','SSS'];
+            const _pRank = (typeof awakGetRank === 'function') ? awakGetRank().id : 'E';
+            const pool = RIFT_MODIFIERS.filter(m => m.weight > 0 && (!m.rankMin || _order.indexOf(_pRank) >= _order.indexOf(m.rankMin)));
+            const total = pool.reduce((s, m) => s + m.weight, 0);
             let r = Math.random() * total;
-            for (const m of RIFT_MODIFIERS) {
+            for (const m of pool) {
                 r -= m.weight;
                 if (r <= 0) return m;
             }
@@ -25545,6 +25592,11 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     if (r.state !== 'stable') { r.state = 'stable'; changed = true; }
                     continue;
                 }
+                // 👹 Le Boss Hebdomadaire ne se dégrade pas : il attend, immuable, jusqu'à la fin de semaine
+                if (r.isWeeklyBoss) {
+                    if (r.state !== 'stable') { r.state = 'stable'; changed = true; }
+                    continue;
+                }
                 const lifetime = r.expiresAt - r.createdAt;
                 const elapsed = now - r.createdAt;
                 const ratio = elapsed / lifetime;
@@ -25567,6 +25619,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const cleaned = rifts.filter(r => {
                 // 🛡️ Une Faille narrative non complétée n'est JAMAIS supprimée
                 if (r.isNarrative && !r.completed) return true;
+                // 👹 Boss Hebdomadaire d'une semaine passée → retiré (un nouveau apparaîtra)
+                if (r.isWeeklyBoss && r.weekKey !== ('W' + Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000)))) return false;
                 if (r.completed && now - r.createdAt > 7 * 24 * 60 * 60 * 1000) return false;
                 if (r.state === 'exploded' && now - r.expiresAt > 7 * 24 * 60 * 60 * 1000) return false;
                 return true;
@@ -26524,9 +26578,24 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 if (cm.toasts) cm.toasts.forEach(t => procToasts.push(t));
             }
 
+            // ⛈️ TEMPÊTE : tes dégâts sont amplifiés (mutation rang A+)
+            try {
+                const _pm = (typeof awakGetRiftModifier === 'function' && rift) ? awakGetRiftModifier(rift.modifierId) : null;
+                if (_pm && _pm.playerDmgMult > 1) finalDamage = Math.round(finalDamage * _pm.playerDmgMult);
+            } catch(e) {}
+
             currentWave.hpCurrent = Math.max(0, currentWave.hpCurrent - finalDamage);
             const newHpPercent = (currentWave.hpCurrent / currentWave.hpMax) * 100;
             session.totalDamageDealt += finalDamage;
+
+            // 🩸 DRAIN VITAL : récupère un % des dégâts infligés en HP
+            try {
+                const _vfx = (typeof rpgGetActiveEffects === 'function') ? rpgGetActiveEffects() : {};
+                if (_vfx.riftLifesteal > 0) {
+                    const _heal = Math.max(1, Math.round(finalDamage * _vfx.riftLifesteal));
+                    if (typeof awakHealPlayer === 'function') awakHealPlayer(_heal, '(🩸 Drain Vital)');
+                }
+            } catch(e) {}
 
             // 💾 PERSISTER l'état dans localStorage
             try {
@@ -26611,8 +26680,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     }, 300);
                 }
 
-                // 💚 Heal entre vagues : 12% HP max + bonus END (sauf si malédiction noHeal)
-                if (!(_curse && _curse.noHealBetweenWaves) && typeof awakGetPlayerMaxHP === 'function' && typeof awakHealPlayer === 'function') {
+                // 💚 Heal entre vagues : 12% HP max + bonus END (sauf si malédiction noHeal ou mutation Lune de Sang)
+                const _rmod = (typeof awakGetRiftModifier === 'function' && session && session.rift) ? awakGetRiftModifier(session.rift.modifierId) : null;
+                if (!(_curse && _curse.noHealBetweenWaves) && !(_rmod && _rmod.noHeal) && typeof awakGetPlayerMaxHP === 'function' && typeof awakHealPlayer === 'function') {
                     const maxHP = awakGetPlayerMaxHP();
                     const bonuses = (typeof awakComputeStatBonuses === 'function')
                         ? awakComputeStatBonuses() : { hpRegen: 0 };
@@ -26630,6 +26700,28 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     setTimeout(() => {
                         if (typeof showToast === 'function') showToast('☠️ Malédiction : aucun soin entre les vagues', 'warning', 2400);
                     }, 500);
+                } else if (_rmod && _rmod.noHeal) {
+                    setTimeout(() => {
+                        if (typeof showToast === 'function') showToast('🌕 Lune de Sang : aucun soin entre les vagues', 'warning', 2400);
+                    }, 500);
+                }
+
+                // 🌋 VOLCANIQUE : la vague vaincue explose et brûle le joueur (jamais létal)
+                if (_rmod && _rmod.eruptPct > 0 && typeof awakGetPlayerMaxHP === 'function') {
+                    setTimeout(() => {
+                        try {
+                            const s = awakActiveRiftSession;
+                            if (!s) return;
+                            if (typeof s.playerHP !== 'number') s.playerHP = awakGetPlayerMaxHP();
+                            const burn = Math.round(awakGetPlayerMaxHP() * _rmod.eruptPct);
+                            s.playerHP = Math.max(1, s.playerHP - burn);
+                            if (typeof showToast === 'function') showToast(`🌋 ÉRUPTION ! La vague explose : -${burn} HP`, 'error', 2600);
+                            const _el = document.getElementById('playerHpBar');
+                            const _tx = document.getElementById('playerHpText');
+                            if (_el) _el.style.width = Math.round((s.playerHP / awakGetPlayerMaxHP()) * 100) + '%';
+                            if (_tx) _tx.textContent = `${s.playerHP} / ${awakGetPlayerMaxHP()} HP`;
+                        } catch(e) {}
+                    }, 900);
                 }
 
                 setTimeout(() => awakShowRiftCombatScreen(), 1500);
@@ -26833,6 +26925,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     if (drop && typeof showDropModal === 'function') {
                         setTimeout(() => showDropModal(drop.item, drop.rarity, drop.qualityScore), 2200);
                     }
+                }
+                // 👹 BOSS HEBDOMADAIRE vaincu : marquer la semaine (il ne réapparaîtra qu'à la prochaine)
+                if (rift.isWeeklyBoss && rift.weekKey) {
+                    localStorage.setItem('awakWeeklyBossDoneWeek', rift.weekKey);
                 }
             } catch(e) {}
 
@@ -28198,6 +28294,134 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         }
         window.awakCheckCompanionRifts = awakCheckCompanionRifts;
 
+        // ═══ 👹 BOSS HEBDOMADAIRE (rang S) ═══
+        // Une entité colossale par semaine, la même pour tous (déterministe).
+        // Débloqué au rang S. Réessayable toute la semaine ; disparaît à la suivante.
+        const WEEKLY_BOSSES = [
+            { name: 'Ygdror, le Colosse Écarlate',    emoji: '👹' },
+            { name: 'Nahrketh, l’Avaleur de Lumière', emoji: '🌑' },
+            { name: 'Vormund, le Roi Squelette',       emoji: '💀' },
+            { name: 'Sélith, la Reine des Brumes',     emoji: '🌫️' },
+            { name: 'Karnak, le Titan de Fonte',       emoji: '🗿' },
+            { name: 'Ozriel, l’Archonte Déchu',       emoji: '😈' },
+            { name: 'Mordra, la Gueule du Vide',       emoji: '🕳️' },
+            { name: 'Theron, le Chasseur Chassé',      emoji: '🏹' }
+        ];
+        function awakGetWeeklyBossWeek() { return Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000)); }
+        function awakCheckWeeklyBoss() {
+            try {
+                if (typeof getAdventureEnabled === 'function' && !getAdventureEnabled()) return null;
+                const rank = awakGetRank();
+                if (!['S','SS','SSS'].includes(rank.id)) return null;
+                const week = awakGetWeeklyBossWeek();
+                const weekKey = 'W' + week;
+                if (localStorage.getItem('awakWeeklyBossDoneWeek') === weekKey) return null; // déjà vaincu cette semaine
+                const rifts = awakRiftsLoad();
+                if (rifts.some(r => r.isWeeklyBoss && r.weekKey === weekKey)) return null;   // déjà présent
+                const boss = WEEKLY_BOSSES[week % WEEKLY_BOSSES.length];
+                const theme = RIFT_THEMES[week % RIFT_THEMES.length];
+                const hp = 3000 + (week % 5) * 200;
+                const newRift = {
+                    id: 'weekly_boss_' + weekKey,
+                    createdAt: Date.now(),
+                    expiresAt: (week + 1) * 7 * 24 * 60 * 60 * 1000,
+                    rank: 'S',
+                    themeId: theme.id,
+                    name: boss.name,
+                    modifierId: 'worldboss',
+                    isWeeklyBoss: true,
+                    weekKey: weekKey,
+                    discovered: false,
+                    state: 'stable',
+                    waves: [{ index: 0, isBoss: true, rank: 'SS', name: boss.name, emoji: boss.emoji, hpMax: hp, hpCurrent: hp, bossMech: (typeof awakPickBossMechanic === 'function') ? awakPickBossMechanic() : null }],
+                    currentWaveIdx: 0,
+                    recommendedPower: 6500,
+                    minStatRequired: 100,
+                    primaryStat: theme.primaryStat,
+                    attempts: 0,
+                    completed: false
+                };
+                rifts.push(newRift);
+                awakRiftsSave(rifts);
+                if (typeof showToast === 'function') setTimeout(() => showToast('👹 BOSS HEBDOMADAIRE : ' + boss.name + ' est apparu !', 'warning', 4500), 1200);
+                return newRift;
+            } catch(e) { return null; }
+        }
+        window.awakCheckWeeklyBoss = awakCheckWeeklyBoss;
+
+        // ═══ 👁️ LES ÉVEILS — ascensions permanentes (rangs A / S / SS) ═══
+        // Trois paliers cérémoniels AVANT le Prestige (SSS). Aucun reset :
+        // chaque Éveil accorde un bonus d'XP permanent + des points de stats.
+        const AWAK_EVEILS = [
+            { tier: 1, rank: 'A',  name: 'Premier Éveil',   subtitle: 'Les yeux s’ouvrent',     xpBonus: 0.05, statPoints: 3,
+              systemText: 'Tu as franchi un seuil que la plupart ne verront jamais. Le monde ne s’effacera plus autour de toi — c’est toi, désormais, qui laisses une empreinte sur lui.' },
+            { tier: 2, rank: 'S',  name: 'Deuxième Éveil',  subtitle: 'Le sang résonne',        xpBonus: 0.10, statPoints: 5,
+              systemText: 'Rang S. Même les Failles hésitent avant de s’ouvrir devant toi. Ce qui dormait dans ton sang s’est réveillé — et il a faim de plus.' },
+            { tier: 3, rank: 'SS', name: 'Troisième Éveil', subtitle: 'La limite se brise',      xpBonus: 0.15, statPoints: 8,
+              systemText: 'Il ne reste presque plus rien au-dessus de toi. Presque. Le Système lui-même observe, curieux de voir jusqu’où tu iras avant la fin.' }
+        ];
+        function awakGetEveilLevel() { return parseInt(localStorage.getItem('awakEveilLevel') || '0'); }
+        function awakGetEveilXPBonus() {
+            const lvl = awakGetEveilLevel();
+            return AWAK_EVEILS.filter(e => e.tier <= lvl).reduce((s, e) => s + e.xpBonus, 0);
+        }
+        window.awakGetEveilXPBonus = awakGetEveilXPBonus;
+
+        function awakCheckEveil() {
+            try {
+                if (typeof getAdventureEnabled === 'function' && !getAdventureEnabled()) return;
+                const _order = ['E','D','C','B','A','S','SS','SSS'];
+                const rankIdx = _order.indexOf(awakGetRank().id);
+                const current = awakGetEveilLevel();
+                const next = AWAK_EVEILS.find(e => e.tier === current + 1);
+                if (!next) return;
+                if (rankIdx < _order.indexOf(next.rank)) return;
+                awakShowEveilCeremony(next);
+            } catch(e) {}
+        }
+        window.awakCheckEveil = awakCheckEveil;
+
+        function awakShowEveilCeremony(eveil) {
+            document.getElementById('awakEveilOverlay')?.remove();
+            const ov = document.createElement('div');
+            ov.id = 'awakEveilOverlay';
+            ov.style.cssText = 'position:fixed;inset:0;z-index:30010;background:rgba(0,0,0,0.94);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:20px;animation:awakFadeIn 0.6s ease;';
+            ov.innerHTML = `
+                <style>@keyframes awakFadeIn { from{opacity:0} to{opacity:1} }
+                @keyframes eveilPulse { 0%,100%{ text-shadow:0 0 24px rgba(34,211,238,0.5),0 0 60px rgba(168,85,247,0.3);} 50%{ text-shadow:0 0 40px rgba(34,211,238,0.9),0 0 90px rgba(168,85,247,0.6);} }</style>
+                <div style="position:relative;background:linear-gradient(165deg,#0a0e18,#0D0D0D);border:1px solid rgba(34,211,238,0.35);border-radius:20px;max-width:380px;width:100%;padding:30px 24px;text-align:center;overflow:hidden;">
+                    <div style="position:absolute;inset:0;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(34,211,238,0.14),transparent 60%);pointer-events:none;"></div>
+                    <div style="position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0,transparent 3px,rgba(34,211,238,0.02) 3px,rgba(34,211,238,0.02) 4px);pointer-events:none;"></div>
+                    <div style="font-size:2.6em;margin-bottom:6px;">👁️</div>
+                    <div style="font-family:'Rajdhani',sans-serif;font-size:1.5em;font-weight:700;letter-spacing:3px;color:#fff;animation:eveilPulse 2.4s ease infinite;">${eveil.name.toUpperCase()}</div>
+                    <div style="font-size:0.8em;color:#67e8f9;letter-spacing:2px;text-transform:uppercase;margin:4px 0 18px;">${eveil.subtitle}</div>
+                    <p style="color:#cbd5e1;font-size:0.86em;line-height:1.7;font-style:italic;margin:0 0 20px;">« ${eveil.systemText} »</p>
+                    <div style="background:rgba(34,211,238,0.05);border:1px solid rgba(34,211,238,0.2);border-radius:12px;padding:12px 14px;margin-bottom:22px;text-align:left;">
+                        <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.06);"><span style="color:#94a3b8;font-size:0.78em;">Bonus d'XP permanent</span><span style="color:#4ade80;font-size:0.84em;font-weight:800;">+${Math.round(eveil.xpBonus*100)}%</span></div>
+                        <div style="display:flex;justify-content:space-between;padding:5px 0;"><span style="color:#94a3b8;font-size:0.78em;">Points de stats</span><span style="color:#4ade80;font-size:0.84em;font-weight:800;">+${eveil.statPoints}</span></div>
+                    </div>
+                    <button onclick="awakAcceptEveil(${eveil.tier})" style="width:100%;padding:15px;background:linear-gradient(135deg,#22d3ee,#a855f7);color:#050507;border:none;border-radius:14px;font-size:0.98em;font-weight:900;letter-spacing:1px;cursor:pointer;">S'ÉVEILLER</button>
+                </div>`;
+            document.body.appendChild(ov);
+            try { if (typeof hapticTap === 'function') hapticTap([40, 60, 40, 60, 140]); } catch(e) {}
+        }
+
+        function awakAcceptEveil(tier) {
+            const eveil = AWAK_EVEILS.find(e => e.tier === tier);
+            if (!eveil || awakGetEveilLevel() >= tier) { document.getElementById('awakEveilOverlay')?.remove(); return; }
+            localStorage.setItem('awakEveilLevel', String(tier));
+            try {
+                const sp = statPointsLoad();
+                sp.available += eveil.statPoints;
+                statPointsSave(sp);
+            } catch(e) {}
+            document.getElementById('awakEveilOverlay')?.remove();
+            try { if (typeof launchConfetti === 'function') launchConfetti(); } catch(e) {}
+            if (typeof showToast === 'function') showToast(`👁️ ${eveil.name} accompli ! +${Math.round(eveil.xpBonus*100)}% XP permanent · +${eveil.statPoints} points de stats`, 'success', 5000);
+            try { if (typeof renderGameTab === 'function') renderGameTab(); } catch(e) {}
+        }
+        window.awakAcceptEveil = awakAcceptEveil;
+
         // Infos (nom + description) des mécaniques uniques de Faille de compagnon
         function awakCompanionMechInfo(mechId) {
             const M = {
@@ -29147,6 +29371,19 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
             // Mort du joueur
             if (session.playerHP <= 0) {
+                // 🫀 SECOND SOUFFLE : survit à un coup fatal à 1 HP (1× par Faille)
+                const _fx = (typeof rpgGetActiveEffects === 'function') ? rpgGetActiveEffects() : {};
+                if (_fx.secondWind && !session._secondWindUsed) {
+                    session._secondWindUsed = true;
+                    session.playerHP = 1;
+                    if (typeof showToast === 'function') showToast('🫀 SECOND SOUFFLE ! Tu refuses de tomber — 1 HP', 'success', 3500);
+                    if (typeof hapticTap === 'function') hapticTap([40, 60, 40, 60, 120]);
+                    const _hpEl = document.getElementById('playerHpBar');
+                    const _hpTxt = document.getElementById('playerHpText');
+                    if (_hpEl) _hpEl.style.width = Math.max(1, Math.round((1 / awakGetPlayerMaxHP()) * 100)) + '%';
+                    if (_hpTxt) _hpTxt.textContent = `1 / ${awakGetPlayerMaxHP()} HP`;
+                    return { dodged: false, dead: false };
+                }
                 const lostXP = awakApplyDeathPenalty(session);
                 setTimeout(() => {
                     awakShowGameOverModal(source, lostXP);
@@ -29278,7 +29515,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         }
         window.awakShowGameOverModal = awakShowGameOverModal;
 
-        function awakHealPlayer(amount) {
+        function awakHealPlayer(amount, label) {
             const session = awakActiveRiftSession;
             if (!session) return;
             if (typeof session.playerHP !== 'number') session.playerHP = awakGetPlayerMaxHP();
@@ -29289,7 +29526,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const actuallyHealed = session.playerHP - before;
 
             if (actuallyHealed > 0 && typeof showToast === 'function') {
-                showToast(`💚 +${actuallyHealed} HP (END régénération)`, 'success', 1600);
+                showToast(`💚 +${actuallyHealed} HP ${label || '(END régénération)'}`, 'success', 1600);
             }
 
             // Update UI + animation heal
@@ -29335,7 +29572,14 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 baseDmg = 18 + rankIdx * 7;
                 variance = Math.floor(Math.random() * 9);
             }
-            const dmg = baseDmg + variance;
+            let dmg = baseDmg + variance;
+
+            // ⛈️ TEMPÊTE : les contre-attaques frappent plus fort
+            try {
+                const _s = awakActiveRiftSession;
+                const _m = (_s && _s.rift && typeof awakGetRiftModifier === 'function') ? awakGetRiftModifier(_s.rift.modifierId) : null;
+                if (_m && _m.counterMult > 1) dmg = Math.round(dmg * _m.counterMult);
+            } catch(e) {}
 
             setTimeout(() => {
                 awakDamagePlayer(dmg, wave.name);
@@ -29709,6 +29953,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             let mult = 1;
             const prestige = rpgGetPrestigeLevel();
             if (prestige > 0) mult += prestige * 0.10;  // +10% par prestige
+            // 👁️ Éveils : bonus permanent cumulé (+5% / +15% / +30%)
+            if (typeof awakGetEveilXPBonus === 'function') mult += awakGetEveilXPBonus();
             const effects = rpgGetActiveEffects();
             if (effects.xpAll) mult += effects.xpAll;
             if (effects.xpCompound && exerciseType === 'compound') mult += effects.xpCompound;
@@ -35559,6 +35805,150 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             </div>`;
         }
 
+        // ── ONBOARDING PREMIUM — cinématique de 1er lancement (construit le profil) ──
+        function showPremiumOnboarding() {
+            document.getElementById('_premOnbOverlay')?.remove();
+            const draft = { name: '', goal: 'fitness', level: 'beginner', age: 30, weight: 70 };
+            let step = 0;
+
+            const ov = document.createElement('div');
+            ov.id = '_premOnbOverlay';
+            ov.style.cssText = 'position:fixed;inset:0;z-index:100000;background:#050507;display:flex;align-items:center;justify-content:center;overflow:hidden;';
+
+            const goalCards = Object.entries(userGoals).map(([id, g]) =>
+                `<button onclick="window._premOnbPick('goal','${id}',this)" data-pick="goal" data-val="${id}" style="display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:13px 14px;margin-bottom:8px;background:rgba(255,255,255,0.03);border:1.5px solid ${id===draft.goal?'rgba(34,211,238,0.6)':'rgba(255,255,255,0.1)'};border-radius:14px;cursor:pointer;color:#e2e8f0;transition:border-color 0.2s;">
+                    <span style="font-size:1.5em;">${g.icon}</span>
+                    <span style="font-size:0.92em;font-weight:700;">${g.name}</span>
+                </button>`).join('');
+
+            const levelDescs = {
+                beginner: 'Je débute ou je reprends après une pause',
+                intermediate: 'Je m\'entraîne régulièrement depuis des mois',
+                advanced: 'L\'entraînement fait partie de ma vie'
+            };
+            const levelCards = Object.entries(userLevels).map(([id, l]) =>
+                `<button onclick="window._premOnbPick('level','${id}',this)" data-pick="level" data-val="${id}" style="display:block;width:100%;text-align:left;padding:14px;margin-bottom:8px;background:rgba(255,255,255,0.03);border:1.5px solid ${id===draft.level?'rgba(34,211,238,0.6)':'rgba(255,255,255,0.1)'};border-radius:14px;cursor:pointer;color:#e2e8f0;transition:border-color 0.2s;">
+                    <div style="font-size:0.95em;font-weight:800;margin-bottom:3px;">${l.name}</div>
+                    <div style="font-size:0.75em;color:#94a3b8;">${levelDescs[id]||''}</div>
+                </button>`).join('');
+
+            const frame = (inner, pct) => `
+                <style>@keyframes awakFadeIn { from{opacity:0} to{opacity:1} }</style>
+                <div style="position:relative;width:100%;max-width:440px;height:100%;max-height:100dvh;display:flex;flex-direction:column;padding:max(24px,env(safe-area-inset-top)) 22px calc(24px + env(safe-area-inset-bottom));box-sizing:border-box;">
+                    <div style="position:absolute;inset:0;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(34,211,238,0.12),transparent 60%),radial-gradient(ellipse 60% 40% at 50% 110%,rgba(168,85,247,0.1),transparent 60%);pointer-events:none;"></div>
+                    <div style="position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0,transparent 3px,rgba(34,211,238,0.015) 3px,rgba(34,211,238,0.015) 4px);pointer-events:none;"></div>
+                    ${pct !== null ? `<div style="height:3px;background:rgba(255,255,255,0.08);border-radius:99px;margin-bottom:26px;position:relative;z-index:1;"><div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#22d3ee,#a855f7);border-radius:99px;transition:width 0.4s ease;"></div></div>` : ''}
+                    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:1;animation:awakFadeIn 0.45s ease;">${inner}</div>
+                </div>`;
+
+            const btnPrimary = (label, action) => `<button onclick="${action}" style="width:100%;padding:16px;background:linear-gradient(135deg,#22d3ee,#a855f7);color:#050507;border:none;border-radius:14px;font-size:1em;font-weight:900;letter-spacing:0.5px;cursor:pointer;box-shadow:0 6px 24px rgba(34,211,238,0.25);">${label}</button>`;
+
+            function render() {
+                let inner = '', pct = null;
+                if (step === 0) {
+                    inner = `
+                        <div style="text-align:center;">
+                            <div style="font-family:'Rajdhani',sans-serif;font-size:clamp(2.4em,11vw,3.4em);font-weight:700;letter-spacing:0.18em;color:#fff;text-shadow:0 0 30px rgba(34,211,238,0.5),0 0 60px rgba(168,85,247,0.3);margin-bottom:10px;">AWAKENED</div>
+                            <div style="font-size:0.82em;color:#94a3b8;letter-spacing:3px;text-transform:uppercase;margin-bottom:14px;">Lève-toi, Chasseur</div>
+                            <p style="color:#cbd5e1;font-size:0.92em;line-height:1.7;margin:0 0 36px;">Ton entraînement devient une quête.<br>Quelques questions, et le Système te connaîtra.</p>
+                            ${btnPrimary('Commencer', 'window._premOnbNext()')}
+                        </div>`;
+                } else if (step === 1) {
+                    pct = 25;
+                    inner = `
+                        <div style="font-family:'Rajdhani',sans-serif;font-size:0.78em;color:#22d3ee;font-weight:700;letter-spacing:2.5px;margin-bottom:10px;">◈ IDENTIFICATION</div>
+                        <h2 style="color:#fff;font-size:1.45em;font-weight:900;margin:0 0 22px;">Comment dois-je t'appeler ?</h2>
+                        <input id="_premOnbName" type="text" maxlength="24" placeholder="Ton nom de Chasseur" value="${draft.name.replace(/"/g,'&quot;')}"
+                               style="width:100%;box-sizing:border-box;padding:15px;background:rgba(255,255,255,0.04);border:1.5px solid rgba(34,211,238,0.35);border-radius:14px;color:#fff;font-size:1.05em;font-weight:700;outline:none;margin-bottom:24px;">
+                        ${btnPrimary('Continuer', 'window._premOnbSaveName()')}`;
+                } else if (step === 2) {
+                    pct = 50;
+                    inner = `
+                        <div style="font-family:'Rajdhani',sans-serif;font-size:0.78em;color:#22d3ee;font-weight:700;letter-spacing:2.5px;margin-bottom:10px;">◈ OBJECTIF</div>
+                        <h2 style="color:#fff;font-size:1.45em;font-weight:900;margin:0 0 18px;">Que cherches-tu ?</h2>
+                        <div style="overflow-y:auto;max-height:48dvh;margin-bottom:18px;">${goalCards}</div>
+                        ${btnPrimary('Continuer', 'window._premOnbNext()')}`;
+                } else if (step === 3) {
+                    pct = 75;
+                    inner = `
+                        <div style="font-family:'Rajdhani',sans-serif;font-size:0.78em;color:#22d3ee;font-weight:700;letter-spacing:2.5px;margin-bottom:10px;">◈ NIVEAU</div>
+                        <h2 style="color:#fff;font-size:1.45em;font-weight:900;margin:0 0 18px;">Où en es-tu ?</h2>
+                        <div style="margin-bottom:18px;">${levelCards}</div>
+                        ${btnPrimary('Continuer', 'window._premOnbNext()')}`;
+                } else if (step === 4) {
+                    pct = 90;
+                    inner = `
+                        <div style="font-family:'Rajdhani',sans-serif;font-size:0.78em;color:#22d3ee;font-weight:700;letter-spacing:2.5px;margin-bottom:10px;">◈ CALIBRAGE</div>
+                        <h2 style="color:#fff;font-size:1.45em;font-weight:900;margin:0 0 6px;">Derniers réglages</h2>
+                        <p style="color:#94a3b8;font-size:0.8em;margin:0 0 20px;">Pour ajuster les recommandations. Modifiable plus tard.</p>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px;">
+                            <div>
+                                <div style="font-size:0.7em;color:#94a3b8;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:7px;">Âge</div>
+                                <input id="_premOnbAge" type="number" inputmode="numeric" min="13" max="99" value="${draft.age}" style="width:100%;box-sizing:border-box;padding:13px;background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.12);border-radius:12px;color:#fff;font-size:1.05em;font-weight:800;outline:none;text-align:center;">
+                            </div>
+                            <div>
+                                <div style="font-size:0.7em;color:#94a3b8;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:7px;">Poids (kg)</div>
+                                <input id="_premOnbWeight" type="number" inputmode="numeric" min="30" max="250" value="${draft.weight}" style="width:100%;box-sizing:border-box;padding:13px;background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.12);border-radius:12px;color:#fff;font-size:1.05em;font-weight:800;outline:none;text-align:center;">
+                            </div>
+                        </div>
+                        ${btnPrimary('Valider', 'window._premOnbSaveBody()')}`;
+                } else {
+                    pct = 100;
+                    const g = userGoals[draft.goal] || userGoals.fitness;
+                    const l = userLevels[draft.level] || userLevels.beginner;
+                    inner = `
+                        <div style="font-family:'Rajdhani',sans-serif;font-size:0.78em;color:#4ade80;font-weight:700;letter-spacing:2.5px;margin-bottom:10px;">◈ PROFIL ÉTABLI</div>
+                        <h2 style="color:#fff;font-size:1.45em;font-weight:900;margin:0 0 20px;">Bienvenue, ${draft.name || 'Chasseur'}.</h2>
+                        <div style="background:rgba(34,211,238,0.05);border:1px solid rgba(34,211,238,0.2);border-radius:14px;padding:14px 16px;margin-bottom:20px;">
+                            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.06);"><span style="color:#94a3b8;font-size:0.82em;">Objectif</span><span style="color:#e2e8f0;font-size:0.86em;font-weight:800;">${g.icon} ${g.name}</span></div>
+                            <div style="display:flex;justify-content:space-between;padding:6px 0;"><span style="color:#94a3b8;font-size:0.82em;">Niveau</span><span style="color:#e2e8f0;font-size:0.86em;font-weight:800;">${l.name}</span></div>
+                        </div>
+                        <div style="margin-bottom:24px;">
+                            <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:11px;"><span style="font-size:1.1em;">⚡</span><span style="color:#cbd5e1;font-size:0.82em;line-height:1.5;"><strong style="color:#fff;">Séances IA</strong> — l'onglet Séances génère ton entraînement selon ce profil.</span></div>
+                            <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:11px;"><span style="font-size:1.1em;">📅</span><span style="color:#cbd5e1;font-size:0.82em;line-height:1.5;"><strong style="color:#fff;">Plan hebdo</strong> — l'Accueil affiche ta semaine, déjà générée.</span></div>
+                            <div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:1.1em;">🎮</span><span style="color:#cbd5e1;font-size:0.82em;line-height:1.5;"><strong style="color:#fff;">Mode Jeu</strong> — XP, rangs et Failles t'attendent dans l'onglet Jeu.</span></div>
+                        </div>
+                        ${btnPrimary('Commencer l\'aventure', 'window._premOnbFinish()')}`;
+                }
+                ov.innerHTML = frame(inner, pct);
+                if (step === 1) setTimeout(() => document.getElementById('_premOnbName')?.focus(), 350);
+            }
+
+            window._premOnbNext = function() { step++; render(); try { haptic.light(); } catch(e) {} };
+            window._premOnbPick = function(field, val, btn) {
+                draft[field] = val;
+                document.querySelectorAll(`[data-pick="${field}"]`).forEach(b => b.style.borderColor = 'rgba(255,255,255,0.1)');
+                if (btn) btn.style.borderColor = 'rgba(34,211,238,0.6)';
+                try { haptic.light(); } catch(e) {}
+            };
+            window._premOnbSaveName = function() {
+                draft.name = (document.getElementById('_premOnbName')?.value || '').trim();
+                window._premOnbNext();
+            };
+            window._premOnbSaveBody = function() {
+                draft.age = parseInt(document.getElementById('_premOnbAge')?.value) || 30;
+                draft.weight = parseInt(document.getElementById('_premOnbWeight')?.value) || 70;
+                window._premOnbNext();
+            };
+            window._premOnbFinish = function() {
+                userProfile = { name: draft.name || 'Athlète', goal: draft.goal, level: draft.level, age: draft.age, weight: draft.weight, setupComplete: true };
+                const profileId = getCurrentProfileId();
+                if (profileId) { setProfileData(profileId, 'userProfile', JSON.stringify(userProfile)); }
+                else { localStorage.setItem('userProfile', JSON.stringify(userProfile)); }
+                localStorage.setItem('fitproOnboardingDone', '1');
+                try { updateProfileDisplay(); } catch(e) {}
+                try { generateWeeklyPlan(); } catch(e) {}
+                try { haptic.medium(); } catch(e) {}
+                ov.style.transition = 'opacity 0.4s ease';
+                ov.style.opacity = '0';
+                setTimeout(() => ov.remove(), 420);
+            };
+
+            render();
+            document.body.appendChild(ov);
+        }
+        window.showPremiumOnboarding = showPremiumOnboarding;
+
         // ── ONBOARDING — 4 écrans ─────────────────────────────────────
         function showOnboarding() {
             if (localStorage.getItem('fitproOnboardingDone') === '1') return;
@@ -35777,9 +36167,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const profile = getUserProfile();
             if (!profile.setupComplete) {
                 setTimeout(() => {
-                    speak("Bienvenue ! Configurez votre profil pour commencer");
-                    showProfileSetup();
-                }, 1500);
+                    showPremiumOnboarding();
+                }, 900);
             }
         };
         
