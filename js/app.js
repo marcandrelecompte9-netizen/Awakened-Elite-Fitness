@@ -15786,20 +15786,20 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     
                     statsHtml = `
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                            <div style="background: white; padding: 15px; border-radius: 10px;">
-                                <div style="color: #999; font-size: 0.85em; margin-bottom: 5px;">Poids Moyen</div>
+                            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 14px; border-radius: 12px;">
+                                <div style="color: #94a3b8; font-size: 0.68em; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px;">Poids Moyen</div>
                                 <div style="font-size: 1.5em; font-weight: 700; color: #f59e0b;">${avg.toFixed(1)} lbs</div>
                             </div>
-                            <div style="background: white; padding: 15px; border-radius: 10px;">
-                                <div style="color: #999; font-size: 0.85em; margin-bottom: 5px;">Maximum</div>
+                            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 14px; border-radius: 12px;">
+                                <div style="color: #94a3b8; font-size: 0.68em; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px;">Maximum</div>
                                 <div style="font-size: 1.5em; font-weight: 700; color: #10b981;">${max} lbs</div>
                             </div>
-                            <div style="background: white; padding: 15px; border-radius: 10px;">
-                                <div style="color: #999; font-size: 0.85em; margin-bottom: 5px;">Minimum</div>
+                            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 14px; border-radius: 12px;">
+                                <div style="color: #94a3b8; font-size: 0.68em; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px;">Minimum</div>
                                 <div style="font-size: 1.5em; font-weight: 700; color: #ef4444;">${min} lbs</div>
                             </div>
-                            <div style="background: white; padding: 15px; border-radius: 10px;">
-                                <div style="color: #999; font-size: 0.85em; margin-bottom: 5px;">Progression</div>
+                            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 14px; border-radius: 12px;">
+                                <div style="color: #94a3b8; font-size: 0.68em; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px;">Progression</div>
                                 <div style="font-size: 1.5em; font-weight: 700; color: ${progression >= 0 ? '#10b981' : '#ef4444'};">
                                     ${progression >= 0 ? '+' : ''}${progression.toFixed(1)} lbs
                                 </div>
@@ -15827,20 +15827,20 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 
                 statsHtml = `
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                        <div style="background: white; padding: 15px; border-radius: 10px;">
-                            <div style="color: #999; font-size: 0.85em; margin-bottom: 5px;">Reps Moyennes</div>
+                        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 14px; border-radius: 12px;">
+                            <div style="color: #94a3b8; font-size: 0.68em; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px;">Reps Moyennes</div>
                             <div style="font-size: 1.5em; font-weight: 700; color: #16a34a;">${avg.toFixed(1)}</div>
                         </div>
-                        <div style="background: white; padding: 15px; border-radius: 10px;">
-                            <div style="color: #999; font-size: 0.85em; margin-bottom: 5px;">Maximum</div>
+                        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 14px; border-radius: 12px;">
+                            <div style="color: #94a3b8; font-size: 0.68em; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px;">Maximum</div>
                             <div style="font-size: 1.5em; font-weight: 700; color: #10b981;">${max} reps</div>
                         </div>
-                        <div style="background: white; padding: 15px; border-radius: 10px;">
-                            <div style="color: #999; font-size: 0.85em; margin-bottom: 5px;">Minimum</div>
+                        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 14px; border-radius: 12px;">
+                            <div style="color: #94a3b8; font-size: 0.68em; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px;">Minimum</div>
                             <div style="font-size: 1.5em; font-weight: 700; color: #ef4444;">${min} reps</div>
                         </div>
-                        <div style="background: white; padding: 15px; border-radius: 10px;">
-                            <div style="color: #999; font-size: 0.85em; margin-bottom: 5px;">Progression</div>
+                        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 14px; border-radius: 12px;">
+                            <div style="color: #94a3b8; font-size: 0.68em; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px;">Progression</div>
                             <div style="font-size: 1.5em; font-weight: 700; color: ${progression >= 0 ? '#10b981' : '#ef4444'};">
                                 ${progression >= 0 ? '+' : ''}${progression.toFixed(1)} reps
                             </div>
@@ -15866,20 +15866,20 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     
                     statsHtml = `
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                            <div style="background: white; padding: 15px; border-radius: 10px;">
-                                <div style="color: #999; font-size: 0.85em; margin-bottom: 5px;">1RM Moyen</div>
+                            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 14px; border-radius: 12px;">
+                                <div style="color: #94a3b8; font-size: 0.68em; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px;">1RM Moyen</div>
                                 <div style="font-size: 1.5em; font-weight: 700; color: #ef4444;">${avg.toFixed(1)} lbs</div>
                             </div>
-                            <div style="background: white; padding: 15px; border-radius: 10px;">
-                                <div style="color: #999; font-size: 0.85em; margin-bottom: 5px;">Maximum</div>
+                            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 14px; border-radius: 12px;">
+                                <div style="color: #94a3b8; font-size: 0.68em; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px;">Maximum</div>
                                 <div style="font-size: 1.5em; font-weight: 700; color: #10b981;">${max} lbs</div>
                             </div>
-                            <div style="background: white; padding: 15px; border-radius: 10px;">
-                                <div style="color: #999; font-size: 0.85em; margin-bottom: 5px;">Minimum</div>
+                            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 14px; border-radius: 12px;">
+                                <div style="color: #94a3b8; font-size: 0.68em; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px;">Minimum</div>
                                 <div style="font-size: 1.5em; font-weight: 700; color: #ef4444;">${min} lbs</div>
                             </div>
-                            <div style="background: white; padding: 15px; border-radius: 10px;">
-                                <div style="color: #999; font-size: 0.85em; margin-bottom: 5px;">Progression</div>
+                            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 14px; border-radius: 12px;">
+                                <div style="color: #94a3b8; font-size: 0.68em; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px;">Progression</div>
                                 <div style="font-size: 1.5em; font-weight: 700; color: ${progression >= 0 ? '#10b981' : '#ef4444'};">
                                     ${progression >= 0 ? '+' : ''}${progression.toFixed(1)} lbs
                                 </div>
@@ -15907,21 +15907,21 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     
                     statsHtml = `
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                            <div style="background: white; padding: 15px; border-radius: 10px;">
-                                <div style="color: #999; font-size: 0.85em; margin-bottom: 5px;">Volume Total</div>
+                            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 14px; border-radius: 12px;">
+                                <div style="color: #94a3b8; font-size: 0.68em; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px;">Volume Total</div>
                                 <div style="font-size: 1.5em; font-weight: 700; color: #10b981;">${total.toLocaleString()} lbs</div>
                             </div>
-                            <div style="background: white; padding: 15px; border-radius: 10px;">
-                                <div style="color: #999; font-size: 0.85em; margin-bottom: 5px;">Volume Moyen/Séance</div>
+                            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 14px; border-radius: 12px;">
+                                <div style="color: #94a3b8; font-size: 0.68em; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px;">Volume Moyen/Séance</div>
                                 <div style="font-size: 1.5em; font-weight: 700; color: #16a34a;">${avg.toFixed(0)} lbs</div>
                             </div>
-                            <div style="background: white; padding: 15px; border-radius: 10px;">
-                                <div style="color: #999; font-size: 0.85em; margin-bottom: 5px;">Volume Maximum</div>
+                            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 14px; border-radius: 12px;">
+                                <div style="color: #94a3b8; font-size: 0.68em; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px;">Volume Maximum</div>
                                 <div style="font-size: 1.5em; font-weight: 700; color: #f59e0b;">${max} lbs</div>
                             </div>
-                            <div style="background: white; padding: 15px; border-radius: 10px;">
-                                <div style="color: #999; font-size: 0.85em; margin-bottom: 5px;">Séances</div>
-                                <div style="font-size: 1.5em; font-weight: 700; color: #333;">${dataPoints.length}</div>
+                            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 14px; border-radius: 12px;">
+                                <div style="color: #94a3b8; font-size: 0.68em; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px;">Séances</div>
+                                <div style="font-size: 1.5em; font-weight: 700; color: #e2e8f0;">${dataPoints.length}</div>
                             </div>
                         </div>
                     `;
@@ -15971,21 +15971,28 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                             },
                             title: {
                                 display: true,
-                                text: 'Date'
-                            }
+                                text: 'Date',
+                                color: '#94a3b8'
+                            },
+                            ticks: { color: '#94a3b8', font: { size: 10 } },
+                            grid: { color: 'rgba(255,255,255,0.06)' }
                         },
                         y: {
                             beginAtZero: true,
                             title: {
                                 display: true,
-                                text: chartLabel
-                            }
+                                text: chartLabel,
+                                color: '#94a3b8'
+                            },
+                            ticks: { color: '#94a3b8', font: { size: 10 } },
+                            grid: { color: 'rgba(255,255,255,0.06)' }
                         }
                     },
                     plugins: {
                         legend: {
                             display: true,
-                            position: 'top'
+                            position: 'top',
+                            labels: { color: '#cbd5e1' }
                         },
                         tooltip: {
                             callbacks: {
@@ -23941,7 +23948,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             try {
                 if (typeof getEquippedItems === 'function') {
                     const equipped = getEquippedItems();
-                    const rarityBonus = { common: 5, uncommon: 15, rare: 35, epic: 70, legendary: 150 };
+                    const rarityBonus = { common: 5, uncommon: 15, rare: 35, superior: 50, epic: 70, legendary: 150 };
                     for (const item of Object.values(equipped)) {
                         if (item && item.rarity) {
                             score += rarityBonus[item.rarity] || 0;
@@ -25428,8 +25435,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 D: { waves: 2, hpMult: 1.0, recommendedPower: 500,  minStat: 15 },
                 C: { waves: 3, hpMult: 1.3, recommendedPower: 1200, minStat: 30 },
                 B: { waves: 3, hpMult: 1.7, recommendedPower: 2200, minStat: 50 },
-                A: { waves: 3, hpMult: 2.1, recommendedPower: 3800, minStat: 70 },
-                S: { waves: 3, hpMult: 2.6, recommendedPower: 6500, minStat: 100 }
+                A: { waves: 4, hpMult: 2.1, recommendedPower: 3800, minStat: 70 },
+                S: { waves: 4, hpMult: 2.6, recommendedPower: 6500, minStat: 100 }
             };
             const config = rankConfigs[riftRank];
 
@@ -25470,6 +25477,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 waves.push({
                     index: i,
                     isBoss: isBossWave,
+                    rank: riftRank, // rang de la Faille : pilote les dégâts de contre-attaque
                     name: isBossWave ? `${monster.name} (Boss)` : monster.name,
                     emoji: monster.emoji,
                     hpMax: hp,
@@ -26437,10 +26445,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
             let finalDamage = baseAttack * repBonus;
 
-            // 🛡️ Plafond absolu de dégâts par série (anti-triche ultime)
-            // Empêche de tuer un monstre en 1 série, même avec crit + double + tous les bonus
-            // Plafond anti-triche : 35% des HP par série (boss comme monstres).
-            const maxDamagePerHit = Math.max(40, Math.round(currentWave.hpMax * 0.35));
+            // 🛡️ ANTI-TRICHE : seules les RÉPÉTITIONS sont bornées (cappedReps ≤ 50, soit +50% max).
+            // Les dégâts issus des stats, points alloués, compétences et équipement ne sont PAS
+            // plafonnés — l'investissement du joueur doit payer pleinement.
 
             // ⚔️ STR : multiplicateur dégâts global (toujours actif)
             finalDamage *= bonuses.damageMult;
@@ -26500,19 +26507,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
             finalDamage = Math.max(1, Math.round(finalDamage));
 
-            // 🛡️ Appliquer le plafond anti-triche (max 45% des HP max du monstre par série)
-            const wasCapped = finalDamage > maxDamagePerHit;
-            finalDamage = Math.min(finalDamage, maxDamagePerHit);
-
             // 🔥 Afficher les procs spéciaux après les dégâts
             const procToasts = [];
             if (curseToasts.length) procToasts.push(...curseToasts);
             if (isDouble) procToasts.push({ msg: `⚡ DOUBLE ATTAQUE ! +${Math.round(doubleDamage)} HP`, type: 'success' });
             if (currentWave.isBoss && bonuses.bossBonus > 0) {
                 procToasts.push({ msg: `👁 Faiblesse détectée (+${Math.round(bonuses.bossBonus * 100)}% vs boss)`, type: 'info' });
-            }
-            if (wasCapped) {
-                procToasts.push({ msg: `🛡 Dégâts plafonnés — continue tes séries !`, type: 'info' });
             }
 
             const prevHpPercent = (currentWave.hpCurrent / currentWave.hpMax) * 100;
@@ -26611,12 +26611,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     }, 300);
                 }
 
-                // 💚 Heal entre vagues : 25% HP max + bonus END (sauf si malédiction noHeal)
+                // 💚 Heal entre vagues : 12% HP max + bonus END (sauf si malédiction noHeal)
                 if (!(_curse && _curse.noHealBetweenWaves) && typeof awakGetPlayerMaxHP === 'function' && typeof awakHealPlayer === 'function') {
                     const maxHP = awakGetPlayerMaxHP();
                     const bonuses = (typeof awakComputeStatBonuses === 'function')
                         ? awakComputeStatBonuses() : { hpRegen: 0 };
-                    const baseHeal = Math.round(maxHP * 0.25);
+                    const baseHeal = Math.round(maxHP * 0.12);
                     const totalHeal = Math.round((baseHeal + (bonuses.hpRegen || 0) * 2) * (bonuses.hpRegenMult || 1)); // ×2 entre vagues, ×anneau
                     setTimeout(() => {
                         if (typeof showToast === 'function') {
@@ -27385,8 +27385,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             }
 
             let finalDamage = Math.max(1, Math.round(damage));
-            // 🛡️ Plafond anti one-shot : max 35% des PV max par coup (comme en Faille)
-            finalDamage = Math.min(finalDamage, Math.max(40, Math.round((monster.hpMax || finalDamage) * 0.35)));
+            // 🛡️ ANTI-TRICHE : seules les répétitions sont bornées (cappedReps ≤ 50). Stats, points,
+            // compétences et équipement infligent leurs dégâts pleins — pas de plafond (comme en Faille).
 
             monster.hpCurrent = Math.max(0, monster.hpCurrent - finalDamage);
             session.totalDamage += finalDamage;
@@ -29399,10 +29399,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             _awakInfoModal('Les Failles', '◈ GUIDE DU COMBAT', '🌀', [
                 { icon: '🌀', color: '#a855f7', title: "Qu'est-ce qu'une Faille ?", text: "Un donjon temporaire qui apparaît après une vraie séance. Tu y combats des vagues de monstres en complétant des séries d'exercices au poids du corps. Chaque série inflige des dégâts." },
                 { icon: '⏱', color: '#f59e0b', title: 'Durée & états', text: "Chaque Faille a une limite de temps selon son rang (8 à 14 jours). Elle passe de STABLE → INSTABLE → BRÈCHE. Si elle expire, un monstre s'échappe et t'inflige des malus." },
-                { icon: '🩸', color: '#ef4444', title: 'Contre-attaques', text: "Les monstres normaux ont 15% de chance de te blesser après une série. Les boss contre-attaquent à 30% (50% enragés). Si tes HP tombent à 0, c'est le Game Over." },
+                { icon: '🩸', color: '#ef4444', title: 'Contre-attaques', text: "Les monstres normaux ont 65% de chance de te blesser après une série. Les boss contre-attaquent à 85% (100% enragés), et frappent plus fort selon leur rang. Si tes HP tombent à 0, c'est le Game Over." },
                 { icon: '👁️', color: '#06b6d4', title: 'Esquive', text: "La Perception (PER) te donne une chance d'esquiver les attaques ennemies. En cas d'esquive, aucun dégât reçu." },
-                { icon: '💚', color: '#22c55e', title: 'Régénération', text: "L'Endurance (END) régénère des HP à chaque série. Tu récupères aussi 25% de tes HP entre chaque vague vaincue." },
-                { icon: '🛡', color: '#4ade80', title: 'Anti-triche', text: "Les dégâts sont plafonnés (max 45% des HP du monstre par série) et seul le poids du corps compte. Il faut au moins 3 séries pour vaincre un monstre." },
+                { icon: '💚', color: '#22c55e', title: 'Régénération', text: "L'Endurance (END) régénère des HP à chaque série. Tu récupères aussi 12% de tes HP entre chaque vague vaincue." },
+                { icon: '🛡', color: '#4ade80', title: 'Anti-triche', text: "Seules les répétitions sont limitées (50 max par série, au-delà ça ne compte plus). Tes stats, points alloués, compétences et équipement infligent leurs dégâts pleins — plus tu investis, plus tu frappes fort. Seul le poids du corps compte." },
                 { icon: '⚔️', color: '#fbbf24', title: 'Rangs & récompenses', text: "Les Failles vont de E à SSS. Plus le rang est élevé, plus les monstres sont puissants et les récompenses (XP, loot, items) importantes." },
             ]);
         }
@@ -37092,6 +37092,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     analysis.priority = { type:'good', text:`Belle régularité (${week} séances cette semaine) et bon équilibre. Continue ainsi.` };
                 }
 
+                analysis.muscleLevels = lvl;
                 return analysis;
             } catch(e) {
                 return analysis;
@@ -37102,6 +37103,37 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         function showSystemAnalysis() {
             document.getElementById('systemAnalysisOverlay')?.remove();
             const a = awakAnalyzePlayer();
+
+            // ── 📊 DASHBOARD : données radar musculaire + tendance séances (8 sem) ──
+            const _ml = a.muscleLevels || {};
+            const _radarKeys = ['Pectoraux','Dos','Épaules','Biceps','Triceps','Abdominaux','Quadriceps','Ischio-jambiers','Fessiers','Mollets','Trapèzes','Obliques','Avant-bras'];
+            const _radarLabels = ['Pecs','Dos','Épaules','Biceps','Triceps','Abdos','Quads','Ischios','Fessiers','Mollets','Trapèzes','Obliques','Avt-bras'];
+            const _radarData = _radarKeys.map(k => _ml[k] || 0);
+            const _anyLevel = _radarData.some(v => v > 0);
+            const _hist = (typeof getWorkoutHistory === 'function') ? getWorkoutHistory() : [];
+            const _nowTs = Date.now();
+            const _weeks = [], _weekLabels = [];
+            for (let w = 7; w >= 0; w--) {
+                const start = _nowTs - (w + 1) * 7 * 86400000;
+                const end = _nowTs - w * 7 * 86400000;
+                const c = _hist.filter(h => { const t = new Date(h.date || h.completedAt || h.timestamp || 0).getTime(); return t > start && t <= end; }).length;
+                _weeks.push(c);
+                _weekLabels.push(w === 0 ? ['Cette', 'sem.'] : '−' + w);
+            }
+            const _hasHist = _hist.length > 0;
+            const dashHtml = (_anyLevel || _hasHist) ? `
+                <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:18px;">
+                    ${_anyLevel ? `
+                    <div style="background:linear-gradient(160deg,rgba(34,211,238,0.07),rgba(168,85,247,0.04));border:1px solid rgba(34,211,238,0.18);border-radius:14px;padding:14px 14px 8px;">
+                        <div style="font-family:'Rajdhani',sans-serif;font-size:0.74em;color:#22d3ee;font-weight:700;letter-spacing:2px;margin-bottom:8px;">◈ ÉQUILIBRE MUSCULAIRE</div>
+                        <div style="position:relative;height:250px;"><canvas id="dashRadarChart"></canvas></div>
+                    </div>` : ''}
+                    ${_hasHist ? `
+                    <div style="background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px 14px 8px;">
+                        <div style="font-family:'Rajdhani',sans-serif;font-size:0.74em;color:#a855f7;font-weight:700;letter-spacing:2px;margin-bottom:8px;">◈ SÉANCES · 8 SEMAINES</div>
+                        <div style="position:relative;height:130px;"><canvas id="dashTrendChart"></canvas></div>
+                    </div>` : ''}
+                </div>` : '';
 
             const overlay = document.createElement('div');
             overlay.id = 'systemAnalysisOverlay';
@@ -37185,6 +37217,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     <h2 style="margin:6px 0 4px;color:white;font-size:1.15em;font-weight:900;">Analyse du Système</h2>
                     <p style="margin:0;color:rgba(255,255,255,0.4);font-size:0.78em;">Examen détaillé de ta progression et conseils.</p>
                 </div>
+                ${dashHtml}
                 ${priorityHtml}
                 ${freqHtml}
                 ${imbalHtml}
@@ -37195,6 +37228,54 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 <button onclick="document.getElementById('systemAnalysisOverlay').remove()" style="margin-top:8px;width:100%;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:14px;color:rgba(255,255,255,0.6);font-weight:700;cursor:pointer;">Fermer</button>`;
             overlay.appendChild(sheet);
             document.body.appendChild(overlay);
+
+            // ── 📊 Instancier les graphiques du dashboard ──
+            try {
+                if (typeof Chart !== 'undefined') {
+                    const _rc = document.getElementById('dashRadarChart');
+                    if (_rc) {
+                        new Chart(_rc.getContext('2d'), {
+                            type: 'radar',
+                            data: { labels: _radarLabels, datasets: [{
+                                data: _radarData,
+                                backgroundColor: 'rgba(34,211,238,0.16)',
+                                borderColor: '#22d3ee', borderWidth: 2,
+                                pointBackgroundColor: '#a855f7', pointBorderColor: '#a855f7', pointRadius: 3, pointHoverRadius: 4
+                            }] },
+                            options: {
+                                responsive: true, maintainAspectRatio: false,
+                                plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => ' Niv ' + c.raw } } },
+                                scales: { r: {
+                                    angleLines: { color: 'rgba(255,255,255,0.08)' },
+                                    grid: { color: 'rgba(255,255,255,0.08)' },
+                                    pointLabels: { color: '#cbd5e1', font: { size: 9, weight: '600' } },
+                                    ticks: { display: false, beginAtZero: true },
+                                    suggestedMin: 0
+                                } }
+                            }
+                        });
+                    }
+                    const _tc = document.getElementById('dashTrendChart');
+                    if (_tc) {
+                        new Chart(_tc.getContext('2d'), {
+                            type: 'bar',
+                            data: { labels: _weekLabels, datasets: [{
+                                data: _weeks,
+                                backgroundColor: 'rgba(168,85,247,0.45)',
+                                borderColor: '#a855f7', borderWidth: 1, borderRadius: 4
+                            }] },
+                            options: {
+                                responsive: true, maintainAspectRatio: false,
+                                plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => ' ' + c.raw + ' séance' + (c.raw > 1 ? 's' : '') } } },
+                                scales: {
+                                    x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 9 } } },
+                                    y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: '#94a3b8', font: { size: 9 }, precision: 0, stepSize: 1 } }
+                                }
+                            }
+                        });
+                    }
+                }
+            } catch (e) {}
         }
         window.showSystemAnalysis = showSystemAnalysis;
 

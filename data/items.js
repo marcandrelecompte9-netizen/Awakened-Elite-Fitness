@@ -1839,7 +1839,7 @@ const EQUIPMENT_DATABASE = [
         passive:'Butin de Faille : un pouvoir arraché aux profondeurs.',
         description:'⬥ Objet exclusif aux Failles. Ne peut être obtenu qu\'en affrontant les Failles.',
         lore:'"Chaque entaille sur sa lame raconte un ennemi tombé."' },
-    {   id:'rift_epic_1', name:'Diadème de l\'Abîme', icon:'👁️', slot:'head', rarity:'epic', set:null, riftOnly:true,
+    {   id:'rift_epic_1', name:'Diadème des Profondeurs', icon:'👁️', slot:'head', rarity:'epic', set:null, riftOnly:true,
         muscle:'Corps entier', stats:{ STR:10, AGI:0, VIT:18, END:0, PER:42, SEN:-14 },
         passive:'Butin de Faille : un pouvoir arraché aux profondeurs.',
         description:'⬥ Objet exclusif aux Failles. Ne peut être obtenu qu\'en affrontant les Failles.',
