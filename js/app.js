@@ -765,7 +765,7 @@
             
             const modal = document.createElement('div');
             modal.style.cssText = `
-                background: white;
+                background: rgba(255,255,255,0.04);
                 border-radius: 20px;
                 max-width: 600px;
                 width: 100%;
@@ -779,13 +779,13 @@
                 <div style="padding: 30px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
                         <h2 style="color: #06b6d4; margin: 0;">🏃 Configuration Cardio</h2>
-                        <button onclick="closeCardioConfigModal()" style="background: none; border: none; font-size: 1.5em; cursor: pointer; color: #999;">✕</button>
+                        <button onclick="closeCardioConfigModal()" style="background: none; border: none; font-size: 1.5em; cursor: pointer; color: #94a3b8;">✕</button>
                     </div>
                     
                     <!-- Activity Type -->
                     <div style="margin-bottom: 25px;">
-                        <label style="display: block; font-weight: 600; margin-bottom: 10px; color: #333;">Type d'activité :</label>
-                        <select id="cardioActivityType" style="width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #e5e7eb; font-size: 1em;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 10px; color: #e2e8f0;">Type d'activité :</label>
+                        <select id="cardioActivityType" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); font-size: 1em;">
                             <option value="running">🏃 Course à pied</option>
                             <option value="cycling">🚴 Vélo</option>
                             <option value="walking">🚶 Marche</option>
@@ -799,14 +799,14 @@
                     
                     <!-- Unit System -->
                     <div style="margin-bottom: 25px;">
-                        <label style="display: block; font-weight: 600; margin-bottom: 10px; color: #333;">Système d'unités :</label>
+                        <label style="display: block; font-weight: 600; margin-bottom: 10px; color: #e2e8f0;">Système d'unités :</label>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                             <button onclick="selectCardioUnit('metric')" id="metricBtn" 
                                     style="padding: 12px; border-radius: 10px; border: 2px solid #06b6d4; background: #06b6d4; color: white; font-weight: 600; cursor: pointer;">
                                 Métrique (km)
                             </button>
                             <button onclick="selectCardioUnit('imperial')" id="imperialBtn"
-                                    style="padding: 12px; border-radius: 10px; border: 2px solid #e5e7eb; background: white; color: #333; font-weight: 600; cursor: pointer;">
+                                    style="padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); color: #e2e8f0; font-weight: 600; cursor: pointer;">
                                 Impérial (miles)
                             </button>
                         </div>
@@ -1044,33 +1044,33 @@
                 : '--';
             
             grid.innerHTML = `
-                <div style="background: white; padding: 15px; border-radius: 14px; border: 2px solid #0ea5e9; text-align: center;">
-                    <div style="font-size: 0.85em; color: #666; margin-bottom: 5px;">⏱️ Durée</div>
+                <div style="background: rgba(255,255,255,0.04); padding: 15px; border-radius: 14px; border: 2px solid #0ea5e9; text-align: center;">
+                    <div style="font-size: 0.85em; color: #94a3b8; margin-bottom: 5px;">⏱️ Durée</div>
                     <div style="font-size: 1.5em; font-weight: 700; color: #06b6d4;">${durationText}</div>
                 </div>
                 
-                <div style="background: white; padding: 15px; border-radius: 14px; border: 2px solid #0ea5e9; text-align: center;">
-                    <div style="font-size: 0.85em; color: #666; margin-bottom: 5px;">📏 Distance</div>
+                <div style="background: rgba(255,255,255,0.04); padding: 15px; border-radius: 14px; border: 2px solid #0ea5e9; text-align: center;">
+                    <div style="font-size: 0.85em; color: #94a3b8; margin-bottom: 5px;">📏 Distance</div>
                     <div style="font-size: 1.5em; font-weight: 700; color: #06b6d4;">${currentCardioSession.distance.toFixed(2)} ${unitLabel}</div>
                 </div>
                 
-                <div style="background: white; padding: 15px; border-radius: 14px; border: 2px solid #0ea5e9; text-align: center;">
-                    <div style="font-size: 0.85em; color: #666; margin-bottom: 5px;">🚀 Vitesse</div>
+                <div style="background: rgba(255,255,255,0.04); padding: 15px; border-radius: 14px; border: 2px solid #0ea5e9; text-align: center;">
+                    <div style="font-size: 0.85em; color: #94a3b8; margin-bottom: 5px;">🚀 Vitesse</div>
                     <div style="font-size: 1.5em; font-weight: 700; color: #06b6d4;">${currentCardioSession.speed.toFixed(1)} ${speedLabel}</div>
                 </div>
                 
-                <div style="background: white; padding: 15px; border-radius: 14px; border: 2px solid #0ea5e9; text-align: center;">
-                    <div style="font-size: 0.85em; color: #666; margin-bottom: 5px;">⏱️ Allure</div>
+                <div style="background: rgba(255,255,255,0.04); padding: 15px; border-radius: 14px; border: 2px solid #0ea5e9; text-align: center;">
+                    <div style="font-size: 0.85em; color: #94a3b8; margin-bottom: 5px;">⏱️ Allure</div>
                     <div style="font-size: 1.5em; font-weight: 700; color: #06b6d4;">${paceText} ${paceLabel}</div>
                 </div>
                 
-                <div style="background: white; padding: 15px; border-radius: 14px; border: 2px solid #0ea5e9; text-align: center;">
-                    <div style="font-size: 0.85em; color: #666; margin-bottom: 5px;">🔥 Calories</div>
+                <div style="background: rgba(255,255,255,0.04); padding: 15px; border-radius: 14px; border: 2px solid #0ea5e9; text-align: center;">
+                    <div style="font-size: 0.85em; color: #94a3b8; margin-bottom: 5px;">🔥 Calories</div>
                     <div style="font-size: 1.5em; font-weight: 700; color: #06b6d4;">${Math.round(currentCardioSession.calories)}</div>
                 </div>
                 
-                <div style="background: white; padding: 15px; border-radius: 14px; border: 2px solid #0ea5e9; text-align: center;">
-                    <div style="font-size: 0.85em; color: #666; margin-bottom: 5px;">❤️ FC</div>
+                <div style="background: rgba(255,255,255,0.04); padding: 15px; border-radius: 14px; border: 2px solid #0ea5e9; text-align: center;">
+                    <div style="font-size: 0.85em; color: #94a3b8; margin-bottom: 5px;">❤️ FC</div>
                     <div style="font-size: 1.5em; font-weight: 700; color: #06b6d4;">${currentCardioSession.heartRate || '--'} bpm</div>
                 </div>
             `;
@@ -1429,14 +1429,14 @@
                 const paceText = session.pace > 0 ? `${paceMin}:${String(paceSec).padStart(2, '0')}` : '--';
                 
                 return `
-                    <div style="background: white; padding: 20px; border-radius: 14px; border-left: 4px solid #06b6d4;">
+                    <div style="background: rgba(255,255,255,0.04); padding: 20px; border-radius: 14px; border-left: 4px solid #06b6d4;">
                         <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
                             <div>
                                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
                                     <span style="font-size: 1.5em;">${icon}</span>
-                                    <h4 style="margin: 0; color: #333;">${name}</h4>
+                                    <h4 style="margin: 0; color: #e2e8f0;">${name}</h4>
                                 </div>
-                                <div style="font-size: 0.85em; color: #999;">${date}</div>
+                                <div style="font-size: 0.85em; color: #94a3b8;">${date}</div>
                             </div>
                             <button onclick="deleteCardioSession(${index})" 
                                     style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 1.2em; padding: 5px;"
@@ -1448,32 +1448,32 @@
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px;">
                             <div style="text-align: center; padding: 10px; background: #f8fafc; border-radius: 10px;">
                                 <div style="font-size: 1.3em; font-weight: 700; color: #06b6d4;">${durationText}</div>
-                                <div style="font-size: 0.75em; color: #666; margin-top: 3px;">Durée</div>
+                                <div style="font-size: 0.75em; color: #94a3b8; margin-top: 3px;">Durée</div>
                             </div>
                             <div style="text-align: center; padding: 10px; background: #f8fafc; border-radius: 10px;">
                                 <div style="font-size: 1.3em; font-weight: 700; color: #06b6d4;">${session.distance.toFixed(2)}</div>
-                                <div style="font-size: 0.75em; color: #666; margin-top: 3px;">${unitLabel}</div>
+                                <div style="font-size: 0.75em; color: #94a3b8; margin-top: 3px;">${unitLabel}</div>
                             </div>
                             ${session.speed > 0 ? `
                                 <div style="text-align: center; padding: 10px; background: #f8fafc; border-radius: 10px;">
                                     <div style="font-size: 1.3em; font-weight: 700; color: #06b6d4;">${session.speed.toFixed(1)}</div>
-                                    <div style="font-size: 0.75em; color: #666; margin-top: 3px;">${speedLabel}</div>
+                                    <div style="font-size: 0.75em; color: #94a3b8; margin-top: 3px;">${speedLabel}</div>
                                 </div>
                             ` : ''}
                             ${session.pace > 0 ? `
                                 <div style="text-align: center; padding: 10px; background: #f8fafc; border-radius: 10px;">
                                     <div style="font-size: 1.3em; font-weight: 700; color: #06b6d4;">${paceText}</div>
-                                    <div style="font-size: 0.75em; color: #666; margin-top: 3px;">Allure</div>
+                                    <div style="font-size: 0.75em; color: #94a3b8; margin-top: 3px;">Allure</div>
                                 </div>
                             ` : ''}
                             <div style="text-align: center; padding: 10px; background: #f8fafc; border-radius: 10px;">
                                 <div style="font-size: 1.3em; font-weight: 700; color: #06b6d4;">${Math.round(session.calories)}</div>
-                                <div style="font-size: 0.75em; color: #666; margin-top: 3px;">kcal</div>
+                                <div style="font-size: 0.75em; color: #94a3b8; margin-top: 3px;">kcal</div>
                             </div>
                             ${session.heartRate ? `
                                 <div style="text-align: center; padding: 10px; background: #f8fafc; border-radius: 10px;">
                                     <div style="font-size: 1.3em; font-weight: 700; color: #06b6d4;">${session.heartRate}</div>
-                                    <div style="font-size: 0.75em; color: #666; margin-top: 3px;">bpm</div>
+                                    <div style="font-size: 0.75em; color: #94a3b8; margin-top: 3px;">bpm</div>
                                 </div>
                             ` : ''}
                         </div>
@@ -1637,8 +1637,10 @@
                             position: 'right',
                             title: {
                                 display: true,
-                                text: 'Calories (kcal)'
+                                text: 'Calories (kcal)',
+                                color: '#94a3b8'
                             },
+                            ticks: { color: '#94a3b8' },
                             grid: {
                                 drawOnChartArea: false
                             }
@@ -1647,7 +1649,8 @@
                     plugins: {
                         legend: {
                             display: true,
-                            position: 'top'
+                            position: 'top',
+                            labels: { color: '#cbd5e1', font: { size: 10 } }
                         },
                         tooltip: {
                             enabled: true
@@ -2067,7 +2070,7 @@
                 if (btn) {
                     if (t === type) {
                         btn.className = 'btn';
-                        btn.style.background = 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)';
+                        btn.style.background = 'linear-gradient(135deg, #22d3ee 0%, #a855f7 100%)';
                     } else {
                         btn.className = 'btn btn-secondary';
                         btn.style.background = '';
@@ -2133,13 +2136,13 @@
                             display: true,
                             text: 'Séances par semaine (8 dernières semaines)',
                             font: { size: 16, weight: 'bold' },
-                            color: '#16a34a'
+                            color: '#67e8f9'
                         }
                     },
                     scales: {
                         y: {
                             beginAtZero: true,
-                            ticks: { stepSize: 1 }
+                            ticks: { stepSize: 1, color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.06)' }
                         }
                     }
                 }
@@ -2197,6 +2200,7 @@
                     plugins: {
                         legend: {
                             position: 'right',
+                            labels: { color: '#cbd5e1', font: { size: 10 } },
                             labels: { 
                                 font: { size: 12 },
                                 padding: 15
@@ -2206,7 +2210,7 @@
                             display: true,
                             text: 'Répartition des muscles travaillés',
                             font: { size: 16, weight: 'bold' },
-                            color: '#16a34a'
+                            color: '#67e8f9'
                         }
                     }
                 }
@@ -2269,13 +2273,13 @@
                             display: true,
                             text: 'Volume d\'entraînement total par semaine',
                             font: { size: 16, weight: 'bold' },
-                            color: '#16a34a'
+                            color: '#67e8f9'
                         }
                     },
                     scales: {
                         y: {
                             beginAtZero: true,
-                            ticks: { stepSize: 5 }
+                            ticks: { stepSize: 5, color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.06)' }
                         }
                     }
                 }
@@ -2502,12 +2506,12 @@
             if (!topList) return;
             if (stats.topExercises.length > 0) {
                 topList.innerHTML = stats.topExercises.map(([name, count], idx) => `
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: ${idx % 2 === 0 ? '#f9fafb' : 'white'}; border-radius: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: ${idx % 2 === 0 ? 'rgba(255,255,255,0.03)' : 'white'}; border-radius: 10px;">
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <span style="font-size: 1.2em; font-weight: bold; color: ${idx === 0 ? '#fbbf24' : idx === 1 ? '#d1d5db' : idx === 2 ? '#cd7f32' : '#16a34a'};">
                                 ${idx + 1}
                             </span>
-                            <span style="font-weight: 500; color: #333;">${name}</span>
+                            <span style="font-weight: 500; color: #e2e8f0;">${name}</span>
                         </div>
                         <span style="background: #16a34a; color: white; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 0.9em;">
                             ${count}×
@@ -2515,7 +2519,7 @@
                     </div>
                 `).join('');
             } else {
-                topList.innerHTML = '<p style="text-align: center; color: #999;">Aucune donnée disponible</p>';
+                topList.innerHTML = '<p style="text-align: center; color: #94a3b8;">Aucune donnée disponible</p>';
             }
             
             // Render muscle distribution
@@ -2527,16 +2531,16 @@
                 muscleList.innerHTML = stats.muscleDistribution.map((item, idx) => `
                     <div>
                         <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                            <span style="font-weight: 500; color: #333;">${item.muscle}</span>
+                            <span style="font-weight: 500; color: #e2e8f0;">${item.muscle}</span>
                             <span style="font-weight: bold; color: ${colors[idx % colors.length]};">${item.percentage}% (${item.count}×)</span>
                         </div>
-                        <div style="width: 100%; height: 10px; background: #e5e7eb; border-radius: 10px; overflow: hidden;">
+                        <div style="width: 100%; height: 10px; background: rgba(255,255,255,0.12); border-radius: 10px; overflow: hidden;">
                             <div style="width: ${item.percentage}%; height: 100%; background: linear-gradient(135deg, ${colors[idx % colors.length]} 0%, ${colors[idx % colors.length]}cc 100%); transition: width 0.5s;"></div>
                         </div>
                     </div>
                 `).join('');
             } else {
-                muscleList.innerHTML = '<p style="text-align: center; color: #999;">Aucune donnée disponible</p>';
+                muscleList.innerHTML = '<p style="text-align: center; color: #94a3b8;">Aucune donnée disponible</p>';
             }
             
             // Render insights
@@ -2805,21 +2809,21 @@
             const letters = ['A', 'B', 'C'];
             
             container.innerHTML = supersetExercisesList.map((item, idx) => `
-                <div style="background: #f9fafb; padding: 15px; border-radius: 10px; border-left: 4px solid #22c55e;">
+                <div style="background: rgba(255,255,255,0.03); padding: 15px; border-radius: 10px; border-left: 4px solid #22c55e;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <span style="font-weight: bold; color: #22c55e; font-size: 1.2em;">${letters[idx]})</span>
                         ${supersetExercisesList.length > 2 ? `
                             <button onclick="removeSupersetExercise(${idx})" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer;">✕</button>
                         ` : ''}
                     </div>
-                    <select id="supersetSelect_${idx}" onchange="supersetExercisesList[${idx}].exercise = this.value" style="width: 100%; padding: 10px; border: 2px solid #bbf7d0; border-radius: 10px; margin-bottom: 10px; background: #fff8f6; color: #166534;">
+                    <select id="supersetSelect_${idx}" onchange="supersetExercisesList[${idx}].exercise = this.value" style="width: 100%; padding: 10px; border: 1px solid rgba(34,211,238,0.3); border-radius: 10px; margin-bottom: 10px; background: #0D0D0D; color: #e2e8f0;">
                         <option value="">Choisir un exercice...</option>
                     </select>
                     <div style="display: flex; gap: 10px; align-items: center;">
-                        <label style="color: #666;">Répétitions :</label>
+                        <label style="color: #94a3b8;">Répétitions :</label>
                         <input type="number" value="${item.reps}" min="1" max="50" 
                                onchange="supersetExercisesList[${idx}].reps = parseInt(this.value)"
-                               style="width: 80px; padding: 8px; border: 2px solid #e0e0e0; border-radius: 10px;">
+                               style="width: 80px; padding: 8px; border: 2px solid rgba(255,255,255,0.12); border-radius: 10px;">
                     </div>
                 </div>
             `).join('');
@@ -3270,14 +3274,14 @@
                             <button onclick="removeAMRAPExercise(${idx})" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer;">✕</button>
                         ` : ''}
                     </div>
-                    <select id="amrapSelect_${idx}" onchange="amrapExercisesList[${idx}].exercise = this.value" style="width: 100%; padding: 10px; border: 2px solid #fca5a5; border-radius: 10px; margin-bottom: 10px; background: #fff5f5; color: #7f1d1d;">
+                    <select id="amrapSelect_${idx}" onchange="amrapExercisesList[${idx}].exercise = this.value" style="width: 100%; padding: 10px; border: 1px solid rgba(239,68,68,0.35); border-radius: 10px; margin-bottom: 10px; background: #0D0D0D; color: #e2e8f0;">
                         <option value="">Choisir un exercice...</option>
                     </select>
                     <div style="display: flex; gap: 10px; align-items: center;">
                         <label style="color: #7f1d1d; font-weight: 600;">Répétitions :</label>
                         <input type="number" value="${item.reps}" min="1" max="50" 
                                onchange="amrapExercisesList[${idx}].reps = parseInt(this.value)"
-                               style="width: 80px; padding: 8px; border: 2px solid #fca5a5; border-radius: 10px; background: #fff5f5; color: #7f1d1d;">
+                               style="width: 80px; padding: 8px; border: 1px solid rgba(239,68,68,0.35); border-radius: 10px; background: #0D0D0D; color: #e2e8f0;">
                     </div>
                 </div>
             `).join('');
@@ -5994,20 +5998,20 @@
             };
             
             const content = document.createElement('div');
-            content.style.cssText = 'background: white; border-radius: 14px; padding: 30px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);';
+            content.style.cssText = 'background: rgba(255,255,255,0.04); border-radius: 14px; padding: 30px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);';
             
             content.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2 style="margin: 0; color: #16a34a;">🏋️ Sélectionnez vos machines</h2>
-                    <button onclick="this.closest('.modal-overlay').remove()" style="background: none; border: none; font-size: 28px; cursor: pointer; color: #999;">×</button>
+                    <h2 style="margin: 0; color: #22d3ee;">🏋️ Sélectionnez vos machines</h2>
+                    <button onclick="this.closest('.modal-overlay').remove()" style="background: none; border: none; font-size: 28px; cursor: pointer; color: #94a3b8;">×</button>
                 </div>
                 
-                <p style="color: #666; margin-bottom: 20px;">
+                <p style="color: #94a3b8; margin-bottom: 20px;">
                     Choisissez les types de machines que vous possédez. Cela permettra de personnaliser les exercices proposés.
                 </p>
                 
                 <div style="background: #FFF3E0; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
-                    <strong style="color: #16a34a;"><span id="machineSubmenuCount">${selectedMachines.length}</span> / ${machineTypes.length}</strong> types de machines sélectionnés
+                    <strong style="color: #22d3ee;"><span id="machineSubmenuCount">${selectedMachines.length}</span> / ${machineTypes.length}</strong> types de machines sélectionnés
                 </div>
                 
                 <div id="machineGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; margin-bottom: 20px;">
@@ -6022,8 +6026,8 @@
                             <div class="machine-type-item ${isSelected ? 'selected' : ''}" 
                                  onclick="toggleMachine('${machine.id}')" 
                                  data-machine-id="${machine.id}"
-                                 style="position: relative; padding: 15px; background: ${isSelected ? '#FFF3E0' : '#f9fafb'}; border: 2px solid ${isSelected ? '#16a34a' : '#e5e7eb'}; border-radius: 14px; cursor: pointer; text-align: center; transition: all 0.3s;">
-                                <div style="position: absolute; top: 8px; right: 8px; width: 20px; height: 20px; border-radius: 50%; background: ${isSelected ? '#16a34a' : 'transparent'}; border: 2px solid ${isSelected ? '#16a34a' : '#d1d5db'}; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: bold;">
+                                 style="position: relative; padding: 15px; background: ${isSelected ? '#FFF3E0' : 'rgba(255,255,255,0.03)'}; border: 2px solid ${isSelected ? '#22d3ee' : 'rgba(255,255,255,0.12)'}; border-radius: 14px; cursor: pointer; text-align: center; transition: all 0.3s;">
+                                <div style="position: absolute; top: 8px; right: 8px; width: 20px; height: 20px; border-radius: 50%; background: ${isSelected ? '#22d3ee' : 'transparent'}; border: 2px solid ${isSelected ? '#22d3ee' : '#d1d5db'}; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: bold;">
                                     ${isSelected ? '✓' : ''}
                                 </div>
                                 <div style="width:56px;height:56px;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;">
@@ -6031,8 +6035,8 @@
                                         ? machine.svg
                                         : `<span style="font-size:32px">${machine.icon}</span>`}
                                 </div>
-                                <div style="font-weight: 600; color: #333; font-size: 0.9em; margin-bottom: 4px;">${machine.name}</div>
-                                <div style="font-size: 0.75em; color: #666;">${count} exercices</div>
+                                <div style="font-weight: 600; color: #e2e8f0; font-size: 0.9em; margin-bottom: 4px;">${machine.name}</div>
+                                <div style="font-size: 0.75em; color: #94a3b8;">${count} exercices</div>
                             </div>
                         `;
                     }).join('')}
@@ -6047,7 +6051,7 @@
                     </button>
                 </div>
                 
-                <button onclick="closeMachineSubmenu()" class="btn" style="width: 100%; background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);">
+                <button onclick="closeMachineSubmenu()" class="btn" style="width: 100%; background: linear-gradient(135deg, #22d3ee 0%, #0891b2 100%);">
                     ✅ Valider ma sélection
                 </button>
             `;
@@ -6070,8 +6074,8 @@
             if (item) {
                 const isSelected = selectedMachines.includes(machineId);
                 item.className = `machine-type-item ${isSelected ? 'selected' : ''}`;
-                item.style.background = isSelected ? '#FFF3E0' : '#f9fafb';
-                item.style.borderColor = isSelected ? '#16a34a' : '#e5e7eb';
+                item.style.background = isSelected ? '#FFF3E0' : 'rgba(255,255,255,0.03)';
+                item.style.borderColor = isSelected ? '#22d3ee' : 'rgba(255,255,255,0.12)';
                 item.querySelector('div').innerHTML = isSelected ? '✓' : '';
             }
             
@@ -6310,9 +6314,9 @@
             } else {
                 equipmentList.innerHTML = equipment.map(eq => {
                     const icon = equipmentIcons[eq] || '🏋️';
-                    return `<div style="display:flex;align-items:center;gap:12px;padding:13px 15px;background:rgba(22,163,74,0.08);border-radius:14px;border:1px solid rgba(22,163,74,0.25);">
-                        <span style="font-size:1.8em;">${icon}</span>
-                        <span style="font-size:0.95em;font-weight:600;color:#e2e8f0;">${eq}</span>
+                    return `<div style="display:flex;align-items:center;gap:10px;padding:11px 13px;background:rgba(34,211,238,0.06);border-radius:12px;border:1px solid rgba(34,211,238,0.22);">
+                        <span style="font-size:1.5em;">${icon}</span>
+                        <span style="font-size:0.88em;font-weight:600;color:#e2e8f0;">${eq}</span>
                     </div>`;
                 }).join('');
             }
@@ -6345,16 +6349,16 @@
 
                     const setsReps = ex.sets ? (ex.mode === 'timer' ? `${ex.sets}×${ex.duration}s` : `${ex.sets}×${ex.reps || '?'}`) : '';
 
-                    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:11px 14px;margin-bottom:7px;background:#222328;border-radius:10px;border-left:3px solid ${difficultyColor};">
+                    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:11px 14px;margin-bottom:7px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:12px;border-left:3px solid ${difficultyColor};">
                         <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;">
-                            <div style="font-weight:800;color:#16a34a;min-width:26px;font-size:0.9em;">${index+1}.</div>
+                            <div style="font-weight:800;color:#22d3ee;min-width:26px;font-size:0.9em;">${index+1}.</div>
                             <div style="flex:1;min-width:0;">
                                 <div style="font-weight:600;color:#e2e8f0;font-size:0.9em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${exerciseName}</div>
                                 ${muscle ? `<div style="font-size:0.75em;color:#94a3b8;margin-top:2px;">💪 ${muscle}</div>` : ''}
                             </div>
                         </div>
                         <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;margin-left:8px;">
-                            ${setsReps ? `<div style="font-size:0.75em;font-weight:700;color:#4ade80;background:rgba(22,163,74,0.12);padding:3px 8px;border-radius:6px;">${setsReps}</div>` : ''}
+                            ${setsReps ? `<div style="font-size:0.75em;font-weight:700;color:#67e8f9;background:rgba(34,211,238,0.1);padding:3px 8px;border-radius:6px;">${setsReps}</div>` : ''}
                             ${difficulty ? `<div style="font-size:0.72em;padding:3px 8px;background:${difficultyColor}22;color:${difficultyColor};border-radius:10px;font-weight:600;white-space:nowrap;">${difficulty}</div>` : ''}
                         </div>
                     </div>`;
@@ -6663,9 +6667,9 @@
                     </div>
                     <div class="modal-body">
                         <div style="background: linear-gradient(135deg, #16a34a15 0%, #15803d15 100%); padding: 20px; border-radius: 14px; margin-bottom: 20px;">
-                            <p style="margin: 0; color: #333; font-size: 1.1em; text-align: center;">
+                            <p style="margin: 0; color: #e2e8f0; font-size: 1.1em; text-align: center;">
                                 🎉 <strong>Excellente progression !</strong><br>
-                                <span style="font-size: 0.9em; color: #666;">L'app a détecté que tu es prêt(e) pour progresser</span>
+                                <span style="font-size: 0.9em; color: #94a3b8;">L'app a détecté que tu es prêt(e) pour progresser</span>
                             </p>
                         </div>
                         
@@ -6674,8 +6678,8 @@
                                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
                                     <span style="font-size: 1.5em;">${sugg.type === 'increase' ? '📈' : '💡'}</span>
                                     <div>
-                                        <h4 style="margin: 0; color: #333;">${sugg.exerciseName}</h4>
-                                        <p style="margin: 5px 0 0 0; font-size: 0.85em; color: #666;">
+                                        <h4 style="margin: 0; color: #e2e8f0;">${sugg.exerciseName}</h4>
+                                        <p style="margin: 5px 0 0 0; font-size: 0.85em; color: #94a3b8;">
                                             ${sugg.reason} • Confiance : ${sugg.confidence}%
                                         </p>
                                     </div>
@@ -6687,7 +6691,7 @@
                                                 class="btn btn-secondary" 
                                                 style="text-align: left; padding: 12px; background: linear-gradient(135deg, ${sugg.type === 'increase' ? '#10b98115' : '#f59e0b15'} 0%, transparent 100%); border: 1px solid ${sugg.type === 'increase' ? '#10b981' : '#f59e0b'};">
                                             <div style="font-weight: bold;">${s.label}</div>
-                                            <div style="font-size: 0.85em; color: #666; margin-top: 3px;">${s.description}</div>
+                                            <div style="font-size: 0.85em; color: #94a3b8; margin-top: 3px;">${s.description}</div>
                                         </button>
                                     `).join('')}
                                 </div>
@@ -6700,7 +6704,7 @@
                             ❌ Pas maintenant
                         </button>
                         
-                        <p style="text-align: center; font-size: 0.85em; color: #666; margin-top: 15px;">
+                        <p style="text-align: center; font-size: 0.85em; color: #94a3b8; margin-top: 15px;">
                             💡 Ces suggestions sont basées sur tes 3-5 dernières performances
                         </p>
                     </div>
@@ -7099,7 +7103,7 @@
             document.getElementById('profileGoal').value = profile.goal;
             document.getElementById('profileLevel').value = profile.level;
             document.getElementById('profileAge').value = profile.age;
-            document.getElementById('profileWeight').value = profile.weight;
+            document.getElementById('profileWeight').value = profile.weight ? fmtWeightVal(profile.weight) : '';
             
             modal.classList.add('active');
         }
@@ -7122,12 +7126,13 @@
         }
 
         function saveProfileSetup() {
+            const _wRaw = parseFloat(document.getElementById('profileWeight').value) || (useKg ? 70 : 155);
             userProfile = {
                 name: document.getElementById('profileName').value || "Athlète",
                 goal: document.getElementById('profileGoal').value,
                 level: document.getElementById('profileLevel').value,
                 age: parseInt(document.getElementById('profileAge').value) || 30,
-                weight: parseInt(document.getElementById('profileWeight').value) || 70,
+                weight: useKg ? Math.round(_wRaw) : Math.round(_wRaw * 0.453592), // stocké en kg
                 setupComplete: true
             };
             
@@ -7895,7 +7900,7 @@
             
             if (!saved) {
                 document.getElementById('weeklyPlanContainer').innerHTML = 
-                    '<p style="text-align: center; color: #666; padding: 20px;">Configurez votre profil pour générer votre plan hebdomadaire personnalisé.</p>';
+                    '<p style="text-align: center; color: #94a3b8; padding: 20px;">Configurez votre profil pour générer votre plan hebdomadaire personnalisé.</p>';
                 return;
             }
             
@@ -7920,8 +7925,8 @@
                     <div class="weekly-plan-day ${intensity} ${isToday ? 'today' : ''}">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <div>
-                                <strong style="color: #333;">${isToday ? '▶️ ' : ''}${dayPlan.day}</strong>
-                                <div style="color: #666; font-size: 0.95em; margin-top: 3px;">${dayPlan.focus}</div>
+                                <strong style="color: #e2e8f0;">${isToday ? '▶️ ' : ''}${dayPlan.day}</strong>
+                                <div style="color: #94a3b8; font-size: 0.95em; margin-top: 3px;">${dayPlan.focus}</div>
                             </div>
                             <div style="font-size: 1.3em;">${
                                 intensity === 'high' ? '🔥' : 
@@ -7967,7 +7972,7 @@
                         <button onclick="closeManualPlanEditor()" style="background: none; border: none; font-size: 1.5em; cursor: pointer;">×</button>
                     </div>
                     <div class="modal-body">
-                        <p style="color: #666; margin-bottom: 20px;">
+                        <p style="color: #94a3b8; margin-bottom: 20px;">
                             Personnalisez votre plan hebdomadaire selon vos préférences
                         </p>
                         <div id="manualPlanDays"></div>
@@ -8015,7 +8020,7 @@
                                    value="${dayData.focus}"
                                    placeholder="Ex: Pectoraux + Triceps"
                                    onchange="updateManualDayFocus(${dayIndex}, this.value)"
-                                   style="width: 100%; padding: 8px; border: 2px solid #e0e0e0; border-radius: 6px;">
+                                   style="width: 100%; padding: 8px; border: 2px solid rgba(255,255,255,0.12); border-radius: 6px;">
                         </div>
                         
                         <!-- Intensité -->
@@ -8025,7 +8030,7 @@
                             </label>
                             <select id="dayIntensity_${dayIndex}" 
                                     onchange="updateManualDayIntensity(${dayIndex}, this.value)"
-                                    style="width: 100%; padding: 8px; border: 2px solid #e0e0e0; border-radius: 6px;">
+                                    style="width: 100%; padding: 8px; border: 2px solid rgba(255,255,255,0.12); border-radius: 6px;">
                                 <option value="rest" ${dayData.intensity === 'rest' ? 'selected' : ''}>😴 Repos</option>
                                 <option value="low" ${dayData.intensity === 'low' ? 'selected' : ''}>🧘 Léger</option>
                                 <option value="moderate" ${dayData.intensity === 'moderate' ? 'selected' : ''}>💪 Modéré</option>
@@ -8042,7 +8047,7 @@
                                 ${allMuscles.map(muscle => {
                                     const isSelected = dayData.muscles.includes(muscle);
                                     return `
-                                    <label style="display: flex; align-items: center; padding: 6px; background: ${isSelected ? '#FFF3E0' : 'white'}; border-radius: 6px; cursor: pointer; border: 2px solid ${isSelected ? '#16a34a' : '#e0e0e0'}; transition: all 0.2s;">
+                                    <label style="display: flex; align-items: center; padding: 6px; background: ${isSelected ? '#FFF3E0' : 'white'}; border-radius: 6px; cursor: pointer; border: 2px solid ${isSelected ? '#16a34a' : 'rgba(255,255,255,0.12)'}; transition: all 0.2s;">
                                         <input type="checkbox" 
                                                ${isSelected ? 'checked' : ''}
                                                onchange="toggleManualDayMuscle(${dayIndex}, '${muscle}')"
@@ -8089,7 +8094,7 @@
             const span = label.querySelector('span');
             
             if (label) {
-                label.style.border = isSelected ? '2px solid #16a34a' : '2px solid #e0e0e0';
+                label.style.border = isSelected ? '2px solid #16a34a' : '2px solid rgba(255,255,255,0.12)';
                 label.style.background = isSelected ? '#FFF3E0' : 'white';
             }
             
@@ -9842,11 +9847,11 @@
                     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
                         <span style="font-size: 2em;">${rec.icon}</span>
                         <div>
-                            <h4 style="margin: 0; color: #333;">${rec.title}</h4>
-                            <p style="margin: 5px 0 0 0; color: #666; font-size: 0.9em;">${rec.message}</p>
+                            <h4 style="margin: 0; color: #e2e8f0;">${rec.title}</h4>
+                            <p style="margin: 5px 0 0 0; color: #94a3b8; font-size: 0.9em;">${rec.message}</p>
                         </div>
                     </div>
-                    <div style="background: white; padding: 10px; border-radius: 10px; margin-top: 10px;">
+                    <div style="background: rgba(255,255,255,0.04); padding: 10px; border-radius: 10px; margin-top: 10px;">
                         <strong>💡 Suggestion :</strong> ${rec.suggestion}
                     </div>
                 </div>
@@ -9969,7 +9974,7 @@
                                 <span>Séances</span>
                                 <span style="font-weight: bold;">${goals.workouts.current}/${goals.workouts.target}</span>
                             </div>
-                            <div style="background: #e5e7eb; border-radius: 10px; height: 20px; overflow: hidden;">
+                            <div style="background: rgba(255,255,255,0.12); border-radius: 10px; height: 20px; overflow: hidden;">
                                 <div style="background: ${goals.workouts.achieved ? '#10b981' : '#16a34a'}; height: 100%; width: ${goals.workouts.percentage}%; transition: width 0.5s;"></div>
                             </div>
                         </div>
@@ -9978,7 +9983,7 @@
                                 <span>Minutes</span>
                                 <span style="font-weight: bold;">${goals.minutes.current}/${goals.minutes.target} min</span>
                             </div>
-                            <div style="background: #e5e7eb; border-radius: 10px; height: 20px; overflow: hidden;">
+                            <div style="background: rgba(255,255,255,0.12); border-radius: 10px; height: 20px; overflow: hidden;">
                                 <div style="background: ${goals.minutes.achieved ? '#10b981' : '#16a34a'}; height: 100%; width: ${goals.minutes.percentage}%; transition: width 0.5s;"></div>
                             </div>
                         </div>
@@ -10005,7 +10010,7 @@
                                     ${trends.minutesTrend >= 0 ? '↗' : '↘'} ${Math.abs(trends.minutesTrend)}min
                                 </span>
                             </div>
-                            <div style="margin-top: 5px; padding: 8px; background: white; border-radius: 6px; font-size: 0.9em; text-align: center;">
+                            <div style="margin-top: 5px; padding: 8px; background: rgba(255,255,255,0.04); border-radius: 6px; font-size: 0.9em; text-align: center;">
                                 ${trends.interpretation === 'positive' ? '✅ En progression' : 
                                   trends.interpretation === 'negative' ? '⚠️ En baisse' : 
                                   '➡️ Stable'}
@@ -10023,8 +10028,8 @@
                                 <div style="display: flex; align-items: center; gap: 10px;">
                                     <span style="font-size: 2em;">${rec.icon}</span>
                                     <div style="flex: 1;">
-                                        <div style="font-weight: bold; color: #333; margin-bottom: 3px;">${rec.title}</div>
-                                        <div style="font-size: 0.9em; color: #666;">${rec.message}</div>
+                                        <div style="font-weight: bold; color: #e2e8f0; margin-bottom: 3px;">${rec.title}</div>
+                                        <div style="font-size: 0.9em; color: #94a3b8;">${rec.message}</div>
                                         <div style="font-size: 0.85em; color: #16a34a; margin-top: 5px;">💡 ${rec.suggestion}</div>
                                     </div>
                                 </div>
@@ -10512,7 +10517,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             chip.innerHTML = `
                 <div style="display:flex;align-items:center;gap:8px;font-size:0.7em;font-weight:700;color:#cbd5e1;">
                     <span style="color:#4ade80;">📊</span>
-                    <span><b style="color:white;">${volume >= 1000 ? (volume/1000).toFixed(1)+'t' : Math.round(volume)+'kg'}</b></span>
+                    <span><b style="color:white;">${useKg ? (volume >= 1000 ? (volume/1000).toFixed(1)+'t' : Math.round(volume)+'kg') : (fmtWeightVal(volume) >= 10000 ? (fmtWeightVal(volume)/1000).toFixed(1)+'k lbs' : Math.round(fmtWeightVal(volume))+' lbs')}</b></span>
                     <span style="opacity:0.4;">|</span>
                     <span>${sets} sér.</span>
                     <span style="opacity:0.4;">|</span>
@@ -11519,14 +11524,14 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         ${needsWeight ? `
                             <div style="margin-bottom: 20px;">
                                 <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #e2e8f0;">
-                                    Poids utilisé (kg)
+                                    Poids utilisé (${weightUnit()})
                                 </label>
                                 <div style="display:flex;align-items:center;gap:10px;">
                                     <button onclick="(function(){ const inp=document.getElementById('weightInput'); const v=Math.max(0,((parseFloat(inp.value)||0)-2.5)); inp.value=v.toFixed(1); playRepTick(); })()"
                                         style="width:52px;height:52px;border-radius:50%;border:2px solid #2E2F35;background:#222328;color:#e2e8f0;font-size:1.2em;cursor:pointer;flex-shrink:0;">−</button>
                                     <input type="number" id="weightInput" 
                                            min="0" step="0.5" 
-                                           placeholder="${lastPerf && lastPerf.weight ? lastPerf.weight : '0'}"
+                                           placeholder="${lastPerf && lastPerf.weight ? fmtWeightVal(lastPerf.weight) : '0'}"
                                            style="flex:1;padding:15px;font-size:1.4em;border:2px solid #2E2F35;background:#1A1B20;border-radius:10px;font-weight:700;text-align:center;color:#e2e8f0;" />
                                     <button onclick="(function(){ const inp=document.getElementById('weightInput'); const v=((parseFloat(inp.value)||0)+2.5); inp.value=v.toFixed(1); playRepTick(); })()"
                                         style="width:52px;height:52px;border-radius:50%;border:2px solid #16a34a;background:rgba(22,163,74,0.15);color:#16a34a;font-size:1.2em;cursor:pointer;flex-shrink:0;">+</button>
@@ -11655,7 +11660,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
             // ── JOUR D'ENTRAÎNEMENT NORMAL ────────────────────────────
             const aiHint = aiPlan
-                ? `<div style="background:rgba(22,163,74,0.12);border:1px solid rgba(22,163,74,0.3);border-radius:10px;padding:10px 14px;margin-top:10px;font-size:0.82em;color:#4ade80;">
+                ? `<div style="background:rgba(22,163,74,0.12);border:1px solid rgba(22,163,74,0.3);border-radius:10px;padding:10px 14px;margin-top:10px;font-size:0.82em;color:#22d3ee;">
                        📅 Plan du jour : <strong>${aiPlan}</strong>
                    </div>`
                 : `<div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px 14px;margin-top:10px;font-size:0.82em;color:#94a3b8;">
@@ -11663,17 +11668,17 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                    </div>`;
 
             overlay.innerHTML = `
-                <div style="background:linear-gradient(160deg,#0a0e18,#0F1014);border-radius:20px;padding:26px 22px;max-width:400px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,0.8),0 0 50px rgba(74,222,128,0.2);border:2px solid rgba(74,222,128,0.4);position:relative;overflow:hidden auto;-webkit-overflow-scrolling:touch;max-height:90vh;animation:slideUp 0.4s cubic-bezier(0.34,1.56,0.64,1);">
-                    <div style="position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0,transparent 3px,rgba(74,222,128,0.03) 3px,rgba(74,222,128,0.03) 4px);pointer-events:none;border-radius:20px;"></div>
-                    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#4ade80,transparent);"></div>
-                    <div style="position:absolute;top:-1px;left:-1px;width:20px;height:20px;border-top:2px solid #4ade80;border-left:2px solid #4ade80;border-top-left-radius:18px;"></div>
-                    <div style="position:absolute;top:-1px;right:-1px;width:20px;height:20px;border-top:2px solid #4ade80;border-right:2px solid #4ade80;border-top-right-radius:18px;"></div>
-                    <div style="position:absolute;bottom:-1px;left:-1px;width:20px;height:20px;border-bottom:2px solid #4ade80;border-left:2px solid #4ade80;border-bottom-left-radius:18px;"></div>
-                    <div style="position:absolute;bottom:-1px;right:-1px;width:20px;height:20px;border-bottom:2px solid #4ade80;border-right:2px solid #4ade80;border-bottom-right-radius:18px;"></div>
+                <div style="background:linear-gradient(160deg,#0a0e18,#0F1014);border-radius:20px;padding:26px 22px;max-width:400px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,0.8),0 0 50px rgba(34,211,238,0.2);border:2px solid rgba(34,211,238,0.4);position:relative;overflow:hidden auto;-webkit-overflow-scrolling:touch;max-height:90vh;animation:slideUp 0.4s cubic-bezier(0.34,1.56,0.64,1);">
+                    <div style="position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0,transparent 3px,rgba(34,211,238,0.03) 3px,rgba(34,211,238,0.03) 4px);pointer-events:none;border-radius:20px;"></div>
+                    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#22d3ee,transparent);"></div>
+                    <div style="position:absolute;top:-1px;left:-1px;width:20px;height:20px;border-top:2px solid #22d3ee;border-left:2px solid #22d3ee;border-top-left-radius:18px;"></div>
+                    <div style="position:absolute;top:-1px;right:-1px;width:20px;height:20px;border-top:2px solid #22d3ee;border-right:2px solid #22d3ee;border-top-right-radius:18px;"></div>
+                    <div style="position:absolute;bottom:-1px;left:-1px;width:20px;height:20px;border-bottom:2px solid #22d3ee;border-left:2px solid #22d3ee;border-bottom-left-radius:18px;"></div>
+                    <div style="position:absolute;bottom:-1px;right:-1px;width:20px;height:20px;border-bottom:2px solid #22d3ee;border-right:2px solid #22d3ee;border-bottom-right-radius:18px;"></div>
                     <div style="text-align:center;margin-bottom:20px;position:relative;z-index:1;">
-                        <div style="font-size:0.54em;color:#4ade80;font-weight:900;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;text-shadow:0 0 10px rgba(74,222,128,0.5);">◈ PROTOCOLE DE CIBLAGE ◈</div>
-                        <div style="margin-bottom:8px;display:flex;justify-content:center;filter:drop-shadow(0 0 14px rgba(74,222,128,0.4));">
-                            <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <div style="font-size:0.54em;color:#22d3ee;font-weight:900;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;text-shadow:0 0 10px rgba(34,211,238,0.5);">◈ PROTOCOLE DE CIBLAGE ◈</div>
+                        <div style="margin-bottom:8px;display:flex;justify-content:center;filter:drop-shadow(0 0 14px rgba(34,211,238,0.4));">
+                            <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/>
                                 <line x1="12" y1="1.5" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22.5"/>
                                 <line x1="1.5" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22.5" y2="12"/>
@@ -11711,12 +11716,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     <!-- Option Manuel -->
                     <button onclick="onMuscleChoiceManual()" style="
                         width:100%;padding:18px 16px;border-radius:14px;position:relative;z-index:1;
-                        border:1.5px solid rgba(74,222,128,0.3);background:rgba(74,222,128,0.06);
+                        border:1.5px solid rgba(34,211,238,0.3);background:rgba(34,211,238,0.06);
                         cursor:pointer;text-align:left;margin-bottom:16px;transition:all 0.15s;"
                         onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">
                         <div style="display:flex;align-items:center;gap:14px;">
                             <div style="flex-shrink:0;display:flex;">
-                                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V12"/>
                                     <path d="M11 12V4.5a1.5 1.5 0 0 1 3 0V12"/>
                                     <path d="M14 12.5V6.5a1.5 1.5 0 0 1 3 0V14"/>
@@ -12098,7 +12103,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             if (!container) return;
             
             if (history.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #666; padding: 40px;">Aucune séance enregistrée. Commencez votre premier entraînement !</p>';
+                container.innerHTML = '<p style="text-align: center; color: #94a3b8; padding: 40px;">Aucune séance enregistrée. Commencez votre premier entraînement !</p>';
                 return;
             }
             
@@ -12112,7 +12117,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 (e.musclesWorked||[]).some(m => m.toLowerCase().includes(searchTerm))
             );
             if (filteredHistory.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #666; padding: 40px;">🔍 Aucune séance trouvée pour ces critères.</p>';
+                container.innerHTML = '<p style="text-align: center; color: #94a3b8; padding: 40px;">🔍 Aucune séance trouvée pour ces critères.</p>';
                 return;
             }
 
@@ -12139,7 +12144,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 
                 const item = document.createElement('div');
                 item.className = 'history-item';
-                item.style.cssText = 'background: white; border-radius: 14px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 4px solid ' + (isFavorite ? '#fbbf24' : '#16a34a') + ';';
+                item.style.cssText = 'background: rgba(255,255,255,0.04); border-radius: 14px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 4px solid ' + (isFavorite ? '#fbbf24' : '#22d3ee') + ';';
                 
                 // Create unique canvas ID for mini chart
                 const chartId = `historyChart-${entry.id}`;
@@ -12153,7 +12158,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                                         title="${isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}">
                                     ${isFavorite ? '⭐' : '☆'}
                                 </button>
-                                <div style="font-size: 0.85em; color: #16a34a; font-weight: 600;">${dateStr}</div>
+                                <div style="font-size: 0.85em; color: #22d3ee; font-weight: 600;">${dateStr}</div>
                             </div>
                             <div style="font-size: 1.3em; font-weight: 700; color: #1e293b; margin-bottom: 8px;">${entry.name}</div>
                             <div style="display: flex; gap: 15px; flex-wrap: wrap; font-size: 0.9em; color: #64748b;">
@@ -12185,7 +12190,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     ${entry.muscles && entry.muscles.length > 0 ? `
                         <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px;">
                             ${entry.muscles.slice(0, 5).map(muscle => 
-                                `<span style="background: rgba(22,163,74,0.1); color: #16a34a; padding: 4px 12px; border-radius: 14px; font-size: 0.8em; font-weight: 600;">${muscle}</span>`
+                                `<span style="background: rgba(22,163,74,0.1); color: #22d3ee; padding: 4px 12px; border-radius: 14px; font-size: 0.8em; font-weight: 600;">${muscle}</span>`
                             ).join('')}
                             ${entry.muscles.length > 5 ? `<span style="color: #94a3b8; font-size: 0.8em; padding: 4px 8px;">+${entry.muscles.length - 5}</span>` : ''}
                         </div>
@@ -12448,24 +12453,24 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 <div style="max-width: 1200px; width: 100%;">
                     <div style="text-align: right; margin-bottom: 15px;">
                         <button onclick="this.parentElement.parentElement.parentElement.remove()" 
-                                style="background: white; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 1.5em; cursor: pointer;">
+                                style="background: rgba(255,255,255,0.04); border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 1.5em; cursor: pointer;">
                             ✕
                         </button>
                     </div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                         <div>
-                            <div style="background: white; padding: 10px; border-radius: 10px; margin-bottom: 10px; text-align: center;">
+                            <div style="background: rgba(255,255,255,0.04); padding: 10px; border-radius: 10px; margin-bottom: 10px; text-align: center;">
                                 <strong>Avant</strong> - ${date2}
                             </div>
                             <img src="${photo2.dataUrl}" style="width: 100%; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
-                            ${photo2.note ? `<div style="background: rgba(255,255,255,0.9); padding: 10px; border-radius: 10px; margin-top: 10px; color: #333;">${photo2.note}</div>` : ''}
+                            ${photo2.note ? `<div style="background: rgba(255,255,255,0.9); padding: 10px; border-radius: 10px; margin-top: 10px; color: #e2e8f0;">${photo2.note}</div>` : ''}
                         </div>
                         <div>
-                            <div style="background: white; padding: 10px; border-radius: 10px; margin-bottom: 10px; text-align: center;">
+                            <div style="background: rgba(255,255,255,0.04); padding: 10px; border-radius: 10px; margin-bottom: 10px; text-align: center;">
                                 <strong>Après</strong> - ${date1}
                             </div>
                             <img src="${photo1.dataUrl}" style="width: 100%; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
-                            ${photo1.note ? `<div style="background: rgba(255,255,255,0.9); padding: 10px; border-radius: 10px; margin-top: 10px; color: #333;">${photo1.note}</div>` : ''}
+                            ${photo1.note ? `<div style="background: rgba(255,255,255,0.9); padding: 10px; border-radius: 10px; margin-top: 10px; color: #e2e8f0;">${photo1.note}</div>` : ''}
                         </div>
                     </div>
                 </div>
@@ -12481,7 +12486,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             
             if (photos.length === 0) {
                 container.innerHTML = `
-                    <div style="text-align: center; padding: 40px; color: #666;">
+                    <div style="text-align: center; padding: 40px; color: #94a3b8;">
                         <div style="font-size: 4em; margin-bottom: 15px;">📷</div>
                         <div style="font-size: 1.1em; margin-bottom: 10px;">Aucune photo pour le moment</div>
                         <div style="font-size: 0.9em;">Prenez votre première photo pour commencer à suivre votre transformation !</div>
@@ -12525,14 +12530,14 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 const timeStr = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
                 
                 return `
-                    <div style="background: white; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: transform 0.3s ease;">
+                    <div style="background: rgba(255,255,255,0.04); border-radius: 14px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: transform 0.3s ease;">
                         <img src="${photo.dataUrl}" style="width: 100%; aspect-ratio: 3/4; object-fit: cover; cursor: pointer;" 
                              onclick="this.requestFullscreen ? this.requestFullscreen() : this.webkitRequestFullscreen()">
                         <div style="padding: 15px;">
-                            <div style="font-weight: 600; color: #16a34a; margin-bottom: 5px;">📅 ${dateStr}</div>
-                            <div style="font-size: 0.85em; color: #666; margin-bottom: 10px;">⏰ ${timeStr}</div>
+                            <div style="font-weight: 600; color: #22d3ee; margin-bottom: 5px;">📅 ${dateStr}</div>
+                            <div style="font-size: 0.85em; color: #94a3b8; margin-bottom: 10px;">⏰ ${timeStr}</div>
                             ${photo.note ? `
-                                <div style="background: #f8fafc; padding: 10px; border-radius: 10px; margin-bottom: 10px; font-size: 0.9em; color: #333;">
+                                <div style="background: #f8fafc; padding: 10px; border-radius: 10px; margin-bottom: 10px; font-size: 0.9em; color: #e2e8f0;">
                                     📝 ${photo.note}
                                 </div>
                             ` : ''}
@@ -13024,11 +13029,11 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     <div style="font-size: 1.3em; font-weight: 700; color: #10b981; margin-bottom: 10px;">
                         Form Score : ${score.toFixed(1)}/10
                     </div>
-                    <div style="font-size: 1.1em; color: #333; margin-bottom: 20px;">
+                    <div style="font-size: 1.1em; color: #e2e8f0; margin-bottom: 20px;">
                         ${message}
                     </div>
                     ${settings.autoAdjust ? `
-                        <div style="background: white; padding: 15px; border-radius: 10px; font-size: 0.9em;">
+                        <div style="background: rgba(255,255,255,0.04); padding: 15px; border-radius: 10px; font-size: 0.9em;">
                             <div style="font-weight: 600; margin-bottom: 10px;">📊 Ajustements appliqués :</div>
                             ${adjustments.intensityChange !== 0 ? `<div>⚡ Intensité : ${adjustments.intensityChange > 0 ? '+' : ''}${adjustments.intensityChange}%</div>` : ''}
                             ${adjustments.exerciseCountChange !== 0 ? `<div>🏋️ Exercices : ${adjustments.exerciseCountChange > 0 ? '+' : ''}${adjustments.exerciseCountChange}</div>` : ''}
@@ -13615,14 +13620,14 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             resultsDiv.innerHTML = `
                 <div style="background: linear-gradient(135deg, #ef444415 0%, #ef444405 100%); padding: 25px; border-radius: 14px; margin-bottom: 20px; border-left: 4px solid #ef4444;">
                     <div style="text-align: center; margin-bottom: 20px;">
-                        <div style="font-size: 0.9em; color: #666; margin-bottom: 5px;">Votre 1RM estimé pour</div>
+                        <div style="font-size: 0.9em; color: #94a3b8; margin-bottom: 5px;">Votre 1RM estimé pour</div>
                         <div style="font-size: 1.3em; font-weight: 700; color: #ef4444; margin-bottom: 5px;">${exercise}</div>
                         <div style="font-size: 3.5em; font-weight: 800; color: #ef4444;">${oneRM} ${useKg ? 'kg' : 'lbs'}</div>
-                        <div style="font-size: 0.85em; color: #666; margin-top: 10px;">Basé sur ${reps} reps @ ${weight} lbs</div>
+                        <div style="font-size: 0.85em; color: #94a3b8; margin-top: 10px;">Basé sur ${reps} reps @ ${weight} lbs</div>
                     </div>
                     
-                    <div style="background: white; padding: 20px; border-radius: 14px; margin-bottom: 15px;">
-                        <div style="font-weight: 700; margin-bottom: 15px; color: #333;">📊 Recommandations d\'entraînement</div>
+                    <div style="background: rgba(255,255,255,0.04); padding: 20px; border-radius: 14px; margin-bottom: 15px;">
+                        <div style="font-weight: 700; margin-bottom: 15px; color: #e2e8f0;">📊 Recommandations d\'entraînement</div>
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px;">
                             ${Object.entries(recommendations).map(([percent, lbs]) => {
                                 let purpose = '';
@@ -13637,10 +13642,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                                 else if (percent === '60%') purpose = 'Récupération';
                                 
                                 return `
-                                    <div style="background: #f8fafc; padding: 12px; border-radius: 10px; text-align: center; border: 2px solid #e5e7eb;">
-                                        <div style="font-size: 0.75em; color: #666; margin-bottom: 3px;">${percent}</div>
+                                    <div style="background: #f8fafc; padding: 12px; border-radius: 10px; text-align: center; border: 1px solid rgba(255,255,255,0.12);">
+                                        <div style="font-size: 0.75em; color: #94a3b8; margin-bottom: 3px;">${percent}</div>
                                         <div style="font-size: 1.3em; font-weight: 700; color: #ef4444;">${lbs}</div>
-                                        <div style="font-size: 0.7em; color: #666; margin-top: 3px;">${useKg ? 'kg' : 'lbs'}</div>
+                                        <div style="font-size: 0.7em; color: #94a3b8; margin-top: 3px;">${useKg ? 'kg' : 'lbs'}</div>
                                         <div style="font-size: 0.65em; color: #10b981; font-weight: 600; margin-top: 5px;">${purpose}</div>
                                     </div>
                                 `;
@@ -13697,7 +13702,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             
             if (entries.length === 0) {
                 container.innerHTML = `
-                    <div style="text-align: center; padding: 40px; color: #666; margin-top: 20px;">
+                    <div style="text-align: center; padding: 40px; color: #94a3b8; margin-top: 20px;">
                         <div style="font-size: 3em; margin-bottom: 15px;">🏋️</div>
                         <div style="font-size: 1.1em; margin-bottom: 10px;">Aucun 1RM enregistré</div>
                         <div style="font-size: 0.9em;">Calculez votre premier 1RM pour suivre votre force</div>
@@ -13711,17 +13716,17 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             
             container.innerHTML = `
                 <div style="margin-top: 30px;">
-                    <h3 style="color: #16a34a; margin-bottom: 20px;">📈 Vos Records 1RM</h3>
+                    <h3 style="color: #22d3ee; margin-bottom: 20px;">📈 Vos Records 1RM</h3>
                     <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px;">
                         ${entries.map(([exercise, record]) => {
                             const date = new Date(record.date).toLocaleDateString('fr-FR');
                             return `
-                                <div style="background: white; padding: 20px; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-left: 4px solid #ef4444;">
-                                    <div style="font-weight: 700; color: #333; margin-bottom: 10px; font-size: 1.1em;">${exercise}</div>
+                                <div style="background: rgba(255,255,255,0.04); padding: 20px; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-left: 4px solid #ef4444;">
+                                    <div style="font-weight: 700; color: #e2e8f0; margin-bottom: 10px; font-size: 1.1em;">${exercise}</div>
                                     <div style="font-size: 2.5em; font-weight: 800; color: #ef4444; margin-bottom: 5px;">${record.oneRM}</div>
-                                    <div style="font-size: 0.85em; color: #666; margin-bottom: 15px;">${useKg ? 'kg' : 'lbs'} (1RM)</div>
-                                    <div style="font-size: 0.8em; color: #999; margin-bottom: 5px;">Basé sur ${record.reps} reps @ ${record.weight} lbs</div>
-                                    <div style="font-size: 0.75em; color: #999; margin-bottom: 15px;">📅 ${date}</div>
+                                    <div style="font-size: 0.85em; color: #94a3b8; margin-bottom: 15px;">${useKg ? 'kg' : 'lbs'} (1RM)</div>
+                                    <div style="font-size: 0.8em; color: #94a3b8; margin-bottom: 5px;">Basé sur ${record.reps} reps @ ${record.weight} lbs</div>
+                                    <div style="font-size: 0.75em; color: #94a3b8; margin-bottom: 15px;">📅 ${date}</div>
                                     <button onclick="delete1RMRecord('${exercise}')" class="btn" style="width: 100%; background: #ef4444; padding: 8px; font-size: 0.85em;">
                                         🗑️ Supprimer
                                     </button>
@@ -13796,16 +13801,16 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             resultsDiv.innerHTML = `
                 <div style="background: linear-gradient(135deg, #f59e0b15 0%, #f59e0b05 100%); padding: 25px; border-radius: 14px; border-left: 4px solid #f59e0b; margin-top: 20px;">
                     <div style="text-align: center; margin-bottom: 25px;">
-                        <div style="font-size: 1.2em; color: #666; margin-bottom: 10px;">🎯 Poids cible</div>
+                        <div style="font-size: 1.2em; color: #94a3b8; margin-bottom: 10px;">🎯 Poids cible</div>
                         <div style="font-size: 3em; font-weight: 800; color: #f59e0b;">${targetWeight} lbs</div>
                         ${actualTotal !== targetWeight ? `<div style="font-size: 0.9em; color: #ef4444; margin-top: 5px;">Poids réel: ${actualTotal} lbs (différence: ${(actualTotal - targetWeight).toFixed(1)} lbs)</div>` : ''}
                     </div>
                     
-                    <div style="background: white; padding: 20px; border-radius: 14px; margin-bottom: 20px;">
+                    <div style="background: rgba(255,255,255,0.04); padding: 20px; border-radius: 14px; margin-bottom: 20px;">
                         <h3 style="color: #f59e0b; margin-bottom: 15px; text-align: center;">📋 Configuration</h3>
                         <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 20px; align-items: center;">
                             <div style="text-align: right;">
-                                <div style="font-size: 1.1em; font-weight: 700; color: #333; margin-bottom: 10px;">Côté gauche</div>
+                                <div style="font-size: 1.1em; font-weight: 700; color: #e2e8f0; margin-bottom: 10px;">Côté gauche</div>
                                 ${Object.entries(plateCount).map(([weight, count]) => `
                                     <div style="margin-bottom: 8px;">
                                         <span style="display: inline-block; min-width: 30px; text-align: right; font-weight: 600;">${count}×</span>
@@ -13821,7 +13826,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                             </div>
                             
                             <div style="text-align: left;">
-                                <div style="font-size: 1.1em; font-weight: 700; color: #333; margin-bottom: 10px;">Côté droit</div>
+                                <div style="font-size: 1.1em; font-weight: 700; color: #e2e8f0; margin-bottom: 10px;">Côté droit</div>
                                 ${Object.entries(plateCount).map(([weight, count]) => `
                                     <div style="margin-bottom: 8px;">
                                         <span style="font-weight: 700; color: #f59e0b; font-size: 1.1em;">${weight} lbs</span>
@@ -13840,10 +13845,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     </div>
                     
                     ${plates.length === 0 ? `
-                        <div style="text-align: center; margin-top: 20px; padding: 20px; background: white; border-radius: 14px;">
+                        <div style="text-align: center; margin-top: 20px; padding: 20px; background: rgba(255,255,255,0.04); border-radius: 14px;">
                             <div style="font-size: 2em; margin-bottom: 10px;">✅</div>
                             <div style="font-size: 1.1em; color: #10b981; font-weight: 600;">Utilisez uniquement la barre !</div>
-                            <div style="font-size: 0.9em; color: #666; margin-top: 5px;">Aucune plaque nécessaire</div>
+                            <div style="font-size: 0.9em; color: #94a3b8; margin-top: 5px;">Aucune plaque nécessaire</div>
                         </div>
                     ` : ''}
                 </div>
@@ -13862,14 +13867,14 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             
             // Update visual selection
             document.querySelectorAll('.rpe-button').forEach(btn => {
-                btn.style.borderColor = '#e5e7eb';
+                btn.style.borderColor = 'rgba(255,255,255,0.12)';
                 btn.style.background = 'white';
             });
             
             const selectedBtn = document.querySelector(`[data-rpe="${value}"]`);
             if (selectedBtn) {
-                selectedBtn.style.borderColor = '#16a34a';
-                selectedBtn.style.background = 'linear-gradient(135deg, #16a34a15 0%, #15803d05 100%)';
+                selectedBtn.style.borderColor = '#22d3ee';
+                selectedBtn.style.background = 'linear-gradient(135deg, #22d3ee15 0%, #0891b205 100%)';
             }
             
             // Show feedback
@@ -13904,7 +13909,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             
             feedback.innerHTML = `
                 <div style="font-size: 1.1em; margin-bottom: 10px;">${message}</div>
-                <div style="color: #666; font-size: 0.95em;">💡 ${recommendation}</div>
+                <div style="color: #94a3b8; font-size: 0.95em;">💡 ${recommendation}</div>
             `;
             
             feedback.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -13941,7 +13946,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             
             const modal = document.createElement('div');
             modal.style.cssText = `
-                background: white;
+                background: rgba(255,255,255,0.04);
                 border-radius: 20px;
                 max-width: 500px;
                 width: 100%;
@@ -13954,13 +13959,13 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             modal.innerHTML = `
                 <div style="padding: 30px;">
                     <h2 style="color: #16a34a; margin-bottom: 10px; text-align: center;">💪 Comment s'est passée cette série ?</h2>
-                    <p style="text-align: center; color: #666; margin-bottom: 20px; font-size: 0.95em;">
+                    <p style="text-align: center; color: #94a3b8; margin-bottom: 20px; font-size: 0.95em;">
                         ${exerciseName} • ${reps} reps${weight ? ` × ${weight} kg` : ''}
                     </p>
                     
                     <div style="background: linear-gradient(135deg, #16a34a15 0%, #15803d05 100%); padding: 15px; border-radius: 14px; margin-bottom: 20px; border-left: 4px solid #16a34a;">
                         <div style="font-weight: 600; color: #16a34a; margin-bottom: 5px;">📊 RPE (Rate of Perceived Exertion)</div>
-                        <div style="color: #666; font-size: 0.9em;">Notez l'intensité perçue de 1 (très facile) à 10 (maximum absolu)</div>
+                        <div style="color: #94a3b8; font-size: 0.9em;">Notez l'intensité perçue de 1 (très facile) à 10 (maximum absolu)</div>
                     </div>
                     
                     <div style="display: grid; gap: 8px;">
@@ -13977,7 +13982,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                                 <button onclick="saveRPEAndContinue('${exerciseName}', ${rpe})" 
                                         onmouseover="this.style.background='linear-gradient(135deg, ${color}15 0%, ${color}05 100%)'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)'"
                                         onmouseout="this.style.background='white'; this.style.transform='translateY(0)'; this.style.boxShadow='none'"
-                                        style="padding: 15px; border: 2px solid ${color}; border-radius: 14px; background: white; cursor: pointer; display: grid; grid-template-columns: 50px 1fr; align-items: center; gap: 12px; transition: all 0.2s;">
+                                        style="padding: 15px; border: 2px solid ${color}; border-radius: 14px; background: rgba(255,255,255,0.04); cursor: pointer; display: grid; grid-template-columns: 50px 1fr; align-items: center; gap: 12px; transition: all 0.2s;">
                                     <div style="font-size: 1.5em; font-weight: 800; text-align: center; color: ${color};">${rpe}</div>
                                     <div style="text-align: left;">
                                         <div style="font-weight: 600; color: ${color};">${label}</div>
@@ -13988,9 +13993,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     </div>
                     
                     <button onclick="skipRPEAndContinue()" 
-                            onmouseover="this.style.background='#f9fafb'"
+                            onmouseover="this.style.background='rgba(255,255,255,0.03)'"
                             onmouseout="this.style.background='white'"
-                            style="width: 100%; padding: 15px; margin-top: 20px; border: 2px solid #e5e7eb; border-radius: 14px; background: white; color: #666; cursor: pointer; font-weight: 600; transition: all 0.2s;">
+                            style="width: 100%; padding: 15px; margin-top: 20px; border: 1px solid rgba(255,255,255,0.12); border-radius: 14px; background: rgba(255,255,255,0.04); color: #94a3b8; cursor: pointer; font-weight: 600; transition: all 0.2s;">
                         ⏭️ Passer (pas de RPE)
                     </button>
                 </div>
@@ -15578,10 +15583,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 else label = 'Maximum';
                 
                 return `
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: white; border-radius: 14px; border-left: 4px solid ${color};">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: rgba(255,255,255,0.04); border-radius: 14px; border-left: 4px solid ${color};">
                         <div style="flex: 1;">
-                            <div style="font-weight: 600; color: #333; margin-bottom: 3px;">${ex.name}</div>
-                            <div style="font-size: 0.85em; color: #666;">${ex.count} série${ex.count > 1 ? 's' : ''} notée${ex.count > 1 ? 's' : ''}</div>
+                            <div style="font-weight: 600; color: #e2e8f0; margin-bottom: 3px;">${ex.name}</div>
+                            <div style="font-size: 0.85em; color: #94a3b8;">${ex.count} série${ex.count > 1 ? 's' : ''} notée${ex.count > 1 ? 's' : ''}</div>
                         </div>
                         <div style="text-align: right;">
                             <div style="font-size: 1.8em; font-weight: 800; color: ${color};">${ex.avg}</div>
@@ -16101,10 +16106,11 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             };
             
             // Calculate BMI : formule métrique weight(kg) / height(m)²
-            // weight en kg (saisie de mesures corporelles en kg), height en cm
+            // Saisie : poids selon l'unité choisie (lbs par défaut), taille en POUCES (cf. label)
             if (weight && height) {
-                const heightM = height / 100; // cm → m
-                measurement.bmi = (weight / (heightM * heightM)).toFixed(1);
+                const weightKgBmi = useKg ? weight : weight * 0.453592;
+                const heightM = (height * 2.54) / 100; // pouces → cm → m
+                measurement.bmi = (weightKgBmi / (heightM * heightM)).toFixed(1);
             }
             
             const measurements = getBodyMeasurements();
@@ -16140,7 +16146,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             
             if (measurements.length === 0) {
                 container.innerHTML = `
-                    <div style="text-align: center; padding: 40px; color: #666;">
+                    <div style="text-align: center; padding: 40px; color: #94a3b8;">
                         <div style="font-size: 4em; margin-bottom: 15px;">📏</div>
                         <div style="font-size: 1.1em; margin-bottom: 10px;">Aucune mesure enregistrée</div>
                         <div style="font-size: 0.9em;">Ajoutez vos premières mesures pour suivre votre évolution corporelle</div>
@@ -16154,16 +16160,16 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const date = new Date(latest.date).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             
             let summaryHTML = `
-                <div style="background: linear-gradient(135deg, #16a34a15 0%, #15803d05 100%); padding: 20px; border-radius: 14px; margin-bottom: 25px;">
-                    <div style="font-weight: 700; font-size: 1.1em; color: #16a34a; margin-bottom: 15px;">📊 Dernières mesures (${date})</div>
+                <div style="background: linear-gradient(135deg, #22d3ee15 0%, #0891b205 100%); padding: 20px; border-radius: 14px; margin-bottom: 25px;">
+                    <div style="font-weight: 700; font-size: 1.1em; color: #22d3ee; margin-bottom: 15px;">📊 Dernières mesures (${date})</div>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
             `;
             
             if (latest.weight) summaryHTML += `
-                <div style="background: white; padding: 15px; border-radius: 10px; text-align: center;">
+                <div style="background: rgba(255,255,255,0.04); padding: 15px; border-radius: 10px; text-align: center;">
                     <div style="font-size: 2em; margin-bottom: 5px;">⚖️</div>
-                    <div style="font-size: 1.8em; font-weight: 700; color: #16a34a;">${latest.weight}</div>
-                    <div style="font-size: 0.85em; color: #666;">lbs</div>
+                    <div style="font-size: 1.8em; font-weight: 700; color: #22d3ee;">${latest.weight}</div>
+                    <div style="font-size: 0.85em; color: #94a3b8;">lbs</div>
                 </div>
             `;
             
@@ -16175,43 +16181,43 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 else if (latest.bmi >= 30) { bmiColor = '#ef4444'; bmiLabel = 'Obésité'; }
                 
                 summaryHTML += `
-                    <div style="background: white; padding: 15px; border-radius: 10px; text-align: center;">
+                    <div style="background: rgba(255,255,255,0.04); padding: 15px; border-radius: 10px; text-align: center;">
                         <div style="font-size: 2em; margin-bottom: 5px;">📊</div>
                         <div style="font-size: 1.8em; font-weight: 700; color: ${bmiColor};">${latest.bmi}</div>
-                        <div style="font-size: 0.85em; color: #666;">IMC - ${bmiLabel}</div>
+                        <div style="font-size: 0.85em; color: #94a3b8;">IMC - ${bmiLabel}</div>
                     </div>
                 `;
             }
             
             if (latest.waist) summaryHTML += `
-                <div style="background: white; padding: 15px; border-radius: 10px; text-align: center;">
+                <div style="background: rgba(255,255,255,0.04); padding: 15px; border-radius: 10px; text-align: center;">
                     <div style="font-size: 2em; margin-bottom: 5px;">🟢</div>
-                    <div style="font-size: 1.8em; font-weight: 700; color: #16a34a;">${latest.waist}"</div>
-                    <div style="font-size: 0.85em; color: #666;">Taille</div>
+                    <div style="font-size: 1.8em; font-weight: 700; color: #22d3ee;">${latest.waist}"</div>
+                    <div style="font-size: 0.85em; color: #94a3b8;">Taille</div>
                 </div>
             `;
             
             if (latest.hips) summaryHTML += `
-                <div style="background: white; padding: 15px; border-radius: 10px; text-align: center;">
+                <div style="background: rgba(255,255,255,0.04); padding: 15px; border-radius: 10px; text-align: center;">
                     <div style="font-size: 2em; margin-bottom: 5px;">🍑</div>
-                    <div style="font-size: 1.8em; font-weight: 700; color: #16a34a;">${latest.hips}"</div>
-                    <div style="font-size: 0.85em; color: #666;">Hanches</div>
+                    <div style="font-size: 1.8em; font-weight: 700; color: #22d3ee;">${latest.hips}"</div>
+                    <div style="font-size: 0.85em; color: #94a3b8;">Hanches</div>
                 </div>
             `;
             
             if (latest.biceps) summaryHTML += `
-                <div style="background: white; padding: 15px; border-radius: 10px; text-align: center;">
+                <div style="background: rgba(255,255,255,0.04); padding: 15px; border-radius: 10px; text-align: center;">
                     <div style="font-size: 2em; margin-bottom: 5px;">💪</div>
-                    <div style="font-size: 1.8em; font-weight: 700; color: #16a34a;">${latest.biceps}"</div>
-                    <div style="font-size: 0.85em; color: #666;">Biceps</div>
+                    <div style="font-size: 1.8em; font-weight: 700; color: #22d3ee;">${latest.biceps}"</div>
+                    <div style="font-size: 0.85em; color: #94a3b8;">Biceps</div>
                 </div>
             `;
             
             if (latest.thighs) summaryHTML += `
-                <div style="background: white; padding: 15px; border-radius: 10px; text-align: center;">
+                <div style="background: rgba(255,255,255,0.04); padding: 15px; border-radius: 10px; text-align: center;">
                     <div style="font-size: 2em; margin-bottom: 5px;">🦵</div>
-                    <div style="font-size: 1.8em; font-weight: 700; color: #16a34a;">${latest.thighs}"</div>
-                    <div style="font-size: 0.85em; color: #666;">Cuisses</div>
+                    <div style="font-size: 1.8em; font-weight: 700; color: #22d3ee;">${latest.thighs}"</div>
+                    <div style="font-size: 0.85em; color: #94a3b8;">Cuisses</div>
                 </div>
             `;
             
@@ -16225,7 +16231,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 <div style="overflow-x: auto;">
                     <table style="width: 100%; border-collapse: collapse;">
                         <thead>
-                            <tr style="background: #f8fafc; border-bottom: 2px solid #e5e7eb;">
+                            <tr style="background: #f8fafc; border-bottom: 1px solid rgba(255,255,255,0.12);">
                                 <th style="padding: 12px; text-align: left; font-weight: 700;">📅 Date</th>
                                 <th style="padding: 12px; text-align: center;">⚖️ Poids</th>
                                 <th style="padding: 12px; text-align: center;">📊 IMC</th>
@@ -16251,7 +16257,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                                 };
                                 
                                 return `
-                                    <tr style="border-bottom: 1px solid #e5e7eb;">
+                                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.12);">
                                         <td style="padding: 12px;">${mDate}</td>
                                         <td style="padding: 12px; text-align: center;">
                                             ${m.weight ? `${m.weight} lbs${getDiff(m.weight, prevM?.weight)}` : '-'}
@@ -16813,7 +16819,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const favorites = getFavoriteWorkouts();
             
             if (favorites.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #666; padding: 40px; grid-column: 1/-1;">Aucune séance favorite. Terminez une séance et sauvegardez-la !</p>';
+                container.innerHTML = '<p style="text-align: center; color: #94a3b8; padding: 40px; grid-column: 1/-1;">Aucune séance favorite. Terminez une séance et sauvegardez-la !</p>';
                 return;
             }
             
@@ -18942,26 +18948,26 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         <h3 style="text-align: center; margin-bottom: 20px; color: #16a34a;">${exerciseName}</h3>
                         
                         <div style="margin: 25px 0;">
-                            <label style="display: block; font-weight: bold; margin-bottom: 10px; color: #333;">
+                            <label style="display: block; font-weight: bold; margin-bottom: 10px; color: #e2e8f0;">
                                 🎯 Combien de répétitions avez-vous fait ?
                             </label>
                             <input type="number" id="perfReps" min="1" max="100" value="10" 
                                    style="width: 100%; padding: 15px; font-size: 1.3em; border: 2px solid #16a34a; border-radius: 10px; text-align: center;">
-                            <small style="color: #666; display: block; margin-top: 8px;">Indiquez le nombre total de répétitions réalisées</small>
+                            <small style="color: #94a3b8; display: block; margin-top: 8px;">Indiquez le nombre total de répétitions réalisées</small>
                         </div>
                         
                         <div style="margin: 25px 0;">
-                            <label style="display: block; font-weight: bold; margin-bottom: 15px; color: #333;">
+                            <label style="display: block; font-weight: bold; margin-bottom: 15px; color: #e2e8f0;">
                                 😓 Difficulté ressentie
                             </label>
                             <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;">
                                 <button class="difficulty-btn" data-difficulty="1" onclick="selectDifficulty(1)" 
-                                        style="padding: 15px 8px; border: 2px solid #e0e0e0; border-radius: 10px; background: white; cursor: pointer; transition: all 0.2s;">
+                                        style="padding: 15px 8px; border: 2px solid rgba(255,255,255,0.12); border-radius: 10px; background: rgba(255,255,255,0.04); cursor: pointer; transition: all 0.2s;">
                                     <div style="font-size: 2em;">😊</div>
                                     <div style="font-size: 0.75em; margin-top: 5px;">Facile</div>
                                 </button>
                                 <button class="difficulty-btn" data-difficulty="2" onclick="selectDifficulty(2)"
-                                        style="padding: 15px 8px; border: 2px solid #e0e0e0; border-radius: 10px; background: white; cursor: pointer; transition: all 0.2s;">
+                                        style="padding: 15px 8px; border: 2px solid rgba(255,255,255,0.12); border-radius: 10px; background: rgba(255,255,255,0.04); cursor: pointer; transition: all 0.2s;">
                                     <div style="font-size: 2em;">🙂</div>
                                     <div style="font-size: 0.75em; margin-top: 5px;">OK</div>
                                 </button>
@@ -18971,12 +18977,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                                     <div style="font-size: 0.75em; margin-top: 5px;">Moyen</div>
                                 </button>
                                 <button class="difficulty-btn" data-difficulty="4" onclick="selectDifficulty(4)"
-                                        style="padding: 15px 8px; border: 2px solid #e0e0e0; border-radius: 10px; background: white; cursor: pointer; transition: all 0.2s;">
+                                        style="padding: 15px 8px; border: 2px solid rgba(255,255,255,0.12); border-radius: 10px; background: rgba(255,255,255,0.04); cursor: pointer; transition: all 0.2s;">
                                     <div style="font-size: 2em;">😅</div>
                                     <div style="font-size: 0.75em; margin-top: 5px;">Dur</div>
                                 </button>
                                 <button class="difficulty-btn" data-difficulty="5" onclick="selectDifficulty(5)"
-                                        style="padding: 15px 8px; border: 2px solid #e0e0e0; border-radius: 10px; background: white; cursor: pointer; transition: all 0.2s;">
+                                        style="padding: 15px 8px; border: 2px solid rgba(255,255,255,0.12); border-radius: 10px; background: rgba(255,255,255,0.04); cursor: pointer; transition: all 0.2s;">
                                     <div style="font-size: 2em;">😰</div>
                                     <div style="font-size: 0.75em; margin-top: 5px;">Très dur</div>
                                 </button>
@@ -18984,12 +18990,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         </div>
                         
                         <button class="btn" onclick="submitExerciseFeedback('${exerciseName.replace(/'/g, "\\'")}', ${exerciseDuration})"
-                                style="width: 100%; margin-top: 20px; padding: 15px; font-size: 1.1em; background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);">
+                                style="width: 100%; margin-top: 20px; padding: 15px; font-size: 1.1em; background: linear-gradient(135deg, #22d3ee 0%, #22c55e 100%);">
                             ✅ Valider et continuer
                         </button>
                         
                         <button onclick="skipExerciseFeedback()" 
-                                style="width: 100%; margin-top: 10px; padding: 12px; background: transparent; border: none; color: #666; cursor: pointer; font-size: 0.9em;">
+                                style="width: 100%; margin-top: 10px; padding: 12px; background: transparent; border: none; color: #94a3b8; cursor: pointer; font-size: 0.9em;">
                             Passer →
                         </button>
                     </div>
@@ -19007,7 +19013,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             selectedDifficulty = level;
             
             document.querySelectorAll('.difficulty-btn').forEach(btn => {
-                btn.style.border = '2px solid #e0e0e0';
+                btn.style.border = '2px solid rgba(255,255,255,0.12)';
                 btn.style.background = 'white';
             });
             
@@ -20858,7 +20864,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 const btns = items.map(eq => {
                     const sel = busyGymEquipment.includes(eq.id);
                     return `<button data-eqid="${eq.id}" onclick="toggleBusyEquip('${eq.id}',this)"
-                        style="padding:8px 6px;border-radius:14px;border:2px solid ${sel?'#16a34a':'#e5e7eb'};
+                        style="padding:8px 6px;border-radius:14px;border:2px solid ${sel?'#16a34a':'rgba(255,255,255,0.12)'};
                         background:${sel?'linear-gradient(135deg,#16a34a,#15803d)':'white'};
                         cursor:pointer;text-align:center;font-size:0.72em;font-weight:700;color:${sel?'white':'#374151'};min-height:60px;">
                         <div style="width:34px;height:34px;margin:0 auto 3px;display:flex;align-items:center;justify-content:center;">${eq.svgIcon||'<span style="font-size:1.3em">'+eq.name[0]+'</span>'}</div>
@@ -20875,7 +20881,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const machineGrid = machineTypes.map(mt => {
                 const sel = busyGymMachines.includes(mt.id);
                 return `<button data-mtid="${mt.id}" onclick="toggleBusyMachine('${mt.id}',this)"
-                    style="padding:8px 6px;border-radius:14px;border:2px solid ${sel?'#16a34a':'#e5e7eb'};
+                    style="padding:8px 6px;border-radius:14px;border:2px solid ${sel?'#16a34a':'rgba(255,255,255,0.12)'};
                     background:${sel?'linear-gradient(135deg,#16a34a,#15803d)':'white'};
                     cursor:pointer;text-align:center;font-size:0.72em;font-weight:700;color:${sel?'white':'#374151'};min-height:60px;">
                     <div style="width:34px;height:34px;margin:0 auto 3px;display:flex;align-items:center;justify-content:center;">${mt.svg?'<div style="width:34px;height:34px;filter:'+( sel?'brightness(10)':'none')+'">' + mt.svg + '</div>':mt.icon}</div>
@@ -20883,8 +20889,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 </button>`;
             }).join('');
 
-            overlay.innerHTML = `<div style="background:white;border-radius:20px 20px 0 0;padding:20px 16px;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;">
-                <div style="width:40px;height:4px;background:#e5e7eb;border-radius:99px;margin:0 auto 14px;"></div>
+            overlay.innerHTML = `<div style="background:rgba(255,255,255,0.04);border-radius:20px 20px 0 0;padding:20px 16px;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;">
+                <div style="width:40px;height:4px;background:rgba(255,255,255,0.12);border-radius:99px;margin:0 auto 14px;"></div>
                 <h3 style="margin:0 0 4px;color:#0F1014;">🏃 Salle bondée</h3>
                 <p style="margin:0 0 14px;font-size:0.82em;color:#6b7280;">Coche les équipements <strong>disponibles maintenant</strong> — décoche ce qui est occupé.</p>
 
@@ -20892,8 +20898,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     <div style="font-size:0.7em;font-weight:800;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">🔧 Machines & Câbles</div>
                     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px;" id="busyMachineGrid">${machineGrid}</div>
                     <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;">
-                        <button onclick="selectAllBusyMachines(true)" style="padding:6px;border:1px solid #16a34a;border-radius:10px;background:rgba(74,222,128,0.12);color:#16a34a;font-size:0.75em;font-weight:700;cursor:pointer;">✓ Tout cocher</button>
-                        <button onclick="selectAllBusyMachines(false)" style="padding:6px;border:1px solid #e5e7eb;border-radius:10px;background:#f9fafb;color:#6b7280;font-size:0.75em;font-weight:700;cursor:pointer;">✗ Tout décocher</button>
+                        <button onclick="selectAllBusyMachines(true)" style="padding:6px;border:1px solid #16a34a;border-radius:10px;background:rgba(34,211,238,0.12);color:#16a34a;font-size:0.75em;font-weight:700;cursor:pointer;">✓ Tout cocher</button>
+                        <button onclick="selectAllBusyMachines(false)" style="padding:6px;border:1px solid rgba(255,255,255,0.12);border-radius:10px;background:rgba(255,255,255,0.03);color:#6b7280;font-size:0.75em;font-weight:700;cursor:pointer;">✗ Tout décocher</button>
                     </div>
                 </div>
 
@@ -20909,12 +20915,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const idx = busyGymMachines.indexOf(id);
             if (idx >= 0) {
                 busyGymMachines.splice(idx, 1);
-                btn.style.background = 'white'; btn.style.borderColor = '#e5e7eb'; btn.style.color = '#374151';
+                btn.style.background = 'white'; btn.style.borderColor = 'rgba(255,255,255,0.12)'; btn.style.color = '#374151';
                 const svgDiv = btn.querySelector('div > div');
                 if (svgDiv) svgDiv.style.filter = 'none';
             } else {
                 busyGymMachines.push(id);
-                btn.style.background = 'linear-gradient(135deg,#16a34a,#15803d)'; btn.style.borderColor = '#16a34a'; btn.style.color = 'white';
+                btn.style.background = 'linear-gradient(135deg,#22d3ee,#0891b2)'; btn.style.borderColor = '#22d3ee'; btn.style.color = 'white';
                 const svgDiv = btn.querySelector('div > div');
                 if (svgDiv) svgDiv.style.filter = 'brightness(10)';
             }
@@ -20926,11 +20932,11 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             if (!grid) return;
             grid.querySelectorAll('button').forEach(btn => {
                 if (select) {
-                    btn.style.background = 'linear-gradient(135deg,#16a34a,#15803d)'; btn.style.borderColor = '#16a34a'; btn.style.color = 'white';
+                    btn.style.background = 'linear-gradient(135deg,#22d3ee,#0891b2)'; btn.style.borderColor = '#22d3ee'; btn.style.color = 'white';
                     const svgDiv = btn.querySelector('div > div');
                     if (svgDiv) svgDiv.style.filter = 'brightness(10)';
                 } else {
-                    btn.style.background = 'white'; btn.style.borderColor = '#e5e7eb'; btn.style.color = '#374151';
+                    btn.style.background = 'white'; btn.style.borderColor = 'rgba(255,255,255,0.12)'; btn.style.color = '#374151';
                     const svgDiv = btn.querySelector('div > div');
                     if (svgDiv) svgDiv.style.filter = 'none';
                 }
@@ -20979,7 +20985,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             row.innerHTML = profiles.map(loc => `
                 <div style="flex-shrink:0;position:relative;text-align:center;">
                     <button data-location-id="${loc.id}" onclick="switchLocation('${loc.id}')"
-                        style="padding:10px 14px;border-radius:14px;border:2px solid var(--border-color,#e5e7eb);
+                        style="padding:10px 14px;border-radius:14px;border:2px solid var(--border-color,rgba(255,255,255,0.12));
                                background:var(--card-bg,white);cursor:pointer;text-align:center;transition:all 0.2s;
                                min-width:90px;box-shadow:0 2px 6px rgba(0,0,0,0.06);width:100%;">
                         <div style="font-size:1.5em;margin-bottom:3px;">${loc.icon}</div>
@@ -20993,7 +20999,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 </div>`).join('') +
                 `<button onclick="showAddLocationModal()"
                     style="flex-shrink:0;padding:10px 14px;border-radius:14px;border:2px dashed #d1d5db;
-                           background:#f9fafb;cursor:pointer;min-width:60px;color:#9ca3af;font-size:1.3em;">+</button>`;
+                           background:rgba(255,255,255,0.03);cursor:pointer;min-width:60px;color:#9ca3af;font-size:1.3em;">+</button>`;
             _updateLocationBtns();
         }
 
@@ -21012,8 +21018,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
             const icons = ['🏠','🏋️','🏢','🏨','🏫','🌳','🚪','⭐','🏃','💪','🔥','🎯'];
             const iconPicker = icons.map(ic =>
-                `<button onclick="document.getElementById('locIconSel').textContent='${ic}';document.querySelectorAll('#locIconPicker button').forEach(b=>{b.style.background='#f9fafb';b.style.borderColor='#e5e7eb';});this.style.background='#FFF3E0';this.style.borderColor='#16a34a';"
-                    style="padding:8px;border:2px solid ${editing?.icon===ic?'#16a34a':'#e5e7eb'};border-radius:10px;background:${editing?.icon===ic?'#FFF3E0':'#f9fafb'};font-size:1.4em;cursor:pointer;">${ic}</button>`
+                `<button onclick="document.getElementById('locIconSel').textContent='${ic}';document.querySelectorAll('#locIconPicker button').forEach(b=>{b.style.background='rgba(255,255,255,0.03)';b.style.borderColor='rgba(255,255,255,0.12)';});this.style.background='#FFF3E0';this.style.borderColor='#16a34a';"
+                    style="padding:8px;border:2px solid ${editing?.icon===ic?'#16a34a':'rgba(255,255,255,0.12)'};border-radius:10px;background:${editing?.icon===ic?'#FFF3E0':'rgba(255,255,255,0.03)'};font-size:1.4em;cursor:pointer;">${ic}</button>`
             ).join('');
 
             // Grille équipements généraux
@@ -21030,7 +21036,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 const btns = items.map(eq => {
                     const sel = currentEquip.includes(eq.id);
                     return `<button data-eqid="${eq.id}" onclick="toggleLocEquip('${eq.id}',this)"
-                        style="padding:7px 5px;border-radius:10px;border:2px solid ${sel?'#16a34a':'#e5e7eb'};
+                        style="padding:7px 5px;border-radius:10px;border:2px solid ${sel?'#16a34a':'rgba(255,255,255,0.12)'};
                         background:${sel?'linear-gradient(135deg,#16a34a,#15803d)':'white'};
                         cursor:pointer;text-align:center;font-size:0.7em;font-weight:700;color:${sel?'white':'#374151'};min-height:56px;">
                         <div style="width:30px;height:30px;margin:0 auto 3px;display:flex;align-items:center;justify-content:center;">${eq.svgIcon||'<span style="font-size:1.2em">'+eq.name[0]+'</span>'}</div>
@@ -21047,8 +21053,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const machineGrid = machineTypes.map(mt => {
                 const sel = currentMachines.includes(mt.id);
                 return `<button data-mtid="${mt.id}" onclick="toggleLocMachine('${mt.id}',this)"
-                    style="padding:8px 5px;border-radius:10px;border:2px solid ${sel?'#16a34a':'#e5e7eb'};
-                    background:${sel?'linear-gradient(135deg,#16a34a,#15803d)':'#f9fafb'};
+                    style="padding:8px 5px;border-radius:10px;border:2px solid ${sel?'#16a34a':'rgba(255,255,255,0.12)'};
+                    background:${sel?'linear-gradient(135deg,#16a34a,#15803d)':'rgba(255,255,255,0.03)'};
                     cursor:pointer;text-align:center;font-size:0.7em;font-weight:700;color:${sel?'white':'#374151'};min-height:60px;">
                     <div style="width:34px;height:34px;margin:0 auto 3px;display:flex;align-items:center;justify-content:center;">
                         ${mt.svg ? '<div style="width:34px;height:34px;'+(sel?'filter:brightness(10)':'')+'">' + mt.svg + '</div>' : mt.icon}
@@ -21058,15 +21064,15 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             }).join('');
 
             overlay.innerHTML = `
-            <div style="background:white;border-radius:20px 20px 0 0;padding:20px 16px;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;">
-                <div style="width:40px;height:4px;background:#e5e7eb;border-radius:99px;margin:0 auto 14px;"></div>
+            <div style="background:rgba(255,255,255,0.04);border-radius:20px 20px 0 0;padding:20px 16px;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;">
+                <div style="width:40px;height:4px;background:rgba(255,255,255,0.12);border-radius:99px;margin:0 auto 14px;"></div>
                 <h3 style="margin:0 0 14px;color:#0F1014;">${editing ? '✏️ Modifier le lieu' : '📍 Nouveau lieu'}</h3>
 
                 <!-- Icône + Nom -->
                 <div style="display:flex;gap:10px;margin-bottom:12px;align-items:center;">
-                    <div id="locIconSel" style="padding:10px;border:2px solid #e5e7eb;border-radius:10px;font-size:1.5em;min-width:48px;text-align:center;">${editing?.icon||'🏋️'}</div>
+                    <div id="locIconSel" style="padding:10px;border:1px solid rgba(255,255,255,0.12);border-radius:10px;font-size:1.5em;min-width:48px;text-align:center;">${editing?.icon||'🏋️'}</div>
                     <input id="locNameInput" type="text" placeholder="Ex: Gym Énergie, Bureau, Maison…" maxlength="30" value="${editing?.name||''}"
-                        style="flex:1;padding:10px 12px;border:2px solid #e5e7eb;border-radius:10px;font-size:0.95em;">
+                        style="flex:1;padding:10px 12px;border:1px solid rgba(255,255,255,0.12);border-radius:10px;font-size:0.95em;">
                 </div>
                 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px;" id="locIconPicker">${iconPicker}</div>
 
@@ -21074,18 +21080,18 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">
                     <button id="locModeHome"
                         onclick="setLocEditorMode('home')"
-                        style="padding:10px;border:2px solid ${currentMode==='home'?'#16a34a':'#e5e7eb'};border-radius:14px;background:${currentMode==='home'?'linear-gradient(135deg,#16a34a,#15803d)':'#f9fafb'};color:${currentMode==='home'?'white':'#374151'};cursor:pointer;font-weight:700;">🏠 Maison</button>
+                        style="padding:10px;border:2px solid ${currentMode==='home'?'#16a34a':'rgba(255,255,255,0.12)'};border-radius:14px;background:${currentMode==='home'?'linear-gradient(135deg,#16a34a,#15803d)':'rgba(255,255,255,0.03)'};color:${currentMode==='home'?'white':'#374151'};cursor:pointer;font-weight:700;">🏠 Maison</button>
                     <button id="locModeGym"
                         onclick="setLocEditorMode('gym')"
-                        style="padding:10px;border:2px solid ${currentMode==='gym'?'#16a34a':'#e5e7eb'};border-radius:14px;background:${currentMode==='gym'?'linear-gradient(135deg,#16a34a,#15803d)':'#f9fafb'};color:${currentMode==='gym'?'white':'#374151'};cursor:pointer;font-weight:700;">🏋️ Gym</button>
+                        style="padding:10px;border:2px solid ${currentMode==='gym'?'#16a34a':'rgba(255,255,255,0.12)'};border-radius:14px;background:${currentMode==='gym'?'linear-gradient(135deg,#16a34a,#15803d)':'rgba(255,255,255,0.03)'};color:${currentMode==='gym'?'white':'#374151'};cursor:pointer;font-weight:700;">🏋️ Gym</button>
                 </div>
 
                 <!-- Machines (section principale) -->
                 <div style="font-size:0.78em;font-weight:700;color:#0F1014;margin-bottom:6px;">🔧 Machines disponibles</div>
                 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:8px;" id="locMachineGrid">${machineGrid}</div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px;">
-                    <button onclick="selectAllLocMachines(true)" style="padding:6px;border:1px solid #16a34a;border-radius:10px;background:rgba(74,222,128,0.12);color:#16a34a;font-size:0.75em;font-weight:700;cursor:pointer;">✓ Toutes les machines</button>
-                    <button onclick="selectAllLocMachines(false)" style="padding:6px;border:1px solid #e5e7eb;border-radius:10px;background:#f9fafb;color:#6b7280;font-size:0.75em;font-weight:700;cursor:pointer;">✗ Aucune machine</button>
+                    <button onclick="selectAllLocMachines(true)" style="padding:6px;border:1px solid #16a34a;border-radius:10px;background:rgba(34,211,238,0.12);color:#16a34a;font-size:0.75em;font-weight:700;cursor:pointer;">✓ Toutes les machines</button>
+                    <button onclick="selectAllLocMachines(false)" style="padding:6px;border:1px solid rgba(255,255,255,0.12);border-radius:10px;background:rgba(255,255,255,0.03);color:#6b7280;font-size:0.75em;font-weight:700;cursor:pointer;">✗ Aucune machine</button>
                 </div>
 
                 <!-- Équipements généraux -->
@@ -21113,10 +21119,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
         function toggleLocMachine(id, btn) {
             if (btn.style.background.includes('667eea') || btn.style.background.includes('linear-gradient')) {
-                btn.style.background='#f9fafb'; btn.style.borderColor='#e5e7eb'; btn.style.color='#374151';
+                btn.style.background='rgba(255,255,255,0.03)'; btn.style.borderColor='rgba(255,255,255,0.12)'; btn.style.color='#374151';
                 const d = btn.querySelector('div > div'); if (d) d.style.filter='';
             } else {
-                btn.style.background='linear-gradient(135deg,#16a34a,#15803d)'; btn.style.borderColor='#16a34a'; btn.style.color='white';
+                btn.style.background='linear-gradient(135deg,#22d3ee,#0891b2)'; btn.style.borderColor='#22d3ee'; btn.style.color='white';
                 const d = btn.querySelector('div > div'); if (d) d.style.filter='brightness(10)';
             }
         }
@@ -21124,10 +21130,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         function selectAllLocMachines(sel) {
             document.querySelectorAll('#locMachineGrid button[data-mtid]').forEach(btn => {
                 if (sel) {
-                    btn.style.background='linear-gradient(135deg,#16a34a,#15803d)'; btn.style.borderColor='#16a34a'; btn.style.color='white';
+                    btn.style.background='linear-gradient(135deg,#22d3ee,#0891b2)'; btn.style.borderColor='#22d3ee'; btn.style.color='white';
                     const d = btn.querySelector('div > div'); if (d) d.style.filter='brightness(10)';
                 } else {
-                    btn.style.background='#f9fafb'; btn.style.borderColor='#e5e7eb'; btn.style.color='#374151';
+                    btn.style.background='rgba(255,255,255,0.03)'; btn.style.borderColor='rgba(255,255,255,0.12)'; btn.style.color='#374151';
                     const d = btn.querySelector('div > div'); if (d) d.style.filter='';
                 }
             });
@@ -21138,7 +21144,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const homeBtn = document.getElementById('locModeHome');
             const gymBtn = document.getElementById('locModeGym');
             const activeStyle = 'padding:10px;border:2px solid #16a34a;border-radius:14px;background:linear-gradient(135deg,#16a34a,#15803d);color:white;cursor:pointer;font-weight:700;';
-            const inactiveStyle = 'padding:10px;border:2px solid #e5e7eb;border-radius:14px;background:#f9fafb;color:#374151;cursor:pointer;font-weight:700;';
+            const inactiveStyle = 'padding:10px;border:1px solid rgba(255,255,255,0.12);border-radius:14px;background:rgba(255,255,255,0.03);color:#374151;cursor:pointer;font-weight:700;';
 
             if (mode === 'home') {
                 if (homeBtn) homeBtn.style.cssText = activeStyle;
@@ -21149,7 +21155,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 const gymOnlyEquip = ['barbell','treadmill','bike','elliptical','stairmaster','rower','battleropes','parallelbars'];
                 document.querySelectorAll('#locEquipGrid button[data-eqid]').forEach(btn => {
                     if (gymOnlyEquip.includes(btn.dataset.eqid)) {
-                        btn.style.background='white'; btn.style.borderColor='#e5e7eb'; btn.style.color='#374151';
+                        btn.style.background='white'; btn.style.borderColor='rgba(255,255,255,0.12)'; btn.style.color='#374151';
                         if (window._locEquip) {
                             const idx = window._locEquip.indexOf(btn.dataset.eqid);
                             if (idx >= 0) window._locEquip.splice(idx, 1);
@@ -21271,8 +21277,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 if (!btn) return;
                 const isActive = (btn.id === 'modeHomeBtn' && mode === 'home') ||
                                  (btn.id === 'modeGymBtn'  && mode === 'gym');
-                btn.style.background   = isActive ? active   : '#f9fafb';
-                btn.style.borderColor  = isActive ? '#16a34a' : '#e5e7eb';
+                btn.style.background   = isActive ? active   : 'rgba(255,255,255,0.03)';
+                btn.style.borderColor  = isActive ? '#16a34a' : 'rgba(255,255,255,0.12)';
                 btn.style.color        = isActive ? 'white'  : '';
                 btn.style.boxShadow    = isActive ? '0 4px 16px rgba(22,163,74,0.35)' : '0 2px 8px rgba(0,0,0,0.06)';
                 // Update child text colors
@@ -21381,15 +21387,15 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const mxBtn  = document.getElementById('gymMixedBtn');
             const sub    = document.getElementById('gymBtnSubtext');
             if (moBtn) {
-                moBtn.style.background  = !gymBodyweightMode ? active : '#f9fafb';
-                moBtn.style.borderColor = !gymBodyweightMode ? '#16a34a' : '#e5e7eb';
+                moBtn.style.background  = !gymBodyweightMode ? active : 'rgba(255,255,255,0.03)';
+                moBtn.style.borderColor = !gymBodyweightMode ? '#16a34a' : 'rgba(255,255,255,0.12)';
                 moBtn.querySelectorAll('div').forEach((el,i) => {
                     el.style.color = !gymBodyweightMode ? (i===1?'white':'rgba(255,255,255,0.8)') : (i===1?'#374151':'#6b7280');
                 });
             }
             if (mxBtn) {
-                mxBtn.style.background  = gymBodyweightMode ? active : '#f9fafb';
-                mxBtn.style.borderColor = gymBodyweightMode ? '#16a34a' : '#e5e7eb';
+                mxBtn.style.background  = gymBodyweightMode ? active : 'rgba(255,255,255,0.03)';
+                mxBtn.style.borderColor = gymBodyweightMode ? '#16a34a' : 'rgba(255,255,255,0.12)';
                 mxBtn.querySelectorAll('div').forEach((el,i) => {
                     el.style.color = gymBodyweightMode ? (i===1?'white':'rgba(255,255,255,0.8)') : (i===1?'#374151':'#6b7280');
                 });
@@ -21581,7 +21587,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         function updateWeightUnitLabels() {
             const unit = useKg ? 'kg' : 'lbs';
             const active   = 'linear-gradient(135deg,#16a34a,#15803d)';
-            const inactive = '#f3f4f6';
+            const inactive = 'rgba(255,255,255,0.03)';
             const activeTxt   = 'white';
             const inactiveTxt = '#374151';
 
@@ -21591,13 +21597,13 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             if (bKg) {
                 bKg.style.background = useKg ? active : inactive;
                 bKg.style.color      = useKg ? activeTxt : inactiveTxt;
-                bKg.style.border     = useKg ? 'none' : '2px solid #e5e7eb';
+                bKg.style.border     = useKg ? 'none' : '1px solid rgba(255,255,255,0.12)';
                 bKg.textContent      = useKg ? '✅ Kilogrammes actifs' : '🇨🇦 Utiliser les kilogrammes';
             }
             if (bLbs) {
                 bLbs.style.background = !useKg ? active : inactive;
                 bLbs.style.color      = !useKg ? activeTxt : inactiveTxt;
-                bLbs.style.border     = !useKg ? 'none' : '2px solid #e5e7eb';
+                bLbs.style.border     = !useKg ? 'none' : '1px solid rgba(255,255,255,0.12)';
                 bLbs.textContent      = !useKg ? '✅ Livres actives' : '🇺🇸 Utiliser les livres';
             }
 
@@ -23431,7 +23437,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const current = rpgGetClass();
             const modal = document.createElement('div');
             modal.id = 'classSelectModal';
-            modal.style.cssText = 'position:fixed;inset:0;z-index:10100;background:rgba(0,0,0,0.94);display:flex;align-items:flex-end;justify-content:center;padding:0;';
+            modal.style.cssText = 'position:fixed;inset:0;z-index:30050;background:rgba(0,0,0,0.94);display:flex;align-items:flex-end;justify-content:center;padding:0;';
 
             modal.innerHTML = `<div style="
                 width:100%;max-width:480px;
@@ -33557,7 +33563,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             
             if (matches.length === 0) {
                 resultsContainer.innerHTML = `
-                    <div style="text-align: center; padding: 30px; color: #999;">
+                    <div style="text-align: center; padding: 30px; color: #94a3b8;">
                         <div style="font-size: 3em; margin-bottom: 10px;">🤷</div>
                         <p>Aucun exercice trouvé pour "${query}"</p>
                         <p style="font-size: 0.9em; margin-top: 10px;">Essayez un autre terme de recherche</p>
@@ -33584,8 +33590,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                                 border-left: 4px solid #16a34a;">
                         <div style="display: flex; justify-content: space-between; align-items: start;">
                             <div style="flex: 1;">
-                                <strong style="font-size: 1.1em; color: #333;">${badge} ${ex.name}</strong>${typeLabel}
-                                <div style="font-size: 0.9em; color: #666; margin-top: 8px; display: flex; gap: 15px; flex-wrap: wrap;">
+                                <strong style="font-size: 1.1em; color: #e2e8f0;">${badge} ${ex.name}</strong>${typeLabel}
+                                <div style="font-size: 0.9em; color: #94a3b8; margin-top: 8px; display: flex; gap: 15px; flex-wrap: wrap;">
                                     <span>💪 ${ex.muscle}</span>
                                     <span>🏋️ ${ex.equipment}</span>
                                 </div>
@@ -33636,7 +33642,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             
             if (programs.length === 0) {
                 container.innerHTML = `
-                    <div style="grid-column: 1/-1; text-align: center; padding: 40px 20px; color: #999;">
+                    <div style="grid-column: 1/-1; text-align: center; padding: 40px 20px; color: #94a3b8;">
                         <div style="font-size: 3em; margin-bottom: 15px;">📚</div>
                         <p style="font-size: 1.1em; margin-bottom: 10px;">Aucun programme créé</p>
                         <p style="font-size: 0.9em;">Cliquez sur "Créer un programme" pour commencer</p>
@@ -33650,7 +33656,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
                         <div style="flex: 1;">
                             <h3 style="color: #16a34a; margin: 0 0 8px 0;">${program.name}</h3>
-                            <p style="color: #666; font-size: 0.9em; margin: 0;">
+                            <p style="color: #94a3b8; font-size: 0.9em; margin: 0;">
                                 ${program.exercises.length} exercice(s) • 
                                 ~${Math.round(program.exercises.length * 1.5)} min
                             </p>
@@ -33679,14 +33685,14 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     
                     <div style="margin-bottom: 15px; padding: 12px; background: #f8f9fa; border-radius: 10px; max-height: 150px; overflow-y: auto;">
                         ${program.exercises.slice(0, 5).map(ex => `
-                            <div style="display: flex; align-items: center; padding: 4px 0; color: #666; font-size: 0.9em;">
+                            <div style="display: flex; align-items: center; padding: 4px 0; color: #94a3b8; font-size: 0.9em;">
                                 <span style="width: 20px;">•</span>
                                 <span style="flex: 1;">${ex.name}</span>
-                                <span style="color: #999; font-size: 0.85em;">${ex.muscle}</span>
+                                <span style="color: #94a3b8; font-size: 0.85em;">${ex.muscle}</span>
                             </div>
                         `).join('')}
                         ${program.exercises.length > 5 ? `
-                            <div style="text-align: center; color: #999; font-size: 0.85em; margin-top: 8px;">
+                            <div style="text-align: center; color: #94a3b8; font-size: 0.85em; margin-top: 8px;">
                                 + ${program.exercises.length - 5} autres exercice(s)
                             </div>
                         ` : ''}
@@ -33803,7 +33809,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const container = document.getElementById('programExercisesList');
             
             if (programExercisesBuffer.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #999;">Aucun exercice ajouté</p>';
+                container.innerHTML = '<p style="text-align: center; color: #94a3b8;">Aucun exercice ajouté</p>';
                 return;
             }
             
@@ -33811,7 +33817,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 // Rest period
                 if (ex.type === 'rest') {
                     return `
-                        <div style="display: flex; align-items: center; gap: 10px; padding: 12px; background: #fff4e6; border-radius: 10px; margin-bottom: 8px; border: 2px solid #fed7aa;">
+                        <div style="display: flex; align-items: center; gap: 10px; padding: 12px; background: rgba(251,146,60,0.08); border-radius: 10px; margin-bottom: 8px; border: 1px solid rgba(251,146,60,0.35);">
                             <div style="display: flex; flex-direction: column; gap: 4px;">
                                 <button onclick="moveProgramExercise(${index}, -1)" 
                                         class="btn" 
@@ -33852,7 +33858,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 }
                 // Regular exercise
                 return `
-                    <div style="display: flex; align-items: center; gap: 10px; padding: 12px; background: white; border-radius: 10px; margin-bottom: 8px; border: 2px solid #e0e0e0;">
+                    <div style="display: flex; align-items: center; gap: 10px; padding: 12px; background: rgba(255,255,255,0.04); border-radius: 10px; margin-bottom: 8px; border: 2px solid rgba(255,255,255,0.12);">
                         <div style="display: flex; flex-direction: column; gap: 4px;">
                             <button onclick="moveProgramExercise(${index}, -1)" 
                                     class="btn" 
@@ -33868,8 +33874,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                             </button>
                         </div>
                         <div style="flex: 1;">
-                            <div style="font-weight: bold; color: #333;">${ex.name || 'Exercice'}</div>
-                            <div style="font-size: 0.85em; color: #666;">${ex.muscle || 'Muscle inconnu'} • ${ex.difficulty || 'Intermédiaire'}</div>
+                            <div style="font-weight: bold; color: #e2e8f0;">${ex.name || 'Exercice'}</div>
+                            <div style="font-size: 0.85em; color: #94a3b8;">${ex.muscle || 'Muscle inconnu'} • ${ex.difficulty || 'Intermédiaire'}</div>
                         </div>
                         <button onclick="removeProgramExercise(${index})" 
                                 class="btn" 
@@ -33955,17 +33961,17 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 return `
                     <div onclick="togglePickerExercise(${JSON.stringify(ex).replace(/"/g, '&quot;')})" 
                          class="card" 
-                         style="padding: 15px; cursor: pointer; border: 2px solid ${isSelected ? '#16a34a' : alreadyInProgram ? '#f59e0b' : '#e0e0e0'}; background: ${isSelected ? '#FFF3E0' : alreadyInProgram ? '#fef3c7' : 'white'}; transition: all 0.2s;">
+                         style="padding: 15px; cursor: pointer; border: 2px solid ${isSelected ? '#16a34a' : alreadyInProgram ? '#f59e0b' : 'rgba(255,255,255,0.12)'}; background: ${isSelected ? '#FFF3E0' : alreadyInProgram ? '#fef3c7' : 'white'}; transition: all 0.2s;">
                         <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
                             <div style="flex: 1;">
-                                <div style="font-weight: bold; color: #333; margin-bottom: 4px;">${ex.name}</div>
-                                <div style="font-size: 0.85em; color: #666;">${ex.muscle}</div>
+                                <div style="font-weight: bold; color: #e2e8f0; margin-bottom: 4px;">${ex.name}</div>
+                                <div style="font-size: 0.85em; color: #94a3b8;">${ex.muscle}</div>
                             </div>
                             <div style="font-size: 1.3em;">
                                 ${isSelected ? '✅' : alreadyInProgram ? '⚠️' : ''}
                             </div>
                         </div>
-                        <div style="font-size: 0.8em; color: #999;">
+                        <div style="font-size: 0.8em; color: #94a3b8;">
                             ${ex.difficulty} • ${ex.equipment.join(', ')}
                         </div>
                         ${alreadyInProgram ? '<div style="font-size: 0.75em; color: #f59e0b; margin-top: 4px;">Déjà dans le programme</div>' : ''}
@@ -33976,7 +33982,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             // Show message if no exercises found
             if (exercises.length === 0) {
                 container.innerHTML = `
-                    <div style="text-align: center; padding: 40px; color: #666;">
+                    <div style="text-align: center; padding: 40px; color: #94a3b8;">
                         <div style="font-size: 3em; margin-bottom: 15px;">🔍</div>
                         <h3 style="margin-bottom: 10px;">Aucun exercice trouvé</h3>
                         <p style="margin-bottom: 20px;">Essayez de :</p>
@@ -35164,7 +35170,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             overlay.id = 'occupiedOverlay';
             overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:10300;display:flex;align-items:flex-end;justify-content:center;';
             overlay.innerHTML = `
-                <div style="background:white;border-radius:20px 20px 0 0;padding:22px 18px;width:100%;max-width:480px;max-height:75vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(0,0,0,0.25);">
+                <div style="background:rgba(255,255,255,0.04);border-radius:20px 20px 0 0;padding:22px 18px;width:100%;max-width:480px;max-height:75vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(0,0,0,0.25);">
                     <div style="text-align:center;margin-bottom:14px;">
                         <div style="font-size:1.5em;">🚫</div>
                         <h3 style="margin:6px 0 4px;color:#0F1014;">Machine occupée</h3>
@@ -35174,13 +35180,13 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         ? '<p style="text-align:center;color:#6b7280;padding:20px;">Aucune alternative trouvée</p>'
                         : bodyFirst.map(alt => `
                         <div onclick="confirmOccupiedSwap('${alt.name.replace(/'/g,"\'")}');document.getElementById('occupiedOverlay').remove();"
-                            style="padding:12px 14px;border:2px solid #e5e7eb;border-radius:14px;margin-bottom:8px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all 0.15s;"
-                            onmouseover="this.style.borderColor='#16a34a'" onmouseout="this.style.borderColor='#e5e7eb'">
+                            style="padding:12px 14px;border:1px solid rgba(255,255,255,0.12);border-radius:14px;margin-bottom:8px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all 0.15s;"
+                            onmouseover="this.style.borderColor='#22d3ee'" onmouseout="this.style.borderColor='rgba(255,255,255,0.12)'">
                             <div style="flex:1;">
                                 <div style="font-weight:700;color:#0F1014;font-size:0.92em;">${alt.name}</div>
                                 <div style="font-size:0.75em;color:#6b7280;margin-top:2px;">${(alt.equipment||[]).join(' · ')} · ${alt.difficulty||''}</div>
                             </div>
-                            <div style="color:#16a34a;font-size:1.2em;">→</div>
+                            <div style="color:#22d3ee;font-size:1.2em;">→</div>
                         </div>`).join('')
                     }
                     <button onclick="document.getElementById('occupiedOverlay').remove();if(!isPaused)togglePause();"
@@ -35564,14 +35570,14 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             }
             const reuseClick = [
                 "var ri=document.getElementById('repsInput');if(ri)ri.value='" + lastPerf.reps + "';",
-                lastPerf.weight ? "var wi=document.getElementById('weightInput');if(wi)wi.value='" + lastPerf.weight + "';" : '',
+                lastPerf.weight ? "var wi=document.getElementById('weightInput');if(wi)wi.value='" + fmtWeightVal(lastPerf.weight) + "';" : '',
                 "if(typeof playRepTick==='function')playRepTick();"
             ].join('');
             return `<div style="background:rgba(34,197,94,0.1);padding:14px 16px;border-radius:14px;margin:14px 0;border:1px solid rgba(34,197,94,0.3);display:flex;align-items:center;gap:14px;">
                 <div style="font-size:1.8em;flex-shrink:0;">📊</div>
                 <div style="flex:1;">
                     <div style="font-size:0.72em;color:#6b7280;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">Dernière fois</div>
-                    <div style="font-size:1.2em;font-weight:800;color:#4ade80;">${lastPerf.reps} reps${lastPerf.weight ? ' × ' + lastPerf.weight + ' kg' + trend : ''}</div>
+                    <div style="font-size:1.2em;font-weight:800;color:#4ade80;">${lastPerf.reps} reps${lastPerf.weight ? ' × ' + fmtWeightVal(lastPerf.weight) + ' ' + weightUnit() + trend : ''}</div>
                     <div style="font-size:0.75em;color:#6b7280;margin-top:2px;">${new Date(lastPerf.date).toLocaleDateString('fr-FR',{day:'numeric',month:'short'})}</div>
                 </div>
                 <div style="font-size:0.72em;color:#34d399;background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);border-radius:10px;padding:5px 10px;font-weight:700;cursor:pointer;" onclick="${reuseClick}">↺ Réutiliser</div>
@@ -35887,8 +35893,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                                 <input id="_premOnbAge" type="number" inputmode="numeric" min="13" max="99" value="${draft.age}" style="width:100%;box-sizing:border-box;padding:13px;background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.12);border-radius:12px;color:#fff;font-size:1.05em;font-weight:800;outline:none;text-align:center;">
                             </div>
                             <div>
-                                <div style="font-size:0.7em;color:#94a3b8;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:7px;">Poids (kg)</div>
-                                <input id="_premOnbWeight" type="number" inputmode="numeric" min="30" max="250" value="${draft.weight}" style="width:100%;box-sizing:border-box;padding:13px;background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.12);border-radius:12px;color:#fff;font-size:1.05em;font-weight:800;outline:none;text-align:center;">
+                                <div style="font-size:0.7em;color:#94a3b8;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:7px;">Poids (${weightUnit()})</div>
+                                <input id="_premOnbWeight" type="number" inputmode="numeric" min="30" max="600" value="${fmtWeightVal(draft.weight)}" style="width:100%;box-sizing:border-box;padding:13px;background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.12);border-radius:12px;color:#fff;font-size:1.05em;font-weight:800;outline:none;text-align:center;">
                             </div>
                         </div>
                         ${btnPrimary('Valider', 'window._premOnbSaveBody()')}`;
@@ -35927,7 +35933,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             };
             window._premOnbSaveBody = function() {
                 draft.age = parseInt(document.getElementById('_premOnbAge')?.value) || 30;
-                draft.weight = parseInt(document.getElementById('_premOnbWeight')?.value) || 70;
+                const _wIn = parseFloat(document.getElementById('_premOnbWeight')?.value) || (useKg ? 70 : 155);
+                draft.weight = useKg ? Math.round(_wIn) : Math.round(_wIn * 0.453592); // stocké en kg
                 window._premOnbNext();
             };
             window._premOnbFinish = function() {
@@ -36225,7 +36232,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     <div style="font-size: 5em; margin-bottom: 20px;">🎉</div>
                     <h1 style="color: var(--primary-color); margin-bottom: 15px;">INCROYABLE !</h1>
                     <h2 style="margin-bottom: 20px;">30 jours consécutifs ! 🔥</h2>
-                    <p style="font-size: 1.1em; color: #666; margin-bottom: 30px;">
+                    <p style="font-size: 1.1em; color: #94a3b8; margin-bottom: 30px;">
                         Vous avez accompli quelque chose d'extraordinaire !<br>
                         Votre détermination est inspirante ! 💪
                     </p>
