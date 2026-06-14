@@ -6282,6 +6282,7 @@
         
         function showWorkoutPreparation(workout) {
             pendingWorkout = workout;
+            window._fbHasPrep = true;
             
             // Update workout name
             document.getElementById('prepWorkoutName').textContent = workout.name || 'Séance d\'entraînement';
@@ -6394,6 +6395,7 @@
         
         function startPreparedWorkout() {
             if (!pendingWorkout) return;
+            window.showWorkoutPreparation = showWorkoutPreparation; window.startPreparedWorkout = startPreparedWorkout; window.setPendingWorkout = function(w){ pendingWorkout = w; };
 
             // 🏃 Proposer un cardio d'échauffement optionnel (une seule fois par séance)
             if (!pendingWorkout._cardioAsked && typeof proposeCardioWarmup === 'function') {
@@ -19939,6 +19941,20 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
             const exercise = currentWorkout.exercises[currentExerciseIndex];
             
+            // 👑 Bloc narratif du COMBAT FINAL : écran plein, lu au rythme du joueur (pas de skip auto)
+            if (exercise.isInfo && exercise.isFinalStory) {
+                if (typeof awakShowFinalStoryBeat === 'function') {
+                    awakShowFinalStoryBeat(exercise, function() {
+                        currentExerciseIndex++;
+                        startExercise();
+                    });
+                } else {
+                    currentExerciseIndex++;
+                    startExercise();
+                }
+                return;
+            }
+
             // isInfo : panneaux d'info — skip automatique vers exercice suivant
             if (exercise.isInfo) {
                 // Afficher un toast et passer directement
@@ -22479,6 +22495,49 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             rowBtns.appendChild(btnEquip);
             tab.appendChild(rowBtns);
 
+            // ── 👑 COMBAT FINAL — Le Monarque du Déclin (apparaît après les 4 sous-bosses) ──
+            try {
+                if (typeof awakFinalBossUnlocked === 'function' && awakFinalBossUnlocked()) {
+                    const beaten = (typeof awakFinalBossDefeated === 'function') && awakFinalBossDefeated();
+                    const cardFinal = document.createElement('div');
+                    cardFinal.style.cssText = 'margin-top:10px;background:linear-gradient(135deg,rgba(220,38,38,0.14),rgba(127,29,29,0.06));border:1.5px solid rgba(251,191,36,0.4);border-radius:16px;padding:16px;cursor:pointer;position:relative;overflow:hidden;';
+                    cardFinal.onclick = function(){ if (typeof awakStartFinalBoss === 'function') awakStartFinalBoss(); };
+                    cardFinal.innerHTML = `
+                        <div style="display:flex;align-items:center;gap:13px;">
+                            <div style="font-size:2.4em;flex-shrink:0;">👑</div>
+                            <div style="flex:1;min-width:0;">
+                                <div style="font-family:'Rajdhani',sans-serif;font-size:0.62em;letter-spacing:2px;color:#fbbf24;font-weight:700;text-transform:uppercase;">${beaten ? 'Combat final · Vaincu' : 'Combat final disponible'}</div>
+                                <div style="font-family:'Rajdhani',sans-serif;font-size:1.2em;font-weight:700;color:#fff;letter-spacing:1px;">Le Monarque du Déclin</div>
+                                <div style="font-size:0.74em;color:#94a3b8;margin-top:2px;">${beaten ? 'Tu l\'as terrassé. Reviens l\'affronter quand tu veux.' : 'Les Quatre Épreuves sont passées. Il t\'attend.'}</div>
+                            </div>
+                            <div style="font-size:1.4em;color:#fbbf24;flex-shrink:0;">⚔</div>
+                        </div>`;
+                    tab.appendChild(cardFinal);
+                }
+            } catch(e) {}
+
+            // ── 🕳️ L'ABYSSE — descente infinie (apparaît après le Monarque vaincu) ──
+            try {
+                if (typeof awakAbyssUnlocked === 'function' && awakAbyssUnlocked()) {
+                    const record = (typeof awakAbyssRecord === 'function') ? awakAbyssRecord() : 0;
+                    const next = ((typeof awakAbyssDepth === 'function') ? awakAbyssDepth() : 0) + 1;
+                    const cardAbyss = document.createElement('div');
+                    cardAbyss.style.cssText = 'margin-top:10px;background:linear-gradient(135deg,rgba(124,58,237,0.16),rgba(15,10,30,0.4));border:1.5px solid rgba(124,58,237,0.45);border-radius:16px;padding:16px;cursor:pointer;position:relative;overflow:hidden;';
+                    cardAbyss.onclick = function(){ if (typeof awakOpenAbyss === 'function') awakOpenAbyss(); };
+                    cardAbyss.innerHTML = `
+                        <div style="display:flex;align-items:center;gap:13px;">
+                            <div style="font-size:2.4em;flex-shrink:0;">🕳️</div>
+                            <div style="flex:1;min-width:0;">
+                                <div style="font-family:'Rajdhani',sans-serif;font-size:0.62em;letter-spacing:2px;color:#a78bfa;font-weight:700;text-transform:uppercase;">Descente infinie</div>
+                                <div style="font-family:'Rajdhani',sans-serif;font-size:1.2em;font-weight:700;color:#fff;letter-spacing:1px;">L'Abysse</div>
+                                <div style="font-size:0.74em;color:#94a3b8;margin-top:2px;">Palier ${next} à affronter · Record : ${record}</div>
+                            </div>
+                            <div style="font-size:1.4em;color:#a78bfa;flex-shrink:0;">▾</div>
+                        </div>`;
+                    tab.appendChild(cardAbyss);
+                }
+            } catch(e) {}
+
             // ── 👁️ JAUGE DU MONARQUE DU DÉCLIN [ANCIENNE HISTOIRE — MASQUÉE] ───
             // Remplacée par la nouvelle histoire « Le Monde qui s'efface ».
             try {
@@ -23891,6 +23950,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
          * Appelé une fois après completeWorkout()
          */
         function awakProcessWorkoutForAutoStats(workout) {
+            if (typeof getAdventureEnabled === 'function' && !getAdventureEnabled()) return;
             if (!workout || !workout.exercises) return;
 
             const lastProcessedId = localStorage.getItem(AWAKENED_LAST_PROCESSED_KEY);
@@ -24024,8 +24084,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             { id: 'B',   name: 'Rang B',   threshold:  35, color: '#a855f7', emoji: '◇◇◆',  desc: 'Confirmé' },
             { id: 'A',   name: 'Rang A',   threshold:  55, color: '#f59e0b', emoji: '✦✦✦',  desc: 'Élite' },
             { id: 'S',   name: 'Rang S',   threshold:  80, color: '#ef4444', emoji: '✦S✦',  desc: 'Exception cosmique' },
-            { id: 'SS',  name: 'Rang SS',  threshold: 120, color: '#ec4899', emoji: '✦SS✦', desc: 'Légende vivante' },
-            { id: 'SSS', name: 'Rang SSS', threshold: 200, color: '#fbbf24', emoji: '✦SSS✦', desc: 'Au-delà des limites' }
+            { id: 'SS',  name: 'Rang SS',  threshold: 100, color: '#ec4899', emoji: '✦SS✦', desc: 'Légende vivante' },
+            { id: 'SSS', name: 'Rang SSS', threshold: 120, color: '#fbbf24', emoji: '✦SSS✦', desc: 'Au-delà des limites' }
         ];
 
         // Helper : récupère le niveau actuel du joueur (même calcul que la carte profil)
@@ -24876,6 +24936,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
          * Vérifier si un rank-up vient d'avoir lieu, et afficher le message du Système
          */
         function awakCheckRankUp() {
+            if (typeof getAdventureEnabled === 'function' && !getAdventureEnabled()) return;
             const currentRank = awakGetRank();
             const lastRankSeen = localStorage.getItem('awakLastRankSeen') || 'E';
             if (currentRank.id !== lastRankSeen) {
@@ -26447,6 +26508,22 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         }
         window.awakComputeStatBonuses = awakComputeStatBonuses;
 
+        // 🏃 Classe un exercice par type d'effort dominant (pour les mécaniques de sous-boss)
+        // Renvoie 'cardio' | 'force' | 'explosif' | 'autre'
+        function awakClassifyEffort(ex) {
+            if (!ex) return 'autre';
+            const name = (ex.name || '').toLowerCase();
+            const muscle = (ex.muscle || '').toLowerCase();
+            // Explosif / pliométrie : sauts, sprints, burpees, mouvements balistiques
+            if (/burpee|jump|saut|sprint|plyo|pliom|box|kettlebell swing|swing|clap|explosi|mountain climber|squat saut|fente saut/.test(name)) return 'explosif';
+            // Cardio / endurance : muscle Cardio, ou exercices en durée (mode timer) hors étirement
+            if (muscle === 'cardio' || (ex.mode === 'timer' && !/etirement|étirement|stretch|mobilit|gainage|planche|plank/.test(name))) return 'cardio';
+            // Force : exercices à charge / reps lourdes (presse, squat, soulevé, tirage, développé, curl…)
+            if (/squat|press|développé|developpe|souleve|soulevé|deadlift|row|rowing|tirage|curl|extension|fente|lunge|pompe|push|pull|dip|hip thrust|glute bridge/.test(name)) return 'force';
+            return 'autre';
+        }
+        window.awakClassifyEffort = awakClassifyEffort;
+
         function awakDealDamageToWave(reps, weightKg) {
             const session = awakActiveRiftSession;
             if (!session) return;
@@ -26455,6 +26532,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             if (!currentWave) return;
             const theme = session.theme;
             const playerStats = awakGetTotalStats();
+
+            // 🏃 Type d'effort de l'exercice courant (pour les mécaniques de sous-boss)
+            const _curEx = (typeof currentWorkout !== 'undefined' && currentWorkout && currentWorkout.exercises)
+                ? currentWorkout.exercises[typeof currentExerciseIndex !== 'undefined' ? currentExerciseIndex : 0]
+                : null;
+            const effortType = awakClassifyEffort(_curEx);
 
             // 🛡️ ANTI-TRICHE : plafonner les reps et le poids
             // Reps max réaliste = 50 (au-delà c'est de la triche)
@@ -26589,6 +26672,13 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 const _pm = (typeof awakGetRiftModifier === 'function' && rift) ? awakGetRiftModifier(rift.modifierId) : null;
                 if (_pm && _pm.playerDmgMult > 1) finalDamage = Math.round(finalDamage * _pm.playerDmgMult);
             } catch(e) {}
+
+            // 🐺 SOUS-BOSS — mécanique liée au type d'effort (La Traque, Colosse, Insaisissable, Siphon)
+            if (currentWave.isBoss && rift.subBossMech && typeof awakApplySubBossMech === 'function') {
+                const sb = awakApplySubBossMech(rift, currentWave, finalDamage, effortType, prevHpPercent);
+                finalDamage = sb.damage;
+                if (sb.toasts) sb.toasts.forEach(t => procToasts.push(t));
+            }
 
             currentWave.hpCurrent = Math.max(0, currentWave.hpCurrent - finalDamage);
             const newHpPercent = (currentWave.hpCurrent / currentWave.hpMax) * 100;
@@ -26773,6 +26863,24 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             if (r) {
                 r.completed = true;
                 r.completedAt = Date.now();
+                // 🔧 Migration : si cette Faille est une Faille de compagnon mais a perdu/manque
+                // ses champs (créée par une ancienne version), on les reconstruit depuis son id/nom.
+                if (!r.isCompanionRift || !r.companionId || !r.companionRiftId) {
+                    try {
+                        const cr = (typeof COMPANION_RIFTS !== 'undefined')
+                            ? COMPANION_RIFTS.find(c => (r.id && r.id.indexOf(c.id) !== -1) || r.name === c.name)
+                            : null;
+                        if (cr) {
+                            r.isCompanionRift = true;
+                            r.companionRiftId = cr.id;
+                            r.companionId = cr.companionId;
+                            // propager aussi sur l'objet de session en cours pour le déclenchement immédiat
+                            rift.isCompanionRift = true;
+                            rift.companionRiftId = cr.id;
+                            rift.companionId = cr.companionId;
+                        }
+                    } catch(e) {}
+                }
                 awakRiftsSave(rifts);
             }
 
@@ -26936,6 +27044,14 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 if (rift.isWeeklyBoss && rift.weekKey) {
                     localStorage.setItem('awakWeeklyBossDoneWeek', rift.weekKey);
                 }
+                // 🩸 SOUS-BOSS vaincu : avancer la séquence des Quatre Épreuves
+                if (rift.isSubBoss && typeof awakOnSubBossDefeated === 'function') {
+                    awakOnSubBossDefeated(rift);
+                }
+                // 🕳️ PALIER D'ABYSSE vaincu : avancer la profondeur + record
+                if (rift.isAbyss && typeof awakOnAbyssDefeated === 'function') {
+                    awakOnAbyssDefeated(rift);
+                }
             } catch(e) {}
 
             // Haptic + son
@@ -26945,9 +27061,15 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             try {
                 setTimeout(() => awakCompanionShowDialogue('onVictory'), 1500);
                 // 🤝 Faille de compagnon : jouer la mini-scène de rencontre PUIS la pop-up de déblocage
-                if (rift.isCompanionRift && rift.companionId) {
+                // Robustesse : on déduit le compagnon même si le champ companionId manque (vieilles Failles).
+                let _compId = rift.companionId;
+                if (!_compId && typeof COMPANION_RIFTS !== 'undefined') {
+                    const _cr = COMPANION_RIFTS.find(c => (rift.id && rift.id.indexOf(c.id) !== -1) || rift.name === c.name);
+                    if (_cr) _compId = _cr.companionId;
+                }
+                if (_compId) {
                     setTimeout(() => {
-                        awakShowCompanionMeeting(rift.companionId, () => {
+                        awakShowCompanionMeeting(_compId, () => {
                             // Après la scène, débloquer + pop-up officielle
                             if (typeof awakCompanionsTriggerUnlockCheck === 'function') {
                                 awakCompanionsTriggerUnlockCheck();
@@ -26969,6 +27091,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             try { setTimeout(() => awakCheckNarrativeRifts(), 4500); } catch(e) {}
             // 🤝 Check si une Faille de compagnon doit apparaître
             try { setTimeout(() => { if (typeof awakCheckCompanionRifts === 'function') awakCheckCompanionRifts(); }, 5200); } catch(e) {}
+            // 🩸 Check si une Épreuve (sous-boss) doit apparaître
+            try { setTimeout(() => { if (typeof awakCheckSubBosses === 'function') awakCheckSubBosses(); }, 5600); } catch(e) {}
+            // 🕳️ Check si un palier d'Abysse doit apparaître (post-Monarque)
+            try { setTimeout(() => { if (typeof awakCheckAbyss === 'function') awakCheckAbyss(); }, 5800); } catch(e) {}
 
             // 🌑 [GLITCH DE L'ARCHITECTE DÉSACTIVÉ — ancienne narration]
             // try { setTimeout(() => awakArchitectMaybeGlitch(), 6000); } catch(e) {}
@@ -28052,10 +28178,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 localStorage.setItem(shownKey, JSON.stringify(shown));
             } catch(e) {}
             const overlay = document.createElement('div');
-            overlay.style.cssText = 'position:fixed;inset:0;z-index:99998;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.92);backdrop-filter:blur(10px);animation:awakFadeIn 0.4s;padding:20px;';
+            overlay.style.cssText = 'position:fixed;inset:0;z-index:99998;display:flex;align-items:flex-start;justify-content:center;background:rgba(0,0,0,0.92);backdrop-filter:blur(10px);animation:awakFadeIn 0.4s;padding:20px;overflow-y:auto;-webkit-overflow-scrolling:touch;';
 
             overlay.innerHTML = `
-                <div style="max-width:420px;width:100%;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;background:linear-gradient(160deg,#0a0e18,#0F1014,${companion.color}15);border:1.5px solid ${companion.color}50;border-radius:20px;padding:32px 26px;text-align:center;box-shadow:0 24px 60px ${companion.color}20,0 0 80px ${companion.color}15;animation:slideUp 0.5s cubic-bezier(0.34,1.56,0.64,1);">
+                <div style="max-width:420px;width:100%;margin:auto 0;background:linear-gradient(160deg,#0a0e18,#0F1014,${companion.color}15);border:1.5px solid ${companion.color}50;border-radius:20px;padding:32px 26px;text-align:center;box-shadow:0 24px 60px ${companion.color}20,0 0 80px ${companion.color}15;animation:slideUp 0.5s cubic-bezier(0.34,1.56,0.64,1);">
                     <div style="font-size:0.6em;color:${companion.color};font-weight:900;letter-spacing:3px;margin-bottom:14px;">◇ NOUVEL ANCRAGE RENCONTRÉ ◇</div>
                     ${companion.image
                         ? `<img src="${companion.image}" alt="${companion.name}" style="width:100%;max-width:280px;border-radius:14px;margin-bottom:12px;box-shadow:0 0 28px ${companion.color}66;" onerror="this.outerHTML='<div style=\\'font-size:4em;line-height:1;margin-bottom:12px;\\'>${companion.emoji}</div>';" />`
@@ -28158,16 +28284,15 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             let page = 0;
             const overlay = document.createElement('div');
             overlay.id = 'awakCompanionMeetingOverlay';
-            overlay.style.cssText = 'position:fixed;inset:0;z-index:99996;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.93);backdrop-filter:blur(10px);animation:awakFadeIn 0.4s;padding:20px;';
+            overlay.style.cssText = 'position:fixed;inset:0;z-index:99996;display:flex;align-items:flex-start;justify-content:center;background:rgba(0,0,0,0.93);backdrop-filter:blur(10px);animation:awakFadeIn 0.4s;padding:20px;overflow-y:auto;-webkit-overflow-scrolling:touch;';
 
             function render() {
                 const isLast = page >= meet.pages.length - 1;
                 overlay.innerHTML = `
-                    <div style="max-width:440px;width:100%;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;background:linear-gradient(160deg,#0a0e18,#0F1014,${meet.color}12);border:1.5px solid ${meet.color}45;border-radius:20px;padding:28px 24px;box-shadow:0 24px 60px ${meet.color}22;animation:slideUp 0.45s cubic-bezier(0.34,1.56,0.64,1);">
+                    <div style="max-width:440px;width:100%;margin:auto 0;background:linear-gradient(160deg,#0a0e18,#0F1014,${meet.color}12);border:1.5px solid ${meet.color}45;border-radius:20px;padding:28px 24px;box-shadow:0 24px 60px ${meet.color}22;animation:slideUp 0.45s cubic-bezier(0.34,1.56,0.64,1);">
                         <div style="text-align:center;margin-bottom:18px;">
                             <div style="width:100%;border-radius:14px;overflow:hidden;border:2px solid ${meet.color}55;box-shadow:0 0 32px ${meet.color}33;background:#0a0e18;margin:0 auto 14px;">
                                 <img src="${meet.image || comp.image}" alt="${comp.name}" style="width:100%;height:auto;display:block;" onerror="this.onerror=null;this.src='${comp.image||''}';this.onerror=function(){this.parentElement.innerHTML='<div style=\\'font-size:3.6em;line-height:200px;text-align:center;\\'>${meet.emoji}</div>';};" />
-                            </div>
                             </div>
                             <div style="font-size:0.6em;letter-spacing:3px;color:${meet.color};font-weight:900;text-transform:uppercase;">Rencontre</div>
                         </div>
@@ -28269,6 +28394,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
         // Vérifie s'il faut faire apparaître une Faille de compagnon (UNE à la fois)
         function awakCheckCompanionRifts() {
+            if (typeof getAdventureEnabled === 'function' && !getAdventureEnabled()) return null;
             const rifts = awakRiftsLoad();
             // Une seule Faille de compagnon active (non complétée) à la fois
             if (rifts.some(r => r.isCompanionRift && !r.completed)) return null;
@@ -28299,6 +28425,354 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             return null;
         }
         window.awakCheckCompanionRifts = awakCheckCompanionRifts;
+
+        // ═══════════════════════════════════════════════════════════════
+        // 🩸 LES QUATRE ÉPREUVES — sous-boss en séquence avant le Boss Final
+        // Chacun teste une qualité physique : cardio, force, explosivité, endurance.
+        // Failles narratives permanentes, débloquées en chaîne (battre l'un ouvre le suivant).
+        // ═══════════════════════════════════════════════════════════════
+        const SUBBOSS_SEEN_KEY = 'awakSubBossProgress'; // index du prochain sous-boss à affronter (0..4)
+        const SUB_BOSSES = [
+            {
+                id: 'subboss_traque', order: 0, mech: 'traque', effort: 'cardio',
+                name: 'Le Cavalier des Cendres', emoji: '🐺', color: '#f59e0b',
+                description: 'Une bête monstrueuse le porte. Il te poursuit sans relâche — si tu ralentis, il te piétine.',
+                briefing: 'COURS. Enchaîne le cardio pour garder ton avance. Chaque temps mort le rapproche de toi.',
+                rank: 'A', hpMult: 3.2, primaryStat: 'VIT', themeEmoji: '🔥',
+                meetText: 'La poussière retombe. La monture s\u2019effondre, vaincue par ta vitesse. « Tu cours vite, petit. Mais la prochaine épreuve ne se fuit pas. »'
+            },
+            {
+                id: 'subboss_colosse', order: 1, mech: 'colosse', effort: 'force',
+                name: 'Le Colosse de Fer', emoji: '🗿', color: '#64748b',
+                description: 'Une armure vivante, impénétrable. Aucune force normale ne l\u2019entame.',
+                briefing: 'Frappe LOURD. Accumule la force brute pour fissurer sa carapace, puis achève-le pendant la brèche.',
+                rank: 'A', hpMult: 3.6, primaryStat: 'STR', themeEmoji: '⚒️',
+                meetText: 'La carapace se fendille puis explose. Le géant s\u2019agenouille. « Ta force est réelle. Mais la vitesse pure te brisera. »'
+            },
+            {
+                id: 'subboss_insaisissable', order: 2, mech: 'insaisissable_sb', effort: 'explosif',
+                name: 'L\u2019Ombre Dansante', emoji: '🌀', color: '#a855f7',
+                description: 'Jamais là où tu frappes. Seuls les coups les plus explosifs l\u2019atteignent.',
+                briefing: 'Sois EXPLOSIF. Burpees, sauts, sprints — les mouvements balistiques sont les seuls qui touchent.',
+                rank: 'S', hpMult: 4.0, primaryStat: 'AGI', themeEmoji: '⚡',
+                meetText: 'Pour une fois, l\u2019ombre ne s\u2019est pas dérobée. « Impressionnant. Tu frappes comme l\u2019éclair. Plus qu\u2019une épreuve avant Lui. »'
+            },
+            {
+                id: 'subboss_siphon', order: 3, mech: 'siphon', effort: 'endurance',
+                name: 'Le Siphon Affamé', emoji: '⏳', color: '#dc2626',
+                description: 'Il se nourrit de ta vitalité à chaque instant. Le temps joue contre toi.',
+                briefing: 'NE T\u2019ARRÊTE PAS. Il te draine sans cesse — tue-le vite, avant qu\u2019il ne te vide entièrement.',
+                rank: 'S', hpMult: 3.0, primaryStat: 'END', themeEmoji: '🩸',
+                meetText: 'Le Siphon se ratatine, privé de ta vitalité qu\u2019il ne peut plus saisir. « Les Quatre Épreuves sont passées. Le Monarque t\u2019attend désormais. »'
+            }
+        ];
+
+        function awakSubBossProgress() { return parseInt(localStorage.getItem(SUBBOSS_SEEN_KEY) || '0'); }
+        function awakSubBossSetProgress(n) { localStorage.setItem(SUBBOSS_SEEN_KEY, String(n)); }
+
+        // Vérifie s'il faut faire apparaître le prochain sous-boss (séquence)
+        function awakCheckSubBosses() {
+            try {
+                if (typeof getAdventureEnabled === 'function' && !getAdventureEnabled()) return null;
+                const order = ['E','D','C','B','A','S','SS','SSS'];
+                const pRank = awakGetRank().id;
+                const progress = awakSubBossProgress();
+                if (progress >= SUB_BOSSES.length) return null; // les 4 sont vaincus
+                const sb = SUB_BOSSES[progress];
+                if (order.indexOf(pRank) < order.indexOf(sb.rank)) return null; // rang insuffisant
+
+                // 📖 PRÉREQUIS : toutes les Failles narratives de l'histoire doivent être complétées.
+                // (Les épreuves finales ne s'ouvrent qu'à celui qui a vécu tout l'arc.)
+                if (typeof NARRATIVE_RIFTS !== 'undefined') {
+                    const allRifts = awakRiftsLoad();
+                    const narrativeDone = (defId) => allRifts.some(r => r.narrativeId === defId && r.completed);
+                    const allNarrativeComplete = NARRATIVE_RIFTS.every(n => narrativeDone(n.id));
+                    if (!allNarrativeComplete) return null; // histoire pas terminée → pas de sous-boss
+                }
+
+                const rifts = awakRiftsLoad();
+                if (rifts.some(r => r.isSubBoss && r.subBossId === sb.id)) return null; // déjà présent
+                const newRift = awakGenerateSubBossRift(sb);
+                rifts.push(newRift);
+                awakRiftsSave(rifts);
+                if (typeof showToast === 'function') setTimeout(() => showToast(`${sb.emoji} ÉPREUVE ${sb.order + 1}/4 : ${sb.name} a surgi !`, 'warning', 4500), 1200);
+                return newRift;
+            } catch(e) { return null; }
+        }
+        window.awakCheckSubBosses = awakCheckSubBosses;
+
+        function awakGenerateSubBossRift(sb) {
+            const monstersForTheme = RIFT_MONSTERS.inverted_reality || RIFT_MONSTERS[Object.keys(RIFT_MONSTERS)[0]];
+            const boss = monstersForTheme[monstersForTheme.length - 1];
+            const hp = Math.round(boss.baseHp * sb.hpMult * 2.5);
+            return {
+                id: 'sub_' + sb.id + '_' + Date.now(),
+                isNarrative: true,        // protection anti-expiration
+                isSubBoss: true,
+                subBossId: sb.id,
+                subBossMech: sb.mech,
+                subBossEffort: sb.effort,
+                createdAt: Date.now(),
+                expiresAt: Date.now() + 365 * 24 * 60 * 60 * 1000,
+                rank: sb.rank,
+                themeId: 'subboss_' + sb.id,
+                name: sb.name,
+                modifierId: null,
+                discovered: true,
+                state: 'stable',
+                waves: [{
+                    index: 0, isBoss: true, rank: sb.rank,
+                    name: sb.name, emoji: sb.emoji,
+                    hpMax: hp, hpCurrent: hp,
+                    bossMech: { id: 'subboss', name: sb.name, desc: sb.briefing }
+                }],
+                currentWaveIdx: 0,
+                recommendedPower: { A: 5500, S: 8500 }[sb.rank] || 5500,
+                minStatRequired: 60,
+                primaryStat: sb.primaryStat,
+                attempts: 0, completed: false,
+                narrativeData: { briefing: sb.briefing, description: sb.description, color: sb.color, emoji: sb.emoji, name: sb.name }
+            };
+        }
+
+        // 🩸 Applique la mécanique du sous-boss. Renvoie { damage, toasts:[{msg,type}] }
+        // La jauge (wave._gauge) est persistée sur la vague pour durer toute la Faille.
+        function awakApplySubBossMech(rift, wave, incomingDamage, effortType, prevHpPercent) {
+            const toasts = [];
+            let damage = incomingDamage;
+            const mech = rift.subBossMech;
+            if (wave._gauge === undefined) wave._gauge = 50; // jauge neutre 0..100
+
+            switch (mech) {
+                case 'traque': {
+                    // 🐺 Cardio fait monter l'avance ; sinon elle chute. À 0 → charge = dégâts au joueur.
+                    if (effortType === 'cardio' || effortType === 'explosif') {
+                        wave._gauge = Math.min(100, wave._gauge + 22);
+                        damage = Math.round(damage * 1.15);
+                    } else {
+                        wave._gauge = Math.max(0, wave._gauge - 18);
+                    }
+                    if (wave._gauge <= 0 && !wave._charged) {
+                        wave._charged = true;
+                        toasts.push({ msg: '🐎 IL TE CHARGE ! Reprends le cardio !', type: 'error' });
+                        const s = (typeof awakActiveRiftSession !== 'undefined') ? awakActiveRiftSession : null;
+                        if (s && typeof s.playerHP === 'number' && typeof awakGetPlayerMaxHP === 'function') {
+                            s.playerHP = Math.max(1, s.playerHP - Math.round(awakGetPlayerMaxHP() * 0.20));
+                        }
+                    } else if (wave._gauge <= 0) {
+                        wave._gauge = 20; wave._charged = false;
+                    } else if (wave._gauge >= 100 && !wave._maxLead) {
+                        wave._maxLead = true;
+                        toasts.push({ msg: '🏃 Distance maximale ! Frappe sans relâche !', type: 'success' });
+                    } else {
+                        toasts.push({ msg: `🐺 Distance : ${Math.round(wave._gauge)}%`, type: wave._gauge < 35 ? 'warning' : 'info' });
+                    }
+                    break;
+                }
+                case 'colosse': {
+                    // 🗿 Invulnérable tant que l'armure n'est pas brisée par la FORCE.
+                    if (!wave._armorBroken) {
+                        if (effortType === 'force') {
+                            wave._gauge = Math.min(100, wave._gauge + 20);
+                            toasts.push({ msg: `⚒️ Fissure l'armure : ${Math.round(wave._gauge)}%`, type: 'info' });
+                        } else {
+                            wave._gauge = Math.max(0, wave._gauge - 8);
+                            toasts.push({ msg: '🛡️ L\'armure tient — frappe LOURD (force) !', type: 'warning' });
+                        }
+                        damage = 0;
+                        if (wave._gauge >= 100) {
+                            wave._armorBroken = true; wave._breakTurns = 3;
+                            toasts.push({ msg: '💥 ARMURE BRISÉE ! Achève-le !', type: 'success' });
+                        }
+                    } else {
+                        damage = Math.round(damage * 2);
+                        wave._breakTurns = (wave._breakTurns || 0) - 1;
+                        if (wave._breakTurns <= 0) {
+                            wave._armorBroken = false; wave._gauge = 40;
+                            toasts.push({ msg: '🗿 L\'armure se reforme ! Brise-la à nouveau.', type: 'warning' });
+                        } else {
+                            toasts.push({ msg: `💢 Vulnérable ! Dégâts ×2 (${wave._breakTurns})`, type: 'success' });
+                        }
+                    }
+                    break;
+                }
+                case 'insaisissable_sb': {
+                    // 🌀 Esquive 60% — sauf coups EXPLOSIFS qui touchent toujours.
+                    if (effortType === 'explosif') {
+                        damage = Math.round(damage * 1.2);
+                        toasts.push({ msg: '⚡ Touché ! Les coups explosifs ne le ratent jamais', type: 'success' });
+                    } else if (Math.random() < 0.6) {
+                        damage = 0;
+                        toasts.push({ msg: '💨 Esquivé ! Sois EXPLOSIF (burpees, sauts, sprints)', type: 'warning' });
+                    } else {
+                        toasts.push({ msg: '🌀 Coup partiel — privilégie l\'explosivité', type: 'info' });
+                    }
+                    break;
+                }
+                case 'siphon': {
+                    // ⏳ Draine les PV du joueur à chaque série. Course contre la montre.
+                    const s = (typeof awakActiveRiftSession !== 'undefined') ? awakActiveRiftSession : null;
+                    if (s && typeof s.playerHP === 'number' && typeof awakGetPlayerMaxHP === 'function') {
+                        const drain = Math.round(awakGetPlayerMaxHP() * 0.06);
+                        s.playerHP = Math.max(1, s.playerHP - drain);
+                        toasts.push({ msg: `🩸 Il te draine : -${drain} HP. Tue-le VITE !`, type: 'error' });
+                        const el = document.getElementById('playerHpBar');
+                        const tx = document.getElementById('playerHpText');
+                        if (el) el.style.width = Math.round((s.playerHP / awakGetPlayerMaxHP()) * 100) + '%';
+                        if (tx) tx.textContent = `${s.playerHP} / ${awakGetPlayerMaxHP()} HP`;
+                    }
+                    if (effortType === 'cardio' || effortType === 'endurance') damage = Math.round(damage * 1.1);
+                    break;
+                }
+            }
+            return { damage, toasts };
+        }
+        window.awakApplySubBossMech = awakApplySubBossMech;
+
+        // À la victoire d'un sous-boss : avancer la séquence + jouer la réplique
+        function awakOnSubBossDefeated(rift) {
+            try {
+                const sb = SUB_BOSSES.find(s => s.id === rift.subBossId);
+                if (!sb) return;
+                if (awakSubBossProgress() <= sb.order) awakSubBossSetProgress(sb.order + 1);
+                if (typeof showAlert === 'function') {
+                    setTimeout(() => showAlert(`${sb.emoji} ${sb.name} vaincu`, sb.meetText), 2200);
+                }
+                setTimeout(() => { try { awakCheckSubBosses(); } catch(e) {} }, 6000);
+            } catch(e) {}
+        }
+        window.awakOnSubBossDefeated = awakOnSubBossDefeated;
+
+        // ═══════════════════════════════════════════════════════════════
+        // 🕳️ L'ABYSSE — descente infinie, palier par palier (post-Monarque)
+        // Débloqué après avoir vaincu le Monarque. Chaque palier = une Faille-boss
+        // dont le HP scale exponentiellement. 1 palier = 1 séance. Le joueur
+        // descend à son rythme ; son record de profondeur est sauvegardé.
+        // ═══════════════════════════════════════════════════════════════
+        const ABYSS_DEPTH_KEY = 'awakAbyssDepth';       // palier actuel atteint (prochain à affronter = depth+1)
+        const ABYSS_RECORD_KEY = 'awakAbyssRecord';     // record de profondeur
+        const ABYSS_BOSS_NAMES = [
+            'Ombre des Profondeurs', 'Glaneur d\u2019\u00e2mes', 'Sentinelle Engloutie', 'Mâchoire du Vide',
+            'Spectre Abyssal', 'Tisseur de Ténèbres', 'Colosse Noyé', 'Veilleur Éternel',
+            'Écho du Néant', 'Dévoreur Silencieux'
+        ];
+        const ABYSS_EMOJIS = ['🕳️','👁️','🦑','🌑','💀','🐙','⚫','🔱','🌀','☠️'];
+
+        function awakAbyssDepth()  { return parseInt(localStorage.getItem(ABYSS_DEPTH_KEY) || '0'); }
+        function awakAbyssRecord() { return parseInt(localStorage.getItem(ABYSS_RECORD_KEY) || '0'); }
+        window.awakAbyssDepth = awakAbyssDepth;
+        window.awakAbyssRecord = awakAbyssRecord;
+
+        // L'Abysse est-il accessible ? (Monarque vaincu + jeu activé)
+        function awakAbyssUnlocked() {
+            if (typeof getAdventureEnabled === 'function' && !getAdventureEnabled()) return false;
+            return (typeof awakFinalBossDefeated === 'function') && awakFinalBossDefeated();
+        }
+        window.awakAbyssUnlocked = awakAbyssUnlocked;
+
+        // Génère (ou régénère) la Faille du prochain palier d'Abysse.
+        function awakGenerateAbyssRift() {
+            const nextDepth = awakAbyssDepth() + 1;
+            // HP scalé exponentiellement : base 2500 × 1.15^(palier-1)
+            const hp = Math.round(2500 * Math.pow(1.15, nextDepth - 1));
+            const idx = (nextDepth - 1) % ABYSS_BOSS_NAMES.length;
+            const bossName = ABYSS_BOSS_NAMES[idx];
+            const emoji = ABYSS_EMOJIS[idx];
+            // Au-delà du palier 5, une mutation rang A+ s'active aléatoirement pour varier
+            let modifierId = null;
+            if (nextDepth > 5 && typeof RIFT_MODIFIERS !== 'undefined') {
+                const muts = RIFT_MODIFIERS.filter(m => m.rankMin === 'A');
+                if (muts.length) modifierId = muts[(nextDepth) % muts.length].id;
+            }
+            const theme = RIFT_THEMES[(nextDepth) % RIFT_THEMES.length];
+            // Récompense : palier ordinaire = XP ×2 ; tous les 5 paliers = légendaire garanti
+            const milestone = (nextDepth % 5 === 0);
+            return {
+                id: 'abyss_' + nextDepth + '_' + Date.now(),
+                isNarrative: true,       // protection anti-expiration
+                isAbyss: true,
+                abyssDepth: nextDepth,
+                createdAt: Date.now(),
+                expiresAt: Date.now() + 365 * 24 * 60 * 60 * 1000,
+                rank: 'S',
+                themeId: theme.id,
+                name: `Abysse · Palier ${nextDepth} — ${bossName}`,
+                modifierId: milestone ? 'worldboss' : modifierId,  // worldboss = légendaire garanti
+                discovered: true,
+                state: 'stable',
+                waves: [{
+                    index: 0, isBoss: true, rank: 'S',
+                    name: bossName, emoji: emoji,
+                    hpMax: hp, hpCurrent: hp,
+                    bossMech: (typeof awakPickBossMechanic === 'function') ? awakPickBossMechanic() : null
+                }],
+                currentWaveIdx: 0,
+                recommendedPower: Math.round(6000 * Math.pow(1.12, nextDepth - 1)),
+                minStatRequired: 80,
+                primaryStat: theme.primaryStat,
+                attempts: 0, completed: false,
+                narrativeData: {
+                    briefing: milestone
+                        ? `Palier ${nextDepth} — un gardien majeur. Vaincs-le : butin légendaire garanti.`
+                        : `Palier ${nextDepth}. Plus tu descends, plus l'Abysse résiste. Récord actuel : ${awakAbyssRecord()}.`,
+                    color: '#7c3aed', emoji: emoji, name: bossName
+                }
+            };
+        }
+
+        // Fait apparaître le palier courant de l'Abysse dans la liste des Failles (si pas déjà là).
+        function awakCheckAbyss() {
+            try {
+                if (!awakAbyssUnlocked()) return null;
+                const rifts = awakRiftsLoad();
+                // Une seule Faille d'Abysse active à la fois
+                if (rifts.some(r => r.isAbyss && !r.completed)) return null;
+                const newRift = awakGenerateAbyssRift();
+                rifts.push(newRift);
+                awakRiftsSave(rifts);
+                return newRift;
+            } catch(e) { return null; }
+        }
+        window.awakCheckAbyss = awakCheckAbyss;
+
+        // À la victoire d'un palier d'Abysse : avancer la profondeur + record, préparer le suivant.
+        function awakOnAbyssDefeated(rift) {
+            try {
+                const depth = rift.abyssDepth || (awakAbyssDepth() + 1);
+                if (depth > awakAbyssDepth()) localStorage.setItem(ABYSS_DEPTH_KEY, String(depth));
+                if (depth > awakAbyssRecord()) localStorage.setItem(ABYSS_RECORD_KEY, String(depth));
+                if (typeof showAlert === 'function') {
+                    const milestone = (depth % 5 === 0);
+                    setTimeout(() => showAlert(
+                        `🕳️ Palier ${depth} franchi`,
+                        milestone
+                            ? `Tu plonges plus loin que jamais. Un palier-jalon vaincu — l'Abysse te récompense, mais elle n'a pas de fond. Profondeur record : ${awakAbyssRecord()}.`
+                            : `Tu descends toujours plus profond. Profondeur record : ${awakAbyssRecord()}. Le palier suivant t'attend quand tu seras prêt.`
+                    ), 2200);
+                }
+                // Préparer le palier suivant peu après
+                setTimeout(() => { try { awakCheckAbyss(); } catch(e) {} }, 6000);
+            } catch(e) {}
+        }
+        window.awakOnAbyssDefeated = awakOnAbyssDefeated;
+
+        // Ouvre l'Abysse : s'assure que le palier courant existe, puis lance sa Faille.
+        function awakOpenAbyss() {
+            try {
+                if (!awakAbyssUnlocked()) return;
+                let rifts = awakRiftsLoad();
+                let abyssRift = rifts.find(r => r.isAbyss && !r.completed);
+                if (!abyssRift) {
+                    abyssRift = awakCheckAbyss();
+                    rifts = awakRiftsLoad();
+                    abyssRift = rifts.find(r => r.isAbyss && !r.completed) || abyssRift;
+                }
+                if (abyssRift && typeof awakStartRift === 'function') {
+                    awakStartRift(abyssRift.id);
+                }
+            } catch(e) {}
+        }
+        window.awakOpenAbyss = awakOpenAbyss;
 
         // ═══ 👹 BOSS HEBDOMADAIRE (rang S) ═══
         // Une entité colossale par semaine, la même pour tous (déterministe).
@@ -28824,6 +29298,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
          * Appelée après chaque événement majeur (rank up, fin faille)
          */
         function awakCheckNarrativeRifts() {
+            if (typeof getAdventureEnabled === 'function' && !getAdventureEnabled()) return null;
             const seen = awakNarrativeRiftsSeenLoad();
             const rifts = awakRiftsLoad();
             // Pas plus d'une faille narrative active à la fois
@@ -30312,7 +30787,32 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         const XP_MAX_REPS_PER_SET = 100;     // au-delà = improbable physiquement
         const XP_MAX_PER_SET      = 250;     // hard cap par série
         const XP_MAX_PER_WORKOUT  = 3000;    // hard cap par séance entière
+        const XP_MAX_PER_DAY      = 9000;    // hard cap quotidien (≈ 3 séances pleines)
         const XP_WORKOUT_TRACKING_KEY = 'fitproWorkoutXpTracker';
+        const XP_DAILY_TRACKING_KEY   = 'fitproDailyXpTracker';
+
+        // Clé de date locale (YYYY-MM-DD) pour le reset quotidien à minuit
+        function _xpTodayKey() {
+            const d = new Date();
+            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        }
+        function rpgGetDailyXpEarned() {
+            try {
+                const data = JSON.parse(localStorage.getItem(XP_DAILY_TRACKING_KEY) || 'null');
+                if (!data || data.day !== _xpTodayKey()) return 0; // nouveau jour → reset
+                return data.xp || 0;
+            } catch(e) { return 0; }
+        }
+        function rpgAddDailyXpEarned(xp) {
+            try {
+                const today = _xpTodayKey();
+                let data = JSON.parse(localStorage.getItem(XP_DAILY_TRACKING_KEY) || 'null');
+                if (!data || data.day !== today) data = { day: today, xp: 0 };
+                data.xp += xp;
+                localStorage.setItem(XP_DAILY_TRACKING_KEY, JSON.stringify(data));
+            } catch(e) {}
+        }
+        window.rpgGetDailyXpEarned = rpgGetDailyXpEarned;
 
         function rpgGetWorkoutXpEarned() {
             try {
@@ -30393,9 +30893,23 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     xpGained = XP_MAX_PER_WORKOUT - earnedThisWorkout;
                 }
 
+                // 🛡️ Cap QUOTIDIEN : ≈ 3 séances pleines par jour, reset à minuit
+                const earnedToday = rpgGetDailyXpEarned();
+                if (earnedToday >= XP_MAX_PER_DAY) {
+                    if (!window._xpDailyCapShownDay || window._xpDailyCapShownDay !== _xpTodayKey()) {
+                        rpgShowXPPop(0, muscle, '🌙 Plafond du jour atteint — repos mérité !');
+                        window._xpDailyCapShownDay = _xpTodayKey();
+                    }
+                    return;
+                }
+                if (earnedToday + xpGained > XP_MAX_PER_DAY) {
+                    xpGained = XP_MAX_PER_DAY - earnedToday;
+                }
+
                 if (xpGained <= 0) return;
 
                 rpgAddWorkoutXpEarned(xpGained);
+                rpgAddDailyXpEarned(xpGained);
 
                 const data = rpgLoad();
                 if (!data.muscles[muscle]) data.muscles[muscle] = { xp: 0, lastTrained: null };
@@ -30873,6 +31387,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             clearInterval(timerInterval);
             releaseWakeLock();
             if (currentWorkout) currentWorkout._completed = true;
+            // 👑 COMBAT FINAL : si c'était le Monarque, marquer la victoire pour l'épilogue
+            const _wasFinalBoss = currentWorkout && currentWorkout._isFinalBoss;
+            if (_wasFinalBoss && typeof awakOnFinalBossComplete === 'function') {
+                try { awakOnFinalBossComplete(); } catch(e) {}
+                try { setTimeout(() => awakShowFinalBossVictory(), 2500); } catch(e) {}
+            }
             clearActiveWorkoutState(); // Nettoyer l'état de séance persisté
             exitFullscreenMode(); // Sortir du plein écran
             // Sauvegarder une copie des séries AVANT le nettoyage par saveSessionSets
@@ -30930,6 +31450,43 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             try {
                 if (typeof awakCheckCompanionRifts === 'function') {
                     setTimeout(() => { try { awakCheckCompanionRifts(); } catch(e) {} }, 5000);
+                }
+            } catch(e) {}
+
+            // 🩸 AWAKENED — Apparition des Quatre Épreuves (sous-boss en séquence avant le boss final)
+            try {
+                if (typeof awakCheckSubBosses === 'function') {
+                    setTimeout(() => { try { awakCheckSubBosses(); } catch(e) {} }, 5400);
+                }
+            } catch(e) {}
+
+            // 🕳️ AWAKENED — Apparition du palier d'Abysse (descente infinie post-Monarque)
+            try {
+                if (typeof awakCheckAbyss === 'function') {
+                    setTimeout(() => { try { awakCheckAbyss(); } catch(e) {} }, 5800);
+                }
+            } catch(e) {}
+
+            // 🔧 AWAKENED — Migration : répare les Failles de compagnon complétées par une
+            // ancienne version (champs isCompanionRift/companionRiftId/companionId manquants),
+            // puis redéclenche le déblocage manqué (sinon le compagnon reste inaccessible).
+            try {
+                if (typeof COMPANION_RIFTS !== 'undefined' && typeof awakRiftsLoad === 'function') {
+                    const _rifts = awakRiftsLoad();
+                    let _changed = false;
+                    _rifts.forEach(r => {
+                        const cr = COMPANION_RIFTS.find(c => (r.id && r.id.indexOf(c.id) !== -1) || r.name === c.name);
+                        if (cr) {
+                            if (!r.isCompanionRift) { r.isCompanionRift = true; _changed = true; }
+                            if (!r.companionRiftId) { r.companionRiftId = cr.id; _changed = true; }
+                            if (!r.companionId) { r.companionId = cr.companionId; _changed = true; }
+                        }
+                    });
+                    if (_changed) awakRiftsSave(_rifts);
+                    // Si une Faille de compagnon est complétée mais le compagnon pas encore débloqué → rattraper
+                    if (typeof awakCompanionsTriggerUnlockCheck === 'function') {
+                        setTimeout(() => { try { awakCompanionsTriggerUnlockCheck(); } catch(e) {} }, 6500);
+                    }
                 }
             } catch(e) {}
 

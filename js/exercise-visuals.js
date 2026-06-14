@@ -701,6 +701,13 @@ function generic_muscle(muscle, phase) {
 // ── IMAGE MAP — exercices avec vraies images ─────────────────────────
 // Clé = nom exact de l'exercice, valeur = chemin du fichier image
 var EXERCISE_IMAGES = {
+  'Barbell Row prise large':        'images/exercises/Barbell_Row.webp',  // partagée
+  'Glute Bridge':                   'images/exercises/Glute_bridge_léger.webp',  // partagée
+  'Rowing Sprint':                 'images/exercises/Rowing_sprint.webp',
+  'Curl incliné':                  'images/exercises/Curl_incliné.webp',
+  'Curl câble unilatéral':         'images/exercises/Curl_câble_unilatéral.webp',
+  'Étirement ischio assis':        'images/exercises/Étirement_ischio_assis.webp',
+  'Étirement ischio debout':       'images/exercises/Étirement_ischio_debout.webp',
   'Ab Wheel Knee Rollout':         'images/exercises/Ab_wheel_knee_rollout.webp',
   'Ab Wheel Rollout':              'images/exercises/Ab_wheel_rollout.webp',
   'Abduction machine (fessiers)':  'images/exercises/Abduction_machine__fessiers_.webp',
@@ -800,7 +807,6 @@ var EXERCISE_IMAGES = {
   'Étirement triceps':             'images/exercises/Étirement_triceps.webp',
   'Étirement triceps au-dessus tête': 'images/exercises/Étirement_triceps_au-dessus_tête.webp',
   'Étirement triceps coude haut':  'images/exercises/Étirement_triceps_coude_haut.webp',
-  'Face pull élastique':           'images/exercises/Face_pull_elastique.webp',
   'Flexions de poignets':          'images/exercises/Flexions_de_poignets.webp',
   'Flexions extensions bras':      'images/exercises/Flexions_extensions_bras.webp',
   'Jump Rope Basic':               'images/exercises/Jump_Rope_Basic.webp',
@@ -809,7 +815,7 @@ var EXERCISE_IMAGES = {
   'Jumping Jacks légers':          'images/exercises/Jumping_Jacks_légers.webp',
   'Jumping jacks':                 'images/exercises/Jumping_jacks.webp',
   'Kettlebell Clean':              'images/exercises/Kettlebell_Clean.webp',
-  'Kettlebell Goblet Squat':       'images/exercises/Kettlebell_Goblet_Squat.webp',
+  'Goblet Squat':                  'images/exercises/Kettlebell_Goblet_Squat.webp',
   'Kettlebell Snatch':             'images/exercises/Kettlebell_Snatch.webp',
   'Kettlebell Windmill':           'images/exercises/Kettlebell_Windmill.webp',
   'Marche sur place':              'images/exercises/Marche_sur_place.webp',
