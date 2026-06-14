@@ -20,7 +20,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=318">
+    <link rel="stylesheet" href="css/style.css?v=332">
 </head>
 <body>
 
@@ -177,7 +177,7 @@
                 max-width: 900px;">
 
             <!-- Bannière image : ratio préservé -->
-            <img src="images/banner.png?v=318"
+            <img src="images/banner.png?v=332"
                  alt="Awakened Elite Fitness"
                  style="width:100%;height:auto;display:block;" />
 
@@ -2599,8 +2599,8 @@
                     • <strong>Réinitialiser</strong> : Supprime TOUTES les données de TOUS les profils (irréversible !)
                 </div>
 
-                <!-- 🔧 Mode développeur (test de l'histoire) -->
-                <div style="margin-top: 20px; padding: 16px; background: rgba(168,85,247,0.06); border-radius: 10px; border: 1px dashed rgba(168,85,247,0.4);">
+                <!-- 🔧 Mode développeur (réservé à AdminMarc) -->
+                <div id="devModePanel" style="display:none; margin-top: 20px; padding: 16px; background: rgba(168,85,247,0.06); border-radius: 10px; border: 1px dashed rgba(168,85,247,0.4);">
                     <div style="font-weight: 800; color: #a855f7; font-size: 0.85em; letter-spacing: 1px; margin-bottom: 4px;">🔧 MODE DÉVELOPPEUR</div>
                     <div style="font-size: 0.78em; color: #94a3b8; margin-bottom: 12px;">Outils de test pour visualiser l'histoire et la progression. Le mode jeu doit être activé.</div>
                     <div style="display: flex; gap: 8px; flex-wrap: wrap;">
@@ -2611,6 +2611,9 @@
                             <span>⏫ +5 Niveaux</span>
                         </button>
                     </div>
+                    <button class="btn" onclick="awakAdminToggleInvincible()" id="devInvincibleBtn" style="width:100%; margin-top:8px; background: linear-gradient(135deg,#dc2626,#991b1b); display:flex; align-items:center; justify-content:center; gap:8px;">
+                        <span>🛡️ Invincibilité : OFF</span>
+                    </button>
                     <button class="btn" onclick="awakAdminResetStory()" style="width:100%; margin-top:8px; background: linear-gradient(135deg,#475569,#334155); display:flex; align-items:center; justify-content:center; gap:8px;">
                         <span>🔄 Réinitialiser l'histoire (revoir les événements)</span>
                     </button>
@@ -3540,17 +3543,18 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/exercises.js?v=318"></script>
-    <script src="data/items.js?v=318"></script>
-    <script src="js/adventure.js?v=318"></script>
-    <script src="js/challenges.js?v=318"></script>
-    <script src="js/exercise-visuals.js?v=318"></script>
-    <script src="js/strength-standards.js?v=318"></script>
-    <script src="js/system-cards.js?v=318"></script>
-    <script src="js/share-card.js?v=318"></script>
-    <script src="js/story-events.js?v=318"></script>
-    <script src="js/final-boss.js?v=318"></script>
-    <script src="js/app.js?v=318"></script>
+    <script src="js/exercises.js?v=332"></script>
+    <script src="data/items.js?v=332"></script>
+    <script src="js/adventure.js?v=332"></script>
+    <script src="js/economy.js?v=332"></script>
+    <script src="js/challenges.js?v=332"></script>
+    <script src="js/exercise-visuals.js?v=332"></script>
+    <script src="js/strength-standards.js?v=332"></script>
+    <script src="js/system-cards.js?v=332"></script>
+    <script src="js/share-card.js?v=332"></script>
+    <script src="js/story-events.js?v=332"></script>
+    <script src="js/final-boss.js?v=332"></script>
+    <script src="js/app.js?v=332"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>

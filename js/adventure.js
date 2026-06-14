@@ -1406,6 +1406,8 @@ function showRPGEquipmentModal(defaultTab) {
 
     let selectedInvId = null;
     let selectedItem  = null;
+    let invRarityFilter = 'all'; // filtre d'inventaire par rareté ('all' ou un id de rareté)
+    let invSlotFilter = 'all';   // filtre d'inventaire par emplacement ('all' ou un id de slot)
 
     // ─── Layout des slots autour du personnage ───────────────────────
     // L = gauche, R = droite (chaque côté = liste verticale)
@@ -1638,12 +1640,69 @@ function showRPGEquipmentModal(defaultTab) {
         const inv = getInventory();
         const eq = getEquipped();
         const equippedIds = new Set(Object.values(eq).filter(Boolean));
-        const itemsList = inv.map(entry => ({ entry, item: getItemById(entry.itemId) })).filter(x => x.item);
+        const allItems = inv.map(entry => ({ entry, item: getItemById(entry.itemId) })).filter(x => x.item);
+
+        // ─── Barre de filtres par rareté ───────────────────────────────
+        const rarityOrder = ['common','uncommon','rare','superior','epic','legendary','mythic'];
+        // Items déjà filtrés par EMPLACEMENT (pour que les compteurs de rareté soient cohérents)
+        const bySlotForRarity = invSlotFilter === 'all'
+            ? allItems
+            : allItems.filter(({item}) => item.slot === invSlotFilter);
+        const counts = {};
+        bySlotForRarity.forEach(({item}) => { counts[item.rarity] = (counts[item.rarity] || 0) + 1; });
+        const presentRarities = rarityOrder.filter(r => counts[r] > 0);
+
+        const filterBtn = (onclick, id, activeId, label, color, count) => {
+            const isActive = activeId === id;
+            return `<button onclick="${onclick}('${id}')" style="
+                background:${isActive ? (color||'#22c55e')+'30' : 'rgba(255,255,255,0.03)'};
+                border:1.5px solid ${isActive ? (color||'#22c55e') : 'rgba(255,255,255,0.1)'};
+                color:${isActive ? (color||'#22c55e') : '#94a3b8'};
+                border-radius:7px;padding:4px 9px;font-size:0.62em;font-weight:800;letter-spacing:0.5px;
+                cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all 0.15s;">
+                ${label}${count !== null ? ` <span style="opacity:0.7;">${count}</span>` : ''}
+            </button>`;
+        };
+
+        let rarityBar = `<div style="display:flex;gap:5px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:0 6px 8px;">`;
+        rarityBar += filterBtn('window._rpgInvFilter', 'all', invRarityFilter, 'TOUT', '#22c55e', bySlotForRarity.length);
+        presentRarities.forEach(r => {
+            const info = getRarityInfo(r);
+            rarityBar += filterBtn('window._rpgInvFilter', r, invRarityFilter, (info.labelFull || r).toUpperCase(), info.color, counts[r]);
+        });
+        rarityBar += `</div>`;
+
+        // ─── Barre de filtres par EMPLACEMENT ──────────────────────────
+        const slotOrder = ['head','chest','hands','legs','feet','weapon','accessory'];
+        const slotLabels = { head:'⛑️ Tête', chest:'🛡️ Torse', hands:'🥊 Mains', legs:'🦵 Jambes', feet:'👟 Pieds', weapon:'⚔️ Arme', accessory:'💍 Accessoire' };
+        // Items déjà filtrés par RARETÉ (pour que les compteurs d'emplacement soient cohérents)
+        const byRarityForSlot = invRarityFilter === 'all'
+            ? allItems
+            : allItems.filter(({item}) => item.rarity === invRarityFilter);
+        const slotCounts = {};
+        byRarityForSlot.forEach(({item}) => { slotCounts[item.slot] = (slotCounts[item.slot] || 0) + 1; });
+        const presentSlots = slotOrder.filter(s => slotCounts[s] > 0);
+
+        let slotBar = `<div style="display:flex;gap:5px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:0 6px 10px;">`;
+        slotBar += filterBtn('window._rpgInvSlotFilter', 'all', invSlotFilter, 'TOUS', '#38bdf8', byRarityForSlot.length);
+        presentSlots.forEach(s => {
+            slotBar += filterBtn('window._rpgInvSlotFilter', s, invSlotFilter, slotLabels[s] || s, '#38bdf8', slotCounts[s]);
+        });
+        slotBar += `</div>`;
+
+        const filterBar = rarityBar + slotBar;
+
+        // ─── Appliquer les DEUX filtres (combinés) ─────────────────────
+        const itemsList = allItems.filter(({item}) =>
+            (invRarityFilter === 'all' || item.rarity === invRarityFilter) &&
+            (invSlotFilter === 'all'   || item.slot   === invSlotFilter)
+        );
 
         const SLOT_COUNT = 35; // 5 colonnes × 7 lignes
         const emptySlots = Math.max(0, SLOT_COUNT - itemsList.length);
 
-        return `<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:6px;">
+        const grid = `<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:6px;">
+            ${itemsList.length === 0 ? `<div style="grid-column:1/-1;text-align:center;color:#475569;font-size:0.72em;padding:24px 0;">Aucun objet de cette rareté</div>` : ''}
             ${itemsList.map(({entry, item}) => {
                 const isEq = equippedIds.has(entry.id);
                 const r2 = getRarityInfo(item.rarity);
@@ -1666,6 +1725,8 @@ function showRPGEquipmentModal(defaultTab) {
                 <div style="aspect-ratio:1;border-radius:6px;background:rgba(34,197,94,0.025);border:1px dashed rgba(34,197,94,0.15);"></div>
             `).join('')}
         </div>`;
+
+        return filterBar + grid;
     }
 
     function rebuild() {
@@ -1725,13 +1786,37 @@ function showRPGEquipmentModal(defaultTab) {
                 <button onclick="openInventoryCleanupModal()" style="position:absolute;top:4px;right:6px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:6px;padding:3px 9px;font-size:0.55em;font-weight:900;letter-spacing:1.5px;cursor:pointer;text-transform:uppercase;display:flex;align-items:center;gap:4px;">
                     🗑️ Nettoyer
                 </button>
-                ${renderInventoryGrid()}
+                <div id="rpgInvGridContainer">${renderInventoryGrid()}</div>
             </div>
 
         </div>`;
     }
 
     // ─── Handlers globaux ────────────────────────────────────────────
+    // 🔍 Filtre d'inventaire par rareté
+    window._rpgInvFilter = function(rarityId) {
+        invRarityFilter = rarityId;
+        const invContainer = document.getElementById('rpgInvGridContainer');
+        if (invContainer) {
+            invContainer.innerHTML = renderInventoryGrid();
+        } else {
+            const m = document.getElementById('rpgEqContent');
+            if (m) m.innerHTML = renderFullLayout();
+        }
+    };
+
+    // 🔍 Filtre d'inventaire par emplacement
+    window._rpgInvSlotFilter = function(slotId) {
+        invSlotFilter = slotId;
+        const invContainer = document.getElementById('rpgInvGridContainer');
+        if (invContainer) {
+            invContainer.innerHTML = renderInventoryGrid();
+        } else {
+            const m = document.getElementById('rpgEqContent');
+            if (m) m.innerHTML = renderFullLayout();
+        }
+    };
+
     window._rpgEqSelectSlot = function(slotId) {
         const eqItems = getEquippedItems();
         const item = eqItems[slotId];

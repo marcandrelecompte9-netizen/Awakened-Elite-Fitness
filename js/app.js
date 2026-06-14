@@ -10768,6 +10768,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         return;
                     }
                     damageResult = awakDealDamageToWave(reps, weight);
+                    // 💎 Compter la série pour le calcul des minéraux (effort réel)
+                    if (awakActiveRiftSession && typeof awakActiveRiftSession.setsCompleted === 'number') {
+                        awakActiveRiftSession.setsCompleted++;
+                    }
                 } else if (isHunt) {
                     if (!awakActiveHuntSession) {
                         showToast('⚠️ Session chasse perdue', 'error', 2500);
@@ -18049,6 +18053,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
         function switchTab(tabName) {
             if (tabName === 'history' && rpgEnabled()) setTimeout(renderRPGPanel, 50);
+            if (tabName === 'settings') setTimeout(() => { if (typeof awakRefreshDevPanel === 'function') awakRefreshDevPanel(); }, 50);
             if (tabName === 'game') setTimeout(() => {
                 renderGameTab();
             }, 50);
@@ -22550,6 +22555,28 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 }
             } catch(e) {}
 
+            // ── 🛒 LE MARCHAND — vendre minéraux, acheter consommables & équipement ──
+            try {
+                if (window.AwakEconomy) {
+                    const gold = window.AwakEconomy.getGold();
+                    const mineralsValue = window.AwakEconomy.getMineralsTotalValue();
+                    const cardShop = document.createElement('div');
+                    cardShop.style.cssText = 'margin-top:10px;background:linear-gradient(135deg,rgba(251,191,36,0.13),rgba(30,20,5,0.4));border:1.5px solid rgba(251,191,36,0.4);border-radius:16px;padding:16px;cursor:pointer;position:relative;overflow:hidden;';
+                    cardShop.onclick = function(){ if (typeof awakOpenMerchant === 'function') awakOpenMerchant(); };
+                    cardShop.innerHTML = `
+                        <div style="display:flex;align-items:center;gap:13px;">
+                            <div style="font-size:2.4em;flex-shrink:0;">🛒</div>
+                            <div style="flex:1;min-width:0;">
+                                <div style="font-family:'Rajdhani',sans-serif;font-size:0.62em;letter-spacing:2px;color:#fbbf24;font-weight:700;text-transform:uppercase;">Échoppe itinérante</div>
+                                <div style="font-family:'Rajdhani',sans-serif;font-size:1.2em;font-weight:700;color:#fff;letter-spacing:1px;">Le Marchand</div>
+                                <div style="font-size:0.74em;color:#94a3b8;margin-top:2px;">💰 ${gold} or${mineralsValue > 0 ? ` · 💎 ${mineralsValue} or à récolter` : ''}</div>
+                            </div>
+                            <div style="font-size:1.4em;color:#fbbf24;flex-shrink:0;">▾</div>
+                        </div>`;
+                    tab.appendChild(cardShop);
+                }
+            } catch(e) {}
+
             // ── 👁️ JAUGE DU MONARQUE DU DÉCLIN [ANCIENNE HISTOIRE — MASQUÉE] ───
             // Remplacée par la nouvelle histoire « Le Monde qui s'efface ».
             try {
@@ -23577,6 +23604,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             { id:'iron_will',    name:'Volonté de Fer',     emoji:'💪', desc:'+10% XP sur tous les muscles',           req:{level:3},  effect:{xpAll:0.10}, type:'base' },
             { id:'compound_pro', name:'Maître Compound',    emoji:'🏋️', desc:'+25% XP sur exercices polyarticulaires', req:{level:8},  effect:{xpCompound:0.25}, type:'base' },
             { id:'streak_lord',  name:'Seigneur du Streak', emoji:'🔥', desc:'Streak bonus commence dès 2 jours',      req:{level:12}, effect:{streakStart:2}, type:'base' },
+            { id:'prospector',   name:'Prospecteur',        emoji:'⛏️', desc:'+30% de minéraux trouvés dans les Failles', req:{level:15}, effect:{mineralBonus:0.30}, type:'base' },
             { id:'no_decay',     name:'Corps d\'Acier',     emoji:'🛡️', desc:'Grace de 10 jours avant le decay',       req:{level:18}, effect:{graceExtend:3}, type:'base' },
             { id:'xp_surge',     name:'Sursaut d\'XP',      emoji:'⚡', desc:'+30% XP global permanent',               req:{level:30}, effect:{xpAll:0.30}, type:'base' },
             // ── ENDGAME : pouvoirs de palier (niv 40 → 120) ──
@@ -23665,6 +23693,14 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         function rpgGetUnlockedSkills() {
             try { return JSON.parse(localStorage.getItem('fitproRPGSkills')||'[]'); } catch(e) { return []; }
         }
+
+        // 💎 Bonus prospecteur issu de la compétence (lu par economy.js).
+        function awakGetProspectorSkillBonus() {
+            try {
+                return rpgGetUnlockedSkills().includes('prospector') ? 0.30 : 0;
+            } catch(e) { return 0; }
+        }
+        window.awakGetProspectorSkillBonus = awakGetProspectorSkillBonus;
         function rpgUnlockSkill(skillId) {
             const skills = rpgGetUnlockedSkills();
             if (skills.includes(skillId)) return;
@@ -24160,6 +24196,57 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             } catch(e) { return 0; }
         }
         window.awakAdminResetStory = awakAdminResetStory;
+
+        // ═══════════════════════════════════════════════════════════════
+        // 🔧 MODE DÉVELOPPEUR — réservé au profil nommé "AdminMarc"
+        // ═══════════════════════════════════════════════════════════════
+        const DEV_PROFILE_NAME = 'AdminMarc';
+
+        // Le profil actuel est-il le développeur ?
+        function awakIsDevUser() {
+            try {
+                const profile = (typeof getCurrentProfile === 'function') ? getCurrentProfile() : null;
+                return !!(profile && profile.name && profile.name.trim() === DEV_PROFILE_NAME);
+            } catch(e) { return false; }
+        }
+        window.awakIsDevUser = awakIsDevUser;
+
+        // Affiche/masque le panneau développeur selon le nom du profil.
+        // Appelée à l'ouverture des réglages et au chargement.
+        function awakRefreshDevPanel() {
+            try {
+                const panel = document.getElementById('devModePanel');
+                if (!panel) return;
+                panel.style.display = awakIsDevUser() ? 'block' : 'none';
+                // Synchroniser le libellé du bouton d'invincibilité
+                const btn = document.getElementById('devInvincibleBtn');
+                if (btn) {
+                    const on = awakIsInvincible();
+                    btn.querySelector('span').textContent = `🛡️ Invincibilité : ${on ? 'ON' : 'OFF'}`;
+                    btn.style.background = on
+                        ? 'linear-gradient(135deg,#16a34a,#15803d)'
+                        : 'linear-gradient(135deg,#dc2626,#991b1b)';
+                }
+            } catch(e) {}
+        }
+        window.awakRefreshDevPanel = awakRefreshDevPanel;
+
+        // 🛡️ Invincibilité (dev) : état persistant
+        function awakIsInvincible() {
+            return awakIsDevUser() && localStorage.getItem('awakDevInvincible') === '1';
+        }
+        window.awakIsInvincible = awakIsInvincible;
+
+        function awakAdminToggleInvincible() {
+            if (!awakIsDevUser()) return; // sécurité : seul AdminMarc peut l'activer
+            const on = localStorage.getItem('awakDevInvincible') === '1';
+            localStorage.setItem('awakDevInvincible', on ? '0' : '1');
+            awakRefreshDevPanel();
+            if (typeof showToast === 'function') {
+                showToast(on ? '🛡️ Invincibilité désactivée' : '🛡️ Invincibilité activée — tu ne subis plus de dégâts', on ? 'info' : 'success', 2500);
+            }
+        }
+        window.awakAdminToggleInvincible = awakAdminToggleInvincible;
 
         function awakGetRank() {
             const level = _awakGetCurrentLevel();
@@ -25514,6 +25601,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             { id:'echo',      name:'Écho',        emoji:'🪞', color:'#06b6d4', weight:6,
               desc:'Tout est dédoublé. Plus de monstres, plus d\'XP. Le combat sera long.',
               hpMult:0.7, xpMult:1.8, hideHp:false, extraWave:true },
+            { id:'lode',      name:'Filon',       emoji:'💎', color:'#10b981', weight:8,
+              desc:'Une veine de minéraux affleure dans cette Faille. Récolte triplée pour qui la ferme.',
+              hpMult:1.1, xpMult:1.2, hideHp:false, mineralMult:3.0 },
+            { id:'motherlode',name:'Filon Majeur',emoji:'🏆', color:'#fbbf24', weight:3, rankMin:'B',
+              desc:'Un gisement d\'une richesse exceptionnelle. La récolte de minéraux est quintuplée.',
+              hpMult:1.25, xpMult:1.3, hideHp:false, mineralMult:5.0 },
             // ── MUTATIONS RANG A+ : règles de combat altérées (débloquées au rang A) ──
             { id:'bloodmoon', name:'Lune de Sang', emoji:'🌕', color:'#dc2626', weight:8, rankMin:'A',
               desc:'Aucun soin entre les vagues. Chaque point de vie compte. XP plus que doublée.',
@@ -26159,6 +26252,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 theme,
                 startTime: Date.now(),
                 totalDamageDealt: 0,
+                setsCompleted: 0,
                 exercisesUsed: [],
                 workout: null
             };
@@ -26662,6 +26756,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             // ⚔️ STR : multiplicateur dégâts global (toujours actif)
             finalDamage *= bonuses.damageMult;
 
+            // 🥋 MAÎTRISE DE COMBAT : bonus de dégâts selon le type d'effort de l'exercice
+            // (force / cardio / explosif). Achetée chez le marchand — récompense la spécialisation.
+            if (window.AwakEconomy && typeof window.AwakEconomy.getMasteryDamageMult === 'function') {
+                finalDamage *= window.AwakEconomy.getMasteryDamageMult(effortType);
+            }
+
             // 👁️ PER : bonus dégâts contre boss
             if (currentWave.isBoss && bonuses.bossBonus > 0) {
                 finalDamage *= (1 + bonuses.bossBonus);
@@ -26877,7 +26977,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                             if (!s) return;
                             if (typeof s.playerHP !== 'number') s.playerHP = awakGetPlayerMaxHP();
                             const burn = Math.round(awakGetPlayerMaxHP() * _rmod.eruptPct);
-                            s.playerHP = Math.max(1, s.playerHP - burn);
+                            if (!(typeof awakIsInvincible === 'function' && awakIsInvincible())) s.playerHP = Math.max(1, s.playerHP - burn);
                             if (typeof showToast === 'function') showToast(`🌋 ÉRUPTION ! La vague explose : -${burn} HP`, 'error', 2600);
                             const _el = document.getElementById('playerHpBar');
                             const _tx = document.getElementById('playerHpText');
@@ -27033,6 +27133,18 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 }
             } catch(e) {}
 
+            // 💎 DROP DE MINÉRAUX (vendables au marchand) — selon les SÉRIES complétées (effort réel)
+            let mineralDrops = [];
+            try {
+                if (window.AwakEconomy && !awakIsSoloRift(rift)) {
+                    const setsDone = (awakActiveRiftSession && awakActiveRiftSession.setsCompleted) || 0;
+                    // 💎 Modificateur "Filon" : multiplie la récolte de minéraux
+                    const _mineralMod = (typeof awakGetRiftModifier === 'function') ? awakGetRiftModifier(rift.modifierId) : null;
+                    const _mineralMult = (_mineralMod && _mineralMod.mineralMult) ? _mineralMod.mineralMult : 1;
+                    mineralDrops = window.AwakEconomy.dropMineralsForRift(rift.rank, grade, setsDone, _mineralMult);
+                }
+            } catch(e) {}
+
             document.getElementById('awakRiftCombatModal')?.remove();
             const modal = document.createElement('div');
             modal.id = 'awakRiftRewardModal';
@@ -27081,6 +27193,24 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                                     <div style="font-size:0.68em;color:${lr.color};font-weight:800;">Rareté ${lr.label} · exclusif Faille</div>
                                 </div>
                             </div>
+                        </div>`;
+                    })() : ''}
+
+                    ${(mineralDrops && mineralDrops.length && window.AwakEconomy) ? (() => {
+                        const MT = window.AwakEconomy.MINERAL_TYPES;
+                        const rows = mineralDrops.map(d => {
+                            const t = MT[d.type];
+                            if (!t) return '';
+                            return `<div style="display:flex;align-items:center;gap:8px;">
+                                <span style="font-size:1.3em;">${t.icon}</span>
+                                <span style="color:${t.color};font-weight:800;font-size:0.85em;">${t.name}</span>
+                                <span style="color:#94a3b8;font-weight:900;font-size:0.85em;margin-left:auto;">×${d.qty}</span>
+                            </div>`;
+                        }).join('');
+                        return `<div style="margin-top:12px;background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(251,191,36,0.03));border:1.5px solid rgba(251,191,36,0.4);border-radius:14px;padding:14px;animation:awakFadeIn 0.6s ease 0.45s both;">
+                            <div style="font-size:0.58em;color:#fbbf24;font-weight:900;letter-spacing:2px;margin-bottom:8px;">💎 MINÉRAUX EXTRAITS</div>
+                            <div style="display:flex;flex-direction:column;gap:6px;">${rows}</div>
+                            <div style="font-size:0.62em;color:#64748b;margin-top:8px;font-style:italic;">À vendre au marchand contre de l'or.</div>
                         </div>`;
                     })() : ''}
 
@@ -28200,7 +28330,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     return awakEmptyCompanionBonuses();
                 }
             } catch(e) {}
-            const active = awakCompanionsGetActive();
+            // 🚶 Exclure les compagnons PARTIS en mission : indisponibles tant qu'ils ne sont pas rentrés.
+            const onMission = (typeof awakGetCompanionsOnMission === 'function') ? awakGetCompanionsOnMission() : [];
+            const active = awakCompanionsGetActive().filter(id => !onMission.includes(id));
             const bonuses = {
                 STR: 0, AGI: 0, VIT: 0, END: 0, PER: 0, SEN: 0,
                 critChance: 0, dmgBoss: 0, bossHpCut: 0, riftDurationCut: 0,
@@ -28258,6 +28390,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             if (idx >= 0) {
                 active.splice(idx, 1);
             } else {
+                // 🚶 Interdit d'activer un compagnon parti en mission (indisponible jusqu'au retour)
+                const onMission = (typeof awakGetCompanionsOnMission === 'function') ? awakGetCompanionsOnMission() : [];
+                if (onMission.includes(compId)) {
+                    if (typeof showToast === 'function') showToast('Ce compagnon est parti fermer une Faille — indisponible jusqu\'à son retour', 'warning', 3200);
+                    return false;
+                }
                 if (active.length >= COMPANIONS_MAX_ACTIVE) {
                     if (typeof showToast === 'function') showToast(`Max ${COMPANIONS_MAX_ACTIVE} compagnons actifs`, 'warning', 2500);
                     return false;
@@ -28722,7 +28860,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     const s = (typeof awakActiveRiftSession !== 'undefined') ? awakActiveRiftSession : null;
                     if (s && typeof s.playerHP === 'number' && typeof awakGetPlayerMaxHP === 'function') {
                         const drain = Math.round(awakGetPlayerMaxHP() * 0.06);
-                        s.playerHP = Math.max(1, s.playerHP - drain);
+                        if (!(typeof awakIsInvincible === 'function' && awakIsInvincible())) s.playerHP = Math.max(1, s.playerHP - drain);
                         toasts.push({ msg: `🩸 Il te draine : -${drain} HP. Tue-le VITE !`, type: 'error' });
                         const el = document.getElementById('playerHpBar');
                         const tx = document.getElementById('playerHpText');
@@ -28881,6 +29019,202 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             } catch(e) {}
         }
         window.awakOpenAbyss = awakOpenAbyss;
+
+        // ═══════════════════════════════════════════════════════════════
+        // 🛒 LE MARCHAND — interface (vendre minéraux / consommables / équipement)
+        // ═══════════════════════════════════════════════════════════════
+        let _merchantTab = 'sell'; // 'sell' | 'consumables' | 'equipment'
+
+        function awakOpenMerchant() {
+            if (!window.AwakEconomy) return;
+            document.getElementById('awakMerchantModal')?.remove();
+            const modal = document.createElement('div');
+            modal.id = 'awakMerchantModal';
+            modal.className = 'modal active';
+            modal.style.cssText = 'background:rgba(0,0,0,0.92);backdrop-filter:blur(10px);align-items:flex-start;padding:12px 12px 40px;overflow-y:auto;-webkit-overflow-scrolling:touch;';
+            modal.innerHTML = awakRenderMerchant();
+            document.body.appendChild(modal);
+        }
+        window.awakOpenMerchant = awakOpenMerchant;
+
+        function awakRenderMerchant() {
+            const E = window.AwakEconomy;
+            const gold = E.getGold();
+            const tabBtn = (id, label, icon) => {
+                const on = _merchantTab === id;
+                return `<button onclick="_merchantSwitchTab('${id}')" style="flex:1;background:${on?'rgba(251,191,36,0.18)':'rgba(255,255,255,0.03)'};border:1.5px solid ${on?'#fbbf24':'rgba(255,255,255,0.1)'};color:${on?'#fbbf24':'#94a3b8'};border-radius:9px;padding:9px 4px;font-size:0.68em;font-weight:800;letter-spacing:0.5px;cursor:pointer;">${icon}<br>${label}</button>`;
+            };
+            let body = '';
+            if (_merchantTab === 'sell') body = awakRenderMerchantSell();
+            else if (_merchantTab === 'consumables') body = awakRenderMerchantConsumables();
+            else if (_merchantTab === 'masteries') body = awakRenderMerchantMasteries();
+            else body = awakRenderMerchantEquipment();
+
+            return `
+            <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#1a1407,#0F1014);border:1px solid rgba(251,191,36,0.4);padding:0;overflow:hidden;border-radius:20px;margin:auto 0;">
+                <div style="position:relative;border-bottom:1px solid rgba(251,191,36,0.25);overflow:hidden;">
+                    <img src="images/story/marchand.webp" alt="Le Marchand"
+                         style="width:100%;height:160px;object-fit:cover;object-position:center 30%;display:block;"
+                         onerror="this.onerror=null;this.style.display='none';this.parentNode.style.background='linear-gradient(135deg,rgba(251,191,36,0.18),rgba(251,191,36,0.04))';this.parentNode.querySelector('.merchant-fallback-emoji').style.display='block';" />
+                    <div class="merchant-fallback-emoji" style="display:none;font-size:3em;line-height:1;padding:24px 0 0;text-align:center;">🛒</div>
+                    <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(15,16,20,0) 40%,rgba(15,16,20,0.85) 100%);"></div>
+                    <div style="position:absolute;bottom:10px;left:0;right:0;text-align:center;">
+                        <h2 style="margin:0;color:white;font-size:1.35em;font-weight:900;letter-spacing:1.5px;text-shadow:0 2px 8px rgba(0,0,0,0.9);">LE MARCHAND</h2>
+                        <div style="font-size:0.82em;color:#fbbf24;font-weight:800;margin-top:3px;text-shadow:0 1px 4px rgba(0,0,0,0.9);">💰 ${gold} or</div>
+                    </div>
+                    <button onclick="document.getElementById('awakMerchantModal').remove()" style="position:absolute;top:12px;right:12px;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,0.5);border:1px solid rgba(239,68,68,0.5);color:#f87171;font-weight:900;cursor:pointer;z-index:2;">✕</button>
+                </div>
+                <div style="display:flex;gap:5px;padding:12px 14px;flex-wrap:wrap;">
+                    ${tabBtn('sell','VENDRE','💎')}
+                    ${tabBtn('consumables','POTIONS','🧪')}
+                    ${tabBtn('masteries','MAÎTRISES','🥋')}
+                    ${tabBtn('equipment','ÉQUIPEMENT','⚔️')}
+                </div>
+                <div style="padding:4px 18px 22px;">${body}</div>
+            </div>`;
+        }
+
+        // ── Section VENDRE les minéraux ──────────────────────────────
+        function awakRenderMerchantSell() {
+            const E = window.AwakEconomy;
+            const minerals = E.getMinerals();
+            const MT = E.MINERAL_TYPES;
+            const ids = Object.keys(minerals).filter(id => minerals[id] > 0 && MT[id]);
+            if (ids.length === 0) {
+                return `<div style="text-align:center;color:#64748b;font-size:0.85em;padding:30px 10px;">Tu n'as aucun minéral à vendre.<br><span style="font-size:0.85em;">Ferme des Failles pour en extraire.</span></div>`;
+            }
+            const total = E.getMineralsTotalValue();
+            const rows = ids.map(id => {
+                const t = MT[id]; const qty = minerals[id]; const val = t.value * qty;
+                return `<div style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.03);border:1px solid ${t.color}30;border-radius:10px;padding:10px 12px;margin-bottom:7px;">
+                    <span style="font-size:1.5em;">${t.icon}</span>
+                    <div style="flex:1;min-width:0;">
+                        <div style="color:${t.color};font-weight:800;font-size:0.85em;">${t.name}</div>
+                        <div style="font-size:0.66em;color:#94a3b8;">×${qty} · ${t.value} or pièce</div>
+                    </div>
+                    <button onclick="_merchantSellOne('${id}')" style="background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.4);color:#fbbf24;border-radius:8px;padding:6px 11px;font-size:0.72em;font-weight:800;cursor:pointer;white-space:nowrap;">+${val}</button>
+                </div>`;
+            }).join('');
+            return `${rows}
+                <button onclick="_merchantSellAll()" style="width:100%;margin-top:8px;background:linear-gradient(135deg,#fbbf24,#f59e0b);border:none;color:#1a1407;border-radius:11px;padding:14px;font-size:0.92em;font-weight:900;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 14px rgba(251,191,36,0.3);">💰 TOUT VENDRE · +${total} OR</button>`;
+        }
+
+        // ── Section CONSOMMABLES ─────────────────────────────────────
+        function awakRenderMerchantConsumables() {
+            const E = window.AwakEconomy;
+            const gold = E.getGold();
+            const shop = E.getConsumableShop();
+            if (!shop.length) return `<div style="text-align:center;color:#64748b;padding:30px;">Aucun consommable disponible.</div>`;
+            return shop.map(c => {
+                const owned = (typeof awakConsumablesGetCount === 'function') ? awakConsumablesGetCount(c.id) : 0;
+                const afford = gold >= c.price;
+                return `<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:11px;padding:12px;margin-bottom:8px;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <span style="font-size:1.6em;">${c.icon}</span>
+                        <div style="flex:1;min-width:0;">
+                            <div style="color:white;font-weight:800;font-size:0.86em;">${c.name}${owned>0?` <span style="color:#64748b;font-size:0.85em;">×${owned}</span>`:''}</div>
+                            <div style="font-size:0.68em;color:#94a3b8;line-height:1.4;">${c.description||''}</div>
+                        </div>
+                    </div>
+                    <button onclick="_merchantBuyConsumable('${c.id}')" ${afford?'':'disabled'} style="width:100%;margin-top:9px;background:${afford?'rgba(251,191,36,0.12)':'rgba(255,255,255,0.04)'};border:1px solid ${afford?'rgba(251,191,36,0.4)':'rgba(255,255,255,0.08)'};color:${afford?'#fbbf24':'#475569'};border-radius:8px;padding:9px;font-size:0.78em;font-weight:800;cursor:${afford?'pointer':'not-allowed'};">💰 ${c.price} or</button>
+                </div>`;
+            }).join('');
+        }
+
+        // ── Section ÉQUIPEMENT (stock hebdomadaire) ──────────────────
+        function awakRenderMerchantEquipment() {
+            const E = window.AwakEconomy;
+            const gold = E.getGold();
+            const shop = E.getEquipmentShop();
+            const db = (typeof EQUIPMENT_DATABASE !== 'undefined') ? EQUIPMENT_DATABASE : [];
+            const rows = shop.items.map(entry => {
+                const item = db.find(i => i.id === entry.id);
+                if (!item) return '';
+                const r = (typeof RARITIES !== 'undefined' && RARITIES[item.rarity]) ? RARITIES[item.rarity] : { color:'#94a3b8', labelFull:'?' };
+                const bought = shop.purchased.includes(entry.id);
+                const afford = gold >= entry.price;
+                return `<div style="background:linear-gradient(135deg,${r.color}14,transparent);border:1.5px solid ${r.color}40;border-radius:11px;padding:12px;margin-bottom:8px;${bought?'opacity:0.5;':''}">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <span style="font-size:1.7em;filter:drop-shadow(0 0 6px ${r.color}80);">${item.icon}</span>
+                        <div style="flex:1;min-width:0;">
+                            <div style="color:white;font-weight:800;font-size:0.85em;">${item.name}</div>
+                            <div style="font-size:0.66em;color:${r.color};font-weight:700;">${(r.labelFull||'').toUpperCase()} · ${item.slot}</div>
+                        </div>
+                    </div>
+                    <button onclick="_merchantBuyEquipment('${entry.id}')" ${(bought||!afford)?'disabled':''} style="width:100%;margin-top:9px;background:${bought?'rgba(34,197,94,0.1)':afford?`${r.color}22`:'rgba(255,255,255,0.04)'};border:1px solid ${bought?'rgba(34,197,94,0.3)':afford?r.color+'66':'rgba(255,255,255,0.08)'};color:${bought?'#4ade80':afford?r.color:'#475569'};border-radius:8px;padding:9px;font-size:0.78em;font-weight:800;cursor:${(bought||!afford)?'not-allowed':'pointer'};">${bought?'✓ ACHETÉ':`💰 ${entry.price} or`}</button>
+                </div>`;
+            }).join('');
+            return `<div style="font-size:0.66em;color:#94a3b8;text-align:center;margin-bottom:10px;font-style:italic;">Stock renouvelé chaque semaine · adapté à ton rang (${shop.rank})</div>${rows}`;
+        }
+
+        // ── Section MAÎTRISES (puissance de combat achetable) ────────
+        function awakRenderMerchantMasteries() {
+            const E = window.AwakEconomy;
+            const gold = E.getGold();
+            const defs = E.MASTERY_DEFS;
+            const maxLvl = E.MASTERY_MAX_LEVEL;
+            const perLvl = Math.round(E.MASTERY_BONUS_PER_LEVEL * 100);
+            const intro = `<div style="font-size:0.66em;color:#94a3b8;text-align:center;margin-bottom:12px;font-style:italic;">Améliore tes dégâts en Faille selon le type d'effort. Chaque niveau : +${perLvl}% (max +${perLvl*maxLvl}%).</div>`;
+            const cards = Object.keys(defs).map(id => {
+                const d = defs[id];
+                const lvl = E.getMasteryLevel(id);
+                const nextPrice = E.getMasteryNextPrice(id);
+                const isMax = (nextPrice === null);
+                const afford = !isMax && gold >= nextPrice;
+                const curBonus = Math.round(lvl * E.MASTERY_BONUS_PER_LEVEL * 100);
+                // Barre de niveaux (pips)
+                let pips = '';
+                for (let i = 0; i < maxLvl; i++) {
+                    pips += `<div style="flex:1;height:6px;border-radius:3px;background:${i < lvl ? d.color : 'rgba(255,255,255,0.1)'};"></div>`;
+                }
+                return `<div style="background:linear-gradient(135deg,${d.color}12,transparent);border:1.5px solid ${d.color}40;border-radius:13px;padding:13px;margin-bottom:9px;">
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                        <span style="font-size:1.8em;">${d.icon}</span>
+                        <div style="flex:1;min-width:0;">
+                            <div style="color:white;font-weight:800;font-size:0.88em;">${d.name}</div>
+                            <div style="font-size:0.64em;color:${d.color};font-weight:800;">Niveau ${lvl}/${maxLvl}${curBonus>0?` · +${curBonus}% dégâts`:''}</div>
+                        </div>
+                    </div>
+                    <div style="font-size:0.66em;color:#94a3b8;line-height:1.4;margin-bottom:9px;">${d.desc}</div>
+                    <div style="display:flex;gap:4px;margin-bottom:10px;">${pips}</div>
+                    <button onclick="_merchantBuyMastery('${id}')" ${(isMax||!afford)?'disabled':''} style="width:100%;background:${isMax?'rgba(34,197,94,0.1)':afford?`${d.color}22`:'rgba(255,255,255,0.04)'};border:1px solid ${isMax?'rgba(34,197,94,0.3)':afford?d.color+'66':'rgba(255,255,255,0.08)'};color:${isMax?'#4ade80':afford?d.color:'#475569'};border-radius:8px;padding:10px;font-size:0.78em;font-weight:800;cursor:${(isMax||!afford)?'not-allowed':'pointer'};">${isMax?'✓ MAÎTRISE COMPLÈTE':`💰 Niveau ${lvl+1} · ${nextPrice} or`}</button>
+                </div>`;
+            }).join('');
+            return intro + cards;
+        }
+
+        // ── Handlers du marchand ─────────────────────────────────────
+        function _merchantRefresh() {
+            const modal = document.getElementById('awakMerchantModal');
+            if (modal) modal.innerHTML = awakRenderMerchant();
+            if (typeof renderGameTab === 'function') { try { renderGameTab(); } catch(e){} }
+        }
+        window._merchantSwitchTab = function(t){ _merchantTab = t; _merchantRefresh(); };
+        window._merchantSellOne = function(id){
+            const g = window.AwakEconomy.sellMineral(id);
+            if (g > 0 && typeof showToast === 'function') showToast(`💰 +${g} or`, 'success', 1500);
+            _merchantRefresh();
+        };
+        window._merchantSellAll = function(){
+            const g = window.AwakEconomy.sellAllMinerals();
+            if (g > 0 && typeof showToast === 'function') showToast(`💰 +${g} or récoltés !`, 'success', 2000);
+            _merchantRefresh();
+        };
+        window._merchantBuyConsumable = function(id){
+            const res = window.AwakEconomy.buyConsumable(id);
+            if (typeof showToast === 'function') showToast(res.ok ? '✅ Acheté !' : `❌ ${res.reason}`, res.ok?'success':'warning', 2000);
+            _merchantRefresh();
+        };
+        window._merchantBuyEquipment = function(id){
+            const res = window.AwakEconomy.buyEquipment(id);
+            if (typeof showToast === 'function') showToast(res.ok ? '⚔️ Équipement acheté !' : `❌ ${res.reason}`, res.ok?'success':'warning', 2200);
+            _merchantRefresh();
+        };
+        window._merchantBuyMastery = function(id){
+            const res = window.AwakEconomy.buyMasteryLevel(id);
+            if (typeof showToast === 'function') showToast(res.ok ? `🥋 Maîtrise niveau ${res.newLevel} !` : `❌ ${res.reason}`, res.ok?'success':'warning', 2200);
+            _merchantRefresh();
+        };
 
         // ═══ 👹 BOSS HEBDOMADAIRE (rang S) ═══
         // Une entité colossale par semaine, la même pour tous (déterministe).
@@ -29155,6 +29489,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 const isActive = active.includes(c.id);
                 return { ...c, unlocked: isUnlocked, active: isActive };
             });
+            const onMission = (typeof awakGetCompanionsOnMission === 'function') ? awakGetCompanionsOnMission() : [];
 
             // Stats compagnons
             const unlockedCount = unlocked.length;
@@ -29177,12 +29512,15 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                             <div style="font-size:0.55em;color:#64748b;font-weight:700;margin-top:3px;letter-spacing:0.5px;">?</div>
                         </div>`;
                     }
-                    const borderColor = c.active ? c.color : 'rgba(255,255,255,0.08)';
-                    const bgColor = c.active ? `${c.color}15` : 'rgba(255,255,255,0.02)';
-                    return `<div onclick="awakOpenCompanionDetail('${c.id}')" style="cursor:pointer;background:${bgColor};border:1.5px solid ${borderColor};border-radius:10px;padding:11px 6px;text-align:center;${c.active ? `box-shadow:0 0 12px ${c.color}30;` : ''}transition:all 0.2s;">
-                        <div style="font-size:1.7em;filter:drop-shadow(0 0 6px ${c.color}80);${c.active ? '' : 'opacity:0.85;'}">${c.emoji}</div>
+                    const isOnMission = onMission.includes(c.id);
+                    const borderColor = isOnMission ? 'rgba(168,85,247,0.5)' : (c.active ? c.color : 'rgba(255,255,255,0.08)');
+                    const bgColor = isOnMission ? 'rgba(168,85,247,0.08)' : (c.active ? `${c.color}15` : 'rgba(255,255,255,0.02)');
+                    return `<div onclick="awakOpenCompanionDetail('${c.id}')" style="cursor:pointer;background:${bgColor};border:1.5px solid ${borderColor};border-radius:10px;padding:11px 6px;text-align:center;${c.active && !isOnMission ? `box-shadow:0 0 12px ${c.color}30;` : ''}transition:all 0.2s;${isOnMission ? 'opacity:0.7;' : ''}">
+                        <div style="font-size:1.7em;filter:drop-shadow(0 0 6px ${c.color}80)${isOnMission ? ' grayscale(0.6)' : ''};${c.active && !isOnMission ? '' : 'opacity:0.85;'}">${c.emoji}</div>
                         <div style="font-size:0.58em;color:${c.color};font-weight:800;margin-top:3px;letter-spacing:0.5px;line-height:1.2;">${c.name.split(' ')[0]}</div>
-                        ${c.active ? `<div style="margin-top:2px;font-size:0.5em;background:${c.color};color:white;border-radius:99px;padding:0 4px;font-weight:900;letter-spacing:0.5px;display:inline-block;">ACTIF</div>` : ''}
+                        ${isOnMission
+                            ? `<div style="margin-top:2px;font-size:0.5em;background:#a855f7;color:white;border-radius:99px;padding:0 4px;font-weight:900;letter-spacing:0.5px;display:inline-block;">🎭 MISSION</div>`
+                            : (c.active ? `<div style="margin-top:2px;font-size:0.5em;background:${c.color};color:white;border-radius:99px;padding:0 4px;font-weight:900;letter-spacing:0.5px;display:inline-block;">ACTIF</div>` : '')}
                     </div>`;
                 }).join('')}
                 </div>
@@ -29199,6 +29537,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const active = awakCompanionsGetActive();
             const isActive = active.includes(compId);
             const canActivate = active.length < COMPANIONS_MAX_ACTIVE;
+            const onMission = (typeof awakGetCompanionsOnMission === 'function') ? awakGetCompanionsOnMission() : [];
+            const isOnMission = onMission.includes(compId);
 
             document.getElementById('awakCompanionDetailModal')?.remove();
             const modal = document.createElement('div');
@@ -29234,10 +29574,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     </div>
 
                     <!-- Action toggle -->
-                    <button onclick="awakCompanionToggleActive('${comp.id}');document.getElementById('awakCompanionDetailModal').remove();"
+                    ${isOnMission
+                        ? `<div style="width:100%;background:rgba(168,85,247,0.12);border:1.5px solid rgba(168,85,247,0.4);color:#c084fc;border-radius:10px;padding:14px;font-weight:900;font-size:0.9em;letter-spacing:0.5px;text-align:center;">🎭 PARTI FERMER UNE FAILLE<div style="font-size:0.75em;font-weight:600;color:#a78bfa;margin-top:4px;letter-spacing:0;">Indisponible jusqu'à son retour</div></div>`
+                        : `<button onclick="awakCompanionToggleActive('${comp.id}');document.getElementById('awakCompanionDetailModal').remove();"
                         style="width:100%;background:${isActive ? 'rgba(239,68,68,0.15)' : (canActivate ? `linear-gradient(135deg,${comp.color},${comp.color}dd)` : 'rgba(255,255,255,0.05)')};border:${isActive ? '1.5px solid rgba(239,68,68,0.4)' : 'none'};color:${isActive ? '#f87171' : (canActivate ? 'white' : '#64748b')};border-radius:10px;padding:14px;font-weight:900;font-size:0.95em;letter-spacing:1px;cursor:${(canActivate || isActive) ? 'pointer' : 'not-allowed'};box-shadow:${isActive || !canActivate ? 'none' : `0 4px 16px ${comp.color}40`};">
                         ${isActive ? '✕ RETIRER DE L\'ÉQUIPE' : (canActivate ? '✓ ACTIVER COMME COMPAGNON' : `⚠ MAX ${COMPANIONS_MAX_ACTIVE} ACTIFS`)}
-                    </button>
+                    </button>`}
 
                     <button onclick="document.getElementById('awakCompanionDetailModal').remove()" style="width:100%;margin-top:8px;background:transparent;border:1px solid rgba(255,255,255,0.1);color:#94a3b8;border-radius:10px;padding:10px;font-weight:700;font-size:0.82em;cursor:pointer;">Fermer</button>
                 </div>
@@ -29565,6 +29907,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 duration: 'next_rift'
             }
         ];
+        window.CONSUMABLES_PUBLIC = CONSUMABLES;
 
         function awakConsumablesLoad() {
             try {
@@ -29930,6 +30273,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             }
 
             if (typeof session.playerHP !== 'number') session.playerHP = awakGetPlayerMaxHP();
+
+            // 🛡️ MODE DÉVELOPPEUR : invincibilité — aucun dégât subi
+            if (typeof awakIsInvincible === 'function' && awakIsInvincible()) {
+                if (typeof showToast === 'function') showToast('🛡️ Invincible — dégâts ignorés', 'info', 1500);
+                return;
+            }
 
             // 🛡️ VIT : défense — réduit les dégâts subis (rendements décroissants, cap 75%)
             const _stats = (typeof awakGetTotalStats === 'function') ? awakGetTotalStats() : {};
@@ -37413,6 +37762,23 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             try { localStorage.setItem(_compMissionKey(), JSON.stringify(m)); } catch(e) {}
         }
 
+        // 🚶 Liste des compagnons actuellement PARTIS en mission (mission non terminée).
+        // Ils sont indisponibles pour l'équipe active jusqu'à leur retour.
+        function awakGetCompanionsOnMission() {
+            try {
+                const missions = awakLoadCompanionMissions();
+                const now = Date.now();
+                const busy = new Set();
+                Object.values(missions).forEach(m => {
+                    if (!m || m.done) return;                  // mission terminée → compagnons rentrés
+                    if (m.endsAt && now >= m.endsAt) return;    // mission échue (retour imminent traité ailleurs)
+                    (m.companions || []).forEach(id => busy.add(id));
+                });
+                return Array.from(busy);
+            } catch(e) { return []; }
+        }
+        window.awakGetCompanionsOnMission = awakGetCompanionsOnMission;
+
         // Durée de base d'une mission selon le rang de la Faille (en heures)
         const COMPANION_MISSION_HOURS = { E: 1, D: 2, C: 3, B: 4, A: 6, S: 8 };
 
@@ -37664,6 +38030,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                             rift.currentWaveIdx = (rift.waves || []).length;
                             if (typeof awakRiftsSave === 'function') awakRiftsSave(rifts);
                         }
+                        // 💎 Les compagnons rapportent des minéraux de la Faille fermée
+                        try {
+                            if (window.AwakEconomy && typeof window.AwakEconomy.dropMineralsForCompanionMission === 'function') {
+                                m.mineralReward = window.AwakEconomy.dropMineralsForCompanionMission(m.riftRank || (rift && rift.rank) || 'E');
+                            }
+                        } catch(e) {}
                         m.failed = false;
                     }
                     m.done = true;
@@ -37683,7 +38055,11 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 }
                 finishedMissions.slice(1).forEach(m => {
                     if (typeof showToast === 'function') {
-                        setTimeout(() => showToast(`🎭 Faille « ${m.riftName} » fermée par tes compagnons !`, 'success', 3500), 500);
+                        const mr = (m.mineralReward && window.AwakEconomy) ? (() => {
+                            const t = window.AwakEconomy.MINERAL_TYPES[m.mineralReward.type];
+                            return t ? ` (${t.icon} ${t.name} ×${m.mineralReward.qty})` : '';
+                        })() : '';
+                        setTimeout(() => showToast(`🎭 Faille « ${m.riftName} » fermée par tes compagnons !${mr}`, 'success', 3500), 500);
                     }
                 });
             }
@@ -37819,6 +38195,18 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                             <div style="font-size:0.78em;color:#f87171;font-weight:800;">🩸 Tes compagnons sont indisponibles 5 jours</div>
                             <div style="font-size:0.68em;color:#94a3b8;margin-top:4px;line-height:1.4;">Le temps de soigner leurs blessures. La Faille reste ouverte.</div>
                         </div>` : ''}
+
+                        ${(!failed && mission.mineralReward && window.AwakEconomy) ? (() => {
+                            const t = window.AwakEconomy.MINERAL_TYPES[mission.mineralReward.type];
+                            if (!t) return '';
+                            return `<div style="background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(251,191,36,0.03));border:1px solid rgba(251,191,36,0.4);border-radius:14px;padding:12px 14px;margin-bottom:16px;text-align:center;">
+                                <div style="font-size:0.58em;color:#fbbf24;font-weight:900;letter-spacing:1.5px;margin-bottom:6px;">💎 BUTIN RAPPORTÉ</div>
+                                <div style="display:flex;align-items:center;justify-content:center;gap:8px;">
+                                    <span style="font-size:1.4em;">${t.icon}</span>
+                                    <span style="color:${t.color};font-weight:800;font-size:0.9em;">${t.name} ×${mission.mineralReward.qty}</span>
+                                </div>
+                            </div>`;
+                        })() : ''}
 
                         <div style="background:${accent}12;border:1px solid ${accent}33;border-radius:14px;padding:12px 14px;margin-top:8px;margin-bottom:18px;">
                             <div style="font-size:0.58em;color:${accentLight};font-weight:900;letter-spacing:1.5px;margin-bottom:8px;">⚔ ÉQUIPE DÉPLOYÉE</div>
