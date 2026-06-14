@@ -10739,8 +10739,20 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             // Lire reps/poids saisis
             const repsInput   = document.getElementById('quickRepsInput');
             const weightInput = document.getElementById('quickWeightInput');
-            const reps   = parseInt(repsInput?.value) || 0;
+            let reps   = parseInt(repsInput?.value) || 0;
             const weight = parseFloat(weightInput?.value) || 0;
+
+            // 🏃 Exercice en mode TIMER (cardio/course) : pas de reps saisies → convertir
+            // la durée en "reps équivalentes" pour le calcul de dégâts (≈ 1 rep / 3 secondes).
+            try {
+                const _ex = (typeof currentWorkout !== 'undefined' && currentWorkout && currentWorkout.exercises)
+                    ? currentWorkout.exercises[typeof currentExerciseIndex !== 'undefined' ? currentExerciseIndex : 0]
+                    : null;
+                if (_ex && (_ex.mode === 'timer' || _ex.mode === 'duration') && reps === 0) {
+                    const dur = _ex.duration || 45;
+                    reps = Math.max(1, Math.min(50, Math.round(dur / 3)));
+                }
+            } catch(e) {}
 
             console.log('⚔ Rift/Hunt set complete:', { reps, weight, isRift, isHunt, setNumber: currentSetNumber });
 
@@ -25054,7 +25066,51 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
         const RIFT_STORAGE_KEY = 'awakRifts';
         const RIFT_LAST_GENERATED_KEY = 'awakRiftLastGen';
-        const RIFT_MAX_ACTIVE = 2;             // Max 2 simultanées (au lieu de 3)
+        const RIFT_MAX_ACTIVE = 2;             // Base : 2 simultanées (augmente avec le niveau)
+
+        // 📊 Nombre max de Failles simultanées, selon le NIVEAU du joueur.
+        // NARRATIF : ce n'est pas le joueur qui "débloque" plus de Failles en progressant —
+        // c'est la MENACE (le Déclin) qui s'intensifie et déchire la réalité en plus d'endroits.
+        // Les paliers sont DÉCALÉS de 2 niveaux APRÈS le changement de rang (et l'apparition
+        // du compagnon associé), pour éviter que tout se débloque en même temps : le joueur
+        // monte de rang, rencontre le compagnon, puis quelques séances plus tard la menace
+        // s'aggrave et une Faille supplémentaire s'ouvre — chaque événement reste distinct.
+        //   < niv 22  → 2 Failles | niv 22-36 → 3 Failles | niv 37+ → 4 Failles
+        const RIFT_TIER2_LEVEL = 22;          // 2 → 3 Failles (2 niv après rang C / Kira)
+        const RIFT_TIER3_LEVEL = 37;          // 3 → 4 Failles (2 niv après rang B / Élise)
+        function awakGetMaxActiveRifts() {
+            try {
+                const lvl = (typeof _awakGetCurrentLevel === 'function') ? _awakGetCurrentLevel() : 1;
+                if (lvl >= RIFT_TIER3_LEVEL) return 4;
+                if (lvl >= RIFT_TIER2_LEVEL) return 3;
+                return RIFT_MAX_ACTIVE; // 2
+            } catch(e) { return RIFT_MAX_ACTIVE; }
+        }
+        window.awakGetMaxActiveRifts = awakGetMaxActiveRifts;
+
+        // 🔔 Notifie le joueur quand il franchit un palier de Failles simultanées.
+        // Appelée après un gain d'XP ; ne notifie qu'une seule fois par palier.
+        function awakCheckRiftCapacityUnlock() {
+            try {
+                if (typeof getAdventureEnabled === 'function' && !getAdventureEnabled()) return;
+                const lvl = (typeof _awakGetCurrentLevel === 'function') ? _awakGetCurrentLevel() : 1;
+                const seenKey = 'awakRiftCapSeen';
+                const seen = parseInt(localStorage.getItem(seenKey) || '2'); // capacité déjà annoncée (2 par défaut)
+                const current = awakGetMaxActiveRifts();
+                if (current > seen) {
+                    localStorage.setItem(seenKey, String(current));
+                    const msg = current === 3
+                        ? 'La menace s\'intensifie. Le Déclin ronge la réalité en plus d\'endroits — jusqu\'à 3 Failles peuvent désormais s\'ouvrir en même temps. Ne reste pas seul : tes compagnons peuvent t\'épauler.'
+                        : 'Le mal gagne du terrain. Les Failles se multiplient — jusqu\'à 4 peuvent déchirer le monde simultanément. Tes compagnons ne seront pas de trop pour tenir le front.';
+                    if (typeof showAlert === 'function') {
+                        setTimeout(() => showAlert(`🌀 La menace grandit : ${current} Failles`, msg), 1800);
+                    } else if (typeof showToast === 'function') {
+                        setTimeout(() => showToast(`🌀 Le Déclin s\'étend : jusqu\'à ${current} Failles simultanées !`, 'warning', 4500), 1800);
+                    }
+                }
+            } catch(e) {}
+        }
+        window.awakCheckRiftCapacityUnlock = awakCheckRiftCapacityUnlock;
         const RIFT_COOLDOWN_HOURS = 48;        // 2 jours entre 2 spawns (au lieu de 14h)
         const RIFT_LIFETIME_DAYS = { E: 8, D: 8, C: 10, B: 10, A: 14, S: 14 }; // Plus de temps pour les faire
         const RIFT_SPAWN_PROBABILITY = 0.35;   // 35% si conditions remplies (au lieu de 70%)
@@ -25516,7 +25572,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
          */
         function awakGenerateRift(forceRank) {
             const playerRank = awakGetRank();
-            const rankIds = ['E', 'D', 'C', 'B', 'A', 'S'];
+            const rankIds = ['E', 'D', 'C', 'B', 'A', 'S', 'SS', 'SSS'];
             const playerRankIdx = rankIds.indexOf(playerRank.id);
 
             // Faille ±1 du rang du joueur, jamais au-dessus du max
@@ -25545,7 +25601,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
             // Nombre de vagues + difficulté basés sur le rang
             const rankConfigs = {
-                E: { waves: 2, hpMult: 0.8, recommendedPower: 0,    minStat: 0 },
+                E: { waves: 2, hpMult: 0.5, recommendedPower: 0,    minStat: 0 },
                 D: { waves: 2, hpMult: 1.0, recommendedPower: 500,  minStat: 15 },
                 C: { waves: 3, hpMult: 1.3, recommendedPower: 1200, minStat: 30 },
                 B: { waves: 3, hpMult: 1.7, recommendedPower: 2200, minStat: 50 },
@@ -25719,8 +25775,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const rifts = awakUpdateRiftsState();
             const activeRifts = rifts.filter(r => !r.completed && r.state !== 'exploded');
 
-            // Max 2 failles actives simultanées (au lieu de 3)
-            if (activeRifts.length >= RIFT_MAX_ACTIVE) return null;
+            // Max de failles actives simultanées (dynamique : augmente avec les compagnons acquis)
+            if (activeRifts.length >= awakGetMaxActiveRifts()) return null;
 
             // Cooldown : 48h entre 2 failles
             const lastGen = parseInt(localStorage.getItem(RIFT_LAST_GENERATED_KEY) || '0');
@@ -25838,7 +25894,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     <div style="font-family:var(--font-display);font-size:0.64em;color:#c084fc;font-weight:700;letter-spacing:2.5px;">◈ FAILLES ACTIVES</div>
                     <button onclick="awakShowRiftHelp()" style="background:rgba(168,85,247,0.15);border:1px solid rgba(192,132,252,0.4);color:#c084fc;border-radius:99px;padding:3px 9px;font-size:0.6em;font-weight:800;cursor:pointer;flex-shrink:0;">ⓘ Aide</button>
                     <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(168,85,247,0.3),transparent);"></div>
-                    <div style="font-size:0.7em;color:#94a3b8;font-weight:700;">${rifts.length}/${RIFT_MAX_ACTIVE}</div>
+                    <div style="font-size:0.7em;color:#94a3b8;font-weight:700;">${rifts.length}/${awakGetMaxActiveRifts()}</div>
                 </div>
 
                 <div style="display:flex;flex-direction:column;gap:10px;">
@@ -26273,6 +26329,17 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             }
             const playerStats = awakGetTotalStats();
 
+            // 🎒 Équipement réellement disponible pour le joueur (selon son lieu actif)
+            const playerEquip = (typeof getEquipmentNames === 'function') ? getEquipmentNames() : ['Poids du corps'];
+            const equipSet = new Set(playerEquip);
+            equipSet.add('Poids du corps'); equipSet.add('Aucun'); // toujours dispo
+            const hasEquip = (ex) => {
+                const eq = ex.equipment || [];
+                if (eq.length === 0) return true; // pas d'équipement requis
+                // L'exercice est jouable si AU MOINS un de ses équipements est disponible
+                return eq.some(e => equipSet.has(e));
+            };
+
             // Filtre commun : seulement de VRAIS exercices (pas échauffement/étirement/info)
             const isCombatExercise = (ex) => {
                 const t = ex.type || 'exercise';
@@ -26281,9 +26348,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
             // 🔁 Failles = pas d'exercices ISOMÉTRIQUES (tenues de position qui se mesurent
             // en durée, pas en répétitions). Le cardio (jumping jacks, burpees...) reste autorisé.
-            const isRepsExercise = (ex) => {
+            const isNotIsometric = (ex) => {
                 const name = (ex.name || '').toLowerCase();
-                // Uniquement les tenues isométriques (impossible à compter en reps)
                 const isometricKeywords = [
                     'planche', 'plank', 'gainage', 'hold', 'hollow', 'wall sit',
                     'chaise murale', 'isométrique', 'isometrique', 'vacuum',
@@ -26292,29 +26358,24 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 return !isometricKeywords.some(kw => name.includes(kw));
             };
 
-            // Tous les exos qui matchent le thème — VRAIS exercices + poids du corps + REPS uniquement
+            // Tous les exos qui matchent le thème — VRAIS exercices, non isométriques, équipement dispo
             const pool = (typeof exerciseDatabase !== 'undefined' ? exerciseDatabase : [])
                 .filter(ex => theme.exerciseFilter(ex))
                 .filter(isCombatExercise)
-                .filter(isRepsExercise)
-                .filter(ex => {
-                    // 🏋️ Failles = poids du corps uniquement (pas de triche au poids + thématique)
-                    const eq = ex.equipment || [];
-                    return eq.length === 0 || eq.includes('Poids du corps') || eq.includes('Aucun');
-                });
+                .filter(isNotIsometric)
+                .filter(hasEquip);
 
-            // Si le filtre vide le pool, fallback sur le thème + reps (mais toujours sans warmup/stretch/timer)
+            // Si le filtre thème+équipement vide le pool, on relâche le thème mais GARDE l'équipement
             let finalPool = pool.length >= 2 ? pool : (typeof exerciseDatabase !== 'undefined' ? exerciseDatabase : [])
-                .filter(ex => theme.exerciseFilter(ex))
                 .filter(isCombatExercise)
-                .filter(isRepsExercise);
+                .filter(isNotIsometric)
+                .filter(hasEquip);
 
-            // 🛡️ FALLBACK ULTIME : si le filtre du thème ne donne toujours rien d'utilisable,
-            // prendre n'importe quel exercice de combat au poids du corps (jamais zéro exercice).
+            // 🛡️ FALLBACK ULTIME : si toujours rien (équipement très limité), poids du corps garanti.
             if (finalPool.length < 2) {
                 finalPool = (typeof exerciseDatabase !== 'undefined' ? exerciseDatabase : [])
                     .filter(isCombatExercise)
-                    .filter(isRepsExercise)
+                    .filter(isNotIsometric)
                     .filter(ex => {
                         const eq = ex.equipment || [];
                         return eq.length === 0 || eq.includes('Poids du corps') || eq.includes('Aucun');
@@ -26324,13 +26385,17 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             // Mélanger
             const shuffled = finalPool.sort(() => Math.random() - 0.5).slice(0, count);
 
-            // Calculer le dégât estimé par série
+            // Calculer le dégât estimé par série + préserver le mode (timer pour le cardio)
             return shuffled.map(ex => {
-                // Formule : 15 base + stat principale × 0.5
                 const baseDmg = 15;
                 const statBonus = Math.round((playerStats[theme.primaryStat] || 0) * 0.5);
+                // 🏃 Cardio / exercices en durée : on garde le mode TIMER (minuteur), pas des reps.
+                const isCardioTimer = ex.mode === 'timer' ||
+                    (ex.muscle === 'Cardio' && !/jumping jacks|burpee|squat saut|fente saut|mountain/i.test(ex.name || ''));
                 return {
                     ...ex,
+                    mode: isCardioTimer ? 'timer' : 'reps',
+                    duration: isCardioTimer ? (ex.duration || 45) : 0,
                     emoji: getThemeExerciseEmoji(ex),
                     estDmg: baseDmg + statBonus
                 };
@@ -26463,12 +26528,13 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 if (val <= soft) return val;
                 return soft + Math.sqrt((val - soft) * soft); // courbe douce au-delà du seuil
             };
-            const SOFT = 100; // seuil de rendement plein (~rang A/B)
+            const SOFT = 80; // seuil de rendement plein (~rang B) — au-delà, rendement décroissant
 
             const eStr = dim(stats.STR, SOFT);
             const eAgi = dim(stats.AGI, SOFT);
             const eVit = dim(stats.VIT, SOFT);
             const ePer = dim(stats.PER, SOFT);
+            const eSen = dim(stats.SEN, SOFT);
 
             // Plafonds durs sur les probabilités (gardent du hasard et de la tension)
             const CAP_CRIT = 0.50, CAP_DOUBLE = 0.35, CAP_DODGE = 0.40, CAP_BOSS = 1.50;
@@ -26491,9 +26557,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 bossBonus: isBoss ? Math.min(CAP_BOSS, ePer * 0.01 + (ring.bossDmg || 0)) : 0,
                 dodgeChance: Math.min(CAP_DODGE, ePer * 0.003 + (ring.dodge || 0)),
 
-                // 🌀 SEN : bonus XP + loot (XP non plafonné, c'est une récompense)
-                xpMult: 1 + (stats.SEN || 0) * 0.01 + (ring.xpGain || 0),
-                rareLootBonus: (stats.SEN || 0) * 0.005 + (ring.rareLoot || 0),
+                // 🌀 SEN : bonus XP + loot (rendement décroissant comme les autres stats)
+                xpMult: 1 + eSen * 0.01 + (ring.xpGain || 0),
+                rareLootBonus: eSen * 0.005 + (ring.rareLoot || 0),
 
                 // Valeurs raw pour affichage
                 raw: {
@@ -26578,11 +26644,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             }
 
             // Formule de dégâts : ATTAQUE DE BASE pilotée par les stats du joueur + équipement.
-            // Les répétitions ne sont qu'un PETIT bonus : +1% par rep, plafonné à 50 reps (max +50%).
-            const base = 30;
+            // Socle volontairement BAS : sans attributs ni équipement, les dégâts sont dérisoires.
+            // Les stats (qui incluent les bonus d'équipement) sont le vrai moteur des dégâts.
+            const base = 4;
             const primaryStatValue = (playerStats[theme.primaryStat] || 0) * (1 + (consumEffects[theme.primaryStat] || 0));
-            // Attaque de base = socle + stat thématique (qui inclut déjà les bonus d'équipement) → cœur des dégâts.
-            const baseAttack = base + primaryStatValue * 0.5;
+            // Attaque de base = petit socle + stat thématique ×1.5 → les attributs dominent.
+            const baseAttack = base + primaryStatValue * 1.5;
             // Bonus reps : +1% par répétition (cappedReps est déjà plafonné à 50 → +50% au maximum).
             const repBonus = 1 + cappedReps * 0.01;
 
@@ -26935,17 +27002,26 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     // Rareté du butin liée au rang de la Faille (E→common ... S→legendary, avec variance)
                     const rankToRarity = { E:'common', D:'uncommon', C:'rare', B:'superior', A:'epic', S:'legendary' };
                     const baseRarity = rankToRarity[rift.rank] || 'common';
-                    const order = ['common','uncommon','rare','superior','epic','legendary'];
+                    const order = ['common','uncommon','rare','superior','epic','legendary','mythic'];
                     const bi = order.indexOf(baseRarity);
                     // 70% rareté du rang, 20% un cran en dessous, 10% un cran au-dessus
                     const r2 = Math.random();
                     let pickRarity = baseRarity;
                     if (r2 > 0.9 && bi < order.length-1) pickRarity = order[bi+1];
                     else if (r2 < 0.2 && bi > 0) pickRarity = order[bi-1];
+                    // 🔴 Contenu endgame d'élite : chance accrue de MYTHIQUE (Abysse, boss final, boss hebdo)
+                    const isEliteContent = rift.isAbyss || rift.isFinalBoss || rift.isWeeklyBoss ||
+                                           (rift.modifierId === 'worldboss');
+                    if (isEliteContent && rift.rank === 'S') {
+                        // jalon d'Abysse / boss : ~35% mythique, sinon legendary
+                        pickRarity = (Math.random() < 0.35) ? 'mythic' : 'legendary';
+                    }
                     // Chance de drop selon le grade (meilleur grade = plus de chance)
                     const dropChanceByGrade = { SSS:0.9, SS:0.8, S:0.7, A:0.6, B:0.5, C:0.4, D:0.3, F:0.2 };
                     if (Math.random() < (dropChanceByGrade[grade] || 0.4)) {
-                        const riftPool = EQUIPMENT_DATABASE.filter(i => i.riftOnly && i.rarity === pickRarity);
+                        let riftPool = EQUIPMENT_DATABASE.filter(i => i.riftOnly && i.rarity === pickRarity);
+                        // Repli : si pas d'item riftOnly de cette rareté, élargir au pool général de la rareté
+                        if (!riftPool.length) riftPool = EQUIPMENT_DATABASE.filter(i => i.rarity === pickRarity);
                         if (riftPool.length) {
                             const won = riftPool[Math.floor(Math.random() * riftPool.length)];
                             const inv = getInventory();
@@ -27093,6 +27169,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             try { setTimeout(() => { if (typeof awakCheckCompanionRifts === 'function') awakCheckCompanionRifts(); }, 5200); } catch(e) {}
             // 🩸 Check si une Épreuve (sous-boss) doit apparaître
             try { setTimeout(() => { if (typeof awakCheckSubBosses === 'function') awakCheckSubBosses(); }, 5600); } catch(e) {}
+            // 🌀 Notifier si le joueur vient de débloquer une Faille simultanée supplémentaire
+            try { setTimeout(() => { if (typeof awakCheckRiftCapacityUnlock === 'function') awakCheckRiftCapacityUnlock(); }, 3200); } catch(e) {}
             // 🕳️ Check si un palier d'Abysse doit apparaître (post-Monarque)
             try { setTimeout(() => { if (typeof awakCheckAbyss === 'function') awakCheckAbyss(); }, 5800); } catch(e) {}
 
@@ -27589,11 +27667,11 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 ? awakComputeStatBonuses(playerStats, false) : null;
 
             // Même modèle que les Failles : ATTAQUE DE BASE pilotée par les stats du joueur + équipement.
-            // Reps = simple bonus +1% par rep, plafonné à 50 (max +50%). Poids ignoré (comme en Faille).
-            const base = 30;
+            // Socle BAS : sans attributs ni équipement, dégâts dérisoires. Reps = simple bonus +1% (max +50%).
+            const base = 4;
             const cappedReps = Math.min(Math.max(1, reps || 1), 50);
             const primaryStatValue = playerStats.STR || 0; // Chasse = force pure (pas de thème)
-            const baseAttack = base + primaryStatValue * 0.5;
+            const baseAttack = base + primaryStatValue * 1.5;
             const repBonus = 1 + cappedReps * 0.01;
             let damage = baseAttack * repBonus;
 
@@ -28050,7 +28128,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const defeatedMonsters = monsters.filter(m => m.defeated).length;
 
             const currentRank = awakGetRank();
-            const rankIds = ['E', 'D', 'C', 'B', 'A', 'S'];
+            const rankIds = ['E', 'D', 'C', 'B', 'A', 'S', 'SS', 'SSS'];
             const currentRankIdx = rankIds.indexOf(currentRank.id);
 
             for (const comp of COMPANIONS) {
@@ -28091,7 +28169,37 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         /**
          * Calcule le bonus total des compagnons actifs (utilisé par awakGetTotalStats indirectement)
          */
+        // 🚫 Une Faille est-elle "solo" (compagnons interdits) ?
+        // Épreuves personnelles : narratives de l'histoire, Failles de compagnon,
+        // sous-boss (Quatre Épreuves), boss final, boss mondial/hebdomadaire.
+        function awakIsSoloRift(r) {
+            if (!r) return false;
+            return !!(r.isSubBoss || r.isAbyss || r.isCompanionRift || r.isWeeklyBoss ||
+                      r._isFinalBoss || r.isFinalBoss || r.narrativeId);
+        }
+        window.awakIsSoloRift = awakIsSoloRift;
+
+        // Objet de bonus compagnons "vide" (même forme que awakCompanionsGetActiveBonuses)
+        function awakEmptyCompanionBonuses() {
+            return {
+                STR: 0, AGI: 0, VIT: 0, END: 0, PER: 0, SEN: 0,
+                critChance: 0, dmgBoss: 0, bossHpCut: 0, riftDurationCut: 0,
+                cardioBoost: 0, recovery: 0, rareLootBoost: 0, doubleDropChance: 0,
+                revealWeakness: false, extraWaveTime: false
+            };
+        }
+
         function awakCompanionsGetActiveBonuses() {
+            // 🚫 Failles SOLO : compagnons interdits sur les épreuves personnelles du joueur
+            // (narratives, compagnon, sous-boss, boss final, boss mondial/hebdo).
+            // Ces combats doivent être surmontés par le joueur seul.
+            try {
+                const sess = (typeof awakActiveRiftSession !== 'undefined') ? awakActiveRiftSession : null;
+                const r = sess && sess.rift;
+                if (r && awakIsSoloRift(r)) {
+                    return awakEmptyCompanionBonuses();
+                }
+            } catch(e) {}
             const active = awakCompanionsGetActive();
             const bonuses = {
                 STR: 0, AGI: 0, VIT: 0, END: 0, PER: 0, SEN: 0,
@@ -29156,12 +29264,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 case 'rifts_completed': current = data.stats?.rifts || 0; break;
                 case 'monsters_hunted': current = data.stats?.monsters || 0; break;
                 case 'rank': {
-                    const rankIds = ['E', 'D', 'C', 'B', 'A', 'S'];
+                    const rankIds = ['E', 'D', 'C', 'B', 'A', 'S', 'SS', 'SSS'];
                     current = rankIds.indexOf(awakGetRank().id);
                     break;
                 }
             }
-            const goal = cond.type === 'rank' ? ['E', 'D', 'C', 'B', 'A', 'S'].indexOf(cond.value) : cond.value;
+            const goal = cond.type === 'rank' ? ['E', 'D', 'C', 'B', 'A', 'S', 'SS', 'SSS'].indexOf(cond.value) : cond.value;
             const pct = Math.min(100, Math.round((current / Math.max(1, goal)) * 100));
 
             document.getElementById('awakCompanionLockedModal')?.remove();
@@ -29304,7 +29412,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             // Pas plus d'une faille narrative active à la fois
             if (rifts.some(r => r.isNarrative && !r.completed)) return null;
 
-            const rankIds = ['E', 'D', 'C', 'B', 'A', 'S'];
+            const rankIds = ['E', 'D', 'C', 'B', 'A', 'S', 'SS', 'SSS'];
             const currentRankIdx = rankIds.indexOf(awakGetRank().id);
             const completedRifts = rifts.filter(r => r.completed && !r.isNarrative).length;
 
@@ -29540,7 +29648,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         function awakArchitectMaybeGlitch() {
             // Conditions : rang >= C, cooldown 48h, probabilité 5%
             const rank = awakGetRank();
-            const rankIds = ['E', 'D', 'C', 'B', 'A', 'S'];
+            const rankIds = ['E', 'D', 'C', 'B', 'A', 'S', 'SS', 'SSS'];
             if (rankIds.indexOf(rank.id) < 2) return; // pas avant C
 
             const lastGlitch = parseInt(localStorage.getItem(ARCHITECT_LAST_GLITCH_KEY) || '0');
@@ -29822,11 +29930,21 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             }
 
             if (typeof session.playerHP !== 'number') session.playerHP = awakGetPlayerMaxHP();
+
+            // 🛡️ VIT : défense — réduit les dégâts subis (rendements décroissants, cap 75%)
+            const _stats = (typeof awakGetTotalStats === 'function') ? awakGetTotalStats() : {};
+            const _vit = _stats.VIT || 0;
+            const _defReduction = Math.min(0.75, _vit / (_vit + 150));
+            const _origDamage = damage;
+            damage = Math.max(1, Math.round(damage * (1 - _defReduction)));
+            const _blocked = _origDamage - damage;
+
             session.playerHP = Math.max(0, session.playerHP - damage);
 
-            // Toast contre-attaque
+            // Toast contre-attaque (mentionne la défense si elle a absorbé des dégâts)
             if (typeof showToast === 'function') {
-                showToast(`🩸 ${source || 'Le monstre'} riposte ! -${damage} HP`, 'error', 2200);
+                const _defTxt = (_blocked > 0 && _defReduction >= 0.1) ? ` (🛡️ -${_blocked} bloqués)` : '';
+                showToast(`🩸 ${source || 'Le monstre'} riposte ! -${damage} HP${_defTxt}`, 'error', 2200);
             }
             if (typeof hapticTap === 'function') hapticTap([60, 40, 60]);
 
@@ -30112,7 +30230,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             _awakInfoModal('Les 6 Attributs', '◈ GUIDE DES STATS', '📊', [
                 { icon: '⚔️', color: '#ef4444', title: 'STR — Force', text: "Augmente les dégâts que tu infliges aux monstres en Faille et en Chasse (+1% par point)." },
                 { icon: '⚡', color: '#fbbf24', title: 'AGI — Agilité', text: "Augmente ta chance de coup critique (×2 dégâts). +0.5% de chance par point." },
-                { icon: '💙', color: '#3b82f6', title: 'VIT — Vitalité', text: "Donne une chance de frapper deux fois dans la même série (+50% de dégâts). +1% par point." },
+                { icon: '💙', color: '#3b82f6', title: 'VIT — Vitalité', text: "Chance de frapper deux fois dans la même série (+50% de dégâts, +1% par point) ET réduit les dégâts des contre-attaques ennemies (défense)." },
                 { icon: '💚', color: '#22c55e', title: 'END — Endurance', text: "Augmente tes HP maximum (+5 HP par point) et régénère des HP à chaque série complétée." },
                 { icon: '👁️', color: '#a855f7', title: 'PER — Perception', text: "Donne une chance d'esquiver les attaques ennemies (+0.3%/pt) et booste tes dégâts contre les boss (+1%/pt)." },
                 { icon: '🌀', color: '#ec4899', title: 'SEN — Sens', text: "Augmente l'XP gagnée (+1%/pt) et la chance d'obtenir du loot rare (+0.5%/pt) à la fin des combats." },
@@ -30935,10 +31053,35 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     rpgSave(data);
                 }
                 rpgShowXPPop(xpGained, muscle);
+                // 📊 Vérifier si le joueur vient de franchir un palier de Failles simultanées
+                try { awakCheckRiftCapMilestone(); } catch(e) {}
             } catch(err) {
                 console.error('rpgGainXP error:', err);
             }
         }
+
+        // 📊 Notifie une seule fois quand le joueur atteint un palier qui augmente
+        // le nombre de Failles simultanées (niv 20 → 3 Failles, niv 35 → 4 Failles).
+        function awakCheckRiftCapMilestone() {
+            if (typeof getAdventureEnabled === 'function' && !getAdventureEnabled()) return;
+            const lvl = (typeof _awakGetCurrentLevel === 'function') ? _awakGetCurrentLevel() : 1;
+            const maxNow = (typeof awakGetMaxActiveRifts === 'function') ? awakGetMaxActiveRifts() : 2;
+            const seen = parseInt(localStorage.getItem('awakRiftCapSeen') || '2');
+            if (maxNow > seen) {
+                localStorage.setItem('awakRiftCapSeen', String(maxNow));
+                const compHint = (maxNow === 3)
+                    ? 'Un nouvel allié peut désormais être recruté — pars à sa rencontre pour t\'épauler.'
+                    : 'Un autre compagnon t\'attend dans les Failles — recrute-le pour tenir la cadence.';
+                if (typeof showAlert === 'function') {
+                    setTimeout(() => showAlert(
+                        `🌌 Les Failles se multiplient`,
+                        `Ta puissance attire davantage de Failles : tu peux désormais en affronter ${maxNow} en même temps. ${compHint}`
+                    ), 1800);
+                }
+                if (typeof hapticTap === 'function') hapticTap([60, 40, 60, 40, 120]);
+            }
+        }
+        window.awakCheckRiftCapMilestone = awakCheckRiftCapMilestone;
 
         // ── Decay journalier ─────────────────────────────────────────
         function rpgApplyDecay() {
@@ -31464,6 +31607,15 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             try {
                 if (typeof awakCheckAbyss === 'function') {
                     setTimeout(() => { try { awakCheckAbyss(); } catch(e) {} }, 5800);
+                }
+            } catch(e) {}
+
+            // 🌀 AWAKENED — Init silencieuse de la capacité de Failles : pour les joueurs DÉJÀ
+            // au-delà des paliers, on enregistre la capacité actuelle sans notifier (évite une
+            // alerte rétroactive). Les nouveaux franchissements seront notifiés normalement.
+            try {
+                if (localStorage.getItem('awakRiftCapSeen') === null && typeof awakGetMaxActiveRifts === 'function') {
+                    localStorage.setItem('awakRiftCapSeen', String(awakGetMaxActiveRifts()));
                 }
             } catch(e) {}
 
@@ -37409,6 +37561,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         // Peut-on déléguer cette Faille ? (rang ≤ joueur, compagnons dispo, pas déjà en mission)
         function awakCanDelegateRift(rift) {
             if (!rift || rift.completed) return { ok:false, reason:'Faille déjà fermée' };
+            // 🚫 Failles SOLO : épreuves personnelles, jamais déléguables aux compagnons
+            if (typeof awakIsSoloRift === 'function' && awakIsSoloRift(rift)) {
+                return { ok:false, reason:'Épreuve personnelle — à affronter toi-même' };
+            }
             const active = typeof awakCompanionsGetActive === 'function' ? awakCompanionsGetActive() : [];
             if (active.length === 0) return { ok:false, reason:'Aucun compagnon actif' };
             // Compagnons blessés (indisponibles après un échec) ?
@@ -37438,6 +37594,11 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const rifts = typeof awakRiftsLoad === 'function' ? awakRiftsLoad() : [];
             const rift = rifts.find(r => r.id === riftId);
             if (!rift) return;
+            // 🚫 Sécurité : jamais de délégation sur une épreuve personnelle
+            if (typeof awakIsSoloRift === 'function' && awakIsSoloRift(rift)) {
+                if (typeof showToast === 'function') showToast('Cette épreuve doit être affrontée par toi-même', 'warning', 3000);
+                return;
+            }
             const check = awakCanDelegateRift(rift);
             if (!check.ok) {
                 if (typeof showToast === 'function') showToast('⚠️ ' + check.reason, 'warning', 2500);

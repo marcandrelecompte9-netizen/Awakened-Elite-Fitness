@@ -18,6 +18,7 @@ const RARITIES = {
     superior:  { id:'superior',  label:'B', labelFull:'Supérieur',  color:'#06b6d4', bg:'rgba(6,182,212,0.10)',   glow:'rgba(6,182,212,0.34)',   dropRate:0.18 },
     epic:      { id:'epic',      label:'A', labelFull:'Épique',     color:'#a855f7', bg:'rgba(168,85,247,0.10)', glow:'rgba(168,85,247,0.38)', dropRate:0.10 },
     legendary: { id:'legendary', label:'S', labelFull:'Légendaire', color:'#f59e0b', bg:'rgba(245,158,11,0.10)', glow:'rgba(245,158,11,0.45)', dropRate:0.02 },
+    mythic:    { id:'mythic',    label:'SS', labelFull:'Mythique',  color:'#f43f5e', bg:'rgba(244,63,94,0.12)',  glow:'rgba(244,63,94,0.55)',  dropRate:0.008 },
 };
 const SLOTS = {
     head:      { label:'Tête',       icon:'⛑️' },
@@ -545,7 +546,7 @@ function tryEquipmentDrop(muscle, workoutQuality) {
     // Tirage de la rareté
     const roll = Math.random();
     let cumul = 0;
-    const rarityOrder = ['common', 'uncommon', 'rare', 'superior', 'epic', 'legendary'];
+    const rarityOrder = ['common', 'uncommon', 'rare', 'superior', 'epic', 'legendary', 'mythic'];
     let rarity = 'common';
     for (let i = 0; i < rarityOrder.length; i++) {
         cumul += table[i];
@@ -1251,7 +1252,7 @@ function openInventoryCleanupModal() {
     });
 
     // Ordre d'affichage des raretés
-    const rarityOrder = ['common', 'uncommon', 'rare', 'superior', 'epic', 'legendary'];
+    const rarityOrder = ['common', 'uncommon', 'rare', 'superior', 'epic', 'legendary', 'mythic'];
     const rarityRows = rarityOrder
         .filter(rar => byRarity[rar] && byRarity[rar].length > 0)
         .map(rar => {
