@@ -1987,6 +1987,38 @@
             };
             
             const stretches = [];
+
+            // 🤸 Détecte si un étirement se fait UN CÔTÉ À LA FOIS (unilatéral).
+            // Soit son nom/instructions le disent, soit son muscle est typiquement
+            // étiré côté par côté (membres, épaules, obliques...).
+            const isUnilateralStretch = (ex) => {
+                if (!ex) return false;
+                const txt = ((ex.name || '') + ' ' + (ex.instructions || []).join(' ')).toLowerCase();
+                if (/chaque côté|chaque bras|chaque jambe|de chaque|côté gauche|côté droit|un bras|une jambe|alternez|chaque main/.test(txt)) return true;
+                // Muscles quasi toujours étirés un côté à la fois
+                const sideMuscles = ['Biceps','Triceps','Épaules','Quadriceps','Ischio-jambiers','Mollets','Fessiers','Avant-bras','Adducteurs','Trapèzes','Obliques'];
+                // Sauf les étirements clairement bilatéraux (les deux membres ensemble)
+                const bilateralNames = /porte|deux bras|bras croisés|complet|respiration|cobra|posture enfant|chat-dos|adducteurs assis/i;
+                return sideMuscles.includes(ex.muscle) && !bilateralNames.test(ex.name || '');
+            };
+
+            // Construit la/les étape(s) d'un étirement : une seule si bilatéral,
+            // deux (gauche puis droite) si unilatéral — chaque côté garde la durée pleine.
+            const buildStretchSteps = (stretchExercise, duration) => {
+                const baseInstr = (stretchExercise.instructions || []);
+                if (isUnilateralStretch(stretchExercise)) {
+                    return [
+                        { ...stretchExercise, name: `${stretchExercise.name} — côté gauche`, duration,
+                          instructions: [...baseInstr, '⬅️ Premier côté (gauche)', `⏱️ Maintenez ${duration} s en respirant`, 'Relâchez en douceur'] },
+                        { ...stretchExercise, name: `${stretchExercise.name} — côté droit`, duration,
+                          instructions: [...baseInstr, '➡️ Deuxième côté (droit)', `⏱️ Maintenez ${duration} s en respirant`, 'Relâchez en douceur'] }
+                    ];
+                }
+                return [
+                    { ...stretchExercise, duration,
+                      instructions: [...baseInstr, '💨 Respirez profondément et détendez-vous', `⏱️ Maintenez ${duration} secondes en respirant calmement`, 'Relâchez doucement sans à-coups'] }
+                ];
+            };
             
             // Info respiration
             stretches.push({
@@ -2014,16 +2046,7 @@
                     : null;
 
                 if (stretchExercise) {
-                    stretches.push({
-                        ...stretchExercise,
-                        duration: duration,
-                        instructions: [
-                            ...(stretchExercise.instructions || []),
-                            "💨 Respirez profondément et détendez-vous",
-                            `⏱️ Maintenez ${duration} secondes en respirant calmement`,
-                            "Relâchez doucement sans à-coups"
-                        ]
-                    });
+                    buildStretchSteps(stretchExercise, duration).forEach(step => stretches.push(step));
                 }
             });
             
@@ -2040,15 +2063,22 @@
                         : null;
 
                     if (antagonistStretch && stretches.length < 10) { // Limiter nombre total
-                        stretches.push({
-                            ...antagonistStretch,
-                            duration: 20, // Court
-                            instructions: [
-                                "⚖️ Étirement léger du muscle antagoniste",
-                                "Pour équilibrer la séance",
-                                "Respirez calmement"
-                            ]
-                        });
+                        if (isUnilateralStretch(antagonistStretch)) {
+                            stretches.push({ ...antagonistStretch, name: `${antagonistStretch.name} — côté gauche`, duration: 20,
+                                instructions: ["⚖️ Étirement léger (muscle antagoniste)", "⬅️ Premier côté (gauche)", "Respirez calmement"] });
+                            stretches.push({ ...antagonistStretch, name: `${antagonistStretch.name} — côté droit`, duration: 20,
+                                instructions: ["⚖️ Étirement léger (muscle antagoniste)", "➡️ Deuxième côté (droit)", "Respirez calmement"] });
+                        } else {
+                            stretches.push({
+                                ...antagonistStretch,
+                                duration: 20, // Court
+                                instructions: [
+                                    "⚖️ Étirement léger du muscle antagoniste",
+                                    "Pour équilibrer la séance",
+                                    "Respirez calmement"
+                                ]
+                            });
+                        }
                     }
                 }
             });
@@ -6280,7 +6310,74 @@
         
         let pendingWorkout = null; // Store workout before starting
         
+        // 👁️ Aperçu de l'image d'un exercice (depuis la fenêtre de préparation).
+        // Affiche la photo si disponible, sinon le visuel SVG de l'exercice.
+        window.awakShowExercisePreview = function(exerciseName) {
+            try {
+                const exData = exerciseDatabase.find(e => e.name === exerciseName);
+                const baseName = (exData && exData._baseName) || exerciseName;
+                const imgSrc = window.EXERCISE_IMAGES && (window.EXERCISE_IMAGES[baseName] || window.EXERCISE_IMAGES[exerciseName]);
+                const muscle = exData ? exData.muscle : '';
+                const equip = (exData && exData.equipment && exData.equipment.length) ? exData.equipment.join(', ') : 'Poids du corps';
+
+                let mediaHTML;
+                if (imgSrc) {
+                    mediaHTML = `<img src="${imgSrc}" alt="${exerciseName}" style="width:100%;border-radius:14px;display:block;" />`;
+                } else if (typeof getExerciseVisual === 'function') {
+                    // Repli : visuel SVG (position de départ)
+                    const svg = getExerciseVisual(exerciseName, muscle, 'start');
+                    mediaHTML = `<div style="width:100%;border-radius:14px;overflow:hidden;background:rgba(255,255,255,0.03);padding:10px;">${svg || ''}</div>
+                        <div style="font-size:0.74em;color:#64748b;text-align:center;margin-top:8px;">Illustration schématique (photo à venir)</div>`;
+                } else {
+                    mediaHTML = `<div style="text-align:center;color:#64748b;padding:30px;">Aperçu indisponible</div>`;
+                }
+
+                const existing = document.getElementById('exercisePreviewModal');
+                if (existing) existing.remove();
+
+                const modal = document.createElement('div');
+                modal.id = 'exercisePreviewModal';
+                modal.style.cssText = 'position:fixed;inset:0;z-index:10050;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);display:flex;align-items:flex-start;justify-content:center;padding:16px 16px 40px;overflow-y:auto;-webkit-overflow-scrolling:touch;';
+                modal.onclick = function(e){ if (e.target === modal) modal.remove(); };
+                modal.innerHTML = `
+                    <div style="max-width:440px;width:100%;background:linear-gradient(160deg,#0f1620,#0a0e14);border:1px solid rgba(34,211,238,0.3);border-radius:18px;padding:16px;margin:0 auto;">
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+                            <div style="min-width:0;flex:1;">
+                                <div style="font-weight:800;color:#fff;font-size:1.05em;line-height:1.2;">${exerciseName}</div>
+                                <div style="font-size:0.76em;color:#94a3b8;margin-top:3px;">💪 ${muscle} · 🎒 ${equip}</div>
+                            </div>
+                            <button onclick="document.getElementById('exercisePreviewModal').remove()" style="flex-shrink:0;width:32px;height:32px;border-radius:50%;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;font-weight:900;cursor:pointer;margin-left:10px;">✕</button>
+                        </div>
+                        ${mediaHTML}
+                    </div>`;
+                document.body.appendChild(modal);
+            } catch(e) {}
+        };
+
         function showWorkoutPreparation(workout) {
+            // 🛡️ FILTRE DE SÉCURITÉ ÉQUIPEMENT : quelle que soit l'origine de la séance,
+            // on retire tout exercice nécessitant un équipement que le joueur n'a PAS coché
+            // (ex. un exercice de piscine alors que "Piscine" n'est pas sélectionnée).
+            // On préserve : poids du corps, exercices sans équipement, repos et blocs info.
+            try {
+                if (workout && Array.isArray(workout.exercises) && typeof getSelectedEquipmentNames === 'function') {
+                    const availSet = new Set(getSelectedEquipmentNames());
+                    availSet.add('Poids du corps'); availSet.add('Aucun');
+                    const isAvailable = (ex) => {
+                        if (!ex || ex.isRest || ex.isInfo) return true;
+                        const eq = ex.equipment || [];
+                        if (eq.length === 0) return true;
+                        return eq.some(e => availSet.has(e));
+                    };
+                    const filtered = workout.exercises.filter(isAvailable);
+                    const removed = workout.exercises.length - filtered.length;
+                    const realRemaining = filtered.filter(ex => !ex.isRest && !ex.isInfo).length;
+                    if (removed > 0 && realRemaining >= 1) {
+                        workout = { ...workout, exercises: filtered };
+                    }
+                }
+            } catch(e) {}
+
             pendingWorkout = workout;
             window._fbHasPrep = true;
             
@@ -6349,12 +6446,13 @@
                     if (difficulty === 'Avancé') difficultyColor = '#ef4444';
 
                     const setsReps = ex.sets ? (ex.mode === 'timer' ? `${ex.sets}×${ex.duration}s` : `${ex.sets}×${ex.reps || '?'}`) : '';
+                    const _safeName = (exerciseName || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
 
-                    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:11px 14px;margin-bottom:7px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:12px;border-left:3px solid ${difficultyColor};">
+                    return `<div onclick="awakShowExercisePreview('${_safeName}')" style="display:flex;align-items:center;justify-content:space-between;padding:11px 14px;margin-bottom:7px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:12px;border-left:3px solid ${difficultyColor};cursor:pointer;-webkit-tap-highlight-color:transparent;">
                         <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;">
                             <div style="font-weight:800;color:#22d3ee;min-width:26px;font-size:0.9em;">${index+1}.</div>
                             <div style="flex:1;min-width:0;">
-                                <div style="font-weight:600;color:#e2e8f0;font-size:0.9em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${exerciseName}</div>
+                                <div style="font-weight:600;color:#e2e8f0;font-size:0.9em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${exerciseName} <span style="font-size:0.8em;color:#22d3ee;opacity:0.7;">👁️</span></div>
                                 ${muscle ? `<div style="font-size:0.75em;color:#94a3b8;margin-top:2px;">💪 ${muscle}</div>` : ''}
                             </div>
                         </div>
@@ -24000,6 +24098,13 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
          * Appelé une fois après completeWorkout()
          */
         function awakProcessWorkoutForAutoStats(workout) {
+            // 🚫 AUTO-STATS DÉSACTIVÉES : les attributs ne montent plus tout seuls.
+            // Toute la puissance vient désormais des points alloués manuellement (4/niveau)
+            // et de l'équipement. Cela rend les choix d'attributs et le stuff déterminants,
+            // et évite qu'un joueur démolisse tout sans rien investir. Les stats déjà
+            // accumulées par un joueur existant sont conservées (on stoppe juste la hausse).
+            return;
+            /* --- ancien système d'auto-stats (conservé, inactif) ---
             if (typeof getAdventureEnabled === 'function' && !getAdventureEnabled()) return;
             if (!workout || !workout.exercises) return;
 
@@ -24035,6 +24140,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             localStorage.setItem(AWAKENED_LAST_PROCESSED_KEY, workoutId);
 
             return { gainedByStat, totalGained };
+            --- fin ancien système --- */
         }
         window.awakProcessWorkoutForAutoStats = awakProcessWorkoutForAutoStats;
         window.awakAutoStatsLoad = awakAutoStatsLoad;
@@ -24207,13 +24313,66 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         // Le profil actuel est-il le développeur ?
         function awakIsDevUser() {
             try {
+                // Activation de secours : si la clé dev est posée manuellement, le mode dev est ON
+                // (utile si la détection par nom de profil échoue pour une raison quelconque).
+                if (localStorage.getItem('awakDevMode') === '1') return true;
                 const profile = (typeof getCurrentProfile === 'function') ? getCurrentProfile() : null;
                 if (!profile || !profile.name) return false;
                 // Comparaison insensible à la casse et aux espaces (évite les faux négatifs).
-                return profile.name.trim().toLowerCase() === DEV_PROFILE_NAME.toLowerCase();
+                if (profile.name.trim().toLowerCase() === DEV_PROFILE_NAME.toLowerCase()) {
+                    localStorage.setItem('awakDevMode', '1'); // mémorise pour les prochaines fois
+                    return true;
+                }
+                return false;
             } catch(e) { return false; }
         }
         window.awakIsDevUser = awakIsDevUser;
+        // Permet d'activer/désactiver le mode dev manuellement depuis la console :
+        //   awakSetDevMode(true)  → active   |   awakSetDevMode(false) → désactive
+        window.awakSetDevMode = function(on) {
+            try {
+                if (on) localStorage.setItem('awakDevMode', '1');
+                else localStorage.removeItem('awakDevMode');
+                if (typeof awakRefreshDevPanel === 'function') awakRefreshDevPanel();
+                return 'Mode dev : ' + (on ? 'ACTIVÉ' : 'désactivé');
+            } catch(e) { return 'erreur'; }
+        };
+
+        // 📱 Activation mobile du mode dev : taper 7 fois sur le numéro de version
+        // (méthode classique Android, sans avoir besoin de la console).
+        let _awakVersionTaps = 0;
+        let _awakVersionTapTimer = null;
+        window.awakVersionTap = function() {
+            // Si déjà en mode dev, proposer de le désactiver
+            if (localStorage.getItem('awakDevMode') === '1') {
+                _awakVersionTaps++;
+                if (_awakVersionTaps >= 7) {
+                    _awakVersionTaps = 0;
+                    localStorage.removeItem('awakDevMode');
+                    if (typeof awakRefreshDevPanel === 'function') awakRefreshDevPanel();
+                    if (typeof showToast === 'function') showToast('🔧 Mode développeur désactivé', 'info', 2500);
+                }
+                clearTimeout(_awakVersionTapTimer);
+                _awakVersionTapTimer = setTimeout(() => { _awakVersionTaps = 0; }, 1500);
+                return;
+            }
+            _awakVersionTaps++;
+            clearTimeout(_awakVersionTapTimer);
+            // Compte à rebours visuel à partir de 4 taps
+            const remaining = 7 - _awakVersionTaps;
+            if (remaining > 0 && _awakVersionTaps >= 4 && typeof showToast === 'function') {
+                showToast(`Encore ${remaining} pour le mode développeur…`, 'info', 1200);
+            }
+            if (_awakVersionTaps >= 7) {
+                _awakVersionTaps = 0;
+                localStorage.setItem('awakDevMode', '1');
+                if (typeof awakRefreshDevPanel === 'function') awakRefreshDevPanel();
+                if (typeof showToast === 'function') showToast('🔧 Mode développeur ACTIVÉ !', 'success', 3000);
+                // S'assurer qu'on est dans l'onglet réglages pour voir le panneau apparaître
+            }
+            // Reset le compteur si pas de tap pendant 1,5 s
+            _awakVersionTapTimer = setTimeout(() => { _awakVersionTaps = 0; }, 1500);
+        };
 
         // Affiche/masque le panneau développeur selon le nom du profil.
         // Appelée à l'ouverture des réglages et au chargement.
@@ -29055,8 +29214,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             else body = awakRenderMerchantEquipment();
 
             return `
-            <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#1a1407,#0F1014);border:1px solid rgba(251,191,36,0.4);padding:0;overflow:hidden;border-radius:20px;margin:auto 0;">
-                <div style="position:relative;border-bottom:1px solid rgba(251,191,36,0.25);overflow:hidden;">
+            <div class="modal-content" style="max-width:480px;width:100%;background:linear-gradient(160deg,#1a1407,#0F1014);border:1px solid rgba(251,191,36,0.4);padding:0;border-radius:20px;margin:0 auto;">
+                <div style="position:relative;border-bottom:1px solid rgba(251,191,36,0.25);overflow:hidden;border-radius:20px 20px 0 0;">
                     <img src="images/story/marchand.webp" alt="Le Marchand"
                          style="width:100%;height:160px;object-fit:cover;object-position:center 30%;display:block;"
                          onerror="this.onerror=null;this.style.display='none';this.parentNode.style.background='linear-gradient(135deg,rgba(251,191,36,0.18),rgba(251,191,36,0.04))';this.parentNode.querySelector('.merchant-fallback-emoji').style.display='block';" />
@@ -29137,6 +29296,20 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 const r = (typeof RARITIES !== 'undefined' && RARITIES[item.rarity]) ? RARITIES[item.rarity] : { color:'#94a3b8', labelFull:'?' };
                 const bought = shop.purchased.includes(entry.id);
                 const afford = gold >= entry.price;
+                // 📊 Stats de l'item (STR/AGI/VIT/END/PER/SEN) + passif, pour décider avant d'acheter
+                const statEmojis = { STR:'⚔️', AGI:'⚡', VIT:'💙', END:'💚', PER:'👁️', SEN:'🌀' };
+                const statsHtml = (item.stats && Object.keys(item.stats).length)
+                    ? `<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;">` +
+                        Object.entries(item.stats).filter(([k,v]) => v).map(([k,v]) =>
+                            `<span style="font-size:0.66em;background:rgba(255,255,255,0.05);border:1px solid ${r.color}33;border-radius:6px;padding:2px 6px;color:#e2e8f0;font-weight:700;">${statEmojis[k]||''} ${k} +${v}</span>`
+                        ).join('') + `</div>`
+                    : '';
+                const passiveHtml = item.passive
+                    ? `<div style="font-size:0.66em;color:#cbd5e1;margin-top:7px;line-height:1.35;border-left:2px solid ${r.color}66;padding-left:7px;">✨ ${item.passive}</div>`
+                    : '';
+                const setHtml = item.set
+                    ? `<div style="font-size:0.62em;color:${r.color};margin-top:6px;font-weight:700;">🔗 Set : ${(typeof EQUIPMENT_SETS!=='undefined'&&EQUIPMENT_SETS[item.set])?EQUIPMENT_SETS[item.set].name:item.set}</div>`
+                    : '';
                 return `<div style="background:linear-gradient(135deg,${r.color}14,transparent);border:1.5px solid ${r.color}40;border-radius:11px;padding:12px;margin-bottom:8px;${bought?'opacity:0.5;':''}">
                     <div style="display:flex;align-items:center;gap:10px;">
                         <span style="font-size:1.7em;filter:drop-shadow(0 0 6px ${r.color}80);">${item.icon}</span>
@@ -29145,6 +29318,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                             <div style="font-size:0.66em;color:${r.color};font-weight:700;">${(r.labelFull||'').toUpperCase()} · ${item.slot}</div>
                         </div>
                     </div>
+                    ${statsHtml}
+                    ${passiveHtml}
+                    ${setHtml}
+                    ${item.description ? `<div style="font-size:0.64em;color:#94a3b8;margin-top:7px;font-style:italic;line-height:1.3;">${item.description}</div>` : ''}
                     <button onclick="_merchantBuyEquipment('${entry.id}')" ${(bought||!afford)?'disabled':''} style="width:100%;margin-top:9px;background:${bought?'rgba(34,197,94,0.1)':afford?`${r.color}22`:'rgba(255,255,255,0.04)'};border:1px solid ${bought?'rgba(34,197,94,0.3)':afford?r.color+'66':'rgba(255,255,255,0.08)'};color:${bought?'#4ade80':afford?r.color:'#475569'};border-radius:8px;padding:9px;font-size:0.78em;font-weight:800;cursor:${(bought||!afford)?'not-allowed':'pointer'};">${bought?'✓ ACHETÉ':`💰 ${entry.price} or`}</button>
                 </div>`;
             }).join('');
@@ -35188,11 +35365,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     workout.exercises.push(fullExercise);
                 }
             });
-            
-            currentWorkout = workout;
-            currentExerciseIndex = 0;
-            workoutStartTime = Date.now(); _workoutSkipCount = 0;
-            
+
             // Show badge
             const badge = document.getElementById('workoutTypeBadge');
             if (badge) {
@@ -35200,16 +35373,13 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 badge.innerHTML = `💪 ${program.name}`;
                 badge.style.background = 'linear-gradient(135deg, #a855f7 0%, #9333ea 100%)';
             }
-            
+
+            // Afficher l'écran de PRÉPARATION (liste des exercices) comme pour les autres séances,
+            // au lieu de démarrer directement le premier exercice.
             switchTab('workouts');
-            document.getElementById('workoutSelection').style.display = 'none';
-            document.getElementById('exerciseView').classList.remove('hidden'); document.body.classList.add('in-session');
-            
-            renderExerciseProgressList();
-            updateMusclesOverview();
-            startExercise();
-            
-            speak(`Démarrage du programme ${program.name}`);
+            showWorkoutPreparation(workout);
+
+            speak(`Programme ${program.name} prêt`);
         }
 
 

@@ -222,7 +222,7 @@
                        : (typeof CONSUMABLES !== 'undefined' ? CONSUMABLES : []);
             (list || []).forEach(c => {
                 const price = CONSUMABLE_PRICES[c.id];
-                if (price) out.push({ id:c.id, name:c.name, icon:c.icon, description:c.description, price });
+                if (price) out.push({ id:c.id, name:c.name, icon:(c.icon || c.emoji || '🧪'), description:c.description, price });
             });
         } catch(e) {}
         return out;
