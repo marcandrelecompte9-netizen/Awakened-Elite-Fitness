@@ -4820,7 +4820,7 @@
 
         #restOverlay {
             display: none;
-            position: fixed; inset: 0; z-index: 9990;
+            position: fixed; inset: 0; z-index: 10010;
             background: linear-gradient(160deg, #020510 0%, #050810 50%, #020510 100%);
             flex-direction: column;
             align-items: center; justify-content: center;

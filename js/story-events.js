@@ -24,7 +24,8 @@ const STORY_CHARS = {
     kira:    { name: 'Kira Shadowstep', color: '#a855f7', image: 'images/companions/kira.webp' },
     chen:    { name: 'Maître Chen',     color: '#06b6d4', image: 'images/companions/chen.webp' },
     elise:   { name: 'Élise Vorn',      color: '#22c55e', image: 'images/companions/elise.webp' },
-    yuna:    { name: 'Yuna Veilbreaker',color: '#3b82f6', image: 'images/companions/yuna.webp' }
+    yuna:    { name: 'Yuna Veilbreaker',color: '#3b82f6', image: 'images/companions/yuna.webp' },
+    marchand:{ name: 'Le Marchand', color: '#fbbf24', image: 'images/story/marchand.webp' }
 };
 
 // ── REGISTRE DES ÉVÉNEMENTS ────────────────────────────────────────
@@ -97,6 +98,25 @@ const STORY_EVENTS = [
                 "Esen, sans ralentir : « Il allait s'échapper. » Nyra plisse les yeux. « Règle numéro deux : on ne REPARLE PLUS de ça. »",
                 "« Règle numéro trois, » continue-t-elle en tapotant le logo AV sur sa tenue, « on s'entraîne TOUS LES JOURS. Le Système nous a choisis, pas question de rouiller. »",
                 "Esen hoche la tête, une seule fois. Venant de lui, c'est un discours entier. Le duo a ses règles. Et désormais, une direction commune."
+            ]
+        }
+    },
+    {
+        // Niveau ~3 : rencontre du Marchand (introduit l'echoppe itinerante)
+        id: 'evt_n3_marchand',
+        type: 'rencontre',
+        trigger: { kind: 'level', value: 3 },
+        once: true,
+        content: {
+            speaker: 'marchand',
+            title: "L'Échoppe Itinérante",
+            image: 'images/story/marchand.webp',
+            pages: [
+                "Au détour d'une rue, une échoppe a poussé là où il n'y avait rien la veille. Lanternes ambrées, étagères croulant sous les haltères, les bandes, les fioles luisantes. Un homme souriant s'y tient, bras croisés.",
+                "« Tiens, tiens… deux Veilleurs tout neufs. » Il écarte les bras vers son bazar. « Bienvenue. Je suis Le Marchand — le seul fou qui suit les Failles au lieu de les fuir. »",
+                "Nyra fronce les sourcils. « Tu vends quoi, au juste ? » Il sourit. « Tout ce qui rend plus fort. De l'équipement, des potions, et surtout… j'achète. »",
+                "Il pointe les éclats brillants tombés des Failles que vous avez fermées. « Ces minéraux que vous ramassez sans y penser ? De l'or, entre de bonnes mains. Les miennes. Apportez-les-moi, je les transforme en pouvoir. »",
+                "Esen examine une lame à l'aura violette, silencieux. Le Marchand glisse : « Le silencieux a bon goût. Reviens quand ta bourse suivra. » Il tapote son comptoir gravé du logo AV. « Mon échoppe est à vous, désormais. Faille après Faille, je serai là. »"
             ]
         }
     },
@@ -987,6 +1007,7 @@ function awakShowHeroReaction(reason) {
 
 // ── EXPORTS ────────────────────────────────────────────────────────
 window.STORY_EVENTS       = STORY_EVENTS;
+window.storyEventSeen     = storyEventSeen;
 window.STORY_CHARS        = STORY_CHARS;
 window.storyCheckEvents   = storyCheckEvents;
 window.storyShowEvent     = storyShowEvent;

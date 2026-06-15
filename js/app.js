@@ -22556,8 +22556,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             } catch(e) {}
 
             // ── 🛒 LE MARCHAND — vendre minéraux, acheter consommables & équipement ──
+            // Apparaît seulement APRÈS la scène de rencontre (niveau ~3).
             try {
-                if (window.AwakEconomy) {
+                const marchandRencontre = (typeof storyEventSeen === 'function') ? storyEventSeen('evt_n3_marchand') : true;
+                if (window.AwakEconomy && marchandRencontre) {
                     const gold = window.AwakEconomy.getGold();
                     const mineralsValue = window.AwakEconomy.getMineralsTotalValue();
                     const cardShop = document.createElement('div');
@@ -24206,7 +24208,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         function awakIsDevUser() {
             try {
                 const profile = (typeof getCurrentProfile === 'function') ? getCurrentProfile() : null;
-                return !!(profile && profile.name && profile.name.trim() === DEV_PROFILE_NAME);
+                if (!profile || !profile.name) return false;
+                // Comparaison insensible à la casse et aux espaces (évite les faux négatifs).
+                return profile.name.trim().toLowerCase() === DEV_PROFILE_NAME.toLowerCase();
             } catch(e) { return false; }
         }
         window.awakIsDevUser = awakIsDevUser;

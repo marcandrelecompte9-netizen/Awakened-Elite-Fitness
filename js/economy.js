@@ -187,7 +187,6 @@
             return { type, qty };
         } catch(e) { return null; }
     }
-    window.AwakEconomy.dropMineralsForCompanionMission = dropMineralsForCompanionMission;
 
     // ─── Exposition globale ──────────────────────────────────────────
     window.AwakEconomy = {
@@ -397,6 +396,7 @@
     }
 
     window.AwakEconomy.getMasteries = getMasteries;
+    window.AwakEconomy.dropMineralsForCompanionMission = dropMineralsForCompanionMission;
     window.AwakEconomy.getMasteryLevel = getMasteryLevel;
     window.AwakEconomy.getMasteryNextPrice = getMasteryNextPrice;
     window.AwakEconomy.buyMasteryLevel = buyMasteryLevel;
