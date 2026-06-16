@@ -136,7 +136,6 @@ const exerciseDatabase = [
             { name: "Jump Rope HIIT", muscle: "Cardio", difficulty: "Intermédiaire", type: "exercise", equipment: ["Corde à sauter"], mode: "timer", description: "Intervalles intenses.", instructions: ["30s sauts rapides", "30s repos ou marche", "Alternez 10 fois", "Augmentez vitesse", "Respirez bien"], tips: "Excellent pour condition physique.", duration: 300 },
 
             // BARRES PARALLÈLES
-            { name: "Parallel Bar Dips", muscle: "Triceps", difficulty: "Intermédiaire", type: "exercise", equipment: ["Barres parallèles"], description: "Dips sur barres parallèles.", instructions: ["Saisissez les barres", "Corps suspendu", "Descendez en pliant coudes", "Poussez pour remonter", "Gardez épaules basses"], tips: "Excellent pour triceps et pectoraux.", duration: 60 },
             { name: "L-Sit Hold", muscle: "Abdominaux", difficulty: "Avancé", type: "exercise", equipment: ["Barres parallèles"], description: "Maintien en L sur barres.", instructions: ["Bras tendus sur barres", "Levez jambes à 90°", "Formez un L", "Maintenez position", "Abdos ultra contractés"], tips: "Très difficile, progressez graduellement.", duration: 30 },
             { name: "Parallel Bar Knee Raises", muscle: "Abdominaux", difficulty: "Intermédiaire", type: "exercise", equipment: ["Barres parallèles"], description: "Relevés de genoux suspendus.", instructions: ["Suspendu aux barres", "Levez genoux vers poitrine", "Contractez abdos", "Redescendez contrôlé", "Pas de balancement"], tips: "Progression vers les toes to bar.", duration: 60 },
 
@@ -410,7 +409,6 @@ const exerciseDatabase = [
             { name: "Élévations frontales câble", muscle: "Épaules", difficulty: "Débutant", type: "exercise", equipment: ["Machine"], description: "Frontal raise au câble bas.", instructions: ["Câble en position basse", "Bras tendus devant", "Monter jusqu'aux yeux", "Descente contrôlée"], tips: "Tension continue sur les deltoïdes.", duration: 60 },
 
             // ── BICEPS ──
-            { name: "Curl biceps machine", muscle: "Biceps", difficulty: "Débutant", type: "exercise", equipment: ["Machine"], description: "Curl biceps sur machine guidée.", instructions: ["Coudes sur le support", "Flex complet vers l'épaule", "Pause en haut", "Descente lente et contrôlée"], tips: "Isolation parfaite, pas de triche.", duration: 60 },
             { name: "Curl câble barre droite", muscle: "Biceps", difficulty: "Débutant", type: "exercise", equipment: ["Machine"], description: "Curl barre au câble bas.", instructions: ["Prise en supination", "Coudes fixes aux côtés", "Flex vers les épaules", "Résister à la descente"], tips: "Tension constante du câble.", duration: 60 },
             { name: "Curl câble unilatéral", muscle: "Biceps", difficulty: "Intermédiaire", type: "exercise", equipment: ["Machine"], description: "Curl à un bras au câble.", instructions: ["Câble bas, prise neutre", "Supination en montant", "Coude fixe", "Descente complète"], tips: "Corrige les déséquilibres gauche/droit.", duration: 60 },
 

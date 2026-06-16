@@ -2006,17 +2006,15 @@
             // deux (gauche puis droite) si unilatéral — chaque côté garde la durée pleine.
             const buildStretchSteps = (stretchExercise, duration) => {
                 const baseInstr = (stretchExercise.instructions || []);
-                if (isUnilateralStretch(stretchExercise)) {
-                    return [
-                        { ...stretchExercise, name: `${stretchExercise.name} — côté gauche`, duration,
-                          instructions: [...baseInstr, '⬅️ Premier côté (gauche)', `⏱️ Maintenez ${duration} s en respirant`, 'Relâchez en douceur'] },
-                        { ...stretchExercise, name: `${stretchExercise.name} — côté droit`, duration,
-                          instructions: [...baseInstr, '➡️ Deuxième côté (droit)', `⏱️ Maintenez ${duration} s en respirant`, 'Relâchez en douceur'] }
-                    ];
-                }
+                const bilateral = isUnilateralStretch(stretchExercise);
+                // UN SEUL exercice (nom intact → l'image charge). Si bilatéral, on marque
+                // bilateral:true : le timer fera 2 tours (côté droit puis côté gauche) sur
+                // LE MÊME exercice, sans en créer un deuxième.
                 return [
-                    { ...stretchExercise, duration,
-                      instructions: [...baseInstr, '💨 Respirez profondément et détendez-vous', `⏱️ Maintenez ${duration} secondes en respirant calmement`, 'Relâchez doucement sans à-coups'] }
+                    { ...stretchExercise, duration, bilateral,
+                      instructions: bilateral
+                        ? [...baseInstr, '↔️ À faire des DEUX côtés', `⏱️ ${duration} s par côté — le minuteur repart pour le 2ᵉ côté`]
+                        : [...baseInstr, '💨 Respirez profondément et détendez-vous', `⏱️ Maintenez ${duration} secondes en respirant calmement`, 'Relâchez doucement sans à-coups'] }
                 ];
             };
             
@@ -2063,22 +2061,15 @@
                         : null;
 
                     if (antagonistStretch && stretches.length < 10) { // Limiter nombre total
-                        if (isUnilateralStretch(antagonistStretch)) {
-                            stretches.push({ ...antagonistStretch, name: `${antagonistStretch.name} — côté gauche`, duration: 20,
-                                instructions: ["⚖️ Étirement léger (muscle antagoniste)", "⬅️ Premier côté (gauche)", "Respirez calmement"] });
-                            stretches.push({ ...antagonistStretch, name: `${antagonistStretch.name} — côté droit`, duration: 20,
-                                instructions: ["⚖️ Étirement léger (muscle antagoniste)", "➡️ Deuxième côté (droit)", "Respirez calmement"] });
-                        } else {
-                            stretches.push({
-                                ...antagonistStretch,
-                                duration: 20, // Court
-                                instructions: [
-                                    "⚖️ Étirement léger du muscle antagoniste",
-                                    "Pour équilibrer la séance",
-                                    "Respirez calmement"
-                                ]
-                            });
-                        }
+                        const antBilateral = isUnilateralStretch(antagonistStretch);
+                        stretches.push({
+                            ...antagonistStretch,
+                            duration: 20, // Court
+                            bilateral: antBilateral,
+                            instructions: antBilateral
+                                ? ["⚖️ Étirement léger (muscle antagoniste)", "↔️ À faire des deux côtés", "Le minuteur repart pour le 2ᵉ côté"]
+                                : ["⚖️ Étirement léger du muscle antagoniste", "Pour équilibrer la séance", "Respirez calmement"]
+                        });
                     }
                 }
             });
@@ -5708,7 +5699,7 @@
                 'Rear Delt machine'
             ]},
             { id: 'armmachine', name: 'Machines bras', icon: '💪', svg: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="none"><rect x="38" y="52" width="24" height="38" rx="5" fill="#FFF3E0" stroke="#16a34a" stroke-width="2"/><polygon points="20,52 80,52 72,28 28,28" fill="#16a34a"/><polygon points="24,50 76,50 70,30 30,30" fill="#4ade80" opacity="0.6"/><rect x="14" y="10" width="10" height="44" rx="4" fill="#FFF3E0" stroke="#16a34a" stroke-width="2"/><rect x="76" y="10" width="10" height="44" rx="4" fill="#FFF3E0" stroke="#16a34a" stroke-width="2"/><rect x="10" y="6" width="18" height="8" rx="3" fill="#16a34a"/><rect x="72" y="6" width="18" height="8" rx="3" fill="#16a34a"/><line x1="24" y1="14" x2="76" y2="14" stroke="#16a34a" stroke-width="4" stroke-linecap="round"/></svg>', exercises: [
-                'Curl biceps machine','Bicep Curl machine','Preacher Curl machine','Preacher Curl machine',
+                'Bicep Curl machine','Preacher Curl machine',
                 'Extension triceps machine','Tricep Machine dips'
             ]},
             { id: 'absmachine', name: 'Machines abdos', icon: '🔥', svg: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="none"><rect x="10" y="8" width="14" height="84" rx="5" fill="#FFF3E0" stroke="#16a34a" stroke-width="2"/><circle cx="17" cy="16" r="9" fill="white" stroke="#16a34a" stroke-width="3"/><rect x="56" y="20" width="32" height="8" rx="3" fill="#16a34a" opacity="0.9"/><rect x="56" y="32" width="32" height="8" rx="3" fill="#16a34a" opacity="0.7"/><rect x="56" y="44" width="32" height="8" rx="3" fill="#16a34a" opacity="0.5"/><rect x="56" y="56" width="32" height="8" rx="3" fill="#16a34a" opacity="0.3"/><rect x="54" y="16" width="36" height="52" rx="4" stroke="#16a34a" stroke-width="2"/><path d="M 24 16 Q 50 16 56 36" stroke="#16a34a" stroke-width="3" stroke-dasharray="5 3"/><rect x="34" y="64" width="20" height="24" rx="4" fill="#4ade80" opacity="0.6" stroke="#16a34a" stroke-width="2"/></svg>', exercises: [
@@ -20015,6 +20006,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         window.saveCurrentExerciseNote = saveCurrentExerciseNote;
 
         function startExercise() {
+            // ↔️ Nouveau exercice → on réinitialise le marqueur de 2ᵉ côté (étirements bilatéraux)
+            window._bilateralSecondSide = false;
             // ⏱ Démarrer le chrono de session si pas déjà actif
             if (typeof startSessionTimer === 'function' && workoutStartTime) {
                 if (!_sessionTimerInterval) startSessionTimer();
@@ -20797,6 +20790,31 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     }
                     
                     if (timeRemaining <= 0) {
+                        // ↔️ ÉTIREMENT BILATÉRAL : faire le 2ᵉ côté sur LE MÊME exercice.
+                        // Au 1er passage, on relance le minuteur pour l'autre côté au lieu
+                        // de terminer — sans créer d'exercice supplémentaire.
+                        const _curEx = currentWorkout?.exercises?.[currentExerciseIndex];
+                        if (_curEx && _curEx.bilateral && !window._bilateralSecondSide
+                            && !(currentWorkout && (currentWorkout._isRift || currentWorkout._isHunt))) {
+                            clearInterval(timerInterval);
+                            window._bilateralSecondSide = true;
+                            vibrate(150);
+                            playSound();
+                            speak("Changez de côté");
+                            if (typeof showToast === 'function') showToast('↔️ Changez de côté — 2ᵉ côté', 'info', 2500);
+                            // Réafficher l'indication de côté si un élément existe
+                            const sideEl = document.getElementById('exerciseSideIndicator');
+                            if (sideEl) { sideEl.textContent = '➡️ 2ᵉ côté'; sideEl.style.display = 'block'; }
+                            // Relancer le minuteur pour la même durée
+                            timeRemaining = (_curEx.duration || 30);
+                            startTimer();
+                            return;
+                        }
+                        // Fin réelle de l'exercice : réinitialiser le marqueur de côté
+                        window._bilateralSecondSide = false;
+                        const _sideEl2 = document.getElementById('exerciseSideIndicator');
+                        if (_sideEl2) _sideEl2.style.display = 'none';
+
                         clearInterval(timerInterval);
                         vibrate(200);
                         playSound();
@@ -33142,7 +33160,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 exercises: [
                     { name:'Pompes classiques',     sets:4, reps:20, mode:'reps', rest:45 },
                     { name:'Tractions pronation',   sets:4, reps:10, mode:'reps', rest:60, note:'Strictes' },
-                    { name:'Parallel Bar Dips',     sets:4, reps:12, mode:'reps', rest:60 },
+                    { name:'Dips sur barres parallèles',     sets:4, reps:12, mode:'reps', rest:60 },
                     { name:'Pompes archer',         sets:3, reps:10, mode:'reps', rest:60, note:'Chaque côté' },
                     { name:'Pike push-ups',         sets:3, reps:12, mode:'reps', rest:60 },
                     { name:'Pistol squat',          sets:3, reps:8,  mode:'reps', rest:60, note:'Chaque jambe' },
@@ -33273,7 +33291,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 ],
                 exercises: [
                     { name:'Tractions pronation',   sets:5, reps:12, mode:'reps', rest:60, note:'Volume max' },
-                    { name:'Parallel Bar Dips',     sets:5, reps:15, mode:'reps', rest:60 },
+                    { name:'Dips sur barres parallèles',     sets:5, reps:15, mode:'reps', rest:60 },
                     { name:'Pompes diamant',        sets:4, reps:20, mode:'reps', rest:45 },
                     { name:'Tractions supination',  sets:4, reps:10, mode:'reps', rest:60 },
                     { name:'Pompes explosives',     sets:4, reps:12, mode:'reps', rest:60 },
