@@ -20490,7 +20490,11 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 }
                 // Contenu visuel
                 if (_imgSrc3) {
-                    visualContent.innerHTML = '<div style="width:100%;max-width:480px;aspect-ratio:1.21;border-radius:10px;overflow:hidden;background:#0a0e18;">' + window.buildLazyImg(_imgSrc3, exerciseName, 'border-radius:10px;width:100%;height:100%;object-fit:contain;') + '</div>';
+                    // Cadre adaptatif : suit le ratio réel de l'image (paysage OU portrait).
+                    // Les anciennes images paysage et les nouvelles verticales s'affichent
+                    // chacune en grand, sans vide latéral ni rapetissement.
+                    // max-height borne les images très hautes pour rester confortable sur mobile.
+                    visualContent.innerHTML = '<div style="width:100%;max-width:480px;margin:0 auto;border-radius:10px;overflow:hidden;background:#0a0e18;display:flex;align-items:center;justify-content:center;">' + window.buildLazyImg(_imgSrc3, exerciseName, 'border-radius:10px;width:100%;height:auto;max-height:62vh;object-fit:contain;display:block;') + '</div>';
                 } else {
                     visualContent.innerHTML = `
                     <div style="display:flex;gap:12px;align-items:center;justify-content:center;width:100%;flex-wrap:wrap;">
@@ -36481,11 +36485,18 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 if (!items.length) return '';
                 let s = '<div class="swap-section-title">' + title + '</div>';
                 items.forEach(ex => {
-                    const svg = getExerciseVisual(ex.name, ex.muscle, 'start');
                     const diffColors = {'Débutant':'#10b981','Intermédiaire':'#f59e0b','Avancé':'#ef4444'};
                     const dc = diffColors[ex.difficulty] || '#6b7280';
+                    // Photo de l'exercice si disponible, sinon visuel SVG schématique
+                    const _exKey = ex._baseName || ex.name;
+                    const _imgSrc = window.EXERCISE_IMAGES && (window.EXERCISE_IMAGES[_exKey] || window.EXERCISE_IMAGES[ex.name]);
+                    const media = _imgSrc
+                        ? (typeof window.buildLazyImg === 'function'
+                            ? window.buildLazyImg(_imgSrc, ex.name, 'width:100%;height:100%;object-fit:cover;border-radius:8px;')
+                            : `<img src="${_imgSrc}" alt="${ex.name}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" loading="lazy" />`)
+                        : getExerciseVisual(ex.name, ex.muscle, 'start');
                     s += `<div class="swap-card" onclick="confirmSwapExercise('${ex.name.replace(/'/g,"\\'")}')">
-                        <div class="swap-card-img">${svg}</div>
+                        <div class="swap-card-img">${media}</div>
                         <div class="swap-card-info">
                             <div class="swap-card-name">${ex.name}</div>
                             <div class="swap-card-meta">
