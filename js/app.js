@@ -2423,8 +2423,63 @@
             return bestWeek;
         }
 
+        // 🛌 RÉCUPÉRATION MUSCULAIRE — coaching informatif sur l'accueil.
+        // Pour chaque muscle entraîné récemment, compare le temps écoulé depuis la
+        // dernière sollicitation (lastTrained) avec son temps de récup individuel.
+        // Si le muscle n'a pas fini de récupérer, on prévient le joueur. Purement
+        // informatif : aucun effet sur le jeu.
+        function getMuscleRecoveryInsights() {
+            const out = [];
+            try {
+                if (typeof rpgLoad !== 'function') return out;
+                const data = rpgLoad();
+                const muscles = data && data.muscles ? data.muscles : {};
+                const now = Date.now();
+                const stillRecovering = [];
+                Object.entries(muscles).forEach(([muscleName, info]) => {
+                    if (!info || !info.lastTrained) return;
+                    const hoursSince = (now - new Date(info.lastTrained).getTime()) / 3600000;
+                    const recoveryHours = (typeof getMuscleRecoveryHours === 'function')
+                        ? getMuscleRecoveryHours(muscleName) : 48;
+                    if (hoursSince < recoveryHours) {
+                        const hoursLeft = Math.ceil(recoveryHours - hoursSince);
+                        stillRecovering.push({ muscle: muscleName, hoursLeft, recoveryHours });
+                    }
+                });
+                if (stillRecovering.length === 0) return out;
+                // Trier : ceux à qui il reste le plus de repos en premier
+                stillRecovering.sort((a, b) => b.hoursLeft - a.hoursLeft);
+
+                const fmt = (h) => h >= 24 ? `${Math.round(h/24*10)/10} j`.replace('.0','') : `${h} h`;
+
+                if (stillRecovering.length === 1) {
+                    const m = stillRecovering[0];
+                    out.push({
+                        icon: '🛌',
+                        text: `Repos conseillé : tes ${m.muscle.toLowerCase()} récupèrent encore (~${fmt(m.hoursLeft)} avant de les retravailler à fond).`,
+                        type: 'warning'
+                    });
+                } else {
+                    const names = stillRecovering.slice(0, 3).map(m => m.muscle.toLowerCase()).join(', ');
+                    out.push({
+                        icon: '🛌',
+                        text: `Plusieurs muscles récupèrent encore (${names}). Privilégie d'autres groupes ou du repos aujourd'hui.`,
+                        type: 'warning'
+                    });
+                }
+            } catch(e) {}
+            return out;
+        }
+        window.getMuscleRecoveryInsights = getMuscleRecoveryInsights;
+
         function generateInsights(stats) {
             const insights = [];
+
+            // 🛌 Récupération musculaire en priorité (coaching repos)
+            try {
+                const recovery = getMuscleRecoveryInsights();
+                recovery.forEach(r => insights.push(r));
+            } catch(e) {}
             
             // Volume insights
             if (stats.totalVolume > 500) {
@@ -4435,10 +4490,11 @@
             const thisWeek = history.filter(w => new Date(w.date) >= startOfWeek);
             const sessionCount = thisWeek.length;
 
-            // Muscles travaillés cette semaine
+            // Muscles travaillés cette semaine (pondéré : muscles secondaires inclus)
             const muscleCount = {};
             thisWeek.forEach(w => {
-                (w.musclesWorked || w.muscles || []).forEach(m => muscleCount[m] = (muscleCount[m] || 0) + 1);
+                if (typeof accumulateWeightedMuscles === 'function') accumulateWeightedMuscles(w, muscleCount);
+                else (w.musclesWorked || w.muscles || []).forEach(m => muscleCount[m] = (muscleCount[m] || 0) + 1);
             });
             const allMuscles = ['Pectoraux','Dos','Épaules','Quadriceps','Fessiers','Ischio-jambiers','Abdominaux','Biceps','Triceps','Mollets'];
             const workedMuscles = Object.keys(muscleCount).sort((a,b) => muscleCount[b] - muscleCount[a]);
@@ -4559,12 +4615,11 @@
                 const history = JSON.parse(localStorage.getItem('workoutHistory') || '[]');
                 const recent = history.slice(0, 7); // 7 dernières séances
 
-                // Analyser les muscles travaillés récemment
+                // Analyser les muscles travaillés récemment (pondéré)
                 const muscleCount = {};
                 recent.forEach(w => {
-                    (w.musclesWorked || w.muscles || []).forEach(m => {
-                        muscleCount[m] = (muscleCount[m] || 0) + 1;
-                    });
+                    if (typeof accumulateWeightedMuscles === 'function') accumulateWeightedMuscles(w, muscleCount);
+                    else (w.musclesWorked || w.muscles || []).forEach(m => { muscleCount[m] = (muscleCount[m] || 0) + 1; });
                 });
 
                 // Trouver les muscles négligés (les 2-3 moins travaillés sur 7 jours)
@@ -5664,7 +5719,7 @@
                 'Cable Fly bas vers haut','Cable Fly haut vers bas','Lateral Raise cable','Face Pull câble','Face pull câble',
                 'Élévations latérales câble','Élévations frontales câble','Cable Front Raise','Upright Row câble',
                 'Straight Arm Pushdown','Low Cable Row','Tirage poulie basse câble','Tirage poulie haute face',
-                'Tirage unilatéral câble','Tirage dos poulie haute','Tirage horizontal machine',
+                'Tirage unilatéral câble','Tirage dos poulie haute','Seated Row machine',
                 'Cable Pull-Through','Cable Romanian Deadlift','Cable Squat','Woodchop câble haut-bas',
                 'Tricep Pushdown câble','Tricep Pushdown corde','Overhead Tricep câble','Kickback triceps câble','Tricep Pushdown corde',
                 'Curl câble barre droite','Curl câble unilatéral','Cable Hammer Curl',
@@ -5689,7 +5744,7 @@
             ]},
             { id: 'chestmachine', name: 'Machines pectoraux', icon: '💪', svg: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="none"><rect x="38" y="10" width="24" height="80" rx="6" fill="#FFF3E0" stroke="#16a34a" stroke-width="2"/><rect x="44" y="16" width="12" height="68" rx="4" fill="#4ade80" opacity="0.4"/><rect x="8" y="30" width="32" height="12" rx="5" fill="#16a34a"/><rect x="60" y="30" width="32" height="12" rx="5" fill="#16a34a"/><rect x="8" y="22" width="14" height="28" rx="6" fill="#FFF3E0" stroke="#16a34a" stroke-width="2"/><rect x="78" y="22" width="14" height="28" rx="6" fill="#FFF3E0" stroke="#16a34a" stroke-width="2"/><rect x="44" y="44" width="12" height="20" rx="4" fill="#16a34a"/></svg>', exercises: [
                 'Cable Fly','Cable fly','Cable crossover','Cable Crossover',
-                'Pec deck machine','Pec Deck (Butterfly)','Presse pectoraux machine','Pec Deck (Butterfly)',
+                'Pec Deck (Butterfly)','Chest Press machine','Pec Deck (Butterfly)',
                 'Tirage poitrine câble haut','Développé incliné machine','Bench Press Smith machine',
                 'Chest press incliné câble','Chest Press machine','Cable Fly bas vers haut','Cable Fly haut vers bas',
                 'Decline Chest Press machine','Bench Press Smith machine'
@@ -11226,6 +11281,24 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             log.innerHTML = headerHTML + rowsHTML;
         }
 
+        // 💪 Helper : ajoute le comptage musculaire PONDÉRÉ d'une séance à un accumulateur.
+        // Utilise musclesWeighted (muscles secondaires inclus) si présent, sinon repli
+        // sur musclesWorked (+1 par muscle principal) pour les anciennes séances.
+        function accumulateWeightedMuscles(workout, acc) {
+            if (!workout || !acc) return acc;
+            if (workout.musclesWeighted && typeof workout.musclesWeighted === 'object') {
+                Object.entries(workout.musclesWeighted).forEach(([muscle, ratio]) => {
+                    acc[muscle] = (acc[muscle] || 0) + (ratio || 0);
+                });
+            } else {
+                (workout.musclesWorked || workout.muscles || []).forEach(m => {
+                    acc[m] = (acc[m] || 0) + 1;
+                });
+            }
+            return acc;
+        }
+        window.accumulateWeightedMuscles = accumulateWeightedMuscles;
+
         // ── VOLUME HEBDOMADAIRE PAR MUSCLE ─────────────────────
         function getWeeklyVolumeByMuscle() {
             const history = getWorkoutHistory();
@@ -11234,11 +11307,19 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const recent = history.filter(w => new Date(w.date) >= weekAgo);
             const volume = {};
             recent.forEach(w => {
-                (w.musclesWorked || []).forEach(muscle => {
-                    volume[muscle] = (volume[muscle] || 0) + 1;
-                });
+                // Priorité au format pondéré (muscles secondaires inclus).
+                if (w.musclesWeighted && typeof w.musclesWeighted === 'object') {
+                    Object.entries(w.musclesWeighted).forEach(([muscle, ratio]) => {
+                        volume[muscle] = (volume[muscle] || 0) + (ratio || 0);
+                    });
+                } else {
+                    // Repli : anciennes séances sans pondération → +1 par muscle principal.
+                    (w.musclesWorked || []).forEach(muscle => {
+                        volume[muscle] = (volume[muscle] || 0) + 1;
+                    });
+                }
             });
-            return volume; // {muscle: count}
+            return volume; // {muscle: count pondéré}
         }
 
         function renderWeeklyVolumeWidget() {
@@ -12086,6 +12167,26 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 }
             });
             const musclesWorked = Array.from(musclesSet);
+
+            // 💪 Muscles PONDÉRÉS de la séance (principal 1.0 + secondaires × ratio).
+            // Cumule le ratio par muscle sur tous les exercices réels de la séance.
+            // Rétrocompatible : si aucun exercice n'a de secondaryMuscles, ne contient
+            // que les muscles principaux à 1.0 — identique au comportement actuel.
+            const musclesWeighted = {};
+            try {
+                workout.exercises.forEach(ex => {
+                    if (!ex || ex.isRest || ex.isInfo) return;
+                    const exName = typeof ex === 'string' ? ex : (ex._baseName || ex.name);
+                    const exData = exerciseDatabase.find(e => e.name === exName);
+                    if (!exData) return;
+                    const weighted = (typeof getWeightedMuscles === 'function')
+                        ? getWeightedMuscles(exData)
+                        : (exData.muscle ? [{ muscle: exData.muscle, ratio: 1.0 }] : []);
+                    weighted.forEach(({ muscle, ratio }) => {
+                        musclesWeighted[muscle] = (musclesWeighted[muscle] || 0) + ratio;
+                    });
+                });
+            } catch(e) {}
             
             // Calories précises : MET × poids_kg × heures (même formule que l'écran de fin)
             const _prof = getUserProfile();
@@ -12116,6 +12217,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 exercises: workout.exercises.filter(ex => !ex.isRest && !ex.isInfo).length,
                 muscles: getSelectedMuscleNames(),
                 musclesWorked: musclesWorked, // For mini-chart
+                musclesWeighted: musclesWeighted, // {muscle: sommeRatios} pour stats pondérées
                 calories: calories,
                 volume: sessionVolume,
                 workoutData: workout // Save complete workout for replay
@@ -12150,9 +12252,16 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const thisWeek = history.filter(h => new Date(h.date) >= weekAgo);
             const muscleSetCounts = {};
             thisWeek.forEach(w => {
-                (w.musclesWorked || w.muscles || []).forEach(m => {
-                    if (m) muscleSetCounts[m] = (muscleSetCounts[m]||0) + Math.ceil((w.exercises||1)/3);
-                });
+                const factor = Math.ceil((w.exercises||1)/3);
+                if (w.musclesWeighted && typeof w.musclesWeighted === 'object') {
+                    Object.entries(w.musclesWeighted).forEach(([m, ratio]) => {
+                        if (m) muscleSetCounts[m] = (muscleSetCounts[m]||0) + (ratio||0) * factor;
+                    });
+                } else {
+                    (w.musclesWorked || w.muscles || []).forEach(m => {
+                        if (m) muscleSetCounts[m] = (muscleSetCounts[m]||0) + factor;
+                    });
+                }
             });
             if (Object.keys(muscleSetCounts).length === 0) { el.innerHTML=''; return; }
             // Targets: 10-20 sets/week per muscle (science-based)
@@ -12241,9 +12350,13 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 
                 const isFavorite = favorites.includes(entry.id);
                 
-                // Calculate muscle volume from workout data
+                // Calculate muscle volume from workout data (pondéré si dispo)
                 const muscleVolume = {};
-                if (entry.musclesWorked) {
+                if (entry.musclesWeighted && typeof entry.musclesWeighted === 'object') {
+                    Object.entries(entry.musclesWeighted).forEach(([muscle, ratio]) => {
+                        muscleVolume[muscle] = (muscleVolume[muscle] || 0) + (ratio || 0);
+                    });
+                } else if (entry.musclesWorked) {
                     entry.musclesWorked.forEach(muscle => {
                         muscleVolume[muscle] = (muscleVolume[muscle] || 0) + 1;
                     });
@@ -19230,18 +19343,20 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const musclesWorked = {};
             const now = new Date().toISOString();
             
-            // Extraire tous les muscles de la séance
+            // Extraire tous les muscles de la séance (principal + secondaires)
             workout.exercises.forEach(exercise => {
                 if (!exercise.isRest && !exercise.isInfo) {
                     const exerciseFromDB = exerciseDatabase.find(ex => ex.name === exercise.name);
                     if (exerciseFromDB && exerciseFromDB.muscle) {
-                        if (!musclesWorked[exerciseFromDB.muscle]) {
-                            musclesWorked[exerciseFromDB.muscle] = {
-                                muscle: exerciseFromDB.muscle,
-                                lastWorked: now,
-                                workoutCount: 1
-                            };
-                        }
+                        // Muscle principal + secondaires via le helper pondéré
+                        const weighted = (typeof getWeightedMuscles === 'function')
+                            ? getWeightedMuscles(exerciseFromDB)
+                            : [{ muscle: exerciseFromDB.muscle, ratio: 1.0 }];
+                        weighted.forEach(({ muscle }) => {
+                            if (muscle && !musclesWorked[muscle]) {
+                                musclesWorked[muscle] = { muscle: muscle, lastWorked: now, workoutCount: 1 };
+                            }
+                        });
                     }
                 }
             });
@@ -31586,6 +31701,21 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 const prev = data.muscles[muscle].xp;
                 data.muscles[muscle].xp += xpGained;
                 data.muscles[muscle].lastTrained = new Date().toISOString();
+
+                // 💪 Muscles SECONDAIRES : XP pondérée (xpGained × ratio) + lastTrained.
+                // Permet aux stats, niveaux et récupération de refléter le travail réel.
+                // Sans effet si l'exercice n'a pas de secondaryMuscles.
+                try {
+                    if (ex && typeof getWeightedMuscles === 'function') {
+                        const weighted = getWeightedMuscles(ex);
+                        weighted.forEach(({ muscle: secMuscle, ratio }) => {
+                            if (secMuscle === muscle || ratio >= 1) return; // principal déjà traité
+                            if (!data.muscles[secMuscle]) data.muscles[secMuscle] = { xp: 0, lastTrained: null };
+                            data.muscles[secMuscle].xp += Math.round(xpGained * ratio);
+                            data.muscles[secMuscle].lastTrained = new Date().toISOString();
+                        });
+                    }
+                } catch(e) {}
                 if (!data.profile) data.profile = { xp: 0, lastActivity: new Date().toISOString() };
                 data.profile.xp = Object.values(data.muscles).reduce((s, m) => s + m.xp, 0);
                 data.profile.lastActivity = new Date().toISOString();
