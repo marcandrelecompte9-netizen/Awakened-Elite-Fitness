@@ -20321,7 +20321,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     const allMuscles = [exerciseFromDB.muscle];
                     if (Array.isArray(exerciseFromDB.secondaryMuscles)) {
                         exerciseFromDB.secondaryMuscles.forEach(m => {
-                            if (m && !allMuscles.includes(m)) allMuscles.push(m);
+                            // m est un objet {muscle, ratio} → on extrait le nom du muscle
+                            const mName = (m && typeof m === 'object') ? m.muscle : m;
+                            if (mName && !allMuscles.includes(mName)) allMuscles.push(mName);
                         });
                     }
 
