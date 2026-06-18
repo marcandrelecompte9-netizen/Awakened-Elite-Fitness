@@ -34458,12 +34458,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 exercises: scaledExercises
             };
 
-            // Démarrer via le système standard
-            currentWorkout = workout;
-            currentExerciseIndex = 0;
+            // Badge du programme — affiché par startPreparedWorkout après la prépa
+            workout.badgeHTML = `${celeb.emoji} ${celeb.nickname} · ${splitInfo.name}`;
+            workout.badgeStyle = `linear-gradient(135deg, ${celeb.color} 0%, ${celeb.color}dd 100%)`;
+
+            // Reset état de séance
             currentSetNumber = 1;
-            workoutStartTime = Date.now();
-            if (typeof _workoutSkipCount !== 'undefined') _workoutSkipCount = 0;
             if (typeof completedSets !== 'undefined') completedSets = [];
 
             // Compter la séance dans le programme
@@ -34471,32 +34471,29 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 recordCelebritySession(celeb.id);
             }
 
+            // Aller à l'onglet workouts puis afficher l'écran « Préparez-vous »
             if (typeof switchTab === 'function') switchTab('workouts');
 
             setTimeout(() => {
-                document.getElementById('workoutSelection')?.style.setProperty('display', 'none');
-                document.getElementById('exerciseSelection')?.style.setProperty('display', 'none');
-                ['aiWorkoutPanel', 'celebrityPanel', 'planningPanel'].forEach(id => {
+                ['aiWorkoutPanel', 'celebrityPanel', 'planningPanel', 'exerciseSelection'].forEach(id => {
                     const el = document.getElementById(id);
                     if (el) el.style.display = 'none';
                 });
-                const exView = document.getElementById('exerciseView');
-                if (exView) {
-                    exView.classList.remove('hidden');
-                    exView.style.display = 'block';
+                if (typeof showWorkoutPreparation === 'function') {
+                    showWorkoutPreparation(workout);
+                } else {
+                    // Fallback : démarrage direct si la prépa est indisponible
+                    currentWorkout = workout;
+                    currentExerciseIndex = 0;
+                    workoutStartTime = Date.now();
+                    if (typeof _workoutSkipCount !== 'undefined') _workoutSkipCount = 0;
+                    const exView = document.getElementById('exerciseView');
+                    if (exView) { exView.classList.remove('hidden'); exView.style.display = 'block'; }
+                    document.body.classList.add('in-session');
+                    if (typeof renderExerciseProgressList === 'function') renderExerciseProgressList();
+                    if (typeof updateMusclesOverview === 'function') updateMusclesOverview();
+                    if (typeof startExercise === 'function') startExercise();
                 }
-                document.body.classList.add('in-session');
-
-                const badge = document.getElementById('workoutTypeBadge');
-                if (badge) {
-                    badge.innerHTML = `${celeb.emoji} ${celeb.nickname} · ${splitInfo.name}`;
-                    badge.style.background = `linear-gradient(135deg, ${celeb.color} 0%, ${celeb.color}dd 100%)`;
-                    badge.style.display = 'block';
-                }
-
-                if (typeof renderExerciseProgressList === 'function') renderExerciseProgressList();
-                if (typeof updateMusclesOverview === 'function') updateMusclesOverview();
-                if (typeof startExercise === 'function') startExercise();
             }, 100);
         }
         window.startCelebrityWorkoutToday = startCelebrityWorkoutToday;
@@ -34729,7 +34726,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 return;
             }
 
-            currentWorkout = {
+            const celebWorkout = {
                 name:            program.emoji + ' ' + program.nickname + ' — ' + program.name + ' (Sem.' + prog.week + ')',
                 exercises,
                 mode:            'mixed',
@@ -34738,20 +34735,33 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 _celebrity:      program.id,
                 _celebrityColor: program.color,
                 _celebPhase:     prog.phaseKey,
+                badgeHTML:       program.emoji + ' ' + program.nickname,
+                badgeStyle:      `linear-gradient(135deg, ${program.color || '#16a34a'} 0%, ${program.color || '#16a34a'}dd 100%)`,
             };
-            workoutStartTime = Date.now(); _workoutSkipCount = 0;
-            currentExerciseIndex = 0;
 
             // Enregistrer la séance pour le suivi
             recordCelebritySession(programId);
+
+            // Aller à l'onglet workouts puis afficher l'écran « Préparez-vous »
             switchTab('workouts');
             document.getElementById('completionView')?.classList.add('hidden');
-            const ws = document.getElementById('workoutSelection');
-            if (ws) ws.style.display = 'none';
-            document.getElementById('exerciseView').classList.remove('hidden'); document.body.classList.add('in-session');
-            window.scrollTo(0, 0);
-            initProgressList();
-            startExercise();
+
+            setTimeout(() => {
+                const ws = document.getElementById('workoutSelection');
+                if (ws) ws.style.display = 'none';
+                if (typeof showWorkoutPreparation === 'function') {
+                    showWorkoutPreparation(celebWorkout);
+                } else {
+                    // Fallback : démarrage direct si la prépa est indisponible
+                    currentWorkout = celebWorkout;
+                    workoutStartTime = Date.now(); _workoutSkipCount = 0;
+                    currentExerciseIndex = 0;
+                    document.getElementById('exerciseView').classList.remove('hidden'); document.body.classList.add('in-session');
+                    window.scrollTo(0, 0);
+                    initProgressList();
+                    startExercise();
+                }
+            }, 100);
         }
 
 
