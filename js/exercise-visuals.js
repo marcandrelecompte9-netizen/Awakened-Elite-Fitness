@@ -701,6 +701,23 @@ function generic_muscle(muscle, phase) {
 // ── IMAGE MAP — exercices avec vraies images ─────────────────────────
 // Clé = nom exact de l'exercice, valeur = chemin du fichier image
 var EXERCISE_IMAGES = {
+  'Plate Pinch':                    'images/exercises/Plate_Pinch.webp',
+  'Reverse Curl barre':             'images/exercises/Reverse_Curl_barre.webp',
+  'Reverse Wrist Curl':             'images/exercises/Reverse_Wrist_Curl.webp',
+  'Planche':                        'images/exercises/Planche.webp',
+  'Mountain climbers':              'images/exercises/Mountain_climbers.webp',
+  'Decline Sit-up':                 'images/exercises/Decline_Sit-up.webp',
+  'Good Morning':                   'images/exercises/Good_Morning.webp',
+  'Fentes arrière':                 'images/exercises/Fentes_arrière.webp',
+  'Planche latérale dynamique':     'images/exercises/Planche_latérale_dynamique.webp',
+  'Elliptique entraînement':        'images/exercises/Elliptique_entraînement.webp',
+  'High knees':                     'images/exercises/High_knees.webp',
+  'Hill Sprints (sprints en côte)': 'images/exercises/Hill_Sprints__sprints_en_côte_.webp',
+  'Cable Wrist Curl':               'images/exercises/Cable_Wrist_Curl.webp',
+  'Hip Adduction machine':          'images/exercises/Hip_Adduction_machine.webp',
+  'Curl Marteau':                   'images/exercises/Curl_Marteau.webp',
+  'Dead Hang (suspension)':         'images/exercises/Dead_Hang__suspension_.webp',
+  "Farmer's Walk":                  "images/exercises/Farmer's_Walk.webp",
   'Barbell Row prise large':        'images/exercises/Barbell_Row.webp',  // partagée
   'Glute Bridge':                   'images/exercises/Glute_bridge_léger.webp',  // partagée
   'Rowing Sprint':                 'images/exercises/Rowing_sprint.webp',

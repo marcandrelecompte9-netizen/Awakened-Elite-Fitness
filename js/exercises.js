@@ -543,7 +543,7 @@ const exerciseDatabase = [
             { name: "Push Press", muscle: "Épaules", secondaryMuscles: [{muscle:"Triceps",ratio:0.3}], difficulty: "Avancé", type: "exercise", equipment: ["Barre"], mode: "reps", description: "Développé militaire avec aide des jambes.", instructions: ["Légère flexion des genoux", "Pousser avec les jambes pour initier", "Bras prennent le relais", "Bras tendus en haut"], tips: "Permet de soulever plus lourd que le strict press." },
 
             // ── PROGRAMS GYM (isInfo type) ───────────────────────────────
-            { name: "🏋️ Séance Gym", muscle: "Corps entier", secondaryMuscles: [{muscle:"Cardio",ratio:0.3}], difficulty: "Intermédiaire", type: "info", equipment: ["Machine"], mode: "reps", description: "Séance en salle de gym.", instructions: [], tips: "" },
+            { name: "🏋️ Séance Gym", muscle: "Corps entier", difficulty: "Intermédiaire", type: "info", equipment: ["Machine"], mode: "reps", description: "Séance en salle de gym.", instructions: [], tips: "" },
 
             // ═══════════════════════════════════════════════════════════════
             // ── AVANT-BRAS ──────────────────────────────────────────────────
