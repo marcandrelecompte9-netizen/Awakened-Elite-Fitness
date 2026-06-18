@@ -20,7 +20,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=364">
+    <link rel="stylesheet" href="css/style.css?v=367">
 </head>
 <body>
 
@@ -177,7 +177,7 @@
                 max-width: 900px;">
 
             <!-- Bannière image : ratio préservé -->
-            <img src="images/banner.png?v=364"
+            <img src="images/banner.png?v=367"
                  alt="Awakened Elite Fitness"
                  style="width:100%;height:auto;display:block;" />
 
@@ -1438,7 +1438,7 @@
                                         <div style="display:flex;align-items:center;gap:6px;">
                                             <button type="button" onclick="document.getElementById('quickRepsInput').stepDown();document.getElementById('quickRepsInput').dispatchEvent(new Event('input'));" style="width:38px;height:38px;border-radius:50%;background:rgba(74,222,128,0.12);border:1.5px solid rgba(74,222,128,0.5);color:#4ade80;font-size:1.2em;font-weight:900;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 0 8px rgba(74,222,128,0.2);transition:all 0.2s;">−</button>
                                             <input type="number" id="quickRepsInput" min="1" max="200" placeholder="10"
-                                                   style="flex:1;min-width:0;padding:6px 4px;font-size:1.9em;font-weight:900;border:none;border-radius:10px;text-align:center;background:rgba(74,222,128,0.06);color:#ffffff;text-shadow:0 0 12px rgba(74,222,128,0.6);font-variant-numeric:tabular-nums;letter-spacing:-1px;outline:none;" />
+                                                   style="flex:1;min-width:0;box-sizing:border-box;padding:6px 2px;font-size:clamp(1.15rem,5vw,1.9em);font-weight:900;border:none;border-radius:10px;text-align:center;background:rgba(74,222,128,0.06);color:#ffffff;text-shadow:0 0 12px rgba(74,222,128,0.6);font-variant-numeric:tabular-nums;letter-spacing:-0.5px;outline:none;" />
                                             <button type="button" onclick="document.getElementById('quickRepsInput').stepUp();document.getElementById('quickRepsInput').dispatchEvent(new Event('input'));" style="width:38px;height:38px;border-radius:50%;background:rgba(74,222,128,0.12);border:1.5px solid rgba(74,222,128,0.5);color:#4ade80;font-size:1.2em;font-weight:900;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 0 8px rgba(74,222,128,0.2);transition:all 0.2s;">+</button>
                                         </div>
                                     </div>
@@ -1449,7 +1449,7 @@
                                         <div style="display:flex;align-items:center;gap:6px;">
                                             <button type="button" onclick="(function(){var i=document.getElementById('quickWeightInput');i.value=Math.max(0,(parseFloat(i.value)||0)-2.5);i.dispatchEvent(new Event('input'));})()" style="width:38px;height:38px;border-radius:50%;background:rgba(74,222,128,0.12);border:1.5px solid rgba(74,222,128,0.5);color:#4ade80;font-size:1.2em;font-weight:900;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 0 8px rgba(74,222,128,0.2);transition:all 0.2s;">−</button>
                                             <input type="number" id="quickWeightInput" min="0" step="0.5" placeholder="0"
-                                                   style="flex:1;min-width:0;padding:6px 4px;font-size:1.9em;font-weight:900;border:none;border-radius:10px;text-align:center;background:rgba(74,222,128,0.06);color:#ffffff;text-shadow:0 0 12px rgba(74,222,128,0.6);font-variant-numeric:tabular-nums;letter-spacing:-1px;outline:none;" />
+                                                   style="flex:1;min-width:0;box-sizing:border-box;padding:6px 2px;font-size:clamp(1.15rem,5vw,1.9em);font-weight:900;border:none;border-radius:10px;text-align:center;background:rgba(74,222,128,0.06);color:#ffffff;text-shadow:0 0 12px rgba(74,222,128,0.6);font-variant-numeric:tabular-nums;letter-spacing:-0.5px;outline:none;" />
                                             <button type="button" onclick="(function(){var i=document.getElementById('quickWeightInput');i.value=(parseFloat(i.value)||0)+2.5;i.dispatchEvent(new Event('input'));})()" style="width:38px;height:38px;border-radius:50%;background:rgba(74,222,128,0.12);border:1.5px solid rgba(74,222,128,0.5);color:#4ade80;font-size:1.2em;font-weight:900;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 0 8px rgba(74,222,128,0.2);transition:all 0.2s;">+</button>
                                         </div>
                                     </div>
@@ -3546,18 +3546,18 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/exercises.js?v=364"></script>
-    <script src="data/items.js?v=364"></script>
-    <script src="js/adventure.js?v=364"></script>
-    <script src="js/economy.js?v=364"></script>
-    <script src="js/challenges.js?v=364"></script>
-    <script src="js/exercise-visuals.js?v=364"></script>
-    <script src="js/strength-standards.js?v=364"></script>
-    <script src="js/system-cards.js?v=364"></script>
-    <script src="js/share-card.js?v=364"></script>
-    <script src="js/story-events.js?v=364"></script>
-    <script src="js/final-boss.js?v=364"></script>
-    <script src="js/app.js?v=364"></script>
+    <script src="js/exercises.js?v=367"></script>
+    <script src="data/items.js?v=367"></script>
+    <script src="js/adventure.js?v=367"></script>
+    <script src="js/economy.js?v=367"></script>
+    <script src="js/challenges.js?v=367"></script>
+    <script src="js/exercise-visuals.js?v=367"></script>
+    <script src="js/strength-standards.js?v=367"></script>
+    <script src="js/system-cards.js?v=367"></script>
+    <script src="js/share-card.js?v=367"></script>
+    <script src="js/story-events.js?v=367"></script>
+    <script src="js/final-boss.js?v=367"></script>
+    <script src="js/app.js?v=367"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>

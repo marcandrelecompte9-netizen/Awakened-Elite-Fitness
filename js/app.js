@@ -9598,7 +9598,7 @@
             let selectedExercises = generateStructuredWorkout(exercisePool, targetCount, profile);
             
             // ✅ NEW: Ensure muscle balance (no muscle >40%)
-            selectedExercises = ensureMuscleBalance(selectedExercises);
+            selectedExercises = ensureMuscleBalance(selectedExercises, availableExercises);
             
             // ✅ EXPERT SYSTEM : Prévenir sur-sollicitation
             selectedExercises = preventOverload(selectedExercises, 3);
@@ -9712,7 +9712,7 @@
 
         // ========== SMART RECOMMENDATIONS SYSTEM ==========
         
-        function ensureMuscleBalance(selectedExercises) {
+        function ensureMuscleBalance(selectedExercises, availablePool) {
             if (selectedExercises.length < 4) return selectedExercises;
             
             // Count exercises per muscle
@@ -9739,12 +9739,13 @@
                     
                     if (underrepresented && muscleCount[ex.muscle] > 1) {
                         // Try to replace with alternative
-                        const _equipNames = getEquipmentNames ? getEquipmentNames() : [];
-                        const alternatives = exerciseDatabase.filter(e => 
+                        // Piocher UNIQUEMENT dans le pool déjà filtré par équipement
+                        // (évite d'introduire kettlebell/traîneau absents du lieu)
+                        const _pool = availablePool || exerciseDatabase;
+                        const alternatives = _pool.filter(e => 
                             e.muscle === underrepresented[0] &&
                             e.type === 'exercise' &&
-                            !balanced.find(b => b.name === e.name) &&
-                            (_equipNames.length === 0 || e.equipment.every(eq => _equipNames.includes(eq)))
+                            !balanced.find(b => b.name === e.name)
                         );
                         
                         if (alternatives.length > 0 && balanced.length < total) {
@@ -14949,43 +14950,39 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 })
             };
 
-            // Démarrer via le système existant
-            currentWorkout = workout;
-            currentExerciseIndex = 0;
+            // Reset état de séance (repris de l'ancien démarrage direct)
             currentSetNumber = 1;
-            workoutStartTime = Date.now();
-            if (typeof _workoutSkipCount !== 'undefined') _workoutSkipCount = 0;
             if (typeof completedSets !== 'undefined') completedSets = [];
 
-            // Aller à l'onglet workouts
+            // Badge de la routine — affiché par startPreparedWorkout après la prépa
+            const _routineColor = routine.color || '#22c55e';
+            workout.badgeHTML = `🔄 ${routine.name}`;
+            workout.badgeStyle = `linear-gradient(135deg, ${_routineColor} 0%, ${_routineColor}dd 100%)`;
+
+            // Aller à l'onglet workouts puis afficher l'écran « Préparez-vous »
+            // (liste des équipements + exercices) AVANT de démarrer la séance
             if (typeof switchTab === 'function') switchTab('workouts');
 
             setTimeout(() => {
-                document.getElementById('workoutSelection')?.style.setProperty('display', 'none');
-                document.getElementById('exerciseSelection')?.style.setProperty('display', 'none');
-                ['aiWorkoutPanel', 'celebrityPanel', 'planningPanel'].forEach(id => {
+                ['aiWorkoutPanel', 'celebrityPanel', 'planningPanel', 'exerciseSelection'].forEach(id => {
                     const el = document.getElementById(id);
                     if (el) el.style.display = 'none';
                 });
-                const exView = document.getElementById('exerciseView');
-                if (exView) {
-                    exView.classList.remove('hidden');
-                    exView.style.display = 'block';
+                if (typeof showWorkoutPreparation === 'function') {
+                    showWorkoutPreparation(workout);
+                } else {
+                    // Fallback : ancien démarrage direct si la prépa est indisponible
+                    currentWorkout = workout;
+                    currentExerciseIndex = 0;
+                    workoutStartTime = Date.now();
+                    if (typeof _workoutSkipCount !== 'undefined') _workoutSkipCount = 0;
+                    const exView = document.getElementById('exerciseView');
+                    if (exView) { exView.classList.remove('hidden'); exView.style.display = 'block'; }
+                    document.body.classList.add('in-session');
+                    if (typeof renderExerciseProgressList === 'function') renderExerciseProgressList();
+                    if (typeof updateMusclesOverview === 'function') updateMusclesOverview();
+                    if (typeof startExercise === 'function') startExercise();
                 }
-                document.body.classList.add('in-session');
-
-                // Badge
-                const badge = document.getElementById('workoutTypeBadge');
-                if (badge) {
-                    const color = routine.color || '#22c55e';
-                    badge.innerHTML = `🔄 ${routine.name}`;
-                    badge.style.background = `linear-gradient(135deg, ${color} 0%, ${color}dd 100%)`;
-                    badge.style.display = 'block';
-                }
-
-                if (typeof renderExerciseProgressList === 'function') renderExerciseProgressList();
-                if (typeof updateMusclesOverview === 'function') updateMusclesOverview();
-                if (typeof startExercise === 'function') startExercise();
             }, 100);
         }
         window.startRoutine = startRoutine;
