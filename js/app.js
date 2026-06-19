@@ -7985,6 +7985,108 @@
             speak("Nouveau plan généré");
         }
 
+        // ========== DISCIPLINES COMPLÉMENTAIRES (rituels) — Brique 2 ==========
+        // Séances récurrentes posées sur des jours précis (ex. « Yoga le dimanche »),
+        // en parallèle du programme principal. Persisté par profil (fallback localStorage).
+        // Couche DONNÉES uniquement — aucune UI, aucun comportement existant modifié.
+        // Jours : indices lun=0 .. dim=6 (même convention que les splits / le plan hebdo).
+        const COMPLEMENTARY_DISCIPLINES_KEY = 'complementaryDisciplines';
+
+        // Lecture : renvoie toujours un tableau valide (jamais null).
+        // Filtre défensivement les entrées dont la discipline n'existe plus.
+        function getComplementaryDisciplines() {
+            const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
+            let raw;
+            try {
+                raw = profileId
+                    ? getProfileData(profileId, COMPLEMENTARY_DISCIPLINES_KEY)
+                    : localStorage.getItem(COMPLEMENTARY_DISCIPLINES_KEY);
+            } catch (e) { raw = null; }
+            if (!raw) return [];
+            let list;
+            try { list = JSON.parse(raw); } catch (e) { return []; }
+            if (!Array.isArray(list)) return [];
+            return list.filter(function (e) {
+                return e && e.disciplineId &&
+                    (typeof getDiscipline !== 'function' || getDiscipline(e.disciplineId));
+            });
+        }
+
+        // Écriture brute d'une liste complète.
+        function saveComplementaryDisciplines(list) {
+            const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
+            const data = JSON.stringify(Array.isArray(list) ? list : []);
+            try {
+                if (profileId) setProfileData(profileId, COMPLEMENTARY_DISCIPLINES_KEY, data);
+                else localStorage.setItem(COMPLEMENTARY_DISCIPLINES_KEY, data);
+            } catch (e) { /* quota / indisponible : on ignore silencieusement */ }
+            return list;
+        }
+
+        // Normalise une liste de jours (lun=0..dim=6) : entiers valides, dédupliqués, triés.
+        function _normalizeComplementDays(days) {
+            if (!Array.isArray(days)) return [];
+            const seen = {};
+            const out = [];
+            days.forEach(function (d) {
+                const n = parseInt(d, 10);
+                if (n >= 0 && n <= 6 && !seen[n]) { seen[n] = true; out.push(n); }
+            });
+            return out.sort(function (a, b) { return a - b; });
+        }
+
+        // Ajoute un complément. Retourne l'entrée créée, ou null si discipline invalide.
+        function addComplementaryDiscipline(disciplineId, days) {
+            if (typeof getDiscipline === 'function' && !getDiscipline(disciplineId)) return null;
+            const entry = {
+                id: 'comp_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+                disciplineId: disciplineId,
+                days: _normalizeComplementDays(days),
+                createdAt: new Date().toISOString()
+            };
+            const list = getComplementaryDisciplines();
+            list.push(entry);
+            saveComplementaryDisciplines(list);
+            return entry;
+        }
+
+        // Supprime un complément par son id. Retourne true si une entrée a été retirée.
+        function removeComplementaryDiscipline(entryId) {
+            const list = getComplementaryDisciplines();
+            const next = list.filter(function (e) { return e.id !== entryId; });
+            if (next.length === list.length) return false;
+            saveComplementaryDisciplines(next);
+            return true;
+        }
+
+        // Met à jour les jours d'un complément. Retourne l'entrée modifiée, ou null.
+        function updateComplementaryDisciplineDays(entryId, days) {
+            const list = getComplementaryDisciplines();
+            let updated = null;
+            list.forEach(function (e) {
+                if (e.id === entryId) { e.days = _normalizeComplementDays(days); updated = e; }
+            });
+            if (updated) saveComplementaryDisciplines(list);
+            return updated;
+        }
+
+        // Compléments programmés un jour donné (lun=0..dim=6). Utilisé par la brique 3.
+        function getComplementsForDay(dayIdx) {
+            const n = parseInt(dayIdx, 10);
+            return getComplementaryDisciplines().filter(function (e) {
+                return Array.isArray(e.days) && e.days.indexOf(n) !== -1;
+            });
+        }
+
+        // Exposition globale explicite (testable console + briques suivantes).
+        window.getComplementaryDisciplines = getComplementaryDisciplines;
+        window.saveComplementaryDisciplines = saveComplementaryDisciplines;
+        window.addComplementaryDiscipline = addComplementaryDiscipline;
+        window.removeComplementaryDiscipline = removeComplementaryDiscipline;
+        window.updateComplementaryDisciplineDays = updateComplementaryDisciplineDays;
+        window.getComplementsForDay = getComplementsForDay;
+        // ====================== fin Brique 2 ======================
+
         function saveAutoWeeklyPlan(plan) {
             const profileId = getCurrentProfileId();
             const planData = JSON.stringify({
@@ -7997,6 +8099,28 @@
             } else {
                 localStorage.setItem('weeklyPlan', planData);
             }
+        }
+
+        // Brique 3 : rendu des rituels (disciplines complémentaires) d'un jour donné.
+        // dayIndex : lun=0 .. dim=6. Renvoie '' s'il n'y en a aucun. Purement additif.
+        function _renderDayComplementsHTML(dayIndex) {
+            if (typeof getComplementsForDay !== 'function') return '';
+            const comps = getComplementsForDay(dayIndex);
+            if (!comps || !comps.length) return '';
+            const chips = comps.map(function (c) {
+                const d = (typeof getDiscipline === 'function') ? getDiscipline(c.disciplineId) : null;
+                const emoji = d ? d.emoji : '✨';
+                const name = d ? d.name : c.disciplineId;
+                const color = (d && d.color) ? d.color : '#14b8a6';
+                const voie = (d && d.voie) ? d.voie : '';
+                return '<span title="' + voie + '" style="display:inline-flex;align-items:center;gap:5px;'
+                    + 'background:' + color + '1a;border:1px solid ' + color + '55;color:' + color + ';'
+                    + 'padding:3px 9px;border-radius:99px;font-size:0.72em;font-weight:700;white-space:nowrap;">'
+                    + emoji + ' ' + name + '</span>';
+            }).join('');
+            return '<div style="margin-top:8px;display:flex;flex-wrap:wrap;align-items:center;gap:6px;">'
+                + '<span style="font-size:0.6em;font-weight:900;letter-spacing:1px;color:#64748b;">＋ RITUEL</span>'
+                + chips + '</div>';
         }
 
         function renderWeeklyPlan() {
@@ -8017,6 +8141,7 @@
             html += '<h3 style="margin: 0;">📅 Plan de la semaine</h3>';
             html += '<div style="display: flex; gap: 10px;">';
             html += '<button onclick="showManualPlanEditor()" class="btn" style="padding: 8px 15px; font-size: 0.9em; background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);">✏️ Créer manuel</button>';
+            html += '<button onclick="showRitualsManager()" class="btn" style="padding: 8px 15px; font-size: 0.9em; background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);">✨ Rituels</button>';
             html += '</div>';
             html += '</div>';
             
@@ -8039,6 +8164,7 @@
                                 intensity === 'low' ? '🧘' : '😴'
                             }</div>
                         </div>
+                        ${typeof _renderDayComplementsHTML === 'function' ? _renderDayComplementsHTML(index) : ''}
                     </div>
                 `;
             });
@@ -8047,6 +8173,127 @@
             document.getElementById('weeklyPlanContainer').innerHTML = html;
         }
         
+        // ========== GESTIONNAIRE DE RITUELS (compléments) — Brique 6 ==========
+        // UI pour ajouter / lister / retirer les disciplines complémentaires.
+        // S'appuie sur la couche données (brique 2) et rafraîchit le plan hebdo (brique 3).
+        let _ritualDraftDiscipline = null;
+        let _ritualDraftDays = [];
+
+        function _renderRitualsManagerBody() {
+            const dayLabels = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+            const existing = (typeof getComplementaryDisciplines === 'function') ? getComplementaryDisciplines() : [];
+
+            let listHTML;
+            if (!existing.length) {
+                listHTML = '<p style="color:#64748b;font-size:0.88em;text-align:center;padding:14px;">Aucun rituel pour l\'instant.</p>';
+            } else {
+                listHTML = existing.map(function (e) {
+                    const d = (typeof getDiscipline === 'function') ? getDiscipline(e.disciplineId) : null;
+                    const emoji = d ? d.emoji : '✨';
+                    const name = d ? d.name : e.disciplineId;
+                    const color = (d && d.color) ? d.color : '#14b8a6';
+                    const days = (e.days || []).map(function (i) { return dayLabels[i]; }).join(', ') || '—';
+                    return '<div style="display:flex;align-items:center;gap:10px;background:' + color + '14;border:1px solid ' + color + '40;border-radius:10px;padding:10px 12px;margin-bottom:8px;">'
+                        + '<span style="font-size:1.3em;flex-shrink:0;">' + emoji + '</span>'
+                        + '<div style="flex:1;min-width:0;"><div style="color:#fff;font-weight:800;font-size:0.92em;">' + name + '</div>'
+                        + '<div style="color:#94a3b8;font-size:0.75em;margin-top:2px;">' + days + '</div></div>'
+                        + '<button onclick="_removeRitual(\'' + e.id + '\')" style="background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.4);border-radius:8px;padding:5px 10px;font-size:0.78em;font-weight:700;cursor:pointer;flex-shrink:0;">Retirer</button>'
+                        + '</div>';
+                }).join('');
+            }
+
+            const choices = (typeof listDisciplines === 'function') ? listDisciplines().filter(function (d) { return d.id !== 'muscu'; }) : [];
+            const discHTML = choices.map(function (d) {
+                const sel = _ritualDraftDiscipline === d.id;
+                return '<button onclick="_toggleRitualDiscipline(\'' + d.id + '\')" style="display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:99px;cursor:pointer;font-weight:700;font-size:0.82em;'
+                    + 'border:1.5px solid ' + (sel ? d.color : 'rgba(255,255,255,0.12)') + ';background:' + (sel ? d.color + '2a' : 'rgba(255,255,255,0.04)') + ';color:' + (sel ? '#fff' : '#cbd5e1') + ';">'
+                    + d.emoji + ' ' + d.name + '</button>';
+            }).join('');
+
+            const daysHTML = dayLabels.map(function (lbl, i) {
+                const sel = _ritualDraftDays.indexOf(i) !== -1;
+                return '<button onclick="_toggleRitualDay(' + i + ')" style="flex:1;min-width:0;padding:9px 0;border-radius:8px;cursor:pointer;font-weight:800;font-size:0.76em;'
+                    + 'border:1.5px solid ' + (sel ? '#14b8a6' : 'rgba(255,255,255,0.1)') + ';background:' + (sel ? 'rgba(20,184,166,0.18)' : 'rgba(255,255,255,0.04)') + ';color:' + (sel ? '#5eead4' : '#94a3b8') + ';">'
+                    + lbl + '</button>';
+            }).join('');
+
+            const canAdd = _ritualDraftDiscipline && _ritualDraftDays.length;
+            return ''
+                + '<div style="margin-bottom:18px;"><div style="font-size:0.62em;color:#64748b;font-weight:900;letter-spacing:1.5px;margin-bottom:8px;">MES RITUELS</div>' + listHTML + '</div>'
+                + '<div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:16px;">'
+                + '<div style="font-size:0.62em;color:#64748b;font-weight:900;letter-spacing:1.5px;margin-bottom:10px;">AJOUTER UN RITUEL</div>'
+                + '<div style="color:#94a3b8;font-size:0.78em;margin-bottom:6px;">Discipline</div>'
+                + '<div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px;">' + discHTML + '</div>'
+                + '<div style="color:#94a3b8;font-size:0.78em;margin-bottom:6px;">Jours</div>'
+                + '<div style="display:flex;gap:5px;margin-bottom:16px;">' + daysHTML + '</div>'
+                + '<button onclick="_addRitualFromDraft()" ' + (canAdd ? '' : 'disabled') + ' style="width:100%;padding:13px;border:none;border-radius:12px;font-weight:900;font-size:0.95em;cursor:' + (canAdd ? 'pointer' : 'not-allowed') + ';'
+                + 'background:' + (canAdd ? 'linear-gradient(135deg,#14b8a6,#0d9488)' : 'rgba(255,255,255,0.06)') + ';color:' + (canAdd ? '#fff' : '#475569') + ';">＋ Ajouter le rituel</button>'
+                + '</div>';
+        }
+
+        function _refreshRitualsManager() {
+            const body = document.getElementById('ritualsManagerBody');
+            if (body) body.innerHTML = _renderRitualsManagerBody();
+        }
+
+        function showRitualsManager() {
+            _ritualDraftDiscipline = null;
+            _ritualDraftDays = [];
+            const old = document.getElementById('ritualsManagerModal');
+            if (old) old.remove();
+            const modal = document.createElement('div');
+            modal.className = 'modal active';
+            modal.id = 'ritualsManagerModal';
+            modal.innerHTML = '<div class="modal-content" style="max-width:520px;max-height:90vh;overflow-y:auto;">'
+                + '<div class="modal-header"><h2>✨ Rituels</h2>'
+                + '<button onclick="closeRitualsManager()" style="background:none;border:none;font-size:1.5em;cursor:pointer;color:#94a3b8;">×</button></div>'
+                + '<div class="modal-body"><p style="color:#94a3b8;font-size:0.85em;margin-bottom:16px;">Des séances complémentaires qui s\'ajoutent à ton programme sur les jours de ton choix (ex. Mobilité le dimanche). Elles apparaissent dans ton plan de la semaine.</p>'
+                + '<div id="ritualsManagerBody"></div></div></div>';
+            document.body.appendChild(modal);
+            _refreshRitualsManager();
+        }
+
+        function closeRitualsManager() {
+            const m = document.getElementById('ritualsManagerModal');
+            if (m) m.remove();
+        }
+
+        function _toggleRitualDiscipline(id) {
+            _ritualDraftDiscipline = (_ritualDraftDiscipline === id) ? null : id;
+            _refreshRitualsManager();
+        }
+
+        function _toggleRitualDay(i) {
+            const idx = _ritualDraftDays.indexOf(i);
+            if (idx === -1) _ritualDraftDays.push(i); else _ritualDraftDays.splice(idx, 1);
+            _refreshRitualsManager();
+        }
+
+        function _addRitualFromDraft() {
+            if (!_ritualDraftDiscipline || !_ritualDraftDays.length) return;
+            if (typeof addComplementaryDiscipline === 'function') {
+                addComplementaryDiscipline(_ritualDraftDiscipline, _ritualDraftDays.slice());
+            }
+            _ritualDraftDiscipline = null;
+            _ritualDraftDays = [];
+            _refreshRitualsManager();
+            if (typeof renderWeeklyPlan === 'function') renderWeeklyPlan();
+        }
+
+        function _removeRitual(id) {
+            if (typeof removeComplementaryDiscipline === 'function') removeComplementaryDiscipline(id);
+            _refreshRitualsManager();
+            if (typeof renderWeeklyPlan === 'function') renderWeeklyPlan();
+        }
+
+        window.showRitualsManager = showRitualsManager;
+        window.closeRitualsManager = closeRitualsManager;
+        window._toggleRitualDiscipline = _toggleRitualDiscipline;
+        window._toggleRitualDay = _toggleRitualDay;
+        window._addRitualFromDraft = _addRitualFromDraft;
+        window._removeRitual = _removeRitual;
+        // ====================== fin Brique 6 ======================
+
         function regenerateWeeklyPlan() {
             showConfirm("Régénérer votre plan hebdomadaire ? Cela créera un nouveau plan basé sur votre objectif actuel.", function() {
                 generateWeeklyPlan();
@@ -34038,6 +34285,124 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         // ═══════════════════════════════════════════════════════════════
         // 📋 ONGLET PROGRAMME — Affichage du programme actif
         // ═══════════════════════════════════════════════════════════════
+        // ========== SÉLECTEUR DE CATÉGORIE DE PROGRAMME — Brique 4 ==========
+        // Bascule l'onglet Programme entre 3 vues : Personnalité (existant),
+        // Discipline (catalogue, contenu à venir brique 5), Salle (programmes gym).
+        // C'est un sélecteur de VUE/catalogue — ne touche PAS au programme actif
+        // (la personnalité active reste le programme principal).
+        function getProgramTabView() {
+            try {
+                const v = localStorage.getItem('programTabView');
+                return (v === 'discipline' || v === 'salle') ? v : 'personnalite';
+            } catch (e) { return 'personnalite'; }
+        }
+        function setProgramTabView(v) {
+            try { localStorage.setItem('programTabView', v); } catch (e) {}
+        }
+        window.getProgramTabView = getProgramTabView;
+        window.setProgramTabView = setProgramTabView;
+
+        function _renderProgramSelector(view) {
+            const segs = [
+                { id: 'personnalite', label: 'Personnalité', emoji: '🎭' },
+                { id: 'discipline',   label: 'Discipline',   emoji: '🥊' },
+                { id: 'salle',        label: 'Salle',        emoji: '🏋️' }
+            ];
+            const btns = segs.map(function (s) {
+                const active = s.id === view;
+                return '<button onclick="setProgramTabView(\'' + s.id + '\'); renderProgramTab();" '
+                    + 'style="flex:1;min-width:0;padding:9px 6px;border:none;border-radius:10px;cursor:pointer;'
+                    + 'font-weight:800;font-size:0.78em;letter-spacing:0.3px;white-space:nowrap;'
+                    + (active
+                        ? 'background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;box-shadow:0 2px 10px rgba(34,197,94,0.35);'
+                        : 'background:rgba(255,255,255,0.05);color:#94a3b8;')
+                    + '">' + s.emoji + ' ' + s.label + '</button>';
+            }).join('');
+            return '<div style="display:flex;gap:6px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:5px;margin-bottom:14px;">' + btns + '</div>';
+        }
+
+        // Vue « Discipline » — catalogue (contenu réel des séances : brique 5).
+        function _renderDisciplineCatalog() {
+            const list = (typeof listDisciplinesByRole === 'function')
+                ? listDisciplinesByRole('principal').filter(function (d) { return d.id !== 'muscu'; })
+                : [];
+            let cards = list.map(function (d) {
+                const ready = (d.id === 'boxe');
+                const onclick = ready ? ' onclick="startBoxingSession(\'shadow\')"' : '';
+                const cursor = ready ? 'cursor:pointer;' : '';
+                const badge = ready
+                    ? '<span style="flex-shrink:0;background:' + d.color + ';color:#fff;font-size:0.64em;font-weight:900;padding:5px 11px;border-radius:99px;letter-spacing:0.5px;box-shadow:0 2px 10px ' + d.color + '60;">▶ DÉMARRER</span>'
+                    : '<span style="flex-shrink:0;background:rgba(255,255,255,0.08);color:#cbd5e1;font-size:0.62em;font-weight:800;padding:4px 9px;border-radius:99px;letter-spacing:0.5px;">BIENTÔT</span>';
+                return '<div class="card"' + onclick + ' style="padding:16px 18px;background:linear-gradient(135deg,' + d.color + '22,' + d.color + '08);border:1px solid ' + d.color + '44;display:flex;align-items:center;gap:14px;' + cursor + '">'
+                    + '<div style="font-size:2em;line-height:1;flex-shrink:0;filter:drop-shadow(0 0 8px ' + d.color + '70);">' + d.emoji + '</div>'
+                    + '<div style="flex:1;min-width:0;">'
+                    + '<div style="font-weight:900;color:#fff;font-size:1.05em;">' + d.name + '</div>'
+                    + (d.voie ? '<div style="font-size:0.72em;color:' + d.color + ';font-weight:700;margin-top:2px;">' + d.voie + '</div>' : '')
+                    + '<div style="font-size:0.78em;color:#94a3b8;margin-top:4px;">' + (d.tagline || '') + '</div>'
+                    + '</div>'
+                    + badge
+                    + '</div>';
+            }).join('');
+            if (!cards) cards = '<p style="text-align:center;color:#94a3b8;padding:20px;">Aucune discipline disponible.</p>';
+            return '<div style="display:grid;gap:10px;">'
+                + '<div style="font-size:0.6em;color:#64748b;font-weight:900;letter-spacing:2px;margin-bottom:2px;">◈ CHOISIS TA VOIE</div>'
+                + cards + '</div>';
+        }
+
+        // Vue « Salle » — programmes gym existants (réutilise startGymProgram).
+        function _renderSallePrograms() {
+            const progs = [
+                { id: 'ppl',           name: 'Push / Pull / Legs', desc: '6 jours · pousser, tirer, jambes', c1: '#166534', c2: '#16a34a' },
+                { id: 'upper_lower',   name: 'Upper / Lower',      desc: '4 jours · haut / bas du corps',     c1: '#15803d', c2: '#166534' },
+                { id: 'full_body_gym', name: 'Full Body',          desc: '3 jours · corps entier',            c1: '#059669', c2: '#047857' }
+            ];
+            const cards = progs.map(function (p) {
+                return '<div class="card workout-card" onclick="startGymProgram(\'' + p.id + '\')" style="background:linear-gradient(135deg,' + p.c1 + ',' + p.c2 + ');cursor:pointer;padding:16px 18px;">'
+                    + '<div style="font-weight:900;color:#fff;font-size:1.05em;">🏋️ ' + p.name + '</div>'
+                    + '<div style="font-size:0.8em;color:rgba(255,255,255,0.8);margin-top:4px;">' + p.desc + '</div>'
+                    + '</div>';
+            }).join('');
+            return '<div style="display:grid;gap:10px;">'
+                + '<div style="font-size:0.6em;color:#64748b;font-weight:900;letter-spacing:2px;margin-bottom:2px;">◈ PROGRAMMES EN SALLE</div>'
+                + cards + '</div>';
+        }
+
+        // Lance une séance de boxe (brique 5) via l'écran « Préparez-vous ».
+        function startBoxingSession(sessionId) {
+            const s = (typeof getBoxeSession === 'function') ? getBoxeSession(sessionId) : null;
+            if (!s) { if (typeof showAlert === 'function') showAlert('Séance boxe indisponible.', 'error'); return; }
+            const d = (typeof getDiscipline === 'function') ? getDiscipline('boxe') : null;
+            const color = (d && d.color) ? d.color : '#ef4444';
+            const emoji = d ? d.emoji : '🥊';
+            const workout = {
+                name: emoji + ' ' + s.name,
+                exercises: s.exercises.map(function (e) { return Object.assign({}, e); }),
+                mode: 'timer',
+                restBetweenSets: s.rest || 30,
+                type: 'discipline',
+                _discipline: 'boxe',
+                badgeHTML: emoji + ' ' + (d ? d.name : 'Boxe'),
+                badgeStyle: 'linear-gradient(135deg,' + color + ',' + color + 'dd)'
+            };
+            if (typeof switchTab === 'function') switchTab('workouts');
+            setTimeout(function () {
+                ['aiWorkoutPanel', 'celebrityPanel', 'planningPanel', 'exerciseSelection'].forEach(function (id) {
+                    const el = document.getElementById(id); if (el) el.style.display = 'none';
+                });
+                if (typeof showWorkoutPreparation === 'function') {
+                    showWorkoutPreparation(workout);
+                } else {
+                    currentWorkout = workout; currentExerciseIndex = 0; workoutStartTime = Date.now();
+                    if (typeof _workoutSkipCount !== 'undefined') _workoutSkipCount = 0;
+                    const exView = document.getElementById('exerciseView');
+                    if (exView) { exView.classList.remove('hidden'); exView.style.display = 'block'; }
+                    document.body.classList.add('in-session');
+                    if (typeof startExercise === 'function') startExercise();
+                }
+            }, 100);
+        }
+        window.startBoxingSession = startBoxingSession;
+
         function renderProgramTab() {
             console.log('[ProgramTab] renderProgramTab called');
             const container = document.getElementById('programTabContent');
@@ -34047,11 +34412,23 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 return;
             }
 
+            // ── Brique 4 : sélecteur de catégorie + routing des sous-vues ──
+            const _progView = (typeof getProgramTabView === 'function') ? getProgramTabView() : 'personnalite';
+            const _progSelector = (typeof _renderProgramSelector === 'function') ? _renderProgramSelector(_progView) : '';
+            if (_progView === 'discipline') {
+                container.innerHTML = _progSelector + (typeof _renderDisciplineCatalog === 'function' ? _renderDisciplineCatalog() : '');
+                return;
+            }
+            if (_progView === 'salle') {
+                container.innerHTML = _progSelector + (typeof _renderSallePrograms === 'function' ? _renderSallePrograms() : '');
+                return;
+            }
+
             const celeb = (typeof getActiveCelebrity === 'function') ? getActiveCelebrity() : null;
             console.log('[ProgramTab] active celebrity:', celeb ? celeb.id : 'none');
 
             if (!celeb) {
-                container.innerHTML = _renderProgramEmptyState();
+                container.innerHTML = _progSelector + _renderProgramEmptyState();
                 console.log('[ProgramTab] Empty state rendered');
                 return;
             }
@@ -34061,7 +34438,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const todaySplit = celeb.splits && celeb.splits[todayIdx] ? celeb.splits[todayIdx] : null;
             const isRest = todaySplit && /repos|🛌/i.test(todaySplit.name);
 
-            container.innerHTML = `
+            container.innerHTML = _progSelector + `
             <!-- ═══ HERO PERSONNALITÉ ═══ -->
             <div class="card" style="background:linear-gradient(160deg,#0F1014 0%,${celeb.color}25 60%,${celeb.color}45 100%);color:white;padding:22px 20px;border:1px solid ${celeb.color}40;position:relative;overflow:hidden;">
                 <div style="position:absolute;top:-40px;right:-30px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,${celeb.color}30 0%,transparent 70%);pointer-events:none;"></div>
