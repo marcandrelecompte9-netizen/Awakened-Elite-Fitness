@@ -8113,10 +8113,12 @@
                 const name = d ? d.name : c.disciplineId;
                 const color = (d && d.color) ? d.color : '#14b8a6';
                 const voie = (d && d.voie) ? d.voie : '';
-                return '<span title="' + voie + '" style="display:inline-flex;align-items:center;gap:5px;'
+                const launchable = (typeof listDisciplineSessions === 'function') && listDisciplineSessions(c.disciplineId).length > 0;
+                const onclick = launchable ? ' onclick="event.stopPropagation(); startDisciplineSession(\'' + c.disciplineId + '\')"' : '';
+                return '<span' + onclick + ' title="' + voie + (launchable ? ' — appuie pour lancer' : '') + '" style="display:inline-flex;align-items:center;gap:5px;'
                     + 'background:' + color + '1a;border:1px solid ' + color + '55;color:' + color + ';'
-                    + 'padding:3px 9px;border-radius:99px;font-size:0.72em;font-weight:700;white-space:nowrap;">'
-                    + emoji + ' ' + name + '</span>';
+                    + 'padding:3px 9px;border-radius:99px;font-size:0.72em;font-weight:700;white-space:nowrap;' + (launchable ? 'cursor:pointer;' : '') + '">'
+                    + emoji + ' ' + name + (launchable ? ' ▶' : '') + '</span>';
             }).join('');
             return '<div style="margin-top:8px;display:flex;flex-wrap:wrap;align-items:center;gap:6px;">'
                 + '<span style="font-size:0.6em;font-weight:900;letter-spacing:1px;color:#64748b;">＋ RITUEL</span>'
@@ -31848,7 +31850,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         // ── Gain XP après une série ─────────────────────────────────
         function rpgGainXP(exerciseName, reps, weightKg, timerDuration) {
             if (!rpgEnabled()) return;
-            const ex = exerciseDatabase.find(e => e.name === exerciseName);
+            let ex = exerciseDatabase.find(e => e.name === exerciseName);
+            // Repli : exercices hors base (disciplines, IA) → chercher dans la séance en cours
+            // pour créditer le VRAI muscle au lieu du fallback 'Corps entier'.
+            if (!ex && typeof currentWorkout !== 'undefined' && currentWorkout && Array.isArray(currentWorkout.exercises)) {
+                ex = currentWorkout.exercises.find(e => (e._baseName || e.name) === exerciseName);
+            }
             // Si exercice non trouvé (ex. généré par IA), on utilise des valeurs de fallback
             if (ex && (ex.type === 'info' || ex.isRest || ex.isInfo)) return;
             // muscle : fallback 'Corps entier' pour exercices généraux ou non trouvés
@@ -32455,6 +32462,23 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             
             // Save to history
             saveWorkoutToHistory(currentWorkout, (Date.now() - workoutStartTime) / 1000);
+
+            // 🥋 Progression de Voie : XP de discipline si c'était une séance de discipline
+            if (currentWorkout && currentWorkout.type === 'discipline' && currentWorkout._discipline && typeof awardDisciplineProgress === 'function') {
+                try {
+                    const _discId = currentWorkout._discipline;
+                    const _exCount = (currentWorkout.exercises || []).filter(function (e) { return e && !e.isRest && !e.isInfo; }).length;
+                    const _res = awardDisciplineProgress(_discId, 40 + 8 * _exCount, 1);
+                    if (_res && _res.leveledUp) {
+                        const _d = (typeof getDiscipline === 'function') ? getDiscipline(_discId) : null;
+                        const _label = (_d && _d.voie) ? _d.voie : (_d ? _d.name : 'Voie');
+                        const _emoji = _d ? _d.emoji : '🎖️';
+                        if (typeof showAlert === 'function') {
+                            setTimeout(function () { showAlert(_emoji + ' ' + _label + ' — Niveau ' + _res.level + ' !', 'success'); }, 1400);
+                        }
+                    }
+                } catch (e) {}
+            }
 
             // NOUVEAU : Sauvegarder muscles travaillés pour tracking récupération
             saveMusclesWorked(currentWorkout);
@@ -34321,30 +34345,77 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             return '<div style="display:flex;gap:6px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:5px;margin-bottom:14px;">' + btns + '</div>';
         }
 
+        // Panneau récap « Mes Voies » : toutes les disciplines (Mobilité comprise) + niveaux.
+        function _renderMyVoies() {
+            const all = (typeof listDisciplines === 'function') ? listDisciplines().filter(function (d) { return d.id !== 'muscu'; }) : [];
+            if (!all.length) return '';
+            let totalSessions = 0;
+            const rows = all.map(function (d) {
+                const lv = (typeof getDisciplineLevel === 'function') ? getDisciplineLevel(d.id) : { level: 1, xpInLevel: 0, xpForLevel: 300, sessions: 0 };
+                totalSessions += lv.sessions;
+                const pct = Math.round(lv.xpInLevel / lv.xpForLevel * 100);
+                return '<div style="display:flex;align-items:center;gap:10px;padding:7px 0;">'
+                    + '<span style="font-size:1.3em;width:26px;text-align:center;flex-shrink:0;">' + d.emoji + '</span>'
+                    + '<div style="flex:1;min-width:0;">'
+                    + '<div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="color:#fff;font-weight:700;font-size:0.8em;">' + (d.voie || d.name) + '</span><span style="color:' + d.color + ';font-weight:800;font-size:0.78em;">Niv. ' + lv.level + '</span></div>'
+                    + '<div style="height:5px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;"><div style="height:100%;width:' + pct + '%;background:' + d.color + ';border-radius:99px;transition:width .3s;"></div></div>'
+                    + '</div></div>';
+            }).join('');
+            return '<div class="card" style="padding:16px 18px;margin-bottom:14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);">'
+                + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-size:0.62em;color:#64748b;font-weight:900;letter-spacing:2px;">◈ MES VOIES</span>'
+                + '<span style="font-size:0.7em;color:#94a3b8;">' + totalSessions + ' séance' + (totalSessions > 1 ? 's' : '') + ' au total</span></div>'
+                + rows + '</div>';
+        }
+
         // Vue « Discipline » — catalogue (contenu réel des séances : brique 5).
         function _renderDisciplineCatalog() {
             const list = (typeof listDisciplinesByRole === 'function')
                 ? listDisciplinesByRole('principal').filter(function (d) { return d.id !== 'muscu'; })
                 : [];
             let cards = list.map(function (d) {
-                const ready = (d.id === 'boxe');
-                const onclick = ready ? ' onclick="startBoxingSession(\'shadow\')"' : '';
-                const cursor = ready ? 'cursor:pointer;' : '';
-                const badge = ready
-                    ? '<span style="flex-shrink:0;background:' + d.color + ';color:#fff;font-size:0.64em;font-weight:900;padding:5px 11px;border-radius:99px;letter-spacing:0.5px;box-shadow:0 2px 10px ' + d.color + '60;">▶ DÉMARRER</span>'
-                    : '<span style="flex-shrink:0;background:rgba(255,255,255,0.08);color:#cbd5e1;font-size:0.62em;font-weight:800;padding:4px 9px;border-radius:99px;letter-spacing:0.5px;">BIENTÔT</span>';
-                return '<div class="card"' + onclick + ' style="padding:16px 18px;background:linear-gradient(135deg,' + d.color + '22,' + d.color + '08);border:1px solid ' + d.color + '44;display:flex;align-items:center;gap:14px;' + cursor + '">'
+                const sessions = (typeof listDisciplineSessions === 'function') ? listDisciplineSessions(d.id) : [];
+                const ready = sessions.length > 0;
+                const head = '<div style="display:flex;align-items:center;gap:14px;">'
                     + '<div style="font-size:2em;line-height:1;flex-shrink:0;filter:drop-shadow(0 0 8px ' + d.color + '70);">' + d.emoji + '</div>'
                     + '<div style="flex:1;min-width:0;">'
                     + '<div style="font-weight:900;color:#fff;font-size:1.05em;">' + d.name + '</div>'
                     + (d.voie ? '<div style="font-size:0.72em;color:' + d.color + ';font-weight:700;margin-top:2px;">' + d.voie + '</div>' : '')
                     + '<div style="font-size:0.78em;color:#94a3b8;margin-top:4px;">' + (d.tagline || '') + '</div>'
                     + '</div>'
-                    + badge
+                    + (ready ? '' : '<span style="flex-shrink:0;background:rgba(255,255,255,0.08);color:#cbd5e1;font-size:0.62em;font-weight:800;padding:4px 9px;border-radius:99px;letter-spacing:0.5px;">BIENTÔT</span>')
                     + '</div>';
+                let sess = '';
+                if (ready) {
+                    const curLevel = (typeof getDisciplineLevel === 'function') ? getDisciplineLevel(d.id).level : 1;
+                    sess = '<div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:12px;">'
+                        + sessions.map(function (s) {
+                            const need = s.minLevel || 1;
+                            const unlocked = curLevel >= need;
+                            if (unlocked) {
+                                return '<button onclick="startDisciplineSession(\'' + d.id + '\',\'' + s.id + '\')" style="display:inline-flex;align-items:center;gap:5px;background:' + d.color + ';color:#fff;border:none;border-radius:99px;padding:7px 13px;font-size:0.74em;font-weight:800;cursor:pointer;box-shadow:0 2px 8px ' + d.color + '55;">▶ ' + s.name + '</button>';
+                            }
+                            return '<span title="Atteins le niveau ' + need + ' pour débloquer" style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.05);color:#64748b;border:1px dashed rgba(255,255,255,0.18);border-radius:99px;padding:7px 13px;font-size:0.74em;font-weight:800;">🔒 ' + s.name + ' · Niv. ' + need + '</span>';
+                        }).join('')
+                        + '</div>';
+                }
+                let prog = '';
+                if (typeof getDisciplineLevel === 'function') {
+                    const lv = getDisciplineLevel(d.id);
+                    const pct = Math.round(lv.xpInLevel / lv.xpForLevel * 100);
+                    prog = '<div style="margin-top:12px;">'
+                        + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">'
+                        + '<span style="font-size:0.7em;font-weight:800;color:' + d.color + ';">' + (d.voie || d.name) + ' · Niv. ' + lv.level + '</span>'
+                        + '<span style="font-size:0.62em;color:#64748b;">' + lv.sessions + ' séance' + (lv.sessions > 1 ? 's' : '') + '</span>'
+                        + '</div>'
+                        + '<div style="height:6px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;">'
+                        + '<div style="height:100%;width:' + pct + '%;background:' + d.color + ';border-radius:99px;transition:width .3s;"></div>'
+                        + '</div></div>';
+                }
+                return '<div class="card" style="padding:16px 18px;background:linear-gradient(135deg,' + d.color + '22,' + d.color + '08);border:1px solid ' + d.color + '44;">' + head + prog + sess + '</div>';
             }).join('');
             if (!cards) cards = '<p style="text-align:center;color:#94a3b8;padding:20px;">Aucune discipline disponible.</p>';
             return '<div style="display:grid;gap:10px;">'
+                + (typeof _renderMyVoies === 'function' ? _renderMyVoies() : '')
                 + '<div style="font-size:0.6em;color:#64748b;font-weight:900;letter-spacing:2px;margin-bottom:2px;">◈ CHOISIS TA VOIE</div>'
                 + cards + '</div>';
         }
@@ -34367,21 +34438,71 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 + cards + '</div>';
         }
 
-        // Lance une séance de boxe (brique 5) via l'écran « Préparez-vous ».
-        function startBoxingSession(sessionId) {
-            const s = (typeof getBoxeSession === 'function') ? getBoxeSession(sessionId) : null;
-            if (!s) { if (typeof showAlert === 'function') showAlert('Séance boxe indisponible.', 'error'); return; }
-            const d = (typeof getDiscipline === 'function') ? getDiscipline('boxe') : null;
-            const color = (d && d.color) ? d.color : '#ef4444';
-            const emoji = d ? d.emoji : '🥊';
+        // ========== PROGRESSION PAR DISCIPLINE (Voies) ==========
+        // Chaque Voie gagne de l'XP et monte en niveau quand on la pratique.
+        // Persisté par profil (fallback localStorage). Défensif partout.
+        const DISCIPLINE_PROGRESS_KEY = 'disciplineProgress';
+        const DISCIPLINE_XP_PER_LEVEL = 300;
+
+        function getDisciplineProgress() {
+            const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
+            let raw;
+            try { raw = profileId ? getProfileData(profileId, DISCIPLINE_PROGRESS_KEY) : localStorage.getItem(DISCIPLINE_PROGRESS_KEY); } catch (e) { raw = null; }
+            if (!raw) return {};
+            try { const o = JSON.parse(raw); return (o && typeof o === 'object') ? o : {}; } catch (e) { return {}; }
+        }
+        function _saveDisciplineProgress(obj) {
+            const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
+            const data = JSON.stringify(obj || {});
+            try { if (profileId) setProfileData(profileId, DISCIPLINE_PROGRESS_KEY, data); else localStorage.setItem(DISCIPLINE_PROGRESS_KEY, data); } catch (e) {}
+        }
+        function getDisciplineLevel(disciplineId) {
+            const p = getDisciplineProgress()[disciplineId] || { xp: 0, sessions: 0 };
+            const xp = p.xp || 0;
+            return {
+                level: Math.floor(xp / DISCIPLINE_XP_PER_LEVEL) + 1,
+                xp: xp,
+                xpInLevel: xp % DISCIPLINE_XP_PER_LEVEL,
+                xpForLevel: DISCIPLINE_XP_PER_LEVEL,
+                sessions: p.sessions || 0
+            };
+        }
+        function awardDisciplineProgress(disciplineId, xp, sessionInc) {
+            if (!disciplineId) return null;
+            const all = getDisciplineProgress();
+            const cur = all[disciplineId] || { xp: 0, sessions: 0 };
+            const before = Math.floor((cur.xp || 0) / DISCIPLINE_XP_PER_LEVEL) + 1;
+            cur.xp = (cur.xp || 0) + (xp || 0);
+            cur.sessions = (cur.sessions || 0) + (sessionInc || 0);
+            all[disciplineId] = cur;
+            _saveDisciplineProgress(all);
+            const after = Math.floor(cur.xp / DISCIPLINE_XP_PER_LEVEL) + 1;
+            return { leveledUp: after > before, level: after };
+        }
+        window.getDisciplineProgress = getDisciplineProgress;
+        window.getDisciplineLevel = getDisciplineLevel;
+        window.awardDisciplineProgress = awardDisciplineProgress;
+
+        // Lance une séance de discipline via l'écran « Préparez-vous » (générique).
+        function startDisciplineSession(disciplineId, sessionId) {
+            const s = (typeof getDisciplineSession === 'function') ? getDisciplineSession(disciplineId, sessionId) : null;
+            if (!s) { if (typeof showAlert === 'function') showAlert('Séance indisponible.', 'error'); return; }
+            const _need = s.minLevel || 1;
+            if (_need > 1 && typeof getDisciplineLevel === 'function' && getDisciplineLevel(disciplineId).level < _need) {
+                if (typeof showAlert === 'function') showAlert('🔒 Séance verrouillée — atteins le niveau ' + _need + '.', 'error');
+                return;
+            }
+            const d = (typeof getDiscipline === 'function') ? getDiscipline(disciplineId) : null;
+            const color = (d && d.color) ? d.color : '#22c55e';
+            const emoji = d ? d.emoji : '✨';
             const workout = {
                 name: emoji + ' ' + s.name,
                 exercises: s.exercises.map(function (e) { return Object.assign({}, e); }),
                 mode: 'timer',
-                restBetweenSets: s.rest || 30,
+                restBetweenSets: (s.rest != null) ? s.rest : 30,
                 type: 'discipline',
-                _discipline: 'boxe',
-                badgeHTML: emoji + ' ' + (d ? d.name : 'Boxe'),
+                _discipline: disciplineId,
+                badgeHTML: emoji + ' ' + (d ? d.name : 'Discipline'),
                 badgeStyle: 'linear-gradient(135deg,' + color + ',' + color + 'dd)'
             };
             if (typeof switchTab === 'function') switchTab('workouts');
@@ -34401,6 +34522,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 }
             }, 100);
         }
+        window.startDisciplineSession = startDisciplineSession;
+
+        // Rétro-compat : ancien point d'entrée boxe (délègue au générique).
+        function startBoxingSession(sessionId) { startDisciplineSession('boxe', sessionId); }
         window.startBoxingSession = startBoxingSession;
 
         function renderProgramTab() {
