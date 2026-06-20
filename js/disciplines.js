@@ -71,11 +71,14 @@
       mode: 'timer',
       role: 'complement',
       tagline: 'Flows de souplesse et récupération active.'
-    }
+    },
+    hiit: { id: 'hiit', name: 'HIIT', emoji: '🔥', color: '#f97316', voie: 'La Voie de la Fournaise', mode: 'round', role: 'principal', tagline: 'Circuits métaboliques haute intensité.' },
+    core: { id: 'core', name: 'Gainage', emoji: '🧱', color: '#eab308', voie: 'La Voie du Roc', mode: 'timer', role: 'principal', tagline: 'Sangle abdominale et stabilité.' },
+    yoga: { id: 'yoga', name: 'Yoga', emoji: '🪷', color: '#d946ef', voie: 'La Voie du Zen', mode: 'timer', role: 'principal', tagline: 'Flows, postures et respiration.' }
   };
 
   // Ordre d'affichage stable (pour les listes/sélecteurs des briques suivantes)
-  var DISCIPLINE_ORDER = ['muscu', 'boxe', 'calisthenie', 'course', 'mobilite'];
+  var DISCIPLINE_ORDER = ['muscu', 'boxe', 'calisthenie', 'course', 'hiit', 'core', 'yoga', 'mobilite'];
 
   /* ---- Accesseurs purs (additifs, sans effet de bord) ------------------- */
 
@@ -113,7 +116,7 @@
       type: "exercise", equipment: ["Poids du corps"], mode: "timer", discipline: "boxe",
       description: "Mise en route articulaire et mise en garde.",
       instructions: ["Rotations épaules et poignets", "Pieds largeur d'épaules, pied avant en avant", "Mains hautes, coudes serrés, menton rentré", "Petits sautillements pour rester léger"],
-      tips: "La garde haute protège le menton dès le départ.", duration: 90
+      tips: "La garde haute protège le menton dès le départ.", duration: 180
     },
     {
       name: "Shadow Boxing", muscle: "Cardio", difficulty: "Débutant",
@@ -179,7 +182,7 @@
       id: 'shadow',
       name: 'Shadow — Sans matériel',
       level: 'Débutant',
-      rest: 30,                 // repos entre rounds (s)
+      rest: 60,                 // repos entre rounds (1 min, standard boxe)
       exercises: BOXE_EXERCISES
     }
   ];
@@ -299,7 +302,7 @@
     _run("Retour au calme", "Récupération.", ["Footing très lent puis marche", "Respiration profonde", "Relâche", "Hydrate-toi"], "Termine en douceur.", 180)
   ];
 
-  BOXE_SESSIONS.push({ id: 'combos', name: 'Combos avancés', level: 'Intermédiaire', rest: 30, minLevel: 3, exercises: BOXE_COMBOS });
+  BOXE_SESSIONS.push({ id: 'combos', name: 'Combos avancés', level: 'Intermédiaire', rest: 60, minLevel: 3, exercises: BOXE_COMBOS });
   CALIS_SESSIONS.push({ id: 'skills', name: 'Skills — Tenues', level: 'Avancé', rest: 30, minLevel: 3, exercises: CALIS_SKILLS });
   COURSE_SESSIONS.push({ id: 'longue', name: 'Sortie longue', level: 'Intermédiaire', rest: 0, minLevel: 3, exercises: COURSE_LONGUE });
 
@@ -314,8 +317,8 @@
   ];
   var CALIS_ELITE = [
     _cl("Échauffement complet", "Cardio", "Préparation articulaire et tendineuse.", ["Mobilité poignets/épaules", "Pompes lentes", "Gainage léger", "Squats"], "Échauffe sérieusement avant les skills.", 60),
-    _cl("Tuck planche avancée (tenue)", "Épaules", "Planche groupée, épaules très avancées.", ["Penche fortement les épaules", "Décolle, genoux serrés", "Bassin haut", "Gaine au maximum"], "Plus les épaules avancent, plus c'est dur.", 30),
-    _cl("Tuck front lever (tenue)", "Dos", "Suspension horizontale groupée (barre).", ["Suspends-toi, tire les omoplates", "Remonte le bassin à l'horizontale", "Genoux groupés", "Corps gainé"], "Garde les bras tendus.", 30),
+    _cl("Tuck planche avancée (tenue)", "Épaules", "Planche groupée, épaules très avancées.", ["Penche fortement les épaules", "Décolle, genoux serrés", "Bassin haut", "Gaine au maximum"], "Prérequis : poignets et gainage costauds. Échauffe bien les poignets ; arrête si douleur.", 30),
+    _cl("Tuck front lever (tenue)", "Dos", "Suspension horizontale groupée (barre).", ["Suspends-toi, tire les omoplates", "Remonte le bassin à l'horizontale", "Genoux groupés", "Corps gainé"], "Prérequis : hollow hold solide + tractions, bras tendus, omoplates engagées. Arrête si douleur d'épaule ou de coude.", 30),
     _cl("Archer push-ups", "Pectoraux", "Pompes asymétriques.", ["Pompe en chargeant un bras", "L'autre reste tendu", "Alterne les côtés", "Descente contrôlée"], "Reste gainé tout du long.", 40),
     _cl("Pistol squat négatif", "Quadriceps", "Descente lente sur une jambe.", ["Une jambe tendue devant", "Descends lentement sur l'autre", "Contrôle jusqu'en bas", "Remonte avec aide si besoin"], "La lenteur fait la force.", 40),
     _cl("Handstand mains rapprochées (tenue)", "Épaules", "Équilibre au mur, base resserrée.", ["Mains au sol près du mur", "Monte les pieds au mur", "Gaine, pousse dans le sol", "Tiens l'alignement"], "Bras tendus, regard entre les mains.", 40)
@@ -327,15 +330,124 @@
   }
   COURSE_ELITE.push(_run("Retour au calme", "Récupération finale.", ["Footing très lent puis marche", "Respiration profonde", "Relâche tout le corps", "Hydrate-toi"], "Termine toujours en douceur.", 300));
 
-  BOXE_SESSIONS.push({ id: 'elite', name: 'Élite — Rounds de feu', level: 'Élite', rest: 25, minLevel: 6, exercises: BOXE_ELITE });
+  BOXE_SESSIONS.push({ id: 'elite', name: 'Élite — Rounds de feu', level: 'Élite', rest: 60, minLevel: 6, exercises: BOXE_ELITE });
   CALIS_SESSIONS.push({ id: 'elite', name: 'Élite — Force gymnique', level: 'Élite', rest: 30, minLevel: 6, exercises: CALIS_ELITE });
   COURSE_SESSIONS.push({ id: 'elite', name: 'Élite — VMA courte', level: 'Élite', rest: 0, minLevel: 6, exercises: COURSE_ELITE });
+
+  /* ---- Nouvelles disciplines (poids du corps, timer) ------------------- */
+  function _dx(disc, name, mus, desc, instr, tip, dur, diff) {
+    return { name: name, muscle: mus, difficulty: diff || "Débutant", type: "exercise",
+      equipment: ["Poids du corps"], mode: "timer", discipline: disc,
+      description: desc, instructions: instr, tips: tip, duration: dur };
+  }
+  var HIIT_EXERCISES = [
+    _dx('hiit', "Échauffement dynamique", "Cardio", "Montée en température.", ["Talons-fesses, montées de genoux", "Cercles de bras", "Quelques squats", "Respire"], "Prépare le cœur et les jambes.", 60),
+    _dx('hiit', "Jumping jacks", "Cardio", "Sauts écart-serré.", ["Saute en écartant bras et jambes", "Reviens serré", "Rythme régulier", "Reste léger"], "Garde un tempo constant.", 40),
+    _dx('hiit', "Squats sautés", "Quadriceps", "Squat explosif.", ["Descends en squat", "Saute le plus haut possible", "Atterris en douceur", "Enchaîne"], "Amortis avec les genoux.", 30, "Intermédiaire"),
+    _dx('hiit', "Mountain climbers", "Abdominaux", "Genoux à la poitrine en planche.", ["Position planche", "Ramène les genoux en alternance", "Bassin stable", "Rythme rapide"], "Garde le dos plat.", 30),
+    _dx('hiit', "Burpees", "Cardio", "Mouvement complet.", ["Squat, planche, pompe", "Saut vertical", "Enchaîne sans pause", "Respire"], "Adapte le rythme à ta forme.", 30, "Intermédiaire"),
+    _dx('hiit', "Fentes sautées", "Quadriceps", "Fentes alternées explosives.", ["Fente avant", "Saute et change de jambe en l'air", "Atterris contrôlé", "Garde l'équilibre"], "Buste droit.", 30, "Intermédiaire"),
+    _dx('hiit', "Planche jacks", "Abdominaux", "Écart de jambes en planche.", ["Position planche", "Écarte et resserre les pieds en sautant", "Gaine fort", "Bassin stable"], "Ne creuse pas le dos.", 30),
+    _dx('hiit', "High knees", "Cardio", "Montées de genoux rapides.", ["Cours sur place", "Monte les genoux haut", "Bras dynamiques", "Cadence maximale"], "Reste sur l'avant des pieds.", 30)
+  ];
+  var CORE_EXERCISES = [
+    _dx('core', "Échauffement gainage", "Abdominaux", "Activation de la sangle.", ["Bascules de bassin", "Gainage léger", "Respiration abdominale", "Mobilité du dos"], "Engage le transverse.", 45),
+    _dx('core', "Crunchs", "Abdominaux", "Flexion du buste.", ["Allongé, genoux pliés", "Décolle les épaules", "Souffle en montant", "Contrôle la descente"], "Ne tire pas sur la nuque.", 40),
+    _dx('core', "Planche", "Abdominaux", "Gainage isométrique.", ["Avant-bras et orteils", "Corps aligné", "Contracte abdos et fessiers", "Respire"], "Hanches ni hautes ni basses.", 45),
+    _dx('core', "Russian twists", "Obliques", "Rotations du buste.", ["Assis, buste incliné", "Tourne d'un côté à l'autre", "Talons au sol ou décollés", "Contrôle"], "Le mouvement vient du tronc.", 40),
+    _dx('core', "Relevés de jambes", "Abdominaux", "Bas des abdominaux.", ["Allongé, jambes tendues", "Monte les jambes à la verticale", "Descends sans toucher le sol", "Bas du dos plaqué"], "Plie les genoux si trop dur.", 40),
+    _dx('core', "Planche latérale", "Obliques", "Gainage de côté.", ["Sur un avant-bras, corps de côté", "Hanches hautes", "Change de côté à mi-temps", "Gaine"], "Aligne épaule-bassin-pied.", 40),
+    _dx('core', "Hollow hold", "Abdominaux", "Gainage creux.", ["Sur le dos, bas du dos plaqué", "Épaules et jambes décollées", "Forme de banane", "Tiens"], "Plie les genoux pour réduire.", 30)
+  ];
+  var YOGA_EXERCISES = [
+    _dx('yoga', "Respiration", "Cardio", "Centrage et souffle.", ["Assis, dos droit", "Inspire 4 s, expire 6 s", "Relâche les épaules", "Calme le mental"], "Allonge l'expiration.", 60),
+    _dx('yoga', "Salutation au soleil", "Corps entier", "Enchaînement fluide.", ["Mains au ciel, flexion avant", "Planche puis chien tête en bas", "Reviens debout", "Synchronise au souffle"], "Mouvement lent et continu.", 60),
+    _dx('yoga', "Chien tête en bas", "Ischio-jambiers", "Étirement global en V.", ["Mains et pieds au sol, bassin haut", "Pousse les talons vers le sol", "Dos long", "Respire"], "Plie les genoux si besoin.", 45),
+    _dx('yoga', "Guerrier", "Quadriceps", "Posture d'ancrage.", ["Grande fente, bras tendus", "Genou avant fléchi", "Regard devant", "Change de côté à mi-temps"], "Ancre le pied arrière.", 60),
+    _dx('yoga', "Posture de l'arbre", "Corps entier", "Équilibre sur une jambe.", ["Un pied sur la cheville/cuisse opposée", "Mains jointes", "Fixe un point", "Change de côté"], "Engage la jambe d'appui.", 45),
+    _dx('yoga', "Torsion assise", "Obliques", "Rotation de la colonne.", ["Assis, une jambe croisée", "Tourne le buste", "Dos droit", "Change de côté à mi-temps"], "Grandis-toi avant de tourner.", 45),
+    _dx('yoga', "Savasana", "Cardio", "Relâchement final.", ["Allongé sur le dos", "Bras le long du corps", "Relâche tout", "Respire naturellement"], "Laisse le corps fondre dans le sol.", 60)
+  ];
+  var HIIT_SESSIONS = [ { id: 'total', name: 'HIIT total', level: 'Intermédiaire', rest: 15, exercises: HIIT_EXERCISES } ];
+  var CORE_SESSIONS = [ { id: 'acier', name: "Sangle d'acier", level: 'Débutant', rest: 15, exercises: CORE_EXERCISES } ];
+  var YOGA_SESSIONS = [ { id: 'flow', name: 'Flow Vinyasa doux', level: 'Débutant', rest: 5, exercises: YOGA_EXERCISES } ];
+
+  /* ---- Paliers avancé (Niv. 3) et élite (Niv. 6) des nouvelles voies ---- */
+  // Vrai protocole Tabata (Izumi Tabata, 1996) : 20 s effort / 10 s repos × 8,
+  // à intensité quasi-maximale, avec échauffement 5 min + retour au calme.
+  // 2 blocs (2 mouvements) avec 1 min de repos entre les blocs. Repos de séance = 0
+  // car les phases de repos sont explicites.
+  var HIIT_TABATA = [ _dx('hiit', "Échauffement (5 min)", "Cardio", "Préparation indispensable avant l'intensité maximale.", ["Cardio léger progressif", "Mobilité des articulations", "2-3 accélérations courtes", "Le cœur doit déjà être élevé"], "Échauffe-toi vraiment : le Tabata est quasi-maximal.", 300) ];
+  for (var _t1 = 1; _t1 <= 8; _t1++) {
+    HIIT_TABATA.push(_dx('hiit', "Tabata Burpees — round " + _t1 + "/8", "Cardio", "20 s d'effort quasi-maximal.", ["Burpees aussi vite que possible en sécurité", "Garde une forme correcte malgré la fatigue", "Donne tout sur les 20 s", "Souffle"], "Effort all-out, pas un rythme de croisière.", 20, "Avancé"));
+    if (_t1 < 8) HIIT_TABATA.push(_dx('hiit', "Repos 10 s", "Cardio", "Récupération incomplète.", ["Respire", "Reste debout, bouge un peu", "Prépare le round suivant"], "10 s c'est court : reste prêt.", 10));
+  }
+  HIIT_TABATA.push(_dx('hiit', "Repos entre blocs (1 min)", "Cardio", "Récupération entre les deux blocs.", ["Marche, respire", "Bois une gorgée d'eau", "Récupère activement"], "Le 2e bloc arrive.", 60));
+  for (var _t2 = 1; _t2 <= 8; _t2++) {
+    HIIT_TABATA.push(_dx('hiit', "Tabata Squats sautés — round " + _t2 + "/8", "Quadriceps", "20 s d'effort quasi-maximal.", ["Squats sautés explosifs", "Atterris en douceur", "Donne tout sur les 20 s", "Garde le dos droit"], "Amortis chaque réception.", 20, "Avancé"));
+    if (_t2 < 8) HIIT_TABATA.push(_dx('hiit', "Repos 10 s", "Cardio", "Récupération incomplète.", ["Respire", "Reste mobile", "Prépare le round suivant"], "Reste prêt.", 10));
+  }
+  HIIT_TABATA.push(_dx('hiit', "Retour au calme (3 min)", "Cardio", "Récupération et étirements légers.", ["Marche lente", "Respiration profonde", "Étirements doux", "Fais redescendre le cœur"], "Ne coupe jamais net après du Tabata.", 180));
+  var HIIT_ENFER = [
+    _dx('hiit', "Échauffement", "Cardio", "Préparation à l'intensité max.", ["Mobilité + cardio léger", "2-3 accélérations", "Respire", "Reste léger"], "Chauffe bien.", 45),
+    _dx('hiit', "Burpees + tuck jump", "Cardio", "Burpee avec saut groupé.", ["Burpee", "Saut genoux à la poitrine", "Réception souple", "Enchaîne"], "Explosif et contrôlé.", 30, "Avancé"),
+    _dx('hiit', "Pompes claquées", "Pectoraux", "Pompe avec claquement.", ["Descends", "Pousse fort, claque les mains", "Réceptionne gainé", "Enchaîne"], "Prérequis : pompes strictes solides. Réceptionne coudes souples. À éviter si souci d'épaule ou de poignet.", 25, "Avancé"),
+    _dx('hiit', "Squats sautés + maintien", "Quadriceps", "Saut puis tenue basse.", ["Squat sauté", "Tiens 1 s en bas", "Ré-explose", "Garde le dos droit"], "Cherche la hauteur.", 35, "Avancé"),
+    _dx('hiit', "Planche dynamique", "Abdominaux", "Jacks + saut en planche.", ["Planche", "Écarte/resserre les pieds", "Saut groupé", "Gaine"], "Ne creuse pas le dos.", 30, "Intermédiaire"),
+    _dx('hiit', "Tuck jumps", "Quadriceps", "Sauts groupés répétés.", ["Saute genoux à la poitrine", "Réception souple", "Enchaîne", "Reste explosif"], "Amortis les réceptions.", 25, "Avancé"),
+    _dx('hiit', "Finisher — Enfer", "Cardio", "Tout ce qui reste.", ["Burpees max", "Aucune pause", "Garde la technique", "Vide le réservoir"], "Le round qui forge.", 40, "Avancé")
+  ];
+  var CORE_AVANCE = [
+    _dx('core', "Échauffement gainage", "Abdominaux", "Activation profonde.", ["Bascules de bassin", "Gainage léger", "Respiration abdo", "Mobilité dos"], "Engage le transverse.", 45),
+    _dx('core', "Planche longue", "Abdominaux", "Gainage isométrique tenu.", ["Avant-bras et orteils", "Corps aligné", "Respire sans bouger", "Tiens"], "Qualité avant durée.", 60),
+    _dx('core', "Planche épaule-touch", "Abdominaux", "Planche dynamique stable.", ["En planche bras tendus", "Touche l'épaule opposée", "Bassin immobile", "Alterne"], "Ne balance pas les hanches.", 40, "Intermédiaire"),
+    _dx('core', "Relevés de jambes lents", "Abdominaux", "Bas des abdos contrôlé.", ["Jambes tendues", "Monte et descends lentement", "Bas du dos plaqué", "Souffle"], "Lenteur = intensité.", 40, "Intermédiaire"),
+    _dx('core', "Hollow rocks", "Abdominaux", "Gainage dynamique.", ["Position hollow", "Balance d'avant en arrière", "Bas du dos plaqué", "Contrôle"], "Garde la banane.", 40, "Intermédiaire"),
+    _dx('core', "Planche latérale + rotation", "Obliques", "Gainage latéral dynamique.", ["Planche latérale", "Passe le bras sous le buste", "Reviens ouvert", "Change de côté à mi-temps"], "Hanches hautes.", 40, "Intermédiaire")
+  ];
+  var CORE_ELITE = [
+    _dx('core', "Échauffement complet", "Abdominaux", "Préparation à l'effort dur.", ["Gainage léger", "Mobilité dos/hanches", "Hollow hold court", "Respire"], "Échauffe bien le tronc.", 45),
+    _dx('core', "Dragon flag négatif", "Abdominaux", "Descente corps gréé.", ["Allongé, agrippe un appui derrière la tête", "Corps droit à la verticale", "Descends lentement", "Garde le corps gainé"], "Prérequis : hollow hold 30 s, pas de souci lombaire. Commence groupé, descends très lentement. Stoppe si le bas du dos tire.", 30, "Avancé"),
+    _dx('core', "L-sit (tenue)", "Abdominaux", "Maintien jambes tendues.", ["Mains au sol, décolle le bassin", "Jambes tendues à l'horizontale", "Épaules basses", "Tiens"], "Groupé si trop dur.", 30, "Avancé"),
+    _dx('core', "Planche bras tendus alternés", "Abdominaux", "Planche instable.", ["Planche bras tendus", "Lève un bras puis l'autre", "Bassin immobile", "Gaine"], "Écarte un peu les pieds.", 40, "Avancé"),
+    _dx('core', "Hollow hold long", "Abdominaux", "Gainage creux prolongé.", ["Position hollow", "Bas du dos plaqué", "Tiens sans bouger", "Respire"], "Descends les bras pour durcir.", 45, "Avancé"),
+    _dx('core', "Planche latérale jambe levée", "Obliques", "Gainage latéral max.", ["Planche latérale", "Lève la jambe du dessus", "Hanches hautes", "Change de côté à mi-temps"], "Reste parfaitement aligné.", 40, "Avancé"),
+    _dx('core', "RKC plank", "Abdominaux", "Gainage en contraction totale.", ["Planche avant-bras", "Contracte tout au maximum", "Tire les coudes vers les pieds", "Tiens"], "Intensité maximale, courte.", 30, "Avancé")
+  ];
+  var YOGA_FLOW = [
+    _dx('yoga', "Respiration", "Cardio", "Centrage.", ["Assis, dos droit", "Souffle long", "Relâche les épaules", "Présence"], "Allonge l'expiration.", 45),
+    _dx('yoga', "Salutation au soleil B", "Corps entier", "Enchaînement dynamique.", ["Chaise, flexion avant", "Guerrier, planche, chien", "Synchronise au souffle", "Fluide"], "Reste continu.", 60),
+    _dx('yoga', "Guerrier 2 + triangle", "Quadriceps", "Force et ouverture.", ["Guerrier 2, bras tendus", "Passe en triangle", "Ouvre la poitrine", "Change de côté"], "Ancre les pieds.", 60),
+    _dx('yoga', "Chaise tournée", "Obliques", "Équilibre en torsion.", ["Position chaise", "Tourne le buste, coude au genou", "Mains jointes", "Change de côté"], "Garde les genoux alignés.", 45, "Intermédiaire"),
+    _dx('yoga', "Demi-lune", "Corps entier", "Équilibre latéral.", ["Main au sol, jambe arrière levée", "Ouvre le bassin", "Bras au ciel", "Change de côté"], "Fixe un point.", 45, "Intermédiaire"),
+    _dx('yoga', "Pince debout", "Ischio-jambiers", "Étirement profond.", ["Debout, flexion avant", "Relâche la nuque", "Genoux souples", "Respire dans l'étirement"], "Lâche prise.", 45),
+    _dx('yoga', "Savasana", "Cardio", "Relâchement.", ["Allongé, immobile", "Relâche tout", "Souffle naturel", "Laisse-toi fondre"], "Repos total.", 45)
+  ];
+  var YOGA_MAITRISE = [
+    _dx('yoga', "Respiration profonde", "Cardio", "Préparation mentale.", ["Assis, dos droit", "Respiration longue", "Recentre-toi", "Présence totale"], "Ralentis le souffle.", 45),
+    _dx('yoga', "Salutation avancée", "Corps entier", "Flow exigeant.", ["Enchaîne chaturanga, chien, fente", "Transitions contrôlées", "Synchronise au souffle", "Fluide"], "Gaine sur chaque transition.", 60, "Avancé"),
+    _dx('yoga', "Posture du corbeau", "Épaules", "Équilibre sur les bras.", ["Accroupi, mains au sol", "Genoux sur les triceps", "Bascule le poids en avant", "Décolle les pieds"], "Débute au-dessus d'un coussin. Prérequis : poignets et gainage. Stoppe si douleur de poignet.", 30, "Avancé"),
+    _dx('yoga', "Planche latérale yoga", "Obliques", "Vasisthasana.", ["Planche latérale bras tendu", "Hanches hautes", "Bras au ciel", "Change de côté à mi-temps"], "Empile les pieds.", 40, "Avancé"),
+    _dx('yoga', "Posture du danseur", "Quadriceps", "Équilibre et ouverture.", ["Debout, attrape un pied derrière", "Pousse le pied dans la main", "Buste vers l'avant", "Change de côté"], "Fixe un point stable.", 45, "Avancé"),
+    _dx('yoga', "Pont / roue", "Dos", "Ouverture du buste.", ["Allongé, pieds près des fessiers", "Pousse le bassin vers le haut", "Ouvre la poitrine", "Respire"], "Échauffe la colonne. Monte progressivement. À éviter en cas de souci lombaire ou d'épaule.", 40, "Intermédiaire"),
+    _dx('yoga', "Savasana", "Cardio", "Intégration finale.", ["Allongé, immobile", "Relâche tout", "Souffle naturel", "Repos profond"], "Laisse le calme s'installer.", 60)
+  ];
+
+  HIIT_SESSIONS.push({ id: 'tabata', name: 'Tabata — Forge', level: 'Avancé', rest: 0, minLevel: 3, exercises: HIIT_TABATA });
+  HIIT_SESSIONS.push({ id: 'elite', name: 'Élite — Enfer', level: 'Élite', rest: 10, minLevel: 6, exercises: HIIT_ENFER });
+  CORE_SESSIONS.push({ id: 'avance', name: 'Gainage avancé', level: 'Avancé', rest: 15, minLevel: 3, exercises: CORE_AVANCE });
+  CORE_SESSIONS.push({ id: 'elite', name: "Élite — Noyau d'acier", level: 'Élite', rest: 15, minLevel: 6, exercises: CORE_ELITE });
+  YOGA_SESSIONS.push({ id: 'dynamique', name: 'Flow dynamique', level: 'Avancé', rest: 5, minLevel: 3, exercises: YOGA_FLOW });
+  YOGA_SESSIONS.push({ id: 'maitrise', name: 'Maîtrise', level: 'Élite', rest: 5, minLevel: 6, exercises: YOGA_MAITRISE });
 
   /* ---- Registre générique des séances par discipline ------------------- */
   var DISCIPLINE_SESSIONS = {
     boxe: BOXE_SESSIONS,
     calisthenie: CALIS_SESSIONS,
     course: COURSE_SESSIONS,
+    hiit: HIIT_SESSIONS,
+    core: CORE_SESSIONS,
+    yoga: YOGA_SESSIONS,
     mobilite: MOBILITE_SESSIONS
   };
   function listDisciplineSessions(disciplineId) {
@@ -345,6 +457,53 @@
     const list = DISCIPLINE_SESSIONS[disciplineId] || [];
     return list.filter(function (s) { return s.id === sessionId; })[0] || list[0] || null;
   }
+
+  /* ---- Fiches explicatives par discipline ------------------------------ */
+  var DISCIPLINE_GUIDES = {
+    boxe: {
+      about: "La boxe développe le cardio, la coordination et la puissance, sans aucun matériel : tu frappes dans le vide (shadow boxing) en soignant la technique.",
+      howItWorks: "Les séances s'enchaînent en rounds chronométrés, sur le modèle de la boxe : des phases d'effort entrecoupées d'environ une minute de récupération. Plus ta Voie de l'Arène monte en niveau, plus des séances avancées (combos, élite) se débloquent.",
+      principles: ["Garde toujours les mains hautes et le menton rentré.", "La puissance vient des hanches et des appuis, pas des bras.", "Privilégie une technique nette plutôt que la vitesse au début.", "Reviens en garde après chaque coup."],
+      frequency: "2 à 3 fois par semaine, en laissant des jours plus légers entre les séances intenses."
+    },
+    calisthenie: {
+      about: "La calisthénie, c'est la musculation au poids du corps : pompes, squats, dips, et des figures de gymnaste (planche, L-sit) qui se construisent par étapes.",
+      howItWorks: "Tu commences par les fondations, puis les paliers Skills et Élite débloquent des tenues et des figures plus exigeantes à mesure que ta Voie du Corps progresse. Les figures avancées demandent des prérequis (gainage solide) — ils sont indiqués dans les conseils.",
+      principles: ["Maîtrise une progression avant de passer à la suivante.", "La qualité d'exécution prime sur le nombre de répétitions.", "Échauffe poignets et épaules avant les tenues.", "Respecte les prérequis : ils évitent les blessures."],
+      frequency: "3 à 4 fois par semaine, en alternant les groupes (pousser / tirer / gainage)."
+    },
+    course: {
+      about: "La course développe l'endurance cardiovasculaire. L'app te guide aussi bien sur du footing facile que sur du fractionné, au chrono.",
+      howItWorks: "Chaque séance enchaîne des phases chronométrées : échauffement, effort, récupération, retour au calme. Le footing se court à allure conversationnelle ; le fractionné alterne efforts rapides et récupérations.",
+      principles: ["Échauffe-toi toujours avant d'accélérer.", "Sur le footing, tu dois pouvoir tenir une conversation.", "Sur le fractionné, garde la même allure sur tous les efforts.", "Termine toujours par un retour au calme."],
+      frequency: "2 à 4 fois par semaine, en mélangeant endurance et fractionné."
+    },
+    hiit: {
+      about: "Le HIIT (entraînement fractionné à haute intensité) alterne efforts intenses et récupérations courtes pour un maximum d'effet en peu de temps.",
+      howItWorks: "Les séances enchaînent des intervalles chronométrés. Le palier avancé est un vrai Tabata : 8 rounds de 20 s d'effort quasi-maximal / 10 s de repos, encadrés d'un échauffement et d'un retour au calme.",
+      principles: ["L'intensité fait tout : donne-toi à fond sur les efforts.", "Garde une forme correcte même fatigué.", "Choisis des mouvements sûrs à exécuter à pleine vitesse.", "Le vrai Tabata est exigeant : limite-le à 1-3 fois par semaine."],
+      frequency: "1 à 3 fois par semaine, avec des jours de récupération entre les séances dures."
+    },
+    core: {
+      about: "Le gainage renforce la sangle abdominale et la stabilité du tronc — la base de tous les autres mouvements.",
+      howItWorks: "Les séances enchaînent du gainage statique (planche) et dynamique (relevés, rotations). Les paliers avancés ajoutent des tenues exigeantes (dragon flag, L-sit) avec leurs prérequis.",
+      principles: ["Garde le corps aligné : hanches ni trop hautes ni trop basses.", "Contracte abdos et fessiers, respire sans bloquer.", "La qualité de la tenue prime sur la durée.", "Respecte les prérequis des tenues avancées."],
+      frequency: "3 à 5 fois par semaine — la sangle abdominale récupère vite."
+    },
+    yoga: {
+      about: "Le yoga associe postures, équilibre et respiration pour gagner en souplesse, en force et en calme mental.",
+      howItWorks: "Les séances enchaînent des postures tenues au chrono et des flows fluides. Les paliers avancés introduisent des postures d'équilibre et d'ouverture plus exigeantes.",
+      principles: ["Synchronise chaque mouvement avec ta respiration.", "Va jusqu'à une tension légère, jamais la douleur.", "La régularité compte plus que la performance.", "Termine par un temps de relâchement (savasana)."],
+      frequency: "De 2 fois par semaine à tous les jours, selon l'intensité."
+    },
+    mobilite: {
+      about: "La mobilité entretient la souplesse et la récupération active : des étirements et mouvements doux pour garder un corps fluide.",
+      howItWorks: "Un flow d'étirements tenus au chrono. Idéal en rituel complémentaire, les jours de repos ou après une grosse séance.",
+      principles: ["Étire jusqu'à une tension légère, jamais la douleur.", "Respire profondément dans chaque posture.", "Mieux vaut souvent et doux que rare et forcé.", "Parfait pour récupérer entre les séances intenses."],
+      frequency: "Quand tu veux — idéalement les jours de repos ou en fin de séance."
+    }
+  };
+  function getDisciplineGuide(id) { return DISCIPLINE_GUIDES[id] || null; }
 
   /* ---- Exposition globale ---------------------------------------------- */
   global.DISCIPLINES = DISCIPLINES;
@@ -362,5 +521,7 @@
   global.DISCIPLINE_SESSIONS = DISCIPLINE_SESSIONS;
   global.listDisciplineSessions = listDisciplineSessions;
   global.getDisciplineSession = getDisciplineSession;
+  global.DISCIPLINE_GUIDES = DISCIPLINE_GUIDES;
+  global.getDisciplineGuide = getDisciplineGuide;
 
 })(typeof window !== 'undefined' ? window : this);

@@ -31509,28 +31509,69 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
         // ── COFFRES DE BUTIN ─────────────────────────────────────────
         const LOOT_TIERS = [
-            { tier:'common',  label:'Commun',   emoji:'📦', color:'#6b7280', weight:70,
-              rewards:[ {type:'xp',amount:50,label:'+50 XP'}, {type:'xp',amount:30,label:'+30 XP'},
+            { tier:'common',  label:'Commun',   emoji:'📦', color:'#6b7280', weight:62,
+              rewards:[ {type:'xp',amount:30,label:'+30 XP'}, {type:'xp',amount:50,label:'+50 XP'}, {type:'xp',amount:70,label:'+70 XP'},
+                        {type:'voie_xp',amount:60,label:'+60 XP de Voie'},
                         {type:'badge',id:'chest_common',label:'Badge Commun 📦'} ] },
-            { tier:'rare',    label:'Rare',     emoji:'💜', color:'#166534', weight:25,
-              rewards:[ {type:'xp',amount:150,label:'+150 XP'}, {type:'xp',amount:100,label:'+100 XP'},
+            { tier:'rare',    label:'Rare',     emoji:'💜', color:'#166534', weight:28,
+              rewards:[ {type:'xp',amount:120,label:'+120 XP'}, {type:'xp',amount:160,label:'+160 XP'}, {type:'xp',amount:200,label:'+200 XP'},
+                        {type:'voie_xp',amount:120,label:'+120 XP de Voie'},
+                        {type:'buff',mult:1.25,label:'Prochaine séance : +25% XP'},
                         {type:'badge',id:'chest_rare',label:'Badge Rare 💜'} ] },
-            { tier:'epic',    label:'Épique',   emoji:'⭐', color:'#d97706', weight:5,
-              rewards:[ {type:'xp',amount:500,label:'+500 XP'}, {type:'xp',amount:350,label:'+350 XP'},
+            { tier:'epic',    label:'Épique',   emoji:'⭐', color:'#d97706', weight:10,
+              rewards:[ {type:'xp',amount:400,label:'+400 XP'}, {type:'xp',amount:550,label:'+550 XP'},
+                        {type:'xp',amount:1000,label:'🎉 JACKPOT +1000 XP'},
+                        {type:'voie_xp',amount:250,label:'+250 XP de Voie'},
+                        {type:'buff',mult:1.5,label:'Prochaine séance : +50% XP'},
                         {type:'badge',id:'chest_epic',label:'Badge Épique ⭐'} ] },
         ];
+
+        // ── Bonus temporaire (coffre) : booste l'XP de la PROCHAINE séance ──
+        function rpgGetWorkoutBuff() {
+            try { const b = JSON.parse(localStorage.getItem('fitproNextWorkoutBuff') || 'null'); return (b && b.mult) ? b.mult : 1; } catch (e) { return 1; }
+        }
+        function rpgGetWorkoutBuffLabel() {
+            try { const b = JSON.parse(localStorage.getItem('fitproNextWorkoutBuff') || 'null'); return (b && b.label) ? b.label : ''; } catch (e) { return ''; }
+        }
+        function rpgClearWorkoutBuff() {
+            try { localStorage.removeItem('fitproNextWorkoutBuff'); } catch (e) {}
+        }
+        window.rpgGetWorkoutBuff = rpgGetWorkoutBuff;
+        window.rpgGetWorkoutBuffLabel = rpgGetWorkoutBuffLabel;
+        window.rpgClearWorkoutBuff = rpgClearWorkoutBuff;
 
         function rpgRollLoot() {
             const roll = Math.random() * 100;
             let acc = 0;
+            let chosen = LOOT_TIERS[0];
             for (const tier of LOOT_TIERS) {
                 acc += tier.weight;
-                if (roll < acc) {
-                    const reward = tier.rewards[Math.floor(Math.random() * tier.rewards.length)];
-                    return { tier, reward };
+                if (roll < acc) { chosen = tier; break; }
+            }
+            let reward = chosen.rewards[Math.floor(Math.random() * chosen.rewards.length)];
+            // XP de Voie : choisir une discipline au hasard et l'étiqueter.
+            if (reward.type === 'voie_xp') {
+                let discs = (typeof listDisciplinesByRole === 'function') ? listDisciplinesByRole('principal').filter(d => d.id !== 'muscu') : [];
+                if (!discs.length && typeof listDisciplines === 'function') discs = listDisciplines().filter(d => d.id !== 'muscu');
+                if (discs.length) {
+                    const dd = discs[Math.floor(Math.random() * discs.length)];
+                    reward = { type: 'voie_xp', amount: reward.amount, disciplineId: dd.id, label: '+' + reward.amount + ' XP · Voie ' + dd.emoji };
+                } else {
+                    reward = { type: 'xp', amount: reward.amount, label: '+' + reward.amount + ' XP' };
                 }
             }
-            return { tier: LOOT_TIERS[0], reward: LOOT_TIERS[0].rewards[0] };
+            // Anti-coffre-vide : un badge déjà possédé est converti en XP (la meilleure du palier).
+            if (reward.type === 'badge') {
+                const owned = JSON.parse(localStorage.getItem('fitproLootBadges') || '[]');
+                if (owned.includes(reward.id)) {
+                    const xpRewards = chosen.rewards.filter(r => r.type === 'xp');
+                    const best = xpRewards.reduce((a, b) => (b.amount > a.amount ? b : a), xpRewards[0]);
+                    reward = { type: 'xp', amount: best.amount, label: best.label, _fromDuplicate: true };
+                } else {
+                    reward = Object.assign({ _newBadge: true }, reward);
+                }
+            }
+            return { tier: chosen, reward };
         }
 
         function rpgOpenLootChest(loot) {
@@ -31550,6 +31591,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     badges.push(loot.reward.id);
                     localStorage.setItem('fitproLootBadges', JSON.stringify(badges));
                 }
+            } else if (loot.reward.type === 'voie_xp') {
+                if (typeof awardDisciplineProgress === 'function' && loot.reward.disciplineId) {
+                    awardDisciplineProgress(loot.reward.disciplineId, loot.reward.amount, 0);
+                }
+            } else if (loot.reward.type === 'buff') {
+                try { localStorage.setItem('fitproNextWorkoutBuff', JSON.stringify({ mult: loot.reward.mult, label: loot.reward.label })); } catch (e) {}
             }
         }
 
@@ -31565,7 +31612,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     <div style="font-size:0.88em;color:rgba(255,255,255,0.6);margin-bottom:16px;">Tape pour ouvrir !</div>
                     <div id="lootReward" style="display:none;">
                         <div style="font-size:1.6em;font-weight:900;color:${loot.tier.color};margin:8px 0;">${loot.reward.label}</div>
-                        <div style="font-size:0.8em;color:rgba(255,255,255,0.5);margin-bottom:16px;">Récompense ajoutée !</div>
+                        <div style="font-size:0.8em;color:rgba(255,255,255,0.5);margin-bottom:16px;">${loot.reward._newBadge ? 'Nouveau badge débloqué !' : (loot.reward._fromDuplicate ? 'Badge déjà obtenu — converti en XP !' : (loot.reward.type === 'voie_xp' ? 'XP de Voie ajoutée !' : (loot.reward.type === 'buff' ? '🎁 Bonus actif à ta prochaine séance !' : 'Récompense ajoutée !')))}</div>
                     </div>
                     <button onclick="this.closest('[style*=fixed]').remove()" style="width:100%;padding:12px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:14px;color:white;font-weight:700;cursor:pointer;margin-top:8px;">
                         Continuer
@@ -31776,8 +31823,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         // ═══════════════════════════════════════════════════════════════
         // 🛡️ ANTI-ABUS XP — Plafonds raisonnables
         // ═══════════════════════════════════════════════════════════════
-        const XP_MAX_REPS_PER_SET = 100;     // au-delà = improbable physiquement
-        const XP_MAX_PER_SET      = 250;     // hard cap par série
+        const XP_MAX_REPS_PER_SET = 50;      // au-delà = quasi-certainement une faute de saisie
+        const XP_MAX_PER_SET      = 120;     // hard cap par série (empêche qu'une saisie erronée fasse exploser les niveaux)
         const XP_MAX_PER_WORKOUT  = 3000;    // hard cap par séance entière
         const XP_MAX_PER_DAY      = 9000;    // hard cap quotidien (≈ 3 séances pleines)
         const XP_WORKOUT_TRACKING_KEY = 'fitproWorkoutXpTracker';
@@ -31869,6 +31916,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 const _baseXP = Math.round(rpgXPForSet(exerciseName, reps, weightKg, isTimerMode, _dur) * _bonus);
                 const _exType = (typeof classifyExercise === 'function') ? classifyExercise({name:exerciseName}) : 'isolation';
                 let xpGained = rpgApplyXPMultipliers(_baseXP, muscle, _exType);
+
+                // 🎁 Bonus temporaire de coffre : booste l'XP de la séance.
+                const _buff = (typeof rpgGetWorkoutBuff === 'function') ? rpgGetWorkoutBuff() : 1;
+                if (_buff > 1) xpGained = Math.round(xpGained * _buff);
 
                 // 🛡️ Cap final par série après tous les multiplicateurs
                 xpGained = Math.min(xpGained, XP_MAX_PER_SET);
@@ -32880,6 +32931,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
             // 🎮 RPG — après séance complète
             if (rpgEnabled()) {
+                // 🎁 Consommer le bonus temporaire utilisé pendant CETTE séance
+                // (le coffre ci-dessous peut en accorder un nouveau pour la prochaine).
+                if (typeof rpgClearWorkoutBuff === 'function') rpgClearWorkoutBuff();
                 // Donjon complété ?
                 if (currentWorkout && currentWorkout.type === 'dungeon' && currentWorkout._dungeonId) {
                     setTimeout(() => rpgCompleteDungeon(currentWorkout._dungeonId), 800);
@@ -34345,6 +34399,44 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             return '<div style="display:flex;gap:6px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:5px;margin-bottom:14px;">' + btns + '</div>';
         }
 
+        // Fiche « Comment ça marche ? » d'une discipline.
+        function _guideBlock(title, text, color) {
+            return '<div style="font-size:0.62em;color:' + color + ';font-weight:900;letter-spacing:1.5px;margin:16px 0 6px;">' + title + '</div>'
+                + '<p style="color:#cbd5e1;font-size:0.86em;line-height:1.5;margin:0;">' + text + '</p>';
+        }
+        function showDisciplineGuide(disciplineId) {
+            const d = (typeof getDiscipline === 'function') ? getDiscipline(disciplineId) : null;
+            const g = (typeof getDisciplineGuide === 'function') ? getDisciplineGuide(disciplineId) : null;
+            if (!d || !g) return;
+            const color = d.color || '#22c55e';
+            const old = document.getElementById('disciplineGuideModal');
+            if (old) old.remove();
+            const principles = (g.principles || []).map(function (p) {
+                return '<li style="margin-bottom:7px;color:#cbd5e1;font-size:0.86em;line-height:1.4;">' + p + '</li>';
+            }).join('');
+            const modal = document.createElement('div');
+            modal.className = 'modal active';
+            modal.id = 'disciplineGuideModal';
+            modal.innerHTML = '<div class="modal-content" style="max-width:520px;max-height:90vh;overflow-y:auto;border-top:3px solid ' + color + ';">'
+                + '<div class="modal-header"><h2 style="display:flex;align-items:center;gap:9px;">' + d.emoji + ' ' + d.name + '</h2>'
+                + '<button onclick="closeDisciplineGuide()" style="background:none;border:none;font-size:1.5em;cursor:pointer;color:#94a3b8;">×</button></div>'
+                + '<div class="modal-body">'
+                + (d.voie ? '<div style="color:' + color + ';font-weight:800;font-size:0.8em;margin-bottom:6px;">' + d.voie + '</div>' : '')
+                + _guideBlock('À PROPOS', g.about, color)
+                + _guideBlock("COMMENT ÇA MARCHE DANS L'APP", g.howItWorks, color)
+                + '<div style="font-size:0.62em;color:' + color + ';font-weight:900;letter-spacing:1.5px;margin:16px 0 8px;">PRINCIPES CLÉS</div>'
+                + '<ul style="margin:0;padding-left:18px;">' + principles + '</ul>'
+                + (g.frequency ? _guideBlock('FRÉQUENCE CONSEILLÉE', g.frequency, color) : '')
+                + '</div></div>';
+            document.body.appendChild(modal);
+        }
+        function closeDisciplineGuide() {
+            const m = document.getElementById('disciplineGuideModal');
+            if (m) m.remove();
+        }
+        window.showDisciplineGuide = showDisciplineGuide;
+        window.closeDisciplineGuide = closeDisciplineGuide;
+
         // Panneau récap « Mes Voies » : toutes les disciplines (Mobilité comprise) + niveaux.
         function _renderMyVoies() {
             const all = (typeof listDisciplines === 'function') ? listDisciplines().filter(function (d) { return d.id !== 'muscu'; }) : [];
@@ -34354,10 +34446,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 const lv = (typeof getDisciplineLevel === 'function') ? getDisciplineLevel(d.id) : { level: 1, xpInLevel: 0, xpForLevel: 300, sessions: 0 };
                 totalSessions += lv.sessions;
                 const pct = Math.round(lv.xpInLevel / lv.xpForLevel * 100);
-                return '<div style="display:flex;align-items:center;gap:10px;padding:7px 0;">'
+                return '<div onclick="showDisciplineGuide(\'' + d.id + '\')" title="Comment ça marche ?" style="display:flex;align-items:center;gap:10px;padding:7px 0;cursor:pointer;">'
                     + '<span style="font-size:1.3em;width:26px;text-align:center;flex-shrink:0;">' + d.emoji + '</span>'
                     + '<div style="flex:1;min-width:0;">'
-                    + '<div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="color:#fff;font-weight:700;font-size:0.8em;">' + (d.voie || d.name) + '</span><span style="color:' + d.color + ';font-weight:800;font-size:0.78em;">Niv. ' + lv.level + '</span></div>'
+                    + '<div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="color:#fff;font-weight:700;font-size:0.8em;">' + (d.voie || d.name) + ' <span style="color:#64748b;font-weight:400;">ⓘ</span></span><span style="color:' + d.color + ';font-weight:800;font-size:0.78em;">Niv. ' + lv.level + '</span></div>'
                     + '<div style="height:5px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;"><div style="height:100%;width:' + pct + '%;background:' + d.color + ';border-radius:99px;transition:width .3s;"></div></div>'
                     + '</div></div>';
             }).join('');
@@ -34381,6 +34473,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     + '<div style="font-weight:900;color:#fff;font-size:1.05em;">' + d.name + '</div>'
                     + (d.voie ? '<div style="font-size:0.72em;color:' + d.color + ';font-weight:700;margin-top:2px;">' + d.voie + '</div>' : '')
                     + '<div style="font-size:0.78em;color:#94a3b8;margin-top:4px;">' + (d.tagline || '') + '</div>'
+                    + '<button onclick="event.stopPropagation(); showDisciplineGuide(\'' + d.id + '\')" style="margin-top:7px;background:none;border:none;color:' + d.color + ';font-size:0.72em;font-weight:700;cursor:pointer;padding:0;">ⓘ Comment ça marche ?</button>'
                     + '</div>'
                     + (ready ? '' : '<span style="flex-shrink:0;background:rgba(255,255,255,0.08);color:#cbd5e1;font-size:0.62em;font-weight:800;padding:4px 9px;border-radius:99px;letter-spacing:0.5px;">BIENTÔT</span>')
                     + '</div>';
