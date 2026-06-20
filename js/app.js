@@ -21079,6 +21079,44 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             }
         });
 
+        // 🫁 Guide de respiration (yoga) — cercle animé en CSS, inspire 4 s / expire 6 s.
+        function _ensureBreathStyle() {
+            if (document.getElementById('awakBreathStyle')) return;
+            const st = document.createElement('style');
+            st.id = 'awakBreathStyle';
+            st.textContent =
+                '@keyframes awakBreath{0%{transform:scale(.55)}40%{transform:scale(1)}100%{transform:scale(.55)}}' +
+                '@keyframes awakBreathInL{0%,37%{opacity:1}43%,100%{opacity:0}}' +
+                '@keyframes awakBreathOutL{0%,37%{opacity:0}43%,100%{opacity:1}}' +
+                '#awakBreathPacer{display:flex;flex-direction:column;align-items:center;gap:12px;margin:16px auto 6px;}' +
+                '#awakBreathPacer .bp-ring{width:118px;height:118px;border-radius:50%;background:radial-gradient(circle at 50% 42%,rgba(196,181,253,.40),rgba(129,140,248,.12) 70%);border:2px solid rgba(196,181,253,.55);box-shadow:0 0 30px rgba(167,139,250,.35);animation:awakBreath 10s ease-in-out infinite;}' +
+                '#awakBreathPacer .bp-label{position:relative;height:1.3em;min-width:120px;text-align:center;font-weight:700;letter-spacing:1px;color:#c4b5fd;font-size:1.05em;}' +
+                '#awakBreathPacer .bp-in,#awakBreathPacer .bp-out{position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;}' +
+                '#awakBreathPacer .bp-in{animation:awakBreathInL 10s ease-in-out infinite;}' +
+                '#awakBreathPacer .bp-out{animation:awakBreathOutL 10s ease-in-out infinite;}';
+            document.head.appendChild(st);
+        }
+        function _renderBreathPacer(exercise) {
+            const existing = document.getElementById('awakBreathPacer');
+            const isYoga = currentWorkout && currentWorkout._discipline === 'yoga'
+                && exercise && !exercise.isRest && !exercise.isInfo;
+            // Cadre visuel : en yoga sans image, on laisse le guide de respiration comme visuel central.
+            const vf = document.getElementById('exerciseVisualFrame');
+            if (vf && isYoga) {
+                const hasImg = window.EXERCISE_IMAGES && (window.EXERCISE_IMAGES[exercise._baseName || exercise.name] || window.EXERCISE_IMAGES[exercise.name]);
+                if (!hasImg) vf.style.display = 'none';
+            }
+            if (!isYoga) { if (existing) existing.remove(); return; }
+            if (existing) return;
+            _ensureBreathStyle();
+            const td = document.getElementById('timerDisplay');
+            if (!td || !td.parentNode) return;
+            const wrap = document.createElement('div');
+            wrap.id = 'awakBreathPacer';
+            wrap.innerHTML = '<div class="bp-ring"></div><div class="bp-label"><span class="bp-in">Inspire…</span><span class="bp-out">Expire…</span></div>';
+            td.parentNode.insertBefore(wrap, td.nextSibling);
+        }
+
         function startTimer() {
             const exercise = currentWorkout.exercises[currentExerciseIndex];
 
@@ -21086,6 +21124,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             if (exercise && exercise.mode === 'reps') {
                 return; // Just display reps, no countdown
             }
+
+            // 🫁 Yoga : afficher le guide de respiration (sinon le retirer)
+            try { _renderBreathPacer(exercise); } catch (e) {}
 
             if (timerInterval) clearInterval(timerInterval);
 
@@ -21100,12 +21141,16 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     
                     // Play beep sound for last 5 seconds
                     if (timeRemaining <= 5 && timeRemaining > 0) {
-                        playBeep();
-                        vibrate(50); // Vibration légère countdown
-                        speakCountdown(timeRemaining); // Voice countdown
-                        // Add visual warning
-                        const timerDisplay = document.getElementById('timerDisplay');
-                        timerDisplay.classList.add('timer-countdown-warning');
+                        // 🧘 Yoga = mode calme : pas de bips/vibrations/décompte agressifs
+                        const _calmYoga = currentWorkout && currentWorkout._discipline === 'yoga';
+                        if (!_calmYoga) {
+                            playBeep();
+                            vibrate(50); // Vibration légère countdown
+                            speakCountdown(timeRemaining); // Voice countdown
+                            // Add visual warning
+                            const timerDisplay = document.getElementById('timerDisplay');
+                            timerDisplay.classList.add('timer-countdown-warning');
+                        }
                     } else {
                         const timerDisplay = document.getElementById('timerDisplay');
                         timerDisplay.classList.remove('timer-countdown-warning');
@@ -21138,9 +21183,16 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         if (_sideEl2) _sideEl2.style.display = 'none';
 
                         clearInterval(timerInterval);
-                        vibrate(200);
-                        playSound();
-                        speak("Exercice terminé");
+                        // 🧘 Yoga = transition douce ; sinon signal standard
+                        if (currentWorkout && currentWorkout._discipline === 'yoga') {
+                            vibrate(80);
+                            playSound();
+                            speak("Posture suivante");
+                        } else {
+                            vibrate(200);
+                            playSound();
+                            speak("Exercice terminé");
+                        }
 
                         // 🌀 RIFT/HUNT : 1 timer fini = 1 attaque infligée, retour combat
                         if (currentWorkout && (currentWorkout._isRift || currentWorkout._isHunt)) {
@@ -21255,11 +21307,16 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 const seconds = timeRemaining % 60;
                 timerDisplay.textContent =
                     `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-                // 🎨 États visuels : repos = cyan apaisant · effort sous 6s = rouge urgent
+                // 🎨 États visuels : repos = cyan · yoga = violet zen · effort sous 6s = rouge urgent
+                const _yogaCalm = currentWorkout && currentWorkout._discipline === 'yoga' && exercise && !exercise.isRest;
                 if (exercise && exercise.isRest) {
                     timerDisplay.classList.remove('awak-timer-low');
                     timerDisplay.style.color = '#67e8f9';
                     timerDisplay.style.textShadow = '0 0 32px rgba(103,232,249,0.45),0 0 60px rgba(103,232,249,0.15)';
+                } else if (_yogaCalm) {
+                    timerDisplay.classList.remove('awak-timer-low');
+                    timerDisplay.style.color = '#c4b5fd';
+                    timerDisplay.style.textShadow = '0 0 30px rgba(196,181,253,0.45),0 0 60px rgba(167,139,250,0.18)';
                 } else if (timeRemaining <= 5 && timeRemaining > 0) {
                     timerDisplay.classList.add('awak-timer-low');
                     timerDisplay.style.color = '';
@@ -34465,7 +34522,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 ? listDisciplinesByRole('principal').filter(function (d) { return d.id !== 'muscu'; })
                 : [];
             let cards = list.map(function (d) {
-                const sessions = ((typeof listDisciplineSessions === 'function') ? listDisciplineSessions(d.id) : []).slice().sort(function (a, b) { return (a.minLevel || 1) - (b.minLevel || 1); });
+                const sessions = ((typeof listDisciplineSessions === 'function') ? listDisciplineSessions(d.id) : []).slice().sort(function (a, b) { if (!!a.goal !== !!b.goal) { return a.goal ? -1 : 1; } return (a.minLevel || 1) - (b.minLevel || 1); });
                 const ready = sessions.length > 0;
                 const head = '<div style="display:flex;align-items:center;gap:14px;">'
                     + '<div style="font-size:2em;line-height:1;flex-shrink:0;filter:drop-shadow(0 0 8px ' + d.color + '70);">' + d.emoji + '</div>'
