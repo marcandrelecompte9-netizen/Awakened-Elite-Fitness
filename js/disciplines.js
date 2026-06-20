@@ -368,7 +368,7 @@
     _dx('yoga', "Torsion assise", "Obliques", "Rotation de la colonne.", ["Assis, une jambe croisée", "Tourne le buste", "Dos droit", "Change de côté à mi-temps"], "Grandis-toi avant de tourner.", 45),
     _dx('yoga', "Savasana", "Cardio", "Relâchement final.", ["Allongé sur le dos", "Bras le long du corps", "Relâche tout", "Respire naturellement"], "Laisse le corps fondre dans le sol.", 60)
   ];
-  var HIIT_SESSIONS = [ { id: 'total', name: 'HIIT total', level: 'Intermédiaire', rest: 15, exercises: HIIT_EXERCISES } ];
+  var HIIT_SESSIONS = [ { id: 'total', name: 'HIIT total', level: 'Débutant', rest: 25, exercises: HIIT_EXERCISES } ];
   var CORE_SESSIONS = [ { id: 'acier', name: "Sangle d'acier", level: 'Débutant', rest: 15, exercises: CORE_EXERCISES } ];
   var YOGA_SESSIONS = [ { id: 'flow', name: 'Flow Vinyasa doux', level: 'Débutant', rest: 5, exercises: YOGA_EXERCISES } ];
 
@@ -439,6 +439,115 @@
   CORE_SESSIONS.push({ id: 'elite', name: "Élite — Noyau d'acier", level: 'Élite', rest: 15, minLevel: 6, exercises: CORE_ELITE });
   YOGA_SESSIONS.push({ id: 'dynamique', name: 'Flow dynamique', level: 'Avancé', rest: 5, minLevel: 3, exercises: YOGA_FLOW });
   YOGA_SESSIONS.push({ id: 'maitrise', name: 'Maîtrise', level: 'Élite', rest: 5, minLevel: 6, exercises: YOGA_MAITRISE });
+
+  /* ---- Paliers intermédiaires (Niv. 2 « Intermédiaire » et Niv. 5 « Confirmé ») ---- */
+  // Lissent la progression entre débutant (1), avancé (3) et élite (6).
+  var BOXE_INTER = [
+    _dx('boxe', "Échauffement & garde", "Cardio", "Mise en route et garde.", ["Sautillements légers", "Rotations épaules", "Mains hautes", "Respire"], "Reste léger sur les appuis.", 90),
+    _dx('boxe', "Jab – Cross – Jab (1-2-1)", "Épaules", "Premier enchaînement à trois temps.", ["Jab, cross, jab", "Reviens en garde", "Pivote les hanches sur le cross", "Rythme régulier"], "Garde l'équilibre entre chaque coup.", 90, "Intermédiaire"),
+    _dx('boxe', "Jab – Crochet (1-3)", "Épaules", "Direct puis crochet avant.", ["Jab", "Enchaîne un crochet du bras avant", "Coude à hauteur d'épaule", "Remets-toi en garde"], "Le crochet part de la hanche.", 90, "Intermédiaire"),
+    _dx('boxe', "Esquive + Jab-Cross", "Corps entier", "Défense puis riposte.", ["Esquive latérale", "Riposte jab-cross", "Replace-toi", "Yeux devant"], "Esquive puis frappe sans délai.", 90, "Intermédiaire"),
+    _dx('boxe', "Déplacements + combos", "Cardio", "Bouger en frappant.", ["Avance et recule en frappant", "Pas chassés", "Ne croise pas les pieds", "Garde haute"], "Frappe toujours bien campé.", 90, "Intermédiaire"),
+    _dx('boxe', "Finisher — Shadow rapide", "Cardio", "Cardio final.", ["Shadow le plus vif possible", "Coups relâchés", "Bouge sans arrêt", "Souffle"], "Vitesse avant puissance.", 60, "Intermédiaire")
+  ];
+  var BOXE_CONF = [
+    _dx('boxe', "Échauffement explosif", "Cardio", "Montée rapide en intensité.", ["Shadow vif", "Accélérations de coups", "Mobilité épaules", "Respire"], "Sois déjà chaud.", 60),
+    _dx('boxe', "Combo 1-2-3 rapide", "Corps entier", "Enchaînement rapide.", ["Jab-cross-crochet vif", "Sans temps mort", "Reviens en garde", "Cadence soutenue"], "Garde la précision malgré la vitesse.", 90, "Avancé"),
+    _dx('boxe', "Contre après esquive", "Corps entier", "Slip puis riposte 2-3.", ["Esquive", "Riposte cross-crochet", "Replace-toi vite", "Reste compact"], "Riposte instantanément.", 90, "Avancé"),
+    _dx('boxe', "Doubles jabs + cross", "Épaules", "Cadence sur les directs.", ["Jab-jab-cross", "Cadence élevée", "Épaules relâchées", "Souffle court"], "Privilégie la vitesse.", 75, "Avancé"),
+    _dx('boxe', "Uppercut – crochet en rafale", "Épaules", "Coups rapprochés.", ["Uppercut puis crochet", "Pivote les hanches", "Reste gainé", "Alterne les côtés"], "Compact et explosif.", 75, "Avancé"),
+    _dx('boxe', "Finisher — 30 s de coups", "Cardio", "Effort maximal.", ["Coups à fond 30 s", "Garde la technique", "Ne baisse pas la garde", "Tout donner"], "Le round qui pique.", 45, "Avancé")
+  ];
+  var CALIS_INTER = [
+    _dx('calisthenie', "Échauffement", "Cardio", "Réveil articulaire.", ["Mobilité épaules/poignets", "Quelques squats", "Pompes lentes", "Respire"], "Monte en intensité progressivement.", 60),
+    _dx('calisthenie', "Pompes diamant", "Triceps", "Pompes mains rapprochées.", ["Mains en losange sous la poitrine", "Descends contrôlé", "Coudes près du corps", "Pousse"], "Sur les genoux si besoin.", 40, "Intermédiaire"),
+    _dx('calisthenie', "Fentes bulgares", "Quadriceps", "Fente pied arrière surélevé.", ["Pied arrière sur un appui", "Descends la jambe avant", "Genou dans l'axe", "Change de côté à mi-temps"], "Garde le buste droit.", 45, "Intermédiaire"),
+    _dx('calisthenie', "Pike push-up", "Épaules", "Pompe en V.", ["Hanches hautes", "Descends le crâne vers le sol", "Coudes contrôlés", "Pousse"], "Rapproche les pieds pour durcir.", 35, "Intermédiaire"),
+    _dx('calisthenie', "Rowing inversé groupé", "Dos", "Tirage horizontal sous une table solide.", ["Allongé sous un appui, agrippe-le", "Tire la poitrine vers l'appui", "Genoux pliés pour faciliter", "Contrôle la descente"], "Garde le corps gainé.", 40, "Intermédiaire"),
+    _dx('calisthenie', "Planche (gainage)", "Abdominaux", "Gainage isométrique.", ["Avant-bras et orteils", "Corps aligné", "Contracte abdos/fessiers", "Respire"], "Hanches ni hautes ni basses.", 45)
+  ];
+  var CALIS_CONF = [
+    _dx('calisthenie', "Échauffement poignets & épaules", "Cardio", "Préparation aux tenues.", ["Cercles de poignets", "Pompes lentes", "Mobilité épaules", "Gainage léger"], "Échauffe bien les poignets.", 60),
+    _dx('calisthenie', "Pompes archer (assistées)", "Pectoraux", "Transition vers la pompe à un bras.", ["Pompe en chargeant un bras", "L'autre reste tendu en appui", "Alterne", "Descente contrôlée"], "Reste gainé.", 40, "Avancé"),
+    _dx('calisthenie', "Tuck planche (tenue)", "Épaules", "Initiation à la planche, genoux groupés.", ["Penche les épaules en avant", "Décolle les pieds, genoux groupés", "Bassin haut", "Gaine"], "Prérequis : hollow hold 30 s.", 30, "Avancé"),
+    _dx('calisthenie', "Pistol squat assisté", "Quadriceps", "Squat une jambe avec appui léger.", ["Une jambe tendue devant", "Descends sur l'autre en te tenant", "Contrôle", "Change de côté à mi-temps"], "L'appui ne fait qu'équilibrer.", 40, "Avancé"),
+    _dx('calisthenie', "L-sit groupé (tenue)", "Abdominaux", "Maintien genoux groupés.", ["Mains au sol, décolle le bassin", "Genoux vers la poitrine", "Épaules basses", "Tiens"], "Verrouille les coudes.", 30, "Avancé"),
+    _dx('calisthenie', "Hollow rocks", "Abdominaux", "Gainage dynamique.", ["Position hollow", "Balance d'avant en arrière", "Bas du dos plaqué", "Contrôle"], "Garde la banane.", 40, "Avancé")
+  ];
+  var COURSE_INTER = [
+    _run("Échauffement — marche rapide", "Mise en route.", ["Marche soutenue", "Relâche les épaules", "Respire", "Accélère peu à peu"], "Ne pars pas à froid.", 180),
+    _run("Footing progressif", "Course qui accélère doucement.", ["Démarre très facile", "Augmente l'allure toutes les 3-4 min", "Reste souple", "Termine soutenu mais contrôlé"], "Finis plus vite que tu n'as commencé.", 600),
+    _run("Bloc tempo modéré", "Allure un peu inconfortable mais tenable.", ["Allure régulière et soutenue", "Respiration rythmée", "Foulée ample", "Tiens le bloc"], "Tu peux dire quelques mots, pas une phrase.", 300),
+    _run("Retour au calme", "Récupération.", ["Réduis jusqu'à la marche", "Respire", "Relâche", "Hydrate-toi"], "Termine en douceur.", 180)
+  ];
+  var COURSE_CONF = [
+    _run("Échauffement — footing", "Préparation au seuil.", ["Footing facile", "Quelques accélérations", "Mobilise les chevilles", "Respire"], "Échauffe-toi bien.", 360),
+    _run("Tempo au seuil", "Allure de course soutenue tenue.", ["Allure ferme et régulière", "Respiration contrôlée", "Reste relâché", "Tiens le bloc entier"], "L'allure que tu pourrais tenir ~1h en course.", 600),
+    _run("Récupération", "Footing lent.", ["Ralentis franchement", "Respire", "Reste en mouvement", "Prépare le 2e bloc"], "Récupère bien.", 120),
+    _run("2e bloc tempo", "Second effort au seuil.", ["Reprends l'allure soutenue", "Garde la même intensité", "Foulée ample", "Tiens"], "Vise la régularité avec le 1er bloc.", 300),
+    _run("Retour au calme", "Récupération finale.", ["Footing lent puis marche", "Respiration profonde", "Relâche", "Hydrate-toi"], "Termine toujours en douceur.", 240)
+  ];
+  var HIIT_INTER = [
+    _dx('hiit', "Échauffement dynamique", "Cardio", "Montée en température.", ["Talons-fesses, montées de genoux", "Cercles de bras", "Quelques squats", "Respire"], "Prépare le cœur.", 60),
+    _dx('hiit', "Squats", "Quadriceps", "Effort jambes.", ["Descends sous la parallèle", "Talons au sol", "Pousse fort", "Rythme régulier"], "Genoux dans l'axe.", 40),
+    _dx('hiit', "Pompes", "Pectoraux", "Effort haut du corps.", ["Corps gainé", "Descends la poitrine", "Coudes ~45°", "Pousse"], "Sur les genoux si besoin.", 40),
+    _dx('hiit', "Mountain climbers", "Abdominaux", "Cardio + gainage.", ["Position planche", "Genoux à la poitrine en alternance", "Bassin stable", "Rythme soutenu"], "Garde le dos plat.", 40),
+    _dx('hiit', "Fentes alternées", "Quadriceps", "Jambes.", ["Fente avant", "Alterne les jambes", "Genou dans l'axe", "Buste droit"], "Contrôle la descente.", 40),
+    _dx('hiit', "Jumping jacks", "Cardio", "Cardio.", ["Saut écart-serré", "Rythme régulier", "Reste léger", "Souffle"], "Tempo constant.", 40)
+  ];
+  var HIIT_CONF = [
+    _dx('hiit', "Échauffement", "Cardio", "Préparation à l'intensité.", ["Cardio léger", "2-3 accélérations", "Mobilité", "Respire"], "Sois prêt à pousser.", 60),
+    _dx('hiit', "Burpees", "Cardio", "Effort complet 40 s.", ["Burpee complet", "Saut vertical", "Enchaîne", "Souffle"], "Tiens la cadence.", 40, "Intermédiaire"),
+    _dx('hiit', "Squats sautés", "Quadriceps", "Explosivité 40 s.", ["Squat puis saut", "Atterris en douceur", "Ré-explose", "Dos droit"], "Amortis les réceptions.", 40, "Intermédiaire"),
+    _dx('hiit', "Pompes", "Pectoraux", "Haut du corps 40 s.", ["Corps gainé", "Descends contrôlé", "Pousse fort", "Rythme"], "Forme avant vitesse.", 40),
+    _dx('hiit', "Mountain climbers rapides", "Abdominaux", "Cardio 40 s.", ["Planche", "Genoux très vite", "Bassin stable", "Souffle"], "Dos plat.", 40),
+    _dx('hiit', "High knees", "Cardio", "Sprint sur place 40 s.", ["Genoux hauts", "Bras dynamiques", "Cadence max", "Avant des pieds"], "Reste explosif.", 40)
+  ];
+  var CORE_INTER = [
+    _dx('core', "Échauffement gainage", "Abdominaux", "Activation.", ["Bascules de bassin", "Gainage léger", "Respiration abdo", "Mobilité dos"], "Engage le transverse.", 45),
+    _dx('core', "Bird-dog", "Dos", "Stabilité en quadrupédie.", ["À quatre pattes", "Tends bras et jambe opposés", "Bassin immobile", "Alterne"], "Ne creuse pas le dos.", 40),
+    _dx('core', "Dead bug", "Abdominaux", "Contrôle anti-cambrure.", ["Sur le dos, bras et jambes en l'air", "Descends bras et jambe opposés", "Bas du dos plaqué", "Alterne"], "Garde le dos au sol.", 40),
+    _dx('core', "Pont fessier", "Ischio-jambiers", "Chaîne postérieure.", ["Sur le dos, pieds au sol", "Monte le bassin", "Serre les fessiers", "Descends contrôlé"], "Ne cambre pas en haut.", 40),
+    _dx('core', "Planche", "Abdominaux", "Gainage isométrique.", ["Avant-bras et orteils", "Corps aligné", "Contracte tout", "Respire"], "Qualité avant durée.", 40),
+    _dx('core', "Planche latérale (genoux)", "Obliques", "Gainage latéral accessible.", ["Sur l'avant-bras, genoux pliés", "Hanches hautes", "Aligne le corps", "Change de côté à mi-temps"], "Monte sur les pieds pour durcir.", 40)
+  ];
+  var CORE_CONF = [
+    _dx('core', "Échauffement", "Abdominaux", "Activation profonde.", ["Gainage léger", "Mobilité dos/hanches", "Hollow court", "Respire"], "Réveille la sangle.", 45),
+    _dx('core', "Planche + lever de bras", "Abdominaux", "Anti-rotation.", ["Planche bras tendus", "Lève un bras puis l'autre", "Bassin immobile", "Gaine"], "Écarte les pieds pour stabiliser.", 40, "Intermédiaire"),
+    _dx('core', "Planche latérale dynamique", "Obliques", "Gainage latéral actif.", ["Planche latérale", "Monte/descends les hanches", "Reste aligné", "Change de côté à mi-temps"], "Hanches hautes.", 40, "Intermédiaire"),
+    _dx('core', "Hollow hold", "Abdominaux", "Gainage creux.", ["Bas du dos plaqué", "Épaules et jambes décollées", "Forme de banane", "Tiens"], "Plie les genoux pour réduire.", 35, "Intermédiaire"),
+    _dx('core', "Relevés de jambes", "Abdominaux", "Bas des abdos.", ["Jambes tendues", "Monte à la verticale", "Descends sans toucher le sol", "Bas du dos plaqué"], "Contrôle la descente.", 40, "Intermédiaire"),
+    _dx('core', "Mountain climbers lents", "Abdominaux", "Gainage dynamique contrôlé.", ["Position planche", "Ramène un genou lentement", "Bassin stable", "Alterne"], "Lenteur = intensité.", 40)
+  ];
+  var YOGA_INTER = [
+    _dx('yoga', "Respiration", "Cardio", "Centrage.", ["Assis, dos droit", "Souffle long", "Relâche les épaules", "Présence"], "Allonge l'expiration.", 45),
+    _dx('yoga', "Salutation au soleil", "Corps entier", "Enchaînement fluide.", ["Mains au ciel, flexion avant", "Planche, chien tête en bas", "Reviens debout", "Souffle"], "Mouvement continu.", 60),
+    _dx('yoga', "Posture de l'arbre", "Corps entier", "Équilibre sur une jambe.", ["Un pied sur la cheville/cuisse opposée", "Mains jointes", "Fixe un point", "Change de côté"], "Engage la jambe d'appui.", 45),
+    _dx('yoga', "Chaise", "Quadriceps", "Force des jambes.", ["Genoux fléchis, bras au ciel", "Poids sur les talons", "Dos long", "Respire"], "Descends le bassin.", 45),
+    _dx('yoga', "Guerrier 3", "Corps entier", "Équilibre en appui.", ["En appui sur une jambe", "Buste et jambe arrière à l'horizontale", "Bras devant", "Change de côté"], "Garde le bassin droit.", 45, "Intermédiaire"),
+    _dx('yoga', "Savasana", "Cardio", "Relâchement.", ["Allongé, immobile", "Relâche tout", "Souffle naturel", "Repos"], "Laisse-toi fondre.", 45)
+  ];
+  var YOGA_CONF = [
+    _dx('yoga', "Respiration profonde", "Cardio", "Préparation.", ["Assis, dos droit", "Respiration longue", "Recentre-toi", "Présence"], "Ralentis le souffle.", 45),
+    _dx('yoga', "Salutation dynamique", "Corps entier", "Flow soutenu.", ["Enchaîne fente, planche, chien", "Transitions contrôlées", "Synchronise au souffle", "Fluide"], "Gaine sur les transitions.", 60, "Intermédiaire"),
+    _dx('yoga', "Planche → chaturanga", "Pectoraux", "Force et contrôle.", ["Planche bras tendus", "Descends coudes au corps", "Garde le corps droit", "Pousse ou pose les genoux"], "Coudes près du buste.", 40, "Intermédiaire"),
+    _dx('yoga', "Guerrier 2 + triangle", "Quadriceps", "Force et ouverture.", ["Guerrier 2, bras tendus", "Passe en triangle", "Ouvre la poitrine", "Change de côté"], "Ancre les pieds.", 60, "Intermédiaire"),
+    _dx('yoga', "Demi-lune", "Corps entier", "Équilibre latéral.", ["Main au sol, jambe arrière levée", "Ouvre le bassin", "Bras au ciel", "Change de côté"], "Fixe un point.", 45, "Intermédiaire"),
+    _dx('yoga', "Savasana", "Cardio", "Intégration.", ["Allongé, immobile", "Relâche tout", "Souffle naturel", "Repos profond"], "Laisse le calme s'installer.", 45)
+  ];
+
+  BOXE_SESSIONS.push({ id: 'enchainements', name: 'Enchaînements', level: 'Intermédiaire', rest: 60, minLevel: 2, exercises: BOXE_INTER });
+  BOXE_SESSIONS.push({ id: 'vitesse', name: 'Vitesse & contres', level: 'Confirmé', rest: 60, minLevel: 5, exercises: BOXE_CONF });
+  CALIS_SESSIONS.push({ id: 'volume', name: 'Volume', level: 'Intermédiaire', rest: 25, minLevel: 2, exercises: CALIS_INTER });
+  CALIS_SESSIONS.push({ id: 'force', name: 'Force & tenues', level: 'Confirmé', rest: 25, minLevel: 5, exercises: CALIS_CONF });
+  COURSE_SESSIONS.push({ id: 'progressif', name: 'Endurance progressive', level: 'Intermédiaire', rest: 0, minLevel: 2, exercises: COURSE_INTER });
+  COURSE_SESSIONS.push({ id: 'seuil', name: 'Seuil / Tempo', level: 'Confirmé', rest: 0, minLevel: 5, exercises: COURSE_CONF });
+  HIIT_SESSIONS.push({ id: 'circuit', name: 'Circuit', level: 'Intermédiaire', rest: 20, minLevel: 2, exercises: HIIT_INTER });
+  HIIT_SESSIONS.push({ id: 'emom', name: 'Intervalles 40/20', level: 'Confirmé', rest: 20, minLevel: 5, exercises: HIIT_CONF });
+  CORE_SESSIONS.push({ id: 'stabilite', name: 'Stabilité', level: 'Intermédiaire', rest: 15, minLevel: 2, exercises: CORE_INTER });
+  CORE_SESSIONS.push({ id: 'antirotation', name: 'Anti-rotation', level: 'Confirmé', rest: 15, minLevel: 5, exercises: CORE_CONF });
+  YOGA_SESSIONS.push({ id: 'equilibre', name: 'Flow équilibre', level: 'Intermédiaire', rest: 5, minLevel: 2, exercises: YOGA_INTER });
+  YOGA_SESSIONS.push({ id: 'puissance', name: 'Flow puissance', level: 'Confirmé', rest: 5, minLevel: 5, exercises: YOGA_CONF });
 
   /* ---- Registre générique des séances par discipline ------------------- */
   var DISCIPLINE_SESSIONS = {

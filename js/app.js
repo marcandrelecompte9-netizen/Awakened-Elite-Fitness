@@ -34465,7 +34465,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 ? listDisciplinesByRole('principal').filter(function (d) { return d.id !== 'muscu'; })
                 : [];
             let cards = list.map(function (d) {
-                const sessions = (typeof listDisciplineSessions === 'function') ? listDisciplineSessions(d.id) : [];
+                const sessions = ((typeof listDisciplineSessions === 'function') ? listDisciplineSessions(d.id) : []).slice().sort(function (a, b) { return (a.minLevel || 1) - (b.minLevel || 1); });
                 const ready = sessions.length > 0;
                 const head = '<div style="display:flex;align-items:center;gap:14px;">'
                     + '<div style="font-size:2em;line-height:1;flex-shrink:0;filter:drop-shadow(0 0 8px ' + d.color + '70);">' + d.emoji + '</div>'
