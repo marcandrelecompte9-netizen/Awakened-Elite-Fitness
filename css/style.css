@@ -6485,3 +6485,25 @@ body { font-variant-numeric: tabular-nums; }
 .awak-btn-primary { background: linear-gradient(135deg, #16a34a, #4ade80); }
 .awak-btn-rpg     { background: linear-gradient(135deg, #7c3aed, #a855f7); }
 .awak-btn-danger  { background: linear-gradient(135deg, #dc2626, #f87171); }
+
+/* Chrono compact en coin haut-gauche de l'image pendant la séance */
+#exerciseView #timerDisplay {
+    position: absolute !important;
+    top: 10px !important;
+    left: 12px !important;
+    right: auto !important;
+    z-index: 5 !important;
+    width: auto !important;
+    grid-column: auto !important;
+    font-size: 1.55em !important;
+    margin: 0 !important;
+    padding: 4px 11px !important;
+    line-height: 1 !important;
+    text-align: left !important;
+    letter-spacing: -1px !important;
+    background: rgba(2,5,16,0.55) !important;
+    border-radius: 9px !important;
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.4) !important;
+}

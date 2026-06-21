@@ -10865,6 +10865,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         function updateLiveVolumeChip() {
             const chip = document.getElementById('liveVolumeChip');
             if (!chip || !currentWorkout) return;
+            // Pas de volume (kg) en yoga → on masque la pastille.
+            if (currentWorkout._discipline === 'yoga') { chip.style.display = 'none'; chip.innerHTML = ''; return; }
+            chip.style.display = '';
             const { volume, sets } = getSessionVolume();
             const total = (currentWorkout.exercises || []).length;
             const done  = Math.max(0, currentExerciseIndex);
@@ -21129,12 +21132,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             if (!isYoga) { if (existing) existing.remove(); return; }
             if (existing) return;
             _ensureBreathStyle();
-            const td = document.getElementById('timerDisplay');
-            if (!td || !td.parentNode) return;
+            const anchor = document.getElementById('exerciseVisualFrame');
+            if (!anchor || !anchor.parentNode) return;
             const wrap = document.createElement('div');
             wrap.id = 'awakBreathPacer';
             wrap.innerHTML = '<div class="bp-ring"></div><div class="bp-label"><span class="bp-in">Inspire…</span><span class="bp-out">Expire…</span></div>';
-            td.parentNode.insertBefore(wrap, td.nextSibling);
+            anchor.parentNode.insertBefore(wrap, anchor.nextSibling);
         }
 
         function startTimer() {

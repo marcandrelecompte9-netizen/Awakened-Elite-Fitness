@@ -20,7 +20,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=411">
+    <link rel="stylesheet" href="css/style.css?v=414">
 </head>
 <body>
 
@@ -178,7 +178,7 @@
                 max-width: 900px;">
 
             <!-- Bannière image : ratio préservé -->
-            <img src="images/banner.png?v=411"
+            <img src="images/banner.png?v=414"
                  alt="Awakened Elite Fitness"
                  style="width:100%;height:auto;display:block;" />
 
@@ -1367,7 +1367,7 @@
                         <div class="exercise-name" id="exerciseName" style="font-family:var(--font-display);font-size:1.85em;font-weight:700;color:white;letter-spacing:-0.5px;line-height:1.05;margin-bottom:12px;text-transform:uppercase;text-shadow:0 0 24px rgba(34,211,238,0.25);">Échauffement</div>
                         <!-- Muscle Indicator (Tags style cyberpunk) - conservé pour JS, masqué visuellement -->
                         <div id="muscleBadge" style="display:none;"></div>
-                        <div class="timer-display" id="timerDisplay" style="font-size:3.8em;font-weight:900;color:white;letter-spacing:-3px;margin:18px 0 4px;font-variant-numeric:tabular-nums;text-shadow:0 0 32px rgba(34,211,238,0.5),0 0 60px rgba(34,211,238,0.2);font-family:var(--font-display);">00:45</div>
+                        <!-- (Timer déplacé dans le cadre image, coin haut-gauche) -->
 
                                             <!-- ━━━ FRAME VISUEL EXERCICE (cyberpunk HUD) ━━━ -->
                     <div id="exerciseVisualFrame" style="display:none;margin:14px 0 16px;position:relative;background:linear-gradient(160deg,#020510,#0a0e18 50%,#020510);border:1px solid rgba(34,211,238,0.35);border-radius:14px;overflow:hidden;box-shadow:0 0 24px rgba(34,211,238,0.08),0 8px 32px rgba(0,0,0,0.5),inset 0 0 50px rgba(34,211,238,0.04);min-height:240px;">
@@ -1387,6 +1387,9 @@
                                        background:rgba(2,5,16,0.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
                                        border:1px solid rgba(34,211,238,0.55);color:#22d3ee;font-size:1.15em;cursor:pointer;line-height:1;
                                        box-shadow:0 2px 14px rgba(0,0,0,0.55),0 0 14px rgba(34,211,238,0.15);touch-action:manipulation;">⏸</button>
+
+                        <!-- Timer (coin haut-gauche de l'image) -->
+                        <div class="timer-display" id="timerDisplay" style="color:white;font-family:var(--font-display);text-shadow:0 0 16px rgba(34,211,238,0.4);font-variant-numeric:tabular-nums;">00:45</div>
 
                         <!-- Tag muscle (masqué — dispo dans les détails) -->
                         <div id="visualMuscleTag" style="display:none;position:absolute;top:12px;left:14px;z-index:2;font-size:0.55em;font-weight:900;color:#a855f7;letter-spacing:1.5px;background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.3);padding:3px 8px;border-radius:6px;text-transform:uppercase;"></div>
@@ -3536,19 +3539,19 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/exercises.js?v=411"></script>
-    <script src="data/items.js?v=411"></script>
-    <script src="js/adventure.js?v=411"></script>
-    <script src="js/economy.js?v=411"></script>
-    <script src="js/challenges.js?v=411"></script>
-    <script src="js/exercise-visuals.js?v=411"></script>
-    <script src="js/strength-standards.js?v=411"></script>
-    <script src="js/system-cards.js?v=411"></script>
-    <script src="js/share-card.js?v=411"></script>
-    <script src="js/story-events.js?v=411"></script>
-    <script src="js/final-boss.js?v=411"></script>
-    <script src="js/disciplines.js?v=411"></script>
-    <script src="js/app.js?v=411"></script>
+    <script src="js/exercises.js?v=414"></script>
+    <script src="data/items.js?v=414"></script>
+    <script src="js/adventure.js?v=414"></script>
+    <script src="js/economy.js?v=414"></script>
+    <script src="js/challenges.js?v=414"></script>
+    <script src="js/exercise-visuals.js?v=414"></script>
+    <script src="js/strength-standards.js?v=414"></script>
+    <script src="js/system-cards.js?v=414"></script>
+    <script src="js/share-card.js?v=414"></script>
+    <script src="js/story-events.js?v=414"></script>
+    <script src="js/final-boss.js?v=414"></script>
+    <script src="js/disciplines.js?v=414"></script>
+    <script src="js/app.js?v=414"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>
