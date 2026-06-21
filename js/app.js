@@ -34516,6 +34516,103 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 + rows + '</div>';
         }
 
+        // Panneau « Créer ma séance » (générateur yoga) — sélecteurs + bouton.
+        function _renderYogaGenerator() {
+            const yc = (typeof getDiscipline === 'function' && getDiscipline('yoga')) ? getDiscipline('yoga').color : '#d946ef';
+            const g = window._yogaGen || (window._yogaGen = { durationMin: 10, focus: 'complet', intensity: 'normal' });
+            const pill = function (key, val, label) {
+                const active = String(g[key]) === String(val);
+                return '<button onclick="setYogaGen(\'' + key + '\',\'' + val + '\')" style="border:none;cursor:pointer;border-radius:99px;padding:6px 11px;font-size:0.72em;font-weight:800;'
+                    + (active ? ('background:' + yc + ';color:#fff;box-shadow:0 2px 8px ' + yc + '66;') : 'background:rgba(255,255,255,0.06);color:#94a3b8;') + '">' + label + '</button>';
+            };
+            const row = function (lbl, btns) {
+                return '<div style="margin-bottom:9px;"><div style="font-size:0.6em;color:#64748b;font-weight:900;letter-spacing:1.5px;margin-bottom:5px;">' + lbl + '</div><div style="display:flex;flex-wrap:wrap;gap:6px;">' + btns + '</div></div>';
+            };
+            const durs = [5, 10, 15, 20].map(function (d) { return pill('durationMin', d, d + ' min'); }).join('');
+            const focuses = [['reveil', '🌅 Réveil'], ['detente', '🌙 Détente'], ['antistress', '🧠 Anti-stress'], ['dos', '🪑 Dos'], ['hanches', '🤸 Hanches'], ['equilibre', '⚖️ Équilibre'], ['complet', '✨ Complète']].map(function (f) { return pill('focus', f[0], f[1]); }).join('');
+            const ints = [['doux', 'Doux'], ['normal', 'Normal'], ['dynamique', 'Dynamique']].map(function (f) { return pill('intensity', f[0], f[1]); }).join('');
+            return '<div id="yogaGenPanel" style="margin-top:12px;padding:14px;border-radius:14px;background:rgba(0,0,0,0.18);border:1px dashed ' + yc + '55;">'
+                + '<div style="font-size:0.7em;color:' + yc + ';font-weight:900;letter-spacing:1px;margin-bottom:10px;">✨ CRÉER MA SÉANCE</div>'
+                + row('DURÉE', durs) + row('OBJECTIF', focuses) + row('INTENSITÉ', ints)
+                + '<button onclick="launchYogaGenerator()" style="width:100%;margin-top:6px;background:linear-gradient(135deg,' + yc + ',' + yc + 'cc);color:#fff;border:none;border-radius:10px;padding:11px;font-weight:900;font-size:0.85em;cursor:pointer;box-shadow:0 3px 12px ' + yc + '55;">▶ Générer &amp; démarrer</button>'
+                + '</div>';
+        }
+        function setYogaGen(key, val) {
+            window._yogaGen = window._yogaGen || { durationMin: 10, focus: 'complet', intensity: 'normal' };
+            window._yogaGen[key] = (key === 'durationMin') ? parseInt(val, 10) : val;
+            const panel = document.getElementById('yogaGenPanel');
+            if (panel && typeof _renderYogaGenerator === 'function') {
+                const wrap = document.createElement('div');
+                wrap.innerHTML = _renderYogaGenerator();
+                panel.replaceWith(wrap.firstChild);
+            }
+        }
+        function launchYogaGenerator() {
+            if (typeof generateYogaSession !== 'function') { if (typeof showAlert === 'function') showAlert('Générateur indisponible.', 'error'); return; }
+            generateYogaSession(window._yogaGen || {});
+            if (typeof startDisciplineSession === 'function') { startDisciplineSession('yoga', 'custom'); }
+        }
+        window.setYogaGen = setYogaGen;
+        window.launchYogaGenerator = launchYogaGenerator;
+
+        // Quiz d'accueil yoga — 3 questions → réglages → séance recommandée (via le générateur).
+        const _YQ_STEPS = [
+            { key: 'intensity', q: 'Ton niveau de yoga ?', opts: [['doux', '🌱 Débutant'], ['normal', '🙂 Habitué'], ['dynamique', '🔥 Avancé']] },
+            { key: 'focus', q: "Ton objectif aujourd'hui ?", opts: [['reveil', '🌅 Énergie & réveil'], ['detente', '🌙 Détente & sommeil'], ['antistress', '🧠 Évacuer le stress'], ['dos', '🪑 Soulager mon dos'], ['hanches', '🤸 Gagner en souplesse'], ['equilibre', "⚖️ Travailler l'équilibre"]] },
+            { key: 'durationMin', q: 'Combien de temps as-tu ?', opts: [[5, '5 min'], [10, '10 min'], [15, '15 min'], [20, '20 min']] }
+        ];
+        function _yogaColor() { return (typeof getDiscipline === 'function' && getDiscipline('yoga')) ? getDiscipline('yoga').color : '#d946ef'; }
+        function _yogaQuizCTA() {
+            const yc = _yogaColor();
+            return '<button onclick="openYogaQuiz()" style="width:100%;margin-top:12px;background:rgba(255,255,255,0.04);border:1px solid ' + yc + '55;color:' + yc + ';border-radius:12px;padding:11px;font-weight:800;font-size:0.82em;cursor:pointer;">🧭 Trouver ma séance idéale</button>';
+        }
+        function openYogaQuiz() { window._yogaQuiz = { answers: {}, step: 0 }; _renderYogaQuizModal(); }
+        function closeYogaQuiz() { const m = document.getElementById('yogaQuizModal'); if (m) m.remove(); }
+        function yogaQuizAnswer(key, val) {
+            const st = window._yogaQuiz; if (!st) return;
+            st.answers[key] = (key === 'durationMin') ? parseInt(val, 10) : val;
+            st.step++;
+            if (st.step >= _YQ_STEPS.length) {
+                window._yogaGen = { intensity: st.answers.intensity || 'normal', focus: st.answers.focus || 'complet', durationMin: st.answers.durationMin || 10 };
+                window.__yogaQuizResult = generateYogaSession(window._yogaGen);
+            }
+            _renderYogaQuizModal();
+        }
+        function yogaQuizRegenerate() { window.__yogaQuizResult = generateYogaSession(window._yogaGen || {}); _renderYogaQuizModal(); }
+        function _renderYogaQuizModal() {
+            const yc = _yogaColor();
+            const st = window._yogaQuiz || { answers: {}, step: 0 };
+            const old = document.getElementById('yogaQuizModal'); if (old) old.remove();
+            let body;
+            if (st.step < _YQ_STEPS.length) {
+                const step = _YQ_STEPS[st.step];
+                const opts = step.opts.map(function (o) {
+                    return '<button onclick="yogaQuizAnswer(\'' + step.key + '\',\'' + o[0] + '\')" style="display:block;width:100%;text-align:left;margin-bottom:8px;background:rgba(255,255,255,0.05);border:1px solid ' + yc + '44;color:#fff;border-radius:12px;padding:13px 15px;font-weight:700;font-size:0.9em;cursor:pointer;">' + o[1] + '</button>';
+                }).join('');
+                body = '<div style="font-size:0.62em;color:' + yc + ';font-weight:900;letter-spacing:1.5px;margin-bottom:4px;">ÉTAPE ' + (st.step + 1) + '/' + _YQ_STEPS.length + '</div>'
+                    + '<h2 style="margin:0 0 14px;font-size:1.15em;">' + step.q + '</h2>' + opts;
+            } else {
+                const s = window.__yogaQuizResult || { name: '', exercises: [] };
+                const tot = s.exercises.reduce(function (t, e) { return t + (e.duration || 0) * (e.bilateral ? 2 : 1); }, 0);
+                const list = s.exercises.slice(0, 6).map(function (e) { return e.name; }).join(' · ') + (s.exercises.length > 6 ? '…' : '');
+                body = '<div style="font-size:0.62em;color:' + yc + ';font-weight:900;letter-spacing:1.5px;margin-bottom:4px;">TA SÉANCE</div>'
+                    + '<h2 style="margin:0 0 6px;font-size:1.1em;">' + s.name + '</h2>'
+                    + '<div style="color:#94a3b8;font-size:0.82em;margin-bottom:10px;">' + s.exercises.length + ' postures · ~' + Math.round(tot / 60) + ' min</div>'
+                    + '<div style="color:#cbd5e1;font-size:0.8em;line-height:1.5;margin-bottom:16px;">' + list + '</div>'
+                    + '<button onclick="closeYogaQuiz(); startDisciplineSession(\'yoga\',\'custom\');" style="width:100%;background:linear-gradient(135deg,' + yc + ',' + yc + 'cc);color:#fff;border:none;border-radius:10px;padding:12px;font-weight:900;cursor:pointer;margin-bottom:8px;">▶ Démarrer</button>'
+                    + '<button onclick="yogaQuizRegenerate()" style="width:100%;background:rgba(255,255,255,0.06);color:#cbd5e1;border:none;border-radius:10px;padding:10px;font-weight:700;cursor:pointer;">↻ Une autre variante</button>';
+            }
+            const modal = document.createElement('div');
+            modal.className = 'modal active';
+            modal.id = 'yogaQuizModal';
+            modal.innerHTML = '<div class="modal-content" style="max-width:440px;border-top:3px solid ' + yc + ';"><div class="modal-header"><h2 style="font-size:1em;">🧭 Quiz yoga</h2><button onclick="closeYogaQuiz()" style="background:none;border:none;font-size:1.5em;cursor:pointer;color:#94a3b8;">×</button></div><div class="modal-body">' + body + '</div></div>';
+            document.body.appendChild(modal);
+        }
+        window.openYogaQuiz = openYogaQuiz;
+        window.closeYogaQuiz = closeYogaQuiz;
+        window.yogaQuizAnswer = yogaQuizAnswer;
+        window.yogaQuizRegenerate = yogaQuizRegenerate;
+
         // Vue « Discipline » — catalogue (contenu réel des séances : brique 5).
         function _renderDisciplineCatalog() {
             const list = (typeof listDisciplinesByRole === 'function')
@@ -34561,7 +34658,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         + '<div style="height:100%;width:' + pct + '%;background:' + d.color + ';border-radius:99px;transition:width .3s;"></div>'
                         + '</div></div>';
                 }
-                return '<div class="card" style="padding:16px 18px;background:linear-gradient(135deg,' + d.color + '22,' + d.color + '08);border:1px solid ' + d.color + '44;">' + head + prog + sess + '</div>';
+                return '<div class="card" style="padding:16px 18px;background:linear-gradient(135deg,' + d.color + '22,' + d.color + '08);border:1px solid ' + d.color + '44;">' + head + prog + (d.id === 'yoga' ? _yogaQuizCTA() : '') + sess + (d.id === 'yoga' ? _renderYogaGenerator() : '') + '</div>';
             }).join('');
             if (!cards) cards = '<p style="text-align:center;color:#94a3b8;padding:20px;">Aucune discipline disponible.</p>';
             return '<div style="display:grid;gap:10px;">'

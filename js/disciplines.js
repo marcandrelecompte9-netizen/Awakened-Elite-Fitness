@@ -600,6 +600,77 @@
     });
   })();
 
+  /* ---- Générateur de séance yoga (à la Down Dog) ----------------------- */
+  var YOGA_CUSTOM = null;
+  function _yPick(pool, used) {
+    var avail = pool.filter(function (f) { return used.indexOf(f) < 0; });
+    var arr = avail.length ? avail : pool;
+    var f = arr[Math.floor(Math.random() * arr.length)];
+    used.push(f);
+    return f;
+  }
+  function generateYogaSession(opts) {
+    opts = opts || {};
+    var durationMin = Math.max(3, Math.min(30, opts.durationMin || 10));
+    var focus = opts.focus || 'complet';
+    var intensity = opts.intensity || 'normal';
+
+    var POOL = {
+      center: [pResp, pRespP],
+      warm: [pChatVache, pCouEpaules, pEnfant],
+      sun: [pSalut, pChien],
+      stand: [pGuerrier, pArbre, pChien, pPinceDebout],
+      hips: [pFenteHanches, pPapillon, pPinceAssise, pChien],
+      back: [pChatVache, pCobra, pPontDoux, pTorsionAllongee],
+      twist: [pTorsionAssise, pTorsionAllongee],
+      calm: [pEnfant, pJambesMur, pPinceAssise, pPapillon],
+      final: [pSavasana]
+    };
+    var RECIPE = {
+      reveil: ['sun', 'stand', 'stand', 'twist'],
+      detente: ['back', 'calm', 'calm'],
+      antistress: ['warm', 'twist', 'calm'],
+      dos: ['back', 'back', 'twist'],
+      hanches: ['hips', 'hips', 'twist'],
+      souplesse: ['hips', 'stand', 'twist'],
+      equilibre: ['sun', 'stand', 'stand'],
+      complet: ['sun', 'stand', 'hips', 'twist']
+    };
+    var recipe = RECIPE[focus] || RECIPE.complet;
+
+    var mainCount = Math.max(2, Math.min(9, Math.round(durationMin / 2.2)));
+    var roles = ['center', 'warm'];
+    for (var i = 0; i < mainCount; i++) { roles.push(recipe[i % recipe.length]); }
+    if (durationMin >= 8) { roles.push('calm'); }
+    roles.push('final');
+
+    var used = [];
+    var poses = roles.map(function (role) {
+      if (role === 'final') { return pSavasana(); }
+      return _yPick(POOL[role], used)();
+    });
+
+    var BASE = {
+      doux: { center: 60, warm: 45, sun: 70, stand: 30, hips: 55, back: 50, twist: 35, calm: 75, final: 90 },
+      normal: { center: 45, warm: 40, sun: 60, stand: 28, hips: 45, back: 42, twist: 28, calm: 60, final: 75 },
+      dynamique: { center: 30, warm: 30, sun: 55, stand: 24, hips: 35, back: 35, twist: 24, calm: 45, final: 60 }
+    };
+    var baseMap = BASE[intensity] || BASE.normal;
+    poses.forEach(function (p, idx) { p.duration = baseMap[roles[idx]] || 40; });
+
+    // Ajuste pour viser la durée cible (le bilatéral compte ×2)
+    var totalSec = poses.reduce(function (t, p) { return t + p.duration * (p.bilateral ? 2 : 1); }, 0);
+    var factor = (durationMin * 60) / totalSec;
+    poses.forEach(function (p) { p.duration = Math.max(15, Math.min(180, Math.round(p.duration * factor / 5) * 5)); });
+
+    var labels = { reveil: 'Réveil', detente: 'Détente', antistress: 'Anti-stress', dos: 'Dos & posture', hanches: 'Hanches', souplesse: 'Souplesse', equilibre: 'Équilibre', complet: 'Complète' };
+    YOGA_CUSTOM = {
+      id: 'custom', name: '✨ Ma séance · ' + (labels[focus] || 'Complète') + ' · ' + durationMin + ' min',
+      level: 'Sur mesure', rest: 5, goal: true, generated: true, exercises: poses
+    };
+    return YOGA_CUSTOM;
+  }
+
   /* ---- Registre générique des séances par discipline ------------------- */
   var DISCIPLINE_SESSIONS = {
     boxe: BOXE_SESSIONS,
@@ -614,6 +685,7 @@
     return DISCIPLINE_SESSIONS[disciplineId] || [];
   }
   function getDisciplineSession(disciplineId, sessionId) {
+    if (sessionId === 'custom' && disciplineId === 'yoga' && YOGA_CUSTOM) { return YOGA_CUSTOM; }
     const list = DISCIPLINE_SESSIONS[disciplineId] || [];
     return list.filter(function (s) { return s.id === sessionId; })[0] || list[0] || null;
   }
@@ -681,6 +753,7 @@
   global.DISCIPLINE_SESSIONS = DISCIPLINE_SESSIONS;
   global.listDisciplineSessions = listDisciplineSessions;
   global.getDisciplineSession = getDisciplineSession;
+  global.generateYogaSession = generateYogaSession;
   global.DISCIPLINE_GUIDES = DISCIPLINE_GUIDES;
   global.getDisciplineGuide = getDisciplineGuide;
 
