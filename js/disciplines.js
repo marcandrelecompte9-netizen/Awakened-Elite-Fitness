@@ -752,7 +752,31 @@
   global.MOBILITE_SESSIONS = MOBILITE_SESSIONS;
   global.DISCIPLINE_SESSIONS = DISCIPLINE_SESSIONS;
   global.listDisciplineSessions = listDisciplineSessions;
+  // Énumère tous les exercices d'une discipline (dédupliqués par nom),
+  // normalisés pour être affichables dans la bibliothèque (equipment, tips…).
+  function getDisciplineExercises(disciplineId) {
+    var seen = {};
+    var out = [];
+    (DISCIPLINE_SESSIONS[disciplineId] || []).forEach(function (s) {
+      (s.exercises || []).forEach(function (e) {
+        if (!e || !e.name || seen[e.name]) { return; }
+        seen[e.name] = true;
+        var c = Object.assign({}, e);
+        if (!Array.isArray(c.equipment)) { c.equipment = ['Poids du corps']; }
+        if (!Array.isArray(c.instructions)) { c.instructions = c.instructions ? [c.instructions] : []; }
+        if (!c.difficulty) { c.difficulty = 'Débutant'; }
+        if (!c.muscle) { c.muscle = 'Corps entier'; }
+        if (!c.description) { c.description = c.desc || ''; }
+        if (!c.tips) { c.tips = c.tip || ''; }
+        c._discipline = disciplineId;
+        out.push(c);
+      });
+    });
+    return out;
+  }
+
   global.getDisciplineSession = getDisciplineSession;
+  global.getDisciplineExercises = getDisciplineExercises;
   global.generateYogaSession = generateYogaSession;
   global.DISCIPLINE_GUIDES = DISCIPLINE_GUIDES;
   global.getDisciplineGuide = getDisciplineGuide;

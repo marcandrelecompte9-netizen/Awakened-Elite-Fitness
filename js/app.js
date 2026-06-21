@@ -1008,7 +1008,7 @@
             
             // Update buttons
             const pauseBtn = document.getElementById('pauseBtn');
-            if (pauseBtn) pauseBtn.textContent = '⏸️ Pause';
+            if (pauseBtn) pauseBtn.innerHTML = '⏸';
             
             // Change "Suivant" button to "Terminer" for cardio
             const skipBtn = document.querySelector('button[onclick="skipExercise()"]');
@@ -19822,8 +19822,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         </div>
                         <div class="exercise-description">${exercise.description}</div>
                         <div class="exercise-meta">
-                            <span>🏋️ ${exercise.equipment.join(', ')}</span>
-                            <span>📋 ${exercise.instructions.length} étapes</span>
+                            <span>🏋️ ${(exercise.equipment || ['Poids du corps']).join(', ')}</span>
+                            <span>📋 ${(exercise.instructions || []).length} étapes</span>
                         </div>
                         
                         <!-- YouTube search button -->
@@ -19889,8 +19889,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const muscleFilter = document.getElementById('muscleFilter').value;
             const difficultyFilter = document.getElementById('difficultyFilter').value;
             const equipmentFilter = document.getElementById('equipmentFilter').value;
+            const disciplineFilter = (document.getElementById('disciplineFilter') || {}).value || '';
             
-            return searchTerm || muscleFilter || difficultyFilter || equipmentFilter || isShowingFavoritesOnly;
+            return searchTerm || muscleFilter || difficultyFilter || equipmentFilter || disciplineFilter || isShowingFavoritesOnly;
         }
 
         function filterExercises() {
@@ -19899,6 +19900,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const muscle  = document.getElementById('muscleFilter')?.value || '';
             const diff    = document.getElementById('difficultyFilter')?.value || '';
             const equip   = document.getElementById('equipmentFilter')?.value || '';
+            const disc    = document.getElementById('disciplineFilter')?.value || '';
+
+            // Source : musculation (par défaut) ou exercices d'une discipline.
+            const sourceList = disc
+                ? (window.getDisciplineExercises ? window.getDisciplineExercises(disc) : [])
+                : exerciseDatabase;
 
             // ── Fuzzy / multi-mot ───────────────────────────────────
             // Ex: "push up chest" → cherche chaque mot séparément
@@ -19917,11 +19924,11 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 return words.every(w => haystack.includes(w));
             };
 
-            filteredExercises = exerciseDatabase.filter(ex => {
+            filteredExercises = sourceList.filter(ex => {
                 if (!matchesSearch(ex))                                    return false;
                 if (muscle && ex.muscle !== muscle)                        return false;
                 if (diff   && ex.difficulty !== diff)                      return false;
-                if (equip  && !ex.equipment.includes(equip))               return false;
+                if (equip  && !(ex.equipment || []).includes(equip))       return false;
                 return true;
             });
 
@@ -19946,6 +19953,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             document.getElementById('muscleFilter').value = '';
             document.getElementById('difficultyFilter').value = '';
             document.getElementById('equipmentFilter').value = '';
+            { const _df = document.getElementById('disciplineFilter'); if (_df) _df.value = ''; }
             
             // Apply the selected filter
             if (type === 'muscle') {
@@ -19968,6 +19976,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             document.getElementById('muscleFilter').value = '';
             document.getElementById('difficultyFilter').value = '';
             document.getElementById('equipmentFilter').value = '';
+            { const _df = document.getElementById('disciplineFilter'); if (_df) _df.value = ''; }
             filterExercises();
         }
 
@@ -19997,7 +20006,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             
             const equipmentContainer = document.getElementById('modalEquipment');
             if (!equipmentContainer) return;
-            equipmentContainer.innerHTML = exercise.equipment.map(eq => 
+            equipmentContainer.innerHTML = (exercise.equipment || ['Poids du corps']).map(eq => 
                 `<span class="equipment-tag">${eq}</span>`
             ).join('');
             
@@ -21031,7 +21040,18 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         }
 
         // ── OVERLAY REPOS — fonctions ────────────────────────────────────
+        function toggleRestPause() {
+            isPaused = !isPaused;
+            const b = document.getElementById('restPauseBtn');
+            if (b) b.textContent = isPaused ? '▶' : '⏸';
+            const pb = document.getElementById('pauseBtn');
+            if (pb) pb.innerHTML = isPaused ? '▶' : '⏸';
+        }
         function hideRestOverlay() {
+            // Toujours sortir du repos en état « non pausé »
+            isPaused = false;
+            const _rpb = document.getElementById('restPauseBtn');
+            if (_rpb) _rpb.textContent = '⏸';
             clearInterval(window._restOverlayInterval);
             const ov = document.getElementById('restOverlay');
             if (ov) ov.classList.remove('active');
@@ -22221,7 +22241,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             if (!currentWorkout) return;
             isPaused = !isPaused;
             const btn = document.getElementById('pauseBtn');
-            if (btn) btn.innerHTML = isPaused ? '▶️ Reprendre' : '⏸️ Pause';
+            if (btn) btn.innerHTML = isPaused ? '▶' : '⏸';
 
             // Overlay de pause avec image de repos Esen/Nyra (si mode jeu + rencontre vue)
             try {
@@ -37025,13 +37045,27 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             if (!currentExercise || currentExercise.isRest || currentExercise.isInfo) return null;
 
             const currentName   = typeof currentExercise === 'string' ? currentExercise : currentExercise.name;
+            const alreadyUsed   = new Set((currentWorkout ? currentWorkout.exercises : []).map(e => e.name || e));
+
+            // Séance de discipline (yoga, boxe…) : rester dans la même discipline.
+            const _discId = currentWorkout && currentWorkout._discipline;
+            if (_discId && window.getDisciplineExercises) {
+                const pool = window.getDisciplineExercises(_discId);
+                const cur  = pool.find(e => e.name === currentName)
+                          || (typeof currentExercise === 'object' ? currentExercise : { name: currentName, muscle: '' });
+                const tm   = cur.muscle;
+                const alts = pool.filter(e => e.name !== currentName && !alreadyUsed.has(e.name))
+                                 .sort((a, b) => ((a.muscle === tm ? 0 : 1) - (b.muscle === tm ? 0 : 1)));
+                if (!alts.length) return null;
+                return { current: cur, isDiscipline: true, disciplineId: _discId, alternatives: alts, sameEquip: [], userEquip: [], otherEquip: [] };
+            }
+
             const exFromDB      = exerciseDatabase.find(e => e.name === currentName);
             if (!exFromDB) return null;
 
             const targetMuscle  = exFromDB.muscle;
             const currentEquip  = exFromDB.equipment || [];
             const userEquip     = getEquipmentNames();
-            const alreadyUsed   = new Set((currentWorkout ? currentWorkout.exercises : []).map(e => e.name || e));
 
             // Candidats : même muscle, exercice réel, pas l'exo actuel, pas déjà dans la séance
             const candidates = exerciseDatabase.filter(e =>
@@ -37174,6 +37208,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
             // Fermer si clic ailleurs (en dehors du panneau et du bouton menu)
             if (panel.style.display === 'block') {
+                const _mo = document.getElementById('muscuOnlyOpts');
+                if (_mo) _mo.style.display = (currentWorkout && currentWorkout._discipline) ? 'none' : '';
                 setTimeout(() => {
                     document.addEventListener('click', function closer(e) {
                         const menuBtn = document.getElementById('sessionMenuBtn');
@@ -37252,7 +37288,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const exercise = currentWorkout.exercises[currentExerciseIndex];
             if (!exercise || exercise.isRest || exercise.isInfo) return;
             // Pause auto
-            if (!isPaused) { isPaused = true; const pb = document.getElementById('pauseBtn'); if(pb) pb.innerHTML = '▶️ Reprendre'; }
+            if (!isPaused) { isPaused = true; const pb = document.getElementById('pauseBtn'); if(pb) pb.innerHTML = '▶'; }
             // Chercher alternatifs SANS cette machine (même muscle, équipement différent)
             const sameMuscle = exerciseDatabase.filter(ex =>
                 ex.type === 'exercise' &&
@@ -37329,7 +37365,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             if (!exercise || exercise.isRest || exercise.isInfo) return;
 
             // Pause auto
-            if (!isPaused) { isPaused = true; document.getElementById('pauseBtn').innerHTML = '▶️ Reprendre'; }
+            if (!isPaused) { isPaused = true; document.getElementById('pauseBtn').innerHTML = '▶'; }
 
             const result = findSwapAlternatives(exercise);
             if (!result) {
@@ -37339,8 +37375,12 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
             // Update modal title
             document.getElementById('swapModalTitle').textContent = '🔄 Remplacer : ' + result.current.name;
-            document.getElementById('swapModalSub').textContent =
-                '💪 ' + result.current.muscle + ' · alternatives classées par équipement disponible';
+            const _dName = result.isDiscipline
+                ? ((typeof getDiscipline === 'function' && getDiscipline(result.disciplineId)) ? getDiscipline(result.disciplineId).name : 'discipline')
+                : '';
+            document.getElementById('swapModalSub').textContent = result.isDiscipline
+                ? ('🧘 Autres exercices · ' + _dName)
+                : ('💪 ' + result.current.muscle + ' · alternatives classées par équipement disponible');
 
             // Build content
             const box = document.getElementById('swapModalContent');
@@ -37378,9 +37418,13 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 return s;
             }
 
-            html += renderSection('✅ Même équipement que l\'exercice actuel', 'Équipement identique', 'swap-badge-same', result.sameEquip);
-            html += renderSection('🎒 Avec ton équipement disponible', 'Équipement différent', 'swap-badge-other', result.userEquip);
-            html += renderSection('📦 Autres alternatives (équipement requis)', 'Équipement à prévoir', 'swap-badge-diff', result.otherEquip);
+            if (result.isDiscipline) {
+                html += renderSection('🔁 Autres exercices · ' + _dName, _dName, 'swap-badge-same', result.alternatives);
+            } else {
+                html += renderSection('✅ Même équipement que l\'exercice actuel', 'Équipement identique', 'swap-badge-same', result.sameEquip);
+                html += renderSection('🎒 Avec ton équipement disponible', 'Équipement différent', 'swap-badge-other', result.userEquip);
+                html += renderSection('📦 Autres alternatives (équipement requis)', 'Équipement à prévoir', 'swap-badge-diff', result.otherEquip);
+            }
 
             if (!html) {
                 html = '<div class="swap-empty"><div style="font-size:2.5em;margin-bottom:10px;">🤷</div><div>Aucune alternative disponible pour ce muscle.</div></div>';
@@ -37397,8 +37441,14 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         function confirmSwapExercise(newExName) {
             closeSwapModal();
 
-            const newExFromDB = exerciseDatabase.find(e => e.name === newExName);
-            if (!newExFromDB || !currentWorkout) return;
+            let newEx = exerciseDatabase.find(e => e.name === newExName);
+            if (!newEx) {
+                const _discId = currentWorkout && currentWorkout._discipline;
+                if (_discId && window.getDisciplineExercises) {
+                    newEx = window.getDisciplineExercises(_discId).find(e => e.name === newExName);
+                }
+            }
+            if (!newEx || !currentWorkout) return;
 
             const oldEx   = currentWorkout.exercises[currentExerciseIndex];
             const oldName = oldEx.name || oldEx;
@@ -37406,14 +37456,16 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             // Remplacer dans le tableau de la séance
             currentWorkout.exercises[currentExerciseIndex] = {
                 ...oldEx,
-                name:         newExFromDB.name,
-                duration:     newExFromDB.duration || oldEx.duration || 60,
-                muscle:       newExFromDB.muscle,
-                difficulty:   newExFromDB.difficulty,
-                instructions: newExFromDB.instructions,
-                tips:         newExFromDB.tips,
-                equipment:    newExFromDB.equipment,
+                name:         newEx.name,
+                duration:     newEx.duration || oldEx.duration || 60,
+                muscle:       newEx.muscle,
+                difficulty:   newEx.difficulty,
+                instructions: newEx.instructions,
+                tips:         newEx.tips,
+                equipment:    newEx.equipment,
                 mode:         oldEx.mode || 'timer',
+                bilateral:    !!newEx.bilateral,
+                _baseName:    newEx._baseName,
                 isRest:       false,
                 isInfo:       false,
                 _swappedFrom: oldName

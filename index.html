@@ -20,7 +20,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=407">
+    <link rel="stylesheet" href="css/style.css?v=411">
 </head>
 <body>
 
@@ -70,6 +70,7 @@
 
     <!-- Boutons -->
     <div id="restBtns">
+        <button id="restPauseBtn" class="rest-btn-adj" onclick="toggleRestPause()" aria-label="Pause">⏸</button>
         <button class="rest-btn-adj" onclick="adjustRestOverlay(-15)">−15s</button>
         <button id="restSkipBtn" onclick="skipRestOverlay()">Passer →</button>
         <button class="rest-btn-adj" onclick="adjustRestOverlay(+30)">+30s</button>
@@ -177,7 +178,7 @@
                 max-width: 900px;">
 
             <!-- Bannière image : ratio préservé -->
-            <img src="images/banner.png?v=407"
+            <img src="images/banner.png?v=411"
                  alt="Awakened Elite Fitness"
                  style="width:100%;height:auto;display:block;" />
 
@@ -1322,6 +1323,12 @@
                                        min-width:34px;min-height:34px;flex-shrink:0;touch-action:manipulation;transition:all 0.2s;">
                             ⛶
                         </button>
+                        <button onclick="toggleWorkoutOptionsPanel()" id="sessionMenuBtn" title="Options" aria-label="Options"
+                                style="background:rgba(34,211,238,0.1);color:#22d3ee;border:1px solid rgba(34,211,238,0.4);
+                                       border-radius:10px;padding:6px 9px;font-size:0.95em;font-weight:900;cursor:pointer;
+                                       min-width:34px;min-height:34px;flex-shrink:0;touch-action:manipulation;letter-spacing:2px;line-height:1;">
+                            ···
+                        </button>
                         <button id="quitBtn"
                                 style="background:rgba(239,68,68,0.12);color:#f87171;border:1px solid rgba(239,68,68,0.45);
                                        border-radius:10px;padding:6px 10px;font-size:0.7em;font-weight:900;cursor:pointer;
@@ -1373,14 +1380,19 @@
                         <!-- Logo "A" Awakened watermark en haut -->
                         <div style="position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:2;font-family:'Outfit',sans-serif;font-size:1.6em;font-weight:900;color:rgba(34,211,238,0.18);letter-spacing:-2px;line-height:1;pointer-events:none;text-shadow:0 0 12px rgba(34,211,238,0.3);">⩘</div>
 
-                        <!-- Label "DÉMONSTRATION" -->
-                        <div style="position:absolute;top:14px;left:14px;z-index:2;font-size:0.55em;font-weight:900;color:#22d3ee;letter-spacing:2.5px;text-transform:uppercase;text-shadow:0 0 6px rgba(34,211,238,0.4);">◈ DÉMONSTRATION</div>
+                        <!-- Bouton Pause (cercle, icône seule) — haut droite de l'image -->
+                        <button id="pauseBtn" onclick="togglePause()" aria-label="Pause"
+                                style="position:absolute;top:12px;right:12px;z-index:6;width:46px;height:46px;border-radius:50%;
+                                       display:flex;align-items:center;justify-content:center;
+                                       background:rgba(2,5,16,0.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+                                       border:1px solid rgba(34,211,238,0.55);color:#22d3ee;font-size:1.15em;cursor:pointer;line-height:1;
+                                       box-shadow:0 2px 14px rgba(0,0,0,0.55),0 0 14px rgba(34,211,238,0.15);touch-action:manipulation;">⏸</button>
 
-                        <!-- Tag muscle en haut à droite -->
-                        <div id="visualMuscleTag" style="position:absolute;top:12px;right:14px;z-index:2;font-size:0.55em;font-weight:900;color:#a855f7;letter-spacing:1.5px;background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.3);padding:3px 8px;border-radius:6px;text-transform:uppercase;"></div>
+                        <!-- Tag muscle (masqué — dispo dans les détails) -->
+                        <div id="visualMuscleTag" style="display:none;position:absolute;top:12px;left:14px;z-index:2;font-size:0.55em;font-weight:900;color:#a855f7;letter-spacing:1.5px;background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.3);padding:3px 8px;border-radius:6px;text-transform:uppercase;"></div>
 
-                        <!-- Équipement requis (sous le tag mauve) -->
-                        <div id="equipmentBadges" style="position:absolute;top:32px;right:14px;z-index:2;display:flex;flex-wrap:wrap;gap:4px;justify-content:flex-end;max-width:160px;"></div>
+                        <!-- Équipement requis (masqué — dispo dans les détails) -->
+                        <div id="equipmentBadges" style="display:none;position:absolute;top:32px;left:14px;z-index:2;flex-wrap:wrap;gap:4px;justify-content:flex-start;max-width:160px;"></div>
 
                         <!-- Contenu visuel (SVG positions Début/Fin) -->
                         <div id="exerciseVisualContent" style="position:relative;z-index:1;padding:40px 14px 14px;min-height:240px;display:flex;align-items:center;justify-content:center;"></div>
@@ -1467,8 +1479,8 @@
                         <!-- ── CONTRÔLES SÉANCE ───────────────────────────── -->
                         <div style="display:flex;flex-direction:column;gap:8px;padding:4px 0;">
 
-                            <!-- Rangée principale : PRÉCÉDENT | REMPLACER | SUIVANT (style mockup) -->
-                            <div style="display:grid;grid-template-columns:1fr 1.2fr 1.2fr;gap:8px;align-items:stretch;">
+                            <!-- Rangée principale : PRÉCÉDENT | SUIVANT -->
+                            <div style="display:grid;grid-template-columns:1fr 2fr;gap:8px;align-items:stretch;">
 
                                 <!-- ← Précédent -->
                                 <button id="prevBtn" onclick="goToPreviousExercise()" aria-label="Exercice précédent"
@@ -1478,17 +1490,6 @@
                                                font-size:0.72em;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;">
                                     <span style="font-size:1.1em;line-height:1;">←</span>
                                     <span>Préc.</span>
-                                </button>
-
-                                <!-- ⇄ Remplacer (centre, style mockup) -->
-                                <button id="swapBtnMain" onclick="showSwapExercise()" aria-label="Remplacer l'exercice"
-                                        style="display:flex;align-items:center;justify-content:center;gap:6px;
-                                               padding:14px 8px;border-radius:10px;cursor:pointer;transition:all 0.15s;
-                                               background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.35);color:#c084fc;
-                                               font-size:0.72em;font-weight:900;letter-spacing:1.2px;text-transform:uppercase;
-                                               box-shadow:0 0 10px rgba(168,85,247,0.1);">
-                                    <span style="font-size:1.1em;line-height:1;">⇄</span>
-                                    <span>Remplacer</span>
                                 </button>
 
                                 <!-- → SUIVANT (gros vert, style mockup) -->
@@ -1504,28 +1505,7 @@
                                 </button>
                             </div>
 
-                            <!-- Rangée secondaire : Pause + Menu compact -->
-                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-                                <!-- ⏸ Pause -->
-                                <button id="pauseBtn" onclick="togglePause()" aria-label="Pause"
-                                        style="display:flex;align-items:center;justify-content:center;gap:6px;
-                                               padding:9px;border-radius:10px;cursor:pointer;transition:all 0.15s;
-                                               background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.3);color:#4ade80;
-                                               font-size:0.7em;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;">
-                                    <span style="font-size:1em;line-height:1;">⏸</span>
-                                    <span>Pause</span>
-                                </button>
-
-                                <!-- ··· menu -->
-                                <button onclick="toggleWorkoutOptionsPanel()" id="sessionMenuBtn" aria-label="Options"
-                                        style="display:flex;align-items:center;justify-content:center;gap:6px;
-                                               padding:9px;border-radius:10px;cursor:pointer;transition:all 0.15s;
-                                               background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);
-                                               font-size:0.7em;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;">
-                                    <span style="font-size:0.95em;line-height:1;letter-spacing:2px;">···</span>
-                                    <span>Menu</span>
-                                </button>
-                            </div>
+                            <!-- (Pause déplacée sur l'image · Menu déplacé en haut) -->
 
                             <!-- Rangée contextuelle : Machine occupée seulement -->
                             <div id="contextualBtns" style="display:none;gap:8px;">
@@ -1556,24 +1536,20 @@
                     </div>
 
                     <!-- Bouton programme séance (mobile) -->
-                    <button id="showProgramBtn" onclick="toggleMobileProgram()"
-                            style="display:none;width:100%;padding:10px;background:rgba(22,163,74,0.12);border:1px solid rgba(22,163,74,0.2);border-radius:14px;color:#16a34a;font-weight:600;font-size:0.85em;cursor:pointer;margin-bottom:6px;">
-                        📋 Programme de la séance
-                    </button>
+                    <!-- (Bouton "Programme de la séance" retiré — accessible via le menu ···) -->
                 </div>
 
                 <!-- Panel options flottant -->
                 <div id="workoutOptionsPanel" style="display:none;position:fixed;left:50%;bottom:16px;transform:translateX(-50%);background:#1e293b;border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:12px;box-shadow:0 8px 32px rgba(0,0,0,0.6);z-index:201;width:calc(100% - 24px);max-width:340px;max-height:70vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
                     <button onclick="toggleSessionFavorite();toggleWorkoutOptionsPanel();" id="sessionFavBtn" style="display:block;width:100%;padding:10px 14px;text-align:left;border:none;background:none;cursor:pointer;font-size:0.9em;border-radius:10px;color:#e2e8f0;">🤍 Favori</button>
-                    <button onclick="toggleSessionFullscreen();toggleWorkoutOptionsPanel();" id="fullscreenBtn" style="display:block;width:100%;padding:10px 14px;text-align:left;border:none;background:none;cursor:pointer;font-size:0.9em;border-radius:10px;color:#e2e8f0;">⛶ Plein écran</button>
                     <hr style="margin:6px 0;border:none;border-top:1px solid rgba(255,255,255,0.1);">
                     <button onclick="toggleMute();toggleWorkoutOptionsPanel();" style="display:block;width:100%;padding:10px 14px;text-align:left;border:none;background:none;cursor:pointer;font-size:0.9em;border-radius:10px;color:#e2e8f0;" id="optMuteBtn">🔊 Son</button>
                     <button onclick="toggleVib();toggleWorkoutOptionsPanel();" style="display:block;width:100%;padding:10px 14px;text-align:left;border:none;background:none;cursor:pointer;font-size:0.9em;border-radius:10px;color:#e2e8f0;" id="optVibBtn">📳 Vibreur</button>
                     <button onclick="toggleWeightUnit();toggleWorkoutOptionsPanel();" style="display:block;width:100%;padding:10px 14px;text-align:left;border:none;background:none;cursor:pointer;font-size:0.9em;border-radius:10px;color:#e2e8f0;" id="optUnitBtn">⚖️ Unité</button>
                     <hr style="margin:6px 0;border:none;border-top:1px solid rgba(255,255,255,0.1);">
                     <button onclick="showSwapExercise();toggleWorkoutOptionsPanel();" style="display:block;width:100%;padding:10px 14px;text-align:left;border:none;background:none;cursor:pointer;font-size:0.9em;border-radius:10px;color:#e2e8f0;">🔄 Remplacer</button>
-                    <button onclick="toggleMobileInstructions();toggleWorkoutOptionsPanel();" style="display:block;width:100%;padding:10px 14px;text-align:left;border:none;background:none;cursor:pointer;font-size:0.9em;border-radius:10px;color:#e2e8f0;">📋 Instructions</button>
                     <hr style="margin:6px 0;border:none;border-top:1px solid rgba(255,255,255,0.1);">
+                    <div id="muscuOnlyOpts">
                     <button onclick="triggerDropSet();toggleWorkoutOptionsPanel();" style="display:block;width:100%;padding:10px 14px;text-align:left;border:none;background:none;cursor:pointer;font-size:0.9em;border-radius:10px;color:#e2e8f0;">⬇️ Drop Set</button>
                     <button onclick="triggerRestPause();toggleWorkoutOptionsPanel();" style="display:block;width:100%;padding:10px 14px;text-align:left;border:none;background:none;cursor:pointer;font-size:0.9em;border-radius:10px;color:#e2e8f0;">⏸ Rest-Pause</button>
                     <hr style="margin:6px 0;border:none;border-top:1px solid rgba(255,255,255,0.1);">
@@ -1591,6 +1567,7 @@
                         <button onclick="setInlineRest(90);toggleWorkoutOptionsPanel();" style="flex:1;padding:6px 0;border-radius:6px;border:1px solid #16a34a;background:rgba(22,163,74,0.15);color:#4ade80;font-size:0.78em;font-weight:700;cursor:pointer;min-width:44px;">1:30</button>
                         <button onclick="setInlineRest(120);toggleWorkoutOptionsPanel();" style="flex:1;padding:6px 0;border-radius:6px;border:1px solid #334155;background:#1e293b;color:#e2e8f0;font-size:0.78em;font-weight:700;cursor:pointer;min-width:44px;">2min</button>
                         <button onclick="setInlineRest(180);toggleWorkoutOptionsPanel();" style="flex:1;padding:6px 0;border-radius:6px;border:1px solid #334155;background:#1e293b;color:#e2e8f0;font-size:0.78em;font-weight:700;cursor:pointer;min-width:44px;">3min</button>
+                    </div>
                     </div>
                     <button onclick="toggleProgressListPopup();toggleWorkoutOptionsPanel();" style="display:block;width:100%;padding:10px 14px;text-align:left;border:none;background:none;cursor:pointer;font-size:0.9em;border-radius:10px;color:#e2e8f0;">📋 Voir programme</button>
                 </div>
@@ -1985,6 +1962,19 @@
                     <div class="filter-group">
                         <span>🔍 Rechercher</span>
                         <input type="text" id="searchInput" placeholder="Nom de l'exercice..." oninput="filterExercises()">
+                    </div>
+                    <div class="filter-group">
+                        <span>🥋 Discipline</span>
+                        <select id="disciplineFilter" onchange="filterExercises()">
+                            <option value="">Musculation</option>
+                            <option value="yoga">🪷 Yoga</option>
+                            <option value="boxe">🥊 Boxe</option>
+                            <option value="calisthenie">🤸 Calisthénie</option>
+                            <option value="course">🏃 Course / Marathon</option>
+                            <option value="hiit">🔥 HIIT</option>
+                            <option value="core">🧱 Gainage</option>
+                            <option value="mobilite">🧘 Mobilité</option>
+                        </select>
                     </div>
                     <div class="filter-group">
                         <span>💪 Groupe musculaire</span>
@@ -3546,19 +3536,19 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/exercises.js?v=407"></script>
-    <script src="data/items.js?v=407"></script>
-    <script src="js/adventure.js?v=407"></script>
-    <script src="js/economy.js?v=407"></script>
-    <script src="js/challenges.js?v=407"></script>
-    <script src="js/exercise-visuals.js?v=407"></script>
-    <script src="js/strength-standards.js?v=407"></script>
-    <script src="js/system-cards.js?v=407"></script>
-    <script src="js/share-card.js?v=407"></script>
-    <script src="js/story-events.js?v=407"></script>
-    <script src="js/final-boss.js?v=407"></script>
-    <script src="js/disciplines.js?v=407"></script>
-    <script src="js/app.js?v=407"></script>
+    <script src="js/exercises.js?v=411"></script>
+    <script src="data/items.js?v=411"></script>
+    <script src="js/adventure.js?v=411"></script>
+    <script src="js/economy.js?v=411"></script>
+    <script src="js/challenges.js?v=411"></script>
+    <script src="js/exercise-visuals.js?v=411"></script>
+    <script src="js/strength-standards.js?v=411"></script>
+    <script src="js/system-cards.js?v=411"></script>
+    <script src="js/share-card.js?v=411"></script>
+    <script src="js/story-events.js?v=411"></script>
+    <script src="js/final-boss.js?v=411"></script>
+    <script src="js/disciplines.js?v=411"></script>
+    <script src="js/app.js?v=411"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>
