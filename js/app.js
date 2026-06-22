@@ -10865,8 +10865,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         function updateLiveVolumeChip() {
             const chip = document.getElementById('liveVolumeChip');
             if (!chip || !currentWorkout) return;
-            // Pas de volume (kg) en yoga → on masque la pastille.
-            if (currentWorkout._discipline === 'yoga') { chip.style.display = 'none'; chip.innerHTML = ''; return; }
+            // Pas de volume (kg) dans les disciplines (yoga, boxe, cardio…) → on masque la pastille.
+            if (currentWorkout._discipline) { chip.style.display = 'none'; chip.innerHTML = ''; return; }
             chip.style.display = '';
             const { volume, sets } = getSessionVolume();
             const total = (currentWorkout.exercises || []).length;
@@ -32440,6 +32440,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
         function initGameMode() {
             const enabled = rpgEnabled();
+            // Garder le mode chasseur/aventure aligné sur le mode jeu (évite tout état hybride).
+            if (typeof setAdventureEnabled === 'function') setAdventureEnabled(enabled);
             const toggle  = document.getElementById('gameModeToggle');
             const slider  = document.getElementById('gameModeSlider');
             const thumb   = document.getElementById('gameModeThumb');

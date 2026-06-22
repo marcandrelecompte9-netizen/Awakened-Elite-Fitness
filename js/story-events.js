@@ -889,6 +889,8 @@ function storyShowEvent(evt) {
 // Affiche au plus UN événement éligible. Marque comme vu.
 function storyCheckEvents(opts) {
     try {
+        // Jeu désactivé → aucun événement narratif / cinématique.
+        if (typeof rpgEnabled === 'function' && !rpgEnabled()) return false;
         // Ne pas chevaucher un autre overlay narratif
         if (document.getElementById('storyOverlay') ||
             document.getElementById('storyEventOverlay') ||
