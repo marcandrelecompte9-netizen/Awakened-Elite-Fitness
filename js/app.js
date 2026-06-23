@@ -2657,7 +2657,7 @@
                 .map(([name]) => exerciseDatabase.find(ex => ex.name === name))
                 .filter(ex => ex && 
                     !blacklist.includes(ex.name) &&
-                    ex.equipment.some(eq => equipment.includes(eq))
+                    (ex.equipment || []).every(eq => equipment.includes(eq) || eq === 'Poids du corps' || eq === 'Aucun')
                 );
             
             if (goodExercises.length < 2) {
@@ -3815,7 +3815,7 @@
                 // ✅ Check if exercise needs adaptation
                 const isBlacklisted = blacklist.includes(ex.name);
                 const isInjured = injuredMuscles.includes(ex.muscle);
-                const hasEquipment = equipment.length === 0 || ex.equipment.some(eq => equipment.includes(eq));
+                const hasEquipment = equipment.length === 0 || (ex.equipment || []).every(eq => equipment.includes(eq) || eq === 'Poids du corps' || eq === 'Aucun');
                 
                 const needsAdaptation = isBlacklisted || isInjured || !hasEquipment;
                 
@@ -3828,14 +3828,31 @@
                         e.name !== ex.name &&
                         !blacklist.includes(e.name) &&
                         !injuredMuscles.includes(e.muscle) &&
-                        (equipment.length === 0 || e.equipment.some(eq => equipment.includes(eq)))
+                        (equipment.length === 0 || (e.equipment || []).every(eq => equipment.includes(eq) || eq === 'Poids du corps' || eq === 'Aucun'))
                     );
                     
                     if (alternatives.length > 0) {
                         const oldName = ex.name;
                         ex = alternatives[Math.floor(Math.random() * alternatives.length)];
                         showToast(`💡 ${oldName} remplacé par ${ex.name}`, 'info', 2500);
-                    } else {
+                    } else if (!hasEquipment) {
+                        // Aucune alternative avec l'équipement dispo → repli sur un exercice
+                        // au poids du corps du même muscle ; sinon on retire l'exercice.
+                        const bw = exerciseDatabase.filter(e =>
+                            e.muscle === muscle &&
+                            e.type === 'exercise' &&
+                            e.name !== ex.name &&
+                            !blacklist.includes(e.name) &&
+                            !injuredMuscles.includes(e.muscle) &&
+                            (e.equipment || []).every(eq => eq === 'Poids du corps' || eq === 'Aucun')
+                        );
+                        if (bw.length > 0) {
+                            const oldName = ex.name;
+                            ex = bw[Math.floor(Math.random() * bw.length)];
+                            showToast(`💡 ${oldName} remplacé par ${ex.name}`, 'info', 2500);
+                        } else {
+                            ex = null; // pas de substitut dispo → exercice retiré
+                        }
                     }
                 }
                 
@@ -5601,6 +5618,126 @@
         };
 
         // Score d'un exercice pour l'IA (plus le score est élevé, plus il est prioritaire)
+        // ───────────────────────────────────────────────────────────────
+        // SOURCE UNIQUE DE VÉRITÉ — disponibilité d'un exercice selon l'équipement.
+        // Utilisée par tous les générateurs pour éviter toute divergence.
+        // ───────────────────────────────────────────────────────────────
+        const AWAK_EQ_NORM = {
+            'barbell':'Barre','barre':'Barre',
+            'dumbbells':'Haltères','haltères':'Haltères',
+            'bodyweight':'Poids du corps','poids du corps':'Poids du corps',
+            'machine':'Machine',
+            'bench':'Banc','banc':'Banc',
+            'kettlebell':'Kettlebell',
+            'resistance':'Élastique','élastique':'Élastique',
+            'parallelbars':'Barres parallèles','barres parallèles':'Barres parallèles',
+            'jumprope':'Corde à sauter','corde à sauter':'Corde à sauter',
+            'trx':'TRX',
+        };
+        function awakNormalizeEq(eq) { return AWAK_EQ_NORM[String(eq || '').toLowerCase()] || eq; }
+        function awakIsBwEq(eq) { return eq === 'Poids du corps' || eq === 'Aucun'; }
+        // L'exercice est-il réalisable avec l'équipement dispo ?
+        // Règle : TOUT l'équipement requis doit être dispo (ou poids du corps).
+        // Aucun équipement sélectionné → poids du corps uniquement.
+        function awakEquipmentOk(ex, equipNames) {
+            const exEq = (ex.equipment || []).map(awakNormalizeEq);
+            const norm = (equipNames || []).map(awakNormalizeEq);
+            if (norm.length === 0) return exEq.every(awakIsBwEq);
+            return exEq.every(e => norm.includes(e) || awakIsBwEq(e));
+        }
+
+        // ───────────────────────────────────────────────────────────────
+        // PRESCRIPTION — séries × reps × repos selon l'objectif + autorégulation RPE.
+        // ───────────────────────────────────────────────────────────────
+        function awakPrescribe(goal, level, structureType, exerciseType) {
+            const S = {
+                strength:    { sets:[4,5], reps:'4-6',   rest:150 },
+                muscle_gain: { sets:[3,4], reps:'8-12',  rest:80  },
+                hypertrophy: { sets:[3,4], reps:'8-12',  rest:80  },
+                endurance:   { sets:[2,3], reps:'15-20', rest:40  },
+                weight_loss: { sets:[3,3], reps:'12-15', rest:35  },
+                fitness:     { sets:[3,3], reps:'10-12', rest:60  },
+            };
+            const base = S[goal] || S.fitness;
+            let sets = base.sets[level === 'advanced' ? 1 : 0];
+            let rest = base.rest;
+            if (structureType === 'compound') rest = Math.round(rest * 1.15);   // gros mouvements → +repos
+            else if (structureType === 'finisher') rest = Math.round(rest * 0.7);
+            if (exerciseType === 'cardio') rest = Math.min(rest, 40);
+            return { sets, reps: base.reps, rest };
+        }
+        // Autorégulation : ajuste le conseil d'après le dernier ressenti (RPE 1-5).
+        function awakAutoreg(lastPerf) {
+            if (!lastPerf || !lastPerf.difficulty) return '';
+            const d = lastPerf.difficulty;
+            if (d <= 2) return '⤴️ Trop facile la dernière fois : vise le haut de la fourchette (ou +charge).';
+            if (d >= 4) return '⤵️ Très dur la dernière fois : garde la même charge, soigne la technique.';
+            return '✅ Bien dosé : reproduis et progresse légèrement.';
+        }
+        // Applique la prescription à une séance muscu générée (pas les disciplines/plans).
+        function awakApplyPrescription(workout) {
+            if (!workout || !Array.isArray(workout.exercises) || workout._discipline) return workout;
+            const prof = (typeof getUserProfile === 'function') ? getUserProfile() : {};
+            const goal = prof.goal || 'fitness';
+            const level = prof.level || 'intermediate';
+            const exs = workout.exercises;
+            const skip = /échauffement|retour au calme|récupération|repos|étirement|cool|warm/i;
+            let firstScheme = null;
+            for (let i = 0; i < exs.length; i++) {
+                const ex = exs[i];
+                if (!ex || ex.isRest || ex.isInfo || skip.test(ex.name || '')) continue;
+                const exType = (typeof getExerciseType === 'function') ? getExerciseType(ex.name) : 'force';
+                const p = awakPrescribe(goal, level, ex.structureType, exType);
+                const lastPerf = (typeof getLastPerformance === 'function') ? getLastPerformance(ex.name) : null;
+                ex.recoSets = p.sets;
+                ex.recoReps = p.reps;
+                ex.recoRest = p.rest;
+                ex.coachNote = awakAutoreg(lastPerf);
+                if (!firstScheme) firstScheme = p;
+                // Ajuster le repos qui suit selon l'objectif
+                const nxt = exs[i + 1];
+                if (nxt && nxt.isRest) nxt.duration = p.rest;
+            }
+            workout._goal = goal;
+            if (firstScheme && typeof showToast === 'function') {
+                const lbl = { strength:'Force', muscle_gain:'Hypertrophie', hypertrophy:'Hypertrophie',
+                              endurance:'Endurance', weight_loss:'Perte de poids', fitness:'Forme' }[goal] || 'Forme';
+                const m = Math.round(firstScheme.rest / 15) * 15;
+                showToast(`🎯 ${lbl} · ${firstScheme.sets} séries × ${firstScheme.reps} reps · repos ~${m}s`, 'info', 3500);
+            }
+            return workout;
+        }
+
+        // ───────────────────────────────────────────────────────────────
+        // VOLUME HEBDOMADAIRE par muscle (à partir de musclesWeighted de l'historique).
+        // ───────────────────────────────────────────────────────────────
+        function awakWeeklyVolume(days) {
+            days = days || 7;
+            const cutoff = Date.now() - days * 86400000;
+            const vol = {};
+            let history = [];
+            try { history = (typeof getWorkoutHistory === 'function') ? getWorkoutHistory() : []; } catch (e) {}
+            (history || []).forEach(h => {
+                const t = h && h.date ? Date.parse(h.date) : 0;
+                if (!t || t < cutoff) return;
+                if (h.musclesWeighted && typeof h.musclesWeighted === 'object') {
+                    Object.keys(h.musclesWeighted).forEach(m => { vol[m] = (vol[m] || 0) + (h.musclesWeighted[m] || 0); });
+                } else if (Array.isArray(h.musclesWorked)) {
+                    h.musclesWorked.forEach(m => { vol[m] = (vol[m] || 0) + 1; });
+                }
+            });
+            return vol;
+        }
+        let _awakWeeklyVolCache = null, _awakWeeklyVolTs = 0;
+        function awakWeeklyVolumeCached() {
+            const now = Date.now();
+            if (!_awakWeeklyVolCache || now - _awakWeeklyVolTs > 60000) {
+                _awakWeeklyVolCache = awakWeeklyVolume(7);
+                _awakWeeklyVolTs = now;
+            }
+            return _awakWeeklyVolCache;
+        }
+
         function scoreExercise(ex, profile, recentExercises, performanceHistory, fatiguedMuscles) {
             let score = 50; // base
 
@@ -5639,6 +5776,21 @@
 
             // Muscle fatigué → pénaliser
             if (fatiguedMuscles && fatiguedMuscles.includes(ex.muscle)) score -= 20;
+
+            // 🆕 Équilibrage du volume hebdomadaire : pousser les muscles négligés,
+            // lever le pied sur ceux déjà très sollicités cette semaine.
+            try {
+                const wv = awakWeeklyVolumeCached();
+                const vals = Object.keys(wv).filter(m => m !== 'Cardio').map(m => wv[m]);
+                if (vals.length >= 2) {
+                    const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
+                    const mine = wv[ex.muscle] || 0;
+                    if (avg > 0) {
+                        if (mine < avg * 0.6) score += 10;
+                        else if (mine > avg * 1.5) score -= 8;
+                    }
+                }
+            } catch (e) {}
 
             // Exercices poly-articulaires en priorité
             const type = classifyExercise(ex);
@@ -9034,11 +9186,7 @@
                 if (ex.type !== 'exercise') return false;
                 if (!decisions.targetMuscles.includes(ex.muscle)) return false;
                 if (blacklist.includes(ex.name)) return false;
-                const exEq = (ex.equipment || []).map(normEq2);
-                if (normEquipNames2.length === 0) {
-                    return exEq.some(e => e === 'Poids du corps' || e === 'Aucun');
-                }
-                return exEq.every(e => normEquipNames2.includes(e) || e === 'Poids du corps' || e === 'Aucun');
+                return awakEquipmentOk(ex, equipmentNames);
             });
             
             if (availableExercises.length === 0) {
@@ -9138,7 +9286,7 @@
                 workout.exercises.push(...expertStretches);
             }
             
-            return workout;
+            return awakApplyPrescription(workout);
         }
 
         function startIntelligentWorkout() {
@@ -9817,14 +9965,8 @@
                     if (isBodyweight) return false;
                 }
 
-                // Equipment filter logic
-                if (normEquipNames.length === 0) {
-                    // Aucun équipement sélectionné → poids du corps seulement
-                    return exEq.some(e => e === 'Poids du corps' || e === 'Aucun');
-                } else {
-                    // Équipements sélectionnés → l'exercice doit utiliser UNIQUEMENT ces équipements
-                    return exEq.every(e => normEquipNames.includes(e) || e === 'Poids du corps' || e === 'Aucun');
-                }
+                // Equipment filter logic — source unique de vérité
+                return awakEquipmentOk(ex, equipmentNames);
             });
 
             // ✅ DEBUG: Log filtered exercises
@@ -9956,7 +10098,7 @@
                 workout.exercises.push(...expertStretches);
             }
             
-            return workout;
+            return awakApplyPrescription(workout);
         }
 
         // ========== SMART RECOMMENDATIONS SYSTEM ==========
@@ -13359,7 +13501,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         const candidates = exerciseDatabase.filter(ex => 
                             ex.muscle === muscle &&
                             ex.type === 'exercise' &&
-                            (equipment.length === 0 || ex.equipment.some(eq => equipment.includes(eq)))
+                            (equipment.length === 0 || (ex.equipment || []).every(eq => equipment.includes(eq) || eq === 'Poids du corps' || eq === 'Aucun'))
                         );
                         
                         if (candidates.length > 0) {
@@ -17355,7 +17497,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     });
                     if (!hasAvail) return false;
                 }
-                const hasEquipment = exercise.equipment.some(eq => equipmentNames.includes(eq));
+                const hasEquipment = awakEquipmentOk(exercise, equipmentNames);
                 const hasMuscle = muscleNames.includes(exercise.muscle);
                 const isMainExercise = exercise.type === "exercise";
                 
@@ -17465,34 +17607,37 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             }
             
             // Select exercises from available filtered list
-            const selectedExercisesForWorkout = [];
             const targetCount = Math.min(targetExerciseCount, availableExercises.length);
 
-            // Try to get variety from selected muscle groups
-            const selectedMuscleGroups = muscleNames;
-            selectedMuscleGroups.forEach(muscle => {
-                const exercisesFromGroup = availableExercises.filter(ex => ex.muscle === muscle);
-                if (exercisesFromGroup.length > 0 && selectedExercisesForWorkout.length < targetCount) {
-                    const randomEx = exercisesFromGroup[Math.floor(Math.random() * exercisesFromGroup.length)];
-                    if (!selectedExercisesForWorkout.find(e => e.name === randomEx.name)) {
-                        selectedExercisesForWorkout.push(randomEx);
-                    }
-                }
-            });
+            // 🧠 Sélection intelligente : on passe par le cerveau de scoring partagé
+            // (récence, progression, ressenti RPE, fatigue, polyarticulaires d'abord, objectif)
+            // au lieu d'un tirage purement aléatoire. L'ordre compound→isolation→finisher est gardé.
+            let uniqueExercises = [];
+            try {
+                const _profile = (typeof getUserProfile === 'function')
+                    ? getUserProfile() : { level: 'intermediate', goal: 'fitness' };
+                uniqueExercises = generateStructuredWorkout(availableExercises, targetCount, _profile) || [];
+            } catch (e) { uniqueExercises = []; }
 
-            // Fill up to target count if needed
-            while (selectedExercisesForWorkout.length < targetCount) {
-                const randomEx = availableExercises[Math.floor(Math.random() * availableExercises.length)];
-                if (!selectedExercisesForWorkout.find(e => e.name === randomEx.name)) {
-                    selectedExercisesForWorkout.push(randomEx);
+            // Repli de sécurité : tirage varié si le scoring ne renvoie rien
+            if (!uniqueExercises.length) {
+                const sel = [];
+                muscleNames.forEach(muscle => {
+                    const grp = availableExercises.filter(ex => ex.muscle === muscle);
+                    if (grp.length && sel.length < targetCount) {
+                        const r = grp[Math.floor(Math.random() * grp.length)];
+                        if (!sel.find(e => e.name === r.name)) sel.push(r);
+                    }
+                });
+                let _g = 0;
+                while (sel.length < targetCount && _g++ < 300) {
+                    const r = availableExercises[Math.floor(Math.random() * availableExercises.length)];
+                    if (!sel.find(e => e.name === r.name)) sel.push(r);
                 }
+                uniqueExercises = sel;
             }
 
-            // Ensure variety (remove any duplicates)
-            const uniqueExercises = ensureVariety(selectedExercisesForWorkout);
-            
-            // Shuffle to randomize order
-            uniqueExercises.sort(() => Math.random() - 0.5);
+            uniqueExercises = ensureVariety(uniqueExercises).slice(0, targetCount);
 
             uniqueExercises.forEach(exercise => {
                 // Determine mode for this exercise
@@ -17585,7 +17730,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 });
             }
 
-            return workout;
+            return awakApplyPrescription(workout);
         }
 
         // Exercise SVG — V45 Ultra Premium
@@ -20492,6 +20637,24 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 document.getElementById('exerciseName').appendChild(progressionBadge);
             }
             
+            // 🎯 Encart prescription (séries × reps · repos + autorégulation)
+            (function(){
+                const host = document.getElementById('exerciseName');
+                let card = document.getElementById('awakCoachCard');
+                const show = exercise && !exercise.isRest && !exercise.isInfo && exercise.recoSets;
+                if (!show) { if (card) card.style.display = 'none'; return; }
+                if (!card) {
+                    card = document.createElement('div');
+                    card.id = 'awakCoachCard';
+                    card.style.cssText = 'margin:8px auto 0;max-width:440px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.3);border-radius:12px;padding:7px 12px;text-align:center;';
+                    if (host && host.parentNode) host.parentNode.insertBefore(card, host.nextSibling);
+                }
+                card.style.display = 'block';
+                const rest = exercise.recoRest ? ` · repos ${exercise.recoRest}s` : '';
+                const note = exercise.coachNote ? `<div style="font-size:0.76em;color:#94a3b8;margin-top:3px;line-height:1.3;">${exercise.coachNote}</div>` : '';
+                card.innerHTML = `<div style="font-size:0.92em;font-weight:800;color:#4ade80;letter-spacing:0.3px;">🎯 ${exercise.recoSets} séries × ${exercise.recoReps} reps${rest}</div>${note}`;
+            })();
+
             // AFFICHER LE MUSCLE SOLLICITÉ
             const swapBtn = document.getElementById('swapBtn');
             if (swapBtn) {
@@ -36951,6 +37114,33 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         }
         window.renderTodayActionCard = renderTodayActionCard;
 
+        function renderWeeklyMuscleVolume() {
+            const host = document.getElementById('weeklyMuscleVolume');
+            if (!host) return;
+            let vol = {};
+            try { vol = awakWeeklyVolume(7); } catch (e) { vol = {}; }
+            const entries = Object.keys(vol)
+                .filter(m => m && m !== 'Cardio')
+                .map(m => [m, vol[m]])
+                .sort((a, b) => b[1] - a[1]);
+            if (!entries.length) { host.innerHTML = ''; return; }
+            const max = Math.max.apply(null, entries.map(e => e[1])) || 1;
+            const EMO = { 'Pectoraux':'🫁','Dos':'🔙','Jambes':'🦵','Quadriceps':'🦵','Ischio-jambiers':'🦵',
+                          'Épaules':'🤷','Biceps':'💪','Triceps':'💪','Abdominaux':'🎯','Fessiers':'🍑',
+                          'Mollets':'🦵','Avant-bras':'✊','Trapèzes':'🔺','Lombaires':'🔙','Corps entier':'🔥' };
+            const rows = entries.slice(0, 8).map(([m, v]) => {
+                const pct = Math.round((v / max) * 100);
+                return '<div style="display:flex;align-items:center;gap:8px;margin:4px 0;">' +
+                    '<div style="width:96px;font-size:0.72em;color:#cbd5e1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (EMO[m] || '•') + ' ' + m + '</div>' +
+                    '<div style="flex:1;height:8px;background:rgba(255,255,255,0.06);border-radius:5px;overflow:hidden;">' +
+                    '<div style="width:' + pct + '%;height:100%;background:linear-gradient(90deg,#22c55e,#4ade80);border-radius:5px;"></div></div>' +
+                    '<div style="width:30px;text-align:right;font-size:0.72em;color:#94a3b8;">' + Math.round(v) + '</div></div>';
+            }).join('');
+            host.innerHTML = '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:12px 14px;">' +
+                '<div style="font-size:0.8em;font-weight:800;color:#e2e8f0;margin-bottom:8px;letter-spacing:0.3px;">📊 Volume cette semaine ' +
+                '<span style="color:#64748b;font-weight:600;font-size:0.85em;">· 7 j · pondéré</span></div>' + rows + '</div>';
+        }
+
         function updateHomeStats() {
             const stats = loadStats();
             const qEl = document.getElementById('homeStatWorkouts');
@@ -37023,6 +37213,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             // Volume hebdo retiré — gardé en cache si besoin futur
             const volEl = $el('weeklyVolumeWidget');
             if (volEl) volEl.innerHTML = '';
+            // 📊 Volume hebdomadaire par muscle (réactivé)
+            try { renderWeeklyMuscleVolume(); } catch (e) {}
         }
 
         // ══════════════════════════════════════════════════════════

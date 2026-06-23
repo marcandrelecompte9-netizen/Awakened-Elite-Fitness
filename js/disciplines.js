@@ -602,8 +602,13 @@
 
   /* ---- Générateur de séance yoga (à la Down Dog) ----------------------- */
   var YOGA_CUSTOM = null;
-  function _yPick(pool, used) {
+  function _yPick(pool, used, allPoses) {
     var avail = pool.filter(function (f) { return used.indexOf(f) < 0; });
+    if (!avail.length && allPoses && allPoses.length) {
+      // Pool du rôle épuisé → piocher n'importe quelle pose encore inutilisée
+      // (évite les doublons dans la séance plutôt que de retomber sur le pool).
+      avail = allPoses.filter(function (f) { return used.indexOf(f) < 0; });
+    }
     var arr = avail.length ? avail : pool;
     var f = arr[Math.floor(Math.random() * arr.length)];
     used.push(f);
@@ -645,9 +650,15 @@
     roles.push('final');
 
     var used = [];
+    // Réserve globale de poses (hors respiration/savasana) pour éviter tout doublon.
+    var ALL_POSES = [];
+    Object.keys(POOL).forEach(function (role) {
+      if (role === 'center' || role === 'final') { return; }
+      POOL[role].forEach(function (f) { if (ALL_POSES.indexOf(f) < 0) { ALL_POSES.push(f); } });
+    });
     var poses = roles.map(function (role) {
       if (role === 'final') { return pSavasana(); }
-      return _yPick(POOL[role], used)();
+      return _yPick(POOL[role], used, ALL_POSES)();
     });
 
     var BASE = {
