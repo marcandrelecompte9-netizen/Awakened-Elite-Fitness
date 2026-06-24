@@ -6501,9 +6501,10 @@ body { font-variant-numeric: tabular-nums; }
     line-height: 1 !important;
     text-align: left !important;
     letter-spacing: -1px !important;
-    background: rgba(2,5,16,0.55) !important;
+    background: rgba(3,7,18,0.92) !important;
+    border: 1px solid rgba(34,211,238,0.45) !important;
     border-radius: 9px !important;
-    -webkit-backdrop-filter: blur(4px);
-    backdrop-filter: blur(4px);
-    box-shadow: 0 2px 10px rgba(0,0,0,0.4) !important;
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.55) !important;
 }

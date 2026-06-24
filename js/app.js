@@ -669,6 +669,7 @@
             }
             
             saveFavoriteExercises(favoriteExercises);
+            _awakFavCache = null; // invalider le cache de scoring
             filterExercises(); // Refresh display
         }
 
@@ -4997,11 +4998,7 @@
                 document.body.classList.add('in-session');
 
                 const badge = document.getElementById('workoutTypeBadge');
-                if (badge) {
-                    badge.innerHTML = `${circuit.emoji} ${circuit.name}`;
-                    badge.style.background = `linear-gradient(135deg, ${circuit.color} 0%, ${circuit.color}dd 100%)`;
-                    badge.style.display = 'block';
-                }
+                awakStyleSessionBadge(badge, `${circuit.emoji} ${circuit.name}`, circuit.color);
 
                 if (typeof renderExerciseProgressList === 'function') renderExerciseProgressList();
                 if (typeof updateMusclesOverview === 'function') updateMusclesOverview();
@@ -5019,13 +5016,13 @@
         // Objectif : circulation, amplitude articulaire, réveil — sans matériel.
         const MORNING_POOLS = {
             mobility: [
-                { name: 'Cercles de bras',           mode: 'duration', duration: 30 },
+                { name: 'Cercles de bras',           mode: 'duration', duration: 40 },
                 { name: 'Rotations thoraciques',     mode: 'duration', duration: 40 },
-                { name: 'Cat-Cow',                   mode: 'duration', duration: 45 },
+                { name: 'Cat-Cow',                   mode: 'duration', duration: 55 },
                 { name: 'Cercles hanche',            mode: 'duration', duration: 40 },
-                { name: 'Cercles chevilles',         mode: 'duration', duration: 30 },
+                { name: 'Cercles chevilles',         mode: 'duration', duration: 35 },
                 { name: 'Rotations tronc',           mode: 'duration', duration: 40 },
-                { name: 'Rotations poignets',        mode: 'duration', duration: 25 },
+                { name: 'Rotations poignets',        mode: 'duration', duration: 35 },
                 { name: 'Cobra',                     mode: 'duration', duration: 35 },
             ],
             activation: [
@@ -5236,11 +5233,7 @@
                 document.body.classList.add('in-session');
 
                 const badge = document.getElementById('workoutTypeBadge');
-                if (badge) {
-                    badge.innerHTML = `${routine.emoji} ${routine.name}`;
-                    badge.style.background = `linear-gradient(135deg, ${routine.color} 0%, ${routine.color}dd 100%)`;
-                    badge.style.display = 'block';
-                }
+                awakStyleSessionBadge(badge, `${routine.emoji} ${routine.name}`, routine.color);
 
                 if (typeof renderExerciseProgressList === 'function') renderExerciseProgressList();
                 if (typeof updateMusclesOverview === 'function') updateMusclesOverview();
@@ -5651,7 +5644,7 @@
         // ───────────────────────────────────────────────────────────────
         function awakPrescribe(goal, level, structureType, exerciseType) {
             const S = {
-                strength:    { sets:[4,5], reps:'4-6',   rest:150 },
+                strength:    { sets:[3,4], reps:'4-6',   rest:150 },
                 muscle_gain: { sets:[3,4], reps:'8-12',  rest:80  },
                 hypertrophy: { sets:[3,4], reps:'8-12',  rest:80  },
                 endurance:   { sets:[2,3], reps:'15-20', rest:40  },
@@ -5685,7 +5678,7 @@
             let firstScheme = null;
             for (let i = 0; i < exs.length; i++) {
                 const ex = exs[i];
-                if (!ex || ex.isRest || ex.isInfo || skip.test(ex.name || '')) continue;
+                if (!ex || !ex.name || ex.isRest || ex.isInfo || skip.test(ex.name)) continue;
                 const exType = (typeof getExerciseType === 'function') ? getExerciseType(ex.name) : 'force';
                 const p = awakPrescribe(goal, level, ex.structureType, exType);
                 const lastPerf = (typeof getLastPerformance === 'function') ? getLastPerformance(ex.name) : null;
@@ -5738,6 +5731,55 @@
             return _awakWeeklyVolCache;
         }
 
+        // ───────────────────────────────────────────────────────────────
+        // REMPLACEMENTS — un exercice souvent remplacé = peu apprécié → proposé moins.
+        // ───────────────────────────────────────────────────────────────
+        function awakGetSwapCounts() {
+            try { return JSON.parse(localStorage.getItem('awakSwapCounts') || '{}'); } catch (e) { return {}; }
+        }
+        let _awakSwapCache = null, _awakSwapTs = 0;
+        function awakSwapCountsCached() {
+            const now = Date.now();
+            if (!_awakSwapCache || now - _awakSwapTs > 30000) {
+                _awakSwapCache = awakGetSwapCounts();
+                _awakSwapTs = now;
+            }
+            return _awakSwapCache;
+        }
+        function awakRecordSwap(name) {
+            if (!name) return;
+            try {
+                const c = awakGetSwapCounts();
+                c[name] = (c[name] || 0) + 1;
+                localStorage.setItem('awakSwapCounts', JSON.stringify(c));
+                _awakSwapCache = null; // invalider le cache
+            } catch (e) {}
+        }
+        // L'utilisateur a fait l'exercice sans le remplacer → on pardonne un peu (decay).
+        function awakForgiveSwap(name) {
+            if (!name) return;
+            try {
+                const c = awakGetSwapCounts();
+                if (c[name]) {
+                    c[name] = Math.max(0, c[name] - 1);
+                    if (c[name] === 0) delete c[name];
+                    localStorage.setItem('awakSwapCounts', JSON.stringify(c));
+                    _awakSwapCache = null;
+                }
+            } catch (e) {}
+        }
+
+        let _awakFavCache = null, _awakFavTs = 0;
+        function awakFavoritesCached() {
+            const now = Date.now();
+            if (!_awakFavCache || now - _awakFavTs > 30000) {
+                try { _awakFavCache = (typeof getFavoriteExercises === 'function') ? getFavoriteExercises() : []; }
+                catch (e) { _awakFavCache = []; }
+                _awakFavTs = now;
+            }
+            return _awakFavCache;
+        }
+
         function scoreExercise(ex, profile, recentExercises, performanceHistory, fatiguedMuscles) {
             let score = 50; // base
 
@@ -5773,6 +5815,15 @@
             // 🆕 Sécurité : 2 niveaux AU-DESSUS = quasi exclu (un Avancé chez un débutant)
             else if (levelDiff >= 2) score -= 25;
             else score -= 10; // trop facile
+
+            // 🆕 Exercice en favori → petit coup de pouce (préférence affichée par l'utilisateur).
+            try { if (awakFavoritesCached().includes(ex.name)) score += 14; } catch (e) {}
+
+            // 🆕 Exercice souvent remplacé → l'utilisateur ne l'aime pas, on le propose moins.
+            try {
+                const sc = awakSwapCountsCached()[ex.name] || 0;
+                if (sc > 0) score -= Math.min(32, sc * 8); // -8 par remplacement, plafonné
+            } catch (e) {}
 
             // Muscle fatigué → pénaliser
             if (fatiguedMuscles && fatiguedMuscles.includes(ex.muscle)) score -= 20;
@@ -6511,6 +6562,23 @@
             } catch(e) {}
         };
 
+        // Bannière de séance élégante : fond translucide teinté + texte de la couleur + bordure
+        // (au lieu d'un aplat criard avec texte cyan qui jure).
+        function awakStyleSessionBadge(badge, html, color) {
+            if (!badge) return;
+            color = color || '#22d3ee';
+            const hex = String(color).replace('#', '');
+            const r = parseInt(hex.substr(0, 2), 16) || 34;
+            const g = parseInt(hex.substr(2, 2), 16) || 211;
+            const b = parseInt(hex.substr(4, 2), 16) || 238;
+            badge.innerHTML = html;
+            badge.style.background = `linear-gradient(90deg, rgba(${r},${g},${b},0.18), rgba(${r},${g},${b},0.06))`;
+            badge.style.color = color;
+            badge.style.border = `1px solid rgba(${r},${g},${b},0.45)`;
+            badge.style.textShadow = `0 0 8px rgba(${r},${g},${b},0.35)`;
+            badge.style.display = 'block';
+        }
+
         function showWorkoutPreparation(workout) {
             // 🛡️ FILTRE DE SÉCURITÉ ÉQUIPEMENT : quelle que soit l'origine de la séance,
             // on retire tout exercice nécessitant un équipement que le joueur n'a PAS coché
@@ -6683,9 +6751,16 @@
             if (pendingWorkout.badgeHTML) {
                 const badge = document.getElementById('workoutTypeBadge');
                 if (badge) {
-                    badge.style.display = 'block';
-                    badge.innerHTML = pendingWorkout.badgeHTML;
-                    badge.style.background = pendingWorkout.badgeStyle || 'linear-gradient(135deg, #4ade80 0%, #22c55e 100%)';
+                    if (pendingWorkout.badgeColor) {
+                        awakStyleSessionBadge(badge, pendingWorkout.badgeHTML, pendingWorkout.badgeColor);
+                    } else {
+                        badge.style.display = 'block';
+                        badge.innerHTML = pendingWorkout.badgeHTML;
+                        badge.style.background = pendingWorkout.badgeStyle || 'linear-gradient(135deg, #4ade80 0%, #22c55e 100%)';
+                        badge.style.color = '#fff';
+                        badge.style.textShadow = '0 1px 3px rgba(0,0,0,0.45)';
+                        badge.style.border = 'none';
+                    }
                 }
             }
             
@@ -12508,6 +12583,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const musclesSet = new Set();
             workout.exercises.forEach(ex => {
                 if (ex.isRest || ex.isInfo) return;
+                // 🆕 Exercice réalisé (gardé, non remplacé) → on décroît son compteur de remplacements
+                awakForgiveSwap(typeof ex === 'string' ? ex : (ex.name || ''));
                 // Source 1 : muscle déjà attaché à l'exercice
                 if (ex.muscle) {
                     musclesSet.add(ex.muscle);
@@ -18607,6 +18684,13 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         }
 
         function switchTab(tabName) {
+            // Mode jeu désactivé → ne pas ouvrir l'onglet jeu (Failles / histoire).
+            if (tabName === 'game' && typeof rpgEnabled === 'function' && !rpgEnabled()) {
+                if (typeof showToast === 'function') {
+                    showToast('🎮 Active le mode jeu dans les réglages pour accéder aux Failles', 'info', 3500);
+                }
+                tabName = 'home';
+            }
             if (tabName === 'history' && rpgEnabled()) setTimeout(renderRPGPanel, 50);
             if (tabName === 'settings') setTimeout(() => { if (typeof awakRefreshDevPanel === 'function') awakRefreshDevPanel(); }, 50);
             if (tabName === 'game') setTimeout(() => {
@@ -20637,6 +20721,13 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 document.getElementById('exerciseName').appendChild(progressionBadge);
             }
             
+            // 🫁 Retirer le guide de respiration si l'exercice courant n'est pas une pose yoga
+            // (sinon un pacer résiduel pourrait rester sur un exercice en mode reps).
+            (function(){
+                const _isYogaPose = currentWorkout && currentWorkout._discipline === 'yoga' && exercise && !exercise.isRest && !exercise.isInfo;
+                if (!_isYogaPose) { const _bp = document.getElementById('awakBreathPacer'); if (_bp) _bp.remove(); }
+            })();
+
             // 🎯 Encart prescription (séries × reps · repos + autorégulation)
             (function(){
                 const host = document.getElementById('exerciseName');
@@ -21288,9 +21379,16 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 && exercise && !exercise.isRest && !exercise.isInfo;
             // Cadre visuel : en yoga sans image, on laisse le guide de respiration comme visuel central.
             const vf = document.getElementById('exerciseVisualFrame');
-            if (vf && isYoga) {
-                const hasImg = window.EXERCISE_IMAGES && (window.EXERCISE_IMAGES[exercise._baseName || exercise.name] || window.EXERCISE_IMAGES[exercise.name]);
-                if (!hasImg) vf.style.display = 'none';
+            if (vf) {
+                let hideVf = false;
+                if (isYoga) {
+                    const hasImg = window.EXERCISE_IMAGES && (window.EXERCISE_IMAGES[exercise._baseName || exercise.name] || window.EXERCISE_IMAGES[exercise.name]);
+                    hideVf = !hasImg;
+                }
+                // Ne masquer que pour une pose yoga sans image ; sinon restaurer le cadre
+                // (sinon il resterait caché sur les poses/exercices suivants).
+                if (hideVf) { vf.style.display = 'none'; vf.dataset.yogaHidden = '1'; }
+                else if (vf.dataset.yogaHidden) { vf.style.display = ''; delete vf.dataset.yogaHidden; }
             }
             if (!isYoga) { if (existing) existing.remove(); return; }
             if (existing) return;
@@ -32576,6 +32674,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const thumb   = document.getElementById('gameModeThumb');
             const preview = document.getElementById('gameModePreview');
             const navTab  = document.getElementById('gameNavTab');
+            const failleBtn = document.getElementById('quickFailleBtn'); if (failleBtn) failleBtn.style.display = enabled ? '' : 'none';
             if (slider)  slider.style.background = enabled ? '#16a34a' : '#ccc';
             if (thumb)   thumb.style.transform   = enabled ? 'translateX(24px)' : 'translateX(0)';
             if (preview) preview.style.display   = enabled ? 'block' : 'none';
@@ -32610,6 +32709,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const thumb   = document.getElementById('gameModeThumb');
             const preview = document.getElementById('gameModePreview');
             const navTab  = document.getElementById('gameNavTab');
+            const failleBtn = document.getElementById('quickFailleBtn'); if (failleBtn) failleBtn.style.display = enabled ? '' : 'none';
             if (toggle)  toggle.checked             = enabled;
             if (slider)  slider.style.background    = enabled ? '#16a34a' : '#ccc';
             if (thumb)   thumb.style.transform      = enabled ? 'translateX(24px)' : 'translateX(0)';
@@ -34938,6 +35038,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 type: 'discipline',
                 _discipline: disciplineId,
                 badgeHTML: emoji + ' ' + (d ? d.name : 'Discipline'),
+                badgeColor: color,
                 badgeStyle: 'linear-gradient(135deg,' + color + ',' + color + 'dd)'
             };
             if (typeof switchTab === 'function') switchTab('workouts');
@@ -37649,6 +37750,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
             const oldEx   = currentWorkout.exercises[currentExerciseIndex];
             const oldName = oldEx.name || oldEx;
+
+            // 🆕 Mémoriser que cet exercice a été remplacé (pour le proposer moins à l'avenir),
+            // sauf en séance de discipline (yoga, etc.) où le remplacement reste dans la discipline.
+            if (!currentWorkout._discipline) awakRecordSwap(oldName);
 
             // Remplacer dans le tableau de la séance
             currentWorkout.exercises[currentExerciseIndex] = {

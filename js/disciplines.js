@@ -74,7 +74,7 @@
     },
     hiit: { id: 'hiit', name: 'HIIT', emoji: '🔥', color: '#f97316', voie: 'La Voie de la Fournaise', mode: 'round', role: 'principal', tagline: 'Circuits métaboliques haute intensité.' },
     core: { id: 'core', name: 'Gainage', emoji: '🧱', color: '#eab308', voie: 'La Voie du Roc', mode: 'timer', role: 'principal', tagline: 'Sangle abdominale et stabilité.' },
-    yoga: { id: 'yoga', name: 'Yoga', emoji: '🪷', color: '#d946ef', voie: 'La Voie du Zen', mode: 'timer', role: 'principal', tagline: 'Flows, postures et respiration.' }
+    yoga: { id: 'yoga', name: 'Yoga', emoji: '🪷', color: '#a78bfa', voie: 'La Voie du Zen', mode: 'timer', role: 'principal', tagline: 'Flows, postures et respiration.' }
   };
 
   // Ordre d'affichage stable (pour les listes/sélecteurs des briques suivantes)
@@ -643,7 +643,7 @@
     };
     var recipe = RECIPE[focus] || RECIPE.complet;
 
-    var mainCount = Math.max(2, Math.min(9, Math.round(durationMin / 2.2)));
+    var mainCount = Math.max(2, Math.min(14, Math.round(durationMin / 1.8)));
     var roles = ['center', 'warm'];
     for (var i = 0; i < mainCount; i++) { roles.push(recipe[i % recipe.length]); }
     if (durationMin >= 8) { roles.push('calm'); }
@@ -662,9 +662,9 @@
     });
 
     var BASE = {
-      doux: { center: 60, warm: 45, sun: 70, stand: 30, hips: 55, back: 50, twist: 35, calm: 75, final: 90 },
-      normal: { center: 45, warm: 40, sun: 60, stand: 28, hips: 45, back: 42, twist: 28, calm: 60, final: 75 },
-      dynamique: { center: 30, warm: 30, sun: 55, stand: 24, hips: 35, back: 35, twist: 24, calm: 45, final: 60 }
+      doux:      { center: 60, warm: 45, sun: 70, stand: 40, hips: 70, back: 50, twist: 55, calm: 95,  final: 120 },
+      normal:    { center: 45, warm: 40, sun: 60, stand: 35, hips: 58, back: 42, twist: 48, calm: 78,  final: 95  },
+      dynamique: { center: 30, warm: 30, sun: 55, stand: 30, hips: 45, back: 35, twist: 38, calm: 58,  final: 75  }
     };
     var baseMap = BASE[intensity] || BASE.normal;
     poses.forEach(function (p, idx) { p.duration = baseMap[roles[idx]] || 40; });
@@ -672,7 +672,28 @@
     // Ajuste pour viser la durée cible (le bilatéral compte ×2)
     var totalSec = poses.reduce(function (t, p) { return t + p.duration * (p.bilateral ? 2 : 1); }, 0);
     var factor = (durationMin * 60) / totalSec;
-    poses.forEach(function (p) { p.duration = Math.max(15, Math.min(180, Math.round(p.duration * factor / 5) * 5)); });
+    // Plafonds par type de pose (selon les experts) : poses actives/de force bornées (≤60s),
+    // poses restauratives plus longues. Le temps en plus va au repos, pas à un guerrier de 2 min.
+    var ROLE_MAX = { center: 90, warm: 60, sun: 75, stand: 60, hips: 150, back: 60, twist: 75, calm: 180, final: 180 };
+    poses.forEach(function (p, idx) {
+      var cap = ROLE_MAX[roles[idx]] || 120;
+      p.duration = Math.max(15, Math.min(cap, Math.round(p.duration * factor / 5) * 5));
+    });
+    // Le plafonnement peut laisser la séance sous la cible → on rallonge les poses qui
+    // supportent des maintiens longs (hanches, torsions, calme, savasana) jusqu'à combler.
+    var ABSORB = { hips: 90, twist: 70, calm: 120, final: 180 };
+    var targetSec = durationMin * 60;
+    for (var pass = 0; pass < 5; pass++) {
+      var cur = poses.reduce(function (t, p) { return t + p.duration * (p.bilateral ? 2 : 1); }, 0);
+      var deficit = targetSec - cur;
+      if (deficit <= 10) { break; }
+      var idxs = [];
+      poses.forEach(function (p, idx) { var cap = ABSORB[roles[idx]]; if (cap && p.duration < cap) { idxs.push(idx); } });
+      if (!idxs.length) { break; }
+      var weight = idxs.reduce(function (n, idx) { return n + (poses[idx].bilateral ? 2 : 1); }, 0);
+      var addPer = Math.max(5, Math.round((deficit / weight) / 5) * 5);
+      idxs.forEach(function (idx) { var cap = ABSORB[roles[idx]]; poses[idx].duration = Math.min(cap, poses[idx].duration + addPer); });
+    }
 
     var labels = { reveil: 'Réveil', detente: 'Détente', antistress: 'Anti-stress', dos: 'Dos & posture', hanches: 'Hanches', souplesse: 'Souplesse', equilibre: 'Équilibre', complet: 'Complète' };
     YOGA_CUSTOM = {
