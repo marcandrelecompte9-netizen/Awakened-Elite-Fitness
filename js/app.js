@@ -8212,6 +8212,104 @@
             speak("Nouveau plan généré");
         }
 
+        // ===== PLAN HEBDOMADAIRE BÂTI PAR L'IA =====
+        // Construit un split adapté à la fréquence choisie + l'objectif du profil,
+        // avec répartition automatique des jours de repos. Même structure que les variantes.
+        function generateAIWeeklyPlan(goal, days, equip) {
+            goal = goal || 'fitness';
+            days = Math.max(2, Math.min(6, days || 3));
+            equip = equip || [];
+            const DAYS = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
+            const TRAIN = { 2:[0,3], 3:[0,2,4], 4:[0,1,3,4], 5:[0,1,2,4,5], 6:[0,1,2,3,4,5] }[days];
+            const FULLA = { focus:'Corps entier A', muscles:['Pectoraux','Dos','Quadriceps','Abdominaux'] };
+            const FULLB = { focus:'Corps entier B', muscles:['Pectoraux','Dos','Ischio-jambiers','Épaules'] };
+            const FULLC = { focus:'Corps entier C', muscles:['Pectoraux','Dos','Quadriceps','Biceps'] };
+            const UPPER = { focus:'Haut du corps', muscles:['Pectoraux','Dos','Épaules','Biceps','Triceps'] };
+            const LOWER = { focus:'Bas du corps', muscles:['Quadriceps','Ischio-jambiers','Fessiers','Mollets'] };
+            const PUSH  = { focus:'Poussée — Pecs/Épaules/Triceps', muscles:['Pectoraux','Épaules','Triceps'] };
+            const PULL  = { focus:'Tirage — Dos/Biceps', muscles:['Dos','Biceps'] };
+            const LEGS  = { focus:'Jambes', muscles:['Quadriceps','Ischio-jambiers','Fessiers','Mollets'] };
+            const strengthy = (goal === 'muscle_gain' || goal === 'strength');
+            let blocks;
+            // Choix scientifique : maximiser la fréquence par muscle (2×+/sem bat 1×/sem,
+            // méta-analyses Schoenfeld). 3 j → corps entier (3×/sem) plutôt que PPL (1×/sem).
+            if (days <= 2)       blocks = [FULLA, FULLB];                 // 2×/sem chaque muscle
+            else if (days === 3) blocks = [FULLA, FULLB, FULLC];         // 3×/sem chaque muscle
+            else if (days === 4) blocks = [UPPER, LOWER, UPPER, LOWER];  // 2×/sem haut & bas
+            else if (days === 5) blocks = [PUSH, PULL, LEGS, UPPER, LOWER]; // ~2×/sem
+            else                 blocks = [PUSH, PULL, LEGS, PUSH, PULL, LEGS]; // 2×/sem
+            const intensity = strengthy ? 'high' : (goal === 'endurance' ? 'moderate' : 'high');
+            let restSeen = 0;
+            return DAYS.map(function (d, i) {
+                const ti = TRAIN.indexOf(i);
+                if (ti === -1) {
+                    restSeen++;
+                    return (restSeen === 1)
+                        ? { day:d, focus:'Repos actif / Mobilité', intensity:'low', muscles:[] }
+                        : { day:d, focus:'Repos', intensity:'rest', muscles:[] };
+                }
+                const b = blocks[ti % blocks.length];
+                let muscles = b.muscles.slice(), focus = b.focus;
+                if (goal === 'weight_loss') { muscles = muscles.concat('Cardio'); focus += ' + Cardio'; }
+                return { day:d, focus:focus, intensity:intensity, muscles:muscles };
+            });
+        }
+        function buildAIPlan(days) {
+            const profile = (typeof getUserProfile === 'function') ? getUserProfile() : { goal:'fitness' };
+            const equip = (typeof getSelectedEquipmentNames === 'function') ? getSelectedEquipmentNames() : [];
+            const yogaEl = document.getElementById('aiPlanYoga');
+            const withYoga = yogaEl ? yogaEl.checked : true;
+            const plan = generateAIWeeklyPlan(profile.goal, days, equip);
+            saveAutoWeeklyPlan(plan);
+            // 🪷 Yoga en récupération active : posé sur le jour de récup (chip lançable dans le plan).
+            if (withYoga && typeof addComplementaryDiscipline === 'function') {
+                const recoIdx = plan.findIndex(function (d) { return d.intensity === 'low'; });
+                if (recoIdx >= 0) {
+                    const already = (typeof getComplementaryDisciplines === 'function') &&
+                        getComplementaryDisciplines().some(function (e) { return e.disciplineId === 'yoga' && Array.isArray(e.days) && e.days.indexOf(recoIdx) !== -1; });
+                    if (!already) addComplementaryDiscipline('yoga', [recoIdx]);
+                }
+            }
+            const m = document.getElementById('aiPlanModal'); if (m) m.remove();
+            if (typeof renderWeeklyPlan === 'function') renderWeeklyPlan();
+            const labels = { strength:'Force', muscle_gain:'Hypertrophie', endurance:'Endurance', weight_loss:'Perte de poids', fitness:'Forme' };
+            if (typeof showToast === 'function') showToast('🤖 Plan ' + days + ' j/sem · ' + (labels[profile.goal]||'Forme') + (withYoga ? ' · 🪷 yoga' : '') + ' généré', 'success', 3500);
+            if (typeof speak === 'function') speak('Plan généré');
+            setTimeout(function(){ const c = document.getElementById('weeklyPlanContainer'); if (c) c.scrollIntoView({behavior:'smooth',block:'start'}); }, 200);
+        }
+        function openAIPlanPicker() {
+            const old = document.getElementById('aiPlanModal'); if (old) old.remove();
+            const profile = (typeof getUserProfile === 'function') ? getUserProfile() : { goal:'fitness' };
+            const equip = (typeof getSelectedEquipmentNames === 'function') ? getSelectedEquipmentNames() : [];
+            const labels = { strength:'Force', muscle_gain:'Hypertrophie', endurance:'Endurance', weight_loss:'Perte de poids', fitness:'Forme' };
+            // Toujours corps entier pour 3 j (meilleure fréquence) quel que soit l'objectif.
+            const splitName = { 2:'Corps entier ×2', 3:'Corps entier ×3', 4:'Haut / Bas ×2', 5:'PPL + Haut/Bas', 6:'Push/Pull/Legs ×2' };
+            const btns = [2,3,4,5,6].map(function (n) {
+                return '<button onclick="buildAIPlan('+n+')" style="display:flex;justify-content:space-between;align-items:center;width:100%;margin-bottom:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(34,197,94,0.4);color:#fff;border-radius:12px;padding:13px 15px;font-weight:700;font-size:0.92em;cursor:pointer;"><span>'+n+' jours / semaine</span><span style="color:#4ade80;font-size:0.8em;font-weight:600;">'+splitName[n]+'</span></button>';
+            }).join('');
+            // Équipement détecté
+            const equipTxt = equip.length ? equip.join(', ') : 'Poids du corps uniquement';
+            const equipNote = equip.length
+                ? 'L\'IA ne proposera que des exercices réalisables avec : <strong style="color:#e2e8f0;">' + equipTxt + '</strong>.'
+                : 'Aucun équipement coché → l\'IA privilégiera les <strong style="color:#e2e8f0;">mouvements au poids du corps</strong>.';
+            const modal = document.createElement('div');
+            modal.className = 'modal active';
+            modal.id = 'aiPlanModal';
+            modal.innerHTML = '<div class="modal-content" style="max-width:440px;max-height:85vh;overflow-y:auto;-webkit-overflow-scrolling:touch;border-top:3px solid #22c55e;">'
+                + '<div class="modal-header"><h2 style="font-size:1em;">🤖 Plan créé par l\'IA</h2><button onclick="document.getElementById(\'aiPlanModal\').remove()" style="background:none;border:none;font-size:1.5em;cursor:pointer;color:#94a3b8;">×</button></div>'
+                + '<div class="modal-body">'
+                + '<div style="color:#94a3b8;font-size:0.85em;margin-bottom:12px;line-height:1.5;">Programme équilibré selon ton objectif (<strong style="color:#4ade80;">'+(labels[profile.goal]||'Forme')+'</strong>). Split, fréquence par muscle et repos placés selon les données : <strong style="color:#e2e8f0;">2×+/sem par muscle dès 4 jours</strong> (la fréquence 2×/sem bat 1×/sem pour l\'hypertrophie). À 3 j, corps entier = gros groupes 3×/sem.</div>'
+                + '<div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.25);border-radius:10px;padding:9px 12px;margin-bottom:14px;font-size:0.78em;color:#94a3b8;line-height:1.5;">🏋️ ' + equipNote + '</div>'
+                + btns
+                + '<label style="display:flex;align-items:center;gap:10px;margin-top:10px;padding:11px 13px;background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.3);border-radius:12px;cursor:pointer;font-size:0.85em;color:#e2e8f0;"><input type="checkbox" id="aiPlanYoga" checked style="width:18px;height:18px;accent-color:#a78bfa;cursor:pointer;"> 🪷 Yoga en récupération active (jour de repos)</label>'
+                + '<div style="margin-top:12px;font-size:0.76em;color:#64748b;line-height:1.5;">💡 Astuce : commence chaque jour d\'entraînement par un <strong style="color:#94a3b8;">Réveil matinal</strong> (5 min) pour préparer les articulations.</div>'
+                + '</div></div>';
+            document.body.appendChild(modal);
+        }
+        window.openAIPlanPicker = openAIPlanPicker;
+        window.buildAIPlan = buildAIPlan;
+        window.generateAIWeeklyPlan = generateAIWeeklyPlan;
+
         // ========== DISCIPLINES COMPLÉMENTAIRES (rituels) — Brique 2 ==========
         // Séances récurrentes posées sur des jours précis (ex. « Yoga le dimanche »),
         // en parallèle du programme principal. Persisté par profil (fallback localStorage).
@@ -8368,7 +8466,8 @@
             
             let html = '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 10px; flex-wrap: wrap;">';
             html += '<h3 style="margin: 0;">📅 Plan de la semaine</h3>';
-            html += '<div style="display: flex; gap: 10px;">';
+            html += '<div style="display: flex; gap: 10px; flex-wrap: wrap;">';
+            html += '<button onclick="openAIPlanPicker()" class="btn" style="padding: 8px 15px; font-size: 0.9em; background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);">🤖 Plan IA</button>';
             html += '<button onclick="showManualPlanEditor()" class="btn" style="padding: 8px 15px; font-size: 0.9em; background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);">✏️ Créer manuel</button>';
             html += '<button onclick="showRitualsManager()" class="btn" style="padding: 8px 15px; font-size: 0.9em; background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);">✨ Rituels</button>';
             html += '</div>';
@@ -25031,6 +25130,17 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             // Si déjà en mode dev, proposer de le désactiver
             if (localStorage.getItem('awakDevMode') === '1') {
                 _awakVersionTaps++;
+                // 1er tap : révéler le panneau (souvent l'utilisateur ne le trouve pas, il est en bas).
+                if (_awakVersionTaps === 1) {
+                    const panel = document.getElementById('devModePanel');
+                    if (panel) {
+                        try { panel.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {}
+                        panel.style.transition = 'box-shadow 0.4s';
+                        panel.style.boxShadow = '0 0 0 3px rgba(168,85,247,0.7), 0 0 30px rgba(168,85,247,0.5)';
+                        setTimeout(() => { panel.style.boxShadow = 'none'; }, 1800);
+                    }
+                    if (typeof showToast === 'function') showToast('🔧 Mode dev déjà actif · 7 taps pour le désactiver', 'info', 2200);
+                }
                 if (_awakVersionTaps >= 7) {
                     _awakVersionTaps = 0;
                     localStorage.removeItem('awakDevMode');
@@ -25043,9 +25153,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             }
             _awakVersionTaps++;
             clearTimeout(_awakVersionTapTimer);
-            // Compte à rebours visuel à partir de 4 taps
+            // Compte à rebours visuel à partir de 3 taps
             const remaining = 7 - _awakVersionTaps;
-            if (remaining > 0 && _awakVersionTaps >= 4 && typeof showToast === 'function') {
+            if (remaining > 0 && _awakVersionTaps >= 3 && typeof showToast === 'function') {
                 showToast(`Encore ${remaining} pour le mode développeur…`, 'info', 1200);
             }
             if (_awakVersionTaps >= 7) {
@@ -25053,7 +25163,16 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 localStorage.setItem('awakDevMode', '1');
                 if (typeof awakRefreshDevPanel === 'function') awakRefreshDevPanel();
                 if (typeof showToast === 'function') showToast('🔧 Mode développeur ACTIVÉ !', 'success', 3000);
-                // S'assurer qu'on est dans l'onglet réglages pour voir le panneau apparaître
+                // Rendre le panneau immédiatement repérable (il est en bas des réglages).
+                setTimeout(() => {
+                    const panel = document.getElementById('devModePanel');
+                    if (panel) {
+                        try { panel.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {}
+                        panel.style.transition = 'box-shadow 0.4s';
+                        panel.style.boxShadow = '0 0 0 3px rgba(168,85,247,0.7), 0 0 30px rgba(168,85,247,0.5)';
+                        setTimeout(() => { panel.style.boxShadow = 'none'; }, 1800);
+                    }
+                }, 200);
             }
             // Reset le compteur si pas de tap pendant 1,5 s
             _awakVersionTapTimer = setTimeout(() => { _awakVersionTaps = 0; }, 1500);
@@ -34893,7 +35012,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const modal = document.createElement('div');
             modal.className = 'modal active';
             modal.id = 'yogaQuizModal';
-            modal.innerHTML = '<div class="modal-content" style="max-width:440px;border-top:3px solid ' + yc + ';"><div class="modal-header"><h2 style="font-size:1em;">🧭 Quiz yoga</h2><button onclick="closeYogaQuiz()" style="background:none;border:none;font-size:1.5em;cursor:pointer;color:#94a3b8;">×</button></div><div class="modal-body">' + body + '</div></div>';
+            modal.innerHTML = '<div class="modal-content" style="max-width:440px;max-height:85vh;overflow-y:auto;-webkit-overflow-scrolling:touch;border-top:3px solid ' + yc + ';"><div class="modal-header"><h2 style="font-size:1em;">🧭 Quiz yoga</h2><button onclick="closeYogaQuiz()" style="background:none;border:none;font-size:1.5em;cursor:pointer;color:#94a3b8;">×</button></div><div class="modal-body">' + body + '</div></div>';
             document.body.appendChild(modal);
         }
         window.openYogaQuiz = openYogaQuiz;
