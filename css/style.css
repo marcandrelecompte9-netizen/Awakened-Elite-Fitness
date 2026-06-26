@@ -6508,3 +6508,9 @@ body { font-variant-numeric: tabular-nums; }
     backdrop-filter: blur(6px);
     box-shadow: 0 2px 12px rgba(0,0,0,0.55) !important;
 }
+
+/* 🗣️ Entrée des répliques de personnage (Esen/Nyra) en séance */
+@keyframes awakPersonaIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}

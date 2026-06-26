@@ -20,7 +20,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=440">
+    <link rel="stylesheet" href="css/style.css?v=445">
 </head>
 <body>
 
@@ -178,7 +178,7 @@
                 max-width: 900px;">
 
             <!-- Bannière image : ratio préservé -->
-            <img src="images/banner.png?v=440"
+            <img src="images/banner.png?v=445"
                  alt="Awakened Elite Fitness"
                  style="width:100%;height:auto;display:block;" />
 
@@ -338,6 +338,7 @@
 
                 <div id="weeklyVolumeWidget" style="display:none;"></div>
                 <div id="weeklyMuscleVolume" style="margin-bottom:14px;"></div>
+                <div id="sexFocusCard" style="margin-bottom:14px;"></div>
 
                 <div style="display:flex;align-items:center;gap:18px;margin-bottom:12px;">
                     <div style="position:relative;width:90px;height:90px;flex-shrink:0;">
@@ -2133,10 +2134,10 @@
 
             <!-- 🔖 Version -->
             <div class="card" style="display:flex;align-items:center;gap:14px;">
-                <div onclick="awakVersionTap()" style="font-size:2em;flex-shrink:0;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;">🔖</div>
+                <div onclick="awakVersionTap()" style="font-size:2em;flex-shrink:0;cursor:pointer;user-select:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent;">🔖</div>
                 <div style="flex:1;min-width:0;">
                     <div style="font-weight:800;color:#e2e8f0;font-size:1em;">Version</div>
-                    <div onclick="awakVersionTap()" style="font-size:0.78em;color:#4ade80;font-weight:700;margin-top:2px;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;">v0.90 · awakened</div>
+                    <div onclick="awakVersionTap()" style="font-size:0.78em;color:#4ade80;font-weight:700;margin-top:2px;cursor:pointer;user-select:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent;">v0.90 · awakened</div>
                 </div>
                 <button onclick="if(confirm('Forcer la mise à jour de l\\'app ?\\n\\nCela nettoiera complètement le cache et rechargera la dernière version.')) forceAppUpdate();" style="flex-shrink:0;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:#4ade80;border-radius:10px;padding:8px 12px;font-size:0.72em;font-weight:800;cursor:pointer;">🔄 Mettre à jour</button>
             </div>
@@ -3026,6 +3027,24 @@
                 💡 <strong>Débutant :</strong> Séances équilibrées avec 40% d'exercices de base (squats, pompes), 50% d'isolation et 10% de finition. Repos de 60s entre séries.
             </div>
 
+            <div style="margin-top: 15px;">
+                <span style="display: block; margin-bottom: 5px; font-weight: bold; color: #16a34a; font-size: 0.9em;">⚧ Sexe (pour des suggestions adaptées)</span>
+                <select id="profileSex" style="width: 100%; padding: 12px; border: 2px solid rgba(255,255,255,0.12); border-radius: 10px;">
+                    <option value="">Préfère ne pas préciser</option>
+                    <option value="homme">Homme</option>
+                    <option value="femme">Femme</option>
+                </select>
+            </div>
+
+            <div style="margin-top: 15px;">
+                <span style="display: block; margin-bottom: 5px; font-weight: bold; color: #a78bfa; font-size: 0.9em;">🎭 Ton héros d'aventure</span>
+                <select id="profileHero" style="width: 100%; padding: 12px; border: 2px solid rgba(167,139,250,0.3); border-radius: 10px;">
+                    <option value="">Laisser le duo m'accompagner</option>
+                    <option value="esen">Esen — silencieux, déterminé</option>
+                    <option value="nyra">Nyra — taquine, énergique</option>
+                </select>
+            </div>
+
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
                 <div>
                     <span style="display: block; margin-bottom: 5px; font-weight: bold; color: #16a34a; font-size: 0.9em;">🎂 Âge (optionnel)</span>
@@ -3539,19 +3558,19 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/exercises.js?v=440"></script>
-    <script src="data/items.js?v=440"></script>
-    <script src="js/adventure.js?v=440"></script>
-    <script src="js/economy.js?v=440"></script>
-    <script src="js/challenges.js?v=440"></script>
-    <script src="js/exercise-visuals.js?v=440"></script>
-    <script src="js/strength-standards.js?v=440"></script>
-    <script src="js/system-cards.js?v=440"></script>
-    <script src="js/share-card.js?v=440"></script>
-    <script src="js/story-events.js?v=440"></script>
-    <script src="js/final-boss.js?v=440"></script>
-    <script src="js/disciplines.js?v=440"></script>
-    <script src="js/app.js?v=440"></script>
+    <script src="js/exercises.js?v=445"></script>
+    <script src="data/items.js?v=445"></script>
+    <script src="js/adventure.js?v=445"></script>
+    <script src="js/economy.js?v=445"></script>
+    <script src="js/challenges.js?v=445"></script>
+    <script src="js/exercise-visuals.js?v=445"></script>
+    <script src="js/strength-standards.js?v=445"></script>
+    <script src="js/system-cards.js?v=445"></script>
+    <script src="js/share-card.js?v=445"></script>
+    <script src="js/story-events.js?v=445"></script>
+    <script src="js/final-boss.js?v=445"></script>
+    <script src="js/disciplines.js?v=445"></script>
+    <script src="js/app.js?v=445"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>

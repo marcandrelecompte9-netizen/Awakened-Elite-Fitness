@@ -1939,6 +1939,18 @@
             if (hasLowerBody && targetMuscles.includes('Quadriceps')) {
                 warmup.push({ name: "Squats légers", duration: 60, mode: "timer", muscle: "Quadriceps", equipment: ["Poids du corps"], type: "warmup", instructions: ["Amplitude réduite", "Focus sur la forme"] });
             }
+
+            // ⚧ Préhab ciblée selon le sexe (mêmes principes, nuances fondées) :
+            // femmes → fessiers/abducteurs (stabilité du genou, Q-angle) ; hommes → mobilité (souvent moins souples).
+            try {
+                const _sx = (typeof awakUserSex === 'function') ? awakUserSex() : '';
+                if (_sx === 'femme' && hasLowerBody) {
+                    warmup.push({ name: "Abductions de hanche (préhab)", duration: 45, mode: "timer", muscle: "Fessiers", equipment: ["Poids du corps"], type: "warmup", instructions: ["Sur le côté, jambe tendue", "Montez la jambe avec contrôle", "Renforce la stabilité du genou"] });
+                    warmup.push({ name: "Activation fessiers (clamshell)", duration: 40, mode: "timer", muscle: "Fessiers", equipment: ["Poids du corps"], type: "warmup", instructions: ["Allongé sur le côté, genoux pliés", "Ouvrez le genou du dessus", "Bassin stable"] });
+                } else if (_sx === 'homme') {
+                    warmup.push({ name: "Mobilité hanches & épaules (préhab)", duration: 50, mode: "timer", muscle: "Corps entier", equipment: ["Poids du corps"], type: "warmup", instructions: ["Rotations amples des hanches", "Cercles d'épaules profonds", "Gagnez en amplitude"] });
+                }
+            } catch (e) {}
             
             // Durée adaptative selon intensité
             if (intensity >= 1.1) {
@@ -5657,6 +5669,14 @@
             if (structureType === 'compound') rest = Math.round(rest * 1.15);   // gros mouvements → +repos
             else if (structureType === 'finisher') rest = Math.round(rest * 0.7);
             if (exerciseType === 'cardio') rest = Math.min(rest, 40);
+            // ⚧ Nuances physiologiques fondées (mêmes principes d'entraînement) :
+            // les femmes récupèrent plus vite entre séries et tolèrent un peu plus de volume.
+            try {
+                if (awakUserSex() === 'femme') {
+                    rest = Math.round(rest * 0.88);                                  // récup plus rapide
+                    if (structureType === 'compound' && sets < 5) sets += 1;         // volume un peu plus élevé sur les gros lifts
+                }
+            } catch (e) {}
             return { sets, reps: base.reps, rest };
         }
         // Autorégulation : ajuste le conseil d'après le dernier ressenti (RPE 1-5).
@@ -5700,6 +5720,65 @@
             }
             return workout;
         }
+
+        // ───────────────────────────────────────────────────────────────
+        // 🗣️ COACHING DES PERSONNAGES (Esen / Nyra) pendant la séance.
+        // Esen : laconique, stoïque. Nyra : taquine, joueuse. Couche mode jeu.
+        // ───────────────────────────────────────────────────────────────
+        const AWAK_PERSONA_LINES = {
+            setDone: {
+                esen: ['« Bien. Continue. »', '« Propre. »', '« Garde le rythme. »', '« Encore. »', '« Solide. »', '« C\'est ça. »'],
+                nyra: ['« Pas mal du tout ! »', '« Allez, tu assures 😏 »', '« Et une de plus dans la poche ! »', '« Tu vois, c\'est pas si dur ! »', '« On enchaîne, champion ! »', '« Joli ! »']
+            },
+            lastSet: {
+                esen: ['« Dernière. Donne tout. »', '« La dernière compte double. »', '« Termine ce que tu as commencé. »'],
+                nyra: ['« Dernière série — on lâche rien ! 💪 »', '« Le bouquet final, vas-y ! »', '« Montre-moi ce que t\'as dans le ventre ! »']
+            },
+            pr: {
+                esen: ['« Nouveau record. Mérité. »', '« Tu progresses. Je le vois. »', '« ...Impressionnant. »'],
+                nyra: ['« UN RECORD ?! T\'es en feu ! 🔥 »', '« Ok là, je suis bluffée ! »', '« Une vraie machine ! »']
+            }
+        };
+        let _awakLastPersona = null;
+        function awakPersonaCoach(event) {
+            try {
+                if (typeof rpgEnabled === 'function' && !rpgEnabled()) return; // personas = couche jeu
+                const pool = AWAK_PERSONA_LINES[event];
+                if (!pool) return;
+                // Si un héros est choisi, c'est surtout le COMPAGNON (l'autre) qui t'encourage.
+                const hero = (typeof awakUserHero === 'function') ? awakUserHero() : '';
+                let speaker;
+                if (hero === 'esen') speaker = Math.random() < 0.7 ? 'nyra' : 'esen';
+                else if (hero === 'nyra') speaker = Math.random() < 0.7 ? 'esen' : 'nyra';
+                else {
+                    speaker = Math.random() < 0.5 ? 'esen' : 'nyra';
+                    if (speaker === _awakLastPersona) speaker = (speaker === 'esen') ? 'nyra' : 'esen';
+                }
+                _awakLastPersona = speaker;
+                const lines = pool[speaker];
+                if (!lines || !lines.length) return;
+                const text = lines[Math.floor(Math.random() * lines.length)];
+                const name = speaker === 'esen' ? 'Esen' : 'Nyra';
+                const color = speaker === 'esen' ? '#67e8f9' : '#f0abfc'; // Esen cyan calme · Nyra fuchsia
+                awakShowPersonaToast(text, name, color);
+            } catch (e) {}
+        }
+        function awakShowPersonaToast(text, name, color) {
+            let host = document.getElementById('awakPersonaToast');
+            if (!host) {
+                host = document.createElement('div');
+                host.id = 'awakPersonaToast';
+                host.style.cssText = 'position:fixed;left:50%;bottom:108px;transform:translateX(-50%);z-index:9500;max-width:88%;width:max-content;pointer-events:none;';
+                document.body.appendChild(host);
+            }
+            host.innerHTML = '<div style="background:rgba(3,7,18,0.93);border:1px solid ' + color + '55;border-left:3px solid ' + color + ';border-radius:12px;padding:8px 14px;box-shadow:0 8px 28px rgba(0,0,0,0.55);backdrop-filter:blur(6px);animation:awakPersonaIn 0.32s cubic-bezier(0.22,1,0.36,1);">'
+                + '<div style="font-size:0.62em;font-weight:800;letter-spacing:1.5px;color:' + color + ';text-transform:uppercase;margin-bottom:2px;">' + name + '</div>'
+                + '<div style="font-size:0.9em;color:#e2e8f0;font-style:italic;line-height:1.35;">' + text + '</div>'
+                + '</div>';
+            clearTimeout(window._awakPersonaToastT);
+            window._awakPersonaToastT = setTimeout(function () { if (host) host.innerHTML = ''; }, 3400);
+        }
+        window.awakPersonaCoach = awakPersonaCoach;
 
         // ───────────────────────────────────────────────────────────────
         // VOLUME HEBDOMADAIRE par muscle (à partir de musclesWeighted de l'historique).
@@ -5780,6 +5859,58 @@
             return _awakFavCache;
         }
 
+        // ───────────────────────────────────────────────────────────────
+        // 🔥 POPULARITÉ DES EXERCICES (StrengthLog — millions de séances loggées).
+        // tier 1 = top ~10 mondial · tier 2 = 11-25 · sex = penchant marqué ('M'/'F') sinon null.
+        // Sert au badge « Populaire » et à un bonus dans le moteur de sélection IA.
+        // ───────────────────────────────────────────────────────────────
+        const AWAK_POP = {
+            "Développé couché barre": {t:1, sex:'M'}, "Développé couché haltères": {t:1, sex:null},
+            "Squat classique": {t:1, sex:null}, "Squat barre haut": {t:1, sex:null}, "Squat barre bas": {t:1, sex:null},
+            "Soulevé de terre": {t:1, sex:null}, "Tirage vertical large": {t:1, sex:null}, "Lat Pulldown": {t:1, sex:null},
+            "Lat Pulldown prise large": {t:1, sex:null}, "Overhead Press barre": {t:1, sex:null},
+            "Développé militaire haltères": {t:1, sex:null}, "Bent-over row prise large": {t:1, sex:null},
+            "Élévations latérales": {t:1, sex:null}, "Lateral Raise cable": {t:1, sex:null}, "Élévations latérales câble": {t:1, sex:null},
+            "Leg Extension": {t:1, sex:null}, "Presse à jambes horizontale": {t:1, sex:'F'}, "Curl barre": {t:1, sex:'M'},
+            "Tractions pronation": {t:1, sex:null}, "Tractions supination": {t:1, sex:null},
+            "Extension triceps machine": {t:2, sex:null}, "Tricep Pushdown câble": {t:2, sex:null}, "Tricep Pushdown corde": {t:2, sex:null},
+            "Développé incliné barre": {t:2, sex:null}, "Développé incliné machine": {t:2, sex:null}, "Curl biceps haltères": {t:2, sex:null},
+            "Seated Row machine": {t:2, sex:null}, "Leg Curl couché": {t:2, sex:null}, "Leg Curl Machine": {t:2, sex:null},
+            "Rowing haltère un bras": {t:2, sex:null}, "Romanian deadlift": {t:2, sex:'F'}, "Romanian Deadlift barre": {t:2, sex:'F'},
+            "Leg Curl assis": {t:2, sex:null}, "Curl Marteau": {t:2, sex:'M'}, "Cable Fly": {t:2, sex:null}, "Band Face Pull": {t:2, sex:null},
+            "Close-grip Bench Press": {t:2, sex:'M'},
+            // Favoris fortement marqués par sexe (ressortent davantage selon le profil)
+            "Hip thrust": {t:1, sex:'F'}, "Hip thrust barre": {t:2, sex:'F'}, "Hip thrust machine": {t:2, sex:'F'},
+            "Squat bulgare": {t:2, sex:'F'}, "Abduction machine (fessiers)": {t:2, sex:'F'},
+            "Hip Abduction machine": {t:2, sex:'F'}, "Stiff Leg Deadlift": {t:2, sex:'F'}
+        };
+        function awakPopInfo(name) { return (name && AWAK_POP[name]) || null; }
+        function awakUserSex() {
+            try {
+                const p = (typeof getUserProfile === 'function') ? getUserProfile() : null;
+                return (p && p.sex) ? p.sex : ''; // 'homme' | 'femme' | ''
+            } catch (e) { return ''; }
+        }
+        // Héros choisi par le joueur ('esen' | 'nyra' | ''). Le compagnon est l'autre personnage.
+        function awakUserHero() {
+            try {
+                const p = (typeof getUserProfile === 'function') ? getUserProfile() : null;
+                return (p && p.hero) ? p.hero : '';
+            } catch (e) { return ''; }
+        }
+        // Bonus de score : popularité générale (mouvement éprouvé) + affinité avec le sexe du profil.
+        function awakPopBoost(name) {
+            const info = awakPopInfo(name);
+            if (!info) return 0;
+            let b = (info.t === 1) ? 10 : 5;
+            if (info.sex) {
+                const sex = awakUserSex();
+                if ((info.sex === 'F' && sex === 'femme') || (info.sex === 'M' && sex === 'homme')) b += 9;
+            }
+            return b;
+        }
+        window.awakPopInfo = awakPopInfo;
+
         function scoreExercise(ex, profile, recentExercises, performanceHistory, fatiguedMuscles) {
             let score = 50; // base
 
@@ -5818,6 +5949,9 @@
 
             // 🆕 Exercice en favori → petit coup de pouce (préférence affichée par l'utilisateur).
             try { if (awakFavoritesCached().includes(ex.name)) score += 14; } catch (e) {}
+
+            // 🔥 Popularité mondiale (valeur sûre) + affinité avec le sexe du profil → ressort davantage.
+            try { score += awakPopBoost(ex.name); } catch (e) {}
 
             // 🆕 Exercice souvent remplacé → l'utilisateur ne l'aime pas, on le propose moins.
             try {
@@ -7435,6 +7569,10 @@
             document.getElementById('profileGoal').value = profile.goal;
             document.getElementById('profileLevel').value = profile.level;
             document.getElementById('profileAge').value = profile.age;
+            const _sexEl = document.getElementById('profileSex');
+            if (_sexEl) _sexEl.value = profile.sex || '';
+            const _heroEl = document.getElementById('profileHero');
+            if (_heroEl) _heroEl.value = profile.hero || '';
             document.getElementById('profileWeight').value = profile.weight ? fmtWeightVal(profile.weight) : '';
             
             modal.classList.add('active');
@@ -7464,6 +7602,8 @@
                 goal: document.getElementById('profileGoal').value,
                 level: document.getElementById('profileLevel').value,
                 age: parseInt(document.getElementById('profileAge').value) || 30,
+                sex: document.getElementById('profileSex') ? document.getElementById('profileSex').value : '',
+                hero: document.getElementById('profileHero') ? document.getElementById('profileHero').value : '',
                 weight: useKg ? Math.round(_wRaw) : Math.round(_wRaw * 0.453592), // stocké en kg
                 setupComplete: true
             };
@@ -7482,6 +7622,13 @@
             generateWeeklyPlan();
             
             speak("Profil sauvegardé ! Votre plan hebdomadaire a été généré.");
+
+            // 💡 Suggestion d'orientation selon le sexe (informative, jamais imposée).
+            try {
+                const _sx = userProfile.sex;
+                if (_sx === 'femme') setTimeout(() => showToast("💡 Beaucoup de femmes mettent l'accent sur fessiers & jambes — le plan IA peut le cibler.", 'info', 5000), 1400);
+                else if (_sx === 'homme') setTimeout(() => showToast("💡 Beaucoup d'hommes ciblent buste & bras — le plan IA peut l'intégrer.", 'info', 5000), 1400);
+            } catch (e) {}
 
             // Lancer l'onboarding si première fois
             setTimeout(() => showOnboarding(), 400);
@@ -11115,6 +11262,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             // Filtrer pour ne montrer que les vraies PRs (pas le 1er essai d'un exo)
             const filtered = prs.filter(p => p.prev > 0);
             if (filtered.length === 0) return;
+            // 🗣️ Réaction d'Esen/Nyra au record (légèrement décalée pour ne pas chevaucher la bannière)
+            try { setTimeout(function () { awakPersonaCoach('pr'); }, 1400); } catch (e) {}
             const showPrs = filtered;
             const main = showPrs[0];
             const labels = { weight:'POIDS MAX', reps:'REPS MAX', volume:'VOLUME MAX' };
@@ -11259,6 +11408,34 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             } catch(e) { return null; }
         }
 
+        // 📊 Puce « Dernière fois » : rappelle la dernière perf réelle (hors échauffement)
+        // pour viser la progression d'un coup d'œil. Données déjà stockées.
+        function renderLastPerfChip(exerciseName) {
+            try {
+                const perfs = getExercisePerformances();
+                const hist = (perfs && perfs[exerciseName]) || [];
+                let last = null;
+                for (let i = hist.length - 1; i >= 0; i--) {
+                    const s = hist[i];
+                    if (s && !s.warmup && (s.reps || s.weight)) { last = s; break; }
+                }
+                if (!last) return '';
+                const w = last.weight ? (last.weight + (useKg ? ' kg' : ' lbs')) : 'poids du corps';
+                const reps = last.reps || '?';
+                let ago = '';
+                if (last.date) {
+                    const days = Math.floor((Date.now() - Date.parse(last.date)) / 86400000);
+                    ago = days <= 0 ? "aujourd'hui" : days === 1 ? 'hier' : 'il y a ' + days + ' j';
+                }
+                return '<div style="background:rgba(148,163,184,0.08);border:1px solid rgba(148,163,184,0.25);border-radius:10px;padding:7px 11px;margin-bottom:8px;display:flex;align-items:center;gap:8px;">'
+                    + '<div style="font-size:1em;flex-shrink:0;">📊</div>'
+                    + '<div style="flex:1;min-width:0;">'
+                    + '<div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1px;">DERNIÈRE FOIS' + (ago ? ' · ' + ago.toUpperCase() : '') + '</div>'
+                    + '<div style="font-size:0.82em;color:#e2e8f0;font-weight:700;line-height:1.2;margin-top:1px;">' + reps + ' reps × ' + w + '</div>'
+                    + '</div></div>';
+            } catch (e) { return ''; }
+        }
+
         function renderLoadSuggestionChip(exerciseName) {
             const sug = getLoadSuggestion(exerciseName);
             if (!sug) return ''; // Premier essai — pas de suggestion
@@ -11311,9 +11488,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             // 🚀 Surcharge progressive
             const exKey = exercise._baseName || exercise.name;
             if (exKey) showProgressiveOverloadBanner(exKey);
-            // 💡 Suggestion de charge dans la zone tracker
+            // 💡 Dernière perf + suggestion de charge dans la zone tracker
             const sugContainer = document.getElementById('loadSuggestionContainer');
-            if (sugContainer) sugContainer.innerHTML = exKey ? renderLoadSuggestionChip(exKey) : '';
+            if (sugContainer) sugContainer.innerHTML = exKey ? (renderLastPerfChip(exKey) + renderLoadSuggestionChip(exKey)) : '';
             // 📊 Init volume chip
             updateLiveVolumeChip();
         }
@@ -11672,10 +11849,15 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             }
 
             // Démarrer le repos inter-séries
+            // Priorité : réglage manuel de l'utilisateur > repos prescrit par l'IA (objectif/compound)
+            // > repos de la séance > repos global. Avant, recoRest était affiché mais jamais appliqué.
             const exName = currentEx?.name;
             const customRest = exName && exerciseRestOverrides[exName];
-            const restSeconds = isWarmup ? 60 : (customRest || currentWorkout?.restBetweenSets || globalRestSeconds);
+            const restSeconds = isWarmup ? 60 : (customRest || currentEx?.recoRest || currentWorkout?.restBetweenSets || globalRestSeconds);
             startSetRest(restSeconds);
+            // 🗣️ Coaching personnage : dernière série à venir, sinon encouragement ponctuel.
+            if (currentSetNumber === totalSets) awakPersonaCoach('lastSet');
+            else if (!isWarmup && Math.random() < 0.45) awakPersonaCoach('setDone');
         }
 
         function startSetRest(seconds) {
@@ -20146,6 +20328,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                             <div style="flex: 1;">
                                 <div class="exercise-title">${exercise.name}</div>
                                 <div class="muscle-group">${exercise.muscle}</div>
+                                ${awakPopInfo(exercise.name) ? `<div style="display:inline-flex;align-items:center;gap:4px;margin-top:5px;background:linear-gradient(135deg,rgba(249,115,22,0.18),rgba(251,191,36,0.12));border:1px solid rgba(249,115,22,0.45);color:#fb923c;border-radius:20px;padding:2px 9px;font-size:0.66em;font-weight:800;letter-spacing:0.5px;">🔥 POPULAIRE${awakPopInfo(exercise.name).t === 1 ? ' · TOP 10' : ''}</div>` : ''}
                             </div>
                             <div class="difficulty-badge ${difficultyClass}">
                                 ${exercise.difficulty}
@@ -25148,7 +25331,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     if (typeof showToast === 'function') showToast('🔧 Mode développeur désactivé', 'info', 2500);
                 }
                 clearTimeout(_awakVersionTapTimer);
-                _awakVersionTapTimer = setTimeout(() => { _awakVersionTaps = 0; }, 1500);
+                _awakVersionTapTimer = setTimeout(() => { _awakVersionTaps = 0; }, 2500);
                 return;
             }
             _awakVersionTaps++;
@@ -25175,7 +25358,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 }, 200);
             }
             // Reset le compteur si pas de tap pendant 1,5 s
-            _awakVersionTapTimer = setTimeout(() => { _awakVersionTaps = 0; }, 1500);
+            _awakVersionTapTimer = setTimeout(() => { _awakVersionTaps = 0; }, 2500);
         };
 
         // Affiche/masque le panneau développeur selon le nom du profil.
@@ -33246,7 +33429,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 if (heroImg) {
                     const jeuActif = (typeof rpgEnabled === 'function') && rpgEnabled();
                     if (jeuActif) {
-                        const hero = Math.random() < 0.5 ? 'esen' : 'nyra';
+                        const _chosen = (typeof awakUserHero === 'function') ? awakUserHero() : '';
+                        const hero = _chosen || (Math.random() < 0.5 ? 'esen' : 'nyra');
                         const imgTag = heroImg.querySelector('img');
                         if (imgTag) {
                             imgTag.src = 'images/story/' + hero + '_victoire.webp';
@@ -33329,6 +33513,21 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         <div style="font-size:1.5em;margin-bottom:3px;">${emoji}</div>
                         <div style="font-size:0.85em;color:white;font-weight:700;">${verdict}</div>
                     </div>`;
+                    // 📈 Comparaison directe à la séance précédente (le verdict compare à la moyenne).
+                    try {
+                        const hist2 = (typeof getWorkoutHistory === 'function') ? getWorkoutHistory() : [];
+                        // hist2[0] = séance courante (déjà enregistrée) · hist2[1] = précédente
+                        const prevVol = (hist2[1] && hist2[1].volume) ? hist2[1].volume : 0;
+                        if (prevVol > 0 && totalVolume > 0) {
+                            const pct = Math.round((totalVolume - prevVol) / prevVol * 100);
+                            const up = pct >= 0;
+                            const arrow = (pct === 0) ? '➖' : (up ? '▲' : '▼');
+                            const col = (pct === 0) ? '#94a3b8' : (up ? '#4ade80' : '#f59e0b');
+                            const txt = (pct === 0) ? 'Même volume que ta dernière séance'
+                                : (up ? '+' : '') + pct + '% de volume vs ta dernière séance';
+                            verdictEl.innerHTML += '<div style="margin-top:7px;font-size:0.78em;color:' + col + ';font-weight:700;text-align:center;">' + arrow + ' ' + txt + '</div>';
+                        }
+                    } catch (e) {}
                     verdictEl.style.display = 'block';
                 } catch(e) {}
             }
@@ -34503,8 +34702,10 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             // Expose _renderCelebList globally for inline onclick
             window._renderCelebList = _renderList;
 
-            // Render initial tab — show active celebrity's gender first if any
-            const initGender = activeCeleb ? (activeCeleb.gender || 'homme') : 'homme';
+            // Render initial tab — selon le sexe du profil (sinon genre de la star active)
+            const _userSx = (typeof awakUserSex === 'function') ? awakUserSex() : '';
+            const _defGender = (_userSx === 'femme') ? 'femme' : 'homme';
+            const initGender = activeCeleb ? (activeCeleb.gender || _defGender) : _defGender;
             _renderList(initGender);
         }
         function showCelebrityDetail(programId) {
@@ -37361,6 +37562,46 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 '<span style="color:#64748b;font-weight:600;font-size:0.85em;">· 7 j · pondéré</span></div>' + rows + '</div>';
         }
 
+        // ⚧ Séance focus recommandée selon le sexe (préférences réelles, jamais imposée).
+        function awakStartFocusSession(sexKey) {
+            try {
+                const map = {
+                    femme: { label: 'Fessiers & Jambes', muscles: ['Fessiers','Quadriceps','Ischio-jambiers','Mollets'] },
+                    homme: { label: 'Buste & Bras', muscles: ['Pectoraux','Dos','Épaules','Biceps','Triceps'] }
+                };
+                const f = map[sexKey] || map[(typeof awakUserSex === 'function') ? awakUserSex() : ''];
+                if (!f) return;
+                const profile = (typeof getUserProfile === 'function') ? getUserProfile() : {};
+                if (!profile.setupComplete) { if (typeof showProfileSetup === 'function') showProfileSetup(); return; }
+                window._overrideSessionMuscles = f.muscles.slice();
+                if (typeof showToast === 'function') showToast('🎯 ' + f.label, 'info', 1800);
+                if (typeof openWorkoutModeModal === 'function') openWorkoutModeModal();
+            } catch (e) {}
+        }
+        window.awakStartFocusSession = awakStartFocusSession;
+
+        // Carte « Recommandé pour toi » sur l'accueil, selon le sexe du profil.
+        function renderSexFocusCard() {
+            const host = document.getElementById('sexFocusCard');
+            if (!host) return;
+            const sx = (typeof awakUserSex === 'function') ? awakUserSex() : '';
+            if (sx !== 'homme' && sx !== 'femme') { host.innerHTML = ''; return; }
+            const cfg = (sx === 'femme')
+                ? { label: 'Fessiers & Jambes', emoji: '🍑', color: '#ec4899', note: 'Avec activation fessiers/abducteurs (stabilité du genou).' }
+                : { label: 'Buste & Bras', emoji: '💪', color: '#3b82f6', note: 'Avec un peu de mobilité (hanches/épaules).' };
+            host.innerHTML = '<div onclick="awakStartFocusSession(\'' + sx + '\')" '
+                + 'style="background:linear-gradient(135deg,' + cfg.color + '22,' + cfg.color + '0a);border:1px solid ' + cfg.color + '55;border-radius:16px;padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:14px;touch-action:manipulation;">'
+                + '<div style="font-size:1.9em;width:48px;height:48px;border-radius:14px;background:' + cfg.color + '22;display:flex;align-items:center;justify-content:center;flex-shrink:0;">' + cfg.emoji + '</div>'
+                + '<div style="flex:1;min-width:0;">'
+                + '<div style="font-size:0.6em;font-weight:800;letter-spacing:1px;color:' + cfg.color + ';text-transform:uppercase;">⭐ Recommandé pour toi</div>'
+                + '<div style="font-weight:900;color:white;font-size:1em;margin-top:1px;">' + cfg.emoji + ' Séance ' + cfg.label + '</div>'
+                + '<div style="font-size:0.68em;color:#94a3b8;line-height:1.35;margin-top:2px;">' + cfg.note + '</div>'
+                + '</div>'
+                + '<div style="color:' + cfg.color + ';font-size:1.2em;flex-shrink:0;align-self:center;">›</div>'
+                + '</div>';
+        }
+        window.renderSexFocusCard = renderSexFocusCard;
+
         function updateHomeStats() {
             const stats = loadStats();
             const qEl = document.getElementById('homeStatWorkouts');
@@ -37435,6 +37676,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             if (volEl) volEl.innerHTML = '';
             // 📊 Volume hebdomadaire par muscle (réactivé)
             try { renderWeeklyMuscleVolume(); } catch (e) {}
+            try { renderSexFocusCard(); } catch (e) {}
         }
 
         // ══════════════════════════════════════════════════════════
