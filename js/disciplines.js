@@ -74,11 +74,14 @@
     },
     hiit: { id: 'hiit', name: 'HIIT', emoji: '🔥', color: '#f97316', voie: 'La Voie de la Fournaise', mode: 'round', role: 'principal', tagline: 'Circuits métaboliques haute intensité.' },
     core: { id: 'core', name: 'Gainage', emoji: '🧱', color: '#eab308', voie: 'La Voie du Roc', mode: 'timer', role: 'principal', tagline: 'Sangle abdominale et stabilité.' },
-    yoga: { id: 'yoga', name: 'Yoga', emoji: '🪷', color: '#a78bfa', voie: 'La Voie du Zen', mode: 'timer', role: 'principal', tagline: 'Flows, postures et respiration.' }
+    yoga: { id: 'yoga', name: 'Yoga', emoji: '🪷', color: '#a78bfa', voie: 'La Voie du Zen', mode: 'timer', role: 'principal', tagline: 'Flows, postures et respiration.' },
+    pilates: { id: 'pilates', name: 'Pilates', emoji: '🌸', color: '#f472b6', voie: 'La Voie du Centre', mode: 'timer', role: 'principal', tagline: 'Renforcement profond, posture et contrôle.' },
+    barre: { id: 'barre', name: 'Barre', emoji: '🩰', color: '#fb7185', voie: 'La Voie de la Grâce', mode: 'timer', role: 'principal', tagline: 'Petits mouvements pulsés inspirés du ballet.' },
+    serenite: { id: 'serenite', name: 'Sérénité', emoji: '🌬️', color: '#5eead4', voie: 'La Voie du Souffle', mode: 'timer', role: 'principal', tagline: 'Respiration guidée et méditation anti-stress.' }
   };
 
   // Ordre d'affichage stable (pour les listes/sélecteurs des briques suivantes)
-  var DISCIPLINE_ORDER = ['muscu', 'boxe', 'calisthenie', 'course', 'hiit', 'core', 'yoga', 'mobilite'];
+  var DISCIPLINE_ORDER = ['muscu', 'boxe', 'calisthenie', 'course', 'hiit', 'core', 'yoga', 'pilates', 'barre', 'serenite', 'mobilite'];
 
   /* ---- Accesseurs purs (additifs, sans effet de bord) ------------------- */
 
@@ -371,6 +374,53 @@
   var HIIT_SESSIONS = [ { id: 'total', name: 'HIIT total', level: 'Débutant', rest: 25, exercises: HIIT_EXERCISES } ];
   var CORE_SESSIONS = [ { id: 'acier', name: "Sangle d'acier", level: 'Débutant', rest: 15, exercises: CORE_EXERCISES } ];
   var YOGA_SESSIONS = [ { id: 'flow', name: 'Flow Vinyasa doux', level: 'Débutant', rest: 5, exercises: YOGA_EXERCISES } ];
+
+  /* ---- PILATES : renforcement profond, posture, contrôle ---- */
+  var PILATES_EXERCISES = [
+    _dx('pilates', "Respiration & centrage", "Abdominaux", "Réveille le centre (transverse) avant de commencer.", ["Allongée, genoux pliés, pieds au sol", "Inspire par le nez, expire en rentrant le nombril", "Sens le bas-ventre s'engager", "Garde les épaules relâchées"], "Le 'centre' (powerhouse) s'engage à chaque expiration.", 50),
+    _dx('pilates', "Le Cent", "Abdominaux", "Le 'Hundred' : battements de bras rythmés, abdos engagés.", ["Allongée, jambes en table (ou tendues), épaules décollées", "Bras tendus le long du corps, battements amples vers le sol", "Inspire sur 5 battements, expire sur 5", "Ventre rentré tout du long"], "Garde le bas du dos plaqué au sol.", 50),
+    _dx('pilates', "Roll-up", "Abdominaux", "Déroulé lent et contrôlé du dos, vertèbre par vertèbre.", ["Allongée, bras au-dessus de la tête", "Déroule lentement jusqu'à toucher les orteils", "Reviens vertèbre par vertèbre", "Mouvement lent et fluide"], "Évite l'élan : c'est le contrôle qui compte.", 45),
+    _dx('pilates', "Pont fessier (Bridge)", "Fessiers", "Pont contrôlé en déroulant la colonne.", ["Allongée, genoux pliés, pieds écartés largeur de hanches", "Déroule le bassin vers le haut vertèbre par vertèbre", "Serre les fessiers en haut", "Redescends lentement"], "Pousse dans les talons, gaine le ventre.", 50),
+    _dx('pilates', "Single Leg Stretch", "Abdominaux", "Une jambe ramenée, l'autre tendue, en alternance.", ["Épaules décollées, mains sur le genou plié", "Tends l'autre jambe vers l'avant", "Alterne en gardant le buste stable", "Souffle à chaque changement"], "Plus la jambe tendue est basse, plus c'est dur.", 45),
+    _dx('pilates', "Cercles de jambe", "Fessiers", "Petits cercles contrôlés avec une jambe tendue.", ["Allongée, une jambe tendue vers le plafond", "Dessine de petits cercles contrôlés", "Bassin parfaitement stable", "Change de sens puis de jambe"], "Le mouvement vient de la hanche, le tronc ne bouge pas.", 45),
+    _dx('pilates', "La Scie (Saw)", "Obliques", "Assise, rotation du buste et étirement vers le pied opposé.", ["Assise, jambes écartées, bras en croix", "Tourne le buste et viens 'scier' le petit orteil opposé", "Reviens au centre, change de côté", "Grandis-toi à chaque rotation"], "La rotation part de la taille, pas des bras.", 45),
+    _dx('pilates', "Swimming", "Lombaires", "Sur le ventre, battements alternés bras/jambes opposés.", ["Sur le ventre, bras tendus devant", "Lève bras droit + jambe gauche, puis alterne", "Battements amples et contrôlés", "Regard vers le sol, nuque longue"], "Allonge-toi au maximum à chaque battement.", 40),
+    _dx('pilates', "Side Kick", "Fessiers", "Sur le côté, la jambe du dessus balance avant/arrière.", ["Allongée sur le côté, appuyée sur l'avant-bras", "Jambe du dessus à hauteur de hanche", "Balance-la vers l'avant puis l'arrière, contrôlé", "Tronc stable, change de côté à mi-temps"], "Garde le bassin immobile, gaine fort.", 45),
+    _dx('pilates', "Teaser", "Abdominaux", "Le 'V' contrôlé : buste et jambes décollés en équilibre.", ["Allongée, monte buste et jambes en 'V'", "Bras tendus vers les pieds", "Tiens l'équilibre, puis redescends lentement", "Tout en contrôle"], "Plie les genoux pour une version plus accessible.", 40, "Intermédiaire"),
+    _dx('pilates', "Étirement de la colonne", "Dos", "Assise, déroulé du buste vers l'avant pour étirer le dos.", ["Assise, jambes tendues écartées", "Déroule le buste vers l'avant en arrondissant", "Vertèbre par vertèbre, puis remonte", "Souffle en descendant"], "Cherche la longueur, pas la profondeur.", 45)
+  ];
+  var PILATES_SESSIONS = [ { id: 'centre', name: 'Pilates Fondations', level: 'Débutant', rest: 10, exercises: PILATES_EXERCISES } ];
+
+  /* ---- BARRE : petits mouvements pulsés inspirés du ballet ---- */
+  var BARRE_EXERCISES = [
+    _dx('barre', "Échauffement & posture", "Corps entier", "Réveille les jambes et trouve ta posture de danseuse.", ["Debout, talons joints, pointes ouvertes (1re position)", "Grandis-toi, épaules basses, ventre engagé", "Roule les épaules, monte/descends sur les pointes", "Respire"], "Imagine un fil qui te tire vers le plafond.", 45),
+    _dx('barre', "Pliés pulsés", "Quadriceps", "Demi-flexions pulsées, talons joints, dos droit.", ["Talons joints, pointes ouvertes", "Descends en plié (genoux vers l'extérieur)", "Petites pulsations vers le bas", "Dos bien droit, abdos engagés"], "Garde les talons collés et les genoux ouverts.", 50),
+    _dx('barre', "Relevés (pointes)", "Mollets", "Montées sur la pointe des pieds, contrôlées.", ["Debout, appuie-toi à un support léger si besoin", "Monte lentement sur les pointes", "Tiens une seconde en haut, redescends contrôlé", "Gaine le ventre pour l'équilibre"], "Monte le plus haut possible à chaque relevé.", 40),
+    _dx('barre', "Chaise pulsée", "Quadriceps", "Position chaise dos au mur (ou libre), petites pulsations.", ["Descends en position chaise (cuisses vers l'horizontale)", "Petites pulsations vers le bas", "Dos droit, genoux au-dessus des chevilles", "Respire malgré la brûlure"], "Plus tu descends, plus ça chauffe.", 45),
+    _dx('barre', "Arabesque (leg lift)", "Fessiers", "Jambe tendue levée vers l'arrière, pulsée.", ["En appui sur une jambe, l'autre tendue derrière", "Lève-la vers l'arrière par petites pulsations", "Serre le fessier en haut", "Buste stable, change de jambe à mi-temps"], "Garde le bassin droit, ne te penche pas trop.", 45),
+    _dx('barre', "Cuisses internes (adducteurs)", "Adducteurs", "Pulsations qui ciblent l'intérieur des cuisses.", ["Talons joints en plié large, mains sur les hanches", "Serre l'intérieur des cuisses par petites pulsations", "Reste en bas, genoux ouverts", "Gaine le centre"], "Imagine serrer un coussin entre les cuisses.", 45),
+    _dx('barre', "Fente curtsy pulsée", "Fessiers", "Fente croisée 'révérence' avec pulsations.", ["Une jambe croisée derrière l'autre en révérence", "Descends et pulse vers le bas", "Genou avant au-dessus de la cheville", "Change de côté à mi-temps"], "Garde les hanches face à l'avant.", 45),
+    _dx('barre', "Pretzel (fessier)", "Fessiers", "Assise au sol, on cible le fessier par petits relevés.", ["Assise, une jambe devant pliée, l'autre derrière", "Lève le genou arrière par petites pulsations", "Serre le fessier à chaque relevé", "Buste droit, change de côté"], "Le mouvement est petit : la brûlure vient de la précision.", 40),
+    _dx('barre', "Bras de danseuse", "Épaules", "Petits cercles de bras pour sculpter les épaules.", ["Bras tendus à l'horizontale (en croix)", "Petits cercles vers l'avant, puis l'arrière", "Épaules basses, paumes actives", "Garde les bras à hauteur d'épaules"], "Les bras restent tendus et gracieux tout du long.", 40),
+    _dx('barre', "Planche & tucks", "Abdominaux", "Gainage avec petites rentrées du bassin.", ["Position planche, corps gainé", "Rentre légèrement le bassin (tuck) puis reviens", "Petites pulsations contrôlées", "Épaules au-dessus des poignets"], "Garde le dos plat, ne creuse pas.", 40)
+  ];
+  var BARRE_SESSIONS = [ { id: 'grace', name: 'Barre Sculpt', level: 'Débutant', rest: 12, exercises: BARRE_EXERCISES } ];
+
+  /* ---- SÉRÉNITÉ : respiration guidée & méditation anti-stress ---- */
+  var SERENITE_EXERCISES = [
+    _dx('serenite', "Installation", "Cardio", "Trouve une position confortable et pose ton attention.", ["Assise ou allongée, confortablement installée", "Ferme les yeux ou pose le regard au sol", "Relâche les épaules, la mâchoire, le front", "Observe simplement ta respiration naturelle"], "Rien à réussir : il s'agit juste d'être présente.", 45),
+    _dx('serenite', "Cohérence cardiaque", "Cardio", "Respiration régulière 5 s / 5 s pour équilibrer le système nerveux.", ["Inspire doucement par le nez pendant 5 secondes", "Expire par la bouche pendant 5 secondes", "Garde un rythme fluide et régulier", "Environ 6 respirations par minute"], "C'est le rythme qui apaise le mieux le stress.", 90),
+    _dx('serenite', "Respiration 4-7-8", "Cardio", "Une expiration longue pour relâcher les tensions.", ["Inspire par le nez en comptant 4", "Retiens ton souffle en comptant 7", "Expire lentement par la bouche en comptant 8", "Répète tranquillement"], "L'expiration longue active la détente. Ralentis si tu as la tête qui tourne.", 80),
+    _dx('serenite', "Respiration carrée", "Cardio", "Box breathing : 4 temps égaux, comme un carré.", ["Inspire sur 4 temps", "Poumons pleins, retiens 4 temps", "Expire sur 4 temps", "Poumons vides, retiens 4 temps"], "Visualise les 4 côtés d'un carré que tu dessines.", 80),
+    _dx('serenite', "Scan corporel", "Cardio", "Promène ton attention dans le corps, des pieds à la tête.", ["Porte ton attention sur tes pieds, puis remonte lentement", "À chaque zone, relâche les tensions", "Jambes, bassin, ventre, dos, épaules, visage", "Respire dans chaque partie"], "Si l'esprit s'évade, ramène-le doucement, sans te juger.", 110),
+    _dx('serenite', "Ancrage 5 sens", "Cardio", "Reviens au présent en passant par tes sens.", ["Remarque 5 choses que tu pourrais voir", "4 sons que tu entends", "3 sensations de contact (pieds, mains...)", "2 odeurs, puis 1 respiration consciente"], "Un exercice express anti-anxiété, utilisable partout.", 90),
+    _dx('serenite', "Relâchement progressif", "Cardio", "Contracte puis relâche chaque groupe musculaire.", ["Contracte les pieds 5 s, puis relâche complètement", "Remonte : mollets, cuisses, ventre, mains, épaules, visage", "Ressens la différence entre tension et détente", "Termine par tout le corps relâché"], "Le relâchement après contraction est plus profond.", 100),
+    _dx('serenite', "Retour au calme", "Cardio", "Reviens doucement, en gardant le calme avec toi.", ["Respire naturellement, sans rien forcer", "Remarque comment tu te sens maintenant", "Bouge doucement les doigts, les orteils", "Ouvre les yeux quand tu es prête"], "Emporte ce calme avec toi dans ta journée.", 50)
+  ];
+  var SERENITE_SESSIONS = [
+    { id: 'pause', name: 'Pause Sérénité', level: 'Débutant', rest: 0, exercises: [SERENITE_EXERCISES[0], SERENITE_EXERCISES[1], SERENITE_EXERCISES[4], SERENITE_EXERCISES[7]] },
+    { id: 'souffle', name: 'Respiration anti-stress', level: 'Débutant', rest: 0, exercises: [SERENITE_EXERCISES[0], SERENITE_EXERCISES[2], SERENITE_EXERCISES[3], SERENITE_EXERCISES[1], SERENITE_EXERCISES[7]] }
+  ];
 
   /* ---- Paliers avancé (Niv. 3) et élite (Niv. 6) des nouvelles voies ---- */
   // Vrai protocole Tabata (Izumi Tabata, 1996) : 20 s effort / 10 s repos × 8,
@@ -711,6 +761,9 @@
     hiit: HIIT_SESSIONS,
     core: CORE_SESSIONS,
     yoga: YOGA_SESSIONS,
+    pilates: PILATES_SESSIONS,
+    barre: BARRE_SESSIONS,
+    serenite: SERENITE_SESSIONS,
     mobilite: MOBILITE_SESSIONS
   };
   function listDisciplineSessions(disciplineId) {
@@ -760,6 +813,24 @@
       principles: ["Synchronise chaque mouvement avec ta respiration.", "Va jusqu'à une tension légère, jamais la douleur.", "La régularité compte plus que la performance.", "Termine par un temps de relâchement (savasana)."],
       frequency: "De 2 fois par semaine à tous les jours, selon l'intensité."
     },
+    pilates: {
+      about: "Le Pilates renforce les muscles profonds (le 'centre' : abdos, plancher pelvien, dos) pour une meilleure posture, un ventre gainé et un corps stable et contrôlé.",
+      howItWorks: "Les séances enchaînent des exercices tenus ou répétés au chrono, tout en contrôle et en respiration. L'accent est mis sur la qualité du mouvement plutôt que sur la vitesse ou la charge.",
+      principles: ["Engage le centre (rentre le nombril) à chaque expiration.", "Privilégie le contrôle et la lenteur, jamais l'élan.", "Garde le bas du dos protégé et la nuque longue.", "La précision prime sur le nombre de répétitions."],
+      frequency: "3 à 4 fois par semaine — excellent en complément de la musculation."
+    },
+    barre: {
+      about: "La Barre s'inspire du ballet : de tout petits mouvements pulsés qui font travailler les muscles en profondeur (cuisses, fessiers, posture) jusqu'à la brûlure, sans impact.",
+      howItWorks: "Des séries de pulsations contrôlées au chrono, sur de faibles amplitudes. La sensation de brûlure est normale : elle traduit le travail d'endurance musculaire ciblé.",
+      principles: ["Garde la posture droite et grandie (épaules basses).", "Les mouvements sont petits et précis, jamais relâchés.", "Engage le centre pour stabiliser l'équilibre.", "La brûlure musculaire est le but : tiens jusqu'au bout."],
+      frequency: "2 à 4 fois par semaine, sans impact — idéal en alternance."
+    },
+    serenite: {
+      about: "La Sérénité regroupe la respiration guidée et la méditation : des outils simples et fondés pour faire baisser le stress, calmer le mental et mieux récupérer.",
+      howItWorks: "Des séances courtes au chrono enchaînent des techniques de respiration (cohérence cardiaque, 4-7-8, respiration carrée) et de pleine conscience (scan corporel, ancrage). Rien à performer : il s'agit d'être présente.",
+      principles: ["Une expiration plus longue que l'inspiration apaise le système nerveux.", "Si l'esprit s'évade, ramène-le doucement, sans te juger.", "La régularité (même 5 min) compte plus que la durée.", "Arrête-toi si tu ressens un vertige et reprends ta respiration normale."],
+      frequency: "Quand tu veux — parfait le matin, le soir, ou après une séance intense."
+    },
     mobilite: {
       about: "La mobilité entretient la souplesse et la récupération active : des étirements et mouvements doux pour garder un corps fluide.",
       howItWorks: "Un flow d'étirements tenus au chrono. Idéal en rituel complémentaire, les jours de repos ou après une grosse séance.",
@@ -782,6 +853,9 @@
   global.CALIS_SESSIONS = CALIS_SESSIONS;
   global.COURSE_SESSIONS = COURSE_SESSIONS;
   global.MOBILITE_SESSIONS = MOBILITE_SESSIONS;
+  global.PILATES_SESSIONS = PILATES_SESSIONS;
+  global.BARRE_SESSIONS = BARRE_SESSIONS;
+  global.SERENITE_SESSIONS = SERENITE_SESSIONS;
   global.DISCIPLINE_SESSIONS = DISCIPLINE_SESSIONS;
   global.listDisciplineSessions = listDisciplineSessions;
   // Énumère tous les exercices d'une discipline (dédupliqués par nom),
