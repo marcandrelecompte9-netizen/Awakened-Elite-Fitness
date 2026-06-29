@@ -7240,6 +7240,7 @@
         }
         
         function cancelWorkoutPreparation() {
+            window._awakProgressionContext = null;
             pendingWorkout = null;
             document.getElementById('preparationView').classList.add('hidden');
             document.getElementById('workoutSelection').style.display = 'block';
@@ -23227,6 +23228,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         }
 
         function quitWorkout() {
+            window._awakProgressionContext = null;
             const btn = document.getElementById('floatingQuitBtn');
             if (!btn) { _doQuitWorkout(); return; }
 
@@ -33429,6 +33431,24 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             clearInterval(timerInterval);
             releaseWakeLock();
             if (currentWorkout) currentWorkout._completed = true;
+            // 🌳 ARBRE DE PROGRESSION : si la séance était un palier, débloquer le suivant.
+            try {
+                const _pc = window._awakProgressionContext;
+                if (_pc) {
+                    window._awakProgressionContext = null;
+                    const P = _progListFor(_pc.disc); const skill = P && P[_pc.skillIdx];
+                    if (skill) {
+                        const prog = awakGetProgress(); const key = _progKey(_pc.disc, skill.skill);
+                        const cur = Math.min(prog[key] || 0, skill.steps.length);
+                        if (_pc.stepIdx >= cur) {
+                            prog[key] = Math.min(_pc.stepIdx + 1, skill.steps.length);
+                            awakSaveProgress(prog);
+                            const _mastered = prog[key] >= skill.steps.length;
+                            setTimeout(function () { if (typeof showToast === 'function') showToast(_mastered ? ('★ Parcours « ' + skill.skill + ' » terminé — mode libre débloqué ♾️') : ('✅ Étape validée — palier suivant débloqué dans « ' + skill.skill + ' »'), 'success', 4500); }, 1600);
+                        }
+                    }
+                }
+            } catch (e) {}
             // 👑 COMBAT FINAL : si c'était le Monarque, marquer la victoire pour l'épilogue
             const _wasFinalBoss = currentWorkout && currentWorkout._isFinalBoss;
             if (_wasFinalBoss && typeof awakOnFinalBossComplete === 'function') {
@@ -35411,6 +35431,99 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 + '</div>';
         }
         // Corps du modal (re-render à chaque marquage).
+        // — Pool d'exercices d'une discipline (toutes ses séances, dédupliqué).
+        function _progPool(disc) {
+            const DS = (typeof DISCIPLINE_SESSIONS !== 'undefined') ? DISCIPLINE_SESSIONS : (window.DISCIPLINE_SESSIONS || {});
+            const pool = []; const seen = {};
+            (DS[disc] || []).forEach(function (s) { (s.exercises || []).forEach(function (e) { if (e && e.name && !seen[e.name]) { seen[e.name] = 1; pool.push(e); } }); });
+            return pool;
+        }
+        function _normTokens(s) {
+            const stop = { le: 1, la: 1, les: 1, de: 1, du: 1, des: 1, un: 1, une: 1, sans: 1, avec: 1, sur: 1, au: 1, aux: 1, en: 1, et: 1, pour: 1, min: 1, complet: 1, complete: 1, vers: 1 };
+            return (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim().split(' ').filter(function (w) { return w.length > 2 && !stop[w]; });
+        }
+        function _findFocusEx(pool, label) {
+            const lt = _normTokens(label); if (!lt.length) return null;
+            let best = null, bestScore = 0;
+            pool.forEach(function (e) {
+                const nt = _normTokens(e.name); let score = 0;
+                lt.forEach(function (t) { if (nt.indexOf(t) >= 0) score++; });
+                if (score > bestScore) { bestScore = score; best = e; }
+            });
+            return bestScore > 0 ? best : null;
+        }
+        function _shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); const t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+        function _isWarm(n) { return /(chauff|warm|installation|activation|posture|respiration|centrage)/i.test(n); }
+        // — Construit l'entraînement d'un palier (échauffement + focus + soutien).
+        function _buildProgressionWorkout(disc, skillIdx, stepIdx, infinite) {
+            const P = _progListFor(disc); const skill = P[skillIdx]; if (!skill) return null;
+            const step = skill.steps[stepIdx] || '';
+            const pool = _progPool(disc);
+            const d = (typeof getDiscipline === 'function') ? getDiscipline(disc) : null;
+            const color = (d && d.color) || '#a855f7'; const emoji = d ? d.emoji : '✨';
+            const warm = pool.find(function (e) { return _isWarm(e.name); });
+            const focus = infinite ? null : _findFocusEx(pool, step);
+            const used = {}; const list = [];
+            if (warm) { list.push(warm); used[warm.name] = 1; }
+            if (focus) { list.push(focus); used[focus.name] = 1; }
+            const rest = _shuffle(pool.filter(function (e) { return !used[e.name] && !_isWarm(e.name); }));
+            for (let i = 0; i < rest.length && list.length < 6; i++) list.push(rest[i]);
+            if (list.length < 2 && pool.length) pool.slice(0, 5).forEach(function (e) { if (!used[e.name]) { list.push(e); used[e.name] = 1; } });
+            return {
+                name: emoji + ' ' + skill.skill + ' · ' + (infinite ? 'Entraînement libre' : step),
+                exercises: list.map(function (e) { return Object.assign({}, e); }),
+                mode: 'timer', restBetweenSets: 30, type: 'discipline', _discipline: disc,
+                badgeHTML: (infinite ? '♾️ ' : '🌳 ') + skill.skill, badgeColor: color, badgeStyle: 'linear-gradient(135deg,' + color + ',' + color + 'dd)'
+            };
+        }
+        function _launchWorkoutObj(w) {
+            if (!w) return;
+            if (typeof switchTab === 'function') switchTab('workouts');
+            setTimeout(function () {
+                ['aiWorkoutPanel', 'celebrityPanel', 'planningPanel', 'exerciseSelection'].forEach(function (id) { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
+                if (typeof showWorkoutPreparation === 'function') { showWorkoutPreparation(w); }
+                else {
+                    currentWorkout = w; currentExerciseIndex = 0; workoutStartTime = Date.now();
+                    if (typeof _workoutSkipCount !== 'undefined') _workoutSkipCount = 0;
+                    const ev = document.getElementById('exerciseView'); if (ev) { ev.classList.remove('hidden'); ev.style.display = 'block'; }
+                    document.body.classList.add('in-session');
+                    if (typeof startExercise === 'function') startExercise();
+                }
+            }, 120);
+        }
+        // — Lancer l'entraînement d'un palier (bloqué si verrouillé). Marque le contexte pour l'avancement auto.
+        function startProgressionStep(disc, skillIdx, stepIdx) {
+            const P = _progListFor(disc); const skill = P[skillIdx]; if (!skill) return;
+            const done = Math.min(awakGetProgress()[_progKey(disc, skill.skill)] || 0, skill.steps.length);
+            if (stepIdx > done) { if (typeof showToast === 'function') showToast('🔒 Termine d\'abord l\'étape en cours.', 'warning', 2500); return; }
+            const w = _buildProgressionWorkout(disc, skillIdx, stepIdx, false);
+            if (!w) return;
+            window._awakProgressionContext = { disc: disc, skillIdx: skillIdx, stepIdx: stepIdx };
+            const m = document.getElementById('progTreeModal'); if (m) m.remove();
+            _launchWorkoutObj(w);
+        }
+        // — Générateur infini (palier maîtrisé) : séance aléatoire, n'avance rien.
+        function startProgressionGenerator(disc, skillIdx) {
+            const w = _buildProgressionWorkout(disc, skillIdx, 0, true);
+            if (!w) return;
+            window._awakProgressionContext = null;
+            const m = document.getElementById('progTreeModal'); if (m) m.remove();
+            _launchWorkoutObj(w);
+        }
+        // — Marquage manuel (« déjà acquis ») / annulation.
+        function awakAdvanceStep(disc, skillIdx, stepIdx) {
+            const P = _progListFor(disc); const p = P[skillIdx]; if (!p) return;
+            const prog = awakGetProgress(); const key = _progKey(disc, p.skill);
+            prog[key] = Math.min(stepIdx + 1, p.steps.length); awakSaveProgress(prog);
+            const content = document.getElementById('progTreeContent'); if (content) content.innerHTML = _treeBodyFor(disc);
+            if (prog[key] >= p.steps.length && typeof showToast === 'function') showToast('★ Parcours « ' + p.skill + ' » terminé — mode libre débloqué ♾️', 'success', 4000);
+        }
+        function awakRetractStep(disc, skillIdx) {
+            const P = _progListFor(disc); const p = P[skillIdx]; if (!p) return;
+            const prog = awakGetProgress(); const key = _progKey(disc, p.skill);
+            prog[key] = Math.max(0, (prog[key] || 0) - 1); awakSaveProgress(prog);
+            const content = document.getElementById('progTreeContent'); if (content) content.innerHTML = _treeBodyFor(disc);
+        }
         function _treeBodyFor(disc) {
             const P = _progListFor(disc);
             const prog = awakGetProgress();
@@ -35427,31 +35540,45 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                     const isDone = i < done;
                     const isCurrent = (i === done) && !mastered;
                     const isLast = (i === total - 1);
-                    let circleStyle, inner, txtColor, weight, tag = '';
+                    let circleStyle, inner, txtColor, weight;
                     if (isDone) {
                         circleStyle = 'background:' + color + ';border:2px solid ' + color + ';color:#fff;';
                         inner = (isLast && mastered) ? '★' : '✓'; txtColor = '#e2e8f0'; weight = '600';
                     } else if (isCurrent) {
                         circleStyle = 'background:' + color + '2e;border:2px solid ' + color + ';color:' + color + ';box-shadow:0 0 0 4px ' + color + '26;';
                         inner = (i + 1); txtColor = '#fff'; weight = '800';
-                        tag = '<div style="font-size:0.64em;color:' + color + ';font-weight:800;margin-top:2px;">🎯 Tu es ici — ton prochain objectif</div>';
                     } else {
-                        circleStyle = 'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);color:#64748b;';
-                        inner = (i + 1); txtColor = '#64748b'; weight = '400';
+                        circleStyle = 'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);color:#475569;';
+                        inner = '🔒'; txtColor = '#475569'; weight = '400';
                     }
                     const lineColor = (i + 1 <= done) ? color : 'rgba(255,255,255,0.12)';
-                    const connector = isLast ? '' : '<div style="width:2px;flex:1;min-height:16px;background:' + lineColor + ';margin:3px 0;"></div>';
+                    const connector = isLast ? '' : '<div style="width:2px;flex:1;min-height:' + (isCurrent ? '44' : '18') + 'px;background:' + lineColor + ';margin:3px 0;"></div>';
                     const star = (isLast ? ' <span style="color:#fbbf24;">★</span>' : '');
-                    return '<div onclick="awakTapStep(\'' + disc + '\',' + idx + ',' + i + ')" style="display:flex;gap:12px;cursor:pointer;align-items:stretch;">'
+                    let actions = '';
+                    if (isCurrent) {
+                        actions = '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px;">'
+                            + '<button onclick="startProgressionStep(\'' + disc + '\',' + idx + ',' + i + ')" style="background:' + color + ';border:none;color:#fff;border-radius:9px;padding:8px 13px;font-size:0.76em;font-weight:800;cursor:pointer;">▶ Faire l\'entraînement</button>'
+                            + '<button onclick="awakAdvanceStep(\'' + disc + '\',' + idx + ',' + i + ')" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.18);color:#cbd5e1;border-radius:9px;padding:8px 12px;font-size:0.74em;font-weight:700;cursor:pointer;">✓ Déjà acquis</button>'
+                            + '</div>';
+                    } else if (isDone) {
+                        actions = '<div style="margin-top:6px;display:flex;gap:7px;flex-wrap:wrap;"><button onclick="startProgressionStep(\'' + disc + '\',' + idx + ',' + i + ')" style="background:transparent;border:1px solid ' + color + '55;color:' + color + ';border-radius:8px;padding:5px 10px;font-size:0.7em;font-weight:700;cursor:pointer;">↻ Refaire</button>'
+                            + ((i === done - 1) ? '<button onclick="awakRetractStep(\'' + disc + '\',' + idx + ')" style="background:transparent;border:1px solid rgba(255,255,255,0.15);color:#94a3b8;border-radius:8px;padding:5px 9px;font-size:0.7em;font-weight:600;cursor:pointer;">✕ Annuler</button>' : '')
+                            + '</div>';
+                    }
+                    return '<div style="display:flex;gap:12px;align-items:stretch;">'
                         + '<div style="display:flex;flex-direction:column;align-items:center;width:26px;flex-shrink:0;">'
                         + '<div style="width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.66em;font-weight:900;flex-shrink:0;' + circleStyle + '">' + inner + '</div>'
                         + connector + '</div>'
-                        + '<div style="flex:1;padding-bottom:16px;min-width:0;"><div style="font-size:0.82em;color:' + txtColor + ';font-weight:' + weight + ';line-height:1.35;">' + s + star + '</div>' + tag + '</div>'
-                        + '</div>';
+                        + '<div style="flex:1;padding-bottom:16px;min-width:0;"><div style="font-size:0.82em;color:' + txtColor + ';font-weight:' + weight + ';line-height:1.35;">' + s + star + '</div>'
+                        + (isCurrent ? '<div style="font-size:0.64em;color:' + color + ';font-weight:800;margin-top:2px;">🎯 Tu es ici</div>' : '')
+                        + actions + '</div></div>';
                 }).join('');
+                const masterFooter = mastered
+                    ? '<div style="margin-top:4px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.07);"><button onclick="startProgressionGenerator(\'' + disc + '\',' + idx + ')" style="width:100%;background:linear-gradient(135deg,' + color + ',' + color + 'cc);border:none;color:#fff;border-radius:10px;padding:11px;font-size:0.82em;font-weight:800;cursor:pointer;">♾️ Entraînement libre — à l\'infini</button></div>'
+                    : '';
                 return '<div style="background:rgba(255,255,255,0.02);border:1px solid ' + (mastered ? 'rgba(251,191,36,0.3)' : color + '2e') + ';border-radius:14px;padding:14px 16px;margin-bottom:12px;">'
                     + '<div style="display:flex;align-items:center;gap:9px;margin-bottom:12px;"><span style="font-size:1.4em;">' + p.emoji + '</span><span style="font-weight:900;color:#fff;font-size:0.95em;flex:1;">' + p.skill + '</span>' + badge + '</div>'
-                    + nodes + '</div>';
+                    + nodes + masterFooter + '</div>';
             }).join('');
         }
         function openProgressionTree(disc) {
@@ -35464,26 +35591,15 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             modal.id = 'progTreeModal';
             modal.innerHTML = '<div class="modal-content" style="max-width:480px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;border-top:3px solid ' + color + ';">'
                 + '<div class="modal-header"><h2 style="font-size:1em;">🌳 ' + (d ? d.emoji + ' ' : '') + name + '</h2><button onclick="document.getElementById(\'progTreeModal\').remove()" style="background:none;border:none;font-size:1.5em;cursor:pointer;color:#94a3b8;">×</button></div>'
-                + '<div class="modal-body"><div style="font-size:0.74em;color:#94a3b8;line-height:1.5;margin-bottom:16px;background:' + color + '12;border:1px solid ' + color + '33;border-radius:10px;padding:10px 13px;">Tu descends chaque parcours en progressant. <strong style="color:#fff;">Touche une étape</strong> quand tu la maîtrises pour la valider. Touche à nouveau pour revenir en arrière.</div>'
+                + '<div class="modal-body"><div style="font-size:0.74em;color:#94a3b8;line-height:1.5;margin-bottom:16px;background:' + color + '12;border:1px solid ' + color + '33;border-radius:10px;padding:10px 13px;">Chaque étape est un <strong style="color:#fff;">entraînement</strong>. Fais celui qui est débloqué (▶) : une fois terminé, le suivant s\'ouvre — pas de séance trop dure trop tôt. Tu peux aussi marquer une étape « déjà acquise ». Au bout du parcours, un <strong style="color:#fff;">entraînement libre ♾️</strong> se débloque.</div>'
                 + '<div id="progTreeContent">' + _treeBodyFor(disc) + '</div></div></div>';
             document.body.appendChild(modal);
         }
-        function awakTapStep(disc, skillIdx, stepIdx) {
-            const P = _progListFor(disc);
-            const p = P[skillIdx]; if (!p) return;
-            const prog = awakGetProgress();
-            const key = _progKey(disc, p.skill);
-            const cur = Math.min(prog[key] || 0, p.steps.length);
-            const next = (stepIdx + 1 === cur) ? stepIdx : (stepIdx + 1);
-            prog[key] = next;
-            awakSaveProgress(prog);
-            const justMastered = next >= p.steps.length && cur < p.steps.length;
-            const content = document.getElementById('progTreeContent');
-            if (content) content.innerHTML = _treeBodyFor(disc);
-            if (justMastered && typeof showToast === 'function') showToast('★ Palier maîtrisé : ' + p.skill + ' ! Bravo 🔥', 'success', 4000);
-        }
         window.openProgressionTree = openProgressionTree;
-        window.awakTapStep = awakTapStep;
+        window.startProgressionStep = startProgressionStep;
+        window.startProgressionGenerator = startProgressionGenerator;
+        window.awakAdvanceStep = awakAdvanceStep;
+        window.awakRetractStep = awakRetractStep;
 
         function showDisciplineGuide(disciplineId) {
             const d = (typeof getDiscipline === 'function') ? getDiscipline(disciplineId) : null;
