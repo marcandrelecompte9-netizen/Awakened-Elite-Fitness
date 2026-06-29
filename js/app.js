@@ -35624,7 +35624,6 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 + '<div style="font-size:0.62em;color:' + color + ';font-weight:900;letter-spacing:1.5px;margin:16px 0 8px;">PRINCIPES CLÉS</div>'
                 + '<ul style="margin:0;padding-left:18px;">' + principles + '</ul>'
                 + (g.frequency ? _guideBlock('FRÉQUENCE CONSEILLÉE', g.frequency, color) : '')
-                + _progressionButtonHTML(disciplineId, color)
                 + '</div></div>';
             document.body.appendChild(modal);
         }
@@ -35799,7 +35798,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                         + '<div style="height:100%;width:' + pct + '%;background:' + d.color + ';border-radius:99px;transition:width .3s;"></div>'
                         + '</div></div>';
                 }
-                return '<div class="card" style="padding:16px 18px;background:linear-gradient(135deg,' + d.color + '22,' + d.color + '08);border:1px solid ' + d.color + '44;">' + head + prog + (d.id === 'yoga' ? _yogaQuizCTA() : '') + sess + (d.id === 'yoga' ? _renderYogaGenerator() : '') + '</div>';
+                const progTree = (typeof _progressionButtonHTML === 'function') ? _progressionButtonHTML(d.id, d.color) : '';
+                return '<div class="card" style="padding:16px 18px;background:linear-gradient(135deg,' + d.color + '22,' + d.color + '08);border:1px solid ' + d.color + '44;">' + head + prog + progTree + (d.id === 'yoga' ? _yogaQuizCTA() : '') + sess + (d.id === 'yoga' ? _renderYogaGenerator() : '') + '</div>';
             }).join('');
             if (!cards) cards = '<p style="text-align:center;color:#94a3b8;padding:20px;">Aucune discipline disponible.</p>';
             return '<div style="display:grid;gap:10px;">'
@@ -35894,6 +35894,11 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 badgeColor: color,
                 badgeStyle: 'linear-gradient(135deg,' + color + ',' + color + 'dd)'
             };
+            // Fermer toute fenêtre de discipline encore ouverte (guide « Comment ça
+            // marche ? », quiz yoga) pour que l'écran « Préparez-vous » s'affiche au
+            // premier plan sans que l'utilisateur ait à la fermer à la main.
+            if (typeof closeDisciplineGuide === 'function') closeDisciplineGuide();
+            if (typeof closeYogaQuiz === 'function') closeYogaQuiz();
             if (typeof switchTab === 'function') switchTab('workouts');
             setTimeout(function () {
                 ['aiWorkoutPanel', 'celebrityPanel', 'planningPanel', 'exerciseSelection'].forEach(function (id) {
