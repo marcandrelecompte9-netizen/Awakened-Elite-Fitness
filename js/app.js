@@ -2581,7 +2581,47 @@
         }
 
         // Render advanced statistics
+        // 🧠 Bloc d'analyse comportementale intégré à l'onglet Statistiques.
+        function renderBehaviorAnalytics() {
+            const host = document.getElementById('behaviorAnalytics');
+            if (!host) return;
+            try {
+                const b = awakAnalyzeBehavior();
+                const cons = awakConsistencyInfo();
+                const ins = awakBehaviorInsights();
+                const ccrTxt = (b.challengeCompletionRate === null) ? '—' : Math.round(b.challengeCompletionRate * 100) + '%';
+                const weeks = awakWeeklySessionCounts(6);
+                const wmax = Math.max(3, weeks.length ? Math.max.apply(null, weeks) : 0);
+                const bars = weeks.map(function (c, i) {
+                    const isLast = (i === weeks.length - 1);
+                    const h = Math.max(6, Math.round((c / wmax) * 100));
+                    return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;"><div style="font-size:0.62em;color:' + (isLast ? '#22d3ee' : '#64748b') + ';font-weight:800;">' + c + '</div><div style="width:100%;max-width:24px;height:52px;display:flex;align-items:flex-end;"><div style="width:100%;height:' + h + '%;background:' + (isLast ? '#22d3ee' : 'rgba(34,211,238,0.4)') + ';border-radius:4px 4px 0 0;"></div></div></div>';
+                }).join('');
+                let strLine = '';
+                const ov = (typeof awakOverallRank === 'function') ? awakOverallRank() : null;
+                if (ov) {
+                    const c = (typeof AWAK_RANK_COLORS !== 'undefined' && AWAK_RANK_COLORS[ov.rank]) || '#22d3ee';
+                    strLine = '<div onclick="openStrengthStandards()" style="background:' + c + '14;border:1px solid ' + c + '44;border-radius:12px;padding:11px 13px;margin-bottom:14px;cursor:pointer;font-size:0.82em;color:#e2e8f0;display:flex;align-items:center;gap:8px;">💪 Rang de force : <strong style="color:' + c + ';">' + ov.rank + ' · ' + ov.levelName + '</strong><span style="margin-left:auto;color:' + c + ';">›</span></div>';
+                }
+                const stat = function (label, val) { return '<div style="flex:1;text-align:center;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:10px 4px;"><div style="font-size:1.1em;font-weight:900;color:white;">' + val + '</div><div style="font-size:0.54em;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;line-height:1.2;">' + label + '</div></div>'; };
+                const insList = ins.slice(0, 3).map(function (i) { return '<div style="display:flex;gap:9px;align-items:flex-start;background:rgba(255,255,255,0.03);border-left:3px solid ' + i.color + ';border-radius:8px;padding:9px 11px;margin-bottom:7px;"><span style="font-size:1.05em;flex-shrink:0;line-height:1.2;">' + i.icon + '</span><div style="font-size:0.78em;color:#cbd5e1;line-height:1.45;">' + i.text + '</div></div>'; }).join('');
+                host.innerHTML = '<div class="card">'
+                    + '<h2 style="color:#22d3ee;margin-bottom:16px;">🧠 Analyse comportementale</h2>'
+                    + '<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;"><div style="font-size:2.2em;">' + b.type.emoji + '</div><div><div style="font-weight:900;color:white;font-size:1.05em;">' + b.type.label + '</div><div style="font-size:0.75em;color:#94a3b8;">' + b.type.desc + '</div></div></div>'
+                    + '<div style="background:rgba(255,255,255,0.03);border:1px solid ' + cons.color + '44;border-radius:14px;padding:13px 15px;margin-bottom:14px;"><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-size:0.72em;color:#94a3b8;font-weight:700;text-transform:uppercase;">Assiduité</span><span style="font-weight:900;color:' + cons.color + ';">' + cons.score + '/100 · ' + cons.label + '</span></div><div style="height:9px;background:rgba(255,255,255,0.07);border-radius:6px;overflow:hidden;"><div style="height:100%;width:' + cons.score + '%;background:' + cons.color + ';border-radius:6px;"></div></div></div>'
+                    + '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:13px 15px;margin-bottom:14px;"><div style="font-size:0.66em;color:#94a3b8;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:9px;">Séances · 6 dernières semaines</div><div style="display:flex;gap:6px;align-items:flex-end;">' + bars + '</div></div>'
+                    + '<div style="display:flex;gap:8px;margin-bottom:14px;">' + stat('Séances/sem', b.perWeek ? b.perWeek.toFixed(1) : '0') + stat('Défis finis', ccrTxt) + stat('Programmes', b.progStart) + stat('Remplac.', b.totalSwaps) + '</div>'
+                    + strLine
+                    + '<div style="font-size:0.7em;color:#94a3b8;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin:6px 0 9px;">Conseils pour toi</div>'
+                    + insList
+                    + '<div style="margin-top:10px;font-size:0.64em;color:#64748b;line-height:1.5;">Basé sur tes 90 derniers jours, calculé en local. Indicatif et bienveillant.</div>'
+                    + '</div>';
+            } catch (e) { host.innerHTML = ''; }
+        }
+        window.renderBehaviorAnalytics = renderBehaviorAnalytics;
+
         function renderAdvancedStats() {
+            try { renderBehaviorAnalytics(); } catch (e) {}
             const stats = calculateAdvancedStats();
             
             // Update main stats
@@ -35336,6 +35376,115 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             return '<div style="font-size:0.62em;color:' + color + ';font-weight:900;letter-spacing:1.5px;margin:16px 0 6px;">' + title + '</div>'
                 + '<p style="color:#cbd5e1;font-size:0.86em;line-height:1.5;margin:0;">' + text + '</p>';
         }
+        // 🎯 Arbres de progression — système générique pour toutes les disciplines.
+        function awakGetProgress() { try { return JSON.parse(localStorage.getItem('awakProgressTrees') || '{}'); } catch (e) { return {}; } }
+        function awakSaveProgress(p) { try { localStorage.setItem('awakProgressTrees', JSON.stringify(p)); } catch (e) {} }
+        function _progKey(disc, skill) { return disc + '::' + skill; }
+        function _progListFor(disc) { const M = (typeof DISCIPLINE_PROGRESSIONS !== 'undefined') ? DISCIPLINE_PROGRESSIONS : (window.DISCIPLINE_PROGRESSIONS || {}); return (M && M[disc]) ? M[disc] : []; }
+        // Migration unique de l'ancien stockage callisthénie.
+        (function _migrateOldCalis() {
+            try {
+                const old = localStorage.getItem('awakCalisProgress');
+                if (!old) return;
+                const o = JSON.parse(old); const p = awakGetProgress();
+                Object.keys(o).forEach(function (k) { const nk = 'calisthenie::' + k; if (p[nk] === undefined) p[nk] = o[k]; });
+                awakSaveProgress(p); localStorage.removeItem('awakCalisProgress');
+            } catch (e) {}
+        })();
+
+        // Bouton d'accès affiché dans la fiche d'une discipline (si elle a des progressions).
+        function _progressionButtonHTML(disc, color) {
+            const P = _progListFor(disc);
+            if (!P || !P.length) return '';
+            color = color || '#a855f7';
+            const prog = awakGetProgress();
+            let mastered = 0, totalSteps = 0, doneSteps = 0;
+            P.forEach(function (p) { const d = prog[_progKey(disc, p.skill)] || 0; if (d >= p.steps.length) mastered++; totalSteps += p.steps.length; doneSteps += Math.min(d, p.steps.length); });
+            const pct = totalSteps ? Math.round(doneSteps / totalSteps * 100) : 0;
+            return '<div style="font-size:0.62em;color:' + color + ';font-weight:900;letter-spacing:1.5px;margin:18px 0 10px;">🎯 ARBRE DE PROGRESSION</div>'
+                + '<div onclick="openProgressionTree(\'' + disc + '\')" style="background:linear-gradient(135deg,' + color + '24,' + color + '0a);border:1px solid ' + color + '59;border-radius:14px;padding:14px 16px;cursor:pointer;">'
+                + '<div style="display:flex;align-items:center;gap:12px;"><span style="font-size:1.7em;">🌳</span>'
+                + '<div style="flex:1;min-width:0;"><div style="font-weight:900;color:#fff;font-size:0.92em;">Mon arbre de progression</div>'
+                + '<div style="font-size:0.7em;color:#cbd5e1;margin-top:1px;">' + P.length + ' parcours · ' + mastered + ' maîtrisé' + (mastered > 1 ? 's' : '') + ' · ' + pct + '% complété</div></div>'
+                + '<span style="color:' + color + ';font-size:1.3em;">›</span></div>'
+                + '<div style="height:6px;background:rgba(255,255,255,0.08);border-radius:5px;overflow:hidden;margin-top:10px;"><div style="height:100%;width:' + pct + '%;background:' + color + ';border-radius:5px;"></div></div>'
+                + '</div>';
+        }
+        // Corps du modal (re-render à chaque marquage).
+        function _treeBodyFor(disc) {
+            const P = _progListFor(disc);
+            const prog = awakGetProgress();
+            const d = (typeof getDiscipline === 'function') ? getDiscipline(disc) : null;
+            const color = (d && d.color) || '#a855f7';
+            return P.map(function (p, idx) {
+                const total = p.steps.length;
+                const done = Math.min(prog[_progKey(disc, p.skill)] || 0, total);
+                const mastered = done >= total;
+                const badge = mastered
+                    ? '<span style="background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#1a1a1a;border-radius:8px;padding:3px 9px;font-size:0.62em;font-weight:900;flex-shrink:0;">★ MAÎTRISÉ</span>'
+                    : '<span style="background:' + color + '2e;color:' + color + ';border-radius:8px;padding:3px 9px;font-size:0.64em;font-weight:900;flex-shrink:0;">' + done + '/' + total + '</span>';
+                const nodes = p.steps.map(function (s, i) {
+                    const isDone = i < done;
+                    const isCurrent = (i === done) && !mastered;
+                    const isLast = (i === total - 1);
+                    let circleStyle, inner, txtColor, weight, tag = '';
+                    if (isDone) {
+                        circleStyle = 'background:' + color + ';border:2px solid ' + color + ';color:#fff;';
+                        inner = (isLast && mastered) ? '★' : '✓'; txtColor = '#e2e8f0'; weight = '600';
+                    } else if (isCurrent) {
+                        circleStyle = 'background:' + color + '2e;border:2px solid ' + color + ';color:' + color + ';box-shadow:0 0 0 4px ' + color + '26;';
+                        inner = (i + 1); txtColor = '#fff'; weight = '800';
+                        tag = '<div style="font-size:0.64em;color:' + color + ';font-weight:800;margin-top:2px;">🎯 Tu es ici — ton prochain objectif</div>';
+                    } else {
+                        circleStyle = 'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);color:#64748b;';
+                        inner = (i + 1); txtColor = '#64748b'; weight = '400';
+                    }
+                    const lineColor = (i + 1 <= done) ? color : 'rgba(255,255,255,0.12)';
+                    const connector = isLast ? '' : '<div style="width:2px;flex:1;min-height:16px;background:' + lineColor + ';margin:3px 0;"></div>';
+                    const star = (isLast ? ' <span style="color:#fbbf24;">★</span>' : '');
+                    return '<div onclick="awakTapStep(\'' + disc + '\',' + idx + ',' + i + ')" style="display:flex;gap:12px;cursor:pointer;align-items:stretch;">'
+                        + '<div style="display:flex;flex-direction:column;align-items:center;width:26px;flex-shrink:0;">'
+                        + '<div style="width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.66em;font-weight:900;flex-shrink:0;' + circleStyle + '">' + inner + '</div>'
+                        + connector + '</div>'
+                        + '<div style="flex:1;padding-bottom:16px;min-width:0;"><div style="font-size:0.82em;color:' + txtColor + ';font-weight:' + weight + ';line-height:1.35;">' + s + star + '</div>' + tag + '</div>'
+                        + '</div>';
+                }).join('');
+                return '<div style="background:rgba(255,255,255,0.02);border:1px solid ' + (mastered ? 'rgba(251,191,36,0.3)' : color + '2e') + ';border-radius:14px;padding:14px 16px;margin-bottom:12px;">'
+                    + '<div style="display:flex;align-items:center;gap:9px;margin-bottom:12px;"><span style="font-size:1.4em;">' + p.emoji + '</span><span style="font-weight:900;color:#fff;font-size:0.95em;flex:1;">' + p.skill + '</span>' + badge + '</div>'
+                    + nodes + '</div>';
+            }).join('');
+        }
+        function openProgressionTree(disc) {
+            const old = document.getElementById('progTreeModal'); if (old) old.remove();
+            const d = (typeof getDiscipline === 'function') ? getDiscipline(disc) : null;
+            const color = (d && d.color) || '#a855f7';
+            const name = (d && d.name) ? d.name : '';
+            const modal = document.createElement('div');
+            modal.className = 'modal active';
+            modal.id = 'progTreeModal';
+            modal.innerHTML = '<div class="modal-content" style="max-width:480px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;border-top:3px solid ' + color + ';">'
+                + '<div class="modal-header"><h2 style="font-size:1em;">🌳 ' + (d ? d.emoji + ' ' : '') + name + '</h2><button onclick="document.getElementById(\'progTreeModal\').remove()" style="background:none;border:none;font-size:1.5em;cursor:pointer;color:#94a3b8;">×</button></div>'
+                + '<div class="modal-body"><div style="font-size:0.74em;color:#94a3b8;line-height:1.5;margin-bottom:16px;background:' + color + '12;border:1px solid ' + color + '33;border-radius:10px;padding:10px 13px;">Tu descends chaque parcours en progressant. <strong style="color:#fff;">Touche une étape</strong> quand tu la maîtrises pour la valider. Touche à nouveau pour revenir en arrière.</div>'
+                + '<div id="progTreeContent">' + _treeBodyFor(disc) + '</div></div></div>';
+            document.body.appendChild(modal);
+        }
+        function awakTapStep(disc, skillIdx, stepIdx) {
+            const P = _progListFor(disc);
+            const p = P[skillIdx]; if (!p) return;
+            const prog = awakGetProgress();
+            const key = _progKey(disc, p.skill);
+            const cur = Math.min(prog[key] || 0, p.steps.length);
+            const next = (stepIdx + 1 === cur) ? stepIdx : (stepIdx + 1);
+            prog[key] = next;
+            awakSaveProgress(prog);
+            const justMastered = next >= p.steps.length && cur < p.steps.length;
+            const content = document.getElementById('progTreeContent');
+            if (content) content.innerHTML = _treeBodyFor(disc);
+            if (justMastered && typeof showToast === 'function') showToast('★ Palier maîtrisé : ' + p.skill + ' ! Bravo 🔥', 'success', 4000);
+        }
+        window.openProgressionTree = openProgressionTree;
+        window.awakTapStep = awakTapStep;
+
         function showDisciplineGuide(disciplineId) {
             const d = (typeof getDiscipline === 'function') ? getDiscipline(disciplineId) : null;
             const g = (typeof getDisciplineGuide === 'function') ? getDisciplineGuide(disciplineId) : null;
@@ -35359,6 +35508,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 + '<div style="font-size:0.62em;color:' + color + ';font-weight:900;letter-spacing:1.5px;margin:16px 0 8px;">PRINCIPES CLÉS</div>'
                 + '<ul style="margin:0;padding-left:18px;">' + principles + '</ul>'
                 + (g.frequency ? _guideBlock('FRÉQUENCE CONSEILLÉE', g.frequency, color) : '')
+                + _progressionButtonHTML(disciplineId, color)
                 + '</div></div>';
             document.body.appendChild(modal);
         }

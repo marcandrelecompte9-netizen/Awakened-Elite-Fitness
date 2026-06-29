@@ -524,6 +524,115 @@
     _dx('calisthenie', "L-sit groupé (tenue)", "Abdominaux", "Maintien genoux groupés.", ["Mains au sol, décolle le bassin", "Genoux vers la poitrine", "Épaules basses", "Tiens"], "Verrouille les coudes.", 30, "Avancé"),
     _dx('calisthenie', "Hollow rocks", "Abdominaux", "En position 'banane' (hollow), balance-toi d'avant en arrière.", ["Hollow = sur le dos, bas du dos plaqué, épaules et jambes décollées", "Balance d'avant en arrière", "Garde le bas du dos collé", "Contrôle le mouvement"], "Plie un peu les genoux si le bas du dos décolle.", 40, "Avancé")
   ];
+
+  /* ===== CALISTHÉNIE — EXPANSION : pools thématiques (pousser / tirer / jambes / gainage / skills) ===== */
+  // Échauffement réutilisable.
+  var CALIS_WU = _dx('calisthenie', "Échauffement articulaire & activation", "Cardio", "Réveil complet avant l'effort.", ["Cercles d'épaules, poignets, hanches, chevilles", "Mobilité du haut du dos (rotations)", "Quelques squats et pompes lentes", "Gainage léger 15 s"], "Échauffe bien poignets et épaules avant les tenues.", 75);
+
+  // POUSSER — pectoraux / épaules / triceps
+  var CALIS_PUSH = [
+    CALIS_WU,
+    _dx('calisthenie', "Pompes inclinées", "Pectoraux", "Pompes mains surélevées (plus faciles).", ["Mains sur un banc/rebord stable", "Corps gainé en planche", "Descends la poitrine vers l'appui", "Pousse"], "Plus l'appui est haut, plus c'est facile.", 40),
+    _dx('calisthenie', "Pompes", "Pectoraux", "La poussée horizontale de référence.", ["Mains largeur d'épaules", "Corps aligné, gainé", "Descends la poitrine près du sol", "Coudes ~45°, pousse"], "Sur les genoux si besoin, sans casser l'alignement.", 40),
+    _dx('calisthenie', "Pompes diamant", "Triceps", "Mains rapprochées en losange.", ["Index et pouces en losange sous la poitrine", "Descends contrôlé", "Coudes près du corps", "Pousse"], "Cible les triceps et l'intérieur des pectoraux.", 35, "Intermédiaire"),
+    _dx('calisthenie', "Pompes déclinées", "Pectoraux", "Pieds surélevés : plus de charge sur le haut des pectoraux et les épaules.", ["Pieds sur un banc", "Mains au sol largeur d'épaules", "Descends la poitrine", "Garde le corps gainé"], "Plus les pieds sont hauts, plus c'est dur.", 35, "Intermédiaire"),
+    _dx('calisthenie', "Pseudo-planche push-up", "Épaules", "Pompe mains reculées vers la taille, buste penché en avant — prépare la planche.", ["Mains au niveau de la taille, doigts vers l'arrière (si possible)", "Penche les épaules devant les mains", "Descends en gardant le corps droit", "Pousse"], "Excellent transfert vers la planche.", 30, "Avancé"),
+    _dx('calisthenie', "Pike push-up", "Épaules", "Pompe en V inversé.", ["Hanches hautes, corps en V", "Descends le sommet du crâne vers le sol", "Coudes contrôlés", "Pousse vers le haut"], "Rapproche les pieds des mains pour durcir.", 35, "Intermédiaire"),
+    _dx('calisthenie', "Pike push-up surélevée", "Épaules", "Pieds surélevés : se rapproche de la pompe en équilibre.", ["Pieds sur un banc, hanches très hautes", "Crâne vers le sol entre les mains", "Coudes vers l'arrière", "Pousse"], "Étape vers le handstand push-up.", 30, "Avancé"),
+    _dx('calisthenie', "Dips sur appuis", "Triceps", "Poussée verticale sur deux appuis (chaises/barres).", ["Mains sur appuis stables, corps suspendu", "Descends en pliant les coudes", "Coudes vers l'arrière", "Remonte en poussant"], "Jambes pliées pour faciliter, tendues pour durcir.", 40, "Intermédiaire"),
+    _dx('calisthenie', "Finisher — pompes lentes", "Pectoraux", "Tempo lent jusqu'à l'échec technique.", ["Descente en 3-4 secondes", "Pause en bas", "Pousse de façon contrôlée", "Garde la forme jusqu'au bout"], "La lenteur augmente le temps sous tension.", 40)
+  ];
+
+  // TIRER — dos / biceps (barre de traction ou appuis bas)
+  var CALIS_PULL = [
+    CALIS_WU,
+    _dx('calisthenie', "Rétractions scapulaires", "Dos", "Suspendu à la barre, rapproche les omoplates sans plier les bras.", ["Suspendu bras tendus", "Tire les épaules vers le bas/arrière", "Sans plier les coudes", "Contrôle"], "La base de toute traction : active le dos.", 30, "Intermédiaire"),
+    _dx('calisthenie', "Rowing inversé (table)", "Dos", "Tirage horizontal sous une table/barre basse solide.", ["Allongé sous l'appui, agrippe-le", "Corps gainé", "Tire la poitrine vers l'appui", "Contrôle la descente"], "Plus le corps est horizontal, plus c'est dur.", 40),
+    _dx('calisthenie', "Rowing archer (table)", "Dos", "Tirage horizontal en chargeant un bras.", ["Sous l'appui, tire vers une main", "L'autre bras reste tendu", "Alterne", "Reste gainé"], "Transition vers le tirage à un bras.", 35, "Avancé"),
+    _dx('calisthenie', "Tractions négatives", "Dos", "Seulement la descente, la plus lente possible.", ["Monte en sautant, menton au-dessus de la barre", "Descends en 4-5 secondes", "Garde les épaules engagées", "Recommence"], "Meilleur exercice pour débloquer la 1re traction.", 40, "Intermédiaire"),
+    _dx('calisthenie', "Tractions assistées", "Dos", "Tractions avec élastique ou pieds en appui.", ["Élastique au pied ou genou", "Tire le menton au-dessus de la barre", "Descends contrôlé", "Garde le gainage"], "Réduis l'assistance au fil des semaines.", 40, "Intermédiaire"),
+    _dx('calisthenie', "Tractions pronation", "Dos", "Traction paumes vers l'avant — le grand dorsal.", ["Prise pronation, largeur d'épaules", "Tire le menton au-dessus de la barre", "Épaules basses", "Descends complètement"], "Évite de te balancer (pas de kipping).", 40, "Avancé"),
+    _dx('calisthenie', "Tractions supination (chin-ups)", "Biceps", "Traction paumes vers toi — plus de biceps.", ["Prise supination", "Tire le menton au-dessus de la barre", "Coudes près du corps", "Descente contrôlée"], "Souvent plus facile que la pronation.", 40, "Avancé"),
+    _dx('calisthenie', "Finisher — suspension active", "Dos", "Tenue suspendue, omoplates engagées.", ["Suspendu à la barre", "Épaules tirées vers le bas", "Gaine le corps", "Tiens le plus longtemps possible"], "Renforce la prise et stabilise les épaules.", 40)
+  ];
+
+  // JAMBES — quadriceps / ischios / fessiers / mollets
+  var CALIS_LEGS = [
+    CALIS_WU,
+    _dx('calisthenie', "Squats au poids du corps", "Quadriceps", "Flexion complète des jambes.", ["Pieds largeur d'épaules", "Descends les hanches sous les genoux", "Dos droit, talons au sol", "Pousse dans les talons"], "Genoux dans l'axe des pieds.", 45),
+    _dx('calisthenie', "Fentes avant alternées", "Quadriceps", "Grandes fentes en alternance.", ["Grand pas en avant", "Descends le genou arrière vers le sol", "Genou avant dans l'axe", "Alterne les jambes"], "Buste droit, contrôle la descente.", 45),
+    _dx('calisthenie', "Fentes bulgares", "Quadriceps", "Fente pied arrière surélevé (très efficace).", ["Pied arrière sur un appui", "Descends la jambe avant", "Genou dans l'axe", "Change de côté à mi-temps"], "Garde le buste droit, poids sur la jambe avant.", 45, "Intermédiaire"),
+    _dx('calisthenie', "Squats sautés", "Quadriceps", "Squat explosif avec saut.", ["Descends en squat", "Explose vers le haut", "Atterris en douceur, genoux fléchis", "Enchaîne"], "Amortis bien les réceptions.", 40, "Intermédiaire"),
+    _dx('calisthenie', "Montées sur banc (step-up)", "Fessiers", "Monte sur un appui en poussant sur une jambe.", ["Pose un pied sur un banc stable", "Monte en poussant dans le talon", "Contrôle la descente", "Change de côté à mi-temps"], "Évite de pousser sur la jambe du bas.", 45),
+    _dx('calisthenie', "Pistol squat assisté", "Quadriceps", "Squat sur une jambe avec appui léger.", ["Une jambe tendue devant", "Descends sur l'autre en te tenant", "Contrôle toute la descente", "Change de côté à mi-temps"], "L'appui ne fait qu'équilibrer.", 40, "Avancé"),
+    _dx('calisthenie', "Curl nordique négatif", "Ischio-jambiers", "Descente lente, chevilles bloquées — ischios en excentrique.", ["À genoux, chevilles bloquées (sous un meuble)", "Descends le buste le plus lentement possible", "Garde les hanches tendues", "Pousse avec les mains pour remonter"], "Exercice exigeant : amplitude réduite au début.", 35, "Avancé"),
+    _dx('calisthenie', "Mollets debout", "Mollets", "Extensions sur la pointe des pieds.", ["Debout, monte sur la pointe des pieds", "Pause en haut", "Descends lentement", "Sur une marche pour plus d'amplitude"], "Sur une jambe pour durcir.", 40),
+    _dx('calisthenie', "Finisher — chaise au mur", "Quadriceps", "Tenue isométrique cuisses à l'horizontale.", ["Dos au mur, glisse en position assise", "Cuisses parallèles au sol", "Genoux au-dessus des chevilles", "Tiens"], "Respire malgré la brûlure.", 45)
+  ];
+
+  // GAINAGE — sangle abdominale / obliques / compressions
+  var CALIS_CORE_POOL = [
+    CALIS_WU,
+    _dx('calisthenie', "Planche (gainage)", "Abdominaux", "Gainage isométrique de référence.", ["Avant-bras et orteils", "Corps parfaitement aligné", "Contracte abdos et fessiers", "Respire"], "Hanches ni hautes ni basses.", 45),
+    _dx('calisthenie', "Planche latérale", "Obliques", "Gainage latéral.", ["Sur un avant-bras, corps de profil", "Hanches hautes, corps aligné", "Gaine les obliques", "Change de côté à mi-temps"], "Sur les genoux pour faciliter.", 40),
+    _dx('calisthenie', "Hollow hold", "Abdominaux", "Gainage creux du gymnaste.", ["Sur le dos, bas du dos plaqué", "Épaules et jambes décollées", "Corps en banane creuse", "Tiens"], "Plie les genoux pour réduire la difficulté.", 35, "Intermédiaire"),
+    _dx('calisthenie', "Hollow rocks", "Abdominaux", "Balancement en position hollow.", ["En hollow, balance d'avant en arrière", "Garde le bas du dos collé", "Mouvement contrôlé", "Gaine"], "Plie un peu les genoux si le dos décolle.", 40, "Intermédiaire"),
+    _dx('calisthenie', "Relevés de jambes", "Abdominaux", "Bas des abdominaux, au sol.", ["Allongé, jambes tendues", "Monte à la verticale", "Descends sans toucher le sol", "Bas du dos plaqué"], "Plie les genoux pour faciliter.", 40, "Intermédiaire"),
+    _dx('calisthenie', "Relevés de genoux suspendus", "Abdominaux", "Suspendu à la barre, monte les genoux.", ["Suspendu, épaules engagées", "Monte les genoux vers la poitrine", "Sans te balancer", "Descends contrôlé"], "Tendre les jambes pour durcir.", 35, "Avancé"),
+    _dx('calisthenie', "Gainage rotatif (Russian twist)", "Obliques", "Rotation du buste, pieds décollés.", ["Assis, buste incliné, pieds décollés", "Tourne le buste d'un côté à l'autre", "Contrôle, ne te précipite pas", "Gaine"], "Pose les talons pour faciliter.", 40),
+    _dx('calisthenie', "Finisher — planche maximale", "Abdominaux", "Tenue de gainage jusqu'à l'échec technique.", ["Position planche parfaite", "Gaine tout le corps", "Respire", "Tiens jusqu'à perdre l'alignement"], "Arrête dès que les hanches tombent.", 45)
+  ];
+
+  // SKILLS — figures du gymnaste (prérequis : gainage solide)
+  var CALIS_SKILL = [
+    _dx('calisthenie', "Échauffement poignets & épaules", "Cardio", "Préparation spécifique aux tenues.", ["Cercles et étirements des poignets", "Pompes lentes, mobilité épaules", "Gainage hollow 20 s", "Échauffe à fond"], "Ne saute jamais l'échauffement des poignets.", 75),
+    _dx('calisthenie', "Crow pose (corbeau)", "Épaules", "Premier équilibre sur les mains, genoux sur les coudes.", ["Mains au sol, écarte les doigts", "Pose les genoux sur l'arrière des bras", "Bascule le poids vers l'avant", "Décolle les pieds, regarde devant"], "Mets un coussin devant toi pour oser.", 30, "Intermédiaire"),
+    _dx('calisthenie', "Équilibre contre le mur", "Épaules", "Handstand dos au mur, pour la tenue et la confiance.", ["Mains près du mur, monte en équilibre dos au mur", "Gaine le ventre, pousse dans le sol", "Corps aligné, regard entre les mains", "Tiens"], "Talons posés au mur, corps droit.", 30, "Avancé"),
+    _dx('calisthenie', "Pompes équilibre (mur)", "Épaules", "Handstand push-up contre le mur.", ["En équilibre au mur", "Descends le crâne vers le sol", "Coudes contrôlés", "Pousse pour remonter"], "Amplitude réduite au début.", 25, "Avancé"),
+    _dx('calisthenie', "Tuck planche (tenue)", "Épaules", "Initiation à la planche, genoux groupés.", ["Mains au sol, penche les épaules devant", "Décolle les pieds, genoux groupés", "Bassin haut, bras tendus", "Gaine"], "Prérequis : hollow hold 30 s + pseudo-planche.", 25, "Avancé"),
+    _dx('calisthenie', "L-sit groupé → tendu", "Abdominaux", "Maintien jambes à l'équerre.", ["Mains au sol (ou supports), décolle le bassin", "Genoux groupés, puis tends progressivement", "Épaules basses, coudes verrouillés", "Tiens"], "Sur deux livres/parallettes pour plus de marge.", 25, "Avancé"),
+    _dx('calisthenie', "Back lever groupé", "Dos", "Suspendu, corps à l'horizontale face au sol, groupé.", ["Suspendu, passe en position renversée groupée", "Descends jusqu'à l'horizontale, dos au sol", "Genoux groupés, gaine fort", "Tiens brièvement"], "Progression lente : épaules très sollicitées.", 20, "Avancé"),
+    _dx('calisthenie', "Front lever groupé", "Dos", "Suspendu, corps horizontal face au ciel, groupé.", ["Suspendu, tire les omoplates", "Remonte le corps à l'horizontale, dos vers le sol", "Genoux groupés, gaine", "Tiens brièvement"], "Le tuck front lever est la 1re étape.", 20, "Avancé"),
+    _dx('calisthenie', "Drapeau — appui vertical", "Obliques", "Première étape du drapeau humain, corps vertical.", ["Agrippe un poteau, bras tendu haut + bras bas", "Décolle les pieds, corps vertical le long du poteau", "Gaine fort les obliques", "Tiens"], "Maîtrise la verticale avant d'ouvrir les jambes.", 20, "Avancé")
+  ];
+
+  // FULL BODY — séance complète équilibrée sans matériel
+  var CALIS_FULL = [
+    CALIS_WU,
+    _dx('calisthenie', "Pompes", "Pectoraux", "Poussée horizontale.", ["Mains largeur d'épaules", "Corps gainé", "Descends la poitrine", "Pousse, coudes ~45°"], "Sur les genoux si besoin.", 40),
+    _dx('calisthenie', "Squats", "Quadriceps", "Flexion de jambes complète.", ["Pieds largeur d'épaules", "Hanches sous les genoux", "Talons au sol", "Pousse"], "Genoux dans l'axe.", 45),
+    _dx('calisthenie', "Rowing inversé (table)", "Dos", "Tirage horizontal sous un appui.", ["Allongé sous une table solide", "Tire la poitrine vers l'appui", "Corps gainé", "Descente contrôlée"], "Genoux pliés pour faciliter.", 40),
+    _dx('calisthenie', "Fentes alternées", "Quadriceps", "Travail unilatéral des jambes.", ["Grand pas en avant", "Descends le genou arrière", "Alterne", "Buste droit"], "Contrôle la descente.", 45),
+    _dx('calisthenie', "Pike push-up", "Épaules", "Pompe en V pour les épaules.", ["Hanches hautes", "Crâne vers le sol", "Coudes contrôlés", "Pousse"], "Rapproche les pieds pour durcir.", 35),
+    _dx('calisthenie', "Superman", "Dos", "Chaîne postérieure.", ["Sur le ventre", "Lève bras et jambes", "Serre les fessiers", "Tiens 1-2 s"], "Regarde le sol.", 40),
+    _dx('calisthenie', "Hollow hold", "Abdominaux", "Gainage creux.", ["Bas du dos plaqué", "Épaules et jambes décollées", "Banane creuse", "Tiens"], "Genoux pliés pour faciliter.", 35),
+    _dx('calisthenie', "Finisher — planche", "Abdominaux", "Gainage final.", ["Position planche", "Corps aligné", "Gaine tout", "Tiens"], "Qualité avant durée.", 45)
+  ];
+
+  // CONDITIONING — circuit métabolique au poids du corps
+  var CALIS_COND = [
+    CALIS_WU,
+    _dx('calisthenie', "Burpees", "Cardio", "Mouvement complet explosif.", ["Squat, mains au sol", "Planche puis pompe (option)", "Ramène les pieds", "Saut vertical"], "Trouve un rythme tenable.", 40),
+    _dx('calisthenie', "Mountain climbers", "Abdominaux", "Cardio + gainage.", ["Position planche", "Genoux à la poitrine en alternance rapide", "Bassin stable", "Souffle"], "Garde le dos plat.", 40),
+    _dx('calisthenie', "Squats sautés", "Quadriceps", "Explosivité des jambes.", ["Squat puis saut", "Réception douce", "Ré-explose", "Dos droit"], "Amortis les réceptions.", 40),
+    _dx('calisthenie', "Pompes", "Pectoraux", "Haut du corps.", ["Corps gainé", "Descends contrôlé", "Pousse fort", "Rythme"], "Forme avant vitesse.", 40),
+    _dx('calisthenie', "High knees", "Cardio", "Course sur place genoux hauts.", ["Genoux hauts", "Bras dynamiques", "Cadence soutenue", "Avant des pieds"], "Reste léger et explosif.", 40),
+    _dx('calisthenie', "Finisher — gainage actif", "Abdominaux", "Planche avec touches d'épaules.", ["Planche bras tendus", "Touche une épaule puis l'autre", "Bassin immobile", "Gaine"], "Écarte les pieds pour stabiliser.", 40)
+  ];
+
+  // PROGRESSIONS vers les figures (skill trees) — affichées dans l'app.
+  var CALIS_PROGRESSIONS = [
+    { skill: 'Traction (pull-up)', emoji: '🆙', muscle: 'Dos', steps: ['Rétractions scapulaires', 'Rowing inversé (horizontal)', 'Tractions négatives (descente lente)', 'Tractions assistées (élastique)', 'Traction complète', 'Tractions lestées'] },
+    { skill: 'Dips', emoji: '💪', muscle: 'Triceps', steps: ['Dips sur banc, pieds au sol', 'Dips négatifs (descente lente)', 'Dips complets sur appuis', 'Dips lestés'] },
+    { skill: 'Pistol squat', emoji: '🦵', muscle: 'Quadriceps', steps: ['Squats profonds contrôlés', 'Squats sur une jambe assistés', 'Pistol en boîte (sur un banc)', 'Pistol squat complet'] },
+    { skill: 'Handstand (équilibre)', emoji: '🤸', muscle: 'Épaules', steps: ['Renforcement épaules (pike push-up)', 'Équilibre contre le mur', 'Montée en équilibre', 'Tenir en s\'éloignant du mur', 'Équilibre libre'] },
+    { skill: 'L-sit', emoji: '📐', muscle: 'Abdominaux', steps: ['Gainage sol & compressions', 'L-sit pieds au sol (assisté)', 'L-sit genoux groupés', 'L-sit jambes tendues'] },
+    { skill: 'Muscle-up', emoji: '⚡', muscle: 'Dos', steps: ['Tractions strictes solides', 'Tractions explosives (poitrine à la barre)', 'Travail de la transition (négatives)', 'Muscle-up complet'] },
+    { skill: 'Planche', emoji: '🛩️', muscle: 'Épaules', steps: ['Pseudo-planche push-up', 'Planche lean (penché)', 'Tuck planche', 'Advanced tuck planche', 'Straddle planche', 'Full planche'] },
+    { skill: 'Front lever', emoji: '➖', muscle: 'Dos', steps: ['Tractions & gainage solides', 'Tuck front lever', 'Advanced tuck', 'Une jambe tendue', 'Straddle', 'Full front lever'] },
+    { skill: 'Drapeau humain', emoji: '🚩', muscle: 'Obliques', steps: ['Renforcement obliques/épaules', 'Appui vertical (support hold)', 'Drapeau jambes groupées', 'Descente lente', 'Drapeau complet'] }
+  ];
+
   var COURSE_INTER = [
     _run("Échauffement — marche rapide", "3 min pour démarrer en douceur.", ["Marche d'un bon pas, puis trottine sur la fin", "Relâche les épaules", "Respire amplement", "Accélère progressivement"], "Ne pars pas à froid.", 180),
     _run("Footing progressif", "Une course qui accélère doucement du début à la fin.", ["Démarre TRÈS facile, comme un footing lent", "Augmente un peu l'allure toutes les 3-4 min", "Termine soutenu mais contrôlé (jamais à fond)", "Reste souple tout du long"], "Le but : finir plus vite que tu n'as commencé.", 600),
@@ -590,6 +699,13 @@
   BOXE_SESSIONS.push({ id: 'vitesse', name: 'Vitesse & contres', level: 'Confirmé', rest: 60, minLevel: 5, exercises: BOXE_CONF });
   CALIS_SESSIONS.push({ id: 'volume', name: 'Volume', level: 'Intermédiaire', rest: 25, minLevel: 2, exercises: CALIS_INTER });
   CALIS_SESSIONS.push({ id: 'force', name: 'Force & tenues', level: 'Confirmé', rest: 25, minLevel: 5, exercises: CALIS_CONF });
+  CALIS_SESSIONS.push({ id: 'push', name: 'Pousser — pecto/épaules/triceps', level: 'Tous niveaux', rest: 30, exercises: CALIS_PUSH });
+  CALIS_SESSIONS.push({ id: 'pull', name: 'Tirer — dos/biceps (barre)', level: 'Intermédiaire', rest: 35, minLevel: 2, exercises: CALIS_PULL });
+  CALIS_SESSIONS.push({ id: 'legs', name: 'Jambes d\'acier', level: 'Tous niveaux', rest: 30, exercises: CALIS_LEGS });
+  CALIS_SESSIONS.push({ id: 'gainage', name: 'Gainage du gymnaste', level: 'Tous niveaux', rest: 25, exercises: CALIS_CORE_POOL });
+  CALIS_SESSIONS.push({ id: 'fullbody', name: 'Full body sans matériel', level: 'Tous niveaux', rest: 30, exercises: CALIS_FULL });
+  CALIS_SESSIONS.push({ id: 'conditioning', name: 'Conditioning — circuit', level: 'Intermédiaire', rest: 20, minLevel: 3, exercises: CALIS_COND });
+  CALIS_SESSIONS.push({ id: 'skills', name: 'Skills & figures', level: 'Avancé', rest: 60, minLevel: 5, exercises: CALIS_SKILL });
   COURSE_SESSIONS.push({ id: 'progressif', name: 'Endurance progressive', level: 'Intermédiaire', rest: 0, minLevel: 2, exercises: COURSE_INTER });
   COURSE_SESSIONS.push({ id: 'seuil', name: 'Seuil / Tempo', level: 'Confirmé', rest: 0, minLevel: 5, exercises: COURSE_CONF });
   HIIT_SESSIONS.push({ id: 'circuit', name: 'Circuit', level: 'Intermédiaire', rest: 20, minLevel: 2, exercises: HIIT_INTER });
@@ -784,10 +900,10 @@
       frequency: "2 à 3 fois par semaine, en laissant des jours plus légers entre les séances intenses."
     },
     calisthenie: {
-      about: "La calisthénie, c'est la musculation au poids du corps : pompes, squats, dips, et des figures de gymnaste (planche, L-sit) qui se construisent par étapes.",
-      howItWorks: "Tu commences par les fondations, puis les paliers Skills et Élite débloquent des tenues et des figures plus exigeantes à mesure que ta Voie du Corps progresse. Les figures avancées demandent des prérequis (gainage solide) — ils sont indiqués dans les conseils.",
-      principles: ["Maîtrise une progression avant de passer à la suivante.", "La qualité d'exécution prime sur le nombre de répétitions.", "Échauffe poignets et épaules avant les tenues.", "Respecte les prérequis : ils évitent les blessures."],
-      frequency: "3 à 4 fois par semaine, en alternant les groupes (pousser / tirer / gainage)."
+      about: "La calisthénie, c'est la musculation au poids du corps : pousser, tirer, gainer, et des figures de gymnaste (équilibre, L-sit, planche, drapeau) qui se construisent par étapes.",
+      howItWorks: "Tu disposes de séances par schéma de mouvement (Pousser, Tirer, Jambes, Gainage), d'un Full body, d'un circuit Conditioning, et de séances Skills pour les figures. Les paliers de ta Voie du Corps débloquent les contenus avancés. Surtout, des arbres de progression (plus bas) t'amènent étape par étape vers chaque figure — passe à l'étape suivante quand tu maîtrises la précédente.",
+      principles: ["Maîtrise une progression avant de passer à la suivante.", "La qualité d'exécution prime sur le nombre de répétitions.", "Échauffe poignets et épaules avant les tenues.", "Respecte les prérequis (gainage solide) : ils évitent les blessures.", "Pour le Tirer et certaines figures, une barre de traction aide beaucoup."],
+      frequency: "3 à 4 fois par semaine, en alternant les schémas (pousser / tirer / jambes / gainage)."
     },
     course: {
       about: "La course développe l'endurance cardiovasculaire. L'app te guide aussi bien sur du footing facile que sur du fractionné, au chrono.",
@@ -851,6 +967,45 @@
   global.BOXE_SESSIONS = BOXE_SESSIONS;
   global.getBoxeSession = getBoxeSession;
   global.CALIS_SESSIONS = CALIS_SESSIONS;
+  global.CALIS_PROGRESSIONS = CALIS_PROGRESSIONS;
+
+  /* ===== ARBRES DE PROGRESSION — autres disciplines ===== */
+  var COURSE_PROGRESSIONS = [
+    { skill: 'La Distance', emoji: '🏃', steps: ['Marcher 30 min sans pause', 'Alterner 1 min course / 2 min marche', 'Courir 10 min sans arrêt', 'Courir 30 min sans arrêt', 'Boucler 5 km', 'Boucler 10 km', 'Boucler un semi-marathon (21 km)', 'Boucler un marathon (42 km)'] },
+    { skill: 'Le Fractionné', emoji: '⚡', steps: ['Tenir 8× (30s rapide / 30s lent)', 'Tenir 6× 1 min rapide', 'Répétitions de 400 m', 'Répétitions de 1 km au seuil', 'Pyramide 200-400-800-400-200'] }
+  ];
+  var CORE_PROGRESSIONS = [
+    { skill: 'Le Gainage', emoji: '🧱', steps: ['Planche sur les genoux 30s', 'Planche complète 30s', 'Planche 60s', 'Planche pieds surélevés', 'Planche dynamique (touches d\'épaules)'] },
+    { skill: 'Le Hollow & L-sit', emoji: '📐', steps: ['Dead bug contrôlé', 'Hollow genoux pliés', 'Hollow hold jambes tendues', 'Hollow rocks', 'L-sit groupé', 'L-sit jambes tendues'] },
+    { skill: 'Le Dragon Flag', emoji: '🐉', steps: ['Relevés de jambes au sol', 'Relevés lents et contrôlés', 'Dragon flag négatif (descente lente)', 'Dragon flag groupé', 'Dragon flag complet'] }
+  ];
+  var YOGA_PROGRESSIONS = [
+    { skill: 'L\'Équilibre', emoji: '🌳', steps: ['Posture de l\'arbre 30s', 'Guerrier 3', 'Demi-lune', 'Équilibre orteil-main'] },
+    { skill: 'Les Flexions arrière', emoji: '🌙', steps: ['Cobra', 'Chien tête en haut', 'Pont (bassin haut)', 'Roue (chakrasana)'] },
+    { skill: 'Les Inversions', emoji: '🙃', steps: ['Chien tête en bas solide', 'Pieds au mur (préparation)', 'Équilibre avant-bras au mur', 'Poirier sur la tête (sirsasana)', 'Poirier sur les mains (libre)'] },
+    { skill: 'Équilibres sur les bras', emoji: '🤸', steps: ['Planche solide', 'Corbeau (bakasana)', 'Corbeau latéral', 'La Grue (bras tendus)'] }
+  ];
+  var MOBILITE_PROGRESSIONS = [
+    { skill: 'Grand écart facial', emoji: '🤸', steps: ['Toucher ses orteils', 'Mains à plat au sol', 'Fente basse profonde', 'Demi-grand écart', 'Grand écart facial complet'] },
+    { skill: 'Grand écart latéral', emoji: '🦋', steps: ['Papillon (ouvrir les hanches)', 'Squat profond tenu (malasana)', 'Écart latéral partiel', 'Grand écart latéral complet'] },
+    { skill: 'Le Pont (souplesse dos)', emoji: '🌉', steps: ['Sphinx', 'Cobra complet', 'Pont sur les épaules', 'Pont complet (mains et pieds au sol)', 'Pont mains-pieds rapprochés'] },
+    { skill: 'Épaules & dos', emoji: '💪', steps: ['Mains jointes dans le dos', 'Rotation au bâton (prise large)', 'Passe-bâton progressivement serré'] }
+  ];
+  var BOXE_PROGRESSIONS = [
+    { skill: 'Les Fondamentaux', emoji: '🥊', steps: ['Garde & déplacements', 'Le jab (1)', 'Jab-cross (1-2)', 'Combo 1-2-3'] },
+    { skill: 'La Défense', emoji: '🛡️', steps: ['Garde haute solide', 'Esquive (slip)', 'Esquive + contre', 'Esquives roulées (bobbing)'] },
+    { skill: 'Le Jeu de jambes', emoji: '👟', steps: ['Pas chassés (sans croiser)', 'Pivots', 'Création d\'angles', 'Sortie latérale après combo'] },
+    { skill: 'Combos avancés', emoji: '⚡', steps: ['Enchaînement 1-2-3-2', 'Intégrer les uppercuts', 'Doubles (jab-jab...)', 'Rafales en mouvement'] }
+  ];
+  var DISCIPLINE_PROGRESSIONS = {
+    calisthenie: CALIS_PROGRESSIONS,
+    course: COURSE_PROGRESSIONS,
+    core: CORE_PROGRESSIONS,
+    yoga: YOGA_PROGRESSIONS,
+    mobilite: MOBILITE_PROGRESSIONS,
+    boxe: BOXE_PROGRESSIONS
+  };
+  global.DISCIPLINE_PROGRESSIONS = DISCIPLINE_PROGRESSIONS;
   global.COURSE_SESSIONS = COURSE_SESSIONS;
   global.MOBILITE_SESSIONS = MOBILITE_SESSIONS;
   global.PILATES_SESSIONS = PILATES_SESSIONS;
