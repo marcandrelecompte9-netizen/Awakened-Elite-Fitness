@@ -701,6 +701,16 @@ function generic_muscle(muscle, phase) {
 // ── IMAGE MAP — exercices avec vraies images ─────────────────────────
 // Clé = nom exact de l'exercice, valeur = chemin du fichier image
 var EXERCISE_IMAGES = {
+  'Randonnée (Hiking)':            'images/exercises/Randonnée_Hiking.webp',
+  'Skater jumps':                  'images/exercises/Skater_jumps.webp',
+  'Tapis roulant intervalles':     'images/exercises/Tapis_roulant_intervalles.webp',
+  'Jump Rope Calf Focus':          'images/exercises/Jump_Rope_Calf_Focus.webp',
+  'Mollets presse à jambes':       'images/exercises/Mollets_presse_à_jambes.webp',
+  'Sauts mollets':                 'images/exercises/Sauts_mollets.webp',
+  'Développé incliné barre':       'images/exercises/Développé_incliné_barre.webp',
+  'Développé décliné barre':       'images/exercises/Développé_décliné_barre.webp',
+  'TRX pistol squat':              'images/exercises/TRX_pistol_squat.webp',
+  'Sandbag Clean & Press':         'images/exercises/Sandbag_Clean_Press.webp',
   'Élévations frontales':          'images/exercises/Élévations_frontales.webp',
   'Presse épaules unilatérale':    'images/exercises/Presse_épaules_unilatérale.webp',
   'Overhead Press barre':          'images/exercises/Overhead_Press_barre.webp',

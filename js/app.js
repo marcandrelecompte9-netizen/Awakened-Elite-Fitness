@@ -38389,56 +38389,60 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         }
         window.renderInsightsCard = renderInsightsCard;
 
-        // ── 📋 Bilan complet : tous les insights + stats comportementales ──
+        // ── 📋 Corps du bilan Coach (analyse comportementale) ──
+        // Retourne le HTML interne (sans wrapper) — réutilisé dans l'onglet « Coach »
+        // de l'écran fusionné « Analyse du Système ».
+        function _coachBilanBodyHTML() {
+            try {
+                const b = awakAnalyzeBehavior();
+                const ins = awakBehaviorInsights();
+                const cons = awakConsistencyInfo();
+                const ccrTxt = (b.challengeCompletionRate === null) ? '—' : Math.round(b.challengeCompletionRate * 100) + '%';
+                const stat = function (label, val) { return '<div style="flex:1;text-align:center;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:10px 4px;"><div style="font-size:1.15em;font-weight:900;color:white;">' + val + '</div><div style="font-size:0.56em;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;line-height:1.2;">' + label + '</div></div>'; };
+                const insList = ins.map(function (i) { return '<div style="display:flex;gap:9px;align-items:flex-start;background:rgba(255,255,255,0.03);border-left:3px solid ' + i.color + ';border-radius:8px;padding:9px 11px;margin-bottom:7px;"><span style="font-size:1.1em;flex-shrink:0;line-height:1.2;">' + i.icon + '</span><div style="font-size:0.76em;color:#cbd5e1;line-height:1.45;">' + i.text + '</div></div>'; }).join('');
+                return ''
+                    // type d'athlète
+                    + '<div style="text-align:center;margin-bottom:16px;"><div style="font-size:2.6em;line-height:1;">' + b.type.emoji + '</div><div style="font-weight:900;color:white;font-size:1.15em;margin-top:4px;">' + b.type.label + '</div><div style="font-size:0.74em;color:#94a3b8;margin-top:2px;">' + b.type.desc + '</div></div>'
+                    // score d'assiduité
+                    + '<div style="background:rgba(255,255,255,0.03);border:1px solid ' + cons.color + '44;border-radius:14px;padding:13px 15px;margin-bottom:14px;">'
+                    + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;"><span style="font-size:0.72em;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Assiduité</span><span style="font-weight:900;color:' + cons.color + ';font-size:0.95em;">' + cons.score + '/100 · ' + cons.label + '</span></div>'
+                    + '<div style="height:9px;background:rgba(255,255,255,0.07);border-radius:6px;overflow:hidden;"><div style="height:100%;width:' + cons.score + '%;background:' + cons.color + ';border-radius:6px;"></div></div></div>'
+                    // courbe d'assiduité (6 dernières semaines)
+                    + (function () {
+                        const weeks = awakWeeklySessionCounts(6);
+                        if (!weeks.length) return '';
+                        const wmax = Math.max(3, Math.max.apply(null, weeks));
+                        const bars = weeks.map(function (c, i) {
+                            const isLast = (i === weeks.length - 1);
+                            const h = Math.max(6, Math.round((c / wmax) * 100));
+                            return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">'
+                                + '<div style="font-size:0.62em;color:' + (isLast ? '#22d3ee' : '#64748b') + ';font-weight:800;">' + c + '</div>'
+                                + '<div style="width:100%;max-width:20px;height:46px;display:flex;align-items:flex-end;"><div style="width:100%;height:' + h + '%;background:' + (isLast ? '#22d3ee' : 'rgba(34,211,238,0.4)') + ';border-radius:4px 4px 0 0;"></div></div></div>';
+                        }).join('');
+                        return '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:13px 15px;margin-bottom:14px;">'
+                            + '<div style="font-size:0.66em;color:#94a3b8;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:9px;">Séances · 6 dernières semaines</div>'
+                            + '<div style="display:flex;gap:6px;align-items:flex-end;">' + bars + '</div></div>';
+                    })()
+                    // stats
+                    + '<div style="display:flex;gap:8px;margin-bottom:16px;">'
+                    + stat('Séances/sem', b.perWeek ? b.perWeek.toFixed(1) : '0')
+                    + stat('Défis finis', ccrTxt)
+                    + stat('Programmes', b.progStart)
+                    + stat('Remplacements', b.totalSwaps)
+                    + '</div>'
+                    // insights
+                    + '<div style="font-size:0.7em;color:#94a3b8;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:9px;">Conseils pour toi</div>'
+                    + insList
+                    + '<div style="margin-top:12px;font-size:0.64em;color:#64748b;line-height:1.5;">Analyse basée sur tes 90 derniers jours, calculée en local sur ton appareil. Ces conseils sont là pour t\'aider, à toi de voir ce qui te convient.</div>';
+            } catch (e) {
+                return '<div style="text-align:center;padding:20px;color:#94a3b8;font-size:0.82em;line-height:1.5;">Analyse comportementale indisponible pour le moment. Fais quelques séances et reviens.</div>';
+            }
+        }
+        window._coachBilanBodyHTML = _coachBilanBodyHTML;
+
+        // ── 📋 Bilan complet → ouvre l'écran fusionné sur l'onglet « Coach » ──
         function openCoachDetail() {
-            const old = document.getElementById('coachModal'); if (old) old.remove();
-            const b = awakAnalyzeBehavior();
-            const ins = awakBehaviorInsights();
-            const cons = awakConsistencyInfo();
-            const ccrTxt = (b.challengeCompletionRate === null) ? '—' : Math.round(b.challengeCompletionRate * 100) + '%';
-            const stat = function (label, val) { return '<div style="flex:1;text-align:center;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:10px 4px;"><div style="font-size:1.15em;font-weight:900;color:white;">' + val + '</div><div style="font-size:0.56em;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;line-height:1.2;">' + label + '</div></div>'; };
-            const insList = ins.map(function (i) { return '<div style="display:flex;gap:9px;align-items:flex-start;background:rgba(255,255,255,0.03);border-left:3px solid ' + i.color + ';border-radius:8px;padding:9px 11px;margin-bottom:7px;"><span style="font-size:1.1em;flex-shrink:0;line-height:1.2;">' + i.icon + '</span><div style="font-size:0.76em;color:#cbd5e1;line-height:1.45;">' + i.text + '</div></div>'; }).join('');
-            const modal = document.createElement('div');
-            modal.className = 'modal active';
-            modal.id = 'coachModal';
-            modal.innerHTML = '<div class="modal-content" style="max-width:460px;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;border-top:3px solid #22d3ee;">'
-                + '<div class="modal-header"><h2 style="font-size:1em;">🧠 Ton bilan</h2><button onclick="document.getElementById(\'coachModal\').remove()" style="background:none;border:none;font-size:1.5em;cursor:pointer;color:#94a3b8;">×</button></div>'
-                + '<div class="modal-body">'
-                // type d'athlète
-                + '<div style="text-align:center;margin-bottom:16px;"><div style="font-size:2.6em;line-height:1;">' + b.type.emoji + '</div><div style="font-weight:900;color:white;font-size:1.15em;margin-top:4px;">' + b.type.label + '</div><div style="font-size:0.74em;color:#94a3b8;margin-top:2px;">' + b.type.desc + '</div></div>'
-                // score d'assiduité
-                + '<div style="background:rgba(255,255,255,0.03);border:1px solid ' + cons.color + '44;border-radius:14px;padding:13px 15px;margin-bottom:14px;">'
-                + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;"><span style="font-size:0.72em;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Assiduité</span><span style="font-weight:900;color:' + cons.color + ';font-size:0.95em;">' + cons.score + '/100 · ' + cons.label + '</span></div>'
-                + '<div style="height:9px;background:rgba(255,255,255,0.07);border-radius:6px;overflow:hidden;"><div style="height:100%;width:' + cons.score + '%;background:' + cons.color + ';border-radius:6px;"></div></div></div>'
-                // courbe d'assiduité (6 dernières semaines)
-                + (function () {
-                    const weeks = awakWeeklySessionCounts(6);
-                    if (!weeks.length) return '';
-                    const wmax = Math.max(3, Math.max.apply(null, weeks));
-                    const bars = weeks.map(function (c, i) {
-                        const isLast = (i === weeks.length - 1);
-                        const h = Math.max(6, Math.round((c / wmax) * 100));
-                        return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">'
-                            + '<div style="font-size:0.62em;color:' + (isLast ? '#22d3ee' : '#64748b') + ';font-weight:800;">' + c + '</div>'
-                            + '<div style="width:100%;max-width:20px;height:46px;display:flex;align-items:flex-end;"><div style="width:100%;height:' + h + '%;background:' + (isLast ? '#22d3ee' : 'rgba(34,211,238,0.4)') + ';border-radius:4px 4px 0 0;"></div></div></div>';
-                    }).join('');
-                    return '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:13px 15px;margin-bottom:14px;">'
-                        + '<div style="font-size:0.66em;color:#94a3b8;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:9px;">Séances · 6 dernières semaines</div>'
-                        + '<div style="display:flex;gap:6px;align-items:flex-end;">' + bars + '</div></div>';
-                })()
-                // stats
-                + '<div style="display:flex;gap:8px;margin-bottom:16px;">'
-                + stat('Séances/sem', b.perWeek ? b.perWeek.toFixed(1) : '0')
-                + stat('Défis finis', ccrTxt)
-                + stat('Programmes', b.progStart)
-                + stat('Remplacements', b.totalSwaps)
-                + '</div>'
-                // insights
-                + '<div style="font-size:0.7em;color:#94a3b8;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:9px;">Conseils pour toi</div>'
-                + insList
-                + '<div style="margin-top:12px;font-size:0.64em;color:#64748b;line-height:1.5;">Analyse basée sur tes 90 derniers jours, calculée en local sur ton appareil. Ces conseils sont là pour t\'aider, à toi de voir ce qui te convient.</div>'
-                + '</div></div>';
-            document.body.appendChild(modal);
+            if (typeof showSystemAnalysis === 'function') { showSystemAnalysis('coach'); }
         }
         window.openCoachDetail = openCoachDetail;
 
@@ -41257,8 +41261,9 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         }
         window.awakAnalyzePlayer = awakAnalyzePlayer;
 
-        function showSystemAnalysis() {
+        function showSystemAnalysis(initialTab) {
             document.getElementById('systemAnalysisOverlay')?.remove();
+            const _tab0 = (initialTab === 'coach') ? 'coach' : 'systeme';
             const a = awakAnalyzePlayer();
 
             // ── 📊 DASHBOARD : données radar musculaire + tendance séances (8 sem) ──
@@ -41365,15 +41370,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
 
             const hasContent = imbalHtml || neglHtml || decayHtml || topHtml;
 
-            const sheet = document.createElement('div');
-            sheet.style.cssText = 'background:#0D0D0D;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;';
-            sheet.innerHTML = `
-                <div style="width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:99px;margin:0 auto 18px;"></div>
-                <div style="text-align:center;margin-bottom:16px;">
-                    <div style="font-size:2em;">⚙️</div>
-                    <h2 style="margin:6px 0 4px;color:white;font-size:1.15em;font-weight:900;">Analyse du Système</h2>
-                    <p style="margin:0;color:rgba(255,255,255,0.4);font-size:0.78em;">Examen détaillé de ta progression et conseils.</p>
-                </div>
+            const systemeInner = `
                 ${dashHtml}
                 ${priorityHtml}
                 ${freqHtml}
@@ -41381,58 +41378,103 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 ${neglHtml}
                 ${decayHtml}
                 ${topHtml}
-                ${!hasContent && f && f.month === 0 ? `<div style="text-align:center;padding:20px;color:#94a3b8;font-size:0.82em;line-height:1.5;">Fais quelques séances et je pourrai analyser tes muscles, détecter les déséquilibres et te guider précisément.</div>` : ''}
+                ${!hasContent && f && f.month === 0 ? `<div style="text-align:center;padding:20px;color:#94a3b8;font-size:0.82em;line-height:1.5;">Fais quelques séances et je pourrai analyser tes muscles, détecter les déséquilibres et te guider précisément.</div>` : ''}`;
+            const coachInner = (typeof _coachBilanBodyHTML === 'function') ? _coachBilanBodyHTML() : '';
+
+            const sheet = document.createElement('div');
+            sheet.style.cssText = 'background:#0D0D0D;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;';
+            sheet.innerHTML = `
+                <div style="width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:99px;margin:0 auto 18px;"></div>
+                <div style="text-align:center;margin-bottom:16px;">
+                    <div style="font-size:2em;">⚙️</div>
+                    <h2 style="margin:6px 0 4px;color:white;font-size:1.15em;font-weight:900;">Analyse du Système</h2>
+                    <p style="margin:0;color:rgba(255,255,255,0.4);font-size:0.78em;">Ta progression physique et ton profil de coach.</p>
+                </div>
+                <div style="display:flex;gap:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:4px;margin-bottom:16px;">
+                    <button id="awakTabSysteme" style="flex:1;border:none;border-radius:9px;padding:9px 6px;font-weight:800;font-size:0.78em;cursor:pointer;transition:all 0.18s;">⚙️ Système</button>
+                    <button id="awakTabCoach" style="flex:1;border:none;border-radius:9px;padding:9px 6px;font-weight:800;font-size:0.78em;cursor:pointer;transition:all 0.18s;">🧠 Coach</button>
+                </div>
+                <div id="awakPanelSysteme">${systemeInner}</div>
+                <div id="awakPanelCoach" style="display:none;">${coachInner}</div>
                 <button onclick="document.getElementById('systemAnalysisOverlay').remove()" style="margin-top:8px;width:100%;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:14px;color:rgba(255,255,255,0.6);font-weight:700;cursor:pointer;">Fermer</button>`;
             overlay.appendChild(sheet);
             document.body.appendChild(overlay);
 
-            // ── 📊 Instancier les graphiques du dashboard ──
-            try {
-                if (typeof Chart !== 'undefined') {
-                    const _rc = document.getElementById('dashRadarChart');
-                    if (_rc) {
-                        new Chart(_rc.getContext('2d'), {
-                            type: 'radar',
-                            data: { labels: _radarLabels, datasets: [{
-                                data: _radarData,
-                                backgroundColor: 'rgba(34,211,238,0.16)',
-                                borderColor: '#22d3ee', borderWidth: 2,
-                                pointBackgroundColor: '#a855f7', pointBorderColor: '#a855f7', pointRadius: 3, pointHoverRadius: 4
-                            }] },
-                            options: {
-                                responsive: true, maintainAspectRatio: false,
-                                plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => ' Niv ' + c.raw } } },
-                                scales: { r: {
-                                    angleLines: { color: 'rgba(255,255,255,0.08)' },
-                                    grid: { color: 'rgba(255,255,255,0.08)' },
-                                    pointLabels: { color: '#cbd5e1', font: { size: 9, weight: '600' } },
-                                    ticks: { display: false, beginAtZero: true },
-                                    suggestedMin: 0
-                                } }
-                            }
-                        });
-                    }
-                    const _tc = document.getElementById('dashTrendChart');
-                    if (_tc) {
-                        new Chart(_tc.getContext('2d'), {
-                            type: 'bar',
-                            data: { labels: _weekLabels, datasets: [{
-                                data: _weeks,
-                                backgroundColor: 'rgba(168,85,247,0.45)',
-                                borderColor: '#a855f7', borderWidth: 1, borderRadius: 4
-                            }] },
-                            options: {
-                                responsive: true, maintainAspectRatio: false,
-                                plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => ' ' + c.raw + ' séance' + (c.raw > 1 ? 's' : '') } } },
-                                scales: {
-                                    x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 9 } } },
-                                    y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: '#94a3b8', font: { size: 9 }, precision: 0, stepSize: 1 } }
+            // ── 📊 Instanciation paresseuse des graphiques (canvas doit être visible) ──
+            let _chartsDone = false;
+            function _instSysCharts() {
+                if (_chartsDone) return;
+                _chartsDone = true;
+                try {
+                    if (typeof Chart !== 'undefined') {
+                        const _rc = document.getElementById('dashRadarChart');
+                        if (_rc) {
+                            new Chart(_rc.getContext('2d'), {
+                                type: 'radar',
+                                data: { labels: _radarLabels, datasets: [{
+                                    data: _radarData,
+                                    backgroundColor: 'rgba(34,211,238,0.16)',
+                                    borderColor: '#22d3ee', borderWidth: 2,
+                                    pointBackgroundColor: '#a855f7', pointBorderColor: '#a855f7', pointRadius: 3, pointHoverRadius: 4
+                                }] },
+                                options: {
+                                    responsive: true, maintainAspectRatio: false,
+                                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => ' Niv ' + c.raw } } },
+                                    scales: { r: {
+                                        angleLines: { color: 'rgba(255,255,255,0.08)' },
+                                        grid: { color: 'rgba(255,255,255,0.08)' },
+                                        pointLabels: { color: '#cbd5e1', font: { size: 9, weight: '600' } },
+                                        ticks: { display: false, beginAtZero: true },
+                                        suggestedMin: 0
+                                    } }
                                 }
-                            }
-                        });
+                            });
+                        }
+                        const _tc = document.getElementById('dashTrendChart');
+                        if (_tc) {
+                            new Chart(_tc.getContext('2d'), {
+                                type: 'bar',
+                                data: { labels: _weekLabels, datasets: [{
+                                    data: _weeks,
+                                    backgroundColor: 'rgba(168,85,247,0.45)',
+                                    borderColor: '#a855f7', borderWidth: 1, borderRadius: 4
+                                }] },
+                                options: {
+                                    responsive: true, maintainAspectRatio: false,
+                                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => ' ' + c.raw + ' séance' + (c.raw > 1 ? 's' : '') } } },
+                                    scales: {
+                                        x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 9 } } },
+                                        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: '#94a3b8', font: { size: 9 }, precision: 0, stepSize: 1 } }
+                                    }
+                                }
+                            });
+                        }
                     }
+                } catch (e) {}
+            }
+
+            // ── Bascule d'onglets ──
+            const _btnS = document.getElementById('awakTabSysteme');
+            const _btnC = document.getElementById('awakTabCoach');
+            const _panS = document.getElementById('awakPanelSysteme');
+            const _panC = document.getElementById('awakPanelCoach');
+            function _switchTab(tab) {
+                const isS = (tab !== 'coach');
+                if (_panS) _panS.style.display = isS ? '' : 'none';
+                if (_panC) _panC.style.display = isS ? 'none' : '';
+                if (_btnS) {
+                    _btnS.style.background = isS ? 'linear-gradient(135deg,#22d3ee,#0891b2)' : 'transparent';
+                    _btnS.style.color = isS ? '#04222b' : '#94a3b8';
                 }
-            } catch (e) {}
+                if (_btnC) {
+                    _btnC.style.background = !isS ? 'linear-gradient(135deg,#22d3ee,#0891b2)' : 'transparent';
+                    _btnC.style.color = !isS ? '#04222b' : '#94a3b8';
+                }
+                if (isS) _instSysCharts();
+            }
+            if (_btnS) _btnS.addEventListener('click', () => _switchTab('systeme'));
+            if (_btnC) _btnC.addEventListener('click', () => _switchTab('coach'));
+            _switchTab(_tab0);
         }
         window.showSystemAnalysis = showSystemAnalysis;
 
