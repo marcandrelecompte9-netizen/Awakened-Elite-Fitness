@@ -159,3 +159,17 @@ AJOUT DES IMAGES D'EXERCICES.
 ═══════════════════════════════════════════════════════════════════════
   Bonne continuation. Respecte les règles anti-casse et tout ira bien.
 ═══════════════════════════════════════════════════════════════════════
+
+═══════════════════════════════════════════════════════════════════════
+  UI KIT (js/ui-kit.js) — ajouté lors de l'audit UX
+═══════════════════════════════════════════════════════════════════════
+  Helpers de composants standards : uiBottomSheet, uiCard, uiActionRow,
+  uiSectionHeader, uiPrimaryButton, uiCloseButton, uiSegmentBar.
+  RÈGLE : tout NOUVEL écran/overlay utilise ces helpers (cohérence
+  visuelle + une seule source de style). Les écrans existants migrent
+  seulement au fil des touches — JAMAIS de refonte en bloc.
+  Exemple d'usage : voir js/feature-map.js (entièrement construit avec).
+  ui-kit.js doit être chargé AVANT les modules qui l'utilisent
+  (ordre dans index.html : app.js → awakening-tree.js → ui-kit.js →
+  feature-map.js) et figure dans le précache de sw.js.
+═══════════════════════════════════════════════════════════════════════

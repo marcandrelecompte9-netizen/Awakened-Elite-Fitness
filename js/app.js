@@ -22869,18 +22869,45 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             }
         };
 
+        // Lance un jour de programme gym via l'écran « Préparez-vous », depuis
+        // n'importe quel onglet (même fix que startDisciplineSession / v461 :
+        // fermer ce qui traîne, basculer sur Entraîner, masquer les panneaux).
+        function startGymDay(programId, dayKey) {
+            const program = gymPrograms[programId];
+            const day = program ? program[dayKey] : null;
+            if (!day) return;
+            const m = document.getElementById('gymDayModal'); if (m) m.remove();
+            if (typeof switchTab === 'function') switchTab('workouts');
+            setTimeout(function () {
+                ['aiWorkoutPanel', 'celebrityPanel', 'planningPanel', 'exerciseSelection'].forEach(function (id) {
+                    const el = document.getElementById(id); if (el) el.style.display = 'none';
+                });
+                buildGymWorkout(day);
+            }, 100);
+        }
+        window.startGymDay = startGymDay;
+
         function startGymProgram(programId) {
             const program = gymPrograms[programId];
             if (!program) return;
 
-            // Pick which day to do (PPL → ask, others → auto)
-            const days = Object.values(program);
-            if (days.length === 1) {
-                buildGymWorkout(days[0]);
+            const keys = Object.keys(program);
+            if (keys.length === 1) {
+                startGymDay(programId, keys[0]);
+                return;
+            }
+            // Choix du jour — bottom sheet au thème de l'app (via ui-kit si dispo)
+            if (typeof uiBottomSheet === 'function') {
+                const s = uiBottomSheet({ id: 'gymDayModal', icon: '🏋️', title: 'Choisir le jour', accent: '#16a34a' });
+                s.body.innerHTML = keys.map(key =>
+                    uiActionRow('▶', program[key].name, (program[key].exercises || []).length + ' exercices',
+                        "startGymDay('" + programId + "','" + key + "')")
+                ).join('') + uiCloseButton('gymDayModal', 'Annuler');
+                s.mount();
             } else {
-                // Show day picker
+                // Fallback (ui-kit absent) : ancienne modale
                 const opts = Object.entries(program).map(([key, day]) =>
-                    `<button class="btn" style="margin-bottom:8px;text-align:left;" onclick="document.getElementById('gymDayModal').remove();buildGymWorkout(gymPrograms['${programId}']['${key}'])">
+                    `<button class="btn" style="margin-bottom:8px;text-align:left;" onclick="startGymDay('${programId}','${key}')">
                         ${day.name}
                     </button>`
                 ).join('');
@@ -35812,21 +35839,45 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 + cards + '</div>';
         }
 
-        // Vue « Salle » — programmes gym existants (réutilise startGymProgram).
+        // Vue « Salle » — programmes gym existants. Chaque jour est un bouton
+        // direct : un tap ouvre l'écran « Préparez-vous » (via startGymDay),
+        // sans modale intermédiaire. Style : cartes sombres + accent néon
+        // distinct par programme (cohérent avec le thème de l'app).
         function _renderSallePrograms() {
             const progs = [
-                { id: 'ppl',           name: 'Push / Pull / Legs', desc: '6 jours · pousser, tirer, jambes', c1: '#166534', c2: '#16a34a' },
-                { id: 'upper_lower',   name: 'Upper / Lower',      desc: '4 jours · haut / bas du corps',     c1: '#15803d', c2: '#166534' },
-                { id: 'full_body_gym', name: 'Full Body',          desc: '3 jours · corps entier',            c1: '#059669', c2: '#047857' }
+                { id: 'ppl',           name: 'Push / Pull / Legs', schema: '3 séances · à répéter sur 6 jours', accent: '#4ade80' },
+                { id: 'upper_lower',   name: 'Upper / Lower',      schema: '2 séances · à alterner sur 4 jours', accent: '#22d3ee' },
+                { id: 'full_body_gym', name: 'Full Body',          schema: '1 séance · corps entier, 3×/semaine', accent: '#fbbf24' }
             ];
             const cards = progs.map(function (p) {
-                return '<div class="card workout-card" onclick="startGymProgram(\'' + p.id + '\')" style="background:linear-gradient(135deg,' + p.c1 + ',' + p.c2 + ');cursor:pointer;padding:16px 18px;">'
-                    + '<div style="font-weight:900;color:#fff;font-size:1.05em;">🏋️ ' + p.name + '</div>'
-                    + '<div style="font-size:0.8em;color:rgba(255,255,255,0.8);margin-top:4px;">' + p.desc + '</div>'
+                const program = (typeof gymPrograms !== 'undefined') ? gymPrograms[p.id] : null;
+                const keys = program ? Object.keys(program) : [];
+                const a = p.accent;
+                const dayBtns = keys.map(function (key) {
+                    const day = program[key];
+                    const nEx = (day.exercises || []).length;
+                    return '<button onclick="startGymDay(\'' + p.id + '\',\'' + key + '\')" style="display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:12px;padding:11px 12px;margin-top:7px;cursor:pointer;">'
+                        + '<span style="flex:1;min-width:0;">'
+                        + '<span style="display:block;font-size:0.82em;font-weight:800;color:#e2e8f0;">' + day.name + '</span>'
+                        + '<span style="display:block;font-size:0.64em;color:#94a3b8;margin-top:2px;">' + nEx + ' exercices · 3 séries</span>'
+                        + '</span>'
+                        + '<span style="flex-shrink:0;background:' + a + '1f;border:1px solid ' + a + '55;border-radius:99px;width:30px;height:30px;display:grid;place-items:center;color:' + a + ';font-size:0.75em;">▶</span>'
+                        + '</button>';
+                }).join('');
+                return '<div class="card" style="background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.08);border-left:3px solid ' + a + ';border-radius:16px;padding:14px 15px;box-shadow:0 0 22px ' + a + '14;">'
+                    + '<div style="display:flex;align-items:center;gap:11px;">'
+                    + '<span style="flex-shrink:0;width:38px;height:38px;border-radius:11px;background:' + a + '1a;border:1px solid ' + a + '44;display:grid;place-items:center;font-size:1.15em;">🏋️</span>'
+                    + '<span style="flex:1;min-width:0;">'
+                    + '<span style="display:block;font-weight:900;color:#fff;font-size:1em;">' + p.name + '</span>'
+                    + '<span style="display:block;font-size:0.68em;color:' + a + ';font-weight:700;margin-top:2px;">' + p.schema + '</span>'
+                    + '</span>'
+                    + '</div>'
+                    + dayBtns
                     + '</div>';
             }).join('');
             return '<div style="display:grid;gap:10px;">'
                 + '<div style="font-size:0.6em;color:#64748b;font-weight:900;letter-spacing:2px;margin-bottom:2px;">◈ PROGRAMMES EN SALLE</div>'
+                + '<div style="font-size:0.7em;color:#94a3b8;margin:-4px 0 4px;line-height:1.4;">Touche une séance pour la lancer directement.</div>'
                 + cards + '</div>';
         }
 
