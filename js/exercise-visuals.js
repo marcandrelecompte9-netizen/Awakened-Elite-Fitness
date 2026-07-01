@@ -701,6 +701,22 @@ function generic_muscle(muscle, phase) {
 // ── IMAGE MAP — exercices avec vraies images ─────────────────────────
 // Clé = nom exact de l'exercice, valeur = chemin du fichier image
 var EXERCISE_IMAGES = {
+  'Planche latérale': 'images/exercises/Planche_latérale.webp',
+  'Medicine Ball V-Up': 'images/exercises/Medicine_Ball_V-Up.webp',
+  'Finisher — pompes lentes': 'images/exercises/Finisher_pompes_lentes.webp',
+  'Finisher — suspension active': 'images/exercises/Finisher_suspension_active.webp',
+  'Hollow rocks': 'images/exercises/Hollow_rocks.webp',
+  'Finisher — planche maximale': 'images/exercises/Finisher_planche_maximale.webp',
+  'Finisher — planche': 'images/exercises/Finisher_planche.webp',
+  'Curl barre': 'images/exercises/Curl_barre.webp',
+  'Cable biceps curl': 'images/exercises/Cable_biceps_curl.webp',
+  'Wrist Roller': 'images/exercises/Wrist_Roller.webp',
+  'Wrist Curl haltères': 'images/exercises/Wrist_Curl_haltères.webp',
+  'Finisher — gainage actif': 'images/exercises/Finisher_gainage_actif.webp',
+  'Leg raises': 'images/exercises/Leg_raises.webp',
+  'L-Sit Hold': 'images/exercises/L-Sit_Hold.webp',
+  'Curl câble barre droite': 'images/exercises/Curl_câble_barre_droite.webp',
+  'Curl biceps haltères': 'images/exercises/Curl_biceps_haltères.webp',
   'Randonnée (Hiking)':            'images/exercises/Randonnée_Hiking.webp',
   'Skater jumps':                  'images/exercises/Skater_jumps.webp',
   'Tapis roulant intervalles':     'images/exercises/Tapis_roulant_intervalles.webp',
