@@ -19313,7 +19313,11 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
             const navButtons = document.querySelectorAll('.nav-tab');
             navButtons.forEach((btn, index) => {
                 const tabs = ['home', 'workouts', 'routines', 'program', 'history', 'exercises', 'calculators', 'challenges', 'settings', 'game'];
-                if (tabs[index] === tabName) {
+                // « Entraîner » (workouts) reste actif pour Routines / Programme ;
+                // « Découvrir » (exercises) reste actif pour Calculs / Défis
+                if (tabs[index] === tabName
+                    || (tabs[index] === 'workouts' && (tabName === 'routines' || tabName === 'program'))
+                    || (tabs[index] === 'exercises' && (tabName === 'calculators' || tabName === 'challenges'))) {
                     btn.classList.add('active');
                 }
             });
@@ -39523,7 +39527,7 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
         // ── ONBOARDING PREMIUM — cinématique de 1er lancement (construit le profil) ──
         function showPremiumOnboarding() {
             document.getElementById('_premOnbOverlay')?.remove();
-            const draft = { name: '', goal: 'fitness', level: 'beginner', age: 30, weight: 70, sex: '' };
+            const draft = { name: '', goal: 'fitness', level: 'beginner', age: 30, weight: 70, sex: '', mode: 'aventure' };
             let step = 0;
 
             const ov = document.createElement('div');
@@ -39615,23 +39619,43 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                             <button onclick="window._premOnbPick('sex','',this)" data-pick="sex" data-val="" style="width:100%;margin-top:8px;padding:10px;background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:#94a3b8;font-size:0.78em;font-weight:600;cursor:pointer;">Préfère ne pas préciser</button>
                         </div>
                         ${btnPrimary('Valider', 'window._premOnbSaveBody()')}`;
+                } else if (step === 5) {
+                    pct = 95;
+                    const modeCard = (id, icon, title, desc) => `
+                        <button onclick="window._premOnbPick('mode','${id}',this)" data-pick="mode" data-val="${id}" style="display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left;padding:15px 14px;margin-bottom:10px;background:rgba(255,255,255,0.03);border:1.5px solid ${draft.mode===id?'rgba(34,211,238,0.6)':'rgba(255,255,255,0.1)'};border-radius:14px;cursor:pointer;color:#e2e8f0;transition:border-color 0.2s;">
+                            <span style="font-size:1.5em;line-height:1;flex-shrink:0;">${icon}</span>
+                            <span style="flex:1;">
+                                <span style="display:block;font-weight:900;font-size:0.95em;">${title}</span>
+                                <span style="display:block;color:#94a3b8;font-size:0.76em;line-height:1.45;margin-top:3px;">${desc}</span>
+                            </span>
+                        </button>`;
+                    inner = `
+                        <div style="font-family:'Rajdhani',sans-serif;font-size:0.78em;color:#22d3ee;font-weight:700;letter-spacing:2.5px;margin-bottom:10px;">◈ TA VOIE</div>
+                        <h2 style="color:#fff;font-size:1.45em;font-weight:900;margin:0 0 6px;">Deux façons de vivre Awakened</h2>
+                        <p style="color:#94a3b8;font-size:0.8em;margin:0 0 18px;">Tu pourras changer à tout moment dans les Réglages.</p>
+                        ${modeCard('fitness','🏋️','Fitness pur',"Un tracker d'entraînement clair et complet. Séances, progression, analyses — sans couche de jeu.")}
+                        ${modeCard('aventure','🌌','Aventure',"Ton entraînement devient une quête : XP, rangs, Failles, boss et compagnons s'ajoutent au fitness.")}
+                        ${btnPrimary('Continuer', 'window._premOnbNext()')}`;
                 } else {
                     pct = 100;
                     const g = userGoals[draft.goal] || userGoals.fitness;
                     const l = userLevels[draft.level] || userLevels.beginner;
+                    const adv = draft.mode === 'aventure';
                     inner = `
                         <div style="font-family:'Rajdhani',sans-serif;font-size:0.78em;color:#4ade80;font-weight:700;letter-spacing:2.5px;margin-bottom:10px;">◈ PROFIL ÉTABLI</div>
-                        <h2 style="color:#fff;font-size:1.45em;font-weight:900;margin:0 0 20px;">Bienvenue, ${draft.name || 'Chasseur'}.</h2>
+                        <h2 style="color:#fff;font-size:1.45em;font-weight:900;margin:0 0 20px;">Bienvenue, ${draft.name || (adv ? 'Chasseur' : 'Athlète')}.</h2>
                         <div style="background:rgba(34,211,238,0.05);border:1px solid rgba(34,211,238,0.2);border-radius:14px;padding:14px 16px;margin-bottom:20px;">
                             <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.06);"><span style="color:#94a3b8;font-size:0.82em;">Objectif</span><span style="color:#e2e8f0;font-size:0.86em;font-weight:800;">${g.icon} ${g.name}</span></div>
-                            <div style="display:flex;justify-content:space-between;padding:6px 0;"><span style="color:#94a3b8;font-size:0.82em;">Niveau</span><span style="color:#e2e8f0;font-size:0.86em;font-weight:800;">${l.name}</span></div>
+                            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.06);"><span style="color:#94a3b8;font-size:0.82em;">Niveau</span><span style="color:#e2e8f0;font-size:0.86em;font-weight:800;">${l.name}</span></div>
+                            <div style="display:flex;justify-content:space-between;padding:6px 0;"><span style="color:#94a3b8;font-size:0.82em;">Voie</span><span style="color:#e2e8f0;font-size:0.86em;font-weight:800;">${adv ? '🌌 Aventure' : '🏋️ Fitness pur'}</span></div>
                         </div>
                         <div style="margin-bottom:24px;">
-                            <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:11px;"><span style="font-size:1.1em;">⚡</span><span style="color:#cbd5e1;font-size:0.82em;line-height:1.5;"><strong style="color:#fff;">Séances IA</strong> — l'onglet Séances génère ton entraînement selon ce profil.</span></div>
-                            <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:11px;"><span style="font-size:1.1em;">📅</span><span style="color:#cbd5e1;font-size:0.82em;line-height:1.5;"><strong style="color:#fff;">Plan hebdo</strong> — l'Accueil affiche ta semaine, déjà générée.</span></div>
-                            <div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:1.1em;">🎮</span><span style="color:#cbd5e1;font-size:0.82em;line-height:1.5;"><strong style="color:#fff;">Mode Jeu</strong> — XP, rangs et Failles t'attendent dans l'onglet Jeu.</span></div>
+                            <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:11px;"><span style="font-size:1.1em;">🏋️</span><span style="color:#cbd5e1;font-size:0.82em;line-height:1.5;"><strong style="color:#fff;">Entraîner</strong> — séance libre, tes routines et ton programme.</span></div>
+                            <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:11px;"><span style="font-size:1.1em;">📊</span><span style="color:#cbd5e1;font-size:0.82em;line-height:1.5;"><strong style="color:#fff;">Progression</strong> — historique, Arbre de l'Éveil et analyses.</span></div>
+                            <div style="display:flex;gap:10px;align-items:flex-start;${adv ? 'margin-bottom:11px;' : ''}"><span style="font-size:1.1em;">📚</span><span style="color:#cbd5e1;font-size:0.82em;line-height:1.5;"><strong style="color:#fff;">Découvrir</strong> — exercices, calculs et défis.</span></div>
+                            ${adv ? `<div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:1.1em;">🌌</span><span style="color:#cbd5e1;font-size:0.82em;line-height:1.5;"><strong style="color:#fff;">Failles</strong> — l'onglet Jeu ouvre ton aventure.</span></div>` : ''}
                         </div>
-                        ${btnPrimary('Commencer l\'aventure', 'window._premOnbFinish()')}`;
+                        ${btnPrimary(adv ? 'Commencer l\'aventure' : 'Commencer', 'window._premOnbFinish()')}`;
                 }
                 ov.innerHTML = frame(inner, pct);
                 if (step === 1) setTimeout(() => document.getElementById('_premOnbName')?.focus(), 350);
@@ -39660,6 +39684,8 @@ showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données d
                 if (profileId) { setProfileData(profileId, 'userProfile', JSON.stringify(userProfile)); }
                 else { localStorage.setItem('userProfile', JSON.stringify(userProfile)); }
                 localStorage.setItem('fitproOnboardingDone', '1');
+                // Appliquer la voie choisie (Fitness pur / Aventure)
+                try { if (typeof toggleGameMode === 'function') toggleGameMode(draft.mode === 'aventure'); } catch(e) {}
                 try { updateProfileDisplay(); } catch(e) {}
                 try { generateWeeklyPlan(); } catch(e) {}
                 try { haptic.medium(); } catch(e) {}

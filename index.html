@@ -20,7 +20,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=467">
+    <link rel="stylesheet" href="css/style.css?v=471">
 </head>
 <body>
 
@@ -178,7 +178,7 @@
                 max-width: 900px;">
 
             <!-- Bannière image : ratio préservé -->
-            <img src="images/banner.png?v=467"
+            <img src="images/banner.png?v=471"
                  alt="Awakened Elite Fitness"
                  style="width:100%;height:auto;display:block;" />
 
@@ -196,31 +196,31 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                 Accueil
             </button>
-            <button class="nav-tab" onclick="switchTab('workouts')" aria-label="Séances">
+            <button class="nav-tab" onclick="switchTab('workouts')" aria-label="Entraîner">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11M6.5 17.5h11M4 12h16M2 6.5h2M20 6.5h2M2 17.5h2M20 17.5h2"/></svg>
-                Séances
+                Entraîner
             </button>
-            <button class="nav-tab" onclick="switchTab('routines')" aria-label="Routines">
+            <button class="nav-tab" onclick="switchTab('routines')" aria-label="Routines" style="display:none;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
                 Routines
             </button>
-            <button class="nav-tab" onclick="switchTab('program')" aria-label="Programme">
+            <button class="nav-tab" onclick="switchTab('program')" aria-label="Programme" style="display:none;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
                 Programme
             </button>
-            <button class="nav-tab" onclick="switchTab('history')" aria-label="Historique">
+            <button class="nav-tab" onclick="switchTab('history')" aria-label="Progression">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                Historique
+                Progression
             </button>
-            <button class="nav-tab" onclick="switchTab('exercises')" aria-label="Exercices">
+            <button class="nav-tab" onclick="switchTab('exercises')" aria-label="Découvrir">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-                Exercices
+                Découvrir
             </button>
-            <button class="nav-tab" onclick="switchTab('calculators')" aria-label="Calculs">
+            <button class="nav-tab" onclick="switchTab('calculators')" aria-label="Calculs" style="display:none;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
                 Calculs
             </button>
-            <button class="nav-tab" onclick="switchTab('challenges')" aria-label="Défis">
+            <button class="nav-tab" onclick="switchTab('challenges')" aria-label="Défis" style="display:none;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>
                 Défis
             </button>
@@ -250,6 +250,14 @@
                     <button id="quickFailleBtn" onclick="switchTab('game');" style="display:none;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.4);color:#fbbf24;border-radius:14px;padding:13px 10px;font-weight:800;font-size:0.85em;cursor:pointer;">🌌 Failles</button>
                     <button onclick="switchTab('exercises');" style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.4);color:#60a5fa;border-radius:14px;padding:13px 10px;font-weight:800;font-size:0.85em;cursor:pointer;">📚 Exercices</button>
                 </div>
+                <!-- ✨ Carte des fonctionnalités -->
+                <button onclick="showFeatureMap()" style="
+                    width:100%;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px;
+                    background:linear-gradient(135deg,rgba(96,165,250,0.15),rgba(59,130,246,0.06));
+                    border:1px solid rgba(96,165,250,0.4);color:#93c5fd;border-radius:14px;padding:12px 16px;
+                    font-size:0.88em;font-weight:800;cursor:pointer;">
+                    ✨ Explorer toutes les fonctionnalités
+                </button>
                 <!-- ☀️ Bouton Réveil matinal -->
                 <button onclick="showMorningRoutineModal()" style="
                     width:100%;margin-top:8px;background:linear-gradient(135deg,#c2410c 0%,#9a3412 50%,#7c2d12 100%);color:white;border:none;
@@ -436,6 +444,13 @@
 
         <!-- Routines Tab -->
         <div id="routinesTab" class="tab-content">
+            <!-- Barre de segments « Entraîner » -->
+            <div style="display:flex;gap:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:5px;margin-bottom:8px;">
+                <button onclick="switchTab('workouts')" style="flex:1;border:none;border-radius:10px;padding:10px 6px;font-weight:800;font-size:0.78em;cursor:pointer;background:transparent;color:#94a3b8;">Séance libre</button>
+                <button onclick="switchTab('routines')" style="flex:1;border:none;border-radius:10px;padding:10px 6px;font-weight:800;font-size:0.78em;cursor:pointer;background:linear-gradient(135deg,#22c55e,#16a34a);color:white;">Mes routines</button>
+                <button onclick="switchTab('program')" style="flex:1;border:none;border-radius:10px;padding:10px 6px;font-weight:800;font-size:0.78em;cursor:pointer;background:transparent;color:#94a3b8;">Programme</button>
+            </div>
+            <div style="font-size:0.72em;color:#94a3b8;margin:0 0 14px;padding:0 4px;line-height:1.4;">Tes séances sauvegardées, prêtes à relancer.</div>
             <!-- Plan hebdo en haut (rendu dynamiquement) -->
             <div id="weeklyPlanCard"></div>
 
@@ -480,6 +495,13 @@
 
         <!-- Programme Tab -->
         <div id="programTab" class="tab-content">
+            <!-- Barre de segments « Entraîner » -->
+            <div style="display:flex;gap:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:5px;margin-bottom:8px;">
+                <button onclick="switchTab('workouts')" style="flex:1;border:none;border-radius:10px;padding:10px 6px;font-weight:800;font-size:0.78em;cursor:pointer;background:transparent;color:#94a3b8;">Séance libre</button>
+                <button onclick="switchTab('routines')" style="flex:1;border:none;border-radius:10px;padding:10px 6px;font-weight:800;font-size:0.78em;cursor:pointer;background:transparent;color:#94a3b8;">Mes routines</button>
+                <button onclick="switchTab('program')" style="flex:1;border:none;border-radius:10px;padding:10px 6px;font-weight:800;font-size:0.78em;cursor:pointer;background:linear-gradient(135deg,#22c55e,#16a34a);color:white;">Programme</button>
+            </div>
+            <div style="font-size:0.72em;color:#94a3b8;margin:0 0 14px;padding:0 4px;line-height:1.4;">Ton plan structuré sur plusieurs semaines.</div>
             <div id="programTabContent">
                 <!-- Rendered dynamically by renderProgramTab() -->
             </div>
@@ -487,6 +509,12 @@
 
         <!-- History Tab -->
         <div id="historyTab" class="tab-content">
+            <!-- Raccourcis Progression -->
+            <div style="display:flex;gap:6px;margin-bottom:14px;">
+                <button onclick="showAwakeningTree()" style="flex:1;background:linear-gradient(135deg,rgba(57,255,20,0.12),rgba(34,197,94,0.04));border:1px solid rgba(57,255,20,0.35);border-radius:12px;padding:11px 6px;font-weight:800;font-size:0.72em;color:#86efac;cursor:pointer;">🌳 Arbre</button>
+                <button onclick="showSystemAnalysis()" style="flex:1;background:rgba(34,211,238,0.1);border:1px solid rgba(34,211,238,0.35);border-radius:12px;padding:11px 6px;font-weight:800;font-size:0.72em;color:#67e8f9;cursor:pointer;">⚙️ Analyse</button>
+                <button onclick="showSystemAnalysis('coach')" style="flex:1;background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.35);border-radius:12px;padding:11px 6px;font-weight:800;font-size:0.72em;color:#c4b5fd;cursor:pointer;">🧠 Coach</button>
+            </div>
 
             <!-- Badges Section -->
             <div class="card">
@@ -987,6 +1015,13 @@
         </div>
 
         <div id="workoutsTab" class="tab-content">
+            <!-- Barre de segments « Entraîner » -->
+            <div style="display:flex;gap:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:5px;margin-bottom:8px;">
+                <button onclick="switchTab('workouts')" style="flex:1;border:none;border-radius:10px;padding:10px 6px;font-weight:800;font-size:0.78em;cursor:pointer;background:linear-gradient(135deg,#22c55e,#16a34a);color:white;">Séance libre</button>
+                <button onclick="switchTab('routines')" style="flex:1;border:none;border-radius:10px;padding:10px 6px;font-weight:800;font-size:0.78em;cursor:pointer;background:transparent;color:#94a3b8;">Mes routines</button>
+                <button onclick="switchTab('program')" style="flex:1;border:none;border-radius:10px;padding:10px 6px;font-weight:800;font-size:0.78em;cursor:pointer;background:transparent;color:#94a3b8;">Programme</button>
+            </div>
+            <div style="font-size:0.72em;color:#94a3b8;margin:0 0 14px;padding:0 4px;line-height:1.4;">Compose ou lance une séance maintenant.</div>
             <!-- Workout Mode Selection Modal -->
             <div id="workoutModeModal" class="modal">
                 <div class="modal-content" style="background:linear-gradient(160deg,#0a0e18,#0F1014);border:2px solid rgba(74,222,128,0.4);box-shadow:0 24px 60px rgba(0,0,0,0.8),0 0 50px rgba(74,222,128,0.2);">
@@ -1887,6 +1922,13 @@
 
         <!-- Exercises Tab -->
         <div id="exercisesTab" class="tab-content">
+            <!-- Barre de segments « Découvrir » -->
+            <div style="display:flex;gap:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:5px;margin-bottom:8px;">
+                <button onclick="switchTab('exercises')" style="flex:1;border:none;border-radius:10px;padding:10px 6px;font-weight:800;font-size:0.78em;cursor:pointer;background:linear-gradient(135deg,#3b82f6,#2563eb);color:white;">Exercices</button>
+                <button onclick="switchTab('calculators')" style="flex:1;border:none;border-radius:10px;padding:10px 6px;font-weight:800;font-size:0.78em;cursor:pointer;background:transparent;color:#94a3b8;">Calculs</button>
+                <button onclick="switchTab('challenges')" style="flex:1;border:none;border-radius:10px;padding:10px 6px;font-weight:800;font-size:0.78em;cursor:pointer;background:transparent;color:#94a3b8;">Défis</button>
+            </div>
+            <div style="font-size:0.72em;color:#94a3b8;margin:0 0 14px;padding:0 4px;line-height:1.4;">Parcours la bibliothèque, calcule, relève des défis.</div>
             <!-- Exercise Progress Graphs (STEP 2: HTML only) -->
             <div class="card">
                 <h2 style="color: #16a34a; margin-bottom: 20px;">📈 Graphiques de Progression</h2>
@@ -2643,6 +2685,13 @@
 
     <!-- Calculators Tab -->
     <div id="calculatorsTab" class="tab-content">
+            <!-- Barre de segments « Découvrir » -->
+            <div style="display:flex;gap:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:5px;margin-bottom:8px;">
+                <button onclick="switchTab('exercises')" style="flex:1;border:none;border-radius:10px;padding:10px 6px;font-weight:800;font-size:0.78em;cursor:pointer;background:transparent;color:#94a3b8;">Exercices</button>
+                <button onclick="switchTab('calculators')" style="flex:1;border:none;border-radius:10px;padding:10px 6px;font-weight:800;font-size:0.78em;cursor:pointer;background:linear-gradient(135deg,#3b82f6,#2563eb);color:white;">Calculs</button>
+                <button onclick="switchTab('challenges')" style="flex:1;border:none;border-radius:10px;padding:10px 6px;font-weight:800;font-size:0.78em;cursor:pointer;background:transparent;color:#94a3b8;">Défis</button>
+            </div>
+            <div style="font-size:0.72em;color:#94a3b8;margin:0 0 14px;padding:0 4px;line-height:1.4;">Parcours la bibliothèque, calcule, relève des défis.</div>
         <div class="card">
             <h2 style="color: #22d3ee; margin-bottom: 30px; text-align: center;">🧮 Calculateurs Fitness</h2>
             <p style="text-align: center; color: #94a3b8; margin-bottom: 30px;">
@@ -2924,6 +2973,13 @@
 
     <!-- Challenges Tab -->
     <div id="challengesTab" class="tab-content">
+            <!-- Barre de segments « Découvrir » -->
+            <div style="display:flex;gap:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:5px;margin-bottom:8px;">
+                <button onclick="switchTab('exercises')" style="flex:1;border:none;border-radius:10px;padding:10px 6px;font-weight:800;font-size:0.78em;cursor:pointer;background:transparent;color:#94a3b8;">Exercices</button>
+                <button onclick="switchTab('calculators')" style="flex:1;border:none;border-radius:10px;padding:10px 6px;font-weight:800;font-size:0.78em;cursor:pointer;background:transparent;color:#94a3b8;">Calculs</button>
+                <button onclick="switchTab('challenges')" style="flex:1;border:none;border-radius:10px;padding:10px 6px;font-weight:800;font-size:0.78em;cursor:pointer;background:linear-gradient(135deg,#3b82f6,#2563eb);color:white;">Défis</button>
+            </div>
+            <div style="font-size:0.72em;color:#94a3b8;margin:0 0 14px;padding:0 4px;line-height:1.4;">Parcours la bibliothèque, calcule, relève des défis.</div>
         <div class="card">
             <h2 style="text-align: center; margin-bottom: 10px; color: #4ade80; font-weight: 900;">🏆 Défis Fitness</h2>
             <p style="text-align: center; color: #94a3b8; margin-bottom: 26px; font-size: 0.9em; line-height: 1.5;">
@@ -3580,20 +3636,21 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/exercises.js?v=467"></script>
-    <script src="data/items.js?v=467"></script>
-    <script src="js/adventure.js?v=467"></script>
-    <script src="js/economy.js?v=467"></script>
-    <script src="js/challenges.js?v=467"></script>
-    <script src="js/exercise-visuals.js?v=467"></script>
-    <script src="js/strength-standards.js?v=467"></script>
-    <script src="js/system-cards.js?v=467"></script>
-    <script src="js/share-card.js?v=467"></script>
-    <script src="js/story-events.js?v=467"></script>
-    <script src="js/final-boss.js?v=467"></script>
-    <script src="js/disciplines.js?v=467"></script>
-    <script src="js/app.js?v=467"></script>
-    <script src="js/awakening-tree.js?v=467"></script>
+    <script src="js/exercises.js?v=471"></script>
+    <script src="data/items.js?v=471"></script>
+    <script src="js/adventure.js?v=471"></script>
+    <script src="js/economy.js?v=471"></script>
+    <script src="js/challenges.js?v=471"></script>
+    <script src="js/exercise-visuals.js?v=471"></script>
+    <script src="js/strength-standards.js?v=471"></script>
+    <script src="js/system-cards.js?v=471"></script>
+    <script src="js/share-card.js?v=471"></script>
+    <script src="js/story-events.js?v=471"></script>
+    <script src="js/final-boss.js?v=471"></script>
+    <script src="js/disciplines.js?v=471"></script>
+    <script src="js/app.js?v=471"></script>
+    <script src="js/awakening-tree.js?v=471"></script>
+    <script src="js/feature-map.js?v=471"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>
