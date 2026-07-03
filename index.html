@@ -20,7 +20,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=482">
+    <link rel="stylesheet" href="css/style.css?v=484">
 </head>
 <body>
 
@@ -178,7 +178,7 @@
                 max-width: 900px;">
 
             <!-- Bannière image : ratio préservé -->
-            <img src="images/banner.png?v=482"
+            <img src="images/banner.png?v=484"
                  alt="Awakened Elite Fitness"
                  style="width:100%;height:auto;display:block;" />
 
@@ -250,13 +250,11 @@
                     <button id="quickFailleBtn" onclick="switchTab('game');" style="display:none;background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.35);color:#c4b5fd;border-radius:14px;padding:13px 10px;font-weight:800;font-size:0.85em;cursor:pointer;">🌌 Failles</button>
                     <button onclick="switchTab('exercises');" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#e2e8f0;border-radius:14px;padding:13px 10px;font-weight:800;font-size:0.85em;cursor:pointer;">📚 Exercices</button>
                 </div>
-                <!-- ✨ Carte des fonctionnalités -->
+                <!-- ✨ Carte des fonctionnalités (accès discret) -->
                 <button onclick="showFeatureMap()" style="
-                    width:100%;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px;
-                    background:linear-gradient(135deg,rgba(34,197,94,0.15),rgba(22,163,74,0.06));
-                    border:1px solid rgba(34,197,94,0.4);color:#86efac;border-radius:14px;padding:12px 16px;
-                    font-size:0.88em;font-weight:800;cursor:pointer;">
-                    ✨ Explorer toutes les fonctionnalités
+                    width:100%;margin-top:6px;background:none;border:none;color:#64748b;
+                    padding:8px;font-size:0.76em;font-weight:700;cursor:pointer;">
+                    ✨ Tout explorer ›
                 </button>
                 <!-- ☀️ Bouton Réveil matinal -->
                 <button onclick="showMorningRoutineModal()" style="
@@ -274,35 +272,7 @@
                     <div style="font-size:1.2em;flex-shrink:0;position:relative;z-index:1;color:#ffffff;">▶</div>
                 </button>
 
-                <!-- Arbre de l'Éveil (agrégateur visuel de la progression réelle) -->
-                <button onclick="showAwakeningTree()" style="
-                    width:100%;margin-top:10px;display:flex;align-items:center;gap:13px;
-                    background:linear-gradient(135deg,rgba(34,197,94,0.12),rgba(34,197,94,0.04));
-                    border:1px solid rgba(34,197,94,0.4);border-radius:14px;padding:14px 16px;cursor:pointer;position:relative;overflow:hidden;">
-                    <div style="position:absolute;top:0;right:0;width:90px;height:90px;background:radial-gradient(circle,rgba(34,197,94,0.12),transparent 70%);"></div>
-                    <div style="font-size:1.8em;flex-shrink:0;">🌳</div>
-                    <div style="flex:1;min-width:0;position:relative;z-index:1;text-align:left;">
-                        <div style="font-size:0.58em;letter-spacing:2px;color:#22c55e;font-weight:700;">ÉVEIL</div>
-                        <div style="font-size:0.92em;font-weight:900;line-height:1.2;margin-top:2px;color:#e2e8f0;">Arbre de l'Éveil</div>
-                        <div style="font-size:0.66em;color:#94a3b8;margin-top:2px;">Ton archétype et ta progression, qui grandissent à chaque séance</div>
-                    </div>
-                    <div style="font-size:1.2em;flex-shrink:0;position:relative;z-index:1;color:#22c55e;">▶</div>
-                </button>
 
-                <!-- Analyse du Système (conseils personnalisés, dispo hors mode Jeu) -->
-                <button onclick="showSystemAnalysis()" style="
-                    width:100%;margin-top:10px;display:flex;align-items:center;gap:13px;
-                    background:linear-gradient(135deg,rgba(34,211,238,0.12),rgba(34,211,238,0.04));
-                    border:1px solid rgba(34,211,238,0.4);border-radius:14px;padding:14px 16px;cursor:pointer;position:relative;overflow:hidden;">
-                    <div style="position:absolute;top:0;right:0;width:90px;height:90px;background:radial-gradient(circle,rgba(34,211,238,0.12),transparent 70%);"></div>
-                    <div style="font-size:1.8em;flex-shrink:0;">⚙️</div>
-                    <div style="flex:1;min-width:0;position:relative;z-index:1;text-align:left;">
-                        <div style="font-size:0.58em;letter-spacing:2px;color:#22d3ee;font-weight:700;">ASSISTANT</div>
-                        <div style="font-size:0.92em;font-weight:900;line-height:1.2;margin-top:2px;color:#e2e8f0;">Analyse du Système</div>
-                        <div style="font-size:0.66em;color:#94a3b8;margin-top:2px;">Conseils sur tes muscles, déséquilibres et régularité</div>
-                    </div>
-                    <div style="font-size:1.2em;flex-shrink:0;position:relative;z-index:1;color:#22d3ee;">▶</div>
-                </button>
             </div>
 
             <!-- ═══ 3. PROFIL & STATS GLOBALES (1 seul bloc consolidé) ═══ -->
@@ -360,9 +330,7 @@
                 </div>
 
                 <div id="weeklyVolumeWidget" style="display:none;"></div>
-                <div id="weeklyMuscleVolume" style="margin-bottom:14px;"></div>
                 <div id="weeklyReviewCard" style="margin-bottom:14px;"></div>
-                <div id="insightsCard" style="margin-bottom:14px;"></div>
                 <div id="sexFocusCard" style="margin-bottom:14px;"></div>
                 <div id="cycleCard" style="margin-bottom:14px;"></div>
                 <div id="strengthCard" style="margin-bottom:14px;"></div>
@@ -515,6 +483,9 @@
                 <button onclick="showSystemAnalysis()" style="flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:11px 6px;font-weight:800;font-size:0.72em;color:#e2e8f0;cursor:pointer;">⚙️ Analyse</button>
                 <button onclick="showSystemAnalysis('coach')" style="flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:11px 6px;font-weight:800;font-size:0.72em;color:#e2e8f0;cursor:pointer;">🧠 Coach</button>
             </div>
+            <!-- Stats déménagées du hub (dégraissage v483) -->
+            <div id="weeklyMuscleVolume" style="margin-bottom:14px;"></div>
+            <div id="insightsCard" style="margin-bottom:14px;"></div>
 
             <!-- Badges Section -->
             <div class="card">
@@ -1501,6 +1472,9 @@
 
                                 <!-- 💡 Suggestion de charge intelligente -->
                                 <div id="loadSuggestionContainer"></div>
+
+                                <!-- 📋 Grille de séries (mode muscu) : toutes les séries visibles et éditables -->
+                                <div id="setsGridPanel" style="display:none;margin-bottom:14px;"></div>
 
                                 <!-- Inputs reps + poids GROS chiffres style screenshot -->
                                 <div class="reps-weight-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
@@ -3643,23 +3617,23 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/exercises.js?v=482"></script>
-    <script src="data/items.js?v=482"></script>
-    <script src="js/adventure.js?v=482"></script>
-    <script src="js/economy.js?v=482"></script>
-    <script src="js/challenges.js?v=482"></script>
-    <script src="js/exercise-visuals.js?v=482"></script>
-    <script src="js/strength-standards.js?v=482"></script>
-    <script src="js/system-cards.js?v=482"></script>
-    <script src="js/share-card.js?v=482"></script>
-    <script src="js/story-events.js?v=482"></script>
-    <script src="js/final-boss.js?v=482"></script>
-    <script src="js/disciplines.js?v=482"></script>
-    <script src="js/app.js?v=482"></script>
-    <script src="js/awakening-tree.js?v=482"></script>
-    <script src="js/ui-kit.js?v=482"></script>
-    <script src="js/feature-map.js?v=482"></script>
-    <script src="js/weekly-recap.js?v=482"></script>
+    <script src="js/exercises.js?v=484"></script>
+    <script src="data/items.js?v=484"></script>
+    <script src="js/adventure.js?v=484"></script>
+    <script src="js/economy.js?v=484"></script>
+    <script src="js/challenges.js?v=484"></script>
+    <script src="js/exercise-visuals.js?v=484"></script>
+    <script src="js/strength-standards.js?v=484"></script>
+    <script src="js/system-cards.js?v=484"></script>
+    <script src="js/share-card.js?v=484"></script>
+    <script src="js/story-events.js?v=484"></script>
+    <script src="js/final-boss.js?v=484"></script>
+    <script src="js/disciplines.js?v=484"></script>
+    <script src="js/app.js?v=484"></script>
+    <script src="js/awakening-tree.js?v=484"></script>
+    <script src="js/ui-kit.js?v=484"></script>
+    <script src="js/feature-map.js?v=484"></script>
+    <script src="js/weekly-recap.js?v=484"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>
