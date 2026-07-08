@@ -20,7 +20,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=499">
+    <link rel="stylesheet" href="css/style.css?v=500">
 </head>
 <body>
 
@@ -178,7 +178,7 @@
                 max-width: 900px;">
 
             <!-- Bannière image : ratio préservé -->
-            <img src="images/banner.png?v=499"
+            <img src="images/banner.png?v=500"
                  alt="Awakened Elite Fitness"
                  style="width:100%;height:auto;display:block;" />
 
@@ -931,8 +931,7 @@
             <!-- Calendar -->
 
             <div class="card">
-                <h2 style="color: #22d3ee; margin-bottom: 12px;">📅 Calendrier</h2>
-                <button onclick="printMonthlyCalendar()" style="width:100%;margin-bottom:14px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.4);color:#4ade80;border-radius:12px;padding:11px;font-weight:800;font-size:0.82em;cursor:pointer;">🖨️ Imprimer mon calendrier du mois</button>
+                <h2 style="color: #22d3ee; margin-bottom: 20px;">📅 Calendrier</h2>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <button class="btn btn-secondary" onclick="previousMonth()" style="width: auto; padding: 10px 20px;">◀ Précédent</button>
                     <h3 id="calendarMonthYear" style="margin: 0;">Janvier 2026</h3>
@@ -2161,490 +2160,470 @@
         <!-- Settings Tab -->
         <div id="settingsTab" class="tab-content">
 
-            <!-- 🔖 Version -->
-            <div class="card" style="display:flex;align-items:center;gap:14px;">
-                <div onclick="awakVersionTap()" style="font-size:2em;flex-shrink:0;cursor:pointer;user-select:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent;">🔖</div>
-                <div style="flex:1;min-width:0;">
-                    <div style="font-weight:800;color:#e2e8f0;font-size:1em;">Version</div>
-                    <div onclick="awakVersionTap()" style="font-size:0.78em;color:#4ade80;font-weight:700;margin-top:2px;cursor:pointer;user-select:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent;">v0.90 · awakened</div>
+            <!-- ═══════════ GROUPE 1 · JEU & PROGRESSION ═══════════ -->
+            <div class="accordion-section">
+                <div class="accordion-header" onclick="toggleSettingsAccordion(this)">
+                    <div class="accordion-title"><span>🎮</span><span>Jeu &amp; progression</span></div>
+                    <div class="accordion-icon">▼</div>
                 </div>
-                <button onclick="if(confirm('Forcer la mise à jour de l\\'app ?\\n\\nCela nettoiera complètement le cache et rechargera la dernière version.')) forceAppUpdate();" style="flex-shrink:0;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:#4ade80;border-radius:10px;padding:8px 12px;font-size:0.72em;font-weight:800;cursor:pointer;">🔄 Mettre à jour</button>
-            </div>
+                <div class="accordion-body">
+                    <div class="accordion-content">
 
-            <!-- 💾 Sauvegardes -->
-            <div class="card" onclick="showBackupManagerModal()" style="cursor:pointer;display:flex;align-items:center;gap:14px;">
-                <div style="font-size:2em;flex-shrink:0;">💾</div>
-                <div style="flex:1;min-width:0;">
-                    <div style="font-weight:800;color:#e2e8f0;font-size:1em;">Sauvegardes</div>
-                    <div style="font-size:0.78em;color:#94a3b8;margin-top:2px;">Auto quotidienne · Export / Import</div>
-                </div>
-                <div style="font-size:1.2em;color:#475569;flex-shrink:0;">›</div>
-            </div>
-
-            <!-- 🔄 Périodisation -->
-            <div class="card" style="padding:14px 16px;">
-                <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
-                    <div style="flex:1;min-width:0;">
-                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-                            <span style="font-size:1.3em;">🔄</span>
-                            <div style="font-weight:800;color:#e2e8f0;font-size:0.95em;">Périodisation automatique</div>
+                        <!-- Mode Jeu & Chasseur -->
+                        <div class="settings-sub" id="gameModeCard">
+                            <div class="settings-toggle-row" style="margin-bottom:10px;">
+                                <div class="settings-tr-main">
+                                    <div class="settings-sub-title">🎮 Mode Jeu &amp; ⚔️ Chasseur</div>
+                                    <div class="settings-sub-desc" style="margin:0;">XP, niveaux de muscles, équipements en drops et inventaire de chasseur.</div>
+                                </div>
+                                <label style="position:relative;display:inline-block;width:52px;height:28px;flex-shrink:0;">
+                                    <input type="checkbox" id="gameModeToggle" onchange="toggleGameMode(this.checked)" style="opacity:0;width:0;height:0;position:absolute;">
+                                    <span id="gameModeSlider" style="position:absolute;cursor:pointer;inset:0;background:#ccc;border-radius:20px;transition:0.3s;">
+                                        <span style="position:absolute;content:'';height:22px;width:22px;left:3px;bottom:3px;background:white;border-radius:50%;transition:0.3s;display:block;" id="gameModeThumb"></span>
+                                    </span>
+                                </label>
+                            </div>
+                            <div id="gameModePreview" style="display:none;background:linear-gradient(160deg,#0F1014,#0a001a);border-radius:14px;padding:14px;color:white;margin-top:12px;">
+                                <div style="display:flex;gap:12px;margin-bottom:10px;">
+                                    <div style="flex:1;">
+                                        <div style="font-size:0.7em;opacity:0.6;margin-bottom:4px;">Niveau profil</div>
+                                        <div style="display:flex;align-items:center;gap:8px;">
+                                            <div style="font-size:1.8em;" id="gameTitleEmoji">🌱</div>
+                                            <div>
+                                                <div style="font-weight:800;font-size:0.95em;" id="gameProfileTitle">Recrue</div>
+                                                <div style="font-size:0.72em;opacity:0.7;">Niv.<span id="gameProfileLevel">1</span> · <span id="gameProfileXP">0</span> XP</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div style="width:1px;background:rgba(255,255,255,0.1);"></div>
+                                    <div style="flex:1;">
+                                        <div style="font-size:0.7em;opacity:0.6;margin-bottom:4px;">Inventaire chasseur</div>
+                                        <div style="display:flex;align-items:center;gap:6px;">
+                                            <div style="font-size:1.5em;">🎒</div>
+                                            <div style="font-weight:800;font-size:0.88em;" id="hunterInvCount">0 item(s)</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button onclick="switchTab('game')" style="width:100%;padding:8px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:10px;color:white;font-size:0.85em;font-weight:700;cursor:pointer;">
+                                    ⚔️ Voir l'onglet Jeu →
+                                </button>
+                            </div>
                         </div>
-                        <div style="font-size:0.74em;color:#94a3b8;line-height:1.4;">Cycle de 4 semaines : Hypertrophie → Force → Hypertrophie+ → Décharge</div>
-                    </div>
-                    <label style="position:relative;display:inline-block;width:46px;height:26px;flex-shrink:0;">
-                        <input type="checkbox" id="periodizationToggle" onchange="setPeriodizationEnabled(this.checked)" style="opacity:0;width:0;height:0;position:absolute;">
-                        <span id="periodizationSlider" style="position:absolute;cursor:pointer;inset:0;background:#334155;border-radius:20px;transition:0.3s;">
-                            <span id="periodizationThumb" style="position:absolute;height:20px;width:20px;left:3px;bottom:3px;background:white;border-radius:50%;transition:0.3s;display:block;"></span>
-                        </span>
-                    </label>
-                </div>
-            </div>
 
-            <!-- 🔥 Échauffement -->
-            <div class="card" style="padding:14px 16px;">
-                <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
-                    <div style="flex:1;min-width:0;">
-                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-                            <span style="font-size:1.3em;">🔥</span>
-                            <div style="font-weight:800;color:#e2e8f0;font-size:0.95em;">Échauffement adaptatif</div>
+                        <!-- Périodisation -->
+                        <div class="settings-sub">
+                            <div class="settings-toggle-row">
+                                <div class="settings-tr-main">
+                                    <div class="settings-sub-title">🔄 Périodisation automatique</div>
+                                    <div class="settings-sub-desc" style="margin:0;">Cycle de 4 semaines : Hypertrophie → Force → Hypertrophie+ → Décharge.</div>
+                                </div>
+                                <label style="position:relative;display:inline-block;width:46px;height:26px;flex-shrink:0;">
+                                    <input type="checkbox" id="periodizationToggle" onchange="setPeriodizationEnabled(this.checked)" style="opacity:0;width:0;height:0;position:absolute;">
+                                    <span id="periodizationSlider" style="position:absolute;cursor:pointer;inset:0;background:#334155;border-radius:20px;transition:0.3s;">
+                                        <span id="periodizationThumb" style="position:absolute;height:20px;width:20px;left:3px;bottom:3px;background:white;border-radius:50%;transition:0.3s;display:block;"></span>
+                                    </span>
+                                </label>
+                            </div>
                         </div>
-                        <div style="font-size:0.74em;color:#94a3b8;line-height:1.4;">Générer automatiquement un échauffement selon les muscles travaillés</div>
+
                     </div>
-                    <label style="position:relative;display:inline-block;width:46px;height:26px;flex-shrink:0;">
-                        <input type="checkbox" id="warmupToggle" onchange="setWarmupEnabled(this.checked)" style="opacity:0;width:0;height:0;position:absolute;">
-                        <span id="warmupSlider" style="position:absolute;cursor:pointer;inset:0;background:#334155;border-radius:20px;transition:0.3s;">
-                            <span id="warmupThumb" style="position:absolute;height:20px;width:20px;left:3px;bottom:3px;background:white;border-radius:50%;transition:0.3s;display:block;"></span>
-                        </span>
-                    </label>
                 </div>
             </div>
 
-            <!-- Mode Jeu + Mode Chasseur combinés -->
-            <div class="card" id="gameModeCard">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-                    <div>
-                        <h2 style="color:#16a34a;margin:0 0 4px;">🎮 Mode Jeu & ⚔️ Chasseur</h2>
-                        <p style="margin:0;color:#666;font-size:0.88em;">XP, niveaux de muscles, équipements en drops et inventaire de chasseur.</p>
-                    </div>
-                    <label style="position:relative;display:inline-block;width:52px;height:28px;flex-shrink:0;margin-left:14px;">
-                        <input type="checkbox" id="gameModeToggle" onchange="toggleGameMode(this.checked)"
-                               style="opacity:0;width:0;height:0;position:absolute;">
-                        <span id="gameModeSlider" style="position:absolute;cursor:pointer;inset:0;background:#ccc;border-radius:20px;transition:0.3s;">
-                            <span style="position:absolute;content:'';height:22px;width:22px;left:3px;bottom:3px;background:white;border-radius:50%;transition:0.3s;display:block;" id="gameModeThumb"></span>
-                        </span>
-                    </label>
+            <!-- ═══════════ GROUPE 2 · ENTRAÎNEMENT ═══════════ -->
+            <div class="accordion-section">
+                <div class="accordion-header" onclick="toggleSettingsAccordion(this)">
+                    <div class="accordion-title"><span>🏋️</span><span>Entraînement</span></div>
+                    <div class="accordion-icon">▼</div>
                 </div>
-                <div id="gameModePreview" style="display:none;background:linear-gradient(160deg,#0F1014,#0a001a);border-radius:14px;padding:14px;color:white;">
-                    <div style="display:flex;gap:12px;margin-bottom:10px;">
-                        <div style="flex:1;">
-                            <div style="font-size:0.7em;opacity:0.6;margin-bottom:4px;">Niveau profil</div>
-                            <div style="display:flex;align-items:center;gap:8px;">
-                                <div style="font-size:1.8em;" id="gameTitleEmoji">🌱</div>
-                                <div>
-                                    <div style="font-weight:800;font-size:0.95em;" id="gameProfileTitle">Recrue</div>
-                                    <div style="font-size:0.72em;opacity:0.7;">Niv.<span id="gameProfileLevel">1</span> · <span id="gameProfileXP">0</span> XP</div>
+                <div class="accordion-body">
+                    <div class="accordion-content">
+
+                        <!-- Repos inter-séries -->
+                        <div class="settings-sub">
+                            <div class="settings-sub-title">⏱️ Repos inter-séries</div>
+                            <p class="settings-sub-desc">Temps de repos entre chaque série. Modifiable aussi par exercice pendant la séance.</p>
+                            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px;" id="globalRestBtns">
+                                <button onclick="setGlobalRest(60)"  class="btn btn-secondary" data-rest="60">1 min</button>
+                                <button onclick="setGlobalRest(90)"  class="btn btn-secondary" data-rest="90">1:30</button>
+                                <button onclick="setGlobalRest(120)" class="btn btn-secondary" data-rest="120">2 min</button>
+                                <button onclick="setGlobalRest(180)" class="btn btn-secondary" data-rest="180">3 min</button>
+                            </div>
+                            <p style="font-size:0.78em;color:#9ca3af;margin:0;text-align:center;" id="globalRestHint">Actuel : 1:30</p>
+                        </div>
+
+                        <!-- Échauffement & étirement (fusion des 2 anciennes cartes) -->
+                        <div class="settings-sub">
+                            <div class="settings-sub-title">🔥 Échauffement &amp; étirement</div>
+                            <p class="settings-sub-desc">Prépare les muscles avant l'effort et favorise la récupération après. On recommande de garder les deux activés.</p>
+
+                            <div class="settings-toggle-row" style="margin-bottom:14px;">
+                                <div class="settings-tr-main">
+                                    <div class="settings-tr-label">🧠 Échauffement adaptatif</div>
+                                    <div class="settings-tr-sub">Génère automatiquement un échauffement selon les muscles travaillés</div>
+                                </div>
+                                <label style="position:relative;display:inline-block;width:46px;height:26px;flex-shrink:0;">
+                                    <input type="checkbox" id="warmupToggle" onchange="setWarmupEnabled(this.checked)" style="opacity:0;width:0;height:0;position:absolute;">
+                                    <span id="warmupSlider" style="position:absolute;cursor:pointer;inset:0;background:#334155;border-radius:20px;transition:0.3s;">
+                                        <span id="warmupThumb" style="position:absolute;height:20px;width:20px;left:3px;bottom:3px;background:white;border-radius:50%;transition:0.3s;display:block;"></span>
+                                    </span>
+                                </label>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                                <div class="equipment-item selected" id="warmupOption" onclick="toggleWarmup()" style="cursor: pointer;">
+                                    <div class="equipment-checkmark">✓</div>
+                                    <div class="equipment-icon">🏃‍♂️</div>
+                                    <div class="equipment-name">Échauffement</div>
+                                    <div class="equipment-count">Avant la séance</div>
+                                </div>
+                                <div class="equipment-item selected" id="stretchOption" onclick="toggleStretch()" style="cursor: pointer;">
+                                    <div class="equipment-checkmark">✓</div>
+                                    <div class="equipment-icon">🧘</div>
+                                    <div class="equipment-name">Étirement</div>
+                                    <div class="equipment-count">Après la séance</div>
                                 </div>
                             </div>
                         </div>
-                        <div style="width:1px;background:rgba(255,255,255,0.1);"></div>
-                        <div style="flex:1;">
-                            <div style="font-size:0.7em;opacity:0.6;margin-bottom:4px;">Inventaire chasseur</div>
-                            <div style="display:flex;align-items:center;gap:6px;">
-                                <div style="font-size:1.5em;">🎒</div>
-                                <div style="font-weight:800;font-size:0.88em;" id="hunterInvCount">0 item(s)</div>
+
+                        <!-- Récupération musculaire -->
+                        <div class="settings-sub">
+                            <div class="settings-sub-title">🤕 Récupération musculaire</div>
+                            <p class="settings-sub-desc">Gère les muscles blessés et réinitialise l'état de récupération.</p>
+
+                            <div id="injuredMusclesInfo" style="margin-bottom: 14px; padding: 16px; background: #fee2e2; border-radius: 14px; border: 2px solid #ef4444; display: none;">
+                                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                                    <div style="font-size: 1.8em;">🤕</div>
+                                    <div>
+                                        <h4 style="margin: 0; color: #991b1b;">Muscles blessés</h4>
+                                        <p style="margin: 4px 0 0 0; color: #7f1d1d; font-size: 0.85em;">Ces muscles seront évités dans les séances intelligentes</p>
+                                    </div>
+                                </div>
+                                <div id="injuredMusclesList" style="margin-bottom: 12px; color: #7f1d1d; font-weight: bold;"></div>
+                                <button class="btn" onclick="clearAllInjuries()" style="width: 100%; background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                                    🏥 Retirer toutes les blessures
+                                </button>
+                            </div>
+
+                            <div style="padding: 16px; background: #fff4e6; border-radius: 14px; border: 2px solid #fed7aa;">
+                                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                                    <div style="font-size: 1.8em;">🔄</div>
+                                    <div>
+                                        <h4 style="margin: 0; color: #92400e;">Réinitialiser la récupération</h4>
+                                        <p style="margin: 4px 0 0 0; color: #78350f; font-size: 0.85em;">Remet tous les muscles à l'état « prêt »</p>
+                                    </div>
+                                </div>
+                                <button class="btn" onclick="resetMuscleRecovery()" style="width: 100%; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                                    🔄 Réinitialiser la récupération
+                                </button>
+                                <p style="margin: 8px 0 0 0; color: #78350f; font-size: 0.82em; text-align: center;">⚠️ Remet tous les muscles à l'état "prêt" (✅)</p>
                             </div>
                         </div>
-                    </div>
-                    <button onclick="switchTab('game')"
-                            style="width:100%;padding:8px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:10px;color:white;font-size:0.85em;font-weight:700;cursor:pointer;">
-                        ⚔️ Voir l'onglet Jeu →
-                    </button>
-                </div>
-            </div>
 
-            <div class="card">
-                <h2 style="color: #16a34a; margin-bottom: 20px;">👥 Gestion des Profils</h2>
-                <p style="color: #94a3b8; margin-bottom: 20px;">
-                    Gérez vos profils d'utilisateurs pour un suivi personnalisé
-                </p>
-
-                <div style="display: grid; gap: 10px; margin-bottom: 20px;">
-                    <button class="btn" onclick="showProfileSetup()" style="background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);">
-                        ⚙️ Modifier mon profil
-                    </button>
-                    <button class="btn" onclick="showProfileSelectionModal()" style="background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);">
-                        👥 Changer de profil
-                    </button>
-                    <button class="btn btn-secondary" onclick="showCreateProfileModal()">
-                        ➕ Créer un nouveau profil
-                    </button>
-                </div>
-
-                <div style="background: #FFF3E0; padding: 15px; border-radius: 10px; font-size: 0.9em; color: #94a3b8;">
-                    💡 <strong>Profil actuel :</strong> <span id="currentProfileNameSettings" style="color: #16a34a; font-weight: bold;">...</span>
-                </div>
-            </div>
-
-            <!-- Smart Reminders Section -->
-            <div class="card">
-                <h2 style="color: #16a34a; margin-bottom: 20px;">🔔 Rappels Intelligents</h2>
-
-                <div style="background: linear-gradient(135deg, #fbbf2415 0%, #fbbf2405 100%); padding: 20px; border-radius: 14px; margin-bottom: 20px; border-left: 4px solid #fbbf24;">
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <div style="font-size: 2.5em;">⏰</div>
-                        <div>
-                            <div style="font-weight: 700; font-size: 1.1em; color: #e2e8f0; margin-bottom: 5px;">Restez motivé et constant</div>
-                            <div style="color: #94a3b8; font-size: 0.9em;">Recevez des rappels personnalisés pour vos séances d\'entraînement</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Enable Notifications Button -->
-                <div id="notificationPermission" style="margin-bottom: 20px;">
-                    <!-- Will be populated by JS -->
-                </div>
-
-                <!-- Reminder Settings -->
-                <div id="reminderSettings" style="display: none;">
-                    <div style="background: rgba(255,255,255,0.04); padding: 20px; border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 15px;">
-                        <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; margin-bottom: 15px;">
-                            <input type="checkbox" id="dailyReminder" onchange="saveReminderSettings()" style="width: 20px; height: 20px;">
-                            <div>
-                                <div style="font-weight: 600; color: #e2e8f0;">📅 Rappel quotidien</div>
-                                <div style="font-size: 0.85em; color: #94a3b8;">Recevez un rappel chaque jour à l'heure choisie</div>
+                        <!-- Unité de mesure -->
+                        <div class="settings-sub">
+                            <div class="settings-sub-title">⚖️ Unité de mesure</div>
+                            <p class="settings-sub-desc">Affecte le tracker de répétitions, les suggestions de poids et le calculateur 1RM.</p>
+                            <div style="display:flex;gap:10px;">
+                                <button id="unitBtnKg" onclick="setWeightUnit(true)" class="btn" style="flex:1;">🇨🇦 Kilogrammes (kg)</button>
+                                <button id="unitBtnLbs" onclick="setWeightUnit(false)" class="btn" style="flex:1;">🇺🇸 Livres (lbs)</button>
                             </div>
-                        </label>
-
-                        <div id="dailyTimeSelector" style="display: none; margin-left: 32px;">
-                            <span style="display: block; margin-bottom: 5px; font-size: 0.9em; color: #94a3b8;">⏰ Heure du rappel</span>
-                            <input type="time" id="dailyReminderTime" onchange="saveReminderSettings()" value="18:00" style="padding: 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); font-size: 1em;">
                         </div>
-                    </div>
 
-                    <div style="background: rgba(255,255,255,0.04); padding: 20px; border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 15px;">
-                        <label style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
-                            <input type="checkbox" id="inactiveReminder" onchange="saveReminderSettings()" style="width: 20px; height: 20px;">
-                            <div>
-                                <div style="font-weight: 600; color: #e2e8f0;">😴 Rappel d'inactivité</div>
-                                <div style="font-size: 0.85em; color: #94a3b8;">Si vous n'avez pas fait de séance depuis 3 jours</div>
+                        <!-- Poids disponibles -->
+                        <div class="settings-sub">
+                            <div class="settings-sub-title">🏋️ Poids disponibles</div>
+                            <p class="settings-sub-desc">Renseigne tes haltères et barres disponibles — les suggestions s'adapteront exactement.</p>
+                            <div style="display:grid;gap:10px;">
+                                <div>
+                                    <span style="font-size:0.82em;font-weight:700;color:#374151;margin-bottom:6px;display:block;">🔵 Haltères disponibles (lbs ou kg)</span>
+                                    <input id="dumbbellWeightsInput" type="text" placeholder="ex: 5, 10, 15, 20, 25, 35, 45"
+                                        style="width:100%;padding:10px 12px;border:1px solid rgba(255,255,255,0.12);border-radius:10px;font-size:0.92em;"
+                                        oninput="previewAvailWeights('dumbbells', this.value)">
+                                    <div id="dumbbellPreview" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;min-height:28px;"></div>
+                                </div>
+                                <div>
+                                    <span style="font-size:0.82em;font-weight:700;color:#374151;margin-bottom:6px;display:block;">🔴 Barre (barbell) — plaques disponibles</span>
+                                    <input id="barbellWeightsInput" type="text" placeholder="ex: 2.5, 5, 10, 25, 35, 45"
+                                        style="width:100%;padding:10px 12px;border:1px solid rgba(255,255,255,0.12);border-radius:10px;font-size:0.92em;"
+                                        oninput="previewAvailWeights('barbell', this.value)">
+                                    <div id="barbellPreview" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;min-height:28px;"></div>
+                                </div>
+                                <div>
+                                    <span style="font-size:0.82em;font-weight:700;color:#374151;margin-bottom:6px;display:block;">🟢 Câble / Machine — crans</span>
+                                    <input id="cableWeightsInput" type="text" placeholder="ex: 5, 10, 15, 20, 25, 30, 40, 50"
+                                        style="width:100%;padding:10px 12px;border:1px solid rgba(255,255,255,0.12);border-radius:10px;font-size:0.92em;"
+                                        oninput="previewAvailWeights('cable', this.value)">
+                                    <div id="cablePreview" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;min-height:28px;"></div>
+                                </div>
+                                <button onclick="saveAllAvailableWeights()" class="btn" style="background:linear-gradient(135deg,#16a34a,#15803d);">
+                                    💾 Sauvegarder mes poids
+                                </button>
                             </div>
-                        </label>
-                    </div>
+                        </div>
 
-                    <div style="background: rgba(255,255,255,0.04); padding: 20px; border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                        <label style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
-                            <input type="checkbox" id="goalReminder" onchange="saveReminderSettings()" style="width: 20px; height: 20px;">
-                            <div>
-                                <div style="font-weight: 600; color: #e2e8f0;">🎯 Rappel objectif hebdo</div>
-                                <div style="font-size: 0.85em; color: #94a3b8;">Suivi de votre objectif hebdomadaire de séances</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════ GROUPE 3 · AUDIO & NOTIFICATIONS ═══════════ -->
+            <div class="accordion-section">
+                <div class="accordion-header" onclick="toggleSettingsAccordion(this)">
+                    <div class="accordion-title"><span>🔔</span><span>Audio &amp; notifications</span></div>
+                    <div class="accordion-icon">▼</div>
+                </div>
+                <div class="accordion-body">
+                    <div class="accordion-content">
+
+                        <!-- Guidage vocal -->
+                        <div class="settings-sub">
+                            <div class="settings-sub-title">🔊 Guidage vocal</div>
+                            <p class="settings-sub-desc">Annonces vocales pour être guidé sans regarder l'écran.</p>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                                <div class="equipment-item selected" id="voiceGuideOption" onclick="toggleVoiceGuide()" style="cursor: pointer;">
+                                    <div class="equipment-checkmark">✓</div>
+                                    <div class="equipment-icon">🔊</div>
+                                    <div class="equipment-name">Guidage activé</div>
+                                    <div class="equipment-count">Instructions vocales</div>
+                                </div>
+                                <div class="equipment-item selected" id="countdownVoiceOption" onclick="toggleCountdownVoice()" style="cursor: pointer;">
+                                    <div class="equipment-checkmark">✓</div>
+                                    <div class="equipment-icon">🔢</div>
+                                    <div class="equipment-name">Compte à rebours</div>
+                                    <div class="equipment-count">3-2-1 vocal</div>
+                                </div>
                             </div>
-                        </label>
-                    </div>
-                </div>
-            </div>
-
-            <!-- AI Workout DJ Section -->
-            <div class="card">
-                <h2 style="color: #16a34a; margin-bottom: 20px;">🎧 AI Workout DJ</h2>
-
-                <div style="background: linear-gradient(135deg, #16a34a15 0%, #15803d05 100%); padding: 20px; border-radius: 14px; margin-bottom: 20px; border-left: 4px solid #16a34a;">
-                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
-                        <div style="font-size: 2.5em;">🎧</div>
-                        <div>
-                            <div style="font-weight: 700; font-size: 1.1em; color: #e2e8f0; margin-bottom: 5px;">Workouts qui s'adaptent à TOI</div>
-                            <div style="color: #94a3b8; font-size: 0.9em;">L'IA analyse ton état et ajuste le workout EN TEMPS RÉEL</div>
                         </div>
-                    </div>
 
-                    <div style="background: rgba(255,255,255,0.04); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
-                        <div style="font-weight: 600; color: #16a34a; margin-bottom: 10px;">✨ Comment ça marche :</div>
-                        <ul style="margin: 0; padding-left: 20px; color: #94a3b8; font-size: 0.9em; line-height: 1.8;">
-                            <li>Quick Check de 60 secondes au début</li>
-                            <li>L'IA évalue ton niveau d\'énergie</li>
-                            <li>Le workout s'adapte automatiquement</li>
-                            <li>En forme 🔥 ? → Intensité augmentée</li>
-                            <li>Fatigué 😴 ? → Récupération active</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- Enable/Disable Toggle -->
-                <div style="background: rgba(255,255,255,0.04); padding: 20px; border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                    <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">
-                        <div style="flex: 1;">
-                            <div style="font-weight: 600; color: #e2e8f0; margin-bottom: 5px;">🎯 Activer AI Workout DJ</div>
-                            <div style="font-size: 0.85em; color: #94a3b8;">Quick Check avant chaque séance pour adaptation intelligente</div>
-                        </div>
-                        <div style="position: relative; width: 60px; height: 34px; margin-left: 15px;">
-                            <input type="checkbox" id="aiWorkoutDJEnabled" onchange="saveAIWorkoutDJSettings()" style="opacity: 0; width: 0; height: 0;">
-                            <span id="aiDJToggleSlider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; box-shadow: inset 0 0 5px rgba(0,0,0,0.1);"></span>
-                        </div>
-                    </label>
-
-                    <!-- Advanced Settings (shown when enabled) -->
-                    <div id="aiDJAdvancedSettings" style="display: none; margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.12);">
-                        <div style="font-weight: 600; color: #16a34a; margin-bottom: 15px;">⚙️ Paramètres avancés</div>
-
-                        <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; margin-bottom: 12px;">
-                            <input type="checkbox" id="aiDJVoiceFeedback" onchange="saveAIWorkoutDJSettings()" style="width: 20px; height: 20px;" checked>
-                            <div>
-                                <div style="font-size: 0.9em; font-weight: 600; color: #e2e8f0;">🎤 Feedback vocal</div>
-                                <div style="font-size: 0.8em; color: #94a3b8;">Encouragements vocaux pendant le workout</div>
+                        <!-- Mode sans distractions -->
+                        <div class="settings-sub">
+                            <div class="settings-sub-title">🤫 Mode sans distractions</div>
+                            <p class="settings-sub-desc">Masque tous les messages à l'écran : notifications, astuces, bulles d'Esen et Nyra, citations de repos et bannières de record. Les erreurs et fenêtres d'action restent affichées.</p>
+                            <div style="display: grid; grid-template-columns: 1fr; gap: 14px;">
+                                <div class="equipment-item" id="quietModeOption" onclick="toggleQuietMode()" style="cursor: pointer;">
+                                    <div class="equipment-checkmark">✓</div>
+                                    <div class="equipment-icon">🔕</div>
+                                    <div class="equipment-name">Notifications actives</div>
+                                    <div class="equipment-count">Toasts &amp; bulles affichés</div>
+                                </div>
                             </div>
-                        </label>
+                        </div>
 
-                        <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; margin-bottom: 12px;">
-                            <input type="checkbox" id="aiDJAutoAdjust" onchange="saveAIWorkoutDJSettings()" style="width: 20px; height: 20px;" checked>
-                            <div>
-                                <div style="font-size: 0.9em; font-weight: 600; color: #e2e8f0;">⚡ Ajustements automatiques</div>
-                                <div style="font-size: 0.8em; color: #94a3b8;">Modifie exercices/poids/repos automatiquement</div>
+                        <!-- Rappels intelligents -->
+                        <div class="settings-sub">
+                            <div class="settings-sub-title">🔔 Rappels intelligents</div>
+                            <p class="settings-sub-desc">Reçois des rappels personnalisés pour rester motivé et constant.</p>
+                            <div id="notificationPermission" style="margin-bottom: 16px;"></div>
+                            <div id="reminderSettings" style="display: none;">
+                                <div style="background: rgba(148,163,184,0.08); padding: 16px; border-radius: 14px; margin-bottom: 12px;">
+                                    <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; margin-bottom: 12px;">
+                                        <input type="checkbox" id="dailyReminder" onchange="saveReminderSettings()" style="width: 20px; height: 20px;">
+                                        <div>
+                                            <div style="font-weight: 600; color: #e2e8f0;">📅 Rappel quotidien</div>
+                                            <div style="font-size: 0.85em; color: #94a3b8;">Un rappel chaque jour à l'heure choisie</div>
+                                        </div>
+                                    </label>
+                                    <div id="dailyTimeSelector" style="display: none; margin-left: 32px;">
+                                        <span style="display: block; margin-bottom: 5px; font-size: 0.9em; color: #94a3b8;">⏰ Heure du rappel</span>
+                                        <input type="time" id="dailyReminderTime" onchange="saveReminderSettings()" value="18:00" style="padding: 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); font-size: 1em;">
+                                    </div>
+                                </div>
+                                <div style="background: rgba(148,163,184,0.08); padding: 16px; border-radius: 14px; margin-bottom: 12px;">
+                                    <label style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
+                                        <input type="checkbox" id="inactiveReminder" onchange="saveReminderSettings()" style="width: 20px; height: 20px;">
+                                        <div>
+                                            <div style="font-weight: 600; color: #e2e8f0;">😴 Rappel d'inactivité</div>
+                                            <div style="font-size: 0.85em; color: #94a3b8;">Si aucune séance depuis 3 jours</div>
+                                        </div>
+                                    </label>
+                                </div>
+                                <div style="background: rgba(148,163,184,0.08); padding: 16px; border-radius: 14px;">
+                                    <label style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
+                                        <input type="checkbox" id="goalReminder" onchange="saveReminderSettings()" style="width: 20px; height: 20px;">
+                                        <div>
+                                            <div style="font-weight: 600; color: #e2e8f0;">🎯 Rappel objectif hebdo</div>
+                                            <div style="font-size: 0.85em; color: #94a3b8;">Suivi de ton objectif hebdomadaire de séances</div>
+                                        </div>
+                                    </label>
+                                </div>
                             </div>
-                        </label>
-
-                        <div style="margin-top: 15px;">
-                            <span style="display: block; font-size: 0.9em; font-weight: 600; color: #e2e8f0; margin-bottom: 8px;">🎚️ Sensibilité de l'adaptation</span>
-                            <select id="aiDJSensitivity" onchange="saveAIWorkoutDJSettings()" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); font-size: 0.9em;">
-                                <option value="conservative">Conservatrice (petits ajustements)</option>
-                                <option value="moderate" selected>Modérée (équilibrée)</option>
-                                <option value="aggressive">Agressive (gros changements)</option>
-                            </select>
                         </div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Équipements gérés via les lieux d\'entraînement (onglet Séances > ✏️ sur chaque lieu) -->
+                        <!-- AI Workout DJ -->
+                        <div class="settings-sub">
+                            <div class="settings-sub-title">🎧 AI Workout DJ</div>
+                            <p class="settings-sub-desc">Un Quick Check de 60 s au début de la séance : l'IA évalue ton énergie et adapte le workout en temps réel (intensité ↑ si en forme, récup active si fatigué).</p>
 
-            <!-- Muscle Groups Selection -->
-            <div class="card">
-                <h3>🤕 Récupération musculaire</h3>
+                            <div class="settings-toggle-row" style="background: rgba(148,163,184,0.08); padding: 16px; border-radius: 14px;">
+                                <div class="settings-tr-main">
+                                    <div class="settings-tr-label">🎯 Activer AI Workout DJ</div>
+                                    <div class="settings-tr-sub">Quick Check avant chaque séance pour adaptation intelligente</div>
+                                </div>
+                                <div style="position: relative; width: 60px; height: 34px; flex-shrink:0;">
+                                    <input type="checkbox" id="aiWorkoutDJEnabled" onchange="saveAIWorkoutDJSettings()" style="opacity: 0; width: 0; height: 0;">
+                                    <span id="aiDJToggleSlider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; box-shadow: inset 0 0 5px rgba(0,0,0,0.1);"></span>
+                                </div>
+                            </div>
 
-                <!-- Injured Muscles Management -->
-                <div id="injuredMusclesInfo" style="margin-bottom: 16px; padding: 16px; background: #fee2e2; border-radius: 14px; border: 2px solid #ef4444; display: none;">
-                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                        <div style="font-size: 1.8em;">🤕</div>
-                        <div>
-                            <h4 style="margin: 0; color: #991b1b;">Muscles blessés</h4>
-                            <p style="margin: 4px 0 0 0; color: #7f1d1d; font-size: 0.85em;">Ces muscles seront évités dans les séances intelligentes</p>
+                            <div id="aiDJAdvancedSettings" style="display: none; margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(148,163,184,0.2);">
+                                <div style="font-weight: 600; color: #16a34a; margin-bottom: 14px;">⚙️ Paramètres avancés</div>
+                                <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; margin-bottom: 12px;">
+                                    <input type="checkbox" id="aiDJVoiceFeedback" onchange="saveAIWorkoutDJSettings()" style="width: 20px; height: 20px;" checked>
+                                    <div>
+                                        <div style="font-size: 0.9em; font-weight: 600; color: #e2e8f0;">🎤 Feedback vocal</div>
+                                        <div style="font-size: 0.8em; color: #94a3b8;">Encouragements vocaux pendant le workout</div>
+                                    </div>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; margin-bottom: 12px;">
+                                    <input type="checkbox" id="aiDJAutoAdjust" onchange="saveAIWorkoutDJSettings()" style="width: 20px; height: 20px;" checked>
+                                    <div>
+                                        <div style="font-size: 0.9em; font-weight: 600; color: #e2e8f0;">⚡ Ajustements automatiques</div>
+                                        <div style="font-size: 0.8em; color: #94a3b8;">Modifie exercices/poids/repos automatiquement</div>
+                                    </div>
+                                </label>
+                                <div style="margin-top: 14px;">
+                                    <span style="display: block; font-size: 0.9em; font-weight: 600; color: #e2e8f0; margin-bottom: 8px;">🎚️ Sensibilité de l'adaptation</span>
+                                    <select id="aiDJSensitivity" onchange="saveAIWorkoutDJSettings()" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); font-size: 0.9em;">
+                                        <option value="conservative">Conservatrice (petits ajustements)</option>
+                                        <option value="moderate" selected>Modérée (équilibrée)</option>
+                                        <option value="aggressive">Agressive (gros changements)</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div id="injuredMusclesList" style="margin-bottom: 12px; color: #7f1d1d; font-weight: bold;"></div>
-                    <button class="btn" onclick="clearAllInjuries()" style="width: 100%; background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
-                        🏥 Retirer toutes les blessures
-                    </button>
-                </div>
 
-                <!-- Reset Muscle Recovery -->
-                <div style="padding: 16px; background: #fff4e6; border-radius: 14px; border: 2px solid #fed7aa;">
-                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                        <div style="font-size: 1.8em;">🔄</div>
-                        <div>
-                            <h4 style="margin: 0; color: #92400e;">Récupération musculaire</h4>
-                            <p style="margin: 4px 0 0 0; color: #78350f; font-size: 0.85em;">Réinitialisez l'état de récupération de tous vos muscles</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════ GROUPE 4 · COMPTE & DONNÉES ═══════════ -->
+            <div class="accordion-section">
+                <div class="accordion-header" onclick="toggleSettingsAccordion(this)">
+                    <div class="accordion-title"><span>👤</span><span>Compte &amp; données</span></div>
+                    <div class="accordion-icon">▼</div>
+                </div>
+                <div class="accordion-body">
+                    <div class="accordion-content">
+
+                        <!-- Profils -->
+                        <div class="settings-sub">
+                            <div class="settings-sub-title">👥 Gestion des profils</div>
+                            <p class="settings-sub-desc">Gère tes profils d'utilisateurs pour un suivi personnalisé.</p>
+                            <div style="display: grid; gap: 10px; margin-bottom: 14px;">
+                                <button class="btn" onclick="showProfileSetup()" style="background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);">⚙️ Modifier mon profil</button>
+                                <button class="btn" onclick="showProfileSelectionModal()" style="background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);">👥 Changer de profil</button>
+                                <button class="btn btn-secondary" onclick="showCreateProfileModal()">➕ Créer un nouveau profil</button>
+                            </div>
+                            <div style="background: rgba(148,163,184,0.08); padding: 14px; border-radius: 10px; font-size: 0.9em; color: #94a3b8;">
+                                💡 <strong>Profil actuel :</strong> <span id="currentProfileNameSettings" style="color: #16a34a; font-weight: bold;">...</span>
+                            </div>
                         </div>
+
+                        <!-- Sauvegardes -->
+                        <div class="settings-sub">
+                            <div class="settings-sub-title">💾 Sauvegardes</div>
+                            <p class="settings-sub-desc">Sauvegarde automatique quotidienne, export et import de tes données.</p>
+                            <button class="btn" onclick="showBackupManagerModal()" style="width:100%;background:linear-gradient(135deg,#10b981,#059669);">
+                                🗂️ Ouvrir le gestionnaire de sauvegardes →
+                            </button>
+                        </div>
+
+                        <!-- Installer l'app -->
+                        <div class="settings-sub">
+                            <div class="settings-sub-title">📱 Installer l'application</div>
+                            <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;padding:14px;background:linear-gradient(135deg,#0F1014,#1A0A00);border-radius:14px;">
+                                <div style="font-size:2.2em;flex-shrink:0;">💪</div>
+                                <div>
+                                    <div style="font-weight:700;color:white;margin-bottom:2px;">Awakened Elite Fitness</div>
+                                    <p style="margin:0;font-size:0.82em;color:rgba(196,181,253,0.9);">Accès rapide · Fonctionne hors-ligne · Aucun store requis</p>
+                                </div>
+                            </div>
+                            <button onclick="installPWA()" id="settingsInstallBtn" class="btn" style="background:linear-gradient(135deg,#10b981,#059669);margin-bottom:8px;width:100%;">
+                                ⬇️ Installer sur cet appareil
+                            </button>
+                            <button onclick="showIOSBanner()" class="btn btn-secondary" style="width:100%;">
+                                📱 Guide installation iPhone / Safari
+                            </button>
+                        </div>
+
+                        <!-- Gestion des données -->
+                        <div class="settings-sub">
+                            <div class="settings-sub-title" style="color:#ef4444;">🗄️ Gestion des données</div>
+                            <p class="settings-sub-desc">Toutes tes données sont sauvegardées automatiquement dans ton navigateur.</p>
+                            <div style="display: grid; gap: 10px;">
+                                <button class="btn" onclick="exportAllData()" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); display: flex; align-items: center; justify-content: center; gap: 10px;">
+                                    <span>💾 Exporter toutes mes données</span>
+                                </button>
+                                <label class="btn btn-secondary" style="cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin: 0;">
+                                    <span>📥 Importer des données</span>
+                                    <input type="file" id="importDataFile" accept=".json" style="display: none;" onchange="importAllData(event)">
+                                </label>
+                                <button class="btn" onclick="deleteCurrentProfile()" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); display: flex; align-items: center; justify-content: center; gap: 10px;">
+                                    <span>🗑️ Supprimer ce profil</span>
+                                </button>
+                                <button class="btn" onclick="resetAllData()" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); display: flex; align-items: center; justify-content: center; gap: 10px;">
+                                    <span>⚠️ Réinitialiser TOUTES les données</span>
+                                </button>
+                            </div>
+                            <div style="margin-top: 14px; padding: 14px; background: #fef3c7; border-radius: 10px; border-left: 4px solid #f59e0b; font-size: 0.9em; color: #92400e;">
+                                <strong>⚠️ Attention :</strong><br>
+                                • <strong>Exporter</strong> : télécharge un fichier JSON avec toutes tes données<br>
+                                • <strong>Importer</strong> : restaure des données depuis un fichier JSON<br>
+                                • <strong>Supprimer profil</strong> : supprime UNIQUEMENT le profil actuel<br>
+                                • <strong>Réinitialiser</strong> : supprime TOUTES les données de TOUS les profils (irréversible !)
+                            </div>
+                        </div>
+
                     </div>
-                    <button class="btn" onclick="resetMuscleRecovery()" style="width: 100%; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
-                        🔄 Réinitialiser la récupération
-                    </button>
-                    <p style="margin: 8px 0 0 0; color: #78350f; font-size: 0.82em; text-align: center;">⚠️ Remet tous les muscles à l'état "prêt" (✅)</p>
                 </div>
             </div>
 
-            <!-- Warmup and Stretch Options -->
-            <div class="card">
-                <div class="equipment-info">
-                    <h3>🔥 Options échauffement & étirement</h3>
-                    <p>Personnalisez votre séance avec des exercices d'échauffement et d'étirement adaptés aux muscles que vous allez travailler.</p>
+            <!-- ═══════════ GROUPE 5 · À PROPOS ═══════════ -->
+            <div class="accordion-section">
+                <div class="accordion-header" onclick="toggleSettingsAccordion(this)">
+                    <div class="accordion-title"><span>ℹ️</span><span>À propos</span></div>
+                    <div class="accordion-icon">▼</div>
                 </div>
+                <div class="accordion-body">
+                    <div class="accordion-content">
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
-                    <div class="equipment-item selected" id="warmupOption" onclick="toggleWarmup()" style="cursor: pointer;">
-                        <div class="equipment-checkmark">✓</div>
-                        <div class="equipment-icon">🏃‍♂️</div>
-                        <div class="equipment-name">Échauffement</div>
-                        <div class="equipment-count">Avant la séance</div>
+                        <!-- Version -->
+                        <div class="settings-sub">
+                            <div class="settings-sub-title">🔖 Version</div>
+                            <div style="display:flex;align-items:center;gap:14px;">
+                                <div onclick="awakVersionTap()" style="font-size:2em;flex-shrink:0;cursor:pointer;user-select:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent;">🔖</div>
+                                <div style="flex:1;min-width:0;">
+                                    <div style="font-weight:800;color:#e2e8f0;font-size:1em;">Awakened</div>
+                                    <div onclick="awakVersionTap()" style="font-size:0.78em;color:#4ade80;font-weight:700;margin-top:2px;cursor:pointer;user-select:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent;">v0.90 · awakened</div>
+                                </div>
+                                <button onclick="if(confirm('Forcer la mise à jour de l\\'app ?\\n\\nCela nettoiera complètement le cache et rechargera la dernière version.')) forceAppUpdate();" style="flex-shrink:0;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:#4ade80;border-radius:10px;padding:8px 12px;font-size:0.72em;font-weight:800;cursor:pointer;">🔄 Mettre à jour</button>
+                            </div>
+                        </div>
+
+                        <!-- Mode développeur (réservé à AdminMarc) -->
+                        <div class="settings-sub" id="devModePanel" style="display:none;">
+                            <div class="settings-sub-title" style="color:#a855f7;">🔧 Mode développeur</div>
+                            <p class="settings-sub-desc">Outils de test pour visualiser l'histoire et la progression. Le mode jeu doit être activé.</p>
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                <button class="btn" onclick="awakAdminLevelUp(1)" style="flex:1; min-width:120px; background: linear-gradient(135deg,#a855f7,#7c3aed); display:flex; align-items:center; justify-content:center; gap:8px;">
+                                    <span>⬆️ +1 Niveau</span>
+                                </button>
+                                <button class="btn" onclick="awakAdminLevelUp(5)" style="flex:1; min-width:120px; background: linear-gradient(135deg,#7c3aed,#6d28d9); display:flex; align-items:center; justify-content:center; gap:8px;">
+                                    <span>⏫ +5 Niveaux</span>
+                                </button>
+                            </div>
+                            <button class="btn" onclick="awakAdminToggleInvincible()" id="devInvincibleBtn" style="width:100%; margin-top:8px; background: linear-gradient(135deg,#dc2626,#991b1b); display:flex; align-items:center; justify-content:center; gap:8px;">
+                                <span>🛡️ Invincibilité : OFF</span>
+                            </button>
+                            <button class="btn" onclick="awakAdminResetStory()" style="width:100%; margin-top:8px; background: linear-gradient(135deg,#475569,#334155); display:flex; align-items:center; justify-content:center; gap:8px;">
+                                <span>🔄 Réinitialiser l'histoire (revoir les événements)</span>
+                            </button>
+                        </div>
+
                     </div>
-
-                    <div class="equipment-item selected" id="stretchOption" onclick="toggleStretch()" style="cursor: pointer;">
-                        <div class="equipment-checkmark">✓</div>
-                        <div class="equipment-icon">🧘</div>
-                        <div class="equipment-name">Étirement</div>
-                        <div class="equipment-count">Après la séance</div>
-                    </div>
-                </div>
-
-                <div style="background: #FFF3E0; padding: 20px; border-radius: 14px; margin-top: 20px;">
-                    <p style="margin: 0; color: #94a3b8; font-size: 0.95em;">
-                        💡 <strong>Conseil :</strong> L'échauffement prépare vos muscles et réduit les risques de blessure.
-                        Les étirements favorisent la récupération et la flexibilité. Nous recommandons de garder les deux activés !
-                    </p>
                 </div>
             </div>
 
-            <!-- Voice Guide Options -->
-            <div class="card">
-                <div class="equipment-info">
-                    <h3>🔊 Guidage vocal</h3>
-                    <p>Activez les annonces vocales pour être guidé pendant votre entraînement sans regarder l'écran.</p>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
-                    <div class="equipment-item selected" id="voiceGuideOption" onclick="toggleVoiceGuide()" style="cursor: pointer;">
-                        <div class="equipment-checkmark">✓</div>
-                        <div class="equipment-icon">🔊</div>
-                        <div class="equipment-name">Guidage activé</div>
-                        <div class="equipment-count">Instructions vocales</div>
-                    </div>
-
-                    <div class="equipment-item selected" id="countdownVoiceOption" onclick="toggleCountdownVoice()" style="cursor: pointer;">
-                        <div class="equipment-checkmark">✓</div>
-                        <div class="equipment-icon">🔢</div>
-                        <div class="equipment-name">Compte à rebours</div>
-                        <div class="equipment-count">3-2-1 vocal</div>
-                    </div>
-                </div>
-
-                <div style="background: #fff4e6; padding: 20px; border-radius: 14px; margin-top: 20px;">
-                    <p style="margin: 0; color: #94a3b8; font-size: 0.95em;">
-                        🎤 <strong>Info :</strong> Le guidage vocal utilise la synthèse vocale de votre appareil.
-                        Vous entendrez le nom des exercices, les transitions et les comptes à rebours.
-                    </p>
-                </div>
-            </div>
-
-
-
-            <!-- Repos inter-séries -->
-            <div class="card">
-                <h3 style="margin-bottom:12px;color:#16a34a;">⏱️ Repos inter-séries</h3>
-                <p style="font-size:0.82em;color:#6b7280;margin-bottom:14px;">Temps de repos entre chaque série. Modifiable aussi par exercice pendant la séance.</p>
-                <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px;" id="globalRestBtns">
-                    <button onclick="setGlobalRest(60)"  class="btn btn-secondary" data-rest="60">1 min</button>
-                    <button onclick="setGlobalRest(90)"  class="btn btn-secondary" data-rest="90">1:30</button>
-                    <button onclick="setGlobalRest(120)" class="btn btn-secondary" data-rest="120">2 min</button>
-                    <button onclick="setGlobalRest(180)" class="btn btn-secondary" data-rest="180">3 min</button>
-                </div>
-                <p style="font-size:0.78em;color:#9ca3af;margin:0;text-align:center;" id="globalRestHint">Actuel : 1:30</p>
-            </div>
-
-            <!-- Unité de poids -->
-            <div class="card">
-                <h3 style="margin-bottom:12px;color:#16a34a;">⚖️ Unité de mesure</h3>
-                <p style="font-size:0.82em;color:#6b7280;margin-bottom:14px;">Affecte le tracker de répétitions, les suggestions de poids et le calculateur 1RM.</p>
-                <div style="display:flex;gap:10px;">
-                    <button id="unitBtnKg" onclick="setWeightUnit(true)"
-                            class="btn" style="flex:1;">🇨🇦 Kilogrammes (kg)</button>
-                    <button id="unitBtnLbs" onclick="setWeightUnit(false)"
-                            class="btn" style="flex:1;">🇺🇸 Livres (lbs)</button>
-                </div>
-            </div>
-
-            <!-- Poids disponibles -->
-            <div class="card">
-                <h3 style="margin-bottom:12px;color:#16a34a;">⚖️ Poids disponibles</h3>
-                <p style="font-size:0.82em;color:#6b7280;margin-bottom:14px;">
-                    Renseigne tes haltères et barres disponibles — les suggestions s'adapteront exactement.
-                </p>
-                <div style="display:grid;gap:10px;">
-                    <div>
-                        <span style="font-size:0.82em;font-weight:700;color:#374151;margin-bottom:6px;display:block;">🔵 Haltères disponibles (lbs ou kg)</span>
-                        <input id="dumbbellWeightsInput" type="text" placeholder="ex: 5, 10, 15, 20, 25, 35, 45"
-                            style="width:100%;padding:10px 12px;border:1px solid rgba(255,255,255,0.12);border-radius:10px;font-size:0.92em;"
-                            oninput="previewAvailWeights('dumbbells', this.value)">
-                        <div id="dumbbellPreview" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;min-height:28px;"></div>
-                    </div>
-                    <div>
-                        <span style="font-size:0.82em;font-weight:700;color:#374151;margin-bottom:6px;display:block;">🔴 Barre (barbell) — plaques disponibles</span>
-                        <input id="barbellWeightsInput" type="text" placeholder="ex: 2.5, 5, 10, 25, 35, 45"
-                            style="width:100%;padding:10px 12px;border:1px solid rgba(255,255,255,0.12);border-radius:10px;font-size:0.92em;"
-                            oninput="previewAvailWeights('barbell', this.value)">
-                        <div id="barbellPreview" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;min-height:28px;"></div>
-                    </div>
-                    <div>
-                        <span style="font-size:0.82em;font-weight:700;color:#374151;margin-bottom:6px;display:block;">🟢 Câble / Machine — crans</span>
-                        <input id="cableWeightsInput" type="text" placeholder="ex: 5, 10, 15, 20, 25, 30, 40, 50"
-                            style="width:100%;padding:10px 12px;border:1px solid rgba(255,255,255,0.12);border-radius:10px;font-size:0.92em;"
-                            oninput="previewAvailWeights('cable', this.value)">
-                        <div id="cablePreview" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;min-height:28px;"></div>
-                    </div>
-                    <button onclick="saveAllAvailableWeights()" class="btn" style="background:linear-gradient(135deg,#16a34a,#15803d);">
-                        💾 Sauvegarder mes poids
-                    </button>
-                </div>
-            </div>
-
-            <!-- Install PWA Card -->
-            <div class="card">
-                <h3 style="margin:0 0 12px;color:#16a34a;">📱 Installer l'application</h3>
-                <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;padding:14px;background:linear-gradient(135deg,#0F1014,#1A0A00);border-radius:14px;">
-                    <div style="font-size:2.2em;flex-shrink:0;">💪</div>
-                    <div>
-                        <div style="font-weight:700;color:white;margin-bottom:2px;">Awakened Elite Fitness</div>
-                        <p style="margin:0;font-size:0.82em;color:rgba(196,181,253,0.9);">Accès rapide · Fonctionne hors-ligne · Aucun store requis</p>
-                    </div>
-                </div>
-                <button onclick="installPWA()" id="settingsInstallBtn" class="btn" style="background:linear-gradient(135deg,#10b981,#059669);margin-bottom:8px;width:100%;">
-                    ⬇️ Installer sur cet appareil
-                </button>
-                <button onclick="showIOSBanner()" class="btn btn-secondary" style="width:100%;">
-                    📱 Guide installation iPhone / Safari
-                </button>
-            </div>
-
-            <!-- Data Management Card -->
-            <div class="card">
-                <h3 style="margin-bottom: 15px; color: #ef4444;">💾 Gestion des Données</h3>
-                <p style="color: #94a3b8; margin-bottom: 20px; font-size: 0.95em;">
-                    💾 Toutes vos données sont sauvegardées automatiquement dans votre navigateur
-                </p>
-
-                <div style="display: grid; gap: 10px;">
-                    <button class="btn" onclick="exportAllData()" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); display: flex; align-items: center; justify-content: center; gap: 10px;">
-                        <span>💾 Exporter toutes mes données</span>
-                    </button>
-
-                    <label class="btn btn-secondary" style="cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin: 0;">
-                        <span>📥 Importer des données</span>
-                        <input type="file" id="importDataFile" accept=".json" style="display: none;" onchange="importAllData(event)">
-                    </label>
-
-                    <button class="btn" onclick="deleteCurrentProfile()" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); display: flex; align-items: center; justify-content: center; gap: 10px;">
-                        <span>🗑️ Supprimer ce profil</span>
-                    </button>
-
-                    <button class="btn" onclick="resetAllData()" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); display: flex; align-items: center; justify-content: center; gap: 10px;">
-                        <span>⚠️ Réinitialiser TOUTES les données</span>
-                    </button>
-                </div>
-
-                <div style="margin-top: 15px; padding: 15px; background: #fef3c7; border-radius: 10px; border-left: 4px solid #f59e0b; font-size: 0.9em; color: #92400e;">
-                    <strong>⚠️ Attention :</strong><br>
-                    • <strong>Exporter</strong> : Télécharge un fichier JSON avec toutes vos données<br>
-                    • <strong>Importer</strong> : Restaure des données depuis un fichier JSON<br>
-                    • <strong>Supprimer profil</strong> : Supprime UNIQUEMENT le profil actuel<br>
-                    • <strong>Réinitialiser</strong> : Supprime TOUTES les données de TOUS les profils (irréversible !)
-                </div>
-
-                <!-- 🔧 Mode développeur (réservé à AdminMarc) -->
-                <div id="devModePanel" style="display:none; margin-top: 20px; padding: 16px; background: rgba(168,85,247,0.06); border-radius: 10px; border: 1px dashed rgba(168,85,247,0.4);">
-                    <div style="font-weight: 800; color: #a855f7; font-size: 0.85em; letter-spacing: 1px; margin-bottom: 4px;">🔧 MODE DÉVELOPPEUR</div>
-                    <div style="font-size: 0.78em; color: #94a3b8; margin-bottom: 12px;">Outils de test pour visualiser l'histoire et la progression. Le mode jeu doit être activé.</div>
-                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                        <button class="btn" onclick="awakAdminLevelUp(1)" style="flex:1; min-width:120px; background: linear-gradient(135deg,#a855f7,#7c3aed); display:flex; align-items:center; justify-content:center; gap:8px;">
-                            <span>⬆️ +1 Niveau</span>
-                        </button>
-                        <button class="btn" onclick="awakAdminLevelUp(5)" style="flex:1; min-width:120px; background: linear-gradient(135deg,#7c3aed,#6d28d9); display:flex; align-items:center; justify-content:center; gap:8px;">
-                            <span>⏫ +5 Niveaux</span>
-                        </button>
-                    </div>
-                    <button class="btn" onclick="awakAdminToggleInvincible()" id="devInvincibleBtn" style="width:100%; margin-top:8px; background: linear-gradient(135deg,#dc2626,#991b1b); display:flex; align-items:center; justify-content:center; gap:8px;">
-                        <span>🛡️ Invincibilité : OFF</span>
-                    </button>
-                    <button class="btn" onclick="awakAdminResetStory()" style="width:100%; margin-top:8px; background: linear-gradient(135deg,#475569,#334155); display:flex; align-items:center; justify-content:center; gap:8px;">
-                        <span>🔄 Réinitialiser l'histoire (revoir les événements)</span>
-                    </button>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -3601,23 +3580,23 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/exercises.js?v=499"></script>
-    <script src="data/items.js?v=499"></script>
-    <script src="js/adventure.js?v=499"></script>
-    <script src="js/economy.js?v=499"></script>
-    <script src="js/challenges.js?v=499"></script>
-    <script src="js/exercise-visuals.js?v=499"></script>
-    <script src="js/strength-standards.js?v=499"></script>
-    <script src="js/system-cards.js?v=499"></script>
-    <script src="js/share-card.js?v=499"></script>
-    <script src="js/story-events.js?v=499"></script>
-    <script src="js/final-boss.js?v=499"></script>
-    <script src="js/disciplines.js?v=499"></script>
-    <script src="js/app.js?v=499"></script>
-    <script src="js/awakening-tree.js?v=499"></script>
-    <script src="js/ui-kit.js?v=499"></script>
-    <script src="js/feature-map.js?v=499"></script>
-    <script src="js/weekly-recap.js?v=499"></script>
+    <script src="js/exercises.js?v=500"></script>
+    <script src="data/items.js?v=500"></script>
+    <script src="js/adventure.js?v=500"></script>
+    <script src="js/economy.js?v=500"></script>
+    <script src="js/challenges.js?v=500"></script>
+    <script src="js/exercise-visuals.js?v=500"></script>
+    <script src="js/strength-standards.js?v=500"></script>
+    <script src="js/system-cards.js?v=500"></script>
+    <script src="js/share-card.js?v=500"></script>
+    <script src="js/story-events.js?v=500"></script>
+    <script src="js/final-boss.js?v=500"></script>
+    <script src="js/disciplines.js?v=500"></script>
+    <script src="js/app.js?v=500"></script>
+    <script src="js/awakening-tree.js?v=500"></script>
+    <script src="js/ui-kit.js?v=500"></script>
+    <script src="js/feature-map.js?v=500"></script>
+    <script src="js/weekly-recap.js?v=500"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>
