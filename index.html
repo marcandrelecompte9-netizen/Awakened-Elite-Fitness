@@ -20,7 +20,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=500">
+    <link rel="stylesheet" href="css/style.css?v=505">
 </head>
 <body>
 
@@ -178,7 +178,7 @@
                 max-width: 900px;">
 
             <!-- Bannière image : ratio préservé -->
-            <img src="images/banner.png?v=500"
+            <img src="images/banner.png?v=505"
                  alt="Awakened Elite Fitness"
                  style="width:100%;height:auto;display:block;" />
 
@@ -378,6 +378,7 @@
             <div id="activityHeatmapCard" class="activity-heatmap"></div>
 
             <!-- ═══ 7. SUGGESTION HEBDO (générée par IA) ═══ -->
+            <div id="fatigueAlertCard"></div>
             <div id="weeklySuggestionCard"></div>
 
             <!-- ═══ 8. ÉTAT DE RÉCUPÉRATION MUSCULAIRE ═══ -->
@@ -2176,11 +2177,9 @@
                                     <div class="settings-sub-title">🎮 Mode Jeu &amp; ⚔️ Chasseur</div>
                                     <div class="settings-sub-desc" style="margin:0;">XP, niveaux de muscles, équipements en drops et inventaire de chasseur.</div>
                                 </div>
-                                <label style="position:relative;display:inline-block;width:52px;height:28px;flex-shrink:0;">
-                                    <input type="checkbox" id="gameModeToggle" onchange="toggleGameMode(this.checked)" style="opacity:0;width:0;height:0;position:absolute;">
-                                    <span id="gameModeSlider" style="position:absolute;cursor:pointer;inset:0;background:#ccc;border-radius:20px;transition:0.3s;">
-                                        <span style="position:absolute;content:'';height:22px;width:22px;left:3px;bottom:3px;background:white;border-radius:50%;transition:0.3s;display:block;" id="gameModeThumb"></span>
-                                    </span>
+                                <label class="aw-switch">
+                                    <input type="checkbox" id="gameModeToggle" onchange="toggleGameMode(this.checked)">
+                                    <span class="aw-slider"></span>
                                 </label>
                             </div>
                             <div id="gameModePreview" style="display:none;background:linear-gradient(160deg,#0F1014,#0a001a);border-radius:14px;padding:14px;color:white;margin-top:12px;">
@@ -2217,11 +2216,9 @@
                                     <div class="settings-sub-title">🔄 Périodisation automatique</div>
                                     <div class="settings-sub-desc" style="margin:0;">Cycle de 4 semaines : Hypertrophie → Force → Hypertrophie+ → Décharge.</div>
                                 </div>
-                                <label style="position:relative;display:inline-block;width:46px;height:26px;flex-shrink:0;">
-                                    <input type="checkbox" id="periodizationToggle" onchange="setPeriodizationEnabled(this.checked)" style="opacity:0;width:0;height:0;position:absolute;">
-                                    <span id="periodizationSlider" style="position:absolute;cursor:pointer;inset:0;background:#334155;border-radius:20px;transition:0.3s;">
-                                        <span id="periodizationThumb" style="position:absolute;height:20px;width:20px;left:3px;bottom:3px;background:white;border-radius:50%;transition:0.3s;display:block;"></span>
-                                    </span>
+                                <label class="aw-switch">
+                                    <input type="checkbox" id="periodizationToggle" onchange="setPeriodizationEnabled(this.checked)">
+                                    <span class="aw-slider"></span>
                                 </label>
                             </div>
                         </div>
@@ -2262,11 +2259,9 @@
                                     <div class="settings-tr-label">🧠 Échauffement adaptatif</div>
                                     <div class="settings-tr-sub">Génère automatiquement un échauffement selon les muscles travaillés</div>
                                 </div>
-                                <label style="position:relative;display:inline-block;width:46px;height:26px;flex-shrink:0;">
-                                    <input type="checkbox" id="warmupToggle" onchange="setWarmupEnabled(this.checked)" style="opacity:0;width:0;height:0;position:absolute;">
-                                    <span id="warmupSlider" style="position:absolute;cursor:pointer;inset:0;background:#334155;border-radius:20px;transition:0.3s;">
-                                        <span id="warmupThumb" style="position:absolute;height:20px;width:20px;left:3px;bottom:3px;background:white;border-radius:50%;transition:0.3s;display:block;"></span>
-                                    </span>
+                                <label class="aw-switch">
+                                    <input type="checkbox" id="warmupToggle" onchange="setWarmupEnabled(this.checked)">
+                                    <span class="aw-slider"></span>
                                 </label>
                             </div>
 
@@ -2459,28 +2454,34 @@
                                     <div class="settings-tr-label">🎯 Activer AI Workout DJ</div>
                                     <div class="settings-tr-sub">Quick Check avant chaque séance pour adaptation intelligente</div>
                                 </div>
-                                <div style="position: relative; width: 60px; height: 34px; flex-shrink:0;">
-                                    <input type="checkbox" id="aiWorkoutDJEnabled" onchange="saveAIWorkoutDJSettings()" style="opacity: 0; width: 0; height: 0;">
-                                    <span id="aiDJToggleSlider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; box-shadow: inset 0 0 5px rgba(0,0,0,0.1);"></span>
-                                </div>
+                                <label class="aw-switch">
+                                    <input type="checkbox" id="aiWorkoutDJEnabled" onchange="saveAIWorkoutDJSettings()">
+                                    <span class="aw-slider"></span>
+                                </label>
                             </div>
 
                             <div id="aiDJAdvancedSettings" style="display: none; margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(148,163,184,0.2);">
                                 <div style="font-weight: 600; color: #16a34a; margin-bottom: 14px;">⚙️ Paramètres avancés</div>
-                                <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; margin-bottom: 12px;">
-                                    <input type="checkbox" id="aiDJVoiceFeedback" onchange="saveAIWorkoutDJSettings()" style="width: 20px; height: 20px;" checked>
-                                    <div>
-                                        <div style="font-size: 0.9em; font-weight: 600; color: #e2e8f0;">🎤 Feedback vocal</div>
-                                        <div style="font-size: 0.8em; color: #94a3b8;">Encouragements vocaux pendant le workout</div>
+                                <div class="settings-toggle-row" style="margin-bottom: 14px;">
+                                    <div class="settings-tr-main">
+                                        <div class="settings-tr-label">🎤 Feedback vocal</div>
+                                        <div class="settings-tr-sub">Encouragements vocaux pendant le workout</div>
                                     </div>
-                                </label>
-                                <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; margin-bottom: 12px;">
-                                    <input type="checkbox" id="aiDJAutoAdjust" onchange="saveAIWorkoutDJSettings()" style="width: 20px; height: 20px;" checked>
-                                    <div>
-                                        <div style="font-size: 0.9em; font-weight: 600; color: #e2e8f0;">⚡ Ajustements automatiques</div>
-                                        <div style="font-size: 0.8em; color: #94a3b8;">Modifie exercices/poids/repos automatiquement</div>
+                                    <label class="aw-switch">
+                                        <input type="checkbox" id="aiDJVoiceFeedback" onchange="saveAIWorkoutDJSettings()" checked>
+                                        <span class="aw-slider"></span>
+                                    </label>
+                                </div>
+                                <div class="settings-toggle-row" style="margin-bottom: 14px;">
+                                    <div class="settings-tr-main">
+                                        <div class="settings-tr-label">⚡ Ajustements automatiques</div>
+                                        <div class="settings-tr-sub">Modifie exercices/poids/repos automatiquement</div>
                                     </div>
-                                </label>
+                                    <label class="aw-switch">
+                                        <input type="checkbox" id="aiDJAutoAdjust" onchange="saveAIWorkoutDJSettings()" checked>
+                                        <span class="aw-slider"></span>
+                                    </label>
+                                </div>
                                 <div style="margin-top: 14px;">
                                     <span style="display: block; font-size: 0.9em; font-weight: 600; color: #e2e8f0; margin-bottom: 8px;">🎚️ Sensibilité de l'adaptation</span>
                                     <select id="aiDJSensitivity" onchange="saveAIWorkoutDJSettings()" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); font-size: 0.9em;">
@@ -2600,32 +2601,34 @@
                             </div>
                         </div>
 
-                        <!-- Mode développeur (réservé à AdminMarc) -->
-                        <div class="settings-sub" id="devModePanel" style="display:none;">
-                            <div class="settings-sub-title" style="color:#a855f7;">🔧 Mode développeur</div>
-                            <p class="settings-sub-desc">Outils de test pour visualiser l'histoire et la progression. Le mode jeu doit être activé.</p>
-                            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                                <button class="btn" onclick="awakAdminLevelUp(1)" style="flex:1; min-width:120px; background: linear-gradient(135deg,#a855f7,#7c3aed); display:flex; align-items:center; justify-content:center; gap:8px;">
-                                    <span>⬆️ +1 Niveau</span>
-                                </button>
-                                <button class="btn" onclick="awakAdminLevelUp(5)" style="flex:1; min-width:120px; background: linear-gradient(135deg,#7c3aed,#6d28d9); display:flex; align-items:center; justify-content:center; gap:8px;">
-                                    <span>⏫ +5 Niveaux</span>
-                                </button>
-                            </div>
-                            <button class="btn" onclick="awakAdminToggleInvincible()" id="devInvincibleBtn" style="width:100%; margin-top:8px; background: linear-gradient(135deg,#dc2626,#991b1b); display:flex; align-items:center; justify-content:center; gap:8px;">
-                                <span>🛡️ Invincibilité : OFF</span>
-                            </button>
-                            <button class="btn" onclick="awakAdminResetStory()" style="width:100%; margin-top:8px; background: linear-gradient(135deg,#475569,#334155); display:flex; align-items:center; justify-content:center; gap:8px;">
-                                <span>🔄 Réinitialiser l'histoire (revoir les événements)</span>
-                            </button>
-                        </div>
-
                     </div>
                 </div>
             </div>
 
+            <!-- 🔧 Mode développeur (réservé à AdminMarc) — panneau AUTONOME hors accordéon,
+                 sinon il resterait masqué (hauteur 0) tant que la section est repliée. -->
+            <div id="devModePanel" style="display:none; margin-top:15px; padding:18px; background:rgba(168,85,247,0.06); border-radius:14px; border:1px dashed rgba(168,85,247,0.45);">
+                <div class="settings-sub-title" style="color:#a855f7; margin-bottom:6px;">🔧 Mode développeur</div>
+                <p class="settings-sub-desc" style="margin-bottom:14px;">Outils de test pour visualiser l'histoire et la progression. Le mode jeu doit être activé.</p>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button class="btn" onclick="awakAdminLevelUp(1)" style="flex:1; min-width:120px; background: linear-gradient(135deg,#a855f7,#7c3aed); display:flex; align-items:center; justify-content:center; gap:8px;">
+                        <span>⬆️ +1 Niveau</span>
+                    </button>
+                    <button class="btn" onclick="awakAdminLevelUp(5)" style="flex:1; min-width:120px; background: linear-gradient(135deg,#7c3aed,#6d28d9); display:flex; align-items:center; justify-content:center; gap:8px;">
+                        <span>⏫ +5 Niveaux</span>
+                    </button>
+                </div>
+                <button class="btn" onclick="awakAdminToggleInvincible()" id="devInvincibleBtn" style="width:100%; margin-top:8px; background: linear-gradient(135deg,#dc2626,#991b1b); display:flex; align-items:center; justify-content:center; gap:8px;">
+                    <span>🛡️ Invincibilité : OFF</span>
+                </button>
+                <button class="btn" onclick="awakAdminResetStory()" style="width:100%; margin-top:8px; background: linear-gradient(135deg,#475569,#334155); display:flex; align-items:center; justify-content:center; gap:8px;">
+                    <span>🔄 Réinitialiser l'histoire (revoir les événements)</span>
+                </button>
+            </div>
+
         </div>
     </div>
+
 
     <!-- Calculators Tab -->
     <div id="calculatorsTab" class="tab-content">
@@ -3580,23 +3583,23 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/exercises.js?v=500"></script>
-    <script src="data/items.js?v=500"></script>
-    <script src="js/adventure.js?v=500"></script>
-    <script src="js/economy.js?v=500"></script>
-    <script src="js/challenges.js?v=500"></script>
-    <script src="js/exercise-visuals.js?v=500"></script>
-    <script src="js/strength-standards.js?v=500"></script>
-    <script src="js/system-cards.js?v=500"></script>
-    <script src="js/share-card.js?v=500"></script>
-    <script src="js/story-events.js?v=500"></script>
-    <script src="js/final-boss.js?v=500"></script>
-    <script src="js/disciplines.js?v=500"></script>
-    <script src="js/app.js?v=500"></script>
-    <script src="js/awakening-tree.js?v=500"></script>
-    <script src="js/ui-kit.js?v=500"></script>
-    <script src="js/feature-map.js?v=500"></script>
-    <script src="js/weekly-recap.js?v=500"></script>
+    <script src="js/exercises.js?v=505"></script>
+    <script src="data/items.js?v=505"></script>
+    <script src="js/adventure.js?v=505"></script>
+    <script src="js/economy.js?v=505"></script>
+    <script src="js/challenges.js?v=505"></script>
+    <script src="js/exercise-visuals.js?v=505"></script>
+    <script src="js/strength-standards.js?v=505"></script>
+    <script src="js/system-cards.js?v=505"></script>
+    <script src="js/share-card.js?v=505"></script>
+    <script src="js/story-events.js?v=505"></script>
+    <script src="js/final-boss.js?v=505"></script>
+    <script src="js/disciplines.js?v=505"></script>
+    <script src="js/app.js?v=505"></script>
+    <script src="js/awakening-tree.js?v=505"></script>
+    <script src="js/ui-kit.js?v=505"></script>
+    <script src="js/feature-map.js?v=505"></script>
+    <script src="js/weekly-recap.js?v=505"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>
@@ -3673,34 +3676,16 @@
             }
 
             // Init toggles état (périodisation + échauffement)
+            // L'apparence est gérée par le CSS .aw-switch via :checked — on ne fait
+            // que synchroniser l'état coché avec la préférence sauvegardée.
             setTimeout(() => {
                 const pToggle = document.getElementById('periodizationToggle');
-                const pSlider = document.getElementById('periodizationSlider');
-                const pThumb  = document.getElementById('periodizationThumb');
                 if (pToggle && typeof getPeriodizationEnabled === 'function') {
-                    const on = getPeriodizationEnabled();
-                    pToggle.checked = on;
-                    if (pSlider) pSlider.style.background = on ? '#16a34a' : '#334155';
-                    if (pThumb)  pThumb.style.left  = on ? '23px' : '3px';
-                    pToggle.addEventListener('change', e => {
-                        const v = e.target.checked;
-                        if (pSlider) pSlider.style.background = v ? '#16a34a' : '#334155';
-                        if (pThumb)  pThumb.style.left = v ? '23px' : '3px';
-                    });
+                    pToggle.checked = getPeriodizationEnabled();
                 }
                 const wToggle = document.getElementById('warmupToggle');
-                const wSlider = document.getElementById('warmupSlider');
-                const wThumb  = document.getElementById('warmupThumb');
                 if (wToggle && typeof getWarmupEnabled === 'function') {
-                    const on = getWarmupEnabled();
-                    wToggle.checked = on;
-                    if (wSlider) wSlider.style.background = on ? '#f59e0b' : '#334155';
-                    if (wThumb)  wThumb.style.left = on ? '23px' : '3px';
-                    wToggle.addEventListener('change', e => {
-                        const v = e.target.checked;
-                        if (wSlider) wSlider.style.background = v ? '#f59e0b' : '#334155';
-                        if (wThumb)  wThumb.style.left = v ? '23px' : '3px';
-                    });
+                    wToggle.checked = getWarmupEnabled();
                 }
             }, 500);
         });
