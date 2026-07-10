@@ -20,7 +20,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=505">
+    <link rel="stylesheet" href="css/style.css?v=515">
 </head>
 <body>
 
@@ -178,7 +178,7 @@
                 max-width: 900px;">
 
             <!-- Bannière image : ratio préservé -->
-            <img src="images/banner.png?v=505"
+            <img src="images/banner.png?v=515"
                  alt="Awakened Elite Fitness"
                  style="width:100%;height:auto;display:block;" />
 
@@ -378,6 +378,7 @@
             <div id="activityHeatmapCard" class="activity-heatmap"></div>
 
             <!-- ═══ 7. SUGGESTION HEBDO (générée par IA) ═══ -->
+            <div id="eveilJourneyCard"></div>
             <div id="fatigueAlertCard"></div>
             <div id="weeklySuggestionCard"></div>
 
@@ -483,6 +484,7 @@
                 <button onclick="showAwakeningTree()" style="flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:11px 6px;font-weight:800;font-size:0.72em;color:#e2e8f0;cursor:pointer;">🌳 Arbre</button>
                 <button onclick="showSystemAnalysis()" style="flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:11px 6px;font-weight:800;font-size:0.72em;color:#e2e8f0;cursor:pointer;">⚙️ Analyse</button>
                 <button onclick="showSystemAnalysis('coach')" style="flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:11px 6px;font-weight:800;font-size:0.72em;color:#e2e8f0;cursor:pointer;">🧠 Coach</button>
+                <button onclick="awakHallOpen()" style="flex:1;background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(251,191,36,0.04));border:1px solid rgba(251,191,36,0.4);border-radius:12px;padding:11px 6px;font-weight:800;font-size:0.72em;color:#fbbf24;cursor:pointer;">👑 Hall of Fame</button>
             </div>
             <!-- Stats déménagées du hub (dégraissage v483) -->
             <div id="weeklyMuscleVolume" style="margin-bottom:14px;"></div>
@@ -1839,6 +1841,13 @@
                         <div id="completionVolume" style="background:linear-gradient(160deg,rgba(34,197,94,0.08),rgba(34,197,94,0.02));border-radius:10px;padding:12px 14px;margin-bottom:10px;border:1px solid rgba(74,222,128,0.3);display:none;">
                             <div style="font-size:0.6em;color:#4ade80;font-weight:900;margin-bottom:4px;letter-spacing:2px;text-transform:uppercase;text-shadow:0 0 6px rgba(74,222,128,0.4);">◈ VOLUME TOTAL</div>
                             <div id="completionVolumeValue" style="font-size:1.1em;font-weight:900;color:white;letter-spacing:-0.3px;"></div>
+                        </div>
+
+                        <!-- 🌿 Bonnes habitudes post-séance : hydratation + cible calorique du jour -->
+                        <div id="completionHabits" style="display:none;background:linear-gradient(160deg,rgba(6,182,212,0.08),rgba(6,182,212,0.02));border-radius:10px;padding:12px 14px;margin-bottom:10px;border:1px solid rgba(103,232,249,0.3);text-align:left;">
+                            <div style="font-size:0.6em;color:#67e8f9;font-weight:900;margin-bottom:6px;letter-spacing:2px;text-transform:uppercase;">◈ ET MAINTENANT ?</div>
+                            <div id="completionHydration" style="font-size:0.78em;color:#e2e8f0;line-height:1.5;margin-bottom:7px;"></div>
+                            <div id="completionIntake" style="font-size:0.78em;color:#e2e8f0;line-height:1.5;"></div>
                         </div>
 
                         <!-- Muscles travaillés -->
@@ -3583,23 +3592,24 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/exercises.js?v=505"></script>
-    <script src="data/items.js?v=505"></script>
-    <script src="js/adventure.js?v=505"></script>
-    <script src="js/economy.js?v=505"></script>
-    <script src="js/challenges.js?v=505"></script>
-    <script src="js/exercise-visuals.js?v=505"></script>
-    <script src="js/strength-standards.js?v=505"></script>
-    <script src="js/system-cards.js?v=505"></script>
-    <script src="js/share-card.js?v=505"></script>
-    <script src="js/story-events.js?v=505"></script>
-    <script src="js/final-boss.js?v=505"></script>
-    <script src="js/disciplines.js?v=505"></script>
-    <script src="js/app.js?v=505"></script>
-    <script src="js/awakening-tree.js?v=505"></script>
-    <script src="js/ui-kit.js?v=505"></script>
-    <script src="js/feature-map.js?v=505"></script>
-    <script src="js/weekly-recap.js?v=505"></script>
+    <script src="js/exercises.js?v=515"></script>
+    <script src="data/items.js?v=515"></script>
+    <script src="js/adventure.js?v=515"></script>
+    <script src="js/economy.js?v=515"></script>
+    <script src="js/challenges.js?v=515"></script>
+    <script src="js/exercise-visuals.js?v=515"></script>
+    <script src="js/strength-standards.js?v=515"></script>
+    <script src="js/system-cards.js?v=515"></script>
+    <script src="js/share-card.js?v=515"></script>
+    <script src="js/story-events.js?v=515"></script>
+    <script src="js/final-boss.js?v=515"></script>
+    <script src="js/disciplines.js?v=515"></script>
+    <script src="js/eveil.js?v=515"></script>
+    <script src="js/app.js?v=515"></script>
+    <script src="js/awakening-tree.js?v=515"></script>
+    <script src="js/ui-kit.js?v=515"></script>
+    <script src="js/feature-map.js?v=515"></script>
+    <script src="js/weekly-recap.js?v=515"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>
