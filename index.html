@@ -20,7 +20,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=521">
+    <link rel="stylesheet" href="css/style.css?v=532">
 </head>
 <body>
 
@@ -178,7 +178,7 @@
                 max-width: 900px;">
 
             <!-- Bannière image : ratio préservé -->
-            <img src="images/banner.png?v=521"
+            <img src="images/banner.png?v=532"
                  alt="Awakened Elite Fitness"
                  style="width:100%;height:auto;display:block;" />
 
@@ -320,6 +320,11 @@
                 </div>
             </div>
 
+            <!-- Indicateurs personnels (regroupés sous le profil, v524) -->
+            <div id="sexFocusCard" style="margin-bottom:14px;"></div>
+            <div id="cycleCard" style="margin-bottom:14px;"></div>
+            <div id="strengthCard" style="margin-bottom:14px;"></div>
+
             <!-- ═══ 4. DÉFI DE LA SEMAINE ═══ -->
             <!-- ═══ 5. INDEX DE FORME DU JOUR ═══ -->
             <div class="card" id="fitnessIndexCard" style="padding:18px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(34,197,94,0.18);position:relative;overflow:hidden;">
@@ -333,11 +338,6 @@
                     <div id="fitnessAutoSuggestBadge" style="display:none;"></div>
                 </div>
 
-                <div id="weeklyVolumeWidget" style="display:none;"></div>
-                <div id="weeklyReviewCard" style="margin-bottom:14px;"></div>
-                <div id="sexFocusCard" style="margin-bottom:14px;"></div>
-                <div id="cycleCard" style="margin-bottom:14px;"></div>
-                <div id="strengthCard" style="margin-bottom:14px;"></div>
                 <div id="moodCard" style="margin-bottom:14px;"></div>
 
                 <div style="display:flex;align-items:center;gap:18px;margin-bottom:12px;">
@@ -378,28 +378,12 @@
                 </div>
             </div>
 
-            <!-- ═══ 6. HEATMAP D'ACTIVITÉ ═══ -->
-            <div id="activityHeatmapCard" class="activity-heatmap"></div>
-
-            <!-- ═══ 7. ALERTES & SUGGESTION HEBDO ═══ -->
+            <!-- ═══ 6. ALERTES & SUGGESTION HEBDO ═══ -->
             <div id="fatigueAlertCard"></div>
             <div id="weeklySuggestionCard"></div>
 
-            <!-- ═══ 8. ÉTAT DE RÉCUPÉRATION MUSCULAIRE ═══ -->
-            <div class="card">
-                <h3 style="margin-bottom: 8px; color: #16a34a; font-size: 1em;">💪 Récupération musculaire</h3>
-                <p style="font-size: 0.78em; color: #94a3b8; margin-bottom: 12px;">
-                    Temps minimum : 48h par groupe musculaire
-                </p>
-                <div id="muscleRecoveryContainer"></div>
-            </div>
-
-            <!-- ═══ 9. CITATION DU JOUR (discret, en bas) ═══ -->
-            <div class="card" style="padding:13px 16px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(196,181,253,0.15);">
-                <div style="font-size:0.62em;color:rgba(196,181,253,0.7);font-weight:900;letter-spacing:2px;margin-bottom:6px;">✨ CITATION DU JOUR</div>
-                <div id="homeQuote" style="font-size:0.85em;color:#e2e8f0;font-style:italic;line-height:1.55;font-weight:500;">"Le succès n'est pas final, l'échec n'est pas fatal."</div>
-                <div id="homeQuoteAuthor" style="font-size:0.65em;color:rgba(255,255,255,0.4);margin-top:5px;font-weight:600;text-align:right;"></div>
-            </div>
+            <!-- Heatmap, récupération musculaire → onglet Progression (dégraissage home).
+                 Citation du jour retirée (gardée dans l'écran de fin de séance). -->
 
             <!-- ═══ Stats hidden (compat avec code existant) ═══ -->
             <div style="display:none;">
@@ -490,8 +474,22 @@
                 <button onclick="awakHallOpen()" style="flex:1;background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(251,191,36,0.04));border:1px solid rgba(251,191,36,0.4);border-radius:12px;padding:11px 6px;font-weight:800;font-size:0.72em;color:#fbbf24;cursor:pointer;">👑 Hall of Fame</button>
             </div>
             <!-- Stats déménagées du hub (dégraissage v483) -->
+            <div id="weeklyVolumeWidget" style="display:none;"></div>
+            <div id="weeklyReviewCard" style="margin-bottom:14px;"></div>
             <div id="weeklyMuscleVolume" style="margin-bottom:14px;"></div>
             <div id="insightsCard" style="margin-bottom:14px;"></div>
+
+            <!-- Heatmap d'activité (déplacée depuis l'accueil, v524) -->
+            <div id="activityHeatmapCard" class="activity-heatmap" style="margin-bottom:14px;"></div>
+
+            <!-- État de récupération musculaire (déplacé depuis l'accueil, v524) -->
+            <div class="card">
+                <h3 style="margin-bottom: 8px; color: #16a34a; font-size: 1em;">💪 Récupération musculaire</h3>
+                <p style="font-size: 0.78em; color: #94a3b8; margin-bottom: 12px;">
+                    Temps minimum : 48h par groupe musculaire
+                </p>
+                <div id="muscleRecoveryContainer"></div>
+            </div>
 
             <!-- Badges Section -->
             <div class="card">
@@ -3015,19 +3013,8 @@
                     <span style="display: block; font-weight: bold; margin-bottom: 8px; color: #16a34a;">
                         😊 Avatar
                     </span>
-                    <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px;">
-                        <div onclick="selectAvatar('👨')" class="avatar-option" data-avatar="👨">👨</div>
-                        <div onclick="selectAvatar('👩')" class="avatar-option" data-avatar="👩">👩</div>
-                        <div onclick="selectAvatar('👦')" class="avatar-option" data-avatar="👦">👦</div>
-                        <div onclick="selectAvatar('👧')" class="avatar-option" data-avatar="👧">👧</div>
-                        <div onclick="selectAvatar('🧔')" class="avatar-option" data-avatar="🧔">🧔</div>
-                        <div onclick="selectAvatar('👴')" class="avatar-option" data-avatar="👴">👴</div>
-                        <div onclick="selectAvatar('👵')" class="avatar-option" data-avatar="👵">👵</div>
-                        <div onclick="selectAvatar('💪')" class="avatar-option" data-avatar="💪">💪</div>
-                        <div onclick="selectAvatar('🏋️')" class="avatar-option" data-avatar="🏋️">🏋️</div>
-                        <div onclick="selectAvatar('🤸')" class="avatar-option" data-avatar="🤸">🤸</div>
-                        <div onclick="selectAvatar('🚴')" class="avatar-option" data-avatar="🚴">🚴</div>
-                        <div onclick="selectAvatar('⭐')" class="avatar-option" data-avatar="⭐">⭐</div>
+                    <div id="avatarPicker" style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px;">
+                        <!-- Icônes SVG injectées par renderAvatarPicker() -->
                     </div>
                 </div>
 
@@ -3609,24 +3596,24 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/exercises.js?v=521"></script>
-    <script src="data/items.js?v=521"></script>
-    <script src="js/adventure.js?v=521"></script>
-    <script src="js/economy.js?v=521"></script>
-    <script src="js/challenges.js?v=521"></script>
-    <script src="js/exercise-visuals.js?v=521"></script>
-    <script src="js/strength-standards.js?v=521"></script>
-    <script src="js/system-cards.js?v=521"></script>
-    <script src="js/share-card.js?v=521"></script>
-    <script src="js/story-events.js?v=521"></script>
-    <script src="js/final-boss.js?v=521"></script>
-    <script src="js/disciplines.js?v=521"></script>
-    <script src="js/eveil.js?v=521"></script>
-    <script src="js/app.js?v=521"></script>
-    <script src="js/awakening-tree.js?v=521"></script>
-    <script src="js/ui-kit.js?v=521"></script>
-    <script src="js/feature-map.js?v=521"></script>
-    <script src="js/weekly-recap.js?v=521"></script>
+    <script src="js/exercises.js?v=532"></script>
+    <script src="data/items.js?v=532"></script>
+    <script src="js/adventure.js?v=532"></script>
+    <script src="js/economy.js?v=532"></script>
+    <script src="js/challenges.js?v=532"></script>
+    <script src="js/exercise-visuals.js?v=532"></script>
+    <script src="js/strength-standards.js?v=532"></script>
+    <script src="js/system-cards.js?v=532"></script>
+    <script src="js/share-card.js?v=532"></script>
+    <script src="js/story-events.js?v=532"></script>
+    <script src="js/final-boss.js?v=532"></script>
+    <script src="js/disciplines.js?v=532"></script>
+    <script src="js/eveil.js?v=532"></script>
+    <script src="js/app.js?v=532"></script>
+    <script src="js/awakening-tree.js?v=532"></script>
+    <script src="js/ui-kit.js?v=532"></script>
+    <script src="js/feature-map.js?v=532"></script>
+    <script src="js/weekly-recap.js?v=532"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>
