@@ -4029,6 +4029,16 @@
 
             /* Modals bottom sheet */
             .modal { align-items: flex-end !important; padding: 0 !important; }
+
+            /* Exception : la modale « Changer de profil » reste CENTRÉE.
+               C'est un sélecteur court, pas une feuille de contenu long : collée
+               en bas elle donnait l'impression d'un bug d'affichage. */
+            #profileSelectionModal { align-items: center !important; padding: 16px !important; }
+            #profileSelectionModal .modal-content {
+                border-radius: 20px !important;
+                max-height: 80vh !important;
+                padding: 22px 18px !important;
+            }
             .modal-content {
                 border-radius: 20px 20px 0 0 !important; max-height: 90vh !important;
                 padding: 20px 16px calc(30px + env(safe-area-inset-bottom, 0px)) !important;
