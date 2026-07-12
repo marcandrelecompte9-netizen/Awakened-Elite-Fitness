@@ -20,7 +20,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=541">
+    <link rel="stylesheet" href="css/style.css?v=544">
 </head>
 <body>
 
@@ -178,7 +178,7 @@
                 max-width: 900px;">
 
             <!-- Bannière image : ratio préservé -->
-            <img src="images/banner.png?v=541"
+            <img src="images/banner.png?v=544"
                  alt="Awakened Elite Fitness"
                  style="width:100%;height:auto;display:block;" />
 
@@ -2037,6 +2037,7 @@
                             <option value="Avant-bras">Avant-bras</option>
                             <option value="Obliques">Obliques</option>
                             <option value="Trapèzes">Trapèzes</option>
+                            <option value="Adducteurs">Adducteurs</option>
                             <option value="Corps entier">Corps entier</option>
                         </select>
                     </div>
@@ -2047,6 +2048,15 @@
                             <option value="Débutant">Débutant</option>
                             <option value="Intermédiaire">Intermédiaire</option>
                             <option value="Avancé">Avancé</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <span>🎯 Type</span>
+                        <select id="typeFilter" onchange="filterExercises()">
+                            <option value="">Tous</option>
+                            <option value="exercise">💪 Musculation</option>
+                            <option value="warmup">🏃 Échauffements</option>
+                            <option value="stretch">🧘 Étirements</option>
                         </select>
                     </div>
                     <div class="filter-group">
@@ -2068,6 +2078,14 @@
                             <option value="Barres parallèles">Barres parallèles</option>
                             <option value="Roue abdominale">Roue abdominale</option>
                             <option value="Banc">Banc</option>
+                            <option value="Vélo stationnaire">Vélo stationnaire</option>
+                            <option value="Elliptique">Elliptique</option>
+                            <option value="StairMaster">StairMaster</option>
+                            <option value="Battle ropes">Battle ropes</option>
+                            <option value="Piscine">Piscine</option>
+                            <option value="Traîneau">Traîneau</option>
+                            <option value="Sac de sable">Sac de sable</option>
+                            <option value="Pneu / Strongman">Pneu / Strongman</option>
                         </select>
                     </div>
                     <div class="filter-group">
@@ -3596,24 +3614,24 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/exercises.js?v=541"></script>
-    <script src="data/items.js?v=541"></script>
-    <script src="js/adventure.js?v=541"></script>
-    <script src="js/economy.js?v=541"></script>
-    <script src="js/challenges.js?v=541"></script>
-    <script src="js/exercise-visuals.js?v=541"></script>
-    <script src="js/strength-standards.js?v=541"></script>
-    <script src="js/system-cards.js?v=541"></script>
-    <script src="js/share-card.js?v=541"></script>
-    <script src="js/story-events.js?v=541"></script>
-    <script src="js/final-boss.js?v=541"></script>
-    <script src="js/disciplines.js?v=541"></script>
-    <script src="js/eveil.js?v=541"></script>
-    <script src="js/app.js?v=541"></script>
-    <script src="js/awakening-tree.js?v=541"></script>
-    <script src="js/ui-kit.js?v=541"></script>
-    <script src="js/feature-map.js?v=541"></script>
-    <script src="js/weekly-recap.js?v=541"></script>
+    <script src="js/exercises.js?v=544"></script>
+    <script src="data/items.js?v=544"></script>
+    <script src="js/adventure.js?v=544"></script>
+    <script src="js/economy.js?v=544"></script>
+    <script src="js/challenges.js?v=544"></script>
+    <script src="js/exercise-visuals.js?v=544"></script>
+    <script src="js/strength-standards.js?v=544"></script>
+    <script src="js/system-cards.js?v=544"></script>
+    <script src="js/share-card.js?v=544"></script>
+    <script src="js/story-events.js?v=544"></script>
+    <script src="js/final-boss.js?v=544"></script>
+    <script src="js/disciplines.js?v=544"></script>
+    <script src="js/eveil.js?v=544"></script>
+    <script src="js/app.js?v=544"></script>
+    <script src="js/awakening-tree.js?v=544"></script>
+    <script src="js/ui-kit.js?v=544"></script>
+    <script src="js/feature-map.js?v=544"></script>
+    <script src="js/weekly-recap.js?v=544"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>
