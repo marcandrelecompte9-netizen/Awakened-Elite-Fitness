@@ -1721,6 +1721,39 @@
             }
         }
 
+        /* 📱➡️ TABLETTE EN PAYSAGE — correction de l'image d'exercice pendant
+           la séance. Les règles paysage existantes ne visaient que les petits
+           écrans (max-height 500/600px = téléphones) ; une tablette paysage
+           (hauteur > 600px) n'était pas couverte → l'image d'exercice rendait
+           mal. On borne l'image par la hauteur dispo et on élargit le cadre. */
+        @media (min-width: 768px) and (orientation: landscape) {
+            /* Le cadre visuel de la séance occupe une largeur raisonnable, centré */
+            #exerciseVisualFrame {
+                max-width: 620px;
+                margin-left: auto !important;
+                margin-right: auto !important;
+                min-height: 0 !important;
+            }
+            #exerciseVisualContent {
+                padding: 34px 14px 14px !important;
+                min-height: 0 !important;
+            }
+            /* L'image suit son ratio mais reste bornée par la hauteur visible
+               (la barre de nav est masquée en séance) plutôt que par 62vh. */
+            #exerciseVisualContent > div {
+                max-width: 560px !important;
+            }
+            #exerciseVisualContent img {
+                max-height: 54vh !important;
+                width: auto !important;
+                max-width: 100% !important;
+            }
+            /* Vue Début/Fin (SVG) : garder les deux cases côte à côte, lisibles */
+            #exerciseVisualContent > div[style*="flex-wrap"] {
+                flex-wrap: nowrap !important;
+            }
+        }
+
         @media (max-width: 768px) {
             .equipment-grid {
                 grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
