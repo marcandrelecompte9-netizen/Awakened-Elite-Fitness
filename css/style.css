@@ -694,6 +694,18 @@
             border-color: #1e293b;
         }
 
+        /* Équipement SÉLECTIONNÉ en mode sombre : fond opaque (sinon le dégradé
+           quasi-transparent laissait voir à travers → illisible). */
+        body.dark-mode .equipment-item.selected {
+            background: linear-gradient(135deg, rgba(22,163,74,0.22) 0%, rgba(21,128,61,0.18) 100%), #1c1c1c;
+            border-color: #22c55e;
+            color: #f1f5f9;
+        }
+        body.dark-mode .equipment-item.injured-muscle {
+            background: linear-gradient(135deg, rgba(239,68,68,0.22) 0%, rgba(220,38,38,0.18) 100%), #1c1c1c;
+            border-color: #ef4444;
+        }
+
         body.dark-mode .modal-content {
             background: #141414;
             color: #e2e8f0;
@@ -1558,7 +1570,7 @@
         }
 
         .equipment-item.selected {
-            background: linear-gradient(135deg, #16a34a15 0%, #15803d15 100%);
+            background: linear-gradient(135deg, #16a34a25 0%, #15803d20 100%), white;
             border-color: #16a34a;
             box-shadow: 0 8px 25px rgba(22, 163, 74, 0.3);
         }
