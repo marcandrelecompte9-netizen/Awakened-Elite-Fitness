@@ -44,7 +44,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=611">
+    <link rel="stylesheet" href="css/style.css?v=612">
 </head>
 <body>
 
@@ -202,7 +202,7 @@
                 max-width: 900px;">
 
             <!-- Bannière image : ratio préservé -->
-            <img src="images/banner.png?v=611"
+            <img src="images/banner.png?v=612"
                  alt="Awakened Elite Fitness"
                  style="width:100%;height:auto;display:block;" />
 
@@ -366,48 +366,15 @@
             <div id="strengthCard" style="margin-bottom:14px;"></div>
 
             <!-- ═══ 4. DÉFI DE LA SEMAINE ═══ -->
-            <!-- ═══ 5. INDEX DE FORME DU JOUR ═══ -->
-            <div class="card" id="fitnessIndexCard" style="padding:18px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(34,197,94,0.18);position:relative;overflow:hidden;">
-                <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#22c55e,transparent);opacity:0.6;"></div>
-
-                <div id="moodCard" style="display:none;"></div>
-
-                <div style="display:flex;align-items:center;gap:18px;margin-bottom:12px;">
-                    <div style="position:relative;width:90px;height:90px;flex-shrink:0;">
-                        <svg viewBox="0 0 100 100" style="width:100%;height:100%;transform:rotate(-90deg);">
-                            <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="7"/>
-                            <circle id="fitnessIndexProgressCircle" cx="50" cy="50" r="42" fill="none"
-                                    stroke="#22c55e" stroke-width="7" stroke-linecap="round"
-                                    stroke-dasharray="263.89" stroke-dashoffset="79.17"
-                                    style="transition:stroke-dashoffset 0.8s cubic-bezier(0.16,1,0.3,1),stroke 0.4s;filter:drop-shadow(0 0 8px rgba(34,197,94,0.5));"/>
-                        </svg>
-                        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-                            <div id="fitnessIndexDisplay" style="font-size:1.9em;font-weight:900;color:#4ade80;line-height:1;letter-spacing:-1px;">7</div>
-                            <div style="font-size:0.6em;color:#94a3b8;font-weight:700;letter-spacing:1px;margin-top:1px;">/ 10</div>
-                        </div>
-                    </div>
-
-                    <div style="flex:1;min-width:0;">
-                        <input type="range" id="fitnessIndexSlider" min="1" max="10" value="7"
-                               style="width:100%;cursor:pointer;height:6px;"
-                               oninput="updateFitnessIndex(this.value)"
-                               aria-label="Indice de forme du jour de 1 à 10">
-                        <div style="display:flex;justify-content:space-between;margin-top:7px;font-size:0.68em;color:#64748b;font-weight:700;">
-                            <span>1</span><span>5</span><span>10</span>
-                        </div>
-                        <div style="display:flex;gap:5px;margin-top:9px;">
-                            <button onclick="setFitnessIndex(2)" class="no-ripple" style="flex:1;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);color:#fca5a5;border-radius:10px;padding:6px 4px;font-size:0.7em;font-weight:800;cursor:pointer;">😴</button>
-                            <button onclick="setFitnessIndex(5)" class="no-ripple" style="flex:1;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);color:#fbbf24;border-radius:10px;padding:6px 4px;font-size:0.7em;font-weight:800;cursor:pointer;">😐</button>
-                            <button onclick="setFitnessIndex(8)" class="no-ripple" style="flex:1;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.3);color:#4ade80;border-radius:10px;padding:6px 4px;font-size:0.7em;font-weight:800;cursor:pointer;">🔥</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="fitnessFactors" style="display:none;margin-bottom:10px;"></div>
-
-                <div id="fitnessAdvice" style="padding:11px 13px;border-radius:10px;font-size:0.82em;line-height:1.5;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.25);color:#e2e8f0;">
-                    💡 Vous êtes en bonne forme ! Séance normale recommandée.
-                </div>
+            <!-- Index de forme : déplacé AVANT la séance (v612). Éléments
+                 conservés cachés pour compatibilité avec le code existant. -->
+            <div style="display:none;">
+                <div id="moodCard"></div>
+                <div id="fitnessIndexDisplay">7</div>
+                <input type="range" id="fitnessIndexSlider" min="1" max="10" value="7">
+                <div id="fitnessFactors"></div>
+                <div id="fitnessAdvice"></div>
+                <svg><circle id="fitnessIndexProgressCircle" r="42"></circle></svg>
             </div>
 
             <!-- ═══ 6. ALERTES & SUGGESTION HEBDO ═══ -->
@@ -3664,37 +3631,37 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/exercises.js?v=611"></script>
-    <script src="data/items.js?v=611"></script>
-    <script src="js/adventure.js?v=611"></script>
-    <script src="js/economy.js?v=611"></script>
-    <script src="js/challenges.js?v=611"></script>
-    <script src="js/family-boss.js?v=611"></script>
-    <script src="js/family-network.js?v=611"></script>
-    <script src="js/family-challenge.js?v=611"></script>
-    <script src="js/family-goal.js?v=611"></script>
-    <script src="js/family-feed.js?v=611"></script>
-    <script src="js/pre-workout-mood.js?v=611"></script>
-    <script src="js/group-workout.js?v=611"></script>
-    <script src="js/youth-safety.js?v=611"></script>
-    <script src="js/kids-programs.js?v=611"></script>
-    <script src="js/senior-programs.js?v=611"></script>
-    <script src="js/adaptive.js?v=611"></script>
-    <script src="js/pain-mode.js?v=611"></script>
-    <script src="js/recovery-mode.js?v=611"></script>
-    <script src="js/exercise-visuals.js?v=611"></script>
-    <script src="js/strength-standards.js?v=611"></script>
-    <script src="js/system-cards.js?v=611"></script>
-    <script src="js/share-card.js?v=611"></script>
-    <script src="js/story-events.js?v=611"></script>
-    <script src="js/final-boss.js?v=611"></script>
-    <script src="js/disciplines.js?v=611"></script>
-    <script src="js/eveil.js?v=611"></script>
-    <script src="js/app.js?v=611"></script>
-    <script src="js/awakening-tree.js?v=611"></script>
-    <script src="js/ui-kit.js?v=611"></script>
-    <script src="js/feature-map.js?v=611"></script>
-    <script src="js/weekly-recap.js?v=611"></script>
+    <script src="js/exercises.js?v=612"></script>
+    <script src="data/items.js?v=612"></script>
+    <script src="js/adventure.js?v=612"></script>
+    <script src="js/economy.js?v=612"></script>
+    <script src="js/challenges.js?v=612"></script>
+    <script src="js/family-boss.js?v=612"></script>
+    <script src="js/family-network.js?v=612"></script>
+    <script src="js/family-challenge.js?v=612"></script>
+    <script src="js/family-goal.js?v=612"></script>
+    <script src="js/family-feed.js?v=612"></script>
+    <script src="js/pre-workout-mood.js?v=612"></script>
+    <script src="js/group-workout.js?v=612"></script>
+    <script src="js/youth-safety.js?v=612"></script>
+    <script src="js/kids-programs.js?v=612"></script>
+    <script src="js/senior-programs.js?v=612"></script>
+    <script src="js/adaptive.js?v=612"></script>
+    <script src="js/pain-mode.js?v=612"></script>
+    <script src="js/recovery-mode.js?v=612"></script>
+    <script src="js/exercise-visuals.js?v=612"></script>
+    <script src="js/strength-standards.js?v=612"></script>
+    <script src="js/system-cards.js?v=612"></script>
+    <script src="js/share-card.js?v=612"></script>
+    <script src="js/story-events.js?v=612"></script>
+    <script src="js/final-boss.js?v=612"></script>
+    <script src="js/disciplines.js?v=612"></script>
+    <script src="js/eveil.js?v=612"></script>
+    <script src="js/app.js?v=612"></script>
+    <script src="js/awakening-tree.js?v=612"></script>
+    <script src="js/ui-kit.js?v=612"></script>
+    <script src="js/feature-map.js?v=612"></script>
+    <script src="js/weekly-recap.js?v=612"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>
