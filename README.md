@@ -35,8 +35,10 @@ fitpro/
 
 **© 2026 Marc-André Lecompte — Tous droits réservés.**
 
-L'application **Awakened Elite Fitness** est offerte **gratuitement** au public :
-utilise-la librement pour tes entraînements.
+**Awakened Elite Fitness** est un logiciel commercial propriétaire.
+L'utilisation de l'application requiert une licence, obtenue par l'achat via
+un canal de distribution officiel ou par un accès gratuit accordé
+explicitement par l'auteur (essai, démonstration, période de test).
 
 Le code source est visible ici à des fins de **consultation uniquement**. Il
 n'est **ni libre ni open source** : la copie, la modification, la

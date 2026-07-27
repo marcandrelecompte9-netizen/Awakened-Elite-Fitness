@@ -2,7 +2,7 @@
 // Enables full offline support and PWA installation
 // Strategy: network-first for code files (HTML/JS/CSS), cache-first for assets (images/fonts)
 
-const CACHE_NAME = 'awakened-v612';
+const CACHE_NAME = 'awakened-v619';
 const ASSETS = [
   './',
   './index.html',
@@ -43,7 +43,8 @@ const ASSETS = [
   './icons/icon-512.png',
   './icons/icon-192-maskable.png',
   './icons/icon-512-maskable.png',
-  './icons/icon-1024.png',
+  // icon-1024.png : asset de soumission aux stores, volontairement hors du
+  // précache (487 Ko). Reste dans manifest.json, récupérable à la demande.
   './images/banner.png',
   './images/avatars/avatar_homme.png',
   './images/avatars/avatar_femme.png',

@@ -44,7 +44,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=612">
+    <link rel="stylesheet" href="css/style.css?v=619">
 </head>
 <body>
 
@@ -202,7 +202,7 @@
                 max-width: 900px;">
 
             <!-- Bannière image : ratio préservé -->
-            <img src="images/banner.png?v=612"
+            <img src="images/banner.png?v=619"
                  alt="Awakened Elite Fitness"
                  style="width:100%;height:auto;display:block;" />
 
@@ -267,13 +267,13 @@
         <div id="homeTab" class="tab-content active">
 
             <!-- ═══ 3. PROFIL & STATS GLOBALES (1 seul bloc consolidé) ═══ -->
-            <div class="card" id="profileCard" style="background: linear-gradient(160deg, #0F1014 0%, #1A0A00 50%, #166534 100%); color: white; overflow: hidden; position: relative; padding:18px;">
-                <div style="position:absolute;top:-30px;right:-20px;width:140px;height:140px;background:radial-gradient(circle,rgba(255,255,255,0.1) 0%,transparent 70%);pointer-events:none;"></div>
+            <div class="card" id="profileCard" style="background: linear-gradient(160deg, #0F1014 0%, #0b1a12 45%, #14532d 100%); color: white; overflow: hidden; position: relative; padding:18px; border:1px solid rgba(34,197,94,0.25);">
+                <div style="position:absolute;top:-30px;right:-20px;width:140px;height:140px;background:radial-gradient(circle,rgba(74,222,128,0.14) 0%,transparent 70%);pointer-events:none;"></div>
                 <div style="position:relative;z-index:1;">
                     <!-- Header utilisateur -->
                     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;gap:10px;">
                         <div style="min-width:0;flex:1;">
-                            <div style="font-size:0.72em;color:rgba(196,181,253,0.9);font-weight:600;letter-spacing:0.8px;margin-bottom:2px;">Bon entraînement 👋</div>
+                            <div style="font-size:0.62em;color:#4ade80;font-weight:900;letter-spacing:2px;margin-bottom:3px;">◈ BON ENTRAÎNEMENT 👋</div>
                             <h3 style="margin:0;color:white;font-size:1.35em;font-weight:900;letter-spacing:-0.5px;"><span id="userName">Athlète</span></h3>
                             <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;">
                                 <span style="background:rgba(255,255,255,0.15);color:white;padding:3px 9px;border-radius:99px;font-size:0.7em;font-weight:600;border:1px solid rgba(255,255,255,0.2);">🎯 <span id="userGoal">-</span></span>
@@ -331,16 +331,16 @@
                 </button>
                 <!-- ☀️ Bouton Réveil matinal -->
                 <button onclick="showMorningRoutineModal()" style="
-                    width:100%;margin-top:8px;background:linear-gradient(135deg,#c2410c 0%,#9a3412 50%,#7c2d12 100%);color:white;border:none;
+                    width:100%;margin-top:8px;background:linear-gradient(135deg,#f59e0b 0%,#d97706 55%,#b45309 100%);color:white;border:none;
                     border-radius:14px;padding:13px 16px;font-size:0.95em;font-weight:800;cursor:pointer;
-                    box-shadow:0 3px 14px rgba(154,52,18,0.4);position:relative;overflow:hidden;
+                    box-shadow:0 3px 14px rgba(245,158,11,0.32);position:relative;overflow:hidden;
                     text-align:left;display:flex;align-items:center;gap:11px;">
-                    <div style="position:absolute;top:0;right:0;width:90px;height:90px;background:radial-gradient(circle,rgba(255,255,255,0.15),transparent 70%);"></div>
+                    <div style="position:absolute;top:0;right:0;width:90px;height:90px;background:radial-gradient(circle,rgba(255,255,255,0.18),transparent 70%);"></div>
                     <div style="font-size:1.8em;flex-shrink:0;">☀️</div>
                     <div style="flex:1;min-width:0;position:relative;z-index:1;">
-                        <div style="font-size:0.58em;letter-spacing:2px;color:#fed7aa;font-weight:800;">RÉVEIL DU CORPS</div>
+                        <div style="font-size:0.58em;letter-spacing:2px;color:#fef3c7;font-weight:800;">RÉVEIL DU CORPS</div>
                         <div style="font-size:0.92em;font-weight:900;line-height:1.2;margin-top:2px;color:#ffffff;">Routine matinale</div>
-                        <div style="font-size:0.66em;color:#fde4cf;margin-top:2px;">Mobilité douce · 3 niveaux · sans matériel</div>
+                        <div style="font-size:0.66em;color:#fef3c7;margin-top:2px;">Mobilité douce · 3 niveaux · sans matériel</div>
                     </div>
                     <div style="font-size:1.2em;flex-shrink:0;position:relative;z-index:1;color:#ffffff;">▶</div>
                 </button>
@@ -3631,37 +3631,37 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/exercises.js?v=612"></script>
-    <script src="data/items.js?v=612"></script>
-    <script src="js/adventure.js?v=612"></script>
-    <script src="js/economy.js?v=612"></script>
-    <script src="js/challenges.js?v=612"></script>
-    <script src="js/family-boss.js?v=612"></script>
-    <script src="js/family-network.js?v=612"></script>
-    <script src="js/family-challenge.js?v=612"></script>
-    <script src="js/family-goal.js?v=612"></script>
-    <script src="js/family-feed.js?v=612"></script>
-    <script src="js/pre-workout-mood.js?v=612"></script>
-    <script src="js/group-workout.js?v=612"></script>
-    <script src="js/youth-safety.js?v=612"></script>
-    <script src="js/kids-programs.js?v=612"></script>
-    <script src="js/senior-programs.js?v=612"></script>
-    <script src="js/adaptive.js?v=612"></script>
-    <script src="js/pain-mode.js?v=612"></script>
-    <script src="js/recovery-mode.js?v=612"></script>
-    <script src="js/exercise-visuals.js?v=612"></script>
-    <script src="js/strength-standards.js?v=612"></script>
-    <script src="js/system-cards.js?v=612"></script>
-    <script src="js/share-card.js?v=612"></script>
-    <script src="js/story-events.js?v=612"></script>
-    <script src="js/final-boss.js?v=612"></script>
-    <script src="js/disciplines.js?v=612"></script>
-    <script src="js/eveil.js?v=612"></script>
-    <script src="js/app.js?v=612"></script>
-    <script src="js/awakening-tree.js?v=612"></script>
-    <script src="js/ui-kit.js?v=612"></script>
-    <script src="js/feature-map.js?v=612"></script>
-    <script src="js/weekly-recap.js?v=612"></script>
+    <script src="js/exercises.js?v=619"></script>
+    <script src="data/items.js?v=619"></script>
+    <script src="js/adventure.js?v=619"></script>
+    <script src="js/economy.js?v=619"></script>
+    <script src="js/challenges.js?v=619"></script>
+    <script src="js/family-boss.js?v=619"></script>
+    <script src="js/family-network.js?v=619"></script>
+    <script src="js/family-challenge.js?v=619"></script>
+    <script src="js/family-goal.js?v=619"></script>
+    <script src="js/family-feed.js?v=619"></script>
+    <script src="js/pre-workout-mood.js?v=619"></script>
+    <script src="js/group-workout.js?v=619"></script>
+    <script src="js/youth-safety.js?v=619"></script>
+    <script src="js/kids-programs.js?v=619"></script>
+    <script src="js/senior-programs.js?v=619"></script>
+    <script src="js/adaptive.js?v=619"></script>
+    <script src="js/pain-mode.js?v=619"></script>
+    <script src="js/recovery-mode.js?v=619"></script>
+    <script src="js/exercise-visuals.js?v=619"></script>
+    <script src="js/strength-standards.js?v=619"></script>
+    <script src="js/system-cards.js?v=619"></script>
+    <script src="js/share-card.js?v=619"></script>
+    <script src="js/story-events.js?v=619"></script>
+    <script src="js/final-boss.js?v=619"></script>
+    <script src="js/disciplines.js?v=619"></script>
+    <script src="js/eveil.js?v=619"></script>
+    <script src="js/app.js?v=619"></script>
+    <script src="js/awakening-tree.js?v=619"></script>
+    <script src="js/ui-kit.js?v=619"></script>
+    <script src="js/feature-map.js?v=619"></script>
+    <script src="js/weekly-recap.js?v=619"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>
