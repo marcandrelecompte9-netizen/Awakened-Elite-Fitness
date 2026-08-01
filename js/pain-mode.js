@@ -1,1 +1,247 @@
-!function(){"use strict";var e="awakPainZones";function n(){try{var n="function"==typeof window.getCurrentProfileId?window.getCurrentProfileId():null;return n?"profile_"+n+"_awakPainZones":e}catch(n){return e}}function r(){try{var r=localStorage.getItem(e);if(!r)return;var t=n();if(t===e)return;localStorage.getItem(t)||localStorage.setItem(t,r),localStorage.removeItem(e)}catch(e){}}var t=[{id:"bras",label:"Bras",emoji:"💪",muscles:["Biceps","Triceps","Avant-bras"]},{id:"epaules",label:"Épaules",emoji:"🤷",muscles:["Épaules","Trapèzes"]},{id:"poitrine",label:"Poitrine",emoji:"🫁",muscles:["Pectoraux"]},{id:"dos",label:"Dos",emoji:"🦴",muscles:["Dos","Trapèzes"]},{id:"abdos",label:"Ventre",emoji:"🔥",muscles:["Abdominaux","Obliques"]},{id:"jambes",label:"Jambes",emoji:"🦵",muscles:["Quadriceps","Ischio-jambiers","Mollets","Fessiers","Adducteurs"]},{id:"poignets",label:"Poignets / mains",emoji:"✋",muscles:["Avant-bras"]},{id:"genoux",label:"Genoux",emoji:"🦿",muscles:["Quadriceps","Ischio-jambiers","Mollets"]}];function i(){try{r();var e=localStorage.getItem(n());if(!e)return[];var t=JSON.parse(e);return Array.isArray(t)?t:[]}catch(e){return[]}}function o(e){if(!e)return[];try{var n=localStorage.getItem("profile_"+e+"_awakPainZones"),r=n?JSON.parse(n):[];return Array.isArray(r)?r:[]}catch(e){return[]}}function a(){try{localStorage.removeItem(n()),localStorage.removeItem(e)}catch(e){}}function s(e){var t=i(),o=t.indexOf(e);return-1===o?t.push(e):t.splice(o,1),function(e){try{r(),localStorage.setItem(n(),JSON.stringify(e||[]))}catch(e){}}(t),t}function l(e){for(var n=0;n<t.length;n++)if(t[n].id===e)return t[n];return null}function u(){var e={};return i().forEach(function(n){var r=l(n);r&&r.muscles.forEach(function(n){e[n]=!0})}),Object.keys(e)}function c(e){return String(null==e?"":e).replace(/[&<>"]/g,function(e){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[e]})}function d(){var e=i();return e.length>0?'<button onclick="AwakPainOpen()" style="width:100%;padding:13px 15px;border:1px solid rgba(245,158,11,0.5);border-radius:14px;cursor:pointer;background:rgba(245,158,11,0.1);color:#f59e0b;font-weight:800;font-size:0.86em;text-align:left;display:flex;align-items:center;gap:10px;"><span style="font-size:1.3em;">🤕</span><span style="flex:1;min-width:0;">Douleur signalée : <span style="color:#fcd34d;">'+c(e.map(function(e){var n=l(e);return n?n.emoji+" "+n.label:""}).filter(Boolean).join(", "))+'</span><br><span style="font-size:0.82em;color:#94a3b8;font-weight:600;">Les séances éviteront ces zones · touche pour modifier</span></span></button>':'<button onclick="AwakPainOpen()" style="width:100%;padding:12px 15px;border:1px solid rgba(255,255,255,0.12);border-radius:14px;cursor:pointer;background:rgba(255,255,255,0.03);color:#cbd5e1;font-weight:700;font-size:0.84em;text-align:left;display:flex;align-items:center;gap:10px;"><span style="font-size:1.25em;">🤕</span><span style="flex:1;">J\'ai mal quelque part<br><span style="font-size:0.82em;color:#64748b;font-weight:600;">Adapte la séance en évitant une zone douloureuse</span></span></button>'}function f(){var e=document.getElementById("painButtonContainer");e&&(e.innerHTML=d())}function p(){var e=document.getElementById("awakPainModal");e&&e.remove()}window.AwakPain={ZONES:t,activeZones:function(){return i()},isActive:function(){return i().length>0},clear:a,toggleZone:s,zoneById:l,painfulMuscles:u,isMusclePainful:function(e){return-1!==u().indexOf(e)},exerciseHitsPain:function(e){if(!e)return!1;var n=u();if(!n.length)return!1;if(e.muscle&&-1!==n.indexOf(e.muscle))return!0;if(Array.isArray(e.secondaryMuscles))for(var r=0;r<e.secondaryMuscles.length;r++){var t=e.secondaryMuscles[r],i=t&&t.muscle?t.muscle:t;if(i&&-1!==n.indexOf(i))return!0}return!1},zonesOf:o,exerciseHitsPainFor:function(e,n){if(!e)return!1;var r=[];if((n||[]).forEach(function(e){o(e).forEach(function(e){-1===r.indexOf(e)&&r.push(e)})}),!r.length)return!1;var t=[];if(r.forEach(function(e){var n=l(e);n&&n.muscles.forEach(function(e){-1===t.indexOf(e)&&t.push(e)})}),!t.length)return!1;if(e.muscle&&-1!==t.indexOf(e.muscle))return!0;if(Array.isArray(e.secondaryMuscles))for(var i=0;i<e.secondaryMuscles.length;i++){var a=e.secondaryMuscles[i],s=a&&a.muscle?a.muscle:a;if(s&&-1!==t.indexOf(s))return!0}return!1},filterTargetMuscles:function(e){if(!Array.isArray(e))return e;var n=u();return n.length?e.filter(function(e){return-1===n.indexOf(e)}):e}},window.AwakPainOpen=function(){var e=i(),n=t.map(function(n){var r=-1!==e.indexOf(n.id);return"<button onclick=\"AwakPainToggle('"+n.id+'\')" style="display:flex;flex-direction:column;align-items:center;gap:5px;padding:14px 8px;border-radius:14px;cursor:pointer;border:2px solid '+(r?"#f59e0b":"rgba(255,255,255,0.1)")+";background:"+(r?"rgba(245,158,11,0.15)":"rgba(255,255,255,0.03)")+';color:#fff;transition:all 0.15s;"><span style="font-size:1.7em;">'+n.emoji+'</span><span style="font-size:0.76em;font-weight:800;text-align:center;">'+c(n.label)+"</span>"+(r?'<span style="font-size:0.6em;color:#f59e0b;font-weight:800;">✓ ÉVITÉ</span>':"")+"</button>"}).join(""),r=document.createElement("div");r.id="awakPainModal",r.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:99999;display:flex;align-items:flex-end;justify-content:center;padding:0;",r.onclick=function(e){e.target===r&&p()},r.innerHTML='<div style="background:linear-gradient(160deg,#1a1410,#0d0d12);border-top:1px solid rgba(245,158,11,0.35);border-radius:22px 22px 0 0;padding:22px;max-width:460px;width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(0,0,0,0.6);"><div style="display:flex;align-items:center;gap:10px;margin-bottom:5px;"><span style="font-size:1.5em;">🤕</span><div style="flex:1;"><div style="font-size:1.1em;font-weight:900;color:#fff;">Où as-tu mal ?</div><div style="font-size:0.76em;color:#94a3b8;">Sélectionne les zones à éviter aujourd\'hui.</div></div></div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:16px 0;">'+n+'</div><div style="font-size:0.72em;color:#64748b;line-height:1.4;margin-bottom:14px;">Les séances générées éviteront ces zones, y compris les exercices qui les sollicitent indirectement. Pense à consulter un professionnel si la douleur est forte ou dure.</div><div style="padding:10px 12px;margin-bottom:14px;border-radius:11px;background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.25);"><div style="font-size:0.76em;color:#7dd3fc;font-weight:700;margin-bottom:4px;">🛡️ Blessure ou pause forcée ?</div><div style="font-size:0.72em;color:#94a3b8;line-height:1.4;margin-bottom:8px;">Le mode récupération gèle ta progression RPG le temps de guérir — aucune perte d\'XP.</div><button onclick="AwakPainCloseModal(); if(window.AwakRecoveryOffer) AwakRecoveryOffer();" style="width:100%;padding:9px;border:none;border-radius:9px;cursor:pointer;background:rgba(56,189,248,0.15);color:#7dd3fc;font-weight:700;font-size:0.78em;">En savoir plus</button></div><button onclick="AwakPainClear()" style="width:100%;padding:11px;border:none;border-radius:11px;cursor:pointer;background:rgba(255,255,255,0.05);color:#94a3b8;font-weight:700;font-size:0.82em;margin-bottom:8px;">Tout réinitialiser (aucune douleur)</button><button onclick="AwakPainCloseModal()" style="width:100%;padding:13px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;font-weight:800;font-size:0.9em;">Terminé</button></div>',document.body.appendChild(r)},window.AwakPainToggle=function(e){s(e),p(),window.AwakPainOpen()},window.AwakPainClear=function(){a(),p(),f()},window.AwakPainCloseModal=function(){p(),f()},window.AwakPain.renderButton=d,window.AwakPain.updateButton=f}();
+/* ═══════════════════════════════════════════════════════════════════
+   MODE DOULEUR — adapter la séance en évitant une zone qui fait mal
+   ───────────────────────────────────────────────────────────────────
+   L'utilisateur signale une ou plusieurs zones douloureuses (ex : « bras »).
+   La séance générée évite alors ces muscles — pas seulement comme cible, mais
+   aussi comme muscle SECONDAIRE (un développé couché sollicite les triceps,
+   donc on l'écarte si le bras fait mal).
+   État valable pour la séance du jour (clé locale, réinitialisable).
+   Ce n'est pas un avis médical : en cas de douleur forte ou persistante,
+   consulter un professionnel de santé.
+   ═══════════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+
+  // ⚠️ ZONES DOULOUREUSES PAR PROFIL (v663). Auparavant la clé était GLOBALE :
+  // une douleur signalée par un membre restreignait les séances de TOUS les
+  // autres. Protection par excès, mais absurde — l'épaule sensible du père
+  // privait sa fille d'exercices d'épaules.
+  // La clé est maintenant préfixée par le profil actif. Une MIGRATION unique
+  // reprend l'ancienne clé globale au profit du profil courant, pour ne perdre
+  // aucun signalement en cours.
+  var LEGACY_KEY = 'awakPainZones';
+  function KEY() {
+    try {
+      var pid = (typeof window.getCurrentProfileId === 'function') ? window.getCurrentProfileId() : null;
+      return pid ? ('profile_' + pid + '_awakPainZones') : LEGACY_KEY;
+    } catch (e) { return LEGACY_KEY; }
+  }
+  // Reprise unique de l'ancienne clé globale vers le profil actif.
+  function _migrer() {
+    try {
+      var ancien = localStorage.getItem(LEGACY_KEY);
+      if (!ancien) return;
+      var cible = KEY();
+      if (cible === LEGACY_KEY) return;            // profil inconnu : on attend
+      if (!localStorage.getItem(cible)) localStorage.setItem(cible, ancien);
+      localStorage.removeItem(LEGACY_KEY);
+    } catch (e) {}
+  }
+
+  // Zones proposées → muscles (dbName) qu'elles recouvrent.
+  var ZONES = [
+    { id: 'bras',    label: 'Bras',            emoji: '💪', muscles: ['Biceps', 'Triceps', 'Avant-bras'] },
+    { id: 'epaules', label: 'Épaules',         emoji: '🤷', muscles: ['Épaules', 'Trapèzes'] },
+    { id: 'poitrine',label: 'Poitrine',        emoji: '🫁', muscles: ['Pectoraux'] },
+    { id: 'dos',     label: 'Dos',             emoji: '🦴', muscles: ['Dos', 'Trapèzes'] },
+    { id: 'abdos',   label: 'Ventre',          emoji: '🔥', muscles: ['Abdominaux', 'Obliques'] },
+    { id: 'jambes',  label: 'Jambes',          emoji: '🦵', muscles: ['Quadriceps', 'Ischio-jambiers', 'Mollets', 'Fessiers', 'Adducteurs'] },
+    { id: 'poignets',label: 'Poignets / mains',emoji: '✋', muscles: ['Avant-bras'] },
+    { id: 'genoux',  label: 'Genoux',          emoji: '🦿', muscles: ['Quadriceps', 'Ischio-jambiers', 'Mollets'] }
+  ];
+
+  function _load() {
+    try {
+      _migrer();
+      var raw = localStorage.getItem(KEY());
+      if (!raw) return [];
+      var a = JSON.parse(raw);
+      return Array.isArray(a) ? a : [];
+    } catch (e) { return []; }
+  }
+  function _save(a) { try { _migrer(); localStorage.setItem(KEY(), JSON.stringify(a || [])); } catch (e) {} }
+
+  function activeZones() { return _load(); }
+
+  // Zones douloureuses d'un AUTRE profil — nécessaire aux jeux à deux, où il
+  // faut protéger les deux joueurs et pas seulement celui qui tient l'appareil.
+  function zonesOf(profileId) {
+    if (!profileId) return [];
+    try {
+      var raw = localStorage.getItem('profile_' + profileId + '_awakPainZones');
+      var a = raw ? JSON.parse(raw) : [];
+      return Array.isArray(a) ? a : [];
+    } catch (e) { return []; }
+  }
+  // Un exercice touche-t-il une zone douloureuse de l'un des profils fournis ?
+  function exerciseHitsPainFor(ex, profileIds) {
+    if (!ex) return false;
+    var zones = [];
+    (profileIds || []).forEach(function (id) {
+      zonesOf(id).forEach(function (z) { if (zones.indexOf(z) === -1) zones.push(z); });
+    });
+    if (!zones.length) return false;
+    var muscles = [];
+    zones.forEach(function (zid) {
+      var z = zoneById(zid);
+      if (z) z.muscles.forEach(function (m) { if (muscles.indexOf(m) === -1) muscles.push(m); });
+    });
+    if (!muscles.length) return false;
+    if (ex.muscle && muscles.indexOf(ex.muscle) !== -1) return true;
+    if (Array.isArray(ex.secondaryMuscles)) {
+      for (var i = 0; i < ex.secondaryMuscles.length; i++) {
+        var sm = ex.secondaryMuscles[i];
+        var nom = (sm && sm.muscle) ? sm.muscle : sm;
+        if (nom && muscles.indexOf(nom) !== -1) return true;
+      }
+    }
+    return false;
+  }
+  function isActive() { return _load().length > 0; }
+  function clear() { try { localStorage.removeItem(KEY()); localStorage.removeItem(LEGACY_KEY); } catch (e) {} }
+
+  function toggleZone(id) {
+    var a = _load();
+    var i = a.indexOf(id);
+    if (i === -1) a.push(id); else a.splice(i, 1);
+    _save(a);
+    return a;
+  }
+
+  function zoneById(id) {
+    for (var i = 0; i < ZONES.length; i++) if (ZONES[i].id === id) return ZONES[i];
+    return null;
+  }
+
+  // Ensemble des muscles (dbName) à éviter, d'après les zones actives.
+  function painfulMuscles() {
+    var set = {};
+    _load().forEach(function (zid) {
+      var z = zoneById(zid);
+      if (z) z.muscles.forEach(function (m) { set[m] = true; });
+    });
+    return Object.keys(set);
+  }
+
+  // Un muscle donné est-il douloureux ?
+  function isMusclePainful(muscleName) {
+    return painfulMuscles().indexOf(muscleName) !== -1;
+  }
+
+  // Un exercice sollicite-t-il un muscle douloureux (principal OU secondaire) ?
+  function exerciseHitsPain(ex) {
+    if (!ex) return false;
+    var painful = painfulMuscles();
+    if (!painful.length) return false;
+    if (ex.muscle && painful.indexOf(ex.muscle) !== -1) return true;
+    if (Array.isArray(ex.secondaryMuscles)) {
+      for (var i = 0; i < ex.secondaryMuscles.length; i++) {
+        var sm = ex.secondaryMuscles[i];
+        var name = (sm && sm.muscle) ? sm.muscle : sm;
+        if (name && painful.indexOf(name) !== -1) return true;
+      }
+    }
+    return false;
+  }
+
+  // Filtrer une liste de noms de muscles cibles en retirant les douloureux.
+  function filterTargetMuscles(muscleNames) {
+    if (!Array.isArray(muscleNames)) return muscleNames;
+    var painful = painfulMuscles();
+    if (!painful.length) return muscleNames;
+    return muscleNames.filter(function (m) { return painful.indexOf(m) === -1; });
+  }
+
+  window.AwakPain = {
+    ZONES: ZONES,
+    activeZones: activeZones,
+    isActive: isActive,
+    clear: clear,
+    toggleZone: toggleZone,
+    zoneById: zoneById,
+    painfulMuscles: painfulMuscles,
+    isMusclePainful: isMusclePainful,
+    exerciseHitsPain: exerciseHitsPain,
+    zonesOf: zonesOf,
+    exerciseHitsPainFor: exerciseHitsPainFor,
+    filterTargetMuscles: filterTargetMuscles
+  };
+
+  // ═══════════════════════════════════════════════════════════════════
+  // INTERFACE — bouton d'accueil + modale de sélection des zones
+  // ═══════════════════════════════════════════════════════════════════
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+
+  // Bouton à afficher sur l'accueil (rempli par updatePainButton).
+  function renderButton() {
+    var active = _load();
+    if (active.length > 0) {
+      var names = active.map(function (id) { var z = zoneById(id); return z ? z.emoji + ' ' + z.label : ''; }).filter(Boolean).join(', ');
+      return '<button onclick="AwakPainOpen()" style="width:100%;padding:13px 15px;border:1px solid rgba(245,158,11,0.5);border-radius:14px;cursor:pointer;background:rgba(245,158,11,0.1);color:#f59e0b;font-weight:800;font-size:0.86em;text-align:left;display:flex;align-items:center;gap:10px;">'
+        + '<span style="font-size:1.3em;">🤕</span>'
+        + '<span style="flex:1;min-width:0;">Douleur signalée : <span style="color:#fcd34d;">' + esc(names) + '</span><br><span style="font-size:0.82em;color:#94a3b8;font-weight:600;">Les séances éviteront ces zones · touche pour modifier</span></span>'
+        + '</button>';
+    }
+    return '<button onclick="AwakPainOpen()" style="width:100%;padding:12px 15px;border:1px solid rgba(255,255,255,0.12);border-radius:14px;cursor:pointer;background:rgba(255,255,255,0.03);color:#cbd5e1;font-weight:700;font-size:0.84em;text-align:left;display:flex;align-items:center;gap:10px;">'
+      + '<span style="font-size:1.25em;">🤕</span>'
+      + '<span style="flex:1;">J\'ai mal quelque part<br><span style="font-size:0.82em;color:#64748b;font-weight:600;">Adapte la séance en évitant une zone douloureuse</span></span>'
+      + '</button>';
+  }
+
+  // Injecte le bouton dans #painButtonContainer (appelé au chargement + après maj).
+  function updateButton() {
+    var host = document.getElementById('painButtonContainer');
+    if (host) host.innerHTML = renderButton();
+  }
+
+  window.AwakPainOpen = function () {
+    var active = _load();
+    var chips = ZONES.map(function (z) {
+      var on = active.indexOf(z.id) !== -1;
+      return '<button onclick="AwakPainToggle(\'' + z.id + '\')" style="display:flex;flex-direction:column;align-items:center;gap:5px;padding:14px 8px;border-radius:14px;cursor:pointer;border:2px solid ' + (on ? '#f59e0b' : 'rgba(255,255,255,0.1)') + ';background:' + (on ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.03)') + ';color:#fff;transition:all 0.15s;">'
+        + '<span style="font-size:1.7em;">' + z.emoji + '</span>'
+        + '<span style="font-size:0.76em;font-weight:800;text-align:center;">' + esc(z.label) + '</span>'
+        + (on ? '<span style="font-size:0.6em;color:#f59e0b;font-weight:800;">✓ ÉVITÉ</span>' : '')
+        + '</button>';
+    }).join('');
+
+    var overlay = document.createElement('div');
+    overlay.id = 'awakPainModal';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:99999;display:flex;align-items:flex-end;justify-content:center;padding:0;';
+    overlay.onclick = function (e) { if (e.target === overlay) _closeModal(); };
+    overlay.innerHTML = '<div style="background:linear-gradient(160deg,#1a1410,#0d0d12);border-top:1px solid rgba(245,158,11,0.35);border-radius:22px 22px 0 0;padding:22px;max-width:460px;width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(0,0,0,0.6);">'
+      + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:5px;">'
+      +   '<span style="font-size:1.5em;">🤕</span>'
+      +   '<div style="flex:1;"><div style="font-size:1.1em;font-weight:900;color:#fff;">Où as-tu mal ?</div>'
+      +   '<div style="font-size:0.76em;color:#94a3b8;">Sélectionne les zones à éviter aujourd\'hui.</div></div>'
+      + '</div>'
+      + '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:16px 0;">' + chips + '</div>'
+      + '<div style="font-size:0.72em;color:#64748b;line-height:1.4;margin-bottom:14px;">Les séances générées éviteront ces zones, y compris les exercices qui les sollicitent indirectement. Pense à consulter un professionnel si la douleur est forte ou dure.</div>'
+      + '<div style="padding:10px 12px;margin-bottom:14px;border-radius:11px;background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.25);">'
+      +   '<div style="font-size:0.76em;color:#7dd3fc;font-weight:700;margin-bottom:4px;">🛡️ Blessure ou pause forcée ?</div>'
+      +   '<div style="font-size:0.72em;color:#94a3b8;line-height:1.4;margin-bottom:8px;">Le mode récupération gèle ta progression RPG le temps de guérir — aucune perte d\'XP.</div>'
+      +   '<button onclick="AwakPainCloseModal(); if(window.AwakRecoveryOffer) AwakRecoveryOffer();" style="width:100%;padding:9px;border:none;border-radius:9px;cursor:pointer;background:rgba(56,189,248,0.15);color:#7dd3fc;font-weight:700;font-size:0.78em;">En savoir plus</button>'
+      + '</div>'
+      + '<button onclick="AwakPainClear()" style="width:100%;padding:11px;border:none;border-radius:11px;cursor:pointer;background:rgba(255,255,255,0.05);color:#94a3b8;font-weight:700;font-size:0.82em;margin-bottom:8px;">Tout réinitialiser (aucune douleur)</button>'
+      + '<button onclick="AwakPainCloseModal()" style="width:100%;padding:13px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;font-weight:800;font-size:0.9em;">Terminé</button>'
+      + '</div>';
+    document.body.appendChild(overlay);
+  };
+
+  window.AwakPainToggle = function (id) {
+    toggleZone(id);
+    _closeModal();
+    window.AwakPainOpen();   // rouvrir pour refléter l'état
+  };
+  window.AwakPainClear = function () {
+    clear();
+    _closeModal();
+    updateButton();
+  };
+  function _closeModal() { var el = document.getElementById('awakPainModal'); if (el) el.remove(); }
+  window.AwakPainCloseModal = function () { _closeModal(); updateButton(); };
+
+  window.AwakPain.renderButton = renderButton;
+  window.AwakPain.updateButton = updateButton;
+})();

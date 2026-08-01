@@ -1,1 +1,131 @@
-!function(){"use strict";function e(){try{var e="function"==typeof getCurrentProfileId?getCurrentProfileId():null,t=e&&"function"==typeof getProfileData?getProfileData(e,"workoutHistory"):localStorage.getItem("workoutHistory"),o=JSON.parse(t||"[]");return Array.isArray(o)?o:[]}catch(e){return[]}}function t(e){var t=new Date(e);return t.setDate(t.getDate()-(t.getDay()+6)%7),t.setHours(0,0,0,0),t}function o(o){try{var n,r,i,a=new Date,c=t(a);"current"===o?(n=c,r=a,i="Ta semaine en cours"):(r=new Date(c),(n=new Date(c)).setDate(n.getDate()-7),i="Ta semaine");var s=e().filter(function(e){if(!e||!e.date)return!1;var t=new Date(e.date);return t>=n&&t<r});if(!s.length)return void("function"==typeof showToast&&showToast("Aucune séance sur cette période.","info",2500));var u=s.length,l=0,f=0,d={},p={force:0,endurance:0,mental:0,equilibre:0,agilite:0,cardio:0};s.forEach(function(e){if(l+=e.volume||0,f+=e.duration||0,(e.muscles||[]).forEach(function(e){e&&"Cardio"!==e&&(d[e]=(d[e]||0)+1)}),"function"==typeof window.awakQualitiesOfExercises&&e.workoutData&&e.workoutData.exercises){var t=window.awakQualitiesOfExercises(e.workoutData.exercises);for(var o in t)p[o]+=t[o]}});var w=Object.keys(d).sort(function(e,t){return d[t]-d[e]}).slice(0,3),g=(window.AWAK_QUALITIES_META||[]).map(function(e){return{q:e,v:p[e.id]||0}}).filter(function(e){return e.v>.05}).sort(function(e,t){return t.v-e.v}).slice(0,2),m="function"==typeof window.awakArchetype&&"function"==typeof window.awakComputeQualities?window.awakArchetype(window.awakComputeQualities()):null,v=function(e,t){return'<div style="flex:1;text-align:center;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 4px;"><div style="font-size:1.3em;font-weight:900;color:white;">'+e+'</div><div style="font-size:0.56em;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;">'+t+"</div></div>"},y="";y+='<div style="display:flex;gap:8px;margin-bottom:12px;">'+v(u,"Séance"+(u>1?"s":""))+v(l>=1e3?(l/1e3).toFixed(1)+" t":Math.round(l)+" kg","Volume")+v(Math.round(f)+" min","Durée")+"</div>",g.length&&(y+=uiCard('<div style="font-size:0.62em;color:#94a3b8;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;">Qualités nourries cette semaine</div><div style="font-size:0.95em;font-weight:800;color:#e2e8f0;">'+g.map(function(e){return e.q.ic+' <span style="color:'+e.q.col+';">'+e.q.nm+"</span>"}).join("  ·  ")+"</div>")),w.length&&(y+=uiCard('<div style="font-size:0.62em;color:#94a3b8;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;">Muscles les plus travaillés</div><div style="font-size:0.88em;font-weight:700;color:#e2e8f0;">'+w.join(" · ")+"</div>")),m&&(y+=uiCard('<div style="font-size:0.62em;color:#94a3b8;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;">Ton archétype</div><div style="font-size:1.05em;font-weight:900;color:#eafff0;">'+m.name+'</div><div style="font-size:0.66em;color:#94a3b8;margin-top:2px;">'+m.sub+"</div>","cursor:pointer;","")),y+="<button onclick=\"document.getElementById('weeklyRecapOverlay').remove(); if (typeof showAwakeningTree==='function') setTimeout(showAwakeningTree, 120);\" style=\"width:100%;padding:13px;margin-top:6px;background:linear-gradient(135deg,#22c55e,#16a34a);border:none;border-radius:14px;color:#fff;font-weight:900;cursor:pointer;\">🌳 Voir mon arbre</button>";var h=uiBottomSheet({id:"weeklyRecapOverlay",icon:"📅",title:i,subtitle:"Ce que ton effort a construit.",accent:"#22c55e",center:!0});h.body.innerHTML=y+uiCloseButton("weeklyRecapOverlay"),h.mount()}catch(e){}}function n(){try{if("1"!==localStorage.getItem("fitproOnboardingDone"))return;var n=t(new Date),r=new Date(n);r.setDate(r.getDate()-7);var i=r.toISOString().slice(0,10);if(localStorage.getItem("awakRecapShown")===i)return;if(!e().some(function(e){if(!e||!e.date)return!1;var t=new Date(e.date);return t>=r&&t<n}))return void localStorage.setItem("awakRecapShown",i);localStorage.setItem("awakRecapShown",i),o()}catch(e){}}window.showWeeklyRecap=o,"complete"===document.readyState?setTimeout(n,1800):window.addEventListener("load",function(){setTimeout(n,1800)})}();
+/* ============================================================
+   RÉCAP HEBDOMADAIRE — « Ta semaine »
+   S'ouvre une fois par semaine (à partir du lundi) si la semaine
+   précédente contient au moins une séance. Résume : séances,
+   volume, durée, top muscles, qualités nourries, archétype.
+   Construit avec ui-kit.js ; lit workoutHistory + les fonctions
+   exposées par awakening-tree.js.
+   ============================================================ */
+(function () {
+  "use strict";
+
+  function _hist() {
+    try {
+      var pid = (typeof getCurrentProfileId === 'function') ? getCurrentProfileId() : null;
+      var saved = (pid && typeof getProfileData === 'function') ? getProfileData(pid, 'workoutHistory') : localStorage.getItem('workoutHistory');
+      var h = JSON.parse(saved || '[]');
+      return Array.isArray(h) ? h : [];
+    } catch (e) { return []; }
+  }
+
+  function _mondayOf(d) {
+    var m = new Date(d);
+    m.setDate(m.getDate() - ((m.getDay() + 6) % 7));
+    m.setHours(0, 0, 0, 0);
+    return m;
+  }
+
+  // Récap de la semaine PRÉCÉDENTE (par défaut) ou courante (mode 'current')
+  function showWeeklyRecap(mode) {
+    try {
+      var now = new Date();
+      var thisMonday = _mondayOf(now);
+      var start, end, label;
+      if (mode === 'current') {
+        start = thisMonday; end = now; label = 'Ta semaine en cours';
+      } else {
+        end = new Date(thisMonday);
+        start = new Date(thisMonday); start.setDate(start.getDate() - 7);
+        label = 'Ta semaine';
+      }
+      var entries = _hist().filter(function (w) {
+        if (!w || !w.date) return false;
+        var d = new Date(w.date);
+        return d >= start && d < end;
+      });
+      if (!entries.length) {
+        if (typeof showToast === 'function') showToast('Aucune séance sur cette période.', 'info', 2500);
+        return;
+      }
+
+      var nSessions = entries.length;
+      var volume = 0, minutes = 0, muscles = {};
+      var qual = { force: 0, endurance: 0, mental: 0, equilibre: 0, agilite: 0, cardio: 0 };
+      entries.forEach(function (w) {
+        volume += w.volume || 0;
+        minutes += w.duration || 0;
+        (w.muscles || []).forEach(function (m) { if (m && m !== 'Cardio') muscles[m] = (muscles[m] || 0) + 1; });
+        if (typeof window.awakQualitiesOfExercises === 'function' && w.workoutData && w.workoutData.exercises) {
+          var v = window.awakQualitiesOfExercises(w.workoutData.exercises);
+          for (var k in v) qual[k] += v[k];
+        }
+      });
+      var topMuscles = Object.keys(muscles).sort(function (a, b) { return muscles[b] - muscles[a]; }).slice(0, 3);
+      var META = window.AWAK_QUALITIES_META || [];
+      var topQual = META.map(function (q) { return { q: q, v: qual[q.id] || 0 }; })
+        .filter(function (x) { return x.v > 0.05; })
+        .sort(function (a, b) { return b.v - a.v; }).slice(0, 2);
+      var arch = (typeof window.awakArchetype === 'function' && typeof window.awakComputeQualities === 'function')
+        ? window.awakArchetype(window.awakComputeQualities()) : null;
+
+      var stat = function (val, lbl) {
+        return '<div style="flex:1;text-align:center;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 4px;">'
+          + '<div style="font-size:1.3em;font-weight:900;color:white;">' + val + '</div>'
+          + '<div style="font-size:0.56em;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;">' + lbl + '</div></div>';
+      };
+
+      var html = '';
+      html += '<div style="display:flex;gap:8px;margin-bottom:12px;">'
+        + stat(nSessions, 'Séance' + (nSessions > 1 ? 's' : ''))
+        + stat(volume >= 1000 ? (volume / 1000).toFixed(1) + ' t' : Math.round(volume) + ' kg', 'Volume')
+        + stat(Math.round(minutes) + ' min', 'Durée')
+        + '</div>';
+      if (topQual.length) {
+        html += uiCard(
+          '<div style="font-size:0.62em;color:#94a3b8;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;">Qualités nourries cette semaine</div>'
+          + '<div style="font-size:0.95em;font-weight:800;color:#e2e8f0;">'
+          + topQual.map(function (x) { return x.q.ic + ' <span style="color:' + x.q.col + ';">' + x.q.nm + '</span>'; }).join('  ·  ')
+          + '</div>');
+      }
+      if (topMuscles.length) {
+        html += uiCard(
+          '<div style="font-size:0.62em;color:#94a3b8;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;">Muscles les plus travaillés</div>'
+          + '<div style="font-size:0.88em;font-weight:700;color:#e2e8f0;">' + topMuscles.join(' · ') + '</div>');
+      }
+      if (arch) {
+        html += uiCard(
+          '<div style="font-size:0.62em;color:#94a3b8;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;">Ton archétype</div>'
+          + '<div style="font-size:1.05em;font-weight:900;color:#eafff0;">' + arch.name + '</div>'
+          + '<div style="font-size:0.66em;color:#94a3b8;margin-top:2px;">' + arch.sub + '</div>',
+          'cursor:pointer;', '');
+      }
+      html += '<button onclick="document.getElementById(\'weeklyRecapOverlay\').remove(); if (typeof showAwakeningTree===\'function\') setTimeout(showAwakeningTree, 120);" style="width:100%;padding:13px;margin-top:6px;background:linear-gradient(135deg,#22c55e,#16a34a);border:none;border-radius:14px;color:#fff;font-weight:900;cursor:pointer;">🌳 Voir mon arbre</button>';
+
+      var s = uiBottomSheet({ id: 'weeklyRecapOverlay', icon: '📅', title: label, subtitle: 'Ce que ton effort a construit.', accent: '#22c55e', center: true });
+      s.body.innerHTML = html + uiCloseButton('weeklyRecapOverlay');
+      s.mount();
+    } catch (e) {}
+  }
+  window.showWeeklyRecap = showWeeklyRecap;
+
+  // ── Déclenchement automatique : une fois par semaine, si séances la semaine passée ──
+  function _autoRecap() {
+    try {
+      if (localStorage.getItem('fitproOnboardingDone') !== '1') return;
+      var lastMonday = _mondayOf(new Date());
+      var prevMonday = new Date(lastMonday); prevMonday.setDate(prevMonday.getDate() - 7);
+      var key = prevMonday.toISOString().slice(0, 10);
+      if (localStorage.getItem('awakRecapShown') === key) return;
+      var hasSessions = _hist().some(function (w) {
+        if (!w || !w.date) return false;
+        var d = new Date(w.date);
+        return d >= prevMonday && d < lastMonday;
+      });
+      if (!hasSessions) { localStorage.setItem('awakRecapShown', key); return; }
+      localStorage.setItem('awakRecapShown', key);
+      showWeeklyRecap();
+    } catch (e) {}
+  }
+  if (document.readyState === 'complete') setTimeout(_autoRecap, 1800);
+  else window.addEventListener('load', function () { setTimeout(_autoRecap, 1800); });
+})();

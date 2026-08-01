@@ -1,1 +1,286 @@
-!function(){"use strict";var e="awakFamilyGoal",t={sessions:{label:"séances",emoji:"🔥",unit:"",metric:function(e){return 1},presets:[20,40,60]},volume:{label:"kg soulevés",emoji:"🏋️",unit:" kg",metric:function(e){return e&&e.totalVolume?e.totalVolume:0},presets:[2e4,5e4,1e5]},duration:{label:"minutes",emoji:"⏱️",unit:" min",metric:function(e){return e&&e.duration?Math.round(e.duration/60):0},presets:[300,600,1200]},exercises:{label:"exercices",emoji:"🎯",unit:"",metric:function(e){return e&&Array.isArray(e.exercises)?e.exercises.length:0},presets:[100,250,500]}};function n(){try{return JSON.parse(localStorage.getItem(e)||"null")}catch(e){return null}}function r(t){try{t?localStorage.setItem(e,JSON.stringify(t)):localStorage.removeItem(e)}catch(e){}}function o(){try{return"function"==typeof window.getCurrentProfileId?window.getCurrentProfileId():null}catch(e){return null}}function i(e,n,r,i){var a=t[n]||t.sessions,l=0;return function(e){try{var t=localStorage.getItem("profile_"+e+"_workoutHistory");if(t||e!==o()||(t=localStorage.getItem("workoutHistory")),!t)return[];var n=JSON.parse(t);return Array.isArray(n)?n:[]}catch(e){return[]}}(e).forEach(function(e){var t=function(e){if(!e)return 0;if(e.date){var t=Date.parse(e.date);if(t)return t}return e.id||0}(e);t>=r&&t<=i&&(l+=a.metric(e)||0)}),Math.round(l)}function a(e,n,i){if(!(t[e]&&n>0))return!1;var a=Date.now();return r({type:e,target:n,startsAt:a,endsAt:a+864e5*(i&&i>0?i:30),createdBy:o()||null,celebrated:!1}),!0}function l(){r(null)}function d(){var e=n();if(!e)return null;var o=t[e.type]||t.sessions,a=[],l=0;(function(){try{return"function"==typeof window.getAllProfiles&&window.getAllProfiles()||[]}catch(e){return[]}})().forEach(function(t){var n=i(t.id,e.type,e.startsAt,e.endsAt);n>0&&(a.push({id:t.id,name:t.name||"Membre",avatar:t.avatar||"🙂",value:n}),l+=n)}),a.sort(function(e,t){return t.value-e.value});var d=Math.min(100,Math.round(l/e.target*100)),s=Math.max(0,Math.ceil((e.endsAt-Date.now())/864e5)),c=l>=e.target;return c&&!e.celebrated&&(e.celebrated=!0,r(e)),{type:e.type,def:o,target:e.target,total:l,pct:d,reached:c,daysLeft:s,perMember:a,expired:Date.now()>e.endsAt}}function s(e){return String(null==e?"":e).replace(/[&<>"]/g,function(e){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[e]})}function c(e){return String(Math.round(e)).replace(/\B(?=(\d{3})+(?!\d))/g," ")}function u(){try{"function"==typeof window.renderFamilyTab&&window.renderFamilyTab()}catch(e){}}window.AwakFamilyGoal={GOAL_TYPES:t,active:function(){return n()},isActive:function(){var e=n();return!!(e&&e.target>0)},create:a,cancel:l,status:d},window.AwakFamilyGoal.renderCard=function(){var e=d();if(!e)return'<div style="background:linear-gradient(160deg,#0f1a14,#0d0d12);border:1px solid rgba(34,197,94,0.25);border-radius:18px;padding:20px;margin-bottom:14px;"><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;"><span style="font-size:1.6em;">🎯</span><div style="font-size:1.05em;font-weight:900;color:#fff;">Objectif commun</div></div><p style="font-size:0.82em;color:#94a3b8;line-height:1.5;margin:0 0 14px;">Fixez un but à atteindre <b style="color:#4ade80;">ensemble</b> — chaque séance de chacun fait avancer toute la famille.</p><button onclick="AwakFamilyGoalOpen()" style="width:100%;padding:12px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-weight:800;font-size:0.9em;">🎯 Créer un objectif commun</button></div>';var t=e.def,n=e.reached?"#fbbf24":"#22c55e",r=e.perMember.map(function(n){var r=e.total>0?Math.round(n.value/e.total*100):0;return'<div style="display:flex;align-items:center;gap:8px;padding:6px 0;">'+function(e,t){t=t||26;try{if("function"==typeof window.renderAvatar)return window.renderAvatar(e,t)}catch(e){}return'<span style="font-size:'+Math.round(.62*t)+'px;">'+String(null==e?"👤":e).replace(/[&<>"]/g,function(e){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[e]})+"</span>"}(n.avatar,22)+'<span style="flex:1;font-size:0.82em;color:#e5e7eb;font-weight:600;">'+s(n.name)+'</span><span style="font-size:0.82em;color:#94a3b8;">'+c(n.value)+t.unit+" · "+r+"%</span></div>"}).join("")||'<div style="font-size:0.78em;color:#64748b;padding:6px 0;">Aucune contribution pour l\'instant — lancez-vous !</div>',o=e.reached?'<div style="text-align:center;padding:6px 0 12px;"><div style="font-size:2em;">🎉</div><div style="font-size:0.95em;font-weight:900;color:#fbbf24;">Objectif atteint, bravo à toute la famille !</div></div>':"";return'<div style="background:linear-gradient(160deg,#0f1a14,#0d0d12);border:1px solid '+(e.reached?"rgba(251,191,36,0.4)":"rgba(34,197,94,0.3)")+';border-radius:18px;padding:20px;margin-bottom:14px;"><div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;"><span style="font-size:1.6em;">'+t.emoji+'</span><div style="flex:1;"><div style="font-size:1.05em;font-weight:900;color:#fff;">Objectif commun</div><div style="font-size:0.74em;color:#94a3b8;">'+(e.expired?"Terminé":e.daysLeft+" jour"+(e.daysLeft>1?"s":"")+" restant"+(e.daysLeft>1?"s":""))+'</div></div><button onclick="AwakFamilyGoalCancel()" style="background:none;border:none;color:#64748b;font-size:1.1em;cursor:pointer;padding:4px;">✕</button></div>'+o+'<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;"><span style="font-size:1.4em;font-weight:900;color:'+n+';">'+c(e.total)+'</span><span style="font-size:0.82em;color:#94a3b8;">/ '+c(e.target)+t.unit+" "+s(t.label)+'</span></div><div style="height:14px;background:rgba(255,255,255,0.06);border-radius:8px;overflow:hidden;margin-bottom:4px;"><div style="height:100%;width:'+e.pct+"%;background:linear-gradient(90deg,"+n+","+(e.reached?"#f59e0b":"#16a34a")+');border-radius:8px;transition:width 0.4s;"></div></div><div style="text-align:right;font-size:0.78em;font-weight:800;color:'+n+';margin-bottom:14px;">'+e.pct+'%</div><div style="font-size:0.72em;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Contributions</div>'+r+"</div>"},window.AwakFamilyGoalOpen=function(){var e=Object.keys(t).map(function(e){var n=t[e];return"<button onclick=\"AwakFamilyGoalPick('"+e+'\')" data-goaltype="'+e+'" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 6px;border-radius:12px;cursor:pointer;border:2px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);color:#fff;"><span style="font-size:1.5em;">'+n.emoji+'</span><span style="font-size:0.74em;font-weight:700;">'+s(n.label)+"</span></button>"}).join(""),n=document.createElement("div");n.id="awakGoalModal",n.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:99999;display:flex;align-items:flex-end;justify-content:center;",n.onclick=function(e){e.target===n&&n.remove()},n.innerHTML='<div style="background:linear-gradient(160deg,#0f1a14,#0d0d12);border-top:1px solid rgba(34,197,94,0.35);border-radius:22px 22px 0 0;padding:22px;max-width:460px;width:100%;max-height:88vh;overflow-y:auto;"><div style="font-size:1.15em;font-weight:900;color:#fff;margin-bottom:4px;">🎯 Objectif commun</div><div style="font-size:0.78em;color:#94a3b8;margin-bottom:16px;">Choisissez ce que vous voulez accomplir ensemble.</div><div style="font-size:0.72em;color:#64748b;font-weight:700;margin-bottom:6px;">TYPE</div><div id="goalTypeGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px;">'+e+'</div><div id="goalTargetZone"></div><button onclick="document.getElementById(\'awakGoalModal\').remove()" style="width:100%;padding:11px;border:none;border-radius:11px;cursor:pointer;background:rgba(255,255,255,0.05);color:#94a3b8;font-weight:700;font-size:0.82em;margin-top:8px;">Annuler</button></div>',document.body.appendChild(n)},window.AwakFamilyGoalPick=function(e){var n=t[e];if(n){var r=document.getElementById("goalTypeGrid");r&&Array.prototype.forEach.call(r.children,function(t){var n=t.getAttribute("data-goaltype")===e;t.style.borderColor=n?"#22c55e":"rgba(255,255,255,0.1)",t.style.background=n?"rgba(34,197,94,0.15)":"rgba(255,255,255,0.03)"});var o=document.getElementById("goalTargetZone");if(o){var i=n.presets.map(function(t){return"<button onclick=\"AwakFamilyGoalCreate('"+e+"',"+t+')" style="flex:1;padding:12px 6px;border-radius:11px;cursor:pointer;border:1px solid rgba(34,197,94,0.3);background:rgba(34,197,94,0.08);color:#4ade80;font-weight:800;font-size:0.82em;">'+c(t)+n.unit+"</button>"}).join("");o.innerHTML='<div style="font-size:0.72em;color:#64748b;font-weight:700;margin-bottom:6px;">OBJECTIF ('+s(n.label)+' en 30 jours)</div><div style="display:flex;gap:8px;">'+i+"</div>"}}},window.AwakFamilyGoalCreate=function(e,t){a(e,t,30);var n=document.getElementById("awakGoalModal");n&&n.remove(),u(),"function"==typeof window.showToast&&window.showToast("🎯 Objectif commun lancé — au boulot en famille !","success",3e3)},window.AwakFamilyGoalCancel=function(){"function"==typeof window.showConfirm?window.showConfirm("Abandonner l'objectif commun en cours ?",function(){l(),u()},null,{title:"Abandonner ?",icon:"🎯",confirmLabel:"Abandonner"}):(l(),u())}}();
+/* ═══════════════════════════════════════════════════════════════════
+   OBJECTIF FAMILIAL COMMUN — progresser ENSEMBLE vers un but partagé
+   ───────────────────────────────────────────────────────────────────
+   Toute la famille vise un objectif unique (ex : 50 séances ce mois-ci).
+   Chaque membre y contribue avec ses propres séances ; une jauge se
+   remplit avec la somme des contributions. Coopératif, pas compétitif :
+   personne n'est classé, tout le monde pousse dans le même sens.
+   Clé GLOBALE partagée « awakFamilyGoal » (hors GAME_KEYS, comme les
+   défis et le boss familial) → visible par tous les profils de l'appareil.
+   ═══════════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+
+  // Rend un avatar : les avatars modernes sont des clés « av:… » qui doivent
+  // passer par renderAvatar() pour devenir un SVG. Sans ça, la clé s'affichait
+  // en texte brut (« av:… ») devant le nom. Défini en tête du module pour être
+  // visible par TOUTES les fonctions (leçon v623).
+  function _av(a, size) {
+    size = size || 26;
+    try {
+      if (typeof window.renderAvatar === 'function') return window.renderAvatar(a, size);
+    } catch (e) {}
+    return '<span style="font-size:' + Math.round(size * 0.62) + 'px;">' +
+           String(a == null ? '\u{1F464}' : a).replace(/[&<>"]/g, function (c) {
+             return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }) + '</span>';
+  }
+
+  var GOAL_KEY = 'awakFamilyGoal';
+
+  // Types d'objectif : métrique cumulée sur la fenêtre, tous membres confondus.
+  var GOAL_TYPES = {
+    sessions: {
+      label: 'séances', emoji: '🔥', unit: '',
+      metric: function (e) { return 1; },
+      presets: [20, 40, 60]
+    },
+    volume: {
+      label: 'kg soulevés', emoji: '🏋️', unit: ' kg',
+      metric: function (e) { return (e && e.totalVolume) ? e.totalVolume : 0; },
+      presets: [20000, 50000, 100000]
+    },
+    duration: {
+      label: 'minutes', emoji: '⏱️', unit: ' min',
+      metric: function (e) { return (e && e.duration) ? Math.round(e.duration / 60) : 0; },
+      presets: [300, 600, 1200]
+    },
+    exercises: {
+      label: 'exercices', emoji: '🎯', unit: '',
+      metric: function (e) { return (e && Array.isArray(e.exercises)) ? e.exercises.length : 0; },
+      presets: [100, 250, 500]
+    }
+  };
+
+  function _load() {
+    try { return JSON.parse(localStorage.getItem(GOAL_KEY) || 'null'); }
+    catch (e) { return null; }
+  }
+  function _save(obj) {
+    try {
+      if (obj) localStorage.setItem(GOAL_KEY, JSON.stringify(obj));
+      else localStorage.removeItem(GOAL_KEY);
+    } catch (e) {}
+  }
+
+  function _currentId() {
+    try { return (typeof window.getCurrentProfileId === 'function') ? window.getCurrentProfileId() : null; }
+    catch (e) { return null; }
+  }
+
+  function _allProfiles() {
+    try { return (typeof window.getAllProfiles === 'function') ? (window.getAllProfiles() || []) : []; }
+    catch (e) { return []; }
+  }
+
+  function _history(profileId) {
+    try {
+      var raw = localStorage.getItem('profile_' + profileId + '_workoutHistory');
+      if (!raw && profileId === _currentId()) raw = localStorage.getItem('workoutHistory');
+      if (!raw) return [];
+      var h = JSON.parse(raw);
+      return Array.isArray(h) ? h : [];
+    } catch (e) { return []; }
+  }
+
+  function _entryTs(e) {
+    if (!e) return 0;
+    if (e.date) { var t = Date.parse(e.date); if (t) return t; }
+    return e.id || 0;
+  }
+
+  // Contribution d'un profil (métrique cumulée dans la fenêtre de l'objectif).
+  function _contribution(profileId, type, startTs, endTs) {
+    var def = GOAL_TYPES[type] || GOAL_TYPES.sessions;
+    var total = 0;
+    _history(profileId).forEach(function (e) {
+      var ts = _entryTs(e);
+      if (ts >= startTs && ts <= endTs) total += def.metric(e) || 0;
+    });
+    return Math.round(total);
+  }
+
+  // ── API ────────────────────────────────────────────────────────────
+
+  function active() { return _load(); }
+  function isActive() { var g = _load(); return !!(g && g.target > 0); }
+
+  // Créer un objectif commun. duration en jours (défaut 30).
+  function create(type, target, days) {
+    if (!GOAL_TYPES[type] || !(target > 0)) return false;
+    var now = Date.now();
+    var span = (days && days > 0 ? days : 30) * 86400000;
+    _save({
+      type: type,
+      target: target,
+      startsAt: now,
+      endsAt: now + span,
+      createdBy: _currentId() || null,
+      celebrated: false
+    });
+    return true;
+  }
+
+  function cancel() { _save(null); }
+
+  // État complet de l'objectif : total, par membre, %, jours restants.
+  function status() {
+    var g = _load();
+    if (!g) return null;
+    var def = GOAL_TYPES[g.type] || GOAL_TYPES.sessions;
+
+    var perMember = [];
+    var total = 0;
+    _allProfiles().forEach(function (p) {
+      var c = _contribution(p.id, g.type, g.startsAt, g.endsAt);
+      if (c > 0) {
+        perMember.push({ id: p.id, name: p.name || 'Membre', avatar: p.avatar || '🙂', value: c });
+        total += c;
+      }
+    });
+    perMember.sort(function (a, b) { return b.value - a.value; });
+
+    var pct = Math.min(100, Math.round((total / g.target) * 100));
+    var daysLeft = Math.max(0, Math.ceil((g.endsAt - Date.now()) / 86400000));
+    var reached = total >= g.target;
+
+    // Marquer l'atteinte (pour célébration ponctuelle)
+    if (reached && !g.celebrated) { g.celebrated = true; _save(g); }
+
+    return {
+      type: g.type, def: def, target: g.target,
+      total: total, pct: pct, reached: reached,
+      daysLeft: daysLeft, perMember: perMember,
+      expired: Date.now() > g.endsAt
+    };
+  }
+
+  window.AwakFamilyGoal = {
+    GOAL_TYPES: GOAL_TYPES,
+    active: active,
+    isActive: isActive,
+    create: create,
+    cancel: cancel,
+    status: status
+  };
+
+  // ── INTERFACE ──────────────────────────────────────────────────────
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+
+  function _fmt(n) { return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
+
+  // Carte de l'objectif commun (ou invitation à en créer un).
+  function renderCard() {
+    var st = status();
+
+    // Pas d'objectif → carte d'invitation
+    if (!st) {
+      return '<div style="background:linear-gradient(160deg,#0f1a14,#0d0d12);border:1px solid rgba(34,197,94,0.25);border-radius:18px;padding:20px;margin-bottom:14px;">'
+        + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">'
+        +   '<span style="font-size:1.6em;">🎯</span>'
+        +   '<div style="font-size:1.05em;font-weight:900;color:#fff;">Objectif commun</div>'
+        + '</div>'
+        + '<p style="font-size:0.82em;color:#94a3b8;line-height:1.5;margin:0 0 14px;">Fixez un but à atteindre <b style="color:#4ade80;">ensemble</b> — chaque séance de chacun fait avancer toute la famille.</p>'
+        + '<button onclick="AwakFamilyGoalOpen()" style="width:100%;padding:12px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-weight:800;font-size:0.9em;">🎯 Créer un objectif commun</button>'
+        + '</div>';
+    }
+
+
+    var def = st.def;
+    var barColor = st.reached ? '#fbbf24' : '#22c55e';
+    var members = st.perMember.map(function (m) {
+      var share = st.total > 0 ? Math.round((m.value / st.total) * 100) : 0;
+      return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;">'
+        + _av(m.avatar, 22)
+        + '<span style="flex:1;font-size:0.82em;color:#e5e7eb;font-weight:600;">' + esc(m.name) + '</span>'
+        + '<span style="font-size:0.82em;color:#94a3b8;">' + _fmt(m.value) + def.unit + ' · ' + share + '%</span>'
+        + '</div>';
+    }).join('') || '<div style="font-size:0.78em;color:#64748b;padding:6px 0;">Aucune contribution pour l\'instant — lancez-vous !</div>';
+
+    var head = st.reached
+      ? '<div style="text-align:center;padding:6px 0 12px;"><div style="font-size:2em;">🎉</div><div style="font-size:0.95em;font-weight:900;color:#fbbf24;">Objectif atteint, bravo à toute la famille !</div></div>'
+      : '';
+
+    return '<div style="background:linear-gradient(160deg,#0f1a14,#0d0d12);border:1px solid ' + (st.reached ? 'rgba(251,191,36,0.4)' : 'rgba(34,197,94,0.3)') + ';border-radius:18px;padding:20px;margin-bottom:14px;">'
+      + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">'
+      +   '<span style="font-size:1.6em;">' + def.emoji + '</span>'
+      +   '<div style="flex:1;"><div style="font-size:1.05em;font-weight:900;color:#fff;">Objectif commun</div>'
+      +   '<div style="font-size:0.74em;color:#94a3b8;">' + (st.expired ? 'Terminé' : st.daysLeft + ' jour' + (st.daysLeft > 1 ? 's' : '') + ' restant' + (st.daysLeft > 1 ? 's' : '')) + '</div></div>'
+      +   '<button onclick="AwakFamilyGoalCancel()" style="background:none;border:none;color:#64748b;font-size:1.1em;cursor:pointer;padding:4px;">✕</button>'
+      + '</div>'
+      + head
+      + '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">'
+      +   '<span style="font-size:1.4em;font-weight:900;color:' + barColor + ';">' + _fmt(st.total) + '</span>'
+      +   '<span style="font-size:0.82em;color:#94a3b8;">/ ' + _fmt(st.target) + def.unit + ' ' + esc(def.label) + '</span>'
+      + '</div>'
+      + '<div style="height:14px;background:rgba(255,255,255,0.06);border-radius:8px;overflow:hidden;margin-bottom:4px;">'
+      +   '<div style="height:100%;width:' + st.pct + '%;background:linear-gradient(90deg,' + barColor + ',' + (st.reached ? '#f59e0b' : '#16a34a') + ');border-radius:8px;transition:width 0.4s;"></div>'
+      + '</div>'
+      + '<div style="text-align:right;font-size:0.78em;font-weight:800;color:' + barColor + ';margin-bottom:14px;">' + st.pct + '%</div>'
+      + '<div style="font-size:0.72em;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Contributions</div>'
+      + members
+      + '</div>';
+  }
+  window.AwakFamilyGoal.renderCard = renderCard;
+
+  // Modale de création
+  window.AwakFamilyGoalOpen = function () {
+    var typeButtons = Object.keys(GOAL_TYPES).map(function (k) {
+      var d = GOAL_TYPES[k];
+      return '<button onclick="AwakFamilyGoalPick(\'' + k + '\')" data-goaltype="' + k + '" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 6px;border-radius:12px;cursor:pointer;border:2px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);color:#fff;">'
+        + '<span style="font-size:1.5em;">' + d.emoji + '</span>'
+        + '<span style="font-size:0.74em;font-weight:700;">' + esc(d.label) + '</span></button>';
+    }).join('');
+
+    var overlay = document.createElement('div');
+    overlay.id = 'awakGoalModal';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:99999;display:flex;align-items:flex-end;justify-content:center;';
+    overlay.onclick = function (e) { if (e.target === overlay) overlay.remove(); };
+    overlay.innerHTML = '<div style="background:linear-gradient(160deg,#0f1a14,#0d0d12);border-top:1px solid rgba(34,197,94,0.35);border-radius:22px 22px 0 0;padding:22px;max-width:460px;width:100%;max-height:88vh;overflow-y:auto;">'
+      + '<div style="font-size:1.15em;font-weight:900;color:#fff;margin-bottom:4px;">🎯 Objectif commun</div>'
+      + '<div style="font-size:0.78em;color:#94a3b8;margin-bottom:16px;">Choisissez ce que vous voulez accomplir ensemble.</div>'
+      + '<div style="font-size:0.72em;color:#64748b;font-weight:700;margin-bottom:6px;">TYPE</div>'
+      + '<div id="goalTypeGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px;">' + typeButtons + '</div>'
+      + '<div id="goalTargetZone"></div>'
+      + '<button onclick="document.getElementById(\'awakGoalModal\').remove()" style="width:100%;padding:11px;border:none;border-radius:11px;cursor:pointer;background:rgba(255,255,255,0.05);color:#94a3b8;font-weight:700;font-size:0.82em;margin-top:8px;">Annuler</button>'
+      + '</div>';
+    document.body.appendChild(overlay);
+  };
+
+  window.AwakFamilyGoalPick = function (type) {
+    var d = GOAL_TYPES[type];
+    if (!d) return;
+    // surligner le type choisi
+    var grid = document.getElementById('goalTypeGrid');
+    if (grid) Array.prototype.forEach.call(grid.children, function (b) {
+      var on = b.getAttribute('data-goaltype') === type;
+      b.style.borderColor = on ? '#22c55e' : 'rgba(255,255,255,0.1)';
+      b.style.background = on ? 'rgba(34,197,94,0.15)' : 'rgba(255,255,255,0.03)';
+    });
+    var zone = document.getElementById('goalTargetZone');
+    if (!zone) return;
+    var presetBtns = d.presets.map(function (p) {
+      return '<button onclick="AwakFamilyGoalCreate(\'' + type + '\',' + p + ')" style="flex:1;padding:12px 6px;border-radius:11px;cursor:pointer;border:1px solid rgba(34,197,94,0.3);background:rgba(34,197,94,0.08);color:#4ade80;font-weight:800;font-size:0.82em;">' + _fmt(p) + d.unit + '</button>';
+    }).join('');
+    zone.innerHTML = '<div style="font-size:0.72em;color:#64748b;font-weight:700;margin-bottom:6px;">OBJECTIF (' + esc(d.label) + ' en 30 jours)</div>'
+      + '<div style="display:flex;gap:8px;">' + presetBtns + '</div>';
+  };
+
+  window.AwakFamilyGoalCreate = function (type, target) {
+    create(type, target, 30);
+    var el = document.getElementById('awakGoalModal'); if (el) el.remove();
+    _refresh();
+    if (typeof window.showToast === 'function') window.showToast('🎯 Objectif commun lancé — au boulot en famille !', 'success', 3000);
+  };
+
+  window.AwakFamilyGoalCancel = function () {
+    if (typeof window.showConfirm === 'function') {
+      window.showConfirm('Abandonner l\'objectif commun en cours ?', function () { cancel(); _refresh(); },
+        null, { title: 'Abandonner ?', icon: '🎯', confirmLabel: 'Abandonner' });
+    } else { cancel(); _refresh(); }
+  };
+
+  function _refresh() {
+    try { if (typeof window.renderFamilyTab === 'function') window.renderFamilyTab(); } catch (e) {}
+  }
+})();

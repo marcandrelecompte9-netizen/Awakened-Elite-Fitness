@@ -1,1 +1,1181 @@
-!function(){"use strict";function e(e){return String(null==e?"":e).replace(/[&<>"]/g,function(e){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[e]})}var r={cartes:{name:"Jeu de cartes",emoji:"🃏",mecanique:"tirage",duo:!1,desc:"La couleur donne l'exercice, la valeur les répétitions.",reglage:"Combien de cartes ?",options:[12,20,32],defaut:20},des:{name:"Dés",emoji:"🎲",mecanique:"des",duo:!1,desc:"Un dé choisit l'exercice, l'autre l'effort.",reglage:"Combien de lancers ?",options:[10,15,25],defaut:15},deathby:{name:"Death by…",emoji:"⏱️",mecanique:"minute",duo:!1,desc:"1 rep la 1re minute, 2 la 2e… jusqu'à lâcher.",reglage:"Minutes maximum",options:[10,15,20],defaut:15},emom:{name:"EMOM",emoji:"⏲️",mecanique:"emom",duo:!1,desc:"Une tâche au début de chaque minute, le reste est ta récup.",reglage:"Durée (minutes)",options:[10,16,24],defaut:16},v21159:{name:"21-15-9",emoji:"🔻",mecanique:"sequence",duo:!1,desc:"Trois tours dégressifs : 21 reps, puis 15, puis 9.",reglage:"Nombre d'exercices",options:[2,3],defaut:2,rounds:[21,15,9]},pyramide:{name:"Pyramide",emoji:"🔺",mecanique:"sequence",duo:!1,desc:"Les répétitions montent puis redescendent.",reglage:"Sommet de la pyramide",options:[6,8,10],defaut:8},chipper:{name:"Chipper",emoji:"📋",mecanique:"liste",duo:!1,desc:"Une longue liste à terminer, dans l'ordre que tu veux.",reglage:"Nombre d'exercices",options:[5,8,12],defaut:8},yougo:{name:"You go, I go",emoji:"🔄",mecanique:"alternance",duo:!0,desc:"Chacun son tour : l'un travaille, l'autre récupère.",reglage:"Nombre de tours",options:[8,12,16],defaut:12},duel:{name:"Duel",emoji:"⚔️",mecanique:"alternance",duo:!0,course:!0,desc:"Même volume pour les deux — le premier fini gagne.",reglage:"Tours par joueur",options:[5,8,12],defaut:8},egalisateur:{name:"Égalisateur",emoji:"⚖️",mecanique:"handicap",duo:!0,desc:"Duel équilibré : chacun ses répétitions selon son niveau.",reglage:"Tours par joueur",options:[5,8,12],defaut:8},relais:{name:"Relais",emoji:"🤝",mecanique:"relais",duo:!0,desc:"Un volume commun à écouler ensemble, chacun son tour.",reglage:"Répétitions à deux",options:[100,200,300],defaut:200},miroir:{name:"Miroir",emoji:"🪞",mecanique:"miroir",duo:!0,desc:"Même exercice, en même temps. On se motive du coin de l'œil.",reglage:"Nombre de tours",options:[6,10,15],defaut:10},partage:{name:"Chipper partagé",emoji:"🧩",mecanique:"partage",duo:!0,desc:"Une liste répartie entre vous deux.",reglage:"Nombre d'exercices",options:[6,10,14],defaut:10},roi:{name:"Roi de la colline",emoji:"👑",mecanique:"roi",duo:!0,desc:"Le gagnant du tour choisit l'exercice suivant.",reglage:"Nombre de tours",options:[5,8,12],defaut:8},planche:{name:"Duel de gainage",emoji:"🧱",mecanique:"gainage",duo:!0,desc:"L'un tient la planche pendant que l'autre enchaîne.",reglage:"Tours par joueur",options:[3,5,8],defaut:5},bingo:{name:"Bingo",emoji:"🎯",mecanique:"grille",duo:!1,hebdo:!0,desc:"Neuf défis à cocher dans la semaine.",reglage:null}};function n(e,r,n){var t=[];try{t="undefined"!=typeof exerciseDatabase&&exerciseDatabase?exerciseDatabase.slice():[]}catch(e){t=[]}if(!t.length)return[];t=t.filter(function(e){return e&&e.name&&"exercise"===e.type});try{if("function"==typeof window.getSelectedEquipmentNames){var o=window.getSelectedEquipmentNames()||[];o.length&&(t=t.filter(function(e){return!Array.isArray(e.equipment)||!e.equipment.length||e.equipment.some(function(e){return-1!==o.indexOf(e)})}))}}catch(e){}try{window.AwakPain&&(Array.isArray(n)&&n.length&&"function"==typeof window.AwakPain.exerciseHitsPainFor?t=t.filter(function(e){return!window.AwakPain.exerciseHitsPainFor(e,n)}):"function"==typeof window.AwakPain.exerciseHitsPain&&(t=t.filter(function(e){return!window.AwakPain.exerciseHitsPain(e)})))}catch(e){}try{window.AwakAdaptive&&"function"==typeof window.AwakAdaptive.isReducedMobility&&window.AwakAdaptive.isReducedMobility()&&"function"==typeof window.AwakAdaptive.isUnsuitable&&(t=t.filter(function(e){return!window.AwakAdaptive.isUnsuitable(e)}))}catch(e){}try{var a=r||"function"==typeof window.getUserProfile&&(window.getUserProfile()||{}).level||"intermediate";if(!r&&Array.isArray(n)){var s={beginner:0,intermediate:1,advanced:2},d=void 0===s[a]?1:s[a];n.forEach(function(e){if(e)try{var r="function"==typeof window.getProfileData?window.getProfileData(e,"userProfile"):null,n=r?(JSON.parse(r)||{}).level:null;n&&void 0!==s[n]&&s[n]<d&&(d=s[n])}catch(e){}}),a=Object.keys(s).filter(function(e){return s[e]===d})[0]||a}var u="beginner"===a?["Débutant"]:"advanced"===a?["Débutant","Intermédiaire","Avancé"]:["Débutant","Intermédiaire"],c=t.filter(function(e){return!e.difficulty||-1!==u.indexOf(e.difficulty)});c.length>=8&&(t=c)}catch(e){}try{var l=!1;window.AwakYouth&&("function"==typeof window.AwakYouth.isChild&&window.AwakYouth.isChild()&&(l=!0),!l&&Array.isArray(n)&&"function"==typeof window.AwakYouth.isChildProfile&&(l=n.some(function(e){try{return e&&window.AwakYouth.isChildProfile(e)}catch(e){return!1}}))),l&&(t=t.filter(function(e){return!Array.isArray(e.equipment)||e.equipment.every(function(e){return-1!==["Poids du corps","Élastique","Tapis"].indexOf(e)})}));var p=!1;window.AwakYouth&&("function"==typeof window.AwakYouth.isSenior&&window.AwakYouth.isSenior()&&(p=!0),!p&&Array.isArray(n)&&"function"==typeof window.AwakYouth.isSeniorProfile&&(p=n.some(function(e){try{return e&&window.AwakYouth.isSeniorProfile(e)}catch(e){return!1}}))),p&&(t=t.filter(function(e){return!i.test(e.name||"")}))}catch(e){}for(var f=t.length-1;f>0;f--){var m=Math.floor(Math.random()*(f+1)),g=t[f];t[f]=t[m],t[m]=g}return e?t.slice(0,e):t}function t(e){return e&&e.name?e.name:"—"}var i=/saut|jump|burpee|jumping jack|high knees|montées de genoux|plyo|pliom|explosif|explosive|skater|box jump|bond/i,o=/planche|plank|hollow|superman|wall ?sit|dead ?hang|l-?sit|gainage|chaise murale|posture/i,a=/dynamique|rotation|drag|balancement|swing|jump|saut/i;function s(e){var r=e&&e.name?e.name:"";return o.test(r)&&!a.test(r)}function d(e,r){if(s(e)){var n=5*Math.round(2.5*r/5);return{valeur:n=Math.max(15,Math.min(90,n)),unite:"secondes à tenir"}}return{valeur:r,unite:"reps"}}var u=[{s:"♠",nom:"Pique",c:"#e2e8f0"},{s:"♥",nom:"Cœur",c:"#f87171"},{s:"♦",nom:"Carreau",c:"#fbbf24"},{s:"♣",nom:"Trèfle",c:"#4ade80"}],c=[{v:"A",n:14},{v:"2",n:2},{v:"3",n:3},{v:"4",n:4},{v:"5",n:5},{v:"6",n:6},{v:"7",n:7},{v:"8",n:8},{v:"9",n:9},{v:"10",n:10},{v:"V",n:11},{v:"D",n:12},{v:"R",n:13}],l=["⚀","⚁","⚂","⚃","⚄","⚅"],p={tirage:{exos:function(){return 4},idx:function(e){return e.carte?e.carte.c:-1},prepare:function(e){for(var r=[],n=0;n<4;n++)for(var t=0;t<c.length;t++)r.push({c:n,v:t});f(r),e.paquet=r.slice(0,e.reglage),e.carte=null},total:function(e){return e.paquet.length},etape:function(e){return e.carte?{nom:t(e.exercices[e.carte.c]),valeur:c[e.carte.v].n,unite:"reps"}:null},corps:function(r){if(r.carte){var n=u[r.carte.c],i=c[r.carte.v];return'<div class="awak-carte" style="border-radius:16px;padding:14px;margin-bottom:14px;"><div style="font-size:3.2em;font-weight:900;line-height:1;color:'+(1===r.carte.c||2===r.carte.c?"#dc2626":"#0f172a")+';">'+i.v+" "+n.s+"</div></div>"+x(r.exercices[r.carte.c],i.n,"reps")+b("AwakGamesValider()","C'est fait ✓")}return w("CORRESPONDANCES",u.map(function(n,i){return'<div style="display:flex;align-items:center;gap:9px;font-size:0.76em;color:#cbd5e1;padding:4px 0;"><span style="font-size:1.15em;color:'+n.c+';width:18px;flex-shrink:0;">'+n.s+"</span>"+v(r.exercices[i])+'<span style="min-width:0;">'+e(t(r.exercices[i]))+"</span></div>"}).join(""))+b("AwakGamesTirer()","🃏 Tirer une carte",!0)}},des:{exos:function(){return 6},idx:function(e){return e.lance?e.lance.a-1:-1},prepare:function(e){e.lance=null},total:function(e){return e.reglage},etape:function(e){return e.lance?{nom:t(e.exercices[e.lance.a-1]),valeur:3*e.lance.b,unite:"reps"}:null},corps:function(r){return r.lance?'<div style="font-size:3em;letter-spacing:6px;margin-bottom:12px;">'+l[r.lance.a-1]+l[r.lance.b-1]+"</div>"+x(r.exercices[r.lance.a-1],3*r.lance.b,"reps")+b("AwakGamesValider()","C'est fait ✓"):w("DÉ 1 = EXERCICE · DÉ 2 = EFFORT (×3 REPS)",r.exercices.map(function(r,n){return'<div style="display:flex;align-items:center;gap:9px;font-size:0.74em;color:#cbd5e1;padding:3px 0;"><span style="font-size:1.1em;width:20px;flex-shrink:0;">'+l[n]+"</span>"+v(r,28)+'<span style="min-width:0;">'+e(t(r))+"</span></div>"}).join(""))+b("AwakGamesTirer()","🎲 Lancer les dés",!0)}},minute:{exos:function(){return 1},chrono:60,idx:function(){return 0},prepare:function(){},total:function(e){return e.reglage},etape:function(e){return{nom:t(e.exercices[0]),valeur:e.pas+1,unite:"reps"}},corps:function(e){return m("MINUTE "+(e.pas+1))+'<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.10);border-radius:12px;padding:9px;margin-bottom:14px;"><div style="font-size:0.56em;color:#64748b;font-weight:800;letter-spacing:1.5px;">TEMPS RESTANT</div><div id="awakChrono" style="font-size:1.7em;font-weight:900;color:#4ade80;line-height:1.1;">1:00</div></div>'+x(e.exercices[0],e.pas+1,"répétition"+(e.pas?"s":"")+" dans la minute")+b("AwakGamesValider()","Minute réussie ✓")}},emom:{exos:function(){return 4},chrono:60,idx:function(e){return e.pas%e.exercices.length},prepare:function(e){e.reps=10},total:function(e){return e.reglage},etape:function(e){return{nom:t(e.exercices[e.pas%e.exercices.length]),valeur:e.reps,unite:"reps"}},corps:function(e){var r=e.exercices[e.pas%e.exercices.length];return m("MINUTE "+(e.pas+1)+" / "+e.reglage)+'<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.10);border-radius:12px;padding:9px;margin-bottom:14px;"><div style="font-size:0.56em;color:#64748b;font-weight:800;letter-spacing:1.5px;">TEMPS RESTANT</div><div id="awakChrono" style="font-size:1.7em;font-weight:900;color:#4ade80;line-height:1.1;">1:00</div></div>'+x(r,e.reps,"reps puis récup")+b("AwakGamesValider()","Minute réussie ✓")}},sequence:{exos:function(e,r){return e.rounds?r:2},idx:function(e){return e.pas%e.exercices.length},prepare:function(e){if(e.jeu.rounds)e.rounds=e.jeu.rounds.slice();else{for(var r=[],n=e.reglage,t=2;t<=n;t+=2)r.push(t);for(var i=n-2;i>=2;i-=2)r.push(i);e.rounds=r}},total:function(e){return e.rounds.length*e.exercices.length},etape:function(e){var r=e.exercices.length,n=Math.floor(e.pas/r),i=e.pas%r;return{nom:t(e.exercices[i]),valeur:e.rounds[n],unite:"reps"}},corps:function(e){var r=e.exercices.length,n=Math.floor(e.pas/r),t=e.pas%r,i=e.rounds.map(function(e,r){return'<span style="color:'+(r===n?"#4ade80":"#475569")+";font-weight:"+(r===n?"900":"700")+';">'+e+"</span>"}).join('<span style="color:#334155;"> · </span>');return m("TOUR "+(n+1)+" / "+e.rounds.length)+'<div style="font-size:0.9em;margin-bottom:12px;">'+i+"</div>"+x(e.exercices[t],e.rounds[n],"reps")+b("AwakGamesValider()","Terminé ✓")}},liste:{exos:function(e,r){return r},idx:function(e){return e.pas},prepare:function(){},total:function(e){return e.exercices.length},etape:function(e){return{nom:t(e.exercices[e.pas]),valeur:10+2*e.pas,unite:"reps"}},corps:function(e){return m("ÉTAPE "+(e.pas+1)+" / "+e.exercices.length)+x(e.exercices[e.pas],10+2*e.pas,"reps")+b("AwakGamesValider()","Terminé ✓")}},handicap:{exos:function(){return 3},idx:function(e){return Math.floor(e.pas/2)%e.exercices.length},prepare:function(e){e.duo=G(),e.scores=[0,0],e.base=12},total:function(e){return 2*e.reglage},etape:function(e){var r=e.pas%2;return{nom:t(e.exercices[Math.floor(e.pas/2)%e.exercices.length]),valeur:Math.max(3,Math.round(e.base*e.duo[r].coef)),unite:"reps"}},corps:function(r){var n=r.pas%2,t=r.exercices[Math.floor(r.pas/2)%r.exercices.length],i=Math.max(3,Math.round(r.base*r.duo[n].coef));return'<div style="display:flex;gap:8px;margin-bottom:12px;">'+r.duo.map(function(t,i){var o=i===n;return'<div style="flex:1;padding:9px;border-radius:11px;background:'+(o?"rgba(34,197,94,0.15)":"rgba(255,255,255,0.03)")+";border:1px solid "+(o?"rgba(34,197,94,0.45)":"rgba(255,255,255,0.08)")+';"><div style="font-size:0.74em;font-weight:800;color:'+(o?"#4ade80":"#94a3b8")+';">'+e(t.nom)+'</div><div style="font-size:1.2em;font-weight:900;color:#fff;">'+r.scores[i]+'</div><div style="font-size:0.58em;color:#64748b;">'+Math.max(3,Math.round(r.base*t.coef))+" reps/tour</div></div>"}).join("")+'</div><div style="font-size:0.62em;color:#7dd3fc;background:rgba(56,189,248,0.08);border-radius:8px;padding:5px 9px;margin-bottom:12px;">⚖️ Les répétitions sont ajustées au niveau de chacun — la victoire reste ouverte.</div>'+m("AU TOUR DE "+e(r.duo[n].nom).toUpperCase())+x(t,i,"reps")+b("AwakGamesValider()","Tour terminé ✓")},apres:function(e){e.scores[(e.pas-1)%2]++}},relais:{exos:function(){return 2},idx:function(e){return Math.floor(e.pas/2)%e.exercices.length},prepare:function(e){e.duo=G(),e.parTour=15,e.cumul=0},total:function(e){return Math.ceil(e.reglage/e.parTour)},etape:function(e){return{nom:t(e.exercices[Math.floor(e.pas/2)%e.exercices.length]),valeur:e.parTour,unite:"reps"}},corps:function(r){var n=r.pas%2,t=r.exercices[Math.floor(r.pas/2)%r.exercices.length],i=Math.min(100,Math.round(r.cumul/r.reglage*100));return'<div style="background:rgba(255,255,255,0.04);border-radius:12px;padding:11px;margin-bottom:12px;"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;"><span style="font-size:1.3em;font-weight:900;color:#4ade80;">'+r.cumul+'</span><span style="font-size:0.74em;color:#94a3b8;">/ '+r.reglage+' reps ensemble</span></div><div style="height:8px;background:rgba(255,255,255,0.07);border-radius:5px;overflow:hidden;"><div style="height:100%;width:'+i+'%;background:linear-gradient(90deg,#22c55e,#16a34a);transition:width 0.3s;"></div></div></div>'+m("AU TOUR DE "+e(r.duo[n].nom).toUpperCase())+x(t,r.parTour,"reps")+b("AwakGamesValider()","Passé au suivant ✓")},apres:function(e){e.cumul+=e.parTour}},miroir:{exos:function(){return 4},idx:function(e){return e.pas%e.exercices.length},prepare:function(e){e.duo=G()},total:function(e){return e.reglage},etape:function(e){return{nom:t(e.exercices[e.pas%e.exercices.length]),valeur:12,unite:"reps"}},corps:function(r){var n=r.exercices[r.pas%r.exercices.length];return'<div style="display:flex;gap:8px;margin-bottom:12px;">'+r.duo.map(function(r){return'<div style="flex:1;padding:8px;border-radius:11px;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.3);"><div style="font-size:0.76em;font-weight:800;color:#4ade80;">'+e(r.nom)+"</div></div>"}).join("")+"</div>"+m("TOUR "+(r.pas+1)+" / "+r.reglage+" · ENSEMBLE")+x(n,12,"reps chacun, en même temps")+b("AwakGamesValider()","Tous les deux terminé ✓")}},partage:{exos:function(e,r){return r},idx:function(e){return e.pas},prepare:function(e){e.duo=G()},total:function(e){return e.exercices.length},etape:function(e){return{nom:t(e.exercices[e.pas]),valeur:12+e.pas,unite:"reps"}},corps:function(r){var n=r.pas%2,i=r.exercices[r.pas],o=r.exercices.slice(r.pas+1,r.pas+4).map(function(n,i){var o=r.duo[(r.pas+1+i)%2].nom;return'<div style="display:flex;justify-content:space-between;font-size:0.68em;color:#64748b;padding:2px 0;"><span>'+e(t(n))+"</span><span>"+e(o)+"</span></div>"}).join("");return m("ÉTAPE "+(r.pas+1)+" / "+r.exercices.length+" · POUR "+e(r.duo[n].nom).toUpperCase())+x(i,12+r.pas,"reps")+(o?w("ENSUITE",o):"")+b("AwakGamesValider()","Terminé ✓")}},roi:{exos:function(){return 4},idx:function(e){return e.choix||0},prepare:function(e){e.duo=G(),e.scores=[0,0],e.choix=0,e.roi=null},total:function(e){return e.reglage},etape:function(e){return{nom:t(e.exercices[e.choix||0]),valeur:12,unite:"reps"}},corps:function(r){var n=r.exercices[r.choix||0],t=r.duo.map(function(n,t){var i=r.roi===t;return'<div style="flex:1;padding:9px;border-radius:11px;background:'+(i?"rgba(251,191,36,0.15)":"rgba(255,255,255,0.03)")+";border:1px solid "+(i?"rgba(251,191,36,0.45)":"rgba(255,255,255,0.08)")+';"><div style="font-size:0.74em;font-weight:800;color:'+(i?"#fbbf24":"#94a3b8")+';">'+(i?"👑 ":"")+e(n.nom)+'</div><div style="font-size:1.2em;font-weight:900;color:#fff;">'+r.scores[t]+"</div></div>"}).join(""),i=s(n),o=i?"🏁 Départ ensemble — celui qui <b>tient le plus longtemps</b> remporte le tour.":"🏁 Départ ensemble — le <b>premier à boucler ses répétitions</b> remporte le tour.";return'<div style="display:flex;gap:8px;margin-bottom:12px;">'+t+"</div>"+m("TOUR "+(r.pas+1)+" / "+r.reglage)+'<div style="font-size:0.7em;color:#fbbf24;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.22);border-radius:9px;padding:7px 10px;margin-bottom:12px;line-height:1.4;">'+o+"</div>"+x(n,12,i?"reps":"reps chacun")+'<div style="font-size:0.68em;color:#94a3b8;margin-bottom:8px;">Qui a remporté ce tour ?</div><div style="display:flex;gap:8px;">'+r.duo.map(function(r,n){return'<button onclick="AwakGamesRoiGagnant('+n+')" style="flex:1;padding:12px 6px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#fbbf24,#d97706);color:#3b2606;font-weight:900;font-size:0.82em;">'+e(r.nom)+"</button>"}).join("")+"</div>"}},gainage:{exos:function(){return 2},idx:function(e){return 1},chrono:40,prepare:function(e){e.duo=G()},total:function(e){return 2*e.reglage},etape:function(e){return{nom:t(e.exercices[1]),valeur:15,unite:"reps"}},corps:function(r){var n=r.pas%2,t=r.duo[n].nom,i=r.duo[1-n].nom;return'<div style="display:flex;gap:8px;margin-bottom:12px;"><div style="flex:1;padding:9px;border-radius:11px;background:rgba(168,85,247,0.14);border:1px solid rgba(168,85,247,0.35);"><div style="font-size:0.58em;color:#c4b5fd;font-weight:800;letter-spacing:1px;">TIENT LA PLANCHE</div><div style="font-size:0.88em;font-weight:900;color:#fff;">'+e(t)+'</div></div><div style="flex:1;padding:9px;border-radius:11px;background:rgba(34,197,94,0.14);border:1px solid rgba(34,197,94,0.35);"><div style="font-size:0.58em;color:#4ade80;font-weight:800;letter-spacing:1px;">ENCHAÎNE</div><div style="font-size:0.88em;font-weight:900;color:#fff;">'+e(i)+'</div></div></div><div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.10);border-radius:12px;padding:9px;margin-bottom:14px;"><div style="font-size:0.56em;color:#64748b;font-weight:800;letter-spacing:1.5px;">TEMPS RESTANT</div><div id="awakChrono" style="font-size:1.7em;font-weight:900;color:#4ade80;line-height:1.1;">1:00</div></div>'+x(r.exercices[1],15,"reps pendant que l'autre tient")+b("AwakGamesValider()","Échanger les rôles ✓")}},alternance:{exos:function(){return 3},idx:function(e){return Math.floor(e.pas/2)%e.exercices.length},prepare:function(e){e.joueurs=h(),e.scores=[0,0]},total:function(e){return e.jeu.course?2*e.reglage:e.reglage},etape:function(e){return{nom:t(e.exercices[Math.floor(e.pas/2)%e.exercices.length]),valeur:10,unite:"reps"}},corps:function(r){var n=r.pas%2,t=r.exercices[Math.floor(r.pas/2)%r.exercices.length];return'<div style="display:flex;gap:8px;margin-bottom:14px;">'+r.joueurs.map(function(t,i){var o=i===n;return'<div style="flex:1;padding:9px;border-radius:11px;background:'+(o?"rgba(34,197,94,0.15)":"rgba(255,255,255,0.03)")+";border:1px solid "+(o?"rgba(34,197,94,0.45)":"rgba(255,255,255,0.08)")+';"><div style="font-size:0.74em;font-weight:800;color:'+(o?"#4ade80":"#94a3b8")+';">'+e(t)+'</div><div style="font-size:1.2em;font-weight:900;color:#fff;">'+r.scores[i]+"</div></div>"}).join("")+"</div>"+m("AU TOUR DE "+e(r.joueurs[n]).toUpperCase())+x(t,10,"reps")+b("AwakGamesValider()","Tour terminé ✓")},apres:function(e){e.scores[(e.pas-1)%2]++}}};function f(e){for(var r=e.length-1;r>0;r--){var n=Math.floor(Math.random()*(r+1)),t=e[r];e[r]=e[n],e[n]=t}}function m(e){return'<div style="font-size:0.62em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:5px;">'+e+"</div>"}function g(e){if(!e||!window.EXERCISE_IMAGES)return null;var r=window.EXERCISE_IMAGES;return r[e._baseName||e.name]||r[e.name]||null}function v(r,n){var t=g(r),i=n||30;return t?'<div style="width:'+i+"px;height:"+i+'px;border-radius:7px;overflow:hidden;flex-shrink:0;background:#0a0e18;"><img src="'+e(t)+'" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"/></div>':'<div style="width:'+i+"px;height:"+i+'px;border-radius:7px;background:rgba(255,255,255,0.06);flex-shrink:0;"></div>'}function x(r,n,i){var o="string"==typeof r?r:t(r),a="string"==typeof r?"":function(r,n){var t=g(r);return t?'<div class="awak-jeu-img" style="width:100%;border-radius:14px;overflow:hidden;margin-bottom:12px;background:#0a0e18;'+(n?"height:"+n+"px;":"")+'">'+("function"==typeof window.buildLazyImg?window.buildLazyImg(t,r.name):'<img src="'+e(t)+'" alt="" loading="lazy" style="width:100%;height:100%;object-fit:contain;display:block;"/>')+"</div>":""}(r);if("string"!=typeof r&&s(r)&&/rep/i.test(i||"")){var u=d(r,n);n=u.valeur,i=(i||"").replace(/^\s*reps?/i,u.unite).replace(/reps/i,u.unite),/seconde/i.test(i)||(i=u.unite)}return a+'<div style="font-size:1.05em;font-weight:900;color:#fff;margin-bottom:3px;">'+e(o)+'</div><div style="font-size:2.2em;font-weight:900;color:#4ade80;line-height:1;">'+n+'</div><div style="font-size:0.75em;color:#94a3b8;margin-bottom:16px;">'+e(i)+"</div>"}function b(e,r,n){return'<button onclick="'+e+'" style="width:100%;padding:15px;border:none;border-radius:12px;cursor:pointer;background:'+(n?"linear-gradient(135deg,#22d3ee,#0891b2);color:#032027":"linear-gradient(135deg,#22c55e,#16a34a);color:#fff")+';font-weight:900;font-size:0.95em;">'+r+"</button>"}function w(e,r){return'<div style="background:rgba(255,255,255,0.04);border-radius:14px;padding:13px 15px;margin-bottom:16px;text-align:left;"><div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1px;margin-bottom:7px;">'+e+"</div>"+r+"</div>"}function h(){var e="Moi",r=null;try{if("function"==typeof window.getCurrentProfileId&&(r=window.getCurrentProfileId()),"function"==typeof window.getCurrentProfile){var n=window.getCurrentProfile();n&&n.name&&(e=n.name)}}catch(e){}try{if(window.AwakGroup&&"function"==typeof window.AwakGroup.getParticipants){for(var t=window.AwakGroup.getParticipants()||[],i=null,o=0;o<t.length;o++)if(t[o]&&t[o].id!==r&&t[o].name){i=t[o].name;break}if(i)return[e,i]}}catch(e){}try{if(window.AwakFamily&&"function"==typeof window.AwakFamily.myRelations)for(var a=window.AwakFamily.myRelations()||[],s=0;s<a.length;s++){var d=a[s]&&a[s].member;if(d&&d.id!==r&&d.name)return[e,d.name]}}catch(e){}try{if("function"==typeof window.getAllProfiles)for(var u=window.getAllProfiles()||[],c=0;c<u.length;c++)if(u[c]&&u[c].id!==r&&u[c].name)return[e,u[c].name]}catch(e){}return[e,"Partenaire"]}var y=[{id:"beginner",nom:"Débutant"},{id:"intermediate",nom:"Intermédiaire"},{id:"advanced",nom:"Avancé"}];function k(){var e="intermediate";try{e="function"==typeof window.getUserProfile&&(window.getUserProfile()||{}).level||"intermediate"}catch(e){}var r=0;if(y.forEach(function(n,t){n.id===e&&(r=t)}),r>=y.length-1)return null;var t=n(null,y[r].id).length,i=n(null,y[r+1].id).length;return i-t<5?null:{nomActuel:y[r].nom,nomSuivant:y[r+1].nom,actuel:t,gain:i-t}}function A(){var e=null;try{e="function"==typeof window.getCurrentProfileId?window.getCurrentProfileId():null}catch(e){}return e?"awakGameRecords_"+e:"awakGameRecords"}function j(){try{return JSON.parse(localStorage.getItem(A())||"{}")||{}}catch(e){return{}}}var z=null;function M(){z&&z.timer&&clearInterval(z.timer),z=null}function T(){var e=document.getElementById("awakChrono");if(e&&z){var r=Math.floor(z.restant/60),n=z.restant%60;e.textContent=r+":"+(n<10?"0":"")+n,e.style.color=z.restant<=10?"#fbbf24":"#4ade80"}}function E(e,r){var n="advanced"===e?1:"intermediate"===e?.75:.55;return"enfant"===r||"child"===r?n*=.6:"senior"===r&&(n*=.7),Math.max(.35,Math.round(100*n)/100)}function P(e,r){var n=r||"Joueur",t="beginner",i=null;try{if(e&&"function"==typeof window.getProfileData){var o=window.getProfileData(e,"userProfile");if(o){var a=JSON.parse(o);a&&a.level&&(t=a.level),a&&a.name&&(n=a.name)}}e&&window.AwakYouth&&"function"==typeof window.AwakYouth.ageCategoryOf&&(i=window.AwakYouth.ageCategoryOf(e))}catch(e){}return{id:e,nom:r||n,coef:E(t,i)}}function G(){var e=null;try{"function"==typeof window.getCurrentProfileId&&(e=window.getCurrentProfileId())}catch(e){}var r=h(),n=null;try{if(window.AwakGroup&&"function"==typeof window.AwakGroup.getParticipants)for(var t=window.AwakGroup.getParticipants()||[],i=0;i<t.length;i++)if(t[i]&&t[i].id!==e){n=t[i].id;break}if(!n&&"function"==typeof window.getAllProfiles)for(var o=window.getAllProfiles()||[],a=0;a<o.length;a++)if(o[a]&&o[a].id!==e){n=o[a].id;break}}catch(e){}return[P(e,r[0]),P(n,r[1])]}var q=null;function C(e,t){var i=r[e];if(i){if("grille"===i.mecanique)return H();var o=p[i.mecanique];if(o){t=t||i.defaut;var a=o.exos(i,t),s=null;if(i.duo)try{s=G().map(function(e){return e.id})}catch(e){s=null}var d=n(a,null,s);d.length?(q={id:e,jeu:i,meca:o,reglage:t,exercices:d,debut:Date.now(),pas:0,fini:!1,journal:[]},o.prepare(q),!q.joueurs&&q.duo&&(q.joueurs=q.duo.map(function(e){return e.nom})),N()):"function"==typeof window.showToast&&window.showToast("Aucun exercice disponible avec tes réglages actuels","warning",3e3)}}}function S(){if(q&&!q.fini){q.fini=!0,M(),q.record=function(e,r){var n=j();if(r>(n[e]||0)){n[e]=r;try{localStorage.setItem(A(),JSON.stringify(n))}catch(e){}return!0}return!1}(q.id,q.pas),q.score=q.pas;var r=Math.max(1,Math.round((Date.now()-q.debut)/6e4)),n=q.journal.reduce(function(e,r){return e+(r.reps||0)},0);try{if("function"==typeof window.saveWorkoutToHistory){var t={};q.journal.forEach(function(e){t[e.nom]=!0}),window.saveWorkoutToHistory({name:q.jeu.emoji+" "+q.jeu.name,exercises:Object.keys(t).map(function(e){return{name:e}}),muscles:[]},r)}}catch(e){}!function(r,n){var t=I(),i="";if(q.scores){var o=q.joueurs,a=q.scores;i='<div style="background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3);border-radius:12px;padding:11px;margin-bottom:14px;"><div style="font-size:0.9em;font-weight:900;color:#fbbf24;">🏆 '+e(a[0]===a[1]?"Égalité !":(a[0]>a[1]?o[0]:o[1])+" l'emporte")+'</div><div style="font-size:0.76em;color:#cbd5e1;margin-top:3px;">'+e(o[0])+" "+a[0]+" — "+a[1]+" "+e(o[1])+"</div></div>"}var s=q.journal.slice(-8).map(function(r){var n=r.unite&&/seconde/i.test(r.unite)?"s":"";return'<div style="display:flex;justify-content:space-between;font-size:0.8em;color:#cbd5e1;padding:3px 0;"><span>'+e(r.nom)+'</span><b style="color:#4ade80;">'+r.reps+n+"</b></div>"}).join("");t.innerHTML=U('<div style="font-size:2.6em;margin-bottom:6px;">🏁</div><div style="font-size:1.2em;font-weight:900;color:#fff;margin-bottom:4px;">Partie terminée</div><div style="font-size:0.82em;color:#94a3b8;margin-bottom:14px;">'+e(q.jeu.name)+"</div>"+(q.record?'<div style="background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.35);border-radius:12px;padding:10px;margin-bottom:14px;font-size:0.86em;font-weight:900;color:#fbbf24;">⭐ Nouveau record : '+q.score+" étapes</div>":j()[q.id]?'<div style="font-size:0.74em;color:#64748b;margin-bottom:14px;">Ton record : '+j()[q.id]+" étapes</div>":"")+i+'<div style="display:flex;gap:10px;margin-bottom:16px;">'+D(n,"RÉPÉTITIONS","#4ade80")+D(r,"MINUTES","#fff")+"</div>"+(s?'<div style="text-align:left;background:rgba(255,255,255,0.03);border-radius:12px;padding:11px 13px;margin-bottom:16px;max-height:160px;overflow-y:auto;">'+s+"</div>":"")+b("AwakGamesFermer()","Terminer 💪"))}(r,n)}}function D(e,r,n){return'<div style="flex:1;background:rgba(255,255,255,0.04);border-radius:12px;padding:11px;"><div style="font-size:1.5em;font-weight:900;color:'+n+';">'+e+'</div><div style="font-size:0.58em;color:#94a3b8;font-weight:800;letter-spacing:1px;">'+r+"</div></div>"}function O(){M(),q=null;var e=document.getElementById("awakGameOverlay");e&&e.remove();try{"function"==typeof window.updateHomeStats&&window.updateHomeStats()}catch(e){}}function I(){var e=document.getElementById("awakGameOverlay");return e||((e=document.createElement("div")).id="awakGameOverlay",e.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,0.88);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:100000;display:flex;align-items:center;justify-content:center;padding:20px;",document.body.appendChild(e)),e}function U(e,r){return'<div style="background:linear-gradient(160deg,#171922,#0d0d12);border:1px solid rgba(255,255,255,0.10);border-radius:22px;padding:24px;max-width:'+(r||400)+'px;width:100%;text-align:center;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.6);">'+e+"</div>"}function N(){var r,n=q.jeu,t=q.meca,i=t.total(q),o=i?Math.round(q.pas/i*100):0;I().innerHTML=U('<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;"><div style="font-size:0.8em;font-weight:900;color:#fff;">'+n.emoji+" "+e(n.name)+'</div><div style="font-size:0.72em;color:#94a3b8;">reste '+Math.max(0,i-q.pas)+'</div></div><div style="height:6px;background:rgba(255,255,255,0.07);border-radius:4px;overflow:hidden;margin-bottom:18px;"><div style="height:100%;width:'+o+'%;background:linear-gradient(90deg,#22c55e,#16a34a);transition:width 0.35s;"></div></div>'+t.corps(q)+(t.idx&&t.idx(q)>=0?'<button onclick="AwakGamesEchanger()" style="width:100%;margin-top:8px;padding:10px;border:none;border-radius:11px;cursor:pointer;background:rgba(56,189,248,0.10);border:1px solid rgba(56,189,248,0.28);color:#7dd3fc;font-weight:800;font-size:0.78em;">🔀 Changer d\'exercice</button>':"")+'<button onclick="AwakGamesAbandonner()" style="width:100%;margin-top:9px;padding:10px;border:none;border-radius:11px;cursor:pointer;background:rgba(255,255,255,0.05);color:#94a3b8;font-weight:700;font-size:0.78em;">'+(q.journal.length?"Arrêter ici":"Annuler")+"</button>"),t.chrono?(r=t.chrono,M(),z={restant:r,timer:null},T(),z.timer=setInterval(function(){if(z&&(z.restant--,T(),z.restant<=0)){M();try{navigator.vibrate&&navigator.vibrate([120,60,120])}catch(e){}var e=document.getElementById("awakChrono");e&&(e.textContent="Temps !",e.style.color="#f87171")}},1e3)):M()}window.AwakGamesTirer=function(){if(q){if("tirage"===q.jeu.mecanique){if(q.pas>=q.paquet.length)return;q.carte=q.paquet[q.pas]}else"des"===q.jeu.mecanique&&(q.lance={a:1+Math.floor(6*Math.random()),b:1+Math.floor(6*Math.random())});N()}},window.AwakGamesValider=function(){if(q){var e=q.meca.etape(q);if(e){var r=q.meca.idx&&q.exercices?q.exercices[q.meca.idx(q)]:null,n=r?d(r,e.valeur):{valeur:e.valeur,unite:"reps"};q.journal.push({nom:e.nom,reps:n.valeur,unite:n.unite})}if(q.carte=null,q.lance=null,q.pas++,q.meca.apres&&q.meca.apres(q),q.pas>=q.meca.total(q))return S();N()}},window.AwakGamesEchanger=function(){if(q&&q.meca.idx){var e=q.meca.idx(q);if(!(e<0)){var r=q.exercices.map(function(e){return e&&e.name}),t=n().filter(function(e){return-1===r.indexOf(e.name)});t.length&&(q.exercices[e]=t[0],N(),"function"==typeof window.showToast&&window.showToast("🔀 Exercice remplacé","info",1600))}}},window.AwakGamesRoiGagnant=function(e){q&&"roi"===q.jeu.mecanique&&(q.scores[e]++,q.roi=e,q.choix=Math.floor(Math.random()*q.exercices.length),window.AwakGamesValider())},window.AwakGamesAbandonner=function(){if(q)return q.journal.length?S():void O()},window.AwakGamesFermer=function(){O()};var R="awakBingoGrille";function L(){var e=new Date,r=new Date(e.getFullYear(),e.getMonth(),e.getDate()-(e.getDay()+6)%7+3),n=new Date(r.getFullYear(),0,4),t=1+Math.round(((r-n)/864e5-3+(n.getDay()+6)%7)/7);return r.getFullYear()+"-S"+t}var Y=["Une séance avant 9 h","Une séance de plus de 30 min","100 répétitions au total","Trois jours d'affilée","Un exercice jamais essayé","Une séance sans matériel","Un étirement de 5 min","50 squats dans la journée","Une séance à deux","Terminer une séance complète","Un jeu d'entraînement","Battre un record personnel"];function F(){var e=null;try{e=JSON.parse(localStorage.getItem(R)||"null")}catch(e){}if(!e||e.semaine!==L()){var r=Y.slice();f(r),e={semaine:L(),cases:r.slice(0,9).map(function(e){return{t:e,fait:!1}})};try{localStorage.setItem(R,JSON.stringify(e))}catch(e){}}return e}function H(){var r=F(),n=r.cases.filter(function(e){return e.fait}).length,t=r.cases.map(function(r,n){return'<button onclick="AwakGamesBingoCocher('+n+')" style="aspect-ratio:1;padding:8px 6px;border-radius:12px;cursor:pointer;border:1px solid '+(r.fait?"rgba(34,197,94,0.5)":"rgba(255,255,255,0.10)")+";background:"+(r.fait?"rgba(34,197,94,0.16)":"rgba(255,255,255,0.03)")+";color:"+(r.fait?"#4ade80":"#cbd5e1")+';font-size:0.66em;font-weight:700;line-height:1.3;display:flex;align-items:center;justify-content:center;text-align:center;">'+(r.fait?"✓ ":"")+e(r.t)+"</button>"}).join("");I().innerHTML=U('<div style="font-size:2.2em;margin-bottom:4px;">🎯</div><div style="font-size:1.15em;font-weight:900;color:#fff;margin-bottom:3px;">Bingo de la semaine</div><div style="font-size:0.78em;color:#94a3b8;margin-bottom:14px;">'+n+' / 9 défis validés · la grille se renouvelle chaque lundi</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:16px;">'+t+"</div>"+(9===n?'<div style="background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.35);border-radius:12px;padding:11px;margin-bottom:14px;font-size:0.86em;font-weight:900;color:#fbbf24;">🏆 Grille complète, bravo !</div>':"")+b("AwakGamesFermer()","Fermer"),430)}function V(){var n=document.getElementById("workoutGamesSection");if(n){var t,i=j(),o=Object.keys(r).map(function(n){var t=r[n];return"<button onclick=\"AwakGamesOuvrir('"+n+'\')" style="position:relative;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.10);border-radius:14px;padding:15px 11px;cursor:pointer;text-align:center;">'+(t.duo?'<div style="position:absolute;top:7px;right:7px;background:rgba(168,85,247,0.2);border:1px solid rgba(168,85,247,0.4);color:#c4b5fd;border-radius:6px;padding:1px 5px;font-size:0.56em;font-weight:800;">👥</div>':t.hebdo?'<div style="position:absolute;top:7px;right:7px;background:rgba(251,191,36,0.16);border:1px solid rgba(251,191,36,0.35);color:#fbbf24;border-radius:6px;padding:1px 5px;font-size:0.56em;font-weight:800;">7j</div>':"")+'<div style="font-size:1.7em;margin-bottom:5px;">'+t.emoji+'</div><div style="font-size:0.83em;font-weight:900;color:#fff;margin-bottom:3px;">'+e(t.name)+'</div><div style="font-size:0.66em;color:#94a3b8;line-height:1.35;">'+e(t.desc)+"</div>"+(i[n]?'<div style="margin-top:6px;font-size:0.62em;color:#fbbf24;font-weight:800;">⭐ '+i[n]+"</div>":"")+"</button>"}).join("");n.innerHTML='<div class="card" style="background:linear-gradient(135deg,rgba(34,197,94,0.06) 0%,rgba(34,197,94,0.02) 100%);border:1px solid rgba(34,197,94,0.22);"><h2 style="margin-bottom:6px;color:#4ade80;">🎮 Jeux d\'entraînement</h2><p style="margin-bottom:18px;color:#94a3b8;font-size:0.86em;">Des formats ludiques pour casser la routine. Ils s\'adaptent à ton matériel et à ta forme.</p><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:10px;">'+o+"</div>"+(((t=k())?'<div style="margin-top:14px;padding:12px 14px;border-radius:12px;background:rgba(56,189,248,0.07);border:1px solid rgba(56,189,248,0.22);"><div style="font-size:0.76em;color:#7dd3fc;line-height:1.5;">💡 <b>'+t.actuel+" exercices</b> correspondent à ton niveau ("+e(t.nomActuel)+'). Les jeux piochent uniquement dedans, pour te proposer des mouvements que tu maîtrises.</div><div style="font-size:0.74em;color:#94a3b8;line-height:1.5;margin-top:6px;">En passant à <b style="color:#cbd5e1;">'+e(t.nomSuivant)+'</b>, tu en débloquerais <b style="color:#4ade80;">'+t.gain+' de plus</b> — à ne faire que si tu te sens à l\'aise avec les mouvements actuels.</div><button onclick="AwakGamesOuvrirNiveau()" style="margin-top:10px;background:rgba(56,189,248,0.12);border:1px solid rgba(56,189,248,0.3);color:#7dd3fc;border-radius:10px;padding:8px 13px;font-size:0.74em;font-weight:800;cursor:pointer;">Changer mon niveau ›</button></div>':"")+"</div>")}}window.AwakGamesBingoCocher=function(e){var r=F();if(r.cases[e]){r.cases[e].fait=!r.cases[e].fait;try{localStorage.setItem(R,JSON.stringify(r))}catch(e){}H()}},window.AwakGamesOuvrir=function(n){var t=r[n];if(t){if("grille"===t.mecanique)return H();var i=t.options.map(function(e){return"<button onclick=\"AwakGamesDemarrer('"+n+"',"+e+')" style="flex:1;padding:14px 6px;border-radius:12px;cursor:pointer;border:1px solid rgba(34,197,94,0.3);background:rgba(34,197,94,0.08);color:#4ade80;font-weight:900;font-size:0.95em;">'+e+"</button>"}).join("");I().innerHTML=U('<div style="font-size:2.4em;margin-bottom:6px;">'+t.emoji+'</div><div style="font-size:1.15em;font-weight:900;color:#fff;margin-bottom:5px;">'+e(t.name)+'</div><div style="font-size:0.82em;color:#94a3b8;line-height:1.5;margin-bottom:6px;">'+e(t.desc)+"</div>"+(t.duo?'<div style="display:inline-block;background:rgba(168,85,247,0.14);border:1px solid rgba(168,85,247,0.35);color:#c4b5fd;border-radius:8px;padding:3px 9px;font-size:0.68em;font-weight:800;margin-bottom:14px;">👥 À deux</div>':"")+'<div style="font-size:0.62em;color:#64748b;font-weight:800;letter-spacing:1px;margin:12px 0 8px;">'+e(t.reglage).toUpperCase()+'</div><div style="display:flex;gap:8px;margin-bottom:16px;">'+i+'</div><button onclick="AwakGamesFermer()" style="width:100%;padding:11px;border:none;border-radius:11px;cursor:pointer;background:rgba(255,255,255,0.05);color:#94a3b8;font-weight:700;font-size:0.8em;">Annuler</button>')}},window.AwakGamesDemarrer=function(e,r){C(e,r)},window.AwakGamesOuvrirNiveau=function(){try{if("function"==typeof window.showProfileSetup)return void window.showProfileSetup();"function"==typeof window.switchTab&&window.switchTab("settings")}catch(e){}},window.AwakGames={compteParNiveau:k,renderFamilyCard:function(){var n=Object.keys(r).filter(function(e){return r[e].duo});if(!n.length)return"";var t=j();return'<div style="background:linear-gradient(160deg,#16121f,#0d0d12);border:1px solid rgba(168,85,247,0.25);border-radius:18px;padding:20px;margin-bottom:14px;"><div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;"><span style="font-size:1.5em;">🎮</span><div style="font-size:1.05em;font-weight:900;color:#fff;">S\'entraîner à deux</div></div><p style="font-size:0.78em;color:#94a3b8;margin:0 0 14px;line-height:1.45;">Deux formats pensés pour se pousser mutuellement.</p><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;">'+n.map(function(n){var i=r[n];return"<button onclick=\"AwakGamesOuvrir('"+n+'\')" style="background:rgba(255,255,255,0.03);border:1px solid rgba(168,85,247,0.28);border-radius:13px;padding:14px 10px;cursor:pointer;text-align:center;min-width:0;"><div style="font-size:1.6em;margin-bottom:4px;">'+i.emoji+'</div><div style="font-size:0.82em;font-weight:900;color:#fff;">'+e(i.name)+'</div><div style="font-size:0.64em;color:#94a3b8;line-height:1.3;margin-top:2px;">'+e(i.desc)+"</div>"+(t[n]?'<div style="margin-top:5px;font-size:0.6em;color:#fbbf24;font-weight:800;">⭐ '+t[n]+"</div>":"")+"</button>"}).join("")+"</div></div>"},GAMES:r,MECANIQUES:p,pool:n,renderSection:V,demarrer:C,bingo:F},"loading"===document.readyState?document.addEventListener("DOMContentLoaded",V):V()}();
+/* ═══════════════════════════════════════════════════════════════════
+   JEUX D'ENTRAÎNEMENT — moteur commun (10 jeux)
+   ───────────────────────────────────────────────────────────────────
+   Les dix jeux partagent le même squelette : constituer un pool
+   d'exercices, dérouler une partie, enregistrer le résultat. Seule la
+   MÉCANIQUE change — d'où le registre MECANIQUES ci-dessous, où chacune
+   déclare comment préparer la partie, combien d'étapes elle compte, et
+   ce qu'elle affiche à chaque étape.
+     tirage     → Jeu de cartes
+     des        → Dés
+     minute     → Death by…
+     emom       → EMOM
+     sequence   → 21-15-9, Pyramide
+     liste      → Chipper
+     alternance → You go I go, Duel      (à deux)
+     grille     → Bingo                  (défi hebdomadaire, hors partie)
+   Le pool réutilise les filtres de l'app (matériel, douleur, mobilité
+   réduite, âge) : tous les jeux en héritent sans code supplémentaire.
+   ═══════════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+
+  // ── CATALOGUE ──────────────────────────────────────────────────────
+  var GAMES = {
+    cartes:  { name: 'Jeu de cartes', emoji: '🃏', mecanique: 'tirage', duo: false,
+               desc: 'La couleur donne l\'exercice, la valeur les répétitions.',
+               reglage: 'Combien de cartes ?', options: [12, 20, 32], defaut: 20 },
+    des:     { name: 'Dés', emoji: '🎲', mecanique: 'des', duo: false,
+               desc: 'Un dé choisit l\'exercice, l\'autre l\'effort.',
+               reglage: 'Combien de lancers ?', options: [10, 15, 25], defaut: 15 },
+    deathby: { name: 'Death by…', emoji: '⏱️', mecanique: 'minute', duo: false,
+               desc: '1 rep la 1re minute, 2 la 2e… jusqu\'à lâcher.',
+               reglage: 'Minutes maximum', options: [10, 15, 20], defaut: 15 },
+    emom:    { name: 'EMOM', emoji: '⏲️', mecanique: 'emom', duo: false,
+               desc: 'Une tâche au début de chaque minute, le reste est ta récup.',
+               reglage: 'Durée (minutes)', options: [10, 16, 24], defaut: 16 },
+    v21159:  { name: '21-15-9', emoji: '🔻', mecanique: 'sequence', duo: false,
+               desc: 'Trois tours dégressifs : 21 reps, puis 15, puis 9.',
+               reglage: 'Nombre d\'exercices', options: [2, 3], defaut: 2,
+               rounds: [21, 15, 9] },
+    pyramide:{ name: 'Pyramide', emoji: '🔺', mecanique: 'sequence', duo: false,
+               desc: 'Les répétitions montent puis redescendent.',
+               reglage: 'Sommet de la pyramide', options: [6, 8, 10], defaut: 8 },
+    chipper: { name: 'Chipper', emoji: '📋', mecanique: 'liste', duo: false,
+               desc: 'Une longue liste à terminer, dans l\'ordre que tu veux.',
+               reglage: 'Nombre d\'exercices', options: [5, 8, 12], defaut: 8 },
+    yougo:   { name: 'You go, I go', emoji: '🔄', mecanique: 'alternance', duo: true,
+               desc: 'Chacun son tour : l\'un travaille, l\'autre récupère.',
+               reglage: 'Nombre de tours', options: [8, 12, 16], defaut: 12 },
+    duel:    { name: 'Duel', emoji: '⚔️', mecanique: 'alternance', duo: true, course: true,
+               desc: 'Même volume pour les deux — le premier fini gagne.',
+               reglage: 'Tours par joueur', options: [5, 8, 12], defaut: 8 },
+    egalisateur: { name: 'Égalisateur', emoji: '⚖️', mecanique: 'handicap', duo: true,
+               desc: 'Duel équilibré : chacun ses répétitions selon son niveau.',
+               reglage: 'Tours par joueur', options: [5, 8, 12], defaut: 8 },
+    relais:  { name: 'Relais', emoji: '🤝', mecanique: 'relais', duo: true,
+               desc: 'Un volume commun à écouler ensemble, chacun son tour.',
+               reglage: 'Répétitions à deux', options: [100, 200, 300], defaut: 200 },
+    miroir:  { name: 'Miroir', emoji: '🪞', mecanique: 'miroir', duo: true,
+               desc: 'Même exercice, en même temps. On se motive du coin de l\'œil.',
+               reglage: 'Nombre de tours', options: [6, 10, 15], defaut: 10 },
+    partage: { name: 'Chipper partagé', emoji: '🧩', mecanique: 'partage', duo: true,
+               desc: 'Une liste répartie entre vous deux.',
+               reglage: 'Nombre d\'exercices', options: [6, 10, 14], defaut: 10 },
+    roi:     { name: 'Roi de la colline', emoji: '👑', mecanique: 'roi', duo: true,
+               desc: 'Le gagnant du tour choisit l\'exercice suivant.',
+               reglage: 'Nombre de tours', options: [5, 8, 12], defaut: 8 },
+    planche: { name: 'Duel de gainage', emoji: '🧱', mecanique: 'gainage', duo: true,
+               desc: 'L\'un tient la planche pendant que l\'autre enchaîne.',
+               reglage: 'Tours par joueur', options: [3, 5, 8], defaut: 5 },
+    bingo:   { name: 'Bingo', emoji: '🎯', mecanique: 'grille', duo: false, hebdo: true,
+               desc: 'Neuf défis à cocher dans la semaine.', reglage: null }
+  };
+
+  // ── POOL D'EXERCICES (hérite de tous les filtres de l'app) ─────────
+  // `idsParticipants` : pour un jeu À DEUX, les identifiants des DEUX joueurs.
+  // Les protections s'appliquent alors au plus fragile des deux, pas seulement
+  // au profil actif.
+  function pool(limit, niveauForce, idsParticipants) {
+    var base = [];
+    try { base = (typeof exerciseDatabase !== 'undefined' && exerciseDatabase) ? exerciseDatabase.slice() : []; }
+    catch (e) { base = []; }
+    if (!base.length) return [];
+
+    // Seulement de VRAIS exercices : la base contient aussi des échauffements
+    // (type warmup), des étirements (stretch) et des entrées d'information
+    // (info), qui n'ont pas leur place dans un jeu à répétitions.
+    base = base.filter(function (e) { return e && e.name && e.type === 'exercise'; });
+
+    try {
+      if (typeof window.getSelectedEquipmentNames === 'function') {
+        var dispo = window.getSelectedEquipmentNames() || [];
+        if (dispo.length) {
+          base = base.filter(function (e) {
+            if (!Array.isArray(e.equipment) || !e.equipment.length) return true;
+            return e.equipment.some(function (q) { return dispo.indexOf(q) !== -1; });
+          });
+        }
+      }
+    } catch (e) {}
+
+    // 🩹 DOULEURS — les zones sont désormais propres à chaque profil (v663).
+    // Pour un jeu à deux, on écarte les exercices touchant une zone sensible de
+    // L'UN OU L'AUTRE : chacun exécute les mêmes mouvements, il faut donc
+    // protéger les deux.
+    try {
+      if (window.AwakPain) {
+        if (Array.isArray(idsParticipants) && idsParticipants.length
+            && typeof window.AwakPain.exerciseHitsPainFor === 'function') {
+          base = base.filter(function (e) {
+            return !window.AwakPain.exerciseHitsPainFor(e, idsParticipants);
+          });
+        } else if (typeof window.AwakPain.exerciseHitsPain === 'function') {
+          base = base.filter(function (e) { return !window.AwakPain.exerciseHitsPain(e); });
+        }
+      }
+    } catch (e) {}
+
+    try {
+      if (window.AwakAdaptive && typeof window.AwakAdaptive.isReducedMobility === 'function'
+          && window.AwakAdaptive.isReducedMobility()
+          && typeof window.AwakAdaptive.isUnsuitable === 'function') {
+        base = base.filter(function (e) { return !window.AwakAdaptive.isUnsuitable(e); });
+      }
+    } catch (e) {}
+
+    // Niveau de l'utilisateur : un débutant ne doit pas tomber sur un exercice
+    // avancé. Garde-fou : on n'applique le filtre que s'il reste assez de choix.
+    try {
+      var lvl = niveauForce || (typeof window.getUserProfile === 'function' && (window.getUserProfile() || {}).level) || 'intermediate';
+      // À deux : on retient le niveau le PLUS PRUDENT des participants, afin de
+      // ne pas imposer au débutant les mouvements avancés de son partenaire.
+      if (!niveauForce && Array.isArray(idsParticipants)) {
+        var rang = { beginner: 0, intermediate: 1, advanced: 2 };
+        var mini = rang[lvl] === undefined ? 1 : rang[lvl];
+        idsParticipants.forEach(function (id) {
+          if (!id) return;
+          try {
+            var raw = (typeof window.getProfileData === 'function') ? window.getProfileData(id, 'userProfile') : null;
+            var niv = raw ? (JSON.parse(raw) || {}).level : null;
+            if (niv && rang[niv] !== undefined && rang[niv] < mini) mini = rang[niv];
+          } catch (e) {}
+        });
+        lvl = Object.keys(rang).filter(function (k) { return rang[k] === mini; })[0] || lvl;
+      }
+      var permis = lvl === 'beginner' ? ['Débutant']
+                 : lvl === 'advanced' ? ['Débutant', 'Intermédiaire', 'Avancé']
+                 : ['Débutant', 'Intermédiaire'];
+      var parNiveau = base.filter(function (e) { return !e.difficulty || permis.indexOf(e.difficulty) !== -1; });
+      if (parNiveau.length >= 8) base = parNiveau;
+    } catch (e) {}
+
+    try {
+      // ⚠️ SÉCURITÉ ENFANT — la restriction s'applique dès qu'UN des participants
+      // a moins de 13 ans, pas seulement le profil actif. Sans ça, un adulte
+      // lançant un jeu à deux avec son enfant obtenait des exercices à charges
+      // lourdes que l'enfant allait pourtant exécuter.
+      var _enfantPresent = false;
+      if (window.AwakYouth) {
+        if (typeof window.AwakYouth.isChild === 'function' && window.AwakYouth.isChild()) _enfantPresent = true;
+        if (!_enfantPresent && Array.isArray(idsParticipants)
+            && typeof window.AwakYouth.isChildProfile === 'function') {
+          _enfantPresent = idsParticipants.some(function (id) {
+            try { return id && window.AwakYouth.isChildProfile(id); } catch (e) { return false; }
+          });
+        }
+      }
+      if (_enfantPresent) {
+        base = base.filter(function (e) {
+          return !Array.isArray(e.equipment) ||
+                 e.equipment.every(function (q) { return ['Poids du corps', 'Élastique', 'Tapis'].indexOf(q) !== -1; });
+        });
+      }
+
+      // ⚠️ SÉCURITÉ SÉNIOR — dès qu'UN des participants a 65 ans et plus, on
+      // écarte les mouvements à IMPACT (sauts, pliométrie) : chocs articulaires
+      // et risque de chute. Même raisonnement que pour l'enfant — on protège le
+      // participant le plus fragile, pas seulement le profil actif.
+      var _seniorPresent = false;
+      if (window.AwakYouth) {
+        if (typeof window.AwakYouth.isSenior === 'function' && window.AwakYouth.isSenior()) _seniorPresent = true;
+        if (!_seniorPresent && Array.isArray(idsParticipants)
+            && typeof window.AwakYouth.isSeniorProfile === 'function') {
+          _seniorPresent = idsParticipants.some(function (id) {
+            try { return id && window.AwakYouth.isSeniorProfile(id); } catch (e) { return false; }
+          });
+        }
+      }
+      if (_seniorPresent) {
+        base = base.filter(function (e) { return !RX_IMPACT.test(e.name || ''); });
+      }
+    } catch (e) {}
+
+    for (var i = base.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = base[i]; base[i] = base[j]; base[j] = t;
+    }
+    return limit ? base.slice(0, limit) : base;
+  }
+
+  function nomEx(e) { return e && e.name ? e.name : '—'; }
+
+  // ⏱️ Exercices ISOMÉTRIQUES : ils se tiennent en secondes, pas en répétitions.
+  // Le champ `duration` de la base ne convient pas comme indice (les pompes en
+  // ont un aussi : il désigne une durée de série suggérée). On s'appuie donc
+  // sur le nom, en écartant les variantes DYNAMIQUES qui, elles, se comptent.
+  // Mouvements à IMPACT (sauts, pliométrie). Liste alignée sur la table de
+  // substitution du « mode silencieux » de l'app, élargie aux variantes.
+  var RX_IMPACT = /saut|jump|burpee|jumping jack|high knees|montées de genoux|plyo|pliom|explosif|explosive|skater|box jump|bond/i;
+
+  var RX_TENUE = /planche|plank|hollow|superman|wall ?sit|dead ?hang|l-?sit|gainage|chaise murale|posture/i;
+  var RX_DYNAMIQUE = /dynamique|rotation|drag|balancement|swing|jump|saut/i;
+  function estTenue(ex) {
+    var n = (ex && ex.name) ? ex.name : '';
+    return RX_TENUE.test(n) && !RX_DYNAMIQUE.test(n);
+  }
+  // Traduit un nombre de répétitions en effort adapté à l'exercice.
+  function effortPour(ex, reps) {
+    if (estTenue(ex)) {
+      var s = Math.round((reps * 2.5) / 5) * 5;      // ~2,5 s par répétition
+      s = Math.max(15, Math.min(90, s));             // borné : ni trop court, ni interminable
+      return { valeur: s, unite: 'secondes à tenir' };
+    }
+    return { valeur: reps, unite: 'reps' };
+  }
+
+  // ── REGISTRE DES MÉCANIQUES ────────────────────────────────────────
+  var COULEURS = [
+    { s: '♠', nom: 'Pique',   c: '#e2e8f0' }, { s: '♥', nom: 'Cœur',    c: '#f87171' },
+    { s: '♦', nom: 'Carreau', c: '#fbbf24' }, { s: '♣', nom: 'Trèfle',  c: '#4ade80' }
+  ];
+  var VALEURS = [
+    { v: 'A', n: 14 }, { v: '2', n: 2 }, { v: '3', n: 3 }, { v: '4', n: 4 }, { v: '5', n: 5 },
+    { v: '6', n: 6 }, { v: '7', n: 7 }, { v: '8', n: 8 }, { v: '9', n: 9 }, { v: '10', n: 10 },
+    { v: 'V', n: 11 }, { v: 'D', n: 12 }, { v: 'R', n: 13 }
+  ];
+  var FACES = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+
+  var MECANIQUES = {
+
+    // 🃏 Tirage de cartes : 4 exercices, un par couleur
+    tirage: {
+      exos: function () { return 4; },
+      idx: function (p) { return p.carte ? p.carte.c : -1; },
+      prepare: function (p) {
+        var paquet = [];
+        for (var c = 0; c < 4; c++) for (var v = 0; v < VALEURS.length; v++) paquet.push({ c: c, v: v });
+        melange(paquet);
+        p.paquet = paquet.slice(0, p.reglage);
+        p.carte = null;
+      },
+      total: function (p) { return p.paquet.length; },
+      etape: function (p) {
+        if (!p.carte) return null;
+        return { nom: nomEx(p.exercices[p.carte.c]), valeur: VALEURS[p.carte.v].n, unite: 'reps' };
+      },
+      corps: function (p) {
+        if (p.carte) {
+          var co = COULEURS[p.carte.c], va = VALEURS[p.carte.v];
+          var rouge = (p.carte.c === 1 || p.carte.c === 2);
+          return '<div class="awak-carte" style="border-radius:16px;padding:14px;margin-bottom:14px;">'
+            + '<div style="font-size:3.2em;font-weight:900;line-height:1;color:' + (rouge ? '#dc2626' : '#0f172a') + ';">' + va.v + ' ' + co.s + '</div></div>'
+            + gros(p.exercices[p.carte.c], va.n, 'reps')
+            + bouton('AwakGamesValider()', 'C\'est fait ✓');
+        }
+        var corr = COULEURS.map(function (c, i) {
+          return '<div style="display:flex;align-items:center;gap:9px;font-size:0.76em;color:#cbd5e1;padding:4px 0;">'
+            + '<span style="font-size:1.15em;color:' + c.c + ';width:18px;flex-shrink:0;">' + c.s + '</span>'
+            + pastilleImg(p.exercices[i])
+            + '<span style="min-width:0;">' + esc(nomEx(p.exercices[i])) + '</span></div>';
+        }).join('');
+        return encart('CORRESPONDANCES', corr)
+          + bouton('AwakGamesTirer()', '🃏 Tirer une carte', true);
+      }
+    },
+
+    // 🎲 Dés : un dé pour l'exercice, un pour l'effort
+    des: {
+      exos: function () { return 6; },
+      idx: function (p) { return p.lance ? p.lance.a - 1 : -1; },
+      prepare: function (p) { p.lance = null; },
+      total: function (p) { return p.reglage; },
+      etape: function (p) {
+        if (!p.lance) return null;
+        return { nom: nomEx(p.exercices[p.lance.a - 1]), valeur: p.lance.b * 3, unite: 'reps' };
+      },
+      corps: function (p) {
+        if (p.lance) {
+          return '<div style="font-size:3em;letter-spacing:6px;margin-bottom:12px;">' + FACES[p.lance.a - 1] + FACES[p.lance.b - 1] + '</div>'
+            + gros(p.exercices[p.lance.a - 1], p.lance.b * 3, 'reps')
+            + bouton('AwakGamesValider()', 'C\'est fait ✓');
+        }
+        var liste = p.exercices.map(function (e, i) {
+          return '<div style="display:flex;align-items:center;gap:9px;font-size:0.74em;color:#cbd5e1;padding:3px 0;">'
+            + '<span style="font-size:1.1em;width:20px;flex-shrink:0;">' + FACES[i] + '</span>'
+            + pastilleImg(e, 28)
+            + '<span style="min-width:0;">' + esc(nomEx(e)) + '</span></div>';
+        }).join('');
+        return encart('DÉ 1 = EXERCICE · DÉ 2 = EFFORT (×3 REPS)', liste)
+          + bouton('AwakGamesTirer()', '🎲 Lancer les dés', true);
+      }
+    },
+
+    // ⏱️ Death by… : les reps montent d'une unité chaque minute
+    minute: {
+      exos: function () { return 1; },
+      chrono: 60,
+      idx: function () { return 0; },
+      prepare: function () {},
+      total: function (p) { return p.reglage; },
+      etape: function (p) { return { nom: nomEx(p.exercices[0]), valeur: p.pas + 1, unite: 'reps' }; },
+      corps: function (p) {
+        return sousTitre('MINUTE ' + (p.pas + 1))
+          + blocChrono()
+          + gros(p.exercices[0], p.pas + 1, 'répétition' + (p.pas ? 's' : '') + ' dans la minute')
+          + bouton('AwakGamesValider()', 'Minute réussie ✓');
+      }
+    },
+
+    // ⏲️ EMOM : charge constante, les exercices tournent
+    emom: {
+      exos: function () { return 4; },
+      chrono: 60,
+      idx: function (p) { return p.pas % p.exercices.length; },
+      prepare: function (p) { p.reps = 10; },
+      total: function (p) { return p.reglage; },
+      etape: function (p) {
+        return { nom: nomEx(p.exercices[p.pas % p.exercices.length]), valeur: p.reps, unite: 'reps' };
+      },
+      corps: function (p) {
+        var e = p.exercices[p.pas % p.exercices.length];
+        return sousTitre('MINUTE ' + (p.pas + 1) + ' / ' + p.reglage)
+          + blocChrono()
+          + gros(e, p.reps, 'reps puis récup')
+          + bouton('AwakGamesValider()', 'Minute réussie ✓');
+      }
+    },
+
+    // 🔻🔺 Séquence : suite de tours à volume imposé
+    sequence: {
+      exos: function (g, reglage) { return g.rounds ? reglage : 2; },
+      idx: function (p) { return p.pas % p.exercices.length; },
+      prepare: function (p) {
+        if (p.jeu.rounds) { p.rounds = p.jeu.rounds.slice(); }
+        else {                                   // pyramide : montée puis descente
+          var r = [], sommet = p.reglage;
+          for (var i = 2; i <= sommet; i += 2) r.push(i);
+          for (var j = sommet - 2; j >= 2; j -= 2) r.push(j);
+          p.rounds = r;
+        }
+      },
+      total: function (p) { return p.rounds.length * p.exercices.length; },
+      etape: function (p) {
+        var nbEx = p.exercices.length;
+        var tour = Math.floor(p.pas / nbEx), idx = p.pas % nbEx;
+        return { nom: nomEx(p.exercices[idx]), valeur: p.rounds[tour], unite: 'reps' };
+      },
+      corps: function (p) {
+        var nbEx = p.exercices.length;
+        var tour = Math.floor(p.pas / nbEx), idx = p.pas % nbEx;
+        var suite = p.rounds.map(function (r, i) {
+          return '<span style="color:' + (i === tour ? '#4ade80' : '#475569') + ';font-weight:' + (i === tour ? '900' : '700') + ';">' + r + '</span>';
+        }).join('<span style="color:#334155;"> · </span>');
+        return sousTitre('TOUR ' + (tour + 1) + ' / ' + p.rounds.length)
+          + '<div style="font-size:0.9em;margin-bottom:12px;">' + suite + '</div>'
+          + gros(p.exercices[idx], p.rounds[tour], 'reps')
+          + bouton('AwakGamesValider()', 'Terminé ✓');
+      }
+    },
+
+    // 📋 Chipper : liste à écouler
+    liste: {
+      exos: function (g, reglage) { return reglage; },
+      idx: function (p) { return p.pas; },
+      prepare: function () {},
+      total: function (p) { return p.exercices.length; },
+      etape: function (p) {
+        return { nom: nomEx(p.exercices[p.pas]), valeur: 10 + p.pas * 2, unite: 'reps' };
+      },
+      corps: function (p) {
+        return sousTitre('ÉTAPE ' + (p.pas + 1) + ' / ' + p.exercices.length)
+          + gros(p.exercices[p.pas], 10 + p.pas * 2, 'reps')
+          + bouton('AwakGamesValider()', 'Terminé ✓');
+      }
+    },
+
+    // ⚖️ ÉGALISATEUR — duel équilibré : chacun ses reps selon son niveau
+    handicap: {
+      exos: function () { return 3; },
+      idx: function (p) { return Math.floor(p.pas / 2) % p.exercices.length; },
+      prepare: function (p) { p.duo = duoJoueurs(); p.scores = [0, 0]; p.base = 12; },
+      total: function (p) { return p.reglage * 2; },
+      etape: function (p) {
+        var q = p.pas % 2;
+        return { nom: nomEx(p.exercices[Math.floor(p.pas / 2) % p.exercices.length]),
+                 valeur: Math.max(3, Math.round(p.base * p.duo[q].coef)), unite: 'reps' };
+      },
+      corps: function (p) {
+        var q = p.pas % 2, e = p.exercices[Math.floor(p.pas / 2) % p.exercices.length];
+        var reps = Math.max(3, Math.round(p.base * p.duo[q].coef));
+        var tableau = p.duo.map(function (j, i) {
+          var actif = i === q;
+          return '<div style="flex:1;padding:9px;border-radius:11px;background:' + (actif ? 'rgba(34,197,94,0.15)' : 'rgba(255,255,255,0.03)')
+            + ';border:1px solid ' + (actif ? 'rgba(34,197,94,0.45)' : 'rgba(255,255,255,0.08)') + ';">'
+            + '<div style="font-size:0.74em;font-weight:800;color:' + (actif ? '#4ade80' : '#94a3b8') + ';">' + esc(j.nom) + '</div>'
+            + '<div style="font-size:1.2em;font-weight:900;color:#fff;">' + p.scores[i] + '</div>'
+            + '<div style="font-size:0.58em;color:#64748b;">' + Math.max(3, Math.round(p.base * j.coef)) + ' reps/tour</div></div>';
+        }).join('');
+        return '<div style="display:flex;gap:8px;margin-bottom:12px;">' + tableau + '</div>'
+          + '<div style="font-size:0.62em;color:#7dd3fc;background:rgba(56,189,248,0.08);border-radius:8px;padding:5px 9px;margin-bottom:12px;">⚖️ Les répétitions sont ajustées au niveau de chacun — la victoire reste ouverte.</div>'
+          + sousTitre('AU TOUR DE ' + esc(p.duo[q].nom).toUpperCase())
+          + gros(e, reps, 'reps')
+          + bouton('AwakGamesValider()', 'Tour terminé ✓');
+      },
+      apres: function (p) { p.scores[(p.pas - 1) % 2]++; }
+    },
+
+    // 🤝 RELAIS — un volume commun à écouler ensemble
+    relais: {
+      exos: function () { return 2; },
+      idx: function (p) { return Math.floor(p.pas / 2) % p.exercices.length; },
+      prepare: function (p) { p.duo = duoJoueurs(); p.parTour = 15; p.cumul = 0; },
+      total: function (p) { return Math.ceil(p.reglage / p.parTour); },
+      etape: function (p) {
+        return { nom: nomEx(p.exercices[Math.floor(p.pas / 2) % p.exercices.length]),
+                 valeur: p.parTour, unite: 'reps' };
+      },
+      corps: function (p) {
+        var q = p.pas % 2, e = p.exercices[Math.floor(p.pas / 2) % p.exercices.length];
+        var pct = Math.min(100, Math.round((p.cumul / p.reglage) * 100));
+        return '<div style="background:rgba(255,255,255,0.04);border-radius:12px;padding:11px;margin-bottom:12px;">'
+          +   '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">'
+          +     '<span style="font-size:1.3em;font-weight:900;color:#4ade80;">' + p.cumul + '</span>'
+          +     '<span style="font-size:0.74em;color:#94a3b8;">/ ' + p.reglage + ' reps ensemble</span></div>'
+          +   '<div style="height:8px;background:rgba(255,255,255,0.07);border-radius:5px;overflow:hidden;">'
+          +     '<div style="height:100%;width:' + pct + '%;background:linear-gradient(90deg,#22c55e,#16a34a);transition:width 0.3s;"></div></div>'
+          + '</div>'
+          + sousTitre('AU TOUR DE ' + esc(p.duo[q].nom).toUpperCase())
+          + gros(e, p.parTour, 'reps')
+          + bouton('AwakGamesValider()', 'Passé au suivant ✓');
+      },
+      apres: function (p) { p.cumul += p.parTour; }
+    },
+
+    // 🪞 MIROIR — même exercice, en même temps
+    miroir: {
+      exos: function () { return 4; },
+      idx: function (p) { return p.pas % p.exercices.length; },
+      prepare: function (p) { p.duo = duoJoueurs(); },
+      total: function (p) { return p.reglage; },
+      etape: function (p) { return { nom: nomEx(p.exercices[p.pas % p.exercices.length]), valeur: 12, unite: 'reps' }; },
+      corps: function (p) {
+        var e = p.exercices[p.pas % p.exercices.length];
+        return '<div style="display:flex;gap:8px;margin-bottom:12px;">'
+          + p.duo.map(function (j) {
+              return '<div style="flex:1;padding:8px;border-radius:11px;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.3);">'
+                + '<div style="font-size:0.76em;font-weight:800;color:#4ade80;">' + esc(j.nom) + '</div></div>';
+            }).join('')
+          + '</div>'
+          + sousTitre('TOUR ' + (p.pas + 1) + ' / ' + p.reglage + ' · ENSEMBLE')
+          + gros(e, 12, 'reps chacun, en même temps')
+          + bouton('AwakGamesValider()', 'Tous les deux terminé ✓');
+      }
+    },
+
+    // 🧩 CHIPPER PARTAGÉ — la liste répartie entre les deux
+    partage: {
+      exos: function (g, reglage) { return reglage; },
+      idx: function (p) { return p.pas; },
+      prepare: function (p) { p.duo = duoJoueurs(); },
+      total: function (p) { return p.exercices.length; },
+      etape: function (p) { return { nom: nomEx(p.exercices[p.pas]), valeur: 12 + p.pas, unite: 'reps' }; },
+      corps: function (p) {
+        var q = p.pas % 2, e = p.exercices[p.pas];
+        var restants = p.exercices.slice(p.pas + 1, p.pas + 4).map(function (x, i) {
+          var pour = p.duo[(p.pas + 1 + i) % 2].nom;
+          return '<div style="display:flex;justify-content:space-between;font-size:0.68em;color:#64748b;padding:2px 0;">'
+            + '<span>' + esc(nomEx(x)) + '</span><span>' + esc(pour) + '</span></div>';
+        }).join('');
+        return sousTitre('ÉTAPE ' + (p.pas + 1) + ' / ' + p.exercices.length + ' · POUR ' + esc(p.duo[q].nom).toUpperCase())
+          + gros(e, 12 + p.pas, 'reps')
+          + (restants ? encart('ENSUITE', restants) : '')
+          + bouton('AwakGamesValider()', 'Terminé ✓');
+      }
+    },
+
+    // 👑 ROI DE LA COLLINE — le gagnant choisit l'exercice suivant
+    roi: {
+      exos: function () { return 4; },
+      idx: function (p) { return p.choix || 0; },
+      prepare: function (p) { p.duo = duoJoueurs(); p.scores = [0, 0]; p.choix = 0; p.roi = null; },
+      total: function (p) { return p.reglage; },
+      etape: function (p) { return { nom: nomEx(p.exercices[p.choix || 0]), valeur: 12, unite: 'reps' }; },
+      corps: function (p) {
+        var e = p.exercices[p.choix || 0];
+        var tableau = p.duo.map(function (j, i) {
+          var estRoi = p.roi === i;
+          return '<div style="flex:1;padding:9px;border-radius:11px;background:' + (estRoi ? 'rgba(251,191,36,0.15)' : 'rgba(255,255,255,0.03)')
+            + ';border:1px solid ' + (estRoi ? 'rgba(251,191,36,0.45)' : 'rgba(255,255,255,0.08)') + ';">'
+            + '<div style="font-size:0.74em;font-weight:800;color:' + (estRoi ? '#fbbf24' : '#94a3b8') + ';">' + (estRoi ? '👑 ' : '') + esc(j.nom) + '</div>'
+            + '<div style="font-size:1.2em;font-weight:900;color:#fff;">' + p.scores[i] + '</div></div>';
+        }).join('');
+        // Le critère dépend de la nature de l'exercice : course à la répétition,
+        // ou tenue la plus longue s'il s'agit d'un isométrique.
+        var tenue = estTenue(e);
+        var regle = tenue
+          ? '🏁 Départ ensemble — celui qui <b>tient le plus longtemps</b> remporte le tour.'
+          : '🏁 Départ ensemble — le <b>premier à boucler ses répétitions</b> remporte le tour.';
+        return '<div style="display:flex;gap:8px;margin-bottom:12px;">' + tableau + '</div>'
+          + sousTitre('TOUR ' + (p.pas + 1) + ' / ' + p.reglage)
+          + '<div style="font-size:0.7em;color:#fbbf24;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.22);border-radius:9px;padding:7px 10px;margin-bottom:12px;line-height:1.4;">' + regle + '</div>'
+          + gros(e, 12, tenue ? 'reps' : 'reps chacun')
+          + '<div style="font-size:0.68em;color:#94a3b8;margin-bottom:8px;">Qui a remporté ce tour ?</div>'
+          + '<div style="display:flex;gap:8px;">'
+          +   p.duo.map(function (j, i) {
+                return '<button onclick="AwakGamesRoiGagnant(' + i + ')" style="flex:1;padding:12px 6px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#fbbf24,#d97706);color:#3b2606;font-weight:900;font-size:0.82em;">' + esc(j.nom) + '</button>';
+              }).join('')
+          + '</div>';
+      }
+    },
+
+    // 🧱 DUEL DE GAINAGE — l'un tient, l'autre enchaîne
+    gainage: {
+      exos: function () { return 2; },
+      idx: function (p) { return 1; },
+      chrono: 40,
+      prepare: function (p) { p.duo = duoJoueurs(); },
+      total: function (p) { return p.reglage * 2; },
+      etape: function (p) { return { nom: nomEx(p.exercices[1]), valeur: 15, unite: 'reps' }; },
+      corps: function (p) {
+        var q = p.pas % 2;
+        var tient = p.duo[q].nom, bouge = p.duo[1 - q].nom;
+        return '<div style="display:flex;gap:8px;margin-bottom:12px;">'
+          +   '<div style="flex:1;padding:9px;border-radius:11px;background:rgba(168,85,247,0.14);border:1px solid rgba(168,85,247,0.35);">'
+          +     '<div style="font-size:0.58em;color:#c4b5fd;font-weight:800;letter-spacing:1px;">TIENT LA PLANCHE</div>'
+          +     '<div style="font-size:0.88em;font-weight:900;color:#fff;">' + esc(tient) + '</div></div>'
+          +   '<div style="flex:1;padding:9px;border-radius:11px;background:rgba(34,197,94,0.14);border:1px solid rgba(34,197,94,0.35);">'
+          +     '<div style="font-size:0.58em;color:#4ade80;font-weight:800;letter-spacing:1px;">ENCHAÎNE</div>'
+          +     '<div style="font-size:0.88em;font-weight:900;color:#fff;">' + esc(bouge) + '</div></div>'
+          + '</div>'
+          + blocChrono()
+          + gros(p.exercices[1], 15, 'reps pendant que l\'autre tient')
+          + bouton('AwakGamesValider()', 'Échanger les rôles ✓');
+      }
+    },
+
+    // 🔄⚔️ Alternance à deux
+    alternance: {
+      exos: function () { return 3; },
+      idx: function (p) { return Math.floor(p.pas / 2) % p.exercices.length; },
+      prepare: function (p) {
+        p.joueurs = nomsJoueurs();
+        p.scores = [0, 0];
+      },
+      total: function (p) { return p.jeu.course ? p.reglage * 2 : p.reglage; },
+      etape: function (p) {
+        var e = p.exercices[Math.floor(p.pas / 2) % p.exercices.length];
+        return { nom: nomEx(e), valeur: 10, unite: 'reps' };
+      },
+      corps: function (p) {
+        var qui = p.pas % 2;
+        var e = p.exercices[Math.floor(p.pas / 2) % p.exercices.length];
+        var tableau = p.joueurs.map(function (n, i) {
+          var actif = i === qui;
+          return '<div style="flex:1;padding:9px;border-radius:11px;background:' + (actif ? 'rgba(34,197,94,0.15)' : 'rgba(255,255,255,0.03)')
+            + ';border:1px solid ' + (actif ? 'rgba(34,197,94,0.45)' : 'rgba(255,255,255,0.08)') + ';">'
+            + '<div style="font-size:0.74em;font-weight:800;color:' + (actif ? '#4ade80' : '#94a3b8') + ';">' + esc(n) + '</div>'
+            + '<div style="font-size:1.2em;font-weight:900;color:#fff;">' + p.scores[i] + '</div></div>';
+        }).join('');
+        return '<div style="display:flex;gap:8px;margin-bottom:14px;">' + tableau + '</div>'
+          + sousTitre('AU TOUR DE ' + esc(p.joueurs[qui]).toUpperCase())
+          + gros(e, 10, 'reps')
+          + bouton('AwakGamesValider()', 'Tour terminé ✓');
+      },
+      apres: function (p) { p.scores[(p.pas - 1) % 2]++; }
+    }
+  };
+
+  // ── PETITS ASSEMBLAGES D'AFFICHAGE ─────────────────────────────────
+  function melange(a) {
+    for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; }
+  }
+  function sousTitre(t) {
+    return '<div style="font-size:0.62em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:5px;">' + t + '</div>';
+  }
+  // Source de l'image d'un exercice (mapping partagé avec le reste de l'app).
+  function srcImage(ex) {
+    if (!ex || !window.EXERCISE_IMAGES) return null;
+    var M = window.EXERCISE_IMAGES;
+    var base = ex._baseName || ex.name;
+    return M[base] || M[ex.name] || null;
+  }
+
+  // Vignette d'illustration ; renvoie '' si l'exercice n'a pas d'image.
+  function visuel(ex, hauteur) {
+    var src = srcImage(ex);
+    if (!src) return '';
+    var h = hauteur || 140;
+    // Les images d'exercices sont carrées ou verticales, alors que le cadre est
+    // large : un recadrage « cover » n'en montrerait qu'une bande. On affiche
+    // donc l'image ENTIÈRE (contain), centrée sur un fond sombre.
+    // buildLazyImg applique déjà width/height:100% + object-fit:contain :
+    // on ne lui impose rien de plus, sous peine de casser le dimensionnement.
+    var img = (typeof window.buildLazyImg === 'function')
+      ? window.buildLazyImg(src, ex.name)
+      : '<img src="' + esc(src) + '" alt="" loading="lazy" style="width:100%;height:100%;object-fit:contain;display:block;"/>';
+    // Hauteur pilotée par CSS (classe .awak-jeu-img) : grande sur un écran
+    // normal, réduite sur les petits téléphones pour que le bouton d'action
+    // reste visible sans défilement.
+    return '<div class="awak-jeu-img" style="width:100%;border-radius:14px;overflow:hidden;margin-bottom:12px;background:#0a0e18;'
+      + (hauteur ? 'height:' + hauteur + 'px;' : '') + '">' + img + '</div>';
+  }
+
+  // Petite vignette carrée pour les listes de correspondances.
+  function pastilleImg(ex, taille) {
+    var src = srcImage(ex);
+    var t = taille || 30;
+    if (!src) return '<div style="width:' + t + 'px;height:' + t + 'px;border-radius:7px;background:rgba(255,255,255,0.06);flex-shrink:0;"></div>';
+    return '<div style="width:' + t + 'px;height:' + t + 'px;border-radius:7px;overflow:hidden;flex-shrink:0;background:#0a0e18;">'
+      + '<img src="' + esc(src) + '" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"/></div>';
+  }
+
+  function gros(ex, val, unite) {
+    var nom = typeof ex === 'string' ? ex : nomEx(ex);
+    var img = typeof ex === 'string' ? '' : visuel(ex);
+    // Un exercice à tenir s'exprime en secondes : on adapte valeur ET libellé.
+    if (typeof ex !== 'string' && estTenue(ex) && /rep/i.test(unite || '')) {
+      var ef = effortPour(ex, val);
+      val = ef.valeur;
+      unite = (unite || '').replace(/^\s*reps?/i, ef.unite).replace(/reps/i, ef.unite);
+      if (!/seconde/i.test(unite)) unite = ef.unite;
+    }
+    return img
+      + '<div style="font-size:1.05em;font-weight:900;color:#fff;margin-bottom:3px;">' + esc(nom) + '</div>'
+      + '<div style="font-size:2.2em;font-weight:900;color:#4ade80;line-height:1;">' + val + '</div>'
+      + '<div style="font-size:0.75em;color:#94a3b8;margin-bottom:16px;">' + esc(unite) + '</div>';
+  }
+  function bouton(fn, txt, cyan) {
+    var fond = cyan ? 'linear-gradient(135deg,#22d3ee,#0891b2);color:#032027' : 'linear-gradient(135deg,#22c55e,#16a34a);color:#fff';
+    return '<button onclick="' + fn + '" style="width:100%;padding:15px;border:none;border-radius:12px;cursor:pointer;background:' + fond + ';font-weight:900;font-size:0.95em;">' + txt + '</button>';
+  }
+  function encart(titre, contenu) {
+    return '<div style="background:rgba(255,255,255,0.04);border-radius:14px;padding:13px 15px;margin-bottom:16px;text-align:left;">'
+      + '<div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1px;margin-bottom:7px;">' + titre + '</div>' + contenu + '</div>';
+  }
+  // Le joueur 1 est TOUJOURS le profil actif — jamais le premier du registre.
+  // Le joueur 2 vient, par ordre de préférence : des participants choisis pour
+  // la séance de groupe, puis d'un proche lié dans l'onglet Famille, puis d'un
+  // autre profil de l'appareil.
+  function nomsJoueurs() {
+    var moi = 'Moi', partenaire = 'Partenaire';
+    var monId = null;
+
+    try {
+      if (typeof window.getCurrentProfileId === 'function') monId = window.getCurrentProfileId();
+      if (typeof window.getCurrentProfile === 'function') {
+        var p = window.getCurrentProfile();
+        if (p && p.name) moi = p.name;
+      }
+    } catch (e) {}
+
+    // 1) Participants explicitement choisis pour la séance de groupe
+    try {
+      if (window.AwakGroup && typeof window.AwakGroup.getParticipants === 'function') {
+        var parts = window.AwakGroup.getParticipants() || [];
+        var autre = null;
+        for (var i = 0; i < parts.length; i++) {
+          if (parts[i] && parts[i].id !== monId && parts[i].name) { autre = parts[i].name; break; }
+        }
+        if (autre) return [moi, autre];
+      }
+    } catch (e) {}
+
+    // 2) Un proche lié dans l'onglet Famille
+    try {
+      if (window.AwakFamily && typeof window.AwakFamily.myRelations === 'function') {
+        var rels = window.AwakFamily.myRelations() || [];
+        for (var j = 0; j < rels.length; j++) {
+          var m = rels[j] && rels[j].member;
+          if (m && m.id !== monId && m.name) return [moi, m.name];
+        }
+      }
+    } catch (e) {}
+
+    // 3) Un autre profil de l'appareil
+    try {
+      if (typeof window.getAllProfiles === 'function') {
+        var ps = window.getAllProfiles() || [];
+        for (var k = 0; k < ps.length; k++) {
+          if (ps[k] && ps[k].id !== monId && ps[k].name) return [moi, ps[k].name];
+        }
+      }
+    } catch (e) {}
+
+    return [moi, partenaire];
+  }
+
+  // ── COMBIEN D'EXERCICES SELON LE NIVEAU ────────────────────────────
+  var NIVEAUX = [
+    { id: 'beginner',     nom: 'Débutant' },
+    { id: 'intermediate', nom: 'Intermédiaire' },
+    { id: 'advanced',     nom: 'Avancé' }
+  ];
+  function compteParNiveau() {
+    var actuel = 'intermediate';
+    try { actuel = (typeof window.getUserProfile === 'function' && (window.getUserProfile() || {}).level) || 'intermediate'; }
+    catch (e) {}
+    var i = 0;
+    NIVEAUX.forEach(function (n, k) { if (n.id === actuel) i = k; });
+    if (i >= NIVEAUX.length - 1) return null;          // déjà au palier le plus large
+    var maintenant = pool(null, NIVEAUX[i].id).length;
+    var apres      = pool(null, NIVEAUX[i + 1].id).length;
+    if (apres - maintenant < 5) return null;           // gain négligeable : on se tait
+    return { nomActuel: NIVEAUX[i].nom, nomSuivant: NIVEAUX[i + 1].nom,
+             actuel: maintenant, gain: apres - maintenant };
+  }
+
+  // ── RECORDS PERSONNELS ─────────────────────────────────────────────
+  function cleRecords() {
+    var id = null;
+    try { id = (typeof window.getCurrentProfileId === 'function') ? window.getCurrentProfileId() : null; } catch (e) {}
+    return id ? ('awakGameRecords_' + id) : 'awakGameRecords';
+  }
+  function records() {
+    try { return JSON.parse(localStorage.getItem(cleRecords()) || '{}') || {}; }
+    catch (e) { return {}; }
+  }
+  function majRecord(gameId, valeur) {
+    var r = records();
+    var ancien = r[gameId] || 0;
+    if (valeur > ancien) {
+      r[gameId] = valeur;
+      try { localStorage.setItem(cleRecords(), JSON.stringify(r)); } catch (e) {}
+      return true;
+    }
+    return false;
+  }
+
+  // ── CHRONOMÈTRE (jeux à la minute) ─────────────────────────────────
+  var chrono = null;
+  function arreterChrono() {
+    if (chrono && chrono.timer) clearInterval(chrono.timer);
+    chrono = null;
+  }
+  function lancerChrono(secondes) {
+    arreterChrono();
+    chrono = { restant: secondes, timer: null };
+    majAffichageChrono();
+    chrono.timer = setInterval(function () {
+      if (!chrono) return;
+      chrono.restant--;
+      majAffichageChrono();
+      if (chrono.restant <= 0) {
+        arreterChrono();
+        try { if (navigator.vibrate) navigator.vibrate([120, 60, 120]); } catch (e) {}
+        var el = document.getElementById('awakChrono');
+        if (el) { el.textContent = 'Temps !'; el.style.color = '#f87171'; }
+      }
+    }, 1000);
+  }
+  function majAffichageChrono() {
+    var el = document.getElementById('awakChrono');
+    if (!el || !chrono) return;
+    var m = Math.floor(chrono.restant / 60), s = chrono.restant % 60;
+    el.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+    el.style.color = chrono.restant <= 10 ? '#fbbf24' : '#4ade80';
+  }
+  function blocChrono() {
+    return '<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.10);border-radius:12px;padding:9px;margin-bottom:14px;">'
+      + '<div style="font-size:0.56em;color:#64748b;font-weight:800;letter-spacing:1.5px;">TEMPS RESTANT</div>'
+      + '<div id="awakChrono" style="font-size:1.7em;font-weight:900;color:#4ade80;line-height:1.1;">1:00</div></div>';
+  }
+
+  // ── PROFILS DES DEUX JOUEURS (avec coefficient d'effort) ───────────
+  // L'Égalisateur adapte les répétitions au niveau de chacun : un débutant de
+  // 10 ans et un adulte entraîné peuvent alors réellement se disputer la
+  // victoire. Coefficient plus bas = moins de répétitions demandées.
+  function coefNiveau(niveau, categorieAge) {
+    var c = niveau === 'advanced' ? 1 : niveau === 'intermediate' ? 0.75 : 0.55;
+    if (categorieAge === 'enfant' || categorieAge === 'child') c *= 0.6;
+    else if (categorieAge === 'senior') c *= 0.7;
+    return Math.max(0.35, Math.round(c * 100) / 100);
+  }
+  function infosJoueur(profileId, nomRepli) {
+    var nom = nomRepli || 'Joueur', niveau = 'beginner', age = null;
+    try {
+      if (profileId && typeof window.getProfileData === 'function') {
+        var raw = window.getProfileData(profileId, 'userProfile');
+        if (raw) {
+          var up = JSON.parse(raw);
+          if (up && up.level) niveau = up.level;
+          if (up && up.name) nom = up.name;
+        }
+      }
+      if (profileId && window.AwakYouth && typeof window.AwakYouth.ageCategoryOf === 'function') {
+        age = window.AwakYouth.ageCategoryOf(profileId);
+      }
+    } catch (e) {}
+    return { id: profileId, nom: nomRepli || nom, coef: coefNiveau(niveau, age) };
+  }
+  // Renvoie [{id, nom, coef}, {id, nom, coef}] — le profil ACTIF en premier.
+  function duoJoueurs() {
+    var monId = null;
+    try { if (typeof window.getCurrentProfileId === 'function') monId = window.getCurrentProfileId(); } catch (e) {}
+    var noms = nomsJoueurs();
+    var autreId = null;
+    try {
+      if (window.AwakGroup && typeof window.AwakGroup.getParticipants === 'function') {
+        var parts = window.AwakGroup.getParticipants() || [];
+        for (var i = 0; i < parts.length; i++) if (parts[i] && parts[i].id !== monId) { autreId = parts[i].id; break; }
+      }
+      if (!autreId && typeof window.getAllProfiles === 'function') {
+        var ps = window.getAllProfiles() || [];
+        for (var k = 0; k < ps.length; k++) if (ps[k] && ps[k].id !== monId) { autreId = ps[k].id; break; }
+      }
+    } catch (e) {}
+    return [infosJoueur(monId, noms[0]), infosJoueur(autreId, noms[1])];
+  }
+
+  // ── DÉROULEMENT D'UNE PARTIE ───────────────────────────────────────
+  var partie = null;
+
+  function demarrer(gameId, reglage) {
+    var g = GAMES[gameId];
+    if (!g) return;
+    if (g.mecanique === 'grille') return ouvrirBingo();
+
+    var m = MECANIQUES[g.mecanique];
+    if (!m) return;
+    reglage = reglage || g.defaut;
+
+    var nb = m.exos(g, reglage);
+    // Pour un jeu à deux, on identifie les participants AVANT de constituer le
+    // pool, afin que les protections (âge, niveau) couvrent les deux joueurs.
+    var _ids = null;
+    if (g.duo) {
+      try { _ids = duoJoueurs().map(function (j) { return j.id; }); } catch (e) { _ids = null; }
+    }
+    var ex = pool(nb, null, _ids);
+    if (!ex.length) {
+      if (typeof window.showToast === 'function') window.showToast('Aucun exercice disponible avec tes réglages actuels', 'warning', 3000);
+      return;
+    }
+    partie = { id: gameId, jeu: g, meca: m, reglage: reglage, exercices: ex,
+               debut: Date.now(), pas: 0, fini: false, journal: [] };
+    m.prepare(partie);
+    // Normalisation : les mécaniques à deux stockent leurs joueurs soit dans
+    // `joueurs` (noms), soit dans `duo` (objets). L'écran de fin n'en connaît
+    // qu'une — on dérive l'autre ici plutôt que dans chaque mécanique.
+    if (!partie.joueurs && partie.duo) {
+      partie.joueurs = partie.duo.map(function (j) { return j.nom; });
+    }
+    afficher();
+  }
+
+  window.AwakGamesTirer = function () {
+    if (!partie) return;
+    if (partie.jeu.mecanique === 'tirage') {
+      if (partie.pas >= partie.paquet.length) return;
+      partie.carte = partie.paquet[partie.pas];
+    } else if (partie.jeu.mecanique === 'des') {
+      partie.lance = { a: 1 + Math.floor(Math.random() * 6), b: 1 + Math.floor(Math.random() * 6) };
+    }
+    afficher();
+  };
+
+  window.AwakGamesValider = function () {
+    if (!partie) return;
+    var et = partie.meca.etape(partie);
+    if (et) {
+      // Le récapitulatif doit refléter l'effort réel : secondes pour une tenue.
+      var exCourant = (partie.meca.idx && partie.exercices) ? partie.exercices[partie.meca.idx(partie)] : null;
+      var ef = exCourant ? effortPour(exCourant, et.valeur) : { valeur: et.valeur, unite: 'reps' };
+      partie.journal.push({ nom: et.nom, reps: ef.valeur, unite: ef.unite });
+    }
+    partie.carte = null; partie.lance = null;
+    partie.pas++;
+    if (partie.meca.apres) partie.meca.apres(partie);
+    if (partie.pas >= partie.meca.total(partie)) return terminer();
+    afficher();
+  };
+
+  // Remplace l'exercice courant par un autre du pool (même filtres).
+  window.AwakGamesEchanger = function () {
+    if (!partie || !partie.meca.idx) return;
+    var i = partie.meca.idx(partie);
+    if (i < 0) return;
+    var dejaLa = partie.exercices.map(function (e) { return e && e.name; });
+    var candidats = pool().filter(function (e) { return dejaLa.indexOf(e.name) === -1; });
+    if (!candidats.length) return;
+    partie.exercices[i] = candidats[0];
+    afficher();
+    if (typeof window.showToast === 'function') window.showToast('🔀 Exercice remplacé', 'info', 1600);
+  };
+
+  // 👑 Roi de la colline : le vainqueur du tour choisit l'exercice suivant.
+  window.AwakGamesRoiGagnant = function (i) {
+    if (!partie || partie.jeu.mecanique !== 'roi') return;
+    partie.scores[i]++;
+    partie.roi = i;
+    partie.choix = Math.floor(Math.random() * partie.exercices.length);
+    window.AwakGamesValider();
+  };
+
+  window.AwakGamesAbandonner = function () {
+    if (!partie) return;
+    if (partie.journal.length) return terminer();
+    fermer();
+  };
+
+  function terminer() {
+    if (!partie || partie.fini) return;
+    partie.fini = true;
+    arreterChrono();
+    // Record = nombre d'étapes tenues (minutes pour les jeux au chrono).
+    partie.record = majRecord(partie.id, partie.pas);
+    partie.score = partie.pas;
+    var minutes = Math.max(1, Math.round((Date.now() - partie.debut) / 60000));
+    var totalReps = partie.journal.reduce(function (s, x) { return s + (x.reps || 0); }, 0);
+    try {
+      if (typeof window.saveWorkoutToHistory === 'function') {
+        var noms = {};
+        partie.journal.forEach(function (x) { noms[x.nom] = true; });
+        window.saveWorkoutToHistory({
+          name: partie.jeu.emoji + ' ' + partie.jeu.name,
+          exercises: Object.keys(noms).map(function (n) { return { name: n }; }),
+          muscles: []
+        }, minutes);
+      }
+    } catch (e) {}
+    afficherFin(minutes, totalReps);
+  }
+
+  function afficherFin(minutes, totalReps) {
+    var host = overlay();
+    var extra = '';
+    if (partie.scores) {
+      var j = partie.joueurs, s = partie.scores;
+      var gagnant = s[0] === s[1] ? 'Égalité !' : (s[0] > s[1] ? j[0] : j[1]) + ' l\'emporte';
+      extra = '<div style="background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3);border-radius:12px;padding:11px;margin-bottom:14px;">'
+        + '<div style="font-size:0.9em;font-weight:900;color:#fbbf24;">🏆 ' + esc(gagnant) + '</div>'
+        + '<div style="font-size:0.76em;color:#cbd5e1;margin-top:3px;">' + esc(j[0]) + ' ' + s[0] + ' — ' + s[1] + ' ' + esc(j[1]) + '</div></div>';
+    }
+    var lignes = partie.journal.slice(-8).map(function (x) {
+      var suffixe = (x.unite && /seconde/i.test(x.unite)) ? 's' : '';
+      return '<div style="display:flex;justify-content:space-between;font-size:0.8em;color:#cbd5e1;padding:3px 0;">'
+        + '<span>' + esc(x.nom) + '</span><b style="color:#4ade80;">' + x.reps + suffixe + '</b></div>';
+    }).join('');
+    host.innerHTML = panneau(
+      '<div style="font-size:2.6em;margin-bottom:6px;">🏁</div>'
+      + '<div style="font-size:1.2em;font-weight:900;color:#fff;margin-bottom:4px;">Partie terminée</div>'
+      + '<div style="font-size:0.82em;color:#94a3b8;margin-bottom:14px;">' + esc(partie.jeu.name) + '</div>'
+      + (partie.record
+          ? '<div style="background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.35);border-radius:12px;padding:10px;margin-bottom:14px;font-size:0.86em;font-weight:900;color:#fbbf24;">⭐ Nouveau record : ' + partie.score + ' étapes</div>'
+          : (records()[partie.id] ? '<div style="font-size:0.74em;color:#64748b;margin-bottom:14px;">Ton record : ' + records()[partie.id] + ' étapes</div>' : ''))
+      + extra
+      + '<div style="display:flex;gap:10px;margin-bottom:16px;">'
+      +   stat(totalReps, 'RÉPÉTITIONS', '#4ade80') + stat(minutes, 'MINUTES', '#fff')
+      + '</div>'
+      + (lignes ? '<div style="text-align:left;background:rgba(255,255,255,0.03);border-radius:12px;padding:11px 13px;margin-bottom:16px;max-height:160px;overflow-y:auto;">' + lignes + '</div>' : '')
+      + bouton('AwakGamesFermer()', 'Terminer 💪'));
+  }
+
+  function stat(v, l, c) {
+    return '<div style="flex:1;background:rgba(255,255,255,0.04);border-radius:12px;padding:11px;">'
+      + '<div style="font-size:1.5em;font-weight:900;color:' + c + ';">' + v + '</div>'
+      + '<div style="font-size:0.58em;color:#94a3b8;font-weight:800;letter-spacing:1px;">' + l + '</div></div>';
+  }
+
+  window.AwakGamesFermer = function () { fermer(); };
+  function fermer() {
+    arreterChrono();
+    partie = null;
+    var el = document.getElementById('awakGameOverlay'); if (el) el.remove();
+    try { if (typeof window.updateHomeStats === 'function') window.updateHomeStats(); } catch (e) {}
+  }
+
+  function overlay() {
+    var host = document.getElementById('awakGameOverlay');
+    if (!host) {
+      host = document.createElement('div');
+      host.id = 'awakGameOverlay';
+      host.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.88);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:100000;display:flex;align-items:center;justify-content:center;padding:20px;';
+      document.body.appendChild(host);
+    }
+    return host;
+  }
+  function panneau(contenu, large) {
+    return '<div style="background:linear-gradient(160deg,#171922,#0d0d12);border:1px solid rgba(255,255,255,0.10);border-radius:22px;padding:24px;max-width:' + (large || 400) + 'px;width:100%;text-align:center;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.6);">' + contenu + '</div>';
+  }
+
+  function afficher() {
+    var g = partie.jeu, m = partie.meca;
+    var total = m.total(partie), pct = total ? Math.round((partie.pas / total) * 100) : 0;
+    overlay().innerHTML = panneau(
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">'
+      +   '<div style="font-size:0.8em;font-weight:900;color:#fff;">' + g.emoji + ' ' + esc(g.name) + '</div>'
+      +   '<div style="font-size:0.72em;color:#94a3b8;">reste ' + Math.max(0, total - partie.pas) + '</div>'
+      + '</div>'
+      + '<div style="height:6px;background:rgba(255,255,255,0.07);border-radius:4px;overflow:hidden;margin-bottom:18px;">'
+      +   '<div style="height:100%;width:' + pct + '%;background:linear-gradient(90deg,#22c55e,#16a34a);transition:width 0.35s;"></div>'
+      + '</div>'
+      + m.corps(partie)
+      + (m.idx && m.idx(partie) >= 0
+          ? '<button onclick="AwakGamesEchanger()" style="width:100%;margin-top:8px;padding:10px;border:none;border-radius:11px;cursor:pointer;background:rgba(56,189,248,0.10);border:1px solid rgba(56,189,248,0.28);color:#7dd3fc;font-weight:800;font-size:0.78em;">🔀 Changer d\'exercice</button>'
+          : '')
+      + '<button onclick="AwakGamesAbandonner()" style="width:100%;margin-top:9px;padding:10px;border:none;border-radius:11px;cursor:pointer;background:rgba(255,255,255,0.05);color:#94a3b8;font-weight:700;font-size:0.78em;">'
+      + (partie.journal.length ? 'Arrêter ici' : 'Annuler') + '</button>');
+
+    // Les jeux à la minute relancent un décompte à chaque étape.
+    if (m.chrono) lancerChrono(m.chrono); else arreterChrono();
+  }
+
+  // ── 🎯 BINGO : grille hebdomadaire (hors partie) ────────────────────
+  var BINGO_KEY = 'awakBingoGrille';
+
+  function semaineCourante() {
+    var d = new Date();
+    var jeudi = new Date(d.getFullYear(), d.getMonth(), d.getDate() - ((d.getDay() + 6) % 7) + 3);
+    var debut = new Date(jeudi.getFullYear(), 0, 4);
+    var sem = 1 + Math.round(((jeudi - debut) / 86400000 - 3 + ((debut.getDay() + 6) % 7)) / 7);
+    return jeudi.getFullYear() + '-S' + sem;
+  }
+
+  var DEFIS = [
+    'Une séance avant 9 h', 'Une séance de plus de 30 min', '100 répétitions au total',
+    'Trois jours d\'affilée', 'Un exercice jamais essayé', 'Une séance sans matériel',
+    'Un étirement de 5 min', '50 squats dans la journée', 'Une séance à deux',
+    'Terminer une séance complète', 'Un jeu d\'entraînement', 'Battre un record personnel'
+  ];
+
+  function chargerBingo() {
+    var g = null;
+    try { g = JSON.parse(localStorage.getItem(BINGO_KEY) || 'null'); } catch (e) {}
+    if (!g || g.semaine !== semaineCourante()) {
+      var d = DEFIS.slice(); melange(d);
+      g = { semaine: semaineCourante(), cases: d.slice(0, 9).map(function (t) { return { t: t, fait: false }; }) };
+      try { localStorage.setItem(BINGO_KEY, JSON.stringify(g)); } catch (e) {}
+    }
+    return g;
+  }
+
+  window.AwakGamesBingoCocher = function (i) {
+    var g = chargerBingo();
+    if (!g.cases[i]) return;
+    g.cases[i].fait = !g.cases[i].fait;
+    try { localStorage.setItem(BINGO_KEY, JSON.stringify(g)); } catch (e) {}
+    ouvrirBingo();
+  };
+
+  function ouvrirBingo() {
+    var g = chargerBingo();
+    var faits = g.cases.filter(function (c) { return c.fait; }).length;
+    var cases = g.cases.map(function (c, i) {
+      return '<button onclick="AwakGamesBingoCocher(' + i + ')" style="aspect-ratio:1;padding:8px 6px;border-radius:12px;cursor:pointer;'
+        + 'border:1px solid ' + (c.fait ? 'rgba(34,197,94,0.5)' : 'rgba(255,255,255,0.10)') + ';'
+        + 'background:' + (c.fait ? 'rgba(34,197,94,0.16)' : 'rgba(255,255,255,0.03)') + ';'
+        + 'color:' + (c.fait ? '#4ade80' : '#cbd5e1') + ';font-size:0.66em;font-weight:700;line-height:1.3;display:flex;align-items:center;justify-content:center;text-align:center;">'
+        + (c.fait ? '✓ ' : '') + esc(c.t) + '</button>';
+    }).join('');
+    overlay().innerHTML = panneau(
+      '<div style="font-size:2.2em;margin-bottom:4px;">🎯</div>'
+      + '<div style="font-size:1.15em;font-weight:900;color:#fff;margin-bottom:3px;">Bingo de la semaine</div>'
+      + '<div style="font-size:0.78em;color:#94a3b8;margin-bottom:14px;">' + faits + ' / 9 défis validés · la grille se renouvelle chaque lundi</div>'
+      + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:16px;">' + cases + '</div>'
+      + (faits === 9 ? '<div style="background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.35);border-radius:12px;padding:11px;margin-bottom:14px;font-size:0.86em;font-weight:900;color:#fbbf24;">🏆 Grille complète, bravo !</div>' : '')
+      + bouton('AwakGamesFermer()', 'Fermer'), 430);
+  }
+
+  // ── ÉCRAN DE RÉGLAGE ───────────────────────────────────────────────
+  window.AwakGamesOuvrir = function (gameId) {
+    var g = GAMES[gameId];
+    if (!g) return;
+    if (g.mecanique === 'grille') return ouvrirBingo();
+    var opts = g.options.map(function (o) {
+      return '<button onclick="AwakGamesDemarrer(\'' + gameId + '\',' + o + ')" style="flex:1;padding:14px 6px;border-radius:12px;cursor:pointer;border:1px solid rgba(34,197,94,0.3);background:rgba(34,197,94,0.08);color:#4ade80;font-weight:900;font-size:0.95em;">' + o + '</button>';
+    }).join('');
+    overlay().innerHTML = panneau(
+      '<div style="font-size:2.4em;margin-bottom:6px;">' + g.emoji + '</div>'
+      + '<div style="font-size:1.15em;font-weight:900;color:#fff;margin-bottom:5px;">' + esc(g.name) + '</div>'
+      + '<div style="font-size:0.82em;color:#94a3b8;line-height:1.5;margin-bottom:6px;">' + esc(g.desc) + '</div>'
+      + (g.duo ? '<div style="display:inline-block;background:rgba(168,85,247,0.14);border:1px solid rgba(168,85,247,0.35);color:#c4b5fd;border-radius:8px;padding:3px 9px;font-size:0.68em;font-weight:800;margin-bottom:14px;">👥 À deux</div>' : '')
+      + '<div style="font-size:0.62em;color:#64748b;font-weight:800;letter-spacing:1px;margin:12px 0 8px;">' + esc(g.reglage).toUpperCase() + '</div>'
+      + '<div style="display:flex;gap:8px;margin-bottom:16px;">' + opts + '</div>'
+      + '<button onclick="AwakGamesFermer()" style="width:100%;padding:11px;border:none;border-radius:11px;cursor:pointer;background:rgba(255,255,255,0.05);color:#94a3b8;font-weight:700;font-size:0.8em;">Annuler</button>');
+  };
+
+  window.AwakGamesDemarrer = function (gameId, reglage) { demarrer(gameId, reglage); };
+
+  // ── SECTION DE L'ONGLET ENTRAÎNER ──────────────────────────────────
+  function renderSection() {
+    var host = document.getElementById('workoutGamesSection');
+    if (!host) return;
+    var rec = records();
+    var tuiles = Object.keys(GAMES).map(function (id) {
+      var g = GAMES[id];
+      var pastille = g.duo
+        ? '<div style="position:absolute;top:7px;right:7px;background:rgba(168,85,247,0.2);border:1px solid rgba(168,85,247,0.4);color:#c4b5fd;border-radius:6px;padding:1px 5px;font-size:0.56em;font-weight:800;">👥</div>'
+        : (g.hebdo ? '<div style="position:absolute;top:7px;right:7px;background:rgba(251,191,36,0.16);border:1px solid rgba(251,191,36,0.35);color:#fbbf24;border-radius:6px;padding:1px 5px;font-size:0.56em;font-weight:800;">7j</div>' : '');
+      return '<button onclick="AwakGamesOuvrir(\'' + id + '\')" style="position:relative;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.10);border-radius:14px;padding:15px 11px;cursor:pointer;text-align:center;">'
+        + pastille
+        + '<div style="font-size:1.7em;margin-bottom:5px;">' + g.emoji + '</div>'
+        + '<div style="font-size:0.83em;font-weight:900;color:#fff;margin-bottom:3px;">' + esc(g.name) + '</div>'
+        + '<div style="font-size:0.66em;color:#94a3b8;line-height:1.35;">' + esc(g.desc) + '</div>'
+        + (rec[id] ? '<div style="margin-top:6px;font-size:0.62em;color:#fbbf24;font-weight:800;">⭐ ' + rec[id] + '</div>' : '')
+        + '</button>';
+    }).join('');
+    host.innerHTML =
+      '<div class="card" style="background:linear-gradient(135deg,rgba(34,197,94,0.06) 0%,rgba(34,197,94,0.02) 100%);border:1px solid rgba(34,197,94,0.22);">'
+      + '<h2 style="margin-bottom:6px;color:#4ade80;">🎮 Jeux d\'entraînement</h2>'
+      + '<p style="margin-bottom:18px;color:#94a3b8;font-size:0.86em;">Des formats ludiques pour casser la routine. Ils s\'adaptent à ton matériel et à ta forme.</p>'
+      + '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:10px;">' + tuiles + '</div>'
+      + noteNiveau()
+      + '</div>';
+  }
+
+  // ── CARTE POUR L'ONGLET FAMILLE (jeux à deux) ──────────────────────
+  function renderFamilyCard() {
+    var duos = Object.keys(GAMES).filter(function (id) { return GAMES[id].duo; });
+    if (!duos.length) return '';
+    var rec = records();
+    var tuiles = duos.map(function (id) {
+      var g = GAMES[id];
+      return '<button onclick="AwakGamesOuvrir(\'' + id + '\')" style="background:rgba(255,255,255,0.03);border:1px solid rgba(168,85,247,0.28);border-radius:13px;padding:14px 10px;cursor:pointer;text-align:center;min-width:0;">'
+        + '<div style="font-size:1.6em;margin-bottom:4px;">' + g.emoji + '</div>'
+        + '<div style="font-size:0.82em;font-weight:900;color:#fff;">' + esc(g.name) + '</div>'
+        + '<div style="font-size:0.64em;color:#94a3b8;line-height:1.3;margin-top:2px;">' + esc(g.desc) + '</div>'
+        + (rec[id] ? '<div style="margin-top:5px;font-size:0.6em;color:#fbbf24;font-weight:800;">⭐ ' + rec[id] + '</div>' : '')
+        + '</button>';
+    }).join('');
+    return '<div style="background:linear-gradient(160deg,#16121f,#0d0d12);border:1px solid rgba(168,85,247,0.25);border-radius:18px;padding:20px;margin-bottom:14px;">'
+      + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">'
+      +   '<span style="font-size:1.5em;">🎮</span>'
+      +   '<div style="font-size:1.05em;font-weight:900;color:#fff;">S\'entraîner à deux</div>'
+      + '</div>'
+      + '<p style="font-size:0.78em;color:#94a3b8;margin:0 0 14px;line-height:1.45;">Deux formats pensés pour se pousser mutuellement.</p>'
+      + '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;">' + tuiles + '</div>'
+      + '</div>';
+  }
+
+  // Explique pourquoi le choix d'exercices est limité, et ce qu'un palier
+  // supérieur apporterait — sans culpabiliser ni pousser à forcer.
+  function noteNiveau() {
+    var c = compteParNiveau();
+    if (!c) return '';
+    return '<div style="margin-top:14px;padding:12px 14px;border-radius:12px;background:rgba(56,189,248,0.07);border:1px solid rgba(56,189,248,0.22);">'
+      + '<div style="font-size:0.76em;color:#7dd3fc;line-height:1.5;">'
+      +   '💡 <b>' + c.actuel + ' exercices</b> correspondent à ton niveau (' + esc(c.nomActuel) + '). '
+      +   'Les jeux piochent uniquement dedans, pour te proposer des mouvements que tu maîtrises.'
+      + '</div>'
+      + '<div style="font-size:0.74em;color:#94a3b8;line-height:1.5;margin-top:6px;">'
+      +   'En passant à <b style="color:#cbd5e1;">' + esc(c.nomSuivant) + '</b>, tu en débloquerais <b style="color:#4ade80;">' + c.gain + ' de plus</b> — à ne faire que si tu te sens à l\'aise avec les mouvements actuels.'
+      + '</div>'
+      + '<button onclick="AwakGamesOuvrirNiveau()" style="margin-top:10px;background:rgba(56,189,248,0.12);border:1px solid rgba(56,189,248,0.3);color:#7dd3fc;border-radius:10px;padding:8px 13px;font-size:0.74em;font-weight:800;cursor:pointer;">Changer mon niveau ›</button>'
+      + '</div>';
+  }
+
+  window.AwakGamesOuvrirNiveau = function () {
+    try {
+      if (typeof window.showProfileSetup === 'function') { window.showProfileSetup(); return; }
+      if (typeof window.switchTab === 'function') window.switchTab('settings');
+    } catch (e) {}
+  };
+
+  window.AwakGames = {
+    compteParNiveau: compteParNiveau,
+    renderFamilyCard: renderFamilyCard,
+    GAMES: GAMES, MECANIQUES: MECANIQUES,
+    pool: pool, renderSection: renderSection, demarrer: demarrer,
+    bingo: chargerBingo
+  };
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', renderSection);
+  else renderSection();
+})();

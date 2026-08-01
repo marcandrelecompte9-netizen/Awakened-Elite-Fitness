@@ -1,1 +1,454 @@
-!function(){"use strict";var e=[{id:"force",ic:"⚔️",nm:"Force",col:"#ef4444",base:"Le Colosse",adj:"de Fer",mat:"de Fer",angle:158,anchor:[156,247],len:96},{id:"endurance",ic:"💚",nm:"Endurance",col:"#22c55e",base:"L'Increvable",adj:"Tenace",mat:"de Ténacité",angle:130,anchor:[158,223],len:94},{id:"mental",ic:"🌀",nm:"Mental",col:"#a855f7",base:"Le Moine",adj:"Serein",mat:"de Sérénité",angle:103,anchor:[160,199],len:84},{id:"equilibre",ic:"🪶",nm:"Équilibre",col:"#06b6d4",base:"Le Funambule",adj:"Stable",mat:"d'Équilibre",angle:77,anchor:[160,199],len:84},{id:"agilite",ic:"⚡",nm:"Agilité",col:"#eab308",base:"Le Félin",adj:"Vif",mat:"de Vivacité",angle:50,anchor:[162,223],len:94},{id:"cardio",ic:"🔥",nm:"Cardio",col:"#f97316",base:"Le Brasier",adj:"Ardent",mat:"de Feu",angle:22,anchor:[164,247],len:96}],t=[{keys:["mental","cardio"],name:"Le Guerrier Serein"},{keys:["mental","agilite"],name:"Le Danseur de l'Ombre"},{keys:["force","mental"],name:"Le Sage de Fer"},{keys:["force","endurance"],name:"Le Titan"},{keys:["agilite","cardio"],name:"Le Fauve"},{keys:["equilibre","mental"],name:"Le Maître Zen"},{keys:["force","agilite"],name:"Le Berserker"}],i=["Graine","Bourgeon","Pousse","Jeune","Mûr","En fleur"],r=[0,1,5,12,22,35],a=["E","D","C","B","A","S"],n=["#64748b","#22c55e","#22d3ee","#a855f7","#f97316","#fbbf24"],o={yoga:{mental:3,equilibre:2,endurance:1},serenite:{mental:4,equilibre:1},pilates:{equilibre:3,mental:2,force:2},barre:{equilibre:3,force:2,endurance:2},mobilite:{equilibre:3,mental:1,endurance:2},boxe:{cardio:3,agilite:3,force:1},course:{cardio:4,endurance:3},hiit:{cardio:3,endurance:2,agilite:1},core:{equilibre:3,force:2},calisthenie:{force:3,equilibre:1,agilite:1}},l={Cardio:{cardio:3,endurance:1},"Corps entier":{force:2,endurance:1,cardio:1},Pectoraux:{force:3},Dos:{force:3},"Épaules":{force:3},Biceps:{force:3},Triceps:{force:3},"Avant-bras":{force:2,equilibre:1},"Trapèzes":{force:3},Quadriceps:{force:3},"Ischio-jambiers":{force:3},Fessiers:{force:3},Mollets:{force:2,equilibre:1},Adducteurs:{force:2,equilibre:1},Abdominaux:{equilibre:2,force:1},Obliques:{equilibre:2,force:1}};function c(){try{var e="function"==typeof getCurrentProfileId?getCurrentProfileId():null,t=e&&"function"==typeof getProfileData?getProfileData(e,"workoutHistory"):localStorage.getItem("workoutHistory"),i=JSON.parse(t||"[]");return Array.isArray(i)?i:[]}catch(e){return[]}}function d(e,t,i){var r,a=0;for(r in t)a+=t[r];if(!(a<=0))for(r in t)e[r]=(e[r]||0)+t[r]/a*i}function s(){var e={force:0,endurance:0,mental:0,equilibre:0,agilite:0,cardio:0};return c().forEach(function(t){if(t){var i={force:0,endurance:0,mental:0,equilibre:0,agilite:0,cardio:0},r=0,a=t.workoutData&&Array.isArray(t.workoutData.exercises)?t.workoutData.exercises.filter(function(e){return e&&!e.isRest&&!e.isInfo}):[];if(a.length?a.forEach(function(e){var t=e.discipline&&o[e.discipline]?o[e.discipline]:e.muscle&&l[e.muscle]?l[e.muscle]:null;t&&(d(i,t,1),r++)}):t.muscles&&t.muscles.length&&t.muscles.forEach(function(e){var t=l[e];t&&(d(i,t,1),r++)}),r>0)for(var n in i)e[n]+=i[n]/r}}),e}function f(e){for(var t=0,i=0;i<r.length;i++)e>=r[i]&&(t=i);return t}function u(i){var r=0;if(e.forEach(function(e){r+=i[e.id]}),r<.5)return{name:"Éveil en sommeil",sub:"ton arbre attend tes premières séances"};var a=e.map(function(e){return{q:e,c:i[e.id],s:i[e.id]/r}}).filter(function(e){return e.c>0}).sort(function(e,t){return t.c-e.c}),n=a[0].s,o=a[1]?a[1].s:0,l=a[2]?a[2].s:0,c=a.filter(function(e){return e.s>=.62*n});if(c.length>=5)return{name:"L'Éveillé",sub:"toutes les voies en équilibre"};if(1===c.length||n>=.5||n-o>=.25)return{name:a[0].q.base,sub:"voie de "+a[0].q.nm.toLowerCase()};var d=[a[0].q.id,a[1].q.id],s=t.find(function(e){return function(e,t){if(e.length!==t.length)return!1;var i=e.slice().sort(),r=t.slice().sort();return i.every(function(e,t){return e===r[t]})}(e.keys,d)}),f=s?s.name:a[0].q.base+" "+a[1].q.adj,u=a[0].q.nm+" + "+a[1].q.nm;if(c.length>=3){var p=a[2];l>=.85*o?(f=s?f+", marqué "+p.q.mat:a[0].q.base+" "+a[1].q.adj+" et "+p.q.adj,u+=" + "+p.q.nm):(f=f+", teinté "+p.q.mat,u+=" · "+p.q.nm+" en nuance")}return{name:f,sub:u}}function p(e,t){var i=parseInt(e.slice(1),16),r=i>>16&255,a=i>>8&255,n=255&i;t>=0?(r+=(255-r)*t,a+=(255-a)*t,n+=(255-n)*t):(r*=1+t,a*=1+t,n*=1+t);var o=function(e){return("0"+Math.round(e).toString(16)).slice(-2)};return"#"+o(r)+o(a)+o(n)}function x(e,t,i,r){var a=1-r;return[a*a*e[0]+2*a*r*t[0]+r*r*i[0],a*a*e[1]+2*a*r*t[1]+r*r*i[1]]}function g(e,t,i,r){var a=1-r,n=2*a*(t[0]-e[0])+2*r*(i[0]-t[0]),o=2*a*(t[1]-e[1])+2*r*(i[1]-t[1]),l=Math.hypot(n,o)||1;return[n/l,o/l]}function m(e,t,i){return e+(t-e)*i}function h(e,t,i,r,a,n){var o,l=[],c=[];for(o=0;o<=12;o++){var d=o/12,s=x(e,t,i,d),f=g(e,t,i,d),u=-f[1],p=f[0],h=m(r,a,d)/2;l.push([s[0]+u*h,s[1]+p*h]),c.push([s[0]-u*h,s[1]-p*h])}var b="M"+l[0][0].toFixed(1)+" "+l[0][1].toFixed(1);for(o=1;o<=12;o++)b+=" L"+l[o][0].toFixed(1)+" "+l[o][1].toFixed(1);for(o=12;o>=0;o--)b+=" L"+c[o][0].toFixed(1)+" "+c[o][1].toFixed(1);return'<path d="'+b+' Z" fill="'+n+'"/>'}function b(e){var t=43758.5453*Math.sin(127.1*e);return t-Math.floor(t)-.5}function v(e,t,i,r,a){var n=p(r,-.62),o=p(r,.2),l=p(r,.58),c="",d=.37*e+.61*t;c+='<ellipse cx="'+(e+.16*i).toFixed(1)+'" cy="'+(t+.3*i).toFixed(1)+'" rx="'+(.96*i).toFixed(1)+'" ry="'+(.8*i).toFixed(1)+'" fill="#070a07" opacity="0.30"/>',c+='<circle cx="'+e.toFixed(1)+'" cy="'+t.toFixed(1)+'" r="'+(1.3*i).toFixed(1)+'" fill="url(#awkHalo)" opacity="0.5" style="color:'+r+'"/>',c+='<circle cx="'+e.toFixed(1)+'" cy="'+t.toFixed(1)+'" r="'+(1.16*i).toFixed(1)+'" fill="'+r+'" opacity="0.10" filter="url(#awkGlow)"/>';var s,f=[[0,0,1],[-.55,.12,.62],[.55,.16,.6],[-.32,-.46,.6],[.34,-.42,.58],[0,.5,.55],[0,-.56,.5],[.6,-.2,.42],[-.6,-.16,.42],[.24,-.6,.34],[-.5,-.42,.34]];for(f.forEach(function(r,a){var o=i*r[2]*(.92+.22*b(d+a));c+='<circle cx="'+(e+r[0]*i+.05*i).toFixed(1)+'" cy="'+(t+r[1]*i+.16*i).toFixed(1)+'" r="'+(1.02*o).toFixed(1)+'" fill="'+n+'"/>'}),f.forEach(function(a,n){var o=i*a[2]*(.9+.22*b(d+n));c+='<circle cx="'+(e+a[0]*i).toFixed(1)+'" cy="'+(t+a[1]*i).toFixed(1)+'" r="'+o.toFixed(1)+'" fill="'+r+'"/>'}),[[-.2,-.34,.55],[.18,-.36,.48],[-.04,-.1,.58]].forEach(function(r){c+='<circle cx="'+(e+r[0]*i).toFixed(1)+'" cy="'+(t+r[1]*i).toFixed(1)+'" r="'+(i*r[2]).toFixed(1)+'" fill="'+o+'" opacity="0.7"/>'}),[[-.3,-.48,.4],[-.5,-.2,.3],[.02,-.52,.26]].forEach(function(r){c+='<circle cx="'+(e+r[0]*i).toFixed(1)+'" cy="'+(t+r[1]*i).toFixed(1)+'" r="'+(i*r[2]).toFixed(1)+'" fill="'+l+'" opacity="0.82"/>'}),s=0;s<9;s++){var u=(s/8*1.3-.15)*Math.PI+.35*b(d+20+s),x=i*(1+.16*b(d+30+s)),g=e+Math.cos(u)*x,m=t-Math.sin(u)*x*.92,h=180*-u/Math.PI+90+30*b(d+40+s),v=s%3==0?l:r;c+='<ellipse cx="'+g.toFixed(1)+'" cy="'+m.toFixed(1)+'" rx="'+(.19*i).toFixed(1)+'" ry="'+(.1*i).toFixed(1)+'" transform="rotate('+h.toFixed(0)+" "+g.toFixed(1)+" "+m.toFixed(1)+')" fill="'+v+'" opacity="0.9"/>'}return c+='<circle cx="'+(e-.34*i).toFixed(1)+'" cy="'+(t-.46*i).toFixed(1)+'" r="'+(.13*i).toFixed(1)+'" fill="#ffffff" opacity="0.55"/>',a&&[[-.32,-.18],[.36,.02],[0,-.48],[.22,.36]].forEach(function(r){c+=function(e,t,i){var r,a="";for(r=0;r<5;r++){var n=r/5*Math.PI*2-.4,o=e+Math.cos(n)*i,l=t+Math.sin(n)*i;a+='<circle cx="'+o.toFixed(1)+'" cy="'+l.toFixed(1)+'" r="'+(.66*i).toFixed(1)+'" fill="#fff7e6" opacity="0.95"/>'}return a+'<circle cx="'+e.toFixed(1)+'" cy="'+t.toFixed(1)+'" r="'+(.6*i).toFixed(1)+'" fill="#fbbf24" filter="url(#awkGlow)"/>'}(e+r[0]*i,t+r[1]*i,2.5)}),c}function y(){var e,t="";for(e=0;e<14;e++){var i=160+19*(e-6.5)+12*b(3.7*e),r=6+8*Math.abs(b(5.3*e)),a=6*b(7.9*e),n=e%3==0?"#14532d":"#0f3d22";t+='<path d="M'+i.toFixed(1)+" 336 Q"+(i+.4*a).toFixed(1)+" "+(336-.6*r).toFixed(1)+" "+(i+a).toFixed(1)+" "+(336-r).toFixed(1)+'" stroke="'+n+'" stroke-width="1.6" fill="none" stroke-linecap="round"/>'}return t}function w(t){var i=e.map(function(e){return f(t[e.id])}),r=i.reduce(function(e,t){return e+t},0),a=i.some(function(e){return e>0}),n=Math.max.apply(null,i),o='<defs><linearGradient id="awkBark" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#5d4f3e"/><stop offset="42%" stop-color="#3c3024"/><stop offset="100%" stop-color="#1b140d"/></linearGradient><radialGradient id="awkGround" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#050705" stop-opacity="0.85"/><stop offset="70%" stop-color="#050705" stop-opacity="0.55"/><stop offset="100%" stop-color="#050705" stop-opacity="0"/></radialGradient><radialGradient id="awkHalo" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="currentColor" stop-opacity="0.20"/><stop offset="100%" stop-color="currentColor" stop-opacity="0"/></radialGradient><radialGradient id="awkSky" cx="50%" cy="38%" r="60%"><stop offset="0%" stop-color="#16351f" stop-opacity="0.35"/><stop offset="100%" stop-color="#16351f" stop-opacity="0"/></radialGradient><filter id="awkGlow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="2.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';return o+='<rect x="0" y="0" width="320" height="360" fill="url(#awkSky)"/>',o+='<ellipse cx="160" cy="335" rx="126" ry="15" fill="url(#awkGround)"/>',a?(o+=function(e){var t=e/30,i=160,r=330,a=182,n=10+6*t,o=3.5+2.2*t,l="";return l+='<path d="M'+(i-.7*n)+" 316 Q"+(i-1.5*n)+" 332 "+(i-2.4*n)+" 338 L"+(i-.2*n)+' 338 Z" fill="#2e251b"/>',l+='<path d="M'+(i+.7*n)+" 316 Q"+(i+1.5*n)+" 332 "+(i+2.4*n)+" 338 L"+(i+.2*n)+' 338 Z" fill="#1c150e"/>',l+=h([i,r],[i-(2+3*t),256],[i,a],2*n,2*o,"url(#awkBark)"),l+=h([i-.55*n,r],[i-(2+3*t)-.42*n,256],[i-.5*o,a],.5*n,.5*o,"#6d5c47"),l+=h([i+.62*n,r],[i-(2+3*t)+.7*n,256],[i+.55*o,a],.42*n,.4*o,"#160f09"),l+='<path d="M'+(i-.9*n)+" "+r+' q-15 3 -28 11" stroke="#3a2f24" stroke-width="4.5" fill="none" stroke-linecap="round"/>',l+'<path d="M'+(i+.9*n)+" "+r+' q15 3 28 11" stroke="#241b13" stroke-width="4.5" fill="none" stroke-linecap="round"/>'}(r),[0,5,1,4,2,3].forEach(function(t){o+=function(e,t){if(0===t)return"";var i=e.angle*Math.PI/180,r=.34+t/5*.66,a=e.len*r,n=e.anchor[0],o=e.anchor[1],l=.1*a,c=n+Math.cos(i)*a,d=o-Math.sin(i)*a+l,s=(n+c)/2+Math.cos(i+.55)*a*.16,f=[n,o],u=[s,(o+d)/2-.2*a],m=[c,d],y="#473a2c",w=p(e.col,.55),k=1+.35*t,F=h(f,u,m,2.6+1.5*t,k,y);if(1===t)return F+='<circle cx="'+c.toFixed(1)+'" cy="'+d.toFixed(1)+'" r="3.4" fill="'+e.col+'"/>',F+='<circle cx="'+(c-.8).toFixed(1)+'" cy="'+(d-.9).toFixed(1)+'" r="1.5" fill="'+w+'"/>';var q=[];t>=3&&q.push({t:.58,side:1,f:.42}),t>=4&&q.push({t:.76,side:-1,f:.36}),t>=5&&q.push({t:.48,side:-1,f:.32});var M=[{x:c,y:d,r:t>=5?13:t>=4?11:t>=3?9:7.5}];return q.forEach(function(e){var i=x(f,u,m,e.t),r=g(f,u,m,e.t),n=[-r[1],r[0]],o=a*e.f,l=i[0]+(.55*r[0]+n[0]*e.side)*o,c=i[1]+(.55*r[1]+n[1]*e.side)*o+.08*o,d=[(i[0]+l)/2+n[0]*e.side*o*.2,(i[1]+c)/2-.15*o];F+=h(i,d,[l,c],k+1.3,.8,y),M.push({x:l,y:c,r:t>=5?8:6.5})}),t>=4&&[{t:.32,side:-1},{t:.68,side:1}].forEach(function(e,t){var i=x(f,u,m,e.t),r=g(f,u,m,e.t),o=[-r[1],r[0]],l=a*(.14+.05*b(n+t)),c=i[0]+(.4*r[0]+o[0]*e.side)*l,d=i[1]+(.4*r[1]+o[1]*e.side)*l-.25*l;F+='<path d="M'+i[0].toFixed(1)+" "+i[1].toFixed(1)+" Q"+((i[0]+c)/2).toFixed(1)+" "+((i[1]+d)/2-2).toFixed(1)+" "+c.toFixed(1)+" "+d.toFixed(1)+'" stroke="'+y+'" stroke-width="1.1" fill="none" stroke-linecap="round"/>'}),M.forEach(function(i){F+=v(i.x,i.y,i.r,e.col,t>=5)}),F}(e[t],i[t])}),o+=y(),n>=5&&[[196,130],[110,152],[232,178]].forEach(function(e,t){var i=20+50*t;o+='<ellipse cx="'+e[0]+'" cy="'+e[1]+'" rx="3" ry="1.6" transform="rotate('+i+" "+e[0]+" "+e[1]+')" fill="#fff7e6" opacity="0.75"/>'})):(o+='<g><ellipse cx="160" cy="326" rx="10" ry="6" fill="#3a2f24"/><circle cx="160" cy="321" r="6" fill="#39FF14" filter="url(#awkGlow)" opacity="0.9"/><circle cx="158.6" cy="319.6" r="2.4" fill="#eafff0"/><text x="160" y="300" text-anchor="middle" fill="#94a3b8" font-size="9">graine d\'éveil</text></g>',o+=y()),{svg:'<svg viewBox="0 0 320 360" preserveAspectRatio="xMidYMid meet" style="display:block;width:100%;height:auto;" aria-hidden="true">'+o+"</svg>",stages:i,gl:r,any:a}}function k(e){var t={force:0,endurance:0,mental:0,equilibre:0,agilite:0,cardio:0},i=0;if((e||[]).forEach(function(e){if(e&&!e.isRest&&!e.isInfo){var r=e.discipline&&o[e.discipline]?o[e.discipline]:e.muscle&&l[e.muscle]?l[e.muscle]:null;r&&(d(t,r,1),i++)}}),i>0)for(var r in t)t[r]/=i;return t}function F(){try{var e=s(),t=w(e),i=u(e),r=Math.min(5,Math.floor(t.gl/5)),o=1080,l=1350,c=document.createElement("canvas");c.width=o,c.height=l;var d=c.getContext("2d");d.fillStyle="#0D0D0D",d.fillRect(0,0,o,l);var f=d.createRadialGradient(540,567,60,540,567,620);f.addColorStop(0,"rgba(34,197,94,0.10)"),f.addColorStop(1,"rgba(34,197,94,0)"),d.fillStyle=f,d.fillRect(0,0,o,l),d.textAlign="center",d.fillStyle="#94a3b8",d.font="800 26px sans-serif",d.fillText("◈  A R B R E   D E   L ’ É V E I L  ◈",540,96);var p=i.name.length>24?52:i.name.length>16?62:74;d.fillStyle="#eafff0",d.font="900 "+p+"px sans-serif",d.fillText(i.name,540,178),d.fillStyle=n[r],d.font="800 30px sans-serif",d.fillText("RANG "+a[r]+"  ·  "+i.sub.toUpperCase(),540,228);var x=t.svg.replace("<svg ",'<svg width="840" height="945" '),g=new Image;g.onload=function(){d.drawImage(g,120,268,840,945),d.fillStyle="#64748b",d.font="800 24px sans-serif",d.fillText("A W A K E N E D",540,1294),c.toBlob(function(e){if(e){var t=new File([e],"mon-arbre-awakened.png",{type:"image/png"});if(navigator.canShare&&navigator.canShare({files:[t]}))navigator.share({files:[t],title:"Mon Arbre de l’Éveil"}).catch(function(){});else{var i=document.createElement("a");i.href=URL.createObjectURL(e),i.download="mon-arbre-awakened.png",i.click(),setTimeout(function(){URL.revokeObjectURL(i.href)},4e3)}}},"image/png")},g.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(x)}catch(e){}}window.awakQualitiesOfExercises=k,window.AWAK_QUALITIES_META=e.map(function(e){return{id:e.id,ic:e.ic,nm:e.nm,col:e.col}}),window.awakShareTree=F,window.awakSessionImpact=function(t){var r={force:0,endurance:0,mental:0,equilibre:0,agilite:0,cardio:0},a=0;if((t||[]).forEach(function(e){if(e&&!e.isRest&&!e.isInfo){var t=e.discipline&&o[e.discipline]?o[e.discipline]:e.muscle&&l[e.muscle]?l[e.muscle]:null;t&&(d(r,t,1),a++)}}),a>0)for(var n in r)r[n]/=a;var c=s(),u=e.map(function(e){return{q:e,s:r[e.id]}}).filter(function(e){return e.s>.05}).sort(function(e,t){return t.s-e.s}).slice(0,2).map(function(e){return{ic:e.q.ic,nm:e.q.nm,col:e.q.col}}),p=[];return e.forEach(function(e){var t=c[e.id],a=Math.max(0,t-r[e.id]),n=f(t);n>f(a)&&p.push({ic:e.ic,nm:e.nm,col:e.col,stage:i[n]})}),{top:u,levelUps:p}},window.showAwakeningTree=function(){try{var t=document.getElementById("awakeningTreeOverlay");t&&t.remove();var r=s(),o=w(r),l=u(r),d=Math.min(5,Math.floor(o.gl/5)),f=window._awakCelebrate||null;window._awakCelebrate=null;var p=null;if(f&&f.length)try{var x=c()[0],g=k(x&&x.workoutData&&x.workoutData.exercises?x.workoutData.exercises:[]),m={};e.forEach(function(e){m[e.id]=Math.max(0,r[e.id]-g[e.id])}),p=w(m).svg}catch(e){p=null}var h=e.map(function(e,t){var r=o.stages[t];Math.round(r/5*100);return'<div style="display:flex;align-items:center;gap:7px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.08);border-radius:11px;padding:7px 9px;"><span style="font-size:0.95em;">'+e.ic+'</span><span style="font-size:0.7em;font-weight:700;flex:1;color:#e2e8f0;">'+e.nm+'</span><span style="font-size:0.56em;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:'+e.col+';">'+i[r]+"</span></div>"}).join(""),b=document.createElement("div");b.id="awakeningTreeOverlay",b.style.cssText="position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.72);display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(3px);",b.addEventListener("click",function(e){e.target===b&&b.remove()});var v=document.createElement("div");v.style.cssText="background:#0D0D0D;border-radius:20px 20px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;border-top:2px solid rgba(34,197,94,0.35);",v.innerHTML='<div style="width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:99px;margin:0 auto 14px;"></div><div style="text-align:center;font-size:0.6em;letter-spacing:3px;text-transform:uppercase;color:#94a3b8;font-weight:800;">Awakened · Arbre de l\'Éveil</div><div style="text-align:center;margin:6px 0 4px;"><div style="font-size:1.6em;line-height:1.1;font-weight:900;background:linear-gradient(180deg,#eafff0,#8fe0ff);-webkit-background-clip:text;background-clip:text;color:transparent;">'+l.name+'</div><div style="font-size:0.62em;color:#94a3b8;margin-top:3px;text-transform:uppercase;letter-spacing:1.5px;font-weight:700;">'+l.sub+'</div></div><div style="display:flex;align-items:center;justify-content:center;gap:10px;margin:8px 0 2px;"><div style="width:32px;height:32px;border-radius:10px;display:grid;place-items:center;font-size:1em;font-weight:900;border:1px solid '+n[d]+"66;background:rgba(255,255,255,0.03);color:"+n[d]+";box-shadow:0 0 14px "+n[d]+'33;">'+a[d]+'</div><div style="width:150px;height:7px;border-radius:6px;background:rgba(255,255,255,0.07);overflow:hidden;"><div style="height:100%;width:'+Math.round(o.gl/30*100)+'%;background:linear-gradient(90deg,#22c55e,#22d3ee,#fbbf24);"></div></div><small style="font-size:0.58em;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;font-weight:700;">Rang '+a[d]+'</small></div><div id="awkScene" style="position:relative;margin:4px 0;border-radius:18px;overflow:hidden;background:radial-gradient(80% 55% at 50% 34%,rgba(34,197,94,0.05),transparent 70%);">'+(p?'<div id="awkTreeBefore" style="transition:opacity 1.1s ease;">'+p+'</div><div id="awkTreeAfter" style="position:absolute;inset:0;opacity:0;transition:opacity 1.1s ease;">'+o.svg+'</div><div id="awkCelebBanner" style="position:absolute;top:10px;left:50%;transform:translateX(-50%) scale(0.85);opacity:0;transition:all .5s cubic-bezier(.2,.9,.3,1.3);background:rgba(13,13,13,0.85);border:1px solid rgba(34,197,94,0.5);border-radius:99px;padding:8px 16px;font-size:0.72em;font-weight:900;color:#4ade80;white-space:nowrap;box-shadow:0 0 24px rgba(34,197,94,0.35);">'+f.map(function(e){return e.ic+" "+e.nm+" → "+e.stage}).join("  ·  ")+"</div>":o.svg)+'</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:6px 0 10px;">'+h+'</div><div style="font-size:0.62em;color:#64748b;text-align:center;line-height:1.5;margin-bottom:12px;">Ton arbre grandit avec tes séances réelles — chaque entraînement nourrit les qualités qu\'il travaille. Aucune branche ne rétrécit jamais.</div><button id="awkShareBtn" style="width:100%;padding:13px;margin-bottom:8px;background:linear-gradient(135deg,#22c55e,#16a34a);border:none;border-radius:14px;color:#fff;font-weight:900;cursor:pointer;">📤 Partager mon arbre</button><button id="awkCloseBtn" style="width:100%;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:14px;color:rgba(255,255,255,0.6);font-weight:700;cursor:pointer;">Fermer</button>',b.appendChild(v),document.body.appendChild(b);var y=document.getElementById("awkCloseBtn");y&&y.addEventListener("click",function(){b.remove()});var q=document.getElementById("awkShareBtn");q&&q.addEventListener("click",function(){F()}),p&&setTimeout(function(){var e=document.getElementById("awkTreeBefore"),t=document.getElementById("awkTreeAfter"),i=document.getElementById("awkCelebBanner");t&&(t.style.opacity="1"),e&&(e.style.opacity="0"),i&&(i.style.opacity="1",i.style.transform="translateX(-50%) scale(1)")},700)}catch(e){"function"==typeof showNotification&&showNotification("Arbre de l'Éveil indisponible pour le moment.","error")}},window.awakComputeQualities=s,window.awakArchetype=u}();
+/* ============================================================
+   ARBRE DE L'ÉVEIL — agrégateur visuel de la progression
+   Branches = qualités (Force, Endurance, Mental, Équilibre, Agilité, Cardio).
+   Se nourrit de l'ACTIVITÉ RÉELLE (workoutHistory), jamais des stats RPG.
+   Un nom d'archétype est calculé selon les qualités dominantes.
+   ============================================================ */
+(function () {
+  "use strict";
+
+  // ── Métadonnées des 6 qualités ──
+  var Q = [
+    { id: 'force',     ic: '⚔️', nm: 'Force',     col: '#ef4444', base: "Le Colosse",   adj: "de Fer",  mat: "de Fer",      angle: 158, anchor: [156, 247], len: 96 },
+    { id: 'endurance', ic: '💚', nm: 'Endurance', col: '#22c55e', base: "L'Increvable", adj: "Tenace",  mat: "de Ténacité", angle: 130, anchor: [158, 223], len: 94 },
+    { id: 'mental',    ic: '🌀', nm: 'Mental',    col: '#a855f7', base: "Le Moine",     adj: "Serein",  mat: "de Sérénité", angle: 103, anchor: [160, 199], len: 84 },
+    { id: 'equilibre', ic: '🪶', nm: 'Équilibre', col: '#06b6d4', base: "Le Funambule", adj: "Stable",  mat: "d'Équilibre", angle: 77,  anchor: [160, 199], len: 84 },
+    { id: 'agilite',   ic: '⚡', nm: 'Agilité',   col: '#eab308', base: "Le Félin",     adj: "Vif",     mat: "de Vivacité", angle: 50,  anchor: [162, 223], len: 94 },
+    { id: 'cardio',    ic: '🔥', nm: 'Cardio',    col: '#f97316', base: "Le Brasier",   adj: "Ardent",  mat: "de Feu",      angle: 22,  anchor: [164, 247], len: 96 }
+  ];
+  var LEGENDARY = [
+    { keys: ['mental', 'cardio'],    name: "Le Guerrier Serein" },
+    { keys: ['mental', 'agilite'],   name: "Le Danseur de l'Ombre" },
+    { keys: ['force', 'mental'],     name: "Le Sage de Fer" },
+    { keys: ['force', 'endurance'],  name: "Le Titan" },
+    { keys: ['agilite', 'cardio'],   name: "Le Fauve" },
+    { keys: ['equilibre', 'mental'], name: "Le Maître Zen" },
+    { keys: ['force', 'agilite'],    name: "Le Berserker" }
+  ];
+  var STAGE_NAMES = ['Graine', 'Bourgeon', 'Pousse', 'Jeune', 'Mûr', 'En fleur'];
+  var THRESHOLDS = [0, 1, 5, 12, 22, 35];       // ⚙️ AJUSTABLE : cumul (≈ séances-équivalent) → palier
+  var RANKS = ['E', 'D', 'C', 'B', 'A', 'S'];
+  var RANK_COL = ['#64748b', '#22c55e', '#22d3ee', '#a855f7', '#f97316', '#fbbf24'];
+
+  // ── Mapping ACTIVITÉ → qualités (poids relatifs, normalisés à l'usage) ──
+  // ⚙️ AJUSTABLE : profil de qualités par discipline.
+  var DISCIPLINE_QUALITIES = {
+    yoga:        { mental: 3, equilibre: 2, endurance: 1 },
+    serenite:    { mental: 4, equilibre: 1 },
+    pilates:     { equilibre: 3, mental: 2, force: 2 },
+    barre:       { equilibre: 3, force: 2, endurance: 2 },
+    mobilite:    { equilibre: 3, mental: 1, endurance: 2 },
+    boxe:        { cardio: 3, agilite: 3, force: 1 },
+    course:      { cardio: 4, endurance: 3 },
+    hiit:        { cardio: 3, endurance: 2, agilite: 1 },
+    core:        { equilibre: 3, force: 2 },
+    calisthenie: { force: 3, equilibre: 1, agilite: 1 }
+  };
+  // ⚙️ AJUSTABLE : profil de qualités par muscle (muscu classique + fallback).
+  var MUSCLE_QUALITIES = {
+    'Cardio':          { cardio: 3, endurance: 1 },
+    'Corps entier':    { force: 2, endurance: 1, cardio: 1 },
+    'Pectoraux':       { force: 3 },
+    'Dos':             { force: 3 },
+    'Épaules':         { force: 3 },
+    'Biceps':          { force: 3 },
+    'Triceps':         { force: 3 },
+    'Avant-bras':      { force: 2, equilibre: 1 },
+    'Trapèzes':        { force: 3 },
+    'Quadriceps':      { force: 3 },
+    'Ischio-jambiers': { force: 3 },
+    'Fessiers':        { force: 3 },
+    'Mollets':         { force: 2, equilibre: 1 },
+    'Adducteurs':      { force: 2, equilibre: 1 },
+    'Abdominaux':      { equilibre: 2, force: 1 },
+    'Obliques':        { equilibre: 2, force: 1 }
+  };
+
+  // ── Lecture de l'historique réel ──
+  function _history() {
+    try {
+      var pid = (typeof getCurrentProfileId === 'function') ? getCurrentProfileId() : null;
+      var saved = (pid && typeof getProfileData === 'function') ? getProfileData(pid, 'workoutHistory') : localStorage.getItem('workoutHistory');
+      var h = JSON.parse(saved || '[]');
+      return Array.isArray(h) ? h : [];
+    } catch (e) { return []; }
+  }
+
+  function _addProfile(acc, prof, w) {
+    var sum = 0, k;
+    for (k in prof) sum += prof[k];
+    if (sum <= 0) return;
+    for (k in prof) acc[k] = (acc[k] || 0) + (prof[k] / sum) * w;
+  }
+
+  // ── Cumul des qualités à partir de l'activité réelle ──
+  // Chaque séance verse 1.0 point au total, réparti selon ce qu'elle a entraîné.
+  function awakComputeQualities() {
+    var total = { force: 0, endurance: 0, mental: 0, equilibre: 0, agilite: 0, cardio: 0 };
+    var hist = _history();
+    hist.forEach(function (entry) {
+      if (!entry) return;
+      var acc = { force: 0, endurance: 0, mental: 0, equilibre: 0, agilite: 0, cardio: 0 }, n = 0;
+      var exs = (entry.workoutData && Array.isArray(entry.workoutData.exercises))
+        ? entry.workoutData.exercises.filter(function (e) { return e && !e.isRest && !e.isInfo; }) : [];
+      if (exs.length) {
+        exs.forEach(function (ex) {
+          var prof = (ex.discipline && DISCIPLINE_QUALITIES[ex.discipline]) ? DISCIPLINE_QUALITIES[ex.discipline]
+            : (ex.muscle && MUSCLE_QUALITIES[ex.muscle]) ? MUSCLE_QUALITIES[ex.muscle] : null;
+          if (prof) { _addProfile(acc, prof, 1); n++; }
+        });
+      } else if (entry.muscles && entry.muscles.length) {
+        entry.muscles.forEach(function (m) { var prof = MUSCLE_QUALITIES[m]; if (prof) { _addProfile(acc, prof, 1); n++; } });
+      }
+      if (n > 0) { for (var k in acc) total[k] += acc[k] / n; }
+    });
+    return total;
+  }
+
+  function stageOf(c) { var s = 0; for (var i = 0; i < THRESHOLDS.length; i++) { if (c >= THRESHOLDS[i]) s = i; } return s; }
+  function nextThreshold(c) { for (var i = 0; i < THRESHOLDS.length; i++) { if (c < THRESHOLDS[i]) return THRESHOLDS[i]; } return null; }
+
+  // ── Moteur d'archétype ──
+  function setEq(a, b) { if (a.length !== b.length) return false; var s = a.slice().sort(), t = b.slice().sort(); return s.every(function (x, i) { return x === t[i]; }); }
+  function awakArchetype(counts) {
+    var total = 0; Q.forEach(function (q) { total += counts[q.id]; });
+    if (total < 0.5) return { name: "Éveil en sommeil", sub: "ton arbre attend tes premières séances" };
+    var arr = Q.map(function (q) { return { q: q, c: counts[q.id], s: counts[q.id] / total }; })
+      .filter(function (x) { return x.c > 0; }).sort(function (a, b) { return b.c - a.c; });
+    var p1 = arr[0].s, p2 = arr[1] ? arr[1].s : 0, p3 = arr[2] ? arr[2].s : 0;
+    var strong = arr.filter(function (x) { return x.s >= p1 * 0.62; });
+    if (strong.length >= 5) return { name: "L'Éveillé", sub: "toutes les voies en équilibre" };
+    if (strong.length === 1 || p1 >= 0.5 || (p1 - p2) >= 0.25) return { name: arr[0].q.base, sub: "voie de " + arr[0].q.nm.toLowerCase() };
+    var top2 = [arr[0].q.id, arr[1].q.id];
+    var leg = LEGENDARY.find(function (L) { return setEq(L.keys, top2); });
+    var name = leg ? leg.name : (arr[0].q.base + " " + arr[1].q.adj);
+    var sub = arr[0].q.nm + " + " + arr[1].q.nm;
+    if (strong.length >= 3) {
+      var third = arr[2];
+      if (p3 >= p2 * 0.85) { name = leg ? (name + ", marqué " + third.q.mat) : (arr[0].q.base + " " + arr[1].q.adj + " et " + third.q.adj); sub += " + " + third.q.nm; }
+      else { name = name + ", teinté " + third.q.mat; sub += " · " + third.q.nm + " en nuance"; }
+    }
+    return { name: name, sub: sub };
+  }
+
+  // ── Dessin SVG (lumière haut-gauche, avec relief) ──
+  function shade(hex, amt) { var n = parseInt(hex.slice(1), 16), r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255; if (amt >= 0) { r += (255 - r) * amt; g += (255 - g) * amt; b += (255 - b) * amt; } else { r *= (1 + amt); g *= (1 + amt); b *= (1 + amt); } var h = function (v) { return ('0' + Math.round(v).toString(16)).slice(-2); }; return '#' + h(r) + h(g) + h(b); }
+  function bez(p0, cp, p1, t) { var u = 1 - t; return [u * u * p0[0] + 2 * u * t * cp[0] + t * t * p1[0], u * u * p0[1] + 2 * u * t * cp[1] + t * t * p1[1]]; }
+  function bezTan(p0, cp, p1, t) { var u = 1 - t, dx = 2 * u * (cp[0] - p0[0]) + 2 * t * (p1[0] - cp[0]), dy = 2 * u * (cp[1] - p0[1]) + 2 * t * (p1[1] - cp[1]), m = Math.hypot(dx, dy) || 1; return [dx / m, dy / m]; }
+  function lerp(a, b, t) { return a + (b - a) * t; }
+  function taperedBranch(p0, cp, p1, w0, w1, fill) { var N = 12, L = [], R = [], i; for (i = 0; i <= N; i++) { var t = i / N, pt = bez(p0, cp, p1, t), tan = bezTan(p0, cp, p1, t), nx = -tan[1], ny = tan[0], w = lerp(w0, w1, t) / 2; L.push([pt[0] + nx * w, pt[1] + ny * w]); R.push([pt[0] - nx * w, pt[1] - ny * w]); } var d = 'M' + L[0][0].toFixed(1) + ' ' + L[0][1].toFixed(1); for (i = 1; i <= N; i++) d += ' L' + L[i][0].toFixed(1) + ' ' + L[i][1].toFixed(1); for (i = N; i >= 0; i--) d += ' L' + R[i][0].toFixed(1) + ' ' + R[i][1].toFixed(1); return '<path d="' + d + ' Z" fill="' + fill + '"/>'; }
+  // variation déterministe (l'arbre ne change pas entre deux ouvertures)
+  function wob(n) { var x = Math.sin(n * 127.1) * 43758.5453; return (x - Math.floor(x)) - 0.5; }
+
+  function flower(cx, cy, r) { var s = '', k; for (k = 0; k < 5; k++) { var a = k / 5 * Math.PI * 2 - 0.4, px = cx + Math.cos(a) * r, py = cy + Math.sin(a) * r; s += '<circle cx="' + px.toFixed(1) + '" cy="' + py.toFixed(1) + '" r="' + (r * 0.66).toFixed(1) + '" fill="#fff7e6" opacity="0.95"/>'; } s += '<circle cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" r="' + (r * 0.6).toFixed(1) + '" fill="#fbbf24" filter="url(#awkGlow)"/>'; return s; }
+
+  function foliage(cx, cy, r, col, wf) {
+    var d2 = shade(col, -0.62), mid = shade(col, 0.20), light = shade(col, 0.58), s = '';
+    var seed = cx * 0.37 + cy * 0.61;
+    // ombre portée + halo doux (gradient, visible partout)
+    s += '<ellipse cx="' + (cx + r * 0.16).toFixed(1) + '" cy="' + (cy + r * 0.30).toFixed(1) + '" rx="' + (r * 0.96).toFixed(1) + '" ry="' + (r * 0.80).toFixed(1) + '" fill="#070a07" opacity="0.30"/>';
+    s += '<circle cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" r="' + (r * 1.3).toFixed(1) + '" fill="url(#awkHalo)" opacity="0.5" style="color:' + col + '"/>';
+    s += '<circle cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" r="' + (r * 1.16).toFixed(1) + '" fill="' + col + '" opacity="0.10" filter="url(#awkGlow)"/>';
+    // masses (rayons perturbés → silhouette irrégulière)
+    var blobs = [[0, 0, 1.0], [-0.55, 0.12, 0.62], [0.55, 0.16, 0.6], [-0.32, -0.46, 0.6], [0.34, -0.42, 0.58], [0, 0.5, 0.55], [0, -0.56, 0.5], [0.6, -0.2, 0.42], [-0.6, -0.16, 0.42], [0.24, -0.6, 0.34], [-0.5, -0.42, 0.34]];
+    blobs.forEach(function (b, i) {
+      var rr = r * b[2] * (0.92 + wob(seed + i) * 0.22);
+      s += '<circle cx="' + (cx + b[0] * r + r * 0.05).toFixed(1) + '" cy="' + (cy + b[1] * r + r * 0.16).toFixed(1) + '" r="' + (rr * 1.02).toFixed(1) + '" fill="' + d2 + '"/>';
+    });
+    blobs.forEach(function (b, i) {
+      var rr = r * b[2] * (0.9 + wob(seed + i) * 0.22);
+      s += '<circle cx="' + (cx + b[0] * r).toFixed(1) + '" cy="' + (cy + b[1] * r).toFixed(1) + '" r="' + rr.toFixed(1) + '" fill="' + col + '"/>';
+    });
+    [[-0.20, -0.34, 0.55], [0.18, -0.36, 0.48], [-0.04, -0.10, 0.58]].forEach(function (b) { s += '<circle cx="' + (cx + b[0] * r).toFixed(1) + '" cy="' + (cy + b[1] * r).toFixed(1) + '" r="' + (r * b[2]).toFixed(1) + '" fill="' + mid + '" opacity="0.7"/>'; });
+    [[-0.30, -0.48, 0.40], [-0.50, -0.20, 0.30], [0.02, -0.52, 0.26]].forEach(function (b) { s += '<circle cx="' + (cx + b[0] * r).toFixed(1) + '" cy="' + (cy + b[1] * r).toFixed(1) + '" r="' + (r * b[2]).toFixed(1) + '" fill="' + light + '" opacity="0.82"/>'; });
+    // frange : petites feuilles au pourtour (haut) — casse le contour circulaire
+    var i;
+    for (i = 0; i < 9; i++) {
+      var fa = (-0.15 + i / 8 * 1.3) * Math.PI + wob(seed + 20 + i) * 0.35;   // arc supérieur
+      var fr = r * (1.0 + wob(seed + 30 + i) * 0.16);
+      var lx = cx + Math.cos(fa) * fr, ly = cy - Math.sin(fa) * fr * 0.92;
+      var rot = (-fa * 180 / Math.PI) + 90 + wob(seed + 40 + i) * 30;
+      var leafCol = (i % 3 === 0) ? light : col;
+      s += '<ellipse cx="' + lx.toFixed(1) + '" cy="' + ly.toFixed(1) + '" rx="' + (r * 0.19).toFixed(1) + '" ry="' + (r * 0.10).toFixed(1) + '" transform="rotate(' + rot.toFixed(0) + ' ' + lx.toFixed(1) + ' ' + ly.toFixed(1) + ')" fill="' + leafCol + '" opacity="0.9"/>';
+    }
+    // spéculaire (lumière haut-gauche)
+    s += '<circle cx="' + (cx - r * 0.34).toFixed(1) + '" cy="' + (cy - r * 0.46).toFixed(1) + '" r="' + (r * 0.13).toFixed(1) + '" fill="#ffffff" opacity="0.55"/>';
+    if (wf) { [[-0.32, -0.18], [0.36, 0.02], [0.0, -0.48], [0.22, 0.36]].forEach(function (f) { s += flower(cx + f[0] * r, cy + f[1] * r, 2.5); }); }
+    return s;
+  }
+
+  function branchSVG(p, stage) {
+    if (stage === 0) return '';
+    var a = p.angle * Math.PI / 180, grow = 0.34 + 0.66 * (stage / 5), len = p.len * grow;
+    var ax = p.anchor[0], ay = p.anchor[1];
+    // affaissement naturel : la pointe retombe un peu avec la longueur
+    var droop = len * 0.10;
+    var ex = ax + Math.cos(a) * len, ey = ay - Math.sin(a) * len + droop;
+    var mx = (ax + ex) / 2 + Math.cos(a + 0.55) * len * 0.16, my = (ay + ey) / 2 - len * 0.20;
+    var p0 = [ax, ay], cp = [mx, my], p1 = [ex, ey], wood = '#473a2c', light = shade(p.col, 0.55);
+    var w0 = 2.6 + stage * 1.5, w1 = 1.0 + stage * 0.35, s = taperedBranch(p0, cp, p1, w0, w1, wood);
+    if (stage === 1) { s += '<circle cx="' + ex.toFixed(1) + '" cy="' + ey.toFixed(1) + '" r="3.4" fill="' + p.col + '"/>'; s += '<circle cx="' + (ex - 0.8).toFixed(1) + '" cy="' + (ey - 0.9).toFixed(1) + '" r="1.5" fill="' + light + '"/>'; return s; }
+    var bl2 = []; if (stage >= 3) bl2.push({ t: 0.58, side: 1, f: 0.42 }); if (stage >= 4) bl2.push({ t: 0.76, side: -1, f: 0.36 }); if (stage >= 5) bl2.push({ t: 0.48, side: -1, f: 0.32 });
+    var tips = [{ x: ex, y: ey, r: (stage >= 5 ? 13 : stage >= 4 ? 11 : stage >= 3 ? 9 : 7.5) }];
+    bl2.forEach(function (bl) { var bp = bez(p0, cp, p1, bl.t), tan = bezTan(p0, cp, p1, bl.t), nrm = [-tan[1], tan[0]], blen = len * bl.f; var bex = bp[0] + (tan[0] * 0.55 + nrm[0] * bl.side) * blen, bey = bp[1] + (tan[1] * 0.55 + nrm[1] * bl.side) * blen + blen * 0.08; var bcp = [(bp[0] + bex) / 2 + nrm[0] * bl.side * blen * 0.2, (bp[1] + bey) / 2 - blen * 0.15]; s += taperedBranch(bp, bcp, [bex, bey], w1 + 1.3, 0.8, wood); tips.push({ x: bex, y: bey, r: (stage >= 5 ? 8 : 6.5) }); });
+    // rameaux nus très fins (respiration du bois, dès Mûr)
+    if (stage >= 4) {
+      [{ t: 0.32, side: -1 }, { t: 0.68, side: 1 }].forEach(function (tw, ti) {
+        var tp2 = bez(p0, cp, p1, tw.t), tan2 = bezTan(p0, cp, p1, tw.t), nrm2 = [-tan2[1], tan2[0]];
+        var tl = len * (0.14 + wob(ax + ti) * 0.05);
+        var tx = tp2[0] + (tan2[0] * 0.4 + nrm2[0] * tw.side) * tl, ty = tp2[1] + (tan2[1] * 0.4 + nrm2[1] * tw.side) * tl - tl * 0.25;
+        s += '<path d="M' + tp2[0].toFixed(1) + ' ' + tp2[1].toFixed(1) + ' Q' + ((tp2[0] + tx) / 2).toFixed(1) + ' ' + ((tp2[1] + ty) / 2 - 2).toFixed(1) + ' ' + tx.toFixed(1) + ' ' + ty.toFixed(1) + '" stroke="' + wood + '" stroke-width="1.1" fill="none" stroke-linecap="round"/>';
+      });
+    }
+    tips.forEach(function (tp) { s += foliage(tp.x, tp.y, tp.r, p.col, stage >= 5); });
+    return s;
+  }
+
+  function trunkSVG(gl) {
+    var g = gl / 30, cx = 160, baseY = 330, topY = 182, wb = 10 + g * 6, wt = 3.5 + g * 2.2;
+    var p0 = [cx, baseY], cp = [cx - (2 + g * 3), (baseY + topY) / 2], p1 = [cx, topY];
+    var s = '';
+    // évasement racinaire : deux contreforts pleins à la base
+    s += '<path d="M' + (cx - wb * 0.7) + ' ' + (baseY - 14) + ' Q' + (cx - wb * 1.5) + ' ' + (baseY + 2) + ' ' + (cx - wb * 2.4) + ' ' + (baseY + 8) + ' L' + (cx - wb * 0.2) + ' ' + (baseY + 8) + ' Z" fill="#2e251b"/>';
+    s += '<path d="M' + (cx + wb * 0.7) + ' ' + (baseY - 14) + ' Q' + (cx + wb * 1.5) + ' ' + (baseY + 2) + ' ' + (cx + wb * 2.4) + ' ' + (baseY + 8) + ' L' + (cx + wb * 0.2) + ' ' + (baseY + 8) + ' Z" fill="#1c150e"/>';
+    s += taperedBranch(p0, cp, p1, wb * 2, wt * 2, 'url(#awkBark)');
+    s += taperedBranch([cx - wb * 0.55, baseY], [cx - (2 + g * 3) - wb * 0.42, (baseY + topY) / 2], [cx - wt * 0.5, topY], wb * 0.5, wt * 0.5, '#6d5c47');
+    s += taperedBranch([cx + wb * 0.62, baseY], [cx - (2 + g * 3) + wb * 0.7, (baseY + topY) / 2], [cx + wt * 0.55, topY], wb * 0.42, wt * 0.4, '#160f09');
+    s += '<path d="M' + (cx - wb * 0.9) + ' ' + baseY + ' q-15 3 -28 11" stroke="#3a2f24" stroke-width="4.5" fill="none" stroke-linecap="round"/>';
+    s += '<path d="M' + (cx + wb * 0.9) + ' ' + baseY + ' q15 3 28 11" stroke="#241b13" stroke-width="4.5" fill="none" stroke-linecap="round"/>';
+    return s;
+  }
+
+  // brins d'herbe déterministes autour de la base
+  function grassSVG() {
+    var s = '', i;
+    for (i = 0; i < 14; i++) {
+      var gx = 160 + (i - 6.5) * 19 + wob(i * 3.7) * 12;
+      var gh = 6 + Math.abs(wob(i * 5.3)) * 8;
+      var lean = wob(i * 7.9) * 6;
+      var gc = (i % 3 === 0) ? '#14532d' : '#0f3d22';
+      s += '<path d="M' + gx.toFixed(1) + ' 336 Q' + (gx + lean * 0.4).toFixed(1) + ' ' + (336 - gh * 0.6).toFixed(1) + ' ' + (gx + lean).toFixed(1) + ' ' + (336 - gh).toFixed(1) + '" stroke="' + gc + '" stroke-width="1.6" fill="none" stroke-linecap="round"/>';
+    }
+    return s;
+  }
+
+  function seedSVG() {
+    return '<g><ellipse cx="160" cy="326" rx="10" ry="6" fill="#3a2f24"/><circle cx="160" cy="321" r="6" fill="#39FF14" filter="url(#awkGlow)" opacity="0.9"/><circle cx="158.6" cy="319.6" r="2.4" fill="#eafff0"/><text x="160" y="300" text-anchor="middle" fill="#94a3b8" font-size="9">graine d\'éveil</text></g>';
+  }
+
+  function treeSVG(counts) {
+    var stages = Q.map(function (q) { return stageOf(counts[q.id]); });
+    var gl = stages.reduce(function (a, b) { return a + b; }, 0);
+    var any = stages.some(function (s) { return s > 0; });
+    var maxStage = Math.max.apply(null, stages);
+    var defs = '<defs>'
+      + '<linearGradient id="awkBark" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#5d4f3e"/><stop offset="42%" stop-color="#3c3024"/><stop offset="100%" stop-color="#1b140d"/></linearGradient>'
+      + '<radialGradient id="awkGround" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#050705" stop-opacity="0.85"/><stop offset="70%" stop-color="#050705" stop-opacity="0.55"/><stop offset="100%" stop-color="#050705" stop-opacity="0"/></radialGradient>'
+      + '<radialGradient id="awkHalo" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="currentColor" stop-opacity="0.20"/><stop offset="100%" stop-color="currentColor" stop-opacity="0"/></radialGradient>'
+      + '<radialGradient id="awkSky" cx="50%" cy="38%" r="60%"><stop offset="0%" stop-color="#16351f" stop-opacity="0.35"/><stop offset="100%" stop-color="#16351f" stop-opacity="0"/></radialGradient>'
+      + '<filter id="awkGlow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="2.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>'
+      + '</defs>';
+    var body = defs;
+    body += '<rect x="0" y="0" width="320" height="360" fill="url(#awkSky)"/>';          // halo d'ambiance
+    body += '<ellipse cx="160" cy="335" rx="126" ry="15" fill="url(#awkGround)"/>';
+    if (!any) { body += seedSVG(); body += grassSVG(); }
+    else {
+      body += trunkSVG(gl);
+      [0, 5, 1, 4, 2, 3].forEach(function (i) { body += branchSVG(Q[i], stages[i]); });
+      body += grassSVG();
+      // pétales flottants si au moins une branche en fleur
+      if (maxStage >= 5) {
+        [[196, 130], [110, 152], [232, 178]].forEach(function (pt, i) {
+          var rot = 20 + i * 50;
+          body += '<ellipse cx="' + pt[0] + '" cy="' + pt[1] + '" rx="3" ry="1.6" transform="rotate(' + rot + ' ' + pt[0] + ' ' + pt[1] + ')" fill="#fff7e6" opacity="0.75"/>';
+        });
+      }
+    }
+    return { svg: '<svg viewBox="0 0 320 360" preserveAspectRatio="xMidYMid meet" style="display:block;width:100%;height:auto;" aria-hidden="true">' + body + '</svg>', stages: stages, gl: gl, any: any };
+  }
+
+  // ── Qualités brutes d'une liste d'exercices (réutilisé par le récap hebdo) ──
+  function awakQualitiesOfExercises(exs) {
+    var v = { force: 0, endurance: 0, mental: 0, equilibre: 0, agilite: 0, cardio: 0 }, n = 0;
+    (exs || []).forEach(function (ex) {
+      if (!ex || ex.isRest || ex.isInfo) return;
+      var prof = (ex.discipline && DISCIPLINE_QUALITIES[ex.discipline]) ? DISCIPLINE_QUALITIES[ex.discipline]
+        : (ex.muscle && MUSCLE_QUALITIES[ex.muscle]) ? MUSCLE_QUALITIES[ex.muscle] : null;
+      if (prof) { _addProfile(v, prof, 1); n++; }
+    });
+    if (n > 0) { for (var k in v) v[k] /= n; }
+    return v;
+  }
+  window.awakQualitiesOfExercises = awakQualitiesOfExercises;
+  window.AWAK_QUALITIES_META = Q.map(function (q) { return { id: q.id, ic: q.ic, nm: q.nm, col: q.col }; });
+
+  // ── Share card : « Je suis [Archétype] » avec l'arbre dessiné ──
+  function awakShareTree() {
+    try {
+      var counts = awakComputeQualities();
+      var t = treeSVG(counts);
+      var A = awakArchetype(counts);
+      var ri = Math.min(5, Math.floor(t.gl / 5));
+      var W = 1080, H = 1350;
+      var canvas = document.createElement('canvas');
+      canvas.width = W; canvas.height = H;
+      var ctx = canvas.getContext('2d');
+      // fond + halo
+      ctx.fillStyle = '#0D0D0D'; ctx.fillRect(0, 0, W, H);
+      var g = ctx.createRadialGradient(W / 2, H * 0.42, 60, W / 2, H * 0.42, 620);
+      g.addColorStop(0, 'rgba(34,197,94,0.10)'); g.addColorStop(1, 'rgba(34,197,94,0)');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+      // entête
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#94a3b8'; ctx.font = '800 26px sans-serif';
+      ctx.fillText('◈  A R B R E   D E   L \u2019 É V E I L  ◈', W / 2, 96);
+      var nameSize = A.name.length > 24 ? 52 : (A.name.length > 16 ? 62 : 74);
+      ctx.fillStyle = '#eafff0'; ctx.font = '900 ' + nameSize + 'px sans-serif';
+      ctx.fillText(A.name, W / 2, 178);
+      ctx.fillStyle = RANK_COL[ri]; ctx.font = '800 30px sans-serif';
+      ctx.fillText('RANG ' + RANKS[ri] + '  ·  ' + A.sub.toUpperCase(), W / 2, 228);
+      // arbre (SVG → image)
+      var svgStr = t.svg.replace('<svg ', '<svg width="840" height="945" ');
+      var img = new Image();
+      img.onload = function () {
+        ctx.drawImage(img, (W - 840) / 2, 268, 840, 945);
+        // footer
+        ctx.fillStyle = '#64748b'; ctx.font = '800 24px sans-serif';
+        ctx.fillText('A W A K E N E D', W / 2, H - 56);
+        canvas.toBlob(function (blob) {
+          if (!blob) return;
+          var file = new File([blob], 'mon-arbre-awakened.png', { type: 'image/png' });
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            navigator.share({ files: [file], title: 'Mon Arbre de l\u2019Éveil' }).catch(function () {});
+          } else {
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'mon-arbre-awakened.png';
+            a.click();
+            setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+          }
+        }, 'image/png');
+      };
+      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgStr);
+    } catch (e) {}
+  }
+  window.awakShareTree = awakShareTree;
+
+  // ── Overlay ──
+  function showAwakeningTree() {
+    try {
+      var old = document.getElementById('awakeningTreeOverlay'); if (old) old.remove();
+      var counts = awakComputeQualities();
+      var t = treeSVG(counts);
+      var A = awakArchetype(counts);
+      var ri = Math.min(5, Math.floor(t.gl / 5));
+
+      // Célébration : une branche vient de passer un palier (posé par l'écran de fin)
+      var celebrate = window._awakCelebrate || null;
+      window._awakCelebrate = null;
+      var beforeSVG = null;
+      if (celebrate && celebrate.length) {
+        try {
+          var hist = _history();
+          var last = hist[0];
+          var exs = (last && last.workoutData && last.workoutData.exercises) ? last.workoutData.exercises : [];
+          var session = awakQualitiesOfExercises(exs);
+          var before = {};
+          Q.forEach(function (q) { before[q.id] = Math.max(0, counts[q.id] - session[q.id]); });
+          beforeSVG = treeSVG(before).svg;
+        } catch (e) { beforeSVG = null; }
+      }
+
+      var legend = Q.map(function (p, i) {
+        var st = t.stages[i], pct = Math.round(st / 5 * 100);
+        return '<div style="display:flex;align-items:center;gap:7px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.08);border-radius:11px;padding:7px 9px;">'
+          + '<span style="font-size:0.95em;">' + p.ic + '</span>'
+          + '<span style="font-size:0.7em;font-weight:700;flex:1;color:#e2e8f0;">' + p.nm + '</span>'
+          + '<span style="font-size:0.56em;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:' + p.col + ';">' + STAGE_NAMES[st] + '</span>'
+          + '</div>';
+      }).join('');
+
+      var overlay = document.createElement('div');
+      overlay.id = 'awakeningTreeOverlay';
+      overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.72);display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(3px);';
+      overlay.addEventListener('click', function (e) { if (e.target === overlay) overlay.remove(); });
+
+      var sheet = document.createElement('div');
+      sheet.style.cssText = 'background:#0D0D0D;border-radius:20px 20px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;border-top:2px solid rgba(34,197,94,0.35);';
+      sheet.innerHTML =
+        '<div style="width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:99px;margin:0 auto 14px;"></div>'
+        + '<div style="text-align:center;font-size:0.6em;letter-spacing:3px;text-transform:uppercase;color:#94a3b8;font-weight:800;">Awakened · Arbre de l\'Éveil</div>'
+        + '<div style="text-align:center;margin:6px 0 4px;">'
+        + '<div style="font-size:1.6em;line-height:1.1;font-weight:900;background:linear-gradient(180deg,#eafff0,#8fe0ff);-webkit-background-clip:text;background-clip:text;color:transparent;">' + A.name + '</div>'
+        + '<div style="font-size:0.62em;color:#94a3b8;margin-top:3px;text-transform:uppercase;letter-spacing:1.5px;font-weight:700;">' + A.sub + '</div>'
+        + '</div>'
+        + '<div style="display:flex;align-items:center;justify-content:center;gap:10px;margin:8px 0 2px;">'
+        + '<div style="width:32px;height:32px;border-radius:10px;display:grid;place-items:center;font-size:1em;font-weight:900;border:1px solid ' + RANK_COL[ri] + '66;background:rgba(255,255,255,0.03);color:' + RANK_COL[ri] + ';box-shadow:0 0 14px ' + RANK_COL[ri] + '33;">' + RANKS[ri] + '</div>'
+        + '<div style="width:150px;height:7px;border-radius:6px;background:rgba(255,255,255,0.07);overflow:hidden;"><div style="height:100%;width:' + Math.round(t.gl / 30 * 100) + '%;background:linear-gradient(90deg,#22c55e,#22d3ee,#fbbf24);"></div></div>'
+        + '<small style="font-size:0.58em;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;font-weight:700;">Rang ' + RANKS[ri] + '</small>'
+        + '</div>'
+        + '<div id="awkScene" style="position:relative;margin:4px 0;border-radius:18px;overflow:hidden;background:radial-gradient(80% 55% at 50% 34%,rgba(34,197,94,0.05),transparent 70%);">'
+        + (beforeSVG
+            ? '<div id="awkTreeBefore" style="transition:opacity 1.1s ease;">' + beforeSVG + '</div>'
+              + '<div id="awkTreeAfter" style="position:absolute;inset:0;opacity:0;transition:opacity 1.1s ease;">' + t.svg + '</div>'
+              + '<div id="awkCelebBanner" style="position:absolute;top:10px;left:50%;transform:translateX(-50%) scale(0.85);opacity:0;transition:all .5s cubic-bezier(.2,.9,.3,1.3);background:rgba(13,13,13,0.85);border:1px solid rgba(34,197,94,0.5);border-radius:99px;padding:8px 16px;font-size:0.72em;font-weight:900;color:#4ade80;white-space:nowrap;box-shadow:0 0 24px rgba(34,197,94,0.35);">'
+              + celebrate.map(function (l) { return l.ic + ' ' + l.nm + ' → ' + l.stage; }).join('  ·  ') + '</div>'
+            : t.svg)
+        + '</div>'
+        + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:6px 0 10px;">' + legend + '</div>'
+        + '<div style="font-size:0.62em;color:#64748b;text-align:center;line-height:1.5;margin-bottom:12px;">Ton arbre grandit avec tes séances réelles — chaque entraînement nourrit les qualités qu\'il travaille. Aucune branche ne rétrécit jamais.</div>'
+        + '<button id="awkShareBtn" style="width:100%;padding:13px;margin-bottom:8px;background:linear-gradient(135deg,#22c55e,#16a34a);border:none;border-radius:14px;color:#fff;font-weight:900;cursor:pointer;">📤 Partager mon arbre</button>'
+        + '<button id="awkCloseBtn" style="width:100%;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:14px;color:rgba(255,255,255,0.6);font-weight:700;cursor:pointer;">Fermer</button>';
+      overlay.appendChild(sheet);
+      document.body.appendChild(overlay);
+      var btn = document.getElementById('awkCloseBtn');
+      if (btn) btn.addEventListener('click', function () { overlay.remove(); });
+      var shareBtn = document.getElementById('awkShareBtn');
+      if (shareBtn) shareBtn.addEventListener('click', function () { awakShareTree(); });
+      // Célébration : la séance fait littéralement pousser l'arbre sous les yeux
+      if (beforeSVG) {
+        setTimeout(function () {
+          var b = document.getElementById('awkTreeBefore'), a = document.getElementById('awkTreeAfter'), ba = document.getElementById('awkCelebBanner');
+          if (a) a.style.opacity = '1';
+          if (b) b.style.opacity = '0';
+          if (ba) { ba.style.opacity = '1'; ba.style.transform = 'translateX(-50%) scale(1)'; }
+        }, 700);
+      }
+    } catch (e) {
+      if (typeof showNotification === 'function') showNotification("Arbre de l'Éveil indisponible pour le moment.", 'error');
+    }
+  }
+
+  // ── Impact d'une séance sur l'arbre (pour l'écran de fin) ──
+  // exs = liste d'exercices ({discipline, muscle}). Suppose la séance DÉJÀ
+  // sauvegardée dans l'historique. Retourne { top:[{ic,nm,col}], levelUps:[{ic,nm,stage}] }.
+  function awakSessionImpact(exs) {
+    var session = { force: 0, endurance: 0, mental: 0, equilibre: 0, agilite: 0, cardio: 0 }, n = 0;
+    (exs || []).forEach(function (ex) {
+      if (!ex || ex.isRest || ex.isInfo) return;
+      var prof = (ex.discipline && DISCIPLINE_QUALITIES[ex.discipline]) ? DISCIPLINE_QUALITIES[ex.discipline]
+        : (ex.muscle && MUSCLE_QUALITIES[ex.muscle]) ? MUSCLE_QUALITIES[ex.muscle] : null;
+      if (prof) { _addProfile(session, prof, 1); n++; }
+    });
+    if (n > 0) { for (var k in session) session[k] /= n; }
+    var totals = awakComputeQualities();
+    var top = Q.map(function (q) { return { q: q, s: session[q.id] }; })
+      .filter(function (x) { return x.s > 0.05; })
+      .sort(function (a, b) { return b.s - a.s; })
+      .slice(0, 2)
+      .map(function (x) { return { ic: x.q.ic, nm: x.q.nm, col: x.q.col }; });
+    var levelUps = [];
+    Q.forEach(function (q) {
+      var after = totals[q.id], before = Math.max(0, after - session[q.id]);
+      var sa = stageOf(after), sb = stageOf(before);
+      if (sa > sb) levelUps.push({ ic: q.ic, nm: q.nm, col: q.col, stage: STAGE_NAMES[sa] });
+    });
+    return { top: top, levelUps: levelUps };
+  }
+  window.awakSessionImpact = awakSessionImpact;
+
+  // Exports
+  window.showAwakeningTree = showAwakeningTree;
+  window.awakComputeQualities = awakComputeQualities;
+  window.awakArchetype = awakArchetype;
+})();

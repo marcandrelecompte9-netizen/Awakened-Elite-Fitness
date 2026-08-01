@@ -173,3 +173,2794 @@ AJOUT DES IMAGES D'EXERCICES.
   (ordre dans index.html : app.js → awakening-tree.js → ui-kit.js →
   feature-map.js) et figure dans le précache de sw.js.
 ═══════════════════════════════════════════════════════════════════════
+
+═══════════════════════════════════════════════════════════════════════
+  PALETTE OFFICIELLE (depuis v475) — voir jetons dans js/ui-kit.js
+═══════════════════════════════════════════════════════════════════════
+  Chrome : neutre (surfaces rgba blanches sur #0D0D0D) + UNE couleur de
+  marque : VERT #22c55e (hover #16a34a). Aucun cyan/bleu/violet/néon dans
+  les boutons, états actifs, bordures du chrome.
+  #39FF14 (néon) : réservé aux MOMENTS (level up, rang, palier, graine).
+  Violet #a855f7 : réservé au registre AVENTURE (Failles, mystique).
+  Rouge/#ef4444 et ambre/#f59e0b : sémantique uniquement.
+  Les couleurs de DONNÉES (qualités de l'arbre, disciplines, rangs,
+  graphiques, accents des programmes Salle) restent polychromes.
+═══════════════════════════════════════════════════════════════════════
+
+═══════════════════════════════════════════════════════════════════════
+  BUILD DE DÉPLOIEMENT MINIFIÉ (depuis v477)
+═══════════════════════════════════════════════════════════════════════
+  Deux zips sont livrés à chaque build :
+  • awakened-vNNN.zip        = SOURCE lisible (à conserver, à uploader ici)
+  • awakened-vNNN-DEPLOY.zip = MINIFIÉ (à déployer sur GitHub Pages)
+  Le déploiement minifié charge ~40 % plus vite (app.js 2,5→1,5 Mo,
+  CSS −44 %). Procédure (déjà scriptée) : copie du dossier → terser
+  --compress --mangle sur chaque .js (top-level préservé, onclick OK)
+  → node --check sur chaque sortie → cleancss sur style.css.
+  RÈGLE : ne JAMAIS éditer les fichiers du DEPLOY ; toute modification
+  se fait sur le SOURCE puis on regénère le deploy.
+═══════════════════════════════════════════════════════════════════════
+
+
+═══════════════════════════════════════════════════════════════
+📌 MISE À JOUR SESSION v496 → v503 (juillet 2026)
+═══════════════════════════════════════════════════════════════
+
+⚡ NOUVEAU RÉFLEXE OBLIGATOIRE : node validate.js
+   Un script de contrôle qualité est maintenant à la racine.
+   → LE LANCER EN DÉBUT ET FIN DE SESSION.
+   Il vérifie : syntaxe JS de tous les fichiers, doublons d'exercices
+   (exacts ET quasi-doublons : casse/pluriel/accents/tirets),
+   références de programmes en désaccord avec la base, IDs HTML
+   dupliqués, équilibre des <div>, synchro version cache sw.js/index.html.
+   Code sortie 0 = prêt à zipper. NE JAMAIS livrer si ça échoue.
+
+🔊 MOTEUR VOCAL (v496-497) — js/app.js, bloc "VOICE GUIDE"
+   • speak() est maintenant une FILE D'ATTENTE. Ne plus jamais remettre
+     de cancel() systématique : c'était la cause des phrases coupées.
+   • speak(text, {interrupt:true})  → coupe et parle (annonces d'exercice,
+     décomptes, repos, changez de côté…)
+   • speak(text, {priority:'low'})  → jeté si la voix est occupée
+     (motivations, astuces — ne jamais les faire couper quoi que ce soit)
+   • stopAllSpeech() → coupe tout + vide la file + clear les timers du
+     coach. Utilisée dans skipExercise et aux sorties de séance.
+   • window._voiceCoachTimers : timers du coach, TOUJOURS nettoyés au
+     changement d'exercice (sinon voix "orpheline" de l'exercice précédent).
+   • En mode 'reps' : AUCUNE intervention chronométrée (return au début de
+     speakEnhancedExercise). Seule l'annonce d'ouverture est vocale, plus
+     "Dernière série" à la dernière série.
+   • Les confirmations UI (~26) ont été passées de speak() à showToast().
+     NE PAS rajouter de speak() pour des confirmations d'interface.
+
+🤫 MODE SANS DISTRACTIONS (v499)
+   • Flag global quietMode, persisté dans voicePreferences (clé 'quiet').
+   • showToast() ignore success/info si quietMode ; erreurs/avertissements
+     passent TOUJOURS. awakShowPersonaToast, showRestMotivationMessage et
+     showPRBanner sont aussi conditionnés.
+   • Toggle dans Réglages → Audio & notifications.
+
+⚙️ ONGLET RÉGLAGES REMANIÉ (v500) — index.html
+   • 5 accordéons : 🎮 Jeu & progression · 🏋️ Entraînement ·
+     🔔 Audio & notifications · 👤 Compte & données · ℹ️ À propos.
+   • Sous-sections uniformes via classes .settings-sub, .settings-sub-title,
+     .settings-sub-desc, .settings-toggle-row (CSS dans style.css).
+   • Les 2 anciennes cartes échauffement sont FUSIONNÉES en une.
+   • initializeSettingsAccordions : n'ouvre la 1re section que si aucune
+     n'est déjà ouverte.
+
+🎚️ INTERRUPTEUR UNIVERSEL .aw-switch (v501-503)
+   • Composant CSS pur dans style.css : <label class="aw-switch">
+     <input type="checkbox" ...><span class="aw-slider"></span></label>
+   • L'animation vient de :checked. NE JAMAIS manipuler l'apparence en JS
+     (pas de innerHTML/style sur le slider) — c'était le bug "pas d'animation".
+   • Utilisé par : Mode Jeu, Périodisation, Échauffement adaptatif,
+     AI DJ (principal + 2 avancés). TOUT NOUVEAU TOGGLE doit l'utiliser.
+   • Les ids gameModeSlider/Thumb, periodizationSlider/Thumb,
+     warmupSlider/Thumb, aiDJToggleSlider N'EXISTENT PLUS.
+
+🔧 PANNEAU DÉVELOPPEUR (v502)
+   • devModePanel est un panneau AUTONOME en bas de settingsTab, HORS des
+     accordéons. NE JAMAIS le remettre dans un accordéon : replié =
+     max-height:0 = panneau invisible même en display:block.
+   • Activation : 7 taps sur la version (À propos), profil "AdminMarc",
+     ou awakSetDevMode(true) en console.
+
+🗃️ BASE D'EXERCICES (v498 + v503)
+   • 422 entrées. Doublons retirés : "Fire Hydrants", "Man Makers",
+     "Hip thrust barre" (redirigé 23 refs → "Hip thrust").
+   • v503 : 10 références de programmes corrigées vers la casse canonique
+     (Jump squat, Mountain climbers, High knees, Jumping jacks, Glute
+     Bridge, Dead bug, Rotations thoraciques, Étirement mollets mur).
+   • La déduplication doit TOUJOURS utiliser la comparaison normalisée
+     (casse/pluriels/accents/tirets) — c'est intégré dans validate.js.
+
+📦 RAPPEL BUILD (inchangé mais critique)
+   1. node validate.js → doit être vert
+   2. Bump cache : sw.js (awakened-vNNN) + index.html (?v=NNN)
+   3. Deploy : terser app.js (--compress --mangle), clean-css style.css,
+      copier index.html + sw.js
+   4. node --check sur les fichiers minifiés
+   5. Zipper source (dossier fitpro/) + deploy (racine plate)
+
+🌿 v504 : ARBRE CALISTHÉNIE — PRÉREQUIS INTER-SKILLS
+   • CALIS_PROGRESSIONS (disciplines.js) : champ optionnel requires:
+     { skill, steps, label }. 4 branches : Muscle-up ← Traction ≥5,
+     Front lever ← Traction ≥4, Planche ← Dips ≥3, Drapeau ← L-sit ≥3.
+   • _progRequirement() dans app.js : jamais de verrouillage rétroactif
+     (skill avec progression entamée = toujours déverrouillé).
+   • Verrous appliqués dans startProgressionStep, awakAdvanceStep et
+     _treeBodyFor (carte grisée + condition). Déblocage annoncé en fin
+     de séance ("Nouvelle branche débloquée").
+
+🌿 v505 : DÉTECTION DE FATIGUE & DÉCHARGE INTELLIGENTE
+   • awakFatigueCheck() : analyse les 5 derniers workoutFeedbacks (14 j).
+     Score → ok / warning / high. Min 3 feedbacks pour se prononcer.
+   • Bannière home (div #fatigueAlertCard, rendue par updateHomeStats) :
+     propose la décharge, ne l impose JAMAIS. "Pas maintenant" = snooze 7 j.
+   • Décharge active (awakDeloadUntil, 7 j) : awakPrescribe → -1 série
+     (min 2), repos +20%, coachNote "~60% des charges". Chip home avec
+     bouton Terminer. Ne touche PAS aux disciplines/plans (_discipline).
+
+🌅 v506 : PARCOURS DE L ÉVEIL (js/eveil.js — NOUVEAU MODULE)
+   • Accompagnement A→Z débutant 4 semaines : séances progressives +
+     quêtes d habitudes (sommeil/repas/marche, introduites 2→4 par
+     semaine) + mini-leçons scientifiques hebdo.
+   • Proposé à l inscription (les DEUX chemins : _premOnbFinish et
+     saveProfileSetup) via awakEveilMaybeOffer, une seule fois
+     (flag awakEveilOffered). Questionnaire 8 questions → construit
+     le parcours (jours, quêtes, variantes cardio/renfo).
+   • Carte home #eveilJourneyCard (rendue par updateHomeStats).
+     Séance du jour lançable ; completeWorkout valide le jour si
+     currentWorkout._eveil. État : localStorage awakEveilJourney.
+   • ⚠️ Les noms d exercices des séances sont canoniques et testés
+     contre exercises.js — toute modif de la base doit re-passer ce test.
+   • eveil.js est inclus dans index.html (avant app.js) ET dans la
+     liste de cache de sw.js.
+   • v507 : les 8 réponses du questionnaire sont TOUTES exploitées —
+     exp module les durées (jamais 0.85 / longtemps 1.0 / recent 1.15),
+     moment affiche le rappel contextuel sous le bouton séance.
+   • v508 : Éveil enrichi (science de l adhérence) —
+     1) Question 9 « anchor » = intention d implémentation (Gollwitzer),
+        rappelée sous le bouton séance (« juste après ton café »).
+     2) Check-in quotidien 1 tap 😊😐🥱 (j.mood[date]) : « tired » →
+        séance du jour ×0.85 + libellé « version allégée ».
+     3) Gel de série SANS ÉTAT : _questStreak tolère 1 jour raté par
+        semaine ISO (retour {n, frozen}, 🧊 affiché). Ne pas re-stocker
+        de jokers : le calcul rétroactif est déterministe.
+   • v509 : Éveil — adaptation PARENTS (question kids : non/bebe/
+     enfants/ados). bebe → quête sommeil « sieste comptée » (jamais
+     « couche-toi plus tôt »), marche poussette ; enfants → sortie avec
+     les enfants, quête S3 « jeu actif en famille », bouton mini-séance
+     famille les jours de repos (awakEveilLaunchFamily, type
+     eveil-family, ne valide PAS le jour) ; parents → ancre « coucher
+     des enfants » ajoutée dynamiquement au wizard.
+   • v510 : Éveil — MODE SILENCIEUX 🤫. Actif si ancre dodo-enfants
+     OU kids=bebe. QUIET_SWAPS remplace les exercices à impacts
+     (Jumping jacks→Marche sur place, High knees→Mountain climbers,
+     Montées de genoux→Dead bug) avec déduplication. Nom de séance
+     suffixé 🤫 + info sous le bouton. Séance famille NON concernée
+     (enfants réveillés).
+   • v511 : mode silencieux DÉSACTIVABLE — _quietAuto (détection
+     contexte enfants) séparé de _quietMode (auto ET !j.quietOff).
+     Lien « pas besoin ? » / « réactiver 🤫 » sous le bouton séance
+     (awakEveilToggleQuiet), préférence persistée dans le journey.
+   • v512 : bloc « 🕐 Matin ou soir avec des enfants ? » (parents
+     seulement, dépliable sous la leçon). _timingAdvice(answers) → 4
+     verdicts personnalisés (bebe / ancre dodo-enfants / moment matin /
+     générique) fondés sur la littérature : constance horaire > heure
+     (temporal consistency), routines matinales aident l habitude,
+     pic de température 16-18h ≈ +5% force, exercice modéré tardif ok
+     mais intensif retarde l endormissement (Univ. Caen/Inserm).
+   • v513 : bloc « 🌿 ET MAINTENANT ? » dans l écran de complétion
+     (completionHabits/Hydration/Intake, index.html + app.js après le
+     calcul kcal MET existant). Hydratation ~500-750 ml selon durée ;
+     cible du jour = poids×33 ± objectif (+300 prise / −400 perte)
+     + dépense séance, FOURCHETTE ±100 arrondie 50, plancher 1500.
+     Philosophie : repères bienveillants, JAMAIS de comptage strict.
+   • v514 : 👑 HALL OF FAME (bouton dans les raccourcis de l onglet
+     Progression). Lit personalRecords_<profileId> de TOUS les profils
+     + entrées libres localStorage awakHallCustom [{id,exercise,person,
+     weight,reps,time,isGoal}] (invités hors profils OU objectifs).
+     Couronne 👑 au meilleur poids réel (objectifs exclus du trône).
+     En séance : awakGoalCard (updateDisplay, après awakCoachCard)
+     affiche l objectif (prioritaire) ou le record invité de l exercice
+     courant, matché sur _baseName||name EXACT (casse canonique !).
+   • v515 : Hall of Fame — 🙈 masquage de profils (awakHallHidden,
+     réversible via chips « réafficher ») et ✎ correction de chiffres :
+     entrées libres (awakHallEditCustom, prompts vide=garder/0=effacer)
+     ET records de profils (awakHallEditPR : édite personalRecords_<id>,
+     RECALCULE le 1RM Epley, supprime l exercice si tout est effacé).
+     Noms d exercices échappés via _hofEsc (apostrophes).
+   • v516 : Hall of Fame REFAIT en GRILLE type tableur (exercices en
+     lignes figées à gauche, profils+invités+objectifs en colonnes
+     figées en haut, scroll horizontal). Filtres muscle ET équipement
+     (selects → awakHallRenderGrid, re-render sans rouvrir). Contexte
+     stocké sur ov._hofCtx. Formulaire d ajout repliable (awakHallToggleAdd).
+     👑 par colonne de meilleur poids réel, ✎ édition par cellule,
+     🙈 masquage par en-tête de colonne profil.
+   • v517 : carte Parcours de l Éveil (#eveilJourneyCard) déplacée
+     TOUT EN HAUT de la home (avant todayActionCard) — première chose
+     vue par un débutant en accompagnement. Conteneur unique (ancien
+     emplacement section 7 retiré). Vide si parcours inactif = invisible.
+   • v518 : MODE SILENCIEUX GLOBAL (indépendant de l Éveil). Flag
+     silentMode persisté dans voicePreferences (clé silent). Toggle dans
+     Réglages → Audio & notifications (silentModeOption). Filtre appliqué
+     dans showWorkoutPreparation (point d entrée commun À TOUTES les
+     séances) : SWAP jumping jacks→marche, high knees→mountain climbers,
+     burpees/squat sauté/box jumps→squat, fentes sautées→fentes arrière,
+     etc., avec déduplication + suffixe 🤫 au nom. Ne touche pas la
+     logique Éveil (qui filtre en amont).
+   • v519 : FIX changement/création de profil. Fonctions profil
+     (switchProfile, showProfileSelectionModal, saveProfileData,
+     createProfile, deleteProfile…) exposées explicitement sur window
+     pour garantir l accès depuis les onclick. showProfileSelectionModal
+     robustifié : si 1 seul profil → propose d en créer ; si modal absent
+     → toast au lieu d échec muet. NB : un cache SW obsolète peut donner
+     ce symptôme — network-first est en place, mais forcer MAJ au besoin.
+   • v520 : FIX création de profil (suite v519). saveProfiles() passait
+     par localStorage.setItem BRUT → si stockage plein (QuotaExceeded),
+     exception non gérée = profil jamais sauvé = « rien ne se passe ».
+     Bascule sur lsSet (auto-purge + retry) + toast d erreur explicite si
+     échec. Retourne true/false. Testé : création réussit même quota plein.
+   • v521 : 2 FIX profils majeurs.
+     (a) Changement de profil : liste rendue avec data-switch +
+         addEventListener (au lieu d onclick inline fragile), JSON.parse
+         protégé. Retour vers un ancien profil fonctionne.
+     (b) NOUVEAU PROFIL VIERGE : createProfile initialise désormais
+         profile_<id>_userProfile {setupComplete:false} + workoutStats/
+         history à zéro + plan/programmes vides. AVANT, le fallback legacy
+         de getProfileData copiait userProfile de l ancien profil →
+         mêmes stats + onboarding non relancé. switchProfile lit aussi
+         DIRECTEMENT profile_<id>_<key> (plus de getProfileData/fallback).
+   • v522 : FIX mode jeu qui « fuit » entre profils. fitproGameMode
+     AJOUTÉ à GAME_KEYS (switchProfile) — il restait global, donc un
+     nouveau profil héritait du jeu actif → cinématique d intro lancée
+     + onboarding masqué. createProfile pose profile_<id>_fitproGameMode=0.
+     Résultat : nouveau profil = jeu OFF + questions d onboarding ;
+     retour ancien profil = jeu réactivé. Testé.
+   • v523 : ICÔNES DE PROFIL SVG. AWAK_AVATARS (12 icônes : hunter,
+     sword, shield, bolt, flame, wolf, crown, dumbbell, runner, pulse,
+     star, skull) + helper renderAvatar(avatar,size) → SVG si clé av:xxx,
+     REPLI emoji sinon (profils existants intacts, zéro migration).
+     Sélecteur #avatarPicker rendu par renderAvatarPicker(). Affichages
+     mis à jour (carte profil, listes, en-têtes Hall of Fame). Défaut
+     nouveau profil = av:hunter.
+   • v524 : DÉGRAISSAGE HOME. Déplacés vers Progression (historyTab,
+     rendus à l ouverture) : heatmap activité (#activityHeatmapCard),
+     récupération musculaire (#muscleRecoveryContainer), bilan hebdo
+     (#weeklyReviewCard + #weeklyVolumeWidget). Indicateurs personnels
+     (#sexFocusCard, #cycleCard, #strengthCard) regroupés SOUS la carte
+     profil. #moodCard reste dans l index de forme. Citation du jour
+     (#homeQuote) RETIRÉE (usage protégé par if(qQuote), aucun crash).
+     Tous les rendus cherchent leur conteneur par id → robustes au
+     déplacement (renderActivityHeatmap fait if(!el)return).
+   • v525 : FIX séance bloquée à la fin (mini-séance famille & séances
+     légères). completeWorkout : tout le calcul stats/RPG/bilan entre
+     saveWorkoutToHistory et l affichage de l écran de fin est désormais
+     enveloppé dans un try/catch — si un calcul plante (objet séance
+     minimal sans certains champs), on l ignore et l écran de fin
+     s affiche QUAND MÊME. Plus possible de rester coincé sur « Suivant »
+     au dernier exercice. Zone vérifiée équilibrée + aucune fuite de portée.
+   • v526 : AUDIT — corrections de bugs.
+     (a) 2 boutons morts : showAwakeningTree (« 🌳 Arbre » + écran de fin)
+         et showFeatureMap (« ✨ Tout explorer » accueil) appelaient des
+         fonctions inexistantes → définis en wrappers vers la vue
+         Disciplines de l onglet Programme (où sont les arbres).
+     (b) Mode silencieux global : SWAP utilisait des noms non canoniques
+         (« Squat sauté »/« Squats sautés »/« Fentes sautées »/« Tuck jumps »
+         absents de la base) → remplacés par « Jump squat » (nom réel),
+         entrées inexistantes retirées. Les 6 cibles sont toutes valides.
+     (c) completeWorkout : appels post-écran (buildEnrichedCompletion,
+         weeklyChallenge) protégés en try/catch (non-critiques).
+     Noté (non-bugs) : stub mort renderWeeklyMuscleVolume L13733 (la vraie
+     version L39215 gagne), event.target legacy fonctionnel.
+   • v527 : +10 IMAGES d exercices (style Awakened). WebP dans
+     images/exercises/, entrées ajoutées à EXERCISE_IMAGES
+     (exercise-visuals.js) avec noms canoniques EXACTS vérifiés :
+     Calf Raises une jambe/debout, Cable Squat, Cable Shrug, Broad Jump
+     (saut en longueur), Box Jump sur banc/muret, Bounding
+     (bondissements), Bear Crawl (marche de l ours), Atlas Stone Lift
+     (levée de pierre), Calf Stretch & Raise. Zip séparé des images
+     fourni pour upload GitHub. Total images : 304.
+   • v528 : +10 IMAGES (2e lot). Dips sur banc, Devil Press, Curl
+     pupitre, Curl 21s, Crunch oblique, Crunch abdominaux machine,
+     Clean and press, Calf raise machine assise, Dips sur barres
+     parallèles ajoutés à EXERCISE_IMAGES ; « Curl sur banc incliné »
+     re-pointé de Curl_incliné.webp vers sa nouvelle image dédiée
+     Curl_sur_banc_incliné.webp. Noms canoniques EXACTS vérifiés.
+     Zip séparé fourni. Total images : 314.
+   • v529 : +10 IMAGES (3e lot). Extension triceps machine, Extension
+     poulie haute, Dragon Flag latéral, Donkey Kicks, Donkey Calf Raises,
+     Fire hydrant, Fentes KB overhead, Farmer Walk on Toes, Face Pull
+     câble ajoutés ; « Farmer's Walk » re-pointé vers nouvelle image
+     dédiée (Farmer_s_Walk.webp). NB : bandeau « FIRE HYDRANTS » mappé
+     au nom canonique singulier « Fire hydrant ». Total images : 324.
+   • v530 : +10 IMAGES (4e lot). Hyperextension machine, Hip thrust
+     machine, Hip thrust, Hip Thrust Smith machine, Hip Abduction
+     machine, Halo KB, Hack squat barre, Hack Squat, Glute machine
+     abduction, Glute Kickback machine. Noms canoniques vérifiés.
+     Total images : 334.
+   • v531 : +10 IMAGES (5e lot). Lateral walk élastique, Lateral Raise
+     cable, Kickback fessiers élastique, Kickback fessiers câble, KB
+     windmill, KB snatch, KB clean, Incline Shrug (banc incliné) ajoutés ;
+     « Kettlebell Swing extérieur » et « Incline Bench Press » re-pointés
+     de leurs alias vers leurs nouvelles images dédiées. Total : 344.
+   • v532 : +10 IMAGES (6e lot). MB Russian twist, Lunges Smith
+     machine, Low Cable Row, Log Carry (portage de bûche), Leg Press
+     45°, Leg Press, Leg Extension, Leg Curl couché, Leg Curl assis,
+     Leg Curl Machine. Noms canoniques vérifiés. Total : 354.
+   • v533 : +23 ALIAS de réutilisation d images (aucune nouvelle image).
+     Disciplines (Pompes→Pompes classiques, Planche gainage→Planche,
+     Superman extensions→Superman, Dips entre deux appuis→Dips sur banc,
+     Rotation thoracique→Rotations thoraciques) + variantes base
+     (Squat avant barre→Front Squat, Romanian deadlift/barre + Stiff Leg
+     →Cable Romanian Deadlift, Traction barre fixe→Tractions pronation,
+     Seated Calf→Calf raise machine assise, Presse jambes horizontale→
+     Leg Press, Russian twist±lesté→MB Russian twist, tirages/rows→
+     Tirage vertical/nuque/Barbell Row/Low Cable Row, Upright Row câble
+     + Tirage menton→Upright Row haltères). Cibles vérifiées existantes.
+   • v534 : ROBUSTESSE rendu exercices. Les 3 appels window.buildLazyImg
+     dans displayExercises (liste), showExerciseDetail (détail) et la
+     préparation de séance n étaient PAS gardés (contrairement à celui de
+     la home, déjà protégé). Si buildLazyImg est momentanément indispo
+     (ordre de chargement, exercise-visuals.js non re-uploadé, cache
+     transitoire), ces appels planquaient TOUT le rendu → « impossible de
+     voir les exercices / démarrer une séance ». Ajout d un typeof guard +
+     repli <img> simple sur chacun. Vérifié : getExerciseVisual sain pour
+     les 422 exercices, aucun throw. Bump cache force re-cache complet.
+   • v535 : PARCOURS ÉVEIL — cohérence du discours 66 jours. Le message
+     de fin ne dit plus « L Éveil est accompli » (laissait croire l habitude
+     formée à 28j, en contradiction avec les ~66j cités semaine 1) →
+     « Le lancement est réussi… tu es à mi-chemin des ~66 jours, l app
+     continue de t accompagner ». Leçon semaine 4 fait le pont explicite
+     vers les 66 jours. Le parcours reste un ONBOARDING de 4 semaines,
+     pas la durée de formation de l habitude.
+   • v536 : PARCOURS ÉVEIL — option « pas encore prêt ». À la fin des
+     4 semaines, au lieu d un seul bouton qui pousse vers le plan hebdo,
+     la personne CHOISIT : « Je suis prêt·e » (awakEveilStop → plan) OU
+     « 2 semaines de plus, à mon rythme » (awakEveilExtend). Extend recule
+     j.start de 14 jours → retour en semaine 3 (séances progressives
+     toujours accompagnées), compteur j.extended, message bienveillant.
+     Reproductible autant de fois que nécessaire. Principe : accompagner,
+     jamais pousser hors du nid avant que la personne se sente prête.
+   • v537 : FIX onboarding nouveau profil (récurrent). 2 causes traitées :
+     (a) L onboarding n était vérifié qu à la FIN de window.onload, après
+         loadStats/updateHomeStats/renderWeeklyPlan… Si l un plantait pour
+         un profil vierge, le check n était jamais atteint. → Ajout d un
+         check PRIORITAIRE en tête de window.onload (avant tout rendu),
+         isolé en try/catch, idempotent.
+     (b) createProfile : init du profil vierge blindée — lsSet AVEC repli
+         setItem direct + garde-fou qui re-écrit profile_<id>_userProfile
+         {setupComplete:false} si l écriture a échoué (sinon le fallback
+         legacy de getProfileData copiait l ancien profil = setupComplete
+         true = pas d onboarding). Testé : onboarding se déclenche.
+   • v538 : FIX affichage modale « changer de profil ». Les cartes
+     .profile-card avaient background:white SANS surcharge dark-mode →
+     cartes blanches + contenu peu lisible (icônes/texte) dans la modale
+     sombre. Ajout de body.dark-mode .profile-card / :hover / .current /
+     .profile-name / .profile-stats (fonds translucides, texte clair,
+     accent vert pour le profil actif). La liste utilise déjà renderAvatar
+     pour les icônes SVG. NB : position « bottom sheet » sur mobile =
+     style volontaire commun à toutes les modales.
+   • LICENSE + README : licence « Tous droits réservés » ajoutée (FR/EN).
+     App gratuite à utiliser, code visible mais NON réutilisable (ni libre
+     ni open source). Inclut avertissement santé et absence de garantie.
+     Section licence ajoutée au README. Fichiers à la racine du dépôt.
+   • v539 : DOUBLON supprimé — « Woodchop câble haut-bas » (muscle:
+     Abdominaux) faisait doublon avec « Woodchop câble (haut→bas) »
+     (muscle: Obliques). Même mouvement. On garde la version À PARENTHÈSES :
+     classification musculaire correcte (obliques principal, abdos
+     secondaire), meilleures instructions, et paire cohérente avec
+     « Woodchop câble (bas→haut) ». Les 2 références dans les listes
+     d équipement d app.js (Poulie/Câble + Machines abdos) ont été
+     redirigées vers le nom conservé — aucune référence orpheline.
+   • v540 : COMPTEURS bibliothèque d exercices DYNAMIQUES. Les 3 chiffres
+     de l écran d accueil Exercices étaient codés en dur et périmés :
+     « 235+ » exercices (réel : 421), 12 groupes musculaires (réel : 16),
+     15 équipements (réel : 23). Nouvelle fonction
+     renderExerciseLibraryStats() compte la base RÉELLE (dédoublonnage par
+     nom, muscles et équipements distincts) et remplit #exWelcomeCount,
+     #exStatTotal, #exStatMuscles, #exStatEquip à l ouverture de l onglet.
+     Ne se périmera plus jamais quand tu ajoutes des exercices.
+   • v541 : FIX RECHERCHE D EXERCICES (cassée). Dans
+     filterExercisesBySearch, le filtre faisait ex.equipment.toLowerCase()
+     — or equipment est un TABLEAU ([\"Poids du corps\"]), pas une chaîne.
+     Dès qu un exercice ne matchait ni le nom ni le muscle, l appel levait
+     « toLowerCase is not a function » → le .filter() entier plantait →
+     AUCUN résultat, quel que soit le terme. Correction : helper _eqText()
+     qui join() le tableau, + String() défensif sur name/muscle + try/catch
+     par item. Testé sur les 421 exercices : recherche par nom, par muscle
+     ET par équipement fonctionnelle. NB : l autre champ (filterExercises)
+     gérait déjà correctement le tableau — seul ce filtre était fautif.
+   • v542 : FILTRE ÉQUIPEMENT incomplet — 8 équipements manquaient dans
+     le <select> de la bibliothèque (15 options pour 23 équipements réels).
+     Ajoutés : Piscine (6 exos), Pneu / Strongman (3), Sac de sable (3),
+     Traîneau (2), Vélo stationnaire (1), Elliptique (1), StairMaster (1),
+     Battle ropes (1). Ces exercices étaient INACCESSIBLES au filtre.
+     Vérifié : le filtre couvre désormais les 23 équipements de la base,
+     aucune option orpheline. NB : availableEquipment (réglages/lieux)
+     contenait DÉJÀ les 23 — seul le filtre biblio était incomplet.
+     « Extérieur » n est pas un équipement (géré par les profils de lieu).
+   • v543 : FILTRES biblio complétés.
+     (a) Nouveau FILTRE PAR TYPE (#typeFilter) : Musculation (354) /
+         Échauffements (35) / Étirements (31). Ils étaient bien présents
+         dans la biblio (jamais exclus) mais IMPOSSIBLES à isoler — aucun
+         filtre ne permettait de les afficher seuls. Logique tolérante :
+         (ex.type || \"exercise\") → les entrées sans type sont de la muscu.
+         Ajouté aussi à resetFilters().
+     (b) Filtre MUSCLE : « Adducteurs » manquait (15 options / 16 muscles
+         réels) → ajouté. Filtre muscle et équipement couvrent maintenant
+         100% de la base.
+   • v544 : FIX images manquantes dans les ÉCHAUFFEMENTS DE SÉANCE.
+     CAUSE : les échauffements affichés en séance ne viennent PAS de la
+     base d exercices mais d une liste séparée dans app.js
+     (WARMUP_EXERCISES + WARMUP_GENERAL, générée par
+     generateAdaptiveWarmup). Leurs noms sont propres à cette liste
+     (« Rotations bras », « Pompes inclinées légères », « Squats à vide »,
+     « Mouvements articulaires »…) et n existent nulle part dans la base →
+     aucune image trouvable. 23 des 30 étaient sans visuel.
+     FIX : 23 alias ajoutés à EXERCISE_IMAGES pointant vers des images
+     EXISTANTES par équivalence de mouvement (Rotations bras→Cercles de
+     bras, Pompes inclinées légères→Pompes genoux lentes, Squats à vide→
+     Squats poids corps légers, Plank 30 sec→Planche, etc.). Toutes les
+     cibles vérifiées présentes. Résultat : 30/30 ont une image.
+     NB : mon audit précédent ne testait que la présence de la CLÉ dans le
+     mapping, pas l existence du FICHIER ni les listes hors-base.
+   • v545 : DIAGNOSTIC images. buildLazyImg avait un onerror qui, en cas
+     d échec de chargement, CACHAIT l image ET son conteneur → un fichier
+     absent/404 était 100% INVISIBLE (ni image, ni repli, ni message).
+     Impossible de savoir si le fichier manquait ou si le lookup échouait.
+     Désormais : (a) console.warn(\"[IMG 404] introuvable:\", url) avec l URL
+     exacte demandée, (b) repli visible « 🖼️ Image indisponible + nom ».
+     Vérifié par ailleurs : mapping OK (410 entrées), lookup OK, encodage
+     URL OK (UTF-8), service worker OK (ne cache que les 200).
+   • v546 : FIX images échauffements — VRAIE CAUSE trouvée. L aperçu
+     d exercice (awakShowExercisePreview, ouvert en cliquant un exercice
+     dans l écran de préparation) insérait l URL BRUTE :
+     <img src=\"${imgSrc}\"> — sans encodage. Or beaucoup de noms de fichiers
+     d échauffement contiennent des ACCENTS (Squats_poids_corps_légers.webp,
+     Montées_de_genoux_sur_place.webp…) → URL invalide → image cassée.
+     C est le seul chemin qui n utilisait pas buildLazyImg (qui, lui,
+     encode). Corrigé : passe par buildLazyImg + repli encodeURI.
+     Même faille corrigée dans toImgHTML (exercise-visuals.js) et dans le
+     repli de la swap-card. Testé : « Squats poids corps légers » →
+     Squats_poids_corps_l%C3%A9gers.webp ✅
+   • v547 : VRAIE CAUSE des échauffements sans image — une TROISIÈME
+     liste d échauffements, créée EN DUR dans app.js (~L1877-1966 :
+     Phase 1 cardio / Phase 2 mobilité / Phase 3 activation), avec ses
+     propres noms absents de la base : « Pompes genoux », « Cercles bras »,
+     « Montées de genoux légères », « Jumping jacks d échauffement »,
+     « Squats légers », « Talons-fesses légers », « Pas chassés latéraux »…
+     19/21 étaient SANS image. (Les listes trouvées avant — base
+     exerciseDatabase et WARMUP_EXERCISES — étaient les mauvaises pistes.)
+     FIX : 20 alias ajoutés vers des images existantes par équivalence
+     (Cercles bras→Cercles de bras, Pompes genoux→Pompes genoux lentes,
+     Montées de genoux légères→Montées de genoux sur place, Jumping jacks
+     d échauffement→Jumping jacks, etc.). Balayage complet : les 22
+     warmup/stretch créés dans app.js ont TOUS une image. Mapping : 430.
+   • v548 : REFACTO — les échauffements progressifs rejoignent la BASE.
+     POURQUOI : generateProgressiveWarmup créait ses 21 exercices EN DUR
+     dans app.js. Conséquences : pas d image (bug qu on a mis 4 builds à
+     trouver), absents de la bibliothèque, des filtres, des compteurs et
+     du suivi d images. Une liste parallèle invisible.
+     FIX : les 21 exercices sont désormais de vraies entrées de
+     exerciseDatabase (type:\"warmup\", avec description/instructions/tips/
+     duration). generateProgressiveWarmup les PIOCHE dans la base via
+     _warmupFromDB()/_warmupPool() au lieu de les créer. Logique 3 phases
+     STRICTEMENT préservée (pools aléatoires, mode gym/maison, adaptation
+     haut/bas du corps, préhab par sexe, bonus haute intensité).
+     Repli défensif si un nom change. Testé : échauffement identique.
+     Bibliothèque : 421→442 exercices, 35→56 échauffements. Les 22 ont
+     une image. Ce bug ne peut plus se reproduire : tout exercice affiché
+     vient de la base.
+   • v549 : IMAGES MAL ATTRIBUÉES (données, pas code). Audit OCR des 354
+     bandeaux + comparaison md5 : un DÉCALAGE EN CASCADE existe dans un
+     ancien lot d images. Prouvé :
+       Soulevé_de_terre.webp     → contient l image JUMP ROPE DOUBLE UNDER
+       Jump_Rope_Double_Under    → contient l image JUMP ROPE HIIT
+       Jump_Rope_HIIT            → contient l image VÉLO STATIONNAIRE
+       Vélo_stationnaire         → contient l image OVERHEAD SQUAT (md5
+                                   identique à Overhead_squat.webp)
+     Autres doublons md5 suspects (à vérifier) : Dead_bug_lent(_v2) ==
+     Fentes_dynamiques(_v2), Rotations_poignets(_v2) ==
+     Rotations_thoraciques(_v2), Rotations_tronc(_v2) ==
+     Superman_dynamique(_v2).
+     ACTION : les 4 mappings PROUVÉS faux sont neutralisés (commentés) →
+     repli sur l animation SVG. Montrer une corde à sauter sur un soulevé
+     de terre est pire que pas d image (risque technique/blessure).
+     Les vraies images de ces 4 exercices sont à refaire.
+   • v550 : CHAÎNE D IMAGES DÉCALÉES — RÉPARÉE. Audit OCR des 354 bandeaux
+     (tesseract) : un ancien lot avait été intégré avec un décalage d un
+     cran, chaque fichier contenant l image de l exercice SUIVANT :
+       Curl_alternés   → contenait CURL ZOTTMAN
+       Curl_Zottman    → contenait SOULEVÉ DE TERRE
+       Soulevé_de_terre→ contenait JUMP ROPE DOUBLE UNDER
+       Jump_Rope_Double_Under → contenait JUMP ROPE HIIT
+       Jump_Rope_HIIT  → contenait VÉLO STATIONNAIRE
+       Vélo_stationnaire → contenait OVERHEAD SQUAT
+     FIX : les images ont été redécalées d un cran (contenu réaffecté au
+     bon fichier), vérifié par OCR après correction. Les 4 mappings
+     neutralisés en v549 sont RÉACTIVÉS (désormais corrects).
+     « Curl alternés » : son image n existe dans aucun fichier (début de
+     chaîne) → mapping neutralisé, repli SVG, image À RECRÉER.
+     ⚠️ Les images corrigées DOIVENT être re-téléversées sur GitHub
+     (zip awakened-images-CORRIGEES.zip).
+     NB : les doublons md5 non-_v2 (Dead_bug_lent, Fentes_dynamiques,
+     Rotations_poignets/tronc) sont des fichiers MORTS non utilisés par le
+     mapping (qui pointe vers les _v2, corrects) → sans impact.
+   • v551 : AUDIT + OPTIMISATIONS (aucun changement fonctionnel voulu).
+     VÉRIFIÉ SAIN : 148 handlers HTML → 0 fonction introuvable ; 0 mapping
+     image cassé ; 0 clé de mapping inutilisée ; timers correctement
+     nettoyés (17 setInterval / 47 clearInterval) ; purge de stockage
+     (>4 Mo) correcte — historique en unshift donc slice(0,100) garde bien
+     les 100 PLUS RÉCENTES.
+     CODE MORT SUPPRIMÉ :
+       - renderWeeklyMuscleVolume() était définie 2× dans app.js. La 1re
+         (désactivée + ~40 lignes inaccessibles après un return) était
+         écrasée par la vraie (~L39300). Retirée : 46 lignes, comportement
+         inchangé.
+       - getItemRankValue() en double dans adventure.js (identique) → 1 seule.
+       - 14 fichiers images jamais référencés supprimés (1,7 Mo), dont les
+         copies corrompues du décalage (Dead_bug_lent, Fentes_dynamiques,
+         Rotations_poignets/thoraciques/tronc, Superman_dynamique).
+         353 → 340 images.
+     PERFORMANCE (bibliothèque) :
+       - Les 2 SVG (start+end) étaient générés pour CHAQUE carte même
+         lorsqu une image existait, puis jetés (~700 générations inutiles
+         sur un filtre large). Désormais : SVG uniquement en repli.
+       - RENDU PROGRESSIF : un filtre large créait 354 cartes d un coup
+         (milliers de nœuds DOM → scroll saccadé sur mobile). Maintenant
+         paquets de 60, suite chargée au défilement (IntersectionObserver,
+         repli bouton « Afficher plus »). Compteur = total réel.
+     NB : showAwakeningTree/showFeatureMap existent dans app.js ET dans
+     leur module ; les modules se chargeant APRÈS, leur vraie version gagne
+     — les wrappers d app.js sont un repli inoffensif.
+   • v552 : +27 IMAGES (lot zip nº1) — intégrées via le PIPELINE OCR.
+     Nouveauté : plus aucune association basée sur l ordre des fichiers.
+     Chaque image est identifiée en LISANT SON BANDEAU (tesseract, image
+     inversée car texte clair sur fond noir + matching partiel tolérant
+     aux erreurs d OCR), puis rapprochée du nom canonique. Contrôle après
+     écriture : les 27 fichiers contiennent bien l exercice annoncé.
+     C est ce qui empêche désormais toute chaîne de décalage.
+     24 nouvelles + 3 REMPLACEMENTS (visuels refaits) : Curl barre,
+     Élévations frontales, Élévations latérales.
+     Nouvelles : Hollow hold, Parallel Bar Knee Raises, Squat classique,
+     Squat sumo, Squat KB sumo, Squat élastique, Squat bulgare, Sissy
+     Squat, Man maker, Side Crunch au sol, V-ups, Muscle-Up, Pike push-up,
+     Sprawl, Overhead press élastique, Rear Delt machine, Shoulder Press
+     machine, Shoulder Press Smith machine, Élévations Y, MB burpee,
+     MB chest pass, MB lunge with rotation, Sandbag Carry, Tuck Jump.
+     « Pike push-up » (disciplines) partage l image avec « Pike push-ups »
+     (base) et « Pike push-up surélevée ». Mapping : 455 · images : 364.
+   • v553 : 3 BUGS profils.
+     (1) EXERCICES INVISIBLES après création/changement de profil — CAUSE :
+         createProfile initialisait exerciseBlacklist et selectedMuscles à
+         « {} » (objet) alors que ce sont des TABLEAUX. getExerciseBlacklist()
+         renvoyait {} → blacklist.includes(...) levait « includes is not a
+         function » → displayExercises plantait → 0 exercice affiché, y
+         compris dans la recherche. FIX : table _BLANK avec les BONS types
+         ([] pour myPrograms/exerciseBlacklist/selectedMuscles, {} pour
+         muscleRecoveryTracking, \x27\x27 pour les plans). getExerciseBlacklist()
+         blindé (renvoie toujours un tableau, même si la donnée stockée est
+         corrompue par une ancienne version).
+     (2) ÉVEIL non proposé sur un nouveau profil — CAUSE : awakEveilJourney /
+         awakEveilOffered / awakEveilLevel étaient des clés GLOBALES, absentes
+         de GAME_KEYS. Le « déjà proposé » du 1er profil bloquait l offre pour
+         tous les suivants, et le parcours fuitait d un profil à l autre.
+         FIX : les 3 clés ajoutées à GAME_KEYS (isolation par profil) +
+         effacées à la création d un profil.
+     (3) Modale « Changer de profil » collée en bas — exemptée du style
+         bottom-sheet mobile : elle est désormais CENTRÉE (#profileSelectionModal).
+   • v554 : +54 IMAGES (2e envoi zip) via pipeline OCR. 50 nouvelles +
+     4 REMPLACEMENTS (visuels refaits) : Hollow hold, Pike push-up,
+     Ball back extension, Burpees.
+     Couvre enfin la BOXE (Shadow Boxing, Jab-Cross 1-2, Jab-Cross-Crochet
+     1-2-3, Crochets, Uppercuts, Esquives, Footwork, Échauffement & garde),
+     la NATATION (brasse/crawl/dos, pool push-up, water running), le
+     STRONGMAN (Tire Flip, Sled Push, Shrugs en marche), les TRX, les
+     Woodchop, les machines (Preacher Curl, Tricep, Shrug, Rotation
+     obliques, Relevé de jambes, Mollets debout) et le cardio (Rowing 500m,
+     Sprint Intervals, Navette, StairMaster, Stair Climbing).
+     ⚠️ COLLISION rattrapée : 2 images matchaient « Jab – Cross (1-2) » ;
+     le bandeau de la 2e disait « JAB – CROSS – CROCHET (1-2-3) » → réassignée.
+     Le 3e zip envoyé était un DOUBLON exact du 2e (24 images déjà
+     présentes, 0 nouvelle) → ignoré.
+     Contrôle post-écriture : les 54 fichiers contiennent bien l exercice
+     annoncé. Mapping : 503 · images : 414.
+   • v555 : +29 IMAGES (3e envoi) via pipeline OCR. 21 nouvelles +
+     8 REMPLACEMENTS (visuels refaits) : Abduction machine (fessiers),
+     Banded Deadlift, Box jumps, Burpees, Cobra, Jumping jacks,
+     Medicine Ball Slam, Soulevé de terre.
+     ⭐ « Curl alternés » : c était l image PERDUE au début de la chaîne de
+     décalage (v550) — elle est enfin fournie. Mapping RÉACTIVÉ.
+     Nouvelles : Ab Wheel (Rollout + Knee Rollout), Glute Bridge, Monster
+     walk, Nordic hamstring curl, Single leg deadlift, Squat barre haut/bas,
+     Squat Smith machine, Pullover machine, Straight Arm Pushdown, Tirage
+     poulie basse / unilatéral câble, Rowing élastique / KB renegade,
+     Sled Pull, Rice Bucket Twists, Swiss Ball Pass, Marche rapide,
+     MB Lunge with Rotation.
+     ⚠️ 3 CASSE différente rattrapée : Glute Bridge / Ab Wheel Rollout /
+     Ab Wheel Knee Rollout avaient un mapping vers l ancien fichier
+     (Ab_wheel_rollout.webp…) → repointés vers les NOUVELLES images ; les
+     2 anciens fichiers devenus orphelins supprimés. Sans ça, les nouveaux
+     visuels n auraient jamais été affichés.
+     Contrôle post-écriture OCR : 29/29 conformes.
+     Mapping : 521 · images : 433.
+   • v556 : IMAGES DES DISCIPLINES. Audit en CHARGEANT disciplines.js à
+     l exécution (les regex ratent la structure : les exercices sont dans
+     les .exercises des SESSIONS, pas dans des tableaux plats) → 178
+     exercices de disciplines, dont seulement 41 avaient une image.
+     +102 ALIAS de réutilisation par équivalence de mouvement :
+       - COURSE : les segments Effort/Récup/VMA x/10 ne sont pas des
+         mouvements mais des blocs de temps → image de fractionné / marche.
+       - BOXE : les combos (1-2-3-2, esquive+contre, finishers…) réutilisent
+         le geste de référence (Jab-Cross, Esquives, Shadow, Burpees…).
+       - SÉRÉNITÉ : respirations → Respiration profonde / Savasana.
+       - CALIS/PILATES/BARRE : équivalences franches uniquement
+         (Squats→Squat classique, Pont fessier→Glute Bridge, Chaise
+         pulsée→Chaise, Curl nordique négatif→Nordic hamstring curl…).
+     ⚠️ Les propositions AUTOMATIQUES douteuses ont été ÉCARTÉES (ex.
+     « Archer push-ups »→Pike push-ups, « Single Leg Stretch »→Single leg
+     deadlift) : une mauvaise image est pire que pas d image (cf. soulevé
+     de terre). Ces cas restent en attente d un vrai visuel.
+     Résultat : disciplines 41 → 143 illustrées. Mapping : 623.
+     RESTE 35 à créer (liste : Disciplines_images_a_creer.txt) — figures de
+     force calisthéniques (planche, front/back lever, handstand, L-sit),
+     Pilates (Le Cent, Teaser, Roll-up…) et Barre (pliés, arabesque…).
+   • v557 : +40 IMAGES (4e envoi) + RETRAIT de 3 exercices.
+     RETIRÉS (demande utilisateur — l IA ne sait pas les générer) :
+     « Rowing inversé (table) », « Rowing inversé groupé »,
+     « Rowing archer (table) » → 4 lignes _dx() supprimées de
+     disciplines.js. Séances impactées : Volume (6→5), Tirer dos/biceps
+     (9→7), Full body sans matériel (9→8) — aucune séance vidée.
+     🐛 BUG DU PIPELINE CORRIGÉ : canonical_names() ne lisait les noms de
+     disciplines que par regex « name: X, muscle: » — or les exercices de
+     disciplines sont déclarés via des appels _dx(...). 144 noms étaient
+     donc INVISIBLES au matching (d où 14 sûrs / 41 au 1er passage).
+     Correction : disciplines.js est désormais CHARGÉ À L EXÉCUTION →
+     608 noms canoniques (au lieu de 464) → 40 sûrs / 41.
+     34 nouvelles + 6 remplacements (Ball chest press, Curl barre, Medicine
+     Ball Slam, Wall Ball, Élévations frontales/latérales).
+     Couvre enfin : figures de force calisthéniques (Tuck planche, front/
+     back lever, handstand, L-sit, drapeau, crow pose), PILATES (Le Cent,
+     Roll-up, Teaser, La Scie, Swimming, Side Kick…) et BARRE (pliés
+     pulsés, arabesque, pretzel, bras de danseuse…).
+     ⚠️ Collisions rattrapées : Tuck planche vs Tuck planche avancée ;
+     Pompes équilibre vs Pseudo-planche pompes vs Pseudo-planche push-up ;
+     L-sit groupé vs L-sit groupé → tendu. 2 versions de « La Scie » →
+     la plus récente conservée.
+     « Romanian deadlift » pointait vers l image du CABLE Romanian Deadlift
+     (alias par défaut) → repointé vers sa vraie image.
+     ✅ DISCIPLINES : 0 image manquante (214 exercices).
+     RESTE 5 en base : Single Leg Glute Bridge, Élévations latérales câble,
+     Élévations frontales câble, Wrist Curl barre (banc), Medicine Ball
+     Slam rotatif.
+   • v558 : CORRECTION de 6 mauvaises associations du lot v557.
+     🐛 BUG DU MATCHER : la règle « tous les mots du nom sont dans le
+     bandeau » validait le nom LE PLUS COURT. « Élévations frontales » est
+     inclus dans « ÉLÉVATIONS FRONTALES CÂBLE » → l image du CÂBLE écrasait
+     celle de l exercice de base. 6 images avaient été mal affectées :
+       WRIST CURL BARRE (BANC)     écrasait  Curl barre
+       MEDICINE BALL SLAM ROTATIF  écrasait  Medicine Ball Slam
+       ÉLÉVATIONS FRONTALES CÂBLE  écrasait  Élévations frontales
+       ÉLÉVATIONS LATÉRALES CÂBLE  écrasait  Élévations latérales
+       BALL WALL SQUAT             écrasait  Wall Ball
+       ROMANIAN DEADLIFT BARRE     écrasait  Romanian deadlift
+     FIX : (1) les 6 images d origine RESTAURÉES depuis le zip v556 ;
+     (2) les 6 nouvelles réaffectées à leur vrai exercice ; (3) la règle
+     du matcher corrigée → parmi les noms entièrement contenus dans le
+     bandeau, le PLUS SPÉCIFIQUE (le plus long) l emporte. Testé 6/6.
+     ⚠️ Ce bug est le miroir du cas « Sandbag Carry » : le contrôle OCR
+     post-écriture ne le voyait pas (le bandeau contient bien le nom court).
+     ÉTAT : base 440/441 · disciplines 175/175 · mapping 660 · images 471.
+     RESTE 1 SEULE image : « Single Leg Glute Bridge ».
+   • v559 : FIX « Ball chest press » — ma restauration v558 était TROP
+     LARGE. En restaurant les 6 images écrasées par le bug du matcher,
+     j avais aussi restauré Ball_chest_press.webp — or celle-là était un
+     REMPLACEMENT LÉGITIME (bandeau « BALL CHEST PRESS »), pas une
+     mauvaise association. J avais donc annulé la nouvelle image.
+     → Nouvelle image réinstallée + vérifiée par OCR.
+     AUDIT COMPLET des 3 lots (54 + 29 + 40 images) : chaque fichier
+     installé a été comparé (md5 après conversion WebP) à l image envoyée.
+     Résultat : 123/123 conformes. Seul « Burpees » diffère du lot 2 —
+     normal, il a été refait dans le lot 4 : c est bien la version la plus
+     récente qui est en place.
+   • v560 : DERNIÈRES VICTIMES du bug « nom le plus court » — le bug avait
+     aussi frappé DES LOTS PLUS ANCIENS (v552 et v555), pas seulement v557.
+     Audit ciblé sur la SIGNATURE du bug (le bandeau contient un nom PLUS
+     SPÉCIFIQUE que l exercice auquel l image est associée) sur les 470+
+     fichiers. 4 cas trouvés et corrigés :
+       Élévations_frontales.webp  contenait ÉLÉVATIONS FRONTALES CÂBLE
+       Élévations_latérales.webp  contenait ÉLÉVATIONS LATÉRALES CÂBLE
+         → vraies images restaurées depuis le build v551 (antérieur au lot
+           fautif v552). Les versions câble ont déjà leur propre fichier.
+       Medicine_Ball_Slam.webp    contenait MEDICINE BALL SLAM ROTATIF
+         → vraie image restaurée depuis v554 (antérieur au lot v555).
+       Glute_Bridge.webp          contenait SINGLE LEG GLUTE BRIDGE ⭐
+         → l image existait donc depuis le lot v555 ! Fichier renommé
+           Single_Leg_Glute_Bridge.webp + mapping créé. « Glute Bridge »
+           repointé sur Glute_bridge_léger.webp (pas d image dédiée).
+     ✅ RÉSULTAT : plus AUCUNE image mal associée. Base 441/441 et
+     disciplines 175/175 ILLUSTRÉES — plus une seule image manquante.
+   • v561 : FIX affichage « Avant-bras ×2.4000000000000004 » (carte MUSCLES
+     TRAVAILLÉS, onglet Accueil). CAUSE : les muscles SECONDAIRES comptent
+     en fractions (0.4, 0.5…) via accumulateWeightedMuscles ; la somme de
+     flottants produit des artefacts (0.8 + 1.6 = 2.4000000000000004), et
+     la valeur était affichée BRUTE.
+     FIX : helper fmtMuscleCount(v) — arrondi à 1 décimale, « .0 » masqué,
+     virgule décimale française. 2.4000000000000004 → « 2,4 » ; 3.000…04 → « 3 ».
+     Appliqué au seul endroit qui affichait la valeur brute. Vérifié que les
+     autres accumulations pondérées ne sont PAS affichées telles quelles
+     (L4722 : sert au tri uniquement ; widget Volume hebdo : déjà Math.round).
+   • v562 : +25 IMAGES (5e envoi) — 17 remplacements + 8 nouvelles.
+     Remplacements : Adduction machine (intérieur), Ball chest press,
+     Ball crunch, Ball leg raise, Ball push-up, Banded Glute Bridge,
+     Battle ropes gym, Burpees légers, Dips pectoraux, Flexions extensions
+     bras, Jump squat, Man maker, Medicine Ball Slam, Single Leg Glute
+     Bridge, Vélo stationnaire, Élévations frontales, Élévations latérales.
+     Nouvelles : Ball hamstring curl, Barbell Row prise large, Bench
+     Step-up, Chat-dos rond, Romanian deadlift, Stiff Leg Deadlift,
+     Swiss Ball Pike, Traction sur barre fixe.
+     ⚠️ 9 IMAGES ORPHELINES rattrapées : leur clé de mapping existait déjà
+     mais pointait ailleurs — soit vers l image d un AUTRE exercice (alias
+     par défaut : Romanian deadlift et Stiff Leg Deadlift → Cable Romanian
+     Deadlift ; Barbell Row prise large → Barbell Row ; Swiss Ball Pike →
+     Ball Pike ; Traction sur barre fixe → Tractions pronation), soit vers
+     un fichier au nom différent (tiret vs souligné / casse : Chat-dos_rond,
+     Ball_push-up, Ball_Hamstring_curl, Bench_Step-up). Sans ce contrôle,
+     ces 9 nouvelles images n auraient JAMAIS été affichées.
+     → mappings repointés, 4 anciens fichiers devenus inutiles supprimés.
+     ⚠️ Mapping cassé réparé : « Pont fessier (Bridge) » pointait encore
+     vers Glute_Bridge.webp, renommé en v560 → repointé sur
+     Glute_bridge_léger.webp.
+     Contrôles : 25/25 fichiers conformes (OCR après écriture) · 0 mapping
+     cassé · 0 image mal associée sur toute la banque (audit signature du
+     bug « nom le plus court »). Mapping 661 · images 475.
+   • v563 : FIX « le bouton Installer ne fonctionne pas » (Réglages).
+     TROIS causes cumulées :
+     (1) 🔴 MANIFESTE HORS PORTÉE — manifest.json déclarait
+         « start_url »: « / » (racine du DOMAINE). Or l app est servie
+         depuis un SOUS-DOSSIER GitHub Pages (…github.io/fitpro/). La page
+         se trouvait donc HORS de la portée du manifeste → Chrome refuse
+         l installation et ne déclenche JAMAIS beforeinstallprompt.
+         FIX : start_url et scope passés en RELATIF (« ./ ») → fonctionne
+         à la racine comme dans un sous-dossier, quel que soit le déploiement.
+     (2) ÉCOUTEUR TROP TARDIF — beforeinstallprompt est déclenché par Chrome
+         très tôt, souvent AVANT la fin du chargement de app.js. L écouteur
+         étant posé dans window.onload, l événement était PERDU et
+         deferredInstallPrompt restait null pour toujours.
+         FIX : capture précoce dans le <head> de index.html
+         (window._deferredInstallPrompt), récupérée ensuite par app.js.
+     (3) ÉCHEC SILENCIEUX — installPWA() commençait par
+         « if (!deferredInstallPrompt) return; » : sans invite, le bouton ne
+         faisait RIEN, sans aucun message. FIX : retour explicite dans tous
+         les cas — déjà installée (toast), iOS (guide Safari), navigateur
+         non compatible (instructions manuelles Chrome/Edge/Safari/Firefox).
+     Testé sur 4 scénarios : invite dispo / déjà installée / iPhone / sans support.
+     ⚠️ manifest.json DOIT être redéployé (il est dans le zip DEPLOY).
+   • v564 : Modale « Changer de profil » collée en bas — CORRIGÉE POUR DE BON.
+     La correction CSS de v553 (#profileSelectionModal { align-items:center })
+     était pourtant JUSTE : vérifiée présente, bonne spécificité (#id +
+     !important bat .modal), dans le bon bloc @media, CSS équilibré, et bien
+     copiée dans le zip DEPLOY. Le problème venait donc d une feuille de style
+     servie en version PÉRIMÉE (cache navigateur / CDN GitHub Pages).
+     FIX ROBUSTE : le positionnement est désormais forcé EN JS à l ouverture
+     (style.setProperty(..., \x27important\x27)), ce qui l emporte sur la règle
+     !important de la feuille ET fonctionne même avec un CSS périmé.
+     🐛 BUG BONUS trouvé au passage (sw.js) : la liste ASSETS utilisait des
+     chemins ABSOLUS (\x27/css/style.css\x27, \x27/js/app.js\x27…) — ils pointent vers la
+     RACINE DU DOMAINE, pas vers le sous-dossier /fitpro/ de GitHub Pages.
+     Toutes les ressources renvoyaient donc 404 et n étaient jamais mises en
+     cache → le mode hors-ligne ne fonctionnait pas. 31 chemins passés en
+     RELATIF (\x27./css/style.css\x27…). Même cause racine que le bug du manifeste
+     corrigé en v563.
+   • v565 : AUDIT GÉNÉRAL avant pause (aucun changement fonctionnel).
+     Passé au crible — TOUT VERT :
+       1. Syntaxe : 18/18 fichiers JS OK.
+       2. validate.js : vert.
+       3. Handlers HTML : 148 → 0 fonction introuvable.
+       4. Mapping images : 0 cassé.
+       5. Couverture : BASE 441/441 · DISCIPLINES 175/175 illustrés.
+       6. Duplications intra-fichier : aucune (les 4 « render » sont des
+          fonctions locales de scopes différents, sans conflit).
+       7. Fonctions critiques (profils, onglets, install…) : toutes définies.
+       8. Données : 442 exercices, tous avec nom/muscle/type/difficulté,
+          equipment toujours en tableau, 0 doublon de nom.
+       9. Versions : sw.js et index.html cohérents ; 29 assets SW présents.
+      10. Profils : GAME_KEYS 25 clés (Éveil inclus) ; _BLANK bons types ;
+          getExerciseBlacklist blindé.
+      11. Patterns à risque : pas de .equipment.toLowerCase() ; timers
+          équilibrés (17 setInterval / 47 clearInterval).
+      12. 18/18 scripts locaux présents. 13. Manifeste relatif + icônes OK.
+     Nettoyage : 2 derniers fichiers images morts supprimés (Ball_pike,
+     Torsion_spinale_allongée). Images : 473.
+   • v566 : NOUVELLE FONCTIONNALITÉ — BOSS FAMILIAL (coop entre profils).
+     Objectif : inciter les membres de la famille à s entraîner ensemble.
+     Un boss commun à TOUS les profils du même appareil, avec une grande
+     barre de PV. Chaque membre l attaque À SON RYTHME : à la fin d une
+     séance, le VOLUME (poids×reps) + l XP gagnée se convertissent en
+     dégâts (plancher 15, plafond 600), signés par le profil actif. Les
+     dégâts de tous s additionnent sur la même barre.
+     COOPÉRATIF avec bonus : à la victoire, chaque participant réclame une
+     récompense (200 XP), et le PLUS GROS CONTRIBUTEUR reçoit +150 XP (👑).
+     Une fois vaincu, n importe quel membre invoque le boss suivant (4 boss
+     de 5000 à 20000 PV).
+     ARCHITECTURE (100% local, sans serveur) : nouveau module js/family-boss.js.
+     État stocké dans la clé GLOBALE PARTAGÉE « awakFamilyBoss » — VOLONTAIREMENT
+     HORS de GAME_KEYS pour que tous les profils voient le MÊME boss (si elle
+     était isolée, le partage serait cassé). Les récompenses XP, elles, vont
+     dans fitproRPGLifetimeXP (isolée par profil = chacun son XP). Carte
+     affichée en tête de l onglet Jeu, uniquement si ≥2 profils existent.
+     Attaque déclenchée en fin de saveWorkoutToHistory (sessionVolume déjà
+     calculé là). Testé : coop, classement, bonus top, anti-double-
+     réclamation, invocation suivant, désactivation en solo, cas limites
+     (profil hors liste, volume 0, réclamation avant victoire).
+   • v567 : BOSS FAMILIAL enrichi — 3 mécaniques de COOPÉRATION.
+     (1) 🔥 COMBO FAMILIAL : si plusieurs membres DISTINCTS attaquent le
+         MÊME JOUR, les dégâts de chacun sont multipliés — ×1 seul, ×1.25 à
+         deux, ×1.5 à trois ou plus. S entraîner ensemble devient
+         tactiquement avantageux. Le combo du jour est calculé depuis le
+         journal (log), inclut l attaquant courant, et s affiche sur la
+         carte + dans le toast de fin de séance (🔥 Combo Familial ×1.5 !).
+         Une bannière pédagogique explique la mécanique quand aucun combo
+         n est actif.
+     (2) ⚠️ RÉGÉNÉRATION D INACTIVITÉ : si PERSONNE n attaque pendant 48 h
+         (grâce), le boss récupère 3% de ses PV max par jour au-delà,
+         plafonné à hpMax. lastAttackAt est avancé après application pour ne
+         pas recompter les mêmes jours. L alerte « le boss a régénéré X PV »
+         s affiche sur la carte et s efface dès la première ré-attaque
+         (lastRegenAmount remis à 0). La famille ne peut plus laisser
+         traîner un boss.
+     (3) 📜 JOURNAL DE COMBAT : les 10 dernières attaques sont conservées
+         ({pid, name, avatar, dmg, combo, ts}), les 5 dernières affichées
+         sur la carte avec temps relatif (« il y a 2 h ») et badge 🔥×combo.
+         Chacun voit les efforts des autres → émulation.
+     applyRegen est appelé par attack() ET renderCard(). API exposée :
+     comboToday, applyRegen. Testé : progression du combo 1→1.25→1.5,
+     régén 4 jours = 600 PV exacts, plafond hpMax, alerte effacée à la
+     reprise, rendu carte complet.
+   • v568 : ☠️ COUP DE GRÂCE COLLECTIF (Boss Familial, 4e mécanique coop).
+     Sous 10% de PV, le boss entre en phase « DERNIER SOUFFLE » (badge rouge
+     pulsant sur la carte + bannière explicative). Le coup FATAL n est
+     possible que si AU MOINS 2 MEMBRES DISTINCTS ont frappé LE MÊME JOUR
+     (l attaquant courant compte, via le journal).
+     Si un membre SEUL porte un coup qui tuerait : les dégâts s arrêtent à
+     1 PV (le boss survit de justesse, rien n est perdu en silence), le
+     retour attack() porte finishBlocked=true, et un toast explique :
+     « Le coup de grâce exige qu un 2e membre s entraîne aujourd hui ».
+     → le final se joue TOUJOURS en famille : impossible de terminer seul.
+     Hors Dernier Souffle, rien ne change (un membre peut infliger ses 600
+     dmg max). Testé : coup bloqué à 1 PV / 2e membre achève le même jour /
+     coup fatal direct passe si 2 membres déjà actifs / badge + bannière.
+   • v569 : 🎁 BUTIN EXCLUSIF des BOSS FAMILIAUX — 24 items uniques.
+     6 items par boss (un par emplacement : tête/torse/mains/jambes/pieds/
+     accessoire), rareté selon la puissance du boss :
+       🗿 Colosse de Pierre  → 6 items rang C (rare)      #colossus_*
+       🐉 Hydre des Abysses  → 6 items rang B (supérieur) #hydra_*
+       🌋 Golem Runique      → 6 items rang A (épique)    #golem_*
+       🌌 Léviathan Éternel  → 6 items rang S (légendaire)#leviathan_*
+     Déclarés dans data/items.js avec le champ familyBoss:<id> — ils ne
+     tombent QUE quand ce boss familial meurt (pas dans les drops normaux,
+     qui filtrent sur leurs propres pools).
+     DISTRIBUTION (claimReward) : chaque participant reçoit 1 item aléatoire
+     du boss, le TOP CONTRIBUTEUR en reçoit 2. Priorité aux items que le
+     profil ne possède PAS encore (doublons seulement une fois les 6
+     collectés). fitpro_inventory étant isolée par profil → chacun son butin.
+     UI : teaser « Butin exclusif » sur la carte (6 icônes avec tooltip),
+     rang du butin affiché sur les boutons d invocation, toast de
+     réclamation listant les items gagnés.
+     🐛 BUG PRÉEXISTANT corrigé : DEUX items partageaient l id
+     « eclipse_blade » (épique L632 + mythique du set eclipse_sovereign) —
+     getItemById renvoyant le premier, le mythique était INACCESSIBLE.
+     → mythique renommé eclipse_blade_mythic + liste pieces du set mise à
+     jour. Testé : distribution 2/1, inventaires séparés, priorité aux
+     non-possédés (6 uniques avant tout doublon), items du bon boss, teaser.
+   • v570 : 💞 DÉFIS DE DUO — deux profils se lient et progressent ensemble.
+     Nouveau module js/duo-challenges.js. Deux profils forment un DUO
+     (couple, parent-enfant, binôme). Clé GLOBALE partagée « awakDuo »
+     (hors GAME_KEYS, comme le boss familial).
+     DÉFI HEBDOMADAIRE commun (5 défis, tirés selon le niveau) : se
+     synchroniser (même jour ×2 ou ×3), chacun 3-4 séances, ou 8 séances
+     cumulées. Progression trackée par jour d entraînement de chaque membre.
+     NIVEAUX DE DUO : défi réussi → +1 niveau (résolu au passage de semaine,
+     rollover ISO-week). 6 titres à paliers (🤝 Nouveau Duo → 🌌 Duo Éternel
+     à niv.25).
+     SYNERGIE : le niveau de duo donne +1%/niveau de dégâts au BOSS FAMILIAL
+     (plafond +10%). Les deux systèmes coopératifs se nourrissent.
+     UI : carte dans l onglet Jeu (après le boss). Si le profil actif n est
+     pas en duo → proposition de liaison avec les autres membres. En duo →
+     défi de la semaine + barre de progression + séances de chacun + niveau
+     + bonus boss + bouton délier (avec confirmation).
+     Hooks fin de séance (saveWorkoutToHistory) : recordSession() enregistre
+     le jour + toast si le défi bascule sur réussi ; le multiplicateur de duo
+     est appliqué AUX dégâts du boss.
+     Testé : liaison/déliaison, progression, réussite, rollover +1 niveau,
+     nouveau défi tiré, compteurs RAZ, bonus 1%→10% plafonné, isolation
+     (profil hors duo = ×1, ne voit pas la carte), visibilité pour les 2
+     membres. NB v1 : un seul duo simultané (multi-duos = évolution future).
+   • v571 : 👨\xe2\x80\x8d👩\xe2\x80\x8d👧 ONGLET « FAMILLE » DÉDIÉ — coopération sortie du jeu.
+     La coopération (Boss Familial + Défis de Duo) a désormais son PROPRE
+     onglet, INDÉPENDANT du mode Aventure/jeu : accessible même RPG désactivé.
+     - Nouveau bouton nav #familyNavTab (icône groupe) entre Réglages et Jeu.
+     - Nouvel onglet #familyTab > #familyContainer.
+     - renderFamilyTab() (adventure.js) : monte AwakFamilyBoss.renderCard() +
+       AwakDuo.renderCard() SANS condition getAdventureEnabled(). En-tête
+       « Ensemble ». Si <2 profils : invite à créer un 2e profil (bouton
+       gérer profils). Exposée sur window.
+     - switchTab : \x27family\x27 ajouté au tableau tabs[] (surlignage nav) +
+       déclencheur setTimeout(renderFamilyTab).
+     - Le boss + duo RESTENT AUSSI dans l onglet Jeu (renderAdventureTab) —
+       demande explicite de l utilisateur. Mêmes fonctions + données
+       partagées → vues synchronisées.
+     - refreshCoopViews() : rafraîchit les DEUX vues (Jeu + Famille). Les
+       actions des modules (attaque/réclamation/liaison) l appellent au lieu
+       de renderAdventureTab seul, pour que les onglets restent synchro.
+     - updateFamilyNavVisibility() : le bouton Famille n apparaît qu avec ≥2
+       profils (masqué en solo, retour accueil si l onglet était ouvert).
+       Appelé à l init + après create/deleteProfile.
+     Testé (DOM simulé, mode jeu OFF) : invite 1 profil / cartes montées à 2
+     profils / indépendance totale du mode jeu confirmée. Ordre nav = tabs[].
+   • v572 : CORRECTION répartition coop — le BOSS reste UNIQUEMENT dans le
+     jeu, l onglet dédié ne contient QUE les Défis de Duo.
+     (v571 mettait boss+duo aux deux endroits ; l utilisateur voulait le
+     boss exclusivement dans l onglet Jeu.)
+     - renderFamilyTab() : ne monte plus que AwakDuo.renderCard() (boss
+       retiré). En-tête « 💞 En duo ». Invite 1-profil adaptée au duo.
+     - renderAdventureTab() (onglet Jeu) : garde le Boss Familial, le duo en
+       est RETIRÉ (il a son onglet).
+     - Bouton nav renommé « Famille » → « Duo » (icône cœur). id interne
+       familyNavTab / tab \x27family\x27 conservés (pas de refactor cassant).
+     Répartition finale : Boss Familial → onglet Jeu · Défis de Duo →
+     onglet Duo (indépendant du mode jeu, visible dès 2 profils).
+     Testé : onglet Duo sans boss, fonctionne mode jeu OFF, boss toujours
+     présent côté Jeu.
+   • v573 : REPRISE DE SÉANCE — quitter ne perd plus la séance en cours.
+     PROBLÈME : quitter une séance (quitWorkout → _doQuitWorkout) effaçait
+     l état actif (clearActiveWorkoutState + removeItem fitproSessionSets) →
+     impossible de la reprendre plus tard.
+     Le système de reprise EXISTAIT DÉJÀ (saveActiveWorkoutState,
+     loadActiveWorkoutState, resumeActiveWorkout, bouton doré « Reprendre »
+     sur l accueil via renderSmartStartButton, + « Abandonner » séparé) mais
+     quitWorkout le détruisait.
+     CORRECTIF :
+     - _doQuitWorkout : sauvegarde l état AVANT de réinitialiser currentWorkout
+       (saveActiveWorkoutState en tête), NE nettoie plus WORKOUT_STATE_KEY ni
+       fitproSessionSets. La séance reste donc reprenable depuis l accueil.
+       Toast « 💾 Séance mise en pause — reprends-la quand tu veux ».
+     - Bouton flottant : « ❌ Confirmer ? » (rouge) → « ⏸️ Mettre en pause ? »
+       (orange). L effacement volontaire reste possible via « Abandonner ».
+     - resumeActiveWorkout : recharge _currentSessionSets depuis
+       fitproSessionSets (la mémoire est vide après rechargement de l app) →
+       les séries déjà validées sont restaurées.
+     - ISOLATION PAR PROFIL : WORKOUT_STATE_KEY devient _workoutStateKey()
+       = profile_<id>_fitproActiveWorkoutState. Chaque membre a SA séance en
+       pause (plus de fuite entre profils sur appareil partagé). Fallback
+       legacy si pas de profil.
+     Testé : cycle quitter→reload→reprendre (position exercice/série/temps +
+     séries restaurées), abandonner efface tout, isolation A/B vérifiée.
+   • v574 : PAS DE RECORDS À LA 1re FOIS — fin du spam de notifications PR
+     pour un débutant. PROBLÈME : sans historique sur un exercice, les
+     maxima valent 0/null → la toute 1re série battait AUTOMATIQUEMENT les
+     records (poids + reps + volume + 1RM), déclenchant une pluie de notifs
+     dès la 1re séance.
+     CORRECTIF sur les DEUX chemins de détection PR :
+       - checkPRBroken() : si l exercice n a AUCUN historique
+         (prs.history vide), retourne [] → aucun record signalé. La série
+         sert de simple référence de départ.
+       - checkAndSavePR() : flag isFirstTime (=!prs[exerciseName]). La 1re
+         fois, la RÉFÉRENCE est bien ENREGISTRÉE (savePRs) mais on retourne
+         null SANS showPRNotification. Les vrais records des séances
+         suivantes sont notifiés normalement.
+     Testé : 1re fois = 0 notif + baseline mémorisée · 2e séance au-dessus =
+     record signalé · 2e séance en dessous = rien. Comportement correct sur
+     les deux fonctions.
+   • v575 : RÉSEAU FAMILIAL (étape 1/2) — remplace le « duo » par un vrai
+     réseau de relations typées. Nouveau module js/family-network.js
+     (window.AwakFamily). Clé GLOBALE partagée « awakFamilyLinks » (liste de
+     liens {from,to,type}), hors GAME_KEYS.
+     RELATIONS : couple 💞, parent 👪, enfant 🧒, frère/sœur 🧑‍🤝‍🧑, autre 🔗.
+     Parent/enfant DIRECTIONNELS (stockés en \x27parent\x27, from=le parent) et
+     traduits selon le point de vue (Théo voit Marc comme « Enfant de » alors
+     que Marc voit Théo comme « Parent de »). Couple/sibling/autre symétriques.
+     API : setRelation, removeRelation, relationOf, myRelations,
+     linkableProfiles, pruneOrphans (retire les liens vers profils supprimés).
+     UI : carte « Ma famille » dans l onglet Famille — liste des membres liés
+     avec leur relation + bouton Modifier, et puces « Lier un membre » pour
+     les profils non encore liés. Modale de choix de relation (AwakFamilyEdit
+     /Pick/Remove). Indépendant du mode jeu.
+     TRANSITION : duo-challenges.js n est plus chargé (remplacé). Appels
+     AwakDuo retirés de saveWorkoutToHistory (enregistrement séance + bonus
+     dégâts boss neutralisé). Le fichier reste sur disque mais inactif.
+     Testé : relations directionnelles/symétriques, traduction par point de
+     vue, rendu carte, indépendance mode jeu.
+     ⏭️ ÉTAPE 2 À VENIR : encouragement / incitation à s entraîner basé sur
+     ce réseau (rappels, kudos entre membres, objectifs partagés…).
+   • v576 : SÉANCE À PLUSIEURS (étape 1/2 — fondation). Nouveau module
+     js/group-workout.js (window.AwakGroup). Permet de choisir les
+     PARTICIPANTS d une séance : profils de l app + invités non inscrits.
+     - Bouton « 👥 Séance à plusieurs » sur l ACCUEIL (conteneur
+       #groupWorkoutBtnContainer, rempli par updateHomeGroupButton, appelé
+       dans updateHomeStats). Visible si ≥2 profils OU séance de groupe déjà
+       en préparation. Affiche « N participants » quand actif.
+     - Modale de gestion (AwakGroupOpen) : liste des participants (self =
+       meneur, non retirable), ajout de profils dispo, ajout d invités par
+       prénom, « Repasser en solo », Valider.
+     - État : clé awakGroupParticipants { participants:[{kind,id,name,avatar}] }.
+       kind = profile|guest. Le self est toujours en tête. isActive() = ≥2.
+     - reset() appelé en fin de séance (retour solo).
+     ⚠️ ÉTAPE 2 À VENIR (le gros morceau) : pendant la séance, une colonne de
+       saisie reps/poids PAR PARTICIPANT (mêmes exercices pour tous), puis à
+       la fin ENREGISTREMENT de la séance complète sur le profil de chaque
+       participant qui en a un (historique/records/stats), invités non
+       stockés. Reset participants est placé en fin de saveWorkout... mais la
+       RÉPARTITION devra se faire AVANT ce reset → à réorganiser à l étape 2.
+     Testé : participants (ajout profil/invité/retrait, self protégé, reset),
+     bouton accueil, comptage, availableProfiles.
+   • v577 : FIX Hall of Fame — cases blanches illisibles. CAUSE : une règle
+     CSS GLOBALE « tr:nth-child(even) td { background:#f8fafc } » (style.css)
+     s appliquait à TOUS les tableaux ; les cellules <td> du Hall of Fame
+     n ayant pas de fond propre, une ligne sur deux devenait quasi-blanche
+     avec du texte clair → illisible. FIX : fond sombre explicite en inline
+     sur les cellules de données (#0d1017, l emporte sur la règle globale ;
+     objectifs = violet translucide un peu plus marqué). Tableau désormais
+     uniformément sombre et lisible. CSS partagé non touché (autres
+     tableaux/rapports inchangés).
+   • v578 : BOSS FAMILIAL — conditions d apparition resserrées. Avant : le
+     boss apparaissait dès qu il existait 2 profils (profileCount). Désormais
+     il n apparaît que si AU MOINS 2 PROFILS sont À LA FOIS (a) LIÉS dans le
+     réseau familial ET (b) ont le MODE JEU activé.
+     Nouvelle fonction eligibleCount() (family-boss.js) :
+       - _gameModeOn(id) : lit fitproGameMode du profil (clé directe pour le
+         profil actif, sinon profile_<id>_fitproGameMode isolé par GAME_KEYS).
+       - _linkedToMe(id) : via window.AwakFamily.relationOf(me, id).
+       - compte = moi (si mon mode jeu est ON) + chaque profil LIÉ dont le
+         mode jeu est ON. Si mon propre mode jeu est OFF → 0 (pas de boss).
+     attack() et renderCard() utilisent eligibleCount() < 2 au lieu de
+     profileCount() < 2. eligibleCount exposé dans l API.
+     Robuste si AwakFamily absent (aucun lien détecté → moi seul).
+     Testé : 0 mode jeu→0 · moi seul→1 (pas de boss) · moi+lié(jeu)→2 (boss)
+     · +3e lié→3 · un lié désactive→recompté · sans réseau→1.
+   • v579 : SÉANCE À PLUSIEURS (étape 2/2) — saisie par participant +
+     enregistrement sur chaque profil. Le gros morceau.
+     FLUX : quand une séance de groupe est active (AwakGroup.isActive), après
+     que le MENEUR valide sa série (completeCurrentSet), un panneau
+     (promptOthersForSet) demande les reps/poids de CHAQUE autre participant
+     pour cette même série (mêmes exercices pour tous). Stocké séparément
+     dans awakGroupSets { participantId: { exo: [séries] } } — le meneur
+     garde son flux normal (_currentSessionSets), zéro impact solo.
+     FIN DE SÉANCE (completeWorkout, AVANT le reset et tant que currentWorkout
+     existe) : pour chaque participant PROFILÉ ayant saisi des séries
+     (profiledContributors), buildWorkoutForParticipant() reconstruit sa
+     séance (seulement les exos où il a des séries) puis
+     saveGroupWorkoutForProfile() l enregistre CHEZ LUI :
+       - écrit profile_<id>_workoutHistory (volume calculé depuis SES séries,
+         muscles, marqué fromGroup) sans changer de profil actif ;
+       - met à jour ses records profile_<id>_fitproPRs (poids/reps/volume,
+         sans notification).
+     Les INVITÉS non inscrits (kind=guest) sont suivis pendant la séance mais
+     JAMAIS stockés. Toast récap des profils enregistrés. reset() nettoie
+     participants + séries.
+     Testé : génération séance (exos sans séries exclus), volume exact (1660),
+     records, isolation (profil actif non touché), invités exclus du stockage.
+   • v580 : MODE FAMILLE — RAPPELS D INACTIVITÉ (encouragement). Dans l
+     onglet Famille, une carte 🔔 RAPPELS liste les membres LIÉS qui traînent,
+     avec un bouton « 👏 Encourager ». 100% local même appareil (pas d envoi
+     réseau) : chacun voit l état des autres en ouvrant son onglet Famille.
+     LOGIQUE (family-network.js) : _lastWorkoutTs(id) lit
+     profile_<id>_workoutHistory (repli clé non préfixée pour le profil actif).
+     memberStatus(id) → active (≤3j) / slipping (4-6j) / inactive (≥7j) /
+     never (aucune séance). membersNeedingNudge() = liés non-actifs, triés du
+     plus inactif au moins. nudgeMessage(relation,nom) = message adapté
+     (couple/parent/enfant/sibling/autre).
+     UI : renderNudgeCard() — pastille colorée (orange=slipping, rouge=
+     inactive/never), « Dernière séance il y a N j ». Si tous actifs → encart
+     positif 🌟. Si aucun lien / <2 profils → rien. AwakFamilyNudge(id) ouvre
+     une modale avec le message d encouragement. Montée dans renderFamilyTab
+     après la carte « Ma famille ».
+     Testé : statuts (2j actif, 8j inactif, jamais=never), tri, exclusion des
+     actifs, messages par relation, encart positif, carte vide sans lien.
+   • v581 : DÉFIS FAMILIAUX — défier un membre lié (pour le fun). Nouveau
+     module js/family-challenge.js (window.AwakFamilyChallenge). Clé GLOBALE
+     « awakFamilyChallenges » (hors GAME_KEYS).
+     3 TYPES : 🔥 le plus de séances · 🏋️ le plus gros volume · ⏱️ le plus de
+     temps. Durée fixe 7 jours. Le gagnant remporte un titre (pas de
+     récompense — pour le fun, ne déséquilibre pas le jeu).
+     PROGRESSION : calculée à partir des séances DÉJÀ enregistrées de chaque
+     profil (profile_<id>_workoutHistory) sur la fenêtre [startsAt, endsAt].
+     Un défi démarre au lancement (les séances faites PENDANT comptent).
+     API : create(opponentId,type), cancel(id), myChallenges() (avec scores +
+     meneur + jours restants + état terminé), challengeableMembers() (membres
+     liés sans défi actif), pruneOrphans().
+     UI : carte « Défie ta famille » dans l onglet Famille (après Ma famille).
+     Bouton « ⚔️ Défier un membre » → modale choix membre puis type. Défis en
+     cours affichés avec barre comparative (avatars + scores), jours restants,
+     et à la fin 🏆 gagnant/égalité + bouton Terminer. AwakChallenge* actions.
+     Indépendant du mode jeu. Dépend de AwakFamily (relations + profileCount).
+     Testé : scores 3 types (séances/volume/durée), fenêtre temporelle,
+     meneur, membres défiables (exclut défi actif), rendu carte + intégration.
+   • v582 : SÉANCE À PLUSIEURS — corrections saisie participants.
+     3 retours utilisateur traités :
+     1) PLUSIEURS SÉRIES par participant : le panneau n offrait qu une ligne
+        (une série) par personne. Ajout d un bouton « + série » par
+        participant (AwakGroupAddRow) → chacun saisit autant de séries qu il
+        veut. Le panneau n apparaît plus qu UNE FOIS PAR EXERCICE (garde
+        _promptedExercises, réinitialisé au reset) au lieu d une fois par
+        série du meneur → plus de doublons. AwakGroupSaveSet lit toutes les
+        lignes (grpReps_<id>_<n> / grpWeight_<id>_<n>).
+     2) UNITÉ : placeholder poids « kg » → « lb ». IMPORTANT : l app stocke en
+        kg mais affiche en livres par défaut (useKg=false). La saisie du
+        panneau (en lb) est désormais CONVERTIE en kg avant stockage
+        (/2.20462) pour rester cohérente avec les stats du participant.
+     3) POSITION : le pop-up était déjà en bas (align-items:flex-end) —
+        confirmé, inchangé.
+     Testé : 3 séries saisies pour un participant, conversion lb→kg exacte
+     (135lb→61.2kg etc.), une seule apparition par exercice.
+   • v583 : SÉANCE — retrait des badges « SÉRIE 1/2/3 » verrouillés (🔒).
+     Au-dessus des champs reps/poids, updateSetIndicator() affichait une
+     rangée de pastilles ⚡/🔒/✓ « SÉRIE N » (progression séquentielle). Avec
+     la grille de séries (renderSetsGrid) qui permet de tout remplir d un
+     coup, ces badges faisaient doublon → retirés. Les badges d ÉCHAUFFEMENT
+     (🔥 ECHAUF.) sont conservés. La rangée reste vide (invisible) s il n y a
+     pas d échauffement. Grille de séries inchangée.
+   • v584 : DÉFIS FAMILIAUX — 4 nouveaux types (3 → 7). family-challenge.js.
+     Ajouts : 🎯 le plus d exercices (cumul du nb d exos), ⚡ le plus de
+     calories (cumul), 📅 le plus régulier (nb de JOURS distincts
+     d entraînement), 📈 la plus longue série (jours CONSÉCUTIFS max).
+     Les deux derniers utilisent une métrique GLOBALE : nouveau champ
+     aggregate(entries) dans CH_TYPES (au lieu de metric(entry) cumulatif).
+     _score() gère les deux : si def.aggregate existe → passe toutes les
+     séances de la fenêtre d un coup ; sinon cumul classique. OFFERABLE
+     étendu aux 7 types. Modale de choix déjà scrollable (max-height 85vh).
+     Testé : régularité (3 jours vs 1), série (3 consécutifs), exercices
+     (15 vs 8), calories (950 vs 500). Les 7 types listés correctement.
+   • v585 : onglet « Duo » renommé « Famille ». Le libellé « Duo » n était
+     plus juste (le réseau gère couple + parents + enfants + plusieurs
+     membres). Bouton nav #familyNavTab : texte Duo→Famille, aria-label
+     idem, icône cœur → icône groupe (2 personnes). id interne et
+     switchTab(\x27family\x27) inchangés. En-tête de l onglet déjà « 👨‍👩‍👧‍👦 Ma
+     famille ». Mentions « Duo » restantes = commentaires de code seulement.
+   • v586 : PASSE DE VÉRIFICATION DE BUGS (audit global). 2 corrections :
+     1) story-events.js était chargé dans index.html mais ABSENT du cache du
+        service worker (sw.js) → indisponible en mode hors-ligne PWA. Ajouté
+        aux ASSETS du SW.
+     2) group-workout.js AwakGroupClose appelait window.renderHome
+        (inexistante) avec fallback sur updateHomeGroupButton. Nettoyé pour
+        appeler directement updateHomeGroupButton (comportement identique,
+        code plus clair).
+     VÉRIFIÉ SANS PROBLÈME : syntaxe de tous les JS, intégrité, équilibre
+     HTML (1075 div, 26 script), pas de doublon d ID, toutes les fonctions
+     inter-modules (AwakFamily/Boss/Challenge/Group) existent, toutes les
+     fonctions onclick définies, clés globales famille hors GAME_KEYS, pas de
+     division par zéro non protégée, pas de console.debug oublié, modules
+     robustes sans profil actif, boss familial (attaque/combo/HP) correct,
+     défis (7 types) OK, interaction croisée des modules OK.
+   • v587 : FIX tablette en PAYSAGE — image d exercice mal affichée en séance.
+     CAUSE : les règles CSS paysage existantes ne ciblaient que les petits
+     écrans (@media landscape max-height 500/600px = téléphones). Une
+     TABLETTE en paysage (hauteur > 600px) n était couverte par aucune règle
+     adaptée → le cadre #exerciseVisualFrame (min-height 240px) et l image
+     (max-height 62vh, max-width 480px) rendaient mal sur écran large et bas.
+     FIX : nouvelle règle @media (min-width:768px) and (orientation:landscape)
+     dédiée à la séance : cadre centré max-width 620px, min-height retiré,
+     image bornée à 54vh (hauteur visible, nav masquée), largeur auto, vue
+     Début/Fin (SVG) gardée côte à côte (flex-wrap:nowrap).
+     ⚠️ Correctif CSS basé sur l analyse du code — à VÉRIFIER visuellement sur
+     tablette réelle en paysage. CSS équilibré (1368 accolades).
+   • v588 : SÉCURITÉ PROFILS JEUNES. Nouveau module js/youth-safety.js
+     (window.AwakYouth). S appuie sur l ÂGE déjà saisi (userProfile.age) —
+     PAS de nouveau champ. Catégories : child (<13), teen (13-15), adult
+     (>=16). isYoung/isChild/isDiscouraged(exo)/warningText/ageCategory.
+     Équipements « charge lourde » = Barre, Machine, Kettlebell, Sac de
+     sable, Barres parallèles. Enfant : ces exos déconseillés (haltères
+     légers tolérés). Ado : barre + machine déconseillées. Adulte : rien.
+     BRANCHEMENTS :
+     1) Accueil : bandeau #youthSafetyBanner (updateYouthBanner, appelé dans
+        updateHomeStats) — avertissement enfant/ado, rien si adulte.
+     2) Liste d exercices (displayExercises) : badge « ⚠️ CHARGE LOURDE » sur
+        les exos déconseillés pour le profil jeune actif.
+     3) Générateur de séance (availableExercises) : filtre SOUPLE excluant les
+        exos lourds pour un jeune (seulement si assez d alternatives restent).
+     Approche ÉDUCATIVE (avertir + signaler + adapter le générateur), pas de
+     blocage dur. NB : recommandations de prudence, pas un avis médical.
+     Testé : catégories d âge, isDiscouraged par équipement/âge, bandeau
+     affiché enfant / absent adulte.
+   • v589 : SÉCURITÉ JEUNES — pas de défi « poids/volume » impliquant un
+     enfant. Le défi type « volume » (kg soulevés) pouvait cibler un enfant →
+     incitation à soulever lourd, contraire au mode jeune.
+     youth-safety.js : ajout de _ageOf(id)/ageCategoryOf(id)/isYoungProfile(id)
+     /isChildProfile(id) — lisent profile_<id>_userProfile pour connaître l âge
+     d un AUTRE profil (pas seulement l actif).
+     family-challenge.js :
+     - AwakChallengePickMember : retire « volume » des types proposés si la
+       cible OU le profil actif est un enfant (<13). Autres défis conservés.
+     - create() : garde dure — refuse un défi \x27volume\x27 si un enfant est
+       impliqué (cible ou actif), même si l UI est contournée.
+     Testé : adulte vs enfant volume=BLOQUÉ, enfant actif vs adulte
+     volume=BLOQUÉ, séances vs enfant=OK, volume adulte vs adulte=OK.
+   • v590 : SÉCURITÉ JEUNES dans les FAILLES (mode jeu). Les Failles
+     sélectionnaient les exercices via theme.exerciseFilter (ex : thème Force
+     = squat/deadlift/press/barre/haltère) SANS tenir compte de l âge → un
+     enfant se voyait proposer barre/haltères lourds en combat de Faille.
+     FIX (app.js, sélection du pool ligne ~29016) : si profil jeune actif,
+     on filtre le pool AVANT sélection. ENFANT (<13) = POIDS DU CORPS
+     UNIQUEMENT (equipment vide/Poids du corps/Aucun). ADO (13-15) = sans
+     charge lourde (barre/machine retirées). Filtre souple + repli garanti
+     sur le poids du corps si le pool devient trop petit (>=2 requis).
+     Adulte : aucun changement, pool complet.
+     Testé : enfant → uniquement poids du corps (barre ET haltères retirés),
+     adulte → pool complet conservé.
+   • v591 : PROGRAMMES ENFANTS + masquage des programmes adultes. Nouveau
+     module js/kids-programs.js (window.AwakKidsPrograms). 3 programmes
+     ludiques au POIDS DU CORPS : 🦸 École des super-héros, 🦁 Le zoo en
+     mouvement, 🥷 Académie ninja (marche de l ours, sauts de grenouille,
+     jumping jacks, planches courtes…). Orientés jeu/motricité, sans charge.
+     BRANCHEMENT (app.js renderProgramTab) : si le profil actif est un ENFANT
+     (AwakYouth.isChild, <13 ans), sortie anticipée qui affiche
+     AwakKidsPrograms.renderTab() À LA PLACE des programmes adultes
+     (célébrités/disciplines/salle entièrement masqués). Ado/adulte : rien
+     ne change. Chargé dans index.html + sw.js (?v=591).
+     Testé : 3 programmes rendus (super-héros/ninja/zoo), mention
+     accompagnement adulte, enfant→programmes enfants, adulte→programmes
+     normaux.
+   • v592 : PROGRAMMES ENFANTS — 6 de plus (3 → 9). kids-programs.js.
+     Ajouts : 🚀 Mission spatiale, 🏴‍☠️ L équipage des pirates, 🦖 L ère des
+     dinosaures, 💃 Studio de danse, 🧭 Le petit explorateur, 🏅 Le
+     mini-champion. Tous au POIDS DU CORPS, même structure (jours + missions
+     ludiques), 3-4 jours/sem. IDs uniques vérifiés. Affichés pour les
+     profils enfants via renderProgramTab (inchangé).
+   • v593 : PROGRAMMES SÉNIORS (65+). Nouveau module js/senior-programs.js
+     (window.AwakSeniorPrograms). 4 programmes doux : ⚖️ Équilibre & stabilité
+     (prévention chutes), 🤸 Mobilité articulaire, 💪 Renforcement en douceur,
+     🌿 En forme au quotidien. Axés équilibre/mobilité/renforcement doux,
+     poids du corps + appuis (chaise, mur).
+     youth-safety.js : catégorie « senior » (>=65) ajoutée dans _catFromAge +
+     ageCategory ; isSenior()/isSeniorProfile(). senior N EST PAS young (aucune
+     restriction enfant). Seuil choisi : 65 ans.
+     AFFICHAGE (app.js renderProgramTab) : contrairement aux enfants, RIEN
+     n est masqué. La section séniors (renderSection) est ajoutée EN TÊTE du
+     contenu normal via un préfixe _seniorPrefix injecté dans les 4 sorties
+     adultes (discipline/salle/empty/célébrité). Le branchement enfant garde
+     son return sans préfixe (un profil ne peut être enfant ET senior).
+     Chargé index.html + sw.js (?v=593). Testé : 4 programmes, IDs uniques,
+     catégorie 65=senior / 64=adult, section rendue avec avis médecin.
+   • v594 : FIX fond transparent des choix d équipement. La classe
+     .equipment-item.selected utilisait un dégradé alpha #16a34a15 (~8%
+     d opacité) SANS couleur de fond opaque dessous, et il n existait PAS de
+     variante dark-mode → en mode sombre, un équipement sélectionné devenait
+     quasi transparent (illisible, on voyait à travers).
+     FIX (css/style.css) : .equipment-item.selected a maintenant une base
+     opaque (dégradé translucide POSÉ SUR white). Ajout de
+     body.dark-mode .equipment-item.selected (dégradé vert sur fond #1c1c1c)
+     et body.dark-mode .equipment-item.injured-muscle (rouge sur #1c1c1c).
+     CSS équilibré (1370 accolades). NB : .calendar-day.has-workout garde son
+     dégradé translucide (contexte différent, non signalé).
+   • v595 : ACCESSIBILITÉ — MOBILITÉ RÉDUITE. Choix à la création du profil
+     (option ♿ « Mobilité réduite », toggle → profil.reducedMobility).
+     Nouveau module js/adaptive.js (window.AwakAdaptive).
+     isReducedMobility()/isReducedMobilityProfile(id) : lisent le flag du
+     profil. isUnsuitable(ex) : filtre conservateur par mots-clés
+     (saut/course/au sol/suspension/pompe/squat/debout…) → exercices non
+     réalisables assis. 3 PROGRAMMES adaptés (assis) : 🪑 Séance assise
+     complète, 💪 Renforcement adapté, 🌿 Mobilité & souplesse. Mélange
+     équilibré haut du corps / renforcement doux / mobilité.
+     BRANCHEMENTS (rien masqué, comme séniors) :
+     - renderProgramTab : section AwakAdaptive.renderSection() ajoutée EN TÊTE
+       via _seniorPrefix (cumulée avec la section sénior le cas échéant).
+     - générateur (availableExercises) : filtre souple écartant les exercices
+       isUnsuitable si assez d alternatives restent.
+     UI profil : toggleProfileReducedMobility + _refreshReducedMobilityUI,
+     sauvegarde du flag en edit ET create. Chargé index.html + sw.js (v595).
+     Testé : détection flag, filtre (curl assis OK / pompe-squat écartés),
+     3 programmes, section rendue.
+     NB : détection par mots-clés = conservatrice, curation manuelle des
+     programmes = fiable. Base perfectible (pas de champ position sur les
+     442 exos) mais premier pas solide.
+   • v596 : CHAMP POSITION sur les exercices + filtre mobilité réduite
+     amélioré. Ajout d un champ position à TOUS les exercices (354) dans
+     exercises.js : assis (38) / debout (235) / allongé (64) / suspendu (6) /
+     quadrupédie (11). Classifié par analyse nom+instructions+équipement +
+     corrections manuelles (ex: tirages machine=assis). Champ ADDITIF, ne
+     casse rien.
+     adaptive.js : isUnsuitable() s appuie désormais sur position (fiable)
+     au lieu des mots-clés — garde assis+debout, écarte allongé/suspendu/
+     quadrupédie. Repli mots-clés si un exo n a pas de position. Nouveau
+     isSeatedOnly() = uniquement assis (usage strict). Résultat réel : 273
+     exos réalisables (assis+debout), 81 écartés.
+     Testé : filtre par position sur les 354 exos, exemples assis haut du
+     corps corrects.
+   • v597 : BOUTON DOULEUR — adapter la séance en évitant une zone qui fait
+     mal. Nouveau module js/pain-mode.js (window.AwakPain). Bouton « 🤕 J ai
+     mal quelque part » sur l ACCUEIL (#painButtonContainer, rempli par
+     updateButton via updateHomeStats). Modale de sélection par ZONES (bras,
+     épaules, poitrine, dos, ventre, jambes, poignets, genoux) → chaque zone
+     recouvre plusieurs muscles (ex : bras = biceps+triceps+avant-bras).
+     État persistant (clé awakPainZones), réinitialisable.
+     GÉNÉRATEUR (app.js) : (1) filterTargetMuscles retire les muscles
+     douloureux des cibles (biceps retiré si mal au bras) ; (2)
+     exerciseHitsPain écarte les exercices sollicitant une zone douloureuse
+     en PRINCIPAL OU SECONDAIRE (les pompes écartées si mal au bras, car
+     triceps). Filtre STRICT (la douleur prime).
+     Complète le système « blessures » existant (enfoui dans réglages,
+     muscle par muscle) par une entrée rapide et visible par zone.
+     Testé : exemple Biceps+Pecs+Abdos + mal au bras → reste Pecs+Abdos,
+     44 exos gardés / 29 écartés (pompes etc.), bouton actif/inactif.
+   • v598 : retrait du DOUBLON blessures (réglages) au profit du bouton
+     douleur d accueil. Retiré : le bloc « Muscles blessés »
+     (injuredMusclesInfo + clearAllInjuries) dans les réglages, et le bouton
+     « 🤕 Blessé / 🏥 Guéri » sur chaque muscle de la grille. CONSERVÉ : la
+     « Réinitialiser la récupération » (resetMuscleRecovery = fatigue post-
+     séance, système différent) — section renommée 🔄 avec renvoi vers le
+     bouton « 🤕 J ai mal » de l accueil.
+     Le code interne injuredMuscles subsiste (inoffensif, plus alimenté par
+     l UI) ; le bloc d affichage injuredMusclesInfo/List est protégé par
+     if(el) donc pas de plantage. Badge 🤕 sur muscle conservé si une
+     blessure legacy existait. HTML équilibré (1078 div).
+   • v599 : carte PROFIL (salut « Bon entraînement 👋 » + prénom + stats)
+     déplacée TOUT EN HAUT de l accueil, avant le parcours de l éveil et les
+     actions du jour. C est désormais la 1re chose vue. Le salut existait déjà
+     (span#userName dans #profileCard) mais était en 3e position — simple
+     déplacement du bloc, PAS de doublon (1 seul profileCard/userName vérifié).
+     index.html uniquement. HTML équilibré (1078 div).
+   • v600 : ALLÈGEMENT VISUEL des écrans de séance/résultats. Après audit,
+     l accueil s est révélé DÉJÀ bien optimisé (7 sections, 3 cartes fixes,
+     11 conteneurs conditionnels ; analyses déjà déplacées vers Historique en
+     v483/v524 ; couleurs sémantiques). Aucun changement accueil nécessaire.
+     Sur séance/résultats : 4 gros halos text-shadow allégés — « PRÉPAREZ-VOUS »
+     (double halo cyan 28px + violet 56px → un seul cyan 14px), nom exercice
+     (24→10px), timer (16→8px), titre résultat (24→10px). Conservé : halos
+     12px des chiffres de résultats (moment de récompense), box-shadow à
+     faible opacité (0.04-0.08), animations contextuelles (pulse timer,
+     shimmer skeleton, pulse-warning) — toutes justifiées. index.html seul.
+   • v601 : BANNIÈRE AWAKENED seulement sur l accueil. La bannière (#appHeader,
+     image banner.png ratio 2.3:1 ~20-25% de l écran mobile) était globale,
+     au-dessus de la nav → affichée sur TOUS les onglets, mangeant l espace
+     vertical partout. Désormais switchTab masque #appHeader (display:none) si
+     tabName!==home, l affiche sur home. État initial OK (homeTab actif au
+     chargement, bannière visible par défaut dans le HTML). Libère l écran sur
+     séance/exercices/historique/etc. tout en gardant la marque à l ouverture.
+     Aligné sur les pratiques des apps fitness (Hevy/Strong : pas de logo
+     permanent). app.js + index.html.
+   • v602 : ÉTAPE 1 publication stores — solidification PWA. Manifest audité
+     (déjà bon) et amélioré : icônes séparées any/maskable (le \x27any maskable\x27
+     unique rognait le logo sur Android). Générées : icon-1024.png (requise
+     stores), icon-192/512-maskable.png (logo centré 64% + zone de sécurité
+     sur fond #0a0a0a). Manifest : 5 icônes avec purpose correct. HTML : ajout
+     apple-mobile-web-app-title, apple-touch-icon 512, icons avec sizes
+     explicites. SW : nouvelles icônes en cache. AUDIT installabilité : 14/14
+     critères Lighthouse remplis (prêt pour TWA/Capacitor). icons/ + manifest
+     + index.html + sw.js.
+   • v603 : RÉÉQUILIBRAGE DE LA COURBE XP (RPG). AUDIT : la formule
+     XP(N)=50×N^1.6 explosait — rangs S/SS/SSS inatteignables (9,6 / 17 / 28
+     ans à 4 séances/sem) et début trop rapide (niv 10 en 2 semaines).
+     FIX : BASE 50→40, EXP 1.6→1.25. Nouvelle progression (4 séances/sem) :
+     rang D 4 séances · C 1 mois · B 3,6 mois · A 10 mois · S 1,9 an ·
+     SS 3,2 ans · SSS 4,8 ans (1000 séances) = ambitieux mais ATTEIGNABLE.
+     NB : changement d échelle, pas un cadeau — un joueur existant monte d un
+     coup (niv 35→62) car son travail vaut le même niveau qu un nouveau joueur
+     ayant fait autant de séances. Les événements d histoire utilisent des
+     conditions >= donc RIEN n est sauté (ils deviennent éligibles).
+     Reste OK (vérifié) : économie du butin bien dosée (Épique ~1 sem,
+     Légendaire ~6 sem, Mythique ~15 sem), garde-fous anti-triche (120/série,
+     3000/séance, 9000/jour), drops basés sur la QUALITÉ de séance.
+     À SURVEILLER (non modifié) : decay muscle 3%/j après 7j de grâce = -80%
+     après 2 mois d arrêt — sévère mais thématiquement cohérent.
+     app.js seul.
+   • v604 : MODE RÉCUPÉRATION (convalescence sans perte). Nouveau module
+     js/recovery-mode.js (window.AwakRecovery). Répond au decay punitif en cas
+     de blessure/pause forcée. Principe : GÈLE la progression au lieu de la
+     stopper. isActive/activate/deactivate/daysActive. Clé awakRecoveryMode
+     {active,since}.
+     - GEL : rpgApplyDecay() return anticipé si mode actif (même approche que
+       Égide du Titan immuneMuscleDecay).
+     - REMBOBINAGE à la reprise : deactivate() avance lastTrained + lastActivity
+       de la durée de pause (plafonné à maintenant, jamais de date future) →
+       la convalescence n est JAMAIS comptée comme inactivité rétroactive.
+       Testé : pause 4j sur muscle entraîné il y a 6j → perçu 2j à la reprise,
+       XP intact ; cas limite (date dans la pause) plafonné à 0j.
+     - UI : bandeau accueil #recoveryBannerContainer (updateBanner via
+       updateHomeStats) avec bouton « prêt à reprendre » ; modale d offre
+       AwakRecoveryOffer. Activable depuis la modale du bouton douleur
+       (bloc « Blessure ou pause forcée ? »).
+     Le jeu reste accessible pendant la pause (rien masqué). Chargé index+sw
+     (v604). recovery-mode.js + pain-mode.js + app.js + index.html + sw.js.
+   • v605 : OBJECTIF FAMILIAL COMMUN (coopératif). Nouveau module
+     js/family-goal.js (window.AwakFamilyGoal). Toute la famille vise UN but
+     partagé (séances/volume/durée/exercices) ; chaque membre y contribue,
+     une jauge se remplit avec la SOMME des contributions. Pas de classement
+     = coopératif, pas compétitif. Clé GLOBALE awakFamilyGoal (hors GAME_KEYS).
+     create/cancel/status/isActive ; contributions agrégées depuis
+     profile_<id>_workoutHistory (même patron que family-challenge) dans la
+     fenêtre [création → +30j]. renderCard : jauge    • v605 : OBJECTIF FAMILIAL COMMUN (cooperatif). Nouveau module
+     js/family-goal.js (window.AwakFamilyGoal). Toute la famille vise UN but
+     partage (seances/volume/duree/exercices) ; chaque membre y contribue,
+     une jauge se remplit avec la SOMME des contributions. Pas de classement
+     = cooperatif, pas competitif. Cle GLOBALE awakFamilyGoal (hors GAME_KEYS).
+     create/cancel/status/isActive ; contributions agregees depuis
+     profile_<id>_workoutHistory (meme patron que family-challenge) dans la
+     fenetre [creation -> +30j]. renderCard : jauge pct, total/cible, liste des
+     contributions par membre, celebration a 100pct. Modale AwakFamilyGoalOpen.
+     Branche EN TETE de renderFamilyTab. Charge index+sw (v605). Teste.
+     PROCHAINE ETAPE : fil d activite familial.
+   • v606 : FIL D ACTIVITE FAMILIAL. Nouveau module js/family-feed.js
+     (window.AwakFamilyFeed). Agrege les seances recentes (14j) de TOUS les
+     profils de l appareil en un fil chronologique (« Papa a termine Seance
+     jambes »). Chaque membre peut REAGIR avec emoji (clap/muscle/feu/coeur),
+     stocke globalement (cle awakFamilyReactions, hors GAME_KEYS). buildFeed
+     (max 15, tries recent->ancien, depuis profile_<id>_workoutHistory),
+     toggleReaction (ajoute/retire), reactionsFor. renderCard avec avatar,
+     nom seance, details (exos/min), temps relatif, boutons reactions avec
+     compteur. Carte masquee si aucune activite recente. Branche dans
+     renderFamilyTab entre goalCard et challengeCard. Charge index+sw (v606).
+     Teste : agregation 2 membres chrono, reaction ajout/retrait, rendu carte.
+     Onglet Famille desormais : reseau + objectif commun + fil d activite +
+     defis + nudges.
+   • v607 : OPTION masquer l ONGLET FAMILLE (pour les solos). Toggle dans
+     Reglages (#familyTabToggle, apres la carte Mode Jeu). familyTabEnabled()
+     lit localStorage 'fitproFamilyTab' (defaut TRUE = visible, ne surprend pas
+     les users existants). toggleFamilyTab masque/affiche #familyNavTab via
+     applyFamilyTabVisibility ; si on masque l onglet actif -> retour accueil.
+     Init dans initGameMode (applique visibilite + synchro toggle au demarrage).
+     switchTab('family') redirige vers home si desactive. Meme patron que le
+     mode jeu. app.js + index.html (+sw v607). Teste : defaut visible, masque,
+     reactive. HTML equilibre (1084 div).
+   • v608 : CHASSE AUX BUGS. Bug MAJEUR trouve+corrige : rpgLoad/rpgSave et
+     getCurrentProfile/getCurrentProfileId/getAllProfiles etaient definies
+     localement dans app.js mais PAS exposees sur window. Or recovery-mode.js,
+     family-goal.js, family-feed.js, adaptive.js les appellent via window.*
+     -> le rembobinage du mode recuperation ne se faisait PAS (protection
+     anti-perte XP silencieusement inoperante), et adaptive/family pouvaient
+     ne pas detecter le profil. FIX : window.rpgLoad/rpgSave (apres def L33948)
+     + window.getCurrentProfile/getCurrentProfileId/getAllProfiles (apres def
+     L38983). Teste en integration reelle : rembobinage OK (pause 4j -> percu
+     2j, XP intact).
+     Autres verifs OK : syntaxe 30 fichiers, cache SW coherent, aucun bouton
+     mort (eveil* bien definis), cles localStorage coherentes + protegees
+     try/catch, aucun ID HTML duplique, garde switchTab famille + visibilite
+     init OK, validate.js vert. app.js + index.html + sw.js.
+   • v609 : AUDIT images exercices. Croisement base(442) x mapping(657) x
+     fichiers(473). Resultat : 0 image cassee (aucun exercice -> fichier
+     absent). 5 exercices avaient une image EXISTANTE non reliee (probleme
+     d apostrophe dans le slug) : Bear Crawl, Farmer's Walk, Jumping jacks
+     d echauffement, Stair Climbing, World's Greatest Stretch -> liens ajoutes
+     en tete de EXERCISE_IMAGES. Verifie : 5 fichiers presents + charges OK.
+     Le 6e non mappe (« Séance Gym ») = entree menu, pas un exercice = normal.
+     100 « suspects » analyses = TOUS des reutilisations volontaires d images
+     generiques (traductions Diamond Push-ups->Pompes_diamant, Cat-Cow->
+     Chat-vache ; variantes cardio/boxe partageant Sprint_Intervals,
+     Marche_rapide, Shadow_Boxing, etc.) = OK, non trompeur. exercise-visuals.js.
+   • v610 : CHECK-IN HUMEUR deplace de l accueil VERS l avant-seance + adaptation.
+     Retire de l accueil : carte « FORME DU JOUR / Comment te sens-tu » (bloc
+     titre supprime, #moodCard garde en display:none pour ne pas casser
+     renderMoodCard). Nouveau module js/pre-workout-mood.js
+     (window.AwakMoodPreWorkout). gate(proceed) : montre le check-in 1x/JOUR au
+     debut d une seance (garde awakMoodPreWorkoutDate), sinon enchaine.
+     Declenche dans startExercise() quand currentExerciseIndex===0 (1er exo),
+     non bloquant. ADAPTATION selon humeur : v<=2 (jour dur) -> message
+     bienveillant + bouton « seance douce (mobility) » qui lance
+     startWorkout('mobility') ; v>=3 -> encouragement + « C est parti ».
+     Ajout window.awakLogMoodSilent (log sans toast, le module a son propre
+     message). Charge index+sw (v610). Teste : gate 1x/jour, enchaine ensuite.
+     Le suivi d humeur (awakMoodLog) continue en coulisse pour les analyses.
+   • v611 : check-in humeur A CHAQUE SEANCE (plus 1x/jour). L humeur du matin
+     != soir. Remplace le verrou quotidien (awakMoodPreWorkoutDate) par une
+     fenetre anti-doublon de 90 min (awakMoodPreWorkoutTs) : demande a chaque
+     seance, sauf enchainement immediat (<90min : reprise apres pause, seance
+     douce relancee) pour eviter le double affichage. Teste : matin demande,
+     enchainement non, soir (+3h) redemande. pre-workout-mood.js seul (+ bump
+     index/sw v611).
+   • v611 : check-in humeur demande A CHAQUE SEANCE (et non 1x/jour). L humeur
+     matin != soir. shouldAsk = true a chaque seance, avec un COOLDOWN de 90 min
+     (cle awakMoodPreWorkoutTs) pour eviter un double affichage lors d un
+     enchainement immediat (reprise apres pause, seance douce enchainee).
+     Remplace l ancienne barriere quotidienne (awakMoodPreWorkoutDate) de v610.
+     pre-workout-mood.js.
+   • v612 : check-in avant seance = ROULETTE 1-10 (au lieu des emojis) + carte
+     INDEX DE FORME retiree de l accueil. (1) Retire de index.html la carte
+     « INDEX DE FORME DU JOUR » (slider 1-10 + cercle) ; elements references
+     (moodCard, fitnessIndex*) conserves caches (display:none) pour ne pas
+     casser loadFitnessIndex/updateFitnessIndex (deja proteges if(el)).
+     (2) pre-workout-mood.js reecrit : roulette 1-10 (slider + cercle SVG anime
+     + boutons rapides 😴/😐/🔥), couleur rouge<=3/ambre<=6/vert>=7, message +
+     adaptation (<=3 -> seance douce mobility ; 4-6 -> a ton rythme ; >=7 ->
+     energie). Lit window.getFitnessIndex (NOUVELLEMENT expose) pour la valeur
+     de depart, sauve via window.setFitnessIndex (deja expose). Boutons
+     « C est parti » / « Passer ». shouldAsk a chaque seance, cooldown 90 min.
+     app.js (expose getFitnessIndex) + pre-workout-mood.js + index.html + sw.js.
+   • v613 : le recap « Ta semaine » s affiche desormais AU CENTRE (au lieu du
+     bas). Ajout d une option opts.center a uiBottomSheet (ui-kit.js) : quand
+     true -> overlay align-items:center + padding, feuille border-radius:20px
+     complet + bordure complete, pas de poignee de glissement. Sans l option,
+     comportement inchange (feuille par le bas). Active UNIQUEMENT pour
+     weeklyRecapOverlay (weekly-recap.js center:true). Les autres pop-ups
+     (gymDayModal, feature-map...) restent en bas. ui-kit.js + weekly-recap.js.
+   • v614 : (1) Modale ÉCHAUFFEMENT (warmupModal, app.js ~L4535) centree au lieu
+     du bas : align-items:center + padding:20px, border-radius:20px complet,
+     bordure complete, poignee de glissement retiree. (2) Pop-up de FORME
+     (roulette 1-10, pre-workout-mood.js) : ajout d un encart explicatif «💡 A
+     quoi ca sert ?» expliquant que la reponse adapte la seance (plus douce les
+     jours difficiles) et suit l energie dans le temps. app.js +
+     pre-workout-mood.js + index.html + sw.js.
+   • v615 : la FORME du jour influence aussi le TEMPS DE REPOS. Avant, le repos
+     n augmentait (+30s) que pour haute intensite (jour en forme). Ajout
+     symetrique : intensite <= 0.7 (forme <=3, jour difficile) -> repos +20s
+     (plus de recup). Applique aux 2 points de generation (app.js ~L10265
+     via decisions.intensity, ~L11104 via intensity). Recap : forme 1-3 ->
+     +20s ; 4-7 -> base ; 8-10 -> +30s. Texte explicatif du pop-up de forme
+     mis a jour en consequence (mentionne intensite + repos). Verifie par test.
+     app.js + pre-workout-mood.js + index.html + sw.js.
+   • v616 : MODE TABLETTE PAYSAGE (affichage salle d entrainement). Bloc CSS
+     en fin de style.css, @media (min-width:900px) and (orientation:landscape):
+     (1) body font-size 17px (+6%, tous les em suivent -> lisible de loin) ;
+     (2) .container max-width 1100px centre + padding 40px ;
+     (3) ACCUEIL en GRILLE 2 COLONNES : #homeTab.active display:grid 2 col,
+     gap 16/18, enfants margin-bottom:0 (espacement via gap), cartes pleine
+     largeur : #profileCard, #eveilJourneyCard, #todayActionCard
+     (grid-column 1/-1). Rendu telephone INCHANGE (media query only).
+     A VERIFIER sur vraie tablette par l utilisateur. css/style.css seul
+     (+ index.html/sw.js versions).
+   • v617 : POLISH ESTHETIQUE ACCUEIL. (1) Carte profil : degrade nettoye —
+     residu ORANGE de l ancienne palette (#1A0A00) remplace par un fondu
+     sombre->vert propre (#0F1014 -> #0b1a12 -> #14532d), halo decoratif
+     teinte vert (au lieu de blanc), bordure verte subtile ; libelle « Bon
+     entrainement » passe du VIOLET depareille au vert de marque (style
+     ◈ MAJUSCULES letterspacing, coherent avec les autres en-tetes).
+     (2) Bouton « Reveil du corps » : orange brule date -> ambre moderne
+     (#f59e0b/#d97706/#b45309, = --color-warning), ombre assortie, textes
+     secondaires #fef3c7. Theme lever de soleil conserve.
+     (3) CSS (fin de style.css) : micro-interactions #homeTab button
+     (transition + scale(0.97) au tap, brightness au survol souris only via
+     @media hover:hover) + bordure subtile rgba(255,255,255,0.06) sur les
+     .card de l accueil. index.html + css/style.css (+sw v617).
+     Le violet du bouton Failles est VOULU (accent RPG de la palette).
+   • v618 : LICENCE COMMERCIALE (l app sera VENDUE). LICENSE reecrite (FR/EN,
+     toujours « Tous droits reserves ») : la clause « offerte gratuitement au
+     public » (devenue fausse) est REMPLACEE par une LICENCE D UTILISATION —
+     usage soumis a l achat via canal officiel (stores) OU acces gratuit
+     accorde explicitement par l auteur (essai/demo/periode de test, ce qui
+     couvre la version web actuelle et le testeur). Licence personnelle,
+     non exclusive, non transferable, revocable ; renvoie aux conditions du
+     store (partage familial, remboursements). Interdictions ajoutees :
+     revente/sous-licence, contournement des mecanismes d achat/licence.
+     README section Licence mise en coherence. RAPPEL a l utilisateur : faire
+     valider par un juriste (Quebec/Loi 25) avant le lancement payant.
+     LICENSE + README.md (racine du depot). App inchangee (pas de bump cache).
+   • v619 : NOUVEAU LOGO (icone app). Remplace l ancien « A » vert par le logo
+     fourni par l utilisateur (monogramme A + eclair, vert sur noir, cadre
+     arrondi lumineux). Source 1254x1254. Regenere : icon-192/512/1024.png
+     (purpose any, logo complet) + icon-192/512-maskable.png (logo reduit a
+     64% centre sur fond noir = zone de securite, le cadre arrondi et sa
+     bordure verte ne sont PAS rognes par le masque Android).
+     Poids optimise par quantification 256 couleurs (-45% en moyenne, aucune
+     perte visible sur un logo vert/noir) : 1024 = 1047->487 Ko, 512 = 275->158.
+     icon-1024.png RETIRE du precache sw.js (asset de soumission stores
+     uniquement, 487 Ko inutiles hors-ligne) mais conserve dans manifest.json.
+     manifest/index.html inchanges (memes noms de fichiers). Cache v617->v619
+     (v618 = licence, sans bump). icons/ + sw.js + index.html.
+     NOTE : images/banner.png (banniere accueil) n a PAS ete touchee — a
+     harmoniser avec le nouveau logo si souhaite.
+   • v620 : CORRECTIF — le nouveau logo (v619) ne s affichait pas, l ancienne
+     icone restait. CAUSE : aucune reference d icone n avait de parametre de
+     version. index.html (apple-touch-icon, icon), manifest.json (les 5 "src")
+     et le lien du manifest lui-meme pointaient vers des URL identiques a
+     avant -> le navigateur servait sa copie en cache, sans jamais retelecharger.
+     Le fichier sur le serveur etait pourtant bien le nouveau.
+     FIX : ?v=620 ajoute sur le lien manifest + toutes les icones dans
+     index.html ET sur les 5 "src" de manifest.json. Precache sw.js aligne sur
+     les memes URL versionnees (sinon caches.match, qui tient compte de la
+     query string, aurait rate l entree et les icones auraient manque
+     hors-ligne a la 1re visite). Cache v619->v620.
+     LECON : toujours versionner les icones/manifest lors d un changement de
+     logo — le bump du cache SW seul ne suffit pas, le cache navigateur des
+     favicons est separe et tres persistant.
+     index.html + manifest.json + sw.js.
+   • v621 : 3 NOUVELLES CARTES D ACCUEIL (l accueil etait devenu trop vide
+     apres le retrait de l humeur v610 et de l index de forme v612).
+     Definies DANS app.js (pas un module externe) pour acceder directement aux
+     fonctions internes sans exposition window (cf. bug v608).
+     (1) renderHomeRpgCard #homeRpgCard : rang + niveau + barre de progression
+         vers le rang suivant, via awakGetRankProgress() (systeme AFFICHE
+         AWAKENED_RANKS, coherent avec l onglet Jeu — PAS RPG_RANKS qui a des
+         seuils differents). Couleur du rang, tappable -> onglet Jeu.
+         MASQUEE si rpgEnabled() est faux (respecte le toggle Mode Jeu).
+     (2) renderHomeWeekCalendar #homeWeekCalendar : 7 jours lundi->dimanche,
+         jours entraines en vert avec check, aujourd hui entoure, futurs
+         grises, compteur de seances. Calcul de semaine (now.getDay()+6)%7
+         teste sur les 7 jours (le dimanche est le piege classique).
+     (3) renderHomeCoachCard #homeCoachCard : analyse du systeme via
+         makeIntelligentDecisions() (verifie LECTURE SEULE, aucun effet de
+         bord) — 3 premieres lignes de reasoning + intensite % + duree.
+         Masquee si aucun reasoning.
+     Les 3 appelees depuis updateHomeStats, chacune dans son try/catch.
+     Ordre accueil : profil > RPG > semaine > eveil > aujourd hui > coach >
+     actions rapides. app.js + index.html (+sw v621).
+   • v622 : CORRECTIF « av: » devant les noms de profils (onglet Famille).
+     CAUSE : les avatars modernes sont des cles « av:xxx » qui doivent passer
+     par renderAvatar() (expose sur window) pour devenir un SVG. Six modules
+     affichaient la valeur BRUTE via esc(x.avatar) -> la cle s ecrivait en
+     texte (« av:warrior ») devant le nom. Bug PREEXISTANT dans
+     family-network/boss/challenge/group-workout, reproduit dans mes modules
+     family-goal (v605) et family-feed (v606).
+     FIX : helper local _av(avatar, taillePx) ajoute dans les 6 modules ->
+     appelle window.renderAvatar, repli emoji si indisponible. 15 rendus
+     d avatar corriges au total (tailles px deduites des font-size:em
+     d origine). Verifie : plus AUCUN esc(*.avatar) dans js/*.js.
+     Teste : cle « av: » -> SVG, emoji -> emoji (retrocompatible), plus de
+     texte « av: ». family-goal + family-feed + family-network + family-boss
+     + family-challenge + group-workout (+index/sw v622).
+   • v623 : ENCOURAGEMENTS REELLEMENT LIVRES + correctif de portee _av.
+     (1) CONSTAT : le bouton « Encourager » n etait PAS un bug mais une limite
+     de conception — il affichait un message suggere a l EXPEDITEUR (« pas
+     d envoi reseau » dans le code d origine), rien n etait stocke ni remis au
+     destinataire. L attente de l utilisateur etant legitime et les profils
+     partageant le meme appareil, la livraison est desormais implementee.
+     BOITE DE RECEPTION (family-network.js) : cle GLOBALE awakFamilyNudges
+     (hors GAME_KEYS, comme awakFamilyLinks), max 60 entrees.
+     sendNudge(toId,msg) depose {to,from,fromName,fromAvatar,msg,ts,seen};
+     pendingNudges() = non lus du profil ACTIF ; markNudgesSeen().
+     AwakFamilyNudge stocke maintenant en plus d afficher, et confirme
+     « Envoye ! X le verra en ouvrant son profil ».
+     UI : bandeau accueil #familyNudgeInbox (updateInboxBanner via
+     updateHomeStats) « X t encourage ! » + compteur si plusieurs ; clic ->
+     modale AwakFamilyNudgeOpenInbox listant les messages, marques lus a la
+     fermeture. Teste bout en bout : envoi papa->lea, bascule de profil,
+     bandeau, lecture, disparition.
+     (2) BUG CORRIGE (introduit en v622) : le helper _av avait ete insere par
+     script A L INTERIEUR de renderCard() dans plusieurs modules -> invisible
+     depuis les autres fonctions (ReferenceError, attrape par un test
+     d execution). _av est desormais place EN TETE de l IIFE des 6 modules
+     (apres 'use strict') et rendu autonome (echappement inline, ne depend
+     plus de esc()). Verifie : 1 seule definition par module, avatars SVG et
+     emoji OK. family-network + les 5 autres modules + app.js + index.html.
+   • v624 : CORRECTIF « Mon Profil » dans l onglet Famille au lieu du vrai nom.
+     CAUSE : l app a DEUX emplacements pour le nom, jamais synchronises —
+     (a) userProfile.name, saisi dans « Mon profil », sert au « Bonjour X » de
+     l accueil ; (b) allProfiles[].name, le REGISTRE, utilise par le selecteur
+     de profils ET tout l onglet Famille. saveProfileSetup() n ecrivait que
+     dans (a) -> le registre gardait le defaut « Mon Profil » (litteral de
+     getAllProfiles, ligne ~39004).
+     FIX (3 volets) :
+     1. syncProfileNameToRegistry(id,name) — appelee dans saveProfileSetup :
+        le nom saisi se propage desormais au registre.
+     2. syncRegistryNameToProfile(id,name) — appelee au renommage depuis le
+        gestionnaire de profils : met a jour userProfile + le « Bonjour X »
+        en direct (synchro dans les DEUX sens).
+     3. repairProfileNames() — reparation unique au demarrage (initGameMode)
+        pour les profils DEJA crees : adopte userProfile.name UNIQUEMENT si le
+        registre est reste au defaut « Mon Profil »/« Mon profil ». Un nom
+        volontairement choisi n est JAMAIS ecrase (teste), et « Athlète »
+        (valeur de repli) est ignore.
+     Teste : « Mon Profil » -> « Marc-André » ; « Coach Marc » preserve ;
+     profil sans nom saisi inchange. app.js seul (+index/sw v624).
+   • v625 : FAILLE — le mode developpeur fuitait sur TOUS les profils.
+     CAUSE : la cle 'awakDevMode' etait GLOBALE (pas dans GAME_KEYS, donc
+     jamais permutee au changement de profil) ET awakIsDevUser() la lisait EN
+     PREMIER, avant la verification du nom :
+        if (localStorage.getItem('awakDevMode') === '1') return true;
+     Des que le profil AdminMarc activait le mode (par son nom ou par 7 taps),
+     la cle etait posee pour l appareil entier -> tout autre profil passait le
+     test immediatement, sans jamais comparer son nom.
+     FIX : helper _awakDevKey() -> cle PAR PROFIL 'awakDevMode_<profileId>'
+     (repli sur l ancienne cle si aucun profil actif). Les 7 acces
+     (awakIsDevUser, awakSetDevMode, awakVersionTap x4) utilisent desormais
+     cette cle. PURGE au demarrage (initGameMode) de l ancienne cle globale,
+     sinon elle aurait continue a tout debloquer ; le profil dev se reactive
+     seul par son nom, les autres doivent refaire les 7 taps.
+     Teste : AdminMarc actif · Lea et Fiston bloques · memorisation conservee
+     sur AdminMarc · une seule cle stockee (awakDevMode_p1).
+     NOTE mineure : la cle awakDevMode_<id> n est pas nettoyee a la suppression
+     d un profil (prefixe different de profile_<id>_) — orpheline inoffensive.
+     app.js seul (+index/sw v625).
+   • v626 : onglet REGLAGES toujours a l EXTREME DROITE. Dans le HTML, Famille
+     (10e) et Jeu (11e) viennent APRES Reglages (9e) : des qu ils s affichaient,
+     Reglages n etait plus le dernier.
+     FIX par ORDRE FLEX, pas par deplacement du HTML : ajout d un
+     id="settingsNavTab" au bouton + regle CSS `.nav-tabs #settingsNavTab {
+     order: 99; }`.
+     POURQUOI PAS reordonner le HTML : switchTab() surligne l onglet actif via
+     un tableau EN DUR indexe sur la position DOM
+     ['home','workouts',...,'settings','family','game'] — deplacer le bouton
+     aurait surligne le mauvais onglet. L ordre DOM reste donc intact, seule
+     la position visuelle change.
+     Verifie : toutes les regles .nav-tabs sont en display:flex (order est
+     sans effet hors flex/grid). index.html + css/style.css (+sw v626).
+   • v627 : REFONTE ESTHETIQUE de la carte profil (#profileCard, accueil).
+     CONSTAT : c etait la reponse « template » — salutation, pastilles, 4
+     boites identiques rgba(255,255,255,0.1). Rien qui evoque l univers de
+     l app.
+     DIRECTION : traiter la carte comme la FENETRE DE STATUT DU SYSTEME
+     (l element visuel iconique de Solo Leveling), ancre dans le sujet plutot
+     que decoratif. Signature = equerres d angle.
+     - 4 equerres d angle vertes (16px, insets 9px) = cadre HUD ;
+     - texture holographique : repeating-linear-gradient 115deg tres faible
+       (0.028) qui fait echo aux diagonales du nouveau logo ;
+     - halo d energie radial vert en haut a droite ;
+     - degrade revu 155deg #0a0d12 -> #0d1a14 -> #123524 ;
+     - NOM en heros : 1.35em -> 1.72em, letter-spacing -1.2px, halo vert ;
+     - pastilles objectif/niveau : vert de marque au lieu du blanc translucide ;
+     - filet lumineux degrade en separateur ;
+     - STATS : les 4 boites remplacees par un RELEVE D INSTRUMENT (chiffres
+       1.6em separes par des filets 1px), labels 0.55em letterspacing 1.2px.
+       « STREAK » renomme « SERIE » (francais).
+     Liseré rgba(34,197,94,0.14) conserve apres autocritique : sans bordure le
+     haut du degrade (presque noir) se fondait dans le fond de page.
+     TOUS les IDs preserves (userName, userGoal, userLevel, activeCelebBadge,
+     activeCelebBanner, homeStat*). Rendu VERIFIE par capture Chromium
+     (equerres aux 4 coins, texte blanc, serie ambre). index.html seul
+     (+sw v627). Apercu : /mnt/user-data/outputs/apercu-carte-profil.png
+   • v628 : SEANCE — l encart « PROCHAIN » chevauchait le titre de l exercice.
+     CAUSE : .next-exercise-preview est en position:absolute (top/right 15px,
+     max-width 200px) dans .timer (position:relative). Une regle le masque sous
+     640px (@media max-width:640px, ligne ~3941) mais AU-DESSUS il reste
+     affiche — et #exerciseName, centre et large (1.85em), s etendait sous lui.
+     MESURE (Chromium, viewport 900px) AVANT : PROCHAIN x675-814 y36-95 ·
+     TITRE x71-829 y48-74 -> recouvrement confirme.
+     FIX : @media (min-width:641px) -> position:static, display:block,
+     width:max-content, margin:0 0 14px auto (aligne a droite dans le flux),
+     au-dessus du numero d exercice. APRES : PROCHAIN y29-80 · TITRE y113-138,
+     aucun recouvrement quelle que soit la longueur du nom.
+     NOTE : le « badge violet » signale pres du chrono a ete analyse pixel par
+     pixel — il se situe a y=278 alors que le cadre image commence a y=238 et
+     que #exerciseVisualContent a padding-top:40px : c est donc DANS la photo
+     de l exercice, pas un element d interface. #visualMuscleTag et
+     #equipmentBadges sont display:none dans TOUTES les versions deployees et
+     aucun JS ne les reaffiche (verifie source + minifie). A confirmer avec
+     l utilisateur. css/style.css seul (+index/sw v628).
+   • v629 : ICONES D EQUIPEMENT delavees (choix du lieu / des machines).
+     CAUSE double : (1) les SVG de machineTypes contiennent des attributs
+     opacity internes (0.3 -> 0.9) censes suggerer du volume ; (2) les icones
+     non selectionnees recoivent filter:brightness(0) invert(0.85) — un filtre
+     ne modifie PAS l alpha, donc les parties semi-transparentes le restaient.
+     Les poids libres (equipmentTypes, svgIcon fill="white" quasi sans
+     opacity) ressortaient nets : d ou le contraste signale par l utilisateur.
+     FIX : classe .eq-icon posee sur les 3 conteneurs d icones (poids libres
+     L~23378, machines L~23396 et L~23571) + regle CSS
+     `.eq-icon svg, .eq-icon svg * { opacity: 1 !important; }`.
+     invert(0.85) -> invert(1) pour un blanc franc sur les 2 premiers.
+     MESURE (Chromium, icone « Machines abdos » qui a 5 opacity) :
+     AVANT 50 pct de pixels pleins, luminosite moyenne 202/255 ->
+     APRES 94 pct de pixels pleins, luminosite 247/255.
+     app.js + css/style.css (+index/sw v629).
+   • v630 : LISIBILITE de la modale « Type d entrainement » (#workoutModeModal).
+     CONSTAT : contrastes mesures TRES insuffisants (seuil lisible = 4,5:1).
+       cartes  : sous-titres 2,76 a 3,84:1 · titres 3,09 a 4,30:1
+       encart « Recommandation scientifique » : titre 3,7:1 · corps 2,6:1
+     CAUSE de l encart : la regle de migration vers la charte verte
+     (body.dark-mode [style*="border-left: 4px solid #06b6d4"]) remplace son
+     fond TRANSLUCIDE rgba(6,182,212,0.08) par un vert PLEIN
+     (#15803d -> #166534), mais ses textes (#22d3ee, #94a3b8) etaient calibres
+     pour un fond quasi transparent -> illisibles sur le vert.
+     FIX (1) degrades des 3 cartes assombris, teintes conservees :
+       Timer   #06b6d4/#0284c7 -> #0e7490/#075985
+       Repets  #22c55e/#166534 -> #15803d/#14532d
+       Hybride #f59e0b/#ef4444 -> #c2410c/#9f1239
+     FIX (2) CSS : textes des encarts recolores -> strong #ffffff, span/corps
+     #dcfce7 (couvre les 4 occurrences du motif dans index.html et app.js).
+     MESURE APRES rendu Chromium : cartes 6,48 / 6,77 / 6,67:1 · encart titre
+     6,76:1 · corps 6,15:1 — toutes conformes.
+     index.html + css/style.css (+sw v630).
+   • v631 : attribut PER (onglet Jeu) affiche en VERT PLEIN alors que les 5
+     autres ont un fond teinte discret.
+     CAUSE : FAUX POSITIF de la regle de migration verte. PER a pour couleur
+     #06b6d4 (cyan) et sa case se rend avec background:#06b6d40d — du cyan a
+     5 pct d opacite, le « 0d » final etant le canal alpha. Or le selecteur
+     [style*="background:#06b6d4"] fait une correspondance par SOUS-CHAINE :
+     « background:#06b6d4 » est contenu dans « background:#06b6d40d » -> la
+     case heritait du degrade vert plein + border-color #16a34a.
+     Le meme piege menacait toutes les cases construites en couleur+alpha
+     (motif ${color}XX, des dizaines d occurrences) alors que la regle ne vise
+     en realite QU UNE seule cible legitime (background: #06b6d4;).
+     FIX : point-virgule terminal ajoute a 7 selecteurs (background: #06b6d4;,
+     background:#06b6d4;, background: #0ea5e9;, border: 2px solid #06b6d4;
+     x2, border:2px solid #06b6d4;, border-color: #06b6d4;) -> les formes
+     alpha ne matchent plus. Verifie : 0 declaration cyan sans « ; » final
+     donc aucune cible legitime perdue ; les selecteurs border-left du
+     correctif v630 sont volontairement laisses INTACTS.
+     TESTE (Chromium) : STR rgba(239,68,68,.05) · AGI rgba(245,158,11,.05) ·
+     PER rgba(6,182,212,.05) — traitement homogene, plus de degrade.
+     css/style.css seul (+index/sw v631).
+   • v632 : bouton « DEMARRER LA SEANCE » (modale PREPAREZ-VOUS) en CYAN
+     ELECTRIQUE, a la demande de l utilisateur.
+     CONSTAT au passage : le bouton n avait DEJA pas la couleur prevue par son
+     style inline (#22c55e -> #16a34a). La regle globale
+     `body.dark-mode .btn:not(.btn-secondary)` impose
+     linear-gradient(#15803d,#166534) en !important a tous les boutons
+     primaires -> aspect terne, et le texte quasi noir (#050507) tombait a
+     3,91:1 (mesure sur la capture), sous le seuil de 4,5:1.
+     FIX : id="startPreparedBtn" ajoute + regle
+     `body.dark-mode #startPreparedBtn` (!important) qui sort le bouton de la
+     regle globale : degrade #22d3ee -> #0891b2, texte #032027, ombre cyan,
+     leger eclaircissement au survol.
+     Teinte choisie apres calcul : cyan vif + texte sombre = 9,4:1 / 4,6:1
+     (theorique) ; MESURE au rendu Chromium 8,42:1 / 5,00:1 — conforme sur
+     toute la longueur du degrade. (Le blanc sur cyan aurait donne 1,8:1.)
+     index.html + css/style.css (+sw v632).
+   • v633 : DEUX correctifs signales par l utilisateur.
+     (A) SECTION « Seances Cardio » devenue toute VERTE — REGRESSION de ma
+     correction v631, incomplete. J y avais resserre les selecteurs de couleur
+     PLEINE (+';') mais PAS ceux des DEGRADES. Or la section cardio utilise
+     background: linear-gradient(135deg, #06b6d410 0%, #06b6d405 100%) — du
+     cyan a 6 pct d opacite — capture par
+     [style*="background: linear-gradient(135deg, #06b6d4"] (sous-chaine).
+     FIX : espace terminal ajoute aux 3 selecteurs de degrade
+     (#06b6d4 , #06b6d4 sans espace apres deux-points, #0284c7 ) -> ne matchent
+     plus les formes alpha. 1 cible legitime conservee
+     (linear-gradient(135deg, #06b6d4 0%, #0284c7 100%)), 3 faux positifs
+     liberes. Verifie au rendu : la carte cardio retrouve son fond neutre
+     rgb(26,27,32).
+     (B) ICONES DE MACHINES toujours delavees : ma correction v629 ne traitait
+     que l opacite interne, or dans la grille du selecteur de LIEU (L~23571)
+     les icones NON selectionnees ne recevaient AUCUN filtre -> les couleurs
+     natives des SVG (#16a34a vert, #FFF3E0 creme) s affichaient telles quelles,
+     ternes sur fond sombre. FIX : filter brightness(0) invert(1) applique a
+     l etat non selectionne. Mesure : pixels lumineux 3 pct -> 11 pct.
+     BONUS : les libelles non selectionnes de 2 grilles etaient en #374151
+     (gris tres sombre sur fond sombre, quasi invisible) -> #cbd5e1 ; classe
+     eq-icon ajoutee a la grille poids libres restante.
+     app.js + css/style.css (+index/sw v633).
+   • v634 : AUDIT COMPLET des regles de recoloration par sous-chaine
+     ([style*="..."]), demande apres les bugs PER (v631) et cardio (v633).
+     PORTEE : 123 selecteurs uniques. 76 se terminaient par une couleur hex
+     6 chiffres SANS delimiteur -> capturaient potentiellement les formes
+     8 chiffres (#RRGGBB + alpha) par simple inclusion de chaine.
+     METHODE : (1) inventaire statique des selecteurs ; (2) recherche de faux
+     positifs statiques dans index.html/app.js = AUCUN ; (3) test EMPIRIQUE
+     sous Chromium sur la page reelle : 46 elements recolores par la regle
+     verte, tous legitimes (le seul suspect s est revele porteur d un vrai
+     border-left cyan) ; (4) croisement des PALETTES dynamiques
+     (${x.color}ALPHA) avec les selecteurs -> 12 COLLISIONS REELLES, toutes
+     sur des selecteurs « color: » : #06b6d4, #0ea5e9, #38bdf8, #0284c7,
+     #16a34a, #10b981, #94a3b8, #ef4444, #f59e0b. Symptome : un texte ecrit
+     en color:${couleurDuRang}cc (couleur du rang a 80 pct) etait force en
+     vert plein -> le rang perdait sa couleur.
+     FIX : 14 selecteurs « color: » exigent desormais un ';' final. Les 3
+     declarations legitimes qui terminent l attribut sans ';' sont rattrapees
+     par des variantes [style$=...], avec la MEME portee (h4) et les MEMES
+     couleurs de remplacement que les regles d origine (verifie : #10b981 ->
+     #34d399, #ef4444 -> #f87171, #f59e0b -> #fbbf24).
+     VERIFIE au rendu (5 cas) : cyan plein -> vert OK · cyan+alpha reste cyan ·
+     vert+alpha reste vert · h4 fin d attribut recolore · degrade alpha non
+     recolore.
+     RESTE : 62 selecteurs structurellement fragiles mais 0 collision reelle
+     (ils visent des teintes claires #f8f9fa/#fff4e6… propres au mode clair,
+     jamais employees en couleur+alpha dynamique). A resurveiller si de
+     nouvelles couleurs claires entrent dans les palettes dynamiques.
+     css/style.css seul (+index/sw v634).
+   • v635 : portrait du MARCHAND coupe au visage.
+     ANALYSE : image source carree 820x820, affichee dans un cadre 480x160
+     (ratio 3:1) -> avec object-fit:cover, seuls 33 pct de la hauteur sont
+     visibles. Le reglage object-position:center 30% faisait demarrer la bande
+     visible a y=164 dans la source, alors que la detection de teintes de peau
+     situe le visage entre y≈90 et y≈250 (noyau dense 140-240) et le haut de
+     la tete vers y≈60 -> le front etait tranche.
+     FIX : hauteur 160 -> 190px et object-position 30% -> 8%. Bande visible
+     desormais y≈40 a 364 : tete entiere + buste, meilleure composition.
+     Verifie : aucun autre element n utilise ce motif de cadrage (les autres
+     portraits story/ s affichent autrement). app.js seul (+index/sw v635).
+     Apercu comparatif : /mnt/user-data/outputs/apercu-marchand.png
+   • v636 : le « coach » apparaissait PLUSIEURS FOIS dans l onglet Progression.
+     CONSTAT : deux cartes portaient la meme icone 🧠 et puisaient dans la MEME
+     analyse (awakAnalyzeBehavior / awakBehaviorInsights) :
+       - #insightsCard « 🧠 Coach Insights » : n affichait que ins[0], le
+         PREMIER conseil ;
+       - #behaviorAnalytics « 🧠 Analyse comportementale » : type de profil +
+         graphique 6 semaines + les TROIS premiers conseils (dont ins[0]).
+     La premiere etait donc un sous-ensemble strict de la seconde, affichee
+     juste au-dessus d elle. Seul apport unique : un bouton d action (cta) issu
+     du conseil principal.
+     FIX : bouton d action DEPLACE dans « Analyse comportementale » (ins[0].cta,
+     meme portee — ins defini L2617, utilise L2643) puis renderInsightsCard()
+     neutralisee (host.innerHTML='' + return anticipe ; le code d origine reste
+     en place, terser supprime le code mort — verifie : 0 occurrence de « Coach
+     Insights » dans le minifie).
+     BONUS : regle CSS `#id:empty { display:none; margin:0 }` sur 6 conteneurs
+     de cartes conditionnelles — un bloc non rendu laissait sa marge de 14px,
+     creant un blanc inexplique.
+     La carte « 🧠 Analyse du systeme » de l ACCUEIL est CONSERVEE : elle repose
+     sur makeIntelligentDecisions() (decision de seance du jour), pas sur
+     l analyse comportementale — contenu different malgre l icone commune.
+     app.js + css/style.css (+index/sw v636).
+   • v637 : LA « TRANSPARENCE » — vrai diagnostic enfin trouve. Depuis v629 je
+     corrigeais l opacite des ICONES ; le probleme reel etait le PANNEAU des
+     fenetres modales, dont le fond valait background:rgba(255,255,255,0.04)
+     — soit 4 pct d opacite, donc 96 pct TRANSPARENT. Le voile de fond de
+     l overlay n etant qu a rgba(0,0,0,0.7), la page restait parfaitement
+     visible au travers : d ou l impression d elements superposes.
+     C EXPLIQUE AUSSI le second signalement (« le bouton seance cardio embarque
+     sur seance intelligente ») : mesure au rendu, les deux cartes sont
+     separees de 98px — AUCUN chevauchement reel, c etait la page vue a travers
+     la fenetre.
+     FIX : 3 panneaux (selecteur de lieu L~23581, selecteur d equipement
+     L~23403, « Machine occupee » L~40864) passent a
+     linear-gradient(160deg,#171922,#0d0d12) + bordure + ombre portee.
+     Leurs textes color:#0F1014 (quasi noir, herite du theme clair) -> #f1f5f9.
+     Verifie : 0 panneau a faible opacite restant ; les 4 color:#0F1014
+     subsistants sont sur des fonds REELLEMENT clairs (white, #e5e7eb,
+     #f8fafc, #FFF3E0) donc legitimes.
+     app.js seul (+index/sw v637).
+   • v638 : JEUX D ENTRAINEMENT — moteur commun + 3 premiers jeux.
+     Nouveau module js/workout-games.js (window.AwakGames). Principe retenu :
+     NE PAS coder 10 fonctionnalites. Les 10 jeux prevus partagent le meme
+     squelette (constituer un pool, derouler la partie, enregistrer) ; seule
+     la MECANIQUE change. 6 mecaniques couvrent les 10 jeux. Cette version en
+     livre 3 :
+       - tirage  -> 🃏 Jeu de cartes (couleur = exercice, valeur = reps)
+       - minute  -> ⏱️ Death by… (1 rep min 1, 2 min 2…)
+       - liste   -> 📋 Chipper (liste a ecouler)
+     POOL D EXERCICES : herite des filtres existants de l app — materiel
+     (window.getSelectedEquipmentNames, NOUVELLEMENT expose), douleur
+     (AwakPain.exerciseHitsPain), mobilite reduite (AwakAdaptive), profils
+     enfants (AwakYouth.isChild -> poids du corps/elastique/tapis seulement).
+     Les 4 API utilisees ont ete verifiees comme reellement EXPORTEES sur leurs
+     objets publics (cf. lecon v608).
+     FIN DE PARTIE : enregistree via window.saveWorkoutToHistory (NOUVELLEMENT
+     expose) -> les jeux alimentent historique, serie et XP comme une seance
+     normale. L abandon en cours conserve les etapes deja faites.
+     UI : section « 🎮 Jeux d entrainement » (#workoutGamesSection) dans
+     l onglet Entrainer, apres Supersets & Circuits ; ecran de reglage puis
+     ecran de partie avec barre de progression.
+     TESTE : pool 442 exos · filtre douleur 442->399 · materiel 442->162 ·
+     mobilite 442->372 · partie cartes 12 tours enregistree · death by 10 min ·
+     chipper 5 etapes · abandon partiel conserve · 3 tuiles rendues.
+     RESTE A FAIRE (7 jeux, memes mecaniques) : Des (tirage), 21-15-9 et
+     Pyramide (sequence), EMOM (minute), Bingo (grille hebdo), You go I go et
+     Duel (alternance a deux, a brancher aussi sur l onglet Famille).
+     workout-games.js + app.js (2 expositions) + index.html + sw.js.
+   • v639 : JEUX D ENTRAINEMENT — les 7 restants (10 au total).
+     REFONTE du moteur autour d un REGISTRE DE MECANIQUES (objet MECANIQUES) :
+     chaque mecanique declare exos() / prepare() / total() / etape() / corps()
+     et, si besoin, apres(). Le deroulement (demarrer, valider, terminer,
+     afficher) est entierement mutualise — plus aucune chaine de conditions.
+     7 mecaniques couvrent les 10 jeux :
+       tirage     🃏 Jeu de cartes      (couleur = exo, valeur = reps)
+       des        🎲 Des                (de 1 = exo parmi 6, de 2 = effort x3)
+       minute     ⏱️ Death by…          (reps +1 chaque minute)
+       emom       ⏲️ EMOM               (10 reps/min, exercices en rotation)
+       sequence   🔻 21-15-9 · 🔺 Pyramide (suite de tours ; pyramide generee
+                  2,4,…,sommet,…,4,2)
+       liste      📋 Chipper
+       alternance 🔄 You go I go · ⚔️ Duel (2 joueurs, noms repris des profils
+                  via getAllProfiles, scores et annonce du gagnant)
+       grille     🎯 Bingo             (9 defis tires parmi 12, cle
+                  awakBingoGrille, renouvellement automatique chaque semaine
+                  ISO, cases cochables/decochables)
+     Tuiles : pastille 👥 sur les jeux a deux, 7j sur le Bingo.
+     TESTE : les 9 parties se terminent au bon nombre d etapes et sont
+     enregistrees (cartes 12 · des 10 · deathby 10 · emom 16 · 21-15-9 6 =
+     3 tours x 2 exos · pyramide 14 = 7 tours x 2 exos · chipper 5 ·
+     yougo 8 · duel 10 = 5 x 2) ; alternance Marc/Lea correcte tour par tour ;
+     bingo coche/decoche et se renouvelle ; 10 tuiles rendues.
+     workout-games.js seul (+index/sw v639).
+     RESTE OPTIONNEL : brancher You go I go et Duel depuis l onglet Famille.
+   • v640 : IMAGES D EXERCICES dans les jeux d entrainement.
+     Les jeux n affichaient que des noms alors que l app dispose de 473 images
+     (661 entrees de mapping). Branchement sur l API deja exposee par
+     exercise-visuals.js — window.EXERCISE_IMAGES + window.buildLazyImg — qui
+     est charge AVANT workout-games.js (ordre verifie).
+     Ajouts : srcImage(ex) (essaie _baseName puis name, meme repli que le
+     reste de l app), visuel(ex, hauteur) -> illustration 120px en haut de
+     l etape, pastilleImg(ex, taille) -> vignette carree pour les listes.
+     gros() prend desormais l OBJET exercice au lieu du seul nom (7 appels
+     adaptes) : les 8 jeux a exercice affichent donc l illustration.
+     Les ecrans de correspondance des CARTES (4 couleurs) et des DES (6 faces)
+     affichent une vignette a cote de chaque exercice — on identifie le
+     mouvement avant meme de tirer.
+     Chargement paresseux (loading=lazy / buildLazyImg) et repli silencieux :
+     un exercice sans image affiche un simple bloc neutre, aucun cadre casse.
+     TESTE : images presentes sur les 8 jeux (cartes 4 vignettes + 1 grande
+     apres tirage, des 6 + 1, autres 1 par etape) ; hauteur du panneau 521px,
+     tient sur iPhone SE 375x667, iPhone 14 et Android 360x640.
+     workout-games.js seul (+index/sw v640).
+     Apercu : /mnt/user-data/outputs/apercu-jeu-cartes.png
+   • v641 : DEUX BUGS des jeux — dont un GRAVE que j avais introduit en v638.
+     (A) RECURSION INFINIE sur mes 2 expositions. J avais ecrit
+         window.f = function(){ return f(); };  puis  function f(){...}
+     Or ces fonctions sont deja GLOBALES (declaration de haut niveau -> elles
+     creent deja window.f). Mon assignation ECRASAIT la globale, donc l appel
+     interne repointait sur mon propre emballage -> « Maximum call stack size
+     exceeded ». Consequences, toutes deux SILENCIEUSES (try/catch) :
+       • getSelectedEquipmentNames levait -> le filtre MATERIEL ne s appliquait
+         JAMAIS (d ou les exercices a la corde signales) ;
+       • saveWorkoutToHistory levait -> les parties n etaient PAS enregistrees
+         dans l historique.
+     FIX : les 2 emballages simplement SUPPRIMES — les fonctions etant deja
+     globales, window.f fonctionne sans rien ajouter. Verifie dans l app
+     chargee : getSelectedEquipmentNames() -> ['Poids du corps'], saveWorkout
+     ToHistory disponible, 9 parties jouees et TOUTES enregistrees.
+     LECON : avant d exposer une fonction, verifier si elle n est pas deja
+     globale ; un emballage qui rappelle le meme nom cree une recursion.
+     (B) Le pool acceptait TOUS les types de la base. Or exercises.js contient
+     type: warmup (56), stretch (31) et info (1) en plus de exercise (354).
+     D ou les echauffements vus dans les jeux. FIX : filtre e.type ===
+     'exercise' strict.
+     RESULTAT MESURE dans l app : pool 442 -> 76 entrees, 100 pct de type
+     exercise, 0 exercice hors du materiel selectionne.
+     app.js + workout-games.js (+index/sw v641).
+   • v642 : 5 AMELIORATIONS des jeux d entrainement.
+     (1) CHRONOMETRE — Death by… et EMOM sont des jeux A LA MINUTE mais rien
+     ne decomptait le temps. Ajout de lancerChrono/arreterChrono/blocChrono :
+     decompte 60 s relance a chaque etape, passe en ambre sous 10 s, affiche
+     « Temps ! » en rouge + vibration a zero. Arrete proprement a la fermeture
+     et en fin de partie (pas de setInterval orphelin). Les mecaniques
+     declarent chrono:60.
+     (2) FILTRAGE PAR NIVEAU — le pool ignorait profile.level alors que la base
+     contient Debutant(211)/Intermediaire(172)/Avance(59). D ou le « Glute Ham
+     Raise · Avance » vu par l utilisateur. Desormais beginner -> Debutant
+     seul ; intermediate -> +Intermediaire ; advanced -> tout. Garde-fou : le
+     filtre n est applique que s il reste >= 8 exercices.
+     (3) CHANGER D EXERCICE — chaque mecanique expose idx(p) (index de
+     l exercice courant) ; AwakGamesEchanger() le remplace par un autre du
+     pool non deja present. Bouton affiche seulement quand un exercice est
+     visible.
+     (4) RECORDS PERSONNELS — cle awakGameRecords_<profileId>, record = nombre
+     d etapes tenues. Annonce « ⭐ Nouveau record » en fin de partie, rappel du
+     record sinon, et affichage sur les tuiles.
+     (5) ONGLET FAMILLE — AwakGames.renderFamilyCard() expose une carte
+     « S entrainer a deux » (You go I go + Duel), branchee dans renderFamilyTab
+     entre goalCard et feedCard.
+     TESTE dans l app reelle : pool debutant 28 exos 100 pct Debutant ·
+     chrono 1:00 -> 0:58 en 2 s · echange « Fentes marchees » -> « Rice Bucket
+     Twists » · record 5 etapes stocke et annonce · carte Famille generee avec
+     les 2 jeux.
+     workout-games.js + adventure.js (+index/sw v642).
+   • v643 : EXPLICATION du filtrage par niveau dans les jeux. Depuis v642 le
+     pool est restreint au niveau de l utilisateur, mais rien ne le disait —
+     on subissait la limitation sans comprendre.
+     pool(limit, niveauForce) accepte desormais un niveau force, ce qui permet
+     a compteParNiveau() de comparer le palier actuel et le suivant.
+     noteNiveau() affiche sous les tuiles : nombre d exercices correspondant au
+     niveau actuel, raison du filtrage, et gain chiffre du palier suivant, avec
+     un bouton « Changer mon niveau » -> showProfileSetup().
+     GARDE-FOUS : rien n est affiche si l utilisateur est deja au palier le
+     plus large, ni si le gain est inferieur a 5 exercices (message inutile).
+     Formulation volontairement non incitative — « a ne faire que si tu te sens
+     a l aise avec les mouvements actuels » : on informe, on ne pousse pas a
+     surestimer son niveau.
+     MESURE : debutant 28 exos (+34 en Intermediaire) · intermediaire 62 (+14
+     en Avance) · avance aucun encart. workout-games.js seul (+index/sw v643).
+   • v644 : deux defauts d affichage des jeux signales par l utilisateur.
+     (A) CARTE A JOUER ILLISIBLE. Le fond blanc inline (#f8fafc) etait ECRASE
+     par les regles du theme sombre -> rgba(255,255,255,0.03), quasi
+     transparent, tandis que chiffres et symboles restaient noirs (#0f172a).
+     FIX : classe .awak-carte + regle CSS dediee (blanc degrade, ombre portee,
+     liseré) en !important, y compris sous body.dark-mode. Une carte a jouer
+     doit ressembler a une carte a jouer.
+     (B) IMAGES ROGNEES. Les images d exercices sont CARREES (1254x1254) ou
+     verticales, alors que le cadre faisait 350x120 (ratio 2.9) : avec
+     object-fit:cover on n en voyait qu une bande horizontale — d ou les
+     « jambes seules » constatees. FIX : object-fit contain. Au passage, mes
+     styles supplementaires (width/height:auto) entraient en CONFLIT avec
+     buildLazyImg, qui applique deja width/height:100% + contain : l image
+     mesurait 0x0. Ne rien lui imposer suffit.
+     AJUSTEMENT : image 120 -> 140px et padding de la carte 20 -> 14px pour que
+     le bouton d action reste visible SANS defilement sur les petits ecrans.
+     MESURE : panneau 574px · bouton a 494px sur Android 360x640, 508px sur
+     iPhone SE, 596px sur iPhone 14 — visible partout.
+     workout-games.js + css/style.css (+index/sw v644).
+   • v645 : INCOHERENCE D UNITES sur l ecran de serie (signalee par capture :
+     tout en lbs sauf « SUGGESTION 15kg »).
+     DIAGNOSTIC : les deux blocs affichaient LA MEME charge, chacun avec une
+     erreur differente — 6,8 kg = 15 lbs (verifie : fmtWeightVal(6.8) = 15).
+       • renderLastPerfChip (« DERNIERE FOIS ») : les performances sont
+         stockees en KG, mais le code faisait last.weight + ' lbs' SANS
+         convertir -> valeur kg affichee avec l etiquette lbs.
+         FIX : fmtWeightVal(last.weight) + unite.
+       • getLoadSuggestion (« SUGGESTION ») : ecrivait « kg » EN DUR quelle que
+         soit la preference. FIX : ${useKg ? 'kg' : 'lbs'} (affichage + toast).
+     Apres correction les deux blocs affichent 15 lbs — coherent.
+     HALTERES : l app ne distinguait NULLE PART « poids par halterre » et
+     « total des deux » (aucun doublement dans les calculs, aucune mention dans
+     l UI) — d ou la question legitime de l utilisateur. Convention retenue,
+     celle des apps de reference (Strong, Hevy) : le poids saisi est celui d UN
+     SEUL halterre. Une note explicative s affiche desormais au-dessus de la
+     grille de series pour les exercices a halteres/kettlebell (detection par
+     le champ equipment + repli sur le nom).
+     RESTE A VERIFIER (non modifie, unite de la source non confirmee) : 4 autres
+     « kg » en dur dans des affichages secondaires — info-bulles de comparaison
+     (L~12845-12846), historique des PR (L~20576) et banniere de record
+     (L~35127). A traiter une fois l unite de stockage des PR etablie.
+     app.js seul (+index/sw v645).
+   • v646 : SURCHARGE PROGRESSIVE encore en kg + fin de la mise en coherence
+     des unites.
+     getProgressiveSuggestion lisait getExercisePerformances (stocke en KG),
+     mettait bien une etiquette dynamique (useKg ? kg : lbs) mais ne CONVERTISSAIT
+     JAMAIS la valeur -> « 3 seances a 6.8lbs » alors que 6,8 kg = 15 lbs.
+     FIX : calcul conserve en kg (les paliers d increment 1 / 2,5 / 5 sont
+     calibres en kilos), conversion via fmtWeightVal() au moment de renvoyer
+     currentW/suggestedW ; currentKg/suggestedKg conserves pour la logique.
+     EFFET DE BORD REPARE : la banniere pre-remplissait aussi le champ de saisie
+     (wInput.value = suggestion.suggestedW) avec la valeur KG alors que le champ
+     attend l unite d AFFICHAGE (converti en kg au stockage, cf. L12701) —
+     c est ce qui mettait « 6,8 » dans les series de la capture.
+     VERIFIE bout en bout : 3 perfs a 6,8 kg -> interne 6,8 -> 8 kg ·
+     affichage « 15lbs -> 17.6lbs ». Les trois blocs (surcharge, derniere fois,
+     suggestion) concordent enfin.
+     UNITE DES SOURCES, desormais etablie et documentee :
+       • getExercisePerformances  -> KG   (convertir a l affichage)
+       • fitproLastSets / fitproSessionSets -> UNITE D AFFICHAGE (etiqueter seulement)
+       • PR et comparaisons       -> UNITE D AFFICHAGE (issus des sets de seance)
+     Les 4 « kg » en dur signales en v645 sont donc corriges en ETIQUETTE
+     dynamique (sans conversion) : info-bulles de comparaison x2, historique
+     des PR, banniere de record. Plus aucun « kg » code en dur sur un poids.
+     app.js seul (+index/sw v646).
+   • v647 : JEUX A DEUX — les joueurs affiches ne correspondaient ni au profil
+     actif ni au partenaire choisi.
+     CAUSE (bug de v639, dans mon code) : nomsJoueurs() prenait bêtement
+     ps[0] et ps[1], soit les DEUX PREMIERS PROFILS DU REGISTRE, sans aucun
+     rapport avec le profil actif. Avec 3 profils (Papa, Maman, Lea) et Lea
+     active, le jeu annoncait « Papa » et « Maman ».
+     FIX : le joueur 1 est TOUJOURS le profil actif (getCurrentProfile). Le
+     joueur 2 est choisi par ordre de preference :
+       1. participants de la seance de groupe — window.AwakGroup.getParticipants()
+          (l API place deja le profil actif en premier ; on prend le premier
+          autre) : c est la ou l utilisateur a explicitement choisi son partenaire ;
+       2. un proche lie dans l onglet Famille — AwakFamily.myRelations() ;
+       3. un autre profil de l appareil ;
+       4. repli « Moi » / « Partenaire ».
+     Les 3 API utilisees ont ete verifiees comme exportees.
+     TESTE avec le profil actif en 3e position du registre : sans partenaire
+     choisi -> Lea joue en premier ; avec Papa choisi -> Lea + Papa, Maman
+     correctement absente. workout-games.js seul (+index/sw v647).
+   • v648 : 6 NOUVEAUX JEUX A DEUX (16 jeux au total, dont 8 a deux).
+     ⚖️ EGALISATEUR (mecanique handicap) — LE jeu phare du positionnement
+        familial : les repetitions sont PONDEREES selon le niveau et l age de
+        chacun, si bien qu un pere entraine et sa fille de 10 ans peuvent
+        reellement se disputer la victoire. coefNiveau() : advanced 1 /
+        intermediate 0,75 / beginner 0,55, puis x0,6 si enfant, x0,7 si senior,
+        plancher a 0,35. infosJoueur() lit le niveau via
+        window.getProfileData(id,'userProfile') et la categorie d age via
+        AwakYouth.ageCategoryOf. MESURE : Papa (avance, 40 ans) 12 reps vs
+        Lea (debutante, 10 ans) 4 reps.
+     🤝 RELAIS (relais) — volume commun a ecouler a deux, jauge cumulative,
+        15 reps par tour, alternance.
+     🪞 MIROIR (miroir) — meme exercice EN MEME TEMPS, une validation par tour.
+     🧩 CHIPPER PARTAGE (partage) — liste repartie en alternance, apercu des
+        3 etapes suivantes avec le nom de qui s en charge.
+     👑 ROI DE LA COLLINE (roi) — apres chaque tour on designe le vainqueur
+        (AwakGamesRoiGagnant), qui recoit la couronne et dont la victoire
+        determine l exercice suivant.
+     🧱 DUEL DE GAINAGE (gainage) — l un tient la planche (chrono 40 s), l autre
+        enchaine 15 reps, puis les roles s echangent.
+     duoJoueurs() reprend la logique corrigee en v647 (profil ACTIF en premier,
+     partenaire issu des participants choisis).
+     BUG ATTRAPE PAR LE TEST : afficherFin lisait partie.joueurs alors que les
+     nouvelles mecaniques remplissent partie.duo -> plantage en fin de partie.
+     FIX : normalisation dans demarrer() (un seul endroit) plutot que dans
+     chaque mecanique.
+     TESTE : les 6 parties se terminent au bon compte et s enregistrent
+     (egalisateur 10 = 5x2 · relais 7 = 100/15 · miroir 6 · partage 6 · roi 5 ·
+     gainage 6 = 3x2) ; 17 tuiles dans Entrainer, 8 dans la carte Famille.
+     workout-games.js seul (+index/sw v648).
+   • v649 : ILLUSTRATIONS DES JEUX AGRANDIES. Les images d exercices etant
+     CARREES et affichees en object-fit:contain, leur taille reelle est dictee
+     par la HAUTEUR du cadre — bloquee a 140px depuis v644 pour que le bouton
+     d action reste visible sur petit ecran.
+     FIX : hauteur deleguee au CSS via la classe .awak-jeu-img, avec paliers
+     selon la hauteur d ecran — 200px par defaut, 180px sous 780px, 160px sous
+     680px. On profite ainsi de la place disponible sur les grands telephones
+     sans jamais repousser le bouton hors champ sur les petits.
+     MESURE (jeu de cartes, le plus dense, et Death by… avec son chrono) :
+       Android 360x640 image 160px, bouton a 513px ✅
+       iPhone SE 375x667 image 160px, bouton a 518px ✅
+       iPhone 14 390x844 image 200px, bouton a 626px ✅
+       Pro Max 430x932 image 200px, bouton a 670px ✅
+     Gain de 14 a 43 pct selon l ecran. workout-games.js + css/style.css
+     (+index/sw v649).
+   • v650 : les exercices ISOMETRIQUES etaient annonces en REPETITIONS dans les
+     jeux (« Planche — 12 reps »). Une planche se tient, elle ne se compte pas.
+     PISTE ECARTEE : le champ `duration` de exercises.js ne peut PAS servir
+     d indice — 318 exercices en ont un, y compris « Pompes classiques » ; il
+     designe une duree de serie suggeree, pas une tenue.
+     FIX : detection par le NOM (estTenue) — planche/plank/hollow/superman/
+     wall sit/dead hang/L-sit/gainage/chaise murale/posture — en EXCLUANT les
+     variantes dynamiques (dynamique, rotation, drag, balancement, swing, saut)
+     qui, elles, se comptent bien en repetitions.
+     effortPour(ex, reps) convertit : environ 2,5 s par repetition, arrondi a
+     5 s, borne entre 15 et 90 s. Exemples : 12 reps -> 30 s · 20 -> 50 s ·
+     40 -> 90 s (plafond) ; les pompes restent en reps.
+     Applique a l affichage (gros()), au journal de partie ET au recapitulatif
+     de fin (suffixe « s »), pour que l effort reel soit reporte partout.
+     TESTE : Planche, Planche laterale, Hollow hold, Wall sit, Dead Hang
+     classes en TENUE ; Pompes, Squat, Burpees, Superman DYNAMIQUE et Planche
+     laterale DYNAMIQUE classes en REPS. workout-games.js seul (+index/sw v650).
+   • v651 : deux points signales par l utilisateur sur les jeux a deux.
+     (A) ROI DE LA COLLINE : aucun CRITERE de victoire n etait enonce. L ecran
+     annoncait « 12 reps chacun » puis « Qui a gagne ? » — si les deux font le
+     meme nombre, la question n a pas de reponse.
+     FIX : regle affichee avant l effort, ADAPTEE a la nature de l exercice —
+     « Depart ensemble, le PREMIER A BOUCLER ses repetitions remporte le tour »,
+     ou « celui qui TIENT LE PLUS LONGTEMPS » si l exercice est isometrique
+     (reutilise estTenue() de la v650). Le duel devient objectivement
+     arbitrable.
+     (B) BOUTONS ETIRES dans la carte Famille sur telephone : depuis la v648
+     il y a 8 jeux a deux, et renderFamilyCard les alignait en display:flex
+     avec flex:1 — donc TOUS sur une seule ligne, ecrases.
+     FIX : grille repeat(auto-fit, minmax(128px,1fr)) + min-width:0 sur les
+     tuiles. MESURE : 320px -> 1 par ligne (278px) · 360px -> 2 (154px) ·
+     390px -> 2 (169px) · 430px -> 2 (189px) · 768px -> 4 (174px).
+     workout-games.js seul (+index/sw v651).
+   • v652 : le FIL D ACTIVITE familial passe TOUT EN BAS de l onglet Famille.
+     Il etait en 4e position (apres les jeux a deux) alors qu il peut contenir
+     jusqu a 15 seances : les defis et les encouragements se retrouvaient
+     repousses tres loin des que la famille etait active.
+     Nouvel ordre : reseau > objectif commun > jeux a deux > defis > nudges >
+     fil d activite. Les elements sur lesquels on AGIT restent accessibles au
+     pouce, celui qu on CONSULTE est en fin de page. adventure.js seul
+     (+index/sw v652).
+   • v653 : MODALES NON DEFILABLES sur telephone (« type d entrainement » et
+     « duree du protocole » — en realite les 14 modales concernees).
+     DIAGNOSTIC en deux temps :
+     (1) .modal ET .modal-content etaient TOUS DEUX defilants (max-height:90vh
+     + overflow auto sur le contenu, overflow auto sur la fenetre) : deux
+     conteneurs imbriques, le doigt agit sur le mauvais des deux.
+     (2) CAUSE PROFONDE — dans @media (max-width:640px), la regle
+     `.modal { align-items: flex-end !important; }` transforme les modales en
+     « feuille du bas ». Or avec flex-end, un contenu PLUS HAUT que l ecran
+     deborde VERS LE HAUT, et ce debordement est INACCESSIBLE au defilement
+     (limite connue de flexbox : scrollHeight === clientHeight). Mesure avant
+     correction sur 320x568 : contenu 634px, haut a -83px, defilement 0.
+     FIX : (a) suppression du defilement INTERIEUR sur mobile (max-height:none,
+     overflow-y:visible) — la fenetre entiere defile ; (b) alignement bas obtenu
+     par `margin-top:auto` sur .modal-content avec `align-items:flex-start`,
+     qui donne le MEME rendu colle en bas mais laisse le contenu defiler quand
+     il depasse. #profileSelectionModal exclu (reste centre, cf. commentaire
+     d origine).
+     MESURE APRES : 320x568 -> haut a +7px, defile de 137px, bas atteint ✅ ;
+     360x640 et 390x844 -> tout tient sans defiler ✅. css/style.css seul
+     (+index/sw v653).
+   • v654 : AUDIT PROFOND superset / circuit / AMRAP. DEUX bugs trouves, dont
+     un tres grave sans rapport avec le signalement initial.
+     (A) AMRAP CASSE — le bug signale. updateAMRAPDisplay faisait :
+           if (timerDisplay) { timerDisplay.querySelector('.timer').innerHTML = ...
+     Le garde-fou verifiait le BON element mais le code visait un enfant
+     « .timer » INEXISTANT : la relation est inversee, .timer est le conteneur
+     qui ENGLOBE #timerDisplay (lequel est un simple badge texte « 00:45 »).
+     Resultat : ReferenceError a CHAQUE SECONDE — le decompte tournait en
+     interne mais n etait jamais affiche, et startAMRAPExercise plantait apres
+     avoir ecrit les repetitions. D ou « le timer ne part pas et sa met des
+     repetitions ».
+     FIX : ecriture directe dans #timerDisplay (sa raison d etre) + rounds et
+     temps restant dans #exerciseNumber ; passage en rouge sous 30 s ; garde
+     sur ex.instructions manquant. VERIFIE : 20:00 -> 19:57 en 3 s, 0 erreur.
+     (B) STATISTIQUES D ACCUEIL JAMAIS CALCULEES — bug preexistant majeur,
+     decouvert en tracant l erreur console. updateHomeStats() utilisait
+     `stats.workouts`, `stats.streak` et `stats.minutes` SANS JAMAIS DECLARER
+     `stats` -> ReferenceError a chaque appel. Consequences : les 3 compteurs
+     restaient figes sur les valeurs ECRITES EN DUR dans le HTML (test : 5
+     seances en historique, compteur toujours a 0), et TOUT le code situe apres
+     cette ligne ne s executait jamais.
+     FIX : calcul de stats depuis l historique du profil actif — nombre de
+     seances, total des minutes, et serie de jours consecutifs (en repartant
+     d hier si aucune seance aujourd hui, pour ne pas casser la serie avant la
+     seance du jour). VERIFIE : 5 seances / 4 jours consecutifs / 45 min ->
+     affiche 5, 4🔥, 210, 3/7.
+     (C) SUPERSET et CIRCUIT : VERIFIES FONCTIONNELS. Ils passent par le flux
+     standard (les repos chronometres sont pre-inseres dans la liste
+     d exercices) — teste : enchainement exercice -> repos, decompte 00:45 ->
+     00:28, aucune erreur. NOTE : startSupersetExercise() et
+     startCircuitExercise() sont du CODE MORT (heritage d une ancienne
+     architecture) ; la seconde n a meme aucun point d entree. A supprimer lors
+     d un nettoyage.
+     app.js seul (+index/sw v654).
+   • v655 : marquage du CODE MORT des circuits (aucun changement de
+     comportement, uniquement des commentaires).
+     CORRECTION de ce que j avais annonce en v654 : startSupersetExercise()
+     n est PAS morte — elle est appelee quand l utilisateur accepte un superset
+     SUGGERE (L~2842), et currentSupersetWorkout y recoit un vrai objet (L2823).
+     En revanche currentCircuitWorkout ne recoit JAMAIS que null dans toute
+     l app : la branche `else if (currentCircuitWorkout)` de nextExercise
+     (L~24401) n est donc jamais empruntee, et toute la chaine en aval est
+     inerte — startCircuitExercise, nextCircuitExercise, completeCircuit.
+     Rien n est casse : startCircuit() pre-construit deja la liste complete
+     (tours + « Repos entre rounds »), jouee par le flux STANDARD — verifie en
+     v654 (enchainement exercice -> repos, decompte 00:45 -> 00:28).
+     5 commentaires « ⚠️ CODE MORT » ajoutes : declaration de la variable, les
+     3 fonctions, et la branche conditionnelle. Objectif : eviter qu on perde
+     du temps a modifier un code qui ne s execute pas (le piege a failli jouer
+     en v654). Suppression a faire lors d un nettoyage, pas en urgence.
+     app.js seul (+index/sw v655).
+   • v656 : PERIODISATION rendue REELLEMENT automatique, deplacee et documentee.
+     CONSTAT : le reglage promettait « automatique » mais getCurrentPhase()
+     n etait lue qu a UN endroit — renderWeeklySuggestionCard — uniquement pour
+     AFFICHER la phase. Le generateur ne la consultait jamais : l app annoncait
+     « cette semaine : Force, 3-6 reps » puis proposait les memes repetitions
+     que d habitude. L utilisateur devait appliquer la consigne a la main.
+     (1) AUTOMATISATION — awakPrescribe() (le point ou sont decides series,
+     reps et repos) consulte desormais la phase :
+        Force (>=85 pct)      -> reps de la phase, +1 serie, repos x1,7
+        Hypertrophie+         -> repos x0,85 (volume max, recup courte)
+        Decharge (<=60 pct)   -> repos x1,15, -1 serie (SAUF si la decharge
+                                 manuelle awakDeloadActive est deja active :
+                                 on evite de cumuler les reductions)
+     MESURE (objectif forme, intermediaire, mouvement compose) :
+        S1 Hypertrophie  8-12  · 3 series · 69 s
+        S2 Force          3-6  · 4 series · 117 s
+        S3 Hypertrophie+ 10-15 · 3 series · 59 s
+        S4 Decharge      12-15 · 2 series · 79 s
+        desactivee       10-12 · 3 series · 69 s (schema de l objectif)
+     (2) VISIBILITE — la phase est annoncee dans le raisonnement du coach
+     (« 🏋️ Semaine 2/4 · Force — 3-6 reps visees ») : sans ca l utilisateur
+     subirait un changement de repetitions sans comprendre pourquoi.
+     (3) DEPLACEMENT — le reglage etait dans « GROUPE 1 · JEU & PROGRESSION »,
+     entre le Mode Jeu et l onglet Famille, alors que c est un reglage
+     d ENTRAINEMENT pur. Deplace en tete de « GROUPE 2 · ENTRAINEMENT ».
+     (4) DESCRIPTION — les 4 phases sont maintenant detaillees (objectif, reps,
+     logique de chacune) + une note expliquant le principe et indiquant que la
+     semaine en cours s affiche sur l accueil. app.js + index.html (+sw v656).
+   • v657 : GUIDAGE VOCAL RETIRE (ne fonctionnait pas chez l utilisateur).
+     CONSTAT : la fonction speak() est pourtant bien ecrite — file d attente,
+     priorites, gestion du bug Chrome Android (speak juste apres cancel).
+     Le probleme vient de l ENVIRONNEMENT : la synthese vocale du navigateur
+     exige une interaction utilisateur prealable et reste muette en application
+     installee sur plusieurs plateformes (notamment iOS en mode autonome).
+     Plutot que de laisser un reglage qui ne tient pas sa promesse, la
+     fonctionnalite est desactivee.
+     METHODE choisie — neutralisation A LA SOURCE plutot que suppression des
+     appels : voiceGuideEnabled et countdownVoiceEnabled passent a false. Les
+     ~50 appels a speak()/speakCountdown() sont CONSERVES et deviennent sans
+     effet : aucun risque de casser un flux de seance en editant 50 endroits.
+     Les fonctions toggleVoiceGuide/toggleCountdownVoice subsistent mais ne sont
+     plus atteignables depuis l interface.
+     UI : bloc « 🔊 Guidage vocal » retire des reglages (groupe Audio), remplace
+     par un commentaire expliquant comment REACTIVER (repasser les 2 constantes
+     a true + restaurer le bloc).
+     PRESERVE : « Mode sans distractions » et « Mode silencieux » sont des
+     fonctionnalites DIFFERENTES et restent intactes (verifie).
+     TESTE : 0 appel a speechSynthesis.speak, reglage absent, aucune erreur JS.
+     app.js + index.html (+sw v657).
+   • v658 : NOTIFICATIONS PARASITES A L OUVERTURE de l app (« Mode salle bondée
+     désactivé » + « 🏠 Mode Maison activé »).
+     CAUSE : au demarrage, la sequence d init appelle setSessionMode(sessionMode)
+     (L~42125) pour RESTAURER l affichage du mode enregistre. Mais cette fonction
+     annonce systematiquement le changement — et declenche en cascade
+     deactivateBusyGym() qui annonce a son tour. L utilisateur voyait donc deux
+     confirmations de changement a chaque ouverture, alors qu il n avait rien
+     change.
+     FIX : parametre `silencieux` sur setSessionMode() et deactivateBusyGym().
+     Passe a true pour les 3 appels AUTOMATIQUES : demarrage (restauration),
+     changement de lieu (L5639) et creation/modification de lieu (L23829) — ces
+     deux derniers affichaient DEJA leur propre confirmation, le message etait
+     donc en double. Les 2 boutons Maison/Gym de l interface appellent
+     setSessionMode SANS le parametre : le retour utilisateur est CONSERVE.
+     BONUS : deactivateBusyGym n annonce plus que si le mode etait REELLEMENT
+     actif — on informait d une desactivation qui ne desactivait rien.
+     TESTE : 0 notification pendant les 3,5 s de demarrage ; clic Gym -> « Mode
+     Gym active » ; clic Maison salle bondee inactive -> 1 seul message ; clic
+     Maison salle bondee active -> les 2 messages, tous deux pertinents.
+     app.js seul (+index/sw v658).
+   • v659 : deux signalements de l utilisateur.
+     (A) MINUTEUR DES ROUTINES MATINALES FIGE. Le decompte tournait pourtant
+     bien en interne (mesure : timeRemaining 40 -> 38 -> 36 -> 34) mais
+     l affichage restait bloque sur « 00:45 », la valeur ecrite en dur dans le
+     HTML. CAUSE : les routines matinales construisent leurs exercices avec
+     mode:'duration' (L~5300), alors que le flux de seance ne connait que
+     'timer' et 'reps'. La condition de updateTimerDisplay (L~23359) accepte
+     isRest / 'timer' / absence de mode — mais PAS 'duration' : la fonction
+     n actualisait donc jamais l element. startTimer(), lui, ne rejette que
+     'reps' : d ou un minuteur qui tourne dans le vide.
+     FIX : normalisation `mode:'duration' -> 'timer'` en amont dans
+     startExercise(), a cote du forcage deja fait pour les repos. Choix
+     deliberé : corriger A LA SOURCE plutot que d ajouter 'duration' a chaque
+     test de mode dissemine (les 3 autres endroits qui le testent acceptent
+     deja 'timer', donc rien ne casse). VERIFIE : affichage 00:40 -> 00:38 ->
+     00:36, aligne sur le compteur interne.
+     (B) BOUTON « REPRENDRE » ABSENT. Le message affiche en quittant une seance
+     annonce qu on peut reprendre depuis l accueil — mais
+     renderSmartStartButton(), qui produit ce bandeau, n etait JAMAIS APPELEE.
+     La fonctionnalite avait ete ecrite sans jamais etre branchee.
+     FIX : conteneur #resumeSessionCard ajoute sur l accueil (sous la carte
+     profil) et rempli depuis updateHomeStats. On n affiche QUE le cas « seance
+     en cours » : l autre branche de la fonction propose de demarrer une
+     seance, ce que l accueil fait deja ailleurs — on evite le doublon.
+     VERIFIE : rien sans seance en attente ; avec une seance interrompue ->
+     bandeau avec nom, duree (12 min), « Reprendre » et « Abandonner ».
+     app.js + index.html (+sw v659).
+   • v660 : MASQUAGE DU NOM INCRUSTE dans les 473 images d exercices.
+     BESOIN : le nom de l exercice est grave dans un bandeau en bas de chaque
+     illustration — pratique pour associer image et titre pendant la creation,
+     mais bloquant pour traduire l app (le texte de l image resterait francais).
+     MESURES : profil vertical ligne par ligne (luminosite + ecart-type) sur la
+     collection. Le bandeau occupe environ les 15 pct du bas ; le texte lui-meme
+     se situe vers 90-94 pct de la hauteur (verifie precisement sur Jump_squat :
+     photo jusqu a 84 pct, marge sombre 85-89, texte 90-94, marge 96-100).
+     Les heuristiques de detection par couleur ont ete ABANDONNEES : les photos
+     de salle ont un eclairage vert ambiant et des reflets vifs sur fond sombre,
+     que le detecteur confondait avec du texte (188 faux positifs).
+     VALIDATION PAR OCR (tesseract + pretraitement : agrandissement, contraste
+     x3, seuillage, inversion — sans quoi il ne lit RIEN sur ce texte vert) :
+       • nom lisible dans le bandeau complet   : 8/29 (police stylisee, mais
+         suffisant pour valider la methode)
+       • nom lisible APRES rognage de 15 pct   : 0/29 ✅
+     FIX : `img[src*="images/exercises/"] { clip-path: inset(0 0 var(--exo-img-crop) 0) }`
+     avec `:root { --exo-img-crop: 15% }`. Cible toutes les images d exercices
+     ou qu elles soient affichees (seances, jeux, details, vignettes).
+     ▸ REGLAGE : une seule variable a modifier. Augmenter si un reste de texte
+       apparait, diminuer si trop d image est perdue, 0% pour tout rétablir.
+     Les FICHIERS NE SONT PAS MODIFIES : rognage purement visuel et reversible.
+     css/style.css seul (+index/sw v660).
+     Apercu comparatif : /mnt/user-data/outputs/apercu-rognage-noms.png
+   • v661 : FAILLE DE SECURITE ENFANT dans les jeux a deux (signalee par une
+     question de l utilisateur — excellente intuition).
+     PROBLEME : le pool des jeux appelait AwakYouth.isChild() SANS ARGUMENT, ce
+     qui n examine que le PROFIL ACTIF. Consequence :
+       • si l ENFANT lancait le jeu   -> poids du corps seulement ✅
+       • si l ADULTE lancait le jeu   -> TOUS les exercices, halteres, barres,
+         machines et strongman inclus ❌ — alors que l enfant allait les executer.
+     C est le cas le PLUS PROBABLE (c est l adulte qui manipule le telephone) et
+     le plus risque : charges lourdes sur un corps en croissance.
+     FIX : pool(limit, niveauForce, idsParticipants). Pour les jeux duo,
+     demarrer() identifie les DEUX joueurs via duoJoueurs() AVANT de constituer
+     le pool, et les protections retiennent le participant le plus fragile :
+       • AGE — restriction poids du corps / elastique / tapis des qu UN des deux
+         a moins de 13 ans (via AwakYouth.isChildProfile, qui accepte un id) ;
+       • NIVEAU — on retient le niveau le PLUS PRUDENT des deux, pour ne pas
+         imposer au debutant les mouvements avances de son partenaire.
+     MESURE (filtre materiel neutralise pour isoler la protection) :
+       Papa 40 ans avance seul  -> 354 exercices · Barre, Halteres, Kettlebell,
+                                    Machine, Battle ropes, Pneu/Strongman…
+       Papa + Lea 10 ans        ->  89 exercices · Poids du corps et Elastique
+                                    UNIQUEMENT, et difficulte « Debutant » seule
+     workout-games.js seul (+index/sw v661).
+     A SURVEILLER : le meme raisonnement vaudrait pour les SENIORS (isSeniorProfile
+     existe) et pour le mode douleur d un partenaire — non traite ici, le cas
+     enfant etant le seul a presenter un risque de blessure structurelle.
+   • v662 : EXTENSION des protections aux jeux a deux (suite de la v661).
+     (1) SENIOR — des qu UN des participants a 65 ans et plus, les mouvements a
+     IMPACT sont ecartes (chocs articulaires, risque de chute). Detection par
+     RX_IMPACT (saut/jump/burpee/high knees/montees de genoux/plyo/explosif/
+     skater/box jump/bond), liste alignee sur la table de substitution du mode
+     silencieux de l app puis elargie aux variantes. Utilise
+     AwakYouth.isSeniorProfile(id) pour interroger le PARTENAIRE, pas seulement
+     le profil actif.
+     MESURE (Marc 40 ans avance, filtre materiel neutralise) :
+        Marc seul            354 exercices · 17 a impact
+        Marc + Mamie 72 ans  335 exercices ·  0 a impact ✅
+        Marc + Lea 10 ans     89 exercices · 11 a impact
+     DISTINCTION VOLONTAIRE : les sauts RESTENT autorises avec un enfant. Sauter
+     est naturel et benefique a cet age ; le risque pour un enfant vient des
+     CHARGES (plaques de croissance), pas de l impact. Pour un senior c est
+     l inverse. Les deux filtres sont donc complementaires, pas redondants.
+     (2) DOULEURS — RIEN A ETENDRE, constat verifie : la cle 'awakPainZones' est
+     GLOBALE (aucun prefixe de profil, aucune cle par profil en stockage). Le
+     filtre douleur s applique donc DEJA a tout le monde, quel que soit le
+     joueur — protection par exces plutot que par defaut, donc sans risque.
+     LIMITE A CONNAITRE : cette globalite est imprecise. Si Marc signale une
+     epaule sensible, les seances de Lea evitent aussi les epaules, sans raison.
+     La vraie amelioration serait de rendre les zones douloureuses PAR PROFIL
+     (cle profile_<id>_awakPainZones) — chantier distinct, non entrepris ici.
+     workout-games.js seul (+index/sw v662).
+   • v663 : ZONES DOULOUREUSES rendues PROPRES A CHAQUE PROFIL.
+     AVANT : la cle 'awakPainZones' etait GLOBALE. Une epaule signalee par le
+     pere privait sa fille d exercices d epaules — protection par exces, mais
+     absurde et frustrante.
+     (1) CLE PAR PROFIL — KEY() devient une FONCTION renvoyant
+     'profile_<id>_awakPainZones' (repli sur l ancienne cle si le profil est
+     inconnu). _load, _save et clear l utilisent.
+     (2) MIGRATION SANS PERTE — _migrer() reprend UNE FOIS l ancienne cle
+     globale au profit du profil actif, puis la supprime. Ne fait rien si le
+     profil est inconnu (on attend) ni si la cible existe deja (pas d ecrasement).
+     Appelee depuis _load et _save, donc declenchee naturellement.
+     ATTENTION : clear() vide la cle du profil ET l ancienne globale, sinon la
+     remise a zero laissait un residu qui serait remigre au prochain chargement.
+     (3) JEUX A DEUX — nouvelles fonctions exportees : zonesOf(profileId) et
+     exerciseHitsPainFor(ex, ids). Le pool des jeux duo ecarte les exercices
+     touchant une zone sensible de L UN OU L AUTRE joueur (ils executent les
+     memes mouvements). Repli sur exerciseHitsPain pour les jeux solo.
+     TESTE : migration (ancienne cle lue, transferee, supprimee) · isolation
+     (Marc epaules / Lea vide, aucune contamination) · duo (Marc epaules +
+     Lea jambes -> 172 exercices, ni epaules ni jambes ; Marc seul -> 262
+     exercices, jambes conservees).
+     CONSEQUENCE A CONNAITRE : chaque membre doit desormais signaler SES propres
+     zones. C est le comportement correct, mais les signalements existants ont
+     ete attribues au profil actif au moment de la migration.
+     pain-mode.js + workout-games.js (+index/sw v663).
+   • v664 : la carte « Recommandé pour toi » (accueil) ne menait nulle part.
+     CAUSE : awakStartFocusSession() appelle openWorkoutModeModal(), mais cette
+     modale se trouve A L INTERIEUR de #workoutsTab. Depuis l ACCUEIL, cet
+     onglet est masque (display:none) : la modale recevait bien sa classe
+     .active mais n etait tout simplement PAS RENDUE. L utilisateur ne voyait
+     rien, puis decouvrait la fenetre deja ouverte en passant sur Entrainer —
+     comportement incomprehensible.
+     (Meme mecanisme que celui identifie en v653 : un enfant d un onglet masque
+     ne s affiche pas, meme en position fixe.)
+     FIX place DANS openWorkoutModeModal() plutot qu au point d appel : la
+     fonction bascule elle-meme sur l onglet si besoin. Les 3 appelants
+     (L~13638, L~13798, et la carte accueil) en beneficient, et le piege ne
+     peut plus se reproduire pour un futur appelant.
+     DETAIL : delai de 260 ms avant l ouverture lorsqu une bascule a lieu.
+     L animation d entree de l onglet (tabFadeIn) applique une TRANSFORMATION
+     CSS, laquelle casse le positionnement fixe de la modale — sans ce delai
+     elle s affichait decalee (constat de la v653).
+     TESTE depuis l accueil avec un profil complet : bascule immediate sur
+     workoutsTab, modale visible (haut 256px, hauteur 596px), muscles cibles
+     bien transmis (Pectoraux, Dos, Epaules, Biceps, Triceps).
+     NOTE : avec un profil INCOMPLET la carte redirige vers la configuration du
+     profil — comportement voulu, verifie au passage.
+     app.js seul (+index/sw v664).
+   • v665 : NOTIFICATION DE FAILLE recue alors que le MODE JEU etait DESACTIVE.
+     CAUSE PROFONDE — un probleme de PORTEE entre deux reglages distincts :
+       • 'fitproGameMode'          (Mode Jeu) → figure dans GAME_KEYS = PAR PROFIL
+       • 'fitpro_adventure_enabled' (aventure) → ABSENTE de GAME_KEYS = GLOBALE
+     La generation de Faille (L~35012) ne testait que getAdventureEnabled().
+     Un profil au jeu eteint heritait donc du drapeau laisse actif par un autre
+     profil — ou par lui-meme avant une reinitialisation a portee profil — et
+     continuait de recevoir des Failles. toggleGameMode() synchronise bien les
+     deux a la bascule, mais rien ne rattrapait une desynchronisation existante.
+     FIX EN TROIS COUCHES :
+       1. getAdventureEnabled() verifie D ABORD rpgEnabled() : le Mode Jeu
+          devient l INTERRUPTEUR MAITRE de toute la couche RPG. Corrige d un
+          coup TOUS les consommateurs du reglage aventure.
+       2. 'fitpro_adventure_enabled' ajoutee a GAME_KEYS : la cle devient PAR
+          PROFIL, coherente avec le Mode Jeu. Fin de la desynchronisation.
+       3. awakTryGenerateRift() verifie AUSSI rpgEnabled() en entree. Defense en
+          profondeur : c est la fonction qui CREE la Faille, elle ne doit jamais
+          pouvoir en produire une pour un profil au jeu eteint, quel que soit le
+          chemin d appel ajoute plus tard.
+     TESTE (appel direct, sans le garde-fou de l appelant, niveau 27) :
+        jeu ACTIVE  -> faille generee en 2 essais ✅
+        jeu ETEINT  -> aucune faille en 60 essais ✅
+     Scenario de l utilisateur reproduit : drapeau global reste a « true » apres
+     desactivation -> getAdventureEnabled() renvoie desormais false.
+     app.js + adventure.js (+index/sw v665).
+   • v666 : ONGLET JEU reorganise — carte SYSTEME retiree, Carte de Chasseur
+     remontee en tete.
+     (A) CARTE « SYSTEME » SUPPRIMEE. Elle affichait un message d analyse avec un
+     lien « Voir l analyse detaillee ». Or l analyse comportementale figure deja
+     dans l onglet Progression : la repeter ici alourdissait l entree du mode jeu
+     sans rien apporter. showSystemAnalysis() reste disponible et accessible
+     depuis Progression.
+     (B) CARTE DE CHASSEUR EN PREMIER (rang, niveau, Power Score, attributs).
+     tab.appendChild(cardProfile) -> tab.insertBefore(cardProfile, tab.firstChild),
+     et les boutons Competences/Equipement (rowBtns) inseres juste apres pour
+     rester COLLES a la carte.
+     PIEGE RENCONTRE : trois autres cartes se reperaient sur cardProfile via
+     insertBefore(..., cardProfile) — cardInjured (blessures), cardMalus et
+     cardMission. Des que la Carte de Chasseur est passee en tete, elles
+     remontaient AVEC elle et se retrouvaient AVANT. Corrige en repere
+     POSITIONNEL — tab.children[2] — plutot qu en variable, dont la portee
+     n etait pas garantie a ces endroits (tentative echouee avec rowBtns).
+     ORDRE FINAL VERIFIE : Carte de Chasseur · Competences/Equipement · Failles ·
+     Malus · Carte du jour · Journal du Chasseur. Aucune erreur JS.
+     NOTE DE TEST : renderGameTab() affiche d abord un SQUELETTE puis rend en
+     asynchrone — il faut attendre ~1,5 s avant de mesurer l ordre, sinon on ne
+     lit que le placeholder (m a fait conclure a tort a un rendu vide).
+     app.js seul (+index/sw v666).
+   • v667 : JOURNAL DE COMBAT pour les Failles et les Chasses.
+     BESOIN : les degats n etaient signales que par un toast de 1,8 s. Pendant
+     une serie rapide les coups s enchainaient et le joueur ne voyait rien.
+     AJOUTS : awakCombatLogAdd / awakCombatLogGet / awakCombatLogClear (cle
+     'awakCombatLog', plafond 40 entrees, les plus anciennes oubliees) +
+     awakRenderCombatLog() qui affiche un panneau REPLIABLE (<details>) dans la
+     vue de seance : conteneur #awakCombatLogPanel ajoute a index.html.
+     Chaque coup est consigne au point d application des degats (L~12584) :
+     type (coup / CRITIQUE / echec), degats, exercice, PV restants, mise a mort.
+     L en-tete replie affiche le CUMUL des degats et le nombre de critiques —
+     l information la plus utile d un coup d oeil.
+     Journal VIDE au debut de chaque combat (avant la construction de
+     miniWorkout pour les Failles et de huntWorkout pour les Chasses), sinon les
+     coups s accumuleraient d un affrontement a l autre.
+     CHOIX DE CONCEPTION : l affichage depend de la PRESENCE D ENTREES, pas de
+     currentWorkout._isRift. Premiere version basee sur currentWorkout ecartee
+     pour deux raisons : (1) le journal disparaissait des la fin du combat, alors
+     que le but est justement de pouvoir le RELIRE ; (2) currentWorkout est une
+     variable interne (let, L4223) non exposee, donc intestable. Le conteneur
+     n existant que dans la vue de seance, aucun risque de fuite ailleurs.
+     TESTE : 4 entrees -> total 200 degats (42+96+62), 1 critique compte, coup
+     critique / echec / mise a mort / PV restants tous affiches, panneau vide
+     apres vidage, aucune erreur JS.
+     app.js + index.html (+sw v667).
+     Apercu : /mnt/user-data/outputs/apercu-journal-combat.png
+   • v668 : JOURNAL DE COMBAT — position corrigee et effets ajoutes.
+     (A) POSITION. Le conteneur #awakCombatLogPanel avait ete place juste avant
+     le commentaire « Timer (coin haut-gauche de l image) » : il se retrouvait
+     DANS le cadre de l image d exercice, donc ROGNE et illisible (constate par
+     capture). Deplace APRES le bloc .reps-weight-grid, sous la saisie des
+     repetitions et du poids.
+     (B) EFFETS DE COMBAT AJOUTES. Le journal ne consignait que les degats. Or le
+     combat produit bien d autres evenements, tous rassembles dans le tableau
+     `procToasts` (L~29705) : armure qui tient / se fissure / BRISEE / se
+     reforme, vulnerabilite (degats x2), esquive, coup partiel, drain de HP,
+     DOUBLE ATTAQUE, faiblesse detectee, maledictions, jauge de distance.
+     Consignes au point de CONVERGENCE (la boucle procToasts.forEach) : un seul
+     endroit a instrumenter pour tous les effets, presents et futurs.
+     Affichage colore selon le ton (succes vert, alerte ambre, erreur rouge,
+     info cyan) et distinct des lignes de degats. L en-tete replie annonce
+     desormais « X degats · Y crit. · Z effets ». Plafond 40 -> 60 entrees, les
+     effets s ajoutant aux coups.
+     TESTE : 8 entrees -> 200 degats, 1 critique, 4 effets ; armure brisee,
+     vulnerabilite, drain, armure qui tient et mise a mort tous presents ;
+     aucune erreur JS.
+     app.js + index.html (+sw v668).
+   • v669 : JOURNAL DE COMBAT — 3 corrections d apres captures utilisateur.
+     (A) BUG « [object Object] ». J ecrivais exo: exerciseName, or cette variable
+     n existe PAS dans awakRiftHuntCompleteSet() : elle etait captee dans une
+     portee exterieure et valait un OBJET. FIX : lecture explicite du NOM via
+     currentWorkout.exercises[currentExerciseIndex].name, avec garde.
+     (B) EVENEMENTS MANQUANTS. La comparaison des deux captures montrait des
+     notifications absentes du journal : la RIPOSTE du monstre (« Titan
+     Ressuscite riposte ! -39 HP ») et la REGENERATION (« +6 HP (END) »).
+     Ces deux-la ne passent PAS par procToasts — elles ont leurs propres
+     showToast (L~33223 pour la riposte, L~33404 dans awakHealPlayer). Chacune
+     consignee a la source. Le journal couvre desormais : degats, critiques,
+     echecs, mises a mort, effets de procToasts (armure, esquive, vulnerabilite,
+     double attaque, maledictions…), ripostes subies et soins recus.
+     (C) POSITION, 3e et derniere. Historique : cadre de l image (rogne) ->
+     sous la saisie des repetitions (encore trop haut) -> desormais SOUS la
+     rangee Precedent / Suivant, ou il ne gene aucune action.
+     TESTE : plus de [object Object], nom d exercice correct, riposte et
+     regeneration presentes, en-tete « 30 degats · 3 effets », panneau
+     effectivement situe sous le bouton SUIVANT.
+     app.js + index.html (+sw v669).
+   • v670 : AVERTISSEMENT quand une seance est DEJA EN COURS.
+     SIGNALEMENT : en pleine Faille, aller sur l accueil et lancer la
+     recommandation renvoyait SILENCIEUSEMENT dans la Faille. Aucune
+     explication : l utilisateur croit a un bug.
+     CONSTAT au passage : hasActiveWorkoutInProgress() existait deja mais
+     n etait JAMAIS APPELEE — enieme fonction ecrite sans etre branchee (meme
+     cas que renderSmartStartButton en v659).
+     FIX : garde-fou dans showWorkoutPreparation(), POINT DE PASSAGE COMMUN aux
+     13 facons de lancer une seance — un seul endroit a proteger.
+     Nouvelle fenetre awakSeanceDejaEnCours() qui NOMME la seance en cours,
+     indique depuis combien de temps elle dure, nomme celle qu on veut lancer,
+     et propose TROIS choix explicites :
+       ▶ Reprendre la seance en cours   -> resumeActiveWorkout()
+       ✕ Abandonner et demarrer         -> clearActiveWorkoutState() puis
+                                           relance avec _forceNew
+       Annuler                          -> ferme, rien ne change
+     Le drapeau `_forceNew` evite la boucle infinie apres un abandon explicite.
+     TESTE : fenetre affichee, nom de la Faille et duree (8 min) corrects, nom
+     de la nouvelle seance present, 3 boutons ; « Abandonner et demarrer »
+     efface bien l ancienne seance et ferme la fenetre ; aucune erreur JS.
+     app.js seul (+index/sw v670).
+   • v671 : PANNEAU « COMPETENCES » FIGE — il fallait recharger la page pour
+     voir une competence debloquee.
+     CAUSE : rpgShowDetailsPanel() ne rend pas le contenu, il le CLONE
+     (cloneNode(true)) depuis #rpgDetailsContainer. C est donc un INSTANTANE.
+     rpgUnlockSkill() appelait bien renderGameTab(), ce qui rafraichissait
+     l original DERRIERE — mais la copie affichee restait a l ancien etat.
+     REPRODUIT : panneau ouvert avec 5 badges « 👆 Debloquer », deblocage d une
+     competence -> toujours 5 badges.
+     FIX : rpgRafraichirPanneauDetails() reconstruit le panneau s il est ouvert
+     (fermeture + reouverture, donc reclonage du contenu a jour). Appelee depuis
+     rpgUnlockSkill.
+     DELAI DE 900 ms NECESSAIRE : renderGameTab() affiche d abord un SQUELETTE
+     puis rend en differe. Sans attente on reclonerait le squelette. Deux gardes
+     ajoutees : on abandonne si le panneau a ete ferme entre-temps, et si le
+     conteneur est encore vide (rendu pas termine).
+     VERIFIE : 5 badges -> 4 apres deblocage, panneau reste ouvert, competence
+     bien enregistree, aucune erreur JS.
+     NOTE IMPORTANTE : ce defaut n a RIEN a voir avec la nature PWA de l app —
+     passer en natif (Capacitor) ne l aurait pas corrige. Tout autre panneau
+     construit par clonage souffrirait du meme probleme : a verifier si d autres
+     ecrans utilisent cloneNode.
+     app.js seul (+index/sw v671).
+   • v672 : ATTRIBUTION DES POINTS D ATTRIBUT — la Carte de Chasseur restait
+     figee (meme famille de bug que la v671, cause DIFFERENTE).
+     CAUSE : awakStatPointsAllocate() rafraichissait la modale
+     (awakOpenStatPointsModal) et l onglet AVENTURE (renderAdventureTab), mais
+     PAS l onglet JEU. Or les attributs STR/AGI/VIT/END/PER/SEN s affichent sur
+     la CARTE DE CHASSEUR, rendue par renderGameTab(). Le point etait bien
+     attribue en memoire (verifie : allocated.STR = 1) mais la carte gardait
+     l ancienne valeur jusqu au rechargement.
+     FIX : ajout de renderGameTab() dans awakStatPointsAllocate. La modale etant
+     attachee au <body> (et non a l onglet), elle SURVIT au redessin — verifie.
+     TESTE : STR 10 -> 12 apres attribution d un point, modale restee ouverte,
+     aucune erreur JS.
+     ⚠️ MOTIF RECURRENT A SURVEILLER — 3e cas en 2 versions du meme symptome
+     « l etat change mais l ecran ne suit pas », avec 3 causes distinctes :
+        v671 : panneau construit par CLONAGE (instantane fige)
+        v672 : rafraichissement du MAUVAIS onglet
+        (et v659 : minuteur qui tournait sans que l affichage se mette a jour)
+     Piste de fond : l app n a pas de mecanisme central de rafraichissement,
+     chaque action doit penser a redessiner les bons ecrans. A auditer si
+     d autres ecrans presentent le symptome.
+     app.js seul (+index/sw v672).
+   • v673 : AUDIT SYSTEMATIQUE « l etat change mais l ecran ne suit pas ».
+     METHODE : (1) recensement des 1224 fonctions de app.js ; (2) filtrage sur
+     celles qui ECRIVENT un etat (localStorage.setItem/removeItem, *Save()) sans
+     appeler AUCUNE fonction de rendu -> 183 candidates ; (3) resserrage sur les
+     393 fonctions reellement DECLENCHEES PAR UN CLIC (onclick dans index.html
+     et js/) -> 17 candidates ; (4) examen manuel des 17.
+     RESULTAT : 15 faux positifs (elles manipulent le DOM directement, ou
+     l appelant redessine juste apres — ex. setProgramTabView, dont l onclick
+     fait « setProgramTabView(x); renderProgramTab(); »).
+     2 VRAIS BUGS corriges :
+       • awakConsumablesUse() — decremente la quantite et marque l objet actif,
+         mais ne rafraichissait RIEN : l ecran du marchand gardait l ancien
+         compte. FIX : appel a awakRenderMerchantConsumables() si le marchand
+         est ouvert.
+       • applyProgressionSuggestion() — sur « upgrade_variant » /
+         « downgrade_variant » elle REMPLACE l exercice dans currentWorkout,
+         mais la vue continuait d afficher l ANCIEN mouvement (nom, image,
+         consignes) alors que la seance avait change. FIX : startExercise()
+         uniquement si l exercice modifie est CELUI AFFICHE (exIndex ===
+         currentExerciseIndex) — inutile de perturber la seance pour un
+         exercice a venir.
+     TESTE : consommable 3 -> 2, marque actif, aucune erreur JS.
+     CONSTAT DE FOND : l app n a pas de mecanisme central de rafraichissement.
+     Chaque action doit penser a redessiner les bons ecrans, d ou cette famille
+     de bugs (v659 minuteur, v671 panneau clone, v672 mauvais onglet, v673 x2).
+     L audit ci-dessus couvre les actions par CLIC ; restent hors perimetre les
+     etats modifies par minuterie, fin de seance ou changement de profil.
+     app.js seul (+index/sw v673).
+   • v674 : AUDIT des 3 familles d etats restees hors perimetre en v673.
+     (1) MINUTERIES — 4 callbacks de setTimeout/setInterval ecrivent un etat
+     sans rafraichir. 3 legitimes (initialisation de lastLevel au demarrage,
+     reaction d absence et message systeme, qui affichent eux-memes une fenetre).
+     1 VRAI BUG : la MONTEE DE RANG (L~35678) enregistrait fitproLastRank et
+     lancait rpgShowRankUp() — une fenetre de celebration — mais ne rafraichissait
+     NI la Carte de Chasseur NI la carte RPG de l accueil. La fenetre annoncait
+     donc le nouveau rang pendant que les cartes gardaient l ancien jusqu au
+     rechargement. Sur un moment aussi marquant, c est particulierement visible.
+     FIX : renderGameTab() + renderHomeRpgCard() apres rpgShowRankUp.
+     VERIFIE : niveau affiche 3 -> 42 apres montee, carte d accueil bien rendue.
+     (2) FIN DE SEANCE — completeWorkout n appelle explicitement que
+     updateStreak, ce qui paraissait insuffisant. VERIFIE EMPIRIQUEMENT : apres
+     enregistrement d une seance puis navigation vers l accueil, le compteur
+     passe bien de 0 a 1. Le rafraichissement se fait a l affichage de l onglet.
+     RIEN A CORRIGER.
+     (3) CHANGEMENT DE PROFIL — switchProfile() fait un location.reload() : tout
+     est reconstruit. Le rafraichissement le plus radical possible, aucun risque
+     d ecran perime. RIEN A CORRIGER.
+     BILAN DES 2 AUDITS (v673 + v674) : 4 bugs de rafraichissement corriges au
+     total (consommables, changement de variante d exercice, montee de rang, et
+     avant cela panneau clone + mauvais onglet). Les 3 familles d etats sont
+     desormais couvertes : clics, minuteries, fin de seance, changement de profil.
+     app.js seul (+index/sw v674).
+   • v675 : « il manque une discipline » — VERIFICATION et clarification.
+     COMPTAGE REEL : 11 disciplines declarees, dont 10 de role « principal »
+     (muscu, boxe, calisthenie, course, hiit, core, yoga, pilates, barre,
+     serenite) et 1 de role « complement » (mobilite). D ou les 10 niveaux
+     comptes par l utilisateur.
+     LA 10e SANS EXERCICES = MUSCULATION. Elle a bien un niveau mais ZERO
+     seance dediee (listDisciplineSessions('muscu').length === 0), alors que les
+     9 autres en ont de 1 a 12.
+     CE N EST PAS UN OUBLI : muscu est la discipline PAR DEFAUT (voie: null dans
+     disciplines.js). Ses « seances » sont les entrainements classiques de l app
+     — Seance Intelligente, programmes, supersets, circuits — qui alimentent sa
+     progression. Aucun contenu ne manque.
+     LE VRAI PROBLEME etait l AFFICHAGE : le rendu colle l etiquette « BIENTOT »
+     a toute discipline sans seance. La Musculation paraissait donc inachevee,
+     alors qu elle est la plus utilisee de l app.
+     FIX : (a) etiquette « SEANCES CLASSIQUES » en vert au lieu de « BIENTOT »
+     pour muscu ; (b) encart explicatif dans sa fiche precisant d ou viennent ses
+     niveaux, avec un bouton « ▶ Lancer une seance » menant a l onglet Entrainer.
+     Les autres disciplines sans seance conservent « BIENTOT », qui reste juste
+     pour elles.
+     app.js seul (+index/sw v675).
+   • v676 : CLIGNOTEMENT a l attribution d un point d attribut — regression de
+     MA correction v672.
+     En v672 j avais ajoute renderGameTab() pour que la Carte de Chasseur suive
+     le changement. Correct sur le fond, mais BRUTAL : renderGameTab reconstruit
+     TOUT l onglet et repasse par son SQUELETTE de chargement. Resultat, toute la
+     page clignotait a chaque point attribue — signale par l utilisateur.
+     FIX : mise a jour CIBLEE. Identifiant `awakStatVal_<CLE>` ajoute sur chaque
+     valeur d attribut de la Carte de Chasseur, et nouvelle fonction
+     awakMajValeursAttributs() qui ne modifie que ces 6 chiffres via
+     awakGetTotalStats(). Plus aucun redessin.
+     MESURE : STR 10 -> 12, squelette PAS reapparu, taille du HTML de l onglet
+     rigoureusement identique avant/apres (36250 caracteres) — preuve qu aucune
+     reconstruction n a lieu. Modale restee ouverte.
+     LECON : « l ecran ne suit pas » se corrige en redessinant, mais redessiner
+     TOUT est le remede de cheval. Preferer la mise a jour ciblee quand seuls
+     quelques champs changent — surtout sur un onglet a rendu asynchrone avec
+     squelette.
+     app.js seul (+index/sw v676).
+   • v677 : le JOURNAL DE COMBAT persistait apres les Failles, jusque dans les
+     seances ordinaires.
+     CAUSE : choix de conception de la v667. J avais volontairement lie
+     l affichage a la PRESENCE D ENTREES plutot qu a currentWorkout._isRift,
+     pour que le journal reste lisible apres le dernier coup. Effet de bord non
+     anticipe : rien ne l effacait au demarrage d une seance NORMALE, donc le
+     journal de la derniere Faille s y affichait encore.
+     FIX en deux couches :
+       1. awakCombatLogClear() appele au demarrage du flux standard
+          (L~7527, branche « Standard workout flow ») ;
+       2. filet de securite dans awakRenderCombatLog : masquage si
+          currentWorkout existe et n est NI _isRift NI _isHunt. Couvre tout
+          chemin de demarrage que j aurais manque.
+     L intention d origine est PRESERVEE : quand AUCUNE seance n est en cours,
+     le journal reste visible — c est le cas juste apres un combat, ou l on veut
+     justement le relire.
+     TESTE : hors seance 875 car. visible · pendant une Faille 875 car. visible ·
+     pendant une seance normale 0 car. masque, entrees effacees.
+     app.js seul (+index/sw v677).
