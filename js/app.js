@@ -7593,6 +7593,24 @@
                 }).join('');
             }
             
+            // ⏱️ Avertissement persistant « trop de muscles pour la durée » (si présent
+            // sur la séance). On le vide sinon, car l'élément persiste dans le DOM.
+            try {
+                const _warnEl = document.getElementById('prepMuscleWarning');
+                if (_warnEl) {
+                    const _w = workout && workout.muscleTimeWarning;
+                    if (_w) {
+                        _warnEl.innerHTML = '<div style="display:flex;gap:10px;align-items:flex-start;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.4);border-radius:14px;padding:13px 15px;margin-bottom:18px;">'
+                            + '<span style="font-size:1.2em;flex-shrink:0;line-height:1.2;">⏱️</span>'
+                            + '<div style="font-size:0.8em;color:#fcd34d;line-height:1.5;font-weight:600;">' + _w + '</div></div>';
+                        _warnEl.style.display = 'block';
+                    } else {
+                        _warnEl.innerHTML = '';
+                        _warnEl.style.display = 'none';
+                    }
+                }
+            } catch (e) {}
+
             // Hide workout selection, show preparation
             document.getElementById('workoutSelection').style.display = 'none';
             document.getElementById('preparationView').classList.remove('hidden');
@@ -9882,6 +9900,15 @@
         }
         
         function getTodayPlanMuscles() {
+            // 🛌 Jour de repos MANUEL prioritaire : si l'utilisateur a un plan
+            // manuel actif (au moins un jour d'entraînement défini) et que le jour
+            // courant est vide, c'est un repos VOLONTAIRE. On renvoie un signal de
+            // repos explicite au lieu de retomber sur l'ancien plan généré (qui
+            // fabriquait des muscles → séance proposée un jour de repos).
+            if (typeof awakIsTodayManualRest === 'function' && awakIsTodayManualRest()) {
+                return { rest: true, intensity: 'rest', focus: 'Repos', muscles: [] };
+            }
+
             // 📅 NOUVEAU : Plan hebdo manuel en priorité (Phase 6)
             if (typeof getManualPlanTodayMuscles === 'function') {
                 const manualToday = getManualPlanTodayMuscles();
@@ -10764,6 +10791,47 @@
             };
         }
 
+        // 🎯 Sélection PAR COUVERTURE (quand le temps est serré) : choisit à chaque
+        // place l'exercice qui couvre le PLUS de muscles CHOISIS encore non couverts
+        // (primaires + secondaires ≥ 0.3) — ce qui favorise naturellement les
+        // exercices composés. Renvoie les exercices retenus + le reste du pool
+        // (pour compléter par score une fois tous les muscles couverts).
+        function awakSelectForCoverage(pool, targetCount, chosenMuscles) {
+            const covered = new Set();
+            const selected = [];
+            const remaining = pool.slice();
+            const muscleSetOf = function (ex) {
+                const data = (typeof exerciseDatabase !== 'undefined' ? exerciseDatabase.find(e => e.name === ex.name) : null) || ex;
+                const s = new Set();
+                if (data.muscle) s.add(data.muscle);
+                (data.secondaryMuscles || []).forEach(sm => { if ((sm.ratio || 0) >= 0.3) s.add(sm.muscle); });
+                return s;
+            };
+            while (selected.length < targetCount && remaining.length) {
+                const stillNeeded = chosenMuscles.filter(m => !covered.has(m));
+                if (stillNeeded.length === 0) break;   // tout couvert → on s'arrête
+                let bestIdx = -1, bestGain = -1, bestPrimary = false, bestSize = -1;
+                for (let i = 0; i < remaining.length; i++) {
+                    const ms = muscleSetOf(remaining[i]);
+                    let gain = 0;
+                    stillNeeded.forEach(m => { if (ms.has(m)) gain++; });
+                    if (gain <= 0) continue;
+                    const primaryHit = stillNeeded.indexOf(remaining[i].muscle) !== -1;
+                    const size = ms.size;
+                    if (gain > bestGain
+                        || (gain === bestGain && primaryHit && !bestPrimary)
+                        || (gain === bestGain && primaryHit === bestPrimary && size > bestSize)) {
+                        bestIdx = i; bestGain = gain; bestPrimary = primaryHit; bestSize = size;
+                    }
+                }
+                if (bestIdx === -1) break;   // plus aucun exercice ne couvre un muscle manquant
+                const chosen = remaining.splice(bestIdx, 1)[0];
+                selected.push(chosen);
+                muscleSetOf(chosen).forEach(m => covered.add(m));
+            }
+            return { selected: selected, remaining: remaining };
+        }
+
         // ========== PRO ENHANCEMENT - STRUCTURED WORKOUT GENERATION ==========
         function generateStructuredWorkout(availableExercises, targetCount, profile) {
             // Charger historique performances pour le scoring
@@ -10911,6 +10979,29 @@
             } catch(e) {}
         }
         window.saveManualWeeklyPlan = saveManualWeeklyPlan;
+
+        // Le plan manuel est-il "actif" ? (au moins un jour d'entraînement défini)
+        function awakManualPlanHasAnyTraining() {
+            try {
+                const plan = getManualWeeklyPlan();
+                return Object.values(plan).some(d => d && d.muscles && d.muscles.length > 0);
+            } catch (e) { return false; }
+        }
+        window.awakManualPlanHasAnyTraining = awakManualPlanHasAnyTraining;
+
+        // Aujourd'hui est-il un jour de REPOS volontaire ? (plan manuel actif +
+        // jour courant sans muscles). Sans plan manuel actif → false (pas de repos
+        // imposé, on laisse l'ancienne logique décider).
+        function awakIsTodayManualRest() {
+            try {
+                if (!awakManualPlanHasAnyTraining()) return false;
+                const todayKey = MANUAL_PLAN_DAYS[(new Date().getDay() + 6) % 7];
+                const plan = getManualWeeklyPlan();
+                const today = plan[todayKey];
+                return !today || !today.muscles || today.muscles.length === 0;
+            } catch (e) { return false; }
+        }
+        window.awakIsTodayManualRest = awakIsTodayManualRest;
 
         function getManualPlanTodayMuscles() {
             const plan = getManualWeeklyPlan();
@@ -11302,40 +11393,64 @@
             // Force pouvait durer ~1 h (4 exercices × 4 séries × ~175 s de repos).
             // Choix retenu (validé) : on GARDE le volume complet et on RÉDUIT le
             // nombre d'exercices pour tenir dans le temps demandé.
+            // 🔥 Échauffement généré TÔT pour connaître sa VRAIE durée (réserve
+            // précise au lieu d'un forfait). Réutilisé tel quel plus bas.
+            let _warmupArr = [];
+            if (includeWarmup) {
+                try { _warmupArr = generateProgressiveWarmup(workingMuscles, intensity) || []; } catch (e) { _warmupArr = []; }
+            }
+            const _warmupSec = _warmupArr.reduce((s, w) => s + (w.duration || 0), 0);
+
+            let _muscleTimeWarning = '';
             let targetExerciseCount;
             {
-                // Prescription représentative (objectif/niveau) pour estimer le
-                // temps d'UN exercice : séries × (effort par série + repos).
+                // Temps réel d'UN exercice : séries × (effort par série + repos).
                 const _p = awakPrescribe(profile.goal || 'fitness', profile.level || 'intermediate', null, 'force');
                 const _sets = _p.sets || 3;
                 const _rest = _p.rest || 60;
-                const _workPerSet = 30;                                  // effort moyen par série (s)
+                // Effort par série selon l'objectif : reps courtes en Force (~20 s),
+                // longues en Endurance (~50 s). Avant : 30 s figé pour tout.
+                const _workByGoal = { strength: 22, muscle_gain: 35, endurance: 50, weight_loss: 40, fitness: 30, flexibility: 40 };
+                const _workPerSet = _workByGoal[profile.goal] || 30;
                 const _perExerciseSec = _sets * (_workPerSet + _rest);
-                // Temps réservé à l'échauffement + étirements (approximatif).
-                const _reserveSec = (includeWarmup ? 180 : 0) + (includeStretch ? 120 : 0);
+                // Réserve = VRAIE durée d'échauffement + estimation étirements
+                // (~35 s par muscle travaillé, plafonné). + ~10 s de transition par
+                // exercice (installation, lecture) — les séances réelles ont ce coût.
+                const _mCount = Math.max(1, Math.min(6, (workingMuscles && workingMuscles.length) || 3));
+                const _stretchSec = includeStretch ? _mCount * 35 : 0;
+                const _reserveSec = _warmupSec + _stretchSec;
+                const _perExWithTransition = _perExerciseSec + 10;
                 const _budgetSec = Math.max(60, selectedDuration * 60 - _reserveSec);
-                targetExerciseCount = Math.floor(_budgetSec / _perExerciseSec);
+                targetExerciseCount = Math.floor(_budgetSec / _perExWithTransition);
                 // Garde-fous : au moins 2 exercices (séance cohérente), au plus 12.
                 targetExerciseCount = Math.max(2, Math.min(12, targetExerciseCount));
             }
 
-            // ⚖️ Conflit temps ↔ muscles : on RESPECTE LE TEMPS (choix validé),
-            // mais si l'utilisateur a explicitement choisi plus de muscles que le
-            // budget ne permet d'exercices, certains ne seront pas travaillés. On
-            // le PRÉVIENT clairement plutôt que de les ignorer en silence.
-            try {
-                const _chosen = (selectedMuscles && selectedMuscles.length) ? selectedMuscles.length : 0;
-                if (_chosen > targetExerciseCount && typeof showToast === 'function') {
-                    showToast(
-                        `⏱️ ${selectedDuration} min ne suffit que pour ~${targetExerciseCount} exercices, mais tu as choisi ${_chosen} muscles. Certains ne seront pas travaillés cette fois — allonge la durée ou réduis les muscles pour tout couvrir.`,
-                        'warning', 6500
-                    );
-                }
-            } catch (e) {}
+            // ⚖️ L'avertissement « muscles non couverts » est calculé APRÈS la
+            // sélection (plus bas), sur la couverture RÉELLE des exercices retenus
+            // (primaires + secondaires des composés), et non sur un simple compte
+            // muscles/exercices 1:1.
 
             // PRO ENHANCEMENT: Use structured workout generation instead of random
             const targetCount = Math.min(targetExerciseCount, exercisePool.length);
-            let selectedExercises = generateStructuredWorkout(exercisePool, targetCount, profile);
+            // ⏱️ Temps serré (plus de muscles choisis que d'exercices possibles) :
+            // on maximise d'abord la COUVERTURE des muscles choisis (favorise les
+            // composés) plutôt que de piocher uniquement par score. Sinon, sélection
+            // structurée habituelle.
+            const _chosenForCover = (selectedMuscles && selectedMuscles.length) ? selectedMuscles : [];
+            const _timeTight = _chosenForCover.length > targetCount;
+            let selectedExercises;
+            if (_timeTight) {
+                const _cov = awakSelectForCoverage(exercisePool, targetCount, _chosenForCover);
+                selectedExercises = _cov.selected;
+                if (selectedExercises.length < targetCount) {
+                    // Places restantes (tous muscles couverts) : complétées par score.
+                    const _fill = generateStructuredWorkout(_cov.remaining, targetCount - selectedExercises.length, profile);
+                    selectedExercises = selectedExercises.concat(_fill);
+                }
+            } else {
+                selectedExercises = generateStructuredWorkout(exercisePool, targetCount, profile);
+            }
             
             // ✅ NEW: Ensure muscle balance (no muscle >40%)
             selectedExercises = ensureMuscleBalance(selectedExercises, availableExercises);
@@ -11344,8 +11459,36 @@
             selectedExercises = preventOverload(selectedExercises, 3);
             
             // ✅ EXPERT SYSTEM : Équilibrer agoniste/antagoniste
-            selectedExercises = balanceAgonistAntagonist(selectedExercises, availableExercises);
-            
+            // ⏱️ ... sauf en temps serré : ce rééquilibrage pourrait remplacer un
+            // exercice choisi pour sa couverture. On préserve alors la couverture.
+            if (!_timeTight) {
+                selectedExercises = balanceAgonistAntagonist(selectedExercises, availableExercises);
+            }
+
+            // ⚖️ Avertissement RIGOUREUX : parmi les muscles CHOISIS, lesquels ne
+            // sont réellement PAS couverts par les exercices retenus — en tenant
+            // compte des muscles secondaires des composés (une pompe couvre aussi
+            // triceps + épaules). On n'avertit que sur les vrais manques.
+            try {
+                const _chosenM = (selectedMuscles && selectedMuscles.length) ? selectedMuscles : [];
+                if (_chosenM.length) {
+                    const _covered = new Set();
+                    selectedExercises.forEach(ex => {
+                        const nm = (typeof ex === 'string') ? ex : ex.name;
+                        const data = (typeof exerciseDatabase !== 'undefined') ? exerciseDatabase.find(e => e.name === nm) : null;
+                        if (data) {
+                            if (data.muscle) _covered.add(data.muscle);
+                            (data.secondaryMuscles || []).forEach(sm => { if ((sm.ratio || 0) >= 0.3) _covered.add(sm.muscle); });
+                        }
+                    });
+                    const _missing = _chosenM.filter(m => !_covered.has(m));
+                    if (_missing.length > 0) {
+                        _muscleTimeWarning = `${_missing.length} muscle${_missing.length > 1 ? 's ne seront' : ' ne sera'} pas travaillé${_missing.length > 1 ? 's' : ''} cette fois (${_missing.join(', ')}) — la durée choisie ne permet pas de tout couvrir. Allonge la séance ou réduis les muscles.`;
+                        if (typeof showToast === 'function') showToast('⏱️ ' + _muscleTimeWarning, 'warning', 6500);
+                    }
+                }
+            } catch (e) {}
+
             // Apply progression levels and stored progressions
             selectedExercises.forEach((ex, index) => {
                 const performance = getExercisePerformance(ex.name);
@@ -11399,10 +11542,16 @@
                 mode: selectedWorkoutMode, // 'timer', 'reps', 'hybrid'
                 exercises: []
             };
+            // ⏱️ Avertissement « trop de muscles pour la durée » : porté par la séance
+            // pour être affiché de façon PERSISTANTE sur l'écran « Préparez-vous »
+            // (le toast disparaît trop vite).
+            workout.muscleTimeWarning = _muscleTimeWarning || '';
             
             // ✅ EXPERT SYSTEM : Échauffement progressif 3 phases
             if (includeWarmup) {
-                const expertWarmup = generateProgressiveWarmup(workingMuscles, intensity);
+                // Réutilise l'échauffement déjà généré pour la réserve de temps
+                // (durée cohérente, pas de double génération).
+                const expertWarmup = (_warmupArr && _warmupArr.length) ? _warmupArr : generateProgressiveWarmup(workingMuscles, intensity);
                 workout.exercises.push(...expertWarmup);
             }
             
@@ -25878,11 +26027,7 @@
             const cardRank = null; // gardé pour ne pas casser les références ailleurs
 
             // ── 3. QUÊTES QUOTIDIENNES ───────────────────────────────
-
-
-
-
-
+            // (Carte retirée volontairement — ne pas remettre.)
 
             // ── 6. CLASSEMENT MUSCLES ────────────────────────────────
             const cardMuscles = document.createElement('div');
@@ -30413,8 +30558,11 @@
             const rifts = awakRiftsLoad();
             const r = rifts.find(x => x.id === rift.id);
             if (r) {
+                const _wasCompleted = r.completed;
                 r.completed = true;
                 r.completedAt = Date.now();
+                // Compteur à vie : incrémenter UNE SEULE fois, à la vraie complétion.
+                if (!_wasCompleted && !r.isNarrative) { try { awakIncrementRiftsCompleted(); } catch (e) {} }
                 // 🔧 Migration : si cette Faille est une Faille de compagnon mais a perdu/manque
                 // ses champs (créée par une ancienne version), on les reconstruit depuis son id/nom.
                 if (!r.isCompanionRift || !r.companionId || !r.companionRiftId) {
@@ -31640,7 +31788,9 @@
             const totalWorkouts = history.length;
 
             const rifts = awakRiftsLoad();
-            const completedRifts = rifts.filter(r => r.completed).length;
+            const completedRifts = (typeof awakGetRiftsCompletedTotal === 'function')
+                ? awakGetRiftsCompletedTotal()
+                : rifts.filter(r => r.completed).length;
 
             const monsters = awakMonstersLoad();
             const defeatedMonsters = monsters.filter(m => m.defeated).length;
@@ -33159,6 +33309,54 @@
             }
         }
 
+        // ═══ Compteur À VIE des Failles complétées (jamais décrémenté) ═══
+        // Nécessaire car le tableau des Failles PURGE les Failles complétées de
+        // plus de 7 jours (voir le nettoyage). Or les déclencheurs « rifts_completed:
+        // N » comptaient les Failles complétées ENCORE présentes dans le tableau →
+        // une fois les anciennes purgées, le compte retombait sous N et des Failles
+        // narratives (ex. « La Tour qui Murmure », N=5) n'apparaissaient JAMAIS,
+        // bloquant l'histoire. Ce compteur monotone corrige la racine.
+        function awakRiftsCompletedTotalKey() {
+            const pid = (typeof getCurrentProfileId === 'function') ? getCurrentProfileId() : null;
+            return pid ? 'awakRiftsCompletedTotal_' + pid : 'awakRiftsCompletedTotal';
+        }
+        // Amorce le compteur (une seule fois) depuis le tableau actuel, pour les
+        // saves existants. À appeler AU DÉMARRAGE, avant toute nouvelle complétion,
+        // sinon la complétion en cours (déjà dans le tableau) serait comptée deux fois.
+        function awakEnsureRiftsCounterSeeded() {
+            const key = awakRiftsCompletedTotalKey();
+            try {
+                if (localStorage.getItem(key) === null) {
+                    let ac = 0;
+                    try { ac = awakRiftsLoad().filter(r => r.completed && !r.isNarrative).length; } catch (e) {}
+                    localStorage.setItem(key, String(ac));
+                }
+            } catch (e) {}
+        }
+        function awakGetRiftsCompletedTotal() {
+            awakEnsureRiftsCounterSeeded();
+            const key = awakRiftsCompletedTotalKey();
+            let n = 0;
+            try { n = parseInt(localStorage.getItem(key) || '0', 10) || 0; } catch (e) {}
+            // Filet : jamais sous le compte actuel du tableau (rattrape un incrément manqué).
+            let ac = 0;
+            try { ac = awakRiftsLoad().filter(r => r.completed && !r.isNarrative).length; } catch (e) {}
+            if (ac > n) { n = ac; try { localStorage.setItem(key, String(n)); } catch (e) {} }
+            return n;
+        }
+        function awakIncrementRiftsCompleted() {
+            awakEnsureRiftsCounterSeeded();
+            const key = awakRiftsCompletedTotalKey();
+            let n = 0;
+            try { n = parseInt(localStorage.getItem(key) || '0', 10) || 0; } catch (e) {}
+            n += 1;   // lecture brute (pas d'auto-guérison ici) → +1 exact par complétion
+            try { localStorage.setItem(key, String(n)); } catch (e) {}
+            return n;
+        }
+        window.awakGetRiftsCompletedTotal = awakGetRiftsCompletedTotal;
+        window.awakIncrementRiftsCompleted = awakIncrementRiftsCompleted;
+        window.awakEnsureRiftsCounterSeeded = awakEnsureRiftsCounterSeeded;
+
         /**
          * Check si une Faille narrative doit apparaître
          * Appelée après chaque événement majeur (rank up, fin faille)
@@ -33172,7 +33370,10 @@
 
             const rankIds = ['E', 'D', 'C', 'B', 'A', 'S', 'SS', 'SSS'];
             const currentRankIdx = rankIds.indexOf(awakGetRank().id);
-            const completedRifts = rifts.filter(r => r.completed && !r.isNarrative).length;
+            // Compte À VIE (jamais purgé) — voir awakGetRiftsCompletedTotal.
+            const completedRifts = (typeof awakGetRiftsCompletedTotal === 'function')
+                ? awakGetRiftsCompletedTotal()
+                : rifts.filter(r => r.completed && !r.isNarrative).length;
 
             for (const narrative of NARRATIVE_RIFTS) {
                 if (seen.includes(narrative.id)) continue;
@@ -41021,11 +41222,9 @@
         function _coachBilanBodyHTML() {
             try {
                 const b = awakAnalyzeBehavior();
-                const ins = awakBehaviorInsights();
                 const cons = awakConsistencyInfo();
                 const ccrTxt = (b.challengeCompletionRate === null) ? '—' : Math.round(b.challengeCompletionRate * 100) + '%';
                 const stat = function (label, val) { return '<div style="flex:1;text-align:center;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:10px 4px;"><div style="font-size:1.15em;font-weight:900;color:white;">' + val + '</div><div style="font-size:0.56em;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;line-height:1.2;">' + label + '</div></div>'; };
-                const insList = ins.map(function (i) { return '<div style="display:flex;gap:9px;align-items:flex-start;background:rgba(255,255,255,0.03);border-left:3px solid ' + i.color + ';border-radius:8px;padding:9px 11px;margin-bottom:7px;"><span style="font-size:1.1em;flex-shrink:0;line-height:1.2;">' + i.icon + '</span><div style="font-size:0.76em;color:#cbd5e1;line-height:1.45;">' + i.text + '</div></div>'; }).join('');
                 return ''
                     // type d'athlète
                     + '<div style="text-align:center;margin-bottom:16px;"><div style="font-size:2.6em;line-height:1;">' + b.type.emoji + '</div><div style="font-weight:900;color:white;font-size:1.15em;margin-top:4px;">' + b.type.label + '</div><div style="font-size:0.74em;color:#94a3b8;margin-top:2px;">' + b.type.desc + '</div></div>'
@@ -41056,10 +41255,12 @@
                     + stat('Programmes', b.progStart)
                     + stat('Remplacements', b.totalSwaps)
                     + '</div>'
-                    // insights
-                    + '<div style="font-size:0.7em;color:#94a3b8;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:9px;">Conseils pour toi</div>'
-                    + insList
-                    + '<div style="margin-top:12px;font-size:0.64em;color:#64748b;line-height:1.5;">Analyse basée sur tes 90 derniers jours, calculée en local sur ton appareil. Ces conseils sont là pour t\'aider, à toi de voir ce qui te convient.</div>';
+                    // 🧹 v691 : les « Conseils pour toi » (awakBehaviorInsights) ont
+                    // été retirés — ils recoupaient le raisonnement de l'onglet
+                    // « Système ». Le Coach se concentre désormais sur le profil LONG
+                    // TERME (type d'athlète, assiduité, régularité), distinct de
+                    // l'état du jour analysé côté Système.
+                    + '<div style="margin-top:4px;font-size:0.64em;color:#64748b;line-height:1.5;">Profil basé sur tes 90 derniers jours, calculé en local sur ton appareil.</div>';
             } catch (e) {
                 return '<div style="text-align:center;padding:20px;color:#94a3b8;font-size:0.82em;line-height:1.5;">Analyse comportementale indisponible pour le moment. Fais quelques séances et reviens.</div>';
             }
@@ -42791,6 +42992,10 @@
             // 🎨 Affichage : appliquer les cartes masquées + préparer les toggles du réglage.
             try { awakApplyHomeCardsCSS(); } catch (e) {}
             try { awakRenderHomeCardsPrefs(); } catch (e) {}
+
+            // 🕳️ Amorcer le compteur à vie des Failles AVANT toute nouvelle complétion
+            // (sinon la complétion en cours serait comptée deux fois).
+            try { if (typeof awakEnsureRiftsCounterSeeded === 'function') awakEnsureRiftsCounterSeeded(); } catch (e) {}
             
             loadStats();
             loadEquipment();
@@ -43691,6 +43896,7 @@
                             rift.completed = true;
                             rift.completedBy = 'companions';
                             rift.currentWaveIdx = (rift.waves || []).length;
+                            if (!rift.isNarrative) { try { awakIncrementRiftsCompleted(); } catch (e) {} }
                             if (typeof awakRiftsSave === 'function') awakRiftsSave(rifts);
                         }
                         // 💎 Les compagnons rapportent des minéraux de la Faille fermée

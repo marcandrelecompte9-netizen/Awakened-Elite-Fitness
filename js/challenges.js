@@ -1424,24 +1424,53 @@ function startChallengeTimer() {
     }, 30000); // Update every 30s
 }
 
-// ── Init ────────────────────────────────────────────────────────────────
-function initChallengeSystem() {
+// Un "tirage" du Système : 25% d'obtenir un défi, avec un cooldown pour que
+// « à l'ouverture de l'app » ait du sens même sur PWA installée (qui reprend
+// depuis la mémoire sans recharger la page — DOMContentLoaded ne s'y redéclenche
+// pas). C'était la cause du « le défi ne s'affiche jamais » : le tirage n'avait
+// lieu qu'au chargement à froid, rare pour une PWA.
+function maybeRollSystemChallenge(force) {
     if (!getAdventureEnabled()) return;
     checkExpiredChallengeOnLoad();
 
+    // Cooldown : au plus un tirage toutes les 4 h (revenir sur l'app après une
+    // pause = une "ouverture"). 'force' ignore le cooldown (chargement à froid).
+    if (!force) {
+        try {
+            const last = parseInt(localStorage.getItem('challengeLastRoll') || '0', 10);
+            if (Date.now() - last < 4 * 60 * 60 * 1000) return;
+        } catch(e) {}
+    }
+    try { localStorage.setItem('challengeLastRoll', String(Date.now())); } catch(e) {}
+
     const challenge = getActiveSystemChallenge();
     const noActive = !challenge || challenge.status !== 'active';
-
-    if (noActive) {
-        // 25% de chance — le Système frappe quand il le décide
-        if (Math.random() < 0.25) {
-            const delay = 3000 + Math.random() * 5000;
-            setTimeout(() => {
-                const ch = generateChallenge();
-                if (ch) showChallengeIssuedModal(ch);
-            }, delay);
-        }
+    if (noActive && Math.random() < 0.25) {
+        const delay = 3000 + Math.random() * 5000;
+        setTimeout(() => {
+            const ch = generateChallenge();
+            if (ch) {
+                showChallengeIssuedModal(ch);
+                // Rafraîchir pour que la carte du défi remplace « Aucun défi actif ».
+                if (typeof renderAdventureTab === 'function') renderAdventureTab();
+            }
+        }, delay);
     }
+}
+window.maybeRollSystemChallenge = maybeRollSystemChallenge;
+
+// ── Init ────────────────────────────────────────────────────────────────
+function initChallengeSystem() {
+    if (!getAdventureEnabled()) return;
+    // Chargement à froid : tirage immédiat (sans cooldown)…
+    maybeRollSystemChallenge(true);
+    // …puis on écoute les REPRISES de l'app (PWA revenant au premier plan) pour
+    // retirer à chaque "ouverture" réelle, avec le cooldown de 4 h.
+    try {
+        document.addEventListener('visibilitychange', function () {
+            if (document.visibilityState === 'visible') maybeRollSystemChallenge(false);
+        });
+    } catch(e) {}
 }
 
 // Après une séance — pas de nouveau défi automatique,
