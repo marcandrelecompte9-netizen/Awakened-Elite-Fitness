@@ -5620,12 +5620,18 @@
             switchTab('workouts');
             setTimeout(() => {
                 try {
-                    document.getElementById('exerciseSelection')?.style.setProperty('display', 'none');
+                    // 🐛 Fix : masquer le VRAI conteneur de sélection (#workoutSelection)
+                    // ET l'écran de préparation. Avant, on masquait 'exerciseSelection'
+                    // — un id qui n'existe pas → rien n'était masqué, et la vue
+                    // d'exercice s'affichait SOUS le texte initial de l'onglet.
+                    document.getElementById('workoutSelection')?.style.setProperty('display', 'none');
+                    document.getElementById('preparationView')?.classList.add('hidden');
                     const exView = document.getElementById('exerciseView');
                     if (exView) {
                         exView.classList.remove('hidden');
                         exView.style.display = 'block';
                     }
+                    document.body.classList.add('in-session');
                     if (typeof startExercise === 'function') startExercise();
                     showToast('▶ Séance reprise', 'success', 2000);
                 } catch(e) { console.warn('Resume failed:', e); }
@@ -5935,6 +5941,31 @@
         // L'exercice est-il réalisable avec l'équipement dispo ?
         // Règle : TOUT l'équipement requis doit être dispo (ou poids du corps).
         // Aucun équipement sélectionné → poids du corps uniquement.
+        // 🌳 EXTÉRIEUR (helper partagé — utilisé par le générateur ET les jeux)
+        // Certains exercices (course, sprint, côte, randonnée, escaliers…) sont
+        // tagués « Poids du corps » et passaient donc toujours le filtre équipement,
+        // même sans avoir choisi le lieu « Extérieur ». On ne vise QUE les exercices
+        // au poids du corps : ceux à matériel (ex. « Treadmill Sprint ») sont déjà
+        // gérés par le filtre d'équipement.
+        const _RX_OUTDOOR_EX = /sprint|course|randonn|hiking|navette|shuttle|hill|côte|colline|escalier|stair|jogging|trail|plein air/i;
+        function awakIsOutdoorOnlyExercise(ex) {
+            if (!ex || !ex.name) return false;
+            const bw = !Array.isArray(ex.equipment) || !ex.equipment.length
+                || ex.equipment.every(q => q === 'Poids du corps');
+            return bw && _RX_OUTDOOR_EX.test(ex.name);
+        }
+        // Renvoie true si l'exercice doit être ÉCARTÉ à cause du lieu (exercice
+        // d'extérieur alors que le lieu actif n'est pas « Extérieur »).
+        function awakExerciseBlockedByLocation(ex) {
+            try {
+                const loc = (typeof getActiveLocation === 'function') ? getActiveLocation() : null;
+                if (loc && loc.id === 'outdoor') return false;   // extérieur actif → tout permis
+                return awakIsOutdoorOnlyExercise(ex);
+            } catch (e) { return false; }
+        }
+        window.awakIsOutdoorOnlyExercise = awakIsOutdoorOnlyExercise;
+        window.awakExerciseBlockedByLocation = awakExerciseBlockedByLocation;
+
         function awakEquipmentOk(ex, equipNames) {
             const exEq = (ex.equipment || []).map(awakNormalizeEq);
             const norm = (equipNames || []).map(awakNormalizeEq);
@@ -10468,6 +10499,7 @@
 
             let availableExercises = exerciseDatabase.filter(ex => {
                 if (ex.type !== 'exercise') return false;
+                if (typeof awakExerciseBlockedByLocation === 'function' && awakExerciseBlockedByLocation(ex)) return false;
                 if (!decisions.targetMuscles.includes(ex.muscle)) return false;
                 if (blacklist.includes(ex.name)) return false;
                 return awakEquipmentOk(ex, equipmentNames);
@@ -11357,6 +11389,9 @@
             const availableExercises = exerciseDatabase.filter(ex => {
                 // Skip non-exercises
                 if (ex.type !== 'exercise') return false;
+
+                // 🌳 Exercice d'extérieur alors que le lieu actif ne l'est pas
+                if (typeof awakExerciseBlockedByLocation === 'function' && awakExerciseBlockedByLocation(ex)) return false;
 
                 // Check muscle match
                 if (!workingMuscles.includes(ex.muscle)) return false;
@@ -26561,6 +26596,13 @@
         // qu'un nouveau joueur aurait pour le même nombre de séances.
         const RPG_LEVEL_BASE    = 40;
         const RPG_LEVEL_EXP     = 1.25;
+        // 🐢 Ralentissement du TOUT DÉBUT : la courbe de base est trop plate aux
+        // premiers niveaux (une 1re séance faisait gagner 2 niveaux). On ajoute un
+        // surcoût d'XP DÉGRESSIF sur les 6 premiers niveaux. Choisi « léger ».
+        // Effet sur les profils avancés : négligeable (ajout fixe total de ~270 XP
+        // aux seuils élevés) → AUCUNE régression de niveau pour les joueurs existants.
+        // index = niveau que l'on quitte (1→2 : +80, 2→3 : +65, … puis 0 dès le niveau 7)
+        const RPG_EARLY_SLOWDOWN = [0, 80, 65, 50, 38, 25, 12];
 
         // ══════════════════════════════════════════════════════════════
         // 🎮 SYSTÈMES AVANCÉS — Boss, Classe, Compétences, Prestige, Exploits
@@ -29305,11 +29347,45 @@
                 }
             } catch (e) {}
             const j = awakCombatLogGet();
-            if (!j.length) { hote.innerHTML = ''; return; }
+
+            // 🩸 En-tête PV : PV du personnage ET du boss courant, visible pendant
+            // le combat (calculé AVANT la sortie anticipée pour s'afficher même en
+            // tout début de combat, avant le 1er coup ; masqué hors combat).
+            let hpHeader = '';
+            try {
+                const sess = (typeof awakActiveRiftSession !== 'undefined') ? awakActiveRiftSession : null;
+                if (sess) {
+                    const maxHP = (typeof awakGetPlayerMaxHP === 'function') ? awakGetPlayerMaxHP() : 100;
+                    const curHP = (typeof awakGetPlayerHP === 'function') ? awakGetPlayerHP() : maxHP;
+                    const pPct = maxHP > 0 ? Math.max(0, Math.min(100, Math.round((curHP / maxHP) * 100))) : 0;
+                    const pColor = pPct <= 25 ? '#f87171' : (pPct <= 50 ? '#fbbf24' : '#4ade80');
+                    let bossCur = null, bossMax = null;
+                    if (sess.rift && sess.rift.waves) {
+                        const w = sess.rift.waves[sess.rift.currentWaveIdx || 0];
+                        if (w && typeof w.hpCurrent === 'number' && typeof w.hpMax === 'number') {
+                            bossCur = Math.max(0, w.hpCurrent); bossMax = w.hpMax;
+                        }
+                    }
+                    const bPct = (bossMax > 0) ? Math.max(0, Math.min(100, Math.round((bossCur / bossMax) * 100))) : 0;
+                    const bar = function (label, valTxt, pct, colTxt, grad) {
+                        return '<div style="flex:1;min-width:0;">'
+                            + '<div style="display:flex;justify-content:space-between;font-size:0.6em;color:#94a3b8;font-weight:800;margin-bottom:3px;"><span>' + label + '</span><span style="color:' + colTxt + ';white-space:nowrap;">' + valTxt + '</span></div>'
+                            + '<div style="background:rgba(255,255,255,0.08);border-radius:99px;height:7px;overflow:hidden;"><div style="height:100%;width:' + pct + '%;background:' + grad + ';transition:width 0.3s;"></div></div>'
+                            + '</div>';
+                    };
+                    hpHeader = '<div style="display:flex;gap:10px;margin-bottom:9px;">'
+                        + bar('🛡️ TOI', Math.max(0, Math.round(curHP)) + ' / ' + Math.round(maxHP), pPct, pColor, 'linear-gradient(90deg,' + pColor + ',' + pColor + ')')
+                        + (bossCur !== null ? bar('👹 BOSS', bossCur.toLocaleString('fr-FR') + ' / ' + bossMax.toLocaleString('fr-FR'), bPct, '#f87171', 'linear-gradient(90deg,#f87171,#dc2626)') : '')
+                        + '</div>';
+                }
+            } catch (e) { hpHeader = ''; }
+
+            if (!j.length) { hote.innerHTML = hpHeader; return; }
 
             const total = j.reduce((s, e) => s + (e.dmg || 0), 0);
             const crits = j.filter(e => e.type === 'crit').length;
             const effets = j.filter(e => e.type === 'effet').length;
+
             const lignes = j.slice().reverse().slice(0, 14).map(e => {
                 // Effets de combat (armure, esquive, vulnérabilité, drain…)
                 if (e.type === 'effet') {
@@ -29332,7 +29408,8 @@
             }).join('');
 
             hote.innerHTML =
-                '<details style="margin-bottom:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.10);border-radius:12px;overflow:hidden;">'
+                hpHeader
+                + '<details style="margin-bottom:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.10);border-radius:12px;overflow:hidden;">'
                 + '<summary style="padding:9px 13px;cursor:pointer;font-size:0.74em;font-weight:800;color:#cbd5e1;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px;">'
                 +   '<span>📜 Journal de combat</span>'
                 +   '<span style="color:#4ade80;font-weight:900;">' + total + ' dégâts'
@@ -34932,16 +35009,21 @@
         ];
 
         // ── Helpers level/XP ────────────────────────────────────────
+        // XP pour passer du niveau n au n+1 (courbe de base + ralentissement précoce)
+        function _rpgXPStep(n) {
+            const early = (n >= 1 && n < RPG_EARLY_SLOWDOWN.length) ? RPG_EARLY_SLOWDOWN[n] : 0;
+            return Math.floor(RPG_LEVEL_BASE * Math.pow(n, RPG_LEVEL_EXP)) + early;
+        }
         function rpgXPForLevel(n) {
             // XP cumulatif pour atteindre le niveau n
             if (n <= 1) return 0;
             let total = 0;
-            for (let i = 1; i < n; i++) total += Math.floor(RPG_LEVEL_BASE * Math.pow(i, RPG_LEVEL_EXP));
+            for (let i = 1; i < n; i++) total += _rpgXPStep(i);
             return total;
         }
         function rpgXPThisLevel(n) {
             // XP nécessaire pour passer du niveau n au n+1
-            return Math.floor(RPG_LEVEL_BASE * Math.pow(n, RPG_LEVEL_EXP));
+            return _rpgXPStep(n);
         }
         function rpgLevelFromXP(xp) {
             let level = 1;

@@ -105,6 +105,15 @@
       }
     } catch (e) {}
 
+    // 🌳 EXTÉRIEUR — même règle que le générateur principal (helper partagé
+    // awakExerciseBlockedByLocation, défini dans app.js). Écarte les exercices
+    // d'extérieur au poids du corps si le lieu actif n'est pas « Extérieur ».
+    try {
+      if (typeof window.awakExerciseBlockedByLocation === 'function') {
+        base = base.filter(function (e) { return !window.awakExerciseBlockedByLocation(e); });
+      }
+    } catch (e) {}
+
     // 🩹 DOULEURS — les zones sont désormais propres à chaque profil (v663).
     // Pour un jeu à deux, on écarte les exercices touchant une zone sensible de
     // L'UN OU L'AUTRE : chacun exécute les mêmes mouvements, il faut donc
