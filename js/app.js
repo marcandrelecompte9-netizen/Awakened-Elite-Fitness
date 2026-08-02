@@ -11295,12 +11295,44 @@
             const exercisePool = freshExercises.length >= 5 ? freshExercises : availableExercises;
             
             // Calculate number of exercises based on duration and intensity
+            // 🕒 v686 : le nombre d'exercices est calculé À PARTIR DU TEMPS RÉEL,
+            // pas d'une table figée. Avant, la durée ne fixait QUE le nombre
+            // d'exercices ; le volume (séries × repos) était prescrit selon
+            // l'objectif/niveau SANS lien avec la durée → une séance « 15 min » en
+            // Force pouvait durer ~1 h (4 exercices × 4 séries × ~175 s de repos).
+            // Choix retenu (validé) : on GARDE le volume complet et on RÉDUIT le
+            // nombre d'exercices pour tenir dans le temps demandé.
             let targetExerciseCount;
-            if (selectedDuration <= 15) targetExerciseCount = Math.floor(4 * intensity);
-            else if (selectedDuration <= 30) targetExerciseCount = Math.floor(8 * intensity);
-            else if (selectedDuration <= 45) targetExerciseCount = Math.floor(12 * intensity);
-            else targetExerciseCount = Math.floor(15 * intensity);
-            
+            {
+                // Prescription représentative (objectif/niveau) pour estimer le
+                // temps d'UN exercice : séries × (effort par série + repos).
+                const _p = awakPrescribe(profile.goal || 'fitness', profile.level || 'intermediate', null, 'force');
+                const _sets = _p.sets || 3;
+                const _rest = _p.rest || 60;
+                const _workPerSet = 30;                                  // effort moyen par série (s)
+                const _perExerciseSec = _sets * (_workPerSet + _rest);
+                // Temps réservé à l'échauffement + étirements (approximatif).
+                const _reserveSec = (includeWarmup ? 180 : 0) + (includeStretch ? 120 : 0);
+                const _budgetSec = Math.max(60, selectedDuration * 60 - _reserveSec);
+                targetExerciseCount = Math.floor(_budgetSec / _perExerciseSec);
+                // Garde-fous : au moins 2 exercices (séance cohérente), au plus 12.
+                targetExerciseCount = Math.max(2, Math.min(12, targetExerciseCount));
+            }
+
+            // ⚖️ Conflit temps ↔ muscles : on RESPECTE LE TEMPS (choix validé),
+            // mais si l'utilisateur a explicitement choisi plus de muscles que le
+            // budget ne permet d'exercices, certains ne seront pas travaillés. On
+            // le PRÉVIENT clairement plutôt que de les ignorer en silence.
+            try {
+                const _chosen = (selectedMuscles && selectedMuscles.length) ? selectedMuscles.length : 0;
+                if (_chosen > targetExerciseCount && typeof showToast === 'function') {
+                    showToast(
+                        `⏱️ ${selectedDuration} min ne suffit que pour ~${targetExerciseCount} exercices, mais tu as choisi ${_chosen} muscles. Certains ne seront pas travaillés cette fois — allonge la durée ou réduis les muscles pour tout couvrir.`,
+                        'warning', 6500
+                    );
+                }
+            } catch (e) {}
+
             // PRO ENHANCEMENT: Use structured workout generation instead of random
             const targetCount = Math.min(targetExerciseCount, exercisePool.length);
             let selectedExercises = generateStructuredWorkout(exercisePool, targetCount, profile);
@@ -11928,6 +11960,57 @@
             }, null, { title: 'Importer des données ?', icon: '⚠️', confirmLabel: 'Importer', danger: true });
         }
         
+        // ========== AFFICHAGE : CARTES DE L'ACCUEIL (choisies par l'utilisateur) ==========
+        // Permet à l'utilisateur de masquer/afficher les cartes secondaires de
+        // l'accueil, pour l'alléger sans rien supprimer. Le masquage se fait par
+        // une feuille de style dédiée ciblant l'id du conteneur : c'est insensible
+        // aux nombreux re-rendus de l'accueil (pas besoin de hooker chaque rendu),
+        // et parfaitement réversible. Les cartes essentielles (profil, action du
+        // jour) ne sont pas proposées — elles restent toujours visibles.
+        const AWAK_HOME_CARDS = [
+            { id: 'homeRpgCard',          label: '⚔️ Carte de rang (RPG)' },
+            { id: 'homeWeekCalendar',     label: '📅 Calendrier de la semaine' },
+            { id: 'homeCoachCard',        label: '🧠 Coach & analyses' },
+            { id: 'quickActionsCard',     label: '⚡ Actions rapides' },
+            { id: 'sexFocusCard',         label: '🎯 Focus personnalisé' },
+            { id: 'cycleCard',            label: '🌙 Suivi du cycle' },
+            { id: 'strengthCard',         label: '🏋️ Standards de force' },
+            { id: 'weeklySuggestionCard', label: '📈 Suggestion de la semaine' },
+        ];
+        function awakGetHiddenHomeCards() {
+            try { return JSON.parse(localStorage.getItem('awakHiddenHomeCards') || '[]'); }
+            catch (e) { return []; }
+        }
+        function awakSetHomeCardHidden(id, hidden) {
+            let list = awakGetHiddenHomeCards().filter(x => x !== id);
+            if (hidden) list.push(id);
+            try { localStorage.setItem('awakHiddenHomeCards', JSON.stringify(list)); } catch (e) {}
+            awakApplyHomeCardsCSS();
+        }
+        function awakApplyHomeCardsCSS() {
+            const hidden = awakGetHiddenHomeCards();
+            const css = hidden.map(id => '#' + id + '{display:none !important;}').join('');
+            let el = document.getElementById('awakHomeCardsStyle');
+            if (!el) { el = document.createElement('style'); el.id = 'awakHomeCardsStyle'; document.head.appendChild(el); }
+            el.textContent = css;
+        }
+        function awakRenderHomeCardsPrefs() {
+            const box = document.getElementById('homeCardsPrefsList');
+            if (!box) return;
+            const hidden = awakGetHiddenHomeCards();
+            box.innerHTML = AWAK_HOME_CARDS.map(function (c) {
+                const on = hidden.indexOf(c.id) === -1;
+                return '<div class="settings-toggle-row" style="margin-bottom:10px;">'
+                     +   '<div class="settings-tr-main"><div class="settings-tr-label">' + c.label + '</div></div>'
+                     +   '<label class="aw-switch"><input type="checkbox" ' + (on ? 'checked' : '')
+                     +     ' onchange="awakSetHomeCardHidden(\'' + c.id + '\', !this.checked)"><span class="aw-slider"></span></label>'
+                     + '</div>';
+            }).join('');
+        }
+        window.awakSetHomeCardHidden = awakSetHomeCardHidden;
+        window.awakRenderHomeCardsPrefs = awakRenderHomeCardsPrefs;
+        window.awakApplyHomeCardsCSS = awakApplyHomeCardsCSS;
+
         // ========== SÉCURITÉ : MOT DE PASSE DES ACTIONS DESTRUCTRICES ==========
         // Protège la réinitialisation complète de l'app et la suppression de profil.
         // À la première ouverture, l'utilisateur choisit son mot de passe.
@@ -14923,7 +15006,7 @@
             const profileId = getCurrentProfileId();
             const saved = profileId ? getProfileData(profileId, 'aiWorkoutDJSettings') : localStorage.getItem('aiWorkoutDJSettings');
             return saved ? JSON.parse(saved) : {
-                enabled: true, // Enabled by default
+                enabled: false, // Désactivé par défaut (le Quick Check reste activable dans les réglages)
                 voiceFeedback: true,
                 autoAdjust: true,
                 sensitivity: 'moderate'
@@ -42704,6 +42787,10 @@
                     setTimeout(() => { try { awakSecMaybePromptSetup(); } catch (e) {} }, 1600);
                 }
             } catch (e) {}
+
+            // 🎨 Affichage : appliquer les cartes masquées + préparer les toggles du réglage.
+            try { awakApplyHomeCardsCSS(); } catch (e) {}
+            try { awakRenderHomeCardsPrefs(); } catch (e) {}
             
             loadStats();
             loadEquipment();
