@@ -1836,6 +1836,10 @@
             width: 100%;
             max-height: 90vh;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch; /* 🐛 iOS : sans ça, le scroll interne
+                                                  (contenu > 90vh) ne répond pas au
+                                                  toucher → modals type/durée bloqués */
+            overscroll-behavior: contain;
         }
 
         .modal-header {

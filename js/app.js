@@ -42866,6 +42866,15 @@
                         ${modeCard('fitness','🏋️','Fitness pur',"Un tracker d'entraînement clair et complet. Séances, progression, analyses — sans couche de jeu.")}
                         ${modeCard('aventure','🌌','Aventure',"Ton entraînement devient une quête : XP, rangs, Failles, boss et compagnons s'ajoutent au fitness.")}
                         ${btnPrimary('Continuer', 'window._premOnbNext()')}`;
+                } else if (step === 6) {
+                    pct = 98;
+                    inner = `
+                        <div style="font-family:'Rajdhani',sans-serif;font-size:0.78em;color:#22c55e;font-weight:700;letter-spacing:2.5px;margin-bottom:10px;">◈ PRÉPARATION</div>
+                        <h2 style="color:#fff;font-size:1.45em;font-weight:900;margin:0 0 6px;">Échauffement & étirements</h2>
+                        <p style="color:#94a3b8;font-size:0.82em;line-height:1.6;margin:0 0 18px;">Chaque séance peut inclure un <strong style="color:#e2e8f0;">échauffement</strong> et des <strong style="color:#e2e8f0;">étirements</strong> adaptés aux muscles que tu travailles. Tu pourras activer ou désactiver cette option à tout moment dans les <strong style="color:#e2e8f0;">Réglages</strong>.</p>
+                        <p style="color:#cbd5e1;font-size:0.92em;font-weight:800;margin:0 0 16px;">Veux-tu les inclure dans tes séances ?</p>
+                        <button onclick="window._premOnbWarmup(true)" style="width:100%;padding:15px;margin-bottom:10px;background:linear-gradient(135deg,#4ade80,#22c55e);border:none;border-radius:14px;color:#04140a;font-weight:900;font-size:0.95em;cursor:pointer;">Oui, prépare-moi</button>
+                        <button onclick="window._premOnbWarmup(false)" style="width:100%;padding:14px;background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.12);border-radius:14px;color:#94a3b8;font-weight:800;font-size:0.9em;cursor:pointer;">Non merci, j'irai direct</button>`;
                 } else {
                     pct = 100;
                     const g = userGoals[draft.goal] || userGoals.fitness;
@@ -42892,6 +42901,17 @@
             }
 
             window._premOnbNext = function() { step++; render(); try { haptic.light(); } catch(e) {} };
+            // Échauffement/étirements : si « non », on DÉSACTIVE tout de suite la
+            // fonction (préférence persistée), sinon on la laisse active (défaut).
+            window._premOnbWarmup = function(keep) {
+                try {
+                    includeWarmup = !!keep;
+                    includeStretch = !!keep;
+                    if (typeof saveWarmupStretchPreferences === 'function') saveWarmupStretchPreferences();
+                    if (typeof updateWarmupStretchUI === 'function') updateWarmupStretchUI();
+                } catch (e) {}
+                window._premOnbNext();
+            };
             window._premOnbPick = function(field, val, btn) {
                 draft[field] = val;
                 document.querySelectorAll(`[data-pick="${field}"]`).forEach(b => b.style.borderColor = 'rgba(255,255,255,0.1)');
