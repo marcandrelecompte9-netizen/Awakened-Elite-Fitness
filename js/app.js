@@ -12170,6 +12170,7 @@
             if (hidden) list.push(id);
             try { localStorage.setItem('awakHiddenHomeCards', JSON.stringify(list)); } catch (e) {}
             awakApplyHomeCardsCSS();
+            try { if (typeof awakRenderHomeMoreHint === 'function') awakRenderHomeMoreHint(); } catch (e) {}
         }
         function awakApplyHomeCardsCSS() {
             const hidden = awakGetHiddenHomeCards();
@@ -12194,6 +12195,27 @@
         window.awakSetHomeCardHidden = awakSetHomeCardHidden;
         window.awakRenderHomeCardsPrefs = awakRenderHomeCardsPrefs;
         window.awakApplyHomeCardsCSS = awakApplyHomeCardsCSS;
+
+        // 💡 Indice « plus de cartes » : affiché sur l'accueil quand des cartes sont
+        // masquées, pour signaler qu'on peut en afficher davantage via les réglages.
+        // Masquable (croix) et disparaît de lui-même si tout est réaffiché.
+        function awakRenderHomeMoreHint() {
+            const el = document.getElementById('homeMoreCardsHint');
+            if (!el) return;
+            let hidden = [];
+            try { hidden = awakGetHiddenHomeCards(); } catch (e) {}
+            let dismissed = false;
+            try { dismissed = localStorage.getItem('awakHomeHintDismissed') === '1'; } catch (e) {}
+            if (!hidden.length || dismissed) { el.innerHTML = ''; el.style.display = 'none'; return; }
+            el.style.display = 'block';
+            el.innerHTML = '<div style="display:flex;align-items:center;gap:10px;background:rgba(96,165,250,0.06);border:1px solid rgba(96,165,250,0.25);border-radius:14px;padding:12px 14px;margin:4px 0 14px;">'
+                + '<span style="font-size:1.05em;flex-shrink:0;">💡</span>'
+                + '<span style="flex:1;font-size:0.76em;color:#cbd5e1;line-height:1.45;">Accueil épuré. Affiche plus de cartes (rang, calendrier, coach…) dans <strong style="color:#e2e8f0;">Réglages › Affichage</strong>.</span>'
+                + '<button onclick="switchTab(\'settings\'); if(typeof awakRenderHomeCardsPrefs===\'function\')awakRenderHomeCardsPrefs();" style="flex-shrink:0;padding:8px 12px;background:rgba(96,165,250,0.15);border:1px solid rgba(96,165,250,0.4);border-radius:10px;color:#93c5fd;font-weight:800;font-size:0.72em;cursor:pointer;white-space:nowrap;">Personnaliser</button>'
+                + '<button aria-label="Fermer" onclick="try{localStorage.setItem(\'awakHomeHintDismissed\',\'1\');}catch(e){} awakRenderHomeMoreHint();" style="flex-shrink:0;padding:6px 8px;background:transparent;border:none;color:#64748b;font-size:1.1em;cursor:pointer;line-height:1;">×</button>'
+                + '</div>';
+        }
+        window.awakRenderHomeMoreHint = awakRenderHomeMoreHint;
 
         // ========== SÉCURITÉ : MOT DE PASSE DES ACTIONS DESTRUCTRICES ==========
         // Protège la réinitialisation complète de l'app et la suppression de profil.
@@ -42934,6 +42956,18 @@
                 if (profileId) { setProfileData(profileId, 'userProfile', JSON.stringify(userProfile)); }
                 else { localStorage.setItem('userProfile', JSON.stringify(userProfile)); }
                 localStorage.setItem('fitproOnboardingDone', '1');
+                // 🏠 Accueil ÉPURÉ par défaut pour un nouvel inscrit : on masque les
+                // cartes secondaires (rang, calendrier, coach…) et on garde profil +
+                // action du jour. Tout reste réactivable dans Réglages › Affichage.
+                // (Uniquement à l'inscription → les profils existants ne changent pas.)
+                try {
+                    if (typeof AWAK_HOME_CARDS !== 'undefined') {
+                        localStorage.setItem('awakHiddenHomeCards', JSON.stringify(AWAK_HOME_CARDS.map(c => c.id)));
+                        if (typeof awakApplyHomeCardsCSS === 'function') awakApplyHomeCardsCSS();
+                        if (typeof awakRenderHomeCardsPrefs === 'function') awakRenderHomeCardsPrefs();
+                        if (typeof awakRenderHomeMoreHint === 'function') awakRenderHomeMoreHint();
+                    }
+                } catch(e) {}
                 // Appliquer la voie choisie (Fitness pur / Aventure)
                 try { if (typeof toggleGameMode === 'function') toggleGameMode(draft.mode === 'aventure'); } catch(e) {}
                 try { updateProfileDisplay(); } catch(e) {}
@@ -43094,6 +43128,7 @@
             // 🎨 Affichage : appliquer les cartes masquées + préparer les toggles du réglage.
             try { awakApplyHomeCardsCSS(); } catch (e) {}
             try { awakRenderHomeCardsPrefs(); } catch (e) {}
+            try { awakRenderHomeMoreHint(); } catch (e) {}
 
             // 🕳️ Amorcer le compteur à vie des Failles AVANT toute nouvelle complétion
             // (sinon la complétion en cours serait comptée deux fois).
