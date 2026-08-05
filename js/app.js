@@ -14996,21 +14996,147 @@
         }
 
 
-        // ========== PROGRESS PHOTOS SYSTEM ==========
-        
-        function getProgressPhotos() {
-            const profileId = getCurrentProfileId();
-            const saved = profileId ? getProfileData(profileId, 'progressPhotos') : localStorage.getItem('progressPhotos');
-            try { return saved ? JSON.parse(saved) : []; } catch(e) { return []; }
+        // ========== PHOTOS DE PROGRESSION — STOCKAGE IndexedDB ==========
+        // Avant : localStorage (~5 Mo) → une seule photo pleine résolution saturait
+        // le quota (« mémoire pleine »). Maintenant : IndexedDB, 100 % local et hors
+        // ligne, quota en centaines de Mo à plusieurs Go. IndexedDB étant ASYNCHRONE,
+        // on garde un cache mémoire pour que le rendu/lectures restent synchrones ;
+        // seules les écritures partent en base.
+        const AWAK_PHOTO_DB = 'awakPhotosDB';
+        const AWAK_PHOTO_STORE = 'progressPhotos';
+        let _awakPhotoDBPromise = null;
+        let _progressPhotosCache = null;   // null = pas encore chargé
+        let _progressPhotosCacheProfile = null; // profil auquel appartient le cache
+        let _photoMigrationDone = false;
+
+        function awakPhotoDB() {
+            if (_awakPhotoDBPromise) return _awakPhotoDBPromise;
+            _awakPhotoDBPromise = new Promise((resolve, reject) => {
+                try {
+                    const req = indexedDB.open(AWAK_PHOTO_DB, 1);
+                    req.onupgradeneeded = (e) => {
+                        const db = e.target.result;
+                        if (!db.objectStoreNames.contains(AWAK_PHOTO_STORE)) {
+                            const store = db.createObjectStore(AWAK_PHOTO_STORE, { keyPath: 'key' });
+                            store.createIndex('profileId', 'profileId', { unique: false });
+                        }
+                    };
+                    req.onsuccess = (e) => resolve(e.target.result);
+                    req.onerror = (e) => reject(e.target.error);
+                } catch (err) { reject(err); }
+            });
+            return _awakPhotoDBPromise;
         }
-        
-        function saveProgressPhotos(photos) {
-            const profileId = getCurrentProfileId();
-            if (profileId) {
-                setProfileData(profileId, 'progressPhotos', JSON.stringify(photos));
-            } else {
-                localStorage.setItem('progressPhotos', JSON.stringify(photos));
-            }
+        function _photoPid() { return getCurrentProfileId() || 'default'; }
+        function awakPhotoDBGetAll(profileId) {
+            return awakPhotoDB().then(db => new Promise((resolve) => {
+                try {
+                    const tx = db.transaction(AWAK_PHOTO_STORE, 'readonly');
+                    const req = tx.objectStore(AWAK_PHOTO_STORE).index('profileId').getAll(profileId);
+                    req.onsuccess = () => resolve(req.result || []);
+                    req.onerror = () => resolve([]);
+                } catch (e) { resolve([]); }
+            }));
+        }
+        function awakPhotoDBPut(profileId, photo) {
+            return awakPhotoDB().then(db => new Promise((resolve, reject) => {
+                try {
+                    const tx = db.transaction(AWAK_PHOTO_STORE, 'readwrite');
+                    tx.objectStore(AWAK_PHOTO_STORE).put({
+                        key: profileId + ':' + photo.id, profileId: profileId,
+                        id: photo.id, date: photo.date, dataUrl: photo.dataUrl, note: photo.note || ''
+                    });
+                    tx.oncomplete = () => resolve(true);
+                    tx.onerror = () => reject(tx.error);
+                    tx.onabort = () => reject(tx.error || new Error('abort'));
+                } catch (e) { reject(e); }
+            }));
+        }
+        function awakPhotoDBDelete(profileId, id) {
+            return awakPhotoDB().then(db => new Promise((resolve) => {
+                try {
+                    const tx = db.transaction(AWAK_PHOTO_STORE, 'readwrite');
+                    tx.objectStore(AWAK_PHOTO_STORE).delete(profileId + ':' + id);
+                    tx.oncomplete = () => resolve(true);
+                    tx.onerror = () => resolve(false);
+                } catch (e) { resolve(false); }
+            }));
+        }
+
+        // Migration UNIQUE : anciennes photos localStorage → IndexedDB, puis on
+        // efface localStorage pour libérer la place. Sans duplication (les photos
+        // du profil courant présentes dans la clé profil ET la clé legacy partagent
+        // le même profileId → même clé IDB → écrasement).
+        function awakMigratePhotosToIDB() {
+            if (_photoMigrationDone) return Promise.resolve();
+            _photoMigrationDone = true;
+            // On ne migre (et surtout on n'EFFACE localStorage) que si IndexedDB
+            // fonctionne réellement — sinon on garde les photos en localStorage.
+            return awakPhotoDB().then(() => new Promise((resolve) => {
+                try {
+                    if (localStorage.getItem('awakPhotosMigratedToIDB') === '1') return resolve();
+                    const keys = [];
+                    for (let i = 0; i < localStorage.length; i++) {
+                        const k = localStorage.key(i);
+                        if (k === 'progressPhotos' || /^profile_.+_progressPhotos$/.test(k)) keys.push(k);
+                    }
+                    const jobs = [];
+                    let anyFail = false;
+                    keys.forEach(k => {
+                        let arr = [];
+                        try { arr = JSON.parse(localStorage.getItem(k) || '[]'); } catch (e) { arr = []; }
+                        if (!Array.isArray(arr) || !arr.length) return;
+                        const m = k.match(/^profile_(.+)_progressPhotos$/);
+                        const pid = m ? m[1] : _photoPid();
+                        arr.forEach(photo => {
+                            if (photo && photo.dataUrl && photo.id != null) {
+                                jobs.push(awakPhotoDBPut(pid, photo).catch(() => { anyFail = true; }));
+                            }
+                        });
+                    });
+                    Promise.all(jobs).then(() => {
+                        // On n'efface localStorage QUE si tout a bien été écrit en base.
+                        if (!anyFail) {
+                            keys.forEach(k => { try { localStorage.removeItem(k); } catch (e) {} });
+                            try { localStorage.setItem('awakPhotosMigratedToIDB', '1'); } catch (e) {}
+                        }
+                        resolve();
+                    }).catch(() => resolve());
+                } catch (e) { resolve(); }
+            })).catch(() => { _photoMigrationDone = false; }); // IDB indispo → réessai plus tard
+        }
+        window.awakMigratePhotosToIDB = awakMigratePhotosToIDB;
+
+        // Charge les photos du profil courant dans le cache (async).
+        function awakLoadProgressPhotos() {
+            return awakMigratePhotosToIDB()
+                .then(() => awakPhotoDBGetAll(_photoPid()))
+                .then(arr => {
+                    arr.sort((a, b) => (b.id || 0) - (a.id || 0)); // plus récentes d'abord
+                    _progressPhotosCache = arr;
+                    _progressPhotosCacheProfile = _photoPid();
+                    return arr;
+                })
+                .catch(() => {
+                    // Repli si IndexedDB indisponible : lire l'ancien stockage localStorage.
+                    let arr = [];
+                    try {
+                        const pid = getCurrentProfileId();
+                        const saved = pid ? getProfileData(pid, 'progressPhotos') : localStorage.getItem('progressPhotos');
+                        arr = saved ? JSON.parse(saved) : [];
+                    } catch (e) { arr = []; }
+                    _progressPhotosCache = Array.isArray(arr) ? arr : [];
+                    _progressPhotosCacheProfile = _photoPid();
+                    return _progressPhotosCache;
+                });
+        }
+        window.awakLoadProgressPhotos = awakLoadProgressPhotos;
+
+        // Retour SYNCHRONE depuis le cache (rempli par awakLoadProgressPhotos).
+        // Vide si le cache appartient à un autre profil (changement sans reload).
+        function getProgressPhotos() {
+            if (_progressPhotosCacheProfile !== _photoPid()) return [];
+            return _progressPhotosCache || [];
         }
         
         function takeProgressPhoto() {
@@ -15018,31 +15144,42 @@
             input.onchange = function(event) {
                 const file = event.target.files[0];
                 if (!file) return;
-                
+
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    const photo = {
-                        id: Date.now(),
-                        date: new Date().toISOString(),
-                        dataUrl: e.target.result,
-                        note: ''
+                    // 📸 COMPRESSION : une photo de téléphone pleine résolution en
+                    // base64 fait plusieurs Mo et dépasse à elle seule le quota
+                    // localStorage (~5 Mo) → « mémoire pleine ». On la redimensionne
+                    // (max 1080 px) et on la ré-encode en JPEG 0.7 (~150-300 Ko).
+                    const img = new Image();
+                    img.onload = function() {
+                        let dataUrl;
+                        try {
+                            const MAX = 1080;
+                            let w = img.width, h = img.height;
+                            if (w >= h && w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
+                            else if (h > w && h > MAX) { w = Math.round(w * MAX / h); h = MAX; }
+                            const canvas = document.createElement('canvas');
+                            canvas.width = w; canvas.height = h;
+                            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                            dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                        } catch (err) {
+                            dataUrl = e.target.result; // repli : image d'origine
+                        }
+
+                        const photo = { id: Date.now(), date: new Date().toISOString(), dataUrl: dataUrl, note: '' };
+                        const pid = _photoPid();
+                        awakPhotoDBPut(pid, photo).then(function() {
+                            _progressPhotosCache = [photo].concat(_progressPhotosCache || []);
+                            renderProgressPhotos();
+                            showToast('📸 Photo ajoutée avec succès !');
+                            vibrate(100);
+                        }).catch(function() {
+                            showToast('⚠️ Impossible d\'enregistrer la photo. Réessaie.', 'error', 5000);
+                        });
                     };
-                    
-                    const photos = getProgressPhotos();
-                    photos.unshift(photo); // Add to beginning
-                    
-                    // Limit to 50 photos max
-                    if (photos.length > 50) {
-                        photos.pop();
-                    }
-                    
-                    saveProgressPhotos(photos);
-                    renderProgressPhotos();
-                    
-                    showToast('📸 Photo ajoutée avec succès !');
-                    
-                    // Vibration feedback
-                    vibrate(100);
+                    img.onerror = function() { showToast('⚠️ Image illisible.', 'error', 4000); };
+                    img.src = e.target.result;
                 };
                 reader.readAsDataURL(file);
             };
@@ -15051,11 +15188,11 @@
         
         function deleteProgressPhoto(photoId) {
             showConfirm('Supprimer cette photo de progression ?', function() {
-                const photos = getProgressPhotos();
-                const filtered = photos.filter(p => p.id !== photoId);
-                saveProgressPhotos(filtered);
-                renderProgressPhotos();
-                showToast('🗑️ Photo supprimée');
+                awakPhotoDBDelete(_photoPid(), photoId).then(function() {
+                    _progressPhotosCache = (_progressPhotosCache || []).filter(p => p.id !== photoId);
+                    renderProgressPhotos();
+                    showToast('🗑️ Photo supprimée');
+                });
             }, null, { title: 'Supprimer la photo ?', icon: '🗑️', confirmLabel: 'Supprimer', danger: true });
         }
 
@@ -15068,10 +15205,10 @@
             if (note === null) return; // User cancelled
             
             photo.note = note;
-            saveProgressPhotos(photos);
-            renderProgressPhotos();
-            
-            showToast('📝 Note ajoutée');
+            awakPhotoDBPut(_photoPid(), photo).then(function() {
+                renderProgressPhotos();
+                showToast('📝 Note ajoutée');
+            });
         }
         
         function comparePhotos(photoId1, photoId2) {
@@ -15121,6 +15258,12 @@
         function renderProgressPhotos() {
             const container = document.getElementById('progressPhotosGallery');
             if (!container) return;
+            // 1er rendu (ou profil changé) : (re)charger le cache depuis IndexedDB.
+            if (_progressPhotosCache === null || _progressPhotosCacheProfile !== _photoPid()) {
+                container.innerHTML = '<div style="text-align:center;padding:40px;color:#94a3b8;">Chargement des photos…</div>';
+                awakLoadProgressPhotos().then(() => renderProgressPhotos());
+                return;
+            }
             const photos = getProgressPhotos();
             
             if (photos.length === 0) {
@@ -23059,6 +23202,15 @@
             // Masquer immédiatement le tracker — sera ré-affiché seulement si reps mode
             var repsDiv = document.getElementById('repsTrackingInputs');
             if (repsDiv) repsDiv.style.display = 'none';
+
+            // 🐛 Masquer AUSSI la grille de séries (mode reps). Sans ça, en mode
+            // HYBRIDE, la grille de l'exercice reps précédent restait affichée
+            // par-dessus un repos ou un exercice minuteur → « le timer reste sur
+            // l'exercice ». Elle sera ré-affichée par initSetsTracker si le prochain
+            // exercice est en mode reps. On coupe aussi un éventuel repos-entre-séries.
+            var _sgp = document.getElementById('setsGridPanel');
+            if (_sgp) { _sgp.style.display = 'none'; }
+            try { if (setRestInterval) { clearInterval(setRestInterval); setRestInterval = null; } _gridRestRemaining = 0; } catch (e) {}
 
             const exercise = currentWorkout.exercises[currentExerciseIndex];
             
@@ -40244,10 +40396,11 @@
         // Set profile-specific data
         function setProfileData(profileId, key, data) {
             const profileKey = `profile_${profileId}_${key}`;
+            let ok = true;
             if (data === null) {
                 localStorage.removeItem(profileKey);
             } else {
-                lsSet(profileKey, typeof data === 'string' ? data : JSON.stringify(data));
+                ok = lsSet(profileKey, typeof data === 'string' ? data : JSON.stringify(data));
             }
             
             // Also update legacy key if current profile
@@ -40258,6 +40411,7 @@
                     lsSet(key, typeof data === 'string' ? data : JSON.stringify(data));
                 }
             }
+            return ok;
         }
         
         // Switch to a profile
@@ -43133,6 +43287,9 @@
             // 🕳️ Amorcer le compteur à vie des Failles AVANT toute nouvelle complétion
             // (sinon la complétion en cours serait comptée deux fois).
             try { if (typeof awakEnsureRiftsCounterSeeded === 'function') awakEnsureRiftsCounterSeeded(); } catch (e) {}
+
+            // 📸 Migrer les anciennes photos localStorage → IndexedDB (libère la place).
+            try { if (typeof awakMigratePhotosToIDB === 'function') awakMigratePhotosToIDB(); } catch (e) {}
             
             loadStats();
             loadEquipment();
