@@ -37,7 +37,7 @@
     volume: {
       label: 'kg soulevés', emoji: '🏋️', unit: ' kg',
       metric: function (e) { return (e && e.totalVolume) ? e.totalVolume : 0; },
-      presets: [20000, 50000, 100000]
+      presets: [50000, 120000, 250000]
     },
     duration: {
       label: 'minutes', emoji: '⏱️', unit: ' min',
@@ -169,6 +169,40 @@
 
   function _fmt(n) { return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
 
+  // 🏋️ Unité : le volume (poids soulevé) est stocké en KG (comme tout le reste).
+  // On l'AFFICHE dans l'unité de l'utilisateur (kg ou lbs) sans changer le stockage.
+  function _volIsLbs() { try { return typeof weightUnit === 'function' && weightUnit() === 'lbs'; } catch (e) { return false; } }
+  function _dispVal(type, kgVal) {
+    if (type === 'volume' && _volIsLbs()) {
+      try { return (typeof fmtWeightVal === 'function') ? fmtWeightVal(kgVal) : kgVal; } catch (e) { return kgVal; }
+    }
+    return kgVal;
+  }
+  function _dispUnit(type, def) {
+    if (type === 'volume') return _volIsLbs() ? ' lbs' : ' kg';
+    return def.unit;
+  }
+  function _dispLabel(type, def) {
+    if (type === 'volume') return _volIsLbs() ? 'lbs soulevés' : 'kg soulevés';
+    return def.label;
+  }
+
+  // 👥 Paliers RONDS par unité + nombre de membres recommandé (le volume total à
+  // atteindre dépend de la taille de la famille : à 2, 500 000 lb est irréaliste).
+  var _PRESET_MEMBERS  = [2, 4, 6];
+  var _VOL_PRESETS_KG  = [50000, 120000, 250000];   // kg (ronds)
+  var _VOL_PRESETS_LBS = [100000, 250000, 500000];  // lbs (ronds)
+  function _lbsToKg(v) { return Math.round(v * 0.453592); }
+  // Renvoie [{ disp (valeur affichée dans l'unité), store (valeur stockée en kg
+  // pour le volume, brute sinon), m (membres recommandés) }]
+  function _presetList(type, def) {
+    if (type === 'volume') {
+      if (_volIsLbs()) return _VOL_PRESETS_LBS.map(function (v, i) { return { disp: v, store: _lbsToKg(v), m: _PRESET_MEMBERS[i] }; });
+      return _VOL_PRESETS_KG.map(function (v, i) { return { disp: v, store: v, m: _PRESET_MEMBERS[i] }; });
+    }
+    return (def.presets || []).map(function (v, i) { return { disp: v, store: v, m: _PRESET_MEMBERS[i] || 2 }; });
+  }
+
   // Carte de l'objectif commun (ou invitation à en créer un).
   function renderCard() {
     var st = status();
@@ -193,7 +227,7 @@
       return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;">'
         + _av(m.avatar, 22)
         + '<span style="flex:1;font-size:0.82em;color:#e5e7eb;font-weight:600;">' + esc(m.name) + '</span>'
-        + '<span style="font-size:0.82em;color:#94a3b8;">' + _fmt(m.value) + def.unit + ' · ' + share + '%</span>'
+        + '<span style="font-size:0.82em;color:#94a3b8;">' + _fmt(_dispVal(st.type, m.value)) + _dispUnit(st.type, def) + ' · ' + share + '%</span>'
         + '</div>';
     }).join('') || '<div style="font-size:0.78em;color:#64748b;padding:6px 0;">Aucune contribution pour l\'instant — lancez-vous !</div>';
 
@@ -210,8 +244,8 @@
       + '</div>'
       + head
       + '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">'
-      +   '<span style="font-size:1.4em;font-weight:900;color:' + barColor + ';">' + _fmt(st.total) + '</span>'
-      +   '<span style="font-size:0.82em;color:#94a3b8;">/ ' + _fmt(st.target) + def.unit + ' ' + esc(def.label) + '</span>'
+      +   '<span style="font-size:1.4em;font-weight:900;color:' + barColor + ';">' + _fmt(_dispVal(st.type, st.total)) + '</span>'
+      +   '<span style="font-size:0.82em;color:#94a3b8;">/ ' + _fmt(_dispVal(st.type, st.target)) + _dispUnit(st.type, def) + ' ' + esc(_dispLabel(st.type, def)) + '</span>'
       + '</div>'
       + '<div style="height:14px;background:rgba(255,255,255,0.06);border-radius:8px;overflow:hidden;margin-bottom:4px;">'
       +   '<div style="height:100%;width:' + st.pct + '%;background:linear-gradient(90deg,' + barColor + ',' + (st.reached ? '#f59e0b' : '#16a34a') + ');border-radius:8px;transition:width 0.4s;"></div>'
@@ -229,7 +263,7 @@
       var d = GOAL_TYPES[k];
       return '<button onclick="AwakFamilyGoalPick(\'' + k + '\')" data-goaltype="' + k + '" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 6px;border-radius:12px;cursor:pointer;border:2px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);color:#fff;">'
         + '<span style="font-size:1.5em;">' + d.emoji + '</span>'
-        + '<span style="font-size:0.74em;font-weight:700;">' + esc(d.label) + '</span></button>';
+        + '<span style="font-size:0.74em;font-weight:700;">' + esc(_dispLabel(k, d)) + '</span></button>';
     }).join('');
 
     var overlay = document.createElement('div');
@@ -259,11 +293,15 @@
     });
     var zone = document.getElementById('goalTargetZone');
     if (!zone) return;
-    var presetBtns = d.presets.map(function (p) {
-      return '<button onclick="AwakFamilyGoalCreate(\'' + type + '\',' + p + ')" style="flex:1;padding:12px 6px;border-radius:11px;cursor:pointer;border:1px solid rgba(34,197,94,0.3);background:rgba(34,197,94,0.08);color:#4ade80;font-weight:800;font-size:0.82em;">' + _fmt(p) + d.unit + '</button>';
+    var presetBtns = _presetList(type, d).map(function (pr) {
+      return '<button onclick="AwakFamilyGoalCreate(\'' + type + '\',' + pr.store + ')" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:11px 6px;border-radius:11px;cursor:pointer;border:1px solid rgba(34,197,94,0.3);background:rgba(34,197,94,0.08);color:#4ade80;font-weight:800;font-size:0.82em;">'
+        + '<span>' + _fmt(pr.disp) + _dispUnit(type, d) + '</span>'
+        + '<span style="font-size:0.66em;color:#94a3b8;font-weight:700;">👥 ~' + pr.m + ' membres</span>'
+        + '</button>';
     }).join('');
-    zone.innerHTML = '<div style="font-size:0.72em;color:#64748b;font-weight:700;margin-bottom:6px;">OBJECTIF (' + esc(d.label) + ' en 30 jours)</div>'
-      + '<div style="display:flex;gap:8px;">' + presetBtns + '</div>';
+    zone.innerHTML = '<div style="font-size:0.72em;color:#64748b;font-weight:700;margin-bottom:6px;">OBJECTIF (' + esc(_dispLabel(type, d)) + ' en 30 jours)</div>'
+      + '<div style="display:flex;gap:8px;">' + presetBtns + '</div>'
+      + '<div style="font-size:0.66em;color:#64748b;margin-top:8px;line-height:1.4;">👥 Le nombre de membres indiqué est une estimation pour atteindre l\'objectif en 30 jours. Choisis selon la taille de ta famille.</div>';
   };
 
   window.AwakFamilyGoalCreate = function (type, target) {
