@@ -701,6 +701,9 @@ function generic_muscle(muscle, phase) {
 // ── IMAGE MAP — exercices avec vraies images ─────────────────────────
 // Clé = nom exact de l'exercice, valeur = chemin du fichier image
 var EXERCISE_IMAGES = {
+  "Chat-Vache (Cat-Cow)": 'images/exercises/Chat-vache.webp',
+  "Pont sur une jambe": 'images/exercises/Single_Leg_Glute_Bridge.webp',
+  "Planche jambe levée (Leg Pull Front)": 'images/exercises/Planche.webp',
   "Bear Crawl (marche de l'ours)": 'images/exercises/Bear_Crawl__marche_de_l_ours_.webp',
   "Farmer's Walk": 'images/exercises/Farmer_s_Walk.webp',
   "Jumping jacks d'échauffement": 'images/exercises/Jumping_jacks.webp',

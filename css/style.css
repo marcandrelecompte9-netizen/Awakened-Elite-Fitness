@@ -3800,7 +3800,12 @@
                 position: fixed !important;
                 bottom: 0 !important; left: 0 !important; right: 0 !important;
                 top: auto !important;
-                z-index: 9999 !important;
+                /* 🐛 z-index 100 (et non 9999) : à 9999 la barre passait AU-DESSUS
+                   des modals (z-index 1000) et masquait leur bas → contenu coupé,
+                   impossible d'atteindre les derniers éléments (points d'attribut,
+                   résultats de Faille, durée, type…). À 100, la barre reste au-dessus
+                   du contenu de page mais PASSE SOUS les modals, qui la recouvrent. */
+                z-index: 100 !important;
                 border-radius: 0 !important;
                 padding: 4px 2px env(safe-area-inset-bottom, 4px) 2px !important;
                 gap: 0 !important;
