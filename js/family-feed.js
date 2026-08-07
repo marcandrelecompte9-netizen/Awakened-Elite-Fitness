@@ -171,14 +171,8 @@
         + '</div>';
     }).join('');
 
-    return '<div style="background:linear-gradient(160deg,#12101a,#0d0d12);border:1px solid rgba(168,85,247,0.25);border-radius:18px;padding:20px;margin-bottom:14px;">'
-      + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">'
-      +   '<span style="font-size:1.5em;">📣</span>'
-      +   '<div style="font-size:1.05em;font-weight:900;color:#fff;">Activité de la famille</div>'
-      + '</div>'
-      + '<p style="font-size:0.76em;color:#94a3b8;margin:0 0 8px;line-height:1.4;">Les séances récentes de chacun. Encouragez-vous d\'une réaction !</p>'
-      + rows
-      + '</div>';
+    return '<p style="font-size:0.76em;color:#94a3b8;margin:0 0 8px;line-height:1.4;">Les séances récentes de chacun. Encouragez-vous d\'une réaction !</p>'
+      + rows;
   }
   window.AwakFamilyFeed.renderCard = renderCard;
 

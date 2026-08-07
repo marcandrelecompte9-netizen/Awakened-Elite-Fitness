@@ -1829,6 +1829,15 @@
             }
         }
 
+        /* 🐛 Quand un modal est ouvert, on MASQUE la barre de nav du bas : sinon,
+           même en la mettant sous le modal, elle recouvrait/coupait le bas des
+           feuilles (points d'attribut, durée, type, résultats de Faille…).
+           :has() est supporté par les navigateurs récents (Chrome/Android inclus). */
+        body:has(.modal.active) #mobileNavBar,
+        body:has(.modal.active) .card.nav-tabs {
+            display: none !important;
+        }
+
         .modal-content {
             background: white;
             border-radius: 20px;
@@ -4096,7 +4105,7 @@
             }
             .modal-content {
                 border-radius: 20px 20px 0 0 !important; max-height: 90vh !important;
-                padding: 20px 16px calc(30px + env(safe-area-inset-bottom, 0px)) !important;
+                padding: 20px 16px calc(90px + env(safe-area-inset-bottom, 0px)) !important;
             }
 
             /* Grilles */

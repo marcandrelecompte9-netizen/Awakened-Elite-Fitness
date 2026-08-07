@@ -967,9 +967,18 @@ function renderFamilyTab() {
         return;
     }
 
-    // 📣 Le fil d'activité est placé EN DERNIER : il peut contenir jusqu'à 15
-    // séances, ce qui repousserait tout le reste hors de portée du pouce.
-    html += familyCard + goalCard + duoGamesCard + challengeCard + nudgeCard + feedCard;
+    // 📣 Le fil d'activité passe dans un ACCORDÉON replié par défaut, pour ne pas
+    // occuper tout l'écran (il peut contenir jusqu'à 15 séances).
+    const feedAccordion = feedCard
+        ? '<div class="accordion-section">'
+          + '<div class="accordion-header" onclick="toggleSettingsAccordion(this)">'
+          +   '<div class="accordion-title"><span>📣</span><span>Activité de la famille</span></div>'
+          +   '<div class="accordion-icon">▼</div>'
+          + '</div>'
+          + '<div class="accordion-body"><div class="accordion-content">' + feedCard + '</div></div>'
+          + '</div>'
+        : '';
+    html += familyCard + goalCard + duoGamesCard + challengeCard + nudgeCard + feedAccordion;
 
     // Filet de sécurité
     if (!familyCard && !nudgeCard && !challengeCard && !goalCard && !feedCard && !duoGamesCard) {
@@ -1588,7 +1597,7 @@ function showRPGEquipmentModal(defaultTab) {
         }
 
         return `
-        <div style="position:relative;width:100%;aspect-ratio:1066/1476;max-height:700px;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:14px;background:#000;">
+        <div style="position:relative;width:100%;aspect-ratio:1066/1476;min-height:490px;max-height:700px;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:14px;background:#000;">
 
             <!-- AVATAR FULL SIZE (prend toute la largeur) -->
             <img src="${path}"

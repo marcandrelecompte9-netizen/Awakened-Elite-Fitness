@@ -1410,6 +1410,9 @@
         }
         
         function renderCardioStats() {
+            // Section « Statistiques Cardio » retirée de l'onglet Progression :
+            // si ses éléments n'existent plus, on sort pour éviter toute erreur.
+            if (!document.getElementById('totalCardioSessions')) return;
             const sessions = getCardioSessions();
             
             
@@ -1532,9 +1535,12 @@
         }
         
         function renderCardioSessionsList(sessions = null) {
+            // Section cardio retirée : sortir si le filtre n'existe plus.
+            const _cf = document.getElementById('cardioActivityFilter');
+            if (!_cf) return;
             if (!sessions) sessions = getCardioSessions();
             
-            const filter = document.getElementById('cardioActivityFilter').value;
+            const filter = _cf.value;
             
             // Filter sessions
             let filtered = sessions;
@@ -1847,16 +1853,21 @@
 
         function startIntervalTraining(workTime, restTime, rounds, name) {
             // Liste d'exercices cardio/HIIT
-            const hiitExercises = [
-                'Burpees',
-                'Jump squats', 
-                'High knees',
-                'Mountain climbers',
-                'Jumping jacks',
-                'Sprint sur place',
-                'Pompes explosives',
-                'Fentes sautées'
+            // Pool élargi d'exercices HIIT/Tabata au poids du corps, MÉLANGÉ à
+            // chaque séance (Fisher-Yates) → on n'a plus toujours les mêmes, dans
+            // le même ordre. Noms alignés sur la base quand possible (instructions).
+            const _hiitPool = [
+                'Burpees', 'Jump squat', 'High knees', 'Mountain climbers',
+                'Jumping jacks', 'Skater jumps', 'Sauts mollets', 'Fentes dynamiques',
+                'Montées de genoux sur place', 'Sprint sur place', 'Pompes explosives',
+                'Fentes sautées', 'Talons-fesses', 'Planche sauteuse',
+                'Coups de poing rapides', 'Étoile sautée'
             ];
+            const hiitExercises = _hiitPool.slice();
+            for (let _s = hiitExercises.length - 1; _s > 0; _s--) {
+                const _r = Math.floor(Math.random() * (_s + 1));
+                const _t = hiitExercises[_s]; hiitExercises[_s] = hiitExercises[_r]; hiitExercises[_r] = _t;
+            }
             
             // Créer workout avec exercices alternés
             const workout = {
@@ -1893,6 +1904,8 @@
             const iconMap = { 'HIIT': '🔥', 'Tabata': '⚡' };
             workout.badgeHTML = `${iconMap[name] || '💪'} ${name} Training`;
             workout.badgeStyle = 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
+            // ⚡ Cérémonie « Prêt ? → 3-2-1-GO » avant le début (Tabata).
+            workout._readyGo = (name === 'Tabata');
             
             // ✅ Use AI Workout DJ Quick Check
             startQuickCheck(workout);
@@ -7760,8 +7773,14 @@
                     }, 1000);
                 }
                 
-                speak('Début de la séance');
-                startExercise();
+                if (currentWorkout && currentWorkout._readyGo) {
+                    // ⚡ Tabata : cérémonie « Prêt ? → 3-2-1-GO » puis démarrage.
+                    window._skipFirstCountdown = true;
+                    _playReadyGo(function () { startExercise(); });
+                } else {
+                    speak('Début de la séance');
+                    startExercise();
+                }
             }
         }
         
@@ -23888,7 +23907,43 @@
         });
 
         // ── SWIPE GESTURES ────────────────────────────────────────
+        // ⚡ Cérémonie « PRÊT ? → 3-2-1-GO » (auto) avant une séance Tabata.
+        function _playReadyGo(callback) {
+            const old = document.getElementById('readyGoOverlay');
+            if (old) old.remove();
+            const ov = document.createElement('div');
+            ov.id = 'readyGoOverlay';
+            ov.style.cssText = 'position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;background:radial-gradient(circle at 50% 42%,#0b1220,#05070d);';
+            ov.innerHTML = '<div id="rgoText" style="font-weight:900;color:#fff;line-height:1.1;max-width:560px;"></div>';
+            document.body.appendChild(ov);
+            const el = ov.querySelector('#rgoText');
+            const steps = [
+                { t: "PRÊT POUR<br>L'ENTRAÎNEMENT ?", c: '#f59e0b', size: '2.1em', ms: 1300, say: "Prêt pour l'entraînement" },
+                { t: '3',    c: '#f87171', size: '7em', ms: 800, say: '3' },
+                { t: '2',    c: '#fbbf24', size: '7em', ms: 800, say: '2' },
+                { t: '1',    c: '#4ade80', size: '7em', ms: 800, say: '1' },
+                { t: 'GO !', c: '#22d3ee', size: '7em', ms: 650, say: 'Go' }
+            ];
+            let i = 0;
+            const run = function () {
+                if (i >= steps.length) { ov.remove(); callback(); return; }
+                const s = steps[i++];
+                el.innerHTML = s.t;
+                el.style.color = s.c;
+                el.style.fontSize = s.size;
+                el.style.animation = 'none'; el.offsetHeight;
+                el.style.animation = 'countPop 0.5s cubic-bezier(0.34,1.56,0.64,1)';
+                try { if (typeof speak === 'function') speak(s.say, { interrupt: true }); } catch (e) {}
+                try { vibrate(70); } catch (e) {}
+                setTimeout(run, s.ms);
+            };
+            run();
+        }
+
         function showCountdown(exerciseName, callback) {
+            // Après la cérémonie Prêt/GO, on saute le décompte du 1er exercice
+            // (sinon on aurait « GO ! » puis un 2e « 3-2-1 » à la suite).
+            if (window._skipFirstCountdown) { window._skipFirstCountdown = false; callback(); return; }
             // Ne pas afficher sur repos
             if (!exerciseName || exerciseName === 'Repos' || exerciseName === 'Récupération') {
                 callback(); return;

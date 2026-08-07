@@ -1103,16 +1103,15 @@
   window.AwakGamesDemarrer = function (gameId, reglage) { demarrer(gameId, reglage); };
 
   // ── SECTION DE L'ONGLET ENTRAÎNER ──────────────────────────────────
-  function renderSection() {
-    var host = document.getElementById('workoutGamesSection');
-    if (!host) return;
+  // Construit les tuiles de jeux (réutilisé par le pop-up).
+  function _gameTiles() {
     var rec = records();
-    var tuiles = Object.keys(GAMES).map(function (id) {
+    return Object.keys(GAMES).map(function (id) {
       var g = GAMES[id];
       var pastille = g.duo
         ? '<div style="position:absolute;top:7px;right:7px;background:rgba(168,85,247,0.2);border:1px solid rgba(168,85,247,0.4);color:#c4b5fd;border-radius:6px;padding:1px 5px;font-size:0.56em;font-weight:800;">👥</div>'
         : (g.hebdo ? '<div style="position:absolute;top:7px;right:7px;background:rgba(251,191,36,0.16);border:1px solid rgba(251,191,36,0.35);color:#fbbf24;border-radius:6px;padding:1px 5px;font-size:0.56em;font-weight:800;">7j</div>' : '');
-      return '<button onclick="AwakGamesOuvrir(\'' + id + '\')" style="position:relative;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.10);border-radius:14px;padding:15px 11px;cursor:pointer;text-align:center;">'
+      return '<button onclick="AwakGamesPick(\'' + id + '\')" style="position:relative;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.10);border-radius:14px;padding:15px 11px;cursor:pointer;text-align:center;">'
         + pastille
         + '<div style="font-size:1.7em;margin-bottom:5px;">' + g.emoji + '</div>'
         + '<div style="font-size:0.83em;font-weight:900;color:#fff;margin-bottom:3px;">' + esc(g.name) + '</div>'
@@ -1120,38 +1119,115 @@
         + (rec[id] ? '<div style="margin-top:6px;font-size:0.62em;color:#fbbf24;font-weight:800;">⭐ ' + rec[id] + '</div>' : '')
         + '</button>';
     }).join('');
+  }
+
+  // Carte compacte sur la page : un seul bouton qui ouvre le pop-up des jeux.
+  function renderSection() {
+    var host = document.getElementById('workoutGamesSection');
+    if (!host) return;
+    var nb = Object.keys(GAMES).length;
     host.innerHTML =
       '<div class="card" style="background:linear-gradient(135deg,rgba(34,197,94,0.06) 0%,rgba(34,197,94,0.02) 100%);border:1px solid rgba(34,197,94,0.22);">'
-      + '<h2 style="margin-bottom:6px;color:#4ade80;">🎮 Jeux d\'entraînement</h2>'
-      + '<p style="margin-bottom:18px;color:#94a3b8;font-size:0.86em;">Des formats ludiques pour casser la routine. Ils s\'adaptent à ton matériel et à ta forme.</p>'
-      + '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:10px;">' + tuiles + '</div>'
-      + noteNiveau()
+      + '<div style="display:flex;align-items:center;gap:14px;">'
+      +   '<div style="font-size:2em;flex-shrink:0;line-height:1;">🎮</div>'
+      +   '<div style="flex:1;min-width:0;">'
+      +     '<h2 style="margin:0 0 3px;color:#4ade80;">Jeux d\'entraînement</h2>'
+      +     '<p style="margin:0;color:#94a3b8;font-size:0.82em;">' + nb + ' formats ludiques, adaptés à ton matériel et ta forme.</p>'
+      +   '</div>'
+      + '</div>'
+      + '<button onclick="AwakGamesOpenPicker()" style="width:100%;margin-top:14px;padding:14px;background:linear-gradient(135deg,#22c55e,#16a34a);border:none;border-radius:14px;color:#04140a;font-weight:900;font-size:0.95em;cursor:pointer;">Choisir un jeu ▸</button>'
       + '</div>';
   }
+
+  // Pop-up listant tous les jeux.
+  function AwakGamesOpenPicker() {
+    var old = document.getElementById('awakGamesPicker');
+    if (old) old.remove();
+    var m = document.createElement('div');
+    m.id = 'awakGamesPicker';
+    m.className = 'modal active';
+    m.style.cssText = 'background:rgba(0,0,0,0.78);backdrop-filter:blur(6px);';
+    m.onclick = function (e) { if (e.target === m) m.remove(); };
+    m.innerHTML =
+      '<div class="modal-content" style="max-width:560px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(34,197,94,0.25);">'
+      + '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px;">'
+      +   '<h2 style="margin:0;color:#4ade80;">🎮 Jeux d\'entraînement</h2>'
+      +   '<button onclick="var p=document.getElementById(\'awakGamesPicker\');if(p)p.remove();" aria-label="Fermer" style="flex-shrink:0;background:rgba(255,255,255,0.06);border:none;border-radius:10px;width:40px;height:40px;color:#94a3b8;font-size:1.3em;cursor:pointer;line-height:1;">×</button>'
+      + '</div>'
+      + '<p style="margin:0 0 16px;color:#94a3b8;font-size:0.84em;">Des formats ludiques pour casser la routine. Ils s\'adaptent à ton matériel et à ta forme.</p>'
+      + '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:10px;">' + _gameTiles() + '</div>'
+      + noteNiveau()
+      + '</div>';
+    document.body.appendChild(m);
+  }
+
+  // Sélection depuis le pop-up : fermer le pop-up puis lancer le jeu.
+  function AwakGamesPick(id) {
+    var p = document.getElementById('awakGamesPicker');
+    if (p) p.remove();
+    AwakGamesOuvrir(id);
+  }
+  window.AwakGamesOpenPicker = AwakGamesOpenPicker;
+  window.AwakGamesPick = AwakGamesPick;
 
   // ── CARTE POUR L'ONGLET FAMILLE (jeux à deux) ──────────────────────
   function renderFamilyCard() {
     var duos = Object.keys(GAMES).filter(function (id) { return GAMES[id].duo; });
     if (!duos.length) return '';
+    return '<div style="background:linear-gradient(160deg,#16121f,#0d0d12);border:1px solid rgba(168,85,247,0.25);border-radius:18px;padding:20px;margin-bottom:14px;">'
+      + '<div style="display:flex;align-items:center;gap:12px;">'
+      +   '<div style="font-size:1.8em;flex-shrink:0;line-height:1;">🎮</div>'
+      +   '<div style="flex:1;min-width:0;">'
+      +     '<div style="font-size:1.05em;font-weight:900;color:#fff;margin-bottom:2px;">S\'entraîner à deux</div>'
+      +     '<div style="font-size:0.78em;color:#94a3b8;">' + duos.length + ' formats pour se pousser mutuellement.</div>'
+      +   '</div>'
+      + '</div>'
+      + '<button onclick="AwakGamesOpenFamilyPicker()" style="width:100%;margin-top:14px;padding:13px;background:linear-gradient(135deg,#a855f7,#7c3aed);border:none;border-radius:13px;color:#fff;font-weight:900;font-size:0.92em;cursor:pointer;">Jouer à deux ▸</button>'
+      + '</div>';
+  }
+
+  // Tuiles des jeux à deux (pour le pop-up).
+  function _familyDuoTiles() {
+    var duos = Object.keys(GAMES).filter(function (id) { return GAMES[id].duo; });
     var rec = records();
-    var tuiles = duos.map(function (id) {
+    return duos.map(function (id) {
       var g = GAMES[id];
-      return '<button onclick="AwakGamesOuvrir(\'' + id + '\')" style="background:rgba(255,255,255,0.03);border:1px solid rgba(168,85,247,0.28);border-radius:13px;padding:14px 10px;cursor:pointer;text-align:center;min-width:0;">'
+      return '<button onclick="AwakGamesFamilyPick(\'' + id + '\')" style="background:rgba(255,255,255,0.03);border:1px solid rgba(168,85,247,0.28);border-radius:13px;padding:14px 10px;cursor:pointer;text-align:center;min-width:0;">'
         + '<div style="font-size:1.6em;margin-bottom:4px;">' + g.emoji + '</div>'
         + '<div style="font-size:0.82em;font-weight:900;color:#fff;">' + esc(g.name) + '</div>'
         + '<div style="font-size:0.64em;color:#94a3b8;line-height:1.3;margin-top:2px;">' + esc(g.desc) + '</div>'
         + (rec[id] ? '<div style="margin-top:5px;font-size:0.6em;color:#fbbf24;font-weight:800;">⭐ ' + rec[id] + '</div>' : '')
         + '</button>';
     }).join('');
-    return '<div style="background:linear-gradient(160deg,#16121f,#0d0d12);border:1px solid rgba(168,85,247,0.25);border-radius:18px;padding:20px;margin-bottom:14px;">'
-      + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">'
-      +   '<span style="font-size:1.5em;">🎮</span>'
-      +   '<div style="font-size:1.05em;font-weight:900;color:#fff;">S\'entraîner à deux</div>'
-      + '</div>'
-      + '<p style="font-size:0.78em;color:#94a3b8;margin:0 0 14px;line-height:1.45;">Deux formats pensés pour se pousser mutuellement.</p>'
-      + '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;">' + tuiles + '</div>'
-      + '</div>';
   }
+
+  // Pop-up des jeux à deux.
+  function AwakGamesOpenFamilyPicker() {
+    var old = document.getElementById('awakGamesFamilyPicker');
+    if (old) old.remove();
+    var m = document.createElement('div');
+    m.id = 'awakGamesFamilyPicker';
+    m.className = 'modal active';
+    m.style.cssText = 'background:rgba(0,0,0,0.78);backdrop-filter:blur(6px);';
+    m.onclick = function (e) { if (e.target === m) m.remove(); };
+    m.innerHTML =
+      '<div class="modal-content" style="max-width:560px;background:linear-gradient(160deg,#12101a,#0d0d12);border:1px solid rgba(168,85,247,0.28);">'
+      + '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px;">'
+      +   '<h2 style="margin:0;color:#c4b5fd;">🎮 S\'entraîner à deux</h2>'
+      +   '<button onclick="var p=document.getElementById(\'awakGamesFamilyPicker\');if(p)p.remove();" aria-label="Fermer" style="flex-shrink:0;background:rgba(255,255,255,0.06);border:none;border-radius:10px;width:40px;height:40px;color:#94a3b8;font-size:1.3em;cursor:pointer;line-height:1;">×</button>'
+      + '</div>'
+      + '<p style="margin:0 0 16px;color:#94a3b8;font-size:0.84em;">Deux formats pensés pour se pousser mutuellement.</p>'
+      + '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;">' + _familyDuoTiles() + '</div>'
+      + '</div>';
+    document.body.appendChild(m);
+  }
+  function AwakGamesFamilyPick(id) {
+    var p = document.getElementById('awakGamesFamilyPicker');
+    if (p) p.remove();
+    AwakGamesOuvrir(id);
+  }
+  window.AwakGamesOpenFamilyPicker = AwakGamesOpenFamilyPicker;
+  window.AwakGamesFamilyPick = AwakGamesFamilyPick;
 
   // Explique pourquoi le choix d'exercices est limité, et ce qu'un palier
   // supérieur apporterait — sans culpabiliser ni pousser à forcer.

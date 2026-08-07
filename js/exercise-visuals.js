@@ -704,6 +704,12 @@ var EXERCISE_IMAGES = {
   "Chat-Vache (Cat-Cow)": 'images/exercises/Chat-vache.webp',
   "Pont sur une jambe": 'images/exercises/Single_Leg_Glute_Bridge.webp',
   "Planche jambe levée (Leg Pull Front)": 'images/exercises/Planche.webp',
+  // HIIT/Tabata : mouvements équivalents → image représentative existante.
+  "Sprint sur place": 'images/exercises/High_knees.webp',
+  "Talons-fesses": 'images/exercises/High_knees.webp',
+  "Étoile sautée": 'images/exercises/Jumping_jacks.webp',
+  "Planche sauteuse": 'images/exercises/Planche.webp',
+  "Fentes sautées": 'images/exercises/Fentes_dynamiques_v2.webp',
   "Bear Crawl (marche de l'ours)": 'images/exercises/Bear_Crawl__marche_de_l_ours_.webp',
   "Farmer's Walk": 'images/exercises/Farmer_s_Walk.webp',
   "Jumping jacks d'échauffement": 'images/exercises/Jumping_jacks.webp',
