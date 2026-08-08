@@ -11,11 +11,11 @@
     <title>Awakened Elite Fitness</title>
 
     <!-- PWA -->
-    <link rel="manifest" href="manifest.json?v=729">
-    <link rel="apple-touch-icon" href="icons/icon-192.png?v=729">
-    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=729">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=729">
-    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=729">
+    <link rel="manifest" href="manifest.json?v=730">
+    <link rel="apple-touch-icon" href="icons/icon-192.png?v=730">
+    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=730">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=730">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=730">
 
     <!-- ⚠️ CAPTURE PRÉCOCE DE L'INVITE D'INSTALLATION.
          Chrome déclenche « beforeinstallprompt » très tôt, souvent AVANT la fin
@@ -44,7 +44,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=729">
+    <link rel="stylesheet" href="css/style.css?v=730">
 </head>
 <body>
 
@@ -202,7 +202,7 @@
                 max-width: 900px;">
 
             <!-- Bannière image : ratio préservé -->
-            <img src="images/banner.png?v=729"
+            <img src="images/banner.png?v=730"
                  alt="Awakened Elite Fitness"
                  style="width:100%;height:auto;display:block;" />
 
@@ -905,92 +905,83 @@
             <div style="font-size:0.72em;color:#94a3b8;margin:0 0 14px;padding:0 4px;line-height:1.4;">Compose ou lance une séance maintenant.</div>
             <!-- Workout Mode Selection Modal -->
             <div id="workoutModeModal" class="modal">
-                <div class="modal-content" style="background:linear-gradient(160deg,#0a0e18,#0F1014);border:2px solid rgba(74,222,128,0.4);box-shadow:0 24px 60px rgba(0,0,0,0.8),0 0 50px rgba(74,222,128,0.2);">
-                    <div class="modal-header" style="border:none;">
-                        <h2 style="color:#4ade80;text-shadow:0 0 12px rgba(74,222,128,0.4);font-size:1.1em;letter-spacing:1px;display:flex;align-items:center;gap:8px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><line x1="12" y1="1.5" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22.5"/><line x1="1.5" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22.5" y2="12"/></svg> TYPE D'ENTRAÎNEMENT</h2>
-                        <button class="close-btn" onclick="closeWorkoutModeModal()" style="color:#94a3b8;">×</button>
-                    </div>
-                    <p style="margin:14px 0 4px;color:#94a3b8;font-size:0.82em;line-height:1.5;">
-                        Sélectionne le mode adapté à tes objectifs.
-                    </p>
-
-                    <div style="display: grid; gap: 15px; margin-top: 20px;">
-                        <!-- Mode Timer -->
-                        <button onclick="selectWorkoutMode('timer')"
-                                style="width:100%;padding:18px;text-align:left;background:linear-gradient(135deg,#0e7490 0%,#075985 100%);border:none;border-radius:14px;cursor:pointer;color:white;display:block;margin-bottom:12px;">
-                            <div style="display:flex;align-items:center;gap:14px;">
-                                <div style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:44px;height:44px;"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg></div>
-                                <div style="flex:1;min-width:0;">
-                                    <div style="font-size:1.15em;font-weight:800;margin-bottom:4px;color:white;">Mode Timer</div>
-                                    <div style="font-size:0.8em;line-height:1.4;color:rgba(255,255,255,0.92);">Parfait pour cardio, HIIT, endurance — exercices chronométrés.</div>
-                                </div>
-                            </div>
-                        </button>
-
-                        <!-- Mode Répétitions -->
-                        <button onclick="selectWorkoutMode('reps')"
-                                style="width:100%;padding:18px;text-align:left;background:linear-gradient(135deg,#15803d 0%,#14532d 100%);border:none;border-radius:14px;cursor:pointer;color:white;display:block;margin-bottom:12px;">
-                            <div style="display:flex;align-items:center;gap:14px;">
-                                <div style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:44px;height:44px;"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5 17.5 17.5"/><path d="M3 6l3-3 3 3-3 3z"/><path d="M21 18l-3 3-3-3 3-3z"/><path d="M3.5 8.5 1.5 10.5"/><path d="M20.5 15.5 22.5 13.5"/></svg></div>
-                                <div style="flex:1;min-width:0;">
-                                    <div style="font-size:1.15em;font-weight:800;margin-bottom:4px;color:white;">Mode Répétitions</div>
-                                    <div style="font-size:0.8em;line-height:1.4;color:rgba(255,255,255,0.92);">Idéal pour hypertrophie, force et muscle — suivi reps + poids.</div>
-                                </div>
-                            </div>
-                        </button>
-
-                        <!-- Mode Hybride -->
-                        <button onclick="selectWorkoutMode('hybrid')"
-                                style="width:100%;padding:18px;text-align:left;background:linear-gradient(135deg,#c2410c 0%,#9f1239 100%);border:none;border-radius:14px;cursor:pointer;color:white;display:block;">
-                            <div style="display:flex;align-items:center;gap:14px;">
-                                <div style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:44px;height:44px;"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c1 3 4 5 4 9a4 4 0 0 1-8 0c0-1 .5-2 1-2.5C9 10 12 8 12 2z"/><path d="M8 11a4 4 0 1 0 8 0c0-3-2-4-2-4"/></svg></div>
-                                <div style="flex:1;min-width:0;">
-                                    <div style="font-size:1.15em;font-weight:800;margin-bottom:4px;color:white;">Mode Hybride <span style="font-size:0.7em;opacity:0.85;">(Optimal)</span></div>
-                                    <div style="font-size:0.8em;line-height:1.4;color:rgba(255,255,255,0.92);">Le meilleur des deux mondes — force (reps) + cardio (timer).</div>
-                                </div>
-                            </div>
-                        </button>
+                <div class="modal-content" style="position:relative;background:#0D0D0D;border:1px solid rgba(255,255,255,0.08);max-width:480px;">
+                    <div style="width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:99px;margin:0 auto 18px;"></div>
+                    <button class="close-btn" onclick="closeWorkoutModeModal()" style="position:absolute;top:14px;right:14px;color:#94a3b8;background:none;border:none;font-size:1.5em;cursor:pointer;line-height:1;">&times;</button>
+                    <div style="text-align:center;margin-bottom:18px;">
+                        <div style="font-size:2em;">🎯</div>
+                        <h2 style="margin:6px 0 4px;color:white;font-size:1.15em;font-weight:900;">Type d'entraînement</h2>
+                        <p style="margin:0;color:#94a3b8;font-size:0.78em;line-height:1.5;">Sélectionne le mode adapté à tes objectifs.</p>
                     </div>
 
-                    <div style="margin-top: 20px; padding: 15px; background: rgba(6,182,212,0.08); border-radius: 10px; border-left: 4px solid #06b6d4;">
-                        <strong style="color: #22d3ee;">💡 Recommandation scientifique :</strong><br>
-                        <span style="color: #94a3b8; font-size: 0.88em;">
-                            Le mode Hybride combine force et cardio pour une transformation physique optimale.
-                            Utilisé dans les programmes modernes de coaching.
-                        </span>
+                    <div style="font-size:0.6em;color:#22d3ee;font-weight:900;letter-spacing:2px;margin-bottom:8px;">MODE</div>
+                        <button onclick="selectWorkoutMode('timer')" style="width:100%;padding:15px 14px;text-align:left;background:rgba(255,255,255,0.04);border:1.5px solid rgba(34,211,238,0.25);border-radius:12px;cursor:pointer;color:#e2e8f0;display:block;margin-bottom:8px;">
+                            <div style="display:flex;align-items:center;gap:13px;">
+                                <div style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:38px;height:38px;"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg></div>
+                                <div style="flex:1;min-width:0;">
+                                    <div style="font-size:1em;font-weight:900;margin-bottom:3px;color:#fff;">Mode Timer</div>
+                                    <div style="font-size:0.76em;line-height:1.45;color:#94a3b8;">Parfait pour cardio, HIIT, endurance — exercices chronométrés.</div>
+                                </div>
+                            </div>
+                        </button>
+                        <button onclick="selectWorkoutMode('reps')" style="width:100%;padding:15px 14px;text-align:left;background:rgba(255,255,255,0.04);border:1.5px solid rgba(34,211,238,0.25);border-radius:12px;cursor:pointer;color:#e2e8f0;display:block;margin-bottom:8px;">
+                            <div style="display:flex;align-items:center;gap:13px;">
+                                <div style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:38px;height:38px;"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5 17.5 17.5"/><path d="M3 6l3-3 3 3-3 3z"/><path d="M21 18l-3 3-3-3 3-3z"/><path d="M3.5 8.5 1.5 10.5"/><path d="M20.5 15.5 22.5 13.5"/></svg></div>
+                                <div style="flex:1;min-width:0;">
+                                    <div style="font-size:1em;font-weight:900;margin-bottom:3px;color:#fff;">Mode Répétitions</div>
+                                    <div style="font-size:0.76em;line-height:1.45;color:#94a3b8;">Idéal pour hypertrophie, force et muscle — suivi reps + poids.</div>
+                                </div>
+                            </div>
+                        </button>
+                        <button onclick="selectWorkoutMode('hybrid')" style="width:100%;padding:15px 14px;text-align:left;background:rgba(255,255,255,0.04);border:1.5px solid rgba(34,211,238,0.25);border-radius:12px;cursor:pointer;color:#e2e8f0;display:block;margin-bottom:8px;">
+                            <div style="display:flex;align-items:center;gap:13px;">
+                                <div style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:38px;height:38px;"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c1 3 4 5 4 9a4 4 0 0 1-8 0c0-1 .5-2 1-2.5C9 10 12 8 12 2z"/><path d="M8 11a4 4 0 1 0 8 0c0-3-2-4-2-4"/></svg></div>
+                                <div style="flex:1;min-width:0;">
+                                    <div style="font-size:1em;font-weight:900;margin-bottom:3px;color:#fff;">Mode Hybride <span style="font-size:0.72em;color:#22d3ee;font-weight:800;">(Optimal)</span></div>
+                                    <div style="font-size:0.76em;line-height:1.45;color:#94a3b8;">Le meilleur des deux mondes — force (reps) + cardio (timer).</div>
+                                </div>
+                            </div>
+                        </button>
+
+                    <div style="margin-top:16px;padding:13px 14px;background:rgba(34,211,238,0.06);border:1px solid rgba(34,211,238,0.2);border-radius:12px;">
+                        <div style="color:#22d3ee;font-size:0.74em;font-weight:900;letter-spacing:1px;margin-bottom:5px;">💡 RECOMMANDATION</div>
+                        <div style="color:#94a3b8;font-size:0.78em;line-height:1.5;">Le mode Hybride combine force et cardio pour une transformation physique optimale. Utilisé dans les programmes modernes de coaching.</div>
                     </div>
                 </div>
             </div>
 
             <!-- Duration Selection Modal -->
             <div id="durationModal" class="modal">
-                <div class="modal-content" style="background:linear-gradient(160deg,#0a0e18,#0F1014);border:2px solid rgba(74,222,128,0.4);box-shadow:0 24px 60px rgba(0,0,0,0.8),0 0 50px rgba(74,222,128,0.2);">
-                    <div class="modal-header" style="border:none;">
-                        <h2 style="color:#4ade80;text-shadow:0 0 12px rgba(74,222,128,0.4);font-size:1.1em;letter-spacing:1px;display:flex;align-items:center;gap:8px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg> DURÉE DU PROTOCOLE</h2>
-                        <button class="close-btn" onclick="closeDurationModal()" style="color:#94a3b8;">×</button>
+                <div class="modal-content" style="position:relative;background:#0D0D0D;border:1px solid rgba(255,255,255,0.08);max-width:480px;">
+                    <div style="width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:99px;margin:0 auto 18px;"></div>
+                    <button class="close-btn" onclick="closeDurationModal()" style="position:absolute;top:14px;right:14px;color:#94a3b8;background:none;border:none;font-size:1.5em;cursor:pointer;line-height:1;">&times;</button>
+                    <div style="text-align:center;margin-bottom:18px;">
+                        <div style="font-size:2em;">⏱️</div>
+                        <h2 style="margin:6px 0 4px;color:white;font-size:1.15em;font-weight:900;">Durée du protocole</h2>
+                        <p style="margin:0;color:#94a3b8;font-size:0.78em;line-height:1.5;">Le Système génère automatiquement les exercices adaptés à ton profil et ton lieu.</p>
                     </div>
-                    <p style="margin:14px 0 4px;color:#94a3b8;font-size:0.82em;line-height:1.5;">Sélectionne la durée. Le Système génère automatiquement les exercices adaptés à ton profil et ton lieu.</p>
 
-                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 18px;">
-                        <button onclick="selectDuration(15)" style="padding:20px 12px;background:rgba(74,222,128,0.06);border:1.5px solid rgba(74,222,128,0.3);border-radius:14px;color:#e2e8f0;cursor:pointer;transition:transform 0.15s;" onmousedown="this.style.transform='scale(0.97)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">
-                            <div style="display:flex;justify-content:center;margin-bottom:8px;"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></div>
-                            <div style="font-size: 1.25em;font-weight:900;color:#4ade80;">15 min</div>
-                            <div style="font-size: 0.72em; color:#94a3b8; margin-top: 4px;letter-spacing:1px;text-transform:uppercase;">Éclair</div>
+                    <div style="font-size:0.6em;color:#22d3ee;font-weight:900;letter-spacing:2px;margin-bottom:8px;">DURÉE</div>
+                    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">
+                        <button onclick="selectDuration(15)" style="padding:16px 10px;background:rgba(255,255,255,0.04);border:1.5px solid rgba(34,211,238,0.25);border-radius:12px;color:#e2e8f0;cursor:pointer;transition:transform 0.15s;" onmousedown="this.style.transform='scale(0.97)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">
+                            <div style="display:flex;justify-content:center;margin-bottom:7px;"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></div>
+                            <div style="font-size:1.15em;font-weight:900;color:#fff;">15 min</div>
+                            <div style="font-size:0.68em;color:#94a3b8;margin-top:3px;letter-spacing:1px;text-transform:uppercase;">Éclair</div>
                         </button>
-                        <button onclick="selectDuration(30)" style="padding:20px 12px;background:rgba(74,222,128,0.06);border:1.5px solid rgba(74,222,128,0.3);border-radius:14px;color:#e2e8f0;cursor:pointer;transition:transform 0.15s;" onmousedown="this.style.transform='scale(0.97)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">
-                            <div style="display:flex;justify-content:center;margin-bottom:8px;"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c1 3 4 5 4 9a4 4 0 0 1-8 0c0-1 .5-2 1-2.5C9 10 12 8 12 2z"/><path d="M8 11a4 4 0 1 0 8 0c0-3-2-4-2-4"/></svg></div>
-                            <div style="font-size: 1.25em;font-weight:900;color:#4ade80;">30 min</div>
-                            <div style="font-size: 0.72em; color:#94a3b8; margin-top: 4px;letter-spacing:1px;text-transform:uppercase;">Standard</div>
+                        <button onclick="selectDuration(30)" style="padding:16px 10px;background:rgba(255,255,255,0.04);border:1.5px solid rgba(34,211,238,0.25);border-radius:12px;color:#e2e8f0;cursor:pointer;transition:transform 0.15s;" onmousedown="this.style.transform='scale(0.97)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">
+                            <div style="display:flex;justify-content:center;margin-bottom:7px;"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c1 3 4 5 4 9a4 4 0 0 1-8 0c0-1 .5-2 1-2.5C9 10 12 8 12 2z"/><path d="M8 11a4 4 0 1 0 8 0c0-3-2-4-2-4"/></svg></div>
+                            <div style="font-size:1.15em;font-weight:900;color:#fff;">30 min</div>
+                            <div style="font-size:0.68em;color:#94a3b8;margin-top:3px;letter-spacing:1px;text-transform:uppercase;">Standard</div>
                         </button>
-                        <button onclick="selectDuration(45)" style="padding:20px 12px;background:rgba(245,158,11,0.06);border:1.5px solid rgba(245,158,11,0.3);border-radius:14px;color:#e2e8f0;cursor:pointer;transition:transform 0.15s;" onmousedown="this.style.transform='scale(0.97)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">
-                            <div style="display:flex;justify-content:center;margin-bottom:8px;"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5 17.5 17.5"/><path d="M3 6l3-3 3 3-3 3z"/><path d="M21 18l-3 3-3-3 3-3z"/><path d="M3.5 8.5 1.5 10.5"/><path d="M20.5 15.5 22.5 13.5"/></svg></div>
-                            <div style="font-size: 1.25em;font-weight:900;color:#fbbf24;">45 min</div>
-                            <div style="font-size: 0.72em; color:#94a3b8; margin-top: 4px;letter-spacing:1px;text-transform:uppercase;">Intense</div>
+                        <button onclick="selectDuration(45)" style="padding:16px 10px;background:rgba(255,255,255,0.04);border:1.5px solid rgba(34,211,238,0.25);border-radius:12px;color:#e2e8f0;cursor:pointer;transition:transform 0.15s;" onmousedown="this.style.transform='scale(0.97)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">
+                            <div style="display:flex;justify-content:center;margin-bottom:7px;"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5 17.5 17.5"/><path d="M3 6l3-3 3 3-3 3z"/><path d="M21 18l-3 3-3-3 3-3z"/><path d="M3.5 8.5 1.5 10.5"/><path d="M20.5 15.5 22.5 13.5"/></svg></div>
+                            <div style="font-size:1.15em;font-weight:900;color:#fff;">45 min</div>
+                            <div style="font-size:0.68em;color:#94a3b8;margin-top:3px;letter-spacing:1px;text-transform:uppercase;">Intense</div>
                         </button>
-                        <button onclick="selectDuration(60)" style="padding:20px 12px;background:rgba(239,68,68,0.06);border:1.5px solid rgba(239,68,68,0.3);border-radius:14px;color:#e2e8f0;cursor:pointer;transition:transform 0.15s;" onmousedown="this.style.transform='scale(0.97)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">
-                            <div style="display:flex;justify-content:center;margin-bottom:8px;"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h12v4a6 6 0 0 1-12 0z"/><path d="M6 6H3v1a3 3 0 0 0 3 3"/><path d="M18 6h3v1a3 3 0 0 1-3 3"/><line x1="12" y1="14" x2="12" y2="17"/><path d="M8 20h8l-1-3H9z"/></svg></div>
-                            <div style="font-size: 1.25em;font-weight:900;color:#f87171;">60 min</div>
-                            <div style="font-size: 0.72em; color:#94a3b8; margin-top: 4px;letter-spacing:1px;text-transform:uppercase;">Maximum</div>
+                        <button onclick="selectDuration(60)" style="padding:16px 10px;background:rgba(255,255,255,0.04);border:1.5px solid rgba(34,211,238,0.25);border-radius:12px;color:#e2e8f0;cursor:pointer;transition:transform 0.15s;" onmousedown="this.style.transform='scale(0.97)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">
+                            <div style="display:flex;justify-content:center;margin-bottom:7px;"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h12v4a6 6 0 0 1-12 0z"/><path d="M6 6H3v1a3 3 0 0 0 3 3"/><path d="M18 6h3v1a3 3 0 0 1-3 3"/><line x1="12" y1="14" x2="12" y2="17"/><path d="M8 20h8l-1-3H9z"/></svg></div>
+                            <div style="font-size:1.15em;font-weight:900;color:#fff;">60 min</div>
+                            <div style="font-size:0.68em;color:#94a3b8;margin-top:3px;letter-spacing:1px;text-transform:uppercase;">Maximum</div>
                         </button>
                     </div>
                 </div>
@@ -3532,38 +3523,38 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/exercises.js?v=729"></script>
-    <script src="data/items.js?v=729"></script>
-    <script src="js/adventure.js?v=729"></script>
-    <script src="js/economy.js?v=729"></script>
-    <script src="js/challenges.js?v=729"></script>
-    <script src="js/family-boss.js?v=729"></script>
-    <script src="js/family-network.js?v=729"></script>
-    <script src="js/family-challenge.js?v=729"></script>
-    <script src="js/family-goal.js?v=729"></script>
-    <script src="js/family-feed.js?v=729"></script>
-    <script src="js/pre-workout-mood.js?v=729"></script>
-    <script src="js/group-workout.js?v=729"></script>
-    <script src="js/youth-safety.js?v=729"></script>
-    <script src="js/kids-programs.js?v=729"></script>
-    <script src="js/senior-programs.js?v=729"></script>
-    <script src="js/adaptive.js?v=729"></script>
-    <script src="js/pain-mode.js?v=729"></script>
-    <script src="js/recovery-mode.js?v=729"></script>
-    <script src="js/exercise-visuals.js?v=729"></script>
-    <script src="js/strength-standards.js?v=729"></script>
-    <script src="js/system-cards.js?v=729"></script>
-    <script src="js/share-card.js?v=729"></script>
-    <script src="js/story-events.js?v=729"></script>
-    <script src="js/final-boss.js?v=729"></script>
-    <script src="js/disciplines.js?v=729"></script>
-    <script src="js/eveil.js?v=729"></script>
-    <script src="js/app.js?v=729"></script>
-    <script src="js/awakening-tree.js?v=729"></script>
-    <script src="js/ui-kit.js?v=729"></script>
-    <script src="js/feature-map.js?v=729"></script>
-    <script src="js/weekly-recap.js?v=729"></script>
-    <script src="js/workout-games.js?v=729"></script>
+    <script src="js/exercises.js?v=730"></script>
+    <script src="data/items.js?v=730"></script>
+    <script src="js/adventure.js?v=730"></script>
+    <script src="js/economy.js?v=730"></script>
+    <script src="js/challenges.js?v=730"></script>
+    <script src="js/family-boss.js?v=730"></script>
+    <script src="js/family-network.js?v=730"></script>
+    <script src="js/family-challenge.js?v=730"></script>
+    <script src="js/family-goal.js?v=730"></script>
+    <script src="js/family-feed.js?v=730"></script>
+    <script src="js/pre-workout-mood.js?v=730"></script>
+    <script src="js/group-workout.js?v=730"></script>
+    <script src="js/youth-safety.js?v=730"></script>
+    <script src="js/kids-programs.js?v=730"></script>
+    <script src="js/senior-programs.js?v=730"></script>
+    <script src="js/adaptive.js?v=730"></script>
+    <script src="js/pain-mode.js?v=730"></script>
+    <script src="js/recovery-mode.js?v=730"></script>
+    <script src="js/exercise-visuals.js?v=730"></script>
+    <script src="js/strength-standards.js?v=730"></script>
+    <script src="js/system-cards.js?v=730"></script>
+    <script src="js/share-card.js?v=730"></script>
+    <script src="js/story-events.js?v=730"></script>
+    <script src="js/final-boss.js?v=730"></script>
+    <script src="js/disciplines.js?v=730"></script>
+    <script src="js/eveil.js?v=730"></script>
+    <script src="js/app.js?v=730"></script>
+    <script src="js/awakening-tree.js?v=730"></script>
+    <script src="js/ui-kit.js?v=730"></script>
+    <script src="js/feature-map.js?v=730"></script>
+    <script src="js/weekly-recap.js?v=730"></script>
+    <script src="js/workout-games.js?v=730"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>
