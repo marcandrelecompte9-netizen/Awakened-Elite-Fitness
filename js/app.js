@@ -1055,6 +1055,13 @@
             // Close config modal
             closeCardioConfigModal();
             
+            // 🐛 isPaused est GLOBAL (partagé avec les séances classiques). S'il est
+            // resté à true (pause manuelle ou auto d'une séance précédente), le
+            // chrono cardio tourne mais n'incrémente jamais → « le timer ne part pas ».
+            isPaused = false;
+            var _cpb = document.getElementById('pauseBtn');
+            if (_cpb) _cpb.innerHTML = '⏸';
+            
             // Show cardio tracking interface
             showCardioTrackingInterface();
             
@@ -1248,6 +1255,8 @@
         }
         
         function startCardioTracking() {
+            // Sécurité : ne jamais empiler deux chronos (double comptage).
+            if (cardioSessionInterval) { clearInterval(cardioSessionInterval); cardioSessionInterval = null; }
             cardioSessionInterval = setInterval(() => {
                 if (!isPaused && currentCardioSession) {
                     currentCardioSession.duration++;
@@ -1853,20 +1862,85 @@
 
         function startIntervalTraining(workTime, restTime, rounds, name) {
             // Liste d'exercices cardio/HIIT
-            // Pool élargi d'exercices HIIT/Tabata au poids du corps, MÉLANGÉ à
-            // chaque séance (Fisher-Yates) → on n'a plus toujours les mêmes, dans
-            // le même ordre. Noms alignés sur la base quand possible (instructions).
-            const _hiitPool = [
-                'Burpees', 'Jump squat', 'High knees', 'Mountain climbers',
-                'Jumping jacks', 'Skater jumps', 'Sauts mollets', 'Fentes dynamiques',
-                'Montées de genoux sur place', 'Sprint sur place', 'Pompes explosives',
-                'Fentes sautées', 'Talons-fesses', 'Planche sauteuse',
-                'Coups de poing rapides', 'Étoile sautée'
+            // 🏋️ Pool HIIT/Tabata STRUCTURÉ.
+            //  • cat   : schéma moteur → garantit la variété (plus de doublons type
+            //            « High knees / Sprint sur place / Talons-fesses »)
+            //  • imp   : 'h' = pliométrique (sauts) / 'l' = bas impact (appartement,
+            //            débutants, articulations sensibles)
+            //  • eq    : matériel requis (absent = poids du corps)
+            const _HIIT_POOL = [
+                // — Corps entier —
+                { n: 'Burpees',              cat: 'full',  imp: 'h' },
+                { n: 'Bear crawl',           cat: 'full',  imp: 'l' },
+                { n: 'Inchworm',             cat: 'full',  imp: 'l' },
+                // — Jambes —
+                { n: 'Jump squat',           cat: 'jambes', imp: 'h' },
+                { n: 'Fentes sautées',       cat: 'jambes', imp: 'h' },
+                { n: 'Skater jumps',         cat: 'jambes', imp: 'h' },
+                { n: 'Sauts mollets',        cat: 'jambes', imp: 'h' },
+                { n: 'Tuck Jump (saut groupé)', cat: 'jambes', imp: 'h' },
+                { n: 'Broad Jump (saut en longueur)', cat: 'jambes', imp: 'h' },
+                { n: 'Squats',               cat: 'jambes', imp: 'l' },
+                { n: 'Fentes dynamiques',    cat: 'jambes', imp: 'l' },
+                { n: 'Wall sit',             cat: 'jambes', imp: 'l' },
+                // — Cardio / locomotion —
+                { n: 'High knees',           cat: 'cardio', imp: 'h' },
+                { n: 'Jumping jacks',        cat: 'cardio', imp: 'h' },
+                { n: 'Coups de poing rapides', cat: 'cardio', imp: 'l' },
+                // — Haut du corps —
+                { n: 'Pompes explosives',    cat: 'haut',  imp: 'h' },
+                { n: 'Pompes',               cat: 'haut',  imp: 'l' },
+                { n: 'Pike push-up',         cat: 'haut',  imp: 'l' },
+                // — Core —
+                { n: 'Planche sauteuse',     cat: 'core',  imp: 'h' },
+                { n: 'Mountain climbers',    cat: 'core',  imp: 'l' },
+                { n: 'Russian twist',        cat: 'core',  imp: 'l' },
+                { n: 'Planche',              cat: 'core',  imp: 'l' },
+                { n: 'Bicycle crunch',       cat: 'core',  imp: 'l' },
+                { n: 'Crunch classique',     cat: 'core',  imp: 'l' },
+                { n: 'Planche latérale',     cat: 'core',  imp: 'l' },
+                // — Chaîne postérieure —
+                { n: 'Superman',             cat: 'poster', imp: 'l' },
+                { n: 'Pont fessier (Bridge)', cat: 'poster', imp: 'l' },
+                { n: 'Marche sur place active', cat: 'cardio', imp: 'l' },
+                // — Avec matériel (seulement si possédé) —
+                { n: 'Kettlebell swing',     cat: 'poster', imp: 'l', eq: 'Kettlebell' },
+                { n: 'Thruster',             cat: 'full',   imp: 'l', eq: 'Haltères' },
+                { n: 'Goblet Squat',         cat: 'jambes', imp: 'l', eq: 'Haltères' },
+                { n: 'Box jumps',            cat: 'jambes', imp: 'h', eq: 'Banc' },
+                { n: 'Dips sur banc',        cat: 'haut',   imp: 'l', eq: 'Banc' },
+                { n: 'Jump Rope Basic',      cat: 'cardio', imp: 'h', eq: 'Corde à sauter' }
             ];
-            const hiitExercises = _hiitPool.slice();
-            for (let _s = hiitExercises.length - 1; _s > 0; _s--) {
-                const _r = Math.floor(Math.random() * (_s + 1));
-                const _t = hiitExercises[_s]; hiitExercises[_s] = hiitExercises[_r]; hiitExercises[_r] = _t;
+
+            const _shuffle = function (a) {
+                for (let i = a.length - 1; i > 0; i--) {
+                    const r = Math.floor(Math.random() * (i + 1));
+                    const t = a[i]; a[i] = a[r]; a[r] = t;
+                }
+                return a;
+            };
+
+            // Filtre matériel (le poids du corps passe toujours).
+            let _userEqH = [];
+            try { _userEqH = (typeof getEquipmentNames === 'function') ? getEquipmentNames() : []; } catch (e) {}
+            let _avail = _HIIT_POOL.filter(function (x) { return !x.eq || _userEqH.indexOf(x.eq) !== -1; });
+
+            // Sélection ÉQUILIBRÉE : on pioche en alternant les schémas moteurs,
+            // pour ne jamais enchaîner 4 exercices de jambes ni 100 % de sauts.
+            const _byCat = {};
+            _shuffle(_avail).forEach(function (x) { (_byCat[x.cat] = _byCat[x.cat] || []).push(x); });
+            const _cats = _shuffle(Object.keys(_byCat));
+            const hiitExercises = [];
+            let _guard = 0;
+            while (hiitExercises.length < rounds && _guard++ < 500) {
+                let _added = false;
+                for (let c = 0; c < _cats.length && hiitExercises.length < rounds; c++) {
+                    const list = _byCat[_cats[c]];
+                    if (list && list.length) { hiitExercises.push(list.shift().n); _added = true; }
+                }
+                if (!_added) { // pool épuisé → on recycle en re-mélangeant
+                    _shuffle(_avail).forEach(function (x) { (_byCat[x.cat] = _byCat[x.cat] || []).push(x); });
+                }
             }
             
             // Créer workout avec exercices alternés
@@ -23168,11 +23242,15 @@
 
         function startExercise() {
             // 😊 Check-in d'humeur : au tout début d'une séance (1er exercice),
-            // une fois par jour. Non bloquant — s'affiche par-dessus la séance.
+            // une fois par jour. BLOQUANT : on attend la réponse avant de lancer
+            // la séance, sinon la cérémonie « 3-2-1 GO » (z-index élevé) passait
+            // par-dessus et la question n'apparaissait qu'APRÈS le GO.
+            // gate() marque déjà la question comme posée → pas de boucle au rappel.
             try {
                 if (currentExerciseIndex === 0 && window.AwakMoodPreWorkout
                     && window.AwakMoodPreWorkout.shouldAsk && window.AwakMoodPreWorkout.shouldAsk()) {
-                    window.AwakMoodPreWorkout.gate(function () {});
+                    window.AwakMoodPreWorkout.gate(function () { startExercise(); });
+                    return;
                 }
             } catch (e) {}
             // ↔️ Nouveau exercice → on réinitialise le marqueur de 2ᵉ côté (étirements bilatéraux)
@@ -33422,7 +33500,9 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.92);backdrop-filter:blur(10px);';
 
             modal.innerHTML = `
-            <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${comp.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${comp.color}50;padding:0;overflow:hidden;border-radius:20px;max-height:90vh;display:flex;flex-direction:column;">
+                <!-- Corps DÉFILANT : les boutons d'action restent visibles en bas. -->
+                <div style="flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
                 <div style="background:linear-gradient(135deg,${comp.color}25,${comp.color}05);padding:26px 22px;text-align:center;border-bottom:1px solid ${comp.color}30;">
                     ${comp.image
@@ -33448,7 +33528,10 @@
                         <div style="color:#cbd5e1;font-size:0.8em;font-style:italic;line-height:1.55;">${comp.lore}</div>
                     </div>
 
-                    <!-- Action toggle -->
+                    <!-- Action toggle — hors du corps défilant : TOUJOURS visible -->
+                    </div>
+                </div>
+                    <div style="flex-shrink:0;padding:14px 22px calc(16px + env(safe-area-inset-bottom,0px));background:#0F1014;border-top:1px solid rgba(255,255,255,0.06);">
                     ${isOnMission
                         ? `<div style="width:100%;background:rgba(168,85,247,0.12);border:1.5px solid rgba(168,85,247,0.4);color:#c084fc;border-radius:10px;padding:14px;font-weight:900;font-size:0.9em;letter-spacing:0.5px;text-align:center;">🎭 PARTI FERMER UNE FAILLE<div style="font-size:0.75em;font-weight:600;color:#a78bfa;margin-top:4px;letter-spacing:0;">Indisponible jusqu'à son retour</div></div>`
                         : `<button onclick="awakCompanionToggleActive('${comp.id}');document.getElementById('awakCompanionDetailModal').remove();"

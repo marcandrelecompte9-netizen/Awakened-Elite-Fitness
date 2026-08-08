@@ -4117,7 +4117,8 @@
             /* 🐛 Écran « Faille fermée » : sa mise en page gère elle-même le
                défilement (corps défilant + barre de bouton fixe). Le padding
                mobile générique repoussait le bouton de fermeture hors de vue. */
-            #awakRiftRewardModal .modal-content { padding: 0 !important; }
+            #awakRiftRewardModal .modal-content,
+            #awakCompanionDetailModal .modal-content { padding: 0 !important; }
 
             /* Grilles */
             .exercises-grid { grid-template-columns: 1fr !important; gap: 10px !important; }
