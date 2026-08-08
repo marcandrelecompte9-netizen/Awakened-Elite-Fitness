@@ -7699,7 +7699,7 @@
                         <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;">
                             <div style="font-weight:800;color:#22d3ee;min-width:26px;font-size:0.9em;">${index+1}.</div>
                             <div style="flex:1;min-width:0;">
-                                <div style="font-weight:600;color:#e2e8f0;font-size:0.9em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${exerciseName} <span style="font-size:0.8em;color:#22d3ee;opacity:0.7;">👁️</span></div>
+                                <div style="font-weight:600;color:#e2e8f0;font-size:0.9em;line-height:1.3;overflow-wrap:anywhere;">${exerciseName} <span style="font-size:0.8em;color:#22d3ee;opacity:0.7;">👁️</span></div>
                                 ${muscle ? `<div style="font-size:0.75em;color:#94a3b8;margin-top:2px;">💪 ${muscle}</div>` : ''}
                             </div>
                         </div>
@@ -33004,7 +33004,7 @@
                     ${tabBtn('masteries','MAÎTRISES','🥋')}
                     ${tabBtn('equipment','ÉQUIPEMENT','⚔️')}
                 </div>
-                <div style="padding:4px 18px 22px;">${body}</div>
+                <div style="padding:4px 18px 22px;min-height:360px;">${body}</div>
             </div>`;
         }
 

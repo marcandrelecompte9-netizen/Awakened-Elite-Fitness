@@ -4100,6 +4100,23 @@
                qui, lui, n'empêche pas d'atteindre le contenu. */
             .modal { align-items: flex-start !important; padding: 0 !important; }
             .modal.active > .modal-content { margin-top: auto !important; }
+            /* 🛒 Marchand : reste ancré en HAUT, sinon l'onglet « Vendre » (souvent
+               vide, donc court) faisait descendre toute la fenêtre. */
+            #awakMerchantModal.modal.active > .modal-content { margin-top: 0 !important; }
+
+            /* 🎯 Fenêtres AVANT séance (type d'entraînement, durée) :
+               — centrées verticalement au lieu d'être collées en bas
+               — coins arrondis sur les 4 côtés (ce ne sont plus des feuilles du bas)
+               — titres en CYAN, accordés aux icônes, bordures et libellés de section
+                 (ils héritaient sinon du vert générique des modals). */
+            #workoutModeModal.modal.active > .modal-content,
+            #durationModal.modal.active > .modal-content {
+                margin: auto !important;
+                border-radius: 20px !important;
+                padding: 24px 18px calc(24px + env(safe-area-inset-bottom, 0px)) !important;
+            }
+            #workoutModeModal .modal-content h2,
+            #durationModal .modal-content h2 { color: #22d3ee !important; }
 
             /* Exception : la modale « Changer de profil » reste CENTRÉE.
                C'est un sélecteur court, pas une feuille de contenu long : collée
@@ -4141,6 +4158,10 @@
 
             /* Toasts — au-dessus de la nav bar */
             .toast-container { bottom: 80px !important; right: 8px !important; left: 8px !important; top: auto !important; }
+            /* 🔔 Quand une fenêtre est ouverte, on masque les notifications : en bas
+               d'écran et en z-index 100000, elles se superposaient au contenu du
+               modal (ex. « Plan du jour » par-dessus les modes d'entraînement). */
+            body:has(.modal.active) .toast-container { display: none !important; }
             .toast { font-size: 0.92em !important; padding: 12px 14px !important; min-width: unset !important; width: 100% !important; }
 
             /* Badges */
