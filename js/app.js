@@ -14424,8 +14424,108 @@
         // ── Sélecteur de muscles manuel ──────────────────────────────────
         let _manualSelectedMuscles = [];
 
+        // ── 🧍 Silhouette anatomique cliquable (sélecteur de muscles) ─────────
+        // Zones dessinées en SVG : aucun fichier image, net à toutes les tailles,
+        // et chaque muscle s'illumine à la sélection.
+        var _mmpView = 'face';
+        function _mmpSafe(id) { return id.replace(/[^a-zA-Z]/g, '_'); }
+
+        // Zones de la vue de FACE
+        function _mmpFrontShapes() {
+            return ''
+            + _mmpZone('Trapèzes',   '<path d="M78,70 L100,57 L122,70 L112,75 L100,69 L88,75 Z"/>')
+            + _mmpZone('Épaules',    '<ellipse cx="70" cy="84" rx="15" ry="13"/><ellipse cx="130" cy="84" rx="15" ry="13"/>')
+            + _mmpZone('Pectoraux',  '<path d="M84,76 C91,73 97,75 98,81 L98,101 C90,103 83,98 81,89 Z"/><path d="M116,76 C109,73 103,75 102,81 L102,101 C110,103 117,98 119,89 Z"/>')
+            + _mmpZone('Biceps',     '<ellipse cx="62" cy="113" rx="10" ry="20"/><ellipse cx="138" cy="113" rx="10" ry="20"/>')
+            + _mmpZone('Avant-bras', '<ellipse cx="56" cy="153" rx="8.5" ry="21"/><ellipse cx="144" cy="153" rx="8.5" ry="21"/>')
+            + _mmpZone('Abdominaux', '<path d="M89,104 h22 a3,3 0 0 1 3,3 v50 a3,3 0 0 1 -3,3 h-22 a3,3 0 0 1 -3,-3 v-50 a3,3 0 0 1 3,-3 Z"/>')
+            + _mmpZone('Obliques',   '<path d="M80,106 L86,104 L86,159 L81,150 Z"/><path d="M120,106 L114,104 L114,159 L119,150 Z"/>')
+            + _mmpZone('Quadriceps', '<ellipse cx="88" cy="223" rx="14" ry="36"/><ellipse cx="112" cy="223" rx="14" ry="36"/>')
+            + _mmpZone('Adducteurs', '<path d="M96,190 L104,190 L103,243 L97,243 Z"/>')
+            + _mmpZone('Mollets',    '<ellipse cx="88" cy="301" rx="10" ry="26"/><ellipse cx="112" cy="301" rx="10" ry="26"/>');
+        }
+        // Zones de la vue de DOS
+        function _mmpBackShapes() {
+            return ''
+            + _mmpZone('Trapèzes',   '<path d="M76,68 L100,56 L124,68 L118,96 L100,88 L82,96 Z"/>')
+            + _mmpZone('Épaules',    '<ellipse cx="70" cy="84" rx="15" ry="13"/><ellipse cx="130" cy="84" rx="15" ry="13"/>')
+            + _mmpZone('Dos',        '<path d="M82,92 L98,98 L98,150 L86,140 Z"/><path d="M118,92 L102,98 L102,150 L114,140 Z"/>')
+            + _mmpZone('Triceps',    '<ellipse cx="62" cy="113" rx="10" ry="20"/><ellipse cx="138" cy="113" rx="10" ry="20"/>')
+            + _mmpZone('Avant-bras', '<ellipse cx="56" cy="153" rx="8.5" ry="21"/><ellipse cx="144" cy="153" rx="8.5" ry="21"/>')
+            + _mmpZone('Fessiers',   '<path d="M84,164 C84,152 99,152 99,164 L99,184 C99,193 84,193 84,184 Z"/><path d="M116,164 C116,152 101,152 101,164 L101,184 C101,193 116,193 116,184 Z"/>')
+            + _mmpZone('Ischio-jambiers', '<ellipse cx="88" cy="226" rx="14" ry="35"/><ellipse cx="112" cy="226" rx="14" ry="35"/>')
+            + _mmpZone('Mollets',    '<ellipse cx="88" cy="301" rx="10" ry="26"/><ellipse cx="112" cy="301" rx="10" ry="26"/>');
+        }
+        // Une zone cliquable (peut contenir plusieurs formes : gauche + droite)
+        function _mmpZone(id, shapes) {
+            var s = _mmpSafe(id);
+            return '<g id="mmpZone_' + s + '" class="mmp-zone" data-muscle="' + id + '" '
+                 + 'onclick="toggleManualMuscle(\'' + id.replace(/'/g, "\\'") + '\')" '
+                 + 'style="cursor:pointer;fill:rgba(148,163,184,0.22);stroke:rgba(148,163,184,0.5);stroke-width:1;transition:fill .18s,stroke .18s;">'
+                 + shapes + '</g>';
+        }
+        // Silhouette de fond (tête, torse, membres) — non cliquable
+        function _mmpSilhouette() {
+            return '<g style="fill:rgba(255,255,255,0.05);stroke:rgba(255,255,255,0.16);stroke-width:1.2;">'
+                 + '<circle cx="100" cy="34" r="20"/>'
+                 + '<path d="M92,52 h16 v10 h-16 Z"/>'
+                 + '<path d="M78,70 C86,62 114,62 122,70 L120,160 L116,192 L112,262 L108,330 L104,352 h-8 l-4,-22 L92,262 L88,192 L84,160 Z"/>'
+                 + '<path d="M70,74 C62,80 58,96 56,120 L50,176 h12 l6,-56 Z"/>'
+                 + '<path d="M130,74 C138,80 142,96 144,120 L150,176 h-12 l-6,-56 Z"/>'
+                 + '<path d="M86,352 h12 l2,10 h-16 Z"/><path d="M102,352 h12 l2,10 h-16 Z"/>'
+                 + '</g>';
+        }
+        // Étiquette de nom, cliquable, placée autour du personnage
+        function _mmpLabel(id, label) {
+            var s = _mmpSafe(id);
+            return '<button id="mmpLbl_' + s + '" data-muscle="' + id + '" '
+                 + 'onclick="toggleManualMuscle(\'' + id.replace(/'/g, "\\'") + '\')" '
+                 + 'style="width:100%;text-align:center;padding:7px 6px;border-radius:9px;border:1px solid #2E2F35;'
+                 + 'background:#1a1b20;color:#94a3b8;font-size:0.72em;font-weight:800;cursor:pointer;'
+                 + 'transition:all .18s;line-height:1.15;">' + label + '</button>';
+        }
+        // Bloc complet : étiquettes à gauche / silhouette / étiquettes à droite
+        function _mmpBodyBlock() {
+            var L = (_mmpView === 'face')
+                ? [['Trapèzes','Trapèzes'],['Épaules','Épaules'],['Pectoraux','Pectoraux'],['Biceps','Biceps'],['Avant-bras','Avant-bras']]
+                : [['Trapèzes','Trapèzes'],['Épaules','Épaules'],['Dos','Dos'],['Triceps','Triceps'],['Avant-bras','Avant-bras']];
+            var R = (_mmpView === 'face')
+                ? [['Abdominaux','Abdos'],['Obliques','Obliques'],['Quadriceps','Quadriceps'],['Adducteurs','Adducteurs'],['Mollets','Mollets']]
+                : [['Fessiers','Fessiers'],['Ischio-jambiers','Ischio'],['Mollets','Mollets']];
+            var col = function (arr) {
+                return '<div style="display:flex;flex-direction:column;gap:7px;justify-content:center;">'
+                     + arr.map(function (m) { return _mmpLabel(m[0], m[1]); }).join('') + '</div>';
+            };
+            return ''
+            + '<div style="display:flex;gap:6px;justify-content:center;margin-bottom:12px;">'
+            +   '<button onclick="setMusclePickerView(\'face\')" id="mmpViewFace" style="flex:1;max-width:120px;padding:8px;border-radius:10px;cursor:pointer;font-weight:800;font-size:0.78em;border:1px solid ' + (_mmpView === 'face' ? '#4ade80' : '#2E2F35') + ';background:' + (_mmpView === 'face' ? 'rgba(74,222,128,0.15)' : '#1a1b20') + ';color:' + (_mmpView === 'face' ? '#4ade80' : '#94a3b8') + ';">Face</button>'
+            +   '<button onclick="setMusclePickerView(\'dos\')" id="mmpViewDos" style="flex:1;max-width:120px;padding:8px;border-radius:10px;cursor:pointer;font-weight:800;font-size:0.78em;border:1px solid ' + (_mmpView === 'dos' ? '#4ade80' : '#2E2F35') + ';background:' + (_mmpView === 'dos' ? 'rgba(74,222,128,0.15)' : '#1a1b20') + ';color:' + (_mmpView === 'dos' ? '#4ade80' : '#94a3b8') + ';">Dos</button>'
+            + '</div>'
+            + '<div style="display:grid;grid-template-columns:1fr 1.35fr 1fr;gap:8px;align-items:center;margin-bottom:14px;">'
+            +   col(L)
+            +   '<svg viewBox="0 0 200 375" style="width:100%;height:auto;max-height:330px;display:block;">'
+            +     _mmpSilhouette()
+            +     (_mmpView === 'face' ? _mmpFrontShapes() : _mmpBackShapes())
+            +   '</svg>'
+            +   col(R)
+            + '</div>'
+            + '<div style="display:flex;justify-content:center;margin-bottom:4px;">'
+            +   '<div style="width:44%;">' + _mmpLabel('Cardio', '🫀 Cardio') + '</div>'
+            + '</div>';
+        }
+        // Bascule face / dos en conservant la sélection en cours
+        function setMusclePickerView(v) {
+            _mmpView = v;
+            var host = document.getElementById('mmpBodyHost');
+            if (!host) return;
+            host.innerHTML = _mmpBodyBlock();
+            _manualSelectedMuscles.forEach(function (m) { _highlightMuscleBtn(m, true); });
+        }
+        window.setMusclePickerView = setMusclePickerView;
+
         function showManualMusclePickerModal() {
             _manualSelectedMuscles = []; // toujours partir à zéro
+            _mmpView = 'face';           // et toujours sur la vue de face
 
             const _mSvg = (p) => `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
             const allMuscles = [
@@ -14468,9 +14568,7 @@
                     <h2 style="margin:0 0 6px;color:#e2e8f0;font-size:1.2em;text-align:center;">💪 Choisir mes muscles</h2>
                     <p style="margin:0 0 16px;color:#94a3b8;font-size:0.85em;text-align:center;">Sélectionne les groupes musculaires à travailler aujourd'hui.</p>
 
-                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;" id="muscleBtnGrid">
-                        ${grid}
-                    </div>
+                    <div id="mmpBodyHost">${_mmpBodyBlock()}</div>
 
                     <!-- Raccourcis rapides -->
                     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;">
@@ -14518,7 +14616,24 @@
         }
 
         function _highlightMuscleBtn(muscleId, active) {
-            const btn = document.getElementById('mmpBtn_' + muscleId.replace(/[^a-zA-Z]/g,'_'));
+            const safe = muscleId.replace(/[^a-zA-Z]/g,'_');
+            // 🧍 Zone du corps (SVG) — s'illumine en vert quand sélectionnée
+            const zone = document.getElementById('mmpZone_' + safe);
+            if (zone) {
+                zone.style.fill   = active ? 'rgba(74,222,128,0.55)' : 'rgba(148,163,184,0.22)';
+                zone.style.stroke = active ? '#4ade80' : 'rgba(148,163,184,0.5)';
+                zone.style.filter = active ? 'drop-shadow(0 0 6px rgba(74,222,128,0.8))' : '';
+            }
+            // 🏷️ Étiquette du nom, autour du personnage
+            const lbl = document.getElementById('mmpLbl_' + safe);
+            if (lbl) {
+                lbl.style.background  = active ? 'linear-gradient(135deg,#16a34a,#15803d)' : '#1a1b20';
+                lbl.style.borderColor = active ? '#4ade80' : '#2E2F35';
+                lbl.style.color       = active ? '#ffffff' : '#94a3b8';
+                lbl.style.boxShadow   = active ? '0 0 12px rgba(74,222,128,0.45)' : '';
+            }
+            // Ancienne grille (conservée si présente ailleurs)
+            const btn = document.getElementById('mmpBtn_' + safe);
             if (!btn) return;
             btn.style.background  = active ? 'linear-gradient(135deg,#16a34a,#15803d)' : '#222328';
             btn.style.borderColor = active ? '#4ade80' : '#2E2F35';
@@ -14530,7 +14645,18 @@
 
         function setManualMusclePreset(muscles) {
             _manualSelectedMuscles = [...muscles];
-            // Reset all buttons
+            // Reset : zones du corps + étiquettes (et ancienne grille si présente)
+            document.querySelectorAll('[id^="mmpZone_"]').forEach(z => {
+                z.style.fill = 'rgba(148,163,184,0.22)';
+                z.style.stroke = 'rgba(148,163,184,0.5)';
+                z.style.filter = '';
+            });
+            document.querySelectorAll('[id^="mmpLbl_"]').forEach(l => {
+                l.style.background = '#1a1b20';
+                l.style.borderColor = '#2E2F35';
+                l.style.color = '#94a3b8';
+                l.style.boxShadow = '';
+            });
             document.querySelectorAll('[id^="mmpBtn_"]').forEach(btn => {
                 btn.style.background  = '#222328';
                 btn.style.borderColor = '#2E2F35';

@@ -81,7 +81,10 @@
   };
 
   // Ordre d'affichage stable (pour les listes/sélecteurs des briques suivantes)
-  var DISCIPLINE_ORDER = ['muscu', 'boxe', 'calisthenie', 'course', 'hiit', 'core', 'yoga', 'pilates', 'barre', 'serenite', 'mobilite'];
+  // 🩰 « barre » retirée de la liste : discipline jugée trop pauvre en exercices.
+  // Ses données (BARRE_EXERCISES / BARRE_SESSIONS / fiche) restent définies plus bas,
+  // il suffit de remettre 'barre' dans cet ordre pour la réactiver.
+  var DISCIPLINE_ORDER = ['muscu', 'boxe', 'calisthenie', 'course', 'hiit', 'core', 'yoga', 'pilates', 'serenite', 'mobilite'];
 
   /* ---- Accesseurs purs (additifs, sans effet de bord) ------------------- */
 
