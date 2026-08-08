@@ -30990,7 +30990,10 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:hidden;border-radius:20px;max-height:90vh;display:flex;flex-direction:column;">
+                <!-- Corps DÉFILANT : tout le contenu long passe ici, pour que le
+                     bouton de fermeture reste toujours visible en bas. -->
+                <div style="flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;">
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
                     <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,${theme.color},transparent);animation:awakBlink 1.5s ease-in-out infinite;"></div>
@@ -31059,8 +31062,9 @@
                     </div>
                 </div>
 
-                <!-- Action -->
-                <div style="padding:14px 22px 22px 22px;position:sticky;bottom:0;background:linear-gradient(180deg,transparent,#0F1014 30%);">
+                </div>
+                <!-- Action — hors du corps défilant : TOUJOURS visible -->
+                <div style="flex-shrink:0;padding:14px 22px calc(18px + env(safe-area-inset-bottom, 0px));background:#0F1014;border-top:1px solid rgba(255,255,255,0.06);">
                     <button onclick="document.getElementById('awakRiftRewardModal').remove();awakActiveRiftSession=null;switchTab('game');" style="width:100%;background:linear-gradient(135deg,${theme.color},${theme.color}dd);border:none;color:white;border-radius:10px;padding:16px;font-weight:900;font-size:0.95em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${theme.color}40;">✓ CONTINUER</button>
                 </div>
             </div>`;
@@ -37759,7 +37763,7 @@
             overlay.style.cssText = 'position:fixed;inset:0;z-index:10002;background:rgba(0,0,0,0.88);display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);';
             const sheet = document.createElement('div');
             sheet.id = 'celebrityDetailSheet';
-            sheet.style.cssText = `background:linear-gradient(180deg,${p.color}18 0%,#0D0D0D 80px);border-top:3px solid ${p.color};border-radius:20px 20px 0 0;padding:22px 16px;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;padding-bottom:calc(24px + env(safe-area-inset-bottom,0px));`;
+            sheet.style.cssText = `background:linear-gradient(180deg,${p.color}18 0%,#0D0D0D 80px);border-top:3px solid ${p.color};border-radius:20px 20px 0 0;padding:22px 16px 0;width:100%;max-width:480px;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;`;
 
             const activeCTA = isActive
                 ? `<div style="display:grid;grid-template-columns:1fr 2fr;gap:10px;margin-bottom:8px;">
@@ -37787,6 +37791,8 @@
 
             sheet.innerHTML = `
                 <div style="width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:99px;margin:0 auto 18px;"></div>
+                <!-- Corps DÉFILANT : la barre d'action reste visible en bas. -->
+                <div style="flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;">
                 <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
                     <div style="font-size:3.2em;width:70px;height:70px;border-radius:20px;background:${p.color}25;border:2px solid ${p.color}60;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${p.emoji}</div>
                     <div style="flex:1;">
@@ -37848,7 +37854,9 @@
                         ${philo.map(line => `<div style="background:rgba(255,255,255,0.04);border-left:3px solid ${p.color};border-radius:0 14px 14px 0;padding:12px 14px;"><div style="font-size:0.85em;color:rgba(255,255,255,0.82);line-height:1.6;font-style:italic;">${line}</div></div>`).join('')}
                     </div>
                 </div>
-                <div style="position:sticky;bottom:0;background:linear-gradient(0deg,#0D0D0D 70%,transparent);padding-top:16px;margin-top:20px;">
+                </div>
+                <!-- Action — hors du corps défilant : TOUJOURS visible -->
+                <div style="flex-shrink:0;background:#0D0D0D;border-top:1px solid rgba(255,255,255,0.06);padding:14px 0 calc(18px + env(safe-area-inset-bottom,0px));">
                     ${activeCTA}
                 </div>
             `;
