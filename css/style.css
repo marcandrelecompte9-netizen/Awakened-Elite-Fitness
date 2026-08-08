@@ -4091,8 +4091,15 @@
                 padding: 13px 14px !important; border-radius: 10px !important;
             }
 
-            /* Modals bottom sheet */
-            .modal { align-items: flex-end !important; padding: 0 !important; }
+            /* Modals bottom sheet.
+               🐛 On n'utilise PAS 'align-items: flex-end' : sur un conteneur
+               défilant (.modal a overflow-y:auto), flex-end pousse le contenu
+               qui dépasse HORS de la zone atteignable — le haut devient
+               inaccessible et le défilement semble bloqué. On garde donc
+               'flex-start' et on colle la feuille en bas avec 'margin-top:auto',
+               qui, lui, n'empêche pas d'atteindre le contenu. */
+            .modal { align-items: flex-start !important; padding: 0 !important; }
+            .modal.active > .modal-content { margin-top: auto !important; }
 
             /* Exception : la modale « Changer de profil » reste CENTRÉE.
                C'est un sélecteur court, pas une feuille de contenu long : collée

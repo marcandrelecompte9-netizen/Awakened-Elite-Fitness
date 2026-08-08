@@ -1904,8 +1904,8 @@
             const iconMap = { 'HIIT': '🔥', 'Tabata': '⚡' };
             workout.badgeHTML = `${iconMap[name] || '💪'} ${name} Training`;
             workout.badgeStyle = 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
-            // ⚡ Cérémonie « Prêt ? → 3-2-1-GO » avant le début (Tabata).
-            workout._readyGo = (name === 'Tabata');
+            // ⚡ Cérémonie « Prêt ? → 3-2-1-GO » avant le début (Tabata & HIIT).
+            workout._readyGo = (name === 'Tabata' || name === 'HIIT');
             
             // ✅ Use AI Workout DJ Quick Check
             startQuickCheck(workout);
@@ -7773,14 +7773,8 @@
                     }, 1000);
                 }
                 
-                if (currentWorkout && currentWorkout._readyGo) {
-                    // ⚡ Tabata : cérémonie « Prêt ? → 3-2-1-GO » puis démarrage.
-                    window._skipFirstCountdown = true;
-                    _playReadyGo(function () { startExercise(); });
-                } else {
-                    speak('Début de la séance');
-                    startExercise();
-                }
+                speak('Début de la séance');
+                startExercise();
             }
         }
         
@@ -23941,9 +23935,14 @@
         }
 
         function showCountdown(exerciseName, callback) {
-            // Après la cérémonie Prêt/GO, on saute le décompte du 1er exercice
-            // (sinon on aurait « GO ! » puis un 2e « 3-2-1 » à la suite).
-            if (window._skipFirstCountdown) { window._skipFirstCountdown = false; callback(); return; }
+            // ⚡ 1er exercice d'un HIIT/Tabata : cérémonie « PRÊT ? → 3-2-1-GO »
+            // jouée au TOUT DERNIER moment (après l'échauffement et la prépa),
+            // en remplacement du décompte 3-2-1 habituel.
+            if (currentWorkout && currentWorkout._readyGo && !currentWorkout._readyGoDone) {
+                currentWorkout._readyGoDone = true;
+                _playReadyGo(function () { callback(); });
+                return;
+            }
             // Ne pas afficher sur repos
             if (!exerciseName || exerciseName === 'Repos' || exerciseName === 'Récupération') {
                 callback(); return;
@@ -43167,11 +43166,14 @@
                 localStorage.setItem('fitproOnboardingDone', '1');
                 // 🏠 Accueil ÉPURÉ par défaut pour un nouvel inscrit : on masque les
                 // cartes secondaires (rang, calendrier, coach…) et on garde profil +
-                // action du jour. Tout reste réactivable dans Réglages › Affichage.
+                // action du jour + ⚡ Actions rapides (accès direct aux séances).
+                // Tout reste réactivable dans Réglages › Affichage.
                 // (Uniquement à l'inscription → les profils existants ne changent pas.)
                 try {
                     if (typeof AWAK_HOME_CARDS !== 'undefined') {
-                        localStorage.setItem('awakHiddenHomeCards', JSON.stringify(AWAK_HOME_CARDS.map(c => c.id)));
+                        localStorage.setItem('awakHiddenHomeCards', JSON.stringify(
+                            AWAK_HOME_CARDS.map(c => c.id).filter(id => id !== 'quickActionsCard')
+                        ));
                         if (typeof awakApplyHomeCardsCSS === 'function') awakApplyHomeCardsCSS();
                         if (typeof awakRenderHomeCardsPrefs === 'function') awakRenderHomeCardsPrefs();
                         if (typeof awakRenderHomeMoreHint === 'function') awakRenderHomeMoreHint();
