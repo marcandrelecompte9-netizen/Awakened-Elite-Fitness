@@ -296,9 +296,15 @@
     try { updateButton(); } catch (e) {}
   };
   window.AwakPainClear = function () {
+    // 🐛 Avant : on vidait le stockage puis on FERMAIT la fenêtre, sans rafraîchir
+    // la carte d'accueil ni les pastilles — il fallait rouvrir et faire « Terminé »
+    // pour que ce soit pris en compte. Désormais on efface et on met tout à jour
+    // SUR PLACE, la fenêtre reste ouverte.
     clear();
-    _closeModal();
-    updateButton();
+    try { _paintBody(); } catch (e) {}            // éteint les zones sur le personnage
+    try { _refreshExtraChips(); } catch (e) {}    // Poignets / Genoux
+    try { updateButton(); } catch (e) {}          // bouton d'accès
+    try { if (window.awakRenderPainCard) window.awakRenderPainCard(); } catch (e) {} // carte d'accueil
   };
   function _closeModal() { var el = document.getElementById('awakPainModal'); if (el) el.remove(); }
   window.AwakPainCloseModal = function () { _closeModal(); try { if (window._mmpSetMode) window._mmpSetMode('select'); } catch (e) {} updateButton(); try { if (window.awakRenderPainCard) window.awakRenderPainCard(); } catch (e) {} };

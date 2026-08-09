@@ -2134,7 +2134,45 @@
             return names.map(_warmupFromDB).filter(Boolean);
         }
 
-        function generateProgressiveWarmup(targetMuscles, intensity) {
+        // 🕒 Plafonds PROPORTIONNELS à la durée de séance.
+        // Avant, l'échauffement (structure fixe : cardio + 2 haut + 2 bas +
+        // activation + explosif) et les étirements (1 par muscle + antagonistes)
+        // ne regardaient PAS la durée : une séance de 15 min avec 2 exercices
+        // récoltait 5 échauffements + 4 étirements, soit 82 % d'annexes.
+        function _maxWarmupFor(minutes) {
+            if (!minutes || minutes <= 0) return 99;   // durée inconnue → comportement d'origine
+            if (minutes <= 15) return 2;
+            if (minutes <= 30) return 3;
+            if (minutes <= 45) return 5;
+            return 99;                                  // 60 min+ : structure complète
+        }
+        function _maxStretchFor(minutes) {
+            if (!minutes || minutes <= 0) return 99;
+            if (minutes <= 15) return 2;
+            if (minutes <= 30) return 3;
+            if (minutes <= 45) return 5;
+            return 99;
+        }
+        // Réduit une liste en gardant les INTROS de phase (duration 0) utiles et
+        // en coupant d'abord dans les exercices, sans casser l'ordre.
+        function _capAnnexes(list, max) {
+            if (!Array.isArray(list) || max >= 99 || list.length <= max) return list;
+            const out = [];
+            let kept = 0;
+            for (const item of list) {
+                const isIntro = (item && (item.isInfo || item.duration === 0));
+                if (isIntro) { out.push(item); continue; }
+                if (kept < max) { out.push(item); kept++; }
+            }
+            // Retirer les intros de phase devenues orphelines (plus aucun exercice après)
+            return out.filter((it, i) => {
+                const isIntro = (it && (it.isInfo || it.duration === 0));
+                if (!isIntro) return true;
+                return out.slice(i + 1).some(n => !(n && (n.isInfo || n.duration === 0)));
+            });
+        }
+
+        function generateProgressiveWarmup(targetMuscles, intensity, sessionMinutes) {
             const warmup = [];
 
             // PHASE 1 : Cardio Général (2 min)
@@ -2237,11 +2275,11 @@
                 const e = _warmupFromDB("Mouvements explosifs légers"); if (e) warmup.push(e);
             }
 
-            return warmup;
+            return _capAnnexes(warmup, _maxWarmupFor(sessionMinutes));
         }
 
         // ===== 7. FONCTION : ÉTIREMENTS INTELLIGENTS =====
-        function generateIntelligentStretches(workoutExercises, intensity) {
+        function generateIntelligentStretches(workoutExercises, intensity, sessionMinutes) {
             // Extraire muscles uniques travaillés
             const musclesWorked = new Set();
             workoutExercises.forEach(ex => {
@@ -2366,7 +2404,11 @@
                 }
             });
             
-            return stretches;
+            // On ne s'étire jamais plus de fois qu'on n'a fait d'exercices.
+            const _nMain = Array.isArray(workoutExercises)
+                ? workoutExercises.filter(e => e && !e.isRest && !e.isInfo).length : 0;
+            const _capS = Math.min(_maxStretchFor(sessionMinutes), Math.max(2, _nMain));
+            return _capAnnexes(stretches, _capS);
         }
 
         // ========== PROGRESSION CHARTS ==========
@@ -10746,7 +10788,7 @@
             
             // ✅ EXPERT SYSTEM : Échauffement progressif 3 phases
             if (includeWarmup && decisions.intensity >= 0.7) {
-                const expertWarmup = generateProgressiveWarmup(decisions.targetMuscles, decisions.intensity);
+                const expertWarmup = generateProgressiveWarmup(decisions.targetMuscles, decisions.intensity, (decisions.duration || 0));
                 workout.exercises.push(...expertWarmup);
             }
             
@@ -10767,7 +10809,7 @@
             
             // ✅ EXPERT SYSTEM : Étirements intelligents ciblés
             if (includeStretch && decisions.intensity >= 0.6) {
-                const expertStretches = generateIntelligentStretches(selectedExercises, decisions.intensity);
+                const expertStretches = generateIntelligentStretches(selectedExercises, decisions.intensity, (decisions.duration || 0));
                 workout.exercises.push(...expertStretches);
             }
             
@@ -11566,7 +11608,7 @@
             // précise au lieu d'un forfait). Réutilisé tel quel plus bas.
             let _warmupArr = [];
             if (includeWarmup) {
-                try { _warmupArr = generateProgressiveWarmup(workingMuscles, intensity) || []; } catch (e) { _warmupArr = []; }
+                try { _warmupArr = generateProgressiveWarmup(workingMuscles, intensity, selectedDuration) || []; } catch (e) { _warmupArr = []; }
             }
             const _warmupSec = _warmupArr.reduce((s, w) => s + (w.duration || 0), 0);
 
@@ -11720,7 +11762,7 @@
             if (includeWarmup) {
                 // Réutilise l'échauffement déjà généré pour la réserve de temps
                 // (durée cohérente, pas de double génération).
-                const expertWarmup = (_warmupArr && _warmupArr.length) ? _warmupArr : generateProgressiveWarmup(workingMuscles, intensity);
+                const expertWarmup = (_warmupArr && _warmupArr.length) ? _warmupArr : generateProgressiveWarmup(workingMuscles, intensity, selectedDuration);
                 workout.exercises.push(...expertWarmup);
             }
             
@@ -11762,7 +11804,7 @@
             
             // ✅ EXPERT SYSTEM : Étirements intelligents ciblés
             if (includeStretch) {
-                const expertStretches = generateIntelligentStretches(selectedExercises, intensity);
+                const expertStretches = generateIntelligentStretches(selectedExercises, intensity, selectedDuration);
                 workout.exercises.push(...expertStretches);
             }
             
@@ -14520,7 +14562,7 @@
             // preserveAspectRatio="none" : l'image occupe EXACTEMENT le viewBox,
             // donc le repère de l'image et celui des zones sont identiques.
             // (Les proportions sont conservées : 784/1168 ≈ 200/298, écart < 0,2 %.)
-            return '<image href="' + img + '?v=760" x="0" y="0" width="200" height="298" '
+            return '<image href="' + img + '?v=765" x="0" y="0" width="200" height="298" '
                  + 'preserveAspectRatio="none" style="pointer-events:none;"/>';
         }
 
@@ -23661,8 +23703,9 @@
                 })();
                 const _estChrono = exercise && (exercise.mode === 'timer' || exercise.mode === 'duration');
                 const _estAnnexe = (_dbType === 'warmup' || _dbType === 'stretch');
-                const show = exercise && !exercise.isRest && !exercise.isInfo && exercise.recoSets
-                             && !_estChrono && !_estAnnexe;
+                // Encart prescription retiré de l'écran de séance (jugé encombrant).
+                // La prescription reste calculée et pilote toujours les temps de repos.
+                const show = false;
                 if (!show) { if (card) card.style.display = 'none'; return; }
                 if (!card) {
                     card = document.createElement('div');
@@ -23776,8 +23819,11 @@
                     }).join('');
 
                     // Container flexbox pour aligner les pills avec un séparateur " · "
+                    // 🎯 Encart jugé encombrant : les pastilles de muscles ne sont plus
+                    // affichées sous le nom de l'exercice (le contenu reste calculé,
+                    // il suffit de remettre display:'block' pour les réactiver).
                     muscleBadge.innerHTML = `<div style="display:inline-flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center;">${pills}</div>`;
-                    muscleBadge.style.display = 'block';
+                    muscleBadge.style.display = 'none';
                     muscleBadge.style.background = 'transparent';
                     muscleBadge.style.border = 'none';
                     muscleBadge.style.padding = '0';
@@ -36694,8 +36740,10 @@
                         const hero = _chosen || (Math.random() < 0.5 ? 'esen' : 'nyra');
                         const imgTag = heroImg.querySelector('img');
                         if (imgTag) {
-                            imgTag.src = 'images/story/' + hero + '_victoire.webp';
-                            imgTag.alt = (hero === 'esen' ? 'Esen' : 'Nyra');
+                            // 🏆 Victoire : illustration COMMUNE (Esen + Nyra ensemble),
+                            // quel que soit le héros choisi.
+                            imgTag.src = 'images/story/victoire_duo.webp?v=765';
+                            imgTag.alt = 'Esen et Nyra';
                         }
                         heroImg.style.display = 'block';
                     } else {
