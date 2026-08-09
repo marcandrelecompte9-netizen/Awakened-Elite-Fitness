@@ -14433,28 +14433,28 @@
         // Zones de la vue de FACE
         function _mmpFrontShapes() {
             return ''
-            + _mmpZone('Trapèzes',   '<path d="M78,70 L100,57 L122,70 L112,75 L100,69 L88,75 Z"/>')
-            + _mmpZone('Épaules',    '<ellipse cx="70" cy="84" rx="15" ry="13"/><ellipse cx="130" cy="84" rx="15" ry="13"/>')
-            + _mmpZone('Pectoraux',  '<path d="M84,76 C91,73 97,75 98,81 L98,101 C90,103 83,98 81,89 Z"/><path d="M116,76 C109,73 103,75 102,81 L102,101 C110,103 117,98 119,89 Z"/>')
-            + _mmpZone('Biceps',     '<ellipse cx="62" cy="113" rx="10" ry="20"/><ellipse cx="138" cy="113" rx="10" ry="20"/>')
-            + _mmpZone('Avant-bras', '<ellipse cx="56" cy="153" rx="8.5" ry="21"/><ellipse cx="144" cy="153" rx="8.5" ry="21"/>')
-            + _mmpZone('Abdominaux', '<path d="M89,104 h22 a3,3 0 0 1 3,3 v50 a3,3 0 0 1 -3,3 h-22 a3,3 0 0 1 -3,-3 v-50 a3,3 0 0 1 3,-3 Z"/>')
-            + _mmpZone('Obliques',   '<path d="M80,106 L86,104 L86,159 L81,150 Z"/><path d="M120,106 L114,104 L114,159 L119,150 Z"/>')
-            + _mmpZone('Quadriceps', '<ellipse cx="88" cy="223" rx="14" ry="36"/><ellipse cx="112" cy="223" rx="14" ry="36"/>')
-            + _mmpZone('Adducteurs', '<path d="M96,190 L104,190 L103,243 L97,243 Z"/>')
-            + _mmpZone('Mollets',    '<ellipse cx="88" cy="301" rx="10" ry="26"/><ellipse cx="112" cy="301" rx="10" ry="26"/>');
+            + _mmpZone('Trapèzes',   '<path d="M84,48 L100,41 L116,48 L112,59 L100,53 L88,59 Z"/>')
+            + _mmpZone('Épaules',    '<ellipse cx="69" cy="70" rx="12" ry="12"/><ellipse cx="131" cy="70" rx="12" ry="12"/>')
+            + _mmpZone('Pectoraux',  '<path d="M80,62 C88,58 97,60 99,68 L99,92 C88,94 79,87 78,75 Z"/><path d="M120,62 C112,58 103,60 101,68 L101,92 C112,94 121,87 122,75 Z"/>')
+            + _mmpZone('Biceps',     '<ellipse cx="51" cy="98" rx="11" ry="17"/><ellipse cx="149" cy="98" rx="11" ry="17"/>')
+            + _mmpZone('Avant-bras', '<path d="M42,112 L54,119 L29,153 L17,145 Z"/><path d="M158,112 L146,119 L171,153 L183,145 Z"/>')
+            + _mmpZone('Abdominaux', '<path d="M81,96 h38 a3,3 0 0 1 3,3 v29 a3,3 0 0 1 -3,3 h-38 a3,3 0 0 1 -3,-3 v-29 a3,3 0 0 1 3,-3 Z"/>')
+            + _mmpZone('Obliques',   '<path d="M71,97 L79,94 L79,131 L73,124 Z"/><path d="M129,97 L121,94 L121,131 L127,124 Z"/>')
+            + _mmpZone('Quadriceps', '<ellipse cx="79" cy="178" rx="14" ry="26"/><ellipse cx="121" cy="178" rx="14" ry="26"/>')
+            + _mmpZone('Adducteurs', '<path d="M93,150 L107,150 L105,193 L95,193 Z"/>')
+            + _mmpZone('Mollets',    '<ellipse cx="67" cy="232" rx="9" ry="20"/><ellipse cx="133" cy="232" rx="9" ry="20"/>');
         }
         // Zones de la vue de DOS
         function _mmpBackShapes() {
             return ''
-            + _mmpZone('Trapèzes',   '<path d="M76,68 L100,56 L124,68 L118,96 L100,88 L82,96 Z"/>')
-            + _mmpZone('Épaules',    '<ellipse cx="70" cy="84" rx="15" ry="13"/><ellipse cx="130" cy="84" rx="15" ry="13"/>')
-            + _mmpZone('Dos',        '<path d="M82,92 L98,98 L98,150 L86,140 Z"/><path d="M118,92 L102,98 L102,150 L114,140 Z"/>')
-            + _mmpZone('Triceps',    '<ellipse cx="62" cy="113" rx="10" ry="20"/><ellipse cx="138" cy="113" rx="10" ry="20"/>')
-            + _mmpZone('Avant-bras', '<ellipse cx="56" cy="153" rx="8.5" ry="21"/><ellipse cx="144" cy="153" rx="8.5" ry="21"/>')
-            + _mmpZone('Fessiers',   '<path d="M84,164 C84,152 99,152 99,164 L99,184 C99,193 84,193 84,184 Z"/><path d="M116,164 C116,152 101,152 101,164 L101,184 C101,193 116,193 116,184 Z"/>')
-            + _mmpZone('Ischio-jambiers', '<ellipse cx="88" cy="226" rx="14" ry="35"/><ellipse cx="112" cy="226" rx="14" ry="35"/>')
-            + _mmpZone('Mollets',    '<ellipse cx="88" cy="301" rx="10" ry="26"/><ellipse cx="112" cy="301" rx="10" ry="26"/>');
+            + _mmpZone('Trapèzes',   '<path d="M82,46 L100,39 L118,46 L114,74 L100,66 L86,74 Z"/>')
+            + _mmpZone('Épaules',    '<ellipse cx="68" cy="68" rx="12" ry="12"/><ellipse cx="132" cy="68" rx="12" ry="12"/>')
+            + _mmpZone('Dos',        '<path d="M78,72 L98,79 L98,124 L84,112 Z"/><path d="M122,72 L102,79 L102,124 L116,112 Z"/>')
+            + _mmpZone('Triceps',    '<ellipse cx="52" cy="94" rx="11" ry="17"/><ellipse cx="148" cy="94" rx="11" ry="17"/>')
+            + _mmpZone('Avant-bras', '<path d="M41,110 L53,117 L28,151 L16,143 Z"/><path d="M159,110 L147,117 L172,151 L184,143 Z"/>')
+            + _mmpZone('Fessiers',   '<path d="M78,129 C78,119 99,119 99,129 L99,151 C99,161 78,161 78,151 Z"/><path d="M122,129 C122,119 101,119 101,129 L101,151 C101,161 122,161 122,151 Z"/>')
+            + _mmpZone('Ischio-jambiers', '<ellipse cx="80" cy="181" rx="14" ry="25"/><ellipse cx="120" cy="181" rx="14" ry="25"/>')
+            + _mmpZone('Mollets',    '<ellipse cx="70" cy="234" rx="9" ry="20"/><ellipse cx="130" cy="234" rx="9" ry="20"/>');
         }
         // Une zone cliquable (peut contenir plusieurs formes : gauche + droite)
         function _mmpZone(id, shapes) {
@@ -14465,16 +14465,13 @@
                  + shapes + '</g>';
         }
         // Silhouette de fond (tête, torse, membres) — non cliquable
+        // Personnage : image détourée (fond transparent), en fond des zones
         function _mmpSilhouette() {
-            return '<g style="fill:rgba(255,255,255,0.05);stroke:rgba(255,255,255,0.16);stroke-width:1.2;">'
-                 + '<circle cx="100" cy="34" r="20"/>'
-                 + '<path d="M92,52 h16 v10 h-16 Z"/>'
-                 + '<path d="M78,70 C86,62 114,62 122,70 L120,160 L116,192 L112,262 L108,330 L104,352 h-8 l-4,-22 L92,262 L88,192 L84,160 Z"/>'
-                 + '<path d="M70,74 C62,80 58,96 56,120 L50,176 h12 l6,-56 Z"/>'
-                 + '<path d="M130,74 C138,80 142,96 144,120 L150,176 h-12 l-6,-56 Z"/>'
-                 + '<path d="M86,352 h12 l2,10 h-16 Z"/><path d="M102,352 h12 l2,10 h-16 Z"/>'
-                 + '</g>';
+            var img = (_mmpView === 'face') ? 'images/body/body_face.webp' : 'images/body/body_dos.webp';
+            return '<image href="' + img + '?v=746" x="0" y="0" width="200" height="298" '
+                 + 'preserveAspectRatio="xMidYMid meet" style="pointer-events:none;"/>';
         }
+
         // Étiquette de nom, cliquable, placée autour du personnage
         function _mmpLabel(id, label) {
             var s = _mmpSafe(id);
@@ -14503,7 +14500,7 @@
             + '</div>'
             + '<div style="display:grid;grid-template-columns:1fr 1.35fr 1fr;gap:8px;align-items:center;margin-bottom:14px;">'
             +   col(L)
-            +   '<svg viewBox="0 0 200 375" style="width:100%;height:auto;max-height:330px;display:block;">'
+            +   '<svg viewBox="0 0 200 298" style="width:100%;height:auto;max-height:340px;display:block;">'
             +     _mmpSilhouette()
             +     (_mmpView === 'face' ? _mmpFrontShapes() : _mmpBackShapes())
             +   '</svg>'
