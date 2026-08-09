@@ -14436,12 +14436,12 @@
             + _mmpZone('Trapèzes',   '<path d="M87,49 L100,43 L113,49 L110,58 L100,53 L90,58 Z"/>')
             + _mmpZone('Épaules',    '<ellipse cx="70" cy="70" rx="9.5" ry="9.5"/><ellipse cx="130" cy="70" rx="9.5" ry="9.5"/>')
             + _mmpZone('Pectoraux',  '<path d="M82,64 C89,61 97,63 99,70 L99,90 C89,92 82,86 81,76 Z"/><path d="M118,64 C111,61 103,63 101,70 L101,90 C111,92 118,86 119,76 Z"/>')
-            + _mmpZone('Biceps',     '<ellipse cx="50" cy="97" rx="8.5" ry="13"/><ellipse cx="150" cy="97" rx="8.5" ry="13"/>')
-            + _mmpZone('Avant-bras', '<path d="M40,116 L48,120 L30,148 L22,144 Z"/><path d="M160,116 L152,120 L170,148 L178,144 Z"/>')
+            + _mmpZone('Biceps',     '<path d="M49,97 L62,97 L45,116 L33,116 Z"/><path d="M151,97 L138,97 L155,116 L167,116 Z"/>')
+            + _mmpZone('Avant-bras', '<path d="M28,125 L37,125 L28,144 L19,144 Z"/><path d="M172,125 L163,125 L172,144 L181,144 Z"/>')
             + _mmpZone('Abdominaux', '<path d="M85,97 h30 a3,3 0 0 1 3,3 v27 a3,3 0 0 1 -3,3 h-30 a3,3 0 0 1 -3,-3 v-27 a3,3 0 0 1 3,-3 Z"/>')
             + _mmpZone('Obliques',   '<path d="M76,99 L82,96 L82,128 L78,122 Z"/><path d="M124,99 L118,96 L118,128 L122,122 Z"/>')
             + _mmpZone('Quadriceps', '<ellipse cx="80" cy="177" rx="10" ry="21"/><ellipse cx="120" cy="177" rx="10" ry="21"/>')
-            + _mmpZone('Adducteurs', '<path d="M95,153 L105,153 L103,188 L97,188 Z"/>')
+            + _mmpZone('Adducteurs', '<path d="M88,167 L95,165 L94,197 L87,194 Z"/><path d="M112,167 L105,165 L106,197 L113,194 Z"/>')
             + _mmpZone('Mollets',    '<ellipse cx="67" cy="231" rx="7" ry="16"/><ellipse cx="133" cy="231" rx="7" ry="16"/>');
         }
         // Zones de la vue de DOS
@@ -14450,8 +14450,8 @@
             + _mmpZone('Trapèzes',   '<path d="M86,47 L100,41 L114,47 L111,70 L100,64 L89,70 Z"/>')
             + _mmpZone('Épaules',    '<ellipse cx="70" cy="68" rx="9.5" ry="9.5"/><ellipse cx="130" cy="68" rx="9.5" ry="9.5"/>')
             + _mmpZone('Dos',        '<path d="M83,75 L98,81 L98,120 L87,110 Z"/><path d="M117,75 L102,81 L102,120 L113,110 Z"/>')
-            + _mmpZone('Triceps',    '<ellipse cx="51" cy="94" rx="8.5" ry="13"/><ellipse cx="149" cy="94" rx="8.5" ry="13"/>')
-            + _mmpZone('Avant-bras', '<path d="M39,114 L47,118 L29,146 L21,142 Z"/><path d="M161,114 L153,118 L171,146 L179,142 Z"/>')
+            + _mmpZone('Triceps',    '<path d="M51,93 L64,93 L46,113 L34,113 Z"/><path d="M149,93 L136,93 L154,113 L166,113 Z"/>')
+            + _mmpZone('Avant-bras', '<path d="M29,125 L38,125 L29,144 L20,144 Z"/><path d="M171,125 L162,125 L171,144 L180,144 Z"/>')
             + _mmpZone('Fessiers',   '<path d="M82,131 C82,123 99,123 99,131 L99,149 C99,157 82,157 82,149 Z"/><path d="M118,131 C118,123 101,123 101,131 L101,149 C101,157 118,157 118,149 Z"/>')
             + _mmpZone('Ischio-jambiers', '<ellipse cx="81" cy="180" rx="10" ry="20"/><ellipse cx="119" cy="180" rx="10" ry="20"/>')
             + _mmpZone('Mollets',    '<ellipse cx="70" cy="233" rx="7" ry="16"/><ellipse cx="130" cy="233" rx="7" ry="16"/>');
@@ -14468,7 +14468,7 @@
         // Personnage : image détourée (fond transparent), en fond des zones
         function _mmpSilhouette() {
             var img = (_mmpView === 'face') ? 'images/body/body_face.webp' : 'images/body/body_dos.webp';
-            return '<image href="' + img + '?v=747" x="0" y="0" width="200" height="298" '
+            return '<image href="' + img + '?v=750" x="0" y="0" width="200" height="298" '
                  + 'preserveAspectRatio="xMidYMid meet" style="pointer-events:none;"/>';
         }
 
@@ -33623,9 +33623,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.92);backdrop-filter:blur(10px);';
 
             modal.innerHTML = `
-            <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${comp.color}50;padding:0;overflow:hidden;border-radius:20px;max-height:90vh;display:flex;flex-direction:column;">
-                <!-- Corps DÉFILANT : les boutons d'action restent visibles en bas. -->
-                <div style="flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${comp.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
                 <div style="background:linear-gradient(135deg,${comp.color}25,${comp.color}05);padding:26px 22px;text-align:center;border-bottom:1px solid ${comp.color}30;">
                     ${comp.image
@@ -33635,6 +33633,18 @@
                     <div style="font-size:0.82em;color:${comp.color};font-weight:800;margin-top:3px;letter-spacing:1px;">${comp.title}</div>
                 </div>
 
+                <!-- ACTIONS : placées juste sous l'en-tête → toujours visibles
+                     sans avoir à défiler (le corps de la fiche suit en dessous). -->
+                <div style="padding:16px 22px 4px;">
+                    ${isOnMission
+                        ? `<div style="width:100%;background:rgba(168,85,247,0.12);border:1.5px solid rgba(168,85,247,0.4);color:#c084fc;border-radius:10px;padding:14px;font-weight:900;font-size:0.9em;letter-spacing:0.5px;text-align:center;">🎭 PARTI FERMER UNE FAILLE<div style="font-size:0.75em;font-weight:600;color:#a78bfa;margin-top:4px;letter-spacing:0;">Indisponible jusqu'à son retour</div></div>`
+                        : `<button onclick="awakCompanionToggleActive('${comp.id}');document.getElementById('awakCompanionDetailModal').remove();"
+                        style="width:100%;background:${isActive ? 'rgba(239,68,68,0.15)' : (canActivate ? `linear-gradient(135deg,${comp.color},${comp.color}dd)` : 'rgba(255,255,255,0.05)')};border:${isActive ? '1.5px solid rgba(239,68,68,0.4)' : 'none'};color:${isActive ? '#f87171' : (canActivate ? 'white' : '#64748b')};border-radius:10px;padding:14px;font-weight:900;font-size:0.95em;letter-spacing:1px;cursor:${(canActivate || isActive) ? 'pointer' : 'not-allowed'};box-shadow:${isActive || !canActivate ? 'none' : `0 4px 16px ${comp.color}40`};">
+                        ${isActive ? '✕ RETIRER DE L\'ÉQUIPE' : (canActivate ? '✓ ACTIVER COMME COMPAGNON' : `⚠ MAX ${COMPANIONS_MAX_ACTIVE} ACTIFS`)}
+                    </button>`}
+
+                    <button onclick="document.getElementById('awakCompanionDetailModal').remove()" style="width:100%;margin-top:8px;background:transparent;border:1px solid rgba(255,255,255,0.1);color:#94a3b8;border-radius:10px;padding:10px;font-weight:700;font-size:0.82em;cursor:pointer;">Fermer</button>
+                </div>
                 <div style="padding:20px 22px;">
                     <!-- Description -->
                     <div style="color:#cbd5e1;font-size:0.85em;line-height:1.6;font-style:italic;margin-bottom:14px;text-align:center;">${comp.description}</div>
@@ -33651,19 +33661,7 @@
                         <div style="color:#cbd5e1;font-size:0.8em;font-style:italic;line-height:1.55;">${comp.lore}</div>
                     </div>
 
-                    <!-- Action toggle — hors du corps défilant : TOUJOURS visible -->
                     </div>
-                </div>
-                    <div style="flex-shrink:0;padding:14px 22px calc(16px + env(safe-area-inset-bottom,0px));background:#0F1014;border-top:1px solid rgba(255,255,255,0.06);">
-                    ${isOnMission
-                        ? `<div style="width:100%;background:rgba(168,85,247,0.12);border:1.5px solid rgba(168,85,247,0.4);color:#c084fc;border-radius:10px;padding:14px;font-weight:900;font-size:0.9em;letter-spacing:0.5px;text-align:center;">🎭 PARTI FERMER UNE FAILLE<div style="font-size:0.75em;font-weight:600;color:#a78bfa;margin-top:4px;letter-spacing:0;">Indisponible jusqu'à son retour</div></div>`
-                        : `<button onclick="awakCompanionToggleActive('${comp.id}');document.getElementById('awakCompanionDetailModal').remove();"
-                        style="width:100%;background:${isActive ? 'rgba(239,68,68,0.15)' : (canActivate ? `linear-gradient(135deg,${comp.color},${comp.color}dd)` : 'rgba(255,255,255,0.05)')};border:${isActive ? '1.5px solid rgba(239,68,68,0.4)' : 'none'};color:${isActive ? '#f87171' : (canActivate ? 'white' : '#64748b')};border-radius:10px;padding:14px;font-weight:900;font-size:0.95em;letter-spacing:1px;cursor:${(canActivate || isActive) ? 'pointer' : 'not-allowed'};box-shadow:${isActive || !canActivate ? 'none' : `0 4px 16px ${comp.color}40`};">
-                        ${isActive ? '✕ RETIRER DE L\'ÉQUIPE' : (canActivate ? '✓ ACTIVER COMME COMPAGNON' : `⚠ MAX ${COMPANIONS_MAX_ACTIVE} ACTIFS`)}
-                    </button>`}
-
-                    <button onclick="document.getElementById('awakCompanionDetailModal').remove()" style="width:100%;margin-top:8px;background:transparent;border:1px solid rgba(255,255,255,0.1);color:#94a3b8;border-radius:10px;padding:10px;font-weight:700;font-size:0.82em;cursor:pointer;">Fermer</button>
-                </div>
             </div>`;
 
             document.body.appendChild(modal);
