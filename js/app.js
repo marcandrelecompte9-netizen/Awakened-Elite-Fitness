@@ -12258,6 +12258,7 @@
             try { localStorage.setItem('awakHiddenHomeCards', JSON.stringify(list)); } catch (e) {}
             awakApplyHomeCardsCSS();
             try { if (typeof awakRenderHomeMoreHint === 'function') awakRenderHomeMoreHint(); } catch (e) {}
+            try { if (typeof awakRenderPainCard === 'function') awakRenderPainCard(); } catch (e) {}
         }
         function awakApplyHomeCardsCSS() {
             const hidden = awakGetHiddenHomeCards();
@@ -14428,6 +14429,7 @@
         // Zones dessinées en SVG : aucun fichier image, net à toutes les tailles,
         // et chaque muscle s'illumine à la sélection.
         var _mmpView = 'face';
+        var _mmpMode = 'select'; // 'select' = choix des muscles · 'pain' = où as-tu mal
         function _mmpSafe(id) { return id.replace(/[^a-zA-Z]/g, '_'); }
 
         // Zones de la vue de FACE
@@ -14437,11 +14439,11 @@
             + _mmpZone('Épaules',    '<ellipse cx="70" cy="70" rx="9.5" ry="9.5"/><ellipse cx="130" cy="70" rx="9.5" ry="9.5"/>')
             + _mmpZone('Pectoraux',  '<path d="M82,64 C89,61 97,63 99,70 L99,90 C89,92 82,86 81,76 Z"/><path d="M118,64 C111,61 103,63 101,70 L101,90 C111,92 118,86 119,76 Z"/>')
             + _mmpZone('Biceps',     '<path d="M49,97 L62,97 L45,116 L33,116 Z"/><path d="M151,97 L138,97 L155,116 L167,116 Z"/>')
-            + _mmpZone('Avant-bras', '<path d="M28,125 L37,125 L28,144 L19,144 Z"/><path d="M172,125 L163,125 L172,144 L181,144 Z"/>')
+            + _mmpZone('Avant-bras', '<path d="M27,124 L36,124 L25,140 L18,140 Z"/><path d="M173,124 L164,124 L175,140 L182,140 Z"/>')
             + _mmpZone('Abdominaux', '<path d="M85,97 h30 a3,3 0 0 1 3,3 v27 a3,3 0 0 1 -3,3 h-30 a3,3 0 0 1 -3,-3 v-27 a3,3 0 0 1 3,-3 Z"/>')
             + _mmpZone('Obliques',   '<path d="M76,99 L82,96 L82,128 L78,122 Z"/><path d="M124,99 L118,96 L118,128 L122,122 Z"/>')
             + _mmpZone('Quadriceps', '<ellipse cx="80" cy="177" rx="10" ry="21"/><ellipse cx="120" cy="177" rx="10" ry="21"/>')
-            + _mmpZone('Adducteurs', '<path d="M88,167 L95,165 L94,197 L87,194 Z"/><path d="M112,167 L105,165 L106,197 L113,194 Z"/>')
+            + _mmpZone('Adducteurs', '<path d="M94,167 L86,167 L72,195 L80,195 Z"/><path d="M106,167 L114,167 L128,195 L120,195 Z"/>')
             + _mmpZone('Mollets',    '<ellipse cx="67" cy="231" rx="7" ry="16"/><ellipse cx="133" cy="231" rx="7" ry="16"/>');
         }
         // Zones de la vue de DOS
@@ -14451,7 +14453,7 @@
             + _mmpZone('Épaules',    '<ellipse cx="70" cy="68" rx="9.5" ry="9.5"/><ellipse cx="130" cy="68" rx="9.5" ry="9.5"/>')
             + _mmpZone('Dos',        '<path d="M83,75 L98,81 L98,120 L87,110 Z"/><path d="M117,75 L102,81 L102,120 L113,110 Z"/>')
             + _mmpZone('Triceps',    '<path d="M51,93 L64,93 L46,113 L34,113 Z"/><path d="M149,93 L136,93 L154,113 L166,113 Z"/>')
-            + _mmpZone('Avant-bras', '<path d="M29,125 L38,125 L29,144 L20,144 Z"/><path d="M171,125 L162,125 L171,144 L180,144 Z"/>')
+            + _mmpZone('Avant-bras', '<path d="M29,124 L38,124 L24,140 L17,140 Z"/><path d="M171,124 L162,124 L176,140 L183,140 Z"/>')
             + _mmpZone('Fessiers',   '<path d="M82,131 C82,123 99,123 99,131 L99,149 C99,157 82,157 82,149 Z"/><path d="M118,131 C118,123 101,123 101,131 L101,149 C101,157 118,157 118,149 Z"/>')
             + _mmpZone('Ischio-jambiers', '<ellipse cx="81" cy="180" rx="10" ry="20"/><ellipse cx="119" cy="180" rx="10" ry="20"/>')
             + _mmpZone('Mollets',    '<ellipse cx="70" cy="233" rx="7" ry="16"/><ellipse cx="130" cy="233" rx="7" ry="16"/>');
@@ -14460,7 +14462,7 @@
         function _mmpZone(id, shapes) {
             var s = _mmpSafe(id);
             return '<g id="mmpZone_' + s + '" class="mmp-zone" data-muscle="' + id + '" '
-                 + 'onclick="toggleManualMuscle(\'' + id.replace(/'/g, "\\'") + '\')" '
+                 + 'onclick="' + (_mmpMode === 'pain' ? 'awakTogglePain' : 'toggleManualMuscle') + '(\'' + id.replace(/'/g, "\\'") + '\')" '
                  + 'style="cursor:pointer;fill:rgba(148,163,184,0.16);stroke:rgba(148,163,184,0.38);stroke-width:0.8;transition:fill .18s,stroke .18s;">'
                  + shapes + '</g>';
         }
@@ -14468,15 +14470,18 @@
         // Personnage : image détourée (fond transparent), en fond des zones
         function _mmpSilhouette() {
             var img = (_mmpView === 'face') ? 'images/body/body_face.webp' : 'images/body/body_dos.webp';
-            return '<image href="' + img + '?v=750" x="0" y="0" width="200" height="298" '
-                 + 'preserveAspectRatio="xMidYMid meet" style="pointer-events:none;"/>';
+            // preserveAspectRatio="none" : l'image occupe EXACTEMENT le viewBox,
+            // donc le repère de l'image et celui des zones sont identiques.
+            // (Les proportions sont conservées : 784/1168 ≈ 200/298, écart < 0,2 %.)
+            return '<image href="' + img + '?v=753" x="0" y="0" width="200" height="298" '
+                 + 'preserveAspectRatio="none" style="pointer-events:none;"/>';
         }
 
         // Étiquette de nom, cliquable, placée autour du personnage
         function _mmpLabel(id, label) {
             var s = _mmpSafe(id);
             return '<button id="mmpLbl_' + s + '" data-muscle="' + id + '" '
-                 + 'onclick="toggleManualMuscle(\'' + id.replace(/'/g, "\\'") + '\')" '
+                 + 'onclick="' + (_mmpMode === 'pain' ? 'awakTogglePain' : 'toggleManualMuscle') + '(\'' + id.replace(/'/g, "\\'") + '\')" '
                  + 'style="width:100%;text-align:center;padding:7px 6px;border-radius:9px;border:1px solid #2E2F35;'
                  + 'background:#1a1b20;color:#94a3b8;font-size:0.72em;font-weight:800;cursor:pointer;'
                  + 'transition:all .18s;line-height:1.15;">' + label + '</button>';
@@ -14500,7 +14505,7 @@
             + '</div>'
             + '<div style="display:grid;grid-template-columns:1fr 1.35fr 1fr;gap:8px;align-items:center;margin-bottom:14px;">'
             +   col(L)
-            +   '<svg viewBox="0 0 200 298" style="width:100%;height:auto;max-height:340px;display:block;">'
+            +   '<svg viewBox="0 0 200 298" preserveAspectRatio="xMidYMid meet" style="width:100%;aspect-ratio:200/298;height:auto;display:block;align-self:center;margin:0 auto;">'
             +     _mmpSilhouette()
             +     (_mmpView === 'face' ? _mmpFrontShapes() : _mmpBackShapes())
             +   '</svg>'
@@ -14519,6 +14524,118 @@
             _manualSelectedMuscles.forEach(function (m) { _highlightMuscleBtn(m, true); });
         }
         window.setMusclePickerView = setMusclePickerView;
+
+
+        // ── 🤕 « Où as-tu mal ? » : déclaration visuelle des zones douloureuses ──
+        // Réutilise la silhouette du sélecteur de muscles, en mode 'pain'.
+        // Les zones marquées alimentent le système de blessures existant, qui
+        // écarte automatiquement ces muscles des séances intelligentes.
+        var _PAIN_ID = {
+            'Pectoraux':'pectoraux', 'Dos':'dos', 'Épaules':'epaules', 'Biceps':'biceps',
+            'Triceps':'triceps', 'Trapèzes':'trapèzes', 'Abdominaux':'abdominaux',
+            'Obliques':'obliques', 'Quadriceps':'quadriceps', 'Ischio-jambiers':'ischio',
+            'Fessiers':'fessiers', 'Mollets':'mollets', 'Avant-bras':'avant-bras'
+        };
+        // Nom affiché → identifiant stocké (les zones sans id gardent leur nom,
+        // ce qui reste compatible avec le filtrage des exercices).
+        function _painIdOf(name) { return _PAIN_ID[name] || name; }
+
+        function awakTogglePain(name) {
+            var id = _painIdOf(name);
+            if (typeof injuredMuscles === 'undefined') return;
+            var i = injuredMuscles.indexOf(id);
+            if (i > -1) { injuredMuscles.splice(i, 1); _highlightMuscleBtn(name, false); }
+            else { injuredMuscles.push(id); _highlightMuscleBtn(name, true); }
+            try { saveInjuredMuscles(); } catch (e) {}
+            try { if (typeof renderMuscleGrid === 'function') renderMuscleGrid(); } catch (e) {}
+            _awakPainUpdateCount();
+        }
+        window.awakTogglePain = awakTogglePain;
+
+        function _awakPainUpdateCount() {
+            var el = document.getElementById('awakPainCount');
+            if (!el) return;
+            var n = (typeof injuredMuscles !== 'undefined') ? injuredMuscles.length : 0;
+            el.innerHTML = n === 0
+                ? '<span style="color:#64748b;">Aucune zone douloureuse signalée</span>'
+                : '<span style="color:#f87171;font-weight:800;">' + n + ' zone' + (n > 1 ? 's' : '') + ' signalée' + (n > 1 ? 's' : '') + '</span> — ces muscles seront évités';
+        }
+
+        function awakOpenPainPicker() {
+            try { if (typeof loadInjuredMuscles === 'function') loadInjuredMuscles(); } catch (e) {}
+            document.getElementById('awakPainOverlay')?.remove();
+            _mmpMode = 'pain';
+            _mmpView = 'face';
+            var ov = document.createElement('div');
+            ov.id = 'awakPainOverlay';
+            ov.className = 'modal active';
+            ov.style.cssText = 'background:rgba(0,0,0,0.9);backdrop-filter:blur(8px);';
+            ov.onclick = function (e) { if (e.target === ov) awakClosePainPicker(); };
+            ov.innerHTML =
+              '<div class="modal-content" style="max-width:480px;background:#0D0D0D;border:1px solid rgba(255,255,255,0.08);">'
+            + '<div style="font-size:0.6em;color:#f87171;font-weight:900;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;text-align:center;">◈ État physique ◈</div>'
+            + '<h2 style="margin:0 0 6px;color:#f87171;font-size:1.15em;font-weight:900;text-align:center;">Où as-tu mal ?</h2>'
+            + '<p style="margin:0 0 14px;color:#94a3b8;font-size:0.82em;text-align:center;line-height:1.5;">Touche les zones douloureuses. Le Système évitera ces muscles dans tes séances.</p>'
+            + '<div id="mmpBodyHost">' + _mmpBodyBlock() + '</div>'
+            + '<div id="awakPainCount" style="text-align:center;font-size:0.78em;margin:10px 0 14px;"></div>'
+            + '<button onclick="awakClosePainPicker()" style="width:100%;padding:14px;border:none;border-radius:12px;cursor:pointer;font-weight:900;font-size:0.95em;background:linear-gradient(135deg,#22c55e,#16a34a);color:#04140a;">Terminé</button>'
+            + '<button onclick="awakClearPain()" style="width:100%;margin-top:8px;padding:11px;border:1px solid rgba(255,255,255,0.1);border-radius:11px;cursor:pointer;background:transparent;color:#94a3b8;font-weight:700;font-size:0.8em;">Je n\'ai mal nulle part</button>'
+            + '</div>';
+            document.body.appendChild(ov);
+            // Pas de Cardio en mode douleur (ce n'est pas une zone du corps)
+            var c = document.getElementById('mmpLbl_Cardio');
+            if (c && c.parentNode) c.parentNode.style.display = 'none';
+            (injuredMuscles || []).forEach(function (id) {
+                for (var name in _PAIN_ID) { if (_PAIN_ID[name] === id) _highlightMuscleBtn(name, true); }
+                _highlightMuscleBtn(id, true); // zones sans identifiant dédié
+            });
+            _awakPainUpdateCount();
+        }
+        window.awakOpenPainPicker = awakOpenPainPicker;
+
+        function awakClosePainPicker() {
+            document.getElementById('awakPainOverlay')?.remove();
+            _mmpMode = 'select'; // ne pas polluer le sélecteur de muscles
+            try { awakRenderPainCard(); } catch (e) {}
+        }
+        window.awakClosePainPicker = awakClosePainPicker;
+
+        function awakClearPain() {
+            if (typeof injuredMuscles === 'undefined') return;
+            injuredMuscles.length = 0;
+            try { saveInjuredMuscles(); } catch (e) {}
+            try { if (typeof renderMuscleGrid === 'function') renderMuscleGrid(); } catch (e) {}
+            document.querySelectorAll('[id^="mmpZone_"]').forEach(function (z) {
+                z.style.fill = 'rgba(148,163,184,0.16)'; z.style.stroke = 'rgba(148,163,184,0.38)'; z.style.filter = '';
+            });
+            document.querySelectorAll('[id^="mmpLbl_"]').forEach(function (l) {
+                l.style.background = '#1a1b20'; l.style.borderColor = '#2E2F35'; l.style.color = '#94a3b8'; l.style.boxShadow = '';
+            });
+            _awakPainUpdateCount();
+        }
+        window.awakClearPain = awakClearPain;
+
+        // Carte d'accès sur l'Accueil
+        function awakRenderPainCard() {
+            var host = document.getElementById('painCheckCard');
+            if (!host) return;
+            try { if (typeof loadInjuredMuscles === 'function') loadInjuredMuscles(); } catch (e) {}
+            var n = (typeof injuredMuscles !== 'undefined') ? injuredMuscles.length : 0;
+            var sub = n === 0
+                ? 'Signale une douleur pour adapter tes séances'
+                : n + ' zone' + (n > 1 ? 's' : '') + ' douloureuse' + (n > 1 ? 's' : '') + ' — muscles évités';
+            host.innerHTML =
+              '<div class="card" onclick="awakOpenPainPicker()" style="cursor:pointer;background:linear-gradient(135deg,rgba(239,68,68,0.06),rgba(239,68,68,0.02));border:1px solid rgba(239,68,68,' + (n ? '0.35' : '0.18') + ');">'
+            + '<div style="display:flex;align-items:center;gap:13px;">'
+            +   '<div style="font-size:1.7em;line-height:1;flex-shrink:0;">🤕</div>'
+            +   '<div style="flex:1;min-width:0;">'
+            +     '<div style="font-weight:900;color:' + (n ? '#f87171' : '#e2e8f0') + ';font-size:0.95em;margin-bottom:2px;">Où as-tu mal ?</div>'
+            +     '<div style="font-size:0.76em;color:#94a3b8;line-height:1.4;">' + sub + '</div>'
+            +   '</div>'
+            +   '<div style="color:#64748b;font-size:1.2em;flex-shrink:0;">›</div>'
+            + '</div></div>';
+        }
+        window.awakRenderPainCard = awakRenderPainCard;
 
         function showManualMusclePickerModal() {
             _manualSelectedMuscles = []; // toujours partir à zéro
@@ -14617,17 +14734,19 @@
             // 🧍 Zone du corps (SVG) — s'illumine en vert quand sélectionnée
             const zone = document.getElementById('mmpZone_' + safe);
             if (zone) {
-                zone.style.fill   = active ? 'rgba(34,211,238,0.5)' : 'rgba(148,163,184,0.16)';
-                zone.style.stroke = active ? '#22d3ee' : 'rgba(148,163,184,0.38)';
-                zone.style.filter = active ? 'drop-shadow(0 0 5px rgba(34,211,238,0.85))' : '';
+                var _acc = (_mmpMode === 'pain') ? '239,68,68' : '34,211,238';
+                zone.style.fill   = active ? 'rgba(' + _acc + ',0.5)' : 'rgba(148,163,184,0.16)';
+                zone.style.stroke = active ? 'rgb(' + _acc + ')' : 'rgba(148,163,184,0.38)';
+                zone.style.filter = active ? 'drop-shadow(0 0 5px rgba(' + _acc + ',0.85))' : '';
             }
             // 🏷️ Étiquette du nom, autour du personnage
             const lbl = document.getElementById('mmpLbl_' + safe);
             if (lbl) {
-                lbl.style.background  = active ? 'rgba(34,211,238,0.16)' : '#1a1b20';
-                lbl.style.borderColor = active ? '#22d3ee' : '#2E2F35';
-                lbl.style.color       = active ? '#22d3ee' : '#94a3b8';
-                lbl.style.boxShadow   = active ? '0 0 10px rgba(34,211,238,0.4)' : '';
+                var _acc2 = (_mmpMode === 'pain') ? '239,68,68' : '34,211,238';
+                lbl.style.background  = active ? 'rgba(' + _acc2 + ',0.16)' : '#1a1b20';
+                lbl.style.borderColor = active ? 'rgb(' + _acc2 + ')' : '#2E2F35';
+                lbl.style.color       = active ? 'rgb(' + _acc2 + ')' : '#94a3b8';
+                lbl.style.boxShadow   = active ? '0 0 10px rgba(' + _acc2 + ',0.4)' : '';
             }
             // Ancienne grille (conservée si présente ailleurs)
             const btn = document.getElementById('mmpBtn_' + safe);
@@ -33540,21 +33659,20 @@
             // Si aucun compagnon débloqué, ne pas afficher la carte
             // (sera révélée au premier unlock)
             if (unlocked.length === 0) {
-                // Afficher un teaser discret avec la 1ère condition de déblocage
-                const next = COMPANIONS[0]; // Marcus en premier
-                const data2 = awakCompanionsLoad();
-                const progress = data2.stats?.workouts || 0;
+                // Teaser : afficher la VRAIE condition de déblocage du 1er compagnon.
+                // (Tous les compagnons s'obtiennent via leur Faille dédiée — il n'y a
+                //  donc ni compteur de séances ni barre de progression ici.)
+                const next = COMPANIONS[0];
+                const cond = (next && next.unlockCondition) ? next.unlockCondition : null;
+                const condLabel = (cond && cond.label) ? cond.label : 'Poursuis ta progression pour en débloquer un';
                 return `
-                <div class="card" style="background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(255,255,255,0.06);padding:14px 16px;margin-bottom:14px;opacity:0.7;">
+                <div class="card" style="background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(255,255,255,0.06);padding:14px 16px;margin-bottom:14px;overflow:hidden;">
                     <div style="display:flex;align-items:center;gap:10px;">
                         <div style="font-size:1.8em;opacity:0.4;filter:grayscale(1);">🎭</div>
                         <div style="flex:1;min-width:0;">
                             <div style="font-size:0.6em;color:#94a3b8;font-weight:900;letter-spacing:2px;margin-bottom:2px;">◈ COMPAGNONS</div>
                             <div style="font-size:0.78em;color:#64748b;font-style:italic;">Un premier Ancrage te trouvera bientôt...</div>
-                            <div style="margin-top:6px;height:4px;background:rgba(255,255,255,0.04);border-radius:99px;overflow:hidden;">
-                                <div style="width:${Math.min(100, (progress/next.unlockCondition.value)*100)}%;height:100%;background:linear-gradient(90deg,#475569,#94a3b8);"></div>
-                            </div>
-                            <div style="margin-top:4px;font-size:0.62em;color:#475569;">${progress}/${next.unlockCondition.value} séances</div>
+                            <div style="margin-top:5px;font-size:0.66em;color:#94a3b8;">🌀 ${condLabel}</div>
                         </div>
                     </div>
                 </div>`;
