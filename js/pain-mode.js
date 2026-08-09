@@ -63,8 +63,28 @@
   // Clic sur un muscle du personnage → bascule la zone correspondante.
   window.AwakPainToggleMuscle = function (muscleName) {
     var zid = MUSCLE_TO_ZONE[muscleName];
-    if (zid) window.AwakPainToggle(zid);
+    if (!zid) return;
+    // 🐛 On NE rouvre PAS la fenêtre : cela réinitialisait la vue sur « Face »
+    // dès qu'on cliquait un muscle du dos. On bascule et on repeint sur place.
+    toggleZone(zid);
+    _paintBody();
+    _refreshExtraChips();
+    try { updateButton(); } catch (e) {}
   };
+  // Exposé : permet de rallumer les zones douloureuses après un changement de vue
+  window.AwakPainRepaint = function () { try { _paintBody(); } catch (e) {} };
+  // Rafraîchit les pastilles Poignets / Genoux sans reconstruire la fenêtre
+  function _refreshExtraChips() {
+    var active = _load();
+    ['poignets', 'genoux'].forEach(function (zid) {
+      var b = document.getElementById('painChip_' + zid);
+      if (!b) return;
+      var on = active.indexOf(zid) !== -1;
+      b.style.borderColor = on ? '#f59e0b' : 'rgba(255,255,255,0.1)';
+      b.style.background  = on ? 'rgba(245,158,11,0.14)' : 'rgba(255,255,255,0.03)';
+      b.style.color       = on ? '#f59e0b' : '#94a3b8';
+    });
+  }
   // Rallume sur le personnage tous les muscles des zones actives.
   function _paintBody() {
     if (!window._mmpHighlight) return;
@@ -222,11 +242,11 @@
   window.AwakPainOpen = function () {
     var active = _load();
     // Le personnage passe en mode « douleur » (surbrillance rouge, clics → zones)
-    try { if (window._mmpSetMode) { window._mmpSetMode('pain'); window._mmpResetView(); } } catch (e) {}
+    try { if (window._mmpSetMode) { window._mmpSetMode('pain'); if (!document.getElementById('awakPainModal')) window._mmpResetView(); } } catch (e) {}
     // Zones sans équivalent sur la silhouette → conservées en pastilles
     var extraChips = ZONES.filter(function (z) { return z.id === 'poignets' || z.id === 'genoux'; }).map(function (z) {
       var on = active.indexOf(z.id) !== -1;
-      return '<button onclick="AwakPainToggle(\'' + z.id + '\')" style="display:flex;align-items:center;justify-content:center;gap:7px;padding:11px 8px;border-radius:12px;cursor:pointer;border:1.5px solid ' + (on ? '#f59e0b' : 'rgba(255,255,255,0.1)') + ';background:' + (on ? 'rgba(245,158,11,0.14)' : 'rgba(255,255,255,0.03)') + ';color:' + (on ? '#f59e0b' : '#94a3b8') + ';font-weight:800;font-size:0.78em;">'
+      return '<button id="painChip_' + z.id + '" onclick="AwakPainToggleChip(\'' + z.id + '\')" style="display:flex;align-items:center;justify-content:center;gap:7px;padding:11px 8px;border-radius:12px;cursor:pointer;border:1.5px solid ' + (on ? '#f59e0b' : 'rgba(255,255,255,0.1)') + ';background:' + (on ? 'rgba(245,158,11,0.14)' : 'rgba(255,255,255,0.03)') + ';color:' + (on ? '#f59e0b' : '#94a3b8') + ';font-weight:800;font-size:0.78em;">'
         + '<span style="font-size:1.2em;">' + z.emoji + '</span>' + esc(z.label) + (on ? ' ✓' : '') + '</button>';
     }).join('');
     var chips = ZONES.map(function (z) {
@@ -269,6 +289,11 @@
     toggleZone(id);
     _closeModal();
     window.AwakPainOpen();   // rouvrir pour refléter l'état
+  };
+  window.AwakPainToggleChip = function (zid) {
+    toggleZone(zid);
+    _refreshExtraChips();
+    try { updateButton(); } catch (e) {}
   };
   window.AwakPainClear = function () {
     clear();

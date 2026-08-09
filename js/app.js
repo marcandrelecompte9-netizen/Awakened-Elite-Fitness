@@ -6224,6 +6224,15 @@
             for (let i = 0; i < exs.length; i++) {
                 const ex = exs[i];
                 if (!ex || !ex.name || ex.isRest || ex.isInfo || skip.test(ex.name)) continue;
+                // 🐛 L'exclusion par NOM ne suffisait pas : « Mobilité hanches &
+                // épaules (préhab) » est un échauffement sans le mot « échauffement »,
+                // et recevait donc une prescription de force (4×8-12, repos 80 s) —
+                // ce qui allongeait aussi le repos qui suit. On exclut désormais
+                // sur le TYPE réel (échauffement/étirement) et sur le mode minuteur.
+                const _dbEx = exerciseDatabase.find(e => e.name === ex.name);
+                const _tp = ex.isWarmup ? 'warmup' : (ex.isStretch ? 'stretch' : (ex.type || (_dbEx ? _dbEx.type : '')));
+                if (_tp === 'warmup' || _tp === 'stretch') continue;
+                if (ex.mode === 'timer' || ex.mode === 'duration') continue;
                 const exType = (typeof getExerciseType === 'function') ? getExerciseType(ex.name) : 'force';
                 const p = awakPrescribe(goal, level, ex.structureType, exType);
                 const lastPerf = (typeof getLastPerformance === 'function') ? getLastPerformance(ex.name) : null;
@@ -14511,7 +14520,7 @@
             // preserveAspectRatio="none" : l'image occupe EXACTEMENT le viewBox,
             // donc le repère de l'image et celui des zones sont identiques.
             // (Les proportions sont conservées : 784/1168 ≈ 200/298, écart < 0,2 %.)
-            return '<image href="' + img + '?v=757" x="0" y="0" width="200" height="298" '
+            return '<image href="' + img + '?v=760" x="0" y="0" width="200" height="298" '
                  + 'preserveAspectRatio="none" style="pointer-events:none;"/>';
         }
 
@@ -14559,7 +14568,13 @@
             var host = document.getElementById('mmpBodyHost');
             if (!host) return;
             host.innerHTML = _mmpBodyBlock();
-            _manualSelectedMuscles.forEach(function (m) { _highlightMuscleBtn(m, true); });
+            if (_mmpMode === 'pain') {
+                // En mode douleur, c'est pain-mode.js qui sait quelles zones sont
+                // actives : on lui demande de repeindre la nouvelle vue.
+                try { if (window.AwakPainRepaint) window.AwakPainRepaint(); } catch (e) {}
+            } else {
+                _manualSelectedMuscles.forEach(function (m) { _highlightMuscleBtn(m, true); });
+            }
         }
         window.setMusclePickerView = setMusclePickerView;
         // Réutilisable par d'autres écrans (ex. « Où as-tu mal ? » de pain-mode.js)
@@ -23633,7 +23648,21 @@
             (function(){
                 const host = document.getElementById('exerciseName');
                 let card = document.getElementById('awakCoachCard');
-                const show = exercise && !exercise.isRest && !exercise.isInfo && exercise.recoSets;
+                // 🎯 La prescription (séries × reps · repos) n'a de sens que pour un
+                // exercice de FORCE exécuté en mode répétitions. On la masque donc :
+                //  • sur les échauffements et étirements (ce ne sont pas des séries)
+                //  • sur tout exercice chronométré (mode timer/duration)
+                const _dbType = (function () {
+                    if (!exercise) return '';
+                    if (exercise.isWarmup || exercise.type === 'warmup') return 'warmup';
+                    if (exercise.isStretch || exercise.type === 'stretch') return 'stretch';
+                    const d = exerciseDatabase.find(e => e.name === (exercise._baseName || exercise.name));
+                    return d ? d.type : '';
+                })();
+                const _estChrono = exercise && (exercise.mode === 'timer' || exercise.mode === 'duration');
+                const _estAnnexe = (_dbType === 'warmup' || _dbType === 'stretch');
+                const show = exercise && !exercise.isRest && !exercise.isInfo && exercise.recoSets
+                             && !_estChrono && !_estAnnexe;
                 if (!show) { if (card) card.style.display = 'none'; return; }
                 if (!card) {
                     card = document.createElement('div');
@@ -23653,7 +23682,18 @@
                 let card = document.getElementById('awakGoalCard');
                 const baseName = exercise ? (exercise._baseName || exercise.name) : '';
                 let entry = null;
-                if (exercise && !exercise.isRest && !exercise.isInfo && typeof awakHallGetCustom === 'function') {
+                // Même règle que la prescription : pas d'objectif/record sur un
+                // échauffement, un étirement ou un exercice chronométré.
+                const _gT = (function () {
+                    if (!exercise) return '';
+                    if (exercise.isWarmup || exercise.type === 'warmup') return 'warmup';
+                    if (exercise.isStretch || exercise.type === 'stretch') return 'stretch';
+                    const d = exerciseDatabase.find(e => e.name === (exercise._baseName || exercise.name));
+                    return d ? d.type : '';
+                })();
+                const _gChrono = exercise && (exercise.mode === 'timer' || exercise.mode === 'duration');
+                if (exercise && !exercise.isRest && !exercise.isInfo && !_gChrono
+                    && _gT !== 'warmup' && _gT !== 'stretch' && typeof awakHallGetCustom === 'function') {
                     const matches = awakHallGetCustom().filter(c => c.exercise === baseName);
                     entry = matches.find(c => c.isGoal) || matches[0] || null;
                 }
