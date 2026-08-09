@@ -7666,9 +7666,34 @@
                 }).join('');
             }
 
-            // Count exercises (excluding rest and info)
-            const exerciseCount = workout.exercises.filter(ex => !ex.isRest && !ex.isInfo).length;
-            document.getElementById('prepExerciseCount').textContent = exerciseCount;
+            // 🔢 Décompte DÉTAILLÉ : échauffement / exercices / étirements.
+            // Le type vient de la base d'exercices (warmup / stretch), avec un repli
+            // sur les marqueurs éventuels portés par l'entrée elle-même.
+            const _reels = workout.exercises.filter(ex => !ex.isRest && !ex.isInfo);
+            const _typeDe = function (ex) {
+                if (ex.isWarmup || ex.type === 'warmup') return 'warmup';
+                if (ex.isStretch || ex.type === 'stretch') return 'stretch';
+                const db = exerciseDatabase.find(e => e.name === ex.name);
+                if (db && (db.type === 'warmup' || db.type === 'stretch')) return db.type;
+                return 'main';
+            };
+            let _nEch = 0, _nEti = 0, _nMain = 0;
+            _reels.forEach(function (ex) {
+                const t = _typeDe(ex);
+                if (t === 'warmup') _nEch++; else if (t === 'stretch') _nEti++; else _nMain++;
+            });
+            const exerciseCount = _reels.length;
+            const _cntEl = document.getElementById('prepExerciseCount');
+            if (_cntEl) _cntEl.textContent = _nMain || exerciseCount;
+            // Détail sous le compteur (masqué s'il n'y a ni échauffement ni étirement)
+            const _brk = document.getElementById('prepExerciseBreakdown');
+            if (_brk) {
+                const parts = [];
+                if (_nEch) parts.push('<span style="color:#fbbf24;">🏃 ' + _nEch + ' échauff.</span>');
+                if (_nEti) parts.push('<span style="color:#4ade80;">🧘 ' + _nEti + ' étir.</span>');
+                _brk.innerHTML = parts.join('<span style="color:#334155;"> · </span>');
+                _brk.style.display = parts.length ? 'block' : 'none';
+            }
 
             // Calculate duration
             const totalSeconds = workout.exercises.reduce((sum, ex) => sum + (ex.duration || 0), 0);
@@ -7677,7 +7702,20 @@
 
             // Display exercise list
             const exercisesList = document.getElementById('prepExercisesList');
-            const realExercises = workout.exercises.filter(ex => !ex.isRest && !ex.isInfo);
+            // 📋 La liste ne montre que les VRAIS exercices : échauffements et
+            // étirements restent bien dans la séance (leur nombre est indiqué
+            // sous le compteur), mais on n'allonge pas la liste avec eux.
+            const _estAnnexe = function (ex) {
+                if (ex.isWarmup || ex.type === 'warmup' || ex.isStretch || ex.type === 'stretch') return true;
+                const db = exerciseDatabase.find(e => e.name === (typeof ex === 'string' ? ex : ex.name));
+                return !!(db && (db.type === 'warmup' || db.type === 'stretch'));
+            };
+            let realExercises = workout.exercises.filter(ex => !ex.isRest && !ex.isInfo && !_estAnnexe(ex));
+            // Sécurité : si la séance ne contient QUE de l'échauffement/étirement
+            // (ex. routine mobilité), on réaffiche tout plutôt qu'une liste vide.
+            if (realExercises.length === 0) {
+                realExercises = workout.exercises.filter(ex => !ex.isRest && !ex.isInfo);
+            }
 
             if (realExercises.length === 0) {
                 exercisesList.innerHTML = '<div style="text-align:center;color:#6b7280;padding:16px;">Aucun exercice</div>';
@@ -14462,7 +14500,7 @@
         function _mmpZone(id, shapes) {
             var s = _mmpSafe(id);
             return '<g id="mmpZone_' + s + '" class="mmp-zone" data-muscle="' + id + '" '
-                 + 'onclick="' + (_mmpMode === 'pain' ? 'awakTogglePain' : 'toggleManualMuscle') + '(\'' + id.replace(/'/g, "\\'") + '\')" '
+                 + 'onclick="' + (_mmpMode === 'pain' ? 'AwakPainToggleMuscle' : 'toggleManualMuscle') + '(\'' + id.replace(/'/g, "\\'") + '\')" '
                  + 'style="cursor:pointer;fill:rgba(148,163,184,0.16);stroke:rgba(148,163,184,0.38);stroke-width:0.8;transition:fill .18s,stroke .18s;">'
                  + shapes + '</g>';
         }
@@ -14473,7 +14511,7 @@
             // preserveAspectRatio="none" : l'image occupe EXACTEMENT le viewBox,
             // donc le repère de l'image et celui des zones sont identiques.
             // (Les proportions sont conservées : 784/1168 ≈ 200/298, écart < 0,2 %.)
-            return '<image href="' + img + '?v=753" x="0" y="0" width="200" height="298" '
+            return '<image href="' + img + '?v=757" x="0" y="0" width="200" height="298" '
                  + 'preserveAspectRatio="none" style="pointer-events:none;"/>';
         }
 
@@ -14481,7 +14519,7 @@
         function _mmpLabel(id, label) {
             var s = _mmpSafe(id);
             return '<button id="mmpLbl_' + s + '" data-muscle="' + id + '" '
-                 + 'onclick="' + (_mmpMode === 'pain' ? 'awakTogglePain' : 'toggleManualMuscle') + '(\'' + id.replace(/'/g, "\\'") + '\')" '
+                 + 'onclick="' + (_mmpMode === 'pain' ? 'AwakPainToggleMuscle' : 'toggleManualMuscle') + '(\'' + id.replace(/'/g, "\\'") + '\')" '
                  + 'style="width:100%;text-align:center;padding:7px 6px;border-radius:9px;border:1px solid #2E2F35;'
                  + 'background:#1a1b20;color:#94a3b8;font-size:0.72em;font-weight:800;cursor:pointer;'
                  + 'transition:all .18s;line-height:1.15;">' + label + '</button>';
@@ -14524,108 +14562,24 @@
             _manualSelectedMuscles.forEach(function (m) { _highlightMuscleBtn(m, true); });
         }
         window.setMusclePickerView = setMusclePickerView;
+        // Réutilisable par d'autres écrans (ex. « Où as-tu mal ? » de pain-mode.js)
+        window._mmpBodyBlock = _mmpBodyBlock;
+        window._mmpHighlight = _highlightMuscleBtn;
+        window._mmpSetMode = function (m) { _mmpMode = m; };
+        window._mmpResetView = function () { _mmpView = 'face'; };
 
-
-        // ── 🤕 « Où as-tu mal ? » : déclaration visuelle des zones douloureuses ──
-        // Réutilise la silhouette du sélecteur de muscles, en mode 'pain'.
-        // Les zones marquées alimentent le système de blessures existant, qui
-        // écarte automatiquement ces muscles des séances intelligentes.
-        var _PAIN_ID = {
-            'Pectoraux':'pectoraux', 'Dos':'dos', 'Épaules':'epaules', 'Biceps':'biceps',
-            'Triceps':'triceps', 'Trapèzes':'trapèzes', 'Abdominaux':'abdominaux',
-            'Obliques':'obliques', 'Quadriceps':'quadriceps', 'Ischio-jambiers':'ischio',
-            'Fessiers':'fessiers', 'Mollets':'mollets', 'Avant-bras':'avant-bras'
-        };
-        // Nom affiché → identifiant stocké (les zones sans id gardent leur nom,
-        // ce qui reste compatible avec le filtrage des exercices).
-        function _painIdOf(name) { return _PAIN_ID[name] || name; }
-
-        function awakTogglePain(name) {
-            var id = _painIdOf(name);
-            if (typeof injuredMuscles === 'undefined') return;
-            var i = injuredMuscles.indexOf(id);
-            if (i > -1) { injuredMuscles.splice(i, 1); _highlightMuscleBtn(name, false); }
-            else { injuredMuscles.push(id); _highlightMuscleBtn(name, true); }
-            try { saveInjuredMuscles(); } catch (e) {}
-            try { if (typeof renderMuscleGrid === 'function') renderMuscleGrid(); } catch (e) {}
-            _awakPainUpdateCount();
-        }
-        window.awakTogglePain = awakTogglePain;
-
-        function _awakPainUpdateCount() {
-            var el = document.getElementById('awakPainCount');
-            if (!el) return;
-            var n = (typeof injuredMuscles !== 'undefined') ? injuredMuscles.length : 0;
-            el.innerHTML = n === 0
-                ? '<span style="color:#64748b;">Aucune zone douloureuse signalée</span>'
-                : '<span style="color:#f87171;font-weight:800;">' + n + ' zone' + (n > 1 ? 's' : '') + ' signalée' + (n > 1 ? 's' : '') + '</span> — ces muscles seront évités';
-        }
-
-        function awakOpenPainPicker() {
-            try { if (typeof loadInjuredMuscles === 'function') loadInjuredMuscles(); } catch (e) {}
-            document.getElementById('awakPainOverlay')?.remove();
-            _mmpMode = 'pain';
-            _mmpView = 'face';
-            var ov = document.createElement('div');
-            ov.id = 'awakPainOverlay';
-            ov.className = 'modal active';
-            ov.style.cssText = 'background:rgba(0,0,0,0.9);backdrop-filter:blur(8px);';
-            ov.onclick = function (e) { if (e.target === ov) awakClosePainPicker(); };
-            ov.innerHTML =
-              '<div class="modal-content" style="max-width:480px;background:#0D0D0D;border:1px solid rgba(255,255,255,0.08);">'
-            + '<div style="font-size:0.6em;color:#f87171;font-weight:900;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;text-align:center;">◈ État physique ◈</div>'
-            + '<h2 style="margin:0 0 6px;color:#f87171;font-size:1.15em;font-weight:900;text-align:center;">Où as-tu mal ?</h2>'
-            + '<p style="margin:0 0 14px;color:#94a3b8;font-size:0.82em;text-align:center;line-height:1.5;">Touche les zones douloureuses. Le Système évitera ces muscles dans tes séances.</p>'
-            + '<div id="mmpBodyHost">' + _mmpBodyBlock() + '</div>'
-            + '<div id="awakPainCount" style="text-align:center;font-size:0.78em;margin:10px 0 14px;"></div>'
-            + '<button onclick="awakClosePainPicker()" style="width:100%;padding:14px;border:none;border-radius:12px;cursor:pointer;font-weight:900;font-size:0.95em;background:linear-gradient(135deg,#22c55e,#16a34a);color:#04140a;">Terminé</button>'
-            + '<button onclick="awakClearPain()" style="width:100%;margin-top:8px;padding:11px;border:1px solid rgba(255,255,255,0.1);border-radius:11px;cursor:pointer;background:transparent;color:#94a3b8;font-weight:700;font-size:0.8em;">Je n\'ai mal nulle part</button>'
-            + '</div>';
-            document.body.appendChild(ov);
-            // Pas de Cardio en mode douleur (ce n'est pas une zone du corps)
-            var c = document.getElementById('mmpLbl_Cardio');
-            if (c && c.parentNode) c.parentNode.style.display = 'none';
-            (injuredMuscles || []).forEach(function (id) {
-                for (var name in _PAIN_ID) { if (_PAIN_ID[name] === id) _highlightMuscleBtn(name, true); }
-                _highlightMuscleBtn(id, true); // zones sans identifiant dédié
-            });
-            _awakPainUpdateCount();
-        }
-        window.awakOpenPainPicker = awakOpenPainPicker;
-
-        function awakClosePainPicker() {
-            document.getElementById('awakPainOverlay')?.remove();
-            _mmpMode = 'select'; // ne pas polluer le sélecteur de muscles
-            try { awakRenderPainCard(); } catch (e) {}
-        }
-        window.awakClosePainPicker = awakClosePainPicker;
-
-        function awakClearPain() {
-            if (typeof injuredMuscles === 'undefined') return;
-            injuredMuscles.length = 0;
-            try { saveInjuredMuscles(); } catch (e) {}
-            try { if (typeof renderMuscleGrid === 'function') renderMuscleGrid(); } catch (e) {}
-            document.querySelectorAll('[id^="mmpZone_"]').forEach(function (z) {
-                z.style.fill = 'rgba(148,163,184,0.16)'; z.style.stroke = 'rgba(148,163,184,0.38)'; z.style.filter = '';
-            });
-            document.querySelectorAll('[id^="mmpLbl_"]').forEach(function (l) {
-                l.style.background = '#1a1b20'; l.style.borderColor = '#2E2F35'; l.style.color = '#94a3b8'; l.style.boxShadow = '';
-            });
-            _awakPainUpdateCount();
-        }
-        window.awakClearPain = awakClearPain;
 
         // Carte d'accès sur l'Accueil
         function awakRenderPainCard() {
             var host = document.getElementById('painCheckCard');
             if (!host) return;
-            try { if (typeof loadInjuredMuscles === 'function') loadInjuredMuscles(); } catch (e) {}
-            var n = (typeof injuredMuscles !== 'undefined') ? injuredMuscles.length : 0;
+            var n = 0;
+            try { n = (window.AwakPain && window.AwakPain.activeZones) ? window.AwakPain.activeZones().length : 0; } catch (e) {}
             var sub = n === 0
                 ? 'Signale une douleur pour adapter tes séances'
-                : n + ' zone' + (n > 1 ? 's' : '') + ' douloureuse' + (n > 1 ? 's' : '') + ' — muscles évités';
+                : n + ' zone' + (n > 1 ? 's' : '') + ' douloureuse' + (n > 1 ? 's' : '') + ' — exercices évités';
             host.innerHTML =
-              '<div class="card" onclick="awakOpenPainPicker()" style="cursor:pointer;background:linear-gradient(135deg,rgba(239,68,68,0.06),rgba(239,68,68,0.02));border:1px solid rgba(239,68,68,' + (n ? '0.35' : '0.18') + ');">'
+              '<div class="card" onclick="if(window.AwakPainOpen)AwakPainOpen();" style="cursor:pointer;background:linear-gradient(135deg,rgba(239,68,68,0.06),rgba(239,68,68,0.02));border:1px solid rgba(239,68,68,' + (n ? '0.35' : '0.18') + ');">'
             + '<div style="display:flex;align-items:center;gap:13px;">'
             +   '<div style="font-size:1.7em;line-height:1;flex-shrink:0;">🤕</div>'
             +   '<div style="flex:1;min-width:0;">'
@@ -23633,9 +23587,9 @@
             
             if (exerciseFromDB) {
                 if (exerciseFromDB.type === 'warmup') {
-                    exerciseNameHTML = `<span style="display: inline-block; background: #fbbf24; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8em; margin-right: 10px; font-weight: bold;">🏃‍♂️ ÉCHAUFFEMENT</span>${exercise.name}`;
+                    exerciseNameHTML = `<span style="display:inline-block;background:#fbbf24;color:#0d0d0d;padding:2px 8px;border-radius:20px;font-size:0.52em;margin-right:7px;font-weight:900;letter-spacing:0.5px;vertical-align:middle;">🏃‍♂️ ÉCHAUFFEMENT</span>${exercise.name}`;
                 } else if (exerciseFromDB.type === 'stretch') {
-                    exerciseNameHTML = `<span style="display: inline-block; background: #22c55e; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8em; margin-right: 10px; font-weight: bold;">🧘 ÉTIREMENT</span>${exercise.name}`;
+                    exerciseNameHTML = `<span style="display:inline-block;background:#22c55e;color:#0d0d0d;padding:2px 8px;border-radius:20px;font-size:0.52em;margin-right:7px;font-weight:900;letter-spacing:0.5px;vertical-align:middle;">🧘 ÉTIREMENT</span>${exercise.name}`;
                 }
             }
             

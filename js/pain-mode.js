@@ -50,6 +50,30 @@
     { id: 'genoux',  label: 'Genoux',          emoji: '🦿', muscles: ['Quadriceps', 'Ischio-jambiers', 'Mollets'] }
   ];
 
+
+  // 🧍 Correspondance muscle (silhouette) → zone de douleur.
+  var MUSCLE_TO_ZONE = {
+    'Biceps':'bras', 'Triceps':'bras', 'Avant-bras':'bras',
+    'Épaules':'epaules', 'Trapèzes':'epaules',
+    'Pectoraux':'poitrine', 'Dos':'dos',
+    'Abdominaux':'abdos', 'Obliques':'abdos',
+    'Quadriceps':'jambes', 'Ischio-jambiers':'jambes', 'Mollets':'jambes',
+    'Fessiers':'jambes', 'Adducteurs':'jambes'
+  };
+  // Clic sur un muscle du personnage → bascule la zone correspondante.
+  window.AwakPainToggleMuscle = function (muscleName) {
+    var zid = MUSCLE_TO_ZONE[muscleName];
+    if (zid) window.AwakPainToggle(zid);
+  };
+  // Rallume sur le personnage tous les muscles des zones actives.
+  function _paintBody() {
+    if (!window._mmpHighlight) return;
+    var active = _load();
+    for (var m in MUSCLE_TO_ZONE) {
+      window._mmpHighlight(m, active.indexOf(MUSCLE_TO_ZONE[m]) !== -1);
+    }
+  }
+
   function _load() {
     try {
       _migrer();
@@ -197,6 +221,14 @@
 
   window.AwakPainOpen = function () {
     var active = _load();
+    // Le personnage passe en mode « douleur » (surbrillance rouge, clics → zones)
+    try { if (window._mmpSetMode) { window._mmpSetMode('pain'); window._mmpResetView(); } } catch (e) {}
+    // Zones sans équivalent sur la silhouette → conservées en pastilles
+    var extraChips = ZONES.filter(function (z) { return z.id === 'poignets' || z.id === 'genoux'; }).map(function (z) {
+      var on = active.indexOf(z.id) !== -1;
+      return '<button onclick="AwakPainToggle(\'' + z.id + '\')" style="display:flex;align-items:center;justify-content:center;gap:7px;padding:11px 8px;border-radius:12px;cursor:pointer;border:1.5px solid ' + (on ? '#f59e0b' : 'rgba(255,255,255,0.1)') + ';background:' + (on ? 'rgba(245,158,11,0.14)' : 'rgba(255,255,255,0.03)') + ';color:' + (on ? '#f59e0b' : '#94a3b8') + ';font-weight:800;font-size:0.78em;">'
+        + '<span style="font-size:1.2em;">' + z.emoji + '</span>' + esc(z.label) + (on ? ' ✓' : '') + '</button>';
+    }).join('');
     var chips = ZONES.map(function (z) {
       var on = active.indexOf(z.id) !== -1;
       return '<button onclick="AwakPainToggle(\'' + z.id + '\')" style="display:flex;flex-direction:column;align-items:center;gap:5px;padding:14px 8px;border-radius:14px;cursor:pointer;border:2px solid ' + (on ? '#f59e0b' : 'rgba(255,255,255,0.1)') + ';background:' + (on ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.03)') + ';color:#fff;transition:all 0.15s;">'
@@ -216,7 +248,10 @@
       +   '<div style="flex:1;"><div style="font-size:1.1em;font-weight:900;color:#fff;">Où as-tu mal ?</div>'
       +   '<div style="font-size:0.76em;color:#94a3b8;">Sélectionne les zones à éviter aujourd\'hui.</div></div>'
       + '</div>'
-      + '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:16px 0;">' + chips + '</div>'
+      + (window._mmpBodyBlock
+            ? '<div id="mmpBodyHost" style="margin:12px 0 4px;">' + window._mmpBodyBlock() + '</div>'
+              + '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin:6px 0 14px;">' + extraChips + '</div>'
+            : '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:16px 0;">' + chips + '</div>')
       + '<div style="font-size:0.72em;color:#64748b;line-height:1.4;margin-bottom:14px;">Les séances générées éviteront ces zones, y compris les exercices qui les sollicitent indirectement. Pense à consulter un professionnel si la douleur est forte ou dure.</div>'
       + '<div style="padding:10px 12px;margin-bottom:14px;border-radius:11px;background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.25);">'
       +   '<div style="font-size:0.76em;color:#7dd3fc;font-weight:700;margin-bottom:4px;">🛡️ Blessure ou pause forcée ?</div>'
@@ -227,6 +262,7 @@
       + '<button onclick="AwakPainCloseModal()" style="width:100%;padding:13px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;font-weight:800;font-size:0.9em;">Terminé</button>'
       + '</div>';
     document.body.appendChild(overlay);
+    try { _paintBody(); } catch (e) {}
   };
 
   window.AwakPainToggle = function (id) {
@@ -240,7 +276,7 @@
     updateButton();
   };
   function _closeModal() { var el = document.getElementById('awakPainModal'); if (el) el.remove(); }
-  window.AwakPainCloseModal = function () { _closeModal(); updateButton(); };
+  window.AwakPainCloseModal = function () { _closeModal(); try { if (window._mmpSetMode) window._mmpSetMode('select'); } catch (e) {} updateButton(); try { if (window.awakRenderPainCard) window.awakRenderPainCard(); } catch (e) {} };
 
   window.AwakPain.renderButton = renderButton;
   window.AwakPain.updateButton = updateButton;
