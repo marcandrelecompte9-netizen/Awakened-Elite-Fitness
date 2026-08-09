@@ -14433,42 +14433,42 @@
         // Zones de la vue de FACE
         function _mmpFrontShapes() {
             return ''
-            + _mmpZone('Trapèzes',   '<path d="M84,48 L100,41 L116,48 L112,59 L100,53 L88,59 Z"/>')
-            + _mmpZone('Épaules',    '<ellipse cx="69" cy="70" rx="12" ry="12"/><ellipse cx="131" cy="70" rx="12" ry="12"/>')
-            + _mmpZone('Pectoraux',  '<path d="M80,62 C88,58 97,60 99,68 L99,92 C88,94 79,87 78,75 Z"/><path d="M120,62 C112,58 103,60 101,68 L101,92 C112,94 121,87 122,75 Z"/>')
-            + _mmpZone('Biceps',     '<ellipse cx="51" cy="98" rx="11" ry="17"/><ellipse cx="149" cy="98" rx="11" ry="17"/>')
-            + _mmpZone('Avant-bras', '<path d="M42,112 L54,119 L29,153 L17,145 Z"/><path d="M158,112 L146,119 L171,153 L183,145 Z"/>')
-            + _mmpZone('Abdominaux', '<path d="M81,96 h38 a3,3 0 0 1 3,3 v29 a3,3 0 0 1 -3,3 h-38 a3,3 0 0 1 -3,-3 v-29 a3,3 0 0 1 3,-3 Z"/>')
-            + _mmpZone('Obliques',   '<path d="M71,97 L79,94 L79,131 L73,124 Z"/><path d="M129,97 L121,94 L121,131 L127,124 Z"/>')
-            + _mmpZone('Quadriceps', '<ellipse cx="79" cy="178" rx="14" ry="26"/><ellipse cx="121" cy="178" rx="14" ry="26"/>')
-            + _mmpZone('Adducteurs', '<path d="M93,150 L107,150 L105,193 L95,193 Z"/>')
-            + _mmpZone('Mollets',    '<ellipse cx="67" cy="232" rx="9" ry="20"/><ellipse cx="133" cy="232" rx="9" ry="20"/>');
+            + _mmpZone('Trapèzes',   '<path d="M87,49 L100,43 L113,49 L110,58 L100,53 L90,58 Z"/>')
+            + _mmpZone('Épaules',    '<ellipse cx="70" cy="70" rx="9.5" ry="9.5"/><ellipse cx="130" cy="70" rx="9.5" ry="9.5"/>')
+            + _mmpZone('Pectoraux',  '<path d="M82,64 C89,61 97,63 99,70 L99,90 C89,92 82,86 81,76 Z"/><path d="M118,64 C111,61 103,63 101,70 L101,90 C111,92 118,86 119,76 Z"/>')
+            + _mmpZone('Biceps',     '<ellipse cx="50" cy="97" rx="8.5" ry="13"/><ellipse cx="150" cy="97" rx="8.5" ry="13"/>')
+            + _mmpZone('Avant-bras', '<path d="M40,116 L48,120 L30,148 L22,144 Z"/><path d="M160,116 L152,120 L170,148 L178,144 Z"/>')
+            + _mmpZone('Abdominaux', '<path d="M85,97 h30 a3,3 0 0 1 3,3 v27 a3,3 0 0 1 -3,3 h-30 a3,3 0 0 1 -3,-3 v-27 a3,3 0 0 1 3,-3 Z"/>')
+            + _mmpZone('Obliques',   '<path d="M76,99 L82,96 L82,128 L78,122 Z"/><path d="M124,99 L118,96 L118,128 L122,122 Z"/>')
+            + _mmpZone('Quadriceps', '<ellipse cx="80" cy="177" rx="10" ry="21"/><ellipse cx="120" cy="177" rx="10" ry="21"/>')
+            + _mmpZone('Adducteurs', '<path d="M95,153 L105,153 L103,188 L97,188 Z"/>')
+            + _mmpZone('Mollets',    '<ellipse cx="67" cy="231" rx="7" ry="16"/><ellipse cx="133" cy="231" rx="7" ry="16"/>');
         }
         // Zones de la vue de DOS
         function _mmpBackShapes() {
             return ''
-            + _mmpZone('Trapèzes',   '<path d="M82,46 L100,39 L118,46 L114,74 L100,66 L86,74 Z"/>')
-            + _mmpZone('Épaules',    '<ellipse cx="68" cy="68" rx="12" ry="12"/><ellipse cx="132" cy="68" rx="12" ry="12"/>')
-            + _mmpZone('Dos',        '<path d="M78,72 L98,79 L98,124 L84,112 Z"/><path d="M122,72 L102,79 L102,124 L116,112 Z"/>')
-            + _mmpZone('Triceps',    '<ellipse cx="52" cy="94" rx="11" ry="17"/><ellipse cx="148" cy="94" rx="11" ry="17"/>')
-            + _mmpZone('Avant-bras', '<path d="M41,110 L53,117 L28,151 L16,143 Z"/><path d="M159,110 L147,117 L172,151 L184,143 Z"/>')
-            + _mmpZone('Fessiers',   '<path d="M78,129 C78,119 99,119 99,129 L99,151 C99,161 78,161 78,151 Z"/><path d="M122,129 C122,119 101,119 101,129 L101,151 C101,161 122,161 122,151 Z"/>')
-            + _mmpZone('Ischio-jambiers', '<ellipse cx="80" cy="181" rx="14" ry="25"/><ellipse cx="120" cy="181" rx="14" ry="25"/>')
-            + _mmpZone('Mollets',    '<ellipse cx="70" cy="234" rx="9" ry="20"/><ellipse cx="130" cy="234" rx="9" ry="20"/>');
+            + _mmpZone('Trapèzes',   '<path d="M86,47 L100,41 L114,47 L111,70 L100,64 L89,70 Z"/>')
+            + _mmpZone('Épaules',    '<ellipse cx="70" cy="68" rx="9.5" ry="9.5"/><ellipse cx="130" cy="68" rx="9.5" ry="9.5"/>')
+            + _mmpZone('Dos',        '<path d="M83,75 L98,81 L98,120 L87,110 Z"/><path d="M117,75 L102,81 L102,120 L113,110 Z"/>')
+            + _mmpZone('Triceps',    '<ellipse cx="51" cy="94" rx="8.5" ry="13"/><ellipse cx="149" cy="94" rx="8.5" ry="13"/>')
+            + _mmpZone('Avant-bras', '<path d="M39,114 L47,118 L29,146 L21,142 Z"/><path d="M161,114 L153,118 L171,146 L179,142 Z"/>')
+            + _mmpZone('Fessiers',   '<path d="M82,131 C82,123 99,123 99,131 L99,149 C99,157 82,157 82,149 Z"/><path d="M118,131 C118,123 101,123 101,131 L101,149 C101,157 118,157 118,149 Z"/>')
+            + _mmpZone('Ischio-jambiers', '<ellipse cx="81" cy="180" rx="10" ry="20"/><ellipse cx="119" cy="180" rx="10" ry="20"/>')
+            + _mmpZone('Mollets',    '<ellipse cx="70" cy="233" rx="7" ry="16"/><ellipse cx="130" cy="233" rx="7" ry="16"/>');
         }
         // Une zone cliquable (peut contenir plusieurs formes : gauche + droite)
         function _mmpZone(id, shapes) {
             var s = _mmpSafe(id);
             return '<g id="mmpZone_' + s + '" class="mmp-zone" data-muscle="' + id + '" '
                  + 'onclick="toggleManualMuscle(\'' + id.replace(/'/g, "\\'") + '\')" '
-                 + 'style="cursor:pointer;fill:rgba(148,163,184,0.22);stroke:rgba(148,163,184,0.5);stroke-width:1;transition:fill .18s,stroke .18s;">'
+                 + 'style="cursor:pointer;fill:rgba(148,163,184,0.16);stroke:rgba(148,163,184,0.38);stroke-width:0.8;transition:fill .18s,stroke .18s;">'
                  + shapes + '</g>';
         }
         // Silhouette de fond (tête, torse, membres) — non cliquable
         // Personnage : image détourée (fond transparent), en fond des zones
         function _mmpSilhouette() {
             var img = (_mmpView === 'face') ? 'images/body/body_face.webp' : 'images/body/body_dos.webp';
-            return '<image href="' + img + '?v=746" x="0" y="0" width="200" height="298" '
+            return '<image href="' + img + '?v=747" x="0" y="0" width="200" height="298" '
                  + 'preserveAspectRatio="xMidYMid meet" style="pointer-events:none;"/>';
         }
 
@@ -14495,8 +14495,8 @@
             };
             return ''
             + '<div style="display:flex;gap:6px;justify-content:center;margin-bottom:12px;">'
-            +   '<button onclick="setMusclePickerView(\'face\')" id="mmpViewFace" style="flex:1;max-width:120px;padding:8px;border-radius:10px;cursor:pointer;font-weight:800;font-size:0.78em;border:1px solid ' + (_mmpView === 'face' ? '#4ade80' : '#2E2F35') + ';background:' + (_mmpView === 'face' ? 'rgba(74,222,128,0.15)' : '#1a1b20') + ';color:' + (_mmpView === 'face' ? '#4ade80' : '#94a3b8') + ';">Face</button>'
-            +   '<button onclick="setMusclePickerView(\'dos\')" id="mmpViewDos" style="flex:1;max-width:120px;padding:8px;border-radius:10px;cursor:pointer;font-weight:800;font-size:0.78em;border:1px solid ' + (_mmpView === 'dos' ? '#4ade80' : '#2E2F35') + ';background:' + (_mmpView === 'dos' ? 'rgba(74,222,128,0.15)' : '#1a1b20') + ';color:' + (_mmpView === 'dos' ? '#4ade80' : '#94a3b8') + ';">Dos</button>'
+            +   '<button onclick="setMusclePickerView(\'face\')" id="mmpViewFace" style="flex:1;max-width:120px;padding:8px;border-radius:10px;cursor:pointer;font-weight:800;font-size:0.78em;border:1px solid ' + (_mmpView === 'face' ? '#22d3ee' : '#2E2F35') + ';background:' + (_mmpView === 'face' ? 'rgba(34,211,238,0.14)' : '#1a1b20') + ';color:' + (_mmpView === 'face' ? '#22d3ee' : '#94a3b8') + ';">Face</button>'
+            +   '<button onclick="setMusclePickerView(\'dos\')" id="mmpViewDos" style="flex:1;max-width:120px;padding:8px;border-radius:10px;cursor:pointer;font-weight:800;font-size:0.78em;border:1px solid ' + (_mmpView === 'dos' ? '#22d3ee' : '#2E2F35') + ';background:' + (_mmpView === 'dos' ? 'rgba(34,211,238,0.14)' : '#1a1b20') + ';color:' + (_mmpView === 'dos' ? '#22d3ee' : '#94a3b8') + ';">Dos</button>'
             + '</div>'
             + '<div style="display:grid;grid-template-columns:1fr 1.35fr 1fr;gap:8px;align-items:center;margin-bottom:14px;">'
             +   col(L)
@@ -14559,21 +14559,21 @@
                 </button>`).join('');
 
             overlay.innerHTML = `
-                <div style="background:linear-gradient(160deg,#0a0e18,#0F1014);border-radius:20px 20px 0 0;padding:22px 20px calc(22px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(0,0,0,0.6);border-top:2px solid rgba(74,222,128,0.4);animation:slideUpSheet 0.35s cubic-bezier(0.16,1,0.3,1);">
+                <div style="background:#0D0D0D;border:1px solid rgba(255,255,255,0.08);border-radius:20px 20px 0 0;padding:22px 18px calc(22px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(0,0,0,0.6);animation:slideUpSheet 0.35s cubic-bezier(0.16,1,0.3,1);">
                     <div style="width:40px;height:4px;background:#2E2F35;border-radius:99px;margin:0 auto 16px;"></div>
-                    <div style="font-size:0.54em;color:#4ade80;font-weight:900;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;text-align:center;">◈ SÉLECTION DES CIBLES ◈</div>
-                    <h2 style="margin:0 0 6px;color:#e2e8f0;font-size:1.2em;text-align:center;">💪 Choisir mes muscles</h2>
+                    <div style="font-size:0.6em;color:#22d3ee;font-weight:900;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;text-align:center;">◈ SÉLECTION DES CIBLES ◈</div>
+                    <h2 style="margin:0 0 6px;color:#22d3ee;font-size:1.15em;font-weight:900;text-align:center;">Choisir mes muscles</h2>
                     <p style="margin:0 0 16px;color:#94a3b8;font-size:0.85em;text-align:center;">Sélectionne les groupes musculaires à travailler aujourd'hui.</p>
 
                     <div id="mmpBodyHost">${_mmpBodyBlock()}</div>
 
                     <!-- Raccourcis rapides -->
-                    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;">
-                        <button onclick="setManualMusclePreset(['Pectoraux','Épaules','Triceps'])" style="padding:6px 12px;border-radius:99px;border:1px solid #2E2F35;background:#222328;font-size:0.78em;cursor:pointer;color:#e2e8f0;">🔥 Push</button>
-                        <button onclick="setManualMusclePreset(['Dos','Biceps'])" style="padding:6px 12px;border-radius:99px;border:1px solid #2E2F35;background:#222328;font-size:0.78em;cursor:pointer;color:#e2e8f0;">🔙 Pull</button>
-                        <button onclick="setManualMusclePreset(['Quadriceps','Ischio-jambiers','Fessiers','Mollets'])" style="padding:6px 12px;border-radius:99px;border:1px solid #2E2F35;background:#222328;font-size:0.78em;cursor:pointer;color:#e2e8f0;">🦵 Legs</button>
-                        <button onclick="setManualMusclePreset(['Pectoraux','Dos','Épaules','Biceps','Triceps','Quadriceps','Fessiers'])" style="padding:6px 12px;border-radius:99px;border:1px solid #2E2F35;background:#222328;font-size:0.78em;cursor:pointer;color:#e2e8f0;">⚡ Full Body</button>
-                        <button onclick="setManualMusclePreset(['Abdominaux','Cardio'])" style="padding:6px 12px;border-radius:99px;border:1px solid #2E2F35;background:#222328;font-size:0.78em;cursor:pointer;color:#e2e8f0;">🏃 Cardio/Abdos</button>
+                    <div style="display:flex;gap:5px;flex-wrap:nowrap;margin-bottom:18px;justify-content:center;">
+                        <button onclick="setManualMusclePreset(['Pectoraux','Épaules','Triceps'])" style="flex:1;min-width:0;padding:6px 4px;border-radius:99px;border:1px solid #2E2F35;background:#1a1b20;font-size:0.62em;font-weight:800;cursor:pointer;color:#cbd5e1;white-space:nowrap;">🔥 Push</button>
+                        <button onclick="setManualMusclePreset(['Dos','Biceps'])" style="flex:1;min-width:0;padding:6px 4px;border-radius:99px;border:1px solid #2E2F35;background:#1a1b20;font-size:0.62em;font-weight:800;cursor:pointer;color:#cbd5e1;white-space:nowrap;">🔙 Pull</button>
+                        <button onclick="setManualMusclePreset(['Quadriceps','Ischio-jambiers','Fessiers','Mollets'])" style="flex:1;min-width:0;padding:6px 4px;border-radius:99px;border:1px solid #2E2F35;background:#1a1b20;font-size:0.62em;font-weight:800;cursor:pointer;color:#cbd5e1;white-space:nowrap;">🦵 Legs</button>
+                        <button onclick="setManualMusclePreset(['Pectoraux','Dos','Épaules','Biceps','Triceps','Quadriceps','Fessiers'])" style="flex:1;min-width:0;padding:6px 4px;border-radius:99px;border:1px solid #2E2F35;background:#1a1b20;font-size:0.62em;font-weight:800;cursor:pointer;color:#cbd5e1;white-space:nowrap;">⚡ Full Body</button>
+                        <button onclick="setManualMusclePreset(['Abdominaux','Cardio'])" style="flex:1;min-width:0;padding:6px 4px;border-radius:99px;border:1px solid #2E2F35;background:#1a1b20;font-size:0.62em;font-weight:800;cursor:pointer;color:#cbd5e1;white-space:nowrap;">🏃 Cardio/Abdos</button>
                     </div>
 
                     <div id="manualMuscleCount" style="text-align:center;font-size:0.85em;color:#6b7280;margin-bottom:14px;">
@@ -14617,17 +14617,17 @@
             // 🧍 Zone du corps (SVG) — s'illumine en vert quand sélectionnée
             const zone = document.getElementById('mmpZone_' + safe);
             if (zone) {
-                zone.style.fill   = active ? 'rgba(74,222,128,0.55)' : 'rgba(148,163,184,0.22)';
-                zone.style.stroke = active ? '#4ade80' : 'rgba(148,163,184,0.5)';
-                zone.style.filter = active ? 'drop-shadow(0 0 6px rgba(74,222,128,0.8))' : '';
+                zone.style.fill   = active ? 'rgba(34,211,238,0.5)' : 'rgba(148,163,184,0.16)';
+                zone.style.stroke = active ? '#22d3ee' : 'rgba(148,163,184,0.38)';
+                zone.style.filter = active ? 'drop-shadow(0 0 5px rgba(34,211,238,0.85))' : '';
             }
             // 🏷️ Étiquette du nom, autour du personnage
             const lbl = document.getElementById('mmpLbl_' + safe);
             if (lbl) {
-                lbl.style.background  = active ? 'linear-gradient(135deg,#16a34a,#15803d)' : '#1a1b20';
-                lbl.style.borderColor = active ? '#4ade80' : '#2E2F35';
-                lbl.style.color       = active ? '#ffffff' : '#94a3b8';
-                lbl.style.boxShadow   = active ? '0 0 12px rgba(74,222,128,0.45)' : '';
+                lbl.style.background  = active ? 'rgba(34,211,238,0.16)' : '#1a1b20';
+                lbl.style.borderColor = active ? '#22d3ee' : '#2E2F35';
+                lbl.style.color       = active ? '#22d3ee' : '#94a3b8';
+                lbl.style.boxShadow   = active ? '0 0 10px rgba(34,211,238,0.4)' : '';
             }
             // Ancienne grille (conservée si présente ailleurs)
             const btn = document.getElementById('mmpBtn_' + safe);
@@ -14644,8 +14644,8 @@
             _manualSelectedMuscles = [...muscles];
             // Reset : zones du corps + étiquettes (et ancienne grille si présente)
             document.querySelectorAll('[id^="mmpZone_"]').forEach(z => {
-                z.style.fill = 'rgba(148,163,184,0.22)';
-                z.style.stroke = 'rgba(148,163,184,0.5)';
+                z.style.fill = 'rgba(148,163,184,0.16)';
+                z.style.stroke = 'rgba(148,163,184,0.38)';
                 z.style.filter = '';
             });
             document.querySelectorAll('[id^="mmpLbl_"]').forEach(l => {
@@ -43004,7 +43004,7 @@
                     <div style="width:40px;height:4px;background:#2E2F35;border-radius:99px;margin:0 auto 16px;"></div>
                     <h3 style="margin:0 0 4px;color:#e2e8f0;font-size:1.1em;">⏱️ Repos après cet exercice</h3>
                     <p style="margin:0 0 14px;color:#94a3b8;font-size:0.82em;word-break:break-word;">${exName.replace(/'/g,'&#39;')}</p>
-                    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;">${btnHTML}</div>
+                    <div style="display:flex;gap:5px;flex-wrap:nowrap;margin-bottom:18px;justify-content:center;">${btnHTML}</div>
                     <button onclick="document.getElementById('_restAdjOverlay').remove()"
                         style="width:100%;padding:12px;border-radius:14px;border:none;background:rgba(255,255,255,0.06);color:#94a3b8;cursor:pointer;font-size:0.9em;">
                         Annuler
