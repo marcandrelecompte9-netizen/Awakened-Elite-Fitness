@@ -875,7 +875,7 @@ function renderEquipmentPanel() {
             </div>
 
             ${bonusRows ? `<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(6,182,212,0.1);">
-                <div style="font-size:0.55em;color:rgba(245,158,11,0.6);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">✨ SET BONUSES</div>
+                <div style="font-size:0.55em;color:rgba(245,158,11,0.6);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">SET BONUSES</div>
                 ${bonusRows}
             </div>` : ''}
         </div>
@@ -1156,7 +1156,7 @@ function showItemPopup(item, invId, equippedSlot) {
                 <div style="font-size:3em;line-height:1;margin-bottom:8px;filter:drop-shadow(0 0 14px ${r.glow});">${item.icon}</div>
                 <div style="font-weight:900;color:white;font-size:1.05em;line-height:1.3;margin-bottom:4px;">${item.name}</div>
                 <div style="display:inline-block;background:${r.color}25;color:${r.color};border:1px solid ${r.color}50;padding:2px 8px;border-radius:6px;font-size:0.6em;font-weight:900;letter-spacing:1.5px;">${(r.labelFull || r.label || '').toUpperCase()}</div>
-                ${isEquipped ? `<div style="margin-top:6px;display:inline-block;background:rgba(34,197,94,0.18);color:#4ade80;border:1px solid rgba(34,197,94,0.35);padding:2px 8px;border-radius:6px;font-size:0.62em;font-weight:800;letter-spacing:1px;">✓ ÉQUIPÉ</div>` : ''}
+                ${isEquipped ? `<div style="margin-top:6px;display:inline-block;background:rgba(34,197,94,0.18);color:#4ade80;border:1px solid rgba(34,197,94,0.35);padding:2px 8px;border-radius:6px;font-size:0.62em;font-weight:800;letter-spacing:1px;">ÉQUIPÉ</div>` : ''}
             </div>
 
             <!-- Corps -->
@@ -1231,7 +1231,7 @@ function showItemPopup(item, invId, equippedSlot) {
                     ` : (invId !== null && invId !== undefined ? (block ? `
                         <button disabled style="flex:1;padding:13px;border-radius:10px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);color:#f87171;font-weight:700;font-size:0.82em;">${block.reason === 'muscle_too_weak' ? '💪' : '🔒'} ${block.label}</button>
                     ` : `
-                        <button onclick="tryEquipWithFeedback(${invId},function(){document.getElementById('itemPopupModal')?.remove();});" style="flex:1;padding:13px;border-radius:10px;background:linear-gradient(135deg,${r.color},${r.color}cc);border:none;color:white;font-weight:900;cursor:pointer;font-size:0.88em;letter-spacing:0.5px;box-shadow:0 4px 14px ${r.glow};">⚔️ ÉQUIPER</button>
+                        <button onclick="tryEquipWithFeedback(${invId},function(){document.getElementById('itemPopupModal')?.remove();});" style="flex:1;padding:13px;border-radius:10px;background:linear-gradient(135deg,${r.color},${r.color}cc);border:none;color:white;font-weight:900;cursor:pointer;font-size:0.88em;letter-spacing:0.5px;box-shadow:0 4px 14px ${r.glow};">ÉQUIPER</button>
                     `) : '')}
                 </div>
 
@@ -1711,7 +1711,7 @@ function showRPGEquipmentModal(defaultTab) {
             <div style="font-size:0.62em;color:#94a3b8;line-height:1.45;margin-bottom:8px;">${selectedItem.description}</div>
             ${selectedItem.passive ? `
                 <div style="background:rgba(34,197,94,0.07);border:1px solid rgba(34,197,94,0.18);border-radius:6px;padding:5px 8px;margin-bottom:6px;">
-                    <div style="font-size:0.52em;color:#22c55e;font-weight:800;letter-spacing:1px;">⚡ PASSIF</div>
+                    <div style="font-size:0.52em;color:#22c55e;font-weight:800;letter-spacing:1px;">PASSIF</div>
                     <div style="font-size:0.62em;color:#4ade80;line-height:1.35;">${selectedItem.passive}</div>
                 </div>` : ''}
             ${selectedItem.ringEffect ? (() => {
@@ -1739,7 +1739,7 @@ function showRPGEquipmentModal(defaultTab) {
                         ${block.reason === 'muscle_too_weak' ? '💪' : '🔒'} ${block.label}
                     </button>` : `
                     <button onclick="window._rpgEqEquipSelected()" style="width:100%;padding:8px;border-radius:10px;border:none;background:linear-gradient(135deg,${r.color},${r.color}cc);color:white;font-size:0.7em;font-weight:800;cursor:pointer;">
-                        ✓ ÉQUIPER
+                        ÉQUIPER
                     </button>`}
             ` : ''}`;
     }

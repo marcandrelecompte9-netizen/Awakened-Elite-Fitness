@@ -11,11 +11,11 @@
     <title>Awakened Elite Fitness</title>
 
     <!-- PWA -->
-    <link rel="manifest" href="manifest.json?v=765">
-    <link rel="apple-touch-icon" href="icons/icon-192.png?v=765">
-    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=765">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=765">
-    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=765">
+    <link rel="manifest" href="manifest.json?v=775">
+    <link rel="apple-touch-icon" href="icons/icon-192.png?v=775">
+    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=775">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=775">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=775">
 
     <!-- ⚠️ CAPTURE PRÉCOCE DE L'INVITE D'INSTALLATION.
          Chrome déclenche « beforeinstallprompt » très tôt, souvent AVANT la fin
@@ -44,7 +44,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=765">
+    <link rel="stylesheet" href="css/style.css?v=775">
 </head>
 <body>
 
@@ -112,7 +112,7 @@
     <div id="restActiveExercise" style="display:none;max-width:320px;width:100%;margin-top:8px;
          background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.2);
          border-radius:14px;padding:12px 14px;text-align:left;">
-        <div style="font-size:0.6em;color:rgba(165,180,252,0.7);font-weight:700;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;">🧘 REPOS ACTIF</div>
+        <div style="font-size:0.6em;color:rgba(165,180,252,0.7);font-weight:700;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;">REPOS ACTIF</div>
         <div id="restActiveExName" style="font-size:0.95em;font-weight:800;color:white;margin-bottom:4px;"></div>
         <div id="restActiveExDesc" style="font-size:0.75em;color:rgba(255,255,255,0.55);line-height:1.4;"></div>
     </div>
@@ -202,7 +202,7 @@
                 max-width: 900px;">
 
             <!-- Bannière image : ratio préservé -->
-            <img src="images/banner.png?v=765"
+            <img src="images/banner.png?v=775"
                  alt="Awakened Elite Fitness"
                  style="width:100%;height:auto;display:block;" />
 
@@ -344,7 +344,7 @@
 
             <!-- ═══ 2. ACTIONS RAPIDES ═══ -->
             <div class="card" id="quickActionsCard" style="padding:14px 16px;">
-                <div style="font-size:0.6em;color:#94a3b8;font-weight:900;letter-spacing:2px;margin-bottom:10px;">⚡ ACTIONS RAPIDES</div>
+                <div style="font-size:0.6em;color:#94a3b8;font-weight:900;letter-spacing:2px;margin-bottom:10px;">ACTIONS RAPIDES</div>
                 <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
                     <button onclick="switchTab('workouts'); window.scrollTo(0,0);" style="background:linear-gradient(135deg,#22c55e,#16a34a);border:none;color:white;border-radius:14px;padding:13px 10px;font-weight:800;font-size:0.85em;cursor:pointer;box-shadow:0 3px 12px rgba(34,197,94,0.3);">🏋️ Démarrer séance</button>
                     <button onclick="switchTab('routines');" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#e2e8f0;border-radius:14px;padding:13px 10px;font-weight:800;font-size:0.85em;cursor:pointer;">🔄 Routines</button>
@@ -449,7 +449,7 @@
 
             <!-- Header actions -->
             <div class="card">
-                <h2 style="color: #16a34a; margin-bottom: 8px; text-align: center;">🔄 Mes Routines</h2>
+                <h2 style="color: #16a34a; margin-bottom: 8px; text-align: center;">Mes Routines</h2>
                 <p style="text-align: center; color: #94a3b8; margin-bottom: 18px; font-size: 0.9em;">
                     Créez et gérez vos routines personnalisées
                 </p>
@@ -469,7 +469,7 @@
 
             <!-- My Routines List -->
             <div class="card">
-                <h3 style="color: #16a34a; margin-bottom: 14px;">📋 Mes Routines</h3>
+                <h3 style="color: #16a34a; margin-bottom: 14px;">Mes Routines</h3>
 
                 <div id="routinesList">
                     <!-- Routines will be rendered here -->
@@ -528,11 +528,15 @@
 
             <!-- État de récupération musculaire (déplacé depuis l'accueil, v524) -->
             <div class="card">
-                <h3 style="margin-bottom: 8px; color: #16a34a; font-size: 1em;">💪 Récupération musculaire</h3>
+                <h3 style="margin-bottom: 8px; color: #16a34a; font-size: 1em;">Récupération musculaire</h3>
                 <p style="font-size: 0.78em; color: #94a3b8; margin-bottom: 12px;">
                     Temps minimum : 48h par groupe musculaire
                 </p>
                 <div id="muscleRecoveryContainer"></div>
+                <p style="font-size:0.72em;color:#64748b;margin:12px 0 0;line-height:1.5;border-top:1px solid rgba(255,255,255,0.06);padding-top:10px;">
+                    ↻ Pour remettre tous tes muscles à l'état « prêt » :
+                    <strong style="color:#94a3b8;">Réglages › Entraînement › Réinitialiser la récupération</strong>
+                </p>
             </div>
 
                     </div>
@@ -548,7 +552,7 @@
                     <div class="accordion-content">
             <!-- Badges Section -->
             <div class="card">
-                <h2 style="color: #22d3ee; margin-bottom: 20px;">🏆 Vos succès</h2>
+                <h2 style="color: #22d3ee; margin-bottom: 20px;">Vos succès</h2>
                 <div id="badgesGrid" class="equipment-grid" style="margin-top: 20px;">
                     <!-- Badges will be rendered here -->
                 </div>
@@ -568,7 +572,7 @@
                     <div class="accordion-content">
             <!-- RPE Analytics Section -->
             <div class="card">
-                <h2 style="color: #22d3ee; margin-bottom: 20px;">📊 Analyse RPE (Intensité d\'entraînement)</h2>
+                <h2 style="color: #22d3ee; margin-bottom: 20px;">Analyse RPE (Intensité d\'entraînement)</h2>
 
                 <div style="background: linear-gradient(135deg, #22d3ee15 0%, #0891b205 100%); padding: 20px; border-radius: 14px; margin-bottom: 20px; border-left: 4px solid #22d3ee;">
                     <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
@@ -631,7 +635,7 @@
 
             <!-- Stats Summary -->
             <div class="card">
-                <h2 style="color: #22d3ee; margin-bottom: 20px;">📈 Statistiques</h2>
+                <h2 style="color: #22d3ee; margin-bottom: 20px;">Statistiques</h2>
                 <div class="stats">
                     <div class="stat-box">
                         <div class="stat-value" id="historyTotalWorkouts">0</div>
@@ -654,7 +658,7 @@
 
             <!-- Advanced Statistics -->
             <div class="card">
-                <h2 style="color: #22d3ee; margin-bottom: 20px;">📊 Statistiques Avancées</h2>
+                <h2 style="color: #22d3ee; margin-bottom: 20px;">Statistiques Avancées</h2>
 
                 <!-- Main Stats Grid -->
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px;">
@@ -689,7 +693,7 @@
 
                 <!-- Top 10 Exercises -->
                 <div style="background: rgba(255,255,255,0.04); padding: 20px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.12); margin-bottom: 20px;">
-                    <h3 style="color: #22d3ee; margin-top: 0;">🏅 Top 10 Exercices</h3>
+                    <h3 style="color: #22d3ee; margin-top: 0;">Top 10 Exercices</h3>
                     <div id="topExercisesList" style="display: flex; flex-direction: column; gap: 8px;">
                         <!-- Will be populated by JS -->
                     </div>
@@ -697,7 +701,7 @@
 
                 <!-- Muscle Distribution -->
                 <div style="background: rgba(255,255,255,0.04); padding: 20px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.12); margin-bottom: 20px;">
-                    <h3 style="color: #22d3ee; margin-top: 0;">💪 Répartition Musculaire</h3>
+                    <h3 style="color: #22d3ee; margin-top: 0;">Répartition Musculaire</h3>
                     <div id="muscleDistributionBars" style="display: flex; flex-direction: column; gap: 10px;">
                         <!-- Will be populated by JS -->
                     </div>
@@ -705,7 +709,7 @@
 
                 <!-- Insights -->
                 <div style="background: linear-gradient(135deg, #fbbf2410 0%, #fbbf2405 100%); padding: 20px; border-radius: 14px; border: 2px solid #fbbf24;">
-                    <h3 style="color: #d97706; margin-top: 0;">💡 Insights & Recommandations</h3>
+                    <h3 style="color: #d97706; margin-top: 0;">Insights & Recommandations</h3>
                     <div id="insightsList" style="display: flex; flex-direction: column; gap: 10px;">
                         <!-- Will be populated by JS -->
                     </div>
@@ -725,7 +729,7 @@
                     <div class="accordion-content">
             <!-- Progress Photos Section -->
             <div class="card">
-                <h2 style="color: #22d3ee; margin-bottom: 20px;">📸 Photos de Progression</h2>
+                <h2 style="color: #22d3ee; margin-bottom: 20px;">Photos de Progression</h2>
 
                 <div style="background: linear-gradient(135deg, #22d3ee15 0%, #0891b205 100%); padding: 20px; border-radius: 14px; margin-bottom: 20px; border-left: 4px solid #22d3ee;">
                     <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
@@ -756,7 +760,7 @@
 
             <!-- Body Measurements Section -->
             <div class="card">
-                <h2 style="color: #22d3ee; margin-bottom: 20px;">📏 Mesures Corporelles</h2>
+                <h2 style="color: #22d3ee; margin-bottom: 20px;">Mesures Corporelles</h2>
 
                 <div style="background: linear-gradient(135deg, #22d3ee15 0%, #22d3ee05 100%); padding: 20px; border-radius: 14px; margin-bottom: 20px; border-left: 4px solid #22d3ee;">
                     <div style="display: flex; align-items: center; gap: 15px;">
@@ -777,7 +781,7 @@
 
                 <!-- Measurement Form (hidden by default) -->
                 <div id="measurementForm" style="display: none; background: rgba(255,255,255,0.04); padding: 25px; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 25px;">
-                    <h3 style="margin-top: 0; color: #22d3ee;">📊 Nouvelles mesures</h3>
+                    <h3 style="margin-top: 0; color: #22d3ee;">Nouvelles mesures</h3>
 
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
                         <div>
@@ -837,7 +841,7 @@
                 <div class="accordion-body">
                     <div class="accordion-content">
             <div class="card">
-                <h2 style="color: #22d3ee; margin-bottom: 20px;">📅 Calendrier</h2>
+                <h2 style="color: #22d3ee; margin-bottom: 20px;">Calendrier</h2>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <button class="btn btn-secondary" onclick="previousMonth()" style="width: auto; padding: 10px 20px;">◀ Précédent</button>
                     <h3 id="calendarMonthYear" style="margin: 0;">Janvier 2026</h3>
@@ -851,7 +855,7 @@
             <!-- Workout History List -->
             <div class="card">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-                    <h2 style="color: #22d3ee; margin: 0;">📋 Historique des séances</h2>
+                    <h2 style="color: #22d3ee; margin: 0;">Historique des séances</h2>
                     <button onclick="exportHistoryPDF()"
                             style="background:linear-gradient(135deg,#22c55e,#16a34a);color:white;border:none;border-radius:10px;padding:8px 14px;font-size:0.8em;font-weight:700;cursor:pointer;white-space:nowrap;">
                         📄 Exporter
@@ -946,7 +950,7 @@
                         </button>
 
                     <div style="margin-top:16px;padding:13px 14px;background:rgba(34,211,238,0.06);border:1px solid rgba(34,211,238,0.2);border-radius:12px;">
-                        <div style="color:#22d3ee;font-size:0.74em;font-weight:900;letter-spacing:1px;margin-bottom:5px;">💡 RECOMMANDATION</div>
+                        <div style="color:#22d3ee;font-size:0.74em;font-weight:900;letter-spacing:1px;margin-bottom:5px;">RECOMMANDATION</div>
                         <div style="color:#94a3b8;font-size:0.78em;line-height:1.5;">Le mode Hybride combine force et cardio pour une transformation physique optimale. Utilisé dans les programmes modernes de coaching.</div>
                     </div>
                 </div>
@@ -984,6 +988,27 @@
                             <div style="font-size:0.68em;color:#94a3b8;margin-top:3px;letter-spacing:1px;text-transform:uppercase;">Maximum</div>
                         </button>
                     </div>
+                    <div style="font-size:0.6em;color:#22d3ee;font-weight:900;letter-spacing:2px;margin:18px 0 8px;">OU PAR NOMBRE D'EXERCICES</div>
+                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+                        <button onclick="selectExerciseCount(3)" style="padding:13px 6px;background:rgba(255,255,255,0.04);border:1.5px solid rgba(34,211,238,0.25);border-radius:12px;color:#e2e8f0;cursor:pointer;">
+                            <div style="font-size:1.1em;font-weight:900;color:#fff;">3</div>
+                            <div style="font-size:0.62em;color:#94a3b8;margin-top:2px;">EXOS</div>
+                        </button>
+                        <button onclick="selectExerciseCount(5)" style="padding:13px 6px;background:rgba(255,255,255,0.04);border:1.5px solid rgba(34,211,238,0.25);border-radius:12px;color:#e2e8f0;cursor:pointer;">
+                            <div style="font-size:1.1em;font-weight:900;color:#fff;">5</div>
+                            <div style="font-size:0.62em;color:#94a3b8;margin-top:2px;">EXOS</div>
+                        </button>
+                        <button onclick="selectExerciseCount(8)" style="padding:13px 6px;background:rgba(255,255,255,0.04);border:1.5px solid rgba(34,211,238,0.25);border-radius:12px;color:#e2e8f0;cursor:pointer;">
+                            <div style="font-size:1.1em;font-weight:900;color:#fff;">8</div>
+                            <div style="font-size:0.62em;color:#94a3b8;margin-top:2px;">EXOS</div>
+                        </button>
+                        <button onclick="selectExerciseCount(12)" style="padding:13px 6px;background:rgba(255,255,255,0.04);border:1.5px solid rgba(34,211,238,0.25);border-radius:12px;color:#e2e8f0;cursor:pointer;">
+                            <div style="font-size:1.1em;font-weight:900;color:#fff;">12</div>
+                            <div style="font-size:0.62em;color:#94a3b8;margin-top:2px;">EXOS</div>
+                        </button>
+                    </div>
+                    <p style="font-size:0.66em;color:#64748b;margin:10px 0 0;line-height:1.45;">La durée s'ajustera au nombre choisi.</p>
+
                 </div>
             </div>
 
@@ -1039,7 +1064,7 @@
 
                 <!-- Programmes Gym (visibles seulement en mode gym) -->
                 <div id="gymProgramsSection" style="display:none;">
-                    <h3 style="color:#16a34a;margin-bottom:12px;">🏋️ Programmes Gym</h3>
+                    <h3 style="color:#16a34a;margin-bottom:12px;">Programmes Gym</h3>
                     <div style="display:grid;gap:10px;margin-bottom:8px;">
                         <div class="card workout-card" onclick="startGymProgram('ppl')" style="background:linear-gradient(135deg,#166534,#16a34a);cursor:pointer;">
                             <div class="workout-header">
@@ -1078,7 +1103,7 @@
                             <p style="color:rgba(255,255,255,0.9);font-size:0.9em;margin-top:8px;">Tous les groupes musculaires par séance. Idéal pour débuter en salle.</p>
                         </div>
                     </div>
-                    <h3 style="color:#16a34a;margin-bottom:12px;margin-top:4px;">🎲 Séance Gym Intelligente</h3>
+                    <h3 style="color:#16a34a;margin-bottom:12px;margin-top:4px;">Séance Gym Intelligente</h3>
                 </div>
 
                 <!-- ═══ MON PLAN HEBDO (manuel) — affiché AVANT Séance Intelligente ═══ -->
@@ -1173,7 +1198,7 @@
                 <div class="card" style="display: none;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                         <div>
-                            <h2 style="color: #16a34a; margin: 0;">📚 Mes Programmes</h2>
+                            <h2 style="color: #16a34a; margin: 0;">Mes Programmes</h2>
                             <p style="color: #94a3b8; margin: 5px 0 0 0;">Créez et gérez vos programmes d\'entraînement personnalisés</p>
                         </div>
                         <button onclick="showCreateProgramModal()" class="btn" style="padding: 10px 20px; background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);">
@@ -1225,7 +1250,7 @@
                                        min-height:34px;flex-shrink:0;display:flex;align-items:center;gap:4px;letter-spacing:1px;
                                        touch-action:manipulation;-webkit-tap-highlight-color:rgba(239,68,68,0.3);"
                                 onclick="quitWorkout()">
-                            ✕ QUITTER
+                            QUITTER
                         </button>
                     </div>
                 </div>
@@ -1514,7 +1539,7 @@
 
                     <!-- Quick Check Instructions -->
                     <div id="quickCheckInstructions" style="background: linear-gradient(135deg, #16a34a15 0%, #15803d05 100%); padding: 25px; border-radius: 14px; margin-bottom: 25px; border-left: 4px solid #16a34a;">
-                        <h3 style="color: #16a34a; margin-top: 0;">📋 Quick Check (60 secondes)</h3>
+                        <h3 style="color: #16a34a; margin-top: 0;">Quick Check (60 secondes)</h3>
                         <p style="margin-bottom: 15px; line-height: 1.6;">Je vais te faire faire 2 exercices rapides pour évaluer ta forme aujourd'hui :</p>
                         <div style="display: grid; gap: 12px;">
                             <div style="background: rgba(255,255,255,0.04); padding: 15px; border-radius: 10px;">
@@ -1550,7 +1575,7 @@
                     <!-- Difficulty Rating (hidden initially) -->
                     <div id="difficultyRating" style="display: none; margin-bottom: 25px;">
                         <div style="background: linear-gradient(135deg, #fbbf2415 0%, #fbbf2405 100%); padding: 25px; border-radius: 14px; border-left: 4px solid #fbbf24;">
-                            <h3 style="color: #f59e0b; margin-top: 0;">💪 Comment tu t'es senti ?</h3>
+                            <h3 style="color: #f59e0b; margin-top: 0;">Comment tu t'es senti ?</h3>
                             <p style="margin-bottom: 20px; color: #94a3b8;">Sur une échelle de 1 à 10, quelle difficulté as-tu ressenti ?</p>
 
                             <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 15px;">
@@ -1611,6 +1636,12 @@
                             <div style="font-family:'Rajdhani',sans-serif;font-size:0.62em;color:#22d3ee;font-weight:700;letter-spacing:2px;margin-bottom:11px;text-align:left;">◈ ÉQUIPEMENT REQUIS</div>
                             <div id="prepEquipmentList" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;">
                             </div>
+                            <p style="font-size:0.68em;color:#64748b;margin:10px 0 0;line-height:1.5;">
+                                💡 Le Système regroupe chaque séance autour de 1 ou 2 matériels, plus le poids du corps.
+                                Pour orienter les prochaines séances — tout au poids du corps, sans machine, haltères
+                                uniquement… — modifie le matériel de ton lieu :
+                                <strong style="color:#94a3b8;">onglet Entraîner › 📍 Lieu d'entraînement › Gérer</strong>.
+                            </p>
                         </div>
 
                         <!-- Liste des exercices -->
@@ -1677,12 +1708,12 @@
                             <div style="background:linear-gradient(160deg,rgba(168,85,247,0.08),rgba(168,85,247,0.02));border-radius:10px;padding:16px 8px;border:1px solid rgba(168,85,247,0.35);position:relative;">
                                 <div style="position:absolute;top:-1px;left:-1px;width:12px;height:12px;border-top:1.5px solid #c084fc;border-left:1.5px solid #c084fc;border-top-left-radius:10px;"></div>
                                 <div id="completionExercises" style="font-size:1.9em;font-weight:900;color:#c084fc;letter-spacing:-1px;font-variant-numeric:tabular-nums;text-shadow:0 0 12px rgba(168,85,247,0.4);">10</div>
-                                <div style="font-size:0.55em;color:#94a3b8;margin-top:4px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;">💪 EXERCICES</div>
+                                <div style="font-size:0.55em;color:#94a3b8;margin-top:4px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;">EXERCICES</div>
                             </div>
                             <div style="background:linear-gradient(160deg,rgba(251,191,36,0.08),rgba(251,191,36,0.02));border-radius:10px;padding:16px 8px;border:1px solid rgba(251,191,36,0.35);position:relative;">
                                 <div style="position:absolute;top:-1px;left:-1px;width:12px;height:12px;border-top:1.5px solid #fbbf24;border-left:1.5px solid #fbbf24;border-top-left-radius:10px;"></div>
                                 <div id="completionCalories" style="font-size:1.9em;font-weight:900;color:#fbbf24;letter-spacing:-1px;font-variant-numeric:tabular-nums;text-shadow:0 0 12px rgba(251,191,36,0.4);">-</div>
-                                <div style="font-size:0.55em;color:#94a3b8;margin-top:4px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;">🔥 KCAL</div>
+                                <div style="font-size:0.55em;color:#94a3b8;margin-top:4px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;">KCAL</div>
                             </div>
                         </div>
 
@@ -1735,7 +1766,7 @@
 
                         <!-- PRs battus -->
                         <div id="completionPRs" style="background:linear-gradient(160deg,rgba(251,191,36,0.12),rgba(251,191,36,0.02));border-radius:10px;padding:12px 14px;margin-bottom:14px;border:1px solid rgba(251,191,36,0.45);text-align:left;display:none;box-shadow:0 0 16px rgba(251,191,36,0.08);">
-                            <div style="font-size:0.6em;color:#fbbf24;margin-bottom:8px;text-transform:uppercase;letter-spacing:2px;font-weight:900;text-shadow:0 0 6px rgba(251,191,36,0.5);">🏅 NOUVEAUX RECORDS</div>
+                            <div style="font-size:0.6em;color:#fbbf24;margin-bottom:8px;text-transform:uppercase;letter-spacing:2px;font-weight:900;text-shadow:0 0 6px rgba(251,191,36,0.5);">NOUVEAUX RECORDS</div>
                             <div id="completionPRsList" style="display:flex;flex-direction:column;gap:4px;"></div>
                         </div>
 
@@ -1782,7 +1813,7 @@
             <div style="font-size:0.72em;color:#94a3b8;margin:0 0 14px;padding:0 4px;line-height:1.4;">Parcours la bibliothèque, calcule, relève des défis.</div>
             <!-- Exercise Progress Graphs (STEP 2: HTML only) -->
             <div class="card">
-                <h2 style="color: #16a34a; margin-bottom: 20px;">📈 Graphiques de Progression</h2>
+                <h2 style="color: #16a34a; margin-bottom: 20px;">Graphiques de Progression</h2>
 
                 <div style="background: linear-gradient(135deg, rgba(34,211,238,0.08) 0%, rgba(168,85,247,0.04) 100%); padding: 18px; border-radius: 14px; margin-bottom: 20px; border-left: 3px solid #22d3ee;">
                     <div style="display: flex; align-items: center; gap: 15px;">
@@ -1847,7 +1878,7 @@
 
             <!-- Search Bar -->
             <div class="card">
-                <h3 style="color: #16a34a; margin-bottom: 15px;">🔍 Recherche rapide</h3>
+                <h3 style="color: #16a34a; margin-bottom: 15px;">Recherche rapide</h3>
                 <input type="text" id="exerciseSearch"
                        placeholder="🔎 Rechercher un exercice par nom, muscle ou équipement..."
                        style="width: 100%; padding: 15px; border: 2px solid rgba(255,255,255,0.12); border-radius: 10px; font-size: 1em; transition: all 0.3s;"
@@ -1890,7 +1921,7 @@
                             <option value="boxe">🥊 Boxe</option>
                             <option value="calisthenie">🤸 Calisthénie</option>
                             <option value="course">🏃 Course / Marathon</option>
-                            <option value="hiit">🔥 HIIT</option>
+                            <option value="hiit">HIIT</option>
                             <option value="core">🧱 Gainage</option>
                             <option value="mobilite">🧘 Mobilité</option>
                         </select>
@@ -1975,7 +2006,7 @@
 
             <!-- Quick Actions -->
             <div class="card" style="background: linear-gradient(135deg, #fbbf2410 0%, #fbbf2405 100%); border: 2px solid #fbbf2440;">
-                <h3 style="margin-bottom: 15px; color: #f59e0b;">⚡ Actions rapides</h3>
+                <h3 style="margin-bottom: 15px; color: #f59e0b;">Actions rapides</h3>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
                     <button onclick="showOnlyFavorites()" class="btn" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); padding: 12px;">
                         ⭐ Mes favoris
@@ -1994,7 +2025,7 @@
 
                 <!-- Welcome Screen -->
                 <div class="exercises-welcome" id="exercisesWelcome" style="display: block;">
-                    <h2>📚 Bibliothèque d'Exercices</h2>
+                    <h2>Bibliothèque d'Exercices</h2>
                     <p>Découvrez plus de <strong><span id="exWelcomeCount">…</span> exercices</strong> organisés par muscle et niveau !<br>
                     Utilisez les filtres ci-dessus pour explorer les exercices qui vous intéressent.</p>
 
@@ -2013,7 +2044,7 @@
                         </div>
                     </div>
 
-                    <h3 style="color: #16a34a; margin: 40px 0 20px 0;">🎯 Filtres rapides</h3>
+                    <h3 style="color: #16a34a; margin: 40px 0 20px 0;">Filtres rapides</h3>
                     <div class="quick-filter-buttons">
                         <button class="quick-filter-btn" onclick="quickFilter('muscle', 'Pectoraux')">
                             💪 Pectoraux
@@ -2046,7 +2077,7 @@
                             🏋️ Haltères
                         </button>
                         <button class="quick-filter-btn" onclick="quickFilter('equipment', 'TRX')">
-                            🎗️ TRX
+                            TRX
                         </button>
                         <button class="quick-filter-btn" onclick="quickFilter('equipment', 'Swiss Ball')">
                             🔵 Swiss Ball
@@ -2055,7 +2086,7 @@
                 </div>
 
                 <div class="no-results" id="noResults" style="display: none;">
-                    <h3>😕 Aucun exercice trouvé</h3>
+                    <h3>Aucun exercice trouvé</h3>
                     <p>Essayez de modifier vos filtres</p>
                 </div>
             </div>
@@ -2573,7 +2604,7 @@
             </div>
             <div style="font-size:0.72em;color:#94a3b8;margin:0 0 14px;padding:0 4px;line-height:1.4;">Parcours la bibliothèque, calcule, relève des défis.</div>
         <div class="card">
-            <h2 style="color: #22d3ee; margin-bottom: 30px; text-align: center;">🧮 Calculateurs Fitness</h2>
+            <h2 style="color: #22d3ee; margin-bottom: 30px; text-align: center;">Calculateurs Fitness</h2>
             <p style="text-align: center; color: #94a3b8; margin-bottom: 30px;">
                 Outils professionnels pour optimiser votre entraînement
             </p>
@@ -2581,7 +2612,7 @@
 
         <!-- Force Réelle / Percentiles -->
         <div class="card">
-            <h2 style="color: #22d3ee; margin-bottom: 20px;">⚡ Force Réelle — Ton Rang Mondial</h2>
+            <h2 style="color: #22d3ee; margin-bottom: 20px;">Force Réelle — Ton Rang Mondial</h2>
             <div style="background: linear-gradient(135deg, #a855f715 0%, #a855f705 100%); padding: 16px; border-radius: 14px; margin-bottom: 20px; border-left: 4px solid #a855f7;">
                 <div style="font-size:0.9em;color:#9ca3af;line-height:1.5;">
                     Le Système analyse ta puissance et la compare au reste du monde. Entre tes données et découvre ton percentile et ton niveau réel.
@@ -2636,7 +2667,7 @@
 
         <!-- 1RM Calculator -->
         <div class="card">
-            <h2 style="color: #22d3ee; margin-bottom: 20px;">💪 Calculateur 1RM (One Rep Max)</h2>
+            <h2 style="color: #22d3ee; margin-bottom: 20px;">Calculateur 1RM (One Rep Max)</h2>
 
             <div style="background: linear-gradient(135deg, #ef444415 0%, #ef444405 100%); padding: 20px; border-radius: 14px; margin-bottom: 20px; border-left: 4px solid #ef4444;">
                 <div style="display: flex; align-items: center; gap: 15px;">
@@ -2685,7 +2716,7 @@
 
         <!-- Plate Calculator -->
         <div class="card">
-            <h2 style="color: #f59e0b; margin-bottom: 20px;">🧮 Calculateur de Plaques</h2>
+            <h2 style="color: #f59e0b; margin-bottom: 20px;">Calculateur de Plaques</h2>
 
             <div style="background: linear-gradient(135deg, #f59e0b15 0%, #f59e0b05 100%); padding: 20px; border-radius: 14px; margin-bottom: 20px; border-left: 4px solid #f59e0b;">
                 <div style="display: flex; align-items: center; gap: 15px;">
@@ -2729,7 +2760,7 @@
 
         <!-- RPE Calculator -->
         <div class="card">
-            <h2 style="color: #22d3ee; margin-bottom: 20px;">💪 Calculateur RPE (Rate of Perceived Exertion)</h2>
+            <h2 style="color: #22d3ee; margin-bottom: 20px;">Calculateur RPE (Rate of Perceived Exertion)</h2>
 
             <div style="background: linear-gradient(135deg, #22d3ee15 0%, #0891b205 100%); padding: 20px; border-radius: 14px; margin-bottom: 20px; border-left: 4px solid #22d3ee;">
                 <div style="display: flex; align-items: center; gap: 15px;">
@@ -2743,7 +2774,7 @@
 
             <!-- RPE Explanation -->
             <div style="background: rgba(255,255,255,0.04); padding: 20px; border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px;">
-                <h3 style="color: #22d3ee; margin-bottom: 15px;">📖 Qu'est-ce que le RPE ?</h3>
+                <h3 style="color: #22d3ee; margin-bottom: 15px;">Qu'est-ce que le RPE ?</h3>
                 <p style="line-height: 1.6; color: #94a3b8; margin-bottom: 15px;">
                     Le <strong>RPE (Rate of Perceived Exertion)</strong> est une échelle subjective de 1 à 10 qui mesure
                     l'intensité perçue de votre série. Elle permet d'optimiser votre entraînement en évitant le surmenage
@@ -2758,7 +2789,7 @@
 
             <!-- RPE Scale -->
             <div style="background: rgba(255,255,255,0.04); padding: 25px; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 20px;">
-                <h3 style="color: #22d3ee; margin-bottom: 20px;">🎯 Échelle RPE</h3>
+                <h3 style="color: #22d3ee; margin-bottom: 20px;">Échelle RPE</h3>
 
                 <div id="rpeScale" style="display: grid; gap: 10px;">
                     <!-- RPE 1-3: Very Easy -->
@@ -2861,7 +2892,7 @@
             </div>
             <div style="font-size:0.72em;color:#94a3b8;margin:0 0 14px;padding:0 4px;line-height:1.4;">Parcours la bibliothèque, calcule, relève des défis.</div>
         <div class="card">
-            <h2 style="text-align: center; margin-bottom: 10px; color: #4ade80; font-weight: 900;">🏆 Défis Fitness</h2>
+            <h2 style="text-align: center; margin-bottom: 10px; color: #4ade80; font-weight: 900;">Défis Fitness</h2>
             <p style="text-align: center; color: #94a3b8; margin-bottom: 26px; font-size: 0.9em; line-height: 1.5;">
                 Relevez des défis sur 30 jours pour développer discipline et constance ! 💪
             </p>
@@ -2872,7 +2903,7 @@
             <!-- Available Challenges -->
             <div id="availableChallenges">
                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 18px;">
-                    <h3 style="margin: 0; color: #4ade80; font-weight: 900; font-size: 1.05em;">📋 Défis Disponibles</h3>
+                    <h3 style="margin: 0; color: #4ade80; font-weight: 900; font-size: 1.05em;">Défis Disponibles</h3>
                     <div style="flex: 1; height: 1px; background: linear-gradient(90deg, rgba(74,222,128,0.4), transparent);"></div>
                 </div>
                 <div id="challengesList"></div>
@@ -2885,7 +2916,7 @@
     <div class="modal" id="profileSelectionModal" style="z-index: 10000;" onclick="if(event.target === this) closeProfileSelectionModal()">
         <div class="modal-content" style="max-width: 500px;">
             <div class="modal-header">
-                <h2>👥 Sélectionner un profil</h2>
+                <h2>Sélectionner un profil</h2>
                 <button class="close-btn" onclick="closeProfileSelectionModal()">×</button>
             </div>
             <div id="profileSelectionList" style="display: grid; gap: 12px; margin: 20px 0;">
@@ -2904,7 +2935,7 @@
     <div class="modal" id="profileEditorModal">
         <div class="modal-content" style="max-width: 500px;">
             <div class="modal-header">
-                <h2 id="profileEditorTitle">➕ Créer un profil</h2>
+                <h2 id="profileEditorTitle">Créer un profil</h2>
                 <button class="close-btn" onclick="closeProfileEditor()">×</button>
             </div>
             <div class="modal-body">
@@ -2957,7 +2988,7 @@
     <div class="modal" id="profileSetupModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>👤 Configuration du profil</h2>
+                <h2>Configuration du profil</h2>
                 <button class="close-btn" onclick="closeProfileSetup()">×</button>
             </div>
             <input id="profileName" placeholder="Votre nom"
@@ -3029,7 +3060,7 @@
     <div class="modal" id="youtubeModal">
         <div class="modal-content" style="max-width: 900px;">
             <div class="modal-header">
-                <h2 id="youtubeModalTitle">📺 Vidéo</h2>
+                <h2 id="youtubeModalTitle">Vidéo</h2>
                 <button class="close-btn" onclick="closeYouTubeModal()">×</button>
             </div>
             <div class="modal-body">
@@ -3055,7 +3086,7 @@
     <div class="modal" id="supersetModal">
         <div class="modal-content wkt-builder" style="max-width: 700px;">
             <div class="modal-header">
-                <h2>🔗 Créer un Superset</h2>
+                <h2>Créer un Superset</h2>
                 <button class="close-btn" onclick="closeSupersetModal()">×</button>
             </div>
             <div class="modal-body">
@@ -3145,7 +3176,7 @@
     <div class="modal" id="circuitModal">
         <div class="modal-content wkt-builder" style="max-width: 700px;">
             <div class="modal-header">
-                <h2>🔄 Créer un Circuit</h2>
+                <h2>Créer un Circuit</h2>
                 <button class="close-btn" onclick="closeCircuitModal()">×</button>
             </div>
             <div class="modal-body">
@@ -3320,7 +3351,7 @@
     <div class="modal" id="planDetailsModal">
         <div class="modal-content" style="max-width: 800px;">
             <div class="modal-header">
-                <h2 id="planModalTitle">📅 Plan</h2>
+                <h2 id="planModalTitle">Plan</h2>
                 <button class="close-btn" onclick="closePlanDetailsModal()">×</button>
             </div>
             <div class="modal-body">
@@ -3335,7 +3366,7 @@
     <div class="modal" id="feedbackModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>📝 Comment s'est passée votre séance ?</h2>
+                <h2>Comment s'est passée votre séance ?</h2>
             </div>
 
             <span style="display: block; margin: 20px 0 10px 0; font-weight: bold;">Difficulté perçue</span>
@@ -3374,11 +3405,11 @@
             <div id="modalEquipment" class="equipment-tags"></div>
             <p id="modalDescription" style="margin: 15px 0; line-height: 1.6;"></p>
             <div class="instructions-list">
-                <h4>📋 Instructions</h4>
+                <h4>Instructions</h4>
                 <ol id="modalInstructions"></ol>
             </div>
             <div class="tips-box">
-                <h4>💡 Conseils</h4>
+                <h4>Conseils</h4>
                 <p id="modalTips"></p>
             </div>
             <button class="btn btn-secondary" onclick="closeExerciseModal()">Fermer</button>
@@ -3389,7 +3420,7 @@
     <div class="modal" id="programEditorModal">
         <div class="modal-content" style="max-width: 700px; max-height: 90vh; overflow-y: auto;">
             <div class="modal-header">
-                <h2 id="programEditorTitle">➕ Créer un programme</h2>
+                <h2 id="programEditorTitle">Créer un programme</h2>
                 <button class="close-btn" onclick="closeProgramEditor()">×</button>
             </div>
             <div class="modal-body">
@@ -3437,7 +3468,7 @@
     <div class="modal" id="exercisePickerModal">
         <div class="modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
             <div class="modal-header">
-                <h2>📚 Sélectionner des exercices</h2>
+                <h2>Sélectionner des exercices</h2>
                 <button class="close-btn" onclick="closeExercisePicker()">×</button>
             </div>
             <div class="modal-body">
@@ -3519,38 +3550,38 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/exercises.js?v=765"></script>
-    <script src="data/items.js?v=765"></script>
-    <script src="js/adventure.js?v=765"></script>
-    <script src="js/economy.js?v=765"></script>
-    <script src="js/challenges.js?v=765"></script>
-    <script src="js/family-boss.js?v=765"></script>
-    <script src="js/family-network.js?v=765"></script>
-    <script src="js/family-challenge.js?v=765"></script>
-    <script src="js/family-goal.js?v=765"></script>
-    <script src="js/family-feed.js?v=765"></script>
-    <script src="js/pre-workout-mood.js?v=765"></script>
-    <script src="js/group-workout.js?v=765"></script>
-    <script src="js/youth-safety.js?v=765"></script>
-    <script src="js/kids-programs.js?v=765"></script>
-    <script src="js/senior-programs.js?v=765"></script>
-    <script src="js/adaptive.js?v=765"></script>
-    <script src="js/pain-mode.js?v=765"></script>
-    <script src="js/recovery-mode.js?v=765"></script>
-    <script src="js/exercise-visuals.js?v=765"></script>
-    <script src="js/strength-standards.js?v=765"></script>
-    <script src="js/system-cards.js?v=765"></script>
-    <script src="js/share-card.js?v=765"></script>
-    <script src="js/story-events.js?v=765"></script>
-    <script src="js/final-boss.js?v=765"></script>
-    <script src="js/disciplines.js?v=765"></script>
-    <script src="js/eveil.js?v=765"></script>
-    <script src="js/app.js?v=765"></script>
-    <script src="js/awakening-tree.js?v=765"></script>
-    <script src="js/ui-kit.js?v=765"></script>
-    <script src="js/feature-map.js?v=765"></script>
-    <script src="js/weekly-recap.js?v=765"></script>
-    <script src="js/workout-games.js?v=765"></script>
+    <script src="js/exercises.js?v=775"></script>
+    <script src="data/items.js?v=775"></script>
+    <script src="js/adventure.js?v=775"></script>
+    <script src="js/economy.js?v=775"></script>
+    <script src="js/challenges.js?v=775"></script>
+    <script src="js/family-boss.js?v=775"></script>
+    <script src="js/family-network.js?v=775"></script>
+    <script src="js/family-challenge.js?v=775"></script>
+    <script src="js/family-goal.js?v=775"></script>
+    <script src="js/family-feed.js?v=775"></script>
+    <script src="js/pre-workout-mood.js?v=775"></script>
+    <script src="js/group-workout.js?v=775"></script>
+    <script src="js/youth-safety.js?v=775"></script>
+    <script src="js/kids-programs.js?v=775"></script>
+    <script src="js/senior-programs.js?v=775"></script>
+    <script src="js/adaptive.js?v=775"></script>
+    <script src="js/pain-mode.js?v=775"></script>
+    <script src="js/recovery-mode.js?v=775"></script>
+    <script src="js/exercise-visuals.js?v=775"></script>
+    <script src="js/strength-standards.js?v=775"></script>
+    <script src="js/system-cards.js?v=775"></script>
+    <script src="js/share-card.js?v=775"></script>
+    <script src="js/story-events.js?v=775"></script>
+    <script src="js/final-boss.js?v=775"></script>
+    <script src="js/disciplines.js?v=775"></script>
+    <script src="js/eveil.js?v=775"></script>
+    <script src="js/app.js?v=775"></script>
+    <script src="js/awakening-tree.js?v=775"></script>
+    <script src="js/ui-kit.js?v=775"></script>
+    <script src="js/feature-map.js?v=775"></script>
+    <script src="js/weekly-recap.js?v=775"></script>
+    <script src="js/workout-games.js?v=775"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>

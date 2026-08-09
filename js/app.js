@@ -747,14 +747,14 @@
                                 ✅ Marquer aujourd'hui comme complété
                             </button>
                             <div style="text-align: center; margin-top: 12px; padding: 11px 14px; background: rgba(251,191,36,0.08); border-radius: 10px; border: 1px solid rgba(251,191,36,0.25);">
-                                <div style="font-weight: 800; color: #fbbf24; margin-bottom: 3px; font-size: 0.72em; letter-spacing: 1px;">🎯 OBJECTIF DU JOUR</div>
+                                <div style="font-weight: 800; color: #fbbf24; margin-bottom: 3px; font-size: 0.72em; letter-spacing: 1px;">OBJECTIF DU JOUR</div>
                                 <div style="color: #fde68a; font-size: 0.88em; font-weight: 600;">${activeChallenge.goal}</div>
                             </div>
                         `}
 
                         <!-- Tips -->
                         <div style="margin-top: 16px; padding: 12px 14px; background: rgba(255,255,255,0.02); border-radius: 10px; border-left: 3px solid ${activeChallenge.color};">
-                            <div style="font-weight: 800; color: ${activeChallenge.color}; margin-bottom: 4px; font-size: 0.72em; letter-spacing: 0.5px;">💡 CONSEIL</div>
+                            <div style="font-weight: 800; color: ${activeChallenge.color}; margin-bottom: 4px; font-size: 0.72em; letter-spacing: 0.5px;">CONSEIL</div>
                             <div style="color: #cbd5e1; font-size: 0.82em; line-height: 1.5;">${activeChallenge.tips}</div>
                         </div>
                     </div>
@@ -949,7 +949,7 @@
             modal.innerHTML = `
                 <div style="padding: 30px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-                        <h2 style="color: #06b6d4; margin: 0;">🏃 Configuration Cardio</h2>
+                        <h2 style="color: #06b6d4; margin: 0;">Configuration Cardio</h2>
                         <button onclick="closeCardioConfigModal()" style="background: none; border: none; font-size: 1.5em; cursor: pointer; color: #94a3b8;">✕</button>
                     </div>
                     
@@ -1153,7 +1153,7 @@
                     <!-- Stats will be inserted here -->
                 </div>
                 <div style="background: #e0f2fe; padding: 15px; border-radius: 10px; margin-top: 15px;">
-                    <h4 style="margin: 0 0 10px 0; color: #0c4a6e;">📊 Inputs (optionnels)</h4>
+                    <h4 style="margin: 0 0 10px 0; color: #0c4a6e;">Inputs (optionnels)</h4>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                         <div>
                             <label style="display: block; font-size: 0.85em; color: #0c4a6e; margin-bottom: 5px;">Distance (${currentCardioSession.unit === 'metric' ? 'km' : 'mi'})</label>
@@ -2923,7 +2923,7 @@
                 const stat = function (label, val) { return '<div style="flex:1;text-align:center;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:10px 4px;"><div style="font-size:1.1em;font-weight:900;color:white;">' + val + '</div><div style="font-size:0.54em;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;line-height:1.2;">' + label + '</div></div>'; };
                 const insList = ins.slice(0, 3).map(function (i) { return '<div style="display:flex;gap:9px;align-items:flex-start;background:rgba(255,255,255,0.03);border-left:3px solid ' + i.color + ';border-radius:8px;padding:9px 11px;margin-bottom:7px;"><span style="font-size:1.05em;flex-shrink:0;line-height:1.2;">' + i.icon + '</span><div style="font-size:0.78em;color:#cbd5e1;line-height:1.45;">' + i.text + '</div></div>'; }).join('');
                 host.innerHTML = '<div class="card">'
-                    + '<h2 style="color:#22d3ee;margin-bottom:16px;">🧠 Analyse comportementale</h2>'
+                    + '<h2 style="color:#22d3ee;margin-bottom:16px;">Analyse comportementale</h2>'
                     + '<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;"><div style="font-size:2.2em;">' + b.type.emoji + '</div><div><div style="font-weight:900;color:white;font-size:1.05em;">' + b.type.label + '</div><div style="font-size:0.75em;color:#94a3b8;">' + b.type.desc + '</div></div></div>'
                     + '<div style="background:rgba(255,255,255,0.03);border:1px solid ' + cons.color + '44;border-radius:14px;padding:13px 15px;margin-bottom:14px;"><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-size:0.72em;color:#94a3b8;font-weight:700;text-transform:uppercase;">Assiduité</span><span style="font-weight:900;color:' + cons.color + ';">' + cons.score + '/100 · ' + cons.label + '</span></div><div style="height:9px;background:rgba(255,255,255,0.07);border-radius:6px;overflow:hidden;"><div style="height:100%;width:' + cons.score + '%;background:' + cons.color + ';border-radius:6px;"></div></div></div>'
                     + '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:13px 15px;margin-bottom:14px;"><div style="font-size:0.66em;color:#94a3b8;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:9px;">Séances · 6 dernières semaines</div><div style="display:flex;gap:6px;align-items:flex-end;">' + bars + '</div></div>'
@@ -4103,7 +4103,7 @@
                     <div style="font-size: 0.82em; color: #cbd5e1; line-height: 1.5;">📈 <strong style="color: #4ade80;">Surcharge progressive</strong> — l'effort augmente chaque semaine (jusqu'à +30%) et les repos se resserrent (60s → 40s). Ton corps n'a pas le temps de s'habituer.</div>
                 </div>
                 
-                <h3 style="color: ${plan.color}; margin-top: 24px; font-size: 1em;">📈 Progression par semaine</h3>
+                <h3 style="color: ${plan.color}; margin-top: 24px; font-size: 1em;">Progression par semaine</h3>
                 <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px;">
                     ${plan.weeks.map(week => `
                         <div style="padding: 12px 14px; background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; border-left: 3px solid ${plan.color};">
@@ -4403,7 +4403,7 @@
                     
                     <div style="background: rgba(255,255,255,0.025); padding: 16px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.06); border-left: 3px solid ${activePlan.color};">
                         <h4 style="color: ${activePlan.color}; margin-top: 0; display: flex; align-items: center; gap: 8px; font-size: 0.95em;">
-                            📍 Semaine ${activePlan.currentWeek} — ${currentWeek.title}
+                            Semaine ${activePlan.currentWeek} — ${currentWeek.title}
                         </h4>
                         <p style="color: #94a3b8; margin-bottom: 16px; font-size: 0.82em;">${currentWeek.description}${activePlan.currentWeek > 1 ? ` · 📈 effort +${Math.round(Math.min(1,(activePlan.currentWeek-1)/Math.max(1,(activePlan.duration||activePlan.weeks.length)-1))*30)}%` : ''}</p>
                         
@@ -4678,7 +4678,7 @@
                 modal.innerHTML = `
                     <div style="width:100%;max-width:420px;background:#0F1014;border-radius:20px;padding:22px;max-height:85vh;overflow-y:auto;border:1px solid rgba(34,197,94,0.2);">
                         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-                            <h3 style="margin:0;color:white;font-size:1.1em;">💾 Sauvegardes</h3>
+                            <h3 style="margin:0;color:white;font-size:1.1em;">Sauvegardes</h3>
                             <button onclick="document.getElementById('backupManagerModal').remove()" style="background:transparent;border:none;color:#94a3b8;font-size:1.4em;cursor:pointer;">✕</button>
                         </div>
 
@@ -4938,7 +4938,7 @@
 
                 ${phase ? `
                     <div style="background:${phase.color}08;border:1px solid ${phase.color}20;border-radius:10px;padding:10px 12px;margin-bottom:12px;">
-                        <div style="font-size:0.62em;color:${phase.color};font-weight:800;letter-spacing:1px;margin-bottom:3px;">⚡ PHASE EN COURS</div>
+                        <div style="font-size:0.62em;color:${phase.color};font-weight:800;letter-spacing:1px;margin-bottom:3px;">PHASE EN COURS</div>
                         <div style="font-size:0.82em;color:white;font-weight:700;line-height:1.3;">${phase.goal}</div>
                         <div style="font-size:0.7em;color:#94a3b8;margin-top:4px;display:flex;gap:14px;flex-wrap:wrap;">
                             <span>📊 ${phase.reps} reps</span>
@@ -5971,6 +5971,7 @@
         let includeWarmup = true;  // Par défaut on inclut l'échauffement
         let includeStretch = true;  // Par défaut on inclut les étirements
         let selectedDuration = 30;  // Durée par défaut en minutes
+        let _forcedExerciseCount = 0; // >0 : l'utilisateur a fixé le NOMBRE d'exercices
         let currentCalendarMonth = new Date().getMonth();
         let currentCalendarYear = new Date().getFullYear();
         let isDarkMode = false;
@@ -7223,7 +7224,7 @@
             
             content.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2 style="margin: 0; color: #22d3ee;">🏋️ Sélectionnez vos machines</h2>
+                    <h2 style="margin: 0; color: #22d3ee;">Sélectionnez vos machines</h2>
                     <button onclick="this.closest('.modal-overlay').remove()" style="background: none; border: none; font-size: 28px; cursor: pointer; color: #94a3b8;">×</button>
                 </div>
                 
@@ -8128,7 +8129,7 @@
             modal.innerHTML = `
                 <div class="modal-content" style="max-width: 600px;">
                     <div class="modal-header">
-                        <h2 style="color: #16a34a;">🎯 Suggestions de Progression</h2>
+                        <h2 style="color: #16a34a;">Suggestions de Progression</h2>
                         <button class="close-btn" onclick="this.closest('.modal').remove()">×</button>
                     </div>
                     <div class="modal-body">
@@ -9562,7 +9563,7 @@
             modal.className = 'modal active';
             modal.id = 'aiPlanModal';
             modal.innerHTML = '<div class="modal-content" style="max-width:440px;max-height:85vh;overflow-y:auto;-webkit-overflow-scrolling:touch;border-top:3px solid #22c55e;">'
-                + '<div class="modal-header"><h2 style="font-size:1em;">🤖 Plan créé par l\'IA</h2><button onclick="document.getElementById(\'aiPlanModal\').remove()" style="background:none;border:none;font-size:1.5em;cursor:pointer;color:#94a3b8;">×</button></div>'
+                + '<div class="modal-header"><h2 style="font-size:1em;">Plan créé par l\'IA</h2><button onclick="document.getElementById(\'aiPlanModal\').remove()" style="background:none;border:none;font-size:1.5em;cursor:pointer;color:#94a3b8;">×</button></div>'
                 + '<div class="modal-body">'
                 + '<div style="color:#94a3b8;font-size:0.85em;margin-bottom:12px;line-height:1.5;">Programme équilibré selon ton objectif (<strong style="color:#4ade80;">'+(labels[profile.goal]||'Forme')+'</strong>). Split, fréquence par muscle et repos placés selon les données : <strong style="color:#e2e8f0;">2×+/sem par muscle dès 4 jours</strong> (la fréquence 2×/sem bat 1×/sem pour l\'hypertrophie). À 3 j, corps entier = gros groupes 3×/sem.</div>'
                 + '<div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.25);border-radius:10px;padding:9px 12px;margin-bottom:14px;font-size:0.78em;color:#94a3b8;line-height:1.5;">🏋️ ' + equipNote + '</div>'
@@ -9731,7 +9732,7 @@
             const todayIndex = today === 0 ? 6 : today - 1;
             
             let html = '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 10px; flex-wrap: wrap;">';
-            html += '<h3 style="margin: 0;">📅 Plan de la semaine</h3>';
+            html += '<h3 style="margin: 0;">Plan de la semaine</h3>';
             html += '<div style="display: flex; gap: 10px; flex-wrap: wrap;">';
             html += '<button onclick="openAIPlanPicker()" class="btn" style="padding: 8px 15px; font-size: 0.9em; background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);">🤖 Plan IA</button>';
             html += '<button onclick="showManualPlanEditor()" class="btn" style="padding: 8px 15px; font-size: 0.9em; background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);">✏️ Créer manuel</button>';
@@ -9839,7 +9840,7 @@
             modal.className = 'modal active';
             modal.id = 'ritualsManagerModal';
             modal.innerHTML = '<div class="modal-content" style="max-width:520px;max-height:90vh;overflow-y:auto;">'
-                + '<div class="modal-header"><h2>✨ Rituels</h2>'
+                + '<div class="modal-header"><h2>Rituels</h2>'
                 + '<button onclick="closeRitualsManager()" style="background:none;border:none;font-size:1.5em;cursor:pointer;color:#94a3b8;">×</button></div>'
                 + '<div class="modal-body"><p style="color:#94a3b8;font-size:0.85em;margin-bottom:16px;">Des séances complémentaires qui s\'ajoutent à ton programme sur les jours de ton choix (ex. Mobilité le dimanche). Elles apparaissent dans ton plan de la semaine.</p>'
                 + '<div id="ritualsManagerBody"></div></div></div>';
@@ -9915,7 +9916,7 @@
             modal.innerHTML = `
                 <div class="modal-content" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
                     <div class="modal-header">
-                        <h2>✏️ Créer mon plan manuel</h2>
+                        <h2>Créer mon plan manuel</h2>
                         <button onclick="closeManualPlanEditor()" style="background: none; border: none; font-size: 1.5em; cursor: pointer;">×</button>
                     </div>
                     <div class="modal-body">
@@ -10327,8 +10328,22 @@
                     const _final = _safe.length > 0 ? _safe : _sel;
                     decisions.workoutType = 'split';
                     decisions.targetMuscles = _final;
-                    decisions.duration = 30;
+                    // 🐛 La durée était FORCÉE à 30 min ici, écrasant le choix de
+                    // l'utilisateur : demander 60 min donnait une séance de 30 min
+                    // (donc ~2× moins d'exercices). On respecte la durée choisie.
+                    decisions.duration = (typeof selectedDuration === 'number' && selectedDuration > 0)
+                        ? selectedDuration : 30;
                     decisions.reasoning.push(`🎯 Muscles que tu as choisis : ${_final.join(', ')}`);
+                    // ⚠️ Informer si un muscle choisi est encore en récupération —
+                    // on respecte le choix, mais l'utilisateur doit le savoir.
+                    try {
+                        const _enReco = _final.filter(m => safeFatiguedMuscles.includes(m));
+                        if (_enReco.length > 0) {
+                            decisions.reasoning.push(`😴 Encore en récupération : ${_enReco.join(', ')} — charge allégée`);
+                            decisions.reasoning.push(`↻ Pour remettre tes muscles à « prêt » : Réglages › Entraînement › Réinitialiser la récupération`);
+                            decisions.intensity = Math.max(0.6, (decisions.intensity || 1) * 0.85);
+                        }
+                    } catch (e) {}
                     if (todayPlan && todayPlan.muscles && todayPlan.muscles.length > 0) {
                         decisions.reasoning.push(`ℹ️ Ton choix prime sur le plan du jour`);
                     }
@@ -10676,7 +10691,15 @@
             let availableExercises = exerciseDatabase.filter(ex => {
                 if (ex.type !== 'exercise') return false;
                 if (typeof awakExerciseBlockedByLocation === 'function' && awakExerciseBlockedByLocation(ex)) return false;
-                if (!decisions.targetMuscles.includes(ex.muscle)) return false;
+                // Le muscle ciblé peut être PRINCIPAL ou fortement sollicité en
+                // secondaire (≥30 %). Sans ça, un muscle comme les Biceps n'avait
+                // aucun exercice au poids du corps et disparaissait de la séance.
+                {
+                    const _primOk = decisions.targetMuscles.includes(ex.muscle);
+                    const _secOk = (ex.secondaryMuscles || []).some(s =>
+                        decisions.targetMuscles.includes(s.muscle) && (s.ratio || 0) >= 0.3);
+                    if (!_primOk && !_secOk) return false;
+                }
                 if (blacklist.includes(ex.name)) return false;
                 return awakEquipmentOk(ex, equipmentNames);
             });
@@ -10720,8 +10743,57 @@
             }
             
             let targetExerciseCount = Math.floor((decisions.duration / 60) * 12 * decisions.intensity);
+            // Si l'utilisateur a choisi un NOMBRE d'exercices, il prime sur la durée.
+            if (typeof _forcedExerciseCount === 'number' && _forcedExerciseCount > 0) {
+                targetExerciseCount = _forcedExerciseCount;
+            }
             targetExerciseCount = Math.min(targetExerciseCount, availableExercises.length);
-            
+
+            // 🧰 COHÉRENCE MATÉRIELLE — sans ça, une séance mélangeait barre,
+            // machine, kettlebell et poids du corps : allers-retours entre postes
+            // en salle, montage/démontage à la maison. On choisit 1 ou 2 matériels
+            // DOMINANTS (ceux qui couvrent le plus d'exercices pour les muscles
+            // ciblés) et on s'y tient ; le poids du corps reste toujours accepté
+            // car il ne demande aucune installation.
+            try {
+                const _isBw = (e) => ['Poids du corps', 'Aucun'].includes(e);
+                const _eqOf = (ex) => (ex.equipment && ex.equipment.length) ? ex.equipment : ['Poids du corps'];
+                // Compter la couverture de chaque matériel (hors poids du corps)
+                const _count = {};
+                availableExercises.forEach(ex => {
+                    _eqOf(ex).forEach(e => { if (!_isBw(e)) _count[e] = (_count[e] || 0) + 1; });
+                });
+                // ⚠️ Prendre systématiquement les 2 plus couvrants serait DÉTERMINISTE :
+                // on retomberait sur « Machine + Barre » à chaque séance et le reste
+                // du matériel ne servirait jamais. On tire donc AU HASARD, en pondérant
+                // par la couverture (un matériel riche sort plus souvent, mais pas
+                // toujours) — cohérence ET variété d'une séance à l'autre.
+                const _viables = Object.keys(_count).filter(e => _count[e] >= 3);
+                const _pickWeighted = function (list) {
+                    const total = list.reduce((s, e) => s + _count[e], 0);
+                    let r = Math.random() * total;
+                    for (const e of list) { r -= _count[e]; if (r <= 0) return e; }
+                    return list[list.length - 1];
+                };
+                const _ranked = (_viables.length >= 2 ? _viables : Object.keys(_count));
+                if (_ranked.length > 1) {
+                    const _first = _pickWeighted(_ranked);
+                    const _rest = _ranked.filter(e => e !== _first);
+                    const _keep = _rest.length ? [_first, _pickWeighted(_rest)] : [_first];
+                    const _coherent = availableExercises.filter(ex =>
+                        _eqOf(ex).every(e => _isBw(e) || _keep.includes(e)));
+                    // 🛟 Garde-fou : on n'applique la contrainte que s'il reste de quoi
+                    // remplir la séance ET couvrir chaque muscle ciblé.
+                    const _musclesOk = decisions.targetMuscles.every(m =>
+                        _coherent.some(ex => ex.muscle === m ||
+                            (ex.secondaryMuscles || []).some(s => s.muscle === m && (s.ratio || 0) >= 0.3)));
+                    if (_coherent.length >= targetExerciseCount && _musclesOk) {
+                        availableExercises = _coherent;
+                        decisions.reasoning.push(`🧰 Séance regroupée : ${_keep.join(' + ')} (+ poids du corps)`);
+                    }
+                }
+            } catch (e) {}
+
             // S'assurer qu'il y a des exercices pour CHAQUE muscle ciblé
             let selectedExercises = [];
 
@@ -10732,15 +10804,28 @@
             const _activeCeleb = _manualPlanActive ? null : getActiveCelebrity();
 
             // Pour chaque muscle ciblé, ajouter au moins 2 exercices
+            // 🐛 Deux défauts corrigés ici :
+            //  1) On ne prenait que le muscle PRINCIPAL : un muscle sans exercice
+            //     disponible (ex. Biceps au poids du corps = 0) était silencieusement
+            //     ignoré → « 3 muscles choisis, 2 muscles travaillés ».
+            //  2) La part par muscle était figée à 2, quelle que soit la durée :
+            //     une séance de 60 min se retrouvait avec 3-4 exercices.
+            const _perMuscle = Math.max(2, Math.ceil(targetExerciseCount / Math.max(1, decisions.targetMuscles.length)));
             decisions.targetMuscles.forEach(muscle => {
                 let muscleExercises = availableExercises.filter(ex => ex.muscle === muscle);
+                // Renfort : exercices où ce muscle est fortement SOLLICITÉ en secondaire
+                if (muscleExercises.length < _perMuscle) {
+                    const _sec = availableExercises.filter(ex =>
+                        ex.muscle !== muscle &&
+                        (ex.secondaryMuscles || []).some(s => s.muscle === muscle && (s.ratio || 0) >= 0.3));
+                    muscleExercises = muscleExercises.concat(_sec);
+                }
                 // Trier : exercices signature d'abord
                 if (_activeCeleb) {
                     muscleExercises = prioritizeCelebrityExercises(muscleExercises, _activeCeleb.id);
                 }
                 if (muscleExercises.length > 0) {
-                    // Prendre 2 exercices (les premiers = signature si personnalité active)
-                    const count = Math.min(2, muscleExercises.length);
+                    const count = Math.min(_perMuscle, muscleExercises.length);
                     for (let i = 0; i < count; i++) {
                         const pickIdx = _activeCeleb ? i : Math.floor(Math.random() * muscleExercises.length);
                         const ex = muscleExercises[Math.min(pickIdx, muscleExercises.length - 1)];
@@ -11242,7 +11327,7 @@
                             <div style="font-size:0.75em;color:rgba(255,255,255,0.6);margin-top:4px;line-height:1.4;">La Séance Intelligente suivra automatiquement les muscles du jour.</div>
                         </div>
                     </div>
-                    <button onclick="openManualPlanEditor()" style="width:100%;background:linear-gradient(135deg,#a855f7,#7c3aed);border:none;color:white;border-radius:10px;padding:12px;font-weight:900;font-size:0.88em;cursor:pointer;letter-spacing:0.5px;box-shadow:0 4px 14px rgba(168,85,247,0.35);">✨ CRÉER MON PLAN</button>
+                    <button onclick="openManualPlanEditor()" style="width:100%;background:linear-gradient(135deg,#a855f7,#7c3aed);border:none;color:white;border-radius:10px;padding:12px;font-weight:900;font-size:0.88em;cursor:pointer;letter-spacing:0.5px;box-shadow:0 4px 14px rgba(168,85,247,0.35);">CRÉER MON PLAN</button>
                 </div>`;
                 return;
             }
@@ -11314,7 +11399,7 @@
                 <div style="padding:13px 18px 10px;flex-shrink:0;border-bottom:1px solid rgba(168,85,247,0.15);">
                     <div style="display:flex;align-items:center;justify-content:space-between;">
                         <div>
-                            <div style="font-size:0.6em;color:#c084fc;font-weight:900;letter-spacing:2px;margin-bottom:2px;">📅 PLAN HEBDO</div>
+                            <div style="font-size:0.6em;color:#c084fc;font-weight:900;letter-spacing:2px;margin-bottom:2px;">PLAN HEBDO</div>
                             <h2 style="margin:0;color:white;font-size:1em;font-weight:900;">Définir ma semaine</h2>
                         </div>
                         <button onclick="document.getElementById('manualPlanEditorModal').remove();renderManualWeeklyPlanCard();" style="background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.35);color:#4ade80;border-radius:10px;padding:7px 14px;font-weight:900;font-size:0.78em;cursor:pointer;">✓ Terminer</button>
@@ -11325,7 +11410,7 @@
 
                     <!-- Presets rapides -->
                     <div style="margin-bottom:14px;">
-                        <div style="font-size:0.6em;color:#94a3b8;font-weight:900;letter-spacing:2px;margin-bottom:6px;">⚡ APPLIQUER UN PRESET</div>
+                        <div style="font-size:0.6em;color:#94a3b8;font-weight:900;letter-spacing:2px;margin-bottom:6px;">APPLIQUER UN PRESET</div>
                         <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;">
                             ${MANUAL_PLAN_PRESETS.map(p => `
                                 <button onclick="applyManualPlanPreset('${p.id}')" style="background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.25);color:#c084fc;border-radius:10px;padding:10px 8px;font-size:0.78em;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:7px;justify-content:center;">
@@ -11336,7 +11421,7 @@
                     </div>
 
                     <!-- 7 jours -->
-                    <div style="font-size:0.6em;color:#94a3b8;font-weight:900;letter-spacing:2px;margin-bottom:6px;">📆 SEMAINE</div>
+                    <div style="font-size:0.6em;color:#94a3b8;font-weight:900;letter-spacing:2px;margin-bottom:6px;">SEMAINE</div>
                     <div id="manualPlanDaysEditor">
                         ${MANUAL_PLAN_DAYS.map(d => {
                             const dayData = plan[d] || { muscles: [], label: '' };
@@ -11634,6 +11719,9 @@
                 const _budgetSec = Math.max(60, selectedDuration * 60 - _reserveSec);
                 targetExerciseCount = Math.floor(_budgetSec / _perExWithTransition);
                 // Garde-fous : au moins 2 exercices (séance cohérente), au plus 12.
+                if (typeof _forcedExerciseCount === 'number' && _forcedExerciseCount > 0) {
+                    targetExerciseCount = _forcedExerciseCount;
+                }
                 targetExerciseCount = Math.max(2, Math.min(12, targetExerciseCount));
             }
 
@@ -12175,7 +12263,7 @@
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px;">
                     <!-- Weekly Goals -->
                     <div class="card" style="background: linear-gradient(135deg, #16a34a20 0%, #15803d20 100%);">
-                        <h4 style="color: #16a34a; margin-top: 0;">🎯 Objectifs Semaine</h4>
+                        <h4 style="color: #16a34a; margin-top: 0;">Objectifs Semaine</h4>
                         <div style="margin-bottom: 15px;">
                             <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
                                 <span>Séances</span>
@@ -12202,7 +12290,7 @@
                     <!-- Trends -->
                     <div class="card" style="background: linear-gradient(135deg, ${trends.interpretation === 'positive' ? '#10b98120' : trends.interpretation === 'negative' ? '#ef444420' : '#f59e0b20'} 0%, transparent 100%);">
                         <h4 style="color: ${trends.interpretation === 'positive' ? '#10b981' : trends.interpretation === 'negative' ? '#ef4444' : '#f59e0b'}; margin-top: 0;">
-                            📈 Tendances (30j)
+                            Tendances (30j)
                         </h4>
                         <div style="display: flex; flex-direction: column; gap: 10px;">
                             <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -12228,7 +12316,7 @@
                 
                 <!-- Recommendations -->
                 ${recommendations.length > 0 ? `
-                    <h4 style="color: #16a34a; margin-bottom: 15px;">💡 Recommandations</h4>
+                    <h4 style="color: #16a34a; margin-bottom: 15px;">Recommandations</h4>
                     <div style="display: flex; flex-direction: column; gap: 10px;">
                         ${recommendations.map(rec => `
                             <div class="card" style="background: ${rec.priority === 'high' ? '#ef444415' : '#f59e0b15'}; border-left: 4px solid ${rec.priority === 'high' ? '#ef4444' : '#f59e0b'};">
@@ -12746,9 +12834,21 @@
 
         function selectDuration(minutes) {
             selectedDuration = minutes;
+            _forcedExerciseCount = 0;   // choix par DURÉE → on annule un éventuel choix par nombre
             closeDurationModal();
             actuallyStartRandomWorkout();
         }
+
+        // 🔢 Choix ALTERNATIF : l'utilisateur fixe le NOMBRE d'exercices et la durée
+        // s'ajuste (≈5 min par exercice, échauffement et étirements compris).
+        // 0 = pas de contrainte, on repart sur la durée.
+        function selectExerciseCount(n) {
+            _forcedExerciseCount = n;
+            selectedDuration = Math.max(10, Math.round(n * 5));
+            closeDurationModal();
+            actuallyStartRandomWorkout();
+        }
+        window.selectExerciseCount = selectExerciseCount;
         
         // ========== HYBRID WORKOUT SYSTEM ==========
         
@@ -13058,7 +13158,7 @@
                                 padding:7px 11px;margin-bottom:8px;cursor:pointer;display:flex;align-items:center;gap:8px;">
                 <div style="font-size:1em;color:${sug.color};font-weight:900;flex-shrink:0;">${arrow}</div>
                 <div style="flex:1;min-width:0;">
-                    <div style="font-size:0.6em;color:${sug.color};font-weight:800;letter-spacing:1px;">💡 SUGGESTION</div>
+                    <div style="font-size:0.6em;color:${sug.color};font-weight:800;letter-spacing:1px;">SUGGESTION</div>
                     <div style="font-size:0.78em;color:#e2e8f0;font-weight:700;line-height:1.2;margin-top:1px;">
                         ${sug.weight}${useKg ? 'kg' : 'lbs'} × ${sug.reps} reps
                     </div>
@@ -14181,7 +14281,7 @@
                         ${(()=>{ const p=getExerciseProgress(); return p.total>0?`Exercice ${p.current}/${p.total}`:`Repos`; })()}
                     </div>
                     <h2 id="exerciseName" style="margin-bottom: 10px;">
-                        <span style="display: inline-block; background: linear-gradient(135deg, #22c55e 0%, #166534 100%); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8em; margin-right: 10px; font-weight: bold;">💪 REPS</span>
+                        <span style="display: inline-block; background: linear-gradient(135deg, #22c55e 0%, #166534 100%); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8em; margin-right: 10px; font-weight: bold;">REPS</span>
                         ${exercise.name}
                     </h2>
                     ${muscleBadgeHTML}
@@ -14211,7 +14311,7 @@
                     
                     ${exercise.instructions ? `
                         <div style="margin-top: 20px;">
-                            <h4 style="color: #16a34a; margin-bottom: 10px;">📋 Instructions</h4>
+                            <h4 style="color: #16a34a; margin-bottom: 10px;">Instructions</h4>
                             <ul id="exerciseInstructions" style="list-style: none; padding: 0;">
                                 ${exercise.instructions.map(inst => 
                                     `<li style="padding: 8px; margin: 5px 0; background: #f8fafc; border-radius: 10px;">• ${inst}</li>`
@@ -14221,7 +14321,7 @@
                     ` : ''}
                     
                     <div style="background: rgba(255,255,255,0.04); padding: 25px; border-radius: 14px; margin-top: 25px; border: 1px solid #252830;">
-                        <h3 style="color: #16a34a; margin-bottom: 20px;">📝 Enregistrez votre performance</h3>
+                        <h3 style="color: #16a34a; margin-bottom: 20px;">Enregistrez votre performance</h3>
                         
                         <div style="margin-bottom: 20px;">
                             <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #e2e8f0;">
@@ -14562,7 +14662,7 @@
             // preserveAspectRatio="none" : l'image occupe EXACTEMENT le viewBox,
             // donc le repère de l'image et celui des zones sont identiques.
             // (Les proportions sont conservées : 784/1168 ≈ 200/298, écart < 0,2 %.)
-            return '<image href="' + img + '?v=765" x="0" y="0" width="200" height="298" '
+            return '<image href="' + img + '?v=775" x="0" y="0" width="200" height="298" '
                  + 'preserveAspectRatio="none" style="pointer-events:none;"/>';
         }
 
@@ -16830,7 +16930,7 @@
             
             container.innerHTML = `
                 <div style="margin-top: 30px;">
-                    <h3 style="color: #22d3ee; margin-bottom: 20px;">📈 Vos Records 1RM</h3>
+                    <h3 style="color: #22d3ee; margin-bottom: 20px;">Vos Records 1RM</h3>
                     <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px;">
                         ${entries.map(([exercise, record]) => {
                             const date = new Date(record.date).toLocaleDateString('fr-FR');
@@ -16921,7 +17021,7 @@
                     </div>
                     
                     <div style="background: rgba(255,255,255,0.04); padding: 20px; border-radius: 14px; margin-bottom: 20px;">
-                        <h3 style="color: #f59e0b; margin-bottom: 15px; text-align: center;">📋 Configuration</h3>
+                        <h3 style="color: #f59e0b; margin-bottom: 15px; text-align: center;">Configuration</h3>
                         <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 20px; align-items: center;">
                             <div style="text-align: right;">
                                 <div style="font-size: 1.1em; font-weight: 700; color: #e2e8f0; margin-bottom: 10px;">Côté gauche</div>
@@ -17073,7 +17173,7 @@
             
             modal.innerHTML = `
                 <div style="padding: 30px;">
-                    <h2 style="color: #16a34a; margin-bottom: 10px; text-align: center;">💪 Comment s'est passée cette série ?</h2>
+                    <h2 style="color: #16a34a; margin-bottom: 10px; text-align: center;">Comment s'est passée cette série ?</h2>
                     <p style="text-align: center; color: #94a3b8; margin-bottom: 20px; font-size: 0.95em;">
                         ${exerciseName} • ${reps} reps${weight ? ` × ${weight} kg` : ''}
                     </p>
@@ -17597,7 +17697,7 @@
 
                         ${t.weeklyPattern ? `
                             <div style="margin-top:14px;background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.2);border-radius:10px;padding:10px 12px;">
-                                <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:1.5px;margin-bottom:6px;">📅 PLAN HEBDO INCLUS</div>
+                                <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:1.5px;margin-bottom:6px;">PLAN HEBDO INCLUS</div>
                                 <div style="display:flex;gap:4px;flex-wrap:wrap;">
                                     ${ROUTINE_DAYS.map(d => {
                                         const sessionIdx = t.weeklyPattern[d];
@@ -17613,7 +17713,7 @@
 
                     <!-- Action -->
                     <div style="padding:14px 18px;border-top:1px solid rgba(255,255,255,0.05);flex-shrink:0;">
-                        <button onclick="importTemplate('${t.id}')" style="width:100%;background:linear-gradient(135deg,${t.color},${t.color}cc);border:none;color:white;border-radius:14px;padding:14px;font-weight:900;font-size:0.95em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${t.color}40;">📥 IMPORTER CE PROGRAMME</button>
+                        <button onclick="importTemplate('${t.id}')" style="width:100%;background:linear-gradient(135deg,${t.color},${t.color}cc);border:none;color:white;border-radius:14px;padding:14px;font-weight:900;font-size:0.95em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${t.color}40;">IMPORTER CE PROGRAMME</button>
                     </div>
                 </div>
             `;
@@ -17634,7 +17734,7 @@
                     <div style="padding:14px 18px 8px;flex-shrink:0;border-bottom:1px solid rgba(168,85,247,0.1);">
                         <div style="display:flex;align-items:center;justify-content:space-between;">
                             <div>
-                                <div style="font-size:0.6em;color:#c084fc;font-weight:900;letter-spacing:2px;margin-bottom:3px;">📚 TEMPLATES</div>
+                                <div style="font-size:0.6em;color:#c084fc;font-weight:900;letter-spacing:2px;margin-bottom:3px;">TEMPLATES</div>
                                 <div style="font-size:1em;font-weight:900;color:white;">Choisir un programme</div>
                             </div>
                             <button onclick="document.getElementById('templatesModal').remove()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#f87171;width:32px;height:32px;border-radius:50%;font-size:0.9em;cursor:pointer;flex-shrink:0;">✕</button>
@@ -17693,7 +17793,7 @@
                         </div>
                     </div>
                     <div style="font-size:0.75em;color:#94a3b8;line-height:1.5;margin-bottom:11px;">Choisis quelle routine faire chaque jour. Elle apparaîtra sur la carte "Aujourd'hui" à l'accueil.</div>
-                    <button onclick="openWeeklyPlanEditor()" style="width:100%;background:linear-gradient(135deg,#22c55e,#16a34a);border:none;color:white;border-radius:10px;padding:11px;font-weight:900;font-size:0.85em;cursor:pointer;letter-spacing:0.5px;">✨ CRÉER MON PLAN HEBDO</button>
+                    <button onclick="openWeeklyPlanEditor()" style="width:100%;background:linear-gradient(135deg,#22c55e,#16a34a);border:none;color:white;border-radius:10px;padding:11px;font-weight:900;font-size:0.85em;cursor:pointer;letter-spacing:0.5px;">CRÉER MON PLAN HEBDO</button>
                 </div>`;
                 return;
             }
@@ -17702,7 +17802,7 @@
             container.innerHTML = `
                 <div class="card" style="background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(34,197,94,0.25);padding:14px 16px;margin-bottom:14px;">
                     <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-                        <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;">📅 SEMAINE</div>
+                        <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;">SEMAINE</div>
                         <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(34,197,94,0.25),transparent);"></div>
                         <button onclick="openWeeklyPlanEditor()" style="background:none;border:none;color:#94a3b8;font-size:0.7em;cursor:pointer;font-weight:700;">✏️ Modifier</button>
                     </div>
@@ -17745,7 +17845,7 @@
                 <div style="width:100%;max-width:440px;background:#0F1014;border:1px solid rgba(34,197,94,0.3);border-radius:20px;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;">
                     <div style="padding:16px 18px;border-bottom:1px solid rgba(34,197,94,0.15);display:flex;align-items:center;justify-content:space-between;">
                         <div>
-                            <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;">📅 PLAN HEBDO</div>
+                            <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;">PLAN HEBDO</div>
                             <div style="font-size:1em;font-weight:900;color:white;margin-top:2px;">Modifier la semaine</div>
                         </div>
                         <button onclick="document.getElementById('weeklyPlanEditorModal').remove();renderWeeklyPlanCard();" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#f87171;width:32px;height:32px;border-radius:50%;font-size:0.9em;cursor:pointer;">✓</button>
@@ -18034,7 +18134,7 @@
                     <div style="padding:12px 18px 10px;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,0.05);">
                         <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
                             <div style="min-width:0;flex:1;">
-                                <div style="font-size:0.6em;color:${color};font-weight:900;letter-spacing:2px;margin-bottom:2px;">✏️ ÉDITER</div>
+                                <div style="font-size:0.6em;color:${color};font-weight:900;letter-spacing:2px;margin-bottom:2px;">ÉDITER</div>
                                 <input id="routineEditNameInput" value="${(routine.name||'').replace(/"/g,'&quot;')}" style="width:100%;background:transparent;border:none;border-bottom:1px dashed rgba(255,255,255,0.15);color:white;font-size:1em;font-weight:900;padding:3px 0;outline:none;">
                             </div>
                             <button onclick="_saveRoutineEdit()" style="background:linear-gradient(135deg,${color},${color}cc);border:none;color:white;border-radius:10px;padding:8px 14px;font-size:0.78em;font-weight:900;cursor:pointer;flex-shrink:0;">✓ OK</button>
@@ -22417,7 +22517,7 @@
             modal.innerHTML = `
                 <div class="modal-content" style="max-width: 500px;">
                     <div class="modal-header">
-                        <h2>💪 Comment c'était ?</h2>
+                        <h2>Comment c'était ?</h2>
                     </div>
                     <div class="modal-body">
                         <h3 style="text-align: center; margin-bottom: 20px; color: #16a34a;">${exerciseName}</h3>
@@ -22919,7 +23019,7 @@
                                 <div class="exercise-title">${exercise.name}</div>
                                 <div class="muscle-group">${exercise.muscle}</div>
                                 ${awakPopInfo(exercise.name) ? `<div style="display:inline-flex;align-items:center;gap:4px;margin-top:5px;background:linear-gradient(135deg,rgba(249,115,22,0.18),rgba(251,191,36,0.12));border:1px solid rgba(249,115,22,0.45);color:#fb923c;border-radius:20px;padding:2px 9px;font-size:0.66em;font-weight:800;letter-spacing:0.5px;">🔥 POPULAIRE${awakPopInfo(exercise.name).t === 1 ? ' · TOP 10' : ''}</div>` : ''}
-                                ${(window.AwakYouth && window.AwakYouth.isDiscouraged && window.AwakYouth.isDiscouraged(exercise)) ? `<div style="display:inline-flex;align-items:center;gap:4px;margin-top:5px;margin-left:5px;background:rgba(245,158,11,0.14);border:1px solid rgba(245,158,11,0.5);color:#f59e0b;border-radius:20px;padding:2px 9px;font-size:0.66em;font-weight:800;letter-spacing:0.5px;" title="Exercice à charge lourde, déconseillé pour un jeune profil sans encadrement">⚠️ CHARGE LOURDE</div>` : ''}
+                                ${(window.AwakYouth && window.AwakYouth.isDiscouraged && window.AwakYouth.isDiscouraged(exercise)) ? `<div style="display:inline-flex;align-items:center;gap:4px;margin-top:5px;margin-left:5px;background:rgba(245,158,11,0.14);border:1px solid rgba(245,158,11,0.5);color:#f59e0b;border-radius:20px;padding:2px 9px;font-size:0.66em;font-weight:800;letter-spacing:0.5px;" title="Exercice à charge lourde, déconseillé pour un jeune profil sans encadrement">CHARGE LOURDE</div>` : ''}
                             </div>
                             <div class="difficulty-badge ${difficultyClass}">
                                 ${exercise.difficulty}
@@ -23646,7 +23746,7 @@
                 if (exerciseFromDB.type === 'warmup') {
                     exerciseNameHTML = `<span style="display:inline-block;background:#fbbf24;color:#0d0d0d;padding:2px 8px;border-radius:20px;font-size:0.52em;margin-right:7px;font-weight:900;letter-spacing:0.5px;vertical-align:middle;">🏃‍♂️ ÉCHAUFFEMENT</span>${exercise.name}`;
                 } else if (exerciseFromDB.type === 'stretch') {
-                    exerciseNameHTML = `<span style="display:inline-block;background:#22c55e;color:#0d0d0d;padding:2px 8px;border-radius:20px;font-size:0.52em;margin-right:7px;font-weight:900;letter-spacing:0.5px;vertical-align:middle;">🧘 ÉTIREMENT</span>${exercise.name}`;
+                    exerciseNameHTML = `<span style="display:inline-block;background:#22c55e;color:#0d0d0d;padding:2px 8px;border-radius:20px;font-size:0.52em;margin-right:7px;font-weight:900;letter-spacing:0.5px;vertical-align:middle;">ÉTIREMENT</span>${exercise.name}`;
                 }
             }
             
@@ -24758,7 +24858,7 @@
 
             overlay.innerHTML = `<div style="background:linear-gradient(160deg,#171922,#0d0d12);border:1px solid rgba(255,255,255,0.10);border-radius:20px 20px 0 0;padding:20px 16px;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(0,0,0,0.6);">
                 <div style="width:40px;height:4px;background:rgba(255,255,255,0.12);border-radius:99px;margin:0 auto 14px;"></div>
-                <h3 style="margin:0 0 4px;color:#f1f5f9;">🏃 Salle bondée</h3>
+                <h3 style="margin:0 0 4px;color:#f1f5f9;">Salle bondée</h3>
                 <p style="margin:0 0 14px;font-size:0.82em;color:#6b7280;">Coche les équipements <strong>disponibles maintenant</strong> — décoche ce qui est occupé.</p>
 
                 <div style="margin-bottom:14px;">
@@ -25111,7 +25211,7 @@
                 <div style="background:white;border-radius:20px 20px 0 0;padding:24px 20px;width:100%;max-width:480px;max-height:80vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(0,0,0,0.2);">
                     <div style="width:40px;height:4px;background:#e5e7eb;border-radius:99px;margin:0 auto 18px;"></div>
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-                        <h3 style="margin:0;color:#0F1014;">📍 Mes lieux</h3>
+                        <h3 style="margin:0;color:#0F1014;">Mes lieux</h3>
                         <button onclick="showAddLocationModal()" style="background:linear-gradient(135deg,#16a34a,#15803d);color:white;border:none;border-radius:10px;padding:7px 14px;font-size:0.85em;font-weight:700;cursor:pointer;">+ Ajouter</button>
                     </div>
                     ${profiles.map(loc => `
@@ -25384,7 +25484,7 @@
                 modal.id = 'gymDayModal';
                 modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
                 modal.innerHTML = `<div style="background:white;border-radius:20px;padding:28px;max-width:400px;width:100%;max-height:80vh;overflow-y:auto;">
-                    <h3 style="margin:0 0 18px;color:#16a34a;">🏋️ Choisir le jour</h3>
+                    <h3 style="margin:0 0 18px;color:#16a34a;">Choisir le jour</h3>
                     ${opts}
                     <button class="btn btn-secondary" style="width:100%;margin-top:6px;" onclick="this.closest('#gymDayModal').remove()">Annuler</button>
                 </div>`;
@@ -26655,7 +26755,7 @@
             // ── 6. CLASSEMENT MUSCLES ────────────────────────────────
             const cardMuscles = document.createElement('div');
             cardMuscles.className = 'card';
-            cardMuscles.innerHTML = `<h3 style="margin:0 0 12px;color:#e2e8f0;">💪 Classement muscles</h3>
+            cardMuscles.innerHTML = `<h3 style="margin:0 0 12px;color:#e2e8f0;">Classement muscles</h3>
                 <div id="rpgMuscleGrid" style="display:flex;flex-direction:column;gap:6px;">
                 ${muscles.length === 0
                     ? '<p style="color:#6b7280;text-align:center;padding:16px 0;font-size:0.9em;">Complète une séance pour gagner de l\'XP !</p>'
@@ -26782,7 +26882,7 @@
             }
 
             cardSkills.innerHTML = `
-                <h3 style="margin:0 0 4px;color:#e2e8f0;">🌳 Compétences <span style="font-size:0.7em;background:rgba(34,197,94,0.15);color:#4ade80;padding:2px 8px;border-radius:99px;font-weight:700;">${unlockedSkills.length}/${_skillTree.length}</span></h3>
+                <h3 style="margin:0 0 4px;color:#e2e8f0;">Compétences <span style="font-size:0.7em;background:rgba(34,197,94,0.15);color:#4ade80;padding:2px 8px;border-radius:99px;font-weight:700;">${unlockedSkills.length}/${_skillTree.length}</span></h3>
                 <div style="font-size:0.68em;color:#94a3b8;margin-bottom:12px;line-height:1.4;">Atteins le niveau requis puis <strong style="color:#4ade80;">touche une compétence</strong> pour l'activer. Les bonus s'appliquent automatiquement.</div>
 
                 <!-- Compétences de base -->
@@ -26810,7 +26910,7 @@
             if (lvLog.length > 0) {
                 cardLog = document.createElement('div');
                 cardLog.className = 'card';
-                cardLog.innerHTML = `<h3 style="margin:0 0 12px;color:#e2e8f0;">⬆️ Journal des montées</h3>
+                cardLog.innerHTML = `<h3 style="margin:0 0 12px;color:#e2e8f0;">Journal des montées</h3>
                     <div style="display:flex;flex-direction:column;gap:6px;">
                         ${lvLog.slice(-10).reverse().map(e => `
                         <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#222328;border-radius:10px;border:1px solid #252830;">
@@ -30244,7 +30344,7 @@
 
                 <!-- Briefing du Système -->
                 <div style="padding:18px 22px;background:rgba(0,0,0,0.3);border-bottom:1px solid rgba(255,255,255,0.06);">
-                    <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;margin-bottom:6px;">⚙ SYSTÈME</div>
+                    <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;margin-bottom:6px;">SYSTÈME</div>
                     <div style="color:#cbd5e1;font-size:0.88em;line-height:1.5;font-style:italic;">${theme.briefing}</div>
                 </div>
 
@@ -30276,13 +30376,13 @@
                         </div>
                         <!-- Power Score -->
                         <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:11px;">
-                            <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:4px;">⚡ TON POWER</div>
+                            <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:4px;">TON POWER</div>
                             <div style="font-size:1.1em;font-weight:900;color:white;">${playerPower.toLocaleString('fr-FR')}</div>
                             <div style="font-size:0.62em;color:#64748b;margin-top:2px;">recommandé : ${rift.recommendedPower.toLocaleString('fr-FR')}</div>
                         </div>
                         <!-- Stat dominante -->
                         <div style="background:rgba(255,255,255,0.03);border:1px solid ${theme.color}40;border-radius:10px;padding:11px;">
-                            <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:4px;">⚔ ATTRIBUT</div>
+                            <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:4px;">ATTRIBUT</div>
                             <div style="font-size:1.1em;font-weight:900;color:${theme.color};">${rift.primaryStat}</div>
                             <div style="font-size:0.62em;color:#64748b;margin-top:2px;">${playerStats[rift.primaryStat] || 0} pts actuels</div>
                         </div>
@@ -30306,7 +30406,7 @@
                         if (activeConsum.length === 0) return '';
                         return `
                         <div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.25);border-radius:10px;padding:11px;margin-bottom:14px;">
-                            <div style="font-size:0.6em;color:#4ade80;font-weight:800;letter-spacing:1.5px;margin-bottom:6px;">🧪 PRÉPARATION ACTIVE</div>
+                            <div style="font-size:0.6em;color:#4ade80;font-weight:800;letter-spacing:1.5px;margin-bottom:6px;">PRÉPARATION ACTIVE</div>
                             <div style="display:flex;gap:6px;flex-wrap:wrap;">
                                 ${activeConsum.map(id => {
                                     const item = CONSUMABLES.find(c => c.id === id);
@@ -30320,7 +30420,7 @@
                     <!-- Actions -->
                     <div style="display:flex;gap:8px;">
                         <button onclick="document.getElementById('awakRiftBriefingModal').remove()" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;border-radius:10px;padding:14px;font-weight:800;font-size:0.85em;cursor:pointer;">↩ Plus tard</button>
-                        <button onclick="awakStartRift('${rift.id}')" style="flex:2;background:linear-gradient(135deg,${theme.color},${theme.color}dd);border:none;color:white;border-radius:10px;padding:14px;font-weight:900;font-size:0.9em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${theme.color}40;">⚔ ENTRER</button>
+                        <button onclick="awakStartRift('${rift.id}')" style="flex:2;background:linear-gradient(135deg,${theme.color},${theme.color}dd);border:none;color:white;border-radius:10px;padding:14px;font-weight:900;font-size:0.9em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${theme.color}40;">ENTRER</button>
                     </div>
                     ${(() => {
                         const check = typeof awakCanDelegateRift === 'function' ? awakCanDelegateRift(rift) : {ok:false};
@@ -31386,7 +31486,7 @@
                     ${riftLoot ? (() => {
                         const lr = (typeof RARITIES !== 'undefined' && RARITIES[riftLoot.rarity]) ? RARITIES[riftLoot.rarity] : { color:'#a855f7', label:'?' };
                         return `<div style="margin-top:12px;background:linear-gradient(135deg,${lr.color}1f,${lr.color}0a);border:1.5px solid ${lr.color}66;border-radius:14px;padding:14px;animation:awakFadeIn 0.6s ease 0.3s both;">
-                            <div style="font-size:0.58em;color:${lr.color};font-weight:900;letter-spacing:2px;margin-bottom:8px;">⬥ BUTIN DE FAILLE</div>
+                            <div style="font-size:0.58em;color:${lr.color};font-weight:900;letter-spacing:2px;margin-bottom:8px;">BUTIN DE FAILLE</div>
                             <div style="display:flex;align-items:center;gap:11px;">
                                 <div style="font-size:1.8em;filter:drop-shadow(0 0 8px ${lr.color}aa);">${riftLoot.icon}</div>
                                 <div style="flex:1;min-width:0;">
@@ -31409,7 +31509,7 @@
                             </div>`;
                         }).join('');
                         return `<div style="margin-top:12px;background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(251,191,36,0.03));border:1.5px solid rgba(251,191,36,0.4);border-radius:14px;padding:14px;animation:awakFadeIn 0.6s ease 0.45s both;">
-                            <div style="font-size:0.58em;color:#fbbf24;font-weight:900;letter-spacing:2px;margin-bottom:8px;">💎 MINÉRAUX EXTRAITS</div>
+                            <div style="font-size:0.58em;color:#fbbf24;font-weight:900;letter-spacing:2px;margin-bottom:8px;">MINÉRAUX EXTRAITS</div>
                             <div style="display:flex;flex-direction:column;gap:6px;">${rows}</div>
                             <div style="font-size:0.62em;color:#64748b;margin-top:8px;font-style:italic;">À vendre au marchand contre de l'or.</div>
                         </div>`;
@@ -31417,7 +31517,7 @@
 
                     <!-- Message Système -->
                     <div style="margin-top:14px;padding:12px 14px;background:rgba(74,222,128,0.08);border-left:3px solid #4ade80;border-radius:10px;">
-                        <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;margin-bottom:4px;">⚙ SYSTÈME</div>
+                        <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;margin-bottom:4px;">SYSTÈME</div>
                         <div style="color:#cbd5e1;font-size:0.85em;font-style:italic;line-height:1.5;">${getSystemMessageForGrade(grade)}</div>
                     </div>
                 </div>
@@ -31425,7 +31525,7 @@
                 </div>
                 <!-- Action — hors du corps défilant : TOUJOURS visible -->
                 <div style="flex-shrink:0;padding:14px 22px calc(18px + env(safe-area-inset-bottom, 0px));background:#0F1014;border-top:1px solid rgba(255,255,255,0.06);">
-                    <button onclick="document.getElementById('awakRiftRewardModal').remove();awakActiveRiftSession=null;switchTab('game');" style="width:100%;background:linear-gradient(135deg,${theme.color},${theme.color}dd);border:none;color:white;border-radius:10px;padding:16px;font-weight:900;font-size:0.95em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${theme.color}40;">✓ CONTINUER</button>
+                    <button onclick="document.getElementById('awakRiftRewardModal').remove();awakActiveRiftSession=null;switchTab('game');" style="width:100%;background:linear-gradient(135deg,${theme.color},${theme.color}dd);border:none;color:white;border-radius:10px;padding:16px;font-weight:900;font-size:0.95em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${theme.color}40;">CONTINUER</button>
                 </div>
             </div>`;
 
@@ -32099,11 +32199,11 @@
 
                     <!-- Message Système -->
                     <div style="padding:12px 14px;background:rgba(74,222,128,0.08);border-left:3px solid #4ade80;border-radius:10px;">
-                        <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;margin-bottom:4px;">⚙ SYSTÈME</div>
+                        <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;margin-bottom:4px;">SYSTÈME</div>
                         <div style="color:#cbd5e1;font-size:0.85em;font-style:italic;line-height:1.5;">${monster.isAlpha ? 'Il était devenu fort. Trop fort. Bien joué.' : 'Une menace de moins. Continue.'}</div>
                     </div>
 
-                    <button onclick="document.getElementById('awakHuntRewardModal').remove();awakActiveHuntSession=null;switchTab('game');" style="width:100%;margin-top:14px;background:linear-gradient(135deg,${type.color},${type.color}dd);border:none;color:white;border-radius:10px;padding:14px;font-weight:900;font-size:0.95em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${type.color}40;">✓ CONTINUER</button>
+                    <button onclick="document.getElementById('awakHuntRewardModal').remove();awakActiveHuntSession=null;switchTab('game');" style="width:100%;margin-top:14px;background:linear-gradient(135deg,${type.color},${type.color}dd);border:none;color:white;border-radius:10px;padding:14px;font-weight:900;font-size:0.95em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${type.color}40;">CONTINUER</button>
                 </div>
             </div>`;
 
@@ -32161,7 +32261,7 @@
             return `
             <div class="card" style="background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(239,68,68,0.3);padding:18px;margin-bottom:14px;">
                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
-                    <div style="font-size:0.6em;color:#f87171;font-weight:900;letter-spacing:2px;">👹 MONSTRES ÉCHAPPÉS</div>
+                    <div style="font-size:0.6em;color:#f87171;font-weight:900;letter-spacing:2px;">MONSTRES ÉCHAPPÉS</div>
                     <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(239,68,68,0.3),transparent);"></div>
                     <div style="font-size:0.7em;color:#94a3b8;font-weight:700;">${monsters.length}${alphaCount > 0 ? ` (${alphaCount}α)` : ''}</div>
                 </div>
@@ -32230,7 +32330,7 @@
                 <!-- Header thématique -->
                 <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;">
                     <div style="font-size:3.5em;line-height:1;margin-bottom:8px;filter:drop-shadow(0 0 14px ${type.color}90);">${type.emoji}</div>
-                    ${monster.isAlpha ? '<div style="display:inline-block;background:#ef4444;color:white;padding:3px 10px;border-radius:6px;font-size:0.65em;font-weight:900;letter-spacing:2px;margin-bottom:8px;">⚠ ALPHA</div>' : ''}
+                    ${monster.isAlpha ? '<div style="display:inline-block;background:#ef4444;color:white;padding:3px 10px;border-radius:6px;font-size:0.65em;font-weight:900;letter-spacing:2px;margin-bottom:8px;">ALPHA</div>' : ''}
                     <h2 style="margin:0;color:white;font-size:1.3em;font-weight:900;">${type.name}</h2>
                     <div style="margin-top:8px;color:#94a3b8;font-size:0.82em;font-style:italic;">${type.description}</div>
                 </div>
@@ -32256,7 +32356,7 @@
 
                     <!-- Lore court -->
                     <div style="background:rgba(74,222,128,0.06);border-left:3px solid #4ade80;border-radius:10px;padding:10px 12px;margin-bottom:14px;">
-                        <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;margin-bottom:3px;">⚙ SYSTÈME</div>
+                        <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;margin-bottom:3px;">SYSTÈME</div>
                         <div style="color:#cbd5e1;font-size:0.78em;font-style:italic;line-height:1.5;">
                             ${monster.isAlpha
                                 ? 'Il s\'est stabilisé. Plus difficile maintenant. Mais le récompenser sera plus généreux.'
@@ -32267,7 +32367,7 @@
                     <!-- Actions -->
                     <div style="display:flex;gap:8px;">
                         <button onclick="document.getElementById('awakMonsterDetailModal').remove()" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;border-radius:10px;padding:14px;font-weight:800;font-size:0.85em;cursor:pointer;">↩ Plus tard</button>
-                        <button onclick="awakStartHunt('${monster.id}')" style="flex:2;background:linear-gradient(135deg,${type.color},${type.color}dd);border:none;color:white;border-radius:10px;padding:14px;font-weight:900;font-size:0.9em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${type.color}40;">🏹 CHASSER</button>
+                        <button onclick="awakStartHunt('${monster.id}')" style="flex:2;background:linear-gradient(135deg,${type.color},${type.color}dd);border:none;color:white;border-radius:10px;padding:14px;font-weight:900;font-size:0.9em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${type.color}40;">CHASSER</button>
                     </div>
                 </div>
             </div>`;
@@ -32657,11 +32757,11 @@
                     </div>
 
                     <div style="margin-top:14px;padding:11px 12px;background:rgba(74,222,128,0.08);border-left:3px solid #4ade80;border-radius:10px;">
-                        <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;margin-bottom:3px;">⚙ SYSTÈME</div>
+                        <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;margin-bottom:3px;">SYSTÈME</div>
                         <div style="color:#cbd5e1;font-size:0.78em;font-style:italic;line-height:1.5;text-align:left;">${companion.lore}</div>
                     </div>
 
-                    <button onclick="this.closest('[style*=fixed]').remove()" style="margin-top:18px;width:100%;background:linear-gradient(135deg,${companion.color},${companion.color}dd);border:none;color:white;border-radius:14px;padding:14px;font-weight:900;font-size:0.95em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${companion.color}40;">✓ CONTINUER</button>
+                    <button onclick="this.closest('[style*=fixed]').remove()" style="margin-top:18px;width:100%;background:linear-gradient(135deg,${companion.color},${companion.color}dd);border:none;color:white;border-radius:14px;padding:14px;font-weight:900;font-size:0.95em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${companion.color}40;">CONTINUER</button>
                 </div>
             `;
             document.body.appendChild(overlay);
@@ -33733,7 +33833,7 @@
             return `
             <div class="card" style="background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(192,132,252,0.25);padding:18px;margin-bottom:14px;">
                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
-                    <div style="font-size:0.6em;color:#c084fc;font-weight:900;letter-spacing:2px;">🎭 ANCRAGES ALLIÉS</div>
+                    <div style="font-size:0.6em;color:#c084fc;font-weight:900;letter-spacing:2px;">ANCRAGES ALLIÉS</div>
                     <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(192,132,252,0.3),transparent);"></div>
                     <div style="font-size:0.7em;color:#94a3b8;font-weight:700;">${activeCount}/${COMPANIONS_MAX_ACTIVE} actifs · ${unlockedCount}/${totalCount} débloqués</div>
                 </div>
@@ -33753,7 +33853,7 @@
                         <div style="font-size:1.7em;filter:drop-shadow(0 0 6px ${c.color}80)${isOnMission ? ' grayscale(0.6)' : ''};${c.active && !isOnMission ? '' : 'opacity:0.85;'}">${c.emoji}</div>
                         <div style="font-size:0.58em;color:${c.color};font-weight:800;margin-top:3px;letter-spacing:0.5px;line-height:1.2;">${c.name.split(' ')[0]}</div>
                         ${isOnMission
-                            ? `<div style="margin-top:2px;font-size:0.5em;background:#a855f7;color:white;border-radius:99px;padding:0 4px;font-weight:900;letter-spacing:0.5px;display:inline-block;">🎭 MISSION</div>`
+                            ? `<div style="margin-top:2px;font-size:0.5em;background:#a855f7;color:white;border-radius:99px;padding:0 4px;font-weight:900;letter-spacing:0.5px;display:inline-block;">MISSION</div>`
                             : (c.active ? `<div style="margin-top:2px;font-size:0.5em;background:${c.color};color:white;border-radius:99px;padding:0 4px;font-weight:900;letter-spacing:0.5px;display:inline-block;">ACTIF</div>` : '')}
                     </div>`;
                 }).join('')}
@@ -33795,7 +33895,7 @@
                      sans avoir à défiler (le corps de la fiche suit en dessous). -->
                 <div style="padding:16px 22px 4px;">
                     ${isOnMission
-                        ? `<div style="width:100%;background:rgba(168,85,247,0.12);border:1.5px solid rgba(168,85,247,0.4);color:#c084fc;border-radius:10px;padding:14px;font-weight:900;font-size:0.9em;letter-spacing:0.5px;text-align:center;">🎭 PARTI FERMER UNE FAILLE<div style="font-size:0.75em;font-weight:600;color:#a78bfa;margin-top:4px;letter-spacing:0;">Indisponible jusqu'à son retour</div></div>`
+                        ? `<div style="width:100%;background:rgba(168,85,247,0.12);border:1.5px solid rgba(168,85,247,0.4);color:#c084fc;border-radius:10px;padding:14px;font-weight:900;font-size:0.9em;letter-spacing:0.5px;text-align:center;">PARTI FERMER UNE FAILLE<div style="font-size:0.75em;font-weight:600;color:#a78bfa;margin-top:4px;letter-spacing:0;">Indisponible jusqu'à son retour</div></div>`
                         : `<button onclick="awakCompanionToggleActive('${comp.id}');document.getElementById('awakCompanionDetailModal').remove();"
                         style="width:100%;background:${isActive ? 'rgba(239,68,68,0.15)' : (canActivate ? `linear-gradient(135deg,${comp.color},${comp.color}dd)` : 'rgba(255,255,255,0.05)')};border:${isActive ? '1.5px solid rgba(239,68,68,0.4)' : 'none'};color:${isActive ? '#f87171' : (canActivate ? 'white' : '#64748b')};border-radius:10px;padding:14px;font-weight:900;font-size:0.95em;letter-spacing:1px;cursor:${(canActivate || isActive) ? 'pointer' : 'not-allowed'};box-shadow:${isActive || !canActivate ? 'none' : `0 4px 16px ${comp.color}40`};">
                         ${isActive ? '✕ RETIRER DE L\'ÉQUIPE' : (canActivate ? '✓ ACTIVER COMME COMPAGNON' : `⚠ MAX ${COMPANIONS_MAX_ACTIVE} ACTIFS`)}
@@ -33815,7 +33915,7 @@
 
                     <!-- Lore -->
                     <div style="background:rgba(74,222,128,0.06);border-left:3px solid #4ade80;border-radius:10px;padding:11px 13px;margin-bottom:18px;">
-                        <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;margin-bottom:4px;">⚙ DOSSIER SYSTÈME</div>
+                        <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;margin-bottom:4px;">DOSSIER SYSTÈME</div>
                         <div style="color:#cbd5e1;font-size:0.8em;font-style:italic;line-height:1.55;">${comp.lore}</div>
                     </div>
 
@@ -34140,11 +34240,11 @@
                     <div style="margin-top:12px;color:#cbd5e1;font-size:0.85em;line-height:1.6;font-style:italic;">${narrative.description}</div>
 
                     <div style="margin-top:18px;padding:13px 14px;background:rgba(74,222,128,0.06);border-left:3px solid #4ade80;border-radius:10px;">
-                        <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;margin-bottom:4px;">⚙ SYSTÈME</div>
+                        <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;margin-bottom:4px;">SYSTÈME</div>
                         <div style="color:#cbd5e1;font-size:0.85em;font-style:italic;line-height:1.5;text-align:left;">${narrative.briefing}</div>
                     </div>
 
-                    <button onclick="this.closest('[style*=fixed]').remove()" style="margin-top:18px;width:100%;background:linear-gradient(135deg,${narrative.color},${narrative.color}dd);border:none;color:white;border-radius:14px;padding:14px;font-weight:900;font-size:0.95em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${narrative.color}60;">✓ COMPRIS</button>
+                    <button onclick="this.closest('[style*=fixed]').remove()" style="margin-top:18px;width:100%;background:linear-gradient(135deg,${narrative.color},${narrative.color}dd);border:none;color:white;border-radius:14px;padding:14px;font-weight:900;font-size:0.95em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${narrative.color}60;">COMPRIS</button>
                 </div>
             `;
             document.body.appendChild(overlay);
@@ -34926,7 +35026,7 @@
             return `
             <div class="card" style="background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(34,197,94,0.25);padding:16px;margin-bottom:14px;">
                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
-                    <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;">🧪 CONSOMMABLES</div>
+                    <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;">CONSOMMABLES</div>
                     <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(34,197,94,0.3),transparent);"></div>
                     <div style="font-size:0.7em;color:#94a3b8;font-weight:700;">${owned.reduce((s, [_, n]) => s + n, 0)} objet(s)</div>
                 </div>
@@ -34975,7 +35075,7 @@
 
                     ${activeNow
                         ? `<div style="background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.35);border-radius:10px;padding:12px;text-align:center;color:#4ade80;font-weight:800;font-size:0.85em;">✓ Activé pour ta prochaine Faille</div>`
-                        : `<button onclick="awakConsumablesUse('${item.id}');document.getElementById('awakConsumableModal').remove();" style="width:100%;background:linear-gradient(135deg,${item.color},${item.color}dd);border:none;color:white;border-radius:14px;padding:14px;font-weight:900;font-size:0.92em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${item.color}40;">🧪 UTILISER</button>`
+                        : `<button onclick="awakConsumablesUse('${item.id}');document.getElementById('awakConsumableModal').remove();" style="width:100%;background:linear-gradient(135deg,${item.color},${item.color}dd);border:none;color:white;border-radius:14px;padding:14px;font-weight:900;font-size:0.92em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${item.color}40;">UTILISER</button>`
                     }
                     <button onclick="document.getElementById('awakConsumableModal').remove()" style="width:100%;margin-top:8px;background:transparent;border:1px solid rgba(255,255,255,0.1);color:#94a3b8;border-radius:10px;padding:10px;font-weight:700;font-size:0.82em;cursor:pointer;">Fermer</button>
                 </div>
@@ -36742,7 +36842,7 @@
                         if (imgTag) {
                             // 🏆 Victoire : illustration COMMUNE (Esen + Nyra ensemble),
                             // quel que soit le héros choisi.
-                            imgTag.src = 'images/story/victoire_duo.webp?v=765';
+                            imgTag.src = 'images/story/victoire_duo.webp?v=775';
                             imgTag.alt = 'Esen et Nyra';
                         }
                         heroImg.style.display = 'block';
@@ -38011,7 +38111,7 @@
             sheet.innerHTML = `
                 <div style="width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:99px;margin:0 auto 18px;"></div>
                 <div style="margin-bottom:14px;">
-                    <h2 style="margin:0 0 4px;color:white;font-size:1.15em;font-weight:700;font-family:var(--font-display);letter-spacing:0.04em;">🌟 Programmes Stars</h2>
+                    <h2 style="margin:0 0 4px;color:white;font-size:1.15em;font-weight:700;font-family:var(--font-display);letter-spacing:0.04em;">Programmes Stars</h2>
                     <p style="margin:0 0 12px;color:rgba(255,255,255,0.4);font-size:0.78em;">Choisis une personnalité — son plan hebdo et ses exercices s\'activent automatiquement</p>
                     <p style="margin:-6px 0 12px;color:rgba(255,255,255,0.28);font-size:0.62em;">Programmes inspirés de routines rendues publiques — aucune affiliation ni endorsement.</p>
                     <!-- Explication des modes -->
@@ -38487,7 +38587,7 @@
             let mastered = 0, totalSteps = 0, doneSteps = 0;
             P.forEach(function (p) { const d = prog[_progKey(disc, p.skill)] || 0; if (d >= p.steps.length) mastered++; totalSteps += p.steps.length; doneSteps += Math.min(d, p.steps.length); });
             const pct = totalSteps ? Math.round(doneSteps / totalSteps * 100) : 0;
-            return '<div style="font-size:0.62em;color:' + color + ';font-weight:900;letter-spacing:1.5px;margin:18px 0 10px;">🎯 ARBRE DE PROGRESSION</div>'
+            return '<div style="font-size:0.62em;color:' + color + ';font-weight:900;letter-spacing:1.5px;margin:18px 0 10px;">ARBRE DE PROGRESSION</div>'
                 + '<div onclick="openProgressionTree(\'' + disc + '\')" style="background:linear-gradient(135deg,' + color + '24,' + color + '0a);border:1px solid ' + color + '59;border-radius:14px;padding:14px 16px;cursor:pointer;">'
                 + '<div style="display:flex;align-items:center;gap:12px;"><span style="font-size:1.7em;">🌳</span>'
                 + '<div style="flex:1;min-width:0;"><div style="font-weight:900;color:#fff;font-size:0.92em;">Mon arbre de progression</div>'
@@ -38609,13 +38709,13 @@
                     return '<div style="background:rgba(255,255,255,0.015);border:1px dashed rgba(255,255,255,0.14);border-radius:14px;padding:14px 16px;margin-bottom:12px;opacity:0.75;">'
                         + '<div style="display:flex;align-items:center;gap:9px;"><span style="font-size:1.4em;filter:grayscale(1);opacity:0.6;">' + p.emoji + '</span>'
                         + '<span style="font-weight:900;color:#94a3b8;font-size:0.95em;flex:1;">' + p.skill + '</span>'
-                        + '<span style="background:rgba(255,255,255,0.06);color:#94a3b8;border-radius:8px;padding:3px 9px;font-size:0.64em;font-weight:900;flex-shrink:0;">🔒 VERROUILLÉ</span></div>'
+                        + '<span style="background:rgba(255,255,255,0.06);color:#94a3b8;border-radius:8px;padding:3px 9px;font-size:0.64em;font-weight:900;flex-shrink:0;">VERROUILLÉ</span></div>'
                         + '<div style="margin-top:10px;padding:9px 12px;background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.2);border-radius:10px;font-size:0.74em;color:#fbbf24;line-height:1.4;">'
                         + '🗝️ <strong>Pour débloquer :</strong> atteins « ' + req.text + ' »</div>'
                         + '</div>';
                 }
                 const badge = mastered
-                    ? '<span style="background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#1a1a1a;border-radius:8px;padding:3px 9px;font-size:0.62em;font-weight:900;flex-shrink:0;">★ MAÎTRISÉ</span>'
+                    ? '<span style="background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#1a1a1a;border-radius:8px;padding:3px 9px;font-size:0.62em;font-weight:900;flex-shrink:0;">MAÎTRISÉ</span>'
                     : '<span style="background:' + color + '2e;color:' + color + ';border-radius:8px;padding:3px 9px;font-size:0.64em;font-weight:900;flex-shrink:0;">' + done + '/' + total + '</span>';
                 const nodes = p.steps.map(function (s, i) {
                     const isDone = i < done;
@@ -38769,7 +38869,7 @@
             const focuses = [['reveil', '🌅 Réveil'], ['detente', '🌙 Détente'], ['antistress', '🧠 Anti-stress'], ['dos', '🪑 Dos'], ['hanches', '🤸 Hanches'], ['equilibre', '⚖️ Équilibre'], ['complet', '✨ Complète']].map(function (f) { return pill('focus', f[0], f[1]); }).join('');
             const ints = [['doux', 'Doux'], ['normal', 'Normal'], ['dynamique', 'Dynamique']].map(function (f) { return pill('intensity', f[0], f[1]); }).join('');
             return '<div id="yogaGenPanel" style="margin-top:12px;padding:14px;border-radius:14px;background:rgba(0,0,0,0.18);border:1px dashed ' + yc + '55;">'
-                + '<div style="font-size:0.7em;color:' + yc + ';font-weight:900;letter-spacing:1px;margin-bottom:10px;">✨ CRÉER MA SÉANCE</div>'
+                + '<div style="font-size:0.7em;color:' + yc + ';font-weight:900;letter-spacing:1px;margin-bottom:10px;">CRÉER MA SÉANCE</div>'
                 + row('DURÉE', durs) + row('OBJECTIF', focuses) + row('INTENSITÉ', ints)
                 + '<button onclick="launchYogaGenerator()" style="width:100%;margin-top:6px;background:linear-gradient(135deg,' + yc + ',' + yc + 'cc);color:#fff;border:none;border-radius:10px;padding:11px;font-weight:900;font-size:0.85em;cursor:pointer;box-shadow:0 3px 12px ' + yc + '55;">▶ Générer &amp; démarrer</button>'
                 + '</div>';
@@ -38842,7 +38942,7 @@
             const modal = document.createElement('div');
             modal.className = 'modal active';
             modal.id = 'yogaQuizModal';
-            modal.innerHTML = '<div class="modal-content" style="max-width:440px;max-height:85vh;overflow-y:auto;-webkit-overflow-scrolling:touch;border-top:3px solid ' + yc + ';"><div class="modal-header"><h2 style="font-size:1em;">🧭 Quiz yoga</h2><button onclick="closeYogaQuiz()" style="background:none;border:none;font-size:1.5em;cursor:pointer;color:#94a3b8;">×</button></div><div class="modal-body">' + body + '</div></div>';
+            modal.innerHTML = '<div class="modal-content" style="max-width:440px;max-height:85vh;overflow-y:auto;-webkit-overflow-scrolling:touch;border-top:3px solid ' + yc + ';"><div class="modal-header"><h2 style="font-size:1em;">Quiz yoga</h2><button onclick="closeYogaQuiz()" style="background:none;border:none;font-size:1.5em;cursor:pointer;color:#94a3b8;">×</button></div><div class="modal-body">' + body + '</div></div>';
             document.body.appendChild(modal);
         }
         window.openYogaQuiz = openYogaQuiz;
@@ -39165,7 +39265,7 @@
                 <div style="position:relative;z-index:1;">
                     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px;">
                         <div style="min-width:0;flex:1;">
-                            <div style="font-size:0.6em;color:${celeb.color};font-weight:900;letter-spacing:3px;margin-bottom:4px;">📋 PROGRAMME ACTIF</div>
+                            <div style="font-size:0.6em;color:${celeb.color};font-weight:900;letter-spacing:3px;margin-bottom:4px;">PROGRAMME ACTIF</div>
                             <div style="display:flex;align-items:center;gap:10px;">
                                 <div style="font-size:2.5em;line-height:1;filter:drop-shadow(0 0 12px ${celeb.color}80);flex-shrink:0;">${celeb.emoji}</div>
                                 <div style="min-width:0;">
@@ -39257,7 +39357,7 @@
             ${celeb.splits ? `
             <div class="card" style="padding:16px 18px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(255,255,255,0.06);">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-                    <h3 style="margin:0;color:white;font-size:1em;font-weight:900;">📅 Split hebdomadaire</h3>
+                    <h3 style="margin:0;color:white;font-size:1em;font-weight:900;">Split hebdomadaire</h3>
                 </div>
                 <div style="display:flex;flex-direction:column;gap:6px;">
                     ${celeb.splits.map((s, i) => {
@@ -39279,7 +39379,7 @@
             ${celeb.exercises && celeb.exercises.length > 0 ? `
             <div class="card" style="padding:16px 18px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(255,255,255,0.06);">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-                    <h3 style="margin:0;color:white;font-size:1em;font-weight:900;">⚡ Exercices signature</h3>
+                    <h3 style="margin:0;color:white;font-size:1em;font-weight:900;">Exercices signature</h3>
                     <span style="font-size:0.65em;color:#94a3b8;font-weight:700;">${celeb.exercises.length} exos</span>
                 </div>
                 <div style="display:flex;flex-direction:column;gap:6px;">
@@ -39299,7 +39399,7 @@
             <!-- ═══ CONSEILS DE LA PERSONNALITÉ ═══ -->
             ${celeb.tips && celeb.tips.length > 0 ? `
             <div class="card" style="padding:16px 18px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(255,255,255,0.06);">
-                <h3 style="margin:0 0 12px 0;color:white;font-size:1em;font-weight:900;">💡 Conseils de ${celeb.nickname}</h3>
+                <h3 style="margin:0 0 12px 0;color:white;font-size:1em;font-weight:900;">Conseils de ${celeb.nickname}</h3>
                 <div style="display:flex;flex-direction:column;gap:7px;">
                     ${celeb.tips.map(t => `
                         <div style="display:flex;align-items:flex-start;gap:10px;padding:9px 11px;background:rgba(255,255,255,0.02);border-left:2px solid ${celeb.color};border-radius:0 10px 10px 0;">
@@ -39312,7 +39412,7 @@
 
             <!-- ═══ ACTIONS ═══ -->
             <div class="card" style="padding:16px 18px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(255,255,255,0.06);">
-                <h3 style="margin:0 0 12px 0;color:white;font-size:0.95em;font-weight:900;">⚙️ Actions</h3>
+                <h3 style="margin:0 0 12px 0;color:white;font-size:0.95em;font-weight:900;">Actions</h3>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
                     <button onclick="showCelebrityPrograms()" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.35);color:#c084fc;border-radius:10px;padding:12px 8px;font-weight:800;font-size:0.78em;cursor:pointer;">🔄 Changer programme</button>
                     <button onclick="confirmResetCelebrityProgram('${celeb.id}')" style="background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.35);color:#fbbf24;border-radius:10px;padding:12px 8px;font-weight:800;font-size:0.78em;cursor:pointer;">↻ Réinitialiser progression</button>
@@ -39344,7 +39444,7 @@
                     `).join('')}
                 </div>` : ''}
 
-                <button onclick="showCelebrityPrograms()" style="width:100%;background:linear-gradient(135deg,#a855f7,#7c3aed);border:none;color:white;border-radius:14px;padding:14px;font-weight:900;font-size:0.9em;letter-spacing:0.5px;cursor:pointer;box-shadow:0 4px 16px rgba(168,85,247,0.4);">📚 VOIR TOUS LES PROGRAMMES</button>
+                <button onclick="showCelebrityPrograms()" style="width:100%;background:linear-gradient(135deg,#a855f7,#7c3aed);border:none;color:white;border-radius:14px;padding:14px;font-weight:900;font-size:0.9em;letter-spacing:0.5px;cursor:pointer;box-shadow:0 4px 16px rgba(168,85,247,0.4);">VOIR TOUS LES PROGRAMMES</button>
             </div>
             `;
         }
@@ -41469,7 +41569,7 @@
                                 <div style="display:flex;align-items:center;gap:11px;">
                                     <div style="font-size:2em;line-height:1;filter:drop-shadow(0 0 8px ${color}80);flex-shrink:0;">${r.emoji||'🏋️'}</div>
                                     <div style="flex:1;min-width:0;">
-                                        <div style="font-size:0.58em;color:${color};font-weight:900;letter-spacing:2px;margin-bottom:2px;">📅 ROUTINE DU JOUR</div>
+                                        <div style="font-size:0.58em;color:${color};font-weight:900;letter-spacing:2px;margin-bottom:2px;">ROUTINE DU JOUR</div>
                                         <div style="font-size:0.95em;font-weight:900;color:white;line-height:1.2;">${r.name}</div>
                                         <div style="font-size:0.7em;color:#94a3b8;margin-top:2px;">${r.exercises.length} exercices · ${r.muscles?.slice(0,3).join(' · ') || 'Multi-muscles'}</div>
                                     </div>
@@ -41501,7 +41601,7 @@
                             <div style="display:flex;align-items:center;gap:11px;">
                                 <div style="font-size:2em;line-height:1;filter:drop-shadow(0 0 8px ${color}80);flex-shrink:0;">${theme?.emoji || r.narrativeData?.themeEmoji || '🌀'}</div>
                                 <div style="flex:1;min-width:0;">
-                                    <div style="font-size:0.58em;color:${color};font-weight:900;letter-spacing:2px;margin-bottom:2px;">🌀 FAILLE ACTIVE</div>
+                                    <div style="font-size:0.58em;color:${color};font-weight:900;letter-spacing:2px;margin-bottom:2px;">FAILLE ACTIVE</div>
                                     <div style="font-size:0.95em;font-weight:900;color:white;line-height:1.2;">${displayName}</div>
                                     <div style="font-size:0.7em;color:#94a3b8;margin-top:2px;">Rang ${r.rank} · ${stateLabel} · ${time.label}</div>
                                 </div>
@@ -41643,7 +41743,7 @@
             modal.className = 'modal active';
             modal.id = 'cycleSetupModal';
             modal.innerHTML = '<div class="modal-content" style="max-width:440px;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;border-top:3px solid #a78bfa;">'
-                + '<div class="modal-header"><h2 style="font-size:1em;">🌙 Suivi du cycle</h2><button onclick="document.getElementById(\'cycleSetupModal\').remove()" style="background:none;border:none;font-size:1.5em;cursor:pointer;color:#94a3b8;">×</button></div>'
+                + '<div class="modal-header"><h2 style="font-size:1em;">Suivi du cycle</h2><button onclick="document.getElementById(\'cycleSetupModal\').remove()" style="background:none;border:none;font-size:1.5em;cursor:pointer;color:#94a3b8;">×</button></div>'
                 + '<div class="modal-body">'
                 + '<div style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.25);border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:0.75em;color:#cbd5e1;line-height:1.5;">Adapte les suggestions à ta phase (énergie, intensité). <strong style="color:#c4b5fd;">Privé &amp; local</strong> — rien n\'est envoyé. Guidance générale fondée sur la recherche : ça varie d\'une personne à l\'autre, écoute ton corps.</div>'
                 + '<label style="display:block;font-size:0.72em;color:#94a3b8;font-weight:700;text-transform:uppercase;margin-bottom:6px;">Début des dernières règles</label>'
@@ -41861,7 +41961,7 @@
             modal.className = 'modal active';
             modal.id = 'strengthModal';
             modal.innerHTML = '<div class="modal-content" style="max-width:460px;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;border-top:3px solid ' + oCol + ';">'
-                + '<div class="modal-header"><h2 style="font-size:1em;">💪 Standards de Force</h2><button onclick="document.getElementById(\'strengthModal\').remove()" style="background:none;border:none;font-size:1.5em;cursor:pointer;color:#94a3b8;">×</button></div>'
+                + '<div class="modal-header"><h2 style="font-size:1em;">Standards de Force</h2><button onclick="document.getElementById(\'strengthModal\').remove()" style="background:none;border:none;font-size:1.5em;cursor:pointer;color:#94a3b8;">×</button></div>'
                 + '<div class="modal-body">' + header + rows
                 + '<div style="margin-top:12px;font-size:0.66em;color:#64748b;line-height:1.5;">1RM estimé via la formule d\'Epley à partir de tes meilleures séries. Standards basés sur la force relative (1RM / poids de corps), adaptés au sexe. Indicatif — ta technique et ta morphologie comptent aussi.</div>'
                 + '</div></div>';
@@ -42127,7 +42227,7 @@
             host.innerHTML =
                 `<div class="card" style="padding:14px 16px;">
                     <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:9px;">
-                        <div style="font-size:0.6em;color:#94a3b8;font-weight:900;letter-spacing:2px;">📅 TA SEMAINE</div>
+                        <div style="font-size:0.6em;color:#94a3b8;font-weight:900;letter-spacing:2px;">TA SEMAINE</div>
                         <div style="font-size:0.74em;color:#4ade80;font-weight:800;">${done} séance${done > 1 ? 's' : ''}</div>
                     </div>
                     <div style="display:flex;gap:5px;">${cells}</div>
@@ -42500,7 +42600,7 @@
             const stats = document.querySelector('.progress-stats')?.outerHTML || '';
             el.innerHTML = `<div style="background:#0F1014;border-radius:20px 20px 0 0;padding:20px;width:100%;max-height:70vh;overflow-y:auto;padding-bottom:calc(20px + env(safe-area-inset-bottom,0px));">
                 <div style="width:36px;height:3px;background:rgba(255,255,255,0.2);border-radius:99px;margin:0 auto 14px;"></div>
-                <h4 style="margin:0 0 12px;color:white;">📋 Programme</h4>
+                <h4 style="margin:0 0 12px;color:white;">Programme</h4>
                 <div style="color:rgba(255,255,255,0.7);font-size:0.85em;">${stats}${items}</div>
                 <button onclick="document.getElementById('progressPopup').remove()" style="margin-top:14px;width:100%;padding:12px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:10px;color:white;font-weight:700;cursor:pointer;">Fermer</button>
             </div>`;
@@ -43469,6 +43569,38 @@
                         ${modeCard('aventure','🌌','Aventure',"Ton entraînement devient une quête : XP, rangs, Failles, boss et compagnons s'ajoutent au fitness.")}
                         ${btnPrimary('Continuer', 'window._premOnbNext()')}`;
                 } else if (step === 6) {
+                    // 🏋️ NOUVEAU : choix du matériel dès l'inscription, mémorisé.
+                    // Sans ça, un nouveau démarrait en « poids du corps » uniquement
+                    // et ne découvrait le réglage que bien plus tard.
+                    pct = 97;
+                    // Sécurité : l'équipement peut ne pas encore être initialisé
+                    try { if (!Array.isArray(selectedEquipment) || !selectedEquipment.length) { selectedEquipment = ['bodyweight']; } } catch (e) { selectedEquipment = ['bodyweight']; }
+                    const _eqPreset = (id, icon, title, desc) => `
+                        <button onclick="window._premOnbEquipPreset('${id}')" style="display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:13px 14px;margin-bottom:8px;background:rgba(255,255,255,0.03);border:1.5px solid rgba(255,255,255,0.1);border-radius:14px;cursor:pointer;color:#e2e8f0;">
+                            <span style="font-size:1.5em;line-height:1;flex-shrink:0;">${icon}</span>
+                            <span style="flex:1;">
+                                <span style="display:block;font-weight:900;font-size:0.95em;">${title}</span>
+                                <span style="display:block;color:#94a3b8;font-size:0.76em;line-height:1.45;margin-top:3px;">${desc}</span>
+                            </span>
+                        </button>`;
+                    const _eqCommon = ['bodyweight','dumbbells','barbell','resistance','kettlebell','bench','machine','trx','jumprope','swissball','abwheel','treadmill'];
+                    const _eqChips = _eqCommon.map(function (id) {
+                        const eq = availableEquipment.find(e => e.id === id);
+                        if (!eq) return '';
+                        const on = (typeof selectedEquipment !== 'undefined') && selectedEquipment.indexOf(id) !== -1;
+                        return '<button id="_onbEq_' + id + '" onclick="window._premOnbEquipToggle(\'' + id + '\')" style="padding:8px 10px;border-radius:11px;cursor:pointer;font-size:0.74em;font-weight:800;border:1.5px solid ' + (on ? '#22c55e' : 'rgba(255,255,255,0.12)') + ';background:' + (on ? 'rgba(34,197,94,0.14)' : 'rgba(255,255,255,0.03)') + ';color:' + (on ? '#4ade80' : '#94a3b8') + ';">' + eq.name + '</button>';
+                    }).join('');
+                    inner = `
+                        <div style="font-family:'Rajdhani',sans-serif;font-size:0.78em;color:#22c55e;font-weight:700;letter-spacing:2px;margin-bottom:6px;">◈ TON MATÉRIEL</div>
+                        <h2 style="color:#fff;font-size:1.45em;font-weight:900;margin:0 0 6px;">De quoi disposes-tu ?</h2>
+                        <p style="color:#94a3b8;font-size:0.8em;margin:0 0 16px;">Les séances s'adapteront à ton matériel. Modifiable à tout moment dans les Réglages.</p>
+                        ${_eqPreset('none','🏠','Rien de spécial','Poids du corps uniquement — parfait pour commencer à la maison.')}
+                        ${_eqPreset('home','🏋️','Maison équipée','Haltères, élastiques, banc, corde à sauter.')}
+                        ${_eqPreset('gym','🏢','Salle de gym','Accès complet : barres, machines, cardio.')}
+                        <div style="font-size:0.7em;color:#64748b;font-weight:800;letter-spacing:1px;margin:16px 0 8px;">OU AJUSTE PRÉCISÉMENT</div>
+                        <div id="_onbEqChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">${_eqChips}</div>
+                        ${btnPrimary('Continuer', 'window._premOnbNext()')}`;
+                } else if (step === 7) {
                     pct = 98;
                     inner = `
                         <div style="font-family:'Rajdhani',sans-serif;font-size:0.78em;color:#22c55e;font-weight:700;letter-spacing:2.5px;margin-bottom:10px;">◈ PRÉPARATION</div>
@@ -43503,6 +43635,65 @@
             }
 
             window._premOnbNext = function() { step++; render(); try { haptic.light(); } catch(e) {} };
+
+            // 🏋️ Choix du matériel pendant l'inscription — enregistré tout de suite
+            // (même stockage que les Réglages), donc conservé pour toutes les séances.
+            const _ONB_EQ_PRESETS = {
+                none: ['bodyweight'],
+                home: ['bodyweight', 'dumbbells', 'resistance', 'bench', 'jumprope'],
+                gym:  ['bodyweight', 'dumbbells', 'barbell', 'machine', 'bench', 'kettlebell',
+                       'trx', 'treadmill', 'bike', 'rower', 'swissball', 'abwheel']
+            };
+            function _onbEqRefreshChips() {
+                document.querySelectorAll('[id^="_onbEq_"]').forEach(function (b) {
+                    const id = b.id.replace('_onbEq_', '');
+                    const on = selectedEquipment.indexOf(id) !== -1;
+                    b.style.borderColor = on ? '#22c55e' : 'rgba(255,255,255,0.12)';
+                    b.style.background  = on ? 'rgba(34,197,94,0.14)' : 'rgba(255,255,255,0.03)';
+                    b.style.color       = on ? '#4ade80' : '#94a3b8';
+                });
+            }
+            // 🔗 L'équipement appartient au LIEU d'entraînement : si on se contentait
+            // d'écrire selectedEquipment, switchLocation() l'écraserait avec
+            // loc.equipment au prochain changement (ou au démarrage) et le choix
+            // fait à l'inscription serait perdu. On l'enregistre donc DANS le lieu actif.
+            function _onbPersistEquipToLocation() {
+                try {
+                    const profiles = (typeof getLocationProfiles === 'function') ? getLocationProfiles() : null;
+                    if (!profiles || !profiles.length) return;
+                    const act = (typeof getActiveLocation === 'function') ? getActiveLocation() : null;
+                    const target = act ? profiles.find(p => p.id === act.id) : profiles[0];
+                    if (!target) return;
+                    target.equipment = selectedEquipment.slice();
+                    if (typeof machineTypes !== 'undefined') {
+                        target.machines = (selectedEquipment.indexOf('machine') !== -1)
+                            ? machineTypes.map(m => m.id) : [];
+                    }
+                    saveLocationProfiles(profiles);
+                } catch (e) {}
+            }
+            window._premOnbEquipPreset = function (kind) {
+                selectedEquipment = (_ONB_EQ_PRESETS[kind] || ['bodyweight']).slice();
+                try { saveEquipment(); } catch (e) {}
+                _onbPersistEquipToLocation();
+                _onbEqRefreshChips();
+                try { haptic.light(); } catch (e) {}
+            };
+            window._premOnbEquipToggle = function (id) {
+                const i = selectedEquipment.indexOf(id);
+                if (i > -1) {
+                    // Le poids du corps reste toujours disponible
+                    if (id === 'bodyweight') return;
+                    selectedEquipment.splice(i, 1);
+                } else {
+                    selectedEquipment.push(id);
+                }
+                if (selectedEquipment.indexOf('bodyweight') === -1) selectedEquipment.push('bodyweight');
+                try { saveEquipment(); } catch (e) {}
+                _onbPersistEquipToLocation();
+                _onbEqRefreshChips();
+                try { haptic.light(); } catch (e) {}
+            };
             // Échauffement/étirements : si « non », on DÉSACTIVE tout de suite la
             // fonction (préférence persistée), sinon on la laisse active (défaut).
             window._premOnbWarmup = function(keep) {
@@ -43536,6 +43727,9 @@
                 if (profileId) { setProfileData(profileId, 'userProfile', JSON.stringify(userProfile)); }
                 else { localStorage.setItem('userProfile', JSON.stringify(userProfile)); }
                 localStorage.setItem('fitproOnboardingDone', '1');
+                // Filet de sécurité : réappliquer le matériel choisi au lieu actif,
+                // au cas où un lieu aurait été (ré)activé pendant l'inscription.
+                try { _onbPersistEquipToLocation(); } catch (e) {}
                 // 🏠 Accueil ÉPURÉ par défaut pour un nouvel inscrit : on masque les
                 // cartes secondaires (rang, calendrier, coach…) et on garde profil +
                 // action du jour + ⚡ Actions rapides (accès direct aux séances).
@@ -44259,7 +44453,7 @@
             sheet.style.cssText = 'background:#0D0D0D;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             sheet.innerHTML = `
                 <div style="width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:99px;margin:0 auto 18px;"></div>
-                <h2 style="margin:0 0 4px;color:white;font-size:1.15em;font-weight:900;">📖 Journal du Chasseur</h2>
+                <h2 style="margin:0 0 4px;color:white;font-size:1.15em;font-weight:900;">Journal du Chasseur</h2>
                 <p style="margin:0 0 18px;color:rgba(255,255,255,0.4);font-size:0.8em;">${seenCount} souvenir${seenCount>1?'s':''} retrouvé${seenCount>1?'s':''}. Ton histoire se dévoile à mesure que tu t'entraînes.</p>
                 ${rows || '<p style="color:rgba(255,255,255,0.4);font-size:0.85em;text-align:center;padding:20px;">Aucun souvenir pour l\'instant. Continue de t\'entraîner.</p>'}
                 <button onclick="document.getElementById('storyJournalOverlay').remove()" style="margin-top:10px;width:100%;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:14px;color:rgba(255,255,255,0.5);font-weight:700;cursor:pointer;">Fermer</button>`;
@@ -44792,7 +44986,7 @@
                             const t = window.AwakEconomy.MINERAL_TYPES[mission.mineralReward.type];
                             if (!t) return '';
                             return `<div style="background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(251,191,36,0.03));border:1px solid rgba(251,191,36,0.4);border-radius:14px;padding:12px 14px;margin-bottom:16px;text-align:center;">
-                                <div style="font-size:0.58em;color:#fbbf24;font-weight:900;letter-spacing:1.5px;margin-bottom:6px;">💎 BUTIN RAPPORTÉ</div>
+                                <div style="font-size:0.58em;color:#fbbf24;font-weight:900;letter-spacing:1.5px;margin-bottom:6px;">BUTIN RAPPORTÉ</div>
                                 <div style="display:flex;align-items:center;justify-content:center;gap:8px;">
                                     <span style="font-size:1.4em;">${t.icon}</span>
                                     <span style="color:${t.color};font-weight:800;font-size:0.9em;">${t.name} ×${mission.mineralReward.qty}</span>
@@ -44801,7 +44995,7 @@
                         })() : ''}
 
                         <div style="background:${accent}12;border:1px solid ${accent}33;border-radius:14px;padding:12px 14px;margin-top:8px;margin-bottom:18px;">
-                            <div style="font-size:0.58em;color:${accentLight};font-weight:900;letter-spacing:1.5px;margin-bottom:8px;">⚔ ÉQUIPE DÉPLOYÉE</div>
+                            <div style="font-size:0.58em;color:${accentLight};font-weight:900;letter-spacing:1.5px;margin-bottom:8px;">ÉQUIPE DÉPLOYÉE</div>
                             ${comps.map(c => `<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
                                 <span style="font-size:1.1em;">${c.emoji}</span>
                                 <span style="font-size:0.82em;color:#e2e8f0;font-weight:700;">${c.name}</span>
@@ -45085,7 +45279,7 @@
             sheet.style.cssText = 'background:#0D0D0D;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;-webkit-overflow-scrolling:touch;';
             sheet.innerHTML = `
                 <div style="width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:99px;margin:0 auto 18px;"></div>
-                <h2 style="margin:0 0 4px;color:white;font-size:1.15em;font-weight:900;">⚠️ Malus actifs ${total > 0 ? `<span style="font-size:0.7em;background:rgba(239,68,68,0.15);color:#f87171;padding:2px 9px;border-radius:99px;">${total}</span>` : ''}</h2>
+                <h2 style="margin:0 0 4px;color:white;font-size:1.15em;font-weight:900;">Malus actifs ${total > 0 ? `<span style="font-size:0.7em;background:rgba(239,68,68,0.15);color:#f87171;padding:2px 9px;border-radius:99px;">${total}</span>` : ''}</h2>
                 <p style="margin:0 0 18px;color:rgba(255,255,255,0.4);font-size:0.8em;">Tout ce qui t'affaiblit actuellement, regroupé ici.</p>
                 ${total === 0 ? `
                     <div style="text-align:center;padding:30px 20px;">
@@ -45246,7 +45440,7 @@
             const prc = prColors[a.priority?.type] || '#22d3ee';
             const priorityHtml = a.priority ? `
                 <div style="background:linear-gradient(135deg,${prc}1f,${prc}08);border:1px solid ${prc}55;border-left:3px solid ${prc};border-radius:14px;padding:14px 16px;margin-bottom:18px;">
-                    <div style="font-size:0.56em;color:${prc};font-weight:900;letter-spacing:2px;margin-bottom:6px;">⚙ CONSEIL PRIORITAIRE</div>
+                    <div style="font-size:0.56em;color:${prc};font-weight:900;letter-spacing:2px;margin-bottom:6px;">CONSEIL PRIORITAIRE</div>
                     <div style="font-size:0.88em;color:#e2e8f0;line-height:1.5;font-style:italic;">${a.priority.text}</div>
                 </div>` : '';
 
