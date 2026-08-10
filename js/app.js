@@ -14662,7 +14662,7 @@
             // preserveAspectRatio="none" : l'image occupe EXACTEMENT le viewBox,
             // donc le repère de l'image et celui des zones sont identiques.
             // (Les proportions sont conservées : 784/1168 ≈ 200/298, écart < 0,2 %.)
-            return '<image href="' + img + '?v=779" x="0" y="0" width="200" height="298" '
+            return '<image href="' + img + '?v=780" x="0" y="0" width="200" height="298" '
                  + 'preserveAspectRatio="none" style="pointer-events:none;"/>';
         }
 
@@ -36839,7 +36839,7 @@
                         if (imgTag) {
                             // 🏆 Victoire : illustration COMMUNE (Esen + Nyra ensemble),
                             // quel que soit le héros choisi.
-                            imgTag.src = 'images/story/victoire_duo.webp?v=779';
+                            imgTag.src = 'images/story/victoire_duo.webp?v=780';
                             imgTag.alt = 'Esen et Nyra';
                         }
                         heroImg.style.display = 'block';
@@ -42463,8 +42463,16 @@
                 return { current: cur, isDiscipline: true, disciplineId: _discId, alternatives: alts, sameEquip: [], userEquip: [], otherEquip: [] };
             }
 
-            const exFromDB      = exerciseDatabase.find(e => e.name === currentName);
-            if (!exFromDB) return null;
+            let exFromDB      = exerciseDatabase.find(e => e.name === currentName);
+            // 🛟 Les échauffements/étirements générés peuvent porter un nom absent
+            // de la base (variantes, « — côté droit »…). Plutôt que d'abandonner,
+            // on reconstruit un minimum à partir de l'entrée de séance.
+            if (!exFromDB) {
+                const _t = (currentExercise.isWarmup || currentExercise.type === 'warmup') ? 'warmup'
+                         : (currentExercise.isStretch || currentExercise.type === 'stretch') ? 'stretch' : null;
+                if (!_t || !currentExercise.muscle) return null;
+                exFromDB = { name: currentName, muscle: currentExercise.muscle, type: _t, equipment: currentExercise.equipment || [] };
+            }
 
             const targetMuscle  = exFromDB.muscle;
             const currentEquip  = exFromDB.equipment || [];
@@ -42475,8 +42483,15 @@
             // échauffement ou un étirement n'avait donc jamais d'alternative
             // (« Aucune alternative trouvée »). On remplace désormais un
             // échauffement par un échauffement, un étirement par un étirement.
-            const _curType = (exFromDB.type === 'warmup' || exFromDB.type === 'stretch')
-                ? exFromDB.type : 'exercise';
+            // Le marquage échauffement/étirement est porté par l'ENTRÉE de séance
+            // (c'est lui qui affiche le badge 🏃/🧘). La base peut dire autre chose
+            // — ex. « Jump Rope Basic » est type 'exercise' mais sert d'échauffement.
+            // On fait donc primer l'entrée, puis la base en repli.
+            const _entryType =
+                (currentExercise.isWarmup  || currentExercise.type === 'warmup')  ? 'warmup'  :
+                (currentExercise.isStretch || currentExercise.type === 'stretch') ? 'stretch' : null;
+            const _curType = _entryType
+                || ((exFromDB.type === 'warmup' || exFromDB.type === 'stretch') ? exFromDB.type : 'exercise');
             let candidates = exerciseDatabase.filter(e =>
                 e.muscle === targetMuscle &&
                 e.type === _curType &&
