@@ -11,11 +11,11 @@
     <title>Awakened Elite Fitness</title>
 
     <!-- PWA -->
-    <link rel="manifest" href="manifest.json?v=780">
-    <link rel="apple-touch-icon" href="icons/icon-192.png?v=780">
-    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=780">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=780">
-    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=780">
+    <link rel="manifest" href="manifest.json?v=784">
+    <link rel="apple-touch-icon" href="icons/icon-192.png?v=784">
+    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=784">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=784">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=784">
 
     <!-- ⚠️ CAPTURE PRÉCOCE DE L'INVITE D'INSTALLATION.
          Chrome déclenche « beforeinstallprompt » très tôt, souvent AVANT la fin
@@ -44,7 +44,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=780">
+    <link rel="stylesheet" href="css/style.css?v=784">
 </head>
 <body>
 
@@ -202,7 +202,7 @@
                 max-width: 900px;">
 
             <!-- Bannière image : ratio préservé -->
-            <img src="images/banner.png?v=780"
+            <img src="images/banner.png?v=784"
                  alt="Awakened Elite Fitness"
                  style="width:100%;height:auto;display:block;" />
 
@@ -1393,14 +1393,14 @@
                         <div style="display:flex;flex-direction:column;gap:8px;padding:4px 0;">
 
                             <!-- Rangée principale : PRÉCÉDENT | SUIVANT -->
-                            <div style="display:grid;grid-template-columns:0.85fr 0.7fr 1.15fr;gap:6px;align-items:stretch;">
+                            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;align-items:stretch;">
 
                                 <!-- ← Précédent -->
                                 <button id="prevBtn" onclick="goToPreviousExercise()" aria-label="Exercice précédent"
                                         style="display:flex;align-items:center;justify-content:center;gap:6px;
-                                               padding:10px 8px;border-radius:10px;cursor:pointer;transition:all 0.15s;
+                                               padding:11px 4px;border-radius:10px;cursor:pointer;transition:all 0.15s;
                                                background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.65);
-                                               font-size:0.72em;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;">
+                                               font-size:0.58em;font-weight:900;letter-spacing:0.5px;text-transform:uppercase;white-space:nowrap;">
                                     <span style="font-size:1.1em;line-height:1;">←</span>
                                     <span>Préc.</span>
                                 </button>
@@ -1408,21 +1408,21 @@
                                 <!-- 🔄 REMPLACER — sorti du menu « … » : c'est l'action la
                                      plus utile en séance (exercice impossible, poste occupé). -->
                                 <button id="swapBtn" onclick="showSwapExercise()" aria-label="Remplacer l'exercice"
-                                        style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
-                                               padding:10px 4px;border-radius:10px;cursor:pointer;transition:all 0.15s;
+                                        style="display:flex;align-items:center;justify-content:center;gap:5px;
+                                               padding:11px 4px;border-radius:10px;cursor:pointer;transition:all 0.15s;
                                                background:rgba(34,211,238,0.06);border:1px solid rgba(34,211,238,0.3);color:#22d3ee;
-                                               font-size:0.62em;font-weight:900;letter-spacing:1px;text-transform:uppercase;">
-                                    <span style="font-size:1.4em;line-height:1;">⇄</span>
+                                               font-size:0.58em;font-weight:900;letter-spacing:0.5px;text-transform:uppercase;white-space:nowrap;">
+                                    <span style="font-size:1.1em;line-height:1;">⇄</span>
                                     <span>Remplacer</span>
                                 </button>
 
                                 <!-- → SUIVANT (gros vert, style mockup) -->
                                 <button onclick="skipExercise()" aria-label="Suivant"
                                         style="display:flex;align-items:center;justify-content:center;gap:6px;
-                                               padding:10px 8px;border-radius:10px;cursor:pointer;transition:all 0.15s;
+                                               padding:11px 4px;border-radius:10px;cursor:pointer;transition:all 0.15s;
                                                background:linear-gradient(135deg,#16a34a,#22c55e,#4ade80);border:1px solid #4ade80;color:white;
                                                box-shadow:0 0 20px rgba(74,222,128,0.4),0 4px 16px rgba(22,163,74,0.35);
-                                               font-size:0.72em;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;
+                                               font-size:0.58em;font-weight:900;letter-spacing:0.5px;text-transform:uppercase;white-space:nowrap;
                                                position:relative;overflow:hidden;">
                                     <span>Suivant</span>
                                     <span style="font-size:1.2em;line-height:1;">→</span>
@@ -3561,38 +3561,38 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/exercises.js?v=780"></script>
-    <script src="data/items.js?v=780"></script>
-    <script src="js/adventure.js?v=780"></script>
-    <script src="js/economy.js?v=780"></script>
-    <script src="js/challenges.js?v=780"></script>
-    <script src="js/family-boss.js?v=780"></script>
-    <script src="js/family-network.js?v=780"></script>
-    <script src="js/family-challenge.js?v=780"></script>
-    <script src="js/family-goal.js?v=780"></script>
-    <script src="js/family-feed.js?v=780"></script>
-    <script src="js/pre-workout-mood.js?v=780"></script>
-    <script src="js/group-workout.js?v=780"></script>
-    <script src="js/youth-safety.js?v=780"></script>
-    <script src="js/kids-programs.js?v=780"></script>
-    <script src="js/senior-programs.js?v=780"></script>
-    <script src="js/adaptive.js?v=780"></script>
-    <script src="js/pain-mode.js?v=780"></script>
-    <script src="js/recovery-mode.js?v=780"></script>
-    <script src="js/exercise-visuals.js?v=780"></script>
-    <script src="js/strength-standards.js?v=780"></script>
-    <script src="js/system-cards.js?v=780"></script>
-    <script src="js/share-card.js?v=780"></script>
-    <script src="js/story-events.js?v=780"></script>
-    <script src="js/final-boss.js?v=780"></script>
-    <script src="js/disciplines.js?v=780"></script>
-    <script src="js/eveil.js?v=780"></script>
-    <script src="js/app.js?v=780"></script>
-    <script src="js/awakening-tree.js?v=780"></script>
-    <script src="js/ui-kit.js?v=780"></script>
-    <script src="js/feature-map.js?v=780"></script>
-    <script src="js/weekly-recap.js?v=780"></script>
-    <script src="js/workout-games.js?v=780"></script>
+    <script src="js/exercises.js?v=784"></script>
+    <script src="data/items.js?v=784"></script>
+    <script src="js/adventure.js?v=784"></script>
+    <script src="js/economy.js?v=784"></script>
+    <script src="js/challenges.js?v=784"></script>
+    <script src="js/family-boss.js?v=784"></script>
+    <script src="js/family-network.js?v=784"></script>
+    <script src="js/family-challenge.js?v=784"></script>
+    <script src="js/family-goal.js?v=784"></script>
+    <script src="js/family-feed.js?v=784"></script>
+    <script src="js/pre-workout-mood.js?v=784"></script>
+    <script src="js/group-workout.js?v=784"></script>
+    <script src="js/youth-safety.js?v=784"></script>
+    <script src="js/kids-programs.js?v=784"></script>
+    <script src="js/senior-programs.js?v=784"></script>
+    <script src="js/adaptive.js?v=784"></script>
+    <script src="js/pain-mode.js?v=784"></script>
+    <script src="js/recovery-mode.js?v=784"></script>
+    <script src="js/exercise-visuals.js?v=784"></script>
+    <script src="js/strength-standards.js?v=784"></script>
+    <script src="js/system-cards.js?v=784"></script>
+    <script src="js/share-card.js?v=784"></script>
+    <script src="js/story-events.js?v=784"></script>
+    <script src="js/final-boss.js?v=784"></script>
+    <script src="js/disciplines.js?v=784"></script>
+    <script src="js/eveil.js?v=784"></script>
+    <script src="js/app.js?v=784"></script>
+    <script src="js/awakening-tree.js?v=784"></script>
+    <script src="js/ui-kit.js?v=784"></script>
+    <script src="js/feature-map.js?v=784"></script>
+    <script src="js/weekly-recap.js?v=784"></script>
+    <script src="js/workout-games.js?v=784"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>

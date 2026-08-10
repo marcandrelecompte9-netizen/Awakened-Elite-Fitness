@@ -4809,6 +4809,13 @@
             background: #181A1F;
         }
         body.dark-mode .swap-header { background: #181A1F; border-color: #1e293b; }
+        /* 🐛 En thème sombre, l'en-tête devient #181A1F alors que le titre restait
+           en #0F1014 (noir sur noir) et le sous-titre en #6b7280 : illisibles.
+           On les éclaircit UNIQUEMENT en mode sombre — le mode clair (en-tête
+           blanc) garde son texte foncé. */
+        body.dark-mode #swapModalTitle { color: #f1f5f9 !important; }
+        body.dark-mode #swapModalSub   { color: #94a3b8 !important; }
+        body.dark-mode #swapModalBox .swap-header button { color: #e2e8f0 !important; }
         body.dark-mode .swap-card { border-color: #2A2C32; }
         body.dark-mode .swap-card:hover { background: #2A2C32; }
         body.dark-mode .swap-card-name { color: #e2e8f0; }
