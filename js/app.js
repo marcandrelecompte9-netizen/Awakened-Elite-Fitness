@@ -14662,7 +14662,7 @@
             // preserveAspectRatio="none" : l'image occupe EXACTEMENT le viewBox,
             // donc le repère de l'image et celui des zones sont identiques.
             // (Les proportions sont conservées : 784/1168 ≈ 200/298, écart < 0,2 %.)
-            return '<image href="' + img + '?v=784" x="0" y="0" width="200" height="298" '
+            return '<image href="' + img + '?v=785" x="0" y="0" width="200" height="298" '
                  + 'preserveAspectRatio="none" style="pointer-events:none;"/>';
         }
 
@@ -36839,7 +36839,7 @@
                         if (imgTag) {
                             // 🏆 Victoire : illustration COMMUNE (Esen + Nyra ensemble),
                             // quel que soit le héros choisi.
-                            imgTag.src = 'images/story/victoire_duo.webp?v=784';
+                            imgTag.src = 'images/story/victoire_duo.webp?v=785';
                             imgTag.alt = 'Esen et Nyra';
                         }
                         heroImg.style.display = 'block';

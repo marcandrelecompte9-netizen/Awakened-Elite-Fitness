@@ -1023,14 +1023,28 @@
     { skill: 'Le Jeu de jambes', emoji: '👟', steps: ['Pas chassés (sans croiser)', 'Pivots', 'Création d\'angles', 'Sortie latérale après combo'] },
     { skill: 'Combos avancés', emoji: '⚡', steps: ['Enchaînement 1-2-3-2', 'Intégrer les uppercuts', 'Doubles (jab-jab...)', 'Rafales en mouvement'] }
   ];
+  // Pilates : progressions vers les figures emblématiques de la méthode.
+  // Chaque étape s'appuie sur des exercices réellement présents dans la discipline,
+  // du contrôle de base jusqu'aux mouvements avancés du répertoire classique.
+  var PILATES_PROGRESSIONS = [
+    { skill: 'Teaser', emoji: '🅥', muscle: 'Abdominaux', steps: ['Respiration & centrage', 'Roll-up', 'Single Leg Stretch', 'Double Leg Stretch', 'Teaser (jambes fléchies)', 'Teaser complet'] },
+    { skill: 'Contrôle du roulé', emoji: '🔄', muscle: 'Abdominaux', steps: ['Chat-Vache (Cat-Cow)', 'Coléoptère (Dead Bug)', 'Roulé en boule (Rolling Like a Ball)', 'Neck Pull', 'Jackknife (Canif)', 'Boomerang'] },
+    { skill: 'Le Cent', emoji: '💯', muscle: 'Abdominaux', steps: ['Respiration & centrage', 'Le Cent (jambes en table)', 'Le Cent (jambes à 90°)', 'Le Cent (jambes tendues basses)'] },
+    { skill: 'Extension du dos', emoji: '🦢', muscle: 'Lombaires', steps: ['Chat-Vache (Cat-Cow)', 'Swimming', 'Le Cygne (Swan)', 'Double coup de pied (Double Leg Kick)'] },
+    { skill: 'Gainage latéral', emoji: '🪶', muscle: 'Obliques', steps: ['Sirène (Mermaid)', 'Side Kick', 'Criss-Cross', 'Rotation assise (Spine Twist)', 'Coup de pied latéral en série'] },
+    { skill: 'Stabilité du bassin', emoji: '🍑', muscle: 'Fessiers', steps: ['Pont fessier (Bridge)', 'Cercles de jambe', 'Pont sur une jambe', 'Ciseaux (Scissors)', 'Tire-bouchon (Corkscrew)', 'Grand contrôle (Control Balance)'] }
+  ];
+
   var DISCIPLINE_PROGRESSIONS = {
     calisthenie: CALIS_PROGRESSIONS,
     course: COURSE_PROGRESSIONS,
     core: CORE_PROGRESSIONS,
     yoga: YOGA_PROGRESSIONS,
     mobilite: MOBILITE_PROGRESSIONS,
-    boxe: BOXE_PROGRESSIONS
+    boxe: BOXE_PROGRESSIONS,
+    pilates: PILATES_PROGRESSIONS
   };
+  global.PILATES_PROGRESSIONS = PILATES_PROGRESSIONS;
   global.DISCIPLINE_PROGRESSIONS = DISCIPLINE_PROGRESSIONS;
   global.COURSE_SESSIONS = COURSE_SESSIONS;
   global.MOBILITE_SESSIONS = MOBILITE_SESSIONS;
