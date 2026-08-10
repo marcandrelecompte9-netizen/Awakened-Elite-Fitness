@@ -7789,7 +7789,7 @@
                         <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;">
                             <div style="font-weight:800;color:#22d3ee;min-width:26px;font-size:0.9em;">${index+1}.</div>
                             <div style="flex:1;min-width:0;">
-                                <div style="font-weight:600;color:#e2e8f0;font-size:0.9em;line-height:1.3;overflow-wrap:anywhere;">${exerciseName} <span style="font-size:0.8em;color:#22d3ee;opacity:0.7;">👁️</span></div>
+                                <div style="font-weight:600;color:#e2e8f0;font-size:0.9em;line-height:1.3;overflow-wrap:break-word;">${exerciseName} <span style="font-size:0.8em;color:#22d3ee;opacity:0.7;">👁️</span></div>
                                 ${muscle ? `<div style="font-size:0.75em;color:#94a3b8;margin-top:2px;">💪 ${muscle}</div>` : ''}
                             </div>
                         </div>
@@ -14662,7 +14662,7 @@
             // preserveAspectRatio="none" : l'image occupe EXACTEMENT le viewBox,
             // donc le repère de l'image et celui des zones sont identiques.
             // (Les proportions sont conservées : 784/1168 ≈ 200/298, écart < 0,2 %.)
-            return '<image href="' + img + '?v=775" x="0" y="0" width="200" height="298" '
+            return '<image href="' + img + '?v=779" x="0" y="0" width="200" height="298" '
                  + 'preserveAspectRatio="none" style="pointer-events:none;"/>';
         }
 
@@ -31450,10 +31450,12 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:hidden;border-radius:20px;max-height:90vh;display:flex;flex-direction:column;">
-                <!-- Corps DÉFILANT : tout le contenu long passe ici, pour que le
-                     bouton de fermeture reste toujours visible en bas. -->
-                <div style="flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+                <!-- Fermeture EN HAUT : toujours atteignable, sans dépendre
+                     du défilement (mise en page flex non fiable sur certains WebView). -->
+                <div style="padding:14px 22px 0;">
+                    <button onclick="document.getElementById('awakRiftRewardModal').remove();awakActiveRiftSession=null;switchTab('game');" style="width:100%;background:linear-gradient(135deg,${theme.color},${theme.color}dd);border:none;color:white;border-radius:10px;padding:16px;font-weight:900;font-size:0.95em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${theme.color}40;">CONTINUER</button>
+                </div>
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
                     <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,${theme.color},transparent);animation:awakBlink 1.5s ease-in-out infinite;"></div>
@@ -31522,11 +31524,6 @@
                     </div>
                 </div>
 
-                </div>
-                <!-- Action — hors du corps défilant : TOUJOURS visible -->
-                <div style="flex-shrink:0;padding:14px 22px calc(18px + env(safe-area-inset-bottom, 0px));background:#0F1014;border-top:1px solid rgba(255,255,255,0.06);">
-                    <button onclick="document.getElementById('awakRiftRewardModal').remove();awakActiveRiftSession=null;switchTab('game');" style="width:100%;background:linear-gradient(135deg,${theme.color},${theme.color}dd);border:none;color:white;border-radius:10px;padding:16px;font-weight:900;font-size:0.95em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${theme.color}40;">CONTINUER</button>
-                </div>
             </div>`;
 
             document.body.appendChild(modal);
@@ -36842,7 +36839,7 @@
                         if (imgTag) {
                             // 🏆 Victoire : illustration COMMUNE (Esen + Nyra ensemble),
                             // quel que soit le héros choisi.
-                            imgTag.src = 'images/story/victoire_duo.webp?v=775';
+                            imgTag.src = 'images/story/victoire_duo.webp?v=779';
                             imgTag.alt = 'Esen et Nyra';
                         }
                         heroImg.style.display = 'block';
@@ -42473,13 +42470,29 @@
             const currentEquip  = exFromDB.equipment || [];
             const userEquip     = getEquipmentNames();
 
-            // Candidats : même muscle, exercice réel, pas l'exo actuel, pas déjà dans la séance
-            const candidates = exerciseDatabase.filter(e =>
+            // Candidats : MÊME TYPE que l'exercice remplacé.
+            // 🐛 Avant, on ne cherchait que parmi type === 'exercise' : un
+            // échauffement ou un étirement n'avait donc jamais d'alternative
+            // (« Aucune alternative trouvée »). On remplace désormais un
+            // échauffement par un échauffement, un étirement par un étirement.
+            const _curType = (exFromDB.type === 'warmup' || exFromDB.type === 'stretch')
+                ? exFromDB.type : 'exercise';
+            let candidates = exerciseDatabase.filter(e =>
                 e.muscle === targetMuscle &&
-                e.type === 'exercise' &&
+                e.type === _curType &&
                 e.name !== currentName &&
                 !alreadyUsed.has(e.name)
             );
+            // Échauffements/étirements : peu nombreux par muscle. Si rien pour ce
+            // muscle précis, on élargit à TOUS les échauffements (resp. étirements),
+            // ce qui reste pertinent — un étirement d'un autre groupe fait l'affaire.
+            if (!candidates.length && _curType !== 'exercise') {
+                candidates = exerciseDatabase.filter(e =>
+                    e.type === _curType &&
+                    e.name !== currentName &&
+                    !alreadyUsed.has(e.name)
+                );
+            }
 
             // Score de correspondance équipement
             function equipScore(ex) {
