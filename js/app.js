@@ -14665,7 +14665,7 @@
             // preserveAspectRatio="none" : l'image occupe EXACTEMENT le viewBox,
             // donc le repère de l'image et celui des zones sont identiques.
             // (Les proportions sont conservées : 784/1168 ≈ 200/298, écart < 0,2 %.)
-            return '<image href="' + img + '?v=787" x="0" y="0" width="200" height="298" '
+            return '<image href="' + img + '?v=788" x="0" y="0" width="200" height="298" '
                  + 'preserveAspectRatio="none" style="pointer-events:none;"/>';
         }
 
@@ -23161,9 +23161,12 @@
             const disc    = document.getElementById('disciplineFilter')?.value || '';
 
             // Source : musculation (par défaut) ou exercices d'une discipline.
+            // « Musculation » = la base SANS les exercices de discipline (ceux-ci
+            // ont rejoint exerciseDatabase pour être trouvables, mais ils ont leur
+            // propre entrée dans le menu déroulant).
             const sourceList = disc
                 ? (window.getDisciplineExercises ? window.getDisciplineExercises(disc) : [])
-                : exerciseDatabase;
+                : exerciseDatabase.filter(e => !e.discipline);
 
             // ── Fuzzy / multi-mot ───────────────────────────────────
             // Ex: "push up chest" → cherche chaque mot séparément
@@ -36842,7 +36845,7 @@
                         if (imgTag) {
                             // 🏆 Victoire : illustration COMMUNE (Esen + Nyra ensemble),
                             // quel que soit le héros choisi.
-                            imgTag.src = 'images/story/victoire_duo.webp?v=787';
+                            imgTag.src = 'images/story/victoire_duo.webp?v=788';
                             imgTag.alt = 'Esen et Nyra';
                         }
                         heroImg.style.display = 'block';
