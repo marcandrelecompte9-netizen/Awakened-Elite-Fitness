@@ -703,7 +703,7 @@ function generic_muscle(muscle, phase) {
 var EXERCISE_IMAGES = {
   "Rotation assise (Spine Twist)": 'images/exercises/Rotation_assise.webp',
   "Roulé en boule (Rolling Like a Ball)": 'images/exercises/Roule_en_boule.webp',
-  "Criss-Cross": 'images/exercises/Criss_Cross.webp',
+  "Criss-Cross": 'images/exercises/Criss_Cross_v2.webp',
   "Double Leg Stretch": 'images/exercises/Double_Leg_Stretch.webp',
   "Le Cygne (Swan)": 'images/exercises/Le_Cygne_Swan.webp',
   "Ciseaux (Scissors)": 'images/exercises/Ciseaux_Scissors.webp',

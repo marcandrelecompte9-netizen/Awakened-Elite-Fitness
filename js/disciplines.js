@@ -1078,6 +1078,31 @@
 
   global.getDisciplineSession = getDisciplineSession;
   global.getDisciplineExercises = getDisciplineExercises;
+
+  // ── 📚 Intégration à la BIBLIOTHÈQUE d'exercices ──────────────────────────
+  // Les exercices de discipline (Pilates, Yoga, HIIT…) vivaient uniquement ici :
+  // ils étaient donc introuvables dans l'onglet Exercices, qui lit exerciseDatabase.
+  // On les y ajoute, en conservant le marqueur `discipline` pour que les
+  // générateurs de séance muscu puissent continuer à les écarter.
+  try {
+    if (Array.isArray(global.exerciseDatabase)) {
+      var _dejaLa = {};
+      global.exerciseDatabase.forEach(function (e) { if (e && e.name) { _dejaLa[e.name] = true; } });
+      var _ajoutes = 0;
+      Object.keys(DISCIPLINE_SESSIONS).forEach(function (did) {
+        getDisciplineExercises(did).forEach(function (ex) {
+          if (!ex || !ex.name || _dejaLa[ex.name]) { return; }
+          _dejaLa[ex.name] = true;
+          var c = Object.assign({}, ex);
+          c.discipline = c.discipline || did;   // marqueur conservé
+          global.exerciseDatabase.push(c);
+          _ajoutes++;
+        });
+      });
+      if (_ajoutes) { try { console.log('[disciplines] ' + _ajoutes + ' exercices ajoutés à la bibliothèque'); } catch (e) {} }
+    }
+  } catch (e) {}
+
   global.generateYogaSession = generateYogaSession;
   global.DISCIPLINE_GUIDES = DISCIPLINE_GUIDES;
   global.getDisciplineGuide = getDisciplineGuide;

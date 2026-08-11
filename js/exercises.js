@@ -731,3 +731,8 @@ if (typeof window !== 'undefined') {
     window.getWeightedMuscles = getWeightedMuscles;
     window.getMuscleRecoveryHours = getMuscleRecoveryHours;
 }
+
+// 🔗 Exposé sur window : permet à disciplines.js d'AJOUTER les exercices des
+// disciplines (Pilates, Yoga…) à la bibliothèque. Un `const` de script classique
+// n'est pas accessible via window, d'où cette liaison explicite.
+try { window.exerciseDatabase = exerciseDatabase; } catch (e) {}

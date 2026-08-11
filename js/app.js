@@ -10695,6 +10695,9 @@
                 // secondaire (≥30 %). Sans ça, un muscle comme les Biceps n'avait
                 // aucun exercice au poids du corps et disparaissait de la séance.
                 {
+                    // Les exercices de DISCIPLINE (Pilates, Yoga…) sont désormais dans
+                    // la bibliothèque : on les écarte des séances muscu générées.
+                    if (ex.discipline) return false;
                     const _primOk = decisions.targetMuscles.includes(ex.muscle);
                     const _secOk = (ex.secondaryMuscles || []).some(s =>
                         decisions.targetMuscles.includes(s.muscle) && (s.ratio || 0) >= 0.3);
@@ -14662,7 +14665,7 @@
             // preserveAspectRatio="none" : l'image occupe EXACTEMENT le viewBox,
             // donc le repère de l'image et celui des zones sont identiques.
             // (Les proportions sont conservées : 784/1168 ≈ 200/298, écart < 0,2 %.)
-            return '<image href="' + img + '?v=785" x="0" y="0" width="200" height="298" '
+            return '<image href="' + img + '?v=787" x="0" y="0" width="200" height="298" '
                  + 'preserveAspectRatio="none" style="pointer-events:none;"/>';
         }
 
@@ -36839,7 +36842,7 @@
                         if (imgTag) {
                             // 🏆 Victoire : illustration COMMUNE (Esen + Nyra ensemble),
                             // quel que soit le héros choisi.
-                            imgTag.src = 'images/story/victoire_duo.webp?v=785';
+                            imgTag.src = 'images/story/victoire_duo.webp?v=787';
                             imgTag.alt = 'Esen et Nyra';
                         }
                         heroImg.style.display = 'block';
@@ -42493,6 +42496,7 @@
             const _curType = _entryType
                 || ((exFromDB.type === 'warmup' || exFromDB.type === 'stretch') ? exFromDB.type : 'exercise');
             let candidates = exerciseDatabase.filter(e =>
+                !!e.discipline === !!exFromDB.discipline &&   // ne pas mélanger discipline et muscu
                 e.muscle === targetMuscle &&
                 e.type === _curType &&
                 e.name !== currentName &&
