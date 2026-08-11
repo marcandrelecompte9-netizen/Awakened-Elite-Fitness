@@ -287,7 +287,6 @@ const exerciseDatabase = [
 
             // ÉPAULES - Étirement
             { name: "Étirement épaule croisée", muscle: "Épaules", difficulty: "Débutant", type: "stretch", equipment: ["Poids du corps"], description: "Étirement deltoïdes.", instructions: ["Croisez bras devant poitrine", "Tirez avec autre main", "Sentez étirement épaule", "20-30 secondes", "Alternez bras"], tips: "Après travail épaules.", duration: 30 },
-            { name: "Étirement triceps au-dessus tête", muscle: "Épaules", difficulty: "Débutant", type: "stretch", equipment: ["Poids du corps"], description: "Étirement épaules et triceps.", instructions: ["Bras au-dessus tête", "Pliez coude", "Tirez coude avec autre main", "20-30 secondes", "Chaque bras"], tips: "Étire arrière épaule.", duration: 30 },
 
             // BICEPS/TRICEPS - Étirement
             { name: "Étirement biceps mur", muscle: "Biceps", difficulty: "Débutant", type: "stretch", equipment: ["Poids du corps"], description: "Étirement biceps complet.", instructions: ["Bras tendu contre mur", "Pouce vers bas", "Tournez corps opposé", "Sentez étirement biceps", "20-30 secondes chaque bras"], tips: "Étire bien les biceps.", duration: 30 },

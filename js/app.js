@@ -14665,7 +14665,7 @@
             // preserveAspectRatio="none" : l'image occupe EXACTEMENT le viewBox,
             // donc le repère de l'image et celui des zones sont identiques.
             // (Les proportions sont conservées : 784/1168 ≈ 200/298, écart < 0,2 %.)
-            return '<image href="' + img + '?v=788" x="0" y="0" width="200" height="298" '
+            return '<image href="' + img + '?v=791" x="0" y="0" width="200" height="298" '
                  + 'preserveAspectRatio="none" style="pointer-events:none;"/>';
         }
 
@@ -36845,7 +36845,7 @@
                         if (imgTag) {
                             // 🏆 Victoire : illustration COMMUNE (Esen + Nyra ensemble),
                             // quel que soit le héros choisi.
-                            imgTag.src = 'images/story/victoire_duo.webp?v=788';
+                            imgTag.src = 'images/story/victoire_duo.webp?v=791';
                             imgTag.alt = 'Esen et Nyra';
                         }
                         heroImg.style.display = 'block';
@@ -43981,7 +43981,15 @@
                         const alreadyShown = localStorage.getItem('awakAbsenceReactShown') === todayKey;
                         if (days >= 4 && !alreadyShown) {
                             localStorage.setItem('awakAbsenceReactShown', todayKey);
-                            awakShowHeroReaction('absence');
+                            // 🛌 REPOS ≠ ABANDON : si le joueur a déclaré une douleur ou une
+                            // blessure, son inactivité est une PROTECTION, pas un renoncement.
+                            // Le Système le reconnaît au lieu de le culpabiliser.
+                            var _repos = false;
+                            try {
+                                if (window.AwakPain && window.AwakPain.activeZones) { _repos = window.AwakPain.activeZones().length > 0; }
+                                if (!_repos && typeof injuredMuscles !== 'undefined') { _repos = (injuredMuscles || []).length > 0; }
+                            } catch (e) {}
+                            awakShowHeroReaction(_repos ? 'repos' : 'absence');
                         }
                     }
                 } catch(e) {}
@@ -44472,12 +44480,25 @@
                 const color = c.color || '#4ade80';
                 const title = (evt.content && evt.content.title) ? evt.content.title : 'Souvenir';
                 // Étiquette discrète du type d'événement
-                const typeLabel = ({ rencontre:'RENCONTRE', fait:'INSTANT', ambiance:'FRAGMENT', dialogue:'ÉCHANGE' })[evt.type] || 'FRAGMENT';
+                // 📚 HIÉRARCHIE des scènes — le joueur doit distinguer d'un coup d'œil
+                // ce qui fait avancer l'intrigue de ce qui l'enrichit :
+                //   Faille narrative > Chapitre > Échange > Fragment
+                const _tier = evt.trigger && evt.trigger.narrativeId ? 'faille'
+                            : (evt.type === 'rencontre' || evt.type === 'fait') ? 'chapitre'
+                            : (evt.type === 'dialogue') ? 'echange' : 'fragment';
+                const _TIERS = {
+                    faille:   { lbl: '◆ FAILLE NARRATIVE', col: '#f59e0b', ic: '🌀' },
+                    chapitre: { lbl: '◆ CHAPITRE',         col: '#22d3ee', ic: '📖' },
+                    echange:  { lbl: 'ÉCHANGE',            col: '#a855f7', ic: '💬' },
+                    fragment: { lbl: 'FRAGMENT',           col: '#64748b', ic: '✦' }
+                };
+                const _T = _TIERS[_tier];
+                const typeLabel = _T.lbl;
                 return `<div ${seen ? `onclick="document.getElementById('storyJournalOverlay').remove();(function(){const e=(window.STORY_EVENTS||[]).find(x=>x.id==='${evt.id}');if(e&&window.storyShowEvent)window.storyShowEvent(e);})()"` : ''}
                     style="background:${seen?`linear-gradient(135deg,${color}14,${color}05)`:'rgba(255,255,255,0.03)'};border:1px solid ${seen?color+'40':'rgba(255,255,255,0.08)'};border-radius:14px;padding:14px 16px;margin-bottom:10px;cursor:${seen?'pointer':'default'};display:flex;align-items:center;gap:13px;${seen?'':'opacity:0.45;'}">
-                    <div style="font-size:1.4em;flex-shrink:0;">${seen ? '📖' : '🔒'}</div>
+                    <div style="font-size:1.4em;flex-shrink:0;">${seen ? _T.ic : '🔒'}</div>
                     <div style="flex:1;min-width:0;">
-                        <div style="font-size:0.55em;color:${seen?color:'#64748b'};font-weight:800;letter-spacing:1.5px;">${typeLabel}</div>
+                        <div style="font-size:0.55em;color:${seen?_T.col:'#64748b'};font-weight:800;letter-spacing:1.5px;">${typeLabel}</div>
                         <div style="font-weight:800;color:${seen?'white':'#64748b'};font-size:0.95em;margin-top:2px;">${seen ? title : '? ? ?'}</div>
                     </div>
                     ${seen ? `<div style="color:${color};font-size:1.1em;">›</div>` : `<div style="font-size:0.6em;color:#64748b;">À venir</div>`}

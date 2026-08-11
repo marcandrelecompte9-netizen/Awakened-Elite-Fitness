@@ -2,7 +2,7 @@
 // Enables full offline support and PWA installation
 // Strategy: network-first for code files (HTML/JS/CSS), cache-first for assets (images/fonts)
 
-const CACHE_NAME = 'awakened-v788';
+const CACHE_NAME = 'awakened-v791';
 const ASSETS = [
   './',
   './index.html',
@@ -55,7 +55,11 @@ const ASSETS = [
 
 // Identifie les fichiers critiques (code) → network-first pour avoir les MAJ immédiates
 function isCodeFile(url) {
-  return /\.(html|js|css)(\?|$)/.test(url) || url.endsWith('./');
+  // 🐛 `url.endsWith('./')` ne matchait JAMAIS : une URL réelle ne se termine
+  // pas par « ./ ». La page racine du site (.../fitpro/) n'était donc pas
+  // traitée comme du code → servie en CACHE-FIRST, donc figée sur une
+  // ancienne version d'index.html même après déploiement.
+  return /\.(html|js|css)(\?|$)/.test(url) || /\/(\?|$)/.test(url);
 }
 
 // Install — cache all core assets (résilient : un fichier manquant ne casse pas tout)
@@ -89,7 +93,9 @@ self.addEventListener('fetch', e => {
 
   // 🌐 NETWORK-FIRST pour les fichiers de code (HTML, JS, CSS)
   // → les modifications de code apparaissent immédiatement
-  if (isCodeFile(url)) {
+  // Toute NAVIGATION (ouverture de l'app) est traitée comme du code : on veut
+  // toujours la dernière page, avec repli sur le cache si hors ligne.
+  if (isCodeFile(url) || e.request.mode === 'navigate') {
     e.respondWith(
       fetch(e.request)
         .then(response => {

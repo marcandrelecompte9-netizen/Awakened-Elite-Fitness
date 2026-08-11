@@ -736,6 +736,22 @@ function storyEventEligible(evt, ctx) {
             const order = ['E','D','C','B','A','S','SS','SSS'];
             return order.indexOf(ctx.rank || 'E') >= order.indexOf(t.value);
         }
+        // ── 🎬 DÉCLENCHEURS PAR ACTE ───────────────────────────────────
+        // L'histoire ne doit pas se réduire à « j'ai atteint X XP → chapitre ».
+        // Ces déclencheurs répondent à ce que le joueur FAIT, pour que les
+        // événements soient vécus comme la conséquence de son aventure.
+        case 'riftsClosed':   // avoir fermé N Failles
+            return (ctx.rifts || 0) >= t.value;
+        case 'comeback': {    // revenir après une pause d'au moins N jours
+            try {
+                var last = ctx.lastWorkout || (typeof loadStats === 'function' ? loadStats().lastWorkout : null);
+                if (!last) return false;
+                var j = (Date.now() - new Date(last)) / 86400000;
+                return j >= (t.value || 4);
+            } catch (e) { return false; }
+        }
+        case 'streak':        // tenir une série de N jours
+            return (ctx.streak || 0) >= t.value;
         case 'levelAndNarrativeRift': {
             // Exige le niveau ATTEINT *et* la Faille narrative complétée
             const lvlOk = (ctx.level || 0) >= t.value;
@@ -760,6 +776,9 @@ function storyBuildContext() {
     try {
         const stats = (typeof loadStats === 'function') ? loadStats() : {};
         ctx.workouts = stats.workouts || 0;
+        // Données nécessaires aux déclencheurs PAR ACTE (comeback, streak)
+        ctx.lastWorkout = stats.lastWorkout || null;
+        ctx.streak = stats.currentStreak || stats.streak || 0;
     } catch(e) {}
     try { if (typeof _awakGetCurrentLevel === 'function') ctx.level = _awakGetCurrentLevel(); } catch(e) {}
     try { if (typeof awakGetRank === 'function') ctx.rank = awakGetRank().id; } catch(e) {}
@@ -972,6 +991,15 @@ function awakShowHeroReaction(reason) {
             absence: {
                 esen: "« Tu es parti un moment. » Un silence. « Le monde a un peu pâli. Mais tu es là maintenant. C'est tout ce qui compte. »",
                 nyra: "« Te revoilà, toi ! » Elle croise les bras, faussement vexée. « J'ai failli m'inquiéter. Bon. On reprend où on s'était arrêtés ? »"
+            },
+            // 🛌 REPOS ASSUMÉ — le joueur s'est mis à l'abri (douleur déclarée,
+            // muscles en récupération). Ce n'est PAS de l'abandon : le Système
+            // le reconnaît explicitement, pour ne jamais culpabiliser une pause
+            // légitime. C'est la distinction centrale de l'histoire :
+            // le repos prépare le retour, l'abandon est un renoncement.
+            repos: {
+                esen: "« Tu t'es arrêté pour te soigner. » Il hoche la tête, sans reproche. « Ce n'est pas la même chose que renoncer. Se mettre à l'abri, c'est encore tenir. »",
+                nyra: "« Alors, on se ménageait ? » Elle hausse les épaules, presque fière. « T'as bien fait. Un corps cassé, ça ne porte rien du tout. On reprend quand il est prêt. »"
             },
             abandon: {
                 esen: "« Tu t'es arrêté en cours de route. » Un silence. Sans reproche. « La prochaine fois, va au bout. Je sais que tu peux. »",
