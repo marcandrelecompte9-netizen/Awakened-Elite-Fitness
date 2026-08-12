@@ -40,6 +40,66 @@
     };
   }
 
+
+  // ══════════════════════════════════════════════════════════════════
+  // 👑 LE MONARQUE UTILISE LE BUILD DU JOUEUR
+  // ------------------------------------------------------------------
+  // Avant : séance fixe. STR 80 ou STR 400 → strictement identique, et
+  // toute la boucle « entraînement → stats → équipement → combat »
+  // s'effondrait au moment où elle aurait dû culminer.
+  // Maintenant : le Monarque a des PV, et chaque ACTE interroge une
+  // stat différente. Le Berserker écrase l'Acte Force et souffre en
+  // Explosivité ; l'Assassin fait l'inverse ; le polyvalent devient
+  // enfin intéressant.
+  // ══════════════════════════════════════════════════════════════════
+  const ACT_STATS = {
+    force:        { stat: 'STR', label: 'Force',        emoji: '⚔️' },
+    endurance:    { stat: 'END', label: 'Endurance',    emoji: '🌊' },
+    explosivite:  { stat: 'AGI', label: 'Explosivité',  emoji: '⚡' },
+    volonte:      { stat: 'PER', label: 'Volonté',      emoji: '🛡️' },
+    climax:       { stat: 'VIT', label: 'Tout donner',  emoji: '💥' }
+  };
+
+  function _playerStats() {
+    try {
+      if (typeof getPlayerEquipStats === 'function') return getPlayerEquipStats();
+    } catch (e) {}
+    return { STR: 10, AGI: 10, VIT: 10, END: 10, PER: 5, SEN: 5 };
+  }
+
+  // PV du Monarque : socle fixe, modulé par le Power Score.
+  // Fourchette VOLONTAIREMENT étroite (0,9 → 1,15) : un joueur puissant
+  // doit rester avantagé. Une fourchette large donnerait l'impression
+  // que les progrès sont annulés — le pire ressenti possible en RPG.
+  function monarqueHP() {
+    const BASE = 48000;
+    let power = 0;
+    try { if (typeof awakGetPowerScore === 'function') power = awakGetPowerScore(); } catch (e) {}
+    const ref = 12000;                       // Power Score « attendu » à ce stade
+    const ratio = power > 0 ? power / ref : 1;
+    const mod = Math.max(0.9, Math.min(1.15, 0.9 + ratio * 0.25));
+    return Math.round(BASE * mod);
+  }
+
+  // Dégâts d'un exercice selon l'acte : la stat de l'acte domine,
+  // les autres apportent un socle (le polyvalent n'est jamais bloqué).
+  function actDamage(actKey, effortUnits) {
+    const cfg = ACT_STATS[actKey] || ACT_STATS.force;
+    const st = _playerStats();
+    const dominante = st[cfg.stat] || 10;
+    const moyenne = (st.STR + st.AGI + st.VIT + st.END + st.PER + st.SEN) / 6;
+    const SOFT = 80;
+    const dim = v => v <= SOFT ? v : SOFT + Math.sqrt(v - SOFT) * Math.sqrt(SOFT);
+    // 70 % stat de l'acte + 30 % polyvalence
+    const eff = dim(dominante) * 0.7 + dim(moyenne) * 0.3;
+    return Math.round((4 + eff * 1.5) * (effortUnits || 1));
+  }
+  try {
+    window.awakMonarqueHP = monarqueHP;
+    window.awakMonarqueActDamage = actDamage;
+    window.AWAK_ACT_STATS = ACT_STATS;
+  } catch (e) {}
+
   // Construit la liste complète des exercices + narration des 7 actes.
   function buildFinalWorkout() {
     const E = [];
@@ -63,30 +123,30 @@
       "Le Monarque avance d'un pas. « La force ? J'ai vu mille Chasseurs forts tomber. La force sans constance n'est rien. »",
       "Il frappe le sol — l'onde de choc te traverse. « Prouve que la tienne est réelle. »"
     ], '#ef4444'));
-    E.push(ex('Pompes', 'Pectoraux', { sets: 1, reps: 20, instructions: ['Corps gainé', 'Amplitude complète', 'Contrôle la descente'] }));
-    E.push(ex('Squats', 'Quadriceps', { sets: 1, reps: 25, instructions: ['Cuisses parallèles', 'Talons ancrés', 'Poitrine haute'] }));
-    E.push(ex('Fentes dynamiques', 'Quadriceps', { sets: 1, reps: 20, instructions: ['Genou arrière vers le sol', 'Alterne les jambes'] }));
-    E.push(ex('Pompes diamant', 'Triceps', { sets: 1, reps: 15, instructions: ['Mains rapprochées', 'Coudes près du corps'] }));
+    E.push(ex('Pompes', 'Pectoraux', { sets: 1, reps: 20, instructions: ['Corps gainé', 'Amplitude complète', 'Contrôle la descente'] , _act:'force'}));
+    E.push(ex('Squats', 'Quadriceps', { sets: 1, reps: 25, instructions: ['Cuisses parallèles', 'Talons ancrés', 'Poitrine haute'] , _act:'force'}));
+    E.push(ex('Fentes dynamiques', 'Quadriceps', { sets: 1, reps: 20, instructions: ['Genou arrière vers le sol', 'Alterne les jambes'] , _act:'force'}));
+    E.push(ex('Pompes diamant', 'Triceps', { sets: 1, reps: 15, instructions: ['Mains rapprochées', 'Coudes près du corps'] , _act:'force'}));
 
     // ── ACTE II — L'ENDURANCE ──
     E.push(story('🌊 Acte II — L\'Endurance', [
       "« Tu tiens encore ? » Le Monarque sourit pour la première fois. « Alors voyons combien de temps. Le Déclin ne frappe pas fort — il use, lentement, jusqu'à ce que tu t'écroules de toi-même. »",
       "L'air devient lourd. Chaque respiration coûte. « Abandonne maintenant, et la douleur s'arrête. C'est si facile d'arrêter. »"
     ], '#0ea5e9'));
-    E.push(ex('Burpees', 'Cardio', { timer: 75, instructions: ['Enchaîne sans pause', 'Poitrine au sol', 'Saut explosif en haut'] }));
-    E.push(ex('Mountain climbers', 'Cardio', { timer: 60, instructions: ['Genoux rapides vers la poitrine', 'Hanches basses'] }));
-    E.push(ex('Squats sautés', 'Quadriceps', { timer: 60, instructions: ['Descends en squat', 'Explose vers le haut', 'Réception souple'] }));
-    E.push(ex('Talons-fesses rapides', 'Cardio', { timer: 50, instructions: ['Rythme élevé', 'Bras actifs'] }));
+    E.push(ex('Burpees', 'Cardio', { timer: 75, instructions: ['Enchaîne sans pause', 'Poitrine au sol', 'Saut explosif en haut'] , _act:'endurance'}));
+    E.push(ex('Mountain climbers', 'Cardio', { timer: 60, instructions: ['Genoux rapides vers la poitrine', 'Hanches basses'] , _act:'endurance'}));
+    E.push(ex('Squats sautés', 'Quadriceps', { timer: 60, instructions: ['Descends en squat', 'Explose vers le haut', 'Réception souple'] , _act:'endurance'}));
+    E.push(ex('Talons-fesses rapides', 'Cardio', { timer: 50, instructions: ['Rythme élevé', 'Bras actifs'] , _act:'endurance'}));
 
     // ── ACTE III — L'EXPLOSIVITÉ ──
     E.push(story('⚡ Acte III — L\'Explosivité', [
       "Le Monarque se déplace soudain — il est partout et nulle part. « La régularité ne suffira pas. Peux-tu encore être vif quand tes jambes brûlent ? »",
       "« C'est dans l'épuisement que se révèle ce que tu es vraiment. »"
     ], '#a855f7'));
-    E.push(ex('Burpees avec saut', 'Cardio', { sets: 1, reps: 15, instructions: ['Explosion maximale au saut', 'Enchaîne'] }));
-    E.push(ex('Fentes sautées alternées', 'Quadriceps', { sets: 1, reps: 20, instructions: ['Change de jambe en l\'air', 'Réception contrôlée'] }));
-    E.push(ex('Pompes claquées', 'Pectoraux', { sets: 1, reps: 10, instructions: ['Pousse fort', 'Décolle les mains', 'Si trop dur : pompes explosives'] }));
-    E.push(ex('Sauts groupés (tuck jumps)', 'Quadriceps', { sets: 1, reps: 15, instructions: ['Genoux vers la poitrine', 'Réception amortie'] }));
+    E.push(ex('Burpees avec saut', 'Cardio', { sets: 1, reps: 15, instructions: ['Explosion maximale au saut', 'Enchaîne'] , _act:'explosivite'}));
+    E.push(ex('Fentes sautées alternées', 'Quadriceps', { sets: 1, reps: 20, instructions: ['Change de jambe en l\'air', 'Réception contrôlée'] , _act:'explosivite'}));
+    E.push(ex('Pompes claquées', 'Pectoraux', { sets: 1, reps: 10, instructions: ['Pousse fort', 'Décolle les mains', 'Si trop dur : pompes explosives'] , _act:'explosivite'}));
+    E.push(ex('Sauts groupés (tuck jumps)', 'Quadriceps', { sets: 1, reps: 15, instructions: ['Genoux vers la poitrine', 'Réception amortie'] , _act:'explosivite'}));
 
     // ── ACTE IV — LA VOLONTÉ ──
     E.push(story('🛡️ Acte IV — La Volonté', [
@@ -94,21 +154,21 @@
       "Il change de tactique — il s'attaque à ton mental. « Tu trembles. Tu veux t'arrêter. Je le sens. Pose un genou à terre, et tout cessera. »",
       "Le Système gronde : « Ne bouge pas. Tiens. Sa dernière arme, c'est ton propre doute. Prouve-lui que ta volonté ne plie pas. »"
     ], '#22d3ee'));
-    E.push(ex('Gainage planche', 'Abdominaux', { timer: 60, instructions: ['Corps parfaitement aligné', 'Ne cède pas', 'Respire malgré tout'] }));
-    E.push(ex('Chaise contre le mur', 'Quadriceps', { timer: 60, instructions: ['Cuisses parallèles au sol', 'Dos plaqué', 'Tiens coûte que coûte'] }));
-    E.push(ex('Gainage latéral droit', 'Obliques', { timer: 40, instructions: ['Hanches hautes', 'Corps en ligne'] }));
-    E.push(ex('Gainage latéral gauche', 'Obliques', { timer: 40, instructions: ['Hanches hautes', 'Corps en ligne'] }));
-    E.push(ex('Hollow hold', 'Abdominaux', { timer: 45, instructions: ['Bas du dos collé au sol', 'Jambes et bras tendus'] }));
+    E.push(ex('Gainage planche', 'Abdominaux', { timer: 60, instructions: ['Corps parfaitement aligné', 'Ne cède pas', 'Respire malgré tout'] , _act:'volonte'}));
+    E.push(ex('Chaise contre le mur', 'Quadriceps', { timer: 60, instructions: ['Cuisses parallèles au sol', 'Dos plaqué', 'Tiens coûte que coûte'] , _act:'volonte'}));
+    E.push(ex('Gainage latéral droit', 'Obliques', { timer: 40, instructions: ['Hanches hautes', 'Corps en ligne'] , _act:'volonte'}));
+    E.push(ex('Gainage latéral gauche', 'Obliques', { timer: 40, instructions: ['Hanches hautes', 'Corps en ligne'] , _act:'volonte'}));
+    E.push(ex('Hollow hold', 'Abdominaux', { timer: 45, instructions: ['Bas du dos collé au sol', 'Jambes et bras tendus'] , _act:'volonte'}));
 
     // ── CLIMAX ──
     E.push(story('💥 Climax — Tout donner', [
       "Le Monarque tombe à genoux. « Impossible... tu n'es pas plus fort que moi. Tu as juste... refusé... d'arrêter. »",
       "Le Système hurle presque : « MAINTENANT. Il est à découvert. Donne tout ce qu'il te reste — ne garde rien. »"
     ], '#fbbf24'));
-    E.push(ex('Burpees finaux', 'Cardio', { timer: 60, instructions: ['Vide le réservoir', 'Chaque rep le fait reculer'] }));
-    E.push(ex('Pompes maximum', 'Pectoraux', { sets: 1, reps: 25, instructions: ['Autant que possible', 'Forme avant tout'] }));
-    E.push(ex('Squats maximum', 'Quadriceps', { sets: 1, reps: 30, instructions: ['Profonds', 'Sans t\'arrêter'] }));
-    E.push(ex('Gainage final', 'Abdominaux', { timer: 60, instructions: ['Le dernier effort', 'Tiens jusqu\'au bout'] }));
+    E.push(ex('Burpees finaux', 'Cardio', { timer: 60, instructions: ['Vide le réservoir', 'Chaque rep le fait reculer'] , _act:'climax'}));
+    E.push(ex('Pompes maximum', 'Pectoraux', { sets: 1, reps: 25, instructions: ['Autant que possible', 'Forme avant tout'] , _act:'climax'}));
+    E.push(ex('Squats maximum', 'Quadriceps', { sets: 1, reps: 30, instructions: ['Profonds', 'Sans t\'arrêter'] , _act:'climax'}));
+    E.push(ex('Gainage final', 'Abdominaux', { timer: 60, instructions: ['Le dernier effort', 'Tiens jusqu\'au bout'] , _act:'climax'}));
 
     // L'épilogue est joué par l'écran de victoire (awakShowFinalBossVictory) à la fin de la séance.
 

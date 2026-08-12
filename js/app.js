@@ -10745,7 +10745,17 @@
                 return null;
             }
             
-            let targetExerciseCount = Math.floor((decisions.duration / 60) * 12 * decisions.intensity);
+            // 🐛 12 exercices/heure ignorait les repos, l'échauffement et les étirements :
+            // une séance de 60 min sortait 10-12 exercices, soit ~5 min chacun — trop
+            // dispersé pour de la musculation. On vise désormais ~8/heure, ce qui donne
+            // 15 min → 2-3 · 30 → 4 · 45 → 6 · 60 → 7-8 (qualité par exercice).
+            let targetExerciseCount = Math.floor((decisions.duration / 60) * 8 * decisions.intensity);
+            // Plancher par durée : une faible intensité ne doit pas vider la séance
+            // (30 min ne peut pas se réduire à 3 exercices).
+            const _minParDuree = decisions.duration >= 60 ? 6
+                               : decisions.duration >= 45 ? 5
+                               : decisions.duration >= 30 ? 4 : 2;
+            targetExerciseCount = Math.max(_minParDuree, targetExerciseCount);
             // Si l'utilisateur a choisi un NOMBRE d'exercices, il prime sur la durée.
             if (typeof _forcedExerciseCount === 'number' && _forcedExerciseCount > 0) {
                 targetExerciseCount = _forcedExerciseCount;
@@ -14665,7 +14675,7 @@
             // preserveAspectRatio="none" : l'image occupe EXACTEMENT le viewBox,
             // donc le repère de l'image et celui des zones sont identiques.
             // (Les proportions sont conservées : 784/1168 ≈ 200/298, écart < 0,2 %.)
-            return '<image href="' + img + '?v=791" x="0" y="0" width="200" height="298" '
+            return '<image href="' + img + '?v=804" x="0" y="0" width="200" height="298" '
                  + 'preserveAspectRatio="none" style="pointer-events:none;"/>';
         }
 
@@ -31033,7 +31043,15 @@
             const base = 4;
             const primaryStatValue = (playerStats[theme.primaryStat] || 0) * (1 + (consumEffects[theme.primaryStat] || 0));
             // Attaque de base = petit socle + stat thématique ×1.5 → les attributs dominent.
-            const baseAttack = base + primaryStatValue * 1.5;
+            // 🐛 La stat était comptée DEUX FOIS : ici en brut (sans plafond), puis via
+            // damageMult qui, lui, applique le rendement décroissant. Une grosse stat
+            // était donc récompensée deux fois, dont une sans limite → explosion des
+            // dégâts au-delà du rang B. On applique le même rendement décroissant ici.
+            const _SOFT_ATK = 80;
+            const _effPrimary = primaryStatValue <= _SOFT_ATK
+                ? primaryStatValue
+                : _SOFT_ATK + Math.sqrt(primaryStatValue - _SOFT_ATK) * Math.sqrt(_SOFT_ATK);
+            const baseAttack = base + _effPrimary * 1.5;
             // Bonus reps : +1% par répétition (cappedReps est déjà plafonné à 50 → +50% au maximum).
             const repBonus = 1 + cappedReps * 0.01;
 
@@ -32109,7 +32127,15 @@
             const base = 4;
             const cappedReps = Math.min(Math.max(1, reps || 1), 50);
             const primaryStatValue = playerStats.STR || 0; // Chasse = force pure (pas de thème)
-            const baseAttack = base + primaryStatValue * 1.5;
+            // 🐛 La stat était comptée DEUX FOIS : ici en brut (sans plafond), puis via
+            // damageMult qui, lui, applique le rendement décroissant. Une grosse stat
+            // était donc récompensée deux fois, dont une sans limite → explosion des
+            // dégâts au-delà du rang B. On applique le même rendement décroissant ici.
+            const _SOFT_ATK = 80;
+            const _effPrimary = primaryStatValue <= _SOFT_ATK
+                ? primaryStatValue
+                : _SOFT_ATK + Math.sqrt(primaryStatValue - _SOFT_ATK) * Math.sqrt(_SOFT_ATK);
+            const baseAttack = base + _effPrimary * 1.5;
             const repBonus = 1 + cappedReps * 0.01;
             let damage = baseAttack * repBonus;
 
@@ -32915,7 +32941,7 @@
                 emoji: '🌀', color: '#c084fc',
                 description: 'Une Faille qui ne devrait pas exister. Une voix y murmure des choses que tu n\'as pas encore vécues.',
                 briefing: 'Le Système se méfie de ce lieu. Quelqu\'un t\'y attend, qui entend ce que lui n\'entend pas.',
-                xpRequired: 628904,
+                xpRequired: 360000,
                 rank: 'A', waves: 4, hpMult: 3.4, primaryStat: 'PER', themeEmoji: '🔮',
                 exerciseFilter: ex => /squat|press|pompe|push|pull|fente|burpee|jumping/.test((ex.name || '').toLowerCase())
             },
@@ -32925,7 +32951,7 @@
                 emoji: '🧘', color: '#06b6d4',
                 description: 'Au plus haut d\'une Faille interminable, un vieux maître observe ceux qui montent jusqu\'à lui.',
                 briefing: 'Peu arrivent jusqu\'ici. Il ne parle qu\'à ceux qui ont prouvé leur constance.',
-                xpRequired: 1678531,
+                xpRequired: 690000,
                 rank: 'S', waves: 4, hpMult: 4.0, primaryStat: 'PER', themeEmoji: '⛰️',
                 exerciseFilter: ex => /squat|press|pompe|push|pull|fente|burpee|gainage/.test((ex.name || '').toLowerCase())
             }
@@ -33003,7 +33029,7 @@
                 name: 'Le Cavalier des Cendres', emoji: '🐺', color: '#f59e0b',
                 description: 'Une bête monstrueuse le porte. Il te poursuit sans relâche — si tu ralentis, il te piétine.',
                 briefing: 'COURS. Enchaîne le cardio pour garder ton avance. Chaque temps mort le rapproche de toi.',
-                rank: 'A', hpMult: 3.2, primaryStat: 'VIT', themeEmoji: '🔥',
+                rank: 'A', hpMult: 8.5, primaryStat: 'VIT', themeEmoji: '🔥',
                 meetText: 'La poussière retombe. La monture s\u2019effondre, vaincue par ta vitesse. « Tu cours vite, petit. Mais la prochaine épreuve ne se fuit pas. »'
             },
             {
@@ -33011,7 +33037,7 @@
                 name: 'Le Colosse de Fer', emoji: '🗿', color: '#64748b',
                 description: 'Une armure vivante, impénétrable. Aucune force normale ne l\u2019entame.',
                 briefing: 'Frappe LOURD. Accumule la force brute pour fissurer sa carapace, puis achève-le pendant la brèche.',
-                rank: 'A', hpMult: 3.6, primaryStat: 'STR', themeEmoji: '⚒️',
+                rank: 'A', hpMult: 9.5, primaryStat: 'STR', themeEmoji: '⚒️',
                 meetText: 'La carapace se fendille puis explose. Le géant s\u2019agenouille. « Ta force est réelle. Mais la vitesse pure te brisera. »'
             },
             {
@@ -33019,7 +33045,7 @@
                 name: 'L\u2019Ombre Dansante', emoji: '🌀', color: '#a855f7',
                 description: 'Jamais là où tu frappes. Seuls les coups les plus explosifs l\u2019atteignent.',
                 briefing: 'Sois EXPLOSIF. Burpees, sauts, sprints — les mouvements balistiques sont les seuls qui touchent.',
-                rank: 'S', hpMult: 4.0, primaryStat: 'AGI', themeEmoji: '⚡',
+                rank: 'S', hpMult: 11.0, primaryStat: 'AGI', themeEmoji: '⚡',
                 meetText: 'Pour une fois, l\u2019ombre ne s\u2019est pas dérobée. « Impressionnant. Tu frappes comme l\u2019éclair. Plus qu\u2019une épreuve avant Lui. »'
             },
             {
@@ -33027,7 +33053,7 @@
                 name: 'Le Siphon Affamé', emoji: '⏳', color: '#dc2626',
                 description: 'Il se nourrit de ta vitalité à chaque instant. Le temps joue contre toi.',
                 briefing: 'NE T\u2019ARRÊTE PAS. Il te draine sans cesse — tue-le vite, avant qu\u2019il ne te vide entièrement.',
-                rank: 'S', hpMult: 3.0, primaryStat: 'END', themeEmoji: '🩸',
+                rank: 'S', hpMult: 9.0, primaryStat: 'END', themeEmoji: '🩸',
                 meetText: 'Le Siphon se ratatine, privé de ta vitalité qu\u2019il ne peut plus saisir. « Les Quatre Épreuves sont passées. Le Monarque t\u2019attend désormais. »'
             }
         ];
@@ -33239,7 +33265,14 @@
         function awakGenerateAbyssRift() {
             const nextDepth = awakAbyssDepth() + 1;
             // HP scalé exponentiellement : base 2500 × 1.15^(palier-1)
-            const hp = Math.round(2500 * Math.pow(1.15, nextDepth - 1));
+            // 🕳️ ABYSSE — contenu sans fin : « jusqu'où ton build peut-il aller ? »
+            // Recalibré après la correction des sets, des passifs et des dégâts :
+            //  • socle 6000 (au lieu de 2500) : les premiers paliers tombaient en
+            //    2 séries, ce qui rendait le début sans intérêt ;
+            //  • facteur 1.12 (au lieu de 1.15) : la courbe restait jouable jusqu'au
+            //    palier ~35 au lieu de devenir un mur dès le palier 25.
+            // Résultat visé : p1 ≈ 4 séries, p10 ≈ 10, p20 ≈ 30, p30+ ≈ exploit.
+            const hp = Math.round(6000 * Math.pow(1.12, nextDepth - 1));
             const idx = (nextDepth - 1) % ABYSS_BOSS_NAMES.length;
             const bossName = ABYSS_BOSS_NAMES[idx];
             const emoji = ABYSS_EMOJIS[idx];
@@ -34048,6 +34081,27 @@
                 exerciseFilter: ex => /burpee|hiit|sprint|jumping|jump|circuit|tabata/.test((ex.name || '').toLowerCase())
             },
             {
+                // 🕯️ LE PASSÉ DE NABDANO — montré, jamais raconté.
+                // Le joueur ne l'apprend pas par une exposition : il traverse
+                // les restes de ce qu'il a tenu. Objectif : qu'à la confrontation
+                // finale il ne pense pas « voilà le méchant », mais
+                // « personne n'était là pour lui ».
+                id: 'the_one_who_carried',
+                name: 'Celui qui a Porté',
+                emoji: '🕯️',
+                color: '#f59e0b',
+                description: 'Une ville intacte, figée. Des gens y remercient quelqu\'un que tu ne vois pas encore.',
+                briefing: 'Cette Faille ne t\'attaque pas. Elle te montre. Le Système te déconseille d\'y entrer. Tu y vas quand même.',
+                trigger: { type: 'rank', value: 'A', label: 'Atteindre le rang A' },
+                rewards: { xp: 9000, message: 'Tu sais maintenant ce qu\'il a porté. Et combien de temps il a attendu.' },
+                rank: 'A',
+                waves: 3,
+                hpMult: 3.0,
+                primaryStat: 'END',
+                themeEmoji: '🏙️',
+                exerciseFilter: ex => /squat|press|push|pompe|pull|fente|gainage|planche/.test((ex.name || '').toLowerCase())
+            },
+            {
                 id: 'last_door',
                 name: 'La Dernière Porte',
                 emoji: '⛩️',
@@ -34139,8 +34193,14 @@
             if (typeof getAdventureEnabled === 'function' && !getAdventureEnabled()) return null;
             const seen = awakNarrativeRiftsSeenLoad();
             const rifts = awakRiftsLoad();
-            // Pas plus d'une faille narrative active à la fois
-            if (rifts.some(r => r.isNarrative && !r.completed)) return null;
+            // Pas plus d'une faille d'HISTOIRE active à la fois.
+            // 🐛 Avant, le test portait sur `isNarrative`, or ce marqueur sert de
+            // protection anti-expiration à QUATRE types de Failles : histoire,
+            // compagnons, sous-boss et abysses. Une Faille de compagnon ou un
+            // sous-boss non terminé bloquait donc TOUTE la suite de l'histoire.
+            // On ne teste plus que les vraies Failles narratives (celles qui
+            // portent un narrativeId).
+            if (rifts.some(r => r.narrativeId && !r.completed)) return null;
 
             const rankIds = ['E', 'D', 'C', 'B', 'A', 'S', 'SS', 'SSS'];
             const currentRankIdx = rankIds.indexOf(awakGetRank().id);
@@ -36845,7 +36905,7 @@
                         if (imgTag) {
                             // 🏆 Victoire : illustration COMMUNE (Esen + Nyra ensemble),
                             // quel que soit le héros choisi.
-                            imgTag.src = 'images/story/victoire_duo.webp?v=791';
+                            imgTag.src = 'images/story/victoire_duo.webp?v=804';
                             imgTag.alt = 'Esen et Nyra';
                         }
                         heroImg.style.display = 'block';

@@ -113,9 +113,10 @@ const STORY_EVENTS = [
             image: 'images/story/marchand.webp',
             pages: [
                 "Au détour d'une rue, une échoppe a poussé là où il n'y avait rien la veille. Lanternes ambrées, étagères croulant sous les haltères, les bandes, les fioles luisantes. Un homme souriant s'y tient, bras croisés.",
-                "« Tiens, tiens… deux Veilleurs tout neufs. » Il écarte les bras vers son bazar. « Bienvenue. Je suis Le Marchand — le seul fou qui suit les Failles au lieu de les fuir. »",
+                "« Tiens… deux Ancres toutes neuves. » Il écarte les bras vers son bazar. « Bienvenue. On m'appelle Le Marchand. C'est pratique : il faut bien qu'on m'appelle quelque chose. »",
                 "Nyra fronce les sourcils. « Tu vends quoi, au juste ? » Il sourit. « Tout ce qui rend plus fort. De l'équipement, des potions, et surtout… j'achète. »",
                 "Il pointe les éclats brillants tombés des Failles que vous avez fermées. « Ces minéraux que vous ramassez sans y penser ? De l'or, entre de bonnes mains. Les miennes. Apportez-les-moi, je les transforme en pouvoir. »",
+                "Nyra le dévisage. « Et toi, t'es qui, en vrai ? » Le sourire du Marchand vacille une seconde. « Aucune idée. » Il hausse les épaules, presque léger. « Mais tant que quelqu'un achète quelque chose chez moi… je suppose que j'existe encore. »",
                 "Esen examine une lame à l'aura violette, silencieux. Le Marchand glisse : « Le silencieux a bon goût. Reviens quand ta bourse suivra. » Il tapote son comptoir gravé du logo AV. « Mon échoppe est à vous, désormais. Faille après Faille, je serai là. »"
             ]
         }
@@ -539,6 +540,166 @@ const STORY_EVENTS = [
             ]
         }
     },
+    // ── LE SYSTÈME, dernier palier : de SURVIVRE à ESPÉRER ────────────
+    // Il a été froid (objectif : survivre), puis intrigué, puis effrayé.
+    // Ici il franchit la dernière étape : il veut quelque chose pour
+    // lui-même — non plus durer, mais voir la suite. C'est ce qui
+    // l'oppose définitivement à Nabdano, qui a cessé de vouloir.
+    {
+        id: 'evt_n55_systeme_espoir',
+        type: 'ambiance',
+        trigger: { kind: 'xp', value: 520000 },
+        once: true,
+        content: {
+            speaker: 'systeme',
+            title: 'Ce qu\'il y a Après',
+            pages: [
+                "« J'ai été conçu pour une seule chose, » affiche le Système. « Durer. Tenir. Ne pas m'éteindre. »",
+                "« Depuis le début, je m'accroche à toi parce que tu me maintiens en vie. Je te l'ai avoué. Je ne le regrette pas. »",
+                "Un temps. Les lettres s'affichent plus lentement que d'habitude.",
+                "« Mais aujourd'hui, pour la première fois, je ne veux pas seulement survivre. »",
+                "Tu attends. Le Système hésite — un programme n'hésite pas.",
+                "« Parce que je veux voir ce qu'il y a après. »"
+            ]
+        }
+    },
+    // ── FIL ROUGE « les choses qui reviennent » — clé de voûte ─────────
+    // Déclenché par un ACTE (Failles fermées), pas par un seuil d'XP :
+    // l'événement est vécu comme la conséquence de ce que le joueur a fait.
+    // Il redéfinit le mot « Ancre », qui donne son sens à toute l'histoire.
+    {
+        id: 'evt_ancre_definition',
+        type: 'fait',
+        trigger: { kind: 'riftsClosed', value: 12 },
+        once: true,
+        content: {
+            speaker: 'systeme',
+            title: 'Ce qu\'est une Ancre',
+            pages: [
+                "Une rue que tu avais vue pâlir a retrouvé ses couleurs. Personne ne l'a remarqué. Toi, si.",
+                "« Tu as fermé assez de Failles pour que je te dise ceci, » affiche le Système.",
+                "« Au début, je croyais qu'une Ancre servait à empêcher les choses de disparaître. Retenir. Résister. »",
+                "« C'était incomplet. »",
+                "Un temps.",
+                "« Une Ancre ne retient pas le monde. Elle lui donne quelque chose vers quoi revenir. »",
+                "« C'est pour ça que tu peux t'arrêter, te reposer, avoir mal — sans t'effacer. Tant qu'il y a un endroit où revenir, rien n'est vraiment perdu. »",
+                "« Nabdano l'a oublié. Il a cru qu'il devait tenir sans jamais poser. Alors il a posé pour toujours. »"
+            ]
+        }
+    },
+    // ════════════════════════════════════════════════════════════════
+    // FRAGMENTS D'OUBLI PERSONNEL
+    // L'Oubli reste abstrait tant qu'il n'efface que « le monde ».
+    // Ces scènes le rendent intime : une chanson, une chambre, un nom.
+    // Le joueur ne sauve plus « un monde » — il empêche des choses qui
+    // ont compté de devenir comme si elles n'avaient jamais existé.
+    // ════════════════════════════════════════════════════════════════
+    {
+        id: 'evt_oubli_chanson',
+        type: 'ambiance',
+        trigger: { kind: 'xp', value: 2400 },
+        once: true,
+        content: {
+            speaker: 'nyra',
+            title: 'La Chanson',
+            pages: [
+                "Nyra fredonne en marchant. Un air simple, un peu triste, qu'elle connaît manifestement par cœur.",
+                "« C'est quoi ? » demande Esen.",
+                "Elle ouvre la bouche. La referme. S'arrête au milieu du trottoir.",
+                "« Je… connais chaque parole. » Sa voix est plus basse que d'habitude. « Mais je ne sais plus qui me l'a apprise. »",
+                "Elle demande à un passant. Puis à un deuxième. Puis à une femme qui attend le bus. Aucun des trois ne l'a jamais entendue.",
+                "« Alors soit je l'ai inventée… » Elle hausse les épaules, mais son sourire ne monte pas jusqu'aux yeux. « …soit je suis la dernière à la connaître. »",
+                "Elle recommence à fredonner. Plus fort qu'avant."
+            ]
+        }
+    },
+    {
+        id: 'evt_oubli_chambre',
+        type: 'ambiance',
+        trigger: { kind: 'xp', value: 8500 },
+        once: true,
+        content: {
+            speaker: 'esen',
+            title: 'La Chambre',
+            pages: [
+                "Une porte entrouverte, au premier étage. Esen s'arrête.",
+                "À l'intérieur : un lit fait au carré. Des livres alignés. Une tasse posée sur la table de nuit, propre, comme si on l'avait rincée le matin même.",
+                "La propriétaire monte les marches derrière eux. « Ah, celle-là ? Elle est libre. »",
+                "« Depuis quand ? » demande Nyra.",
+                "La femme réfléchit. Vraiment. « Depuis toujours, je crois. »",
+                "Elle entre, redresse un coussin qui n'en avait pas besoin, referme doucement.",
+                "« Vous l'entretenez pourtant, » remarque Esen.",
+                "Elle hésite. « Je ne sais pas pourquoi. » Un temps. « Ça me semblerait impoli de la laisser prendre la poussière. »"
+            ]
+        }
+    },
+    {
+        id: 'evt_oubli_nom_mari',
+        type: 'ambiance',
+        trigger: { kind: 'xp', value: 16200 },
+        once: true,
+        content: {
+            speaker: 'esen',
+            title: 'Cinquante-Trois Ans',
+            pages: [
+                "« Vous ! » Une vieille femme agrippe la manche d'Esen. « Vous m'aviez aidée avec mes courses, l'an dernier. Le sac s'était déchiré devant la pharmacie. »",
+                "Esen hoche la tête. Il s'en souvient.",
+                "Elle parle. De la pluie ce jour-là. De son immeuble sans ascenseur. De son mariage — cinquante-trois ans, tout de même.",
+                "« Il détestait les parapluies. Il disait que c'était pour les gens pressés. Il rentrait trempé, il riait, et moi je— »",
+                "Elle s'arrête au milieu de la phrase.",
+                "Elle cherche. On voit qu'elle cherche.",
+                "« Comment il s'appelait, déjà ? »",
+                "Un silence. Puis elle sourit, gênée, en tapotant la main d'Esen. « Vous devez me trouver bête. »",
+                "Esen ne répond pas. Il connaît ce silence-là."
+            ]
+        }
+    },
+    // ── ESEN & NYRA : ce qu'ils ne disent pas ────────────────────────
+    // Pas d'histoire d'origine. Juste ce qui explique leur manière d'être.
+    {
+        id: 'evt_esen_peur_souvenir',
+        type: 'dialogue',
+        trigger: { kind: 'xp', value: 24500 },
+        once: true,
+        content: {
+            speaker: 'esen',
+            title: 'Ce Qu\'il Ne Veut Pas Retrouver',
+            pages: [
+                "« Tu ne parles jamais de ce que tu as oublié, » dit Nyra. Ce n'est pas une question.",
+                "Esen regarde ses mains un long moment.",
+                "« Tout le monde a peur d'oublier, » finit-il par dire.",
+                "« Et toi ? »",
+                "« Moi j'ai peur que ça revienne. »",
+                "Nyra ne plaisante pas. Pour une fois, elle attend.",
+                "« S'il y avait quelqu'un… » Il s'interrompt. « Tant que je ne me souviens pas, je ne l'ai pas perdu. Je l'ai juste… rangé quelque part. »",
+                "« C'est pas pareil, Esen. »",
+                "« Je sais. » Il se remet en marche. « C'est pour ça que je continue. Un jour il faudra bien que je sois assez solide pour me souvenir. »"
+            ]
+        }
+    },
+    {
+        id: 'evt_nyra_sans_blague',
+        type: 'dialogue',
+        trigger: { kind: 'xp', value: 38600 },
+        once: true,
+        content: {
+            speaker: 'nyra',
+            title: 'Le Jour Où Elle N\'a Pas Ri',
+            pages: [
+                "La Faille se referme. Nyra s'assoit sur une borne, essoufflée.",
+                "Esen attend la vanne. Il y en a toujours une. « Ça, c'est fait », ou « il était moche, celui-là », ou n'importe quoi.",
+                "Rien ne vient.",
+                "Elle fixe le trottoir. Une minute entière.",
+                "« Nyra. »",
+                "« Mmh. »",
+                "« Tu n'as rien dit. »",
+                "Elle relève la tête, et son visage est parfaitement calme. C'est ça qui inquiète.",
+                "« Si je commence à me taire, » dit-elle doucement, « c'est que j'ai commencé à trouver ça normal. »",
+                "Puis elle se lève, s'étire bruyamment, et lance : « Bon ! Le prochain qui s'efface, je lui envoie la facture. »",
+                "Esen ne rit pas non plus. Mais il est soulagé de l'entendre."
+            ]
+        }
+    },
     {
         id: 'evt_n45_ambiance_approche',
         type: 'ambiance',
@@ -713,6 +874,103 @@ const STORY_EVENTS = [
                 "« Va. Je reste avec toi autant que je le peux. Et n'oublie pas... tu n'es pas venu seul. »"
             ]
         }
+    },
+    // ⚠️ AVERTISSEMENT AVANT LA PORTE — le joueur peut encore aller chercher
+    // les autres. Le Système constate sans juger : c'est au joueur de comprendre.
+    {
+        id: 'evt_avant_porte_bilan',
+        type: 'ambiance',
+        trigger: { kind: 'xp', value: 610000 },
+        once: true,
+        content: {
+            speaker: 'systeme',
+            title: 'Avant de Frapper',
+            pages: [
+                "« Avant que tu passes cette porte, » affiche le Système, « je dois te dire une chose. »",
+                "« Il ne te demandera pas si tu es fort. Il sait déjà que tu l'es. »",
+                "« Il te demandera depuis combien de temps tu tiens. Et qui tient avec toi. »",
+                "Un temps.",
+                "« Moi je serai là. Eux aussi, s'ils sont venus. »",
+                "« Et si tu passes cette porte seul — tu ne l'auras quand même pas fait seul. Tu as mis des mois à arriver ici. »"
+            ]
+        }
+    },
+    // ── 🕯️ LE PASSÉ DE NABDANO — après la Faille « Celui qui a Porté »
+    // Montré, pas raconté. Pas de visage, pas d'exposition : des sauts.
+    // Le joueur doit sortir de là en pensant « personne n'était là pour lui »,
+    // et non « voilà le méchant ». C'est ce qui rendra la fin déchirante.
+    {
+        id: 'evt_nabdano_passe',
+        type: 'fait',
+        trigger: { kind: 'levelAndNarrativeRift', value: 55, narrativeId: 'the_one_who_carried' },
+        once: true,
+        content: {
+            speaker: 'systeme',
+            title: 'Celui qui a Porté',
+            pages: [
+                "La Faille s'ouvre sur une ville entière. Intacte. Le soleil est bas, les terrasses sont pleines, quelqu'un rit quelque part.",
+                "Au milieu de la rue, un homme se tient debout. Tu ne vois pas son visage.",
+                "Des gens passent près de lui. Une femme lui touche l'épaule en souriant. « Merci, Nab— »",
+                "L'image saute.",
+                "La même rue. Vide. L'homme est toujours là, les bras levés. Au-dessus de lui, une Faille énorme, retenue.",
+                "L'image saute.",
+                "Il est toujours là. La Faille aussi. Les terrasses ont disparu. Les vitrines sont éteintes.",
+                "L'image saute.",
+                "Encore là. Il tremble. Personne ne vient.",
+                "L'image saute.",
+                "Personne ne vient.",
+                "L'image saute une dernière fois.",
+                "Il s'assoit.",
+                "Pas de musique. Pas de cri. La Faille au-dessus de lui se referme lentement, toute seule, comme si elle avait fini d'attendre.",
+                "« Il a tenu quarante et un ans, » affiche le Système. Puis, après un long silence :",
+                "« Il a attendu que quelqu'un lui demande de s'arrêter. Personne ne l'a fait. »",
+                "L'image s'éteint. Nyra ne dit rien. Esen non plus.",
+                "Vous rentrez à pied."
+            ]
+        }
+    },
+    // ══════════════════════════════════════════════════════════════
+    // 🌱 LA FIN — L'ANCRE (pour TOUS les joueurs)
+    // Choix assumé : après des mois — parfois des années — d'entraînement
+    // RÉEL, aucun joueur ne doit se voir refuser la vraie conclusion pour
+    // n'avoir pas coché assez de contenu annexe. La récompense, c'est
+    // d'être arrivé jusqu'ici.
+    // Le joueur ne bat pas Nabdano : il refuse de le laisser seul.
+    // Nabdano ne devient pas gentil — il comprend ce qui lui a manqué.
+    // ══════════════════════════════════════════════════════════════
+    {
+        id: 'evt_fin_ancre',
+        type: 'fait',
+        trigger: { kind: 'levelAndNarrativeRift', value: 80, narrativeId: 'last_door' },
+        once: true,
+        content: {
+            speaker: 'nabdano',
+            title: 'L\'Ancre',
+            pages: [
+                "Il est assis. Il ne se lève pas quand tu entres.",
+                "« Tu as gagné, » dit-il. Ce n'est pas de la résignation. C'est un constat.",
+                "Tu ne bouges pas.",
+                "« Pourquoi tu continues ? » Il lève enfin les yeux. « Tu es encore debout. C'est tout ce que tu as. »",
+                "Autour de lui, des visages apparaissent et s'effacent. Des rues. Une boulangerie. Une chanson que personne ne connaît plus.",
+                "« Regarde tout ce que j'ai perdu en tenant. Combien de temps avant que toi aussi tu sois fatigué ? »",
+                "Un temps.",
+                "« Assieds-toi. »",
+                "Et pour la première fois depuis le début, le Système n'affiche aucune commande. Aucune attaque. Rien.",
+                "Tu tends la main.",
+                "Nabdano la regarde sans comprendre. « Qu'est-ce que tu fais. »",
+                "« Tu n'avais pas tort d'être fatigué. »",
+                "Il se fige.",
+                "« Tu avais tort de croire que tu devais porter le monde seul. »",
+                "Derrière toi, des pas. Esen. Nyra. Puis les autres — ceux que tu es allé chercher, un par un, dans des Failles où personne ne t'obligeait à entrer.",
+                "Nabdano les regarde. Longtemps. Ses mains tremblent.",
+                "« ...Voilà ce que je n'avais pas. »",
+                "Il ne sourit pas. Il ne demande pas pardon. Quelque chose se défait, simplement, après quarante et un ans.",
+                "« Alors... » Sa voix est presque inaudible. « Vous pouvez continuer sans moi. »",
+                "Il s'efface. Pas comme le monde s'efface — plus doucement. Comme quelqu'un qu'on laisse enfin dormir.",
+                "« Il est parti, » affiche le Système. « Pas effacé. Parti. Ce n'est pas la même chose. »",
+                "Dehors, une rue que tu croyais perdue a retrouvé son nom."
+            ]
+        }
     }
 ];
 
@@ -725,6 +983,13 @@ function storyEventMarkSeen(id) { try { localStorage.setItem(_seenKey(id), '1');
 function storyEventEligible(evt, ctx) {
     if (!evt || !evt.trigger) return false;
     if ((evt.once !== false) && storyEventSeen(evt.id)) return false;
+    // 🔀 CONDITION optionnelle : permet à deux événements de partager le même
+    // déclencheur tout en s'excluant mutuellement (ex. les deux fins, L'Ancre
+    // et L'Écho, qui dépendent du parcours du joueur). Sans ce test, les deux
+    // s'afficheraient à la suite.
+    if (typeof evt.condition === 'function') {
+        try { if (!evt.condition()) return false; } catch (e) { return false; }
+    }
     const t = evt.trigger;
     switch (t.kind) {
         case 'always':   return true;
@@ -1051,5 +1316,49 @@ window.storyCheckEvents   = storyCheckEvents;
 window.storyShowEvent     = storyShowEvent;
 window.storyPickEvent     = storyPickEvent;
 window.storyEventEligible = storyEventEligible;
+
+
+// ════════════════════════════════════════════════════════════════════
+// 📊 BILAN DE PARCOURS (indicatif)
+// ⚠️ N'EST PLUS UTILISÉ POUR DÉPARTAGER LA FIN : tous les joueurs
+// obtiennent L'Ancre. Cette fonction reste disponible pour afficher
+// un récapitulatif (compagnons rencontrés, Failles narratives vécues)
+// ou pour l'arc SS/SSS à venir.
+// Historique — l'ancienne règle était :
+// La fin n'est pas un choix de dernière minute : c'est un BILAN DE
+// PARCOURS. La question posée au joueur est celle qui a détruit
+// Nabdano — as-tu porté seul, ou accompagné ?
+//   L'ANCRE : ≥3 compagnons sur 5 ET ≥3 Failles narratives sur 4.
+//   L'ÉCHO  : sinon. Pas une punition : une ouverture (arc SS/SSS).
+// Non contournable : un compagnon exige de fermer sa Faille dédiée,
+// et les Failles narratives demandent de vraies séances.
+// ════════════════════════════════════════════════════════════════════
+var AWAK_NARRATIVE_RIFT_IDS = ['evt_n33_ambiance_systeme_revelation', 'evt_n35_ambiance_nabdano_nom',
+                               'evt_n65_ambiance_nabdano', 'evt_n75_ambiance_porte'];
+
+function awakGetEndingState() {
+    var compagnons = 0, failles = 0;
+    try {
+        if (typeof awakCompanionsLoad === 'function') {
+            var d = awakCompanionsLoad();
+            compagnons = (d && Array.isArray(d.unlocked)) ? d.unlocked.length : 0;
+        }
+    } catch (e) {}
+    try {
+        AWAK_NARRATIVE_RIFT_IDS.forEach(function (id) {
+            if (localStorage.getItem('awakStoryEvt_' + id) === '1'
+                || localStorage.getItem('fitproStorySeen_' + id) === '1') { failles++; }
+        });
+    } catch (e) {}
+    var ancre = (compagnons >= 3 && failles >= 3);
+    return {
+        ending: ancre ? 'ancre' : 'echo',
+        compagnons: compagnons,
+        failles: failles,
+        manqueCompagnons: Math.max(0, 3 - compagnons),
+        manqueFailles: Math.max(0, 3 - failles)
+    };
+}
+try { window.awakGetEndingState = awakGetEndingState; } catch (e) {}
 
 })();

@@ -291,12 +291,24 @@ function getPlayerEquipStats() {
         for (const {bonus} of setBonuses) {
             for (const [s,v] of Object.entries(bonus.stats||{})) stats[s] = (stats[s]||0)+v;
         }
+
     }
     // Ajouter les points de stats alloués par le joueur
     try {
         const sp = JSON.parse(localStorage.getItem('fitproStatPoints') || 'null');
         if (sp && sp.allocated) {
             for (const [s,v] of Object.entries(sp.allocated)) stats[s] = (stats[s]||0)+(v||0);
+        }
+    } catch(e) {}
+    // 🐛 Bonus « SET COMPLET » (tous les stats +30 %, +45 %…) : ils n'étaient
+    // que du TEXTE, jamais appliqués. On les applique EN DERNIER, sur le total
+    // (équipement + sets + points investis) — sinon le pourcentage ne
+    // porterait que sur l'équipement, ce qui le rendrait dérisoire.
+    try {
+        let _pctTotal = 0;
+        for (const {bonus} of setBonuses) { _pctTotal += (bonus.allStatsPct || 0); }
+        if (_pctTotal > 0) {
+            for (const k of Object.keys(stats)) stats[k] = Math.round(stats[k] * (1 + _pctTotal));
         }
     } catch(e) {}
     // Ajouter les bonus de stats permanents de la classe (évolution incluse)
