@@ -1100,6 +1100,13 @@
         });
       });
       if (_ajoutes) { try { console.log('[disciplines] ' + _ajoutes + ' exercices ajoutés à la bibliothèque'); } catch (e) {} }
+      // 🏋️ Base MUSCULATION SEULE — sans les exercices de discipline.
+      // Les générateurs de séance muscu doivent piocher ici : sinon une séance
+      // classique peut contenir du yoga, de la boxe ou de la barre, puisque ces
+      // exercices portent eux aussi type:'exercise'.
+      try {
+        global.exerciseDatabaseMuscu = global.exerciseDatabase.filter(function (e) { return e && !e.discipline; });
+      } catch (e) {}
     }
   } catch (e) {}
 

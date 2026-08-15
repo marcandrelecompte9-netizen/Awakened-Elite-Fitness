@@ -2366,7 +2366,7 @@
                 const duration = stretchDurations[muscle] || 30;
 
                 // 🔀 Toutes les variantes d'étirement pour ce muscle → choisir aléatoirement
-                const variants = exerciseDatabase.filter(ex =>
+                const variants = _dbMuscu().filter(ex =>
                     ex.type === 'stretch' && ex.muscle === muscle
                 );
                 const stretchExercise = variants.length > 0
@@ -2383,7 +2383,7 @@
                 const antagonist = muscleAntagonists[muscle];
                 if (antagonist && !musclesWorked.has(antagonist)) {
                     // Muscle antagoniste pas travaillé, ajouter léger étirement (variante aléatoire)
-                    const antVariants = exerciseDatabase.filter(ex =>
+                    const antVariants = _dbMuscu().filter(ex =>
                         ex.type === 'stretch' && ex.muscle === antagonist
                     );
                     const antagonistStretch = antVariants.length > 0
@@ -4222,7 +4222,7 @@
                 if (needsAdaptation) {
                     // Find alternative with same muscle
                     const muscle = ex.muscle;
-                    const alternatives = exerciseDatabase.filter(e => 
+                    const alternatives = _dbMuscu().filter(e => 
                         e.muscle === muscle &&
                         e.type === 'exercise' &&
                         e.name !== ex.name &&
@@ -4238,7 +4238,7 @@
                     } else if (!hasEquipment) {
                         // Aucune alternative avec l'équipement dispo → repli sur un exercice
                         // au poids du corps du même muscle ; sinon on retire l'exercice.
-                        const bw = exerciseDatabase.filter(e =>
+                        const bw = _dbMuscu().filter(e =>
                             e.muscle === muscle &&
                             e.type === 'exercise' &&
                             e.name !== ex.name &&
@@ -7735,6 +7735,45 @@
                 if (t === 'warmup') _nEch++; else if (t === 'stretch') _nEti++; else _nMain++;
             });
             const exerciseCount = _reels.length;
+            // 🧠 BRIEFING : rendre visibles les décisions que le Système a prises.
+            // Le moteur en prend beaucoup (muscles, récupération, intensité) mais
+            // n'en montrait aucune : l'utilisateur ne pouvait pas lui faire confiance
+            // sans comprendre ce qu'il avait décidé.
+            try {
+                const _brief = document.getElementById('prepSystemBrief');
+                if (_brief) {
+                    const _lignes = [];
+                    // Muscles réellement ciblés par la séance
+                    const _mus = [...new Set(_reels.map(function (ex) {
+                        const d = exerciseDatabase.find(e => e.name === ex.name);
+                        return (d && d.muscle) || ex.muscle;
+                    }).filter(Boolean))];
+                    if (_mus.length) {
+                        _lignes.push('<div style="margin-bottom:5px;"><span style="color:#22d3ee;font-weight:800;font-size:0.62em;letter-spacing:1px;">MUSCLES</span> '
+                            + '<span style="color:#e2e8f0;font-size:0.76em;">' + _mus.slice(0, 5).join(' · ') + '</span></div>');
+                    }
+                    // Intensité décidée
+                    if (workout._intensity) {
+                        // l'intensité est stockée entre 0 et 1 → on l'affiche sur 10
+                        const _iv = workout._intensity;
+                        const _pct = Math.max(1, Math.min(10, Math.round(_iv <= 1 ? _iv * 10 : _iv)));
+                        _lignes.push('<div style="margin-bottom:5px;"><span style="color:#22d3ee;font-weight:800;font-size:0.62em;letter-spacing:1px;">INTENSITÉ</span> '
+                            + '<span style="color:#e2e8f0;font-size:0.76em;">' + _pct + '/10</span></div>');
+                    }
+                    // Muscles encore en récupération → charge adaptée
+                    try {
+                        const _fat = (typeof getFatiguedMuscles === 'function') ? getFatiguedMuscles() : [];
+                        if (_fat.length) {
+                            _lignes.push('<div><span style="color:#fbbf24;font-weight:800;font-size:0.62em;letter-spacing:1px;">RÉCUPÉRATION</span> '
+                                + '<span style="color:#94a3b8;font-size:0.74em;">' + _fat.length + ' muscle' + (_fat.length > 1 ? 's' : '')
+                                + ' encore en récupération — charge adaptée</span></div>');
+                        }
+                    } catch (e) {}
+                    _brief.innerHTML = _lignes.join('');
+                    _brief.style.display = _lignes.length ? 'block' : 'none';
+                }
+            } catch (e) {}
+
             const _cntEl = document.getElementById('prepExerciseCount');
             if (_cntEl) _cntEl.textContent = _nMain || exerciseCount;
             // Détail sous le compteur (masqué s'il n'y a ni échauffement ni étirement)
@@ -8007,7 +8046,7 @@
             const currentDifficulty = exercise.difficulty;
             
             // Find variants of same muscle
-            const variants = exerciseDatabase.filter(ex => 
+            const variants = _dbMuscu().filter(ex => 
                 ex.muscle === muscle &&
                 ex.type === 'exercise' &&
                 ex.name !== exerciseName
@@ -10643,7 +10682,7 @@
                 exercises: []
             };
             
-            const stretchExercises = exerciseDatabase.filter(ex => ex.type === 'stretch');
+            const stretchExercises = _dbMuscu().filter(ex => ex.type === 'stretch');
             const selectedStretches = stretchExercises.slice(0, 10);
             
             workout.exercises.push({ name: "🧘 Séance de récupération douce", duration: 60, isInfo: true });
@@ -10800,7 +10839,10 @@
                     const _musclesOk = decisions.targetMuscles.every(m =>
                         _coherent.some(ex => ex.muscle === m ||
                             (ex.secondaryMuscles || []).some(s => s.muscle === m && (s.ratio || 0) >= 0.3)));
-                    if (_coherent.length >= targetExerciseCount && _musclesOk) {
+                    // Marge de 1,5× : avec juste le minimum, la sélection par muscle
+                    // (quota _perMuscle) n'arrive pas à remplir la séance et on se
+                    // retrouve avec moins d'exercices que demandé.
+                    if (_coherent.length >= Math.ceil(targetExerciseCount * 1.5) && _musclesOk) {
                         availableExercises = _coherent;
                         decisions.reasoning.push(`🧰 Séance regroupée : ${_keep.join(' + ')} (+ poids du corps)`);
                     }
@@ -10810,11 +10852,13 @@
             // S'assurer qu'il y a des exercices pour CHAQUE muscle ciblé
             let selectedExercises = [];
 
-            // Prioritiser les exercices signature si une personnalité est active
-            // 📅 MAIS : si plan hebdo manuel actif, on dissocie complètement (séance libre)
-            const _manualPlanActive = (typeof getManualPlanTodayMuscles === 'function')
-                && getManualPlanTodayMuscles() !== null;
-            const _activeCeleb = _manualPlanActive ? null : getActiveCelebrity();
+            // 🎲 SÉANCE ALÉATOIRE = INDÉPENDANTE DES PROGRAMMES.
+            // Avant, un programme actif imposait ses exercices signature à la séance
+            // générée : impossible de « faire autre chose » sans quitter son programme.
+            // La séance libre ne doit rien emprunter au programme suivi — c'est
+            // justement à ça qu'elle sert. Les programmes gardent leurs exercices
+            // signature dans LEUR propre parcours.
+
 
             // Pour chaque muscle ciblé, ajouter au moins 2 exercices
             // 🐛 Deux défauts corrigés ici :
@@ -10833,18 +10877,38 @@
                         (ex.secondaryMuscles || []).some(s => s.muscle === muscle && (s.ratio || 0) >= 0.3));
                     muscleExercises = muscleExercises.concat(_sec);
                 }
-                // Trier : exercices signature d'abord
-                if (_activeCeleb) {
-                    muscleExercises = prioritizeCelebrityExercises(muscleExercises, _activeCeleb.id);
-                }
                 if (muscleExercises.length > 0) {
                     const count = Math.min(_perMuscle, muscleExercises.length);
-                    for (let i = 0; i < count; i++) {
-                        const pickIdx = _activeCeleb ? i : Math.floor(Math.random() * muscleExercises.length);
-                        const ex = muscleExercises[Math.min(pickIdx, muscleExercises.length - 1)];
-                        if (!selectedExercises.find(e => e.name === ex.name)) {
-                            selectedExercises.push(ex);
-                        }
+                    // Tirage aléatoire, mais en évitant d'empiler plusieurs variantes
+                    // du même mouvement pour un même muscle (5 sortes de pompes…).
+                    const _famDejaPrises = {};
+                    selectedExercises.forEach(function (e) { _famDejaPrises[_famille(e.name)] = true; });
+                    const _candidats = muscleExercises.slice();
+                    for (let i = _candidats.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        const t = _candidats[i]; _candidats[i] = _candidats[j]; _candidats[j] = t;
+                    }
+                    // familles neuves d'abord, variantes ensuite
+                    _candidats.sort(function (a, b) {
+                        return (_famDejaPrises[_famille(a.name)] ? 1 : 0) - (_famDejaPrises[_famille(b.name)] ? 1 : 0);
+                    });
+                    // PASSE 1 : une seule variante par famille (pas 5 sortes de pompes)
+                    let _pris = 0;
+                    for (const ex of _candidats) {
+                        if (_pris >= count) break;
+                        if (selectedExercises.find(e => e.name === ex.name)) continue;
+                        if (_famDejaPrises[_famille(ex.name)]) continue;
+                        selectedExercises.push(ex);
+                        _famDejaPrises[_famille(ex.name)] = true;
+                        _pris++;
+                    }
+                    // PASSE 2 : si le quota n'est pas atteint (peu de familles pour ce
+                    // muscle), on autorise une 2ᵉ variante plutôt que de laisser un trou.
+                    for (const ex of _candidats) {
+                        if (_pris >= count) break;
+                        if (selectedExercises.find(e => e.name === ex.name)) continue;
+                        selectedExercises.push(ex);
+                        _pris++;
                     }
                 }
             });
@@ -10858,6 +10922,12 @@
                         selectedExercises.push(ex);
                     }
                 });
+            }
+            // 🐛 GARANTIR LE NOMBRE DEMANDÉ : le quota par muscle (_perMuscle) pouvait
+            // laisser la séance incomplète — demander 8 exercices et n'en obtenir que 4.
+            // On complète ici avec tout ce qui reste d'éligible, sans quota.
+            if (selectedExercises.length < targetExerciseCount) {
+                _completerVarie(selectedExercises, availableExercises, targetExerciseCount);
             }
             
             // Limiter au nombre cible
@@ -10908,6 +10978,7 @@
             // ✅ EXPERT SYSTEM : Étirements intelligents ciblés
             if (includeStretch && decisions.intensity >= 0.6) {
                 const expertStretches = generateIntelligentStretches(selectedExercises, decisions.intensity, (decisions.duration || 0));
+                try { workout._intensity = decisions.intensity; } catch (e) {}
                 workout.exercises.push(...expertStretches);
             }
             
@@ -11664,6 +11735,13 @@
                 // Skip non-exercises
                 if (ex.type !== 'exercise') return false;
 
+                // 🐛 Les exercices de DISCIPLINE (yoga, boxe, barre, pilates…) ont
+                // rejoint exerciseDatabase pour être trouvables dans la bibliothèque
+                // (v787) — mais ils portent aussi type:'exercise'. Sans cette
+                // exclusion, une séance muscu générée pouvait contenir du yoga ou
+                // de la boxe. Les disciplines gardent leur propre parcours.
+                if (ex.discipline) return false;
+
                 // 🌳 Exercice d'extérieur alors que le lieu actif ne l'est pas
                 if (typeof awakExerciseBlockedByLocation === 'function' && awakExerciseBlockedByLocation(ex)) return false;
 
@@ -11766,6 +11844,12 @@
             
             // ✅ NEW: Ensure muscle balance (no muscle >40%)
             selectedExercises = ensureMuscleBalance(selectedExercises, availableExercises);
+            // 🐛 Garantir le nombre demandé (même correctif que l'autre générateur) :
+            // les étapes de couverture/équilibrage pouvaient rendre moins d'exercices
+            // que la cible, sans que rien ne complète ensuite.
+            if (selectedExercises.length < targetCount) {
+                _completerVarie(selectedExercises, exercisePool, targetCount);
+            }
             
             // ✅ EXPERT SYSTEM : Prévenir sur-sollicitation
             selectedExercises = preventOverload(selectedExercises, 3);
@@ -14675,7 +14759,7 @@
             // preserveAspectRatio="none" : l'image occupe EXACTEMENT le viewBox,
             // donc le repère de l'image et celui des zones sont identiques.
             // (Les proportions sont conservées : 784/1168 ≈ 200/298, écart < 0,2 %.)
-            return '<image href="' + img + '?v=804" x="0" y="0" width="200" height="298" '
+            return '<image href="' + img + '?v=812" x="0" y="0" width="200" height="298" '
                  + 'preserveAspectRatio="none" style="pointer-events:none;"/>';
         }
 
@@ -19569,7 +19653,7 @@
             if (!select) return;
             
             // Get force-based exercises (not cardio)
-            const forceExercises = exerciseDatabase.filter(ex => 
+            const forceExercises = _dbMuscu().filter(ex => 
                 ex.type !== 'cardio' && 
                 ex.type !== 'stretch' && 
                 ex.type !== 'warmup' &&
@@ -20453,7 +20537,7 @@
             const _bwEquip      = new Set(['Poids du corps','Élastique','TRX','Corde à sauter','Roue abdominale','Swiss Ball','Medicine Ball','Ballon lesté']);
             const isMachineEx    = ex => (ex.equipment || []).some(e => _machineEquip.has(e));
             const isBodyweightEx = ex => !isMachineEx(ex) && (ex.equipment || []).some(e => _bwEquip.has(e));
-            const availableExercises = exerciseDatabase.filter(exercise => {
+            const availableExercises = _dbMuscu().filter(exercise => {
                 if (exercise.type !== 'exercise') return false;
                 // Mode Maison : exclure machines et barres lourdes
                 if (sessionMode === 'home' && isMachineEx(exercise)) return false;
@@ -20523,7 +20607,7 @@
                 });
 
                 // Add 2-3 specific warmup exercises targeting the muscles to be worked
-                const warmupExercises = exerciseDatabase.filter(ex => {
+                const warmupExercises = _dbMuscu().filter(ex => {
                     if (ex.type !== "warmup") return false;
                     if (!muscleNames.includes(ex.muscle)) return false;
                     // En gym machines seulement : exclure warmups poids du corps
@@ -22897,6 +22981,52 @@
             return Object.keys(statuses).filter(muscle => statuses[muscle].status === 'ready');
         }
         
+        // 🏋️ Base d'exercices pour la MUSCULATION : exclut les disciplines
+        // (yoga, boxe, barre, pilates…) qui ont rejoint exerciseDatabase pour la
+        // bibliothèque mais n'ont rien à faire dans une séance muscu générée.
+        function _dbMuscu() {
+            try { if (Array.isArray(window.exerciseDatabaseMuscu)) return window.exerciseDatabaseMuscu; } catch (e) {}
+            return exerciseDatabase.filter(function (e) { return e && !e.discipline; });
+        }
+
+        // 🎯 Racine d'un exercice — sert à éviter d'empiler 5 variantes du même
+        // mouvement (« Pompes larges », « Pompes diamant », « Pompes archer »…).
+        // La base est déséquilibrée : 6 variantes de pompes pour 2 de tractions,
+        // donc un remplissage naïf ramène presque toujours des pompes.
+        function _famille(nom) {
+            return String(nom || '').toLowerCase()
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                .split(/[ '(\-]/)[0];
+        }
+        // Complète une sélection en privilégiant la VARIÉTÉ :
+        // 1) les muscles les moins représentés, 2) les familles non encore utilisées.
+        function _completerVarie(selection, pool, cible) {
+            const parMuscle = {}, parFamille = {};
+            selection.forEach(function (e) {
+                parMuscle[e.muscle] = (parMuscle[e.muscle] || 0) + 1;
+                parFamille[_famille(e.name)] = (parFamille[_famille(e.name)] || 0) + 1;
+            });
+            const pris = new Set(selection.map(function (e) { return e.name; }));
+            const reste = pool.filter(function (e) { return !pris.has(e.name); });
+            for (let i = reste.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                const t = reste[i]; reste[i] = reste[j]; reste[j] = t;
+            }
+            while (selection.length < cible && reste.length) {
+                // score : plus le muscle et la famille sont déjà présents, moins c'est prioritaire
+                reste.sort(function (a, b) {
+                    const sa = (parMuscle[a.muscle] || 0) * 2 + (parFamille[_famille(a.name)] || 0) * 3;
+                    const sb = (parMuscle[b.muscle] || 0) * 2 + (parFamille[_famille(b.name)] || 0) * 3;
+                    return sa - sb;
+                });
+                const ex = reste.shift();
+                selection.push(ex);
+                parMuscle[ex.muscle] = (parMuscle[ex.muscle] || 0) + 1;
+                parFamille[_famille(ex.name)] = (parFamille[_famille(ex.name)] || 0) + 1;
+            }
+            return selection;
+        }
+
         function getFatiguedMuscles() {
             const statuses = getAllMusclesRecoveryStatus();
             return Object.keys(statuses).filter(muscle => 
@@ -31351,7 +31481,12 @@
                 r.completed = true;
                 r.completedAt = Date.now();
                 // Compteur à vie : incrémenter UNE SEULE fois, à la vraie complétion.
-                if (!_wasCompleted && !r.isNarrative) { try { awakIncrementRiftsCompleted(); } catch (e) {} }
+                // 🐛 `isNarrative` n'identifie PAS les Failles d'histoire : c'est une protection
+                // anti-expiration portée AUSSI par les Failles compagnons, sous-boss et abysses.
+                // Les exclure du compteur bloquait « Fermer 5 Failles » (La Tour qui Murmure) :
+                // un joueur pouvait en fermer 10 sans que le compteur bouge.
+                // Seules les Failles d'HISTOIRE (narrativeId) ne se comptent pas elles-mêmes.
+                if (!_wasCompleted && !r.narrativeId) { try { awakIncrementRiftsCompleted(); } catch (e) {} }
                 // 🔧 Migration : si cette Faille est une Faille de compagnon mais a perdu/manque
                 // ses champs (créée par une ancienne version), on les reconstruit depuis son id/nom.
                 if (!r.isCompanionRift || !r.companionId || !r.companionRiftId) {
@@ -34153,10 +34288,25 @@
         // sinon la complétion en cours (déjà dans le tableau) serait comptée deux fois.
         function awakEnsureRiftsCounterSeeded() {
             const key = awakRiftsCompletedTotalKey();
+            // 🔧 RATTRAPAGE UNIQUE (bug du compteur) : jusqu'ici, les Failles de
+            // compagnons, sous-boss et abysses n'étaient PAS comptées (elles portent
+            // `isNarrative`, qui n'est qu'une protection anti-expiration). Les joueurs
+            // existants ont donc un compteur trop bas, ce qui bloque « Fermer 5 Failles »
+            // (La Tour qui Murmure). On recompte une fois, sans jamais diminuer la valeur.
+            try {
+                const fixKey = key + '_fix_v811';
+                if (localStorage.getItem(fixKey) !== '1') {
+                    let reel = 0;
+                    try { reel = awakRiftsLoad().filter(r => r.completed && !r.narrativeId).length; } catch (e) {}
+                    const actuel = parseInt(localStorage.getItem(key) || '0', 10) || 0;
+                    if (reel > actuel) { localStorage.setItem(key, String(reel)); }
+                    localStorage.setItem(fixKey, '1');
+                }
+            } catch (e) {}
             try {
                 if (localStorage.getItem(key) === null) {
                     let ac = 0;
-                    try { ac = awakRiftsLoad().filter(r => r.completed && !r.isNarrative).length; } catch (e) {}
+                    try { ac = awakRiftsLoad().filter(r => r.completed && !r.narrativeId).length; } catch (e) {}
                     localStorage.setItem(key, String(ac));
                 }
             } catch (e) {}
@@ -34168,7 +34318,7 @@
             try { n = parseInt(localStorage.getItem(key) || '0', 10) || 0; } catch (e) {}
             // Filet : jamais sous le compte actuel du tableau (rattrape un incrément manqué).
             let ac = 0;
-            try { ac = awakRiftsLoad().filter(r => r.completed && !r.isNarrative).length; } catch (e) {}
+            try { ac = awakRiftsLoad().filter(r => r.completed && !r.narrativeId).length; } catch (e) {}
             if (ac > n) { n = ac; try { localStorage.setItem(key, String(n)); } catch (e) {} }
             return n;
         }
@@ -34207,7 +34357,7 @@
             // Compte À VIE (jamais purgé) — voir awakGetRiftsCompletedTotal.
             const completedRifts = (typeof awakGetRiftsCompletedTotal === 'function')
                 ? awakGetRiftsCompletedTotal()
-                : rifts.filter(r => r.completed && !r.isNarrative).length;
+                : rifts.filter(r => r.completed && !r.narrativeId).length;
 
             for (const narrative of NARRATIVE_RIFTS) {
                 if (seen.includes(narrative.id)) continue;
@@ -36905,7 +37055,7 @@
                         if (imgTag) {
                             // 🏆 Victoire : illustration COMMUNE (Esen + Nyra ensemble),
                             // quel que soit le héros choisi.
-                            imgTag.src = 'images/story/victoire_duo.webp?v=804';
+                            imgTag.src = 'images/story/victoire_duo.webp?v=812';
                             imgTag.alt = 'Esen et Nyra';
                         }
                         heroImg.style.display = 'block';
@@ -42791,7 +42941,7 @@
             // Pause auto
             if (!isPaused) { isPaused = true; const pb = document.getElementById('pauseBtn'); if(pb) pb.innerHTML = '▶'; }
             // Chercher alternatifs SANS cette machine (même muscle, équipement différent)
-            const sameMuscle = exerciseDatabase.filter(ex =>
+            const sameMuscle = _dbMuscu().filter(ex =>
                 ex.type === 'exercise' &&
                 ex.muscle === exercise.muscle &&
                 ex.name !== exercise.name &&
@@ -44929,7 +45079,7 @@
                             rift.completed = true;
                             rift.completedBy = 'companions';
                             rift.currentWaveIdx = (rift.waves || []).length;
-                            if (!rift.isNarrative) { try { awakIncrementRiftsCompleted(); } catch (e) {} }
+                            if (!rift.narrativeId) { try { awakIncrementRiftsCompleted(); } catch (e) {} }
                             if (typeof awakRiftsSave === 'function') awakRiftsSave(rifts);
                         }
                         // 💎 Les compagnons rapportent des minéraux de la Faille fermée
