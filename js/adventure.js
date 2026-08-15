@@ -990,10 +990,14 @@ function renderFamilyTab() {
           + '<div class="accordion-body"><div class="accordion-content">' + feedCard + '</div></div>'
           + '</div>'
         : '';
-    html += familyCard + goalCard + duoGamesCard + challengeCard + nudgeCard + feedAccordion;
+    // 🤝 Le défi d'équipe suit l'objectif commun : ce sont les deux actions
+    // de coopération. Les défis compétitifs (1 contre 1) viennent après.
+    const coopCard = (window.AwakFamilyChallenge && typeof window.AwakFamilyChallenge.renderCoopCard === 'function')
+        ? window.AwakFamilyChallenge.renderCoopCard() : '';
+    html += familyCard + goalCard + coopCard + duoGamesCard + challengeCard + nudgeCard + feedAccordion;
 
     // Filet de sécurité
-    if (!familyCard && !nudgeCard && !challengeCard && !goalCard && !feedCard && !duoGamesCard) {
+    if (!familyCard && !nudgeCard && !challengeCard && !goalCard && !feedCard && !duoGamesCard && !coopCard) {
         html += '<div style="padding:20px;text-align:center;color:#64748b;font-size:0.85em;">Rien à afficher pour le moment.</div>';
     }
 

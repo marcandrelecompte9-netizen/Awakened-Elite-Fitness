@@ -17,6 +17,7 @@
       isInfo: true,
       isFinalStory: true,
       _color: color || '#dc2626',
+      image: 'images/story/nabdano.webp',   // 🖼️ le Monarque est visible pendant tout le combat
       instructions: lines
     };
   }
@@ -36,7 +37,8 @@
       difficulty: 'Avancé',
       instructions: opts.instructions || [],
       tips: opts.tips || '',
-      _finalBoss: true
+      _finalBoss: true,
+      _bossImage: 'images/story/nabdano.webp'
     };
   }
 
@@ -72,7 +74,12 @@
   // doit rester avantagé. Une fourchette large donnerait l'impression
   // que les progrès sont annulés — le pire ressenti possible en RPG.
   function monarqueHP() {
-    const BASE = 48000;
+    // 🎯 Calibré sur la séance narrative (21 exercices) : une séance complète
+    // inflige ~2 000 dgts (build faible) à ~5 500 (build optimisé). À 4 200 PV,
+    // un joueur bien construit termine le Monarque dans la séance ; un joueur
+    // faible arrive au bout de justesse — ce qui rend le build déterminant
+    // sans jamais rendre le combat infaisable.
+    const BASE = 4200;
     let power = 0;
     try { if (typeof awakGetPowerScore === 'function') power = awakGetPowerScore(); } catch (e) {}
     const ref = 12000;                       // Power Score « attendu » à ce stade
@@ -199,10 +206,16 @@
       return;
     }
     const exercises = buildFinalWorkout();
+    // ⚔️ PV DU MONARQUE : le combat final utilise enfin le build du joueur.
+    // Chaque exercice terminé retire des dégâts calculés selon la stat de l'acte.
+    const hpMax = monarqueHP();
     const workout = {
       name: '👑 Le Monarque du Déclin',
       type: 'finalboss',
       _isFinalBoss: true,
+      _bossHpMax: hpMax,
+      _bossHp: hpMax,
+      _bossImage: 'images/story/nabdano.webp',
       exercises: exercises,
       badgeHTML: '👑 COMBAT FINAL — Le Monarque du Déclin',
       badgeStyle: 'linear-gradient(135deg, #dc2626 0%, #7f1d1d 100%)'
@@ -221,6 +234,32 @@
     }
   }
   window.awakStartFinalBoss = startFinalBoss;
+
+  // ⚔️ Applique les dégâts d'un exercice terminé au Monarque.
+  // Appelé par app.js à la fin de chaque exercice du combat final.
+  // C'est ici que le BUILD du joueur compte : la stat de l'acte domine (70 %),
+  // la polyvalence complète (30 %) — un spécialisé écrase son acte et rame
+  // ailleurs, un polyvalent avance régulièrement.
+  function frapperMonarque(workout, exercice) {
+    if (!workout || !workout._isFinalBoss || !exercice) return null;
+    var acte = exercice._act || 'force';
+    var unites = 1;
+    if (exercice.mode === 'timer' && exercice.duration) unites = Math.max(1, exercice.duration / 30);
+    else if (exercice.targetReps) unites = Math.max(1, exercice.targetReps / 12);
+    var degats = actDamage(acte, unites);
+    workout._bossHp = Math.max(0, (workout._bossHp || 0) - degats);
+    return {
+      degats: degats,
+      hp: workout._bossHp,
+      hpMax: workout._bossHpMax || 1,
+      pct: Math.round((workout._bossHp / (workout._bossHpMax || 1)) * 100),
+      vaincu: workout._bossHp <= 0,
+      acte: acte,
+      statLabel: (ACT_STATS[acte] || ACT_STATS.force).stat
+    };
+  }
+  window.awakFrapperMonarque = frapperMonarque;
+
 
   // Marque le combat comme gagné (appelé à la complétion de la séance finalboss).
   function onFinalBossComplete() {
@@ -248,6 +287,31 @@
         <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px;margin-bottom:20px;">
           <div style="font-size:0.7em;color:#fbbf24;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;">Titre obtenu</div>
           <div style="font-family:'Rajdhani',sans-serif;font-size:1.4em;font-weight:700;color:#fff;">⚜️ Vainqueur du Déclin</div>
+
+          <!-- 🕳️ EXPLICATION DES ABYSSES — le joueur vient de terminer l'histoire.
+               Sans ce message, il ne sait pas qu'il reste du contenu et croit
+               l'app finie. On explique la mécanique en deux phrases. -->
+          <div style="background:linear-gradient(160deg,rgba(139,92,246,0.10),rgba(0,0,0,0.2));border:1px solid rgba(139,92,246,0.35);border-radius:14px;padding:16px;margin-top:14px;text-align:left;">
+            <div style="display:flex;align-items:center;gap:9px;margin-bottom:9px;">
+              <span style="font-size:1.6em;">🕳️</span>
+              <div>
+                <div style="font-size:0.62em;color:#a78bfa;font-weight:900;letter-spacing:1.5px;">NOUVEAU — SANS FIN</div>
+                <div style="font-family:'Rajdhani',sans-serif;font-size:1.25em;font-weight:700;color:#fff;">Les Abysses s'ouvrent</div>
+              </div>
+            </div>
+            <p style="color:#cbd5e1;font-size:0.82em;line-height:1.65;margin:0 0 10px;">
+              Là où le Monarque est tombé, la Faille ne s'est jamais refermée. Elle descend.
+            </p>
+            <p style="color:#94a3b8;font-size:0.78em;line-height:1.6;margin:0 0 10px;">
+              Chaque palier est plus profond — et plus résistant — que le précédent. Il n'y a pas de dernier étage :
+              la seule question est de savoir jusqu'où ton build peut aller.
+            </p>
+            <div style="font-size:0.74em;color:#a78bfa;line-height:1.55;">
+              ◈ Un nouveau palier apparaît dès que tu fermes le précédent<br>
+              ◈ Ta profondeur maximale devient ton record<br>
+              ◈ Le butin s'améliore à mesure que tu descends
+            </div>
+          </div>
         </div>
         <button onclick="document.getElementById('awakFinalVictoryOverlay').remove();if(typeof switchTab==='function')switchTab('game');" style="width:100%;padding:16px;background:linear-gradient(135deg,#fbbf24,#dc2626);border:none;border-radius:14px;color:#1a0e0e;font-family:'Rajdhani',sans-serif;font-size:1em;font-weight:900;letter-spacing:2px;cursor:pointer;text-transform:uppercase;box-shadow:0 8px 30px rgba(251,191,36,0.3);">Retour</button>
       </div>`;

@@ -573,6 +573,7 @@ const STORY_EVENTS = [
         trigger: { kind: 'riftsClosed', value: 12 },
         once: true,
         content: {
+            image: 'images/story/traces.webp',
             speaker: 'systeme',
             title: 'Ce qu\'est une Ancre',
             pages: [
@@ -619,6 +620,7 @@ const STORY_EVENTS = [
         trigger: { kind: 'xp', value: 8500 },
         once: true,
         content: {
+            image: 'images/story/monde_efface.webp',
             speaker: 'esen',
             title: 'La Chambre',
             pages: [
@@ -639,6 +641,7 @@ const STORY_EVENTS = [
         trigger: { kind: 'xp', value: 16200 },
         once: true,
         content: {
+            image: 'images/story/face_effacement.webp',
             speaker: 'esen',
             title: 'Cinquante-Trois Ans',
             pages: [
@@ -662,6 +665,7 @@ const STORY_EVENTS = [
         trigger: { kind: 'xp', value: 24500 },
         once: true,
         content: {
+            image: 'images/story/dos_a_dos.webp',
             speaker: 'esen',
             title: 'Ce Qu\'il Ne Veut Pas Retrouver',
             pages: [
@@ -683,6 +687,7 @@ const STORY_EVENTS = [
         trigger: { kind: 'xp', value: 38600 },
         once: true,
         content: {
+            image: 'images/story/n11_deux_silences.webp',
             speaker: 'nyra',
             title: 'Le Jour Où Elle N\'a Pas Ri',
             pages: [
@@ -862,7 +867,9 @@ const STORY_EVENTS = [
     {
         id: 'evt_n75_ambiance_porte',
         type: 'ambiance',
-        trigger: { kind: 'levelAndNarrativeRift', value: 75, narrativeId: 'last_door' },
+        // ⚠️ La Faille « last_door » exige le rang S = niveau 80. Un seuil à 75
+        // était trompeur : l'événement ne pouvait pas se déclencher avant 80.
+        trigger: { kind: 'levelAndNarrativeRift', value: 80, narrativeId: 'last_door' },
         once: true,
         content: {
             speaker: 'systeme',
@@ -883,6 +890,7 @@ const STORY_EVENTS = [
         trigger: { kind: 'xp', value: 610000 },
         once: true,
         content: {
+            image: 'images/story/moment_suspendu.webp',
             speaker: 'systeme',
             title: 'Avant de Frapper',
             pages: [
@@ -905,6 +913,7 @@ const STORY_EVENTS = [
         trigger: { kind: 'levelAndNarrativeRift', value: 55, narrativeId: 'the_one_who_carried' },
         once: true,
         content: {
+            image: 'images/story/inscription_nabdano.webp',
             speaker: 'systeme',
             title: 'Celui qui a Porté',
             pages: [
@@ -930,6 +939,79 @@ const STORY_EVENTS = [
         }
     },
     // ══════════════════════════════════════════════════════════════
+    // ⚔️ LES QUATRE ÉPREUVES — bascule avant les sous-boss
+    // Le joueur vient de terminer l'histoire (les 5 Failles narratives).
+    // Sans transition, les 4 sous-boss surgissaient sans explication :
+    // on passait du récit à une suite de combats, sans savoir pourquoi.
+    // Cet événement donne leur sens — ce ne sont pas des ennemis de plus,
+    // ce sont les quatre examens que Nabdano impose avant de se montrer.
+    // Déclencheur identique à celui des sous-boss : rang A (niveau 55).
+    // ══════════════════════════════════════════════════════════════
+    {
+        id: 'evt_quatre_epreuves',
+        type: 'fait',
+        trigger: { kind: 'levelAndNarrativeRift', value: 55, narrativeId: 'the_one_who_carried' },
+        once: true,
+        content: {
+            speaker: 'systeme',
+            title: 'Les Quatre Épreuves',
+            pages: [
+                "Quelque chose a changé dans l'air. Les Failles ne s'ouvrent plus au hasard.",
+                "« Il sait que tu viens, » affiche le Système. « Il ne se cachera pas. Mais il ne se laissera pas atteindre non plus. »",
+                "Quatre présences se dressent entre toi et lui. Elles ne sont pas venues te tuer.",
+                "« Elles sont là pour vérifier quelque chose. »",
+                "Le premier te poursuivra sans relâche — il veut savoir si tu tiens la distance.",
+                "Le deuxième ne cédera qu'à la force brute — il veut savoir si tu peux briser ce qui te bloque.",
+                "Le troisième esquivera tout ce qui est prévisible — il veut savoir si tu peux encore surprendre.",
+                "Le quatrième te videra lentement — il veut savoir ce qu'il reste quand tu n'as plus rien.",
+                "Un temps.",
+                "« Ce ne sont pas des ennemis. Ce sont ses questions. »",
+                "Nyra hausse les épaules. « Et si on répond mal ? »",
+                "« Alors vous n'êtes pas prêts à l'entendre, lui. »",
+                "Esen regarde les quatre silhouettes, puis la route derrière elles.",
+                "« Alors on répond bien. »"
+            ]
+        }
+    },
+    // ══════════════════════════════════════════════════════════════
+    // 👑 IL N'Y A PLUS DE PORTE — juste avant le Monarque
+    // Les 4 sous-boss sont tombés : le combat final se débloque. Sans
+    // transition, le joueur passait de la 4ᵉ épreuve à un bouton
+    // « COMBAT FINAL DISPONIBLE » sans respiration narrative.
+    // Cette scène marque le basculement : les questions sont finies,
+    // il ne reste que celle qu'il pose lui-même.
+    // Déclencheur : les 4 sous-boss vaincus (même condition que le boss).
+    // ══════════════════════════════════════════════════════════════
+    {
+        id: 'evt_avant_monarque',
+        type: 'fait',
+        trigger: { kind: 'subBosses', value: 4 },
+        once: true,
+        content: {
+            image: 'images/story/nabdano.webp',
+            speaker: 'systeme',
+            title: 'Il n\'y a plus de Porte',
+            pages: [
+                "La quatrième présence s'efface. Aucune ne t'a tué. Aucune n'a essayé.",
+                "« Elles ont eu leurs réponses, » affiche le Système.",
+                "Devant toi, la rue continue. Pas de Faille, pas de brèche, pas de seuil à franchir.",
+                "Juste une route droite, et quelque chose d'assis tout au bout.",
+                "« Il n'y a plus de porte. Il n'en a jamais mis. »",
+                "Un temps.",
+                "« Il a passé quarante et un ans à attendre que quelqu'un vienne jusqu'ici. Personne n'est venu. »",
+                "Nyra ne plaisante pas. Elle regarde la silhouette au loin, longtemps.",
+                "« Il a l'air fatigué. »",
+                "« Il l'est, » affiche le Système. « C'est exactement ce qui le rend dangereux. »",
+                "Esen vérifie ses appuis, comme avant chaque série.",
+                "« Il ne va pas nous attaquer, » dit-il. Ce n'est pas une question.",
+                "« Non. Il va vous parler. Et il aura raison sur presque tout. »",
+                "Le Système hésite — un programme n'hésite pas.",
+                "« Presque. »",
+                "Vous avancez."
+            ]
+        }
+    },
+    // ══════════════════════════════════════════════════════════════
     // 🌱 LA FIN — L'ANCRE (pour TOUS les joueurs)
     // Choix assumé : après des mois — parfois des années — d'entraînement
     // RÉEL, aucun joueur ne doit se voir refuser la vraie conclusion pour
@@ -944,6 +1026,7 @@ const STORY_EVENTS = [
         trigger: { kind: 'levelAndNarrativeRift', value: 80, narrativeId: 'last_door' },
         once: true,
         content: {
+            image: 'images/story/fin_ancre.webp',
             speaker: 'nabdano',
             title: 'L\'Ancre',
             pages: [
@@ -1007,6 +1090,12 @@ function storyEventEligible(evt, ctx) {
         // événements soient vécus comme la conséquence de son aventure.
         case 'riftsClosed':   // avoir fermé N Failles
             return (ctx.rifts || 0) >= t.value;
+        case 'subBosses': {   // avoir vaincu N sous-boss (0-4)
+            try {
+                var sb = parseInt(localStorage.getItem('awakSubBossProgress') || '0', 10) || 0;
+                return sb >= t.value;
+            } catch (e) { return false; }
+        }
         case 'comeback': {    // revenir après une pause d'au moins N jours
             try {
                 var last = ctx.lastWorkout || (typeof loadStats === 'function' ? loadStats().lastWorkout : null);

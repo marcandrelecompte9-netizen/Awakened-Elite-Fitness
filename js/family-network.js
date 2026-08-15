@@ -211,6 +211,26 @@
     return { level: 'inactive', days: d };
   }
 
+
+  // 📊 Stats hebdo d'un membre : séances, jours actifs, niveau.
+  // Trois chiffres suffisent à donner une identité à chacun — sans transformer
+  // la carte en tableau de bord ni créer de classement entre membres.
+  function memberWeekStats(profileId) {
+    var debut = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    var seances = 0, jours = {};
+    try {
+      // ⚠️ Clé réelle : « profile_<id>_workoutHistory » (voir _lastWorkoutTs).
+      // Le profil ACTIF stocke, lui, sous « workoutHistory ».
+      var raw = localStorage.getItem('profile_' + profileId + '_workoutHistory');
+      if (!raw && profileId === currentId()) raw = localStorage.getItem('workoutHistory');
+      (JSON.parse(raw || '[]') || []).forEach(function (w) {
+        var t = w && w.date ? Date.parse(w.date) : (w && w.id ? w.id : 0);
+        if (t >= debut) { seances++; jours[new Date(t).toDateString()] = true; }
+      });
+    } catch (e) {}
+    return { seances: seances, joursActifs: Object.keys(jours).length };
+  }
+
   // Membres liés qui « traînent », triés du plus inactif au moins.
   function membersNeedingNudge() {
     var out = [];
@@ -229,18 +249,59 @@
   }
 
   // Message d'encouragement adapté à la relation (local, pas d'envoi réseau).
+  // 💜 ENCOURAGER, PAS SURVEILLER.
+  // Les relances doivent donner envie, jamais culpabiliser : « Tu n'as pas fait
+  // de séance depuis 5 jours » et « On en fait une ensemble ? » disent la même
+  // chose et produisent l'inverse. Pools élargis pour ne pas répéter le même
+  // message, et formulés comme une invitation — pas comme un rappel à l'ordre.
   function nudgeMessage(relationType, memberName) {
     var name = memberName || 'toi';
     var byRel = {
-      couple:  ['Allez, on bouge ensemble ? 💞', 'Ta séance t\'attend, ' + name + ' ! On se motive ? 💪'],
-      parent:  ['Fier de toi quand tu t\'entraînes, ' + name + ' ! On y va ? 👏', 'Montre l\'exemple, ' + name + ' — une petite séance ? 💪'],
-      enfant:  ['On compte sur toi pour bouger, ' + name + ' ! 🔥', 'On s\'entraîne en famille, ' + name + ' ? 😃'],
-      sibling: ['Hé ' + name + ', on ne va pas se laisser distancer ! 😎', 'Défi : qui bouge en premier ? 💪'],
-      autre:   ['Hé ' + name + ', ça fait un moment ! On reprend ? 💪', 'Un petit entraînement, ' + name + ' ? 🔥']
+      couple: [
+        'On en fait une ensemble, ' + name + ' ? 💞',
+        'Je pense à toi ❤️',
+        'Qui commence en premier ? 😎',
+        'On lâche rien 🔥',
+        'Même 10 minutes, ça compte 💪',
+        'Ta séance quand tu veux — je suis là 💜'
+      ],
+      parent: [
+        'Fier de toi, ' + name + ' 👏',
+        'On bouge ensemble aujourd\'hui ? 💪',
+        'Prends ton temps, mais reviens quand tu peux ❤️',
+        'Une petite séance à deux, ça te dit ? 😊',
+        'Je pense à toi 💜',
+        'Chaque pas compte, ' + name + ' 🌱'
+      ],
+      enfant: [
+        'On s\'entraîne ensemble, ' + name + ' ? 😃',
+        'Prêt pour une mission ? 🎮',
+        'On bouge un peu aujourd\'hui ? 🔥',
+        'T\'es capable, je le sais 💪',
+        'Qui commence en premier ? 😎',
+        'On fait un jeu à deux ? 🎯'
+      ],
+      sibling: [
+        'Qui commence en premier ? 😎',
+        'On lâche rien 🔥',
+        'Une séance ensemble, ' + name + ' ? 💪',
+        'Je pense à toi 👊',
+        'On se motive mutuellement ? ⚡',
+        'Même petite, une séance reste une séance 💪'
+      ],
+      autre: [
+        'On en fait une ensemble ? 💪',
+        'Je pense à toi 💜',
+        'Ça te dit de bouger un peu ? 🔥',
+        'Quand tu veux — je suis là 😊',
+        'Même 10 minutes, ça compte ⚡',
+        'On lâche rien 🌟'
+      ]
     };
     var pool = byRel[relationType] || byRel.autre;
     return pool[Math.floor(Math.random() * pool.length)];
   }
+
 
   window.AwakFamily = {
     REL_TYPES: REL_TYPES,
@@ -250,6 +311,7 @@
     relationOf: relationOf,
     myRelations: myRelations,
     memberStatus: memberStatus,
+    memberWeekStats: memberWeekStats,
     membersNeedingNudge: membersNeedingNudge,
     nudgeMessage: nudgeMessage,
     linkableProfiles: linkableProfiles,
@@ -280,6 +342,16 @@
         + '<div style="flex:1;min-width:0;">'
         +   '<div style="font-size:0.92em;font-weight:800;color:#fff;">' + esc(r.member.name) + '</div>'
         +   '<div style="font-size:0.74em;color:#ec4899;font-weight:600;">' + r.relation.emoji + ' ' + esc(r.relation.label) + '</div>'
+        +   (function () {
+              // 📊 Trois chiffres pour donner une identité au membre — sans classement.
+              var ws = memberWeekStats(r.member.id);
+              if (!ws.seances) return '<div style="font-size:0.68em;color:#64748b;margin-top:2px;">Pas encore de séance cette semaine</div>';
+              return '<div style="font-size:0.68em;color:#94a3b8;margin-top:2px;">'
+                + '🏋️ ' + ws.seances + ' séance' + (ws.seances > 1 ? 's' : '')
+                + '<span style="color:#475569;"> · </span>'
+                + '🔥 ' + ws.joursActifs + ' jour' + (ws.joursActifs > 1 ? 's' : '')
+                + '</div>';
+            })()
         + '</div>'
         + '<button onclick="AwakFamilyEdit(\'' + r.member.id + '\')" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;border-radius:9px;padding:6px 11px;font-size:0.72em;font-weight:700;cursor:pointer;">Modifier</button>'
         + '</div>';
@@ -289,6 +361,46 @@
       rows = '<div style="font-size:0.78em;color:#64748b;text-align:center;padding:14px 0;">Aucun lien pour l\'instant. Ajoute un membre de ta famille ci-dessous.</div>';
     }
 
+
+    // 📊 RÉCAP HEBDO — vue d'ensemble immédiate de l'état de la famille.
+    // Sans ça, on voit la liste des membres mais aucune idée de la dynamique
+    // collective : qui bouge, combien de séances, où en est l'objectif.
+    var recap = '';
+    try {
+      var _debut = Date.now() - 7 * 24 * 60 * 60 * 1000;
+      var _ids = mine.map(function (r) { return r.member.id; });
+      _ids.push(me);
+      var _seances = 0, _joursActifs = {};
+      _ids.forEach(function (pid) {
+        var h = [];
+        try {
+          var raw = localStorage.getItem('profile_' + pid + '_workoutHistory');
+          if (!raw && pid === me) raw = localStorage.getItem('workoutHistory');
+          h = raw ? JSON.parse(raw) : [];
+        } catch (e) { h = []; }
+        (h || []).forEach(function (w) {
+          var t = w && w.date ? Date.parse(w.date) : (w && w.id ? w.id : 0);
+          if (t >= _debut) {
+            _seances++;
+            _joursActifs[new Date(t).toDateString()] = true;
+          }
+        });
+      });
+      var _pct = null;
+      try {
+        if (window.AwakFamilyGoal && typeof window.AwakFamilyGoal.status === 'function') {
+          var _st = window.AwakFamilyGoal.status();
+          if (_st && typeof _st.pct === 'number') _pct = Math.round(_st.pct);
+        }
+      } catch (e) {}
+      var _bits = ['🏋️ ' + _seances + ' séance' + (_seances > 1 ? 's' : ''),
+                   '🔥 ' + Object.keys(_joursActifs).length + ' jour' + (Object.keys(_joursActifs).length > 1 ? 's' : '') + ' actif' + (Object.keys(_joursActifs).length > 1 ? 's' : '')];
+      if (_pct !== null) _bits.push('🎯 ' + _pct + ' % de l\'objectif');
+      recap = '<div style="background:rgba(236,72,153,0.06);border:1px solid rgba(236,72,153,0.16);border-radius:12px;padding:9px 12px;margin-bottom:12px;">'
+        + '<div style="font-size:0.6em;color:#ec4899;font-weight:800;letter-spacing:1px;margin-bottom:4px;">CETTE SEMAINE</div>'
+        + '<div style="font-size:0.78em;color:#e2e8f0;">' + _bits.join('<span style="color:#475569;"> · </span>') + '</div>'
+        + '</div>';
+    } catch (e) { recap = ''; }
 
     // Boutons d'ajout pour les profils encore liables
     var addBlock = '';
@@ -308,6 +420,7 @@
       +   '<div><div style="font-size:0.62em;font-weight:800;letter-spacing:0.5px;color:#ec4899;">MA FAMILLE</div>'
       +   '<div style="font-size:1.02em;font-weight:900;color:#fff;">Membres liés</div></div>'
       + '</div>'
+      + recap
       + rows
       + addBlock
       + '</div>';
@@ -376,18 +489,23 @@
       return '<div style="background:linear-gradient(160deg,#0f1a12,#0d0d12);border:1px solid rgba(34,197,94,0.25);border-radius:18px;padding:16px;margin-bottom:14px;">'
         + '<div style="display:flex;align-items:center;gap:9px;">'
         +   '<span style="font-size:1.5em;">🌟</span>'
-        +   '<div><div style="font-size:0.9em;font-weight:800;color:#4ade80;">Toute la famille est active !</div>'
-        +   '<div style="font-size:0.74em;color:#94a3b8;">Chacun s\'est entraîné récemment. Continuez comme ça !</div></div>'
+        +   '<div><div style="font-size:0.9em;font-weight:800;color:#4ade80;">Famille en mouvement 🌟</div>'
+        +   '<div style="font-size:0.74em;color:#94a3b8;">Tout le monde a bougé récemment. Beau travail à tous.</div></div>'
         + '</div></div>';
     }
 
     var rows = list.map(function (x) {
       var st = x.status;
-      var color = st.level === 'inactive' || st.level === 'never' ? '#ef4444' : '#f59e0b';
+      // 🎨 Pas de ROUGE : un membre qui n'a pas bougé n'est pas en faute. Le rouge
+      // est une couleur d'alerte, elle transforme une invitation en reproche.
+      var color = st.level === 'inactive' || st.level === 'never' ? '#a78bfa' : '#f59e0b';
+      // 📝 Formulations tournées vers l'action à venir, pas vers le manquement passé.
       var when;
-      if (st.level === 'never') when = 'Aucune séance enregistrée';
-      else if (st.days === 0) when = 'Pas encore aujourd\'hui';
-      else when = 'Dernière séance il y a ' + st.days + ' j';
+      if (st.level === 'never') when = 'Sa première séance l\'attend';
+      else if (st.days === 0) when = 'Pas encore bougé aujourd\'hui';
+      else if (st.days === 1) when = 'A bougé hier';
+      else if (st.days <= 6) when = 'N\'a pas encore bougé cette semaine';
+      else when = 'Ça fait un moment — un petit mot ?';
       return '<div style="display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.05);">'
         + '<div style="flex-shrink:0;position:relative;">' + _av(x.member.avatar, 32)
         +   '<span style="position:absolute;bottom:-2px;right:-2px;width:11px;height:11px;border-radius:50%;background:' + color + ';border:2px solid #0d0d12;"></span>'
@@ -403,7 +521,7 @@
     return '<div style="background:linear-gradient(160deg,#1a1018,#0d0d12);border:1px solid rgba(245,158,11,0.25);border-radius:18px;padding:18px;margin-bottom:14px;">'
       + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">'
       +   '<span style="font-size:1.4em;">🔔</span>'
-      +   '<div><div style="font-size:0.62em;font-weight:800;letter-spacing:0.5px;color:#f59e0b;">RAPPELS</div>'
+      +   '<div><div style="font-size:0.62em;font-weight:800;letter-spacing:0.5px;color:#f59e0b;">ENCOURAGEMENTS</div>'
       +   '<div style="font-size:1em;font-weight:900;color:#fff;">Ils ont besoin d\'un coup de pouce</div></div>'
       + '</div>'
       + rows

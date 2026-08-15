@@ -206,6 +206,121 @@
     return true;
   }
 
+
+  // ══════════════════════════════════════════════════════════════════
+  // 🤝 DÉFIS COOPÉRATIFS — « nous contre l'objectif »
+  // ------------------------------------------------------------------
+  // Les défis existants sont tous « moi contre toi ». Or le mot famille
+  // appelle l'inverse : un but commun où la réussite de l'un profite à
+  // tous. C'est aussi cohérent avec le thème du jeu — porter ensemble
+  // plutôt que seul — et bien plus adapté quand un enfant participe.
+  // Les défis compétitifs restent disponibles, ils ne sont pas remplacés.
+  // ══════════════════════════════════════════════════════════════════
+  var COOP_KEY = 'awakFamilyCoop';
+  var COOP_TYPES = {
+    coop_sessions: {
+      label: 'Séances en équipe',
+      emoji: '🤝',
+      desc: 'Cumuler des séances tous ensemble cette semaine.',
+      unit: 'séances',
+      paliers: [10, 20, 35],
+      metric: function () { return 1; }
+    },
+    coop_minutes: {
+      label: 'Minutes cumulées',
+      emoji: '⏱️',
+      desc: 'Additionner votre temps d\'entraînement à tous.',
+      unit: 'min',
+      paliers: [150, 300, 500],
+      metric: function (e) { return Math.max(0, e.duration || 0); }
+    },
+    coop_chacun: {
+      label: 'Tout le monde participe',
+      emoji: '🌟',
+      desc: 'Chaque membre fait au moins 2 séances cette semaine.',
+      unit: 'membres',
+      paliers: [0],
+      metric: function () { return 1; }
+    }
+  };
+
+  function coopLoad() {
+    try { return JSON.parse(localStorage.getItem(COOP_KEY) || 'null'); }
+    catch (e) { return null; }
+  }
+  function coopSave(o) {
+    try {
+      if (o) localStorage.setItem(COOP_KEY, JSON.stringify(o));
+      else localStorage.removeItem(COOP_KEY);
+    } catch (e) {}
+  }
+
+  // Crée un défi coopératif de 7 jours (un seul à la fois).
+  function coopCreate(type, cible) {
+    var d = COOP_TYPES[type];
+    if (!d) return false;
+    var now = Date.now();
+    coopSave({
+      type: type,
+      cible: cible || d.paliers[0],
+      startsAt: now,
+      endsAt: now + DURATION_DAYS * 86400000
+    });
+    return true;
+  }
+  function coopCancel() { coopSave(null); }
+
+  // Progression : contribution de CHAQUE membre, additionnée.
+  function coopStatus() {
+    var c = coopLoad();
+    if (!c) return null;
+    var d = COOP_TYPES[c.type];
+    if (!d) return null;
+    var expire = Date.now() > c.endsAt;
+
+    var perMember = [], total = 0, participants = 0;
+    (window.getAllProfiles ? window.getAllProfiles() : []).forEach(function (p) {
+      var v = 0, seances = 0;
+      var hist = [];
+      try {
+        // Clé réelle : « profile_<id>_workoutHistory » ; le profil ACTIF utilise
+        // « workoutHistory ». Sans ce repli, sa contribution serait invisible.
+        var raw = localStorage.getItem('profile_' + p.id + '_workoutHistory');
+        if (!raw && typeof _currentId === 'function' && p.id === _currentId()) {
+          raw = localStorage.getItem('workoutHistory');
+        }
+        hist = JSON.parse(raw || '[]') || [];
+      } catch (e) { hist = []; }
+      hist.forEach(function (e) {
+        var t = e && e.date ? Date.parse(e.date) : (e && e.id ? e.id : 0);
+        if (t >= c.startsAt && t <= c.endsAt) { v += d.metric(e); seances++; }
+      });
+      if (seances > 0) {
+        perMember.push({ id: p.id, name: p.name || 'Membre', avatar: p.avatar || '🙂', value: v, seances: seances });
+        if (seances >= 2) participants++;
+      }
+      total += v;
+    });
+    perMember.sort(function (a, b) { return b.value - a.value; });
+
+    // « Tout le monde participe » se juge au nombre de membres à ≥2 séances
+    var atteint, pct;
+    if (c.type === 'coop_chacun') {
+      var nb = (window.getAllProfiles ? window.getAllProfiles() : []).length;
+      atteint = nb > 0 && participants >= nb;
+      pct = nb > 0 ? Math.min(100, Math.round(participants / nb * 100)) : 0;
+      total = participants;
+    } else {
+      atteint = total >= c.cible;
+      pct = c.cible > 0 ? Math.min(100, Math.round(total / c.cible * 100)) : 0;
+    }
+    return {
+      type: c.type, def: d, cible: c.cible, total: total, pct: pct,
+      atteint: atteint, expire: expire, perMember: perMember,
+      daysLeft: Math.max(0, Math.ceil((c.endsAt - Date.now()) / 86400000))
+    };
+  }
+
   function cancel(challengeId) {
     var list = load().filter(function (c) { return c.id !== challengeId; });
     save(list);
@@ -266,6 +381,10 @@
   }
 
   window.AwakFamilyChallenge = {
+    COOP_TYPES: COOP_TYPES,
+    coopCreate: coopCreate,
+    coopCancel: coopCancel,
+    coopStatus: coopStatus,
     CH_TYPES: CH_TYPES,
     OFFERABLE: OFFERABLE,
     DURATION_DAYS: DURATION_DAYS,
@@ -419,4 +538,78 @@
   window.AwakChallengeCloseModal = _closeModal;
 
   window.AwakFamilyChallenge.renderCard = renderCard;
+
+  // ── Carte « Défi d'équipe » (coopératif) ──────────────────────────
+  function renderCoopCard() {
+    var profils = (window.getAllProfiles ? window.getAllProfiles() : []);
+    if (profils.length < 2) return '';
+    var st = coopStatus();
+
+    if (!st) {
+      // Aucun défi en cours → proposer les 3 formules
+      var tuiles = Object.keys(COOP_TYPES).map(function (k) {
+        var d = COOP_TYPES[k];
+        var cible = d.paliers[0];
+        var arg = (k === 'coop_chacun') ? '0' : String(cible);
+        return '<button onclick="AwakCoopStart(\'' + k + '\',' + arg + ')" '
+          + 'style="flex:1;min-width:0;padding:11px 8px;border-radius:12px;cursor:pointer;'
+          + 'background:rgba(34,211,238,0.06);border:1px solid rgba(34,211,238,0.22);color:#e2e8f0;text-align:center;">'
+          + '<div style="font-size:1.3em;line-height:1;margin-bottom:4px;">' + d.emoji + '</div>'
+          + '<div style="font-size:0.68em;font-weight:800;">' + esc(d.label) + '</div>'
+          + '<div style="font-size:0.6em;color:#94a3b8;margin-top:2px;">'
+          + (k === 'coop_chacun' ? '2 séances chacun' : cible + ' ' + d.unit) + '</div>'
+          + '</button>';
+      }).join('');
+      return '<div style="background:linear-gradient(160deg,#0a1620,#0d0d12);border:1px solid rgba(34,211,238,0.22);border-radius:18px;padding:15px;margin-bottom:14px;">'
+        + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:5px;">'
+        +   '<span style="font-size:1.5em;">🤝</span>'
+        +   '<div><div style="font-size:0.62em;font-weight:800;letter-spacing:0.5px;color:#22d3ee;">DÉFI D\'ÉQUIPE</div>'
+        +   '<div style="font-size:1.02em;font-weight:900;color:#fff;">Nous contre l\'objectif</div></div>'
+        + '</div>'
+        + '<div style="font-size:0.74em;color:#94a3b8;margin-bottom:12px;line-height:1.45;">Pas de gagnant, pas de perdant : vos efforts s\'additionnent. 7 jours.</div>'
+        + '<div style="display:flex;gap:7px;">' + tuiles + '</div>'
+        + '</div>';
+    }
+
+    // Défi en cours
+    var d = st.def;
+    var barre = '<div style="height:9px;background:rgba(255,255,255,0.07);border-radius:99px;overflow:hidden;margin:9px 0 7px;">'
+      + '<div style="height:100%;width:' + st.pct + '%;background:linear-gradient(90deg,#22d3ee,#4ade80);border-radius:99px;"></div></div>';
+    var membres = st.perMember.map(function (m) {
+      return '<div style="display:flex;align-items:center;gap:7px;font-size:0.74em;color:#cbd5e1;padding:3px 0;">'
+        + '<span>' + esc(m.avatar) + '</span><span style="flex:1;">' + esc(m.name) + '</span>'
+        + '<span style="color:#22d3ee;font-weight:800;">' + m.value + ' ' + esc(d.unit) + '</span></div>';
+    }).join('') || '<div style="font-size:0.72em;color:#64748b;">Aucune contribution pour l\'instant.</div>';
+
+    var entete = st.atteint
+      ? '<div style="font-size:0.92em;font-weight:900;color:#4ade80;">🎉 Objectif atteint — ensemble !</div>'
+      : '<div style="font-size:1.02em;font-weight:900;color:#fff;">' + esc(d.label) + '</div>';
+
+    return '<div style="background:linear-gradient(160deg,#0a1620,#0d0d12);border:1px solid rgba(34,211,238,' + (st.atteint ? '0.45' : '0.22') + ');border-radius:18px;padding:15px;margin-bottom:14px;">'
+      + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">'
+      +   '<span style="font-size:1.5em;">' + d.emoji + '</span>'
+      +   '<div style="flex:1;min-width:0;"><div style="font-size:0.62em;font-weight:800;letter-spacing:0.5px;color:#22d3ee;">DÉFI D\'ÉQUIPE</div>' + entete + '</div>'
+      +   '<button onclick="AwakCoopStop()" style="background:transparent;border:none;color:#64748b;font-size:1.1em;cursor:pointer;padding:4px 6px;">×</button>'
+      + '</div>'
+      + '<div style="font-size:0.74em;color:#94a3b8;">' + esc(d.desc) + '</div>'
+      + barre
+      + '<div style="display:flex;justify-content:space-between;font-size:0.72em;color:#94a3b8;margin-bottom:9px;">'
+      +   '<span><strong style="color:#e2e8f0;">' + st.total + '</strong>'
+      +   (st.type === 'coop_chacun' ? ' / ' + profils.length + ' membres' : ' / ' + st.cible + ' ' + esc(d.unit)) + '</span>'
+      +   '<span>' + st.pct + ' % · ' + st.daysLeft + ' j restants</span>'
+      + '</div>'
+      + membres
+      + '</div>';
+  }
+  window.AwakFamilyChallenge.renderCoopCard = renderCoopCard;
+  window.AwakCoopStart = function (type, cible) {
+    coopCreate(type, cible || undefined);
+    try { if (typeof renderAdventure === 'function') renderAdventure(); } catch (e) {}
+    try { if (typeof switchTab === 'function') switchTab('family'); } catch (e) {}
+  };
+  window.AwakCoopStop = function () {
+    coopCancel();
+    try { if (typeof renderAdventure === 'function') renderAdventure(); } catch (e) {}
+  };
+
 })();

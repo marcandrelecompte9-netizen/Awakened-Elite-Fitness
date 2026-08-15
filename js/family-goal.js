@@ -122,6 +122,45 @@
 
   function cancel() { _save(null); }
 
+
+  // ══════════════════════════════════════════════════════════════════
+  // 🏅 TITRES FAMILIAUX — la raison d'aller au bout
+  // ------------------------------------------------------------------
+  // Un objectif atteint ne laissait aucune trace : rien ne distinguait la
+  // famille qui en a terminé 10 de celle qui n'en a jamais fini un.
+  // On compte les objectifs accomplis (à vie) et on débloque des titres.
+  // UN SEUL type de récompense volontairement : un titre, affiché sur la
+  // carte. Pas de badges/cadres/monnaie parallèle tant qu'on ne sait pas
+  // si les familles vont réellement au bout.
+  // ══════════════════════════════════════════════════════════════════
+  var DONE_KEY = 'awakFamilyGoalsDone';
+  var TITRES = [
+    { seuil: 1,  nom: 'Premier Élan',      emoji: '🌱' },
+    { seuil: 3,  nom: 'Famille Éveillée',  emoji: '✨' },
+    { seuil: 10, nom: 'Ancrage Commun',    emoji: '⚓' },
+    { seuil: 25, nom: 'Force Collective',  emoji: '🔥' },
+    { seuil: 50, nom: 'Lignée Inébranlable', emoji: '👑' }
+  ];
+  function goalsDone() {
+    try { return parseInt(localStorage.getItem(DONE_KEY) || '0', 10) || 0; }
+    catch (e) { return 0; }
+  }
+  function incrementGoalsDone() {
+    var n = goalsDone() + 1;
+    try { localStorage.setItem(DONE_KEY, String(n)); } catch (e) {}
+    return n;
+  }
+  // Titre actuel (le plus haut atteint) et le prochain à viser.
+  function familyTitle() {
+    var n = goalsDone();
+    var actuel = null, suivant = null;
+    TITRES.forEach(function (t) {
+      if (n >= t.seuil) actuel = t;
+      else if (!suivant) suivant = t;
+    });
+    return { done: n, actuel: actuel, suivant: suivant };
+  }
+
   // État complet de l'objectif : total, par membre, %, jours restants.
   function status() {
     var g = _load();
@@ -144,12 +183,16 @@
     var reached = total >= g.target;
 
     // Marquer l'atteinte (pour célébration ponctuelle)
-    if (reached && !g.celebrated) { g.celebrated = true; _save(g); }
+    if (reached && !g.celebrated) {
+      g.celebrated = true; _save(g);
+      incrementGoalsDone();   // compte à vie → titres familiaux
+    }
 
     return {
       type: g.type, def: def, target: g.target,
       total: total, pct: pct, reached: reached,
       daysLeft: daysLeft, perMember: perMember,
+      titre: familyTitle(),
       expired: Date.now() > g.endsAt
     };
   }
@@ -213,6 +256,14 @@
         + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">'
         +   '<span style="font-size:1.6em;">🎯</span>'
         +   '<div style="font-size:1.05em;font-weight:900;color:#fff;">Objectif commun</div>'
+      +   (function () {
+            // 🏅 Titre familial : la trace laissée par les objectifs accomplis.
+            var t = familyTitle();
+            if (!t.actuel && !t.done) return '';
+            if (!t.actuel) return '';
+            return '<div style="font-size:0.68em;color:#fbbf24;font-weight:800;margin-top:2px;">'
+              + t.actuel.emoji + ' ' + t.actuel.nom + '</div>';
+          })()
         + '</div>'
         + '<p style="font-size:0.82em;color:#94a3b8;line-height:1.5;margin:0 0 14px;">Fixez un but à atteindre <b style="color:#4ade80;">ensemble</b> — chaque séance de chacun fait avancer toute la famille.</p>'
         + '<button onclick="AwakFamilyGoalOpen()" style="width:100%;padding:12px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-weight:800;font-size:0.9em;">🎯 Créer un objectif commun</button>'
@@ -230,6 +281,22 @@
         + '<span style="font-size:0.82em;color:#94a3b8;">' + _fmt(_dispVal(st.type, m.value)) + _dispUnit(st.type, def) + ' · ' + share + '%</span>'
         + '</div>';
     }).join('') || '<div style="font-size:0.78em;color:#64748b;padding:6px 0;">Aucune contribution pour l\'instant — lancez-vous !</div>';
+
+    // 🏅 Prochain titre : donne une raison d'aller au bout, au-delà de la barre.
+    var titreBloc = '';
+    try {
+      var _t = familyTitle();
+      if (_t.suivant) {
+        var reste = _t.suivant.seuil - _t.done;
+        titreBloc = '<div style="margin-top:10px;padding-top:9px;border-top:1px solid rgba(255,255,255,0.06);font-size:0.7em;color:#94a3b8;">'
+          + '<span style="color:#fbbf24;">' + _t.suivant.emoji + ' ' + esc(_t.suivant.nom) + '</span>'
+          + ' — encore ' + reste + ' objectif' + (reste > 1 ? 's' : '') + ' accompli' + (reste > 1 ? 's' : '')
+          + '</div>';
+      } else if (_t.actuel) {
+        titreBloc = '<div style="margin-top:10px;padding-top:9px;border-top:1px solid rgba(255,255,255,0.06);font-size:0.7em;color:#fbbf24;">'
+          + _t.actuel.emoji + ' ' + esc(_t.actuel.nom) + ' — titre le plus haut atteint</div>';
+      }
+    } catch (e) {}
 
     var head = st.reached
       ? '<div style="text-align:center;padding:6px 0 12px;"><div style="font-size:2em;">🎉</div><div style="font-size:0.95em;font-weight:900;color:#fbbf24;">Objectif atteint, bravo à toute la famille !</div></div>'
@@ -253,13 +320,17 @@
       + '<div style="text-align:right;font-size:0.78em;font-weight:800;color:' + barColor + ';margin-bottom:14px;">' + st.pct + '%</div>'
       + '<div style="font-size:0.72em;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Contributions</div>'
       + members
+      + titreBloc
       + '</div>';
   }
   window.AwakFamilyGoal.renderCard = renderCard;
 
   // Modale de création
   window.AwakFamilyGoalOpen = function () {
-    var typeButtons = Object.keys(GOAL_TYPES).map(function (k) {
+    var typeButtons = Object.keys(GOAL_TYPES).filter(function (k) {
+      // Ne pas proposer « poids soulevé » si un enfant est dans la famille.
+      return !(k === 'volume' && _familleAvecEnfant());
+    }).map(function (k) {
       var d = GOAL_TYPES[k];
       return '<button onclick="AwakFamilyGoalPick(\'' + k + '\')" data-goaltype="' + k + '" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 6px;border-radius:12px;cursor:pointer;border:2px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);color:#fff;">'
         + '<span style="font-size:1.5em;">' + d.emoji + '</span>'
@@ -281,9 +352,33 @@
     document.body.appendChild(overlay);
   };
 
+  // 🧒 SÉCURITÉ ENFANT — cohérente avec les défis (family-challenge.js) :
+  // aucun objectif de « poids soulevé » si un enfant fait partie de la famille.
+  // On n'incite pas un enfant à soulever lourd, ni ses proches à le pousser à
+  // contribuer en volume. Les autres objectifs (séances, minutes, exercices)
+  // restent disponibles pour tout le monde.
+  function _familleAvecEnfant() {
+    try {
+      if (!window.AwakYouth) return false;
+      if (typeof window.AwakYouth.isChild === 'function' && window.AwakYouth.isChild()) return true;
+      if (typeof window.AwakYouth.isChildProfile === 'function') {
+        return _allProfiles().some(function (p) { return window.AwakYouth.isChildProfile(p.id); });
+      }
+    } catch (e) {}
+    return false;
+  }
+
   window.AwakFamilyGoalPick = function (type) {
     var d = GOAL_TYPES[type];
     if (!d) return;
+    if (type === 'volume' && _familleAvecEnfant()) {
+      try {
+        if (typeof showToast === 'function') {
+          showToast('Objectif indisponible : un enfant fait partie de la famille. Choisis plutôt les séances, les minutes ou les exercices.', 'info', 5000);
+        }
+      } catch (e) {}
+      return;
+    }
     // surligner le type choisi
     var grid = document.getElementById('goalTypeGrid');
     if (grid) Array.prototype.forEach.call(grid.children, function (b) {

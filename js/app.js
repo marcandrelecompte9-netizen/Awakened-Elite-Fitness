@@ -10929,6 +10929,8 @@
             if (selectedExercises.length < targetExerciseCount) {
                 _completerVarie(selectedExercises, availableExercises, targetExerciseCount);
             }
+            // Polyarticulaires d'abord, isolation ensuite
+            selectedExercises = _ordonnerPolyPuisIso(selectedExercises);
             
             // Limiter au nombre cible
             selectedExercises = selectedExercises.slice(0, targetExerciseCount);
@@ -11850,6 +11852,7 @@
             if (selectedExercises.length < targetCount) {
                 _completerVarie(selectedExercises, exercisePool, targetCount);
             }
+            selectedExercises = _ordonnerPolyPuisIso(selectedExercises);
             
             // ✅ EXPERT SYSTEM : Prévenir sur-sollicitation
             selectedExercises = preventOverload(selectedExercises, 3);
@@ -14759,7 +14762,7 @@
             // preserveAspectRatio="none" : l'image occupe EXACTEMENT le viewBox,
             // donc le repère de l'image et celui des zones sont identiques.
             // (Les proportions sont conservées : 784/1168 ≈ 200/298, écart < 0,2 %.)
-            return '<image href="' + img + '?v=812" x="0" y="0" width="200" height="298" '
+            return '<image href="' + img + '?v=829" x="0" y="0" width="200" height="298" '
                  + 'preserveAspectRatio="none" style="pointer-events:none;"/>';
         }
 
@@ -23027,6 +23030,23 @@
             return selection;
         }
 
+        // 🏋️ ORDRE DES EXERCICES — principe universel en musculation :
+        // les POLYARTICULAIRES d'abord (squat, développé, tractions…), l'ISOLATION
+        // ensuite (curl, élévations latérales…). Raison : les mouvements composés
+        // demandent le plus de coordination et de charge, ils doivent bénéficier
+        // de la fraîcheur nerveuse. Faire un curl avant un développé gâche la
+        // séance et augmente le risque technique.
+        function _estPolyarticulaire(ex) {
+            if (!ex) return false;
+            return (ex.secondaryMuscles || []).filter(s => (s.ratio || 0) >= 0.3).length >= 1;
+        }
+        function _ordonnerPolyPuisIso(liste) {
+            if (!Array.isArray(liste) || liste.length < 2) return liste;
+            const poly = [], iso = [];
+            liste.forEach(function (e) { (_estPolyarticulaire(e) ? poly : iso).push(e); });
+            return poly.concat(iso);
+        }
+
         function getFatiguedMuscles() {
             const statuses = getAllMusclesRecoveryStatus();
             return Object.keys(statuses).filter(muscle => 
@@ -23746,7 +23766,11 @@
             // par-dessus et la question n'apparaissait qu'APRÈS le GO.
             // gate() marque déjà la question comme posée → pas de boucle au rappel.
             try {
-                if (currentExerciseIndex === 0 && window.AwakMoodPreWorkout
+                // 🐛 Pas de check-in d'humeur dans une FAILLE ni une CHASSE : le joueur
+                // vient d'entrer en combat, on ne l'interrompt pas pour lui demander
+                // comment il se sent. La question reste posée sur les séances normales.
+                const _combat = currentWorkout && (currentWorkout._isRift || currentWorkout._isHunt);
+                if (!_combat && currentExerciseIndex === 0 && window.AwakMoodPreWorkout
                     && window.AwakMoodPreWorkout.shouldAsk && window.AwakMoodPreWorkout.shouldAsk()) {
                     window.AwakMoodPreWorkout.gate(function () { startExercise(); });
                     return;
@@ -24000,6 +24024,15 @@
             })();
 
             // AFFICHER LE MUSCLE SOLLICITÉ
+            // ⚔️ Barre de vie du Monarque : (re)dessinée à chaque exercice du combat
+            // final, retirée partout ailleurs.
+            try {
+                if (currentWorkout && currentWorkout._isFinalBoss && typeof _renderBossHpBar === 'function') {
+                    _renderBossHpBar(currentWorkout);
+                } else {
+                    document.getElementById('awakBossHpBar')?.remove();
+                }
+            } catch (e) {}
             const swapBtn = document.getElementById('swapBtn');
             if (swapBtn) {
                 swapBtn.style.display = (!exercise.isRest && !exercise.isInfo) ? 'flex' : 'none';
@@ -25862,9 +25895,57 @@
             } catch(e) {}
         }
 
+        // ⚔️ Barre de vie du Monarque, affichée en haut de l'écran d'exercice
+        // pendant tout le combat final. Sans elle, le joueur ne voit pas qu'il
+        // inflige des dégâts — le combat ressemblait à une séance ordinaire.
+        function _renderBossHpBar(workout) {
+            if (!workout || !workout._isFinalBoss) return;
+            let bar = document.getElementById('awakBossHpBar');
+            const host = document.getElementById('exerciseView');
+            if (!host) return;
+            if (!bar) {
+                bar = document.createElement('div');
+                bar.id = 'awakBossHpBar';
+                bar.style.cssText = 'margin:0 0 12px;padding:10px 13px;border-radius:14px;'
+                    + 'background:linear-gradient(135deg,rgba(220,38,38,0.12),rgba(127,29,29,0.06));'
+                    + 'border:1px solid rgba(220,38,38,0.35);';
+                host.insertBefore(bar, host.firstChild);
+            }
+            const hp = Math.max(0, workout._bossHp || 0);
+            const max = workout._bossHpMax || 1;
+            const pct = Math.round((hp / max) * 100);
+            bar.innerHTML =
+                '<div style="display:flex;align-items:center;gap:9px;margin-bottom:7px;">'
+              +   '<span style="font-size:1.3em;">👑</span>'
+              +   '<div style="flex:1;min-width:0;">'
+              +     '<div style="font-size:0.6em;color:#f87171;font-weight:900;letter-spacing:1.5px;">LE MONARQUE DU DÉCLIN</div>'
+              +     '<div style="font-size:0.72em;color:#e2e8f0;font-weight:800;">' + hp.toLocaleString('fr-FR') + ' / ' + max.toLocaleString('fr-FR') + ' PV</div>'
+              +   '</div>'
+              +   '<div style="font-size:0.9em;font-weight:900;color:#f87171;">' + pct + ' %</div>'
+              + '</div>'
+              + '<div style="height:10px;background:rgba(0,0,0,0.4);border-radius:99px;overflow:hidden;">'
+              +   '<div style="height:100%;width:' + pct + '%;background:linear-gradient(90deg,#dc2626,#f87171);border-radius:99px;transition:width 0.4s;"></div>'
+              + '</div>';
+        }
+
         function skipExercise() {
             // 🔇 Couper la phrase en cours + timers du coach vocal de l'exercice sauté
             if (typeof stopAllSpeech === 'function') stopAllSpeech();
+            // ⚔️ COMBAT FINAL : chaque exercice terminé frappe le Monarque. Les dégâts
+            // dépendent de la stat de l'acte en cours → le build du joueur compte enfin.
+            try {
+                if (currentWorkout && currentWorkout._isFinalBoss && window.awakFrapperMonarque) {
+                    const _ex = currentWorkout.exercises[currentExerciseIndex];
+                    if (_ex && !_ex.isInfo && !_ex.isRest) {
+                        const _r = window.awakFrapperMonarque(currentWorkout, _ex);
+                        if (_r) {
+                            showToast('⚔️ −' + _r.degats + ' PV (' + _r.statLabel + ') · Monarque ' + _r.pct + ' %',
+                                      _r.vaincu ? 'success' : 'info', 2600);
+                            if (typeof _renderBossHpBar === 'function') _renderBossHpBar(currentWorkout);
+                        }
+                    }
+                }
+            } catch (e) {}
             // 📋 Grille de séries : « Suivant » valide d'abord toutes les lignes renseignées
             if (typeof _gridBulkValidate === 'function') {
                 try {
@@ -30395,7 +30476,13 @@
                 ${rifts.map(rift => {
                     let theme = RIFT_THEMES.find(t => t.id === rift.themeId);
                     if (!theme && rift.isNarrative && rift.narrativeData) {
-                        theme = { color: rift.narrativeData.color, emoji: rift.narrativeData.themeEmoji };
+                        // 🐛 Les Failles de SOUS-BOSS stockent leur icône dans
+                        // `emoji`, les Failles narratives dans `themeEmoji` :
+                        // lire un seul des deux affichait « undefined » sur la carte.
+                        theme = {
+                            color: rift.narrativeData.color || '#a855f7',
+                            emoji: rift.narrativeData.themeEmoji || rift.narrativeData.emoji || rift.emoji || '🌀'
+                        };
                     }
                     if (!theme) return '';
                     const time = awakRiftTimeRemaining(rift);
@@ -30450,8 +30537,9 @@
                 theme = {
                     id: rift.themeId,
                     name: rift.narrativeData.name,
-                    emoji: rift.narrativeData.themeEmoji,
-                    color: rift.narrativeData.color,
+                    // Même correctif : sous-boss → `emoji`, narratif → `themeEmoji`.
+                    emoji: rift.narrativeData.themeEmoji || rift.narrativeData.emoji || rift.emoji || '🌀',
+                    color: rift.narrativeData.color || '#a855f7',
                     description: rift.narrativeData.description,
                     briefing: rift.narrativeData.briefing,
                     primaryStat: rift.primaryStat,
@@ -30854,7 +30942,7 @@
             };
 
             // Tous les exos qui matchent le thème — VRAIS exercices, non isométriques, équipement dispo
-            let pool = (typeof exerciseDatabase !== 'undefined' ? exerciseDatabase : [])
+            let pool = (typeof _dbMuscu === 'function' ? _dbMuscu() : (typeof exerciseDatabase !== 'undefined' ? exerciseDatabase : []))
                 .filter(ex => theme.exerciseFilter(ex))
                 .filter(isCombatExercise)
                 .filter(isNotIsometric)
@@ -30877,7 +30965,7 @@
                     if (youthPool.length >= 2) pool = youthPool;
                     else {
                         // Repli garanti sur le poids du corps.
-                        const bw = (typeof exerciseDatabase !== 'undefined' ? exerciseDatabase : [])
+                        const bw = (typeof _dbMuscu === 'function' ? _dbMuscu() : (typeof exerciseDatabase !== 'undefined' ? exerciseDatabase : []))
                             .filter(isCombatExercise)
                             .filter(isNotIsometric)
                             .filter(bodyweightOnly);
@@ -30887,14 +30975,14 @@
             } catch(e) {}
 
             // Si le filtre thème+équipement vide le pool, on relâche le thème mais GARDE l'équipement
-            let finalPool = pool.length >= 2 ? pool : (typeof exerciseDatabase !== 'undefined' ? exerciseDatabase : [])
+            let finalPool = pool.length >= 2 ? pool : (typeof _dbMuscu === 'function' ? _dbMuscu() : (typeof exerciseDatabase !== 'undefined' ? exerciseDatabase : []))
                 .filter(isCombatExercise)
                 .filter(isNotIsometric)
                 .filter(hasEquip);
 
             // 🛡️ FALLBACK ULTIME : si toujours rien (équipement très limité), poids du corps garanti.
             if (finalPool.length < 2) {
-                finalPool = (typeof exerciseDatabase !== 'undefined' ? exerciseDatabase : [])
+                finalPool = (typeof _dbMuscu === 'function' ? _dbMuscu() : (typeof exerciseDatabase !== 'undefined' ? exerciseDatabase : []))
                     .filter(isCombatExercise)
                     .filter(isNotIsometric)
                     .filter(ex => {
@@ -31449,6 +31537,28 @@
                 () => {
                     awakActiveRiftSession = null;
                     document.getElementById('awakRiftCombatModal')?.remove();
+                    // 🐛 La session de Faille était effacée, mais PAS la séance
+                    // d'entraînement : l'écran d'exercice restait dans l'onglet
+                    // Entraîner et l'accueil proposait de « reprendre la séance ».
+                    // On termine donc proprement la séance, SANS la sauvegarder
+                    // (une Faille abandonnée ne se reprend pas : on la refait).
+                    try {
+                        currentWorkout = null;
+                        currentSupersetWorkout = null;
+                        if (typeof clearActiveWorkoutState === 'function') clearActiveWorkoutState();
+                        if (typeof stopTimer === 'function') stopTimer();
+                        if (typeof stopSessionTimer === 'function') stopSessionTimer();
+                        const _ev = document.getElementById('exerciseView');
+                        if (_ev) _ev.classList.add('hidden');
+                        const _ws = document.getElementById('workoutSelection');
+                        if (_ws) _ws.style.display = '';
+                        const _pv = document.getElementById('preparationView');
+                        if (_pv) _pv.classList.add('hidden');
+                        const _fq = document.getElementById('floatingQuitBtn');
+                        if (_fq) _fq.style.display = 'none';
+                        document.body.classList.remove('in-session', 'workout-fullscreen');
+                        if (typeof resetWorkoutInterfaceElements === 'function') resetWorkoutInterfaceElements();
+                    } catch (e) {}
                     switchTab('game');
                 },
                 null,
@@ -31610,11 +31720,7 @@
 
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
-                <!-- Fermeture EN HAUT : toujours atteignable, sans dépendre
-                     du défilement (mise en page flex non fiable sur certains WebView). -->
-                <div style="padding:14px 22px 0;">
-                    <button onclick="document.getElementById('awakRiftRewardModal').remove();awakActiveRiftSession=null;switchTab('game');" style="width:100%;background:linear-gradient(135deg,${theme.color},${theme.color}dd);border:none;color:white;border-radius:10px;padding:16px;font-weight:900;font-size:0.95em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${theme.color}40;">CONTINUER</button>
-                </div>
+
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
                     <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,${theme.color},transparent);animation:awakBlink 1.5s ease-in-out infinite;"></div>
@@ -31683,6 +31789,12 @@
                     </div>
                 </div>
 
+            
+                <!-- Bouton en BAS : le défilement de la fenêtre fonctionne,
+                     le bouton retrouve donc sa place naturelle. -->
+                <div style="padding:6px 22px calc(20px + env(safe-area-inset-bottom, 0px));">
+                    <button onclick="document.getElementById('awakRiftRewardModal').remove();awakActiveRiftSession=null;switchTab('game');" style="width:100%;background:linear-gradient(135deg,${theme.color},${theme.color}dd);border:none;color:white;border-radius:10px;padding:16px;font-weight:900;font-size:0.95em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${theme.color}40;">CONTINUER</button>
+                </div>
             </div>`;
 
             document.body.appendChild(modal);
@@ -32179,7 +32291,7 @@
          * Cardio + force mixed
          */
         function awakGetHuntExercises(monsterType, count) {
-            const pool = (typeof exerciseDatabase !== 'undefined' ? exerciseDatabase : []);
+            const pool = (typeof _dbMuscu === 'function' ? _dbMuscu() : (typeof exerciseDatabase !== 'undefined' ? exerciseDatabase : []));
 
             // Filtres exercices courts/intenses : cardio, plyo, burpees, etc.
             const huntPool = pool.filter(ex => {
@@ -32397,6 +32509,23 @@
                 () => {
                     awakActiveHuntSession = null;
                     document.getElementById('awakHuntCombatModal')?.remove();
+                    // Même correctif que pour les Failles : terminer la séance sans
+                    // la sauvegarder, sinon l'écran d'exercice reste actif.
+                    try {
+                        currentWorkout = null;
+                        currentSupersetWorkout = null;
+                        if (typeof clearActiveWorkoutState === 'function') clearActiveWorkoutState();
+                        if (typeof stopTimer === 'function') stopTimer();
+                        if (typeof stopSessionTimer === 'function') stopSessionTimer();
+                        const _ev = document.getElementById('exerciseView');
+                        if (_ev) _ev.classList.add('hidden');
+                        const _ws = document.getElementById('workoutSelection');
+                        if (_ws) _ws.style.display = '';
+                        const _fq = document.getElementById('floatingQuitBtn');
+                        if (_fq) _fq.style.display = 'none';
+                        document.body.classList.remove('in-session', 'workout-fullscreen');
+                        if (typeof resetWorkoutInterfaceElements === 'function') resetWorkoutInterfaceElements();
+                    } catch (e) {}
                     switchTab('game');
                 },
                 null,
@@ -37055,7 +37184,7 @@
                         if (imgTag) {
                             // 🏆 Victoire : illustration COMMUNE (Esen + Nyra ensemble),
                             // quel que soit le héros choisi.
-                            imgTag.src = 'images/story/victoire_duo.webp?v=812';
+                            imgTag.src = 'images/story/victoire_duo.webp?v=829';
                             imgTag.alt = 'Esen et Nyra';
                         }
                         heroImg.style.display = 'block';
