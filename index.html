@@ -11,11 +11,11 @@
     <title>Awakened Elite Fitness</title>
 
     <!-- PWA -->
-    <link rel="manifest" href="manifest.json?v=835">
-    <link rel="apple-touch-icon" href="icons/icon-192.png?v=835">
-    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=835">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=835">
-    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=835">
+    <link rel="manifest" href="manifest.json?v=840">
+    <link rel="apple-touch-icon" href="icons/icon-192.png?v=840">
+    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=840">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=840">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=840">
 
     <!-- ⚠️ CAPTURE PRÉCOCE DE L'INVITE D'INSTALLATION.
          Chrome déclenche « beforeinstallprompt » très tôt, souvent AVANT la fin
@@ -44,7 +44,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=835">
+    <link rel="stylesheet" href="css/style.css?v=840">
 </head>
 <body>
 
@@ -202,7 +202,7 @@
                 max-width: 900px;">
 
             <!-- Bannière image : ratio préservé -->
-            <img src="images/banner.png?v=835"
+            <img src="images/banner.png?v=840"
                  alt="Awakened Elite Fitness"
                  style="width:100%;height:auto;display:block;" />
 
@@ -542,6 +542,84 @@
                     </div>
                 </div>
             </div>
+            <!-- ═══ ACCORDÉON : Graphiques par exercice ═══ -->
+            <!-- 📊 Déplacé depuis « Découvrir » (v838) : c'est du SUIVI PERSONNEL,
+                 pas de la découverte. Il ouvrait la bibliothèque d'exercices, obligeant
+                 à défiler par-dessus son propre historique pour chercher un exercice. -->
+            <div class="accordion-section">
+                <div class="accordion-header" onclick="toggleSettingsAccordion(this)">
+                    <div class="accordion-title"><span>📈</span><span>Graphiques par exercice</span></div>
+                    <div class="accordion-icon">▼</div>
+                </div>
+                <div class="accordion-body">
+                    <div class="accordion-content">
+            <div class="card">
+                <h2 style="color: #16a34a; margin-bottom: 20px;">Graphiques de Progression</h2>
+
+                <div style="background: linear-gradient(135deg, rgba(34,211,238,0.08) 0%, rgba(168,85,247,0.04) 100%); padding: 18px; border-radius: 14px; margin-bottom: 20px; border-left: 3px solid #22d3ee;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div style="font-size: 2.2em;">📊</div>
+                        <div>
+                            <div style="font-weight: 800; font-size: 1.05em; color: #e2e8f0; margin-bottom: 4px;">Suivez votre évolution par exercice</div>
+                            <div style="color: #94a3b8; font-size: 0.88em;">Visualisez votre progression : poids, reps, 1RM estimé, volume total</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Exercise Selector -->
+                <div style="background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.08); padding: 16px; border-radius: 14px; margin-bottom: 20px;">
+                    <span style="display: block; font-weight: 700; margin-bottom: 10px; color: #e2e8f0;">🏋️ Choisir un exercice</span>
+                    <select id="progressGraphExercise" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); background: #0D0D0D; color: #e2e8f0; font-size: 1em;">
+                        <option value="">-- Sélectionner un exercice --</option>
+                    </select>
+                </div>
+
+                <!-- No Data Message (shown by default) -->
+                <div id="noExerciseDataMessage" style="text-align: center; padding: 40px; color: #94a3b8;">
+                    <div style="font-size: 3em; margin-bottom: 15px;">📊</div>
+                    <div style="font-size: 1.1em; margin-bottom: 10px;">Aucune donnée de progression</div>
+                    <div style="font-size: 0.9em;">Faites des workouts pour voir vos graphiques de progression !</div>
+                </div>
+
+                <!-- Graph Section (hidden initially) -->
+                <div id="exerciseGraphSection" style="display: none;">
+                    <!-- Graph Type Tabs -->
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;">
+                        <button id="graphBtn-weight" class="btn" onclick="showExerciseGraph('weight')"
+                                style="background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); flex: 1; min-width: 140px; padding: 10px; font-size: 0.9em;">
+                            ⚖️ Poids Moyen
+                        </button>
+                        <button id="graphBtn-reps" class="btn btn-secondary" onclick="showExerciseGraph('reps')"
+                                style="flex: 1; min-width: 140px; padding: 10px; font-size: 0.9em;">
+                            🔢 Reps Moyennes
+                        </button>
+                        <button id="graphBtn-1rm" class="btn btn-secondary" onclick="showExerciseGraph('1rm')"
+                                style="flex: 1; min-width: 140px; padding: 10px; font-size: 0.9em;">
+                            💪 1RM Estimé
+                        </button>
+                        <button id="graphBtn-volume" class="btn btn-secondary" onclick="showExerciseGraph('volume')"
+                                style="flex: 1; min-width: 140px; padding: 10px; font-size: 0.9em;">
+                            📊 Volume Total
+                        </button>
+                    </div>
+
+                    <!-- Graph Canvas Container -->
+                    <div style="background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.08); padding: 16px; border-radius: 14px; margin-bottom: 20px;">
+                        <div style="position: relative; height: 400px;">
+                            <canvas id="exerciseProgressChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Graph Stats -->
+                    <div id="exerciseGraphStats" style="padding: 4px; border-radius: 14px;">
+                        <!-- Stats will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- ═══ ACCORDÉON : Records & Succès ═══ -->
             <div class="accordion-section">
                 <div class="accordion-header" onclick="toggleSettingsAccordion(this)">
@@ -1829,71 +1907,7 @@
                 <button onclick="switchTab('calculators')" style="flex:1;border:none;border-radius:10px;padding:10px 6px;font-weight:800;font-size:0.78em;cursor:pointer;background:transparent;color:#94a3b8;">Calculs</button>
                 <button onclick="switchTab('challenges')" style="flex:1;border:none;border-radius:10px;padding:10px 6px;font-weight:800;font-size:0.78em;cursor:pointer;background:transparent;color:#94a3b8;">Défis</button>
             </div>
-            <div style="font-size:0.72em;color:#94a3b8;margin:0 0 14px;padding:0 4px;line-height:1.4;">Parcours la bibliothèque, calcule, relève des défis.</div>
-            <!-- Exercise Progress Graphs (STEP 2: HTML only) -->
-            <div class="card">
-                <h2 style="color: #16a34a; margin-bottom: 20px;">Graphiques de Progression</h2>
-
-                <div style="background: linear-gradient(135deg, rgba(34,211,238,0.08) 0%, rgba(168,85,247,0.04) 100%); padding: 18px; border-radius: 14px; margin-bottom: 20px; border-left: 3px solid #22d3ee;">
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <div style="font-size: 2.2em;">📊</div>
-                        <div>
-                            <div style="font-weight: 800; font-size: 1.05em; color: #e2e8f0; margin-bottom: 4px;">Suivez votre évolution par exercice</div>
-                            <div style="color: #94a3b8; font-size: 0.88em;">Visualisez votre progression : poids, reps, 1RM estimé, volume total</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Exercise Selector -->
-                <div style="background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.08); padding: 16px; border-radius: 14px; margin-bottom: 20px;">
-                    <span style="display: block; font-weight: 700; margin-bottom: 10px; color: #e2e8f0;">🏋️ Choisir un exercice</span>
-                    <select id="progressGraphExercise" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); background: #0D0D0D; color: #e2e8f0; font-size: 1em;">
-                        <option value="">-- Sélectionner un exercice --</option>
-                    </select>
-                </div>
-
-                <!-- No Data Message (shown by default) -->
-                <div id="noExerciseDataMessage" style="text-align: center; padding: 40px; color: #94a3b8;">
-                    <div style="font-size: 3em; margin-bottom: 15px;">📊</div>
-                    <div style="font-size: 1.1em; margin-bottom: 10px;">Aucune donnée de progression</div>
-                    <div style="font-size: 0.9em;">Faites des workouts pour voir vos graphiques de progression !</div>
-                </div>
-
-                <!-- Graph Section (hidden initially) -->
-                <div id="exerciseGraphSection" style="display: none;">
-                    <!-- Graph Type Tabs -->
-                    <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;">
-                        <button id="graphBtn-weight" class="btn" onclick="showExerciseGraph('weight')"
-                                style="background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); flex: 1; min-width: 140px; padding: 10px; font-size: 0.9em;">
-                            ⚖️ Poids Moyen
-                        </button>
-                        <button id="graphBtn-reps" class="btn btn-secondary" onclick="showExerciseGraph('reps')"
-                                style="flex: 1; min-width: 140px; padding: 10px; font-size: 0.9em;">
-                            🔢 Reps Moyennes
-                        </button>
-                        <button id="graphBtn-1rm" class="btn btn-secondary" onclick="showExerciseGraph('1rm')"
-                                style="flex: 1; min-width: 140px; padding: 10px; font-size: 0.9em;">
-                            💪 1RM Estimé
-                        </button>
-                        <button id="graphBtn-volume" class="btn btn-secondary" onclick="showExerciseGraph('volume')"
-                                style="flex: 1; min-width: 140px; padding: 10px; font-size: 0.9em;">
-                            📊 Volume Total
-                        </button>
-                    </div>
-
-                    <!-- Graph Canvas Container -->
-                    <div style="background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.08); padding: 16px; border-radius: 14px; margin-bottom: 20px;">
-                        <div style="position: relative; height: 400px;">
-                            <canvas id="exerciseProgressChart"></canvas>
-                        </div>
-                    </div>
-
-                    <!-- Graph Stats -->
-                    <div id="exerciseGraphStats" style="padding: 4px; border-radius: 14px;">
-                        <!-- Stats will be populated by JavaScript -->
-                    </div>
-                </div>
-            </div>
+            <div style="font-size:0.72em;color:#94a3b8;margin:0 0 14px;padding:0 4px;line-height:1.4;">Cherche un exercice, filtre par muscle ou matériel.</div>
 
             <!-- Search Bar -->
             <div class="card">
@@ -2623,7 +2637,7 @@
                 <button onclick="switchTab('calculators')" style="flex:1;border:none;border-radius:10px;padding:10px 6px;font-weight:800;font-size:0.78em;cursor:pointer;background:linear-gradient(135deg,#22c55e,#16a34a);color:white;">Calculs</button>
                 <button onclick="switchTab('challenges')" style="flex:1;border:none;border-radius:10px;padding:10px 6px;font-weight:800;font-size:0.78em;cursor:pointer;background:transparent;color:#94a3b8;">Défis</button>
             </div>
-            <div style="font-size:0.72em;color:#94a3b8;margin:0 0 14px;padding:0 4px;line-height:1.4;">Parcours la bibliothèque, calcule, relève des défis.</div>
+            <div style="font-size:0.72em;color:#94a3b8;margin:0 0 14px;padding:0 4px;line-height:1.4;">Tes outils : 1RM, plaques, RPE, rang de force mondial.</div>
         <div class="card">
             <h2 style="color: #22d3ee; margin-bottom: 30px; text-align: center;">Calculateurs Fitness</h2>
             <p style="text-align: center; color: #94a3b8; margin-bottom: 30px;">
@@ -2631,7 +2645,33 @@
             </p>
         </div>
 
-        <!-- Force Réelle / Percentiles -->
+        <!-- ══════════════════════════════════════════════════════════════
+             🧮 CALCULATEURS EN MODALES (v839)
+             Avant : 4 cartes empilées (262 lignes) qu'il fallait toutes
+             traverser en défilant — le RPE à lui seul en occupait 120 avec
+             sa documentation. Ce sont des OUTILS qu'on ouvre au besoin,
+             pas du contenu à parcourir. Grille de 4 boutons → modales.
+             ══════════════════════════════════════════════════════════════ -->
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:16px;">
+            <button onclick="awakOpenCalc('frc')" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:16px 8px;border-radius:14px;cursor:pointer;background:rgba(255,255,255,0.03);border:1px solid #a855f733;">
+                <div style="font-size:1.6em;line-height:1;">🌍</div>
+                <div style="font-size:0.66em;font-weight:800;letter-spacing:0.5px;color:#a855f7;">FORCE RÉELLE</div>
+            </button>
+            <button onclick="awakOpenCalc('1rm')" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:16px 8px;border-radius:14px;cursor:pointer;background:rgba(255,255,255,0.03);border:1px solid #22d3ee33;">
+                <div style="font-size:1.6em;line-height:1;">🧮</div>
+                <div style="font-size:0.66em;font-weight:800;letter-spacing:0.5px;color:#22d3ee;">1RM</div>
+            </button>
+            <button onclick="awakOpenCalc('plaques')" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:16px 8px;border-radius:14px;cursor:pointer;background:rgba(255,255,255,0.03);border:1px solid #f59e0b33;">
+                <div style="font-size:1.6em;line-height:1;">🏋️</div>
+                <div style="font-size:0.66em;font-weight:800;letter-spacing:0.5px;color:#f59e0b;">PLAQUES</div>
+            </button>
+            <button onclick="awakOpenCalc('rpe')" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:16px 8px;border-radius:14px;cursor:pointer;background:rgba(255,255,255,0.03);border:1px solid #4ade8033;">
+                <div style="font-size:1.6em;line-height:1;">📊</div>
+                <div style="font-size:0.66em;font-weight:800;letter-spacing:0.5px;color:#4ade80;">RPE</div>
+            </button>
+        </div>
+        <!-- Contenu des calculateurs : caché, cloné dans la modale à l'ouverture -->
+        <div id="awakCalcSrc_frc" style="display:none;">
         <div class="card">
             <h2 style="color: #22d3ee; margin-bottom: 20px;">Force Réelle — Ton Rang Mondial</h2>
             <div style="background: linear-gradient(135deg, #a855f715 0%, #a855f705 100%); padding: 16px; border-radius: 14px; margin-bottom: 20px; border-left: 4px solid #a855f7;">
@@ -2686,7 +2726,8 @@
             <div id="frcResult" style="display:none;margin-top:20px;"></div>
         </div>
 
-        <!-- 1RM Calculator -->
+        </div>
+        <div id="awakCalcSrc_1rm" style="display:none;">
         <div class="card">
             <h2 style="color: #22d3ee; margin-bottom: 20px;">Calculateur 1RM (One Rep Max)</h2>
 
@@ -2735,7 +2776,8 @@
             </div>
         </div>
 
-        <!-- Plate Calculator -->
+        </div>
+        <div id="awakCalcSrc_plaques" style="display:none;">
         <div class="card">
             <h2 style="color: #f59e0b; margin-bottom: 20px;">Calculateur de Plaques</h2>
 
@@ -2779,7 +2821,8 @@
             </div>
         </div>
 
-        <!-- RPE Calculator -->
+        </div>
+        <div id="awakCalcSrc_rpe" style="display:none;">
         <div class="card">
             <h2 style="color: #22d3ee; margin-bottom: 20px;">Calculateur RPE (Rate of Perceived Exertion)</h2>
 
@@ -2901,6 +2944,12 @@
             </div>
         </div>
 
+        </div>
+
+        <!-- Force Réelle / Percentiles -->
+        <!-- 1RM Calculator -->
+        <!-- Plate Calculator -->
+        <!-- RPE Calculator -->
     </div>
 
     <!-- Challenges Tab -->
@@ -2911,7 +2960,7 @@
                 <button onclick="switchTab('calculators')" style="flex:1;border:none;border-radius:10px;padding:10px 6px;font-weight:800;font-size:0.78em;cursor:pointer;background:transparent;color:#94a3b8;">Calculs</button>
                 <button onclick="switchTab('challenges')" style="flex:1;border:none;border-radius:10px;padding:10px 6px;font-weight:800;font-size:0.78em;cursor:pointer;background:linear-gradient(135deg,#22c55e,#16a34a);color:white;">Défis</button>
             </div>
-            <div style="font-size:0.72em;color:#94a3b8;margin:0 0 14px;padding:0 4px;line-height:1.4;">Parcours la bibliothèque, calcule, relève des défis.</div>
+            <div style="font-size:0.72em;color:#94a3b8;margin:0 0 14px;padding:0 4px;line-height:1.4;">Relève un défi sur 30 jours pour construire ta constance.</div>
         <div class="card">
             <h2 style="text-align: center; margin-bottom: 10px; color: #4ade80; font-weight: 900;">Défis Fitness</h2>
             <p style="text-align: center; color: #94a3b8; margin-bottom: 26px; font-size: 0.9em; line-height: 1.5;">
@@ -3571,38 +3620,38 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/exercises.js?v=835"></script>
-    <script src="data/items.js?v=835"></script>
-    <script src="js/adventure.js?v=835"></script>
-    <script src="js/economy.js?v=835"></script>
-    <script src="js/challenges.js?v=835"></script>
-    <script src="js/family-boss.js?v=835"></script>
-    <script src="js/family-network.js?v=835"></script>
-    <script src="js/family-challenge.js?v=835"></script>
-    <script src="js/family-goal.js?v=835"></script>
-    <script src="js/family-feed.js?v=835"></script>
-    <script src="js/pre-workout-mood.js?v=835"></script>
-    <script src="js/group-workout.js?v=835"></script>
-    <script src="js/youth-safety.js?v=835"></script>
-    <script src="js/kids-programs.js?v=835"></script>
-    <script src="js/senior-programs.js?v=835"></script>
-    <script src="js/adaptive.js?v=835"></script>
-    <script src="js/pain-mode.js?v=835"></script>
-    <script src="js/recovery-mode.js?v=835"></script>
-    <script src="js/exercise-visuals.js?v=835"></script>
-    <script src="js/strength-standards.js?v=835"></script>
-    <script src="js/system-cards.js?v=835"></script>
-    <script src="js/share-card.js?v=835"></script>
-    <script src="js/story-events.js?v=835"></script>
-    <script src="js/final-boss.js?v=835"></script>
-    <script src="js/disciplines.js?v=835"></script>
-    <script src="js/eveil.js?v=835"></script>
-    <script src="js/app.js?v=835"></script>
-    <script src="js/awakening-tree.js?v=835"></script>
-    <script src="js/ui-kit.js?v=835"></script>
-    <script src="js/feature-map.js?v=835"></script>
-    <script src="js/weekly-recap.js?v=835"></script>
-    <script src="js/workout-games.js?v=835"></script>
+    <script src="js/exercises.js?v=840"></script>
+    <script src="data/items.js?v=840"></script>
+    <script src="js/adventure.js?v=840"></script>
+    <script src="js/economy.js?v=840"></script>
+    <script src="js/challenges.js?v=840"></script>
+    <script src="js/family-boss.js?v=840"></script>
+    <script src="js/family-network.js?v=840"></script>
+    <script src="js/family-challenge.js?v=840"></script>
+    <script src="js/family-goal.js?v=840"></script>
+    <script src="js/family-feed.js?v=840"></script>
+    <script src="js/pre-workout-mood.js?v=840"></script>
+    <script src="js/group-workout.js?v=840"></script>
+    <script src="js/youth-safety.js?v=840"></script>
+    <script src="js/kids-programs.js?v=840"></script>
+    <script src="js/senior-programs.js?v=840"></script>
+    <script src="js/adaptive.js?v=840"></script>
+    <script src="js/pain-mode.js?v=840"></script>
+    <script src="js/recovery-mode.js?v=840"></script>
+    <script src="js/exercise-visuals.js?v=840"></script>
+    <script src="js/strength-standards.js?v=840"></script>
+    <script src="js/system-cards.js?v=840"></script>
+    <script src="js/share-card.js?v=840"></script>
+    <script src="js/story-events.js?v=840"></script>
+    <script src="js/final-boss.js?v=840"></script>
+    <script src="js/disciplines.js?v=840"></script>
+    <script src="js/eveil.js?v=840"></script>
+    <script src="js/app.js?v=840"></script>
+    <script src="js/awakening-tree.js?v=840"></script>
+    <script src="js/ui-kit.js?v=840"></script>
+    <script src="js/feature-map.js?v=840"></script>
+    <script src="js/weekly-recap.js?v=840"></script>
+    <script src="js/workout-games.js?v=840"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>

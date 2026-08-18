@@ -14781,7 +14781,7 @@
             // preserveAspectRatio="none" : l'image occupe EXACTEMENT le viewBox,
             // donc le repère de l'image et celui des zones sont identiques.
             // (Les proportions sont conservées : 784/1168 ≈ 200/298, écart < 0,2 %.)
-            return '<image href="' + img + '?v=835" x="0" y="0" width="200" height="298" '
+            return '<image href="' + img + '?v=840" x="0" y="0" width="200" height="298" '
                  + 'preserveAspectRatio="none" style="pointer-events:none;"/>';
         }
 
@@ -20559,7 +20559,7 @@
             const _bwEquip      = new Set(['Poids du corps','Élastique','TRX','Corde à sauter','Roue abdominale','Swiss Ball','Medicine Ball','Ballon lesté']);
             const isMachineEx    = ex => (ex.equipment || []).some(e => _machineEquip.has(e));
             const isBodyweightEx = ex => !isMachineEx(ex) && (ex.equipment || []).some(e => _bwEquip.has(e));
-            const availableExercises = _dbMuscu().filter(exercise => {
+            let availableExercises = _dbMuscu().filter(exercise => {   // let : réassigné par le filtre de cohérence matérielle
                 if (exercise.type !== 'exercise') return false;
                 // Mode Maison : exclure machines et barres lourdes
                 if (sessionMode === 'home' && isMachineEx(exercise)) return false;
@@ -20683,6 +20683,40 @@
             }
             
             // Select exercises from available filtered list
+            // 🧰 COHÉRENCE MATÉRIELLE — ce générateur ne l'appliquait PAS.
+            // Le message affiché au joueur (« le Système regroupe chaque séance
+            // autour de 1 ou 2 matériels ») était donc faux ici : on pouvait
+            // sortir 4 matériels différents dans une même séance.
+            // Même logique que l'autre générateur : 1-2 matériels dominants
+            // tirés au hasard pondéré, poids du corps toujours accepté.
+            try {
+                const _isBw = (e) => ['Poids du corps', 'Aucun'].includes(e);
+                const _eqOf = (ex) => (ex.equipment && ex.equipment.length) ? ex.equipment : ['Poids du corps'];
+                const _count = {};
+                availableExercises.forEach(ex => {
+                    _eqOf(ex).forEach(e => { if (!_isBw(e)) _count[e] = (_count[e] || 0) + 1; });
+                });
+                const _viables = Object.keys(_count).filter(e => _count[e] >= 3);
+                const _ranked = (_viables.length >= 2 ? _viables : Object.keys(_count));
+                if (_ranked.length > 1) {
+                    const _pick = function (list) {
+                        const t = list.reduce((s, e) => s + _count[e], 0);
+                        let r = Math.random() * t;
+                        for (const e of list) { r -= _count[e]; if (r <= 0) return e; }
+                        return list[list.length - 1];
+                    };
+                    const _first = _pick(_ranked);
+                    const _rest = _ranked.filter(e => e !== _first);
+                    const _keep = _rest.length ? [_first, _pick(_rest)] : [_first];
+                    const _coherent = availableExercises.filter(ex =>
+                        _eqOf(ex).every(e => _isBw(e) || _keep.includes(e)));
+                    // Garde-fou : marge de 1,5× pour que la séance reste remplissable
+                    if (_coherent.length >= Math.ceil(targetExerciseCount * 1.5)) {
+                        availableExercises = _coherent;
+                    }
+                }
+            } catch (e) {}
+
             const targetCount = Math.min(targetExerciseCount, availableExercises.length);
 
             // 🧠 Sélection intelligente : on passe par le cerveau de scoring partagé
@@ -23065,6 +23099,63 @@
             liste.forEach(function (e) { (_estPolyarticulaire(e) ? poly : iso).push(e); });
             return poly.concat(iso);
         }
+
+
+        // ══════════════════════════════════════════════════════════════
+        // 🧮 CALCULATEURS EN MODALE
+        // --------------------------------------------------------------
+        // On DÉPLACE le bloc d'origine dans la modale (pas de clone) : les
+        // calculateurs sont câblés par ID (frcExercise, oneRMWeight…). Un
+        // clone créerait des doublons d'ID et getElementById renverrait le
+        // mauvais élément — les champs saisis ne seraient plus lus.
+        // À la fermeture, le bloc regagne son conteneur caché.
+        // ══════════════════════════════════════════════════════════════
+        function awakOpenCalc(cle) {
+            const src = document.getElementById('awakCalcSrc_' + cle);
+            if (!src) return;
+            const contenu = src.firstElementChild;
+            if (!contenu) return;
+
+            const ov = document.createElement('div');
+            ov.id = 'awakCalcModal';
+            ov.style.cssText = 'position:fixed;inset:0;z-index:11000;background:rgba(0,0,0,0.92);'
+                + 'backdrop-filter:blur(10px);overflow-y:auto;padding:16px 12px;';
+
+            const wrap = document.createElement('div');
+            wrap.style.cssText = 'width:100%;max-width:480px;margin:0 auto;';
+
+            const bar = document.createElement('div');
+            bar.style.cssText = 'display:flex;justify-content:flex-end;margin-bottom:10px;';
+            const close = document.createElement('button');
+            close.textContent = '×';
+            close.style.cssText = 'background:rgba(255,255,255,0.08);border:none;color:#e2e8f0;'
+                + 'font-size:1.4em;width:38px;height:38px;border-radius:12px;cursor:pointer;';
+            close.onclick = function () { awakCloseCalc(cle); };
+            bar.appendChild(close);
+
+            contenu.setAttribute('data-calc-src', cle);   // pour le retrouver à la fermeture
+            wrap.appendChild(bar);
+            wrap.appendChild(contenu);          // DÉPLACEMENT, pas copie
+            ov.appendChild(wrap);
+            ov.onclick = function (e) { if (e.target === ov) awakCloseCalc(cle); };
+            document.body.appendChild(ov);
+        }
+        function awakCloseCalc(cle) {
+            const ov = document.getElementById('awakCalcModal');
+            const src = document.getElementById('awakCalcSrc_' + cle);
+            if (ov) {
+                // Repérage explicite : un sélecteur positionnel casserait si la
+                // structure de la modale changeait, et le contenu serait PERDU.
+                const contenu = ov.querySelector('[data-calc-src="' + cle + '"]');
+                if (contenu && src) {
+                    contenu.removeAttribute('data-calc-src');
+                    src.appendChild(contenu);
+                }
+                ov.remove();
+            }
+        }
+        window.awakOpenCalc = awakOpenCalc;
+        window.awakCloseCalc = awakCloseCalc;
 
         function getFatiguedMuscles() {
             const statuses = getAllMusclesRecoveryStatus();
@@ -27270,12 +27361,13 @@
 
 
 
-                        // ── Panel détails (masqué — ouvert via bouton 📊) ──────────
+                        */
+            // ── Panel détails (masqué — ouvert via bouton 📊) ──────────
             // Les cartes détails sont directement dans ce panel, jamais dans tab
             const detailsPanel = document.createElement('div');
             detailsPanel.id = 'rpgDetailsContainer';
             detailsPanel.style.display = 'none';
-            */
+
             [cardRank, cardMuscles, cardClass, cardSkills, cardLog]
                 .filter(Boolean)
                 .forEach(card => detailsPanel.appendChild(card));
@@ -37298,7 +37390,7 @@
                         if (imgTag) {
                             // 🏆 Victoire : illustration COMMUNE (Esen + Nyra ensemble),
                             // quel que soit le héros choisi.
-                            imgTag.src = 'images/story/victoire_duo.webp?v=835';
+                            imgTag.src = 'images/story/victoire_duo.webp?v=840';
                             imgTag.alt = 'Esen et Nyra';
                         }
                         heroImg.style.display = 'block';
