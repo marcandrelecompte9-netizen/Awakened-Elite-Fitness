@@ -14781,7 +14781,7 @@
             // preserveAspectRatio="none" : l'image occupe EXACTEMENT le viewBox,
             // donc le repère de l'image et celui des zones sont identiques.
             // (Les proportions sont conservées : 784/1168 ≈ 200/298, écart < 0,2 %.)
-            return '<image href="' + img + '?v=843" x="0" y="0" width="200" height="298" '
+            return '<image href="' + img + '?v=844" x="0" y="0" width="200" height="298" '
                  + 'preserveAspectRatio="none" style="pointer-events:none;"/>';
         }
 
@@ -26663,7 +26663,11 @@
             const rankColor = awakRank ? awakRank.color : '#22c55e';
 
             cardProfile.classList.add('cyber-scanlines');
-            cardProfile.style.cssText = 'background:linear-gradient(160deg,#101218,#0D0E12 55%,#131017);color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14, inset 0 0 36px rgba(0,0,0,0.45);padding:20px;margin-bottom:14px;position:relative;';
+            // 🖼️ FOND DE CARTE : silhouette de dos, très sombre (moyenne ~10/255).
+            // Superposition : dégradé de protection AU-DESSUS de l'image pour que
+            // les stats restent lisibles à gauche, où le texte est le plus dense.
+            // L'image est en cover à droite ; overflow:hidden la recadre proprement.
+            cardProfile.style.cssText = 'background-color:#0D0E12;background-image:linear-gradient(100deg,rgba(13,14,18,0.97) 0%,rgba(13,14,18,0.86) 42%,rgba(13,14,18,0.55) 70%,rgba(13,14,18,0.45) 100%), url("images/card_bg.webp?v=844");background-size:cover,cover;background-position:center,right center;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14, inset 0 0 36px rgba(0,0,0,0.45);padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -37436,7 +37440,7 @@
                         if (imgTag) {
                             // 🏆 Victoire : illustration COMMUNE (Esen + Nyra ensemble),
                             // quel que soit le héros choisi.
-                            imgTag.src = 'images/story/victoire_duo.webp?v=843';
+                            imgTag.src = 'images/story/victoire_duo.webp?v=844';
                             imgTag.alt = 'Esen et Nyra';
                         }
                         heroImg.style.display = 'block';
