@@ -23224,7 +23224,7 @@
 
             // Le viewBox est ÉLARGI (−90 → 290) pour loger les étiquettes
             // de part et d'autre du corps sans le rétrécir.
-            const X_G = -86, X_D = 286;
+            const X_G = -96, X_D = 296;
             let svgZones = '', amorces = '', textes = '';
             const gauche = zones.filter(z => z[4] === 'g');
             const droite = zones.filter(z => z[4] === 'd');
@@ -23244,9 +23244,11 @@
                     amorces += '<path d="M' + tx + ',' + (ty + 4) + ' H' + bout + ' L' + ax + ',' + ay + '" '
                         + 'fill="none" stroke="' + c + '" stroke-width="0.7" opacity="' + (lv ? '0.55' : '0.25') + '"/>'
                         + '<circle cx="' + ax + '" cy="' + ay + '" r="2" fill="' + c + '" opacity="' + (lv ? '0.9' : '0.35') + '"/>';
-                    textes += '<text x="' + tx + '" y="' + ty + '" fill="#e2e8f0" font-size="9.5" font-weight="700" '
+                    // Police agrandie : 9.5/9 → 11.5/12 (les niveaux étaient
+                    // difficiles à lire sur mobile).
+                    textes += '<text x="' + tx + '" y="' + ty + '" fill="#e2e8f0" font-size="11.5" font-weight="700" '
                         + 'text-anchor="' + (cote === 'g' ? 'start' : 'end') + '">' + nom + '</text>'
-                        + '<text x="' + (cote === 'g' ? tx : tx) + '" y="' + (ty + 12) + '" fill="' + c + '" font-size="9" font-weight="900" '
+                        + '<text x="' + tx + '" y="' + (ty + 14) + '" fill="' + c + '" font-size="12" font-weight="900" '
                         + 'text-anchor="' + (cote === 'g' ? 'start' : 'end') + '">' + (lv ? 'Niv. ' + lv : '—') + '</text>';
                 });
             };
@@ -23254,7 +23256,7 @@
             poser(droite, 'd');
 
             return '<div class="awak-bodymap-host">'
-                + '<svg viewBox="-90 0 380 298" style="width:100%;height:auto;display:block;">'
+                + '<svg viewBox="-100 0 400 298" style="width:100%;height:auto;display:block;">'
                 +   '<image href="' + img + '?v=858" x="0" y="0" width="200" height="298" '
                 +     'preserveAspectRatio="none" opacity="0.85"/>'
                 +   amorces + svgZones + textes
@@ -26952,7 +26954,12 @@
 
             cardProfile.classList.add('cyber-scanlines');
             // 🖼️ FOND DE CARTE : silhouette de dos, TRÈS sombre (~10/255).
-            // ⚠️ Piège : l'image est PLUS SOMBRE que l'ancien fond #0D0E12 (~14).
+            // ⚠️ DEUX pièges empilés ont rendu l'image invisible :
+            //   1. elle est plus sombre que l'ancien fond #0D0E12 (~14/255) ;
+            //   2. un `inset 0 0 36px rgba(0,0,0,0.45)` (ombre interne noire)
+            //      recouvrait 36 px depuis CHAQUE bord — donc précisément la
+            //      zone de droite où la silhouette est placée.
+            // L'ombre interne a été retirée et les images éclaircies (×2,6).
             // Un voile même à 45 % la rendait donc mathématiquement invisible.
             // Correctif : fond NOIR pur + voile qui s'annule complètement à
             // droite (0 %), pour que la silhouette puisse enfin se détacher.
@@ -26963,7 +26970,7 @@
             // Même clé que l'avatar du panneau personnage : fitproAvatarGender.
             const _cardBg = (localStorage.getItem('fitproAvatarGender') || 'homme') === 'femme'
                 ? 'images/card_bg_femme.webp' : 'images/card_bg_homme.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=859");background-size:cover,cover;background-position:center,right center;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14, inset 0 0 36px rgba(0,0,0,0.45);padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=861");background-size:cover,cover;background-position:center,right center;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
