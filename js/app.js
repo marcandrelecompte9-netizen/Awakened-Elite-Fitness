@@ -23235,7 +23235,11 @@
                     const nom = z[0], lv = niv[nom] || 0, c = _bodyMapColor(lv);
                     const ax = z[2], ay = z[3];
                     // étiquettes réparties verticalement sur toute la hauteur
-                    const ty = 28 + k * ((298 - 46) / Math.max(1, n - 1));
+                    // ⚠️ Marge basse : avec (298-46), la DERNIÈRE étiquette
+                    // tombait à y=294 et son niveau (y+14=308) sortait du
+                    // viewBox — « Adducteurs » affichait son nom sans son
+                    // niveau. On réserve 34 px en bas.
+                    const ty = 26 + k * ((298 - 76) / Math.max(1, n - 1));
                     const tx = (cote === 'g') ? X_G : X_D;
                     const bout = (cote === 'g') ? tx + 78 : tx - 78;
 
@@ -26960,6 +26964,13 @@
             //      recouvrait 36 px depuis CHAQUE bord — donc précisément la
             //      zone de droite où la silhouette est placée.
             // L'ombre interne a été retirée et les images éclaircies (×2,6).
+            //   3. `background-size: cover` : l'image est PORTRAIT (900×1125),
+            //      la carte est PAYSAGE. En cover, l'échelle est dictée par la
+            //      largeur et on ne voyait que ~50 % de l'image, cadré au
+            //      CENTRE — c'est-à-dire le bas, une zone vide et noire. La
+            //      silhouette (tiers supérieur) était hors champ.
+            //      → `auto 138%` + ancrage `right top` : l'image est calée sur
+            //      la hauteur et alignée en haut, la silhouette est visible.
             // Un voile même à 45 % la rendait donc mathématiquement invisible.
             // Correctif : fond NOIR pur + voile qui s'annule complètement à
             // droite (0 %), pour que la silhouette puisse enfin se détacher.
@@ -26970,7 +26981,7 @@
             // Même clé que l'avatar du panneau personnage : fitproAvatarGender.
             const _cardBg = (localStorage.getItem('fitproAvatarGender') || 'homme') === 'femme'
                 ? 'images/card_bg_femme.webp' : 'images/card_bg_homme.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=861");background-size:cover,cover;background-position:center,right center;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=862");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 

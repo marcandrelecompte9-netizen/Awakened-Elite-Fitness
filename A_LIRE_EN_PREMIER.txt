@@ -76,7 +76,7 @@ B) VERSION TECHNIQUE DU CACHE = un compteur SÉPARÉ qui force la mise à
      - sw.js       : nom du cache "awakened-vNNN"
      - index.html  : les 39 "?v=NNN" sur les fichiers js/css
      - sw.js       : les "?v=NNN" des assets (manifest, icônes)
-   ⚠️  ÉTAT ACTUEL : v861. Prochain build = v862.
+   ⚠️  ÉTAT ACTUEL : v862. Prochain build = v863.
 
 
 ───────────────────────────────────────────────────────────────────────
@@ -178,7 +178,7 @@ IMAGES MANQUANTES — 24 exercices + 18 scènes narratives.
 ───────────────────────────────────────────────────────────────────────
 
   • Version affichée : v0.90 · awakened
-  • Cache technique  : v861  (prochain build = v862)
+  • Cache technique  : v862  (prochain build = v863)
   • Exercices        : 452 (base) · 713 (avec disciplines)
   • Objets           : 397  (11 sets, tous complétables)
   • Événements       : 57 narratifs (39 illustrés)
