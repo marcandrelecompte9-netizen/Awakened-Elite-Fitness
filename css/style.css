@@ -2512,7 +2512,7 @@
         }
 
         /* Harmonisé sur les variables du thème (ex-thème slate gris-bleu supprimé) */
-        .dark-mode .card {
+        .dark-mode .card:not(#awakHunterCard) {
             background: var(--surface-card) !important;
             border-color: var(--border-divider) !important;
         }
@@ -3518,7 +3518,7 @@
                 radial-gradient(ellipse 50% 40% at 95% 100%, rgba(124,58,237,0.1) 0%, transparent 55%),
                 linear-gradient(160deg, #0f0e1a 0%, #12101f 50%, #0d0f1c 100%) !important;
         }
-        body.dark-mode .card {
+        body.dark-mode .card:not(#awakHunterCard) {
             background: rgba(30,28,50,0.95) !important;
             border-color: rgba(22,163,74,0.15) !important;
             box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
@@ -4362,7 +4362,11 @@
         }
 
         /* Cards — fond moyen lisible, contraste suffisant */
-        body.dark-mode .card {
+        /* ⚠️ #awakHunterCard EXCLU : la Carte de Chasseur porte son propre
+   background-image (silhouette du héros) posé en style inline. Le
+   `!important` de cette règle l'écrasait — l'image ne s'affichait
+   jamais, quel que soit le réglage du dégradé (v863). */
+body.dark-mode .card:not(#awakHunterCard) {
             background: #1A1B20 !important;
             color: #e2e8f0 !important;
             border: 1px solid #252830 !important;
