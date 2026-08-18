@@ -13777,6 +13777,25 @@
                 return awakRiftHuntCompleteSet();
             }
 
+            // 👑 COMBAT FINAL : le Monarque prend des dégâts à CHAQUE SÉRIE validée,
+            // exactement comme un ennemi de Faille. Auparavant les dégâts étaient
+            // appliqués au changement d'exercice : la barre semblait suivre la
+            // progression de la séance au lieu de réagir aux coups portés.
+            try {
+                if (currentWorkout && currentWorkout._isFinalBoss && window.awakFrapperMonarque) {
+                    const _ex = currentWorkout.exercises[currentExerciseIndex];
+                    if (_ex && !_ex.isInfo && !_ex.isRest) {
+                        const _r = window.awakFrapperMonarque(currentWorkout, _ex);
+                        if (_r) {
+                            showToast('⚔️ −' + _r.degats + ' PV (' + _r.statLabel + ')'
+                                + (_r.vaincu ? ' · ☠️ LE MONARQUE TOMBE' : ' · ' + _r.pct + ' %'),
+                                _r.vaincu ? 'success' : 'info', 2400);
+                            if (typeof _renderBossHpBar === 'function') _renderBossHpBar(currentWorkout);
+                        }
+                    }
+                }
+            } catch (e) {}
+
             const repsInput   = document.getElementById('quickRepsInput');
             const weightInput = document.getElementById('quickWeightInput');
             const reps   = parseInt(repsInput?.value) || 0;
@@ -14762,7 +14781,7 @@
             // preserveAspectRatio="none" : l'image occupe EXACTEMENT le viewBox,
             // donc le repère de l'image et celui des zones sont identiques.
             // (Les proportions sont conservées : 784/1168 ≈ 200/298, écart < 0,2 %.)
-            return '<image href="' + img + '?v=829" x="0" y="0" width="200" height="298" '
+            return '<image href="' + img + '?v=832" x="0" y="0" width="200" height="298" '
                  + 'preserveAspectRatio="none" style="pointer-events:none;"/>';
         }
 
@@ -25931,21 +25950,6 @@
         function skipExercise() {
             // 🔇 Couper la phrase en cours + timers du coach vocal de l'exercice sauté
             if (typeof stopAllSpeech === 'function') stopAllSpeech();
-            // ⚔️ COMBAT FINAL : chaque exercice terminé frappe le Monarque. Les dégâts
-            // dépendent de la stat de l'acte en cours → le build du joueur compte enfin.
-            try {
-                if (currentWorkout && currentWorkout._isFinalBoss && window.awakFrapperMonarque) {
-                    const _ex = currentWorkout.exercises[currentExerciseIndex];
-                    if (_ex && !_ex.isInfo && !_ex.isRest) {
-                        const _r = window.awakFrapperMonarque(currentWorkout, _ex);
-                        if (_r) {
-                            showToast('⚔️ −' + _r.degats + ' PV (' + _r.statLabel + ') · Monarque ' + _r.pct + ' %',
-                                      _r.vaincu ? 'success' : 'info', 2600);
-                            if (typeof _renderBossHpBar === 'function') _renderBossHpBar(currentWorkout);
-                        }
-                    }
-                }
-            } catch (e) {}
             // 📋 Grille de séries : « Suivant » valide d'abord toutes les lignes renseignées
             if (typeof _gridBulkValidate === 'function') {
                 try {
@@ -30316,7 +30320,18 @@
                 const c = e.type === 'crit' ? '#fbbf24' : '#4ade80';
                 const et = e.type === 'crit' ? '💥 CRITIQUE' : '⚔ Coup';
                 const nom = e.exo ? ('<span style="color:#64748b;"> · ' + String(e.exo).slice(0, 22) + '</span>') : '';
-                const pv = (typeof e.hp === 'number') ? ('<span style="color:#64748b;font-size:0.9em;"> · ' + e.hp + ' PV</span>') : '';
+                // 🌫️ BROUILLARD : ce modificateur masque volontairement les HP de
+                // l'ennemi (« Frappe à l'aveugle »). La barre de vie les cachait bien,
+                // mais le JOURNAL DE COMBAT les affichait quand même à chaque coup —
+                // il suffisait d'ouvrir la séance pour contourner tout le modificateur.
+                let _fog = false;
+                try {
+                    const _s = (typeof awakActiveRiftSession !== 'undefined') ? awakActiveRiftSession : null;
+                    const _r = _s && _s.rift;
+                    const _m = (_r && typeof awakGetRiftModifier === 'function') ? awakGetRiftModifier(_r.modifierId) : null;
+                    _fog = !!(_m && _m.hideHp);
+                } catch (err) {}
+                const pv = (!_fog && typeof e.hp === 'number') ? ('<span style="color:#64748b;font-size:0.9em;"> · ' + e.hp + ' PV</span>') : '';
                 return '<div style="display:flex;justify-content:space-between;gap:8px;padding:3px 0;font-size:0.72em;color:#cbd5e1;">'
                     + '<span style="min-width:0;">' + et + nom + '</span>'
                     + '<b style="color:' + c + ';white-space:nowrap;">-' + e.dmg + (e.killed ? ' ☠️' : '') + pv + '</b></div>';
@@ -37184,7 +37199,7 @@
                         if (imgTag) {
                             // 🏆 Victoire : illustration COMMUNE (Esen + Nyra ensemble),
                             // quel que soit le héros choisi.
-                            imgTag.src = 'images/story/victoire_duo.webp?v=829';
+                            imgTag.src = 'images/story/victoire_duo.webp?v=832';
                             imgTag.alt = 'Esen et Nyra';
                         }
                         heroImg.style.display = 'block';

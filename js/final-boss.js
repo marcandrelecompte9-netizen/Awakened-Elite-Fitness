@@ -74,12 +74,13 @@
   // doit rester avantagé. Une fourchette large donnerait l'impression
   // que les progrès sont annulés — le pire ressenti possible en RPG.
   function monarqueHP() {
-    // 🎯 Calibré sur la séance narrative (21 exercices) : une séance complète
-    // inflige ~2 000 dgts (build faible) à ~5 500 (build optimisé). À 4 200 PV,
-    // un joueur bien construit termine le Monarque dans la séance ; un joueur
-    // faible arrive au bout de justesse — ce qui rend le build déterminant
-    // sans jamais rendre le combat infaisable.
-    const BASE = 4200;
+    // 🎯 Calibré sur la séance narrative (21 exercices × ~3 séries).
+    // Le Monarque prend des dégâts à CHAQUE SÉRIE validée, comme un ennemi de
+    // Faille : une séance complète inflige ~5 900 dgts (build faible) à
+    // ~16 400 (build optimisé). À 12 500 PV, un build travaillé le fait tomber
+    // avant la fin, un build faible n'y arrive pas encore — le build reste
+    // déterminant sans rendre le combat infaisable.
+    const BASE = 12500;
     let power = 0;
     try { if (typeof awakGetPowerScore === 'function') power = awakGetPowerScore(); } catch (e) {}
     const ref = 12000;                       // Power Score « attendu » à ce stade

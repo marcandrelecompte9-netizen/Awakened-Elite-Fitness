@@ -994,7 +994,50 @@ function renderFamilyTab() {
     // de coopération. Les défis compétitifs (1 contre 1) viennent après.
     const coopCard = (window.AwakFamilyChallenge && typeof window.AwakFamilyChallenge.renderCoopCard === 'function')
         ? window.AwakFamilyChallenge.renderCoopCard() : '';
-    html += familyCard + goalCard + coopCard + duoGamesCard + challengeCard + nudgeCard + feedAccordion;
+    // ══════════════════════════════════════════════════════════════════
+    // 🏠 HUB FAMILIAL
+    // ------------------------------------------------------------------
+    // Principe : ce qui a un ÉTAT reste visible (l'information change toute
+    // seule et mérite un coup d'œil) ; ce qui est une ACTION devient un
+    // bouton. Avant, 7 cartes s'empilaient en permanence — y compris les
+    // grosses cartes d'invitation « lance un objectif / choisis un défi »,
+    // qui ne servent qu'une fois mais occupaient l'écran à chaque visite.
+    // Résultat : onglet court quand rien n'est en cours, riche quand la
+    // famille est active.
+    // ══════════════════════════════════════════════════════════════════
+
+    // Une carte est « en cours » si son moteur signale un état actif.
+    const goalActif = !!(window.AwakFamilyGoal && typeof window.AwakFamilyGoal.status === 'function'
+        && window.AwakFamilyGoal.status());
+    const coopActif = !!(window.AwakFamilyChallenge && typeof window.AwakFamilyChallenge.coopStatus === 'function'
+        && window.AwakFamilyChallenge.coopStatus());
+
+    const btn = (emoji, label, action, couleur) =>
+        '<button onclick="' + action + '" style="flex:1;min-width:0;padding:12px 6px;border-radius:14px;cursor:pointer;'
+        + 'background:rgba(255,255,255,0.03);border:1px solid ' + couleur + '33;color:#e2e8f0;text-align:center;">'
+        + '<div style="font-size:1.4em;line-height:1;margin-bottom:5px;">' + emoji + '</div>'
+        + '<div style="font-size:0.62em;font-weight:800;letter-spacing:0.3px;color:' + couleur + ';">' + label + '</div>'
+        + '</button>';
+
+    // Rangée d'actions : uniquement ce qui n'est PAS déjà affiché en carte.
+    const actions = [];
+    if (!goalActif) actions.push(btn('🎯', 'OBJECTIF', 'AwakFamilyGoalOpen()', '#22c55e'));
+    if (!coopActif) actions.push(btn('🤝', "DÉFI D'ÉQUIPE", 'AwakCoopOpen()', '#22d3ee'));
+    actions.push(btn('⚔️', 'DÉFIER', 'AwakFamilyChallengeOpen()', '#f59e0b'));
+    actions.push(btn('🎮', 'JEUX', 'AwakGamesOpen()', '#a855f7'));
+
+    let barreActions = '';
+    for (let i = 0; i < actions.length; i += 2) {
+        barreActions += '<div style="display:flex;gap:8px;margin-bottom:8px;">'
+            + actions.slice(i, i + 2).join('') + '</div>';
+    }
+
+    html += familyCard
+          + (goalActif ? goalCard : '')
+          + (coopActif ? coopCard : '')
+          + nudgeCard
+          + barreActions
+          + feedAccordion;
 
     // Filet de sécurité
     if (!familyCard && !nudgeCard && !challengeCard && !goalCard && !feedCard && !duoGamesCard && !coopCard) {

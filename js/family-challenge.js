@@ -602,13 +602,58 @@
       + '</div>';
   }
   window.AwakFamilyChallenge.renderCoopCard = renderCoopCard;
+
+  // 🏠 HUB : ouvrir les cartes en MODALE plutôt que de les empiler dans l'onglet.
+  // Le contenu est celui des cartes existantes — aucun rendu dupliqué.
+  function _modale(titre, contenuHtml, id) {
+    var old = document.getElementById(id);
+    if (old) old.remove();
+    var ov = document.createElement('div');
+    ov.id = id;
+    ov.className = 'modal';
+    ov.style.cssText = 'display:flex;position:fixed;inset:0;z-index:9000;align-items:flex-start;'
+      + 'justify-content:center;background:rgba(0,0,0,0.9);backdrop-filter:blur(10px);overflow-y:auto;padding:20px 14px;';
+    ov.innerHTML =
+      '<div style="width:100%;max-width:480px;">'
+      + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">'
+      +   '<div style="font-size:1.05em;font-weight:900;color:#fff;">' + titre + '</div>'
+      +   '<button onclick="document.getElementById(\'' + id + '\').remove()" '
+      +     'style="background:rgba(255,255,255,0.06);border:none;color:#94a3b8;font-size:1.2em;'
+      +     'width:34px;height:34px;border-radius:10px;cursor:pointer;">×</button>'
+      + '</div>'
+      + (contenuHtml || '<div style="color:#64748b;font-size:0.85em;">Rien à afficher pour le moment.</div>')
+      + '<div style="height:24px;"></div>'
+      + '</div>';
+    ov.onclick = function (e) { if (e.target === ov) ov.remove(); };
+    document.body.appendChild(ov);
+  }
+
+  window.AwakCoopOpen = function () {
+    _modale("🤝 Défi d'équipe", renderCoopCard(), 'awakCoopModal');
+  };
+  window.AwakFamilyChallengeOpen = function () {
+    _modale('⚔️ Défis', renderCard(), 'awakChallengeModal');
+  };
+  window.AwakGamesOpen = function () {
+    var html = '';
+    try {
+      if (window.AwakGames && typeof window.AwakGames.renderFamilyCard === 'function') {
+        html = window.AwakGames.renderFamilyCard();
+      }
+    } catch (e) {}
+    _modale('🎮 Jeux à deux', html, 'awakGamesModal');
+  };
+
   window.AwakCoopStart = function (type, cible) {
     coopCreate(type, cible || undefined);
+    // fermer la modale du hub : le défi devient une carte visible dans l'onglet
+    try { document.getElementById('awakCoopModal')?.remove(); } catch (e) {}
     try { if (typeof renderAdventure === 'function') renderAdventure(); } catch (e) {}
     try { if (typeof switchTab === 'function') switchTab('family'); } catch (e) {}
   };
   window.AwakCoopStop = function () {
     coopCancel();
+    try { document.getElementById('awakCoopModal')?.remove(); } catch (e) {}
     try { if (typeof renderAdventure === 'function') renderAdventure(); } catch (e) {}
   };
 
