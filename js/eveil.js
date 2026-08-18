@@ -16,6 +16,13 @@
  *      pour la recomposition, Morton et al. 2018) et des légumes à 2 repas,
  *      plutôt que compter les calories (adhérence > précision).
  *
+ *  🧒 PROFILS ENFANTS (< 13 ans) : les leçons hebdomadaires sont remplacées
+ *  par LESSONS_CHILD. Le parcours adulte enseigne la surcharge progressive et
+ *  un objectif protéique chiffré — deux notions à ne PAS transmettre à un
+ *  enfant. La version enfant garde les mêmes 4 semaines et les mêmes séances
+ *  (déjà au poids du corps), mais parle de variété, de sommeil et d'écoute de
+ *  la faim plutôt que de charge et de grammes.
+ *
  *  AUCUNE imposition : le parcours est proposé à l'inscription, activable
  *  et abandonnable à tout moment. Stockage : localStorage 'awakEveilJourney'.
  * ========================================================================== */
@@ -120,6 +127,27 @@
   }
 
   // ── MINI-LEÇONS HEBDO (le « pourquoi » scientifique, en 4 phrases) ──────
+  // ══════════════════════════════════════════════════════════════════
+  // 🧒 LEÇONS ENFANT (< 13 ans)
+  // ------------------------------------------------------------------
+  // Le parcours adulte enseigne la SURCHARGE PROGRESSIVE et un objectif
+  // protéique chiffré (1,6 g/kg). Deux notions calibrées pour un adulte
+  // qui cherche l'hypertrophie — et deux mauvaises idées à transmettre à
+  // un enfant : on ne l'oriente pas vers l'augmentation de charge, et on
+  // ne lui donne pas d'objectif alimentaire quantifié.
+  // Mêmes 4 semaines, même mécanique : seul le CONTENU change.
+  // ══════════════════════════════════════════════════════════════════
+  var LESSONS_CHILD = {
+    1: { t: '🌱 Un peu, tous les jours',
+         b: 'Le secret, ce n\'est pas de faire beaucoup d\'un coup : c\'est de revenir souvent. Même 10 minutes comptent. Ton corps aime les habitudes régulières bien plus que les grosses journées suivies de rien.' },
+    2: { t: '😴 Tu grandis pendant que tu dors',
+         b: 'C\'est la nuit que ton corps répare et construit. Le sommeil est ton meilleur allié — encore plus à ton âge qu\'à celui des adultes. Vise des nuits complètes et régulières.' },
+    3: { t: '🍎 Mange de tout, à ta faim',
+         b: 'Pas de calcul, pas de régime : ton corps grandit et il a besoin d\'un peu de tout. Des fruits, des légumes, des féculents, des protéines. Écoute ta faim — elle sait ce qu\'elle fait.' },
+    4: { t: '🤸 Varier vaut mieux que forcer',
+         b: 'Tu progresses en essayant des mouvements NOUVEAUX, pas en soulevant plus lourd. Cours, saute, grimpe, joue. Plus tu varies, plus tu deviens agile, rapide et solide.' }
+  };
+
   var LESSONS = {
     1: { t: '🌱 Petit mais tous les jours', b: 'Une habitude met en moyenne environ 66 jours à devenir automatique (étude de Lally, 2010). C\'est pour ça qu\'on commence volontairement petit : des séances courtes et 2 habitudes seulement. Rater un jour ne casse rien — c\'est la répétition sur la durée qui compte. Ton seul objectif cette semaine : te présenter.' },
     2: { t: '😴 Le muscle se construit la nuit', b: 'Pendant le sommeil profond, ton corps sécrète l\'hormone de croissance qui répare muscles et tissus. Vise 7 à 9 heures, mais surtout des horaires RÉGULIERS : se coucher à heure fixe compte autant que la durée. Un coucher décalé de 30 min à la fois est bien plus tenable qu\'un changement brutal. Bien dormir, c\'est déjà s\'entraîner.' },
@@ -128,6 +156,16 @@
   };
 
   // ── ÉTAT & CYCLE DE VIE ────────────────────────────────────────────────
+  // 🧒 Renvoie le jeu de leçons adapté à l'âge du profil actif.
+  function _lessons() {
+    try {
+      if (window.AwakYouth && typeof window.AwakYouth.isChild === 'function' && window.AwakYouth.isChild()) {
+        return LESSONS_CHILD;
+      }
+    } catch (e) {}
+    return LESSONS;
+  }
+
   function eveilActive() { var j = _get(); return !!(j && j.active); }
   function eveilDayNum(j) { return Math.floor((Date.now() - j.start) / DAY) + 1; }        // 1-28+
   function eveilWeek(j) { return Math.min(4, Math.floor((eveilDayNum(j) - 1) / 7) + 1); } // 1-4
@@ -417,7 +455,7 @@
     var doneToday = !!j.sessionsDone[_todayKey()];
     var quests = j.quests.filter(function (q) { return q.week <= wk; });
     var checks = j.checks[_todayKey()] || {};
-    var lesson = LESSONS[wk];
+    var lesson = _lessons()[wk];   // 🧒 jeu de leçons adapté à l'âge
     var lessonSeen = j['lessonSeen' + wk];
 
     var questHTML = quests.map(function (q) {

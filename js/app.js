@@ -14781,7 +14781,7 @@
             // preserveAspectRatio="none" : l'image occupe EXACTEMENT le viewBox,
             // donc le repère de l'image et celui des zones sont identiques.
             // (Les proportions sont conservées : 784/1168 ≈ 200/298, écart < 0,2 %.)
-            return '<image href="' + img + '?v=832" x="0" y="0" width="200" height="298" '
+            return '<image href="' + img + '?v=835" x="0" y="0" width="200" height="298" '
                  + 'preserveAspectRatio="none" style="pointer-events:none;"/>';
         }
 
@@ -26716,6 +26716,16 @@
             btnEquip.addEventListener('click', function() { showRPGEquipmentModal('equip'); });
 
             // Conteneur flex : Compétences (déplacé) à gauche + Équipement à droite
+            // ══════════════════════════════════════════════════════════════
+            // 🎮 GRILLE D'ACTIONS — convention des RPG mobiles
+            // --------------------------------------------------------------
+            // Avant : 2 boutons ici, et le Marchand / Journal / Consommables
+            // dispersés 200 lignes plus bas, atteignables seulement en
+            // défilant. Les RPG mobiles regroupent les écrans autour de la
+            // carte du personnage, à 1 tap — et signalent ce qui demande une
+            // action par un BADGE, au lieu d'afficher une carte entière pour
+            // dire qu'il ne se passe rien (« Aucun malus »).
+            // ══════════════════════════════════════════════════════════════
             const rowBtns = document.createElement('div');
             rowBtns.id = 'awakRowBtns';
             rowBtns.style.cssText = 'display:flex;gap:8px;align-items:stretch;margin-top:8px;margin-bottom:4px;';
@@ -26727,6 +26737,66 @@
             rowBtns.appendChild(btnEquip);
             // Les boutons Compétences / Équipement restent COLLÉS à la carte.
             tab.insertBefore(rowBtns, cardProfile.nextSibling);
+
+            // ── 🎮 2ᵉ RANGÉE : écrans à 1 tap, avec badges d'alerte ──────
+            // Un badge n'apparaît QUE s'il y a quelque chose à voir : c'est ce
+            // qui remplace les cartes « Aucun malus » / « Aucune mission ».
+            try {
+                const _mkBtn = (emoji, label, action, couleur, badge) => {
+                    const b = document.createElement('button');
+                    b.style.cssText = 'position:relative;flex:1;min-width:0;display:flex;flex-direction:column;'
+                        + 'align-items:center;justify-content:center;gap:4px;padding:11px 4px;border-radius:14px;'
+                        + 'cursor:pointer;background:rgba(255,255,255,0.03);border:1px solid ' + couleur + '33;';
+                    b.innerHTML = '<div style="font-size:1.35em;line-height:1;">' + emoji + '</div>'
+                        + '<div style="font-size:0.58em;font-weight:800;letter-spacing:0.3px;color:' + couleur + ';'
+                        + 'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;">' + label + '</div>'
+                        + (badge ? '<div style="position:absolute;top:5px;right:6px;min-width:17px;height:17px;'
+                            + 'border-radius:9px;background:#ef4444;color:#fff;font-size:0.55em;font-weight:900;'
+                            + 'display:flex;align-items:center;justify-content:center;padding:0 4px;">' + badge + '</div>' : '');
+                    b.onclick = action;
+                    return b;
+                };
+
+                // Badges : calculés à partir de l'état réel du jeu
+                let _bJournal = 0, _bMalus = 0, _bStats = 0;
+                // Journal : chapitres de rang atteints mais pas encore lus
+                try {
+                    const _info = (typeof getPlayerRankInfo === 'function') ? getPlayerRankInfo() : { rankId: 'E' };
+                    const _ord = ['E', 'D', 'C', 'B', 'A', 'S', 'SS', 'SSS'];
+                    const _idx = _ord.indexOf(_info.rankId);
+                    ['ch_D', 'ch_C', 'ch_B', 'ch_A', 'ch_S'].forEach(function (cid, i) {
+                        const rk = ['D', 'C', 'B', 'A', 'S'][i];
+                        if (_ord.indexOf(rk) <= _idx && localStorage.getItem('fitproStorySeen_' + cid) !== '1') _bJournal++;
+                    });
+                    if (localStorage.getItem('fitproStorySeen_prologue') !== '1') _bJournal++;
+                } catch (e) {}
+                // Malus actifs (fonction réelle : awakCountActiveMalus)
+                try {
+                    if (typeof awakCountActiveMalus === 'function') _bMalus = awakCountActiveMalus() || 0;
+                } catch (e) {}
+                // Points de stats non dépensés (source réelle : statPointsLoad)
+                try {
+                    const _sp = (typeof statPointsLoad === 'function') ? statPointsLoad() : null;
+                    _bStats = (_sp && _sp.available) ? _sp.available : 0;
+                } catch (e) {}
+
+                const row2 = document.createElement('div');
+                row2.id = 'awakRowBtns2';
+                row2.style.cssText = 'display:flex;gap:7px;align-items:stretch;margin-top:7px;margin-bottom:4px;';
+                row2.appendChild(_mkBtn('🛒', 'MARCHAND', function () {
+                    if (typeof awakOpenMerchant === 'function') awakOpenMerchant();
+                }, '#fbbf24', 0));
+                row2.appendChild(_mkBtn('📖', 'JOURNAL', function () {
+                    if (typeof showStoryJournal === 'function') showStoryJournal();
+                }, '#a855f7', _bJournal));
+                row2.appendChild(_mkBtn('⚠️', 'MALUS', function () {
+                    if (typeof showActiveMalusScreen === 'function') showActiveMalusScreen();
+                }, '#f59e0b', _bMalus));
+                row2.appendChild(_mkBtn('📊', 'DÉTAILS', function () {
+                    if (typeof rpgShowDetailsPanel === 'function') rpgShowDetailsPanel();
+                }, '#22d3ee', _bStats));
+                tab.insertBefore(row2, rowBtns.nextSibling);
+            } catch (e) {}
 
             // ── 👑 COMBAT FINAL — Le Monarque du Déclin (apparaît après les 4 sous-bosses) ──
             try {
@@ -26771,7 +26841,11 @@
                 }
             } catch(e) {}
 
-            // ── 🛒 LE MARCHAND — vendre minéraux, acheter consommables & équipement ──
+            // ── 🛒 LE MARCHAND — désormais accessible par le bouton de la grille ──
+            // La carte pleine largeur faisait doublon avec le bouton 🛒 placé
+            // sous la carte du joueur, et poussait tout le reste vers le bas.
+            /* CARTE RETIRÉE (v834) — le bouton de la grille ouvre awakOpenMerchant()
+// ── 🛒 LE MARCHAND — vendre minéraux, acheter consommables & équipement ──
             // Apparaît seulement APRÈS la scène de rencontre (niveau ~3).
             try {
                 const marchandRencontre = (typeof storyEventSeen === 'function') ? storyEventSeen('evt_n3_marchand') : true;
@@ -26795,7 +26869,8 @@
                 }
             } catch(e) {}
 
-            // ── 👁️ JAUGE DU MONARQUE DU DÉCLIN [ANCIENNE HISTOIRE — MASQUÉE] ───
+                        */
+// ── 👁️ JAUGE DU MONARQUE DU DÉCLIN [ANCIENNE HISTOIRE — MASQUÉE] ───
             // Remplacée par la nouvelle histoire « Le Monde qui s'efface ».
             try {
                 const mPower = typeof awakGetMonarchPower === 'function' ? awakGetMonarchPower() : 0;
@@ -26833,7 +26908,9 @@
                 }
             } catch(e) {}
 
-            // ── 📖 BOUTON JOURNAL DU CHASSEUR (narratif) ───────────────
+            // ── 📖 JOURNAL — désormais dans la grille (bouton 📖 avec badge) ──
+            /* CARTE RETIRÉE (v834)
+// ── 📖 BOUTON JOURNAL DU CHASSEUR (narratif) ───────────────
             const cardStory = document.createElement('div');
             cardStory.style.cssText = 'margin-bottom:4px;';
             // Badge si un nouveau chapitre est dispo mais pas encore vu
@@ -26871,7 +26948,12 @@
                 </button>`;
             tab.appendChild(cardStory);
 
-            // ── ⚠️ BOUTON MALUS ACTIFS ─────────────────────────────────
+                        */
+// ── ⚠️ MALUS — désormais dans la grille (bouton ⚠️ avec badge) ──
+            // Cette carte affichait « Aucun malus — tu es en pleine forme » en
+            // permanence : un bloc entier pour dire qu'il ne se passe rien.
+            /* CARTE RETIRÉE (v834)
+// ── ⚠️ BOUTON MALUS ACTIFS ─────────────────────────────────
             try {
                 const malusCount = typeof awakCountActiveMalus === 'function' ? awakCountActiveMalus() : 0;
                 const cardMalus = document.createElement('div');
@@ -26899,7 +26981,8 @@
                 tab.insertBefore(cardMalus, tab.children[2] || null);
             } catch(e) {}
 
-            // ── 🎭 BANDEAU MISSION DE COMPAGNONS EN COURS ──────────────
+                        */
+// ── 🎭 BANDEAU MISSION DE COMPAGNONS EN COURS ──────────────
             try {
                 const mission = typeof awakGetOngoingMission === 'function' ? awakGetOngoingMission() : null;
                 if (mission) {
@@ -27153,6 +27236,13 @@
             }
 
             // ── 12. PRESTIGE ─────────────────────────────────────────
+            // ⭐ CARTE PRESTIGE RETIRÉE (v835)
+            // Le Prestige remettait la progression à zéro en échange d'un bonus
+            // d'XP permanent. Retiré à la demande : dans une app de FITNESS, on
+            // ne redémarre pas ses acquis — les mois d'entraînement réels ne se
+            // « prestige » pas. Le calcul du bonus reste en place pour ne pas
+            // léser les joueurs qui en ont déjà un (voir rpgGetPrestigeLevel).
+            /* BLOC RETIRÉ
             const canPrestige = rank.id === 'SSS';
             const cardPrestige = document.createElement('div');
             cardPrestige.className = 'card';
@@ -27185,7 +27275,8 @@
             const detailsPanel = document.createElement('div');
             detailsPanel.id = 'rpgDetailsContainer';
             detailsPanel.style.display = 'none';
-            [cardRank, cardMuscles, cardClass, cardSkills, cardPrestige, cardLog]
+            */
+            [cardRank, cardMuscles, cardClass, cardSkills, cardLog]
                 .filter(Boolean)
                 .forEach(card => detailsPanel.appendChild(card));
             tab.appendChild(detailsPanel);
@@ -28004,7 +28095,12 @@
         function rpgGetPrestigeLevel() {
             return parseInt(localStorage.getItem('fitproRPGPrestige')||'0');
         }
+        // ⭐ rpgPrestige() — plus aucun appelant depuis v835 (carte retirée).
+        // Conservée mais NEUTRALISÉE : si un ancien raccourci ou une page mise
+        // en cache l'appelait encore, elle ne doit pas remettre la progression
+        // du joueur à zéro sans qu'il l'ait demandé.
         function rpgPrestige() {
+            return;   // désactivé — le Prestige n'existe plus
             const data = rpgLoad();
             const totalXP = Object.values(data.muscles).reduce((s,m)=>s+m.xp,0);
             const rank = rpgGetRank(totalXP);
@@ -28055,7 +28151,10 @@
             { id:'rank_s',          name:'Chasseur S',          emoji:'🟨', desc:'Atteindre le rang S',                   check:(s,data)=>{const xp=Object.values(data.muscles).reduce((a,m)=>a+m.xp,0);return rpgGetRank(xp).id==='S'||['SS','SSS'].includes(rpgGetRank(xp).id);} },
             { id:'rank_sss',        name:'Légende Absolue',     emoji:'💠', desc:'Atteindre le rang SSS',                 check:(s,data)=>{const xp=Object.values(data.muscles).reduce((a,m)=>a+m.xp,0);return rpgGetRank(xp).id==='SSS';} },
             { id:'dungeon_1',       name:'Explorateur',         emoji:'🗺️', desc:'Compléter un donjon',                   check:()=>RPG_DUNGEONS.some(d=>rpgGetDungeonStatus(d.id).lastCompleted) },
-            { id:'prestige_1',      name:'Renaissance',         emoji:'⭐', desc:'Atteindre le Prestige 1',               check:()=>rpgGetPrestigeLevel()>=1 },
+            // ⭐ EXPLOIT « Renaissance » RETIRÉ (v835) : le Prestige n'existe plus,
+            // cet exploit serait devenu impossible à débloquer — un objectif
+            // inatteignable dans une liste est pire que pas d'objectif du tout.
+            // Les joueurs qui l'ont déjà obtenu le conservent (stockage séparé).
             { id:'loot_epic',       name:'Chanceux',            emoji:'🎲', desc:'Ouvrir un coffre Épique',               check:()=>JSON.parse(localStorage.getItem('fitproLootBadges')||'[]').includes('chest_epic') },
             { id:'no_decay_week',   name:'Régulier',            emoji:'📊', desc:'Aucun muscle en déclin pendant 1 semaine', check:(s,data)=>Object.values(data.muscles).length>0&&Object.values(data.muscles).every(m=>(new Date()-new Date(m.lastTrained||0))/86400000<7) },
         ];
@@ -37199,7 +37298,7 @@
                         if (imgTag) {
                             // 🏆 Victoire : illustration COMMUNE (Esen + Nyra ensemble),
                             // quel que soit le héros choisi.
-                            imgTag.src = 'images/story/victoire_duo.webp?v=832';
+                            imgTag.src = 'images/story/victoire_duo.webp?v=835';
                             imgTag.alt = 'Esen et Nyra';
                         }
                         heroImg.style.display = 'block';
