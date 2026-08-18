@@ -14781,7 +14781,7 @@
             // preserveAspectRatio="none" : l'image occupe EXACTEMENT le viewBox,
             // donc le repère de l'image et celui des zones sont identiques.
             // (Les proportions sont conservées : 784/1168 ≈ 200/298, écart < 0,2 %.)
-            return '<image href="' + img + '?v=840" x="0" y="0" width="200" height="298" '
+            return '<image href="' + img + '?v=843" x="0" y="0" width="200" height="298" '
                  + 'preserveAspectRatio="none" style="pointer-events:none;"/>';
         }
 
@@ -26826,8 +26826,11 @@
                 rowBtns.appendChild(btnComp); // déplace le bouton Compétences dans la rangée
             }
             rowBtns.appendChild(btnEquip);
-            // Les boutons Compétences / Équipement restent COLLÉS à la carte.
-            tab.insertBefore(rowBtns, cardProfile.nextSibling);
+            // 🎴 BOUTONS DANS LA CARTE (v843) — convention RPG mobile : la carte
+            // de personnage et ses actions forment UN SEUL objet, au lieu d'une
+            // carte suivie de deux rangées flottantes. Séparés par un liseré.
+            rowBtns.style.cssText += 'border-top:1px solid rgba(255,255,255,0.07);padding-top:12px;margin-top:14px;';
+            cardProfile.appendChild(rowBtns);
 
             // ── 🎮 2ᵉ RANGÉE : écrans à 1 tap, avec badges d'alerte ──────
             // Un badge n'apparaît QUE s'il y a quelque chose à voir : c'est ce
@@ -26883,10 +26886,32 @@
                 row2.appendChild(_mkBtn('⚠️', 'MALUS', function () {
                     if (typeof showActiveMalusScreen === 'function') showActiveMalusScreen();
                 }, '#f59e0b', _bMalus));
-                row2.appendChild(_mkBtn('📊', 'DÉTAILS', function () {
-                    if (typeof rpgShowDetailsPanel === 'function') rpgShowDetailsPanel();
-                }, '#22d3ee', _bStats));
-                tab.insertBefore(row2, rowBtns.nextSibling);
+                // 💪 Classement musculaire : séparé des Compétences (v842)
+                row2.appendChild(_mkBtn('💪', 'MUSCLES', function () {
+                    if (typeof rpgShowMusclesPanel === 'function') rpgShowMusclesPanel();
+                }, '#4ade80', 0));
+                // 📊 « DÉTAILS » RETIRÉ (v841) : ce bouton appelait exactement la
+                // même fonction que « Compétences » (rpgShowDetailsPanel) — deux
+                // boutons pour un seul écran. Le badge des points de stats non
+                // dépensés est reporté sur Compétences, où il a sa place.
+                cardProfile.appendChild(row2);
+
+                // 🔴 Badge des points de stats non dépensés → sur COMPÉTENCES,
+                // puisque c'est là qu'on les dépense (le bouton Détails, qui le
+                // portait, faisait doublon et a été retiré).
+                if (_bStats > 0) {
+                    const _bc = document.getElementById('awakBtnCompetences');
+                    if (_bc && !document.getElementById('awakBadgeStats')) {
+                        _bc.style.position = 'relative';
+                        const _bd = document.createElement('div');
+                        _bd.id = 'awakBadgeStats';
+                        _bd.textContent = _bStats;
+                        _bd.style.cssText = 'position:absolute;top:5px;right:6px;min-width:18px;height:18px;'
+                            + 'border-radius:9px;background:#ef4444;color:#fff;font-size:0.6em;font-weight:900;'
+                            + 'display:flex;align-items:center;justify-content:center;padding:0 4px;';
+                        _bc.appendChild(_bd);
+                    }
+                }
             } catch (e) {}
 
             // ── 👑 COMBAT FINAL — Le Monarque du Déclin (apparaît après les 4 sous-bosses) ──
@@ -27368,10 +27393,24 @@
             detailsPanel.id = 'rpgDetailsContainer';
             detailsPanel.style.display = 'none';
 
-            [cardRank, cardMuscles, cardClass, cardSkills, cardLog]
-                .filter(Boolean)
+            // 🔀 DEUX PANNEAUX SÉPARÉS (v842)
+            // Avant : un seul écran mélangeait le CLASSEMENT MUSCULAIRE (suivi
+            // de ce que le corps a travaillé) et l'ARBRE DE COMPÉTENCES (choix
+            // de build RPG). Deux natures différentes : l'un se consulte, l'autre
+            // se dépense. Les réunir obligeait à défiler dans l'un pour trouver
+            // l'autre.
+            //   ⚔️ Compétences → classe + arbre de compétences
+            //   💪 Muscles     → classement musculaire + journal des montées
+            [cardClass, cardSkills].filter(Boolean)
                 .forEach(card => detailsPanel.appendChild(card));
             tab.appendChild(detailsPanel);
+
+            const musclesPanel = document.createElement('div');
+            musclesPanel.id = 'rpgMusclesContainer';
+            musclesPanel.style.display = 'none';
+            [cardRank, cardMuscles, cardLog].filter(Boolean)
+                .forEach(card => musclesPanel.appendChild(card));
+            tab.appendChild(musclesPanel);
 
 
             // ── Animer les barres XP ─────────────────────────────────
@@ -36574,12 +36613,19 @@
         // ── Visuels ─────────────────────────────────────────────────
 
 
-        function rpgShowDetailsPanel() {
+        // 💪 Panneau MUSCLES — même mécanique, autre conteneur.
+        function rpgShowMusclesPanel() { rpgShowDetailsPanel('rpgMusclesContainer'); }
+        window.rpgShowMusclesPanel = rpgShowMusclesPanel;
+
+        function rpgShowDetailsPanel(containerId) {
             const existing = document.getElementById('rpgDetailsPanelOverlay');
             if (existing) { existing.remove(); return; }
 
-            // Cloner le contenu du container de détails
-            const container = document.getElementById('rpgDetailsContainer');
+            // Conteneur ciblé : compétences par défaut, muscles si demandé.
+            // ⚠️ onclick="rpgShowDetailsPanel()" peut transmettre un Event selon
+            // le contexte d'appel : on n'accepte que des chaînes comme cible.
+            const _cible = (typeof containerId === 'string' && containerId) ? containerId : 'rpgDetailsContainer';
+            const container = document.getElementById(_cible);
             if (!container) { renderGameTab(); return; }
 
             const overlay = document.createElement('div');
@@ -37390,7 +37436,7 @@
                         if (imgTag) {
                             // 🏆 Victoire : illustration COMMUNE (Esen + Nyra ensemble),
                             // quel que soit le héros choisi.
-                            imgTag.src = 'images/story/victoire_duo.webp?v=840';
+                            imgTag.src = 'images/story/victoire_duo.webp?v=843';
                             imgTag.alt = 'Esen et Nyra';
                         }
                         heroImg.style.display = 'block';
