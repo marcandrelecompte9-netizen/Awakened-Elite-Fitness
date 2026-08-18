@@ -722,6 +722,11 @@ function toggleAvatarGender() {
         rpgModal.remove();
         showRPGEquipmentModal(activeTab);
     }
+
+    // 🎴 La CARTE DU JOUEUR utilise aussi cet avatar comme fond : sans ce
+    // re-rendu, le fond restait celui de l'ancien genre jusqu'au prochain
+    // changement d'onglet.
+    try { if (typeof renderGameTab === 'function') renderGameTab(); } catch (e) {}
 }
 window.toggleAvatarGender = toggleAvatarGender;
 

@@ -14781,7 +14781,7 @@
             // preserveAspectRatio="none" : l'image occupe EXACTEMENT le viewBox,
             // donc le repère de l'image et celui des zones sont identiques.
             // (Les proportions sont conservées : 784/1168 ≈ 200/298, écart < 0,2 %.)
-            return '<image href="' + img + '?v=844" x="0" y="0" width="200" height="298" '
+            return '<image href="' + img + '?v=856" x="0" y="0" width="200" height="298" '
                  + 'preserveAspectRatio="none" style="pointer-events:none;"/>';
         }
 
@@ -23157,6 +23157,282 @@
         window.awakOpenCalc = awakOpenCalc;
         window.awakCloseCalc = awakCloseCalc;
 
+
+        // ══════════════════════════════════════════════════════════════
+        // 🧍 CARTE MUSCULAIRE — niveaux affichés SUR le corps
+        // --------------------------------------------------------------
+        // Une liste de 15 lignes ne dit pas OÙ se situe chaque muscle ni
+        // quelles zones sont en retard. Sur une silhouette, le déséquilibre
+        // saute aux yeux. Réutilise les zones SVG déjà calibrées du
+        // sélecteur de muscles (_mmpFrontShapes / _mmpBackShapes) et
+        // l'avatar choisi dans Équipement.
+        // ══════════════════════════════════════════════════════════════
+        var _bodyMapView = 'face';
+        function awakToggleBodyMapView() {
+            _bodyMapView = (_bodyMapView === 'face') ? 'dos' : 'face';
+            var host = document.getElementById('awakBodyMapHost');
+            if (host) host.innerHTML = awakRenderBodyMap();
+        }
+        window.awakToggleBodyMapView = awakToggleBodyMapView;
+
+        // Couleur d'une zone selon le niveau du muscle (gris = jamais travaillé)
+        function _bodyMapColor(lv) {
+            if (!lv) return 'rgba(100,116,139,0.18)';
+            if (lv >= 10) return 'rgba(251,191,36,0.75)';   // or
+            if (lv >= 7)  return 'rgba(168,85,247,0.65)';   // violet
+            if (lv >= 5)  return 'rgba(59,130,246,0.60)';   // bleu
+            if (lv >= 3)  return 'rgba(34,197,94,0.55)';    // vert
+            return 'rgba(148,163,184,0.40)';                // gris clair
+        }
+
+        function awakRenderBodyMap() {
+            var data = (typeof rpgLoad === 'function') ? rpgLoad() : { muscles: {} };
+            var mus = (data && data.muscles) ? data.muscles : {};
+            var niveau = {};
+            Object.keys(mus).forEach(function (m) {
+                var xp = (mus[m] && mus[m].xp) ? mus[m].xp : 0;
+                niveau[m] = (typeof rpgLevelFromXP === 'function') ? rpgLevelFromXP(xp) : 0;
+            });
+
+            var estFace = (_bodyMapView === 'face');
+            var img = estFace ? 'images/body/body_face.webp' : 'images/body/body_dos.webp';
+
+            // Zones : mêmes tracés que le sélecteur de muscles
+            var zones = estFace ? [
+                ['Trapèzes',   '<path d="M86,47 L100,41 L114,47 L111,70 L100,64 L89,70 Z"/>'],
+                ['Épaules',    '<ellipse cx="70" cy="68" rx="9.5" ry="9.5"/><ellipse cx="130" cy="68" rx="9.5" ry="9.5"/>'],
+                ['Pectoraux',  '<path d="M82,74 L99,80 L99,100 L82,94 Z"/><path d="M118,74 L101,80 L101,100 L118,94 Z"/>'],
+                ['Biceps',     '<ellipse cx="61" cy="100" rx="8" ry="14"/><ellipse cx="139" cy="100" rx="8" ry="14"/>'],
+                ['Avant-bras', '<ellipse cx="47" cy="130" rx="7" ry="15"/><ellipse cx="153" cy="130" rx="7" ry="15"/>'],
+                ['Abdominaux', '<rect x="88" y="102" width="24" height="30" rx="5"/>'],
+                ['Obliques',   '<path d="M80,100 L86,104 L86,130 L79,124 Z"/><path d="M120,100 L114,104 L114,130 L121,124 Z"/>'],
+                ['Quadriceps', '<ellipse cx="83" cy="175" rx="11" ry="26"/><ellipse cx="117" cy="175" rx="11" ry="26"/>'],
+                ['Adducteurs', '<ellipse cx="94" cy="165" rx="5" ry="18"/><ellipse cx="106" cy="165" rx="5" ry="18"/>'],
+                ['Mollets',    '<ellipse cx="80" cy="233" rx="7" ry="16"/><ellipse cx="120" cy="233" rx="7" ry="16"/>']
+            ] : [
+                ['Trapèzes',   '<path d="M86,47 L100,41 L114,47 L111,70 L100,64 L89,70 Z"/>'],
+                ['Épaules',    '<ellipse cx="70" cy="68" rx="9.5" ry="9.5"/><ellipse cx="130" cy="68" rx="9.5" ry="9.5"/>'],
+                ['Dos',        '<path d="M83,75 L98,81 L98,120 L87,110 Z"/><path d="M117,75 L102,81 L102,120 L113,110 Z"/>'],
+                ['Triceps',    '<path d="M51,93 L64,93 L46,113 L34,113 Z"/><path d="M149,93 L136,93 L154,113 L166,113 Z"/>'],
+                ['Avant-bras', '<path d="M29,124 L38,124 L24,140 L17,140 Z"/><path d="M171,124 L162,124 L176,140 L183,140 Z"/>'],
+                ['Fessiers',   '<path d="M82,131 C82,123 99,123 99,131 L99,149 C99,157 82,157 82,149 Z"/><path d="M118,131 C118,123 101,123 101,131 L101,149 C101,157 118,157 118,149 Z"/>'],
+                ['Ischio-jambiers', '<ellipse cx="81" cy="180" rx="10" ry="20"/><ellipse cx="119" cy="180" rx="10" ry="20"/>'],
+                ['Mollets',    '<ellipse cx="70" cy="233" rx="7" ry="16"/><ellipse cx="130" cy="233" rx="7" ry="16"/>']
+            ];
+
+            var svgZones = '', etiquettes = '';
+            zones.forEach(function (z) {
+                var nom = z[0], lv = niveau[nom] || 0;
+                svgZones += '<g style="fill:' + _bodyMapColor(lv) + ';stroke:rgba(255,255,255,0.22);stroke-width:0.7;">'
+                    + z[1] + '</g>';
+            });
+
+            // Étiquettes : muscle + niveau, triées par niveau décroissant
+            var tries = zones.map(function (z) { return [z[0], niveau[z[0]] || 0]; })
+                             .sort(function (a, b) { return b[1] - a[1]; });
+            tries.forEach(function (t) {
+                var c = _bodyMapColor(t[1]);
+                etiquettes += '<div style="display:flex;align-items:center;gap:6px;font-size:0.68em;padding:3px 0;">'
+                    + '<span style="width:9px;height:9px;border-radius:3px;background:' + c + ';flex-shrink:0;"></span>'
+                    + '<span style="flex:1;color:#cbd5e1;">' + t[0] + '</span>'
+                    + '<span style="color:' + (t[1] ? '#e2e8f0' : '#475569') + ';font-weight:800;">'
+                    + (t[1] ? 'Niv.' + t[1] : '—') + '</span></div>';
+            });
+
+            return '<div style="display:flex;gap:12px;align-items:flex-start;">'
+                + '<div style="flex-shrink:0;width:150px;position:relative;">'
+                +   '<svg viewBox="0 0 200 260" style="width:100%;height:auto;display:block;">'
+                +     '<image href="' + img + '" x="0" y="0" width="200" height="260" preserveAspectRatio="none" opacity="0.55"/>'
+                +     svgZones
+                +   '</svg>'
+                +   '<button onclick="awakToggleBodyMapView()" style="width:100%;margin-top:6px;padding:7px;border-radius:10px;'
+                +     'background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:#94a3b8;'
+                +     'font-size:0.66em;font-weight:800;cursor:pointer;">'
+                +     (estFace ? '🔄 VOIR LE DOS' : '🔄 VOIR LA FACE') + '</button>'
+                + '</div>'
+                + '<div style="flex:1;min-width:0;">' + etiquettes + '</div>'
+                + '</div>';
+        }
+        window.awakRenderBodyMap = awakRenderBodyMap;
+
+
+        // ══════════════════════════════════════════════════════════════
+        // 🗺️ LA CARTE DE L'EFFACEMENT
+        // --------------------------------------------------------------
+        // Le hub du jeu devient un LIEU au lieu d'une liste. La ville est
+        // mangée par le blanc de l'Oubli ; l'effacement RECULE à mesure que
+        // le rang monte — la thèse de l'histoire rendue visible.
+        // Tout est dessiné en SVG par le code : aucune image à charger, la
+        // carte s'adapte à l'état réel du joueur et à toutes les tailles.
+        // Un bouton « Vue liste » rebascule sur l'affichage classique.
+        // ══════════════════════════════════════════════════════════════
+        function awakCarteActive() {
+            try { return localStorage.getItem('awakVueCarte') === '1'; } catch (e) { return false; }
+        }
+        function awakToggleCarte() {
+            try { localStorage.setItem('awakVueCarte', awakCarteActive() ? '0' : '1'); } catch (e) {}
+            renderGameTab();
+        }
+        window.awakToggleCarte = awakToggleCarte;
+
+        // Rayon de la zone RECONQUISE selon le rang : rang E = presque tout
+        // est effacé, rang SSS = la ville est rendue.
+        function _carteRayonClair() {
+            const ordre = ['E', 'D', 'C', 'B', 'A', 'S', 'SS', 'SSS'];
+            let idx = 0;
+            try {
+                const r = (typeof awakGetRank === 'function') ? awakGetRank() : null;
+                idx = Math.max(0, ordre.indexOf(r && r.id));
+            } catch (e) {}
+            return 96 + idx * 26;   // 96 → 278 sur un viewBox de 400
+        }
+
+        // ✨ Poussière lumineuse : particules qui montent lentement dans la
+        // zone reconquise — la ville « respire » là où l'Oubli a reculé.
+        // Positions déterministes (pas de scintillement au re-rendu).
+        function _cartePoussiere(R, col) {
+            let out = '';
+            for (let i = 0; i < 14; i++) {
+                const h = (i * 7919) % 100000;
+                const a = (h % 360) * Math.PI / 180;
+                const d = R * (0.15 + (h % 71) / 100);
+                const x = (200 + Math.cos(a) * d).toFixed(1);
+                const y = (200 + Math.sin(a) * d).toFixed(1);
+                const dur = (7 + (h % 9)).toFixed(1);
+                const r = (0.8 + (h % 13) / 10).toFixed(1);
+                out += '<circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="' + col + '" opacity="0.5">'
+                    + '<animate attributeName="cy" values="' + y + ';' + (parseFloat(y) - 26).toFixed(1) + ';' + y + '" dur="' + dur + 's" repeatCount="indefinite"/>'
+                    + '<animate attributeName="opacity" values="0;0.55;0" dur="' + dur + 's" repeatCount="indefinite"/>'
+                    + '</circle>';
+            }
+            return out;
+        }
+
+        function awakRenderCarte() {
+            const R = _carteRayonClair();
+            const rangCol = (function () {
+                try { return (awakGetRank() || {}).color || '#94a3b8'; } catch (e) { return '#94a3b8'; }
+            })();
+
+            // ── Failles ouvertes ────────────────────────────────────────
+            let rifts = [];
+            try { rifts = (awakRiftsLoad() || []).filter(r => !r.completed); } catch (e) {}
+
+            // ── Compagnons débloqués ────────────────────────────────────
+            let comps = [];
+            try {
+                comps = (typeof awakGetCompanions === 'function' ? awakGetCompanions() : [])
+                    .filter(c => c && c.unlocked);
+            } catch (e) {}
+
+            // Positions déterministes : une Faille garde SA place d'un
+            // affichage à l'autre (sinon la carte danserait à chaque rendu).
+            const pos = (cle, i, rayon) => {
+                let h = 0;
+                const t = String(cle || '') + i;
+                for (let k = 0; k < t.length; k++) h = (h * 31 + t.charCodeAt(k)) % 100000;
+                const a = (h % 360) * Math.PI / 180;
+                const d = rayon * (0.42 + (h % 47) / 100);
+                return { x: 200 + Math.cos(a) * d, y: 200 + Math.sin(a) * d };
+            };
+
+            let marques = '';
+
+            // 🌀 FAILLES — brèches qui pulsent
+            rifts.slice(0, 8).forEach((r, i) => {
+                const p = pos(r.id || r.themeId, i, R);
+                const c = (r.narrativeData && r.narrativeData.color) || '#a855f7';
+                const _dur = (2.1 + (i % 4) * 0.35).toFixed(2);   // désynchronisé
+                marques += '<g style="cursor:pointer;">'
+                    + '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="16" fill="' + c + '18"/>'
+                    // anneau qui s'ouvre : la brèche « respire »
+                    + '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="7" fill="none" stroke="' + c + '" stroke-width="1.1" opacity="0.7">'
+                    +   '<animate attributeName="r" values="7;19;7" dur="' + _dur + 's" repeatCount="indefinite"/>'
+                    +   '<animate attributeName="opacity" values="0.7;0;0.7" dur="' + _dur + 's" repeatCount="indefinite"/>'
+                    + '</circle>'
+                    + '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="6" fill="' + c + '" opacity="0.92" filter="url(#awakLueur)">'
+                    +   '<animate attributeName="r" values="5;8.5;5" dur="' + _dur + 's" repeatCount="indefinite"/>'
+                    + '</circle></g>';
+            });
+
+            // ✦ ANCRAGES ALLIÉS — points de lumière
+            comps.slice(0, 5).forEach((c, i) => {
+                const p = pos('comp' + (c.id || i), i, R * 0.72);
+                const _p = (3.4 + (i % 3) * 0.6).toFixed(1);
+                marques += '<g><circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="4.5" fill="#4ade80" opacity="0.9" filter="url(#awakLueur)">'
+                    +   '<animate attributeName="opacity" values="0.9;0.5;0.9" dur="' + _p + 's" repeatCount="indefinite"/>'
+                    + '</circle>'
+                    + '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="10" fill="none" stroke="#4ade80" stroke-width="0.7" opacity="0.35"/></g>';
+            });
+
+            // 👑 LE MONARQUE — masse sombre au bout de l'avenue, grossit
+            // avec le nombre de sous-boss vaincus.
+            let sb = 0;
+            try { sb = parseInt(localStorage.getItem('awakSubBossProgress') || '0', 10) || 0; } catch (e) {}
+            const taille = 14 + sb * 5;
+            // ⚠️ Plafonné : à haut rang, R*0.86 sortait du viewBox (y négatif)
+            // et le Monarque se retrouvait coupé en haut de la carte.
+            const _my = Math.max(taille + 6, 200 - R * 0.86);
+            marques += '<g><circle cx="200" cy="' + _my.toFixed(1) + '" r="' + taille + '" fill="#dc2626" opacity="0.10"/>'
+                + '<circle cx="200" cy="' + _my.toFixed(1) + '" r="' + (taille * 0.45).toFixed(1) + '" fill="#7f1d1d" opacity="0.75"/></g>';
+
+            // 🏙️ La ville est une VRAIE image de plan (images/carte_ville.webp),
+            // découpée par le clip : seule la zone reconquise est visible.
+            // Le quadrillage dessiné qui servait de repli a été retiré.
+
+            return ''
+            + '<div style="position:relative;border-radius:18px;overflow:hidden;background:#08090c;'
+            +   'border:1px solid ' + rangCol + '33;margin-bottom:14px;">'
+            +   '<svg viewBox="0 0 400 400" style="width:100%;height:auto;display:block;">'
+            +     '<defs>'
+            +       '<radialGradient id="awakOubli">'
+            +         '<stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>'
+            +         '<stop offset="62%" stop-color="#ffffff" stop-opacity="0"/>'
+            +         '<stop offset="100%" stop-color="#e2e8f0" stop-opacity="0.30"/>'
+            +       '</radialGradient>'
+            +       '<radialGradient id="awakZone">'
+            +         '<stop offset="0%" stop-color="' + rangCol + '" stop-opacity="0.13"/>'
+            +         '<stop offset="100%" stop-color="' + rangCol + '" stop-opacity="0"/>'
+            +       '</radialGradient>'
+            +       '<clipPath id="awakClair"><circle cx="200" cy="200" r="' + R + '"/></clipPath>'
+            +       // 🌫️ Brume de l'Oubli : turbulence animée sur le pourtour.
+            +       '<filter id="awakBrume" x="-20%" y="-20%" width="140%" height="140%">'
+            +         '<feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="3" seed="7" result="n">'
+            +           '<animate attributeName="baseFrequency" values="0.012;0.018;0.012" dur="24s" repeatCount="indefinite"/>'
+            +         '</feTurbulence>'
+            +         '<feDisplacementMap in="SourceGraphic" in2="n" scale="26"/>'
+            +       '</filter>'
+            +       '<filter id="awakLueur"><feGaussianBlur stdDeviation="3.2" result="b"/>'
+            +         '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>'
+            +     '</defs>'
+            +     '<rect width="400" height="400" fill="#0b0d11"/>'
+            +     '<g clip-path="url(#awakClair)">'
+            +       '<image href="images/carte_ville.webp?v=856" x="0" y="0" width="400" height="400" '
+            +         'preserveAspectRatio="xMidYMid slice" opacity="0.95"/>'
+            +     '</g>'
+            +     '<circle cx="200" cy="200" r="' + R + '" fill="url(#awakZone)"/>'
+            +     '<circle cx="200" cy="200" r="' + R + '" fill="none" stroke="' + rangCol + '" stroke-width="1" opacity="0.35" stroke-dasharray="4 6"/>'
+            +     '<g filter="url(#awakBrume)"><rect width="400" height="400" fill="url(#awakOubli)"/></g>'
+            +     _cartePoussiere(R, rangCol)
+            +     marques
+            +     '<circle cx="200" cy="200" r="7" fill="' + rangCol + '"/>'
+            +     '<circle cx="200" cy="200" r="14" fill="none" stroke="' + rangCol + '" stroke-width="1" opacity="0.5">'
+            +       '<animate attributeName="r" values="12;20;12" dur="3.2s" repeatCount="indefinite"/>'
+            +       '<animate attributeName="opacity" values="0.5;0;0.5" dur="3.2s" repeatCount="indefinite"/>'
+            +     '</circle>'
+            +   '</svg>'
+            +   '<div style="position:absolute;top:10px;left:12px;font-size:0.56em;letter-spacing:2px;'
+            +     'color:' + rangCol + ';font-weight:900;">◈ CARTE DE L\'EFFACEMENT</div>'
+            +   '<div style="position:absolute;bottom:10px;left:12px;font-size:0.6em;color:#64748b;">'
+            +     rifts.length + ' faille' + (rifts.length > 1 ? 's' : '') + ' · '
+            +     comps.length + ' ancrage' + (comps.length > 1 ? 's' : '') + '</div>'
+            +   '<button onclick="awakToggleCarte()" style="position:absolute;top:8px;right:8px;'
+            +     'background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);color:#cbd5e1;'
+            +     'font-size:0.6em;font-weight:800;padding:6px 10px;border-radius:9px;cursor:pointer;">☰ LISTE</button>'
+            + '</div>';
+        }
+        window.awakRenderCarte = awakRenderCarte;
+
         function getFatiguedMuscles() {
             const statuses = getAllMusclesRecoveryStatus();
             return Object.keys(statuses).filter(muscle => 
@@ -26667,7 +26943,11 @@
             // Superposition : dégradé de protection AU-DESSUS de l'image pour que
             // les stats restent lisibles à gauche, où le texte est le plus dense.
             // L'image est en cover à droite ; overflow:hidden la recadre proprement.
-            cardProfile.style.cssText = 'background-color:#0D0E12;background-image:linear-gradient(100deg,rgba(13,14,18,0.97) 0%,rgba(13,14,18,0.86) 42%,rgba(13,14,18,0.55) 70%,rgba(13,14,18,0.45) 100%), url("images/card_bg.webp?v=844");background-size:cover,cover;background-position:center,right center;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14, inset 0 0 36px rgba(0,0,0,0.45);padding:20px;margin-bottom:14px;position:relative;';
+            // 🎭 Fond selon l'avatar choisi (Équipement › bascule homme/femme).
+            // Même clé que l'avatar du panneau personnage : fitproAvatarGender.
+            const _cardBg = (localStorage.getItem('fitproAvatarGender') || 'homme') === 'femme'
+                ? 'images/card_bg_femme.webp' : 'images/card_bg_homme.webp';
+            cardProfile.style.cssText = 'background-color:#0D0E12;background-image:linear-gradient(100deg,rgba(13,14,18,0.97) 0%,rgba(13,14,18,0.86) 42%,rgba(13,14,18,0.55) 70%,rgba(13,14,18,0.45) 100%), url("' + _cardBg + '?v=856");background-size:cover,cover;background-position:center,right center;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14, inset 0 0 36px rgba(0,0,0,0.45);padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -26798,6 +27078,19 @@
             // la plus importante à voir en premier (rang, niveau, attributs).
             tab.insertBefore(cardProfile, tab.firstChild);
 
+            // 🗺️ CARTE DE L'EFFACEMENT — placée AVANT la carte du joueur
+            // quand la vue carte est active : on voit d'abord le LIEU, la
+            // fiche de chasseur vient ensuite.
+            try {
+                if (typeof awakCarteActive === 'function' && awakCarteActive()
+                    && typeof awakRenderCarte === 'function') {
+                    const _wrapCarte = document.createElement('div');
+                    _wrapCarte.innerHTML = awakRenderCarte();
+                    const _c = _wrapCarte.firstElementChild;
+                    if (_c) tab.insertBefore(_c, tab.firstChild);
+                }
+            } catch (e) {}
+
             // ── BOUTON ÉQUIPEMENT RPG (à DROITE de Compétences) ──
             const _adv = typeof getAdventureEnabled === 'function' ? getAdventureEnabled() : false;
             const _eqIt = typeof getEquippedItems === 'function' ? getEquippedItems() : {};
@@ -26856,7 +27149,7 @@
                 };
 
                 // Badges : calculés à partir de l'état réel du jeu
-                let _bJournal = 0, _bMalus = 0, _bStats = 0;
+                let _bJournal = 0, _bMalus = 0;
                 // Journal : chapitres de rang atteints mais pas encore lus
                 try {
                     const _info = (typeof getPlayerRankInfo === 'function') ? getPlayerRankInfo() : { rankId: 'E' };
@@ -26872,12 +27165,7 @@
                 try {
                     if (typeof awakCountActiveMalus === 'function') _bMalus = awakCountActiveMalus() || 0;
                 } catch (e) {}
-                // Points de stats non dépensés (source réelle : statPointsLoad)
-                try {
-                    const _sp = (typeof statPointsLoad === 'function') ? statPointsLoad() : null;
-                    _bStats = (_sp && _sp.available) ? _sp.available : 0;
-                } catch (e) {}
-
+                
                 const row2 = document.createElement('div');
                 row2.id = 'awakRowBtns2';
                 row2.style.cssText = 'display:flex;gap:7px;align-items:stretch;margin-top:7px;margin-bottom:4px;';
@@ -26894,28 +27182,20 @@
                 row2.appendChild(_mkBtn('💪', 'MUSCLES', function () {
                     if (typeof rpgShowMusclesPanel === 'function') rpgShowMusclesPanel();
                 }, '#4ade80', 0));
+                // 🗺️ Bascule vers la Carte de l'Effacement
+                row2.appendChild(_mkBtn('🗺️', 'CARTE', function () {
+                    if (typeof awakToggleCarte === 'function') awakToggleCarte();
+                }, '#e2e8f0', 0));
                 // 📊 « DÉTAILS » RETIRÉ (v841) : ce bouton appelait exactement la
                 // même fonction que « Compétences » (rpgShowDetailsPanel) — deux
                 // boutons pour un seul écran. Le badge des points de stats non
                 // dépensés est reporté sur Compétences, où il a sa place.
                 cardProfile.appendChild(row2);
 
-                // 🔴 Badge des points de stats non dépensés → sur COMPÉTENCES,
-                // puisque c'est là qu'on les dépense (le bouton Détails, qui le
-                // portait, faisait doublon et a été retiré).
-                if (_bStats > 0) {
-                    const _bc = document.getElementById('awakBtnCompetences');
-                    if (_bc && !document.getElementById('awakBadgeStats')) {
-                        _bc.style.position = 'relative';
-                        const _bd = document.createElement('div');
-                        _bd.id = 'awakBadgeStats';
-                        _bd.textContent = _bStats;
-                        _bd.style.cssText = 'position:absolute;top:5px;right:6px;min-width:18px;height:18px;'
-                            + 'border-radius:9px;background:#ef4444;color:#fff;font-size:0.6em;font-weight:900;'
-                            + 'display:flex;align-items:center;justify-content:center;padding:0 4px;';
-                        _bc.appendChild(_bd);
-                    }
-                }
+                // 🔴 Badge des points de stats RETIRÉ (v846) : le nombre de points
+                // non distribués est DÉJÀ affiché en haut de la carte (« ↑ 268 pts »).
+                // Deux indicateurs pour la même information, à quelques centimètres
+                // l'un de l'autre.
             } catch (e) {}
 
             // ── 👑 COMBAT FINAL — Le Monarque du Déclin (apparaît après les 4 sous-bosses) ──
@@ -27189,7 +27469,9 @@
             // ── 6. CLASSEMENT MUSCLES ────────────────────────────────
             const cardMuscles = document.createElement('div');
             cardMuscles.className = 'card';
-            cardMuscles.innerHTML = `<h3 style="margin:0 0 12px;color:#e2e8f0;">Classement muscles</h3>
+            cardMuscles.innerHTML = `<h3 style="margin:0 0 12px;color:#e2e8f0;">Carte musculaire</h3>
+                <div id="awakBodyMapHost" style="margin-bottom:16px;">${(typeof awakRenderBodyMap === 'function') ? awakRenderBodyMap() : ''}</div>
+                <h3 style="margin:0 0 12px;color:#e2e8f0;font-size:0.95em;">Classement détaillé</h3>
                 <div id="rpgMuscleGrid" style="display:flex;flex-direction:column;gap:6px;">
                 ${muscles.length === 0
                     ? '<p style="color:#6b7280;text-align:center;padding:16px 0;font-size:0.9em;">Complète une séance pour gagner de l\'XP !</p>'
@@ -27446,9 +27728,16 @@
             // 🗺️ Placement : juste sous la rangée Compétences/Équipement si elle existe
             // (les Failles sont le cœur du jeu → remontées sous la Carte de Chasseur),
             // sinon en fin d'onglet (mode RPG désactivé, ou rendu pas encore fait).
+            // 🐛 v843 a déplacé la rangée de boutons DANS la carte du joueur :
+            // `awakRowBtns.parentNode` n'est donc plus l'onglet, la condition
+            // échouait et le conteneur (Failles, défi du Système, compagnons…)
+            // partait tout en BAS de l'onglet, après les cartes de détails.
+            // On s'ancre désormais sur la CARTE elle-même, qui est bien enfant
+            // direct de l'onglet.
             const anchor = document.getElementById('awakRowBtns');
-            if (anchor && anchor.parentNode === tab) {
-                anchor.insertAdjacentElement('afterend', div);
+            const carte = anchor ? anchor.closest('#gameTab > *') : null;
+            if (carte && carte.parentNode === tab) {
+                carte.insertAdjacentElement('afterend', div);
             } else {
                 tab.appendChild(div);
             }
@@ -37440,7 +37729,7 @@
                         if (imgTag) {
                             // 🏆 Victoire : illustration COMMUNE (Esen + Nyra ensemble),
                             // quel que soit le héros choisi.
-                            imgTag.src = 'images/story/victoire_duo.webp?v=844';
+                            imgTag.src = 'images/story/victoire_duo.webp?v=856';
                             imgTag.alt = 'Esen et Nyra';
                         }
                         heroImg.style.display = 'block';

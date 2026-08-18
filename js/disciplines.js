@@ -1089,9 +1089,19 @@
       var _dejaLa = {};
       global.exerciseDatabase.forEach(function (e) { if (e && e.name) { _dejaLa[e.name] = true; } });
       var _ajoutes = 0;
+      // 🧹 ENTRÉES STRUCTURELLES — à ne PAS mettre dans la bibliothèque.
+      // Une séance de discipline contient des blocs qui ne sont pas des
+      // exercices : « Tabata Burpees — round 3/8 », « Repos 10 s »,
+      // « Échauffement (5 min) », « Retour au calme », « Finisher »…
+      // Ils sont indispensables au DÉROULÉ de la séance, mais n'ont aucun
+      // sens seuls : on ne cherche pas « round 3/8 » dans une bibliothèque,
+      // et ils y noyaient les vrais mouvements (59 % des entrées HIIT).
+      // Ils restent dans les SESSIONS (rien n'est retiré des séances).
+      var _structurel = /(^|\s)round\s*\d+\s*\/\s*\d+|^Repos\b|^Échauffement\b|^Retour au calme\b|^Finisher\b|entre blocs|^\s*Récup|^Effort\b|^Marche\b.*\(\d+\s*min\)/i;
       Object.keys(DISCIPLINE_SESSIONS).forEach(function (did) {
         getDisciplineExercises(did).forEach(function (ex) {
           if (!ex || !ex.name || _dejaLa[ex.name]) { return; }
+          if (_structurel.test(ex.name)) { return; }   // bloc de séance, pas un exercice
           _dejaLa[ex.name] = true;
           var c = Object.assign({}, ex);
           c.discipline = c.discipline || did;   // marqueur conservé

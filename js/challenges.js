@@ -1429,19 +1429,29 @@ function startChallengeTimer() {
 // depuis la mémoire sans recharger la page — DOMContentLoaded ne s'y redéclenche
 // pas). C'était la cause du « le défi ne s'affiche jamais » : le tirage n'avait
 // lieu qu'au chargement à froid, rare pour une PWA.
+// ⚠️ `force` est conservé pour compatibilité des appels existants, mais il ne
+// contourne PLUS le verrou quotidien : c'était précisément lui qui permettait
+// de relancer le tirage en rouvrant l'app. Pour forcer un défi (tests),
+// utiliser forceNewChallenge().
 function maybeRollSystemChallenge(force) {
     if (!getAdventureEnabled()) return;
     checkExpiredChallengeOnLoad();
 
-    // Cooldown : au plus un tirage toutes les 4 h (revenir sur l'app après une
-    // pause = une "ouverture"). 'force' ignore le cooldown (chargement à froid).
-    if (!force) {
-        try {
-            const last = parseInt(localStorage.getItem('challengeLastRoll') || '0', 10);
-            if (Date.now() - last < 4 * 60 * 60 * 1000) return;
-        } catch(e) {}
-    }
-    try { localStorage.setItem('challengeLastRoll', String(Date.now())); } catch(e) {}
+    // 🎲 UN SEUL TIRAGE PAR JOUR (v849)
+    // Avant : cooldown de 4 h, IGNORÉ quand `force` est vrai — c'est-à-dire à
+    // chaque chargement à froid. Fermer et rouvrir l'app relançait donc le
+    // tirage, et il suffisait de rafraîchir plusieurs fois pour forcer
+    // l'apparition d'un défi. On tire désormais une fois par JOUR CIVIL :
+    // pas de défi aujourd'hui = rendez-vous demain, quel que soit le nombre
+    // de rafraîchissements. `force` ne contourne plus cette règle.
+    const _jour = new Date().toDateString();
+    try {
+        if (localStorage.getItem('challengeLastRollDay') === _jour) return;
+    } catch(e) {}
+    try {
+        localStorage.setItem('challengeLastRollDay', _jour);
+        localStorage.setItem('challengeLastRoll', String(Date.now()));
+    } catch(e) {}
 
     const challenge = getActiveSystemChallenge();
     const noActive = !challenge || challenge.status !== 'active';

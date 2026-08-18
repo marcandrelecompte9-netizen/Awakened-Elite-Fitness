@@ -6,6 +6,13 @@ Bonjour Claude. Ce zip contient une application EXISTANTE et FONCTIONNELLE.
 Ton rôle est de l'améliorer SANS rien casser. Lis tout ce fichier avant de
 toucher au code.
 
+⚠️ Ce document a deux parties :
+   • L'EN-TÊTE (sections 1 à 8) décrit l'ÉTAT ACTUEL — tenu à jour.
+   • Le JOURNAL (après « Bonne continuation ») est un historique
+     CHRONOLOGIQUE des versions. Il n'est PAS mis à jour : une entrée
+     ancienne peut décrire un état depuis modifié. En cas de doute,
+     l'en-tête et le CODE font foi.
+
 
 ───────────────────────────────────────────────────────────────────────
   1. CE QU'EST LE PROJET
@@ -13,13 +20,13 @@ toucher au code.
 
 "Awakened" : une PWA (Progressive Web App) de fitness inspirée de Solo
 Leveling. Elle mêle suivi d'entraînement réel et mécaniques de jeu RPG
-(Failles/rifts, monstres, boss, arbre de compétences, stats, rangs E→S,
-compagnons, équipement avec raretés, narration).
+(Failles, monstres, boss, arbre de compétences, stats, rangs E→SSS,
+compagnons, équipement, narration en 57 événements).
 
 Stack : JavaScript / HTML / CSS PUR (vanilla). AUCUN framework, aucun build
 system. Le code tourne directement dans le navigateur.
 
-L'utilisateur travaille SUR MOBILE (téléphone) et communique EN FRANÇAIS.
+L'utilisateur travaille SUR MOBILE et communique EN FRANÇAIS.
 Réponds toujours en français.
 
 
@@ -33,24 +40,26 @@ réécrivant du code qu'elle ne comprenait pas. Pour éviter ça :
 • NE RÉÉCRIS JAMAIS un fichier entier. Fais uniquement des modifications
   CHIRURGICALES (trouver la portion exacte, remplacer juste ce morceau).
 
-• NE "nettoie" pas, NE refactorise pas, NE réorganise pas le code de ta
-  propre initiative. Touche UNIQUEMENT ce qui est explicitement demandé.
+• NE "nettoie" pas, NE refactorise pas de ta propre initiative. Touche
+  UNIQUEMENT ce qui est explicitement demandé.
 
-• AVANT de modifier une fonction, LIS-LA d'abord (grep/view) pour
-  comprendre ses dépendances. Ne devine pas comment elle marche.
+• AVANT de modifier une fonction, LIS-LA d'abord pour comprendre ses
+  dépendances. Ne devine pas comment elle marche.
 
-• UNE demande = UNE modification. Ne profite pas d'une tâche pour
-  "améliorer" autre chose au passage.
+• Le code existant FONCTIONNE. Si quelque chose te semble bizarre ou
+  redondant, c'est PROBABLEMENT INTENTIONNEL. Demande avant de "corriger".
 
-• Le code existant FONCTIONNE. Si quelque chose te semble bizarre,
-  redondant ou "mal fait", c'est PROBABLEMENT INTENTIONNEL. Ne le
-  "corrige" pas sans demander d'abord.
+• app.js fait ~46 500 lignes avec des systèmes interconnectés. Un petit
+  changement peut avoir des effets à distance.
 
-• Si tu n'es pas certain de l'impact d'un changement, DEMANDE AVANT.
-  Confirme le scope des grosses tâches avant de te lancer.
+• ⚠️ VÉRIFIE EMPIRIQUEMENT avant d'affirmer qu'un correctif fonctionne.
+  `node --check` ne valide QUE la syntaxe : il ne voit pas un mauvais nom
+  de fonction, une clé localStorage inexistante ou un rendu jamais appelé.
+  Simule la logique en Node avant de dire « c'est corrigé ».
 
-• app.js fait ~35000 lignes avec des systèmes interconnectés. Un petit
-  changement peut avoir des effets à distance. Prudence.
+• ⚠️ PIÈGE RÉCURRENT — commenter du code avec /* ... */ : vérifie ce que
+  ton commentaire ENGLOBE réellement. Un bloc fermé trop loin a déjà cassé
+  des fonctions voisines (v836).
 
 
 ───────────────────────────────────────────────────────────────────────
@@ -59,102 +68,151 @@ réécrivant du code qu'elle ne comprenait pas. Pour éviter ça :
 
 Il y a DEUX numéros de version DÉCOUPLÉS :
 
-A) VERSION AFFICHÉE = "v0.85 · awakened" dans index.html (~ligne 2167).
-   → NE PAS LA CHANGER. Elle reste à v0.85 jusqu'à ce que l'utilisateur
-     dise explicitement qu'on passe à V1.0.
+A) VERSION AFFICHÉE = "v0.90 · awakened" dans index.html.
+   → NE PAS LA CHANGER sans instruction explicite de l'utilisateur.
 
-B) VERSION TECHNIQUE DU CACHE = un compteur SÉPARÉ qui sert à forcer la
-   mise à jour de l'app sur le téléphone. Il faut l'INCRÉMENTER À CHAQUE
-   BUILD. Il apparaît à deux endroits :
-     - dans sw.js : le nom du cache "awakened-vXX"
-     - dans index.html : tous les "?v=XX" sur les fichiers js/css
-   ⚠️  ÉTAT ACTUEL : v154. Le prochain build sera donc v155, puis v156, etc.
+B) VERSION TECHNIQUE DU CACHE = un compteur SÉPARÉ qui force la mise à
+   jour sur le téléphone. À INCRÉMENTER À CHAQUE BUILD. Trois endroits :
+     - sw.js       : nom du cache "awakened-vNNN"
+     - index.html  : les 39 "?v=NNN" sur les fichiers js/css
+     - sw.js       : les "?v=NNN" des assets (manifest, icônes)
+   ⚠️  ÉTAT ACTUEL : v856. Prochain build = v857.
 
 
 ───────────────────────────────────────────────────────────────────────
   4. PROCÉDURE DE BUILD (à suivre à chaque modification)
 ───────────────────────────────────────────────────────────────────────
 
-Base du projet : /home/claude/fitpro/   (ou là où le zip est extrait)
-Sortie : un zip à présenter à l'utilisateur
+Base du projet : /home/claude/fitpro/fitpro/fitpro/
+Sortie : /mnt/user-data/outputs/
 
 Étapes :
-  1. Faire la modification chirurgicale demandée
-  2. Vérifier la syntaxe : node --check js/app.js  (et tout fichier .js modifié)
-  3. Incrémenter le cache (exemple v154 → v155) :
-       sed -i "s/awakened-v154/awakened-v155/g" sw.js
-       sed -i 's|?v=154|?v=155|g' index.html
-  4. Nettoyer : rm -f *.bak* js/*.bak*
-  5. Zipper et copier vers le dossier outputs
-  6. Présenter le zip à l'utilisateur
+  1. Modification chirurgicale demandée
+  2. node --check sur CHAQUE .js modifié
+  3. Bump du cache (exemple v851 → v852) :
+       sed -i "s/awakened-v851/awakened-v852/g" sw.js
+       sed -i "s/?v=851/?v=852/g" index.html js/app.js sw.js
+  4. Vérifier : 39 occurrences de ?v=NNN dans index.html, version
+     affichée toujours v0.90
+  5. Nettoyer : rm -f *.bak* js/*.bak* data/*.bak*
+  6. DEUX zips :
+       awakened-vNNN.zip        = complet (~76 Mo, toutes les images)
+       awakened-vNNN-deploy.zip = léger (~2 Mo, SANS images/)
+     ⚠️ Le deploy EXCLUT images/ — il faut y RÉAJOUTER explicitement :
+       images/body/body_face.webp, images/body/body_dos.webp,
+       images/card_bg_homme.webp, images/card_bg_femme.webp,
+       images/carte_ville.webp
+     (sinon le sélecteur de muscles et le fond de carte sont vides)
+  7. present_files sur les deux zips
 
-⚠️  TOUJOURS partir du zip LE PLUS RÉCENT fourni par l'utilisateur. Ne jamais
-    repartir d'une ancienne version (sinon on perd tout le travail accumulé).
+⚠️  TOUJOURS partir du zip LE PLUS RÉCENT. Ne jamais repartir d'une
+    ancienne version.
+
+NOTE : la minification (terser/cleancss) mentionnée dans le journal
+n'est PLUS pratiquée. Le deploy est du source non minifié.
 
 
 ───────────────────────────────────────────────────────────────────────
   5. STRUCTURE DES FICHIERS
 ───────────────────────────────────────────────────────────────────────
 
-  index.html ............ structure + écrans (~3600 lignes)
-  js/app.js ............. cœur logique (~35000 lignes) : séances, RPG,
-                          Failles, compagnons, compétences, morning routine,
-                          analyse du Système, cardio warmup, etc.
-  js/adventure.js ....... système d'aventure : raretés, drops d'équipement,
-                          effets d'anneaux, malédictions
-  js/challenges.js ...... défis du Système (onglet Défis)
-  js/exercises.js ....... base de 436 exercices
-                          format : { name, muscle, difficulty, type, equipment[],
-                          mode, description, instructions[], tips }
-                          type = "exercise" | "warmup" | "stretch"
+  index.html ............ structure + écrans (~3800 lignes)
+  js/app.js ............. cœur logique (~46 500 lignes)
+  js/exercises.js ....... base de 452 exercices (713 avec disciplines)
+  js/disciplines.js ..... yoga, boxe, pilates, calisthénie… + expose
+                          exerciseDatabaseMuscu (base SANS disciplines)
   js/exercise-visuals.js  mapping nom d'exercice → image .webp
-  data/items.js ......... 353 items d'équipement (6 raretés)
+  js/adventure.js ....... aventure : raretés, drops, onglet Famille
+  js/challenges.js ...... défis du Système
+  js/story-events.js .... 57 événements narratifs
+  js/final-boss.js ...... combat final (Le Monarque du Déclin)
+  js/family-*.js ........ réseau, objectif commun, défis, boss, fil
+  js/eveil.js ........... Parcours de l'Éveil (accompagnement débutant)
+  js/youth-safety.js .... protections enfants/ados/seniors
+  js/pain-mode.js ....... zones douloureuses (par profil)
+  js/workout-games.js ... 16 jeux d'entraînement
+  data/items.js ......... 397 objets d'équipement (11 sets)
   css/style.css ......... styles
   sw.js ................. service worker (cache PWA)
-  manifest.json ......... manifeste PWA
-  images/exercises/ ..... images .webp des exercices
+  images/exercises/ ..... 488 images .webp
+  images/story/ ......... illustrations narratives
+  images/body/ .......... silhouettes du sélecteur de muscles
+  validate.js ........... contrôle qualité (node validate.js)
 
 
 ───────────────────────────────────────────────────────────────────────
   6. PRÉFÉRENCES DE L'UTILISATEUR
 ───────────────────────────────────────────────────────────────────────
 
-• Français, mobile-first (interface pensée pour téléphone).
-• Aime les retours HONNÊTES et le bug-hunting rigoureux.
+• Français, mobile-first.
+• Aime les retours HONNÊTES et le bug-hunting rigoureux. Préfère qu'on
+  lui dise « je me suis trompé » plutôt qu'on maquille une erreur.
 • Esthétique sombre, style cyberpunk (vert/violet).
-• Préfère les icônes SVG aux emojis pour l'UI.
-• A un bon instinct de game design ; teste l'équilibrage.
+• A un bon instinct de game design ; teste l'équilibrage lui-même.
 • Tient à la légitimité fitness réelle de l'app (vraies recommandations).
-• Distribution prévue : gratuite et publique.
-• ⚠️  NE PAS finir chaque réponse par "Autre chose ?" ou des formules de
-   relance creuses — ça l'agace. Fais le travail, point. Laisse-le piloter.
-• Confirme le scope AVANT les grosses tâches (via questions).
+• DISTRIBUTION : l'app sera VENDUE (licence commerciale, cf. LICENSE).
+  L'ancienne mention « gratuite et publique » est PÉRIMÉE.
+• ⚠️  NE PAS finir une réponse par « Autre chose ? » ou une formule de
+   relance creuse — ça l'agace. Fais le travail, point.
+• Confirme le scope AVANT les grosses tâches.
 
 
 ───────────────────────────────────────────────────────────────────────
   7. CHANTIER EN COURS
 ───────────────────────────────────────────────────────────────────────
 
-AJOUT DES IMAGES D'EXERCICES.
-  • 436 exercices au total ; 85 ont déjà une image, 351 restent à créer.
-  • Un fichier Excel (Awakened_images_exercices.xlsx) liste les 351 manquants
-    avec, pour chacun, le NOM DE FICHIER image attendu (propre, sans accent).
-  • Quand l'utilisateur fournit de nouvelles images, il faut les déposer dans
-    images/exercises/ et brancher chaque nom d'exercice sur son fichier dans
-    js/exercise-visuals.js (le mapping).
+IMAGES MANQUANTES — 24 exercices + 18 scènes narratives.
+  • Liste détaillée + descriptions visuelles :
+    /mnt/user-data/outputs/images-manquantes.txt
+    (l'ancien fichier Excel Awakened_images_exercices.xlsx N'EXISTE PLUS)
+  • Exercices manquants : 11 musculation (tirage/biceps au poids du
+    corps), 10 Pilates, 3 gainage.
+  • Convention de nommage : accents CONSERVÉS, espaces → _
+    (ex. Fentes_arrière.webp)
+  • L'utilisateur crée les images lui-même et les envoie en zip.
+    Claude ne génère PAS d'images.
 
 
 ───────────────────────────────────────────────────────────────────────
-  8. ÉTAT TECHNIQUE ACTUEL (au moment de ce handoff)
+  8. ÉTAT TECHNIQUE ACTUEL
 ───────────────────────────────────────────────────────────────────────
 
-  • Version affichée : v0.85 · awakened
-  • Cache technique  : v154  (prochain build = v155)
-  • Exercices        : 436   (dont 85 avec image)
-  • Items            : 353
-  • app.js           : ~35225 lignes
-  • Le code a passé un audit complet (syntaxe OK, pas de référence morte,
-    pas de doublon d'id/nom). Tout est sain.
+  • Version affichée : v0.90 · awakened
+  • Cache technique  : v856  (prochain build = v857)
+  • Exercices        : 452 (base) · 713 (avec disciplines)
+  • Objets           : 397  (11 sets, tous complétables)
+  • Événements       : 57 narratifs (39 illustrés)
+  • app.js           : ~46 500 lignes · index.html ~3800
+  • Images           : 488 exercices
+
+
+───────────────────────────────────────────────────────────────────────
+  9. PIÈGES CONNUS (à relire avant de toucher à ces zones)
+───────────────────────────────────────────────────────────────────────
+
+• `isNarrative` ≠ « Faille d'histoire ». C'est une protection
+  anti-expiration portée AUSSI par les Failles compagnons, sous-boss et
+  abysses. Pour identifier une vraie Faille d'histoire : `narrativeId`.
+  Cette confusion a causé des bugs sur au moins 3 versions.
+
+• renderGameTab() fait tab.innerHTML='' : tout ce qui est ajouté APRÈS
+  (notamment #adventureContainer) doit être recréé et ancré sur un
+  élément qui est bien ENFANT DIRECT de l'onglet. Déplacer un élément
+  dans une carte casse ces ancres (v850).
+
+• L'écran PRÉPAREZ-VOUS (#preparationView) vit dans l'onglet ENTRAÎNER.
+  Toute séance lancée depuis un AUTRE onglet doit faire
+  switchTab('workouts') avant showWorkoutPreparation (v848).
+
+• Historique d'un profil : clé `profile_<id>_workoutHistory`
+  (le profil ACTIF utilise aussi `workoutHistory` sans préfixe).
+  Ce n'est PAS `workoutHistory_<id>` — erreur déjà commise (v816).
+
+• Casse des noms d'exercices : les lookups d'images et de programmes
+  sont sensibles à la casse. Vérifier le nom EXACT dans la base.
+
+• Avant de créer un système, vérifier qu'il n'existe pas déjà : un
+  sélecteur de douleur et un champ sexe ont été recréés en double.
 
 ═══════════════════════════════════════════════════════════════════════
   Bonne continuation. Respecte les règles anti-casse et tout ira bien.
@@ -188,7 +246,10 @@ AJOUT DES IMAGES D'EXERCICES.
 ═══════════════════════════════════════════════════════════════════════
 
 ═══════════════════════════════════════════════════════════════════════
-  BUILD DE DÉPLOIEMENT MINIFIÉ (depuis v477)
+  ⚠️ PÉRIMÉ — BUILD MINIFIÉ (v477, ABANDONNÉ)
+  La minification (terser / cleancss) n'est PLUS pratiquée. Le zip
+  « deploy » contient du SOURCE non minifié, allégé des images.
+  Procédure à jour : section 4 de l'en-tête.
 ═══════════════════════════════════════════════════════════════════════
   Deux zips sont livrés à chaque build :
   • awakened-vNNN.zip        = SOURCE lisible (à conserver, à uploader ici)

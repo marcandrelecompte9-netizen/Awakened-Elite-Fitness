@@ -227,6 +227,12 @@
     } else {
       window.pendingWorkout = workout;
     }
+    // 🐛 L'écran PRÉPAREZ-VOUS (#preparationView) vit dans l'onglet ENTRAÎNER.
+    // Le combat final se lance depuis l'onglet JEU : sans bascule d'onglet,
+    // la séance était bien préparée… mais restait invisible. Rien ne semblait
+    // se passer au clic.
+    try { if (typeof switchTab === 'function') switchTab('workouts'); } catch (e) {}
+
     if (typeof window.showWorkoutPreparation === 'function') {
       window.showWorkoutPreparation(workout);
     } else if (typeof window.startPreparedWorkout === 'function') {
