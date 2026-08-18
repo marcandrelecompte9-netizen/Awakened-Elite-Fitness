@@ -14781,7 +14781,7 @@
             // preserveAspectRatio="none" : l'image occupe EXACTEMENT le viewBox,
             // donc le repère de l'image et celui des zones sont identiques.
             // (Les proportions sont conservées : 784/1168 ≈ 200/298, écart < 0,2 %.)
-            return '<image href="' + img + '?v=856" x="0" y="0" width="200" height="298" '
+            return '<image href="' + img + '?v=858" x="0" y="0" width="200" height="298" '
                  + 'preserveAspectRatio="none" style="pointer-events:none;"/>';
         }
 
@@ -23159,98 +23159,110 @@
 
 
         // ══════════════════════════════════════════════════════════════
-        // 🧍 CARTE MUSCULAIRE — niveaux affichés SUR le corps
+        // 🧍 CARTE MUSCULAIRE — niveaux reliés au corps par des amorces
         // --------------------------------------------------------------
-        // Une liste de 15 lignes ne dit pas OÙ se situe chaque muscle ni
-        // quelles zones sont en retard. Sur une silhouette, le déséquilibre
-        // saute aux yeux. Réutilise les zones SVG déjà calibrées du
-        // sélecteur de muscles (_mmpFrontShapes / _mmpBackShapes) et
-        // l'avatar choisi dans Équipement.
+        // Le personnage occupe le centre ; chaque muscle a son étiquette
+        // sur le côté, reliée à sa zone par une ligne de repère.
+        // ⚠️ Coordonnées : viewBox 200×298 — le MÊME que le sélecteur de
+        // muscles (_mmpSilhouette). Une première version utilisait 200×260,
+        // ce qui décalait toutes les zones hors du corps.
+        // ⚠️ Le panneau est CLONÉ dans la modale (rpgShowDetailsPanel) :
+        // l'id awakBodyMapHost existe donc en double. On rafraîchit tous
+        // les exemplaires, sinon le bouton agit sur la copie invisible.
         // ══════════════════════════════════════════════════════════════
         var _bodyMapView = 'face';
         function awakToggleBodyMapView() {
             _bodyMapView = (_bodyMapView === 'face') ? 'dos' : 'face';
-            var host = document.getElementById('awakBodyMapHost');
-            if (host) host.innerHTML = awakRenderBodyMap();
+            const hosts = document.querySelectorAll('#awakBodyMapHost, .awak-bodymap-host');
+            hosts.forEach(h => { h.innerHTML = awakRenderBodyMap(); });
         }
         window.awakToggleBodyMapView = awakToggleBodyMapView;
 
-        // Couleur d'une zone selon le niveau du muscle (gris = jamais travaillé)
         function _bodyMapColor(lv) {
-            if (!lv) return 'rgba(100,116,139,0.18)';
-            if (lv >= 10) return 'rgba(251,191,36,0.75)';   // or
-            if (lv >= 7)  return 'rgba(168,85,247,0.65)';   // violet
-            if (lv >= 5)  return 'rgba(59,130,246,0.60)';   // bleu
-            if (lv >= 3)  return 'rgba(34,197,94,0.55)';    // vert
-            return 'rgba(148,163,184,0.40)';                // gris clair
+            if (!lv) return '#475569';
+            if (lv >= 10) return '#fbbf24';
+            if (lv >= 7)  return '#a855f7';
+            if (lv >= 5)  return '#3b82f6';
+            if (lv >= 3)  return '#22c55e';
+            return '#94a3b8';
         }
 
         function awakRenderBodyMap() {
-            var data = (typeof rpgLoad === 'function') ? rpgLoad() : { muscles: {} };
-            var mus = (data && data.muscles) ? data.muscles : {};
-            var niveau = {};
+            const data = (typeof rpgLoad === 'function') ? rpgLoad() : { muscles: {} };
+            const mus = (data && data.muscles) ? data.muscles : {};
+            const niv = {};
             Object.keys(mus).forEach(function (m) {
-                var xp = (mus[m] && mus[m].xp) ? mus[m].xp : 0;
-                niveau[m] = (typeof rpgLevelFromXP === 'function') ? rpgLevelFromXP(xp) : 0;
+                const xp = (mus[m] && mus[m].xp) ? mus[m].xp : 0;
+                niv[m] = (typeof rpgLevelFromXP === 'function') ? rpgLevelFromXP(xp) : 0;
             });
 
-            var estFace = (_bodyMapView === 'face');
-            var img = estFace ? 'images/body/body_face.webp' : 'images/body/body_dos.webp';
+            const estFace = (_bodyMapView === 'face');
+            const img = estFace ? 'images/body/body_face.webp' : 'images/body/body_dos.webp';
 
-            // Zones : mêmes tracés que le sélecteur de muscles
-            var zones = estFace ? [
-                ['Trapèzes',   '<path d="M86,47 L100,41 L114,47 L111,70 L100,64 L89,70 Z"/>'],
-                ['Épaules',    '<ellipse cx="70" cy="68" rx="9.5" ry="9.5"/><ellipse cx="130" cy="68" rx="9.5" ry="9.5"/>'],
-                ['Pectoraux',  '<path d="M82,74 L99,80 L99,100 L82,94 Z"/><path d="M118,74 L101,80 L101,100 L118,94 Z"/>'],
-                ['Biceps',     '<ellipse cx="61" cy="100" rx="8" ry="14"/><ellipse cx="139" cy="100" rx="8" ry="14"/>'],
-                ['Avant-bras', '<ellipse cx="47" cy="130" rx="7" ry="15"/><ellipse cx="153" cy="130" rx="7" ry="15"/>'],
-                ['Abdominaux', '<rect x="88" y="102" width="24" height="30" rx="5"/>'],
-                ['Obliques',   '<path d="M80,100 L86,104 L86,130 L79,124 Z"/><path d="M120,100 L114,104 L114,130 L121,124 Z"/>'],
-                ['Quadriceps', '<ellipse cx="83" cy="175" rx="11" ry="26"/><ellipse cx="117" cy="175" rx="11" ry="26"/>'],
-                ['Adducteurs', '<ellipse cx="94" cy="165" rx="5" ry="18"/><ellipse cx="106" cy="165" rx="5" ry="18"/>'],
-                ['Mollets',    '<ellipse cx="80" cy="233" rx="7" ry="16"/><ellipse cx="120" cy="233" rx="7" ry="16"/>']
+            // [nom, tracés, point d'ancrage x/y sur le corps, côté]
+            const zones = estFace ? [
+                ['Trapèzes',   '<path d="M87,49 L100,43 L113,49 L110,58 L100,53 L90,58 Z"/>', 100, 50, 'g'],
+                ['Épaules',    '<ellipse cx="70" cy="70" rx="9.5" ry="9.5"/><ellipse cx="130" cy="70" rx="9.5" ry="9.5"/>', 70, 70, 'g'],
+                ['Pectoraux',  '<path d="M82,64 C89,61 97,63 99,70 L99,90 C89,92 82,86 81,76 Z"/><path d="M118,64 C111,61 103,63 101,70 L101,90 C111,92 118,86 119,76 Z"/>', 82, 77, 'g'],
+                ['Biceps',     '<path d="M49,97 L62,97 L45,116 L33,116 Z"/><path d="M151,97 L138,97 L155,116 L167,116 Z"/>', 47, 107, 'g'],
+                ['Avant-bras', '<path d="M27,124 L36,124 L25,140 L18,140 Z"/><path d="M173,124 L164,124 L175,140 L182,140 Z"/>', 27, 132, 'g'],
+                ['Abdominaux', '<path d="M85,97 h30 a3,3 0 0 1 3,3 v27 a3,3 0 0 1 -3,3 h-30 a3,3 0 0 1 -3,-3 v-27 a3,3 0 0 1 3,-3 Z"/>', 118, 113, 'd'],
+                ['Obliques',   '<path d="M76,99 L82,96 L82,128 L78,122 Z"/><path d="M124,99 L118,96 L118,128 L122,122 Z"/>', 124, 112, 'd'],
+                ['Quadriceps', '<ellipse cx="80" cy="177" rx="10" ry="21"/><ellipse cx="120" cy="177" rx="10" ry="21"/>', 130, 177, 'd'],
+                ['Adducteurs', '<path d="M94,167 L86,167 L72,195 L80,195 Z"/><path d="M106,167 L114,167 L128,195 L120,195 Z"/>', 100, 185, 'g'],
+                ['Mollets',    '<ellipse cx="67" cy="231" rx="7" ry="16"/><ellipse cx="133" cy="231" rx="7" ry="16"/>', 133, 231, 'd']
             ] : [
-                ['Trapèzes',   '<path d="M86,47 L100,41 L114,47 L111,70 L100,64 L89,70 Z"/>'],
-                ['Épaules',    '<ellipse cx="70" cy="68" rx="9.5" ry="9.5"/><ellipse cx="130" cy="68" rx="9.5" ry="9.5"/>'],
-                ['Dos',        '<path d="M83,75 L98,81 L98,120 L87,110 Z"/><path d="M117,75 L102,81 L102,120 L113,110 Z"/>'],
-                ['Triceps',    '<path d="M51,93 L64,93 L46,113 L34,113 Z"/><path d="M149,93 L136,93 L154,113 L166,113 Z"/>'],
-                ['Avant-bras', '<path d="M29,124 L38,124 L24,140 L17,140 Z"/><path d="M171,124 L162,124 L176,140 L183,140 Z"/>'],
-                ['Fessiers',   '<path d="M82,131 C82,123 99,123 99,131 L99,149 C99,157 82,157 82,149 Z"/><path d="M118,131 C118,123 101,123 101,131 L101,149 C101,157 118,157 118,149 Z"/>'],
-                ['Ischio-jambiers', '<ellipse cx="81" cy="180" rx="10" ry="20"/><ellipse cx="119" cy="180" rx="10" ry="20"/>'],
-                ['Mollets',    '<ellipse cx="70" cy="233" rx="7" ry="16"/><ellipse cx="130" cy="233" rx="7" ry="16"/>']
+                ['Trapèzes',   '<path d="M86,47 L100,41 L114,47 L111,70 L100,64 L89,70 Z"/>', 100, 52, 'g'],
+                ['Épaules',    '<ellipse cx="70" cy="68" rx="9.5" ry="9.5"/><ellipse cx="130" cy="68" rx="9.5" ry="9.5"/>', 70, 68, 'g'],
+                ['Dos',        '<path d="M83,75 L98,81 L98,120 L87,110 Z"/><path d="M117,75 L102,81 L102,120 L113,110 Z"/>', 117, 95, 'd'],
+                ['Triceps',    '<path d="M51,93 L64,93 L46,113 L34,113 Z"/><path d="M149,93 L136,93 L154,113 L166,113 Z"/>', 48, 103, 'g'],
+                ['Avant-bras', '<path d="M29,124 L38,124 L24,140 L17,140 Z"/><path d="M171,124 L162,124 L176,140 L183,140 Z"/>', 28, 132, 'g'],
+                ['Fessiers',   '<path d="M82,131 C82,123 99,123 99,131 L99,149 C99,157 82,157 82,149 Z"/><path d="M118,131 C118,123 101,123 101,131 L101,149 C101,157 118,157 118,149 Z"/>', 120, 140, 'd'],
+                ['Ischio-jambiers', '<ellipse cx="81" cy="180" rx="10" ry="20"/><ellipse cx="119" cy="180" rx="10" ry="20"/>', 119, 180, 'd'],
+                ['Mollets',    '<ellipse cx="70" cy="233" rx="7" ry="16"/><ellipse cx="130" cy="233" rx="7" ry="16"/>', 70, 233, 'g']
             ];
 
-            var svgZones = '', etiquettes = '';
-            zones.forEach(function (z) {
-                var nom = z[0], lv = niveau[nom] || 0;
-                svgZones += '<g style="fill:' + _bodyMapColor(lv) + ';stroke:rgba(255,255,255,0.22);stroke-width:0.7;">'
-                    + z[1] + '</g>';
-            });
+            // Le viewBox est ÉLARGI (−90 → 290) pour loger les étiquettes
+            // de part et d'autre du corps sans le rétrécir.
+            const X_G = -86, X_D = 286;
+            let svgZones = '', amorces = '', textes = '';
+            const gauche = zones.filter(z => z[4] === 'g');
+            const droite = zones.filter(z => z[4] === 'd');
 
-            // Étiquettes : muscle + niveau, triées par niveau décroissant
-            var tries = zones.map(function (z) { return [z[0], niveau[z[0]] || 0]; })
-                             .sort(function (a, b) { return b[1] - a[1]; });
-            tries.forEach(function (t) {
-                var c = _bodyMapColor(t[1]);
-                etiquettes += '<div style="display:flex;align-items:center;gap:6px;font-size:0.68em;padding:3px 0;">'
-                    + '<span style="width:9px;height:9px;border-radius:3px;background:' + c + ';flex-shrink:0;"></span>'
-                    + '<span style="flex:1;color:#cbd5e1;">' + t[0] + '</span>'
-                    + '<span style="color:' + (t[1] ? '#e2e8f0' : '#475569') + ';font-weight:800;">'
-                    + (t[1] ? 'Niv.' + t[1] : '—') + '</span></div>';
-            });
+            const poser = (liste, cote) => {
+                const n = liste.length;
+                liste.forEach((z, k) => {
+                    const nom = z[0], lv = niv[nom] || 0, c = _bodyMapColor(lv);
+                    const ax = z[2], ay = z[3];
+                    // étiquettes réparties verticalement sur toute la hauteur
+                    const ty = 28 + k * ((298 - 46) / Math.max(1, n - 1));
+                    const tx = (cote === 'g') ? X_G : X_D;
+                    const bout = (cote === 'g') ? tx + 78 : tx - 78;
 
-            return '<div style="display:flex;gap:12px;align-items:flex-start;">'
-                + '<div style="flex-shrink:0;width:150px;position:relative;">'
-                +   '<svg viewBox="0 0 200 260" style="width:100%;height:auto;display:block;">'
-                +     '<image href="' + img + '" x="0" y="0" width="200" height="260" preserveAspectRatio="none" opacity="0.55"/>'
-                +     svgZones
-                +   '</svg>'
-                +   '<button onclick="awakToggleBodyMapView()" style="width:100%;margin-top:6px;padding:7px;border-radius:10px;'
-                +     'background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:#94a3b8;'
-                +     'font-size:0.66em;font-weight:800;cursor:pointer;">'
-                +     (estFace ? '🔄 VOIR LE DOS' : '🔄 VOIR LA FACE') + '</button>'
-                + '</div>'
-                + '<div style="flex:1;min-width:0;">' + etiquettes + '</div>'
+                    svgZones += '<g style="fill:' + c + (lv ? '66' : '22') + ';stroke:' + c + ';stroke-width:0.8;">' + z[1] + '</g>';
+                    // amorce : trait horizontal sous l'étiquette puis vers le muscle
+                    amorces += '<path d="M' + tx + ',' + (ty + 4) + ' H' + bout + ' L' + ax + ',' + ay + '" '
+                        + 'fill="none" stroke="' + c + '" stroke-width="0.7" opacity="' + (lv ? '0.55' : '0.25') + '"/>'
+                        + '<circle cx="' + ax + '" cy="' + ay + '" r="2" fill="' + c + '" opacity="' + (lv ? '0.9' : '0.35') + '"/>';
+                    textes += '<text x="' + tx + '" y="' + ty + '" fill="#e2e8f0" font-size="9.5" font-weight="700" '
+                        + 'text-anchor="' + (cote === 'g' ? 'start' : 'end') + '">' + nom + '</text>'
+                        + '<text x="' + (cote === 'g' ? tx : tx) + '" y="' + (ty + 12) + '" fill="' + c + '" font-size="9" font-weight="900" '
+                        + 'text-anchor="' + (cote === 'g' ? 'start' : 'end') + '">' + (lv ? 'Niv. ' + lv : '—') + '</text>';
+                });
+            };
+            poser(gauche, 'g');
+            poser(droite, 'd');
+
+            return '<div class="awak-bodymap-host">'
+                + '<svg viewBox="-90 0 380 298" style="width:100%;height:auto;display:block;">'
+                +   '<image href="' + img + '?v=858" x="0" y="0" width="200" height="298" '
+                +     'preserveAspectRatio="none" opacity="0.85"/>'
+                +   amorces + svgZones + textes
+                + '</svg>'
+                + '<button onclick="awakToggleBodyMapView()" style="width:100%;margin-top:8px;padding:9px;'
+                +   'border-radius:11px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);'
+                +   'color:#cbd5e1;font-size:0.7em;font-weight:800;cursor:pointer;">'
+                +   (estFace ? '🔄 VOIR LE DOS' : '🔄 VOIR LA FACE') + '</button>'
                 + '</div>';
         }
         window.awakRenderBodyMap = awakRenderBodyMap;
@@ -23407,7 +23419,7 @@
             +     '</defs>'
             +     '<rect width="400" height="400" fill="#0b0d11"/>'
             +     '<g clip-path="url(#awakClair)">'
-            +       '<image href="images/carte_ville.webp?v=856" x="0" y="0" width="400" height="400" '
+            +       '<image href="images/carte_ville.webp?v=858" x="0" y="0" width="400" height="400" '
             +         'preserveAspectRatio="xMidYMid slice" opacity="0.95"/>'
             +     '</g>'
             +     '<circle cx="200" cy="200" r="' + R + '" fill="url(#awakZone)"/>'
@@ -26939,7 +26951,11 @@
             const rankColor = awakRank ? awakRank.color : '#22c55e';
 
             cardProfile.classList.add('cyber-scanlines');
-            // 🖼️ FOND DE CARTE : silhouette de dos, très sombre (moyenne ~10/255).
+            // 🖼️ FOND DE CARTE : silhouette de dos, TRÈS sombre (~10/255).
+            // ⚠️ Piège : l'image est PLUS SOMBRE que l'ancien fond #0D0E12 (~14).
+            // Un voile même à 45 % la rendait donc mathématiquement invisible.
+            // Correctif : fond NOIR pur + voile qui s'annule complètement à
+            // droite (0 %), pour que la silhouette puisse enfin se détacher.
             // Superposition : dégradé de protection AU-DESSUS de l'image pour que
             // les stats restent lisibles à gauche, où le texte est le plus dense.
             // L'image est en cover à droite ; overflow:hidden la recadre proprement.
@@ -26947,7 +26963,7 @@
             // Même clé que l'avatar du panneau personnage : fitproAvatarGender.
             const _cardBg = (localStorage.getItem('fitproAvatarGender') || 'homme') === 'femme'
                 ? 'images/card_bg_femme.webp' : 'images/card_bg_homme.webp';
-            cardProfile.style.cssText = 'background-color:#0D0E12;background-image:linear-gradient(100deg,rgba(13,14,18,0.97) 0%,rgba(13,14,18,0.86) 42%,rgba(13,14,18,0.55) 70%,rgba(13,14,18,0.45) 100%), url("' + _cardBg + '?v=856");background-size:cover,cover;background-position:center,right center;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14, inset 0 0 36px rgba(0,0,0,0.45);padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=859");background-size:cover,cover;background-position:center,right center;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14, inset 0 0 36px rgba(0,0,0,0.45);padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -27469,31 +27485,11 @@
             // ── 6. CLASSEMENT MUSCLES ────────────────────────────────
             const cardMuscles = document.createElement('div');
             cardMuscles.className = 'card';
+            // 📋 « Classement détaillé » RETIRÉ (v858) : la carte affiche déjà chaque
+            // muscle avec son niveau, relié à sa zone par une amorce. La liste en
+            // dessous répétait la même information sur 15 lignes.
             cardMuscles.innerHTML = `<h3 style="margin:0 0 12px;color:#e2e8f0;">Carte musculaire</h3>
-                <div id="awakBodyMapHost" style="margin-bottom:16px;">${(typeof awakRenderBodyMap === 'function') ? awakRenderBodyMap() : ''}</div>
-                <h3 style="margin:0 0 12px;color:#e2e8f0;font-size:0.95em;">Classement détaillé</h3>
-                <div id="rpgMuscleGrid" style="display:flex;flex-direction:column;gap:6px;">
-                ${muscles.length === 0
-                    ? '<p style="color:#6b7280;text-align:center;padding:16px 0;font-size:0.9em;">Complète une séance pour gagner de l\'XP !</p>'
-                    : muscles.map(([m, info], i) => {
-                        const lv   = rpgLevelFromXP(info.xp);
-                        const lo   = rpgXPForLevel(lv), hi = rpgXPForLevel(lv+1);
-                        const p    = hi > lo ? Math.round((info.xp-lo)/(hi-lo)*100) : 100;
-                        const days = info.lastTrained ? (now-new Date(info.lastTrained))/86400000 : 999;
-                        const dot  = days >= RPG_GRACE_DAYS ? '🔴' : days >= RPG_GRACE_DAYS-1 ? '🟡' : '🟢';
-                        return `<div style="background:#222328;border-radius:10px;padding:10px 12px;border:1px solid #252830;">
-                            <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
-                                <span style="font-size:0.78em;opacity:0.5;width:18px;">${medal(i)}</span>
-                                <span style="font-weight:700;color:#e2e8f0;font-size:0.88em;flex:1;">${dot} ${m} ${rankBadge(lv)}</span>
-                                <span style="font-size:0.78em;font-weight:900;color:#4ade80;">Niv.${lv}</span>
-                                <span style="font-size:0.65em;color:#6b7280;">${info.xp.toLocaleString()} XP</span>
-                            </div>
-                            <div style="background:rgba(255,255,255,0.1);border-radius:99px;height:5px;overflow:hidden;">
-                                <div class="rpg-bar-anim" data-pct="${p}" style="height:100%;background:${barColor(lv)};border-radius:99px;width:0%;"></div>
-                            </div>
-                        </div>`;
-                    }).join('')}
-                </div>`;
+                <div id="awakBodyMapHost">${(typeof awakRenderBodyMap === 'function') ? awakRenderBodyMap() : ''}</div>`;
 
             // ── 7. CLASSE DE PERSONNAGE ──────────────────────────────
             const cardClass = document.createElement('div');
@@ -37729,7 +37725,7 @@
                         if (imgTag) {
                             // 🏆 Victoire : illustration COMMUNE (Esen + Nyra ensemble),
                             // quel que soit le héros choisi.
-                            imgTag.src = 'images/story/victoire_duo.webp?v=856';
+                            imgTag.src = 'images/story/victoire_duo.webp?v=858';
                             imgTag.alt = 'Esen et Nyra';
                         }
                         heroImg.style.display = 'block';
