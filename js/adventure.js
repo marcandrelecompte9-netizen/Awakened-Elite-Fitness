@@ -1077,8 +1077,11 @@ function renderAdventureTab() {
         ? window.AwakFamilyBoss.renderCard() : '';
     // 🌌 AWAKENED Power Card est maintenant fusionnée dans la carte Profil (renderGameTab)
     // 🌀 Failles actives
-    const riftsCard = (typeof window.renderActiveRiftsCard === 'function')
-        ? window.renderActiveRiftsCard() : '';
+    // 🗺️ LISTE DES FAILLES RETIRÉE (v864) : elles s'atteignent désormais
+    // UNIQUEMENT par la Carte de l'Effacement — on touche une brèche pour
+    // ouvrir son briefing. La fonction renderActiveRiftsCard() reste
+    // disponible si l'on veut rétablir la liste un jour.
+    const riftsCard = '';
     // 👹 Monstres échappés (Phase 3)
     const monstersCard = (typeof window.renderEscapedMonstersCard === 'function')
         ? window.renderEscapedMonstersCard() : '';

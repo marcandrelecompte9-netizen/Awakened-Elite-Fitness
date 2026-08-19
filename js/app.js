@@ -23284,14 +23284,9 @@
         // carte s'adapte à l'état réel du joueur et à toutes les tailles.
         // Un bouton « Vue liste » rebascule sur l'affichage classique.
         // ══════════════════════════════════════════════════════════════
-        function awakCarteActive() {
-            try { return localStorage.getItem('awakVueCarte') === '1'; } catch (e) { return false; }
-        }
-        function awakToggleCarte() {
-            try { localStorage.setItem('awakVueCarte', awakCarteActive() ? '0' : '1'); } catch (e) {}
-            renderGameTab();
-        }
-        window.awakToggleCarte = awakToggleCarte;
+        // 🗺️ La carte est PERMANENTE (v864) : c'est le seul accès aux Failles.
+        // On ne bascule plus vers une vue liste — la carte EST le hub.
+        function awakCarteActive() { return true; }
 
         // Rayon de la zone RECONQUISE selon le rang : rang E = presque tout
         // est effacé, rang SSS = la ville est rendue.
@@ -23361,7 +23356,11 @@
                 const p = pos(r.id || r.themeId, i, R);
                 const c = (r.narrativeData && r.narrativeData.color) || '#a855f7';
                 const _dur = (2.1 + (i % 4) * 0.35).toFixed(2);   // désynchronisé
-                marques += '<g style="cursor:pointer;">'
+                const _rid = String(r.id || '').replace(/'/g, "\\'");
+                marques += '<g style="cursor:pointer;" onclick="awakOpenRiftBriefing(\'' + _rid + '\')">'
+                    // zone de clic généreuse : viser un point au doigt demande
+                    // une cible large, sinon la carte devient pénible.
+                    + '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="26" fill="transparent"/>'
                     + '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="16" fill="' + c + '18"/>'
                     // anneau qui s'ouvre : la brèche « respire »
                     + '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="7" fill="none" stroke="' + c + '" stroke-width="1.1" opacity="0.7">'
@@ -23382,6 +23381,35 @@
                     + '</circle>'
                     + '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="10" fill="none" stroke="#4ade80" stroke-width="0.7" opacity="0.35"/></g>';
             });
+
+            // 🛒 L'ÉCHOPPE DU MARCHAND — lieu fixe de la ville. Position
+            // ancrée sur le rayon reconquis : elle s'éloigne du centre à
+            // mesure que la ville est reprise, comme les autres lieux.
+            // ⚠️ Le Marchand n'existe qu'APRÈS sa scène de rencontre
+            // (evt_n3_marchand, ~niveau 3) : avant, l'échoppe ne doit pas
+            // figurer sur la carte — on ne connaît pas encore ce lieu.
+            let _marchandVu = false;
+            try {
+                _marchandVu = !!window.AwakEconomy
+                    && ((typeof storyEventSeen === 'function') ? storyEventSeen('evt_n3_marchand') : true);
+            } catch (e) {}
+            if (_marchandVu) {
+            const _sx = 200 - R * 0.55, _sy = 200 + R * 0.52;
+            marques += '<g style="cursor:pointer;" onclick="awakOpenMerchant()">'
+                + '<circle cx="' + _sx.toFixed(1) + '" cy="' + _sy.toFixed(1) + '" r="24" fill="transparent"/>'
+                + '<circle cx="' + _sx.toFixed(1) + '" cy="' + _sy.toFixed(1) + '" r="14" fill="#fbbf24" opacity="0.10"/>'
+                // toit stylisé : une échoppe se reconnaît d'un coup d'œil
+                + '<path d="M' + (_sx - 8).toFixed(1) + ',' + (_sy + 4).toFixed(1)
+                +   ' L' + _sx.toFixed(1) + ',' + (_sy - 6).toFixed(1)
+                +   ' L' + (_sx + 8).toFixed(1) + ',' + (_sy + 4).toFixed(1) + ' Z" '
+                +   'fill="#fbbf24" opacity="0.85" filter="url(#awakLueur)"/>'
+                + '<rect x="' + (_sx - 5).toFixed(1) + '" y="' + (_sy + 4).toFixed(1) + '" width="10" height="7" '
+                +   'fill="#fbbf24" opacity="0.7"/>'
+                + '<circle cx="' + _sx.toFixed(1) + '" cy="' + _sy.toFixed(1) + '" r="17" fill="none" '
+                +   'stroke="#fbbf24" stroke-width="0.8" opacity="0.3">'
+                +   '<animate attributeName="opacity" values="0.3;0.08;0.3" dur="4.5s" repeatCount="indefinite"/>'
+                + '</circle></g>';
+            }
 
             // 👑 LE MONARQUE — masse sombre au bout de l'avenue, grossit
             // avec le nombre de sous-boss vaincus.
@@ -23442,11 +23470,11 @@
             +   '<div style="position:absolute;top:10px;left:12px;font-size:0.56em;letter-spacing:2px;'
             +     'color:' + rangCol + ';font-weight:900;">◈ CARTE DE L\'EFFACEMENT</div>'
             +   '<div style="position:absolute;bottom:10px;left:12px;font-size:0.6em;color:#64748b;">'
-            +     rifts.length + ' faille' + (rifts.length > 1 ? 's' : '') + ' · '
-            +     comps.length + ' ancrage' + (comps.length > 1 ? 's' : '') + '</div>'
-            +   '<button onclick="awakToggleCarte()" style="position:absolute;top:8px;right:8px;'
-            +     'background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);color:#cbd5e1;'
-            +     'font-size:0.6em;font-weight:800;padding:6px 10px;border-radius:9px;cursor:pointer;">☰ LISTE</button>'
+            +     (rifts.length ? (rifts.length + ' brèche' + (rifts.length > 1 ? 's ouvertes' : ' ouverte')) : 'Aucune brèche pour l\'instant')
+            +     (comps.length ? (' · ' + comps.length + ' ancrage' + (comps.length > 1 ? 's' : '')) : '')
+            +     '</div>'
+            +   '<div style="position:absolute;top:8px;right:12px;font-size:0.56em;color:#64748b;'
+            +     'letter-spacing:1px;">TOUCHE UNE BRÈCHE</div>'
             + '</div>';
         }
         window.awakRenderCarte = awakRenderCarte;
@@ -26985,7 +27013,7 @@
             // Même clé que l'avatar du panneau personnage : fitproAvatarGender.
             const _cardBg = (localStorage.getItem('fitproAvatarGender') || 'homme') === 'femme'
                 ? 'images/card_bg_femme.webp' : 'images/card_bg_homme.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=863");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=866");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -27207,9 +27235,7 @@
                 const row2 = document.createElement('div');
                 row2.id = 'awakRowBtns2';
                 row2.style.cssText = 'display:flex;gap:7px;align-items:stretch;margin-top:7px;margin-bottom:4px;';
-                row2.appendChild(_mkBtn('🛒', 'MARCHAND', function () {
-                    if (typeof awakOpenMerchant === 'function') awakOpenMerchant();
-                }, '#fbbf24', 0));
+                // (bouton MARCHAND retiré en v865 : l'échoppe est sur la carte)
                 row2.appendChild(_mkBtn('📖', 'JOURNAL', function () {
                     if (typeof showStoryJournal === 'function') showStoryJournal();
                 }, '#a855f7', _bJournal));
@@ -27220,10 +27246,7 @@
                 row2.appendChild(_mkBtn('💪', 'MUSCLES', function () {
                     if (typeof rpgShowMusclesPanel === 'function') rpgShowMusclesPanel();
                 }, '#4ade80', 0));
-                // 🗺️ Bascule vers la Carte de l'Effacement
-                row2.appendChild(_mkBtn('🗺️', 'CARTE', function () {
-                    if (typeof awakToggleCarte === 'function') awakToggleCarte();
-                }, '#e2e8f0', 0));
+                // (bouton CARTE retiré en v864 : la carte est toujours affichée)
                 // 📊 « DÉTAILS » RETIRÉ (v841) : ce bouton appelait exactement la
                 // même fonction que « Compétences » (rpgShowDetailsPanel) — deux
                 // boutons pour un seul écran. Le badge des points de stats non
