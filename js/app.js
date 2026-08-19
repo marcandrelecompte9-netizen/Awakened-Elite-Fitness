@@ -23323,9 +23323,11 @@
 
         function awakRenderCarte() {
             const R = _carteRayonClair();
-            const rangCol = (function () {
-                try { return (awakGetRank() || {}).color || '#94a3b8'; } catch (e) { return '#94a3b8'; }
+            const _rk = (function () {
+                try { return awakGetRank() || {}; } catch (e) { return {}; }
             })();
+            const rangCol = _rk.color || '#94a3b8';
+            const _rangId = _rk.id || 'E';
 
             // ── Failles ouvertes ────────────────────────────────────────
             let rifts = [];
@@ -23357,19 +23359,32 @@
                 const c = (r.narrativeData && r.narrativeData.color) || '#a855f7';
                 const _dur = (2.1 + (i % 4) * 0.35).toFixed(2);   // désynchronisé
                 const _rid = String(r.id || '').replace(/'/g, "\\'");
+                const X = p.x, Y = p.y;
+                const f = (v) => v.toFixed(1);
+                // ✦ ÉCLAT à 4 branches — écho au ◈ des titres, lisible même
+                // en petit. Deux losanges croisés : l'axe vertical domine,
+                // l'horizontal en retrait donne du relief.
                 marques += '<g style="cursor:pointer;" onclick="awakOpenRiftBriefing(\'' + _rid + '\')">'
-                    // zone de clic généreuse : viser un point au doigt demande
-                    // une cible large, sinon la carte devient pénible.
-                    + '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="26" fill="transparent"/>'
-                    + '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="16" fill="' + c + '18"/>'
-                    // anneau qui s'ouvre : la brèche « respire »
-                    + '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="7" fill="none" stroke="' + c + '" stroke-width="1.1" opacity="0.7">'
-                    +   '<animate attributeName="r" values="7;19;7" dur="' + _dur + 's" repeatCount="indefinite"/>'
-                    +   '<animate attributeName="opacity" values="0.7;0;0.7" dur="' + _dur + 's" repeatCount="indefinite"/>'
+                    // zone de clic généreuse : viser au doigt demande une cible large
+                    + '<circle cx="' + f(X) + '" cy="' + f(Y) + '" r="26" fill="transparent"/>'
+                    + '<circle cx="' + f(X) + '" cy="' + f(Y) + '" r="16" fill="' + c + '" fill-opacity="0.10"/>'
+                    // onde qui se propage
+                    + '<circle cx="' + f(X) + '" cy="' + f(Y) + '" r="8" fill="none" stroke="' + c + '" stroke-width="0.9" opacity="0.55">'
+                    +   '<animate attributeName="r" values="8;21;8" dur="' + _dur + 's" repeatCount="indefinite"/>'
+                    +   '<animate attributeName="opacity" values="0.55;0;0.55" dur="' + _dur + 's" repeatCount="indefinite"/>'
                     + '</circle>'
-                    + '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="6" fill="' + c + '" opacity="0.92" filter="url(#awakLueur)">'
-                    +   '<animate attributeName="r" values="5;8.5;5" dur="' + _dur + 's" repeatCount="indefinite"/>'
-                    + '</circle></g>';
+                    // ⚠️ L'éclat est dessiné CENTRÉ SUR (0,0) dans un groupe
+                    // translaté : `transform-origin` n'est pas fiable sur
+                    // <animateTransform>, l'échelle serait appliquée depuis
+                    // l'angle du SVG et l'éclat traverserait la carte.
+                    + '<g transform="translate(' + f(X) + ',' + f(Y) + ')" filter="url(#awakLueur)">'
+                    +   '<g>'
+                    +     '<animateTransform attributeName="transform" type="scale" '
+                    +       'values="1;1.14;1" dur="' + _dur + 's" repeatCount="indefinite"/>'
+                    +     '<path d="M0,-13 L4.5,0 L0,13 L-4.5,0 Z" fill="' + c + '"/>'
+                    +     '<path d="M-13,0 L0,-4.5 L13,0 L0,4.5 Z" fill="' + c + '" fill-opacity="0.72"/>'
+                    +   '</g>'
+                    + '</g></g>';
             });
 
             // ✦ ANCRAGES ALLIÉS — points de lumière
@@ -23450,6 +23465,19 @@
             +       '</filter>'
             +       '<filter id="awakLueur"><feGaussianBlur stdDeviation="3.2" result="b"/>'
             +         '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>'
+            +       // Halo large pour l'Ancre du joueur
+            +       '<filter id="awakHalo" x="-70%" y="-70%" width="240%" height="240%">'
+            +         '<feGaussianBlur stdDeviation="6" result="hb"/>'
+            +         '<feMerge><feMergeNode in="hb"/><feMergeNode in="hb"/><feMergeNode in="SourceGraphic"/></feMerge>'
+            +       '</filter>'
+            +       // Vignettage : assombrit les angles, concentre le regard
+            +       '<radialGradient id="awakVign">'
+            +         '<stop offset="55%" stop-color="#000" stop-opacity="0"/>'
+            +         '<stop offset="100%" stop-color="#000" stop-opacity="0.55"/>'
+            +       '</radialGradient>'
+            +       // Grain fin : casse l\'aspect « aplat numérique »
+            +       '<filter id="awakGrain"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="1" result="g"/>'
+            +         '<feColorMatrix in="g" type="saturate" values="0"/></filter>'
             +     '</defs>'
             +     '<rect width="400" height="400" fill="#0b0d11"/>'
             +     '<g clip-path="url(#awakClair)">'
@@ -23459,22 +23487,49 @@
             +     '<circle cx="200" cy="200" r="' + R + '" fill="url(#awakZone)"/>'
             +     '<circle cx="200" cy="200" r="' + R + '" fill="none" stroke="' + rangCol + '" stroke-width="1" opacity="0.35" stroke-dasharray="4 6"/>'
             +     '<g filter="url(#awakBrume)"><rect width="400" height="400" fill="url(#awakOubli)"/></g>'
+            +     '<rect width="400" height="400" fill="url(#awakVign)" pointer-events="none"/>'
+            +     '<rect width="400" height="400" filter="url(#awakGrain)" opacity="0.05" pointer-events="none"/>'
             +     _cartePoussiere(R, rangCol)
             +     marques
-            +     '<circle cx="200" cy="200" r="7" fill="' + rangCol + '"/>'
+            // ⌖ L'ANCRE — le joueur. Marqueur de visée plutôt qu'un simple point.
+            +     '<g filter="url(#awakHalo)">'
+            +       '<circle cx="200" cy="200" r="6" fill="' + rangCol + '"/>'
+            +     '</g>'
+            +     '<circle cx="200" cy="200" r="11" fill="none" stroke="' + rangCol + '" stroke-width="1.4" opacity="0.9"/>'
+            +     '<path d="M200,183 V191 M200,209 V217 M183,200 H191 M209,200 H217" '
+            +       'stroke="' + rangCol + '" stroke-width="1.2" opacity="0.75" stroke-linecap="round"/>'
+            // deux ondes décalées : une respiration, pas un clignotement
             +     '<circle cx="200" cy="200" r="14" fill="none" stroke="' + rangCol + '" stroke-width="1" opacity="0.5">'
-            +       '<animate attributeName="r" values="12;20;12" dur="3.2s" repeatCount="indefinite"/>'
-            +       '<animate attributeName="opacity" values="0.5;0;0.5" dur="3.2s" repeatCount="indefinite"/>'
+            +       '<animate attributeName="r" values="12;30;12" dur="4.4s" repeatCount="indefinite"/>'
+            +       '<animate attributeName="opacity" values="0.55;0;0.55" dur="4.4s" repeatCount="indefinite"/>'
+            +     '</circle>'
+            +     '<circle cx="200" cy="200" r="14" fill="none" stroke="' + rangCol + '" stroke-width="0.8" opacity="0.35">'
+            +       '<animate attributeName="r" values="12;30;12" dur="4.4s" begin="2.2s" repeatCount="indefinite"/>'
+            +       '<animate attributeName="opacity" values="0.35;0;0.35" dur="4.4s" begin="2.2s" repeatCount="indefinite"/>'
             +     '</circle>'
             +   '</svg>'
-            +   '<div style="position:absolute;top:10px;left:12px;font-size:0.56em;letter-spacing:2px;'
-            +     'color:' + rangCol + ';font-weight:900;">◈ CARTE DE L\'EFFACEMENT</div>'
-            +   '<div style="position:absolute;bottom:10px;left:12px;font-size:0.6em;color:#64748b;">'
-            +     (rifts.length ? (rifts.length + ' brèche' + (rifts.length > 1 ? 's ouvertes' : ' ouverte')) : 'Aucune brèche pour l\'instant')
-            +     (comps.length ? (' · ' + comps.length + ' ancrage' + (comps.length > 1 ? 's' : '')) : '')
+            // ── En-tête : titre + rang, sur un voile dégradé pour rester
+            //    lisible quelle que soit la ville en dessous.
+            +   '<div style="position:absolute;top:0;left:0;right:0;padding:11px 13px 22px;'
+            +     'background:linear-gradient(180deg,rgba(8,9,12,0.85),rgba(8,9,12,0));'
+            +     'display:flex;align-items:baseline;justify-content:space-between;pointer-events:none;">'
+            +     '<div style="font-size:0.56em;letter-spacing:2.5px;color:' + rangCol + ';font-weight:900;">'
+            +       '◈ CARTE DE L\'EFFACEMENT</div>'
+            +     '<div style="font-size:0.52em;letter-spacing:1.5px;color:#64748b;font-weight:800;">'
+            +       'RANG ' + _rangId + '</div>'
+            +   '</div>'
+            +   '<div style="position:absolute;bottom:0;left:0;right:0;padding:20px 13px 10px;'
+            +     'background:linear-gradient(0deg,rgba(8,9,12,0.85),rgba(8,9,12,0));'
+            +     'font-size:0.6em;color:#94a3b8;pointer-events:none;">'
+            +     (rifts.length
+                    ? ('<span style="color:#c084fc;font-weight:800;">' + rifts.length + ' brèche'
+                       + (rifts.length > 1 ? 's ouvertes' : ' ouverte') + '</span>'
+                       + '<span style="color:#475569;"> — touche pour entrer</span>')
+                    : '<span style="color:#64748b;">Aucune brèche. La ville respire.</span>')
+            +     (comps.length ? ('<span style="color:#334155;"> · </span><span style="color:#4ade80;">'
+                    + comps.length + ' ancrage' + (comps.length > 1 ? 's' : '') + '</span>') : '')
             +     '</div>'
-            +   '<div style="position:absolute;top:8px;right:12px;font-size:0.56em;color:#64748b;'
-            +     'letter-spacing:1px;">TOUCHE UNE BRÈCHE</div>'
+
             + '</div>';
         }
         window.awakRenderCarte = awakRenderCarte;
@@ -27013,7 +27068,7 @@
             // Même clé que l'avatar du panneau personnage : fitproAvatarGender.
             const _cardBg = (localStorage.getItem('fitproAvatarGender') || 'homme') === 'femme'
                 ? 'images/card_bg_femme.webp' : 'images/card_bg_homme.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=866");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=870");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -32176,6 +32231,13 @@
                 // un joueur pouvait en fermer 10 sans que le compteur bouge.
                 // Seules les Failles d'HISTOIRE (narrativeId) ne se comptent pas elles-mêmes.
                 if (!_wasCompleted && !r.narrativeId) { try { awakIncrementRiftsCompleted(); } catch (e) {} }
+                // 🔖 Trace PERMANENTE de complétion d'une Faille narrative :
+                // le tableau purge les Failles terminées après 7 jours, donc
+                // il ne peut pas servir de preuve durable. Sans cette trace,
+                // awakRepairNarrativeRifts recréerait une Faille déjà faite.
+                if (!_wasCompleted && r.narrativeId) {
+                    try { localStorage.setItem('awakNarrativeDone_' + r.narrativeId, '1'); } catch (e) {}
+                }
                 // 🔧 Migration : si cette Faille est une Faille de compagnon mais a perdu/manque
                 // ses champs (créée par une ancienne version), on les reconstruit depuis son id/nom.
                 if (!r.isCompanionRift || !r.companionId || !r.companionRiftId) {
@@ -35047,7 +35109,70 @@
          * Check si une Faille narrative doit apparaître
          * Appelée après chaque événement majeur (rank up, fin faille)
          */
+        // 🔧 RÉPARATION DES FAILLES NARRATIVES PERDUES
+        // ------------------------------------------------------------------
+        // `awakNarrativeRiftsMarkSeen` est appelé à la CRÉATION de la Faille,
+        // pas à sa complétion. Si la Faille disparaît ensuite du tableau sans
+        // avoir été terminée — purge d'une ancienne version, changement de
+        // profil, sauvegarde partielle — elle est marquée « déjà proposée »
+        // et ne réapparaît JAMAIS : l'histoire reste bloquée pour de bon.
+        // Ici on recoupe les trois sources : marquée vue / présente dans le
+        // tableau / réellement complétée. Toute Faille marquée vue mais
+        // ni présente ni complétée est RECRÉÉE.
+        function awakRepairNarrativeRifts() {
+            try {
+                const seen = awakNarrativeRiftsSeenLoad();
+                if (!seen.length) return 0;
+                const rifts = awakRiftsLoad();
+                // 🔁 RATTRAPAGE UNIQUE : les Failles terminées AVANT v870 n'ont
+                // pas de trace permanente. On la pose depuis le tableau tant
+                // qu'elles y figurent encore, sinon la réparation les
+                // recréerait à tort.
+                try {
+                    if (localStorage.getItem('awakNarrativeDoneSeed') !== '1') {
+                        rifts.forEach(r => {
+                            if (r.narrativeId && r.completed) {
+                                localStorage.setItem('awakNarrativeDone_' + r.narrativeId, '1');
+                            }
+                        });
+                        localStorage.setItem('awakNarrativeDoneSeed', '1');
+                    }
+                } catch (e) {}
+                let repares = 0;
+                for (const def of NARRATIVE_RIFTS) {
+                    if (!seen.includes(def.id)) continue;
+                    const presente = rifts.some(r => r.narrativeId === def.id);
+                    if (presente) continue;                       // elle existe : rien à faire
+                    const faite = _awakNarrativeDejaFaite(def.id);
+                    if (faite) continue;                          // terminée : normal
+                    // Marquée vue, absente du tableau, jamais terminée → perdue.
+                    rifts.push(awakGenerateNarrativeRift(def));
+                    repares++;
+                }
+                if (repares) {
+                    awakRiftsSave(rifts);
+                    try { console.log('[Failles] ' + repares + ' Faille(s) narrative(s) restaurée(s)'); } catch (e) {}
+                }
+                return repares;
+            } catch (e) { return 0; }
+        }
+        // Une Faille narrative est « déjà faite » si une trace de complétion
+        // existe : soit dans le tableau, soit dans le journal des complétions.
+        function _awakNarrativeDejaFaite(nid) {
+            try {
+                const rifts = awakRiftsLoad();
+                if (rifts.some(r => r.narrativeId === nid && r.completed)) return true;
+                const cle = 'awakNarrativeDone_' + nid;
+                if (localStorage.getItem(cle) === '1') return true;
+            } catch (e) {}
+            return false;
+        }
+        window.awakRepairNarrativeRifts = awakRepairNarrativeRifts;
+
         function awakCheckNarrativeRifts() {
+            // Réparer AVANT de décider : une Faille perdue doit revenir plutôt
+            // que de bloquer la suite.
+            try { awakRepairNarrativeRifts(); } catch (e) {}
             if (typeof getAdventureEnabled === 'function' && !getAdventureEnabled()) return null;
             const seen = awakNarrativeRiftsSeenLoad();
             const rifts = awakRiftsLoad();
@@ -45432,9 +45557,46 @@
 
             const sheet = document.createElement('div');
             sheet.style.cssText = 'background:#0D0D0D;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
+            // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
+            // voit simplement l'histoire s'arrêter et croit à un bug.
+            let _porteBloquee = '';
+            try {
+                const _seen = (typeof storyEventSeen === 'function') ? storyEventSeen : null;
+                const _lvl = (typeof _awakGetCurrentLevel === 'function') ? _awakGetCurrentLevel() : 0;
+                const _rifts = (typeof awakRiftsLoad === 'function') ? awakRiftsLoad() : [];
+                const _faite = (nid) => _rifts.some(r => r.narrativeId === nid && r.completed);
+                const _noms = {
+                    first_breach: 'Le Premier Souvenir',
+                    whispering_tower: 'La Tour qui Murmure',
+                    silent_one: 'Le Silencieux',
+                    the_one_who_carried: 'Celui qui a Porté',
+                    last_door: 'La Dernière Porte'
+                };
+                for (const ev of allEvents) {
+                    if (_seen && _seen(ev.id)) continue;
+                    const t = ev.trigger || {};
+                    if (t.kind !== 'levelAndNarrativeRift') continue;
+                    if (_lvl < t.value) continue;
+                    if (_faite(t.narrativeId)) continue;
+                    _porteBloquee = '<div style="background:rgba(168,85,247,0.10);border:1px solid rgba(168,85,247,0.35);'
+                        + 'border-radius:12px;padding:12px 14px;margin-bottom:16px;">'
+                        + '<div style="font-size:0.58em;letter-spacing:1.5px;color:#c084fc;font-weight:900;margin-bottom:5px;">'
+                        + '◈ L\'HISTOIRE ATTEND</div>'
+                        + '<div style="font-size:0.8em;color:#e2e8f0;line-height:1.5;">'
+                        + 'La suite ne viendra pas tant que la Faille <strong style="color:#c084fc;">'
+                        + (_noms[t.narrativeId] || t.narrativeId) + '</strong> reste ouverte.</div>'
+                        + '<div style="font-size:0.72em;color:#94a3b8;margin-top:6px;">'
+                        + 'Ferme-la depuis la Carte de l\'Effacement pour reprendre le récit.</div>'
+                        + '</div>';
+                    break;
+                }
+            } catch (e) {}
+
             sheet.innerHTML = `
                 <div style="width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:99px;margin:0 auto 18px;"></div>
                 <h2 style="margin:0 0 4px;color:white;font-size:1.15em;font-weight:900;">Journal du Chasseur</h2>
+                ${_porteBloquee}
                 <p style="margin:0 0 18px;color:rgba(255,255,255,0.4);font-size:0.8em;">${seenCount} souvenir${seenCount>1?'s':''} retrouvé${seenCount>1?'s':''}. Ton histoire se dévoile à mesure que tu t'entraînes.</p>
                 ${rows || '<p style="color:rgba(255,255,255,0.4);font-size:0.85em;text-align:center;padding:20px;">Aucun souvenir pour l\'instant. Continue de t\'entraîner.</p>'}
                 <button onclick="document.getElementById('storyJournalOverlay').remove()" style="margin-top:10px;width:100%;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:14px;color:rgba(255,255,255,0.5);font-weight:700;cursor:pointer;">Fermer</button>`;
