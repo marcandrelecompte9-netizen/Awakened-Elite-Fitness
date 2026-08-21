@@ -1051,7 +1051,7 @@ function renderFamilyTab() {
           + feedAccordion;
 
     // Filet de sécurité
-    if (!familyCard && !nudgeCard && !challengeCard && !goalCard && !feedCard && !duoGamesCard && !coopCard) {
+    if (!constCard && !familyCard && !nudgeCard && !challengeCard && !goalCard && !feedCard && !duoGamesCard && !coopCard) {
         html += '<div style="padding:20px;text-align:center;color:#64748b;font-size:0.85em;">Rien à afficher pour le moment.</div>';
     }
 

@@ -252,7 +252,10 @@
   function renderConstellation() {
     var moi = currentId();
     var liens = myRelations();
-    if (!liens.length) return '';
+    // ⚠️ Un joueur SEUL doit voir sa constellation : son étoile brille déjà,
+    // et le ciel vide donne envie d'y ajouter quelqu'un. Renvoyer '' faisait
+    // que la refonte semblait n'avoir jamais été appliquée.
+    var solo = !liens.length;
 
     var membres = liens.map(function (r) {
       var st = memberWeekStats(r.member.id);
@@ -273,6 +276,7 @@
     // Étoiles réparties en cercle, la première en haut
     var n = membres.length;
     var rayon = n <= 2 ? 78 : (n <= 4 ? 88 : 96);
+    // (si solo, la boucle ci-dessous ne s'exécute pas : pas de division par 0)
     var etoiles = '', fils = '', total = moiSt.seances;
 
     membres.forEach(function (m, i) {
@@ -326,7 +330,7 @@
       +     '<defs><filter id="constLueur"><feGaussianBlur stdDeviation="3" result="b"/>'
       +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>'
       // 🌌 Nébuleuse de fond : remplace la poussière d'étoiles dessinée.
-      +     '<image href="images/constellation_bg.webp?v=876" x="0" y="0" width="300" height="300" '
+      +     '<image href="images/constellation_bg.webp?v=878" x="0" y="0" width="300" height="300" '
       +       'preserveAspectRatio="xMidYMid slice" opacity="0.95"/>'
       +     anneau
       +     fils
@@ -349,7 +353,11 @@
       +   '</div>'
       +   '<div style="position:absolute;bottom:0;left:0;right:0;padding:20px 13px 10px;'
       +     'background:linear-gradient(0deg,rgba(8,9,12,0.85),rgba(8,9,12,0));font-size:0.6em;pointer-events:none;">'
-      +     (total ? ('<span style="color:#4ade80;font-weight:800;">' + total + ' séance' + (total > 1 ? 's' : '') + ' cette semaine</span><span style="color:#475569;"> — touche une étoile pour encourager</span>') : '<span style="color:#64748b;">Le ciel est calme. Une séance et il s\'allume.</span>')
+      +     (solo
+                ? '<span style="color:#64748b;">Ton étoile veille seule. Lie un proche pour agrandir la constellation.</span>'
+                : (total
+                    ? ('<span style="color:#4ade80;font-weight:800;">' + total + ' séance' + (total > 1 ? 's' : '') + ' cette semaine</span><span style="color:#475569;"> — touche une étoile pour encourager</span>')
+                    : '<span style="color:#64748b;">Le ciel est calme. Une séance et il s\'allume.</span>'))
       +   '</div>'
       + '</div>';
   }

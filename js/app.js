@@ -27054,7 +27054,7 @@
             // Même clé que l'avatar du panneau personnage : fitproAvatarGender.
             const _cardBg = (localStorage.getItem('fitproAvatarGender') || 'homme') === 'femme'
                 ? 'images/card_bg_femme.webp' : 'images/card_bg_homme.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=876");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=878");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -29045,6 +29045,36 @@
 
         // 🔧 ADMIN/DEBUG — Efface les marqueurs d'événements narratifs (pour les revoir).
         // Ne touche PAS à la progression, l'XP, les niveaux ou l'inventaire.
+        // 🌀 DEV — faire apparaître une Faille immédiatement.
+        // Utilise le générateur normal (awakGenerateRift) pour que la Faille
+        // créée soit strictement identique à une vraie : même thème, même
+        // calibrage, même butin. Ignore volontairement le plafond de Failles
+        // actives, puisque c'est un outil de test.
+        function awakAdminSpawnRift() {
+            try {
+                if (typeof awakGenerateRift !== 'function') {
+                    if (typeof showToast === 'function') showToast('Générateur indisponible', 'error');
+                    return;
+                }
+                const rifts = (typeof awakRiftsLoad === 'function') ? awakRiftsLoad() : [];
+                const nouvelle = awakGenerateRift();
+                if (!nouvelle) {
+                    if (typeof showToast === 'function') showToast('Échec de la génération', 'error');
+                    return;
+                }
+                rifts.push(nouvelle);
+                if (typeof awakRiftsSave === 'function') awakRiftsSave(rifts);
+                if (typeof showToast === 'function') {
+                    showToast('🌀 Faille créée : ' + (nouvelle.name || 'sans nom'), 'success', 2600);
+                }
+                // Rafraîchir la carte / l'onglet pour la voir tout de suite
+                try { if (typeof renderGameTab === 'function') renderGameTab(); } catch (e) {}
+            } catch (e) {
+                try { if (typeof showToast === 'function') showToast('Erreur : ' + e.message, 'error'); } catch (e2) {}
+            }
+        }
+        window.awakAdminSpawnRift = awakAdminSpawnRift;
+
         function awakAdminResetStory() {
             try {
                 const toRemove = [];
@@ -32336,7 +32366,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=876');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=878');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -45521,20 +45551,24 @@
                 const _T = _TIERS[_tier];
                 const typeLabel = _T.lbl;
                 return `<div ${seen ? `onclick="document.getElementById('storyJournalOverlay').remove();(function(){const e=(window.STORY_EVENTS||[]).find(x=>x.id==='${evt.id}');if(e&&window.storyShowEvent)window.storyShowEvent(e);})()"` : ''}
-                    style="background:${seen?`linear-gradient(135deg,${color}14,${color}05)`:'rgba(255,255,255,0.03)'};border:1px solid ${seen?color+'40':'rgba(255,255,255,0.08)'};border-radius:14px;padding:14px 16px;margin-bottom:10px;cursor:${seen?'pointer':'default'};display:flex;align-items:center;gap:13px;${seen?'':'opacity:0.45;'}">
-                    <div style="font-size:1.4em;flex-shrink:0;">${seen ? _T.ic : '🔒'}</div>
+                    style="position:relative;background:${seen?`linear-gradient(100deg,${color}18,rgba(10,10,14,0.55) 55%)`:'rgba(255,255,255,0.02)'};border:1px solid ${seen?color+'33':'rgba(255,255,255,0.06)'};border-radius:13px;padding:13px 15px 13px 17px;margin-bottom:9px;cursor:${seen?'pointer':'default'};display:flex;align-items:center;gap:13px;overflow:hidden;${seen?'':'opacity:0.4;'}">
+                    <!-- liseré latéral coloré : repère le type d'un coup d'œil -->
+                    <div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:${seen?color:'rgba(255,255,255,0.10)'};"></div>
+                    <div style="font-size:1.25em;flex-shrink:0;filter:${seen?'none':'grayscale(1)'};opacity:${seen?1:0.5};">${seen ? _T.ic : '🔒'}</div>
                     <div style="flex:1;min-width:0;">
-                        <div style="font-size:0.55em;color:${seen?_T.col:'#64748b'};font-weight:800;letter-spacing:1.5px;">${typeLabel}</div>
-                        <div style="font-weight:800;color:${seen?'white':'#64748b'};font-size:0.95em;margin-top:2px;">${seen ? title : '? ? ?'}</div>
+                        <div style="font-size:0.52em;color:${seen?_T.col:'#475569'};font-weight:900;letter-spacing:2px;">${typeLabel}</div>
+                        <div style="font-weight:800;color:${seen?'#f1f5f9':'#475569'};font-size:0.92em;margin-top:3px;
+                                    font-family:var(--font-display),sans-serif;letter-spacing:0.3px;
+                                    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${seen ? title : '— — —'}</div>
                     </div>
-                    ${seen ? `<div style="color:${color};font-size:1.1em;">›</div>` : `<div style="font-size:0.6em;color:#64748b;">À venir</div>`}
+                    ${seen ? `<div style="color:${color};font-size:1em;opacity:0.7;flex-shrink:0;">›</div>` : `<div style="font-size:0.55em;color:#475569;letter-spacing:1px;font-weight:800;flex-shrink:0;">VERROUILLÉ</div>`}
                 </div>`;
             }).join('');
 
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=876");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=878");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
@@ -45573,11 +45607,27 @@
 
             sheet.innerHTML = `
                 <div style="width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:99px;margin:0 auto 18px;"></div>
-                <h2 style="margin:0 0 4px;color:white;font-size:1.15em;font-weight:900;">Journal du Chasseur</h2>
+                <!-- 📖 En-tête aligné sur le langage visuel du jeu : liseré
+                     violet, titre en capitales espacées, compteur à droite. -->
+                <div style="border-left:2px solid #a855f7;padding-left:11px;margin-bottom:16px;
+                            display:flex;align-items:baseline;justify-content:space-between;gap:10px;">
+                    <div>
+                        <div style="font-size:0.56em;letter-spacing:2.5px;color:#a855f7;font-weight:900;">◈ ARCHIVES</div>
+                        <h2 style="margin:2px 0 0;color:white;font-size:1.12em;font-weight:900;
+                                   font-family:var(--font-display),sans-serif;letter-spacing:0.5px;">Journal du Chasseur</h2>
+                    </div>
+                    <div style="text-align:right;flex-shrink:0;">
+                        <div style="font-size:1.25em;font-weight:900;color:#a855f7;line-height:1;">${seenCount}</div>
+                        <div style="font-size:0.5em;letter-spacing:1.5px;color:#64748b;font-weight:800;">SUR ${events.length}</div>
+                    </div>
+                </div>
                 ${_porteBloquee}
-                <p style="margin:0 0 18px;color:rgba(255,255,255,0.4);font-size:0.8em;">${seenCount} souvenir${seenCount>1?'s':''} retrouvé${seenCount>1?'s':''}. Ton histoire se dévoile à mesure que tu t'entraînes.</p>
+                <p style="display:none;">${seenCount} souvenir${seenCount>1?'s':''} retrouvé${seenCount>1?'s':''}. Ton histoire se dévoile à mesure que tu t'entraînes.</p>
                 ${rows || '<p style="color:rgba(255,255,255,0.4);font-size:0.85em;text-align:center;padding:20px;">Aucun souvenir pour l\'instant. Continue de t\'entraîner.</p>'}
-                <button onclick="document.getElementById('storyJournalOverlay').remove()" style="margin-top:10px;width:100%;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:14px;color:rgba(255,255,255,0.5);font-weight:700;cursor:pointer;">Fermer</button>`;
+                <button onclick="document.getElementById('storyJournalOverlay').remove()"
+                        style="margin-top:14px;width:100%;padding:13px;border-radius:13px;cursor:pointer;
+                               background:rgba(168,85,247,0.10);border:1px solid rgba(168,85,247,0.35);
+                               color:#c084fc;font-size:0.72em;font-weight:900;letter-spacing:2px;">FERMER</button>`;
             overlay.appendChild(sheet);
             document.body.appendChild(overlay);
         }
