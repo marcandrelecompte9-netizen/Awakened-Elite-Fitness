@@ -1037,7 +1037,13 @@ function renderFamilyTab() {
             + actions.slice(i, i + 2).join('') + '</div>';
     }
 
-    html += familyCard
+    // ✦ La Constellation ouvre l'onglet : le foyer d'un coup d'œil, comme
+    // la Carte de l'Effacement ouvre l'onglet Jeu.
+    const constCard = (window.AwakFamily && typeof window.AwakFamily.renderConstellation === 'function')
+        ? window.AwakFamily.renderConstellation() : '';
+
+    html += constCard
+          + familyCard
           + (goalActif ? goalCard : '')
           + (coopActif ? coopCard : '')
           + nudgeCard

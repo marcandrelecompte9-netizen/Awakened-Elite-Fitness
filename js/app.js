@@ -27006,25 +27006,11 @@
             // du mode jeu sans rien apporter. showSystemAnalysis() reste
             // disponible et accessible depuis Progression.
 
-            // 🃏 Bouton Carte du Système (tirage quotidien)
-            try {
-                if (typeof getDailySystemCard === 'function') {
-                    const { card } = getDailySystemCard();
-                    const cc = card.color;
-                    const cardBtn = document.createElement('div');
-                    cardBtn.style.cssText = 'margin-bottom:12px;';
-                    cardBtn.innerHTML = `
-                        <div onclick="awakShowSystemCard(true)" style="background:${cc}12;border:1px solid ${cc}44;border-left:3px solid ${cc};border-radius:10px;padding:11px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;">
-                            <span style="font-size:1.3em;flex-shrink:0;filter:drop-shadow(0 0 6px ${cc}88);">${card.icon}</span>
-                            <div style="flex:1;min-width:0;">
-                                <div style="font-size:0.52em;color:${cc};font-weight:900;letter-spacing:2px;margin-bottom:3px;">CARTE DU JOUR · ${card.cat.toUpperCase()}</div>
-                                <div style="font-size:0.82em;color:#fff;font-weight:800;">${card.title}</div>
-                            </div>
-                            <span style="font-size:0.7em;color:${cc};font-weight:800;flex-shrink:0;">Lire →</span>
-                        </div>`;
-                    tab.appendChild(cardBtn);
-                }
-            } catch(e) {}
+            // 🃏 CARTE DU JOUR RETIRÉE de l'onglet Jeu (v873)
+            // Elle s'intercalait entre la Carte de l'Effacement et la fiche
+            // de chasseur, sans lien avec le jeu lui-même. Le tirage
+            // quotidien reste actif : getDailySystemCard() et
+            // awakShowSystemCard() sont intacts et appelés ailleurs.
 
             // ── 1. CARTE PROFIL FUSIONNÉE (Profil + AWAKENED ANCRAGE) ──
             const cardProfile = document.createElement('div');
@@ -27068,7 +27054,7 @@
             // Même clé que l'avatar du panneau personnage : fitproAvatarGender.
             const _cardBg = (localStorage.getItem('fitproAvatarGender') || 'homme') === 'femme'
                 ? 'images/card_bg_femme.webp' : 'images/card_bg_homme.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=870");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=875");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -27138,21 +27124,11 @@
                     </div>
                 ` : '')}
 
-                <!-- Stats globales (XP / Streak / Muscles) -->
-                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;">
-                    <div style="background:rgba(74,222,128,0.07);border:1px solid rgba(74,222,128,0.18);border-radius:10px;padding:10px;text-align:center;">
-                        <div style="font-family:var(--font-display);font-size:1.3em;font-weight:700;color:#4ade80;">${profileXP.toLocaleString()}</div>
-                        <div style="font-size:0.6em;opacity:0.6;margin-top:2px;letter-spacing:0.5px;font-weight:700;">XP</div>
-                    </div>
-                    <div style="background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.18);border-radius:10px;padding:10px;text-align:center;">
-                        <div style="font-family:var(--font-display);font-size:1.3em;font-weight:700;color:#fbbf24;">🔥 ${streak}</div>
-                        <div style="font-size:0.6em;opacity:0.6;margin-top:2px;letter-spacing:0.5px;font-weight:700;">STREAK</div>
-                    </div>
-                    <div style="background:rgba(52,211,153,0.07);border:1px solid rgba(52,211,153,0.18);border-radius:10px;padding:10px;text-align:center;">
-                        <div style="font-family:var(--font-display);font-size:1.3em;font-weight:700;color:#34d399;">${muscles.length}</div>
-                        <div style="font-size:0.6em;opacity:0.6;margin-top:2px;letter-spacing:0.5px;font-weight:700;">MUSCLES</div>
-                    </div>
-                </div>
+                <!-- 📊 CASES XP / STREAK / MUSCLES RETIRÉES (v872)
+                     Information redondante dans l'onglet Jeu : l'XP figure
+                     déjà sur la barre de progression juste au-dessus, et le
+                     streak comme le compte de muscles relèvent du suivi
+                     (onglet Progression), pas de la fiche de chasseur. -->
 
                 <!-- Attributs AWAKENED (6 stats : STR/AGI/VIT/END/PER/SEN) -->
                 ${awakStats ? `
@@ -32360,7 +32336,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=875');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -45556,7 +45532,9 @@
             }).join('');
 
             const sheet = document.createElement('div');
-            sheet.style.cssText = 'background:#0D0D0D;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            // 📖 Texture d'interface en fond, maintenue très discrète par le
+            // voile pour que le texte du récit reste parfaitement lisible.
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.90),rgba(13,13,13,0.97)), url("images/journal_bg.webp?v=875");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.

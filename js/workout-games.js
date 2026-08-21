@@ -93,6 +93,20 @@
     // (info), qui n'ont pas leur place dans un jeu à répétitions.
     base = base.filter(function (e) { return e && e.name && e.type === 'exercise'; });
 
+    // 🧘 DISCIPLINES EXCLUES — le filtre `type === 'exercise'` ne suffit pas :
+    // les exercices de discipline (yoga, pilates, boxe…) portent EUX AUSSI ce
+    // type. Résultat : « Chat-vache », « Posture du cobra » ou « Respiration »
+    // pouvaient sortir dans un jeu à répétitions, alors que ce sont des postures
+    // tenues, pas des mouvements comptables. On pioche donc dans la base
+    // MUSCULATION SEULE, comme les générateurs de séance (v807).
+    base = base.filter(function (e) { return !e.discipline; });
+
+    // 🚫 Entrées structurelles et postures d'assouplissement mal typées :
+    // certains mouvements sont classés `exercise` alors qu'ils relèvent de
+    // l'échauffement ou de l'étirement. On les écarte par leur nom.
+    var _exclus = /^(cat[- ]?cow|chat[- ]?vache|chat[- ]?dos|cobra|respiration|salutation|posture|étirement|etirement|assouplissement|mobilité|mobilite)/i;
+    base = base.filter(function (e) { return !_exclus.test(e.name); });
+
     try {
       if (typeof window.getSelectedEquipmentNames === 'function') {
         var dispo = window.getSelectedEquipmentNames() || [];

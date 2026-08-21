@@ -231,6 +231,134 @@
     return { seances: seances, joursActifs: Object.keys(jours).length };
   }
 
+
+  // ══════════════════════════════════════════════════════════════════
+  // ✦ LA CONSTELLATION DES ANCRES
+  // ------------------------------------------------------------------
+  // Équivalent famille de la Carte de l'Effacement : au lieu d'empiler
+  // des cartes, on montre le foyer comme un ciel. Le profil actif est
+  // l'étoile centrale ; chaque membre lié gravite autour, relié par un
+  // fil de lumière. L'éclat d'une étoile dépend de son activité récente :
+  // une famille qui bouge brille, une famille à l'arrêt s'éteint.
+  // Tout en SVG — aucune image à charger, aucune donnée envoyée.
+  // ══════════════════════════════════════════════════════════════════
+  function _constEclat(seances) {
+    if (seances >= 5) return { c: '#fbbf24', r: 7.5, o: 1 };     // or
+    if (seances >= 3) return { c: '#4ade80', r: 6.5, o: 0.95 };  // vert
+    if (seances >= 1) return { c: '#38bdf8', r: 5.5, o: 0.85 };  // bleu
+    return { c: '#64748b', r: 4.5, o: 0.5 };                     // éteinte
+  }
+
+  function renderConstellation() {
+    var moi = currentId();
+    var liens = myRelations();
+    if (!liens.length) return '';
+
+    var membres = liens.map(function (r) {
+      var st = memberWeekStats(r.member.id);
+      return {
+        id: r.member.id,
+        nom: r.member.name || 'Membre',
+        avatar: r.member.avatar || '🙂',
+        relation: (r.relation && r.relation.label) || '',
+        seances: st.seances,
+        jours: st.joursActifs
+      };
+    });
+
+    // Moi au centre
+    var moiSt = memberWeekStats(moi);
+    var moiE = _constEclat(moiSt.seances);
+
+    // Étoiles réparties en cercle, la première en haut
+    var n = membres.length;
+    var rayon = n <= 2 ? 78 : (n <= 4 ? 88 : 96);
+    var etoiles = '', fils = '', total = moiSt.seances;
+
+    membres.forEach(function (m, i) {
+      var a = (-90 + (360 / n) * i) * Math.PI / 180;
+      var x = 150 + Math.cos(a) * rayon;
+      var y = 150 + Math.sin(a) * rayon;
+      var e = _constEclat(m.seances);
+      total += m.seances;
+
+      // fil de lumière vers le centre — plus vif si le membre est actif
+      fils += '<line x1="150" y1="150" x2="' + x.toFixed(1) + '" y2="' + y.toFixed(1) + '" '
+        + 'stroke="' + e.c + '" stroke-width="' + (m.seances ? 1 : 0.6) + '" '
+        + 'opacity="' + (m.seances ? 0.32 : 0.14) + '"/>';
+
+      var dur = (3 + (i % 4) * 0.7).toFixed(1);
+      etoiles += '<g style="cursor:pointer;" onclick="AwakFamilyNudge(\'' + m.id + '\')">'
+        + '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="26" fill="transparent"/>'
+        + '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + (e.r + 9) + '" fill="' + e.c + '" fill-opacity="0.10"/>'
+        + '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + e.r + '" fill="' + e.c + '" '
+        +   'opacity="' + e.o + '" filter="url(#constLueur)">'
+        +   (m.seances ? '<animate attributeName="opacity" values="' + e.o + ';' + (e.o * 0.6) + ';' + e.o
+              + '" dur="' + dur + 's" repeatCount="indefinite"/>' : '')
+        + '</circle>'
+        + '<text x="' + x.toFixed(1) + '" y="' + (y + e.r + 15).toFixed(1) + '" text-anchor="middle" '
+        +   'fill="#e2e8f0" font-size="9.5" font-weight="700">' + esc(m.nom) + '</text>'
+        + '<text x="' + x.toFixed(1) + '" y="' + (y + e.r + 26).toFixed(1) + '" text-anchor="middle" '
+        +   'fill="' + e.c + '" font-size="8.5" font-weight="800">'
+        +   (m.seances ? m.seances + ' séance' + (m.seances > 1 ? 's' : '') : 'en sommeil') + '</text>'
+        + '</g>';
+    });
+
+    // Objectif commun : anneau de progression autour de la constellation
+    var anneau = '';
+    try {
+      if (window.AwakFamilyGoal && typeof window.AwakFamilyGoal.status === 'function') {
+        var g = window.AwakFamilyGoal.status();
+        if (g && typeof g.pct === 'number') {
+          var C = 2 * Math.PI * 132;
+          anneau = '<circle cx="150" cy="150" r="132" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="3"/>'
+            + '<circle cx="150" cy="150" r="132" fill="none" stroke="#22c55e" stroke-width="3" '
+            + 'stroke-linecap="round" stroke-dasharray="' + (C * g.pct / 100).toFixed(1) + ' ' + C.toFixed(1) + '" '
+            + 'transform="rotate(-90 150 150)" opacity="0.75"/>';
+        }
+      }
+    } catch (e) {}
+
+    return '<div style="position:relative;border-radius:18px;overflow:hidden;'
+      +   'background:#07070b;'
+      +   'border:1px solid rgba(236,72,153,0.22);margin-bottom:14px;">'
+      +   '<svg viewBox="0 0 300 300" style="width:100%;height:auto;display:block;">'
+      +     '<defs><filter id="constLueur"><feGaussianBlur stdDeviation="3" result="b"/>'
+      +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>'
+      // 🌌 Nébuleuse de fond : remplace la poussière d'étoiles dessinée.
+      +     '<image href="images/constellation_bg.webp?v=875" x="0" y="0" width="300" height="300" '
+      +       'preserveAspectRatio="xMidYMid slice" opacity="0.95"/>'
+      +     anneau
+      +     fils
+      +     etoiles
+      // étoile centrale : moi
+      +     '<circle cx="150" cy="150" r="' + (moiE.r + 12) + '" fill="' + moiE.c + '" fill-opacity="0.12"/>'
+      +     '<circle cx="150" cy="150" r="' + (moiE.r + 2) + '" fill="' + moiE.c + '" filter="url(#constLueur)"/>'
+      +     '<circle cx="150" cy="150" r="' + (moiE.r + 11) + '" fill="none" stroke="' + moiE.c + '" stroke-width="1" opacity="0.4">'
+      +       '<animate attributeName="r" values="' + (moiE.r + 9) + ';' + (moiE.r + 20) + ';' + (moiE.r + 9)
+      +         '" dur="4.2s" repeatCount="indefinite"/>'
+      +       '<animate attributeName="opacity" values="0.4;0;0.4" dur="4.2s" repeatCount="indefinite"/>'
+      +     '</circle>'
+      +   '</svg>'
+      +   '<div style="position:absolute;top:0;left:0;right:0;padding:11px 13px 22px;'
+      +     'background:linear-gradient(180deg,rgba(8,9,12,0.85),rgba(8,9,12,0));'
+      +     'display:flex;align-items:baseline;justify-content:space-between;pointer-events:none;">'
+      +     '<div style="font-size:0.56em;letter-spacing:2.5px;color:#ec4899;font-weight:900;">✦ CONSTELLATION DES ANCRES</div>'
+      +     '<div style="font-size:0.52em;letter-spacing:1.5px;color:#64748b;font-weight:800;">'
+      +       (membres.length + 1) + ' ÉTOILES</div>'
+      +   '</div>'
+      +   '<div style="position:absolute;bottom:0;left:0;right:0;padding:20px 13px 10px;'
+      +     'background:linear-gradient(0deg,rgba(8,9,12,0.85),rgba(8,9,12,0));font-size:0.6em;pointer-events:none;">'
+      +     (total ? ('<span style="color:#4ade80;font-weight:800;">' + total + ' séance' + (total > 1 ? 's' : '') + ' cette semaine</span><span style="color:#475569;"> — touche une étoile pour encourager</span>') : '<span style="color:#64748b;">Le ciel est calme. Une séance et il s\'allume.</span>')
+      +   '</div>'
+      + '</div>';
+  }
+
+  // (Poussière d'étoiles dessinée RETIRÉE en v875 : remplacée par la
+  // vraie nébuleuse images/constellation_bg.webp)
+  window.AwakFamily = window.AwakFamily || {};
+  window.AwakFamily.renderConstellation = renderConstellation;
+
   // Membres liés qui « traînent », triés du plus inactif au moins.
   function membersNeedingNudge() {
     var out = [];
