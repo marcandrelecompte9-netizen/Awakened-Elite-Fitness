@@ -233,6 +233,86 @@
 
 
   // ══════════════════════════════════════════════════════════════════
+
+  // ✦ MENU D'UNE ÉTOILE — toucher un membre ouvre ses actions.
+  // Avant, toucher envoyait directement un encouragement : c'était la seule
+  // interaction possible et elle ne laissait aucun choix. Le menu ouvre les
+  // trois actions qui concernent CE membre.
+  window.AwakConstMenu = function (memberId) {
+    var liens = myRelations();
+    var lien = liens.find(function (r) { return r.member.id === memberId; });
+    if (!lien) return;
+    var st = memberWeekStats(memberId);
+    var enf = false;
+    try {
+      enf = !!(window.AwakYouth && typeof window.AwakYouth.isChild === 'function'
+               && window.AwakYouth.isChild());
+    } catch (e) {}
+
+    document.getElementById('awakConstMenu')?.remove();
+    var ov = document.createElement('div');
+    ov.id = 'awakConstMenu';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:11000;background:rgba(0,0,0,0.88);'
+      + 'backdrop-filter:blur(8px);display:flex;align-items:flex-end;justify-content:center;padding:16px;';
+
+    var act = function (emoji, label, sous, fn, couleur) {
+      return '<button onclick="' + fn + '" style="width:100%;display:flex;align-items:center;gap:13px;'
+        + 'padding:14px 15px;margin-bottom:9px;border-radius:14px;cursor:pointer;text-align:left;'
+        + 'background:rgba(255,255,255,0.04);border:1px solid ' + couleur + '33;">'
+        + '<div style="font-size:1.5em;flex-shrink:0;">' + emoji + '</div>'
+        + '<div style="flex:1;min-width:0;">'
+        +   '<div style="font-size:0.86em;font-weight:800;color:#f1f5f9;">' + label + '</div>'
+        +   '<div style="font-size:0.68em;color:#94a3b8;margin-top:2px;">' + sous + '</div>'
+        + '</div>'
+        + '<div style="color:' + couleur + ';font-size:1.1em;">›</div></button>';
+    };
+
+    var etat = st.seances
+      ? (enf ? 'A bougé cette semaine' : st.seances + ' séance' + (st.seances > 1 ? 's' : '') + ' cette semaine')
+      : 'Pas encore bougé cette semaine';
+
+    ov.innerHTML =
+      '<div style="width:100%;max-width:440px;background:linear-gradient(160deg,#12101a,#0b0b0f);'
+    +   'border:1px solid rgba(236,72,153,0.28);border-radius:20px 20px 16px 16px;padding:18px;">'
+    +   '<div style="width:36px;height:4px;background:rgba(255,255,255,0.18);border-radius:99px;margin:0 auto 16px;"></div>'
+    +   '<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">'
+    +     '<div style="font-size:1.9em;">' + esc(lien.member.avatar || '🙂') + '</div>'
+    +     '<div style="flex:1;min-width:0;">'
+    +       '<div style="font-size:1.05em;font-weight:900;color:#fff;">' + esc(lien.member.name || 'Membre') + '</div>'
+    +       '<div style="font-size:0.7em;color:#ec4899;font-weight:700;">'
+    +         ((lien.relation && lien.relation.emoji) || '') + ' ' + esc((lien.relation && lien.relation.label) || '') + '</div>'
+    +       '<div style="font-size:0.68em;color:#94a3b8;margin-top:2px;">' + etat + '</div>'
+    +     '</div>'
+    +   '</div>'
+    +   act('💜', 'Envoyer un encouragement', 'Un mot pour lui donner envie',
+          "AwakConstAction('nudge','" + memberId + "')", '#ec4899')
+    +   act('🎮', 'Jouer à deux', 'Une séance à faire ensemble',
+          "AwakConstAction('games','" + memberId + "')", '#a855f7')
+    // ⚔️ Le défi 1 contre 1 est COMPÉTITIF : jamais proposé à un enfant.
+    +   (enf ? '' : act('⚔️', 'Lancer un défi', 'Qui en fera le plus cette semaine ?',
+          "AwakConstAction('challenge','" + memberId + "')", '#f59e0b'))
+    +   '<button onclick="document.getElementById(\'awakConstMenu\').remove()" '
+    +     'style="width:100%;padding:12px;margin-top:5px;border-radius:13px;cursor:pointer;'
+    +     'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);'
+    +     'color:#94a3b8;font-size:0.75em;font-weight:800;letter-spacing:1px;">FERMER</button>'
+    + '</div>';
+    ov.onclick = function (e) { if (e.target === ov) ov.remove(); };
+    document.body.appendChild(ov);
+  };
+
+  window.AwakConstAction = function (quoi, memberId) {
+    document.getElementById('awakConstMenu')?.remove();
+    try {
+      if (quoi === 'nudge' && typeof window.AwakFamilyNudge === 'function') {
+        window.AwakFamilyNudge(memberId);
+      } else if (quoi === 'games' && typeof window.AwakGamesOpen === 'function') {
+        window.AwakGamesOpen();
+      } else if (quoi === 'challenge' && typeof window.AwakFamilyChallengeOpen === 'function') {
+        window.AwakFamilyChallengeOpen();
+      }
+    } catch (e) {}
+  };
+
   // ✦ LA CONSTELLATION DES ANCRES
   // ------------------------------------------------------------------
   // Équivalent famille de la Carte de l'Effacement : au lieu d'empiler
@@ -252,6 +332,15 @@
   function renderConstellation() {
     var moi = currentId();
     var liens = myRelations();
+    // 🧒 PROFIL ENFANT : on retire toute lecture COMPARATIVE. L'enfant voit
+    // que les autres sont là et s'ils ont bougé (couleur de l'étoile), mais
+    // pas leur décompte de séances — sinon « papa 5 / moi 0 » devient une
+    // comparaison, exactement ce que le reste de l'app évite déjà pour eux.
+    var estEnfant = false;
+    try {
+        estEnfant = !!(window.AwakYouth && typeof window.AwakYouth.isChild === 'function'
+                       && window.AwakYouth.isChild());
+    } catch (e) {}
     // ⚠️ Un joueur SEUL doit voir sa constellation : son étoile brille déjà,
     // et le ciel vide donne envie d'y ajouter quelqu'un. Renvoyer '' faisait
     // que la refonte semblait n'avoir jamais été appliquée.
@@ -292,7 +381,7 @@
         + 'opacity="' + (m.seances ? 0.32 : 0.14) + '"/>';
 
       var dur = (3 + (i % 4) * 0.7).toFixed(1);
-      etoiles += '<g style="cursor:pointer;" onclick="AwakFamilyNudge(\'' + m.id + '\')">'
+      etoiles += '<g style="cursor:pointer;" onclick="AwakConstMenu(\'' + m.id + '\')">'
         + '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="26" fill="transparent"/>'
         + '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + (e.r + 9) + '" fill="' + e.c + '" fill-opacity="0.10"/>'
         + '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + e.r + '" fill="' + e.c + '" '
@@ -300,11 +389,14 @@
         +   (m.seances ? '<animate attributeName="opacity" values="' + e.o + ';' + (e.o * 0.6) + ';' + e.o
               + '" dur="' + dur + 's" repeatCount="indefinite"/>' : '')
         + '</circle>'
-        + '<text x="' + x.toFixed(1) + '" y="' + (y + e.r + 15).toFixed(1) + '" text-anchor="middle" '
-        +   'fill="#e2e8f0" font-size="9.5" font-weight="700">' + esc(m.nom) + '</text>'
-        + '<text x="' + x.toFixed(1) + '" y="' + (y + e.r + 26).toFixed(1) + '" text-anchor="middle" '
-        +   'fill="' + e.c + '" font-size="8.5" font-weight="800">'
-        +   (m.seances ? m.seances + ' séance' + (m.seances > 1 ? 's' : '') : 'en sommeil') + '</text>'
+        // Police agrandie : sur mobile, 8,5 px SVG ne faisait que ~10 px réels.
+        + '<text x="' + x.toFixed(1) + '" y="' + (y + e.r + 16).toFixed(1) + '" text-anchor="middle" '
+        +   'fill="#f1f5f9" font-size="11" font-weight="800">' + esc(m.nom) + '</text>'
+        + '<text x="' + x.toFixed(1) + '" y="' + (y + e.r + 28).toFixed(1) + '" text-anchor="middle" '
+        +   'fill="' + e.c + '" font-size="10" font-weight="800">'
+        +   (estEnfant
+              ? (m.seances ? 'a bougé' : 'en sommeil')
+              : (m.seances ? m.seances + ' séance' + (m.seances > 1 ? 's' : '') : 'en sommeil')) + '</text>'
         + '</g>';
     });
 
@@ -315,10 +407,15 @@
         var g = window.AwakFamilyGoal.status();
         if (g && typeof g.pct === 'number') {
           var C = 2 * Math.PI * 132;
-          anneau = '<circle cx="150" cy="150" r="132" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="3"/>'
+          // 🎯 L'anneau EST l'objectif commun : le toucher l'ouvre.
+          anneau = '<g style="cursor:pointer;" onclick="AwakFamilyGoalOpen()">'
+            + '<circle cx="150" cy="150" r="132" fill="none" stroke="transparent" stroke-width="22"/>'
+            + '<circle cx="150" cy="150" r="132" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="3"/>'
             + '<circle cx="150" cy="150" r="132" fill="none" stroke="#22c55e" stroke-width="3" '
             + 'stroke-linecap="round" stroke-dasharray="' + (C * g.pct / 100).toFixed(1) + ' ' + C.toFixed(1) + '" '
-            + 'transform="rotate(-90 150 150)" opacity="0.75"/>';
+            + 'transform="rotate(-90 150 150)" opacity="0.75"/>'
+            + '<text x="150" y="26" text-anchor="middle" fill="#22c55e" font-size="9" font-weight="900">'
+            + g.pct + ' %</text></g>';
         }
       }
     } catch (e) {}
@@ -330,12 +427,15 @@
       +     '<defs><filter id="constLueur"><feGaussianBlur stdDeviation="3" result="b"/>'
       +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>'
       // 🌌 Nébuleuse de fond : remplace la poussière d'étoiles dessinée.
-      +     '<image href="images/constellation_bg.webp?v=878" x="0" y="0" width="300" height="300" '
+      +     '<image href="images/constellation_bg.webp?v=887" x="0" y="0" width="300" height="300" '
       +       'preserveAspectRatio="xMidYMid slice" opacity="0.95"/>'
       +     anneau
       +     fils
       +     etoiles
       // étoile centrale : moi
+      // ⌖ Mon étoile : ouvre le défi d'équipe (l'action collective).
+      +     '<g style="cursor:pointer;" onclick="AwakCoopOpen()">'
+      +     '<circle cx="150" cy="150" r="30" fill="transparent"/>'
       +     '<circle cx="150" cy="150" r="' + (moiE.r + 12) + '" fill="' + moiE.c + '" fill-opacity="0.12"/>'
       +     '<circle cx="150" cy="150" r="' + (moiE.r + 2) + '" fill="' + moiE.c + '" filter="url(#constLueur)"/>'
       +     '<circle cx="150" cy="150" r="' + (moiE.r + 11) + '" fill="none" stroke="' + moiE.c + '" stroke-width="1" opacity="0.4">'
@@ -343,6 +443,7 @@
       +         '" dur="4.2s" repeatCount="indefinite"/>'
       +       '<animate attributeName="opacity" values="0.4;0;0.4" dur="4.2s" repeatCount="indefinite"/>'
       +     '</circle>'
+      +     '</g>'
       +   '</svg>'
       +   '<div style="position:absolute;top:0;left:0;right:0;padding:11px 13px 22px;'
       +     'background:linear-gradient(180deg,rgba(8,9,12,0.85),rgba(8,9,12,0));'
@@ -355,17 +456,22 @@
       +     'background:linear-gradient(0deg,rgba(8,9,12,0.85),rgba(8,9,12,0));font-size:0.6em;pointer-events:none;">'
       +     (solo
                 ? '<span style="color:#64748b;">Ton étoile veille seule. Lie un proche pour agrandir la constellation.</span>'
-                : (total
-                    ? ('<span style="color:#4ade80;font-weight:800;">' + total + ' séance' + (total > 1 ? 's' : '') + ' cette semaine</span><span style="color:#475569;"> — touche une étoile pour encourager</span>')
-                    : '<span style="color:#64748b;">Le ciel est calme. Une séance et il s\'allume.</span>'))
+                : (estEnfant
+                    ? (total
+                        ? '<span style="color:#4ade80;font-weight:800;">Votre ciel brille</span><span style="color:#475569;"> — touche une étoile pour envoyer un message</span>'
+                        : '<span style="color:#64748b;">Le ciel dort. Bouge un peu et il s\'allume.</span>')
+                    : (total
+                        ? ('<span style="color:#4ade80;font-weight:800;">' + total + ' séance' + (total > 1 ? 's' : '') + ' cette semaine</span><span style="color:#475569;"> — touche une étoile pour encourager</span>')
+                        : '<span style="color:#64748b;">Le ciel est calme. Une séance et il s\'allume.</span>')))
       +   '</div>'
       + '</div>';
   }
 
   // (Poussière d'étoiles dessinée RETIRÉE en v875 : remplacée par la
   // vraie nébuleuse images/constellation_bg.webp)
-  window.AwakFamily = window.AwakFamily || {};
-  window.AwakFamily.renderConstellation = renderConstellation;
+  // (exposé plus bas, dans l'objet window.AwakFamily unique — l'exposer ici
+  //  ne servait à rien : l'affectation `window.AwakFamily = {...}` de la fin
+  //  du fichier écrasait l'objet et supprimait cette fonction.)
 
   // Membres liés qui « traînent », triés du plus inactif au moins.
   function membersNeedingNudge() {
@@ -440,6 +546,7 @@
 
 
   window.AwakFamily = {
+    renderConstellation: renderConstellation,
     REL_TYPES: REL_TYPES,
     OFFERABLE: OFFERABLE,
     setRelation: setRelation,
@@ -481,7 +588,15 @@
         +   (function () {
               // 📊 Trois chiffres pour donner une identité au membre — sans classement.
               var ws = memberWeekStats(r.member.id);
+              // 🧒 Profil enfant : pas de décompte des autres — on dit
+              // seulement s'ils ont bougé, sans chiffre à comparer.
+              var _enf = false;
+              try {
+                  _enf = !!(window.AwakYouth && typeof window.AwakYouth.isChild === 'function'
+                            && window.AwakYouth.isChild());
+              } catch (e) {}
               if (!ws.seances) return '<div style="font-size:0.68em;color:#64748b;margin-top:2px;">Pas encore de séance cette semaine</div>';
+              if (_enf) return '<div style="font-size:0.68em;color:#4ade80;margin-top:2px;">🏋️ A bougé cette semaine</div>';
               return '<div style="font-size:0.68em;color:#94a3b8;margin-top:2px;">'
                 + '🏋️ ' + ws.seances + ' séance' + (ws.seances > 1 ? 's' : '')
                 + '<span style="color:#475569;"> · </span>'

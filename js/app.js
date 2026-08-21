@@ -23356,7 +23356,11 @@
             // 🌀 FAILLES — brèches qui pulsent
             rifts.slice(0, 8).forEach((r, i) => {
                 const p = pos(r.id || r.themeId, i, R);
-                const c = (r.narrativeData && r.narrativeData.color) || '#a855f7';
+                // ⚡ Les ASSAUTS se distinguent par leur couleur : ambre au lieu
+                // de violet. Le joueur voit d'un coup d'œil quel type de combat
+                // l'attend, avant même de toucher la brèche.
+                const c = r.isAssaut ? '#f59e0b'
+                        : ((r.narrativeData && r.narrativeData.color) || '#a855f7');
                 const _dur = (2.1 + (i % 4) * 0.35).toFixed(2);   // désynchronisé
                 const _rid = String(r.id || '').replace(/'/g, "\\'");
                 const X = p.x, Y = p.y;
@@ -23384,6 +23388,13 @@
                     +     '<path d="M0,-13 L4.5,0 L0,13 L-4.5,0 Z" fill="' + c + '"/>'
                     +     '<path d="M-13,0 L0,-4.5 L13,0 L0,4.5 Z" fill="' + c + '" fill-opacity="0.72"/>'
                     +   '</g>'
+                    // ⚡ Assaut : anneau qui TOURNE — l'urgence du chrono
+                    +   (r.isAssaut
+                        ? ('<g><animateTransform attributeName="transform" type="rotate" from="0" to="360" '
+                           + 'dur="6s" repeatCount="indefinite"/>'
+                           + '<circle r="18" fill="none" stroke="' + c + '" stroke-width="1.3" '
+                           + 'stroke-dasharray="6 8" opacity="0.75"/></g>')
+                        : '')
                     + '</g></g>';
             });
 
@@ -24511,6 +24522,17 @@
             })();
 
             // AFFICHER LE MUSCLE SOLLICITÉ
+            // ⚡ ASSAUT : chrono d'attaque + barre de vie de la vague
+            try {
+                if (currentWorkout && currentWorkout._isAssaut) {
+                    if (typeof awakAssautStart === 'function') awakAssautStart();
+                    if (typeof _renderAssautHpBar === 'function') _renderAssautHpBar();
+                } else {
+                    if (typeof awakAssautStop === 'function') awakAssautStop();
+                    document.getElementById('awakAssautHpBar')?.remove();
+                }
+            } catch (e) {}
+            
             // ⚔️ Barre de vie du Monarque : (re)dessinée à chaque exercice du combat
             // final, retirée partout ailleurs.
             try {
@@ -27054,7 +27076,7 @@
             // Même clé que l'avatar du panneau personnage : fitproAvatarGender.
             const _cardBg = (localStorage.getItem('fitproAvatarGender') || 'homme') === 'femme'
                 ? 'images/card_bg_femme.webp' : 'images/card_bg_homme.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=878");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=887");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -30649,6 +30671,364 @@
          * Génère une nouvelle Faille aléatoire
          * Rang basé sur le rang du joueur (±1)
          */
+
+        // ══════════════════════════════════════════════════════════════
+        // ⚡ FAILLES D'ASSAUT — combat au chrono
+        // --------------------------------------------------------------
+        // Second type de Faille, à côté des Failles classiques (séries et
+        // répétitions). Ici, pas de saisie : un chrono tourne et le joueur
+        // FRAPPE automatiquement toutes les N secondes tant qu'il bouge.
+        // Chaque Assaut a un THÈME qui restreint le pool d'exercices —
+        // deux Assauts ne se ressemblent plus.
+        // ⚠️ Le thème FILTRE un pool, il ne dicte pas une liste : les
+        // douleurs déclarées, le matériel réel et les protections enfant
+        // continuent de s'appliquer. Un Assaut « haltères » n'apparaît
+        // pas si le joueur n'a pas d'haltères.
+        // ══════════════════════════════════════════════════════════════
+
+
+        // ⏳ FIN DU CHRONO — le monstre est-il tombé ?
+        // Appelé quand la séance d'Assaut arrive au bout de ses exercices.
+        function awakAssautFinDuTemps() {
+            const sess = (typeof awakActiveRiftSession !== 'undefined') ? awakActiveRiftSession : null;
+            if (!sess || !sess.rift) return false;
+            const wave = sess.rift.waves && sess.rift.waves[sess.rift.currentWaveIdx || 0];
+            if (!wave || wave.hpCurrent <= 0) return false;   // vaincu : rien à faire
+
+            awakAssautStop();
+            const pct = Math.round((wave.hpCurrent / (wave.hpMax || 1)) * 100);
+            const dejaProlonge = !!sess._prolonge;
+
+            const ov = document.createElement('div');
+            ov.id = 'awakAssautEchecModal';
+            ov.style.cssText = 'position:fixed;inset:0;z-index:12000;background:rgba(0,0,0,0.94);'
+                + 'backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:20px;';
+            ov.innerHTML =
+                '<div style="width:100%;max-width:420px;background:linear-gradient(160deg,#140e18,#0d0d12);'
+              +   'border:1px solid rgba(168,85,247,0.4);border-radius:20px;padding:24px;text-align:center;">'
+              +   '<div style="font-size:2.4em;margin-bottom:6px;">' + (wave.emoji || '👾') + '</div>'
+              +   '<div style="font-size:0.6em;letter-spacing:2.5px;color:#c084fc;font-weight:900;">◈ LE TEMPS EST ÉCOULÉ</div>'
+              +   '<div style="font-family:var(--font-display),sans-serif;font-size:1.3em;font-weight:700;color:#fff;margin:6px 0 12px;">'
+              +     'Il tient encore</div>'
+              +   '<div style="height:9px;background:rgba(0,0,0,0.5);border-radius:99px;overflow:hidden;margin-bottom:8px;">'
+              +     '<div style="height:100%;width:' + pct + '%;background:linear-gradient(90deg,#7e22ce,#c084fc);"></div></div>'
+              +   '<div style="font-size:0.8em;color:#94a3b8;margin-bottom:18px;">'
+              +     'Il lui reste <strong style="color:#c084fc;">' + pct + ' %</strong> de vie.</div>'
+              + (dejaProlonge
+                  ? ('<div style="font-size:0.8em;color:#e2e8f0;line-height:1.55;margin-bottom:16px;">'
+                     + 'Tu as déjà donné tout ce que tu avais. La brèche reste ouverte — '
+                     + '<strong style="color:#4ade80;">les dégâts infligés sont conservés</strong>. Reviens la finir.</div>')
+                  : ('<div style="font-size:0.8em;color:#e2e8f0;line-height:1.55;margin-bottom:16px;">'
+                     + 'Tu peux t\'arrêter là — la brèche restera ouverte et '
+                     + '<strong style="color:#4ade80;">les dégâts sont conservés</strong> — '
+                     + 'ou pousser encore cinq minutes.</div>'
+                     + '<button onclick="awakAssautProlonger()" style="width:100%;padding:14px;border-radius:14px;'
+                     + 'background:linear-gradient(135deg,#a855f7,#7e22ce);border:none;color:#fff;font-weight:900;'
+                     + 'font-size:0.85em;letter-spacing:1px;cursor:pointer;margin-bottom:9px;">'
+                     + '⚡ ENCORE 5 MINUTES</button>'))
+              +   '<button onclick="awakAssautAbandonner()" style="width:100%;padding:12px;border-radius:13px;'
+              +     'background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:#94a3b8;'
+              +     'font-weight:800;font-size:0.78em;letter-spacing:1px;cursor:pointer;">'
+              +     (dejaProlonge ? 'TERMINER' : 'S\'ARRÊTER LÀ') + '</button>'
+              + '</div>';
+            document.body.appendChild(ov);
+            return true;
+        }
+        window.awakAssautFinDuTemps = awakAssautFinDuTemps;
+
+        // ⚡ +5 minutes : on rallonge la séance avec de nouveaux exercices
+        // du même thème, et le chrono d'attaque repart.
+        function awakAssautProlonger() {
+            document.getElementById('awakAssautEchecModal')?.remove();
+            const sess = (typeof awakActiveRiftSession !== 'undefined') ? awakActiveRiftSession : null;
+            if (!sess || !currentWorkout) return;
+            sess._prolonge = true;
+            try {
+                const rift = sess.rift;
+                const rallonge = awakBuildAssautWorkout(rift);
+                if (rallonge && rallonge.exercises && rallonge.exercises.length) {
+                    // ~5 min : on prend les premiers exercices de la rallonge
+                    const ajout = rallonge.exercises.slice(0, 7);
+                    currentWorkout.exercises = currentWorkout.exercises.concat(ajout);
+                    if (typeof showToast === 'function') showToast('⚡ Cinq minutes de plus. Finis-le.', 'info', 2600);
+                    awakAssautStart();
+                    if (typeof nextExercise === 'function') nextExercise();
+                    else if (typeof startExercise === 'function') startExercise();
+                }
+            } catch (e) {}
+        }
+        window.awakAssautProlonger = awakAssautProlonger;
+
+        // 🚪 S'arrêter : la Faille RESTE ouverte, les dégâts sont conservés.
+        // Principe de l'app : on ne perd jamais l'effort réellement fourni.
+        function awakAssautAbandonner() {
+            document.getElementById('awakAssautEchecModal')?.remove();
+            awakAssautStop();
+            try {
+                if (typeof showToast === 'function') {
+                    showToast('◈ La brèche reste ouverte. Tes coups ont porté.', 'info', 3000);
+                }
+            } catch (e) {}
+            try { if (typeof awakAbandonRift === 'function') { awakActiveRiftSession = null; } } catch (e) {}
+            try {
+                currentWorkout = null;
+                if (typeof clearActiveWorkoutState === 'function') clearActiveWorkoutState();
+                if (typeof stopTimer === 'function') stopTimer();
+                document.getElementById('exerciseView')?.classList.add('hidden');
+                const ws = document.getElementById('workoutSelection');
+                if (ws) ws.style.display = '';
+                document.body.classList.remove('in-session', 'workout-fullscreen');
+                if (typeof switchTab === 'function') switchTab('game');
+            } catch (e) {}
+        }
+        window.awakAssautAbandonner = awakAssautAbandonner;
+
+        // ⚔️ ATTAQUE AU CHRONO — le cœur de l'Assaut.
+        // Pendant l'effort, le joueur frappe tout seul toutes les CADENCE
+        // secondes. Aucune saisie : bouger EST l'attaque.
+        const ASSAUT_CADENCE = 15;   // secondes entre deux frappes
+        let _assautTimer = null;
+
+        function awakAssautStart() {
+            awakAssautStop();
+            _assautTimer = setInterval(function () {
+                try {
+                    if (!currentWorkout || !currentWorkout._isAssaut) { awakAssautStop(); return; }
+                    // On ne frappe QUE pendant un exercice, jamais pendant le repos
+                    const ex = currentWorkout.exercises[currentExerciseIndex];
+                    if (!ex || ex.isRest) return;
+                    if (typeof isPaused !== 'undefined' && isPaused) return;
+                    awakAssautFrapper();
+                } catch (e) {}
+            }, ASSAUT_CADENCE * 1000);
+        }
+        function awakAssautStop() {
+            if (_assautTimer) { clearInterval(_assautTimer); _assautTimer = null; }
+        }
+        window.awakAssautStart = awakAssautStart;
+        window.awakAssautStop = awakAssautStop;
+
+        function awakAssautFrapper() {
+            const sess = (typeof awakActiveRiftSession !== 'undefined') ? awakActiveRiftSession : null;
+            if (!sess || !sess.rift) return;
+            const wave = sess.rift.waves && sess.rift.waves[sess.rift.currentWaveIdx || 0];
+            if (!wave || wave.hpCurrent <= 0) return;
+
+            // Mêmes dégâts que le combat classique : le build compte autant.
+            // Même formule que le combat classique (socle + stat thématique avec
+            // rendement décroissant), pondérée à 0,8 : une frappe automatique
+            // vaut un peu moins qu'une série validée à la main.
+            let degats = 40;
+            try {
+                const st = (typeof getPlayerEquipStats === 'function') ? getPlayerEquipStats() : {};
+                const primaire = st[(sess.rift.primaryStat || 'STR')] || 10;
+                const SOFT = 80;
+                const eff = primaire <= SOFT ? primaire : SOFT + Math.sqrt(primaire - SOFT) * Math.sqrt(SOFT);
+                degats = Math.max(10, Math.round((4 + eff * 1.5) * 0.8));
+            } catch (e) {}
+
+            wave.hpCurrent = Math.max(0, wave.hpCurrent - degats);
+            // 💎 Chaque frappe compte comme une SÉRIE d'effort : sans ça,
+            // setsCompleted resterait à 0 et dropMineralsForRift renverrait
+            // une liste vide — un Assaut ne rapporterait aucun minerai.
+            // ⚖️ Une frappe vaut une DEMI-série : un Assaut de 6 min produit
+            // ~12 frappes, soit 6 séries — comparable à une Faille classique
+            // (~9 séries) rapportée à sa durée. Sans cette pondération,
+            // l'Assaut serait la façon la plus rentable de farmer.
+            try {
+                sess._frappes = (sess._frappes || 0) + 1;
+                sess.setsCompleted = Math.floor(sess._frappes / 2);
+                sess.totalDamageDealt = (sess.totalDamageDealt || 0) + degats;
+            } catch (e) {}
+            try { awakRiftsSave(awakRiftsLoad().map(r => r.id === sess.rift.id ? sess.rift : r)); } catch (e) {}
+
+            const pct = Math.round((wave.hpCurrent / (wave.hpMax || 1)) * 100);
+            try {
+                if (typeof showToast === 'function') {
+                    showToast('⚔️ −' + degats + ' PV · ' + (wave.name || 'ennemi') + ' ' + pct + ' %',
+                              wave.hpCurrent <= 0 ? 'success' : 'info', 1600);
+                }
+            } catch (e) {}
+            try { if (typeof _renderAssautHpBar === 'function') _renderAssautHpBar(); } catch (e) {}
+
+            // Vague vaincue → passer à la suivante, ou Faille terminée
+            if (wave.hpCurrent <= 0) {
+                const idx = (sess.rift.currentWaveIdx || 0) + 1;
+                if (sess.rift.waves && idx < sess.rift.waves.length) {
+                    sess.rift.currentWaveIdx = idx;
+                    try { if (typeof showToast === 'function') showToast('◈ Vague suivante', 'info', 1800); } catch (e) {}
+                } else {
+                    awakAssautStop();
+                    try { if (typeof awakCompleteRift === 'function') awakCompleteRift(); } catch (e) {}
+                }
+            }
+        }
+
+        // Barre de vie de l'Assaut, en haut de l'écran d'exercice
+        function _renderAssautHpBar() {
+            const sess = (typeof awakActiveRiftSession !== 'undefined') ? awakActiveRiftSession : null;
+            if (!sess || !sess.rift || !currentWorkout || !currentWorkout._isAssaut) return;
+            const wave = sess.rift.waves && sess.rift.waves[sess.rift.currentWaveIdx || 0];
+            if (!wave) return;
+            const host = document.getElementById('exerciseView');
+            if (!host) return;
+            let bar = document.getElementById('awakAssautHpBar');
+            if (!bar) {
+                bar = document.createElement('div');
+                bar.id = 'awakAssautHpBar';
+                bar.style.cssText = 'margin:0 0 12px;padding:10px 13px;border-radius:14px;'
+                    + 'background:linear-gradient(135deg,rgba(168,85,247,0.12),rgba(0,0,0,0.25));'
+                    + 'border:1px solid rgba(168,85,247,0.35);';
+                host.insertBefore(bar, host.firstChild);
+            }
+            const pct = Math.round((wave.hpCurrent / (wave.hpMax || 1)) * 100);
+            const nv = (sess.rift.currentWaveIdx || 0) + 1;
+            const nt = (sess.rift.waves || []).length;
+            bar.innerHTML =
+                '<div style="display:flex;align-items:center;gap:9px;margin-bottom:7px;">'
+              +   '<span style="font-size:1.2em;">' + (wave.emoji || '👾') + '</span>'
+              +   '<div style="flex:1;min-width:0;">'
+              +     '<div style="font-size:0.58em;color:#c084fc;font-weight:900;letter-spacing:1.5px;">VAGUE ' + nv + ' / ' + nt + '</div>'
+              +     '<div style="font-size:0.74em;color:#e2e8f0;font-weight:800;">' + wave.hpCurrent + ' / ' + wave.hpMax + ' PV</div>'
+              +   '</div>'
+              +   '<div style="font-size:0.9em;font-weight:900;color:#c084fc;">' + pct + ' %</div>'
+              + '</div>'
+              + '<div style="height:9px;background:rgba(0,0,0,0.4);border-radius:99px;overflow:hidden;">'
+              +   '<div style="height:100%;width:' + pct + '%;background:linear-gradient(90deg,#7e22ce,#c084fc);border-radius:99px;transition:width .4s;"></div>'
+              + '</div>';
+        }
+        window._renderAssautHpBar = _renderAssautHpBar;
+
+        const ASSAUT_THEMES = [
+            { id: 'corps',    name: 'La Meute',        emoji: '🐺', color: '#4ade80',
+              desc: 'Ils arrivent vite et en nombre. Rien pour te défendre que ton corps.',
+              filtre: (e, eq) => eq.every(x => ['Poids du corps', 'Aucun'].includes(x)),
+              besoin: null },
+            { id: 'fonte',    name: 'Le Poids du Monde', emoji: '🏋️', color: '#f59e0b',
+              desc: 'Cette Faille pèse. Chaque geste doit porter une charge.',
+              filtre: (e, eq) => eq.some(x => /haltère|barre/i.test(x)),
+              besoin: /haltère|barre/i },
+            { id: 'souffle',  name: 'La Course Sans Fin', emoji: '💨', color: '#38bdf8',
+              desc: 'Elle ne frappe pas. Elle attend que tu ralentisses.',
+              filtre: (e) => /saut|jump|burpee|jack|knee|climber|corde|sprint|montée/i.test(e.name),
+              besoin: null },
+            { id: 'tension',  name: 'Les Liens', emoji: '🎗️', color: '#a855f7',
+              desc: 'Quelque chose tire dans l\'autre sens. Résiste.',
+              filtre: (e, eq) => eq.some(x => /élastique|kettlebell/i.test(x)),
+              besoin: /élastique|kettlebell/i }
+        ];
+
+        // Thèmes réellement disponibles pour ce joueur (matériel du lieu actif)
+        function _assautThemesDispo() {
+            let dispo = [];
+            try {
+                const pool = (typeof _dbMuscu === 'function' ? _dbMuscu() : exerciseDatabase)
+                    .filter(e => e.type === 'exercise');
+                ASSAUT_THEMES.forEach(t => {
+                    const n = pool.filter(e => {
+                        const eq = (e.equipment && e.equipment.length) ? e.equipment : ['Poids du corps'];
+                        // matériel réellement disponible ?
+                        if (typeof awakExerciseBlockedByLocation === 'function'
+                            && awakExerciseBlockedByLocation(e)) return false;
+                        if (typeof isExerciseAvailable === 'function' && !isExerciseAvailable(e)) return false;
+                        return t.filtre(e, eq);
+                    }).length;
+                    if (n >= 6) dispo.push(t);   // il faut de quoi varier
+                });
+            } catch (e) {}
+            // Le corps est toujours possible : jamais de liste vide.
+            if (!dispo.length) dispo = [ASSAUT_THEMES[0]];
+            return dispo;
+        }
+
+        // Construit la séance d'un Assaut : uniquement du TEMPS.
+        // Aucune saisie, aucun choix — le joueur bouge, le chrono frappe.
+        function awakBuildAssautWorkout(rift) {
+            const theme = ASSAUT_THEMES.find(t => t.id === rift.assautTheme) || ASSAUT_THEMES[0];
+            let pool = (typeof _dbMuscu === 'function' ? _dbMuscu() : exerciseDatabase)
+                .filter(e => e.type === 'exercise')
+                .filter(e => {
+                    const eq = (e.equipment && e.equipment.length) ? e.equipment : ['Poids du corps'];
+                    if (typeof awakExerciseBlockedByLocation === 'function'
+                        && awakExerciseBlockedByLocation(e)) return false;
+                    if (typeof isExerciseAvailable === 'function' && !isExerciseAvailable(e)) return false;
+                    return theme.filtre(e, eq);
+                });
+
+            // 🩹 Douleurs déclarées : on retire les exercices concernés.
+            try {
+                if (window.AwakPain && typeof window.AwakPain.filterExercises === 'function') {
+                    pool = window.AwakPain.filterExercises(pool);
+                }
+            } catch (e) {}
+            // 🧒 Profil enfant : poids du corps uniquement.
+            try {
+                if (window.AwakYouth && typeof window.AwakYouth.isChild === 'function'
+                    && window.AwakYouth.isChild()) {
+                    pool = pool.filter(e => {
+                        const eq = (e.equipment && e.equipment.length) ? e.equipment : ['Poids du corps'];
+                        return eq.every(x => ['Poids du corps', 'Aucun'].includes(x));
+                    });
+                }
+            } catch (e) {}
+            // 🔄 REPLI ÉQUIPEMENT — le joueur a pu changer de lieu depuis
+            // l'apparition de la Faille (haltères à la maison, rien en voyage).
+            // Plutôt qu'une Faille injouable, elle se rabat sur le corps :
+            // narrativement, « tes armes ne sont pas là, il faudra faire sans ».
+            let _replié = false;
+            if (pool.length < 4) {
+                _replié = true;
+                pool = (typeof _dbMuscu === 'function' ? _dbMuscu() : exerciseDatabase)
+                    .filter(e => e.type === 'exercise')
+                    .filter(e => {
+                        const eq = (e.equipment && e.equipment.length) ? e.equipment : ['Poids du corps'];
+                        return eq.every(x => ['Poids du corps', 'Aucun'].includes(x));
+                    });
+                try {
+                    if (window.AwakPain && typeof window.AwakPain.filterExercises === 'function') {
+                        pool = window.AwakPain.filterExercises(pool);
+                    }
+                } catch (e) {}
+            }
+            if (!pool.length) return null;
+
+            // Mélange puis sélection, en évitant les variantes du même mouvement
+            const melange = pool.slice().sort(() => Math.random() - 0.5);
+            const choisis = [];
+            const fams = {};
+            for (const e of melange) {
+                const f = (typeof _famille === 'function') ? _famille(e.name) : e.name;
+                if (fams[f]) continue;
+                fams[f] = true;
+                choisis.push(e);
+                if (choisis.length >= 6) break;
+            }
+            while (choisis.length < 4 && melange.length) choisis.push(melange[choisis.length]);
+
+            const TRAVAIL = 40, REPOS = 20;
+            const exercises = [];
+            choisis.forEach((e, i) => {
+                exercises.push({ ...e, mode: 'timer', duration: TRAVAIL, _assaut: true });
+                if (i < choisis.length - 1) {
+                    exercises.push({ name: 'Repos', duration: REPOS, isRest: true, mode: 'timer' });
+                }
+            });
+
+            return {
+                name: theme.emoji + ' ' + theme.name,
+                type: 'assaut',
+                _isRift: true,
+                _isAssaut: true,
+                _riftId: rift.id,
+                _assautTheme: theme.id,
+                _assautReplie: _replié,
+                exercises: exercises,
+                duration: Math.round(exercises.reduce((n, x) => n + (x.duration || 0), 0) / 60)
+            };
+        }
+        window.awakBuildAssautWorkout = awakBuildAssautWorkout;
+        window.ASSAUT_THEMES = ASSAUT_THEMES;
+
         function awakGenerateRift(forceRank) {
             const playerRank = awakGetRank();
             const rankIds = ['E', 'D', 'C', 'B', 'A', 'S', 'SS', 'SSS'];
@@ -30680,9 +31060,9 @@
 
             // Nombre de vagues + difficulté basés sur le rang
             const rankConfigs = {
-                E: { waves: 2, hpMult: 0.5, recommendedPower: 0,    minStat: 0 },
-                D: { waves: 2, hpMult: 1.0, recommendedPower: 500,  minStat: 15 },
-                C: { waves: 3, hpMult: 1.3, recommendedPower: 1200, minStat: 30 },
+                E: { waves: 2, hpMult: 0.34, recommendedPower: 0,    minStat: 0 },
+                D: { waves: 2, hpMult: 0.72, recommendedPower: 500,  minStat: 15 },
+                C: { waves: 3, hpMult: 1.08, recommendedPower: 1200, minStat: 30 },
                 B: { waves: 3, hpMult: 1.7, recommendedPower: 2200, minStat: 50 },
                 A: { waves: 4, hpMult: 2.1, recommendedPower: 3800, minStat: 70 },
                 S: { waves: 4, hpMult: 2.6, recommendedPower: 6500, minStat: 100 }
@@ -30713,7 +31093,17 @@
 
                 // Boss bien plus coriace (×4) — un vrai combat de plusieurs séries même surpuissant
                 // Boss légèrement plus coriace qu'un monstre normal (×1.6) — combat court
-                let hp = Math.round(monster.baseHp * config.hpMult * (isBossWave ? 1.6 : 1));
+                // 👹 Boss de vague : ×1,6 en général, mais ADOUCI aux premiers
+                // rangs. Un débutant (stat ~15, ~30 dgts/série) affrontait un
+                // boss de rang E à 176 PV, soit 6 séries pour la seule dernière
+                // vague — décourageant quand on découvre le jeu.
+                // On se base sur le rang de la FAILLE (riftRank), pas du joueur.
+                const _idxRang = Math.max(0, rankIds.indexOf(riftRank));
+                const _bossMult = _idxRang === 0 ? 1.15      // rang E : boss à peine plus dur
+                                : _idxRang === 1 ? 1.30      // rang D
+                                : _idxRang === 2 ? 1.45      // rang C
+                                : 1.6;                        // B et au-delà : inchangé
+                let hp = Math.round(monster.baseHp * config.hpMult * (isBossWave ? _bossMult : 1));
                 // Modificateur de Faille : ajustement HP global
                 hp = Math.round(hp * (modifier.hpMult || 1));
                 // Élite : un seul monstre, donc bien plus gros (×2.2)
@@ -30740,10 +31130,24 @@
             // Frénésie : durée de vie réduite
             if (modifier.lifetimeCut) lifetimeDays = Math.max(2, Math.round(lifetimeDays * modifier.lifetimeCut));
 
+            // ⚡ UNE FAILLE SUR TROIS EST UN ASSAUT (combat au chrono).
+            // Elle passe par le MÊME générateur, donc elle est soumise au même
+            // plafond de Failles actives (2 au début, 3 puis 4 selon le niveau)
+            // et au même cooldown : aucune Faille supplémentaire n'apparaît.
+            let _assautTheme = null;
+            try {
+                if (Math.random() < 0.34 && typeof _assautThemesDispo === 'function') {
+                    const dispo = _assautThemesDispo();
+                    if (dispo.length) _assautTheme = dispo[Math.floor(Math.random() * dispo.length)].id;
+                }
+            } catch (e) {}
+
             return {
                 id: 'rift_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
                 createdAt: Date.now(),
                 expiresAt: Date.now() + lifetimeDays * 24 * 60 * 60 * 1000,
+                isAssaut: !!_assautTheme,
+                assautTheme: _assautTheme,
                 rank: riftRank,
                 themeId: theme.id,
                 name: fullName,
@@ -31339,6 +31743,30 @@
         function awakStartRift(riftId) {
             const rift = awakGetRiftById(riftId);
             if (!rift) return;
+
+            // ⚡ ASSAUT : séance entièrement chronométrée, exercices imposés par
+            // le thème. On court-circuite la préparation classique (choix de
+            // muscles, de durée…) : dans un Assaut, on n'a rien à choisir.
+            if (rift.isAssaut && typeof awakBuildAssautWorkout === 'function') {
+                const w = awakBuildAssautWorkout(rift);
+                if (w) {
+                    document.getElementById('awakRiftBriefingModal')?.remove();
+                    awakActiveRiftSession = {
+                        rift: rift,
+                        startTime: Date.now(),
+                        totalDamageDealt: 0,
+                        setsCompleted: 0,
+                        exercisesUsed: []
+                    };
+                    try { if (typeof switchTab === 'function') switchTab('workouts'); } catch (e) {}
+                    if (w._assautReplie && typeof showToast === 'function') {
+                        showToast('◈ Tes armes ne sont pas là. Il faudra faire sans.', 'info', 3200);
+                    }
+                    w._forceNew = true;
+                    if (typeof showWorkoutPreparation === 'function') showWorkoutPreparation(w);
+                    return;
+                }
+            }
             const theme = RIFT_THEMES.find(t => t.id === rift.themeId) || {
                 id: rift.themeId, name: rift.name, emoji: '◇', color: '#a855f7',
                 description: '', briefing: '', primaryStat: rift.primaryStat,
@@ -32268,7 +32696,15 @@
             // Calculer la note finale (F → SSS)
             const duration = Date.now() - session.startTime;
             const minutes = duration / 60000;
-            const idealTime = rift.waves.length * 4; // 4 min/vague idéal
+            // ⚡ ASSAUT : la durée est IMPOSÉE par la séance, pas choisie par le
+            // joueur — noter la rapidité n'aurait aucun sens (SSS automatique).
+            // On note donc la MARGE : plus il reste de temps quand le monstre
+            // tombe, meilleure est la note. Un Assaut mené jusqu'au bout de
+            // justesse vaut un B, une victoire éclair un SSS.
+            const _estAssaut = !!rift.isAssaut;
+            const idealTime = _estAssaut
+                ? (currentWorkout && currentWorkout.duration ? currentWorkout.duration * 0.75 : 6)
+                : rift.waves.length * 4; // 4 min/vague idéal
 
             let grade = 'F';
             if (minutes <= idealTime * 0.7) grade = 'SSS';
@@ -32366,7 +32802,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=878');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=887');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -37496,6 +37932,15 @@
         };
 
         function completeWorkout() {
+            // ⚡ ASSAUT : si le monstre tient encore, on n'enregistre PAS la
+            // séance — on propose d'abord la prolongation de 5 minutes.
+            try {
+                if (currentWorkout && currentWorkout._isAssaut
+                    && typeof awakAssautFinDuTemps === 'function'
+                    && awakAssautFinDuTemps()) {
+                    return;
+                }
+            } catch (e) {}
             clearInterval(timerInterval);
             releaseWakeLock();
             if (currentWorkout) currentWorkout._completed = true;
@@ -45568,7 +46013,7 @@
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=878");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=887");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
@@ -45739,7 +46184,11 @@
         const COMPANION_MISSION_HOURS = { E: 1, D: 2, C: 3, B: 4, A: 6, S: 8 };
 
         // Probabilité d'échec selon le rang de la Faille (faible en E, élevée en S)
-        const COMPANION_MISSION_FAIL_CHANCE = { E: 0.05, D: 0.10, C: 0.18, B: 0.28, A: 0.40, S: 0.55 };
+        const COMPANION_MISSION_FAIL_CHANCE = { E: 0.03, D: 0.06, C: 0.11, B: 0.17, A: 0.25, S: 0.35 };
+        // ⬆️ Chances de réussite augmentées (v883). Aux rangs élevés, envoyer
+        // ses compagnons revenait à jouer à pile ou face (55 % d'échec au rang S)
+        // pour un risque réel : 5 jours d'indisponibilité. Le calcul n'en valait
+        // pas la peine. Désormais, déléguer reste un choix défendable.
 
         // Durée d'indisponibilité des compagnons après un échec (5 jours)
         const COMPANION_INJURY_DAYS = 5;
@@ -45976,6 +46425,32 @@
                         (m.companions || []).forEach(id => { injured[id] = recoverAt; });
                         awakSaveInjuredCompanions(injured);
                         m.failed = true;
+
+                        // 💥 ÉCHEC PARTIEL — ils ne sont pas revenus les mains vides.
+                        // Les compagnons ont combattu : le monstre garde les PV
+                        // qu'ils lui ont pris. Plus la mission était proche de
+                        // réussir, plus ils ont entamé sa vie.
+                        try {
+                            const _rifts = (typeof awakRiftsLoad === 'function') ? awakRiftsLoad() : [];
+                            const _r = _rifts.find(x => x.id === riftId);
+                            if (_r && _r.waves && _r.waves.length) {
+                                // Part de dégâts : 25 % à 60 %, tirée au sort.
+                                const part = 0.25 + Math.random() * 0.35;
+                                let total = 0;
+                                _r.waves.forEach(w => {
+                                    if (!w || w.hpCurrent <= 0) return;
+                                    const perte = Math.round(w.hpMax * part);
+                                    const avant = w.hpCurrent;
+                                    w.hpCurrent = Math.max(1, w.hpCurrent - perte);  // jamais tuée
+                                    total += (avant - w.hpCurrent);
+                                });
+                                if (total > 0) {
+                                    if (typeof awakRiftsSave === 'function') awakRiftsSave(_rifts);
+                                    m.partialDamage = total;
+                                    m.partialPct = Math.round(part * 100);
+                                }
+                            }
+                        } catch (e) {}
                     } else {
                         // ✅ SUCCÈS : fermer la Faille (sans loot ni XP de combat)
                         const rifts = typeof awakRiftsLoad === 'function' ? awakRiftsLoad() : [];
@@ -46101,11 +46576,20 @@
                                   .replace(/\{member\}/g, `<strong style="color:#c084fc;">${member}</strong>`);
 
             if (mission.failed) {
-                return [
+                const lignes = [
                     fill(_pick(MISSION_STORY_FRAGMENTS.intro)),
                     fill(_pick(MISSION_STORY_FRAGMENTS.fail_middle)),
                     fill(_pick(MISSION_STORY_FRAGMENTS.fail_outro))
                 ];
+                // 💥 Dire ce qu'ils ont quand même accompli : sans cette ligne,
+                // le joueur ignore que la Faille est désormais entamée et croit
+                // la mission entièrement perdue.
+                if (mission.partialPct) {
+                    lignes.push('Ils n\'ont pas fermé la Faille. Mais ils l\'ont fait saigner : '
+                        + '<strong style="color:#c084fc;">−' + mission.partialPct + ' % de vie</strong> '
+                        + 'sur ce qui l\'habite. Ce que tu trouveras là-bas sera déjà affaibli.');
+                }
+                return lignes;
             }
 
             return [
