@@ -496,7 +496,7 @@
 
     var typeBtns = offered.map(function (key) {
       var t = CH_TYPES[key];
-      return '<button onclick="AwakChallengeStart(\'' + memberId + '\',\'' + key + '\')" style="display:flex;align-items:flex-start;gap:10px;width:100%;padding:13px;margin-bottom:8px;border:1.5px solid rgba(139,92,246,0.25);border-radius:12px;cursor:pointer;background:rgba(139,92,246,0.06);color:#fff;text-align:left;">'
+      return '<button onclick="AwakChallengeStart(\'' + memberId + '\',\'' + key + '\')" style="display:flex;align-items:center;gap:10px;width:100%;padding:13px;margin-bottom:8px;border:1.5px solid rgba(139,92,246,0.25);border-radius:12px;cursor:pointer;background:rgba(139,92,246,0.06);color:#fff;text-align:left;">'
         + '<span style="font-size:1.4em;flex-shrink:0;">' + t.emoji + '</span>'
         + '<span style="flex:1;"><span style="font-size:0.9em;font-weight:800;display:block;">' + t.label + '</span>'
         + '<span style="font-size:0.72em;color:#94a3b8;">' + t.desc + '</span></span></button>';
@@ -611,7 +611,7 @@
     var ov = document.createElement('div');
     ov.id = id;
     ov.className = 'modal';
-    ov.style.cssText = 'display:flex;position:fixed;inset:0;z-index:9000;align-items:flex-start;'
+    ov.style.cssText = 'display:flex;position:fixed;inset:0;z-index:9000;align-items:center;'
       + 'justify-content:center;background:rgba(0,0,0,0.9);backdrop-filter:blur(10px);overflow-y:auto;padding:20px 14px;';
     ov.innerHTML =
       '<div style="width:100%;max-width:480px;">'

@@ -339,7 +339,7 @@
 
     var overlay = document.createElement('div');
     overlay.id = 'awakGoalModal';
-    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:99999;display:flex;align-items:flex-end;justify-content:center;';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:99999;display:flex;align-items:center;justify-content:center;';
     overlay.onclick = function (e) { if (e.target === overlay) overlay.remove(); };
     overlay.innerHTML = '<div style="background:linear-gradient(160deg,#0f1a14,#0d0d12);border-top:1px solid rgba(34,197,94,0.35);border-radius:22px 22px 0 0;padding:22px;max-width:460px;width:100%;max-height:88vh;overflow-y:auto;">'
       + '<div style="font-size:1.15em;font-weight:900;color:#fff;margin-bottom:4px;">🎯 Objectif commun</div>'

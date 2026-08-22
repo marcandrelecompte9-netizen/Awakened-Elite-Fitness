@@ -7002,3 +7002,11 @@ img[src*="images/exercises/"] {
     -webkit-clip-path: inset(0 0 var(--exo-img-crop) 0);
     clip-path: inset(0 0 var(--exo-img-crop) 0);
 }
+
+
+/* 🌀 Emoji de la Faille : flottement lent dans l'en-tête du briefing.
+   Donne l'impression que la brèche respire, au lieu d'une icône figée. */
+@keyframes awakBriefFloat {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-6px); }
+}

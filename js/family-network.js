@@ -253,7 +253,7 @@
     var ov = document.createElement('div');
     ov.id = 'awakConstMenu';
     ov.style.cssText = 'position:fixed;inset:0;z-index:11000;background:rgba(0,0,0,0.88);'
-      + 'backdrop-filter:blur(8px);display:flex;align-items:flex-end;justify-content:center;padding:16px;';
+      + 'backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:16px;';
 
     var act = function (emoji, label, sous, fn, couleur) {
       return '<button onclick="' + fn + '" style="width:100%;display:flex;align-items:center;gap:13px;'
@@ -427,7 +427,7 @@
       +     '<defs><filter id="constLueur"><feGaussianBlur stdDeviation="3" result="b"/>'
       +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>'
       // 🌌 Nébuleuse de fond : remplace la poussière d'étoiles dessinée.
-      +     '<image href="images/constellation_bg.webp?v=887" x="0" y="0" width="300" height="300" '
+      +     '<image href="images/constellation_bg.webp?v=893" x="0" y="0" width="300" height="300" '
       +       'preserveAspectRatio="xMidYMid slice" opacity="0.95"/>'
       +     anneau
       +     fils

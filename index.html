@@ -11,11 +11,11 @@
     <title>Awakened Elite Fitness</title>
 
     <!-- PWA -->
-    <link rel="manifest" href="manifest.json?v=887">
-    <link rel="apple-touch-icon" href="icons/icon-192.png?v=887">
-    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=887">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=887">
-    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=887">
+    <link rel="manifest" href="manifest.json?v=893">
+    <link rel="apple-touch-icon" href="icons/icon-192.png?v=893">
+    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=893">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=893">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=893">
 
     <!-- ⚠️ CAPTURE PRÉCOCE DE L'INVITE D'INSTALLATION.
          Chrome déclenche « beforeinstallprompt » très tôt, souvent AVANT la fin
@@ -44,7 +44,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=887">
+    <link rel="stylesheet" href="css/style.css?v=893">
 </head>
 <body>
 
@@ -202,7 +202,7 @@
                 max-width: 900px;">
 
             <!-- Bannière image : ratio préservé -->
-            <img src="images/banner.png?v=887"
+            <img src="images/banner.png?v=893"
                  alt="Awakened Elite Fitness"
                  style="width:100%;height:auto;display:block;" />
 
@@ -984,7 +984,7 @@
         <div id="workoutsTab" class="tab-content">
             <!-- Barre de segments « Entraîner » -->
             <div style="display:flex;gap:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:5px;margin-bottom:8px;">
-                <button onclick="switchTab('workouts')" style="flex:1;border:none;border-radius:10px;padding:10px 6px;font-weight:800;font-size:0.78em;cursor:pointer;background:linear-gradient(135deg,#22c55e,#16a34a);color:white;">Séance libre</button>
+                <button onclick="switchTab('workouts')" style="flex:1;border:none;border-radius:10px;padding:10px 6px;font-weight:800;font-size:0.78em;cursor:pointer;background:linear-gradient(135deg,#4ade80,#16a34a);color:white;">Séance libre</button>
                 <button onclick="switchTab('routines')" style="flex:1;border:none;border-radius:10px;padding:10px 6px;font-weight:800;font-size:0.78em;cursor:pointer;background:transparent;color:#94a3b8;">Mes routines</button>
                 <button onclick="switchTab('program')" style="flex:1;border:none;border-radius:10px;padding:10px 6px;font-weight:800;font-size:0.78em;cursor:pointer;background:transparent;color:#94a3b8;">Programme</button>
             </div>
@@ -1097,6 +1097,9 @@
             </div>
 
             <div id="workoutSelection">
+            <!-- 🫀 LE CORPS DU CHASSEUR — état de récupération en tête d'onglet.
+                 Rempli par renderWorkoutsTab / awakRenderCorps(). -->
+            <div id="awakCorpsHost"></div>
             <!-- ⚠️ Ce bloc doit rester DANS #workoutSelection : c'est ce
                  conteneur que le code masque quand une séance démarre.
                  Placé au-dessus, le bouton restait visible pendant la
@@ -1118,7 +1121,7 @@
                     padding: 0;
                 ">
                     <!-- Animated pulse bar top -->
-                    <div style="height:3px;background:linear-gradient(90deg,#4ade80,#22c55e,#86efac,#22c55e,#4ade80);background-size:200% 100%;"></div>
+                    <div style="height:3px;background:linear-gradient(90deg,#4ade80,#4ade80,#4ade80,#4ade80,#4ade80);background-size:200% 100%;"></div>
 
                     <div style="padding:16px 18px 18px;display:flex;align-items:center;gap:16px;">
                         <!-- Icon with glow -->
@@ -1130,14 +1133,14 @@
                         <div style="flex:1;min-width:0;">
                             <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
                                 <h3 style="color:white;margin:0;font-size:1.15em;font-weight:900;">Fais ma séance</h3>
-                                <span style="background:linear-gradient(90deg,#4ade80,#22c55e);color:#052e16;padding:2px 8px;border-radius:99px;font-size:0.6em;font-weight:900;white-space:nowrap;">IA ✦</span>
+                                <span style="background:linear-gradient(90deg,#4ade80,#4ade80);color:#052e16;padding:2px 8px;border-radius:99px;font-size:0.6em;font-weight:900;white-space:nowrap;">IA ✦</span>
                             </div>
                             <p style="color:rgba(255,255,255,0.7);font-size:0.84em;margin:0 0 10px;line-height:1.45;">Le Système choisit les muscles, les exercices, la durée et l'intensité selon ton historique et ta récupération.</p>
                             <!-- Stats pills -->
                             <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                                <span style="background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.25);color:#86efac;padding:3px 9px;border-radius:99px;font-size:0.72em;font-weight:700;">⏱️ 30 min</span>
-                                <span style="background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.25);color:#86efac;padding:3px 9px;border-radius:99px;font-size:0.72em;font-weight:700;">🎯 Personnalisée</span>
-                                <span style="background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.25);color:#86efac;padding:3px 9px;border-radius:99px;font-size:0.72em;font-weight:700;">🔄 Variée</span>
+                                <span style="background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.25);color:#4ade80;padding:3px 9px;border-radius:99px;font-size:0.72em;font-weight:700;">⏱️ 30 min</span>
+                                <span style="background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.25);color:#4ade80;padding:3px 9px;border-radius:99px;font-size:0.72em;font-weight:700;">🎯 Personnalisée</span>
+                                <span style="background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.25);color:#4ade80;padding:3px 9px;border-radius:99px;font-size:0.72em;font-weight:700;">🔄 Variée</span>
                             </div>
                         </div>
 
@@ -1148,7 +1151,7 @@
                 <!-- Profils de lieu -->
                 <div id="locationProfilesBar" style="margin-bottom:10px;">
                     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-                        <span style="font-size:0.8em;color:#6b7280;font-weight:600;">📍 Lieu d\'entraînement</span>
+                        <span style="font-size:0.8em;color:#94a3b8;font-weight:600;">📍 Lieu d\'entraînement</span>
                         <button onclick="showManageLocationsModal()" style="background:none;border:none;color:#16a34a;font-size:0.8em;cursor:pointer;font-weight:600;">+ Gérer</button>
                     </div>
                     <div id="locationBtnsRow" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;padding-top:6px;">
@@ -1177,19 +1180,19 @@
 
                 <!-- Sous-options Gym — visibles seulement en mode Gym -->
                 <div id="gymSubOptions" style="display:none;margin-bottom:8px;">
-                    <p style="font-size:0.8em;color:#6b7280;margin:0 0 8px;text-align:center;">Type d'exercices au gym :</p>
+                    <p style="font-size:0.8em;color:#94a3b8;margin:0 0 8px;text-align:center;">Type d'exercices au gym :</p>
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
                         <button id="gymMachineOnlyBtn" onclick="setGymBodyweightMode(false)"
                             style="padding:10px 8px;border-radius:14px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.03);cursor:pointer;text-align:center;transition:all 0.2s;">
                             <div style="font-size:1.4em;margin-bottom:4px;">🤖</div>
-                            <div style="font-weight:700;font-size:0.82em;color:#374151;">Machines seulement</div>
-                            <div style="font-size:0.7em;color:#6b7280;margin-top:2px;">Câbles · Presses</div>
+                            <div style="font-weight:700;font-size:0.82em;color:#334155;">Machines seulement</div>
+                            <div style="font-size:0.7em;color:#94a3b8;margin-top:2px;">Câbles · Presses</div>
                         </button>
                         <button id="gymMixedBtn" onclick="setGymBodyweightMode(true)"
                             style="padding:10px 8px;border-radius:14px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.03);cursor:pointer;text-align:center;transition:all 0.2s;">
                             <div style="font-size:1.4em;margin-bottom:4px;">🤖💪</div>
-                            <div style="font-weight:700;font-size:0.82em;color:#374151;">Machines + Corps</div>
-                            <div style="font-size:0.7em;color:#6b7280;margin-top:2px;">Tractions · Dips</div>
+                            <div style="font-weight:700;font-size:0.82em;color:#334155;">Machines + Corps</div>
+                            <div style="font-size:0.7em;color:#94a3b8;margin-top:2px;">Tractions · Dips</div>
                         </button>
                     </div>
                 </div>
@@ -1198,7 +1201,7 @@
                 <div id="gymProgramsSection" style="display:none;">
                     <h3 style="color:#16a34a;margin-bottom:12px;">Programmes Gym</h3>
                     <div style="display:grid;gap:10px;margin-bottom:8px;">
-                        <div class="card workout-card" onclick="startGymProgram('ppl')" style="background:linear-gradient(135deg,#166534,#16a34a);cursor:pointer;">
+                        <div class="card workout-card" onclick="startGymProgram('ppl')" style="background:linear-gradient(135deg,#16a34a,#16a34a);cursor:pointer;">
                             <div class="workout-header">
                                 <div style="display:flex;align-items:center;width:100%;gap:14px;">
                                     <div style="font-size:2.5em;">💪</div>
@@ -1210,7 +1213,7 @@
                             </div>
                             <p style="color:rgba(255,255,255,0.9);font-size:0.9em;margin-top:8px;">Jour Push (poitrine/épaules/triceps) · Pull (dos/biceps) · Legs (jambes/fessiers)</p>
                         </div>
-                        <div class="card workout-card" onclick="startGymProgram('upper_lower')" style="background:linear-gradient(135deg,#15803d,#166534);cursor:pointer;">
+                        <div class="card workout-card" onclick="startGymProgram('upper_lower')" style="background:linear-gradient(135deg,#16a34a,#16a34a);cursor:pointer;">
                             <div class="workout-header">
                                 <div style="display:flex;align-items:center;width:100%;gap:14px;">
                                     <div style="font-size:2.5em;">⚡</div>
@@ -1294,7 +1297,7 @@
                             <h2 style="color: #16a34a; margin: 0;">Mes Programmes</h2>
                             <p style="color: #94a3b8; margin: 5px 0 0 0;">Créez et gérez vos programmes d\'entraînement personnalisés</p>
                         </div>
-                        <button onclick="showCreateProgramModal()" class="btn" style="padding: 10px 20px; background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);">
+                        <button onclick="showCreateProgramModal()" class="btn" style="padding: 10px 20px; background: linear-gradient(135deg, #16a34a 0%, #16a34a 100%);">
                             ➕ Créer un programme
                         </button>
                     </div>
@@ -3635,38 +3638,38 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/exercises.js?v=887"></script>
-    <script src="data/items.js?v=887"></script>
-    <script src="js/adventure.js?v=887"></script>
-    <script src="js/economy.js?v=887"></script>
-    <script src="js/challenges.js?v=887"></script>
-    <script src="js/family-boss.js?v=887"></script>
-    <script src="js/family-network.js?v=887"></script>
-    <script src="js/family-challenge.js?v=887"></script>
-    <script src="js/family-goal.js?v=887"></script>
-    <script src="js/family-feed.js?v=887"></script>
-    <script src="js/pre-workout-mood.js?v=887"></script>
-    <script src="js/group-workout.js?v=887"></script>
-    <script src="js/youth-safety.js?v=887"></script>
-    <script src="js/kids-programs.js?v=887"></script>
-    <script src="js/senior-programs.js?v=887"></script>
-    <script src="js/adaptive.js?v=887"></script>
-    <script src="js/pain-mode.js?v=887"></script>
-    <script src="js/recovery-mode.js?v=887"></script>
-    <script src="js/exercise-visuals.js?v=887"></script>
-    <script src="js/strength-standards.js?v=887"></script>
-    <script src="js/system-cards.js?v=887"></script>
-    <script src="js/share-card.js?v=887"></script>
-    <script src="js/story-events.js?v=887"></script>
-    <script src="js/final-boss.js?v=887"></script>
-    <script src="js/disciplines.js?v=887"></script>
-    <script src="js/eveil.js?v=887"></script>
-    <script src="js/app.js?v=887"></script>
-    <script src="js/awakening-tree.js?v=887"></script>
-    <script src="js/ui-kit.js?v=887"></script>
-    <script src="js/feature-map.js?v=887"></script>
-    <script src="js/weekly-recap.js?v=887"></script>
-    <script src="js/workout-games.js?v=887"></script>
+    <script src="js/exercises.js?v=893"></script>
+    <script src="data/items.js?v=893"></script>
+    <script src="js/adventure.js?v=893"></script>
+    <script src="js/economy.js?v=893"></script>
+    <script src="js/challenges.js?v=893"></script>
+    <script src="js/family-boss.js?v=893"></script>
+    <script src="js/family-network.js?v=893"></script>
+    <script src="js/family-challenge.js?v=893"></script>
+    <script src="js/family-goal.js?v=893"></script>
+    <script src="js/family-feed.js?v=893"></script>
+    <script src="js/pre-workout-mood.js?v=893"></script>
+    <script src="js/group-workout.js?v=893"></script>
+    <script src="js/youth-safety.js?v=893"></script>
+    <script src="js/kids-programs.js?v=893"></script>
+    <script src="js/senior-programs.js?v=893"></script>
+    <script src="js/adaptive.js?v=893"></script>
+    <script src="js/pain-mode.js?v=893"></script>
+    <script src="js/recovery-mode.js?v=893"></script>
+    <script src="js/exercise-visuals.js?v=893"></script>
+    <script src="js/strength-standards.js?v=893"></script>
+    <script src="js/system-cards.js?v=893"></script>
+    <script src="js/share-card.js?v=893"></script>
+    <script src="js/story-events.js?v=893"></script>
+    <script src="js/final-boss.js?v=893"></script>
+    <script src="js/disciplines.js?v=893"></script>
+    <script src="js/eveil.js?v=893"></script>
+    <script src="js/app.js?v=893"></script>
+    <script src="js/awakening-tree.js?v=893"></script>
+    <script src="js/ui-kit.js?v=893"></script>
+    <script src="js/feature-map.js?v=893"></script>
+    <script src="js/weekly-recap.js?v=893"></script>
+    <script src="js/workout-games.js?v=893"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>

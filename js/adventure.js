@@ -959,6 +959,10 @@ function renderFamilyTab() {
         ? window.AwakFamilyGoal.renderCard() : '';
     const feedCard = (window.AwakFamilyFeed && typeof window.AwakFamilyFeed.renderCard === 'function')
         ? window.AwakFamilyFeed.renderCard() : '';
+    // ⚠️ duoGamesCard et challengeCard ne sont PLUS affichées directement
+    // (leurs actions sont dans le menu d'une étoile), mais elles restent
+    // calculées : le test de repli plus bas s'en sert pour savoir si la
+    // famille a du contenu, avant d'afficher « Rien à afficher ».
     const duoGamesCard = (window.AwakGames && typeof window.AwakGames.renderFamilyCard === 'function')
         ? window.AwakGames.renderFamilyCard() : '';
     const nudgeCard = (window.AwakFamily && typeof window.AwakFamily.renderNudgeCard === 'function')
@@ -1017,37 +1021,22 @@ function renderFamilyTab() {
     const coopActif = !!(window.AwakFamilyChallenge && typeof window.AwakFamilyChallenge.coopStatus === 'function'
         && window.AwakFamilyChallenge.coopStatus());
 
-    const btn = (emoji, label, action, couleur) =>
-        '<button onclick="' + action + '" style="flex:1;min-width:0;padding:12px 6px;border-radius:14px;cursor:pointer;'
-        + 'background:rgba(255,255,255,0.03);border:1px solid ' + couleur + '33;color:#e2e8f0;text-align:center;">'
-        + '<div style="font-size:1.4em;line-height:1;margin-bottom:5px;">' + emoji + '</div>'
-        + '<div style="font-size:0.62em;font-weight:800;letter-spacing:0.3px;color:' + couleur + ';">' + label + '</div>'
-        + '</button>';
+    // (Le constructeur de boutons et la rangée d'actions ont été retirés en
+    //  v889 : la Constellation porte désormais toutes ces actions.)
 
-    // Rangée d'actions : uniquement ce qui n'est PAS déjà affiché en carte.
-    const actions = [];
-    if (!goalActif) actions.push(btn('🎯', 'OBJECTIF', 'AwakFamilyGoalOpen()', '#22c55e'));
-    if (!coopActif) actions.push(btn('🤝', "DÉFI D'ÉQUIPE", 'AwakCoopOpen()', '#22d3ee'));
-    actions.push(btn('⚔️', 'DÉFIER', 'AwakFamilyChallengeOpen()', '#f59e0b'));
-    actions.push(btn('🎮', 'JEUX', 'AwakGamesOpen()', '#a855f7'));
-
-    let barreActions = '';
-    for (let i = 0; i < actions.length; i += 2) {
-        barreActions += '<div style="display:flex;gap:8px;margin-bottom:8px;">'
-            + actions.slice(i, i + 2).join('') + '</div>';
-    }
-
-    // ✦ La Constellation ouvre l'onglet : le foyer d'un coup d'œil, comme
-    // la Carte de l'Effacement ouvre l'onglet Jeu.
-    const constCard = (window.AwakFamily && typeof window.AwakFamily.renderConstellation === 'function')
-        ? window.AwakFamily.renderConstellation() : '';
-
+    // 🧹 ALLÉGEMENT (v889) — la Constellation couvre désormais :
+    //   membres et activité (étoiles), encourager / jouer / défier (menu de
+    //   l'étoile), objectif commun (anneau) et défi d'équipe (étoile centrale).
+    // La rangée de boutons faisait donc doublon avec ses propres zones
+    // cliquables : elle est retirée. Les cartes d'objectif et de défi d'équipe
+    // ne s'affichent QUE si elles sont actives — c'est là qu'on suit la
+    // progression en détail, ce que l'anneau ne montre qu'en pourcentage.
+    // « Ma famille » reste : elle seule permet d'AJOUTER un membre.
     html += constCard
-          + familyCard
           + (goalActif ? goalCard : '')
           + (coopActif ? coopCard : '')
           + nudgeCard
-          + barreActions
+          + familyCard
           + feedAccordion;
 
     // Filet de sécurité

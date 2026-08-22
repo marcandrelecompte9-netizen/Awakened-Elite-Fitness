@@ -21787,6 +21787,12 @@
             if (tabName === 'home') {
                 updateHomeStats(); renderWeeklyMuscleVolume();
             } else if (tabName === 'workouts') {
+                // 🫀 Corps du Chasseur : recalculé à chaque affichage, puisque
+                // la récupération avance avec le temps.
+                try {
+                    const _ch = document.getElementById('awakCorpsHost');
+                    if (_ch && typeof awakRenderCorps === 'function') _ch.innerHTML = awakRenderCorps();
+                } catch (e) {}
                 renderActivePlan();
                 renderLocationBtns();
                 renderDeloadBanner();
@@ -22892,6 +22898,146 @@
             }
         }
         
+
+        // ══════════════════════════════════════════════════════════════
+        // 🫀 LE CORPS DU CHASSEUR — état de récupération, en tête d'Entraîner
+        // --------------------------------------------------------------
+        // Même principe que la Carte de l'Effacement et la Constellation :
+        // une image unique qui montre un ÉTAT plutôt qu'une liste. Ici, la
+        // récupération musculaire — la donnée dont on a besoin AU MOMENT de
+        // décider quoi entraîner, mais qui était enfouie dans un accordéon
+        // de l'onglet Progression.
+        // Toucher un muscle PRÊT lance une séance ciblée dessus.
+        // Réutilise les tracés SVG du sélecteur de muscles (viewBox 200×298).
+        // ══════════════════════════════════════════════════════════════
+        var _corpsVue = 'face';
+        function awakToggleCorpsVue() {
+            _corpsVue = (_corpsVue === 'face') ? 'dos' : 'face';
+            document.querySelectorAll('#awakCorpsHost, .awak-corps-host').forEach(function (h) {
+                h.innerHTML = awakRenderCorps();
+            });
+        }
+        window.awakToggleCorpsVue = awakToggleCorpsVue;
+
+        // 🎨 Palette alignée sur le reste de l'app : vert = prêt, ambre =
+        // bientôt, rouge = à laisser tranquille, gris = jamais travaillé.
+        function _corpsCouleur(st) {
+            if (!st) return '#475569';
+            if (st.status === 'ready')      return '#4ade80';
+            if (st.status === 'almost')     return '#a3e635';
+            if (st.status === 'recovering') return '#f59e0b';
+            return '#ef4444';               // fatigued
+        }
+
+        function awakRenderCorps() {
+            var estFace = (_corpsVue === 'face');
+            var img = estFace ? 'images/body/body_face.webp' : 'images/body/body_dos.webp';
+
+            // [nom affiché, muscle réel, tracés]
+            var zones = estFace ? [
+                ['Épaules',    'Épaules',     '<ellipse cx="70" cy="70" rx="9.5" ry="9.5"/><ellipse cx="130" cy="70" rx="9.5" ry="9.5"/>'],
+                ['Pectoraux',  'Pectoraux',   '<path d="M82,64 C89,61 97,63 99,70 L99,90 C89,92 82,86 81,76 Z"/><path d="M118,64 C111,61 103,63 101,70 L101,90 C111,92 118,86 119,76 Z"/>'],
+                ['Biceps',     'Biceps',      '<path d="M49,97 L62,97 L45,116 L33,116 Z"/><path d="M151,97 L138,97 L155,116 L167,116 Z"/>'],
+                ['Abdos',      'Abdominaux',  '<path d="M85,97 h30 a3,3 0 0 1 3,3 v27 a3,3 0 0 1 -3,3 h-30 a3,3 0 0 1 -3,-3 v-27 a3,3 0 0 1 3,-3 Z"/>'],
+                ['Quadriceps', 'Quadriceps',  '<ellipse cx="80" cy="177" rx="10" ry="21"/><ellipse cx="120" cy="177" rx="10" ry="21"/>'],
+                ['Mollets',    'Mollets',     '<ellipse cx="67" cy="231" rx="7" ry="16"/><ellipse cx="133" cy="231" rx="7" ry="16"/>']
+            ] : [
+                ['Trapèzes',   'Trapèzes',    '<path d="M86,47 L100,41 L114,47 L111,70 L100,64 L89,70 Z"/>'],
+                ['Dos',        'Dos',         '<path d="M83,75 L98,81 L98,120 L87,110 Z"/><path d="M117,75 L102,81 L102,120 L113,110 Z"/>'],
+                ['Triceps',    'Triceps',     '<path d="M51,93 L64,93 L46,113 L34,113 Z"/><path d="M149,93 L136,93 L154,113 L166,113 Z"/>'],
+                ['Fessiers',   'Fessiers',    '<path d="M82,131 C82,123 99,123 99,131 L99,149 C99,157 82,157 82,149 Z"/><path d="M118,131 C118,123 101,123 101,131 L101,149 C101,157 118,157 118,149 Z"/>'],
+                ['Ischios',    'Ischio-jambiers', '<ellipse cx="81" cy="180" rx="10" ry="20"/><ellipse cx="119" cy="180" rx="10" ry="20"/>'],
+                ['Mollets',    'Mollets',     '<ellipse cx="70" cy="233" rx="7" ry="16"/><ellipse cx="130" cy="233" rx="7" ry="16"/>']
+            ];
+
+            var svgZones = '', prets = 0;
+            zones.forEach(function (z) {
+                var st = null;
+                try {
+                    st = (typeof getMuscleRecoveryStatus === 'function')
+                        ? getMuscleRecoveryStatus(z[1]) : null;
+                } catch (e) {}
+                var c = _corpsCouleur(st);
+                var pret = st && st.status === 'ready';
+                if (pret) prets++;
+                svgZones += '<g style="cursor:pointer;fill:' + c + ';fill-opacity:' + (pret ? '0.55' : '0.30')
+                    + ';stroke:' + c + ';stroke-width:0.9;" '
+                    + 'onclick="awakCorpsLancer(\'' + z[1].replace(/'/g, "\\'") + '\')">'
+                    + z[2] + '</g>';
+            });
+
+            // Légende : 3 états, lisible sans savoir lire les chiffres
+            var legende = [['#4ade80', 'Prêt'], ['#f59e0b', 'Récupère'], ['#ef4444', 'À reposer']]
+                .map(function (l) {
+                    return '<span style="display:inline-flex;align-items:center;gap:5px;margin-right:12px;">'
+                        + '<span style="width:9px;height:9px;border-radius:3px;background:' + l[0] + ';"></span>'
+                        + '<span style="color:#94a3b8;">' + l[1] + '</span></span>';
+                }).join('');
+
+            return '<div class="awak-corps-host" style="position:relative;border-radius:18px;overflow:hidden;'
+                +   'background:linear-gradient(160deg,#0e1218,#0a0b0f);border:1px solid rgba(74,222,128,0.20);'
+                +   'margin-bottom:14px;padding:14px 14px 12px;">'
+                +   '<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px;">'
+                +     '<div style="font-size:0.56em;letter-spacing:2.5px;color:#4ade80;font-weight:900;">◈ TON CORPS</div>'
+                +     '<div style="font-size:0.6em;color:#94a3b8;">'
+                +       (prets ? '<strong style="color:#4ade80;">' + prets + '</strong> muscle' + (prets > 1 ? 's' : '') + ' prêt' + (prets > 1 ? 's' : '') : 'Tout récupère')
+                +     '</div>'
+                +   '</div>'
+                +   '<svg viewBox="0 0 200 298" style="width:100%;max-width:210px;height:auto;display:block;margin:0 auto;">'
+                +     '<image href="' + img + '?v=893" x="0" y="0" width="200" height="298" '
+                +       'preserveAspectRatio="none" opacity="0.8"/>'
+                +     svgZones
+                +   '</svg>'
+                +   '<div style="font-size:0.6em;margin-top:8px;text-align:center;">' + legende + '</div>'
+                +   '<div style="display:flex;gap:8px;margin-top:10px;">'
+                +     '<button onclick="awakToggleCorpsVue()" style="flex:1;padding:9px;border-radius:11px;'
+                +       'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);'
+                +       'color:#94a3b8;font-size:0.66em;font-weight:800;cursor:pointer;">'
+                +       (estFace ? '🔄 DOS' : '🔄 FACE') + '</button>'
+                +     '<div style="flex:2;display:flex;align-items:center;justify-content:center;'
+                +       'font-size:0.62em;color:#64748b;">Touche un muscle vert pour l\'entraîner</div>'
+                +   '</div>'
+                + '</div>';
+        }
+        window.awakRenderCorps = awakRenderCorps;
+
+        // 🎯 Toucher un muscle → séance ciblée sur lui.
+        function awakCorpsLancer(muscle) {
+            try {
+                var st = (typeof getMuscleRecoveryStatus === 'function')
+                    ? getMuscleRecoveryStatus(muscle) : null;
+                // On n'interdit pas : on PRÉVIENT. Le joueur reste maître.
+                if (st && (st.status === 'fatigued' || st.status === 'recovering')) {
+                    if (typeof showConfirm === 'function') {
+                        showConfirm(
+                            muscle + ' récupère encore (' + st.hoursToRecovery + ' h). '
+                            + 'L\'entraîner maintenant limitera tes gains et augmente le risque de blessure.',
+                            function () { _awakCorpsGo(muscle); },
+                            null,
+                            { title: 'Muscle en récupération', icon: '🫀',
+                              confirmLabel: 'Y aller quand même', cancelLabel: 'Choisir un autre' }
+                        );
+                        return;
+                    }
+                }
+                _awakCorpsGo(muscle);
+            } catch (e) {}
+        }
+        function _awakCorpsGo(muscle) {
+            try {
+                // ⚠️ selectedMuscles est un tableau partagé : on le VIDE puis on
+                // le remplit (comme ligne 5176), au lieu de le réassigner —
+                // une réassignation casserait les références détenues ailleurs.
+                if (typeof selectedMuscles !== 'undefined' && Array.isArray(selectedMuscles)) {
+                    selectedMuscles.length = 0;
+                    selectedMuscles.push(muscle);
+                }
+                if (typeof startRandomWorkout === 'function') { startRandomWorkout(); return; }
+                if (typeof showToast === 'function') showToast('Muscle ciblé : ' + muscle, 'info');
+            } catch (e) {}
+        }
+        window.awakCorpsLancer = awakCorpsLancer;
+
         function getMuscleRecoveryStatus(muscleName) {
             const profileId = getCurrentProfileId();
             const saved = profileId ? getProfileData(profileId, 'muscleRecoveryTracking') : localStorage.getItem('muscleRecoveryTracking');
@@ -27076,7 +27222,7 @@
             // Même clé que l'avatar du panneau personnage : fitproAvatarGender.
             const _cardBg = (localStorage.getItem('fitproAvatarGender') || 'homme') === 'femme'
                 ? 'images/card_bg_femme.webp' : 'images/card_bg_homme.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=887");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=893");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -27181,8 +27327,8 @@
                     return `
                     <button onclick="rpgShowDetailsPanel()" id="awakBtnCompetences" style="
                         flex:1;min-width:0;padding:14px 12px;margin-top:4px;
-                        background:linear-gradient(135deg,rgba(34,197,94,0.16),rgba(22,163,74,0.08));
-                        border:1.5px solid rgba(74,222,128,0.5);border-radius:14px;color:white;
+                        background:linear-gradient(135deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02));
+                        border:1.5px solid rgba(148,163,184,0.22);border-radius:14px;color:white;
                         cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px;
                         box-shadow:0 0 18px rgba(74,222,128,0.12);transition:transform 0.15s;position:relative;"
                         onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">
@@ -27218,7 +27364,7 @@
             const _gs = typeof getPlayerEquipStats === 'function' ? (() => { const s = getPlayerEquipStats(); return (s.strength||0)+(s.agility||0)+(s.endurance||0)+(s.vitality||0); })() : 0;
 
             const btnEquip = document.createElement('button');
-            btnEquip.style.cssText = 'flex:1;min-width:0;display:flex;align-items:center;gap:10px;padding:14px 12px;background:linear-gradient(135deg,rgba(6,182,212,0.16),rgba(8,145,178,0.08));border:1.5px solid rgba(6,182,212,' + (_adv?'0.5':'0.25') + ');border-radius:14px;cursor:pointer;text-align:left;touch-action:manipulation;box-shadow:0 0 18px rgba(6,182,212,0.1);';
+            btnEquip.style.cssText = 'flex:1;min-width:0;display:flex;align-items:center;gap:10px;padding:14px 12px;background:linear-gradient(135deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02));border:1.5px solid rgba(148,163,184,' + (_adv?'0.35':'0.18') + ');border-radius:14px;cursor:pointer;text-align:left;touch-action:manipulation;box-shadow:0 0 18px rgba(6,182,212,0.1);';
             btnEquip.innerHTML = '<div style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:10px;background:rgba(6,182,212,0.15);border:1px solid rgba(6,182,212,0.4);font-size:1.3em;">⚔️</div><span style="font-weight:900;font-size:0.9em;color:#e2e8f0;line-height:1.2;">Équipement</span>';
             btnEquip.addEventListener('click', function() { showRPGEquipmentModal('equip'); });
 
@@ -27289,16 +27435,19 @@
                 row2.id = 'awakRowBtns2';
                 row2.style.cssText = 'display:flex;gap:7px;align-items:stretch;margin-top:7px;margin-bottom:4px;';
                 // (bouton MARCHAND retiré en v865 : l'échoppe est sur la carte)
+                // 🎨 Boutons NEUTRES : la couleur est réservée aux badges d'alerte.
+                // Trois couleurs de boutons sous six attributs déjà colorés,
+                // ça faisait neuf accents concurrents sur une seule carte.
                 row2.appendChild(_mkBtn('📖', 'JOURNAL', function () {
                     if (typeof showStoryJournal === 'function') showStoryJournal();
-                }, '#a855f7', _bJournal));
+                }, '#94a3b8', _bJournal));
                 row2.appendChild(_mkBtn('⚠️', 'MALUS', function () {
                     if (typeof showActiveMalusScreen === 'function') showActiveMalusScreen();
-                }, '#f59e0b', _bMalus));
+                }, '#94a3b8', _bMalus));
                 // 💪 Classement musculaire : séparé des Compétences (v842)
                 row2.appendChild(_mkBtn('💪', 'MUSCLES', function () {
                     if (typeof rpgShowMusclesPanel === 'function') rpgShowMusclesPanel();
-                }, '#4ade80', 0));
+                }, '#94a3b8', 0));
                 // (bouton CARTE retiré en v864 : la carte est toujours affichée)
                 // 📊 « DÉTAILS » RETIRÉ (v841) : ce bouton appelait exactement la
                 // même fonction que « Compétences » (rpgShowDetailsPanel) — deux
@@ -31607,17 +31756,25 @@
             modal.className = 'modal active';
             modal.id = 'awakRiftBriefingModal';
             // 📱 Fix mobile : scroll fiable avec align-items:flex-start sur petits écrans
-            modal.style.cssText = 'background:rgba(0,0,0,0.9);backdrop-filter:blur(12px);align-items:flex-start;padding:12px 12px 40px;overflow-y:auto;-webkit-overflow-scrolling:touch;';
+            // 📱 center quand ça tient, flex-start sinon : sur un petit écran, un
+            // contenu plus haut que la fenêtre resterait inaccessible en center.
+            modal.style.cssText = 'background:rgba(0,0,0,0.92);backdrop-filter:blur(12px);align-items:center;justify-content:center;padding:16px 12px 32px;overflow-y:auto;-webkit-overflow-scrolling:touch;';
 
             modal.innerHTML = `
-            <div class="modal-content" style="max-width:520px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto 0;">
+            <div class="modal-content" style="max-width:520px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${theme.color}25,${theme.color}05);padding:24px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;">
+                <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
+                     sur l'écran de victoire), voilée pour garder le texte net.
+                     L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url('images/faille_fermee_bg.webp?v=893');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
-                    <div style="font-size:3.5em;line-height:1;margin-bottom:8px;filter:drop-shadow(0 0 14px ${theme.color}90);">${theme.emoji}</div>
-                    <div style="display:inline-block;background:${theme.color}25;color:${theme.color};border:1px solid ${theme.color}50;padding:3px 10px;border-radius:6px;font-size:0.7em;font-weight:900;letter-spacing:2px;margin-bottom:8px;">RANG ${rift.rank}</div>
-                    <h2 style="margin:0;color:white;font-size:1.3em;font-weight:900;letter-spacing:0.5px;">${rift.name}</h2>
-                    <div style="margin-top:8px;color:#94a3b8;font-size:0.82em;line-height:1.5;font-style:italic;">${theme.description}</div>
+                    <div style="font-size:3.4em;line-height:1;margin-bottom:10px;filter:drop-shadow(0 0 18px ${theme.color});animation:awakBriefFloat 4s ease-in-out infinite;">${theme.emoji}</div>
+                    <div style="display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:9px;flex-wrap:wrap;">
+                        <span style="background:${theme.color}25;color:${theme.color};border:1px solid ${theme.color}50;padding:3px 10px;border-radius:6px;font-size:0.68em;font-weight:900;letter-spacing:2px;">RANG ${rift.rank}</span>
+                        ${rift.isAssaut ? `<span style="background:rgba(245,158,11,0.18);color:#f59e0b;border:1px solid rgba(245,158,11,0.45);padding:3px 10px;border-radius:6px;font-size:0.68em;font-weight:900;letter-spacing:1.5px;">⚡ ASSAUT</span>` : ''}
+                    </div>
+                    <h2 style="margin:0;color:white;font-size:1.28em;font-weight:900;letter-spacing:0.5px;font-family:var(--font-display),sans-serif;">${rift.name}</h2>
+                    <div style="margin-top:9px;color:#cbd5e1;font-size:0.8em;line-height:1.55;font-style:italic;max-width:340px;margin-left:auto;margin-right:auto;">${theme.description}</div>
                 </div>
 
                 <!-- Briefing du Système -->
@@ -31857,7 +32014,7 @@
             const hpBarColor = _hideHp ? '#64748b' : hpColor;
 
             modal.innerHTML = `
-            <div class="modal-content" style="max-width:540px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto 0;display:flex;flex-direction:column;">
+            <div class="modal-content" style="max-width:540px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto;display:flex;flex-direction:column;">
                 <!-- Header : vague actuelle -->
                 <div style="background:linear-gradient(135deg,${theme.color}20,transparent);padding:18px 20px;border-bottom:1px solid ${theme.color}25;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
@@ -32802,7 +32959,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=887');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=893');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -46013,7 +46170,7 @@
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=887");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=893");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
