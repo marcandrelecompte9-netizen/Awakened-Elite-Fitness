@@ -76,7 +76,7 @@ B) VERSION TECHNIQUE DU CACHE = un compteur SÉPARÉ qui force la mise à
      - sw.js       : nom du cache "awakened-vNNN"
      - index.html  : les 39 "?v=NNN" sur les fichiers js/css
      - sw.js       : les "?v=NNN" des assets (manifest, icônes)
-   ⚠️  ÉTAT ACTUEL : v893. Prochain build = v894.
+   ⚠️  ÉTAT ACTUEL : v896. Prochain build = v897.
 
 
 ───────────────────────────────────────────────────────────────────────
@@ -100,7 +100,7 @@ Sortie : /mnt/user-data/outputs/
        awakened-vNNN-deploy.zip = léger (~2 Mo, SANS images/)
      ⚠️ Le deploy EXCLUT images/ — il faut y RÉAJOUTER explicitement :
        images/body/body_face.webp, images/body/body_dos.webp,
-       images/card_bg_homme.webp, images/card_bg_femme.webp,
+       images/card_bg_homme_v2.webp, images/card_bg_femme_v2.webp,
        images/carte_ville.webp,
        images/constellation_bg.webp, images/journal_bg.webp,
        images/faille_fermee_bg.webp
@@ -180,7 +180,7 @@ IMAGES MANQUANTES — 24 exercices + 18 scènes narratives.
 ───────────────────────────────────────────────────────────────────────
 
   • Version affichée : v0.90 · awakened
-  • Cache technique  : v893  (prochain build = v894)
+  • Cache technique  : v896  (prochain build = v897)
   • Exercices        : 452 (base) · 713 (avec disciplines)
   • Objets           : 397  (11 sets, tous complétables)
   • Événements       : 57 narratifs (39 illustrés)

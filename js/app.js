@@ -22866,10 +22866,21 @@
                         const weighted = (typeof getWeightedMuscles === 'function')
                             ? getWeightedMuscles(exerciseFromDB)
                             : [{ muscle: exerciseFromDB.muscle, ratio: 1.0 }];
-                        weighted.forEach(({ muscle }) => {
-                            if (muscle && !musclesWorked[muscle]) {
-                                musclesWorked[muscle] = { muscle: muscle, lastWorked: now, workoutCount: 1 };
+                        // 📊 On additionne le VOLUME réel par muscle : nombre de
+                        // séries, pondéré par la part que l'exercice fait porter
+                        // à ce muscle (un secondaire à 0,3 fatigue moins qu'un
+                        // principal). Sans ça, un seul exercice « d'appoint »
+                        // mettait le muscle au même niveau qu'une séance complète.
+                        const _sets = (exercise.sets && exercise.sets.length)
+                            ? exercise.sets.length
+                            : (exercise.completedSets || 1);
+                        weighted.forEach(({ muscle, ratio }) => {
+                            if (!muscle) return;
+                            if (!musclesWorked[muscle]) {
+                                musclesWorked[muscle] = { muscle: muscle, lastWorked: now, workoutCount: 1, volume: 0 };
                             }
+                            musclesWorked[muscle].volume =
+                                (musclesWorked[muscle].volume || 0) + _sets * (ratio || 1);
                         });
                     }
                 }
@@ -22984,7 +22995,7 @@
                 +     '</div>'
                 +   '</div>'
                 +   '<svg viewBox="0 0 200 298" style="width:100%;max-width:210px;height:auto;display:block;margin:0 auto;">'
-                +     '<image href="' + img + '?v=893" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=896" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -23051,8 +23062,23 @@
             const now = new Date();
             const hoursSince = (now - lastWorked) / (1000 * 60 * 60);
             
-            // Règle : 48h de récupération minimum
-            const recoveryNeeded = 48;
+            // 🕒 DURÉE DE RÉCUPÉRATION PROPORTIONNELLE AU VOLUME.
+            // Avant : 48 h fixes, qu'on ait fait 1 série d'appoint ou 6 séries
+            // lourdes. Un muscle effleuré passait donc « rouge » comme un muscle
+            // vraiment travaillé — la carte ne disait plus rien d'utile.
+            // Barème (volume = séries pondérées par la part du muscle) :
+            //   ≤ 2   → 18 h   (appoint, secondaire léger)
+            //   ≤ 4   → 30 h   (travail modéré)
+            //   ≤ 8   → 48 h   (séance normale — l'ancienne valeur)
+            //   > 8   → 60 h   (grosse séance)
+            // Les 48 h restent la référence : c'est la recommandation courante
+            // entre deux sollicitations d'un même groupe musculaire.
+            const _vol = tracking[muscleName].volume || 0;
+            const recoveryNeeded = !_vol ? 48
+                                 : _vol <= 2 ? 18
+                                 : _vol <= 4 ? 30
+                                 : _vol <= 8 ? 48
+                                 : 60;
             
             if (hoursSince >= recoveryNeeded) {
                 return { status: 'ready', hoursToRecovery: 0, percentage: 100 };
@@ -27221,8 +27247,12 @@
             // 🎭 Fond selon l'avatar choisi (Équipement › bascule homme/femme).
             // Même clé que l'avatar du panneau personnage : fitproAvatarGender.
             const _cardBg = (localStorage.getItem('fitproAvatarGender') || 'homme') === 'femme'
-                ? 'images/card_bg_femme.webp' : 'images/card_bg_homme.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=893");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+                // ⚠️ Fichiers RENOMMÉS (_v2) : le query string ?v=NNN contourne le
+                // cache du navigateur et du service worker, mais PAS celui du CDN
+                // GitHub Pages, qui peut resservir l'ancien fichier sous le même
+                // chemin. Changer le NOM force une ressource réellement nouvelle.
+                ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=896");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -31766,7 +31796,7 @@
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url('images/faille_fermee_bg.webp?v=893');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url('images/faille_fermee_bg.webp?v=896');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <div style="font-size:3.4em;line-height:1;margin-bottom:10px;filter:drop-shadow(0 0 18px ${theme.color});animation:awakBriefFloat 4s ease-in-out infinite;">${theme.emoji}</div>
                     <div style="display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:9px;flex-wrap:wrap;">
@@ -32959,7 +32989,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=893');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=896');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -46170,7 +46200,7 @@
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=893");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=896");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.

@@ -1021,6 +1021,13 @@ function renderFamilyTab() {
     const coopActif = !!(window.AwakFamilyChallenge && typeof window.AwakFamilyChallenge.coopStatus === 'function'
         && window.AwakFamilyChallenge.coopStatus());
 
+    // ✦ La Constellation ouvre l'onglet : le foyer d'un coup d'œil.
+    // ⚠️ Cette déclaration avait été supprimée par erreur en v889 avec le
+    // code mort de la rangée de boutons — `constCard` restait utilisée plus
+    // bas, ce qui levait une ReferenceError et VIDAIT tout l'onglet Famille.
+    const constCard = (window.AwakFamily && typeof window.AwakFamily.renderConstellation === 'function')
+        ? window.AwakFamily.renderConstellation() : '';
+
     // (Le constructeur de boutons et la rangée d'actions ont été retirés en
     //  v889 : la Constellation porte désormais toutes ces actions.)
 
