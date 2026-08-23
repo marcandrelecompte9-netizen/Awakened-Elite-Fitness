@@ -23057,6 +23057,7 @@
                 ['Épaules',    'Épaules',     '<ellipse cx="70" cy="70" rx="9.5" ry="9.5"/><ellipse cx="130" cy="70" rx="9.5" ry="9.5"/>'],
                 ['Pectoraux',  'Pectoraux',   '<path d="M82,64 C89,61 97,63 99,70 L99,90 C89,92 82,86 81,76 Z"/><path d="M118,64 C111,61 103,63 101,70 L101,90 C111,92 118,86 119,76 Z"/>'],
                 ['Biceps',     'Biceps',      '<path d="M49,97 L62,97 L45,116 L33,116 Z"/><path d="M151,97 L138,97 L155,116 L167,116 Z"/>'],
+                ['Avant-bras', 'Avant-bras',  '<path d="M27,124 L36,124 L25,140 L18,140 Z"/><path d="M173,124 L164,124 L175,140 L182,140 Z"/>'],
                 ['Abdos',      'Abdominaux',  '<path d="M85,97 h30 a3,3 0 0 1 3,3 v27 a3,3 0 0 1 -3,3 h-30 a3,3 0 0 1 -3,-3 v-27 a3,3 0 0 1 3,-3 Z"/>'],
                 ['Quadriceps', 'Quadriceps',  '<ellipse cx="80" cy="177" rx="10" ry="21"/><ellipse cx="120" cy="177" rx="10" ry="21"/>'],
                 ['Mollets',    'Mollets',     '<ellipse cx="67" cy="231" rx="7" ry="16"/><ellipse cx="133" cy="231" rx="7" ry="16"/>']
@@ -23064,6 +23065,7 @@
                 ['Trapèzes',   'Trapèzes',    '<path d="M86,47 L100,41 L114,47 L111,70 L100,64 L89,70 Z"/>'],
                 ['Dos',        'Dos',         '<path d="M83,75 L98,81 L98,120 L87,110 Z"/><path d="M117,75 L102,81 L102,120 L113,110 Z"/>'],
                 ['Triceps',    'Triceps',     '<path d="M51,93 L64,93 L46,113 L34,113 Z"/><path d="M149,93 L136,93 L154,113 L166,113 Z"/>'],
+                ['Avant-bras', 'Avant-bras',  '<path d="M29,124 L38,124 L24,140 L17,140 Z"/><path d="M171,124 L162,124 L176,140 L183,140 Z"/>'],
                 ['Fessiers',   'Fessiers',    '<path d="M82,131 C82,123 99,123 99,131 L99,149 C99,157 82,157 82,149 Z"/><path d="M118,131 C118,123 101,123 101,131 L101,149 C101,157 118,157 118,149 Z"/>'],
                 ['Ischios',    'Ischio-jambiers', '<ellipse cx="81" cy="180" rx="10" ry="20"/><ellipse cx="119" cy="180" rx="10" ry="20"/>'],
                 ['Mollets',    'Mollets',     '<ellipse cx="70" cy="233" rx="7" ry="16"/><ellipse cx="130" cy="233" rx="7" ry="16"/>']
@@ -23093,9 +23095,42 @@
                         + '<span style="color:#94a3b8;">' + l[1] + '</span></span>';
                 }).join('');
 
+            // 📍 Le LIEU est rendu ici même : c'est le contexte de la séance
+            // qu'on s'apprête à lancer. L'avoir dans la carte évite un bloc
+            // séparé au-dessus.
+            let _lieuHtml = '';
+            try {
+                const _loc = (typeof getActiveLocation === 'function') ? getActiveLocation() : null;
+                if (_loc) {
+                    const _n = (_loc.equipment && _loc.equipment.length) ? _loc.equipment.length : 0;
+                    _lieuHtml = '<div style="display:flex;gap:7px;margin-bottom:11px;">'
+                      + '<button onclick="showLocationPicker()" style="flex:1;min-width:0;display:flex;'
+                      +   'align-items:center;gap:8px;padding:9px 11px;border-radius:12px;cursor:pointer;text-align:left;'
+                      +   'background:rgba(255,255,255,0.04);border:1px solid rgba(148,163,184,0.18);">'
+                      +   '<span style="font-size:1.05em;flex-shrink:0;">' + (_loc.icon || '📍') + '</span>'
+                      +   '<span style="flex:1;min-width:0;font-size:0.74em;font-weight:800;color:#e2e8f0;'
+                      +     'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (_loc.name || 'Lieu') + '</span>'
+                      +   '<span style="color:#64748b;flex-shrink:0;">›</span>'
+                      + '</button>'
+                      + '<button onclick="showAddLocationModal(\'' + String(_loc.id).replace(/'/g, "\\'") + '\')" '
+                      +   'style="flex-shrink:0;padding:9px 11px;border-radius:12px;cursor:pointer;'
+                      +   'background:rgba(255,255,255,0.04);border:1px solid rgba(148,163,184,0.18);'
+                      +   'font-size:0.68em;color:#94a3b8;font-weight:800;white-space:nowrap;">'
+                      +   '🎒 ' + (_n ? _n : 'Corps') + '</button>'
+                      + '</div>';
+                }
+            } catch (e) {}
+
+            // 🏋️ Fond : salle vide au petit matin. Le voile est plus opaque en
+            // HAUT (lieu + titre) et en BAS (bouton), plus ouvert au milieu où
+            // la silhouette se détache sur les équipements.
             return '<div class="awak-corps-host" style="position:relative;border-radius:18px;overflow:hidden;'
-                +   'background:linear-gradient(160deg,#0e1218,#0a0b0f);border:1px solid rgba(74,222,128,0.20);'
+                +   'background-color:#0a0b0f;'
+                +   'background-image:linear-gradient(180deg,rgba(10,11,15,0.92) 0%,rgba(10,11,15,0.62) 32%,rgba(10,11,15,0.55) 62%,rgba(10,11,15,0.90) 100%), url("images/salle_bg_v1.webp?v=905");'
+                +   'background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,no-repeat;'
+                +   'border:1px solid rgba(74,222,128,0.20);'
                 +   'margin-bottom:14px;padding:14px 14px 12px;">'
+                +   _lieuHtml
                 +   '<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px;">'
                 +     '<div style="font-size:0.56em;letter-spacing:2.5px;color:#4ade80;font-weight:900;">◈ TON CORPS</div>'
                 +     '<div style="font-size:0.6em;color:#94a3b8;">'
@@ -23103,19 +23138,32 @@
                 +     '</div>'
                 +   '</div>'
                 +   '<svg viewBox="0 0 200 298" style="width:100%;max-width:210px;height:auto;display:block;margin:0 auto;">'
-                +     '<image href="' + img + '?v=901" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=905" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
                 +   '<div style="font-size:0.6em;margin-top:8px;text-align:center;">' + legende + '</div>'
-                +   '<div style="display:flex;gap:8px;margin-top:10px;">'
-                +     '<button onclick="awakToggleCorpsVue()" style="flex:1;padding:9px;border-radius:11px;'
+                +   '<div style="display:flex;gap:8px;margin-top:10px;align-items:center;">'
+                +     '<button onclick="awakToggleCorpsVue()" style="flex-shrink:0;padding:9px 12px;border-radius:11px;'
                 +       'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);'
                 +       'color:#94a3b8;font-size:0.66em;font-weight:800;cursor:pointer;">'
                 +       (estFace ? '🔄 DOS' : '🔄 FACE') + '</button>'
-                +     '<div style="flex:2;display:flex;align-items:center;justify-content:center;'
-                +       'font-size:0.62em;color:#64748b;">Touche un muscle vert pour l\'entraîner</div>'
+                +     '<div style="flex:1;font-size:0.6em;color:#64748b;line-height:1.3;">'
+                +       'Touche un muscle vert pour l\'entraîner</div>'
                 +   '</div>'
+                // ⚡ ACTION PRINCIPALE dans la carte : le geste le plus courant
+                // conclut le bloc, juste sous l'état du corps qui l'informe.
+                // Seul élément à fond plein de l'onglet — c'est ce qui le fait
+                // ressortir (règle posée en v892).
+                +   '<button onclick="startRandomWorkout()" style="width:100%;margin-top:11px;padding:15px;'
+                +     'border-radius:14px;border:none;cursor:pointer;'
+                +     'background:linear-gradient(135deg,#4ade80,#16a34a);'
+                +     'box-shadow:0 4px 16px rgba(74,222,128,0.22);'
+                +     'display:flex;align-items:center;justify-content:center;gap:9px;">'
+                +     '<span style="font-size:1.15em;">⚡</span>'
+                +     '<span style="font-size:0.88em;font-weight:900;color:#04210f;letter-spacing:0.5px;">'
+                +       'FAIS MA SÉANCE</span>'
+                +   '</button>'
                 + '</div>';
         }
         window.awakRenderCorps = awakRenderCorps;
@@ -27467,7 +27515,7 @@
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=901");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=905");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -32011,7 +32059,7 @@
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url('images/faille_fermee_bg.webp?v=901');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url('images/faille_fermee_bg.webp?v=905');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <div style="font-size:3.4em;line-height:1;margin-bottom:10px;filter:drop-shadow(0 0 18px ${theme.color});animation:awakBriefFloat 4s ease-in-out infinite;">${theme.emoji}</div>
                     <div style="display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:9px;flex-wrap:wrap;">
@@ -33204,7 +33252,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=901');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=905');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -46415,7 +46463,7 @@
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=901");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=905");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.

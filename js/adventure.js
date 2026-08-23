@@ -971,9 +971,15 @@ function renderFamilyTab() {
         ? window.AwakFamilyChallenge.renderCard() : '';
 
     // En-tête de l'onglet
-    let html = '<div style="margin-bottom:16px;">'
-        + '<h2 style="font-size:1.3em;font-weight:900;color:#fff;margin:0 0 4px;">👨‍👩‍👧‍👦 Ma famille</h2>'
-        + '<p style="font-size:0.8em;color:#94a3b8;margin:0;line-height:1.4;">Lie les profils entre eux et précise vos relations. Bientôt : encouragez-vous et progressez ensemble.</p>'
+    // ⚠️ L'ancienne description annonçait « Bientôt : encouragez-vous et
+    // progressez ensemble » — ces fonctions EXISTENT depuis longtemps
+    // (encouragements, objectif commun, défis, jeux à deux).
+    // En-tête aligné sur le langage des autres onglets : surtitre discret,
+    // titre en police d'affichage, pas de paragraphe explicatif.
+    let html = '<div style="border-left:2px solid #ec4899;padding-left:11px;margin-bottom:14px;">'
+        + '<div style="font-size:0.56em;letter-spacing:2.5px;color:#ec4899;font-weight:900;">✦ LES TIENS</div>'
+        + '<h2 style="font-size:1.15em;font-weight:900;color:#fff;margin:2px 0 0;'
+        +   'font-family:var(--font-display),sans-serif;letter-spacing:0.5px;">Ma famille</h2>'
         + '</div>';
 
     // Cas : un seul profil → inviter à en créer un second
@@ -1043,10 +1049,14 @@ function renderFamilyTab() {
     // depuis le pied de la constellation (v900). Ne restent affichées que les
     // cartes qui montrent une progression EN COURS — l'anneau donne un
     // pourcentage, ces cartes donnent le détail par membre.
-    html += constCard
-          + (goalActif ? goalCard : '')
-          + (coopActif ? coopCard : '')
-          + nudgeCard;
+    // 🧹 PLUS AUCUNE CARTE SOUS LA CONSTELLATION (v902).
+    // Tout est atteignable depuis elle :
+    //   · objectif commun   → anneau vert
+    //   · défi d'équipe     → étoile centrale
+    //   · encourager        → menu d'une étoile
+    //   · encouragements reçus → bandeau du pied (si présents)
+    //   · ma famille / journal → boutons du pied
+    html += constCard;
 
     // Filet de sécurité
     if (!constCard && !familyCard && !nudgeCard && !challengeCard && !goalCard && !feedCard && !duoGamesCard && !coopCard) {

@@ -352,6 +352,10 @@
     // ⚔️ Le défi 1 contre 1 est COMPÉTITIF : jamais proposé à un enfant.
     +   (enf ? '' : act('⚔️', 'Lancer un défi', 'Qui en fera le plus cette semaine ?',
           "AwakConstAction('challenge','" + memberId + "')", '#f59e0b'))
+    // ✏️ Modifier le lien : c'était impossible depuis la constellation, alors
+    // que toucher le nom d'un membre est le geste naturel pour ça.
+    +   act('✏️', 'Modifier le lien', 'Changer la relation ou retirer ce membre',
+          "AwakConstAction('edit','" + memberId + "')", '#94a3b8')
     +   '<button onclick="document.getElementById(\'awakConstMenu\').remove()" '
     +     'style="width:100%;padding:12px;margin-top:5px;border-radius:13px;cursor:pointer;'
     +     'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);'
@@ -370,6 +374,8 @@
         window.AwakGamesOpen();
       } else if (quoi === 'challenge' && typeof window.AwakFamilyChallengeOpen === 'function') {
         window.AwakFamilyChallengeOpen();
+      } else if (quoi === 'edit' && typeof window.AwakFamilyEdit === 'function') {
+        window.AwakFamilyEdit(memberId);
       }
     } catch (e) {}
   };
@@ -488,7 +494,7 @@
       +     '<defs><filter id="constLueur"><feGaussianBlur stdDeviation="3" result="b"/>'
       +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>'
       // 🌌 Nébuleuse de fond : remplace la poussière d'étoiles dessinée.
-      +     '<image href="images/constellation_bg.webp?v=901" x="0" y="0" width="300" height="300" '
+      +     '<image href="images/constellation_bg.webp?v=905" x="0" y="0" width="300" height="300" '
       +       'preserveAspectRatio="xMidYMid slice" opacity="0.95"/>'
       +     anneau
       +     fils
@@ -513,8 +519,10 @@
       +     '<div style="font-size:0.52em;letter-spacing:1.5px;color:#64748b;font-weight:800;">'
       +       (membres.length + 1) + ' ÉTOILES</div>'
       +   '</div>'
-      +   '<div style="position:absolute;bottom:0;left:0;right:0;padding:20px 13px 10px;'
-      +     'background:linear-gradient(0deg,rgba(8,9,12,0.85),rgba(8,9,12,0));font-size:0.6em;pointer-events:none;">'
+      // ⚠️ EN FLUX, pas en position:absolute — les boutons du pied (v900)
+      // passaient sous ce bandeau et le texte se chevauchait.
+      +   '<div style="padding:10px 13px 9px;background:rgba(8,9,12,0.55);font-size:0.6em;'
+      +     'border-top:1px solid rgba(255,255,255,0.05);">'
       +     (solo
                 ? '<span style="color:#64748b;">Ton étoile veille seule. Lie un proche pour agrandir la constellation.</span>'
                 : (estEnfant
@@ -527,6 +535,22 @@
       +   '</div>'
       // 👨‍👩‍👧 Deux accès discrets, pour ce que la constellation ne peut pas
       // montrer : ajouter/retirer un membre, et l'historique familial.
+      // 💜 Encouragements REÇUS : la constellation permet d'en envoyer (menu
+      // d'étoile) mais pas de lire ceux qu'on reçoit. Bandeau affiché
+      // uniquement s'il y en a, pour ne pas ajouter une ligne vide.
+      +   (function () {
+            var n = 0;
+            try { n = pendingNudges().length; } catch (e) {}
+            if (!n) return '';
+            return '<div onclick="AwakFamilyNudgeOpenInbox()" style="cursor:pointer;'
+              + 'border-top:1px solid rgba(236,72,153,0.20);background:rgba(236,72,153,0.08);'
+              + 'padding:11px 14px;display:flex;align-items:center;gap:9px;">'
+              + '<span style="font-size:1.05em;">💜</span>'
+              + '<span style="flex:1;min-width:0;font-size:0.7em;color:#f9a8d4;font-weight:800;">'
+              +   n + ' encouragement' + (n > 1 ? 's' : '') + ' reçu' + (n > 1 ? 's' : '') + '</span>'
+              + '<span style="color:#ec4899;font-size:0.95em;">›</span>'
+              + '</div>';
+          })()
       +   '<div style="display:flex;border-top:1px solid rgba(255,255,255,0.06);">'
       +     '<button onclick="AwakFamilyManage()" style="flex:1;padding:11px;background:transparent;'
       +       'border:none;border-right:1px solid rgba(255,255,255,0.06);color:#94a3b8;'
