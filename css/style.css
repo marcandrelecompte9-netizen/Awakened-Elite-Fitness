@@ -7010,3 +7010,10 @@ img[src*="images/exercises/"] {
     0%, 100% { transform: translateY(0); }
     50%      { transform: translateY(-6px); }
 }
+
+/* ⚡ Balayage lumineux du bouton « Fais ma séance » — le traverse lentement
+   de gauche à droite, avec une longue pause entre deux passages. */
+@keyframes awakBtnSheen {
+    0%        { transform: translateX(-150%); }
+    45%, 100% { transform: translateX(360%); }
+}

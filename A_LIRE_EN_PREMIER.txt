@@ -76,7 +76,7 @@ B) VERSION TECHNIQUE DU CACHE = un compteur SÉPARÉ qui force la mise à
      - sw.js       : nom du cache "awakened-vNNN"
      - index.html  : les 39 "?v=NNN" sur les fichiers js/css
      - sw.js       : les "?v=NNN" des assets (manifest, icônes)
-   ⚠️  ÉTAT ACTUEL : v905. Prochain build = v906.
+   ⚠️  ÉTAT ACTUEL : v906. Prochain build = v907.
 
 
 ───────────────────────────────────────────────────────────────────────
@@ -103,7 +103,7 @@ Sortie : /mnt/user-data/outputs/
        images/card_bg_homme_v2.webp, images/card_bg_femme_v2.webp,
        images/carte_ville.webp,
        images/constellation_bg.webp, images/journal_bg.webp,
-       images/faille_fermee_bg.webp, images/salle_bg_v1.webp
+       images/faille_fermee_bg.webp, images/salle_bg_v2.webp
      (sinon le sélecteur de muscles et le fond de carte sont vides)
   7. present_files sur les deux zips
 
@@ -180,7 +180,7 @@ IMAGES MANQUANTES — 24 exercices + 18 scènes narratives.
 ───────────────────────────────────────────────────────────────────────
 
   • Version affichée : v0.90 · awakened
-  • Cache technique  : v905  (prochain build = v906)
+  • Cache technique  : v906  (prochain build = v907)
   • Exercices        : 452 (base) · 713 (avec disciplines)
   • Objets           : 397  (11 sets, tous complétables)
   • Événements       : 57 narratifs (39 illustrés)
