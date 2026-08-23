@@ -76,7 +76,7 @@ B) VERSION TECHNIQUE DU CACHE = un compteur SÉPARÉ qui force la mise à
      - sw.js       : nom du cache "awakened-vNNN"
      - index.html  : les 39 "?v=NNN" sur les fichiers js/css
      - sw.js       : les "?v=NNN" des assets (manifest, icônes)
-   ⚠️  ÉTAT ACTUEL : v909. Prochain build = v910.
+   ⚠️  ÉTAT ACTUEL : v912. Prochain build = v913.
 
 
 ───────────────────────────────────────────────────────────────────────
@@ -103,7 +103,7 @@ Sortie : /mnt/user-data/outputs/
        images/card_bg_homme_v2.webp, images/card_bg_femme_v2.webp,
        images/carte_ville.webp,
        images/constellation_bg.webp, images/journal_bg.webp,
-       images/faille_fermee_bg.webp, images/salle_bg_v2.webp
+       images/faille_fermee_bg.webp, images/salle_bg_v3.webp
      (sinon le sélecteur de muscles et le fond de carte sont vides)
   7. present_files sur les deux zips
 
@@ -186,11 +186,15 @@ IMAGES MANQUANTES — 14 exercices (10 Pilates livrés en v909) + 18 scènes nar
   │      « Sirène (Mermaid) »  →  Sirène_Mermaid.webp                │
   │      « Fentes arrière »    →  Fentes_arrière.webp                │
   │                                                                  │
-  │ 4. RETIRER le bandeau de texte du bas (recadrage). Détecter sa   │
-  │    hauteur en cherchant les lignes contenant du VERT vif, puis   │
-  │    remonter jusqu'à retrouver l'image. La hauteur du bandeau     │
-  │    VARIE d'une image à l'autre (120 à 250 px) — ne jamais        │
-  │    couper une hauteur fixe.                                      │
+  │ 4. RETIRER le bandeau de texte du bas (recadrage).               │
+  │    ⚠️ MÉTHODE EXACTE — le bandeau est une bande TRÈS SOMBRE       │
+  │    (luminosité moyenne < 6) contenant du texte vert. Partir du   │
+  │    BAS et remonter tant que la ligne est sombre OU verte ;       │
+  │    s'arrêter à la première ligne qui est CLAIRE (c'est l'image). │
+  │    Ne PAS chercher « la dernière ligne verte » : le bandeau a    │
+  │    une marge noire sous le texte, on couperait 100 px trop haut  │
+  │    et on amputerait la personne (erreur commise en v909).        │
+  │    Le bandeau fait ~90 à 125 px — jamais 250.                    │
   │                                                                  │
   │ 5. CONVERTIR en .webp, largeur 640, qualité 84.                  │
   │                                                                  │
@@ -210,7 +214,7 @@ IMAGES MANQUANTES — 14 exercices (10 Pilates livrés en v909) + 18 scènes nar
 ───────────────────────────────────────────────────────────────────────
 
   • Version affichée : v0.90 · awakened
-  • Cache technique  : v909  (prochain build = v910)
+  • Cache technique  : v912  (prochain build = v913)
   • Exercices        : 452 (base) · 713 (avec disciplines)
   • Objets           : 397  (11 sets, tous complétables)
   • Événements       : 57 narratifs (39 illustrés)

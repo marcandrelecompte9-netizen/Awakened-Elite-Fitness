@@ -23138,8 +23138,13 @@
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.86) 0%,rgba(7,8,11,0.30) 30%,rgba(7,8,11,0.22) 60%,rgba(7,8,11,0.80) 100%), url(images/salle_bg_v2.webp?v=909);'
-                +   'background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,no-repeat;'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.86) 0%,rgba(7,8,11,0.30) 30%,rgba(7,8,11,0.22) 60%,rgba(7,8,11,0.80) 100%), url(images/salle_bg_v3.webp?v=912);'
+                // ⚠️ Image RECADRÉE au ratio de la carte (0,58). En carré
+                // 900×900, `cover` la zoomait à 172 % dans un bloc portrait :
+                // sol et plafond rognés, on ne voyait qu'une bande centrale
+                // — d'où l'impression que la salle « flottait ».
+                // `bottom` ancre le SOL au bas de la carte, sous le bouton.
+                +   'background-size:cover,cover;background-position:center,center bottom;background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(74,222,128,0.20);'
                 // marge basse élargie : le bouton « Fais ma séance » conclut la
                 // carte, il lui faut de l'air avant la carte suivante.
@@ -23152,7 +23157,7 @@
                 +     '</div>'
                 +   '</div>'
                 +   '<svg viewBox="0 0 200 298" style="width:100%;max-width:210px;height:auto;display:block;margin:0 auto;">'
-                +     '<image href="' + img + '?v=909" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=912" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -26379,6 +26384,9 @@
         }
 
         function toggleLocMachine(id, btn) {
+            // ⚠️ '667eea' est une couleur OBSOLÈTE (ancien violet). Le test ne
+            // tient que grâce au repli sur 'linear-gradient' — ne pas retirer
+            // ce second terme sans revoir toute la détection.
             if (btn.style.background.includes('667eea') || btn.style.background.includes('linear-gradient')) {
                 btn.style.background='rgba(255,255,255,0.03)'; btn.style.borderColor='rgba(255,255,255,0.12)'; btn.style.color='#94a3b8';
                 const d = btn.querySelector('div > div'); if (d) d.style.filter='';
@@ -26404,6 +26412,12 @@
         function setLocEditorMode(mode) {
             const homeBtn = document.getElementById('locModeHome');
             const gymBtn = document.getElementById('locModeGym');
+            // 🔒 État mémorisé dans un ATTRIBUT, pas déduit d'une couleur.
+            // La lecture se faisait via `.includes('667eea')` — un violet
+            // remplacé depuis par du vert (#16a34a). Le bouton Gym était donc
+            // toujours lu comme « home », et la sauvegarde effaçait les
+            // machines de salle.
+            try { document.body.dataset.locMode = mode; } catch (e) {}
             const activeStyle = 'padding:10px;border:2px solid #16a34a;border-radius:14px;background:linear-gradient(135deg,#16a34a,#15803d);color:white;cursor:pointer;font-weight:700;';
             const inactiveStyle = 'padding:10px;border:1px solid rgba(255,255,255,0.12);border-radius:14px;background:rgba(255,255,255,0.03);color:#374151;cursor:pointer;font-weight:700;';
 
@@ -26436,8 +26450,18 @@
             const icon = document.getElementById('locIconSel')?.textContent?.trim() || '📍';
             const name = document.getElementById('locNameInput')?.value?.trim();
             if (!name) { showToast('Entrez un nom pour ce lieu', 'warning', 2000); return; }
-            const modeBtn = document.getElementById('locModeGym');
-            const mode = modeBtn?.style.background?.includes('667eea') ? 'gym' : 'home';
+            // Lecture FIABLE du mode : attribut posé par setLocEditorMode,
+            // avec repli sur la bordure verte du bouton Gym si l'utilisateur
+            // n'a pas touché à la bascule depuis l'ouverture.
+            let mode = 'gym';
+            try {
+                if (document.body.dataset.locMode) {
+                    mode = document.body.dataset.locMode;
+                } else {
+                    const gb = document.getElementById('locModeGym');
+                    mode = (gb && /16a34a|22c55e/i.test(gb.style.cssText || '')) ? 'gym' : 'home';
+                }
+            } catch (e) {}
 
             // Équipements généraux sélectionnés
             const equip = [];
@@ -27677,7 +27701,7 @@
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=909");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=912");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -32221,7 +32245,7 @@
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url('images/faille_fermee_bg.webp?v=909');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url('images/faille_fermee_bg.webp?v=912');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <div style="font-size:3.4em;line-height:1;margin-bottom:10px;filter:drop-shadow(0 0 18px ${theme.color});animation:awakBriefFloat 4s ease-in-out infinite;">${theme.emoji}</div>
                     <div style="display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:9px;flex-wrap:wrap;">
@@ -33414,7 +33438,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=909');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=912');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -46625,7 +46649,7 @@
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=909");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=912");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
