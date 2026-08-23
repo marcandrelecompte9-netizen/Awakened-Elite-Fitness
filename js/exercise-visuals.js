@@ -1417,6 +1417,18 @@ var EXERCISE_IMAGES = {
   'TRX Hamstring Curl':            'images/exercises/TRX_Hamstring_Curl.webp',
   'Wall Ball':                     'images/exercises/Wall_Ball.webp',
   "World's Greatest Stretch":      "images/exercises/World's_Greatest_Stretch.webp",
+
+  // 🧘 PILATES — images livrées le 23/08 (bandeau de titre retiré)
+  'Boomerang': 'images/exercises/Boomerang.webp',
+  'Double coup de pied (Double Leg Kick)': 'images/exercises/Double_coup_de_pied_Double_Leg_Kick.webp',
+  'Coup de pied latéral en série': 'images/exercises/Coup_de_pied_latéral_en_série.webp',
+  'Grand contrôle (Control Balance)': 'images/exercises/Grand_contrôle_Control_Balance.webp',
+  'Sirène (Mermaid)': 'images/exercises/Sirène_Mermaid.webp',
+  'Coléoptère (Dead Bug)': 'images/exercises/Coléoptère_Dead_Bug.webp',
+  'Tire-bouchon (Corkscrew)': 'images/exercises/Tire-bouchon_Corkscrew.webp',
+  'Jackknife (Canif)': 'images/exercises/Jackknife_Canif.webp',
+  'Neck Pull': 'images/exercises/Neck_Pull.webp',
+  'Teaser complet': 'images/exercises/Teaser_complet.webp',
 };
 
 function hasExerciseImage(name) {

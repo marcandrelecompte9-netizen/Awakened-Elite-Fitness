@@ -21907,6 +21907,9 @@
                 // 📅 Render le plan hebdo manuel (Phase 6)
                 if (typeof renderManualWeeklyPlanCard === 'function') renderManualWeeklyPlanCard();
             } else if (tabName === 'exercises') {
+                // 🔎 Barre de pastilles : construite à partir des <select>
+                // masqués, donc APRÈS que le DOM de l'onglet existe.
+                try { if (typeof renderExerciseFilterBar === 'function') renderExerciseFilterBar(); } catch (e) {}
                 // Check if filters are active, if not show welcome screen
                 filterExercises();
                 try { renderExerciseLibraryStats(); } catch (e) {}
@@ -23125,16 +23128,22 @@
             // HAUT (lieu + titre) et en BAS (bouton), plus ouvert au milieu où
             // la silhouette se détache sur les équipements.
             return '<div class="awak-corps-host" style="position:relative;border-radius:18px;overflow:hidden;'
+                // ⚠️ url() SANS guillemets : ce style vit dans un ATTRIBUT HTML
+                // délimité par des guillemets doubles. Un url("...") refermait
+                // l'attribut au milieu et le background-image était perdu —
+                // c'est pour ça que le fond ne s'affichait pas en v905/v906.
                 // ⚠️ Voile ALLÉGÉ et image peu assombrie : en v905 l'image (19,8)
                 // passait sous un voile à 55-92 % sur un fond à 10 — elle
                 // ressortait PLUS SOMBRE que le fond, donc invisible. Même
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.86) 0%,rgba(7,8,11,0.30) 30%,rgba(7,8,11,0.22) 60%,rgba(7,8,11,0.80) 100%), url("images/salle_bg_v2.webp?v=906");'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.86) 0%,rgba(7,8,11,0.30) 30%,rgba(7,8,11,0.22) 60%,rgba(7,8,11,0.80) 100%), url(images/salle_bg_v2.webp?v=909);'
                 +   'background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(74,222,128,0.20);'
-                +   'margin-bottom:14px;padding:14px 14px 12px;">'
+                // marge basse élargie : le bouton « Fais ma séance » conclut la
+                // carte, il lui faut de l'air avant la carte suivante.
+                +   'margin-bottom:22px;padding:14px 14px 16px;">'
                 +   _lieuHtml
                 +   '<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px;">'
                 +     '<div style="font-size:0.56em;letter-spacing:2.5px;color:#4ade80;font-weight:900;">◈ TON CORPS</div>'
@@ -23143,7 +23152,7 @@
                 +     '</div>'
                 +   '</div>'
                 +   '<svg viewBox="0 0 200 298" style="width:100%;max-width:210px;height:auto;display:block;margin:0 auto;">'
-                +     '<image href="' + img + '?v=906" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=909" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -24164,6 +24173,131 @@
             
             return searchTerm || muscleFilter || difficultyFilter || equipmentFilter || disciplineFilter || isShowingFavoritesOnly;
         }
+
+
+        // ══════════════════════════════════════════════════════════════
+        // 🔎 FILTRES EN PASTILLES — bibliothèque d'exercices
+        // --------------------------------------------------------------
+        // Avant : 5 listes déroulantes empilées (59 options au total) et DEUX
+        // champs de recherche. Sur mobile, une liste de 24 entrées demande un
+        // tap, un défilement et un second tap ; les cinq occupaient l'écran
+        // avant qu'on voie un seul exercice.
+        // ⚠️ Les <select> d'origine sont CONSERVÉS, masqués : filterExercises()
+        // lit leur `.value`. Les pastilles écrivent dedans puis déclenchent le
+        // filtrage — aucune logique de filtrage n'est touchée.
+        // ══════════════════════════════════════════════════════════════
+        function _pillOptions(selectId) {
+            const sel = document.getElementById(selectId);
+            if (!sel) return [];
+            return Array.from(sel.options).map(o => ({ v: o.value, t: o.textContent.trim() }));
+        }
+
+        function awakSetFilter(selectId, valeur) {
+            const sel = document.getElementById(selectId);
+            if (!sel) return;
+            sel.value = valeur;
+            try { if (typeof filterExercises === 'function') filterExercises(); } catch (e) {}
+            renderExerciseFilterBar();
+        }
+        window.awakSetFilter = awakSetFilter;
+
+        function awakResetFilters() {
+            ['muscleFilter', 'equipmentFilter', 'difficultyFilter', 'typeFilter', 'disciplineFilter']
+                .forEach(id => { const s = document.getElementById(id); if (s) s.value = ''; });
+            const si = document.getElementById('searchInput');
+            if (si) si.value = '';
+            try { if (typeof filterExercises === 'function') filterExercises(); } catch (e) {}
+            renderExerciseFilterBar();
+        }
+        window.awakResetFilters = awakResetFilters;
+
+        // Rangée de pastilles pour un filtre donné
+        function _pillRow(selectId, label) {
+            const opts = _pillOptions(selectId);
+            if (!opts.length) return '';
+            const sel = document.getElementById(selectId);
+            const courant = sel ? sel.value : '';
+            const pastilles = opts.map(o => {
+                const actif = o.v === courant;
+                return '<button onclick="awakSetFilter(\'' + selectId + '\',\'' + String(o.v).replace(/'/g, "\\'") + '\')" '
+                    + 'style="flex-shrink:0;padding:7px 13px;border-radius:99px;cursor:pointer;'
+                    + 'font-size:0.7em;font-weight:800;white-space:nowrap;transition:all .15s;'
+                    + 'background:' + (actif ? 'rgba(74,222,128,0.16)' : 'rgba(255,255,255,0.04)') + ';'
+                    + 'border:1px solid ' + (actif ? 'rgba(74,222,128,0.5)' : 'rgba(255,255,255,0.09)') + ';'
+                    + 'color:' + (actif ? '#4ade80' : '#94a3b8') + ';">' + o.t + '</button>';
+            }).join('');
+            return '<div style="margin-bottom:9px;">'
+                + '<div style="font-size:0.52em;letter-spacing:1.5px;color:#64748b;font-weight:900;margin-bottom:5px;">'
+                +   label + '</div>'
+                + '<div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:3px;-webkit-overflow-scrolling:touch;">'
+                +   pastilles + '</div></div>';
+        }
+
+        // Filtres actifs, avec une croix pour retirer chacun
+        function _activeChips() {
+            const defs = [
+                ['muscleFilter', '💪'], ['equipmentFilter', '🎒'],
+                ['difficultyFilter', '📊'], ['typeFilter', '🏷️'], ['disciplineFilter', '🥋']
+            ];
+            let chips = '';
+            defs.forEach(([id, ic]) => {
+                const sel = document.getElementById(id);
+                if (!sel || !sel.value) return;
+                const opt = Array.from(sel.options).find(o => o.value === sel.value);
+                if (!opt) return;
+                chips += '<button onclick="awakSetFilter(\'' + id + '\',\'\')" '
+                    + 'style="flex-shrink:0;display:inline-flex;align-items:center;gap:6px;padding:5px 10px;'
+                    + 'border-radius:99px;cursor:pointer;font-size:0.66em;font-weight:800;'
+                    + 'background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.35);color:#4ade80;">'
+                    + ic + ' ' + opt.textContent.trim()
+                    + '<span style="color:rgba(74,222,128,0.65);font-size:1.05em;line-height:1;">✕</span></button>';
+            });
+            if (!chips) return '';
+            return '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:10px;">'
+                + chips
+                + '<button onclick="awakResetFilters()" style="flex-shrink:0;padding:5px 10px;border-radius:99px;'
+                +   'cursor:pointer;font-size:0.64em;font-weight:800;background:transparent;'
+                +   'border:1px solid rgba(255,255,255,0.10);color:#64748b;">Tout effacer</button>'
+                + '</div>';
+        }
+
+        var _filtresPlus = false;
+        function awakToggleMoreFilters() {
+            _filtresPlus = !_filtresPlus;
+            renderExerciseFilterBar();
+        }
+        window.awakToggleMoreFilters = awakToggleMoreFilters;
+
+        // 🔗 Un SEUL champ de recherche visible. L'ancien #searchInput est
+        // masqué avec le bloc .filters, mais filterExercises() lit sa valeur :
+        // on la recopie depuis le champ visible pour que recherche et filtres
+        // se combinent au lieu de s'ignorer.
+        function awakSyncSearch(v) {
+            const si = document.getElementById('searchInput');
+            if (si) si.value = v || '';
+            try { if (typeof filterExercises === 'function') filterExercises(); } catch (e) {}
+        }
+        window.awakSyncSearch = awakSyncSearch;
+
+        function renderExerciseFilterBar() {
+            const host = document.getElementById('awakFilterBar');
+            if (!host) return;
+            host.innerHTML =
+                _activeChips()
+              + _pillRow('muscleFilter', '💪 MUSCLE')
+              + _pillRow('equipmentFilter', '🎒 MATÉRIEL')
+              + (_filtresPlus
+                  ? (_pillRow('disciplineFilter', '🥋 DISCIPLINE')
+                     + _pillRow('difficultyFilter', '📊 NIVEAU')
+                     + _pillRow('typeFilter', '🏷️ TYPE'))
+                  : '')
+              + '<button onclick="awakToggleMoreFilters()" style="width:100%;padding:9px;margin-top:2px;'
+              +   'border-radius:11px;cursor:pointer;background:rgba(255,255,255,0.03);'
+              +   'border:1px solid rgba(255,255,255,0.08);color:#94a3b8;font-size:0.66em;font-weight:800;'
+              +   'letter-spacing:1px;">'
+              +   (_filtresPlus ? '▲ MOINS DE FILTRES' : '⚙ PLUS DE FILTRES') + '</button>';
+        }
+        window.renderExerciseFilterBar = renderExerciseFilterBar;
 
         function filterExercises() {
             isShowingFavoritesOnly = false;
@@ -27543,7 +27677,7 @@
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=906");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=909");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -32087,7 +32221,7 @@
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url('images/faille_fermee_bg.webp?v=906');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url('images/faille_fermee_bg.webp?v=909');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <div style="font-size:3.4em;line-height:1;margin-bottom:10px;filter:drop-shadow(0 0 18px ${theme.color});animation:awakBriefFloat 4s ease-in-out infinite;">${theme.emoji}</div>
                     <div style="display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:9px;flex-wrap:wrap;">
@@ -33280,7 +33414,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=906');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=909');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -46491,7 +46625,7 @@
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=906");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=909");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.

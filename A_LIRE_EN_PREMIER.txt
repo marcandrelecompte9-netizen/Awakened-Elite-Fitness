@@ -76,7 +76,7 @@ B) VERSION TECHNIQUE DU CACHE = un compteur SÉPARÉ qui force la mise à
      - sw.js       : nom du cache "awakened-vNNN"
      - index.html  : les 39 "?v=NNN" sur les fichiers js/css
      - sw.js       : les "?v=NNN" des assets (manifest, icônes)
-   ⚠️  ÉTAT ACTUEL : v906. Prochain build = v907.
+   ⚠️  ÉTAT ACTUEL : v909. Prochain build = v910.
 
 
 ───────────────────────────────────────────────────────────────────────
@@ -163,16 +163,46 @@ n'est PLUS pratiquée. Le deploy est du source non minifié.
   7. CHANTIER EN COURS
 ───────────────────────────────────────────────────────────────────────
 
-IMAGES MANQUANTES — 24 exercices + 18 scènes narratives.
+IMAGES MANQUANTES — 14 exercices (10 Pilates livrés en v909) + 18 scènes narratives.
   • Liste détaillée + descriptions visuelles :
     /mnt/user-data/outputs/images-manquantes.txt
     (l'ancien fichier Excel Awakened_images_exercices.xlsx N'EXISTE PLUS)
   • Exercices manquants : 11 musculation (tirage/biceps au poids du
     corps), 10 Pilates, 3 gainage.
-  • Convention de nommage : accents CONSERVÉS, espaces → _
-    (ex. Fentes_arrière.webp)
-  • L'utilisateur crée les images lui-même et les envoie en zip.
+  • L'utilisateur crée les images lui-même et les envoie.
     Claude ne génère PAS d'images.
+
+  ┌─ PROCÉDURE À SUIVRE QUAND IL ENVOIE DES IMAGES D'EXERCICES ─────┐
+  │                                                                  │
+  │ 1. LIRE le texte écrit EN BAS de chaque image : c'est le nom     │
+  │    de l'exercice.                                                │
+  │                                                                  │
+  │ 2. VÉRIFIER ce nom dans la base (js/exercises.js +               │
+  │    js/disciplines.js). Le nom du FICHIER doit correspondre au    │
+  │    nom EXACT de l'exercice, sinon le mapping échoue en silence.  │
+  │                                                                  │
+  │ 3. NOMMER le fichier : accents CONSERVÉS, espaces → _,           │
+  │    parenthèses SUPPRIMÉES.                                       │
+  │      « Sirène (Mermaid) »  →  Sirène_Mermaid.webp                │
+  │      « Fentes arrière »    →  Fentes_arrière.webp                │
+  │                                                                  │
+  │ 4. RETIRER le bandeau de texte du bas (recadrage). Détecter sa   │
+  │    hauteur en cherchant les lignes contenant du VERT vif, puis   │
+  │    remonter jusqu'à retrouver l'image. La hauteur du bandeau     │
+  │    VARIE d'une image à l'autre (120 à 250 px) — ne jamais        │
+  │    couper une hauteur fixe.                                      │
+  │                                                                  │
+  │ 5. CONVERTIR en .webp, largeur 640, qualité 84.                  │
+  │                                                                  │
+  │ 6. VÉRIFIER visuellement qu'aucun texte ne subsiste en bas       │
+  │    (assembler les bandes inférieures et les regarder).           │
+  │                                                                  │
+  │ 7. LIVRER dans un zip SÉPARÉ (ex. images-exercices-XXX.zip),     │
+  │    en plus de les copier dans images/exercises/.                 │
+  │                                                                  │
+  │ 8. AJOUTER le mapping dans js/exercise-visuals.js si le nom du   │
+  │    fichier ne se déduit pas automatiquement du nom d'exercice.   │
+  └──────────────────────────────────────────────────────────────────┘
 
 
 ───────────────────────────────────────────────────────────────────────
@@ -180,7 +210,7 @@ IMAGES MANQUANTES — 24 exercices + 18 scènes narratives.
 ───────────────────────────────────────────────────────────────────────
 
   • Version affichée : v0.90 · awakened
-  • Cache technique  : v906  (prochain build = v907)
+  • Cache technique  : v909  (prochain build = v910)
   • Exercices        : 452 (base) · 713 (avec disciplines)
   • Objets           : 397  (11 sets, tous complétables)
   • Événements       : 57 narratifs (39 illustrés)
