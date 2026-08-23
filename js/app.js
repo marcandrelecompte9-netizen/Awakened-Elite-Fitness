@@ -11391,6 +11391,108 @@
         }
         window.getManualPlanTodayMuscles = getManualPlanTodayMuscles;
 
+
+        // ══════════════════════════════════════════════════════════════
+        // 📅 BANDEAU « CETTE SEMAINE » — accueil
+        // --------------------------------------------------------------
+        // Le plan hebdo vit dans l'onglet Entraîner, où l'on va pour le
+        // MODIFIER. Mais la question « qu'est-ce que je fais aujourd'hui ? »
+        // se pose à l'ACCUEIL. On y met donc un bandeau compact — 7 pastilles
+        // et la séance du jour — plutôt que la carte entière : l'accueil
+        // compte déjà 15 cartes, en ajouter une pleine l'alourdirait.
+        // Un tap ouvre le plan complet, là où on peut l'éditer.
+        // ══════════════════════════════════════════════════════════════
+        function renderHomeWeekStrip() {
+            const host = document.getElementById('homeWeekStrip');
+            if (!host) return;
+            let plan = {};
+            try { plan = (typeof getManualWeeklyPlan === 'function') ? getManualWeeklyPlan() : {}; } catch (e) {}
+
+            const aPlan = Object.keys(plan).length > 0
+                && Object.values(plan).some(d => d && d.muscles && d.muscles.length);
+            // 📭 SANS PLAN : on affiche une invitation au lieu de rien. La carte
+            // de l'onglet Entraîner ayant été retirée, c'est désormais le SEUL
+            // point d'entrée pour créer un plan — le masquer le rendrait
+            // inaccessible.
+            if (!aPlan) {
+                host.innerHTML =
+                    '<div onclick="openManualPlanEditor()" style="cursor:pointer;background:rgba(255,255,255,0.03);'
+                  +   'border:1px dashed rgba(148,163,184,0.28);border-radius:16px;padding:13px 14px;margin-bottom:12px;'
+                  +   'display:flex;align-items:center;gap:11px;">'
+                  +   '<span style="font-size:1.2em;">📅</span>'
+                  +   '<span style="flex:1;min-width:0;">'
+                  +     '<span style="display:block;font-size:0.52em;letter-spacing:1.5px;color:#64748b;font-weight:900;">CETTE SEMAINE</span>'
+                  +     '<span style="display:block;font-size:0.76em;color:#94a3b8;">Aucun plan — touche pour organiser ta semaine</span>'
+                  +   '</span>'
+                  +   '<span style="color:#64748b;flex-shrink:0;">›</span>'
+                  + '</div>';
+                return;
+            }
+
+            const JOURS = (typeof MANUAL_PLAN_DAYS !== 'undefined')
+                ? MANUAL_PLAN_DAYS : ['lundi','mardi','mercredi','jeudi','vendredi','samedi','dimanche'];
+            const LETTRES = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
+            const todayIdx = (new Date().getDay() + 6) % 7;
+
+            // Jours déjà entraînés cette semaine (lundi → aujourd'hui)
+            let faits = {};
+            try {
+                const hist = (typeof getWorkoutHistory === 'function') ? getWorkoutHistory() : [];
+                const now = new Date();
+                const lundi = new Date(now);
+                lundi.setDate(now.getDate() - todayIdx);
+                lundi.setHours(0, 0, 0, 0);
+                hist.forEach(w => {
+                    const d = new Date(w.date || w.completedAt || 0);
+                    if (d >= lundi) faits[(d.getDay() + 6) % 7] = true;
+                });
+            } catch (e) {}
+
+            let pastilles = '';
+            JOURS.forEach((jour, i) => {
+                const j = plan[jour];
+                const prevu = !!(j && j.muscles && j.muscles.length);
+                const estAuj = i === todayIdx;
+                const fait = !!faits[i];
+                // 🎨 Une seule couleur d'accent (vert) : fait = plein,
+                // prévu = bordure, repos = discret. Pas d'arc-en-ciel.
+                const bg = fait ? '#4ade80' : (estAuj ? 'rgba(74,222,128,0.14)' : 'rgba(255,255,255,0.03)');
+                const bord = estAuj ? '#4ade80' : (prevu ? 'rgba(148,163,184,0.35)' : 'rgba(255,255,255,0.07)');
+                const col = fait ? '#04210f' : (estAuj ? '#4ade80' : (prevu ? '#cbd5e1' : '#475569'));
+                pastilles += '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">'
+                    + '<div style="width:100%;aspect-ratio:1;max-width:34px;border-radius:10px;'
+                    +   'background:' + bg + ';border:1.5px solid ' + bord + ';'
+                    +   'display:flex;align-items:center;justify-content:center;'
+                    +   'font-size:0.72em;font-weight:900;color:' + col + ';">'
+                    +   (fait ? '✓' : LETTRES[i]) + '</div>'
+                    + '<div style="width:4px;height:4px;border-radius:99px;background:'
+                    +   (prevu ? 'rgba(148,163,184,0.5)' : 'transparent') + ';"></div>'
+                    + '</div>';
+            });
+
+            const auj = plan[JOURS[todayIdx]];
+            const ligne = (auj && auj.muscles && auj.muscles.length)
+                ? ('<strong style="color:#e2e8f0;">Aujourd\'hui</strong>'
+                   + '<span style="color:#475569;"> · </span>'
+                   + '<span style="color:#94a3b8;">' + auj.muscles.slice(0, 3).join(', ')
+                   + (auj.muscles.length > 3 ? '…' : '') + '</span>')
+                : '<span style="color:#94a3b8;">Repos aujourd\'hui — profites-en pour récupérer</span>';
+
+            host.innerHTML =
+                // ⚠️ Ouvre l'ÉDITEUR directement : la carte du plan a été retirée
+                // de l'onglet Entraîner (v899), y renvoyer ne mènerait nulle part.
+                '<div onclick="openManualPlanEditor()" style="cursor:pointer;background:rgba(255,255,255,0.03);'
+              +   'border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:13px 14px;margin-bottom:12px;">'
+              +   '<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:9px;">'
+              +     '<span style="font-size:0.56em;letter-spacing:2px;color:#94a3b8;font-weight:900;">◈ CETTE SEMAINE</span>'
+              +     '<span style="font-size:0.6em;color:#475569;">modifier ›</span>'
+              +   '</div>'
+              +   '<div style="display:flex;gap:6px;margin-bottom:9px;">' + pastilles + '</div>'
+              +   '<div style="font-size:0.72em;">' + ligne + '</div>'
+              + '</div>';
+        }
+        window.renderHomeWeekStrip = renderHomeWeekStrip;
+
         function renderManualWeeklyPlanCard() {
             const container = document.getElementById('manualWeeklyPlanCard');
             if (!container) return;
@@ -21786,6 +21888,9 @@
             // Initialize tab-specific content
             if (tabName === 'home') {
                 updateHomeStats(); renderWeeklyMuscleVolume();
+                // 📅 Bandeau « Cette semaine » : recalculé à chaque affichage
+                // (le jour courant et les séances faites changent).
+                try { if (typeof renderHomeWeekStrip === 'function') renderHomeWeekStrip(); } catch (e) {}
             } else if (tabName === 'workouts') {
                 // 🫀 Corps du Chasseur : recalculé à chaque affichage, puisque
                 // la récupération avance avec le temps.
@@ -21795,6 +21900,9 @@
                 } catch (e) {}
                 renderActivePlan();
                 renderLocationBtns();
+                // 📍 Bouton de lieu compact (l'ancienne rangée reste rendue
+                // dans son conteneur masqué : d'autres écrans la lisent).
+                try { if (typeof renderLocationChip === 'function') renderLocationChip(); } catch (e) {}
                 renderDeloadBanner();
                 // 📅 Render le plan hebdo manuel (Phase 6)
                 if (typeof renderManualWeeklyPlanCard === 'function') renderManualWeeklyPlanCard();
@@ -22995,7 +23103,7 @@
                 +     '</div>'
                 +   '</div>'
                 +   '<svg viewBox="0 0 200 298" style="width:100%;max-width:210px;height:auto;display:block;margin:0 auto;">'
-                +     '<image href="' + img + '?v=896" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=901" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -25814,6 +25922,113 @@
             if (!silencieux && etaitActif) showToast('Mode salle bondée désactivé', 'info', 1500);
         }
 
+
+        // ══════════════════════════════════════════════════════════════
+        // 📍 BOUTON DE LIEU COMPACT
+        // --------------------------------------------------------------
+        // Le lieu est un RÉGLAGE (on en change quelques fois par an), pas un
+        // contenu. Il occupait pourtant un bloc entier entre l'action
+        // principale et les programmes. Il devient une ligne : le lieu actif
+        // + son matériel. Un tap ouvre le choix ; un second bouton mène à
+        // l'édition du matériel de CE lieu.
+        // ══════════════════════════════════════════════════════════════
+        function renderLocationChip() {
+            const host = document.getElementById('locationChipHost');
+            if (!host) return;
+            let loc = null;
+            try { loc = (typeof getActiveLocation === 'function') ? getActiveLocation() : null; } catch (e) {}
+            if (!loc) { host.innerHTML = ''; return; }
+
+            const nbEquip = (loc.equipment && loc.equipment.length) ? loc.equipment.length : 0;
+            const resume = nbEquip
+                ? (nbEquip + ' équipement' + (nbEquip > 1 ? 's' : ''))
+                : 'Poids du corps';
+
+            host.innerHTML =
+                '<div style="display:flex;gap:8px;margin-bottom:12px;">'
+              +   '<button onclick="showLocationPicker()" style="flex:1;min-width:0;display:flex;align-items:center;'
+              +     'gap:10px;padding:11px 13px;border-radius:14px;cursor:pointer;text-align:left;'
+              +     'background:rgba(255,255,255,0.04);border:1px solid rgba(148,163,184,0.20);">'
+              +     '<span style="font-size:1.25em;flex-shrink:0;">' + (loc.icon || '📍') + '</span>'
+              +     '<span style="flex:1;min-width:0;">'
+              +       '<span style="display:block;font-size:0.52em;letter-spacing:1.5px;color:#64748b;font-weight:900;">LIEU</span>'
+              +       '<span style="display:block;font-size:0.82em;font-weight:800;color:#e2e8f0;'
+              +         'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (loc.name || 'Lieu') + '</span>'
+              +     '</span>'
+              +     '<span style="color:#64748b;font-size:0.95em;flex-shrink:0;">›</span>'
+              +   '</button>'
+              +   '<button onclick="showAddLocationModal(\'' + String(loc.id).replace(/'/g, "\\'") + '\')" '
+              +     'style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;'
+              +     'gap:2px;padding:11px 13px;border-radius:14px;cursor:pointer;'
+              +     'background:rgba(255,255,255,0.04);border:1px solid rgba(148,163,184,0.20);">'
+              +     '<span style="font-size:1.05em;">🎒</span>'
+              +     '<span style="font-size:0.5em;color:#94a3b8;font-weight:800;letter-spacing:0.5px;white-space:nowrap;">'
+              +       resume + '</span>'
+              +   '</button>'
+              + '</div>';
+        }
+        window.renderLocationChip = renderLocationChip;
+
+        // Choix du lieu : liste simple, pas une rangée qui défile.
+        function showLocationPicker() {
+            document.getElementById('awakLocPicker')?.remove();
+            let profiles = [];
+            try { profiles = (typeof getLocationProfiles === 'function') ? getLocationProfiles() : []; } catch (e) {}
+            let actif = null;
+            try { actif = (typeof getActiveLocation === 'function') ? getActiveLocation() : null; } catch (e) {}
+
+            const ov = document.createElement('div');
+            ov.id = 'awakLocPicker';
+            ov.style.cssText = 'position:fixed;inset:0;z-index:11000;background:rgba(0,0,0,0.88);'
+                + 'backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:16px;';
+
+            const lignes = profiles.map(function (p) {
+                const sel = actif && p.id === actif.id;
+                const n = (p.equipment && p.equipment.length) ? p.equipment.length : 0;
+                return '<button onclick="_awakPickLocation(\'' + String(p.id).replace(/'/g, "\\'") + '\')" '
+                    + 'style="width:100%;display:flex;align-items:center;gap:12px;padding:13px 14px;margin-bottom:8px;'
+                    + 'border-radius:14px;cursor:pointer;text-align:left;'
+                    + 'background:' + (sel ? 'rgba(74,222,128,0.10)' : 'rgba(255,255,255,0.03)') + ';'
+                    + 'border:1px solid ' + (sel ? 'rgba(74,222,128,0.45)' : 'rgba(255,255,255,0.08)') + ';">'
+                    + '<span style="font-size:1.4em;">' + (p.icon || '📍') + '</span>'
+                    + '<span style="flex:1;min-width:0;">'
+                    +   '<span style="display:block;font-size:0.88em;font-weight:800;color:#f1f5f9;">' + (p.name || 'Lieu') + '</span>'
+                    +   '<span style="display:block;font-size:0.68em;color:#94a3b8;margin-top:1px;">'
+                    +     (n ? n + ' équipement' + (n > 1 ? 's' : '') : 'Poids du corps') + '</span>'
+                    + '</span>'
+                    + (sel ? '<span style="color:#4ade80;font-size:1.1em;">✓</span>' : '')
+                    + '</button>';
+            }).join('');
+
+            ov.innerHTML =
+                '<div style="width:100%;max-width:420px;background:linear-gradient(160deg,#12141a,#0b0c10);'
+              +   'border:1px solid rgba(148,163,184,0.22);border-radius:20px;padding:18px;">'
+              +   '<div style="width:36px;height:4px;background:rgba(255,255,255,0.18);border-radius:99px;margin:0 auto 16px;"></div>'
+              +   '<div style="font-size:0.56em;letter-spacing:2.5px;color:#94a3b8;font-weight:900;margin-bottom:4px;">◈ OÙ T\'ENTRAÎNES-TU ?</div>'
+              +   '<div style="font-size:0.72em;color:#64748b;margin-bottom:14px;line-height:1.45;">'
+              +     'Le lieu détermine le matériel disponible pour tes séances.</div>'
+              +   lignes
+              +   '<button onclick="showAddLocationModal()" style="width:100%;padding:12px;margin-top:2px;'
+              +     'border-radius:13px;cursor:pointer;background:rgba(255,255,255,0.04);'
+              +     'border:1px dashed rgba(148,163,184,0.3);color:#94a3b8;font-size:0.76em;font-weight:800;">'
+              +     '+ Nouveau lieu</button>'
+              +   '<button onclick="document.getElementById(\'awakLocPicker\').remove()" '
+              +     'style="width:100%;padding:11px;margin-top:8px;border-radius:13px;cursor:pointer;'
+              +     'background:transparent;border:none;color:#64748b;font-size:0.74em;font-weight:800;letter-spacing:1px;">'
+              +     'FERMER</button>'
+              + '</div>';
+            ov.onclick = function (e) { if (e.target === ov) ov.remove(); };
+            document.body.appendChild(ov);
+        }
+        window.showLocationPicker = showLocationPicker;
+
+        function _awakPickLocation(id) {
+            document.getElementById('awakLocPicker')?.remove();
+            try { if (typeof switchLocation === 'function') switchLocation(id); } catch (e) {}
+            try { renderLocationChip(); } catch (e) {}
+        }
+        window._awakPickLocation = _awakPickLocation;
+
         function renderLocationBtns() {
             const row = document.getElementById('locationBtnsRow');
             if (!row) return;
@@ -27252,7 +27467,7 @@
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=896");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=901");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -31796,7 +32011,7 @@
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url('images/faille_fermee_bg.webp?v=896');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url('images/faille_fermee_bg.webp?v=901');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <div style="font-size:3.4em;line-height:1;margin-bottom:10px;filter:drop-shadow(0 0 18px ${theme.color});animation:awakBriefFloat 4s ease-in-out infinite;">${theme.emoji}</div>
                     <div style="display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:9px;flex-wrap:wrap;">
@@ -32989,7 +33204,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=896');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=901');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -46200,7 +46415,7 @@
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=896");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=901");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.

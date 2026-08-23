@@ -234,6 +234,64 @@
 
   // ══════════════════════════════════════════════════════════════════
 
+
+  // 👨‍👩‍👧 GESTION DE LA FAMILLE — modale unique.
+  // La carte « Ma famille » restait sous la constellation uniquement parce
+  // qu'elle portait l'ajout de membre et le journal. On la déplace ici pour
+  // que la constellation soit le seul point d'entrée de l'onglet.
+  window.AwakFamilyManage = function () {
+    document.getElementById('awakFamilyManage')?.remove();
+    var ov = document.createElement('div');
+    ov.id = 'awakFamilyManage';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:11000;background:rgba(0,0,0,0.88);'
+      + 'backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;'
+      + 'padding:16px;overflow-y:auto;';
+    var contenu = '';
+    try {
+      contenu = (window.AwakFamily && typeof window.AwakFamily.renderCard === 'function')
+        ? window.AwakFamily.renderCard() : '';
+    } catch (e) {}
+    ov.innerHTML =
+      '<div style="width:100%;max-width:460px;margin:auto;">'
+    +   '<div style="width:36px;height:4px;background:rgba(255,255,255,0.18);border-radius:99px;margin:0 auto 14px;"></div>'
+    +   (contenu || '<div style="color:#64748b;text-align:center;padding:24px;">Aucune famille pour l\'instant.</div>')
+    +   '<button onclick="document.getElementById(\'awakFamilyManage\').remove()" '
+    +     'style="width:100%;padding:12px;margin-top:4px;border-radius:13px;cursor:pointer;'
+    +     'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);'
+    +     'color:#94a3b8;font-size:0.75em;font-weight:800;letter-spacing:1px;">FERMER</button>'
+    + '</div>';
+    ov.onclick = function (e) { if (e.target === ov) ov.remove(); };
+    document.body.appendChild(ov);
+  };
+
+  // 📖 Journal familial en modale (même raison).
+  window.AwakFamilyFeedOpen = function () {
+    document.getElementById('awakFamilyFeed')?.remove();
+    var ov = document.createElement('div');
+    ov.id = 'awakFamilyFeed';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:11000;background:rgba(0,0,0,0.88);'
+      + 'backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;'
+      + 'padding:16px;overflow-y:auto;';
+    var contenu = '';
+    try {
+      contenu = (window.AwakFamilyFeed && typeof window.AwakFamilyFeed.render === 'function')
+        ? window.AwakFamilyFeed.render() : '';
+    } catch (e) {}
+    ov.innerHTML =
+      '<div style="width:100%;max-width:460px;margin:auto;background:linear-gradient(160deg,#12101a,#0b0b0f);'
+    +   'border:1px solid rgba(236,72,153,0.22);border-radius:20px;padding:18px;">'
+    +   '<div style="width:36px;height:4px;background:rgba(255,255,255,0.18);border-radius:99px;margin:0 auto 14px;"></div>'
+    +   '<div style="font-size:0.56em;letter-spacing:2.5px;color:#ec4899;font-weight:900;margin-bottom:12px;">◈ JOURNAL FAMILIAL</div>'
+    +   (contenu || '<div style="color:#64748b;text-align:center;padding:20px;font-size:0.85em;">Rien à raconter pour l\'instant.</div>')
+    +   '<button onclick="document.getElementById(\'awakFamilyFeed\').remove()" '
+    +     'style="width:100%;padding:12px;margin-top:12px;border-radius:13px;cursor:pointer;'
+    +     'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);'
+    +     'color:#94a3b8;font-size:0.75em;font-weight:800;letter-spacing:1px;">FERMER</button>'
+    + '</div>';
+    ov.onclick = function (e) { if (e.target === ov) ov.remove(); };
+    document.body.appendChild(ov);
+  };
+
   // ✦ MENU D'UNE ÉTOILE — toucher un membre ouvre ses actions.
   // Avant, toucher envoyait directement un encouragement : c'était la seule
   // interaction possible et elle ne laissait aucun choix. Le menu ouvre les
@@ -276,7 +334,10 @@
     +   'border:1px solid rgba(236,72,153,0.28);border-radius:20px 20px 16px 16px;padding:18px;">'
     +   '<div style="width:36px;height:4px;background:rgba(255,255,255,0.18);border-radius:99px;margin:0 auto 16px;"></div>'
     +   '<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">'
-    +     '<div style="font-size:1.9em;">' + esc(lien.member.avatar || '🙂') + '</div>'
+    // ⚠️ _av() et non esc() : les avatars modernes sont des clés « av:… »
+    // qui doivent devenir un SVG. Sans conversion, la clé s'affichait en
+    // texte brut (« av:sword ») à la place de l'image.
+    +     '<div style="flex-shrink:0;">' + _av(lien.member.avatar, 40) + '</div>'
     +     '<div style="flex:1;min-width:0;">'
     +       '<div style="font-size:1.05em;font-weight:900;color:#fff;">' + esc(lien.member.name || 'Membre') + '</div>'
     +       '<div style="font-size:0.7em;color:#ec4899;font-weight:700;">'
@@ -427,7 +488,7 @@
       +     '<defs><filter id="constLueur"><feGaussianBlur stdDeviation="3" result="b"/>'
       +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>'
       // 🌌 Nébuleuse de fond : remplace la poussière d'étoiles dessinée.
-      +     '<image href="images/constellation_bg.webp?v=896" x="0" y="0" width="300" height="300" '
+      +     '<image href="images/constellation_bg.webp?v=901" x="0" y="0" width="300" height="300" '
       +       'preserveAspectRatio="xMidYMid slice" opacity="0.95"/>'
       +     anneau
       +     fils
@@ -463,6 +524,16 @@
                     : (total
                         ? ('<span style="color:#4ade80;font-weight:800;">' + total + ' séance' + (total > 1 ? 's' : '') + ' cette semaine</span><span style="color:#475569;"> — touche une étoile pour encourager</span>')
                         : '<span style="color:#64748b;">Le ciel est calme. Une séance et il s\'allume.</span>')))
+      +   '</div>'
+      // 👨‍👩‍👧 Deux accès discrets, pour ce que la constellation ne peut pas
+      // montrer : ajouter/retirer un membre, et l'historique familial.
+      +   '<div style="display:flex;border-top:1px solid rgba(255,255,255,0.06);">'
+      +     '<button onclick="AwakFamilyManage()" style="flex:1;padding:11px;background:transparent;'
+      +       'border:none;border-right:1px solid rgba(255,255,255,0.06);color:#94a3b8;'
+      +       'font-size:0.64em;font-weight:800;letter-spacing:1px;cursor:pointer;">👨‍👩‍👧 MA FAMILLE</button>'
+      +     '<button onclick="AwakFamilyFeedOpen()" style="flex:1;padding:11px;background:transparent;'
+      +       'border:none;color:#94a3b8;font-size:0.64em;font-weight:800;letter-spacing:1px;cursor:pointer;">'
+      +       '📖 JOURNAL</button>'
       +   '</div>'
       + '</div>';
   }

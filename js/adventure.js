@@ -1039,12 +1039,14 @@ function renderFamilyTab() {
     // ne s'affichent QUE si elles sont actives — c'est là qu'on suit la
     // progression en détail, ce que l'anneau ne montre qu'en pourcentage.
     // « Ma famille » reste : elle seule permet d'AJOUTER un membre.
+    // 🧹 « Ma famille » et le journal sont désormais dans des MODALES ouvertes
+    // depuis le pied de la constellation (v900). Ne restent affichées que les
+    // cartes qui montrent une progression EN COURS — l'anneau donne un
+    // pourcentage, ces cartes donnent le détail par membre.
     html += constCard
           + (goalActif ? goalCard : '')
           + (coopActif ? coopCard : '')
-          + nudgeCard
-          + familyCard
-          + feedAccordion;
+          + nudgeCard;
 
     // Filet de sécurité
     if (!constCard && !familyCard && !nudgeCard && !challengeCard && !goalCard && !feedCard && !duoGamesCard && !coopCard) {

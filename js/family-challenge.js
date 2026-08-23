@@ -577,7 +577,7 @@
       + '<div style="height:100%;width:' + st.pct + '%;background:linear-gradient(90deg,#22d3ee,#4ade80);border-radius:99px;"></div></div>';
     var membres = st.perMember.map(function (m) {
       return '<div style="display:flex;align-items:center;gap:7px;font-size:0.74em;color:#cbd5e1;padding:3px 0;">'
-        + '<span>' + esc(m.avatar) + '</span><span style="flex:1;">' + esc(m.name) + '</span>'
+        + '<span>' + _av(m.avatar, 22) + '</span><span style="flex:1;">' + esc(m.name) + '</span>'
         + '<span style="color:#22d3ee;font-weight:800;">' + m.value + ' ' + esc(d.unit) + '</span></div>';
     }).join('') || '<div style="font-size:0.72em;color:#64748b;">Aucune contribution pour l\'instant.</div>';
 
@@ -606,6 +606,13 @@
   // 🏠 HUB : ouvrir les cartes en MODALE plutôt que de les empiler dans l'onglet.
   // Le contenu est celui des cartes existantes — aucun rendu dupliqué.
   function _modale(titre, contenuHtml, id) {
+    // ⚠️ On retire TOUTES les modales famille, pas seulement celle du même id.
+    // Avant : seule `id` était supprimée, donc ouvrir « Jouer à deux » depuis
+    // le menu d'une étoile empilait la nouvelle modale SOUS l'ancienne —
+    // il fallait fermer la première à la main pour voir la seconde.
+    ['awakCoopModal', 'awakChallengeModal', 'awakGamesModal',
+     'awakConstMenu', 'awakFamilyManage', 'awakFamilyFeed', 'awakLocPicker']
+      .forEach(function (m) { var e = document.getElementById(m); if (e) e.remove(); });
     var old = document.getElementById(id);
     if (old) old.remove();
     var ov = document.createElement('div');
