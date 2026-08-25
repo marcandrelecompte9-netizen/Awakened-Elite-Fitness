@@ -11,11 +11,11 @@
     <title>Awakened Elite Fitness</title>
 
     <!-- PWA -->
-    <link rel="manifest" href="manifest.json?v=928">
-    <link rel="apple-touch-icon" href="icons/icon-192.png?v=928">
-    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=928">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=928">
-    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=928">
+    <link rel="manifest" href="manifest.json?v=932">
+    <link rel="apple-touch-icon" href="icons/icon-192.png?v=932">
+    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=932">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=932">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=932">
 
     <!-- ⚠️ CAPTURE PRÉCOCE DE L'INVITE D'INSTALLATION.
          Chrome déclenche « beforeinstallprompt » très tôt, souvent AVANT la fin
@@ -44,7 +44,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=928">
+    <link rel="stylesheet" href="css/style.css?v=932">
 </head>
 <body>
 
@@ -202,7 +202,7 @@
                 max-width: 900px;">
 
             <!-- Bannière image : ratio préservé -->
-            <img src="images/banner.png?v=928"
+            <img src="images/banner_v2.webp?v=932"
                  alt="Awakened Elite Fitness"
                  style="width:100%;height:auto;display:block;" />
 
@@ -266,10 +266,6 @@
         <!-- Home Tab -->
         <div id="homeTab" class="tab-content active">
 
-            <!-- ═══ 3. PROFIL & STATS GLOBALES (1 seul bloc consolidé) ═══ -->
-            <!-- 🏠 EN-TÊTE : 4 tuiles d'état, bloc central, 4 accès rapides.
-                 Rempli par renderHomeHeader(). Les cartes existantes suivent. -->
-            <div id="homeHeader"></div>
             <div class="card" id="profileCard" style="position:relative;overflow:hidden;padding:0;border:1px solid rgba(34,197,94,0.14);background:linear-gradient(155deg,#0a0d12 0%,#0d1a14 52%,#123524 100%);color:white;box-shadow:0 6px 28px rgba(0,0,0,0.45);">
 
                 <!-- Texture holographique : fines diagonales, écho du logo -->
@@ -326,6 +322,10 @@
                     </div>
                 </div>
             </div>
+            <!-- ═══ 3. PROFIL & STATS GLOBALES (1 seul bloc consolidé) ═══ -->
+            <!-- 🏠 EN-TÊTE : 4 tuiles d'état, bloc central, 4 accès rapides.
+                 Rempli par renderHomeHeader(). Les cartes existantes suivent. -->
+            <div id="homeHeader"></div>
 
             <!-- ▶️ Reprise d'une séance interrompue (vide s'il n'y en a pas) -->
             <div id="resumeSessionCard"></div>
@@ -1328,25 +1328,25 @@
 
                     <!-- Groupe gauche : titre + chrono + volume -->
                     <div style="display:flex;align-items:center;gap:6px;flex:1;min-width:0;overflow:hidden;">
-                        <div id="workoutTopTitle" style="font-size:0.62em;color:#4ade80;font-weight:900;letter-spacing:2px;text-transform:uppercase;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;text-shadow:0 0 8px rgba(34,211,238,0.3);min-width:0;"></div>
+                        <div id="workoutTopTitle" style="font-size:0.62em;color:#cbd5e1;font-weight:900;letter-spacing:2px;text-transform:uppercase;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;text-shadow:0 0 8px rgba(34,211,238,0.3);min-width:0;"></div>
                         <!-- ⏱ Chrono session totale -->
-                        <div id="sessionTimerChip" style="display:flex;align-items:center;gap:4px;font-size:0.65em;background:rgba(34,211,238,0.1);border:1px solid rgba(34,211,238,0.4);padding:5px 8px;border-radius:6px;flex-shrink:0;color:#4ade80;font-weight:900;letter-spacing:0.5px;font-variant-numeric:tabular-nums;text-shadow:0 0 6px rgba(34,211,238,0.4);">
+                        <div id="sessionTimerChip" style="display:flex;align-items:center;gap:4px;font-size:0.65em;background:rgba(34,211,238,0.1);border:1px solid rgba(34,211,238,0.4);padding:5px 8px;border-radius:6px;flex-shrink:0;color:#cbd5e1;font-weight:900;letter-spacing:0.5px;font-variant-numeric:tabular-nums;text-shadow:0 0 6px rgba(34,211,238,0.4);">
                             <span style="font-size:1em;line-height:1;">⏱</span>
                             <span id="sessionTimerValue">00:00</span>
                         </div>
-                        <div id="liveVolumeChip" style="font-size:0.62em;background:rgba(34,211,238,0.1);border:1px solid rgba(34,211,238,0.4);padding:5px 9px;border-radius:6px;flex-shrink:0;color:#4ade80;font-weight:700;letter-spacing:0.5px;"></div>
+                        <div id="liveVolumeChip" style="font-size:0.62em;background:rgba(34,211,238,0.1);border:1px solid rgba(34,211,238,0.4);padding:5px 9px;border-radius:6px;flex-shrink:0;color:#cbd5e1;font-weight:700;letter-spacing:0.5px;"></div>
                     </div>
 
                     <!-- Groupe droite : actions (toujours visibles) -->
                     <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
                         <button onclick="toggleFullscreenMode()" title="Plein écran"
-                                style="background:rgba(34,211,238,0.1);color:#4ade80;border:1px solid rgba(34,211,238,0.4);
+                                style="background:rgba(34,211,238,0.1);color:#cbd5e1;border:1px solid rgba(34,211,238,0.4);
                                        border-radius:10px;padding:6px 9px;font-size:0.95em;font-weight:700;cursor:pointer;
                                        min-width:34px;min-height:34px;flex-shrink:0;touch-action:manipulation;transition:all 0.2s;">
                             ⛶
                         </button>
                         <button onclick="toggleWorkoutOptionsPanel()" id="sessionMenuBtn" title="Options" aria-label="Options"
-                                style="background:rgba(34,211,238,0.1);color:#4ade80;border:1px solid rgba(34,211,238,0.4);
+                                style="background:rgba(34,211,238,0.1);color:#cbd5e1;border:1px solid rgba(34,211,238,0.4);
                                        border-radius:10px;padding:6px 9px;font-size:0.95em;font-weight:900;cursor:pointer;
                                        min-width:34px;min-height:34px;flex-shrink:0;touch-action:manipulation;letter-spacing:2px;line-height:1;">
                             ···
@@ -1366,7 +1366,7 @@
                     <div style="position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0px,transparent 3px,rgba(34,211,238,0.012) 3px,rgba(34,211,238,0.012) 4px);pointer-events:none;z-index:0;"></div>
 
                     <!-- Workout Type Badge -->
-                    <div id="workoutTypeBadge" style="background:linear-gradient(90deg,rgba(34,211,238,0.12),rgba(34,211,238,0.04));border:1px solid rgba(34,211,238,0.4);color:#4ade80;padding:8px 16px;border-radius:6px;text-align:center;font-weight:900;font-size:0.7em;letter-spacing:2.5px;margin-bottom:10px;display:none;text-transform:uppercase;text-shadow:0 0 8px rgba(34,211,238,0.4);position:relative;z-index:1;">
+                    <div id="workoutTypeBadge" style="background:linear-gradient(90deg,rgba(34,211,238,0.12),rgba(34,211,238,0.04));border:1px solid rgba(34,211,238,0.4);color:#cbd5e1;padding:8px 16px;border-radius:6px;text-align:center;font-weight:900;font-size:0.7em;letter-spacing:2.5px;margin-bottom:10px;display:none;text-transform:uppercase;text-shadow:0 0 8px rgba(34,211,238,0.4);position:relative;z-index:1;">
                         🧠 Séance Intelligente
                     </div>
 
@@ -1385,7 +1385,7 @@
                             <div class="next-exercise-name" id="nextExerciseName" style="font-size:0.85em;color:#64748b;font-weight:700;">-</div>
                         </div>
                         <!-- Exercise number with HUD corners -->
-                        <div class="exercise-number" id="exerciseNumber" style="font-size:0.65em;color:#4ade80;font-weight:900;letter-spacing:3.5px;text-transform:uppercase;margin-bottom:8px;text-shadow:0 0 8px rgba(34,211,238,0.5);">Exercise 1/10</div>
+                        <div class="exercise-number" id="exerciseNumber" style="font-size:0.65em;color:#cbd5e1;font-weight:900;letter-spacing:3.5px;text-transform:uppercase;margin-bottom:8px;text-shadow:0 0 8px rgba(34,211,238,0.5);">Exercise 1/10</div>
                         <div class="exercise-name" id="exerciseName" style="font-family:var(--font-display);font-size:1.18em;font-weight:700;color:white;letter-spacing:-0.2px;line-height:1.15;margin-bottom:12px;text-transform:uppercase;text-shadow:0 0 10px rgba(34,211,238,0.2);">Échauffement</div>
                         <!-- Muscle Indicator (Tags style cyberpunk) - conservé pour JS, masqué visuellement -->
                         <div id="muscleBadge" style="display:none;"></div>
@@ -1393,7 +1393,7 @@
                              (repris de la maquette). Rempli par _updateRepsChip(). -->
                         <div id="repsRangeChip" style="display:none;margin:7px auto 0;padding:5px 14px;
                              border-radius:99px;background:rgba(74,222,128,0.12);
-                             border:1px solid rgba(74,222,128,0.35);color:#4ade80;
+                             border:1px solid rgba(74,222,128,0.35);color:#cbd5e1;
                              font-size:0.78em;font-weight:900;letter-spacing:0.5px;width:max-content;"></div>
                         <!-- (Timer déplacé dans le cadre image, coin haut-gauche) -->
 
@@ -1413,7 +1413,7 @@
                                 style="position:absolute;top:12px;right:12px;z-index:6;width:46px;height:46px;border-radius:50%;
                                        display:flex;align-items:center;justify-content:center;
                                        background:rgba(2,5,16,0.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
-                                       border:1px solid rgba(34,211,238,0.55);color:#4ade80;font-size:1.15em;cursor:pointer;line-height:1;
+                                       border:1px solid rgba(34,211,238,0.55);color:#cbd5e1;font-size:1.15em;cursor:pointer;line-height:1;
                                        box-shadow:0 2px 14px rgba(0,0,0,0.55),0 0 14px rgba(34,211,238,0.15);touch-action:manipulation;">⏸</button>
 
                         <!-- Timer (coin haut-gauche de l'image) -->
@@ -1445,7 +1445,7 @@
 
                                 <!-- Label "SÉRIE EN COURS" cyberpunk -->
                                 <div style="text-align:center;margin-bottom:14px;">
-                                    <div id="setIndicator" style="font-size:0.7em;font-weight:900;color:#4ade80;letter-spacing:3px;text-transform:uppercase;text-shadow:0 0 8px rgba(74,222,128,0.4);">SÉRIE 1 / 3</div>
+                                    <div id="setIndicator" style="font-size:0.7em;font-weight:900;color:#cbd5e1;letter-spacing:3px;text-transform:uppercase;text-shadow:0 0 8px rgba(74,222,128,0.4);">SÉRIE 1 / 3</div>
                                     <!-- 🏋️ Type de résistance (rempli dynamiquement par JS) -->
                                     <div id="resistanceTypeChip" style="display:none;margin-top:6px;font-size:0.58em;color:#94a3b8;font-weight:800;letter-spacing:2px;text-transform:uppercase;">
                                         <span style="background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.3);color:#c084fc;padding:3px 9px;border-radius:99px;">🏋️ <span id="resistanceTypeText">Poids du corps</span></span>
@@ -1459,7 +1459,7 @@
                                 <div id="completedSetsLog" style="margin-bottom:10px;display:none;"></div>
 
                                 <!-- 🚀 Surcharge progressive suggestion -->
-                                <div id="progressiveOverloadBanner" style="display:none;margin-bottom:10px;padding:10px 12px;background:linear-gradient(135deg,rgba(22,163,74,0.18),rgba(74,222,128,0.1));border:1px solid rgba(74,222,128,0.4);border-radius:10px;font-size:0.78em;color:#4ade80;font-weight:700;line-height:1.4;"></div>
+                                <div id="progressiveOverloadBanner" style="display:none;margin-bottom:10px;padding:10px 12px;background:linear-gradient(135deg,rgba(22,163,74,0.18),rgba(74,222,128,0.1));border:1px solid rgba(74,222,128,0.4);border-radius:10px;font-size:0.78em;color:#cbd5e1;font-weight:700;line-height:1.4;"></div>
 
                                 <!-- 💡 Suggestion de charge intelligente -->
                                 <div id="loadSuggestionContainer"></div>
@@ -1472,30 +1472,30 @@
                                     <!-- REPS - GROS CHIFFRES -->
                                     <div style="background:linear-gradient(180deg,#020510,#020510);padding:14px 10px;border-radius:10px;border:1px solid rgba(74,222,128,0.3);position:relative;overflow:hidden;">
                                         <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#4ade80,transparent);opacity:0.5;"></div>
-                                        <span style="display:block;font-size:0.6em;font-weight:900;margin-bottom:8px;color:#4ade80;text-transform:uppercase;letter-spacing:2.5px;text-align:center;text-shadow:0 0 6px rgba(74,222,128,0.4);">RÉPÉTITIONS</span>
+                                        <span style="display:block;font-size:0.6em;font-weight:900;margin-bottom:8px;color:#cbd5e1;text-transform:uppercase;letter-spacing:2.5px;text-align:center;text-shadow:0 0 6px rgba(74,222,128,0.4);">RÉPÉTITIONS</span>
                                         <div style="display:flex;align-items:center;gap:6px;">
-                                            <button type="button" onclick="document.getElementById('quickRepsInput').stepDown();document.getElementById('quickRepsInput').dispatchEvent(new Event('input'));" style="width:38px;height:38px;border-radius:50%;background:rgba(74,222,128,0.12);border:1.5px solid rgba(74,222,128,0.5);color:#4ade80;font-size:1.2em;font-weight:900;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 0 8px rgba(74,222,128,0.2);transition:all 0.2s;">−</button>
+                                            <button type="button" onclick="document.getElementById('quickRepsInput').stepDown();document.getElementById('quickRepsInput').dispatchEvent(new Event('input'));" style="width:38px;height:38px;border-radius:50%;background:rgba(74,222,128,0.12);border:1.5px solid rgba(74,222,128,0.5);color:#cbd5e1;font-size:1.2em;font-weight:900;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 0 8px rgba(74,222,128,0.2);transition:all 0.2s;">−</button>
                                             <input type="number" id="quickRepsInput" min="1" max="200" placeholder="10"
                                                    style="flex:1;min-width:0;box-sizing:border-box;padding:6px 2px;font-size:clamp(1.15rem,5vw,1.9em);font-weight:900;border:none;border-radius:10px;text-align:center;background:rgba(74,222,128,0.06);color:#ffffff;text-shadow:0 0 12px rgba(74,222,128,0.6);font-variant-numeric:tabular-nums;letter-spacing:-0.5px;outline:none;" />
-                                            <button type="button" onclick="document.getElementById('quickRepsInput').stepUp();document.getElementById('quickRepsInput').dispatchEvent(new Event('input'));" style="width:38px;height:38px;border-radius:50%;background:rgba(74,222,128,0.12);border:1.5px solid rgba(74,222,128,0.5);color:#4ade80;font-size:1.2em;font-weight:900;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 0 8px rgba(74,222,128,0.2);transition:all 0.2s;">+</button>
+                                            <button type="button" onclick="document.getElementById('quickRepsInput').stepUp();document.getElementById('quickRepsInput').dispatchEvent(new Event('input'));" style="width:38px;height:38px;border-radius:50%;background:rgba(74,222,128,0.12);border:1.5px solid rgba(74,222,128,0.5);color:#cbd5e1;font-size:1.2em;font-weight:900;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 0 8px rgba(74,222,128,0.2);transition:all 0.2s;">+</button>
                                         </div>
                                     </div>
                                     <!-- POIDS - GROS CHIFFRES -->
                                     <div id="quickWeightCard" style="background:linear-gradient(180deg,#020510,#020510);padding:14px 10px;border-radius:10px;border:1px solid rgba(74,222,128,0.3);position:relative;overflow:hidden;">
                                         <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#4ade80,transparent);opacity:0.5;"></div>
-                                        <span style="display:block;font-size:0.6em;font-weight:900;margin-bottom:8px;color:#4ade80;text-transform:uppercase;letter-spacing:2.5px;text-align:center;text-shadow:0 0 6px rgba(74,222,128,0.4);"><span data-weight-unit>CHARGE (KG)</span></span>
+                                        <span style="display:block;font-size:0.6em;font-weight:900;margin-bottom:8px;color:#cbd5e1;text-transform:uppercase;letter-spacing:2.5px;text-align:center;text-shadow:0 0 6px rgba(74,222,128,0.4);"><span data-weight-unit>CHARGE (KG)</span></span>
                                         <div style="display:flex;align-items:center;gap:6px;">
-                                            <button type="button" onclick="(function(){var i=document.getElementById('quickWeightInput');i.value=Math.max(0,(parseFloat(i.value)||0)-2.5);i.dispatchEvent(new Event('input'));})()" style="width:38px;height:38px;border-radius:50%;background:rgba(74,222,128,0.12);border:1.5px solid rgba(74,222,128,0.5);color:#4ade80;font-size:1.2em;font-weight:900;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 0 8px rgba(74,222,128,0.2);transition:all 0.2s;">−</button>
+                                            <button type="button" onclick="(function(){var i=document.getElementById('quickWeightInput');i.value=Math.max(0,(parseFloat(i.value)||0)-2.5);i.dispatchEvent(new Event('input'));})()" style="width:38px;height:38px;border-radius:50%;background:rgba(74,222,128,0.12);border:1.5px solid rgba(74,222,128,0.5);color:#cbd5e1;font-size:1.2em;font-weight:900;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 0 8px rgba(74,222,128,0.2);transition:all 0.2s;">−</button>
                                             <input type="number" id="quickWeightInput" min="0" step="0.5" placeholder="0"
                                                    style="flex:1;min-width:0;box-sizing:border-box;padding:6px 2px;font-size:clamp(1.15rem,5vw,1.9em);font-weight:900;border:none;border-radius:10px;text-align:center;background:rgba(74,222,128,0.06);color:#ffffff;text-shadow:0 0 12px rgba(74,222,128,0.6);font-variant-numeric:tabular-nums;letter-spacing:-0.5px;outline:none;" />
-                                            <button type="button" onclick="(function(){var i=document.getElementById('quickWeightInput');i.value=(parseFloat(i.value)||0)+2.5;i.dispatchEvent(new Event('input'));})()" style="width:38px;height:38px;border-radius:50%;background:rgba(74,222,128,0.12);border:1.5px solid rgba(74,222,128,0.5);color:#4ade80;font-size:1.2em;font-weight:900;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 0 8px rgba(74,222,128,0.2);transition:all 0.2s;">+</button>
+                                            <button type="button" onclick="(function(){var i=document.getElementById('quickWeightInput');i.value=(parseFloat(i.value)||0)+2.5;i.dispatchEvent(new Event('input'));})()" style="width:38px;height:38px;border-radius:50%;background:rgba(74,222,128,0.12);border:1.5px solid rgba(74,222,128,0.5);color:#cbd5e1;font-size:1.2em;font-weight:900;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 0 8px rgba(74,222,128,0.2);transition:all 0.2s;">+</button>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Bouton Compléter la série avec glow -->
                                 <button onclick="completeCurrentSet()" id="completeSetBtn"
-                                        style="width:100%;background:linear-gradient(135deg,#16a34a 0%,#4ade80 50%,#4ade80 100%);color:white;border:1.5px solid #4ade80;border-radius:10px;padding:16px;font-size:1em;font-weight:900;cursor:pointer;letter-spacing:3px;box-shadow:0 0 32px rgba(74,222,128,0.5),0 8px 24px rgba(34,197,94,0.4),inset 0 1px 0 rgba(255,255,255,0.25);transition:all 0.2s;text-transform:uppercase;position:relative;overflow:hidden;text-shadow:0 1px 2px rgba(0,0,0,0.3);">
+                                        style="width:100%;background:linear-gradient(135deg,#16a34a 0%,#4ade80 50%,#4ade80 100%);color:white;border:1.5px solid rgba(255,255,255,0.14);border-radius:10px;padding:16px;font-size:1em;font-weight:900;cursor:pointer;letter-spacing:3px;box-shadow:0 0 32px rgba(74,222,128,0.5),0 8px 24px rgba(34,197,94,0.4),inset 0 1px 0 rgba(255,255,255,0.25);transition:all 0.2s;text-transform:uppercase;position:relative;overflow:hidden;text-shadow:0 1px 2px rgba(0,0,0,0.3);">
                                     ✓ SÉRIE TERMINÉE
                                 </button>
 
@@ -1523,7 +1523,7 @@
                                 <button id="swapBtn" onclick="showSwapExercise()" aria-label="Remplacer l'exercice"
                                         style="display:flex;align-items:center;justify-content:center;gap:5px;
                                                padding:11px 4px;border-radius:10px;cursor:pointer;transition:all 0.15s;
-                                               background:rgba(34,211,238,0.06);border:1px solid rgba(34,211,238,0.3);color:#4ade80;
+                                               background:rgba(34,211,238,0.06);border:1px solid rgba(34,211,238,0.3);color:#cbd5e1;
                                                font-size:0.58em;font-weight:900;letter-spacing:0.5px;text-transform:uppercase;white-space:nowrap;">
                                     <span style="font-size:1.1em;line-height:1;">⇄</span>
                                     <span>Remplacer</span>
@@ -1533,7 +1533,7 @@
                                 <button onclick="skipExercise()" aria-label="Suivant"
                                         style="display:flex;align-items:center;justify-content:center;gap:6px;
                                                padding:11px 4px;border-radius:10px;cursor:pointer;transition:all 0.15s;
-                                               background:linear-gradient(135deg,#16a34a,#4ade80,#4ade80);border:1px solid #4ade80;color:white;
+                                               background:linear-gradient(135deg,#16a34a,#4ade80,#4ade80);border:1px solid rgba(255,255,255,0.14);color:white;
                                                box-shadow:0 0 20px rgba(74,222,128,0.4),0 4px 16px rgba(22,163,74,0.35);
                                                font-size:0.58em;font-weight:900;letter-spacing:0.5px;text-transform:uppercase;white-space:nowrap;
                                                position:relative;overflow:hidden;">
@@ -1569,7 +1569,7 @@
                         <div style="position:absolute;bottom:-1px;right:-1px;width:14px;height:14px;border-bottom:1.5px solid rgba(74,222,128,0.5);border-right:1.5px solid rgba(74,222,128,0.5);border-bottom-right-radius:12px;pointer-events:none;"></div>
 
                         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-                            <h4 style="margin:0;font-size:0.7em;font-weight:900;color:#4ade80;letter-spacing:2.5px;text-transform:uppercase;text-shadow:0 0 6px rgba(74,222,128,0.4);">◈ INSTRUCTIONS</h4>
+                            <h4 style="margin:0;font-size:0.7em;font-weight:900;color:#cbd5e1;letter-spacing:2.5px;text-transform:uppercase;text-shadow:0 0 6px rgba(74,222,128,0.4);">◈ INSTRUCTIONS</h4>
                             <button id="workoutYoutubeBtn" onclick="openWorkoutYoutube()"
                                     style="display:none;background:linear-gradient(135deg,#ef4444,#dc2626);color:white;border:1px solid rgba(239,68,68,0.6);border-radius:6px;padding:5px 12px;font-size:0.72em;font-weight:900;cursor:pointer;letter-spacing:1px;text-transform:uppercase;box-shadow:0 0 12px rgba(239,68,68,0.3);">
                                 ▶ Vidéo
@@ -1607,7 +1607,7 @@
                     <div style="padding:0 14px 4px;font-size:0.75em;color:#94a3b8;font-weight:700;">⏱ Temps de repos</div>
                     <div style="display:flex;gap:4px;padding:0 10px 8px;flex-wrap:wrap;">
                         <button onclick="setInlineRest(60);toggleWorkoutOptionsPanel();" style="flex:1;padding:6px 0;border-radius:6px;border:1px solid #334155;background:#1e293b;color:#e2e8f0;font-size:0.78em;font-weight:700;cursor:pointer;min-width:44px;">1min</button>
-                        <button onclick="setInlineRest(90);toggleWorkoutOptionsPanel();" style="flex:1;padding:6px 0;border-radius:6px;border:1px solid #16a34a;background:rgba(22,163,74,0.15);color:#4ade80;font-size:0.78em;font-weight:700;cursor:pointer;min-width:44px;">1:30</button>
+                        <button onclick="setInlineRest(90);toggleWorkoutOptionsPanel();" style="flex:1;padding:6px 0;border-radius:6px;border:1px solid rgba(255,255,255,0.14);background:rgba(22,163,74,0.15);color:#cbd5e1;font-size:0.78em;font-weight:700;cursor:pointer;min-width:44px;">1:30</button>
                         <button onclick="setInlineRest(120);toggleWorkoutOptionsPanel();" style="flex:1;padding:6px 0;border-radius:6px;border:1px solid #334155;background:#1e293b;color:#e2e8f0;font-size:0.78em;font-weight:700;cursor:pointer;min-width:44px;">2min</button>
                         <button onclick="setInlineRest(180);toggleWorkoutOptionsPanel();" style="flex:1;padding:6px 0;border-radius:6px;border:1px solid #334155;background:#1e293b;color:#e2e8f0;font-size:0.78em;font-weight:700;cursor:pointer;min-width:44px;">3min</button>
                     </div>
@@ -1622,13 +1622,13 @@
                     <div style="position:absolute;bottom:-1px;right:-1px;width:14px;height:14px;border-bottom:1.5px solid rgba(74,222,128,0.5);border-right:1.5px solid rgba(74,222,128,0.5);border-bottom-right-radius:12px;pointer-events:none;"></div>
 
                     <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-bottom:10px;" onclick="toggleProgressList()">
-                        <h4 style="margin:0;font-size:0.7em;font-weight:900;color:#4ade80;letter-spacing:2.5px;text-transform:uppercase;text-shadow:0 0 6px rgba(74,222,128,0.4);">◈ PROGRAMME</h4>
-                        <span id="progressListToggleIcon" style="font-size:0.9em;color:#4ade80;transition:transform 0.2s;text-shadow:0 0 6px rgba(74,222,128,0.5);">▲</span>
+                        <h4 style="margin:0;font-size:0.7em;font-weight:900;color:#cbd5e1;letter-spacing:2.5px;text-transform:uppercase;text-shadow:0 0 6px rgba(74,222,128,0.4);">◈ PROGRAMME</h4>
+                        <span id="progressListToggleIcon" style="font-size:0.9em;color:#cbd5e1;transition:transform 0.2s;text-shadow:0 0 6px rgba(74,222,128,0.5);">▲</span>
                     </div>
                     <div id="progressListBody">
                     <div class="progress-stats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;">
                         <div class="progress-stat" style="background:rgba(34,197,94,0.06);border:1px solid rgba(74,222,128,0.3);border-radius:10px;padding:10px 8px;text-align:center;">
-                            <div class="progress-stat-value" id="completedCount" style="font-size:1.4em;font-weight:900;color:#4ade80;font-variant-numeric:tabular-nums;text-shadow:0 0 10px rgba(74,222,128,0.4);">0</div>
+                            <div class="progress-stat-value" id="completedCount" style="font-size:1.4em;font-weight:900;color:#cbd5e1;font-variant-numeric:tabular-nums;text-shadow:0 0 10px rgba(74,222,128,0.4);">0</div>
                             <div class="progress-stat-label" style="font-size:0.55em;color:#94a3b8;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;margin-top:3px;">Complétés</div>
                         </div>
                         <div class="progress-stat" style="background:rgba(168,85,247,0.06);border:1px solid rgba(168,85,247,0.3);border-radius:10px;padding:10px 8px;text-align:center;">
@@ -1652,7 +1652,7 @@
                 <div class="card" style="max-width: 600px; margin: 20px auto;">
                     <div style="text-align: center; margin-bottom: 30px;">
                         <div style="font-size: 4em; margin-bottom: 15px;">🎧</div>
-                        <h2 style="color: #16a34a; margin-bottom: 10px;">AI Workout DJ</h2>
+                        <h2 style="color: #e2e8f0; margin-bottom: 10px;">AI Workout DJ</h2>
                         <p style="color: #94a3b8; font-size: 1.1em;">Je vais adapter le workout à ton état du jour</p>
 
                         <!-- Cancel Button -->
@@ -1663,7 +1663,7 @@
 
                     <!-- Quick Check Instructions -->
                     <div id="quickCheckInstructions" style="background: linear-gradient(135deg, #16a34a15 0%, #16a34a05 100%); padding: 25px; border-radius: 14px; margin-bottom: 25px; border-left: 4px solid #16a34a;">
-                        <h3 style="color: #16a34a; margin-top: 0;">Quick Check (60 secondes)</h3>
+                        <h3 style="color: #e2e8f0; margin-top: 0;">Quick Check (60 secondes)</h3>
                         <p style="margin-bottom: 15px; line-height: 1.6;">Je vais te faire faire 2 exercices rapides pour évaluer ta forme aujourd'hui :</p>
                         <div style="display: grid; gap: 12px;">
                             <div style="background: rgba(255,255,255,0.04); padding: 15px; border-radius: 10px;">
@@ -1703,7 +1703,7 @@
                             <p style="margin-bottom: 20px; color: #94a3b8;">Sur une échelle de 1 à 10, quelle difficulté as-tu ressenti ?</p>
 
                             <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 15px;">
-                                <button onclick="rateDifficulty(1)" class="rpe-btn" style="--rpe-color: #10b981">1<br><span style="font-size: 0.5em; font-weight: 400;">Facile</span></button>
+                                <button onclick="rateDifficulty(1)" class="rpe-btn" style="--rpe-color: #6ee7a0">1<br><span style="font-size: 0.5em; font-weight: 400;">Facile</span></button>
                                 <button onclick="rateDifficulty(2)" class="rpe-btn" style="--rpe-color: #4ade80">2</button>
                                 <button onclick="rateDifficulty(3)" class="rpe-btn" style="--rpe-color: #4ade80">3</button>
                                 <button onclick="rateDifficulty(4)" class="rpe-btn" style="--rpe-color: #84cc16">4</button>
@@ -3660,38 +3660,38 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/exercises.js?v=928"></script>
-    <script src="data/items.js?v=928"></script>
-    <script src="js/adventure.js?v=928"></script>
-    <script src="js/economy.js?v=928"></script>
-    <script src="js/challenges.js?v=928"></script>
-    <script src="js/family-boss.js?v=928"></script>
-    <script src="js/family-network.js?v=928"></script>
-    <script src="js/family-challenge.js?v=928"></script>
-    <script src="js/family-goal.js?v=928"></script>
-    <script src="js/family-feed.js?v=928"></script>
-    <script src="js/pre-workout-mood.js?v=928"></script>
-    <script src="js/group-workout.js?v=928"></script>
-    <script src="js/youth-safety.js?v=928"></script>
-    <script src="js/kids-programs.js?v=928"></script>
-    <script src="js/senior-programs.js?v=928"></script>
-    <script src="js/adaptive.js?v=928"></script>
-    <script src="js/pain-mode.js?v=928"></script>
-    <script src="js/recovery-mode.js?v=928"></script>
-    <script src="js/exercise-visuals.js?v=928"></script>
-    <script src="js/strength-standards.js?v=928"></script>
-    <script src="js/system-cards.js?v=928"></script>
-    <script src="js/share-card.js?v=928"></script>
-    <script src="js/story-events.js?v=928"></script>
-    <script src="js/final-boss.js?v=928"></script>
-    <script src="js/disciplines.js?v=928"></script>
-    <script src="js/eveil.js?v=928"></script>
-    <script src="js/app.js?v=928"></script>
-    <script src="js/awakening-tree.js?v=928"></script>
-    <script src="js/ui-kit.js?v=928"></script>
-    <script src="js/feature-map.js?v=928"></script>
-    <script src="js/weekly-recap.js?v=928"></script>
-    <script src="js/workout-games.js?v=928"></script>
+    <script src="js/exercises.js?v=932"></script>
+    <script src="data/items.js?v=932"></script>
+    <script src="js/adventure.js?v=932"></script>
+    <script src="js/economy.js?v=932"></script>
+    <script src="js/challenges.js?v=932"></script>
+    <script src="js/family-boss.js?v=932"></script>
+    <script src="js/family-network.js?v=932"></script>
+    <script src="js/family-challenge.js?v=932"></script>
+    <script src="js/family-goal.js?v=932"></script>
+    <script src="js/family-feed.js?v=932"></script>
+    <script src="js/pre-workout-mood.js?v=932"></script>
+    <script src="js/group-workout.js?v=932"></script>
+    <script src="js/youth-safety.js?v=932"></script>
+    <script src="js/kids-programs.js?v=932"></script>
+    <script src="js/senior-programs.js?v=932"></script>
+    <script src="js/adaptive.js?v=932"></script>
+    <script src="js/pain-mode.js?v=932"></script>
+    <script src="js/recovery-mode.js?v=932"></script>
+    <script src="js/exercise-visuals.js?v=932"></script>
+    <script src="js/strength-standards.js?v=932"></script>
+    <script src="js/system-cards.js?v=932"></script>
+    <script src="js/share-card.js?v=932"></script>
+    <script src="js/story-events.js?v=932"></script>
+    <script src="js/final-boss.js?v=932"></script>
+    <script src="js/disciplines.js?v=932"></script>
+    <script src="js/eveil.js?v=932"></script>
+    <script src="js/app.js?v=932"></script>
+    <script src="js/awakening-tree.js?v=932"></script>
+    <script src="js/ui-kit.js?v=932"></script>
+    <script src="js/feature-map.js?v=932"></script>
+    <script src="js/weekly-recap.js?v=932"></script>
+    <script src="js/workout-games.js?v=932"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>

@@ -2,7 +2,7 @@
 // Enables full offline support and PWA installation
 // Strategy: network-first for code files (HTML/JS/CSS), cache-first for assets (images/fonts)
 
-const CACHE_NAME = 'awakened-v928';
+const CACHE_NAME = 'awakened-v932';
 const ASSETS = [
   './',
   './index.html',
@@ -39,14 +39,14 @@ const ASSETS = [
   './js/pain-mode.js',
   './js/recovery-mode.js',
   './data/items.js',
-  './manifest.json?v=928',
-  './icons/icon-192.png?v=928',
-  './icons/icon-512.png?v=928',
-  './icons/icon-192-maskable.png?v=928',
-  './icons/icon-512-maskable.png?v=928',
+  './manifest.json?v=932',
+  './icons/icon-192.png?v=932',
+  './icons/icon-512.png?v=932',
+  './icons/icon-192-maskable.png?v=932',
+  './icons/icon-512-maskable.png?v=932',
   // icon-1024.png : asset de soumission aux stores, volontairement hors du
   // précache (487 Ko). Reste dans manifest.json, récupérable à la demande.
-  './images/banner.png',
+  './images/banner_v2.webp',
   './images/avatars/avatar_homme.png',
   './images/avatars/avatar_femme.png',
   'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
