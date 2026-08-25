@@ -11,11 +11,11 @@
     <title>Awakened Elite Fitness</title>
 
     <!-- PWA -->
-    <link rel="manifest" href="manifest.json?v=932">
-    <link rel="apple-touch-icon" href="icons/icon-192.png?v=932">
-    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=932">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=932">
-    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=932">
+    <link rel="manifest" href="manifest.json?v=937">
+    <link rel="apple-touch-icon" href="icons/icon-192.png?v=937">
+    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=937">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=937">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=937">
 
     <!-- ⚠️ CAPTURE PRÉCOCE DE L'INVITE D'INSTALLATION.
          Chrome déclenche « beforeinstallprompt » très tôt, souvent AVANT la fin
@@ -44,7 +44,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=932">
+    <link rel="stylesheet" href="css/style.css?v=937">
 </head>
 <body>
 
@@ -202,9 +202,17 @@
                 max-width: 900px;">
 
             <!-- Bannière image : ratio préservé -->
-            <img src="images/banner_v2.webp?v=932"
-                 alt="Awakened Elite Fitness"
-                 style="width:100%;height:auto;display:block;" />
+            <!-- 🖼️ DEUX CADRAGES : la version large (ratio 2,31) ne fait que
+                 165 px de haut sur téléphone — les personnages y sont écrasés
+                 dans une bande étroite. La version mobile est RECADRÉE sur eux
+                 (ratio 1,55), donc plus haute et lisible.
+                 <picture> laisse le navigateur choisir, sans JavaScript. -->
+            <picture>
+                <source media="(min-width: 700px)" srcset="images/banner_v3.webp?v=937">
+                <img src="images/banner_v3_mobile.webp?v=937"
+                     alt="Awakened Elite Fitness"
+                     style="width:100%;height:auto;display:block;" />
+            </picture>
 
             <!-- Top glow accent line (subtile) -->
             <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#4ade80,#a855f7,transparent);opacity:0.5;pointer-events:none;"></div>
@@ -274,6 +282,53 @@
                 <div style="position:absolute;top:-45px;right:-30px;width:180px;height:180px;background:radial-gradient(circle,rgba(34,197,94,0.18) 0%,transparent 68%);pointer-events:none;"></div>
 
                 <!-- Équerres d'angle : la « fenêtre du Système » -->
+            <div id="homeHeader"></div>
+            <div id="quickActionsCard" style="padding:0;margin-top:4px;">
+                <div style="font-size:0.6em;color:#94a3b8;font-weight:900;letter-spacing:2px;margin-bottom:10px;">ACTIONS RAPIDES</div>
+                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
+                    <button onclick="switchTab('workouts'); window.scrollTo(0,0);" style="background:linear-gradient(135deg,#22c55e,#16a34a);border:none;color:white;border-radius:14px;padding:13px 10px;font-weight:800;font-size:0.85em;cursor:pointer;box-shadow:0 3px 12px rgba(34,197,94,0.3);">🏋️ Démarrer séance</button>
+                    <button onclick="switchTab('routines');" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#e2e8f0;border-radius:14px;padding:13px 10px;font-weight:800;font-size:0.85em;cursor:pointer;">🔄 Routines</button>
+                    <button id="quickFailleBtn" onclick="switchTab('game');" style="display:none;background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.35);color:#c4b5fd;border-radius:14px;padding:13px 10px;font-weight:800;font-size:0.85em;cursor:pointer;">🌌 Failles</button>
+                    <button onclick="switchTab('exercises');" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#e2e8f0;border-radius:14px;padding:13px 10px;font-weight:800;font-size:0.85em;cursor:pointer;">📚 Exercices</button>
+                </div>
+                <!-- ✨ Carte des fonctionnalités (accès discret) -->
+                <button onclick="showFeatureMap()" style="
+                    width:100%;margin-top:6px;background:none;border:none;color:#64748b;
+                    padding:8px;font-size:0.76em;font-weight:700;cursor:pointer;">
+                    ✨ Tout explorer ›
+                </button>
+                <!-- ☀️ Bouton Réveil matinal -->
+                <button onclick="showMorningRoutineModal()" style="
+                    width:100%;margin-top:8px;background:linear-gradient(135deg,#f59e0b 0%,#d97706 55%,#b45309 100%);color:white;border:none;
+                    border-radius:14px;padding:13px 16px;font-size:0.95em;font-weight:800;cursor:pointer;
+                    box-shadow:0 3px 14px rgba(245,158,11,0.32);position:relative;overflow:hidden;
+                    text-align:left;display:flex;align-items:center;gap:11px;">
+                    <div style="position:absolute;top:0;right:0;width:90px;height:90px;background:radial-gradient(circle,rgba(255,255,255,0.18),transparent 70%);"></div>
+                    <div style="font-size:1.8em;flex-shrink:0;">☀️</div>
+                    <div style="flex:1;min-width:0;position:relative;z-index:1;">
+                        <div style="font-size:0.58em;letter-spacing:2px;color:#fef3c7;font-weight:800;">RÉVEIL DU CORPS</div>
+                        <div style="font-size:0.92em;font-weight:900;line-height:1.2;margin-top:2px;color:#ffffff;">Routine matinale</div>
+                        <div style="font-size:0.66em;color:#fef3c7;margin-top:2px;">Mobilité douce · 3 niveaux · sans matériel</div>
+                    </div>
+                    <div style="font-size:1.2em;flex-shrink:0;position:relative;z-index:1;color:#ffffff;">▶</div>
+                </button>
+
+                <!-- 👥 Séance à plusieurs — rempli par updateHomeGroupButton() -->
+                <span id="groupWorkoutBtnContainer"></span>
+
+                <!-- 🤕 Bouton douleur — adapte la séance en évitant une zone -->
+                <div id="painButtonContainer" style="margin-top:10px;"></div>
+
+                <!-- 🛡️ Bandeau mode récupération (si actif) -->
+                <div id="recoveryBannerContainer" style="margin-top:10px;"></div>
+
+                <!-- 📬 Encouragements reçus de la famille -->
+                <div id="familyNudgeInbox" style="margin-top:10px;"></div>
+
+                <!-- ⚠️ Avertissement profil jeune — rempli par updateYouthBanner() -->
+                <div id="youthSafetyBanner"></div>
+
+            </div>
                 <div style="position:absolute;top:9px;left:9px;width:16px;height:16px;border-top:2px solid #22c55e;border-left:2px solid #22c55e;border-radius:3px 0 0 0;opacity:0.85;pointer-events:none;"></div>
                 <div style="position:absolute;top:9px;right:9px;width:16px;height:16px;border-top:2px solid #22c55e;border-right:2px solid #22c55e;border-radius:0 3px 0 0;opacity:0.85;pointer-events:none;"></div>
                 <div style="position:absolute;bottom:9px;left:9px;width:16px;height:16px;border-bottom:2px solid #22c55e;border-left:2px solid #22c55e;border-radius:0 0 0 3px;opacity:0.85;pointer-events:none;"></div>
@@ -325,7 +380,6 @@
             <!-- ═══ 3. PROFIL & STATS GLOBALES (1 seul bloc consolidé) ═══ -->
             <!-- 🏠 EN-TÊTE : 4 tuiles d'état, bloc central, 4 accès rapides.
                  Rempli par renderHomeHeader(). Les cartes existantes suivent. -->
-            <div id="homeHeader"></div>
 
             <!-- ▶️ Reprise d'une séance interrompue (vide s'il n'y en a pas) -->
             <div id="resumeSessionCard"></div>
@@ -348,53 +402,8 @@
             <!-- 🧠 Analyse du système (coach) -->
             <div id="homeCoachCard"></div>
 
-            <!-- ═══ 2. ACTIONS RAPIDES ═══ -->
-            <div class="card" id="quickActionsCard" style="padding:14px 16px;">
-                <div style="font-size:0.6em;color:#94a3b8;font-weight:900;letter-spacing:2px;margin-bottom:10px;">ACTIONS RAPIDES</div>
-                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
-                    <button onclick="switchTab('workouts'); window.scrollTo(0,0);" style="background:linear-gradient(135deg,#22c55e,#16a34a);border:none;color:white;border-radius:14px;padding:13px 10px;font-weight:800;font-size:0.85em;cursor:pointer;box-shadow:0 3px 12px rgba(34,197,94,0.3);">🏋️ Démarrer séance</button>
-                    <button onclick="switchTab('routines');" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#e2e8f0;border-radius:14px;padding:13px 10px;font-weight:800;font-size:0.85em;cursor:pointer;">🔄 Routines</button>
-                    <button id="quickFailleBtn" onclick="switchTab('game');" style="display:none;background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.35);color:#c4b5fd;border-radius:14px;padding:13px 10px;font-weight:800;font-size:0.85em;cursor:pointer;">🌌 Failles</button>
-                    <button onclick="switchTab('exercises');" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#e2e8f0;border-radius:14px;padding:13px 10px;font-weight:800;font-size:0.85em;cursor:pointer;">📚 Exercices</button>
-                </div>
-                <!-- ✨ Carte des fonctionnalités (accès discret) -->
-                <button onclick="showFeatureMap()" style="
-                    width:100%;margin-top:6px;background:none;border:none;color:#64748b;
-                    padding:8px;font-size:0.76em;font-weight:700;cursor:pointer;">
-                    ✨ Tout explorer ›
-                </button>
-                <!-- ☀️ Bouton Réveil matinal -->
-                <button onclick="showMorningRoutineModal()" style="
-                    width:100%;margin-top:8px;background:linear-gradient(135deg,#f59e0b 0%,#d97706 55%,#b45309 100%);color:white;border:none;
-                    border-radius:14px;padding:13px 16px;font-size:0.95em;font-weight:800;cursor:pointer;
-                    box-shadow:0 3px 14px rgba(245,158,11,0.32);position:relative;overflow:hidden;
-                    text-align:left;display:flex;align-items:center;gap:11px;">
-                    <div style="position:absolute;top:0;right:0;width:90px;height:90px;background:radial-gradient(circle,rgba(255,255,255,0.18),transparent 70%);"></div>
-                    <div style="font-size:1.8em;flex-shrink:0;">☀️</div>
-                    <div style="flex:1;min-width:0;position:relative;z-index:1;">
-                        <div style="font-size:0.58em;letter-spacing:2px;color:#fef3c7;font-weight:800;">RÉVEIL DU CORPS</div>
-                        <div style="font-size:0.92em;font-weight:900;line-height:1.2;margin-top:2px;color:#ffffff;">Routine matinale</div>
-                        <div style="font-size:0.66em;color:#fef3c7;margin-top:2px;">Mobilité douce · 3 niveaux · sans matériel</div>
-                    </div>
-                    <div style="font-size:1.2em;flex-shrink:0;position:relative;z-index:1;color:#ffffff;">▶</div>
-                </button>
-
-                <!-- 👥 Séance à plusieurs — rempli par updateHomeGroupButton() -->
-                <span id="groupWorkoutBtnContainer"></span>
-
-                <!-- 🤕 Bouton douleur — adapte la séance en évitant une zone -->
-                <div id="painButtonContainer" style="margin-top:10px;"></div>
-
-                <!-- 🛡️ Bandeau mode récupération (si actif) -->
-                <div id="recoveryBannerContainer" style="margin-top:10px;"></div>
-
-                <!-- 📬 Encouragements reçus de la famille -->
-                <div id="familyNudgeInbox" style="margin-top:10px;"></div>
-
-                <!-- ⚠️ Avertissement profil jeune — rempli par updateYouthBanner() -->
-                <div id="youthSafetyBanner"></div>
-
-            </div>
+            <!-- (ACTIONS RAPIDES déplacées DANS #profileCard en v935 —
+                 accueil en carte unique, comme la maquette.) -->
 
 
             <!-- Indicateurs personnels (regroupés sous le profil, v524) -->
@@ -3660,38 +3669,38 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/exercises.js?v=932"></script>
-    <script src="data/items.js?v=932"></script>
-    <script src="js/adventure.js?v=932"></script>
-    <script src="js/economy.js?v=932"></script>
-    <script src="js/challenges.js?v=932"></script>
-    <script src="js/family-boss.js?v=932"></script>
-    <script src="js/family-network.js?v=932"></script>
-    <script src="js/family-challenge.js?v=932"></script>
-    <script src="js/family-goal.js?v=932"></script>
-    <script src="js/family-feed.js?v=932"></script>
-    <script src="js/pre-workout-mood.js?v=932"></script>
-    <script src="js/group-workout.js?v=932"></script>
-    <script src="js/youth-safety.js?v=932"></script>
-    <script src="js/kids-programs.js?v=932"></script>
-    <script src="js/senior-programs.js?v=932"></script>
-    <script src="js/adaptive.js?v=932"></script>
-    <script src="js/pain-mode.js?v=932"></script>
-    <script src="js/recovery-mode.js?v=932"></script>
-    <script src="js/exercise-visuals.js?v=932"></script>
-    <script src="js/strength-standards.js?v=932"></script>
-    <script src="js/system-cards.js?v=932"></script>
-    <script src="js/share-card.js?v=932"></script>
-    <script src="js/story-events.js?v=932"></script>
-    <script src="js/final-boss.js?v=932"></script>
-    <script src="js/disciplines.js?v=932"></script>
-    <script src="js/eveil.js?v=932"></script>
-    <script src="js/app.js?v=932"></script>
-    <script src="js/awakening-tree.js?v=932"></script>
-    <script src="js/ui-kit.js?v=932"></script>
-    <script src="js/feature-map.js?v=932"></script>
-    <script src="js/weekly-recap.js?v=932"></script>
-    <script src="js/workout-games.js?v=932"></script>
+    <script src="js/exercises.js?v=937"></script>
+    <script src="data/items.js?v=937"></script>
+    <script src="js/adventure.js?v=937"></script>
+    <script src="js/economy.js?v=937"></script>
+    <script src="js/challenges.js?v=937"></script>
+    <script src="js/family-boss.js?v=937"></script>
+    <script src="js/family-network.js?v=937"></script>
+    <script src="js/family-challenge.js?v=937"></script>
+    <script src="js/family-goal.js?v=937"></script>
+    <script src="js/family-feed.js?v=937"></script>
+    <script src="js/pre-workout-mood.js?v=937"></script>
+    <script src="js/group-workout.js?v=937"></script>
+    <script src="js/youth-safety.js?v=937"></script>
+    <script src="js/kids-programs.js?v=937"></script>
+    <script src="js/senior-programs.js?v=937"></script>
+    <script src="js/adaptive.js?v=937"></script>
+    <script src="js/pain-mode.js?v=937"></script>
+    <script src="js/recovery-mode.js?v=937"></script>
+    <script src="js/exercise-visuals.js?v=937"></script>
+    <script src="js/strength-standards.js?v=937"></script>
+    <script src="js/system-cards.js?v=937"></script>
+    <script src="js/share-card.js?v=937"></script>
+    <script src="js/story-events.js?v=937"></script>
+    <script src="js/final-boss.js?v=937"></script>
+    <script src="js/disciplines.js?v=937"></script>
+    <script src="js/eveil.js?v=937"></script>
+    <script src="js/app.js?v=937"></script>
+    <script src="js/awakening-tree.js?v=937"></script>
+    <script src="js/ui-kit.js?v=937"></script>
+    <script src="js/feature-map.js?v=937"></script>
+    <script src="js/weekly-recap.js?v=937"></script>
+    <script src="js/workout-games.js?v=937"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>

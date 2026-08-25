@@ -788,6 +788,47 @@
                                     `).join('')}
                                 </div>
 
+                                ${(() => {
+                                    // 📊 PROGRESSION (maquette) : barre + pastilles de jours,
+                                    // affichées UNIQUEMENT si le défi est en cours. Sur un défi
+                                    // pas encore lancé, une barre à zéro n'apprend rien.
+                                    // ⚠️ getActiveChallenge() au SINGULIER : un seul défi
+                                    // actif à la fois. Sa structure : { id, startDate,
+                                    // completedDays: [], currentStreak, bestStreak }.
+                                    let _p = null;
+                                    try {
+                                        const _a = (typeof getActiveChallenge === 'function')
+                                            ? getActiveChallenge() : null;
+                                        if (_a && _a.id === challenge.id) _p = _a;
+                                    } catch (e) {}
+                                    if (!_p) return '';
+                                    const _tot = challenge.duration || 30;
+                                    const _faits = (_p.completedDays || []).length;
+                                    const _j = Math.min(_tot, _faits + 1);
+                                    const _pct = Math.round((_faits / _tot) * 100);
+                                    let _dots = '';
+                                    for (let d = 1; d <= _tot; d++) {
+                                        const _fait = d <= _faits, _auj = d === _j;
+                                        _dots += '<span style="display:inline-flex;align-items:center;'
+                                          + 'justify-content:center;width:19px;height:19px;border-radius:99px;'
+                                          + 'font-size:0.56em;font-weight:800;flex-shrink:0;'
+                                          + 'background:' + (_fait ? challenge.color : (_auj ? challenge.color + '30' : 'rgba(255,255,255,0.04)')) + ';'
+                                          + 'border:1px solid ' + (_auj ? challenge.color : 'rgba(255,255,255,0.08)') + ';'
+                                          + 'color:' + (_fait ? '#0a0a0a' : (_auj ? challenge.color : '#475569')) + ';">'
+                                          + (_fait ? '✓' : d) + '</span>';
+                                    }
+                                    return '<div style="margin-bottom:13px;">'
+                                      + '<div style="display:flex;justify-content:flex-end;font-size:0.74em;'
+                                      +   'color:#cbd5e1;font-weight:700;margin-bottom:6px;">Jour ' + _faits + ' / ' + _tot + '</div>'
+                                      + '<div style="height:7px;background:rgba(255,255,255,0.06);border-radius:99px;'
+                                      +   'overflow:hidden;margin-bottom:8px;">'
+                                      +   '<div style="height:100%;width:' + _pct + '%;background:' + challenge.color + ';'
+                                      +     'border-radius:99px;transition:width .4s;"></div></div>'
+                                      + '<div style="display:flex;gap:3px;overflow-x:auto;padding-bottom:3px;'
+                                      +   '-webkit-overflow-scrolling:touch;">' + _dots + '</div>'
+                                      + '</div>';
+                                })()}
+
                                 <div style="display: flex; gap: 8px; align-items: center;">
                                     <button onclick="event.stopPropagation(); startChallenge('${challenge.id}')" style="background: linear-gradient(135deg, ${challenge.color} 0%, ${challenge.color}cc 100%); color: white; border: none; border-radius: 10px; padding: 11px 14px; font-size: 0.85em; font-weight: 800; flex: 1; cursor: pointer; box-shadow: 0 4px 14px ${challenge.color}30;">
                                         🚀 Commencer ce défi
@@ -23167,20 +23208,19 @@
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.82) 0%,rgba(7,8,11,0.26) 18%,rgba(7,8,11,0.20) 72%,rgba(7,8,11,0.76) 100%), url(images/salle_bg_v5.webp?v=932);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.82) 0%,rgba(7,8,11,0.26) 18%,rgba(7,8,11,0.20) 72%,rgba(7,8,11,0.76) 100%), url(images/salle_bg_v5.webp?v=937);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
                 // pour l'un est illisible sur l'autre : la v3, en portrait
                 // 0,58, perdait 883 px de haut sur desktop — on ne voyait plus
                 // qu'une bande. En 4:3, la perte reste modérée des deux côtés.
-                // ⚠️ `contain` et NON `cover` : la carte est portrait sur mobile
-                // (360×620) et paysage sur desktop (763×430). En `cover`,
-                // l'image 4:3 perdait 467 px de largeur sur mobile — sol et
-                // murs latéraux coupés, la salle n'avait plus d'ancrage et
-                // semblait flotter. En `contain`, elle tient ENTIÈRE dans le
-                // cadre quelle que soit sa forme ; `bottom` pose le sol au bas.
-                +   'background-size:cover,contain;background-position:center,center bottom;background-repeat:no-repeat,no-repeat;'
+                // ⚠️ `cover` et NON `contain` : en contain, l'image 4:3 laissait
+                // 312 px de bande VIDE sous elle sur mobile — elle flottait au
+                // lieu de remplir la carte (erreur de v929).
+                // `cover` remplit toujours ; l'ancrage à 35 % cadre les
+                // équipements plutôt que le sol, qui est la zone la plus noire.
+                +   'background-size:cover,cover;background-position:center,center 35%;background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(74,222,128,0.20);'
                 // marge basse élargie : le bouton « Fais ma séance » conclut la
                 // carte, il lui faut de l'air avant la carte suivante.
@@ -23196,13 +23236,18 @@
                 // (maquette). Sur écran étroit, la liste repasse dessous —
                 // flex-wrap s'en charge sans média-query.
                 +   '<div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;">'
-                +   '<div style="flex:1 1 180px;min-width:150px;">'
-                +   '<svg viewBox="0 0 200 298" style="width:100%;max-width:210px;height:auto;display:block;margin:0 auto;">'
+                // ⚠️ base flex à 130px (et non 180) : avec 180 + 130 + 12 de gap,
+                // le total dépassait la largeur utile sur mobile (~330px) et
+                // flex-wrap renvoyait la liste SOUS le personnage.
+                // Silhouette légèrement réduite (max 180px) pour que les deux
+                // colonnes tiennent côte à côte.
+                +   '<div style="flex:1 1 130px;min-width:120px;">'
+                +   '<svg viewBox="0 0 200 298" style="width:100%;max-width:180px;height:auto;display:block;margin:0 auto;">'
                 +     '<defs><filter id="corpsGlow" x="-40%" y="-40%" width="180%" height="180%">'
                 +       '<feGaussianBlur stdDeviation="2.4" result="b"/>'
                 +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>'
                 +     '</filter></defs>'
-                +     '<image href="' + img + '?v=932" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=937" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -23210,7 +23255,7 @@
                 // 📋 Colonne de droite : les muscles disponibles, un par ligne
                 // avec sa pastille de couleur — plus lisible qu'une énumération.
                 +   (pretsNoms.length
-                      ? ('<div style="flex:0 1 130px;min-width:118px;padding:10px 11px;border-radius:12px;'
+                      ? ('<div style="flex:0 1 116px;min-width:104px;padding:9px 9px;border-radius:12px;'
                          + 'background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.20);">'
                          + '<div style="font-size:0.5em;letter-spacing:1.5px;color:#4ade80;'
                          +   'font-weight:900;margin-bottom:7px;">PRÊTS</div>'
@@ -27881,7 +27926,7 @@
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=932");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=937");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -32425,7 +32470,7 @@
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url('images/faille_fermee_bg.webp?v=932');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url('images/faille_fermee_bg.webp?v=937');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <div style="font-size:3.4em;line-height:1;margin-bottom:10px;filter:drop-shadow(0 0 18px ${theme.color});animation:awakBriefFloat 4s ease-in-out infinite;">${theme.emoji}</div>
                     <div style="display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:9px;flex-wrap:wrap;">
@@ -33618,7 +33663,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=932');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=937');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -44636,23 +44681,8 @@
         // (_homeTuile retirée en v931 : #profileCard affiche déjà ces
         //  quatre statistiques, la recréer les dupliquait.)
 
-        // Bouton d'accès rapide — même style pour les quatre.
-        function _homeAcces(icone, label, action, principal) {
-            if (principal) {
-                return '<button onclick="' + action + '" style="flex:1;min-width:0;padding:14px 10px;'
-                    + 'border-radius:14px;border:none;cursor:pointer;'
-                    + 'background:linear-gradient(160deg,#86efac,#4ade80 45%,#15803d);'
-                    + 'box-shadow:0 0 20px rgba(74,222,128,0.22),inset 0 1px 0 rgba(255,255,255,0.4);'
-                    + 'font-size:0.78em;font-weight:900;color:#04210f;letter-spacing:0.5px;'
-                    + 'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'
-                    + icone + ' ' + label + '</button>';
-            }
-            return '<button onclick="' + action + '" style="flex:1;min-width:0;padding:14px 10px;'
-                + 'border-radius:14px;cursor:pointer;background:rgba(255,255,255,0.03);'
-                + 'border:1px solid rgba(255,255,255,0.09);color:#cbd5e1;'
-                + 'font-size:0.76em;font-weight:800;white-space:nowrap;overflow:hidden;'
-                + 'text-overflow:ellipsis;">' + icone + ' ' + label + '</button>';
-        }
+        // (_homeAcces retirée en v935 : #quickActionsCard porte déjà ces
+        //  quatre boutons.)
 
         function renderHomeHeader() {
             const host = document.getElementById('homeHeader');
@@ -44699,16 +44729,10 @@
               +     'margin:0 auto;">' + sous + '</div>'
               + '</div>'
                 // 4 accès rapides
-              + '<div style="font-size:0.52em;letter-spacing:2px;color:#64748b;font-weight:900;'
-              +   'margin-bottom:7px;">ACTIONS RAPIDES</div>'
-              + '<div style="display:flex;gap:7px;margin-bottom:7px;">'
-              +   _homeAcces('⚡', 'Démarrer', "switchTab('workouts')", true)
-              +   _homeAcces('📋', 'Routines', "switchTab('routines')")
-              + '</div>'
-              + '<div style="display:flex;gap:7px;margin-bottom:16px;">'
-              +   _homeAcces('🌀', 'Failles', "switchTab('game')")
-              +   _homeAcces('📚', 'Exercices', "switchTab('exercises')")
-              + '</div>';
+              ;
+            // ⚠️ PAS de boutons ici : #quickActionsCard contient DÉJÀ les quatre
+            // accès (Démarrer, Routines, Failles, Exercices). Les recréer les
+            // affichait en double — même erreur que les tuiles de stats (v931).
         }
         window.renderHomeHeader = renderHomeHeader;
 
@@ -46953,7 +46977,7 @@
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=932");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=937");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
