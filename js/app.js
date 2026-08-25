@@ -5871,10 +5871,18 @@
                         else saved.unshift(outdoorLoc);
                         changed = true;
                     }
-                    // Migration : s'assurer que les lieux mode 'home' n'ont pas de machines/équipements de salle
+                    // ⚠️ MIGRATION DÉSACTIVÉE (v921) — elle tournait à CHAQUE
+                    // chargement et retirait barre, tapis roulant, vélo, etc.
+                    // de tout lieu en mode « maison ». Or beaucoup de gens ont
+                    // une barre ou un tapis chez eux : le joueur cochait
+                    // l'équipement, la sauvegarde marchait, puis le rechargement
+                    // suivant l'effaçait en silence.
+                    // Elle ne s'applique plus qu'UNE FOIS, sur les anciennes
+                    // données, via un drapeau — jamais sur un choix récent.
+                    const _migFaite = localStorage.getItem('fitproGymEquipMigDone') === '1';
                     const gymOnlyEquip = ['barbell','treadmill','bike','elliptical','stairmaster','rower','battleropes','parallelbars'];
                     saved.forEach(loc => {
-                        if (loc.mode === 'home') {
+                        if (!_migFaite && loc.mode === 'home') {
                             if (loc.machines && loc.machines.length > 0) {
                                 loc.machines = [];
                                 changed = true;
@@ -5890,6 +5898,8 @@
                             }
                         }
                     });
+                    // Poser le drapeau : la migration ne repassera plus.
+                    try { localStorage.setItem('fitproGymEquipMigDone', '1'); } catch (e) {}
                     if (changed) localStorage.setItem('fitproLocations', JSON.stringify(saved));
                     return saved;
                 }
@@ -23084,7 +23094,7 @@
                 ['Mollets',    'Mollets',     '<ellipse cx="70" cy="233" rx="7" ry="16"/><ellipse cx="130" cy="233" rx="7" ry="16"/>']
             ];
 
-            var svgZones = '', prets = 0;
+            var svgZones = '', prets = 0, pretsNoms = [];
             zones.forEach(function (z) {
                 var st = null;
                 try {
@@ -23093,11 +23103,18 @@
                 } catch (e) {}
                 var c = _corpsCouleur(st);
                 var pret = st && st.status === 'ready';
-                if (pret) prets++;
-                svgZones += '<g style="cursor:pointer;fill:' + c + ';fill-opacity:' + (pret ? '0.55' : '0.30')
-                    + ';stroke:' + c + ';stroke-width:0.9;" '
-                    + 'onclick="awakCorpsLancer(\'' + z[1].replace(/'/g, "\\'") + '\')">'
-                    + z[2] + '</g>';
+                if (pret) { prets++; pretsNoms.push(z[0]); }
+                // ✨ Les muscles PRÊTS pulsent doucement et portent un halo :
+                // ils appellent le regard. Les autres restent mats.
+                const _id = z[1].replace(/'/g, "\\'");
+                svgZones += '<g style="cursor:pointer;fill:' + c + ';fill-opacity:' + (pret ? '0.55' : '0.28')
+                    + ';stroke:' + c + ';stroke-width:' + (pret ? '1.3' : '0.8') + ';" '
+                    + (pret ? 'filter="url(#corpsGlow)" ' : '')
+                    + 'onclick="awakCorpsToucher(\'' + _id + '\',\'' + z[0].replace(/'/g, "\\'") + '\')">'
+                    + z[2]
+                    + (pret ? '<animate attributeName="fill-opacity" values="0.55;0.30;0.55" dur="'
+                              + (2.8 + (zones.indexOf(z) % 3) * 0.5).toFixed(1) + 's" repeatCount="indefinite"/>' : '')
+                    + '</g>';
             });
 
             // Légende : 3 états, lisible sans savoir lire les chiffres
@@ -23129,7 +23146,9 @@
                       +   'style="flex-shrink:0;padding:9px 11px;border-radius:12px;cursor:pointer;'
                       +   'background:rgba(255,255,255,0.04);border:1px solid rgba(148,163,184,0.18);'
                       +   'font-size:0.68em;color:#94a3b8;font-weight:800;white-space:nowrap;">'
-                      +   '🎒 ' + (_n ? _n : 'Corps') + '</button>'
+                      // ⚠️ Ce chiffre = nombre d'ÉQUIPEMENTS du lieu, pas des points.
+                      // Le sac à dos et le libellé lèvent l'ambiguïté.
+                      +   '🎒 ' + (_n ? (_n + ' équip.') : 'Corps') + '</button>'
                       + '</div>';
                 }
             } catch (e) {}
@@ -23148,7 +23167,7 @@
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.82) 0%,rgba(7,8,11,0.26) 18%,rgba(7,8,11,0.20) 72%,rgba(7,8,11,0.76) 100%), url(images/salle_bg_v5.webp?v=920);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.82) 0%,rgba(7,8,11,0.26) 18%,rgba(7,8,11,0.20) 72%,rgba(7,8,11,0.76) 100%), url(images/salle_bg_v5.webp?v=928);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -23173,11 +23192,26 @@
                 +     '</div>'
                 +   '</div>'
                 +   '<svg viewBox="0 0 200 298" style="width:100%;max-width:210px;height:auto;display:block;margin:0 auto;">'
-                +     '<image href="' + img + '?v=920" x="0" y="0" width="200" height="298" '
+                +     '<defs><filter id="corpsGlow" x="-40%" y="-40%" width="180%" height="180%">'
+                +       '<feGaussianBlur stdDeviation="2.4" result="b"/>'
+                +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>'
+                +     '</filter></defs>'
+                +     '<image href="' + img + '?v=928" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
-                +   '<div style="font-size:0.6em;margin-top:8px;text-align:center;">' + legende + '</div>'
+                // 📋 Une LIGNE utile plutôt qu'un panneau de chiffres : les noms
+                // des muscles disponibles, pas un tableau qui répète la couleur.
+                +   (pretsNoms.length
+                      ? ('<div style="margin-top:9px;padding:9px 11px;border-radius:11px;'
+                         + 'background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.22);'
+                         + 'font-size:0.68em;color:#94a3b8;line-height:1.4;">'
+                         + '<span style="color:#4ade80;font-weight:800;">Prêts : </span>'
+                         + pretsNoms.slice(0, 4).join(', ')
+                         + (pretsNoms.length > 4 ? ' +' + (pretsNoms.length - 4) : '')
+                         + '</div>')
+                      : '')
+                +   '<div data-corps-legende style="font-size:0.6em;margin-top:8px;text-align:center;">' + legende + '</div>'
                 +   '<div style="display:flex;gap:8px;margin-top:10px;align-items:center;">'
                 +     '<button onclick="awakToggleCorpsVue()" style="flex-shrink:0;padding:9px 12px;border-radius:11px;'
                 +       'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);'
@@ -23222,9 +23256,51 @@
                 +       'color:rgba(4,33,15,0.62);letter-spacing:0.5px;margin-top:2px;">'
                 +       'Le Système choisit pour toi</span>'
                 +   '</button>'
+                // Second choix, discret : planifier au lieu de s'entraîner tout de suite.
+                +   '<button onclick="openManualPlanEditor()" style="display:block;margin:9px auto 0;'
+                +     'padding:8px 16px;border-radius:99px;cursor:pointer;background:transparent;'
+                +     'border:1px solid rgba(255,255,255,0.10);color:#64748b;font-size:0.66em;'
+                +     'font-weight:700;">Ou : planifier ma semaine</button>'
                 + '</div>';
         }
         window.awakRenderCorps = awakRenderCorps;
+
+        // 🏷️ PREMIER TOUCHER : afficher le nom du muscle et son état.
+        // SECOND toucher sur le même muscle : lancer. Avant, un simple tap
+        // lançait la séance sans confirmation — facile à déclencher par erreur
+        // en faisant défiler la page.
+        var _corpsSelection = null;
+        function awakCorpsToucher(muscle, label) {
+            if (_corpsSelection === muscle) { _corpsSelection = null; awakCorpsLancer(muscle); return; }
+            _corpsSelection = muscle;
+            let st = null;
+            try { st = (typeof getMuscleRecoveryStatus === 'function') ? getMuscleRecoveryStatus(muscle) : null; } catch (e) {}
+            const pret = st && st.status === 'ready';
+            const c = _corpsCouleur(st);
+            const etat = pret ? 'Prêt à encaisser'
+                      : (st && st.hoursToRecovery ? 'Récupère encore ' + st.hoursToRecovery + ' h' : 'En récupération');
+            const host = document.querySelector('.awak-corps-host');
+            if (host) {
+                let tag = host.querySelector('#awakCorpsTag');
+                if (!tag) {
+                    tag = document.createElement('div');
+                    tag.id = 'awakCorpsTag';
+                    const legende = host.querySelector('[data-corps-legende]');
+                    if (legende) host.insertBefore(tag, legende); else host.appendChild(tag);
+                }
+                tag.style.cssText = 'margin:8px 0 2px;padding:9px 12px;border-radius:12px;'
+                    + 'background:' + c + '1f;border:1px solid ' + c + '55;'
+                    + 'display:flex;align-items:center;gap:9px;';
+                tag.innerHTML = '<span style="width:9px;height:9px;border-radius:3px;background:' + c + ';flex-shrink:0;"></span>'
+                    + '<span style="flex:1;min-width:0;">'
+                    +   '<span style="display:block;font-size:0.78em;font-weight:800;color:#f1f5f9;">' + label + '</span>'
+                    +   '<span style="display:block;font-size:0.64em;color:#94a3b8;">' + etat + '</span>'
+                    + '</span>'
+                    + '<span style="font-size:0.62em;font-weight:800;color:' + c + ';white-space:nowrap;">'
+                    +   (pret ? 'TOUCHE ENCORE ›' : 'Y ALLER QUAND MÊME ›') + '</span>';
+            }
+        }
+        window.awakCorpsToucher = awakCorpsToucher;
 
         // 🎯 Toucher un muscle → séance ciblée sur lui.
         function awakCorpsLancer(muscle) {
@@ -23707,6 +23783,25 @@
             return out;
         }
 
+
+        // 🕸️ Grille de fond : quadrillage régulier qui s'efface vers les bords.
+        // Le disque de ville se détache dessus, comme posé sur une surface.
+        function _carteGrille(col) {
+            let g = '';
+            const PAS = 25;
+            for (let v = 0; v <= 400; v += PAS) {
+                // Lignes plus marquées tous les 4 pas : donne une trame lisible
+                // plutôt qu'un voile uniforme (comme la grille de la maquette).
+                const fort = (v % 100 === 0);
+                const op = fort ? '0.38' : '0.20';
+                const w = fort ? '0.8' : '0.5';
+                g += '<line x1="' + v + '" y1="0" x2="' + v + '" y2="400" stroke="' + col + '" stroke-width="' + w + '" opacity="' + op + '"/>'
+                  +  '<line x1="0" y1="' + v + '" x2="400" y2="' + v + '" stroke="' + col + '" stroke-width="' + w + '" opacity="' + op + '"/>';
+            }
+            // Masque : la grille est nette au centre, effacée sur les bords
+            return '<g mask="url(#awakGridMask)">' + g + '</g>';
+        }
+
         function awakRenderCarte() {
             const R = _carteRayonClair();
             const _rk = (function () {
@@ -23853,6 +23948,12 @@
             +         '<stop offset="100%" stop-color="' + rangCol + '" stop-opacity="0"/>'
             +       '</radialGradient>'
             +       '<clipPath id="awakClair"><circle cx="200" cy="200" r="' + R + '"/></clipPath>'
+            +       '<radialGradient id="awakGridFade">'
+            +         '<stop offset="0%" stop-color="#fff" stop-opacity="0.9"/>'
+            +         '<stop offset="70%" stop-color="#fff" stop-opacity="0.55"/>'
+            +         '<stop offset="100%" stop-color="#fff" stop-opacity="0"/>'
+            +       '</radialGradient>'
+            +       '<mask id="awakGridMask"><rect width="400" height="400" fill="url(#awakGridFade)"/></mask>'
             +       // 🌫️ Brume de l'Oubli : turbulence animée sur le pourtour.
             +       '<filter id="awakBrume" x="-20%" y="-20%" width="140%" height="140%">'
             +         '<feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="3" seed="7" result="n">'
@@ -23877,6 +23978,11 @@
             +         '<feColorMatrix in="g" type="saturate" values="0"/></filter>'
             +     '</defs>'
             +     '<rect width="400" height="400" fill="#0b0d11"/>'
+            // 🕸️ GRILLE DE FOND — le « sol » sur lequel la ville est posée.
+            // C'est elle qui donne la profondeur : sans repère autour du
+            // disque, la zone reconquise flottait dans le vide.
+            // Les lignes s'estompent vers les bords (masque radial).
+            +     _carteGrille(rangCol)
             +     '<g clip-path="url(#awakClair)">'
             +       '<image href="images/carte_ville.webp?v=858" x="0" y="0" width="400" height="400" '
             +         'preserveAspectRatio="xMidYMid slice" opacity="0.95"/>'
@@ -24913,6 +25019,28 @@
             if (!exercise.isRest && !exercise.isInfo) {
                 vibrate(100);
             }
+
+            // 🎯 Pastille de répétitions : l'info dont on a besoin PENDANT la
+            // série, mise en évidence sous le nom (repris de la maquette).
+            try {
+                const _chip = document.getElementById('repsRangeChip');
+                if (_chip) {
+                    let _txt = '';
+                    if (exercise && !exercise.isRest && !exercise.isInfo) {
+                        // ⚠️ `reps` est déjà une fourchette texte (« 10-12 ») ou un
+                        // nombre. Il n'existe PAS de repsMin/repsMax dans la base.
+                        if (exercise.mode === 'timer' && exercise.duration) {
+                            _txt = exercise.duration + ' s';
+                        } else if (exercise.reps) {
+                            const _r = String(exercise.reps).trim();
+                            _txt = /^\d+$/.test(_r) ? (_r + ' reps')
+                                 : (_r.replace('-', '–') + (/rep|s$/i.test(_r) ? '' : ' reps'));
+                        }
+                    }
+                    _chip.textContent = _txt;
+                    _chip.style.display = _txt ? 'block' : 'none';
+                }
+            } catch (e) {}
 
             const _prog = getExerciseProgress();
             document.getElementById('exerciseNumber').textContent = (exercise && (exercise.isRest || exercise.isInfo))
@@ -26452,8 +26580,11 @@
                 if (gymBtn) gymBtn.style.cssText = inactiveStyle;
                 // 🏠 Mode Maison : décocher TOUTES les machines (pas de machines à la maison)
                 selectAllLocMachines(false);
-                // Décocher aussi les gros équipements de salle peu probables à la maison
-                const gymOnlyEquip = ['barbell','treadmill','bike','elliptical','stairmaster','rower','battleropes','parallelbars'];
+                // ⚠️ Liste RÉDUITE (v921) : barre, tapis roulant, vélo et rameur
+                // sont fréquents à domicile — les décocher d'office effaçait un
+                // choix délibéré. Ne restent décochés que les équipements
+                // réellement propres aux salles.
+                const gymOnlyEquip = ['stairmaster','battleropes'];
                 document.querySelectorAll('#locEquipGrid button[data-eqid]').forEach(btn => {
                     if (gymOnlyEquip.includes(btn.dataset.eqid)) {
                         btn.style.background='rgba(255,255,255,0.04)'; btn.style.borderColor='rgba(255,255,255,0.12)'; btn.style.color='#94a3b8';
@@ -27738,7 +27869,7 @@
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=920");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=928");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -32282,7 +32413,7 @@
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url('images/faille_fermee_bg.webp?v=920');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url('images/faille_fermee_bg.webp?v=928');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <div style="font-size:3.4em;line-height:1;margin-bottom:10px;filter:drop-shadow(0 0 18px ${theme.color});animation:awakBriefFloat 4s ease-in-out infinite;">${theme.emoji}</div>
                     <div style="display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:9px;flex-wrap:wrap;">
@@ -33475,7 +33606,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=920');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=928');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -44453,7 +44584,143 @@
         }
         window.renderHomeCoachCard = renderHomeCoachCard;
 
+
+        // ══════════════════════════════════════════════════════════════
+        // 🏠 EN-TÊTE D'ACCUEIL — état, cap, accès
+        // --------------------------------------------------------------
+        // Trois temps, dans cet ordre : OÙ J'EN SUIS (4 tuiles), QUOI FAIRE
+        // MAINTENANT (bloc central), COMMENT Y ALLER (4 boutons).
+        // Les 15 cartes existantes restent en dessous, intactes.
+        // ══════════════════════════════════════════════════════════════
+        function _homeStats() {
+            let seances = 0, serie = 0, minutes = 0, semaine = 0, objectif = 7;
+            try {
+                const hist = (typeof getWorkoutHistory === 'function') ? getWorkoutHistory() : [];
+                seances = hist.length;
+                // Minutes cumulées
+                minutes = Math.round(hist.reduce((n, w) => n + (w.duration || w.durationMin || 0), 0));
+                // Séances de la semaine en cours (depuis lundi)
+                const now = new Date();
+                const lundi = new Date(now);
+                lundi.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+                lundi.setHours(0, 0, 0, 0);
+                semaine = hist.filter(w => new Date(w.date || w.completedAt || 0) >= lundi).length;
+                // Série : jours consécutifs avec au moins une séance
+                const jours = new Set(hist.map(w => {
+                    const d = new Date(w.date || w.completedAt || 0);
+                    return d.toDateString();
+                }));
+                let d = new Date(); d.setHours(0, 0, 0, 0);
+                if (!jours.has(d.toDateString())) d.setDate(d.getDate() - 1);
+                while (jours.has(d.toDateString())) { serie++; d.setDate(d.getDate() - 1); }
+            } catch (e) {}
+            try {
+                const g = (typeof getWeeklyGoal === 'function') ? getWeeklyGoal() : null;
+                if (g && g.target) objectif = g.target;
+            } catch (e) {}
+            return { seances, serie, minutes, semaine, objectif };
+        }
+
+        // Une tuile de statistique — style commun à tout l'accueil.
+        function _homeTuile(icone, valeur, label, couleur) {
+            return '<div style="flex:1;min-width:0;background:rgba(255,255,255,0.03);'
+                + 'border:1px solid rgba(255,255,255,0.07);border-radius:14px;'
+                + 'padding:11px 8px;text-align:center;">'
+                + '<div style="display:flex;align-items:center;justify-content:center;gap:5px;">'
+                +   '<span style="font-size:0.8em;opacity:0.85;">' + icone + '</span>'
+                +   '<span style="font-family:var(--font-display),sans-serif;font-size:1.25em;'
+                +     'font-weight:900;color:' + (couleur || '#f1f5f9') + ';line-height:1;">' + valeur + '</span>'
+                + '</div>'
+                + '<div style="font-size:0.5em;letter-spacing:1.5px;color:#64748b;'
+                +   'font-weight:800;margin-top:4px;">' + label + '</div>'
+                + '</div>';
+        }
+
+        // Bouton d'accès rapide — même style pour les quatre.
+        function _homeAcces(icone, label, action, principal) {
+            if (principal) {
+                return '<button onclick="' + action + '" style="flex:1;min-width:0;padding:14px 10px;'
+                    + 'border-radius:14px;border:none;cursor:pointer;'
+                    + 'background:linear-gradient(160deg,#86efac,#4ade80 45%,#15803d);'
+                    + 'box-shadow:0 0 20px rgba(74,222,128,0.22),inset 0 1px 0 rgba(255,255,255,0.4);'
+                    + 'font-size:0.78em;font-weight:900;color:#04210f;letter-spacing:0.5px;'
+                    + 'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'
+                    + icone + ' ' + label + '</button>';
+            }
+            return '<button onclick="' + action + '" style="flex:1;min-width:0;padding:14px 10px;'
+                + 'border-radius:14px;cursor:pointer;background:rgba(255,255,255,0.03);'
+                + 'border:1px solid rgba(255,255,255,0.09);color:#cbd5e1;'
+                + 'font-size:0.76em;font-weight:800;white-space:nowrap;overflow:hidden;'
+                + 'text-overflow:ellipsis;">' + icone + ' ' + label + '</button>';
+        }
+
+        function renderHomeHeader() {
+            const host = document.getElementById('homeHeader');
+            if (!host) return;
+            const st = _homeStats();
+
+            // ── Bloc central : ce qu'il faut faire MAINTENANT ──
+            let titre, sous, surtitre = '◈ PRÊT', couleur = '#4ade80';
+            let plan = {};
+            try { plan = (typeof getManualWeeklyPlan === 'function') ? getManualWeeklyPlan() : {}; } catch (e) {}
+            const JOURS = (typeof MANUAL_PLAN_DAYS !== 'undefined')
+                ? MANUAL_PLAN_DAYS : ['lun','mar','mer','jeu','ven','sam','dim'];
+            const auj = plan[JOURS[(new Date().getDay() + 6) % 7]];
+
+            if (auj && auj.muscles && auj.muscles.length) {
+                surtitre = '◈ AU PROGRAMME AUJOURD\'HUI';
+                titre = auj.muscles.slice(0, 3).join(' · ');
+                sous = 'Ton plan t\'attend. Touche « Démarrer » quand tu es prêt.';
+            } else if (Object.keys(plan).length) {
+                surtitre = '◈ JOUR DE REPOS';
+                titre = 'Rien de prévu aujourd\'hui';
+                sous = 'Ton corps se reconstruit maintenant. Tu peux quand même bouger si tu veux.';
+                couleur = '#94a3b8';
+            } else {
+                surtitre = '◈ PRÊT POUR L\'AVENTURE';
+                titre = 'Pas encore de routine';
+                sous = 'Lance une séance libre, ou organise ta semaine depuis l\'onglet Entraîner.';
+            }
+
+            host.innerHTML =
+                // 4 tuiles d'état
+                '<div style="display:flex;gap:7px;margin-bottom:14px;">'
+              +   _homeTuile('🏆', st.seances, 'SÉANCES')
+              +   _homeTuile('🔥', st.serie, 'SÉRIE', st.serie ? '#f59e0b' : null)
+              +   _homeTuile('⏱️', st.minutes, 'MINUTES')
+              +   _homeTuile('📅', st.semaine + '/' + st.objectif, 'SEMAINE',
+                             st.semaine >= st.objectif ? '#4ade80' : null)
+              + '</div>'
+                // Bloc central
+              + '<div style="text-align:center;padding:18px 14px;margin-bottom:14px;'
+              +   'border-radius:18px;background:radial-gradient(circle at 50% 40%,'
+              +   'rgba(74,222,128,0.07),rgba(255,255,255,0.02) 70%);'
+              +   'border:1px solid rgba(74,222,128,0.14);">'
+              +   '<div style="font-size:0.54em;letter-spacing:2.5px;color:' + couleur + ';'
+              +     'font-weight:900;margin-bottom:5px;">' + surtitre + '</div>'
+              +   '<div style="font-family:var(--font-display),sans-serif;font-size:1.15em;'
+              +     'font-weight:800;color:#f1f5f9;margin-bottom:6px;">' + titre + '</div>'
+              +   '<div style="font-size:0.72em;color:#94a3b8;line-height:1.5;max-width:340px;'
+              +     'margin:0 auto;">' + sous + '</div>'
+              + '</div>'
+                // 4 accès rapides
+              + '<div style="font-size:0.52em;letter-spacing:2px;color:#64748b;font-weight:900;'
+              +   'margin-bottom:7px;">ACTIONS RAPIDES</div>'
+              + '<div style="display:flex;gap:7px;margin-bottom:7px;">'
+              +   _homeAcces('⚡', 'Démarrer', "switchTab('workouts')", true)
+              +   _homeAcces('📋', 'Routines', "switchTab('routines')")
+              + '</div>'
+              + '<div style="display:flex;gap:7px;margin-bottom:16px;">'
+              +   _homeAcces('🌀', 'Failles', "switchTab('game')")
+              +   _homeAcces('📚', 'Exercices', "switchTab('exercises')")
+              + '</div>';
+        }
+        window.renderHomeHeader = renderHomeHeader;
+
         function updateHomeStats() {
+            // 🏠 En-tête recalculé à chaque affichage : les stats et le
+            // programme du jour changent.
+            try { if (typeof renderHomeHeader === 'function') renderHomeHeader(); } catch (e) {}
             if (typeof updateYouthBanner === 'function') updateYouthBanner();
             // ▶️ Bandeau de reprise. renderSmartStartButton() existait mais n'était
             // JAMAIS appelée : le message de sortie de séance promettait un bouton
@@ -46691,7 +46958,7 @@
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=920");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=928");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.

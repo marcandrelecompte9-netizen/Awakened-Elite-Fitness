@@ -317,7 +317,12 @@
       return '<button onclick="' + fn + '" style="width:100%;display:flex;align-items:center;gap:13px;'
         + 'padding:14px 15px;margin-bottom:9px;border-radius:14px;cursor:pointer;text-align:left;'
         + 'background:rgba(255,255,255,0.04);border:1px solid ' + couleur + '33;">'
-        + '<div style="font-size:1.5em;flex-shrink:0;">' + emoji + '</div>'
+        // 🎨 Icône dans un CADRE coloré (maquette) : chaque action se
+        // distingue au premier coup d'œil, sans lire le texte.
+        + '<div style="flex-shrink:0;width:42px;height:42px;border-radius:12px;'
+        +   'background:' + couleur + '1c;border:1px solid ' + couleur + '40;'
+        +   'display:flex;align-items:center;justify-content:center;font-size:1.25em;">'
+        +   emoji + '</div>'
         + '<div style="flex:1;min-width:0;">'
         +   '<div style="font-size:0.86em;font-weight:800;color:#f1f5f9;">' + label + '</div>'
         +   '<div style="font-size:0.68em;color:#94a3b8;margin-top:2px;">' + sous + '</div>'
@@ -330,8 +335,12 @@
       : 'Pas encore bougé cette semaine';
 
     ov.innerHTML =
-      '<div style="width:100%;max-width:440px;background:linear-gradient(160deg,#12101a,#0b0b0f);'
-    +   'border:1px solid rgba(236,72,153,0.28);border-radius:20px 20px 16px 16px;padding:18px;">'
+      // ✨ Bordure et halo VERTS (maquette) : la modale se détache du ciel
+      // étoilé au lieu de s'y fondre. Coins uniformes — elle flotte au centre
+      // depuis v890, elle n'est plus calée en bas d'écran.
+      '<div style="width:100%;max-width:440px;background:linear-gradient(160deg,#0f1512,#0a0b0d);'
+    +   'border:1.5px solid rgba(74,222,128,0.45);border-radius:22px;padding:18px;'
+    +   'box-shadow:0 0 40px rgba(74,222,128,0.18),0 12px 40px rgba(0,0,0,0.6);">'
     +   '<div style="width:36px;height:4px;background:rgba(255,255,255,0.18);border-radius:99px;margin:0 auto 16px;"></div>'
     +   '<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">'
     // ⚠️ _av() et non esc() : les avatars modernes sont des clés « av:… »
@@ -494,7 +503,7 @@
       +     '<defs><filter id="constLueur"><feGaussianBlur stdDeviation="3" result="b"/>'
       +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>'
       // 🌌 Nébuleuse de fond : remplace la poussière d'étoiles dessinée.
-      +     '<image href="images/constellation_bg.webp?v=920" x="0" y="0" width="300" height="300" '
+      +     '<image href="images/constellation_bg.webp?v=928" x="0" y="0" width="300" height="300" '
       +       'preserveAspectRatio="xMidYMid slice" opacity="0.95"/>'
       +     anneau
       +     fils

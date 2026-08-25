@@ -5357,7 +5357,25 @@ body.workout-fullscreen .header {
 body.workout-fullscreen #exerciseView {
     padding-top: 0 !important;
     min-height: 100vh;
-    background: linear-gradient(160deg, #0a0a0a 0%, #0F1014 100%);
+    /* 🏋️ Fond : la salle d'entraînement, déjà utilisée par la carte du Corps
+       du Chasseur — l'écran de séance et son point de départ partagent ainsi
+       le même lieu.
+       ⚠️ Voile TRÈS opaque (0,88–0,94) : c'est le seul écran où l'on lit des
+       chiffres en étant essoufflé. L'image donne de la matière, elle ne doit
+       jamais concurrencer le texte.
+       `fixed` : le fond ne défile pas avec le contenu — la salle reste
+       immobile pendant qu'on parcourt les séries. */
+    background-color: #08080b;
+    background-image:
+        linear-gradient(160deg, rgba(8,8,11,0.94) 0%, rgba(8,8,11,0.88) 45%, rgba(8,8,11,0.96) 100%),
+        url(../images/salle_bg_v5.webp?v=928);
+    /* ⚠️ `../` obligatoire : dans un fichier CSS, une url() relative est
+       résolue depuis le DOSSIER DU CSS (css/), pas depuis la page. Sans le
+       préfixe, le navigateur chercherait css/images/… et n'afficherait rien. */
+    background-size: cover, cover;
+    background-position: center, center 30%;
+    background-repeat: no-repeat, no-repeat;
+    background-attachment: scroll, fixed;
 }
 body.workout-fullscreen #workoutTopBar {
     padding-top: max(10px, env(safe-area-inset-top));

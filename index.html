@@ -11,11 +11,11 @@
     <title>Awakened Elite Fitness</title>
 
     <!-- PWA -->
-    <link rel="manifest" href="manifest.json?v=920">
-    <link rel="apple-touch-icon" href="icons/icon-192.png?v=920">
-    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=920">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=920">
-    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=920">
+    <link rel="manifest" href="manifest.json?v=928">
+    <link rel="apple-touch-icon" href="icons/icon-192.png?v=928">
+    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=928">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=928">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=928">
 
     <!-- ⚠️ CAPTURE PRÉCOCE DE L'INVITE D'INSTALLATION.
          Chrome déclenche « beforeinstallprompt » très tôt, souvent AVANT la fin
@@ -44,7 +44,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=920">
+    <link rel="stylesheet" href="css/style.css?v=928">
 </head>
 <body>
 
@@ -202,7 +202,7 @@
                 max-width: 900px;">
 
             <!-- Bannière image : ratio préservé -->
-            <img src="images/banner.png?v=920"
+            <img src="images/banner.png?v=928"
                  alt="Awakened Elite Fitness"
                  style="width:100%;height:auto;display:block;" />
 
@@ -267,6 +267,9 @@
         <div id="homeTab" class="tab-content active">
 
             <!-- ═══ 3. PROFIL & STATS GLOBALES (1 seul bloc consolidé) ═══ -->
+            <!-- 🏠 EN-TÊTE : 4 tuiles d'état, bloc central, 4 accès rapides.
+                 Rempli par renderHomeHeader(). Les cartes existantes suivent. -->
+            <div id="homeHeader"></div>
             <div class="card" id="profileCard" style="position:relative;overflow:hidden;padding:0;border:1px solid rgba(34,197,94,0.14);background:linear-gradient(155deg,#0a0d12 0%,#0d1a14 52%,#123524 100%);color:white;box-shadow:0 6px 28px rgba(0,0,0,0.45);">
 
                 <!-- Texture holographique : fines diagonales, écho du logo -->
@@ -1318,32 +1321,32 @@
             <!-- Exercise View (shown during workout) -->
             <div id="exerciseView" class="hidden">
                 <!-- ── Barre top sci-fi cyberpunk ── -->
-                <div id="workoutTopBar" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;background:linear-gradient(180deg,#020510 0%,#050810 100%);gap:6px;border-bottom:1px solid rgba(34,211,238,0.25);position:relative;box-shadow:0 4px 20px rgba(0,0,0,0.5),inset 0 -1px 0 rgba(34,211,238,0.15);flex-wrap:wrap;">
+                <div id="workoutTopBar" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;background:linear-gradient(180deg,#020510 0%,#020510 100%);gap:6px;border-bottom:1px solid rgba(34,211,238,0.25);position:relative;box-shadow:0 4px 20px rgba(0,0,0,0.5),inset 0 -1px 0 rgba(34,211,238,0.15);flex-wrap:wrap;">
                     <!-- Glow accent line bottom -->
-                    <div style="position:absolute;bottom:-1px;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent 10%,#22d3ee 40%,#06b6d4 60%,transparent 90%);box-shadow:0 0 8px #22d3ee;"></div>
+                    <div style="position:absolute;bottom:-1px;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent 10%,#4ade80 40%,#4ade80 60%,transparent 90%);box-shadow:0 0 8px #4ade80;"></div>
                     <!-- Corner accents top -->
 
                     <!-- Groupe gauche : titre + chrono + volume -->
                     <div style="display:flex;align-items:center;gap:6px;flex:1;min-width:0;overflow:hidden;">
-                        <div id="workoutTopTitle" style="font-size:0.62em;color:#22d3ee;font-weight:900;letter-spacing:2px;text-transform:uppercase;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;text-shadow:0 0 8px rgba(34,211,238,0.3);min-width:0;"></div>
+                        <div id="workoutTopTitle" style="font-size:0.62em;color:#4ade80;font-weight:900;letter-spacing:2px;text-transform:uppercase;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;text-shadow:0 0 8px rgba(34,211,238,0.3);min-width:0;"></div>
                         <!-- ⏱ Chrono session totale -->
-                        <div id="sessionTimerChip" style="display:flex;align-items:center;gap:4px;font-size:0.65em;background:rgba(34,211,238,0.1);border:1px solid rgba(34,211,238,0.4);padding:5px 8px;border-radius:6px;flex-shrink:0;color:#22d3ee;font-weight:900;letter-spacing:0.5px;font-variant-numeric:tabular-nums;text-shadow:0 0 6px rgba(34,211,238,0.4);">
+                        <div id="sessionTimerChip" style="display:flex;align-items:center;gap:4px;font-size:0.65em;background:rgba(34,211,238,0.1);border:1px solid rgba(34,211,238,0.4);padding:5px 8px;border-radius:6px;flex-shrink:0;color:#4ade80;font-weight:900;letter-spacing:0.5px;font-variant-numeric:tabular-nums;text-shadow:0 0 6px rgba(34,211,238,0.4);">
                             <span style="font-size:1em;line-height:1;">⏱</span>
                             <span id="sessionTimerValue">00:00</span>
                         </div>
-                        <div id="liveVolumeChip" style="font-size:0.62em;background:rgba(34,211,238,0.1);border:1px solid rgba(34,211,238,0.4);padding:5px 9px;border-radius:6px;flex-shrink:0;color:#22d3ee;font-weight:700;letter-spacing:0.5px;"></div>
+                        <div id="liveVolumeChip" style="font-size:0.62em;background:rgba(34,211,238,0.1);border:1px solid rgba(34,211,238,0.4);padding:5px 9px;border-radius:6px;flex-shrink:0;color:#4ade80;font-weight:700;letter-spacing:0.5px;"></div>
                     </div>
 
                     <!-- Groupe droite : actions (toujours visibles) -->
                     <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
                         <button onclick="toggleFullscreenMode()" title="Plein écran"
-                                style="background:rgba(34,211,238,0.1);color:#22d3ee;border:1px solid rgba(34,211,238,0.4);
+                                style="background:rgba(34,211,238,0.1);color:#4ade80;border:1px solid rgba(34,211,238,0.4);
                                        border-radius:10px;padding:6px 9px;font-size:0.95em;font-weight:700;cursor:pointer;
                                        min-width:34px;min-height:34px;flex-shrink:0;touch-action:manipulation;transition:all 0.2s;">
                             ⛶
                         </button>
                         <button onclick="toggleWorkoutOptionsPanel()" id="sessionMenuBtn" title="Options" aria-label="Options"
-                                style="background:rgba(34,211,238,0.1);color:#22d3ee;border:1px solid rgba(34,211,238,0.4);
+                                style="background:rgba(34,211,238,0.1);color:#4ade80;border:1px solid rgba(34,211,238,0.4);
                                        border-radius:10px;padding:6px 9px;font-size:0.95em;font-weight:900;cursor:pointer;
                                        min-width:34px;min-height:34px;flex-shrink:0;touch-action:manipulation;letter-spacing:2px;line-height:1;">
                             ···
@@ -1358,12 +1361,12 @@
                         </button>
                     </div>
                 </div>
-                <div class="card workout-main-card cyber-scanlines" style="background:linear-gradient(160deg,#050810 0%,#0a0e18 50%,#050810 100%);border:1px solid rgba(34,211,238,0.18);border-radius:0;border-top:none;box-shadow:0 0 40px rgba(34,211,238,0.04) inset;color:#e2e8f0;position:relative;overflow:hidden;">
+                <div class="card workout-main-card cyber-scanlines" style="background:linear-gradient(160deg,#020510 0%,#020510 50%,#020510 100%);border:1px solid rgba(34,211,238,0.18);border-radius:0;border-top:none;box-shadow:0 0 40px rgba(34,211,238,0.04) inset;color:#e2e8f0;position:relative;overflow:hidden;">
                     <!-- Scan lines decorative -->
                     <div style="position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0px,transparent 3px,rgba(34,211,238,0.012) 3px,rgba(34,211,238,0.012) 4px);pointer-events:none;z-index:0;"></div>
 
                     <!-- Workout Type Badge -->
-                    <div id="workoutTypeBadge" style="background:linear-gradient(90deg,rgba(34,211,238,0.12),rgba(34,211,238,0.04));border:1px solid rgba(34,211,238,0.4);color:#22d3ee;padding:8px 16px;border-radius:6px;text-align:center;font-weight:900;font-size:0.7em;letter-spacing:2.5px;margin-bottom:10px;display:none;text-transform:uppercase;text-shadow:0 0 8px rgba(34,211,238,0.4);position:relative;z-index:1;">
+                    <div id="workoutTypeBadge" style="background:linear-gradient(90deg,rgba(34,211,238,0.12),rgba(34,211,238,0.04));border:1px solid rgba(34,211,238,0.4);color:#4ade80;padding:8px 16px;border-radius:6px;text-align:center;font-weight:900;font-size:0.7em;letter-spacing:2.5px;margin-bottom:10px;display:none;text-transform:uppercase;text-shadow:0 0 8px rgba(34,211,238,0.4);position:relative;z-index:1;">
                         🧠 Séance Intelligente
                     </div>
 
@@ -1373,7 +1376,7 @@
                     </div>
 
                     <div class="progress-bar" style="background:#020510;border-radius:6px;overflow:hidden;height:8px;margin-bottom:18px;border:1px solid rgba(34,211,238,0.25);position:relative;z-index:1;box-shadow:inset 0 0 8px rgba(0,0,0,0.6);">
-                        <div class="progress-fill" id="progressFill" style="background:linear-gradient(90deg,#0891b2,#06b6d4,#22d3ee);box-shadow:0 0 16px rgba(34,211,238,0.8);height:100%;"></div>
+                        <div class="progress-fill" id="progressFill" style="background:linear-gradient(90deg,#0891b2,#4ade80,#4ade80);box-shadow:0 0 16px rgba(34,211,238,0.8);height:100%;"></div>
                     </div>
 
                     <div class="timer" style="text-align:center;padding:8px 0;position:relative;z-index:1;">
@@ -1382,14 +1385,20 @@
                             <div class="next-exercise-name" id="nextExerciseName" style="font-size:0.85em;color:#64748b;font-weight:700;">-</div>
                         </div>
                         <!-- Exercise number with HUD corners -->
-                        <div class="exercise-number" id="exerciseNumber" style="font-size:0.65em;color:#22d3ee;font-weight:900;letter-spacing:3.5px;text-transform:uppercase;margin-bottom:8px;text-shadow:0 0 8px rgba(34,211,238,0.5);">Exercise 1/10</div>
+                        <div class="exercise-number" id="exerciseNumber" style="font-size:0.65em;color:#4ade80;font-weight:900;letter-spacing:3.5px;text-transform:uppercase;margin-bottom:8px;text-shadow:0 0 8px rgba(34,211,238,0.5);">Exercise 1/10</div>
                         <div class="exercise-name" id="exerciseName" style="font-family:var(--font-display);font-size:1.18em;font-weight:700;color:white;letter-spacing:-0.2px;line-height:1.15;margin-bottom:12px;text-transform:uppercase;text-shadow:0 0 10px rgba(34,211,238,0.2);">Échauffement</div>
                         <!-- Muscle Indicator (Tags style cyberpunk) - conservé pour JS, masqué visuellement -->
                         <div id="muscleBadge" style="display:none;"></div>
+                        <!-- 🎯 Fourchette de répétitions, très visible pendant l'effort
+                             (repris de la maquette). Rempli par _updateRepsChip(). -->
+                        <div id="repsRangeChip" style="display:none;margin:7px auto 0;padding:5px 14px;
+                             border-radius:99px;background:rgba(74,222,128,0.12);
+                             border:1px solid rgba(74,222,128,0.35);color:#4ade80;
+                             font-size:0.78em;font-weight:900;letter-spacing:0.5px;width:max-content;"></div>
                         <!-- (Timer déplacé dans le cadre image, coin haut-gauche) -->
 
                                             <!-- ━━━ FRAME VISUEL EXERCICE (cyberpunk HUD) ━━━ -->
-                    <div id="exerciseVisualFrame" style="display:none;margin:14px 0 16px;position:relative;background:linear-gradient(160deg,#020510,#0a0e18 50%,#020510);border:1px solid rgba(34,211,238,0.35);border-radius:14px;overflow:hidden;box-shadow:0 0 24px rgba(34,211,238,0.08),0 8px 32px rgba(0,0,0,0.5),inset 0 0 50px rgba(34,211,238,0.04);min-height:240px;">
+                    <div id="exerciseVisualFrame" style="display:none;margin:14px 0 16px;position:relative;background:linear-gradient(160deg,#020510,#020510 50%,#020510);border:1px solid rgba(34,211,238,0.35);border-radius:14px;overflow:hidden;box-shadow:0 0 24px rgba(34,211,238,0.08),0 8px 32px rgba(0,0,0,0.5),inset 0 0 50px rgba(34,211,238,0.04);min-height:240px;">
 
                         <!-- Coins HUD décoratifs avec glow -->
 
@@ -1404,7 +1413,7 @@
                                 style="position:absolute;top:12px;right:12px;z-index:6;width:46px;height:46px;border-radius:50%;
                                        display:flex;align-items:center;justify-content:center;
                                        background:rgba(2,5,16,0.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
-                                       border:1px solid rgba(34,211,238,0.55);color:#22d3ee;font-size:1.15em;cursor:pointer;line-height:1;
+                                       border:1px solid rgba(34,211,238,0.55);color:#4ade80;font-size:1.15em;cursor:pointer;line-height:1;
                                        box-shadow:0 2px 14px rgba(0,0,0,0.55),0 0 14px rgba(34,211,238,0.15);touch-action:manipulation;">⏸</button>
 
                         <!-- Timer (coin haut-gauche de l'image) -->
@@ -1426,7 +1435,7 @@
 
                         <!-- Optional Tracking Inputs (visible only in REPS mode) -->
                         <div id="repsTrackingInputs" style="display: none; margin: 18px auto 0; max-width: 480px;">
-                            <div style="background:linear-gradient(160deg,#020510 0%,#0a0e18 50%,#020510 100%);padding:20px 18px;border-radius:14px;border:1px solid rgba(74,222,128,0.3);box-shadow:0 8px 32px rgba(0,0,0,0.5),0 0 24px rgba(34,197,94,0.06),inset 0 0 40px rgba(34,197,94,0.02);position:relative;overflow:hidden;">
+                            <div style="background:linear-gradient(160deg,#020510 0%,#020510 50%,#020510 100%);padding:20px 18px;border-radius:14px;border:1px solid rgba(74,222,128,0.3);box-shadow:0 8px 32px rgba(0,0,0,0.5),0 0 24px rgba(34,197,94,0.06),inset 0 0 40px rgba(34,197,94,0.02);position:relative;overflow:hidden;">
 
                                 <!-- Coins décoratifs HUD cyberpunk -->
                                 <div style="position:absolute;top:-1px;left:-1px;width:18px;height:18px;border-top:2px solid #4ade80;border-left:2px solid #4ade80;border-top-left-radius:14px;box-shadow:0 0 8px rgba(74,222,128,0.4);"></div>
@@ -1461,7 +1470,7 @@
                                 <!-- Inputs reps + poids GROS chiffres style screenshot -->
                                 <div class="reps-weight-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
                                     <!-- REPS - GROS CHIFFRES -->
-                                    <div style="background:linear-gradient(180deg,#020510,#0a0e18);padding:14px 10px;border-radius:10px;border:1px solid rgba(74,222,128,0.3);position:relative;overflow:hidden;">
+                                    <div style="background:linear-gradient(180deg,#020510,#020510);padding:14px 10px;border-radius:10px;border:1px solid rgba(74,222,128,0.3);position:relative;overflow:hidden;">
                                         <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#4ade80,transparent);opacity:0.5;"></div>
                                         <span style="display:block;font-size:0.6em;font-weight:900;margin-bottom:8px;color:#4ade80;text-transform:uppercase;letter-spacing:2.5px;text-align:center;text-shadow:0 0 6px rgba(74,222,128,0.4);">RÉPÉTITIONS</span>
                                         <div style="display:flex;align-items:center;gap:6px;">
@@ -1472,7 +1481,7 @@
                                         </div>
                                     </div>
                                     <!-- POIDS - GROS CHIFFRES -->
-                                    <div id="quickWeightCard" style="background:linear-gradient(180deg,#020510,#0a0e18);padding:14px 10px;border-radius:10px;border:1px solid rgba(74,222,128,0.3);position:relative;overflow:hidden;">
+                                    <div id="quickWeightCard" style="background:linear-gradient(180deg,#020510,#020510);padding:14px 10px;border-radius:10px;border:1px solid rgba(74,222,128,0.3);position:relative;overflow:hidden;">
                                         <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#4ade80,transparent);opacity:0.5;"></div>
                                         <span style="display:block;font-size:0.6em;font-weight:900;margin-bottom:8px;color:#4ade80;text-transform:uppercase;letter-spacing:2.5px;text-align:center;text-shadow:0 0 6px rgba(74,222,128,0.4);"><span data-weight-unit>CHARGE (KG)</span></span>
                                         <div style="display:flex;align-items:center;gap:6px;">
@@ -1486,7 +1495,7 @@
 
                                 <!-- Bouton Compléter la série avec glow -->
                                 <button onclick="completeCurrentSet()" id="completeSetBtn"
-                                        style="width:100%;background:linear-gradient(135deg,#16a34a 0%,#22c55e 50%,#4ade80 100%);color:white;border:1.5px solid #4ade80;border-radius:10px;padding:16px;font-size:1em;font-weight:900;cursor:pointer;letter-spacing:3px;box-shadow:0 0 32px rgba(74,222,128,0.5),0 8px 24px rgba(34,197,94,0.4),inset 0 1px 0 rgba(255,255,255,0.25);transition:all 0.2s;text-transform:uppercase;position:relative;overflow:hidden;text-shadow:0 1px 2px rgba(0,0,0,0.3);">
+                                        style="width:100%;background:linear-gradient(135deg,#16a34a 0%,#4ade80 50%,#4ade80 100%);color:white;border:1.5px solid #4ade80;border-radius:10px;padding:16px;font-size:1em;font-weight:900;cursor:pointer;letter-spacing:3px;box-shadow:0 0 32px rgba(74,222,128,0.5),0 8px 24px rgba(34,197,94,0.4),inset 0 1px 0 rgba(255,255,255,0.25);transition:all 0.2s;text-transform:uppercase;position:relative;overflow:hidden;text-shadow:0 1px 2px rgba(0,0,0,0.3);">
                                     ✓ SÉRIE TERMINÉE
                                 </button>
 
@@ -1514,7 +1523,7 @@
                                 <button id="swapBtn" onclick="showSwapExercise()" aria-label="Remplacer l'exercice"
                                         style="display:flex;align-items:center;justify-content:center;gap:5px;
                                                padding:11px 4px;border-radius:10px;cursor:pointer;transition:all 0.15s;
-                                               background:rgba(34,211,238,0.06);border:1px solid rgba(34,211,238,0.3);color:#22d3ee;
+                                               background:rgba(34,211,238,0.06);border:1px solid rgba(34,211,238,0.3);color:#4ade80;
                                                font-size:0.58em;font-weight:900;letter-spacing:0.5px;text-transform:uppercase;white-space:nowrap;">
                                     <span style="font-size:1.1em;line-height:1;">⇄</span>
                                     <span>Remplacer</span>
@@ -1524,7 +1533,7 @@
                                 <button onclick="skipExercise()" aria-label="Suivant"
                                         style="display:flex;align-items:center;justify-content:center;gap:6px;
                                                padding:11px 4px;border-radius:10px;cursor:pointer;transition:all 0.15s;
-                                               background:linear-gradient(135deg,#16a34a,#22c55e,#4ade80);border:1px solid #4ade80;color:white;
+                                               background:linear-gradient(135deg,#16a34a,#4ade80,#4ade80);border:1px solid #4ade80;color:white;
                                                box-shadow:0 0 20px rgba(74,222,128,0.4),0 4px 16px rgba(22,163,74,0.35);
                                                font-size:0.58em;font-weight:900;letter-spacing:0.5px;text-transform:uppercase;white-space:nowrap;
                                                position:relative;overflow:hidden;">
@@ -1554,7 +1563,7 @@
                         </div>
 
                         </div><!-- /timer zone -->                    <!-- Instructions (collapsibles sur mobile) -->
-                    <div class="exercise-description-box" id="exerciseDescriptionBox" style="background:linear-gradient(160deg,#050810,#0a0e18 50%,#050810);border:1px solid rgba(74,222,128,0.2);border-radius:14px;padding:14px;position:relative;">
+                    <div class="exercise-description-box" id="exerciseDescriptionBox" style="background:linear-gradient(160deg,#020510,#020510 50%,#020510);border:1px solid rgba(74,222,128,0.2);border-radius:14px;padding:14px;position:relative;">
                         <!-- Coins HUD subtils -->
                         <div style="position:absolute;top:-1px;left:-1px;width:14px;height:14px;border-top:1.5px solid rgba(74,222,128,0.5);border-left:1.5px solid rgba(74,222,128,0.5);border-top-left-radius:12px;pointer-events:none;"></div>
                         <div style="position:absolute;bottom:-1px;right:-1px;width:14px;height:14px;border-bottom:1.5px solid rgba(74,222,128,0.5);border-right:1.5px solid rgba(74,222,128,0.5);border-bottom-right-radius:12px;pointer-events:none;"></div>
@@ -1607,7 +1616,7 @@
                 </div>
 
                 <!-- Exercise Progress List -->
-                <div class="card exercise-progress-list" id="exerciseProgressListCard" style="background:linear-gradient(160deg,#050810,#0a0e18 50%,#050810);border:1px solid rgba(74,222,128,0.2);border-radius:14px;position:relative;padding:14px;">
+                <div class="card exercise-progress-list" id="exerciseProgressListCard" style="background:linear-gradient(160deg,#020510,#020510 50%,#020510);border:1px solid rgba(74,222,128,0.2);border-radius:14px;position:relative;padding:14px;">
                     <!-- Coins HUD subtils -->
                     <div style="position:absolute;top:-1px;left:-1px;width:14px;height:14px;border-top:1.5px solid rgba(74,222,128,0.5);border-left:1.5px solid rgba(74,222,128,0.5);border-top-left-radius:12px;pointer-events:none;"></div>
                     <div style="position:absolute;bottom:-1px;right:-1px;width:14px;height:14px;border-bottom:1.5px solid rgba(74,222,128,0.5);border-right:1.5px solid rgba(74,222,128,0.5);border-bottom-right-radius:12px;pointer-events:none;"></div>
@@ -1653,7 +1662,7 @@
                     </div>
 
                     <!-- Quick Check Instructions -->
-                    <div id="quickCheckInstructions" style="background: linear-gradient(135deg, #16a34a15 0%, #15803d05 100%); padding: 25px; border-radius: 14px; margin-bottom: 25px; border-left: 4px solid #16a34a;">
+                    <div id="quickCheckInstructions" style="background: linear-gradient(135deg, #16a34a15 0%, #16a34a05 100%); padding: 25px; border-radius: 14px; margin-bottom: 25px; border-left: 4px solid #16a34a;">
                         <h3 style="color: #16a34a; margin-top: 0;">Quick Check (60 secondes)</h3>
                         <p style="margin-bottom: 15px; line-height: 1.6;">Je vais te faire faire 2 exercices rapides pour évaluer ta forme aujourd'hui :</p>
                         <div style="display: grid; gap: 12px;">
@@ -1667,7 +1676,7 @@
                         <p style="margin-top: 15px; font-size: 0.9em; color: #94a3b8;">
                             💡 Après chaque exercice, tu vas évaluer la difficulté ressentie (1-10)
                         </p>
-                        <button onclick="beginQuickCheck()" class="btn" style="width: 100%; margin-top: 20px; background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); font-size: 1.1em; padding: 15px;">
+                        <button onclick="beginQuickCheck()" class="btn" style="width: 100%; margin-top: 20px; background: linear-gradient(135deg, #16a34a 0%, #16a34a 100%); font-size: 1.1em; padding: 15px;">
                             🚀 Commencer le Quick Check
                         </button>
                     </div>
@@ -1695,7 +1704,7 @@
 
                             <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 15px;">
                                 <button onclick="rateDifficulty(1)" class="rpe-btn" style="--rpe-color: #10b981">1<br><span style="font-size: 0.5em; font-weight: 400;">Facile</span></button>
-                                <button onclick="rateDifficulty(2)" class="rpe-btn" style="--rpe-color: #22c55e">2</button>
+                                <button onclick="rateDifficulty(2)" class="rpe-btn" style="--rpe-color: #4ade80">2</button>
                                 <button onclick="rateDifficulty(3)" class="rpe-btn" style="--rpe-color: #4ade80">3</button>
                                 <button onclick="rateDifficulty(4)" class="rpe-btn" style="--rpe-color: #84cc16">4</button>
                                 <button onclick="rateDifficulty(5)" class="rpe-btn" style="--rpe-color: #fbbf24">5<br><span style="font-size: 0.5em; font-weight: 400;">Moyen</span></button>
@@ -1718,7 +1727,7 @@
             </div>
 
             <div id="preparationView" class="hidden">
-                <div class="card" style="background:linear-gradient(165deg,#0a0e18,#0D0D0D);border:1px solid rgba(34,211,238,0.25);position:relative;overflow:hidden;">
+                <div class="card" style="background:linear-gradient(165deg,#020510,#0D0D0D);border:1px solid rgba(34,211,238,0.25);position:relative;overflow:hidden;">
                     <!-- Halo + scanlines subtils -->
                     <div style="position:absolute;inset:0;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(34,211,238,0.12),transparent 60%),radial-gradient(ellipse 60% 40% at 50% 115%,rgba(168,85,247,0.08),transparent 60%);pointer-events:none;"></div>
                     <div style="position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0,transparent 3px,rgba(34,211,238,0.018) 3px,rgba(34,211,238,0.018) 4px);pointer-events:none;"></div>
@@ -1726,7 +1735,7 @@
                     <div style="padding:22px 18px;position:relative;z-index:1;">
                         <!-- En-tête -->
                         <div style="text-align:center;margin-bottom:22px;">
-                            <div style="font-family:'Rajdhani',sans-serif;font-size:0.62em;color:#22d3ee;font-weight:700;letter-spacing:2.5px;margin-bottom:7px;">◈ INITIALISATION SÉANCE</div>
+                            <div style="font-family:'Rajdhani',sans-serif;font-size:0.62em;color:#4ade80;font-weight:700;letter-spacing:2.5px;margin-bottom:7px;">◈ INITIALISATION SÉANCE</div>
                             <h2 style="font-family:'Rajdhani',sans-serif;color:#fff;font-size:1.45em;font-weight:700;letter-spacing:1.5px;margin:0 0 9px;text-shadow:0 0 14px rgba(34,211,238,0.3);">PRÉPAREZ-VOUS</h2>
                             <p id="prepWorkoutName" style="display:inline-block;font-size:0.68em;font-weight:800;color:#c084fc;margin:0;letter-spacing:1px;text-transform:uppercase;background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.3);border-radius:99px;padding:6px 14px;">
                                 Séance Intelligente
@@ -1735,13 +1744,13 @@
 
                         <!-- Stats rapides -->
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
-                            <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);padding:13px;border-radius:14px;text-align:center;">
-                                <div id="prepExerciseCount" style="font-size:1.45em;font-weight:900;color:#22d3ee;font-variant-numeric:tabular-nums;letter-spacing:-1px;">0</div>
+                            <div style="background:rgba(74,222,128,0.05);border:1px solid rgba(74,222,128,0.28);box-shadow:0 0 18px rgba(74,222,128,0.10);padding:13px;border-radius:14px;text-align:center;">
+                                <div id="prepExerciseCount" style="font-size:1.45em;font-weight:900;color:#4ade80;font-variant-numeric:tabular-nums;letter-spacing:-1px;">0</div>
                                 <div style="font-size:0.6em;color:#94a3b8;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-top:4px;">Exercices</div>
                                 <div id="prepExerciseBreakdown" style="display:none;font-size:0.58em;font-weight:800;margin-top:5px;letter-spacing:0.3px;"></div>
                             </div>
-                            <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);padding:13px;border-radius:14px;text-align:center;">
-                                <div id="prepDuration" style="font-size:1.45em;font-weight:900;color:#c084fc;font-variant-numeric:tabular-nums;letter-spacing:-1px;">0 min</div>
+                            <div style="background:rgba(74,222,128,0.05);border:1px solid rgba(74,222,128,0.28);box-shadow:0 0 18px rgba(74,222,128,0.10);padding:13px;border-radius:14px;text-align:center;">
+                                <div id="prepDuration" style="font-size:1.45em;font-weight:900;color:#4ade80;font-variant-numeric:tabular-nums;letter-spacing:-1px;">0 min</div>
                                 <div style="font-size:0.62em;color:#94a3b8;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-top:4px;">Durée est.</div>
                             </div>
 
@@ -1752,7 +1761,7 @@
 
                         <!-- Équipements -->
                         <div style="background:rgba(255,255,255,0.025);padding:16px;border-radius:14px;margin-bottom:12px;border:1px solid rgba(255,255,255,0.08);">
-                            <div style="font-family:'Rajdhani',sans-serif;font-size:0.62em;color:#22d3ee;font-weight:700;letter-spacing:2px;margin-bottom:11px;text-align:left;">◈ ÉQUIPEMENT REQUIS</div>
+                            <div style="font-family:'Rajdhani',sans-serif;font-size:0.62em;color:#4ade80;font-weight:700;letter-spacing:2px;margin-bottom:11px;text-align:left;">◈ ÉQUIPEMENT REQUIS</div>
                             <div id="prepEquipmentList" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;">
                             </div>
                             <p style="font-size:0.68em;color:#64748b;margin:10px 0 0;line-height:1.5;">
@@ -1765,7 +1774,7 @@
 
                         <!-- Liste des exercices -->
                         <div style="background:rgba(255,255,255,0.025);padding:16px;border-radius:14px;margin-bottom:18px;border:1px solid rgba(255,255,255,0.08);">
-                            <div style="font-family:'Rajdhani',sans-serif;font-size:0.62em;color:#22d3ee;font-weight:700;letter-spacing:2px;margin-bottom:11px;text-align:left;">◈ PROGRAMME</div>
+                            <div style="font-family:'Rajdhani',sans-serif;font-size:0.62em;color:#4ade80;font-weight:700;letter-spacing:2px;margin-bottom:11px;text-align:left;">◈ PROGRAMME</div>
                             <div id="prepExercisesList" style="max-height:300px;overflow-y:auto;">
                             </div>
                         </div>
@@ -1774,10 +1783,10 @@
                         <div id="prepMuscleWarning" style="display:none;"></div>
 
                         <div style="display:grid;gap:10px;">
-                            <button class="btn" id="startPreparedBtn" onclick="startPreparedWorkout()" style="background:linear-gradient(135deg,#22d3ee,#0891b2);color:#032027;font-size:0.95em;padding:17px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;border:none;border-radius:14px;box-shadow:0 6px 24px rgba(34,211,238,0.3);">
+                            <button class="btn" id="startPreparedBtn" onclick="startPreparedWorkout()" style="background:linear-gradient(160deg,#86efac 0%,#4ade80 45%,#15803d 100%);color:#032027;font-size:0.95em;padding:17px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;border:none;border-radius:14px;box-shadow:0 0 26px rgba(74,222,128,0.28),inset 0 1px 0 rgba(255,255,255,0.42),0 6px 24px rgba(34,211,238,0.3);">
                                 ▶ Démarrer la séance
                             </button>
-                            <button class="btn btn-secondary" onclick="cancelWorkoutPreparation()" style="background:rgba(255,255,255,0.03);color:#94a3b8;border:1px solid rgba(255,255,255,0.12);font-weight:700;letter-spacing:1px;font-size:0.82em;border-radius:14px;">
+                            <button class="btn btn-secondary" onclick="cancelWorkoutPreparation()" style="background:rgba(255,255,255,0.03);color:#4ade80;border:1px solid rgba(74,222,128,0.28);font-weight:700;letter-spacing:1px;font-size:0.82em;border-radius:14px;">
                                 Annuler
                             </button>
                         </div>
@@ -1791,7 +1800,7 @@
 
             <!-- Completion Screen -->
             <div id="completionView" class="hidden">
-                <div class="card" style="background: linear-gradient(160deg, #020510 0%, #050810 50%, #0a0e18 100%); color: white; overflow: hidden; position: relative; border: 1px solid rgba(74,222,128,0.3); box-shadow: 0 0 32px rgba(34,197,94,0.1), 0 12px 40px rgba(0,0,0,0.5);">
+                <div class="card" style="background: linear-gradient(160deg, #020510 0%, #050810 50%, #020510 100%); color: white; overflow: hidden; position: relative; border: 1px solid rgba(74,222,128,0.3); box-shadow: 0 0 32px rgba(34,197,94,0.1), 0 12px 40px rgba(0,0,0,0.5);">
                     <!-- Coins HUD -->
                     <div style="position:absolute;top:-1px;left:-1px;width:24px;height:24px;border-top:2px solid #4ade80;border-left:2px solid #4ade80;border-top-left-radius:14px;box-shadow:0 0 10px rgba(74,222,128,0.5);pointer-events:none;z-index:2;"></div>
                     <div style="position:absolute;top:-1px;right:-1px;width:24px;height:24px;border-top:2px solid #4ade80;border-right:2px solid #4ade80;border-top-right-radius:14px;box-shadow:0 0 10px rgba(74,222,128,0.5);pointer-events:none;z-index:2;"></div>
@@ -3651,38 +3660,38 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/exercises.js?v=920"></script>
-    <script src="data/items.js?v=920"></script>
-    <script src="js/adventure.js?v=920"></script>
-    <script src="js/economy.js?v=920"></script>
-    <script src="js/challenges.js?v=920"></script>
-    <script src="js/family-boss.js?v=920"></script>
-    <script src="js/family-network.js?v=920"></script>
-    <script src="js/family-challenge.js?v=920"></script>
-    <script src="js/family-goal.js?v=920"></script>
-    <script src="js/family-feed.js?v=920"></script>
-    <script src="js/pre-workout-mood.js?v=920"></script>
-    <script src="js/group-workout.js?v=920"></script>
-    <script src="js/youth-safety.js?v=920"></script>
-    <script src="js/kids-programs.js?v=920"></script>
-    <script src="js/senior-programs.js?v=920"></script>
-    <script src="js/adaptive.js?v=920"></script>
-    <script src="js/pain-mode.js?v=920"></script>
-    <script src="js/recovery-mode.js?v=920"></script>
-    <script src="js/exercise-visuals.js?v=920"></script>
-    <script src="js/strength-standards.js?v=920"></script>
-    <script src="js/system-cards.js?v=920"></script>
-    <script src="js/share-card.js?v=920"></script>
-    <script src="js/story-events.js?v=920"></script>
-    <script src="js/final-boss.js?v=920"></script>
-    <script src="js/disciplines.js?v=920"></script>
-    <script src="js/eveil.js?v=920"></script>
-    <script src="js/app.js?v=920"></script>
-    <script src="js/awakening-tree.js?v=920"></script>
-    <script src="js/ui-kit.js?v=920"></script>
-    <script src="js/feature-map.js?v=920"></script>
-    <script src="js/weekly-recap.js?v=920"></script>
-    <script src="js/workout-games.js?v=920"></script>
+    <script src="js/exercises.js?v=928"></script>
+    <script src="data/items.js?v=928"></script>
+    <script src="js/adventure.js?v=928"></script>
+    <script src="js/economy.js?v=928"></script>
+    <script src="js/challenges.js?v=928"></script>
+    <script src="js/family-boss.js?v=928"></script>
+    <script src="js/family-network.js?v=928"></script>
+    <script src="js/family-challenge.js?v=928"></script>
+    <script src="js/family-goal.js?v=928"></script>
+    <script src="js/family-feed.js?v=928"></script>
+    <script src="js/pre-workout-mood.js?v=928"></script>
+    <script src="js/group-workout.js?v=928"></script>
+    <script src="js/youth-safety.js?v=928"></script>
+    <script src="js/kids-programs.js?v=928"></script>
+    <script src="js/senior-programs.js?v=928"></script>
+    <script src="js/adaptive.js?v=928"></script>
+    <script src="js/pain-mode.js?v=928"></script>
+    <script src="js/recovery-mode.js?v=928"></script>
+    <script src="js/exercise-visuals.js?v=928"></script>
+    <script src="js/strength-standards.js?v=928"></script>
+    <script src="js/system-cards.js?v=928"></script>
+    <script src="js/share-card.js?v=928"></script>
+    <script src="js/story-events.js?v=928"></script>
+    <script src="js/final-boss.js?v=928"></script>
+    <script src="js/disciplines.js?v=928"></script>
+    <script src="js/eveil.js?v=928"></script>
+    <script src="js/app.js?v=928"></script>
+    <script src="js/awakening-tree.js?v=928"></script>
+    <script src="js/ui-kit.js?v=928"></script>
+    <script src="js/feature-map.js?v=928"></script>
+    <script src="js/weekly-recap.js?v=928"></script>
+    <script src="js/workout-games.js?v=928"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>
