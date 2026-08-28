@@ -235,6 +235,118 @@
   // ══════════════════════════════════════════════════════════════════
 
 
+
+  // ══════════════════════════════════════════════════════════════
+  // 🏅 BADGES FAMILLE
+  // --------------------------------------------------------------
+  // Les défis ne laissaient AUCUNE trace une fois terminés : le tableau
+  // awakFamilyChallenges ne garde que les défis en cours. On enregistre donc
+  // les victoires à part, dans un compteur cumulatif — sans quoi un badge
+  // « 5 défis gagnés » serait impossible à calculer.
+  // ══════════════════════════════════════════════════════════════
+  var FAM_BADGES = [
+    { id: 'premier_duel', emoji: '⚔️', nom: 'Premier duel',
+      desc: 'Gagner un défi',            seuil: 1,  cle: 'defisGagnes' },
+    { id: 'duelliste',    emoji: '🏆', nom: 'Duelliste',
+      desc: 'Gagner 5 défis',            seuil: 5,  cle: 'defisGagnes' },
+    { id: 'champion',     emoji: '👑', nom: 'Champion de famille',
+      desc: 'Gagner 15 défis',           seuil: 15, cle: 'defisGagnes' },
+    { id: 'equipe',       emoji: '🤝', nom: 'Esprit d\'équipe',
+      desc: 'Terminer 3 défis d\'équipe', seuil: 3,  cle: 'coopsFinis' },
+    { id: 'objectif',     emoji: '🎯', nom: 'Cap tenu',
+      desc: 'Atteindre un objectif commun', seuil: 1, cle: 'objectifsAtteints' },
+    { id: 'soutien',      emoji: '💜', nom: 'Toujours là',
+      desc: 'Envoyer 20 encouragements', seuil: 20, cle: 'encouragements' },
+    { id: 'constellation', emoji: '✦', nom: 'Constellation',
+      desc: 'Lier 3 membres à ta famille', seuil: 3, cle: 'membresLies' },
+    { id: 'duo',          emoji: '🎮', nom: 'À deux c\'est mieux',
+      desc: 'Faire 10 séances à deux',   seuil: 10, cle: 'seancesDuo' }
+  ];
+
+  var FB_KEY = 'awakFamBadgeStats';
+
+  function _famStats() {
+    try { return JSON.parse(localStorage.getItem(FB_KEY) || '{}'); }
+    catch (e) { return {}; }
+  }
+  function _famStatsSave(o) {
+    try { localStorage.setItem(FB_KEY, JSON.stringify(o || {})); } catch (e) {}
+  }
+
+  // Incrémente un compteur et signale les badges NOUVELLEMENT obtenus.
+  window.AwakFamBadgeInc = function (cle, n) {
+    var st = _famStats();
+    var avant = st[cle] || 0;
+    st[cle] = avant + (n || 1);
+    _famStatsSave(st);
+    // Un badge vient-il d'être franchi ?
+    FAM_BADGES.forEach(function (b) {
+      if (b.cle !== cle) return;
+      if (avant < b.seuil && st[cle] >= b.seuil) {
+        try {
+          if (typeof window.showToast === 'function') {
+            window.showToast(b.emoji + ' Badge débloqué : ' + b.nom + ' !', 'success', 4000);
+          }
+        } catch (e) {}
+      }
+    });
+    return st[cle];
+  };
+
+  window.AwakFamBadges = function () {
+    var st = _famStats();
+    // Membres liés : compté en direct, pas besoin d'un compteur.
+    try { st.membresLies = myRelations().length; } catch (e) {}
+    return FAM_BADGES.map(function (b) {
+      var v = st[b.cle] || 0;
+      return { id: b.id, emoji: b.emoji, nom: b.nom, desc: b.desc,
+               seuil: b.seuil, valeur: v, obtenu: v >= b.seuil };
+    });
+  };
+
+  // 🏅 Carte des badges, ouverte depuis l'icône de la Constellation.
+  window.AwakFamBadgesOpen = function () {
+    document.getElementById('awakFamBadges')?.remove();
+    var b = window.AwakFamBadges();
+    var n = b.filter(function (x) { return x.obtenu; }).length;
+    var ov = document.createElement('div');
+    ov.id = 'awakFamBadges';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:11000;background:rgba(0,0,0,0.88);'
+      + 'backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;'
+      + 'padding:16px;overflow-y:auto;';
+    ov.innerHTML =
+      '<div style="width:100%;max-width:440px;margin:auto;background:linear-gradient(160deg,#0f1512,#0a0b0d);'
+    +   'border:1.5px solid rgba(74,222,128,0.40);border-radius:22px;padding:18px;'
+    +   'box-shadow:0 0 40px rgba(74,222,128,0.16);">'
+    +   '<div style="width:36px;height:4px;background:rgba(255,255,255,0.18);border-radius:99px;margin:0 auto 14px;"></div>'
+    +   '<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px;">'
+    +     '<span style="font-size:0.56em;letter-spacing:2.5px;color:#4ade80;font-weight:900;">🏅 BADGES DE FAMILLE</span>'
+    +     '<span style="font-size:0.72em;color:#94a3b8;font-weight:700;">' + n + ' / ' + b.length + '</span>'
+    +   '</div>'
+    +   '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:9px;">'
+    +   b.map(function (x) {
+          return '<div style="padding:12px 10px;border-radius:13px;text-align:center;'
+            + 'background:' + (x.obtenu ? 'rgba(74,222,128,0.10)' : 'rgba(255,255,255,0.03)') + ';'
+            + 'border:1px solid ' + (x.obtenu ? 'rgba(74,222,128,0.35)' : 'rgba(255,255,255,0.07)') + ';">'
+            + '<div style="font-size:1.7em;line-height:1;margin-bottom:6px;'
+            +   (x.obtenu ? '' : 'filter:grayscale(1);opacity:0.35;') + '">' + x.emoji + '</div>'
+            + '<div style="font-size:0.66em;font-weight:800;color:'
+            +   (x.obtenu ? '#4ade80' : '#64748b') + ';">' + x.nom + '</div>'
+            + '<div style="font-size:0.56em;color:#475569;margin-top:3px;line-height:1.3;">' + x.desc + '</div>'
+            + '<div style="font-size:0.58em;color:' + (x.obtenu ? '#4ade80' : '#475569')
+            +   ';font-weight:800;margin-top:5px;">' + Math.min(x.valeur, x.seuil) + ' / ' + x.seuil + '</div>'
+            + '</div>';
+        }).join('')
+    +   '</div>'
+    +   '<button onclick="document.getElementById(\'awakFamBadges\').remove()" '
+    +     'style="width:100%;padding:12px;margin-top:14px;border-radius:13px;cursor:pointer;'
+    +     'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);'
+    +     'color:#94a3b8;font-size:0.75em;font-weight:800;letter-spacing:1px;">FERMER</button>'
+    + '</div>';
+    ov.onclick = function (e) { if (e.target === ov) ov.remove(); };
+    document.body.appendChild(ov);
+  };
+
   // 👨‍👩‍👧 GESTION DE LA FAMILLE — modale unique.
   // La carte « Ma famille » restait sous la constellation uniquement parce
   // qu'elle portait l'ajout de membre et le journal. On la déplace ici pour
@@ -378,6 +490,8 @@
     document.getElementById('awakConstMenu')?.remove();
     try {
       if (quoi === 'nudge' && typeof window.AwakFamilyNudge === 'function') {
+    // 🏅 Compter l'encouragement envoyé (badge « Toujours là »).
+    try { if (typeof window.AwakFamBadgeInc === 'function') window.AwakFamBadgeInc('encouragements', 1); } catch (e) {}
         window.AwakFamilyNudge(memberId);
       } else if (quoi === 'games' && typeof window.AwakGamesOpen === 'function') {
         window.AwakGamesOpen();
@@ -503,7 +617,7 @@
       +     '<defs><filter id="constLueur"><feGaussianBlur stdDeviation="3" result="b"/>'
       +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>'
       // 🌌 Nébuleuse de fond : remplace la poussière d'étoiles dessinée.
-      +     '<image href="images/constellation_bg.webp?v=938" x="0" y="0" width="300" height="300" '
+      +     '<image href="images/constellation_bg.webp?v=952" x="0" y="0" width="300" height="300" '
       +       'preserveAspectRatio="xMidYMid slice" opacity="0.95"/>'
       +     anneau
       +     fils
@@ -527,6 +641,7 @@
       +     '<div style="font-size:0.56em;letter-spacing:2.5px;color:#ec4899;font-weight:900;">✦ CONSTELLATION DES ANCRES</div>'
       +     '<div style="font-size:0.52em;letter-spacing:1.5px;color:#64748b;font-weight:800;">'
       +       (membres.length + 1) + ' ÉTOILES</div>'
+
       +   '</div>'
       // ⚠️ EN FLUX, pas en position:absolute — les boutons du pied (v900)
       // passaient sous ce bandeau et le texte se chevauchait.
@@ -561,6 +676,10 @@
               + '</div>';
           })()
       +   '<div style="display:flex;border-top:1px solid rgba(255,255,255,0.06);">'
+      // 🏅 Accès aux badges de famille, dans la barre du pied de carte.
+      +     '<button onclick="AwakFamBadgesOpen()" style="flex:1;padding:11px;background:transparent;'
+      +       'border:none;border-right:1px solid rgba(255,255,255,0.06);color:#4ade80;'
+      +       'font-size:0.64em;font-weight:800;letter-spacing:1px;cursor:pointer;">🏅 BADGES</button>'
       +     '<button onclick="AwakFamilyManage()" style="flex:1;padding:11px;background:transparent;'
       +       'border:none;border-right:1px solid rgba(255,255,255,0.06);color:#94a3b8;'
       +       'font-size:0.64em;font-weight:800;letter-spacing:1px;cursor:pointer;">👨‍👩‍👧 MA FAMILLE</button>'

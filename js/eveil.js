@@ -43,6 +43,24 @@
   function _toast(m, t, d) { if (typeof global.showToast === 'function') global.showToast(m, t || 'info', d || 3000); }
 
   // ── QUESTIONNAIRE ──────────────────────────────────────────────────────
+  // 🧒 QUESTIONNAIRE ENFANT — le questionnaire adulte demande les horaires de
+  // TRAVAIL, s'il y a des ENFANTS à charge, l'heure de coucher choisie et les
+  // habitudes de repas. Un enfant ne décide de rien de tout ça : ces questions
+  // n'ont pas de réponse pour lui, et ses réponses au hasard fausseraient le
+  // parcours. On lui demande ce qu'il sait : ce qu'il aime, quand il bouge.
+  var QUESTIONS_CHILD = [
+    { id: 'exp',    q: 'Est-ce que tu fais déjà du sport ?',
+      opts: [['jamais', '🌱 Pas vraiment'], ['parfois', '🙂 De temps en temps'], ['souvent', '💪 Souvent']] },
+    { id: 'days',   q: 'Combien de jours par semaine tu veux bouger ?',
+      opts: [['2', '2 jours'], ['3', '3 jours'], ['4', '4 jours']] },
+    { id: 'moment', q: 'Quand est-ce que tu as le plus d\'énergie ?',
+      opts: [['matin', '🌅 Le matin'], ['midi', '☀️ Le midi'], ['soir', '🌆 En fin de journée']] },
+    { id: 'aime',   q: 'Qu\'est-ce que tu préfères ?',
+      opts: [['jeux', '🎮 Les jeux et les défis'], ['sport', '⚽ Le sport'], ['dehors', '🌳 Être dehors']] },
+    { id: 'avec',   q: 'Tu préfères bouger comment ?',
+      opts: [['seul', '🧍 Tout seul'], ['famille', '👨‍👩‍👧 Avec ma famille'], ['amis', '👦 Avec des amis']] }
+  ];
+
   var QUESTIONS = [
     { id: 'exp',    q: 'As-tu déjà fait du sport régulièrement ?', opts: [['jamais', '🌱 Jamais vraiment'], ['longtemps', '⏳ Il y a longtemps'], ['recent', '💪 Un peu récemment']] },
     { id: 'days',   q: 'Combien de jours par semaine peux-tu bouger ?', opts: [['2', '2 jours'], ['3', '3 jours'], ['4', '4 jours']] },
@@ -80,7 +98,32 @@
 
   // ── QUÊTES D'HABITUDES (introduites progressivement : 2 en S1 → 4 en S4,
   //    car changer UNE chose à la fois tient mieux que tout changer d'un coup) ─
+  // 🧒 QUÊTES ENFANT (< 13 ans)
+  // Les quêtes adultes parlent d'enfants à charge, de travail de nuit, de
+  // protéines et de « 1,5 à 2 L d'eau » — des repères calibrés pour un adulte
+  // autonome. Un enfant ne décide ni de son heure de coucher ni de ses repas :
+  // lui donner ces objectifs le met en échec sur des choses qu'il ne contrôle
+  // pas. On vise donc ce qui dépend VRAIMENT de lui : bouger, dormir assez,
+  // boire, et faire les choses avec sa famille.
+  function _buildQuestsChild() {
+    return [
+      { id: 'sleep', emoji: '😴', label: 'Aller au lit à l\'heure, sans écran avant', week: 1 },
+      { id: 'move',  emoji: '🤸', label: 'Bouger 30 minutes aujourd\'hui (jeu, sport, vélo)', week: 1 },
+      { id: 'water', emoji: '💧', label: 'Boire de l\'eau quand j\'ai soif', week: 2 },
+      { id: 'play',  emoji: '👨‍👩‍👧', label: 'Faire une activité avec quelqu\'un de ma famille', week: 2 },
+      { id: 'veg',   emoji: '🥕', label: 'Goûter à tout ce qu\'il y a dans mon assiette', week: 3 },
+      { id: 'sun',   emoji: '☀️', label: 'Passer un moment dehors', week: 3 }
+    ];
+  }
+
   function _buildQuests(a) {
+    // 🧒 Aiguillage : un profil enfant reçoit ses propres quêtes.
+    try {
+      if (window.AwakYouth && typeof window.AwakYouth.isChild === 'function'
+          && window.AwakYouth.isChild()) {
+        return _buildQuestsChild();
+      }
+    } catch (e) {}
     var q = [];
     // 1. Sommeil — toujours en premier : c'est le multiplicateur de tout le reste.
     var lateOrTired = (a.dodo === 'apres24' || a.dodo === '23-24' || a.reveil === 'fatigue');
@@ -218,6 +261,17 @@
   }
 
   // ── QUESTIONNAIRE (assistant plein écran, une question à la fois) ──────
+  // 🧒 Renvoie le questionnaire adapté à l'âge du profil actif.
+  function _questions() {
+    try {
+      if (window.AwakYouth && typeof window.AwakYouth.isChild === 'function'
+          && window.AwakYouth.isChild()) {
+        return QUESTIONS_CHILD;
+      }
+    } catch (e) {}
+    return QUESTIONS;
+  }
+
   function eveilStartQuestionnaire() {
     var old = document.getElementById('eveilOfferModal'); if (old) old.remove();
     var oldQ = document.getElementById('eveilQuizModal'); if (oldQ) oldQ.remove();
@@ -228,17 +282,17 @@
     document.body.appendChild(ov);
 
     function render() {
-      var Q = QUESTIONS[idx];
+      var Q = _questions()[idx];
       var opts = Q.opts.slice();
       // 👨‍👧 Parents de jeunes enfants : le coucher des enfants est souvent
       // LE créneau réaliste — on l'ajoute comme ancre possible.
       if (Q.id === 'anchor' && (answers.kids === 'bebe' || answers.kids === 'enfants')) {
         opts.push(['dodo-enfants', '🌙 Le coucher des enfants']);
       }
-      var pct = Math.round(idx / QUESTIONS.length * 100);
+      var pct = Math.round(idx / _questions().length * 100);
       ov.innerHTML = '<div style="max-width:400px;width:100%;background:linear-gradient(165deg,#0F1014,#141826);border:1px solid rgba(168,85,247,0.3);border-radius:20px;padding:24px 22px;">'
         + '<div style="height:5px;background:rgba(255,255,255,0.07);border-radius:4px;overflow:hidden;margin-bottom:18px;"><div style="height:100%;width:' + pct + '%;background:linear-gradient(90deg,#a855f7,#7c3aed);border-radius:4px;transition:width 0.3s;"></div></div>'
-        + '<div style="font-size:0.68em;color:#a855f7;font-weight:800;letter-spacing:1px;margin-bottom:6px;">QUESTION ' + (idx + 1) + ' / ' + QUESTIONS.length + '</div>'
+        + '<div style="font-size:0.68em;color:#a855f7;font-weight:800;letter-spacing:1px;margin-bottom:6px;">QUESTION ' + (idx + 1) + ' / ' + _questions().length + '</div>'
         + '<h3 style="margin:0 0 16px;color:#fff;font-size:1.02em;line-height:1.35;">' + Q.q + '</h3>'
         + '<div style="display:grid;gap:9px;">'
         + opts.map(function (o) {
@@ -251,7 +305,7 @@
         b.onclick = function () {
           answers[Q.id] = b.getAttribute('data-val');
           idx++;
-          if (idx >= QUESTIONS.length) { ov.remove(); eveilStart(answers); }
+          if (idx >= _questions().length) { ov.remove(); eveilStart(answers); }
           else render();
         };
       });
@@ -504,7 +558,7 @@
       + '<span style="font-size:1.7em;">🌅</span>'
       + '<div style="flex:1;min-width:0;"><div style="font-weight:900;color:#fff;font-size:0.95em;">Parcours de l\'Éveil</div>'
       + '<div style="font-size:0.7em;color:#c4b5fd;">Semaine ' + wk + ' / 4 · Jour ' + Math.min(day, 28) + ' / 28</div></div>'
-      + '<button onclick="if(confirm(\'Arrêter le Parcours de l\\\'Éveil ?\')) awakEveilStop()" style="background:none;border:none;color:#475569;font-size:0.9em;cursor:pointer;padding:4px;">✕</button></div>'
+      + '<button onclick="awakEveilConfirmStop()" style="background:none;border:none;color:#475569;font-size:0.9em;cursor:pointer;padding:4px;">✕</button></div>'
       + '<div style="height:6px;background:rgba(255,255,255,0.07);border-radius:5px;overflow:hidden;margin-bottom:13px;"><div style="height:100%;width:' + Math.round(Math.min(day, 28) / 28 * 100) + '%;background:linear-gradient(90deg,#a855f7,#7c3aed);border-radius:5px;"></div></div>'
       + (!mood
           ? '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:9px 11px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.09);border-radius:11px;">'
@@ -599,6 +653,24 @@
   global.awakEveilToggleTiming = eveilToggleTiming;
   global.awakEveilToggleLesson = eveilToggleLesson;
   global.awakEveilRenderHomeCard = eveilRenderHomeCard;
+  // ⚠️ confirm() NATIF remplacé (v941) : il affichait une boîte système sur
+  // fond blanc, en rupture avec le reste de l'app. showConfirm() est la
+  // modale maison utilisée partout ailleurs.
+  global.awakEveilConfirmStop = function () {
+    var msg = 'Tu perdras ta progression dans le Parcours. '
+            + 'Tu pourras le recommencer depuis le début plus tard.';
+    if (typeof global.showConfirm === 'function') {
+      global.showConfirm(msg, function () { eveilStop(); }, null, {
+        title: "Arrêter le Parcours de l'Éveil ?",
+        icon: '🌅',
+        confirmLabel: 'Arrêter',
+        cancelLabel: 'Continuer'
+      });
+      return;
+    }
+    if (confirm("Arrêter le Parcours de l'Éveil ?")) eveilStop();
+  };
+
   global.awakEveilStop = eveilStop;
   global.awakEveilExtend = eveilExtend;
 })(typeof window !== 'undefined' ? window : this);

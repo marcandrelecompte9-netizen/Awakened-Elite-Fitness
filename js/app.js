@@ -4116,6 +4116,36 @@
         function showPlanDetails(planId) {
             const plan = predefinedPlans[planId];
             if (!plan) return;
+
+            // 🧒 PROGRAMMES ADULTES : « Prise de masse 12 semaines »,
+            // « Hypertrophie », « Force pure »… sont des cadres pensés pour un
+            // corps adulte. isDiscouraged() filtrait les EXERCICES par matériel,
+            // mais rien ne filtrait les PROGRAMMES : un enfant pouvait en lancer
+            // un sans le moindre avertissement.
+            // On ne bloque pas — on prévient, et on laisse choisir.
+            try {
+                if (window.AwakYouth && typeof AwakYouth.isProgramDiscouraged === 'function'
+                    && AwakYouth.isProgramDiscouraged(plan)) {
+                    if (typeof showConfirm === 'function') {
+                        showConfirm(
+                            'Ce programme est conçu pour des adultes : charges lourdes et '
+                          + 'volume élevé. Avant 13 ans, le corps grandit encore — mieux vaut '
+                          + 'privilégier le jeu, la coordination et le poids du corps.',
+                            function () { _showPlanDetailsReal(planId); },
+                            null,
+                            { title: 'Programme pour adultes', icon: '🌱',
+                              confirmLabel: 'Voir quand même', cancelLabel: 'Choisir un autre' }
+                        );
+                        return;
+                    }
+                }
+            } catch (e) {}
+            _showPlanDetailsReal(planId);
+        }
+
+        function _showPlanDetailsReal(planId) {
+            const plan = predefinedPlans[planId];
+            if (!plan) return;
             
             const totalSessions = plan.weeks.reduce((sum, w) => sum + w.sessions.length, 0);
             
@@ -8782,6 +8812,11 @@
             document.getElementById('profileGoal').value = profile.goal;
             document.getElementById('profileLevel').value = profile.level;
             document.getElementById('profileAge').value = profile.age;
+            // 🎂 Date de naissance (optionnelle)
+            try {
+                const _bd = document.getElementById('profileBirthdate');
+                if (_bd) _bd.value = profile.birthdate || '';
+            } catch (e) {}
             const _sexEl = document.getElementById('profileSex');
             if (_sexEl) _sexEl.value = profile.sex || '';
             const _heroEl = document.getElementById('profileHero');
@@ -8815,6 +8850,9 @@
                 goal: document.getElementById('profileGoal').value,
                 level: document.getElementById('profileLevel').value,
                 age: parseInt(document.getElementById('profileAge').value) || 30,
+                // 🎂 Conservée telle quelle : AwakYouth en déduit l'âge réel
+                // chaque jour et détecte les anniversaires.
+                birthdate: (document.getElementById('profileBirthdate') || {}).value || '',
                 sex: document.getElementById('profileSex') ? document.getElementById('profileSex').value : '',
                 hero: document.getElementById('profileHero') ? document.getElementById('profileHero').value : '',
                 weight: useKg ? Math.round(_wRaw) : Math.round(_wRaw * 0.453592), // stocké en kg
@@ -8866,17 +8904,12 @@
             const celeb = getActiveCelebrity();
             const badge = document.getElementById('activeCelebBadge');
             const celebBanner = document.getElementById('activeCelebBanner');
-            if (badge) {
-                if (celeb) {
-                    badge.style.display = 'inline-flex';
-                    badge.style.background = celeb.color + '33';
-                    badge.style.borderColor = celeb.color + '88';
-                    badge.style.color = 'white';
-                    badge.textContent = celeb.emoji + ' ' + celeb.nickname;
-                } else {
-                    badge.style.display = 'none';
-                }
-            }
+            // ⚠️ BADGE MASQUÉ (v948) : la personnalité active s'affichait DEUX
+            // fois — en pastille dans la rangée d'objectifs, puis en bannière
+            // juste dessous. La bannière porte davantage (semaine, progression),
+            // on garde donc elle seule. Le badge reste dans le DOM au cas où
+            // un autre écran le lirait.
+            if (badge) badge.style.display = 'none';
             // Bannière personnalité dans le profil
             if (celebBanner) {
                 if (celeb) {
@@ -23123,16 +23156,23 @@
                 ['Biceps',     'Biceps',      '<path d="M49,97 L62,97 L45,116 L33,116 Z"/><path d="M151,97 L138,97 L155,116 L167,116 Z"/>'],
                 ['Avant-bras', 'Avant-bras',  '<path d="M27,124 L36,124 L25,140 L18,140 Z"/><path d="M173,124 L164,124 L175,140 L182,140 Z"/>'],
                 ['Abdos',      'Abdominaux',  '<path d="M85,97 h30 a3,3 0 0 1 3,3 v27 a3,3 0 0 1 -3,3 h-30 a3,3 0 0 1 -3,-3 v-27 a3,3 0 0 1 3,-3 Z"/>'],
+                // Obliques : suivis par getAllMusclesRecoveryStatus mais absents
+                // de la silhouette — le muscle n'était donc jamais consultable.
+                ['Obliques',   'Obliques',    '<path d="M76,99 L82,96 L82,128 L78,122 Z"/><path d="M124,99 L118,96 L118,128 L122,122 Z"/>'],
                 ['Quadriceps', 'Quadriceps',  '<ellipse cx="80" cy="177" rx="10" ry="21"/><ellipse cx="120" cy="177" rx="10" ry="21"/>'],
                 ['Mollets',    'Mollets',     '<ellipse cx="67" cy="231" rx="7" ry="16"/><ellipse cx="133" cy="231" rx="7" ry="16"/>']
             ] : [
                 ['Trapèzes',   'Trapèzes',    '<path d="M86,47 L100,41 L114,47 L111,70 L100,64 L89,70 Z"/>'],
                 ['Dos',        'Dos',         '<path d="M83,75 L98,81 L98,120 L87,110 Z"/><path d="M117,75 L102,81 L102,120 L113,110 Z"/>'],
                 ['Triceps',    'Triceps',     '<path d="M51,93 L64,93 L46,113 L34,113 Z"/><path d="M149,93 L136,93 L154,113 L166,113 Z"/>'],
-                ['Avant-bras', 'Avant-bras',  '<path d="M29,124 L38,124 L24,140 L17,140 Z"/><path d="M171,124 L162,124 L176,140 L183,140 Z"/>'],
+                // ⚠️ Avant-bras et Mollets NE SONT PLUS ici : ce sont des membres,
+                // visibles des deux côtés, mais la base ne connaît qu'UN muscle
+                // « Avant-bras » et UN muscle « Mollets ». Les afficher dans les
+                // deux vues montrait deux fois la même donnée — même état, même
+                // séance lancée — sans que rien ne l'explique.
+                // Ils restent sur la vue de FACE, qui est celle par défaut.
                 ['Fessiers',   'Fessiers',    '<path d="M82,131 C82,123 99,123 99,131 L99,149 C99,157 82,157 82,149 Z"/><path d="M118,131 C118,123 101,123 101,131 L101,149 C101,157 118,157 118,149 Z"/>'],
-                ['Ischios',    'Ischio-jambiers', '<ellipse cx="81" cy="180" rx="10" ry="20"/><ellipse cx="119" cy="180" rx="10" ry="20"/>'],
-                ['Mollets',    'Mollets',     '<ellipse cx="70" cy="233" rx="7" ry="16"/><ellipse cx="130" cy="233" rx="7" ry="16"/>']
+                ['Ischios',    'Ischio-jambiers', '<ellipse cx="81" cy="180" rx="10" ry="20"/><ellipse cx="119" cy="180" rx="10" ry="20"/>']
             ];
 
             var svgZones = '', prets = 0, pretsNoms = [];
@@ -23208,7 +23248,7 @@
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=938);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=952);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -23252,7 +23292,7 @@
                 +       '<feGaussianBlur stdDeviation="2.4" result="b"/>'
                 +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>'
                 +     '</filter></defs>'
-                +     '<image href="' + img + '?v=938" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=952" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -27931,7 +27971,7 @@
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=938");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=952");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -32475,7 +32515,7 @@
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url('images/faille_fermee_bg.webp?v=938');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url('images/faille_fermee_bg.webp?v=952');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <div style="font-size:3.4em;line-height:1;margin-bottom:10px;filter:drop-shadow(0 0 18px ${theme.color});animation:awakBriefFloat 4s ease-in-out infinite;">${theme.emoji}</div>
                     <div style="display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:9px;flex-wrap:wrap;">
@@ -33668,7 +33708,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=938');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=952');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -38798,6 +38838,9 @@
         };
 
         function completeWorkout() {
+            // ⏳ Mode enfant : proposer une pause après une longue session.
+            try { if (typeof awakEnfantChrono === 'function') awakEnfantChrono(); } catch (e) {}
+
             // ⚡ ASSAUT : si le monstre tient encore, on n'enregistre PAS la
             // séance — on propose d'abord la prolongation de 5 minutes.
             try {
@@ -44725,16 +44768,36 @@
                 // j'ai laissé l'opérateur du premier morceau. `innerHTML = + '…'`
                 // convertit la chaîne en NOMBRE → NaN, puis affiche le CSS brut.
                 // Bloc central
-                '<div style="text-align:center;padding:18px 14px;margin-bottom:14px;'
-              +   'border-radius:18px;background:radial-gradient(circle at 50% 40%,'
-              +   'rgba(74,222,128,0.07),rgba(255,255,255,0.02) 70%);'
-              +   'border:1px solid rgba(74,222,128,0.14);">'
+                // 🌀 VORTEX — le bloc central de la maquette. Anneaux violets
+                // concentriques en SVG, tournant lentement. Le violet reste la
+                // couleur des Failles ailleurs, mais ici il évoque le Système
+                // lui-même : c'est le même univers, pas une confusion.
+                '<div style="position:relative;overflow:hidden;text-align:center;'
+              +   'padding:26px 14px 22px;margin-bottom:14px;border-radius:18px;'
+              +   'background:radial-gradient(circle at 50% 45%,rgba(126,34,206,0.30),'
+              +   'rgba(88,28,135,0.12) 45%,rgba(10,10,14,0) 75%);'
+              +   'border:1px solid rgba(168,85,247,0.16);">'
+              // anneaux du vortex
+              +   '<svg viewBox="0 0 300 300" preserveAspectRatio="xMidYMid slice" '
+              +     'style="position:absolute;inset:0;width:100%;height:100%;opacity:0.55;'
+              +     'pointer-events:none;">'
+              +     '<g style="transform-origin:150px 150px;animation:awakVortex 26s linear infinite;">'
+              +       [58, 82, 106, 130].map(function (r, k) {
+                        return '<ellipse cx="150" cy="150" rx="' + r + '" ry="' + (r * 0.62).toFixed(0) + '" '
+                          + 'fill="none" stroke="#a855f7" stroke-width="' + (1.6 - k * 0.25).toFixed(2) + '" '
+                          + 'opacity="' + (0.42 - k * 0.07).toFixed(2) + '" '
+                          + 'transform="rotate(' + (k * 22) + ' 150 150)"/>';
+                      }).join('')
+              +     '</g>'
+              +   '</svg>'
+              +   '<div style="position:relative;">'
               +   '<div style="font-size:0.54em;letter-spacing:2.5px;color:' + couleur + ';'
               +     'font-weight:900;margin-bottom:5px;">' + surtitre + '</div>'
               +   '<div style="font-family:var(--font-display),sans-serif;font-size:1.15em;'
               +     'font-weight:800;color:#f1f5f9;margin-bottom:6px;">' + titre + '</div>'
               +   '<div style="font-size:0.72em;color:#94a3b8;line-height:1.5;max-width:340px;'
               +     'margin:0 auto;">' + sous + '</div>'
+              +   '</div>'
               + '</div>'
                 // 4 accès rapides
               ;
@@ -44744,10 +44807,236 @@
         }
         window.renderHomeHeader = renderHomeHeader;
 
+
+        // ══════════════════════════════════════════════════════════════
+        // 🎂 ANNIVERSAIRE & PASSAGE DE CATÉGORIE D'ÂGE
+        // --------------------------------------------------------------
+        // Deux messages, une fois par jour maximum, à l'ouverture de l'app.
+        // ══════════════════════════════════════════════════════════════
+
+        // ══════════════════════════════════════════════════════════════
+        // 🧒 MODE ENFANT — récompenses et durée de session
+        // ══════════════════════════════════════════════════════════════
+
+        // 🏅 BADGES ENFANT — les objets d'équipement parlent de force, de
+        // puissance et de dégâts. Pour un enfant, ces récompenses valorisent
+        // la performance brute. On y ajoute des badges qui célèbrent ce qui
+        // compte à cet âge : la régularité, la curiosité, le jeu à plusieurs.
+        const BADGES_ENFANT = [
+            { id: 'explorateur', emoji: '🧭', nom: 'Explorateur',
+              desc: 'Essayer 10 exercices différents', seuil: 10, type: 'varietes' },
+            { id: 'regulier',    emoji: '📅', nom: 'Fidèle au poste',
+              desc: 'Bouger 3 jours dans la même semaine', seuil: 3, type: 'semaine' },
+            { id: 'ensemble',    emoji: '👨‍👩‍👧', nom: 'Jamais seul',
+              desc: 'Faire 5 séances avec quelqu\'un', seuil: 5, type: 'duo' },
+            // ⚠️ « Curieux » (fiches lues) RETIRÉ : la consultation d'une fiche
+            // n'est tracée nulle part. Le badge serait resté à 0/5 pour
+            // toujours — une récompense inatteignable décourage au lieu de
+            // motiver. À rajouter si on trace un jour cet événement.
+            { id: 'matinal',     emoji: '🌅', nom: 'Lève-tôt',
+              desc: 'Bouger avant midi 5 fois', seuil: 5, type: 'matin' },
+            { id: 'perseverant', emoji: '🌱', nom: 'Ça pousse',
+              desc: 'Terminer 4 semaines de suite', seuil: 4, type: 'semaines' }
+        ];
+        window.BADGES_ENFANT = BADGES_ENFANT;
+
+        // ⏳ LIMITE DE TEMPS DOUCE — jamais un blocage : un message bienveillant
+        // après une longue session. Un enfant qui s'entraîne 45 minutes d'affilée
+        // n'a pas besoin d'être interrompu, mais d'être invité à souffler.
+        let _awakSessionDebut = null;
+        function awakEnfantChrono() {
+            try {
+                if (!window.AwakYouth || typeof AwakYouth.isChild !== 'function'
+                    || !AwakYouth.isChild()) return;
+                if (_awakSessionDebut === null) _awakSessionDebut = Date.now();
+                const min = Math.round((Date.now() - _awakSessionDebut) / 60000);
+                const cle = 'awakPauseVue_' + new Date().toDateString();
+                if (min >= 45 && localStorage.getItem(cle) !== '1') {
+                    localStorage.setItem(cle, '1');
+                    if (typeof _awakModaleFete === 'function') {
+                        _awakModaleFete('🌿', 'Et si tu faisais une pause ?',
+                            'Ça fait presque une heure que tu bouges. Ton corps progresse '
+                          + 'aussi quand il se repose — bois un peu d\'eau, et reviens plus tard '
+                          + 'si tu en as envie.', '#4ade80');
+                    }
+                }
+            } catch (e) {}
+        }
+        window.awakEnfantChrono = awakEnfantChrono;
+
+
+        // 🏅 CALCUL DES BADGES ENFANT
+        // Tout se déduit de l'historique : aucun compteur séparé à maintenir,
+        // donc aucun risque de désynchronisation. Les noms d'exercices sont
+        // dans `workoutData.exercises` (la séance complète est conservée).
+        function awakBadgesEnfant() {
+            const acquis = [];
+            try {
+                const hist = (typeof getWorkoutHistory === 'function') ? getWorkoutHistory() : [];
+                if (!hist.length) return acquis;
+
+                // Variétés d'exercices essayés
+                const noms = new Set();
+                hist.forEach(w => {
+                    const ex = (w.workoutData && w.workoutData.exercises) || [];
+                    ex.forEach(e => { if (e && e.name && !e.isRest && !e.isInfo) noms.add(e.name); });
+                });
+
+                // Séances avant midi
+                let matin = 0;
+                hist.forEach(w => {
+                    const d = new Date(w.date || 0);
+                    if (!isNaN(d) && d.getHours() < 12) matin++;
+                });
+
+                // Meilleure semaine (jours distincts entre lundi et dimanche)
+                const parSemaine = {};
+                hist.forEach(w => {
+                    const d = new Date(w.date || 0);
+                    if (isNaN(d)) return;
+                    const lundi = new Date(d);
+                    lundi.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+                    lundi.setHours(0, 0, 0, 0);
+                    const k = lundi.toDateString();
+                    (parSemaine[k] = parSemaine[k] || new Set()).add(d.toDateString());
+                });
+                const semaines = Object.values(parSemaine).map(s => s.size);
+                const meilleure = semaines.length ? Math.max.apply(null, semaines) : 0;
+
+                // Semaines consécutives avec au moins une séance
+                const cles = Object.keys(parSemaine).map(k => new Date(k).getTime()).sort((a, b) => a - b);
+                let suite = cles.length ? 1 : 0, best = suite;
+                for (let i = 1; i < cles.length; i++) {
+                    const ecart = (cles[i] - cles[i - 1]) / (7 * 24 * 3600 * 1000);
+                    if (Math.round(ecart) === 1) { suite++; best = Math.max(best, suite); }
+                    else suite = 1;
+                }
+
+                // Séances à deux (marquées par les modules famille / duo)
+                let duo = 0;
+                hist.forEach(w => {
+                    if (w.duo || w.coop || (w.workoutData && w.workoutData._duo)) duo++;
+                });
+
+                const valeurs = {
+                    varietes: noms.size, matin: matin, semaine: meilleure,
+                    semaines: best, duo: duo, fiches: 0
+                };
+                (window.BADGES_ENFANT || []).forEach(b => {
+                    const v = valeurs[b.type] || 0;
+                    acquis.push({ ...b, valeur: v, obtenu: v >= b.seuil });
+                });
+            } catch (e) {}
+            return acquis;
+        }
+        window.awakBadgesEnfant = awakBadgesEnfant;
+
+        // Carte des badges, affichée uniquement pour un profil enfant.
+        function renderBadgesEnfant() {
+            const host = document.getElementById('badgesEnfantCard');
+            if (!host) return;
+            let enfant = false;
+            try {
+                enfant = !!(window.AwakYouth && typeof AwakYouth.isChild === 'function' && AwakYouth.isChild());
+            } catch (e) {}
+            if (!enfant) { host.innerHTML = ''; return; }
+
+            const b = awakBadgesEnfant();
+            if (!b.length) { host.innerHTML = ''; return; }
+            const n = b.filter(x => x.obtenu).length;
+
+            host.innerHTML =
+                '<div class="card" style="padding:14px 16px;margin-bottom:14px;">'
+              +   '<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:11px;">'
+              +     '<span style="font-size:0.56em;letter-spacing:2px;color:#4ade80;font-weight:900;">🏅 MES BADGES</span>'
+              +     '<span style="font-size:0.68em;color:#94a3b8;font-weight:700;">' + n + ' / ' + b.length + '</span>'
+              +   '</div>'
+              +   '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">'
+              +   b.map(x =>
+                    '<div style="text-align:center;padding:10px 6px;border-radius:12px;'
+                  +   'background:' + (x.obtenu ? 'rgba(74,222,128,0.10)' : 'rgba(255,255,255,0.03)') + ';'
+                  +   'border:1px solid ' + (x.obtenu ? 'rgba(74,222,128,0.35)' : 'rgba(255,255,255,0.07)') + ';">'
+                  +   '<div style="font-size:1.5em;line-height:1;margin-bottom:5px;'
+                  +     (x.obtenu ? '' : 'filter:grayscale(1);opacity:0.4;') + '">' + x.emoji + '</div>'
+                  +   '<div style="font-size:0.58em;font-weight:800;color:'
+                  +     (x.obtenu ? '#4ade80' : '#64748b') + ';line-height:1.25;">' + x.nom + '</div>'
+                  +   '<div style="font-size:0.52em;color:#475569;margin-top:3px;">'
+                  +     Math.min(x.valeur, x.seuil) + '/' + x.seuil + '</div>'
+                  + '</div>'
+                  ).join('')
+              +   '</div>'
+              + '</div>';
+        }
+        window.renderBadgesEnfant = renderBadgesEnfant;
+
+        function awakCheckAnniversaire() {
+            try {
+                if (!window.AwakYouth) return;
+                const id = (typeof getCurrentProfileId === 'function') ? getCurrentProfileId() : 'x';
+
+                // 1) Passage de catégorie — prioritaire : ça change les règles.
+                if (typeof AwakYouth.checkAgeTransition === 'function') {
+                    const t = AwakYouth.checkAgeTransition();
+                    if (t) {
+                        setTimeout(function () { _awakModaleFete('🎉', t.titre, t.texte, '#a855f7'); }, 1200);
+                        return;
+                    }
+                }
+
+                // 2) Anniversaire — une seule fois par an.
+                if (typeof AwakYouth.isBirthdayToday === 'function' && AwakYouth.isBirthdayToday()) {
+                    const cle = 'awakFeteVue_' + id + '_' + new Date().getFullYear();
+                    if (localStorage.getItem(cle) === '1') return;
+                    localStorage.setItem(cle, '1');
+                    let nom = '';
+                    try {
+                        const p = (typeof getUserProfile === 'function') ? getUserProfile() : null;
+                        nom = (p && p.name) ? p.name : '';
+                    } catch (e) {}
+                    setTimeout(function () {
+                        _awakModaleFete('🎂', 'Bonne fête' + (nom ? ', ' + nom : '') + ' !',
+                            'Le Système marque ce jour. Une année de plus, et tu es toujours là — '
+                          + "c'est ça qui compte.", '#fbbf24');
+                    }, 1200);
+                }
+            } catch (e) {}
+        }
+        window.awakCheckAnniversaire = awakCheckAnniversaire;
+
+        function _awakModaleFete(emoji, titre, texte, couleur) {
+            document.getElementById('awakFeteModal')?.remove();
+            const ov = document.createElement('div');
+            ov.id = 'awakFeteModal';
+            ov.style.cssText = 'position:fixed;inset:0;z-index:12000;background:rgba(0,0,0,0.90);'
+                + 'backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:20px;';
+            ov.innerHTML =
+                '<div style="width:100%;max-width:400px;text-align:center;padding:26px 22px;'
+              +   'border-radius:22px;background:linear-gradient(160deg,#14121a,#0b0b0f);'
+              +   'border:1.5px solid ' + couleur + '55;'
+              +   'box-shadow:0 0 46px ' + couleur + '25,0 14px 44px rgba(0,0,0,0.6);">'
+              +   '<div style="font-size:3.2em;line-height:1;margin-bottom:10px;">' + emoji + '</div>'
+              +   '<div style="font-family:var(--font-display),sans-serif;font-size:1.25em;'
+              +     'font-weight:800;color:#fff;margin-bottom:9px;">' + titre + '</div>'
+              +   '<div style="font-size:0.82em;color:#cbd5e1;line-height:1.55;margin-bottom:20px;">'
+              +     texte + '</div>'
+              +   '<button onclick="document.getElementById(\'awakFeteModal\').remove()" '
+              +     'style="width:100%;padding:14px;border-radius:14px;border:none;cursor:pointer;'
+              +     'background:linear-gradient(160deg,' + couleur + ',' + couleur + 'aa);'
+              +     'color:#0a0a0a;font-weight:900;font-size:0.85em;letter-spacing:1px;">MERCI</button>'
+              + '</div>';
+            ov.onclick = function (e) { if (e.target === ov) ov.remove(); };
+            document.body.appendChild(ov);
+            try { if (typeof vibrate === 'function') vibrate([60, 40, 60]); } catch (e) {}
+        }
+
         function updateHomeStats() {
             // 🏠 En-tête recalculé à chaque affichage : les stats et le
             // programme du jour changent.
             try { if (typeof renderHomeHeader === 'function') renderHomeHeader(); } catch (e) {}
+            // 🏅 Badges enfant (ne rend rien pour un profil adulte)
+            // 📋 Programme personnel en cours (rien si aucun plan actif)
+            try { if (typeof renderActivePlan === 'function') renderActivePlan(); } catch (e) {}
+            try { if (typeof renderBadgesEnfant === 'function') renderBadgesEnfant(); } catch (e) {}
             if (typeof updateYouthBanner === 'function') updateYouthBanner();
             // ▶️ Bandeau de reprise. renderSmartStartButton() existait mais n'était
             // JAMAIS appelée : le message de sortie de séance promettait un bouton
@@ -46434,6 +46723,9 @@
             loadAdvancedMode();
             setTimeout(initGameMode, 800);
             setTimeout(initHunterMode, 850);
+            // 🎂 Anniversaire / passage de catégorie d'âge
+            try { if (typeof awakCheckAnniversaire === 'function') awakCheckAnniversaire(); } catch (e) {}
+            
             // 🃏 Carte du Système — tirage quotidien (si mode jeu actif)
             setTimeout(() => {
                 try {
@@ -46985,7 +47277,7 @@
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=938");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=952");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.

@@ -148,6 +148,13 @@
   function incrementGoalsDone() {
     var n = goalsDone() + 1;
     try { localStorage.setItem(DONE_KEY, String(n)); } catch (e) {}
+    // 🏅 Badge « Cap tenu » — on réutilise CE compteur plutôt que d'en créer
+    // un second : deux sources pour la même donnée finiraient par diverger.
+    try {
+      if (typeof window.AwakFamBadgeInc === 'function') {
+        window.AwakFamBadgeInc('objectifsAtteints', 1);
+      }
+    } catch (e) {}
     return n;
   }
   // Titre actuel (le plus haut atteint) et le prochain à viser.

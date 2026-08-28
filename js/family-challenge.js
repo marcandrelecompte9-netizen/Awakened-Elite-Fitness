@@ -314,6 +314,21 @@
       atteint = total >= c.cible;
       pct = c.cible > 0 ? Math.min(100, Math.round(total / c.cible * 100)) : 0;
     }
+    // 🏅 Badge « Esprit d'équipe » — compté UNE FOIS par défi, quand la cible
+    // est atteinte. Le drapeau est indexé sur startsAt, identifiant unique du
+    // défi en cours : sans lui, chaque affichage de la carte recompterait.
+    try {
+      if (atteint) {
+        var _kc = 'awakCoopWin_' + c.startsAt;
+        if (localStorage.getItem(_kc) !== '1') {
+          localStorage.setItem(_kc, '1');
+          if (typeof window.AwakFamBadgeInc === 'function') {
+            window.AwakFamBadgeInc('coopsFinis', 1);
+          }
+        }
+      }
+    } catch (e) {}
+
     return {
       type: c.type, def: d, cible: c.cible, total: total, pct: pct,
       atteint: atteint, expire: expire, perMember: perMember,
@@ -351,6 +366,23 @@
         var ended = now > c.endsAt;
         var daysLeft = Math.max(0, Math.ceil((c.endsAt - now) / 86400000));
         var leader = myScore === oppScore ? null : (myScore > oppScore ? me : opp);
+
+        // 🏅 VICTOIRE ENREGISTRÉE — les défis terminés ne laissaient aucune
+        // trace : le tableau ne garde que les défis en cours, donc « 5 défis
+        // gagnés » était incalculable. On compte la victoire UNE SEULE FOIS,
+        // via un drapeau par défi, au moment où le résultat devient définitif.
+        try {
+          if (ended && leader === me) {
+            var _k = 'awakChWin_' + c.id;
+            if (localStorage.getItem(_k) !== '1') {
+              localStorage.setItem(_k, '1');
+              if (typeof window.AwakFamBadgeInc === 'function') {
+                window.AwakFamBadgeInc('defisGagnes', 1);
+              }
+            }
+          }
+        } catch (e) {}
+
         return {
           id: c.id, type: c.type, def: def,
           me: _meta(me), opponent: _meta(opp),

@@ -944,6 +944,15 @@
     // Record = nombre d'étapes tenues (minutes pour les jeux au chrono).
     partie.record = majRecord(partie.id, partie.pas);
     partie.score = partie.pas;
+
+    // 🏅 Badge « À deux c'est mieux » — seuls les jeux marqués duo comptent.
+    // On se fie au drapeau du JEU (partie.jeu.duo), pas au nombre de joueurs
+    // saisi : c'est la seule donnée fiable ici.
+    try {
+      if (partie.jeu && partie.jeu.duo && typeof window.AwakFamBadgeInc === 'function') {
+        window.AwakFamBadgeInc('seancesDuo', 1);
+      }
+    } catch (e) {}
     var minutes = Math.max(1, Math.round((Date.now() - partie.debut) / 60000));
     var totalReps = partie.journal.reduce(function (s, x) { return s + (x.reps || 0); }, 0);
     try {

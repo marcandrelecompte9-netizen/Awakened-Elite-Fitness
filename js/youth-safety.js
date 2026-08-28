@@ -24,6 +24,11 @@
   function _age() {
     try {
       var p = (typeof window.getUserProfile === 'function') ? window.getUserProfile() : null;
+      // Priorité à la DATE de naissance : elle vieillit toute seule.
+      if (p && p.birthdate) {
+        var _reel = _ageFromBirth(p.birthdate);
+        if (_reel !== null) return _reel;
+      }
       var a = p && p.age ? parseInt(p.age) : null;
       return (a && a > 0 && a < 120) ? a : null;
     } catch (e) { return null; }
@@ -38,6 +43,11 @@
       var raw = localStorage.getItem('profile_' + profileId + '_userProfile');
       if (!raw) return null;
       var p = JSON.parse(raw);
+      // Priorité à la DATE de naissance : elle vieillit toute seule.
+      if (p && p.birthdate) {
+        var _reel = _ageFromBirth(p.birthdate);
+        if (_reel !== null) return _reel;
+      }
       var a = p && p.age ? parseInt(p.age) : null;
       return (a && a > 0 && a < 120) ? a : null;
     } catch (e) { return null; }
@@ -49,6 +59,38 @@
     if (a < 16) return 'teen';
     if (a >= 65) return 'senior';
     return 'adult';
+  }
+
+
+  // 🎂 CHANGEMENT DE CATÉGORIE D'ÂGE
+  // Quand un enfant passe 13 ans (ou un ado 16), les règles qui le protégeaient
+  // changent d'un coup : charges, défis compétitifs, contenus. Le faire en
+  // silence serait déroutant — l'app doit le DIRE et expliquer ce qui change.
+  function checkAgeTransition() {
+    try {
+      var id = (typeof getCurrentProfileId === 'function') ? getCurrentProfileId() : null;
+      if (!id) return null;
+      var cat = ageCategoryOf(id);
+      var cle = 'awakAgeCat_' + id;
+      var avant = localStorage.getItem(cle);
+      if (avant === cat) return null;
+      localStorage.setItem(cle, cat);
+      if (!avant) return null;              // première visite : rien à annoncer
+      if (avant === 'child' && cat === 'teen') {
+        return { de: 'child', vers: 'teen',
+          titre: 'Tu passes au niveau supérieur',
+          texte: "Maintenant que tu as 13 ans, le Système t'ouvre de nouvelles "
+               + "possibilités : des charges adaptées, des défis avec les autres, "
+               + "et un suivi plus détaillé de ta progression." };
+      }
+      if (avant === 'teen' && cat === 'adult') {
+        return { de: 'teen', vers: 'adult',
+          titre: 'Le Système te reconnaît',
+          texte: "Tu as 16 ans. Toutes les fonctions sont désormais accessibles, "
+               + "sans restriction d'âge. À toi de choisir ton rythme." };
+      }
+      return null;
+    } catch (e) { return null; }
   }
 
   // Catégorie d'un profil donné (ou actif si non précisé).
@@ -94,6 +136,29 @@
     return eq.some(function (e) { return e === 'Barre' || e === 'Machine'; });
   }
 
+  // 🧒 PROGRAMMES & OBJECTIFS déconseillés avant 13 ans.
+  // isDiscouraged() filtre les EXERCICES (par matériel), mais rien ne filtrait
+  // les PROGRAMMES ni les OBJECTIFS : un enfant se voyait proposer « Prise de
+  // masse 12 semaines », « Hypertrophie+ » ou une périodisation à 90 %
+  // d'intensité. Ce sont des cadres d'entraînement pensés pour un corps adulte,
+  // pas des exercices isolés — d'où un second filtre.
+  var GOALS_ADULT = ['hypertrophy', 'hypertrophy+', 'strength', 'masse', 'powerlifting', 'cut', 'seche'];
+
+  function isGoalDiscouraged(goalId) {
+    if (!isChild()) return false;
+    if (!goalId) return false;
+    var g = String(goalId).toLowerCase();
+    return GOALS_ADULT.some(function (x) { return g.indexOf(x) !== -1; });
+  }
+
+  // Un programme complet est-il déconseillé ? (nom ou objectif)
+  function isProgramDiscouraged(prog) {
+    if (!isChild()) return false;
+    if (!prog) return false;
+    var t = ((prog.name || '') + ' ' + (prog.goal || '') + ' ' + (prog.id || '')).toLowerCase();
+    return /hypertroph|prise de masse|force pure|charges lourdes|powerlifting|sèche|seche/.test(t);
+  }
+
   // Message d'avertissement adapté à la catégorie.
   function warningText() {
     var c = ageCategory();
@@ -115,11 +180,15 @@
     ageCategoryOf: ageCategoryOf,
     isYoung: isYoung,
     isChild: isChild,
+    isBirthdayToday: isBirthdayToday,
+    checkAgeTransition: checkAgeTransition,
     isSenior: isSenior,
     isSeniorProfile: isSeniorProfile,
     isYoungProfile: isYoungProfile,
     isChildProfile: isChildProfile,
     isDiscouraged: isDiscouraged,
+    isGoalDiscouraged: isGoalDiscouraged,
+    isProgramDiscouraged: isProgramDiscouraged,
     warningText: warningText,
     _age: _age,
     _ageOf: _ageOf

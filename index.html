@@ -11,11 +11,11 @@
     <title>Awakened Elite Fitness</title>
 
     <!-- PWA -->
-    <link rel="manifest" href="manifest.json?v=938">
-    <link rel="apple-touch-icon" href="icons/icon-192.png?v=938">
-    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=938">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=938">
-    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=938">
+    <link rel="manifest" href="manifest.json?v=952">
+    <link rel="apple-touch-icon" href="icons/icon-192.png?v=952">
+    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=952">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=952">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=952">
 
     <!-- ⚠️ CAPTURE PRÉCOCE DE L'INVITE D'INSTALLATION.
          Chrome déclenche « beforeinstallprompt » très tôt, souvent AVANT la fin
@@ -44,7 +44,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=938">
+    <link rel="stylesheet" href="css/style.css?v=952">
 </head>
 <body>
 
@@ -208,8 +208,8 @@
                  (ratio 1,55), donc plus haute et lisible.
                  <picture> laisse le navigateur choisir, sans JavaScript. -->
             <picture>
-                <source media="(min-width: 700px)" srcset="images/banner_v3.webp?v=938">
-                <img src="images/banner_v3_mobile.webp?v=938"
+                <source media="(min-width: 700px)" srcset="images/banner_v3.webp?v=952">
+                <img src="images/banner_v3_mobile.webp?v=952"
                      alt="Awakened Elite Fitness"
                      style="width:100%;height:auto;display:block;" />
             </picture>
@@ -281,6 +281,56 @@
                 <!-- Halo d'énergie -->
                 <div style="position:absolute;top:-45px;right:-30px;width:180px;height:180px;background:radial-gradient(circle,rgba(34,197,94,0.18) 0%,transparent 68%);pointer-events:none;"></div>
 
+                <div style="position:absolute;top:9px;left:9px;width:16px;height:16px;border-top:2px solid #22c55e;border-left:2px solid #22c55e;border-radius:3px 0 0 0;opacity:0.85;pointer-events:none;"></div>
+                <div style="position:absolute;top:9px;right:9px;width:16px;height:16px;border-top:2px solid #22c55e;border-right:2px solid #22c55e;border-radius:0 3px 0 0;opacity:0.85;pointer-events:none;"></div>
+                <div style="position:absolute;bottom:9px;left:9px;width:16px;height:16px;border-bottom:2px solid #22c55e;border-left:2px solid #22c55e;border-radius:0 0 0 3px;opacity:0.85;pointer-events:none;"></div>
+                <div style="position:absolute;bottom:9px;right:9px;width:16px;height:16px;border-bottom:2px solid #22c55e;border-right:2px solid #22c55e;border-radius:0 0 3px 0;opacity:0.85;pointer-events:none;"></div>
+
+                <div style="position:relative;z-index:1;padding:20px 22px;">
+
+                    <!-- En-tête -->
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
+                        <div style="min-width:0;flex:1;">
+                            <div style="font-size:0.58em;color:#4ade80;font-weight:900;letter-spacing:3px;margin-bottom:5px;">◈ BON ENTRAÎNEMENT</div>
+                            <h3 style="margin:0;color:#fff;font-size:1.72em;font-weight:900;letter-spacing:-1.2px;line-height:1.05;text-shadow:0 0 24px rgba(74,222,128,0.35);"><span id="userName">Athlète</span></h3>
+                        </div>
+                        <button onclick="switchTab('settings')" aria-label="Réglages" style="background:rgba(255,255,255,0.06);color:#94a3b8;border:1px solid rgba(255,255,255,0.12);border-radius:11px;padding:8px 11px;font-size:0.85em;cursor:pointer;flex-shrink:0;">⚙️</button>
+                    </div>
+
+                    <!-- Objectif & niveau -->
+                    <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;">
+                        <span style="background:rgba(34,197,94,0.1);color:#86efac;padding:4px 10px;border-radius:8px;font-size:0.68em;font-weight:700;border:1px solid rgba(34,197,94,0.22);">🎯 <span id="userGoal">-</span></span>
+                        <span style="background:rgba(34,197,94,0.1);color:#86efac;padding:4px 10px;border-radius:8px;font-size:0.68em;font-weight:700;border:1px solid rgba(34,197,94,0.22);">⚡ <span id="userLevel">Débutant</span></span>
+                        <span id="activeCelebBadge" style="display:none;padding:4px 10px;border-radius:8px;font-size:0.68em;font-weight:700;border:1px solid rgba(255,255,255,0.25);cursor:pointer;" onclick="switchTab('program')"></span>
+                    </div>
+                    <div id="activeCelebBanner" style="display:none;align-items:center;gap:12px;margin-top:10px;padding:10px 14px;border-radius:12px;border:1px solid rgba(255,255,255,0.18);cursor:pointer;" onclick="switchTab('program')"></div>
+                    <!-- 📋 PROGRAMME PERSONNEL, juste sous la personnalité active :
+                         les deux disent « ce que je suis en train de suivre ».
+                         ⚠️ Ce conteneur MANQUAIT : renderActivePlan() écrivait dans un
+                         élément inexistant, donc le programme ne s'affichait nulle part. -->
+                    <div id="activePlanContainer"></div>
+
+                    <!-- Filet lumineux -->
+                    <div style="height:1px;margin:16px 0 14px;background:linear-gradient(90deg,transparent,rgba(34,197,94,0.5) 20%,rgba(34,197,94,0.5) 80%,transparent);"></div>
+
+                    <!-- Relevé : 4 mesures séparées par des filets -->
+                    <div style="display:grid;grid-template-columns:repeat(4,1fr);">
+                        <div style="text-align:center;padding:0 3px;">
+                            <div id="homeStatWorkouts" style="font-size:1.6em;font-weight:900;color:#fff;letter-spacing:-1.5px;line-height:1;">0</div>
+                            <div style="font-size:0.55em;color:rgba(255,255,255,0.45);margin-top:5px;font-weight:800;letter-spacing:1.2px;">SÉANCES</div>
+                        </div>
+                        <div style="text-align:center;padding:0 3px;border-left:1px solid rgba(255,255,255,0.07);">
+                            <div id="homeStatStreak" style="font-size:1.6em;font-weight:900;color:#fbbf24;letter-spacing:-1.5px;line-height:1;text-shadow:0 0 16px rgba(251,191,36,0.4);">0🔥</div>
+                            <div style="font-size:0.55em;color:rgba(255,255,255,0.45);margin-top:5px;font-weight:800;letter-spacing:1.2px;">SÉRIE</div>
+                        </div>
+                        <div style="text-align:center;padding:0 3px;border-left:1px solid rgba(255,255,255,0.07);">
+                            <div id="homeStatMinutes" style="font-size:1.6em;font-weight:900;color:#fff;letter-spacing:-1.5px;line-height:1;">0</div>
+                            <div style="font-size:0.55em;color:rgba(255,255,255,0.45);margin-top:5px;font-weight:800;letter-spacing:1.2px;">MINUTES</div>
+                        </div>
+                        <div style="text-align:center;padding:0 3px;border-left:1px solid rgba(255,255,255,0.07);">
+                            <div id="homeStatWeek" style="font-size:1.6em;font-weight:900;color:#4ade80;letter-spacing:-1.5px;line-height:1;text-shadow:0 0 16px rgba(74,222,128,0.4);">0/7</div>
+                            <div style="font-size:0.55em;color:rgba(255,255,255,0.45);margin-top:5px;font-weight:800;letter-spacing:1.2px;">SEMAINE</div>
+                        </div>
                 <!-- Équerres d'angle : la « fenêtre du Système » -->
             <div id="homeHeader"></div>
             <div id="quickActionsCard" style="padding:0;margin-top:4px;">
@@ -316,8 +366,11 @@
                 <!-- 👥 Séance à plusieurs — rempli par updateHomeGroupButton() -->
                 <span id="groupWorkoutBtnContainer"></span>
 
-                <!-- 🤕 Bouton douleur — adapte la séance en évitant une zone -->
-                <div id="painButtonContainer" style="margin-top:10px;"></div>
+                <!-- 🤕 Bouton douleur MASQUÉ (v949) : #painCheckCard, plus bas,
+                     ouvre le MÊME écran (AwakPainOpen) et dit en plus combien de
+                     zones sont actives. Deux entrées pour la même chose à l'accueil.
+                     Conteneur gardé : AwakPain.renderButton() y écrit toujours. -->
+                <div id="painButtonContainer" style="display:none;"></div>
 
                 <!-- 🛡️ Bandeau mode récupération (si actif) -->
                 <div id="recoveryBannerContainer" style="margin-top:10px;"></div>
@@ -329,51 +382,6 @@
                 <div id="youthSafetyBanner"></div>
 
             </div>
-                <div style="position:absolute;top:9px;left:9px;width:16px;height:16px;border-top:2px solid #22c55e;border-left:2px solid #22c55e;border-radius:3px 0 0 0;opacity:0.85;pointer-events:none;"></div>
-                <div style="position:absolute;top:9px;right:9px;width:16px;height:16px;border-top:2px solid #22c55e;border-right:2px solid #22c55e;border-radius:0 3px 0 0;opacity:0.85;pointer-events:none;"></div>
-                <div style="position:absolute;bottom:9px;left:9px;width:16px;height:16px;border-bottom:2px solid #22c55e;border-left:2px solid #22c55e;border-radius:0 0 0 3px;opacity:0.85;pointer-events:none;"></div>
-                <div style="position:absolute;bottom:9px;right:9px;width:16px;height:16px;border-bottom:2px solid #22c55e;border-right:2px solid #22c55e;border-radius:0 0 3px 0;opacity:0.85;pointer-events:none;"></div>
-
-                <div style="position:relative;z-index:1;padding:20px 22px;">
-
-                    <!-- En-tête -->
-                    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
-                        <div style="min-width:0;flex:1;">
-                            <div style="font-size:0.58em;color:#4ade80;font-weight:900;letter-spacing:3px;margin-bottom:5px;">◈ BON ENTRAÎNEMENT</div>
-                            <h3 style="margin:0;color:#fff;font-size:1.72em;font-weight:900;letter-spacing:-1.2px;line-height:1.05;text-shadow:0 0 24px rgba(74,222,128,0.35);"><span id="userName">Athlète</span></h3>
-                        </div>
-                        <button onclick="switchTab('settings')" aria-label="Réglages" style="background:rgba(255,255,255,0.06);color:#94a3b8;border:1px solid rgba(255,255,255,0.12);border-radius:11px;padding:8px 11px;font-size:0.85em;cursor:pointer;flex-shrink:0;">⚙️</button>
-                    </div>
-
-                    <!-- Objectif & niveau -->
-                    <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;">
-                        <span style="background:rgba(34,197,94,0.1);color:#86efac;padding:4px 10px;border-radius:8px;font-size:0.68em;font-weight:700;border:1px solid rgba(34,197,94,0.22);">🎯 <span id="userGoal">-</span></span>
-                        <span style="background:rgba(34,197,94,0.1);color:#86efac;padding:4px 10px;border-radius:8px;font-size:0.68em;font-weight:700;border:1px solid rgba(34,197,94,0.22);">⚡ <span id="userLevel">Débutant</span></span>
-                        <span id="activeCelebBadge" style="display:none;padding:4px 10px;border-radius:8px;font-size:0.68em;font-weight:700;border:1px solid rgba(255,255,255,0.25);cursor:pointer;" onclick="switchTab('program')"></span>
-                    </div>
-                    <div id="activeCelebBanner" style="display:none;align-items:center;gap:12px;margin-top:10px;padding:10px 14px;border-radius:12px;border:1px solid rgba(255,255,255,0.18);cursor:pointer;" onclick="switchTab('program')"></div>
-
-                    <!-- Filet lumineux -->
-                    <div style="height:1px;margin:16px 0 14px;background:linear-gradient(90deg,transparent,rgba(34,197,94,0.5) 20%,rgba(34,197,94,0.5) 80%,transparent);"></div>
-
-                    <!-- Relevé : 4 mesures séparées par des filets -->
-                    <div style="display:grid;grid-template-columns:repeat(4,1fr);">
-                        <div style="text-align:center;padding:0 3px;">
-                            <div id="homeStatWorkouts" style="font-size:1.6em;font-weight:900;color:#fff;letter-spacing:-1.5px;line-height:1;">0</div>
-                            <div style="font-size:0.55em;color:rgba(255,255,255,0.45);margin-top:5px;font-weight:800;letter-spacing:1.2px;">SÉANCES</div>
-                        </div>
-                        <div style="text-align:center;padding:0 3px;border-left:1px solid rgba(255,255,255,0.07);">
-                            <div id="homeStatStreak" style="font-size:1.6em;font-weight:900;color:#fbbf24;letter-spacing:-1.5px;line-height:1;text-shadow:0 0 16px rgba(251,191,36,0.4);">0🔥</div>
-                            <div style="font-size:0.55em;color:rgba(255,255,255,0.45);margin-top:5px;font-weight:800;letter-spacing:1.2px;">SÉRIE</div>
-                        </div>
-                        <div style="text-align:center;padding:0 3px;border-left:1px solid rgba(255,255,255,0.07);">
-                            <div id="homeStatMinutes" style="font-size:1.6em;font-weight:900;color:#fff;letter-spacing:-1.5px;line-height:1;">0</div>
-                            <div style="font-size:0.55em;color:rgba(255,255,255,0.45);margin-top:5px;font-weight:800;letter-spacing:1.2px;">MINUTES</div>
-                        </div>
-                        <div style="text-align:center;padding:0 3px;border-left:1px solid rgba(255,255,255,0.07);">
-                            <div id="homeStatWeek" style="font-size:1.6em;font-weight:900;color:#4ade80;letter-spacing:-1.5px;line-height:1;text-shadow:0 0 16px rgba(74,222,128,0.4);">0/7</div>
-                            <div style="font-size:0.55em;color:rgba(255,255,255,0.45);margin-top:5px;font-weight:800;letter-spacing:1.2px;">SEMAINE</div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -393,6 +401,9 @@
             <!-- ═══ 0. PARCOURS DE L'ÉVEIL (accompagnement pas-à-pas) —
                  tout en haut : c'est la boussole du débutant, il la voit en premier. -->
             <div id="eveilJourneyCard"></div>
+            <!-- 🏅 Badges enfant — affichés uniquement pour un profil < 13 ans.
+                 Rempli par renderBadgesEnfant(). -->
+            <div id="badgesEnfantCard"></div>
 
             <!-- ═══ 1. AUJOURD'HUI : ce que je dois faire ═══ -->
             <!-- 📅 Bandeau « Cette semaine » : plan hebdo en 3 lignes, juste
@@ -455,7 +466,7 @@
             <!-- Barre de segments « Entraîner » -->
             <div style="display:flex;gap:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:5px;margin-bottom:8px;">
                 <button onclick="switchTab('workouts')" style="flex:1;border:none;border-radius:10px;padding:10px 6px;font-weight:800;font-size:0.78em;cursor:pointer;background:transparent;color:#94a3b8;">Séance libre</button>
-                <button onclick="switchTab('routines')" style="flex:1;border:none;border-radius:10px;padding:10px 6px;font-weight:800;font-size:0.78em;cursor:pointer;background:linear-gradient(135deg,#22c55e,#16a34a);color:white;">Mes routines</button>
+                <button onclick="switchTab('routines')" style="flex:1;border:none;border-radius:10px;padding:10px 6px;font-weight:800;font-size:0.78em;cursor:pointer;background:linear-gradient(135deg,#4ade80,#16a34a);color:white;">Mes routines</button>
                 <button onclick="switchTab('program')" style="flex:1;border:none;border-radius:10px;padding:10px 6px;font-weight:800;font-size:0.78em;cursor:pointer;background:transparent;color:#94a3b8;">Programme</button>
             </div>
             <div style="font-size:0.72em;color:#94a3b8;margin:0 0 14px;padding:0 4px;line-height:1.4;">Tes séances sauvegardées, prêtes à relancer.</div>
@@ -464,16 +475,18 @@
 
             <!-- Header actions -->
             <div class="card">
-                <h2 style="color: #16a34a; margin-bottom: 8px; text-align: center;">Mes Routines</h2>
-                <p style="text-align: center; color: #94a3b8; margin-bottom: 18px; font-size: 0.9em;">
-                    Créez et gérez vos routines personnalisées
-                </p>
+                <!-- 🔄 En-tête aligné sur le langage des autres onglets :
+                     liseré coloré, surtitre espacé, titre en police d'affichage. -->
+                <div style="border-left:2px solid #4ade80;padding-left:11px;margin-bottom:16px;">
+                    <div style="font-size:0.56em;letter-spacing:2.5px;color:#4ade80;font-weight:900;">◈ TES ROUTINES</div>
+                    <h2 style="margin:2px 0 0;color:#fff;font-size:1.15em;font-weight:900;font-family:var(--font-display),sans-serif;letter-spacing:0.5px;">Mes Routines</h2>
+                </div>
 
                 <div style="display:flex;gap:8px;margin-bottom:8px;">
-                    <button onclick="openCreateRoutineModal()" class="btn" style="flex:1;background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); font-size: 0.92em; padding: 14px;">
+                    <button onclick="openCreateRoutineModal()" class="btn" style="flex:1;background: linear-gradient(135deg, #16a34a 0%, #16a34a 100%); font-size: 0.92em; padding: 14px;">
                         ➕ Nouvelle
                     </button>
-                    <button onclick="showTemplatesModal()" style="flex:1;background:linear-gradient(135deg,#a855f7,#7c3aed);color:white;border:none;border-radius:10px;padding:14px;font-size:0.92em;font-weight:800;cursor:pointer;">
+                    <button onclick="showTemplatesModal()" style="flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.10);color:#cbd5e1;font-weight:800;font-size:0.82em;padding:13px;border-radius:13px;cursor:pointer;">
                         📚 Templates
                     </button>
                 </div>
@@ -484,17 +497,17 @@
 
             <!-- My Routines List -->
             <div class="card">
-                <h3 style="color: #16a34a; margin-bottom: 14px;">Mes Routines</h3>
+                <div style="font-size:0.54em;letter-spacing:2px;color:#94a3b8;font-weight:900;margin-bottom:12px;">◈ ENREGISTRÉES</div>
 
                 <div id="routinesList">
                     <!-- Routines will be rendered here -->
                 </div>
 
                 <div id="noRoutinesMessage" style="text-align: center; padding: 50px 16px; color: #94a3b8;">
-                    <div style="font-size: 3.5em; margin-bottom: 14px;">🔄</div>
-                    <div style="font-size: 1.1em; margin-bottom: 8px; font-weight: 600;">Aucune routine</div>
-                    <div style="font-size: 0.85em; margin-bottom: 18px;">Démarre avec un template ou crée-en une.</div>
-                    <button onclick="showTemplatesModal()" class="btn" style="background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%); padding: 12px 24px;">
+                    <div style="font-size: 2.2em; margin-bottom: 12px; opacity:0.5;">🔄</div>
+                    <div style="font-family:var(--font-display),sans-serif;font-size:1.02em;margin-bottom:7px;font-weight:800;color:#e2e8f0;">Aucune routine pour l'instant</div>
+                    <div style="font-size: 0.82em; margin-bottom: 18px; line-height:1.5; max-width:280px; margin-left:auto; margin-right:auto;">Une routine, c'est une séance que tu réutilises. Pars d'un modèle ou compose la tienne.</div>
+                    <button onclick="showTemplatesModal()" class="btn" style="background: linear-gradient(135deg, #4ade80 0%, #16a34a 100%); padding: 12px 24px;">
                         📚 Voir les templates
                     </button>
                 </div>
@@ -3166,6 +3179,14 @@
                     <input id="profileWeight" type="number" placeholder="Ex: 70" min="30" max="200" style="padding: 12px; border: 2px solid rgba(255,255,255,0.12); border-radius: 10px; width: 100%;">
                 </div>
             </div>
+                    <!-- 🎂 Date de naissance — OPTIONNELLE. Permet deux choses que l'âge
+                         seul ne permet pas : recalculer l'âge réel chaque jour (un enfant
+                         de 12 ans restait « child » indéfiniment) et souhaiter la fête. -->
+                    <div style="margin-top:10px;">
+                        <span style="display:block;margin-bottom:5px;font-weight:bold;color:#16a34a;font-size:0.9em;">
+                            🎂 Date de naissance <span style="color:#94a3b8;font-weight:400;">(optionnel)</span></span>
+                        <input id="profileBirthdate" type="date" style="padding:12px;border-radius:10px;width:100%;">
+                    </div>
 
             <div style="margin-top: 10px; padding: 12px; background: #FFF3E0; border-radius: 10px; font-size: 0.85em; color: #555;">
                 💡 <strong>Informations optionnelles</strong> : Ces données permettent d'affiner les recommandations (durée de repos, intensité) mais ne sont pas obligatoires pour utiliser l'application.
@@ -3669,38 +3690,38 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/exercises.js?v=938"></script>
-    <script src="data/items.js?v=938"></script>
-    <script src="js/adventure.js?v=938"></script>
-    <script src="js/economy.js?v=938"></script>
-    <script src="js/challenges.js?v=938"></script>
-    <script src="js/family-boss.js?v=938"></script>
-    <script src="js/family-network.js?v=938"></script>
-    <script src="js/family-challenge.js?v=938"></script>
-    <script src="js/family-goal.js?v=938"></script>
-    <script src="js/family-feed.js?v=938"></script>
-    <script src="js/pre-workout-mood.js?v=938"></script>
-    <script src="js/group-workout.js?v=938"></script>
-    <script src="js/youth-safety.js?v=938"></script>
-    <script src="js/kids-programs.js?v=938"></script>
-    <script src="js/senior-programs.js?v=938"></script>
-    <script src="js/adaptive.js?v=938"></script>
-    <script src="js/pain-mode.js?v=938"></script>
-    <script src="js/recovery-mode.js?v=938"></script>
-    <script src="js/exercise-visuals.js?v=938"></script>
-    <script src="js/strength-standards.js?v=938"></script>
-    <script src="js/system-cards.js?v=938"></script>
-    <script src="js/share-card.js?v=938"></script>
-    <script src="js/story-events.js?v=938"></script>
-    <script src="js/final-boss.js?v=938"></script>
-    <script src="js/disciplines.js?v=938"></script>
-    <script src="js/eveil.js?v=938"></script>
-    <script src="js/app.js?v=938"></script>
-    <script src="js/awakening-tree.js?v=938"></script>
-    <script src="js/ui-kit.js?v=938"></script>
-    <script src="js/feature-map.js?v=938"></script>
-    <script src="js/weekly-recap.js?v=938"></script>
-    <script src="js/workout-games.js?v=938"></script>
+    <script src="js/exercises.js?v=952"></script>
+    <script src="data/items.js?v=952"></script>
+    <script src="js/adventure.js?v=952"></script>
+    <script src="js/economy.js?v=952"></script>
+    <script src="js/challenges.js?v=952"></script>
+    <script src="js/family-boss.js?v=952"></script>
+    <script src="js/family-network.js?v=952"></script>
+    <script src="js/family-challenge.js?v=952"></script>
+    <script src="js/family-goal.js?v=952"></script>
+    <script src="js/family-feed.js?v=952"></script>
+    <script src="js/pre-workout-mood.js?v=952"></script>
+    <script src="js/group-workout.js?v=952"></script>
+    <script src="js/youth-safety.js?v=952"></script>
+    <script src="js/kids-programs.js?v=952"></script>
+    <script src="js/senior-programs.js?v=952"></script>
+    <script src="js/adaptive.js?v=952"></script>
+    <script src="js/pain-mode.js?v=952"></script>
+    <script src="js/recovery-mode.js?v=952"></script>
+    <script src="js/exercise-visuals.js?v=952"></script>
+    <script src="js/strength-standards.js?v=952"></script>
+    <script src="js/system-cards.js?v=952"></script>
+    <script src="js/share-card.js?v=952"></script>
+    <script src="js/story-events.js?v=952"></script>
+    <script src="js/final-boss.js?v=952"></script>
+    <script src="js/disciplines.js?v=952"></script>
+    <script src="js/eveil.js?v=952"></script>
+    <script src="js/app.js?v=952"></script>
+    <script src="js/awakening-tree.js?v=952"></script>
+    <script src="js/ui-kit.js?v=952"></script>
+    <script src="js/feature-map.js?v=952"></script>
+    <script src="js/weekly-recap.js?v=952"></script>
+    <script src="js/workout-games.js?v=952"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>
