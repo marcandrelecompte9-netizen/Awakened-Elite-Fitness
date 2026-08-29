@@ -11,11 +11,11 @@
     <title>Awakened Elite Fitness</title>
 
     <!-- PWA -->
-    <link rel="manifest" href="manifest.json?v=952">
-    <link rel="apple-touch-icon" href="icons/icon-192.png?v=952">
-    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=952">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=952">
-    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=952">
+    <link rel="manifest" href="manifest.json?v=956">
+    <link rel="apple-touch-icon" href="icons/icon-192.png?v=956">
+    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=956">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=956">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=956">
 
     <!-- ⚠️ CAPTURE PRÉCOCE DE L'INVITE D'INSTALLATION.
          Chrome déclenche « beforeinstallprompt » très tôt, souvent AVANT la fin
@@ -44,7 +44,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=952">
+    <link rel="stylesheet" href="css/style.css?v=956">
 </head>
 <body>
 
@@ -208,8 +208,8 @@
                  (ratio 1,55), donc plus haute et lisible.
                  <picture> laisse le navigateur choisir, sans JavaScript. -->
             <picture>
-                <source media="(min-width: 700px)" srcset="images/banner_v3.webp?v=952">
-                <img src="images/banner_v3_mobile.webp?v=952"
+                <source media="(min-width: 700px)" srcset="images/banner_v3.webp?v=956">
+                <img src="images/banner_v3_mobile.webp?v=956"
                      alt="Awakened Elite Fitness"
                      style="width:100%;height:auto;display:block;" />
             </picture>
@@ -332,6 +332,7 @@
                             <div style="font-size:0.55em;color:rgba(255,255,255,0.45);margin-top:5px;font-weight:800;letter-spacing:1.2px;">SEMAINE</div>
                         </div>
                 <!-- Équerres d'angle : la « fenêtre du Système » -->
+                    </div>
             <div id="homeHeader"></div>
             <div id="quickActionsCard" style="padding:0;margin-top:4px;">
                 <div style="font-size:0.6em;color:#94a3b8;font-weight:900;letter-spacing:2px;margin-bottom:10px;">ACTIONS RAPIDES</div>
@@ -363,8 +364,6 @@
                     <div style="font-size:1.2em;flex-shrink:0;position:relative;z-index:1;color:#ffffff;">▶</div>
                 </button>
 
-                <!-- 👥 Séance à plusieurs — rempli par updateHomeGroupButton() -->
-                <span id="groupWorkoutBtnContainer"></span>
 
                 <!-- 🤕 Bouton douleur MASQUÉ (v949) : #painCheckCard, plus bas,
                      ouvre le MÊME écran (AwakPainOpen) et dit en plus combien de
@@ -382,9 +381,13 @@
                 <div id="youthSafetyBanner"></div>
 
             </div>
-                    </div>
                 </div>
             </div>
+            <div id="eveilJourneyCard"></div>
+                <!-- 👥 Séance à plusieurs — rempli par updateHomeGroupButton() -->
+                <span id="groupWorkoutBtnContainer"></span>
+            <!-- 🤕 Où as-tu mal ? (sélecteur visuel sur le personnage) -->
+            <div id="painCheckCard"></div>
             <!-- ═══ 3. PROFIL & STATS GLOBALES (1 seul bloc consolidé) ═══ -->
             <!-- 🏠 EN-TÊTE : 4 tuiles d'état, bloc central, 4 accès rapides.
                  Rempli par renderHomeHeader(). Les cartes existantes suivent. -->
@@ -400,7 +403,6 @@
 
             <!-- ═══ 0. PARCOURS DE L'ÉVEIL (accompagnement pas-à-pas) —
                  tout en haut : c'est la boussole du débutant, il la voit en premier. -->
-            <div id="eveilJourneyCard"></div>
             <!-- 🏅 Badges enfant — affichés uniquement pour un profil < 13 ans.
                  Rempli par renderBadgesEnfant(). -->
             <div id="badgesEnfantCard"></div>
@@ -438,8 +440,6 @@
             <div id="fatigueAlertCard"></div>
             <div id="weeklySuggestionCard"></div>
 
-            <!-- 🤕 Où as-tu mal ? (sélecteur visuel sur le personnage) -->
-            <div id="painCheckCard"></div>
 
             <!-- 💡 Astuce « Accueil épuré » — TOUJOURS en bas de l'onglet. -->
             <div id="homeMoreCardsHint" style="display:none;"></div>
@@ -3690,38 +3690,38 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/exercises.js?v=952"></script>
-    <script src="data/items.js?v=952"></script>
-    <script src="js/adventure.js?v=952"></script>
-    <script src="js/economy.js?v=952"></script>
-    <script src="js/challenges.js?v=952"></script>
-    <script src="js/family-boss.js?v=952"></script>
-    <script src="js/family-network.js?v=952"></script>
-    <script src="js/family-challenge.js?v=952"></script>
-    <script src="js/family-goal.js?v=952"></script>
-    <script src="js/family-feed.js?v=952"></script>
-    <script src="js/pre-workout-mood.js?v=952"></script>
-    <script src="js/group-workout.js?v=952"></script>
-    <script src="js/youth-safety.js?v=952"></script>
-    <script src="js/kids-programs.js?v=952"></script>
-    <script src="js/senior-programs.js?v=952"></script>
-    <script src="js/adaptive.js?v=952"></script>
-    <script src="js/pain-mode.js?v=952"></script>
-    <script src="js/recovery-mode.js?v=952"></script>
-    <script src="js/exercise-visuals.js?v=952"></script>
-    <script src="js/strength-standards.js?v=952"></script>
-    <script src="js/system-cards.js?v=952"></script>
-    <script src="js/share-card.js?v=952"></script>
-    <script src="js/story-events.js?v=952"></script>
-    <script src="js/final-boss.js?v=952"></script>
-    <script src="js/disciplines.js?v=952"></script>
-    <script src="js/eveil.js?v=952"></script>
-    <script src="js/app.js?v=952"></script>
-    <script src="js/awakening-tree.js?v=952"></script>
-    <script src="js/ui-kit.js?v=952"></script>
-    <script src="js/feature-map.js?v=952"></script>
-    <script src="js/weekly-recap.js?v=952"></script>
-    <script src="js/workout-games.js?v=952"></script>
+    <script src="js/exercises.js?v=956"></script>
+    <script src="data/items.js?v=956"></script>
+    <script src="js/adventure.js?v=956"></script>
+    <script src="js/economy.js?v=956"></script>
+    <script src="js/challenges.js?v=956"></script>
+    <script src="js/family-boss.js?v=956"></script>
+    <script src="js/family-network.js?v=956"></script>
+    <script src="js/family-challenge.js?v=956"></script>
+    <script src="js/family-goal.js?v=956"></script>
+    <script src="js/family-feed.js?v=956"></script>
+    <script src="js/pre-workout-mood.js?v=956"></script>
+    <script src="js/group-workout.js?v=956"></script>
+    <script src="js/youth-safety.js?v=956"></script>
+    <script src="js/kids-programs.js?v=956"></script>
+    <script src="js/senior-programs.js?v=956"></script>
+    <script src="js/adaptive.js?v=956"></script>
+    <script src="js/pain-mode.js?v=956"></script>
+    <script src="js/recovery-mode.js?v=956"></script>
+    <script src="js/exercise-visuals.js?v=956"></script>
+    <script src="js/strength-standards.js?v=956"></script>
+    <script src="js/system-cards.js?v=956"></script>
+    <script src="js/share-card.js?v=956"></script>
+    <script src="js/story-events.js?v=956"></script>
+    <script src="js/final-boss.js?v=956"></script>
+    <script src="js/disciplines.js?v=956"></script>
+    <script src="js/eveil.js?v=956"></script>
+    <script src="js/app.js?v=956"></script>
+    <script src="js/awakening-tree.js?v=956"></script>
+    <script src="js/ui-kit.js?v=956"></script>
+    <script src="js/feature-map.js?v=956"></script>
+    <script src="js/weekly-recap.js?v=956"></script>
+    <script src="js/workout-games.js?v=956"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>

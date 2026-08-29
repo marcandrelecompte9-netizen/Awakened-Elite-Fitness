@@ -178,13 +178,22 @@
     var me = _currentId();
     if (!me || !opponentId || me === opponentId) return false;
     if (!CH_TYPES[type]) return false;
-    // 🧒 Sécurité : jamais de défi « volume » (poids soulevé) si un enfant est
-    // impliqué (cible ou profil actif). On bascule en refus plutôt qu'inciter.
-    if (type === 'volume') {
+    // 🧒 SÉCURITÉ ENFANT — dans les DEUX SENS.
+    // ⚠️ Avant, seul le type « volume » était bloqué : un adulte pouvait donc
+    // défier un enfant sur les séances, la durée, les calories… Or ce sont
+    // tous des défis de PERFORMANCE entre deux corps qui n'ont rien de
+    // comparable, et l'enfant perd d'avance.
+    // Reste autorisé : « regular » (le plus régulier), qui mesure l'assiduité
+    // et non la performance — c'est justement ce qu'on veut encourager.
+    var COMPETITIFS = ['volume', 'sessions', 'duration', 'exercises', 'calories'];
+    if (COMPETITIFS.indexOf(type) !== -1) {
       try {
         if (window.AwakYouth) {
-          if (typeof window.AwakYouth.isChildProfile === 'function' && window.AwakYouth.isChildProfile(opponentId)) return false;
-          if (typeof window.AwakYouth.isChild === 'function' && window.AwakYouth.isChild()) return false;
+          var cibleEnfant = (typeof window.AwakYouth.isChildProfile === 'function')
+            && window.AwakYouth.isChildProfile(opponentId);
+          var moiEnfant = (typeof window.AwakYouth.isChild === 'function')
+            && window.AwakYouth.isChild();
+          if (cibleEnfant || moiEnfant) return false;
         }
       } catch (e) {}
     }
@@ -523,7 +532,14 @@
         if (typeof window.AwakYouth.isChildProfile === 'function' && window.AwakYouth.isChildProfile(memberId)) childInvolved = true;
         if (typeof window.AwakYouth.isChild === 'function' && window.AwakYouth.isChild()) childInvolved = true;
       }
-      if (childInvolved) offered = offered.filter(function (k) { return k !== 'volume'; });
+      // ⚠️ On retire TOUS les défis de performance, pas seulement « volume ».
+      // Cohérent avec create() : mieux vaut ne pas proposer un type qui sera
+      // refusé ensuite. Seul « regular » (assiduité) reste offert.
+      if (childInvolved) {
+        offered = offered.filter(function (k) {
+          return ['volume', 'sessions', 'duration', 'exercises', 'calories'].indexOf(k) === -1;
+        });
+      }
     } catch (e) {}
 
     var typeBtns = offered.map(function (key) {
@@ -537,10 +553,21 @@
   };
 
   window.AwakChallengeStart = function (memberId, type) {
-    create(memberId, type);
+    // ⚠️ On LIT le retour de create() : il refuse les défis de performance
+    // impliquant un enfant. Avant, le message « Défi lancé ! » s'affichait
+    // même en cas de refus — l'utilisateur croyait le défi créé.
+    var ok = create(memberId, type);
     _closeModal();
     var m = _meta(memberId);
     var t = CH_TYPES[type] || CH_TYPES.sessions;
+    if (!ok) {
+      if (typeof window.showToast === 'function') {
+        window.showToast('🌱 Ce type de défi n\'est pas proposé avec un enfant. '
+          + 'Essaie « Le plus régulier » : il compte l\'assiduité, pas la performance.',
+          'info', 5000);
+      }
+      return;
+    }
     if (typeof window.showToast === 'function') window.showToast('⚔️ Défi lancé contre ' + m.name + ' : ' + t.label + ' !', 'success', 3500);
     if (typeof window.renderFamilyTab === 'function') window.renderFamilyTab();
   };

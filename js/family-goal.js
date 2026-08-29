@@ -34,6 +34,41 @@
       metric: function (e) { return 1; },
       presets: [20, 40, 60]
     },
+
+    // 🧒 OBJECTIFS ACCESSIBLES À TOUS — ajoutés en v954.
+    // Les quatre types d'origine mesurent le VOLUME de travail : kg soulevés,
+    // minutes, nombre d'exercices. Un enfant qui fait 15 minutes de jeu actif
+    // pèse presque rien face à un adulte qui soulève 8 000 kg — sa
+    // contribution devient invisible et l'objectif « commun » ne l'est plus.
+    // Ceux-ci comptent des GESTES, pas de la performance : chacun avance au
+    // même rythme, quel que soit son âge ou son niveau.
+    jours: {
+      label: 'jours actifs', emoji: '📅', unit: ' j',
+      // 1 par JOUR où au moins une séance a eu lieu (dédoublonné plus bas)
+      metric: function (e) { return 1; },
+      parJour: true,
+      presets: [20, 40, 80]
+    },
+    ensemble: {
+      label: 'séances à deux', emoji: '🤝', unit: '',
+      metric: function (e) { return (e && (e.duo || e.coop)) ? 1 : 0; },
+      presets: [5, 10, 20]
+    },
+    varietes: {
+      label: 'exercices découverts', emoji: '🧭', unit: '',
+      // Compté une seule fois par exercice, sur toute la famille
+      metric: function (e) { return 1; },
+      varietes: true,
+      presets: [15, 30, 50]
+    },
+    matins: {
+      label: 'séances avant midi', emoji: '🌅', unit: '',
+      metric: function (e) {
+        try { var d = new Date(e && e.date); return (!isNaN(d) && d.getHours() < 12) ? 1 : 0; }
+        catch (x) { return 0; }
+      },
+      presets: [10, 25, 50]
+    },
     volume: {
       label: 'kg soulevés', emoji: '🏋️', unit: ' kg',
       metric: function (e) { return (e && e.totalVolume) ? e.totalVolume : 0; },
@@ -92,9 +127,30 @@
   function _contribution(profileId, type, startTs, endTs) {
     var def = GOAL_TYPES[type] || GOAL_TYPES.sessions;
     var total = 0;
+    // ⚠️ Deux types se comptent SANS DOUBLON, sinon ils gonflent artificiellement :
+    //   · parJour  → 3 séances le même jour = 1 jour actif
+    //   · varietes → le même exercice refait ne compte qu'une fois
+    var vus = {};
     _history(profileId).forEach(function (e) {
       var ts = _entryTs(e);
-      if (ts >= startTs && ts <= endTs) total += def.metric(e) || 0;
+      if (ts < startTs || ts > endTs) return;
+
+      if (def.parJour) {
+        var d = new Date(ts);
+        var k = isNaN(d) ? String(ts) : d.toDateString();
+        if (vus[k]) return;
+        vus[k] = 1; total += 1; return;
+      }
+      if (def.varietes) {
+        var ex = (e && e.workoutData && e.workoutData.exercises) || [];
+        ex.forEach(function (x) {
+          if (!x || !x.name || x.isRest || x.isInfo) return;
+          if (vus[x.name]) return;
+          vus[x.name] = 1; total += 1;
+        });
+        return;
+      }
+      total += def.metric(e) || 0;
     });
     return Math.round(total);
   }
