@@ -237,6 +237,27 @@
 
 
   // ══════════════════════════════════════════════════════════════
+
+  // 🧹 FERMETURE GLOBALE DES MODALES FAMILLE
+  // ⚠️ Chaque modale ne retirait QUE la sienne (`getElementById(monId).remove()`).
+  // Depuis que la Constellation ouvre plusieurs écrans (menu d'étoile → jeux,
+  // défis, objectif…), on pouvait en empiler deux : la nouvelle s'affichait
+  // SOUS l'ancienne, et il fallait fermer la première à la main.
+  // Toute modale famille appelle désormais ceci avant de s'ouvrir.
+  var AWAK_FAM_MODALES = [
+    'awakFamBadges', 'awakFamilyManage', 'awakFamilyFeed', 'awakConstMenu',
+    'awakFamilyModal', 'awakNudgeModal', 'awakInboxModal',
+    'awakChallengeModal', 'awakCoopModal', 'awakGoalModal',
+    'awakGamesPicker', 'awakGamesFamilyPicker', 'awakLocPicker'
+  ];
+  window.AwakFamCloseAll = function (sauf) {
+    AWAK_FAM_MODALES.forEach(function (id) {
+      if (id === sauf) return;
+      var e = document.getElementById(id);
+      if (e) e.remove();
+    });
+  };
+
   // 🏅 BADGES FAMILLE
   // --------------------------------------------------------------
   // Les défis ne laissaient AUCUNE trace une fois terminés : le tableau
@@ -306,6 +327,7 @@
 
   // 🏅 Carte des badges, ouverte depuis l'icône de la Constellation.
   window.AwakFamBadgesOpen = function () {
+    try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) {}
     document.getElementById('awakFamBadges')?.remove();
     var b = window.AwakFamBadges();
     var n = b.filter(function (x) { return x.obtenu; }).length;
@@ -352,6 +374,7 @@
   // qu'elle portait l'ajout de membre et le journal. On la déplace ici pour
   // que la constellation soit le seul point d'entrée de l'onglet.
   window.AwakFamilyManage = function () {
+    try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) {}
     document.getElementById('awakFamilyManage')?.remove();
     var ov = document.createElement('div');
     ov.id = 'awakFamilyManage';
@@ -378,6 +401,7 @@
 
   // 📖 Journal familial en modale (même raison).
   window.AwakFamilyFeedOpen = function () {
+    try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) {}
     document.getElementById('awakFamilyFeed')?.remove();
     var ov = document.createElement('div');
     ov.id = 'awakFamilyFeed';
@@ -419,6 +443,7 @@
                && window.AwakYouth.isChild());
     } catch (e) {}
 
+    try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) {}
     document.getElementById('awakConstMenu')?.remove();
     var ov = document.createElement('div');
     ov.id = 'awakConstMenu';
@@ -487,6 +512,7 @@
   };
 
   window.AwakConstAction = function (quoi, memberId) {
+    try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) {}
     document.getElementById('awakConstMenu')?.remove();
     try {
       if (quoi === 'nudge' && typeof window.AwakFamilyNudge === 'function') {
@@ -617,7 +643,7 @@
       +     '<defs><filter id="constLueur"><feGaussianBlur stdDeviation="3" result="b"/>'
       +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>'
       // 🌌 Nébuleuse de fond : remplace la poussière d'étoiles dessinée.
-      +     '<image href="images/constellation_bg.webp?v=958" x="0" y="0" width="300" height="300" '
+      +     '<image href="images/constellation_bg.webp?v=962" x="0" y="0" width="300" height="300" '
       +       'preserveAspectRatio="xMidYMid slice" opacity="0.95"/>'
       +     anneau
       +     fils
@@ -921,6 +947,8 @@
       : '';
 
     var overlay = document.createElement('div');
+    // 🧹 Fermer toute autre modale famille avant d'ouvrir celle-ci.
+    try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) {}
     overlay.id = 'awakFamilyModal';
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
     overlay.onclick = function (e) { if (e.target === overlay) overlay.remove(); };
@@ -1013,6 +1041,8 @@
     var delivered = sendNudge(memberId, msg);
 
     var overlay = document.createElement('div');
+    // 🧹 Fermer toute autre modale famille avant d'ouvrir celle-ci.
+    try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) {}
     overlay.id = 'awakNudgeModal';
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
     overlay.onclick = function (e) { if (e.target === overlay) overlay.remove(); };
@@ -1109,6 +1139,8 @@
     }).join('');
 
     var overlay = document.createElement('div');
+    // 🧹 Fermer toute autre modale famille avant d'ouvrir celle-ci.
+    try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) {}
     overlay.id = 'awakInboxModal';
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
     overlay.onclick = function (e) { if (e.target === overlay) _closeInbox(); };

@@ -580,6 +580,8 @@
   function _showModal(title, emoji, bodyHtml) {
     _closeModal();
     var overlay = document.createElement('div');
+    // 🧹 Fermer toute autre modale famille avant d'ouvrir celle-ci.
+    try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) {}
     overlay.id = 'awakChallengeModal';
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
     overlay.onclick = function (e) { if (e.target === overlay) _closeModal(); };
@@ -713,13 +715,15 @@
   window.AwakCoopStart = function (type, cible) {
     coopCreate(type, cible || undefined);
     // fermer la modale du hub : le défi devient une carte visible dans l'onglet
-    try { document.getElementById('awakCoopModal')?.remove(); } catch (e) {}
+    try { try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) {}
+    document.getElementById('awakCoopModal')?.remove(); } catch (e) {}
     try { if (typeof renderAdventure === 'function') renderAdventure(); } catch (e) {}
     try { if (typeof switchTab === 'function') switchTab('family'); } catch (e) {}
   };
   window.AwakCoopStop = function () {
     coopCancel();
-    try { document.getElementById('awakCoopModal')?.remove(); } catch (e) {}
+    try { try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) {}
+    document.getElementById('awakCoopModal')?.remove(); } catch (e) {}
     try { if (typeof renderAdventure === 'function') renderAdventure(); } catch (e) {}
   };
 

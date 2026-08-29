@@ -1014,6 +1014,10 @@
   }
 
   function overlay() {
+    // 🧹 Un jeu qui démarre ferme les sélecteurs restés ouverts derrière lui.
+    // ⚠️ On NE ferme PAS awakGameOverlay lui-même : c'est l'écran du jeu en
+    // cours, réutilisé d'un exercice à l'autre.
+    try { if (window.AwakFamCloseAll) window.AwakFamCloseAll('awakGameOverlay'); } catch (e) {}
     var host = document.getElementById('awakGameOverlay');
     if (!host) {
       host = document.createElement('div');
@@ -1167,6 +1171,8 @@
     var old = document.getElementById('awakGamesPicker');
     if (old) old.remove();
     var m = document.createElement('div');
+    // 🧹 Fermer toute autre modale famille avant d'ouvrir celle-ci.
+    try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) {}
     m.id = 'awakGamesPicker';
     m.className = 'modal active';
     m.style.cssText = 'background:rgba(0,0,0,0.78);backdrop-filter:blur(6px);';
@@ -1229,6 +1235,8 @@
     var old = document.getElementById('awakGamesFamilyPicker');
     if (old) old.remove();
     var m = document.createElement('div');
+    // 🧹 Fermer toute autre modale famille avant d'ouvrir celle-ci.
+    try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) {}
     m.id = 'awakGamesFamilyPicker';
     m.className = 'modal active';
     m.style.cssText = 'background:rgba(0,0,0,0.78);backdrop-filter:blur(6px);';

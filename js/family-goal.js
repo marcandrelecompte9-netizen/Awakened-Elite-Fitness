@@ -401,6 +401,8 @@
     }).join('');
 
     var overlay = document.createElement('div');
+    // 🧹 Fermer toute autre modale famille avant d'ouvrir celle-ci.
+    try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) {}
     overlay.id = 'awakGoalModal';
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:99999;display:flex;align-items:center;justify-content:center;';
     overlay.onclick = function (e) { if (e.target === overlay) overlay.remove(); };

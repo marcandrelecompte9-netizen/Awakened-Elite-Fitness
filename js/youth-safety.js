@@ -66,6 +66,40 @@
   // Quand un enfant passe 13 ans (ou un ado 16), les règles qui le protégeaient
   // changent d'un coup : charges, défis compétitifs, contenus. Le faire en
   // silence serait déroutant — l'app doit le DIRE et expliquer ce qui change.
+  // 🎂 Âge RÉEL calculé depuis la date de naissance.
+  // ⚠️ Elle aussi était APPELÉE sans être définie (2 usages) : dès qu'un
+  // profil avait une date de naissance, la lecture de son âge levait une
+  // ReferenceError et la protection tombait.
+  function _ageFromBirth(bd) {
+    try {
+      var d = new Date(bd);
+      if (isNaN(d.getTime())) return null;
+      var n = new Date();
+      var a = n.getFullYear() - d.getFullYear();
+      var m = n.getMonth() - d.getMonth();
+      if (m < 0 || (m === 0 && n.getDate() < d.getDate())) a--;
+      return (a >= 0 && a < 120) ? a : null;
+    } catch (e) { return null; }
+  }
+
+  // 🎂 Est-ce l'anniversaire du profil aujourd'hui ?
+  // ⚠️ Cette fonction était EXPOSÉE dans l'API sans avoir été définie : le
+  // module entier plantait au chargement (ReferenceError), donc AwakYouth
+  // n'existait pas et TOUTES les protections enfant étaient inactives.
+  function isBirthdayToday(profileId) {
+    try {
+      var id = profileId || (typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null);
+      if (!id) return false;
+      var raw = localStorage.getItem('profile_' + id + '_userProfile');
+      if (!raw) return false;
+      var p = JSON.parse(raw);
+      if (!p || !p.birthdate) return false;
+      var d = new Date(p.birthdate), n = new Date();
+      if (isNaN(d.getTime())) return false;
+      return d.getDate() === n.getDate() && d.getMonth() === n.getMonth();
+    } catch (e) { return false; }
+  }
+
   function checkAgeTransition() {
     try {
       var id = (typeof getCurrentProfileId === 'function') ? getCurrentProfileId() : null;
