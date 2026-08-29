@@ -531,6 +531,7 @@
       if (window.AwakYouth) {
         if (typeof window.AwakYouth.isChildProfile === 'function' && window.AwakYouth.isChildProfile(memberId)) childInvolved = true;
         if (typeof window.AwakYouth.isChild === 'function' && window.AwakYouth.isChild()) childInvolved = true;
+
       }
       // ⚠️ On retire TOUS les défis de performance, pas seulement « volume ».
       // Cohérent avec create() : mieux vaut ne pas proposer un type qui sera

@@ -238,6 +238,90 @@
 
   // ══════════════════════════════════════════════════════════════
 
+
+  // 📋 BANDEAU « EN COURS » — défis et objectif actifs, au-dessus du pied.
+  // ⚠️ Depuis v902 l'onglet n'affiche plus que la Constellation : un défi ou
+  // un objectif en cours n'était visible nulle part sans ouvrir une modale.
+  // Ce bandeau les rappelle d'un coup d'œil et mène directement au bon écran.
+  function _enCoursBandeau() {
+    var lignes = [];
+
+    // Objectif commun
+    try {
+      if (window.AwakFamilyGoal && window.AwakFamilyGoal.isActive
+          && window.AwakFamilyGoal.isActive()) {
+        var st = window.AwakFamilyGoal.status ? window.AwakFamilyGoal.status() : null;
+        if (st) {
+          lignes.push({
+            emoji: '🎯', col: '#4ade80',
+            titre: 'Objectif commun',
+            detail: st.total + ' / ' + st.target + ' ' + (st.label || ''),
+            pct: st.pct || 0,
+            action: 'AwakFamilyGoalOpen()'
+          });
+        }
+      }
+    } catch (e) {}
+
+    // Défi d'équipe
+    try {
+      if (window.AwakFamilyChallenge && window.AwakFamilyChallenge.coopStatus) {
+        var co = window.AwakFamilyChallenge.coopStatus();
+        if (co) {
+          lignes.push({
+            emoji: '🤝', col: '#22d3ee',
+            titre: 'Défi d\'équipe',
+            detail: co.total + ' / ' + co.cible + ' ' + ((co.def && co.def.label) || ''),
+            pct: co.pct || 0,
+            action: 'AwakCoopOpen()'
+          });
+        }
+      }
+    } catch (e) {}
+
+    // Duels en cours (non terminés)
+    try {
+      if (window.AwakFamilyChallenge && window.AwakFamilyChallenge.myChallenges) {
+        var actifs = (window.AwakFamilyChallenge.myChallenges() || [])
+          .filter(function (c) { return c && !c.ended; });
+        actifs.slice(0, 2).forEach(function (c) {
+          lignes.push({
+            emoji: '⚔️', col: c.isMeLeading ? '#4ade80' : '#f59e0b',
+            titre: 'Duel · ' + ((c.opponent && c.opponent.name) || 'Membre'),
+            detail: c.myScore + ' – ' + c.oppScore
+                  + (c.daysLeft ? ' · ' + c.daysLeft + ' j restants' : ''),
+            pct: null,
+            action: 'AwakFamilyChallengeOpen()'
+          });
+        });
+      }
+    } catch (e) {}
+
+    if (!lignes.length) return '';
+
+    return '<div style="border-top:1px solid rgba(255,255,255,0.06);padding:9px 12px 4px;">'
+      + '<div style="font-size:0.5em;letter-spacing:2px;color:#64748b;font-weight:900;margin-bottom:7px;">'
+      +   '◈ EN COURS</div>'
+      + lignes.map(function (l) {
+          return '<div onclick="' + l.action + '" style="cursor:pointer;display:flex;align-items:center;'
+            + 'gap:9px;padding:7px 9px;margin-bottom:5px;border-radius:10px;'
+            + 'background:' + l.col + '12;border:1px solid ' + l.col + '2e;">'
+            + '<span style="font-size:0.95em;flex-shrink:0;">' + l.emoji + '</span>'
+            + '<span style="flex:1;min-width:0;">'
+            +   '<span style="display:block;font-size:0.66em;font-weight:800;color:#e2e8f0;'
+            +     'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(l.titre) + '</span>'
+            +   '<span style="display:block;font-size:0.58em;color:#94a3b8;margin-top:1px;">'
+            +     esc(l.detail) + '</span>'
+            + '</span>'
+            + (l.pct !== null
+                ? ('<span style="flex-shrink:0;font-size:0.68em;font-weight:900;color:' + l.col + ';">'
+                   + l.pct + ' %</span>')
+                : '<span style="color:' + l.col + ';font-size:0.9em;flex-shrink:0;">›</span>')
+            + '</div>';
+        }).join('')
+      + '</div>';
+  }
+
   // 🧹 FERMETURE GLOBALE DES MODALES FAMILLE
   // ⚠️ Chaque modale ne retirait QUE la sienne (`getElementById(monId).remove()`).
   // Depuis que la Constellation ouvre plusieurs écrans (menu d'étoile → jeux,
@@ -521,8 +605,17 @@
         window.AwakFamilyNudge(memberId);
       } else if (quoi === 'games' && typeof window.AwakGamesOpen === 'function') {
         window.AwakGamesOpen();
-      } else if (quoi === 'challenge' && typeof window.AwakFamilyChallengeOpen === 'function') {
-        window.AwakFamilyChallengeOpen();
+      } else if (quoi === 'challenge') {
+        // ⚠️ On ouvre DIRECTEMENT le choix du type pour CE membre.
+        // Avant, on appelait AwakFamilyChallengeOpen() sans transmettre
+        // l'identifiant : le sélecteur ne savait pas qui était visé, donc
+        // le filtre « enfant » ne s'appliquait pas et tous les types de
+        // défi restaient proposés.
+        if (typeof window.AwakChallengePickMember === 'function') {
+          window.AwakChallengePickMember(memberId);
+        } else if (typeof window.AwakFamilyChallengeOpen === 'function') {
+          window.AwakFamilyChallengeOpen();
+        }
       } else if (quoi === 'edit' && typeof window.AwakFamilyEdit === 'function') {
         window.AwakFamilyEdit(memberId);
       }
@@ -643,7 +736,7 @@
       +     '<defs><filter id="constLueur"><feGaussianBlur stdDeviation="3" result="b"/>'
       +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>'
       // 🌌 Nébuleuse de fond : remplace la poussière d'étoiles dessinée.
-      +     '<image href="images/constellation_bg.webp?v=962" x="0" y="0" width="300" height="300" '
+      +     '<image href="images/constellation_bg.webp?v=965" x="0" y="0" width="300" height="300" '
       +       'preserveAspectRatio="xMidYMid slice" opacity="0.95"/>'
       +     anneau
       +     fils
@@ -701,8 +794,17 @@
               + '<span style="color:#ec4899;font-size:0.95em;">›</span>'
               + '</div>';
           })()
+      // 📋 Rappel des défis et objectifs en cours (rien s'il n'y en a pas).
+      +   _enCoursBandeau()
       +   '<div style="display:flex;border-top:1px solid rgba(255,255,255,0.06);">'
       // 🏅 Accès aux badges de famille, dans la barre du pied de carte.
+      // 🎯 Accès à l'objectif commun. ⚠️ Avant, il n'existait QUE via l'anneau
+      // vert — lequel n'est dessiné que si un objectif est DÉJÀ actif. Sans
+      // objectif en cours, il n'y avait donc aucun moyen d'en créer un depuis
+      // la Constellation, seul écran de l'onglet depuis v902.
+      +     '<button onclick="AwakFamilyGoalOpen()" style="flex:1;padding:11px;background:transparent;'
+      +       'border:none;border-right:1px solid rgba(255,255,255,0.06);color:#4ade80;'
+      +       'font-size:0.64em;font-weight:800;letter-spacing:1px;cursor:pointer;">🎯 OBJECTIF</button>'
       +     '<button onclick="AwakFamBadgesOpen()" style="flex:1;padding:11px;background:transparent;'
       +       'border:none;border-right:1px solid rgba(255,255,255,0.06);color:#4ade80;'
       +       'font-size:0.64em;font-weight:800;letter-spacing:1px;cursor:pointer;">🏅 BADGES</button>'

@@ -1175,7 +1175,11 @@
     try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) {}
     m.id = 'awakGamesPicker';
     m.className = 'modal active';
-    m.style.cssText = 'background:rgba(0,0,0,0.78);backdrop-filter:blur(6px);';
+    // ⚠️ position:fixed + align-items:center EXPLICITES : la classe « modal »
+    // ne suffisait pas — la fenêtre s'ouvrait collée en haut de l'écran.
+    m.style.cssText = 'position:fixed;inset:0;z-index:11500;display:flex;'
+      + 'align-items:center;justify-content:center;padding:16px;overflow-y:auto;'
+      + 'background:rgba(0,0,0,0.86);backdrop-filter:blur(8px);';
     m.onclick = function (e) { if (e.target === m) m.remove(); };
     m.innerHTML =
       '<div class="modal-content" style="max-width:560px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(34,197,94,0.25);">'
@@ -1239,7 +1243,11 @@
     try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) {}
     m.id = 'awakGamesFamilyPicker';
     m.className = 'modal active';
-    m.style.cssText = 'background:rgba(0,0,0,0.78);backdrop-filter:blur(6px);';
+    // ⚠️ position:fixed + align-items:center EXPLICITES : la classe « modal »
+    // ne suffisait pas — la fenêtre s'ouvrait collée en haut de l'écran.
+    m.style.cssText = 'position:fixed;inset:0;z-index:11500;display:flex;'
+      + 'align-items:center;justify-content:center;padding:16px;overflow-y:auto;'
+      + 'background:rgba(0,0,0,0.86);backdrop-filter:blur(8px);';
     m.onclick = function (e) { if (e.target === m) m.remove(); };
     m.innerHTML =
       '<div class="modal-content" style="max-width:560px;background:linear-gradient(160deg,#12101a,#0d0d12);border:1px solid rgba(168,85,247,0.28);">'

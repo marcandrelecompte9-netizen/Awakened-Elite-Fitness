@@ -158,7 +158,13 @@
   // ── API ────────────────────────────────────────────────────────────
 
   function active() { return _load(); }
-  function isActive() { var g = _load(); return !!(g && g.target > 0); }
+  function isActive() {
+    // 🎯 Masqué pour qui s'en est retiré : l'objectif continue pour les autres.
+    try {
+      if (window.AwakGoalRetireePour && window.AwakGoalRetireePour()) return false;
+    } catch (e) {}
+    var g = _load(); return !!(g && g.target > 0);
+  }
 
   // Créer un objectif commun. duration en jours (défaut 30).
   function create(type, target, days) {
@@ -471,12 +477,115 @@
     if (typeof window.showToast === 'function') window.showToast('🎯 Objectif commun lancé — au boulot en famille !', 'success', 3000);
   };
 
-  window.AwakFamilyGoalCancel = function () {
-    if (typeof window.showConfirm === 'function') {
-      window.showConfirm('Abandonner l\'objectif commun en cours ?', function () { cancel(); _refresh(); },
-        null, { title: 'Abandonner ?', icon: '🎯', confirmLabel: 'Abandonner' });
-    } else { cancel(); _refresh(); }
+  // ══════════════════════════════════════════════════════════════
+  // 🎯 RETRAIT D'UN OBJECTIF COMMUN — avec avis des autres membres
+  // --------------------------------------------------------------
+  // ⚠️ Avant, n'importe qui pouvait supprimer l'objectif pour TOUT LE MONDE,
+  // sans que les autres le sachent. Un enfant pouvait ainsi effacer plusieurs
+  // semaines de progression familiale d'un seul geste.
+  // Désormais : celui qui part se retire LUI-MÊME, et les autres reçoivent
+  // une demande. Tant qu'au moins un membre le garde, l'objectif continue.
+  // ══════════════════════════════════════════════════════════════
+  var RETRAITS_KEY = 'awakGoalRetraits';     // qui s'est retiré
+  var DEMANDE_KEY  = 'awakGoalDemande';      // demande d'annulation en attente
+
+  function _retraits() {
+    try { return JSON.parse(localStorage.getItem(RETRAITS_KEY) || '[]'); }
+    catch (e) { return []; }
+  }
+  function _retraitsSave(a) {
+    try { localStorage.setItem(RETRAITS_KEY, JSON.stringify(a || [])); } catch (e) {}
+  }
+
+  // L'objectif est-il masqué pour le profil actif ?
+  window.AwakGoalRetireePour = function (profileId) {
+    var id = profileId || (typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null);
+    return _retraits().indexOf(id) !== -1;
   };
+
+  window.AwakFamilyGoalCancel = function () {
+    var moi = (typeof getCurrentProfileId === 'function') ? getCurrentProfileId() : null;
+    var autres = 0;
+    try {
+      var tous = (typeof getAllProfiles === 'function') ? (getAllProfiles() || []) : [];
+      var r = _retraits();
+      autres = tous.filter(function (p) {
+        return p && p.id !== moi && r.indexOf(p.id) === -1;
+      }).length;
+    } catch (e) {}
+
+    // Seul participant restant : suppression directe, personne à consulter.
+    if (autres <= 0) {
+      if (typeof window.showConfirm === 'function') {
+        window.showConfirm("Abandonner l'objectif commun en cours ?",
+          function () { cancel(); _retraitsSave([]); _refresh(); },
+          null, { title: 'Abandonner ?', icon: '🎯', confirmLabel: 'Abandonner' });
+      } else { cancel(); _refresh(); }
+      return;
+    }
+
+    // D'autres participent encore : on ne supprime QUE pour soi, et on
+    // leur laisse une demande à trancher.
+    if (typeof window.showConfirm === 'function') {
+      window.showConfirm(
+        'Tu ne verras plus cet objectif. Les ' + autres + ' autre'
+        + (autres > 1 ? 's membres' : ' membre') + ' le gardent, et pourront '
+        + "décider d'y mettre fin de leur côté.",
+        function () {
+          var r = _retraits();
+          if (r.indexOf(moi) === -1) r.push(moi);
+          _retraitsSave(r);
+          try {
+            localStorage.setItem(DEMANDE_KEY, JSON.stringify({
+              par: moi, quand: Date.now(),
+              nom: (typeof getUserProfile === 'function' && getUserProfile()) ? getUserProfile().name : 'Un membre'
+            }));
+          } catch (e) {}
+          _refresh();
+          if (typeof window.showToast === 'function') {
+            window.showToast("🎯 Tu t'es retiré de l'objectif. Les autres en sont informés.", 'info', 4000);
+          }
+        },
+        null,
+        { title: 'Te retirer de l\'objectif ?', icon: '🎯',
+          confirmLabel: 'Me retirer', cancelLabel: 'Rester' }
+      );
+    }
+  };
+
+  // 🔔 Demande reçue : un membre s'est retiré, veut-on arrêter aussi ?
+  window.AwakGoalCheckDemande = function () {
+    try {
+      var d = JSON.parse(localStorage.getItem(DEMANDE_KEY) || 'null');
+      if (!d) return;
+      var moi = (typeof getCurrentProfileId === 'function') ? getCurrentProfileId() : null;
+      if (!moi || d.par === moi) return;                 // pas pour l'auteur
+      if (window.AwakGoalRetireePour(moi)) return;        // déjà retiré
+      var vue = 'awakGoalDemVue_' + moi + '_' + d.quand;
+      if (localStorage.getItem(vue) === '1') return;      // déjà répondue
+      localStorage.setItem(vue, '1');
+
+      if (typeof window.showConfirm !== 'function') return;
+      window.showConfirm(
+        (d.nom || 'Un membre') + " s'est retiré de l'objectif commun. "
+        + 'Veux-tu y mettre fin aussi, ou continuer avec les membres restants ?',
+        function () {                                     // arrêter
+          var r = _retraits();
+          if (r.indexOf(moi) === -1) r.push(moi);
+          _retraitsSave(r);
+          _refresh();
+        },
+        function () {                                     // continuer
+          if (typeof window.showToast === 'function') {
+            window.showToast('🎯 L\'objectif continue.', 'success', 3000);
+          }
+        },
+        { title: 'Objectif commun', icon: '🎯',
+          confirmLabel: 'Arrêter aussi', cancelLabel: 'Continuer' }
+      );
+    } catch (e) {}
+  };
+
 
   function _refresh() {
     try { if (typeof window.renderFamilyTab === 'function') window.renderFamilyTab(); } catch (e) {}
