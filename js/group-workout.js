@@ -208,7 +208,7 @@
       + '</div>'
       + '<div style="font-size:0.72em;color:#94a3b8;margin-bottom:14px;">Saisis les séries de chacun (reps + poids en lb). « + série » pour en ajouter. Laisse vide pour passer.</div>'
       + blocks
-      + '<button onclick="AwakGroupSaveSet(\'' + encodeURIComponent(exerciseName) + '\',' + setNum + ',' + (isWarmup ? 'true' : 'false') + ')" style="width:100%;margin-top:8px;padding:13px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;font-weight:800;font-size:0.9em;">Valider et continuer</button>'
+      + '<button onclick="AwakGroupSaveSet(\'' + encodeURIComponent(exerciseName) + '\',' + setNum + ',' + (isWarmup ? 'true' : 'false') + ')" style="width:100%;margin-top:8px;padding:13px;border:1px solid rgba(167,139,250,0.45);border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;font-weight:800;font-size:0.9em;">Valider et continuer</button>'
       + '<button onclick="AwakGroupSkipSet()" style="width:100%;margin-top:8px;padding:10px;border:none;border-radius:10px;cursor:pointer;background:transparent;color:#64748b;font-size:0.8em;">Passer</button>'
       + '</div>';
     document.body.appendChild(overlay);
@@ -343,7 +343,7 @@
     var label = nb > 1 ? (nb + ' participants') : 'Séance à plusieurs';
     var sub = nb > 1 ? 'Prêt · appuie pour gérer' : 'Ajoute des membres ou des invités';
     return '<button onclick="AwakGroupOpen()" style="'
-      + 'width:100%;margin-top:10px;background:linear-gradient(135deg,#8b5cf6 0%,#7c3aed 50%,#6d28d9 100%);color:white;border:none;'
+      + 'width:100%;margin-top:10px;background:linear-gradient(135deg,rgba(139,92,246,0.22) 0%,rgba(124,58,237,0.14) 100%);color:white;border:none;'
       + 'border-radius:14px;padding:13px 18px;font-size:0.95em;font-weight:800;cursor:pointer;'
       + 'box-shadow:0 4px 18px rgba(139,92,246,0.3);position:relative;overflow:hidden;'
       + 'text-align:left;display:flex;align-items:center;gap:11px;">'

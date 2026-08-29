@@ -5368,7 +5368,7 @@ body.workout-fullscreen #exerciseView {
     background-color: #08080b;
     background-image:
         linear-gradient(160deg, rgba(8,8,11,0.94) 0%, rgba(8,8,11,0.88) 45%, rgba(8,8,11,0.96) 100%),
-        url(../images/salle_bg_v5.webp?v=956);
+        url(../images/salle_bg_v5.webp?v=958);
     /* ⚠️ `../` obligatoire : dans un fichier CSS, une url() relative est
        résolue depuis le DOSSIER DU CSS (css/), pas depuis la page. Sans le
        préfixe, le navigateur chercherait css/images/… et n'afficherait rien. */
