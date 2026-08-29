@@ -260,7 +260,7 @@
                             -webkit-tap-highlight-color:transparent;
                         ">${cancelLabel}</button>
                         <button id="${id}_ok" style="
-                            background:linear-gradient(135deg,${isDanger?'#dc2626':'#16a34a'},${accentColor});
+                            background:linear-gradient(135deg,${isDanger?'#dc2626':'#1d5fa8'},${accentColor});
                             border:1px solid ${accentColor};
                             color:white;
                             padding:13px 8px;border-radius:10px;
@@ -783,7 +783,7 @@
                                 <div style="display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 14px;">
                                     ${challenge.benefits.map(b => `
                                         <span style="background: rgba(255,255,255,0.04); padding: 4px 10px; border-radius: 99px; font-size: 0.72em; color: #cbd5e1; border: 1px solid rgba(255,255,255,0.08); font-weight: 600;">
-                                            ✓ ${b}
+                                            <svg viewBox="0 0 24 24" width="14" height="14" style="display:inline-block;vertical-align:-0.15em;" aria-hidden="true"><path d="M4 12.5 L9.5 18.5 L20 5.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="square" stroke-linejoin="miter" fill="none"/></svg> ${b}
                                         </span>
                                     `).join('')}
                                 </div>
@@ -991,7 +991,7 @@
                 <div style="padding: 30px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
                         <h2 style="color: #06b6d4; margin: 0;">Configuration Cardio</h2>
-                        <button onclick="closeCardioConfigModal()" style="background: none; border: none; font-size: 1.5em; cursor: pointer; color: #94a3b8;">✕</button>
+                        <button onclick="closeCardioConfigModal()" style="background: none; border: none; font-size: 1.5em; cursor: pointer; color: #94a3b8;"><svg viewBox="0 0 24 24" width="16" height="16" style="display:inline-block;vertical-align:-0.15em;" aria-hidden="true"><path d="M5 5 L19 19 M19 5 L5 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" fill="none"/></svg></button>
                     </div>
                     
                     <!-- Activity Type -->
@@ -1438,7 +1438,7 @@
             // Reset "Terminer" button back to "Suivant"
             const skipBtn = document.querySelector('button[onclick="skipExercise()"]');
             if (skipBtn) {
-                skipBtn.innerHTML = '⏭️ Suivant';
+                skipBtn.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" style="display:inline-block;vertical-align:-0.15em;" fill="currentColor" aria-hidden="true"><path d="M5 4 L16 12 L5 20 Z M18 4 h3 v16 h-3 Z"/></svg> Suivant';
                 skipBtn.style.background = '';
             }
         }
@@ -3245,7 +3245,7 @@
                     name: preset.name,
                     exercises: workoutExercises,
                     badgeHTML: `🔗 Superset : ${preset.name}`,
-                    badgeStyle: 'linear-gradient(135deg, #22c55e 0%, #166534 100%)'
+                    badgeStyle: 'linear-gradient(135deg, #3b82f6 0%, #166534 100%)'
                 };
                 showWorkoutPreparation(workout);
             }, null, { title: 'Démarrer le superset ?', icon: '🔗', confirmLabel: 'Démarrer' });
@@ -3314,7 +3314,7 @@
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <span style="font-weight: bold; color: #22c55e; font-size: 1.2em;">${letters[idx]})</span>
                         ${supersetExercisesList.length > 2 ? `
-                            <button onclick="removeSupersetExercise(${idx})" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer;">✕</button>
+                            <button onclick="removeSupersetExercise(${idx})" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer;"><svg viewBox="0 0 24 24" width="16" height="16" style="display:inline-block;vertical-align:-0.15em;" aria-hidden="true"><path d="M5 5 L19 19 M19 5 L5 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" fill="none"/></svg></button>
                         ` : ''}
                     </div>
                     <select id="supersetSelect_${idx}" onchange="supersetExercisesList[${idx}].exercise = this.value" style="width: 100%; padding: 10px; border: 1px solid rgba(34,211,238,0.3); border-radius: 10px; margin-bottom: 10px; background: #0D0D0D; color: #e2e8f0;">
@@ -3407,7 +3407,7 @@
                 name: name,
                 exercises: workoutExercises,
                 badgeHTML: `🔗 Superset : ${name}`,
-                badgeStyle: 'linear-gradient(135deg, #22c55e 0%, #166534 100%)'
+                badgeStyle: 'linear-gradient(135deg, #3b82f6 0%, #166534 100%)'
             };
             
             closeSupersetModal();
@@ -3554,7 +3554,7 @@
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <span style="font-weight: bold; color: #10b981; font-size: 1.2em;">Exercice ${idx + 1}</span>
                         ${circuitExercisesList.length > 4 ? `
-                            <button onclick="removeCircuitExercise(${idx})" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer;">✕</button>
+                            <button onclick="removeCircuitExercise(${idx})" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer;"><svg viewBox="0 0 24 24" width="16" height="16" style="display:inline-block;vertical-align:-0.15em;" aria-hidden="true"><path d="M5 5 L19 19 M19 5 L5 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" fill="none"/></svg></button>
                         ` : ''}
                     </div>
                     <select id="circuitSelect_${idx}" onchange="circuitExercisesList[${idx}].exercise = this.value" style="width: 100%; padding: 10px; border: 2px solid #6ee7b7; border-radius: 10px; margin-bottom: 10px; background: #f0fdf4; color: #065f46;">
@@ -3640,7 +3640,7 @@
                 name: name,
                 exercises: workoutExercises,
                 badgeHTML: `🔄 Circuit : ${name}`,
-                badgeStyle: 'linear-gradient(135deg, #15803d 0%, #166534 100%)'
+                badgeStyle: 'linear-gradient(135deg, #164e8a 0%, #166534 100%)'
             };
             
             closeCircuitModal();
@@ -3780,7 +3780,7 @@
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <span style="font-weight: bold; color: #ef4444; font-size: 1.2em;">Exercice ${idx + 1}</span>
                         ${amrapExercisesList.length > 3 ? `
-                            <button onclick="removeAMRAPExercise(${idx})" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer;">✕</button>
+                            <button onclick="removeAMRAPExercise(${idx})" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer;"><svg viewBox="0 0 24 24" width="16" height="16" style="display:inline-block;vertical-align:-0.15em;" aria-hidden="true"><path d="M5 5 L19 19 M19 5 L5 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" fill="none"/></svg></button>
                         ` : ''}
                     </div>
                     <select id="amrapSelect_${idx}" onchange="amrapExercisesList[${idx}].exercise = this.value" style="width: 100%; padding: 10px; border: 1px solid rgba(239,68,68,0.35); border-radius: 10px; margin-bottom: 10px; background: #0D0D0D; color: #e2e8f0;">
@@ -4495,7 +4495,7 @@
                                         </div>
                                         ${!completed ? `
                                             <button onclick="startPlanSession(${activePlan.currentWeek}, ${idx})" class="btn" style="padding: 9px 16px; white-space: nowrap; flex-shrink: 0;">
-                                                ▶️ Démarrer
+                                                <svg viewBox="0 0 24 24" width="15" height="15" style="display:inline-block;vertical-align:-0.15em;" fill="currentColor" aria-hidden="true"><path d="M6 3.5 L20 12 L6 20.5 Z"/></svg> Démarrer
                                             </button>
                                         ` : `
                                             <span style="color: #4ade80; font-size: 1.6em; flex-shrink: 0;">✓</span>
@@ -4750,11 +4750,11 @@
                     <div style="width:100%;max-width:420px;background:#0F1014;border-radius:20px;padding:22px;max-height:85vh;overflow-y:auto;border:1px solid rgba(34,197,94,0.2);">
                         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
                             <h3 style="margin:0;color:white;font-size:1.1em;">Sauvegardes</h3>
-                            <button onclick="document.getElementById('backupManagerModal').remove()" style="background:transparent;border:none;color:#94a3b8;font-size:1.4em;cursor:pointer;">✕</button>
+                            <button onclick="document.getElementById('backupManagerModal').remove()" style="background:transparent;border:none;color:#94a3b8;font-size:1.4em;cursor:pointer;"><svg viewBox="0 0 24 24" width="16" height="16" style="display:inline-block;vertical-align:-0.15em;" aria-hidden="true"><path d="M5 5 L19 19 M19 5 L5 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" fill="none"/></svg></button>
                         </div>
 
                         <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px;">
-                            <button onclick="downloadBackup()" style="width:100%;padding:13px;background:linear-gradient(135deg,#10b981,#15803d);color:white;border:none;border-radius:14px;font-weight:800;cursor:pointer;font-size:0.92em;">
+                            <button onclick="downloadBackup()" style="width:100%;padding:13px;background:linear-gradient(135deg,#10b981,#164e8a);color:white;border:none;border-radius:14px;font-weight:800;cursor:pointer;font-size:0.92em;">
                                 📥 Télécharger une sauvegarde
                             </button>
                             <label style="width:100%;padding:13px;background:rgba(34,197,94,0.08);color:#4ade80;border:1.5px dashed rgba(34,197,94,0.35);border-radius:14px;font-weight:700;cursor:pointer;font-size:0.88em;text-align:center;display:block;">
@@ -4930,7 +4930,7 @@
                                 <div style="font-size:1em;font-weight:900;color:white;">🔥 Prépare ton corps</div>
                                 <div style="font-size:0.72em;color:#94a3b8;margin-top:3px;">${warmup.length} exercices · ~${totalMin} min · ${muscles.join(' · ')}</div>
                             </div>
-                            <button onclick="document.getElementById('warmupModal').remove()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#f87171;width:32px;height:32px;border-radius:50%;font-size:0.9em;cursor:pointer;flex-shrink:0;">✕</button>
+                            <button onclick="document.getElementById('warmupModal').remove()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#f87171;width:32px;height:32px;border-radius:50%;font-size:0.9em;cursor:pointer;flex-shrink:0;"><svg viewBox="0 0 24 24" width="16" height="16" style="display:inline-block;vertical-align:-0.15em;" aria-hidden="true"><path d="M5 5 L19 19 M19 5 L5 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" fill="none"/></svg></button>
                         </div>
                     </div>
                     <div style="flex:1;overflow-y:auto;padding:12px 14px 14px;-webkit-overflow-scrolling:touch;">
@@ -5179,13 +5179,13 @@
                         border-radius:14px;padding:16px 20px;font-size:1.05em;font-weight:800;cursor:pointer;
                         box-shadow:0 6px 24px rgba(245,158,11,0.4);position:relative;overflow:hidden;
                         text-align:left;display:flex;align-items:center;gap:12px;">
-                        <div style="font-size:2em;flex-shrink:0;animation:pulse 1.5s infinite;">⏸️</div>
+                        <div style="font-size:2em;flex-shrink:0;animation:pulse 1.5s infinite;"><svg viewBox="0 0 24 24" width="15" height="15" style="display:inline-block;vertical-align:-0.15em;" fill="currentColor" aria-hidden="true"><path d="M6 4 h4 v16 h-4 Z M14 4 h4 v16 h-4 Z"/></svg></div>
                         <div style="flex:1;min-width:0;">
                             <div style="font-size:0.62em;letter-spacing:2px;opacity:0.9;font-weight:700;">SÉANCE EN COURS</div>
                             <div style="font-size:1em;font-weight:900;line-height:1.2;margin-top:2px;">Reprendre ${wkName}</div>
                             <div style="font-size:0.7em;opacity:0.85;margin-top:3px;">${minutes} min écoulées · ${progress}% complété</div>
                         </div>
-                        <div style="font-size:1.4em;flex-shrink:0;">▶</div>
+                        <div style="font-size:1.4em;flex-shrink:0;"><svg viewBox="0 0 24 24" width="15" height="15" style="display:inline-block;vertical-align:-0.15em;" fill="currentColor" aria-hidden="true"><path d="M6 3.5 L20 12 L6 20.5 Z"/></svg></div>
                     </button>
                     <button onclick="abandonActiveWorkout()" style="width:100%;margin-top:6px;background:transparent;color:#94a3b8;border:none;font-size:0.72em;cursor:pointer;padding:4px;">
                         ✕ Abandonner cette séance
@@ -5200,7 +5200,7 @@
 
             return `<div style="margin-bottom:14px;">
                 <button onclick="startSmartWorkout()" style="
-                    width:100%;background:linear-gradient(135deg,#10b981 0%,#059669 50%,#15803d 100%);color:white;border:none;
+                    width:100%;background:linear-gradient(135deg,#10b981 0%,#059669 50%,#164e8a 100%);color:white;border:none;
                     border-radius:14px;padding:16px 20px;font-size:1.05em;font-weight:800;cursor:pointer;
                     box-shadow:0 6px 24px rgba(16,185,129,0.35);position:relative;overflow:hidden;
                     text-align:left;display:flex;align-items:center;gap:12px;">
@@ -5211,7 +5211,7 @@
                         <div style="font-size:1em;font-weight:900;line-height:1.2;margin-top:3px;">${isFirstTime ? 'Commencer maintenant' : 'Démarrer ma séance'}</div>
                         <div style="font-size:0.7em;opacity:0.85;margin-top:3px;">${muscleText}</div>
                     </div>
-                    <div style="font-size:1.4em;flex-shrink:0;position:relative;z-index:1;">▶</div>
+                    <div style="font-size:1.4em;flex-shrink:0;position:relative;z-index:1;"><svg viewBox="0 0 24 24" width="15" height="15" style="display:inline-block;vertical-align:-0.15em;" fill="currentColor" aria-hidden="true"><path d="M6 3.5 L20 12 L6 20.5 Z"/></svg></div>
                 </button>
                 <div style="font-size:0.7em;color:#94a3b8;margin-top:6px;text-align:center;font-style:italic;">${sug.reason}</div>
 
@@ -5228,7 +5228,7 @@
                         <div style="font-size:0.95em;font-weight:900;line-height:1.2;margin-top:2px;">Routine matinale</div>
                         <div style="font-size:0.68em;opacity:0.85;margin-top:2px;">Mobilité douce · 3 niveaux · sans matériel</div>
                     </div>
-                    <div style="font-size:1.3em;flex-shrink:0;position:relative;z-index:1;">▶</div>
+                    <div style="font-size:1.3em;flex-shrink:0;position:relative;z-index:1;"><svg viewBox="0 0 24 24" width="15" height="15" style="display:inline-block;vertical-align:-0.15em;" fill="currentColor" aria-hidden="true"><path d="M6 3.5 L20 12 L6 20.5 Z"/></svg></div>
                 </button>
             </div>`;
         }
@@ -5403,7 +5403,7 @@
                             <div style="font-weight:900;font-size:1.05em;color:white;line-height:1.1;">${c.name}</div>
                             <div style="font-size:0.66em;color:${c.color};font-weight:800;letter-spacing:0.5px;margin-top:3px;">${diffLabel(c.difficulty)} · ${c.equipment}</div>
                         </div>
-                        <div style="font-size:1.3em;color:${c.color};flex-shrink:0;opacity:0.7;">▶</div>
+                        <div style="font-size:1.3em;color:${c.color};flex-shrink:0;opacity:0.7;"><svg viewBox="0 0 24 24" width="15" height="15" style="display:inline-block;vertical-align:-0.15em;" fill="currentColor" aria-hidden="true"><path d="M6 3.5 L20 12 L6 20.5 Z"/></svg></div>
                     </div>
                     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px;">
                         <span style="font-size:0.6em;font-weight:800;color:${c.color};background:${c.color}1a;padding:3px 8px;border-radius:99px;text-transform:uppercase;letter-spacing:0.5px;">${c.focus}</span>
@@ -5598,7 +5598,7 @@
                         <div style="font-size:0.74em;color:#64748b;line-height:1.4;margin-top:3px;">${r.desc}</div>
                         <div style="font-size:0.68em;color:${r.color};font-weight:800;margin-top:4px;">⏱ ${r.duration} · ~${exCount} mouvements · 🔀 varie à chaque fois</div>
                     </div>
-                    <div style="font-size:1.3em;color:${r.color};flex-shrink:0;">▶</div>
+                    <div style="font-size:1.3em;color:${r.color};flex-shrink:0;"><svg viewBox="0 0 24 24" width="15" height="15" style="display:inline-block;vertical-align:-0.15em;" fill="currentColor" aria-hidden="true"><path d="M6 3.5 L20 12 L6 20.5 Z"/></svg></div>
                 </button>
             `;}).join('');
 
@@ -6035,7 +6035,7 @@
                 const isActive = btn.dataset.locationId === activeLocationId;
                 btn.classList.toggle('loc-active', isActive);
                 btn.style.background  = isActive
-                    ? 'linear-gradient(135deg,#16a34a,#15803d)'
+                    ? 'linear-gradient(135deg,#1d5fa8,#164e8a)'
                     : (dark ? '#1e293b' : 'white');
                 btn.style.borderColor = isActive ? '#16a34a' : (dark ? '#334155' : '#e5e7eb');
                 btn.style.boxShadow   = isActive ? '0 4px 16px rgba(22,163,74,0.3)' : '0 2px 6px rgba(0,0,0,0.06)';
@@ -7356,7 +7356,7 @@
                 </div>
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
-                    <button onclick="selectAllMachines()" class="btn" style="background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);">
+                    <button onclick="selectAllMachines()" class="btn" style="background: linear-gradient(135deg, #60a8f0 0%, #3b82f6 100%);">
                         ✓ Tout sélectionner
                     </button>
                     <button onclick="clearAllMachines()" class="btn btn-secondary">
@@ -7629,7 +7629,7 @@
                                 <div style="font-weight:800;color:#fff;font-size:1.05em;line-height:1.2;">${exerciseName}</div>
                                 <div style="font-size:0.76em;color:#94a3b8;margin-top:3px;">💪 ${muscle} · 🎒 ${equip}</div>
                             </div>
-                            <button onclick="document.getElementById('exercisePreviewModal').remove()" style="flex-shrink:0;width:32px;height:32px;border-radius:50%;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;font-weight:900;cursor:pointer;margin-left:10px;">✕</button>
+                            <button onclick="document.getElementById('exercisePreviewModal').remove()" style="flex-shrink:0;width:32px;height:32px;border-radius:50%;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;font-weight:900;cursor:pointer;margin-left:10px;"><svg viewBox="0 0 24 24" width="16" height="16" style="display:inline-block;vertical-align:-0.15em;" aria-hidden="true"><path d="M5 5 L19 19 M19 5 L5 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" fill="none"/></svg></button>
                         </div>
                         ${mediaHTML}
                     </div>`;
@@ -7680,7 +7680,7 @@
                 + '<div style="font-size:0.78em;color:#94a3b8;line-height:1.5;margin-bottom:18px;">'
                 +   'Tu dois la terminer ou l\'abandonner avant de commencer ' + esc(nomNouvelle) + '.'
                 + '</div>'
-                + '<button onclick="awakDejaEnCoursReprendre()" style="width:100%;padding:14px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-weight:900;font-size:0.92em;margin-bottom:9px;">▶ Reprendre la séance en cours</button>'
+                + '<button onclick="awakDejaEnCoursReprendre()" style="width:100%;padding:14px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#3b82f6,#1d5fa8);color:#fff;font-weight:900;font-size:0.92em;margin-bottom:9px;">▶ Reprendre la séance en cours</button>'
                 + '<button onclick="awakDejaEnCoursRemplacer()" style="width:100%;padding:12px;border:1px solid rgba(248,113,113,0.35);border-radius:12px;cursor:pointer;background:rgba(248,113,113,0.10);color:#f87171;font-weight:800;font-size:0.82em;margin-bottom:9px;">✕ Abandonner et démarrer la nouvelle</button>'
                 + '<button onclick="document.getElementById(\'awakDejaEnCoursModal\')?.remove()" style="width:100%;padding:11px;border:none;border-radius:11px;cursor:pointer;background:rgba(255,255,255,0.05);color:#94a3b8;font-weight:700;font-size:0.8em;">Annuler</button>'
                 + '</div>';
@@ -8016,7 +8016,7 @@
                     } else {
                         badge.style.display = 'block';
                         badge.innerHTML = pendingWorkout.badgeHTML;
-                        badge.style.background = pendingWorkout.badgeStyle || 'linear-gradient(135deg, #4ade80 0%, #22c55e 100%)';
+                        badge.style.background = pendingWorkout.badgeStyle || 'linear-gradient(135deg, #60a8f0 0%, #3b82f6 100%)';
                         badge.style.color = '#fff';
                         badge.style.textShadow = '0 1px 3px rgba(0,0,0,0.45)';
                         badge.style.border = 'none';
@@ -8263,7 +8263,7 @@
                         <button class="close-btn" onclick="this.closest('.modal').remove()">×</button>
                     </div>
                     <div class="modal-body">
-                        <div style="background: linear-gradient(135deg, #16a34a15 0%, #15803d15 100%); padding: 20px; border-radius: 14px; margin-bottom: 20px;">
+                        <div style="background: linear-gradient(135deg, #1d5fa815 0%, #164e8a15 100%); padding: 20px; border-radius: 14px; margin-bottom: 20px;">
                             <p style="margin: 0; color: #e2e8f0; font-size: 1.1em; text-align: center;">
                                 🎉 <strong>Excellente progression !</strong><br>
                                 <span style="font-size: 0.9em; color: #94a3b8;">L'app a détecté que tu es prêt(e) pour progresser</span>
@@ -8808,7 +8808,17 @@
             const modal = document.getElementById('profileSetupModal');
             const profile = getUserProfile();
             
-            document.getElementById('profileName').value = profile.name;
+            // 👤 NOM DÉJÀ SAISI À LA CRÉATION DU COMPTE.
+            // ⚠️ getUserProfile() lit les DONNÉES du profil (objectif, poids…),
+            // pas la fiche du compte. Après « Nouveau profil », le nom venait
+            // d'être saisi mais ce champ restait vide : on le redemandait.
+            let _nom = profile.name;
+            try {
+                const _id = getCurrentProfileId();
+                const _cpt = (getAllProfiles() || []).find(p => p && p.id === _id);
+                if (_cpt && _cpt.name) _nom = _cpt.name;
+            } catch (e) {}
+            document.getElementById('profileName').value = _nom || '';
             document.getElementById('profileGoal').value = profile.goal;
             document.getElementById('profileLevel').value = profile.level;
             document.getElementById('profileAge').value = profile.age;
@@ -9868,7 +9878,7 @@
             html += '<h3 style="margin: 0;">Plan de la semaine</h3>';
             html += '<div style="display: flex; gap: 10px; flex-wrap: wrap;">';
             html += '<button onclick="openAIPlanPicker()" class="btn" style="padding: 8px 15px; font-size: 0.9em; background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);">🤖 Plan IA</button>';
-            html += '<button onclick="showManualPlanEditor()" class="btn" style="padding: 8px 15px; font-size: 0.9em; background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);">✏️ Créer manuel</button>';
+            html += '<button onclick="showManualPlanEditor()" class="btn" style="padding: 8px 15px; font-size: 0.9em; background: linear-gradient(135deg, #60a8f0 0%, #3b82f6 100%);">✏️ Créer manuel</button>';
             html += '<button onclick="showRitualsManager()" class="btn" style="padding: 8px 15px; font-size: 0.9em; background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);">✨ Rituels</button>';
             html += '</div>';
             html += '</div>';
@@ -9883,7 +9893,7 @@
                     <div class="weekly-plan-day ${intensity} ${isToday ? 'today' : ''}">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <div>
-                                <strong style="color: #e2e8f0;">${isToday ? '▶️ ' : ''}${dayPlan.day}</strong>
+                                <strong style="color: #e2e8f0;">${isToday ? '<svg viewBox="0 0 24 24" width="15" height="15" style="display:inline-block;vertical-align:-0.15em;" fill="currentColor" aria-hidden="true"><path d="M6 3.5 L20 12 L6 20.5 Z"/></svg> ' : ''}${dayPlan.day}</strong>
                                 <div style="color: #94a3b8; font-size: 0.95em; margin-top: 3px;">${dayPlan.focus}</div>
                             </div>
                             <div style="font-size: 1.3em;">${
@@ -10058,7 +10068,7 @@
                         </p>
                         <div id="manualPlanDays"></div>
                         <div style="display: flex; gap: 10px; margin-top: 25px;">
-                            <button class="btn" onclick="saveManualPlan()" style="flex: 1; background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);">
+                            <button class="btn" onclick="saveManualPlan()" style="flex: 1; background: linear-gradient(135deg, #60a8f0 0%, #3b82f6 100%);">
                                 ✅ Sauvegarder mon plan
                             </button>
                             <button class="btn btn-secondary" onclick="closeManualPlanEditor()" style="flex: 1;">
@@ -11147,7 +11157,7 @@
                 if (badge) {
                     badge.style.display = 'block';
                     badge.innerHTML = '🧠 Séance Intelligente';
-                    badge.style.background = 'linear-gradient(135deg, #4ade80 0%, #22c55e 100%)';
+                    badge.style.background = 'linear-gradient(135deg, #60a8f0 0%, #3b82f6 100%)';
                 }
                 
                 // BASCULER VERS EXERCICE VIEW
@@ -11196,7 +11206,7 @@
 
             // Store badge info for later
             workout.badgeHTML = '🧠 Séance Intelligente';
-            workout.badgeStyle = 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)';
+            workout.badgeStyle = 'linear-gradient(135deg, #1d5fa8 0%, #164e8a 100%)';
 
             // ◈ Afficher l'écran d'analyse cyberpunk, puis lancer
             const decisions = _buildDecisionsFromWorkout(workout, realExercises);
@@ -11552,7 +11562,7 @@
                 // prévu = bordure, repos = discret. Pas d'arc-en-ciel.
                 const bg = fait ? '#4ade80' : (estAuj ? 'rgba(74,222,128,0.14)' : 'rgba(255,255,255,0.03)');
                 const bord = estAuj ? '#4ade80' : (prevu ? 'rgba(148,163,184,0.35)' : 'rgba(255,255,255,0.07)');
-                const col = fait ? '#04210f' : (estAuj ? '#4ade80' : (prevu ? '#cbd5e1' : '#475569'));
+                const col = fait ? '#04162b' : (estAuj ? '#4ade80' : (prevu ? '#cbd5e1' : '#475569'));
                 pastilles += '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">'
                     + '<div style="width:100%;aspect-ratio:1;max-width:34px;border-radius:10px;'
                     +   'background:' + bg + ';border:1.5px solid ' + bord + ';'
@@ -12558,7 +12568,7 @@
             container.innerHTML = `
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px;">
                     <!-- Weekly Goals -->
-                    <div class="card" style="background: linear-gradient(135deg, #16a34a20 0%, #15803d20 100%);">
+                    <div class="card" style="background: linear-gradient(135deg, #1d5fa820 0%, #164e8a20 100%);">
                         <h4 style="color: #16a34a; margin-top: 0;">Objectifs Semaine</h4>
                         <div style="margin-bottom: 15px;">
                             <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
@@ -12820,7 +12830,7 @@
               + '  <input id="awakSecP1" type="password" inputmode="text" autocomplete="new-password" placeholder="Mot de passe" style="width:100%;box-sizing:border-box;padding:12px 14px;margin-bottom:10px;border-radius:12px;border:1px solid rgba(255,255,255,0.12);background:#0a0e18;color:#fff;font-size:1em;text-align:center;">'
               + '  <input id="awakSecP2" type="password" inputmode="text" autocomplete="new-password" placeholder="Confirme le mot de passe" style="width:100%;box-sizing:border-box;padding:12px 14px;margin-bottom:8px;border-radius:12px;border:1px solid rgba(255,255,255,0.12);background:#0a0e18;color:#fff;font-size:1em;text-align:center;">'
               + '  <div id="awakSecErr" style="min-height:16px;font-size:0.72em;color:#f87171;margin-bottom:10px;"></div>'
-              + '  <button id="awakSecSave" style="width:100%;padding:13px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#4ade80,#22c55e);color:#04140a;font-weight:900;font-size:0.92em;margin-bottom:8px;">Enregistrer</button>'
+              + '  <button id="awakSecSave" style="width:100%;padding:13px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#60a8f0,#3b82f6);color:#04140a;font-weight:900;font-size:0.92em;margin-bottom:8px;">Enregistrer</button>'
               + '  <button id="awakSecLater" style="width:100%;padding:10px;border:none;border-radius:11px;cursor:pointer;background:rgba(255,255,255,0.05);color:#94a3b8;font-weight:700;font-size:0.8em;">Plus tard</button>'
               + '</div>';
             document.body.appendChild(ov);
@@ -14094,7 +14104,7 @@
                 restBar = document.createElement('div');
                 restBar.id = 'setRestBar';
                 restBar.style.cssText = 'width:100%;height:6px;background:#e5e7eb;border-radius:99px;margin-bottom:10px;overflow:hidden;';
-                restBar.innerHTML = '<div id="setRestBarFill" style="height:100%;background:linear-gradient(90deg,#15803d,#166534);width:100%;border-radius:99px;transition:width 1s linear;"></div>';
+                restBar.innerHTML = '<div id="setRestBarFill" style="height:100%;background:linear-gradient(90deg,#164e8a,#166534);width:100%;border-radius:99px;transition:width 1s linear;"></div>';
                 btn.parentNode.insertBefore(restBar, btn);
             }
             restBar.style.display = 'block';
@@ -14281,7 +14291,7 @@
                             <span>${muscle}</span><span>${count} séance${count>1?'s':''}</span>
                         </div>
                         <div style="background:#e5e7eb;border-radius:99px;height:6px;">
-                            <div style="background:linear-gradient(90deg,#16a34a,#15803d);height:6px;border-radius:99px;width:${Math.round(count/max*100)}%;transition:width 0.5s;"></div>
+                            <div style="background:linear-gradient(90deg,#1d5fa8,#164e8a);height:6px;border-radius:99px;width:${Math.round(count/max*100)}%;transition:width 0.5s;"></div>
                         </div>
                     </div>`).join('')}
             </div>`;
@@ -14596,7 +14606,7 @@
                         ${(()=>{ const p=getExerciseProgress(); return p.total>0?`Exercice ${p.current}/${p.total}`:`Repos`; })()}
                     </div>
                     <h2 id="exerciseName" style="margin-bottom: 10px;">
-                        <span style="display: inline-block; background: linear-gradient(135deg, #22c55e 0%, #166534 100%); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8em; margin-right: 10px; font-weight: bold;">REPS</span>
+                        <span style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #166534 100%); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8em; margin-right: 10px; font-weight: bold;">REPS</span>
                         ${exercise.name}
                     </h2>
                     ${muscleBadgeHTML}
@@ -14680,11 +14690,42 @@
                     </div>
                     
                     ${exercise.tips ? `
-                        <div style="background: linear-gradient(135deg, #16a34a15 0%, #16a34a05 100%); padding: 15px; border-radius: 10px; margin-top: 20px; border-left: 4px solid #16a34a;">
+                        <div style="background: linear-gradient(135deg, #1d5fa815 0%, #1d5fa805 100%); padding: 15px; border-radius: 10px; margin-top: 20px; border-left: 4px solid #16a34a;">
                             <div style="font-weight: 600; color: #16a34a; margin-bottom: 5px;">💡 Conseil</div>
                             <div style="color: #94a3b8;">${exercise.tips}</div>
                         </div>
                     ` : ''}
+
+                    ${(() => {
+                        // 🪶 VERSION PLUS FACILE — n'apparaît que si l'exercice
+                        // n'est pas déjà « Débutant ». Rendre l'alternative
+                        // visible évite qu'on abandonne un mouvement trop dur
+                        // au lieu de l'adapter.
+                        let _f = null;
+                        try { _f = (typeof awakVersionFacile === 'function') ? awakVersionFacile(exercise) : null; } catch (e) {}
+                        if (!_f) return '';
+                        return `
+                        <div style="background:rgba(56,189,248,0.07);padding:15px;border-radius:12px;
+                                    border:1px solid rgba(56,189,248,0.22);margin-top:10px;">
+                            <div style="font-weight:600;color:#38bdf8;margin-bottom:5px;">🪶 Trop dur ? Version plus facile</div>
+                            <div style="color:#94a3b8;line-height:1.5;">${_f}</div>
+                        </div>`;
+                    })()}
+
+                    ${(() => {
+                        // 🔁 SANS LE MATÉRIEL — ligne distincte de la version
+                        // facile : ici le mouvement convient, c'est l'équipement
+                        // qui manque. Rien pour les exercices au poids du corps.
+                        let _m = null;
+                        try { _m = (typeof awakSansMateriel === 'function') ? awakSansMateriel(exercise) : null; } catch (e) {}
+                        if (!_m) return '';
+                        return `
+                        <div style="background:rgba(251,191,36,0.07);padding:15px;border-radius:12px;
+                                    border:1px solid rgba(251,191,36,0.22);margin-top:10px;">
+                            <div style="font-weight:600;color:#fbbf24;margin-bottom:5px;">🔁 Pas le matériel ?</div>
+                            <div style="color:#94a3b8;line-height:1.5;">${_m}</div>
+                        </div>`;
+                    })()}
                 </div>
             `;
             
@@ -14825,7 +14866,7 @@
                     <!-- Option IA -->
                     <button onclick="onMuscleChoiceAI()" style="
                         width:100%;padding:18px 16px;border-radius:14px;border:2px solid transparent;
-                        background:linear-gradient(135deg,#16a34a,#15803d);color:white;
+                        background:linear-gradient(135deg,#1d5fa8,#164e8a);color:white;
                         cursor:pointer;text-align:left;margin-bottom:12px;position:relative;z-index:1;
                         box-shadow:0 4px 16px rgba(22,163,74,0.35);transition:transform 0.15s;"
                         onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">
@@ -15124,7 +15165,7 @@
                     </div>
 
                     <button onclick="confirmManualMuscles()" id="confirmMuscleBtn"
-                        style="width:100%;padding:15px;border-radius:14px;border:none;background:linear-gradient(135deg,#16a34a,#15803d);color:white;font-size:1em;font-weight:700;cursor:pointer;margin-bottom:10px;opacity:0.4;pointer-events:none;">
+                        style="width:100%;padding:15px;border-radius:14px;border:none;background:linear-gradient(135deg,#1d5fa8,#164e8a);color:white;font-size:1em;font-weight:700;cursor:pointer;margin-bottom:10px;opacity:0.4;pointer-events:none;">
                         ✅ Confirmer et continuer
                     </button>
                     <button onclick="document.getElementById('manualMuscleOverlay').remove();showMuscleChoiceModal();"
@@ -15177,7 +15218,7 @@
             // Ancienne grille (conservée si présente ailleurs)
             const btn = document.getElementById('mmpBtn_' + safe);
             if (!btn) return;
-            btn.style.background  = active ? 'linear-gradient(135deg,#16a34a,#15803d)' : '#222328';
+            btn.style.background  = active ? 'linear-gradient(135deg,#1d5fa8,#164e8a)' : '#222328';
             btn.style.borderColor = active ? '#4ade80' : '#2E2F35';
             btn.style.transform   = active ? 'scale(1.04)' : '';
             btn.style.boxShadow   = active ? '0 0 14px rgba(74,222,128,0.4)' : '';
@@ -15701,7 +15742,7 @@
             });
             const activeId = {all:'filterAll',favorites:'filterFavorites',week:'filterWeek',month:'filterMonth'}[filter];
             const activeBtn = document.getElementById(activeId);
-            if (activeBtn) { activeBtn.className = 'btn'; activeBtn.style.background = 'linear-gradient(135deg,#16a34a,#15803d)'; }
+            if (activeBtn) { activeBtn.className = 'btn'; activeBtn.style.background = 'linear-gradient(135deg,#1d5fa8,#164e8a)'; }
             renderWorkoutHistory(filter);
             // Update button styles
             const filterAll = document.getElementById('filterAll');
@@ -15709,7 +15750,7 @@
             
             if (filter === 'all') {
                 filterAll.className = 'btn';
-                filterAll.style.background = 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)';
+                filterAll.style.background = 'linear-gradient(135deg, #1d5fa8 0%, #164e8a 100%)';
                 filterFavorites.className = 'btn btn-secondary';
                 filterFavorites.style.background = '';
             } else {
@@ -16935,7 +16976,7 @@
                 <div style="background: rgba(251,191,36,0.1); padding: 15px; border-radius: 10px; border-left: 3px solid #fbbf24;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <span style="font-weight: 600; color: #92400e; font-size: 0.9em;">📝 Note personnelle</span>
-                        <button onclick="hideExerciseNoteForm()" style="background: none; border: none; cursor: pointer; font-size: 1.2em; color: #64748b;">✕</button>
+                        <button onclick="hideExerciseNoteForm()" style="background: none; border: none; cursor: pointer; font-size: 1.2em; color: #64748b;"><svg viewBox="0 0 24 24" width="16" height="16" style="display:inline-block;vertical-align:-0.15em;" aria-hidden="true"><path d="M5 5 L19 19 M19 5 L5 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" fill="none"/></svg></button>
                     </div>
                     <textarea id="noteTextArea" 
                               placeholder="Ex: Bien sentir dans les pecs, descendre plus bas, ce poids est confortable..." 
@@ -17493,7 +17534,7 @@
                         ${exerciseName} • ${reps} reps${weight ? ` × ${weight} kg` : ''}
                     </p>
                     
-                    <div style="background: linear-gradient(135deg, #16a34a15 0%, #15803d05 100%); padding: 15px; border-radius: 14px; margin-bottom: 20px; border-left: 4px solid #16a34a;">
+                    <div style="background: linear-gradient(135deg, #1d5fa815 0%, #164e8a05 100%); padding: 15px; border-radius: 14px; margin-bottom: 20px; border-left: 4px solid #16a34a;">
                         <div style="font-weight: 600; color: #16a34a; margin-bottom: 5px;">📊 RPE (Rate of Perceived Exertion)</div>
                         <div style="color: #94a3b8; font-size: 0.9em;">Notez l'intensité perçue de 1 (très facile) à 10 (maximum absolu)</div>
                     </div>
@@ -17526,7 +17567,7 @@
                             onmouseover="this.style.background='rgba(255,255,255,0.03)'"
                             onmouseout="this.style.background='rgba(255,255,255,0.04)'"
                             style="width: 100%; padding: 15px; margin-top: 20px; border: 1px solid rgba(255,255,255,0.12); border-radius: 14px; background: rgba(255,255,255,0.04); color: #94a3b8; cursor: pointer; font-weight: 600; transition: all 0.2s;">
-                        ⏭️ Passer (pas de RPE)
+                        <svg viewBox="0 0 24 24" width="15" height="15" style="display:inline-block;vertical-align:-0.15em;" fill="currentColor" aria-hidden="true"><path d="M5 4 L16 12 L5 20 Z M18 4 h3 v16 h-3 Z"/></svg> Passer (pas de RPE)
                     </button>
                 </div>
             `;
@@ -17987,7 +18028,7 @@
                                     <div style="font-size:0.7em;color:${t.color};font-weight:700;">${t.days} jours/sem · ${t.level}</div>
                                 </div>
                             </div>
-                            <button onclick="document.getElementById('templatePreviewModal').remove()" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;width:32px;height:32px;border-radius:50%;font-size:0.9em;cursor:pointer;flex-shrink:0;">✕</button>
+                            <button onclick="document.getElementById('templatePreviewModal').remove()" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;width:32px;height:32px;border-radius:50%;font-size:0.9em;cursor:pointer;flex-shrink:0;"><svg viewBox="0 0 24 24" width="16" height="16" style="display:inline-block;vertical-align:-0.15em;" aria-hidden="true"><path d="M5 5 L19 19 M19 5 L5 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" fill="none"/></svg></button>
                         </div>
                         <div style="font-size:0.78em;color:#cbd5e1;line-height:1.5;">${t.description}</div>
                     </div>
@@ -18052,7 +18093,7 @@
                                 <div style="font-size:0.6em;color:#c084fc;font-weight:900;letter-spacing:2px;margin-bottom:3px;">TEMPLATES</div>
                                 <div style="font-size:1em;font-weight:900;color:white;">Choisir un programme</div>
                             </div>
-                            <button onclick="document.getElementById('templatesModal').remove()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#f87171;width:32px;height:32px;border-radius:50%;font-size:0.9em;cursor:pointer;flex-shrink:0;">✕</button>
+                            <button onclick="document.getElementById('templatesModal').remove()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#f87171;width:32px;height:32px;border-radius:50%;font-size:0.9em;cursor:pointer;flex-shrink:0;"><svg viewBox="0 0 24 24" width="16" height="16" style="display:inline-block;vertical-align:-0.15em;" aria-hidden="true"><path d="M5 5 L19 19 M19 5 L5 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" fill="none"/></svg></button>
                         </div>
                         <div style="font-size:0.72em;color:#94a3b8;margin-top:6px;line-height:1.5;">${WORKOUT_TEMPLATES.length} programmes éprouvés. Tap pour les détails et l'import.</div>
                     </div>
@@ -18108,7 +18149,7 @@
                         </div>
                     </div>
                     <div style="font-size:0.75em;color:#94a3b8;line-height:1.5;margin-bottom:11px;">Choisis quelle routine faire chaque jour. Elle apparaîtra sur la carte "Aujourd'hui" à l'accueil.</div>
-                    <button onclick="openWeeklyPlanEditor()" style="width:100%;background:linear-gradient(135deg,#22c55e,#16a34a);border:none;color:white;border-radius:10px;padding:11px;font-weight:900;font-size:0.85em;cursor:pointer;letter-spacing:0.5px;">CRÉER MON PLAN HEBDO</button>
+                    <button onclick="openWeeklyPlanEditor()" style="width:100%;background:linear-gradient(135deg,#3b82f6,#1d5fa8);border:none;color:white;border-radius:10px;padding:11px;font-weight:900;font-size:0.85em;cursor:pointer;letter-spacing:0.5px;">CRÉER MON PLAN HEBDO</button>
                 </div>`;
                 return;
             }
@@ -18184,7 +18225,7 @@
                                 </div>
 
                                 ${currentRoutine ? `
-                                    <div style="background:linear-gradient(135deg,${currentRoutine.color || '#22c55e'}20,${currentRoutine.color || '#22c55e'}05);border:1px solid ${currentRoutine.color || '#22c55e'}40;border-radius:10px;padding:8px 11px;margin-bottom:8px;display:flex;align-items:center;gap:9px;">
+                                    <div style="background:linear-gradient(135deg,${currentRoutine.color || '#3b82f6'}20,${currentRoutine.color || '#3b82f6'}05);border:1px solid ${currentRoutine.color || '#22c55e'}40;border-radius:10px;padding:8px 11px;margin-bottom:8px;display:flex;align-items:center;gap:9px;">
                                         <span style="font-size:1.3em;line-height:1;">${currentRoutine.emoji || '🏋️'}</span>
                                         <div style="flex:1;min-width:0;">
                                             <div style="font-size:0.82em;font-weight:800;color:white;line-height:1.2;">${currentRoutine.name}</div>
@@ -18478,7 +18519,7 @@
                         <div style="font-weight:700;color:white;font-size:0.85em;">${ex.name}</div>
                         <div style="font-size:0.65em;color:#64748b;margin-top:2px;">${ex.muscle || 'Corps'} · ${ex.sets || 3}×${ex.reps || 10}${ex.mode === 'timer' || ex.mode === 'duration' ? 's' : ''}</div>
                     </div>
-                    <button onclick="_removeExerciseFromEditing(${i})" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#f87171;border-radius:6px;padding:6px 10px;font-size:0.7em;font-weight:700;cursor:pointer;flex-shrink:0;">✕</button>
+                    <button onclick="_removeExerciseFromEditing(${i})" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#f87171;border-radius:6px;padding:6px 10px;font-size:0.7em;font-weight:700;cursor:pointer;flex-shrink:0;"><svg viewBox="0 0 24 24" width="16" height="16" style="display:inline-block;vertical-align:-0.15em;" aria-hidden="true"><path d="M5 5 L19 19 M19 5 L5 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" fill="none"/></svg></button>
                 </div>
             `).join('');
         }
@@ -18557,7 +18598,7 @@
                     <div style="padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.05);flex-shrink:0;">
                         <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px;">
                             <div style="font-size:0.85em;font-weight:900;color:white;">Choisir un exercice</div>
-                            <button onclick="document.getElementById('exercisePickerModal').remove()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#f87171;width:30px;height:30px;border-radius:50%;font-size:0.9em;cursor:pointer;">✕</button>
+                            <button onclick="document.getElementById('exercisePickerModal').remove()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#f87171;width:30px;height:30px;border-radius:50%;font-size:0.9em;cursor:pointer;"><svg viewBox="0 0 24 24" width="16" height="16" style="display:inline-block;vertical-align:-0.15em;" aria-hidden="true"><path d="M5 5 L19 19 M19 5 L5 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" fill="none"/></svg></button>
                         </div>
                         <input id="exPickerSearch" oninput="_filterExPicker()" placeholder="🔍 Chercher un exercice..." style="width:100%;background:#0a0e18;border:1px solid rgba(255,255,255,0.08);color:white;border-radius:10px;padding:9px 12px;font-size:0.82em;outline:none;">
                         <div id="exPickerMuscleFilter" style="display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;">
@@ -18870,7 +18911,7 @@
                 + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">'
                 + '<span style="font-size:1.7em;">👑</span><h2 style="flex:1;margin:0;color:#fbbf24;font-size:1.12em;">Hall of Fame</h2>'
                 + '<button onclick="awakHallToggleAdd()" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.4);color:#c4b5fd;border-radius:10px;padding:8px 12px;font-weight:800;cursor:pointer;font-size:0.8em;">➕ Ajouter</button>'
-                + '<button onclick="document.getElementById(\'awakHallModal\').remove()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:#cbd5e1;border-radius:10px;padding:8px 12px;font-weight:800;cursor:pointer;">✕</button></div>'
+                + '<button onclick="document.getElementById(\'awakHallModal\').remove()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:#cbd5e1;border-radius:10px;padding:8px 12px;font-weight:800;cursor:pointer;"><svg viewBox="0 0 24 24" width="16" height="16" style="display:inline-block;vertical-align:-0.15em;" aria-hidden="true"><path d="M5 5 L19 19 M19 5 L5 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" fill="none"/></svg></button></div>'
                 // Filtres
                 + '<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">'
                 + '<select id="hofFilterMuscle" onchange="awakHallRenderGrid()" style="flex:1;min-width:130px;padding:8px 10px;border-radius:9px;border:1px solid rgba(255,255,255,0.14);background:rgba(0,0,0,0.35);color:#e2e8f0;font-size:0.82em;">'
@@ -19615,7 +19656,7 @@
                 if (!btn) return;
                 
                 if (t === type) {
-                    btn.style.background = 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)';
+                    btn.style.background = 'linear-gradient(135deg, #1d5fa8 0%, #164e8a 100%)';
                     btn.classList.remove('btn-secondary');
                 } else {
                     btn.style.background = '';
@@ -22929,7 +22970,7 @@
                         </div>
                         
                         <button class="btn" onclick="submitExerciseFeedback('${exerciseName.replace(/'/g, "\\'")}', ${exerciseDuration})"
-                                style="width: 100%; margin-top: 20px; padding: 15px; font-size: 1.1em; background: linear-gradient(135deg, #22d3ee 0%, #22c55e 100%);">
+                                style="width: 100%; margin-top: 20px; padding: 15px; font-size: 1.1em; background: linear-gradient(135deg, #22d3ee 0%, #3b82f6 100%);">
                             ✅ Valider et continuer
                         </button>
                         
@@ -22999,7 +23040,7 @@
                 position: fixed;
                 top: 80px;
                 right: 20px;
-                background: ${progressionMsg.type === 'success' ? 'linear-gradient(135deg, #4ade80 0%, #22c55e 100%)' : 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)'};
+                background: ${progressionMsg.type === 'success' ? 'linear-gradient(135deg, #60a8f0 0%, #3b82f6 100%)' : 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)'};
                 color: white;
                 padding: 20px 25px;
                 border-radius: 14px;
@@ -23248,7 +23289,7 @@
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=965);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=976);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -23292,7 +23333,7 @@
                 +       '<feGaussianBlur stdDeviation="2.4" result="b"/>'
                 +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>'
                 +     '</filter></defs>'
-                +     '<image href="' + img + '?v=965" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=976" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -23341,8 +23382,8 @@
                 +     'ontouchend="this.style.transform=\'scale(1)\'" '
                 +     'style="position:relative;overflow:hidden;width:100%;margin-top:13px;padding:18px 16px;'
                 +     'border-radius:16px;border:none;cursor:pointer;transition:transform .12s ease;'
-                +     'background:linear-gradient(160deg,#86efac 0%,#4ade80 42%,#15803d 100%);'
-                +     'box-shadow:0 0 28px rgba(74,222,128,0.30), 0 8px 22px rgba(0,0,0,0.45),'
+                +     'background:linear-gradient(160deg,#93c5fd 0%,#60a8f0 42%,#164e8a 100%);'
+                +     'box-shadow:0 0 28px rgba(96,168,240,0.34), 0 8px 22px rgba(0,0,0,0.45),'
                 +       'inset 0 1px 0 rgba(255,255,255,0.45);">'
                 //   reflet : bande claire en haut, comme sur une surface polie
                 +     '<span style="position:absolute;inset:0 0 55% 0;pointer-events:none;'
@@ -23352,7 +23393,7 @@
                 +       'background:linear-gradient(105deg,transparent,rgba(255,255,255,0.35),transparent);'
                 +       'animation:awakBtnSheen 5s ease-in-out infinite;"></span>'
                 +     '<span style="position:relative;display:block;font-size:0.95em;font-weight:900;'
-                +       'color:#04210f;letter-spacing:1.5px;text-shadow:0 1px 0 rgba(255,255,255,0.25);">'
+                +       'color:#04162b;letter-spacing:1.5px;text-shadow:0 1px 0 rgba(255,255,255,0.25);">'
                 +       'FAIS MA SÉANCE</span>'
                 +     '<span style="position:relative;display:block;font-size:0.6em;font-weight:700;'
                 +       'color:rgba(4,33,15,0.62);letter-spacing:0.5px;margin-top:2px;">'
@@ -24479,7 +24520,7 @@
                     + 'border-radius:99px;cursor:pointer;font-size:0.66em;font-weight:800;'
                     + 'background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.35);color:#4ade80;">'
                     + ic + ' ' + opt.textContent.trim()
-                    + '<span style="color:rgba(74,222,128,0.65);font-size:1.05em;line-height:1;">✕</span></button>';
+                    + '<span style="color:rgba(74,222,128,0.65);font-size:1.05em;line-height:1;"><svg viewBox="0 0 24 24" width="16" height="16" style="display:inline-block;vertical-align:-0.15em;" aria-hidden="true"><path d="M5 5 L19 19 M19 5 L5 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" fill="none"/></svg></span></button>';
             });
             if (!chips) return '';
             return '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:10px;">'
@@ -24627,6 +24668,208 @@
             filterExercises();
         }
 
+
+        // ══════════════════════════════════════════════════════════════
+        // 🪶 VERSION PLUS FACILE D'UN EXERCICE
+        // --------------------------------------------------------------
+        // Écrire 452 alternatives à la main serait ingérable et vite obsolète.
+        // On procède en deux temps : d'abord les exercices NOMMÉS (les plus
+        // courants, où la régression est spécifique), puis des RÈGLES par
+        // famille de mouvement qui couvrent tout le reste.
+        // ⚠️ Rien n'est inventé : chaque règle correspond à une régression
+        // reconnue en entraînement (réduire le bras de levier, l'amplitude,
+        // ou apporter un appui).
+        // ══════════════════════════════════════════════════════════════
+        const FACILE_NOMME = {
+            'Pompes classiques':   'Pose les genoux au sol, ou appuie tes mains sur une surface surélevée (banc, table).',
+            'Pompes larges':       'Genoux au sol, ou mains sur un support surélevé.',
+            'Pompes diamant':      'Genoux au sol, et écarte un peu les mains si les poignets tirent.',
+            'Pompes claquées':     'Fais une pompe normale sans décoller les mains.',
+            'Archer push ups':     'Garde les deux bras également fléchis — une pompe classique.',
+            'Tractions pronation': 'Utilise un élastique sous les pieds, ou fais des tractions australiennes sous une barre basse.',
+            'Tractions supination':'Élastique en assistance, ou tractions australiennes.',
+            'Muscle-up':           'Sépare le mouvement : traction complète, puis dip séparément.',
+            'Dips triceps':        'Pieds au sol devant toi, mains sur un banc derrière — dips assistés.',
+            'Squats sautés':       'Fais un squat normal sans saut, et monte sur la pointe des pieds.',
+            'Pistol squat':        'Tiens-toi à un appui, ou descends sur une chaise derrière toi.',
+            'Burpees':             'Retire le saut et la pompe : descends, recule les pieds, reviens debout.',
+            'Burpees + tuck jump': 'Burpee sans saut groupé.',
+            'Planche':             'Pose les genoux au sol, en gardant le dos droit.',
+            'Gainage':             'Genoux au sol, ou appuie les avant-bras sur un banc.',
+            'Mountain climbers':   'Ralentis le rythme, ou pose les mains sur un support surélevé.',
+            'Fentes sautées':      'Fentes alternées classiques, sans saut.',
+            'Tuck jumps':          'Sauts sur place simples, sans ramener les genoux.',
+            'Ab Wheel Rollout':    'Fais-le à genoux, et réduis la distance parcourue.',
+            'Ab Wheel Knee Rollout':'Réduis l\'amplitude : n\'avance que de quelques centimètres.',
+            'L-sit':               'Garde les genoux pliés (tuck sit) au lieu des jambes tendues.',
+            'Handstand push up':   'Fais des pompes pieds surélevés sur un banc.',
+            'Back lever groupé':   'Garde les genoux ramenés vers la poitrine et raccourcis la tenue.'
+        };
+
+        // Règles par famille — appliquées si l'exercice n'est pas nommé ci-dessus.
+        const FACILE_REGLES = [
+            { re: /pompe|push[- ]?up/i,        txt: 'Pose les genoux au sol, ou surélève tes mains sur un banc : plus le buste est haut, plus c\'est facile.' },
+            { re: /traction|pull[- ]?up|chin/i, txt: 'Utilise un élastique en assistance, ou passe à des tractions australiennes sous une barre basse.' },
+            { re: /dips?/i,                    txt: 'Garde les pieds au sol pour alléger la charge, ou réduis la profondeur.' },
+            { re: /squat/i,                    txt: 'Descends moins bas, ou pose-toi sur une chaise avant de remonter.' },
+            { re: /fente|lunge/i,              txt: 'Raccourcis le pas et tiens-toi à un appui pour l\'équilibre.' },
+            { re: /saut|jump|plyo/i,           txt: 'Fais le même mouvement sans la phase de saut.' },
+            { re: /planche|gainage|plank/i,    txt: 'Pose les genoux au sol, ou raccourcis la durée de tenue.' },
+            { re: /soulevé de terre|deadlift/i,txt: 'Allège la barre et surélève-la sur des cales : moins d\'amplitude, moins de contrainte.' },
+            { re: /développé|press|bench/i,    txt: 'Réduis la charge, ou passe aux haltères qui permettent une trajectoire naturelle.' },
+            { re: /curl|extension|élévation/i, txt: 'Allège la charge et ralentis le mouvement plutôt que de forcer.' },
+            { re: /burpee/i,                   txt: 'Retire le saut et la pompe : descends, recule les pieds, reviens debout.' },
+            { re: /abdo|crunch|relevé de jambe/i, txt: 'Plie les genoux et réduis l\'amplitude.' },
+            { re: /course|sprint|run/i,        txt: 'Alterne marche rapide et course, plutôt que de courir en continu.' },
+            { re: /kettlebell|swing/i,         txt: 'Prends une charge plus légère et concentre-toi sur le mouvement de hanches.' },
+            { re: /élastique|band/i,           txt: 'Prends un élastique moins résistant, ou éloigne-toi moins du point d\'ancrage.' }
+        ];
+
+        function awakVersionFacile(ex) {
+            if (!ex || !ex.name) return null;
+            // Un exercice déjà « Débutant » n'a pas besoin d'être simplifié.
+            if (ex.difficulty === 'Débutant') return null;
+            if (FACILE_NOMME[ex.name]) return FACILE_NOMME[ex.name];
+            for (let i = 0; i < FACILE_REGLES.length; i++) {
+                if (FACILE_REGLES[i].re.test(ex.name)) return FACILE_REGLES[i].txt;
+            }
+            // Repli générique : toujours vrai, jamais inventé.
+            return 'Réduis la charge ou l\'amplitude, et ralentis le mouvement. '
+                 + 'Mieux vaut moins de répétitions bien faites.';
+        }
+        window.awakVersionFacile = awakVersionFacile;
+
+
+        // ══════════════════════════════════════════════════════════════
+        // 🔁 SANS LE MATÉRIEL — alternative quand on n'a pas l'équipement
+        // --------------------------------------------------------------
+        // Différent de « version plus facile » : ici le mouvement n'est pas
+        // trop dur, c'est le MATÉRIEL qui manque. Sans cette ligne, on saute
+        // simplement l'exercice.
+        // ══════════════════════════════════════════════════════════════
+        const SANSMAT_NOMME = {
+            'Dips triceps':         'Pas de barres ? Mains derrière toi sur un banc ou une chaise, pieds au sol devant.',
+            'Dips barres parallèles':'Pas de barres ? Deux chaises solides côte à côte, ou dips sur banc.',
+            'Tractions pronation':  'Pas de barre ? Passe une serviette autour d\'une porte solide, ou tire-toi sous une table robuste.',
+            'Tractions supination': 'Pas de barre ? Tractions australiennes sous une table, ou tirage à l\'élastique.',
+            'Développé couché barre':'Pas de barre ? Haltères sur un banc, ou pompes lestées au sol.',
+            'Développé couché haltères':'Pas d\'haltères ? Pompes classiques, ou bouteilles d\'eau pleines.',
+            'Leg press':            'Pas de machine ? Squats au poids du corps, ou fentes bulgares.',
+            'Lat pulldown':         'Pas de machine ? Élastique ancré en hauteur, ou tractions assistées.',
+            'Leg curl':             'Pas de machine ? Curl nordique assisté, ou pont fessier une jambe.',
+            'Leg extension':        'Pas de machine ? Squats sissy, ou montées sur banc.',
+            'Squat barre':          'Pas de barre ? Squats gobelet avec un sac lesté, ou squats sautés.',
+            'Soulevé de terre':     'Pas de barre ? Soulevé avec deux haltères, un kettlebell, ou un sac de sable.',
+            'Rowing barre':         'Pas de barre ? Rowing avec deux haltères, ou tirage à l\'élastique.',
+            'Curl barre':           'Pas de barre ? Haltères, élastique, ou deux bouteilles d\'eau.',
+            'Ab Wheel Rollout':     'Pas de roue ? Sers-toi d\'un rouleau de papier, ou glisse sur une serviette.'
+        };
+
+        // Règles par MATÉRIEL — appliquées si l'exercice n'est pas nommé.
+        const SANSMAT_REGLES = [
+            { eq: 'Machine',           txt: 'Pas de machine ? Le même mouvement se fait à l\'élastique ou aux haltères, en gardant le geste lent et contrôlé.' },
+            { eq: 'Barre',             txt: 'Pas de barre ? Deux haltères, un kettlebell, ou un sac lesté font le même travail.' },
+            { eq: 'Haltères',          txt: 'Pas d\'haltères ? Deux bouteilles d\'eau pleines, un sac à dos chargé, ou un élastique.' },
+            { eq: 'Kettlebell',        txt: 'Pas de kettlebell ? Un sac à dos chargé tenu à deux mains, ou un haltère.' },
+            { eq: 'Barres parallèles', txt: 'Pas de barres ? Deux chaises solides côte à côte, ou le rebord d\'un banc.' },
+            { eq: 'Banc',              txt: 'Pas de banc ? Le sol, un lit ferme, ou deux chaises alignées.' },
+            { eq: 'TRX',               txt: 'Pas de TRX ? Une serviette solide passée autour d\'une poignée de porte fermée.' },
+            { eq: 'Swiss Ball',        txt: 'Pas de Swiss Ball ? Fais-le au sol, ou pose les pieds sur une chaise.' },
+            { eq: 'Medicine Ball',     txt: 'Pas de medicine ball ? Un sac à dos chargé, ou une bouteille d\'eau de plusieurs litres.' },
+            { eq: 'Élastique',         txt: 'Pas d\'élastique ? Une serviette tendue à deux mains crée une résistance isométrique.' },
+            { eq: 'Piscine',           txt: 'Pas de piscine ? Le même mouvement au sol, plus lentement, en contractant à chaque répétition.' }
+        ];
+
+        function awakSansMateriel(ex) {
+            if (!ex || !ex.name) return null;
+            // ⚠️ Les cas NOMMÉS priment sur le test « poids du corps » :
+            // « Dips triceps » et les tractions sont classés poids du corps
+            // alors qu'ils exigent une barre ou des barres parallèles —
+            // ils seraient sortis du filtre sans jamais afficher d'alternative.
+            if (SANSMAT_NOMME[ex.name]) return SANSMAT_NOMME[ex.name];
+            const eq = (ex.equipment && ex.equipment.length) ? ex.equipment : ['Poids du corps'];
+            // Un exercice réellement sans matériel n'a pas besoin de ligne.
+            if (eq.every(function (e) { return e === 'Poids du corps' || e === 'Aucun'; })) return null;
+            for (let i = 0; i < SANSMAT_REGLES.length; i++) {
+                if (eq.indexOf(SANSMAT_REGLES[i].eq) !== -1) return SANSMAT_REGLES[i].txt;
+            }
+            return null;
+        }
+        window.awakSansMateriel = awakSansMateriel;
+
+
+        // ══════════════════════════════════════════════════════════════
+        // ⬡ ICÔNES SVG — remplacent les emojis système des CONTRÔLES
+        // --------------------------------------------------------------
+        // Les emojis de contrôle (▶ ⏸ ✕ ✓ ⏭) sont rendus par le SYSTÈME :
+        // ils changent d'aspect selon le téléphone et cassent l'unité visuelle.
+        // Ces tracés suivent la signature d'Awakened : angles vifs, aucune
+        // rondeur, l'air taillé plutôt que dessiné.
+        // ⚠️ `currentColor` : l'icône hérite de la couleur du texte parent,
+        // donc une seule définition sert partout (vert, gris, ambre…).
+        const AWAK_ICONS = {
+            // ▶ Lecture — triangle à pointe franche, légèrement penché
+            play:   '<path d="M6 3.5 L20 12 L6 20.5 Z"/>',
+            // ⏸ Pause — deux barres avec un chanfrein en haut
+            pause:  '<path d="M6 4 h4 v16 h-4 Z M14 4 h4 v16 h-4 Z"/>',
+            // ⏹ Stop — carré aux coins coupés
+            stop:   '<path d="M6 5 L19 5 L19 19 L6 19 Z"/>',
+            // ⏭ Suivant — triangle + barre
+            next:   '<path d="M5 4 L16 12 L5 20 Z M18 4 h3 v16 h-3 Z"/>',
+            prev:   '<path d="M19 4 L8 12 L19 20 Z M3 4 h3 v16 h-3 Z"/>',
+            // ✕ Fermer — entaille : les traits DÉPASSENT du croisement
+            close:  '<path d="M5 5 L19 19 M19 5 L5 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" fill="none"/>',
+            // ✓ Validé — coche anguleuse, presque un éclair
+            check:  '<path d="M4 12.5 L9.5 18.5 L20 5.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="square" stroke-linejoin="miter" fill="none"/>',
+            // › Chevron — angle net
+            chevron:'<path d="M9 5 L16 12 L9 19" stroke="currentColor" stroke-width="2.2" stroke-linecap="square" stroke-linejoin="miter" fill="none"/>',
+            chevronLeft:'<path d="M15 5 L8 12 L15 19" stroke="currentColor" stroke-width="2.2" stroke-linecap="square" stroke-linejoin="miter" fill="none"/>',
+            // ＋ / − pour la saisie
+            plus:   '<path d="M12 4 v16 M4 12 h16" stroke="currentColor" stroke-width="2.6" stroke-linecap="square" fill="none"/>',
+            minus:  '<path d="M4 12 h16" stroke="currentColor" stroke-width="2.6" stroke-linecap="square" fill="none"/>',
+            // ⚙ Réglages — engrenage anguleux (8 dents carrées)
+            gear:   '<path d="M12 8.2 A3.8 3.8 0 1 0 12 15.8 A3.8 3.8 0 1 0 12 8.2 Z M10.6 2 h2.8 l.5 2.6 2 .85 2.2-1.5 2 2-1.5 2.2.85 2 2.6.5v2.8l-2.6.5-.85 2 1.5 2.2-2 2-2.2-1.5-2 .85-.5 2.6h-2.8l-.5-2.6-2-.85-2.2 1.5-2-2 1.5-2.2-.85-2L2 13.4v-2.8l2.6-.5.85-2L3.95 5.9l2-2 2.2 1.5 2-.85Z" fill-rule="evenodd"/>',
+            // ⟳ Recommencer — flèche circulaire à segments droits
+            reload: '<path d="M12 4 V1.5 L7.5 5.2 L12 8.9 V6.4 a5.6 5.6 0 1 1-5.6 5.6 H4.1 A7.9 7.9 0 1 0 12 4 Z"/>'
+        };
+
+        // 🔷 BLEU DU SYSTÈME — #22d3ee, déjà la teinte dominante de l'app
+        // (155 usages). L'icône est rendue en DEUX couches : une copie floutée
+        // en dessous qui crée le halo, et le tracé net par-dessus. D'où l'effet
+        // de profondeur, comme si l'icône était éclairée de l'intérieur.
+        const AWAK_ICON_BLEU = '#22d3ee';
+
+        // Rend une icône. `taille` en px.
+        //   couleur : hex, ou 'auto' pour hériter du parent (currentColor).
+        function awakIcon(nom, taille, style, couleur) {
+            const d = AWAK_ICONS[nom];
+            if (!d) return '';
+            const t = taille || 18;
+            const c = (couleur === 'auto') ? 'currentColor' : (couleur || AWAK_ICON_BLEU);
+            // Identifiant unique : sans lui, plusieurs icônes sur un même écran
+            // partageraient le même filtre et se dégraderaient entre elles.
+            const uid = 'ai' + Math.random().toString(36).slice(2, 8);
+            return '<svg viewBox="0 0 24 24" width="' + t + '" height="' + t + '" '
+                 + 'style="display:inline-block;vertical-align:-0.15em;flex-shrink:0;overflow:visible;'
+                 + (style || '') + '" aria-hidden="true">'
+                 + '<defs><filter id="' + uid + '" x="-60%" y="-60%" width="220%" height="220%">'
+                 +   '<feGaussianBlur stdDeviation="1.6"/></filter></defs>'
+                 // ⚠️ Les tracés AU TRAIT portent déjà fill="none" (close, check,
+                 // chevron, plus, minus). Leur appliquer un remplissage les
+                 // transformerait en formes pleines difformes — on ne pose donc
+                 // le fill que sur les tracés pleins.
+                 + (function () {
+                     const _d = d.replace(/currentColor/g, c);
+                     const _f = /fill="none"/.test(d) ? 'none' : c;
+                     return '<g fill="' + _f + '" stroke="' + c + '" opacity="0.55" '
+                          +   'filter="url(#' + uid + ')">' + _d + '</g>'
+                          + '<g fill="' + _f + '" stroke="' + c + '">' + _d + '</g>';
+                   })()
+                 + '</svg>';
+        }
+        window.awakIcon = awakIcon;
+        window.AWAK_ICONS = AWAK_ICONS;
+
         function showExerciseDetail(exercise) {
             currentExerciseForModal = exercise;
             const modal = document.getElementById('exerciseModal');
@@ -24692,7 +24935,7 @@
                     'cardio': '❤️ Cardio'
                 };
                 badge.innerHTML = programNames[type] || '🏋️ Programme';
-                badge.style.background = 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)';
+                badge.style.background = 'linear-gradient(135deg, #1d5fa8 0%, #164e8a 100%)';
                 badge.style.display = 'block';
             }
             
@@ -24795,7 +25038,7 @@
                     bg = 'linear-gradient(90deg,rgba(34,197,94,0.18),rgba(74,222,128,0.06))';
                     border = '#4ade80';
                     iconColor = 'white';
-                    iconBg = 'linear-gradient(135deg,#16a34a,#22c55e,#4ade80)';
+                    iconBg = 'linear-gradient(135deg,#1d5fa8,#3b82f6,#60a8f0)';
                     textColor = 'white';
                     glow = 'box-shadow:0 0 16px rgba(74,222,128,0.3),inset 0 0 12px rgba(74,222,128,0.04);';
                 } else {
@@ -25188,7 +25431,7 @@
             // ✅ NEW: Display progression note if exists
             if (exercise.progressionNote && !exercise.isRest && !exercise.isInfo) {
                 const progressionBadge = document.createElement('div');
-                progressionBadge.style.cssText = 'display: inline-block; background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.85em; margin-left: 10px; font-weight: bold; box-shadow: 0 2px 8px rgba(22,163,74,0.3);';
+                progressionBadge.style.cssText = 'display: inline-block; background: linear-gradient(135deg, #1d5fa8 0%, #164e8a 100%); color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.85em; margin-left: 10px; font-weight: bold; box-shadow: 0 2px 8px rgba(22,163,74,0.3);';
                 progressionBadge.textContent = exercise.progressionNote;
                 document.getElementById('exerciseName').appendChild(progressionBadge);
             }
@@ -26266,7 +26509,7 @@
                     const sel = busyGymEquipment.includes(eq.id);
                     return `<button data-eqid="${eq.id}" onclick="toggleBusyEquip('${eq.id}',this)"
                         style="padding:8px 6px;border-radius:14px;border:2px solid ${sel?'#16a34a':'rgba(255,255,255,0.14)'};
-                        background:${sel?'linear-gradient(135deg,#16a34a,#15803d)':'rgba(255,255,255,0.05)'};
+                        background:${sel?'linear-gradient(135deg,#1d5fa8,#164e8a)':'rgba(255,255,255,0.05)'};
                         cursor:pointer;text-align:center;font-size:0.72em;font-weight:700;color:${sel?'white':'#e2e8f0'};min-height:60px;">
                         <div class="eq-icon" style="width:34px;height:34px;margin:0 auto 3px;display:flex;align-items:center;justify-content:center;filter:${sel?'brightness(10)':'brightness(0) invert(1)'};">${eq.svgIcon||'<span style="font-size:1.3em">'+eq.name[0]+'</span>'}</div>
                         <div style="line-height:1.2;">${eq.name}</div>
@@ -26283,7 +26526,7 @@
                 const sel = busyGymMachines.includes(mt.id);
                 return `<button data-mtid="${mt.id}" onclick="toggleBusyMachine('${mt.id}',this)"
                     style="padding:8px 6px;border-radius:14px;border:2px solid ${sel?'#16a34a':'rgba(255,255,255,0.14)'};
-                    background:${sel?'linear-gradient(135deg,#16a34a,#15803d)':'rgba(255,255,255,0.05)'};
+                    background:${sel?'linear-gradient(135deg,#1d5fa8,#164e8a)':'rgba(255,255,255,0.05)'};
                     cursor:pointer;text-align:center;font-size:0.72em;font-weight:700;color:${sel?'white':'#e2e8f0'};min-height:60px;">
                     <div style="width:34px;height:34px;margin:0 auto 3px;display:flex;align-items:center;justify-content:center;">${mt.svg?'<div class="eq-icon" style="width:34px;height:34px;filter:'+( sel?'brightness(10)':'brightness(0) invert(1)')+'">' + mt.svg + '</div>':mt.icon}</div>
                     <div style="line-height:1.2;">${mt.name.replace('Machines ','')}</div>
@@ -26321,7 +26564,7 @@
                 if (svgDiv) svgDiv.style.filter = 'brightness(0) invert(0.85)';
             } else {
                 busyGymMachines.push(id);
-                btn.style.background = 'linear-gradient(135deg,#22c55e,#16a34a)'; btn.style.borderColor = '#22c55e'; btn.style.color = 'white';
+                btn.style.background = 'linear-gradient(135deg,#3b82f6,#1d5fa8)'; btn.style.borderColor = '#22c55e'; btn.style.color = 'white';
                 const svgDiv = btn.querySelector('div > div');
                 if (svgDiv) svgDiv.style.filter = 'brightness(10)';
             }
@@ -26333,7 +26576,7 @@
             if (!grid) return;
             grid.querySelectorAll('button').forEach(btn => {
                 if (select) {
-                    btn.style.background = 'linear-gradient(135deg,#22c55e,#16a34a)'; btn.style.borderColor = '#22c55e'; btn.style.color = 'white';
+                    btn.style.background = 'linear-gradient(135deg,#3b82f6,#1d5fa8)'; btn.style.borderColor = '#22c55e'; btn.style.color = 'white';
                     const svgDiv = btn.querySelector('div > div');
                     if (svgDiv) svgDiv.style.filter = 'brightness(10)';
                 } else {
@@ -26352,7 +26595,7 @@
                 if (icon) icon.style.filter = 'brightness(0) invert(0.85)';
             } else {
                 busyGymEquipment.push(id);
-                btn.style.background = 'linear-gradient(135deg,#16a34a,#15803d)'; btn.style.borderColor = '#16a34a'; btn.style.color = 'white';
+                btn.style.background = 'linear-gradient(135deg,#1d5fa8,#164e8a)'; btn.style.borderColor = '#16a34a'; btn.style.color = 'white';
                 if (icon) icon.style.filter = 'brightness(10)';
             }
         }
@@ -26559,7 +26802,7 @@
                     const sel = currentEquip.includes(eq.id);
                     return `<button data-eqid="${eq.id}" onclick="toggleLocEquip('${eq.id}',this)"
                         style="padding:7px 5px;border-radius:10px;border:2px solid ${sel?'#16a34a':'rgba(255,255,255,0.12)'};
-                        background:${sel?'linear-gradient(135deg,#16a34a,#15803d)':'white'};
+                        background:${sel?'linear-gradient(135deg,#1d5fa8,#164e8a)':'white'};
                         cursor:pointer;text-align:center;font-size:0.7em;font-weight:700;color:${sel?'white':'#cbd5e1'};min-height:56px;">
                         <div class="eq-icon" style="width:30px;height:30px;margin:0 auto 3px;display:flex;align-items:center;justify-content:center;">${eq.svgIcon||'<span style="font-size:1.2em">'+eq.name[0]+'</span>'}</div>
                         <div style="line-height:1.2;">${eq.name}</div>
@@ -26576,7 +26819,7 @@
                 const sel = currentMachines.includes(mt.id);
                 return `<button data-mtid="${mt.id}" onclick="toggleLocMachine('${mt.id}',this)"
                     style="padding:8px 5px;border-radius:10px;border:2px solid ${sel?'#16a34a':'rgba(255,255,255,0.12)'};
-                    background:${sel?'linear-gradient(135deg,#16a34a,#15803d)':'rgba(255,255,255,0.03)'};
+                    background:${sel?'linear-gradient(135deg,#1d5fa8,#164e8a)':'rgba(255,255,255,0.03)'};
                     cursor:pointer;text-align:center;font-size:0.7em;font-weight:700;color:${sel?'white':'#cbd5e1'};min-height:60px;">
                     <div style="width:34px;height:34px;margin:0 auto 3px;display:flex;align-items:center;justify-content:center;">
                         ${mt.svg ? '<div class="eq-icon" style="width:34px;height:34px;filter:'+(sel?'brightness(10)':'brightness(0) invert(1)')+'">' + mt.svg + '</div>' : mt.icon}
@@ -26602,10 +26845,10 @@
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">
                     <button id="locModeHome"
                         onclick="setLocEditorMode('home')"
-                        style="padding:10px;border:2px solid ${currentMode==='home'?'#16a34a':'rgba(255,255,255,0.12)'};border-radius:14px;background:${currentMode==='home'?'linear-gradient(135deg,#16a34a,#15803d)':'rgba(255,255,255,0.03)'};color:${currentMode==='home'?'white':'#94a3b8'};cursor:pointer;font-weight:700;">🏠 Maison</button>
+                        style="padding:10px;border:2px solid ${currentMode==='home'?'#16a34a':'rgba(255,255,255,0.12)'};border-radius:14px;background:${currentMode==='home'?'linear-gradient(135deg,#1d5fa8,#164e8a)':'rgba(255,255,255,0.03)'};color:${currentMode==='home'?'white':'#94a3b8'};cursor:pointer;font-weight:700;">🏠 Maison</button>
                     <button id="locModeGym"
                         onclick="setLocEditorMode('gym')"
-                        style="padding:10px;border:2px solid ${currentMode==='gym'?'#16a34a':'rgba(255,255,255,0.12)'};border-radius:14px;background:${currentMode==='gym'?'linear-gradient(135deg,#16a34a,#15803d)':'rgba(255,255,255,0.03)'};color:${currentMode==='gym'?'white':'#94a3b8'};cursor:pointer;font-weight:700;">🏋️ Gym</button>
+                        style="padding:10px;border:2px solid ${currentMode==='gym'?'#16a34a':'rgba(255,255,255,0.12)'};border-radius:14px;background:${currentMode==='gym'?'linear-gradient(135deg,#1d5fa8,#164e8a)':'rgba(255,255,255,0.03)'};color:${currentMode==='gym'?'white':'#94a3b8'};cursor:pointer;font-weight:700;">🏋️ Gym</button>
                 </div>
 
                 <!-- Machines (section principale) -->
@@ -26635,7 +26878,7 @@
                 btn.style.background='rgba(255,255,255,0.04)'; btn.style.borderColor='rgba(255,255,255,0.12)'; btn.style.color='#94a3b8';
             } else {
                 window._locEquip.push(id);
-                btn.style.background='linear-gradient(135deg,#16a34a,#15803d)'; btn.style.borderColor='#16a34a'; btn.style.color='white';
+                btn.style.background='linear-gradient(135deg,#1d5fa8,#164e8a)'; btn.style.borderColor='#16a34a'; btn.style.color='white';
             }
         }
 
@@ -26647,7 +26890,7 @@
                 btn.style.background='rgba(255,255,255,0.03)'; btn.style.borderColor='rgba(255,255,255,0.12)'; btn.style.color='#94a3b8';
                 const d = btn.querySelector('div > div'); if (d) d.style.filter='';
             } else {
-                btn.style.background='linear-gradient(135deg,#22c55e,#16a34a)'; btn.style.borderColor='#22c55e'; btn.style.color='white';
+                btn.style.background='linear-gradient(135deg,#3b82f6,#1d5fa8)'; btn.style.borderColor='#22c55e'; btn.style.color='white';
                 const d = btn.querySelector('div > div'); if (d) d.style.filter='brightness(10)';
             }
         }
@@ -26655,7 +26898,7 @@
         function selectAllLocMachines(sel) {
             document.querySelectorAll('#locMachineGrid button[data-mtid]').forEach(btn => {
                 if (sel) {
-                    btn.style.background='linear-gradient(135deg,#22c55e,#16a34a)'; btn.style.borderColor='#22c55e'; btn.style.color='white';
+                    btn.style.background='linear-gradient(135deg,#3b82f6,#1d5fa8)'; btn.style.borderColor='#22c55e'; btn.style.color='white';
                     const d = btn.querySelector('div > div'); if (d) d.style.filter='brightness(10)';
                 } else {
                     btn.style.background='rgba(255,255,255,0.03)'; btn.style.borderColor='rgba(255,255,255,0.12)'; btn.style.color='#94a3b8';
@@ -26674,7 +26917,7 @@
             // toujours lu comme « home », et la sauvegarde effaçait les
             // machines de salle.
             try { document.body.dataset.locMode = mode; } catch (e) {}
-            const activeStyle = 'padding:10px;border:2px solid #16a34a;border-radius:14px;background:linear-gradient(135deg,#16a34a,#15803d);color:white;cursor:pointer;font-weight:700;';
+            const activeStyle = 'padding:10px;border:2px solid #16a34a;border-radius:14px;background:linear-gradient(135deg,#1d5fa8,#164e8a);color:white;cursor:pointer;font-weight:700;';
             const inactiveStyle = 'padding:10px;border:1px solid rgba(255,255,255,0.12);border-radius:14px;background:rgba(255,255,255,0.03);color:#374151;cursor:pointer;font-weight:700;';
 
             if (mode === 'home') {
@@ -26791,7 +27034,7 @@
                     <div style="width:40px;height:4px;background:#e5e7eb;border-radius:99px;margin:0 auto 18px;"></div>
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
                         <h3 style="margin:0;color:#0F1014;">Mes lieux</h3>
-                        <button onclick="showAddLocationModal()" style="background:linear-gradient(135deg,#16a34a,#15803d);color:white;border:none;border-radius:10px;padding:7px 14px;font-size:0.85em;font-weight:700;cursor:pointer;">+ Ajouter</button>
+                        <button onclick="showAddLocationModal()" style="background:linear-gradient(135deg,#1d5fa8,#164e8a);color:white;border:none;border-radius:10px;padding:7px 14px;font-size:0.85em;font-weight:700;cursor:pointer;">+ Ajouter</button>
                     </div>
                     ${profiles.map(loc => `
                     <div style="display:flex;align-items:center;gap:12px;padding:12px;border:2px solid ${loc.id===activeLocationId?'#16a34a':'#e5e7eb'};border-radius:14px;margin-bottom:8px;background:${loc.id===activeLocationId?'#FFF3E0':'white'};">
@@ -26830,7 +27073,7 @@
             const home = document.getElementById('modeHomeBtn');
             const gym  = document.getElementById('modeGymBtn');
             const gymSection = document.getElementById('gymProgramsSection');
-            const active   = 'linear-gradient(135deg,#16a34a,#15803d)';
+            const active   = 'linear-gradient(135deg,#1d5fa8,#164e8a)';
 
             [home, gym].forEach(btn => {
                 if (!btn) return;
@@ -26912,7 +27155,7 @@
             // Update button states
             document.querySelectorAll('#globalRestBtns button').forEach(btn => {
                 const isActive = parseInt(btn.dataset.rest) === seconds;
-                btn.style.background = isActive ? 'linear-gradient(135deg,#16a34a,#15803d)' : '';
+                btn.style.background = isActive ? 'linear-gradient(135deg,#1d5fa8,#164e8a)' : '';
                 btn.style.color      = isActive ? 'white' : '';
                 btn.style.border     = isActive ? 'none' : '';
             });
@@ -26924,7 +27167,7 @@
         function initGlobalRestUI() {
             document.querySelectorAll('#globalRestBtns button').forEach(btn => {
                 const isActive = parseInt(btn.dataset.rest) === globalRestSeconds;
-                if (isActive) { btn.style.background='linear-gradient(135deg,#16a34a,#15803d)'; btn.style.color='white'; btn.style.border='none'; }
+                if (isActive) { btn.style.background='linear-gradient(135deg,#1d5fa8,#164e8a)'; btn.style.color='white'; btn.style.border='none'; }
             });
             const hint = document.getElementById('globalRestHint');
             const labels = {60:'1 min', 90:'1:30', 120:'2 min', 180:'3 min'};
@@ -26939,7 +27182,7 @@
         }
 
         function _updateGymSubBtns() {
-            const active = 'linear-gradient(135deg,#16a34a,#15803d)';
+            const active = 'linear-gradient(135deg,#1d5fa8,#164e8a)';
             const moBtn  = document.getElementById('gymMachineOnlyBtn');
             const mxBtn  = document.getElementById('gymMixedBtn');
             const sub    = document.getElementById('gymBtnSubtext');
@@ -27126,7 +27369,7 @@
                 restBetweenSets: restSeconds,
                 exercises,
                 badgeHTML: '🏋️ Gym',
-                badgeStyle: 'linear-gradient(135deg,#166534,#16a34a)'
+                badgeStyle: 'linear-gradient(135deg,#166534,#1d5fa8)'
             };
 
             showWorkoutPreparation(workout);
@@ -27170,7 +27413,7 @@
 
         function updateWeightUnitLabels() {
             const unit = useKg ? 'kg' : 'lbs';
-            const active   = 'linear-gradient(135deg,#16a34a,#15803d)';
+            const active   = 'linear-gradient(135deg,#1d5fa8,#164e8a)';
             const inactive = 'rgba(255,255,255,0.03)';
             const activeTxt   = 'white';
             const inactiveTxt = '#374151';
@@ -27711,7 +27954,7 @@
             fmtBar.style.cssText = 'display:flex;gap:8px;';
             const mkFmtBtn = (label, fmt) => {
                 const active = fmt === format;
-                return `<button onclick="_openShareCardModal('${fmt}')" style="background:${active?'linear-gradient(135deg,#16a34a,#15803d)':'rgba(255,255,255,0.08)'};color:${active?'#fff':'#94a3b8'};border:1px solid ${active?'#4ade80':'rgba(255,255,255,0.15)'};border-radius:10px;padding:9px 16px;font-weight:800;cursor:pointer;font-size:0.82em;letter-spacing:0.5px;">${label}</button>`;
+                return `<button onclick="_openShareCardModal('${fmt}')" style="background:${active?'linear-gradient(135deg,#1d5fa8,#164e8a)':'rgba(255,255,255,0.08)'};color:${active?'#fff':'#94a3b8'};border:1px solid ${active?'#4ade80':'rgba(255,255,255,0.15)'};border-radius:10px;padding:9px 16px;font-weight:800;cursor:pointer;font-size:0.82em;letter-spacing:0.5px;">${label}</button>`;
             };
             fmtBar.innerHTML = mkFmtBtn('▭ Carré', 'square') + mkFmtBtn('▯ Story', 'story');
             overlay.appendChild(fmtBar);
@@ -27726,7 +27969,7 @@
             const actions = document.createElement('div');
             actions.style.cssText = 'display:flex;gap:8px;width:100%;max-width:340px;';
             actions.innerHTML = `
-                <button id="shareCardShareBtn" style="flex:1;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border:none;border-radius:14px;padding:14px;font-weight:800;cursor:pointer;font-size:0.92em;">📤 Partager</button>
+                <button id="shareCardShareBtn" style="flex:1;background:linear-gradient(135deg,#1d5fa8,#164e8a);color:#fff;border:none;border-radius:14px;padding:14px;font-weight:800;cursor:pointer;font-size:0.92em;">📤 Partager</button>
                 <button id="shareCardDlBtn" style="flex:1;background:rgba(168,85,247,0.15);color:#c084fc;border:1px solid rgba(168,85,247,0.4);border-radius:14px;padding:14px;font-weight:800;cursor:pointer;font-size:0.92em;">⬇ Enregistrer</button>
             `;
             overlay.appendChild(actions);
@@ -27899,7 +28142,7 @@
             function barColor(lv) {
                 if (lv >= 50) return 'linear-gradient(90deg,#ef4444,#dc2626)';
                 if (lv >= 20) return 'linear-gradient(90deg,#fbbf24,#f59e0b)';
-                if (lv >= 10) return 'linear-gradient(90deg,#4ade80,#166534)';
+                if (lv >= 10) return 'linear-gradient(90deg,#60a8f0,#166534)';
                 return 'linear-gradient(90deg,#60a5fa,#3b82f6)';
             }
             function rankBadge(lv) {
@@ -27971,7 +28214,7 @@
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=965");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=976");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -28071,7 +28314,7 @@
                     const _tree = typeof rpgGetSkillTree === 'function' ? rpgGetSkillTree() : [];
                     const _unlockable = _tree.filter(sk => !unlockedSkills.includes(sk.id) && profileLevel >= (sk.req ? sk.req.level : 999)).length;
                     const _badge = _unlockable > 0
-                        ? `<span style="background:#4ade80;color:#04210f;font-size:0.6em;font-weight:900;padding:3px 8px;border-radius:99px;box-shadow:0 0 12px rgba(74,222,128,0.6);animation:skillPulse 1.8s ease-in-out infinite;white-space:nowrap;">${_unlockable} à débloquer !</span>`
+                        ? `<span style="background:#4ade80;color:#04162b;font-size:0.6em;font-weight:900;padding:3px 8px;border-radius:99px;box-shadow:0 0 12px rgba(74,222,128,0.6);animation:skillPulse 1.8s ease-in-out infinite;white-space:nowrap;">${_unlockable} à débloquer !</span>`
                         : '';
                     return `
                     <button onclick="rpgShowDetailsPanel()" id="awakBtnCompetences" style="
@@ -28569,7 +28812,7 @@
                     rightBadge = `<div style="font-size:0.62em;font-weight:800;color:${accent};flex-shrink:0;text-transform:uppercase;letter-spacing:0.5px;">Active</div>`;
                 } else if (canDo) {
                     // 🔓 Indicateur d'action clair : bouton "Débloquer" qui pulse
-                    rightBadge = `<div style="flex-shrink:0;background:${accent};color:#04210f;font-size:0.66em;font-weight:900;padding:6px 11px;border-radius:99px;text-transform:uppercase;letter-spacing:0.5px;box-shadow:0 0 12px ${accent}77;animation:skillPulse 1.8s ease-in-out infinite;white-space:nowrap;">👆 Débloquer</div>`;
+                    rightBadge = `<div style="flex-shrink:0;background:${accent};color:#04162b;font-size:0.66em;font-weight:900;padding:6px 11px;border-radius:99px;text-transform:uppercase;letter-spacing:0.5px;box-shadow:0 0 12px ${accent}77;animation:skillPulse 1.8s ease-in-out infinite;white-space:nowrap;">👆 Débloquer</div>`;
                 } else {
                     rightBadge = `<div style="font-size:0.7em;font-weight:700;color:#475569;flex-shrink:0;">🔒 Niv.${sk.req.level}</div>`;
                 }
@@ -29299,7 +29542,7 @@
                             <div style="font-size:0.6em;color:rgba(168,85,247,0.6);font-weight:900;text-transform:uppercase;letter-spacing:3px;margin-bottom:3px;">◈ AWAKENING ◈</div>
                             <div style="font-size:1em;font-weight:900;color:white;">Choisis ta voie</div>
                         </div>
-                        <button onclick="document.getElementById('classSelectModal').remove()" style="width:30px;height:30px;border-radius:50%;background:#0a1525;border:1px solid rgba(168,85,247,0.2);color:#475569;font-size:0.95em;cursor:pointer;">✕</button>
+                        <button onclick="document.getElementById('classSelectModal').remove()" style="width:30px;height:30px;border-radius:50%;background:#0a1525;border:1px solid rgba(168,85,247,0.2);color:#475569;font-size:0.95em;cursor:pointer;"><svg viewBox="0 0 24 24" width="16" height="16" style="display:inline-block;vertical-align:-0.15em;" aria-hidden="true"><path d="M5 5 L19 19 M19 5 L5 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" fill="none"/></svg></button>
                     </div>
                     <div style="font-size:0.72em;color:#475569;line-height:1.5;">${current ? 'Classe actuelle : <strong style="color:'+current.color+'">'+current.emoji+' '+current.name+'</strong>' : 'Le Système a évalué tes capacités. Choisis la voie qui te ressemble.'}</div>
                 </div>
@@ -30129,7 +30372,7 @@
                     const on = awakIsInvincible();
                     btn.querySelector('span').textContent = `🛡️ Invincibilité : ${on ? 'ON' : 'OFF'}`;
                     btn.style.background = on
-                        ? 'linear-gradient(135deg,#16a34a,#15803d)'
+                        ? 'linear-gradient(135deg,#1d5fa8,#164e8a)'
                         : 'linear-gradient(135deg,#dc2626,#991b1b)';
                 }
             } catch(e) {}
@@ -32298,7 +32541,7 @@
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=965);'
+                +     'url(images/combat_bg_v1.webp?v=976);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -32553,7 +32796,7 @@
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url('images/faille_fermee_bg.webp?v=965');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url('images/faille_fermee_bg.webp?v=976');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <div style="font-size:3.4em;line-height:1;margin-bottom:10px;filter:drop-shadow(0 0 18px ${theme.color});animation:awakBriefFloat 4s ease-in-out infinite;">${theme.emoji}</div>
                     <div style="display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:9px;flex-wrap:wrap;">
@@ -33746,7 +33989,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=965');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=976');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -35705,7 +35948,7 @@
                         <h2 style="margin:0;color:white;font-size:1.35em;font-weight:900;letter-spacing:1.5px;text-shadow:0 2px 8px rgba(0,0,0,0.9);">LE MARCHAND</h2>
                         <div style="font-size:0.82em;color:#fbbf24;font-weight:800;margin-top:3px;text-shadow:0 1px 4px rgba(0,0,0,0.9);">💰 ${gold} or</div>
                     </div>
-                    <button onclick="document.getElementById('awakMerchantModal').remove()" style="position:absolute;top:12px;right:12px;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,0.5);border:1px solid rgba(239,68,68,0.5);color:#f87171;font-weight:900;cursor:pointer;z-index:2;">✕</button>
+                    <button onclick="document.getElementById('awakMerchantModal').remove()" style="position:absolute;top:12px;right:12px;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,0.5);border:1px solid rgba(239,68,68,0.5);color:#f87171;font-weight:900;cursor:pointer;z-index:2;"><svg viewBox="0 0 24 24" width="16" height="16" style="display:inline-block;vertical-align:-0.15em;" aria-hidden="true"><path d="M5 5 L19 19 M19 5 L5 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" fill="none"/></svg></button>
                 </div>
                 <div style="display:flex;gap:5px;padding:12px 14px;flex-wrap:wrap;">
                     ${tabBtn('sell','VENDRE','💎')}
@@ -35984,7 +36227,7 @@
                         <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.06);"><span style="color:#94a3b8;font-size:0.78em;">Bonus d'XP permanent</span><span style="color:#4ade80;font-size:0.84em;font-weight:800;">+${Math.round(eveil.xpBonus*100)}%</span></div>
                         <div style="display:flex;justify-content:space-between;padding:5px 0;"><span style="color:#94a3b8;font-size:0.78em;">Points de stats</span><span style="color:#4ade80;font-size:0.84em;font-weight:800;">+${eveil.statPoints}</span></div>
                     </div>
-                    <button onclick="awakAcceptEveil(${eveil.tier})" style="width:100%;padding:15px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#050507;border:none;border-radius:14px;font-size:0.98em;font-weight:900;letter-spacing:1px;cursor:pointer;">S'ÉVEILLER</button>
+                    <button onclick="awakAcceptEveil(${eveil.tier})" style="width:100%;padding:15px;background:linear-gradient(135deg,#3b82f6,#1d5fa8);color:#050507;border:none;border-radius:14px;font-size:0.98em;font-weight:900;letter-spacing:1px;cursor:pointer;">S'ÉVEILLER</button>
                 </div>`;
             document.body.appendChild(ov);
             try { if (typeof hapticTap === 'function') hapticTap([40, 60, 40, 60, 140]); } catch(e) {}
@@ -37413,7 +37656,7 @@
                             <div style="font-size:1.15em;font-weight:900;color:white;letter-spacing:-0.5px;">${title}</div>
                         </div>
                         <div style="margin-bottom:14px;">${sectionsHtml}</div>
-                        <button onclick="document.getElementById('awakInfoModal').remove()" style="width:100%;background:linear-gradient(135deg,#16a34a,#22c55e);border:none;color:white;padding:13px;border-radius:10px;font-weight:900;font-size:0.9em;letter-spacing:1px;text-transform:uppercase;cursor:pointer;box-shadow:0 4px 16px rgba(34,197,94,0.3);">✓ Compris</button>
+                        <button onclick="document.getElementById('awakInfoModal').remove()" style="width:100%;background:linear-gradient(135deg,#1d5fa8,#3b82f6);border:none;color:white;padding:13px;border-radius:10px;font-weight:900;font-size:0.9em;letter-spacing:1px;text-transform:uppercase;cursor:pointer;box-shadow:0 4px 16px rgba(34,197,94,0.3);">✓ Compris</button>
                     </div>
                 </div>
             `;
@@ -38588,7 +38831,7 @@
                 el.style.cssText = `position:fixed;right:16px;bottom:90px;z-index:20000;background:linear-gradient(135deg,#64748b,#475569);color:white;padding:6px 14px;border-radius:99px;font-size:0.78em;font-weight:800;pointer-events:none;animation:slideInRight 0.3s ease;`;
             } else {
                 el.textContent = `+${xp} XP 💪`;
-                el.style.cssText = `position:fixed;right:16px;bottom:90px;z-index:20000;background:linear-gradient(135deg,#16a34a,#15803d);color:white;padding:6px 14px;border-radius:99px;font-size:0.82em;font-weight:800;pointer-events:none;animation:slideInRight 0.3s ease;`;
+                el.style.cssText = `position:fixed;right:16px;bottom:90px;z-index:20000;background:linear-gradient(135deg,#1d5fa8,#164e8a);color:white;padding:6px 14px;border-radius:99px;font-size:0.82em;font-weight:800;pointer-events:none;animation:slideInRight 0.3s ease;`;
             }
             document.body.appendChild(el);
             setTimeout(() => {
@@ -38651,7 +38894,7 @@
                     const warning   = daysSince >= RPG_GRACE_DAYS - 1 && !decaying;
                     const statusDot = decaying ? '🔴' : warning ? '🟡' : '🟢';
                     const barColor  = lv >= 20 ? 'linear-gradient(90deg,#fbbf24,#f59e0b)' :
-                                     lv >= 10  ? 'linear-gradient(90deg,#4ade80,#166534)' :
+                                     lv >= 10  ? 'linear-gradient(90deg,#60a8f0,#166534)' :
                                                  'linear-gradient(90deg,#60a5fa,#3b82f6)';
                     const medal = lv >= 50 ? '💎' : lv >= 20 ? '🥇' : lv >= 10 ? '🥈' : lv >= 5 ? '🥉' : '';
 
@@ -40978,7 +41221,7 @@
                     + 'style="flex:1;min-width:0;padding:9px 6px;border:none;border-radius:10px;cursor:pointer;'
                     + 'font-weight:800;font-size:0.78em;letter-spacing:0.3px;white-space:nowrap;'
                     + (active
-                        ? 'background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;box-shadow:0 2px 10px rgba(34,197,94,0.35);'
+                        ? 'background:linear-gradient(135deg,#3b82f6,#1d5fa8);color:#fff;box-shadow:0 2px 10px rgba(34,197,94,0.35);'
                         : 'background:rgba(255,255,255,0.05);color:#94a3b8;')
                     + '">' + s.emoji + ' ' + s.label + '</button>';
             }).join('');
@@ -41518,7 +41761,7 @@
                         + '<span style="display:block;font-size:0.82em;font-weight:800;color:#e2e8f0;">' + day.name + '</span>'
                         + '<span style="display:block;font-size:0.64em;color:#94a3b8;margin-top:2px;">' + nEx + ' exercices · 3 séries</span>'
                         + '</span>'
-                        + '<span style="flex-shrink:0;background:' + a + '1f;border:1px solid ' + a + '55;border-radius:99px;width:30px;height:30px;display:grid;place-items:center;color:' + a + ';font-size:0.75em;">▶</span>'
+                        + '<span style="flex-shrink:0;background:' + a + '1f;border:1px solid ' + a + '55;border-radius:99px;width:30px;height:30px;display:grid;place-items:center;color:' + a + ';font-size:0.75em;"><svg viewBox="0 0 24 24" width="15" height="15" style="display:inline-block;vertical-align:-0.15em;" fill="currentColor" aria-hidden="true"><path d="M6 3.5 L20 12 L6 20.5 Z"/></svg></span>'
                         + '</button>';
                 }).join('');
                 return '<div class="card" style="background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.08);border-left:3px solid ' + a + ';border-radius:16px;padding:14px 15px;box-shadow:0 0 22px ' + a + '14;">'
@@ -42384,7 +42627,7 @@
                 _celebrityColor: program.color,
                 _celebPhase:     prog.phaseKey,
                 badgeHTML:       program.emoji + ' ' + program.nickname,
-                badgeStyle:      `linear-gradient(135deg, ${program.color || '#16a34a'} 0%, ${program.color || '#16a34a'}dd 100%)`,
+                badgeStyle:      `linear-gradient(135deg, ${program.color || '#1d5fa8'} 0%, ${program.color || '#1d5fa8'}dd 100%)`,
             };
 
             // Enregistrer la séance pour le suivi
@@ -42609,7 +42852,7 @@
                                     <span>🏋️ ${ex.equipment}</span>
                                 </div>
                             </div>
-                            <div style="color: #16a34a; font-size: 1.5em;">▶</div>
+                            <div style="color: #16a34a; font-size: 1.5em;"><svg viewBox="0 0 24 24" width="15" height="15" style="display:inline-block;vertical-align:-0.15em;" fill="currentColor" aria-hidden="true"><path d="M6 3.5 L20 12 L6 20.5 Z"/></svg></div>
                         </div>
                     </div>
                 `;
@@ -42677,7 +42920,7 @@
                         <div style="display: flex; gap: 8px;">
                             <button onclick="event.stopPropagation(); editProgram(${index})" 
                                     class="btn" 
-                                    style="padding: 8px 12px; font-size: 0.9em; background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);"
+                                    style="padding: 8px 12px; font-size: 0.9em; background: linear-gradient(135deg, #60a8f0 0%, #3b82f6 100%);"
                                     title="Modifier">
                                 ✏️
                             </button>
@@ -42713,7 +42956,7 @@
                     
                     <button onclick="startProgramWorkout(${index})" 
                             class="btn" 
-                            style="width: 100%; background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);">
+                            style="width: 100%; background: linear-gradient(135deg, #1d5fa8 0%, #164e8a 100%);">
                         ▶️ Lancer le programme
                     </button>
                 </div>
@@ -44136,7 +44379,7 @@
                 return '<div style="display:flex;align-items:center;gap:8px;margin:4px 0;">' +
                     '<div style="width:96px;font-size:0.72em;color:#cbd5e1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (EMO[m] || '•') + ' ' + m + '</div>' +
                     '<div style="flex:1;height:8px;background:rgba(255,255,255,0.06);border-radius:5px;overflow:hidden;">' +
-                    '<div style="width:' + pct + '%;height:100%;background:linear-gradient(90deg,#22c55e,#4ade80);border-radius:5px;"></div></div>' +
+                    '<div style="width:' + pct + '%;height:100%;background:linear-gradient(90deg,#3b82f6,#60a8f0);border-radius:5px;"></div></div>' +
                     '<div style="width:30px;text-align:right;font-size:0.72em;color:#94a3b8;">' + Math.round(v) + '</div></div>';
             }).join('');
             host.innerHTML = '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:12px 14px;">' +
@@ -44663,7 +44906,7 @@
                 const isFuture = d > now && !isToday;
                 if (isTrained) done++;
 
-                const bg = isTrained ? 'linear-gradient(160deg,#22c55e,#16a34a)'
+                const bg = isTrained ? 'linear-gradient(160deg,#3b82f6,#1d5fa8)'
                          : isFuture  ? 'rgba(255,255,255,0.02)'
                                      : 'rgba(255,255,255,0.05)';
                 const col = isTrained ? '#fff' : isFuture ? '#475569' : '#64748b';
@@ -46323,11 +46566,11 @@
                 <div style="position:relative;width:100%;max-width:440px;height:100%;max-height:100dvh;display:flex;flex-direction:column;padding:max(24px,env(safe-area-inset-top)) 22px calc(24px + env(safe-area-inset-bottom));box-sizing:border-box;">
                     <div style="position:absolute;inset:0;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(34,197,94,0.12),transparent 60%),radial-gradient(ellipse 60% 40% at 50% 110%,rgba(168,85,247,0.1),transparent 60%);pointer-events:none;"></div>
                     <div style="position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0,transparent 3px,rgba(34,197,94,0.015) 3px,rgba(34,197,94,0.015) 4px);pointer-events:none;"></div>
-                    ${pct !== null ? `<div style="height:3px;background:rgba(255,255,255,0.08);border-radius:99px;margin-bottom:26px;position:relative;z-index:1;"><div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#22c55e,#a855f7);border-radius:99px;transition:width 0.4s ease;"></div></div>` : ''}
+                    ${pct !== null ? `<div style="height:3px;background:rgba(255,255,255,0.08);border-radius:99px;margin-bottom:26px;position:relative;z-index:1;"><div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#3b82f6,#a855f7);border-radius:99px;transition:width 0.4s ease;"></div></div>` : ''}
                     <div style="flex:1;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:1;animation:awakFadeIn 0.45s ease;">${inner}</div>
                 </div>`;
 
-            const btnPrimary = (label, action) => `<button onclick="${action}" style="width:100%;padding:16px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#050507;border:none;border-radius:14px;font-size:1em;font-weight:900;letter-spacing:0.5px;cursor:pointer;box-shadow:0 6px 24px rgba(34,197,94,0.25);">${label}</button>`;
+            const btnPrimary = (label, action) => `<button onclick="${action}" style="width:100%;padding:16px;background:linear-gradient(135deg,#3b82f6,#1d5fa8);color:#050507;border:none;border-radius:14px;font-size:1em;font-weight:900;letter-spacing:0.5px;cursor:pointer;box-shadow:0 6px 24px rgba(34,197,94,0.25);">${label}</button>`;
 
             function render() {
                 let inner = '', pct = null;
@@ -46442,7 +46685,7 @@
                         <h2 style="color:#fff;font-size:1.45em;font-weight:900;margin:0 0 6px;">Échauffement & étirements</h2>
                         <p style="color:#94a3b8;font-size:0.82em;line-height:1.6;margin:0 0 18px;">Chaque séance peut inclure un <strong style="color:#e2e8f0;">échauffement</strong> et des <strong style="color:#e2e8f0;">étirements</strong> adaptés aux muscles que tu travailles. Tu pourras activer ou désactiver cette option à tout moment dans les <strong style="color:#e2e8f0;">Réglages</strong>.</p>
                         <p style="color:#cbd5e1;font-size:0.92em;font-weight:800;margin:0 0 16px;">Veux-tu les inclure dans tes séances ?</p>
-                        <button onclick="window._premOnbWarmup(true)" style="width:100%;padding:15px;margin-bottom:10px;background:linear-gradient(135deg,#4ade80,#22c55e);border:none;border-radius:14px;color:#04140a;font-weight:900;font-size:0.95em;cursor:pointer;">Oui, prépare-moi</button>
+                        <button onclick="window._premOnbWarmup(true)" style="width:100%;padding:15px;margin-bottom:10px;background:linear-gradient(135deg,#60a8f0,#3b82f6);border:none;border-radius:14px;color:#04140a;font-weight:900;font-size:0.95em;cursor:pointer;">Oui, prépare-moi</button>
                         <button onclick="window._premOnbWarmup(false)" style="width:100%;padding:14px;background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.12);border-radius:14px;color:#94a3b8;font-weight:800;font-size:0.9em;cursor:pointer;">Non merci, j'irai direct</button>`;
                 } else {
                     pct = 100;
@@ -46645,7 +46888,7 @@
                             <h2 style="color:white;font-size:1.3em;font-weight:900;margin:0 0 14px;">${s.title}</h2>
                             <p style="color:#94a3b8;font-size:0.9em;line-height:1.7;margin:0;">${s.text}</p>
                         </div>
-                        <button onclick="window._onboardNext()" style="width:100%;padding:16px;background:linear-gradient(135deg,#16a34a,#15803d);color:white;border:none;border-radius:14px;font-size:1em;font-weight:900;cursor:pointer;margin-bottom:12px;">
+                        <button onclick="window._onboardNext()" style="width:100%;padding:16px;background:linear-gradient(135deg,#1d5fa8,#164e8a);color:white;border:none;border-radius:14px;font-size:1em;font-weight:900;cursor:pointer;margin-bottom:12px;">
                             ${s.btn}
                         </button>
                         ${!isLast ? `<button onclick="window._onboardSkip()" style="width:100%;padding:10px;background:transparent;border:none;color:rgba(255,255,255,0.3);font-size:0.85em;cursor:pointer;">Passer</button>` : ''}
@@ -47317,7 +47560,7 @@
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=965");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=976");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
@@ -48549,11 +48792,11 @@
                 if (_panS) _panS.style.display = isS ? '' : 'none';
                 if (_panC) _panC.style.display = isS ? 'none' : '';
                 if (_btnS) {
-                    _btnS.style.background = isS ? 'linear-gradient(135deg,#22c55e,#16a34a)' : 'transparent';
+                    _btnS.style.background = isS ? 'linear-gradient(135deg,#3b82f6,#1d5fa8)' : 'transparent';
                     _btnS.style.color = isS ? '#052e16' : '#94a3b8';
                 }
                 if (_btnC) {
-                    _btnC.style.background = !isS ? 'linear-gradient(135deg,#22c55e,#16a34a)' : 'transparent';
+                    _btnC.style.background = !isS ? 'linear-gradient(135deg,#3b82f6,#1d5fa8)' : 'transparent';
                     _btnC.style.color = !isS ? '#052e16' : '#94a3b8';
                 }
                 if (isS) _instSysCharts();
@@ -48627,7 +48870,7 @@
                             color:${m===5?'#22d3ee':'#94a3b8'};">${m} min</button>`).join('')}
                 </div>
 
-                <button onclick="_confirmCardioWarmup()" id="cardioConfirmBtn" style="width:100%;padding:14px;background:linear-gradient(135deg,#22c55e,#16a34a);border:none;border-radius:14px;color:white;font-weight:900;font-size:0.95em;cursor:pointer;margin-bottom:8px;box-shadow:0 4px 16px rgba(34,197,94,0.3);opacity:0.5;pointer-events:none;">▶ Ajouter le cardio</button>
+                <button onclick="_confirmCardioWarmup()" id="cardioConfirmBtn" style="width:100%;padding:14px;background:linear-gradient(135deg,#3b82f6,#1d5fa8);border:none;border-radius:14px;color:white;font-weight:900;font-size:0.95em;cursor:pointer;margin-bottom:8px;box-shadow:0 4px 16px rgba(34,197,94,0.3);opacity:0.5;pointer-events:none;">▶ Ajouter le cardio</button>
                 <button onclick="_skipCardioWarmup()" style="width:100%;padding:13px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:14px;color:#94a3b8;font-weight:700;cursor:pointer;">Passer — démarrer directement</button>`;
             overlay.appendChild(sheet);
             document.body.appendChild(overlay);

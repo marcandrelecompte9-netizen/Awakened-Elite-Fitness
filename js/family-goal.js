@@ -335,7 +335,7 @@
           })()
         + '</div>'
         + '<p style="font-size:0.82em;color:#94a3b8;line-height:1.5;margin:0 0 14px;">Fixez un but à atteindre <b style="color:#4ade80;">ensemble</b> — chaque séance de chacun fait avancer toute la famille.</p>'
-        + '<button onclick="AwakFamilyGoalOpen()" style="width:100%;padding:12px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-weight:800;font-size:0.9em;">🎯 Créer un objectif commun</button>'
+        + '<button onclick="AwakFamilyGoalOpen()" style="width:100%;padding:12px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#3b82f6,#1d5fa8);color:#fff;font-weight:800;font-size:0.9em;">🎯 Créer un objectif commun</button>'
         + '</div>';
     }
 
@@ -384,7 +384,7 @@
       +   '<span style="font-size:0.82em;color:#94a3b8;">/ ' + _fmt(_dispVal(st.type, st.target)) + _dispUnit(st.type, def) + ' ' + esc(_dispLabel(st.type, def)) + '</span>'
       + '</div>'
       + '<div style="height:14px;background:rgba(255,255,255,0.06);border-radius:8px;overflow:hidden;margin-bottom:4px;">'
-      +   '<div style="height:100%;width:' + st.pct + '%;background:linear-gradient(90deg,' + barColor + ',' + (st.reached ? '#f59e0b' : '#16a34a') + ');border-radius:8px;transition:width 0.4s;"></div>'
+      +   '<div style="height:100%;width:' + st.pct + '%;background:linear-gradient(90deg,' + barColor + ',' + (st.reached ? '#f59e0b' : '#1d5fa8') + ');border-radius:8px;transition:width 0.4s;"></div>'
       + '</div>'
       + '<div style="text-align:right;font-size:0.78em;font-weight:800;color:' + barColor + ';margin-bottom:14px;">' + st.pct + '%</div>'
       + '<div style="font-size:0.72em;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Contributions</div>'

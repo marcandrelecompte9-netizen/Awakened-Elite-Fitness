@@ -636,7 +636,7 @@
     // Défi en cours
     var d = st.def;
     var barre = '<div style="height:9px;background:rgba(255,255,255,0.07);border-radius:99px;overflow:hidden;margin:9px 0 7px;">'
-      + '<div style="height:100%;width:' + st.pct + '%;background:linear-gradient(90deg,#22d3ee,#4ade80);border-radius:99px;"></div></div>';
+      + '<div style="height:100%;width:' + st.pct + '%;background:linear-gradient(90deg,#22d3ee,#60a8f0);border-radius:99px;"></div></div>';
     var membres = st.perMember.map(function (m) {
       return '<div style="display:flex;align-items:center;gap:7px;font-size:0.74em;color:#cbd5e1;padding:3px 0;">'
         + '<span>' + _av(m.avatar, 22) + '</span><span style="flex:1;">' + esc(m.name) + '</span>'
