@@ -736,7 +736,7 @@
       +     '<defs><filter id="constLueur"><feGaussianBlur stdDeviation="3" result="b"/>'
       +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>'
       // 🌌 Nébuleuse de fond : remplace la poussière d'étoiles dessinée.
-      +     '<image href="images/constellation_bg.webp?v=992" x="0" y="0" width="300" height="300" '
+      +     '<image href="images/constellation_bg.webp?v=997" x="0" y="0" width="300" height="300" '
       +       'preserveAspectRatio="xMidYMid slice" opacity="0.95"/>'
       +     anneau
       +     fils
@@ -794,10 +794,6 @@
               + '<span style="color:#ec4899;font-size:0.95em;">›</span>'
               + '</div>';
           })()
-      // 📋 Rappel des défis et objectifs en cours (rien s'il n'y en a pas).
-      +   _enCoursBandeau()
-      +   '<div style="display:flex;border-top:1px solid rgba(255,255,255,0.06);">'
-      // 🏅 Accès aux badges de famille, dans la barre du pied de carte.
       // 🧒 Jeux parent-enfant — visible seulement si un enfant est dans la
       // famille. Pour ceux qui préfèrent jouer plutôt que « s'entraîner ».
       +   (function () {
@@ -821,6 +817,12 @@
               + '</span>'
               + '<span style="color:#60a8f0;flex-shrink:0;">\u203a</span></div>';
           })()
+
+      // 📋 Rappel des défis et objectifs en cours (rien s'il n'y en a pas).
+      +   _enCoursBandeau()
+      +   '<div style="display:flex;border-top:1px solid rgba(255,255,255,0.06);">'
+      // 🏅 Accès aux badges de famille, dans la barre du pied de carte.
+
 
       // 🎯 Accès à l'objectif commun. ⚠️ Avant, il n'existait QUE via l'anneau
       // vert — lequel n'est dessiné que si un objectif est DÉJÀ actif. Sans

@@ -952,6 +952,9 @@ var EXERCISE_IMAGES = {
   'Pike push-ups': 'images/exercises/Pike_push_up.webp',
   'Pike push-up surélevée': 'images/exercises/Pike_push_up.webp',
   'Hollow hold': 'images/exercises/Hollow_hold.webp',
+    // 🖼️ « Hollow hold long » (discipline core) réutilise l'image du
+    // Hollow hold : c'est la MÊME position, seule la durée change.
+    'Hollow hold long': 'images/exercises/Hollow_hold.webp',
   'Parallel Bar Knee Raises': 'images/exercises/Parallel_Bar_Knee_Raises.webp',
   'Squat classique': 'images/exercises/Squat_classique.webp',
   'Squat KB sumo': 'images/exercises/Squat_KB_sumo.webp',

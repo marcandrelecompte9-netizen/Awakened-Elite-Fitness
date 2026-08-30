@@ -76,7 +76,7 @@ B) VERSION TECHNIQUE DU CACHE = un compteur SÉPARÉ qui force la mise à
      - sw.js       : nom du cache "awakened-vNNN"
      - index.html  : les 39 "?v=NNN" sur les fichiers js/css
      - sw.js       : les "?v=NNN" des assets (manifest, icônes)
-   ⚠️  ÉTAT ACTUEL : v992. Prochain build = v993.
+   ⚠️  ÉTAT ACTUEL : v997. Prochain build = v998.
 
 
 ───────────────────────────────────────────────────────────────────────
@@ -214,7 +214,7 @@ IMAGES MANQUANTES — 14 exercices (10 Pilates livrés en v909) + 18 scènes nar
 ───────────────────────────────────────────────────────────────────────
 
   • Version affichée : v0.90 · awakened
-  • Cache technique  : v992  (prochain build = v993)
+  • Cache technique  : v997  (prochain build = v998)
   • Exercices        : 452 (base) · 713 (avec disciplines)
   • Objets           : 397  (11 sets, tous complétables)
   • Événements       : 57 narratifs (39 illustrés)
