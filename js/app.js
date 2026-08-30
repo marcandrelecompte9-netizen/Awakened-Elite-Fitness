@@ -3007,7 +3007,7 @@
                             </span>
                             <span style="font-weight: 500; color: #e2e8f0;">${name}</span>
                         </div>
-                        <span style="background: #16a34a; color: white; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 0.9em;">
+                        <span style="background: #1d5fa8; color: white; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 0.9em;">
                             ${count}×
                         </span>
                     </div>
@@ -5217,7 +5217,7 @@
 
                 <!-- ☀️ Bouton Réveil matinal -->
                 <button onclick="showMorningRoutineModal()" style="
-                    width:100%;margin-top:10px;background:linear-gradient(135deg,rgba(245,158,11,0.22) 0%,rgba(234,88,12,0.14) 100%);color:white;border:1px solid rgba(251,191,36,0.45);
+                    width:100%;margin-top:10px;background:linear-gradient(135deg,rgba(245,158,11,0.13) 0%,rgba(234,88,12,0.09) 100%);color:white;border:1px solid rgba(251,191,36,0.34);
                     border-radius:14px;padding:13px 18px;font-size:0.95em;font-weight:800;cursor:pointer;
                     box-shadow:0 4px 18px rgba(245,158,11,0.3);position:relative;overflow:hidden;
                     text-align:left;display:flex;align-items:center;gap:11px;">
@@ -7260,7 +7260,7 @@
                 // Show machine count if selected
                 let machineInfo = '';
                 if (equipment.id === 'machine' && isSelected && selectedMachines.length < machineTypes.length) {
-                    machineInfo = `<div style="position: absolute; top: 8px; right: 8px; background: #16a34a; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75em; font-weight: bold;">${selectedMachines.length}/${machineTypes.length}</div>`;
+                    machineInfo = `<div style="position: absolute; top: 8px; right: 8px; background: #1d5fa8; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75em; font-weight: bold;">${selectedMachines.length}/${machineTypes.length}</div>`;
                 }
                 
                 item.innerHTML = `
@@ -18219,7 +18219,7 @@
                                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;">
                                     <div style="display:flex;align-items:center;gap:7px;">
                                         <span style="font-size:0.82em;font-weight:800;color:white;">${dayLabel}</span>
-                                        ${isToday ? '<span style="background:#22c55e;color:white;padding:1px 7px;border-radius:99px;font-size:0.55em;font-weight:900;letter-spacing:1px;">AUJ.</span>' : ''}
+                                        ${isToday ? '<span style="background:#3b82f6;color:white;padding:1px 7px;border-radius:99px;font-size:0.55em;font-weight:900;letter-spacing:1px;">AUJ.</span>' : ''}
                                     </div>
                                     ${currentRoutine ? `<button onclick="setWeeklyDay('${d}',null);" style="background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.25);border-radius:6px;padding:3px 9px;font-size:0.65em;font-weight:700;cursor:pointer;">✕ Retirer</button>` : ''}
                                 </div>
@@ -18602,7 +18602,7 @@
                         </div>
                         <input id="exPickerSearch" oninput="_filterExPicker()" placeholder="🔍 Chercher un exercice..." style="width:100%;background:#0a0e18;border:1px solid rgba(255,255,255,0.08);color:white;border-radius:10px;padding:9px 12px;font-size:0.82em;outline:none;">
                         <div id="exPickerMuscleFilter" style="display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;">
-                            <button onclick="_setExPickerMuscle(null,this)" data-muscle="" style="background:#22c55e;color:white;border:none;border-radius:99px;padding:5px 10px;font-size:0.68em;font-weight:800;cursor:pointer;">Tous</button>
+                            <button onclick="_setExPickerMuscle(null,this)" data-muscle="" style="background:#3b82f6;color:white;border:none;border-radius:99px;padding:5px 10px;font-size:0.68em;font-weight:800;cursor:pointer;">Tous</button>
                             ${muscles.map(m => `<button onclick="_setExPickerMuscle('${m}',this)" data-muscle="${m}" style="background:rgba(255,255,255,0.05);color:#cbd5e1;border:1px solid rgba(255,255,255,0.08);border-radius:99px;padding:5px 10px;font-size:0.68em;font-weight:700;cursor:pointer;">${m}</button>`).join('')}
                         </div>
                     </div>
@@ -22593,7 +22593,7 @@
                 .stat-val { font-size: 1.6em; font-weight: 900; color: #16a34a; }
                 .stat-lbl { font-size: 0.75em; color: #64748b; }
                 table { width: 100%; border-collapse: collapse; font-size: 0.88em; }
-                th { background: #16a34a; color: white; padding: 10px 12px; text-align: left; }
+                th { background: #1d5fa8; color: white; padding: 10px 12px; text-align: left; }
                 td { padding: 9px 12px; border-bottom: 1px solid #e5e7eb; }
                 tr:nth-child(even) td { background: #f8fafc; }
                 @media print { body { padding: 10px; } }
@@ -23289,7 +23289,7 @@
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=976);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=981);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -23333,7 +23333,7 @@
                 +       '<feGaussianBlur stdDeviation="2.4" result="b"/>'
                 +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>'
                 +     '</filter></defs>'
-                +     '<image href="' + img + '?v=976" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=981" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -23349,7 +23349,7 @@
                              return '<div style="display:flex;align-items:center;gap:6px;'
                                + 'font-size:0.66em;color:#cbd5e1;padding:2px 0;">'
                                + '<span style="width:6px;height:6px;border-radius:99px;'
-                               +   'background:#4ade80;flex-shrink:0;"></span>' + n + '</div>';
+                               +   'background:#60a8f0;flex-shrink:0;"></span>' + n + '</div>';
                            }).join('')
                          + '</div>')
                       : '')
@@ -23945,6 +23945,53 @@
             return '<g mask="url(#awakGridMask)">' + g + '</g>';
         }
 
+
+        // 👑 ÉTAT DU MONARQUE — ouvert depuis la carte de l'Effacement.
+        function awakShowMonarque() {
+            let sb = 0, total = 0;
+            try {
+                sb = (typeof awakSubBossProgress === 'function') ? awakSubBossProgress() : 0;
+                total = (typeof SUB_BOSSES !== 'undefined' && SUB_BOSSES.length) ? SUB_BOSSES.length : 5;
+            } catch (e) { total = 5; }
+            const reste = Math.max(0, total - sb);
+            const pret = reste === 0;
+
+            document.getElementById('awakMonarqueModal')?.remove();
+            const ov = document.createElement('div');
+            ov.id = 'awakMonarqueModal';
+            ov.style.cssText = 'position:fixed;inset:0;z-index:11000;background:rgba(0,0,0,0.90);'
+                + 'backdrop-filter:blur(9px);display:flex;align-items:center;justify-content:center;padding:18px;';
+            ov.innerHTML =
+                '<div style="width:100%;max-width:420px;text-align:center;padding:24px 20px;'
+              +   'border-radius:20px;background:linear-gradient(160deg,#1a0e0e,#0b0a0d);'
+              +   'border:1.5px solid rgba(239,68,68,0.42);'
+              +   'box-shadow:0 0 44px rgba(239,68,68,0.18),0 14px 40px rgba(0,0,0,0.6);">'
+              +   '<div style="font-size:2.8em;line-height:1;margin-bottom:8px;">👑</div>'
+              +   '<div style="font-size:0.54em;letter-spacing:2.5px;color:#ef4444;font-weight:900;">◈ AU BOUT DE L\'AVENUE</div>'
+              +   '<div style="font-family:var(--font-display),sans-serif;font-size:1.25em;'
+              +     'font-weight:800;color:#fff;margin:4px 0 10px;">Le Monarque du Déclin</div>'
+              +   '<div style="font-size:0.8em;color:#cbd5e1;line-height:1.55;margin-bottom:16px;">'
+              +     (pret
+                      ? 'Il n\'y a plus personne entre toi et lui. Le combat final t\'attend.'
+                      : 'Il ne bouge pas. Il attend que tu abandonnes.<br>'
+                        + '<strong style="color:#ef4444;">' + reste + ' gardien' + (reste > 1 ? 's' : '')
+                        + '</strong> se dresse' + (reste > 1 ? 'nt' : '') + ' encore avant lui.')
+              +   '</div>'
+              +   '<div style="height:8px;background:rgba(0,0,0,0.5);border-radius:99px;overflow:hidden;margin-bottom:6px;">'
+              +     '<div style="height:100%;width:' + Math.round((sb / Math.max(1, total)) * 100) + '%;'
+              +       'background:linear-gradient(90deg,#7f1d1d,#ef4444);border-radius:99px;"></div></div>'
+              +   '<div style="font-size:0.62em;color:#64748b;font-weight:800;letter-spacing:1px;margin-bottom:18px;">'
+              +     sb + ' / ' + total + ' GARDIENS VAINCUS</div>'
+              +   '<button onclick="document.getElementById(\'awakMonarqueModal\').remove()" '
+              +     'style="width:100%;padding:13px;border-radius:13px;cursor:pointer;'
+              +     'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);'
+              +     'color:#94a3b8;font-size:0.76em;font-weight:800;letter-spacing:1px;">FERMER</button>'
+              + '</div>';
+            ov.onclick = function (e) { if (e.target === ov) ov.remove(); };
+            document.body.appendChild(ov);
+        }
+        window.awakShowMonarque = awakShowMonarque;
+
         function awakRenderCarte() {
             const R = _carteRayonClair();
             const _rk = (function () {
@@ -24069,8 +24116,18 @@
             // ⚠️ Plafonné : à haut rang, R*0.86 sortait du viewBox (y négatif)
             // et le Monarque se retrouvait coupé en haut de la carte.
             const _my = Math.max(taille + 6, 200 - R * 0.86);
-            marques += '<g><circle cx="200" cy="' + _my.toFixed(1) + '" r="' + taille + '" fill="#dc2626" opacity="0.10"/>'
-                + '<circle cx="200" cy="' + _my.toFixed(1) + '" r="' + (taille * 0.45).toFixed(1) + '" fill="#7f1d1d" opacity="0.75"/></g>';
+            // 👆 CLIQUABLE : c'était une simple tache rouge sans action —
+            // on croyait à un bug. Le toucher ouvre désormais l'état du
+            // Monarque : combien de sous-boss restent avant l'affrontement.
+            marques += '<g style="cursor:pointer;" onclick="awakShowMonarque()">'
+                + '<circle cx="200" cy="' + _my.toFixed(1) + '" r="' + (taille + 10) + '" fill="transparent"/>'
+                + '<circle cx="200" cy="' + _my.toFixed(1) + '" r="' + taille + '" fill="#dc2626" opacity="0.10"/>'
+                + '<circle cx="200" cy="' + _my.toFixed(1) + '" r="' + (taille * 0.45).toFixed(1) + '" fill="#7f1d1d" opacity="0.75"/>'
+                + '<circle cx="200" cy="' + _my.toFixed(1) + '" r="' + (taille * 0.45).toFixed(1) + '" fill="none" '
+                +   'stroke="#ef4444" stroke-width="0.9" opacity="0.5">'
+                +   '<animate attributeName="r" values="' + (taille * 0.45).toFixed(1) + ';' + (taille * 0.8).toFixed(1) + ';' + (taille * 0.45).toFixed(1) + '" dur="3.6s" repeatCount="indefinite"/>'
+                +   '<animate attributeName="opacity" values="0.5;0;0.5" dur="3.6s" repeatCount="indefinite"/>'
+                + '</circle></g>';
 
             // 🏙️ La ville est une VRAIE image de plan (images/carte_ville.webp),
             // découpée par le clip : seule la zone reconquise est visible.
@@ -25403,7 +25460,7 @@
                 if (exerciseFromDB.type === 'warmup') {
                     exerciseNameHTML = `<span style="display:inline-block;background:#fbbf24;color:#0d0d0d;padding:2px 8px;border-radius:20px;font-size:0.52em;margin-right:7px;font-weight:900;letter-spacing:0.5px;vertical-align:middle;">🏃‍♂️ ÉCHAUFFEMENT</span>${exercise.name}`;
                 } else if (exerciseFromDB.type === 'stretch') {
-                    exerciseNameHTML = `<span style="display:inline-block;background:#22c55e;color:#0d0d0d;padding:2px 8px;border-radius:20px;font-size:0.52em;margin-right:7px;font-weight:900;letter-spacing:0.5px;vertical-align:middle;">ÉTIREMENT</span>${exercise.name}`;
+                    exerciseNameHTML = `<span style="display:inline-block;background:#3b82f6;color:#0d0d0d;padding:2px 8px;border-radius:20px;font-size:0.52em;margin-right:7px;font-weight:900;letter-spacing:0.5px;vertical-align:middle;">ÉTIREMENT</span>${exercise.name}`;
                 }
             }
             
@@ -25814,7 +25871,7 @@
                     if (nextExerciseFromDB.type === 'warmup') {
                         nextExerciseHTML = `<span style="display: inline-block; background: #fbbf24; color: white; padding: 3px 8px; border-radius: 14px; font-size: 0.7em; margin-right: 6px; font-weight: bold;">🏃‍♂️</span>${nextExercise.name}`;
                     } else if (nextExerciseFromDB.type === 'stretch') {
-                        nextExerciseHTML = `<span style="display: inline-block; background: #22c55e; color: white; padding: 3px 8px; border-radius: 14px; font-size: 0.7em; margin-right: 6px; font-weight: bold;">🧘</span>${nextExercise.name}`;
+                        nextExerciseHTML = `<span style="display: inline-block; background: #3b82f6; color: white; padding: 3px 8px; border-radius: 14px; font-size: 0.7em; margin-right: 6px; font-weight: bold;">🧘</span>${nextExercise.name}`;
                     }
                 }
                 
@@ -26753,7 +26810,7 @@
                     </button>
                     <button onclick="showAddLocationModal('${loc.id}')"
                         style="position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;
-                               background:#16a34a;border:none;color:white;font-size:0.6em;cursor:pointer;
+                               background:#1d5fa8;border:none;color:white;font-size:0.6em;cursor:pointer;
                                display:flex;align-items:center;justify-content:center;line-height:1;padding:0;
                                box-shadow:0 2px 6px rgba(22,163,74,0.4);">✏️</button>
                 </div>`).join('') +
@@ -27597,14 +27654,14 @@
                                 document.getElementById('awakRiftCombatModal')?.remove();
                                 if (typeof switchTab === 'function') switchTab('game');
                             }
-                        }, 400);
+                        }, 60);   // ⚠️ 400 ms laissait voir l'onglet Entraîner
                     } else {
                         if (typeof _doQuitWorkout === 'function') _doQuitWorkout();
                         setTimeout(() => {
                             awakActiveHuntSession = null;
                             document.getElementById('awakHuntCombatModal')?.remove();
                             if (typeof switchTab === 'function') switchTab('game');
-                        }, 400);
+                        }, 60);   // ⚠️ idem : bascule quasi immédiate
                     }
                     if (typeof showToast === 'function') showToast(`✕ ${isRift ? 'Faille' : 'Chasse'} abandonnée — tu pourras réessayer`, 'warning', 3000);
                 };
@@ -28214,7 +28271,7 @@
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=976");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=981");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -28314,7 +28371,7 @@
                     const _tree = typeof rpgGetSkillTree === 'function' ? rpgGetSkillTree() : [];
                     const _unlockable = _tree.filter(sk => !unlockedSkills.includes(sk.id) && profileLevel >= (sk.req ? sk.req.level : 999)).length;
                     const _badge = _unlockable > 0
-                        ? `<span style="background:#4ade80;color:#04162b;font-size:0.6em;font-weight:900;padding:3px 8px;border-radius:99px;box-shadow:0 0 12px rgba(74,222,128,0.6);animation:skillPulse 1.8s ease-in-out infinite;white-space:nowrap;">${_unlockable} à débloquer !</span>`
+                        ? `<span style="background:#60a8f0;color:#04162b;font-size:0.6em;font-weight:900;padding:3px 8px;border-radius:99px;box-shadow:0 0 12px rgba(74,222,128,0.6);animation:skillPulse 1.8s ease-in-out infinite;white-space:nowrap;">${_unlockable} à débloquer !</span>`
                         : '';
                     return `
                     <button onclick="rpgShowDetailsPanel()" id="awakBtnCompetences" style="
@@ -30901,7 +30958,7 @@
                     stage.innerHTML = `<div id="awakBootBox" style="font-family:'Courier New',monospace;color:#4ade80;font-size:1.02em;line-height:2;text-align:left;display:inline-block;min-height:8em;animation:awakBootGlitch 0.9s steps(2) 3;text-shadow:0 0 8px rgba(74,222,128,0.5);"></div>`;
                     const box = stage.querySelector('#awakBootBox');
                     const lines = ['▸ signal détecté dans le silence', '▸ une présence refuse de s\'effacer', '▸ ancre identifiée', '▸ SYSTÈME D\'ÉVEIL — INITIALISATION…'];
-                    const cursor = '<span style="display:inline-block;width:0.55em;height:1em;vertical-align:-0.15em;background:#4ade80;animation:awakCursorBlink 0.8s steps(1) infinite;"></span>';
+                    const cursor = '<span style="display:inline-block;width:0.55em;height:1em;vertical-align:-0.15em;background:#60a8f0;animation:awakCursorBlink 0.8s steps(1) infinite;"></span>';
                     let li = 0, ci = 0, doneTxt = '';
                     if (bootTimer) { clearInterval(bootTimer); bootTimer = null; }
                     bootTimer = setInterval(() => {
@@ -31916,10 +31973,13 @@
                 if (typeof clearActiveWorkoutState === 'function') clearActiveWorkoutState();
                 if (typeof stopTimer === 'function') stopTimer();
                 document.getElementById('exerciseView')?.classList.add('hidden');
+                document.body.classList.remove('in-session', 'workout-fullscreen');
+                // ⚠️ On bascule d'ABORD vers le Jeu, on réaffiche la sélection
+                // de séance ENSUITE : l'inverse laissait voir l'onglet
+                // Entraîner pendant une frame avant la bascule.
+                if (typeof switchTab === 'function') switchTab('game');
                 const ws = document.getElementById('workoutSelection');
                 if (ws) ws.style.display = '';
-                document.body.classList.remove('in-session', 'workout-fullscreen');
-                if (typeof switchTab === 'function') switchTab('game');
             } catch (e) {}
         }
         window.awakAssautAbandonner = awakAssautAbandonner;
@@ -32541,7 +32601,7 @@
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=976);'
+                +     'url(images/combat_bg_v1.webp?v=981);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -32796,7 +32856,7 @@
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url('images/faille_fermee_bg.webp?v=976');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url('images/faille_fermee_bg.webp?v=981');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <div style="font-size:3.4em;line-height:1;margin-bottom:10px;filter:drop-shadow(0 0 18px ${theme.color});animation:awakBriefFloat 4s ease-in-out infinite;">${theme.emoji}</div>
                     <div style="display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:9px;flex-wrap:wrap;">
@@ -33858,6 +33918,18 @@
                 // awakRepairNarrativeRifts recréerait une Faille déjà faite.
                 if (!_wasCompleted && r.narrativeId) {
                     try { localStorage.setItem('awakNarrativeDone_' + r.narrativeId, '1'); } catch (e) {}
+                    // 🎬 DIALOGUE APRÈS UNE FAILLE D'HISTOIRE.
+                    // ⚠️ La complétion était bien ENREGISTRÉE, mais le module
+                    // narratif n'était jamais consulté : les événements dont le
+                    // déclencheur est « levelAndNarrativeRift » ne se lançaient
+                    // donc qu'au hasard d'une séance ultérieure — souvent bien
+                    // après, sans lien perceptible avec la Faille.
+                    // Le délai laisse l'écran de récompense se fermer d'abord.
+                    try {
+                        if (typeof storyCheckEvents === 'function') {
+                            setTimeout(function () { storyCheckEvents({ delay: 400 }); }, 2600);
+                        }
+                    } catch (e) {}
                 }
                 // 🔧 Migration : si cette Faille est une Faille de compagnon mais a perdu/manque
                 // ses champs (créée par une ancienne version), on les reconstruit depuis son id/nom.
@@ -33989,7 +34061,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=976');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=981');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -43117,13 +43189,13 @@
                         <div style="display: flex; flex-direction: column; gap: 4px;">
                             <button onclick="moveProgramExercise(${index}, -1)" 
                                     class="btn" 
-                                    style="padding: 4px 8px; font-size: 0.8em; background: #16a34a;"
+                                    style="padding: 4px 8px; font-size: 0.8em; background: #1d5fa8;"
                                     ${index === 0 ? 'disabled style="opacity: 0.3;"' : ''}>
                                 ⬆️
                             </button>
                             <button onclick="moveProgramExercise(${index}, 1)" 
                                     class="btn" 
-                                    style="padding: 4px 8px; font-size: 0.8em; background: #16a34a;"
+                                    style="padding: 4px 8px; font-size: 0.8em; background: #1d5fa8;"
                                     ${index === programExercisesBuffer.length - 1 ? 'disabled style="opacity: 0.3;"' : ''}>
                                 ⬇️
                             </button>
@@ -47560,7 +47632,7 @@
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=976");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=981");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.

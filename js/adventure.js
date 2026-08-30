@@ -988,7 +988,7 @@ function renderFamilyTab() {
             + '<div style="font-size:2.4em;margin-bottom:10px;">👨‍👩‍👧‍👦</div>'
             + '<div style="font-size:1.05em;font-weight:800;color:#fff;margin-bottom:6px;">La famille se construit à plusieurs</div>'
             + '<p style="font-size:0.82em;color:#94a3b8;line-height:1.5;margin:0 0 16px;">Crée un deuxième profil (conjoint, enfant, frère, sœur…) pour lier vos comptes et préciser vos relations.</p>'
-            + '<button onclick="showProfileSelectionModal()" style="padding:12px 22px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-weight:800;font-size:0.9em;">➕ Gérer les profils</button>'
+            + '<button onclick="showProfileSelectionModal()" style="padding:12px 22px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#3b82f6,#1d5fa8);color:#fff;font-weight:800;font-size:0.9em;">➕ Gérer les profils</button>'
             + '</div>';
         container.innerHTML = html;
         return;
@@ -1731,8 +1731,8 @@ function showRPGEquipmentModal(defaultTab) {
             <div style="position:absolute;bottom:0;right:0;width:24px;height:24px;border-bottom:2px solid #4ade80;border-right:2px solid #4ade80;border-bottom-right-radius:12px;box-shadow:0 0 10px rgba(74,222,128,0.5);pointer-events:none;z-index:4;"></div>
 
             <!-- Glow line top/bottom -->
-            <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#4ade80,transparent);z-index:4;pointer-events:none;"></div>
-            <div style="position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#4ade80,transparent);z-index:4;pointer-events:none;"></div>
+            <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#60a8f0,transparent);z-index:4;pointer-events:none;"></div>
+            <div style="position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#60a8f0,transparent);z-index:4;pointer-events:none;"></div>
         </div>`;
     }
 

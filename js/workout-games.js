@@ -462,7 +462,7 @@
           +     '<span style="font-size:1.3em;font-weight:900;color:#4ade80;">' + p.cumul + '</span>'
           +     '<span style="font-size:0.74em;color:#94a3b8;">/ ' + p.reglage + ' reps ensemble</span></div>'
           +   '<div style="height:8px;background:rgba(255,255,255,0.07);border-radius:5px;overflow:hidden;">'
-          +     '<div style="height:100%;width:' + pct + '%;background:linear-gradient(90deg,#22c55e,#16a34a);transition:width 0.3s;"></div></div>'
+          +     '<div style="height:100%;width:' + pct + '%;background:linear-gradient(90deg,#3b82f6,#1d5fa8);transition:width 0.3s;"></div></div>'
           + '</div>'
           + sousTitre('AU TOUR DE ' + esc(p.duo[q].nom).toUpperCase())
           + gros(e, p.parTour, 'reps')
@@ -665,7 +665,7 @@
       + '<div style="font-size:0.75em;color:#94a3b8;margin-bottom:16px;">' + esc(unite) + '</div>';
   }
   function bouton(fn, txt, cyan) {
-    var fond = cyan ? 'linear-gradient(135deg,#22d3ee,#0891b2);color:#032027' : 'linear-gradient(135deg,#22c55e,#16a34a);color:#fff';
+    var fond = cyan ? 'linear-gradient(135deg,#22d3ee,#0891b2);color:#032027' : 'linear-gradient(135deg,#3b82f6,#1d5fa8);color:#fff';
     return '<button onclick="' + fn + '" style="width:100%;padding:15px;border:none;border-radius:12px;cursor:pointer;background:' + fond + ';font-weight:900;font-size:0.95em;">' + txt + '</button>';
   }
   function encart(titre, contenu) {
@@ -1040,7 +1040,7 @@
       +   '<div style="font-size:0.72em;color:#94a3b8;">reste ' + Math.max(0, total - partie.pas) + '</div>'
       + '</div>'
       + '<div style="height:6px;background:rgba(255,255,255,0.07);border-radius:4px;overflow:hidden;margin-bottom:18px;">'
-      +   '<div style="height:100%;width:' + pct + '%;background:linear-gradient(90deg,#22c55e,#16a34a);transition:width 0.35s;"></div>'
+      +   '<div style="height:100%;width:' + pct + '%;background:linear-gradient(90deg,#3b82f6,#1d5fa8);transition:width 0.35s;"></div>'
       + '</div>'
       + m.corps(partie)
       + (m.idx && m.idx(partie) >= 0
@@ -1162,7 +1162,7 @@
       +     '<p style="margin:0;color:#94a3b8;font-size:0.82em;">' + nb + ' formats ludiques, adaptés à ton matériel et ta forme.</p>'
       +   '</div>'
       + '</div>'
-      + '<button onclick="AwakGamesOpenPicker()" style="width:100%;margin-top:14px;padding:14px;background:linear-gradient(135deg,#22c55e,#16a34a);border:none;border-radius:14px;color:#04140a;font-weight:900;font-size:0.95em;cursor:pointer;">Choisir un jeu ▸</button>'
+      + '<button onclick="AwakGamesOpenPicker()" style="width:100%;margin-top:14px;padding:14px;background:linear-gradient(135deg,#3b82f6,#1d5fa8);border:none;border-radius:14px;color:#04140a;font-weight:900;font-size:0.95em;cursor:pointer;">Choisir un jeu ▸</button>'
       + '</div>';
   }
 
