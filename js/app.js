@@ -1533,6 +1533,10 @@
         }
         
         function calculateCardioRecords(sessions) {
+            // 🛡️ GARDE : les éléments #best* appartenaient à la section
+            // « Statistiques Cardio », retirée de l'onglet Progression.
+            // Sans ce test, la fonction plantait sur le premier accès.
+            if (!document.getElementById('bestDistance')) return;
             let bestDistanceSession = null;
             let bestSpeedSession = null;
             let bestDurationSession = null;
@@ -6828,8 +6832,15 @@
             if (!info) return 0;
             let b = (info.t === 1) ? 10 : 5;
             if (info.sex) {
+                // ⚖️ Affinité de sexe : +4 et non +9.
+                // ⚠️ À +9, ce bonus pesait presque autant que la popularité
+                // mondiale elle-même : un homme voyait surtout des exercices de
+                // poussée, une femme surtout du bas du corps. C'est fondé
+                // statistiquement, mais ça ENFERME — une femme qui veut
+                // développer son haut du corps s'en trouvait pénalisée.
+                // À +4, l'affinité oriente sans cloisonner.
                 const sex = awakUserSex();
-                if ((info.sex === 'F' && sex === 'femme') || (info.sex === 'M' && sex === 'homme')) b += 9;
+                if ((info.sex === 'F' && sex === 'femme') || (info.sex === 'M' && sex === 'homme')) b += 4;
             }
             return b;
         }
@@ -7831,6 +7842,11 @@
             // n'en montrait aucune : l'utilisateur ne pouvait pas lui faire confiance
             // sans comprendre ce qu'il avait décidé.
             try {
+                // ⚖️ Suggérer un muscle antagoniste si la séance est déséquilibrée.
+            try { if (typeof awakRenderEquilibre === 'function') awakRenderEquilibre(); } catch (e) {}
+
+            // 📉 Avertir si la séance compte moins d'exercices que demandé.
+                try { if (typeof awakRenderPoolManquant === 'function') awakRenderPoolManquant(); } catch (e) {}
                 const _brief = document.getElementById('prepSystemBrief');
                 if (_brief) {
                     const _lignes = [];
@@ -11356,6 +11372,42 @@
                 structure = { compound: Math.round(targetCount * 0.38), isolation: Math.round(targetCount * 0.42), finisher: Math.floor(targetCount * 0.20) };
             }
 
+            // ⚖️ RÉAJUSTEMENT DES QUOTAS SELON CE QUI EXISTE VRAIMENT.
+            // ⚠️ Les proportions ci-dessus supposent un pool équilibré. Or sur
+            // un muscle étroit c'est faux : les abdominaux comptent 34 exercices
+            // « isolation » sur 36 et un seul « composé ». La structure réclamait
+            // 5 composés, n'en trouvait qu'1, et les 4 places perdues n'étaient
+            // JAMAIS réattribuées — d'où des séances tronquées.
+            // On reverse donc chaque quota non pourvu aux catégories qui ont
+            // encore du stock, en respectant leur ordre de priorité.
+            (function () {
+                const stock = {
+                    compound: classified.compound.length,
+                    isolation: classified.isolation.length,
+                    finisher: classified.finisher.length
+                };
+                let surplus = 0;
+                ['compound', 'isolation', 'finisher'].forEach(function (k) {
+                    if (structure[k] > stock[k]) {
+                        surplus += structure[k] - stock[k];
+                        structure[k] = stock[k];
+                    }
+                });
+                // ⚠️ Les Math.round/floor des proportions peuvent aussi laisser
+                // un TROU même sans manque de stock (0.38+0.42+0.20 arrondis
+                // ne redonnent pas toujours targetCount). On complète donc
+                // jusqu'à targetCount, pas seulement le surplus repris.
+                const total0 = structure.compound + structure.isolation + structure.finisher;
+                surplus += Math.max(0, targetCount - total0);
+                // Redistribuer : isolation d'abord (toujours la plus fournie),
+                // puis composés, puis finishers.
+                ['isolation', 'compound', 'finisher'].forEach(function (k) {
+                    if (surplus <= 0) return;
+                    const place = Math.min(surplus, stock[k] - structure[k]);
+                    if (place > 0) { structure[k] += place; surplus -= place; }
+                });
+            })();
+
             // Garantir que le total ne dépasse pas targetCount
             const structTotal = structure.compound + structure.isolation + structure.finisher;
             if (structTotal > targetCount) {
@@ -12058,6 +12110,20 @@
             if (selectedExercises.length < targetCount) {
                 _completerVarie(selectedExercises, exercisePool, targetCount);
             }
+            // 📉 POOL INSUFFISANT — expliquer plutôt que livrer en silence.
+            // Trois filtres se cumulent : le MATÉRIEL du lieu, les exercices des
+            // 3 dernières séances, et la structure composé/isolation. Sur un muscle
+            // étroit (abdos : 34 « isolation » sur 36, dont 10 seulement au poids
+            // du corps), on tombait à 3 exercices pour 12 demandés — sans un mot
+            // d'explication, ça passait pour un bug.
+            try {
+                window._awakPoolManquant = (selectedExercises.length < targetExerciseCount)
+                    ? { obtenu: selectedExercises.length, demande: targetExerciseCount,
+                        dispo: availableExercises.length,
+                        muscles: (typeof selectedMuscles !== 'undefined' ? selectedMuscles.slice() : []) }
+                    : null;
+            } catch (e) {}
+            
             selectedExercises = _ordonnerPolyPuisIso(selectedExercises);
             
             // ✅ EXPERT SYSTEM : Prévenir sur-sollicitation
@@ -23289,7 +23355,7 @@
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=981);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=989);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -23333,7 +23399,7 @@
                 +       '<feGaussianBlur stdDeviation="2.4" result="b"/>'
                 +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>'
                 +     '</filter></defs>'
-                +     '<image href="' + img + '?v=981" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=989" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -24110,6 +24176,12 @@
 
             // 👑 LE MONARQUE — masse sombre au bout de l'avenue, grossit
             // avec le nombre de sous-boss vaincus.
+            // ⚠️ N'APPARAÎT PAS TANT QUE L'HISTOIRE NE L'A PAS NOMMÉ.
+            // Avant, une tache rouge trônait sur la carte dès le premier jour :
+            // elle ne renvoyait à rien de connu du joueur et passait pour un
+            // bug. Le Monarque n'est évoqué qu'au 1er gardien vaincu, et
+            // pleinement nommé après le 4e (evt_avant_monarque).
+            // On l'affiche donc à partir du PREMIER gardien tombé.
             let sb = 0;
             try { sb = parseInt(localStorage.getItem('awakSubBossProgress') || '0', 10) || 0; } catch (e) {}
             const taille = 14 + sb * 5;
@@ -24119,7 +24191,7 @@
             // 👆 CLIQUABLE : c'était une simple tache rouge sans action —
             // on croyait à un bug. Le toucher ouvre désormais l'état du
             // Monarque : combien de sous-boss restent avant l'affrontement.
-            marques += '<g style="cursor:pointer;" onclick="awakShowMonarque()">'
+            if (sb > 0) marques += '<g style="cursor:pointer;" onclick="awakShowMonarque()">'
                 + '<circle cx="200" cy="' + _my.toFixed(1) + '" r="' + (taille + 10) + '" fill="transparent"/>'
                 + '<circle cx="200" cy="' + _my.toFixed(1) + '" r="' + taille + '" fill="#dc2626" opacity="0.10"/>'
                 + '<circle cx="200" cy="' + _my.toFixed(1) + '" r="' + (taille * 0.45).toFixed(1) + '" fill="#7f1d1d" opacity="0.75"/>'
@@ -24926,6 +24998,97 @@
         }
         window.awakIcon = awakIcon;
         window.AWAK_ICONS = AWAK_ICONS;
+
+
+        // 📉 Message affiché quand la séance compte moins d'exercices que demandé.
+        function awakRenderPoolManquant() {
+            const host = document.getElementById('prepPoolWarning');
+            if (!host) return;
+            const m = window._awakPoolManquant;
+            if (!m || m.obtenu >= m.demande) { host.innerHTML = ''; host.style.display = 'none'; return; }
+
+            const mus = (m.muscles || []).join(', ') || 'ce groupe';
+            const cause = (m.dispo <= m.demande)
+                ? 'Ton matériel actuel n\'en permet que ' + m.dispo + ' pour ' + mus + '.'
+                : 'Les exercices de tes dernières séances sont écartés pour varier.';
+
+            host.style.display = 'block';
+            host.innerHTML =
+                '<div style="background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.26);'
+              +   'border-radius:12px;padding:11px 13px;margin-bottom:14px;">'
+              +   '<div style="font-size:0.6em;letter-spacing:1.5px;color:#fbbf24;font-weight:900;'
+              +     'margin-bottom:4px;">◈ SÉANCE PLUS COURTE QUE PRÉVU</div>'
+              +   '<div style="font-size:0.74em;color:#cbd5e1;line-height:1.5;">'
+              +     '<strong>' + m.obtenu + ' exercices</strong> au lieu de ' + m.demande + '. ' + cause
+              +     '<br><span style="color:#94a3b8;">Ajoute un muscle complémentaire, '
+              +     'ou change de lieu pour accéder à plus de matériel.</span>'
+              +   '</div>'
+              + '</div>';
+        }
+        window.awakRenderPoolManquant = awakRenderPoolManquant;
+
+
+        // ══════════════════════════════════════════════════════════════
+        // ⚖️ SUGGESTION D'ÉQUILIBRE — au moment de choisir les muscles
+        // --------------------------------------------------------------
+        // Le déséquilibre naît ICI, pas à la sélection des exercices :
+        // cocher « Pectoraux + Triceps » ne donne QUE de la poussée, et aucun
+        // algorithme en aval ne peut le corriger — le pool ne contient aucun
+        // tirage. On intervient donc au moment de la décision.
+        // ⚠️ On SUGGÈRE, on n'impose pas : une séance poussée volontaire est
+        // parfaitement légitime dans un découpage classique.
+        // ══════════════════════════════════════════════════════════════
+        function awakSuggestionEquilibre(muscles) {
+            if (!muscles || muscles.length === 0) return null;
+            const sel = muscles.slice();
+            const manquants = [];
+            sel.forEach(function (m) {
+                const anta = (typeof muscleAntagonists !== 'undefined') ? muscleAntagonists[m] : null;
+                if (anta && sel.indexOf(anta) === -1 && manquants.indexOf(anta) === -1) {
+                    manquants.push(anta);
+                }
+            });
+            if (!manquants.length) return null;
+
+            // Familles de mouvement, pour nommer le déséquilibre en clair.
+            const POUSSEE = ['Pectoraux', 'Triceps', 'Épaules'];
+            const TIRAGE  = ['Dos', 'Biceps', 'Trapèzes', 'Avant-bras'];
+            const nPouss = sel.filter(function (m) { return POUSSEE.indexOf(m) !== -1; }).length;
+            const nTir   = sel.filter(function (m) { return TIRAGE.indexOf(m) !== -1; }).length;
+
+            let constat = '';
+            if (nPouss >= 2 && nTir === 0)      constat = 'Tu travailles surtout la poussée.';
+            else if (nTir >= 2 && nPouss === 0) constat = 'Tu travailles surtout le tirage.';
+            else                                constat = 'Le muscle opposé n\'est pas travaillé.';
+
+            return { constat: constat, manquants: manquants.slice(0, 2) };
+        }
+        window.awakSuggestionEquilibre = awakSuggestionEquilibre;
+
+        // Affiche la suggestion sous la grille de sélection des muscles.
+        function awakRenderEquilibre() {
+            const host = document.getElementById('muscleBalanceHint');
+            if (!host) return;
+            let sug = null;
+            try {
+                sug = awakSuggestionEquilibre(
+                    (typeof selectedMuscles !== 'undefined') ? selectedMuscles : []);
+            } catch (e) {}
+            if (!sug) { host.innerHTML = ''; host.style.display = 'none'; return; }
+
+            const noms = sug.manquants.join(' ou ');
+            host.style.display = 'block';
+            host.innerHTML =
+                '<div style="background:rgba(96,168,240,0.07);border:1px solid rgba(96,168,240,0.24);'
+              +   'border-radius:12px;padding:10px 13px;margin-top:10px;display:flex;'
+              +   'align-items:center;gap:10px;">'
+              +   '<span style="font-size:1.1em;flex-shrink:0;">⚖️</span>'
+              +   '<span style="flex:1;min-width:0;font-size:0.73em;color:#cbd5e1;line-height:1.45;">'
+              +     sug.constat + ' Ajouter <strong style="color:#60a8f0;">' + noms
+              +     '</strong> équilibrerait la séance.</span>'
+              + '</div>';
+        }
+        window.awakRenderEquilibre = awakRenderEquilibre;
 
         function showExerciseDetail(exercise) {
             currentExerciseForModal = exercise;
@@ -28271,7 +28434,7 @@
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=981");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=989");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -32601,7 +32764,7 @@
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=981);'
+                +     'url(images/combat_bg_v1.webp?v=989);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -32856,7 +33019,7 @@
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url('images/faille_fermee_bg.webp?v=981');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url('images/faille_fermee_bg.webp?v=989');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <div style="font-size:3.4em;line-height:1;margin-bottom:10px;filter:drop-shadow(0 0 18px ${theme.color});animation:awakBriefFloat 4s ease-in-out infinite;">${theme.emoji}</div>
                     <div style="display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:9px;flex-wrap:wrap;">
@@ -33232,10 +33395,21 @@
             const equipSet = new Set(playerEquip);
             equipSet.add('Poids du corps'); equipSet.add('Aucun'); // toujours dispo
             const hasEquip = (ex) => {
+                // ⚠️ `every` et NON `some` : un exercice exige TOUS ses
+                // équipements, pas un seul. Avec `some`, « Traction sur barre
+                // de parc » passait dès qu'un matériel quelconque était coché —
+                // d'où des exercices d'extérieur proposés en Faille alors que
+                // le lieu ne l'était pas.
+                // On délègue à awakEquipmentOk(), déjà utilisé par le
+                // générateur de séance : un seul filtre, un seul comportement.
+                try {
+                    if (typeof awakEquipmentOk === 'function') {
+                        return awakEquipmentOk(ex, Array.from(equipSet));
+                    }
+                } catch (e) {}
                 const eq = ex.equipment || [];
-                if (eq.length === 0) return true; // pas d'équipement requis
-                // L'exercice est jouable si AU MOINS un de ses équipements est disponible
-                return eq.some(e => equipSet.has(e));
+                if (eq.length === 0) return true;
+                return eq.every(e => equipSet.has(e));
             };
 
             // Filtre commun : seulement de VRAIS exercices (pas échauffement/étirement/info)
@@ -34061,7 +34235,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=981');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=989');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -38915,6 +39089,11 @@
 
         // ── Rendu panel RPG ──────────────────────────────────────────
         function renderRPGPanel() {
+            // 🛡️ GARDE : #rpgTitleEmoji et ses voisins n'existent dans AUCUN
+            // fichier — le panneau RPG a été retiré de l'interface. Sans ce
+            // test, l'accès à .textContent sur null lève une TypeError qui
+            // interrompt la fonction et tout ce qu'elle devait mettre à jour.
+            if (!document.getElementById('rpgTitleEmoji')) return;
             const section = document.getElementById('rpgSection');
             if (!section || !rpgEnabled()) { if(section) section.style.display='none'; return; }
             section.style.display = 'block';
@@ -47632,7 +47811,7 @@
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=981");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=989");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.

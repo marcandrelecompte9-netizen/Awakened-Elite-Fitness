@@ -574,7 +574,74 @@ const exerciseDatabase = [
             // ═══════════════════════════════════════════════════════════════
             // ── TRAPÈZES ────────────────────────────────────────────────────
             // ═══════════════════════════════════════════════════════════════
-            { name: "Shrugs haltères", muscle: "Trapèzes", secondaryMuscles: [{muscle:"Épaules",ratio:0.2}], difficulty: "Débutant", type: "exercise", position: "debout", equipment: ["Haltères"], mode: "reps", description: "Haussement d'épaules avec haltères pour le trapèze supérieur.", instructions: ["Haltères le long du corps, prise neutre", "Monter les épaules vers les oreilles", "Tenir 1 seconde en haut", "Descendre lentement en étirant"], tips: "Ne pas rouler les épaules. Mouvement vertical pur." },
+                // ══════════════════════════════════════════════════════════════
+    // 🏠 COMBLEMENT SANS MATÉRIEL (v984)
+    // ⚠️ Audit : les TRAPÈZES n'avaient AUCUN exercice au poids du corps
+    // (12 sur 12 exigeaient barre, haltères ou machine) et les BICEPS n'en
+    // avaient que 2. À la maison, ces muscles étaient donc introuvables et
+    // le générateur rendait des séances tronquées sans raison visible.
+    // ══════════════════════════════════════════════════════════════
+    { name: "Shrugs élastique", muscle: "Trapèzes",
+      secondaryMuscles: [{ muscle: "Épaules", ratio: 0.2 }],
+      difficulty: "Débutant", type: "exercise", position: "debout",
+      equipment: ["Élastique"], mode: "reps",
+      description: "Haussement d'épaules contre la résistance d'un élastique.",
+      instructions: ["Debout sur l'élastique, poignées le long du corps",
+                     "Monter les épaules vers les oreilles",
+                     "Tenir 1 seconde en haut", "Redescendre lentement"],
+      tips: "Mouvement vertical pur, sans rouler les épaules." },
+
+    { name: "Pont scapulaire", muscle: "Trapèzes",
+      secondaryMuscles: [{ muscle: "Dos", ratio: 0.35 }, { muscle: "Épaules", ratio: 0.2 }],
+      difficulty: "Débutant", type: "exercise", position: "allongé",
+      equipment: ["Poids du corps"], mode: "reps",
+      description: "Rétraction des omoplates au sol, cible le trapèze moyen.",
+      instructions: ["Allongé sur le ventre, bras en croix",
+                     "Serrer les omoplates l'une vers l'autre",
+                     "Décoller légèrement la poitrine", "Tenir 2 secondes, relâcher"],
+      tips: "Le mouvement vient des omoplates, pas des bras." },
+
+    { name: "Y-T-W au sol", muscle: "Trapèzes",
+      secondaryMuscles: [{ muscle: "Épaules", ratio: 0.4 }, { muscle: "Dos", ratio: 0.3 }],
+      difficulty: "Débutant", type: "exercise", position: "allongé",
+      equipment: ["Poids du corps"], mode: "reps",
+      description: "Trois positions de bras pour couvrir tout le trapèze.",
+      instructions: ["À plat ventre, bras tendus en Y au-dessus de la tête",
+                     "Décoller les bras, tenir 2 s", "Passer en T (bras en croix), tenir 2 s",
+                     "Passer en W (coudes pliés), tenir 2 s"],
+      tips: "Enchaîne les trois positions sans reposer les bras." },
+
+    { name: "Shrugs en appui (dips au sol)", muscle: "Trapèzes",
+      secondaryMuscles: [{ muscle: "Épaules", ratio: 0.3 }],
+      difficulty: "Intermédiaire", type: "exercise", position: "quadrupédie",
+      equipment: ["Poids du corps"], mode: "reps",
+      description: "En position de planche haute, pousser les omoplates vers le haut.",
+      instructions: ["Position de planche bras tendus",
+                     "Laisser les omoplates se rapprocher (poitrine descend un peu)",
+                     "Pousser le sol pour écarter les omoplates", "Répéter sans plier les coudes"],
+      tips: "Les coudes restent tendus — seul le haut du dos bouge." },
+
+    { name: "Curl isométrique (auto-résistance)", muscle: "Biceps",
+      secondaryMuscles: [{ muscle: "Avant-bras", ratio: 0.3 }],
+      difficulty: "Débutant", type: "exercise", position: "debout",
+      equipment: ["Poids du corps"], mode: "temps", duration: 30,
+      description: "Une main résiste à l'autre pendant la flexion du coude.",
+      instructions: ["Paume gauche sous le poignet droit",
+                     "Fléchir le bras droit en résistant avec le gauche",
+                     "Monter lentement sur 5 secondes", "Redescendre en résistant, puis changer de bras"],
+      tips: "La résistance doit permettre le mouvement, pas le bloquer." },
+
+    { name: "Curl à la serviette", muscle: "Biceps",
+      secondaryMuscles: [{ muscle: "Avant-bras", ratio: 0.4 }],
+      difficulty: "Débutant", type: "exercise", position: "debout",
+      equipment: ["Poids du corps"], mode: "reps",
+      description: "Une serviette passée sous le pied fournit la résistance.",
+      instructions: ["Serviette sous le pied, une extrémité dans chaque main",
+                     "Tirer vers le haut en fléchissant les coudes",
+                     "Résister avec la jambe pour créer la tension", "Descendre lentement"],
+      tips: "Plus tu appuies du pied, plus l'exercice est dur." },
+
+{ name: "Shrugs haltères", muscle: "Trapèzes", secondaryMuscles: [{muscle:"Épaules",ratio:0.2}], difficulty: "Débutant", type: "exercise", position: "debout", equipment: ["Haltères"], mode: "reps", description: "Haussement d'épaules avec haltères pour le trapèze supérieur.", instructions: ["Haltères le long du corps, prise neutre", "Monter les épaules vers les oreilles", "Tenir 1 seconde en haut", "Descendre lentement en étirant"], tips: "Ne pas rouler les épaules. Mouvement vertical pur." },
             { name: "Shrugs barre", muscle: "Trapèzes", secondaryMuscles: [{muscle:"Épaules",ratio:0.2}], difficulty: "Débutant", type: "exercise", position: "debout", equipment: ["Barre"], mode: "reps", description: "Haussement d'épaules avec barre pour une surcharge maximale.", instructions: ["Barre en prise pronation devant les cuisses", "Monter les épaules vers les oreilles", "Pause en haut 1-2 secondes", "Descente lente et contrôlée"], tips: "Permet de charger plus lourd que les haltères." },
             { name: "Face Pull (trapèzes)", muscle: "Trapèzes", secondaryMuscles: [{muscle:"Épaules",ratio:0.2}], difficulty: "Débutant", type: "exercise", position: "debout", equipment: ["Machine"], mode: "reps", description: "Tirage visage avec corde pour les trapèzes et deltoïdes postérieurs.", instructions: ["Câble à hauteur des yeux", "Prise sur la corde, paumes vers le bas", "Tirer vers le visage en écartant les coudes", "Finir coudes hauts, poignets au-dessus"], tips: "Essentiel pour la santé des épaules et posture." },
             { name: "Power Clean", muscle: "Trapèzes", secondaryMuscles: [{muscle:"Épaules",ratio:0.2}], difficulty: "Avancé", type: "exercise", position: "allongé", equipment: ["Barre"], mode: "reps", description: "Épaulé dynamique partiel pour trapèzes et explosivité.", instructions: ["Barre au sol, prise à largeur des épaules", "Tirer la barre en se redressant explosivement", "Haussement d'épaules en fin de tirage", "Amener la barre en position haute"], tips: "Exercice technique. Faire superviser par un coach." },
