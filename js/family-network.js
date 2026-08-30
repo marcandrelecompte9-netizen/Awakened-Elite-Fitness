@@ -736,7 +736,7 @@
       +     '<defs><filter id="constLueur"><feGaussianBlur stdDeviation="3" result="b"/>'
       +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>'
       // 🌌 Nébuleuse de fond : remplace la poussière d'étoiles dessinée.
-      +     '<image href="images/constellation_bg.webp?v=989" x="0" y="0" width="300" height="300" '
+      +     '<image href="images/constellation_bg.webp?v=992" x="0" y="0" width="300" height="300" '
       +       'preserveAspectRatio="xMidYMid slice" opacity="0.95"/>'
       +     anneau
       +     fils
@@ -798,6 +798,30 @@
       +   _enCoursBandeau()
       +   '<div style="display:flex;border-top:1px solid rgba(255,255,255,0.06);">'
       // 🏅 Accès aux badges de famille, dans la barre du pied de carte.
+      // 🧒 Jeux parent-enfant — visible seulement si un enfant est dans la
+      // famille. Pour ceux qui préfèrent jouer plutôt que « s'entraîner ».
+      +   (function () {
+            var enf = false;
+            try {
+              if (window.AwakYouth && typeof window.AwakYouth.isChildProfile === 'function') {
+                enf = (window.getAllProfiles ? window.getAllProfiles() : [])
+                  .some(function (p) { return p && window.AwakYouth.isChildProfile(p.id); });
+              }
+            } catch (e) {}
+            if (!enf) return '';
+            return '<div onclick="AwakKidsOpen()" style="cursor:pointer;margin:0 12px 10px;'
+              + 'padding:11px 13px;border-radius:13px;display:flex;align-items:center;gap:10px;'
+              + 'background:rgba(96,168,240,0.08);border:1px solid rgba(96,168,240,0.26);">'
+              + '<span style="font-size:1.3em;flex-shrink:0;">🎲</span>'
+              + '<span style="flex:1;min-width:0;">'
+              +   '<span style="display:block;font-size:0.7em;font-weight:800;color:#f1f5f9;">'
+              +     'Jeux à faire ensemble</span>'
+              +   '<span style="display:block;font-size:0.6em;color:#94a3b8;margin-top:1px;">'
+              +     'Tag, statue, marche des animaux…</span>'
+              + '</span>'
+              + '<span style="color:#60a8f0;flex-shrink:0;">\u203a</span></div>';
+          })()
+
       // 🎯 Accès à l'objectif commun. ⚠️ Avant, il n'existait QUE via l'anneau
       // vert — lequel n'est dessiné que si un objectif est DÉJÀ actif. Sans
       // objectif en cours, il n'y avait donc aucun moyen d'en créer un depuis
