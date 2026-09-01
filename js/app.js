@@ -8862,7 +8862,14 @@
         }
 
         function closeProfileSetup() {
-            document.getElementById('profileSetupModal').classList.remove('active');
+            const m = document.getElementById('profileSetupModal');
+            if (m) { m.classList.remove('active'); m.style.display = ''; }
+            // 🧹 Filet : refermer aussi le sélecteur s'il était resté ouvert
+            // derrière (on y arrive par son bouton ✏️).
+            try {
+                const sel = document.getElementById('profileSelectionModal');
+                if (sel) { sel.classList.remove('active'); sel.style.display = ''; }
+            } catch (e) {}
         }
 
         function updateLevelDescription() {
@@ -8943,8 +8950,11 @@
             // (et non une création), l'onboarding ne se relance pas — la garde
             // fitproOnboardingDone le bloque — donc plus rien ne rendait la
             // main : menu invisible, aucune action possible.
+            // 🚪 Fermer via closeProfileSetup() : elle nettoie AUSSI le
+            // sélecteur resté ouvert derrière et remet display à vide.
             try {
-                document.getElementById('profileSetupModal')?.classList.remove('active');
+                if (typeof closeProfileSetup === 'function') closeProfileSetup();
+                else document.getElementById('profileSetupModal')?.classList.remove('active');
             } catch (e) {}
 
             // Lancer l'onboarding si première fois
@@ -23395,7 +23405,7 @@
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1006);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1008);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -23439,7 +23449,7 @@
                 +       '<feGaussianBlur stdDeviation="2.4" result="b"/>'
                 +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>'
                 +     '</filter></defs>'
-                +     '<image href="' + img + '?v=1006" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1008" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -28498,7 +28508,7 @@
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1006");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1008");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -32862,7 +32872,7 @@
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1006);'
+                +     'url(images/combat_bg_v1.webp?v=1008);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -33117,7 +33127,7 @@
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url('images/faille_fermee_bg.webp?v=1006');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url('images/faille_fermee_bg.webp?v=1008');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <div style="font-size:3.4em;line-height:1;margin-bottom:10px;filter:drop-shadow(0 0 18px ${theme.color});animation:awakBriefFloat 4s ease-in-out infinite;">${theme.emoji}</div>
                     <div style="display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:9px;flex-wrap:wrap;">
@@ -34369,7 +34379,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1006');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1008');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -44227,7 +44237,13 @@
         // Sélection d'avatar (icône SVG) + rendu du sélecteur
         function selectAvatar(key) {
             selectedAvatar = key;
-            renderAvatarPicker();
+            // ⚠️ REDESSINER LES DEUX GRILLES.
+            // renderAvatarPicker() sans argument ne rafraîchit que #avatarPicker
+            // (création). Depuis l'écran de MODIFICATION, la sélection était donc
+            // bien enregistrée, mais la grille visible restait inchangée : aucune
+            // icône ne s'allumait et on ne savait pas si le choix avait été pris.
+            renderAvatarPicker('avatarPicker');
+            renderAvatarPicker('avatarPickerEdit');
         }
         window.selectAvatar = selectAvatar;
 
@@ -44238,7 +44254,7 @@
             if (!picker) return;
             picker.innerHTML = Object.keys(AWAK_AVATARS).map(key => {
                 const sel = selectedAvatar === key;
-                return '<div data-av="' + key + '" class="avatar-option' + (sel ? ' selected' : '') + '" style="display:flex;align-items:center;justify-content:center;padding:6px;border-radius:12px;cursor:pointer;background:' + (sel ? 'rgba(168,85,247,0.15)' : 'rgba(255,255,255,0.03)') + ';border:1.5px solid ' + (sel ? 'rgba(168,85,247,0.6)' : 'rgba(255,255,255,0.1)') + ';transition:all 0.15s;">'
+                return '<div data-av="' + key + '" class="avatar-option' + (sel ? ' selected' : '') + '" style="display:flex;align-items:center;justify-content:center;padding:6px;border-radius:12px;cursor:pointer;transition:all .15s;box-shadow:' + (sel ? '0 0 14px rgba(96,168,240,0.5)' : 'none') + ';background:' + (sel ? 'rgba(96,168,240,0.22)' : 'rgba(255,255,255,0.03)') + ';border:1.5px solid ' + (sel ? 'rgba(96,168,240,0.85)' : 'rgba(255,255,255,0.1)') + ';transition:all 0.15s;">'
                     + renderAvatar(key, 42) + '</div>';
             }).join('');
             picker.querySelectorAll('[data-av]').forEach(el => {
@@ -44440,7 +44456,7 @@
                              showProfileSetup() édite toujours le profil courant,
                              proposer le bouton ailleurs ferait éditer le mauvais. -->
                         <button onclick="event.stopPropagation();
-                                document.getElementById('profileSelectionModal').style.display='none';
+                                if(window.closeProfileSelectionModal)closeProfileSelectionModal();
                                 if(window.showProfileSetup)showProfileSetup();"
                                 aria-label="Modifier ce profil"
                                 style="background:rgba(96,168,240,0.10);border:1px solid rgba(96,168,240,0.30);
@@ -44497,7 +44513,13 @@
 
         // Close profile selection modal
         function closeProfileSelectionModal() {
-            document.getElementById('profileSelectionModal').classList.remove('active');
+            const m = document.getElementById('profileSelectionModal');
+            if (!m) return;
+            m.classList.remove('active');
+            // ⚠️ Nettoyer aussi un display:none posé à la main : sans ça, une
+            // modale masquée mais TOUJOURS « active » recouvrait l'app —
+            // invisible, mais interceptant tous les clics (menu inaccessible).
+            m.style.display = '';
         }
         
         // Render all profile lists
@@ -47997,7 +48019,7 @@
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1006");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1008");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
