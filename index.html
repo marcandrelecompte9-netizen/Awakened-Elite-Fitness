@@ -11,11 +11,11 @@
     <title>Awakened Elite Fitness</title>
 
     <!-- PWA -->
-    <link rel="manifest" href="manifest.json?v=1000">
-    <link rel="apple-touch-icon" href="icons/icon-192.png?v=1000">
-    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=1000">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=1000">
-    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=1000">
+    <link rel="manifest" href="manifest.json?v=1005">
+    <link rel="apple-touch-icon" href="icons/icon-192.png?v=1005">
+    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=1005">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=1005">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=1005">
 
     <!-- ⚠️ CAPTURE PRÉCOCE DE L'INVITE D'INSTALLATION.
          Chrome déclenche « beforeinstallprompt » très tôt, souvent AVANT la fin
@@ -44,7 +44,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=1000">
+    <link rel="stylesheet" href="css/style.css?v=1005">
 </head>
 <body>
 
@@ -208,8 +208,8 @@
                  (ratio 1,55), donc plus haute et lisible.
                  <picture> laisse le navigateur choisir, sans JavaScript. -->
             <picture>
-                <source media="(min-width: 700px)" srcset="images/banner_v3.webp?v=1000">
-                <img src="images/banner_v3_mobile.webp?v=1000"
+                <source media="(min-width: 700px)" srcset="images/banner_v3.webp?v=1005">
+                <img src="images/banner_v3_mobile.webp?v=1005"
                      alt="Awakened Elite Fitness"
                      style="width:100%;height:auto;display:block;" />
             </picture>
@@ -663,7 +663,10 @@
             </div>
 
             <!-- ═══ ACCORDÉON : Records & Succès ═══ -->
-            <div class="accordion-section">
+            <!-- ⚠️ MASQUÉ (v1005) : accordéon « Records & Succès » retiré.
+                 ⚠️ Le bloc RESTE dans le DOM : #badgesGrid est rempli par le
+                 JS (renderBadges), le supprimer casserait la fonction. -->
+            <div class="accordion-section" style="display:none;">
                 <div class="accordion-header" onclick="toggleSettingsAccordion(this)">
                     <div class="accordion-title"><span>💪</span><span>Records &amp; Succès</span></div>
                     <div class="accordion-icon">▼</div>
@@ -2586,7 +2589,11 @@
                     <div class="accordion-content">
 
                         <!-- Profils -->
-                        <div class="settings-sub">
+                        <!-- ⚠️ MASQUÉE (v1003) : la gestion de profil se fait désormais
+                             depuis l'icône d'avatar de l'accueil — changer, modifier,
+                             créer, tout y est. ⚠️ Le bloc RESTE dans le DOM :
+                             #currentProfileNameSettings est écrit par le JS. -->
+                        <div class="settings-sub" style="display:none;">
                             <div class="settings-sub-title">👥 Gestion des profils</div>
                             <p class="settings-sub-desc">Gère tes profils d'utilisateurs pour un suivi personnalisé.</p>
                             <div style="display: grid; gap: 10px; margin-bottom: 14px;">
@@ -2600,7 +2607,10 @@
                         </div>
 
                         <!-- Sauvegardes -->
-                        <div class="settings-sub">
+                        <!-- ⚠️ MASQUÉE (v1004) : doublon de « Exporter toutes mes données »
+                             (section Données, plus bas). Le gestionnaire de sauvegardes reste
+                             accessible par showBackupManagerModal() si besoin. -->
+                        <div class="settings-sub" style="display:none;">
                             <div class="settings-sub-title">💾 Sauvegardes</div>
                             <p class="settings-sub-desc">Sauvegarde automatique quotidienne, export et import de tes données.</p>
                             <button class="btn" onclick="showBackupManagerModal()" style="width:100%;background:linear-gradient(135deg,#10b981,#059669);">
@@ -2609,7 +2619,10 @@
                         </div>
 
                         <!-- Installer l'app -->
-                        <div class="settings-sub">
+                        <!-- ⚠️ MASQUÉE (v1004) : l'invite d'installation PWA est déjà
+                             proposée par le navigateur lui-même (bannière native). Cette
+                             section faisait doublon et n'apportait qu'un rappel. -->
+                        <div class="settings-sub" style="display:none;">
                             <div class="settings-sub-title">📱 Installer l'application</div>
                             <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;padding:14px;background:linear-gradient(135deg,#0F1014,#1A0A00);border-radius:14px;">
                                 <div style="font-size:2.2em;flex-shrink:0;">💪</div>
@@ -3209,6 +3222,13 @@
                             🎂 Date de naissance <span style="color:#94a3b8;font-weight:400;">(optionnel)</span></span>
                         <input id="profileBirthdate" type="date" style="padding:12px;border-radius:10px;width:100%;">
                     </div>
+                    <!-- 🎭 CHOIX D'AVATAR — réutilise renderAvatarPicker(), déjà écrit
+                         pour la création de profil. On ne duplique pas la grille. -->
+                    <div style="margin-top:12px;">
+                        <span style="display:block;margin-bottom:7px;font-weight:bold;color:#16a34a;font-size:0.9em;">
+                            🎭 Avatar</span>
+                        <div id="avatarPickerEdit" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+                    </div>
 
             <div style="margin-top: 10px; padding: 12px; background: #FFF3E0; border-radius: 10px; font-size: 0.85em; color: #555;">
                 💡 <strong>Informations optionnelles</strong> : Ces données permettent d'affiner les recommandations (durée de repos, intensité) mais ne sont pas obligatoires pour utiliser l'application.
@@ -3712,39 +3732,39 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/exercises.js?v=1000"></script>
-    <script src="data/items.js?v=1000"></script>
-    <script src="js/adventure.js?v=1000"></script>
-    <script src="js/economy.js?v=1000"></script>
-    <script src="js/challenges.js?v=1000"></script>
-    <script src="js/family-boss.js?v=1000"></script>
-    <script src="js/family-network.js?v=1000"></script>
-    <script src="js/family-challenge.js?v=1000"></script>
-    <script src="js/family-goal.js?v=1000"></script>
-    <script src="js/family-feed.js?v=1000"></script>
-    <script src="js/pre-workout-mood.js?v=1000"></script>
-    <script src="js/group-workout.js?v=1000"></script>
-    <script src="js/youth-safety.js?v=1000"></script>
-    <script src="js/kids-programs.js?v=1000"></script>
-    <script src="js/senior-programs.js?v=1000"></script>
-    <script src="js/adaptive.js?v=1000"></script>
-    <script src="js/pain-mode.js?v=1000"></script>
-    <script src="js/recovery-mode.js?v=1000"></script>
-    <script src="js/exercise-visuals.js?v=1000"></script>
-    <script src="js/strength-standards.js?v=1000"></script>
-    <script src="js/system-cards.js?v=1000"></script>
-    <script src="js/share-card.js?v=1000"></script>
-    <script src="js/story-events.js?v=1000"></script>
-    <script src="js/final-boss.js?v=1000"></script>
-    <script src="js/disciplines.js?v=1000"></script>
-    <script src="js/eveil.js?v=1000"></script>
-    <script src="js/app.js?v=1000"></script>
-    <script src="js/awakening-tree.js?v=1000"></script>
-    <script src="js/ui-kit.js?v=1000"></script>
-    <script src="js/feature-map.js?v=1000"></script>
-    <script src="js/weekly-recap.js?v=1000"></script>
-    <script src="js/workout-games.js?v=1000"></script>
-    <script src="js/kids-games.js?v=1000"></script>
+    <script src="js/exercises.js?v=1005"></script>
+    <script src="data/items.js?v=1005"></script>
+    <script src="js/adventure.js?v=1005"></script>
+    <script src="js/economy.js?v=1005"></script>
+    <script src="js/challenges.js?v=1005"></script>
+    <script src="js/family-boss.js?v=1005"></script>
+    <script src="js/family-network.js?v=1005"></script>
+    <script src="js/family-challenge.js?v=1005"></script>
+    <script src="js/family-goal.js?v=1005"></script>
+    <script src="js/family-feed.js?v=1005"></script>
+    <script src="js/pre-workout-mood.js?v=1005"></script>
+    <script src="js/group-workout.js?v=1005"></script>
+    <script src="js/youth-safety.js?v=1005"></script>
+    <script src="js/kids-programs.js?v=1005"></script>
+    <script src="js/senior-programs.js?v=1005"></script>
+    <script src="js/adaptive.js?v=1005"></script>
+    <script src="js/pain-mode.js?v=1005"></script>
+    <script src="js/recovery-mode.js?v=1005"></script>
+    <script src="js/exercise-visuals.js?v=1005"></script>
+    <script src="js/strength-standards.js?v=1005"></script>
+    <script src="js/system-cards.js?v=1005"></script>
+    <script src="js/share-card.js?v=1005"></script>
+    <script src="js/story-events.js?v=1005"></script>
+    <script src="js/final-boss.js?v=1005"></script>
+    <script src="js/disciplines.js?v=1005"></script>
+    <script src="js/eveil.js?v=1005"></script>
+    <script src="js/app.js?v=1005"></script>
+    <script src="js/awakening-tree.js?v=1005"></script>
+    <script src="js/ui-kit.js?v=1005"></script>
+    <script src="js/feature-map.js?v=1005"></script>
+    <script src="js/weekly-recap.js?v=1005"></script>
+    <script src="js/workout-games.js?v=1005"></script>
+    <script src="js/kids-games.js?v=1005"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>
