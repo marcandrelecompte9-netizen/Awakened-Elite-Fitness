@@ -11,11 +11,11 @@
     <title>Awakened Elite Fitness</title>
 
     <!-- PWA -->
-    <link rel="manifest" href="manifest.json?v=1008">
-    <link rel="apple-touch-icon" href="icons/icon-192.png?v=1008">
-    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=1008">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=1008">
-    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=1008">
+    <link rel="manifest" href="manifest.json?v=1018">
+    <link rel="apple-touch-icon" href="icons/icon-192.png?v=1018">
+    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=1018">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=1018">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=1018">
 
     <!-- ⚠️ CAPTURE PRÉCOCE DE L'INVITE D'INSTALLATION.
          Chrome déclenche « beforeinstallprompt » très tôt, souvent AVANT la fin
@@ -44,7 +44,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=1008">
+    <link rel="stylesheet" href="css/style.css?v=1018">
 </head>
 <body>
 
@@ -208,8 +208,8 @@
                  (ratio 1,55), donc plus haute et lisible.
                  <picture> laisse le navigateur choisir, sans JavaScript. -->
             <picture>
-                <source media="(min-width: 700px)" srcset="images/banner_v3.webp?v=1008">
-                <img src="images/banner_v3_mobile.webp?v=1008"
+                <source media="(min-width: 700px)" srcset="images/banner_v3.webp?v=1018">
+                <img src="images/banner_v3_mobile.webp?v=1018"
                      alt="Awakened Elite Fitness"
                      style="width:100%;height:auto;display:block;" />
             </picture>
@@ -302,7 +302,9 @@
                                        color:#60a8f0;width:38px;height:38px;border-radius:12px;cursor:pointer;
                                        font-size:1.1em;flex-shrink:0;margin-right:7px;display:flex;
                                        align-items:center;justify-content:center;">👤</button>
-                        <button onclick="switchTab('settings')" aria-label="Réglages" style="background:rgba(255,255,255,0.06);color:#94a3b8;border:1px solid rgba(255,255,255,0.12);border-radius:11px;padding:8px 11px;font-size:0.85em;cursor:pointer;flex-shrink:0;">⚙️</button>
+                        <!-- ⚠️ MASQUÉ (v1009) : l'onglet Réglages est déjà dans la barre de
+                             navigation du bas. Ce raccourci faisait doublon. -->
+                        <button onclick="switchTab('settings')" aria-label="Réglages" style="display:none;background:rgba(255,255,255,0.06);color:#94a3b8;border:1px solid rgba(255,255,255,0.12);border-radius:11px;padding:8px 11px;font-size:0.85em;cursor:pointer;flex-shrink:0;">⚙️</button>
                     </div>
 
                     <!-- Objectif & niveau -->
@@ -541,14 +543,66 @@
         <!-- History Tab -->
         <div id="historyTab" class="tab-content">
             <!-- Raccourcis Progression -->
-            <div style="display:flex;gap:6px;margin-bottom:14px;">
-                <button onclick="showAwakeningTree()" style="flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:11px 6px;font-weight:800;font-size:0.72em;color:#e2e8f0;cursor:pointer;">🌳 Arbre</button>
-                <button onclick="showSystemAnalysis()" style="flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:11px 6px;font-weight:800;font-size:0.72em;color:#e2e8f0;cursor:pointer;">⚙️ Analyse</button>
-                <button onclick="showSystemAnalysis('coach')" style="flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:11px 6px;font-weight:800;font-size:0.72em;color:#e2e8f0;cursor:pointer;">🧠 Coach</button>
-                <button onclick="awakHallOpen()" style="flex:1;background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(251,191,36,0.04));border:1px solid rgba(251,191,36,0.4);border-radius:12px;padding:11px 6px;font-weight:800;font-size:0.72em;color:#fbbf24;cursor:pointer;">👑 Hall of Fame</button>
+            <!-- ◈ EN-TÊTE — même langage que les autres onglets : liseré,
+                 surtitre espacé, titre en police d'affichage. -->
+            <!-- ⌨️ INVITE DU SYSTÈME — le Système est une entité qui parle au
+                 joueur ; les réglages sont sa console d'administration. -->
+            <div class="term-head">
+                <div class="term-line"><span class="dim">$</span> systeme --config
+                    <span id="termVersion" class="val"></span></div>
+                <div class="term-line"><span class="dim">chargement des paramètres…</span>
+                    <span id="termCount" class="val"></span></div>
+                <div class="term-line"><span class="dim">$</span><span class="term-caret"></span></div>
+            </div>
+            
+            <!-- 🎴 QUATRE ACCÈS EN CARTES.
+                 ⚠️ Avant : 4 boutons en flex:1 sur UNE ligne — étroits et tronqués
+                 sur mobile, comme la barre famille avant v994. En grille 2×2 avec
+                 icône et sous-titre, chacun est lisible et dit ce qu'il ouvre. -->
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-bottom:18px;">
+            <button onclick="showAwakeningTree()" style="text-align:left;display:flex;align-items:center;gap:10px;
+                    padding:13px 12px;border-radius:14px;cursor:pointer;
+                    background:rgba(74,222,128,0.07);border:1px solid rgba(74,222,128,0.26);">
+                <span style="font-size:1.5em;flex-shrink:0;">🌳</span>
+                <span style="flex:1;min-width:0;">
+                    <span style="display:block;font-size:0.78em;font-weight:800;color:#f1f5f9;">Arbre de l'Éveil</span>
+                    <span style="display:block;font-size:0.62em;color:#94a3b8;margin-top:2px;line-height:1.3;">Ce que tes séances font pousser</span>
+                </span>
+            </button>
+            <button onclick="showSystemAnalysis()" style="text-align:left;display:flex;align-items:center;gap:10px;
+                    padding:13px 12px;border-radius:14px;cursor:pointer;
+                    background:rgba(96,168,240,0.07);border:1px solid rgba(96,168,240,0.26);">
+                <span style="font-size:1.5em;flex-shrink:0;">⚙️</span>
+                <span style="flex:1;min-width:0;">
+                    <span style="display:block;font-size:0.78em;font-weight:800;color:#f1f5f9;">Analyse</span>
+                    <span style="display:block;font-size:0.62em;color:#94a3b8;margin-top:2px;line-height:1.3;">Ce que le Système observe</span>
+                </span>
+            </button>
+            <button onclick="showSystemAnalysis('coach')" style="text-align:left;display:flex;align-items:center;gap:10px;
+                    padding:13px 12px;border-radius:14px;cursor:pointer;
+                    background:rgba(167,139,250,0.07);border:1px solid rgba(167,139,250,0.26);">
+                <span style="font-size:1.5em;flex-shrink:0;">🧭</span>
+                <span style="flex:1;min-width:0;">
+                    <span style="display:block;font-size:0.78em;font-weight:800;color:#f1f5f9;">Coach</span>
+                    <span style="display:block;font-size:0.62em;color:#94a3b8;margin-top:2px;line-height:1.3;">Quoi faire ensuite</span>
+                </span>
+            </button>
+            <button onclick="awakHallOpen()" style="text-align:left;display:flex;align-items:center;gap:10px;
+                    padding:13px 12px;border-radius:14px;cursor:pointer;
+                    background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.26);">
+                <span style="font-size:1.5em;flex-shrink:0;">🏆</span>
+                <span style="flex:1;min-width:0;">
+                    <span style="display:block;font-size:0.78em;font-weight:800;color:#f1f5f9;">Hall of Fame</span>
+                    <span style="display:block;font-size:0.62em;color:#94a3b8;margin-top:2px;line-height:1.3;">Tes records personnels</span>
+                </span>
+            </button>
             </div>
             <!-- ═══ ACCORDÉON : Aperçu & activité ═══ -->
-            <div class="accordion-section">
+            <!-- ⚠️ MASQUÉ (v1014) : « Aperçu & activité » — donnée redondante avec
+                 l'Analyse du Système et le Coach, qui l'interprètent déjà.
+                 ⚠️ Le bloc RESTE dans le DOM : ses conteneurs sont remplis
+                 par le JS, les retirer casserait les fonctions. -->
+            <div class="accordion-section" style="display:none;">
                 <div class="accordion-header" onclick="toggleSettingsAccordion(this)">
                     <div class="accordion-title"><span>📊</span><span>Aperçu &amp; activité</span></div>
                     <div class="accordion-icon">▼</div>
@@ -588,7 +642,11 @@
             <!-- 📊 Déplacé depuis « Découvrir » (v838) : c'est du SUIVI PERSONNEL,
                  pas de la découverte. Il ouvrait la bibliothèque d'exercices, obligeant
                  à défiler par-dessus son propre historique pour chercher un exercice. -->
-            <div class="accordion-section">
+            <!-- ⚠️ MASQUÉ (v1014) : « Graphiques par exercice » — donnée redondante avec
+                 l'Analyse du Système et le Coach, qui l'interprètent déjà.
+                 ⚠️ Le bloc RESTE dans le DOM : ses conteneurs sont remplis
+                 par le JS, les retirer casserait les fonctions. -->
+            <div class="accordion-section" style="display:none;">
                 <div class="accordion-header" onclick="toggleSettingsAccordion(this)">
                     <div class="accordion-title"><span>📈</span><span>Graphiques par exercice</span></div>
                     <div class="accordion-icon">▼</div>
@@ -686,7 +744,11 @@
                 </div>
             </div>
             <!-- ═══ ACCORDÉON : Statistiques & graphiques ═══ -->
-            <div class="accordion-section">
+            <!-- ⚠️ MASQUÉ (v1014) : « Statistiques & graphiques » — donnée redondante avec
+                 l'Analyse du Système et le Coach, qui l'interprètent déjà.
+                 ⚠️ Le bloc RESTE dans le DOM : ses conteneurs sont remplis
+                 par le JS, les retirer casserait les fonctions. -->
+            <div class="accordion-section" style="display:none;">
                 <div class="accordion-header" onclick="toggleSettingsAccordion(this)">
                     <div class="accordion-title"><span>📈</span><span>Statistiques &amp; graphiques</span></div>
                     <div class="accordion-icon">▼</div>
@@ -843,12 +905,16 @@
                 </div>
             </div>
             <!-- ═══ ACCORDÉON : Suivi corporel ═══ -->
+            <!-- 📂 OUVERTS PAR DÉFAUT (v1015) : un accordéon oblige à cliquer
+                 avant de voir. C'est un motif de RÉGLAGES, pas de consultation —
+                 aucun autre onglet n'en utilise. Le mécanisme reste en place :
+                 on peut toujours replier si on veut. -->
             <div class="accordion-section">
                 <div class="accordion-header" onclick="toggleSettingsAccordion(this)">
                     <div class="accordion-title"><span>📸</span><span>Suivi corporel</span></div>
                     <div class="accordion-icon">▼</div>
                 </div>
-                <div class="accordion-body">
+                <div class="accordion-body open">
                     <div class="accordion-content">
             <!-- Progress Photos Section -->
             <div class="card">
@@ -961,7 +1027,7 @@
                     <div class="accordion-title"><span>📅</span><span>Historique</span></div>
                     <div class="accordion-icon">▼</div>
                 </div>
-                <div class="accordion-body">
+                <div class="accordion-body open">
                     <div class="accordion-content">
             <div class="card">
                 <h2 style="color: #22d3ee; margin-bottom: 20px;">Calendrier</h2>
@@ -2214,10 +2280,16 @@
         <!-- Settings Tab -->
         <div id="settingsTab" class="tab-content">
 
+            <!-- ◈ EN-TÊTE — même langage que les autres onglets. -->
+            <div style="border-left:2px solid #94a3b8;padding-left:11px;margin-bottom:16px;">
+                <div style="font-size:0.56em;letter-spacing:2.5px;color:#94a3b8;font-weight:900;">◈ RÉGLAGES</div>
+                <h2 style="margin:2px 0 0;color:#fff;font-size:1.15em;font-weight:900;font-family:var(--font-display),sans-serif;letter-spacing:0.5px;">Paramètres</h2>
+            </div>
+            
             <!-- ═══════════ GROUPE 1 · JEU & PROGRESSION ═══════════ -->
             <div class="accordion-section">
                 <div class="accordion-header" onclick="toggleSettingsAccordion(this)">
-                    <div class="accordion-title"><span>🎮</span><span>Jeu &amp; progression</span></div>
+                    <div class="accordion-title" style="display:block;"><span style="display:block;font-weight:800;">Jeu &amp; progression</span><span style="display:block;font-size:0.68em;color:#64748b;font-weight:600;margin-top:2px;letter-spacing:0;">Mode RPG, difficulté, Failles</span></div>
                     <div class="accordion-icon">▼</div>
                 </div>
                 <div class="accordion-body">
@@ -2227,7 +2299,7 @@
                         <div class="settings-sub" id="gameModeCard">
                             <div class="settings-toggle-row" style="margin-bottom:10px;">
                                 <div class="settings-tr-main">
-                                    <div class="settings-sub-title">🎮 Mode Jeu &amp; ⚔️ Chasseur</div>
+                                    <div class="settings-sub-title">Mode Jeu &amp; Chasseur</div>
                                     <div class="settings-sub-desc" style="margin:0;">XP, niveaux de muscles, équipements en drops et inventaire de chasseur.</div>
                                 </div>
                                 <label class="aw-switch">
@@ -2265,7 +2337,7 @@
                         <div class="settings-sub" id="familyTabCard">
                             <div class="settings-toggle-row" style="margin-bottom:0;">
                                 <div class="settings-tr-main">
-                                    <div class="settings-sub-title">👨‍👩‍👧‍👦 Onglet Famille</div>
+                                    <div class="settings-sub-title">Onglet Famille</div>
                                     <div class="settings-sub-desc" style="margin:0;">Affiche l'onglet Famille (objectifs communs, activité, défis). Désactive-le si tu utilises l'app en solo.</div>
                                 </div>
                                 <label class="aw-switch">
@@ -2282,7 +2354,7 @@
             <!-- ═══════════ GROUPE 2 · ENTRAÎNEMENT ═══════════ -->
             <div class="accordion-section">
                 <div class="accordion-header" onclick="toggleSettingsAccordion(this)">
-                    <div class="accordion-title"><span>🏋️</span><span>Entraînement</span></div>
+                    <div class="accordion-title" style="display:block;"><span style="display:block;font-weight:800;">Entraînement</span><span style="display:block;font-size:0.68em;color:#64748b;font-weight:600;margin-top:2px;letter-spacing:0;">Lieux, matériel, récupération, séries</span></div>
                     <div class="accordion-icon">▼</div>
                 </div>
                 <div class="accordion-body">
@@ -2294,7 +2366,7 @@
                         <div class="settings-sub">
                             <div class="settings-toggle-row">
                                 <div class="settings-tr-main">
-                                    <div class="settings-sub-title">🔄 Périodisation automatique</div>
+                                    <div class="settings-sub-title">Périodisation automatique</div>
                                     <div class="settings-sub-desc" style="margin:0;">Fait varier tes séances sur un cycle de 4 semaines, au lieu de répéter le même effort. Tes répétitions, séries et temps de repos s'adaptent tout seuls.</div>
                                 </div>
                                 <label class="aw-switch">
@@ -2316,7 +2388,7 @@
                         </div>
 
                         <div class="settings-sub">
-                            <div class="settings-sub-title">⏱️ Repos inter-séries</div>
+                            <div class="settings-sub-title">Repos inter-séries</div>
                             <p class="settings-sub-desc">Temps de repos entre chaque série. Modifiable aussi par exercice pendant la séance.</p>
                             <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px;" id="globalRestBtns">
                                 <button onclick="setGlobalRest(60)"  class="btn btn-secondary" data-rest="60">1 min</button>
@@ -2329,7 +2401,7 @@
 
                         <!-- Échauffement & étirement (fusion des 2 anciennes cartes) -->
                         <div class="settings-sub">
-                            <div class="settings-sub-title">🔥 Échauffement &amp; étirement</div>
+                            <div class="settings-sub-title">Échauffement &amp; étirement</div>
                             <p class="settings-sub-desc">Prépare les muscles avant l'effort et favorise la récupération après. On recommande de garder les deux activés.</p>
 
                             <div class="settings-toggle-row" style="margin-bottom:14px;">
@@ -2361,7 +2433,7 @@
 
                         <!-- Récupération musculaire -->
                         <div class="settings-sub">
-                            <div class="settings-sub-title">🔄 Récupération musculaire</div>
+                            <div class="settings-sub-title">Récupération musculaire</div>
                             <p class="settings-sub-desc">Réinitialise l'état de récupération de tes muscles. Pour éviter une zone douloureuse, utilise le bouton « 🤕 J'ai mal » sur l'accueil.</p>
 
                             <div style="padding: 16px; background: #fff4e6; border-radius: 14px; border: 2px solid #fed7aa;">
@@ -2381,7 +2453,7 @@
 
                         <!-- Unité de mesure -->
                         <div class="settings-sub">
-                            <div class="settings-sub-title">⚖️ Unité de mesure</div>
+                            <div class="settings-sub-title">Unité de mesure</div>
                             <p class="settings-sub-desc">Affecte le tracker de répétitions, les suggestions de poids et le calculateur 1RM.</p>
                             <div style="display:flex;gap:10px;">
                                 <button id="unitBtnKg" onclick="setWeightUnit(true)" class="btn" style="flex:1;">🇨🇦 Kilogrammes (kg)</button>
@@ -2391,7 +2463,7 @@
 
                         <!-- Poids disponibles -->
                         <div class="settings-sub">
-                            <div class="settings-sub-title">🏋️ Poids disponibles</div>
+                            <div class="settings-sub-title">Poids disponibles</div>
                             <p class="settings-sub-desc">Renseigne tes haltères et barres disponibles — les suggestions s'adapteront exactement.</p>
                             <div style="display:grid;gap:10px;">
                                 <div>
@@ -2423,7 +2495,7 @@
 
                         <!-- AI Workout DJ -->
                         <div class="settings-sub">
-                            <div class="settings-sub-title">🎧 AI Workout DJ</div>
+                            <div class="settings-sub-title">AI Workout DJ</div>
                             <p class="settings-sub-desc">Un Quick Check de 60 s au début de la séance : l'IA évalue ton énergie et adapte le workout en temps réel (intensité ↑ si en forme, récup active si fatigué).</p>
 
                             <div class="settings-toggle-row" style="background: rgba(148,163,184,0.08); padding: 16px; border-radius: 14px;">
@@ -2477,13 +2549,13 @@
             <!-- ═══════════ AFFICHAGE DE L'ACCUEIL ═══════════ -->
             <div class="accordion-section">
                 <div class="accordion-header" onclick="toggleSettingsAccordion(this)">
-                    <div class="accordion-title"><span>🎨</span><span>Affichage de l'accueil</span></div>
+                    <div class="accordion-title" style="display:block;"><span style="display:block;font-weight:800;">Affichage de l'accueil</span><span style="display:block;font-size:0.68em;color:#64748b;font-weight:600;margin-top:2px;letter-spacing:0;">Cartes visibles sur la page d'accueil</span></div>
                     <div class="accordion-icon">▼</div>
                 </div>
                 <div class="accordion-body">
                     <div class="accordion-content">
                         <div class="settings-sub">
-                            <div class="settings-sub-title">🎨 Cartes de l'accueil</div>
+                            <div class="settings-sub-title">Cartes de l'accueil</div>
                             <p class="settings-sub-desc">Choisis les cartes à afficher sur l'accueil. Masquer une carte ne supprime rien — tu peux la réafficher ici à tout moment. Le profil et l'action du jour restent toujours visibles.</p>
                             <div id="homeCardsPrefsList"></div>
                         </div>
@@ -2494,7 +2566,7 @@
             <!-- ═══════════ GROUPE 3 · AUDIO & NOTIFICATIONS ═══════════ -->
             <div class="accordion-section">
                 <div class="accordion-header" onclick="toggleSettingsAccordion(this)">
-                    <div class="accordion-title"><span>🔔</span><span>Audio &amp; notifications</span></div>
+                    <div class="accordion-title" style="display:block;"><span style="display:block;font-weight:800;">Audio &amp; notifications</span><span style="display:block;font-size:0.68em;color:#64748b;font-weight:600;margin-top:2px;letter-spacing:0;">Voix du coach, sons, rappels</span></div>
                     <div class="accordion-icon">▼</div>
                 </div>
                 <div class="accordion-body">
@@ -2509,7 +2581,7 @@
 
                         <!-- Mode sans distractions -->
                         <div class="settings-sub">
-                            <div class="settings-sub-title">🤫 Mode sans distractions</div>
+                            <div class="settings-sub-title">Mode sans distractions</div>
                             <p class="settings-sub-desc">Masque tous les messages à l'écran : notifications, astuces, bulles d'Esen et Nyra, citations de repos et bannières de record. Les erreurs et fenêtres d'action restent affichées.</p>
                             <div style="display: grid; grid-template-columns: 1fr; gap: 14px;">
                                 <div class="equipment-item" id="quietModeOption" onclick="toggleQuietMode()" style="cursor: pointer;">
@@ -2523,7 +2595,7 @@
 
                         <!-- Mode silencieux (sans impacts) -->
                         <div class="settings-sub">
-                            <div class="settings-sub-title">🤫 Mode silencieux</div>
+                            <div class="settings-sub-title">Mode silencieux</div>
                             <p class="settings-sub-desc">Remplace les exercices bruyants (jumping jacks, burpees, sauts…) par des équivalents au sol, sans impact. Idéal en appartement, en colocation, tôt le matin ou quand les enfants dorment. S'applique à toutes tes séances.</p>
                             <div style="display: grid; grid-template-columns: 1fr; gap: 14px;">
                                 <div class="equipment-item" id="silentModeOption" onclick="toggleSilentMode()" style="cursor: pointer;">
@@ -2537,7 +2609,7 @@
 
                         <!-- Rappels intelligents -->
                         <div class="settings-sub">
-                            <div class="settings-sub-title">🔔 Rappels intelligents</div>
+                            <div class="settings-sub-title">Rappels intelligents</div>
                             <p class="settings-sub-desc">Reçois des rappels personnalisés pour rester motivé et constant.</p>
                             <div id="notificationPermission" style="margin-bottom: 16px;"></div>
                             <div id="reminderSettings" style="display: none;">
@@ -2582,7 +2654,7 @@
             <!-- ═══════════ GROUPE 4 · COMPTE & DONNÉES ═══════════ -->
             <div class="accordion-section">
                 <div class="accordion-header" onclick="toggleSettingsAccordion(this)">
-                    <div class="accordion-title"><span>👤</span><span>Compte &amp; données</span></div>
+                    <div class="accordion-title" style="display:block;"><span style="display:block;font-weight:800;">Compte &amp; données</span><span style="display:block;font-size:0.68em;color:#64748b;font-weight:600;margin-top:2px;letter-spacing:0;">Profil, sauvegarde, réinitialisation</span></div>
                     <div class="accordion-icon">▼</div>
                 </div>
                 <div class="accordion-body">
@@ -2594,7 +2666,7 @@
                              créer, tout y est. ⚠️ Le bloc RESTE dans le DOM :
                              #currentProfileNameSettings est écrit par le JS. -->
                         <div class="settings-sub" style="display:none;">
-                            <div class="settings-sub-title">👥 Gestion des profils</div>
+                            <div class="settings-sub-title">Gestion des profils</div>
                             <p class="settings-sub-desc">Gère tes profils d'utilisateurs pour un suivi personnalisé.</p>
                             <div style="display: grid; gap: 10px; margin-bottom: 14px;">
                                 <button class="btn" onclick="showProfileSetup()" style="background: linear-gradient(135deg, #1d5fa8 0%, #164e8a 100%);">⚙️ Modifier mon profil</button>
@@ -2611,7 +2683,7 @@
                              (section Données, plus bas). Le gestionnaire de sauvegardes reste
                              accessible par showBackupManagerModal() si besoin. -->
                         <div class="settings-sub" style="display:none;">
-                            <div class="settings-sub-title">💾 Sauvegardes</div>
+                            <div class="settings-sub-title">Sauvegardes</div>
                             <p class="settings-sub-desc">Sauvegarde automatique quotidienne, export et import de tes données.</p>
                             <button class="btn" onclick="showBackupManagerModal()" style="width:100%;background:linear-gradient(135deg,#10b981,#059669);">
                                 🗂️ Ouvrir le gestionnaire de sauvegardes →
@@ -2623,7 +2695,7 @@
                              proposée par le navigateur lui-même (bannière native). Cette
                              section faisait doublon et n'apportait qu'un rappel. -->
                         <div class="settings-sub" style="display:none;">
-                            <div class="settings-sub-title">📱 Installer l'application</div>
+                            <div class="settings-sub-title">Installer l'application</div>
                             <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;padding:14px;background:linear-gradient(135deg,#0F1014,#1A0A00);border-radius:14px;">
                                 <div style="font-size:2.2em;flex-shrink:0;">💪</div>
                                 <div>
@@ -2641,7 +2713,7 @@
 
                         <!-- Gestion des données -->
                         <div class="settings-sub">
-                            <div class="settings-sub-title" style="color:#ef4444;">🗄️ Gestion des données</div>
+                            <div class="settings-sub-title" style="color:#ef4444;">Gestion des données</div>
                             <p class="settings-sub-desc">Toutes tes données sont sauvegardées automatiquement dans ton navigateur.</p>
                             <div style="display: grid; gap: 10px;">
                                 <button class="btn" onclick="exportAllData()" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); display: flex; align-items: center; justify-content: center; gap: 10px;">
@@ -2674,7 +2746,7 @@
             <!-- ═══════════ GROUPE 5 · À PROPOS ═══════════ -->
             <div class="accordion-section">
                 <div class="accordion-header" onclick="toggleSettingsAccordion(this)">
-                    <div class="accordion-title"><span>ℹ️</span><span>À propos</span></div>
+                    <div class="accordion-title" style="display:block;"><span style="display:block;font-weight:800;">À propos</span><span style="display:block;font-size:0.68em;color:#64748b;font-weight:600;margin-top:2px;letter-spacing:0;">Version, licence, remerciements</span></div>
                     <div class="accordion-icon">▼</div>
                 </div>
                 <div class="accordion-body">
@@ -2682,7 +2754,7 @@
 
                         <!-- Version -->
                         <div class="settings-sub">
-                            <div class="settings-sub-title">🔖 Version</div>
+                            <div class="settings-sub-title">Version</div>
                             <div style="display:flex;align-items:center;gap:14px;">
                                 <div onclick="awakVersionTap()" style="font-size:2em;flex-shrink:0;cursor:pointer;user-select:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent;">🔖</div>
                                 <div style="flex:1;min-width:0;">
@@ -2700,7 +2772,7 @@
             <!-- 🔧 Mode développeur (réservé à AdminMarc) — panneau AUTONOME hors accordéon,
                  sinon il resterait masqué (hauteur 0) tant que la section est repliée. -->
             <div id="devModePanel" style="display:none; margin-top:15px; padding:18px; background:rgba(168,85,247,0.06); border-radius:14px; border:1px dashed rgba(168,85,247,0.45);">
-                <div class="settings-sub-title" style="color:#a855f7; margin-bottom:6px;">🔧 Mode développeur</div>
+                <div class="settings-sub-title" style="color:#a855f7; margin-bottom:6px;">Mode développeur</div>
                 <p class="settings-sub-desc" style="margin-bottom:14px;">Outils de test pour visualiser l'histoire et la progression. Le mode jeu doit être activé.</p>
                 <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                     <button class="btn" onclick="awakAdminLevelUp(1)" style="flex:1; min-width:120px; background: linear-gradient(135deg,#a855f7,#7c3aed); display:flex; align-items:center; justify-content:center; gap:8px;">
@@ -3732,39 +3804,39 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/exercises.js?v=1008"></script>
-    <script src="data/items.js?v=1008"></script>
-    <script src="js/adventure.js?v=1008"></script>
-    <script src="js/economy.js?v=1008"></script>
-    <script src="js/challenges.js?v=1008"></script>
-    <script src="js/family-boss.js?v=1008"></script>
-    <script src="js/family-network.js?v=1008"></script>
-    <script src="js/family-challenge.js?v=1008"></script>
-    <script src="js/family-goal.js?v=1008"></script>
-    <script src="js/family-feed.js?v=1008"></script>
-    <script src="js/pre-workout-mood.js?v=1008"></script>
-    <script src="js/group-workout.js?v=1008"></script>
-    <script src="js/youth-safety.js?v=1008"></script>
-    <script src="js/kids-programs.js?v=1008"></script>
-    <script src="js/senior-programs.js?v=1008"></script>
-    <script src="js/adaptive.js?v=1008"></script>
-    <script src="js/pain-mode.js?v=1008"></script>
-    <script src="js/recovery-mode.js?v=1008"></script>
-    <script src="js/exercise-visuals.js?v=1008"></script>
-    <script src="js/strength-standards.js?v=1008"></script>
-    <script src="js/system-cards.js?v=1008"></script>
-    <script src="js/share-card.js?v=1008"></script>
-    <script src="js/story-events.js?v=1008"></script>
-    <script src="js/final-boss.js?v=1008"></script>
-    <script src="js/disciplines.js?v=1008"></script>
-    <script src="js/eveil.js?v=1008"></script>
-    <script src="js/app.js?v=1008"></script>
-    <script src="js/awakening-tree.js?v=1008"></script>
-    <script src="js/ui-kit.js?v=1008"></script>
-    <script src="js/feature-map.js?v=1008"></script>
-    <script src="js/weekly-recap.js?v=1008"></script>
-    <script src="js/workout-games.js?v=1008"></script>
-    <script src="js/kids-games.js?v=1008"></script>
+    <script src="js/exercises.js?v=1018"></script>
+    <script src="data/items.js?v=1018"></script>
+    <script src="js/adventure.js?v=1018"></script>
+    <script src="js/economy.js?v=1018"></script>
+    <script src="js/challenges.js?v=1018"></script>
+    <script src="js/family-boss.js?v=1018"></script>
+    <script src="js/family-network.js?v=1018"></script>
+    <script src="js/family-challenge.js?v=1018"></script>
+    <script src="js/family-goal.js?v=1018"></script>
+    <script src="js/family-feed.js?v=1018"></script>
+    <script src="js/pre-workout-mood.js?v=1018"></script>
+    <script src="js/group-workout.js?v=1018"></script>
+    <script src="js/youth-safety.js?v=1018"></script>
+    <script src="js/kids-programs.js?v=1018"></script>
+    <script src="js/senior-programs.js?v=1018"></script>
+    <script src="js/adaptive.js?v=1018"></script>
+    <script src="js/pain-mode.js?v=1018"></script>
+    <script src="js/recovery-mode.js?v=1018"></script>
+    <script src="js/exercise-visuals.js?v=1018"></script>
+    <script src="js/strength-standards.js?v=1018"></script>
+    <script src="js/system-cards.js?v=1018"></script>
+    <script src="js/share-card.js?v=1018"></script>
+    <script src="js/story-events.js?v=1018"></script>
+    <script src="js/final-boss.js?v=1018"></script>
+    <script src="js/disciplines.js?v=1018"></script>
+    <script src="js/eveil.js?v=1018"></script>
+    <script src="js/app.js?v=1018"></script>
+    <script src="js/awakening-tree.js?v=1018"></script>
+    <script src="js/ui-kit.js?v=1018"></script>
+    <script src="js/feature-map.js?v=1018"></script>
+    <script src="js/weekly-recap.js?v=1018"></script>
+    <script src="js/workout-games.js?v=1018"></script>
+    <script src="js/kids-games.js?v=1018"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>

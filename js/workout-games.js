@@ -107,6 +107,15 @@
     var _exclus = /^(cat[- ]?cow|chat[- ]?vache|chat[- ]?dos|cobra|respiration|salutation|posture|étirement|etirement|assouplissement|mobilité|mobilite)/i;
     base = base.filter(function (e) { return !_exclus.test(e.name); });
 
+    // ⏱️ EXERCICES EN TEMPS EXCLUS.
+    // ⚠️ Un jeu de dés annonce un NOMBRE de répétitions (« 8 burpees »).
+    // Sur un exercice qui se mesure en secondes — « Curl isométrique 30 s »,
+    // « Treadmill HIIT 10 min » — la consigne n'a aucun sens, et les séances
+    // de tapis feraient dérailler la partie.
+    base = base.filter(function (e) {
+      return e.mode !== 'temps' && e.mode !== 'timer';
+    });
+
     try {
       if (typeof window.getSelectedEquipmentNames === 'function') {
         var dispo = window.getSelectedEquipmentNames() || [];
