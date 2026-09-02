@@ -402,7 +402,9 @@
 // complète. Renvoie null si aucun boss n'est en cours.
 window.AwakFamilyBossState = function () {
   try {
-    if (!_gameModeOn()) return null;
+    var _pid = null;
+    try { if (typeof window.getCurrentProfileId === 'function') _pid = window.getCurrentProfileId(); } catch (e) {}
+    if (!_gameModeOn(_pid)) return null;
     var st = loadState();
     if (!st || !st.bossId) return null;
     var b = _bossById(st.bossId);

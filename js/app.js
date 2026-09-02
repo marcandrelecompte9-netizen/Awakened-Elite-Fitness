@@ -748,7 +748,10 @@
 
         // Render challenges tab
         function renderChallengesTab() {
-            const activeChallenge = getActiveChallenge();
+            // 🏆 Tous les défis en cours, pas seulement le dernier lancé.
+            const _tousActifs = (typeof getActiveChallenges === 'function')
+                ? (getActiveChallenges() || []) : [];
+            const activeChallenge = _tousActifs.length ? _tousActifs[0] : getActiveChallenge();
             
             // Render active challenge if exists
             const activeDisplay = document.getElementById('activeChallengeDisplay');
@@ -829,7 +832,11 @@
                     </div>
                 `;
 
-                document.getElementById('availableChallenges').style.display = 'none';
+                // ⚠️ NE PLUS MASQUER LA LISTE : un défi actif cachait TOUS les
+                // autres, rendant impossible d'en lancer un second — alors que
+                // le stockage multiple existe depuis v1013. Chaque carte de la
+                // liste indique déjà son propre état.
+                document.getElementById('availableChallenges').style.display = 'block';
             } else {
                 activeDisplay.innerHTML = '';
                 document.getElementById('availableChallenges').style.display = 'block';
@@ -838,7 +845,16 @@
                 const challengesList = document.getElementById('challengesList');
                 if (!challengesList) return;
                 const _recoBanner = (typeof awakChallengeRecoBanner === 'function') ? awakChallengeRecoBanner() : '';
-                challengesList.innerHTML = _recoBanner + challengesDatabase.map(challenge => `
+                // 🏆 Rappel du nombre de défis menés en parallèle : sans lui,
+                // rien ne dit qu'on peut en cumuler plusieurs.
+                const _nActifs = (typeof getActiveChallenges === 'function')
+                    ? (getActiveChallenges() || []).length : 0;
+                const _cptBanner = _nActifs > 0
+                    ? '<div style="font-size:0.66em;color:#60a8f0;font-weight:800;'
+                      + 'letter-spacing:1px;margin-bottom:10px;">◈ ' + _nActifs
+                      + ' DÉFI' + (_nActifs > 1 ? 'S' : '') + ' EN COURS — tu peux en mener plusieurs</div>'
+                    : '';
+                challengesList.innerHTML = _cptBanner + _recoBanner + challengesDatabase.map(challenge => `
                     <div style="background: linear-gradient(160deg, #0a0e18 0%, #0F1014 100%); padding: 20px; border-radius: 14px; margin-bottom: 16px; border: 1.5px solid ${challenge.color}40; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 18px rgba(0,0,0,0.25), 0 0 0 1px ${challenge.color}10 inset;" onclick="showChallengeDetails('${challenge.id}')">
                         <div style="display: flex; gap: 16px; align-items: flex-start;">
                             <div style="font-size: 3em; line-height: 1; filter: drop-shadow(0 0 8px ${challenge.color}60); flex-shrink: 0;">${challenge.emoji}</div>
@@ -22291,6 +22307,9 @@
             } else if (tabName === 'history') {
                 // 📸 Carte « Ton corps » : photo centrale + actions.
                 try { if (typeof awakRenderCorpsCard === 'function') awakRenderCorpsCard(); } catch (e) {}
+                // 🧍 Silhouette des mensurations : points verts sur ce qui
+                // est déjà renseigné.
+                try { if (typeof awakRenderSilhouetteMesures === 'function') awakRenderSilhouetteMesures(); } catch (e) {}
                 
                 // Initialize accordions (convert all .card to accordions)
                 initializeHistoryAccordions();
@@ -23498,7 +23517,7 @@
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1029);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1034);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -23542,7 +23561,7 @@
                 +       '<feGaussianBlur stdDeviation="2.4" result="b"/>'
                 +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>'
                 +     '</filter></defs>'
-                +     '<image href="' + img + '?v=1029" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1034" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -24373,7 +24392,8 @@
                     var _monX = 200 + Math.cos(_ang) * _monRad;
                     var _monY = 200 + Math.sin(_ang) * _monRad * 0.62;
                     var _monR = _m && _m.isAlpha ? 7 : 5;
-                    marques += '<g style="cursor:pointer;" onclick="switchTab(\'game\')">'
+                    var _mid = (_m && _m.id != null) ? String(_m.id).replace(/'/g, '') : '';
+                    marques += '<g style="cursor:pointer;" onclick="awakOpenMonsterDetail(\'' + _mid + '\')">'
                         + '<circle cx="' + _monX.toFixed(1) + '" cy="' + _monY.toFixed(1) + '" r="' + (_monR + 7) + '" fill="transparent"/>'
                         + '<circle cx="' + _monX.toFixed(1) + '" cy="' + _monY.toFixed(1) + '" r="' + _monR + '" fill="#ef4444" opacity="0.14"/>'
                         + '<circle cx="' + _monX.toFixed(1) + '" cy="' + _monY.toFixed(1) + '" r="' + (_monR * 0.45).toFixed(1) + '" fill="#dc2626" opacity="0.85"/>'
@@ -28698,7 +28718,7 @@
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1029");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1034");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -33062,7 +33082,7 @@
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1029);'
+                +     'url(images/combat_bg_v1.webp?v=1034);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -33317,7 +33337,7 @@
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1029);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1034);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -34579,7 +34599,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1029');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1034');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -46084,6 +46104,93 @@
         }
         window.awakDoPhotoCompare = awakDoPhotoCompare;
 
+
+        // ══════════════════════════════════════════════════════════════
+        // 🧍 SILHOUETTE-INDICATEUR des mensurations
+        // --------------------------------------------------------------
+        // ⚠️ CHOIX : la silhouette n'est PAS le support des champs.
+        // Disposer des zones de saisie autour d'un corps demande une
+        // composition à position fixe — or les champs changent de taille
+        // selon le clavier, la langue et la taille de police du système.
+        // Sur 360 px de large il reste ~110 px de chaque côté : « Tour de
+        // hanches (pouces) » n'y tient pas.
+        // Ici la silhouette INDIQUE seulement : le point s'allume quand on
+        // touche le champ correspondant, et passe au vert une fois rempli.
+        // ══════════════════════════════════════════════════════════════
+        const AWAK_MESURE_POINTS = {
+            measureHeight: { type: 'ligne', label: 'Taille' },
+            measureWaist:  { x: 50, y: 46, label: 'Tour de taille' },
+            measureHips:   { x: 50, y: 56, label: 'Tour de hanches' },
+            measureBiceps: { x: 27, y: 36, label: 'Biceps' },
+            measureThighs: { x: 41, y: 70, label: 'Cuisses' }
+        };
+
+        function awakRenderSilhouetteMesures() {
+            const host = document.getElementById('awakMesureSilhouette');
+            if (!host) return;
+
+            let pts = '';
+            Object.keys(AWAK_MESURE_POINTS).forEach(function (id) {
+                const p = AWAK_MESURE_POINTS[id];
+                let rempli = false;
+                try {
+                    const el = document.getElementById(id);
+                    rempli = !!(el && el.value && parseFloat(el.value) > 0);
+                } catch (e) {}
+                const col = rempli ? '#4ade80' : '#475569';
+                if (p.type === 'ligne') {
+                    // 📏 La taille debout : une ligne du haut vers le bas.
+                    pts += '<div data-mes="' + id + '" style="position:absolute;left:8%;top:6%;'
+                        +   'width:2px;height:88%;background:linear-gradient(180deg,' + col + ',' + col + '55);'
+                        +   'border-radius:2px;transition:all .2s;"></div>';
+                } else {
+                    pts += '<div data-mes="' + id + '" style="position:absolute;'
+                        +   'left:' + p.x + '%;top:' + p.y + '%;width:9px;height:9px;'
+                        +   'margin:-4.5px 0 0 -4.5px;border-radius:50%;'
+                        +   'background:' + col + ';box-shadow:0 0 8px ' + col + '99;'
+                        +   'transition:all .2s;"></div>';
+                }
+            });
+
+            host.innerHTML =
+                '<div style="position:relative;width:110px;margin:0 auto 12px;">'
+              +   '<img src="images/body/body_face.webp?v=1034" alt="" '
+              +     'style="width:100%;display:block;opacity:0.30;">'
+              +   pts
+              +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
+              +     'text-align:center;font-size:0.6em;color:#64748b;font-weight:700;'
+              +     'letter-spacing:0.5px;min-height:14px;"></div>'
+              + '</div>';
+        }
+        window.awakRenderSilhouetteMesures = awakRenderSilhouetteMesures;
+
+        // Met en évidence le point du champ touché.
+        function awakMesureFocus(id, actif) {
+            try {
+                const el = document.querySelector('[data-mes="' + id + '"]');
+                const lb = document.getElementById('awakMesureLabel');
+                if (!el) return;
+                const p = AWAK_MESURE_POINTS[id];
+                if (actif) {
+                    if (p && p.type === 'ligne') {
+                        el.style.background = 'linear-gradient(180deg,#60a8f0,#60a8f055)';
+                        el.style.width = '3px';
+                    } else {
+                        el.style.background = '#60a8f0';
+                        el.style.boxShadow = '0 0 14px #60a8f0';
+                        el.style.width = '13px';
+                        el.style.height = '13px';
+                        el.style.margin = '-6.5px 0 0 -6.5px';
+                    }
+                    if (lb && p) lb.textContent = p.label;
+                } else {
+                    awakRenderSilhouetteMesures();
+                    if (lb) lb.textContent = '';
+                }
+            } catch (e) {}
+        }
+        window.awakMesureFocus = awakMesureFocus;
+
         function awakRenderCorpsCard() {
             const host = document.getElementById('awakCorpsCard');
             if (!host) return;
@@ -46129,7 +46236,7 @@
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1029);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1034);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -46166,10 +46273,6 @@
                 '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:13px;">'
               +   _corpsBtn('takeProgressPhoto()', 'Prendre une photo', true)
               +   _corpsBtn('awakOpenPhotoCompare()', 'Comparer', false)
-              +   _corpsBtn("document.getElementById('measurementForm')?.scrollIntoView({behavior:'smooth',block:'center'})",
-                    'Mensurations', false)
-              +   _corpsBtn("document.getElementById('measurementsDisplay')?.scrollIntoView({behavior:'smooth',block:'center'})",
-                    'Historique', false)
               + '</div>';
 
             host.innerHTML =
@@ -48475,7 +48578,7 @@
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1029");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1034");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
