@@ -397,7 +397,26 @@
   }
 
   // ── API publique ───────────────────────────────────────────────────
-  window.AwakFamilyBoss = {
+  // 🗺️ État du boss pour la CARTE de l'Effacement : elle a besoin de savoir
+// s'il y en a un d'actif, son nom et ses PV restants, sans charger la carte
+// complète. Renvoie null si aucun boss n'est en cours.
+window.AwakFamilyBossState = function () {
+  try {
+    if (!_gameModeOn()) return null;
+    var st = loadState();
+    if (!st || !st.bossId) return null;
+    var b = _bossById(st.bossId);
+    if (!b) return null;
+    // ⚠️ Le champ est `hpLeft`, pas `hp` (voir spawnBoss).
+    var hpMax = st.hpMax || b.hp || 1;
+    var hp = Math.max(0, st.hpLeft != null ? st.hpLeft : hpMax);
+    if (hp <= 0) return null;              // vaincu : plus de point sur la carte
+    return { id: st.bossId, name: b.name || 'Anomalie familiale',
+             hp: hp, hpMax: hpMax, pct: Math.round((hp / hpMax) * 100) };
+  } catch (e) { return null; }
+};
+
+window.AwakFamilyBoss = {
     BOSSES: FAMILY_BOSSES,
     getState: getOrInit,
     loadRaw: loadState,

@@ -20157,7 +20157,8 @@
         }
         
         function cancelMeasurement() {
-            document.getElementById('measurementForm').style.display = 'none';
+            // 📏 Le formulaire reste VISIBLE : « Annuler » vide les champs
+            // au lieu de le masquer (il n'est plus dépliable depuis v1026).
             // Clear inputs
             ['measureWeight', 'measureHeight', 'measureWaist', 'measureHips', 'measureBiceps', 'measureThighs'].forEach(id => {
                 document.getElementById(id).value = '';
@@ -23497,7 +23498,7 @@
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1023);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1027);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -23541,7 +23542,7 @@
                 +       '<feGaussianBlur stdDeviation="2.4" result="b"/>'
                 +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>'
                 +     '</filter></defs>'
-                +     '<image href="' + img + '?v=1023" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1027" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -24200,6 +24201,47 @@
         }
         window.awakShowMonarque = awakShowMonarque;
 
+
+        // 👨‍👩‍👧 Fiche du boss familial, ouverte depuis son point sur la carte.
+        function awakShowFamilyBossPin() {
+            var b = null;
+            try { b = (typeof window.AwakFamilyBossState === 'function')
+                ? window.AwakFamilyBossState() : null; } catch (e) {}
+            if (!b) return;
+            document.getElementById('awakFamBossPin')?.remove();
+            var ov = document.createElement('div');
+            ov.id = 'awakFamBossPin';
+            ov.style.cssText = 'position:fixed;inset:0;z-index:11000;background:rgba(0,0,0,0.90);'
+                + 'backdrop-filter:blur(9px);display:flex;align-items:center;justify-content:center;padding:18px;';
+            ov.innerHTML =
+                '<div style="width:100%;max-width:400px;text-align:center;padding:24px 20px;'
+              +   'border-radius:20px;background:linear-gradient(160deg,#1a1408,#0b0a0d);'
+              +   'border:1.5px solid rgba(251,191,36,0.42);'
+              +   'box-shadow:0 0 40px rgba(251,191,36,0.16);">'
+              +   '<div style="font-size:0.54em;letter-spacing:2.5px;color:#fbbf24;font-weight:900;">◈ ANOMALIE FAMILIALE</div>'
+              +   '<div style="font-family:var(--font-display),sans-serif;font-size:1.2em;'
+              +     'font-weight:800;color:#fff;margin:4px 0 12px;">' + (b.name || '') + '</div>'
+              +   '<div style="height:8px;background:rgba(0,0,0,0.5);border-radius:99px;overflow:hidden;margin-bottom:6px;">'
+              +     '<div style="height:100%;width:' + b.pct + '%;'
+              +       'background:linear-gradient(90deg,#b45309,#fbbf24);border-radius:99px;"></div></div>'
+              +   '<div style="font-size:0.62em;color:#94a3b8;font-weight:800;letter-spacing:1px;margin-bottom:16px;">'
+              +     b.hp + ' / ' + b.hpMax + ' PV</div>'
+              +   '<div style="font-size:0.76em;color:#cbd5e1;line-height:1.5;margin-bottom:18px;">'
+              +     'Toute la famille frappe la même cible. Chaque séance compte.</div>'
+              +   '<button onclick="document.getElementById(\'awakFamBossPin\').remove();switchTab(\'family\');" '
+              +     'style="width:100%;padding:13px;border-radius:13px;border:none;cursor:pointer;'
+              +     'background:linear-gradient(160deg,#fcd34d,#fbbf24 45%,#b45309);'
+              +     'color:#1a1408;font-weight:900;font-size:0.8em;letter-spacing:1px;">VOIR LA FAMILLE</button>'
+              +   '<button onclick="document.getElementById(\'awakFamBossPin\').remove()" '
+              +     'style="width:100%;padding:11px;margin-top:8px;border-radius:13px;cursor:pointer;'
+              +     'background:transparent;border:1px solid rgba(255,255,255,0.12);'
+              +     'color:#94a3b8;font-size:0.74em;font-weight:800;">FERMER</button>'
+              + '</div>';
+            ov.onclick = function (e) { if (e.target === ov) ov.remove(); };
+            document.body.appendChild(ov);
+        }
+        window.awakShowFamilyBossPin = awakShowFamilyBossPin;
+
         function awakRenderCarte() {
             const R = _carteRayonClair();
             const _rk = (function () {
@@ -24315,6 +24357,29 @@
                 +   '<animate attributeName="opacity" values="0.3;0.08;0.3" dur="4.5s" repeatCount="indefinite"/>'
                 + '</circle></g>';
             }
+
+            // 👨‍👩‍👧 BOSS FAMILIAL — un point sur la carte, à l'écart de l'avenue.
+            // ⚠️ Il n'existait QUE sous forme de carte dans l'onglet Aventure :
+            // rien sur la carte de l'Effacement ne signalait qu'une anomalie
+            // familiale était en cours. Placé sur le flanc pour ne pas
+            // concurrencer le Monarque, qui tient le bout de l'avenue.
+            try {
+                var _fb = (typeof window.AwakFamilyBossState === 'function')
+                    ? window.AwakFamilyBossState() : null;
+                if (_fb) {
+                    var _fx = 200 + R * 0.52, _fy = 200 - R * 0.30;
+                    var _fr = 9 + Math.round((_fb.pct / 100) * 5);
+                    marques += '<g style="cursor:pointer;" onclick="awakShowFamilyBossPin()">'
+                        + '<circle cx="' + _fx.toFixed(1) + '" cy="' + _fy.toFixed(1) + '" r="' + (_fr + 9) + '" fill="transparent"/>'
+                        + '<circle cx="' + _fx.toFixed(1) + '" cy="' + _fy.toFixed(1) + '" r="' + _fr + '" fill="#fbbf24" opacity="0.12"/>'
+                        + '<circle cx="' + _fx.toFixed(1) + '" cy="' + _fy.toFixed(1) + '" r="' + (_fr * 0.42).toFixed(1) + '" fill="#b45309" opacity="0.8"/>'
+                        + '<circle cx="' + _fx.toFixed(1) + '" cy="' + _fy.toFixed(1) + '" r="' + (_fr * 0.42).toFixed(1) + '" fill="none" '
+                        +   'stroke="#fbbf24" stroke-width="0.8" opacity="0.55">'
+                        +   '<animate attributeName="r" values="' + (_fr * 0.42).toFixed(1) + ';' + (_fr * 0.85).toFixed(1) + ';' + (_fr * 0.42).toFixed(1) + '" dur="3s" repeatCount="indefinite"/>'
+                        +   '<animate attributeName="opacity" values="0.55;0;0.55" dur="3s" repeatCount="indefinite"/>'
+                        + '</circle></g>';
+                }
+            } catch (e) {}
 
             // 👑 LE MONARQUE — masse sombre au bout de l'avenue, grossit
             // avec le nombre de sous-boss vaincus.
@@ -28605,7 +28670,7 @@
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1023");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1027");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -32969,7 +33034,7 @@
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1023);'
+                +     'url(images/combat_bg_v1.webp?v=1027);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -33224,9 +33289,17 @@
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url('images/faille_fermee_bg.webp?v=1023');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1027);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
-                    <div style="font-size:3.4em;line-height:1;margin-bottom:10px;filter:drop-shadow(0 0 18px ${theme.color});animation:awakBriefFloat 4s ease-in-out infinite;">${theme.emoji}</div>
+                    <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
+                         centre du briefing cassait le ton — et son rendu change
+                         d'un téléphone à l'autre. L'image de brèche en fond porte
+                         désormais l'ambiance ; un losange fin marque le thème. -->
+                    <div style="margin:0 auto 12px;width:34px;height:34px;
+                                border:1.5px solid ${theme.color};
+                                transform:rotate(45deg);
+                                box-shadow:0 0 18px ${theme.color}55;
+                                animation:awakBriefFloat 4s ease-in-out infinite;"></div>
                     <div style="display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:9px;flex-wrap:wrap;">
                         <span style="background:${theme.color}25;color:${theme.color};border:1px solid ${theme.color}50;padding:3px 10px;border-radius:6px;font-size:0.68em;font-weight:900;letter-spacing:2px;">RANG ${rift.rank}</span>
                         ${rift.isAssaut ? `<span style="background:rgba(245,158,11,0.18);color:#f59e0b;border:1px solid rgba(245,158,11,0.45);padding:3px 10px;border-radius:6px;font-size:0.68em;font-weight:900;letter-spacing:1.5px;">⚡ ASSAUT</span>` : ''}
@@ -33480,7 +33553,9 @@
                         <button onclick="awakAbandonRift()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
                     </div>
                     <div style="display:flex;align-items:center;gap:14px;">
-                        <div style="font-size:3em;line-height:1;filter:drop-shadow(0 0 10px ${theme.color}80);">${currentWave.emoji}</div>
+                        <!-- ⚠️ Emoji système remplacé par un losange (v1024) : son rendu
+                         change d'un téléphone à l'autre et cassait le ton. -->
+                    <div style="margin:0 auto 10px;width:30px;height:30px;border:1.5px solid ${theme.color};transform:rotate(45deg);box-shadow:0 0 16px ${theme.color}55;"></div>
                         <div style="flex:1;">
                             <div style="font-weight:900;color:white;font-size:1.1em;margin-bottom:5px;">${currentWave.name}</div>
                             <div style="background:rgba(255,255,255,0.05);height:14px;border-radius:99px;overflow:hidden;border:1px solid rgba(255,255,255,0.05);position:relative;">
@@ -34476,7 +34551,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1023');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1027');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -35003,7 +35078,9 @@
                         <button onclick="awakAbandonHunt()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
                     </div>
                     <div style="display:flex;align-items:center;gap:14px;">
-                        <div style="font-size:3em;line-height:1;filter:drop-shadow(0 0 10px ${type.color}80);">${type.emoji}</div>
+                        <!-- ⚠️ Emoji système remplacé par un losange (v1024) : son rendu
+                         change d'un téléphone à l'autre et cassait le ton. -->
+                    <div style="margin:0 auto 10px;width:30px;height:30px;border:1.5px solid ${'#a855f7'};transform:rotate(45deg);box-shadow:0 0 16px ${'#a855f7'}55;"></div>
                         <div style="flex:1;">
                             <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">
                                 ${monster.isAlpha ? '<span style="background:#ef4444;color:white;padding:1px 6px;border-radius:6px;font-size:0.55em;font-weight:900;letter-spacing:1px;">ALPHA</span>' : ''}
@@ -45909,17 +45986,31 @@
             const host = document.getElementById('awakCorpsCard');
             if (!host) return;
 
+            // ⚠️ Les photos vivent dans IndexedDB, chargées de façon ASYNCHRONE.
+            // getProgressPhotos() renvoie un cache encore vide au premier appel :
+            // la carte affichait donc le miroir même quand des photos existaient.
+            // On déclenche le chargement, puis on se redessine.
             let photos = [];
-            try { photos = (typeof getProgressPhotos === 'function') ? (getProgressPhotos() || []) : []; }
-            catch (e) {}
-            const derniere = photos.length ? photos[photos.length - 1] : null;
+            try {
+                if (typeof _progressPhotosCache !== 'undefined'
+                    && (_progressPhotosCache === null
+                        || (typeof _photoPid === 'function' && _progressPhotosCacheProfile !== _photoPid()))) {
+                    if (typeof awakLoadProgressPhotos === 'function') {
+                        awakLoadProgressPhotos().then(function () { awakRenderCorpsCard(); });
+                    }
+                }
+                photos = (typeof getProgressPhotos === 'function') ? (getProgressPhotos() || []) : [];
+            } catch (e) {}
+            // ⚠️ awakLoadProgressPhotos() trie les plus RÉCENTES EN PREMIER :
+            // prendre le dernier élément donnait la photo la plus ANCIENNE.
+            const derniere = photos.length ? photos[0] : null;
 
             // ── Visuel central ──
             let centre;
-            if (derniere && derniere.data) {
+            if (derniere && derniere.dataUrl) {
                 centre = '<div style="position:relative;border-radius:14px;overflow:hidden;'
                        +   'background:#05080e;border:1px solid rgba(96,168,240,0.22);">'
-                       +   '<img src="' + derniere.data + '" alt="Dernière photo" '
+                       +   '<img src="' + derniere.dataUrl + '" alt="Dernière photo" '
                        +     'style="width:100%;display:block;max-height:340px;object-fit:contain;">'
                        +   '<div style="position:absolute;left:0;right:0;bottom:0;padding:8px 11px;'
                        +     'background:linear-gradient(0deg,rgba(0,0,0,0.75),transparent);'
@@ -45936,7 +46027,7 @@
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1023);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1027);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -46028,7 +46119,7 @@
         // Écart de jours entre la première et la dernière photo.
         function _corpsEcart(photos) {
             try {
-                const a = new Date(photos[0].date), b = new Date(photos[photos.length - 1].date);
+                const a = new Date(photos[photos.length - 1].date), b = new Date(photos[0].date);
                 const j = Math.round((b - a) / 86400000);
                 return j > 0 ? j + ' j' : '—';
             } catch (e) { return '—'; }
@@ -48285,7 +48376,7 @@
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1023");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1027");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.

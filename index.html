@@ -11,11 +11,11 @@
     <title>Awakened Elite Fitness</title>
 
     <!-- PWA -->
-    <link rel="manifest" href="manifest.json?v=1023">
-    <link rel="apple-touch-icon" href="icons/icon-192.png?v=1023">
-    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=1023">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=1023">
-    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=1023">
+    <link rel="manifest" href="manifest.json?v=1027">
+    <link rel="apple-touch-icon" href="icons/icon-192.png?v=1027">
+    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=1027">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=1027">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=1027">
 
     <!-- ⚠️ CAPTURE PRÉCOCE DE L'INVITE D'INSTALLATION.
          Chrome déclenche « beforeinstallprompt » très tôt, souvent AVANT la fin
@@ -44,7 +44,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=1023">
+    <link rel="stylesheet" href="css/style.css?v=1027">
 </head>
 <body>
 
@@ -208,8 +208,8 @@
                  (ratio 1,55), donc plus haute et lisible.
                  <picture> laisse le navigateur choisir, sans JavaScript. -->
             <picture>
-                <source media="(min-width: 700px)" srcset="images/banner_v3.webp?v=1023">
-                <img src="images/banner_v3_mobile.webp?v=1023"
+                <source media="(min-width: 700px)" srcset="images/banner_v3.webp?v=1027">
+                <img src="images/banner_v3_mobile.webp?v=1027"
                      alt="Awakened Elite Fitness"
                      style="width:100%;height:auto;display:block;" />
             </picture>
@@ -966,38 +966,40 @@
 
                 <!-- Add Measurement Button -->
                 <div style="text-align: center; margin-bottom: 25px;">
-                    <button onclick="showAddMeasurementForm()" class="btn" style="background: linear-gradient(135deg, #22d3ee 0%, #059669 100%); font-size: 1.1em; padding: 15px 30px;">
+                    <!-- ⚠️ MASQUÉ (v1026) : « Ajouter une mesure » ouvrait le formulaire,
+                         qui est désormais visible en permanence. Le bouton n'a plus d'objet. -->
+                    <button onclick="showAddMeasurementForm()" class="btn" style="display:none;background: linear-gradient(135deg, #22d3ee 0%, #059669 100%); font-size: 1.1em; padding: 15px 30px;">
                         ➕ Ajouter des mesures
                     </button>
                 </div>
 
                 <!-- Measurement Form (hidden by default) -->
-                <div id="measurementForm" style="display: none; background: rgba(255,255,255,0.04); padding: 25px; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 25px;">
+                <div id="measurementForm" style=" background: rgba(255,255,255,0.04); padding: 15px; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 25px;">
                     <h3 style="margin-top: 0; color: #22d3ee;">Nouvelles mesures</h3>
 
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 20px;">
                         <div>
-                            <span data-weight-unit style="display: block; font-weight: 600; margin-bottom: 5px; color: #e2e8f0;">⚖️ Poids (lbs)</span>
+                            <span data-weight-unit style="display: block; font-weight:700;margin-bottom:4px;color:#94a3b8;font-size:0.72em;letter-spacing:0.3px;">Poids (lbs)</span>
                             <input type="number" id="measureWeight" step="0.1" placeholder="Ex: 165" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12);">
                         </div>
                         <div>
-                            <span style="display: block; font-weight: 600; margin-bottom: 5px; color: #e2e8f0;">📏 Taille (pouces)</span>
+                            <span style="display: block; font-weight:700;margin-bottom:4px;color:#94a3b8;font-size:0.72em;letter-spacing:0.3px;">Taille (pouces)</span>
                             <input type="number" id="measureHeight" step="0.1" placeholder="Ex: 175" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12);">
                         </div>
                         <div>
-                            <span style="display: block; font-weight: 600; margin-bottom: 5px; color: #e2e8f0;">🟢 Tour de taille (pouces)</span>
+                            <span style="display: block; font-weight:700;margin-bottom:4px;color:#94a3b8;font-size:0.72em;letter-spacing:0.3px;">Tour de taille (pouces)</span>
                             <input type="number" id="measureWaist" step="0.1" placeholder="Ex: 32" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12);">
                         </div>
                         <div>
-                            <span style="display: block; font-weight: 600; margin-bottom: 5px; color: #e2e8f0;">🍑 Tour de hanches (pouces)</span>
+                            <span style="display: block; font-weight:700;margin-bottom:4px;color:#94a3b8;font-size:0.72em;letter-spacing:0.3px;">Tour de hanches (pouces)</span>
                             <input type="number" id="measureHips" step="0.1" placeholder="Ex: 38" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12);">
                         </div>
                         <div>
-                            <span style="display: block; font-weight: 600; margin-bottom: 5px; color: #e2e8f0;">💪 Biceps (pouces)</span>
+                            <span style="display: block; font-weight:700;margin-bottom:4px;color:#94a3b8;font-size:0.72em;letter-spacing:0.3px;">Biceps (pouces)</span>
                             <input type="number" id="measureBiceps" step="0.1" placeholder="Ex: 14" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12);">
                         </div>
                         <div>
-                            <span style="display: block; font-weight: 600; margin-bottom: 5px; color: #e2e8f0;">🦵 Cuisses (pouces)</span>
+                            <span style="display: block; font-weight:700;margin-bottom:4px;color:#94a3b8;font-size:0.72em;letter-spacing:0.3px;">Cuisses (pouces)</span>
                             <input type="number" id="measureThighs" step="0.1" placeholder="Ex: 22" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12);">
                         </div>
                     </div>
@@ -3817,39 +3819,39 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/exercises.js?v=1023"></script>
-    <script src="data/items.js?v=1023"></script>
-    <script src="js/adventure.js?v=1023"></script>
-    <script src="js/economy.js?v=1023"></script>
-    <script src="js/challenges.js?v=1023"></script>
-    <script src="js/family-boss.js?v=1023"></script>
-    <script src="js/family-network.js?v=1023"></script>
-    <script src="js/family-challenge.js?v=1023"></script>
-    <script src="js/family-goal.js?v=1023"></script>
-    <script src="js/family-feed.js?v=1023"></script>
-    <script src="js/pre-workout-mood.js?v=1023"></script>
-    <script src="js/group-workout.js?v=1023"></script>
-    <script src="js/youth-safety.js?v=1023"></script>
-    <script src="js/kids-programs.js?v=1023"></script>
-    <script src="js/senior-programs.js?v=1023"></script>
-    <script src="js/adaptive.js?v=1023"></script>
-    <script src="js/pain-mode.js?v=1023"></script>
-    <script src="js/recovery-mode.js?v=1023"></script>
-    <script src="js/exercise-visuals.js?v=1023"></script>
-    <script src="js/strength-standards.js?v=1023"></script>
-    <script src="js/system-cards.js?v=1023"></script>
-    <script src="js/share-card.js?v=1023"></script>
-    <script src="js/story-events.js?v=1023"></script>
-    <script src="js/final-boss.js?v=1023"></script>
-    <script src="js/disciplines.js?v=1023"></script>
-    <script src="js/eveil.js?v=1023"></script>
-    <script src="js/app.js?v=1023"></script>
-    <script src="js/awakening-tree.js?v=1023"></script>
-    <script src="js/ui-kit.js?v=1023"></script>
-    <script src="js/feature-map.js?v=1023"></script>
-    <script src="js/weekly-recap.js?v=1023"></script>
-    <script src="js/workout-games.js?v=1023"></script>
-    <script src="js/kids-games.js?v=1023"></script>
+    <script src="js/exercises.js?v=1027"></script>
+    <script src="data/items.js?v=1027"></script>
+    <script src="js/adventure.js?v=1027"></script>
+    <script src="js/economy.js?v=1027"></script>
+    <script src="js/challenges.js?v=1027"></script>
+    <script src="js/family-boss.js?v=1027"></script>
+    <script src="js/family-network.js?v=1027"></script>
+    <script src="js/family-challenge.js?v=1027"></script>
+    <script src="js/family-goal.js?v=1027"></script>
+    <script src="js/family-feed.js?v=1027"></script>
+    <script src="js/pre-workout-mood.js?v=1027"></script>
+    <script src="js/group-workout.js?v=1027"></script>
+    <script src="js/youth-safety.js?v=1027"></script>
+    <script src="js/kids-programs.js?v=1027"></script>
+    <script src="js/senior-programs.js?v=1027"></script>
+    <script src="js/adaptive.js?v=1027"></script>
+    <script src="js/pain-mode.js?v=1027"></script>
+    <script src="js/recovery-mode.js?v=1027"></script>
+    <script src="js/exercise-visuals.js?v=1027"></script>
+    <script src="js/strength-standards.js?v=1027"></script>
+    <script src="js/system-cards.js?v=1027"></script>
+    <script src="js/share-card.js?v=1027"></script>
+    <script src="js/story-events.js?v=1027"></script>
+    <script src="js/final-boss.js?v=1027"></script>
+    <script src="js/disciplines.js?v=1027"></script>
+    <script src="js/eveil.js?v=1027"></script>
+    <script src="js/app.js?v=1027"></script>
+    <script src="js/awakening-tree.js?v=1027"></script>
+    <script src="js/ui-kit.js?v=1027"></script>
+    <script src="js/feature-map.js?v=1027"></script>
+    <script src="js/weekly-recap.js?v=1027"></script>
+    <script src="js/workout-games.js?v=1027"></script>
+    <script src="js/kids-games.js?v=1027"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>
