@@ -5377,7 +5377,7 @@ body.workout-fullscreen #exerciseView {
     background-color: #08080b;
     background-image:
         linear-gradient(160deg, rgba(8,8,11,0.94) 0%, rgba(8,8,11,0.88) 45%, rgba(8,8,11,0.96) 100%),
-        url(../images/salle_bg_v5.webp?v=1018);
+        url(../images/salle_bg_v5.webp?v=1022);
     /* ⚠️ `../` obligatoire : dans un fichier CSS, une url() relative est
        résolue depuis le DOSSIER DU CSS (css/), pas depuis la page. Sans le
        préfixe, le navigateur chercherait css/images/… et n'afficherait rien. */
@@ -7125,3 +7125,85 @@ img[src*="images/exercises/"] {
     color: #475569;
 }
 #settingsTab .settings-sub-desc { font-family: inherit; font-size: 0.76em; }
+
+/* ── Contenu de la console ───────────────────────────────────────────
+   ⚠️ L'habillage s'arrêtait à la coquille : dedans, les boutons verts
+   arrondis et les interrupteurs colorés juraient avec le terminal.
+   Ici, tout devient anguleux, monospace et bleu-acier.
+   ⚠️ Portée limitée à #settingsTab : le reste de l'app est intact. */
+
+/* Boutons : rectangulaires, bordés, jamais de dégradé vert */
+#settingsTab .btn {
+    background: rgba(96,168,240,0.08) !important;
+    border: 1px solid rgba(96,168,240,0.34) !important;
+    color: #93c5fd !important;
+    border-radius: 5px !important;
+    padding: 11px 14px !important;
+    font-family: inherit !important;
+    font-size: 0.78em !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.4px;
+    box-shadow: none !important;
+    text-transform: none;
+}
+#settingsTab .btn:active { background: rgba(96,168,240,0.16) !important; }
+/* Bouton secondaire : plus effacé encore */
+#settingsTab .btn-secondary {
+    background: rgba(255,255,255,0.03) !important;
+    border-color: rgba(255,255,255,0.12) !important;
+    color: #94a3b8 !important;
+}
+
+/* Champs et listes : encoches de saisie */
+#settingsTab input[type="text"],
+#settingsTab input[type="number"],
+#settingsTab input[type="date"],
+#settingsTab select {
+    background: #05080e !important;
+    border: 1px solid rgba(96,168,240,0.22) !important;
+    color: #cbd5e1 !important;
+    border-radius: 4px !important;
+    font-family: inherit !important;
+    font-size: 0.82em !important;
+}
+#settingsTab input:focus, #settingsTab select:focus {
+    outline: none !important;
+    border-color: rgba(96,168,240,0.6) !important;
+    box-shadow: 0 0 0 2px rgba(96,168,240,0.12) !important;
+}
+
+/* Interrupteurs : voyants carrés, pas de pilule arrondie */
+/* ⚠️ Les classes réelles sont .aw-switch / .aw-slider — pas
+   .toggle-switch : mes premiers sélecteurs ne visaient rien. */
+#settingsTab .aw-switch { border-radius: 3px !important; }
+#settingsTab .aw-slider {
+    border-radius: 3px !important;
+    background: #0d1420 !important;
+    border: 1px solid rgba(255,255,255,0.12);
+}
+#settingsTab .aw-slider:before {
+    border-radius: 2px !important;
+    background: #475569 !important;
+}
+#settingsTab input:checked + .aw-slider {
+    background: rgba(96,168,240,0.22) !important;
+    border-color: rgba(96,168,240,0.55);
+}
+#settingsTab input:checked + .aw-slider:before {
+    background: #60a8f0 !important;
+    box-shadow: 0 0 8px rgba(96,168,240,0.7);
+}
+
+/* Cartes internes : plaques de console, pas de bulles arrondies */
+#settingsTab .card,
+#settingsTab .settings-sub > div[style*="border-radius"] {
+    border-radius: 6px !important;
+}
+#settingsTab .settings-sub-title { color: #93c5fd; }
+
+/* 🛡️ FILET : aucun vert ne doit subsister dans la console.
+   Certaines couleurs sont posées en STYLE EN LIGNE dans le HTML, qui
+   l'emporte sur toute règle CSS — sauf avec !important. */
+#settingsTab [style*="#16a34a"],
+#settingsTab [style*="#4ade80"],
+#settingsTab [style*="#22c55e"] { color: #93c5fd !important; }

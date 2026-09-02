@@ -16216,6 +16216,11 @@
             
             // Create comparison view
             const modal = document.createElement('div');
+            // 🆔 Identifiant explicite : le bouton ✕ le cible directement,
+            // au lieu de remonter une chaîne de parentElement fragile.
+            modal.id = 'awakPhotoCompare';
+            // Fermeture au toucher du fond, comme les autres modales.
+            modal.onclick = function (e) { if (e.target === modal) modal.remove(); };
             modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px;';
             
             const date1 = new Date(photo1.date).toLocaleDateString('fr-FR');
@@ -16224,7 +16229,7 @@
             modal.innerHTML = `
                 <div style="max-width: 1200px; width: 100%;">
                     <div style="text-align: right; margin-bottom: 15px;">
-                        <button onclick="this.parentElement.parentElement.parentElement.remove()" 
+                        <button onclick="document.getElementById('awakPhotoCompare')?.remove()" 
                                 style="background: rgba(255,255,255,0.04); border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 1.5em; cursor: pointer;">
                             ✕
                         </button>
@@ -22283,6 +22288,8 @@
             } else if (tabName === 'challenges') {
                 renderChallengesTab();
             } else if (tabName === 'history') {
+                // 📸 Carte « Ton corps » : photo centrale + actions.
+                try { if (typeof awakRenderCorpsCard === 'function') awakRenderCorpsCard(); } catch (e) {}
                 
                 // Initialize accordions (convert all .card to accordions)
                 initializeHistoryAccordions();
@@ -23490,7 +23497,7 @@
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1018);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1022);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -23534,7 +23541,7 @@
                 +       '<feGaussianBlur stdDeviation="2.4" result="b"/>'
                 +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>'
                 +     '</filter></defs>'
-                +     '<image href="' + img + '?v=1018" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1022" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -28598,7 +28605,7 @@
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1018");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1022");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -32962,7 +32969,7 @@
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1018);'
+                +     'url(images/combat_bg_v1.webp?v=1022);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -33217,7 +33224,7 @@
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url('images/faille_fermee_bg.webp?v=1018');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url('images/faille_fermee_bg.webp?v=1022');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <div style="font-size:3.4em;line-height:1;margin-bottom:10px;filter:drop-shadow(0 0 18px ${theme.color});animation:awakBriefFloat 4s ease-in-out infinite;">${theme.emoji}</div>
                     <div style="display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:9px;flex-wrap:wrap;">
@@ -34469,7 +34476,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1018');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1022');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -45888,6 +45895,138 @@
         }
         window.awakRenderTerminalHead = awakRenderTerminalHead;
 
+
+        // ══════════════════════════════════════════════════════════════
+        // 📸 CARTE « TON CORPS » — le paquet unique du Suivi corporel
+        // --------------------------------------------------------------
+        // Même motif que les autres onglets (Famille, Entraîner) :
+        // UN conteneur, un visuel central, un bandeau, puis les accès en pied.
+        // ⚠️ Sans photo, on montre un CADRE VIDE, pas une silhouette type :
+        // afficher un corps étranger à quelqu'un qui n'a pas encore pris ses
+        // photos crée une comparaison involontaire, sur un sujet sensible.
+        // ══════════════════════════════════════════════════════════════
+        function awakRenderCorpsCard() {
+            const host = document.getElementById('awakCorpsCard');
+            if (!host) return;
+
+            let photos = [];
+            try { photos = (typeof getProgressPhotos === 'function') ? (getProgressPhotos() || []) : []; }
+            catch (e) {}
+            const derniere = photos.length ? photos[photos.length - 1] : null;
+
+            // ── Visuel central ──
+            let centre;
+            if (derniere && derniere.data) {
+                centre = '<div style="position:relative;border-radius:14px;overflow:hidden;'
+                       +   'background:#05080e;border:1px solid rgba(96,168,240,0.22);">'
+                       +   '<img src="' + derniere.data + '" alt="Dernière photo" '
+                       +     'style="width:100%;display:block;max-height:340px;object-fit:contain;">'
+                       +   '<div style="position:absolute;left:0;right:0;bottom:0;padding:8px 11px;'
+                       +     'background:linear-gradient(0deg,rgba(0,0,0,0.75),transparent);'
+                       +     'font-size:0.62em;color:#cbd5e1;font-weight:700;">'
+                       +     _corpsDate(derniere.date) + '</div>'
+                       + '</div>';
+            } else {
+                // 🪞 MIROIR VIDE plutôt qu'une silhouette type.
+                // ⚠️ Ces photos touchent au rapport au corps : montrer un corps
+                // ÉTRANGER à quelqu'un qui n'a pas encore pris les siennes crée
+                // une comparaison involontaire. Un miroir vide dit « c'est ta
+                // place » sans imposer de modèle.
+                // ⚠️ url() SANS guillemets — style dans un attribut HTML (v907).
+                centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
+                       +   'border-radius:14px;overflow:hidden;min-height:280px;'
+                       +   'background-color:#05070c;'
+                       +   'background-image:url(images/miroir_vide.webp?v=1022);'
+                       +   'background-size:contain;background-position:center;'
+                       +   'background-repeat:no-repeat;display:flex;align-items:center;'
+                       +   'justify-content:center;text-align:center;padding:30px 20px;">'
+                       +   '<div>'
+                       +   '<div style="font-family:var(--font-display),sans-serif;font-size:0.98em;'
+                       +     'font-weight:800;color:#cbd5e1;">Ta première photo</div>'
+                       +   '<div style="font-size:0.7em;color:#64748b;margin-top:6px;line-height:1.45;'
+                       +     'max-width:230px;">'
+                       +     'Elles restent sur ton téléphone. Rien n\'est envoyé nulle part.</div>'
+                       +   '</div>'
+                       + '</div>';
+            }
+
+            // ── Bandeau d'information ──
+            let poids = '—';
+            try {
+                const p = (typeof getUserProfile === 'function') ? getUserProfile() : null;
+                if (p && p.weight) poids = (typeof fmtWeightVal === 'function')
+                    ? fmtWeightVal(p.weight) + ' ' + (typeof useKg !== 'undefined' && useKg ? 'kg' : 'lbs')
+                    : p.weight;
+            } catch (e) {}
+            const bandeau =
+                '<div style="display:flex;gap:8px;margin-top:11px;">'
+              + _corpsTuile('Photos', photos.length)
+              + _corpsTuile('Poids', poids)
+              + _corpsTuile('Écart', photos.length > 1 ? _corpsEcart(photos) : '—')
+              + '</div>';
+
+            // ── Pied : actions photo, puis les 4 écrans ──
+            const actions =
+                '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:13px;">'
+              +   _corpsBtn('takeProgressPhoto()', 'Prendre une photo', true)
+              +   _corpsBtn(photos.length > 1
+                    ? "document.getElementById('progressPhotosGallery')?.scrollIntoView({behavior:'smooth',block:'center'})"
+                    : "showToast('Il faut au moins 2 photos pour comparer.','info',2500)",
+                    'Comparer', false)
+              + '</div>';
+
+            host.innerHTML =
+                '<div class="card" style="padding:15px;">'
+              +   '<div style="border-left:2px solid #60a8f0;padding-left:10px;margin-bottom:13px;">'
+              +     '<div style="font-size:0.54em;letter-spacing:2.5px;color:#60a8f0;font-weight:900;">◈ TON CORPS</div>'
+              +     '<div style="font-family:var(--font-display),sans-serif;font-size:1.05em;'
+              +       'font-weight:800;color:#fff;margin-top:2px;">Suivi corporel</div>'
+              +   '</div>'
+              +   centre + bandeau + actions
+              + '</div>';
+        }
+        window.awakRenderCorpsCard = awakRenderCorpsCard;
+
+        function _corpsTuile(label, val) {
+            return '<div style="flex:1;min-width:0;text-align:center;padding:9px 6px;'
+                 +   'border-radius:11px;background:rgba(255,255,255,0.03);'
+                 +   'border:1px solid rgba(255,255,255,0.07);">'
+                 +   '<div style="font-family:var(--font-display),sans-serif;font-size:1.05em;'
+                 +     'font-weight:900;color:#e2e8f0;line-height:1;">' + val + '</div>'
+                 +   '<div style="font-size:0.5em;letter-spacing:1.5px;color:#64748b;'
+                 +     'font-weight:800;margin-top:4px;">' + label.toUpperCase() + '</div>'
+                 + '</div>';
+        }
+
+        function _corpsBtn(fn, txt, principal) {
+            if (principal) {
+                return '<button onclick="' + fn + '" style="padding:13px 10px;border-radius:13px;'
+                     + 'border:none;cursor:pointer;background:linear-gradient(160deg,#93c5fd,#60a8f0 45%,#164e8a);'
+                     + 'color:#04162b;font-size:0.76em;font-weight:900;letter-spacing:0.5px;">'
+                     + txt + '</button>';
+            }
+            return '<button onclick="' + fn + '" style="padding:13px 10px;border-radius:13px;'
+                 + 'cursor:pointer;background:rgba(255,255,255,0.04);'
+                 + 'border:1px solid rgba(255,255,255,0.10);color:#cbd5e1;'
+                 + 'font-size:0.76em;font-weight:800;">' + txt + '</button>';
+        }
+
+        function _corpsDate(d) {
+            try {
+                return new Date(d).toLocaleDateString('fr-FR',
+                    { day: 'numeric', month: 'long', year: 'numeric' });
+            } catch (e) { return ''; }
+        }
+
+        // Écart de jours entre la première et la dernière photo.
+        function _corpsEcart(photos) {
+            try {
+                const a = new Date(photos[0].date), b = new Date(photos[photos.length - 1].date);
+                const j = Math.round((b - a) / 86400000);
+                return j > 0 ? j + ' j' : '—';
+            } catch (e) { return '—'; }
+        }
+
         function updateHomeStats() {
             try { if (typeof awakMajBoutonProfil === 'function') awakMajBoutonProfil(); } catch (e) {}
             // 🏠 En-tête recalculé à chaque affichage : les stats et le
@@ -48139,7 +48278,7 @@
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1018");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1022");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.

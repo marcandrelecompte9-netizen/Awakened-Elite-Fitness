@@ -11,11 +11,11 @@
     <title>Awakened Elite Fitness</title>
 
     <!-- PWA -->
-    <link rel="manifest" href="manifest.json?v=1018">
-    <link rel="apple-touch-icon" href="icons/icon-192.png?v=1018">
-    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=1018">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=1018">
-    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=1018">
+    <link rel="manifest" href="manifest.json?v=1022">
+    <link rel="apple-touch-icon" href="icons/icon-192.png?v=1022">
+    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=1022">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=1022">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=1022">
 
     <!-- ⚠️ CAPTURE PRÉCOCE DE L'INVITE D'INSTALLATION.
          Chrome déclenche « beforeinstallprompt » très tôt, souvent AVANT la fin
@@ -44,7 +44,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=1018">
+    <link rel="stylesheet" href="css/style.css?v=1022">
 </head>
 <body>
 
@@ -208,8 +208,8 @@
                  (ratio 1,55), donc plus haute et lisible.
                  <picture> laisse le navigateur choisir, sans JavaScript. -->
             <picture>
-                <source media="(min-width: 700px)" srcset="images/banner_v3.webp?v=1018">
-                <img src="images/banner_v3_mobile.webp?v=1018"
+                <source media="(min-width: 700px)" srcset="images/banner_v3.webp?v=1022">
+                <img src="images/banner_v3_mobile.webp?v=1022"
                      alt="Awakened Elite Fitness"
                      style="width:100%;height:auto;display:block;" />
             </picture>
@@ -545,14 +545,10 @@
             <!-- Raccourcis Progression -->
             <!-- ◈ EN-TÊTE — même langage que les autres onglets : liseré,
                  surtitre espacé, titre en police d'affichage. -->
-            <!-- ⌨️ INVITE DU SYSTÈME — le Système est une entité qui parle au
-                 joueur ; les réglages sont sa console d'administration. -->
-            <div class="term-head">
-                <div class="term-line"><span class="dim">$</span> systeme --config
-                    <span id="termVersion" class="val"></span></div>
-                <div class="term-line"><span class="dim">chargement des paramètres…</span>
-                    <span id="termCount" class="val"></span></div>
-                <div class="term-line"><span class="dim">$</span><span class="term-caret"></span></div>
+            <!-- ◈ EN-TÊTE — même langage que les autres onglets. -->
+            <div style="border-left:2px solid #60a8f0;padding-left:11px;margin-bottom:16px;">
+                <div style="font-size:0.56em;letter-spacing:2.5px;color:#60a8f0;font-weight:900;">◈ TON PARCOURS</div>
+                <h2 style="margin:2px 0 0;color:#fff;font-size:1.15em;font-weight:900;font-family:var(--font-display),sans-serif;letter-spacing:0.5px;">Progression</h2>
             </div>
             
             <!-- 🎴 QUATRE ACCÈS EN CARTES.
@@ -916,6 +912,9 @@
                 </div>
                 <div class="accordion-body open">
                     <div class="accordion-content">
+                        <!-- 📸 CARTE UNIQUE « Ton corps » — photo centrale, bandeau, actions.
+                             Rempli par awakRenderCorpsCard(). -->
+                        <div id="awakCorpsCard"></div>
             <!-- Progress Photos Section -->
             <div class="card">
                 <h2 style="color: #22d3ee; margin-bottom: 20px;">Photos de Progression</h2>
@@ -2280,6 +2279,16 @@
         <!-- Settings Tab -->
         <div id="settingsTab" class="tab-content">
 
+            <!-- ⌨️ INVITE DU SYSTÈME — le Système est une entité qui parle au
+                 joueur ; les réglages sont sa console d'administration. -->
+            <div class="term-head">
+                <div class="term-line"><span class="dim">$</span> systeme --config
+                    <span id="termVersion" class="val"></span></div>
+                <div class="term-line"><span class="dim">chargement des paramètres…</span>
+                    <span id="termCount" class="val"></span></div>
+                <div class="term-line"><span class="dim">$</span><span class="term-caret"></span></div>
+            </div>
+
             <!-- ◈ EN-TÊTE — même langage que les autres onglets. -->
             <div style="border-left:2px solid #94a3b8;padding-left:11px;margin-bottom:16px;">
                 <div style="font-size:0.56em;letter-spacing:2.5px;color:#94a3b8;font-weight:900;">◈ RÉGLAGES</div>
@@ -2510,7 +2519,7 @@
                             </div>
 
                             <div id="aiDJAdvancedSettings" style="display: none; margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(148,163,184,0.2);">
-                                <div style="font-weight: 600; color: #16a34a; margin-bottom: 14px;">⚙️ Paramètres avancés</div>
+                                <div style="font-weight: 600; color: #93c5fd; margin-bottom: 14px;">Paramètres avancés</div>
                                 <div class="settings-toggle-row" style="margin-bottom: 14px;">
                                     <div class="settings-tr-main">
                                         <div class="settings-tr-label">🎤 Feedback vocal</div>
@@ -2674,7 +2683,7 @@
                                 <button class="btn btn-secondary" onclick="showCreateProfileModal()">➕ Créer un nouveau profil</button>
                             </div>
                             <div style="background: rgba(148,163,184,0.08); padding: 14px; border-radius: 10px; font-size: 0.9em; color: #94a3b8;">
-                                💡 <strong>Profil actuel :</strong> <span id="currentProfileNameSettings" style="color: #16a34a; font-weight: bold;">...</span>
+                                💡 <strong>Profil actuel :</strong> <span id="currentProfileNameSettings" style="color: #93c5fd; font-weight: bold;">...</span>
                             </div>
                         </div>
 
@@ -3804,39 +3813,39 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/exercises.js?v=1018"></script>
-    <script src="data/items.js?v=1018"></script>
-    <script src="js/adventure.js?v=1018"></script>
-    <script src="js/economy.js?v=1018"></script>
-    <script src="js/challenges.js?v=1018"></script>
-    <script src="js/family-boss.js?v=1018"></script>
-    <script src="js/family-network.js?v=1018"></script>
-    <script src="js/family-challenge.js?v=1018"></script>
-    <script src="js/family-goal.js?v=1018"></script>
-    <script src="js/family-feed.js?v=1018"></script>
-    <script src="js/pre-workout-mood.js?v=1018"></script>
-    <script src="js/group-workout.js?v=1018"></script>
-    <script src="js/youth-safety.js?v=1018"></script>
-    <script src="js/kids-programs.js?v=1018"></script>
-    <script src="js/senior-programs.js?v=1018"></script>
-    <script src="js/adaptive.js?v=1018"></script>
-    <script src="js/pain-mode.js?v=1018"></script>
-    <script src="js/recovery-mode.js?v=1018"></script>
-    <script src="js/exercise-visuals.js?v=1018"></script>
-    <script src="js/strength-standards.js?v=1018"></script>
-    <script src="js/system-cards.js?v=1018"></script>
-    <script src="js/share-card.js?v=1018"></script>
-    <script src="js/story-events.js?v=1018"></script>
-    <script src="js/final-boss.js?v=1018"></script>
-    <script src="js/disciplines.js?v=1018"></script>
-    <script src="js/eveil.js?v=1018"></script>
-    <script src="js/app.js?v=1018"></script>
-    <script src="js/awakening-tree.js?v=1018"></script>
-    <script src="js/ui-kit.js?v=1018"></script>
-    <script src="js/feature-map.js?v=1018"></script>
-    <script src="js/weekly-recap.js?v=1018"></script>
-    <script src="js/workout-games.js?v=1018"></script>
-    <script src="js/kids-games.js?v=1018"></script>
+    <script src="js/exercises.js?v=1022"></script>
+    <script src="data/items.js?v=1022"></script>
+    <script src="js/adventure.js?v=1022"></script>
+    <script src="js/economy.js?v=1022"></script>
+    <script src="js/challenges.js?v=1022"></script>
+    <script src="js/family-boss.js?v=1022"></script>
+    <script src="js/family-network.js?v=1022"></script>
+    <script src="js/family-challenge.js?v=1022"></script>
+    <script src="js/family-goal.js?v=1022"></script>
+    <script src="js/family-feed.js?v=1022"></script>
+    <script src="js/pre-workout-mood.js?v=1022"></script>
+    <script src="js/group-workout.js?v=1022"></script>
+    <script src="js/youth-safety.js?v=1022"></script>
+    <script src="js/kids-programs.js?v=1022"></script>
+    <script src="js/senior-programs.js?v=1022"></script>
+    <script src="js/adaptive.js?v=1022"></script>
+    <script src="js/pain-mode.js?v=1022"></script>
+    <script src="js/recovery-mode.js?v=1022"></script>
+    <script src="js/exercise-visuals.js?v=1022"></script>
+    <script src="js/strength-standards.js?v=1022"></script>
+    <script src="js/system-cards.js?v=1022"></script>
+    <script src="js/share-card.js?v=1022"></script>
+    <script src="js/story-events.js?v=1022"></script>
+    <script src="js/final-boss.js?v=1022"></script>
+    <script src="js/disciplines.js?v=1022"></script>
+    <script src="js/eveil.js?v=1022"></script>
+    <script src="js/app.js?v=1022"></script>
+    <script src="js/awakening-tree.js?v=1022"></script>
+    <script src="js/ui-kit.js?v=1022"></script>
+    <script src="js/feature-map.js?v=1022"></script>
+    <script src="js/weekly-recap.js?v=1022"></script>
+    <script src="js/workout-games.js?v=1022"></script>
+    <script src="js/kids-games.js?v=1022"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>
