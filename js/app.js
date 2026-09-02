@@ -23498,7 +23498,7 @@
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1027);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1029);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -23542,7 +23542,7 @@
                 +       '<feGaussianBlur stdDeviation="2.4" result="b"/>'
                 +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>'
                 +     '</filter></defs>'
-                +     '<image href="' + img + '?v=1027" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1029" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -24357,6 +24357,34 @@
                 +   '<animate attributeName="opacity" values="0.3;0.08;0.3" dur="4.5s" repeatCount="indefinite"/>'
                 + '</circle></g>';
             }
+
+            // 🔴 MONSTRES ÉCHAPPÉS — un point rouge par monstre en liberté.
+            // ⚠️ Ils n'existaient que sous forme de carte sous la carte : rien
+            // sur la carte elle-même ne montrait qu'ils rôdaient. Répartis en
+            // arc sur le pourtour, à l'écart de l'avenue et du boss familial.
+            try {
+                var _mons = (typeof awakGetActiveMonsters === 'function')
+                    ? (awakGetActiveMonsters() || []) : [];
+                for (var _k = 0; _k < Math.min(_mons.length, 6); _k++) {
+                    var _m = _mons[_k];
+                    // Arc de 140° sur la moitié basse : jamais sur le Monarque.
+                    var _ang = (200 + (_k * 140 / Math.max(1, Math.min(_mons.length, 6) - 1 || 1))) * Math.PI / 180;
+                    var _monRad = R * (0.42 + (_k % 3) * 0.13);
+                    var _monX = 200 + Math.cos(_ang) * _monRad;
+                    var _monY = 200 + Math.sin(_ang) * _monRad * 0.62;
+                    var _monR = _m && _m.isAlpha ? 7 : 5;
+                    marques += '<g style="cursor:pointer;" onclick="switchTab(\'game\')">'
+                        + '<circle cx="' + _monX.toFixed(1) + '" cy="' + _monY.toFixed(1) + '" r="' + (_monR + 7) + '" fill="transparent"/>'
+                        + '<circle cx="' + _monX.toFixed(1) + '" cy="' + _monY.toFixed(1) + '" r="' + _monR + '" fill="#ef4444" opacity="0.14"/>'
+                        + '<circle cx="' + _monX.toFixed(1) + '" cy="' + _monY.toFixed(1) + '" r="' + (_monR * 0.45).toFixed(1) + '" fill="#dc2626" opacity="0.85"/>'
+                        + '<circle cx="' + _monX.toFixed(1) + '" cy="' + _monY.toFixed(1) + '" r="' + (_monR * 0.45).toFixed(1) + '" fill="none" '
+                        +   'stroke="#ef4444" stroke-width="0.7" opacity="0.5">'
+                        +   '<animate attributeName="r" values="' + (_monR * 0.45).toFixed(1) + ';' + (_monR).toFixed(1) + ';' + (_monR * 0.45).toFixed(1) + '" '
+                        +     'dur="' + (2.4 + _k * 0.3).toFixed(1) + 's" repeatCount="indefinite"/>'
+                        +   '<animate attributeName="opacity" values="0.5;0;0.5" dur="' + (2.4 + _k * 0.3).toFixed(1) + 's" repeatCount="indefinite"/>'
+                        + '</circle></g>';
+                }
+            } catch (e) {}
 
             // 👨‍👩‍👧 BOSS FAMILIAL — un point sur la carte, à l'écart de l'avenue.
             // ⚠️ Il n'existait QUE sous forme de carte dans l'onglet Aventure :
@@ -28670,7 +28698,7 @@
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1027");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1029");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -33034,7 +33062,7 @@
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1027);'
+                +     'url(images/combat_bg_v1.webp?v=1029);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -33289,7 +33317,7 @@
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1027);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1029);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -34551,7 +34579,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1027');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1029');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -35456,7 +35484,10 @@
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
                 <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;">
-                    <div style="font-size:3.5em;line-height:1;margin-bottom:8px;filter:drop-shadow(0 0 14px ${type.color}90);">${type.emoji}</div>
+                    <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
+                         fâché dans un écran de chasse casse le ton, et son
+                         rendu change d'un téléphone à l'autre. -->
+                    <div style="margin:0 auto 10px;width:32px;height:32px;border:1.5px solid ${type.color};transform:rotate(45deg);box-shadow:0 0 16px ${type.color}70;"></div>
                     ${monster.isAlpha ? '<div style="display:inline-block;background:#ef4444;color:white;padding:3px 10px;border-radius:6px;font-size:0.65em;font-weight:900;letter-spacing:2px;margin-bottom:8px;">ALPHA</div>' : ''}
                     <h2 style="margin:0;color:white;font-size:1.3em;font-weight:900;">${type.name}</h2>
                     <div style="margin-top:8px;color:#94a3b8;font-size:0.82em;font-style:italic;">${type.description}</div>
@@ -45982,6 +46013,77 @@
         // afficher un corps étranger à quelqu'un qui n'a pas encore pris ses
         // photos crée une comparaison involontaire, sur un sujet sensible.
         // ══════════════════════════════════════════════════════════════
+
+        // 🔍 Choix des deux photos à comparer, en modale.
+        // ⚠️ Le sélecteur d'origine vivait dans la carte « Photos de
+        // Progression », masquée en v1023 : le bouton « Comparer » renvoyait
+        // donc vers un élément invisible et ne produisait aucun effet.
+        function awakOpenPhotoCompare() {
+            let photos = [];
+            try { photos = (typeof getProgressPhotos === 'function') ? (getProgressPhotos() || []) : []; }
+            catch (e) {}
+            if (photos.length < 2) {
+                if (typeof showToast === 'function') {
+                    showToast('Il faut au moins 2 photos pour comparer.', 'info', 2500);
+                }
+                return;
+            }
+            const opts = photos.map(function (p, i) {
+                const d = new Date(p.date).toLocaleDateString('fr-FR');
+                return '<option value="' + p.id + '">' + d + (i === 0 ? ' — la plus récente' : '') + '</option>';
+            }).join('');
+
+            document.getElementById('awakPhotoPick')?.remove();
+            const ov = document.createElement('div');
+            ov.id = 'awakPhotoPick';
+            ov.style.cssText = 'position:fixed;inset:0;z-index:11000;background:rgba(0,0,0,0.90);'
+                + 'backdrop-filter:blur(9px);display:flex;align-items:center;justify-content:center;padding:18px;';
+            const champ = 'width:100%;padding:11px;border-radius:10px;margin-bottom:10px;'
+                + 'background:#05080e;color:#cbd5e1;border:1px solid rgba(96,168,240,0.3);font-size:0.85em;';
+            ov.innerHTML =
+                '<div style="width:100%;max-width:390px;padding:22px 20px;border-radius:20px;'
+              +   'background:linear-gradient(160deg,#101822,#0a0d13);'
+              +   'border:1.5px solid rgba(96,168,240,0.35);">'
+              +   '<div style="font-size:0.54em;letter-spacing:2.5px;color:#60a8f0;font-weight:900;">◈ COMPARER</div>'
+              +   '<div style="font-family:var(--font-display),sans-serif;font-size:1.1em;'
+              +     'font-weight:800;color:#fff;margin:2px 0 14px;">Deux photos</div>'
+              +   '<div style="font-size:0.62em;color:#64748b;font-weight:800;letter-spacing:1px;margin-bottom:5px;">AVANT</div>'
+              +   '<select id="awakPickA" style="' + champ + '">' + opts + '</select>'
+              +   '<div style="font-size:0.62em;color:#64748b;font-weight:800;letter-spacing:1px;margin-bottom:5px;">APRÈS</div>'
+              +   '<select id="awakPickB" style="' + champ + '">' + opts + '</select>'
+              +   '<button onclick="awakDoPhotoCompare()" '
+              +     'style="width:100%;padding:13px;margin-top:6px;border-radius:13px;border:none;cursor:pointer;'
+              +     'background:linear-gradient(160deg,#93c5fd,#60a8f0 45%,#164e8a);'
+              +     'color:#04162b;font-weight:900;font-size:0.8em;letter-spacing:1px;">COMPARER</button>'
+              +   '<button onclick="document.getElementById(\'awakPhotoPick\').remove()" '
+              +     'style="width:100%;padding:11px;margin-top:8px;border-radius:13px;cursor:pointer;'
+              +     'background:transparent;border:1px solid rgba(255,255,255,0.12);'
+              +     'color:#94a3b8;font-size:0.74em;font-weight:800;">FERMER</button>'
+              + '</div>';
+            ov.onclick = function (e) { if (e.target === ov) ov.remove(); };
+            document.body.appendChild(ov);
+            // Pré-sélection utile : la plus ancienne en AVANT, la plus récente en APRÈS.
+            try {
+                document.getElementById('awakPickA').value = photos[photos.length - 1].id;
+                document.getElementById('awakPickB').value = photos[0].id;
+            } catch (e) {}
+        }
+        window.awakOpenPhotoCompare = awakOpenPhotoCompare;
+
+        function awakDoPhotoCompare() {
+            try {
+                const a = parseInt(document.getElementById('awakPickA').value, 10);
+                const b = parseInt(document.getElementById('awakPickB').value, 10);
+                if (a === b) {
+                    if (typeof showToast === 'function') showToast('Choisis deux photos différentes.', 'info', 2200);
+                    return;
+                }
+                document.getElementById('awakPhotoPick')?.remove();
+                if (typeof comparePhotos === 'function') comparePhotos(a, b);
+            } catch (e) {}
+        }
+        window.awakDoPhotoCompare = awakDoPhotoCompare;
+
         function awakRenderCorpsCard() {
             const host = document.getElementById('awakCorpsCard');
             if (!host) return;
@@ -46027,7 +46129,7 @@
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1027);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1029);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -46063,10 +46165,7 @@
             const actions =
                 '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:13px;">'
               +   _corpsBtn('takeProgressPhoto()', 'Prendre une photo', true)
-              +   _corpsBtn(photos.length > 1
-                    ? "document.getElementById('progressPhotosGallery')?.scrollIntoView({behavior:'smooth',block:'center'})"
-                    : "showToast('Il faut au moins 2 photos pour comparer.','info',2500)",
-                    'Comparer', false)
+              +   _corpsBtn('awakOpenPhotoCompare()', 'Comparer', false)
               +   _corpsBtn("document.getElementById('measurementForm')?.scrollIntoView({behavior:'smooth',block:'center'})",
                     'Mensurations', false)
               +   _corpsBtn("document.getElementById('measurementsDisplay')?.scrollIntoView({behavior:'smooth',block:'center'})",
@@ -48376,7 +48475,7 @@
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1027");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1029");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.

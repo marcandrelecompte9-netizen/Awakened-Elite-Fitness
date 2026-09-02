@@ -1087,8 +1087,11 @@ function renderAdventureTab() {
     if (!getAdventureEnabled()) { container.innerHTML = renderAdventureDisabled(); return; }
     // 👨‍👩‍👧 Boss Familial — reste dans l'onglet Jeu. Les 💞 Défis de Duo ont
     // désormais leur onglet dédié « Duo » (renderFamilyTab), indépendant du jeu.
-    const familyBossCard = (window.AwakFamilyBoss && typeof window.AwakFamilyBoss.renderCard === 'function')
-        ? window.AwakFamilyBoss.renderCard() : '';
+    // 👨‍👩‍👧 BOSS FAMILIAL : plus de carte ici — il est désormais un POINT
+    // AMBRE sur la carte de l'Effacement (v1027), cliquable.
+    // ⚠️ Le doublon affichait la même information à deux endroits,
+    // dont l'un juste sous l'autre.
+    const familyBossCard = '';
     // 🌌 AWAKENED Power Card est maintenant fusionnée dans la carte Profil (renderGameTab)
     // 🌀 Failles actives
     // 🗺️ LISTE DES FAILLES RETIRÉE (v864) : elles s'atteignent désormais
@@ -1097,8 +1100,9 @@ function renderAdventureTab() {
     // disponible si l'on veut rétablir la liste un jour.
     const riftsCard = '';
     // 👹 Monstres échappés (Phase 3)
-    const monstersCard = (typeof window.renderEscapedMonstersCard === 'function')
-        ? window.renderEscapedMonstersCard() : '';
+    // 🔴 MONSTRES ÉCHAPPÉS : plus de carte ici — ils sont désormais des
+    // POINTS ROUGES sur la carte de l'Effacement (v1029), cliquables.
+    const monstersCard = '';
     // 🎭 Compagnons (Phase 4)
     const companionsCard = (typeof window.renderCompanionsCard === 'function')
         ? window.renderCompanionsCard() : '';
