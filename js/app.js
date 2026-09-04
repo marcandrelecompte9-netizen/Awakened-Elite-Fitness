@@ -3167,10 +3167,10 @@
             const insights = generateInsights(stats);
             const insightsList = document.getElementById('insightsList');
             const insightColors = {
-                positive: { bg: '#10b98115', border: '#10b981', text: '#047857' },
-                warning: { bg: '#fbbf2415', border: '#fbbf24', text: '#d97706' },
-                info: { bg: '#3b82f615', border: '#3b82f6', text: '#1d4ed8' },
-                motivation: { bg: '#22c55e15', border: '#22c55e', text: '#16a34a' }
+                positive: { bg: 'rgba(16,185,129,0.082)', border: '#10b981', text: '#047857' },
+                warning: { bg: 'rgba(251,191,36,0.082)', border: '#fbbf24', text: '#d97706' },
+                info: { bg: 'rgba(59,130,246,0.082)', border: '#3b82f6', text: '#1d4ed8' },
+                motivation: { bg: 'rgba(34,197,94,0.082)', border: '#22c55e', text: '#16a34a' }
             };
             
             insightsList.innerHTML = insights.map(insight => {
@@ -5732,8 +5732,8 @@
             const custom = loadCustomMorningRoutine();
             const customCard = `
                 <button onclick="startMorningRoutine('morning_custom')" style="
-                    width:100%;text-align:left;background:linear-gradient(135deg,#a855f718,#a855f708);
-                    border:1.5px solid #a855f755;border-radius:14px;padding:14px;margin-bottom:10px;cursor:pointer;
+                    width:100%;text-align:left;background:linear-gradient(135deg,rgba(168,85,247,0.094),rgba(168,85,247,0.031));
+                    border:1.5px solid rgba(168,85,247,0.333);border-radius:14px;padding:14px;margin-bottom:10px;cursor:pointer;
                     display:flex;align-items:center;gap:13px;">
                     <div style="font-size:2.1em;flex-shrink:0;">⭐</div>
                     <div style="flex:1;min-width:0;">
@@ -8401,7 +8401,7 @@
                         <button class="close-btn" onclick="this.closest('.modal').remove()">×</button>
                     </div>
                     <div class="modal-body">
-                        <div style="background: linear-gradient(135deg, #1d5fa815 0%, #164e8a15 100%); padding: 20px; border-radius: 14px; margin-bottom: 20px;">
+                        <div style="background: linear-gradient(135deg, rgba(29,95,168,0.082) 0%, rgba(22,78,138,0.082) 100%); padding: 20px; border-radius: 14px; margin-bottom: 20px;">
                             <p style="margin: 0; color: #e2e8f0; font-size: 1.1em; text-align: center;">
                                 🎉 <strong>Excellente progression !</strong><br>
                                 <span style="font-size: 0.9em; color: #94a3b8;">L'app a détecté que tu es prêt(e) pour progresser</span>
@@ -8424,7 +8424,7 @@
                                     ${sugg.suggestions.map(s => `
                                         <button onclick="applyProgressionSuggestion('${sugg.exerciseName}', '${s.action}', ${JSON.stringify(s.value).replace(/"/g, '&quot;')}); this.closest('.modal').remove();" 
                                                 class="btn btn-secondary" 
-                                                style="text-align: left; padding: 12px; background: linear-gradient(135deg, ${sugg.type === 'increase' ? '#10b98115' : '#f59e0b15'} 0%, transparent 100%); border: 1px solid ${sugg.type === 'increase' ? '#10b981' : '#f59e0b'};">
+                                                style="text-align: left; padding: 12px; background: linear-gradient(135deg, ${sugg.type === 'increase' ? 'rgba(16,185,129,0.082)' : 'rgba(245,158,11,0.082)'} 0%, transparent 100%); border: 1px solid ${sugg.type === 'increase' ? '#10b981' : '#f59e0b'};">
                                             <div style="font-weight: bold;">${s.label}</div>
                                             <div style="font-size: 0.85em; color: #94a3b8; margin-top: 3px;">${s.description}</div>
                                         </button>
@@ -12676,7 +12676,7 @@
             const topRecommendations = recommendations.slice(0, 3);
             
             container.innerHTML = topRecommendations.map(rec => `
-                <div class="card" style="background: linear-gradient(135deg, ${rec.priority === 'high' ? '#ef444415' : rec.priority === 'medium' ? '#f59e0b15' : '#10b98115'} 0%, transparent 100%); border-left: 4px solid ${rec.priority === 'high' ? '#ef4444' : rec.priority === 'medium' ? '#f59e0b' : '#10b981'}; margin-bottom: 10px; padding: 15px;">
+                <div class="card" style="background: linear-gradient(135deg, ${rec.priority === 'high' ? 'rgba(239,68,68,0.082)' : rec.priority === 'medium' ? 'rgba(245,158,11,0.082)' : 'rgba(16,185,129,0.082)'} 0%, transparent 100%); border-left: 4px solid ${rec.priority === 'high' ? '#ef4444' : rec.priority === 'medium' ? '#f59e0b' : '#10b981'}; margin-bottom: 10px; padding: 15px;">
                     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
                         <span style="font-size: 2em;">${rec.icon}</span>
                         <div>
@@ -12800,7 +12800,7 @@
             container.innerHTML = `
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px;">
                     <!-- Weekly Goals -->
-                    <div class="card" style="background: linear-gradient(135deg, #1d5fa820 0%, #164e8a20 100%);">
+                    <div class="card" style="background: linear-gradient(135deg, rgba(29,95,168,0.125) 0%, rgba(22,78,138,0.125) 100%);">
                         <h4 style="color: #16a34a; margin-top: 0;">Objectifs Semaine</h4>
                         <div style="margin-bottom: 15px;">
                             <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
@@ -12821,12 +12821,12 @@
                             </div>
                         </div>
                         ${(goals.workouts.achieved && goals.minutes.achieved) ? 
-                            '<div style="margin-top: 10px; padding: 10px; background: #10b98120; border-radius: 10px; color: #10b981; font-weight: bold; text-align: center;">🏆 Objectifs Atteints !</div>' : 
+                            '<div style="margin-top: 10px; padding: 10px; background: rgba(16,185,129,0.125); border-radius: 10px; color: #10b981; font-weight: bold; text-align: center;">🏆 Objectifs Atteints !</div>' : 
                             ''}
                     </div>
                     
                     <!-- Trends -->
-                    <div class="card" style="background: linear-gradient(135deg, ${trends.interpretation === 'positive' ? '#10b98120' : trends.interpretation === 'negative' ? '#ef444420' : '#f59e0b20'} 0%, transparent 100%);">
+                    <div class="card" style="background: linear-gradient(135deg, ${trends.interpretation === 'positive' ? 'rgba(16,185,129,0.125)' : trends.interpretation === 'negative' ? 'rgba(239,68,68,0.125)' : 'rgba(245,158,11,0.125)'} 0%, transparent 100%);">
                         <h4 style="color: ${trends.interpretation === 'positive' ? '#10b981' : trends.interpretation === 'negative' ? '#ef4444' : '#f59e0b'}; margin-top: 0;">
                             Tendances (30j)
                         </h4>
@@ -12857,7 +12857,7 @@
                     <h4 style="color: #16a34a; margin-bottom: 15px;">Recommandations</h4>
                     <div style="display: flex; flex-direction: column; gap: 10px;">
                         ${recommendations.map(rec => `
-                            <div class="card" style="background: ${rec.priority === 'high' ? '#ef444415' : '#f59e0b15'}; border-left: 4px solid ${rec.priority === 'high' ? '#ef4444' : '#f59e0b'};">
+                            <div class="card" style="background: ${rec.priority === 'high' ? 'rgba(239,68,68,0.082)' : 'rgba(245,158,11,0.082)'}; border-left: 4px solid ${rec.priority === 'high' ? '#ef4444' : '#f59e0b'};">
                                 <div style="display: flex; align-items: center; gap: 10px;">
                                     <span style="font-size: 2em;">${rec.icon}</span>
                                     <div style="flex: 1;">
@@ -14850,7 +14850,7 @@
                     ${muscleBadgeHTML}
                     
                     ${lastPerf ? `
-                        <div style="background: linear-gradient(135deg, #10b98120 0%, #10b98110 100%); padding: 20px; border-radius: 14px; margin: 20px 0; border-left: 4px solid #10b981;">
+                        <div style="background: linear-gradient(135deg, rgba(16,185,129,0.125) 0%, rgba(16,185,129,0.063) 100%); padding: 20px; border-radius: 14px; margin: 20px 0; border-left: 4px solid #10b981;">
                             <div style="font-size: 0.9em; color: #047857; font-weight: 600; margin-bottom: 8px;">
                                 📊 Dernière performance
                             </div>
@@ -14928,7 +14928,7 @@
                     </div>
                     
                     ${exercise.tips ? `
-                        <div style="background: linear-gradient(135deg, #1d5fa815 0%, #1d5fa805 100%); padding: 15px; border-radius: 10px; margin-top: 20px; border-left: 4px solid #16a34a;">
+                        <div style="background: linear-gradient(135deg, rgba(29,95,168,0.082) 0%, rgba(29,95,168,0.02) 100%); padding: 15px; border-radius: 10px; margin-top: 20px; border-left: 4px solid #16a34a;">
                             <div style="font-weight: 600; color: #16a34a; margin-bottom: 5px;">💡 Conseil</div>
                             <div style="color: #94a3b8;">${exercise.tips}</div>
                         </div>
@@ -16320,7 +16320,7 @@
             let comparisonHTML = '';
             if (photos.length >= 2) {
                 comparisonHTML = `
-                    <div style="background: linear-gradient(135deg, #10b98115 0%, #10b98105 100%); padding: 20px; border-radius: 14px; margin-bottom: 25px; border-left: 4px solid #10b981;">
+                    <div style="background: linear-gradient(135deg, rgba(16,185,129,0.082) 0%, rgba(16,185,129,0.02) 100%); padding: 20px; border-radius: 14px; margin-bottom: 25px; border-left: 4px solid #10b981;">
                         <div style="font-weight: 700; margin-bottom: 15px;">📊 Comparer deux photos</div>
                         <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; align-items: center;">
                             <select id="comparePhoto1" style="padding: 10px; border-radius: 10px; border: 2px solid #10b981;">
@@ -16835,7 +16835,7 @@
             
             // Create results display
             const resultsHTML = `
-                <div style="background: linear-gradient(135deg, #10b98115 0%, #10b98105 100%); padding: 30px; border-radius: 14px; margin-bottom: 25px; border-left: 4px solid #10b981; text-align: center;">
+                <div style="background: linear-gradient(135deg, rgba(16,185,129,0.082) 0%, rgba(16,185,129,0.02) 100%); padding: 30px; border-radius: 14px; margin-bottom: 25px; border-left: 4px solid #10b981; text-align: center;">
                     <div style="font-size: 3em; margin-bottom: 15px;">
                         ${score >= 7 ? '🔥' : score >= 4 ? '💪' : '😌'}
                     </div>
@@ -17431,7 +17431,7 @@
             if (!resultsDiv) return;
             resultsDiv.style.display = 'block';
             resultsDiv.innerHTML = `
-                <div style="background: linear-gradient(135deg, #ef444415 0%, #ef444405 100%); padding: 25px; border-radius: 14px; margin-bottom: 20px; border-left: 4px solid #ef4444;">
+                <div style="background: linear-gradient(135deg, rgba(239,68,68,0.082) 0%, rgba(239,68,68,0.02) 100%); padding: 25px; border-radius: 14px; margin-bottom: 20px; border-left: 4px solid #ef4444;">
                     <div style="text-align: center; margin-bottom: 20px;">
                         <div style="font-size: 0.9em; color: #94a3b8; margin-bottom: 5px;">Votre 1RM estimé pour</div>
                         <div style="font-size: 1.3em; font-weight: 700; color: #ef4444; margin-bottom: 5px;">${exercise}</div>
@@ -17612,7 +17612,7 @@
             // Display results
             resultsDiv.style.display = 'block';
             resultsDiv.innerHTML = `
-                <div style="background: linear-gradient(135deg, #f59e0b15 0%, #f59e0b05 100%); padding: 25px; border-radius: 14px; border-left: 4px solid #f59e0b; margin-top: 20px;">
+                <div style="background: linear-gradient(135deg, rgba(245,158,11,0.082) 0%, rgba(245,158,11,0.02) 100%); padding: 25px; border-radius: 14px; border-left: 4px solid #f59e0b; margin-top: 20px;">
                     <div style="text-align: center; margin-bottom: 25px;">
                         <div style="font-size: 1.2em; color: #94a3b8; margin-bottom: 10px;">🎯 Poids cible</div>
                         <div style="font-size: 3em; font-weight: 800; color: #f59e0b;">${targetWeight} lbs</div>
@@ -17688,7 +17688,7 @@
             const selectedBtn = document.querySelector(`[data-rpe="${value}"]`);
             if (selectedBtn) {
                 selectedBtn.style.borderColor = '#22d3ee';
-                selectedBtn.style.background = 'linear-gradient(135deg, #22d3ee15 0%, #0891b205 100%)';
+                selectedBtn.style.background = 'linear-gradient(135deg, rgba(34,211,238,0.082) 0%, rgba(8,145,178,0.02) 100%)';
             }
             
             // Show feedback
@@ -17777,7 +17777,7 @@
                         ${exerciseName} • ${reps} reps${weight ? ` × ${weight} kg` : ''}
                     </p>
                     
-                    <div style="background: linear-gradient(135deg, #1d5fa815 0%, #164e8a05 100%); padding: 15px; border-radius: 14px; margin-bottom: 20px; border-left: 4px solid #16a34a;">
+                    <div style="background: linear-gradient(135deg, rgba(29,95,168,0.082) 0%, rgba(22,78,138,0.02) 100%); padding: 15px; border-radius: 14px; margin-bottom: 20px; border-left: 4px solid #16a34a;">
                         <div style="font-weight: 600; color: #16a34a; margin-bottom: 5px;">📊 RPE (Rate of Perceived Exertion)</div>
                         <div style="color: #94a3b8; font-size: 0.9em;">Notez l'intensité perçue de 1 (très facile) à 10 (maximum absolu)</div>
                     </div>
@@ -18836,7 +18836,7 @@
             modal.id = 'exercisePickerModal';
             modal.style.cssText = 'position:fixed;inset:0;z-index:10200;background:rgba(0,0,0,0.95);backdrop-filter:blur(8px);display:flex;align-items:flex-end;justify-content:center;padding:0;';
             modal.innerHTML = `
-                <div style="width:100%;max-width:480px;background:#0F1014;border-radius:20px 20px 0 0;max-height:88vh;display:flex;flex-direction:column;border-top:2px solid #22c55e50;">
+                <div style="width:100%;max-width:480px;background:#0F1014;border-radius:20px 20px 0 0;max-height:88vh;display:flex;flex-direction:column;border-top:2px solid rgba(34,197,94,0.314);">
                     <div style="width:36px;height:3px;background:#334155;border-radius:99px;margin:10px auto 0;flex-shrink:0;"></div>
                     <div style="padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.05);flex-shrink:0;">
                         <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px;">
@@ -20246,9 +20246,14 @@
             
             saveBodyMeasurements(measurements);
             renderBodyMeasurements();
+            // ⚖️ Rafraîchir la carte « Ton corps » : le poids sous la photo
+            // vient désormais de la dernière mensuration, il doit suivre.
+            try { if (typeof awakRenderCorpsCard === 'function') awakRenderCorpsCard(); } catch (e) {}
+            // 🧍 Et la silhouette, pour que les points passent au vert.
+            try { if (typeof awakRenderSilhouetteMesures === 'function') awakRenderSilhouetteMesures(); } catch (e) {}
             cancelMeasurement();
             
-            showToast('💾 Mesures sauvegardées !');
+            showToast('Mesures sauvegardées !');
             vibrate(100);
         }
         
@@ -20283,7 +20288,7 @@
             const date = new Date(latest.date).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             
             let summaryHTML = `
-                <div style="background: linear-gradient(135deg, #22d3ee15 0%, #0891b205 100%); padding:13px; border-radius: 14px; margin-bottom: 25px;">
+                <div style="background:linear-gradient(135deg,rgba(34,211,238,0.08),rgba(8,145,178,0.02));padding:13px;border-radius:14px;margin-bottom:16px;">
                     <div style="font-weight: 700; font-size:0.95em; color: #22d3ee; margin-bottom: 15px;">Dernières mesures (${date})</div>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(104px, 1fr)); gap:8px;">
             `;
@@ -23533,7 +23538,7 @@
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1038);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1044);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -23577,7 +23582,7 @@
                 +       '<feGaussianBlur stdDeviation="2.4" result="b"/>'
                 +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>'
                 +     '</filter></defs>'
-                +     '<image href="' + img + '?v=1038" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1044" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -24719,7 +24724,7 @@
                         <!-- Favorite button (top-right) -->
                         <button class="favorite-btn" 
                                 onclick="toggleFavorite('${exercise.name.replace(/'/g, "\\'")}'); event.stopPropagation();"
-                                style="position: absolute; top: 10px; right: 10px; background: ${isFav ? '#fbbf24' : '#ffffff80'}; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 1.3em; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.2); transition: all 0.2s; backdrop-filter: blur(10px);"
+                                style="position: absolute; top: 10px; right: 10px; background: ${isFav ? '#fbbf24' : 'rgba(255,255,255,0.502)'}; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 1.3em; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.2); transition: all 0.2s; backdrop-filter: blur(10px);"
                                 title="${isFav ? 'Retirer des favoris' : 'Ajouter aux favoris'}">
                             ${isFav ? '⭐' : '☆'}
                         </button>
@@ -28749,7 +28754,7 @@
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1038");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1044");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -28834,7 +28839,7 @@
                         </div>
                         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
                             ${awakStatRows.map(s => `
-                                <div style="background:${s.color}0d;border:1px solid ${s.color}2e;border-radius:10px;padding:8px 6px;text-align:center;">
+                                <div style="background:rgba(2,6,16,0.55);border:1px solid ${s.color}40;border-radius:10px;padding:8px 6px;text-align:center;">
                                     <div style="font-size:1em;line-height:1;margin-bottom:3px;">${s.icon}</div>
                                     <div style="font-size:0.58em;color:#94a3b8;font-weight:700;letter-spacing:0.5px;">${s.key}</div>
                                     <div id="awakStatVal_${s.key}" style="font-family:var(--font-display);font-size:1.05em;font-weight:700;color:${s.color};line-height:1.2;">${awakStats[s.key] || 0}</div>
@@ -29311,7 +29316,7 @@
                     <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:0.68em;">
                         <span style="color:#475569;">${nextEvoText}</span>
                     </div>
-                    <button onclick="showClassSelectionModal()" style="width:100%;padding:10px;border-radius:10px;border:1px solid ${_hasTome?'#fbbf2440':_evolved.color+'20'};background:${_hasTome?'rgba(245,158,11,0.08)':_evolved.bg};color:${_hasTome?'#fbbf24':'#475569'};font-size:0.78em;font-weight:700;cursor:pointer;">
+                    <button onclick="showClassSelectionModal()" style="width:100%;padding:10px;border-radius:10px;border:1px solid ${_hasTome?'rgba(251,191,36,0.251)':_evolved.color+'20'};background:${_hasTome?'rgba(245,158,11,0.08)':_evolved.bg};color:${_hasTome?'#fbbf24':'#475569'};font-size:0.78em;font-weight:700;cursor:pointer;">
                         ${_hasTome ? '📜 Utiliser le Tome de l\'Éveil' : '🔒 Changer de classe (Tome requis)'}
                     </button>`;
             } else {
@@ -30317,7 +30322,7 @@
             overlay.innerHTML = `
                 <div style="background:linear-gradient(160deg,#1a0533,#1A0A00,#166534);border:2px solid #fbbf24;border-radius:20px;
                             padding:36px 28px;max-width:320px;width:90%;text-align:center;
-                            box-shadow:0 0 80px #fbbf2466;animation:slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);">
+                            box-shadow:0 0 80px rgba(251,191,36,0.4);animation:slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);">
                     <div style="font-size:0.75em;letter-spacing:3px;color:#fbbf24;font-weight:800;text-transform:uppercase;margin-bottom:12px;">PRESTIGE ${prestige}</div>
                     <div style="font-size:4em;margin:8px 0;">⭐</div>
                     <div style="font-size:1.4em;font-weight:900;color:white;margin:8px 0;">Renaissance Légendaire !</div>
@@ -33119,7 +33124,7 @@
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1038);'
+                +     'url(images/combat_bg_v1.webp?v=1044);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -33374,7 +33379,7 @@
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1038);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1044);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -34636,7 +34641,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1038');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1044');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -35371,9 +35376,11 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1044);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
-                    <div style="font-size:3.2em;line-height:1;margin-bottom:6px;filter:drop-shadow(0 0 16px ${type.color}b0);">${type.emoji}</div>
+                    <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
+                         emoji géant des écrans de chasse. -->
+                    <div style="margin:0 auto 8px;width:30px;height:30px;border:1.5px solid ${type.color};transform:rotate(45deg);box-shadow:0 0 18px ${type.color}b0;"></div>
                     <h2 style="margin:0 0 4px 0;color:white;font-size:1.05em;font-weight:900;">${type.name}</h2>
                     <div style="font-size:0.75em;color:#94a3b8;">${Math.round((Date.now() - session.startTime) / 60000)} min · ${session.totalDamage} dégâts</div>
                 </div>
@@ -35540,7 +35547,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1044);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -43451,6 +43458,13 @@
 
         // Initialize
         // ========== EXERCISE SEARCH ==========
+        // 🏷️ Matériel lisible : `equipment` est un TABLEAU. L'afficher tel quel
+        // donnait « Poids du corps,Haltères » avec la virgule collée.
+        function _eqLabel(eq) {
+            if (Array.isArray(eq)) return eq.length ? eq.join(' + ') : 'Poids du corps';
+            return String(eq || 'Poids du corps');
+        }
+
         function filterExercisesBySearch() {
             const query = document.getElementById('exerciseSearch').value.toLowerCase().trim();
             const resultsContainer = document.getElementById('searchResults');
@@ -43492,25 +43506,33 @@
             let html = '<div style="display: grid; gap: 10px;">';
             displayMatches.forEach(ex => {
                 const exerciseIndex = exerciseDatabase.indexOf(ex);
-                const badge = ex.type === 'warmup' ? '🏃‍♂️' : ex.type === 'stretch' ? '🧘' : '';
-                const typeLabel = ex.type === 'warmup' ? ' <span style="background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 14px; font-size: 0.8em;">Échauffement</span>' : 
-                                 ex.type === 'stretch' ? ' <span style="background: #f0fdf4; color: #15803d; padding: 2px 8px; border-radius: 14px; font-size: 0.8em;">Étirement</span>' : '';
+                const badge = '';
+                const typeLabel = ex.type === 'warmup' ? ' <span style="background:rgba(96,168,240,0.12);color:#93c5fd;border:1px solid rgba(96,168,240,0.22);padding:2px 7px;border-radius:6px;font-size:0.62em;font-weight:700;margin-left:6px;">Échauffement</span>' : 
+                                 ex.type === 'stretch' ? ' <span style="background:rgba(74,222,128,0.12);color:#86efac;border:1px solid rgba(74,222,128,0.22);padding:2px 7px;border-radius:6px;font-size:0.62em;font-weight:700;margin-left:6px;">Étirement</span>' : '';
                 
                 html += `
                     <div class="exercise-result-item" onclick="showExerciseDetail(${exerciseIndex})"
-                         style="padding: 15px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); 
-                                border-radius: 10px; cursor: pointer; transition: all 0.3s; 
-                                border-left: 4px solid #16a34a;">
-                        <div style="display: flex; justify-content: space-between; align-items: start;">
-                            <div style="flex: 1;">
-                                <strong style="font-size: 1.1em; color: #e2e8f0;">${badge} ${ex.name}</strong>${typeLabel}
-                                <div style="font-size: 0.9em; color: #94a3b8; margin-top: 8px; display: flex; gap: 15px; flex-wrap: wrap;">
-                                    <span>💪 ${ex.muscle}</span>
-                                    <span>🏋️ ${ex.equipment}</span>
-                                </div>
+                         style="padding:12px 13px;background:rgba(255,255,255,0.03);
+                                border:1px solid rgba(255,255,255,0.07);
+                                border-left:2px solid #60a8f0;
+                                border-radius:12px;cursor:pointer;transition:all .18s;
+                                display:flex;align-items:center;gap:11px;">
+                        <div style="flex:1;min-width:0;">
+                            <div style="font-size:0.88em;font-weight:800;color:#f1f5f9;
+                                        line-height:1.25;">${badge}${ex.name}${typeLabel}</div>
+                            <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;">
+                                <span style="font-size:0.6em;font-weight:700;letter-spacing:0.3px;
+                                             padding:3px 7px;border-radius:6px;
+                                             background:rgba(96,168,240,0.10);color:#93c5fd;
+                                             border:1px solid rgba(96,168,240,0.20);">${ex.muscle}</span>
+                                <span style="font-size:0.6em;font-weight:700;letter-spacing:0.3px;
+                                             padding:3px 7px;border-radius:6px;
+                                             background:rgba(255,255,255,0.04);color:#94a3b8;
+                                             border:1px solid rgba(255,255,255,0.08);">${_eqLabel(ex.equipment)}</span>
                             </div>
-                            <div style="color: #16a34a; font-size: 1.5em;"><svg viewBox="0 0 24 24" width="15" height="15" style="display:inline-block;vertical-align:-0.15em;" fill="currentColor" aria-hidden="true"><path d="M6 3.5 L20 12 L6 20.5 Z"/></svg></div>
                         </div>
+                        <svg viewBox="0 0 24 24" width="13" height="13" fill="#475569"
+                             style="flex-shrink:0;" aria-hidden="true"><path d="M6 3.5 L20 12 L6 20.5 Z"/></svg>
                     </div>
                 `;
             });
@@ -45599,7 +45621,7 @@
                          : isFuture  ? 'rgba(255,255,255,0.02)'
                                      : 'rgba(255,255,255,0.05)';
                 const col = isTrained ? '#fff' : isFuture ? '#475569' : '#64748b';
-                const ring = isToday ? 'box-shadow:0 0 0 2px #22c55e88;' : '';
+                const ring = isToday ? 'box-shadow:0 0 0 2px rgba(34,197,94,0.533);' : '';
 
                 cells += `<div style="flex:1;text-align:center;">
                     <div style="font-size:0.6em;color:${isToday ? '#4ade80' : '#64748b'};font-weight:800;margin-bottom:4px;">${letters[i]}</div>
@@ -46191,7 +46213,7 @@
 
             host.innerHTML =
                 '<div style="position:relative;width:110px;margin:0 auto 12px;">'
-              +   '<img src="images/body/body_face.webp?v=1038" alt="" '
+              +   '<img src="images/body/body_face.webp?v=1044" alt="" '
               +     'style="width:100%;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -46210,7 +46232,7 @@
                 const p = AWAK_MESURE_POINTS[id];
                 if (actif) {
                     if (p && p.type === 'ligne') {
-                        el.style.background = 'linear-gradient(180deg,#60a8f0,#60a8f055)';
+                        el.style.background = 'linear-gradient(180deg,#60a8f0,rgba(96,168,240,0.333))';
                         el.style.width = '3px';
                     } else {
                         el.style.background = '#60a8f0';
@@ -46273,7 +46295,7 @@
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1038);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1044);'
                        +   'background-size:cover;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -46289,12 +46311,30 @@
             }
 
             // ── Bandeau d'information ──
+            // ⚖️ Poids : la DERNIÈRE MENSURATION saisie en priorité.
+            // ⚠️ On lisait getUserProfile().weight — le poids du profil, figé
+            // à l'inscription : ajouter une mensuration ne changeait donc rien
+            // sous la photo. On retombe sur le profil seulement si aucune
+            // mesure n'a encore été enregistrée.
             let poids = '—';
+            const _unite = (typeof useKg !== 'undefined' && useKg) ? 'kg' : 'lbs';
+            const _fmt = function (v) {
+                return (typeof fmtWeightVal === 'function' ? fmtWeightVal(v) : v) + ' ' + _unite;
+            };
             try {
-                const p = (typeof getUserProfile === 'function') ? getUserProfile() : null;
-                if (p && p.weight) poids = (typeof fmtWeightVal === 'function')
-                    ? fmtWeightVal(p.weight) + ' ' + (typeof useKg !== 'undefined' && useKg ? 'kg' : 'lbs')
-                    : p.weight;
+                let _mes = [];
+                try {
+                    const _pid = (typeof getCurrentProfileId === 'function') ? getCurrentProfileId() : null;
+                    const _raw = _pid ? getProfileData(_pid, 'bodyMeasurements')
+                                      : localStorage.getItem('bodyMeasurements');
+                    if (_raw) _mes = JSON.parse(_raw) || [];
+                } catch (e) {}
+                if (_mes.length && _mes[0] && _mes[0].weight) {
+                    poids = _fmt(_mes[0].weight);
+                } else {
+                    const p = (typeof getUserProfile === 'function') ? getUserProfile() : null;
+                    if (p && p.weight) poids = _fmt(p.weight);
+                }
             } catch (e) {}
             const bandeau =
                 '<div style="display:flex;gap:8px;margin-top:11px;">'
@@ -48616,7 +48656,7 @@
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1038");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1044");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
