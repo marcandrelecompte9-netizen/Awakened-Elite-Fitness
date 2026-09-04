@@ -5377,7 +5377,7 @@ body.workout-fullscreen #exerciseView {
     background-color: #08080b;
     background-image:
         linear-gradient(160deg, rgba(8,8,11,0.94) 0%, rgba(8,8,11,0.88) 45%, rgba(8,8,11,0.96) 100%),
-        url(../images/salle_bg_v5.webp?v=1048);
+        url(../images/salle_bg_v5.webp?v=1053);
     /* ⚠️ `../` obligatoire : dans un fichier CSS, une url() relative est
        résolue depuis le DOSSIER DU CSS (css/), pas depuis la page. Sans le
        préfixe, le navigateur chercherait css/images/… et n'afficherait rien. */
@@ -7312,6 +7312,223 @@ body.dark-mode #measurementsDisplay tr {
     border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 /* Lignes alternées : lecture facilitée sans fond clair. */
-body.dark-mode #measurementsDisplay tbody tr:nth-child(even) {
-    background: rgba(255,255,255,0.02);
+body.dark-mode #measurementsDisplay tbody tr:nth-child(even) td {
+    background: rgba(255,255,255,0.02) !important;
+}
+body.dark-mode #measurementsDisplay tbody tr:nth-child(odd) td {
+    background: transparent !important;
+}
+
+/* 🛡️ NEUTRALISATION GLOBALE du fond clair des lignes paires.
+   ⚠️ La règle `tr:nth-child(even) td { background: #f8fafc; }` date du thème
+   clair et touche les 3 tableaux de l'app. Une surcharge par tableau serait
+   à refaire à chaque nouveau tableau : on la neutralise en mode sombre. */
+body.dark-mode tr:nth-child(even) td {
+    background: rgba(255,255,255,0.02) !important;
+}
+
+/* 📊 Compteur d'exercices — ligne d'état plutôt que grosses tuiles.
+   ⚠️ Modification par CSS uniquement : la structure .stats/.stat-box reste
+   intacte, donc aucun risque de déséquilibrer le HTML. */
+#exercisesTab .stats {
+    display: flex !important;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 18px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    background: #070b12;
+    border: 1px solid rgba(96,168,240,0.14);
+    border-left: 2px solid rgba(96,168,240,0.45);
+}
+#exercisesTab .stat-box {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+}
+#exercisesTab .stat-value {
+    font-family: inherit;
+    font-size: 1.05em !important;
+    font-weight: 900;
+    color: #93c5fd !important;
+    line-height: 1;
+}
+#exercisesTab .stat-label {
+    font-family: inherit;
+    font-size: 0.6em !important;
+    letter-spacing: 0.8px;
+    color: #475569 !important;
+    text-transform: uppercase;
+    margin: 0 !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   👤 MODALES DE PROFIL — même langage que la console des Réglages
+   ----------------------------------------------------------------------
+   ⚠️ .profile-name était en #1e293b et .profile-card bordée de #e0e0e0 :
+   des couleurs de thème CLAIR, presque invisibles sur fond sombre.
+   ══════════════════════════════════════════════════════════════════════ */
+#profileSelectionModal .modal-content,
+#profileSetupModal .modal-content {
+    font-family: 'SFMono-Regular', 'Consolas', 'Liberation Mono', 'Menlo', monospace;
+    background: linear-gradient(160deg, #101822, #0a0d13) !important;
+    border: 1px solid rgba(96,168,240,0.28) !important;
+    border-radius: 14px !important;
+}
+
+/* Cartes de profil : blocs de console */
+#profileSelectionModal .profile-card {
+    background: #070b12 !important;
+    border: 1px solid rgba(96,168,240,0.14) !important;
+    border-left: 2px solid rgba(96,168,240,0.45) !important;
+    border-radius: 8px !important;
+    padding: 12px 13px !important;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    margin-bottom: 8px;
+}
+#profileSelectionModal .profile-card.current {
+    border-left-color: #60a8f0 !important;
+    background: #0a1018 !important;
+    box-shadow: inset 0 0 24px rgba(96,168,240,0.06);
+}
+#profileSelectionModal .profile-card:active { background: #0d141d !important; }
+
+#profileSelectionModal .profile-avatar {
+    width: 40px !important;
+    height: 40px !important;
+    font-size: 1.5em !important;
+    flex-shrink: 0;
+}
+/* Le nom est précédé d'un chevron, comme une commande saisie. */
+#profileSelectionModal .profile-name {
+    font-family: inherit;
+    font-size: 0.86em !important;
+    font-weight: 800 !important;
+    color: #e2e8f0 !important;
+    margin-bottom: 2px !important;
+}
+#profileSelectionModal .profile-name::before {
+    content: '> ';
+    color: #60a8f0;
+}
+#profileSelectionModal .profile-stats {
+    font-family: inherit;
+    font-size: 0.62em !important;
+    color: #475569 !important;
+    letter-spacing: 0.3px;
+}
+
+/* Grille d'avatars : encoches carrées */
+#profileSetupModal .avatar-option,
+#profileSelectionModal .avatar-option {
+    font-size: 1.4em !important;
+    padding: 7px !important;
+    border-radius: 6px !important;
+}
+
+/* Champs et boutons : mêmes encoches que la console */
+#profileSetupModal input[type="text"],
+#profileSetupModal input[type="number"],
+#profileSetupModal input[type="date"],
+#profileSetupModal select {
+    background: #05080e !important;
+    border: 1px solid rgba(96,168,240,0.22) !important;
+    color: #cbd5e1 !important;
+    border-radius: 5px !important;
+    font-family: inherit !important;
+    font-size: 0.82em !important;
+}
+#profileSetupModal input:focus,
+#profileSetupModal select:focus {
+    outline: none !important;
+    border-color: rgba(96,168,240,0.6) !important;
+    box-shadow: 0 0 0 2px rgba(96,168,240,0.12) !important;
+}
+#profileSelectionModal .btn,
+#profileSetupModal .btn {
+    background: rgba(96,168,240,0.08) !important;
+    border: 1px solid rgba(96,168,240,0.34) !important;
+    color: #93c5fd !important;
+    border-radius: 5px !important;
+    font-family: inherit !important;
+    font-weight: 600 !important;
+    box-shadow: none !important;
+}
+#profileSelectionModal .btn-secondary,
+#profileSetupModal .btn-secondary {
+    background: rgba(255,255,255,0.03) !important;
+    border-color: rgba(255,255,255,0.12) !important;
+    color: #94a3b8 !important;
+}
+/* Titres de section du formulaire */
+#profileSetupModal h2, #profileSetupModal h3,
+#profileSelectionModal h2, #profileSelectionModal h3 {
+    font-family: inherit;
+    font-size: 0.95em !important;
+    letter-spacing: 0.3px;
+    color: #e2e8f0 !important;
+}
+/* 🛡️ Filet : aucun vert ni couleur de thème clair ne doit subsister. */
+#profileSelectionModal [style*="#16a34a"],
+#profileSetupModal [style*="#16a34a"],
+#profileSelectionModal [style*="#22c55e"],
+#profileSetupModal [style*="#22c55e"] { color: #93c5fd !important; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   🏠 ACCUEIL — langage de la console, appliqué avec retenue
+   ----------------------------------------------------------------------
+   ⚠️ CHOIX : le monospace n'est PAS appliqué au titre ni au vortex.
+   L'accueil est l'écran d'ambiance de l'app — le vortex violet et la
+   police Rajdhani y portent l'identité. Les passer en console les
+   aplatirait. On reprend donc les CADRES, les liserés et les libellés,
+   pas la typographie des titres.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* Cartes de l'accueil : blocs de console */
+#homeTab .card,
+#homeTab #eveilJourneyCard,
+#homeTab #painCheckCard,
+#homeTab #groupWorkoutBtnContainer > div {
+    background: #070b12 !important;
+    border: 1px solid rgba(96,168,240,0.14) !important;
+    border-left: 2px solid rgba(96,168,240,0.45) !important;
+    border-radius: 10px !important;
+}
+
+/* Surtitres ◈ : même graisse et même espacement que la console */
+#homeTab [style*="letter-spacing:3px"],
+#homeTab [style*="letter-spacing: 3px"] {
+    font-family: 'SFMono-Regular', 'Consolas', 'Liberation Mono', 'Menlo', monospace;
+    font-size: 0.54em !important;
+    letter-spacing: 2.5px !important;
+}
+
+/* Libellés des tuiles de statistiques : monospace, comme les en-têtes */
+#homeTab .stat-label,
+#homeTab [style*="letter-spacing:1.5px"],
+#homeTab [style*="letter-spacing: 1.5px"] {
+    font-family: 'SFMono-Regular', 'Consolas', 'Liberation Mono', 'Menlo', monospace;
+    letter-spacing: 1.2px !important;
+}
+
+/* Boutons d'action rapide : encoches, plus de pilules arrondies */
+#homeTab .quick-action-btn,
+#homeTab .btn {
+    border-radius: 6px !important;
+    font-family: 'SFMono-Regular', 'Consolas', 'Liberation Mono', 'Menlo', monospace;
+    font-weight: 700 !important;
+    letter-spacing: 0.3px;
+}
+
+/* Tuiles de statistiques : cadres nets */
+#homeTab .stat-box {
+    background: rgba(2,6,16,0.55) !important;
+    border: 1px solid rgba(96,168,240,0.18) !important;
+    border-radius: 8px !important;
 }
