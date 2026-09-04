@@ -737,8 +737,21 @@
         }
 
         // Abandon challenge
-        function abandonChallenge() {
+        // 🏆 `id` optionnel : abandonner UN défi précis parmi ceux en cours.
+        // ⚠️ Sans lui, la fonction n'effaçait que l'ancienne clé unique
+        // (saveActiveChallenge(null)) : le défi restait dans la LISTE
+        // multiple créée en v1013, donc rien ne disparaissait à l'écran.
+        function abandonChallenge(id) {
             showConfirm('Votre progression sur ce défi sera réinitialisée.', function() {
+                // Retirer de la liste des actifs.
+                try {
+                    if (typeof getActiveChallenges === 'function') {
+                        const _l = getActiveChallenges();
+                        const _cible = id || (_l.length ? _l[0].id : null);
+                        const _reste = _l.filter(function (c) { return c && c.id !== _cible; });
+                        saveActiveChallenges(_reste);
+                    }
+                } catch (e) {}
                 try { const ac = getActiveChallenge(); if (ac) awakLogEvent('challenge_abandon', { id: ac.id, name: ac.name, daysCompleted: (ac.completedDays || []).length, duration: ac.duration }); } catch (e) {}
                 saveActiveChallenge(null);
                 showToast('✕ Défi abandonné', 'warning', 2500);
@@ -770,7 +783,7 @@
                                 <h3 style="margin: 0 0 6px 0; color: white; font-weight: 900; font-size: 1.15em;">${activeChallenge.name}</h3>
                                 <p style="margin: 0; color: #94a3b8; font-size: 0.85em; line-height: 1.5;">${activeChallenge.description}</p>
                             </div>
-                            <button onclick="abandonChallenge()" style="background: rgba(239,68,68,0.1); color: #f87171; border: 1px solid rgba(239,68,68,0.3); border-radius: 10px; padding: 7px 11px; font-size: 0.78em; font-weight: 800; cursor: pointer; flex-shrink: 0;">
+                            <button onclick="abandonChallenge('${activeChallenge.id}')" style="background: rgba(239,68,68,0.1); color: #f87171; border: 1px solid rgba(239,68,68,0.3); border-radius: 10px; padding: 7px 11px; font-size: 0.78em; font-weight: 800; cursor: pointer; flex-shrink: 0;">
                                 ✕ Abandonner
                             </button>
                         </div>
@@ -926,12 +939,21 @@
                                             _actif = (typeof getChallengeProgress === 'function')
                                                 ? getChallengeProgress(challenge.id) : null;
                                         } catch (e) {}
-                                        const _lbl = _actif ? '📊 Voir ma progression' : '🚀 Commencer ce défi';
+                                        const _lbl = _actif ? 'Voir ma progression' : 'Commencer ce défi';
                                         const _fn  = _actif ? `showChallengeDetail('${challenge.id}')`
                                                             : `startChallenge('${challenge.id}')`;
-                                        return `<button onclick="event.stopPropagation(); ${_fn}" style="background: linear-gradient(135deg, ${challenge.color} 0%, ${challenge.color}cc 100%); color: white; border: none; border-radius: 10px; padding: 11px 14px; font-size: 0.85em; font-weight: 800; flex: 1; cursor: pointer; box-shadow: 0 4px 14px ${challenge.color}30;">
+                                        // ⚠️ ABANDON PAR DÉFI : la zone du haut n'affiche
+                                        // que le premier actif, donc les défis suivants
+                                        // n'avaient aucun bouton pour être quittés.
+                                        const _abandon = _actif
+                                            ? `<button onclick="event.stopPropagation(); abandonChallenge('${challenge.id}')" `
+                                              + `style="margin-top:7px;width:100%;padding:9px;border-radius:10px;cursor:pointer;`
+                                              + `background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.28);`
+                                              + `color:#f87171;font-size:0.7em;font-weight:800;">Abandonner ce défi</button>`
+                                            : '';
+                                        return `<div style="flex:1;"><button onclick="event.stopPropagation(); ${_fn}" style="background: linear-gradient(135deg, ${challenge.color} 0%, ${challenge.color}cc 100%); color: white; border: none; border-radius: 10px; padding: 11px 14px; font-size: 0.85em; font-weight: 800; width:100%; cursor: pointer; box-shadow: 0 4px 14px ${challenge.color}30;">
                                             ${_lbl}
-                                        </button>`;
+                                        </button>${_abandon}</div>`;
                                     })()}
                                     <div style="padding: 9px 12px; background: rgba(255,255,255,0.03); border-radius: 10px; font-weight: 700; color: ${challenge.color}; border: 1px solid ${challenge.color}40; font-size: 0.8em;">
                                         📅 ${challenge.duration}j
@@ -20247,10 +20269,10 @@
             
             if (measurements.length === 0) {
                 container.innerHTML = `
-                    <div style="text-align: center; padding: 40px; color: #94a3b8;">
-                        <div style="font-size: 4em; margin-bottom: 15px;">📏</div>
-                        <div style="font-size: 1.1em; margin-bottom: 10px;">Aucune mesure enregistrée</div>
-                        <div style="font-size: 0.9em;">Ajoutez vos premières mesures pour suivre votre évolution corporelle</div>
+                    <div style="text-align:center;padding:22px 16px;color:#64748b;">
+                        
+                        <div style="font-size:0.95em; margin-bottom: 10px;">Aucune mesure enregistrée</div>
+                        <div style="font-size:0.72em;">Ajoutez vos premières mesures pour suivre votre évolution corporelle</div>
                     </div>
                 `;
                 return;
@@ -20261,16 +20283,15 @@
             const date = new Date(latest.date).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             
             let summaryHTML = `
-                <div style="background: linear-gradient(135deg, #22d3ee15 0%, #0891b205 100%); padding: 20px; border-radius: 14px; margin-bottom: 25px;">
-                    <div style="font-weight: 700; font-size: 1.1em; color: #22d3ee; margin-bottom: 15px;">📊 Dernières mesures (${date})</div>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+                <div style="background: linear-gradient(135deg, #22d3ee15 0%, #0891b205 100%); padding:13px; border-radius: 14px; margin-bottom: 25px;">
+                    <div style="font-weight: 700; font-size:0.95em; color: #22d3ee; margin-bottom: 15px;">Dernières mesures (${date})</div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(104px, 1fr)); gap:8px;">
             `;
             
             if (latest.weight) summaryHTML += `
-                <div style="background: rgba(255,255,255,0.04); padding: 15px; border-radius: 10px; text-align: center;">
-                    <div style="font-size: 2em; margin-bottom: 5px;">⚖️</div>
-                    <div style="font-size: 1.8em; font-weight: 700; color: #22d3ee;">${latest.weight}</div>
-                    <div style="font-size: 0.85em; color: #94a3b8;">lbs</div>
+                <div style="background: rgba(255,255,255,0.04); padding:10px 8px;border-radius:10px;text-align:center;">
+                    <div style="font-size:1.15em;font-weight:800; color: #22d3ee;">${latest.weight}</div>
+                    <div style="font-size:0.7em; color: #94a3b8;">lbs</div>
                 </div>
             `;
             
@@ -20282,43 +20303,38 @@
                 else if (latest.bmi >= 30) { bmiColor = '#ef4444'; bmiLabel = 'Obésité'; }
                 
                 summaryHTML += `
-                    <div style="background: rgba(255,255,255,0.04); padding: 15px; border-radius: 10px; text-align: center;">
-                        <div style="font-size: 2em; margin-bottom: 5px;">📊</div>
-                        <div style="font-size: 1.8em; font-weight: 700; color: ${bmiColor};">${latest.bmi}</div>
-                        <div style="font-size: 0.85em; color: #94a3b8;">IMC - ${bmiLabel}</div>
+                    <div style="background: rgba(255,255,255,0.04); padding:10px 8px;border-radius:10px;text-align:center;">
+                        <div style="font-size:1.15em;font-weight:800; color: ${bmiColor};">${latest.bmi}</div>
+                        <div style="font-size:0.7em; color: #94a3b8;">IMC - ${bmiLabel}</div>
                     </div>
                 `;
             }
             
             if (latest.waist) summaryHTML += `
-                <div style="background: rgba(255,255,255,0.04); padding: 15px; border-radius: 10px; text-align: center;">
-                    <div style="font-size: 2em; margin-bottom: 5px;">🟢</div>
-                    <div style="font-size: 1.8em; font-weight: 700; color: #22d3ee;">${latest.waist}"</div>
-                    <div style="font-size: 0.85em; color: #94a3b8;">Taille</div>
+                <div style="background: rgba(255,255,255,0.04); padding:10px 8px;border-radius:10px;text-align:center;">
+                    <div style="font-size:1.15em;font-weight:800; color: #22d3ee;">${latest.waist}"</div>
+                    <div style="font-size:0.7em; color: #94a3b8;">Taille</div>
                 </div>
             `;
             
             if (latest.hips) summaryHTML += `
-                <div style="background: rgba(255,255,255,0.04); padding: 15px; border-radius: 10px; text-align: center;">
-                    <div style="font-size: 2em; margin-bottom: 5px;">🍑</div>
-                    <div style="font-size: 1.8em; font-weight: 700; color: #22d3ee;">${latest.hips}"</div>
-                    <div style="font-size: 0.85em; color: #94a3b8;">Hanches</div>
+                <div style="background: rgba(255,255,255,0.04); padding:10px 8px;border-radius:10px;text-align:center;">
+                    <div style="font-size:1.15em;font-weight:800; color: #22d3ee;">${latest.hips}"</div>
+                    <div style="font-size:0.7em; color: #94a3b8;">Hanches</div>
                 </div>
             `;
             
             if (latest.biceps) summaryHTML += `
-                <div style="background: rgba(255,255,255,0.04); padding: 15px; border-radius: 10px; text-align: center;">
-                    <div style="font-size: 2em; margin-bottom: 5px;">💪</div>
-                    <div style="font-size: 1.8em; font-weight: 700; color: #22d3ee;">${latest.biceps}"</div>
-                    <div style="font-size: 0.85em; color: #94a3b8;">Biceps</div>
+                <div style="background: rgba(255,255,255,0.04); padding:10px 8px;border-radius:10px;text-align:center;">
+                    <div style="font-size:1.15em;font-weight:800; color: #22d3ee;">${latest.biceps}"</div>
+                    <div style="font-size:0.7em; color: #94a3b8;">Biceps</div>
                 </div>
             `;
             
             if (latest.thighs) summaryHTML += `
-                <div style="background: rgba(255,255,255,0.04); padding: 15px; border-radius: 10px; text-align: center;">
-                    <div style="font-size: 2em; margin-bottom: 5px;">🦵</div>
-                    <div style="font-size: 1.8em; font-weight: 700; color: #22d3ee;">${latest.thighs}"</div>
-                    <div style="font-size: 0.85em; color: #94a3b8;">Cuisses</div>
+                <div style="background: rgba(255,255,255,0.04); padding:10px 8px;border-radius:10px;text-align:center;">
+                    <div style="font-size:1.15em;font-weight:800; color: #22d3ee;">${latest.thighs}"</div>
+                    <div style="font-size:0.7em; color: #94a3b8;">Cuisses</div>
                 </div>
             `;
             
@@ -20333,13 +20349,13 @@
                     <table style="width: 100%; border-collapse: collapse;">
                         <thead>
                             <tr style="background: #f8fafc; border-bottom: 1px solid rgba(255,255,255,0.12);">
-                                <th style="padding: 12px; text-align: left; font-weight: 700;">📅 Date</th>
-                                <th style="padding: 12px; text-align: center;">⚖️ Poids</th>
-                                <th style="padding: 12px; text-align: center;">📊 IMC</th>
-                                <th style="padding: 12px; text-align: center;">🟢 Taille</th>
-                                <th style="padding: 12px; text-align: center;">🍑 Hanches</th>
-                                <th style="padding: 12px; text-align: center;">💪 Biceps</th>
-                                <th style="padding: 12px; text-align: center;">🦵 Cuisses</th>
+                                <th style="padding: 12px; text-align: left; font-weight: 700;">Date</th>
+                                <th style="padding: 12px; text-align: center;">Poids</th>
+                                <th style="padding: 12px; text-align: center;">IMC</th>
+                                <th style="padding: 12px; text-align: center;">Taille</th>
+                                <th style="padding: 12px; text-align: center;">Hanches</th>
+                                <th style="padding: 12px; text-align: center;">Biceps</th>
+                                <th style="padding: 12px; text-align: center;">Cuisses</th>
                                 <th style="padding: 12px; text-align: center;">Actions</th>
                             </tr>
                         </thead>
@@ -20378,7 +20394,7 @@
                                         </td>
                                         <td style="padding: 12px; text-align: center;">
                                             <button onclick="deleteMeasurement(${m.id})" 
-                                                    style="background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85em;">
+                                                    style="background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size:0.7em;">
                                                 🗑️
                                             </button>
                                         </td>
@@ -23517,7 +23533,7 @@
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1034);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1038);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -23561,7 +23577,7 @@
                 +       '<feGaussianBlur stdDeviation="2.4" result="b"/>'
                 +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>'
                 +     '</filter></defs>'
-                +     '<image href="' + img + '?v=1034" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1038" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -24245,8 +24261,23 @@
               +       'background:linear-gradient(90deg,#b45309,#fbbf24);border-radius:99px;"></div></div>'
               +   '<div style="font-size:0.62em;color:#94a3b8;font-weight:800;letter-spacing:1px;margin-bottom:16px;">'
               +     b.hp + ' / ' + b.hpMax + ' PV</div>'
-              +   '<div style="font-size:0.76em;color:#cbd5e1;line-height:1.5;margin-bottom:18px;">'
-              +     'Toute la famille frappe la même cible. Chaque séance compte.</div>'
+              +   (b.desc ? '<div style="font-size:0.75em;color:#cbd5e1;line-height:1.5;'
+              +     'margin-bottom:12px;font-style:italic;">' + b.desc + '</div>' : '')
+              +   '<div style="text-align:left;background:rgba(255,255,255,0.03);border-radius:11px;'
+              +     'padding:11px 13px;margin-bottom:16px;font-size:0.72em;color:#94a3b8;line-height:1.6;">'
+              +     '<div style="color:#fbbf24;font-weight:900;letter-spacing:1.5px;'
+              +       'font-size:0.82em;margin-bottom:6px;">COMMENT ÇA MARCHE</div>'
+              +     '· Chaque séance de la famille lui inflige des dégâts.<br>'
+              +     '· Plus tu t\'entraînes dur, plus tu frappes fort.<br>'
+              +     '· Il se régénère si personne ne s\'entraîne.<br>'
+              +     '· Vaincu, chacun reçoit une récompense selon sa part.'
+              +   '</div>'
+              +   (b.participants > 0
+                    ? '<div style="font-size:0.68em;color:#64748b;margin-bottom:14px;">'
+                      + b.participants + ' membre' + (b.participants > 1 ? 's ont' : ' a')
+                      + ' déjà frappé</div>'
+                    : '<div style="font-size:0.68em;color:#64748b;margin-bottom:14px;">'
+                      + 'Personne n\'a encore frappé. Lance une séance.</div>')
               +   '<button onclick="document.getElementById(\'awakFamBossPin\').remove();switchTab(\'family\');" '
               +     'style="width:100%;padding:13px;border-radius:13px;border:none;cursor:pointer;'
               +     'background:linear-gradient(160deg,#fcd34d,#fbbf24 45%,#b45309);'
@@ -28718,7 +28749,7 @@
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1034");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1038");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -32482,15 +32513,7 @@
             // n'était écrit sur disque. Fermer l'app après un Assaut abandonné
             // faisait donc repartir le monstre à plein — précisément le
             // scénario où l'on veut que la progression tienne.
-            // ⚠️ awakRiftsSave() ATTEND la liste complète : l'appeler sans
-            // argument écrirait `undefined` et effacerait TOUTES les Failles.
-            try {
-                if (typeof awakRiftsLoad === 'function' && typeof awakRiftsSave === 'function') {
-                    const _all = awakRiftsLoad();
-                    const _i = _all.findIndex(function (r) { return r && r.id === sess.rift.id; });
-                    if (_i >= 0) { _all[_i] = sess.rift; awakRiftsSave(_all); }
-                }
-            } catch (e) {}
+
             // 💎 Chaque frappe compte comme une SÉRIE d'effort : sans ça,
             // setsCompleted resterait à 0 et dropMineralsForRift renverrait
             // une liste vide — un Assaut ne rapporterait aucun minerai.
@@ -32503,7 +32526,7 @@
                 sess.setsCompleted = Math.floor(sess._frappes / 2);
                 sess.totalDamageDealt = (sess.totalDamageDealt || 0) + degats;
             } catch (e) {}
-            try { awakRiftsSave(awakRiftsLoad().map(r => r.id === sess.rift.id ? sess.rift : r)); } catch (e) {}
+            // (sauvegarde déjà faite plus haut — voir v997)
 
             const pct = Math.round((wave.hpCurrent / (wave.hpMax || 1)) * 100);
             try {
@@ -32538,6 +32561,20 @@
                     try { if (typeof awakCompleteRift === 'function') awakCompleteRift(); } catch (e) {}
                 }
             }
+
+            // 💾 SAUVEGARDE APRÈS l'avancement de vague.
+            // ⚠️ Elle avait lieu AVANT : currentWaveIdx tout juste
+            // incrémenté n'était donc pas écrit sur disque, et la
+            // vague suivante ne démarrait jamais vraiment.
+            // ⚠️ awakRiftsSave() ATTEND la liste complète : l'appeler sans
+            // argument écrirait `undefined` et effacerait TOUTES les Failles.
+            try {
+                if (typeof awakRiftsLoad === 'function' && typeof awakRiftsSave === 'function') {
+                    const _all = awakRiftsLoad();
+                    const _i = _all.findIndex(function (r) { return r && r.id === sess.rift.id; });
+                    if (_i >= 0) { _all[_i] = sess.rift; awakRiftsSave(_all); }
+                }
+            } catch (e) {}
         }
 
         // Barre de vie de l'Assaut, en haut de l'écran d'exercice
@@ -33082,7 +33119,7 @@
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1034);'
+                +     'url(images/combat_bg_v1.webp?v=1038);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -33337,7 +33374,7 @@
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1034);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1038);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -34599,7 +34636,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1034');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1038');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -46154,7 +46191,7 @@
 
             host.innerHTML =
                 '<div style="position:relative;width:110px;margin:0 auto 12px;">'
-              +   '<img src="images/body/body_face.webp?v=1034" alt="" '
+              +   '<img src="images/body/body_face.webp?v=1038" alt="" '
               +     'style="width:100%;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -46236,16 +46273,17 @@
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1034);'
-                       +   'background-size:contain;background-position:center;'
+                       +   'background-image:url(images/miroir_vide.webp?v=1038);'
+                       +   'background-size:cover;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
                        +   '<div>'
-                       +   '<div style="font-family:var(--font-display),sans-serif;font-size:0.98em;'
-                       +     'font-weight:800;color:#cbd5e1;">Ta première photo</div>'
-                       +   '<div style="font-size:0.7em;color:#64748b;margin-top:6px;line-height:1.45;'
-                       +     'max-width:230px;">'
-                       +     'Elles restent sur ton téléphone. Rien n\'est envoyé nulle part.</div>'
+                       +   '<div style="font-family:var(--font-display),sans-serif;font-size:0.88em;'
+                       +     'font-weight:800;color:#e2e8f0;line-height:1.2;'
+                       +     'text-shadow:0 2px 10px rgba(0,0,0,0.9);">Ta première photo</div>'
+                       +   '<div style="font-size:0.62em;color:#94a3b8;margin:6px auto 0;line-height:1.4;'
+                       +     'max-width:160px;text-shadow:0 2px 8px rgba(0,0,0,0.9);">'
+                       +     'Elles restent sur ton téléphone.</div>'
                        +   '</div>'
                        + '</div>';
             }
@@ -48578,7 +48616,7 @@
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1034");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1038");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.

@@ -413,8 +413,15 @@ window.AwakFamilyBossState = function () {
     var hpMax = st.hpMax || b.hp || 1;
     var hp = Math.max(0, st.hpLeft != null ? st.hpLeft : hpMax);
     if (hp <= 0) return null;              // vaincu : plus de point sur la carte
+    // 📖 On renvoie AUSSI la description et le nombre de participants :
+    // la fiche ouverte depuis la carte n'expliquait pas ce qu'est un boss
+    // familial ni comment on l'affronte.
+    var nContrib = 0;
+    try { nContrib = Object.keys(st.contributions || {}).length; } catch (e) {}
     return { id: st.bossId, name: b.name || 'Anomalie familiale',
-             hp: hp, hpMax: hpMax, pct: Math.round((hp / hpMax) * 100) };
+             desc: b.desc || '', color: b.color || '#fbbf24',
+             hp: hp, hpMax: hpMax, pct: Math.round((hp / hpMax) * 100),
+             participants: nContrib };
   } catch (e) { return null; }
 };
 
