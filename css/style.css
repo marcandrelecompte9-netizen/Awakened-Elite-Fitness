@@ -5377,7 +5377,7 @@ body.workout-fullscreen #exerciseView {
     background-color: #08080b;
     background-image:
         linear-gradient(160deg, rgba(8,8,11,0.94) 0%, rgba(8,8,11,0.88) 45%, rgba(8,8,11,0.96) 100%),
-        url(../images/salle_bg_v5.webp?v=1047);
+        url(../images/salle_bg_v5.webp?v=1048);
     /* ⚠️ `../` obligatoire : dans un fichier CSS, une url() relative est
        résolue depuis le DOSSIER DU CSS (css/), pas depuis la page. Sans le
        préfixe, le navigateur chercherait css/images/… et n'afficherait rien. */
@@ -7290,3 +7290,28 @@ img[src*="images/exercises/"] {
 #exercisesTab [style*="#16a34a"],
 #exercisesTab [style*="#4ade80"],
 #exercisesTab [style*="#22c55e"] { color: #93c5fd !important; }
+
+/* 📊 Tableau des mensurations — en-têtes et lignes.
+   ⚠️ La règle globale `th { background: #16a34a; color: white; }` n'a AUCUNE
+   surcharge en mode sombre : les en-têtes du tableau d'historique restaient
+   verts, et le blanc du texte tranchait sur les lignes. Le style en ligne
+   posé dans le JS ne suffisait pas — `th` porte aussi un fond. */
+body.dark-mode #measurementsDisplay th {
+    background: rgba(96,168,240,0.10) !important;
+    color: #93c5fd !important;
+    font-size: 0.62em;
+    letter-spacing: 0.5px;
+    padding: 8px 6px !important;
+}
+body.dark-mode #measurementsDisplay td {
+    color: #cbd5e1;
+    font-size: 0.74em;
+    padding: 8px 6px !important;
+}
+body.dark-mode #measurementsDisplay tr {
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+/* Lignes alternées : lecture facilitée sans fond clair. */
+body.dark-mode #measurementsDisplay tbody tr:nth-child(even) {
+    background: rgba(255,255,255,0.02);
+}
