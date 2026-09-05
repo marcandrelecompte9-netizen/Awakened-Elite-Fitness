@@ -307,6 +307,29 @@
   function _lbsToKg(v) { return Math.round(v * 0.453592); }
   // Renvoie [{ disp (valeur affichée dans l'unité), store (valeur stockée en kg
   // pour le volume, brute sinon), m (membres recommandés) }]
+
+  // 📖 Ce que chaque objectif mesure, en clair. ⚠️ Les boutons de choix
+  // n'affichaient qu'un mot (« séances », « minutes ») : impossible de
+  // savoir ce qui compte, ni si un enfant peut y contribuer.
+  var GOAL_INFO = {
+    sessions:  { desc: 'Chaque séance terminée compte pour 1.',
+                 qui: 'Tout le monde' },
+    jours:     { desc: 'Un jour où au moins une personne bouge compte pour 1.',
+                 qui: 'Tout le monde' },
+    ensemble:  { desc: 'Seules les séances faites à deux ou plus comptent.',
+                 qui: 'Tout le monde' },
+    varietes:  { desc: 'Chaque exercice jamais fait auparavant compte pour 1.',
+                 qui: 'Tout le monde' },
+    matins:    { desc: 'Les séances terminées avant midi comptent pour 1.',
+                 qui: 'Tout le monde' },
+    volume:    { desc: 'Le poids total soulevé s\'additionne.',
+                 qui: 'Adultes surtout' },
+    duration:  { desc: 'Les minutes d\'entraînement s\'additionnent.',
+                 qui: 'Tout le monde' },
+    exercises: { desc: 'Chaque exercice réalisé compte pour 1.',
+                 qui: 'Tout le monde' }
+  };
+
   function _presetList(type, def) {
     if (type === 'volume') {
       if (_volIsLbs()) return _VOL_PRESETS_LBS.map(function (v, i) { return { disp: v, store: _lbsToKg(v), m: _PRESET_MEMBERS[i] }; });
@@ -387,6 +410,19 @@
       +   '<div style="height:100%;width:' + st.pct + '%;background:linear-gradient(90deg,' + barColor + ',' + (st.reached ? '#f59e0b' : '#1d5fa8') + ');border-radius:8px;transition:width 0.4s;"></div>'
       + '</div>'
       + '<div style="text-align:right;font-size:0.78em;font-weight:800;color:' + barColor + ';margin-bottom:14px;">' + st.pct + '%</div>'
+      + (function () {
+        var inf = GOAL_INFO[st.type] || {};
+        if (!inf.desc) return '';
+        return '<div style="background:rgba(255,255,255,0.03);border-radius:10px;'
+          + 'padding:9px 11px;margin-bottom:12px;font-size:0.68em;color:#94a3b8;'
+          + 'line-height:1.45;">' + esc(inf.desc)
+          + (st.daysLeft > 0
+              ? '<br><span style="color:#cbd5e1;font-weight:700;">'
+                + st.daysLeft + ' jour' + (st.daysLeft > 1 ? 's' : '') + ' restant'
+                + (st.daysLeft > 1 ? 's' : '') + '.</span>'
+              : '<br><span style="color:#f87171;font-weight:700;">Dernier jour.</span>')
+          + '</div>';
+      })()
       + '<div style="font-size:0.72em;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Contributions</div>'
       + members
       + titreBloc
@@ -401,9 +437,21 @@
       return !(k === 'volume' && _familleAvecEnfant());
     }).map(function (k) {
       var d = GOAL_TYPES[k];
-      return '<button onclick="AwakFamilyGoalPick(\'' + k + '\')" data-goaltype="' + k + '" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 6px;border-radius:12px;cursor:pointer;border:2px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);color:#fff;">'
-        + '<span style="font-size:1.5em;">' + d.emoji + '</span>'
-        + '<span style="font-size:0.74em;font-weight:700;">' + esc(_dispLabel(k, d)) + '</span></button>';
+      var info = GOAL_INFO[k] || {};
+      return '<button onclick="AwakFamilyGoalPick(\'' + k + '\')" data-goaltype="' + k + '" '
+        + 'style="display:flex;align-items:flex-start;gap:10px;text-align:left;'
+        + 'padding:11px 12px;border-radius:12px;cursor:pointer;width:100%;'
+        + 'border:1px solid rgba(255,255,255,0.10);background:rgba(255,255,255,0.03);color:#fff;">'
+        + '<span style="font-size:1.3em;flex-shrink:0;line-height:1.1;">' + d.emoji + '</span>'
+        + '<span style="flex:1;min-width:0;">'
+        +   '<span style="display:block;font-size:0.78em;font-weight:800;">'
+        +     esc(_dispLabel(k, d)) + '</span>'
+        +   (info.desc ? '<span style="display:block;font-size:0.63em;color:#94a3b8;'
+        +     'margin-top:3px;line-height:1.35;">' + esc(info.desc) + '</span>' : '')
+        +   (info.qui ? '<span style="display:inline-block;font-size:0.55em;font-weight:700;'
+        +     'letter-spacing:0.4px;margin-top:5px;padding:2px 6px;border-radius:5px;'
+        +     'background:rgba(96,168,240,0.12);color:#93c5fd;">' + esc(info.qui) + '</span>' : '')
+        + '</span></button>';
     }).join('');
 
     var overlay = document.createElement('div');
@@ -416,7 +464,7 @@
       + '<div style="font-size:1.15em;font-weight:900;color:#fff;margin-bottom:4px;">🎯 Objectif commun</div>'
       + '<div style="font-size:0.78em;color:#94a3b8;margin-bottom:16px;">Choisissez ce que vous voulez accomplir ensemble.</div>'
       + '<div style="font-size:0.72em;color:#64748b;font-weight:700;margin-bottom:6px;">TYPE</div>'
-      + '<div id="goalTypeGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px;">' + typeButtons + '</div>'
+      + '<div id="goalTypeGrid" style="display:flex;flex-direction:column;gap:7px;margin-bottom:16px;">' + typeButtons + '</div>'
       + '<div id="goalTargetZone"></div>'
       + '<button onclick="document.getElementById(\'awakGoalModal\').remove()" style="width:100%;padding:11px;border:none;border-radius:11px;cursor:pointer;background:rgba(255,255,255,0.05);color:#94a3b8;font-weight:700;font-size:0.82em;margin-top:8px;">Annuler</button>'
       + '</div>';
