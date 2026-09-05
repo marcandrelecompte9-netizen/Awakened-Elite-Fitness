@@ -944,7 +944,7 @@
                 const _cptBanner = _nActifs > 0
                     ? '<div style="font-size:0.66em;color:#60a8f0;font-weight:800;'
                       + 'letter-spacing:1px;margin-bottom:10px;">◈ ' + _nActifs
-                      + ' DÉFI' + (_nActifs > 1 ? 'S' : '') + ' EN COURS — tu peux en mener plusieurs</div>'
+                      + ' DÉFI' + (_nActifs > 1 ? 'S' : '') + ' EN COURS · build 1060</div>'
                     : '';
                 challengesList.innerHTML = _cptBanner + _recoBanner + challengesDatabase.map(challenge => `
                     <div style="background: linear-gradient(160deg, #0a0e18 0%, #0F1014 100%); padding: 20px; border-radius: 14px; margin-bottom: 16px; border: 1.5px solid ${challenge.color}40; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 18px rgba(0,0,0,0.25), 0 0 0 1px ${challenge.color}10 inset;" onclick="showChallengeDetails('${challenge.id}')">
@@ -1024,6 +1024,20 @@
                                         // ⚠️ ABANDON PAR DÉFI : la zone du haut n'affiche
                                         // que le premier actif, donc les défis suivants
                                         // n'avaient aucun bouton pour être quittés.
+                                        const _today = new Date().toISOString().split('T')[0];
+                                        const _dejaFait = _actif
+                                            && (_actif.completedDays || []).indexOf(_today) !== -1;
+                                        const _valider = (_actif && !_dejaFait)
+                                            ? `<button onclick="event.stopPropagation(); completeTodayChallenge('${challenge.id}')" `
+                                              + `style="margin-top:8px;width:100%;padding:12px;border-radius:11px;border:none;`
+                                              + `cursor:pointer;background:${challenge.color};color:#04162b;`
+                                              + `font-size:0.8em;font-weight:900;letter-spacing:0.5px;">`
+                                              + `VALIDER MA JOURNÉE</button>`
+                                            : (_dejaFait
+                                                ? `<div style="margin-top:8px;text-align:center;font-size:0.72em;`
+                                                  + `color:#4ade80;font-weight:800;padding:9px;">`
+                                                  + `Journée déjà validée</div>`
+                                                : '');
                                         const _abandon = _actif
                                             ? `<button onclick="event.stopPropagation(); abandonChallenge('${challenge.id}')" `
                                               + `style="margin-top:7px;width:100%;padding:9px;border-radius:10px;cursor:pointer;`
@@ -1032,7 +1046,7 @@
                                             : '';
                                         return `<div style="flex:1;"><button onclick="event.stopPropagation(); ${_fn}" style="background: linear-gradient(135deg, ${challenge.color} 0%, ${challenge.color}cc 100%); color: white; border: none; border-radius: 10px; padding: 11px 14px; font-size: 0.85em; font-weight: 800; width:100%; cursor: pointer; box-shadow: 0 4px 14px ${challenge.color}30;">
                                             ${_lbl}
-                                        </button>${_abandon}</div>`;
+                                        </button>${_valider}${_abandon}</div>`;
                                     })()}
                                     <div style="padding: 9px 12px; background: rgba(255,255,255,0.03); border-radius: 10px; font-weight: 700; color: ${challenge.color}; border: 1px solid ${challenge.color}40; font-size: 0.8em;">
                                         📅 ${challenge.duration}j
@@ -15423,7 +15437,9 @@
             host.innerHTML =
               '<div class="card" onclick="if(window.AwakPainOpen)AwakPainOpen();" style="cursor:pointer;background:linear-gradient(135deg,rgba(239,68,68,0.06),rgba(239,68,68,0.02));border:1px solid rgba(239,68,68,' + (n ? '0.35' : '0.18') + ');">'
             + '<div style="display:flex;align-items:center;gap:13px;">'
-            +   '<div style="font-size:1.7em;line-height:1;flex-shrink:0;">🤕</div>'
+            +   '<svg viewBox="0 0 24 24" width="24" height="24" style="flex-shrink:0;" '
+            +     'aria-hidden="true"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z" '
+            +     'fill="' + (n ? '#ef4444' : 'rgba(239,68,68,0.45)') + '"/></svg>'
             +   '<div style="flex:1;min-width:0;">'
             +     '<div style="font-weight:900;color:' + (n ? '#f87171' : '#e2e8f0') + ';font-size:0.95em;margin-bottom:2px;">Où as-tu mal ?</div>'
             +     '<div style="font-size:0.76em;color:#94a3b8;line-height:1.4;">' + sub + '</div>'
@@ -23629,7 +23645,7 @@
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1056);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1060);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -23673,7 +23689,7 @@
                 +       '<feGaussianBlur stdDeviation="2.4" result="b"/>'
                 +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>'
                 +     '</filter></defs>'
-                +     '<image href="' + img + '?v=1056" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1060" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -28845,7 +28861,7 @@
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1056");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1060");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -33215,7 +33231,7 @@
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1056);'
+                +     'url(images/combat_bg_v1.webp?v=1060);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -33470,7 +33486,7 @@
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1056);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1060);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -34732,7 +34748,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1056');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1060');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -35467,7 +35483,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1056);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1060);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -35638,7 +35654,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1056);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1060);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -44803,11 +44819,10 @@
                 if (typeof showToast === 'function') showToast('⚠️ Rechargement nécessaire pour changer de profil', 'warning', 2800);
                 return;
             }
-            // Un seul profil : rien à sélectionner → on propose d'en créer un.
-            if (profiles.length <= 1) {
-                if (typeof showCreateProfileModal === 'function') showCreateProfileModal();
-                return;
-            }
+            // ⚠️ Ne PAS court-circuiter quand il n'y a qu'un profil : la modale
+            // sert aussi à le MODIFIER (bouton ✏️) et à en créer un second.
+            // Le raccourci vers showCreateProfileModal() rendait la
+            // modification inaccessible tant qu'on était seul.
             
             container.innerHTML = profiles.map(profile => {
                 const isCurrent = profile.id === currentId;
@@ -46315,7 +46330,7 @@
 
             host.innerHTML =
                 '<div style="position:relative;width:110px;margin:0 auto 12px;">'
-              +   '<img src="images/body/body_face.webp?v=1056" alt="" '
+              +   '<img src="images/body/body_face.webp?v=1060" alt="" '
               +     'style="width:100%;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -46397,7 +46412,7 @@
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1056);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1060);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -46509,6 +46524,10 @@
         }
 
         function updateHomeStats() {
+            // 🩹 Carte « J'ai mal » : elle n'était rendue QUE depuis
+            // awakSetHomeCardHidden() — donc jamais à l'ouverture de
+            // l'accueil, et le bouton n'apparaissait pas.
+            try { if (typeof awakRenderPainCard === 'function') awakRenderPainCard(); } catch (e) {}
             try { if (typeof awakMajBoutonProfil === 'function') awakMajBoutonProfil(); } catch (e) {}
             // 🏠 En-tête recalculé à chaque affichage : les stats et le
             // programme du jour changent.
@@ -48759,7 +48778,7 @@
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1056");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1060");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
