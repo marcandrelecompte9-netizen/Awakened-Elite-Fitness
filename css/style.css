@@ -5377,7 +5377,7 @@ body.workout-fullscreen #exerciseView {
     background-color: #08080b;
     background-image:
         linear-gradient(160deg, rgba(8,8,11,0.94) 0%, rgba(8,8,11,0.88) 45%, rgba(8,8,11,0.96) 100%),
-        url(../images/salle_bg_v5.webp?v=1060);
+        url(../images/salle_bg_v5.webp?v=1062);
     /* ⚠️ `../` obligatoire : dans un fichier CSS, une url() relative est
        résolue depuis le DOSSIER DU CSS (css/), pas depuis la page. Sans le
        préfixe, le navigateur chercherait css/images/… et n'afficherait rien. */
@@ -7373,7 +7373,8 @@ body.dark-mode tr:nth-child(even) td {
    des couleurs de thème CLAIR, presque invisibles sur fond sombre.
    ══════════════════════════════════════════════════════════════════════ */
 #profileSelectionModal .modal-content,
-#profileSetupModal .modal-content {
+#profileSetupModal .modal-content,
+#profileEditorModal .modal-content {
     font-family: 'SFMono-Regular', 'Consolas', 'Liberation Mono', 'Menlo', monospace;
     background: linear-gradient(160deg, #101822, #0a0d13) !important;
     border: 1px solid rgba(96,168,240,0.28) !important;
@@ -7425,6 +7426,7 @@ body.dark-mode tr:nth-child(even) td {
 }
 
 /* Grille d'avatars : encoches carrées */
+#profileEditorModal .avatar-option,
 #profileSetupModal .avatar-option,
 #profileSelectionModal .avatar-option {
     font-size: 1.4em !important;
@@ -7433,6 +7435,9 @@ body.dark-mode tr:nth-child(even) td {
 }
 
 /* Champs et boutons : mêmes encoches que la console */
+#profileEditorModal input[type="text"],
+#profileEditorModal input[type="number"],
+#profileEditorModal select,
 #profileSetupModal input[type="text"],
 #profileSetupModal input[type="number"],
 #profileSetupModal input[type="date"],
@@ -7444,6 +7449,8 @@ body.dark-mode tr:nth-child(even) td {
     font-family: inherit !important;
     font-size: 0.82em !important;
 }
+#profileEditorModal input:focus,
+#profileEditorModal select:focus,
 #profileSetupModal input:focus,
 #profileSetupModal select:focus {
     outline: none !important;
@@ -7451,6 +7458,7 @@ body.dark-mode tr:nth-child(even) td {
     box-shadow: 0 0 0 2px rgba(96,168,240,0.12) !important;
 }
 #profileSelectionModal .btn,
+#profileEditorModal .btn,
 #profileSetupModal .btn {
     background: rgba(96,168,240,0.08) !important;
     border: 1px solid rgba(96,168,240,0.34) !important;
@@ -7461,6 +7469,7 @@ body.dark-mode tr:nth-child(even) td {
     box-shadow: none !important;
 }
 #profileSelectionModal .btn-secondary,
+#profileEditorModal .btn-secondary,
 #profileSetupModal .btn-secondary {
     background: rgba(255,255,255,0.03) !important;
     border-color: rgba(255,255,255,0.12) !important;
@@ -7532,3 +7541,16 @@ body.dark-mode tr:nth-child(even) td {
     border: 1px solid rgba(96,168,240,0.18) !important;
     border-radius: 8px !important;
 }
+
+
+/* 👤 Éditeur de profil (création / modification) — mêmes titres. */
+#profileEditorModal .modal-header h2 {
+    font-family: 'SFMono-Regular', 'Consolas', 'Liberation Mono', 'Menlo', monospace;
+    font-size: 0.95em !important;
+    color: #e2e8f0 !important;
+}
+#profileEditorModal .modal-header h2::before { content: '> '; color: #60a8f0; }
+#profileEditorModal .modal-body { font-family: 'SFMono-Regular', 'Consolas', 'Liberation Mono', 'Menlo', monospace; }
+/* ⚠️ Libellés en #16a34a (vert du thème d'origine) → bleu de la console. */
+#profileEditorModal [style*="#16a34a"] { color: #93c5fd !important; }
+#profileEditorModal .close-btn { color: #64748b !important; }
