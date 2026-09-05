@@ -11,11 +11,11 @@
     <title>Awakened Elite Fitness</title>
 
     <!-- PWA -->
-    <link rel="manifest" href="manifest.json?v=1062">
-    <link rel="apple-touch-icon" href="icons/icon-192.png?v=1062">
-    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=1062">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=1062">
-    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=1062">
+    <link rel="manifest" href="manifest.json?v=1067">
+    <link rel="apple-touch-icon" href="icons/icon-192.png?v=1067">
+    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=1067">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=1067">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=1067">
 
     <!-- ⚠️ CAPTURE PRÉCOCE DE L'INVITE D'INSTALLATION.
          Chrome déclenche « beforeinstallprompt » très tôt, souvent AVANT la fin
@@ -44,7 +44,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=1062">
+    <link rel="stylesheet" href="css/style.css?v=1067">
 </head>
 <body>
 
@@ -208,8 +208,8 @@
                  (ratio 1,55), donc plus haute et lisible.
                  <picture> laisse le navigateur choisir, sans JavaScript. -->
             <picture>
-                <source media="(min-width: 700px)" srcset="images/banner_v3.webp?v=1062">
-                <img src="images/banner_v3_mobile.webp?v=1062"
+                <source media="(min-width: 700px)" srcset="images/banner_v3.webp?v=1067">
+                <img src="images/banner_v3_mobile.webp?v=1067"
                      alt="Awakened Elite Fitness"
                      style="width:100%;height:auto;display:block;" />
             </picture>
@@ -324,25 +324,32 @@
                     <div style="height:1px;margin:16px 0 14px;background:linear-gradient(90deg,transparent,rgba(34,197,94,0.5) 20%,rgba(34,197,94,0.5) 80%,transparent);"></div>
 
                     <!-- Relevé : 4 mesures séparées par des filets -->
-                    <div style="display:grid;grid-template-columns:repeat(4,1fr);">
-                        <div style="text-align:center;padding:0 3px;">
-                            <div id="homeStatWorkouts" style="font-size:1.6em;font-weight:900;color:#fff;letter-spacing:-1.5px;line-height:1;">0</div>
-                            <div style="font-size:0.55em;color:rgba(255,255,255,0.45);margin-top:5px;font-weight:800;letter-spacing:1.2px;">SÉANCES</div>
+                        <!-- 📊 RELEVÉ (v1066) : 2 mesures au lieu de 4.
+                             ⚠️ « Séances » et « Minutes » étaient des TOTAUX cumulatifs :
+                             ils montent sans fin et ne répondent à aucune question. On garde
+                             la série (rythme actuel) et la semaine (glissante).
+                             Style console, comme les Réglages depuis v1018. -->
+                        <div style="display:flex;gap:8px;">
+                            <div style="flex:1;min-width:0;padding:10px 12px;border-radius:8px;
+                                        background:#070b12;border:1px solid rgba(251,191,36,0.16);
+                                        border-left:2px solid rgba(251,191,36,0.5);">
+                                <div id="homeStatStreak" style="font-family:'SFMono-Regular','Consolas',monospace;
+                                     font-size:1.25em;font-weight:900;color:#fbbf24;line-height:1;">0</div>
+                                <div style="font-family:'SFMono-Regular','Consolas',monospace;font-size:0.55em;
+                                     color:#64748b;margin-top:5px;font-weight:800;letter-spacing:1.2px;">JOURS DE SUITE</div>
+                            </div>
+                            <div style="flex:1;min-width:0;padding:10px 12px;border-radius:8px;
+                                        background:#070b12;border:1px solid rgba(96,168,240,0.16);
+                                        border-left:2px solid rgba(96,168,240,0.5);">
+                                <div id="homeStatWeek" style="font-family:'SFMono-Regular','Consolas',monospace;
+                                     font-size:1.25em;font-weight:900;color:#60a8f0;line-height:1;">0</div>
+                                <div style="font-family:'SFMono-Regular','Consolas',monospace;font-size:0.55em;
+                                     color:#64748b;margin-top:5px;font-weight:800;letter-spacing:1.2px;">CETTE SEMAINE</div>
+                            </div>
                         </div>
-                        <div style="text-align:center;padding:0 3px;border-left:1px solid rgba(255,255,255,0.07);">
-                            <div id="homeStatStreak" style="font-size:1.6em;font-weight:900;color:#fbbf24;letter-spacing:-1.5px;line-height:1;text-shadow:0 0 16px rgba(251,191,36,0.4);">0🔥</div>
-                            <div style="font-size:0.55em;color:rgba(255,255,255,0.45);margin-top:5px;font-weight:800;letter-spacing:1.2px;">SÉRIE</div>
-                        </div>
-                        <div style="text-align:center;padding:0 3px;border-left:1px solid rgba(255,255,255,0.07);">
-                            <div id="homeStatMinutes" style="font-size:1.6em;font-weight:900;color:#fff;letter-spacing:-1.5px;line-height:1;">0</div>
-                            <div style="font-size:0.55em;color:rgba(255,255,255,0.45);margin-top:5px;font-weight:800;letter-spacing:1.2px;">MINUTES</div>
-                        </div>
-                        <div style="text-align:center;padding:0 3px;border-left:1px solid rgba(255,255,255,0.07);">
-                            <div id="homeStatWeek" style="font-size:1.6em;font-weight:900;color:#4ade80;letter-spacing:-1.5px;line-height:1;text-shadow:0 0 16px rgba(74,222,128,0.4);">0/7</div>
-                            <div style="font-size:0.55em;color:rgba(255,255,255,0.45);margin-top:5px;font-weight:800;letter-spacing:1.2px;">SEMAINE</div>
-                        </div>
-                <!-- Équerres d'angle : la « fenêtre du Système » -->
-                    </div>
+                        <!-- ⚠️ Conteneurs CONSERVÉS mais masqués : updateHomeStats() y écrit,
+                             les retirer ferait planter la fonction (piège de v988). -->
+                        <div style="display:none;"><span id="homeStatWorkouts"></span><span id="homeStatMinutes"></span></div>
             <div id="homeHeader"></div>
             <div id="quickActionsCard" style="padding:0;margin-top:4px;">
                 <div style="font-size:0.6em;color:#94a3b8;font-weight:900;letter-spacing:2px;margin-bottom:10px;">ACTIONS RAPIDES</div>
@@ -3815,39 +3822,39 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/exercises.js?v=1062"></script>
-    <script src="data/items.js?v=1062"></script>
-    <script src="js/adventure.js?v=1062"></script>
-    <script src="js/economy.js?v=1062"></script>
-    <script src="js/challenges.js?v=1062"></script>
-    <script src="js/family-boss.js?v=1062"></script>
-    <script src="js/family-network.js?v=1062"></script>
-    <script src="js/family-challenge.js?v=1062"></script>
-    <script src="js/family-goal.js?v=1062"></script>
-    <script src="js/family-feed.js?v=1062"></script>
-    <script src="js/pre-workout-mood.js?v=1062"></script>
-    <script src="js/group-workout.js?v=1062"></script>
-    <script src="js/youth-safety.js?v=1062"></script>
-    <script src="js/kids-programs.js?v=1062"></script>
-    <script src="js/senior-programs.js?v=1062"></script>
-    <script src="js/adaptive.js?v=1062"></script>
-    <script src="js/pain-mode.js?v=1062"></script>
-    <script src="js/recovery-mode.js?v=1062"></script>
-    <script src="js/exercise-visuals.js?v=1062"></script>
-    <script src="js/strength-standards.js?v=1062"></script>
-    <script src="js/system-cards.js?v=1062"></script>
-    <script src="js/share-card.js?v=1062"></script>
-    <script src="js/story-events.js?v=1062"></script>
-    <script src="js/final-boss.js?v=1062"></script>
-    <script src="js/disciplines.js?v=1062"></script>
-    <script src="js/eveil.js?v=1062"></script>
-    <script src="js/app.js?v=1062"></script>
-    <script src="js/awakening-tree.js?v=1062"></script>
-    <script src="js/ui-kit.js?v=1062"></script>
-    <script src="js/feature-map.js?v=1062"></script>
-    <script src="js/weekly-recap.js?v=1062"></script>
-    <script src="js/workout-games.js?v=1062"></script>
-    <script src="js/kids-games.js?v=1062"></script>
+    <script src="js/exercises.js?v=1067"></script>
+    <script src="data/items.js?v=1067"></script>
+    <script src="js/adventure.js?v=1067"></script>
+    <script src="js/economy.js?v=1067"></script>
+    <script src="js/challenges.js?v=1067"></script>
+    <script src="js/family-boss.js?v=1067"></script>
+    <script src="js/family-network.js?v=1067"></script>
+    <script src="js/family-challenge.js?v=1067"></script>
+    <script src="js/family-goal.js?v=1067"></script>
+    <script src="js/family-feed.js?v=1067"></script>
+    <script src="js/pre-workout-mood.js?v=1067"></script>
+    <script src="js/group-workout.js?v=1067"></script>
+    <script src="js/youth-safety.js?v=1067"></script>
+    <script src="js/kids-programs.js?v=1067"></script>
+    <script src="js/senior-programs.js?v=1067"></script>
+    <script src="js/adaptive.js?v=1067"></script>
+    <script src="js/pain-mode.js?v=1067"></script>
+    <script src="js/recovery-mode.js?v=1067"></script>
+    <script src="js/exercise-visuals.js?v=1067"></script>
+    <script src="js/strength-standards.js?v=1067"></script>
+    <script src="js/system-cards.js?v=1067"></script>
+    <script src="js/share-card.js?v=1067"></script>
+    <script src="js/story-events.js?v=1067"></script>
+    <script src="js/final-boss.js?v=1067"></script>
+    <script src="js/disciplines.js?v=1067"></script>
+    <script src="js/eveil.js?v=1067"></script>
+    <script src="js/app.js?v=1067"></script>
+    <script src="js/awakening-tree.js?v=1067"></script>
+    <script src="js/ui-kit.js?v=1067"></script>
+    <script src="js/feature-map.js?v=1067"></script>
+    <script src="js/weekly-recap.js?v=1067"></script>
+    <script src="js/workout-games.js?v=1067"></script>
+    <script src="js/kids-games.js?v=1067"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>

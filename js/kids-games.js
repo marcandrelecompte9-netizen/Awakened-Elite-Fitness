@@ -272,10 +272,16 @@
     +     'color:#04162b;font-weight:900;font-size:0.86em;letter-spacing:1px;'
     +     'box-shadow:0 0 24px rgba(96,168,240,0.3);">'
     +     'COMMENCER · ' + (j.duree * j.manches) + ' MIN</button>'
+    +   '<div style="display:flex;gap:8px;margin-top:8px;">'
     +   '<button onclick="AwakKidsOpen()" '
-    +     'style="width:100%;padding:11px;margin-top:8px;border-radius:13px;cursor:pointer;'
+    +     'style="flex:1;padding:11px;border-radius:13px;cursor:pointer;'
     +     'background:transparent;border:1px solid rgba(255,255,255,0.12);'
     +     'color:#94a3b8;font-size:0.72em;font-weight:800;">← AUTRE JEU</button>'
+    +   '<button onclick="document.getElementById(\'awakKidsDetail\')?.remove()" '
+    +     'style="flex:1;padding:11px;border-radius:13px;cursor:pointer;'
+    +     'background:transparent;border:1px solid rgba(255,255,255,0.12);'
+    +     'color:#94a3b8;font-size:0.72em;font-weight:800;">FERMER</button>'
+    +   '</div>'
     + '</div>';
     ov.onclick = function (e) { if (e.target === ov) ov.remove(); };
     document.body.appendChild(ov);
@@ -352,6 +358,10 @@
     +     'style="width:100%;padding:14px;border-radius:14px;cursor:pointer;margin-bottom:8px;'
     +     'background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);'
     +     'color:#cbd5e1;font-weight:800;font-size:0.8em;">PAUSE</button>'
+    +   '<button onclick="AwakKidsQuitter()" '
+    +     'style="width:100%;padding:12px;border-radius:14px;cursor:pointer;margin-bottom:8px;'
+    +     'background:transparent;border:1px solid rgba(255,255,255,0.12);'
+    +     'color:#94a3b8;font-weight:800;font-size:0.74em;">QUITTER SANS ENREGISTRER</button>'
     +   '<button onclick="AwakKidsFinir()" '
     +     'style="width:100%;padding:14px;border-radius:14px;border:none;cursor:pointer;'
     +     'background:linear-gradient(160deg,#93c5fd,#60a8f0 45%,#164e8a);'
@@ -369,6 +379,14 @@
   };
 
   global.AwakKidsFinir = function () { _fin(); };
+
+  // 🚪 Quitter sans enregistrer : l'écran de jeu n'offrait que
+  // « TERMINER MAINTENANT », qui clôt la partie ET l'enregistre.
+  global.AwakKidsQuitter = function () {
+    if (tic) { clearInterval(tic); tic = null; }
+    partie = null;
+    document.getElementById('awakKidsPlay')?.remove();
+  };
 
   function _fin() {
     if (tic) { clearInterval(tic); tic = null; }

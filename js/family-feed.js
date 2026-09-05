@@ -115,7 +115,9 @@
     REACTIONS: REACTIONS,
     buildFeed: buildFeed,
     toggleReaction: toggleReaction,
-    reactionsFor: reactionsFor
+    reactionsFor: reactionsFor,
+    renderCard: renderCard,
+    render: renderCard
   };
 
   // ── INTERFACE ──────────────────────────────────────────────────────

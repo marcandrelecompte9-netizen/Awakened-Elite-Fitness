@@ -223,12 +223,12 @@
     if (active.length > 0) {
       var names = active.map(function (id) { var z = zoneById(id); return z ? z.emoji + ' ' + z.label : ''; }).filter(Boolean).join(', ');
       return '<button onclick="AwakPainOpen()" style="width:100%;padding:13px 15px;border:1px solid rgba(245,158,11,0.5);border-radius:14px;cursor:pointer;background:rgba(245,158,11,0.1);color:#f59e0b;font-weight:800;font-size:0.86em;text-align:left;display:flex;align-items:center;gap:10px;">'
-        + '<span style="font-size:1.3em;">🤕</span>'
+        + '<svg viewBox="0 0 24 24" width="21" height="21" style="flex-shrink:0;" aria-hidden="true"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z" fill="#ef4444"/></svg>'
         + '<span style="flex:1;min-width:0;">Douleur signalée : <span style="color:#fcd34d;">' + esc(names) + '</span><br><span style="font-size:0.82em;color:#94a3b8;font-weight:600;">Les séances éviteront ces zones · touche pour modifier</span></span>'
         + '</button>';
     }
     return '<button onclick="AwakPainOpen()" style="width:100%;padding:12px 15px;border:1px solid rgba(255,255,255,0.12);border-radius:14px;cursor:pointer;background:rgba(255,255,255,0.03);color:#cbd5e1;font-weight:700;font-size:0.84em;text-align:left;display:flex;align-items:center;gap:10px;">'
-      + '<span style="font-size:1.25em;">🤕</span>'
+      + '<svg viewBox="0 0 24 24" width="20" height="20" style="flex-shrink:0;" aria-hidden="true"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z" fill="#ef4444"/></svg>'
       + '<span style="flex:1;">J\'ai mal quelque part<br><span style="font-size:0.82em;color:#64748b;font-weight:600;">Adapte la séance en évitant une zone douloureuse</span></span>'
       + '</button>';
   }
@@ -264,7 +264,7 @@
     overlay.onclick = function (e) { if (e.target === overlay) _closeModal(); };
     overlay.innerHTML = '<div style="background:linear-gradient(160deg,#1a1410,#0d0d12);border-top:1px solid rgba(245,158,11,0.35);border-radius:22px 22px 0 0;padding:22px;max-width:460px;width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(0,0,0,0.6);">'
       + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:5px;">'
-      +   '<span style="font-size:1.5em;">🤕</span>'
+      +   '<svg viewBox="0 0 24 24" width="24" height="24" style="flex-shrink:0;" aria-hidden="true"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z" fill="#ef4444"/></svg>'
       +   '<div style="flex:1;"><div style="font-size:1.1em;font-weight:900;color:#fff;">Où as-tu mal ?</div>'
       +   '<div style="font-size:0.76em;color:#94a3b8;">Sélectionne les zones à éviter aujourd\'hui.</div></div>'
       + '</div>'
