@@ -283,13 +283,21 @@
     try {
       if (window.AwakFamilyChallenge && window.AwakFamilyChallenge.myChallenges) {
         var actifs = (window.AwakFamilyChallenge.myChallenges() || [])
-          .filter(function (c) { return c && !c.ended; });
-        actifs.slice(0, 2).forEach(function (c) {
+          .filter(function (c) { return !!c; });
+        actifs.slice(0, 3).forEach(function (c) {
+          var fini = !!c.ended;
+          var issue = !fini ? ''
+            : (c.myScore === c.oppScore ? 'Égalité'
+               : (c.myScore > c.oppScore ? 'Gagné' : 'Perdu'));
           lignes.push({
-            emoji: '⚔️', col: c.isMeLeading ? '#4ade80' : '#f59e0b',
-            titre: 'Duel · ' + ((c.opponent && c.opponent.name) || 'Membre'),
+            emoji: '⚔️',
+            col: fini
+              ? (issue === 'Gagné' ? '#4ade80' : issue === 'Perdu' ? '#f87171' : '#94a3b8')
+              : (c.isMeLeading ? '#4ade80' : '#f59e0b'),
+            titre: (fini ? issue + ' · ' : 'Duel · ') + ((c.opponent && c.opponent.name) || 'Membre'),
             detail: c.myScore + ' – ' + c.oppScore
-                  + (c.daysLeft ? ' · ' + c.daysLeft + ' j restants' : ''),
+                  + (fini ? ' · terminé'
+                          : (c.daysLeft ? ' · ' + c.daysLeft + ' j restants' : '')),
             pct: null,
             action: 'AwakFamilyChallengeOpen()'
           });
@@ -736,7 +744,7 @@
       +     '<defs><filter id="constLueur"><feGaussianBlur stdDeviation="3" result="b"/>'
       +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>'
       // 🌌 Nébuleuse de fond : remplace la poussière d'étoiles dessinée.
-      +     '<image href="images/constellation_bg.webp?v=1067" x="0" y="0" width="300" height="300" '
+      +     '<image href="images/constellation_bg.webp?v=1072" x="0" y="0" width="300" height="300" '
       +       'preserveAspectRatio="xMidYMid slice" opacity="0.95"/>'
       +     anneau
       +     fils

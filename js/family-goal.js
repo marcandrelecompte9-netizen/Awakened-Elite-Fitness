@@ -231,6 +231,45 @@
   }
 
   // État complet de l'objectif : total, par membre, %, jours restants.
+  // 🎉 QUI A DÉJÀ VU LA RÉUSSITE.
+  // ⚠️ `celebrated` est un drapeau GLOBAL à l'objectif : le premier profil
+  // qui ouvrait l'app le posait, et les autres n'apprenaient jamais que
+  // l'objectif était atteint. On suit donc chaque profil séparément.
+  function _vuPar() {
+    try { return JSON.parse(localStorage.getItem('awakGoalVu') || '{}'); }
+    catch (e) { return {}; }
+  }
+  function _marquerVu(goalId, profileId) {
+    try {
+      var v = _vuPar();
+      if (!v[goalId]) v[goalId] = {};
+      v[goalId][profileId] = true;
+      localStorage.setItem('awakGoalVu', JSON.stringify(v));
+    } catch (e) {}
+  }
+  function _dejaVu(goalId, profileId) {
+    var v = _vuPar();
+    return !!(v[goalId] && v[goalId][profileId]);
+  }
+  // 🏁 Clore un objectif atteint : il restait affiché sans fin, bloquant
+  // la création du suivant.
+  window.AwakFamilyGoalClore = function () {
+    try {
+      if (typeof showConfirm === 'function') {
+        showConfirm('Clore cet objectif ? Le titre familial est conservé.',
+          function () { cancel(); _refresh(); },
+          null, { title: 'Objectif terminé', confirmLabel: 'Clore' });
+      } else { cancel(); _refresh(); }
+    } catch (e) {}
+  };
+
+  window.AwakGoalMarquerVu = function () {
+    try {
+      var g = _load();
+      if (g) _marquerVu(g.startsAt || 'g', _currentId());
+    } catch (e) {}
+  };
+
   function status() {
     var g = _load();
     if (!g) return null;
@@ -262,7 +301,9 @@
       total: total, pct: pct, reached: reached,
       daysLeft: daysLeft, perMember: perMember,
       titre: familyTitle(),
-      expired: Date.now() > g.endsAt
+      expired: Date.now() > g.endsAt,
+      // 🆕 Vrai si CE profil n'a pas encore vu l'annonce de réussite.
+      nouveauPourMoi: reached && !_dejaVu(g.startsAt || 'g', _currentId())
     };
   }
 
@@ -391,8 +432,27 @@
     } catch (e) {}
 
     var head = st.reached
-      ? '<div style="text-align:center;padding:6px 0 12px;"><div style="font-size:2em;">🎉</div><div style="font-size:0.95em;font-weight:900;color:#fbbf24;">Objectif atteint, bravo à toute la famille !</div></div>'
+      ? '<div style="text-align:center;padding:14px 12px 12px;margin-bottom:12px;'
+        + 'border-radius:14px;background:linear-gradient(160deg,rgba(251,191,36,0.14),rgba(251,191,36,0.03));'
+        + 'border:1px solid rgba(251,191,36,0.4);">'
+        + (st.nouveauPourMoi
+            ? '<div style="font-size:0.5em;letter-spacing:2.5px;color:#fbbf24;'
+              + 'font-weight:900;margin-bottom:6px;">◈ NOUVEAU</div>'
+            : '')
+        + '<div style="font-family:var(--font-display),sans-serif;font-size:1.1em;'
+        +   'font-weight:900;color:#fbbf24;">Objectif atteint</div>'
+        + '<div style="font-size:0.74em;color:#cbd5e1;margin-top:5px;line-height:1.45;">'
+        +   'Toute la famille y est arrivée. ' + st.total + ' / ' + st.target + '.</div>'
+        + '<button onclick="AwakFamilyGoalClore()" '
+        +   'style="width:100%;margin-top:12px;padding:12px;border-radius:12px;border:none;'
+        +   'cursor:pointer;background:linear-gradient(160deg,#fcd34d,#fbbf24 45%,#b45309);'
+        +   'color:#1a1408;font-weight:900;font-size:0.78em;letter-spacing:0.5px;">'
+        +   'CLORE ET EN LANCER UN AUTRE</button>'
+        + '</div>'
       : '';
+    // 👁️ Ce profil vient de voir l'annonce : on le note pour que le bandeau
+    // « NOUVEAU » ne réapparaisse plus chez lui.
+    if (st.reached) { try { window.AwakGoalMarquerVu(); } catch (e) {} }
 
     return '<div style="background:linear-gradient(160deg,#0f1a14,#0d0d12);border:1px solid ' + (st.reached ? 'rgba(251,191,36,0.4)' : 'rgba(34,197,94,0.3)') + ';border-radius:18px;padding:20px;margin-bottom:14px;">'
       + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">'

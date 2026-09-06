@@ -280,6 +280,40 @@
   function coopCancel() { coopSave(null); }
 
   // Progression : contribution de CHAQUE membre, additionnée.
+  // 🎉 QUI A DÉJÀ VU LA RÉUSSITE (même mécanisme que l'objectif commun).
+  // ⚠️ `awakCoopWin_<startsAt>` est GLOBAL au défi : il évite de recompter
+  // le badge, mais ne dit rien sur les profils. Chacun doit être averti à
+  // sa première connexion après l'atteinte.
+  function _coopVuPar() {
+    try { return JSON.parse(localStorage.getItem('awakCoopVu') || '{}'); }
+    catch (e) { return {}; }
+  }
+  function _coopDejaVu(id, profileId) {
+    var v = _coopVuPar();
+    return !!(v[id] && v[id][profileId]);
+  }
+  window.AwakCoopMarquerVu = function () {
+    try {
+      var c = coopLoad();
+      if (!c) return;
+      var id = c.startsAt || 'c', p = _currentId();
+      var v = _coopVuPar();
+      if (!v[id]) v[id] = {};
+      v[id][p] = true;
+      localStorage.setItem('awakCoopVu', JSON.stringify(v));
+    } catch (e) {}
+  };
+  // 🏁 Clore un défi coopératif réussi : il restait affiché sans fin.
+  window.AwakCoopClore = function () {
+    try {
+      if (typeof showConfirm === 'function') {
+        showConfirm('Clore ce défi ? Le badge gagné est conservé.',
+          function () { coopCancel(); if (window.renderFamilyTab) renderFamilyTab(); },
+          null, { title: 'Défi terminé', confirmLabel: 'Clore' });
+      } else { coopCancel(); if (window.renderFamilyTab) renderFamilyTab(); }
+    } catch (e) {}
+  };
+
   function coopStatus() {
     var c = coopLoad();
     if (!c) return null;
@@ -341,6 +375,8 @@
     return {
       type: c.type, def: d, cible: c.cible, total: total, pct: pct,
       atteint: atteint, expire: expire, perMember: perMember,
+      // 🆕 Vrai si CE profil n'a pas encore vu l'annonce de réussite.
+      nouveauPourMoi: atteint && !_coopDejaVu(c.startsAt || 'c', _currentId()),
       daysLeft: Math.max(0, Math.ceil((c.endsAt - Date.now()) / 86400000))
     };
   }
@@ -647,7 +683,31 @@
       ? '<div style="font-size:0.92em;font-weight:900;color:#4ade80;">🎉 Objectif atteint — ensemble !</div>'
       : '<div style="font-size:1.02em;font-weight:900;color:#fff;">' + esc(d.label) + '</div>';
 
-    return '<div style="background:linear-gradient(160deg,#0a1620,#0d0d12);border:1px solid rgba(34,211,238,' + (st.atteint ? '0.45' : '0.22') + ');border-radius:18px;padding:15px;margin-bottom:14px;">'
+    // 🎉 RÉUSSITE : annonce + bouton de clôture.
+    // ⚠️ La carte ignorait `st.atteint` : rien n'indiquait un défi réussi,
+    // et il restait affiché indéfiniment.
+    var annonce = '';
+    if (st.atteint) {
+      try { window.AwakCoopMarquerVu(); } catch (e) {}
+      annonce = '<div style="text-align:center;padding:14px 12px 12px;margin-bottom:12px;'
+        + 'border-radius:14px;background:linear-gradient(160deg,rgba(96,168,240,0.14),rgba(96,168,240,0.03));'
+        + 'border:1px solid rgba(96,168,240,0.4);">'
+        + (st.nouveauPourMoi
+            ? '<div style="font-size:0.5em;letter-spacing:2.5px;color:#60a8f0;'
+              + 'font-weight:900;margin-bottom:6px;">◈ NOUVEAU</div>'
+            : '')
+        + '<div style="font-family:var(--font-display),sans-serif;font-size:1.08em;'
+        +   'font-weight:900;color:#93c5fd;">Défi réussi</div>'
+        + '<div style="font-size:0.74em;color:#cbd5e1;margin-top:5px;line-height:1.45;">'
+        +   'Vous y êtes arrivés ensemble. ' + st.total + ' / ' + st.cible + '.</div>'
+        + '<button onclick="AwakCoopClore()" '
+        +   'style="width:100%;margin-top:12px;padding:12px;border-radius:12px;border:none;'
+        +   'cursor:pointer;background:linear-gradient(160deg,#93c5fd,#60a8f0 45%,#164e8a);'
+        +   'color:#04162b;font-weight:900;font-size:0.78em;letter-spacing:0.5px;">'
+        +   'CLORE ET EN LANCER UN AUTRE</button>'
+        + '</div>';
+    }
+    return annonce + '<div style="background:linear-gradient(160deg,#0a1620,#0d0d12);border:1px solid rgba(34,211,238,' + (st.atteint ? '0.45' : '0.22') + ');border-radius:18px;padding:15px;margin-bottom:14px;">'
       + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">'
       +   '<span style="font-size:1.5em;">' + d.emoji + '</span>'
       +   '<div style="flex:1;min-width:0;"><div style="font-size:0.62em;font-weight:800;letter-spacing:0.5px;color:#22d3ee;">DÉFI D\'ÉQUIPE</div>' + entete + '</div>'
