@@ -5377,7 +5377,7 @@ body.workout-fullscreen #exerciseView {
     background-color: #08080b;
     background-image:
         linear-gradient(160deg, rgba(8,8,11,0.94) 0%, rgba(8,8,11,0.88) 45%, rgba(8,8,11,0.96) 100%),
-        url(../images/salle_bg_v5.webp?v=1072);
+        url(../images/salle_bg_v5.webp?v=1075);
     /* ⚠️ `../` obligatoire : dans un fichier CSS, une url() relative est
        résolue depuis le DOSSIER DU CSS (css/), pas depuis la page. Sans le
        préfixe, le navigateur chercherait css/images/… et n'afficherait rien. */
@@ -7609,3 +7609,73 @@ body.dark-mode #homeTab .stat-label {
     font-family: 'SFMono-Regular', 'Consolas', 'Liberation Mono', 'Menlo', monospace;
     letter-spacing: 1.2px !important;
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+   🔁 MES ROUTINES — même langage que la console des Réglages
+   ⚠️ Portée limitée à #routinesTab : le reste de l'app est intact.
+   ══════════════════════════════════════════════════════════════════════ */
+#routinesTab {
+    font-family: 'SFMono-Regular', 'Consolas', 'Liberation Mono', 'Menlo', monospace;
+}
+
+/* Cartes de routine : blocs de console, liseré à gauche */
+#routinesTab .card,
+#routinesTab .routine-item,
+#routinesTab [style*="border-radius:14px"],
+#routinesTab [style*="border-radius: 14px"] {
+    background: #070b12 !important;
+    border: 1px solid rgba(96,168,240,0.14) !important;
+    border-left: 2px solid rgba(96,168,240,0.45) !important;
+    border-radius: 8px !important;
+}
+
+/* Boutons : encoches, plus de pilules ni de vert */
+#routinesTab .btn {
+    background: rgba(96,168,240,0.08) !important;
+    border: 1px solid rgba(96,168,240,0.34) !important;
+    color: #93c5fd !important;
+    border-radius: 5px !important;
+    font-family: inherit !important;
+    font-weight: 600 !important;
+    box-shadow: none !important;
+}
+#routinesTab .btn-secondary {
+    background: rgba(255,255,255,0.03) !important;
+    border-color: rgba(255,255,255,0.12) !important;
+    color: #94a3b8 !important;
+}
+
+/* Champs et listes */
+#routinesTab input[type="text"],
+#routinesTab input[type="number"],
+#routinesTab select {
+    background: #05080e !important;
+    border: 1px solid rgba(96,168,240,0.22) !important;
+    color: #cbd5e1 !important;
+    border-radius: 5px !important;
+    font-family: inherit !important;
+    font-size: 0.82em !important;
+}
+#routinesTab input:focus, #routinesTab select:focus {
+    outline: none !important;
+    border-color: rgba(96,168,240,0.6) !important;
+    box-shadow: 0 0 0 2px rgba(96,168,240,0.12) !important;
+}
+
+/* Titres : chevron d'invite comme dans la console */
+#routinesTab h2, #routinesTab h3 {
+    font-family: inherit;
+    font-size: 0.95em !important;
+    letter-spacing: 0.3px;
+    color: #e2e8f0 !important;
+}
+#routinesTab h2::before, #routinesTab h3::before {
+    content: '> ';
+    color: #60a8f0;
+}
+
+/* 🛡️ Filet : aucun vert posé en style en ligne ne subsiste. */
+#routinesTab [style*="#16a34a"],
+#routinesTab [style*="#4ade80"],
+#routinesTab [style*="#22c55e"],
+#routinesTab [style*="#22d3ee"] { color: #93c5fd !important; }

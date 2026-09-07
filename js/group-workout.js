@@ -343,8 +343,8 @@
     var label = nb > 1 ? (nb + ' participants') : 'Séance à plusieurs';
     var sub = nb > 1 ? 'Prêt · appuie pour gérer' : 'Ajoute des membres ou des invités';
     return '<button onclick="AwakGroupOpen()" style="'
-      + 'width:100%;margin-top:10px;background:linear-gradient(135deg,rgba(139,92,246,0.13) 0%,rgba(124,58,237,0.09) 100%);color:white;border:1px solid rgba(167,139,250,0.34);'
-      + 'border-radius:14px;padding:13px 18px;font-size:0.95em;font-weight:800;cursor:pointer;'
+      + 'width:100%;margin-top:8px;background:linear-gradient(135deg,rgba(139,92,246,0.13) 0%,rgba(124,58,237,0.09) 100%);color:white;border:1px solid rgba(167,139,250,0.34);'
+      + 'border-radius:14px;padding:13px 16px;font-size:0.95em;font-weight:800;cursor:pointer;'
       + 'box-shadow:0 4px 18px rgba(139,92,246,0.3);position:relative;overflow:hidden;'
       + 'text-align:left;display:flex;align-items:center;gap:11px;">'
       + '<div style="font-size:1.9em;flex-shrink:0;">👥</div>'
