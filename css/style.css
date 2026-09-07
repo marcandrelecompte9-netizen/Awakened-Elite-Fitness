@@ -5383,7 +5383,7 @@ body.workout-fullscreen #exerciseView {
     background-color: #08080b;
     background-image:
         linear-gradient(160deg, rgba(8,8,11,0.94) 0%, rgba(8,8,11,0.88) 45%, rgba(8,8,11,0.96) 100%),
-        url(../images/salle_bg_v5.webp?v=1078);
+        url(../images/salle_bg_v5.webp?v=1079);
     /* ⚠️ `../` obligatoire : dans un fichier CSS, une url() relative est
        résolue depuis le DOSSIER DU CSS (css/), pas depuis la page. Sans le
        préfixe, le navigateur chercherait css/images/… et n'afficherait rien. */
@@ -7685,3 +7685,21 @@ body.dark-mode #homeTab .stat-label {
 #routinesTab [style*="#4ade80"],
 #routinesTab [style*="#22c55e"],
 #routinesTab [style*="#22d3ee"] { color: #93c5fd !important; }
+
+/* 🖼️ FILET : hauteur constante des visuels d'exercice pendant une séance.
+   ⚠️ Le cadre de #exerciseVisualContent était ADAPTATIF (il suivait le ratio
+   de chaque image) : la hauteur changeait d'un exercice à l'autre et le
+   bouton de validation se déplaçait sous le doigt. Les styles sont posés en
+   ligne par le JS, d'où le !important. */
+#exerciseVisualContent > div {
+    height: 300px !important;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#exerciseVisualContent img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+}

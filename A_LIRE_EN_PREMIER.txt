@@ -76,7 +76,7 @@ B) VERSION TECHNIQUE DU CACHE = un compteur SÉPARÉ qui force la mise à
      - sw.js       : nom du cache "awakened-vNNN"
      - index.html  : les 39 "?v=NNN" sur les fichiers js/css
      - sw.js       : les "?v=NNN" des assets (manifest, icônes)
-   ⚠️  ÉTAT ACTUEL : v1078. Prochain build = v1079.
+   ⚠️  ÉTAT ACTUEL : v1079. Prochain build = v1080.
 
 
 ───────────────────────────────────────────────────────────────────────
@@ -160,8 +160,111 @@ n'est PLUS pratiquée. Le deploy est du source non minifié.
 
 
 ───────────────────────────────────────────────────────────────────────
+  SESSION v1030 → v1079  —  RÉSUMÉ
+───────────────────────────────────────────────────────────────────────
+
+PIÈGES RENCONTRÉS (à relire avant de déboguer)
+
+  1. COLLISION DE NOMS (v1062) — LE PLUS COÛTEUX
+     Deux getChallengeProgress() dans app.js : la mienne (id → défi) et
+     celle du Système (objet → nombre), déclarée PLUS BAS. Le hissage
+     fait gagner la SECONDE. Symptôme : la bannière comptait 5 défis
+     mais chaque carte affichait « Commencer ce défi ».
+     → Ma fonction renommée awakDefiActif().
+     ⚠️ AVANT de créer une fonction, vérifier qu'aucune homonyme
+        n'existe : grep -c "function nomDeLaFonction" js/app.js
+
+  2. FONCTION APPELÉE MAIS NON EXPOSÉE SUR window
+     Les onclick du HTML généré ne joignent QUE les fonctions globales.
+     Trouvé sur : showChallengeDetails, startChallenge, abandonChallenge,
+     completeTodayChallenge (v1051), toggleFavoriteWorkout, replayWorkout
+     (v1072), AwakFamilyFeed.renderCard (v1064).
+     → Symptôme : le bouton ne fait RIEN, sans erreur visible.
+
+  3. FONCTION VIDE (v1054)
+     showChallengeDetails() ne contenait que deux commentaires
+     (« For now, just start the challenge »). C'est elle que le clic
+     sur une carte appelle. Chercher les corps 100 % commentaires.
+
+  4. COULEURS DU THÈME CLAIR D'ORIGINE
+     #f8fafc, #f8f9fa, #e0f2fe, #f0fdf4, #1e293b, #e0e0e0 traînent
+     encore. 19 fonds convertis en v1047, mais la règle globale
+     `tr:nth-child(even) td { background:#f8fafc }` posait le fond sur
+     le TD (pas le TR) : surcharger le TR ne suffit pas (v1049).
+
+  5. NOTATION #RRGGBBAA (8 chiffres) — v1039
+     Mal interprétée dans un dégradé par certains moteurs → blanc
+     opaque. 44 occurrences converties en rgba().
+
+  6. DÉCLENCHEUR PONCTUEL (v1075)
+     awakCheckNarrativeRifts() n'était appelée qu'au passage de rang et
+     en fin de Faille : un joueur ayant dépassé le seuil ne voyait
+     jamais la Faille. → Rattrapage ajouté à l'ouverture de l'onglet Jeu.
+     La fonction est idempotente (4 protections anti-doublon).
+
+  7. STYLE EN LIGNE > CSS
+     #profileCard porte son style en ligne : les règles #homeTab .card
+     ne l'atteignent pas. Idem height:auto concaténé APRÈS le style de
+     base dans buildLazyImg().
+
+MÉTHODE — CE QUI A MARCHÉ
+
+  • Charger la VRAIE sauvegarde de l'utilisateur et exécuter le rendu :
+    c'est ce qui a fini par isoler la collision de noms.
+  • Extraire des fonctions isolées MASQUE les collisions. Charger le
+    fichier entier, ou au moins les deux homonymes dans l'ordre réel.
+  • node --check ne détecte PAS une suppression de code valide.
+    Vérifier le CONTENU après édition (grep des libellés attendus).
+    En v1045 j'ai supprimé toute la liste des défis sans m'en rendre
+    compte : la syntaxe restait valide.
+  • Un numéro de build visible dans l'interface (bannière des défis)
+    a permis de trancher entre « bug » et « version déployée ».
+
+STYLE CONSOLE — ONGLETS DÉJÀ CONVERTIS
+  Réglages (v1018), recherche d'exercices (v1046), modales de profil
+  (v1052), éditeur de profil (v1061), accueil partiel (v1053),
+  mes routines (v1074).
+  ⚠️ L'accueil garde volontairement le vortex et Rajdhani : c'est le
+     seul écran d'ambiance de l'app. #profileCard n'est PAS converti.
+
+À FAIRE / EN ATTENTE
+  • Refaire les images d'exercice au format 1200 × 1000 (voir plus haut).
+  • Salle des machines pour les réglages (option 2).
+  • duo-challenges.js présent mais non chargé — module orphelin.
+
+
+───────────────────────────────────────────────────────────────────────
   7. CHANTIER EN COURS
 ───────────────────────────────────────────────────────────────────────
+
+
+  ┌─ 📐 DIMENSIONS DES IMAGES D'EXERCICE (v1079) ────────────────────┐
+  │                                                                  │
+  │ CIBLE : 1200 × 1000 px  (ratio 1,2)  ·  WebP qualité 82          │
+  │                                                                  │
+  │ Le cadre d'affichage fait 300 px de HAUTEUR FIXE. Sa largeur     │
+  │ varie de 328 à 380 px selon le téléphone, soit un ratio de       │
+  │ 1,09 à 1,27. Le ratio 1,2 est le milieu : l'image remplit        │
+  │ presque tout le cadre sur tous les appareils.                    │
+  │                                                                  │
+  │ ⚠️ POURQUOI LA HAUTEUR EST FIXE : avant v1078, chaque image      │
+  │ imposait sa propre hauteur (min-height + cadre adaptatif).       │
+  │ Un SVG faisait 220 px, une photo à deux poses ~600 px : le       │
+  │ bouton de validation se déplaçait de 300 px entre deux           │
+  │ exercices, ce qui casse le rythme d'une séance.                  │
+  │                                                                  │
+  │ · object-fit:contain garantit qu'AUCUNE image n'est rognée.      │
+  │ · Une image plus étroite laisse une marge sombre latérale        │
+  │   (invisible sur le fond très foncé de l'app).                   │
+  │ · Deux poses ? LES METTRE CÔTE À CÔTE, jamais superposées :      │
+  │   le format vertical se réduit trop dans un cadre de 300 px.     │
+  │                                                                  │
+  │ ⚠️ NE JAMAIS repasser le cadre en height:auto ou min-height.     │
+  │   Trois appels à buildLazyImg() passaient height:auto en style   │
+  │   supplémentaire — concaténé APRÈS le style de base, il          │
+  │   l'écrasait. Corrigé en v1079 ; filet CSS !important posé sur   │
+  │   #exerciseVisualContent.                                        │
+  └──────────────────────────────────────────────────────────────────┘
 
 IMAGES MANQUANTES — 14 exercices (10 Pilates livrés en v909) + 18 scènes narratives.
   • Liste détaillée + descriptions visuelles :
@@ -214,7 +317,7 @@ IMAGES MANQUANTES — 14 exercices (10 Pilates livrés en v909) + 18 scènes nar
 ───────────────────────────────────────────────────────────────────────
 
   • Version affichée : v0.90 · awakened
-  • Cache technique  : v1078  (prochain build = v1079)
+  • Cache technique  : v1079  (prochain build = v1080)
   • Exercices        : 452 (base) · 713 (avec disciplines)
   • Objets           : 397  (11 sets, tous complétables)
   • Événements       : 57 narratifs (39 illustrés)
