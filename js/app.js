@@ -947,7 +947,7 @@
                 const _cptBanner = _nActifs > 0
                     ? '<div style="font-size:0.66em;color:#60a8f0;font-weight:800;'
                       + 'letter-spacing:1px;margin-bottom:10px;">◈ ' + _nActifs
-                      + ' DÉFI' + (_nActifs > 1 ? 'S' : '') + ' EN COURS · build 1075</div>'
+                      + ' DÉFI' + (_nActifs > 1 ? 'S' : '') + ' EN COURS · build 1078</div>'
                     : '';
                 challengesList.innerHTML = _cptBanner + _recoBanner + challengesDatabase.map(challenge => `
                     <div style="background: linear-gradient(160deg, #0a0e18 0%, #0F1014 100%); padding: 20px; border-radius: 14px; margin-bottom: 16px; border: 1.5px solid ${challenge.color}40; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 18px rgba(0,0,0,0.25), 0 0 0 1px ${challenge.color}10 inset;" onclick="showChallengeDetails('${challenge.id}')">
@@ -8077,6 +8077,9 @@
 
             // 📉 Avertir si la séance compte moins d'exercices que demandé.
                 try { if (typeof awakRenderPoolManquant === 'function') awakRenderPoolManquant(); } catch (e) {}
+            // ⓘ Bouton d'informations : rendu APRÈS les bandeaux, il compte
+            // leur contenu pour afficher le nombre de messages.
+            try { if (typeof awakRenderPrepInfoBtn === 'function') awakRenderPrepInfoBtn(); } catch (e) {}
                 const _brief = document.getElementById('prepSystemBrief');
                 if (_brief) {
                     const _lignes = [];
@@ -15929,11 +15932,11 @@
                 const chartId = `historyChart-${entry.id}`;
                 
                 item.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
-                        <div style="flex: 1;">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:11px;">
+                        <div style="flex:1;min-width:0;">
                             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
                                 <button onclick="toggleFavoriteWorkout(${entry.id})" 
-                                        style="background: none; border: none; font-size: 1.5em; cursor: pointer; padding: 0; line-height: 1; transition: transform 0.2s;"
+                                        style="background:${isFavorite ? 'rgba(251,191,36,0.15)' : 'rgba(255,255,255,0.04)'};border:1px solid ${isFavorite ? 'rgba(251,191,36,0.5)' : 'rgba(255,255,255,0.12)'};color:${isFavorite ? '#fbbf24' : '#64748b'};font-size:1.05em;cursor:pointer;padding:0;width:32px;height:32px;border-radius:8px;line-height:1;flex-shrink:0;"
                                         title="${isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}">
                                     ${isFavorite ? '⭐' : '☆'}
                                 </button>
@@ -15948,12 +15951,12 @@
                         </div>
                         ${entry.workoutData ? `
                             <button onclick="replayWorkout(${entry.id})" class="btn" 
-                                    style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 10px 20px; min-height: auto; border-radius: 10px; font-size: 0.9em; white-space: nowrap;">
-                                🔄 Rejouer
+                                    style="background:rgba(96,168,240,0.10);border:1px solid rgba(96,168,240,0.30);color:#93c5fd;padding:0;width:34px;height:34px;min-height:auto;border-radius:8px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;" aria-label="Rejouer cette séance" title="Rejouer">
+                                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 12a8 8 0 1 1 2.3 5.7"/><path d="M4 18v-5h5"/></svg>
                             </button>
                             <button onclick="saveHistoryAsRoutine(${entry.id})" class="btn"
-                                    style="background: rgba(34,197,94,0.12); border:1px solid rgba(34,197,94,0.4); color:#4ade80; padding: 10px 16px; min-height: auto; border-radius: 10px; font-size: 0.9em; white-space: nowrap;">
-                                ➕ Mes routines
+                                    style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);color:#94a3b8;padding:0;width:34px;height:34px;min-height:auto;border-radius:8px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;" aria-label="Enregistrer comme routine" title="Mes routines">
+                                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
                             </button>
                         ` : `
                             <button disabled class="btn" title="Séances anciennes non rejouables. Créez de nouvelles séances !"
@@ -23656,7 +23659,7 @@
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1075);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1078);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -23700,7 +23703,7 @@
                 +       '<feGaussianBlur stdDeviation="2.4" result="b"/>'
                 +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>'
                 +     '</filter></defs>'
-                +     '<image href="' + img + '?v=1075" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1078" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -25410,6 +25413,82 @@
 
 
         // 📉 Message affiché quand la séance compte moins d'exercices que demandé.
+
+        // ══════════════════════════════════════════════════════════════
+        // ⓘ INFORMATIONS DE SÉANCE — une fenêtre au lieu de 4 bandeaux
+        // --------------------------------------------------------------
+        // ⚠️ L'écran de préparation empilait jusqu'à QUATRE encadrés avant
+        // même la liste des exercices : brief du Système, pool insuffisant,
+        // équilibre musculaire, récupération. Illisible, et ça repoussait
+        // l'essentiel hors de l'écran. On les rassemble derrière un bouton.
+        // ══════════════════════════════════════════════════════════════
+        function awakPrepInfos() {
+            const src = ['prepSystemBrief', 'prepPoolWarning',
+                         'muscleBalanceHint', 'prepMuscleWarning'];
+            const blocs = [];
+            src.forEach(function (id) {
+                const el = document.getElementById(id);
+                if (el && el.innerHTML && el.innerHTML.trim()) blocs.push(el.innerHTML);
+            });
+            return blocs;
+        }
+
+        // Bouton d'accès : affiché seulement s'il y a quelque chose à dire.
+        function awakRenderPrepInfoBtn() {
+            const host = document.getElementById('prepInfoBtn');
+            if (!host) return;
+            const n = awakPrepInfos().length;
+            if (!n) { host.innerHTML = ''; host.style.display = 'none'; return; }
+            host.style.display = 'block';
+            host.innerHTML =
+                '<button onclick="awakOpenPrepInfos()" '
+              +   'style="width:100%;padding:11px 13px;margin-bottom:12px;border-radius:10px;'
+              +   'cursor:pointer;display:flex;align-items:center;gap:9px;'
+              +   'background:rgba(96,168,240,0.07);border:1px solid rgba(96,168,240,0.26);">'
+              +   '<span style="font-size:1em;color:#60a8f0;font-weight:900;">ⓘ</span>'
+              +   '<span style="flex:1;min-width:0;text-align:left;font-size:0.74em;'
+              +     'font-weight:800;color:#cbd5e1;letter-spacing:0.3px;">INFORMATIONS</span>'
+              +   '<span style="font-size:0.66em;font-weight:900;color:#93c5fd;'
+              +     'background:rgba(96,168,240,0.15);padding:2px 8px;border-radius:6px;">'
+              +     n + '</span>'
+              + '</button>';
+        }
+        window.awakRenderPrepInfoBtn = awakRenderPrepInfoBtn;
+
+        function awakOpenPrepInfos() {
+            const blocs = awakPrepInfos();
+            document.getElementById('awakPrepInfoModal')?.remove();
+            const ov = document.createElement('div');
+            ov.id = 'awakPrepInfoModal';
+            ov.style.cssText = 'position:fixed;inset:0;z-index:11000;background:rgba(0,0,0,0.90);'
+                + 'backdrop-filter:blur(9px);display:flex;align-items:center;'
+                + 'justify-content:center;padding:18px;overflow-y:auto;';
+            ov.innerHTML =
+                '<div style="width:100%;max-width:420px;margin:auto;padding:22px 20px;'
+              +   'border-radius:20px;background:linear-gradient(160deg,#101822,#0a0d13);'
+              +   'border:1.5px solid rgba(96,168,240,0.35);">'
+              +   '<div style="font-size:0.54em;letter-spacing:2.5px;color:#60a8f0;'
+              +     'font-weight:900;">◈ INFORMATIONS</div>'
+              +   '<div style="font-family:var(--font-display),sans-serif;font-size:1.1em;'
+              +     'font-weight:800;color:#fff;margin:2px 0 12px;">Ta séance</div>'
+              +   '<div style="font-size:0.72em;color:#94a3b8;line-height:1.55;'
+              +     'margin-bottom:16px;padding-bottom:14px;'
+              +     'border-bottom:1px solid rgba(255,255,255,0.08);">'
+              +     'Le Système regroupe chaque séance autour de 1 ou 2 matériels, '
+              +     'plus le poids du corps. Tu ne changes pas d\'équipement toutes '
+              +     'les deux minutes.</div>'
+              +   (blocs.length ? blocs.join('') : '<div style="font-size:0.74em;color:#64748b;">'
+              +     'Rien de particulier à signaler.</div>')
+              +   '<button onclick="document.getElementById(\'awakPrepInfoModal\').remove()" '
+              +     'style="width:100%;padding:12px;margin-top:14px;border-radius:13px;'
+              +     'cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.12);'
+              +     'color:#94a3b8;font-size:0.75em;font-weight:800;letter-spacing:1px;">FERMER</button>'
+              + '</div>';
+            ov.onclick = function (e) { if (e.target === ov) ov.remove(); };
+            document.body.appendChild(ov);
+        }
+        window.awakOpenPrepInfos = awakOpenPrepInfos;
+
         function awakRenderPoolManquant() {
             const host = document.getElementById('prepPoolWarning');
             if (!host) return;
@@ -28872,7 +28951,7 @@
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1075");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1078");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -33242,7 +33321,7 @@
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1075);'
+                +     'url(images/combat_bg_v1.webp?v=1078);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -33497,7 +33576,7 @@
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1075);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1078);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -34759,7 +34838,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1075');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1078');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -35494,7 +35573,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1075);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1078);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -35665,7 +35744,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1075);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1078);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -46341,7 +46420,7 @@
 
             host.innerHTML =
                 '<div style="position:relative;width:110px;margin:0 auto 12px;">'
-              +   '<img src="images/body/body_face.webp?v=1075" alt="" '
+              +   '<img src="images/body/body_face.webp?v=1078" alt="" '
               +     'style="width:100%;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -46423,7 +46502,7 @@
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1075);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1078);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -48789,7 +48868,7 @@
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1075");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1078");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.

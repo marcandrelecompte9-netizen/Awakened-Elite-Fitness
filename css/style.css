@@ -236,26 +236,32 @@
         }
 
         .exercise-image {
-            width: 100%;
-            /* ⚠️ min-height, PAS height : une hauteur FIXE de 320 px coupait
-               le bas des photos d'exercices (celles à deux poses superposées
-               font ~600 px). Le conteneur s'adapte désormais à l'image ;
-               min-height garde une place correcte pour les visuels SVG,
-               qui eux font 220 px. */
-            min-height: 320px;
-            background: linear-gradient(160deg, #1A1B20 0%, #111318 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-            gap: 20px;
-            padding: 20px;
-        }
+    width: 100%;
+    /* ⚠️ HAUTEUR FIXE (v1078) : min-height laissait chaque image imposer sa
+       propre hauteur — une photo à deux poses (~600 px) faisait un bond de
+       300 px par rapport à un SVG (220 px), ce qui cassait le rythme d'une
+       séance. La hauteur est désormais constante ; c'est `object-fit:contain`
+       sur l'<img> qui garantit qu'aucune photo n'est coupée. */
+    height: 300px;
+    background: linear-gradient(160deg, #1A1B20 0%, #111318 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+}
+/* L'image occupe le cadre SANS être rognée ni déformée. */
+.exercise-image img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+}
 
         .exercise-image svg {
-            width: 220px;
-            height: 220px;
+            width: 100%;
+            height: 100%;
+            max-width: 300px;
+            object-fit: contain;
             filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
         }
 
@@ -5377,7 +5383,7 @@ body.workout-fullscreen #exerciseView {
     background-color: #08080b;
     background-image:
         linear-gradient(160deg, rgba(8,8,11,0.94) 0%, rgba(8,8,11,0.88) 45%, rgba(8,8,11,0.96) 100%),
-        url(../images/salle_bg_v5.webp?v=1075);
+        url(../images/salle_bg_v5.webp?v=1078);
     /* ⚠️ `../` obligatoire : dans un fichier CSS, une url() relative est
        résolue depuis le DOSSIER DU CSS (css/), pas depuis la page. Sans le
        préfixe, le navigateur chercherait css/images/… et n'afficherait rien. */
