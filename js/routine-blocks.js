@@ -355,8 +355,30 @@
   // Appelé par completeCurrentSet APRÈS l'incrément de currentSetNumber.
   // Retourne true si le module a pris la main sur la suite.
   SS.afterSet = function () {
-    if (!SS.isActive()) return false;
     var b = B(); if (!b) return false;
+
+    // 🛠️ AUTO-ARMEMENT : le groupe n'est normalement armé que par
+    // initSetsTracker (appelé uniquement en mode salle). Si l'exercice a
+    // démarré par un autre chemin, SS.st est null et l'alternage ne se
+    // déclencherait jamais. On arme donc ici, au besoin.
+    if (!SS.st) {
+      try {
+        var w0 = b.getWorkout();
+        var i0 = b.getExIdx();
+        var ex0 = w0 && w0.exercises && w0.exercises[i0];
+        if (ex0 && ex0.ss) {
+          var mem0 = groupMembers(w0.exercises, i0);
+          if (mem0.length > 1) {
+            // completeCurrentSet vient d'incrémenter : le tour réellement
+            // terminé est donc (compteur - 1).
+            var tour = Math.max(1, (parseInt(b.getSetNum(), 10) || 2) - 1);
+            SS.st = { g: ex0.ss, members: mem0, round: tour, total: parseInt(ex0.sets, 10) || 3 };
+          }
+        }
+      } catch (e) {}
+    }
+
+    if (!SS.isActive()) return false;
     var st = SS.st;
     var pos = st.members.indexOf(b.getExIdx());
     if (pos < 0) return false;
