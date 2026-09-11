@@ -77,6 +77,10 @@
     if (!ctx || !ctx.r) return;
     if (window.saveRoutines) window.saveRoutines(ctx.routines);
     if (rerender !== false) {
+      // L'atelier gère le re-rendu complet (2 colonnes) quand il est actif.
+      if (window.AwakBuilder && typeof window.AwakBuilder.refresh === 'function') {
+        try { window.AwakBuilder.refresh(false); return; } catch (e) {}
+      }
       var cont = document.getElementById('routineEditorExercises');
       if (cont) cont.innerHTML = Editor.renderExercises(ctx.r);
     }
@@ -297,6 +301,19 @@
     } catch (e) { SS.st = null; }
   };
 
+  // L'exercice affiché appartient-il à un superset de 2+ exercices ?
+  // Indépendant de l'armement : sert à l'affichage dès l'arrivée sur l'exercice.
+  SS.inGroup = function () {
+    try {
+      var b = B(); if (!b) return false;
+      var w = b.getWorkout();
+      var i = b.getExIdx();
+      var ex = w && w.exercises && w.exercises[i];
+      if (!ex || !ex.ss) return false;
+      return groupMembers(w.exercises, i).length > 1;
+    } catch (e) { return false; }
+  };
+
   SS.isActive = function () {
     var b = B();
     if (!b || !SS.st) return false;
@@ -352,6 +369,68 @@
     SS.sync();
   }
 
+  // ⚡ Appelé par le bouton « Suivant » (skipExercise).
+  // Sans cela, « Suivant » sautait droit à l'exercice d'après : on passait
+  // A → B → exercice suivant, sans jamais revenir faire les tours 2 et 3.
+  // Retourne true si le module a pris la main.
+  SS.onNext = function () {
+    var b = B(); if (!b) return false;
+
+    // Auto-armement (même logique que afterSet, mais sans décalage de série :
+    // ici le compteur n'a PAS été incrémenté).
+    if (!SS.st) {
+      try {
+        var w0 = b.getWorkout();
+        var i0 = b.getExIdx();
+        var ex0 = w0 && w0.exercises && w0.exercises[i0];
+        if (ex0 && ex0.ss) {
+          var mem0 = groupMembers(w0.exercises, i0);
+          if (mem0.length > 1) {
+            SS.st = {
+              g: ex0.ss, members: mem0,
+              round: Math.max(1, parseInt(b.getSetNum(), 10) || 1),
+              total: parseInt(ex0.sets, 10) || 3
+            };
+          }
+        }
+      } catch (e) {}
+    }
+    if (!SS.isActive()) return false;
+
+    var st = SS.st;
+    var pos = st.members.indexOf(b.getExIdx());
+    if (pos < 0) return false;
+
+    // Encore un exercice dans le tour → on enchaîne SANS repos
+    if (pos < st.members.length - 1) {
+      goTo(st.members[pos + 1], st.round);
+      if (typeof window.showToast === 'function') {
+        window.showToast('⚡ Enchaîne — pas de repos !', 'info', 1600);
+      }
+      return true;
+    }
+
+    // Dernier du tour : tour suivant, ou sortie du groupe
+    var prochain = st.round + 1;
+    if (prochain > st.total) {
+      SS.st = null;
+      SS.clearBanner();
+      if (typeof window.showToast === 'function') window.showToast('✅ Superset terminé !', 'success', 2000);
+      return false;   // on laisse skipExercise avancer normalement
+    }
+
+    var premier = st.members[0];
+    var repos = 60;
+    try {
+      var w = b.getWorkout();
+      var exA = w.exercises[premier];
+      repos = (exA && exA.rest) || w.restBetweenSets || b.globalRest() || 60;
+    } catch (e) {}
+    goTo(premier, prochain);
+    b.startSetRest(repos);
+    return true;
+  };
+
   // Appelé par completeCurrentSet APRÈS l'incrément de currentSetNumber.
   // Retourne true si le module a pris la main sur la suite.
   SS.afterSet = function () {
@@ -404,7 +483,11 @@
         window.showToast('✅ Superset terminé !', 'success', 2000);
       }
       b.setExIdx(st.members[st.members.length - 1]);
-      setTimeout(function () { b.skipExercise(); }, 700);
+      // Drapeau : empêche onNext de rattraper ce skip et de rearmer le groupe.
+      setTimeout(function () {
+        window._awakSSBypass = true;
+        try { b.skipExercise(); } finally { window._awakSSBypass = false; }
+      }, 700);
       return true;
     }
 
