@@ -157,6 +157,48 @@
   }
 
   // ── Colonne droite : le catalogue ──
+  // Lignes du catalogue seules (pour une mise à jour ciblée, sans re-rendre
+  // tout l'éditeur — sinon le défilement repart en haut à chaque filtre).
+  function lignesCatalogue() {
+    var liste = filtrer();
+    var total = liste.length;
+    var tronque = total > MAX_LISTE;
+    var vue = tronque ? liste.slice(0, MAX_LISTE) : liste;
+    var fav = favoris();
+
+    var lignes = vue.map(function (e) {
+      var estFav = fav.indexOf(e.name) >= 0;
+      var eq = (e.equipment || []).slice(0, 2).join(' · ');
+      return '<div class="awak-cat-row" data-ex="' + attr(e.name) + '" ' +
+          'style="display:flex;align-items:center;gap:9px;padding:9px 10px;margin-bottom:5px;' +
+          'background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:10px;' +
+          'touch-action:pan-y;cursor:grab;">' +
+          '<div style="flex:1;min-width:0;">' +
+            '<div style="font-size:0.8em;font-weight:800;color:#e8f0f8;overflow:hidden;' +
+              'text-overflow:ellipsis;white-space:nowrap;">' + (estFav ? '⭐ ' : '') + esc(e.name) + '</div>' +
+            '<div style="font-size:0.64em;color:#64748b;margin-top:2px;overflow:hidden;' +
+              'text-overflow:ellipsis;white-space:nowrap;">' + esc(e.muscle || '') + (eq ? ' · ' + esc(eq) : '') + '</div>' +
+          '</div>' +
+          '<button onclick="AwakBuilder.add(\'' + attr(e.name).replace(/'/g, "\\'") + '\')" ' +
+            'style="flex-shrink:0;width:32px;height:32px;min-height:auto;border-radius:9px;cursor:pointer;' +
+            'background:rgba(74,222,128,0.14);border:1px solid rgba(74,222,128,0.4);color:#4ade80;' +
+            'font-size:1em;font-weight:900;font-family:inherit;line-height:1;">+</button>' +
+        '</div>';
+    }).join('');
+
+    if (!lignes) {
+      lignes = '<div style="text-align:center;padding:22px 10px;color:#64748b;font-size:0.78em;">' +
+        (ETAT.onglet === 'favoris' ? 'Aucun favori pour l\'instant.'
+          : ETAT.onglet === 'recents' ? 'Aucun exercice récent.'
+          : 'Aucun exercice ne correspond.') + '</div>';
+    }
+    if (tronque) {
+      lignes += '<div style="text-align:center;font-size:0.68em;color:#64748b;padding:8px 4px;">' +
+        'Affiche les ' + MAX_LISTE + ' premiers sur ' + total + ' — affine la recherche.</div>';
+    }
+    return { html: lignes, total: total };
+  }
+
   function panneauCatalogue() {
     var liste = filtrer();
     var total = liste.length;
@@ -166,7 +208,7 @@
 
     function ong(id, txt) {
       var on = (ETAT.onglet === id);
-      return '<button onclick="AwakBuilder.setOnglet(\'' + id + '\')" style="flex:1;padding:7px 6px;border:none;' +
+      return '<button data-ong="' + id + '" onclick="AwakBuilder.setOnglet(\'' + id + '\')" style="flex:1;padding:7px 6px;border:none;' +
         'cursor:pointer;font-family:inherit;font-size:0.7em;font-weight:900;letter-spacing:0.3px;' +
         'background:' + (on ? 'rgba(34,211,238,0.18)' : 'transparent') + ';' +
         'color:' + (on ? '#67e8f9' : '#64748b') + ';">' + txt + '</button>';
@@ -219,7 +261,7 @@
     return '<div class="awak-bld-cat">' +
         '<div style="display:flex;align-items:center;gap:8px;margin-bottom:9px;">' +
           '<span style="font-size:0.6em;letter-spacing:2px;color:#22d3ee;font-weight:900;">◈ CATALOGUE</span>' +
-          '<span style="font-size:0.68em;color:#64748b;font-weight:700;">' + total + '</span>' +
+          '<span id="awakBldCount" style="font-size:0.68em;color:#64748b;font-weight:700;">' + total + '</span>' +
           '<span style="flex:1;height:1px;background:linear-gradient(90deg,rgba(34,211,238,0.25),transparent);"></span>' +
         '</div>' +
         '<div style="display:flex;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);' +
@@ -252,9 +294,18 @@
     if (!c || !c.r) return;
     var host = document.getElementById('routineEditorExercises');
     if (!host) return;
+    // Mémorise le défilement : un re-rendu complet le remettrait à zéro.
+    var sc = host.scrollTop;
+    var cat = document.querySelector('.awak-bld-cat');
+    var scCat = cat ? cat.scrollTop : 0;
     var sel = gardeFocus ? document.getElementById('awakBldSearch') : null;
     var pos = sel ? sel.selectionStart : null;
+
     host.innerHTML = API.renderBody(c.r);
+
+    host.scrollTop = sc;
+    var cat2 = document.querySelector('.awak-bld-cat');
+    if (cat2) cat2.scrollTop = scCat;
     if (gardeFocus) {
       var n = document.getElementById('awakBldSearch');
       if (n) { n.focus(); try { n.setSelectionRange(pos, pos); } catch (e) {} }
@@ -262,10 +313,30 @@
   }
   API.refresh = refresh;
 
-  API.setQ = function (v) { ETAT.q = v || ''; refresh(true); };
-  API.setMuscle = function (v) { ETAT.muscle = v || ''; refresh(false); };
-  API.setEquip = function (v) { ETAT.equip = v || ''; refresh(false); };
-  API.setOnglet = function (v) { ETAT.onglet = v; refresh(false); };
+  // ⚠️ Un filtre ne doit PAS re-rendre tout l'éditeur : cela réinitialisait le
+  // défilement et renvoyait l'utilisateur en haut de la fenêtre à chaque
+  // changement. On ne remplace donc que la LISTE (et le compteur).
+  function majListe() {
+    var r = lignesCatalogue();
+    var l = document.getElementById('awakBldList');
+    if (l) l.innerHTML = r.html;
+    var c = document.getElementById('awakBldCount');
+    if (c) c.textContent = r.total;
+  }
+
+  function majOnglets() {
+    var btns = document.querySelectorAll('[data-ong]');
+    for (var i = 0; i < btns.length; i++) {
+      var on = (btns[i].getAttribute('data-ong') === ETAT.onglet);
+      btns[i].style.background = on ? 'rgba(34,211,238,0.18)' : 'transparent';
+      btns[i].style.color = on ? '#67e8f9' : '#64748b';
+    }
+  }
+
+  API.setQ = function (v) { ETAT.q = v || ''; majListe(); };
+  API.setMuscle = function (v) { ETAT.muscle = v || ''; majListe(); };
+  API.setEquip = function (v) { ETAT.equip = v || ''; majListe(); };
+  API.setOnglet = function (v) { ETAT.onglet = v; majOnglets(); majListe(); };
 
   API.add = function (nom) {
     var c = ctx();
