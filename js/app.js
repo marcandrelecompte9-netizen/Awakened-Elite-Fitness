@@ -5823,7 +5823,7 @@
                     border:1.5px solid ${r.color}55;border-radius:14px;padding:14px;margin-bottom:10px;cursor:pointer;
                     display:flex;align-items:center;gap:13px;transition:transform 0.15s;"
                     onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">
-                    <div style="font-size:2.1em;flex-shrink:0;">${r.emoji}</div>
+                    <div style="flex-shrink:0;line-height:1;">${awakRoutineIcon(r, 34)}</div>
                     <div style="flex:1;min-width:0;">
                         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
                             <span style="font-weight:900;font-size:0.98em;color:#ffffff;">${r.name}</span>
@@ -5894,7 +5894,7 @@
 
             // Construire le workout au format standard
             const workout = {
-                name: `${routine.emoji} ${routine.name}`,
+                name: `${routine.emoji ? routine.emoji + ' ' : ''}${routine.name}`,
                 description: routine.desc,
                 type: 'morning',
                 fromMorning: true,
@@ -5944,14 +5944,14 @@
                 document.body.classList.add('in-session');
 
                 const badge = document.getElementById('workoutTypeBadge');
-                awakStyleSessionBadge(badge, `${routine.emoji} ${routine.name}`, routine.color);
+                awakStyleSessionBadge(badge, `${routine.emoji ? routine.emoji + ' ' : ''}${routine.name}`, routine.color);
 
                 if (typeof renderExerciseProgressList === 'function') renderExerciseProgressList();
                 if (typeof updateMusclesOverview === 'function') updateMusclesOverview();
                 if (typeof startExercise === 'function') startExercise();
             }, 100);
 
-            if (typeof showToast === 'function') showToast(`${routine.emoji} ${routine.name} — Bonne séance !`, 'success', 2500);
+            if (typeof showToast === 'function') showToast(`${routine.emoji ? routine.emoji + ' ' : ''}${routine.name} — Bonne séance !`, 'success', 2500);
         }
         window.startMorningRoutine = startMorningRoutine;
 
@@ -8164,17 +8164,23 @@
                     const setsReps = ex.sets ? (ex.mode === 'timer' ? `${ex.sets}×${ex.duration}s` : `${ex.sets}×${ex.reps || '?'}`) : '';
                     const _safeName = (exerciseName || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
 
-                    return `<div onclick="awakShowExercisePreview('${_safeName}')" style="display:flex;align-items:center;justify-content:space-between;padding:11px 14px;margin-bottom:7px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:12px;border-left:3px solid ${difficultyColor};cursor:pointer;-webkit-tap-highlight-color:transparent;">
-                        <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;">
-                            <div style="font-weight:800;color:#22d3ee;min-width:26px;font-size:0.9em;">${index+1}.</div>
+                    // 📱 MISE EN PAGE VERTICALE : le nom occupe TOUTE la largeur,
+                    // les badges (muscle, séries, difficulté) passent en dessous.
+                    // ⚠️ Avant, les badges étaient à droite en flex-shrink:0 +
+                    // white-space:nowrap : « Intermédiaire » gardait sa largeur
+                    // entière et écrasait la colonne du nom, qui se cassait
+                    // mot par mot sur téléphone.
+                    return `<div onclick="awakShowExercisePreview('${_safeName}')" style="padding:11px 14px;margin-bottom:7px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:12px;border-left:3px solid ${difficultyColor};cursor:pointer;-webkit-tap-highlight-color:transparent;">
+                        <div style="display:flex;align-items:flex-start;gap:10px;">
+                            <div style="font-weight:800;color:#22d3ee;flex-shrink:0;font-size:0.9em;line-height:1.35;">${index+1}.</div>
                             <div style="flex:1;min-width:0;">
-                                <div style="font-weight:600;color:#e2e8f0;font-size:0.9em;line-height:1.3;overflow-wrap:break-word;">${exerciseName} <span style="font-size:0.8em;color:#22d3ee;opacity:0.7;">👁️</span></div>
-                                ${muscle ? `<div style="font-size:0.75em;color:#94a3b8;margin-top:2px;">💪 ${muscle}</div>` : ''}
+                                <div style="font-weight:600;color:#e2e8f0;font-size:0.9em;line-height:1.35;overflow-wrap:break-word;">${exerciseName} <span style="font-size:0.8em;color:#22d3ee;opacity:0.7;">👁️</span></div>
+                                <div style="display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin-top:6px;">
+                                    ${muscle ? `<span style="font-size:0.72em;color:#94a3b8;font-weight:600;">💪 ${muscle}</span>` : ''}
+                                    ${setsReps ? `<span style="font-size:0.72em;font-weight:700;color:#67e8f9;background:rgba(34,211,238,0.1);padding:2px 7px;border-radius:6px;">${setsReps}</span>` : ''}
+                                    ${difficulty ? `<span style="font-size:0.7em;padding:2px 7px;background:${difficultyColor}22;color:${difficultyColor};border-radius:9px;font-weight:600;">${difficulty}</span>` : ''}
+                                </div>
                             </div>
-                        </div>
-                        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;margin-left:8px;">
-                            ${setsReps ? `<div style="font-size:0.75em;font-weight:700;color:#67e8f9;background:rgba(34,211,238,0.1);padding:3px 8px;border-radius:6px;">${setsReps}</div>` : ''}
-                            ${difficulty ? `<div style="font-size:0.72em;padding:3px 8px;background:${difficultyColor}22;color:${difficultyColor};border-radius:10px;font-weight:600;white-space:nowrap;">${difficulty}</div>` : ''}
                         </div>
                     </div>`;
                 }).join('');
@@ -12059,7 +12065,13 @@
                                     }).join('')}
                                 </div>
                                 ${dayData.muscles && dayData.muscles.length > 0 ? `
-                                <div style="margin-top:7px;font-size:0.7em;color:#64748b;font-style:italic;">${dayData.muscles.length} muscle${dayData.muscles.length>1?'s':''} sélectionné${dayData.muscles.length>1?'s':''}</div>
+                                <div style="margin-top:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                                    <span style="font-size:0.68em;color:#94a3b8;font-weight:800;letter-spacing:0.5px;">🕐 HEURE</span>
+                                    <input type="time" value="${dayData.heure || ''}" onchange="setManualPlanTime('${d}', this.value)"
+                                           style="background:rgba(34,211,238,0.08);border:1px solid rgba(34,211,238,0.3);color:#67e8f9;border-radius:7px;padding:5px 8px;font-size:0.78em;font-weight:800;font-family:inherit;cursor:pointer;">
+                                    ${dayData.heure ? `<button onclick="setManualPlanTime('${d}','')" style="background:none;border:none;color:#64748b;font-size:0.68em;font-weight:700;cursor:pointer;">✕ retirer</button>` : `<span style="font-size:0.66em;color:#475569;font-style:italic;">optionnel</span>`}
+                                </div>
+                                <div style="margin-top:6px;font-size:0.7em;color:#64748b;font-style:italic;">${dayData.muscles.length} muscle${dayData.muscles.length>1?'s':''} sélectionné${dayData.muscles.length>1?'s':''}</div>
                                 ` : `
                                 <div style="margin-top:7px;font-size:0.7em;color:#475569;font-style:italic;">Aucun muscle · jour de repos</div>
                                 `}
@@ -12091,6 +12103,18 @@
             openManualPlanEditor(); // re-render
         }
         window.toggleManualPlanMuscle = toggleManualPlanMuscle;
+
+        // 🕐 Heure récurrente d'un jour du plan hebdo (ex. tous les lundis à 18h).
+        // Pas de re-render : cela fermerait le sélecteur d'heure natif du téléphone.
+        function setManualPlanTime(dayKey, value) {
+            const plan = getManualWeeklyPlan();
+            if (!plan[dayKey]) return;              // pas de jour d'entraînement = rien à horaire
+            if (value) plan[dayKey].heure = value;
+            else delete plan[dayKey].heure;
+            saveManualWeeklyPlan(plan);
+            if (typeof renderCalendarTab === 'function') renderCalendarTab();
+        }
+        window.setManualPlanTime = setManualPlanTime;
 
         function clearManualPlanDay(dayKey) {
             const plan = getManualWeeklyPlan();
@@ -14037,6 +14061,12 @@
             if (sugContainer) sugContainer.innerHTML = exKey ? (renderLastPerfChip(exKey) + renderLoadSuggestionChip(exKey)) : '';
             // 📊 Init volume chip
             updateLiveVolumeChip();
+
+            // ⚡ SUPERSET : arme le groupe et rétablit le numéro de tour
+            // (initSetsTracker vient de remettre currentSetNumber à 1).
+            if (window.AwakSS && typeof window.AwakSS.sync === 'function') {
+                try { window.AwakSS.sync(); } catch (e) {}
+            } else if (typeof AwakSSClear === 'function') { AwakSSClear(); }
         }
 
         function updateSetIndicator() {
@@ -14418,6 +14448,12 @@
             updateSetIndicator();
             renderCompletedSetsLog();
 
+            // ⚡ SUPERSET : enchaîne A → B sans repos, puis repos en fin de tour.
+            // Le module prend la main sur la suite s'il retourne true.
+            if (!window._gridBulk && window.AwakSS && typeof window.AwakSS.afterSet === 'function') {
+                try { if (window.AwakSS.afterSet()) return; } catch (e) {}
+            }
+
             const totalSets = totalSetsPlanned + warmupSetsCount;
             if (currentSetNumber > totalSets) {
                 // Séance normale : compléter (Rifts/Hunts sont déjà gérées en début de fonction)
@@ -14442,6 +14478,24 @@
                 else if (!isWarmup && Math.random() < 0.45) awakPersonaCoach('setDone');
             }
         }
+
+        // ⚡ PONT pour js/routine-blocks.js (moteur de superset).
+        // ⚠️ currentWorkout / currentExerciseIndex / currentSetNumber sont des
+        // `let` de ce scope : ils ne sont PAS sur window et une affectation
+        // window.currentExerciseIndex = x ne les modifierait pas. Le module
+        // passe donc obligatoirement par ces accesseurs.
+        window.AwakSSBridge = {
+            getWorkout:         function ()  { return currentWorkout; },
+            getExIdx:           function ()  { return currentExerciseIndex; },
+            setExIdx:           function (v) { currentExerciseIndex = v; },
+            setSetNum:          function (v) { currentSetNumber = v; },
+            startExercise:      function ()  { if (typeof startExercise === 'function') startExercise(); },
+            skipExercise:       function ()  { if (typeof skipExercise === 'function') skipExercise(); },
+            updateSetIndicator: function ()  { try { updateSetIndicator(); } catch (e) {} },
+            startSetRest:       function (s) { try { startSetRest(s); } catch (e) {} },
+            globalRest:         function ()  { try { return globalRestSeconds; } catch (e) { return 60; } },
+            vibrate:            function (p) { try { vibrate(p); } catch (e) {} }
+        };
 
         function startSetRest(seconds) {
             const btn = document.getElementById('completeSetBtn');
@@ -15950,14 +16004,18 @@
                             </div>
                         </div>
                         ${entry.workoutData ? `
-                            <button onclick="replayWorkout(${entry.id})" class="btn" 
-                                    style="background:rgba(96,168,240,0.10);border:1px solid rgba(96,168,240,0.30);color:#93c5fd;padding:0;width:34px;height:34px;min-height:auto;border-radius:8px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;" aria-label="Rejouer cette séance" title="Rejouer">
-                                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 12a8 8 0 1 1 2.3 5.7"/><path d="M4 18v-5h5"/></svg>
-                            </button>
-                            <button onclick="saveHistoryAsRoutine(${entry.id})" class="btn"
-                                    style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);color:#94a3b8;padding:0;width:34px;height:34px;min-height:auto;border-radius:8px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;" aria-label="Enregistrer comme routine" title="Mes routines">
-                                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
-                            </button>
+                            <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;align-items:stretch;">
+                                <button onclick="replayWorkout(${entry.id})" class="btn"
+                                        style="background:rgba(96,168,240,0.10);border:1px solid rgba(96,168,240,0.30);color:#93c5fd;padding:7px 12px!important;min-height:auto!important;height:auto!important;border-radius:8px!important;font-size:0.76em!important;font-weight:800;display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;cursor:pointer;" aria-label="Rejouer cette séance" title="Rejouer">
+                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 12a8 8 0 1 1 2.3 5.7"/><path d="M4 18v-5h5"/></svg>
+                                    Rejouer
+                                </button>
+                                <button onclick="saveHistoryAsRoutine(${entry.id})" class="btn"
+                                        style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);color:#94a3b8;padding:7px 12px!important;min-height:auto!important;height:auto!important;border-radius:8px!important;font-size:0.76em!important;font-weight:800;display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;cursor:pointer;" aria-label="Enregistrer comme routine" title="Mes routines">
+                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+                                    Routine
+                                </button>
+                            </div>
                         ` : `
                             <button disabled class="btn" title="Séances anciennes non rejouables. Créez de nouvelles séances !"
                                     style="background: #9ca3af; padding: 10px 20px; min-height: auto; border-radius: 10px; font-size: 0.9em; white-space: nowrap; cursor: not-allowed; opacity: 0.6;">
@@ -18043,10 +18101,79 @@
             try {
                 const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
                 const key = profileId ? `routines_${profileId}` : 'routines';
+
+                // 🛟 FILET DE SÉCURITÉ — une routine ne peut plus être perdue.
+                // Symptôme rapporté : une routine lancée puis quittée disparaissait
+                // DÉFINITIVEMENT de la liste, alors qu'aucun code ne la supprime
+                // hors du bouton 🗑️. Plutôt que d'écrire à l'aveugle, toute routine
+                // présente AVANT l'écriture et absente APRÈS est copiée en corbeille.
+                // Elle reste restaurable depuis l'onglet Mes routines.
+                try {
+                    const avant = JSON.parse(localStorage.getItem(key) || '[]');
+                    if (Array.isArray(avant) && avant.length) {
+                        const idsApres = new Set((routines || []).map(r => r && r.id).filter(Boolean));
+                        const perdues = avant.filter(r => r && r.id && !idsApres.has(r.id));
+                        if (perdues.length) {
+                            const tKey = profileId ? `routinesTrash_${profileId}` : 'routinesTrash';
+                            let trash = [];
+                            try { trash = JSON.parse(localStorage.getItem(tKey) || '[]'); } catch (e) { trash = []; }
+                            if (!Array.isArray(trash)) trash = [];
+                            perdues.forEach(r => {
+                                if (!trash.some(t => t && t.routine && t.routine.id === r.id)) {
+                                    trash.push({ routine: r, at: Date.now() });
+                                }
+                            });
+                            localStorage.setItem(tKey, JSON.stringify(trash.slice(-10)));
+                        }
+                    }
+                } catch (e) {}
+
                 localStorage.setItem(key, JSON.stringify(routines));
             } catch(e) {}
         }
         window.saveRoutines = saveRoutines;
+
+        // 🛟 Corbeille des routines : lecture, restauration, vidage.
+        function getRoutinesTrash() {
+            try {
+                const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
+                const tKey = profileId ? `routinesTrash_${profileId}` : 'routinesTrash';
+                const t = JSON.parse(localStorage.getItem(tKey) || '[]');
+                return Array.isArray(t) ? t : [];
+            } catch (e) { return []; }
+        }
+        window.getRoutinesTrash = getRoutinesTrash;
+
+        function restoreRoutinesFromTrash() {
+            try {
+                const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
+                const tKey = profileId ? `routinesTrash_${profileId}` : 'routinesTrash';
+                const trash = getRoutinesTrash();
+                if (!trash.length) return;
+                const routines = getRoutines();
+                const ids = new Set(routines.map(r => r && r.id));
+                let n = 0;
+                trash.forEach(t => {
+                    if (t && t.routine && !ids.has(t.routine.id)) { routines.push(t.routine); n++; }
+                });
+                localStorage.setItem(tKey, '[]');   // vider AVANT d'écrire (sinon re-capture)
+                saveRoutines(routines);
+                renderRoutinesList();
+                if (typeof showToast === 'function') {
+                    showToast(n ? `↩ ${n} routine${n>1?'s':''} restaurée${n>1?'s':''}` : 'Rien à restaurer', 'success', 2600);
+                }
+            } catch (e) {}
+        }
+        window.restoreRoutinesFromTrash = restoreRoutinesFromTrash;
+
+        function clearRoutinesTrash() {
+            try {
+                const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
+                localStorage.setItem(profileId ? `routinesTrash_${profileId}` : 'routinesTrash', '[]');
+                renderRoutinesList();
+            } catch (e) {}
+        }
+        window.clearRoutinesTrash = clearRoutinesTrash;
 
         // ➕ Convertit une séance de l'historique en routine réutilisable (onglet Mes routines)
         function saveHistoryAsRoutine(entryId) {
@@ -18529,7 +18656,7 @@
                             const bgColor = isToday ? 'rgba(34,197,94,0.12)' : (routine ? `${routine.color}10` : 'rgba(255,255,255,0.02)');
                             return `<div onclick="${routine ? `startRoutineById('${routineId}')` : `openWeeklyPlanEditor('${d}')`}" style="cursor:pointer;background:${bgColor};border:1.5px solid ${borderColor};border-radius:10px;padding:7px 4px;text-align:center;${isToday ? 'box-shadow:0 0 10px rgba(34,197,94,0.3);' : ''}">
                                 <div style="font-size:0.55em;color:${isToday?'#4ade80':'#94a3b8'};font-weight:800;letter-spacing:0.5px;">${ROUTINE_DAY_LABELS[d]}</div>
-                                <div style="font-size:1.1em;line-height:1;margin-top:3px;">${routine ? routine.emoji : '·'}</div>
+                                <div style="line-height:1;margin-top:3px;display:flex;justify-content:center;">${routine ? awakRoutineIcon(routine, 16) : '<span style=\"color:#475569;\">·</span>'}</div>
                                 ${isToday ? '<div style="font-size:0.5em;color:#4ade80;font-weight:900;margin-top:2px;">AUJ.</div>' : ''}
                             </div>`;
                         }).join('')}
@@ -18584,7 +18711,7 @@
 
                                 ${currentRoutine ? `
                                     <div style="background:linear-gradient(135deg,${currentRoutine.color || '#3b82f6'}20,${currentRoutine.color || '#3b82f6'}05);border:1px solid ${currentRoutine.color || '#22c55e'}40;border-radius:10px;padding:8px 11px;margin-bottom:8px;display:flex;align-items:center;gap:9px;">
-                                        <span style="font-size:1.3em;line-height:1;">${currentRoutine.emoji || '🏋️'}</span>
+                                        <span style="line-height:1;display:inline-flex;">${awakRoutineIcon(currentRoutine, 20)}</span>
                                         <div style="flex:1;min-width:0;">
                                             <div style="font-size:0.82em;font-weight:800;color:white;line-height:1.2;">${currentRoutine.name}</div>
                                             <div style="font-size:0.65em;color:#94a3b8;margin-top:1px;">${(currentRoutine.exercises||[]).length} exos</div>
@@ -18596,7 +18723,7 @@
 
                                 <select onchange="setWeeklyDay('${d}', this.value || null)" style="width:100%;background:#0a0e18;border:1px solid rgba(255,255,255,0.1);color:white;border-radius:10px;padding:10px 12px;font-size:0.82em;cursor:pointer;">
                                     <option value="">— Choisir une routine ou Repos —</option>
-                                    ${routines.map(r => `<option value="${r.id}" ${r.id === currentRoutineId ? 'selected' : ''}>${r.emoji||'🏋️'} ${r.name}</option>`).join('')}
+                                    ${routines.map(r => `<option value="${r.id}" ${r.id === currentRoutineId ? 'selected' : ''}>${r.emoji ? r.emoji + ' ' : ''}${r.name}</option>`).join('')}
                                 </select>
                             </div>`;
                         }).join('')}
@@ -18651,7 +18778,40 @@
             // Render plan hebdo en parallèle
             renderWeeklyPlanCard();
 
+            // 🛟 Bannière de récupération : routines retirées de la liste et
+            // conservées en corbeille (suppression volontaire OU disparition).
+            let _trashBanner = '';
+            try {
+                const _tr = (typeof getRoutinesTrash === 'function') ? getRoutinesTrash() : [];
+                if (_tr.length) {
+                    const _noms = _tr.map(t => (t && t.routine && t.routine.name) || '?').slice(0, 3).join(', ');
+                    _trashBanner =
+                        '<div style="background:rgba(251,191,36,0.10);border:1px solid rgba(251,191,36,0.35);' +
+                          'border-radius:12px;padding:12px 14px;">' +
+                          '<div style="font-size:0.62em;color:#fbbf24;font-weight:900;letter-spacing:1.5px;margin-bottom:4px;">🛟 RÉCUPÉRABLE</div>' +
+                          '<div style="font-size:0.78em;color:#e2e8f0;line-height:1.45;margin-bottom:9px;">' +
+                            _tr.length + ' routine' + (_tr.length > 1 ? 's' : '') + ' retirée' + (_tr.length > 1 ? 's' : '') +
+                            ' de la liste : <strong>' + _noms + '</strong></div>' +
+                          '<div style="display:flex;gap:6px;">' +
+                            '<button onclick="restoreRoutinesFromTrash()" style="flex:1;padding:9px;border-radius:9px;border:none;' +
+                              'background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-weight:900;font-size:0.78em;cursor:pointer;">↩ Restaurer</button>' +
+                            '<button onclick="clearRoutinesTrash()" style="padding:9px 12px;border-radius:9px;' +
+                              'background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;' +
+                              'font-weight:700;font-size:0.76em;cursor:pointer;">Ignorer</button>' +
+                          '</div>' +
+                        '</div>';
+                }
+            } catch (e) {}
+
             if (routines.length === 0) {
+                if (_trashBanner) {
+                    // Liste vide MAIS récupérable : on montre la bannière plutôt
+                    // que le simple message « aucune routine ».
+                    container.style.display = 'block';
+                    container.innerHTML = _trashBanner;
+                    if (noMsg) noMsg.style.display = 'block';
+                    return;
+                }
                 container.style.display = 'none';
                 if (noMsg) noMsg.style.display = 'block';
                 return;
@@ -18661,13 +18821,13 @@
             container.style.gap = '10px';
             if (noMsg) noMsg.style.display = 'none';
 
-            container.innerHTML = routines.map((r, idx) => {
+            container.innerHTML = _trashBanner + routines.map((r, idx) => {
                 const color = r.color || '#22c55e';
                 const exCount = (r.exercises || []).length;
                 return `
                 <div style="background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${color}30;border-left:3px solid ${color};border-radius:14px;padding:13px 14px;">
                     <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:9px;">
-                        <div style="font-size:1.5em;line-height:1;flex-shrink:0;filter:drop-shadow(0 0 6px ${color}60);">${r.emoji || '🏋️'}</div>
+                        <div style="line-height:1;flex-shrink:0;filter:drop-shadow(0 0 6px ${color}60);">${awakRoutineIcon(r, 26, color)}</div>
                         <div style="flex:1;min-width:0;">
                             <div style="font-weight:800;color:white;font-size:0.92em;line-height:1.3;">${r.name}</div>
                             ${r.description ? `<div style="font-size:0.7em;color:#94a3b8;margin-top:2px;">${r.description}</div>` : ''}
@@ -18727,7 +18887,10 @@
                             reps: ex.reps || fullEx.reps || 10,
                             duration: ex.duration || fullEx.duration || 45,
                             mode: ex.mode || fullEx.mode || 'reps',
-                            rest: ex.rest || 60
+                            rest: ex.rest || 60,
+                            // ⚡ Champs propres à la routine : à recopier explicitement,
+                            // sinon ils sont perdus (l'objet est reconstruit depuis la DB).
+                            ss: ex.ss || null
                         };
                     }
                     // Fallback : exercice non trouvé en DB
@@ -18742,7 +18905,9 @@
                         sets: ex.sets || 3,
                         reps: ex.reps || 10,
                         duration: ex.duration || 45,
-                        mode: ex.mode || 'reps'
+                        mode: ex.mode || 'reps',
+                        rest: ex.rest || 60,
+                        ss: ex.ss || null
                     };
                 })
             };
@@ -18826,6 +18991,8 @@
         // ✏️ Éditer une routine (ajout/suppression d'exercices)
         // ═══════════════════════════════════════════════════════════════
         let _editingRoutineIdx = null;
+        // 🏗️ Exposé pour js/routine-blocks.js (éditeur enrichi)
+        window._getEditingRoutineIdx = function () { return _editingRoutineIdx; };
 
         function editRoutine(index) {
             const routines = getRoutines();
@@ -18867,6 +19034,10 @@
         }
 
         function _renderEditorExercises(routine) {
+            // 🏗️ Éditeur enrichi (séries/reps/durée, ordre, supersets)
+            if (window.AwakRoutineEditor && typeof window.AwakRoutineEditor.renderExercises === 'function') {
+                try { return window.AwakRoutineEditor.renderExercises(routine); } catch (e) {}
+            }
             const exs = routine.exercises || [];
             if (exs.length === 0) {
                 return '<div style="text-align:center;padding:30px 18px;color:#475569;font-size:0.82em;font-style:italic;">Aucun exercice. Ajoute-en !</div>';
@@ -19044,15 +19215,148 @@
         // ═══════════════════════════════════════════════════════════════
         // ➕ Créer une routine manuellement
         // ═══════════════════════════════════════════════════════════════
+        // ⚠️ Utilisait prompt() : une boîte système grise, hors charte de l'app.
+        // Remplacé par une feuille du bas au visuel Awakened (emoji + couleur).
+        // 🎨 Icônes SVG des routines (trait, 24×24, héritent de currentColor).
+        // Remplacent les emojis : rendu net et cohérent sur toutes les plateformes,
+        // là où un emoji change de dessin selon le téléphone.
+        const AWAK_ROUTINE_ICONS = {
+            dumbbell: '<path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11"/>',
+            biceps:   '<path d="M4 18v-5a4 4 0 0 1 4-4h5l3-3 4 4-3 3v3a4 4 0 0 1-4 4H8"/><path d="M9 13h3"/>',
+            flame:    '<path d="M12 3s5 4.5 5 9a5 5 0 0 1-10 0c0-1.8 1-3.3 2-4.3 0 1.5.8 2.3 1.6 2.3.9 0 1.4-.8 1.4-2 0-2-1-4-1-5z"/>',
+            bolt:     '<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>',
+            legs:     '<path d="M9 3v7l-2 5 2 6M15 3v7l2 5-2 6"/><path d="M9 10h6"/>',
+            target:   '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1"/>',
+            yoga:     '<circle cx="12" cy="4.5" r="2"/><path d="M12 7v6M6 20c0-3 2.5-5 6-5s6 2 6 5M8 11h8"/>',
+            run:      '<circle cx="14" cy="4.5" r="2"/><path d="M13 8l-3 4 3 3v5M13 8l4 2 2 3M10 12l-4 1"/>',
+            boxing:   '<path d="M6 8a3 3 0 0 1 3-3h4a4 4 0 0 1 4 4v3a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3z"/><path d="M8 15v3a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1v-3"/>',
+            shield:   '<path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/>',
+            heart:    '<path d="M12 20s-7-4.4-7-9a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 4.6-7 9-7 9z"/>',
+            clock:    '<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>'
+        };
+        const _AWAK_ROUTINE_ICON_IDS = ['dumbbell','biceps','flame','bolt','legs','target','yoga','run','boxing','shield','heart','clock'];
+        const _AWAK_ROUTINE_COLORS = ['#22c55e','#22d3ee','#a855f7','#fbbf24','#f472b6','#fb923c'];
+        let _awakNewRoutineIcon = 'dumbbell';
+        let _awakNewRoutineColor = '#22c55e';
+
+        // Rend l'icône SVG d'une routine. Repli sur l'emoji pour les routines
+        // créées avant l'arrivée des icônes SVG.
+        function awakRoutineIcon(r, size, color) {
+            const px = size || 22;
+            const id = r && r.icon;
+            if (id && AWAK_ROUTINE_ICONS[id]) {
+                return '<svg viewBox="0 0 24 24" width="' + px + '" height="' + px + '" fill="none" '
+                    + 'stroke="' + (color || (r && r.color) || '#22c55e') + '" stroke-width="1.9" '
+                    + 'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" '
+                    + 'style="flex-shrink:0;display:block;">' + AWAK_ROUTINE_ICONS[id] + '</svg>';
+            }
+            return '<span style="font-size:' + Math.round(px * 0.9) + 'px;line-height:1;">' + ((r && r.emoji) || '🏋️') + '</span>';
+        }
+        window.awakRoutineIcon = awakRoutineIcon;
+
         function openCreateRoutineModal() {
-            const name = prompt('Nom de la nouvelle routine ?');
-            if (!name || !name.trim()) return;
+            _awakNewRoutineIcon = 'dumbbell';
+            _awakNewRoutineColor = '#22c55e';
+            document.getElementById('awakNewRoutineModal')?.remove();
+
+            const modal = document.createElement('div');
+            modal.id = 'awakNewRoutineModal';
+            modal.style.cssText = 'position:fixed;inset:0;z-index:10200;background:rgba(0,0,0,0.94);'
+                + 'backdrop-filter:blur(10px);display:flex;align-items:flex-end;justify-content:center;';
+            modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+
+            const emojis = _AWAK_ROUTINE_ICON_IDS.map(id => {
+                const on = (id === _awakNewRoutineIcon);
+                return `<button onclick="_awakPickRoutineIcon('${id}')" data-ic="${id}" class="awakNRIcon"
+                    style="padding:9px;border-radius:10px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;
+                    background:${on ? 'rgba(34,197,94,0.2)' : 'rgba(255,255,255,0.04)'};
+                    border:1px solid ${on ? 'rgba(34,197,94,0.5)' : 'rgba(255,255,255,0.08)'};">${awakRoutineIcon({ icon: id }, 22, on ? '#4ade80' : '#94a3b8')}</button>`;
+            }).join('');
+
+            const colors = _AWAK_ROUTINE_COLORS.map(c =>
+                `<button onclick="_awakPickRoutineColor('${c}')" data-col="${c}" class="awakNRColor"
+                    style="width:34px;height:34px;border-radius:50%;cursor:pointer;background:${c};
+                    border:3px solid ${c === _awakNewRoutineColor ? '#fff' : 'transparent'};"></button>`
+            ).join('');
+
+            modal.innerHTML = `
+                <div style="width:100%;max-width:520px;background:#0F1014;border-radius:20px 20px 0 0;max-height:90vh;
+                     display:flex;flex-direction:column;border-top:2px solid rgba(34,197,94,0.45);">
+                    <div style="width:36px;height:3px;background:#334155;border-radius:99px;margin:10px auto 0;flex-shrink:0;"></div>
+                    <div style="padding:14px 20px 12px;flex-shrink:0;border-bottom:1px solid rgba(34,197,94,0.15);
+                         display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                        <div style="min-width:0;">
+                            <div style="font-size:0.58em;color:#4ade80;font-weight:900;letter-spacing:2px;margin-bottom:2px;">◈ NOUVELLE</div>
+                            <h2 style="margin:0;color:#fff;font-size:1.05em;font-weight:900;">Créer une routine</h2>
+                        </div>
+                        <button onclick="document.getElementById('awakNewRoutineModal').remove()"
+                            style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:#94a3b8;
+                            border-radius:10px;width:34px;height:34px;min-height:auto;font-size:1.1em;font-weight:800;
+                            cursor:pointer;flex-shrink:0;line-height:1;">×</button>
+                    </div>
+                    <div style="flex:1;overflow-y:auto;padding:16px 20px 20px;-webkit-overflow-scrolling:touch;">
+                        <div style="font-size:0.6em;letter-spacing:1.5px;color:#64748b;font-weight:900;margin-bottom:7px;">NOM DE LA ROUTINE</div>
+                        <input type="text" id="awakNewRoutineName" placeholder="Ex. Push lundi, Jambes, Full body…"
+                            maxlength="40" autocomplete="off"
+                            onkeydown="if(event.key==='Enter'){event.preventDefault();_awakConfirmNewRoutine();}"
+                            style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(34,197,94,0.3);
+                            color:#e8f0f8;border-radius:12px;padding:13px 14px;font-size:0.95em;font-weight:700;
+                            font-family:inherit;box-sizing:border-box;">
+                        <div id="awakNewRoutineErr" style="display:none;color:#f87171;font-size:0.74em;font-weight:700;margin-top:6px;"></div>
+
+                        <div style="font-size:0.6em;letter-spacing:1.5px;color:#64748b;font-weight:900;margin:16px 0 7px;">ICÔNE</div>
+                        <div style="display:flex;flex-wrap:wrap;gap:6px;">${emojis}</div>
+
+                        <div style="font-size:0.6em;letter-spacing:1.5px;color:#64748b;font-weight:900;margin:16px 0 7px;">COULEUR</div>
+                        <div style="display:flex;flex-wrap:wrap;gap:9px;">${colors}</div>
+
+                        <button onclick="_awakConfirmNewRoutine()"
+                            style="width:100%;margin-top:22px;padding:15px;border-radius:14px;border:none;
+                            background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-weight:900;
+                            font-size:0.95em;cursor:pointer;font-family:inherit;">Créer la routine →</button>
+                    </div>
+                </div>`;
+
+            document.body.appendChild(modal);
+            setTimeout(() => { try { document.getElementById('awakNewRoutineName').focus(); } catch (e) {} }, 250);
+        }
+        window.openCreateRoutineModal = openCreateRoutineModal;
+
+        function _awakPickRoutineIcon(id) {
+            _awakNewRoutineIcon = id;
+            document.querySelectorAll('.awakNRIcon').forEach(b => {
+                const on = b.dataset.ic === id;
+                b.style.background = on ? 'rgba(34,197,94,0.2)' : 'rgba(255,255,255,0.04)';
+                b.style.border = '1px solid ' + (on ? 'rgba(34,197,94,0.5)' : 'rgba(255,255,255,0.08)');
+                b.innerHTML = awakRoutineIcon({ icon: b.dataset.ic }, 22, on ? '#4ade80' : '#94a3b8');
+            });
+        }
+        window._awakPickRoutineIcon = _awakPickRoutineIcon;
+
+        function _awakPickRoutineColor(c) {
+            _awakNewRoutineColor = c;
+            document.querySelectorAll('.awakNRColor').forEach(b => {
+                b.style.border = '3px solid ' + (b.dataset.col === c ? '#fff' : 'transparent');
+            });
+        }
+        window._awakPickRoutineColor = _awakPickRoutineColor;
+
+        function _awakConfirmNewRoutine() {
+            const input = document.getElementById('awakNewRoutineName');
+            const err = document.getElementById('awakNewRoutineErr');
+            const name = input ? (input.value || '').trim() : '';
+            if (!name) {
+                if (err) { err.textContent = 'Donne un nom à ta routine.'; err.style.display = 'block'; }
+                if (input) input.style.borderColor = 'rgba(248,113,113,0.6)';
+                return;
+            }
             const routines = getRoutines();
             const newRoutine = {
                 id: 'r_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
-                name: name.trim(),
-                emoji: '🏋️',
-                color: '#22c55e',
+                name: name,
+                icon: _awakNewRoutineIcon,
+                emoji: '',            // conservé vide : l'icône SVG prime
+                color: _awakNewRoutineColor,
                 description: '',
                 muscles: [],
                 exercises: [],
@@ -19061,11 +19365,12 @@
             routines.push(newRoutine);
             saveRoutines(routines);
             renderRoutinesList();
+            document.getElementById('awakNewRoutineModal')?.remove();
             // Ouvrir l'éditeur directement
             _editingRoutineIdx = routines.length - 1;
             _showRoutineEditor(newRoutine);
         }
-        window.openCreateRoutineModal = openCreateRoutineModal;
+        window._awakConfirmNewRoutine = _awakConfirmNewRoutine;
 
         // ═══════════════════════════════════════════════════════════════
         // 🚀 PROGRAMMES PROGRESSIFS (stub minimal pour compat)
@@ -23097,7 +23402,7 @@
             { text: "🔑 La régularité bat le talent.", author: "" },
             { text: "🌟 Aujourd'hui tu fais ce que les autres ne feront pas.", author: "" },
             { text: "💪 Prends ton souffle. La prochaine série t'appartient.", author: "" },
-            { text: "🔥 Pas de gains sans effort. Pas de progrès sans discipline.", author: "Ronnie Coleman" },
+            { text: "🔥 Pas de gains sans effort. Pas de progrès sans discipline.", author: "Roy Danvers" },
             { text: "🧠 Ton mental lâche avant tes muscles. Tiens bon.", author: "" },
         ];
 
@@ -23663,7 +23968,7 @@
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1080);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1090);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -23707,7 +24012,7 @@
                 +       '<feGaussianBlur stdDeviation="2.4" result="b"/>'
                 +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>'
                 +     '</filter></defs>'
-                +     '<image href="' + img + '?v=1080" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1090" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -28242,8 +28547,24 @@
         }
         window.awakPauseToggleMinimize = awakPauseToggleMinimize;
 
+        // 🛟 Retire l'overlay de pause, quel que soit l'état de la séance.
+        // ⚠️ BUG CORRIGÉ : l'overlay (z-index 99990, plein écran) survivait à
+        // l'abandon d'une séance. togglePause() sortait sur `if (!currentWorkout)`
+        // AVANT de le retirer → « Reprendre » ne faisait rien et l'écran restait
+        // noir par-dessus toute l'app. La liste des routines semblait vide alors
+        // qu'elle était simplement masquée derrière.
+        function awakHidePauseOverlay() {
+            try {
+                const ov = document.getElementById('awakPauseOverlay');
+                if (ov) ov.remove();
+            } catch (e) {}
+        }
+        window.awakHidePauseOverlay = awakHidePauseOverlay;
+
         function togglePause() {
-            if (!currentWorkout) return;
+            // Séance disparue (abandon, retour accueil) : on nettoie et on sort,
+            // sinon l'overlay resterait bloqué à l'écran pour toujours.
+            if (!currentWorkout) { awakHidePauseOverlay(); isPaused = false; return; }
             isPaused = !isPaused;
             const btn = document.getElementById('pauseBtn');
             if (btn) btn.innerHTML = isPaused ? '▶' : '⏸';
@@ -28464,6 +28785,8 @@
         function _doQuitWorkout() {
             const btn = document.getElementById('floatingQuitBtn');
             if (btn) btn.style.display = 'none';
+            // 🛟 L'overlay de pause ne doit JAMAIS survivre à l'abandon.
+            if (typeof awakHidePauseOverlay === 'function') awakHidePauseOverlay();
             // 💾 Figer l'état AVANT de tout réinitialiser, pour permettre la reprise.
             // (currentWorkout va être mis à null plus bas ; on sauve donc d'abord.)
             try {
@@ -28955,7 +29278,7 @@
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1080");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1090");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -33325,7 +33648,7 @@
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1080);'
+                +     'url(images/combat_bg_v1.webp?v=1090);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -33580,7 +33903,7 @@
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1080);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1090);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -34842,7 +35165,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1080');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1090');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -35577,7 +35900,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1080);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1090);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -35748,7 +36071,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1080);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1090);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -39974,9 +40297,9 @@
                 const patterns = {
                     '#ef4444': [100, 50, 200, 50, 100],  // Rock — lourd
                     '#16a34a': [80, 40, 80, 40, 160],    // Thor
-                    '#f59e0b': [60, 30, 60, 30, 60, 30, 120], // Wolverine
+                    '#f59e0b': [60, 30, 60, 30, 60, 30, 120], // Le Loup
                     '#06b6d4': [50, 25, 150, 25, 50],    // CBum
-                    '#22c55e': [40, 20, 40, 20, 200],    // Ronaldo
+                    '#22c55e': [40, 20, 40, 20, 200],    // Rui Salvador
                     '#a855f7': [70, 35, 70, 35, 140],    // WonderWoman
                 };
                 vibrate(patterns[color] || [80, 40, 160]);
@@ -40663,12 +40986,12 @@
             // ── HOMMES ──────────────────────────────────────
             {
                 id: 'rock', gender: 'homme',
-                name: 'Dwayne Johnson',
-                nickname: 'The Rock',
+                name: 'Marcus Kane',
+                nickname: 'Le Colosse',
                 emoji: '🏔️',
                 color: '#ef4444',
                 description: 'Force brute + cardio intense. 6j/sem, composés lourds, intensité maximale.',
-                quote: '"Success isn\'t always about greatness. It\'s about consistency."',
+                quote: '« La constance bat le talent quand le talent ne s\'entraîne pas. »',
                 level: 'Avancé', levelColor: '#dc2626', focus: 'Force & Volume',
                 days: 6, rest: 120, duration: '90-120 min', calories: '~800 kcal',
                 splits: [
@@ -40697,12 +41020,12 @@
             },
             {
                 id: 'thor', gender: 'homme',
-                name: 'Chris Hemsworth',
-                nickname: 'Thor',
+                name: 'Erik Nordvik',
+                nickname: 'Le Foudroyeur',
                 emoji: '⚡',
                 color: '#16a34a',
-                description: 'Force fonctionnelle + mobilité. Programme Centr — corps de superhéros.',
-                quote: '"I never thought being physically fit would be such a major part of my work."',
+                description: 'Force fonctionnelle + mobilité. Programme fonctionnel — corps de superhéros.',
+                quote: '« Un corps solide se bâtit dehors autant que sous la barre. »',
                 level: 'Avancé', levelColor: '#B33209', focus: 'Force & Agilité',
                 days: 5, rest: 90, duration: '75-90 min', calories: '~650 kcal',
                 splits: [
@@ -40729,12 +41052,12 @@
             },
             {
                 id: 'wolverine', gender: 'homme',
-                name: 'Hugh Jackman',
-                nickname: 'Wolverine',
+                name: 'Léo Marchand',
+                nickname: 'Le Loup',
                 emoji: '🐺',
                 color: '#f59e0b',
                 description: 'Méthode 5×5 pure + jeûne intermittent. Transformation spectaculaire à 50 ans.',
-                quote: '"The only way out is through."',
+                quote: '« La seule sortie, c\'est de traverser. »',
                 level: 'Intermédiaire', levelColor: '#d97706', focus: 'Force 5×5',
                 days: 4, rest: 150, duration: '60-75 min', calories: '~550 kcal',
                 splits: [
@@ -40761,12 +41084,12 @@
             },
             {
                 id: 'cbum', gender: 'homme',
-                name: 'Chris Bumstead',
-                nickname: 'CBum',
+                name: 'Adam Cross',
+                nickname: 'L\'Esthète',
                 emoji: '🏆',
                 color: '#06b6d4',
-                description: 'Programme PPL Classic Physique 5× Olympia. Volume modéré, forme parfaite.',
-                quote: '"It\'s not about being the biggest, it\'s about being the best version of yourself."',
+                description: 'Programme PPL catégorie physique classique, niveau championnat. Volume modéré, forme parfaite.',
+                quote: '« Vise la meilleure version de toi, pas la plus grosse. »',
                 level: 'Avancé', levelColor: '#0891b2', focus: 'Hypertrophie & Esthétique',
                 days: 6, rest: 90, duration: '75-90 min', calories: '~600 kcal',
                 splits: [
@@ -40801,12 +41124,12 @@
             // ── FEMMES ──────────────────────────────────────
             {
                 id: 'wonderwoman', gender: 'femme',
-                name: 'Gal Gadot',
-                nickname: 'Wonder Woman',
+                name: 'Alexia Roman',
+                nickname: 'L\'Amazone',
                 emoji: '👑',
                 color: '#a855f7',
-                description: 'Force + yoga + combat. Programme Warriors 5 mois — corps de superhéroïne.',
-                quote: '"The most powerful thing any human being can do is help another human being."',
+                description: 'Force + yoga + combat. Programme guerrière sur 5 mois — corps de superhéroïne.',
+                quote: '« La force sert d\'abord à relever les autres. »',
                 level: 'Intermédiaire', levelColor: '#9333ea', focus: 'Force & Cardio',
                 days: 5, rest: 75, duration: '60-75 min', calories: '~500 kcal',
                 splits: [
@@ -40834,12 +41157,12 @@
             },
             {
                 id: 'zendaya', gender: 'femme',
-                name: 'Zendaya',
-                nickname: 'Zendaya',
+                name: 'Nova Reyes',
+                nickname: 'Nova',
                 emoji: '🌟',
                 color: '#ec4899',
                 description: 'Yoga + Pilates + danse. Corps long et athlétique, sans chercher la masse.',
-                quote: '"Take care of yourself first — you can\'t pour from an empty cup."',
+                quote: '« Prends soin de toi d\'abord : on ne verse pas d\'une tasse vide. »',
                 level: 'Débutant', levelColor: '#db2777', focus: 'Tonification & Souplesse',
                 days: 4, rest: 60, duration: '45-60 min', calories: '~350 kcal',
                 splits: [
@@ -40850,7 +41173,7 @@
                 ],
                 tips: [
                     { emoji:'💃', text:'La danse compte comme entraînement cardio — bouge chaque jour' },
-                    { emoji:'🧘', text:'10 min de méditation matin — clé de la discipline de Zendaya' },
+                    { emoji:'🧘', text:'10 min de méditation matin — clé de la discipline de Nova Reyes' },
                     { emoji:'🥗', text:'Alimentation intuitive — écoute ton corps, pas les calories' },
                     { emoji:'😴', text:'Sommeil 9h — sa priorité absolue pour peau et forme' },
                 ],
@@ -40867,12 +41190,12 @@
             },
             {
                 id: 'beyonce', gender: 'femme',
-                name: 'Beyoncé',
-                nickname: 'Beyoncé',
+                name: 'Reina Carter',
+                nickname: 'La Reine',
                 emoji: '🐝',
                 color: '#f59e0b',
-                description: 'Cardio intense + danse + force. Préparation scénique pour Coachella.',
-                quote: '"I don\'t like to gamble, but if there\'s one thing I\'m willing to bet on, it\'s myself."',
+                description: 'Cardio intense + danse + force. Préparation scénique pour un grand festival.',
+                quote: '« S\'il y a une chose sur laquelle je parie, c\'est moi-même. »',
                 level: 'Intermédiaire', levelColor: '#d97706', focus: 'Cardio & Tonification',
                 days: 6, rest: 60, duration: '60-90 min', calories: '~500 kcal',
                 splits: [
@@ -40900,12 +41223,12 @@
             },
             {
                 id: 'serena', gender: 'femme',
-                name: 'Serena Williams',
-                nickname: 'Serena',
+                name: 'Amara Knight',
+                nickname: 'La Championne',
                 emoji: '🎾',
                 color: '#10b981',
                 description: 'Force athlétique + explosivité + endurance. L\'entraînement d\'une légende.',
-                quote: '"I really think a champion is defined not by their wins but by how they can recover when they fall."',
+                quote: '« On reconnaît une championne à sa façon de se relever. »',
                 level: 'Avancé', levelColor: '#059669', focus: 'Force & Explosivité',
                 days: 5, rest: 90, duration: '75-90 min', calories: '~650 kcal',
                 splits: [
@@ -40935,12 +41258,12 @@
             // ── HOMMES (nouveaux) ────────────────────────────────
             {
                 id: 'ronaldo', gender: 'homme',
-                name: 'Cristiano Ronaldo',
-                nickname: 'CR7',
+                name: 'Rui Salvador',
+                nickname: 'Le Phénix',
                 emoji: '⚽',
                 color: '#22c55e',
                 description: 'Endurance + explosivité + force. Programme footballeur élite — le meilleur corps du sport.',
-                quote: '"Talent without working hard is nothing."',
+                quote: '« Le talent sans travail ne vaut rien. »',
                 level: 'Avancé', levelColor: '#16a34a', focus: 'Cardio & Explosivité',
                 days: 5, rest: 90, duration: '60-90 min', calories: '~700 kcal',
                 splits: [
@@ -40968,12 +41291,12 @@
             },
             {
                 id: 'mayweather', gender: 'homme',
-                name: 'Floyd Mayweather Jr.',
-                nickname: 'Money',
+                name: 'Malik Dorsey',
+                nickname: 'L\'Invaincu',
                 emoji: '🥊',
                 color: '#f59e0b',
                 description: 'Cardio boxe + corde + abdos. Le meilleur cardio du sport professionnel.',
-                quote: '"Hard work, dedication."',
+                quote: '« Travail acharné. Discipline. Rien d\'autre. »',
                 level: 'Avancé', levelColor: '#d97706', focus: 'Cardio & Agilité',
                 days: 6, rest: 45, duration: '120-150 min', calories: '~900 kcal',
                 splits: [
@@ -41001,12 +41324,12 @@
             },
             {
                 id: 'phelps', gender: 'homme',
-                name: 'Michael Phelps',
-                nickname: 'The Shark',
+                name: 'Elias Marsh',
+                nickname: 'Le Requin',
                 emoji: '🦈',
                 color: '#0ea5e9',
                 description: 'Volume total extraordinaire — 6h/j de natation + renforcement à sec.',
-                quote: '"It\'s not about the title, it\'s about being the best you can be."',
+                quote: '« Ce n\'est pas le titre qui compte, c\'est aller au bout de soi. »',
                 level: 'Avancé', levelColor: '#0284c7', focus: 'Endurance & Corps entier',
                 days: 7, rest: 60, duration: '45-60 min (sec)', calories: '~600 kcal',
                 splits: [
@@ -41034,12 +41357,12 @@
             },
             {
                 id: 'ronnie', gender: 'homme',
-                name: 'Ronnie Coleman',
-                nickname: 'Big Ron',
+                name: 'Roy Danvers',
+                nickname: 'Big Roy',
                 emoji: '🔱',
                 color: '#dc2626',
-                description: '8× Olympia. Volume et intensité absolue — pour les plus avancés uniquement.',
-                quote: '"Everybody wants to be a bodybuilder, but nobody wants to lift no heavy-ass weights."',
+                description: 'Huit titres mondiaux. Volume et intensité absolue — pour les plus avancés uniquement.',
+                quote: '« Tout le monde veut du muscle, personne ne veut soulever lourd. »',
                 level: 'Avancé', levelColor: '#b91c1c', focus: 'Masse & Force maximale',
                 days: 6, rest: 180, duration: '120-150 min', calories: '~1000 kcal',
                 splits: [
@@ -41069,12 +41392,12 @@
             // ── FEMMES (nouvelles) ───────────────────────────────
             {
                 id: 'shakira', gender: 'femme',
-                name: 'Shakira',
-                nickname: 'Shakira',
+                name: 'Luna Vega',
+                nickname: 'La Danseuse',
                 emoji: '💃',
                 color: '#f97316',
                 description: 'Danse + Zumba + yoga + pole dance. Corps athlétique sans jamais une salle de sport traditionnelle.',
-                quote: '"Dancing is not just my job, it\'s my therapy."',
+                quote: '« Danser n\'est pas un entraînement, c\'est une thérapie. »',
                 level: 'Débutant', levelColor: '#ea580c', focus: 'Cardio & Souplesse',
                 days: 5, rest: 45, duration: '60-75 min', calories: '~400 kcal',
                 splits: [
@@ -41102,12 +41425,12 @@
             },
             {
                 id: 'madonna', gender: 'femme',
-                name: 'Madonna',
-                nickname: 'Madonna',
+                name: 'Vera Steele',
+                nickname: 'L\'Icône',
                 emoji: '👸',
                 color: '#ec4899',
                 description: 'Yoga Ashtanga + danse + cardio. Corps athlétique maintenu à 60+ ans.',
-                quote: '"I\'m tough, ambitious, and I know exactly what I want."',
+                quote: '« Je suis tenace, ambitieuse, et je sais ce que je veux. »',
                 level: 'Intermédiaire', levelColor: '#db2777', focus: 'Endurance & Tonification',
                 days: 6, rest: 60, duration: '90-120 min', calories: '~550 kcal',
                 splits: [
@@ -41135,12 +41458,12 @@
             },
             {
                 id: 'halle', gender: 'femme',
-                name: 'Halle Berry',
-                nickname: 'Halle',
+                name: 'Nadia Sinclair',
+                nickname: 'L\'Intrépide',
                 emoji: '🌺',
                 color: '#8b5cf6',
                 description: 'MMA + yoga + musculation. Corps de superhéroïne construit avec arts martiaux.',
-                quote: '"Fitness is not about being better than someone else, it\'s about being better than you used to be."',
+                quote: '« Sois meilleur que tu ne l\'étais hier, pas meilleur qu\'un autre. »',
                 level: 'Intermédiaire', levelColor: '#7c3aed', focus: 'Force & Combat',
                 days: 5, rest: 75, duration: '75-90 min', calories: '~600 kcal',
                 splits: [
@@ -41168,12 +41491,12 @@
             },
             {
                 id: 'naomi', gender: 'femme',
-                name: 'Naomi Osaka',
-                nickname: 'Naomi',
+                name: 'Mei Kobayashi',
+                nickname: 'Le Calme',
                 emoji: '🎾',
                 color: '#06b6d4',
                 description: 'Athlétisme tennis + force explosivité + agilité. Top 1 mondiale.',
-                quote: '"I feel like the more I play, the more I\'m learning about myself."',
+                quote: '« Le calme est une arme : il reste quand la force s\'en va. »',
                 level: 'Intermédiaire', levelColor: '#0891b2', focus: 'Explosivité & Agilité',
                 days: 5, rest: 75, duration: '60-90 min', calories: '~580 kcal',
                 splits: [
@@ -41205,12 +41528,12 @@
             // ══════════════════════════════════════════════════════════
             {
                 id: 'cavaliere', gender: 'homme',
-                name: 'Jeff Cavaliere',
-                nickname: 'ATHLEAN-X',
+                name: 'Aaron Vance',
+                nickname: 'Le Scientifique',
                 emoji: '🔬',
                 color: '#22c55e',
                 description: 'Entraînement basé sur la science. Chaque exercice justifié, zéro blabla, résultats athlétiques.',
-                quote: '"Le meilleur exercice est celui que tu fais avec une forme parfaite."',
+                quote: '« Chaque exercice doit se justifier, sinon il dégage. »',
                 level: 'Intermédiaire', levelColor: '#16a34a', focus: 'Force fonctionnelle & Science',
                 days: 5, rest: 75, duration: '50-70 min', calories: '~600 kcal',
                 splits: [
@@ -41238,12 +41561,12 @@
             },
             {
                 id: 'heria', gender: 'homme',
-                name: 'Chris Heria',
-                nickname: 'THENX',
+                name: 'Diego Rivas',
+                nickname: 'Le Calisthène',
                 emoji: '🤸',
                 color: '#f59e0b',
                 description: 'Maîtrise du poids du corps. Calisthénie pure : muscle-ups, planches, contrôle absolu. 6j/sem.',
-                quote: '"Ton corps est la seule salle de sport dont tu as besoin."',
+                quote: '« Ton corps est la seule salle dont tu as vraiment besoin. »',
                 level: 'Avancé', levelColor: '#d97706', focus: 'Calisthénie & Contrôle',
                 days: 6, rest: 45, duration: '60-120 min', calories: '~650 kcal',
                 splits: [
@@ -41271,12 +41594,12 @@
             },
             {
                 id: 'panda', gender: 'homme',
-                name: 'Simeon Panda',
-                nickname: 'Mr Aesthetic',
+                name: 'Samuel Pierce',
+                nickname: 'Monsieur Symétrie',
                 emoji: '🐼',
                 color: '#3b82f6',
                 description: 'Bodybuilding esthétique. Volume, isolation, recherche de la symétrie parfaite.',
-                quote: '"La constance bat le talent quand le talent n\'est pas constant."',
+                quote: '« La symétrie se construit série après série. »',
                 level: 'Avancé', levelColor: '#2563eb', focus: 'Hypertrophie & Esthétique',
                 days: 6, rest: 75, duration: '75-90 min', calories: '~700 kcal',
                 splits: [
@@ -41304,12 +41627,12 @@
             },
             {
                 id: 'nippard', gender: 'homme',
-                name: 'Jeff Nippard',
-                nickname: 'Powerbuilder',
+                name: 'Nathan Reed',
+                nickname: 'Le Powerbuilder',
                 emoji: '📊',
                 color: '#a855f7',
                 description: 'Powerbuilding : le meilleur du bodybuilding et du powerlifting. Force ET volume, basé sur la science.',
-                quote: '"Combiner les plages de répétitions est supérieur pour la croissance musculaire."',
+                quote: '« Sois fort ET bien bâti : refuse de choisir. »',
                 level: 'Avancé', levelColor: '#9333ea', focus: 'Force & Hypertrophie',
                 days: 5, rest: 120, duration: '60-75 min', calories: '~650 kcal',
                 splits: [
@@ -41337,12 +41660,12 @@
             },
             {
                 id: 'goggins', gender: 'homme',
-                name: 'David Goggins',
-                nickname: 'Carré sa tête',
+                name: 'Dante Royce',
+                nickname: 'L\'Increvable',
                 emoji: '💀',
                 color: '#ef4444',
                 description: 'Endurance extrême et mental d\'acier. Repousser ses limites, encore et encore. Pas pour les faibles.',
-                quote: '"Quand tu penses avoir fini, tu n\'es qu\'à 40% de tes capacités."',
+                quote: '« Quand ta tête dit stop, tu n\'es qu\'à 40 % de tes capacités. »',
                 level: 'Extrême', levelColor: '#dc2626', focus: 'Endurance & Mental',
                 days: 6, rest: 30, duration: '60-120 min', calories: '~1000 kcal',
                 splits: [
@@ -41370,12 +41693,12 @@
             },
             {
                 id: 'hannibal', gender: 'homme',
-                name: 'Hannibal For King',
-                nickname: 'Street Legend',
+                name: 'Amani Sow',
+                nickname: 'Légende de la Rue',
                 emoji: '🏙️',
                 color: '#64748b',
                 description: 'Pionnier du street workout. Tout au poids du corps, dans la rue, force et endurance pures.',
-                quote: '"Pas d\'excuses. La rue est ta salle de sport."',
+                quote: '« Une barre, du bitume, et aucune excuse. »',
                 level: 'Avancé', levelColor: '#475569', focus: 'Street Workout',
                 days: 5, rest: 60, duration: '60-90 min', calories: '~600 kcal',
                 splits: [
@@ -41407,12 +41730,12 @@
             // ══════════════════════════════════════════════════════════
             {
                 id: 'girvan', gender: 'femme',
-                name: 'Caroline Girvan',
-                nickname: 'CGX',
+                name: 'Claire Girard',
+                nickname: 'L\'Intense',
                 emoji: '🔥',
                 color: '#ef4444',
                 description: 'HIIT intense et musculation sans temps mort. Programmes en follow-along, brutalement efficaces.',
-                quote: '"La discipline est de choisir entre ce que tu veux maintenant et ce que tu veux le plus."',
+                quote: '« Pas de bavardage : on soulève, on respire, on recommence. »',
                 level: 'Avancé', levelColor: '#dc2626', focus: 'HIIT & Force',
                 days: 5, rest: 45, duration: '40-50 min', calories: '~550 kcal',
                 splits: [
@@ -41440,12 +41763,12 @@
             },
             {
                 id: 'chloeting', gender: 'femme',
-                name: 'Chloe Ting',
-                nickname: 'Shred Challenge',
+                name: 'Mia Chen',
+                nickname: 'Défi Abdos',
                 emoji: '✨',
                 color: '#ec4899',
                 description: 'Challenges abdos et full body sans matériel. Accessible, à faire chez soi, populaire mondialement.',
-                quote: '"Les résultats demandent du temps — fais confiance au processus."',
+                quote: '« Dix minutes par jour valent mieux qu\'une heure jamais faite. »',
                 level: 'Débutant', levelColor: '#db2777', focus: 'Abdos & Sans matériel',
                 days: 5, rest: 30, duration: '25-40 min', calories: '~350 kcal',
                 splits: [
@@ -41473,12 +41796,12 @@
             },
             {
                 id: 'cummings', gender: 'femme',
-                name: 'Sydney Cummings',
-                nickname: 'Coach Syd',
+                name: 'Sasha Doyle',
+                nickname: 'Coach Sasha',
                 emoji: '💪',
                 color: '#22c55e',
                 description: 'Force full body et HIIT structurés. Nouveaux entraînements quotidiens, équilibre muscle et cardio.',
-                quote: '"Présente-toi pour toi-même, chaque jour."',
+                quote: '« Un nouvel entraînement chaque jour, aucune routine subie. »',
                 level: 'Intermédiaire', levelColor: '#16a34a', focus: 'Force & HIIT',
                 days: 5, rest: 60, duration: '45-60 min', calories: '~500 kcal',
                 splits: [
@@ -41506,12 +41829,12 @@
             },
             {
                 id: 'robertson', gender: 'femme',
-                name: 'Heather Robertson',
-                nickname: 'At-Home Pro',
+                name: 'Hazel Brooks',
+                nickname: 'Pro à Domicile',
                 emoji: '🏠',
                 color: '#06b6d4',
                 description: 'Entraînements maison structurés, format intervalle. Équilibre force, cardio et mobilité.',
-                quote: '"Un entraînement à la fois, un jour à la fois."',
+                quote: '« Ton salon suffit si ton intention est là. »',
                 level: 'Intermédiaire', levelColor: '#0891b2', focus: 'Maison & Équilibre',
                 days: 5, rest: 45, duration: '30-45 min', calories: '~420 kcal',
                 splits: [
@@ -41539,12 +41862,12 @@
             },
             {
                 id: 'cela', gender: 'femme',
-                name: 'Krissy Cela',
-                nickname: 'Tone & Sculpt',
+                name: 'Nina Costa',
+                nickname: 'Tonique & Sculptée',
                 emoji: '🏋️‍♀️',
                 color: '#a855f7',
                 description: 'Musculation féminine en salle. Construire de la force et sculpter, programmes structurés sur le gym.',
-                quote: '"Soulève des poids, deviens forte, sens-toi puissante."',
+                quote: '« Entraîne-toi pour te sentir forte, pas pour rentrer dans une taille. »',
                 level: 'Intermédiaire', levelColor: '#9333ea', focus: 'Musculation & Sculpt',
                 days: 5, rest: 75, duration: '50-70 min', calories: '~520 kcal',
                 splits: [
@@ -41572,12 +41895,12 @@
             },
             {
                 id: 'pamela', gender: 'femme',
-                name: 'Pamela Reif',
-                nickname: 'Pam',
+                name: 'Lena Bauer',
+                nickname: 'Lena',
                 emoji: '🎀',
                 color: '#ec4899',
                 description: 'HIIT sans matériel, format follow-along rythmé en musique. Court, intense, à faire partout.',
-                quote: '"Pas d\'excuses — 20 minutes suffisent si tu te donnes à fond."',
+                quote: '« Régulière, pas parfaite — c\'est ça qui paie. »',
                 level: 'Intermédiaire', levelColor: '#db2777', focus: 'HIIT sans matériel',
                 days: 5, rest: 20, duration: '20-40 min', calories: '~400 kcal',
                 splits: [
@@ -41748,7 +42071,7 @@
                 cbum:        { calories:'~3500-4000 kcal/j (offseason)', protein:'~2.5g/kg', approach:'5-6 repas/j, riz blanc, poulet, patate douce', note:'Offseason : surplus léger 200-300 kcal. Pré-compét : coupe progressive.', tip:'Timing des glucides autour de l\'entraînement — avant et après.' },
                 wonderwoman: { calories:'~2200-2800 kcal/j', protein:'~1.8g/kg', approach:'Anti-inflammatoire, légumes, protéines maigres', note:'Évite le sucre raffiné et privilégie les aliments entiers.', tip:'Hydratation : 3L d\'eau par jour, thé vert le matin.' },
                 zendaya:     { calories:'~2000-2400 kcal/j', protein:'~1.5g/kg', approach:'Alimentation intuitive, peu de restrictions', note:'Pas de régime strict — écoute du corps et plaisir alimentaire.', tip:'Des protéines à chaque repas pour maintenir l\'énergie toute la journée.' },
-                beyonce:     { calories:'~2500-3000 kcal/j', protein:'~1.8g/kg', approach:'Végétalien avant les grandes échéances, méditerranéen sinon', note:'Régime végétalien 3-4 semaines avant Coachella : résultats visibles.', tip:'Évite le gluten et les produits laitiers en préparation show.' },
+                beyonce:     { calories:'~2500-3000 kcal/j', protein:'~1.8g/kg', approach:'Végétalien avant les grandes échéances, méditerranéen sinon', note:'Régime végétalien 3-4 semaines avant un grand festival : résultats visibles.', tip:'Évite le gluten et les produits laitiers en préparation show.' },
                 serena:      { calories:'~3000-3500 kcal/j', protein:'~2g/kg', approach:'Riche en protéines, hydratation maximale', note:'Évite le gluten et se concentre sur la récupération musculaire.', tip:'Protéines dans les 30 min post-entraînement — essentiel pour elle.' },
                 ronaldo:     { calories:'~3500-4000 kcal/j', protein:'~2.2g/kg', approach:'6 repas/j, poulet, poisson, salade, pas d\'alcool', note:'Zéro alcool depuis l\'âge de 17 ans — sa règle absolue.', tip:'Protéines à chaque repas, glucides autour de l\'entraînement uniquement.' },
                 mayweather:  { calories:'~4000-5000 kcal/j', protein:'~2g/kg', approach:'Repas fréquents, focus énergie, glucides complexes', note:'Volume d\'entraînement extrême — les calories suivent les besoins.', tip:'Hydratation massive : 4L d\'eau par jour minimum.' },
@@ -41773,7 +42096,7 @@
                 ronaldo:     ['"Le talent sans le travail ne vaut rien."','"Les buts ne se marquent pas sur le canapé."','"Je suis fier de ma discipline — personne ne m\'a vu renoncer."','"Rêve, crois, accomplis."'],
                 mayweather:  ['"Hard work, dedication."','"Je cours la nuit pendant que les autres dorment."','"Le cardio, c\'est le moteur. Tout le reste, c\'est la carrosserie."'],
                 phelps:      ['"Si tu veux être le meilleur, entraîne-toi les jours où les autres ne le font pas."','"Volume + constance = résultats. Pas de raccourci."','"La piscine m\'a appris que chaque longueur compte."'],
-                ronnie:      ['"Everybody wants to be a bodybuilder, but nobody wants to lift no heavy-ass weights."','"La douleur que tu ressens aujourd\'hui sera ta force de demain."','"8 titres Olympia ne s\'obtiennent pas avec des exercices confortables."'],
+                ronnie:      ['« Tout le monde veut du muscle, personne ne veut soulever lourd. »','"La douleur que tu ressens aujourd\'hui sera ta force de demain."','« Huit titres mondiaux ne s\'obtiennent pas avec des exercices confortables. »'],
                 shakira:     ['"La danse n\'est pas juste mon travail — c\'est ma thérapie."','"Le corps garde la mémoire de chaque mouvement. Bouge chaque jour."','"La souplesse se cultive chaque jour, pas une fois par semaine."'],
                 madonna:     ['"Je suis dure, ambitieuse, et je sais exactement ce que je veux."','"À 60 ans, j\'ai le corps que j\'ai construit — pas celui que j\'ai eu par chance."','"Le confort est l\'ennemi de la progression."'],
                 halle:       ['"Le fitness n\'est pas une compétition avec les autres — c\'est avec qui tu étais hier."','"Le MMA m\'a appris que les limites sont dans ta tête."','"Je suis plus forte à 55 ans qu\'à 25 — parce que j\'ai compris comment travailler smart."'],
@@ -41989,10 +42312,10 @@
                 '"Les records sont là pour être battus — par toi, la prochaine fois."',
             ],
             ronnie: [
-                '"Everybody wants to be a bodybuilder, but nobody wants to lift no heavy-ass weights."',
+                '« Tout le monde veut du muscle, personne ne veut soulever lourd. »',
                 '"Pèse lourd ou rentre chez toi."',
                 '"La douleur que tu ressens aujourd\'hui sera ta force de demain."',
-                '"8 titres Olympia ne s\'obtiennent pas avec des exercices confortables."',
+                '« Huit titres mondiaux ne s\'obtiennent pas avec des exercices confortables. »',
                 '"Oui buddy, légères poids !"',
             ],
             shakira: [
@@ -43525,6 +43848,8 @@
 
         function backToHome() {
             window._overrideSessionMuscles = null; // nettoyer si abandon
+            // 🛟 Filet : overlay de pause retiré dans tous les retours à l'accueil.
+            if (typeof awakHidePauseOverlay === 'function') awakHidePauseOverlay();
             // Clear ALL timers
             clearInterval(timerInterval);
             clearInterval(cardioInterval);
@@ -46424,7 +46749,7 @@
 
             host.innerHTML =
                 '<div style="position:relative;width:110px;margin:0 auto 12px;">'
-              +   '<img src="images/body/body_face.webp?v=1080" alt="" '
+              +   '<img src="images/body/body_face.webp?v=1090" alt="" '
               +     'style="width:100%;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -46506,7 +46831,7 @@
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1080);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1090);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -47709,7 +48034,7 @@
                 { category:'💡 Conseil', text:'Pas de jours de congé complet — même le dimanche, une marche de 20 min maintient l\'élan.' },
             ],
             thor: [
-                { category:'😴 Récupération', text:'8h de sommeil minimum. Chris Hemsworth considère ça comme son entraînement le plus important.' },
+                { category:'😴 Récupération', text:'8h de sommeil minimum. Erik Nordvik considère ça comme son entraînement le plus important.' },
                 { category:'🏋️ Entraînement', text:'Remplace une séance en salle par du surf ou une randonnée — le corps répond mieux à la variété.' },
                 { category:'🧠 Mindset', text:'Entraîne-toi avec quelqu\'un de meilleur que toi une fois par semaine — ça élève ton niveau.' },
                 { category:'🍽️ Nutrition', text:'Avoine le matin avec protéines — simple, efficace, la base de sa nutrition.' },
@@ -47727,16 +48052,16 @@
                 { category:'💡 Conseil', text:'Pratiquer les poses améliore le contrôle musculaire. Sérieusement, essaie 5 min après la séance.' },
             ],
             ronaldo: [
-                { category:'⚡ Explosivité', text:'Ajoute 5 sprints de 30m à la fin de ta séance aujourd\'hui. Ronaldo les fait à chaque entraînement.' },
-                { category:'🍽️ Nutrition', text:'Zéro alcool. C\'est la règle de Ronaldo depuis l\'âge de 17 ans. Un seul choix, une vie de résultats.' },
+                { category:'⚡ Explosivité', text:'Ajoute 5 sprints de 30m à la fin de ta séance aujourd\'hui. Rui Salvador les fait à chaque entraînement.' },
+                { category:'🍽️ Nutrition', text:'Zéro alcool. C\'est la règle de Rui Salvador depuis l\'âge de 17 ans. Un seul choix, une vie de résultats.' },
                 { category:'😴 Récupération', text:'Sieste de 90 min l\'après-midi si possible. Son coach dit que ça vaut autant qu\'une nuit complète.' },
                 { category:'🏋️ Entraînement', text:'Abdos chaque jour — 200-400 en séries de 100. Commence par 50 ce soir avant de dormir.' },
                 { category:'🧠 Mindset', text:'"Talent without working hard is nothing." La génétique est un point de départ, pas une destination.' },
                 { category:'🍽️ Nutrition', text:'Protéines à chaque repas, glucides autour de l\'entraînement uniquement. Simple et efficace.' },
-                { category:'💡 Conseil', text:'Ronaldo pèse et mesure tout. Commence par noter tes charges cette semaine — tu progresses ce que tu mesures.' },
+                { category:'💡 Conseil', text:'Rui Salvador pèse et mesure tout. Commence par noter tes charges cette semaine — tu progresses ce que tu mesures.' },
             ],
             wonderwoman: [
-                { category:'🧘 Yoga', text:'15 min de yoga ce soir avant de dormir — Gal Gadot le fait 4x/sem pour la mobilité.' },
+                { category:'🧘 Yoga', text:'15 min de yoga ce soir avant de dormir — Alexia Roman le fait 4x/sem pour la mobilité.' },
                 { category:'🍽️ Nutrition', text:'Remplace une collation par un smoothie vert aujourd\'hui. Épinards + banane + protéine en poudre.' },
                 { category:'🏋️ Entraînement', text:'Cours de boxe ou combat cette semaine si possible — coordination, cardio, confiance en soi.' },
                 { category:'💧 Hydratation', text:'3L d\'eau par jour. Elle commence chaque matin avec un grand verre d\'eau citronnée.' },
@@ -47745,30 +48070,30 @@
                 { category:'😴 Récupération', text:'Bain chaud avec sel d\'Epsom après les séances intenses — récupération musculaire accélérée.' },
             ],
             zendaya: [
-                { category:'🧘 Mindset', text:'10 min de méditation ce matin — Zendaya dit que ça structure toute sa journée.' },
+                { category:'🧘 Mindset', text:'10 min de méditation ce matin — Nova Reyes dit que ça structure toute sa journée.' },
                 { category:'💃 Mouvement', text:'Met ta musique préférée et danse 10 min aujourd\'hui. Ça compte comme cardio et ça rend heureux.' },
-                { category:'😴 Récupération', text:'Zendaya dort 9h. Si tu dors moins de 7h, c\'est ton premier problème de fitness à régler.' },
+                { category:'😴 Récupération', text:'Nova Reyes dort 9h. Si tu dors moins de 7h, c\'est ton premier problème de fitness à régler.' },
                 { category:'🍽️ Nutrition', text:'Alimentation intuitive : mange quand tu as vraiment faim, arrête quand tu es rassasié(e).' },
                 { category:'🧘 Mouvement', text:'Étirements 20 min ce soir. La souplesse se perd vite et se regagne lentement — commence maintenant.' },
                 { category:'💡 Conseil', text:'Bouge chaque jour, même 15 min. La consistance bat l\'intensité quand il s\'agit d\'habitudes.' },
                 { category:'🧠 Mindset', text:'Entraîne-toi pour te sentir bien, pas pour ressembler à quelqu\'un d\'autre. C\'est sa philosophie.' },
             ],
             beyonce: [
-                { category:'💃 Cardio', text:'Beyoncé brûle 2000 kcal par journée de répétition. Ajoute 20 min de danse cardio aujourd\'hui.' },
+                { category:'💃 Cardio', text:'Reina Carter brûle 2000 kcal par journée de répétition. Ajoute 20 min de danse cardio aujourd\'hui.' },
                 { category:'🏋️ Entraînement', text:'Focus fessiers et abdos aujourd\'hui — sa signature visuelle, travaillée quotidiennement.' },
                 { category:'🍽️ Nutrition', text:'Essaie un repas végétalien aujourd\'hui. Elle dit que 3 semaines sans viande l\'ont transformée.' },
-                { category:'💡 Conseil', text:'Sa préparation Coachella : entraînement 2x/j pendant 4 mois. Pour toi : 1 séance/j, 4 mois = résultats garantis.' },
+                { category:'💡 Conseil', text:'Sa préparation de festival : entraînement 2x/j pendant 4 mois. Pour toi : 1 séance/j, 4 mois = résultats garantis.' },
                 { category:'🧠 Mindset', text:'"Je mise sur moi-même." Décide aujourd\'hui d\'un objectif concret et écris-le.' },
                 { category:'🍽️ Nutrition', text:'Évite le gluten 3 jours avant un événement important. Elle le fait avant chaque show.' },
                 { category:'🏋️ Entraînement', text:'Corde à sauter 5 min entre les séries — cardio intégré, coordination améliorée.' },
             ],
             serena: [
-                { category:'💪 Force', text:'N\'aie pas peur de soulever lourd. Serena l\'a prouvé : la force protège les articulations.' },
+                { category:'💪 Force', text:'N\'aie pas peur de soulever lourd. Amara Knight l\'a prouvé : la force protège les articulations.' },
                 { category:'⚡ Explosivité', text:'Pliométrie cette semaine : sauts en boîte, fentes sautées. L\'explosivité change tout.' },
-                { category:'🧘 Récupération', text:'Stretching 20 min obligatoire. Serena dit que ça lui a évité des blessures pendant 20 ans.' },
+                { category:'🧘 Récupération', text:'Stretching 20 min obligatoire. Amara Knight dit que ça lui a évité des blessures pendant 20 ans.' },
                 { category:'🍽️ Nutrition', text:'Protéines dans les 30 min post-entraînement — sa règle absolue depuis le début de sa carrière.' },
                 { category:'🧠 Mindset', text:'"Je me relève." Après chaque séance difficile, note une chose que tu as améliorée.' },
-                { category:'🏋️ Entraînement', text:'Deadlift cette semaine si tu ne l\'as pas fait — Serena en fait à chaque cycle de force.' },
+                { category:'🏋️ Entraînement', text:'Deadlift cette semaine si tu ne l\'as pas fait — Amara Knight en fait à chaque cycle de force.' },
                 { category:'💡 Conseil', text:'La routine bat le talent sur le long terme. Sois là chaque jour, même pour 30 minutes.' },
             ],
         };
@@ -48175,7 +48500,7 @@
                 },
                 {
                     emoji: '🌟', title: 'Entraîne-toi comme une star',
-                    text: 'Dans <strong style="color:#16a34a;">Séances → Programmes Stars</strong>, choisis une personnalité (The Rock, CBum, Beyoncé…). Son plan hebdo et ses exercices s\'activent automatiquement.',
+                    text: 'Dans <strong style="color:#16a34a;">Séances → Programmes Stars</strong>, choisis une personnalité (Le Colosse, L\'Esthète, Reina Carter…). Son plan hebdo et ses exercices s\'activent automatiquement.',
                     btn: 'C\'est parti ! 🚀'
                 },
             ];
@@ -48872,7 +49197,7 @@
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1080");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1090");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.

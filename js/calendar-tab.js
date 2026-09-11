@@ -107,6 +107,93 @@
     return '<span style="font-size:' + Math.round(size * 0.6) + 'px;line-height:1;">' + (a || '👤') + '</span>';
   }
 
+  // ═══ HEURES ════════════════════════════════════════════════════════
+  // Deux niveaux, l'exception l'emporte toujours sur la récurrence :
+  //   1. RÉCURRENTE : plan[jour].heure        → « tous les lundis à 18h »
+  //   2. EXCEPTION  : awakCalTimeEx_<profil>  → « ce 15 seulement, 19h »
+  //      { '2026-9-15': '19:00' }  ·  '' = séance annulée exceptionnellement
+  var EX_KEY = 'awakCalTimeEx_';
+
+  function exFor(id) {
+    try {
+      var raw = localStorage.getItem(EX_KEY + id);
+      if (!raw) return {};
+      var o = JSON.parse(raw);
+      return (o && typeof o === 'object') ? o : {};
+    } catch (e) { return {}; }
+  }
+  function saveEx(id, obj) {
+    try { localStorage.setItem(EX_KEY + id, JSON.stringify(obj || {})); } catch (e) {}
+  }
+
+  // Heure effective d'un membre pour une date donnée (null si aucune).
+  function timeFor(id, ymd, dayKey, plan) {
+    var ex = exFor(id);
+    if (Object.prototype.hasOwnProperty.call(ex, ymd)) return ex[ymd] || null;
+    var s = (plan || {})[dayKey];
+    return (s && s.heure) ? s.heure : null;
+  }
+  function hasEx(id, ymd) {
+    return Object.prototype.hasOwnProperty.call(exFor(id), ymd);
+  }
+
+  // '18:30' → '18h30'   ·   '18:00' → '18h'
+  function fmtTime(t) {
+    if (!t) return '';
+    var p = String(t).split(':');
+    if (p.length < 2) return String(t);
+    var h = parseInt(p[0], 10), mi = p[1];
+    if (isNaN(h)) return String(t);
+    return h + 'h' + (mi === '00' ? '' : mi);
+  }
+  function toMin(t) {
+    if (!t) return null;
+    var p = String(t).split(':');
+    var h = parseInt(p[0], 10), mi = parseInt(p[1], 10);
+    if (isNaN(h) || isNaN(mi)) return null;
+    return h * 60 + mi;
+  }
+  // Tri : les séances avec heure d'abord (chronologique), puis les sans-heure.
+  function byTime(a, b) {
+    var x = toMin(a.heure), y = toMin(b.heure);
+    if (x === null && y === null) return 0;
+    if (x === null) return 1;
+    if (y === null) return -1;
+    return x - y;
+  }
+  // Chevauchement = deux séances à moins de 60 min d'écart (pas de durée stockée).
+  function overlaps(entries) {
+    var withT = entries.filter(function (e) { return toMin(e.heure) !== null; })
+                       .sort(function (a, b) { return toMin(a.heure) - toMin(b.heure); });
+    var out = [];
+    for (var i = 1; i < withT.length; i++) {
+      if (Math.abs(toMin(withT[i].heure) - toMin(withT[i - 1].heure)) < 60) {
+        out.push([withT[i - 1], withT[i]]);
+      }
+    }
+    return out;
+  }
+
+  // Séances d'une date, tous membres sélectionnés confondus.
+  function entriesFor(list, plans, dones, y, m, d) {
+    var dayKey = JOURS[wIdx(new Date(y, m, d))];
+    var ymd = y + '-' + m + '-' + d;
+    var out = [];
+    list.forEach(function (p) {
+      if (!cal.selected.has(p.id)) return;
+      var s = (plans[p.id] || {})[dayKey];
+      if (!s || !s.muscles || !s.muscles.length) return;
+      out.push({
+        profil: p,
+        seance: s,
+        heure: timeFor(p.id, ymd, dayKey, plans[p.id]),
+        exception: hasEx(p.id, ymd),
+        faite: !!(dones[p.id] && dones[p.id][ymd])
+      });
+    });
+    return out.sort(byTime);
+  }
+
   // Sélection initiale : le profil actif seul (ou le premier profil).
   function ensureSelected(list) {
     if (cal.selected instanceof Set) {
@@ -191,42 +278,77 @@
       '</div>';
   }
 
-  // ── Carte AUJOURD'HUI ──
-  function todayHTML(list, colorById, plans) {
+  // ── Carte AUJOURD'HUI (triée par heure + alerte de chevauchement) ──
+  function todayHTML(list, colorById, plans, dones) {
     var today = new Date();
     var dayKey = JOURS[wIdx(today)];
     var dateLbl = JOURS_LONG[dayKey] + ' ' + today.getDate() + ' ' + MOIS[today.getMonth()].toLowerCase();
 
+    var entries = entriesFor(list, plans, dones, today.getFullYear(), today.getMonth(), today.getDate());
     var selList = list.filter(function (p) { return cal.selected.has(p.id); });
-    var rows = selList.map(function (p) {
-      var c = colorById[p.id];
-      var s = (plans[p.id] || {})[dayKey];
-      var trained = s && s.muscles && s.muscles.length;
-      var right;
-      if (trained) {
-        var label = s.label || s.muscles.slice(0, 3).join(' · ');
-        var mus = s.muscles.map(function (m) {
-          return '<span style="background:' + c.soft + ';color:' + c.base + ';border:1px solid ' + c.line +
-            ';padding:1px 7px;border-radius:99px;font-size:0.66em;font-weight:700;">' + esc(m) + '</span>';
-        }).join('');
-        right = '<div style="min-width:0;flex:1;">' +
-            '<div style="font-size:0.9em;font-weight:800;color:#e8f0f8;margin-bottom:5px;">' + esc(label) + '</div>' +
-            '<div style="display:flex;flex-wrap:wrap;gap:4px;">' + mus + '</div>' +
-          '</div>';
-      } else {
-        right = '<div style="flex:1;font-size:0.82em;color:#64748b;font-weight:600;padding-top:2px;">Repos</div>';
-      }
+
+    // Membres au repos aujourd'hui
+    var actifs = {};
+    entries.forEach(function (e) { actifs[e.profil.id] = true; });
+    var repos = selList.filter(function (p) { return !actifs[p.id]; });
+
+    var rows = entries.map(function (e) {
+      var c = colorById[e.profil.id];
+      var s = e.seance;
+      var label = s.label || s.muscles.slice(0, 3).join(' · ');
+      var mus = s.muscles.map(function (m) {
+        return '<span style="background:' + c.soft + ';color:' + c.base + ';border:1px solid ' + c.line +
+          ';padding:1px 7px;border-radius:99px;font-size:0.66em;font-weight:700;">' + esc(m) + '</span>';
+      }).join('');
+      var heure = e.heure
+        ? '<span style="background:' + c.base + ';color:#04121f;padding:2px 8px;border-radius:7px;' +
+            'font-size:0.72em;font-weight:900;font-family:var(--font-display);flex-shrink:0;">' + esc(fmtTime(e.heure)) + '</span>'
+        : '<span style="color:#64748b;font-size:0.66em;font-weight:700;flex-shrink:0;">—</span>';
+
       return '<div style="display:flex;align-items:flex-start;gap:11px;padding:11px 0;border-top:1px solid rgba(255,255,255,0.05);">' +
           '<div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:5px;width:44px;">' +
-            '<span style="display:inline-flex;">' + av(p.avatar, 34) + '</span>' +
+            '<span style="display:inline-flex;">' + av(e.profil.avatar, 34) + '</span>' +
             '<span style="width:16px;height:3px;border-radius:99px;background:' + c.base + ';"></span>' +
           '</div>' +
-          right +
+          '<div style="min-width:0;flex:1;">' +
+            '<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap;">' +
+              heure +
+              '<span style="font-size:0.9em;font-weight:800;color:#e8f0f8;">' + esc(label) + '</span>' +
+              (e.faite ? '<span style="color:' + c.base + ';font-size:0.72em;font-weight:900;">✓</span>' : '') +
+            '</div>' +
+            '<div style="display:flex;flex-wrap:wrap;gap:4px;">' + mus + '</div>' +
+          '</div>' +
         '</div>';
     }).join('');
 
+    // Ligne compacte pour ceux qui se reposent
+    if (repos.length) {
+      rows += '<div style="padding:9px 0 2px;border-top:1px solid rgba(255,255,255,0.05);' +
+          'font-size:0.74em;color:#64748b;font-weight:600;">🛌 Repos : ' +
+          repos.map(function (p) { return esc(p.name || 'Membre'); }).join(', ') +
+        '</div>';
+    }
+
     if (!rows) {
       rows = '<div style="padding:14px 0 4px;text-align:center;color:#64748b;font-size:0.82em;">Aucun membre sélectionné.</div>';
+    }
+
+    // ⚠️ Alerte : deux membres à moins d'une heure d'écart
+    var conflits = overlaps(entries);
+    var alerte = '';
+    if (conflits.length) {
+      var txt = conflits.map(function (pair) {
+        return esc(pair[0].profil.name || 'Membre') + ' (' + esc(fmtTime(pair[0].heure)) + ') et ' +
+               esc(pair[1].profil.name || 'Membre') + ' (' + esc(fmtTime(pair[1].heure)) + ')';
+      }).join(' · ');
+      alerte = '<div style="margin-top:11px;background:rgba(251,191,36,0.10);border:1px solid rgba(251,191,36,0.35);' +
+          'border-radius:10px;padding:9px 11px;display:flex;gap:8px;align-items:flex-start;">' +
+          '<span style="flex-shrink:0;font-size:0.95em;">⚠️</span>' +
+          '<div style="min-width:0;">' +
+            '<div style="font-size:0.72em;color:#fbbf24;font-weight:900;letter-spacing:0.5px;margin-bottom:2px;">HORAIRES RAPPROCHÉS</div>' +
+            '<div style="font-size:0.75em;color:#cbd5e1;line-height:1.4;">' + txt + '</div>' +
+          '</div>' +
+        '</div>';
     }
 
     return '' +
@@ -240,20 +362,20 @@
             '<span style="font-size:0.7em;color:#94a3b8;font-weight:700;">' + esc(dateLbl) + '</span>' +
           '</div>' +
           rows +
+          alerte +
         '</div>' +
       '</div>';
   }
 
-  // ── Pastille de séance dans une case ──
-  function pill(c, text, done) {
+  // ── Point de couleur d'un membre dans une case ──
+  // Plein = séance faite (✓), anneau = séance prévue.
+  function dot(c, done) {
     if (done) {
-      return '<div style="background:' + c.base + ';color:#04121f;border:1px solid ' + c.base + ';border-radius:6px;' +
-        'padding:2px 5px;font-size:0.62em;font-weight:800;line-height:1.15;white-space:nowrap;overflow:hidden;' +
-        'text-overflow:ellipsis;max-width:100%;">✓ ' + esc(text) + '</div>';
+      return '<span title="Séance faite" style="width:9px;height:9px;border-radius:50%;flex-shrink:0;' +
+        'background:' + c.base + ';box-shadow:0 0 6px ' + c.line + ';"></span>';
     }
-    return '<div style="background:' + c.soft + ';color:' + c.base + ';border:1px solid ' + c.line + ';border-radius:6px;' +
-      'padding:2px 5px;font-size:0.62em;font-weight:700;line-height:1.15;white-space:nowrap;overflow:hidden;' +
-      'text-overflow:ellipsis;max-width:100%;">' + esc(text) + '</div>';
+    return '<span title="Séance prévue" style="width:9px;height:9px;border-radius:50%;flex-shrink:0;' +
+      'background:transparent;border:2px solid ' + c.base + ';"></span>';
   }
 
   // ── Grille mensuelle ──
@@ -269,14 +391,14 @@
     // En-têtes de jours
     var head = JOURS_ENT.map(function (j, i) {
       var we = (i >= 5);
-      return '<div style="text-align:center;font-size:0.6em;font-weight:900;letter-spacing:1px;padding:6px 0;' +
-        'color:' + (we ? '#64748b' : '#94a3b8') + ';">' + j + '</div>';
+      return '<div style="text-align:center;font-size:0.58em;font-weight:900;letter-spacing:0.5px;padding:5px 0;' +
+        'min-width:0;overflow:hidden;color:' + (we ? '#64748b' : '#94a3b8') + ';">' + j + '</div>';
     }).join('');
 
     var cells = '';
     // Cases vides du début
     for (var b = 0; b < firstDow; b++) {
-      cells += '<div style="border-radius:10px;background:rgba(255,255,255,0.012);border:1px solid rgba(255,255,255,0.03);min-height:74px;"></div>';
+      cells += '<div style="border-radius:9px;background:rgba(255,255,255,0.012);border:1px solid rgba(255,255,255,0.03);min-height:52px;min-width:0;"></div>';
     }
     // Jours du mois
     for (var day = 1; day <= daysInMonth; day++) {
@@ -285,27 +407,38 @@
       var isToday = isCurMonth && day === todayNum;
       var ymd = cal.year + '-' + cal.month + '-' + day;
 
-      var pills = '';
-      selList.forEach(function (p) {
-        var s = (plans[p.id] || {})[dayKey];
-        if (s && s.muscles && s.muscles.length) {
-          var label = s.label || s.muscles.slice(0, 2).join('·');
-          var done = !!(dones[p.id] && dones[p.id][ymd]);
-          pills += pill(colorById[p.id], label, done);
-        }
+      // Un point par membre ayant une séance ce jour-là (+ heure la plus tôt)
+      var dayEntries = entriesFor(list, plans, dones, cal.year, cal.month, day);
+      var dots = '';
+      var nb = dayEntries.length;
+      dayEntries.forEach(function (e) {
+        dots += dot(colorById[e.profil.id], e.faite);
       });
+      var premiere = null;
+      for (var q = 0; q < dayEntries.length; q++) {
+        if (dayEntries[q].heure) { premiere = dayEntries[q].heure; break; }
+      }
+      var heureTxt = premiere
+        ? '<div style="font-size:0.56em;font-weight:800;color:#7dd3fc;line-height:1;' +
+            'white-space:nowrap;overflow:hidden;max-width:100%;">' + esc(fmtTime(premiere)) +
+            (dayEntries.length > 1 ? '<span style="color:#475569;">+</span>' : '') + '</div>'
+        : '';
 
       var numStyle = isToday
-        ? 'display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 5px;' +
-          'border-radius:7px;background:#4ade80;color:#04121f;font-weight:900;font-size:0.82em;' +
-          'font-family:var(--font-display);box-shadow:0 0 12px rgba(74,222,128,0.5);'
-        : 'color:#cbd5e1;font-weight:800;font-size:0.82em;font-family:var(--font-display);padding-left:2px;';
+        ? 'display:inline-flex;align-items:center;justify-content:center;min-width:21px;height:21px;padding:0 4px;' +
+          'border-radius:6px;background:#4ade80;color:#04121f;font-weight:900;font-size:0.8em;' +
+          'font-family:var(--font-display);box-shadow:0 0 10px rgba(74,222,128,0.5);'
+        : 'color:#cbd5e1;font-weight:800;font-size:0.8em;font-family:var(--font-display);padding-left:1px;';
 
-      cells += '<div style="border-radius:10px;padding:6px 5px 5px;min-height:74px;display:flex;flex-direction:column;gap:4px;' +
+      cells += '<div onclick="awakCalOpenDay(' + cal.year + ',' + cal.month + ',' + day + ')" ' +
+          'role="button" tabindex="0" aria-label="' + day + ' ' + esc(MOIS[cal.month]) + (nb ? ', ' + nb + ' séance(s)' : '') + '" ' +
+          'style="border-radius:9px;padding:5px 3px 4px;min-height:52px;min-width:0;overflow:hidden;cursor:pointer;' +
+          'display:flex;flex-direction:column;align-items:center;gap:4px;' +
           'background:' + (isToday ? 'rgba(74,222,128,0.07)' : 'rgba(255,255,255,0.022)') + ';' +
           'border:1px solid ' + (isToday ? 'rgba(74,222,128,0.5)' : 'rgba(255,255,255,0.055)') + ';">' +
           '<div style="' + numStyle + '">' + day + '</div>' +
-          (pills ? '<div style="display:flex;flex-direction:column;gap:3px;">' + pills + '</div>' : '') +
+          (dots ? '<div style="display:flex;flex-wrap:wrap;gap:3px;justify-content:center;align-items:center;">' + dots + '</div>' : '') +
+          heureTxt +
         '</div>';
     }
 
@@ -325,25 +458,34 @@
         '<button onclick="awakCalNextMonth()" aria-label="Mois suivant" style="' + navBtn + '">▶</button>' +
       '</div>';
 
-    // Légende (mapping couleur ↔ membre) — uniquement si plus d'un membre visible
+    // Légende (mapping couleur ↔ membre) + signification des points
     var legend = '';
-    if (selList.length > 1) {
-      legend = '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06);">' +
-        selList.map(function (p) {
-          var c = colorById[p.id];
-          return '<div style="display:inline-flex;align-items:center;gap:6px;">' +
-            '<span style="width:11px;height:11px;border-radius:3px;background:' + c.base + ';flex-shrink:0;"></span>' +
-            '<span style="font-size:0.72em;color:#94a3b8;font-weight:700;">' + esc(p.name || 'Membre') + '</span>' +
-          '</div>';
-        }).join('') +
-      '</div>';
+    if (selList.length) {
+      var membres = (selList.length > 1) ? selList.map(function (p) {
+        var c = colorById[p.id];
+        return '<div style="display:inline-flex;align-items:center;gap:6px;">' +
+          '<span style="width:11px;height:11px;border-radius:50%;background:' + c.base + ';flex-shrink:0;"></span>' +
+          '<span style="font-size:0.72em;color:#94a3b8;font-weight:700;">' + esc(p.name || 'Membre') + '</span>' +
+        '</div>';
+      }).join('') : '';
+
+      legend = '<div style="margin-top:13px;padding-top:11px;border-top:1px solid rgba(255,255,255,0.06);">' +
+          (membres ? '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:9px;">' + membres + '</div>' : '') +
+          '<div style="display:flex;flex-wrap:wrap;gap:13px;align-items:center;">' +
+            '<span style="display:inline-flex;align-items:center;gap:5px;font-size:0.68em;color:#64748b;font-weight:700;">' +
+              '<span style="width:9px;height:9px;border-radius:50%;border:2px solid #94a3b8;flex-shrink:0;"></span>prévue</span>' +
+            '<span style="display:inline-flex;align-items:center;gap:5px;font-size:0.68em;color:#64748b;font-weight:700;">' +
+              '<span style="width:9px;height:9px;border-radius:50%;background:#94a3b8;flex-shrink:0;"></span>faite</span>' +
+            '<span style="font-size:0.68em;color:#475569;font-weight:600;">· touche un jour pour le détail</span>' +
+          '</div>' +
+        '</div>';
     }
 
-    return '<div class="card" style="padding:15px 15px 16px;">' +
-        nav +
-        '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:5px;">' + head + '</div>' +
-        '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;">' + cells + '</div>' +
-        legend +
+    return '<div class="card" style="padding:15px 8px 16px!important;overflow:hidden;">' +
+        '<div style="padding:0 5px;">' + nav + '</div>' +
+        '<div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;margin-bottom:4px;">' + head + '</div>' +
+        '<div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;">' + cells + '</div>' +
+        '<div style="padding:0 5px;">' + legend + '</div>' +
       '</div>';
   }
 
@@ -393,12 +535,224 @@
       headerHTML() +
       membersHTML(list, colorById) +
       (showCTA ? ctaHTML() : '') +
-      todayHTML(list, colorById, plans) +
+      todayHTML(list, colorById, plans, dones) +
       gridHTML(list, colorById, plans, dones);
+  }
+
+  // ── Fenêtre de détail d'une journée ──
+  // Ouverte au clic sur une case : heure, nom de séance et muscles, par membre.
+  // Permet aussi de régler l'heure : pour cette date seulement (exception)
+  // ou pour tous les <jour> à venir (récurrente).
+  function openDay(y, m, d) {
+    var list = profiles();
+    if (!list.length) return;
+    ensureSelected(list);
+
+    var colorById = {};
+    list.forEach(function (p, i) { colorById[p.id] = colorFor(i); });
+
+    var dayKey = JOURS[wIdx(new Date(y, m, d))];
+    var ymd = y + '-' + m + '-' + d;
+    var t = new Date();
+    var isToday = (t.getFullYear() === y && t.getMonth() === m && t.getDate() === d);
+
+    var selList = list.filter(function (p) { return cal.selected.has(p.id); });
+    var plans = {}, dones = {};
+    selList.forEach(function (p) { plans[p.id] = planFor(p.id); dones[p.id] = doneDates(p.id); });
+
+    var entries = entriesFor(list, plans, dones, y, m, d);
+
+    // Contexte partagé avec les boutons de la fenêtre (indices stables)
+    window.__awakCalDay = { y: y, m: m, d: d, dayKey: dayKey, ids: entries.map(function (e) { return e.profil.id; }) };
+
+    var rows = entries.map(function (e, i) {
+      var c = colorById[e.profil.id];
+      var s = e.seance;
+      var label = s.label || s.muscles.slice(0, 3).join(' · ');
+      var chips = s.muscles.map(function (mu) {
+        return '<span style="background:' + c.soft + ';color:' + c.base + ';border:1px solid ' + c.line +
+          ';padding:3px 9px;border-radius:99px;font-size:0.72em;font-weight:700;">' + esc(mu) + '</span>';
+      }).join('');
+
+      var badgeHeure = e.heure
+        ? '<span style="background:' + c.base + ';color:#04121f;padding:2px 9px;border-radius:7px;' +
+            'font-size:0.76em;font-weight:900;font-family:var(--font-display);">' + esc(fmtTime(e.heure)) + '</span>'
+        : '<span style="color:#64748b;font-size:0.7em;font-weight:700;">heure non définie</span>';
+
+      var badgeEx = e.exception
+        ? '<span style="background:rgba(251,191,36,0.15);border:1px solid rgba(251,191,36,0.4);color:#fbbf24;' +
+            'padding:2px 8px;border-radius:99px;font-size:0.62em;font-weight:900;">EXCEPTION</span>'
+        : '';
+
+      var etat = e.faite
+        ? '<span style="background:' + c.base + ';color:#04121f;padding:2px 9px;border-radius:99px;font-size:0.62em;font-weight:900;">✓ FAITE</span>'
+        : '<span style="border:1px solid ' + c.line + ';color:' + c.base + ';padding:2px 9px;border-radius:99px;font-size:0.62em;font-weight:800;">PRÉVUE</span>';
+
+      // Réglage de l'heure
+      var editeur =
+        '<div style="margin-top:11px;padding-top:10px;border-top:1px dashed rgba(255,255,255,0.09);">' +
+          '<div style="font-size:0.58em;letter-spacing:1.5px;color:#64748b;font-weight:900;margin-bottom:7px;">RÉGLER L\'HEURE</div>' +
+          '<div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;">' +
+            '<input type="time" id="awakCalT' + i + '" value="' + esc(e.heure || '') + '" ' +
+              'style="background:rgba(34,211,238,0.08);border:1px solid rgba(34,211,238,0.3);color:#67e8f9;' +
+              'border-radius:8px;padding:7px 9px;font-size:0.82em;font-weight:800;font-family:inherit;cursor:pointer;">' +
+            '<button onclick="awakCalSetTime(' + i + ',\'once\')" ' +
+              'style="background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.35);color:#fbbf24;' +
+              'border-radius:8px;padding:7px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">Cette date</button>' +
+            '<button onclick="awakCalSetTime(' + i + ',\'always\')" ' +
+              'style="background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.35);color:#4ade80;' +
+              'border-radius:8px;padding:7px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">Tous les ' + esc(JOURS_LONG[dayKey].toLowerCase()) + 's</button>' +
+          '</div>' +
+          (e.exception
+            ? '<button onclick="awakCalClearEx(' + i + ')" style="margin-top:7px;background:none;border:none;' +
+                'color:#94a3b8;font-size:0.68em;font-weight:700;cursor:pointer;text-decoration:underline;">' +
+                '↺ Revenir à l\'heure habituelle</button>'
+            : '') +
+        '</div>';
+
+      return '<div style="background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.07);' +
+          'border-left:3px solid ' + c.base + ';border-radius:12px;padding:13px 14px;margin-bottom:9px;">' +
+          '<div style="display:flex;align-items:center;gap:9px;margin-bottom:10px;">' +
+            '<span style="display:inline-flex;flex-shrink:0;">' + av(e.profil.avatar, 30) + '</span>' +
+            '<span style="font-size:0.9em;font-weight:800;color:#e8f0f8;min-width:0;overflow:hidden;' +
+              'text-overflow:ellipsis;white-space:nowrap;flex:1;">' + esc(e.profil.name || 'Membre') + '</span>' +
+            etat +
+          '</div>' +
+          '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:9px;">' +
+            badgeHeure + badgeEx +
+            '<span style="font-size:0.95em;font-weight:800;color:#e8f0f8;">' + esc(label) + '</span>' +
+          '</div>' +
+          '<div style="font-size:0.58em;letter-spacing:1.5px;color:#64748b;font-weight:900;margin-bottom:6px;">MUSCLES TRAVAILLÉS</div>' +
+          '<div style="display:flex;flex-wrap:wrap;gap:5px;">' + chips + '</div>' +
+          editeur +
+        '</div>';
+    }).join('');
+
+    // Membres au repos ce jour-là
+    var actifs = {};
+    entries.forEach(function (e) { actifs[e.profil.id] = true; });
+    var repos = selList.filter(function (p) { return !actifs[p.id]; });
+    if (repos.length) {
+      rows += '<div style="background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.05);' +
+          'border-radius:12px;padding:12px 14px;color:#64748b;font-size:0.82em;font-weight:600;">' +
+          '🛌 Repos : ' + repos.map(function (p) { return esc(p.name || 'Membre'); }).join(', ') + '</div>';
+    }
+
+    if (!rows) {
+      rows = '<div style="padding:18px 0;text-align:center;color:#64748b;font-size:0.86em;">Aucun membre sélectionné.</div>';
+    }
+
+    // ⚠️ Chevauchement d'horaires
+    var conflits = overlaps(entries);
+    var alerte = '';
+    if (conflits.length) {
+      var txt = conflits.map(function (pair) {
+        return esc(pair[0].profil.name || 'Membre') + ' (' + esc(fmtTime(pair[0].heure)) + ') et ' +
+               esc(pair[1].profil.name || 'Membre') + ' (' + esc(fmtTime(pair[1].heure)) + ')';
+      }).join(' · ');
+      alerte = '<div style="background:rgba(251,191,36,0.10);border:1px solid rgba(251,191,36,0.35);' +
+          'border-radius:11px;padding:10px 12px;margin-bottom:11px;display:flex;gap:8px;align-items:flex-start;">' +
+          '<span style="flex-shrink:0;">⚠️</span>' +
+          '<div style="min-width:0;">' +
+            '<div style="font-size:0.7em;color:#fbbf24;font-weight:900;letter-spacing:0.5px;margin-bottom:2px;">HORAIRES RAPPROCHÉS</div>' +
+            '<div style="font-size:0.76em;color:#cbd5e1;line-height:1.4;">' + txt + '</div>' +
+          '</div>' +
+        '</div>';
+    }
+
+    var titre = JOURS_LONG[dayKey] + ' ' + d + ' ' + MOIS[m].toLowerCase() + ' ' + y;
+
+    var old = document.getElementById('awakCalDayModal');
+    if (old) old.remove();
+
+    var modal = document.createElement('div');
+    modal.id = 'awakCalDayModal';
+    modal.style.cssText = 'position:fixed;inset:0;z-index:10150;background:rgba(0,0,0,0.94);' +
+      'backdrop-filter:blur(10px);display:flex;align-items:flex-end;justify-content:center;padding:0;';
+    modal.addEventListener('click', function (e) { if (e.target === modal) modal.remove(); });
+
+    modal.innerHTML =
+      '<div style="width:100%;max-width:520px;background:#0F1014;border-radius:20px 20px 0 0;max-height:88vh;' +
+        'display:flex;flex-direction:column;border-top:2px solid rgba(34,211,238,0.45);">' +
+        '<div style="width:36px;height:3px;background:#334155;border-radius:99px;margin:10px auto 0;flex-shrink:0;"></div>' +
+        '<div style="padding:12px 18px 11px;flex-shrink:0;border-bottom:1px solid rgba(34,211,238,0.15);' +
+          'display:flex;align-items:center;justify-content:space-between;gap:10px;">' +
+          '<div style="min-width:0;">' +
+            '<div style="font-size:0.58em;color:#22d3ee;font-weight:900;letter-spacing:2px;margin-bottom:2px;">' +
+              (isToday ? "AUJOURD'HUI" : 'JOURNÉE') + '</div>' +
+            '<h2 style="margin:0;color:#fff;font-size:1em;font-weight:900;overflow:hidden;' +
+              'text-overflow:ellipsis;white-space:nowrap;">' + esc(titre) + '</h2>' +
+          '</div>' +
+          '<button onclick="document.getElementById(\'awakCalDayModal\').remove()" ' +
+            'style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:#94a3b8;' +
+            'border-radius:10px;width:34px;height:34px;min-height:auto;font-size:1.1em;font-weight:800;' +
+            'cursor:pointer;flex-shrink:0;line-height:1;">×</button>' +
+        '</div>' +
+        '<div style="flex:1;overflow-y:auto;padding:13px 16px 22px;-webkit-overflow-scrolling:touch;">' + alerte + rows + '</div>' +
+      '</div>';
+
+    document.body.appendChild(modal);
   }
 
   // ── API publique (appelée depuis switchTab et les onclick) ──
   window.renderCalendarTab = render;
+  window.awakCalOpenDay = openDay;
+
+  // 🕐 Réglage de l'heure depuis la fenêtre de détail.
+  // mode 'once'   → exception pour cette date seulement
+  // mode 'always' → heure récurrente dans le plan hebdo du membre
+  window.awakCalSetTime = function (i, mode) {
+    var ctx = window.__awakCalDay;
+    if (!ctx || !ctx.ids || !ctx.ids[i]) return;
+    var id = ctx.ids[i];
+    var input = document.getElementById('awakCalT' + i);
+    var val = input ? (input.value || '') : '';
+    var ymd = ctx.y + '-' + ctx.m + '-' + ctx.d;
+
+    if (mode === 'once') {
+      var ex = exFor(id);
+      if (val) ex[ymd] = val;
+      else delete ex[ymd];          // heure vide = retour à l'heure habituelle
+      saveEx(id, ex);
+    } else {
+      // Récurrente : écrit dans le plan hebdo du membre, et retire
+      // l'exception de cette date pour que le changement soit visible ici.
+      try {
+        var key = 'manualWeeklyPlan_' + id;
+        var plan = JSON.parse(localStorage.getItem(key) || '{}');
+        if (plan && plan[ctx.dayKey]) {
+          if (val) plan[ctx.dayKey].heure = val;
+          else delete plan[ctx.dayKey].heure;
+          localStorage.setItem(key, JSON.stringify(plan));
+        }
+      } catch (e) {}
+      var ex2 = exFor(id);
+      delete ex2[ymd];
+      saveEx(id, ex2);
+    }
+
+    if (typeof window.showToast === 'function') {
+      window.showToast(
+        mode === 'once'
+          ? (val ? '🕐 Heure réglée pour cette date' : '↺ Heure habituelle rétablie')
+          : (val ? '🔁 Heure appliquée à tous les ' + JOURS_LONG[ctx.dayKey].toLowerCase() + 's' : '🔁 Heure retirée du planning'),
+        'success', 2500);
+    }
+    render();
+    openDay(ctx.y, ctx.m, ctx.d);   // rouvre la fenêtre à jour
+  };
+
+  // ↺ Supprime l'exception de cette date (retour à l'heure récurrente)
+  window.awakCalClearEx = function (i) {
+    var ctx = window.__awakCalDay;
+    if (!ctx || !ctx.ids || !ctx.ids[i]) return;
+    var ex = exFor(ctx.ids[i]);
+    delete ex[ctx.y + '-' + ctx.m + '-' + ctx.d];
+    saveEx(ctx.ids[i], ex);
+    if (typeof window.showToast === 'function') window.showToast('↺ Heure habituelle rétablie', 'success', 2200);
+    render();
+    openDay(ctx.y, ctx.m, ctx.d);
+  };
 
   window.awakCalToggleMember = function (id) {
     if (!(cal.selected instanceof Set)) cal.selected = new Set();
