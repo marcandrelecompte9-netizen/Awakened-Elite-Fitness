@@ -140,7 +140,20 @@
   // variation déterministe (l'arbre ne change pas entre deux ouvertures)
   function wob(n) { var x = Math.sin(n * 127.1) * 43758.5453; return (x - Math.floor(x)) - 0.5; }
 
-  function flower(cx, cy, r) { var s = '', k; for (k = 0; k < 5; k++) { var a = k / 5 * Math.PI * 2 - 0.4, px = cx + Math.cos(a) * r, py = cy + Math.sin(a) * r; s += '<circle cx="' + px.toFixed(1) + '" cy="' + py.toFixed(1) + '" r="' + (r * 0.66).toFixed(1) + '" fill="#fff7e6" opacity="0.95"/>'; } s += '<circle cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" r="' + (r * 0.6).toFixed(1) + '" fill="#fbbf24" filter="url(#awkGlow)"/>'; return s; }
+  // 🌸 Fleurs — un liseré sombre les détache du ciel clair du décor.
+  // ⚠️ Sans lui, le crème #fff7e6 sur fond pâle ne laisse que 12 % de
+  //    contraste : les fleurs du stade 5 devenaient invisibles.
+  function flower(cx, cy, r) {
+    var s = '', k;
+    for (k = 0; k < 5; k++) {
+      var a = k / 5 * Math.PI * 2 - 0.4, px = cx + Math.cos(a) * r, py = cy + Math.sin(a) * r;
+      s += '<circle cx="' + px.toFixed(1) + '" cy="' + py.toFixed(1) + '" r="' + (r * 0.66).toFixed(1) + '" '
+         + 'fill="#fff7e6" opacity="0.97" stroke="#6b4f2a" stroke-width="0.8" stroke-opacity="0.55"/>';
+    }
+    s += '<circle cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" r="' + (r * 0.6).toFixed(1) + '" '
+       + 'fill="#f59e0b" stroke="#7c4a09" stroke-width="0.7" stroke-opacity="0.5" filter="url(#awkGlow)"/>';
+    return s;
+  }
 
   function foliage(cx, cy, r, col, wf) {
     var d2 = shade(col, -0.62), mid = shade(col, 0.20), light = shade(col, 0.58), s = '';
@@ -233,7 +246,11 @@
   }
 
   function seedSVG() {
-    return '<g><ellipse cx="160" cy="326" rx="10" ry="6" fill="#3a2f24"/><circle cx="160" cy="321" r="6" fill="#39FF14" filter="url(#awkGlow)" opacity="0.9"/><circle cx="158.6" cy="319.6" r="2.4" fill="#eafff0"/><text x="160" y="300" text-anchor="middle" fill="#94a3b8" font-size="9">graine d\'éveil</text></g>';
+    // Adaptée au décor clair : lueur ambrée cerclée, texte sombre.
+    return '<g><ellipse cx="160" cy="326" rx="10" ry="6" fill="#3a2f24"/>'
+         + '<circle cx="160" cy="321" r="6" fill="#f59e0b" stroke="#7c4a09" stroke-width="0.8" filter="url(#awkGlow)" opacity="0.95"/>'
+         + '<circle cx="158.6" cy="319.6" r="2.4" fill="#fff7e6"/>'
+         + '<text x="160" y="300" text-anchor="middle" fill="#5b4a36" font-size="9" font-weight="700">graine d\'éveil</text></g>';
   }
 
   // ═══ ATMOSPHÈRE ═══════════════════════════════════════════════════
@@ -242,36 +259,11 @@
   // la partie fragile du module.
 
   // 🌅 Ciel selon l'heure réelle : l'arbre vit au fil de la journée.
+  // Ciel de REPLI (si l'image de fond n'est pas disponible) + teinte des rais.
+  // Tons d'aube clairs, accordés au décor peint : plus de ciel de nuit.
   function skyOfHour(h) {
-    if (h == null) h = new Date().getHours();
-    if (h >= 5 && h < 8)   return { id: 'aube',       haut: '#2a1a3e', bas: '#c2703f', astre: '#ffd9a0', lueur: 'rgba(255,180,120,0.18)', etoiles: 0.25 };
-    if (h >= 8 && h < 17)  return { id: 'jour',       haut: '#0e2a3a', bas: '#1b4a52', astre: '#bfe9ff', lueur: 'rgba(160,220,255,0.13)', etoiles: 0 };
-    if (h >= 17 && h < 20) return { id: 'crepuscule', haut: '#221436', bas: '#7c3f6b', astre: '#ffc08a', lueur: 'rgba(255,150,190,0.16)', etoiles: 0.35 };
-    return                        { id: 'nuit',       haut: '#080c1c', bas: '#131f3a', astre: '#dbe7ff', lueur: 'rgba(150,180,255,0.12)', etoiles: 1 };
-  }
-
-  // Collines lointaines : donne de la profondeur derrière l'arbre.
-  function collinesSVG(sky) {
-    var s = '';
-    s += '<path d="M0 300 Q 46 262 96 286 T 196 280 T 320 296 L320 360 L0 360 Z" fill="' + sky.haut + '" opacity="0.55"/>';
-    s += '<path d="M0 314 Q 70 286 132 308 T 248 300 T 320 314 L320 360 L0 360 Z" fill="#060a10" opacity="0.75"/>';
-    return s;
-  }
-
-  // Étoiles (nuit et crépuscule) — positions déterministes via wob().
-  function etoilesSVG(sky) {
-    if (!sky.etoiles) return '';
-    var s = '', i;
-    for (i = 0; i < 26; i++) {
-      var x = 14 + Math.abs(wob(i * 2.3)) * 300;
-      var y = 12 + Math.abs(wob(i * 4.1)) * 170;
-      var r = 0.5 + Math.abs(wob(i * 6.7)) * 1.1;
-      var o = (0.25 + Math.abs(wob(i * 8.9)) * 0.6) * sky.etoiles;
-      s += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + r.toFixed(2) + '" fill="#fff" opacity="' + o.toFixed(2) + '">'
-         + '<animate attributeName="opacity" values="' + o.toFixed(2) + ';' + (o * 0.35).toFixed(2) + ';' + o.toFixed(2) + '" '
-         + 'dur="' + (2.6 + Math.abs(wob(i * 3.1)) * 3.4).toFixed(1) + 's" repeatCount="indefinite"/></circle>';
-    }
-    return s;
+    return { id: 'aube', haut: '#c9c3e4', bas: '#f3e2c8', astre: '#fff1d6',
+             lueur: 'rgba(255,236,200,0.25)', etoiles: 0 };
   }
 
   // Rais de lumière obliques descendant du haut.
@@ -296,7 +288,8 @@
       var dx = (wob(i * 7.3) * 26).toFixed(1);
       var dy = (-12 - Math.abs(wob(i * 9.1)) * 20).toFixed(1);
       s += '<g transform="translate(' + x.toFixed(1) + ',' + y.toFixed(1) + ')">'
-         + '<circle r="1.7" fill="#fde68a" filter="url(#awkGlow)" opacity="0.85">'
+         + '<circle r="2.6" fill="#fbbf24" opacity="0.30"/>'
+         + '<circle r="1.5" fill="#f59e0b" stroke="#7c4a09" stroke-width="0.5" stroke-opacity="0.45" opacity="0.9">'
          +   '<animate attributeName="opacity" values="0.15;0.9;0.15" dur="' + d + 's" repeatCount="indefinite"/>'
          + '</circle>'
          + '<animateTransform attributeName="transform" type="translate" additive="sum" '
@@ -314,7 +307,7 @@
     var sky = skyOfHour();
     var defs = '<defs>'
       + '<linearGradient id="awkBark" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#5d4f3e"/><stop offset="42%" stop-color="#3c3024"/><stop offset="100%" stop-color="#1b140d"/></linearGradient>'
-      + '<radialGradient id="awkGround" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#050705" stop-opacity="0.85"/><stop offset="70%" stop-color="#050705" stop-opacity="0.55"/><stop offset="100%" stop-color="#050705" stop-opacity="0"/></radialGradient>'
+      + '<radialGradient id="awkGround" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#6b4f2a" stop-opacity="0.45"/><stop offset="70%" stop-color="#6b4f2a" stop-opacity="0.22"/><stop offset="100%" stop-color="#6b4f2a" stop-opacity="0"/></radialGradient>'
       + '<radialGradient id="awkHalo" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="currentColor" stop-opacity="0.20"/><stop offset="100%" stop-color="currentColor" stop-opacity="0"/></radialGradient>'
       + '<linearGradient id="awkCiel" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="' + sky.haut + '"/><stop offset="100%" stop-color="' + sky.bas + '"/></linearGradient>'
       + '<radialGradient id="awkAstre" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="' + sky.astre + '" stop-opacity="0.9"/><stop offset="55%" stop-color="' + sky.astre + '" stop-opacity="0.18"/><stop offset="100%" stop-color="' + sky.astre + '" stop-opacity="0"/></radialGradient>'
@@ -323,14 +316,16 @@
       + '<filter id="awkGlow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="2.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>'
       + '</defs>';
     var body = defs;
-    // ── Fond : ciel de l'heure, astre, étoiles, rais, collines ──
+    // ── Fond : IMAGE peinte (aube brumeuse), au ratio exact du viewBox ──
+    // ⚠️ Elle REMPLACE les couches procédurales (ciel horaire, étoiles, astre,
+    //    collines) qui feraient doublon ou seraient absurdes sur un ciel de jour.
+    //    Si le fichier manque, le dégradé de repli dessous assure la continuité.
     body += '<rect x="0" y="0" width="320" height="360" fill="url(#awkCiel)"/>';
-    body += etoilesSVG(sky);
-    body += '<circle cx="238" cy="66" r="54" fill="url(#awkAstre)"/>';
-    body += raisSVG(sky);
-    body += collinesSVG(sky);
-    body += '<rect x="0" y="0" width="320" height="360" fill="url(#awkSky)"/>';          // halo d'ambiance
-    body += '<ellipse cx="160" cy="335" rx="126" ry="15" fill="url(#awkGround)"/>';
+    body += '<image href="images/tree_bg.webp" x="0" y="0" width="320" height="360" '
+          + 'preserveAspectRatio="xMidYMid slice"/>';
+    body += raisSVG(sky);   // rais conservés : ils se superposent bien à l'image
+    // Ombre portée au sol : douce et chaude, adaptée au sol clair de l'image.
+    body += '<ellipse cx="160" cy="336" rx="118" ry="13" fill="url(#awkGround)"/>';
     if (!any) { body += seedSVG(); body += grassSVG(); }
     else {
       body += trunkSVG(gl);
@@ -347,7 +342,8 @@
       if (maxStage >= 5) {
         [[196, 130], [110, 152], [232, 178]].forEach(function (pt, i) {
           var rot = 20 + i * 50;
-          body += '<ellipse cx="' + pt[0] + '" cy="' + pt[1] + '" rx="3" ry="1.6" transform="rotate(' + rot + ' ' + pt[0] + ' ' + pt[1] + ')" fill="#fff7e6" opacity="0.75"/>';
+          body += '<ellipse cx="' + pt[0] + '" cy="' + pt[1] + '" rx="3" ry="1.6" transform="rotate(' + rot + ' ' + pt[0] + ' ' + pt[1] + ')" '
+                + 'fill="#fff7e6" opacity="0.95" stroke="#6b4f2a" stroke-width="0.6" stroke-opacity="0.5"/>';
         });
       }
     }
