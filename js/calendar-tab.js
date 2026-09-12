@@ -28,14 +28,14 @@
   // Palette d'accents attribuée par ordre dans getAllProfiles(). Couleurs
   // distinctes et lisibles sur fond sombre — pas d'arc-en-ciel criard.
   var PALETTE = [
-    { base: '#4ade80', soft: 'rgba(74,222,128,0.15)',  line: 'rgba(74,222,128,0.50)' },  // vert
+    { base: '#22d3ee', soft: 'rgba(34,211,238,0.15)',  line: 'rgba(34,211,238,0.50)' },  // cyan
+    { base: '#a855f7', soft: 'rgba(168,85,247,0.15)',  line: 'rgba(168,85,247,0.50)' },  // violet
     { base: '#60a8f0', soft: 'rgba(96,168,240,0.15)',  line: 'rgba(96,168,240,0.50)' },  // bleu
-    { base: '#c084fc', soft: 'rgba(192,132,252,0.15)', line: 'rgba(192,132,252,0.50)' }, // violet
     { base: '#fbbf24', soft: 'rgba(251,191,36,0.15)',  line: 'rgba(251,191,36,0.50)' },  // ambre
     { base: '#f472b6', soft: 'rgba(244,114,182,0.15)', line: 'rgba(244,114,182,0.50)' }, // rose
-    { base: '#22d3ee', soft: 'rgba(34,211,238,0.15)',  line: 'rgba(34,211,238,0.50)' },  // cyan
     { base: '#fb923c', soft: 'rgba(251,146,60,0.15)',  line: 'rgba(251,146,60,0.50)' },  // orange
-    { base: '#a3e635', soft: 'rgba(163,230,53,0.15)',  line: 'rgba(163,230,53,0.50)' }   // lime
+    { base: '#e879f9', soft: 'rgba(232,121,249,0.15)', line: 'rgba(232,121,249,0.50)' }, // fuchsia
+    { base: '#38bdf8', soft: 'rgba(56,189,248,0.15)',  line: 'rgba(56,189,248,0.50)' }   // ciel
   ];
 
   var now0 = new Date();
@@ -169,7 +169,7 @@
 
   // Libellé et couleur de la pastille de provenance
   var SOURCES = {
-    routine: { txt: 'ROUTINE', col: '#4ade80' },
+    routine: { txt: 'ROUTINE', col: '#22d3ee' },
     manuel:  { txt: 'MANUEL',  col: '#60a8f0' },
     plan:    { txt: 'PLAN',    col: '#c084fc' }
   };
@@ -337,7 +337,7 @@
     return '' +
       '<div class="card" style="position:relative;overflow:hidden;padding:18px 20px;' +
         'background:linear-gradient(150deg,#0a0f14 0%,#0c1620 55%,#0a1a12 100%);' +
-        'border:1px solid rgba(74,222,128,0.16);">' +
+        'border:1px solid rgba(34,211,238,0.16);">' +
         corner('tl', '#22d3ee') + corner('tr', '#22d3ee') + corner('bl', '#22d3ee') + corner('br', '#22d3ee') +
         '<div style="position:absolute;top:-40px;right:-30px;width:150px;height:150px;' +
           'background:radial-gradient(circle,rgba(34,211,238,0.16) 0%,transparent 68%);pointer-events:none;"></div>' +
@@ -468,12 +468,12 @@
 
     return '' +
       '<div class="card" style="position:relative;overflow:hidden;padding:15px 17px;' +
-        'background:linear-gradient(135deg,#0a1628 0%,#0d1f18 100%);border:1.5px solid rgba(74,222,128,0.3);">' +
+        'background:linear-gradient(135deg,#0a1628 0%,#0d1f18 100%);border:1.5px solid rgba(34,211,238,0.3);">' +
         '<div style="position:absolute;top:-30px;left:-25px;width:120px;height:120px;' +
-          'background:radial-gradient(circle,rgba(74,222,128,0.14) 0%,transparent 70%);pointer-events:none;"></div>' +
+          'background:radial-gradient(circle,rgba(34,211,238,0.14) 0%,transparent 70%);pointer-events:none;"></div>' +
         '<div style="position:relative;z-index:1;">' +
           '<div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:2px;">' +
-            '<span style="font-size:0.56em;letter-spacing:2px;color:#4ade80;font-weight:900;">◈ AUJOURD\'HUI</span>' +
+            '<span style="font-size:0.56em;letter-spacing:2px;color:#22d3ee;font-weight:900;">◈ AUJOURD\'HUI</span>' +
             '<span style="font-size:0.7em;color:#94a3b8;font-weight:700;">' + esc(dateLbl) + '</span>' +
           '</div>' +
           rows +
@@ -527,7 +527,7 @@
           '<div style="font-family:var(--font-display);font-size:0.98em;font-weight:800;color:#e8f0f8;' +
             'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(titre) + '</div>' +
           (estSemaineCourante
-            ? '<div style="font-size:0.62em;color:#4ade80;font-weight:800;margin-top:2px;">CETTE SEMAINE</div>'
+            ? '<div style="font-size:0.62em;color:#22d3ee;font-weight:800;margin-top:2px;">CETTE SEMAINE</div>'
             : '<button onclick="awakCalToday()" style="margin-top:2px;background:none;border:none;color:#22d3ee;' +
                 'font-size:0.66em;font-weight:800;cursor:pointer;font-family:inherit;">↺ Revenir à cette semaine</button>') +
         '</div>' +
@@ -568,18 +568,18 @@
         corps = '<div style="font-size:0.74em;color:#475569;font-weight:600;margin-top:5px;">🛌 Repos</div>';
       }
 
-      var bord = estAujourdhui ? 'rgba(74,222,128,0.55)' : 'rgba(255,255,255,0.06)';
-      var fond = estAujourdhui ? 'rgba(74,222,128,0.06)' : 'rgba(255,255,255,0.02)';
+      var bord = estAujourdhui ? 'rgba(34,211,238,0.55)' : 'rgba(255,255,255,0.06)';
+      var fond = estAujourdhui ? 'rgba(34,211,238,0.06)' : 'rgba(255,255,255,0.02)';
 
       lignes += '<div onclick="awakCalOpenDay(' + d.getFullYear() + ',' + d.getMonth() + ',' + d.getDate() + ')" ' +
           'style="border:1px solid ' + bord + ';background:' + fond + ';border-radius:12px;padding:10px 12px;' +
           'margin-bottom:7px;cursor:pointer;' + (estPasse && !estAujourdhui ? 'opacity:0.5;' : '') + '">' +
           '<div style="display:flex;align-items:center;gap:8px;">' +
             '<span style="font-size:0.66em;font-weight:900;letter-spacing:1px;' +
-              'color:' + (estAujourdhui ? '#4ade80' : '#94a3b8') + ';">' + JOURS_ENT[i].toUpperCase() + '</span>' +
+              'color:' + (estAujourdhui ? '#22d3ee' : '#94a3b8') + ';">' + JOURS_ENT[i].toUpperCase() + '</span>' +
             '<span style="font-family:var(--font-display);font-size:0.88em;font-weight:800;' +
-              'color:' + (estAujourdhui ? '#4ade80' : '#cbd5e1') + ';">' + d.getDate() + '</span>' +
-            (estAujourdhui ? '<span style="background:#4ade80;color:#04121f;padding:1px 7px;border-radius:99px;' +
+              'color:' + (estAujourdhui ? '#22d3ee' : '#cbd5e1') + ';">' + d.getDate() + '</span>' +
+            (estAujourdhui ? '<span style="background:#22d3ee;color:#04121f;padding:1px 7px;border-radius:99px;' +
               'font-size:0.56em;font-weight:900;">AUJOURD\'HUI</span>' : '') +
             '<span style="flex:1;"></span>' +
             (entries.length > 1 ? '<span style="font-size:0.62em;color:#64748b;font-weight:700;">' + entries.length + ' séances</span>' : '') +
@@ -639,8 +639,8 @@
 
       var numStyle = isToday
         ? 'display:inline-flex;align-items:center;justify-content:center;min-width:21px;height:21px;padding:0 4px;' +
-          'border-radius:6px;background:#4ade80;color:#04121f;font-weight:900;font-size:0.8em;' +
-          'font-family:var(--font-display);box-shadow:0 0 10px rgba(74,222,128,0.5);'
+          'border-radius:6px;background:#22d3ee;color:#04121f;font-weight:900;font-size:0.8em;' +
+          'font-family:var(--font-display);box-shadow:0 0 10px rgba(34,211,238,0.5);'
         : 'color:#cbd5e1;font-weight:800;font-size:0.8em;font-family:var(--font-display);padding-left:1px;';
 
       // Jours passés atténués : l'œil va d'abord à aujourd'hui et à la suite.
@@ -651,8 +651,8 @@
           'style="border-radius:9px;padding:5px 3px 4px;min-height:52px;min-width:0;overflow:hidden;cursor:pointer;' +
           ((_passe && !isToday) ? 'opacity:0.45;' : '') +
           'display:flex;flex-direction:column;align-items:center;gap:4px;' +
-          'background:' + (isToday ? 'rgba(74,222,128,0.07)' : 'rgba(255,255,255,0.022)') + ';' +
-          'border:1px solid ' + (isToday ? 'rgba(74,222,128,0.5)' : 'rgba(255,255,255,0.055)') + ';">' +
+          'background:' + (isToday ? 'rgba(34,211,238,0.07)' : 'rgba(255,255,255,0.022)') + ';' +
+          'border:1px solid ' + (isToday ? 'rgba(34,211,238,0.5)' : 'rgba(255,255,255,0.055)') + ';">' +
           '<div style="' + numStyle + '">' + day + '</div>' +
           (dots ? '<div style="display:flex;flex-wrap:wrap;gap:3px;justify-content:center;align-items:center;">' + dots + '</div>' : '') +
           heureTxt +
@@ -737,14 +737,22 @@
     var st = document.createElement('style');
     st.id = 'awakKioskStyles';
     st.textContent =
-      '.awak-k-week{display:flex;gap:10px;align-items:stretch;}' +
-      '.awak-k-day{flex:1 1 0;min-width:0;display:flex;flex-direction:column;' +
-        'border-radius:16px;padding:14px 10px;border:1px solid rgba(255,255,255,0.07);' +
-        'background:rgba(255,255,255,0.022);transition:flex .25s ease;}' +
-      '.awak-k-day.past{opacity:0.32;}' +
-      '.awak-k-day.today{flex:2.1 1 0;border:2px solid rgba(34,211,238,0.55);' +
-        'background:linear-gradient(170deg,rgba(34,211,238,0.10) 0%,rgba(168,85,247,0.06) 100%);' +
-        'box-shadow:0 0 40px rgba(34,211,238,0.13);padding:16px 14px;}' +
+      '.awak-k-week{display:flex;gap:12px;align-items:stretch;}' +
+      '.awak-k-day{flex:1 1 0;min-width:0;display:flex;flex-direction:column;position:relative;' +
+        'border-radius:18px;padding:16px 11px;border:1px solid rgba(255,255,255,0.06);' +
+        'background:linear-gradient(168deg,rgba(255,255,255,0.045) 0%,rgba(255,255,255,0.012) 100%);' +
+        'backdrop-filter:blur(6px);box-shadow:inset 0 1px 0 rgba(255,255,255,0.05);' +
+        'transition:flex .35s cubic-bezier(.22,.9,.3,1);overflow:hidden;}' +
+      '.awak-k-day.past{opacity:0.26;}' +
+      '.awak-k-day.today{flex:2.2 1 0;padding:20px 16px;' +
+        'border:1px solid rgba(34,211,238,0.45);' +
+        'background:linear-gradient(168deg,rgba(34,211,238,0.13) 0%,rgba(168,85,247,0.07) 55%,rgba(10,14,20,0.4) 100%);' +
+        'box-shadow:0 0 0 1px rgba(34,211,238,0.12),0 18px 60px rgba(34,211,238,0.16),' +
+          'inset 0 1px 0 rgba(255,255,255,0.10);}' +
+      // liseré lumineux en haut de la colonne du jour
+      '.awak-k-day.today::before{content:"";position:absolute;top:0;left:12%;right:12%;height:2px;' +
+        'background:linear-gradient(90deg,transparent,#22d3ee,#a855f7,transparent);' +
+        'box-shadow:0 0 14px rgba(34,211,238,0.8);}' +
       '@media(max-width:760px){.awak-k-week{flex-direction:column;}' +
         '.awak-k-day,.awak-k-day.today{flex:none;}}';
     document.head.appendChild(st);
@@ -764,14 +772,20 @@
 
       // ── En-tête de colonne ──
       var tete =
-        '<div style="text-align:center;padding-bottom:' + (auj ? '11px' : '9px') + ';margin-bottom:' + (auj ? '11px' : '9px') + ';' +
-          'border-bottom:1px solid ' + (auj ? 'rgba(34,211,238,0.3)' : 'rgba(255,255,255,0.07)') + ';">' +
-          '<div style="font-size:' + (auj ? '0.82em' : '0.68em') + ';font-weight:900;letter-spacing:2px;' +
-            'color:' + (auj ? '#22d3ee' : '#64748b') + ';">' + JOURS_ENT[i].toUpperCase() + '</div>' +
-          '<div style="font-family:var(--font-display);font-weight:900;line-height:1;margin-top:3px;' +
-            'font-size:' + (auj ? '2.6em' : '1.5em') + ';' +
-            'color:' + (auj ? '#e8f4ff' : '#94a3b8') + ';' +
-            (auj ? 'text-shadow:0 0 26px rgba(34,211,238,0.45);' : '') + '">' + d.getDate() + '</div>' +
+        '<div style="text-align:center;padding-bottom:' + (auj ? '13px' : '10px') + ';margin-bottom:' + (auj ? '13px' : '10px') + ';' +
+          'border-bottom:1px solid ' + (auj ? 'rgba(34,211,238,0.28)' : 'rgba(255,255,255,0.06)') + ';">' +
+          '<div style="font-size:' + (auj ? '0.8em' : '0.66em') + ';font-weight:900;letter-spacing:3px;' +
+            'color:' + (auj ? '#67e8f9' : '#64748b') + ';">' + JOURS_ENT[i].toUpperCase() + '</div>' +
+          '<div style="font-family:var(--font-display);font-weight:800;line-height:0.95;margin-top:' + (auj ? '6px' : '4px') + ';' +
+            'font-size:' + (auj ? '3em' : '1.6em') + ';letter-spacing:-1px;' +
+            (auj
+              ? 'background:linear-gradient(160deg,#e8f4ff,#67e8f9 60%,#c4b5fd);-webkit-background-clip:text;' +
+                'background-clip:text;color:transparent;filter:drop-shadow(0 0 22px rgba(34,211,238,0.45));'
+              : 'color:#8a9bb0;') + '">' + d.getDate() + '</div>' +
+          (auj && entries.length
+            ? '<div style="font-size:0.6em;color:#64748b;font-weight:700;letter-spacing:1px;margin-top:5px;">'
+              + entries.length + ' SÉANCE' + (entries.length > 1 ? 'S' : '') + '</div>'
+            : '') +
         '</div>';
 
       // ── Séances ──
@@ -842,10 +856,14 @@
     });
     host.innerHTML = kioskWeekHTML(list, colorById, plans, dones);
 
+    var n = new Date();
     var h = document.getElementById('awakKioskClock');
-    if (h) {
-      var n = new Date();
-      h.textContent = n.getHours() + 'h' + ('0' + n.getMinutes()).slice(-2);
+    if (h) h.textContent = n.getHours() + 'h' + ('0' + n.getMinutes()).slice(-2);
+    var dt = document.getElementById('awakKioskDate');
+    if (dt) {
+      var l = lundiDe(n), f = new Date(l.getFullYear(), l.getMonth(), l.getDate() + 6);
+      dt.textContent = JOURS_LONG[JOURS[wIdx(n)]] + ' ' + n.getDate() + ' ' + MOIS[n.getMonth()].toLowerCase()
+        + '  ·  ' + l.getDate() + '–' + f.getDate() + ' ' + MOIS[f.getMonth()].toLowerCase();
     }
   }
 
@@ -855,32 +873,47 @@
 
     var ov = document.createElement('div');
     ov.id = 'awakKioskOverlay';
-    ov.style.cssText = 'position:fixed;inset:0;z-index:10300;background:#06090d;overflow-y:auto;' +
-      '-webkit-overflow-scrolling:touch;padding:18px 16px 28px;';
-    // 🖼️ Bannière d'ambiance. Si le fichier n'est pas (encore) en ligne,
-    // onerror la retire : l'en-tête reste propre, rien ne casse.
+    // 🖼️ Fond photo plein écran. Si le fichier manque, seule la couleur
+    // de base s'affiche : rien ne casse, aucun repli à prévoir.
+    ov.style.cssText = 'position:fixed;inset:0;z-index:10300;overflow-y:auto;' +
+      '-webkit-overflow-scrolling:touch;padding:18px 16px 28px;' +
+      'background-color:#06090d;' +
+      // Deux fonds : le navigateur affiche le 1er, et retombe sur le 2e si
+      // le fichier n'est pas en ligne. Aucun script de repli nécessaire.
+      "background-image:url('images/kiosk_bg.webp'),url('images/calendar_banner.webp');" +
+      'background-size:cover;background-position:center;background-repeat:no-repeat;' +
+      'background-attachment:fixed;';
     ov.innerHTML =
-      '<div style="max-width:1500px;margin:0 auto;">' +
-        '<div style="position:relative;border-radius:16px;overflow:hidden;margin-bottom:16px;' +
-          'border:1px solid rgba(34,211,238,0.22);">' +
-          '<img src="images/calendar_banner.webp" alt="" ' +
-            'onerror="this.parentNode.remove()" ' +
-            'style="display:block;width:100%;height:150px;object-fit:cover;object-position:center;">' +
-          '<div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(6,9,13,0.55) 0%,rgba(6,9,13,0.15) 45%,rgba(6,9,13,0.85) 100%);"></div>' +
-        '</div>' +
-        '<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">' +
+      // Voile : assombrit et désature la photo pour garder l'horloge et les
+      // séances lisibles de loin. La bannière d'en-tête devient inutile,
+      // la même image servant désormais de fond plein écran.
+      '<div style="position:fixed;inset:0;pointer-events:none;backdrop-filter:saturate(0.92);' +
+        'background:linear-gradient(180deg,rgba(6,9,13,0.30) 0%,rgba(6,9,13,0.18) 34%,' +
+        'rgba(6,9,13,0.52) 70%,rgba(6,9,13,0.78) 100%);"></div>' +
+      '<div style="position:relative;z-index:1;max-width:1500px;margin:0 auto;">' +
+        '<div style="display:flex;align-items:flex-end;gap:16px;margin-bottom:18px;padding-bottom:14px;' +
+          'border-bottom:1px solid rgba(34,211,238,0.16);">' +
           '<div style="min-width:0;flex:1;">' +
-            '<div style="font-size:0.7em;color:#22d3ee;font-weight:900;letter-spacing:3px;">◈ MODE SALLE</div>' +
-            '<div style="font-family:var(--font-display);font-size:1.6em;font-weight:800;color:#e8f4ff;line-height:1.1;">CETTE SEMAINE</div>' +
+            '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">' +
+              '<span style="width:22px;height:2px;background:linear-gradient(90deg,#22d3ee,transparent);"></span>' +
+              '<span style="font-size:0.62em;color:#22d3ee;font-weight:900;letter-spacing:4px;">MODE SALLE</span>' +
+            '</div>' +
+            '<div style="font-family:var(--font-display);font-size:2.1em;font-weight:800;line-height:1;' +
+              'letter-spacing:0.02em;background:linear-gradient(100deg,#e8f4ff 0%,#67e8f9 45%,#c4b5fd 100%);' +
+              '-webkit-background-clip:text;background-clip:text;color:transparent;">CETTE SEMAINE</div>' +
+            '<div id="awakKioskDate" style="font-size:0.76em;color:#64748b;font-weight:700;' +
+              'letter-spacing:1px;margin-top:5px;text-transform:uppercase;">—</div>' +
           '</div>' +
-          '<div id="awakKioskClock" style="font-family:var(--font-display);font-size:2em;font-weight:900;' +
-            'color:#4ade80;flex-shrink:0;">--</div>' +
-          '<button onclick="awakCalKioskExit()" style="flex-shrink:0;background:rgba(255,255,255,0.06);' +
-            'border:1px solid rgba(255,255,255,0.15);color:#94a3b8;border-radius:11px;width:44px;height:44px;' +
+          '<div style="text-align:right;flex-shrink:0;">' +
+            '<div id="awakKioskClock" style="font-family:var(--font-display);font-size:3.2em;font-weight:900;' +
+              'line-height:0.9;color:#e8f4ff;letter-spacing:-1px;text-shadow:0 0 34px rgba(34,211,238,0.5);">--</div>' +
+            '<div id="awakKioskLock" style="font-size:0.64em;color:#475569;margin-top:6px;font-weight:600;"></div>' +
+          '</div>' +
+          '<button onclick="awakCalKioskExit()" style="flex-shrink:0;background:rgba(255,255,255,0.05);' +
+            'border:1px solid rgba(255,255,255,0.12);color:#94a3b8;border-radius:13px;width:46px;height:46px;' +
             'min-height:auto;font-size:1.3em;font-weight:800;cursor:pointer;line-height:1;font-family:inherit;">×</button>' +
         '</div>' +
         '<div id="awakKioskBody"></div>' +
-        '<div id="awakKioskLock" style="text-align:center;font-size:0.72em;color:#475569;margin-top:14px;"></div>' +
       '</div>';
     document.body.appendChild(ov);
 
@@ -1007,7 +1040,7 @@
               'style="background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.35);color:#fbbf24;' +
               'border-radius:8px;padding:7px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">Cette date</button>' +
             '<button onclick="awakCalSetTime(' + i + ',\'always\')" ' +
-              'style="background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.35);color:#4ade80;' +
+              'style="background:rgba(34,211,238,0.12);border:1px solid rgba(34,211,238,0.35);color:#22d3ee;' +
               'border-radius:8px;padding:7px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">Tous les ' + esc(JOURS_LONG[dayKey].toLowerCase()) + 's</button>' +
           '</div>' +
           (e.exception
