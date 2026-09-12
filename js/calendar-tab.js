@@ -730,10 +730,31 @@
   // et l'écran qui ne s'éteint pas (Wake Lock).
   var kiosk = { timer: null, lock: null };
 
+  // Styles du mode salle : colonnes horizontales, aujourd'hui agrandi.
+  // (Media queries impossibles en style inline.)
+  function kioskStyles() {
+    if (document.getElementById('awakKioskStyles')) return;
+    var st = document.createElement('style');
+    st.id = 'awakKioskStyles';
+    st.textContent =
+      '.awak-k-week{display:flex;gap:10px;align-items:stretch;}' +
+      '.awak-k-day{flex:1 1 0;min-width:0;display:flex;flex-direction:column;' +
+        'border-radius:16px;padding:14px 10px;border:1px solid rgba(255,255,255,0.07);' +
+        'background:rgba(255,255,255,0.022);transition:flex .25s ease;}' +
+      '.awak-k-day.past{opacity:0.32;}' +
+      '.awak-k-day.today{flex:2.1 1 0;border:2px solid rgba(34,211,238,0.55);' +
+        'background:linear-gradient(170deg,rgba(34,211,238,0.10) 0%,rgba(168,85,247,0.06) 100%);' +
+        'box-shadow:0 0 40px rgba(34,211,238,0.13);padding:16px 14px;}' +
+      '@media(max-width:760px){.awak-k-week{flex-direction:column;}' +
+        '.awak-k-day,.awak-k-day.today{flex:none;}}';
+    document.head.appendChild(st);
+  }
+
   function kioskWeekHTML(list, colorById, plans, dones) {
+    kioskStyles();
     var today = new Date();
     var debut = lundiDe(today);
-    var lignes = '';
+    var cols = '';
 
     for (var i = 0; i < 7; i++) {
       var d = new Date(debut.getFullYear(), debut.getMonth(), debut.getDate() + i);
@@ -741,39 +762,70 @@
       var passe = d < new Date(today.getFullYear(), today.getMonth(), today.getDate());
       var entries = entriesFor(list, plans, dones, d.getFullYear(), d.getMonth(), d.getDate());
 
+      // ── En-tête de colonne ──
+      var tete =
+        '<div style="text-align:center;padding-bottom:' + (auj ? '11px' : '9px') + ';margin-bottom:' + (auj ? '11px' : '9px') + ';' +
+          'border-bottom:1px solid ' + (auj ? 'rgba(34,211,238,0.3)' : 'rgba(255,255,255,0.07)') + ';">' +
+          '<div style="font-size:' + (auj ? '0.82em' : '0.68em') + ';font-weight:900;letter-spacing:2px;' +
+            'color:' + (auj ? '#22d3ee' : '#64748b') + ';">' + JOURS_ENT[i].toUpperCase() + '</div>' +
+          '<div style="font-family:var(--font-display);font-weight:900;line-height:1;margin-top:3px;' +
+            'font-size:' + (auj ? '2.6em' : '1.5em') + ';' +
+            'color:' + (auj ? '#e8f4ff' : '#94a3b8') + ';' +
+            (auj ? 'text-shadow:0 0 26px rgba(34,211,238,0.45);' : '') + '">' + d.getDate() + '</div>' +
+        '</div>';
+
+      // ── Séances ──
       var corps;
       if (entries.length) {
         corps = entries.map(function (e) {
           var c = colorById[e.profil.id];
-          var lbl = e.seance.label || e.seance.muscles.slice(0, 3).join(' · ');
-          return '<div style="display:flex;align-items:center;gap:12px;margin-top:8px;">' +
-              '<span style="flex-shrink:0;width:5px;height:30px;border-radius:99px;background:' + c.base + ';"></span>' +
-              (e.heure ? '<span style="flex-shrink:0;background:' + c.base + ';color:#04121f;padding:3px 11px;' +
-                  'border-radius:8px;font-size:1.05em;font-weight:900;font-family:var(--font-display);">' + esc(fmtTime(e.heure)) + '</span>' : '') +
-              '<span style="font-size:1.15em;font-weight:800;color:#e8f0f8;min-width:0;overflow:hidden;' +
-                'text-overflow:ellipsis;white-space:nowrap;">' + esc(lbl) + '</span>' +
-              '<span style="font-size:0.95em;color:#94a3b8;font-weight:700;white-space:nowrap;">' + esc(e.profil.name || '') + '</span>' +
-              (e.faite ? '<span style="color:' + c.base + ';font-size:1.2em;font-weight:900;">✓</span>' : '') +
+          var lbl = e.seance.label || e.seance.muscles.slice(0, 2).join(' · ');
+
+          if (auj) {
+            // Colonne du jour : détail lisible de loin
+            var mus = e.seance.muscles.slice(0, 4).map(function (m) {
+              return '<span style="background:' + c.soft + ';color:' + c.base + ';border:1px solid ' + c.line +
+                ';padding:2px 8px;border-radius:99px;font-size:0.62em;font-weight:700;">' + esc(m) + '</span>';
+            }).join('');
+            return '<div style="background:rgba(0,0,0,0.25);border-left:4px solid ' + c.base + ';' +
+                'border-radius:11px;padding:11px 13px;margin-bottom:9px;">' +
+                '<div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:6px;">' +
+                  (e.heure ? '<span style="background:' + c.base + ';color:#04121f;padding:3px 11px;border-radius:8px;' +
+                      'font-size:1em;font-weight:900;font-family:var(--font-display);">' + esc(fmtTime(e.heure)) + '</span>' : '') +
+                  '<span style="font-size:1.05em;font-weight:800;color:#e8f0f8;">' + esc(lbl) + '</span>' +
+                  (e.faite ? '<span style="color:' + c.base + ';font-size:1.1em;font-weight:900;">✓</span>' : '') +
+                '</div>' +
+                '<div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;">' +
+                  '<span style="font-size:0.78em;color:#94a3b8;font-weight:700;">' + esc(e.profil.name || '') + '</span>' +
+                  mus +
+                '</div>' +
+              '</div>';
+          }
+
+          // Autres jours : compact
+          return '<div style="display:flex;align-items:center;gap:6px;margin-bottom:7px;">' +
+              '<span style="flex-shrink:0;width:4px;height:26px;border-radius:99px;background:' + c.base + ';"></span>' +
+              '<div style="min-width:0;flex:1;">' +
+                (e.heure ? '<div style="font-size:0.72em;font-weight:900;color:' + c.base + ';' +
+                    'font-family:var(--font-display);line-height:1.1;">' + esc(fmtTime(e.heure)) + '</div>' : '') +
+                '<div style="font-size:0.72em;font-weight:800;color:#cbd5e1;line-height:1.2;' +
+                  'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(lbl) +
+                  (e.faite ? ' <span style="color:' + c.base + ';">✓</span>' : '') + '</div>' +
+              '</div>' +
             '</div>';
         }).join('');
       } else {
-        corps = '<div style="font-size:1em;color:#475569;font-weight:600;margin-top:6px;">Repos</div>';
+        corps = '<div style="text-align:center;color:#475569;font-weight:600;' +
+          'font-size:' + (auj ? '0.95em' : '0.68em') + ';padding-top:' + (auj ? '14px' : '6px') + ';">Repos</div>';
       }
 
-      lignes += '<div style="border:2px solid ' + (auj ? 'rgba(74,222,128,0.6)' : 'rgba(255,255,255,0.07)') + ';' +
-          'background:' + (auj ? 'rgba(74,222,128,0.07)' : 'rgba(255,255,255,0.02)') + ';border-radius:14px;' +
-          'padding:14px 18px;margin-bottom:10px;' + (passe && !auj ? 'opacity:0.4;' : '') + '">' +
-          '<div style="display:flex;align-items:center;gap:12px;">' +
-            '<span style="font-size:0.95em;font-weight:900;letter-spacing:2px;color:' + (auj ? '#4ade80' : '#94a3b8') + ';">' +
-              JOURS_ENT[i].toUpperCase() + '</span>' +
-            '<span style="font-family:var(--font-display);font-size:1.3em;font-weight:900;' +
-              'color:' + (auj ? '#4ade80' : '#cbd5e1') + ';">' + d.getDate() + '</span>' +
-            (auj ? '<span style="background:#4ade80;color:#04121f;padding:2px 11px;border-radius:99px;' +
-              'font-size:0.8em;font-weight:900;letter-spacing:1px;">AUJOURD\'HUI</span>' : '') +
-          '</div>' + corps +
+      cols += '<div class="awak-k-day' + (auj ? ' today' : '') + (passe && !auj ? ' past' : '') + '">' +
+          tete +
+          '<div style="flex:1;min-width:0;">' + corps + '</div>' +
         '</div>';
     }
-    return lignes;
+
+    return '<div class="awak-k-week">' + cols + '</div>';
   }
 
   function kioskRender() {
@@ -808,12 +860,12 @@
     // 🖼️ Bannière d'ambiance. Si le fichier n'est pas (encore) en ligne,
     // onerror la retire : l'en-tête reste propre, rien ne casse.
     ov.innerHTML =
-      '<div style="max-width:760px;margin:0 auto;">' +
+      '<div style="max-width:1500px;margin:0 auto;">' +
         '<div style="position:relative;border-radius:16px;overflow:hidden;margin-bottom:16px;' +
           'border:1px solid rgba(34,211,238,0.22);">' +
           '<img src="images/calendar_banner.webp" alt="" ' +
             'onerror="this.parentNode.remove()" ' +
-            'style="display:block;width:100%;height:132px;object-fit:cover;object-position:center;">' +
+            'style="display:block;width:100%;height:150px;object-fit:cover;object-position:center;">' +
           '<div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(6,9,13,0.55) 0%,rgba(6,9,13,0.15) 45%,rgba(6,9,13,0.85) 100%);"></div>' +
         '</div>' +
         '<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">' +
