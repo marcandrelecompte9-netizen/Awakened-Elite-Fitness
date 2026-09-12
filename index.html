@@ -11,11 +11,11 @@
     <title>Awakened Elite Fitness</title>
 
     <!-- PWA -->
-    <link rel="manifest" href="manifest.json?v=1111">
-    <link rel="apple-touch-icon" href="icons/icon-192.png?v=1111">
-    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=1111">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=1111">
-    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=1111">
+    <link rel="manifest" href="manifest.json?v=1116">
+    <link rel="apple-touch-icon" href="icons/icon-192.png?v=1116">
+    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=1116">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=1116">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=1116">
 
     <!-- ⚠️ CAPTURE PRÉCOCE DE L'INVITE D'INSTALLATION.
          Chrome déclenche « beforeinstallprompt » très tôt, souvent AVANT la fin
@@ -44,7 +44,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=1111">
+    <link rel="stylesheet" href="css/style.css?v=1116">
 </head>
 <body>
 
@@ -208,8 +208,8 @@
                  (ratio 1,55), donc plus haute et lisible.
                  <picture> laisse le navigateur choisir, sans JavaScript. -->
             <picture>
-                <source media="(min-width: 700px)" srcset="images/banner_v3.webp?v=1111">
-                <img src="images/banner_v3_mobile.webp?v=1111"
+                <source media="(min-width: 700px)" srcset="images/banner_v3.webp?v=1116">
+                <img src="images/banner_v3_mobile.webp?v=1116"
                      alt="Awakened Elite Fitness"
                      style="width:100%;height:auto;display:block;" />
             </picture>
@@ -230,7 +230,7 @@
             </button>
             <button class="nav-tab" onclick="switchTab('workouts')" aria-label="Entraîner">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11M6.5 17.5h11M4 12h16M2 6.5h2M20 6.5h2M2 17.5h2M20 17.5h2"/></svg>
-                Entraîner
+                Séance
             </button>
             <button class="nav-tab" onclick="switchTab('routines')" aria-label="Routines" style="display:none;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
@@ -242,15 +242,15 @@
             </button>
             <button class="nav-tab" onclick="switchTab('history')" aria-label="Progression">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                Progression
+                Progrès
             </button>
             <button class="nav-tab" onclick="switchTab('calendar')" aria-label="Calendrier">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                Calendrier
+                Agenda
             </button>
             <button class="nav-tab" onclick="switchTab('exercises')" aria-label="Découvrir">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-                Découvrir
+                Exos
             </button>
             <button class="nav-tab" onclick="switchTab('calculators')" aria-label="Calculs" style="display:none;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
@@ -3822,42 +3822,63 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/exercises.js?v=1111"></script>
-    <script src="data/items.js?v=1111"></script>
-    <script src="js/adventure.js?v=1111"></script>
-    <script src="js/economy.js?v=1111"></script>
-    <script src="js/challenges.js?v=1111"></script>
-    <script src="js/family-boss.js?v=1111"></script>
-    <script src="js/family-network.js?v=1111"></script>
-    <script src="js/family-challenge.js?v=1111"></script>
-    <script src="js/family-goal.js?v=1111"></script>
-    <script src="js/family-feed.js?v=1111"></script>
-    <script src="js/pre-workout-mood.js?v=1111"></script>
-    <script src="js/group-workout.js?v=1111"></script>
-    <script src="js/youth-safety.js?v=1111"></script>
-    <script src="js/kids-programs.js?v=1111"></script>
-    <script src="js/senior-programs.js?v=1111"></script>
-    <script src="js/adaptive.js?v=1111"></script>
-    <script src="js/pain-mode.js?v=1111"></script>
-    <script src="js/recovery-mode.js?v=1111"></script>
-    <script src="js/exercise-visuals.js?v=1111"></script>
-    <script src="js/strength-standards.js?v=1111"></script>
-    <script src="js/system-cards.js?v=1111"></script>
-    <script src="js/share-card.js?v=1111"></script>
-    <script src="js/story-events.js?v=1111"></script>
-    <script src="js/final-boss.js?v=1111"></script>
-    <script src="js/disciplines.js?v=1111"></script>
-    <script src="js/eveil.js?v=1111"></script>
-    <script src="js/app.js?v=1111"></script>
-    <script src="js/calendar-tab.js?v=1111"></script>
-    <script src="js/routine-blocks.js?v=1111"></script>
-    <script src="js/routine-builder.js?v=1111"></script>
-    <script src="js/awakening-tree.js?v=1111"></script>
-    <script src="js/ui-kit.js?v=1111"></script>
-    <script src="js/feature-map.js?v=1111"></script>
-    <script src="js/weekly-recap.js?v=1111"></script>
-    <script src="js/workout-games.js?v=1111"></script>
-    <script src="js/kids-games.js?v=1111"></script>
+    <script src="js/exercises.js?v=1116"></script>
+    <script src="data/items.js?v=1116"></script>
+    <script src="js/adventure.js?v=1116"></script>
+    <script src="js/economy.js?v=1116"></script>
+    <script src="js/challenges.js?v=1116"></script>
+    <script src="js/family-boss.js?v=1116"></script>
+    <script src="js/family-network.js?v=1116"></script>
+    <script src="js/family-challenge.js?v=1116"></script>
+    <script src="js/family-goal.js?v=1116"></script>
+    <script src="js/family-feed.js?v=1116"></script>
+    <script src="js/pre-workout-mood.js?v=1116"></script>
+    <script src="js/group-workout.js?v=1116"></script>
+    <script src="js/youth-safety.js?v=1116"></script>
+    <script src="js/kids-programs.js?v=1116"></script>
+    <script src="js/senior-programs.js?v=1116"></script>
+    <script src="js/adaptive.js?v=1116"></script>
+    <script src="js/pain-mode.js?v=1116"></script>
+    <script src="js/recovery-mode.js?v=1116"></script>
+    <script src="js/exercise-visuals.js?v=1116"></script>
+    <script src="js/strength-standards.js?v=1116"></script>
+    <script src="js/system-cards.js?v=1116"></script>
+    <script src="js/share-card.js?v=1116"></script>
+    <script src="js/story-events.js?v=1116"></script>
+    <script src="js/final-boss.js?v=1116"></script>
+    <script src="js/disciplines.js?v=1116"></script>
+    <script src="js/eveil.js?v=1116"></script>
+    <script>
+    /* 🔄 DÉVERROUILLAGE DE L'ORIENTATION
+       Sur Android, l'orientation d'une PWA installée est figée à l'installation
+       d'après le manifest. Passer le manifest à "any" ne suffit donc pas pour
+       une app DÉJÀ installée : le verrou portrait persiste jusqu'à une
+       réinstallation. screen.orientation.unlock() lève ce verrou à chaud.
+       Sans effet (et sans erreur) sur navigateur de bureau ou iOS. */
+    (function () {
+      function _unlock() {
+        try {
+          if (window.screen && screen.orientation && typeof screen.orientation.unlock === 'function') {
+            screen.orientation.unlock();
+          }
+        } catch (e) { /* non supporté : le manifest prend le relais */ }
+      }
+      _unlock();
+      document.addEventListener('visibilitychange', function () {
+        if (!document.hidden) _unlock();
+      });
+    })();
+    </script>
+    <script src="js/app.js?v=1116"></script>
+    <script src="js/calendar-tab.js?v=1116"></script>
+    <script src="js/routine-blocks.js?v=1116"></script>
+    <script src="js/routine-builder.js?v=1116"></script>
+    <script src="js/awakening-tree.js?v=1116"></script>
+    <script src="js/ui-kit.js?v=1116"></script>
+    <script src="js/feature-map.js?v=1116"></script>
+    <script src="js/weekly-recap.js?v=1116"></script>
+    <script src="js/workout-games.js?v=1116"></script>
+    <script src="js/kids-games.js?v=1116"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>

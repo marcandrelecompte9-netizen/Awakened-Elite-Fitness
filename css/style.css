@@ -73,6 +73,23 @@
             overflow: hidden;
         }
         .nav-tab svg { width: 20px; height: 20px; flex-shrink: 0; transition: all 0.2s; }
+
+        /* 📏 LIBELLÉS D'ONGLETS — avec 7 onglets, il reste ~45px chacun sur un
+           écran de 360px, soit environ 7 caractères. `overflow:hidden` seul
+           coupait le mot NET, sans signal visuel. On resserre la typo sur les
+           petits écrans et on garde une ellipse en dernier recours. */
+        .nav-tab {
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+        @media (max-width: 400px) {
+            .nav-tab { font-size: 0.54em; letter-spacing: 0.1px; padding-left: 2px; padding-right: 2px; }
+        }
+        @media (max-width: 340px) {
+            .nav-tab { font-size: 0.5em; letter-spacing: 0; }
+            .nav-tab svg { width: 18px; height: 18px; }
+        }
         .nav-tab.active {
             color: #16a34a;
             background: rgba(22,163,74,0.08);

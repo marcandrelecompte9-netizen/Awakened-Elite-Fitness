@@ -335,8 +335,13 @@
   // ── En-tête ──
   function headerHTML(nbMembres) {
     return '' +
+      // 🖼️ La bannière sert de FOND à l'en-tête (elle avait quitté le mode
+      // salle, remplacée par kiosk_bg). Un voile en dégradé garde le titre
+      // et le texte lisibles. Si le fichier manque, le dégradé de base suffit.
       '<div class="card" style="position:relative;overflow:hidden;padding:18px 20px;' +
-        'background:linear-gradient(150deg,#0a0f14 0%,#0c1620 55%,#0a1a12 100%);' +
+        'background-color:#0a0f14;' +
+        "background-image:linear-gradient(105deg,rgba(8,12,18,0.94) 0%,rgba(8,12,18,0.80) 42%,rgba(8,12,18,0.55) 100%),url('images/calendar_banner.webp');" +
+        'background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,no-repeat;' +
         'border:1px solid rgba(34,211,238,0.16);">' +
         corner('tl', '#22d3ee') + corner('tr', '#22d3ee') + corner('bl', '#22d3ee') + corner('br', '#22d3ee') +
         '<div style="position:absolute;top:-40px;right:-30px;width:150px;height:150px;' +
@@ -753,6 +758,14 @@
       '.awak-k-day.today::before{content:"";position:absolute;top:0;left:12%;right:12%;height:2px;' +
         'background:linear-gradient(90deg,transparent,#22d3ee,#a855f7,transparent);' +
         'box-shadow:0 0 14px rgba(34,211,238,0.8);}' +
+      // 📐 PAYSAGE / grand écran : les colonnes descendent jusqu'en bas.
+      // Sans ça elles s'arrêtaient à la hauteur du contenu et laissaient les
+      // trois quarts de l'écran vides sur une tablette couchée.
+      '@media(min-width:761px){.awak-k-week{min-height:calc(100vh - 170px);}' +
+        '.awak-k-day{justify-content:flex-start;}' +
+        // le contenu d'un jour occupe la hauteur : repos centré, séances en haut
+        '.awak-k-corps{flex:1;display:flex;flex-direction:column;}' +
+        '.awak-k-vide{flex:1;display:flex;align-items:center;justify-content:center;}}' +
       '@media(max-width:760px){.awak-k-week{flex-direction:column;}' +
         '.awak-k-day,.awak-k-day.today{flex:none;}}';
     document.head.appendChild(st);
@@ -829,13 +842,13 @@
             '</div>';
         }).join('');
       } else {
-        corps = '<div style="text-align:center;color:#475569;font-weight:600;' +
-          'font-size:' + (auj ? '0.95em' : '0.68em') + ';padding-top:' + (auj ? '14px' : '6px') + ';">Repos</div>';
+        corps = '<div class="awak-k-vide" style="text-align:center;color:#475569;font-weight:600;' +
+          'font-size:' + (auj ? '0.95em' : '0.68em') + ';">Repos</div>';
       }
 
       cols += '<div class="awak-k-day' + (auj ? ' today' : '') + (passe && !auj ? ' past' : '') + '">' +
           tete +
-          '<div style="flex:1;min-width:0;">' + corps + '</div>' +
+          '<div class="awak-k-corps" style="flex:1;min-width:0;">' + corps + '</div>' +
         '</div>';
     }
 
