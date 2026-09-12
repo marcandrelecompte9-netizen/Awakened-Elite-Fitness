@@ -339,9 +339,14 @@
       // salle, remplacée par kiosk_bg). Un voile en dégradé garde le titre
       // et le texte lisibles. Si le fichier manque, le dégradé de base suffit.
       '<div class="card" style="position:relative;overflow:hidden;padding:18px 20px;' +
-        'background-color:#0a0f14;' +
-        "background-image:linear-gradient(105deg,rgba(8,12,18,0.94) 0%,rgba(8,12,18,0.80) 42%,rgba(8,12,18,0.55) 100%),url('images/calendar_banner.webp');" +
-        'background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,no-repeat;' +
+        // ⚠️ !important OBLIGATOIRE : `body.dark-mode .card:not(#awakHunterCard)`
+        // impose `background: … !important`. Cette propriété RACCOURCIE remet
+        // background-image à `none` — le fond inline sans !important perdait,
+        // et la bannière n'apparaissait jamais.
+        'background-color:#0a0f14!important;' +
+        "background-image:linear-gradient(105deg,rgba(8,12,18,0.94) 0%,rgba(8,12,18,0.80) 42%,rgba(8,12,18,0.55) 100%),url('images/calendar_banner.webp')!important;" +
+        'background-size:cover,cover!important;background-position:center,center!important;' +
+        'background-repeat:no-repeat,no-repeat!important;' +
         'border:1px solid rgba(34,211,238,0.16);">' +
         corner('tl', '#22d3ee') + corner('tr', '#22d3ee') + corner('bl', '#22d3ee') + corner('br', '#22d3ee') +
         '<div style="position:absolute;top:-40px;right:-30px;width:150px;height:150px;' +
