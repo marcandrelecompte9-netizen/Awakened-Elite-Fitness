@@ -749,7 +749,7 @@
         'backdrop-filter:blur(6px);box-shadow:inset 0 1px 0 rgba(255,255,255,0.05);' +
         'transition:flex .35s cubic-bezier(.22,.9,.3,1);overflow:hidden;}' +
       '.awak-k-day.past{opacity:0.26;}' +
-      '.awak-k-day.today{flex:2.2 1 0;padding:20px 16px;' +
+      '.awak-k-day.today{flex:3.4 1 0;padding:22px 18px;' +
         'border:1px solid rgba(34,211,238,0.45);' +
         'background:linear-gradient(168deg,rgba(34,211,238,0.13) 0%,rgba(168,85,247,0.07) 55%,rgba(10,14,20,0.4) 100%);' +
         'box-shadow:0 0 0 1px rgba(34,211,238,0.12),0 18px 60px rgba(34,211,238,0.16),' +
