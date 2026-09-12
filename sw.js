@@ -2,7 +2,7 @@
 // Enables full offline support and PWA installation
 // Strategy: network-first for code files (HTML/JS/CSS), cache-first for assets (images/fonts)
 
-const CACHE_NAME = 'awakened-v1119';
+const CACHE_NAME = 'awakened-v1121';
 const ASSETS = [
   './',
   './index.html',
@@ -47,11 +47,11 @@ const ASSETS = [
   './js/pain-mode.js',
   './js/recovery-mode.js',
   './data/items.js',
-  './manifest.json?v=1119',
-  './icons/icon-192.png?v=1119',
-  './icons/icon-512.png?v=1119',
-  './icons/icon-192-maskable.png?v=1119',
-  './icons/icon-512-maskable.png?v=1119',
+  './manifest.json?v=1121',
+  './icons/icon-192.png?v=1121',
+  './icons/icon-512.png?v=1121',
+  './icons/icon-192-maskable.png?v=1121',
+  './icons/icon-512-maskable.png?v=1121',
   // icon-1024.png : asset de soumission aux stores, volontairement hors du
   // précache (487 Ko). Reste dans manifest.json, récupérable à la demande.
   './images/banner_v3.webp',
@@ -68,7 +68,13 @@ function isCodeFile(url) {
   // pas par « ./ ». La page racine du site (.../fitpro/) n'était donc pas
   // traitée comme du code → servie en CACHE-FIRST, donc figée sur une
   // ancienne version d'index.html même après déploiement.
-  return /\.(html|js|css)(\?|$)/.test(url) || /\/(\?|$)/.test(url);
+  // 📱 manifest.json est TRAITÉ COMME DU CODE (network-first).
+  // ⚠️ Servi depuis le cache, Android reconstruisait l'app installée avec
+  //    l'ANCIEN manifest — donc toujours verrouillée en portrait, même après
+  //    une réinstallation. Il doit toujours venir du réseau quand c'est possible.
+  return /\.(html|js|css|webmanifest)(\?|$)/.test(url)
+      || /manifest\.json(\?|$)/.test(url)
+      || /\/(\?|$)/.test(url);
 }
 
 // Install — cache all core assets (résilient : un fichier manquant ne casse pas tout)

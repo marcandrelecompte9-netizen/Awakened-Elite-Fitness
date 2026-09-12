@@ -487,6 +487,7 @@
             '<span style="font-size:0.7em;color:#94a3b8;font-weight:700;">' + esc(dateLbl) + '</span>' +
           '</div>' +
           rows +
+          prochaineHTML(entries) +
           alerte +
         '</div>' +
       '</div>';
@@ -501,6 +502,92 @@
     }
     return '<span title="Séance prévue" style="width:9px;height:9px;border-radius:50%;flex-shrink:0;' +
       'background:transparent;border:2px solid ' + c.base + ';"></span>';
+  }
+
+  // ── Résumé de la semaine : anneaux de progression par membre ──
+  // Donne du relief et une raison de revenir : on voit l'anneau se fermer.
+  function anneau(pct, couleur, taille) {
+    var r = (taille - 7) / 2, c = 2 * Math.PI * r, off = c * (1 - Math.max(0, Math.min(1, pct)));
+    return '<svg viewBox="0 0 ' + taille + ' ' + taille + '" width="' + taille + '" height="' + taille + '" style="display:block;">' +
+        '<circle cx="' + taille / 2 + '" cy="' + taille / 2 + '" r="' + r.toFixed(1) + '" fill="none" ' +
+          'stroke="rgba(255,255,255,0.08)" stroke-width="5"/>' +
+        '<circle cx="' + taille / 2 + '" cy="' + taille / 2 + '" r="' + r.toFixed(1) + '" fill="none" ' +
+          'stroke="' + couleur + '" stroke-width="5" stroke-linecap="round" ' +
+          'stroke-dasharray="' + c.toFixed(1) + '" stroke-dashoffset="' + off.toFixed(1) + '" ' +
+          'transform="rotate(-90 ' + taille / 2 + ' ' + taille / 2 + ')" ' +
+          'style="transition:stroke-dashoffset .7s cubic-bezier(.22,.9,.3,1);"/>' +
+      '</svg>';
+  }
+
+  function resumeHTML(list, colorById, plans, dones) {
+    var today = new Date();
+    var debut = lundiDe(today);
+    var selList = list.filter(function (p) { return cal.selected.has(p.id); });
+    if (!selList.length) return '';
+
+    var cartes = selList.map(function (p) {
+      var c = colorById[p.id];
+      var prevues = 0, faites = 0;
+      for (var i = 0; i < 7; i++) {
+        var d = new Date(debut.getFullYear(), debut.getMonth(), debut.getDate() + i);
+        var dayKey = JOURS[wIdx(d)];
+        var ymd = d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate();
+        var sc = (plans[p.id] || {})[dayKey];
+        if (sc && sc.muscles && sc.muscles.length) {
+          prevues++;
+          if (dones[p.id] && dones[p.id][ymd]) faites++;
+        }
+      }
+      var pct = prevues ? faites / prevues : 0;
+      var complet = prevues > 0 && faites >= prevues;
+
+      return '<div style="flex:1;min-width:104px;display:flex;align-items:center;gap:10px;' +
+          'background:' + (complet ? c.soft : 'rgba(255,255,255,0.025)') + ';' +
+          'border:1px solid ' + (complet ? c.line : 'rgba(255,255,255,0.06)') + ';' +
+          'border-radius:13px;padding:10px 12px;">' +
+          '<div style="position:relative;flex-shrink:0;">' +
+            anneau(pct, c.base, 44) +
+            '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;' +
+              'font-size:0.62em;font-weight:900;color:' + c.base + ';font-family:var(--font-display);">' +
+              (complet ? '✓' : faites + '/' + prevues) + '</div>' +
+          '</div>' +
+          '<div style="min-width:0;flex:1;">' +
+            '<div style="font-size:0.76em;font-weight:800;color:#e8f0f8;overflow:hidden;' +
+              'text-overflow:ellipsis;white-space:nowrap;">' + esc(p.name || 'Membre') + '</div>' +
+            '<div style="font-size:0.64em;color:' + (complet ? c.base : '#64748b') + ';font-weight:700;margin-top:2px;">' +
+              (prevues === 0 ? 'aucune prévue' : complet ? 'semaine complète !' : faites + ' sur ' + prevues + ' faites') + '</div>' +
+          '</div>' +
+        '</div>';
+    }).join('');
+
+    return '<div class="card" style="padding:13px 14px;">' +
+        '<div style="font-size:0.56em;letter-spacing:2px;color:#64748b;font-weight:900;margin-bottom:10px;">◈ TA SEMAINE</div>' +
+        '<div style="display:flex;flex-wrap:wrap;gap:8px;">' + cartes + '</div>' +
+      '</div>';
+  }
+
+  // ⏳ Temps restant avant la prochaine séance du jour (profil actif inclus).
+  function prochaineHTML(entries) {
+    var maintenant = new Date();
+    var minsNow = maintenant.getHours() * 60 + maintenant.getMinutes();
+    var suivante = null;
+    entries.forEach(function (e) {
+      var m = toMin(e.heure);
+      if (m === null || e.faite) return;
+      if (m >= minsNow && (suivante === null || m < toMin(suivante.heure))) suivante = e;
+    });
+    if (!suivante) return '';
+    var delta = toMin(suivante.heure) - minsNow;
+    var txt = delta < 5 ? "c'est maintenant"
+            : delta < 60 ? 'dans ' + delta + ' min'
+            : 'dans ' + Math.floor(delta / 60) + ' h' + (delta % 60 ? String(delta % 60).padStart(2, '0') : '');
+    return '<div style="margin-top:10px;display:flex;align-items:center;gap:8px;' +
+        'background:rgba(34,211,238,0.10);border:1px solid rgba(34,211,238,0.3);' +
+        'border-radius:10px;padding:8px 11px;">' +
+        '<span style="flex-shrink:0;">⏳</span>' +
+        '<span style="font-size:0.76em;color:#e8f0f8;font-weight:700;min-width:0;">' +
+          esc(suivante.seance.label || 'Séance') + ' · <span style="color:#67e8f9;font-weight:900;">' + txt + '</span></span>' +
+      '</div>';
   }
 
   // ── Bascule Semaine / Mois ──
@@ -578,12 +665,34 @@
         corps = '<div style="font-size:0.74em;color:#475569;font-weight:600;margin-top:5px;">🛌 Repos</div>';
       }
 
-      var bord = estAujourdhui ? 'rgba(34,211,238,0.55)' : 'rgba(255,255,255,0.06)';
-      var fond = estAujourdhui ? 'rgba(34,211,238,0.06)' : 'rgba(255,255,255,0.02)';
+      // 🎨 RELIEF : un jour avec séance prend la couleur du membre (barre
+      // latérale + fond teinté) ; un jour de repos reste discret et en
+      // pointillés. Avant, tous les jours avaient la même apparence et la
+      // liste paraissait uniforme et vide.
+      var cPrem = entries.length ? colorById[entries[0].profil.id] : null;
+      var toutFait = entries.length && entries.every(function (e) { return e.faite; });
+
+      var bord, fond, barre = '';
+      if (estAujourdhui) {
+        bord = 'rgba(34,211,238,0.55)';
+        fond = 'linear-gradient(100deg,rgba(34,211,238,0.10),rgba(168,85,247,0.05))';
+      } else if (entries.length) {
+        bord = cPrem.line;
+        fond = 'linear-gradient(100deg,' + cPrem.soft + ',rgba(255,255,255,0.015))';
+      } else {
+        bord = 'rgba(255,255,255,0.05)';
+        fond = 'rgba(255,255,255,0.012)';
+      }
+      if (entries.length) {
+        barre = '<span style="position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:99px;' +
+          'background:' + (estAujourdhui ? '#22d3ee' : cPrem.base) + ';"></span>';
+      }
 
       lignes += '<div onclick="awakCalOpenDay(' + d.getFullYear() + ',' + d.getMonth() + ',' + d.getDate() + ')" ' +
-          'style="border:1px solid ' + bord + ';background:' + fond + ';border-radius:12px;padding:10px 12px;' +
+          'style="position:relative;overflow:hidden;border:1px ' + (entries.length ? 'solid' : 'dashed') + ' ' + bord + ';' +
+          'background:' + fond + ';border-radius:12px;padding:10px 12px 10px 15px;' +
           'margin-bottom:7px;cursor:pointer;' + (estPasse && !estAujourdhui ? 'opacity:0.5;' : '') + '">' +
+          barre +
           '<div style="display:flex;align-items:center;gap:8px;">' +
             '<span style="font-size:0.66em;font-weight:900;letter-spacing:1px;' +
               'color:' + (estAujourdhui ? '#22d3ee' : '#94a3b8') + ';">' + JOURS_ENT[i].toUpperCase() + '</span>' +
@@ -592,7 +701,12 @@
             (estAujourdhui ? '<span style="background:#22d3ee;color:#04121f;padding:1px 7px;border-radius:99px;' +
               'font-size:0.56em;font-weight:900;">AUJOURD\'HUI</span>' : '') +
             '<span style="flex:1;"></span>' +
-            (entries.length > 1 ? '<span style="font-size:0.62em;color:#64748b;font-weight:700;">' + entries.length + ' séances</span>' : '') +
+            (toutFait
+              ? '<span style="background:' + cPrem.base + ';color:#04121f;padding:1px 8px;border-radius:99px;' +
+                  'font-size:0.56em;font-weight:900;">✓ FAIT</span>'
+              : entries.length > 1
+                ? '<span style="font-size:0.62em;color:#64748b;font-weight:700;">' + entries.length + ' séances</span>'
+                : '') +
           '</div>' +
           corps +
         '</div>';
@@ -994,6 +1108,7 @@
       membersHTML(list, colorById) +
       (showCTA ? ctaHTML() : '') +
       todayHTML(list, colorById, plans, dones) +
+      resumeHTML(list, colorById, plans, dones) +
       (cal.vue === 'semaine' ? weekHTML(list, colorById, plans, dones) : gridHTML(list, colorById, plans, dones));
   }
 
