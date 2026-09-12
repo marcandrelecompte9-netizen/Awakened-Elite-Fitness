@@ -8147,10 +8147,54 @@
                 _brk.style.display = parts.length ? 'block' : 'none';
             }
 
-            // Calculate duration
-            const totalSeconds = workout.exercises.reduce((sum, ex) => sum + (ex.duration || 0), 0);
-            const minutes = Math.ceil(totalSeconds / 60);
-            document.getElementById('prepDuration').textContent = `${minutes} min`;
+            // 📉 Séance plus courte que la cible : on le DIT, sans deviner la cause.
+            try {
+                const _cible = window._awakCibleExos;
+                const _obtenu = _nMain || exerciseCount;
+                const _hote = document.getElementById('prepSystemBrief');
+                const _slot = document.getElementById('prepShortNote');
+                if (_cible && _cible.vise && _obtenu < _cible.vise) {
+                    const _msg = '<div style="background:rgba(251,191,36,0.09);border:1px solid rgba(251,191,36,0.3);'
+                        + 'border-radius:11px;padding:10px 12px;margin-bottom:12px;display:flex;gap:8px;align-items:flex-start;">'
+                        + '<span style="flex-shrink:0;">📉</span><div style="min-width:0;">'
+                        + '<div style="font-size:0.72em;color:#fbbf24;font-weight:900;letter-spacing:0.5px;margin-bottom:2px;">'
+                        +   'SÉANCE PLUS COURTE</div>'
+                        + '<div style="font-size:0.75em;color:#cbd5e1;line-height:1.45;">'
+                        +   _obtenu + ' exercices au lieu des ' + _cible.vise + ' visés pour ' + _cible.duree + ' min. '
+                        +   'Le Système regroupe la séance autour de 2 ou 3 matériels : élargis les muscles ciblés '
+                        +   'pour avoir plus de choix.</div>'
+                        + '</div></div>';
+                    if (_slot) { _slot.innerHTML = _msg; _slot.style.display = 'block'; }
+                    if (_hote) _hote.innerHTML = _msg + (_hote.innerHTML || '');
+                } else if (_slot) {
+                    _slot.innerHTML = ''; _slot.style.display = 'none';
+                }
+            } catch (e) {}
+
+            // ⏱️ DURÉE ESTIMÉE
+            // ⚠️ L'ancien calcul additionnait seulement `ex.duration`, soit la
+            //    durée d'UNE exécution. Il ignorait les séries, les répétitions
+            //    et les temps de repos : une séance demandée à 60 min s'affichait
+            //    à 23 min. On estime désormais le déroulé réel.
+            const _reposDefaut = (function () {
+                try { if (typeof globalRestSeconds === 'number' && globalRestSeconds > 0) return globalRestSeconds; } catch (e) {}
+                return 60;
+            })();
+            const totalSeconds = workout.exercises.reduce(function (sum, ex) {
+                if (!ex || ex.isRest || ex.isInfo) return sum;
+                const series = Math.max(1, parseInt(ex.sets, 10) || 1);
+                const minute = (ex.mode === 'timer' || ex.mode === 'duration');
+                // Travail : durée chronométrée, ou ~3 s par répétition
+                const travail = minute
+                    ? (parseInt(ex.duration, 10) || 45)
+                    : Math.max(15, (parseInt(ex.reps, 10) || 10) * 3);
+                // Repos entre les séries (pas après la dernière) + transition
+                const repos = (series - 1) * (parseInt(ex.rest, 10) || _reposDefaut);
+                return sum + series * travail + repos + 20;
+            }, 0);
+            const minutes = Math.max(1, Math.round(totalSeconds / 60));
+            const _dEl = document.getElementById('prepDuration');
+            if (_dEl) _dEl.textContent = `${minutes} min`;
 
             // Display exercise list
             const exercisesList = document.getElementById('prepExercisesList');
@@ -11245,10 +11289,18 @@
                 targetExerciseCount = _forcedExerciseCount;
             }
             targetExerciseCount = Math.min(targetExerciseCount, availableExercises.length);
+            // 🎯 On mémorise la CIBLE visée pour cette durée. La comparaison avec
+            // le résultat réel se fait sur l'écran de préparation.
+            // ⚠️ Mesurer la réduction ICI serait faux : la séance peut encore
+            //    perdre des exercices plus loin (cohérence matérielle, quotas par
+            //    muscle). Seul le décompte FINAL dit la vérité.
+            try {
+                window._awakCibleExos = { vise: targetExerciseCount, duree: decisions.duration };
+            } catch (e) {}
 
             // 🧰 COHÉRENCE MATÉRIELLE — sans ça, une séance mélangeait barre,
             // machine, kettlebell et poids du corps : allers-retours entre postes
-            // en salle, montage/démontage à la maison. On choisit 1 ou 2 matériels
+            // en salle, montage/démontage à la maison. On choisit 2 ou 3 matériels
             // DOMINANTS (ceux qui couvrent le plus d'exercices pour les muscles
             // ciblés) et on s'y tient ; le poids du corps reste toujours accepté
             // car il ne demande aucune installation.
@@ -11274,9 +11326,22 @@
                 };
                 const _ranked = (_viables.length >= 2 ? _viables : Object.keys(_count));
                 if (_ranked.length > 1) {
-                    const _first = _pickWeighted(_ranked);
-                    const _rest = _ranked.filter(e => e !== _first);
-                    const _keep = _rest.length ? [_first, _pickWeighted(_rest)] : [_first];
+                    // 🔢 2 à 3 MATÉRIELS (au lieu de 1 à 2).
+                    // ⚠️ Se limiter à 2 étranglait le catalogue : une séance de 60 min
+                    //    visant 9 exercices n'en trouvait que 6 une fois les quotas par
+                    //    muscle appliqués. Un 3ᵉ matériel élargit le choix sans ramener
+                    //    le désordre que cette règle cherche à éviter.
+                    //    Le 3ᵉ n'est ajouté que si la séance est ASSEZ LONGUE pour le
+                    //    justifier (≥ 6 exercices visés) : sur une courte séance,
+                    //    3 postes différents n'auraient pas de sens.
+                    const _keep = [];
+                    let _pool = _ranked.slice();
+                    const _nbMat = (targetExerciseCount >= 6 && _pool.length >= 3) ? 3 : 2;
+                    while (_keep.length < _nbMat && _pool.length) {
+                        const _pick = _pickWeighted(_pool);
+                        _keep.push(_pick);
+                        _pool = _pool.filter(e => e !== _pick);
+                    }
                     const _coherent = availableExercises.filter(ex =>
                         _eqOf(ex).every(e => _isBw(e) || _keep.includes(e)));
                     // 🛟 Garde-fou : on n'applique la contrainte que s'il reste de quoi
@@ -21655,9 +21720,9 @@
             // Select exercises from available filtered list
             // 🧰 COHÉRENCE MATÉRIELLE — ce générateur ne l'appliquait PAS.
             // Le message affiché au joueur (« le Système regroupe chaque séance
-            // autour de 1 ou 2 matériels ») était donc faux ici : on pouvait
+            // autour de 2 ou 3 matériels ») était donc faux ici : on pouvait
             // sortir 4 matériels différents dans une même séance.
-            // Même logique que l'autre générateur : 1-2 matériels dominants
+            // Même logique que l'autre générateur : 2-3 matériels dominants
             // tirés au hasard pondéré, poids du corps toujours accepté.
             try {
                 const _isBw = (e) => ['Poids du corps', 'Aucun'].includes(e);
@@ -21675,9 +21740,15 @@
                         for (const e of list) { r -= _count[e]; if (r <= 0) return e; }
                         return list[list.length - 1];
                     };
-                    const _first = _pick(_ranked);
-                    const _rest = _ranked.filter(e => e !== _first);
-                    const _keep = _rest.length ? [_first, _pick(_rest)] : [_first];
+                    // 🔢 2 à 3 matériels — aligné sur l'autre générateur (v1127).
+                    const _keep = [];
+                    let _pool2 = _ranked.slice();
+                    const _nbMat2 = (_pool2.length >= 3) ? 3 : 2;
+                    while (_keep.length < _nbMat2 && _pool2.length) {
+                        const _p = _pick(_pool2);
+                        _keep.push(_p);
+                        _pool2 = _pool2.filter(e => e !== _p);
+                    }
                     const _coherent = availableExercises.filter(ex =>
                         _eqOf(ex).every(e => _isBw(e) || _keep.includes(e)));
                     // Garde-fou : marge de 1,5× pour que la séance reste remplissable
@@ -24037,7 +24108,7 @@
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1121);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1128);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -24081,7 +24152,7 @@
                 +       '<feGaussianBlur stdDeviation="2.4" result="b"/>'
                 +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>'
                 +     '</filter></defs>'
-                +     '<image href="' + img + '?v=1121" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1128" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -25811,12 +25882,15 @@
             return blocs;
         }
 
-        // Bouton d'accès : affiché seulement s'il y a quelque chose à dire.
+        // Bouton d'accès — TOUJOURS affiché.
+        // ⚠️ Il était masqué quand aucun bandeau n'avait de contenu (cas des
+        //    séances intelligentes). Or depuis v1102 la fenêtre contient aussi
+        //    l'explication sur l'équipement : sans bouton, cette information
+        //    devenait tout simplement inaccessible.
         function awakRenderPrepInfoBtn() {
             const host = document.getElementById('prepInfoBtn');
             if (!host) return;
             const n = awakPrepInfos().length;
-            if (!n) { host.innerHTML = ''; host.style.display = 'none'; return; }
             host.style.display = 'block';
             host.innerHTML =
                 '<button onclick="awakOpenPrepInfos()" '
@@ -25852,7 +25926,7 @@
               +   '<div style="font-size:0.72em;color:#94a3b8;line-height:1.55;'
               +     'margin-bottom:16px;padding-bottom:14px;'
               +     'border-bottom:1px solid rgba(255,255,255,0.08);">'
-              +     'Le Système regroupe chaque séance autour de 1 ou 2 matériels, '
+              +     'Le Système regroupe chaque séance autour de 2 ou 3 matériels, '
               +     'plus le poids du corps. Tu ne changes pas d\'équipement toutes '
               +     'les deux minutes.<br><br>Pour orienter les prochaines séances — '
               +     'tout au poids du corps, sans machine, haltères uniquement… — '
@@ -29356,7 +29430,7 @@
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1121");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1128");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -33726,7 +33800,7 @@
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1121);'
+                +     'url(images/combat_bg_v1.webp?v=1128);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -33981,7 +34055,7 @@
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1121);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1128);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -35243,7 +35317,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1121');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1128');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -35978,7 +36052,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1121);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1128);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -36149,7 +36223,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1121);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1128);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -42073,7 +42147,7 @@
                 <div style="margin-bottom:14px;">
                     <h2 style="margin:0 0 4px;color:white;font-size:1.15em;font-weight:700;font-family:var(--font-display);letter-spacing:0.04em;">Programmes Stars</h2>
                     <p style="margin:0 0 12px;color:rgba(255,255,255,0.4);font-size:0.78em;">Choisis une personnalité — son plan hebdo et ses exercices s\'activent automatiquement</p>
-                    <p style="margin:-6px 0 12px;color:rgba(255,255,255,0.28);font-size:0.62em;">Programmes inspirés de routines rendues publiques — aucune affiliation ni endorsement.</p>
+                    <p style="margin:-6px 0 12px;color:rgba(255,255,255,0.28);font-size:0.62em;">Coachs fictifs — chaque profil incarne une méthode d'entraînement reconnue.</p>
                     <!-- Explication des modes -->
                     <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:13px 14px;display:flex;flex-direction:column;gap:9px;">
                         <div style="display:flex;align-items:flex-start;gap:10px;">
@@ -42100,11 +42174,13 @@
                     </div>
                 </div>
                 ${activeSection}
-                <!-- Avertissement non-affiliation -->
+                <!-- 🎭 Les personnages sont FICTIFS (v1090) : l'ancien avertissement
+                     de non-affiliation n'a plus lieu d'être. On explique plutôt ce
+                     que représente chaque profil. -->
                 <div style="background:rgba(148,163,184,0.06);border:1px solid rgba(148,163,184,0.18);border-radius:14px;padding:10px 12px;margin-bottom:14px;display:flex;align-items:flex-start;gap:9px;">
-                    <span style="font-size:0.95em;flex-shrink:0;line-height:1.3;">ℹ️</span>
+                    <span style="font-size:0.95em;flex-shrink:0;line-height:1.3;">🎭</span>
                     <div style="font-size:0.68em;color:rgba(255,255,255,0.42);line-height:1.45;">
-                        Programmes <strong style="color:rgba(255,255,255,0.6);">inspirés</strong> du style d'entraînement public de ces personnalités. Cette application n'est <strong style="color:rgba(255,255,255,0.6);">ni affiliée, ni approuvée, ni sponsorisée</strong> par elles. Noms cités à titre de référence uniquement.
+                        Des <strong style="color:rgba(255,255,255,0.6);">coachs fictifs</strong>, chacun bâti autour d'une méthode d'entraînement éprouvée — PPL, haltérophilie, calisthénie, endurance, danse… Choisis celui dont l'approche te parle : son plan hebdomadaire et ses exercices deviennent les tiens.
                     </div>
                 </div>
                 <!-- Filtre genre -->
@@ -42234,7 +42310,7 @@
                 </div>
                 <div style="background:${p.color}12;border-left:3px solid ${p.color};border-radius:0 14px 14px 0;padding:11px 14px;margin-bottom:16px;">
                     <div style="font-size:0.83em;color:rgba(255,255,255,0.8);font-style:italic;line-height:1.6;">${p.quote}</div>
-                    <div style="font-size:0.62em;color:rgba(255,255,255,0.3);margin-top:6px;">Citation publique attribuée — programme inspiré, sans affiliation.</div>
+                    <div style="font-size:0.62em;color:rgba(255,255,255,0.3);margin-top:6px;">— sa devise</div>
                 </div>
                 ${isActive ? renderCelebProgressCard(p, getCelebProgression(p.id)) : ''}
                 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:16px;">
@@ -43391,7 +43467,7 @@
                 <div style="font-size:3.5em;margin-bottom:12px;filter:drop-shadow(0 0 16px rgba(168,85,247,0.4));">📋</div>
                 <div style="font-size:0.62em;color:#c084fc;font-weight:900;letter-spacing:3px;margin-bottom:8px;">◇ AUCUN PROGRAMME ACTIF ◇</div>
                 <h2 style="margin:0 0 6px 0;color:white;font-size:1.2em;font-weight:900;">Choisis ton mentor</h2>
-                <p style="color:#94a3b8;font-size:0.85em;line-height:1.55;margin:0 0 20px 0;">Suis les méthodes d'entraînement de personnalités légendaires pour atteindre tes objectifs.</p>
+                <p style="color:#94a3b8;font-size:0.85em;line-height:1.55;margin:0 0 20px 0;">Suis la méthode d'un coach légendaire — chaque profil incarne une approche d'entraînement éprouvée.</p>
 
                 ${previews.length > 0 ? `
                 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px;">
@@ -46827,7 +46903,7 @@
 
             host.innerHTML =
                 '<div style="position:relative;width:110px;margin:0 auto 12px;">'
-              +   '<img src="images/body/body_face.webp?v=1121" alt="" '
+              +   '<img src="images/body/body_face.webp?v=1128" alt="" '
               +     'style="width:100%;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -46909,7 +46985,7 @@
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1121);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1128);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -48595,7 +48671,7 @@
                 },
                 {
                     emoji: '🌟', title: 'Entraîne-toi comme une star',
-                    text: 'Dans <strong style="color:#16a34a;">Séances → Programmes Stars</strong>, choisis une personnalité (Le Colosse, L\'Esthète, Reina Carter…). Son plan hebdo et ses exercices s\'activent automatiquement.',
+                    text: 'Dans <strong style="color:#16a34a;">Séances → Programmes Stars</strong>, choisis un coach (Le Colosse, L\'Esthète, Reina Carter…). Son plan hebdo et ses exercices s\'activent automatiquement.',
                     btn: 'C\'est parti ! 🚀'
                 },
             ];
@@ -49292,7 +49368,7 @@
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1121");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1128");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.

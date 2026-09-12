@@ -885,8 +885,17 @@
         // le contenu d'un jour occupe la hauteur : repos centré, séances en haut
         '.awak-k-corps{flex:1;display:flex;flex-direction:column;}' +
         '.awak-k-vide{flex:1;display:flex;align-items:center;justify-content:center;}}' +
+      // 📱 TÉLÉPHONE : l'en-tête se réorganise. Le titre en 2.1em ne tenait pas
+      // à côté de l'horloge et se faisait couper (« CETTE SEMAIN »).
       '@media(max-width:760px){.awak-k-week{flex-direction:column;}' +
-        '.awak-k-day,.awak-k-day.today{flex:none;}}';
+        '.awak-k-day,.awak-k-day.today{flex:none;}' +
+        '.awak-k-day{padding:12px 12px;}.awak-k-day.today{padding:14px 14px;}' +
+        '.awak-k-head{flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:14px;}' +
+        '.awak-k-title{font-size:1.45em!important;white-space:nowrap;}' +
+        '.awak-k-clock{font-size:2.1em!important;}' +
+        '.awak-k-date{font-size:0.68em!important;letter-spacing:0.4px!important;}}' +
+      '@media(max-width:380px){.awak-k-title{font-size:1.2em!important;}' +
+        '.awak-k-clock{font-size:1.8em!important;}}';
     document.head.appendChild(st);
   }
 
@@ -1023,21 +1032,21 @@
         'background:linear-gradient(180deg,rgba(6,9,13,0.30) 0%,rgba(6,9,13,0.18) 34%,' +
         'rgba(6,9,13,0.52) 70%,rgba(6,9,13,0.78) 100%);"></div>' +
       '<div style="position:relative;z-index:1;max-width:1500px;margin:0 auto;">' +
-        '<div style="display:flex;align-items:flex-end;gap:16px;margin-bottom:18px;padding-bottom:14px;' +
+        '<div class="awak-k-head" style="display:flex;align-items:flex-end;gap:16px;margin-bottom:18px;padding-bottom:14px;' +
           'border-bottom:1px solid rgba(34,211,238,0.16);">' +
           '<div style="min-width:0;flex:1;">' +
             '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">' +
               '<span style="width:22px;height:2px;background:linear-gradient(90deg,#22d3ee,transparent);"></span>' +
               '<span style="font-size:0.62em;color:#22d3ee;font-weight:900;letter-spacing:4px;">MODE SALLE</span>' +
             '</div>' +
-            '<div style="font-family:var(--font-display);font-size:2.1em;font-weight:800;line-height:1;' +
+            '<div class="awak-k-title" style="font-family:var(--font-display);font-size:2.1em;font-weight:800;line-height:1.05;' +
               'letter-spacing:0.02em;background:linear-gradient(100deg,#e8f4ff 0%,#67e8f9 45%,#c4b5fd 100%);' +
               '-webkit-background-clip:text;background-clip:text;color:transparent;">CETTE SEMAINE</div>' +
-            '<div id="awakKioskDate" style="font-size:0.76em;color:#64748b;font-weight:700;' +
+            '<div id="awakKioskDate" class="awak-k-date" style="font-size:0.76em;color:#64748b;font-weight:700;' +
               'letter-spacing:1px;margin-top:5px;text-transform:uppercase;">—</div>' +
           '</div>' +
           '<div style="text-align:right;flex-shrink:0;">' +
-            '<div id="awakKioskClock" style="font-family:var(--font-display);font-size:3.2em;font-weight:900;' +
+            '<div id="awakKioskClock" class="awak-k-clock" style="font-family:var(--font-display);font-size:3.2em;font-weight:900;' +
               'line-height:0.9;color:#e8f4ff;letter-spacing:-1px;text-shadow:0 0 34px rgba(34,211,238,0.5);">--</div>' +
             '<div id="awakKioskLock" style="font-size:0.64em;color:#475569;margin-top:6px;font-weight:600;"></div>' +
           '</div>' +

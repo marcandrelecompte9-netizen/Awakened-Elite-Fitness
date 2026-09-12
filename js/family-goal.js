@@ -354,21 +354,37 @@
   // savoir ce qui compte, ni si un enfant peut y contribuer.
   var GOAL_INFO = {
     sessions:  { desc: 'Chaque séance terminée compte pour 1.',
-                 qui: 'Tout le monde' },
+                 qui: 'Tout le monde',
+                 detail: 'Peu importe la durée ou l\'intensité : une séance menée à son terme ajoute 1 au compteur commun. Une séance abandonnée ne compte pas.',
+                 astuce: 'Plusieurs courtes séances valent plus qu\'une longue : c\'est le nombre qui compte ici.' },
     jours:     { desc: 'Un jour où au moins une personne bouge compte pour 1.',
-                 qui: 'Tout le monde' },
+                 qui: 'Tout le monde',
+                 detail: 'C\'est le JOUR qui est compté, pas la séance. Si trois personnes s\'entraînent le même mardi, cela vaut 1 — pas 3. À l\'inverse, une seule personne suffit à valider la journée.',
+                 astuce: 'Idéal en famille : répartissez-vous les jours pour ne jamais en manquer un.' },
     ensemble:  { desc: 'Seules les séances faites à deux ou plus comptent.',
-                 qui: 'Tout le monde' },
+                 qui: 'Tout le monde',
+                 detail: 'Une séance n\'est comptée que si elle a été lancée en mode duo ou coopératif. Une séance solo, même excellente, n\'ajoute rien à cet objectif.',
+                 astuce: 'C\'est l\'objectif qui rapproche : il oblige à se caler sur les horaires des autres.' },
     varietes:  { desc: 'Chaque exercice jamais fait auparavant compte pour 1.',
-                 qui: 'Tout le monde' },
+                 qui: 'Tout le monde',
+                 detail: 'Un exercice n\'est compté qu\'une seule fois, pour toute la famille. Si ton frère a déjà fait des tractions, elles ne recompteront pas pour toi. Seule la nouveauté fait avancer le compteur.',
+                 astuce: 'Explore le catalogue : les exercices que personne n\'a testés sont les plus rentables.' },
     matins:    { desc: 'Les séances terminées avant midi comptent pour 1.',
-                 qui: 'Tout le monde' },
+                 qui: 'Tout le monde',
+                 detail: 'L\'heure retenue est celle de la FIN de la séance. Une séance commencée à 11h30 et terminée à 12h15 ne comptera pas.',
+                 astuce: 'Le week-end est souvent le moment le plus facile pour décrocher les séances du matin.' },
     volume:    { desc: 'Le poids total soulevé s\'additionne.',
-                 qui: 'Adultes surtout' },
+                 qui: 'Adultes surtout',
+                 detail: 'Le volume d\'une série vaut charge × répétitions, additionné sur toute la séance. Les exercices au poids du corps n\'ajoutent rien à ce compteur.',
+                 astuce: 'Objectif exigeant : les écarts entre membres y sont très marqués. Pour un objectif plus équitable, préfère « jours actifs ».' },
     duration:  { desc: 'Les minutes d\'entraînement s\'additionnent.',
-                 qui: 'Tout le monde' },
+                 qui: 'Tout le monde',
+                 detail: 'Seul le temps réel de séance est compté, minuteur en main. Les pauses longues et le temps hors séance ne sont pas inclus.',
+                 astuce: 'Le cardio et les étirements comptent autant que la musculation.' },
     exercises: { desc: 'Chaque exercice réalisé compte pour 1.',
-                 qui: 'Tout le monde' }
+                 qui: 'Tout le monde',
+                 detail: 'On compte les exercices effectués, répétitions incluses : refaire le même exercice à une autre séance le recompte.',
+                 astuce: 'Les séances variées font grimper le compteur plus vite que les séances courtes et ciblées.' }
   };
 
   function _presetList(type, def) {
@@ -380,6 +396,116 @@
   }
 
   // Carte de l'objectif commun (ou invitation à en créer un).
+  // 📖 FICHE DE L'OBJECTIF — ouverte au clic sur la carte.
+  // Explique ce qui compte, comment c'est mesuré, et où en est chacun.
+  window.AwakFamilyGoalInfo = function () {
+    // status() est la fonction interne du module (il n'existe pas de
+    // AwakFamilyGoal.state — s'y fier laissait la fiche muette).
+    var st;
+    try { st = status(); } catch (e) { return; }
+    if (!st || !st.def) return;
+
+    var def = st.def;
+    var inf = GOAL_INFO[st.type] || {};
+    var couleur = st.reached ? '#fbbf24' : '#22c55e';
+
+    // Dates de la fenêtre
+    var dDeb = '', dFin = '';
+    try {
+      var g = _load();
+      if (g) {
+        var a = new Date(g.startTs), b = new Date(g.endTs);
+        var MO = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
+        dDeb = a.getDate() + ' ' + MO[a.getMonth()];
+        dFin = b.getDate() + ' ' + MO[b.getMonth()];
+      }
+    } catch (e) {}
+
+    function bloc(titre, contenu, couleurTitre) {
+      return '<div style="margin-bottom:13px;">'
+        + '<div style="font-size:0.58em;letter-spacing:1.6px;font-weight:900;margin-bottom:5px;'
+        +   'color:' + (couleurTitre || '#64748b') + ';">' + titre + '</div>'
+        + '<div style="font-size:0.8em;color:#cbd5e1;line-height:1.55;">' + contenu + '</div>'
+        + '</div>';
+    }
+
+    var contrib = (st.perMember || []).map(function (m) {
+      var part = st.total > 0 ? Math.round((m.value / st.total) * 100) : 0;
+      return '<div style="display:flex;align-items:center;gap:9px;margin-bottom:7px;">'
+        + _av(m.avatar, 24)
+        + '<span style="flex:1;min-width:0;font-size:0.8em;color:#e5e7eb;font-weight:700;'
+        +   'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(m.name) + '</span>'
+        + '<span style="flex-shrink:0;font-size:0.76em;color:#94a3b8;font-weight:700;">'
+        +   _fmt(_dispVal(st.type, m.value)) + _dispUnit(st.type, def) + '</span>'
+        + '<span style="flex-shrink:0;width:36px;text-align:right;font-size:0.76em;'
+        +   'font-weight:900;color:' + couleur + ';">' + part + '%</span>'
+        + '</div>';
+    }).join('') || '<div style="font-size:0.78em;color:#64748b;">Personne n\'a encore contribué.</div>';
+
+    var reste = Math.max(0, st.target - st.total);
+
+    var old = document.getElementById('awakGoalInfoModal');
+    if (old) old.remove();
+
+    var modal = document.createElement('div');
+    modal.id = 'awakGoalInfoModal';
+    modal.style.cssText = 'position:fixed;inset:0;z-index:10200;background:rgba(0,0,0,0.94);'
+      + 'backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:18px 14px;';
+    modal.addEventListener('click', function (e) { if (e.target === modal) modal.remove(); });
+
+    modal.innerHTML =
+      '<div style="width:100%;max-width:520px;background:#0F1014;border-radius:18px;max-height:86vh;'
+      +   'display:flex;flex-direction:column;border:1px solid ' + couleur + '55;'
+      +   'border-top:2px solid ' + couleur + ';box-shadow:0 24px 60px rgba(0,0,0,0.7);overflow:hidden;">'
+      + '<div style="padding:15px 18px 12px;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,0.07);'
+      +   'display:flex;align-items:center;gap:11px;">'
+      +   '<span style="font-size:1.6em;flex-shrink:0;">' + def.emoji + '</span>'
+      +   '<div style="min-width:0;flex:1;">'
+      +     '<div style="font-size:0.56em;letter-spacing:2px;color:' + couleur + ';font-weight:900;">OBJECTIF COMMUN</div>'
+      +     '<div style="font-size:1em;font-weight:900;color:#fff;">' + esc(_dispLabel(st.type, def)) + '</div>'
+      +   '</div>'
+      +   '<button onclick="document.getElementById(\'awakGoalInfoModal\').remove()" '
+      +     'style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:#94a3b8;'
+      +     'border-radius:10px;width:34px;height:34px;min-height:auto;font-size:1.1em;font-weight:800;'
+      +     'cursor:pointer;flex-shrink:0;line-height:1;">×</button>'
+      + '</div>'
+      + '<div style="flex:1;overflow-y:auto;padding:16px 18px 22px;-webkit-overflow-scrolling:touch;">'
+
+      // Progression
+      + '<div style="background:rgba(255,255,255,0.03);border-radius:13px;padding:13px 14px;margin-bottom:15px;">'
+      +   '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px;">'
+      +     '<span style="font-size:1.5em;font-weight:900;color:' + couleur + ';">' + _fmt(_dispVal(st.type, st.total)) + '</span>'
+      +     '<span style="font-size:0.8em;color:#94a3b8;">/ ' + _fmt(_dispVal(st.type, st.target)) + _dispUnit(st.type, def) + '</span>'
+      +   '</div>'
+      +   '<div style="height:10px;background:rgba(255,255,255,0.06);border-radius:6px;overflow:hidden;">'
+      +     '<div style="height:100%;width:' + st.pct + '%;background:' + couleur + ';border-radius:6px;"></div>'
+      +   '</div>'
+      +   '<div style="display:flex;justify-content:space-between;margin-top:7px;font-size:0.72em;color:#94a3b8;font-weight:700;">'
+      +     '<span>' + st.pct + '% atteint</span>'
+      +     '<span>' + (st.reached ? 'Objectif atteint !' : 'encore ' + _fmt(_dispVal(st.type, reste)) + _dispUnit(st.type, def)) + '</span>'
+      +   '</div>'
+      + '</div>'
+
+      + bloc('CE QUI COMPTE', esc(inf.desc || ''), couleur)
+      + (inf.detail ? bloc('COMMENT C\'EST CALCULÉ', esc(inf.detail)) : '')
+      + bloc('PÉRIODE', (dDeb && dFin ? 'Du ' + esc(dDeb) + ' au ' + esc(dFin) + '. ' : '')
+          + (st.expired ? 'La période est terminée.'
+             : '<strong style="color:#e8f0f8;">' + st.daysLeft + ' jour' + (st.daysLeft > 1 ? 's' : '') + ' restant'
+               + (st.daysLeft > 1 ? 's' : '') + '.</strong>'))
+      + bloc('QUI PEUT CONTRIBUER', esc(inf.qui || 'Tout le monde'))
+      + (inf.astuce
+          ? '<div style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.25);'
+            + 'border-radius:11px;padding:11px 13px;margin-bottom:14px;font-size:0.78em;'
+            + 'color:#bfdbfe;line-height:1.5;">💡 ' + esc(inf.astuce) + '</div>'
+          : '')
+      + '<div style="font-size:0.58em;letter-spacing:1.6px;font-weight:900;color:#64748b;margin-bottom:8px;">CONTRIBUTIONS</div>'
+      + contrib
+      + '</div>'
+      + '</div>';
+
+    document.body.appendChild(modal);
+  };
+
   function renderCard() {
     var st = status();
 
@@ -443,7 +569,7 @@
         +   'font-weight:900;color:#fbbf24;">Objectif atteint</div>'
         + '<div style="font-size:0.74em;color:#cbd5e1;margin-top:5px;line-height:1.45;">'
         +   'Toute la famille y est arrivée. ' + st.total + ' / ' + st.target + '.</div>'
-        + '<button onclick="AwakFamilyGoalClore()" '
+        + '<button onclick="event.stopPropagation();AwakFamilyGoalClore()" '
         +   'style="width:100%;margin-top:12px;padding:12px;border-radius:12px;border:none;'
         +   'cursor:pointer;background:linear-gradient(160deg,#fcd34d,#fbbf24 45%,#b45309);'
         +   'color:#1a1408;font-weight:900;font-size:0.78em;letter-spacing:0.5px;">'
@@ -454,12 +580,16 @@
     // « NOUVEAU » ne réapparaisse plus chez lui.
     if (st.reached) { try { window.AwakGoalMarquerVu(); } catch (e) {} }
 
-    return '<div style="background:linear-gradient(160deg,#0f1a14,#0d0d12);border:1px solid ' + (st.reached ? 'rgba(251,191,36,0.4)' : 'rgba(34,197,94,0.3)') + ';border-radius:18px;padding:20px;margin-bottom:14px;">'
+    // 📖 La carte entière ouvre la fiche détaillée (sauf les boutons, qui
+    //    arrêtent la propagation pour garder leur propre action).
+    return '<div onclick="AwakFamilyGoalInfo()" style="cursor:pointer;background:linear-gradient(160deg,#0f1a14,#0d0d12);border:1px solid ' + (st.reached ? 'rgba(251,191,36,0.4)' : 'rgba(34,197,94,0.3)') + ';border-radius:18px;padding:20px;margin-bottom:14px;">'
       + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">'
       +   '<span style="font-size:1.6em;">' + def.emoji + '</span>'
-      +   '<div style="flex:1;"><div style="font-size:1.05em;font-weight:900;color:#fff;">Objectif commun</div>'
+      +   '<div style="flex:1;min-width:0;"><div style="font-size:1.05em;font-weight:900;color:#fff;">Objectif commun</div>'
       +   '<div style="font-size:0.74em;color:#94a3b8;">' + (st.expired ? 'Terminé' : st.daysLeft + ' jour' + (st.daysLeft > 1 ? 's' : '') + ' restant' + (st.daysLeft > 1 ? 's' : '')) + '</div></div>'
-      +   '<button onclick="AwakFamilyGoalCancel()" style="background:none;border:none;color:#64748b;font-size:1.1em;cursor:pointer;padding:4px;">✕</button>'
+      +   '<span style="flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;'
+      +     'border-radius:50%;border:1px solid rgba(148,163,184,0.35);color:#94a3b8;font-size:0.72em;font-weight:900;">i</span>'
+      +   '<button onclick="event.stopPropagation();AwakFamilyGoalCancel()" style="background:none;border:none;color:#64748b;font-size:1.1em;cursor:pointer;padding:4px;">✕</button>'
       + '</div>'
       + head
       + '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">'
