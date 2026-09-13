@@ -38,7 +38,9 @@
       detail: 'Écarte les développés épaules, arrachés, thrusters et tout mouvement qui pousse une charge au-dessus des épaules.',
       test: function (ex) {
         var n = norm(ex.name);
-        return /(militaire|overhead|thruster|snatch|arrach|epaule[- ]?jete|jerk|handstand|pike push)/.test(n)
+        // Inclut les formulations FRANÇAISES simples : les exercices créés par
+        // l'utilisateur ne suivent pas la nomenclature du catalogue officiel.
+        return /(militaire|overhead|thruster|snatch|arrach|epaule[- ]?jete|jerk|handstand|pike push|au[- ]?dessus de la tete|au[- ]?dessus tete|bras tendus en haut)/.test(n)
             || /(developpe|presse|press|shoulder press)/.test(n) && /(epaule|militaire|arnold)/.test(n)
             || /^(developpe arnold|halo kb)$/.test(n);
       }

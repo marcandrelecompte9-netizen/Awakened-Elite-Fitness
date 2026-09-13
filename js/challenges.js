@@ -1,14 +1,3 @@
-// 🔐 Cloisonnement par profil (helpers exposés par app.js).
-// ⚠️ workoutStats était lu/écrit sur la clé GLOBALE : la série et les stats
-//    des défis étaient donc PARTAGÉES entre tous les membres de la famille.
-function _clStats(ecriture) {
-  try {
-    if (ecriture && typeof window._cleProfil === 'function') return window._cleProfil('workoutStats');
-    if (!ecriture && typeof window._cleProfilLecture === 'function') return window._cleProfilLecture('workoutStats');
-  } catch (e) {}
-  return 'workoutStats';
-}
-
 // ═══════════════════════════════════════════════════════════════════════
 // Awakened — Système de Défis (Style Solo Leveling)
 // "Le Système" impose des défis. Échec = conséquences.
@@ -81,7 +70,7 @@ const CHALLENGE_TYPES = [
         units: 'jours',
         targets: { easy:[2,3], medium:[4,5], hard:[6,7] },
         check: () => {
-            try { return JSON.parse(localStorage.getItem(_clStats(false))||'{}').streak || 0; }
+            try { return JSON.parse(localStorage.getItem('workoutStats')||'{}').streak || 0; }
             catch(e) { return 0; }
         },
     },
@@ -279,9 +268,9 @@ const PENALTIES = [
         duration: 0,
         apply: () => {
             try {
-                const stats = JSON.parse(localStorage.getItem(_clStats(false)) || '{}');
+                const stats = JSON.parse(localStorage.getItem('workoutStats') || '{}');
                 stats.streak = 0;
-                localStorage.setItem(_clStats(true), JSON.stringify(stats));
+                localStorage.setItem('workoutStats', JSON.stringify(stats));
             } catch(e) {}
             return { type: 'streak_reset', instant: true, expiresAt: Date.now() + 1000 };
         },
@@ -789,9 +778,9 @@ const LEGENDARY_PENALTY = {
         } catch(e) {}
         // 3. Streak remis à zéro
         try {
-            const stats = JSON.parse(localStorage.getItem(_clStats(false)) || '{}');
+            const stats = JSON.parse(localStorage.getItem('workoutStats') || '{}');
             stats.streak = 0;
-            localStorage.setItem(_clStats(true), JSON.stringify(stats));
+            localStorage.setItem('workoutStats', JSON.stringify(stats));
         } catch(e) {}
         return {
             type: 'armageddon',

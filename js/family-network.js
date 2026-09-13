@@ -185,7 +185,10 @@
         if (profileId === cur) raw = localStorage.getItem('workoutHistory');
       }
       if (!raw) return null;
-      var hist = JSON.parse(raw);
+      // ⚠️ JSON.parse non protégé : un historique corrompu faisait planter
+      //    tout le rendu de l'onglet Famille, pas seulement ce membre.
+      var hist;
+      try { hist = JSON.parse(raw); } catch (e) { return null; }
       if (!Array.isArray(hist) || !hist.length) return null;
       var newest = 0;
       hist.forEach(function (e) {

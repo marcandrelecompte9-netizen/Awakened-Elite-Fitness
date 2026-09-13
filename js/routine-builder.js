@@ -103,7 +103,9 @@
     var q = norm(ETAT.q);
     var liste = db().filter(function (e) { return e && e.name && e.type !== 'rest' && e.type !== 'info'; });
 
-    if (ETAT.onglet === 'favoris') {
+    if (ETAT.onglet === 'persos') {
+      liste = liste.filter(function (e) { return e && e.custom; });
+    } else if (ETAT.onglet === 'favoris') {
       var f = favoris();
       liste = liste.filter(function (e) { return f.indexOf(e.name) >= 0; });
     } else if (ETAT.onglet === 'recents') {
@@ -114,6 +116,17 @@
     if (ETAT.muscle) liste = liste.filter(function (e) { return e.muscle === ETAT.muscle; });
     if (ETAT.equip) liste = liste.filter(function (e) { return (e.equipment || []).indexOf(ETAT.equip) >= 0; });
     if (q) liste = liste.filter(function (e) { return norm(e.name).indexOf(q) >= 0 || norm(e.muscle).indexOf(q) >= 0; });
+
+    // ⚠️ Les exercices personnalisés sont ajoutés en FIN de catalogue : au-delà
+    //    des 60 résultats affichés, ils devenaient invisibles dans l'onglet
+    //    « TOUS ». Ce sont pourtant les plus pertinents pour la personne :
+    //    on les remonte en tête (sauf dans l'onglet Récents, qui a son
+    //    propre ordre chronologique).
+    if (ETAT.onglet !== 'recents') {
+      liste = liste.slice().sort(function (a, b) {
+        return (b && b.custom ? 1 : 0) - (a && a.custom ? 1 : 0);
+      });
+    }
     return liste;
   }
 
@@ -175,10 +188,22 @@
           'touch-action:pan-y;cursor:grab;">' +
           '<div style="flex:1;min-width:0;">' +
             '<div style="font-size:0.8em;font-weight:800;color:#e8f0f8;overflow:hidden;' +
-              'text-overflow:ellipsis;white-space:nowrap;">' + (estFav ? '⭐ ' : '') + esc(e.name) + '</div>' +
+              'text-overflow:ellipsis;white-space:nowrap;">' + (estFav ? '⭐ ' : '') + (e.custom ? '✎ ' : '') + esc(e.name) + '</div>' +
             '<div style="font-size:0.64em;color:#64748b;margin-top:2px;overflow:hidden;' +
               'text-overflow:ellipsis;white-space:nowrap;">' + esc(e.muscle || '') + (eq ? ' · ' + esc(eq) : '') + '</div>' +
           '</div>' +
+          // ✎ Exercices personnalisés : modification et suppression. Sans ça,
+          //   ils étaient créés puis impossibles à corriger.
+          (e.custom && e.customId
+            ? '<button onclick="event.stopPropagation();AwakCustomEx.ouvrir(\'' + attr(e.customId) + '\')" ' +
+                'title="Modifier" style="flex-shrink:0;width:29px;height:32px;min-height:auto;border-radius:9px;' +
+                'cursor:pointer;background:rgba(34,211,238,0.12);border:1px solid rgba(34,211,238,0.35);' +
+                'color:#67e8f9;font-size:0.78em;font-weight:900;font-family:inherit;line-height:1;">✎</button>' +
+              '<button onclick="event.stopPropagation();AwakBuilder.supprimerPerso(\'' + attr(e.customId) + '\',\'' + attr(e.name).replace(/'/g, "\\'") + '\')" ' +
+                'title="Supprimer" style="flex-shrink:0;width:29px;height:32px;min-height:auto;border-radius:9px;' +
+                'cursor:pointer;background:rgba(239,68,68,0.10);border:1px solid rgba(239,68,68,0.3);' +
+                'color:#f87171;font-size:0.78em;font-weight:900;font-family:inherit;line-height:1;">✕</button>'
+            : '') +
           '<button onclick="AwakBuilder.add(\'' + attr(e.name).replace(/'/g, "\\'") + '\')" ' +
             'style="flex-shrink:0;width:32px;height:32px;min-height:auto;border-radius:9px;cursor:pointer;' +
             'background:rgba(74,222,128,0.14);border:1px solid rgba(74,222,128,0.4);color:#4ade80;' +
@@ -188,7 +213,8 @@
 
     if (!lignes) {
       lignes = '<div style="text-align:center;padding:22px 10px;color:#64748b;font-size:0.78em;">' +
-        (ETAT.onglet === 'favoris' ? 'Aucun favori pour l\'instant.'
+        (ETAT.onglet === 'persos' ? 'Aucun exercice personnalisé. Touche « ✎ Créer un exercice » ci-dessus.'
+          : ETAT.onglet === 'favoris' ? 'Aucun favori pour l\'instant.'
           : ETAT.onglet === 'recents' ? 'Aucun exercice récent.'
           : 'Aucun exercice ne correspond.') + '</div>';
     }
@@ -200,11 +226,12 @@
   }
 
   function panneauCatalogue() {
-    var liste = filtrer();
-    var total = liste.length;
-    var tronque = total > MAX_LISTE;
-    var vue = tronque ? liste.slice(0, MAX_LISTE) : liste;
-    var fav = favoris();
+    // ⚠️ Ce panneau construisait SES PROPRES lignes, en double de
+    //    lignesCatalogue(). Toute correction devait être faite deux fois —
+    //    source d'oubli garantie. Il délègue désormais.
+    var r = lignesCatalogue();
+    var lignes = r.html;
+    var total = r.total;
 
     function ong(id, txt) {
       var on = (ETAT.onglet === id);
@@ -231,33 +258,6 @@
         'font-size:0.74em;font-weight:700;font-family:inherit;">' + opts + '</select>';
     }
 
-    var lignes = vue.map(function (e) {
-      var estFav = fav.indexOf(e.name) >= 0;
-      var eq = (e.equipment || []).slice(0, 2).join(' · ');
-      return '<div class="awak-cat-row" data-ex="' + attr(e.name) + '" ' +
-          'style="display:flex;align-items:center;gap:9px;padding:9px 10px;margin-bottom:5px;' +
-          'background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:10px;' +
-          'touch-action:pan-y;cursor:grab;">' +
-          '<div style="flex:1;min-width:0;">' +
-            '<div style="font-size:0.8em;font-weight:800;color:#e8f0f8;overflow:hidden;' +
-              'text-overflow:ellipsis;white-space:nowrap;">' + (estFav ? '⭐ ' : '') + esc(e.name) + '</div>' +
-            '<div style="font-size:0.64em;color:#64748b;margin-top:2px;overflow:hidden;' +
-              'text-overflow:ellipsis;white-space:nowrap;">' + esc(e.muscle || '') + (eq ? ' · ' + esc(eq) : '') + '</div>' +
-          '</div>' +
-          '<button onclick="AwakBuilder.add(\'' + attr(e.name).replace(/'/g, "\\'") + '\')" ' +
-            'style="flex-shrink:0;width:32px;height:32px;min-height:auto;border-radius:9px;cursor:pointer;' +
-            'background:rgba(74,222,128,0.14);border:1px solid rgba(74,222,128,0.4);color:#4ade80;' +
-            'font-size:1em;font-weight:900;font-family:inherit;line-height:1;">+</button>' +
-        '</div>';
-    }).join('');
-
-    if (!lignes) {
-      lignes = '<div style="text-align:center;padding:22px 10px;color:#64748b;font-size:0.78em;">' +
-        (ETAT.onglet === 'favoris' ? 'Aucun favori pour l\'instant.'
-          : ETAT.onglet === 'recents' ? 'Aucun exercice récent.'
-          : 'Aucun exercice ne correspond.') + '</div>';
-    }
-
     return '<div class="awak-bld-cat">' +
         '<div style="display:flex;align-items:center;gap:8px;margin-bottom:9px;">' +
           '<span style="font-size:0.6em;letter-spacing:2px;color:#22d3ee;font-weight:900;">◈ CATALOGUE</span>' +
@@ -266,7 +266,7 @@
         '</div>' +
         '<div style="display:flex;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);' +
           'border-radius:9px;overflow:hidden;margin-bottom:8px;">' +
-          ong('tous', 'TOUS') + ong('favoris', '⭐ FAVORIS') + ong('recents', '🕐 RÉCENTS') +
+          ong('tous', 'TOUS') + ong('persos', '✎ PERSOS') + ong('favoris', '⭐') + ong('recents', '🕐') +
         '</div>' +
         '<input type="text" id="awakBldSearch" value="' + attr(ETAT.q) + '" placeholder="Rechercher un exercice…" ' +
           'oninput="AwakBuilder.setQ(this.value)" autocomplete="off" ' +
@@ -274,9 +274,11 @@
           'color:#e8f0f8;border-radius:9px;padding:9px 11px;font-size:0.82em;font-weight:600;' +
           'font-family:inherit;box-sizing:border-box;margin-bottom:7px;">' +
         '<div style="display:flex;gap:6px;margin-bottom:9px;">' + selMuscle() + selEquip() + '</div>' +
+        '<button onclick="if(window.awakCreerExercice)awakCreerExercice()" ' +
+          'style="width:100%;margin-bottom:9px;padding:9px;border-radius:10px;cursor:pointer;' +
+          'background:rgba(34,211,238,0.08);border:1.5px dashed rgba(34,211,238,0.4);color:#67e8f9;' +
+          'font-size:0.76em;font-weight:800;font-family:inherit;">✎ Créer un exercice</button>' +
         '<div id="awakBldList">' + lignes + '</div>' +
-        (tronque ? '<div style="text-align:center;font-size:0.68em;color:#64748b;padding:8px 4px;">' +
-          'Affiche les ' + MAX_LISTE + ' premiers sur ' + total + ' — affine la recherche.</div>' : '') +
       '</div>';
   }
 
@@ -337,6 +339,16 @@
   API.setMuscle = function (v) { ETAT.muscle = v || ''; majListe(); };
   API.setEquip = function (v) { ETAT.equip = v || ''; majListe(); };
   API.setOnglet = function (v) { ETAT.onglet = v; majOnglets(); majListe(); };
+
+  // Suppression d'un exercice personnalisé, avec confirmation.
+  API.supprimerPerso = function (id, nom) {
+    if (!window.AwakCustomEx) return;
+    var faire = function () { window.AwakCustomEx.supprimer(id); };
+    if (typeof window.showConfirm === 'function') {
+      window.showConfirm('Supprimer « ' + nom + ' » de ton catalogue ? Les routines qui l\'utilisent le gardent, mais il ne sera plus proposé.',
+        faire, null, { title: 'Exercice personnalisé', danger: true, confirmLabel: 'Supprimer' });
+    } else faire();
+  };
 
   API.add = function (nom) {
     var c = ctx();

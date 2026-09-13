@@ -286,7 +286,8 @@
     });
     perMember.sort(function (a, b) { return b.value - a.value; });
 
-    var pct = Math.min(100, Math.round((total / g.target) * 100));
+    // Garde : un objectif à 0 donnerait Infinity (affiché « NaN% »).
+    var pct = (g.target > 0) ? Math.min(100, Math.round((total / g.target) * 100)) : 0;
     var daysLeft = Math.max(0, Math.ceil((g.endsAt - Date.now()) / 86400000));
     var reached = total >= g.target;
 

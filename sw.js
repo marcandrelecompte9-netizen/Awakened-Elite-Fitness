@@ -2,7 +2,7 @@
 // Enables full offline support and PWA installation
 // Strategy: network-first for code files (HTML/JS/CSS), cache-first for assets (images/fonts)
 
-const CACHE_NAME = 'awakened-v1140';
+const CACHE_NAME = 'awakened-v1143';
 const ASSETS = [
   './',
   './index.html',
@@ -20,6 +20,7 @@ const ASSETS = [
   './js/routine-blocks.js',
   './js/routine-builder.js',
   './js/limitations.js',
+  './js/custom-exercises.js',
   './images/calendar_banner.webp',
   './images/kiosk_bg.webp',
   './images/tree_bg.webp',
@@ -48,11 +49,11 @@ const ASSETS = [
   './js/pain-mode.js',
   './js/recovery-mode.js',
   './data/items.js',
-  './manifest.json?v=1140',
-  './icons/icon-192.png?v=1140',
-  './icons/icon-512.png?v=1140',
-  './icons/icon-192-maskable.png?v=1140',
-  './icons/icon-512-maskable.png?v=1140',
+  './manifest.json?v=1143',
+  './icons/icon-192.png?v=1143',
+  './icons/icon-512.png?v=1143',
+  './icons/icon-192-maskable.png?v=1143',
+  './icons/icon-512-maskable.png?v=1143',
   // icon-1024.png : asset de soumission aux stores, volontairement hors du
   // précache (487 Ko). Reste dans manifest.json, récupérable à la demande.
   './images/banner_v3.webp',
