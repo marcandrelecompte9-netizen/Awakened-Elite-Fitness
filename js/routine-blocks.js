@@ -73,8 +73,42 @@
     } catch (e) { return null; }
   }
 
+  // 🔧 NORMALISATION DES SUPERSETS — appelée après CHAQUE changement de structure.
+  // Sans elle, trois situations laissaient des données incohérentes :
+  //   • déplacer un membre hors du groupe → deux « orphelins » gardant le même
+  //     marqueur ss, susceptibles de se re-lier tout seuls plus tard ;
+  //   • supprimer un membre → un marqueur ss orphelin sur l'exercice restant ;
+  //   • insérer un exercice ENTRE deux membres → groupe éclaté.
+  // On retire donc tout marqueur dont le groupe adjacent compte moins de
+  // 2 membres, et on resynchronise les séries (un tour = un passage sur tous).
+  function normaliserSS(exs) {
+    if (!Array.isArray(exs)) return;
+    // a) retirer les marqueurs orphelins (groupe adjacent < 2)
+    exs.forEach(function (ex, i) {
+      if (!ex || !ex.ss) return;
+      var avant = (i > 0 && exs[i - 1] && exs[i - 1].ss === ex.ss);
+      var apres = (i < exs.length - 1 && exs[i + 1] && exs[i + 1].ss === ex.ss);
+      if (!avant && !apres) delete ex.ss;
+    });
+    // b) resynchroniser les séries à l'intérieur de chaque groupe
+    var i = 0;
+    while (i < exs.length) {
+      var ex = exs[i];
+      if (ex && ex.ss) {
+        var fin = i;
+        while (fin + 1 < exs.length && exs[fin + 1] && exs[fin + 1].ss === ex.ss) fin++;
+        if (fin > i) {
+          var s0 = parseInt(exs[i].sets, 10) || 3;
+          for (var k = i; k <= fin; k++) exs[k].sets = s0;
+        }
+        i = fin + 1;
+      } else i++;
+    }
+  }
+
   function commit(ctx, rerender) {
     if (!ctx || !ctx.r) return;
+    normaliserSS(ctx.r.exercises);
     if (window.saveRoutines) window.saveRoutines(ctx.routines);
     if (rerender !== false) {
       // L'atelier gère le re-rendu complet (2 colonnes) quand il est actif.
@@ -209,6 +243,12 @@
     var n = parseInt(val, 10);
     if (isNaN(n) || n < 1) n = 1;
     ctx.r.exercises[i][champ] = n;
+    // Les séries pilotent le nombre de TOURS : elles doivent rester identiques
+    // dans tout le groupe, sinon A et B ne font pas le même nombre de passages.
+    if (champ === 'sets') {
+      var mem = groupMembers(ctx.r.exercises, i);
+      if (mem.length > 1) mem.forEach(function (m) { ctx.r.exercises[m].sets = n; });
+    }
     // Pas de re-render : cela ferait perdre le focus du champ en cours de saisie.
     commit(ctx, champ === 'duration' ? true : false);
   };
@@ -262,6 +302,7 @@
     }
   };
 
+  Editor.normaliser = normaliserSS;
   window.AwakRoutineEditor = Editor;
 
   // ═══════════════════════════════════════════════════════════════════

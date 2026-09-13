@@ -1021,9 +1021,13 @@
                                             _actif = (typeof awakDefiActif === 'function')
                                                 ? awakDefiActif(challenge.id) : null;
                                         } catch (e) {}
-                                        const _lbl = _actif ? 'Voir ma progression' : 'Commencer ce défi';
-                                        const _fn  = _actif ? `showChallengeDetail('${challenge.id}')`
-                                                            : `startChallenge('${challenge.id}')`;
+                                        // 🚫 Plus de bouton « Voir ma progression » sur un défi
+                                        // ACTIF : la carte affiche déjà la progression, le bouton
+                                        // faisait doublon. Restent les actions utiles : valider la
+                                        // journée et abandonner. (La carte reste cliquable pour
+                                        // ouvrir le détail.)
+                                        const _lbl = 'Commencer ce défi';
+                                        const _fn  = `startChallenge('${challenge.id}')`;
                                         // ⚠️ ABANDON PAR DÉFI : la zone du haut n'affiche
                                         // que le premier actif, donc les défis suivants
                                         // n'avaient aucun bouton pour être quittés.
@@ -1047,9 +1051,9 @@
                                               + `background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.28);`
                                               + `color:#f87171;font-size:0.7em;font-weight:800;">Abandonner ce défi</button>`
                                             : '';
-                                        return `<div style="flex:1;"><button onclick="event.stopPropagation(); ${_fn}" style="background: linear-gradient(135deg, ${challenge.color} 0%, ${challenge.color}cc 100%); color: white; border: none; border-radius: 10px; padding: 11px 14px; font-size: 0.85em; font-weight: 800; width:100%; cursor: pointer; box-shadow: 0 4px 14px ${challenge.color}30;">
-                                            ${_lbl}
-                                        </button>${_valider}${_abandon}</div>`;
+                                        const _principal = _actif ? '' :
+                                            `<button onclick="event.stopPropagation(); ${_fn}" style="background: linear-gradient(135deg, ${challenge.color} 0%, ${challenge.color}cc 100%); color: white; border: none; border-radius: 10px; padding: 11px 14px; font-size: 0.85em; font-weight: 800; width:100%; cursor: pointer; box-shadow: 0 4px 14px ${challenge.color}30;">${_lbl}</button>`;
+                                        return `<div style="flex:1;">${_principal}${_valider}${_abandon}</div>`;
                                     })()}
                                     <div style="padding: 9px 12px; background: rgba(255,255,255,0.03); border-radius: 10px; font-weight: 700; color: ${challenge.color}; border: 1px solid ${challenge.color}40; font-size: 0.8em;">
                                         📅 ${challenge.duration}j
@@ -3297,7 +3301,7 @@
         function suggestIntelligentSuperset() {
             const equipment = getSelectedEquipmentNames();
             const blacklist = getExerciseBlacklist();
-            const allPerformances = JSON.parse(localStorage.getItem('exercisePerformance') || '{}');
+            const allPerformances = JSON.parse(localStorage.getItem(_cleProfilLecture('exercisePerformance')) || '{}');
             
             // Find exercises where user performs well (success rate >60%)
             const goodExercises = Object.entries(allPerformances)
@@ -4230,7 +4234,7 @@
                         sessions: [
                             { day: 'Lundi', name: 'Corps entier progression', exercises: ['Squats', 'Développé militaire', 'Fentes avant', 'Planche', 'Burpees'], duration: 35 },
                             { day: 'Mercredi', name: 'HIIT débutant', exercises: ['High knees', 'Jump squats', 'Squats', 'Mountain climbers', 'Planche'], duration: 30 },
-                            { day: 'Vendredi', name: 'Split haut/bas', exercises: ['Tractions assistées', 'Dips triceps', 'Squats bulgare', 'Fentes avant', 'Calf Raises debout'], duration: 35 }
+                            { day: 'Vendredi', name: 'Split haut/bas', exercises: ['Tractions assistées', 'Dips triceps', 'Squat bulgare', 'Fentes avant', 'Calf Raises debout'], duration: 35 }
                         ]
                     },
                     {
@@ -4273,7 +4277,7 @@
                         { day: 'Lundi', name: 'HIIT Total Body', exercises: ['Burpees', 'Jump squats', 'Mountain climbers', i % 2 === 0 ? 'Pompes classiques' : 'Dips triceps', 'High knees'], duration: 35 },
                         { day: 'Mardi', name: 'Musculation Upper', exercises: [i % 3 === 0 ? 'Pompes classiques' : i % 3 === 1 ? 'Développé couché haltères' : 'Tractions pronation', 'Dips triceps', i % 2 === 0 ? 'Tractions pronation' : 'Barbell Row', 'Superman', 'Planche'], duration: 40 },
                         { day: 'Jeudi', name: 'HIIT Cardio Blast', exercises: ['Jumping jacks', 'Burpees', 'High knees', 'Mountain climbers', 'Sprint sur place'], duration: 30 },
-                        { day: 'Vendredi', name: 'Musculation Lower', exercises: ['Squats', i % 2 === 0 ? 'Fentes avant' : 'Squats bulgare', 'Hip thrust', 'Calf Raises debout', 'Glute bridge'], duration: 40 },
+                        { day: 'Vendredi', name: 'Musculation Lower', exercises: ['Squats', i % 2 === 0 ? 'Fentes avant' : 'Squat bulgare', 'Hip thrust', 'Calf Raises debout', 'Glute bridge'], duration: 40 },
                         { day: 'Samedi', name: 'Circuit Metabolic', exercises: ['Burpees', 'Burpees', 'Squats', i % 3 === 0 ? 'Pompes classiques' : i % 3 === 1 ? 'Dips triceps' : 'Tractions pronation', 'Mountain climbers'], duration: 35 }
                     ]
                 }))
@@ -4295,9 +4299,9 @@
                     sessions: [
                         { day: 'Lundi', name: 'Push (Pecs/Épaules/Triceps)', exercises: [i % 3 === 0 ? 'Pompes classiques' : i % 3 === 1 ? 'Développé couché haltères' : 'Développé incliné haltères', 'Dips triceps', i % 2 === 0 ? 'Pompes inclinées' : 'Élévations latérales', 'Extensions triceps corde', 'Développé militaire'], duration: 50 },
                         { day: 'Mardi', name: 'Pull (Dos/Biceps)', exercises: ['Tractions pronation', i % 2 === 0 ? 'Barbell Row' : 'Rowing haltère un bras', 'Superman', 'Curl biceps haltères', 'Rowing haltère un bras'], duration: 50 },
-                        { day: 'Jeudi', name: 'Legs (Jambes)', exercises: [i % 2 === 0 ? 'Squats' : 'Squats bulgare', 'Fentes avant', 'Hip thrust', 'Calf Raises debout', i % 2 === 0 ? 'Soulevé de terre jambes tendues' : 'Fentes marchées'], duration: 50 },
+                        { day: 'Jeudi', name: 'Legs (Jambes)', exercises: [i % 2 === 0 ? 'Squats' : 'Squat bulgare', 'Fentes avant', 'Hip thrust', 'Calf Raises debout', i % 2 === 0 ? 'Soulevé de terre jambes tendues' : 'Fentes marchées'], duration: 50 },
                         { day: 'Vendredi', name: 'Upper (Haut corps)', exercises: [i % 3 === 0 ? 'Pompes classiques' : i % 3 === 1 ? 'Développé couché haltères' : 'Dips triceps', 'Tractions pronation', i % 2 === 0 ? 'Dips triceps' : 'Barbell Row', 'Curl biceps', 'Extensions triceps'], duration: 45 },
-                        { day: 'Samedi', name: 'Lower + Core', exercises: ['Squats', 'Glute bridge', i % 2 === 0 ? 'Fentes avant' : 'Squats bulgare', 'Planche', 'Crunch'], duration: 45 }
+                        { day: 'Samedi', name: 'Lower + Core', exercises: ['Squats', 'Glute bridge', i % 2 === 0 ? 'Fentes avant' : 'Squat bulgare', 'Planche', 'Crunch'], duration: 45 }
                     ]
                 }))
             },
@@ -4316,7 +4320,7 @@
                     title: i < 2 ? 'Base force' : i < 4 ? 'Peak force' : 'Test force',
                     description: i < 2 ? 'Créer base' : i < 4 ? 'Maximiser force' : 'Tester limites',
                     sessions: [
-                        { day: 'Lundi', name: 'Squat Focus', exercises: [i % 2 === 0 ? 'Squats' : 'Squats', 'Squats bulgare', i % 2 === 0 ? 'Fentes avant' : 'Squats bulgare', 'Calf Raises debout'], duration: 50 },
+                        { day: 'Lundi', name: 'Squat Focus', exercises: [i % 2 === 0 ? 'Squats' : 'Squats', 'Squat bulgare', i % 2 === 0 ? 'Fentes avant' : 'Squat bulgare', 'Calf Raises debout'], duration: 50 },
                         { day: 'Mercredi', name: 'Push Focus', exercises: [i % 3 === 0 ? 'Pompes classiques' : i % 3 === 1 ? 'Développé couché haltères' : 'Développé militaire', i % 2 === 0 ? 'Pompes déclinées' : 'Dips triceps', 'Dips triceps', i % 2 === 0 ? 'Pompes diamant' : 'Extensions triceps corde'], duration: 45 },
                         { day: 'Vendredi', name: 'Pull Focus', exercises: ['Tractions pronation', i % 2 === 0 ? 'Barbell Row' : 'Rowing haltère un bras', 'Superman', 'Rowing haltère un bras'], duration: 45 },
                         { day: 'Samedi', name: 'Full Power', exercises: ['Squats', i % 2 === 0 ? 'Pompes classiques' : 'Dips triceps', 'Tractions pronation', 'Burpees'], duration: 40 }
@@ -4431,16 +4435,27 @@
         }
 
         // Start a plan
-        function startPlan(planId) {
+        function startPlan(planId, _confirmeRemplacement) {
             const plan = predefinedPlans[planId];
             if (!plan) return;
             
             // Check if already have active plan
+            // ⚠️ showConfirm est ASYNCHRONE. L'appeler avec un callback `null`
+            //    affichait la question puis remplaçait le plan JUSTE APRÈS, sans
+            //    attendre la réponse : la progression du plan en cours était
+            //    perdue même en cliquant « Annuler ».
             const existing = getActivePlan();
-            if (existing) {
-                showConfirm(`Vous avez déjà un plan actif (${existing.name}). L'abandonner pour commencer "${plan.name}" ?`, null, null, { title: 'Plan existant', icon: '📅', confirmLabel: 'Continuer quand même' });
+            if (existing && !_confirmeRemplacement) {
+                showConfirm(
+                    `Vous avez déjà un plan actif (${existing.name}), avec ${existing.progress || 0}% de progression. ` +
+                    `L'abandonner pour commencer "${plan.name}" ?`,
+                    function () { startPlan(planId, true); },
+                    null,
+                    { title: 'Plan existant', icon: '📅', confirmLabel: 'Abandonner et démarrer', danger: true }
+                );
+                return;   // on attend la réponse
             }
-            
+
             activePlan = {
                 ...plan,
                 startDate: new Date().toISOString(),
@@ -5202,7 +5217,7 @@
         function renderWeeklySuggestionCard() {
             const phase = getCurrentPhase();
             const sug = getSmartWorkoutSuggestion();
-            const history = JSON.parse(localStorage.getItem('workoutHistory') || '[]');
+            const history = JSON.parse(localStorage.getItem(_cleProfilLecture('workoutHistory')) || '[]');
 
             // Sessions de cette semaine
             const startOfWeek = new Date();
@@ -5341,7 +5356,7 @@
         // ═══════════════════════════════════════════════════════════════
         function getSmartWorkoutSuggestion() {
             try {
-                const history = JSON.parse(localStorage.getItem('workoutHistory') || '[]');
+                const history = JSON.parse(localStorage.getItem(_cleProfilLecture('workoutHistory')) || '[]');
                 const recent = history.slice(0, 7); // 7 dernières séances
 
                 // Analyser les muscles travaillés récemment (pondéré)
@@ -8147,6 +8162,23 @@
                 _brk.style.display = parts.length ? 'block' : 'none';
             }
 
+            // ♿ Limitations appliquées : on le signale (ou on prévient si elles
+            //    ont dû être ignorées faute d'exercices restants).
+            try {
+                const _le = window._awakLimEcartes;
+                const _h2 = document.getElementById('prepSystemBrief');
+                if (typeof _le === 'number' && _le !== 0 && _h2) {
+                    const _txt = (_le === -1)
+                        ? '<strong style="color:#fcd34d;">Tes limitations n\'ont pas pu être appliquées</strong> : '
+                          + 'il ne restait pas assez d\'exercices. Réduis-en une dans Réglages › Mes limitations.'
+                        : _le + ' exercice' + (_le > 1 ? 's' : '') + ' écarté' + (_le > 1 ? 's' : '')
+                          + ' selon tes limitations physiques.';
+                    _h2.innerHTML = '<div style="background:rgba(34,211,238,0.07);border:1px solid rgba(34,211,238,0.25);'
+                        + 'border-radius:11px;padding:10px 12px;margin-bottom:12px;font-size:0.75em;'
+                        + 'color:#cbd5e1;line-height:1.45;">♿ ' + _txt + '</div>' + (_h2.innerHTML || '');
+                }
+            } catch (e) {}
+
             // 📉 Séance plus courte que la cible : on le DIT, sans deviner la cause.
             try {
                 const _cible = window._awakCibleExos;
@@ -8771,7 +8803,7 @@
                     setProfileData(profileId, 'muscleRecoveryTracking', JSON.stringify({}));
                 } else {
                     // Clear for default profile
-                    localStorage.setItem('muscleRecoveryTracking', JSON.stringify({}));
+                    localStorage.setItem(_cleProfil('muscleRecoveryTracking'), JSON.stringify({}));
                 }
                 
                 
@@ -9147,6 +9179,8 @@
                 if (_cpt && _cpt.name && !_estDefaut(_cpt.name)) _nom = _cpt.name;
             } catch (e) {}
             document.getElementById('profileName').value = _nom || '';
+            // ♿ Résumé des limitations déjà déclarées pour ce profil
+            try { if (window.AwakLimitations) window.AwakLimitations.majResume(); } catch (e) {}
             document.getElementById('profileGoal').value = profile.goal;
             document.getElementById('profileLevel').value = profile.level;
             document.getElementById('profileAge').value = profile.age;
@@ -9695,13 +9729,13 @@
         // ========== EXERCISE PROGRESSION ==========
         
         function getExercisePerformance(exerciseName) {
-            const saved = localStorage.getItem('exercisePerformance');
+            const saved = localStorage.getItem(_cleProfilLecture('exercisePerformance'));
             const performances = saved ? JSON.parse(saved) : {};
             return performances[exerciseName] || { level: 'normal', successes: 0, failures: 0 };
         }
 
         function updateExercisePerformance(exerciseName, wasEasy) {
-            const saved = localStorage.getItem('exercisePerformance');
+            const saved = localStorage.getItem(_cleProfilLecture('exercisePerformance'));
             const performances = saved ? JSON.parse(saved) : {};
             
             if (!performances[exerciseName]) {
@@ -11298,6 +11332,17 @@
                 window._awakCibleExos = { vise: targetExerciseCount, duree: decisions.duration };
             } catch (e) {}
 
+            // ♿ LIMITATIONS PHYSIQUES — écarte les mouvements que la personne a
+            // déclarés impossibles. Appliqué AVANT la cohérence matérielle pour
+            // que le choix des matériels se fasse sur ce qui reste faisable.
+            try {
+                if (window.AwakLimitations && typeof window.AwakLimitations.filtrer === 'function') {
+                    const _lim = window.AwakLimitations.filtrer(availableExercises, Math.max(4, targetExerciseCount));
+                    window._awakLimEcartes = _lim.ignore ? -1 : _lim.ecartes.length;
+                    if (!_lim.ignore) availableExercises = _lim.gardes;
+                }
+            } catch (e) {}
+
             // 🧰 COHÉRENCE MATÉRIELLE — sans ça, une séance mélangeait barre,
             // machine, kettlebell et poids du corps : allers-retours entre postes
             // en salle, montage/démontage à la maison. On choisit 2 ou 3 matériels
@@ -11441,9 +11486,34 @@
             }
             // Polyarticulaires d'abord, isolation ensuite
             selectedExercises = _ordonnerPolyPuisIso(selectedExercises);
-            
-            // Limiter au nombre cible
-            selectedExercises = selectedExercises.slice(0, targetExerciseCount);
+
+            // ✂️ COUPE ÉQUITABLE (au lieu d'un slice brutal)
+            // ⚠️ La liste est bâtie MUSCLE PAR MUSCLE : couper la fin supprimait
+            //    les derniers muscles EN ENTIER. Avec 3 muscles choisis et une
+            //    cible de 4, le 3ᵉ muscle n'était jamais travaillé — exactement
+            //    le « 3 muscles choisis, 2 muscles travaillés » que le quota
+            //    plus haut était censé avoir réglé.
+            //    On réserve donc d'abord UNE place à chaque muscle ciblé, puis
+            //    on comble avec le reste dans l'ordre poly → iso.
+            if (selectedExercises.length > targetExerciseCount) {
+                const _cibles = (decisions.targetMuscles || []).slice();
+                const _gardes = [];
+                const _vus = {};
+                // 1) un exercice par muscle ciblé
+                _cibles.forEach(function (mus) {
+                    if (_gardes.length >= targetExerciseCount) return;
+                    const trouve = selectedExercises.find(function (e) {
+                        return e && e.muscle === mus && !_vus[e.name];
+                    });
+                    if (trouve) { _gardes.push(trouve); _vus[trouve.name] = true; }
+                });
+                // 2) on complète avec le reste, ordre poly → iso conservé
+                selectedExercises.forEach(function (e) {
+                    if (_gardes.length >= targetExerciseCount) return;
+                    if (e && !_vus[e.name]) { _gardes.push(e); _vus[e.name] = true; }
+                });
+                selectedExercises = _ordonnerPolyPuisIso(_gardes);
+            }
             
             selectedExercises.forEach((ex, index) => {
                 const performance = getExercisePerformance(ex.name);
@@ -11725,7 +11795,7 @@
         function generateStructuredWorkout(availableExercises, targetCount, profile) {
             // Charger historique performances pour le scoring
             let performanceHistory = {};
-            try { performanceHistory = JSON.parse(localStorage.getItem('exercisePerformance') || '{}'); } catch(e) {}
+            try { performanceHistory = JSON.parse(localStorage.getItem(_cleProfilLecture('exercisePerformance')) || '{}'); } catch(e) {}
 
             // Charger exercices récents (3 dernières séances)
             const recentExercises = new Set();
@@ -11738,7 +11808,7 @@
             // Muscles fatigués
             let fatiguedMuscles = [];
             try {
-                const recovery = JSON.parse(localStorage.getItem('muscleRecoveryTracking') || '{}');
+                const recovery = JSON.parse(localStorage.getItem(_cleProfilLecture('muscleRecoveryTracking')) || '{}');
                 fatiguedMuscles = Object.entries(recovery).filter(([,v]) => v === 'fatigued').map(([k]) => k);
             } catch(e) {}
 
@@ -15461,8 +15531,8 @@
             const todayPlan = getTodayPlanMuscles();
             if (todayPlan && todayPlan.muscles && todayPlan.muscles.length > 0) {
                 // Filtrer les muscles fatigués ou blessés
-                const fatigued = JSON.parse(localStorage.getItem('muscleRecoveryTracking') || '{}');
-                const injured  = JSON.parse(localStorage.getItem('injuredMuscles') || '[]');
+                const fatigued = JSON.parse(localStorage.getItem(_cleProfilLecture('muscleRecoveryTracking')) || '{}');
+                const injured  = JSON.parse(localStorage.getItem(_cleProfilLecture('injuredMuscles')) || '[]');
                 const available = todayPlan.muscles.filter(m =>
                     !injured.includes(m) && (fatigued[m] === undefined || fatigued[m] !== 'fatigued')
                 );
@@ -17404,7 +17474,7 @@
 
             // 1. Muscle oublié depuis longtemps
             try {
-                const perf = JSON.parse(localStorage.getItem('exercisePerformance') || '{}');
+                const perf = JSON.parse(localStorage.getItem(_cleProfilLecture('exercisePerformance')) || '{}');
                 const muscleDays = {};
                 for (const [exName, data] of Object.entries(perf)) {
                     const ex = exerciseDatabase.find(e => e.name === exName);
@@ -17689,7 +17759,7 @@
             if (profileId) {
                 setProfileData(profileId, 'oneRepMaxRecords', JSON.stringify(records));
             } else {
-                localStorage.setItem('oneRepMaxRecords', JSON.stringify(records));
+                localStorage.setItem(_cleProfil('oneRepMaxRecords'), JSON.stringify(records));
             }
         }
         
@@ -19208,7 +19278,17 @@
             const r = routines[_editingRoutineIdx];
             if (!r || !r.exercises) return;
             r.exercises.splice(exIdx, 1);
+            // ⚡ Retirer un membre d'un superset laissait un marqueur ORPHELIN
+            // sur l'exercice restant. On normalise avant d'enregistrer.
+            try {
+                if (window.AwakRoutineEditor && typeof window.AwakRoutineEditor.normaliser === 'function') {
+                    window.AwakRoutineEditor.normaliser(r.exercises);
+                }
+            } catch (e) {}
             saveRoutines(routines);
+            if (window.AwakBuilder && typeof window.AwakBuilder.refresh === 'function') {
+                try { window.AwakBuilder.refresh(false); return; } catch (e) {}
+            }
             const cont = document.getElementById('routineEditorExercises');
             if (cont) cont.innerHTML = _renderEditorExercises(r);
         }
@@ -20993,7 +21073,7 @@
         }
 
         function getUnlockedBadges() {
-            const saved = localStorage.getItem('unlockedBadges');
+            const saved = localStorage.getItem(_cleProfilLecture('unlockedBadges'));
             try { return saved ? JSON.parse(saved) : []; } catch(e) { return []; }
         }
 
@@ -21010,7 +21090,7 @@
             });
             
             if (newlyUnlocked.length > 0) {
-                localStorage.setItem('unlockedBadges', JSON.stringify(unlocked));
+                localStorage.setItem(_cleProfil('unlockedBadges'), JSON.stringify(unlocked));
                 showBadgeUnlockNotification(newlyUnlocked);
             }
             
@@ -23221,7 +23301,7 @@
             }
 
             // Generate based on history
-            const history = (() => { try { return JSON.parse(localStorage.getItem('workoutHistory') || '[]'); } catch(e) { return []; } })();
+            const history = (() => { try { return JSON.parse(localStorage.getItem(_cleProfilLecture('workoutHistory')) || '[]'); } catch(e) { return []; } })();
             const prs = getPRs ? getPRs() : {};
             const statuses = getAllMusclesRecoveryStatus();
             const mostRestd = Object.entries(statuses).sort((a,b) => b[1].percentage - a[1].percentage)[0]?.[0] || 'Corps entier';
@@ -23559,7 +23639,7 @@
         }
 
         function loadStats() {
-            const stats = JSON.parse(localStorage.getItem('workoutStats') || '{"workouts": 0, "minutes": 0, "streak": 0, "lastWorkout": null}');
+            const stats = JSON.parse(localStorage.getItem(_cleProfilLecture('workoutStats')) || '{"workouts": 0, "minutes": 0, "streak": 0, "lastWorkout": null}');
             const w = document.getElementById('totalWorkouts');
             const m = document.getElementById('totalMinutes');
             const s = document.getElementById('streak');
@@ -23589,7 +23669,7 @@
                 let history = [];
                 try { history = JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) {}
                 if (!history.length) {
-                    try { history = JSON.parse(localStorage.getItem('workoutHistory') || '[]'); } catch(e) {}
+                    try { history = JSON.parse(localStorage.getItem(_cleProfilLecture('workoutHistory')) || '[]'); } catch(e) {}
                 }
                 if (history.length < 2) return false;
 
@@ -23627,7 +23707,7 @@
         let currentFeedbackModal = null;
         
         function initProgressionSystem() {
-            const saved = localStorage.getItem('exerciseProgression');
+            const saved = localStorage.getItem(_cleProfilLecture('exerciseProgression'));
             if (saved) {
                 return JSON.parse(saved);
             }
@@ -23635,7 +23715,7 @@
         }
         
         function saveProgressionData(data) {
-            localStorage.setItem('exerciseProgression', JSON.stringify(data));
+            localStorage.setItem(_cleProfil('exerciseProgression'), JSON.stringify(data));
         }
         
         function getExerciseRecommendation(exerciseName) {
@@ -23970,7 +24050,7 @@
             if (profileId) {
                 setProfileData(profileId, 'muscleRecoveryTracking', JSON.stringify(tracking));
             } else {
-                localStorage.setItem('muscleRecoveryTracking', JSON.stringify(tracking));
+                localStorage.setItem(_cleProfil('muscleRecoveryTracking'), JSON.stringify(tracking));
             }
         }
         
@@ -24108,7 +24188,7 @@
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1128);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1140);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -24152,7 +24232,7 @@
                 +       '<feGaussianBlur stdDeviation="2.4" result="b"/>'
                 +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>'
                 +     '</filter></defs>'
-                +     '<image href="' + img + '?v=1128" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1140" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -29430,7 +29510,7 @@
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1128");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1140");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -31338,7 +31418,9 @@
             try {
                 if (typeof getEquippedItems === 'function') {
                     const equipped = getEquippedItems();
-                    const rarityBonus = { common: 5, uncommon: 15, rare: 35, superior: 50, epic: 70, legendary: 150 };
+                    // ⚠️ 'mythic' a été introduit en v1131 (butin des Failles SSS) mais
+            //    manquait ici : le bonus valait undefined → NaN.
+            const rarityBonus = { common: 5, uncommon: 15, rare: 35, superior: 50, epic: 70, legendary: 150, mythic: 250 };
                     for (const item of Object.values(equipped)) {
                         if (item && item.rarity) {
                             score += rarityBonus[item.rarity] || 0;
@@ -31431,6 +31513,24 @@
         // actives, puisque c'est un outil de test.
         function awakAdminSpawnRift() {
             try {
+                // 🔌 Les Failles dépendent de DEUX interrupteurs : le Mode Jeu
+                // (fitproGameMode, par profil) et le Mode Aventure. Si l'un des
+                // deux est éteint — après une réinitialisation des données, par
+                // exemple — la Faille était bien créée et enregistrée, mais rien
+                // ne l'affichait : le bouton annonçait pourtant « Faille créée ».
+                // On les rallume et on le DIT, plutôt que d'échouer en silence.
+                const _rallumes = [];
+                try {
+                    if (localStorage.getItem('fitproGameMode') !== '1') {
+                        localStorage.setItem('fitproGameMode', '1');
+                        _rallumes.push('Mode Jeu');
+                    }
+                    if (typeof getAdventureEnabled === 'function' && !getAdventureEnabled()) {
+                        if (typeof setAdventureEnabled === 'function') setAdventureEnabled(true);
+                        _rallumes.push('Mode Aventure');
+                    }
+                } catch (e) {}
+
                 if (typeof awakGenerateRift !== 'function') {
                     if (typeof showToast === 'function') showToast('Générateur indisponible', 'error');
                     return;
@@ -31445,6 +31545,13 @@
                 if (typeof awakRiftsSave === 'function') awakRiftsSave(rifts);
                 if (typeof showToast === 'function') {
                     showToast('🌀 Faille créée : ' + (nouvelle.name || 'sans nom'), 'success', 2600);
+                    if (_rallumes.length) {
+                        setTimeout(function () {
+                            showToast('🔌 ' + _rallumes.join(' + ') + ' réactivé' +
+                                (_rallumes.length > 1 ? 's' : '') + ' — sans ça, les Failles restent invisibles.',
+                                'info', 5000);
+                        }, 900);
+                    }
                 }
                 // Rafraîchir la carte / l'onglet pour la voir tout de suite
                 try { if (typeof renderGameTab === 'function') renderGameTab(); } catch (e) {}
@@ -32564,7 +32671,7 @@
         }
         window.awakCheckRiftCapacityUnlock = awakCheckRiftCapacityUnlock;
         const RIFT_COOLDOWN_HOURS = 48;        // 2 jours entre 2 spawns (au lieu de 14h)
-        const RIFT_LIFETIME_DAYS = { E: 8, D: 8, C: 10, B: 10, A: 14, S: 14 }; // Plus de temps pour les faire
+        const RIFT_LIFETIME_DAYS = { E: 8, D: 8, C: 10, B: 10, A: 14, S: 14, SS: 16, SSS: 18 }; // Plus de temps pour les faire
         const RIFT_SPAWN_PROBABILITY = 0.35;   // 35% si conditions remplies (au lieu de 70%)
         const RIFT_MIN_SESSION_MINUTES = 15;   // Vraie séance requise (>15 min)
         const RIFT_MIN_EXERCISES = 5;          // Au moins 5 exercices complétés
@@ -33459,9 +33566,17 @@
                 C: { waves: 3, hpMult: 1.08, recommendedPower: 1200, minStat: 30 },
                 B: { waves: 3, hpMult: 1.7, recommendedPower: 2200, minStat: 50 },
                 A: { waves: 4, hpMult: 2.1, recommendedPower: 3800, minStat: 70 },
-                S: { waves: 4, hpMult: 2.6, recommendedPower: 6500, minStat: 100 }
+                S: { waves: 4, hpMult: 2.6, recommendedPower: 6500, minStat: 100 },
+                // ⚠️ SS et SSS MANQUAIENT alors que rankIds les contient : un joueur
+                // de rang S pouvait tirer une Faille SS (offset +1), rankConfigs['SS']
+                // valait undefined, et lire .waves plantait tout le générateur
+                // (« Cannot read properties of undefined (reading 'waves') »).
+                SS:  { waves: 5, hpMult: 3.3, recommendedPower: 10000, minStat: 130 },
+                SSS: { waves: 5, hpMult: 4.2, recommendedPower: 15000, minStat: 165 }
             };
-            const config = rankConfigs[riftRank];
+            // Filet : un rang inconnu retombe sur le plus proche connu plutôt
+            // que de faire échouer la génération entière.
+            const config = rankConfigs[riftRank] || rankConfigs.SSS || rankConfigs.S;
 
             // ── MODIFICATEUR DE FAILLE ──
             const modifier = awakPickRiftModifier();
@@ -33800,7 +33915,7 @@
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1128);'
+                +     'url(images/combat_bg_v1.webp?v=1140);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -34055,7 +34170,7 @@
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1128);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1140);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -35236,7 +35351,7 @@
             };
 
             // XP bonus selon rang + grade
-            const xpByRank = { E: 200, D: 400, C: 700, B: 1100, A: 1700, S: 2500 };
+            const xpByRank = { E: 200, D: 400, C: 700, B: 1100, A: 1700, S: 2500, SS: 3600, SSS: 5000 };
             const gradeMult = { SSS: 1.5, SS: 1.3, S: 1.2, A: 1.0, B: 0.9, C: 0.8, D: 0.7, F: 0.5 };
             let xpReward = Math.round(xpByRank[rift.rank] * gradeMult[grade]);
 
@@ -35265,7 +35380,11 @@
             try {
                 if (typeof EQUIPMENT_DATABASE !== 'undefined' && typeof getInventory === 'function') {
                     // Rareté du butin liée au rang de la Faille (E→common ... S→legendary, avec variance)
-                    const rankToRarity = { E:'common', D:'uncommon', C:'rare', B:'superior', A:'epic', S:'legendary' };
+                    // SS/SSS étaient absents : leur butin retombait sur 'common'
+                    // via le repli — une Faille de rang maximal donnait donc
+                    // l'équipement le plus banal du jeu.
+                    const rankToRarity = { E:'common', D:'uncommon', C:'rare', B:'superior', A:'epic',
+                                           S:'legendary', SS:'legendary', SSS:'mythic' };
                     const baseRarity = rankToRarity[rift.rank] || 'common';
                     const order = ['common','uncommon','rare','superior','epic','legendary','mythic'];
                     const bi = order.indexOf(baseRarity);
@@ -35317,7 +35436,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1128');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1140');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -35623,7 +35742,7 @@
                 }
 
                 const type = pool[Math.floor(Math.random() * pool.length)];
-                const hpBase = { E: 50, D: 90, C: 140, B: 200, A: 280, S: 380 }[rift.rank] || 100;
+                const hpBase = { E: 50, D: 90, C: 140, B: 200, A: 280, S: 380, SS: 500, SSS: 650 }[rift.rank] || 100;
 
                 spawned.push({
                     id: 'monster_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
@@ -36034,7 +36153,7 @@
             }
 
             // Récompenses : XP bonus + bonus Alpha + bonus SEN
-            const rankXP = { E: 100, D: 200, C: 350, B: 500, A: 750, S: 1000 }[monster.fromRiftRank] || 200;
+            const rankXP = { E: 100, D: 200, C: 350, B: 500, A: 750, S: 1000, SS: 1400, SSS: 1900 }[monster.fromRiftRank] || 200;
             const alphaBonus = monster.isAlpha ? 2 : 1;
             let xpReward = rankXP * alphaBonus;
             // 🌀 SEN : bonus XP
@@ -36052,7 +36171,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1128);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1140);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -36223,7 +36342,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1128);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1140);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -37628,7 +37747,7 @@
                 discovered: true,
                 state: 'stable',
                 waves, currentWaveIdx: 0,
-                recommendedPower: { E: 200, D: 800, C: 1800, B: 3000, A: 5000, S: 8000 }[cr.rank],
+                recommendedPower: { E: 200, D: 800, C: 1800, B: 3000, A: 5000, S: 8000, SS: 12000, SSS: 17000 }[cr.rank] || 200,
                 minStatRequired: 30,
                 primaryStat: cr.primaryStat,
                 attempts: 0, completed: false,
@@ -38222,7 +38341,7 @@
                 state: 'stable',
                 waves,
                 currentWaveIdx: 0,
-                recommendedPower: { E: 200, D: 800, C: 1800, B: 3000, A: 5000, S: 8000 }[narrative.rank],
+                recommendedPower: { E: 200, D: 800, C: 1800, B: 3000, A: 5000, S: 8000, SS: 12000, SSS: 17000 }[narrative.rank] || 200,
                 minStatRequired: 30,
                 primaryStat: narrative.primaryStat,
                 attempts: 0,
@@ -44951,6 +45070,31 @@
         }
         window.repairProfileNames = repairProfileNames;
 
+        // 🔐 CLOISONNEMENT PAR PROFIL
+        // Plusieurs endroits lisaient/écrivaient la clé GLOBALE en direct, alors
+        // que la même donnée est cloisonnée ailleurs : un membre de la famille
+        // pouvait donc hériter des performances, de la récupération ou des
+        // blessures d'un autre. Ce helper renvoie toujours la bonne clé.
+        // ÉCRITURE : toujours dans l'espace du profil courant.
+        function _cleProfil(cle) {
+            try {
+                const id = (typeof getCurrentProfileId === 'function') ? getCurrentProfileId() : null;
+                return id ? ('profile_' + id + '_' + cle) : cle;
+            } catch (e) { return cle; }
+        }
+        // LECTURE : espace du profil, avec REPLI sur l'ancienne clé globale.
+        // ⚠️ Sans ce repli, tout l'historique déjà enregistré avant le
+        //    cloisonnement deviendrait invisible du jour au lendemain.
+        function _cleProfilLecture(cle) {
+            try {
+                const k = _cleProfil(cle);
+                if (k !== cle && localStorage.getItem(k) === null) return cle;
+                return k;
+            } catch (e) { return cle; }
+        }
+        window._cleProfil = _cleProfil;
+        window._cleProfilLecture = _cleProfilLecture;
+
         function getProfileData(profileId, key) {
             // Check profile-specific key first
             try {
@@ -46903,7 +47047,7 @@
 
             host.innerHTML =
                 '<div style="position:relative;width:110px;margin:0 auto 12px;">'
-              +   '<img src="images/body/body_face.webp?v=1128" alt="" '
+              +   '<img src="images/body/body_face.webp?v=1140" alt="" '
               +     'style="width:100%;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -46985,7 +47129,7 @@
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1128);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1140);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -48293,7 +48437,7 @@
 
             // Récupérer les meilleures perfs de l'utilisateur
             let perfs = {};
-            try { perfs = JSON.parse(localStorage.getItem('exercisePerformance') || '{}'); } catch(e) {}
+            try { perfs = JSON.parse(localStorage.getItem(_cleProfilLecture('exercisePerformance')) || '{}'); } catch(e) {}
 
             const comparisons = [];
             for (const [exName, starWeight] of Object.entries(benchmarks)) {
@@ -49368,7 +49512,7 @@
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1128");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1140");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
@@ -49536,10 +49680,10 @@
         window.awakGetCompanionsOnMission = awakGetCompanionsOnMission;
 
         // Durée de base d'une mission selon le rang de la Faille (en heures)
-        const COMPANION_MISSION_HOURS = { E: 1, D: 2, C: 3, B: 4, A: 6, S: 8 };
+        const COMPANION_MISSION_HOURS = { E: 1, D: 2, C: 3, B: 4, A: 6, S: 8, SS: 10, SSS: 12 };
 
         // Probabilité d'échec selon le rang de la Faille (faible en E, élevée en S)
-        const COMPANION_MISSION_FAIL_CHANCE = { E: 0.03, D: 0.06, C: 0.11, B: 0.17, A: 0.25, S: 0.35 };
+        const COMPANION_MISSION_FAIL_CHANCE = { E: 0.03, D: 0.06, C: 0.11, B: 0.17, A: 0.25, S: 0.35, SS: 0.42, SSS: 0.5 };
         // ⬆️ Chances de réussite augmentées (v883). Aux rangs élevés, envoyer
         // ses compagnons revenait à jouer à pile ou face (55 % d'échec au rang S)
         // pour un risque réel : 5 jours d'indisponibilité. Le calcul n'en valait

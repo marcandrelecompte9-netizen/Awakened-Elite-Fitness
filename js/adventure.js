@@ -103,7 +103,7 @@ function getHunterRankIndex() {
 // conservée plus bas (~L164). La dernière gagnait de toute façon.
 
 // Niveau de muscle minimum requis par rareté
-const MUSCLE_LEVEL_REQ = { common: 1, uncommon: 3, rare: 5, superior: 8, epic: 12, legendary: 25 };
+const MUSCLE_LEVEL_REQ = { common: 1, uncommon: 3, rare: 5, superior: 8, epic: 12, legendary: 25, mythic: 40 };
 
 // Noms de muscles français → clés dans rpgLoad().muscles
 const MUSCLE_FR_MAP = {
@@ -174,7 +174,7 @@ function getEquipBlockReason(item) {
 
 function getItemRankValue(rarity) {
     // Rang d'item sur l'échelle : E=0, D=1, C=2, B=3, A=4, S=5
-    return { common: 0, uncommon: 1, rare: 2, superior: 3, epic: 4, legendary: 5 }[rarity] || 0;
+    return { common: 0, uncommon: 1, rare: 2, superior: 3, epic: 4, legendary: 5, mythic: 6 }[rarity] || 0;
 }
 
 function getRequiredRankLabel(rarity) {

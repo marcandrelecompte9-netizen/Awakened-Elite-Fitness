@@ -11,11 +11,11 @@
     <title>Awakened Elite Fitness</title>
 
     <!-- PWA -->
-    <link rel="manifest" href="manifest.json?v=1128">
-    <link rel="apple-touch-icon" href="icons/icon-192.png?v=1128">
-    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=1128">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=1128">
-    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=1128">
+    <link rel="manifest" href="manifest.json?v=1140">
+    <link rel="apple-touch-icon" href="icons/icon-192.png?v=1140">
+    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=1140">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=1140">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=1140">
 
     <!-- ⚠️ CAPTURE PRÉCOCE DE L'INVITE D'INSTALLATION.
          Chrome déclenche « beforeinstallprompt » très tôt, souvent AVANT la fin
@@ -44,7 +44,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=1128">
+    <link rel="stylesheet" href="css/style.css?v=1140">
 </head>
 <body>
 
@@ -208,8 +208,8 @@
                  (ratio 1,55), donc plus haute et lisible.
                  <picture> laisse le navigateur choisir, sans JavaScript. -->
             <picture>
-                <source media="(min-width: 700px)" srcset="images/banner_v3.webp?v=1128">
-                <img src="images/banner_v3_mobile.webp?v=1128"
+                <source media="(min-width: 700px)" srcset="images/banner_v3.webp?v=1140">
+                <img src="images/banner_v3_mobile.webp?v=1140"
                      alt="Awakened Elite Fitness"
                      style="width:100%;height:auto;display:block;" />
             </picture>
@@ -2673,6 +2673,14 @@
                 </div>
             </div>
 
+            <!-- ═══════════ ♿ ADAPTATION PHYSIQUE ═══════════ -->
+            <div class="accordion-section">
+                <div class="accordion-header" onclick="awakOuvrirLimitations()">
+                    <div class="accordion-title" style="display:block;"><span style="display:block;font-weight:800;">♿ Mes limitations</span><span style="display:block;font-size:0.68em;color:#64748b;font-weight:600;margin-top:2px;letter-spacing:0;">Adapter les séances à ton corps</span></div>
+                    <div class="accordion-icon">›</div>
+                </div>
+            </div>
+
             <!-- ═══════════ GROUPE 4 · COMPTE & DONNÉES ═══════════ -->
             <div class="accordion-section">
                 <div class="accordion-header" onclick="toggleSettingsAccordion(this)">
@@ -3327,6 +3335,23 @@
                 💡 <strong>Informations optionnelles</strong> : Ces données permettent d'affiner les recommandations (durée de repos, intensité) mais ne sont pas obligatoires pour utiliser l'application.
             </div>
 
+            <!-- ♿ LIMITATIONS PHYSIQUES — proposé dès la création du profil.
+                 Les déclarer APRÈS coup obligeait à refaire son plan : autant
+                 poser la question avant de générer la première séance. -->
+            <span style="display:block; margin:18px 0 8px 0; font-weight:bold; color:#22d3ee;">♿ Adaptation physique</span>
+            <div onclick="awakOuvrirLimitations()"
+                 style="cursor:pointer; padding:13px 14px; border:1.5px dashed rgba(34,211,238,0.35);
+                        border-radius:12px; background:rgba(34,211,238,0.05); display:flex; align-items:center; gap:11px;">
+                <span style="font-size:1.3em; flex-shrink:0;">♿</span>
+                <div style="flex:1; min-width:0;">
+                    <div style="font-size:0.85em; font-weight:800; color:#e8f0f8;">Un mouvement t'est impossible ?</div>
+                    <div id="profileLimitResume" style="font-size:0.72em; color:#94a3b8; margin-top:2px; line-height:1.4;">
+                        Épaule, genou, dos, impossibilité de descendre au sol… Touche pour adapter tes séances.
+                    </div>
+                </div>
+                <span style="color:#64748b; flex-shrink:0;">›</span>
+            </div>
+
             <button class="btn" onclick="saveProfileSetup()" style="width: 100%; margin-top: 20px;">✅ Sauvegarder et générer mon plan</button>
         </div>
     </div>
@@ -3825,32 +3850,32 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/exercises.js?v=1128"></script>
-    <script src="data/items.js?v=1128"></script>
-    <script src="js/adventure.js?v=1128"></script>
-    <script src="js/economy.js?v=1128"></script>
-    <script src="js/challenges.js?v=1128"></script>
-    <script src="js/family-boss.js?v=1128"></script>
-    <script src="js/family-network.js?v=1128"></script>
-    <script src="js/family-challenge.js?v=1128"></script>
-    <script src="js/family-goal.js?v=1128"></script>
-    <script src="js/family-feed.js?v=1128"></script>
-    <script src="js/pre-workout-mood.js?v=1128"></script>
-    <script src="js/group-workout.js?v=1128"></script>
-    <script src="js/youth-safety.js?v=1128"></script>
-    <script src="js/kids-programs.js?v=1128"></script>
-    <script src="js/senior-programs.js?v=1128"></script>
-    <script src="js/adaptive.js?v=1128"></script>
-    <script src="js/pain-mode.js?v=1128"></script>
-    <script src="js/recovery-mode.js?v=1128"></script>
-    <script src="js/exercise-visuals.js?v=1128"></script>
-    <script src="js/strength-standards.js?v=1128"></script>
-    <script src="js/system-cards.js?v=1128"></script>
-    <script src="js/share-card.js?v=1128"></script>
-    <script src="js/story-events.js?v=1128"></script>
-    <script src="js/final-boss.js?v=1128"></script>
-    <script src="js/disciplines.js?v=1128"></script>
-    <script src="js/eveil.js?v=1128"></script>
+    <script src="js/exercises.js?v=1140"></script>
+    <script src="data/items.js?v=1140"></script>
+    <script src="js/adventure.js?v=1140"></script>
+    <script src="js/economy.js?v=1140"></script>
+    <script src="js/challenges.js?v=1140"></script>
+    <script src="js/family-boss.js?v=1140"></script>
+    <script src="js/family-network.js?v=1140"></script>
+    <script src="js/family-challenge.js?v=1140"></script>
+    <script src="js/family-goal.js?v=1140"></script>
+    <script src="js/family-feed.js?v=1140"></script>
+    <script src="js/pre-workout-mood.js?v=1140"></script>
+    <script src="js/group-workout.js?v=1140"></script>
+    <script src="js/youth-safety.js?v=1140"></script>
+    <script src="js/kids-programs.js?v=1140"></script>
+    <script src="js/senior-programs.js?v=1140"></script>
+    <script src="js/adaptive.js?v=1140"></script>
+    <script src="js/pain-mode.js?v=1140"></script>
+    <script src="js/recovery-mode.js?v=1140"></script>
+    <script src="js/exercise-visuals.js?v=1140"></script>
+    <script src="js/strength-standards.js?v=1140"></script>
+    <script src="js/system-cards.js?v=1140"></script>
+    <script src="js/share-card.js?v=1140"></script>
+    <script src="js/story-events.js?v=1140"></script>
+    <script src="js/final-boss.js?v=1140"></script>
+    <script src="js/disciplines.js?v=1140"></script>
+    <script src="js/eveil.js?v=1140"></script>
     <script>
     /* 🔄 DÉVERROUILLAGE DE L'ORIENTATION
        Sur Android, l'orientation d'une PWA installée est figée à l'installation
@@ -3872,16 +3897,17 @@
       });
     })();
     </script>
-    <script src="js/app.js?v=1128"></script>
-    <script src="js/calendar-tab.js?v=1128"></script>
-    <script src="js/routine-blocks.js?v=1128"></script>
-    <script src="js/routine-builder.js?v=1128"></script>
-    <script src="js/awakening-tree.js?v=1128"></script>
-    <script src="js/ui-kit.js?v=1128"></script>
-    <script src="js/feature-map.js?v=1128"></script>
-    <script src="js/weekly-recap.js?v=1128"></script>
-    <script src="js/workout-games.js?v=1128"></script>
-    <script src="js/kids-games.js?v=1128"></script>
+    <script src="js/app.js?v=1140"></script>
+    <script src="js/calendar-tab.js?v=1140"></script>
+    <script src="js/routine-blocks.js?v=1140"></script>
+    <script src="js/routine-builder.js?v=1140"></script>
+    <script src="js/limitations.js?v=1140"></script>
+    <script src="js/awakening-tree.js?v=1140"></script>
+    <script src="js/ui-kit.js?v=1140"></script>
+    <script src="js/feature-map.js?v=1140"></script>
+    <script src="js/weekly-recap.js?v=1140"></script>
+    <script src="js/workout-games.js?v=1140"></script>
+    <script src="js/kids-games.js?v=1140"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>
