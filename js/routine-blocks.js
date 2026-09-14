@@ -134,7 +134,7 @@
     if (estGroupe && pos === 0) {
       enTete = '<div style="display:flex;align-items:center;gap:7px;margin:2px 0 5px;">' +
           '<span style="background:rgba(251,146,60,0.15);border:1px solid rgba(251,146,60,0.45);color:#fb923c;' +
-            'padding:2px 9px;border-radius:99px;font-size:0.6em;font-weight:900;letter-spacing:1px;">⚡ SUPERSET</span>' +
+            'padding:2px 9px;border-radius:99px;font-size:0.6em;font-weight:900;letter-spacing:1px;display:inline-flex;align-items:center;gap:4px;">' + (window.AwakIcon ? window.AwakIcon.get('eclair', 11, '#fb923c') : '⚡') + 'SUPERSET</span>' +
           '<span style="font-size:0.62em;color:#64748b;font-weight:700;">' + members.length + ' exercices enchaînés sans repos</span>' +
         '</div>';
     }

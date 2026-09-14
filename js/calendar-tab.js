@@ -584,7 +584,7 @@
     return '<div style="margin-top:10px;display:flex;align-items:center;gap:8px;' +
         'background:rgba(34,211,238,0.10);border:1px solid rgba(34,211,238,0.3);' +
         'border-radius:10px;padding:8px 11px;">' +
-        '<span style="flex-shrink:0;">⏳</span>' +
+        '<span style="flex-shrink:0;display:inline-flex;">' + (window.AwakIcon ? window.AwakIcon.get('chrono', 15, '#67e8f9') : '⏳') + '</span>' +
         '<span style="font-size:0.76em;color:#e8f0f8;font-weight:700;min-width:0;">' +
           esc(suivante.seance.label || 'Séance') + ' · <span style="color:#67e8f9;font-weight:900;">' + txt + '</span></span>' +
       '</div>';
@@ -1228,7 +1228,7 @@
     if (repos.length) {
       rows += '<div style="background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.05);' +
           'border-radius:12px;padding:12px 14px;color:#64748b;font-size:0.82em;font-weight:600;">' +
-          '🛌 Repos : ' + repos.map(function (p) { return esc(p.name || 'Membre'); }).join(', ') + '</div>';
+          (window.AwakIcon ? window.AwakIcon.get('repos', 13, '#64748b') : '🛌') + ' Repos : ' + repos.map(function (p) { return esc(p.name || 'Membre'); }).join(', ') + '</div>';
     }
 
     if (!rows) {

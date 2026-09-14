@@ -92,8 +92,9 @@
         position: c.position || 'debout',
         equipment: c.equipment && c.equipment.length ? c.equipment : ['Poids du corps'],
         description: c.description || 'Exercice personnalisé.',
-        instructions: c.instructions || [],
-        tips: c.tips || '',
+        instructions: Array.isArray(c.instructions) ? c.instructions
+                    : (c.instructions ? String(c.instructions).split('\n').filter(function (x) { return x.trim(); }) : []),
+        tips: c.note || c.tips || '',
         duration: 45,
         custom: true,
         customId: c.id,
@@ -101,6 +102,16 @@
       };
       base.push(ex);
       injectes.push(ex);
+
+      // 🖼️ Les images d'exercices sont lues depuis window.EXERCISE_IMAGES[nom],
+      //    PAS depuis le champ `image` de l'exercice. Sans cet enregistrement,
+      //    la photo était bien stockée mais n'apparaissait nulle part.
+      try {
+        if (c.image) {
+          window.EXERCISE_IMAGES = window.EXERCISE_IMAGES || {};
+          window.EXERCISE_IMAGES[c.name] = c.image;
+        }
+      } catch (e) {}
     });
   }
 
@@ -131,10 +142,12 @@
   }
 
   // ── État du formulaire ──
-  var form = { nom: '', primaire: '', secondaires: [], equipement: [], difficulte: 'Intermédiaire', image: null, editId: null };
+  var form = { nom: '', primaire: '', secondaires: [], equipement: [], difficulte: 'Intermédiaire',
+               image: null, note: '', instructions: '', editId: null };
 
   function reset() {
-    form = { nom: '', primaire: '', secondaires: [], equipement: [], difficulte: 'Intermédiaire', image: null, editId: null };
+    form = { nom: '', primaire: '', secondaires: [], equipement: [], difficulte: 'Intermédiaire',
+             image: null, note: '', instructions: '', editId: null };
   }
 
   function chip(txt, actif, onclick, couleur) {
@@ -154,7 +167,10 @@
         form = {
           nom: e.name, primaire: e.muscle, secondaires: (e.secondaryMuscles || []).slice(),
           equipement: (e.equipment || []).slice(), difficulte: e.difficulty || 'Intermédiaire',
-          image: e.image || null, editId: e.id
+          image: e.image || null,
+          note: e.note || '',
+          instructions: Array.isArray(e.instructions) ? e.instructions.join('\n') : (e.instructions || ''),
+          editId: e.id
         };
       }
     }
@@ -246,6 +262,22 @@
           '<div style="font-size:0.58em;letter-spacing:1.6px;color:#64748b;font-weight:900;margin:16px 0 7px;">PHOTO <span style="color:#475569;">· facultatif</span></div>' +
           apercu +
 
+          '<div style="font-size:0.58em;letter-spacing:1.6px;color:#64748b;font-weight:900;margin:16px 0 7px;">' +
+            'INSTRUCTIONS <span style="color:#475569;">· facultatif, une étape par ligne</span></div>' +
+          '<textarea id="awakCxInstr" rows="4" oninput="AwakCustomEx.setInstructions(this.value)" ' +
+            'placeholder="Dos droit, gainage serré&#10;Tirer les coudes vers l\'arrière&#10;Descendre lentement" ' +
+            'style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);' +
+            'color:#e8f0f8;border-radius:11px;padding:11px 13px;font-size:0.82em;font-weight:600;' +
+            'font-family:inherit;box-sizing:border-box;resize:vertical;line-height:1.5;">' + esc(form.instructions) + '</textarea>' +
+
+          '<div style="font-size:0.58em;letter-spacing:1.6px;color:#64748b;font-weight:900;margin:16px 0 7px;">' +
+            'NOTE PERSONNELLE <span style="color:#475569;">· facultatif</span></div>' +
+          '<textarea id="awakCxNote" rows="2" oninput="AwakCustomEx.setNote(this.value)" ' +
+            'placeholder="Ex. commencer léger, l\'épaule droite tire un peu" ' +
+            'style="width:100%;background:rgba(251,191,36,0.05);border:1px solid rgba(251,191,36,0.25);' +
+            'color:#e8f0f8;border-radius:11px;padding:11px 13px;font-size:0.82em;font-weight:600;' +
+            'font-family:inherit;box-sizing:border-box;resize:vertical;line-height:1.5;">' + esc(form.note) + '</textarea>' +
+
           '<button onclick="AwakCustomEx.enregistrer()" ' +
             'style="width:100%;margin-top:20px;padding:14px;border-radius:13px;border:none;' +
             'background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;font-weight:900;' +
@@ -279,6 +311,8 @@
   var API = {};
 
   API.setNom = function (v) { form.nom = v || ''; };          // pas de re-rendu : garde le focus
+  API.setNote = function (v) { form.note = v || ''; };
+  API.setInstructions = function (v) { form.instructions = v || ''; };
   API.setPrimaire = function (m) {
     form.primaire = m;
     // un muscle ne peut pas être à la fois principal et secondaire
@@ -339,6 +373,9 @@
       equipment: form.equipement.length ? form.equipement.slice() : ['Poids du corps'],
       difficulty: form.difficulte,
       image: form.image || null,
+      note: (form.note || '').trim(),
+      instructions: (form.instructions || '').split('\n').map(function (x) { return x.trim(); })
+                      .filter(function (x) { return x; }),
       cree: Date.now()
     };
 

@@ -611,8 +611,9 @@
     document.getElementById('awakConstMenu')?.remove();
     try {
       if (quoi === 'nudge' && typeof window.AwakFamilyNudge === 'function') {
-    // 🏅 Compter l'encouragement envoyé (badge « Toujours là »).
-    try { if (typeof window.AwakFamBadgeInc === 'function') window.AwakFamBadgeInc('encouragements', 1); } catch (e) {}
+        // 🏅 Le badge est compté à l'ENVOI (AwakFamilyNudgeEnvoyer), plus ici :
+        //    depuis l'ajout du choix du message, ouvrir le menu puis renoncer
+        //    aurait compté un encouragement jamais envoyé.
         window.AwakFamilyNudge(memberId);
       } else if (quoi === 'games' && typeof window.AwakGamesOpen === 'function') {
         window.AwakGamesOpen();
@@ -932,6 +933,20 @@
     return pool[Math.floor(Math.random() * pool.length)];
   }
 
+  // Le même réservoir, mais RENDU EN ENTIER : sert à proposer un choix
+  // plutôt qu'à tirer un message au hasard.
+  function nudgeChoix(relationType, memberName) {
+    var pool = [];
+    // On réutilise nudgeMessage en tirant jusqu'à couvrir tout le réservoir :
+    // évite de dupliquer la liste des messages à deux endroits (et donc de
+    // les faire diverger à la première modification).
+    for (var i = 0; i < 60 && pool.length < 6; i++) {
+      var m = nudgeMessage(relationType, memberName);
+      if (pool.indexOf(m) < 0) pool.push(m);
+    }
+    return pool;
+  }
+
 
   window.AwakFamily = {
     renderConstellation: renderConstellation,
@@ -1169,11 +1184,83 @@
       + '</div>';
   }
 
+  // 💬 CHOIX DU MESSAGE — l'app envoyait auparavant un message TIRÉ AU HASARD,
+  // sans rien demander. On propose désormais le réservoir adapté à la relation,
+  // plus un message libre.
   window.AwakFamilyNudge = function (memberId) {
     var rel = relationOf(currentId(), memberId);
     var m = meta(memberId);
-    var msg = nudgeMessage(rel ? rel.type : 'autre', m.name);
-    var me = meta(currentId());
+    var choix = nudgeChoix(rel ? rel.type : 'autre', m.name);
+
+    try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) {}
+    var old = document.getElementById('awakNudgePick');
+    if (old) old.remove();
+
+    var lignes = choix.map(function (txt, i) {
+      return '<button onclick="AwakFamilyNudgeEnvoyer(\'' + esc(memberId) + '\',' + i + ')" '
+        + 'style="width:100%;text-align:left;margin-bottom:8px;padding:13px 14px;border-radius:13px;cursor:pointer;'
+        + 'background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.25);color:#e8e2ff;'
+        + 'font-size:0.88em;font-weight:700;line-height:1.4;font-family:inherit;">' + esc(txt) + '</button>';
+    }).join('');
+
+    var ov = document.createElement('div');
+    ov.id = 'awakNudgePick';
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.88);backdrop-filter:blur(9px);'
+      + 'z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;';
+    ov.onclick = function (e) { if (e.target === ov) ov.remove(); };
+    ov.innerHTML = '<div style="background:linear-gradient(160deg,#16121f,#0d0d12);border:1px solid rgba(139,92,246,0.3);'
+      + 'border-radius:20px;max-width:420px;width:100%;max-height:88vh;display:flex;flex-direction:column;'
+      + 'box-shadow:0 8px 40px rgba(0,0,0,0.6);overflow:hidden;">'
+      + '<div style="padding:16px 18px 12px;flex-shrink:0;border-bottom:1px solid rgba(139,92,246,0.2);'
+      +   'display:flex;align-items:center;gap:11px;">'
+      +   '<span style="flex-shrink:0;">' + _av(m.avatar, 38) + '</span>'
+      +   '<div style="min-width:0;flex:1;">'
+      +     '<div style="font-size:0.58em;color:#a78bfa;font-weight:900;letter-spacing:2px;">ENCOURAGEMENT</div>'
+      +     '<div style="font-size:0.98em;font-weight:900;color:#fff;overflow:hidden;text-overflow:ellipsis;'
+      +       'white-space:nowrap;">Pour ' + esc(m.name) + '</div>'
+      +   '</div>'
+      +   '<button onclick="document.getElementById(\'awakNudgePick\').remove()" '
+      +     'style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:#94a3b8;'
+      +     'border-radius:10px;width:32px;height:32px;min-height:auto;font-size:1.05em;font-weight:800;'
+      +     'cursor:pointer;flex-shrink:0;line-height:1;">×</button>'
+      + '</div>'
+      + '<div style="flex:1;overflow-y:auto;padding:14px 16px 18px;-webkit-overflow-scrolling:touch;">'
+      +   '<div style="font-size:0.72em;color:#94a3b8;margin-bottom:11px;">Choisis ton message :</div>'
+      +   lignes
+      +   '<div style="font-size:0.58em;letter-spacing:1.6px;color:#64748b;font-weight:900;margin:16px 0 7px;">OU ÉCRIS LE TIEN</div>'
+      +   '<textarea id="awakNudgeLibre" rows="2" maxlength="140" placeholder="Ton message…" '
+      +     'style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);'
+      +     'color:#e8f0f8;border-radius:12px;padding:11px 13px;font-size:0.86em;font-weight:600;'
+      +     'font-family:inherit;box-sizing:border-box;resize:vertical;line-height:1.45;"></textarea>'
+      +   '<button onclick="AwakFamilyNudgeEnvoyer(\'' + esc(memberId) + '\',-1)" '
+      +     'style="width:100%;margin-top:9px;padding:13px;border:none;border-radius:13px;cursor:pointer;'
+      +     'background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;font-weight:900;font-size:0.9em;'
+      +     'font-family:inherit;">Envoyer mon message</button>'
+      + '</div></div>';
+    document.body.appendChild(ov);
+  };
+
+  // Envoi effectif : index >= 0 = message proposé, -1 = message libre.
+  window.AwakFamilyNudgeEnvoyer = function (memberId, index) {
+    var rel = relationOf(currentId(), memberId);
+    var m = meta(memberId);
+    var msg;
+    if (index === -1) {
+      var champ = document.getElementById('awakNudgeLibre');
+      msg = champ ? (champ.value || '').trim() : '';
+      if (!msg) {
+        if (typeof window.showToast === 'function') window.showToast('✍️ Écris un message d\'abord', 'info', 2500);
+        return;
+      }
+    } else {
+      msg = nudgeChoix(rel ? rel.type : 'autre', m.name)[index] || nudgeMessage(rel ? rel.type : 'autre', m.name);
+    }
+
+    var pick = document.getElementById('awakNudgePick');
+    if (pick) pick.remove();
+
+    // 🏅 Badge « Toujours là » : compté ici, à l'envoi effectif.
+    try { if (typeof window.AwakFamBadgeInc === 'function') window.AwakFamBadgeInc('encouragements', 1); } catch (e) {}
 
     // 📬 Déposer l'encouragement dans la boîte du destinataire : les profils
     // partagent le même appareil, il le verra en prenant la main.

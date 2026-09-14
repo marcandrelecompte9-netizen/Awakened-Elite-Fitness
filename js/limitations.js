@@ -246,7 +246,8 @@
           '<div id="awakLimitImpact" style="margin-top:6px;"></div>' +
           '<div style="margin-top:14px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.25);' +
             'border-radius:11px;padding:10px 12px;font-size:0.72em;color:#fcd34d;line-height:1.5;">' +
-            '⚠️ Ces réglages ne remplacent pas un avis médical. En cas de blessure ou de douleur, ' +
+            (window.AwakIcon ? window.AwakIcon.get('alerte', 13, '#fcd34d') + ' ' : '⚠️ ') +
+            'Ces réglages ne remplacent pas un avis médical. En cas de blessure ou de douleur, ' +
             'demande l\'avis d\'un professionnel de santé.' +
           '</div>' +
         '</div>' +
@@ -296,6 +297,46 @@
     el.innerHTML = '<strong style="color:#67e8f9;">' + act.length + ' limitation' + (act.length > 1 ? 's' : '') +
       '</strong> : ' + act.map(function (l) { return esc(l.titre); }).join(' · ');
     el.style.color = '#cbd5e1';
+  }
+
+  // ♿ Proposition automatique après création d'un profil.
+  // Le marqueur est posé à la création (app.js) ; switchProfile recharge la
+  // page, donc c'est ici, au démarrage suivant, qu'on pose la question.
+  function proposerSiNouveau() {
+    try {
+      var id = (typeof getCurrentProfileId === 'function') ? getCurrentProfileId() : null;
+      if (!id) return;
+      var k = 'profile_' + id + '_awakLimitAsk';
+      if (localStorage.getItem(k) !== '1') return;
+      localStorage.removeItem(k);          // une seule fois
+      // On laisse l'app finir de démarrer, et on n'écrase aucune autre fenêtre.
+      setTimeout(function () {
+        try {
+          // ⚠️ Chercher '[id$="Modal"]' était inutilisable : 17 fenêtres
+          //    existent en permanence dans le HTML, simplement MASQUÉES.
+          //    Le garde-fou trouvait donc toujours quelque chose et la
+          //    fenêtre ne s'ouvrait jamais. On teste la visibilité RÉELLE.
+          var visible = false;
+          var noeuds = document.querySelectorAll('[id$="Modal"], [id$="Overlay"]');
+          for (var i = 0; i < noeuds.length; i++) {
+            var n = noeuds[i];
+            if (n.offsetParent !== null || (n.style && n.style.display === 'flex')) { visible = true; break; }
+          }
+          if (visible) {
+            // Une fenêtre occupe l'écran : on retente un peu plus tard.
+            setTimeout(function () { try { ouvrir(); } catch (e) {} }, 6000);
+            return;
+          }
+          ouvrir();
+        } catch (e) {}
+      }, 1600);
+    } catch (e) {}
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', proposerSiNouveau);
+  } else {
+    proposerSiNouveau();
   }
 
   window.AwakLimitations = {

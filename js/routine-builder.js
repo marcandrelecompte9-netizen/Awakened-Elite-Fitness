@@ -189,8 +189,10 @@
           '<div style="flex:1;min-width:0;">' +
             '<div style="font-size:0.8em;font-weight:800;color:#e8f0f8;overflow:hidden;' +
               'text-overflow:ellipsis;white-space:nowrap;">' + (estFav ? '⭐ ' : '') + (e.custom ? '✎ ' : '') + esc(e.name) + '</div>' +
-            '<div style="font-size:0.64em;color:#64748b;margin-top:2px;overflow:hidden;' +
-              'text-overflow:ellipsis;white-space:nowrap;">' + esc(e.muscle || '') + (eq ? ' · ' + esc(eq) : '') + '</div>' +
+            '<div style="display:flex;align-items:center;gap:4px;font-size:0.64em;color:#64748b;margin-top:2px;overflow:hidden;' +
+              'text-overflow:ellipsis;white-space:nowrap;">' +
+              (window.AwakIcon ? window.AwakIcon.get('muscle', 11, '#64748b') : '') +
+              '<span style="overflow:hidden;text-overflow:ellipsis;">' + esc(e.muscle || '') + (eq ? ' · ' + esc(eq) : '') + '</span></div>' +
           '</div>' +
           // ✎ Exercices personnalisés : modification et suppression. Sans ça,
           //   ils étaient créés puis impossibles à corriger.
