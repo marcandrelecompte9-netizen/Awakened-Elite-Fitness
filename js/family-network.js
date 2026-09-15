@@ -266,21 +266,9 @@
       }
     } catch (e) {}
 
-    // Défi d'équipe
-    try {
-      if (window.AwakFamilyChallenge && window.AwakFamilyChallenge.coopStatus) {
-        var co = window.AwakFamilyChallenge.coopStatus();
-        if (co) {
-          lignes.push({
-            emoji: '🤝', col: '#22d3ee',
-            titre: 'Défi d\'équipe',
-            detail: co.total + ' / ' + co.cible + ' ' + ((co.def && co.def.label) || ''),
-            pct: co.pct || 0,
-            action: 'AwakCoopOpen()'
-          });
-        }
-      }
-    } catch (e) {}
+    // (Le « Défi d'équipe » a rejoint le centre ✦ ENSEMBLE du pied de page,
+    //  avec l'objectif commun et le duel : les trois se ressemblaient assez
+    //  pour qu'on ne sache plus lequel ouvrir.)
 
     // Duels en cours (non terminés)
     try {
@@ -352,6 +340,103 @@
       if (e) e.remove();
     });
   };
+
+  // ✦ CENTRE « ENSEMBLE »
+  // Regroupe les TROIS choses qui se font à plusieurs : l'objectif commun,
+  // le défi d'équipe (coopératif) et le duel contre un membre.
+  // ⚠️ Elles vivaient à trois endroits différents — bouton du pied, menu de
+  //    l'étoile centrale, et carte de l'onglet — au point qu'objectif et défi
+  //    d'équipe semblaient faire doublon sans qu'on sache lequel ouvrir.
+  window.AwakEnsembleOpen = function () {
+    var old = document.getElementById('awakEnsembleModal');
+    if (old) old.remove();
+
+    // État de chaque brique (null si rien en cours)
+    var goal = null, coop = null;
+    try { if (window.AwakFamilyGoal && window.AwakFamilyGoal.status) goal = window.AwakFamilyGoal.status(); } catch (e) {}
+    try { if (window.AwakFamilyChallenge && window.AwakFamilyChallenge.coopStatus) coop = window.AwakFamilyChallenge.coopStatus(); } catch (e) {}
+
+    function bloc(couleur, surtitre, titre, desc, etat, action, libelle) {
+      return '<div style="background:rgba(255,255,255,0.025);border:1px solid ' + couleur + '33;'
+        + 'border-left:3px solid ' + couleur + ';border-radius:14px;padding:14px 15px;margin-bottom:10px;">'
+        + '<div style="font-size:0.54em;letter-spacing:2px;color:' + couleur + ';font-weight:900;">' + surtitre + '</div>'
+        + '<div style="font-size:0.96em;font-weight:900;color:#fff;margin:3px 0 5px;">' + titre + '</div>'
+        + '<div style="font-size:0.76em;color:#94a3b8;line-height:1.45;margin-bottom:' + (etat ? '9px' : '11px') + ';">' + desc + '</div>'
+        + (etat || '')
+        + '<button onclick="' + action + '" style="width:100%;padding:11px;border:none;border-radius:11px;'
+        +   'cursor:pointer;background:' + couleur + ';color:#0b0b10;font-weight:900;font-size:0.82em;'
+        +   'font-family:inherit;">' + libelle + '</button>'
+        + '</div>';
+    }
+
+    function barre(pct, couleur) {
+      var p = Math.max(0, Math.min(100, pct || 0));
+      return '<div style="height:8px;background:rgba(255,255,255,0.07);border-radius:5px;overflow:hidden;margin-bottom:10px;">'
+        + '<div style="height:100%;width:' + p + '%;background:' + couleur + ';border-radius:5px;"></div></div>';
+    }
+
+    var html = '';
+
+    // 1. Objectif commun
+    html += bloc('#4ade80', '◈ OBJECTIF COMMUN',
+      goal && goal.def ? ((goal.def.emoji || '') + ' ' + esc(_dispLabelSafe(goal))) : 'Aucun objectif en cours',
+      goal && goal.def
+        ? 'Chaque séance de chacun fait avancer le compteur.'
+        : 'Fixez un but à atteindre ensemble — chaque séance de chacun fait avancer toute la famille.',
+      goal && goal.def ? barre(goal.pct, '#4ade80') : '',
+      'document.getElementById(\'awakEnsembleModal\').remove();AwakFamilyGoalOpen()',
+      goal && goal.def ? 'Voir l\'objectif' : 'Créer un objectif commun');
+
+    // 2. Défi d'équipe (coopératif)
+    html += bloc('#22d3ee', '◈ DÉFI D\'ÉQUIPE',
+      coop ? ('🤝 ' + esc((coop.def && coop.def.label) || 'En cours')) : 'Aucun défi d\'équipe',
+      coop
+        ? coop.total + ' / ' + coop.cible + ' — vous jouez CONTRE l\'objectif, pas l\'un contre l\'autre.'
+        : 'Un effort commun sur une durée courte : tout le monde pousse dans le même sens.',
+      coop ? barre(coop.pct, '#22d3ee') : '',
+      'document.getElementById(\'awakEnsembleModal\').remove();AwakCoopOpen()',
+      coop ? 'Voir le défi d\'équipe' : 'Lancer un défi d\'équipe');
+
+    // 3. Duel
+    html += bloc('#a855f7', '◈ DUEL',
+      '⚔ Défier un membre',
+      'Un face-à-face amical : celui qui en fait le plus l\'emporte.',
+      '',
+      'document.getElementById(\'awakEnsembleModal\').remove();AwakFamilyChallengeOpen()',
+      'Défier un membre');
+
+    var ov = document.createElement('div');
+    ov.id = 'awakEnsembleModal';
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.9);backdrop-filter:blur(9px);'
+      + 'z-index:99998;display:flex;align-items:center;justify-content:center;padding:16px;';
+    ov.onclick = function (e) { if (e.target === ov) ov.remove(); };
+    ov.innerHTML = '<div style="background:linear-gradient(160deg,#141021,#0d0d12);border:1px solid rgba(236,72,153,0.28);'
+      + 'border-radius:20px;max-width:440px;width:100%;max-height:88vh;display:flex;flex-direction:column;'
+      + 'box-shadow:0 8px 40px rgba(0,0,0,0.6);overflow:hidden;">'
+      + '<div style="padding:15px 18px 12px;flex-shrink:0;border-bottom:1px solid rgba(236,72,153,0.18);'
+      +   'display:flex;align-items:center;gap:10px;">'
+      +   '<div style="min-width:0;flex:1;">'
+      +     '<div style="font-size:0.56em;letter-spacing:2.5px;color:#ec4899;font-weight:900;">✦ À PLUSIEURS</div>'
+      +     '<div style="font-size:1em;font-weight:900;color:#fff;">Ensemble</div>'
+      +   '</div>'
+      +   '<button onclick="document.getElementById(\'awakEnsembleModal\').remove()" '
+      +     'style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:#94a3b8;'
+      +     'border-radius:10px;width:32px;height:32px;min-height:auto;font-size:1.05em;font-weight:800;'
+      +     'cursor:pointer;flex-shrink:0;line-height:1;">×</button>'
+      + '</div>'
+      + '<div style="flex:1;overflow-y:auto;padding:14px 16px 18px;-webkit-overflow-scrolling:touch;">' + html + '</div>'
+      + '</div>';
+    document.body.appendChild(ov);
+  };
+
+  // Libellé lisible de l'objectif, sans dépendre des internes de family-goal.
+  function _dispLabelSafe(st) {
+    try {
+      if (st && st.def && st.def.label) return st.def.label;
+      if (st && st.type) return st.type;
+    } catch (e) {}
+    return 'Objectif';
+  }
 
   // 🏅 BADGES FAMILLE
   // --------------------------------------------------------------
@@ -840,9 +925,9 @@
       // vert — lequel n'est dessiné que si un objectif est DÉJÀ actif. Sans
       // objectif en cours, il n'y avait donc aucun moyen d'en créer un depuis
       // la Constellation, seul écran de l'onglet depuis v902.
-      +     '<button onclick="AwakFamilyGoalOpen()" style="flex:1;padding:11px;background:transparent;'
-      +       'border:none;border-right:1px solid rgba(255,255,255,0.06);color:#4ade80;'
-      +       'font-size:0.64em;font-weight:800;letter-spacing:1px;cursor:pointer;">🎯 OBJECTIF</button>'
+      +     '<button onclick="AwakEnsembleOpen()" style="flex:1;padding:11px;background:transparent;'
+      +       'border:none;border-right:1px solid rgba(255,255,255,0.06);color:#ec4899;'
+      +       'font-size:0.64em;font-weight:800;letter-spacing:1px;cursor:pointer;">✦ ENSEMBLE</button>'
       +     '<button onclick="AwakFamBadgesOpen()" style="flex:1;padding:11px;background:transparent;'
       +       'border:none;border-right:1px solid rgba(255,255,255,0.06);color:#4ade80;'
       +       'font-size:0.64em;font-weight:800;letter-spacing:1px;cursor:pointer;">🏅 BADGES</button>'

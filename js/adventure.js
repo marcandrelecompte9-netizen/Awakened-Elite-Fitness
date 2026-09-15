@@ -955,10 +955,9 @@ function renderFamilyTab() {
     // reste exclusivement dans l'onglet Jeu.
     const familyCard = (window.AwakFamily && typeof window.AwakFamily.renderCard === 'function')
         ? window.AwakFamily.renderCard() : '';
-    // 🔗 L'objectif et le défi communs sont désormais REGROUPÉS dans l'onglet
-    // Défis, avec les défis personnels. On garde ici un accès direct plutôt
-    // que de les afficher deux fois — sinon deux copies de la même carte
-    // cohabitent et l'utilisateur ne sait plus laquelle fait foi.
+    // ℹ️ goalCard/challengeCard restent CALCULÉES (le test de repli plus bas
+    //    s'en sert), mais ne sont pas affichées ici : tout ce qui se fait à
+    //    plusieurs est réuni dans le centre ✦ ENSEMBLE du pied de page.
     const goalCard = (window.AwakFamilyGoal && typeof window.AwakFamilyGoal.renderCard === 'function')
         ? window.AwakFamilyGoal.renderCard() : '';
     const feedCard = (window.AwakFamilyFeed && typeof window.AwakFamilyFeed.renderCard === 'function')
@@ -1061,19 +1060,6 @@ function renderFamilyTab() {
     //   · encouragements reçus → bandeau du pied (si présents)
     //   · ma famille / journal → boutons du pied
     html += constCard;
-
-    // 🎯 OBJECTIF & DÉFI COMMUNS — affichés ICI, dans l'onglet Famille.
-    // ⚠️ Ils étaient CALCULÉS mais jamais insérés dans le HTML : on ne pouvait
-    //    les atteindre que par le menu d'une étoile de la constellation.
-    //    Leur place est dans cet onglet, avec le reste de la vie familiale.
-    if (goalCard || challengeCard) {
-        html += '<div style="display:flex;align-items:center;gap:8px;margin:18px 0 10px;">'
-             +   '<span style="font-size:0.56em;letter-spacing:2.5px;color:#ec4899;font-weight:900;">✦ ENSEMBLE</span>'
-             +   '<span style="flex:1;height:1px;background:linear-gradient(90deg,rgba(236,72,153,0.4),transparent);"></span>'
-             + '</div>';
-        html += goalCard;
-        html += challengeCard;
-    }
 
     // Filet de sécurité
     if (!constCard && !familyCard && !nudgeCard && !challengeCard && !goalCard && !feedCard && !duoGamesCard && !coopCard) {
