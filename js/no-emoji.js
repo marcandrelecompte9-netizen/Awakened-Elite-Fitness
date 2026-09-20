@@ -49,7 +49,7 @@
 
   function definir(on) {
     try { localStorage.setItem(cle(), on ? '1' : '0'); } catch (e) {}
-    if (on) { demarrer(); balayer(document.body); }
+    if (on) { injecterStyles(); demarrer(); balayer(document.body); }
     else { arreter(); location.reload(); }   // seul moyen fiable de remettre les emojis
   }
 
@@ -73,8 +73,45 @@
   //    Les ✓ et les flèches ne sont PAS touchés : ils portent du sens.
   var RE_DECOR = /[◈✦◆❖✧]\s*/g;
 
+  // Sigles à NE PAS remettre en casse normale : ce sont des termes, pas des cris.
+  var SIGLES = ['AMRAP', 'EMOM', 'HIIT', 'RPE', 'IMC', 'TRX', 'PPL', 'RM', 'XP', 'PR', 'KG', 'LB', 'LBS'];
+
+  // « SÉANCE TERMINÉE » → « Séance terminée ».
+  // ⚠️ On raisonne sur le TITRE ENTIER, pas mot par mot : traiter chaque mot
+  //    séparément laissait les mots courts en capitales (« TON Parcours »,
+  //    « MES Routines »), pire que de ne rien faire.
+  //    On ne convertit que si TOUT le texte est en capitales et contient au
+  //    moins un mot de 4 lettres — sinon « XP », « 1RM » ou « RPE » seraient
+  //    transformés à tort.
+  function casseNormale(txt) {
+    var t = txt.trim();
+    if (!t) return txt;
+    if (/[a-zà-ÿ]/.test(t)) return txt;              // contient déjà des minuscules
+    if (!/[A-ZÀ-Ý]{4,}/.test(t)) return txt;         // pas de vrai mot : sigle isolé
+    if (SIGLES.indexOf(t) >= 0) return txt;
+
+    var bas = t.toLowerCase();
+    // Restaure les sigles connus à l'intérieur de la phrase
+    SIGLES.forEach(function (sig) {
+      bas = bas.replace(new RegExp('\\b' + sig.toLowerCase() + '\\b', 'g'), sig);
+    });
+    var res = bas.charAt(0).toUpperCase() + bas.slice(1);
+    // Conserve les espaces d'origine autour du texte
+    return txt.replace(t, res);
+  }
+
   function nettoyerTexte(txt) {
     var out = txt.replace(RE_EMOJI, '').replace(RE_DECOR, '');
+
+    // Ton : on retire les points d'exclamation. « Séance terminée ! » devient
+    // « Séance terminée ». Une app d'entraînement sérieuse constate, elle
+    // n'acclame pas.
+    // ⚠️ Supprimer le « ! » sec collait les phrases : « Séance terminée Bravo ».
+    //    En milieu de texte il devient un point ; en fin, il disparaît.
+    out = out.replace(/\s*!+(\s+)(?=[A-ZÀ-Ý0-9])/g, '.$1');
+    out = out.replace(/\s*!+/g, '');
+
+    out = casseNormale(out);
     // Espaces doubles et séparateurs orphelins laissés par l'emoji retiré
     out = out.replace(/[ \t]{2,}/g, ' ')
              .replace(/^\s*[·•\-–]\s*/, '')
@@ -170,9 +207,24 @@
     }
   };
 
+  // Les majuscules viennent AUSSI du CSS (223 règles text-transform:uppercase,
+  // souvent en style inline). Une feuille avec !important les neutralise sans
+  // qu'il faille éditer chaque endroit.
+  function injecterStyles() {
+    if (document.getElementById('awakSobreStyles')) return;
+    var st = document.createElement('style');
+    st.id = 'awakSobreStyles';
+    st.textContent =
+      '[style*="uppercase"],[style*="UPPERCASE"]{text-transform:none!important;}' +
+      '[style*="letter-spacing:2"],[style*="letter-spacing: 2"],' +
+      '[style*="letter-spacing:3"],[style*="letter-spacing: 3"]{letter-spacing:0.06em!important;}';
+    document.head.appendChild(st);
+  }
+
   // Application au démarrage si le réglage est actif
   function init() {
     if (!actif()) return;
+    injecterStyles();
     demarrer();
     balayer(document.body);
   }
