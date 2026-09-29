@@ -43,9 +43,9 @@
   // une IA », à cause des emojis. C'est le premier jugement porté sur le
   // produit : il doit donc être sobre d'emblée, et non après un réglage que
   // personne ne va chercher. Seul un « 0 » explicite réactive les emojis.
-  function actif() {
-    try { return localStorage.getItem(cle()) !== '0'; } catch (e) { return true; }
-  }
+  // Le réglage a été retiré : le filtre est toujours actif. Un ancien « 0 »
+  // enregistré est ignoré.
+  function actif() { return true; }
 
   function definir(on) {
     try { localStorage.setItem(cle(), on ? '1' : '0'); } catch (e) {}
@@ -59,7 +59,17 @@
     while (n && n !== document.body) {
       if (n.nodeType === 1) {
         var t = n.tagName;
-        if (t === 'INPUT' || t === 'TEXTAREA' || t === 'SCRIPT' || t === 'STYLE' || t === 'SVG') return true;
+        // ⚠️ PIÈGE DOM : tagName est en MAJUSCULES pour les éléments HTML, mais
+        //    un <svg> inséré via innerHTML garde sa casse d'origine — son
+        //    tagName vaut 'svg', jamais 'SVG'. Le test ci-dessous ne se
+        //    déclenchait donc JAMAIS : le filtre parcourait l'intérieur des
+        //    icônes SVG d'équipement (textes « kg », structure) et cassait
+        //    leur rendu. On compare en minuscules pour couvrir les deux cas.
+        var tb = t ? t.toLowerCase() : '';
+        if (tb === 'input' || tb === 'textarea' || tb === 'script' || tb === 'style' || tb === 'svg') return true;
+        // Toute balise DANS un <svg> (path, circle, text, rect…) doit aussi
+        // être protégée — pas seulement la racine.
+        if (n.ownerSVGElement || (n.namespaceURI && n.namespaceURI.indexOf('svg') >= 0)) return true;
         if (n.hasAttribute && n.hasAttribute('data-emoji-keep')) return true;
       }
       n = n.parentNode;
@@ -100,6 +110,43 @@
     return txt.replace(t, res);
   }
 
+  // ── EMOJIS NÉCESSAIRES ─────────────────────────────────────────────
+  // Certains emojis ne décorent pas : ils SONT le contenu d'un contrôle.
+  // Les retirer laissait des boutons vides (sélecteurs d'icône, réactions,
+  // bouton « ⭐ » seul…) ou des échelles illisibles (😊 → 😰 de la difficulté).
+  // On les conserve dans deux cas :
+  //   1. le contrôle cliquable n'aurait plus AUCUN contenu visible sans eux ;
+  //   2. l'emoji est seul dans son propre élément, affiché en grand, à
+  //      l'intérieur d'un contrôle cliquable (carte de choix, échelle).
+  var SEL_CTRL = 'button,a,label,option,[onclick],[role="button"],[role="tab"],[role="radio"]';
+
+  function tailleGrande(el) {
+    try {
+      var fs = el.style && el.style.fontSize;
+      if (!fs) return false;
+      var v = parseFloat(fs);
+      if (/em|rem/.test(fs)) return v >= 1.4;
+      if (/px/.test(fs)) return v >= 22;
+    } catch (e) {}
+    return false;
+  }
+
+  function necessaire(noeudTexte) {
+    try {
+      var parent = noeudTexte.parentNode;
+      if (!parent || !parent.closest) return false;
+      var ctrl = parent.closest(SEL_CTRL);
+      if (!ctrl) return false;
+      // Cas 1 : sans emoji, le contrôle serait vide (pas de texte, pas d'icône)
+      var reste = (ctrl.textContent || '').replace(RE_EMOJI, '').replace(RE_DECOR, '').trim();
+      if (!reste && !ctrl.querySelector('svg,img')) return true;
+      // Cas 2 : emoji seul dans son élément, en grand, dans un contrôle
+      var propre = (parent.textContent || '').replace(RE_EMOJI, '').trim();
+      if (!propre && parent !== ctrl && tailleGrande(parent)) return true;
+    } catch (e) {}
+    return false;
+  }
+
   function nettoyerTexte(txt) {
     var out = txt.replace(RE_EMOJI, '').replace(RE_DECOR, '');
 
@@ -138,6 +185,7 @@
       }
       lot.forEach(function (node) {
         if (protege(node.parentNode)) return;
+        if (necessaire(node)) return;
         var propre = nettoyerTexte(node.nodeValue);
         if (propre !== node.nodeValue) node.nodeValue = propre;
       });
@@ -154,7 +202,7 @@
         for (var j = 0; j < m.addedNodes.length; j++) {
           var n = m.addedNodes[j];
           if (n.nodeType === 3) {
-            if (!protege(n.parentNode)) {
+            if (!protege(n.parentNode) && !necessaire(n)) {
               var p = nettoyerTexte(n.nodeValue || '');
               if (p !== n.nodeValue) n.nodeValue = p;
             }

@@ -155,7 +155,7 @@
         var list = reacts[emo] || [];
         var count = list.length;
         var mine = me && list.indexOf(me) !== -1;
-        return '<button onclick="AwakFeedReact(\'' + it.feedId + '\',\'' + emo + '\')" style="display:inline-flex;align-items:center;gap:3px;padding:4px 8px;border-radius:20px;cursor:pointer;font-size:0.8em;border:1px solid ' + (mine ? 'rgba(34,197,94,0.5)' : 'rgba(255,255,255,0.1)') + ';background:' + (mine ? 'rgba(34,197,94,0.15)' : 'rgba(255,255,255,0.03)') + ';color:#fff;">'
+        return '<button data-emoji-keep="1" onclick="AwakFeedReact(\'' + it.feedId + '\',\'' + emo + '\')" style="display:inline-flex;align-items:center;gap:3px;padding:4px 8px;border-radius:20px;cursor:pointer;font-size:0.8em;border:1px solid ' + (mine ? 'rgba(34,197,94,0.5)' : 'rgba(255,255,255,0.1)') + ';background:' + (mine ? 'rgba(34,197,94,0.15)' : 'rgba(255,255,255,0.03)') + ';color:#fff;">'
           + emo + (count > 0 ? '<span style="font-size:0.85em;color:#94a3b8;">' + count + '</span>' : '')
           + '</button>';
       }).join('');

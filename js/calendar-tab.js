@@ -23,6 +23,7 @@
   var JOURS       = ['lun', 'mar', 'mer', 'jeu', 'ven', 'sam', 'dim'];
   var JOURS_LONG  = { lun: 'Lundi', mar: 'Mardi', mer: 'Mercredi', jeu: 'Jeudi', ven: 'Vendredi', sam: 'Samedi', dim: 'Dimanche' };
   var JOURS_ENT   = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+  var MOIS_COURT  = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
   var MOIS        = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
 
   // Palette d'accents attribuée par ordre dans getAllProfiles(). Couleurs
@@ -135,6 +136,7 @@
             label: r.name || 'Routine',
             heure: (manual[d] && manual[d].heure) || null,
             source: 'routine',
+            routineId: rid,
             couleur: r.color || null
           };
           return;
@@ -320,89 +322,49 @@
     else if (list[0]) cal.selected.add(list[0].id);
   }
 
-  // ── Coin d'accent (esthétique console) ──
-  function corner(pos, col) {
-    var base = 'position:absolute;width:13px;height:13px;pointer-events:none;opacity:0.85;';
-    var m = {
-      tl: 'top:9px;left:9px;border-top:2px solid ' + col + ';border-left:2px solid ' + col + ';border-radius:3px 0 0 0;',
-      tr: 'top:9px;right:9px;border-top:2px solid ' + col + ';border-right:2px solid ' + col + ';border-radius:0 3px 0 0;',
-      bl: 'bottom:9px;left:9px;border-bottom:2px solid ' + col + ';border-left:2px solid ' + col + ';border-radius:0 0 0 3px;',
-      br: 'bottom:9px;right:9px;border-bottom:2px solid ' + col + ';border-right:2px solid ' + col + ';border-radius:0 0 3px 0;'
-    };
-    return '<div style="' + base + m[pos] + '"></div>';
-  }
-
-  // ── En-tête ──
+  // ── En-tête (allégé) ──
+  // Une ligne : titre + bouton Mode salle. La bannière reste en fond, très
+  // voilée. Plus de coins « console », de halo ni de phrase d'explication.
   function headerHTML(nbMembres) {
     return '' +
-      // 🖼️ La bannière sert de FOND à l'en-tête (elle avait quitté le mode
-      // salle, remplacée par kiosk_bg). Un voile en dégradé garde le titre
-      // et le texte lisibles. Si le fichier manque, le dégradé de base suffit.
-      '<div class="card" style="position:relative;overflow:hidden;padding:18px 20px;' +
-        // ⚠️ !important OBLIGATOIRE : `body.dark-mode .card:not(#awakHunterCard)`
-        // impose `background: … !important`. Cette propriété RACCOURCIE remet
-        // background-image à `none` — le fond inline sans !important perdait,
-        // et la bannière n'apparaissait jamais.
-        'background-color:#0a0f14!important;' +
-        "background-image:linear-gradient(105deg,rgba(8,12,18,0.94) 0%,rgba(8,12,18,0.80) 42%,rgba(8,12,18,0.55) 100%),url('images/calendar_banner.webp')!important;" +
+      '<div class="card" style="position:relative;overflow:hidden;padding:14px 16px!important;' +
+        // ⚠️ !important obligatoire (voir carte-du-code : .card en dark-mode)
+        'background-color:#0b1016!important;' +
+        "background-image:linear-gradient(90deg,rgba(11,16,22,0.96) 0%,rgba(11,16,22,0.86) 55%,rgba(11,16,22,0.70) 100%),url('images/calendar_banner.webp')!important;" +
         'background-size:cover,cover!important;background-position:center,center!important;' +
-        'background-repeat:no-repeat,no-repeat!important;' +
-        'border:1px solid rgba(34,211,238,0.16);">' +
-        corner('tl', '#22d3ee') + corner('tr', '#22d3ee') + corner('bl', '#22d3ee') + corner('br', '#22d3ee') +
-        '<div style="position:absolute;top:-40px;right:-30px;width:150px;height:150px;' +
-          'background:radial-gradient(circle,rgba(34,211,238,0.16) 0%,transparent 68%);pointer-events:none;"></div>' +
-        '<div style="position:relative;z-index:1;">' +
-          '<h2 style="margin:0;font-family:var(--font-display);font-size:1.85em;font-weight:800;' +
-            'letter-spacing:0.04em;color:#e8f4ff;line-height:1.02;text-shadow:0 0 22px rgba(34,211,238,0.25);">CALENDRIER</h2>' +
-          '<div style="font-size:0.76em;color:#94a3b8;margin-top:6px;line-height:1.4;">' +
-            ((nbMembres > 1)
-              ? 'Tes séances en un coup d\'œil. Touche un membre pour superposer son planning.'
-              : 'Tes séances en un coup d\'œil. Touche un jour pour le détail.') + '</div>' +
-          '<button onclick="awakCalKiosk()" style="margin-top:11px;background:rgba(34,211,238,0.1);' +
-            'border:1px solid rgba(34,211,238,0.35);color:#67e8f9;border-radius:10px;padding:8px 13px;' +
-            'font-size:0.72em;font-weight:900;letter-spacing:0.5px;cursor:pointer;font-family:inherit;">' +
-            '🖥️ MODE SALLE</button>' +
+        'background-repeat:no-repeat,no-repeat!important;border:1px solid rgba(255,255,255,0.06);">' +
+        '<div style="display:flex;align-items:center;gap:10px;">' +
+          '<h2 style="margin:0;flex:1;font-family:var(--font-display);font-size:1.3em;font-weight:800;' +
+            'color:#e8f0f8;line-height:1.1;">Calendrier</h2>' +
+          '<button onclick="awakCalKiosk()" style="flex-shrink:0;background:none;border:1px solid rgba(255,255,255,0.14);' +
+            'color:#cbd5e1;border-radius:99px;padding:6px 12px;font-size:0.7em;font-weight:700;cursor:pointer;font-family:inherit;">' +
+            'Mode salle</button>' +
         '</div>' +
       '</div>';
   }
 
-  // ── Sélecteur de membres (le « ajout en un clic ») ──
+  // ── Sélecteur de membres ──
+  // Affiché seulement s'il y a plusieurs profils : avec un seul, il ne
+  // servait à rien et prenait une carte entière.
   function membersHTML(list, colorById) {
+    if (list.length <= 1) return '';
     var chips = list.map(function (p) {
       var c = colorById[p.id];
       var sel = cal.selected.has(p.id);
-      var bg   = sel ? c.soft : 'rgba(255,255,255,0.03)';
-      var bord = sel ? c.line : 'rgba(255,255,255,0.09)';
-      var nameCol = sel ? '#e8f0f8' : '#94a3b8';
-      var mark = sel
-        ? '<span style="flex-shrink:0;width:15px;height:15px;border-radius:50%;background:' + c.base +
-            ';color:#04121f;font-size:0.6em;font-weight:900;display:inline-flex;align-items:center;justify-content:center;">✓</span>'
-        : '<span style="flex-shrink:0;width:15px;height:15px;border-radius:50%;border:1.5px dashed rgba(148,163,184,0.5);' +
-            'color:#64748b;font-size:0.72em;font-weight:900;display:inline-flex;align-items:center;justify-content:center;">+</span>';
       return '<button onclick="awakCalToggleMember(\'' + esc(p.id) + '\')" ' +
-        'style="display:inline-flex;align-items:center;gap:8px;padding:7px 11px 7px 8px;border-radius:12px;' +
-          'cursor:pointer;background:' + bg + ';border:1.5px solid ' + bord + ';' +
-          'transition:background .15s ease,border-color .15s ease;">' +
-        '<span style="flex-shrink:0;display:inline-flex;">' + av(p.avatar, 26) + '</span>' +
-        '<span style="font-size:0.82em;font-weight:800;color:' + nameCol + ';white-space:nowrap;max-width:120px;overflow:hidden;text-overflow:ellipsis;">' + esc(p.name || 'Membre') + '</span>' +
-        mark +
+        'style="display:inline-flex;align-items:center;gap:7px;padding:5px 11px 5px 6px;border-radius:99px;cursor:pointer;' +
+          'background:' + (sel ? 'rgba(255,255,255,0.06)' : 'transparent') + ';' +
+          'border:1px solid ' + (sel ? c.line : 'rgba(255,255,255,0.08)') + ';opacity:' + (sel ? '1' : '0.55') + ';">' +
+        '<span style="flex-shrink:0;display:inline-flex;">' + av(p.avatar, 22) + '</span>' +
+        '<span style="font-size:0.76em;font-weight:700;color:#e2e8f0;white-space:nowrap;max-width:110px;overflow:hidden;text-overflow:ellipsis;">' + esc(p.name || 'Membre') + '</span>' +
+        '<span style="flex-shrink:0;width:7px;height:7px;border-radius:50%;background:' + (sel ? c.base : 'transparent') + ';' +
+          'border:1px solid ' + c.base + ';"></span>' +
       '</button>';
     }).join('');
-
-    var hint = (list.length <= 1)
-      ? '<div style="font-size:0.72em;color:#64748b;margin-top:10px;line-height:1.4;">' +
-          'Crée d\'autres profils dans l\'onglet <strong style="color:#94a3b8;">Famille</strong> pour superposer leurs plannings ici.</div>'
-      : '';
-
-    return '' +
-      '<div class="card" style="padding:14px 16px;">' +
-        '<div style="font-size:0.56em;letter-spacing:2px;color:#64748b;font-weight:900;margin-bottom:11px;">◈ MEMBRES</div>' +
-        '<div style="display:flex;flex-wrap:wrap;gap:8px;">' + chips + '</div>' +
-        hint +
-      '</div>';
+    return '<div style="display:flex;flex-wrap:wrap;gap:6px;margin:0 2px 12px;">' + chips + '</div>';
   }
 
-  // ── Carte AUJOURD'HUI (triée par heure + alerte de chevauchement) ──
+  // ── Carte AUJOURD'HUI + progression de la semaine (fusionnées) ──
   function todayHTML(list, colorById, plans, dones) {
     var today = new Date();
     var dayKey = JOURS[wIdx(today)];
@@ -410,8 +372,8 @@
 
     var entries = entriesFor(list, plans, dones, today.getFullYear(), today.getMonth(), today.getDate());
     var selList = list.filter(function (p) { return cal.selected.has(p.id); });
+    var multi = selList.length > 1;
 
-    // Membres au repos aujourd'hui
     var actifs = {};
     entries.forEach(function (e) { actifs[e.profil.id] = true; });
     var repos = selList.filter(function (p) { return !actifs[p.id]; });
@@ -420,45 +382,30 @@
       var c = colorById[e.profil.id];
       var s = e.seance;
       var label = s.label || s.muscles.slice(0, 3).join(' · ');
-      var mus = s.muscles.map(function (m) {
-        return '<span style="background:' + c.soft + ';color:' + c.base + ';border:1px solid ' + c.line +
-          ';padding:1px 7px;border-radius:99px;font-size:0.66em;font-weight:700;">' + esc(m) + '</span>';
-      }).join('');
-      var heure = e.heure
-        ? '<span style="background:' + c.base + ';color:#04121f;padding:2px 8px;border-radius:7px;' +
-            'font-size:0.72em;font-weight:900;font-family:var(--font-display);flex-shrink:0;">' + esc(fmtTime(e.heure)) + '</span>'
-        : '<span style="color:#64748b;font-size:0.66em;font-weight:700;flex-shrink:0;">—</span>';
-
-      return '<div style="display:flex;align-items:flex-start;gap:11px;padding:11px 0;border-top:1px solid rgba(255,255,255,0.05);">' +
-          '<div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:5px;width:44px;">' +
-            '<span style="display:inline-flex;">' + av(e.profil.avatar, 34) + '</span>' +
-            '<span style="width:16px;height:3px;border-radius:99px;background:' + c.base + ';"></span>' +
-          '</div>' +
+      var sous = (s.label ? s.muscles.slice(0, 4).join(' · ') : '');
+      return '<div style="display:flex;align-items:center;gap:10px;margin-top:10px;">' +
+          '<span style="flex-shrink:0;width:3px;align-self:stretch;min-height:28px;border-radius:99px;background:' + c.base + ';"></span>' +
+          (multi ? '<span style="flex-shrink:0;display:inline-flex;">' + av(e.profil.avatar, 26) + '</span>' : '') +
           '<div style="min-width:0;flex:1;">' +
-            '<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap;">' +
-              heure +
-              '<span style="font-size:0.9em;font-weight:800;color:#e8f0f8;">' + esc(label) + '</span>' +
-              sourceChip(s.source) +
-              (e.faite ? '<span style="color:' + c.base + ';font-size:0.72em;font-weight:900;">✓</span>' : '') +
-            '</div>' +
-            '<div style="display:flex;flex-wrap:wrap;gap:4px;">' + mus + '</div>' +
+            '<div style="font-size:0.92em;font-weight:800;color:#f1f5f9;">' + esc(label) +
+              (e.faite ? ' <span style="color:' + c.base + ';font-size:0.8em;">✓</span>' : '') + '</div>' +
+            (sous ? '<div style="font-size:0.72em;color:#94a3b8;margin-top:1px;">' + esc(sous) + '</div>' : '') +
           '</div>' +
+          (e.heure ? '<span style="flex-shrink:0;font-family:var(--font-display);font-size:0.86em;font-weight:800;color:' + c.base + ';">' +
+              esc(fmtTime(e.heure)) + '</span>' : '') +
         '</div>';
     }).join('');
 
-    // Ligne compacte pour ceux qui se reposent
     if (repos.length) {
-      rows += '<div style="padding:9px 0 2px;border-top:1px solid rgba(255,255,255,0.05);' +
-          'font-size:0.74em;color:#64748b;font-weight:600;">🛌 Repos : ' +
-          repos.map(function (p) { return esc(p.name || 'Membre'); }).join(', ') +
+      rows += '<div style="margin-top:' + (entries.length ? '10px' : '6px') + ';font-size:' + (entries.length ? '0.74em' : '0.9em') +
+          ';color:#64748b;font-weight:600;">Repos' +
+          (multi || entries.length ? ' : ' + repos.map(function (p) { return esc(p.name || 'Membre'); }).join(', ') : '') +
         '</div>';
     }
-
     if (!rows) {
-      rows = '<div style="padding:14px 0 4px;text-align:center;color:#64748b;font-size:0.82em;">Aucun membre sélectionné.</div>';
+      rows = '<div style="margin-top:6px;color:#64748b;font-size:0.82em;">Aucun membre sélectionné.</div>';
     }
 
-    // ⚠️ Alerte : deux membres à moins d'une heure d'écart
     var conflits = overlaps(entries);
     var alerte = '';
     if (conflits.length) {
@@ -466,30 +413,21 @@
         return esc(pair[0].profil.name || 'Membre') + ' (' + esc(fmtTime(pair[0].heure)) + ') et ' +
                esc(pair[1].profil.name || 'Membre') + ' (' + esc(fmtTime(pair[1].heure)) + ')';
       }).join(' · ');
-      alerte = '<div style="margin-top:11px;background:rgba(251,191,36,0.10);border:1px solid rgba(251,191,36,0.35);' +
-          'border-radius:10px;padding:9px 11px;display:flex;gap:8px;align-items:flex-start;">' +
-          '<span style="flex-shrink:0;font-size:0.95em;">⚠️</span>' +
-          '<div style="min-width:0;">' +
-            '<div style="font-size:0.72em;color:#fbbf24;font-weight:900;letter-spacing:0.5px;margin-bottom:2px;">HORAIRES RAPPROCHÉS</div>' +
-            '<div style="font-size:0.75em;color:#cbd5e1;line-height:1.4;">' + txt + '</div>' +
-          '</div>' +
-        '</div>';
+      alerte = '<div style="margin-top:10px;font-size:0.72em;color:#fbbf24;line-height:1.4;">' +
+          'Horaires rapprochés : <span style="color:#cbd5e1;">' + txt + '</span></div>';
     }
 
     return '' +
-      '<div class="card" style="position:relative;overflow:hidden;padding:15px 17px;' +
-        'background:linear-gradient(135deg,#0a1628 0%,#0d1f18 100%);border:1.5px solid rgba(34,211,238,0.3);">' +
-        '<div style="position:absolute;top:-30px;left:-25px;width:120px;height:120px;' +
-          'background:radial-gradient(circle,rgba(34,211,238,0.14) 0%,transparent 70%);pointer-events:none;"></div>' +
-        '<div style="position:relative;z-index:1;">' +
-          '<div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:2px;">' +
-            '<span style="font-size:0.56em;letter-spacing:2px;color:#22d3ee;font-weight:900;">◈ AUJOURD\'HUI</span>' +
-            '<span style="font-size:0.7em;color:#94a3b8;font-weight:700;">' + esc(dateLbl) + '</span>' +
+      '<div class="card" style="padding:14px 16px!important;">' +
+        '<div style="display:flex;align-items:center;gap:12px;">' +
+          '<div style="flex:1;min-width:0;">' +
+            '<div style="font-size:0.7em;color:#94a3b8;font-weight:600;">Aujourd\'hui · ' + esc(dateLbl) + '</div>' +
           '</div>' +
-          rows +
-          prochaineHTML(entries) +
-          alerte +
+          anneauxSemaine(selList, colorById, plans, dones) +
         '</div>' +
+        rows +
+        prochaineHTML(entries) +
+        alerte +
       '</div>';
   }
 
@@ -519,52 +457,41 @@
       '</svg>';
   }
 
-  function resumeHTML(list, colorById, plans, dones) {
-    var today = new Date();
-    var debut = lundiDe(today);
-    var selList = list.filter(function (p) { return cal.selected.has(p.id); });
-    if (!selList.length) return '';
-
-    var cartes = selList.map(function (p) {
-      var c = colorById[p.id];
-      var prevues = 0, faites = 0;
-      for (var i = 0; i < 7; i++) {
-        var d = new Date(debut.getFullYear(), debut.getMonth(), debut.getDate() + i);
-        var dayKey = JOURS[wIdx(d)];
-        var ymd = d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate();
-        var sc = (plans[p.id] || {})[dayKey];
-        if (sc && sc.muscles && sc.muscles.length) {
-          prevues++;
-          if (dones[p.id] && dones[p.id][ymd]) faites++;
-        }
+  // Progression de la semaine : un petit anneau par membre, intégré à la
+  // carte « Aujourd'hui » (la carte « Ta semaine » séparée a été retirée).
+  function statsSemaine(p, plans, dones) {
+    var debut = lundiDe(new Date());
+    var prevues = 0, faites = 0;
+    for (var i = 0; i < 7; i++) {
+      var d = new Date(debut.getFullYear(), debut.getMonth(), debut.getDate() + i);
+      var ymd = d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate();
+      var sc = (plans[p.id] || {})[JOURS[wIdx(d)]];
+      if (sc && sc.muscles && sc.muscles.length) {
+        prevues++;
+        if (dones[p.id] && dones[p.id][ymd]) faites++;
       }
-      var pct = prevues ? faites / prevues : 0;
-      var complet = prevues > 0 && faites >= prevues;
-
-      return '<div style="flex:1;min-width:104px;display:flex;align-items:center;gap:10px;' +
-          'background:' + (complet ? c.soft : 'rgba(255,255,255,0.025)') + ';' +
-          'border:1px solid ' + (complet ? c.line : 'rgba(255,255,255,0.06)') + ';' +
-          'border-radius:13px;padding:10px 12px;">' +
-          '<div style="position:relative;flex-shrink:0;">' +
-            anneau(pct, c.base, 44) +
-            '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;' +
-              'font-size:0.62em;font-weight:900;color:' + c.base + ';font-family:var(--font-display);">' +
-              (complet ? '✓' : faites + '/' + prevues) + '</div>' +
-          '</div>' +
-          '<div style="min-width:0;flex:1;">' +
-            '<div style="font-size:0.76em;font-weight:800;color:#e8f0f8;overflow:hidden;' +
-              'text-overflow:ellipsis;white-space:nowrap;">' + esc(p.name || 'Membre') + '</div>' +
-            '<div style="font-size:0.64em;color:' + (complet ? c.base : '#64748b') + ';font-weight:700;margin-top:2px;">' +
-              (prevues === 0 ? 'aucune prévue' : complet ? 'semaine complète !' : faites + ' sur ' + prevues + ' faites') + '</div>' +
-          '</div>' +
+    }
+    return { prevues: prevues, faites: faites };
+  }
+  function anneauxSemaine(selList, colorById, plans, dones) {
+    if (!selList.length) return '';
+    var html = selList.slice(0, 4).map(function (p) {
+      var st = statsSemaine(p, plans, dones);
+      if (!st.prevues) return '';
+      var c = colorById[p.id];
+      return '<div title="' + esc(p.name || 'Membre') + ' : ' + st.faites + ' sur ' + st.prevues + ' cette semaine" ' +
+          'style="position:relative;flex-shrink:0;">' +
+          anneau(st.faites / st.prevues, c.base, 34) +
+          '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;' +
+            'font-size:0.56em;font-weight:800;color:#cbd5e1;font-family:var(--font-display);">' +
+            st.faites + '/' + st.prevues + '</div>' +
         '</div>';
     }).join('');
-
-    return '<div class="card" style="padding:13px 14px;">' +
-        '<div style="font-size:0.56em;letter-spacing:2px;color:#64748b;font-weight:900;margin-bottom:10px;">◈ TA SEMAINE</div>' +
-        '<div style="display:flex;flex-wrap:wrap;gap:8px;">' + cartes + '</div>' +
-      '</div>';
+    if (!html) return '';
+    return '<div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">' +
+        '<span style="font-size:0.62em;color:#64748b;font-weight:600;">Semaine</span>' + html + '</div>';
   }
+  function resumeHTML() { return ''; }
 
   // ⏳ Temps restant avant la prochaine séance du jour (profil actif inclus).
   function prochaineHTML(entries) {
@@ -581,55 +508,60 @@
     var txt = delta < 5 ? "c'est maintenant"
             : delta < 60 ? 'dans ' + delta + ' min'
             : 'dans ' + Math.floor(delta / 60) + ' h' + (delta % 60 ? String(delta % 60).padStart(2, '0') : '');
-    return '<div style="margin-top:10px;display:flex;align-items:center;gap:8px;' +
-        'background:rgba(34,211,238,0.10);border:1px solid rgba(34,211,238,0.3);' +
-        'border-radius:10px;padding:8px 11px;">' +
+    return '<div style="margin-top:10px;display:flex;align-items:center;gap:7px;">' +
         '<span style="flex-shrink:0;display:inline-flex;">' + (window.AwakIcon ? window.AwakIcon.get('chrono', 15, '#67e8f9') : '⏳') + '</span>' +
         '<span style="font-size:0.76em;color:#e8f0f8;font-weight:700;min-width:0;">' +
           esc(suivante.seance.label || 'Séance') + ' · <span style="color:#67e8f9;font-weight:900;">' + txt + '</span></span>' +
       '</div>';
   }
 
-  // ── Bascule Semaine / Mois ──
+  // ── Bascule Semaine / Mois (discrète) ──
   function toggleHTML() {
     function b(v, txt) {
       var on = (cal.vue === v);
-      return '<button onclick="awakCalVue(\'' + v + '\')" style="flex:1;padding:9px 8px;border:none;cursor:pointer;' +
-        'font-family:inherit;font-size:0.76em;font-weight:900;letter-spacing:0.5px;' +
-        'background:' + (on ? 'rgba(34,211,238,0.18)' : 'transparent') + ';' +
-        'color:' + (on ? '#67e8f9' : '#64748b') + ';">' + txt + '</button>';
+      return '<button onclick="awakCalVue(\'' + v + '\')" style="padding:5px 12px;border:none;cursor:pointer;border-radius:99px;' +
+        'font-family:inherit;font-size:0.72em;font-weight:700;' +
+        'background:' + (on ? 'rgba(255,255,255,0.09)' : 'transparent') + ';' +
+        'color:' + (on ? '#e8f0f8' : '#64748b') + ';">' + txt + '</button>';
     }
-    return '<div style="display:flex;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);' +
-      'border-radius:11px;overflow:hidden;margin-bottom:12px;">' + b('semaine', 'SEMAINE') + b('mois', 'MOIS') + '</div>';
+    return '<div style="display:inline-flex;gap:2px;padding:2px;border-radius:99px;background:rgba(255,255,255,0.03);">' +
+      b('semaine', 'Semaine') + b('mois', 'Mois') + '</div>';
   }
 
-  // ── Vue SEMAINE : tout est lisible sans toucher à rien ──
-  // Pensée pour une tablette posée dans la salle : nom de séance, heure,
-  // muscles et membre visibles directement, sans ouvrir de fenêtre.
+  // Barre de navigation commune : bascule à gauche, période au centre-droit.
+  function navBarHTML(titre, sousTitre, prevLbl, nextLbl) {
+    var fl = 'flex-shrink:0;width:32px;height:32px;border-radius:50%;cursor:pointer;font-family:inherit;' +
+      'background:none;border:none;color:#94a3b8;font-size:1.25em;font-weight:700;line-height:1;';
+    return '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;">' +
+        toggleHTML() +
+        '<div style="display:flex;align-items:center;gap:2px;min-width:0;">' +
+          '<button onclick="awakCalPrevMonth()" aria-label="' + prevLbl + '" style="' + fl + '">‹</button>' +
+          '<div style="min-width:0;text-align:center;">' +
+            '<div style="font-size:0.8em;font-weight:800;color:#e2e8f0;white-space:nowrap;">' + esc(titre) + '</div>' +
+            (sousTitre || '') +
+          '</div>' +
+          '<button onclick="awakCalNextMonth()" aria-label="' + nextLbl + '" style="' + fl + '">›</button>' +
+        '</div>' +
+      '</div>';
+  }
+
+  // ── Vue SEMAINE (allégée) ──
+  // Une liste simple séparée par de fins traits : plus de cadre par jour,
+  // de pastilles de muscles ni de pointillés. Les jours de repos tiennent
+  // sur une ligne ; seuls les jours d'entraînement portent une couleur.
   function weekHTML(list, colorById, plans, dones) {
     var today = new Date();
     var debut = new Date(cal.lundi.getFullYear(), cal.lundi.getMonth(), cal.lundi.getDate());
     var fin = new Date(debut); fin.setDate(fin.getDate() + 6);
 
     var titre = (debut.getMonth() === fin.getMonth())
-      ? debut.getDate() + ' – ' + fin.getDate() + ' ' + MOIS[fin.getMonth()].toLowerCase() + ' ' + fin.getFullYear()
-      : debut.getDate() + ' ' + MOIS[debut.getMonth()].toLowerCase() + ' – ' + fin.getDate() + ' ' + MOIS[fin.getMonth()].toLowerCase();
-
-    var navBtn = 'flex-shrink:0;width:40px;height:40px;border-radius:10px;cursor:pointer;font-family:inherit;' +
-      'background:rgba(96,168,240,0.08);border:1px solid rgba(96,168,240,0.28);color:#93c5fd;font-size:0.95em;font-weight:900;';
+      ? debut.getDate() + '–' + fin.getDate() + ' ' + MOIS[fin.getMonth()].toLowerCase()
+      : debut.getDate() + ' ' + MOIS_COURT[debut.getMonth()] + ' – ' + fin.getDate() + ' ' + MOIS_COURT[fin.getMonth()];
     var estSemaineCourante = memeJour(debut, lundiDe(today));
-    var nav = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:13px;">' +
-        '<button onclick="awakCalPrevMonth()" aria-label="Semaine précédente" style="' + navBtn + '">◀</button>' +
-        '<div style="flex:1;min-width:0;text-align:center;">' +
-          '<div style="font-family:var(--font-display);font-size:0.98em;font-weight:800;color:#e8f0f8;' +
-            'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(titre) + '</div>' +
-          (estSemaineCourante
-            ? '<div style="font-size:0.62em;color:#22d3ee;font-weight:800;margin-top:2px;">CETTE SEMAINE</div>'
-            : '<button onclick="awakCalToday()" style="margin-top:2px;background:none;border:none;color:#22d3ee;' +
-                'font-size:0.66em;font-weight:800;cursor:pointer;font-family:inherit;">↺ Revenir à cette semaine</button>') +
-        '</div>' +
-        '<button onclick="awakCalNextMonth()" aria-label="Semaine suivante" style="' + navBtn + '">▶</button>' +
-      '</div>';
+    var sous = estSemaineCourante ? '' :
+      '<button onclick="awakCalToday()" style="background:none;border:none;color:#22d3ee;padding:0;' +
+        'font-size:0.64em;font-weight:700;cursor:pointer;font-family:inherit;">Cette semaine</button>';
+    var nav = navBarHTML(titre, sous, 'Semaine précédente', 'Semaine suivante');
 
     var lignes = '';
     for (var i = 0; i < 7; i++) {
@@ -638,81 +570,42 @@
       var estPasse = d < new Date(today.getFullYear(), today.getMonth(), today.getDate());
       var entries = entriesFor(list, plans, dones, d.getFullYear(), d.getMonth(), d.getDate());
 
-      // Contenu du jour
       var corps;
       if (entries.length) {
         corps = entries.map(function (e) {
           var c = colorById[e.profil.id];
           var lbl = e.seance.label || e.seance.muscles.slice(0, 3).join(' · ');
-          var mus = e.seance.muscles.slice(0, 4).map(function (m) {
-            return '<span style="background:' + c.soft + ';color:' + c.base + ';border:1px solid ' + c.line +
-              ';padding:1px 6px;border-radius:99px;font-size:0.6em;font-weight:700;white-space:nowrap;">' + esc(m) + '</span>';
-          }).join('');
-          return '<div style="display:flex;align-items:flex-start;gap:8px;margin-top:7px;">' +
-              '<span style="flex-shrink:0;width:3px;align-self:stretch;border-radius:99px;background:' + c.base + ';min-height:30px;"></span>' +
+          var mus = e.seance.label ? e.seance.muscles.slice(0, 4).join(' · ') : '';
+          return '<div style="display:flex;align-items:center;gap:9px;padding:2px 0;">' +
+              '<span style="flex-shrink:0;width:3px;align-self:stretch;min-height:' + (mus ? '30' : '18') + 'px;border-radius:99px;background:' + c.base + ';"></span>' +
               '<div style="min-width:0;flex:1;">' +
-                '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">' +
-                  (e.heure ? '<span style="background:' + c.base + ';color:#04121f;padding:1px 7px;border-radius:6px;' +
-                      'font-size:0.64em;font-weight:900;font-family:var(--font-display);">' + esc(fmtTime(e.heure)) + '</span>' : '') +
-                  '<span style="font-size:0.82em;font-weight:800;color:#e8f0f8;">' + esc(lbl) + '</span>' +
-                  (e.faite ? '<span style="color:' + c.base + ';font-size:0.7em;font-weight:900;">✓</span>' : '') +
-                '</div>' +
-                '<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:4px;">' + mus + '</div>' +
+                '<div style="font-size:0.86em;font-weight:700;color:#f1f5f9;">' + esc(lbl) +
+                  (e.faite ? ' <span style="color:' + c.base + ';font-size:0.8em;">✓</span>' : '') + '</div>' +
+                (mus ? '<div style="font-size:0.7em;color:#64748b;margin-top:1px;">' + esc(mus) + '</div>' : '') +
               '</div>' +
+              (e.heure ? '<span style="flex-shrink:0;font-size:0.76em;font-weight:700;color:#94a3b8;">' + esc(fmtTime(e.heure)) + '</span>' : '') +
             '</div>';
         }).join('');
       } else {
-        corps = '<div style="font-size:0.74em;color:#475569;font-weight:600;margin-top:5px;">🛌 Repos</div>';
+        corps = '<div style="font-size:0.78em;color:#475569;">Repos</div>';
       }
 
-      // 🎨 RELIEF : un jour avec séance prend la couleur du membre (barre
-      // latérale + fond teinté) ; un jour de repos reste discret et en
-      // pointillés. Avant, tous les jours avaient la même apparence et la
-      // liste paraissait uniforme et vide.
-      var cPrem = entries.length ? colorById[entries[0].profil.id] : null;
-      var toutFait = entries.length && entries.every(function (e) { return e.faite; });
-
-      var bord, fond, barre = '';
-      if (estAujourdhui) {
-        bord = 'rgba(34,211,238,0.55)';
-        fond = 'linear-gradient(100deg,rgba(34,211,238,0.10),rgba(168,85,247,0.05))';
-      } else if (entries.length) {
-        bord = cPrem.line;
-        fond = 'linear-gradient(100deg,' + cPrem.soft + ',rgba(255,255,255,0.015))';
-      } else {
-        bord = 'rgba(255,255,255,0.05)';
-        fond = 'rgba(255,255,255,0.012)';
-      }
-      if (entries.length) {
-        barre = '<span style="position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:99px;' +
-          'background:' + (estAujourdhui ? '#22d3ee' : cPrem.base) + ';"></span>';
-      }
-
+      var jourCol = estAujourdhui ? '#22d3ee' : '#94a3b8';
       lignes += '<div onclick="awakCalOpenDay(' + d.getFullYear() + ',' + d.getMonth() + ',' + d.getDate() + ')" ' +
-          'style="position:relative;overflow:hidden;border:1px ' + (entries.length ? 'solid' : 'dashed') + ' ' + bord + ';' +
-          'background:' + fond + ';border-radius:12px;padding:10px 12px 10px 15px;' +
-          'margin-bottom:7px;cursor:pointer;' + (estPasse && !estAujourdhui ? 'opacity:0.5;' : '') + '">' +
-          barre +
-          '<div style="display:flex;align-items:center;gap:8px;">' +
-            '<span style="font-size:0.66em;font-weight:900;letter-spacing:1px;' +
-              'color:' + (estAujourdhui ? '#22d3ee' : '#94a3b8') + ';">' + JOURS_ENT[i].toUpperCase() + '</span>' +
-            '<span style="font-family:var(--font-display);font-size:0.88em;font-weight:800;' +
-              'color:' + (estAujourdhui ? '#22d3ee' : '#cbd5e1') + ';">' + d.getDate() + '</span>' +
-            (estAujourdhui ? '<span style="background:#22d3ee;color:#04121f;padding:1px 7px;border-radius:99px;' +
-              'font-size:0.56em;font-weight:900;">AUJOURD\'HUI</span>' : '') +
-            '<span style="flex:1;"></span>' +
-            (toutFait
-              ? '<span style="background:' + cPrem.base + ';color:#04121f;padding:1px 8px;border-radius:99px;' +
-                  'font-size:0.56em;font-weight:900;">✓ FAIT</span>'
-              : entries.length > 1
-                ? '<span style="font-size:0.62em;color:#64748b;font-weight:700;">' + entries.length + ' séances</span>'
-                : '') +
+          'style="display:flex;align-items:' + (entries.length ? 'flex-start' : 'center') + ';gap:12px;cursor:pointer;' +
+          'padding:' + (entries.length ? '11px' : '8px') + ' 8px;margin:0 -8px;border-radius:10px;' +
+          (i ? 'border-top:1px solid rgba(255,255,255,0.045);' : '') +
+          (estAujourdhui ? 'background:rgba(34,211,238,0.06);border-top-color:transparent;' : '') +
+          (estPasse && !estAujourdhui ? 'opacity:0.5;' : '') + '">' +
+          '<div style="flex-shrink:0;width:34px;text-align:center;line-height:1.1;">' +
+            '<div style="font-size:0.6em;font-weight:700;color:' + jourCol + ';">' + JOURS_ENT[i] + '</div>' +
+            '<div style="font-family:var(--font-display);font-size:1.02em;font-weight:800;color:' + (estAujourdhui ? '#22d3ee' : '#e2e8f0') + ';">' + d.getDate() + '</div>' +
           '</div>' +
-          corps +
+          '<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;">' + corps + '</div>' +
         '</div>';
     }
 
-    return '<div class="card" style="padding:15px 14px 16px;">' + toggleHTML() + nav + lignes + '</div>';
+    return '<div class="card" style="padding:12px 16px 10px!important;">' + nav + lignes + '</div>';
   }
 
   // ── Grille mensuelle ──
@@ -735,7 +628,7 @@
     var cells = '';
     // Cases vides du début
     for (var b = 0; b < firstDow; b++) {
-      cells += '<div style="border-radius:9px;background:rgba(255,255,255,0.012);border:1px solid rgba(255,255,255,0.03);min-height:52px;min-width:0;"></div>';
+      cells += '<div style="min-height:46px;min-width:0;"></div>';
     }
     // Jours du mois
     for (var day = 1; day <= daysInMonth; day++) {
@@ -762,9 +655,9 @@
         : '';
 
       var numStyle = isToday
-        ? 'display:inline-flex;align-items:center;justify-content:center;min-width:21px;height:21px;padding:0 4px;' +
-          'border-radius:6px;background:#22d3ee;color:#04121f;font-weight:900;font-size:0.8em;' +
-          'font-family:var(--font-display);box-shadow:0 0 10px rgba(34,211,238,0.5);'
+        ? 'display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;' +
+          'border-radius:50%;background:#22d3ee;color:#04121f;font-weight:900;font-size:0.8em;' +
+          'font-family:var(--font-display);'
         : 'color:#cbd5e1;font-weight:800;font-size:0.8em;font-family:var(--font-display);padding-left:1px;';
 
       // Jours passés atténués : l'œil va d'abord à aujourd'hui et à la suite.
@@ -772,11 +665,9 @@
       var _passe = new Date(cal.year, cal.month, day) < new Date(_auj.getFullYear(), _auj.getMonth(), _auj.getDate());
       cells += '<div onclick="awakCalOpenDay(' + cal.year + ',' + cal.month + ',' + day + ')" ' +
           'role="button" tabindex="0" aria-label="' + day + ' ' + esc(MOIS[cal.month]) + (nb ? ', ' + nb + ' séance(s)' : '') + '" ' +
-          'style="border-radius:9px;padding:5px 3px 4px;min-height:52px;min-width:0;overflow:hidden;cursor:pointer;' +
-          ((_passe && !isToday) ? 'opacity:0.45;' : '') +
-          'display:flex;flex-direction:column;align-items:center;gap:4px;' +
-          'background:' + (isToday ? 'rgba(34,211,238,0.07)' : 'rgba(255,255,255,0.022)') + ';' +
-          'border:1px solid ' + (isToday ? 'rgba(34,211,238,0.5)' : 'rgba(255,255,255,0.055)') + ';">' +
+          'style="border-radius:9px;padding:4px 2px 3px;min-height:46px;min-width:0;overflow:hidden;cursor:pointer;' +
+          ((_passe && !isToday) ? 'opacity:0.4;' : '') +
+          'display:flex;flex-direction:column;align-items:center;gap:3px;">' +
           '<div style="' + numStyle + '">' + day + '</div>' +
           (dots ? '<div style="display:flex;flex-wrap:wrap;gap:3px;justify-content:center;align-items:center;">' + dots + '</div>' : '') +
           heureTxt +
@@ -784,20 +675,10 @@
     }
 
     // Navigation du mois
-    var navBtn = 'flex-shrink:0;width:40px;height:40px;border-radius:10px;cursor:pointer;' +
-      'background:rgba(96,168,240,0.08);border:1px solid rgba(96,168,240,0.28);color:#93c5fd;font-size:0.95em;font-weight:900;';
-    var nav = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">' +
-        '<button onclick="awakCalPrevMonth()" aria-label="Mois précédent" style="' + navBtn + '">◀</button>' +
-        '<div style="flex:1;min-width:0;text-align:center;">' +
-          '<div style="font-family:var(--font-display);font-size:1.05em;font-weight:800;letter-spacing:0.04em;' +
-            'color:#e8f0f8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' +
-            esc(MOIS[cal.month]) + ' ' + cal.year + '</div>' +
-          (isCurMonth ? '' :
-            '<button onclick="awakCalToday()" style="margin-top:3px;background:none;border:none;color:#22d3ee;' +
-              'font-size:0.66em;font-weight:800;cursor:pointer;letter-spacing:0.5px;">↺ Revenir à aujourd\'hui</button>') +
-        '</div>' +
-        '<button onclick="awakCalNextMonth()" aria-label="Mois suivant" style="' + navBtn + '">▶</button>' +
-      '</div>';
+    var nav = navBarHTML(MOIS[cal.month] + ' ' + cal.year,
+      isCurMonth ? '' : '<button onclick="awakCalToday()" style="background:none;border:none;color:#22d3ee;padding:0;' +
+        'font-size:0.64em;font-weight:700;cursor:pointer;font-family:inherit;">Aujourd\'hui</button>',
+      'Mois précédent', 'Mois suivant');
 
     // Légende (mapping couleur ↔ membre) + signification des points
     var legend = '';
@@ -810,20 +691,19 @@
         '</div>';
       }).join('') : '';
 
-      legend = '<div style="margin-top:13px;padding-top:11px;border-top:1px solid rgba(255,255,255,0.06);">' +
+      legend = '<div style="margin-top:10px;">' +
           (membres ? '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:9px;">' + membres + '</div>' : '') +
           '<div style="display:flex;flex-wrap:wrap;gap:13px;align-items:center;">' +
             '<span style="display:inline-flex;align-items:center;gap:5px;font-size:0.68em;color:#64748b;font-weight:700;">' +
               '<span style="width:9px;height:9px;border-radius:50%;border:2px solid #94a3b8;flex-shrink:0;"></span>prévue</span>' +
             '<span style="display:inline-flex;align-items:center;gap:5px;font-size:0.68em;color:#64748b;font-weight:700;">' +
               '<span style="width:9px;height:9px;border-radius:50%;background:#94a3b8;flex-shrink:0;"></span>faite</span>' +
-            '<span style="font-size:0.68em;color:#475569;font-weight:600;">· touche un jour pour le détail</span>' +
           '</div>' +
         '</div>';
     }
 
-    return '<div class="card" style="padding:15px 8px 16px!important;overflow:hidden;">' +
-        '<div style="padding:0 5px;">' + toggleHTML() + nav + '</div>' +
+    return '<div class="card" style="padding:12px 10px 12px!important;overflow:hidden;">' +
+        '<div style="padding:0 6px 6px;">' + nav + '</div>' +
         '<div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;margin-bottom:4px;">' + head + '</div>' +
         '<div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;">' + cells + '</div>' +
         '<div style="padding:0 5px;">' + legend + '</div>' +
@@ -1373,6 +1253,13 @@
     cal.month = d.getMonth(); cal.year = d.getFullYear(); cal.lundi = lundiDe(d);
     render();
   };
+  // Accès en lecture pour l'accueil : même résolution du planning que
+  // l'agenda, pour que les deux écrans affichent les mêmes chiffres.
+  window.AwakCalPlan = {
+    planFor: planFor, doneDates: doneDates, timeFor: timeFor, fmtTime: fmtTime,
+    lundiDe: lundiDe, JOURS: JOURS, wIdx: wIdx
+  };
+
   window.awakCalVue = function (v) {
     cal.vue = (v === 'mois') ? 'mois' : 'semaine';
     render();

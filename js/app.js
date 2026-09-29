@@ -3580,7 +3580,7 @@
 
             const filteredDB = exerciseDatabase.filter(ex => {
                 if (ex.type !== 'exercise') return false;
-                if (searchVal && !ex.name.toLowerCase().includes(searchVal) && !(ex.muscle||'').toLowerCase().includes(searchVal)) return false;
+                if (searchVal && !(window.awakExCherche ? window.awakExCherche(ex.name) : ex.name.toLowerCase()).includes(searchVal) && !(ex.muscle||'').toLowerCase().includes(searchVal)) return false;
                 if (muscleVal && ex.muscle !== muscleVal) return false;
                 if (equipVal  && !(ex.equipment || ['Poids du corps']).some(e => e === equipVal)) return false;
                 if (diffVal   && ex.difficulty !== diffVal) return false;
@@ -3819,7 +3819,7 @@
 
             const filteredDB = exerciseDatabase.filter(ex => {
                 if (ex.type !== 'exercise') return false;
-                if (searchVal && !ex.name.toLowerCase().includes(searchVal) && !(ex.muscle||'').toLowerCase().includes(searchVal)) return false;
+                if (searchVal && !(window.awakExCherche ? window.awakExCherche(ex.name) : ex.name.toLowerCase()).includes(searchVal) && !(ex.muscle||'').toLowerCase().includes(searchVal)) return false;
                 if (muscleVal && ex.muscle !== muscleVal) return false;
                 if (equipVal  && !(ex.equipment || ['Poids du corps']).some(e => e === equipVal)) return false;
                 if (diffVal   && ex.difficulty !== diffVal) return false;
@@ -4045,7 +4045,7 @@
 
             const filteredDB = exerciseDatabase.filter(ex => {
                 if (ex.type !== 'exercise') return false;
-                if (searchVal && !ex.name.toLowerCase().includes(searchVal) && !(ex.muscle||'').toLowerCase().includes(searchVal)) return false;
+                if (searchVal && !(window.awakExCherche ? window.awakExCherche(ex.name) : ex.name.toLowerCase()).includes(searchVal) && !(ex.muscle||'').toLowerCase().includes(searchVal)) return false;
                 if (muscleVal && ex.muscle !== muscleVal) return false;
                 if (equipVal  && !(ex.equipment || ['Poids du corps']).some(e => e === equipVal)) return false;
                 if (diffVal   && ex.difficulty !== diffVal) return false;
@@ -6621,6 +6621,9 @@
                 const p = awakPrescribe(goal, level, ex.structureType, exType);
                 const lastPerf = (typeof getLastPerformance === 'function') ? getLastPerformance(ex.name) : null;
                 ex.recoSets = p.sets;
+                // Le compteur de séries utilisait 3 par défaut alors que la
+                // pastille annonçait p.sets (souvent 4) : on aligne.
+                if (!ex.sets) ex.sets = p.sets;
                 ex.recoReps = p.reps;
                 ex.recoRest = p.rest;
                 ex.coachNote = (typeof awakDeloadActive === 'function' && awakDeloadActive())
@@ -7956,6 +7959,69 @@
             if (w) { w._forceNew = true; showWorkoutPreparation(w); }
         };
 
+        // ⏱️ DURÉE ESTIMÉE D'UNE SÉANCE (secondes) — SOURCE UNIQUE.
+        // Utilisée par l'écran « Préparez-vous » ET par la liste / l'éditeur de
+        // routines (avant : deux calculs différents, donc deux durées différentes
+        // pour la même routine). Suit les règles du lecteur de séance :
+        //  • blocs « Repos » comptés ;
+        //  • reps : séries (3 par défaut) × ~4 s/rép + repos entre séries ;
+        //  • minuteur : 1 passage, ou N séries (routine / séance générée) ;
+        //  • superset : un TOUR = tous les membres sans repos, repos entre tours ;
+        //  • ~10 s de mise en place par exercice.
+        function awakEstimerSeance(workout) {
+            if (!workout || !Array.isArray(workout.exercises)) return 0;
+            let reposDefaut = 60;
+            try { if (typeof globalRestSeconds === 'number' && globalRestSeconds > 0) reposDefaut = globalRestSeconds; } catch (e) {}
+            const exs = workout.exercises;
+            function modeDe(ex) {
+                const db = (typeof exerciseDatabase !== 'undefined') ? exerciseDatabase.find(e => e.name === ex.name) : null;
+                const tp = ex.isWarmup ? 'warmup' : (ex.isStretch ? 'stretch' : (ex.type || (db ? db.type : '')));
+                let m = ex.mode;
+                if (m === 'duration') m = 'timer';
+                if (!m) m = (tp === 'warmup' || tp === 'stretch') ? 'timer' : ((workout.mode === 'reps') ? 'reps' : 'timer');
+                return m;
+            }
+            function travail(ex) {
+                if (modeDe(ex) === 'reps') {
+                    const reps = parseInt(ex.reps, 10) || parseInt(ex.recoReps, 10) || 10;
+                    return Math.max(20, reps * 4);
+                }
+                return parseInt(ex.duration, 10) || 45;
+            }
+            function repos(ex) {
+                return parseInt(ex.repos, 10) || parseInt(ex.recoRest, 10)
+                    || parseInt(workout.restBetweenSets, 10) || reposDefaut;
+            }
+            function series(ex) {
+                if (modeDe(ex) === 'reps') return Math.max(1, parseInt(ex.sets, 10) || parseInt(ex.plannedSets, 10) || 3);
+                return (workout.fromRoutine || ex._seriesMinutees) ? Math.max(1, parseInt(ex.sets, 10) || 1) : 1;
+            }
+            let sec = 0, i = 0;
+            while (i < exs.length) {
+                const ex = exs[i];
+                if (!ex || ex.isInfo) { i++; continue; }
+                if (ex.isRest) { sec += parseInt(ex.duration, 10) || 0; i++; continue; }
+                // Superset : membres adjacents portant le même marqueur
+                if (ex.ss) {
+                    let fin = i;
+                    while (fin + 1 < exs.length && exs[fin + 1] && exs[fin + 1].ss === ex.ss) fin++;
+                    if (fin > i) {
+                        const tours = Math.max(1, parseInt(ex.sets, 10) || 3);
+                        let tour = 0;
+                        for (let k = i; k <= fin; k++) tour += travail(exs[k]) + 10;
+                        sec += tours * tour + (tours - 1) * repos(ex);
+                        i = fin + 1;
+                        continue;
+                    }
+                }
+                const n = series(ex);
+                sec += n * travail(ex) + (n - 1) * repos(ex) + 10;
+                i++;
+            }
+            return sec;
+        }
+        window.awakEstimerSeance = awakEstimerSeance;
+
         function showWorkoutPreparation(workout) {
             // 🚧 GARDE-FOU : une séance est-elle déjà en cours ? Point de passage
             // commun aux 13 façons de lancer une séance, donc un seul endroit à
@@ -8212,22 +8278,7 @@
             //    durée d'UNE exécution. Il ignorait les séries, les répétitions
             //    et les temps de repos : une séance demandée à 60 min s'affichait
             //    à 23 min. On estime désormais le déroulé réel.
-            const _reposDefaut = (function () {
-                try { if (typeof globalRestSeconds === 'number' && globalRestSeconds > 0) return globalRestSeconds; } catch (e) {}
-                return 60;
-            })();
-            const totalSeconds = workout.exercises.reduce(function (sum, ex) {
-                if (!ex || ex.isRest || ex.isInfo) return sum;
-                const series = Math.max(1, parseInt(ex.sets, 10) || 1);
-                const minute = (ex.mode === 'timer' || ex.mode === 'duration');
-                // Travail : durée chronométrée, ou ~3 s par répétition
-                const travail = minute
-                    ? (parseInt(ex.duration, 10) || 45)
-                    : Math.max(15, (parseInt(ex.reps, 10) || 10) * 3);
-                // Repos entre les séries (pas après la dernière) + transition
-                const repos = (series - 1) * (parseInt(ex.rest, 10) || _reposDefaut);
-                return sum + series * travail + repos + 20;
-            }, 0);
+            const totalSeconds = awakEstimerSeance(workout);
             const minutes = Math.max(1, Math.round(totalSeconds / 60));
             const _dEl = document.getElementById('prepDuration');
             if (_dEl) _dEl.textContent = `${minutes} min`;
@@ -8337,7 +8388,7 @@
             window.showWorkoutPreparation = showWorkoutPreparation; window.startPreparedWorkout = startPreparedWorkout; window.setPendingWorkout = function(w){ pendingWorkout = w; };
 
             // 🏃 Proposer un cardio d'échauffement optionnel (une seule fois par séance)
-            if (!pendingWorkout._cardioAsked && typeof proposeCardioWarmup === 'function') {
+            if (!pendingWorkout._cardioAsked && !pendingWorkout.fromRoutine && typeof proposeCardioWarmup === 'function') {
                 pendingWorkout._cardioAsked = true;
                 proposeCardioWarmup(function(cardioEx) {
                     if (cardioEx) {
@@ -12548,7 +12599,15 @@
                 const _mCount = Math.max(1, Math.min(6, (workingMuscles && workingMuscles.length) || 3));
                 const _stretchSec = includeStretch ? _mCount * 35 : 0;
                 const _reserveSec = _warmupSec + _stretchSec;
-                const _perExWithTransition = _perExerciseSec + 10;
+                // + le bloc « Repos » inséré APRÈS chaque exercice (oublié avant :
+                //   une séance de 30 min en durait ~35).
+                let _reposBloc = 60;
+                try {
+                    const _ld = userLevels[profile.level] || userLevels['intermediate'];
+                    _reposBloc = (_ld && _ld.rest) || 60;
+                    if (intensity >= 1.1) _reposBloc += 30; else if (intensity <= 0.7) _reposBloc += 20;
+                } catch (e) {}
+                const _perExWithTransition = _perExerciseSec + 10 + _reposBloc;
                 const _budgetSec = Math.max(60, selectedDuration * 60 - _reserveSec);
                 targetExerciseCount = Math.floor(_budgetSec / _perExWithTransition);
                 // Garde-fous : au moins 2 exercices (séance cohérente), au plus 12.
@@ -12728,6 +12787,18 @@
                     mode: exerciseMode, // 'timer' or 'reps'
                     exerciseType: getExerciseType(ex.name) // 'force', 'cardio', 'hybrid'
                 };
+                // ⏱ SÉRIES MINUTÉES : le nombre d'exercices a été calculé pour
+                // « séries × (effort + repos) ». En minuteur, chaque exercice ne
+                // faisait qu'UN passage de ~60 s : 30 min demandées → ~10 min réelles.
+                // On lui donne donc le même nombre de séries, avec repos court.
+                if (exerciseMode === 'timer' && !isLongCardio) {
+                    try {
+                        const _pp = awakPrescribe(profile.goal || 'fitness', profile.level || 'intermediate', null, 'force');
+                        exerciseObj.sets = Math.max(2, Math.min(4, _pp.sets || 3));
+                    } catch (e) { exerciseObj.sets = 3; }
+                    exerciseObj._seriesMinutees = true;
+                    exerciseObj.repos = 45;
+                }
                 
                 // Add last performance data if in reps mode
                 if (exerciseMode === 'reps' && lastPerf) {
@@ -14091,6 +14162,9 @@
                     if (reps <= 0) break;                 // lignes non renseignées : on s'arrête là
                     _gridValidateRow(i);
                     validated++;
+                    // ⚡ SUPERSET : une seule série par passage (les autres
+                    // appartiennent aux tours suivants).
+                    if (window.AwakSS && typeof window.AwakSS.inGroup === 'function' && window.AwakSS.inGroup()) break;
                 }
             } catch (e) {}
             window._gridBulk = false;
@@ -14118,7 +14192,7 @@
             const ex = currentWorkout && currentWorkout.exercises ? currentWorkout.exercises[currentExerciseIndex] : null;
             const exName = ex && ex.name;
             const customRest = exName && exerciseRestOverrides[exName];
-            _gridRestRemaining = customRest || (ex && ex.recoRest) || (currentWorkout && currentWorkout.restBetweenSets) || globalRestSeconds || 90;
+            _gridRestRemaining = customRest || (ex && ex.repos) || (ex && ex.recoRest) || (currentWorkout && currentWorkout.restBetweenSets) || globalRestSeconds || 90;
             if (setRestInterval) clearInterval(setRestInterval);
             renderSetsGrid();
             setRestInterval = setInterval(function () {
@@ -14663,7 +14737,7 @@
             if (!window._gridBulk) {
                 const exName = currentEx?.name;
                 const customRest = exName && exerciseRestOverrides[exName];
-                const restSeconds = isWarmup ? 60 : (customRest || currentEx?.recoRest || currentWorkout?.restBetweenSets || globalRestSeconds);
+                const restSeconds = isWarmup ? 60 : (customRest || currentEx?.repos || currentEx?.recoRest || currentWorkout?.restBetweenSets || globalRestSeconds);
                 startSetRest(restSeconds);
                 // 🗣️ Coaching personnage : dernière série à venir, sinon encouragement ponctuel.
                 if (currentSetNumber === totalSets) awakPersonaCoach('lastSet');
@@ -14686,6 +14760,26 @@
             skipExercise:       function ()  { if (typeof skipExercise === 'function') skipExercise(); },
             updateSetIndicator: function ()  { try { updateSetIndicator(); } catch (e) {} },
             startSetRest:       function (s) { try { startSetRest(s); } catch (e) {} },
+            // Repos avant un exercice MINUTÉ : on fige son chrono, on affiche le
+            // bandeau de repos, puis on lance le chrono à la fin (ou sur « Passer »).
+            restBeforeTimer:    function (s) {
+                try {
+                    clearInterval(timerInterval);
+                    const ex = currentWorkout && currentWorkout.exercises[currentExerciseIndex];
+                    let rem = s;
+                    const fini = function () {
+                        if (window._awakSSRestInt) { clearInterval(window._awakSSRestInt); window._awakSSRestInt = null; }
+                        window.finishSetRest = null;
+                        hideGlobalRestBanner();
+                        try { playBeep(); vibrate([100, 50, 200]); } catch (e) {}
+                        startTimer();
+                    };
+                    showGlobalRestBanner(s, ex ? ex.name : null);
+                    window.finishSetRest = fini;
+                    if (window._awakSSRestInt) clearInterval(window._awakSSRestInt);
+                    window._awakSSRestInt = setInterval(function () { rem--; if (rem <= 0) fini(); }, 1000);
+                } catch (e) {}
+            },
             globalRest:         function ()  { try { return globalRestSeconds; } catch (e) { return 60; } },
             vibrate:            function (p) { try { vibrate(p); } catch (e) {} }
         };
@@ -19025,18 +19119,34 @@
             container.style.gap = '10px';
             if (noMsg) noMsg.style.display = 'none';
 
+            const _esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
             container.innerHTML = _trashBanner + routines.map((r, idx) => {
                 const color = r.color || '#22c55e';
                 const exCount = (r.exercises || []).length;
+                const _RE = window.AwakRoutineEditor;
+                // Couleur du texte selon la clarté du fond : le blanc sur
+                // jaune ou cyan (couleurs de routine claires) était illisible.
+                const _txtSur = hex => {
+                    const m = /^#?([0-9a-f]{6})$/i.exec(String(hex || '').trim());
+                    if (!m) return '#ffffff';
+                    const n = parseInt(m[1], 16);
+                    const lin = c => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+                    const L = 0.2126 * lin(n >> 16 & 255) + 0.7152 * lin(n >> 8 & 255) + 0.0722 * lin(n & 255);
+                    return L > 0.3 ? '#0b1220' : '#ffffff';
+                };
+                const _min = (_RE && _RE.estimer && exCount) ? _RE.estimer(r.exercises) : 0;
+                const _nbSS = (_RE && _RE.nbSupersets) ? _RE.nbSupersets(r.exercises) : 0;
                 return `
                 <div style="background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${color}30;border-left:3px solid ${color};border-radius:14px;padding:13px 14px;">
                     <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:9px;">
                         <div style="line-height:1;flex-shrink:0;filter:drop-shadow(0 0 6px ${color}60);">${awakRoutineIcon(r, 26, color)}</div>
                         <div style="flex:1;min-width:0;">
-                            <div style="font-weight:800;color:white;font-size:0.92em;line-height:1.3;">${r.name}</div>
-                            ${r.description ? `<div style="font-size:0.7em;color:#94a3b8;margin-top:2px;">${r.description}</div>` : ''}
+                            <div style="font-weight:800;color:white;font-size:0.92em;line-height:1.3;">${_esc(r.name)}</div>
+                            ${r.description ? `<div style="font-size:0.7em;color:#94a3b8;margin-top:2px;">${_esc(r.description)}</div>` : ''}
                             <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:5px;font-size:0.65em;color:#64748b;font-weight:600;">
                                 <span>${exCount} exo${exCount>1?'s':''}</span>
+                                ${_min ? `<span>· ≈ ${_min} min</span>` : ''}
+                                ${_nbSS ? `<span style="color:#fb923c;">· ${_nbSS} superset${_nbSS>1?'s':''}</span>` : ''}
                                 ${r.level ? `<span>· ${r.level}</span>` : ''}
                                 ${r.muscles && r.muscles.length ? `<span>· ${r.muscles.slice(0,2).join('/')}${r.muscles.length>2?'…':''}</span>` : ''}
                             </div>
@@ -19044,12 +19154,14 @@
                     </div>
                     ${exCount > 0 ? `
                         <div style="background:rgba(0,0,0,0.25);border-radius:6px;padding:7px 9px;font-size:0.7em;color:#94a3b8;line-height:1.5;margin-bottom:9px;">
-                            ${r.exercises.slice(0,3).map(e => `• ${e.name}`).join('<br>')}
+                            ${r.exercises.slice(0,3).map(e => `• ${_esc(e.name)}`).join('<br>')}
                             ${exCount > 3 ? `<br><span style="color:${color}cc;">+ ${exCount - 3} autres</span>` : ''}
                         </div>` : `
                         <div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:6px;padding:8px 10px;font-size:0.7em;color:#fca5a5;text-align:center;margin-bottom:9px;">⚠ Aucun exercice — édite ou supprime</div>`}
                     <div style="display:flex;gap:6px;">
-                        <button onclick="startRoutine(${idx})" ${exCount === 0 ? 'disabled' : ''} style="flex:1;padding:10px;border-radius:10px;background:${exCount > 0 ? `linear-gradient(135deg,${color},${color}cc)` : 'rgba(255,255,255,0.05)'};border:none;color:${exCount > 0 ? 'white' : '#475569'};font-weight:800;font-size:0.82em;cursor:${exCount > 0 ? 'pointer' : 'not-allowed'};letter-spacing:0.5px;${exCount > 0 ? `box-shadow:0 3px 10px ${color}30;` : ''}">▶ DÉMARRER</button>
+                        <button onclick="startRoutine(${idx})" ${exCount === 0 ? 'disabled' : ''} style="flex:1;padding:10px;border-radius:10px;background:${exCount > 0 ? `linear-gradient(135deg,${color},${color}cc)` : 'rgba(255,255,255,0.05)'};border:none;color:${exCount > 0 ? _txtSur(color) : '#475569'}!important;font-weight:800;font-size:0.82em;cursor:${exCount > 0 ? 'pointer' : 'not-allowed'};letter-spacing:0.5px;${exCount > 0 ? `box-shadow:0 3px 10px ${color}30;` : ''}">▶ DÉMARRER</button>
+                        <button onclick="AwakRoutinePrint && AwakRoutinePrint.ouvrir(${idx})" aria-label="Imprimer" title="Imprimer" style="padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#cbd5e1;font-weight:700;font-size:0.78em;cursor:pointer;"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 9V3h10v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 14h10v7H7z"/></svg></button>
+                        <button onclick="duplicateRoutine(${idx})" aria-label="Dupliquer" title="Dupliquer" style="padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#cbd5e1;font-weight:700;font-size:0.78em;cursor:pointer;"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></svg></button>
                         <button onclick="editRoutine(${idx})" style="padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#cbd5e1;font-weight:700;font-size:0.78em;cursor:pointer;"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg></button>
                         <button onclick="deleteRoutine(${idx})" style="padding:10px 12px;border-radius:10px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:#f87171;font-weight:700;font-size:0.78em;cursor:pointer;"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M9 6V4h6v2M7 6l1 14h8l1-14"/></svg></button>
                     </div>
@@ -19091,7 +19203,9 @@
                             reps: ex.reps || fullEx.reps || 10,
                             duration: ex.duration || fullEx.duration || 45,
                             mode: ex.mode || fullEx.mode || 'reps',
-                            rest: ex.rest || 60,
+                            rest: ex.repos || ex.rest || 60,
+                            // ⏱ Repos réglé dans l'éditeur de routine (sinon réglage global)
+                            repos: ex.repos || null,
                             // ⚡ Champs propres à la routine : à recopier explicitement,
                             // sinon ils sont perdus (l'objet est reconstruit depuis la DB).
                             ss: ex.ss || null
@@ -19110,7 +19224,8 @@
                         reps: ex.reps || 10,
                         duration: ex.duration || 45,
                         mode: ex.mode || 'reps',
-                        rest: ex.rest || 60,
+                        rest: ex.repos || ex.rest || 60,
+                        repos: ex.repos || null,
                         ss: ex.ss || null
                     };
                 })
@@ -19160,6 +19275,29 @@
         }
         window.startRoutineById = startRoutineById;
 
+        // ⧉ Dupliquer une routine (créer une variante sans tout refaire).
+        // Les marqueurs de superset sont renommés : sinon l'original et la
+        // copie partageraient les mêmes identifiants de groupe.
+        function duplicateRoutine(index) {
+            const routines = getRoutines();
+            const r = routines[index];
+            if (!r) return;
+            const copie = JSON.parse(JSON.stringify(r));
+            const suffixe = '_' + Date.now().toString(36);
+            (copie.exercises || []).forEach(ex => { if (ex && ex.ss) ex.ss = ex.ss + suffixe; });
+            copie.id = 'r_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+            let nom = (r.name || 'Routine') + ' (copie)', n = 2;
+            while (routines.some(x => x.name === nom)) { nom = (r.name || 'Routine') + ' (copie ' + n + ')'; n++; }
+            copie.name = nom;
+            copie.created = new Date().toISOString();
+            delete copie.fromTemplate; delete copie.fromTemplateSessionIdx;
+            routines.splice(index + 1, 0, copie);
+            saveRoutines(routines);
+            renderRoutinesList();
+            if (typeof showToast === 'function') showToast('Routine dupliquée : ' + nom, 'success', 2200);
+        }
+        window.duplicateRoutine = duplicateRoutine;
+
         // ═══════════════════════════════════════════════════════════════
         // 🗑️ Supprimer une routine
         // ═══════════════════════════════════════════════════════════════
@@ -19168,7 +19306,7 @@
             const r = routines[index];
             if (!r) return;
             showConfirm(
-                `La routine "<strong style="color:#f87171">${r.name}</strong>" sera supprimée définitivement. Le plan hebdomadaire sera mis à jour automatiquement.`,
+                `La routine "<strong style="color:#f87171">${String(r.name || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))}</strong>" sera supprimée définitivement. Le plan hebdomadaire sera mis à jour automatiquement.`,
                 () => {
                     const plan = getWeeklyPlan();
                     Object.keys(plan).forEach(d => { if (plan[d] === r.id) delete plan[d]; });
@@ -19382,7 +19520,8 @@
             const db = typeof exerciseDatabase !== 'undefined' ? exerciseDatabase : [];
             let filtered = db.filter(e => !e.isRest && !e.isInfo);
             if (state.muscle) filtered = filtered.filter(e => e.muscle === state.muscle);
-            if (search) filtered = filtered.filter(e => (e.name || '').toLowerCase().includes(search));
+            if (search) filtered = filtered.filter(e => (window.awakExCherche ? window.awakExCherche(e.name || '') : (e.name || '').toLowerCase()).includes(search));
+            filtered = filtered.filter(e => !(window.awakEstDoublon && window.awakEstDoublon(e.name)));
             const list = document.getElementById('exPickerList');
             if (list) list.innerHTML = _renderExPickerList(filtered);
         }
@@ -19413,14 +19552,16 @@
             const r = routines[_editingRoutineIdx];
             if (!r) return;
             r.exercises = r.exercises || [];
+            const _timed = (ex.mode === 'timer' || ex.mode === 'duration' || ex.type === 'warmup' || ex.type === 'stretch');
+            let _dur = parseInt(ex.duration, 10) || 45;
+            if (_dur > 600) _dur = 300;
             r.exercises.push({
                 name: ex.name,
                 muscle: ex.muscle,
-                sets: 3,
+                sets: _timed && ex.muscle === 'Cardio' ? 1 : 3,
                 reps: ex.reps || 10,
-                duration: ex.duration || 45,
-                mode: ex.mode || 'reps',
-                rest: 60
+                duration: _dur,
+                mode: _timed ? 'timer' : 'reps'
             });
             saveRoutines(routines);
             const cont = document.getElementById('routineEditorExercises');
@@ -22961,10 +23102,6 @@
                 // Initialize Programme tab
                 if (typeof renderProgramTab === 'function') renderProgramTab();
             } else if (tabName === 'settings') {
-                try {
-                    var _seh = document.getElementById('awakSansEmojiHost');
-                    if (_seh && window.AwakSansEmoji) _seh.innerHTML = window.AwakSansEmoji.rendreInterrupteur();
-                } catch (e) {}
                 // Initialize accordions
                 initializeSettingsAccordions();
                 renderEquipmentGrid();
@@ -24196,7 +24333,7 @@
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1158);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1179);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -24240,7 +24377,7 @@
                 +       '<feGaussianBlur stdDeviation="2.4" result="b"/>'
                 +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>'
                 +     '</filter></defs>'
-                +     '<image href="' + img + '?v=1158" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1179" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -26499,6 +26636,10 @@
             } catch (e) {}
             // ↔️ Nouveau exercice → on réinitialise le marqueur de 2ᵉ côté (étirements bilatéraux)
             window._bilateralSecondSide = false;
+            // ⚡ Repos de superset en cours (exercice minuté) : on l'annule
+            if (window._awakSSRestInt) { clearInterval(window._awakSSRestInt); window._awakSSRestInt = null; }
+            // ⏱ Compteur de séries minutées : repart à 1 pour chaque exercice
+            window._awakTimerSet = { idx: currentExerciseIndex, n: 1 };
             // ⏱ Démarrer le chrono de session si pas déjà actif
             if (typeof startSessionTimer === 'function' && workoutStartTime) {
                 if (!_sessionTimerInterval) startSessionTimer();
@@ -26642,6 +26783,7 @@
                     _chip.style.display = _txt ? 'block' : 'none';
                 }
             } catch (e) {}
+            try { _awakTimerChip(exercise); } catch (e) {}
 
             const _prog = getExerciseProgress();
             document.getElementById('exerciseNumber').textContent = (exercise && (exercise.isRest || exercise.isInfo))
@@ -27258,7 +27400,12 @@
             const prevEx = currentExerciseIndex > 0 ? currentWorkout.exercises[currentExerciseIndex - 1] : null;
             const comingFromRest = !prevEx || prevEx.isRest;
             const isFirstEx = currentExerciseIndex === 0;
-            if ((isFirstEx || comingFromRest) && !exercise.isRest && !exercise.isInfo) {
+            // ⚡ SUPERSET : le mode minuteur ne passe pas par initSetsTracker,
+            // on arme donc le groupe ici (sinon tour 1 jamais initialisé).
+            if (exercise.mode !== 'reps' && window.AwakSS && typeof window.AwakSS.sync === 'function') {
+                try { window.AwakSS.sync(); } catch (e) {}
+            }
+            if ((isFirstEx || comingFromRest) && !exercise.isRest && !exercise.isInfo && !window._awakSSGoTo) {
                 showCountdown(exercise.name, () => startTimer());
             } else {
                 startTimer();
@@ -27655,12 +27802,61 @@
                                 }
                             } catch(e) {}
                         }
-                        currentExerciseIndex++;
-                        setTimeout(() => startExercise(), 1000);
+                        // ⏱ SÉRIES MINUTÉES (routine) : on refait le chrono N fois, avec repos.
+                        if (typeof _awakTimerSetNext === 'function' && _awakTimerSetNext()) return;
+                        // ⚡ SUPERSET : un exercice minuté membre d'un superset
+                        // doit revenir au suivant du groupe (A → B → C → A…),
+                        // pas sauter directement à l'exercice d'après.
+                        setTimeout(() => {
+                            if (window.AwakSS && typeof window.AwakSS.onNext === 'function') {
+                                try { if (window.AwakSS.onNext()) return; } catch (e) {}
+                            }
+                            currentExerciseIndex++;
+                            startExercise();
+                        }, 1000);
                     }
                 }
             }, 1000);
         }
+
+        // ⏱ Séries d'un exercice MINUTÉ dans une routine (hors superset).
+        // Le mode minuteur ne connaissait qu'un seul passage : « 3 × 45 s »
+        // s'arrêtait après le premier chrono. Retourne true si une série
+        // supplémentaire a été lancée (repos puis chrono).
+        function _awakTimerSeries(ex) {
+            if (!ex || !currentWorkout || !(currentWorkout.fromRoutine || ex._seriesMinutees)) return 1;
+            if (ex.isRest || ex.isInfo || ex.mode === 'reps') return 1;
+            if (window.AwakSS && typeof window.AwakSS.inGroup === 'function' && window.AwakSS.inGroup()) return 1;
+            return Math.max(1, parseInt(ex.sets, 10) || 1);
+        }
+        function _awakTimerChip(ex) {
+            try {
+                const chip = document.getElementById('repsRangeChip');
+                const total = _awakTimerSeries(ex);
+                if (!chip || total <= 1) return;
+                const n = (window._awakTimerSet && window._awakTimerSet.idx === currentExerciseIndex) ? window._awakTimerSet.n : 1;
+                chip.textContent = (ex.duration || 45) + ' s · série ' + n + '/' + total;
+                chip.style.display = 'block';
+            } catch (e) {}
+        }
+        function _awakTimerSetNext() {
+            const ex = currentWorkout && currentWorkout.exercises ? currentWorkout.exercises[currentExerciseIndex] : null;
+            const total = _awakTimerSeries(ex);
+            if (total <= 1) return false;
+            if (!window._awakTimerSet || window._awakTimerSet.idx !== currentExerciseIndex) {
+                window._awakTimerSet = { idx: currentExerciseIndex, n: 1 };
+            }
+            if (window._awakTimerSet.n >= total) return false;
+            window._awakTimerSet.n++;
+            timeRemaining = ex.duration || 45;
+            try { updateTimerDisplay(); } catch (e) {}
+            _awakTimerChip(ex);
+            const repos = ex.repos || (currentWorkout && currentWorkout.restBetweenSets) || globalRestSeconds || 60;
+            if (typeof showToast === 'function') showToast('Série ' + window._awakTimerSet.n + '/' + total + ' après le repos', 'info', 1800);
+            try { window.AwakSSBridge.restBeforeTimer(repos); } catch (e) { startTimer(); }
+            return true;
+        }
+        window._awakTimerSetNext = _awakTimerSetNext;
 
         function updateTimerDisplay() {
             const exercise = currentWorkout.exercises[currentExerciseIndex];
@@ -28050,11 +28246,19 @@
             // les machines de salle sont effacées.
             try { document.body.dataset.locMode = currentMode; } catch (e) {}
 
+            // 🏠 L'ICÔNE CHOISIE reste un EMOJI stocké (compat. avec les lieux déjà
+            // enregistrés — ne pas casser leur champ `icon`), mais son AFFICHAGE
+            // dans le sélecteur passe par un SVG : les vrais emojis y disparaissaient
+            // avec le filtre « interface sans emoji », laissant 12 boutons vides.
             const icons = ['🏠','🏋️','🏢','🏨','🏫','🌳','🚪','⭐','🏃','💪','🔥','🎯'];
-            const iconPicker = icons.map(ic =>
-                `<button onclick="document.getElementById('locIconSel').textContent='${ic}';document.querySelectorAll('#locIconPicker button').forEach(b=>{b.style.background='rgba(255,255,255,0.03)';b.style.borderColor='rgba(255,255,255,0.12)';});this.style.background='#FFF3E0';this.style.borderColor='#16a34a';"
-                    style="padding:8px;border:2px solid ${editing?.icon===ic?'#16a34a':'rgba(255,255,255,0.12)'};border-radius:10px;background:${editing?.icon===ic?'#FFF3E0':'rgba(255,255,255,0.03)'};font-size:1.4em;cursor:pointer;">${ic}</button>`
-            ).join('');
+            const iconSvgMap = { '🏠':'maison','🏋️':'gym','🏢':'immeuble','🏨':'hotel','🏫':'ecole',
+                '🌳':'arbre','🚪':'porte','⭐':'etoile','🏃':'course','💪':'muscle','🔥':'flamme','🎯':'cible' };
+            const iconPicker = icons.map(ic => {
+                const svgName = iconSvgMap[ic];
+                const rendu = (window.AwakIcon && svgName) ? window.AwakIcon.get(svgName, 22, 'currentColor') : ic;
+                return `<button data-emoji-keep="1" onclick="document.getElementById('locIconSel').setAttribute('data-icon','${ic}');document.getElementById('locIconSel').innerHTML=this.innerHTML;document.querySelectorAll('#locIconPicker button').forEach(b=>{b.style.background='rgba(255,255,255,0.03)';b.style.borderColor='rgba(255,255,255,0.12)';});this.style.background='#FFF3E0';this.style.borderColor='#16a34a';"
+                    style="padding:8px;border:2px solid ${editing?.icon===ic?'#16a34a':'rgba(255,255,255,0.12)'};border-radius:10px;background:${editing?.icon===ic?'#FFF3E0':'rgba(255,255,255,0.03)'};font-size:1.4em;cursor:pointer;display:flex;align-items:center;justify-content:center;">${rendu}</button>`;
+            }).join('');
 
             // Grille équipements généraux
             const equipCats = [
@@ -28104,7 +28308,7 @@
 
                 <!-- Icône + Nom -->
                 <div style="display:flex;gap:10px;margin-bottom:12px;align-items:center;">
-                    <div id="locIconSel" style="padding:10px;border:1px solid rgba(255,255,255,0.12);border-radius:10px;font-size:1.5em;min-width:48px;text-align:center;">${editing?.icon||'🏋️'}</div>
+                    <div id="locIconSel" data-icon="${editing?.icon||'🏋️'}" style="padding:10px;border:1px solid rgba(255,255,255,0.12);border-radius:10px;font-size:1.5em;min-width:48px;text-align:center;display:flex;align-items:center;justify-content:center;">${(window.AwakIcon && iconSvgMap[editing?.icon||'🏋️']) ? window.AwakIcon.get(iconSvgMap[editing?.icon||'🏋️'], 22, 'currentColor') : (editing?.icon||'🏋️')}</div>
                     <input id="locNameInput" type="text" placeholder="Ex: Gym Énergie, Bureau, Maison…" maxlength="30" value="${editing?.name||''}"
                         style="flex:1;padding:10px 12px;border:1px solid rgba(255,255,255,0.12);border-radius:10px;font-size:0.95em;">
                 </div>
@@ -28218,7 +28422,11 @@
         window.setLocEditorMode = setLocEditorMode;
 
         function confirmAddLocation(editId) {
-            const icon = document.getElementById('locIconSel')?.textContent?.trim() || '📍';
+            // Lecture via data-icon (posé par le sélecteur SVG) — l'ancien
+            // repli sur textContent ne fonctionnerait plus, le contenu du
+            // sélecteur étant désormais un SVG, pas du texte.
+            const _locIconEl = document.getElementById('locIconSel');
+            const icon = _locIconEl?.getAttribute('data-icon')?.trim() || _locIconEl?.textContent?.trim() || '📍';
             const name = document.getElementById('locNameInput')?.value?.trim();
             if (!name) { showToast('Entrez un nom pour ce lieu', 'warning', 2000); return; }
             // Lecture FIABLE du mode : attribut posé par setLocEditorMode,
@@ -29518,7 +29726,7 @@
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1158");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1179");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -29943,8 +30151,10 @@
                         */
 // ── 🎭 BANDEAU MISSION DE COMPAGNONS EN COURS ──────────────
             try {
-                const mission = typeof awakGetOngoingMission === 'function' ? awakGetOngoingMission() : null;
-                if (mission) {
+                // Plusieurs missions possibles en parallèle : un bandeau par mission
+                const _missions = (typeof awakLoadCompanionMissions === 'function')
+                    ? Object.values(awakLoadCompanionMissions()).filter(m => m && !m.done).reverse() : [];
+                _missions.forEach(mission => {
                     const remaining = Math.max(0, mission.endsAt - Date.now());
                     const hrs = remaining / 3600000;
                     const remTxt = hrs >= 1 ? `${hrs.toFixed(1)} h` : `${Math.max(1, Math.round(hrs*60))} min`;
@@ -29973,7 +30183,7 @@
                 // repérait sur cardProfile, donc elle remontait en tête depuis que
                 // celle-ci est première. Repère positionnel = 3e enfant.
                 tab.insertBefore(cardMission, tab.children[2] || null);
-                }
+                });
             } catch(e) {}
 
             // ── 🩸 BANDEAU COMPAGNONS BLESSÉS ──────────────────────────
@@ -33923,7 +34133,7 @@
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1158);'
+                +     'url(images/combat_bg_v1.webp?v=1179);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -34178,7 +34388,7 @@
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1158);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1179);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -34283,23 +34493,12 @@
                         const hrs = dur/3600000;
                         const durTxt = hrs >= 1 ? `${hrs.toFixed(1)} h` : `${Math.round(hrs*60)} min`;
                         if (check.ok) {
-                            const failPct = typeof awakCompanionMissionFailChance === 'function' ? Math.round(awakCompanionMissionFailChance(rift.rank)*100) : 0;
-                            const riskColor = failPct >= 40 ? '#ef4444' : (failPct >= 20 ? '#f59e0b' : '#4ade80');
-                            const nActive = typeof awakCompanionsGetActive === 'function' ? awakCompanionsGetActive().length : 0;
-                            const maxActive = (typeof COMPANIONS_MAX_ACTIVE !== 'undefined') ? COMPANIONS_MAX_ACTIVE : 3;
-                            const canAddMore = nActive < maxActive;
-                            const avgStam = typeof awakActiveCompanionsAvgStamina === 'function' ? awakActiveCompanionsAvgStamina() : 100;
-                            const stamColor = avgStam >= 70 ? '#4ade80' : (avgStam >= 35 ? '#f59e0b' : '#ef4444');
-                            const tired = avgStam < 35;
-                            return `<button onclick="awakDelegateRiftToCompanions('${rift.id}')" style="width:100%;margin-top:8px;background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.4);color:#c084fc;border-radius:10px;padding:13px;font-weight:800;font-size:0.82em;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;">
-                                <span>🎭 Envoyer mes compagnons <span style="opacity:0.7;font-weight:600;">(${durTxt}, sans loot)</span></span>
-                                <span style="font-size:0.85em;color:${riskColor};font-weight:700;">⚠ Risque d'échec : ${failPct}% &nbsp;·&nbsp; ${nActive} compagnon${nActive>1?'s':''}</span>
-                                <span style="display:flex;align-items:center;gap:6px;width:100%;max-width:200px;">
-                                    <span style="font-size:0.7em;color:${stamColor};font-weight:700;white-space:nowrap;">💪 ${avgStam}%</span>
-                                    <span style="flex:1;height:5px;background:rgba(0,0,0,0.3);border-radius:99px;overflow:hidden;"><span style="display:block;height:100%;width:${avgStam}%;background:${stamColor};border-radius:99px;"></span></span>
-                                </span>
-                            </button>
-                            ${tired ? `<div style="font-size:0.66em;color:#f87171;text-align:center;margin-top:5px;line-height:1.4;">😮‍💨 Tes compagnons sont fatigués — risque accru. Fais une séance ou laisse-les se reposer.</div>` : (canAddMore ? `<div style="font-size:0.66em;color:#64748b;text-align:center;margin-top:5px;line-height:1.4;">💡 Active plus de compagnons pour réduire le risque</div>` : '')}`;
+                            // 🎭 Le bouton ouvre maintenant le CHOIX des compagnons
+                            const nDispo = typeof awakCompanionsDisponibles === 'function' ? awakCompanionsDisponibles().length : 0;
+                            return `<button onclick="awakOpenDelegatePicker('${rift.id}')" style="width:100%;margin-top:8px;background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.4);color:#c084fc;border-radius:10px;padding:13px;font-weight:800;font-size:0.82em;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                                <span>Envoyer des compagnons <span style="opacity:0.7;font-weight:600;">(sans loot)</span></span>
+                                <span style="font-size:0.85em;color:#94a3b8;font-weight:700;">Choisir qui envoyer · ${nDispo} disponible${nDispo>1?'s':''}</span>
+                            </button>`;
                         } else {
                             return `<div style="width:100%;margin-top:8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);color:#64748b;border-radius:10px;padding:11px;font-size:0.72em;text-align:center;">🎭 Délégation indisponible — ${check.reason}</div>`;
                         }
@@ -35444,7 +35643,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1158');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1179');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -36179,7 +36378,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1158);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1179);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -36350,7 +36549,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1158);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1179);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -36422,6 +36621,7 @@
         const COMPANIONS = [
             {
                 id: 'marcus',
+                statSecondaire: 'VIT',   // affinité ½ en mission (voir awakCompanionAffinityCount)
                 image: 'images/companions/marcus.webp',
                 name: 'Marcus Ironfist',
                 title: 'Le Brutal',
@@ -36441,6 +36641,7 @@
             },
             {
                 id: 'kira',
+                statSecondaire: 'END',   // affinité ½ en mission (voir awakCompanionAffinityCount)
                 image: 'images/companions/kira.webp',
                 name: 'Kira Shadowstep',
                 title: 'L\'Ombre',
@@ -36460,6 +36661,7 @@
             },
             {
                 id: 'chen',
+                statSecondaire: 'END',   // affinité ½ en mission (voir awakCompanionAffinityCount)
                 image: 'images/companions/chen.webp',
                 name: 'Maître Chen',
                 title: 'Le Sage',
@@ -36479,6 +36681,7 @@
             },
             {
                 id: 'elise',
+                statSecondaire: 'VIT',   // affinité ½ en mission (voir awakCompanionAffinityCount)
                 image: 'images/companions/elise.webp',
                 name: 'Élise Vorn',
                 title: 'La Médic',
@@ -36498,6 +36701,7 @@
             },
             {
                 id: 'yuna',
+                statSecondaire: 'PER',   // affinité ½ en mission (voir awakCompanionAffinityCount)
                 image: 'images/companions/yuna.webp',
                 name: 'Yuna Veilbreaker',
                 title: 'La Mystique',
@@ -36505,7 +36709,7 @@
                 color: '#c084fc',
                 description: 'Elle entend le Noyau. Le Système la traite avec méfiance — c\'est mauvais signe.',
                 lore: 'Elle voit ce qui n\'existe pas encore. Elle a déjà sauvé l\'humanité au moins une fois — mais on a oublié.',
-                bonus: { stat: 'SEN', mult: 0.10, label: 'Bonus loots rares · double drop' },
+                bonus: { stat: 'SEN', mult: 0.10, label: '+10% SEN · loots rares · double drop' },
                 bonusDetails: { rareLootBoost: 0.5, doubleDropChance: 0.1 },
                 unlockCondition: { type: 'companionRift', riftId: 'rift_yuna', label: 'Complète la Faille de Yuna' },
                 dialogues: {
@@ -36516,6 +36720,17 @@
                 }
             }
         ];
+        // 🎯 STAT SECONDAIRE : vaut la MOITIÉ du bonus principal (en combat) et
+        // 0,5 point d'affinité en mission. Ajoutée au libellé pour être visible
+        // partout où le bonus du compagnon est affiché.
+        COMPANIONS.forEach(function (c) {
+            if (!c || !c.statSecondaire || !c.bonus || !c.bonus.mult) return;
+            c.bonus.multSecondaire = c.bonus.mult / 2;
+            var pct = Math.round(c.bonus.multSecondaire * 100);
+            if (c.bonus.label && c.bonus.label.indexOf(c.statSecondaire) === -1) {
+                c.bonus.label += ' · +' + pct + '% ' + c.statSecondaire;
+            }
+        });
 
         function awakCompanionsLoad() {
             try {
@@ -36692,6 +36907,11 @@
                 const stat = comp.bonus.stat;
                 if (stat && comp.bonus.mult) {
                     bonuses[stat] = (bonuses[stat] || 0) + Math.round((playerStats[stat] || 0) * comp.bonus.mult);
+                }
+                // Stat secondaire : moitié du bonus principal
+                const sec = comp.statSecondaire;
+                if (sec && comp.bonus.multSecondaire) {
+                    bonuses[sec] = (bonuses[sec] || 0) + Math.round((playerStats[sec] || 0) * comp.bonus.multSecondaire);
                 }
                 // Détails additionnels
                 const d = comp.bonusDetails || {};
@@ -44289,7 +44509,7 @@
             const _eqText = (eq) => Array.isArray(eq) ? eq.join(' ').toLowerCase() : String(eq || '').toLowerCase();
             const matches = exerciseDatabase.filter(ex => {
                 try {
-                    return String(ex.name || '').toLowerCase().includes(query) ||
+                    return (window.awakExCherche ? window.awakExCherche(String(ex.name || '')) : String(ex.name || '').toLowerCase()).includes(query) ||
                            String(ex.muscle || '').toLowerCase().includes(query) ||
                            _eqText(ex.equipment).includes(query);
                 } catch (e) { return false; }
@@ -44689,9 +44909,11 @@
             let exercises = exerciseDatabase.filter(ex => {
                 if (ex.type !== 'exercise') return false;
                 if (blacklist.includes(ex.name)) return false;
+                // Doublons de la base (même mouvement sous 2 noms) : masqués du catalogue
+                if (window.awakEstDoublon && window.awakEstDoublon(ex.name)) return false;
                 if (muscleFilter && ex.muscle !== muscleFilter) return false;
                 if (equipmentFilter && !ex.equipment.includes(equipmentFilter)) return false;
-                if (searchTerm && !ex.name.toLowerCase().includes(searchTerm) && !ex.muscle.toLowerCase().includes(searchTerm)) return false;
+                if (searchTerm && !(window.awakExCherche ? window.awakExCherche(ex.name) : ex.name.toLowerCase()).includes(searchTerm) && !ex.muscle.toLowerCase().includes(searchTerm)) return false;
                 return true;
             });
             
@@ -47074,7 +47296,7 @@
 
             host.innerHTML =
                 '<div style="position:relative;width:110px;margin:0 auto 12px;">'
-              +   '<img src="images/body/body_face.webp?v=1158" alt="" '
+              +   '<img src="images/body/body_face.webp?v=1179" alt="" '
               +     'style="width:100%;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -47156,7 +47378,7 @@
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1158);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1179);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -47290,6 +47512,8 @@
             // l'accueil, et le bouton n'apparaissait pas.
             try { if (typeof awakRenderPainCard === 'function') awakRenderPainCard(); } catch (e) {}
             try { if (typeof awakMajBoutonProfil === 'function') awakMajBoutonProfil(); } catch (e) {}
+            // 🏠 Accueil « pro » (js/home-pro.js) : en-tête, Aujourd'hui, Semaine, Raccourcis
+            try { if (window.AwakHomePro) window.AwakHomePro.render(); } catch (e) {}
             // 🏠 En-tête recalculé à chaque affichage : les stats et le
             // programme du jour changent.
             try { if (typeof renderHomeHeader === 'function') renderHomeHeader(); } catch (e) {}
@@ -49539,7 +49763,7 @@
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1158");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1179");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
@@ -49822,14 +50046,36 @@
         }
         window.awakCompanionInjuryRemaining = awakCompanionInjuryRemaining;
 
+        // 🎯 AFFINITÉ : nombre de compagnons envoyés dont la stat de bonus est
+        // la stat principale de la Faille (ex. Marcus STR dans une Faille STR).
+        // Stat principale = 1 point d'affinité ; stat SECONDAIRE = 0,5 point.
+        // Toutes les stats de Failles sont ainsi couvertes (VIT et END par des
+        // stats secondaires), sans doubler les compagnons.
+        function awakCompanionAffinityCount(ids, stat) {
+            if (!stat || !Array.isArray(ids)) return 0;
+            return ids.reduce((sum, id) => {
+                const c = awakGetCompanionById(id);
+                if (!c) return sum;
+                if (c.bonus && c.bonus.stat === stat) return sum + 1;
+                if (c.statSecondaire === stat) return sum + 0.5;
+                return sum;
+            }, 0);
+        }
+        window.awakCompanionAffinityCount = awakCompanionAffinityCount;
+        const COMPANION_AFFINITY_FAIL_MULT = 0.65;   // −35 % de risque (relatif) par compagnon en affinité
+        const COMPANION_AFFINITY_TIME_CUT = 0.10;    // −10 % de durée par compagnon en affinité
+
         // Calcule la durée d'une mission pour une Faille (réduite par le nb de compagnons actifs)
-        function awakCompanionMissionDuration(riftRank) {
+        function awakCompanionMissionDuration(riftRank, ids, stat) {
             const baseHours = COMPANION_MISSION_HOURS[riftRank] || 2;
-            const active = typeof awakCompanionsGetActive === 'function' ? awakCompanionsGetActive() : [];
+            const active = Array.isArray(ids) ? ids : (typeof awakCompanionsGetActive === 'function' ? awakCompanionsGetActive() : []);
             const n = active.length;
             // Chaque compagnon actif réduit la durée de 15% (max ~45% à 3 compagnons)
             const reduction = Math.min(0.45, n * 0.15);
             let hours = baseHours * (1 - reduction);
+            // 🎯 Affinité avec la stat de la Faille : mission plus rapide
+            const _aff = awakCompanionAffinityCount(active, stat);
+            if (_aff) hours = hours * Math.max(0.6, 1 - _aff * COMPANION_AFFINITY_TIME_CUT);
             // 💍 ANNEAU de commandement : accélère les missions
             const ring = typeof getActiveRingEffects === 'function' ? getActiveRingEffects() : {};
             if (ring.compSpeed > 0) hours = hours * (1 - Math.min(0.7, ring.compSpeed));
@@ -49837,15 +50083,21 @@
         }
 
         // Probabilité d'échec d'une mission (rang de la Faille, réduite un peu par le nb de compagnons)
-        function awakCompanionMissionFailChance(riftRank) {
+        function awakCompanionMissionFailChance(riftRank, ids, stat) {
             const base = COMPANION_MISSION_FAIL_CHANCE[riftRank] != null ? COMPANION_MISSION_FAIL_CHANCE[riftRank] : 0.25;
-            const active = typeof awakCompanionsGetActive === 'function' ? awakCompanionsGetActive() : [];
+            const active = Array.isArray(ids) ? ids : (typeof awakCompanionsGetActive === 'function' ? awakCompanionsGetActive() : []);
             // Plus il y a de compagnons, plus le risque chute (réduction RELATIVE forte).
             const extra = Math.max(0, active.length - 1);
             let failChance = base * Math.pow(0.70, extra);
+            // 🎯 Affinité : chaque compagnon dont la stat est celle de la Faille
+            // réduit fortement le risque — envoyer le BON compagnon compte.
+            const _aff = awakCompanionAffinityCount(active, stat);
+            if (_aff) failChance = failChance * Math.pow(COMPANION_AFFINITY_FAIL_MULT, _aff);
             // 💪 ENDURANCE : des compagnons fatigués échouent plus souvent.
             // À 100% endurance : pas de pénalité. À 0% : risque presque doublé (+90%).
-            const avgStamina = typeof awakActiveCompanionsAvgStamina === 'function' ? awakActiveCompanionsAvgStamina() : 100;
+            const avgStamina = Array.isArray(ids)
+                ? (ids.length ? Math.round(ids.reduce((sm, id) => sm + awakGetCompanionStamina(id), 0) / ids.length) : 100)
+                : (typeof awakActiveCompanionsAvgStamina === 'function' ? awakActiveCompanionsAvgStamina() : 100);
             const fatiguePenalty = 1 + (1 - avgStamina / 100) * 0.9;
             failChance = failChance * fatiguePenalty;
             // 💍 ANNEAU de commandement : réduit le risque d'échec
@@ -49855,6 +50107,20 @@
         }
         window.awakCompanionMissionFailChance = awakCompanionMissionFailChance;
 
+        // 🎭 Compagnons DISPONIBLES pour une mission : débloqués, ni partis
+        // en mission, ni blessés. (Avant : on envoyait d'office TOUTE l'équipe
+        // active, sans choix, et une seule mission à la fois.)
+        function awakCompanionsDisponibles() {
+            try {
+                const data = awakCompanionsLoad();
+                const busy = awakGetCompanionsOnMission();
+                const injured = awakGetInjuredCompanionIds();
+                return (data.unlocked || []).filter(id =>
+                    COMPANIONS.some(c => c.id === id) && !busy.includes(id) && !injured.includes(id));
+            } catch (e) { return []; }
+        }
+        window.awakCompanionsDisponibles = awakCompanionsDisponibles;
+
         // Peut-on déléguer cette Faille ? (rang ≤ joueur, compagnons dispo, pas déjà en mission)
         function awakCanDelegateRift(rift) {
             if (!rift || rift.completed) return { ok:false, reason:'Faille déjà fermée' };
@@ -49862,13 +50128,10 @@
             if (typeof awakIsSoloRift === 'function' && awakIsSoloRift(rift)) {
                 return { ok:false, reason:'Épreuve personnelle — à affronter toi-même' };
             }
-            const active = typeof awakCompanionsGetActive === 'function' ? awakCompanionsGetActive() : [];
-            if (active.length === 0) return { ok:false, reason:'Aucun compagnon actif' };
-            // Compagnons blessés (indisponibles après un échec) ?
-            const injured = typeof awakGetInjuredCompanionIds === 'function' ? awakGetInjuredCompanionIds() : [];
-            const availableActive = active.filter(id => !injured.includes(id));
-            if (availableActive.length === 0) {
-                return { ok:false, reason:'Tes compagnons récupèrent de leurs blessures' };
+            const _unlocked = (awakCompanionsLoad().unlocked || []);
+            if (_unlocked.length === 0) return { ok:false, reason:'Aucun compagnon débloqué' };
+            if (awakCompanionsDisponibles().length === 0) {
+                return { ok:false, reason:'Tous tes compagnons sont en mission ou blessés' };
             }
             // Rang de la Faille ≤ rang du joueur
             const rankIds = ['E','D','C','B','A','S','SS','SSS'];
@@ -49878,16 +50141,16 @@
             }
             // Compagnons déjà en mission ?
             const missions = awakLoadCompanionMissions();
-            if (missions[rift.id]) return { ok:false, reason:'Mission déjà en cours' };
-            // Un seul groupe de compagnons : pas 2 missions en parallèle
-            const ongoing = Object.values(missions).find(m => !m.done);
-            if (ongoing) return { ok:false, reason:'Tes compagnons sont déjà en mission' };
+            if (missions[rift.id] && !missions[rift.id].done) return { ok:false, reason:'Mission déjà en cours' };
+            // Plusieurs missions en parallèle permises : chaque compagnon ne
+            // peut être que dans UNE mission (il n'est plus « disponible »).
             return { ok:true };
         }
         window.awakCanDelegateRift = awakCanDelegateRift;
 
         // Lance la mission de délégation
-        function awakDelegateRiftToCompanions(riftId) {
+        function awakDelegateRiftToCompanions(riftId, ids) {
+            if (!Array.isArray(ids)) { awakOpenDelegatePicker(riftId); return; }
             const rifts = typeof awakRiftsLoad === 'function' ? awakRiftsLoad() : [];
             const rift = rifts.find(r => r.id === riftId);
             if (!rift) return;
@@ -49901,10 +50164,16 @@
                 if (typeof showToast === 'function') showToast('⚠️ ' + check.reason, 'warning', 2500);
                 return;
             }
-            const active = awakCompanionsGetActive();
-            const duration = awakCompanionMissionDuration(rift.rank);
+            // Seuls les compagnons choisis ET disponibles partent
+            const _dispo = awakCompanionsDisponibles();
+            const active = ids.filter(id => _dispo.includes(id)).slice(0, COMPANIONS_MAX_ACTIVE);
+            if (!active.length) {
+                if (typeof showToast === 'function') showToast('Choisis au moins un compagnon disponible', 'warning', 2500);
+                return;
+            }
+            const duration = awakCompanionMissionDuration(rift.rank, active, rift.primaryStat);
             // 🎲 Tirage du résultat dès le départ (révélé à la fin)
-            const failChance = awakCompanionMissionFailChance(rift.rank);
+            const failChance = awakCompanionMissionFailChance(rift.rank, active, rift.primaryStat);
             const willFail = Math.random() < failChance;
             const missions = awakLoadCompanionMissions();
             missions[riftId] = {
@@ -49924,15 +50193,152 @@
                 active.forEach(id => awakAdjustCompanionStamina(id, -STAMINA_COST_PER_MISSION));
             }
 
+            // 🚶 Les compagnons envoyés quittent l'équipe active : leur place se
+            // libère pour les autres pendant la mission.
+            try {
+                const _act = awakCompanionsGetActive().filter(id => !active.includes(id));
+                awakCompanionsSetActive(_act);
+                if (typeof window.awakEmit === 'function') window.awakEmit('rpg:statsChanged', { source: 'companionMission' });
+            } catch (e) {}
+
             document.getElementById('awakRiftBriefingModal')?.remove();
+            document.getElementById('awakDelegatePicker')?.remove();
             const hrs = (duration / 3600000);
             const txt = hrs >= 1 ? `${hrs.toFixed(1)} h` : `${Math.round(hrs*60)} min`;
+            const _noms = active.map(id => (awakGetCompanionById(id) || {}).name || id).map(n => n.split(' ')[0]).join(', ');
             if (typeof showToast === 'function') {
-                showToast(`🎭 Tes compagnons partent fermer « ${rift.name} » — retour dans ${txt}`, 'success', 4000);
+                showToast(`${_noms} ${active.length > 1 ? 'partent' : 'part'} fermer « ${rift.name} » — retour dans ${txt}`, 'success', 4000);
             }
             if (typeof renderGameTab === 'function') renderGameTab();
         }
         window.awakDelegateRiftToCompanions = awakDelegateRiftToCompanions;
+
+        // 🎭 CHOISIR QUI ENVOYER — fenêtre de sélection des compagnons.
+        // Présélection : l'équipe active disponible. Durée et risque recalculés
+        // à chaque changement. Les compagnons en mission ou blessés sont
+        // affichés grisés, avec la raison et le temps restant.
+        let _delegSel = [];
+        function awakOpenDelegatePicker(riftId) {
+            const rifts = typeof awakRiftsLoad === 'function' ? awakRiftsLoad() : [];
+            const rift = rifts.find(r => r.id === riftId);
+            if (!rift) return;
+            const check = awakCanDelegateRift(rift);
+            if (!check.ok) { if (typeof showToast === 'function') showToast(check.reason, 'warning', 2600); return; }
+            const dispo = awakCompanionsDisponibles();
+            _delegSel = awakCompanionsGetActive().filter(id => dispo.includes(id)).slice(0, COMPANIONS_MAX_ACTIVE);
+            if (!_delegSel.length) _delegSel = dispo.slice(0, 1);
+            document.getElementById('awakDelegatePicker')?.remove();
+            const m = document.createElement('div');
+            m.id = 'awakDelegatePicker';
+            m.style.cssText = 'position:fixed;inset:0;z-index:10500;background:rgba(0,0,0,0.88);display:flex;align-items:flex-end;justify-content:center;';
+            m.addEventListener('click', e => { if (e.target === m) m.remove(); });
+            m.innerHTML = '<div style="width:100%;max-width:480px;max-height:88vh;display:flex;flex-direction:column;background:#101218;'
+                + 'border-radius:18px 18px 0 0;border-top:1px solid rgba(192,132,252,0.35);">'
+                + '<div style="padding:16px 18px 10px;display:flex;align-items:flex-start;gap:10px;">'
+                +   '<div style="flex:1;min-width:0;"><div style="font-size:1.05em;font-weight:800;color:#f1f5f9;">Qui envoies-tu ?</div>'
+                +   '<div style="font-size:0.74em;color:#94a3b8;margin-top:2px;">Faille « ' + String(rift.name || '').replace(/[<>&"]/g, '') + ' » · rang ' + rift.rank
+                +   ' · jusqu\'à ' + COMPANIONS_MAX_ACTIVE + ' compagnons</div>'
+                +   (rift.primaryStat ? '<div style="font-size:0.72em;color:#e9d5ff;margin-top:6px;line-height:1.4;">Stat de la Faille : <b>' + rift.primaryStat
+                +     '</b> — un compagnon de cette stat réduit le risque et la durée (moitié moins si c\'est sa stat secondaire).</div>' : '')
+                +   '</div>'
+                +   '<button onclick="document.getElementById(\'awakDelegatePicker\').remove()" aria-label="Fermer" style="flex-shrink:0;background:none;border:1px solid rgba(255,255,255,0.14);'
+                +   'color:#94a3b8;width:34px;height:34px;min-height:0;border-radius:50%;font-size:1.1em;cursor:pointer;">×</button></div>'
+                + '<div id="awakDelegList" style="flex:1;overflow-y:auto;padding:4px 14px 8px;-webkit-overflow-scrolling:touch;"></div>'
+                + '<div id="awakDelegFoot" style="padding:12px 16px calc(14px + env(safe-area-inset-bottom));border-top:1px solid rgba(255,255,255,0.06);"></div>'
+                + '</div>';
+            m.dataset.rift = riftId;
+            document.body.appendChild(m);
+            _awakDelegRender();
+        }
+        window.awakOpenDelegatePicker = awakOpenDelegatePicker;
+
+        function _awakDelegRender() {
+            const m = document.getElementById('awakDelegatePicker');
+            if (!m) return;
+            const rifts = typeof awakRiftsLoad === 'function' ? awakRiftsLoad() : [];
+            const rift = rifts.find(r => r.id === m.dataset.rift);
+            if (!rift) { m.remove(); return; }
+            const data = awakCompanionsLoad();
+            const busy = awakGetCompanionsOnMission();
+            const injured = awakGetInjuredCompanionIds();
+            const missions = awakLoadCompanionMissions();
+            const fmt = ms => { const h = ms / 3600000; return h >= 24 ? Math.ceil(h / 24) + ' j' : (h >= 1 ? h.toFixed(1) + ' h' : Math.max(1, Math.round(h * 60)) + ' min'); };
+            const _st = rift.primaryStat;
+            const ids = (data.unlocked || []).filter(id => COMPANIONS.some(c => c.id === id))
+                // compagnons en affinité en premier
+                .sort((a, b) => (awakCompanionAffinityCount([b], _st)) - (awakCompanionAffinityCount([a], _st)));
+            const rows = ids.map(id => {
+                const c = awakGetCompanionById(id);
+                const stam = awakGetCompanionStamina(id);
+                const sc = stam >= 70 ? '#4ade80' : (stam >= 35 ? '#f59e0b' : '#ef4444');
+                let indispo = '';
+                if (busy.includes(id)) {
+                    const mi = Object.values(missions).find(x => x && !x.done && (x.companions || []).includes(id));
+                    indispo = 'En mission' + (mi ? ' — retour dans ' + fmt(mi.endsAt - Date.now()) : '');
+                } else if (injured.includes(id)) {
+                    indispo = 'Blessé — de retour dans ' + fmt(awakCompanionInjuryRemaining(id));
+                }
+                const on = !indispo && _delegSel.includes(id);
+                const portrait = c.image
+                    ? '<img src="' + c.image + '" alt="" style="width:46px;height:46px;border-radius:12px;object-fit:cover;object-position:center 15%;display:block;" onerror="this.style.display=\'none\'">'
+                    : '';
+                return '<div ' + (indispo ? '' : 'onclick="_awakDelegToggle(\'' + id + '\')" ') + 'role="button" style="display:flex;align-items:center;gap:11px;padding:10px 11px;margin-bottom:7px;'
+                    + 'border-radius:13px;cursor:' + (indispo ? 'not-allowed' : 'pointer') + ';opacity:' + (indispo ? '0.45' : '1') + ';'
+                    + 'background:' + (on ? 'rgba(192,132,252,0.12)' : 'rgba(255,255,255,0.03)') + ';'
+                    + 'border:1.5px solid ' + (on ? c.color : 'rgba(255,255,255,0.07)') + ';">'
+                    + '<div style="flex-shrink:0;width:46px;height:46px;border-radius:12px;background:' + c.color + '22;overflow:hidden;">' + portrait + '</div>'
+                    + '<div style="flex:1;min-width:0;">'
+                    +   '<div style="font-size:0.88em;font-weight:800;color:#f1f5f9;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">' + c.name
+                    +     (awakCompanionAffinityCount([id], _st) >= 1
+                            ? '<span style="font-size:0.66em;font-weight:900;color:#1a0f24;background:#e9d5ff;padding:1px 7px;border-radius:99px;">Affinité ' + _st + '</span>'
+                            : (awakCompanionAffinityCount([id], _st) > 0
+                                ? '<span style="font-size:0.66em;font-weight:800;color:#e9d5ff;border:1px solid #e9d5ff88;padding:0 7px;border-radius:99px;">Affinité ½ ' + _st + '</span>' : ''))
+                    +   '</div>'
+                    +   '<div style="font-size:0.7em;color:#94a3b8;margin-top:1px;">' + (indispo || (c.title + ' · ' + (c.bonus && c.bonus.label ? c.bonus.label : ''))) + '</div>'
+                    +   (indispo ? '' : '<div style="font-size:0.64em;color:#64748b;margin-top:2px;">Stats : <b style="color:#cbd5e1;">' + (c.bonus ? c.bonus.stat : '') + '</b>'
+                    +     (c.statSecondaire ? ' · secondaire <b style="color:#cbd5e1;">' + c.statSecondaire + '</b>' : '') + '</div>')
+                    +   (indispo ? '' : '<div style="display:flex;align-items:center;gap:6px;margin-top:5px;"><span style="font-size:0.64em;color:' + sc + ';font-weight:700;">Endurance ' + stam + '%</span>'
+                    +     '<span style="flex:1;max-width:110px;height:4px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;"><span style="display:block;height:100%;width:' + stam + '%;background:' + sc + ';"></span></span></div>')
+                    + '</div>'
+                    + '<div style="flex-shrink:0;width:22px;height:22px;border-radius:50%;border:2px solid ' + (on ? c.color : 'rgba(255,255,255,0.2)') + ';'
+                    +   'background:' + (on ? c.color : 'transparent') + ';display:flex;align-items:center;justify-content:center;color:#0b0f14;font-size:0.72em;font-weight:900;">' + (on ? '✓' : '') + '</div>'
+                    + '</div>';
+            }).join('');
+            document.getElementById('awakDelegList').innerHTML = rows ||
+                '<div style="text-align:center;color:#64748b;font-size:0.8em;padding:20px;">Aucun compagnon débloqué.</div>';
+
+            const n = _delegSel.length;
+            const foot = document.getElementById('awakDelegFoot');
+            if (!n) {
+                foot.innerHTML = '<div style="text-align:center;font-size:0.76em;color:#94a3b8;">Sélectionne au moins un compagnon</div>';
+                return;
+            }
+            const dur = awakCompanionMissionDuration(rift.rank, _delegSel, rift.primaryStat);
+            const fail = Math.round(awakCompanionMissionFailChance(rift.rank, _delegSel, rift.primaryStat) * 100);
+            const nAff = awakCompanionAffinityCount(_delegSel, rift.primaryStat);
+            const rc = fail >= 40 ? '#ef4444' : (fail >= 20 ? '#f59e0b' : '#4ade80');
+            const restants = awakCompanionsDisponibles().filter(id => !_delegSel.includes(id)).length;
+            foot.innerHTML = '<div style="display:flex;justify-content:space-between;font-size:0.76em;color:#cbd5e1;margin-bottom:10px;gap:8px;flex-wrap:wrap;">'
+                + '<span>Durée : <b>' + fmt(dur) + '</b></span>'
+                + '<span style="color:' + rc + ';">Risque d\'échec : <b>' + fail + ' %</b>' + (nAff ? ' <span style="color:#e9d5ff;">(affinité ×' + String(nAff).replace('.', ',') + ')</span>' : '') + '</span>'
+                + '<span style="color:#94a3b8;">' + restants + (restants > 1 ? ' resteront disponibles' : ' restera disponible') + '</span></div>'
+                + '<button onclick="awakDelegateRiftToCompanions(\'' + rift.id + '\', _awakDelegSelection())" style="width:100%;padding:14px;border:none;border-radius:12px;'
+                + 'background:#c084fc;color:#140a1f;font-weight:900;font-size:0.9em;cursor:pointer;font-family:inherit;">'
+                + 'Envoyer ' + n + ' compagnon' + (n > 1 ? 's' : '') + ' · sans loot</button>';
+        }
+        window._awakDelegToggle = function (id) {
+            const i = _delegSel.indexOf(id);
+            if (i >= 0) _delegSel.splice(i, 1);
+            else {
+                if (_delegSel.length >= COMPANIONS_MAX_ACTIVE) {
+                    if (typeof showToast === 'function') showToast('Maximum ' + COMPANIONS_MAX_ACTIVE + ' compagnons par mission', 'warning', 2000);
+                    return;
+                }
+                _delegSel.push(id);
+            }
+            _awakDelegRender();
+        };
+        window._awakDelegSelection = function () { return _delegSel.slice(); };
 
         // Vérifie les missions terminées et ferme les Failles concernées (appelé à l'ouverture du jeu)
         function awakCheckCompanionMissions() {

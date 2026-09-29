@@ -145,22 +145,33 @@
     var reglages =
       '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:8px;">' +
         '<span style="font-size:0.6em;color:#64748b;font-weight:900;letter-spacing:1px;">SÉRIES</span>' +
-        '<input type="number" min="1" max="20" value="' + (parseInt(ex.sets, 10) || 3) + '" ' +
+        '<input type="number" class="awak-num" min="1" max="20" value="' + (parseInt(ex.sets, 10) || 3) + '" ' +
           'onchange="AwakRoutineEditor.setField(' + i + ',\'sets\',this.value)" ' +
           'style="width:52px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);color:#e8f0f8;' +
           'border-radius:7px;padding:5px 6px;font-size:0.8em;font-weight:800;text-align:center;font-family:inherit;">' +
         '<span style="color:#475569;font-weight:900;">×</span>' +
         (timed
-          ? '<input type="number" min="5" max="3600" step="5" value="' + (parseInt(ex.duration, 10) || 45) + '" ' +
+          ? '<input type="number" class="awak-num" min="5" max="3600" step="5" value="' + (parseInt(ex.duration, 10) || 45) + '" ' +
               'onchange="AwakRoutineEditor.setField(' + i + ',\'duration\',this.value)" ' +
               'style="width:68px;background:rgba(34,211,238,0.08);border:1px solid rgba(34,211,238,0.3);color:#67e8f9;' +
               'border-radius:7px;padding:5px 6px;font-size:0.8em;font-weight:800;text-align:center;font-family:inherit;">' +
             '<span style="font-size:0.66em;color:#67e8f9;font-weight:800;">sec (' + esc(shortDur(ex.duration || 45)) + ')</span>'
-          : '<input type="number" min="1" max="100" value="' + (parseInt(ex.reps, 10) || 10) + '" ' +
+          : '<input type="number" class="awak-num" min="1" max="100" value="' + (parseInt(ex.reps, 10) || 10) + '" ' +
               'onchange="AwakRoutineEditor.setField(' + i + ',\'reps\',this.value)" ' +
               'style="width:58px;background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.3);color:#86efac;' +
               'border-radius:7px;padding:5px 6px;font-size:0.8em;font-weight:800;text-align:center;font-family:inherit;">' +
             '<span style="font-size:0.66em;color:#86efac;font-weight:800;">reps</span>') +
+        // ⏱ Repos après la série (vide = réglage global). En superset, c'est
+        // le repos de FIN DE TOUR (réglé sur le 1er exercice du groupe).
+        ((!estGroupe || pos === 0)
+          ? '<span style="flex:1;"></span>' +
+            '<span style="font-size:0.6em;color:#64748b;font-weight:900;letter-spacing:1px;">' + (estGroupe ? 'REPOS TOUR' : 'REPOS') + '</span>' +
+            '<input type="number" class="awak-num" min="0" max="600" step="5" placeholder="auto" value="' + (ex.repos ? parseInt(ex.repos, 10) : '') + '" ' +
+              'onchange="AwakRoutineEditor.setField(' + i + ',\'repos\',this.value)" ' +
+              'style="width:58px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);color:#e8f0f8;' +
+              'border-radius:7px;padding:5px 6px;font-size:0.8em;font-weight:800;text-align:center;font-family:inherit;">' +
+            '<span style="font-size:0.66em;color:#94a3b8;font-weight:800;">s</span>'
+          : '') +
       '</div>';
 
     // Bascule reps / durée
@@ -222,7 +233,24 @@
       '</div>';
   }
 
+  // Les règles globales des champs (min-height 50 px, padding 13 px, en
+  // !important) rendaient ces petits champs illisibles : « 10 » devenait
+  // « 1 » coupé, « auto » devenait « au ». On les resserre ici.
+  function stylesChamps() {
+    if (document.getElementById('awakNumCSS')) return;
+    var st = document.createElement('style');
+    st.id = 'awakNumCSS';
+    st.textContent =
+      'input.awak-num,body.dark-mode input.awak-num{min-height:34px!important;height:34px!important;' +
+      'padding:2px 4px!important;font-size:16px!important;border-radius:8px!important;' +
+      'border:1px solid rgba(255,255,255,0.14)!important;background:rgba(255,255,255,0.05)!important;' +
+      'color:#e8f0f8!important;text-align:center!important;box-sizing:border-box!important;}' +
+      'input.awak-num::placeholder{color:#64748b;font-size:13px;}';
+    document.head.appendChild(st);
+  }
+
   Editor.renderExercises = function (routine) {
+    stylesChamps();
     var exs = (routine && routine.exercises) || [];
     if (!exs.length) {
       return '<div style="text-align:center;padding:30px 18px;color:#475569;font-size:0.82em;font-style:italic;">' +
@@ -241,6 +269,13 @@
     var ctx = currentRoutine();
     if (!ctx || !ctx.r || !ctx.r.exercises || !ctx.r.exercises[i]) return;
     var n = parseInt(val, 10);
+    // Repos : champ vide ou 0 = revenir au réglage global
+    if (champ === 'repos') {
+      if (isNaN(n) || n <= 0) delete ctx.r.exercises[i].repos;
+      else ctx.r.exercises[i].repos = Math.min(600, n);
+      commit(ctx, false);
+      return;
+    }
     if (isNaN(n) || n < 1) n = 1;
     ctx.r.exercises[i][champ] = n;
     // Les séries pilotent le nombre de TOURS : elles doivent rester identiques
@@ -258,7 +293,7 @@
     if (!ctx || !ctx.r || !ctx.r.exercises || !ctx.r.exercises[i]) return;
     var ex = ctx.r.exercises[i];
     ex.mode = (mode === 'timer') ? 'timer' : 'reps';
-    if (ex.mode === 'timer' && !ex.duration) ex.duration = 45;
+    if (ex.mode === 'timer' && !ex.duration) ex.duration = (ex.muscle === 'Cardio') ? 300 : 45;
     if (ex.mode === 'reps' && !ex.reps) ex.reps = 10;
     commit(ctx);
   };
@@ -303,6 +338,47 @@
   };
 
   Editor.normaliser = normaliserSS;
+
+  // ⏱ Durée estimée d'une routine (minutes). Hypothèses simples et affichées
+  // comme telles (« ≈ ») : 4 s par répétition, repos réglé sinon 75 s,
+  // 20 s de mise en place par exercice, pas de repos DANS un tour de superset.
+  Editor.estimer = function (exs) {
+    if (!Array.isArray(exs) || !exs.length) return 0;
+    // Même calcul que l'écran « Préparez-vous » (source unique dans app.js)
+    if (typeof window.awakEstimerSeance === 'function') {
+      try {
+        return Math.max(1, Math.round(window.awakEstimerSeance({ fromRoutine: true, exercises: exs }) / 60));
+      } catch (e) {}
+    }
+    function travail(ex) {
+      return isTimed(ex) ? (parseInt(ex.duration, 10) || 45) : (parseInt(ex.reps, 10) || 10) * 4;
+    }
+    var sec = 0, i = 0;
+    while (i < exs.length) {
+      var ex = exs[i] || {};
+      var s = Math.max(1, parseInt(ex.sets, 10) || 1);
+      var repos = parseInt(ex.repos, 10) || 75;
+      if (ex.ss) {
+        var fin = i;
+        while (fin + 1 < exs.length && exs[fin + 1] && exs[fin + 1].ss === ex.ss) fin++;
+        var tour = 0;
+        for (var k = i; k <= fin; k++) tour += travail(exs[k]) + 10;
+        sec += s * tour + (s - 1) * repos + 20 * (fin - i + 1);
+        i = fin + 1;
+      } else {
+        sec += s * travail(ex) + (s - 1) * (isTimed(ex) && ex.muscle === 'Cardio' ? 0 : repos) + 20;
+        i++;
+      }
+    }
+    return Math.max(1, Math.round(sec / 60));
+  };
+  Editor.nbSupersets = function (exs) {
+    var vus = {}, n = 0;
+    (exs || []).forEach(function (ex, i) {
+      if (ex && ex.ss && !vus[ex.ss] && groupMembers(exs, i).length > 1) { vus[ex.ss] = 1; n++; }
+    });
+    return n;
+  };
   window.AwakRoutineEditor = Editor;
 
   // ═══════════════════════════════════════════════════════════════════
@@ -403,11 +479,21 @@
     var b = B(); if (!b) return;
     SS.st.round = round;
     b.setExIdx(idx);
-    b.startExercise();
+    window._awakSSGoTo = true;
+    try { b.startExercise(); } finally { window._awakSSGoTo = false; }
     // startExercise → initSetsTracker a remis le compteur à 1 : on rétablit le tour
     b.setSetNum(round);
     b.updateSetIndicator();
     SS.sync();
+  }
+
+  // Repos de fin de tour, adapté au mode de l'exercice qui reprend.
+  function reposAvant(idx, secondes) {
+    var b = B(); if (!b) return;
+    var w = b.getWorkout();
+    var ex = w && w.exercises && w.exercises[idx];
+    if (ex && ex.mode !== 'reps' && typeof b.restBeforeTimer === 'function') b.restBeforeTimer(secondes);
+    else b.startSetRest(secondes);
   }
 
   // ⚡ Appelé par le bouton « Suivant » (skipExercise).
@@ -465,10 +551,10 @@
     try {
       var w = b.getWorkout();
       var exA = w.exercises[premier];
-      repos = (exA && exA.rest) || w.restBetweenSets || b.globalRest() || 60;
+      repos = (exA && exA.repos) || w.restBetweenSets || b.globalRest() || (exA && exA.rest) || 60;
     } catch (e) {}
     goTo(premier, prochain);
-    b.startSetRest(repos);
+    reposAvant(premier, repos);
     return true;
   };
 
@@ -538,12 +624,12 @@
     try {
       var w = b.getWorkout();
       var exA = w.exercises[premier];
-      repos = (exA && exA.rest) || w.restBetweenSets || b.globalRest() || 60;
+      repos = (exA && exA.repos) || w.restBetweenSets || b.globalRest() || (exA && exA.rest) || 60;
     } catch (e) { repos = 60; }
 
     setTimeout(function () {
       goTo(premier, prochain);
-      b.startSetRest(repos);
+      reposAvant(premier, repos);
     }, 350);
     return true;
   };

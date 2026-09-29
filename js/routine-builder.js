@@ -115,7 +115,12 @@
     }
     if (ETAT.muscle) liste = liste.filter(function (e) { return e.muscle === ETAT.muscle; });
     if (ETAT.equip) liste = liste.filter(function (e) { return (e.equipment || []).indexOf(ETAT.equip) >= 0; });
-    if (q) liste = liste.filter(function (e) { return norm(e.name).indexOf(q) >= 0 || norm(e.muscle).indexOf(q) >= 0; });
+    // Recherche bilingue (clé + nom FR + nom EN) et doublons masqués
+    liste = liste.filter(function (e) { return !(window.awakEstDoublon && window.awakEstDoublon(e.name)); });
+    if (q) liste = liste.filter(function (e) {
+      var h = window.awakExCherche ? norm(window.awakExCherche(e.name)) : norm(e.name);
+      return h.indexOf(q) >= 0 || norm(e.muscle).indexOf(q) >= 0;
+    });
 
     // ⚠️ Les exercices personnalisés sont ajoutés en FIN de catalogue : au-delà
     //    des 60 résultats affichés, ils devenaient invisibles dans l'onglet
@@ -157,7 +162,9 @@
     return '<div>' +
         '<div style="display:flex;align-items:center;gap:8px;margin-bottom:9px;">' +
           '<span style="font-size:0.6em;letter-spacing:2px;color:#4ade80;font-weight:900;">◈ MA SÉANCE</span>' +
-          '<span style="font-size:0.68em;color:#64748b;font-weight:700;">' + n + ' exercice' + (n > 1 ? 's' : '') + '</span>' +
+          '<span style="font-size:0.68em;color:#64748b;font-weight:700;">' + n + ' exercice' + (n > 1 ? 's' : '') +
+            ((n && window.AwakRoutineEditor && window.AwakRoutineEditor.estimer)
+              ? ' · ≈ ' + window.AwakRoutineEditor.estimer(routine.exercises) + ' min' : '') + '</span>' +
           '<span style="flex:1;height:1px;background:linear-gradient(90deg,rgba(74,222,128,0.25),transparent);"></span>' +
         '</div>' +
         '<div id="awakBldDrop" style="border:1.5px dashed rgba(255,255,255,0.10);border-radius:14px;padding:10px;min-height:90px;">' +
@@ -358,12 +365,18 @@
     var ex = db().filter(function (e) { return e && e.name === nom; })[0];
     if (!ex) return;
     if (!Array.isArray(c.r.exercises)) c.r.exercises = [];
+    // ⏱ Un exercice minuté dans la base (vélo, planche, étirement…) arrive
+    // en mode DURÉE. Avant, tout arrivait en « 3 × 10 reps » — le vélo inclus.
+    var dbTimed = (ex.mode === 'timer' || ex.mode === 'duration' || ex.type === 'warmup' || ex.type === 'stretch');
+    var dur = parseInt(ex.duration, 10) || 45;
+    if (dur > 600) dur = 300;   // cardio : 30 min en base → 5 min par défaut
     c.r.exercises.push({
       name: ex.name,
       muscle: ex.muscle || '',
-      sets: 3,
+      sets: dbTimed && ex.muscle === 'Cardio' ? 1 : 3,
       reps: 10,
-      mode: 'reps'
+      duration: dur,
+      mode: dbTimed ? 'timer' : 'reps'
     });
     if (window.saveRoutines) window.saveRoutines(c.routines);
     noteRecent(ex.name);
