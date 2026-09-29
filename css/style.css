@@ -3848,9 +3848,8 @@
                 gap: 0 !important;
                 display: flex !important;
                 flex-wrap: nowrap !important;
-                overflow-x: auto !important;
+                overflow-x: hidden !important;
                 overflow-y: hidden !important;
-                -webkit-overflow-scrolling: touch !important;
                 scrollbar-width: none !important;
                 box-shadow: 0 -2px 16px rgba(0,0,0,0.12) !important;
                 border-top: 1px solid rgba(0,0,0,0.08) !important;
@@ -3886,9 +3885,16 @@
                 background: rgba(20,20,24,0.97) !important;
                 border-top-color: rgba(22,163,74,0.2) !important;
             }
+            /* 🐛 Largeur FIXE de 64 px : 7 onglets = 448 px pour un écran de ~390 px.
+               La barre défilait à l'horizontale, et en allant chercher Réglages
+               l'onglet Accueil sortait de l'écran à gauche (« il disparaît »).
+               Les onglets se partagent maintenant la largeur : tout tient. */
             .nav-tab {
-                flex: 0 0 auto !important;
-                width: 64px !important;
+                flex: 1 1 0 !important;
+                width: auto !important;
+                min-width: 0 !important;
+                letter-spacing: 0 !important;
+                text-overflow: clip !important;
                 display: flex !important;
                 flex-direction: column !important;
                 align-items: center !important;
@@ -3896,7 +3902,7 @@
                 gap: 2px !important;
                 padding: 5px 2px !important;
                 min-height: 50px !important;
-                font-size: 0.6em !important;
+                font-size: 0.56em !important;
                 border-radius: 10px !important;
                 white-space: nowrap !important;
                 overflow: hidden !important;
