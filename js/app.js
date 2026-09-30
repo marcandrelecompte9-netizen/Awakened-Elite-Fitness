@@ -24396,7 +24396,7 @@
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1193);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1195);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -24440,7 +24440,7 @@
                 +       '<feGaussianBlur stdDeviation="2.4" result="b"/>'
                 +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>'
                 +     '</filter></defs>'
-                +     '<image href="' + img + '?v=1193" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1195" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -27323,8 +27323,24 @@
                     // Les anciennes images paysage et les nouvelles verticales s'affichent
                     // chacune en grand, sans vide latéral ni rapetissement.
                     // max-height borne les images très hautes pour rester confortable sur mobile.
-                    visualContent.innerHTML = '<div style="width:100%;max-width:480px;margin:0 auto;height:300px;border-radius:14px;overflow:hidden;background:linear-gradient(160deg,#1A1B20,#111318);display:flex;align-items:center;justify-content:center;">' + (typeof window.buildLazyImg === 'function' ? window.buildLazyImg(_imgSrc3, exerciseName, 'border-radius:10px;width:100%;height:100%;object-fit:contain;display:block;') : '<img src="' + _imgSrc3 + '" alt="" style="width:100%;height:100%;object-fit:contain;border-radius:10px;" loading="lazy"/>') + '</div>';
+                    // 🎨 IMAGE BORD À BORD : avant, trois fonds différents s'empilaient
+                    // (cadre bleu nuit, boîte grise, fond de l'image). Maintenant l'image
+                    // remplit le cadre, et les bandes vides sont comblées par une copie
+                    // FLOUE et assombrie de la même image — un seul ensemble cohérent.
+                    const _src3 = String(_imgSrc3).split('/').map((seg, k) => k === 0 ? seg : encodeURIComponent(seg).replace(/'/g, '%27')).join('/');
+                    visualContent.style.padding = '0';
+                    visualContent.classList.add('awak-vis-img');
+                    visualContent.innerHTML = '<div style="position:relative;width:100%;height:310px;overflow:hidden;">'
+                        + '<div aria-hidden="true" style="position:absolute;inset:-30px;background:url(' + "'" + _src3 + "'" + ') center/cover no-repeat;filter:blur(24px) brightness(0.42) saturate(1.2);transform:scale(1.1);"></div>'
+                        + '<div aria-hidden="true" style="position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 55%,rgba(2,5,16,0.55) 100%);"></div>'
+                        + '<div style="position:relative;z-index:1;width:100%;height:100%;display:flex;align-items:center;justify-content:center;">'
+                        + (typeof window.buildLazyImg === 'function'
+                            ? window.buildLazyImg(_imgSrc3, exerciseName, 'width:100%;height:100%;object-fit:contain;display:block;background:transparent;border-radius:0;')
+                            : '<img src="' + _src3 + '" alt="" style="width:100%;height:100%;object-fit:contain;display:block;" loading="lazy"/>')
+                        + '</div></div>';
                 } else {
+                    visualContent.style.padding = '40px 14px 14px';
+                    visualContent.classList.remove('awak-vis-img');
                     visualContent.innerHTML = `
                     <div style="display:flex;gap:12px;align-items:center;justify-content:center;width:100%;flex-wrap:wrap;">
                         <div style="flex:1;display:flex;flex-direction:column;align-items:center;min-width:120px;max-width:200px;">
@@ -29790,7 +29806,7 @@
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1193");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1195");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -34197,7 +34213,7 @@
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1193);'
+                +     'url(images/combat_bg_v1.webp?v=1195);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -34452,7 +34468,7 @@
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1193);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1195);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -35707,7 +35723,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1193');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1195');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -36442,7 +36458,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1193);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1195);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -36613,7 +36629,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1193);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1195);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -40232,7 +40248,14 @@
             // Timer mode : utiliser la durée de l'exercice si timerSeconds est 0
             if (isTimer || (reps === 0 && weightKg === 0)) {
                 const secs = Math.min(timerSeconds || ex?.duration || 30, 600); // max 10 min par "série" timer
-                return Math.max(2, Math.min(XP_MAX_PER_SET, Math.floor(secs / 8 * diffMult)));
+                // 🐛 secs/8 donnait ~5 XP pour 45 s d'effort, contre 15-50 XP pour une
+                // série en répétitions : les séances minutées ne faisaient presque pas
+                // monter les muscles. Un effort minuté vaut maintenant ~1 XP / 3 s
+                // (45 s ≈ une série de 15 reps au poids du corps). Échauffements et
+                // étirements restent légers (1 XP / 12 s).
+                const _annexe = ex && (ex.type === 'warmup' || ex.type === 'stretch');
+                const _parXP = _annexe ? 12 : 3;
+                return Math.max(2, Math.min(XP_MAX_PER_SET, Math.floor(secs / _parXP * diffMult)));
             }
             // 🛡️ Cap les reps à un maximum raisonnable
             const cappedReps = Math.min(reps || 1, XP_MAX_REPS_PER_SET);
@@ -40496,6 +40519,16 @@
                 content.appendChild(clone);
             });
             sheet.appendChild(content);
+            // 🔄 La carte musculaire est CLONÉE depuis l'onglet Jeu, rendu plus tôt :
+            // on la redessine avec les niveaux actuels (sinon niveaux d'avant la séance).
+            try {
+                if (typeof awakRenderBodyMap === 'function') {
+                    content.querySelectorAll('#awakBodyMapHost, .awak-bodymap-host').forEach(h => {
+                        const hote = h.id === 'awakBodyMapHost' ? h : h.parentElement;
+                        if (hote) hote.innerHTML = awakRenderBodyMap();
+                    });
+                }
+            } catch (e) {}
 
             overlay.appendChild(sheet);
             overlay.onclick = e => { if(e.target===overlay) overlay.remove(); };
@@ -47362,7 +47395,7 @@
 
             host.innerHTML =
                 '<div style="position:relative;width:110px;margin:0 auto 12px;">'
-              +   '<img src="images/body/body_face.webp?v=1193" alt="" '
+              +   '<img src="images/body/body_face.webp?v=1195" alt="" '
               +     'style="width:100%;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -47444,7 +47477,7 @@
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1193);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1195);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -49829,7 +49862,7 @@
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1193");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1195");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.

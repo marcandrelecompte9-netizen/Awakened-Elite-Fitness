@@ -7726,3 +7726,8 @@ body.dark-mode #homeTab .stat-label {
     height: 100% !important;
     object-fit: contain !important;
 }
+
+/* 🖼️ Image d'exercice bord à bord (fond = copie floue de l'image) :
+   aucun espacement autour, y compris en paysage (règle !important plus haut). */
+#exerciseVisualContent.awak-vis-img { padding: 0 !important; }
+#exerciseVisualContent.awak-vis-img img { max-height: none !important; width: 100% !important; }
