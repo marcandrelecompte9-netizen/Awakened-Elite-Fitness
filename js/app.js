@@ -18939,23 +18939,28 @@
             container.style.display = 'block';
 
             container.innerHTML = `
-                <div class="card" style="background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(34,197,94,0.25);padding:14px 16px;margin-bottom:14px;">
+                <div class="card" style="background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(255,255,255,0.07);padding:14px 16px;margin-bottom:14px;">
                     <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-                        <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;">SEMAINE</div>
-                        <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(34,197,94,0.25),transparent);"></div>
-                        <button onclick="openWeeklyPlanEditor()" style="background:none;border:none;color:#94a3b8;font-size:0.7em;cursor:pointer;font-weight:700;">✏️ Modifier</button>
+                        <div style="font-size:0.6em;color:#60a8f0;font-weight:900;letter-spacing:2px;">SEMAINE</div>
+                        <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(96,168,240,0.25),transparent);"></div>
+                        <button onclick="openWeeklyPlanEditor()" style="display:inline-flex;align-items:center;gap:5px;min-height:auto;padding:5px 10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.10);border-radius:8px;color:#cbd5e1;font-size:0.7em;cursor:pointer;font-weight:800;"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Modifier</button>
                     </div>
-                    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;">
+                    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;">
                         ${ROUTINE_DAYS.map((d, i) => {
                             const routineId = plan[d];
                             const routine = routines.find(r => r.id === routineId);
                             const isToday = i === todayIdx;
-                            const borderColor = isToday ? '#22c55e' : (routine ? (routine.color || '#475569') : 'rgba(255,255,255,0.05)');
-                            const bgColor = isToday ? 'rgba(34,197,94,0.12)' : (routine ? `${routine.color}10` : 'rgba(255,255,255,0.02)');
-                            return `<div onclick="${routine ? `startRoutineById('${routineId}')` : `openWeeklyPlanEditor('${d}')`}" style="cursor:pointer;background:${bgColor};border:1.5px solid ${borderColor};border-radius:10px;padding:7px 4px;text-align:center;${isToday ? 'box-shadow:0 0 10px rgba(34,197,94,0.3);' : ''}">
-                                <div style="font-size:0.55em;color:${isToday?'#4ade80':'#94a3b8'};font-weight:800;letter-spacing:0.5px;">${ROUTINE_DAY_LABELS[d]}</div>
-                                <div style="line-height:1;margin-top:3px;display:flex;justify-content:center;">${routine ? awakRoutineIcon(routine, 16) : '<span style=\"color:#475569;\">·</span>'}</div>
-                                ${isToday ? '<div style="font-size:0.5em;color:#4ade80;font-weight:900;margin-top:2px;">AUJ.</div>' : ''}
+                            const lundi = new Date(); lundi.setHours(0,0,0,0); lundi.setDate(lundi.getDate() - todayIdx);
+                            const date = new Date(lundi.getFullYear(), lundi.getMonth(), lundi.getDate() + i).getDate();
+                            const coul = routine ? (routine.color || '#60a8f0') : null;
+                            const borderColor = isToday ? '#22d3ee' : (routine ? coul + '88' : 'rgba(255,255,255,0.06)');
+                            const bgColor = routine ? coul + '14' : 'rgba(255,255,255,0.02)';
+                            const nomCourt = routine ? String(routine.name || '').replace(/[<>&"]/g, '') : '';
+                            return `<div onclick="${routine ? `startRoutineById('${routineId}')` : `openWeeklyPlanEditor('${d}')`}" style="cursor:pointer;background:${bgColor};border:1.5px solid ${borderColor};border-radius:10px;padding:6px 2px 5px;text-align:center;min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;">
+                                <div style="font-size:0.52em;color:${isToday?'#22d3ee':'#64748b'};font-weight:800;letter-spacing:0.3px;">${ROUTINE_DAY_LABELS[d].toUpperCase()}</div>
+                                <div style="font-size:0.82em;font-weight:900;color:${isToday?'#22d3ee':(routine?'#f1f5f9':'#475569')};line-height:1;">${date}</div>
+                                <div style="height:18px;display:flex;align-items:center;justify-content:center;">${routine ? awakRoutineIcon(routine, 16) : '<span style="width:12px;height:1.5px;background:#334155;border-radius:2px;display:block;"></span>'}</div>
+                                <div style="font-size:0.46em;font-weight:700;color:${routine?'#cbd5e1':'#475569'};width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 2px;box-sizing:border-box;">${routine ? nomCourt : 'Repos'}</div>
                             </div>`;
                         }).join('')}
                     </div>
@@ -19602,7 +19607,9 @@
         // créées avant l'arrivée des icônes SVG.
         function awakRoutineIcon(r, size, color) {
             const px = size || 22;
-            const id = r && r.icon;
+            // Sans icône SVG enregistrée (anciennes routines à emoji, effacé par le
+            // filtre sans-emoji) → haltère par défaut, jamais une case vide.
+            const id = (r && r.icon && AWAK_ROUTINE_ICONS[r.icon]) ? r.icon : 'dumbbell';
             if (id && AWAK_ROUTINE_ICONS[id]) {
                 return '<svg viewBox="0 0 24 24" width="' + px + '" height="' + px + '" fill="none" '
                     + 'stroke="' + (color || (r && r.color) || '#22c55e') + '" stroke-width="1.9" '
@@ -24368,7 +24375,7 @@
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1188);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1192);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -24412,7 +24419,7 @@
                 +       '<feGaussianBlur stdDeviation="2.4" result="b"/>'
                 +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>'
                 +     '</filter></defs>'
-                +     '<image href="' + img + '?v=1188" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1192" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -29762,7 +29769,7 @@
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1188");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1192");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -34169,7 +34176,7 @@
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1188);'
+                +     'url(images/combat_bg_v1.webp?v=1192);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -34424,7 +34431,7 @@
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1188);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1192);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -35679,7 +35686,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1188');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1192');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -36414,7 +36421,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1188);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1192);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -36585,7 +36592,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1188);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1192);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -47334,7 +47341,7 @@
 
             host.innerHTML =
                 '<div style="position:relative;width:110px;margin:0 auto 12px;">'
-              +   '<img src="images/body/body_face.webp?v=1188" alt="" '
+              +   '<img src="images/body/body_face.webp?v=1192" alt="" '
               +     'style="width:100%;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -47416,7 +47423,7 @@
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1188);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1192);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -49801,7 +49808,7 @@
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1188");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1192");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
@@ -51134,7 +51141,7 @@
             const coachInner = (typeof _coachBilanBodyHTML === 'function') ? _coachBilanBodyHTML() : '';
 
             const sheet = document.createElement('div');
-            sheet.style.cssText = 'background:#0D0D0D;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;';
+            sheet.style.cssText = 'background:#0D0D0D;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;height:88vh;box-sizing:border-box;overflow-y:auto;-webkit-overflow-scrolling:touch;';
             sheet.innerHTML = `
                 <div style="width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:99px;margin:0 auto 18px;"></div>
                 <div style="text-align:center;margin-bottom:16px;">
@@ -51216,12 +51223,14 @@
                 if (_panC) _panC.style.display = isS ? 'none' : '';
                 if (_btnS) {
                     _btnS.style.background = isS ? 'linear-gradient(135deg,#3b82f6,#1d5fa8)' : 'transparent';
-                    _btnS.style.color = isS ? '#052e16' : '#94a3b8';
+                    _btnS.style.color = isS ? '#ffffff' : '#94a3b8';
                 }
                 if (_btnC) {
                     _btnC.style.background = !isS ? 'linear-gradient(135deg,#3b82f6,#1d5fa8)' : 'transparent';
-                    _btnC.style.color = !isS ? '#052e16' : '#94a3b8';
+                    _btnC.style.color = !isS ? '#ffffff' : '#94a3b8';
                 }
+                // Même hauteur de fenêtre pour les deux onglets, et retour en haut
+                try { sheet.scrollTop = 0; } catch (e) {}
                 if (isS) _instSysCharts();
             }
             if (_btnS) _btnS.addEventListener('click', () => _switchTab('systeme'));

@@ -181,12 +181,15 @@
       if (s.label) bits.push(s.muscles.slice(0, 4).join(' · '));
       if (auj.heure) bits.push(fmtH(auj.heure));
       sous = bits.join('  ·  ');
-      var conseil = conseilDuJour();
+      // Le conseil vient du moteur intelligent : hors-sujet si on suit une routine ou un programme
+      var conseil = (s.source === 'routine' || s.source === 'programme') ? '' : conseilDuJour();
       // Pas de redite : « Plan du jour : Tirage » sous le titre « Tirage »
       if (conseil && (conseil.indexOf(titre) >= 0 || /^plan du jour/i.test(conseil))) conseil = '';
       var go = s.routineId
         ? 'if(typeof startRoutineById===\'function\')startRoutineById(\'' + esc(s.routineId) + '\')'
-        : 'switchTab(\'workouts\');window.scrollTo(0,0)';
+        : (s.source === 'programme' && s.planWeek
+          ? 'if(typeof startPlanSession===\'function\')startPlanSession(' + (+s.planWeek) + ',' + (+s.planIdx) + ')'
+          : 'switchTab(\'workouts\');window.scrollTo(0,0)');
       boutons = auj.faite
         ? '<button class="ahp-btn ahp-btn-s" onclick="switchTab(\'history\')">Voir ma progression</button>'
         : '<button class="ahp-btn ahp-btn-p" onclick="' + go + '">' + ico('halter', 18, '#04121f') + 'Démarrer la séance</button>';
@@ -284,6 +287,7 @@
           '<span style="font-size:0.95em;font-weight:800;color:#f1f5f9;">Ta semaine</span>' +
           '<span style="font-size:0.72em;color:#94a3b8;">' + chiffres.join('  ·  ') + '</span>' +
         '</div>' +
+        sourceChipHTML(id) +
         '<div style="display:flex;gap:2px;">' + cases + '</div>' +
         (aPrevoir.length && aPrevoir.length < MUSCLES_CLES.length
           ? '<div style="margin-top:12px;font-size:0.72em;color:#64748b;line-height:1.45;">Pas encore travaillés : ' +
@@ -291,6 +295,73 @@
           : '') +
       '</div>';
   }
+
+  // ── Choix du planning suivi (routine / plan / programme / auto) ──
+  var SRC_LIB = {
+    auto:      { t: 'Automatique',       d: 'Routines d\'abord, puis ton plan de la semaine' , ic: 'grille' },
+    routine:   { t: 'Mes routines',      d: 'Les routines assignées aux jours',                ic: 'liste' },
+    ia:        { t: 'Plan de la semaine', d: 'Plan intelligent, manuel ou programme star',     ic: 'eclair' },
+    programme: { t: 'Programme',         d: 'La semaine en cours de ton programme',           ic: 'trophee' }
+  };
+  function sourceChipHTML(id) {
+    var P = window.AwakCalPlan;
+    if (!P || !P.sourcePref) return '';
+    var v = P.sourcePref(id), L = SRC_LIB[v] || SRC_LIB.auto;
+    var nom = L.t;
+    if (v === 'programme') { try { var dp = P.sourcesDispo(id); if (dp.nomProgramme) nom = dp.nomProgramme; } catch (e) {} }
+    return '<button onclick="event.stopPropagation();awakChoisirPlanning()" style="display:flex;align-items:center;gap:7px;width:100%;min-height:auto;' +
+        'margin:0 0 12px;padding:7px 10px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);' +
+        'color:#cbd5e1;font-family:inherit;font-size:0.74em;font-weight:700;cursor:pointer;text-align:left;">' +
+        ico(L.ic, 15, ACCENT) +
+        '<span style="color:#64748b;">Planning suivi :</span>' +
+        '<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#f1f5f9;">' + esc(nom) + '</span>' +
+        '<span style="color:' + ACCENT + ';">Changer</span></button>';
+  }
+
+  window.awakChoisirPlanning = function () {
+    var P = window.AwakCalPlan;
+    if (!P || !P.sourcePref) return;
+    var id = null;
+    try { id = (typeof getCurrentProfileId === 'function') ? getCurrentProfileId() : null; } catch (e) {}
+    if (!id) return;
+    var v = P.sourcePref(id), dispo = {};
+    try { dispo = P.sourcesDispo(id) || {}; } catch (e) {}
+    document.getElementById('awakPlanSrcModal') && document.getElementById('awakPlanSrcModal').remove();
+    var ov = document.createElement('div');
+    ov.id = 'awakPlanSrcModal';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:12000;background:rgba(0,0,0,0.75);display:flex;align-items:flex-end;justify-content:center;';
+    ov.onclick = function (e) { if (e.target === ov) ov.remove(); };
+    var lignes = ['auto', 'routine', 'ia', 'programme'].map(function (k) {
+      var L = SRC_LIB[k], sel = k === v;
+      var vide = k !== 'auto' && !dispo[k];
+      var desc = L.d;
+      if (k === 'programme' && dispo.nomProgramme) desc = dispo.nomProgramme + ' · semaine en cours';
+      if (vide) desc = k === 'routine' ? 'Aucune routine assignée à un jour' : (k === 'ia' ? 'Aucun plan de la semaine créé' : 'Aucun programme démarré');
+      return '<button ' + (vide ? 'disabled ' : '') + 'onclick="awakPlanSrcSet(\'' + k + '\')" style="display:flex;align-items:center;gap:12px;width:100%;min-height:auto;' +
+          'padding:12px;margin-bottom:7px;border-radius:12px;cursor:' + (vide ? 'default' : 'pointer') + ';font-family:inherit;text-align:left;' +
+          'opacity:' + (vide ? '0.45' : '1') + ';' +
+          'background:' + (sel ? 'rgba(34,211,238,0.10)' : 'rgba(255,255,255,0.03)') + ';border:1px solid ' + (sel ? 'rgba(34,211,238,0.55)' : 'rgba(255,255,255,0.08)') + ';">' +
+          '<span style="width:36px;height:36px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.04);">' + ico(L.ic, 18, sel ? ACCENT : '#94a3b8') + '</span>' +
+          '<span style="flex:1;min-width:0;"><span style="display:block;font-size:0.88em;font-weight:800;color:#f1f5f9;">' + L.t + '</span>' +
+          '<span style="display:block;font-size:0.72em;color:#94a3b8;margin-top:2px;">' + esc(desc) + '</span></span>' +
+          (sel ? ico('valide', 18, ACCENT) : '') +
+        '</button>';
+    }).join('');
+    ov.innerHTML = '<div style="width:100%;max-width:480px;background:#12161c;border:1px solid rgba(255,255,255,0.08);border-radius:18px 18px 0 0;padding:16px 14px 22px;box-sizing:border-box;">' +
+        '<div style="width:40px;height:4px;background:rgba(255,255,255,0.12);border-radius:99px;margin:0 auto 12px;"></div>' +
+        '<div style="font-size:1.02em;font-weight:800;color:#f1f5f9;">Quel planning suivre ?</div>' +
+        '<div style="font-size:0.74em;color:#94a3b8;margin:4px 0 14px;line-height:1.45;">L\'accueil et l\'agenda afficheront seulement ce planning.</div>' +
+        lignes + '</div>';
+    document.body.appendChild(ov);
+  };
+  window.awakPlanSrcSet = function (k) {
+    var P = window.AwakCalPlan, id = null;
+    try { id = getCurrentProfileId(); } catch (e) {}
+    if (P && P.setSourcePref && id) P.setSourcePref(id, k);
+    var m = document.getElementById('awakPlanSrcModal'); if (m) m.remove();
+    render();
+    try { if (typeof window.renderCalendarTab === 'function' && document.getElementById('calendarTab') && document.getElementById('calendarTab').classList.contains('active')) window.renderCalendarTab(); } catch (e) {}
+  };
 
   // ═══ 4. RACCOURCIS ═════════════════════════════════════════════════
   function raccourcisHTML() {

@@ -113,13 +113,72 @@
     return o.plan;
   }
 
+  // ── Programme actif (onglet Programme) : semaine en cours ──
+  var JOURS_NOMS = { lundi: 'lun', mardi: 'mar', mercredi: 'mer', jeudi: 'jeu', vendredi: 'ven', samedi: 'sam', dimanche: 'dim' };
+  function programmeFor(id) {
+    var o = readJSON('activePlan_' + id, null);
+    if (!o || !Array.isArray(o.weeks) || !o.weeks.length) return null;
+    var no = parseInt(o.currentWeek, 10) || 1;
+    var sem = o.weeks[Math.min(o.weeks.length, Math.max(1, no)) - 1];
+    if (!sem || !Array.isArray(sem.sessions)) return null;
+    var db = window.exerciseDatabase || [];
+    var out = {};
+    sem.sessions.forEach(function (se, idx) {
+      var cle = JOURS_NOMS[String(se.day || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')];
+      if (!cle || out[cle]) return;
+      var mus = [];
+      (se.exercises || []).forEach(function (n) {
+        var ex = null;
+        for (var k = 0; k < db.length; k++) { if (db[k] && db[k].name === n) { ex = db[k]; break; } }
+        if (ex && ex.muscle && mus.indexOf(ex.muscle) < 0) mus.push(ex.muscle);
+      });
+      out[cle] = { muscles: mus.length ? mus : ['Séance'], label: se.name || o.name || 'Programme',
+                   source: 'programme', planWeek: no, planIdx: idx, programme: o.name || '' };
+    });
+    return out;
+  }
+
+  // ── Planning à suivre (choix du membre) ──
+  //   auto      → priorité jour par jour : routine, manuel, plan (comportement historique)
+  //   routine   → uniquement les routines assignées aux jours
+  //   ia        → uniquement le plan de la semaine (manuel + intelligent / Star)
+  //   programme → uniquement la semaine en cours du programme actif
+  var SOURCE_KEYS = ['auto', 'routine', 'ia', 'programme'];
+  function sourcePref(id) {
+    try { var v = localStorage.getItem('awakPlanSource_' + id); return SOURCE_KEYS.indexOf(v) >= 0 ? v : 'auto'; }
+    catch (e) { return 'auto'; }
+  }
+  function setSourcePref(id, v) {
+    try {
+      if (v === 'auto' || SOURCE_KEYS.indexOf(v) < 0) localStorage.removeItem('awakPlanSource_' + id);
+      else localStorage.setItem('awakPlanSource_' + id, v);
+    } catch (e) {}
+  }
+  // Quelles sources ont réellement du contenu (pour griser les choix vides)
+  function sourcesDispo(id) {
+    var assign = dayRoutinesFor(id), a = false;
+    Object.keys(assign || {}).forEach(function (k) { if (assign[k]) a = true; });
+    var man = manualPlanFor(id), m = false;
+    Object.keys(man || {}).forEach(function (k) { if (man[k] && man[k].muscles && man[k].muscles.length) m = true; });
+    var act = activePlanFor(id), i = false;
+    (act || []).forEach(function (j) { if (j && j.intensity !== 'rest' && j.muscles && j.muscles.length) i = true; });
+    var prog = readJSON('activePlan_' + id, null);
+    return { routine: a, ia: m || i, programme: !!(prog && prog.weeks), nomProgramme: prog ? (prog.name || '') : '' };
+  }
+
   // Planning résolu d'un membre : { lun: {muscles,label,heure,source}, … }
   function planFor(id) {
     var out = {};
+    var pref = sourcePref(id);
     var manual = manualPlanFor(id);
-    var assign = dayRoutinesFor(id);
+    if (pref === 'programme') {
+      var pg = programmeFor(id) || {};
+      Object.keys(pg).forEach(function (d) { pg[d].heure = (manual[d] && manual[d].heure) || null; });
+      return pg;
+    }
+    var assign = pref === 'ia' ? {} : dayRoutinesFor(id);
     var routines = routinesFor(id);
-    var actif = activePlanFor(id);
+    var actif = pref === 'routine' ? null : activePlanFor(id);
 
     JOURS.forEach(function (d, i) {
       // ① routine assignée à ce jour
@@ -143,7 +202,7 @@
         }
       }
       // ② plan manuel par muscles
-      if (manual[d] && manual[d].muscles && manual[d].muscles.length) {
+      if (pref !== 'routine' && manual[d] && manual[d].muscles && manual[d].muscles.length) {
         out[d] = {
           muscles: manual[d].muscles.slice(),
           label: manual[d].label || '',
@@ -173,7 +232,8 @@
   var SOURCES = {
     routine: { txt: 'ROUTINE', col: '#22d3ee' },
     manuel:  { txt: 'MANUEL',  col: '#60a8f0' },
-    plan:    { txt: 'PLAN',    col: '#c084fc' }
+    plan:    { txt: 'PLAN',    col: '#c084fc' },
+    programme: { txt: 'PROGRAMME', col: '#fbbf24' }
   };
   function sourceChip(src) {
     var m = SOURCES[src];
@@ -1257,6 +1317,7 @@
   // l'agenda, pour que les deux écrans affichent les mêmes chiffres.
   window.AwakCalPlan = {
     planFor: planFor, doneDates: doneDates, timeFor: timeFor, fmtTime: fmtTime,
+    sourcePref: sourcePref, setSourcePref: setSourcePref, sourcesDispo: sourcesDispo,
     lundiDe: lundiDe, JOURS: JOURS, wIdx: wIdx
   };
 

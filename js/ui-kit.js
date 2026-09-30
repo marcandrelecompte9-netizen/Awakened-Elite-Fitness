@@ -131,7 +131,7 @@
       var st = it.active
         ? 'background:linear-gradient(135deg,' + a + ',' + a + 'cc);color:white;'
         : 'background:transparent;color:' + T.mut + ';';
-      return '<button onclick="' + it.onclick + '" style="flex:1;border:none;border-radius:10px;padding:10px 6px;font-weight:800;font-size:0.78em;cursor:pointer;' + st + '">' + it.label + '</button>';
+      return '<button onclick="' + it.onclick + '" style="flex:1;min-width:0;border:none;border-radius:10px;padding:10px 2px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;' + st + '">' + it.label + '</button>';
     }).join('');
     return '<div style="display:flex;gap:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:5px;margin-bottom:8px;">' + btns + '</div>';
   }
