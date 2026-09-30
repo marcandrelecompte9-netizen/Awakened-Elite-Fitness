@@ -98,10 +98,10 @@
       // Anciennes cartes remplacées : masquées, pas supprimées
       '#homeTab #profileCard,#homeTab #homeWeekCalendar,#homeTab #homeWeekStrip,#homeTab #homeCoachCard,' +
       '#homeTab #weeklySuggestionCard,#homeTab #painCheckCard,#homeTab #homeMoreCardsHint{display:none!important;}' +
-      // Affiche AWAKENED : petite bande
-      '#appHeader{height:92px!important;margin-bottom:12px!important;border:1px solid rgba(255,255,255,0.06)!important;box-shadow:none!important;}' +
-      '#appHeader picture,#appHeader img{height:100%!important;}' +
-      '#appHeader img{width:100%!important;object-fit:cover!important;object-position:center 99%!important;transform:scale(1.12);transform-origin:center 78%;}' +
+      // Affiche AWAKENED : image COMPLÈTE, sans rognage ni zoom
+      '#appHeader{height:auto!important;padding:0!important;margin-bottom:12px!important;border:1px solid rgba(255,255,255,0.06)!important;box-shadow:none!important;}' +
+      '#appHeader picture{display:block!important;height:auto!important;}' +
+      '#appHeader img{width:100%!important;height:auto!important;object-fit:contain!important;transform:none!important;display:block!important;}' +
       '#appHeader > div{display:none!important;}' +
       // Composants
       '.ahp-card{background:#12161c;border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:16px;margin-bottom:12px;}' +

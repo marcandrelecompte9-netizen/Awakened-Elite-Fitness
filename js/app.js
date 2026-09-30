@@ -19931,7 +19931,7 @@
             ov.style.cssText = 'position:fixed;inset:0;background:rgba(4,6,12,0.92);backdrop-filter:blur(6px);z-index:10040;overflow-y:auto;padding:18px 12px 40px;';
             ov.innerHTML = '<div style="max-width:640px;margin:0 auto;">'
                 + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">'
-                + '<span style="font-size:1.7em;">👑</span><h2 style="flex:1;margin:0;color:#fbbf24;font-size:1.12em;">Hall of Fame</h2>'
+                + '<span style="display:inline-flex;">' + (window.AwakIcon ? window.AwakIcon.get('trophee', 24, '#fbbf24') : '') + '</span><h2 style="flex:1;margin:0;color:#fbbf24;font-size:1.12em;">Hall of Fame</h2>'
                 + '<button onclick="awakHallToggleAdd()" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.4);color:#c4b5fd;border-radius:10px;padding:8px 12px;font-weight:800;cursor:pointer;font-size:0.8em;">➕ Ajouter</button>'
                 + '<button onclick="document.getElementById(\'awakHallModal\').remove()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:#cbd5e1;border-radius:10px;padding:8px 12px;font-weight:800;cursor:pointer;"><svg viewBox="0 0 24 24" width="16" height="16" style="display:inline-block;vertical-align:-0.15em;" aria-hidden="true"><path d="M5 5 L19 19 M19 5 L5 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" fill="none"/></svg></button></div>'
                 // Filtres
@@ -19943,70 +19943,105 @@
                 + '</div>'
                 // Zone formulaire d'ajout (repliée par défaut)
                 + '<div id="hofAddPanel" style="display:none;"></div>'
-                // Rangée profils masqués
-                + (hidden.length
-                    ? '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:10px;font-size:0.72em;color:#64748b;">🙈 Masqués :'
-                      + profiles.filter(p => hidden.indexOf(p.id) >= 0).map(p => '<span onclick="awakHallToggleHide(\'' + p.id + '\')" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:3px 9px;color:#94a3b8;font-weight:700;cursor:pointer;">' + (p.avatar || '👤') + ' ' + p.name + ' · réafficher</span>').join('')
-                      + '</div>'
-                    : '')
-                // Grille (rendue par awakHallRenderGrid)
-                + '<div id="hofGridWrap" style="overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:12px;border:1px solid rgba(255,255,255,0.08);"></div>'
-                + '<div style="margin-top:10px;font-size:0.68em;color:#64748b;text-align:center;">👑 meilleur poids par exercice · ✎ corriger · 🙈 masquer une colonne profil · glisse horizontalement pour voir tous les profils</div>'
+                // Recherche
+                + '<input id="hofSearch" type="search" oninput="awakHallRenderGrid()" placeholder="Rechercher un exercice" style="width:100%;box-sizing:border-box;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.14);background:rgba(0,0,0,0.35);color:#e2e8f0;font-size:0.85em;margin-bottom:10px;">'
+                // Personnes : toucher pour afficher / masquer
+                + '<div id="hofPeople" style="display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px;margin-bottom:12px;"></div>'
+                // Cartes (rendues par awakHallRenderGrid)
+                + '<div id="hofGridWrap"></div>'
+                + '<div style="margin-top:12px;font-size:0.68em;color:#64748b;text-align:center;line-height:1.5;">Le meilleur poids de chaque exercice est en or · touche une personne pour la masquer</div>'
                 + '</div>';
             document.body.appendChild(ov);
 
             // Stocker le contexte pour le rendu de grille filtrable
-            ov._hofCtx = { cell, columns, exoMeta, unit };
+            ov._hofCtx = { cell, columns, exoMeta, unit, profiles, hidden };
             awakHallRenderGrid();
         }
 
         function awakHallRenderGrid() {
             const ov = document.getElementById('awakHallModal'); if (!ov || !ov._hofCtx) return;
-            const { cell, columns, unit } = ov._hofCtx;
+            const { cell, columns, unit, profiles, hidden } = ov._hofCtx;
             const fMuscle = (document.getElementById('hofFilterMuscle') || {}).value || '';
             const fEquip = (document.getElementById('hofFilterEquip') || {}).value || '';
+            const fTxt = ((document.getElementById('hofSearch') || {}).value || '').trim();
+            const esc = (t) => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+            const nomAff = (k) => { try { return typeof window.awakNom === 'function' ? window.awakNom(k) : k; } catch (e) { return k; } };
             const meta = (exo) => {
                 const base = (typeof exerciseDatabase !== 'undefined') ? exerciseDatabase.find(e => e.name === exo) : null;
                 return base ? { muscle: base.muscle || '', equipment: base.equipment || [] } : { muscle: '', equipment: [] };
             };
-            let exos = Object.keys(cell).sort((a, b) => a.localeCompare(b, 'fr'));
-            if (fMuscle) exos = exos.filter(e => meta(e).muscle === fMuscle);
-            if (fEquip) exos = exos.filter(e => (meta(e).equipment || []).indexOf(fEquip) >= 0);
+            const vaut = (v) => v ? ((v.weight || 0) * 1000 + (v.weightReps || v.reps || 0)) : -1;
+
+            // ── Personnes (profils visibles + masqués + invités) ──
+            const people = document.getElementById('hofPeople');
+            if (people) {
+                const chip = (av, label, on, click) => '<button ' + (click ? 'onclick="' + click + '" ' : '') + 'style="flex-shrink:0;display:inline-flex;align-items:center;gap:6px;padding:5px 11px 5px 5px;border-radius:20px;min-height:auto;cursor:pointer;font-size:0.76em;font-weight:800;white-space:nowrap;'
+                    + (on ? 'background:rgba(251,191,36,0.10);border:1px solid rgba(251,191,36,0.35);color:#e2e8f0;' : 'background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.15);color:#64748b;text-decoration:line-through;') + '">'
+                    + (typeof renderAvatar === 'function' ? renderAvatar(av, 24) : '') + esc(label) + '</button>';
+                people.innerHTML = profiles.map(p => chip(p.avatar || '👤', p.name, hidden.indexOf(p.id) < 0, "awakHallToggleHide('" + p.id + "')")).join('')
+                    + columns.filter(c => !c.isProfile).map(c => chip(c.avatar, c.label, true, '')).join('');
+            }
+
+            // ── Regroupement par NOM AFFICHÉ (deux anciennes clés peuvent
+            //    porter le même nom : on n'affiche qu'une carte, le meilleur gagne) ──
+            const groupes = {};
+            Object.keys(cell).forEach(exo => {
+                const n = nomAff(exo);
+                const g = groupes[n] = groupes[n] || { nom: n, cles: [], cells: {} };
+                g.cles.push(exo);
+                Object.keys(cell[exo]).forEach(col => {
+                    const v = Object.assign({ exo: exo }, cell[exo][col]);
+                    if (!g.cells[col] || vaut(v) > vaut(g.cells[col])) g.cells[col] = v;
+                });
+            });
+            let liste = Object.keys(groupes).map(k => groupes[k]).sort((a, b) => a.nom.localeCompare(b.nom, 'fr'));
+            if (fMuscle) liste = liste.filter(g => g.cles.some(e => meta(e).muscle === fMuscle));
+            if (fEquip) liste = liste.filter(g => g.cles.some(e => (meta(e).equipment || []).indexOf(fEquip) >= 0));
+            if (fTxt) {
+                const q = fTxt.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+                liste = liste.filter(g => (g.nom + ' ' + g.cles.join(' ')).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').indexOf(q) >= 0);
+            }
+            liste = liste.filter(g => columns.some(c => g.cells[c.key]));
 
             const wrap = document.getElementById('hofGridWrap');
-            if (exos.length === 0 || columns.length === 0) {
-                wrap.innerHTML = '<div style="text-align:center;padding:30px 10px;color:#64748b;font-size:0.85em;">Aucun record ne correspond' + (fMuscle || fEquip ? ' à ce filtre.' : ' encore — termine des séances avec poids notés, ou ➕ ajoute une entrée.') + '</div>';
+            if (liste.length === 0 || columns.length === 0) {
+                wrap.innerHTML = '<div style="text-align:center;padding:30px 10px;color:#64748b;font-size:0.85em;">Aucun record ne correspond' + (fMuscle || fEquip || fTxt ? ' à ce filtre.' : ' encore. Termine des séances avec des poids notés, ou ajoute une entrée.') + '</div>';
                 return;
             }
-            function fmtCell(v) {
-                if (!v) return '<span style="color:#334155;">–</span>';
+            function fmtVal(v) {
                 const parts = [];
-                if (v.weight) parts.push('<b style="color:#e2e8f0;">' + v.weight + '</b><span style="color:#64748b;font-size:0.85em;">' + unit + '</span>' + (v.weightReps ? '<span style="color:#94a3b8;">×' + v.weightReps + '</span>' : ''));
-                else if (v.reps) parts.push('<b style="color:#e2e8f0;">' + v.reps + '</b><span style="color:#64748b;">r</span>');
-                if (v.time) parts.push('<span style="color:#94a3b8;">' + v.time + 's</span>');
-                return parts.join(' ');
+                if (v.weight) parts.push('<b style="color:#f1f5f9;font-size:1.08em;">' + v.weight + '</b><span style="color:#64748b;font-size:0.82em;"> ' + unit + '</span>' + (v.weightReps ? '<span style="color:#94a3b8;"> × ' + v.weightReps + '</span>' : ''));
+                else if (v.reps) parts.push('<b style="color:#f1f5f9;font-size:1.08em;">' + v.reps + '</b><span style="color:#64748b;font-size:0.82em;"> reps</span>');
+                if (v.time) parts.push('<span style="color:#94a3b8;">' + v.time + ' s</span>');
+                return parts.join(' · ') || '<span style="color:#475569;">—</span>';
             }
-            // En-tête : coin + une colonne par profil/invité
-            const headCells = columns.map(c =>
-                '<th style="position:sticky;top:0;background:#0d1017;padding:8px 6px;font-size:0.72em;color:#cbd5e1;font-weight:800;white-space:nowrap;border-bottom:2px solid rgba(251,191,36,0.3);min-width:74px;">'
-                + '<div style="display:flex;justify-content:center;margin-bottom:2px;">' + (typeof renderAvatar === 'function' ? renderAvatar(c.avatar, 26) : c.avatar) + '</div>' + c.label
-                + (c.isProfile ? '<span onclick="awakHallToggleHide(\'' + c.pid + '\')" title="Masquer" style="color:#475569;cursor:pointer;margin-left:3px;">🙈</span>' : '')
-                + '</th>').join('');
-            const rows = exos.map(exo => {
-                let bestW = -1; columns.forEach(c => { const v = cell[exo][c.key]; if (v && !v.isGoal && v.weight && v.weight > bestW) bestW = v.weight; });
-                const tds = columns.map(c => {
-                    const v = cell[exo][c.key];
-                    const crown = (v && !v.isGoal && v.weight && v.weight === bestW && bestW > 0) ? ' 👑' : '';
-                    const edit = v ? (v.pid ? '<span onclick="awakHallEditPR(\'' + v.pid + '\',\'' + _hofEsc(exo) + '\')" style="color:#334155;cursor:pointer;margin-left:4px;font-size:0.85em;">✎</span>'
-                                            : (v.cid ? '<span onclick="awakHallEditCustom(\'' + v.cid + '\')" style="color:#334155;cursor:pointer;margin-left:4px;font-size:0.85em;">✎</span>' : '')) : '';
-                    const bg = (v && v.isGoal) ? 'background:rgba(168,85,247,0.12);' : 'background:#0d1017;';
-                    return '<td style="padding:8px 6px;text-align:center;font-size:0.78em;white-space:nowrap;border-bottom:1px solid rgba(255,255,255,0.05);' + bg + '">' + fmtCell(v) + crown + edit + '</td>';
+            const crayon = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
+            const couronne = window.AwakIcon ? window.AwakIcon.get('trophee', 14, '#fbbf24') : '';
+
+            wrap.innerHTML = liste.map(g => {
+                const m = meta(g.cles[0]).muscle;
+                const lignes = columns.filter(c => g.cells[c.key]).map(c => ({ c: c, v: g.cells[c.key] }))
+                    .sort((a, b) => (a.v.isGoal ? 1 : 0) - (b.v.isGoal ? 1 : 0) || vaut(b.v) - vaut(a.v));
+                let bestW = -1; lignes.forEach(l => { if (!l.v.isGoal && l.v.weight > bestW) bestW = l.v.weight; });
+                const rows = lignes.map(l => {
+                    const v = l.v, c = l.c;
+                    const top = !v.isGoal && v.weight && v.weight === bestW && bestW > 0 && lignes.length > 1;
+                    const click = v.pid ? "awakHallEditPR('" + v.pid + "','" + _hofEsc(v.exo) + "')" : (v.cid ? "awakHallEditCustom('" + v.cid + "')" : '');
+                    return '<div style="display:flex;align-items:center;gap:9px;padding:7px 0;border-top:1px solid rgba(255,255,255,0.05);">'
+                        + (typeof renderAvatar === 'function' ? renderAvatar(c.avatar, 26) : '')
+                        + '<div style="flex:1;min-width:0;font-size:0.8em;font-weight:700;color:' + (top ? '#fbbf24' : '#cbd5e1') + ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(c.label)
+                        + (v.isGoal && c.label !== 'Objectif' ? ' <span style="font-size:0.78em;color:#c4b5fd;background:rgba(168,85,247,0.15);border-radius:6px;padding:1px 6px;margin-left:3px;">Objectif</span>' : '') + '</div>'
+                        + (top ? '<span style="display:inline-flex;">' + couronne + '</span>' : '')
+                        + '<div style="font-size:0.84em;white-space:nowrap;text-align:right;">' + fmtVal(v) + '</div>'
+                        + (click ? '<button onclick="' + click + '" aria-label="Corriger" style="background:transparent;border:1px solid rgba(255,255,255,0.08);color:#64748b;border-radius:8px;width:32px;height:32px;min-height:auto;padding:0;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">' + crayon + '</button>' : '')
+                        + '</div>';
                 }).join('');
-                return '<tr><td style="position:sticky;left:0;background:#0d1017;padding:8px 10px;font-size:0.76em;font-weight:800;color:#fbbf24;white-space:nowrap;border-right:2px solid rgba(251,191,36,0.3);border-bottom:1px solid rgba(255,255,255,0.05);">' + exo + '</td>' + tds + '</tr>';
+                return '<div style="background:#0d1017;border:1px solid rgba(255,255,255,0.07);border-left:3px solid rgba(251,191,36,0.55);border-radius:12px;padding:10px 12px 5px;margin-bottom:9px;">'
+                    + '<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:5px;">'
+                    + '<div style="flex:1;min-width:0;font-size:0.88em;font-weight:800;color:#fbbf24;line-height:1.3;">' + esc(g.nom) + '</div>'
+                    + (m ? '<div style="font-size:0.66em;color:#64748b;font-weight:700;white-space:nowrap;">' + esc(m) + '</div>' : '')
+                    + '</div>' + rows + '</div>';
             }).join('');
-            wrap.innerHTML = '<table style="border-collapse:collapse;width:100%;">'
-                + '<thead><tr><th style="position:sticky;left:0;top:0;z-index:2;background:#0d1017;padding:8px 10px;font-size:0.7em;color:#64748b;text-align:left;border-right:2px solid rgba(251,191,36,0.3);border-bottom:2px solid rgba(251,191,36,0.3);">EXERCICE</th>' + headCells + '</tr></thead>'
-                + '<tbody>' + rows + '</tbody></table>';
         }
 
         // Panneau d'ajout repliable
@@ -24333,7 +24368,7 @@
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1180);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1188);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -24377,7 +24412,7 @@
                 +       '<feGaussianBlur stdDeviation="2.4" result="b"/>'
                 +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>'
                 +     '</filter></defs>'
-                +     '<image href="' + img + '?v=1180" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1188" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -26273,7 +26308,7 @@
             const _exKey2 = exercise._baseName || exercise.name;
             const _imgSrc2 = window.EXERCISE_IMAGES && (window.EXERCISE_IMAGES[_exKey2] || window.EXERCISE_IMAGES[exercise.name]);
             const _mediaHTML2 = _imgSrc2
-                ? '<div style="width:100%;border-radius:14px;overflow:hidden;">' + (typeof window.buildLazyImg === 'function' ? window.buildLazyImg(_imgSrc2, exercise.name, 'height:100%;object-fit:contain;border-radius:14px;') : '<img src="' + _imgSrc2 + '" alt="" style="width:100%;height:auto;object-fit:contain;border-radius:14px;" loading="lazy"/>') + '</div>'
+                ? '<div style="width:100%;height:100%;border-radius:14px;overflow:hidden;">' + (typeof window.buildLazyImg === 'function' ? window.buildLazyImg(_imgSrc2, exercise.name, 'height:100%;object-fit:contain;border-radius:14px;') : '<img src="' + _imgSrc2 + '" alt="" style="width:100%;height:auto;object-fit:contain;border-radius:14px;" loading="lazy"/>') + '</div>'
                 : '<div class="exercise-animation"><div class="exercise-svg-container">' + svgStart + '<div class="position-label position-start">Début</div></div><div class="arrow-indicator">→</div><div class="exercise-svg-container">' + svgEnd + '<div class="position-label position-end">Fin</div></div></div>';
             
             document.getElementById('modalDifficulty').innerHTML = 
@@ -28232,7 +28267,7 @@
             const editing = editId ? getLocationProfiles().find(p=>p.id===editId) : null;
             const overlay = document.createElement('div');
             overlay.id = 'addLocationOverlay';
-            overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:10200;display:flex;align-items:flex-end;justify-content:center;';
+            overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:12000;display:flex;align-items:flex-end;justify-content:center;';
 
             const currentEquip    = editing ? (editing.equipment || []) : [];
             const isHomeMode      = editing ? editing.mode === 'home' : false;
@@ -28256,8 +28291,8 @@
             const iconPicker = icons.map(ic => {
                 const svgName = iconSvgMap[ic];
                 const rendu = (window.AwakIcon && svgName) ? window.AwakIcon.get(svgName, 22, 'currentColor') : ic;
-                return `<button data-emoji-keep="1" onclick="document.getElementById('locIconSel').setAttribute('data-icon','${ic}');document.getElementById('locIconSel').innerHTML=this.innerHTML;document.querySelectorAll('#locIconPicker button').forEach(b=>{b.style.background='rgba(255,255,255,0.03)';b.style.borderColor='rgba(255,255,255,0.12)';});this.style.background='#FFF3E0';this.style.borderColor='#16a34a';"
-                    style="padding:8px;border:2px solid ${editing?.icon===ic?'#16a34a':'rgba(255,255,255,0.12)'};border-radius:10px;background:${editing?.icon===ic?'#FFF3E0':'rgba(255,255,255,0.03)'};font-size:1.4em;cursor:pointer;display:flex;align-items:center;justify-content:center;">${rendu}</button>`;
+                return `<button data-emoji-keep="1" onclick="document.getElementById('locIconSel').setAttribute('data-icon','${ic}');document.getElementById('locIconSel').innerHTML=this.innerHTML;document.querySelectorAll('#locIconPicker button').forEach(b=>{b.style.background='rgba(255,255,255,0.03)';b.style.borderColor='rgba(255,255,255,0.12)';b.style.color='#94a3b8';});this.style.background='rgba(96,168,240,0.18)';this.style.borderColor='#60a8f0';this.style.color='#ffffff';"
+                    style="padding:8px;border:2px solid ${editing?.icon===ic?'#60a8f0':'rgba(255,255,255,0.12)'};border-radius:10px;background:${editing?.icon===ic?'rgba(96,168,240,0.18)':'rgba(255,255,255,0.03)'};font-size:1.4em;color:${editing?.icon===ic?'#ffffff':'#94a3b8'};cursor:pointer;display:flex;align-items:center;justify-content:center;">${rendu}</button>`;
             }).join('');
 
             // Grille équipements généraux
@@ -28274,8 +28309,8 @@
                 const btns = items.map(eq => {
                     const sel = currentEquip.includes(eq.id);
                     return `<button data-eqid="${eq.id}" onclick="toggleLocEquip('${eq.id}',this)"
-                        style="padding:7px 5px;border-radius:10px;border:2px solid ${sel?'#16a34a':'rgba(255,255,255,0.12)'};
-                        background:${sel?'linear-gradient(135deg,#1d5fa8,#164e8a)':'white'};
+                        style="padding:7px 5px;border-radius:10px;border:2px solid ${sel?'#60a8f0':'rgba(255,255,255,0.12)'};
+                        background:${sel?'linear-gradient(135deg,rgba(96,168,240,0.24),rgba(96,168,240,0.10))':'rgba(255,255,255,0.03)'};
                         cursor:pointer;text-align:center;font-size:0.7em;font-weight:700;color:${sel?'white':'#cbd5e1'};min-height:56px;">
                         <div class="eq-icon" style="width:30px;height:30px;margin:0 auto 3px;display:flex;align-items:center;justify-content:center;">${eq.svgIcon||'<span style="font-size:1.2em">'+eq.name[0]+'</span>'}</div>
                         <div style="line-height:1.2;">${eq.name}</div>
@@ -28291,11 +28326,11 @@
             const machineGrid = machineTypes.map(mt => {
                 const sel = currentMachines.includes(mt.id);
                 return `<button data-mtid="${mt.id}" onclick="toggleLocMachine('${mt.id}',this)"
-                    style="padding:8px 5px;border-radius:10px;border:2px solid ${sel?'#16a34a':'rgba(255,255,255,0.12)'};
-                    background:${sel?'linear-gradient(135deg,#1d5fa8,#164e8a)':'rgba(255,255,255,0.03)'};
+                    style="padding:8px 5px;border-radius:10px;border:2px solid ${sel?'#60a8f0':'rgba(255,255,255,0.12)'};
+                    background:${sel?'linear-gradient(135deg,rgba(96,168,240,0.24),rgba(96,168,240,0.10))':'rgba(255,255,255,0.03)'};
                     cursor:pointer;text-align:center;font-size:0.7em;font-weight:700;color:${sel?'white':'#cbd5e1'};min-height:60px;">
                     <div style="width:34px;height:34px;margin:0 auto 3px;display:flex;align-items:center;justify-content:center;">
-                        ${mt.svg ? '<div class="eq-icon" style="width:34px;height:34px;filter:'+(sel?'brightness(10)':'brightness(0) invert(1)')+'">' + mt.svg + '</div>' : mt.icon}
+                        ${(!mt.svg && mt.id==='cable') ? '<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3v18M20 3v18M4 4h16"/><circle cx="12" cy="6.5" r="2"/><path d="M12 8.5v7"/><path d="M9 15.5h6"/><rect x="9.5" y="17.5" width="5" height="3" rx="0.6"/></svg>' : mt.svg ? '<div class="eq-icon" style="width:34px;height:34px;filter:'+(sel?'brightness(10)':'brightness(0) invert(0.7)')+'">' + mt.svg + '</div>' : mt.icon}
                     </div>
                     <div style="line-height:1.2;">${mt.name.replace('Machines ','')}</div>
                 </button>`;
@@ -28318,17 +28353,17 @@
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">
                     <button id="locModeHome"
                         onclick="setLocEditorMode('home')"
-                        style="padding:10px;border:2px solid ${currentMode==='home'?'#16a34a':'rgba(255,255,255,0.12)'};border-radius:14px;background:${currentMode==='home'?'linear-gradient(135deg,#1d5fa8,#164e8a)':'rgba(255,255,255,0.03)'};color:${currentMode==='home'?'white':'#94a3b8'};cursor:pointer;font-weight:700;">🏠 Maison</button>
+                        style="padding:10px;border:2px solid ${currentMode==='home'?'#60a8f0':'rgba(255,255,255,0.12)'};border-radius:14px;background:${currentMode==='home'?'linear-gradient(135deg,rgba(96,168,240,0.24),rgba(96,168,240,0.10))':'rgba(255,255,255,0.03)'};color:${currentMode==='home'?'white':'#94a3b8'};cursor:pointer;font-weight:700;">🏠 Maison</button>
                     <button id="locModeGym"
                         onclick="setLocEditorMode('gym')"
-                        style="padding:10px;border:2px solid ${currentMode==='gym'?'#16a34a':'rgba(255,255,255,0.12)'};border-radius:14px;background:${currentMode==='gym'?'linear-gradient(135deg,#1d5fa8,#164e8a)':'rgba(255,255,255,0.03)'};color:${currentMode==='gym'?'white':'#94a3b8'};cursor:pointer;font-weight:700;">🏋️ Gym</button>
+                        style="padding:10px;border:2px solid ${currentMode==='gym'?'#60a8f0':'rgba(255,255,255,0.12)'};border-radius:14px;background:${currentMode==='gym'?'linear-gradient(135deg,rgba(96,168,240,0.24),rgba(96,168,240,0.10))':'rgba(255,255,255,0.03)'};color:${currentMode==='gym'?'white':'#94a3b8'};cursor:pointer;font-weight:700;">🏋️ Gym</button>
                 </div>
 
                 <!-- Machines (section principale) -->
                 <div style="font-size:0.78em;font-weight:700;color:#f1f5f9;margin-bottom:6px;">🔧 Machines disponibles</div>
                 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:8px;" id="locMachineGrid">${machineGrid}</div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px;">
-                    <button onclick="selectAllLocMachines(true)" style="padding:6px;border:1px solid #16a34a;border-radius:10px;background:rgba(34,211,238,0.12);color:#16a34a;font-size:0.75em;font-weight:700;cursor:pointer;">✓ Toutes les machines</button>
+                    <button onclick="selectAllLocMachines(true)" style="padding:6px;border:1px solid #60a8f0;border-radius:10px;background:rgba(96,168,240,0.12);color:#93c5fd;font-size:0.75em;font-weight:700;cursor:pointer;">✓ Toutes les machines</button>
                     <button onclick="selectAllLocMachines(false)" style="padding:6px;border:1px solid rgba(255,255,255,0.12);border-radius:10px;background:rgba(255,255,255,0.03);color:#6b7280;font-size:0.75em;font-weight:700;cursor:pointer;">✗ Aucune machine</button>
                 </div>
 
@@ -28351,7 +28386,7 @@
                 btn.style.background='rgba(255,255,255,0.04)'; btn.style.borderColor='rgba(255,255,255,0.12)'; btn.style.color='#94a3b8';
             } else {
                 window._locEquip.push(id);
-                btn.style.background='linear-gradient(135deg,#1d5fa8,#164e8a)'; btn.style.borderColor='#16a34a'; btn.style.color='white';
+                btn.style.background='linear-gradient(135deg,rgba(96,168,240,0.24),rgba(96,168,240,0.10))'; btn.style.borderColor='#60a8f0'; btn.style.color='white';
             }
         }
 
@@ -28361,9 +28396,9 @@
             // ce second terme sans revoir toute la détection.
             if (btn.style.background.includes('667eea') || btn.style.background.includes('linear-gradient')) {
                 btn.style.background='rgba(255,255,255,0.03)'; btn.style.borderColor='rgba(255,255,255,0.12)'; btn.style.color='#94a3b8';
-                const d = btn.querySelector('div > div'); if (d) d.style.filter='';
+                const d = btn.querySelector('div > div'); if (d) d.style.filter='brightness(0) invert(0.7)';
             } else {
-                btn.style.background='linear-gradient(135deg,#3b82f6,#1d5fa8)'; btn.style.borderColor='#22c55e'; btn.style.color='white';
+                btn.style.background='linear-gradient(135deg,rgba(96,168,240,0.24),rgba(96,168,240,0.10))'; btn.style.borderColor='#60a8f0'; btn.style.color='white';
                 const d = btn.querySelector('div > div'); if (d) d.style.filter='brightness(10)';
             }
         }
@@ -28371,11 +28406,11 @@
         function selectAllLocMachines(sel) {
             document.querySelectorAll('#locMachineGrid button[data-mtid]').forEach(btn => {
                 if (sel) {
-                    btn.style.background='linear-gradient(135deg,#3b82f6,#1d5fa8)'; btn.style.borderColor='#22c55e'; btn.style.color='white';
+                    btn.style.background='linear-gradient(135deg,rgba(96,168,240,0.24),rgba(96,168,240,0.10))'; btn.style.borderColor='#60a8f0'; btn.style.color='white';
                     const d = btn.querySelector('div > div'); if (d) d.style.filter='brightness(10)';
                 } else {
                     btn.style.background='rgba(255,255,255,0.03)'; btn.style.borderColor='rgba(255,255,255,0.12)'; btn.style.color='#94a3b8';
-                    const d = btn.querySelector('div > div'); if (d) d.style.filter='';
+                    const d = btn.querySelector('div > div'); if (d) d.style.filter='brightness(0) invert(0.7)';
                 }
             });
         }
@@ -28386,12 +28421,12 @@
             const gymBtn = document.getElementById('locModeGym');
             // 🔒 État mémorisé dans un ATTRIBUT, pas déduit d'une couleur.
             // La lecture se faisait via `.includes('667eea')` — un violet
-            // remplacé depuis par du vert (#16a34a). Le bouton Gym était donc
+            // remplacé depuis par du vert (#60a8f0). Le bouton Gym était donc
             // toujours lu comme « home », et la sauvegarde effaçait les
             // machines de salle.
             try { document.body.dataset.locMode = mode; } catch (e) {}
-            const activeStyle = 'padding:10px;border:2px solid #16a34a;border-radius:14px;background:linear-gradient(135deg,#1d5fa8,#164e8a);color:white;cursor:pointer;font-weight:700;';
-            const inactiveStyle = 'padding:10px;border:1px solid rgba(255,255,255,0.12);border-radius:14px;background:rgba(255,255,255,0.03);color:#374151;cursor:pointer;font-weight:700;';
+            const activeStyle = 'padding:10px;border:2px solid #60a8f0;border-radius:14px;background:linear-gradient(135deg,rgba(96,168,240,0.24),rgba(96,168,240,0.10));color:white;cursor:pointer;font-weight:700;';
+            const inactiveStyle = 'padding:10px;border:1px solid rgba(255,255,255,0.12);border-radius:14px;background:rgba(255,255,255,0.03);color:#94a3b8;cursor:pointer;font-weight:700;';
 
             if (mode === 'home') {
                 if (homeBtn) homeBtn.style.cssText = activeStyle;
@@ -28438,7 +28473,7 @@
                     mode = document.body.dataset.locMode;
                 } else {
                     const gb = document.getElementById('locModeGym');
-                    mode = (gb && /16a34a|22c55e/i.test(gb.style.cssText || '')) ? 'gym' : 'home';
+                    mode = (gb && /60a8f0/i.test(gb.style.cssText || '')) ? 'gym' : 'home';
                 }
             } catch (e) {}
 
@@ -28486,6 +28521,7 @@
             // d'équipements — n'étaient jamais mis à jour : la sauvegarde
             // fonctionnait, mais rien ne changeait à l'écran.
             try { if (typeof renderLocationChip === 'function') renderLocationChip(); } catch (e) {}
+            try { if (document.getElementById('awakLocPicker') && typeof showLocationPicker === 'function') showLocationPicker(); } catch (e) {}
             try {
                 const _ch = document.getElementById('awakCorpsHost');
                 if (_ch && typeof awakRenderCorps === 'function') _ch.innerHTML = awakRenderCorps();
@@ -29726,7 +29762,7 @@
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1180");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1188");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -29869,7 +29905,7 @@
 
             const btnEquip = document.createElement('button');
             btnEquip.style.cssText = 'flex:1;min-width:0;display:flex;align-items:center;gap:10px;padding:14px 12px;background:linear-gradient(135deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02));border:1.5px solid rgba(148,163,184,' + (_adv?'0.35':'0.18') + ');border-radius:14px;cursor:pointer;text-align:left;touch-action:manipulation;box-shadow:0 0 18px rgba(6,182,212,0.1);';
-            btnEquip.innerHTML = '<div style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:10px;background:rgba(6,182,212,0.15);border:1px solid rgba(6,182,212,0.4);font-size:1.3em;">⚔️</div><span style="font-weight:900;font-size:0.9em;color:#e2e8f0;line-height:1.2;">Équipement</span>';
+            btnEquip.innerHTML = '<div style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:10px;background:rgba(6,182,212,0.15);border:1px solid rgba(6,182,212,0.4);color:#67e8f9;">' + (window.AwakIcon ? window.AwakIcon.get('epee', 22, '#67e8f9') : '') + '</div><span style="font-weight:900;font-size:0.9em;color:#e2e8f0;line-height:1.2;">Équipement</span>';
             btnEquip.addEventListener('click', function() { showRPGEquipmentModal('equip'); });
 
             // Conteneur flex : Compétences (déplacé) à gauche + Équipement à droite
@@ -34133,7 +34169,7 @@
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1180);'
+                +     'url(images/combat_bg_v1.webp?v=1188);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -34388,7 +34424,7 @@
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1180);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1188);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -35643,7 +35679,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1180');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1188');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -36378,7 +36414,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1180);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1188);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -36549,7 +36585,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1180);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1188);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -38102,7 +38138,9 @@
                     const borderColor = isOnMission ? 'rgba(168,85,247,0.5)' : (c.active ? c.color : 'rgba(255,255,255,0.08)');
                     const bgColor = isOnMission ? 'rgba(168,85,247,0.08)' : (c.active ? `${c.color}15` : 'rgba(255,255,255,0.02)');
                     return `<div onclick="awakOpenCompanionDetail('${c.id}')" style="cursor:pointer;background:${bgColor};border:1.5px solid ${borderColor};border-radius:10px;padding:11px 6px;text-align:center;${c.active && !isOnMission ? `box-shadow:0 0 12px ${c.color}30;` : ''}transition:all 0.2s;${isOnMission ? 'opacity:0.7;' : ''}">
-                        <div style="font-size:1.7em;filter:drop-shadow(0 0 6px ${c.color}80)${isOnMission ? ' grayscale(0.6)' : ''};${c.active && !isOnMission ? '' : 'opacity:0.85;'}">${c.emoji}</div>
+                        ${c.image
+                            ? `<img src="${c.image}" alt="" style="width:46px;height:46px;border-radius:12px;object-fit:cover;object-position:center 15%;display:block;margin:0 auto;border:1.5px solid ${c.color}88;box-shadow:0 0 10px ${c.color}55;${isOnMission ? 'filter:grayscale(0.7);' : ''}${c.active && !isOnMission ? '' : 'opacity:0.85;'}" onerror="this.outerHTML='<div style=\'font-size:1.7em;\' data-emoji-keep>${c.emoji}</div>'">`
+                            : `<div data-emoji-keep style="font-size:1.7em;">${c.emoji}</div>`}
                         <div style="font-size:0.58em;color:${c.color};font-weight:800;margin-top:3px;letter-spacing:0.5px;line-height:1.2;">${c.name.split(' ')[0]}</div>
                         ${isOnMission
                             ? `<div style="margin-top:2px;font-size:0.5em;background:#a855f7;color:white;border-radius:99px;padding:0 4px;font-weight:900;letter-spacing:0.5px;display:inline-block;">MISSION</div>`
@@ -47296,7 +47334,7 @@
 
             host.innerHTML =
                 '<div style="position:relative;width:110px;margin:0 auto 12px;">'
-              +   '<img src="images/body/body_face.webp?v=1180" alt="" '
+              +   '<img src="images/body/body_face.webp?v=1188" alt="" '
               +     'style="width:100%;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -47378,7 +47416,7 @@
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1180);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1188);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -49763,7 +49801,7 @@
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1180");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1188");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.

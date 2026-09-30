@@ -137,6 +137,7 @@
     var P = perfs();
     var noms = Object.keys(P);
     var trouves = [];
+    var rejetes = [];   // exercices reconnus mais sans série exploitable
 
     LIFTS.forEach(function (L) {
       var meilleur = null, nomUtilise = null;
@@ -144,6 +145,7 @@
         if (!L.re.test(norm(n))) return;
         var b = meilleur1RM(P[n]);
         if (b && (!meilleur || b.rm > meilleur.rm)) { meilleur = b; nomUtilise = n; }
+        if (!b && rejetes.indexOf(n) < 0) rejetes.push(n);
       });
       if (meilleur) {
         trouves.push({
@@ -158,7 +160,7 @@
     });
 
     if (trouves.length < MIN_LIFTS) {
-      return { suffisant: false, trouves: trouves, requis: MIN_LIFTS };
+      return { suffisant: false, trouves: trouves, requis: MIN_LIFTS, rejetes: rejetes };
     }
 
     // Médiane des équivalents = niveau de référence de la personne
@@ -233,14 +235,66 @@
 
     if (!a.suffisant) {
       var manque = a.requis - a.trouves.length;
-      corps = '<div style="text-align:center;padding:26px 14px;">'
-        + '<div style="font-size:2em;margin-bottom:10px;">⚖️</div>'
-        + '<div style="font-size:0.95em;font-weight:800;color:#e8f0f8;margin-bottom:8px;">Pas encore assez de données</div>'
-        + '<div style="font-size:0.8em;color:#94a3b8;line-height:1.5;">'
+      var nomEx = function (n) {
+        try { return typeof window.awakNom === 'function' ? window.awakNom(n) : n; } catch (e) { return n; }
+      };
+      var puce = function (txt, coul) {
+        return '<div style="display:flex;gap:8px;align-items:flex-start;padding:6px 0;border-top:1px solid rgba(148,163,184,0.10);">'
+          + '<span style="width:6px;height:6px;border-radius:50%;background:' + coul + ';margin-top:6px;flex-shrink:0;"></span>'
+          + '<span style="flex:1;">' + txt + '</span></div>';
+      };
+      var titre = function (t, coul) {
+        return '<div style="font-size:0.62em;letter-spacing:1.6px;color:' + coul + ';font-weight:900;margin:14px 0 4px;">' + t + '</div>';
+      };
+      var liste = '';
+
+      // Déjà comptés
+      if (a.trouves.length) {
+        liste += titre('DÉJÀ COMPTÉS (' + a.trouves.length + '/' + a.requis + ')', '#4ade80');
+        a.trouves.forEach(function (t) {
+          liste += puce('<strong style="color:#e8f0f8;">' + esc(nomEx(t.exercice)) + '</strong>'
+            + ' <span style="color:#64748b;">· ' + esc(t.lift.muscle) + '</span>', '#4ade80');
+        });
+      }
+
+      // Faits, mais sans série exploitable
+      if (a.rejetes && a.rejetes.length) {
+        liste += titre('FAITS, MAIS PAS ENCORE COMPTÉS', '#fbbf24');
+        a.rejetes.forEach(function (n) {
+          liste += puce('<strong style="color:#e8f0f8;">' + esc(nomEx(n)) + '</strong>'
+            + '<br><span style="color:#94a3b8;font-size:0.92em;">Aucune série avec une charge et 12 répétitions ou moins.</span>', '#fbbf24');
+        });
+      }
+
+      // Suggestions : d'abord les muscles pas encore couverts
+      var pris = {}, muscles = {};
+      a.trouves.forEach(function (t) { pris[t.lift.id] = 1; muscles[t.lift.muscle] = 1; });
+      var PRIO = ['bench', 'squat', 'deadlift', 'ohp', 'row', 'latpull', 'hipthr', 'lpress', 'curl', 'rdl'];
+      var sugg = [];
+      PRIO.forEach(function (id) {
+        var L = LIFTS.filter(function (x) { return x.id === id; })[0];
+        if (L && !pris[L.id] && !muscles[L.muscle]) sugg.push(L);
+      });
+      PRIO.forEach(function (id) {
+        var L = LIFTS.filter(function (x) { return x.id === id; })[0];
+        if (L && !pris[L.id] && sugg.indexOf(L) < 0) sugg.push(L);
+      });
+      sugg = sugg.slice(0, 6);
+      liste += titre('À FAIRE : ' + manque + ' PARMI CEUX-CI', '#67e8f9');
+      sugg.forEach(function (L) {
+        liste += puce('<strong style="color:#e8f0f8;">' + esc(L.nom) + '</strong>'
+          + ' <span style="color:#64748b;">· ' + esc(L.muscle) + '</span>', '#67e8f9');
+      });
+
+      corps = '<div style="padding:18px 6px 6px;">'
+        + '<div style="text-align:center;font-size:0.95em;font-weight:800;color:#e8f0f8;margin-bottom:8px;">Pas encore assez de données</div>'
+        + '<div style="text-align:center;font-size:0.8em;color:#94a3b8;line-height:1.5;">'
         +   'L\'analyse compare tes mouvements entre eux : il en faut au moins '
         +   a.requis + ' de référence, avec une charge. Il t\'en manque <strong style="color:#67e8f9;">'
-        +   manque + '</strong>.<br><br>Mouvements reconnus : développé couché, squat, soulevé de terre, '
-        +   'développé militaire, rowing barre, curl barre, hip thrust, presse à cuisses.</div>'
+        +   manque + '</strong>.</div>'
+        + '<div style="font-size:0.8em;color:#cbd5e1;line-height:1.45;text-align:left;">' + liste + '</div>'
+        + '<div style="font-size:0.72em;color:#64748b;margin-top:12px;line-height:1.45;">'
+        +   'Une série compte si elle a une charge et 12 répétitions ou moins.</div>'
         + '</div>';
     } else {
       corps = '';

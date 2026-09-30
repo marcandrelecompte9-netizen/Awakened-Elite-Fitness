@@ -131,6 +131,15 @@
     return false;
   }
 
+  function caseIcone(el) {
+    try {
+      var st = el.style;
+      if (!st || !st.width || !st.height) return false;
+      var w = parseFloat(st.width), h = parseFloat(st.height);
+      return /px/.test(st.width) && w <= 64 && h <= 64;
+    } catch (e) { return false; }
+  }
+
   function necessaire(noeudTexte) {
     try {
       var parent = noeudTexte.parentNode;
@@ -140,9 +149,11 @@
       // Cas 1 : sans emoji, le contrôle serait vide (pas de texte, pas d'icône)
       var reste = (ctrl.textContent || '').replace(RE_EMOJI, '').replace(RE_DECOR, '').trim();
       if (!reste && !ctrl.querySelector('svg,img')) return true;
-      // Cas 2 : emoji seul dans son élément, en grand, dans un contrôle
+      // Cas 2 : emoji seul dans son élément, en grand OU dans une « case
+      // d'icône » (largeur et hauteur fixées), à l'intérieur d'un contrôle.
+      // Ex. : l'icône carrée du bouton « Équipement » de l'onglet Jeu.
       var propre = (parent.textContent || '').replace(RE_EMOJI, '').trim();
-      if (!propre && parent !== ctrl && tailleGrande(parent)) return true;
+      if (!propre && parent !== ctrl && (tailleGrande(parent) || caseIcone(parent))) return true;
     } catch (e) {}
     return false;
   }

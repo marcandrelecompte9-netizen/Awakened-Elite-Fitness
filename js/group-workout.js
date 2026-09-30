@@ -358,48 +358,67 @@
   }
 
 
+  function _ico(nom, t, c) {
+    try { if (window.AwakIcon) return window.AwakIcon.get(nom, t, c); } catch (e) {}
+    return '';
+  }
+  var _PLUS = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
+  var _CROIX = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+
   function _modalContent() {
     var parts = getParticipants();
     var avail = availableProfiles();
+    var n = count();
+    var titreSection = function (t) {
+      return '<div style="font-size:0.62em;color:#a78bfa;font-weight:900;letter-spacing:1.4px;margin:16px 0 8px;">' + t + '</div>';
+    };
 
+    // ── Participants ──
     var partRows = parts.map(function (p) {
-      var badge = p.kind === 'guest' ? '👤 Invité' : (p.self ? '⭐ Toi' : '👤 Profil');
+      var badge = p.kind === 'guest' ? 'Invité' : (p.self ? 'Toi' : 'Profil');
+      var badgeCoul = p.kind === 'guest' ? '#fbbf24' : (p.self ? '#a78bfa' : '#60a8f0');
       var rm = p.self ? '' :
-        '<button onclick="AwakGroupRemove(\'' + p.id + '\')" style="background:rgba(239,68,68,0.1);border:none;color:#f87171;border-radius:8px;padding:5px 9px;font-size:0.72em;font-weight:700;cursor:pointer;">Retirer</button>';
-      return '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.05);">'
-        + _av(p.avatar, 28)
-        + '<div style="flex:1;min-width:0;"><div style="font-size:0.88em;font-weight:800;color:#fff;">' + esc(p.name) + '</div>'
-        + '<div style="font-size:0.68em;color:#94a3b8;">' + badge + '</div></div>'
+        '<button onclick="AwakGroupRemove(\'' + p.id + '\')" aria-label="Retirer" style="flex-shrink:0;width:34px;height:34px;min-height:auto;padding:0;display:inline-flex;align-items:center;justify-content:center;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);color:#f87171;border-radius:10px;cursor:pointer;">' + _CROIX + '</button>';
+      return '<div style="display:flex;align-items:center;gap:11px;padding:9px 10px;margin-bottom:6px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;">'
+        + _av(p.avatar, 34)
+        + '<div style="flex:1;min-width:0;"><div style="font-size:0.9em;font-weight:800;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(p.name) + '</div>'
+        + '<div style="font-size:0.66em;font-weight:800;color:' + badgeCoul + ';letter-spacing:0.4px;">' + badge + '</div></div>'
         + rm + '</div>';
     }).join('');
 
+    // ── Profils à ajouter : grille 2 colonnes ──
     var availBlock = '';
     if (avail.length) {
-      var chips = avail.map(function (p) {
-        return '<button onclick="AwakGroupAddProfile(\'' + p.id + '\')" style="display:flex;align-items:center;gap:6px;padding:8px 12px;border:1px solid rgba(139,92,246,0.4);border-radius:10px;cursor:pointer;background:rgba(139,92,246,0.08);color:#e2e8f0;font-size:0.78em;font-weight:700;">'
-          + _av(p.avatar, 20) + ' ' + esc(p.name) + ' <span style="color:#a78bfa;">+</span></button>';
+      var tuiles = avail.map(function (p) {
+        return '<button onclick="AwakGroupAddProfile(\'' + p.id + '\')" style="display:flex;align-items:center;gap:8px;width:100%;min-width:0;min-height:auto;padding:8px 10px;border:1px dashed rgba(167,139,250,0.35);border-radius:12px;cursor:pointer;background:rgba(139,92,246,0.05);color:#e2e8f0;font-size:0.8em;font-weight:800;text-align:left;">'
+          + _av(p.avatar, 26)
+          + '<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(p.name) + '</span>'
+          + '<span style="color:#a78bfa;display:inline-flex;flex-shrink:0;">' + _PLUS + '</span></button>';
       }).join('');
-      availBlock = '<div style="margin-top:14px;"><div style="font-size:0.72em;color:#94a3b8;font-weight:700;margin-bottom:8px;">Ajouter un profil :</div>'
-        + '<div style="display:flex;gap:8px;flex-wrap:wrap;">' + chips + '</div></div>';
+      availBlock = titreSection('AJOUTER UN PROFIL')
+        + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">' + tuiles + '</div>';
     }
 
-    return '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">'
-      +   '<span style="font-size:1.8em;">👥</span>'
-      +   '<div><div style="font-size:0.62em;color:#a78bfa;font-weight:800;letter-spacing:0.5px;">SÉANCE À PLUSIEURS</div>'
-      +   '<div style="font-size:1.1em;font-weight:900;color:#fff;">Qui participe ?</div></div>'
+    var champ = 'flex:1;min-width:0;box-sizing:border-box;height:44px;padding:0 12px !important;border-radius:11px;border:1px solid rgba(167,139,250,0.28) !important;background:rgba(255,255,255,0.04) !important;color:#fff;font-size:0.88em;';
+
+    return '<div style="display:flex;align-items:center;gap:12px;">'
+      +   '<div style="width:42px;height:42px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:rgba(139,92,246,0.14);border:1px solid rgba(167,139,250,0.35);">' + _ico('groupe', 22, '#c4b5fd') + '</div>'
+      +   '<div style="flex:1;min-width:0;"><div style="font-size:0.6em;color:#a78bfa;font-weight:900;letter-spacing:1.4px;">SÉANCE À PLUSIEURS</div>'
+      +   '<div style="font-size:1.12em;font-weight:900;color:#fff;line-height:1.2;">Qui participe ?</div></div>'
+      +   '<button onclick="AwakGroupClose()" aria-label="Fermer" style="flex-shrink:0;width:36px;height:36px;min-height:auto;padding:0;display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:#94a3b8;border-radius:10px;cursor:pointer;">' + _CROIX + '</button>'
       + '</div>'
-      + '<div style="font-size:0.74em;color:#94a3b8;margin-bottom:12px;line-height:1.4;">Chaque participant saisira ses propres répétitions. Les membres avec un profil verront leur séance enregistrée chez eux ; les invités sont suivis le temps de la séance.</div>'
+      + titreSection('PARTICIPANTS · ' + n)
       + partRows
       + availBlock
-      + '<div style="margin-top:14px;"><div style="font-size:0.72em;color:#94a3b8;font-weight:700;margin-bottom:8px;">Inviter une personne non inscrite :</div>'
-      +   '<div style="display:flex;gap:8px;">'
-      +     '<input id="awakGuestName" type="text" placeholder="Prénom de l\'invité" style="flex:1;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.04);color:#fff;font-size:0.85em;">'
-      +     '<button onclick="AwakGroupAddGuest()" style="padding:10px 16px;border:none;border-radius:10px;cursor:pointer;background:rgba(139,92,246,0.2);color:#c4b5fd;font-weight:800;font-size:0.85em;">+ Ajouter</button>'
-      +   '</div>'
+      + titreSection('INVITER UNE PERSONNE NON INSCRITE')
+      + '<div style="display:flex;gap:7px;align-items:center;">'
+      +   '<input id="awakGuestName" type="text" placeholder="Prénom de l\'invité" onkeydown="if(event.key===\'Enter\')AwakGroupAddGuest()" style="' + champ + '">'
+      +   '<button onclick="AwakGroupAddGuest()" aria-label="Ajouter l\'invité" style="flex-shrink:0;width:44px;height:44px;min-height:auto;padding:0;display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(167,139,250,0.4);border-radius:11px;cursor:pointer;background:rgba(139,92,246,0.18);color:#e9d5ff;">' + _PLUS + '</button>'
       + '</div>'
-      + '<div style="display:flex;gap:8px;margin-top:18px;">'
-      +   (count() > 1 ? '<button onclick="AwakGroupReset()" style="flex:1;padding:12px;border:none;border-radius:11px;cursor:pointer;background:rgba(255,255,255,0.06);color:#94a3b8;font-weight:700;font-size:0.85em;">Repasser en solo</button>' : '')
-      +   '<button onclick="AwakGroupClose()" style="flex:2;padding:12px;border:none;border-radius:11px;cursor:pointer;background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;font-weight:800;font-size:0.9em;">' + (count() > 1 ? 'Valider (' + count() + ')' : 'Fermer') + '</button>'
+      + '<div style="font-size:0.68em;color:#64748b;margin-top:14px;line-height:1.45;">Chacun saisit ses propres répétitions. Les profils gardent la séance dans leur historique ; les invités sont suivis le temps de la séance.</div>'
+      + '<div style="display:flex;gap:8px;margin-top:16px;">'
+      +   (n > 1 ? '<button onclick="AwakGroupReset()" style="flex:1;min-height:auto;padding:12px 8px;border:1px solid rgba(255,255,255,0.1);border-radius:12px;cursor:pointer;background:rgba(255,255,255,0.04);color:#94a3b8;font-weight:800;font-size:0.82em;">Repasser en solo</button>' : '')
+      +   '<button onclick="AwakGroupClose()" style="flex:2;min-height:auto;padding:12px 8px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;font-weight:900;font-size:0.9em;box-shadow:0 4px 16px rgba(139,92,246,0.35);">' + (n > 1 ? 'Valider · ' + n + ' participants' : 'Fermer') + '</button>'
       + '</div>';
   }
 
@@ -408,9 +427,9 @@
     if (existing) { existing.querySelector('.awak-group-card').innerHTML = _modalContent(); return; }
     var overlay = document.createElement('div');
     overlay.id = 'awakGroupModal';
-    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;';
     overlay.onclick = function (e) { if (e.target === overlay) AwakGroupClose(); };
-    overlay.innerHTML = '<div class="awak-group-card" style="background:linear-gradient(160deg,#16121f,#0d0d12);border:1px solid rgba(139,92,246,0.3);border-radius:20px;padding:22px;max-width:380px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,0.6);">'
+    overlay.innerHTML = '<div class="awak-group-card" style="background:linear-gradient(160deg,#16121f,#0d0d12);border:1px solid rgba(139,92,246,0.3);border-radius:20px;padding:18px 16px !important;max-width:400px;width:100%;box-sizing:border-box;max-height:88vh;overflow-y:auto;overflow-x:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.6);">'
       + _modalContent() + '</div>';
     document.body.appendChild(overlay);
   }
