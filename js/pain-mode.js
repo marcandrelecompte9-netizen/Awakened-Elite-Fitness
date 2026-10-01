@@ -306,7 +306,7 @@
     try { updateButton(); } catch (e) {}          // bouton d'accès
     try { if (window.awakRenderPainCard) window.awakRenderPainCard(); } catch (e) {} // carte d'accueil
   };
-  function _closeModal() { var el = document.getElementById('awakPainModal'); if (el) el.remove(); }
+  function _closeModal() { var el = document.getElementById('awakPainModal'); if (el) el.remove(); try { if (window._mmpSetMode) window._mmpSetMode('select'); } catch (e) {} }
   window.AwakPainCloseModal = function () { _closeModal(); try { if (window._mmpSetMode) window._mmpSetMode('select'); } catch (e) {} updateButton(); try { if (window.awakRenderPainCard) window.awakRenderPainCard(); } catch (e) {} };
 
   window.AwakPain.renderButton = renderButton;

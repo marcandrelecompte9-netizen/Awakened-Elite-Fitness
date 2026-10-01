@@ -15775,6 +15775,8 @@
         // Bascule face / dos en conservant la sélection en cours
         function setMusclePickerView(v) {
             _mmpView = v;
+            // Le mode suit la fenêtre réellement ouverte, pas un état resté en mémoire
+            _mmpMode = document.getElementById('awakPainModal') ? 'pain' : 'select';
             var host = document.getElementById('mmpBodyHost');
             if (!host) return;
             host.innerHTML = _mmpBodyBlock();
@@ -15821,6 +15823,10 @@
         function showManualMusclePickerModal() {
             _manualSelectedMuscles = []; // toujours partir à zéro
             _mmpView = 'face';           // et toujours sur la vue de face
+            // 🐛 Le mode « douleur » (rouge, clic = signaler une douleur) restait
+            // actif si « Où as-tu mal ? » avait été fermé autrement que par
+            // « Terminé » : le choix des muscles s'affichait alors en rouge.
+            _mmpMode = 'select';
 
             const _mSvg = (p) => `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
             const allMuscles = [
@@ -24278,8 +24284,10 @@
         var _corpsVue = 'face';
         function awakToggleCorpsVue() {
             _corpsVue = (_corpsVue === 'face') ? 'dos' : 'face';
-            document.querySelectorAll('#awakCorpsHost, .awak-corps-host').forEach(function (h) {
-                h.innerHTML = awakRenderCorps();
+            // ⚠️ Remplacer la carte ELLE-MÊME (outerHTML) : écrire dans
+            // .awak-corps-host (la carte) y imbriquait une seconde carte.
+            document.querySelectorAll('.awak-corps-host').forEach(function (h) {
+                if (h.parentNode) h.outerHTML = awakRenderCorps();
             });
         }
         window.awakToggleCorpsVue = awakToggleCorpsVue;
@@ -24325,6 +24333,19 @@
             ];
 
             var svgZones = '', prets = 0, pretsNoms = [];
+            // 🐛 Le compteur et la liste « PRÊTS » ne comptaient que la vue
+            // affichée : de dos, aucun muscle de face n'apparaissait, la colonne
+            // de droite disparaissait et l'en-tête disait « Tout récupère ».
+            // Ils portent maintenant sur TOUT le corps, quelle que soit la vue.
+            [['Épaules','Épaules'],['Pectoraux','Pectoraux'],['Biceps','Biceps'],['Avant-bras','Avant-bras'],
+             ['Abdos','Abdominaux'],['Obliques','Obliques'],['Quadriceps','Quadriceps'],['Mollets','Mollets'],
+             ['Trapèzes','Trapèzes'],['Dos','Dos'],['Triceps','Triceps'],['Fessiers','Fessiers'],['Ischios','Ischio-jambiers']]
+            .forEach(function (m) {
+                try {
+                    var st0 = (typeof getMuscleRecoveryStatus === 'function') ? getMuscleRecoveryStatus(m[1]) : null;
+                    if (st0 && st0.status === 'ready') { prets++; pretsNoms.push(m[0]); }
+                } catch (e) {}
+            });
             zones.forEach(function (z) {
                 var st = null;
                 try {
@@ -24333,7 +24354,6 @@
                 } catch (e) {}
                 var c = _corpsCouleur(st);
                 var pret = st && st.status === 'ready';
-                if (pret) { prets++; pretsNoms.push(z[0]); }
                 // ✨ Les muscles PRÊTS pulsent doucement et portent un halo :
                 // ils appellent le regard. Les autres restent mats.
                 const _id = z[1].replace(/'/g, "\\'");
@@ -24397,7 +24417,7 @@
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1198);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1200);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -24436,12 +24456,12 @@
                 // Silhouette légèrement réduite (max 180px) pour que les deux
                 // colonnes tiennent côte à côte.
                 +   '<div style="flex:1 1 130px;min-width:120px;">'
-                +   '<svg viewBox="0 0 200 298" style="width:100%;max-width:180px;height:auto;display:block;margin:0 auto;">'
+                +   '<svg data-awak-flip="corps" viewBox="0 0 200 298" style="width:100%;max-width:180px;height:auto;display:block;margin:0 auto;touch-action:pan-y;">'
                 +     '<defs><filter id="corpsGlow" x="-40%" y="-40%" width="180%" height="180%">'
                 +       '<feGaussianBlur stdDeviation="2.4" result="b"/>'
                 +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>'
                 +     '</filter></defs>'
-                +     '<image href="' + img + '?v=1198" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1200" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -24464,12 +24484,12 @@
                 +   '</div>'
                 +   '<div data-corps-legende style="font-size:0.6em;margin-top:8px;text-align:center;">' + legende + '</div>'
                 +   '<div style="display:flex;gap:8px;margin-top:10px;align-items:center;">'
-                +     '<button onclick="awakToggleCorpsVue()" style="flex-shrink:0;padding:9px 12px;border-radius:11px;'
+                +     '<button onclick="awakCorpsFlip()" style="flex-shrink:0;padding:9px 12px;border-radius:11px;'
                 +       'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);'
                 +       'color:#94a3b8;font-size:0.66em;font-weight:800;cursor:pointer;">'
                 +       (estFace ? '🔄 DOS' : '🔄 FACE') + '</button>'
                 +     '<div style="flex:1;font-size:0.6em;color:#64748b;line-height:1.3;">'
-                +       'Touche un muscle vert pour l\'entraîner</div>'
+                +       'Touche un muscle vert pour l\'entraîner · glisse pour le tourner</div>'
                 +   '</div>'
                 // ⚡ ACTION PRINCIPALE dans la carte : le geste le plus courant
                 // conclut le bloc, juste sous l'état du corps qui l'informe.
@@ -25022,7 +25042,12 @@
                     el.style.transform = 'perspective(700px) rotateY(0deg)';
                     el.style.opacity = '1';
                 });
-                setTimeout(() => { window._awakFlipEnCours = false; }, 210);
+                // Fin d'animation : on retire toute trace de transformation 3D
+                // (certains navigateurs mobiles rognent un SVG resté en perspective).
+                setTimeout(() => {
+                    nouveaux.forEach(el => { el.style.transition = ''; el.style.transform = ''; el.style.opacity = ''; el.style.transformOrigin = ''; });
+                    window._awakFlipEnCours = false;
+                }, 220);
             }, anciens.length ? 170 : 0);
         }
 
@@ -25033,6 +25058,11 @@
             if (cible === actuelle) { setMusclePickerView(cible); return; }
             _awakFlipAnim(() => Array.from(document.querySelectorAll('#mmpBodyHost svg[data-awak-flip="mmp"]')),
                 () => setMusclePickerView(cible), dir || (cible === 'dos' ? 1 : -1));
+        };
+        // « Ton corps » (onglet Séance) : état de récupération
+        window.awakCorpsFlip = function (dir) {
+            _awakFlipAnim(() => Array.from(document.querySelectorAll('svg[data-awak-flip="corps"]')),
+                () => awakToggleCorpsVue(), dir || 1);
         };
         // Carte musculaire (onglet Jeu, statistiques détaillées)
         window.awakBodyMapFlip = function (dir) {
@@ -25057,6 +25087,7 @@
                 const k = z.getAttribute('data-awak-flip');
                 if (k === 'mmp') window.awakMmpFlip(null, sens);
                 else if (k === 'bodymap') window.awakBodyMapFlip(sens);
+                else if (k === 'corps') window.awakCorpsFlip(sens);
             }, true);
             // Le relâchement d'un glissement ne doit pas cocher un muscle
             document.addEventListener('click', function (e) {
@@ -29910,7 +29941,7 @@
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1198");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1200");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -34317,7 +34348,7 @@
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1198);'
+                +     'url(images/combat_bg_v1.webp?v=1200);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -34572,7 +34603,7 @@
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1198);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1200);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -35827,7 +35858,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1198');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1200');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -36562,7 +36593,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1198);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1200);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -36733,7 +36764,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1198);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1200);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -47555,7 +47586,7 @@
 
             host.innerHTML =
                 '<div style="position:relative;width:110px;margin:0 auto 12px;">'
-              +   '<img src="images/body/body_face.webp?v=1198" alt="" '
+              +   '<img src="images/body/body_face.webp?v=1200" alt="" '
               +     'style="width:100%;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -47637,7 +47668,7 @@
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1198);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1200);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -50022,7 +50053,7 @@
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1198");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1200");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
