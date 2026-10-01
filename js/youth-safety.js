@@ -115,7 +115,8 @@
           titre: 'Tu passes au niveau supérieur',
           texte: "Maintenant que tu as 13 ans, le Système t'ouvre de nouvelles "
                + "possibilités : des charges adaptées, des défis avec les autres, "
-               + "et un suivi plus détaillé de ta progression." };
+               + "un suivi plus détaillé de ta progression, et le mode jeu "
+               + "(Failles et combats) à activer dans les Réglages." };
       }
       if (avant === 'teen' && cat === 'adult') {
         return { de: 'teen', vers: 'adult',

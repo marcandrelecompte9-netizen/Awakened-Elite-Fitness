@@ -123,6 +123,9 @@
   // profile_<id>_fitproGameMode sauvegardé par switchProfile.
   function _gameModeOn(profileId) {
     try {
+      // 🧒 v1224 : pas de mode jeu avant 13 ans
+      if (window.AwakYouth && typeof window.AwakYouth.isChildProfile === 'function'
+          && window.AwakYouth.isChildProfile(profileId)) return false;
       var current = null;
       try { if (typeof window.getCurrentProfileId === 'function') current = window.getCurrentProfileId(); } catch (e) {}
       var key = (profileId && profileId === current)

@@ -5064,7 +5064,7 @@ body.dark-mode .card:not(#awakHunterCard) {
             inset: 0;
             background: repeating-linear-gradient(180deg,
                 transparent 0px, transparent 3px,
-                rgba(74,222,128,0.025) 3px, rgba(74,222,128,0.025) 4px);
+                rgba(96,168,240,0.025) 3px, rgba(96,168,240,0.025) 4px);
             pointer-events: none;
             z-index: 0;
         }
@@ -5076,8 +5076,8 @@ body.dark-mode .card:not(#awakHunterCard) {
             inset: 0;
             pointer-events: none;
             background:
-                linear-gradient(90deg, transparent 0%, transparent 95%, rgba(74,222,128,0.1) 100%),
-                linear-gradient(0deg, transparent 0%, transparent 95%, rgba(74,222,128,0.1) 100%);
+                linear-gradient(90deg, transparent 0%, transparent 95%, rgba(96,168,240,0.1) 100%),
+                linear-gradient(0deg, transparent 0%, transparent 95%, rgba(96,168,240,0.1) 100%);
             z-index: 0;
         }
 
@@ -5095,15 +5095,15 @@ body.dark-mode .card:not(#awakHunterCard) {
             100% { transform: scale(1); opacity:1; }
         }
         @keyframes restPulseGlow {
-            0%, 100% { filter: drop-shadow(0 0 12px rgba(74,222,128,0.5)); }
-            50%      { filter: drop-shadow(0 0 28px rgba(74,222,128,0.85)) drop-shadow(0 0 50px rgba(74,222,128,0.3)); }
+            0%, 100% { filter: drop-shadow(0 0 12px rgba(96,168,240,0.5)); }
+            50%      { filter: drop-shadow(0 0 28px rgba(96,168,240,0.85)) drop-shadow(0 0 50px rgba(96,168,240,0.3)); }
         }
 
         #restLabelTop {
             font-size: 0.6rem; font-weight: 900; letter-spacing: 5px;
-            color: #4ade80; text-transform: uppercase;
+            color: #60a8f0; text-transform: uppercase;
             margin-bottom: 14px;
-            text-shadow: 0 0 12px rgba(74,222,128,0.6);
+            text-shadow: 0 0 12px rgba(96,168,240,0.6);
             position: relative; z-index: 1;
         }
 
@@ -5120,8 +5120,8 @@ body.dark-mode .card:not(#awakHunterCard) {
             width: 100%; height: 100%;
         }
         #restRingArc {
-            stroke: #4ade80 !important;
-            filter: drop-shadow(0 0 8px rgba(74,222,128,0.7));
+            stroke: #60a8f0 !important;
+            filter: drop-shadow(0 0 8px rgba(96,168,240,0.7));
         }
         #restCountDisplay {
             position: absolute;
@@ -5130,7 +5130,7 @@ body.dark-mode .card:not(#awakHunterCard) {
             font-size: clamp(3.2rem, 16vw, 5.5rem);
             font-weight: 900; color: white; line-height: 1;
             letter-spacing: -3px;
-            text-shadow: 0 0 28px rgba(74,222,128,0.5);
+            text-shadow: 0 0 28px rgba(96,168,240,0.5);
             font-variant-numeric: tabular-nums;
         }
         #restSecLabel {
@@ -5138,21 +5138,21 @@ body.dark-mode .card:not(#awakHunterCard) {
             bottom: 24%; left: 50%;
             transform: translateX(-50%);
             font-size: 0.68rem; font-weight: 900; letter-spacing: 3px;
-            color: #4ade80; text-transform: uppercase;
-            text-shadow: 0 0 6px rgba(74,222,128,0.4);
+            color: #60a8f0; text-transform: uppercase;
+            text-shadow: 0 0 6px rgba(96,168,240,0.4);
         }
 
         #restLabelBottom {
             font-size: 0.7rem; font-weight: 900; letter-spacing: 3px;
-            color: #4ade80; text-transform: uppercase; margin-top: 12px;
-            text-shadow: 0 0 8px rgba(74,222,128,0.5);
+            color: #60a8f0; text-transform: uppercase; margin-top: 12px;
+            text-shadow: 0 0 8px rgba(96,168,240,0.5);
             position: relative; z-index: 1;
         }
 
         /* ── Carte prochain exercice ── */
         #restNextCard {
-            background: linear-gradient(160deg, rgba(34,197,94,0.06), rgba(168,85,247,0.04));
-            border: 1px solid rgba(74,222,128,0.35);
+            background: linear-gradient(160deg, rgba(59,130,246,0.06), rgba(168,85,247,0.04));
+            border: 1px solid rgba(96,168,240,0.35);
             border-radius: 14px;
             padding: 16px 24px 18px;
             margin-top: 22px;
@@ -5160,7 +5160,7 @@ body.dark-mode .card:not(#awakHunterCard) {
             animation: restCardSlide 0.45s cubic-bezier(0.34,1.2,0.64,1) both;
             position: relative;
             z-index: 1;
-            box-shadow: 0 0 24px rgba(34,197,94,0.1), 0 8px 24px rgba(0,0,0,0.4);
+            box-shadow: 0 0 24px rgba(59,130,246,0.1), 0 8px 24px rgba(0,0,0,0.4);
         }
         #restNextCard::before,
         #restNextCard::after {
@@ -5172,49 +5172,49 @@ body.dark-mode .card:not(#awakHunterCard) {
         }
         #restNextCard::before {
             top: -1px; left: -1px;
-            border-top: 2px solid #4ade80;
-            border-left: 2px solid #4ade80;
+            border-top: 2px solid #60a8f0;
+            border-left: 2px solid #60a8f0;
             border-top-left-radius: 14px;
         }
         #restNextCard::after {
             bottom: -1px; right: -1px;
-            border-bottom: 2px solid #4ade80;
-            border-right: 2px solid #4ade80;
+            border-bottom: 2px solid #60a8f0;
+            border-right: 2px solid #60a8f0;
             border-bottom-right-radius: 14px;
         }
         #restNextLabel {
-            font-size: 0.56rem; color: #4ade80;
+            font-size: 0.56rem; color: #60a8f0;
             letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px;
             font-weight: 900;
-            text-shadow: 0 0 6px rgba(74,222,128,0.5);
+            text-shadow: 0 0 6px rgba(96,168,240,0.5);
         }
         #restNextEmoji {
             font-size: 2.2em; line-height: 1;
             margin-bottom: 6px;
             animation: restEmojiPop 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.15s both;
             display: block;
-            filter: drop-shadow(0 0 10px rgba(74,222,128,0.4));
+            filter: drop-shadow(0 0 10px rgba(96,168,240,0.4));
         }
         #restNextName {
             font-size: 1.05rem; font-weight: 900; color: white;
             line-height: 1.25; margin-bottom: 6px;
             letter-spacing: 0.5px;
             text-transform: uppercase;
-            text-shadow: 0 0 16px rgba(74,222,128,0.3);
+            text-shadow: 0 0 16px rgba(96,168,240,0.3);
         }
         #restNextMuscle {
             display: inline-block;
-            background: rgba(34,197,94,0.15);
-            border: 1px solid rgba(34,197,94,0.3);
+            background: rgba(59,130,246,0.15);
+            border: 1px solid rgba(59,130,246,0.3);
             border-radius: 99px;
             padding: 3px 12px;
             font-size: 0.7rem; font-weight: 700;
-            color: #86efac; letter-spacing: 0.5px;
+            color: #93c5fd; letter-spacing: 0.5px;
             margin-top: 2px;
         }
         #restNextBar {
             height: 3px;
-            background: rgba(34,197,94,0.15);
+            background: rgba(59,130,246,0.15);
             border-radius: 99px;
             margin-top: 12px;
             overflow: hidden;
@@ -5223,7 +5223,7 @@ body.dark-mode .card:not(#awakHunterCard) {
             content: '';
             display: block;
             height: 100%;
-            background: linear-gradient(90deg, #22c55e, #4ade80);
+            background: linear-gradient(90deg, #3b82f6, #60a8f0);
             border-radius: 99px;
             animation: restBarFill 0.6s ease 0.3s both;
             transform-origin: left;
@@ -5241,27 +5241,27 @@ body.dark-mode .card:not(#awakHunterCard) {
         }
         .rest-btn-adj {
             flex: 1; padding: 13px 0;
-            background: rgba(34,197,94,0.06);
-            border: 1.5px solid rgba(74,222,128,0.3);
-            border-radius: 10px; color: #4ade80;
+            background: rgba(59,130,246,0.06);
+            border: 1.5px solid rgba(96,168,240,0.3);
+            border-radius: 10px; color: #60a8f0;
             font-size: 0.78rem; font-weight: 900; cursor: pointer;
             transition: all 0.2s;
             letter-spacing: 1.5px;
             text-transform: uppercase;
-            box-shadow: 0 0 10px rgba(34,197,94,0.1);
+            box-shadow: 0 0 10px rgba(59,130,246,0.1);
         }
         .rest-btn-adj:active {
-            background: rgba(34,197,94,0.18);
+            background: rgba(59,130,246,0.18);
             transform: scale(0.97);
-            box-shadow: 0 0 16px rgba(34,197,94,0.3);
+            box-shadow: 0 0 16px rgba(59,130,246,0.3);
         }
         #restSkipBtn {
             flex: 2; padding: 13px 0;
-            background: linear-gradient(135deg, #16a34a, #22c55e, #4ade80);
-            border: 1.5px solid #4ade80;
+            background: linear-gradient(135deg, #1d5fa8, #3b82f6, #60a8f0);
+            border: 1.5px solid #60a8f0;
             border-radius: 10px; color: white;
             font-size: 0.88rem; font-weight: 900; cursor: pointer;
-            box-shadow: 0 0 24px rgba(74, 222, 128, 0.5), 0 4px 12px rgba(34, 197, 94, 0.3);
+            box-shadow: 0 0 24px rgba(96, 168, 240, 0.5), 0 4px 12px rgba(59, 130, 246, 0.3);
             transition: all 0.15s;
             letter-spacing: 2px;
             text-transform: uppercase;
@@ -7698,10 +7698,8 @@ body.dark-mode #homeTab .stat-label {
     letter-spacing: 0.3px;
     color: #e2e8f0 !important;
 }
-#routinesTab h2::before, #routinesTab h3::before {
-    content: '> ';
-    color: #60a8f0;
-}
+/* v1219 : le préfixe « > » des titres de routines est retiré (il donnait
+   « > Mes Routines », illisible pour un enfant et sans équivalent ailleurs). */
 
 /* 🛡️ Filet : aucun vert posé en style en ligne ne subsiste. */
 #routinesTab [style*="#16a34a"],
@@ -7731,3 +7729,68 @@ body.dark-mode #homeTab .stat-label {
    aucun espacement autour, y compris en paysage (règle !important plus haut). */
 #exerciseVisualContent.awak-vis-img { padding: 0 !important; }
 #exerciseVisualContent.awak-vis-img img { max-height: none !important; width: 100% !important; }
+
+/* ➖➕ Grille de séries avec boutons de pas : champs compacts (les règles
+   globales des champs — padding 13 px, min-height 50 px — coupaient « 100 »). */
+input.awak-grid-num, body.dark-mode input.awak-grid-num {
+    flex: 1 1 auto; width: 100% !important; min-width: 0 !important;
+    height: 34px !important; min-height: 34px !important;
+    padding: 2px 1px !important; font-size: 16px !important;
+    text-align: center !important; box-sizing: border-box !important;
+}
+input.awak-grid-num::-webkit-outer-spin-button,
+input.awak-grid-num::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+input.awak-grid-num { -moz-appearance: textfield; }
+
+/* ── v1223 · Écran de séance ──────────────────────────────────────────
+   Panneau sans image compact, et palette bleue pour la zone des séries
+   (les règles vertes plus haut sont en !important, d'où ces surcharges). */
+#exerciseVisualContent.awak-vis-neutre { padding: 0 !important; min-height: 0 !important; }
+#exerciseVisualContent.awak-vis-neutre > div { height: 150px !important; }
+#exerciseView #setIndicator { color: #93c5fd !important; text-shadow: none !important; }
+#exerciseView #repsTrackingInputs > div {
+    background: rgba(29,95,168,0.07) !important;
+    border: 1.5px solid rgba(96,168,240,0.22) !important;
+}
+#preparationView .btn-secondary { color: #93c5fd !important; }
+/* Le titre de séance n'a pas la place à côté du chrono sur téléphone */
+@media (max-width: 520px) { #workoutTopTitle { display: none !important; } }
+
+/* ── v1225 · Onglet Progrès : pastilles de filtre de l'historique ── */
+.awk-hist-chip {
+    flex: 1; min-width: 0; padding: 8px 4px; border-radius: 99px; cursor: pointer;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12);
+    color: #94a3b8; font-weight: 800; font-size: 0.74em; white-space: nowrap;
+}
+.awk-hist-chip.actif { background: rgba(96,168,240,0.16); border-color: rgba(96,168,240,0.6); color: #fff; }
+#historyTab .accordion-icon { color: #60a8f0 !important; }
+
+/* ── v1226 · Onglet Exos : cartes compactes + fiche en bleu ── */
+#exercisesGrid.exercises-grid { gap: 7px !important; grid-template-columns: 1fr !important; }
+.awk-exo {
+    display: flex; align-items: center; gap: 11px; padding: 9px 10px; cursor: pointer;
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 13px; transition: background .15s;
+}
+.awk-exo:active { background: rgba(96,168,240,0.08); }
+.awk-exo.blacklisted { opacity: 0.55; }
+@media (min-width: 768px) { #exercisesGrid.exercises-grid { grid-template-columns: repeat(2, 1fr) !important; } }
+#exerciseModal h2#modalTitle, body.dark-mode #exerciseModal h2#modalTitle { color: #fff !important; }
+#exerciseModal .instructions-list h4, #exerciseModal .tips-box h4,
+body.dark-mode #exerciseModal .instructions-list h4, body.dark-mode #exerciseModal .tips-box h4 { color: #93c5fd !important; }
+#exerciseModal .tips-box { border-left-color: #60a8f0 !important; }
+#exerciseModal .btn-secondary { color: #93c5fd !important; }
+#exerciseModal .equipment-tag { background: rgba(96,168,240,0.10) !important; border-color: rgba(96,168,240,0.3) !important; color: #cbd5e1 !important; }
+#exercisesTab .awk-cache { display: none !important; }
+
+/* ── v1227 · Calculs : bleu au lieu du vert, échelle RPE compacte ── */
+#calculatorsTab .btn:not(.btn-secondary),
+body.dark-mode #calculatorsTab .btn:not(.btn-secondary) {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d5fa8 100%) !important; color: #fff !important; box-shadow: 0 4px 16px rgba(59,130,246,0.3) !important;
+}
+#calculatorsTab .btn-secondary { color: #93c5fd !important; }
+#calculatorsTab .accordion-icon { color: #60a8f0 !important; }
+#rpeScale { grid-template-columns: repeat(5, 1fr) !important; gap: 6px !important; }
+#rpeScale .rpe-button { display: block !important; padding: 9px 2px !important; border-width: 1px !important; border-radius: 11px !important; text-align: center; }
+#rpeScale .rpe-button > div:first-child { font-size: 1.25em !important; }
+#rpeScale .rpe-button > div:nth-child(2) { display: none !important; }

@@ -148,7 +148,7 @@
     for (k = 0; k < 5; k++) {
       var a = k / 5 * Math.PI * 2 - 0.4, px = cx + Math.cos(a) * r, py = cy + Math.sin(a) * r;
       s += '<circle cx="' + px.toFixed(1) + '" cy="' + py.toFixed(1) + '" r="' + (r * 0.66).toFixed(1) + '" '
-         + 'fill="#fff7e6" opacity="0.97" stroke="#6b4f2a" stroke-width="0.8" stroke-opacity="0.55"/>';
+         + 'fill="#fff7ef" opacity="0.95" stroke="#6b4f2a" stroke-width="0.5" stroke-opacity="0.35"/>';
     }
     s += '<circle cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" r="' + (r * 0.6).toFixed(1) + '" '
        + 'fill="#f59e0b" stroke="#7c4a09" stroke-width="0.7" stroke-opacity="0.5" filter="url(#awkGlow)"/>';
@@ -186,7 +186,7 @@
     }
     // spéculaire (lumière haut-gauche)
     s += '<circle cx="' + (cx - r * 0.34).toFixed(1) + '" cy="' + (cy - r * 0.46).toFixed(1) + '" r="' + (r * 0.13).toFixed(1) + '" fill="#ffffff" opacity="0.55"/>';
-    if (wf) { [[-0.32, -0.18], [0.36, 0.02], [0.0, -0.48], [0.22, 0.36]].forEach(function (f) { s += flower(cx + f[0] * r, cy + f[1] * r, 2.5); }); }
+    if (wf) { [[-0.34, -0.22], [0.38, 0.04], [0.06, -0.52]].forEach(function (f) { s += flower(cx + f[0] * r, cy + f[1] * r, 1.9); }); }
     return s;
   }
 
@@ -201,9 +201,9 @@
     var p0 = [ax, ay], cp = [mx, my], p1 = [ex, ey], wood = '#473a2c', light = shade(p.col, 0.55);
     var w0 = 2.6 + stage * 1.5, w1 = 1.0 + stage * 0.35, s = taperedBranch(p0, cp, p1, w0, w1, wood);
     if (stage === 1) { s += '<circle cx="' + ex.toFixed(1) + '" cy="' + ey.toFixed(1) + '" r="3.4" fill="' + p.col + '"/>'; s += '<circle cx="' + (ex - 0.8).toFixed(1) + '" cy="' + (ey - 0.9).toFixed(1) + '" r="1.5" fill="' + light + '"/>'; return s; }
-    var bl2 = []; if (stage >= 3) bl2.push({ t: 0.58, side: 1, f: 0.42 }); if (stage >= 4) bl2.push({ t: 0.76, side: -1, f: 0.36 }); if (stage >= 5) bl2.push({ t: 0.48, side: -1, f: 0.32 });
-    var tips = [{ x: ex, y: ey, r: (stage >= 5 ? 13 : stage >= 4 ? 11 : stage >= 3 ? 9 : 7.5) }];
-    bl2.forEach(function (bl) { var bp = bez(p0, cp, p1, bl.t), tan = bezTan(p0, cp, p1, bl.t), nrm = [-tan[1], tan[0]], blen = len * bl.f; var bex = bp[0] + (tan[0] * 0.55 + nrm[0] * bl.side) * blen, bey = bp[1] + (tan[1] * 0.55 + nrm[1] * bl.side) * blen + blen * 0.08; var bcp = [(bp[0] + bex) / 2 + nrm[0] * bl.side * blen * 0.2, (bp[1] + bey) / 2 - blen * 0.15]; s += taperedBranch(bp, bcp, [bex, bey], w1 + 1.3, 0.8, wood); tips.push({ x: bex, y: bey, r: (stage >= 5 ? 8 : 6.5) }); });
+    var bl2 = []; if (stage === 2) bl2.push({ t: 0.62, side: 1, f: 0.30 }); if (stage >= 3) bl2.push({ t: 0.58, side: 1, f: 0.42 }); if (stage >= 4) bl2.push({ t: 0.76, side: -1, f: 0.36 }); if (stage >= 5) bl2.push({ t: 0.48, side: -1, f: 0.32 });
+    var tips = [{ x: ex, y: ey, r: (stage >= 5 ? 16 : stage >= 4 ? 13.5 : stage >= 3 ? 11 : 8.5) }];
+    bl2.forEach(function (bl) { var bp = bez(p0, cp, p1, bl.t), tan = bezTan(p0, cp, p1, bl.t), nrm = [-tan[1], tan[0]], blen = len * bl.f; var bex = bp[0] + (tan[0] * 0.55 + nrm[0] * bl.side) * blen, bey = bp[1] + (tan[1] * 0.55 + nrm[1] * bl.side) * blen + blen * 0.08; var bcp = [(bp[0] + bex) / 2 + nrm[0] * bl.side * blen * 0.2, (bp[1] + bey) / 2 - blen * 0.15]; s += taperedBranch(bp, bcp, [bex, bey], w1 + 1.3, 0.8, wood); tips.push({ x: bex, y: bey, r: (stage >= 5 ? 10.5 : stage >= 4 ? 9 : stage >= 3 ? 7.5 : 6) }); });
     // rameaux nus très fins (respiration du bois, dès Mûr)
     if (stage >= 4) {
       [{ t: 0.32, side: -1 }, { t: 0.68, side: 1 }].forEach(function (tw, ti) {
@@ -218,7 +218,7 @@
   }
 
   function trunkSVG(gl) {
-    var g = gl / 30, cx = 160, baseY = 330, topY = 182, wb = 10 + g * 6, wt = 3.5 + g * 2.2;
+    var g = gl / 30, cx = 160, baseY = 330, topY = 182, wb = 11 + g * 8, wt = 4 + g * 2.8;
     var p0 = [cx, baseY], cp = [cx - (2 + g * 3), (baseY + topY) / 2], p1 = [cx, topY];
     var s = '';
     // évasement racinaire : deux contreforts pleins à la base
@@ -229,18 +229,27 @@
     s += taperedBranch([cx + wb * 0.62, baseY], [cx - (2 + g * 3) + wb * 0.7, (baseY + topY) / 2], [cx + wt * 0.55, topY], wb * 0.42, wt * 0.4, '#160f09');
     s += '<path d="M' + (cx - wb * 0.9) + ' ' + baseY + ' q-15 3 -28 11" stroke="#3a2f24" stroke-width="4.5" fill="none" stroke-linecap="round"/>';
     s += '<path d="M' + (cx + wb * 0.9) + ' ' + baseY + ' q15 3 28 11" stroke="#241b13" stroke-width="4.5" fill="none" stroke-linecap="round"/>';
+    // écorce : quelques veines verticales + un nœud (texture sans toucher la silhouette)
+    [[-0.32, 0.9], [0.05, 0.75], [0.36, 0.85]].forEach(function (v, i) {
+      var x0 = cx + v[0] * wb * 1.4, y0 = baseY - 6, y1 = baseY - (baseY - topY) * v[1];
+      s += '<path d="M' + x0.toFixed(1) + ' ' + y0 + ' Q' + (x0 + wob(i * 2.1) * 6).toFixed(1) + ' ' + ((y0 + y1) / 2).toFixed(1) + ' ' + (cx + v[0] * wt * 1.2 - 1).toFixed(1) + ' ' + y1.toFixed(1) + '" stroke="#1a130c" stroke-opacity="0.45" stroke-width="0.9" fill="none" stroke-linecap="round"/>';
+    });
+    s += '<ellipse cx="' + (cx - wb * 0.25).toFixed(1) + '" cy="' + (baseY - 58) + '" rx="' + (2 + g * 1.5).toFixed(1) + '" ry="' + (3 + g * 2).toFixed(1) + '" fill="#1a130c" opacity="0.55"/>';
     return s;
   }
 
   // brins d'herbe déterministes autour de la base
   function grassSVG() {
     var s = '', i;
-    for (i = 0; i < 14; i++) {
-      var gx = 160 + (i - 6.5) * 19 + wob(i * 3.7) * 12;
+    for (i = 0; i < 18; i++) {
+      var gx = 160 + (i - 8.5) * 15 + wob(i * 3.7) * 9;
       var gh = 6 + Math.abs(wob(i * 5.3)) * 8;
       var lean = wob(i * 7.9) * 6;
-      var gc = (i % 3 === 0) ? '#14532d' : '#0f3d22';
-      s += '<path d="M' + gx.toFixed(1) + ' 336 Q' + (gx + lean * 0.4).toFixed(1) + ' ' + (336 - gh * 0.6).toFixed(1) + ' ' + (gx + lean).toFixed(1) + ' ' + (336 - gh).toFixed(1) + '" stroke="' + gc + '" stroke-width="1.6" fill="none" stroke-linecap="round"/>';
+      var gc = (i % 3 === 0) ? '#6b7a35' : (i % 3 === 1 ? '#4d5b26' : '#7d8a44');
+      [-1, 0, 1].forEach(function (k) {
+        var bx = gx + k * 1.2, bh = gh * (k === 0 ? 1 : 0.7), bl = lean + k * 3.5;
+        s += '<path d="M' + bx.toFixed(1) + ' 337 Q' + (bx + bl * 0.2).toFixed(1) + ' ' + (337 - bh * 0.65).toFixed(1) + ' ' + (bx + bl).toFixed(1) + ' ' + (337 - bh).toFixed(1) + '" stroke="' + gc + '" stroke-width="' + (k === 0 ? 1.3 : 1) + '" fill="none" stroke-linecap="round"/>';
+      });
     }
     return s;
   }
@@ -313,6 +322,7 @@
       + '<radialGradient id="awkAstre" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="' + sky.astre + '" stop-opacity="0.9"/><stop offset="55%" stop-color="' + sky.astre + '" stop-opacity="0.18"/><stop offset="100%" stop-color="' + sky.astre + '" stop-opacity="0"/></radialGradient>'
       + '<linearGradient id="awkRai" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="' + sky.astre + '" stop-opacity="0.55"/><stop offset="100%" stop-color="' + sky.astre + '" stop-opacity="0"/></linearGradient>'
       + '<radialGradient id="awkSky" cx="50%" cy="38%" r="60%"><stop offset="0%" stop-color="' + sky.lueur + '"/><stop offset="100%" stop-color="' + sky.haut + '" stop-opacity="0"/></radialGradient>'
+      + '<radialGradient id="awkCrown" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#fffaf0" stop-opacity="0.55"/><stop offset="60%" stop-color="#fff3dc" stop-opacity="0.18"/><stop offset="100%" stop-color="#fff3dc" stop-opacity="0"/></radialGradient>'
       + '<filter id="awkGlow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="2.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>'
       + '</defs>';
     var body = defs;
@@ -328,7 +338,13 @@
     body += '<ellipse cx="160" cy="336" rx="118" ry="13" fill="url(#awkGround)"/>';
     if (!any) { body += seedSVG(); body += grassSVG(); }
     else {
+      // halo de couronne : détache l'arbre du ciel clair, grandit avec lui
+      var gk = Math.min(1, gl / 30);
+      body += '<ellipse cx="160" cy="' + (215 - gk * 30).toFixed(0) + '" rx="' + (70 + gk * 70).toFixed(0) + '" ry="' + (55 + gk * 55).toFixed(0) + '" fill="url(#awkCrown)"/>';
+      body += '<ellipse cx="160" cy="333" rx="' + (34 + gk * 40).toFixed(0) + '" ry="7" fill="#3f4a1e" opacity="0.35"/>';
+      body += '<g transform="translate(160 336) scale(1.22) translate(-160 -336)">';
       body += trunkSVG(gl);
+      body += foliage(160, 180, 5 + gk * 9, '#7a9a3e', false);
       // 🌱 Chaque branche pousse à son tour : enveloppe animée, contenu intact.
       [0, 5, 1, 4, 2, 3].forEach(function (i, ordre) {
         var b = branchSVG(Q[i], stages[i]);
@@ -336,6 +352,7 @@
         body += '<g class="awk-grow" style="transform-origin:160px 300px;animation-delay:'
               + (0.18 + ordre * 0.13).toFixed(2) + 's;">' + b + '</g>';
       });
+      body += '</g>';
       body += grassSVG();
       body += luciolesSVG(maxStage >= 4 ? 7 : maxStage >= 2 ? 4 : 2);
       // pétales flottants si au moins une branche en fleur

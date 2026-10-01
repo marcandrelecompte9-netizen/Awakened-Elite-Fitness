@@ -67,7 +67,7 @@
       name: 'Mobilité',
       emoji: '🧘',
       color: '#14b8a6',
-      voie: 'La Voie du Souffle',
+      voie: 'La Voie du Lien',
       mode: 'timer',
       role: 'complement',
       tagline: 'Flows de souplesse et récupération active.'

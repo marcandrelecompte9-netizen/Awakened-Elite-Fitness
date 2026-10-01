@@ -17,9 +17,32 @@
 
   var dernierRetour = 0;
   var sortie = false;
+  var ignorer = 0;          // popstate provoqués par nous-mêmes (history.go)
 
+  // ⚠️ POURQUOI UNE RÉSERVE D'ENTRÉES : Chrome (Android) SAUTE les entrées
+  // d'historique ajoutées sans geste de l'utilisateur. L'ancienne « garde »
+  // remise dans le popstate était donc ignorée : deux Retour rapprochés
+  // traversaient tout et fermaient l'app, même hors de l'Accueil.
+  // On garde maintenant une RÉSERVE de plusieurs entrées, (re)créées pendant
+  // un vrai toucher / clic / touche — donc jamais sautées. Chaque Retour en
+  // consomme une. Chaque entrée porte sa profondeur (awakGarde: n).
+  var RESERVE = 8;
+  function profondeur() {
+    try { var st = history.state; return (st && st.awakGarde) ? st.awakGarde : 0; } catch (e) { return 0; }
+  }
+  function remplir() {
+    if (sortie) return;
+    try {
+      var d = profondeur();
+      while (d < RESERVE) { d++; history.pushState({ awakGarde: d }, ''); }
+    } catch (e) {}
+  }
+  // Après un Retour traité : si la réserve est vide, on remet au moins une
+  // entrée (elle peut être sautée par Chrome, mais le prochain toucher
+  // reconstituera la réserve complète).
   function garde() {
-    try { history.pushState({ awakGarde: 1 }, ''); } catch (e) {}
+    if (MODE_NATIF) return;
+    try { if (profondeur() === 0) history.pushState({ awakGarde: 1 }, ''); } catch (e) {}
   }
 
   function toast(msg) {
@@ -123,8 +146,17 @@
     return !!(h && h.classList.contains('active'));
   }
 
+  var MODE_NATIF = false;   // app Capacitor : Android envoie l'appui directement
   function surRetour() {
+    if (!MODE_NATIF && ignorer > 0) { ignorer--; return; }
     if (sortie) return;
+
+    // 0. Course GPS en cours : Retour ne doit JAMAIS l'arrêter
+    if (window.AwakRun && window.AwakRun.actif && window.AwakRun.actif() && document.getElementById('awakRunScreen')) {
+      toast('Course en cours · touche « Terminer » pour l\'arrêter');
+      garde();
+      return;
+    }
 
     // 1. Fenêtre ouverte
     var f = fenetreOuverte();
@@ -154,21 +186,46 @@
 
     // 4. Accueil : double appui pour quitter
     var t = Date.now();
+    if (MODE_NATIF) {
+      if (t - dernierRetour < 2000) { if (window.AwakNative) window.AwakNative.retour.quitter(); return; }
+      dernierRetour = t;
+      toast('Appuie encore sur Retour pour quitter');
+      return;
+    }
     if (t - dernierRetour < 2000) {
+      // 2ᵉ appui : on est déjà sur l'entrée de base (voir plus bas) — ce Retour
+      // a quitté l'app nativement. Rien à faire.
       sortie = true;
-      try { history.back(); } catch (e) {}   // on franchit l'entrée de base → l'app se ferme
       return;
     }
     dernierRetour = t;
     toast('Appuie encore sur Retour pour quitter');
-    garde();
+    // On redescend sur l'entrée de base : le PROCHAIN Retour du téléphone
+    // quittera l'application. Tout toucher entre-temps reconstitue la réserve
+    // (on ne quitte alors plus au prochain Retour : un nouvel appui double
+    // sera demandé).
+    var d = profondeur();
+    if (d > 0) { ignorer++; try { history.go(-d); } catch (e) { ignorer--; } }
+    setTimeout(function () { dernierRetour = 0; if (!sortie) garde(); }, 2000);
   }
 
   function init() {
+    // 📱 App Play Store (Capacitor) : on écoute le vrai bouton Retour
     try {
-      history.replaceState({ awakBase: 1 }, '');
+      if (window.AwakNative && window.AwakNative.retour.natif()
+          && window.AwakNative.retour.ecouter(function () { surRetour(); })) {
+        MODE_NATIF = true;
+        return;
+      }
+    } catch (e) {}
+    try {
+      if (!history.state || (!history.state.awakBase && !history.state.awakGarde)) history.replaceState({ awakBase: 1 }, '');
       garde();
       window.addEventListener('popstate', surRetour);
+      // Chaque vrai geste reconstitue la réserve (entrées non « sautables »)
+      ['pointerup', 'click', 'keydown', 'touchend'].forEach(function (ev) {
+        window.addEventListener(ev, function () { if (!sortie) remplir(); }, true);
+      });
     } catch (e) {}
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

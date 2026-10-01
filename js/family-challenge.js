@@ -637,6 +637,10 @@
 
   window.AwakFamilyChallenge.renderCard = renderCard;
 
+  // v1219 : icônes SVG à la place des emojis (seule la 2e tuile en avait une visible)
+  function _ic(n, t, c) { return (window.AwakIcon && window.AwakIcon.get(n, t || 16, c || 'currentColor')) || ''; }
+  var COOP_ICO = { coop_sessions: 'groupe', coop_minutes: 'chrono', coop_chacun: 'etoile' };
+
   // ── Carte « Défi d'équipe » (coopératif) ──────────────────────────
   function renderCoopCard() {
     var profils = (window.getAllProfiles ? window.getAllProfiles() : []);
@@ -650,22 +654,19 @@
         var cible = d.paliers[0];
         var arg = (k === 'coop_chacun') ? '0' : String(cible);
         return '<button onclick="AwakCoopStart(\'' + k + '\',' + arg + ')" '
-          + 'style="flex:1;min-width:0;padding:11px 8px;border-radius:12px;cursor:pointer;'
-          + 'background:rgba(34,211,238,0.06);border:1px solid rgba(34,211,238,0.22);color:#e2e8f0;text-align:center;">'
-          + '<div style="font-size:1.3em;line-height:1;margin-bottom:4px;">' + d.emoji + '</div>'
-          + '<div style="font-size:0.68em;font-weight:800;">' + esc(d.label) + '</div>'
-          + '<div style="font-size:0.6em;color:#94a3b8;margin-top:2px;">'
-          + (k === 'coop_chacun' ? '2 séances chacun' : cible + ' ' + d.unit) + '</div>'
+          + 'style="width:100%;display:flex;align-items:center;gap:12px;padding:12px 13px;margin-bottom:8px;border-radius:13px;cursor:pointer;'
+          + 'background:rgba(96,168,240,0.07);border:1px solid rgba(96,168,240,0.28);color:#e2e8f0;text-align:left;">'
+          + '<span style="flex-shrink:0;width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:rgba(96,168,240,0.16);">' + _ic(COOP_ICO[k], 20, '#93c5fd') + '</span>'
+          + '<span style="flex:1;min-width:0;"><span style="display:block;font-size:0.84em;font-weight:800;">' + esc(d.label) + '</span>'
+          + '<span style="display:block;font-size:0.68em;color:#94a3b8;margin-top:2px;">'
+          + (k === 'coop_chacun' ? 'Chacun fait au moins 2 séances' : 'Objectif : ' + cible + ' ' + d.unit + ' à nous tous') + '</span></span>'
+          + '<span style="flex-shrink:0;color:#93c5fd;">›</span>'
           + '</button>';
       }).join('');
-      return '<div style="background:linear-gradient(160deg,#0a1620,#0d0d12);border:1px solid rgba(34,211,238,0.22);border-radius:18px;padding:15px;margin-bottom:14px;">'
-        + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:5px;">'
-        +   '<span style="font-size:1.5em;">🤝</span>'
-        +   '<div><div style="font-size:0.62em;font-weight:800;letter-spacing:0.5px;color:#22d3ee;">DÉFI D\'ÉQUIPE</div>'
-        +   '<div style="font-size:1.02em;font-weight:900;color:#fff;">Nous contre l\'objectif</div></div>'
-        + '</div>'
-        + '<div style="font-size:0.74em;color:#94a3b8;margin-bottom:12px;line-height:1.45;">Pas de gagnant, pas de perdant : vos efforts s\'additionnent. 7 jours.</div>'
-        + '<div style="display:flex;gap:7px;">' + tuiles + '</div>'
+      return '<div>'
+        + '<div style="font-size:1.02em;font-weight:900;color:#fff;margin-bottom:4px;">Nous contre l\'objectif</div>'
+        + '<div style="font-size:0.76em;color:#94a3b8;margin-bottom:14px;line-height:1.45;">Pas de gagnant, pas de perdant : on additionne les efforts de tout le monde pendant 7 jours. Choisis le défi :</div>'
+        + tuiles
         + '</div>';
     }
 
@@ -680,7 +681,7 @@
     }).join('') || '<div style="font-size:0.72em;color:#64748b;">Aucune contribution pour l\'instant.</div>';
 
     var entete = st.atteint
-      ? '<div style="font-size:0.92em;font-weight:900;color:#4ade80;">🎉 Objectif atteint — ensemble !</div>'
+      ? '<div style="font-size:0.92em;font-weight:900;color:#93c5fd;">Objectif atteint, ensemble !</div>'
       : '<div style="font-size:1.02em;font-weight:900;color:#fff;">' + esc(d.label) + '</div>';
 
     // 🎉 RÉUSSITE : annonce + bouton de clôture.
@@ -709,8 +710,8 @@
     }
     return annonce + '<div style="background:linear-gradient(160deg,#0a1620,#0d0d12);border:1px solid rgba(34,211,238,' + (st.atteint ? '0.45' : '0.22') + ');border-radius:18px;padding:15px;margin-bottom:14px;">'
       + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">'
-      +   '<span style="font-size:1.5em;">' + d.emoji + '</span>'
-      +   '<div style="flex:1;min-width:0;"><div style="font-size:0.62em;font-weight:800;letter-spacing:0.5px;color:#22d3ee;">DÉFI D\'ÉQUIPE</div>' + entete + '</div>'
+      +   '<span style="flex-shrink:0;width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:rgba(96,168,240,0.16);">' + _ic(COOP_ICO[st.type] || 'groupe', 19, '#93c5fd') + '</span>'
+      +   '<div style="flex:1;min-width:0;"><div style="font-size:0.62em;font-weight:800;letter-spacing:0.5px;color:#60a8f0;">DÉFI D\'ÉQUIPE</div>' + entete + '</div>'
       +   '<button onclick="AwakCoopStop()" style="background:transparent;border:none;color:#64748b;font-size:1.1em;cursor:pointer;padding:4px 6px;">×</button>'
       + '</div>'
       + '<div style="font-size:0.74em;color:#94a3b8;">' + esc(d.desc) + '</div>'
@@ -742,26 +743,29 @@
     ov.className = 'modal';
     ov.style.cssText = 'display:flex;position:fixed;inset:0;z-index:9000;align-items:center;'
       + 'justify-content:center;background:rgba(0,0,0,0.9);backdrop-filter:blur(10px);overflow-y:auto;padding:20px 14px;';
+    // v1219 : vrai panneau (fond, bord, centré). Avant, le titre et la carte
+    // flottaient directement sur le voile, collés en haut de l'écran.
     ov.innerHTML =
-      '<div style="width:100%;max-width:480px;">'
+      '<div style="width:100%;max-width:460px;margin:auto;background:linear-gradient(160deg,#16101f,#0b0b10);'
+      +   'border:1.5px solid rgba(236,72,153,0.35);border-radius:22px;padding:16px 16px 6px;box-shadow:0 12px 40px rgba(0,0,0,0.6);">'
       + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">'
       +   '<div style="font-size:1.05em;font-weight:900;color:#fff;">' + titre + '</div>'
-      +   '<button onclick="document.getElementById(\'' + id + '\').remove()" '
-      +     'style="background:rgba(255,255,255,0.06);border:none;color:#94a3b8;font-size:1.2em;'
-      +     'width:34px;height:34px;border-radius:10px;cursor:pointer;">×</button>'
+      +   '<button onclick="document.getElementById(\'' + id + '\').remove()" aria-label="Fermer" '
+      +     'style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#94a3b8;font-size:1.1em;'
+      +     'width:34px;height:34px;min-height:auto;border-radius:10px;cursor:pointer;line-height:1;">×</button>'
       + '</div>'
       + (contenuHtml || '<div style="color:#64748b;font-size:0.85em;">Rien à afficher pour le moment.</div>')
-      + '<div style="height:24px;"></div>'
+      + '<div style="height:10px;"></div>'
       + '</div>';
     ov.onclick = function (e) { if (e.target === ov) ov.remove(); };
     document.body.appendChild(ov);
   }
 
   window.AwakCoopOpen = function () {
-    _modale("🤝 Défi d'équipe", renderCoopCard(), 'awakCoopModal');
+    _modale("Défi d'équipe", renderCoopCard(), 'awakCoopModal');
   };
   window.AwakFamilyChallengeOpen = function () {
-    _modale('⚔️ Défis', renderCard(), 'awakChallengeModal');
+    _modale('Duels', renderCard(), 'awakChallengeModal');
   };
   window.AwakGamesOpen = function () {
     var html = '';
@@ -770,7 +774,7 @@
         html = window.AwakGames.renderFamilyCard();
       }
     } catch (e) {}
-    _modale('🎮 Jeux à deux', html, 'awakGamesModal');
+    _modale('Jeux à deux', html, 'awakGamesModal');
   };
 
   window.AwakCoopStart = function (type, cible) {

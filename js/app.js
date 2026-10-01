@@ -527,65 +527,126 @@
         const challengesDatabase = [
             {
                 id: 'pushups30',
-                name: '100 Pompes Challenge',
-                emoji: '💪',
+                name: 'Défi 100 pompes',
+                emoji: '💪', ico: 'muscle',
                 description: '100 pompes par jour pendant 30 jours',
                 goal: '100 pompes/jour',
                 duration: 30,
                 difficulty: 'Intermédiaire',
                 benefits: ['Force pectoraux', 'Endurance musculaire', 'Discipline'],
-                tips: 'Divisez en 5 séries de 20 tout au long de la journée',
+                tips: 'Divise en 5 séries de 20 au fil de la journée.',
                 color: '#ef4444'
             },
             {
                 id: 'plank30',
-                name: 'Planche 5 Minutes',
-                emoji: '🔥',
+                name: 'Planche 5 minutes',
+                emoji: '🔥', ico: 'bouclier',
                 description: '5 minutes de planche par jour pendant 30 jours',
                 goal: '5 min planche/jour',
                 duration: 30,
                 difficulty: 'Avancé',
                 benefits: ['Core ultra-solide', 'Posture', 'Stabilité'],
-                tips: 'Commencez par 5 x 1 minute si trop difficile',
+                tips: 'Commence par 5 fois 1 minute si c\'est trop dur.',
                 color: '#f59e0b'
             },
             {
                 id: 'squats30',
-                name: '200 Squats Challenge',
-                emoji: '🦵',
+                name: 'Défi 200 squats',
+                emoji: '🦵', ico: 'eclair',
                 description: '200 squats par jour pendant 30 jours',
                 goal: '200 squats/jour',
                 duration: 30,
                 difficulty: 'Intermédiaire',
                 benefits: ['Jambes puissantes', 'Fessiers', 'Cardio'],
-                tips: 'Répartissez en 10 séries de 20 au cours de la journée',
+                tips: 'Répartis en 10 séries de 20 au cours de la journée.',
                 color: '#22c55e'
             },
             {
                 id: 'burpees30',
-                name: 'Burpees Challenge',
-                emoji: '⚡',
+                name: 'Défi burpees',
+                emoji: '⚡', ico: 'flamme',
                 description: '50 burpees par jour pendant 30 jours',
                 goal: '50 burpees/jour',
                 duration: 30,
                 difficulty: 'Avancé',
                 benefits: ['Cardio explosif', 'Corps entier', 'Condition physique'],
-                tips: 'Faites 5 séries de 10 avec pauses entre',
+                tips: 'Fais 5 séries de 10, avec une pause entre chaque.',
                 color: '#10b981'
             },
             {
                 id: 'cardio30',
-                name: 'Cardio 30 Minutes',
-                emoji: '🏃',
+                name: 'Cardio 30 minutes',
+                emoji: '🏃', ico: 'course', jeunes: true,
                 description: '30 minutes de cardio par jour pendant 30 jours',
                 goal: '30 min cardio/jour',
                 duration: 30,
                 difficulty: 'Débutant',
                 benefits: ['Santé cardio', 'Endurance', 'Perte de poids'],
-                tips: 'Marche, course, vélo, corde à sauter... au choix !',
+                tips: 'Marche, course, vélo, corde à sauter… au choix !',
                 color: '#06b6d4'
+            },
+            // 🧒 v1219 : défis adaptés aux jeunes (aussi proposés aux débutants).
+            {
+                id: 'bouger10', name: '10 minutes pour bouger', emoji: '', ico: 'soleil', jeunes: true,
+                description: '10 minutes à bouger chaque jour : danse, vélo, ballon, jeux',
+                goal: '10 min de mouvement/jour', duration: 30, difficulty: 'Débutant',
+                benefits: ['Énergie', 'Bonne humeur', 'Habitude'],
+                tips: 'Tout compte : jouer dehors, danser dans le salon, aller à l\'école à vélo.',
+                color: '#60a8f0'
+            },
+            {
+                id: 'sauts50', name: '50 sauts par jour', emoji: '', ico: 'eclair', jeunes: true,
+                description: '50 sauts chaque jour, à la corde ou sur place',
+                goal: '50 sauts/jour', duration: 30, difficulty: 'Débutant',
+                benefits: ['Coordination', 'Cardio', 'Os solides'],
+                tips: 'Fais-les en 5 fois 10 sauts si tu veux. Atterris en douceur, genoux souples.',
+                color: '#60a8f0'
+            },
+            {
+                id: 'gainage1', name: 'Gainage 1 minute', emoji: '', ico: 'bouclier', jeunes: true,
+                description: '1 minute de planche par jour (en 2 fois 30 secondes si besoin)',
+                goal: '1 min de planche/jour', duration: 30, difficulty: 'Débutant',
+                benefits: ['Ventre solide', 'Posture', 'Équilibre'],
+                tips: 'Le dos bien droit, comme une planche. Respire normalement.',
+                color: '#60a8f0'
+            },
+            {
+                id: 'etire5', name: 'Étirements du soir', emoji: '', ico: 'repos', jeunes: true,
+                description: '5 minutes d\'étirements doux chaque soir',
+                goal: '5 min d\'étirements/jour', duration: 30, difficulty: 'Débutant',
+                benefits: ['Souplesse', 'Bon sommeil', 'Moins de courbatures'],
+                tips: 'Tiens chaque étirement 20 secondes, sans jamais forcer ni avoir mal.',
+                color: '#60a8f0'
             }
         ];
+
+        // 🎨 v1219 : une couleur PAR NIVEAU, la même partout (avant, chaque
+        // défi avait sa couleur : « Intermédiaire » était rouge ici, vert là).
+        const DEFI_NIVEAUX = { 'Débutant': '#60a8f0', 'Intermédiaire': '#a78bfa', 'Avancé': '#f59e0b' };
+        function awakDefiCouleur(d) { return DEFI_NIVEAUX[d] || '#60a8f0'; }
+        // 🧒 v1219 : défis filtrés pour les jeunes (comme le reste de l'app).
+        //   enfant (< 13) : seulement les défis « jeunes » ; ado : pas d'« Avancé ».
+        function awakDefiVisible(c) {
+            try {
+                if (window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()) return !!c.jeunes;
+                if (window.AwakYouth && AwakYouth.isYoung && AwakYouth.isYoung()) return c.difficulty !== 'Avancé';
+            } catch (e) {}
+            return true;
+        }
+        // 🏅 Défis menés jusqu'au bout (par profil) : { id: nombre }
+        function awakDefisTermines() {
+            try {
+                const k = window._cleProfilLecture ? _cleProfilLecture('awakDefisTermines') : 'awakDefisTermines';
+                return JSON.parse(localStorage.getItem(k) || '{}') || {};
+            } catch (e) { return {}; }
+        }
+        function awakDefiMarquerTermine(id) {
+            try {
+                const t = awakDefisTermines(); t[id] = (t[id] || 0) + 1;
+                const k = window._cleProfil ? _cleProfil('awakDefisTermines') : 'awakDefisTermines';
+                localStorage.setItem(k, JSON.stringify(t));
+            } catch (e) {}
+        }
 
         // Get active challenge
         // ══════════════════════════════════════════════════════════════
@@ -707,7 +768,7 @@
             const today = new Date().toISOString().split('T')[0];
             
             if (activeChallenge.completedDays.includes(today)) {
-                showToast('Vous avez déjà complété le défi aujourd\'hui !', 'info');
+                showToast('Tu as déjà validé ce défi aujourd\'hui !', 'info');
                 return;
             }
 
@@ -742,8 +803,16 @@
             // Confetti effect
             if (activeChallenge.completedDays.length === activeChallenge.duration) {
                 try { awakLogEvent('challenge_complete', { id: activeChallenge.id, name: activeChallenge.name, duration: activeChallenge.duration }); } catch (e) {}
-                showToast('🎉 FÉLICITATIONS ! Vous avez terminé le défi ! 🏆', 'success', 6000);
+                showToast('Bravo ! Défi terminé : ' + activeChallenge.name + ' — médaille gagnée !', 'success', 6000);
                 speak('Défi terminé avec succès !');
+                // 🏅 v1219 : le défi fini quittait jamais la liste (bloqué sur 30/30).
+                // On le retire des défis en cours et on garde une médaille.
+                awakDefiMarquerTermine(activeChallenge.id);
+                try {
+                    const _l2 = getActiveChallenges().filter(c => c && c.id !== activeChallenge.id);
+                    saveActiveChallenges(_l2);
+                    saveActiveChallenge(null);
+                } catch (e) {}
             }
             
             renderChallengesTab();
@@ -950,10 +1019,19 @@
                       + 'letter-spacing:1px;margin-bottom:10px;">◈ ' + _nActifs
                       + ' DÉFI' + (_nActifs > 1 ? 'S' : '') + ' EN COURS</div>'
                     : '';
-                challengesList.innerHTML = _cptBanner + _recoBanner + challengesDatabase.map(challenge => `
+                // v1219 : défis visibles pour ce profil, couleur du niveau, en cours d'abord.
+                const _termines = awakDefisTermines();
+                const _estActif = id => { try { return !!(typeof awakDefiActif === 'function' && awakDefiActif(id)); } catch (e) { return false; } };
+                const _listeDefis = challengesDatabase.filter(awakDefiVisible)
+                    .map(c => Object.assign({}, c, { color: awakDefiCouleur(c.difficulty) }))
+                    .sort((a, b) => (_estActif(b.id) ? 1 : 0) - (_estActif(a.id) ? 1 : 0));
+                challengesList.innerHTML = _cptBanner + _recoBanner + _listeDefis.map(challenge => `
                     <div style="background: linear-gradient(160deg, #0a0e18 0%, #0F1014 100%); padding: 20px; border-radius: 14px; margin-bottom: 16px; border: 1.5px solid ${challenge.color}40; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 18px rgba(0,0,0,0.25), 0 0 0 1px ${challenge.color}10 inset;" onclick="showChallengeDetails('${challenge.id}')">
                         <div style="display: flex; gap: 16px; align-items: flex-start;">
-                            <div style="font-size: 3em; line-height: 1; filter: drop-shadow(0 0 8px ${challenge.color}60); flex-shrink: 0;">${challenge.emoji}</div>
+                            <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:6px;">
+                                <div style="width:52px;height:52px;border-radius:15px;display:flex;align-items:center;justify-content:center;background:${challenge.color}1c;border:1px solid ${challenge.color}55;box-shadow:0 0 14px ${challenge.color}25;">${window.AwakIcon ? AwakIcon.get(challenge.ico || 'cible', 26, challenge.color) : ''}</div>
+                                ${_termines[challenge.id] ? `<div title="Défi terminé" style="display:flex;align-items:center;gap:3px;font-size:0.62em;font-weight:900;color:#fbbf24;">${window.AwakIcon ? AwakIcon.get('trophee', 13, '#fbbf24') : ''}×${_termines[challenge.id]}</div>` : ''}
+                            </div>
                             <div style="flex: 1; min-width: 0;">
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 8px; flex-wrap: wrap;">
                                     <h3 style="margin: 0; color: white; font-size: 1.05em; font-weight: 900;">${challenge.name}</h3>
@@ -992,7 +1070,7 @@
                                     for (let d = 1; d <= _tot; d++) {
                                         const _fait = d <= _faits, _auj = d === _j;
                                         _dots += '<span style="display:inline-flex;align-items:center;'
-                                          + 'justify-content:center;width:19px;height:19px;border-radius:99px;'
+                                          + 'justify-content:center;width:100%;aspect-ratio:1;border-radius:7px;'
                                           + 'font-size:0.56em;font-weight:800;flex-shrink:0;'
                                           + 'background:' + (_fait ? challenge.color : (_auj ? challenge.color + '30' : 'rgba(255,255,255,0.04)')) + ';'
                                           + 'border:1px solid ' + (_auj ? challenge.color : 'rgba(255,255,255,0.08)') + ';'
@@ -1000,14 +1078,18 @@
                                           + (_fait ? '✓' : d) + '</span>';
                                     }
                                     return '<div style="margin-bottom:13px;">'
-                                      + '<div style="display:flex;justify-content:flex-end;font-size:0.74em;'
-                                      +   'color:#cbd5e1;font-weight:700;margin-bottom:6px;">Jour ' + _faits + ' / ' + _tot + '</div>'
+                                      + '<div style="display:flex;justify-content:space-between;align-items:center;font-size:0.74em;'
+                                      +   'color:#cbd5e1;font-weight:700;margin-bottom:6px;">'
+                                      +   '<span style="display:inline-flex;align-items:center;gap:4px;color:#fbbf24;">'
+                                      +     (window.AwakIcon ? AwakIcon.get('flamme', 13, '#fbbf24') : '') + 'Série : ' + (_p.currentStreak || 0) + ' j'
+                                      +     ((_p.bestStreak || 0) > (_p.currentStreak || 0) ? ' <span style="color:#94a3b8;font-weight:600;">(record ' + _p.bestStreak + ')</span>' : '') + '</span>'
+                                      +   '<span>Jour ' + _faits + ' / ' + _tot + '</span></div>'
                                       + '<div style="height:7px;background:rgba(255,255,255,0.06);border-radius:99px;'
                                       +   'overflow:hidden;margin-bottom:8px;">'
                                       +   '<div style="height:100%;width:' + _pct + '%;background:' + challenge.color + ';'
                                       +     'border-radius:99px;transition:width .4s;"></div></div>'
-                                      + '<div style="display:flex;gap:3px;overflow-x:auto;padding-bottom:3px;'
-                                      +   '-webkit-overflow-scrolling:touch;">' + _dots + '</div>'
+                                      // v1219 : calendrier 10 × 3 (avant : bande qui défilait de côté)
+                                      + '<div style="display:grid;grid-template-columns:repeat(10,1fr);gap:4px;">' + _dots + '</div>'
                                       + '</div>';
                                 })()}
 
@@ -1027,7 +1109,7 @@
                                         // faisait doublon. Restent les actions utiles : valider la
                                         // journée et abandonner. (La carte reste cliquable pour
                                         // ouvrir le détail.)
-                                        const _lbl = 'Commencer ce défi';
+                                        const _lbl = _termines[challenge.id] ? 'Recommencer ce défi' : 'Commencer ce défi';
                                         const _fn  = `startChallenge('${challenge.id}')`;
                                         // ⚠️ ABANDON PAR DÉFI : la zone du haut n'affiche
                                         // que le premier actif, donc les défis suivants
@@ -1057,7 +1139,7 @@
                                         return `<div style="flex:1;">${_principal}${_valider}${_abandon}</div>`;
                                     })()}
                                     <div style="padding: 9px 12px; background: rgba(255,255,255,0.03); border-radius: 10px; font-weight: 700; color: ${challenge.color}; border: 1px solid ${challenge.color}40; font-size: 0.8em;">
-                                        📅 ${challenge.duration}j
+                                        ${challenge.duration} jours
                                     </div>
                                 </div>
                             </div>
@@ -1130,7 +1212,7 @@
             favoriteExercises = getFavoriteExercises();
             
             if (favoriteExercises.length === 0) {
-                showToast('Vous n\'avez aucun exercice favori ! Cliquez sur ⭐ pour en ajouter.', 'info', 4000);
+                showToast('Pas encore de favori : touche l\'étoile d\'un exercice pour l\'ajouter.', 'info', 4000);
                 return;
             }
             
@@ -7866,11 +7948,9 @@
                     mediaHTML = (typeof window.buildLazyImg === 'function')
                         ? '<div style="width:100%;border-radius:14px;overflow:hidden;">' + window.buildLazyImg(imgSrc, exerciseName, 'width:100%;height:100%;object-fit:contain;border-radius:14px;display:block;') + '</div>'
                         : `<img src="${encodeURI(imgSrc)}" alt="${exerciseName}" style="width:100%;border-radius:14px;display:block;" />`;
-                } else if (typeof getExerciseVisual === 'function') {
-                    // Repli : visuel SVG (position de départ)
-                    const svg = getExerciseVisual(exerciseName, muscle, 'start');
-                    mediaHTML = `<div style="width:100%;border-radius:14px;overflow:hidden;background:rgba(255,255,255,0.03);padding:10px;">${svg || ''}</div>
-                        <div style="font-size:0.74em;color:#64748b;text-align:center;margin-top:8px;">Illustration schématique (photo à venir)</div>`;
+                } else if (typeof awakVisuelNeutre === 'function') {
+                    // Repli NEUTRE (v1221) : plus de personnage dessiné
+                    mediaHTML = '<div style="width:100%;height:200px;border-radius:14px;overflow:hidden;">' + awakVisuelNeutre(muscle) + '</div>';
                 } else {
                     mediaHTML = `<div style="text-align:center;color:#64748b;padding:30px;">Aperçu indisponible</div>`;
                 }
@@ -8139,15 +8219,14 @@
             };
             
             if (equipment.length === 0) {
-                equipmentList.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 20px; color: #94a3b8; font-size: 1.1em;">✅ Aucun équipement nécessaire<br><span style="font-size: 0.9em;">Séance au poids du corps</span></div>';
+                equipmentList.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 14px; color: #94a3b8; font-size: 0.95em;">Aucun matériel : juste toi !</div>';
             } else {
                 equipmentList.innerHTML = equipment.map(eq => {
-                    const icon = equipmentIcons[eq] || '🏋️';
-                    // data-emoji-keep : cette icône est FONCTIONNELLE, pas décorative —
-                    // elle aide à repérer le matériel dans la liste. Le filtre
-                    // « interface sans emoji » ne doit pas la retirer.
+                    // v1223 : icône SVG (plus d'emoji), même repère visuel pour tout le matériel
+                    const _nomIco = eq === 'Poids du corps' ? 'personne' : /corde|rope/i.test(eq) ? 'course' : /banc|box/i.test(eq) ? 'grille' : 'halter';
+                    const icon = window.AwakIcon ? AwakIcon.get(_nomIco, 20, '#67e8f9') : '';
                     return `<div style="display:flex;align-items:center;gap:10px;padding:11px 13px;background:rgba(34,211,238,0.06);border-radius:12px;border:1px solid rgba(34,211,238,0.22);">
-                        <span data-emoji-keep="1" style="font-size:1.5em;">${icon}</span>
+                        <span style="display:inline-flex;width:34px;height:34px;border-radius:10px;align-items:center;justify-content:center;background:rgba(34,211,238,0.1);flex-shrink:0;">${icon}</span>
                         <span style="font-size:0.88em;font-weight:600;color:#e2e8f0;">${eq}</span>
                     </div>`;
                 }).join('');
@@ -8360,7 +8439,8 @@
             document.getElementById('workoutSelection').style.display = 'none';
             document.getElementById('preparationView').classList.remove('hidden');
             
-            speak('Préparez votre équipement');
+            try { if (window.AwakSessUX) AwakSessUX.prep(workout); } catch (e) {}   // v1223 : forme + cardio sur l'écran
+            speak('Prépare ton matériel');
             requestWakeLock();
         }
         
@@ -8386,6 +8466,8 @@
         function startPreparedWorkout() {
             if (!pendingWorkout) return;
             window.showWorkoutPreparation = showWorkoutPreparation; window.startPreparedWorkout = startPreparedWorkout; window.setPendingWorkout = function(w){ pendingWorkout = w; };
+            // v1223 : les choix « forme » et « cardio » sont faits sur l'écran Prépare-toi
+            try { if (window.AwakSessUX) AwakSessUX.appliquerPrep(pendingWorkout); } catch (e) {}
 
             // 🏃 Proposer un cardio d'échauffement optionnel (une seule fois par séance)
             if (!pendingWorkout._cardioAsked && !pendingWorkout.fromRoutine && typeof proposeCardioWarmup === 'function') {
@@ -11130,7 +11212,7 @@
         function showDecisionExplanation(decisions, onComplete) {
             let typeLabel = '';
             let typeSvg = '';
-            let typeAccent = '#4ade80';
+            let typeAccent = '#60a8f0';
 
             // SVG icons épurés par type de séance
             const _svgIcon = (paths, accent) => `<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="${accent}" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`;
@@ -11141,7 +11223,7 @@
                     typeSvg = _svgIcon('<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>', typeAccent);
                     break;
                 case 'fullbody':
-                    typeLabel = 'Corps Entier'; typeAccent = '#4ade80';
+                    typeLabel = 'Corps Entier'; typeAccent = '#60a8f0';
                     typeSvg = _svgIcon('<path d="M6.5 6.5 17.5 17.5"/><path d="M21 21l-1-1"/><path d="M3 3l1 1"/><path d="M18 6l1.5-1.5a1.4 1.4 0 0 1 2 2L20 8"/><path d="M6 18l-1.5 1.5a1.4 1.4 0 0 1-2-2L4 16"/><path d="M16 8l-1.5-1.5"/><path d="M8 16l1.5 1.5"/>', typeAccent);
                     break;
                 case 'split':
@@ -11153,7 +11235,7 @@
                     typeSvg = _svgIcon('<path d="M3 12h4l2-6 4 12 2-6h6"/>', typeAccent);
                     break;
                 default:
-                    typeLabel = 'Séance'; typeAccent = '#4ade80';
+                    typeLabel = 'Séance'; typeAccent = '#60a8f0';
                     typeSvg = _svgIcon('<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>', typeAccent);
             }
 
@@ -11166,7 +11248,7 @@
             overlay.style.cssText = `position:fixed;inset:0;background:rgba(0,0,0,0.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);z-index:100000;display:flex;align-items:center;justify-content:center;padding:18px;animation:awakFadeIn 0.35s ease;`;
 
             const reasoningHtml = (decisions.reasoning || []).map((reason, i) => `
-                <div style="display:flex;gap:9px;align-items:flex-start;padding:9px 11px;background:rgba(74,222,128,0.04);border:1px solid rgba(74,222,128,0.12);border-radius:10px;margin-bottom:6px;opacity:0;animation:awakFadeIn 0.4s ease ${0.15 + i*0.1}s forwards;">
+                <div style="display:flex;gap:9px;align-items:flex-start;padding:9px 11px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;margin-bottom:6px;opacity:0;animation:awakFadeIn 0.4s ease ${0.15 + i*0.1}s forwards;">
                     <span style="color:${typeAccent};font-size:0.85em;flex-shrink:0;line-height:1.5;">▸</span>
                     <span style="font-size:0.76em;color:#cbd5e1;line-height:1.5;">${reason}</span>
                 </div>
@@ -11187,7 +11269,7 @@
                     <div style="padding:26px 22px 20px;position:relative;z-index:1;">
                         <!-- En-tête analyse -->
                         <div style="text-align:center;margin-bottom:18px;">
-                            <div style="font-size:0.56em;color:${typeAccent};font-weight:900;letter-spacing:4px;text-transform:uppercase;margin-bottom:10px;text-shadow:0 0 10px ${typeAccent}77;">◈ ANALYSE DU SYSTÈME ◈</div>
+                            <div style="font-size:0.56em;color:${typeAccent};font-weight:900;letter-spacing:4px;text-transform:uppercase;margin-bottom:10px;text-shadow:0 0 10px ${typeAccent}77;">Le Système prépare ta séance</div>
                             <div style="line-height:1;margin-bottom:8px;filter:drop-shadow(0 0 20px ${typeAccent}77);animation:awakPulse 1.6s ease-in-out infinite;display:flex;justify-content:center;">${typeSvg}</div>
                             <div style="font-size:1.5em;font-weight:900;color:white;letter-spacing:-0.5px;text-transform:uppercase;text-shadow:0 0 20px ${typeAccent}44;">${typeLabel}</div>
                         </div>
@@ -11207,20 +11289,20 @@
                         <!-- Raisonnement -->
                         ${reasoningHtml ? `
                         <div style="margin-bottom:16px;">
-                            <div style="font-size:0.54em;color:#94a3b8;font-weight:900;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">◈ Décisions tactiques</div>
+                            <div style="font-size:0.54em;color:#94a3b8;font-weight:900;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">Pourquoi cette séance</div>
                             ${reasoningHtml}
                         </div>` : ''}
 
                         <!-- Muscles ciblés -->
                         <div style="background:${typeAccent}0f;border:1px solid ${typeAccent}33;border-radius:10px;padding:13px;text-align:center;">
-                            <div style="font-size:0.54em;color:${typeAccent};font-weight:900;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">⊕ Cibles verrouillées</div>
+                            <div style="font-size:0.54em;color:${typeAccent};font-weight:900;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">Muscles du jour</div>
                             <div style="font-size:0.9em;color:white;font-weight:700;line-height:1.5;">${(decisions.targetMuscles || []).join(' · ')}</div>
                         </div>
 
                         <!-- Indicateur de chargement -->
                         <div style="margin-top:16px;">
                             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-                                <span style="font-size:0.62em;color:${typeAccent};font-weight:800;letter-spacing:2px;text-transform:uppercase;">⟳ Génération du protocole</span>
+                                <span style="font-size:0.62em;color:${typeAccent};font-weight:800;letter-spacing:2px;text-transform:uppercase;">Préparation de ta séance</span>
                                 <span id="smartAnalysisPct" style="font-size:0.62em;color:#94a3b8;font-weight:800;">0%</span>
                             </div>
                             <div style="background:rgba(255,255,255,0.06);border-radius:99px;height:6px;overflow:hidden;border:1px solid ${typeAccent}22;">
@@ -13304,18 +13386,29 @@
                 });
 
                 const dataStr  = JSON.stringify(allData, null, 2);
-                const dataBlob = new Blob([dataStr], { type: 'application/json' });
-                const url      = URL.createObjectURL(dataBlob);
-                const link     = document.createElement('a');
-                link.href      = url;
-                link.download  = `Awakened-Backup-${new Date().toISOString().split('T')[0]}.json`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(url);
-
+                const nomFichier = `Awakened-Backup-${new Date().toISOString().split('T')[0]}.json`;
                 const sizeMB = (totalBytes / 1024 / 1024).toFixed(2);
-                showToast(`💾 Export réussi — ${Object.keys(allData).length} clés, ${sizeMB} MB`, 'success', 4000);
+                const telecharger = () => {
+                    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                    const url      = URL.createObjectURL(dataBlob);
+                    const link     = document.createElement('a');
+                    link.href      = url;
+                    link.download  = nomFichier;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                    showToast(`💾 Export réussi — ${Object.keys(allData).length} clés, ${sizeMB} MB`, 'success', 4000);
+                };
+                // 📱 Sur téléphone (et dans l'app Play Store) : feuille de partage
+                // — Drive, courriel, Messages — au lieu d'un fichier perdu dans
+                // les téléchargements. Sert aussi au transfert vers l'app.
+                const essai = (window.AwakNative && window.AwakNative.exporterFichier)
+                    ? window.AwakNative.exporterFichier(nomFichier, dataStr) : Promise.resolve(false);
+                essai.then(ok => {
+                    if (ok) showToast('Sauvegarde prête à envoyer — garde-la dans Drive ou par courriel', 'success', 4000);
+                    else telecharger();
+                }).catch(telecharger);
             } catch (error) {
                 showToast('❌ Erreur lors de l\'export', 'error', 3000);
             }
@@ -13371,10 +13464,11 @@
             { id: 'strengthCard',         label: '🏋️ Standards de force' },
             { id: 'weeklySuggestionCard', label: '📈 Suggestion de la semaine' },
         ];
-        function awakGetHiddenHomeCards() {
-            try { return JSON.parse(localStorage.getItem('awakHiddenHomeCards') || '[]'); }
-            catch (e) { return []; }
-        }
+        // 🏠 ACCUEIL IDENTIQUE POUR TOUS (v1209) : le réglage de personnalisation
+        // est retiré ; les anciens choix enregistrés sont ignorés et effacés.
+        // L'accueil (home-pro.js) décide seul de ce qui s'affiche.
+        try { localStorage.removeItem('awakHiddenHomeCards'); } catch (e) {}
+        function awakGetHiddenHomeCards() { return []; }
         function awakSetHomeCardHidden(id, hidden) {
             let list = awakGetHiddenHomeCards().filter(x => x !== id);
             if (hidden) list.push(id);
@@ -13413,6 +13507,9 @@
         function awakRenderHomeMoreHint() {
             const el = document.getElementById('homeMoreCardsHint');
             if (!el) return;
+            // Réglage « Affichage de l'accueil » RETIRÉ (v1208) : l'accueil n'est
+            // plus personnalisable, l'indice renvoyant vers ce réglage n'a plus lieu d'être.
+            el.innerHTML = ''; el.style.display = 'none'; return;
             let hidden = [];
             try { hidden = awakGetHiddenHomeCards(); } catch (e) {}
             let dismissed = false;
@@ -13917,6 +14014,7 @@
             // Filtrer pour ne montrer que les vraies PRs (pas le 1er essai d'un exo)
             const filtered = prs.filter(p => p.prev > 0);
             if (filtered.length === 0) return;
+            try { haptic.pr(); } catch (e) {}
             // 🗣️ Réaction d'Esen/Nyra au record (légèrement décalée pour ne pas chevaucher la bannière)
             try { setTimeout(function () { awakPersonaCoach('pr'); }, 1400); } catch (e) {}
             const showPrs = filtered;
@@ -13988,19 +14086,28 @@
             // Pas de volume (kg) dans les disciplines (yoga, boxe, cardio…) → on masque la pastille.
             if (currentWorkout._discipline) { chip.style.display = 'none'; chip.innerHTML = ''; return; }
             chip.style.display = '';
-            const { volume, sets } = getSessionVolume();
-            const total = (currentWorkout.exercises || []).length;
-            const done  = Math.max(0, currentExerciseIndex);
-            const pct   = total > 0 ? Math.round((done / total) * 100) : 0;
-            chip.innerHTML = `
-                <div style="display:flex;align-items:center;gap:8px;font-size:0.7em;font-weight:700;color:#cbd5e1;">
-                    <span style="color:#4ade80;">📊</span>
-                    <span><b style="color:white;">${useKg ? (volume >= 1000 ? (volume/1000).toFixed(1)+'t' : Math.round(volume)+'kg') : (fmtWeightVal(volume) >= 10000 ? (fmtWeightVal(volume)/1000).toFixed(1)+'k lbs' : Math.round(fmtWeightVal(volume))+' lbs')}</b></span>
-                    <span style="opacity:0.4;">|</span>
-                    <span>${sets} sér.</span>
-                    <span style="opacity:0.4;">|</span>
-                    <span>${done}/${total} (${pct}%)</span>
-                </div>`;
+            // v1223 : lisible d'un coup d'œil — « 4 sur 10 » + barre, comme la
+            // carte de l'exercice (les repos et titres d'étape ne comptent pas).
+            // Le volume n'apparaît que s'il y a vraiment des charges (jamais chez un enfant).
+            const { volume } = getSessionVolume();
+            const _pg = getExerciseProgress();
+            const _ex = (currentWorkout.exercises || [])[currentExerciseIndex];
+            const _faits = Math.max(0, _pg.current - ((_ex && !_ex.isRest && !_ex.isInfo) ? 1 : 0));
+            const pct = _pg.total > 0 ? Math.round((_faits / _pg.total) * 100) : 0;
+            const _enfant = !!(window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild());
+            const _vol = (!_enfant && volume > 0)
+                ? '<span style="opacity:0.35;">·</span><span>' + (useKg ? (volume >= 1000 ? (volume/1000).toFixed(1)+' t' : Math.round(volume)+' kg') : (fmtWeightVal(volume) >= 10000 ? (fmtWeightVal(volume)/1000).toFixed(1)+'k lbs' : Math.round(fmtWeightVal(volume))+' lbs')) + '</span>'
+                : '';
+            const _et = currentWorkout._etoiles || 0;
+            const _etHtml = _et > 0
+                ? '<span style="display:inline-flex;align-items:center;gap:2px;color:#fbbf24;font-weight:900;">' + (window.AwakIcon ? AwakIcon.get('etoile', 12, '#fbbf24') : '') + _et + '</span>'
+                : '';
+            chip.innerHTML = '<div style="display:flex;align-items:center;gap:6px;font-size:0.72em;font-weight:800;color:#cbd5e1;white-space:nowrap;">'
+                + '<span style="width:38px;height:5px;border-radius:99px;background:rgba(255,255,255,0.12);overflow:hidden;display:inline-block;flex-shrink:0;">'
+                +   '<span style="display:block;height:100%;width:' + pct + '%;background:linear-gradient(90deg,#60a8f0,#a78bfa);border-radius:99px;"></span></span>'
+                + '<span><b style="color:#fff;">' + Math.max(1, _pg.current) + '</b> sur ' + _pg.total + '</span>'
+                + _etHtml + _vol
+                + '</div>';
         }
 
         // ═══════════════════════════════════════════════════════════════
@@ -14143,7 +14250,8 @@
             _gridVals = [];
             if (!_gridEnabled()) return;
             const exKey = exercise._baseName || exercise.name;
-            let defW = '', defR = exercise.reps || 10;
+            // v1223 : « 6-8 » → 6 (le bas de la fourchette visée), jamais 10 par défaut
+            let defW = '', defR = _awakRepsCible(exercise);
             try {
                 const lp = (typeof getLastPerformance === 'function') ? getLastPerformance(exKey) : null;
                 if (lp) { if (lp.weight) defW = lp.weight; if (lp.reps) defR = lp.reps; }
@@ -14153,8 +14261,68 @@
             for (let i = 0; i < total; i++) _gridVals.push({ w: defW, r: defR });
         }
 
+        // Bas de la fourchette de répétitions visée (« 6-8 » → 6, « 12 » → 12).
+        // Sans « reps » sur l'exercice, la cible affichée vient de
+        // calculateIntelligentReps() (c'est ce que montre le grand cadre).
+        function _awakRepsFourchette(ex) {
+            if (ex && ex.reps) return String(ex.reps);
+            try {
+                const ir = calculateIntelligentReps(ex && (ex._baseName || ex.name));
+                if (ir && ir.suggestion) return String(ir.suggestion).replace(/\s*reps?\s*$/i, '');
+            } catch (e) {}
+            return '';
+        }
+        function _awakRepsCible(ex) {
+            const m = _awakRepsFourchette(ex).match(/\d+/);
+            const n = m ? parseInt(m[0], 10) : 0;
+            return n > 0 ? n : 10;
+        }
+        // Exercice au poids du corps, sans charge prévue → pas de colonne « poids ».
+        function _awakSansCharge(ex) {
+            if (!ex) return false;
+            if (parseFloat(ex.weight) > 0) return false;
+            const db = (typeof exerciseDatabase !== 'undefined') ? exerciseDatabase.find(e => e.name === (ex._baseName || ex.name)) : null;
+            const eq = (db && db.equipment) || ex.equipment || [];
+            const liste = Array.isArray(eq) ? eq : [eq];
+            if (!liste.length) return true;
+            return liste.every(e => /poids du corps|aucun|tapis de sol|^sol$/i.test(String(e)));
+        }
+
         window._gridSetVal = function (i, field, val) {
             if (_gridVals[i]) _gridVals[i][field] = val;
+        };
+
+        // ➖➕ Boutons de pas de la grille : pas de clavier entre deux séries.
+        function _gridPas(i, f, sens) {
+            const signe = sens < 0
+                ? '<path d="M5 12h14"/>'
+                : '<path d="M12 5v14M5 12h14"/>';
+            return '<button type="button" onclick="_gridStep(' + i + ',\'' + f + '\',' + sens + ')" aria-label="' + (sens < 0 ? 'Moins' : 'Plus') + '" '
+                + 'style="flex-shrink:0;width:26px;height:34px;min-height:auto;padding:0;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;'
+                + 'background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:#cbd5e1;touch-action:manipulation;">'
+                + '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round">' + signe + '</svg></button>';
+        }
+        window._gridStep = function (i, f, sens) {
+            const v = _gridVals[i]; if (!v) return;
+            const pas = (f === 'w') ? ((typeof useKg !== 'undefined' && !useKg) ? 5 : 2.5) : 1;
+            let cur = parseFloat(v[f]);
+            if (!(cur >= 0)) {
+                // Champ vide : on part de la ligne précédente (ou 0)
+                cur = 0;
+                for (let k = i - 1; k >= 0; k--) { const p = parseFloat((_gridVals[k] || {})[f]); if (p >= 0) { cur = p; break; } }
+                if (sens < 0 && cur === 0) return;
+            }
+            const n = Math.max(0, Math.round((cur + sens * pas) * 10) / 10);
+            v[f] = String(n);
+            // Le poids suit sur les séries suivantes encore identiques ou vides
+            if (f === 'w') {
+                for (let k = i + 1; k < _gridVals.length; k++) {
+                    const w = _gridVals[k]; if (!w) break;
+                    if (w.w === '' || w.w == null || parseFloat(w.w) === cur) w.w = String(n); else break;
+                }
+            }
+            try { if (window.AwakNative) AwakNative.vibrer(8); } catch (e) {}
+            renderSetsGrid();
         };
 
         function _gridValidateRow(i) {
@@ -14244,7 +14412,9 @@
             }
             const total = totalSetsPlanned + warmupSetsCount;
             // resynchroniser la longueur (warmups ajoutés/retirés après init)
-            while (_gridVals.length < total) _gridVals.unshift({ w: '', r: (_gridVals[0] ? _gridVals[0].r : 10) });
+            const _exG = currentWorkout && currentWorkout.exercises ? currentWorkout.exercises[currentExerciseIndex] : null;
+            const _sansCharge = _awakSansCharge(_exG);
+            while (_gridVals.length < total) _gridVals.unshift({ w: '', r: (_gridVals[0] ? _gridVals[0].r : _awakRepsCible(_exG)) });
             while (_gridVals.length > total) _gridVals.shift();
 
             // ⚡ SUPERSET : une seule série à la fois. Les séries suivantes
@@ -14265,7 +14435,7 @@
                 if (done) {
                     rows += '<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:11px;background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.18);margin-bottom:6px;opacity:0.75;">'
                         + '<span style="width:30px;font-size:0.72em;font-weight:900;color:' + accent + ';">' + label + '</span>'
-                        + '<span style="flex:1;text-align:center;font-weight:800;color:#e2e8f0;font-variant-numeric:tabular-nums;">' + (done.weight || 0) + ' <span style="font-size:0.7em;color:#94a3b8;">' + weightUnit() + '</span></span>'
+                        + (_sansCharge ? '' : '<span style="flex:1;text-align:center;font-weight:800;color:#e2e8f0;font-variant-numeric:tabular-nums;">' + (done.weight || 0) + ' <span style="font-size:0.7em;color:#94a3b8;">' + weightUnit() + '</span></span>')
                         + '<span style="flex:1;text-align:center;font-weight:800;color:#e2e8f0;font-variant-numeric:tabular-nums;">' + (done.reps || 0) + ' <span style="font-size:0.7em;color:#94a3b8;">reps</span></span>'
                         + '<span style="width:40px;text-align:center;color:#4ade80;font-weight:900;">\u2713</span>'
                         + '</div>';
@@ -14275,8 +14445,10 @@
                     const inp = 'width:100%;box-sizing:border-box;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:#fff;font-weight:800;text-align:center;padding:7px 2px;font-size:0.95em;font-variant-numeric:tabular-nums;outline:none;';
                     rows += '<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:11px;margin-bottom:6px;' + rowStyle + '">'
                         + '<span style="width:30px;font-size:0.72em;font-weight:900;color:#94a3b8;">' + label + '</span>'
-                        + '<span style="flex:1;"><input type="number" inputmode="decimal" step="0.5" min="0" value="' + (v.w === '' ? '' : v.w) + '" placeholder="' + weightUnit() + '" oninput="_gridSetVal(' + i + ',\'w\',this.value)" style="' + inp + '"></span>'
-                        + '<span style="flex:1;"><input type="number" inputmode="numeric" step="1" min="0" value="' + (v.r === '' ? '' : v.r) + '" placeholder="reps" oninput="_gridSetVal(' + i + ',\'r\',this.value)" style="' + inp + '"></span>'
+                        // ➖➕ Ajuster sans ouvrir le clavier (poids ± 2,5 kg / 5 lb, reps ± 1)
+                        + (_sansCharge ? '' : '<span style="flex:1;min-width:0;display:flex;align-items:center;gap:3px;">' + _gridPas(i, 'w', -1) + '<input class="awak-grid-num" type="number" inputmode="decimal" step="0.5" min="0" value="' + (v.w === '' ? '' : v.w) + '" placeholder="' + weightUnit() + '" oninput="_gridSetVal(' + i + ',\'w\',this.value)" style="' + inp + 'min-width:0;">' + _gridPas(i, 'w', 1) + '</span>')
+                        + '<span style="flex:1;min-width:0;display:flex;align-items:center;gap:3px;">' + _gridPas(i, 'r', -1) + '<input class="awak-grid-num" type="number" inputmode="numeric" step="1" min="0" value="' + (v.r === '' ? '' : v.r) + '" placeholder="reps" oninput="_gridSetVal(' + i + ',\'r\',this.value)" style="' + inp + 'min-width:0;">' + _gridPas(i, 'r', 1) + '</span>'
+                        + (_sansCharge ? '<span style="flex-shrink:0;font-size:0.68em;color:#94a3b8;font-weight:700;width:34px;">reps</span>' : '')
                         + '</div>';
                 }
             }
@@ -14311,7 +14483,10 @@
                 }
             } catch (e) {}
 
-            panel.innerHTML = '<div style="font-size:0.62em;color:#94a3b8;font-weight:900;letter-spacing:1.5px;margin-bottom:8px;">\ud83d\udccb S\u00c9RIES \u2014 remplis puis appuie sur Suivant</div>' + notePoids + rows;
+            const _vise = _awakRepsFourchette(_exG).replace('-', ' à ');
+            panel.innerHTML = '<div style="font-size:0.7em;color:#cbd5e1;font-weight:700;line-height:1.45;margin-bottom:9px;text-align:center;">'
+                + (_vise ? 'Vise <b style="color:#fff;">' + _vise + ' répétitions</b> par série. ' : '')
+                + 'Corrige les chiffres si besoin, puis appuie sur <b style="color:#93c5fd;">Suivant</b>.</div>' + notePoids + rows;
             panel.style.display = 'block';
             if (classicGrid) classicGrid.style.display = 'none';
             if (classicBtn) classicBtn.style.display = 'none';
@@ -14365,8 +14540,8 @@
                 el.innerHTML = `🔥 ÉCHAUFFEMENT EN COURS`;
                 el.style.color = '#fbbf24';
             } else {
-                el.innerHTML = `▸ SÉRIE EN COURS`;
-                el.style.color = '#4ade80';
+                el.innerHTML = 'Tes séries';
+                el.style.color = '#93c5fd';
             }
             // Rendre les badges "SÉRIE N" cyberpunk
             const dotsEl = document.getElementById('setProgressDots');
@@ -14469,6 +14644,17 @@
                 console.error('⚔ Damage error:', e);
             }
 
+            // 🎮 v1218 : une série de combat est une VRAIE série → même XP qu'en séance.
+            // Avant, une Faille ne rapportait que ~50 XP : la faire COÛTAIT de la progression.
+            try {
+                const _exXP = (currentWorkout && currentWorkout.exercises) ? currentWorkout.exercises[currentExerciseIndex || 0] : null;
+                if (_exXP && typeof rpgGainXP === 'function' && reps > 0) {
+                    const _isTimer = _exXP.mode === 'timer' || _exXP.mode === 'duration';
+                    if (_isTimer && !(parseInt(repsInput?.value) > 0)) rpgGainXP(_exXP._baseName || _exXP.name, 0, 0, _exXP.duration || 45);
+                    else rpgGainXP(_exXP._baseName || _exXP.name, reps, weight || 0);
+                }
+            } catch (e) {}
+
             // 📜 JOURNAL DE COMBAT — les dégâts ne passaient que par une notification
             // de 1,8 s : pendant une série rapide, les coups s'enchaînaient et le
             // joueur ne voyait rien. On consigne chaque événement pour qu'il puisse
@@ -14490,6 +14676,7 @@
                             } catch (e) { return null; }
                         })(),
                         killed: !!damageResult.killed,
+                        faible: !!damageResult.weakHit,
                         hp: (typeof damageResult.hpLeft === 'number') ? damageResult.hpLeft : null
                     });
                 } else {
@@ -14745,7 +14932,6 @@
             if (currentSetNumber > totalSets) {
                 // Séance normale : compléter (Rifts/Hunts sont déjà gérées en début de fonction)
                 if (!window._gridBulk) {
-                    showToast(`✅ ${totalSetsPlanned} séries complètes !`, 'success', 2000);
                     vibrate([100, 50, 200]);
                     setTimeout(() => skipExercise(), 800);
                 }
@@ -14756,6 +14942,8 @@
             // Priorité : réglage manuel de l'utilisateur > repos prescrit par l'IA (objectif/compound)
             // > repos de la séance > repos global. Avant, recoRest était affiché mais jamais appliqué.
             if (!window._gridBulk) {
+                // v1223 : on dit où on en est, en mots simples
+                try { if (!isWarmup && window.AwakSessUX) AwakSessUX.serieFaite(currentSetNumber - 1 - warmupSetsCount, totalSetsPlanned); } catch (e) {}
                 const exName = currentEx?.name;
                 const customRest = exName && exerciseRestOverrides[exName];
                 const restSeconds = isWarmup ? 60 : (customRest || currentEx?.repos || currentEx?.recoRest || currentWorkout?.restBetweenSets || globalRestSeconds);
@@ -14880,6 +15068,11 @@
 
         function renderCompletedSetsLog() {
             const log = document.getElementById('completedSetsLog');
+            // v1223 : la grille de séries montre déjà les séries faites (✓) — pas de doublon
+            try {
+                const _gp = document.getElementById('setsGridPanel');
+                if (log && _gp && _gp.style.display !== 'none' && _gridEnabled()) { log.style.display = 'none'; return; }
+            } catch (e) {}
             if (!log || completedSets.length === 0) {
                 if (log) log.style.display = 'none';
                 return;
@@ -15487,6 +15680,18 @@
         }
 
         function startRandomWorkout() {
+            // 🧒 v1223 : un enfant saute les 3 questions (muscles, mode, durée) :
+            // le Système choisit, séance minutée de 15 min, sans charges à noter.
+            try {
+                if (window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()) {
+                    window._overrideSessionMuscles = null;
+                    selectedWorkoutMode = 'timer';
+                    selectedDuration = 15;
+                    _forcedExerciseCount = 0;
+                    actuallyStartRandomWorkout();
+                    return;
+                }
+            } catch (e) {}
             // Étape 0 : IA ou choix manuel des muscles
             showMuscleChoiceModal();
         }
@@ -16223,8 +16428,12 @@
                 const saved = profileId ? getProfileData(profileId, 'workoutHistory') : localStorage.getItem('workoutHistory');
                 const raw = saved ? JSON.parse(saved) : [];
                 // Normalize: ensure every entry has exercises as an array
+                // v1225 : le NOMBRE d'exercices enregistré était perdu ici (remplacé
+                // par []), d'où « 25 min · exercices » sans chiffre dans l'historique.
                 return raw.map(entry => ({
                     ...entry,
+                    _nbExos: typeof entry.exercises === 'number' ? entry.exercises
+                        : (Array.isArray(entry.exercises) ? entry.exercises.length : undefined),
                     exercises: Array.isArray(entry.exercises) ? entry.exercises : []
                 }));
             } catch(e) { return []; }
@@ -16233,6 +16442,7 @@
         function renderWorkoutHistory(filter = 'all') {
             const container = document.getElementById('workoutHistoryList');
             if (!container) return;
+            try { if (window.AwakProg) AwakProg.rendre(); } catch (e) {}   // v1225 : haut de page « Ta progression »
             showSkeleton('workoutHistoryList', 4, 'card');
             requestAnimationFrame(() => setTimeout(() => {
             // Apply search text
@@ -16268,145 +16478,12 @@
                 return;
             }
 
-            container.innerHTML = '';
-            
-            filteredHistory.forEach((entry, index) => {
-                const date = new Date(entry.date);
-                const dateStr = date.toLocaleDateString('fr-FR', { 
-                    weekday: 'long', 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
-                });
-                
-                const isFavorite = favorites.includes(entry.id);
-                
-                // Calculate muscle volume from workout data (pondéré si dispo)
-                const muscleVolume = {};
-                if (entry.musclesWeighted && typeof entry.musclesWeighted === 'object') {
-                    Object.entries(entry.musclesWeighted).forEach(([muscle, ratio]) => {
-                        muscleVolume[muscle] = (muscleVolume[muscle] || 0) + (ratio || 0);
-                    });
-                } else if (entry.musclesWorked) {
-                    entry.musclesWorked.forEach(muscle => {
-                        muscleVolume[muscle] = (muscleVolume[muscle] || 0) + 1;
-                    });
-                }
-                
-                const item = document.createElement('div');
-                item.className = 'history-item';
-                item.style.cssText = 'background:rgba(255,255,255,0.03);border-radius:10px;padding:12px 13px;margin-bottom:8px;border:1px solid rgba(255,255,255,0.06);border-left:2px solid ' + (isFavorite ? '#fbbf24' : '#22d3ee') + ';';
-                
-                // Create unique canvas ID for mini chart
-                const chartId = `historyChart-${entry.id}`;
-                
-                item.innerHTML = `
-                    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:11px;">
-                        <div style="flex:1;min-width:0;">
-                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
-                                <button onclick="toggleFavoriteWorkout(${entry.id})" 
-                                        style="background:${isFavorite ? 'rgba(251,191,36,0.15)' : 'rgba(255,255,255,0.04)'};border:1px solid ${isFavorite ? 'rgba(251,191,36,0.5)' : 'rgba(255,255,255,0.12)'};color:${isFavorite ? '#fbbf24' : '#64748b'};font-size:1.05em;cursor:pointer;padding:0;width:32px;height:32px;border-radius:8px;line-height:1;flex-shrink:0;"
-                                        title="${isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}">
-                                    ${isFavorite ? '⭐' : '☆'}
-                                </button>
-                                <div style="font-size: 0.85em; color: #22d3ee; font-weight: 600;">${dateStr}</div>
-                            </div>
-                            <div style="font-size: 1.3em; font-weight: 700; color: #1e293b; margin-bottom: 8px;">${entry.name}</div>
-                            <div style="display: flex; gap: 15px; flex-wrap: wrap; font-size: 0.9em; color: #64748b;">
-                                <span>⏱️ ${entry.duration} min</span>
-                                <span>💪 ${entry.exercises} exercices</span>
-                                ${entry.calories ? `<span>🔥 ${entry.calories} kcal</span>` : ''}
-                            </div>
-                        </div>
-                        ${entry.workoutData ? `
-                            <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;align-items:stretch;">
-                                <button onclick="replayWorkout(${entry.id})" class="btn"
-                                        style="background:rgba(96,168,240,0.10);border:1px solid rgba(96,168,240,0.30);color:#93c5fd;padding:7px 12px!important;min-height:auto!important;height:auto!important;border-radius:8px!important;font-size:0.76em!important;font-weight:800;display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;cursor:pointer;" aria-label="Rejouer cette séance" title="Rejouer">
-                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 12a8 8 0 1 1 2.3 5.7"/><path d="M4 18v-5h5"/></svg>
-                                    Rejouer
-                                </button>
-                                <button onclick="saveHistoryAsRoutine(${entry.id})" class="btn"
-                                        style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);color:#94a3b8;padding:7px 12px!important;min-height:auto!important;height:auto!important;border-radius:8px!important;font-size:0.76em!important;font-weight:800;display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;cursor:pointer;" aria-label="Enregistrer comme routine" title="Mes routines">
-                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
-                                    Routine
-                                </button>
-                            </div>
-                        ` : `
-                            <button disabled class="btn" title="Séances anciennes non rejouables. Créez de nouvelles séances !"
-                                    style="background: #9ca3af; padding: 10px 20px; min-height: auto; border-radius: 10px; font-size: 0.9em; white-space: nowrap; cursor: not-allowed; opacity: 0.6;">
-                                🔒 Ancien
-                            </button>
-                        `}
-                    </div>
-                    
-                    ${Object.keys(muscleVolume).length > 0 ? `
-                        <div style="background: rgba(96,168,240,0.10); border-radius: 14px; padding: 15px; margin-bottom: 12px;">
-                            <div style="font-size: 0.85em; font-weight: 600; color: #64748b; margin-bottom: 10px;">📊 Volume par muscle</div>
-                            <canvas id="${chartId}" style="max-height: 120px;"></canvas>
-                        </div>
-                    ` : ''}
-                    
-                    ${entry.muscles && entry.muscles.length > 0 ? `
-                        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px;">
-                            ${entry.muscles.slice(0, 5).map(muscle => 
-                                `<span style="background: rgba(22,163,74,0.1); color: #22d3ee; padding: 4px 12px; border-radius: 14px; font-size: 0.8em; font-weight: 600;">${muscle}</span>`
-                            ).join('')}
-                            ${entry.muscles.length > 5 ? `<span style="color: #94a3b8; font-size: 0.8em; padding: 4px 8px;">+${entry.muscles.length - 5}</span>` : ''}
-                        </div>
-                    ` : ''}
-                `;
-                
-                container.appendChild(item);
-                
-                // Render mini chart if muscle data exists
-                if (Object.keys(muscleVolume).length > 0) {
-                    setTimeout(() => {
-                        const canvas = document.getElementById(chartId);
-                        if (canvas) {
-                            new Chart(canvas, {
-                                type: 'bar',
-                                data: {
-                                    labels: Object.keys(muscleVolume),
-                                    datasets: [{
-                                        label: 'Exercices',
-                                        data: Object.values(muscleVolume),
-                                        backgroundColor: 'rgba(22, 163, 74, 0.8)',
-                                        borderColor: 'rgba(22, 163, 74, 1)',
-                                        borderWidth: 2,
-                                        borderRadius: 6
-                                    }]
-                                },
-                                options: {
-                                    responsive: true,
-                                    maintainAspectRatio: false,
-                                    plugins: {
-                                        legend: { display: false },
-                                        tooltip: {
-                                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                                            padding: 10,
-                                            cornerRadius: 8
-                                        }
-                                    },
-                                    scales: {
-                                        y: {
-                                            beginAtZero: true,
-                                            ticks: { 
-                                                stepSize: 1,
-                                                font: { size: 10 }
-                                            },
-                                            grid: { display: false }
-                                        },
-                                        x: {
-                                            ticks: { font: { size: 10 } },
-                                            grid: { display: false }
-                                        }
-                                    }
-                                }
-                            });
-                        }
-                    }, 100);
-                }
-            });
+            // v1225 : cartes compactes regroupées par semaine (js/progress-tab.js).
+            // Les barres de muscles sont en HTML : plus de graphique Chart.js qui
+            // restait vide sans réseau.
+            if (window.AwakProg) { AwakProg.rendreListe(container, filteredHistory, favorites); return; }
+            container.innerHTML = filteredHistory.map(e => '<div class="history-item" style="padding:10px;border-bottom:1px solid rgba(255,255,255,0.06);">'
+                + new Date(e.date).toLocaleDateString('fr-FR') + ' — ' + (e.name || 'Séance') + '</div>').join('');
         }, 16)); // fin setTimeout/requestAnimationFrame skeleton
         }
         
@@ -16443,10 +16520,7 @@
             saveFavoriteWorkouts(favorites);
             
             // Re-render with current filter
-            const currentFilter = document.getElementById('filterFavorites').classList.contains('btn') && 
-                                 !document.getElementById('filterFavorites').classList.contains('btn-secondary') 
-                                 ? 'favorites' : 'all';
-            renderWorkoutHistory(currentFilter);
+            renderWorkoutHistory(window._histFilter || 'all');
         }
         window.toggleFavoriteWorkout = toggleFavoriteWorkout;
         
@@ -16457,35 +16531,16 @@
             } else {
                 filter = window._histFilter || 'all';
             }
-            // Update button states
+            // v1225 : pastilles (plus de .btn géants) ; « 7 jours » et « Ce mois »
+            // n'allument plus le bouton Favorites par erreur ; un seul rendu.
             ['filterAll','filterFavorites','filterWeek','filterMonth'].forEach(id => {
                 const btn = document.getElementById(id);
-                if (btn) {
-                    btn.className = 'btn btn-secondary';
-                    btn.style.background = '';
-                }
+                if (btn) btn.classList.remove('actif');
             });
             const activeId = {all:'filterAll',favorites:'filterFavorites',week:'filterWeek',month:'filterMonth'}[filter];
             const activeBtn = document.getElementById(activeId);
-            if (activeBtn) { activeBtn.className = 'btn'; activeBtn.style.background = 'linear-gradient(135deg,#1d5fa8,#164e8a)'; }
-            renderWorkoutHistory(filter);
-            // Update button styles
-            const filterAll = document.getElementById('filterAll');
-            const filterFavorites = document.getElementById('filterFavorites');
-            
-            if (filter === 'all') {
-                filterAll.className = 'btn';
-                filterAll.style.background = 'linear-gradient(135deg, #1d5fa8 0%, #164e8a 100%)';
-                filterFavorites.className = 'btn btn-secondary';
-                filterFavorites.style.background = '';
-            } else {
-                filterFavorites.className = 'btn';
-                filterFavorites.style.background = 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)';
-                filterAll.className = 'btn btn-secondary';
-                filterAll.style.background = '';
-            }
-            
-            // Render with filter
+            if (activeBtn) activeBtn.classList.add('actif');
+            window._awakHistMax = 0;
             renderWorkoutHistory(filter);
         }
         
@@ -17895,17 +17950,17 @@
             const reps = parseInt(document.getElementById('rm-reps').value);
             
             if (!exercise) {
-                showAlert('Veuillez sélectionner un exercice.', 'warning', 'Sélection requise');
+                showAlert('Choisis un exercice.', 'warning', 'Sélection requise');
                 return;
             }
             
             if (!weight || weight <= 0) {
-                showAlert('Veuillez entrer un poids valide.', 'warning', 'Poids invalide');
+                showAlert('Entre un poids valide.', 'warning', 'Poids invalide');
                 return;
             }
             
             if (!reps || reps < 1 || reps > 20) {
-                showAlert('Veuillez entrer entre 1 et 20 répétitions.', 'warning', 'Répétitions invalides');
+                showAlert('Entre un nombre de répétitions entre 1 et 20.', 'warning', 'Répétitions invalides');
                 return;
             }
             
@@ -17958,7 +18013,7 @@
                                         <div style="font-size: 0.75em; color: #94a3b8; margin-bottom: 3px;">${percent}</div>
                                         <div style="font-size: 1.3em; font-weight: 700; color: #ef4444;">${lbs}</div>
                                         <div style="font-size: 0.7em; color: #94a3b8; margin-top: 3px;">${useKg ? 'kg' : 'lbs'}</div>
-                                        <div style="font-size: 0.65em; color: #10b981; font-weight: 600; margin-top: 5px;">${purpose}</div>
+                                        <div style="font-size: 0.65em; color: #93c5fd; font-weight: 600; margin-top: 5px;">${purpose}</div>
                                     </div>
                                 `;
                             }).join('')}
@@ -17966,7 +18021,7 @@
                     </div>
                     
                     <div style="display: flex; gap: 10px;">
-                        <button onclick="save1RMResult('${exercise}', ${oneRM}, ${weight}, ${reps})" class="btn" style="flex: 1; background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                        <button onclick="save1RMResult('${exercise}', ${oneRM}, ${weight}, ${reps})" class="btn" style="flex: 1;">
                             💾 Sauvegarder ce 1RM
                         </button>
                         <button onclick="document.getElementById('rm-results').style.display='none'" class="btn btn-secondary" style="flex: 1;">
@@ -18017,7 +18072,7 @@
                     <div style="text-align: center; padding: 40px; color: #94a3b8; margin-top: 20px;">
                         <div style="font-size: 3em; margin-bottom: 15px;">🏋️</div>
                         <div style="font-size: 1.1em; margin-bottom: 10px;">Aucun 1RM enregistré</div>
-                        <div style="font-size: 0.9em;">Calculez votre premier 1RM pour suivre votre force</div>
+                        <div style="font-size: 0.9em;">Calcule ton premier 1RM pour suivre ta force</div>
                     </div>
                 `;
                 return;
@@ -18058,7 +18113,7 @@
             const resultsDiv = document.getElementById('plateResults');
             
             if (!targetWeight || targetWeight <= 0) {
-                showAlert('Veuillez entrer un poids cible valide.', 'warning', 'Poids invalide');
+                showAlert('Entre un poids cible valide.', 'warning', 'Poids invalide');
                 return;
             }
             
@@ -18149,10 +18204,9 @@
                         </div>
                     </div>
                     
-                    <div style="background: #fef3c7; padding: 15px; border-radius: 10px; text-align: center;">
-                        <div style="font-size: 0.9em; color: #92400e; margin-bottom: 8px;">💡 <strong>Astuce :</strong></div>
-                        <div style="font-size: 0.85em; color: #78350f;">
-                            Mettez toujours les plaques les plus lourdes en premier (près de la barre), puis les plus légères à l'extérieur.
+                    <div style="background: rgba(96,168,240,0.07); border:1px solid rgba(96,168,240,0.25); padding: 12px 14px; border-radius: 11px; text-align: left;">
+                        <div style="font-size: 0.82em; color: #cbd5e1; line-height:1.5;"><strong style="color:#93c5fd;">Astuce :</strong>
+                            mets toujours les disques les plus lourds en premier (près de la barre), puis les plus légers à l'extérieur.
                         </div>
                     </div>
                     
@@ -18205,24 +18259,32 @@
             
             if (rpe <= 3) {
                 message = '🟢 <strong>Effort Minimal</strong> - Parfait pour l\'échauffement ou la récupération active.';
-                recommendation = 'Idéal pour les séries de warm-up ou les jours de décharge.';
+                recommendation = 'Idéal pour t\'échauffer ou les jours plus calmes.';
             } else if (rpe <= 5) {
                 message = '🟡 <strong>Effort Modéré</strong> - Bon pour le volume et l\'apprentissage technique.';
-                recommendation = 'Utilisez cette intensité pour accumuler du volume sans fatigue excessive.';
+                recommendation = 'Bien pour répéter le mouvement sans trop te fatiguer.';
             } else if (rpe <= 7) {
                 message = '🟠 <strong>Effort Élevé</strong> - Zone optimale pour l\'hypertrophie et la force.';
-                recommendation = 'Intensité idéale pour la plupart de vos séries de travail.';
+                recommendation = 'La bonne zone pour la plupart de tes séries.';
             } else if (rpe <= 9) {
                 message = '🔴 <strong>Effort Très Élevé</strong> - Proche du maximum, nécessite plus de récupération.';
-                recommendation = 'Réservez cette intensité pour les séries clés. Ne pas abuser.';
+                recommendation = 'Garde-la pour quelques séries importantes, pas pour toutes.';
             } else {
                 message = '⚫ <strong>Maximum Absolu</strong> - Effort maximal, rarement utilisé.';
-                recommendation = 'À utiliser uniquement pour des tests de 1RM ou compétitions.';
+                recommendation = 'À garder très rare : ton corps a besoin de récupérer après.';
             }
             
-            feedback.innerHTML = `
-                <div style="font-size: 1.1em; margin-bottom: 10px;">${message}</div>
-                <div style="color: #94a3b8; font-size: 0.95em;">💡 ${recommendation}</div>
+            // v1227 : l'échelle est en pastilles → on rappelle ici la description de la note
+            let _desc = '';
+            try {
+                const _b = document.querySelector('#rpeScale [data-rpe="' + rpe + '"]');
+                const _d = _b && _b.children[1];
+                if (_d) _desc = '<div style="font-weight:800;color:#fff;margin-bottom:4px;">' + rpe + ' · ' + (_d.children[0] ? _d.children[0].textContent : '') + '</div>'
+                    + '<div style="color:#cbd5e1;font-size:0.9em;margin-bottom:10px;">' + (_d.children[1] ? _d.children[1].textContent : '') + '</div>';
+            } catch (e) {}
+            feedback.innerHTML = _desc + `
+                <div style="font-size: 0.95em; margin-bottom: 6px;">${message}</div>
+                <div style="color: #94a3b8; font-size: 0.9em;">${recommendation}</div>
             `;
             
             feedback.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -19769,7 +19831,7 @@
         // ═══════════════════════════════════════════════════════════════
         function showProgressiveProgramsModal() {
             if (typeof showToast === 'function') {
-                showToast('🚀 Programmes progressifs : utilise les templates pour l\'instant', 'info', 3000);
+                showToast('🚀 Programmes progressifs : utilise les modèles pour l\'instant', 'info', 3000);
             }
             showTemplatesModal();
         }
@@ -21002,21 +21064,23 @@
             if (!select) return;
             
             // Get force-based exercises (not cardio)
-            const forceExercises = _dbMuscu().filter(ex => 
-                ex.type !== 'cardio' && 
-                ex.type !== 'stretch' && 
-                ex.type !== 'warmup' &&
-                (ex.equipment.includes('Haltères') || 
-                 ex.equipment.includes('Barre') || 
-                 ex.equipment.includes('Poids du corps') ||
-                 ex.equipment.includes('Kettlebell'))
+            // v1227 : seulement les exercices AVEC CHARGE (un 1RM de « Burpees » ou
+            // de « Course longue » n'a pas de sens), regroupés par muscle.
+            const _avecCharge = /^(Barre|Haltères|Kettlebell|Machine|Poulie|Câble|Barre EZ|Smith)/i;
+            const forceExercises = _dbMuscu().filter(ex =>
+                ex.type !== 'cardio' && ex.type !== 'stretch' && ex.type !== 'warmup' &&
+                ex.muscle !== 'Cardio' &&
+                Array.isArray(ex.equipment) && ex.equipment.some(e => _avecCharge.test(String(e)))
             );
-            
-            // Sort alphabetically
-            forceExercises.sort((a, b) => a.name.localeCompare(b.name));
-            
-            select.innerHTML = '<option value="">Sélectionner un exercice...</option>' +
-                forceExercises.map(ex => `<option value="${ex.name}">${ex.name}</option>`).join('');
+            const parMuscle = {};
+            forceExercises.forEach(ex => { (parMuscle[ex.muscle || 'Autre'] = parMuscle[ex.muscle || 'Autre'] || []).push(ex); });
+            const _esc = (t) => String(t).replace(/"/g, '&quot;');
+            select.innerHTML = '<option value="">Choisis un exercice</option>' +
+                Object.keys(parMuscle).sort((a, b) => a.localeCompare(b)).map(m =>
+                    '<optgroup label="' + _esc(m) + '">' +
+                    parMuscle[m].sort((a, b) => a.name.localeCompare(b.name))
+                        .map(ex => '<option value="' + _esc(ex.name) + '">' + ex.name + '</option>').join('') +
+                    '</optgroup>').join('');
         }
 
         // ========== BODY MEASUREMENTS SYSTEM ==========
@@ -21392,6 +21456,9 @@
             cards.forEach(card => {
                 // Skip if already in an accordion
                 if (card.closest('.accordion-section')) return;
+                // v1225 : une carte MASQUÉE (doublon) le reste — la convertir
+                // en accordéon la faisait réapparaître (« Photos de progression »).
+                if (card.style.display === 'none') return;
                 
                 // Extract title from h2 or h3
                 const titleElement = card.querySelector('h2, h3');
@@ -21407,6 +21474,7 @@
                 // Create accordion structure
                 const accordionSection = document.createElement('div');
                 accordionSection.className = 'accordion-section';
+                if (card.id) accordionSection.id = card.id;   // v1225 : l'id suit (masquage enfant)
                 
                 const accordionHeader = document.createElement('div');
                 accordionHeader.className = 'accordion-header';
@@ -21488,22 +21556,32 @@
                 if (!titleElement) return;
                 
                 const titleText = titleElement.textContent.trim();
-                const titleIcon = titleText.match(/^[\u{1F300}-\u{1F9FF}]/u)?.[0] || '🧮';
                 const titleWithoutIcon = titleText.replace(/^[\u{1F300}-\u{1F9FF}\s]+/u, '');
+                // v1227 : icône SVG + sous-titre portés par le <h2> (data-ico / data-sous)
+                const _ico = titleElement.getAttribute('data-ico');
+                const _col = titleElement.getAttribute('data-col') || '#93c5fd';
+                const _sous = titleElement.getAttribute('data-sous') || '';
+                const titleIcon = (_ico && window.AwakIcon)
+                    ? '<span style="flex-shrink:0;width:34px;height:34px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;background:' + _col + '1a;border:1px solid ' + _col + '44;">' + AwakIcon.get(_ico, 18, _col) + '</span>'
+                    : '';
                 
                 titleElement.remove();
                 
                 const accordionSection = document.createElement('div');
                 accordionSection.className = 'accordion-section';
+                if (card.id) accordionSection.id = card.id;
                 
                 const accordionHeader = document.createElement('div');
                 accordionHeader.className = 'accordion-header';
                 accordionHeader.onclick = function() { toggleCalculatorsAccordion(this); };
                 
                 accordionHeader.innerHTML = `
-                    <div class="accordion-title">
-                        <span>${titleIcon}</span>
-                        <span>${titleWithoutIcon}</span>
+                    <div class="accordion-title" style="display:flex;align-items:center;gap:11px;">
+                        ${titleIcon}
+                        <span style="display:flex;flex-direction:column;min-width:0;">
+                            <span>${titleWithoutIcon}</span>
+                            ${_sous ? '<span style="font-size:0.66em;font-weight:600;color:#94a3b8;margin-top:2px;">' + _sous + '</span>' : ''}
+                        </span>
                     </div>
                     <div class="accordion-icon">▼</div>
                 `;
@@ -22178,6 +22256,37 @@
         }
 
         // Exercise SVG — V45 Ultra Premium
+        // 🖼️ v1221 : visuel NEUTRE pour un exercice sans image — plus de personnage
+        // SVG dessiné (il ne correspondait pas au mouvement et faisait « cheap »).
+        // Une icône selon le groupe musculaire + le nom du muscle, sur fond sobre.
+        function awakVisuelNeutre(muscle, compact, moyen) {
+            const m = String(muscle || '').toLowerCase();
+            const nom = /cardio/.test(m) ? 'course'
+                : /(abdo|oblique|gainage)/.test(m) ? 'bouclier'
+                : /(quadri|ischio|fessier|mollet|adducteur|jambe)/.test(m) ? 'eclair'
+                : /(biceps|triceps|avant-bras|épaule|epaule)/.test(m) ? 'muscle'
+                : /(étirement|etirement|mobilit|souplesse)/.test(m) ? 'repos'
+                : 'halter';
+            if (moyen) {   // v1223 : version séance, plus petite
+                const svgM = window.AwakIcon ? AwakIcon.get(nom, 34, '#93c5fd', 1.6) : '';
+                return '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;gap:14px;border-radius:12px;'
+                    + 'background:radial-gradient(circle at 50% 50%,rgba(96,168,240,0.14),rgba(10,14,24,0.5) 70%);">'
+                    + '<div style="width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;'
+                    +   'background:rgba(96,168,240,0.10);border:1px solid rgba(96,168,240,0.30);">' + svgM + '</div>'
+                    + (muscle ? '<div style="font-size:0.78em;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#93c5fd;">' + muscle + '</div>' : '')
+                    + '</div>';
+            }
+            const t = compact ? 26 : 54;
+            const svg = window.AwakIcon ? AwakIcon.get(nom, t, '#93c5fd', 1.6) : '';
+            return '<div style="width:100%;height:100%;min-height:' + (compact ? '64px' : '170px') + ';display:flex;flex-direction:column;align-items:center;justify-content:center;gap:' + (compact ? '4px' : '10px') + ';'
+                + 'border-radius:12px;background:radial-gradient(circle at 50% 40%,rgba(96,168,240,0.16),rgba(10,14,24,0.6) 70%);">'
+                + '<div style="width:' + (compact ? 44 : 92) + 'px;height:' + (compact ? 44 : 92) + 'px;border-radius:50%;display:flex;align-items:center;justify-content:center;'
+                +   'background:rgba(96,168,240,0.10);border:1px solid rgba(96,168,240,0.30);box-shadow:0 0 24px rgba(96,168,240,0.15);">' + svg + '</div>'
+                + (compact || !muscle ? '' : '<div style="font-size:0.72em;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#93c5fd;">' + muscle + '</div>')
+                + '</div>';
+        }
+        window.awakVisuelNeutre = awakVisuelNeutre;
+
         function getExerciseVisual(exerciseName, muscle, position) {
             var nm = (exerciseName||'').toLowerCase();
             var S  = (position||'start') === 'start';
@@ -23054,9 +23163,16 @@
             // Mode jeu désactivé → ne pas ouvrir l'onglet jeu (Failles / histoire).
             if (tabName === 'game' && typeof rpgEnabled === 'function' && !rpgEnabled()) {
                 if (typeof showToast === 'function') {
-                    showToast('🎮 Active le mode jeu dans les réglages pour accéder aux Failles', 'info', 3500);
+                    showToast(awakJeuBloqueAge()
+                        ? 'Le mode jeu s\'ouvre à 13 ans'
+                        : '🎮 Active le mode jeu dans les réglages pour accéder aux Failles', 'info', 3500);
                 }
                 tabName = 'home';
+            }
+
+            // 🧒 v1227 : les calculateurs de charge ne sont pas proposés avant 13 ans
+            if (tabName === 'calculators') {
+                try { if (window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()) tabName = 'exercises'; } catch (e) {}
             }
 
             // Onglet Famille désactivé (utilisateur solo) → rediriger vers l'accueil.
@@ -23149,6 +23265,12 @@
                 // 📅 Render le plan hebdo manuel (Phase 6)
                 if (typeof renderManualWeeklyPlanCard === 'function') renderManualWeeklyPlanCard();
             } else if (tabName === 'exercises') {
+                // 🧒 v1227 : pas d'outils de charge (1RM, plaques, rang) avant 13 ans
+                try {
+                    const _segC = document.getElementById('awakSegCalculs');
+                    const _enfC = !!(window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild());
+                    if (_segC) _segC.parentElement.style.display = _enfC ? 'none' : 'flex';
+                } catch (e) {}
                 // 🔎 Barre de pastilles : construite à partir des <select>
                 // masqués, donc APRÈS que le DOM de l'onglet existe.
                 try { if (typeof renderExerciseFilterBar === 'function') renderExerciseFilterBar(); } catch (e) {}
@@ -23157,6 +23279,12 @@
                 try { renderExerciseLibraryStats(); } catch (e) {}
                 updateProgressGraphExerciseList(); // ✅ Populate progress graphs dropdown
             } else if (tabName === 'calculators') {
+                // 🧑 v1227 : 13-15 ans → mise en garde sur le 1RM
+                try {
+                    const _ado = document.getElementById('awak1rmAdo');
+                    const _y = window.AwakYouth;
+                    if (_ado) _ado.style.display = (_y && _y.isYoung && _y.isYoung() && !(_y.isChild && _y.isChild())) ? '' : 'none';
+                } catch (e) {}
                 // Initialize accordions
                 initializeCalculatorsAccordions();
                 // Initialize calculators
@@ -23816,11 +23944,13 @@
             const btn = document.getElementById('sessionFavBtn');
             if (!btn) return;
             const fav = isFavorite(exerciseName);
-            btn.textContent = fav ? '❤️' : '🤍';
-            btn.style.background = fav
-                ? 'linear-gradient(135deg,rgba(239,68,68,0.5),rgba(220,38,38,0.4))'
-                : 'rgba(255,255,255,0.12)';
-            btn.style.borderColor = fav ? 'rgba(239,68,68,0.6)' : 'rgba(255,255,255,0.2)';
+            // v1223 : icône SVG + texte (l'emoji seul laissait un bouton muet)
+            const _c = fav ? '#f87171' : '#cbd5e1';
+            btn.innerHTML = '<span style="display:inline-flex;align-items:center;gap:9px;">'
+                + (window.AwakIcon ? AwakIcon.get('coeur', 17, _c) : '')
+                + '<span>' + (fav ? 'Dans mes favoris' : 'Ajouter aux favoris') + '</span></span>';
+            btn.style.background = fav ? 'rgba(239,68,68,0.12)' : 'none';
+            btn.style.color = fav ? '#fca5a5' : '#e2e8f0';
         }
 
         // ── MESSAGES MOTIVATIONNELS PENDANT LE REPOS ──────────────────
@@ -24385,7 +24515,13 @@
                       + '<button onclick="showLocationPicker()" style="flex:1;min-width:0;display:flex;'
                       +   'align-items:center;gap:8px;padding:9px 11px;border-radius:12px;cursor:pointer;text-align:left;'
                       +   'background:rgba(255,255,255,0.04);border:1px solid rgba(148,163,184,0.18);">'
-                      +   '<span style="font-size:1.05em;flex-shrink:0;">' + (_loc.icon || '📍') + '</span>'
+                      // v1219 : icône SVG (l'emoji du lieu était retiré par le filtre → case vide)
+                      +   '<span style="flex-shrink:0;display:inline-flex;color:#93c5fd;">' + (function () {
+                            const ic = _loc.icon || '';
+                            const nom = (window.AwakIcon && AwakIcon.liste.indexOf(ic) >= 0) ? ic
+                              : ({ '🏠': 'maison', '🏡': 'maison', '🏋️': 'gym', '🏋': 'gym', '🏢': 'immeuble', '🏨': 'hotel', '🏫': 'ecole', '🌳': 'arbre', '🏞️': 'arbre', '🌲': 'arbre' }[ic] || 'maison');
+                            return window.AwakIcon ? AwakIcon.get(nom, 17, '#93c5fd') : '';
+                          })() + '</span>'
                       +   '<span style="flex:1;min-width:0;font-size:0.74em;font-weight:800;color:#e2e8f0;'
                       +     'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (_loc.name || 'Lieu') + '</span>'
                       +   '<span style="color:#64748b;flex-shrink:0;">›</span>'
@@ -24396,7 +24532,7 @@
                       +   'font-size:0.68em;color:#94a3b8;font-weight:800;white-space:nowrap;">'
                       // ⚠️ Ce chiffre = nombre d'ÉQUIPEMENTS du lieu, pas des points.
                       // Le sac à dos et le libellé lèvent l'ambiguïté.
-                      +   '🎒 ' + (_n ? (_n + ' équip.') : 'Corps') + '</button>'
+                      +   '<span style="display:inline-flex;align-items:center;gap:5px;">' + (window.AwakIcon ? AwakIcon.get('halter', 14, '#94a3b8') : '') + (_n ? (_n + ' équip.') : 'Corps') + '</span></button>'
                       + '</div>';
                 }
             } catch (e) {}
@@ -24415,7 +24551,7 @@
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1201);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1228);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -24459,7 +24595,7 @@
                 +       '<feGaussianBlur stdDeviation="2.4" result="b"/>'
                 +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>'
                 +     '</filter></defs>'
-                +     '<image href="' + img + '?v=1201" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1228" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -24475,7 +24611,7 @@
                              return '<div style="display:flex;align-items:center;gap:6px;'
                                + 'font-size:0.66em;color:#cbd5e1;padding:2px 0;">'
                                + '<span style="width:6px;height:6px;border-radius:99px;'
-                               +   'background:#60a8f0;flex-shrink:0;"></span>' + n + '</div>';
+                               +   'background:#4ade80;flex-shrink:0;"></span>' + n + '</div>';  // v1219 : vert = « Prêt » (comme la légende)
                            }).join('')
                          + '</div>')
                       : '')
@@ -24484,8 +24620,10 @@
                 +   '<div style="display:flex;gap:8px;margin-top:10px;align-items:center;">'
                 +     '<button onclick="awakCorpsFlip()" style="flex-shrink:0;padding:9px 12px;border-radius:11px;'
                 +       'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);'
-                +       'color:#94a3b8;font-size:0.66em;font-weight:800;cursor:pointer;">'
-                +       (estFace ? '🔄 DOS' : '🔄 FACE') + '</button>'
+                +       'color:#cbd5e1;font-size:0.66em;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:5px;">'
+                // v1219 : « DOS » seul ne disait pas que le bouton retourne le personnage
+                +       '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 0 1-14.3 4.9M4 12A8 8 0 0 1 18.3 7.1"/><path d="M18.5 3v4.3h-4.3M5.5 21v-4.3h4.3"/></svg>'
+                +       (estFace ? 'Voir le dos' : 'Voir de face') + '</button>'
                 +     '<div style="flex:1;font-size:0.6em;color:#64748b;line-height:1.3;">'
                 +       'Touche un muscle vert pour l\'entraîner · glisse pour le tourner</div>'
                 +   '</div>'
@@ -25646,23 +25784,23 @@
             // Check if any filters are active
             const hasFilters = checkIfFiltersActive();
             
-            // If no filters, show welcome screen
-            if (!hasFilters) {
-                grid.style.display = 'none';
-                noResults.style.display = 'none';
-                if (welcomeScreen) welcomeScreen.style.display = 'block';
-                document.getElementById('filteredCount').textContent = '0';
-                return;
-            }
-            
-            // Hide welcome screen when filters are active
+            // v1226 : plus d'écran d'accueil — la liste s'affiche tout de suite
+            // (sans filtre = toute la bibliothèque, rendue par paquets de 60).
             if (welcomeScreen) welcomeScreen.style.display = 'none';
+            // 🧒 Enfant : ni exercices Avancé, ni charges lourdes (barre, machines…)
+            try {
+                if (window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()) {
+                    exercises = exercises.filter(e => e && e.difficulty !== 'Avancé'
+                        && !(AwakYouth.isDiscouraged && AwakYouth.isDiscouraged(e)));
+                }
+            } catch (e) {}
             
             grid.innerHTML = '';
             
             if (exercises.length === 0) {
                 grid.style.display = 'none';
                 noResults.style.display = 'block';
+                const _cpt0 = document.getElementById('awakExoCompte'); if (_cpt0) _cpt0.textContent = '0 exercice';
                 return;
             }
             
@@ -25684,76 +25822,39 @@
                 const isFav = isFavorite(exercise.name);
 
                 
+                // v1226 : carte COMPACTE (une ligne). YouTube et « Ne plus me
+                // proposer » passent dans la fiche ; toucher la carte l'ouvre.
                 const card = document.createElement('div');
-                card.className = `exercise-card ${isBlacklisted ? 'blacklisted' : ''}`;
+                card.className = 'awk-exo' + (isBlacklisted ? ' blacklisted' : '');
                 card.onclick = (e) => {
-                    // Ne pas ouvrir détail si on clique sur un bouton
-                    if (!e.target.closest('.blacklist-toggle') && !e.target.closest('.favorite-btn') && !e.target.closest('.youtube-btn')) {
-                        showExerciseDetail(exercise);
-                    }
+                    if (!e.target.closest('.favorite-btn')) showExerciseDetail(exercise);
                 };
-                
-                const difficultyClass = `difficulty-${exercise.difficulty.toLowerCase().replace('é', 'e')}`;
-                // ⚡ PERF (v551) : on résout l'image AVANT de générer les SVG. Avant, les
-                // 2 SVG (start+end) étaient construits pour CHAQUE carte même quand une
-                // image existait — puis jetés. Sur un filtre large (354 cartes), cela
-                // faisait ~700 générations SVG inutiles. Désormais : SVG seulement en repli.
                 const _exKey = exercise._baseName || exercise.name;
                 const _imgSrc = window.EXERCISE_IMAGES && (window.EXERCISE_IMAGES[_exKey] || window.EXERCISE_IMAGES[exercise.name]);
-                let _mediaHTML;
-                if (_imgSrc) {
-                    _mediaHTML = '<div style="width:100%;height:100%;">' + (typeof window.buildLazyImg === 'function' ? window.buildLazyImg(_imgSrc, exercise.name) : '<img src="' + _imgSrc + '" alt="" style="width:100%;height:100%;object-fit:contain;" loading="lazy"/>') + '</div>';
-                } else {
-                    const svgStart = getExerciseVisual(exercise.name, exercise.muscle, 'start');
-                    const svgEnd = getExerciseVisual(exercise.name, exercise.muscle, 'end');
-                    _mediaHTML = '<div class="exercise-animation"><div class="exercise-svg-container">' + svgStart + '<div class="position-label position-start">Début</div></div><div class="arrow-indicator">→</div><div class="exercise-svg-container">' + svgEnd + '<div class="position-label position-end">Fin</div></div></div>';
-                }
-                
-                card.innerHTML = `
-                    <div class="exercise-image">
-                        ${_mediaHTML}
-                        <!-- Favorite button (top-right) -->
-                        <button class="favorite-btn" 
-                                onclick="toggleFavorite('${exercise.name.replace(/'/g, "\\'")}'); event.stopPropagation();"
-                                style="position: absolute; top: 10px; right: 10px; background: ${isFav ? '#fbbf24' : 'rgba(255,255,255,0.502)'}; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 1.3em; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.2); transition: all 0.2s; backdrop-filter: blur(10px);"
-                                title="${isFav ? 'Retirer des favoris' : 'Ajouter aux favoris'}">
-                            ${isFav ? '⭐' : '☆'}
-                        </button>
-                    </div>
-                    <div class="exercise-card-content">
-                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
-                            <div style="flex: 1;">
-                                <div class="exercise-title">${exercise.name}</div>
-                                <div class="muscle-group">${exercise.muscle}</div>
-                                ${awakPopInfo(exercise.name) ? `<div style="display:inline-flex;align-items:center;gap:4px;margin-top:5px;background:linear-gradient(135deg,rgba(249,115,22,0.18),rgba(251,191,36,0.12));border:1px solid rgba(249,115,22,0.45);color:#fb923c;border-radius:20px;padding:2px 9px;font-size:0.66em;font-weight:800;letter-spacing:0.5px;">🔥 POPULAIRE${awakPopInfo(exercise.name).t === 1 ? ' · TOP 10' : ''}</div>` : ''}
-                                ${(window.AwakYouth && window.AwakYouth.isDiscouraged && window.AwakYouth.isDiscouraged(exercise)) ? `<div style="display:inline-flex;align-items:center;gap:4px;margin-top:5px;margin-left:5px;background:rgba(245,158,11,0.14);border:1px solid rgba(245,158,11,0.5);color:#f59e0b;border-radius:20px;padding:2px 9px;font-size:0.66em;font-weight:800;letter-spacing:0.5px;" title="Exercice à charge lourde, déconseillé pour un jeune profil sans encadrement">CHARGE LOURDE</div>` : ''}
-                            </div>
-                            <div class="difficulty-badge ${difficultyClass}">
-                                ${exercise.difficulty}
-                            </div>
-                        </div>
-                        <div class="exercise-description">${exercise.description}</div>
-                        <div class="exercise-meta">
-                            <span>🏋️ ${(exercise.equipment || ['Poids du corps']).join(', ')}</span>
-                            <span>📋 ${(exercise.instructions || []).length} étapes</span>
-                        </div>
-                        
-                        <!-- YouTube search button -->
-                        <button class="youtube-btn" 
-                                onclick="openYouTubeVideo(null, '${exercise.name.replace(/'/g, "\\'")}'); event.stopPropagation();"
-                                style="width: 100%; margin-top: 10px; padding: 10px; background: linear-gradient(135deg,#dc2626,#ef4444); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s;">
-                            <span style="font-size: 1.2em;">▶️</span>
-                            <span>Rechercher sur YouTube</span>
-                        </button>
-                        
-                        <button class="blacklist-toggle ${isBlacklisted ? 'active' : ''}" 
-                                onclick="toggleExerciseBlacklist('${exercise.name.replace(/'/g, "\\'")}'); event.stopPropagation();" 
-                                title="${isBlacklisted ? 'Réactiver cet exercice' : 'Désactiver cet exercice'}"
-                                style="width: 100%; margin-top: 10px; padding: 8px; border: 2px solid ${isBlacklisted ? '#ef4444' : '#d1d5db'}; background: ${isBlacklisted ? '#fee2e2' : 'white'}; color: ${isBlacklisted ? '#ef4444' : '#666'}; border-radius: 10px; cursor: pointer; font-weight: bold; transition: all 0.2s;">
-                            ${isBlacklisted ? '🚫 Désactivé' : '👁️ Actif'}
-                        </button>
-                    </div>
-                `;
+                const _vignette = _imgSrc
+                    ? '<div style="width:100%;height:100%;background:#0a0e18 url(' + String(_imgSrc).split('/').map((seg, k) => k === 0 ? seg : encodeURIComponent(seg).replace(/'/g, '%27')).join('/') + ') center/cover no-repeat;"></div>'
+                    : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:rgba(96,168,240,0.10);">'
+                        + (window.AwakIcon ? AwakIcon.get('halter', 22, '#93c5fd') : '') + '</div>';
+                const _niv = { 'Débutant': '#60a8f0', 'Intermédiaire': '#fbbf24', 'Avancé': '#f87171' }[exercise.difficulty] || '#94a3b8';
+                const _lourd = !!(window.AwakYouth && AwakYouth.isDiscouraged && AwakYouth.isDiscouraged(exercise));
+                const _nomJs = exercise.name.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+                card.innerHTML =
+                    '<div style="width:62px;height:62px;border-radius:11px;overflow:hidden;flex-shrink:0;border:1px solid rgba(255,255,255,0.08);">' + _vignette + '</div>'
+                  + '<div style="flex:1;min-width:0;">'
+                  +   '<div style="font-size:0.88em;font-weight:800;color:#f1f5f9;line-height:1.25;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">' + exercise.name + '</div>'
+                  +   '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin-top:5px;">'
+                  +     '<span style="font-size:0.62em;font-weight:800;padding:2px 7px;border-radius:6px;background:rgba(96,168,240,0.10);color:#93c5fd;border:1px solid rgba(96,168,240,0.22);">' + (exercise.muscle || '') + '</span>'
+                  +     '<span style="font-size:0.62em;font-weight:800;color:' + _niv + ';">' + (exercise.difficulty || '') + '</span>'
+                  +     (awakPopInfo(exercise.name) ? '<span style="font-size:0.6em;font-weight:800;color:#fb923c;">Populaire</span>' : '')
+                  +     (_lourd ? '<span style="font-size:0.6em;font-weight:800;color:#fbbf24;">Avec un adulte</span>' : '')
+                  +     (isBlacklisted ? '<span style="font-size:0.6em;font-weight:800;color:#f87171;">Pas proposé</span>' : '')
+                  +   '</div>'
+                  + '</div>'
+                  + '<button class="favorite-btn" onclick="toggleFavorite(\'' + _nomJs + '\'); event.stopPropagation();" '
+                  +   'aria-label="' + (isFav ? 'Retirer des favoris' : 'Ajouter aux favoris') + '" '
+                  +   'style="flex-shrink:0;width:40px;height:40px;border-radius:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;'
+                  +   'background:' + (isFav ? 'rgba(251,191,36,0.14)' : 'rgba(255,255,255,0.04)') + ';border:1px solid ' + (isFav ? 'rgba(251,191,36,0.5)' : 'rgba(255,255,255,0.1)') + ';">'
+                  +   (window.AwakIcon ? AwakIcon.get('etoile', 18, isFav ? '#fbbf24' : '#64748b') : (isFav ? '★' : '☆')) + '</button>';
                 
                 grid.appendChild(card);
             };
@@ -25802,6 +25903,8 @@
             }
 
             document.getElementById('filteredCount').textContent = exercises.length;
+            const _cpt = document.getElementById('awakExoCompte');
+            if (_cpt) _cpt.textContent = exercises.length + ' exercice' + (exercises.length > 1 ? 's' : '');
         }
 
         // ========== EXERCISE BLACKLIST SYSTEM ==========
@@ -25893,8 +25996,16 @@
         window.awakResetFilters = awakResetFilters;
 
         // Rangée de pastilles pour un filtre donné
+        // 🧒 v1226 : matériel adapté à un enfant (pas de piscine, traîneau, pneu…)
+        const _MATERIEL_ENFANT = ['', 'Poids du corps', 'Élastique', 'Medicine Ball', 'Swiss Ball', 'Corde à sauter'];
         function _pillRow(selectId, label) {
-            const opts = _pillOptions(selectId);
+            let opts = _pillOptions(selectId);
+            try {
+                if (window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()) {
+                    if (selectId === 'equipmentFilter') opts = opts.filter(o => _MATERIEL_ENFANT.indexOf(o.v) !== -1);
+                    if (selectId === 'difficultyFilter') opts = opts.filter(o => o.v !== 'Avancé');
+                }
+            } catch (e) {}
             if (!opts.length) return '';
             const sel = document.getElementById(selectId);
             const courant = sel ? sel.value : '';
@@ -25903,9 +26014,9 @@
                 return '<button onclick="awakSetFilter(\'' + selectId + '\',\'' + String(o.v).replace(/'/g, "\\'") + '\')" '
                     + 'style="flex-shrink:0;padding:7px 13px;border-radius:99px;cursor:pointer;'
                     + 'font-size:0.7em;font-weight:800;white-space:nowrap;transition:all .15s;'
-                    + 'background:' + (actif ? 'rgba(74,222,128,0.16)' : 'rgba(255,255,255,0.04)') + ';'
-                    + 'border:1px solid ' + (actif ? 'rgba(74,222,128,0.5)' : 'rgba(255,255,255,0.09)') + ';'
-                    + 'color:' + (actif ? '#4ade80' : '#94a3b8') + ';">' + o.t + '</button>';
+                    + 'background:' + (actif ? 'rgba(96,168,240,0.16)' : 'rgba(255,255,255,0.04)') + ';'
+                    + 'border:1px solid ' + (actif ? 'rgba(96,168,240,0.6)' : 'rgba(255,255,255,0.09)') + ';'
+                    + 'color:' + (actif ? '#fff' : '#94a3b8') + ';">' + o.t + '</button>';
             }).join('');
             return '<div style="margin-bottom:9px;">'
                 + '<div style="font-size:0.52em;letter-spacing:1.5px;color:#64748b;font-weight:900;margin-bottom:5px;">'
@@ -26076,7 +26187,9 @@
             document.getElementById('equipmentFilter').value = '';
             { const _tf = document.getElementById('typeFilter'); if (_tf) _tf.value = ''; }
             { const _df = document.getElementById('disciplineFilter'); if (_df) _df.value = ''; }
+            { const _es = document.getElementById('exerciseSearch'); if (_es) _es.value = ''; }
             filterExercises();
+            try { renderExerciseFilterBar(); } catch (e) {}
         }
 
 
@@ -26455,6 +26568,8 @@
         window.awakRenderEquilibre = awakRenderEquilibre;
 
         function showExerciseDetail(exercise) {
+            if (typeof exercise === 'number') exercise = exerciseDatabase[exercise];   // appel par index (recherche)
+            if (!exercise) return;
             currentExerciseForModal = exercise;
             const modal = document.getElementById('exerciseModal');
             
@@ -26464,13 +26579,11 @@
             document.getElementById('modalTips').textContent = exercise.tips;
             
             const difficultyClass = `difficulty-${exercise.difficulty.toLowerCase().replace('é', 'e')}`;
-            const svgStart = getExerciseVisual(exercise.name, exercise.muscle, 'start');
-            const svgEnd = getExerciseVisual(exercise.name, exercise.muscle, 'end');
             const _exKey2 = exercise._baseName || exercise.name;
             const _imgSrc2 = window.EXERCISE_IMAGES && (window.EXERCISE_IMAGES[_exKey2] || window.EXERCISE_IMAGES[exercise.name]);
             const _mediaHTML2 = _imgSrc2
                 ? '<div style="width:100%;height:100%;border-radius:14px;overflow:hidden;">' + (typeof window.buildLazyImg === 'function' ? window.buildLazyImg(_imgSrc2, exercise.name, 'height:100%;object-fit:contain;border-radius:14px;') : '<img src="' + _imgSrc2 + '" alt="" style="width:100%;height:auto;object-fit:contain;border-radius:14px;" loading="lazy"/>') + '</div>'
-                : '<div class="exercise-animation"><div class="exercise-svg-container">' + svgStart + '<div class="position-label position-start">Début</div></div><div class="arrow-indicator">→</div><div class="exercise-svg-container">' + svgEnd + '<div class="position-label position-end">Fin</div></div></div>';
+                : '<div style="width:100%;height:200px;">' + awakVisuelNeutre(exercise.muscle) + '</div>';   // v1221 : repli neutre
             
             document.getElementById('modalDifficulty').innerHTML = 
                 `<div class="exercise-image" style="margin: 15px 0; border-radius: 14px;">
@@ -26487,11 +26600,42 @@
             const instructionsList = document.getElementById('modalInstructions');
             if (!instructionsList) return;
             instructionsList.innerHTML = '';
-            exercise.instructions.forEach(instruction => {
+            const _tu = (t) => (window.AwakSessUX && AwakSessUX.tutoyer) ? AwakSessUX.tutoyer(String(t || '')) : (t || '');
+            (exercise.instructions || []).forEach(instruction => {
                 const li = document.createElement('li');
-                li.textContent = instruction;
+                li.textContent = _tu(instruction);
                 instructionsList.appendChild(li);
             });
+            // v1226 : textes au « tu », comme le reste de l'app
+            document.getElementById('modalDescription').textContent = _tu(exercise.description);
+            document.getElementById('modalTips').textContent = _tu(exercise.tips);
+            const _tipsBox = document.getElementById('modalTips').closest('.tips-box');
+            if (_tipsBox) _tipsBox.style.display = exercise.tips ? '' : 'none';
+
+            // v1226 : actions déplacées des cartes vers la fiche
+            try {
+                const _act = document.getElementById('modalActions');
+                if (_act) {
+                    const _enf = !!(window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild());
+                    const _nom = exercise.name.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+                    const _bl = getExerciseBlacklist().includes(exercise.name);
+                    const _fav = isFavorite(exercise.name);
+                    const _lourd = !!(window.AwakYouth && AwakYouth.isYoung && AwakYouth.isYoung()
+                        && AwakYouth.isDiscouraged && AwakYouth.isDiscouraged(exercise));
+                    const _b = (onclick, txt, c) => '<button onclick="' + onclick + '" style="flex:1;min-width:0;padding:11px 6px;border-radius:11px;cursor:pointer;font-weight:800;font-size:0.76em;'
+                        + 'background:' + c + '1a;border:1px solid ' + c + '66;color:' + c + ';display:flex;align-items:center;justify-content:center;gap:6px;">' + txt + '</button>';
+                    _act.innerHTML =
+                        (_lourd ? '<div style="font-size:0.74em;color:#fcd34d;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.3);border-radius:10px;padding:9px 11px;margin-bottom:10px;line-height:1.45;">'
+                            + 'Exercice avec une charge lourde : fais-le avec un adulte qui connaît le mouvement.</div>' : '')
+                      + '<div style="display:flex;gap:7px;margin-bottom:8px;">'
+                      +   _b("toggleFavorite('" + _nom + "');showExerciseDetail(currentExerciseForModal)", (window.AwakIcon ? AwakIcon.get('etoile', 15, _fav ? '#fbbf24' : '#93c5fd') : '') + (_fav ? 'Dans mes favoris' : 'Favori'), _fav ? '#fbbf24' : '#93c5fd')
+                      +   (_enf ? '' : _b("openYouTubeVideo(null,'" + _nom + "')", '<svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M6 3.5 L20 12 L6 20.5 Z"/></svg>Voir une vidéo', '#f87171'))
+                      + '</div>'
+                      + '<button onclick="toggleExerciseBlacklist(\'' + _nom + '\');showExerciseDetail(currentExerciseForModal)" style="width:100%;padding:10px;border-radius:11px;cursor:pointer;font-weight:700;font-size:0.74em;'
+                      +   'background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);color:' + (_bl ? '#86efac' : '#94a3b8') + ';">'
+                      +   (_bl ? 'Me le proposer à nouveau dans mes séances' : 'Ne plus me le proposer dans mes séances') + '</button>';
+                }
+            } catch (e) {}
             
             modal.classList.add('active');
         }
@@ -26984,7 +27128,8 @@
             const _prog = getExerciseProgress();
             document.getElementById('exerciseNumber').textContent = (exercise && (exercise.isRest || exercise.isInfo))
                 ? `Repos · ${_prog.current}/${_prog.total} exercices`
-                : `Exercice ${_prog.current}/${_prog.total}`;
+                : `Exercice ${_prog.current} sur ${_prog.total}`;
+            try { updateLiveVolumeChip(); } catch (e) {}   // v1223 : la barre du haut suit chaque exercice
             
             // Safety check for exercise name
             const exerciseName = exercise.name || 'Exercice';
@@ -27434,8 +27579,6 @@
             else if (nameLower.includes('traction')) muscleGuess = 'Dos';
             else if (nameLower.includes('fente')) muscleGuess = 'Quadriceps';
             
-            const svgStart = getExerciseVisual(exerciseName, muscleGuess, 'start');
-            const svgEnd = getExerciseVisual(exerciseName, muscleGuess, 'end');
             const _imgKey3 = exercise._baseName || exerciseName;
             const _imgSrc3 = window.EXERCISE_IMAGES && (window.EXERCISE_IMAGES[_imgKey3] || window.EXERCISE_IMAGES[exerciseName]);
 
@@ -27462,6 +27605,9 @@
                     // FLOUE et assombrie de la même image — un seul ensemble cohérent.
                     const _src3 = String(_imgSrc3).split('/').map((seg, k) => k === 0 ? seg : encodeURIComponent(seg).replace(/'/g, '%27')).join('/');
                     visualContent.style.padding = '0';
+                    visualContent.style.minHeight = '';
+                    visualContent.classList.remove('awak-vis-neutre');
+                    if (visualFrame) visualFrame.style.minHeight = '';
                     visualContent.classList.add('awak-vis-img');
                     visualContent.innerHTML = '<div style="position:relative;width:100%;height:310px;overflow:hidden;">'
                         + '<div aria-hidden="true" style="position:absolute;inset:-30px;background:url(' + "'" + _src3 + "'" + ') center/cover no-repeat;filter:blur(24px) brightness(0.42) saturate(1.2);transform:scale(1.1);"></div>'
@@ -27472,20 +27618,14 @@
                             : '<img src="' + _src3 + '" alt="" style="width:100%;height:100%;object-fit:contain;display:block;" loading="lazy"/>')
                         + '</div></div>';
                 } else {
-                    visualContent.style.padding = '40px 14px 14px';
+                    // v1221 : repli NEUTRE — plus de personnage dessiné (début / fin)
+                    visualContent.style.padding = '0';
                     visualContent.classList.remove('awak-vis-img');
-                    visualContent.innerHTML = `
-                    <div style="display:flex;gap:12px;align-items:center;justify-content:center;width:100%;flex-wrap:wrap;">
-                        <div style="flex:1;display:flex;flex-direction:column;align-items:center;min-width:120px;max-width:200px;">
-                            <div style="width:100%;aspect-ratio:1;border-radius:10px;background:rgba(34,197,94,0.04);border:1px solid rgba(74,222,128,0.2);padding:8px;display:flex;align-items:center;justify-content:center;">${svgStart}</div>
-                            <span style="font-size:0.62em;margin-top:8px;font-weight:900;color:#4ade80;letter-spacing:2px;text-transform:uppercase;text-shadow:0 0 6px rgba(74,222,128,0.4);">▶ DÉBUT</span>
-                        </div>
-                        <div style="font-size:2em;color:#4ade80;flex-shrink:0;text-shadow:0 0 12px rgba(74,222,128,0.5);font-weight:900;">⟶</div>
-                        <div style="flex:1;display:flex;flex-direction:column;align-items:center;min-width:120px;max-width:200px;">
-                            <div style="width:100%;aspect-ratio:1;border-radius:10px;background:rgba(168,85,247,0.04);border:1px solid rgba(168,85,247,0.3);padding:8px;display:flex;align-items:center;justify-content:center;">${svgEnd}</div>
-                            <span style="font-size:0.62em;margin-top:8px;font-weight:900;color:#a855f7;letter-spacing:2px;text-transform:uppercase;text-shadow:0 0 6px rgba(168,85,247,0.4);">■ FIN</span>
-                        </div>
-                    </div>`;
+                    // v1223 : panneau compact — un grand carré presque vide n'aidait personne
+                    visualContent.style.minHeight = '0';
+                    visualContent.classList.add('awak-vis-neutre');
+                    if (visualFrame) visualFrame.style.minHeight = '0';
+                    visualContent.innerHTML = '<div style="width:100%;height:150px;padding-top:14px;box-sizing:border-box;">' + awakVisuelNeutre(exerciseFromDB?.muscle || exercise.muscle || muscleGuess, false, true) + '</div>';
                 }
             } else if (visualFrame) {
                 // Pour les exercices de repos/info, masquer le frame
@@ -28016,6 +28156,7 @@
                         }
                         // ⏱ SÉRIES MINUTÉES (routine) : on refait le chrono N fois, avec repos.
                         if (typeof _awakTimerSetNext === 'function' && _awakTimerSetNext()) return;
+                        _awakFeteExoCourant(true);   // ⭐ v1223
                         // ⚡ SUPERSET : un exercice minuté membre d'un superset
                         // doit revenir au suivant du groupe (A → B → C → A…),
                         // pas sauter directement à l'exercice d'après.
@@ -29277,6 +29418,26 @@
               + '</div>';
         }
 
+        // ⭐ v1223 : fête un exercice terminé (séries enregistrées, ou chrono
+        // arrivé au bout). Une seule fois par exercice ; jamais en Faille/Chasse
+        // (le combat a déjà ses propres retours).
+        function _awakFeteExoCourant(chronoFini) {
+            try {
+                const ex = currentWorkout && currentWorkout.exercises ? currentWorkout.exercises[currentExerciseIndex] : null;
+                const combat = currentWorkout && (currentWorkout._isRift || currentWorkout._isHunt) && !currentWorkout._isAssaut;
+                const cle = currentExerciseIndex + ':' + (workoutStartTime || 0);
+                if (!ex || ex.isRest || ex.isInfo || combat || window._awakExoFeteCle === cle) return;
+                const minute = (ex.mode === 'timer' || ex.mode === 'duration');
+                const seriesOk = !minute && ((window._awakDernierBulk > 0) || (Array.isArray(completedSets) && completedSets.some(cs => !cs.warmup)));
+                const chronoOk = chronoFini || (minute && timeRemaining <= 1);
+                if (!seriesOk && !chronoOk) return;
+                window._awakExoFeteCle = cle;
+                currentWorkout._etoiles = (currentWorkout._etoiles || 0) + 1;
+                const pg = getExerciseProgress();
+                if (window.AwakSessUX) AwakSessUX.exoFini({ cur: pg.current, total: pg.total, etoiles: currentWorkout._etoiles });
+            } catch (e) {}
+        }
+
         function skipExercise() {
             // 🔇 Couper la phrase en cours + timers du coach vocal de l'exercice sauté
             if (typeof stopAllSpeech === 'function') stopAllSpeech();
@@ -29284,9 +29445,12 @@
             if (typeof _gridBulkValidate === 'function') {
                 try {
                     const n = _gridBulkValidate();
-                    if (n > 0) showToast('\u2705 ' + n + ' s\u00e9rie' + (n > 1 ? 's' : '') + ' enregistr\u00e9e' + (n > 1 ? 's' : ''), 'success', 1800);
+                    window._awakDernierBulk = n;
                 } catch (e) {}
             }
+            // ⭐ v1223 : petite fête quand un exercice est vraiment terminé
+            _awakFeteExoCourant(false);
+            window._awakDernierBulk = 0;
             // ⚡ ASSAUT : « Suivant » enchaîne, il n'abandonne PAS.
             // ⚠️ Un Assaut porte _isRift = true (c'est bien une Faille), donc
             // le test ci-dessous le prenait pour un abandon et demandait
@@ -29545,6 +29709,7 @@
                 if (countdown) countdown.textContent = _globalRestRemaining;
                 if (fill) fill.style.width = Math.max(0, (_globalRestRemaining / _globalRestTotal) * 100) + '%';
                 if (_globalRestRemaining <= 0) {
+                    try { haptic.restEnd(); } catch (e) {}
                     hideGlobalRestBanner();
                 }
             }, 1000);
@@ -29579,7 +29744,9 @@
 
         // ── CONFETTIS ──────────────────────────────────────────────────
         function launchConfetti() {
-            const colors = ['#16a34a','#4ade80','#fbbf24','#10b981','#f87171','#60a5fa','#fb7185','#34d399'];
+            const colors = ['#60a8f0','#a78bfa','#fbbf24','#93c5fd','#f87171','#60a5fa','#fb7185','#c084fc'];
+            const _cv = document.getElementById('completionView');
+            const _hoteC = (_cv && !_cv.classList.contains('hidden')) ? _cv.querySelector('.card') : null;
             const shapes = ['square','circle'];
             for (let i = 0; i < 80; i++) {
                 const el = document.createElement('div');
@@ -29595,7 +29762,9 @@
                     animation-duration: ${2 + Math.random() * 2.5}s;
                     animation-delay: ${Math.random() * 0.8}s;
                 `;
-                document.body.appendChild(el);
+                // v1223 : sur l'écran de fin, les confettis passent DERRIÈRE le texte
+                if (_hoteC) { el.style.position = 'absolute'; el.style.zIndex = '0'; el.style.filter = 'opacity(0.5)'; }
+                (_hoteC || document.body).appendChild(el);
                 setTimeout(() => el.remove(), 5000);
             }
         }
@@ -29939,7 +30108,7 @@
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1201");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1228");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -31819,9 +31988,11 @@
 
             const total = {};
             for (const stat of ['STR','AGI','VIT','END','PER','SEN']) {
+                // ⚠️ v1218 : `manual` n'est PLUS ajouté ici — getPlayerEquipStats()
+                // inclut déjà les points alloués (et leur applique le % de set).
+                // Ils étaient comptés DEUX fois (simulation de progression).
                 total[stat] = (base[stat] || 0)
                             + (auto[stat] || 0)
-                            + (manual[stat] || 0)
                             + (equip[stat] || 0)
                             + (compBonus[stat] || 0);
             }
@@ -31907,6 +32078,26 @@
                 return (typeof rpgLevelFromXP === 'function') ? rpgLevelFromXP(lifetimeXP) : 1;
             } catch(e) { return 1; }
         }
+
+        // 🎁 XP « de personnage » (récompense de Faille / Chasse) : ajoutée au total
+        // de vie (fitproRPGLifetimeXP, propre au profil via GAME_KEYS), puis les
+        // points de stats sont rattrapés tout de suite.
+        // Part de la récompense de Faille versée en XP de personnage : avec les séries
+        // désormais comptées, 35 % ≈ une séance normale (simulation v1218).
+        const AWAK_RIFT_XP_FACTOR = 0.35;
+        window.AWAK_RIFT_XP_FACTOR = AWAK_RIFT_XP_FACTOR;
+        function awakGrantLifetimeXP(n) {
+            n = Math.max(0, Math.round(n || 0));
+            if (!n) return 0;
+            try {
+                const cur = parseInt(localStorage.getItem('fitproRPGLifetimeXP') || '0', 10) || 0;
+                localStorage.setItem('fitproRPGLifetimeXP', String(cur + n));
+                if (typeof statPointsCheckLevelUp === 'function') statPointsCheckLevelUp(_awakGetCurrentLevel());
+                if (typeof awakCheckRankUp === 'function') setTimeout(function () { try { awakCheckRankUp(); } catch (e) {} }, 2500);
+            } catch (e) {}
+            return n;
+        }
+        window.awakGrantLifetimeXP = awakGrantLifetimeXP;
 
         // 🔧 ADMIN/DEBUG — Monte d'exactement 1 niveau (pour tester l'histoire).
         // Ajoute l'XP manquante via fitproRPGLifetimeXP, sans toucher aux muscles.
@@ -33601,7 +33792,7 @@
             ov.innerHTML =
                 '<div style="width:100%;max-width:420px;background:linear-gradient(160deg,#140e18,#0d0d12);'
               +   'border:1px solid rgba(168,85,247,0.4);border-radius:20px;padding:24px;text-align:center;">'
-              +   '<div style="font-size:2.4em;margin-bottom:6px;">' + (wave.emoji || '👾') + '</div>'
+              +   '<div style="margin-bottom:6px;display:flex;justify-content:center;">' + (window.AwakIcon ? AwakIcon.get('faille', 40, '#c084fc') : '') + '</div>'
               +   '<div style="font-size:0.6em;letter-spacing:2.5px;color:#c084fc;font-weight:900;">◈ LE TEMPS EST ÉCOULÉ</div>'
               +   '<div style="font-family:var(--font-display),sans-serif;font-size:1.3em;font-weight:700;color:#fff;margin:6px 0 12px;">'
               +     'Il tient encore</div>'
@@ -33818,7 +34009,7 @@
             const nt = (sess.rift.waves || []).length;
             bar.innerHTML =
                 '<div style="display:flex;align-items:center;gap:9px;margin-bottom:7px;">'
-              +   '<span style="font-size:1.2em;">' + (wave.emoji || '👾') + '</span>'
+              +   '<span style="display:inline-flex;">' + (window.AwakIcon ? AwakIcon.get('faille', 20, '#c084fc') : '') + '</span>'
               +   '<div style="flex:1;min-width:0;">'
               +     '<div style="font-size:0.58em;color:#c084fc;font-weight:900;letter-spacing:1.5px;">VAGUE ' + nv + ' / ' + nt + '</div>'
               +     '<div style="font-size:0.74em;color:#e2e8f0;font-weight:800;">' + wave.hpCurrent + ' / ' + wave.hpMax + ' PV</div>'
@@ -33961,6 +34152,21 @@
         window.awakBuildAssautWorkout = awakBuildAssautWorkout;
         window.ASSAUT_THEMES = ASSAUT_THEMES;
 
+        // ⚖️ ÉQUILIBRAGE v1218 (simulation de progression sur 12 mois, 3 profils) :
+        // les PV d'origine étaient calibrés pour un joueur aux stats de départ.
+        // Avec les points, l'équipement, la classe et les compagnons, les dégâts
+        // d'un joueur sont multipliés par ~60 de E à S, les PV des monstres par ~8
+        // seulement → une série tuait une vague dès le 1er mois.
+        // Cible au rang égal : ~3 séries par vague, ~6 par boss (à l'objectif de reps).
+        // Les Assauts (dégâts au chrono) gardent leurs PV d'origine.
+        const AWAK_HP_SCALE      = { E: 2, D: 4.5, C: 10, B: 15, A: 13, S: 15, SS: 15, SSS: 15 };
+        const AWAK_HP_SCALE_BOSS = { E: 1, D: 1,   C: 1.3, B: 1.6, A: 2, S: 2.2, SS: 2.2, SSS: 2.2 };
+        function awakRiftHpScale(rank, isBoss) {
+            const n = AWAK_HP_SCALE[rank] || 15;
+            return isBoss ? n * (AWAK_HP_SCALE_BOSS[rank] || 2.2) : n;
+        }
+        window.awakRiftHpScale = awakRiftHpScale;
+
         function awakGenerateRift(forceRank) {
             const playerRank = awakGetRank();
             const rankIds = ['E', 'D', 'C', 'B', 'A', 'S', 'SS', 'SSS'];
@@ -34081,6 +34287,14 @@
                     if (dispo.length) _assautTheme = dispo[Math.floor(Math.random() * dispo.length)].id;
                 }
             } catch (e) {}
+
+            // ⚖️ v1218 : échelle de PV (voir awakRiftHpScale) — sauf Assaut.
+            if (!_assautTheme) {
+                waves.forEach(w => {
+                    w.hpMax = Math.round(w.hpMax * awakRiftHpScale(riftRank, w.isBoss));
+                    w.hpCurrent = w.hpMax;
+                });
+            }
 
             return {
                 id: 'rift_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
@@ -34231,6 +34445,7 @@
             // cours, pour pouvoir le relire juste après le combat.
             try {
                 if (currentWorkout && !currentWorkout._isRift && !currentWorkout._isHunt) {
+                    if (window.AwakRiftVis) AwakRiftVis.hud(null);
                     hote.innerHTML = ''; return;
                 }
             } catch (e) {}
@@ -34240,8 +34455,31 @@
             // le combat (calculé AVANT la sortie anticipée pour s'afficher même en
             // tout début de combat, avant le 1er coup ; masqué hors combat).
             let hpHeader = '';
+            // ⚔ Bandeau de combat en haut de l'écran (monstre + PV) : remplace la
+            // double jauge du bas pendant une Faille classique (pas Assaut/Chasse).
+            let _hudActif = false;
             try {
-                const sess = (typeof awakActiveRiftSession !== 'undefined') ? awakActiveRiftSession : null;
+                const _s = (typeof awakActiveRiftSession !== 'undefined') ? awakActiveRiftSession : null;
+                const _w = _s && _s.rift && _s.rift.waves ? _s.rift.waves[_s.rift.currentWaveIdx || 0] : null;
+                if (window.AwakRiftVis && _s && _s.theme && _w && currentWorkout && currentWorkout._isRift && !currentWorkout._isAssaut) {
+                    const _mod = (typeof awakGetRiftModifier === 'function') ? awakGetRiftModifier(_s.rift.modifierId) : null;
+                    const _jMax = (typeof awakGetPlayerMaxHP === 'function') ? awakGetPlayerMaxHP() : 100;
+                    const _jCur = (typeof awakGetPlayerHP === 'function') ? awakGetPlayerHP() : _jMax;
+                    const _jl = awakCombatLogGet();
+                    const _der = _jl.length ? _jl[_jl.length - 1] : null;
+                    AwakRiftVis.hud({
+                        nom: _w.name, couleur: _s.theme.color, boss: !!_w.isBoss,
+                        pv: Math.max(0, _w.hpCurrent), pvMax: _w.hpMax, cache: !!(_mod && _mod.hideHp),
+                        joueur: Math.max(0, _jCur), joueurMax: _jMax,
+                        vague: (_s.rift.currentWaveIdx || 0) + 1, vagues: _s.rift.waves.length,
+                        ouverture: (_w._ouverture && typeof _w._ouverture === 'object') ? _w._ouverture.cible : null,
+                        coup: (_der && (_der.type === 'hit' || _der.type === 'crit')) ? { t: _der.t, dmg: _der.dmg || 0, crit: _der.type === 'crit' } : null
+                    });
+                    _hudActif = true;
+                } else if (window.AwakRiftVis) AwakRiftVis.hud(null);
+            } catch (e) {}
+            try {
+                const sess = (_hudActif || typeof awakActiveRiftSession === 'undefined') ? null : awakActiveRiftSession;
                 // ⚡ ASSAUT : ne PAS dessiner la barre de vie ici.
                 // ⚠️ Un Assaut affiche déjà sa propre barre de vague en haut de
                 // l'écran (_renderAssautHpBar, v880). Ce bandeau en ajoutait une
@@ -34295,7 +34533,10 @@
                 }
             } catch (e) { hpHeader = ''; }
 
-            if (!j.length) { hote.innerHTML = hpHeader; return; }
+            if (!j.length) {
+                if (_hudActif && AwakRiftVis.journal(null)) { hote.innerHTML = ''; return; }
+                hote.innerHTML = hpHeader; return;
+            }
 
             const total = j.reduce((s, e) => s + (e.dmg || 0), 0);
             const crits = j.filter(e => e.type === 'crit').length;
@@ -34315,7 +34556,8 @@
                 }
                 const c = e.type === 'crit' ? '#fbbf24' : '#4ade80';
                 const et = e.type === 'crit' ? '💥 CRITIQUE' : '⚔ Coup';
-                const nom = e.exo ? ('<span style="color:#64748b;"> · ' + String(e.exo).slice(0, 22) + '</span>') : '';
+                const nom = (e.exo ? ('<span style="color:#64748b;"> · ' + String(e.exo).slice(0, 22) + '</span>') : '')
+                    + (e.faible ? '<span style="color:#fbbf24;font-weight:900;"> · point faible</span>' : '');
                 // 🌫️ BROUILLARD : ce modificateur masque volontairement les HP de
                 // l'ennemi (« Frappe à l'aveugle »). La barre de vie les cachait bien,
                 // mais le JOURNAL DE COMBAT les affichait quand même à chaque coup —
@@ -34333,6 +34575,15 @@
                     + '<b style="color:' + c + ';white-space:nowrap;">-' + e.dmg + (e.killed ? ' ☠️' : '') + pv + '</b></div>';
             }).join('');
 
+            // ⚔ Faille classique : le journal vit dans le bandeau du haut (dépliable)
+            if (_hudActif && AwakRiftVis.journal({
+                resume: '<span style="color:#f87171;font-weight:900;">' + total + ' dégâts'
+                    + (crits ? ' · ' + crits + ' crit.' : '')
+                    + (effets ? ' <span style="color:#7dd3fc;">· ' + effets + ' effet' + (effets > 1 ? 's' : '') + '</span>' : '')
+                    + '</span>',
+                lignes: lignes
+            })) { hote.innerHTML = ''; return; }
+
             hote.innerHTML =
                 hpHeader
                 // 📜 Cadre du journal : plaque gravée bleu-acier, liseré
@@ -34346,7 +34597,7 @@
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1201);'
+                +     'url(images/combat_bg_v1.webp?v=1228);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -34601,7 +34852,7 @@
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1201);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1228);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -34787,6 +35038,7 @@
                     w._weaknessRevealed = false;
                     w._enraged = false;
                     w._addSpawned = false;
+                    w._ouverture = null;
                     w._hitCount = 0;
                 });
                 if (currentWaveIdx === 0) rift.attempts = (rift.attempts || 0) + 1;
@@ -34813,6 +35065,17 @@
             awakShowRiftCombatScreen();
         }
         window.awakStartRift = awakStartRift;
+
+        // Icône SVG d'exercice (choix d'attaque Failles / Chasse) — remplace les emojis
+        function awakExoIconBox(muscle, color) {
+            const m = String(muscle || '').toLowerCase();
+            const n = /cardio/.test(m) ? 'course' : /(abdo|oblique|gainage)/.test(m) ? 'bouclier'
+                : /(quadri|ischio|fessier|mollet|adducteur|jambe)/.test(m) ? 'eclair'
+                : /(biceps|triceps|avant-bras|épaule|epaule)/.test(m) ? 'muscle' : 'halter';
+            const svg = window.AwakIcon ? AwakIcon.get(n, 20, color) : '';
+            return '<div style="width:38px;height:38px;flex-shrink:0;border-radius:10px;display:flex;align-items:center;justify-content:center;background:' + color + '18;border:1px solid ' + color + '40;">' + svg + '</div>';
+        }
+        window.awakExoIconBox = awakExoIconBox;
 
         function awakShowRiftCombatScreen() {
             const session = awakActiveRiftSession;
@@ -34848,17 +35111,18 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:540px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto;display:flex;flex-direction:column;">
                 <!-- Header : vague actuelle -->
-                <div style="background:linear-gradient(135deg,${theme.color}20,transparent);padding:18px 20px;border-bottom:1px solid ${theme.color}25;">
+                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1228);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                         <span style="font-size:0.6em;color:${theme.color};font-weight:900;letter-spacing:2px;">⚔ VAGUE ${rift.currentWaveIdx + 1} / ${rift.waves.length}${currentWave.isBoss ? ' · BOSS' : ''}</span>
                         <button onclick="awakAbandonRift()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
                     </div>
+                    <!-- Silhouette SVG du monstre (rift-visuals.js) + progression des vagues -->
+                    <div style="display:flex;justify-content:center;margin:4px 0 6px;">${window.AwakRiftVis ? AwakRiftVis.monstre(currentWave.name, theme.color, currentWave.isBoss ? 132 : 112, currentWave.isBoss) : ''}</div>
+                    <div style="display:flex;justify-content:center;gap:7px;margin-bottom:10px;">${rift.waves.map((w, wi) => { const fait = wi < rift.currentWaveIdx, ici = wi === rift.currentWaveIdx, bz = 7 + (w.isBoss ? 3 : 0); return `<span style="display:inline-block;width:${bz}px;height:${bz}px;transform:rotate(45deg);border:1px solid ${fait || ici ? theme.color : 'rgba(148,163,184,0.4)'};background:${fait ? theme.color : ici ? theme.color + '55' : 'transparent'};${ici ? 'box-shadow:0 0 8px ' + theme.color + ';' : ''}"></span>`; }).join('')}</div>
                     <div style="display:flex;align-items:center;gap:14px;">
-                        <!-- ⚠️ Emoji système remplacé par un losange (v1024) : son rendu
-                         change d'un téléphone à l'autre et cassait le ton. -->
-                    <div style="margin:0 auto 10px;width:30px;height:30px;border:1.5px solid ${theme.color};transform:rotate(45deg);box-shadow:0 0 16px ${theme.color}55;"></div>
-                        <div style="flex:1;">
-                            <div style="font-weight:900;color:white;font-size:1.1em;margin-bottom:5px;">${currentWave.name}</div>
+                        <div style="flex:1;text-align:center;">
+                            <div style="font-weight:900;color:white;font-size:1.15em;margin-bottom:7px;text-shadow:0 2px 10px #000;">${currentWave.name}</div>
+                            ${(() => { const f = window.AwakRiftVis ? AwakRiftVis.faiblesse(currentWave.name) : null; const inf = f ? AwakRiftVis.effortInfo(f) : null; return inf ? `<div style="margin:-2px 0 9px;">${AwakRiftVis.puceFaiblesse(f, theme.color)}<div style="font-size:0.66em;color:#cbd5e1;margin-top:5px;line-height:1.35;">${inf.raison} <b style="color:#fbbf24;">Dégâts ×1,5.</b></div></div>` : ''; })()}
                             <div style="background:rgba(255,255,255,0.05);height:14px;border-radius:99px;overflow:hidden;border:1px solid rgba(255,255,255,0.05);position:relative;">
                                 <div style="width:${hpBarWidth}%;height:100%;background:linear-gradient(90deg,${hpBarColor},${hpBarColor}cc);transition:width 0.5s cubic-bezier(0.16,1,0.3,1);box-shadow:0 0 8px ${hpBarColor}80;${_hideHp ? 'opacity:0.5;' : ''}"></div>
                                 <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:0.65em;font-weight:900;color:white;text-shadow:0 0 4px black;letter-spacing:1px;">${hpText}</div>
@@ -34877,7 +35141,7 @@
                     return `
                     <div style="padding:10px 20px;background:rgba(34,197,94,0.04);border-bottom:1px solid rgba(74,222,128,0.15);">
                         <div style="display:flex;align-items:center;gap:10px;">
-                            <span style="font-size:1.2em;line-height:1;filter:drop-shadow(0 0 6px rgba(74,222,128,0.5));">💚</span>
+                            <span style="line-height:1;display:inline-flex;">${window.AwakIcon ? AwakIcon.get('sante', 20, '#4ade80') : ''}</span>
                             <div style="flex:1;">
                                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
                                     <span style="font-size:0.55em;color:#4ade80;font-weight:900;letter-spacing:2px;text-transform:uppercase;text-shadow:0 0 6px rgba(74,222,128,0.4);">◈ VITALITÉ</span>
@@ -34896,17 +35160,17 @@
                     if (typeof awakComputeStatBonuses !== 'function') return '';
                     const b = awakComputeStatBonuses(null, currentWave.isBoss);
                     const items = [];
-                    if (b.raw.STR > 0) items.push({ emoji: '⚔️', color: '#ef4444', label: `+${Math.round((b.damageMult - 1) * 100)}% DGTS`, tip: `STR ${b.raw.STR}` });
-                    if (b.raw.AGI > 0) items.push({ emoji: '⚡', color: '#fbbf24', label: `${Math.round(b.critChance * 100)}% CRIT`, tip: `AGI ${b.raw.AGI}` });
-                    if (b.raw.VIT > 0) items.push({ emoji: '💨', color: '#3b82f6', label: `${Math.round(b.doubleChance * 100)}% × 2`, tip: `VIT ${b.raw.VIT}` });
-                    if (b.raw.END > 0) items.push({ emoji: '💚', color: '#4ade80', label: `+${b.hpRegen} HP/série`, tip: `END ${b.raw.END}` });
+                    if (b.raw.STR > 0) items.push({ ico: 'epee', color: '#ef4444', label: `+${Math.round((b.damageMult - 1) * 100)}% DGTS`, tip: `STR ${b.raw.STR}` });
+                    if (b.raw.AGI > 0) items.push({ ico: 'eclair', color: '#fbbf24', label: `${Math.round(b.critChance * 100)}% CRIT`, tip: `AGI ${b.raw.AGI}` });
+                    if (b.raw.VIT > 0) items.push({ ico: 'chrono', color: '#3b82f6', label: `${Math.round(b.doubleChance * 100)}% × 2`, tip: `VIT ${b.raw.VIT}` });
+                    if (b.raw.END > 0) items.push({ ico: 'sante', color: '#4ade80', label: `+${b.hpRegen} HP/série`, tip: `END ${b.raw.END}` });
                     if (b.raw.PER > 0) {
                         if (currentWave.isBoss) {
-                            items.push({ emoji: '👁', color: '#a855f7', label: `+${Math.round(b.bossBonus * 100)}% BOSS`, tip: `PER ${b.raw.PER}` });
+                            items.push({ ico: 'cible', color: '#a855f7', label: `+${Math.round(b.bossBonus * 100)}% BOSS`, tip: `PER ${b.raw.PER}` });
                         }
-                        items.push({ emoji: '🛡', color: '#a855f7', label: `${Math.round(b.dodgeChance * 100)}% ESQ.`, tip: `PER ${b.raw.PER}` });
+                        items.push({ ico: 'bouclier', color: '#a855f7', label: `${Math.round(b.dodgeChance * 100)}% ESQ.`, tip: `PER ${b.raw.PER}` });
                     }
-                    if (b.raw.SEN > 0) items.push({ emoji: '🌀', color: '#ec4899', label: `+${Math.round((b.xpMult - 1) * 100)}% XP`, tip: `SEN ${b.raw.SEN}` });
+                    if (b.raw.SEN > 0) items.push({ ico: 'etoile', color: '#ec4899', label: `+${Math.round((b.xpMult - 1) * 100)}% XP`, tip: `SEN ${b.raw.SEN}` });
 
                     if (items.length === 0) return '';
 
@@ -34916,7 +35180,7 @@
                         <div style="display:flex;flex-wrap:wrap;gap:5px;">
                             ${items.map(i => `
                                 <span title="${i.tip}" style="display:inline-flex;align-items:center;gap:4px;background:${i.color}15;border:1px solid ${i.color}50;color:${i.color};padding:3px 8px;border-radius:99px;font-size:0.6em;font-weight:900;letter-spacing:0.5px;text-shadow:0 0 4px ${i.color}50;">
-                                    <span style="font-size:0.95em;line-height:1;">${i.emoji}</span>
+                                    <span style="line-height:1;display:inline-flex;">${window.AwakIcon ? AwakIcon.get(i.ico, 12, i.color) : ''}</span>
                                     <span>${i.label}</span>
                                 </span>
                             `).join('')}
@@ -34926,20 +35190,22 @@
 
                 <!-- Choix d'exercices -->
                 <div style="padding:18px 20px;overflow-y:auto;flex:1;">
-                    <div style="font-size:0.62em;color:#94a3b8;font-weight:800;letter-spacing:2px;margin-bottom:10px;">◈ EXERCICE POUR ATTAQUER</div>
+                    <div style="font-size:0.62em;color:#94a3b8;font-weight:800;letter-spacing:2px;margin-bottom:6px;">◈ EXERCICE POUR ATTAQUER</div>
+                    <div style="font-size:0.66em;color:#cbd5e1;line-height:1.45;margin-bottom:10px;">Dépasse l'objectif de reps pour frapper plus fort (jusqu'à ×1,75). Bats ton record sur l'exercice : <b style="color:#fbbf24;">critique garanti</b>.${currentWave.isBoss ? ` À mi-vie, le boss se découvre : une série à objectif +3 reps frappe <b style="color:#fbbf24;">×2,5</b>.` : ''}</div>
                     <div style="display:flex;flex-direction:column;gap:8px;">
-                        ${exercises.map((ex, i) => `
-                            <button onclick="awakPickRiftExercise(${i})" data-exidx="${i}" class="awak-rift-ex-btn" style="text-align:left;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);color:white;border-radius:10px;padding:12px 14px;cursor:pointer;transition:all 0.2s;">
+                        ${(() => { const _best = Math.max(...exercises.map(e => e.estDmg || 0)), _pire = Math.min(...exercises.map(e => e.estDmg || 0)); return exercises.map((ex, i) => `
+                            <button onclick="awakPickRiftExercise(${i})" data-exidx="${i}" class="awak-rift-ex-btn" style="text-align:left;background:${ex._faible ? 'rgba(251,191,36,0.07)' : 'rgba(255,255,255,0.03)'};border:1px solid ${ex._faible ? 'rgba(251,191,36,0.55)' : 'rgba(255,255,255,0.08)'};${ex._faible ? 'box-shadow:0 0 14px rgba(251,191,36,0.15);' : ''}color:white;border-radius:10px;padding:12px 14px;cursor:pointer;transition:all 0.2s;">
                                 <div style="display:flex;align-items:center;gap:10px;">
-                                    <div style="font-size:1.5em;flex-shrink:0;">${ex.emoji || '💪'}</div>
+                                    ${awakExoIconBox(ex.muscle, theme.color)}
                                     <div style="flex:1;min-width:0;">
                                         <div style="font-weight:800;font-size:0.92em;margin-bottom:2px;">${ex.name}</div>
                                         <div style="font-size:0.7em;color:#94a3b8;font-weight:600;">${ex.muscle || 'Multi'} · ${ex.estDmg} dgts/série</div>
+                                        ${ex._faible || (_pire < _best && ex.estDmg === _best) ? `<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:5px;">${ex._faible ? `<span style="font-size:0.6em;font-weight:900;color:#fbbf24;border:1px solid rgba(251,191,36,0.55);border-radius:5px;padding:1px 6px;">POINT FAIBLE ×1,5</span>` : ''}${_pire < _best && ex.estDmg === _best ? `<span style="font-size:0.6em;font-weight:900;color:${theme.color};border:1px solid ${theme.color}66;border-radius:5px;padding:1px 6px;">MEILLEUR COUP</span>` : ''}</div>` : ''}
                                     </div>
-                                    <div style="color:${theme.color};font-size:1.1em;flex-shrink:0;">⚔</div>
+                                    <div style="flex-shrink:0;display:inline-flex;">${window.AwakIcon ? AwakIcon.get('epee', 18, theme.color) : ''}</div>
                                 </div>
                             </button>
-                        `).join('')}
+                        `).join(''); })()}
                     </div>
                 </div>
             </div>`;
@@ -35087,10 +35353,26 @@
             // Mélanger
             const shuffled = finalPool.sort(() => Math.random() - 0.5).slice(0, count);
 
+            // 🎯 Point faible du monstre : toujours au moins UN exercice qui l'exploite,
+            // même hors du thème — c'est ce qui pousse à sortir de ses habitudes.
+            const _wave = rift.waves ? rift.waves[rift.currentWaveIdx || 0] : null;
+            const _faible = (_wave && window.AwakRiftVis) ? AwakRiftVis.faiblesse(_wave.name) : null;
+            // ⚠️ Classer avec mode 'reps' : en Faille, l'exercice est TOUJOURS joué en
+            // répétitions (awakPickRiftExercise) — c'est ce mode qui compte aux dégâts.
+            const _cls = e => awakClassifyEffort({ ...e, mode: 'reps' });
+            if (_faible && shuffled.length && !shuffled.some(e => _cls(e) === _faible)) {
+                const _pris = new Set(shuffled.map(e => e.name));
+                let cand = finalPool.filter(e => !_pris.has(e.name) && _cls(e) === _faible);
+                if (!cand.length) {
+                    cand = (typeof _dbMuscu === 'function' ? _dbMuscu() : (typeof exerciseDatabase !== 'undefined' ? exerciseDatabase : []))
+                        .filter(isCombatExercise).filter(isNotIsometric).filter(hasEquip)
+                        .filter(e => !_pris.has(e.name) && _cls(e) === _faible);
+                }
+                if (cand.length) shuffled[shuffled.length - 1] = cand[Math.floor(Math.random() * cand.length)];
+            }
+
             // Calculer le dégât estimé par série + préserver le mode (timer pour le cardio)
             return shuffled.map(ex => {
-                const baseDmg = 15;
-                const statBonus = Math.round((playerStats[theme.primaryStat] || 0) * 0.5);
                 // 🏃 Cardio / exercices en durée : on garde le mode TIMER (minuteur), pas des reps.
                 const isCardioTimer = ex.mode === 'timer' ||
                     (ex.muscle === 'Cardio' && !/jumping jacks|burpee|squat saut|fente saut|mountain/i.test(ex.name || ''));
@@ -35099,7 +35381,8 @@
                     mode: isCardioTimer ? 'timer' : 'reps',
                     duration: isCardioTimer ? (ex.duration || 45) : 0,
                     emoji: getThemeExerciseEmoji(ex),
-                    estDmg: baseDmg + statBonus
+                    estDmg: awakEstimateRiftDamage({ ...ex, mode: 'reps' }, _wave, theme, playerStats),
+                    _faible: !!(_faible && awakClassifyEffort({ ...ex, mode: 'reps' }) === _faible)
                 };
             });
         }
@@ -35255,7 +35538,7 @@
                 doubleChance: Math.min(CAP_DOUBLE, eVit * 0.01 + (ring.double || 0)),
 
                 // 💚 END : régénération HP joueur
-                hpRegen: Math.floor((stats.END || 0) / 2),
+                hpRegen: Math.floor((stats.END || 0) / 12), // ⚖️ v1218 : /2 → /12 (≈ 2 % des PV max par série)
                 hpRegenMult: 1 + (ring.hpRegen || 0),
 
                 // 👁️ PER : bonus dégâts vs boss (plafond +150%) + esquive (plafond 40%)
@@ -35280,7 +35563,7 @@
         window.awakComputeStatBonuses = awakComputeStatBonuses;
 
         // 🏃 Classe un exercice par type d'effort dominant (pour les mécaniques de sous-boss)
-        // Renvoie 'cardio' | 'force' | 'explosif' | 'autre'
+        // Renvoie 'cardio' | 'force' | 'explosif' | 'abdos' | 'autre'
         function awakClassifyEffort(ex) {
             if (!ex) return 'autre';
             const name = (ex.name || '').toLowerCase();
@@ -35289,11 +35572,40 @@
             if (/burpee|jump|saut|sprint|plyo|pliom|box|kettlebell swing|swing|clap|explosi|mountain climber|squat saut|fente saut/.test(name)) return 'explosif';
             // Cardio / endurance : muscle Cardio, ou exercices en durée (mode timer) hors étirement
             if (muscle === 'cardio' || (ex.mode === 'timer' && !/etirement|étirement|stretch|mobilit|gainage|planche|plank/.test(name))) return 'cardio';
+            // Abdos / tronc (point faible des ombres) — testé avant « force »
+            if (/abdo|oblique/.test(muscle) || /crunch|relevé de jambe|releve de jambe|leg raise|russian twist|sit-up|sit up|v-up|bicycle|toe touch|flutter|ab wheel|roulette/.test(name)) return 'abdos';
             // Force : exercices à charge / reps lourdes (presse, squat, soulevé, tirage, développé, curl…)
             if (/squat|press|développé|developpe|souleve|soulevé|deadlift|row|rowing|tirage|curl|extension|fente|lunge|pompe|push|pull|dip|hip thrust|glute bridge/.test(name)) return 'force';
             return 'autre';
         }
         window.awakClassifyEffort = awakClassifyEffort;
+
+        // 💪 Multiplicateur d'effort d'une série en Faille.
+        //  • reps / objectif : sous l'objectif → jusqu'à ×0,5 ; au-dessus → +75 % par
+        //    objectif dépassé (×1,75 max, atteint au double de l'objectif).
+        //  • charge : exercices lestés → +1 % par kg (max +40 %).
+        //  • record de reps sur l'exercice (historique + Faille en cours) → critique garanti.
+        function awakRiftEffortMult(reps, weightKg, ex, session) {
+            const cible = Math.max(1, parseInt(ex && ex.reps, 10) || 12);
+            const r = Math.max(0, reps) / cible;
+            let mult = r < 1 ? 0.5 + 0.5 * r : Math.min(1.75, 1 + 0.75 * (r - 1));
+            const kg = Math.max(0, parseFloat(weightKg) || 0);
+            if (kg > 0) mult *= 1 + Math.min(0.4, kg / 100);
+            let record = false;
+            try {
+                const nom = ex && (ex._baseName || ex.name);
+                if (nom && session) {
+                    session._meilleursReps = session._meilleursReps || {};
+                    const prs = (typeof getExercisePRs === 'function') ? getExercisePRs(nom) : { maxReps: 0, history: [] };
+                    const avant = Math.max(prs.maxReps || 0, session._meilleursReps[nom] || 0);
+                    // Pas de « record » sans référence : la 1re fois n'est qu'un point de départ.
+                    record = avant > 0 && reps > avant;
+                    session._meilleursReps[nom] = Math.max(session._meilleursReps[nom] || 0, reps);
+                }
+            } catch (e) {}
+            return { mult, ratio: r, cible, record };
+        }
+        window.awakRiftEffortMult = awakRiftEffortMult;
 
         function awakDealDamageToWave(reps, weightKg) {
             const session = awakActiveRiftSession;
@@ -35363,10 +35675,15 @@
                 ? primaryStatValue
                 : _SOFT_ATK + Math.sqrt(primaryStatValue - _SOFT_ATK) * Math.sqrt(_SOFT_ATK);
             const baseAttack = base + _effPrimary * 1.5;
-            // Bonus reps : +1% par répétition (cappedReps est déjà plafonné à 50 → +50% au maximum).
-            const repBonus = 1 + cappedReps * 0.01;
+            // 💪 EFFORT RÉEL (v1216) : remplace l'ancien +1 %/rep, qui rendait l'effort
+            // presque invisible (20 reps ≈ +8 % sur 12). Reps vs objectif, charge, record.
+            const _eff = awakRiftEffortMult(cappedReps, weightKg, _curEx, session);
+            const effortToasts = [];
+            if (_eff.record) effortToasts.push({ msg: `◆ RECORD BATTU (${cappedReps} reps) — coup critique garanti !`, type: 'success' });
+            else if (_eff.ratio >= 1.25) effortToasts.push({ msg: `◆ Effort au-delà de l'objectif : dégâts ×${_eff.mult.toFixed(2).replace('.', ',')}`, type: 'success' });
+            else if (_eff.ratio < 0.85) effortToasts.push({ msg: `◇ Sous l'objectif (${cappedReps}/${_eff.cible}) : dégâts ×${_eff.mult.toFixed(2).replace('.', ',')}`, type: 'warning' });
 
-            let finalDamage = baseAttack * repBonus;
+            let finalDamage = baseAttack * _eff.mult;
 
             // 🛡️ ANTI-TRICHE : seules les RÉPÉTITIONS sont bornées (cappedReps ≤ 50, soit +50% max).
             // Les dégâts issus des stats, points alloués, compétences et équipement ne sont PAS
@@ -35375,10 +35692,29 @@
             // ⚔️ STR : multiplicateur dégâts global (toujours actif)
             finalDamage *= bonuses.damageMult;
 
+
             // 🥋 MAÎTRISE DE COMBAT : bonus de dégâts selon le type d'effort de l'exercice
             // (force / cardio / explosif). Achetée chez le marchand — récompense la spécialisation.
             if (window.AwakEconomy && typeof window.AwakEconomy.getMasteryDamageMult === 'function') {
                 finalDamage *= window.AwakEconomy.getMasteryDamageMult(effortType);
+            }
+
+            // 🎯 POINT FAIBLE : le type d'effort que ce monstre craint (rift-visuals.js)
+            const _faible = (window.AwakRiftVis && AwakRiftVis.faiblesse) ? AwakRiftVis.faiblesse(currentWave.name) : null;
+            const weakHit = !!(_faible && effortType === _faible);
+            if (weakHit) finalDamage *= (AwakRiftVis.BONUS_FAIBLESSE || 1.5);
+
+            // 👑 OUVERTURE DU BOSS : déclenchée à 50 % PV (voir plus bas). La série
+            // suivante qui atteint la cible de reps frappe ×2,5 ; sinon elle est perdue.
+            let ouvertureJouee = null;
+            if (currentWave.isBoss && currentWave._ouverture && typeof currentWave._ouverture === 'object') {
+                const _ok = cappedReps >= currentWave._ouverture.cible;
+                if (_ok) finalDamage *= 2.5;
+                effortToasts.push(_ok
+                    ? { msg: `◆ OUVERTURE EXPLOITÉE — dégâts ×2,5 !`, type: 'success' }
+                    : { msg: `◇ Ouverture manquée (${cappedReps}/${currentWave._ouverture.cible} reps)`, type: 'warning' });
+                ouvertureJouee = _ok;
+                currentWave._ouverture = 'fait';
             }
 
             // 👁️ PER : bonus dégâts contre boss
@@ -35390,7 +35726,7 @@
             // critique = bonus AGI + base 5% + compagnons + consommables + COMPÉTENCE
             const _skillEff = (typeof rpgGetActiveEffects === 'function') ? rpgGetActiveEffects() : {};
             const critChance = 0.05 + bonuses.critChance + (compBonus.critChance || 0) + (consumEffects.critBonus || 0) + (_skillEff.critChance || 0);
-            const isCrit = Math.random() < critChance;
+            const isCrit = _eff.record || Math.random() < critChance;
             if (isCrit) finalDamage *= 2;
 
             // 💨 VIT : chance double attaque (×1.5 dégâts au total)
@@ -35424,6 +35760,12 @@
                 }
             } catch(e) {}
 
+            // ⏱ PLANCHER DE DÉGÂTS (v1218 : appliqué APRÈS tous les bonus, avant les
+            // malédictions). Filet pour le joueur sous-équipé : à l'objectif de reps,
+            // une vague tombe en 5 séries au plus, un boss en 10.
+            const _plancher = currentWave.hpMax / (currentWave.isBoss ? 10 : 5) * _eff.mult;
+            if (finalDamage < _plancher) finalDamage = _plancher;
+
             // ☠️ MALÉDICTION : -dégâts contre les boss
             if (curse && currentWave.isBoss && curse.bossWeak > 0) {
                 finalDamage = finalDamage * (1 - curse.bossWeak);
@@ -35439,6 +35781,7 @@
             // 🔥 Afficher les procs spéciaux après les dégâts
             const procToasts = [];
             if (curseToasts.length) procToasts.push(...curseToasts);
+            if (effortToasts.length) procToasts.push(...effortToasts);
             if (isDouble) procToasts.push({ msg: `⚡ DOUBLE ATTAQUE ! +${Math.round(doubleDamage)} HP`, type: 'success' });
             if (currentWave.isBoss && bonuses.bossBonus > 0) {
                 procToasts.push({ msg: `👁 Faiblesse détectée (+${Math.round(bonuses.bossBonus * 100)}% vs boss)`, type: 'info' });
@@ -35479,11 +35822,20 @@
             const newHpPercent = (currentWave.hpCurrent / currentWave.hpMax) * 100;
             session.totalDamageDealt += finalDamage;
 
+            // 👑 OUVERTURE : le boss passe sous 50 % → il se découvre. Défi d'effort :
+            // la prochaine série à (objectif + 3) reps ou plus inflige ×2,5.
+            if (currentWave.isBoss && !currentWave._ouverture && currentWave.hpCurrent > 0 && prevHpPercent > 50 && newHpPercent <= 50) {
+                const _cible = (_eff.cible || 12) + 3;
+                currentWave._ouverture = { cible: _cible, t: Date.now() };
+                procToasts.push({ msg: `◆ LE BOSS SE DÉCOUVRE ! Prochaine série : ${_cible} reps ou plus = dégâts ×2,5`, type: 'info' });
+            }
+
             // 🩸 DRAIN VITAL : récupère un % des dégâts infligés en HP
             try {
                 const _vfx = (typeof rpgGetActiveEffects === 'function') ? rpgGetActiveEffects() : {};
                 if (_vfx.riftLifesteal > 0) {
-                    const _heal = Math.max(1, Math.round(finalDamage * _vfx.riftLifesteal));
+                    // ⚖️ v1218 : plafonné à 5 % des PV max par série (6 % de milliers de dégâts = soin complet)
+                    const _heal = Math.max(1, Math.min(Math.round(awakGetPlayerMaxHP() * 0.05), Math.round(finalDamage * _vfx.riftLifesteal)));
                     if (typeof awakHealPlayer === 'function') awakHealPlayer(_heal, '(🩸 Drain Vital)');
                 }
             } catch(e) {}
@@ -35550,10 +35902,38 @@
                 isCrit,
                 isDouble,
                 bossWeakness: currentWave.isBoss && bonuses.bossBonus > 0,
+                weakHit,
+                effort: _eff,
+                ouvertureJouee,
                 killed: currentWave.hpCurrent <= 0
             };
         }
         window.awakDealDamageToWave = awakDealDamageToWave;
+
+        // Estimation des dégâts d'une série (même formule que awakDealDamageToWave,
+        // sans le hasard : ni critique, ni double coup, ni malédiction).
+        function awakEstimateRiftDamage(ex, wave, theme, playerStats) {
+            try {
+                const stats = playerStats || awakGetTotalStats();
+                const consum = typeof awakConsumablesGetActiveEffects === 'function' ? awakConsumablesGetActiveEffects() : {};
+                const prim = (stats[theme.primaryStat] || 0) * (1 + (consum[theme.primaryStat] || 0));
+                const eff = prim <= 80 ? prim : 80 + Math.sqrt(prim - 80) * Math.sqrt(80);
+                // Effort supposé = l'objectif tout juste atteint (×1) ; le plancher s'applique aussi.
+                let d = (4 + eff * 1.5);
+                const b = awakComputeStatBonuses(stats, !!(wave && wave.isBoss));
+                d *= b.damageMult;
+                const effort = awakClassifyEffort(ex);
+                if (window.AwakEconomy && typeof AwakEconomy.getMasteryDamageMult === 'function') d *= AwakEconomy.getMasteryDamageMult(effort);
+                const faible = (wave && window.AwakRiftVis) ? AwakRiftVis.faiblesse(wave.name) : null;
+                if (faible && effort === faible) d *= (AwakRiftVis.BONUS_FAIBLESSE || 1.5);
+                if (wave && wave.isBoss && b.bossBonus > 0) d *= (1 + b.bossBonus);
+                if (wave && wave.isBoss && wave.weaknessStat === theme.primaryStat) d *= 2;
+                if (wave && wave.isBoss && wave._enraged) d *= 0.75;
+                if (wave && wave.hpMax) d = Math.max(d, wave.hpMax / (wave.isBoss ? 10 : 5));
+                return Math.max(1, Math.round(d));
+            } catch (e) { return 15; }
+        }
+        window.awakEstimateRiftDamage = awakEstimateRiftDamage;
 
         function awakAdvanceToNextWave() {
             const session = awakActiveRiftSession;
@@ -35588,7 +35968,7 @@
                     const maxHP = awakGetPlayerMaxHP();
                     const bonuses = (typeof awakComputeStatBonuses === 'function')
                         ? awakComputeStatBonuses() : { hpRegen: 0 };
-                    const baseHeal = Math.round(maxHP * 0.12);
+                    const baseHeal = Math.round(maxHP * 0.08); // ⚖️ v1218 : 12 % → 8 %
                     const totalHeal = Math.round((baseHeal + (bonuses.hpRegen || 0) * 2) * (bonuses.hpRegenMult || 1)); // ×2 entre vagues, ×anneau
                     setTimeout(() => {
                         if (typeof showToast === 'function') {
@@ -35856,7 +36236,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1201');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1228');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -35878,8 +36258,8 @@
                     <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:2px;margin-bottom:10px;">◈ RÉCOMPENSES</div>
                     <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:14px;">
                         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                            <span style="color:#cbd5e1;font-size:0.9em;font-weight:700;">⚡ Power Score</span>
-                            <span style="color:${theme.color};font-weight:900;">+${xpReward}</span>
+                            <span style="color:#cbd5e1;font-size:0.9em;font-weight:700;">XP de personnage</span>
+                            <span style="color:${theme.color};font-weight:900;">+${Math.round(xpReward * (window.AWAK_RIFT_XP_FACTOR || 0.35))}</span>
                         </div>
                         <div style="display:flex;justify-content:space-between;align-items:center;">
                             <span style="color:#cbd5e1;font-size:0.9em;font-weight:700;">⚔ Rang vaincu</span>
@@ -35939,7 +36319,9 @@
             // Distribuer le XP réel via le système RPG (réparti sur les muscles)
             try {
                 if (typeof rpgGainXP === 'function') {
-                    rpgGainXP('Rift_' + rift.id, Math.ceil(xpReward / 10), 0, 0);
+                    // ⚠️ v1218 : passait par une fausse « série » plafonnée à 50 reps
+                    // → ~50 XP au lieu des 200-5000 affichés. Versé maintenant en entier.
+                    awakGrantLifetimeXP(Math.round(xpReward * (window.AWAK_RIFT_XP_FACTOR || 0.35)));
                 }
             } catch(e) {}
 
@@ -36407,12 +36789,12 @@
                         ${huntExercises.map((ex, i) => `
                             <button onclick="awakPickHuntExercise(${i})" style="text-align:left;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);color:white;border-radius:10px;padding:12px 14px;cursor:pointer;transition:all 0.2s;">
                                 <div style="display:flex;align-items:center;gap:10px;">
-                                    <div style="font-size:1.5em;flex-shrink:0;">${ex.emoji || '🏹'}</div>
+                                    ${awakExoIconBox(ex.muscle, type.color)}
                                     <div style="flex:1;min-width:0;">
                                         <div style="font-weight:800;font-size:0.92em;margin-bottom:2px;">${ex.name}</div>
                                         <div style="font-size:0.7em;color:#94a3b8;font-weight:600;">${ex.muscle || 'Multi'} · ~${ex.estDmg} dgts/série</div>
                                     </div>
-                                    <div style="color:${type.color};font-size:1.1em;flex-shrink:0;">🎯</div>
+                                    <div style="flex-shrink:0;display:inline-flex;">${window.AwakIcon ? AwakIcon.get('cible', 18, type.color) : ''}</div>
                                 </div>
                             </button>
                         `).join('')}
@@ -36591,7 +36973,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1201);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1228);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -36604,8 +36986,8 @@
                 <div style="padding:18px 22px;">
                     <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:14px;margin-bottom:14px;">
                         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                            <span style="color:#cbd5e1;font-size:0.9em;font-weight:700;">⚡ Power Score</span>
-                            <span style="color:${type.color};font-weight:900;">+${xpReward}</span>
+                            <span style="color:#cbd5e1;font-size:0.9em;font-weight:700;">XP de personnage</span>
+                            <span style="color:${type.color};font-weight:900;">+${Math.round(xpReward * (window.AWAK_RIFT_XP_FACTOR || 0.35))}</span>
                         </div>
                         ${monster.isAlpha ? `
                         <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -36629,7 +37011,7 @@
             // XP réel
             try {
                 if (typeof rpgGainXP === 'function') {
-                    rpgGainXP('Hunt_' + monster.id, Math.ceil(xpReward / 10), 0, 0);
+                    awakGrantLifetimeXP(Math.round(xpReward * (window.AWAK_RIFT_XP_FACTOR || 0.35))); // v1218 (voir awakCompleteRift)
                 }
             } catch(e) {}
 
@@ -36762,7 +37144,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1201);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1228);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -37108,7 +37490,7 @@
                 const equip = typeof getPlayerEquipStats === 'function' ? getPlayerEquipStats() : {};
                 const total = {};
                 for (const s of ['STR','AGI','VIT','END','PER','SEN']) {
-                    total[s] = (base[s] || 0) + (auto[s] || 0) + (manual[s] || 0) + (equip[s] || 0);
+                    total[s] = (base[s] || 0) + (auto[s] || 0) + (equip[s] || 0); // points alloués déjà dans equip (v1218)
                 }
                 return total;
             })();
@@ -37524,7 +37906,7 @@
         function awakGenerateSubBossRift(sb) {
             const monstersForTheme = RIFT_MONSTERS.inverted_reality || RIFT_MONSTERS[Object.keys(RIFT_MONSTERS)[0]];
             const boss = monstersForTheme[monstersForTheme.length - 1];
-            const hp = Math.round(boss.baseHp * sb.hpMult * 2.5);
+            const hp = Math.round(boss.baseHp * sb.hpMult * 2.5 * awakRiftHpScale(sb.rank, true)); // ⚖️ v1218
             return {
                 id: 'sub_' + sb.id + '_' + Date.now(),
                 isNarrative: true,        // protection anti-expiration
@@ -37701,7 +38083,7 @@
             //  • facteur 1.12 (au lieu de 1.15) : la courbe restait jouable jusqu'au
             //    palier ~35 au lieu de devenir un mur dès le palier 25.
             // Résultat visé : p1 ≈ 4 séries, p10 ≈ 10, p20 ≈ 30, p30+ ≈ exploit.
-            const hp = Math.round(6000 * Math.pow(1.12, nextDepth - 1));
+            const hp = Math.round(6000 * Math.pow(1.12, nextDepth - 1) * awakRiftHpScale('S', true)); // ⚖️ v1218
             const idx = (nextDepth - 1) % ABYSS_BOSS_NAMES.length;
             const bossName = ABYSS_BOSS_NAMES[idx];
             const emoji = ABYSS_EMOJIS[idx];
@@ -38097,7 +38479,7 @@
                 if (rifts.some(r => r.isWeeklyBoss && r.weekKey === weekKey)) return null;   // déjà présent
                 const boss = WEEKLY_BOSSES[week % WEEKLY_BOSSES.length];
                 const theme = RIFT_THEMES[week % RIFT_THEMES.length];
-                const hp = 3000 + (week % 5) * 200;
+                const hp = Math.round((3000 + (week % 5) * 200) * awakRiftHpScale('S', true)); // ⚖️ v1218
                 const newRift = {
                     id: 'weekly_boss_' + weekKey,
                     createdAt: Date.now(),
@@ -38221,7 +38603,7 @@
                 const monster = isBossWave
                     ? monstersForTheme[monstersForTheme.length - 1]
                     : monstersForTheme[Math.min(i, monstersForTheme.length - 2)];
-                const hp = Math.round(monster.baseHp * cr.hpMult * (isBossWave ? 2.5 : 1));
+                const hp = Math.round(monster.baseHp * cr.hpMult * (isBossWave ? 2.5 : 1) * awakRiftHpScale(cr.rank, isBossWave)); // ⚖️ v1218
                 waves.push({
                     index: i, isBoss: isBossWave,
                     name: isBossWave ? `${monster.name} (Boss)` : monster.name,
@@ -38815,7 +39197,7 @@
                 const monster = isBossWave
                     ? monstersForTheme[monstersForTheme.length - 1]
                     : monstersForTheme[Math.min(i, monstersForTheme.length - 2)];
-                const hp = Math.round(monster.baseHp * narrative.hpMult * (isBossWave ? 2.5 : 1));
+                const hp = Math.round(monster.baseHp * narrative.hpMult * (isBossWave ? 2.5 : 1) * awakRiftHpScale(narrative.rank, isBossWave)); // ⚖️ v1218
                 waves.push({
                     index: i,
                     isBoss: isBossWave,
@@ -39313,7 +39695,8 @@
             // 🛡️ VIT : défense — réduit les dégâts subis (rendements décroissants, cap 75%)
             const _stats = (typeof awakGetTotalStats === 'function') ? awakGetTotalStats() : {};
             const _vit = _stats.VIT || 0;
-            const _defReduction = Math.min(0.75, _vit / (_vit + 150));
+            // ⚖️ v1218 : 75 % max → 40 % max (les ripostes sont désormais en % des PV)
+            const _defReduction = Math.min(0.40, _vit / (_vit + 300));
             const _origDamage = damage;
             damage = Math.max(1, Math.round(damage * (1 - _defReduction)));
             const _blocked = _origDamage - damage;
@@ -39405,6 +39788,7 @@
                             w._weaknessRevealed = false;
                             w._enraged = false;
                             w._addSpawned = false;
+                            w._ouverture = null;
                             w._hitCount = 0;
                         });
                         r.currentWaveIdx = 0;
@@ -39550,19 +39934,16 @@
             }
             if (Math.random() >= counterChance) return;
 
-            // Dégâts selon rang — les boss frappent plus fort
-            const rankIdx = ['E','D','C','B','A','S','SS','SSS'].indexOf(wave.rank || 'E');
-            let baseDmg, variance;
-            if (isBoss) {
-                // Boss : dégâts renforcés pour un vrai danger en fin de Faille
-                baseDmg = 32 + rankIdx * 10;
-                variance = Math.floor(Math.random() * 13);
-            } else {
-                // Monstres normaux : dégâts plus mordants
-                baseDmg = 18 + rankIdx * 7;
-                variance = Math.floor(Math.random() * 9);
-            }
-            let dmg = baseDmg + variance;
+            // ⚖️ v1218 : ripostes en % des PV MAX (avant : 18 à 80 dégâts fixes contre
+            // 1 000+ PV → aucun danger dès le 2e mois). Vague 12 %, boss 18 %, ±15 %.
+            // Écart de rang Faille/joueur : +1 → ×1,35 · +2 → ×1,7 · -1 → ×0,6.
+            const _rangs = ['E','D','C','B','A','S','SS','SSS'];
+            const rankIdx = Math.max(0, _rangs.indexOf(wave.rank || 'E'));
+            let _ecart = 0;
+            try { _ecart = rankIdx - Math.max(0, _rangs.indexOf(awakGetRank().id)); } catch (e) {}
+            const _relMult = _ecart >= 2 ? 1.7 : _ecart === 1 ? 1.35 : _ecart <= -1 ? 0.6 : 1;
+            const _maxHP = (typeof awakGetPlayerMaxHP === 'function') ? awakGetPlayerMaxHP() : 100;
+            let dmg = Math.max(1, Math.round(_maxHP * (isBoss ? 0.18 : 0.12) * _relMult * (0.85 + Math.random() * 0.3)));
 
             // ⛈️ TEMPÊTE : les contre-attaques frappent plus fort
             try {
@@ -40368,7 +40749,14 @@
         // qui rembobine les dates à la sortie du mode récupération).
         window.rpgLoad = rpgLoad;
         window.rpgSave = rpgSave;
-        function rpgEnabled() { return localStorage.getItem('fitproGameMode') === '1'; }
+        // 🧒 v1224 : le mode jeu (Failles, combats, histoire) est réservé aux
+        // 13 ans et plus. Pour un enfant, il est simplement éteint : ses données
+        // de jeu ne sont pas effacées et se rallument d'elles-mêmes à 13 ans.
+        function awakJeuBloqueAge() {
+            try { return !!(window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()); } catch (e) { return false; }
+        }
+        window.awakJeuBloqueAge = awakJeuBloqueAge;
+        function rpgEnabled() { return !awakJeuBloqueAge() && localStorage.getItem('fitproGameMode') === '1'; }
 
         // ── Calcul XP d'une série ────────────────────────────────────
         // ═══════════════════════════════════════════════════════════════
@@ -40608,10 +40996,19 @@
                 const daysOverGrace = daysSince - graceDays;
 
                 if (daysOverGrace > 0 && info.xp > 0) {
-                    const prevLevel = rpgLevelFromXP(info.xp);
-                    const loss = Math.ceil(info.xp * RPG_DECAY_PCT * daysOverGrace);
-                    info.xp = Math.max(0, info.xp - loss);
-                    changed = true;
+                    // ⚠️ v1218 : la perte était recalculée sur TOUS les jours depuis la
+                    // fin de la grâce à CHAQUE ouverture de l'app (aucun repère) → un muscle
+                    // laissé 10 jours perdait 9 % à chaque lancement. On ne compte plus que
+                    // les jours écoulés depuis le dernier passage (info.decayAt).
+                    const graceEnd = new Date(info.lastTrained).getTime() + graceDays * 86400000;
+                    const depuis = Math.max(graceEnd, info.decayAt || 0);
+                    const jours = (now.getTime() - depuis) / 86400000;
+                    if (jours > 0) {
+                        const loss = Math.ceil(info.xp * RPG_DECAY_PCT * jours);
+                        info.xp = Math.max(0, info.xp - loss);
+                        info.decayAt = now.getTime();
+                        changed = true;
+                    }
                 } else if (daysSince >= graceDays - 1 && daysSince < graceDays) {
                     // Alerte : 1 jour avant le début du decay
                     decayAlerts.push(muscle);
@@ -40936,6 +41333,12 @@
         window.toggleFamilyTab = toggleFamilyTab;
 
         function toggleGameMode(enabled) {
+            // 🧒 v1224 : refusé avant 13 ans (l'interrupteur est grisé dans Réglages)
+            if (enabled && awakJeuBloqueAge()) {
+                const _t = document.getElementById('gameModeToggle'); if (_t) _t.checked = false;
+                if (typeof showToast === 'function') showToast('Le mode jeu s\'ouvre à 13 ans', 'info', 2600);
+                return;
+            }
             localStorage.setItem('fitproGameMode', enabled ? '1' : '0');
             // Activer aussi le mode chasseur en même temps
             if (typeof setAdventureEnabled === 'function') setAdventureEnabled(enabled);
@@ -40989,6 +41392,21 @@
             const navTab  = document.getElementById('gameNavTab');
             const failleBtn = document.getElementById('quickFailleBtn'); if (failleBtn) failleBtn.style.display = enabled ? '' : 'none';
             if (toggle)  toggle.checked             = enabled;
+            // 🧒 v1224 : interrupteur grisé + explication avant 13 ans
+            try {
+                const _bloque = awakJeuBloqueAge();
+                if (toggle) toggle.disabled = _bloque;
+                const _card = document.getElementById('gameModeCard');
+                let _note = document.getElementById('gameModeAgeNote');
+                if (_bloque && _card && !_note) {
+                    _note = document.createElement('div');
+                    _note.id = 'gameModeAgeNote';
+                    _note.style.cssText = 'font-size:0.74em;color:#93c5fd;background:rgba(96,168,240,0.08);border:1px solid rgba(96,168,240,0.25);border-radius:10px;padding:9px 11px;line-height:1.45;margin-top:4px;';
+                    _note.textContent = 'Le mode jeu (Failles, combats, histoire) s\'ouvre à 13 ans. En attendant, tes étoiles, défis et missions sont là pour toi.';
+                    _card.appendChild(_note);
+                }
+                if (_note) _note.style.display = _bloque ? '' : 'none';
+            } catch (e) {}
             // Apparence du bouton : gérée par le CSS .aw-switch via :checked
             if (preview) preview.style.display      = enabled ? 'block' : 'none';
             if (navTab)  navTab.style.display       = enabled ? 'flex' : 'none';
@@ -41064,6 +41482,8 @@
         // ========== HAPTIC FEEDBACK (VIBRATION) ==========
         function vibrate(pattern) {
             if (isVibOff) return;
+            // App Play Store : vibreur natif (plus fiable que navigator.vibrate en WebView)
+            try { if (window.AwakNative && window.AwakNative.estNatif()) { window.AwakNative.vibrer(pattern); return; } } catch (e) {}
             if ('vibrate' in navigator) navigator.vibrate(pattern);
         }
 
@@ -41442,7 +41862,17 @@
                         wName.includes('mobility') || wName.includes('récup') || wName.includes('stretch') || wName.includes('étir') ? 3 :
                         wName.includes('force') || wName.includes('strength') ? 5 : 6;
             const kcal = Math.round(MET * weightKg * (totalMinutes / 60));
-            _countUp('completionCalories', kcal);
+            // 🧒 v1223 : pas de calories pour un enfant — on montre ses étoiles
+            const _jeuneC = !!(window.AwakYouth && AwakYouth.isYoung && AwakYouth.isYoung());
+            const _enfantC = !!(window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild());
+            const _lblC = document.getElementById('completionCaloriesLabel');
+            if (_enfantC) {
+                _countUp('completionCalories', currentWorkout._etoiles || realExercises.length);
+                if (_lblC) _lblC.textContent = 'ÉTOILES';
+            } else {
+                _countUp('completionCalories', kcal);
+                if (_lblC) _lblC.textContent = 'KCAL';
+            }
 
             // 🌿 BONNES HABITUDES POST-SÉANCE — hydratation + cible du jour.
             // Philosophie : des REPÈRES bienveillants (fourchettes), jamais un
@@ -41468,7 +41898,8 @@
                     target = Math.max(target, 1500); // plancher de sécurité
                     const lo = Math.round((target - 100) / 50) * 50;
                     const hi = Math.round((target + 100) / 50) * 50;
-                    intakeEl.innerHTML = '🍽️ Ta séance ≈ <strong>' + kcal + ' kcal</strong> dépensées. Pour ton objectif (' + goalTxt + '), vise environ <strong>' + lo.toLocaleString('fr-FR') + ' – ' + hi.toLocaleString('fr-FR') + ' kcal</strong> aujourd\'hui, avec des protéines à chaque repas. C\'est un repère, pas un examen 😉';
+                    if (_jeuneC) intakeEl.innerHTML = 'Prends une bonne collation : un fruit, un yogourt ou un verre de lait, et bois de l\'eau.';
+                    else intakeEl.innerHTML = '🍽️ Ta séance ≈ <strong>' + kcal + ' kcal</strong> dépensées. Pour ton objectif (' + goalTxt + '), vise environ <strong>' + lo.toLocaleString('fr-FR') + ' – ' + hi.toLocaleString('fr-FR') + ' kcal</strong> aujourd\'hui, avec des protéines à chaque repas. C\'est un repère, pas un examen 😉';
                     habitsEl.style.display = 'block';
                 }
             } catch (e) {}
@@ -41588,12 +42019,14 @@
                     if (impact.levelUps.length > 0) {
                         window._awakCelebrate = impact.levelUps;   // l'ouverture de l'arbre jouera la pousse en direct
                         html = impact.levelUps.map(l =>
-                            '<div style="font-weight:800;">' + l.ic + ' Ta branche <span style="color:' + l.col + ';">' + l.nm + '</span> passe au palier <span style="color:#4ade80;">' + l.stage + '</span> !</div>'
+                            '<div style="font-weight:800;">Ta branche <span style="color:' + l.col + ';">' + l.nm + '</span> passe au palier <span style="color:#93c5fd;">' + l.stage + '</span> !</div>'
                         ).join('');
                     } else if (impact.top.length > 0) {
-                        html = '<div>Cette séance nourrit ' + impact.top.map(t =>
-                            t.ic + ' <span style="color:' + t.col + ';font-weight:800;">' + t.nm + '</span>'
-                        ).join(' · ') + '</div>';
+                        // v1223 : « Force et Cardio » (l'icône emoji et le « · » étaient
+                        // retirés par le filtre sans emoji, ce qui collait les mots)
+                        const _noms = impact.top.map(t => '<span style="color:' + t.col + ';font-weight:800;">' + t.nm + '</span>');
+                        const _liste = _noms.length > 1 ? _noms.slice(0, -1).join(', ') + ' et ' + _noms[_noms.length - 1] : _noms.join('');
+                        html = '<div>Cette séance fait pousser ' + _liste + '</div>';
                     }
                     if (html) {
                         html += '<div style="font-size:0.68em;color:#94a3b8;margin-top:4px;">Toucher pour voir ton arbre ›</div>';
@@ -42722,14 +43155,14 @@
 
             function _renderList(gender) {
                 activeGender = gender;
-                const filtered = CELEBRITY_PROGRAMS.filter(p => p.gender === gender);
+                const filtered = CELEBRITY_PROGRAMS.filter(p => p.gender === gender).filter(awakProgrammeAdapte);
                 const listEl = document.getElementById('_celebList');
                 if (!listEl) return;
                 listEl.innerHTML = filtered.map(p => {
                     const isActive = activeCeleb && activeCeleb.id === p.id;
                     return `<div onclick="showCelebrityDetail('${p.id}')"
                          style="background:linear-gradient(135deg,${p.color}${isActive?'28':'18'},${p.color}08);border:${isActive?'2':'1.5'}px solid ${p.color}${isActive?'80':'50'};border-radius:14px;padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:14px;touch-action:manipulation;">
-                            <div style="font-size:2.4em;width:52px;height:52px;border-radius:14px;background:${p.color}20;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${p.emoji}</div>
+                            <div style="width:52px;height:52px;border-radius:14px;background:${p.color}20;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${awakMentorIco(p, 26)}</div>
                             <div style="flex:1;min-width:0;">
                                 <div style="display:flex;align-items:center;gap:6px;margin-bottom:1px;">
                                     <div style="font-weight:900;font-size:1.05em;color:white;">${p.nickname}</div>
@@ -42764,7 +43197,7 @@
             const activeSection = activeCeleb ? `
                 <div style="background:linear-gradient(135deg,${activeCeleb.color}25,${activeCeleb.color}10);border:2px solid ${activeCeleb.color}60;border-radius:14px;padding:14px 16px;margin-bottom:14px;">
                     <div style="display:flex;align-items:center;gap:12px;">
-                        <div style="font-size:2em;width:44px;height:44px;border-radius:14px;background:${activeCeleb.color}25;display:flex;align-items:center;justify-content:center;">${activeCeleb.emoji}</div>
+                        <div style="width:44px;height:44px;border-radius:14px;background:${activeCeleb.color}25;display:flex;align-items:center;justify-content:center;">${awakMentorIco(activeCeleb, 22)}</div>
                         <div style="flex:1;">
                             <div style="font-size:0.65em;color:${activeCeleb.color};font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">● Personnalité active</div>
                             <div style="font-weight:900;color:white;font-size:1em;">${activeCeleb.nickname}</div>
@@ -42929,7 +43362,7 @@
                 <!-- Corps DÉFILANT : la barre d'action reste visible en bas. -->
                 <div style="flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;">
                 <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
-                    <div style="font-size:3.2em;width:70px;height:70px;border-radius:20px;background:${p.color}25;border:2px solid ${p.color}60;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${p.emoji}</div>
+                    <div style="width:70px;height:70px;border-radius:20px;background:${p.color}25;border:2px solid ${p.color}60;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${awakMentorIco(p, 34)}</div>
                     <div style="flex:1;">
                         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
                             <div style="font-size:1.5em;font-weight:900;color:white;">${p.nickname}</div>
@@ -43188,9 +43621,10 @@
 
         function _renderProgramSelector(view) {
             const segs = [
-                { id: 'personnalite', label: 'Personnalité', emoji: '🎭' },
-                { id: 'discipline',   label: 'Discipline',   emoji: '🥊' },
-                { id: 'salle',        label: 'Salle',        emoji: '🏋️' }
+                // v1219 : libellés parlants (« Personnalité » ne disait rien à un enfant)
+                { id: 'personnalite', label: 'Mentors',  emoji: '' },
+                { id: 'discipline',   label: 'Sports',   emoji: '' },
+                { id: 'salle',        label: 'Salle',    emoji: '' }
             ];
             const btns = segs.map(function (s) {
                 const active = s.id === view;
@@ -43198,9 +43632,9 @@
                     + 'style="flex:1;min-width:0;padding:9px 6px;border:none;border-radius:10px;cursor:pointer;'
                     + 'font-weight:800;font-size:0.78em;letter-spacing:0.3px;white-space:nowrap;'
                     + (active
-                        ? 'background:linear-gradient(135deg,#3b82f6,#1d5fa8);color:#fff;box-shadow:0 2px 10px rgba(34,197,94,0.35);'
+                        ? 'background:linear-gradient(135deg,#3b82f6,#1d5fa8);color:#fff;box-shadow:0 2px 10px rgba(59,130,246,0.35);'
                         : 'background:rgba(255,255,255,0.05);color:#94a3b8;')
-                    + '">' + s.emoji + ' ' + s.label + '</button>';
+                    + '">' + s.label + '</button>';
             }).join('');
             return '<div style="display:flex;gap:6px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:5px;margin-bottom:14px;">' + btns + '</div>';
         }
@@ -43258,9 +43692,9 @@
             let mastered = 0, totalSteps = 0, doneSteps = 0;
             P.forEach(function (p) { const d = prog[_progKey(disc, p.skill)] || 0; if (d >= p.steps.length) mastered++; totalSteps += p.steps.length; doneSteps += Math.min(d, p.steps.length); });
             const pct = totalSteps ? Math.round(doneSteps / totalSteps * 100) : 0;
-            return '<div style="font-size:0.62em;color:' + color + ';font-weight:900;letter-spacing:1.5px;margin:18px 0 10px;">ARBRE DE PROGRESSION</div>'
+            return '<div style="font-size:0.62em;color:' + color + ';font-weight:900;letter-spacing:0.5px;margin:18px 0 10px;">Ton arbre de progression</div>'
                 + '<div onclick="openProgressionTree(\'' + disc + '\')" style="background:linear-gradient(135deg,' + color + '24,' + color + '0a);border:1px solid ' + color + '59;border-radius:14px;padding:14px 16px;cursor:pointer;">'
-                + '<div style="display:flex;align-items:center;gap:12px;"><span style="font-size:1.7em;">🌳</span>'
+                + '<div style="display:flex;align-items:center;gap:12px;"><span style="flex-shrink:0;width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:' + color + '1f;border:1px solid ' + color + '55;">' + (window.AwakIcon ? AwakIcon.get('arbre', 20, color) : '') + '</span>'
                 + '<div style="flex:1;min-width:0;"><div style="font-weight:900;color:#fff;font-size:0.92em;">Mon arbre de progression</div>'
                 + '<div style="font-size:0.7em;color:#cbd5e1;margin-top:1px;">' + P.length + ' parcours · ' + mastered + ' maîtrisé' + (mastered > 1 ? 's' : '') + ' · ' + pct + '% complété</div></div>'
                 + '<span style="color:' + color + ';font-size:1.3em;">›</span></div>'
@@ -43507,19 +43941,27 @@
             const all = (typeof listDisciplines === 'function') ? listDisciplines().filter(function (d) { return d.id !== 'muscu'; }) : [];
             if (!all.length) return '';
             let totalSessions = 0;
-            const rows = all.map(function (d) {
-                const lv = (typeof getDisciplineLevel === 'function') ? getDisciplineLevel(d.id) : { level: 1, xpInLevel: 0, xpForLevel: 300, sessions: 0 };
+            // v1228 : seulement les sports déjà pratiqués (9 lignes « Niv. 1 » vides
+            // ne disaient rien) ; avant la 1re séance, une simple invitation.
+            const _lv = function (d) { return (typeof getDisciplineLevel === 'function') ? getDisciplineLevel(d.id) : { level: 1, xp: 0, xpInLevel: 0, xpForLevel: 300, sessions: 0 }; };
+            const pratiques = all.filter(function (d) { const l = _lv(d); return l.sessions > 0 || l.xp > 0; });
+            if (!pratiques.length) {
+                return '<div style="font-size:0.78em;color:#94a3b8;line-height:1.5;padding:2px 2px 4px;">'
+                    + 'Lance ta première séance d\'un sport : ta progression apparaîtra ici.</div>';
+            }
+            const rows = pratiques.map(function (d) {
+                const lv = _lv(d);
                 totalSessions += lv.sessions;
                 const pct = Math.round(lv.xpInLevel / lv.xpForLevel * 100);
                 return '<div onclick="showDisciplineGuide(\'' + d.id + '\')" title="Comment ça marche ?" style="display:flex;align-items:center;gap:10px;padding:7px 0;cursor:pointer;">'
-                    + '<span style="font-size:1.3em;width:26px;text-align:center;flex-shrink:0;">' + d.emoji + '</span>'
+                    + '<span style="width:30px;height:30px;border-radius:9px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:' + d.color + '1f;border:1px solid ' + d.color + '44;">' + awakMentorIco({ nickname: d.name, color: d.color }, 16) + '</span>'
                     + '<div style="flex:1;min-width:0;">'
-                    + '<div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="color:#fff;font-weight:700;font-size:0.8em;">' + (d.voie || d.name) + ' <span style="color:#64748b;font-weight:400;">ⓘ</span></span><span style="color:' + d.color + ';font-weight:800;font-size:0.78em;">Niv. ' + lv.level + '</span></div>'
+                    + '<div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="color:#fff;font-weight:700;font-size:0.8em;">' + d.name + (d.voie ? ' <span style="color:#64748b;font-weight:600;">· ' + d.voie + '</span>' : '') + '</span><span style="color:' + d.color + ';font-weight:800;font-size:0.78em;">Niv. ' + lv.level + '</span></div>'
                     + '<div style="height:5px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;"><div style="height:100%;width:' + pct + '%;background:' + d.color + ';border-radius:99px;transition:width .3s;"></div></div>'
                     + '</div></div>';
             }).join('');
             return '<div class="card" style="padding:16px 18px;margin-bottom:14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);">'
-                + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-size:0.62em;color:#64748b;font-weight:900;letter-spacing:2px;">◈ MES VOIES</span>'
+                + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-size:0.62em;color:#64748b;font-weight:900;letter-spacing:2px;">◈ MES SPORTS</span>'
                 + '<span style="font-size:0.7em;color:#94a3b8;">' + totalSessions + ' séance' + (totalSessions > 1 ? 's' : '') + ' au total</span></div>'
                 + rows + '</div>';
         }
@@ -43645,14 +44087,14 @@
                         + (active
                             ? 'background:' + d.color + ';color:#fff;border:1px solid ' + d.color + ';box-shadow:0 2px 10px ' + d.color + '55;'
                             : 'background:rgba(255,255,255,0.04);color:#cbd5e1;border:1px solid rgba(255,255,255,0.1);')
-                        + '">' + d.emoji + ' ' + d.name + '</button>';
+                        + '">' + awakMentorIco({ nickname: d.name, color: active ? '#fff' : d.color }, 14) + ' ' + d.name + '</button>';
                 }).join('')
                 + '</div>';
             let cards = list.filter(function (d) { return d.id === selId; }).map(function (d) {
                 const sessions = ((typeof listDisciplineSessions === 'function') ? listDisciplineSessions(d.id) : []).slice().sort(function (a, b) { if (!!a.goal !== !!b.goal) { return a.goal ? -1 : 1; } return (a.minLevel || 1) - (b.minLevel || 1); });
                 const ready = sessions.length > 0;
                 const head = '<div style="display:flex;align-items:center;gap:14px;">'
-                    + '<div style="font-size:2em;line-height:1;flex-shrink:0;filter:drop-shadow(0 0 8px ' + d.color + '70);">' + d.emoji + '</div>'
+                    + '<div style="width:48px;height:48px;border-radius:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:' + d.color + '1f;border:1px solid ' + d.color + '50;">' + awakMentorIco({ nickname: d.name, color: d.color }, 24) + '</div>'
                     + '<div style="flex:1;min-width:0;">'
                     + '<div style="font-weight:900;color:#fff;font-size:1.05em;">' + d.name + '</div>'
                     + (d.voie ? '<div style="font-size:0.72em;color:' + d.color + ';font-weight:700;margin-top:2px;">' + d.voie + '</div>' : '')
@@ -43689,7 +44131,12 @@
                             if (unlocked) {
                                 return '<button onclick="startDisciplineSession(\'' + d.id + '\',\'' + s.id + '\')" style="display:inline-flex;align-items:center;gap:5px;background:' + d.color + ';color:#fff;border:none;border-radius:99px;padding:7px 13px;font-size:0.74em;font-weight:800;cursor:pointer;box-shadow:0 2px 8px ' + d.color + '55;">▶ ' + s.name + '</button>';
                             }
-                            return '<span title="Atteins le niveau ' + need + ' pour débloquer" style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.05);color:#64748b;border:1px dashed rgba(255,255,255,0.18);border-radius:99px;padding:7px 13px;font-size:0.74em;font-weight:800;">🔒 ' + s.name + ' · Niv. ' + need + '</span>';
+                            // v1228 : dire COMMENT débloquer (≈ 100 XP par séance, 300 par niveau)
+                            let _reste = 0;
+                            try { const _l = getDisciplineLevel(d.id); _reste = Math.max(1, Math.ceil(((need - 1) * 300 - _l.xp) / 100)); } catch (e) {}
+                            return '<span title="Atteins le niveau ' + need + ' pour débloquer" style="display:inline-flex;flex-direction:column;align-items:flex-start;background:rgba(255,255,255,0.04);color:#64748b;border:1px dashed rgba(255,255,255,0.16);border-radius:12px;padding:6px 12px;font-size:0.74em;font-weight:800;">'
+                                + '<span style="display:inline-flex;align-items:center;gap:5px;">' + (window.AwakIcon ? AwakIcon.get('porte', 12, '#64748b') : '') + s.name + '</span>'
+                                + '<span style="font-size:0.85em;font-weight:600;color:#64748b;">Niveau ' + need + (_reste ? ' · encore ~' + _reste + ' séance' + (_reste > 1 ? 's' : '') : '') + '</span></span>';
                         }).join('')
                         + '</div>';
                 }
@@ -43710,10 +44157,12 @@
                 return '<div class="card" style="padding:16px 18px;background:linear-gradient(135deg,' + d.color + '22,' + d.color + '08);border:1px solid ' + d.color + '44;">' + head + prog + progTree + (d.id === 'yoga' ? _yogaQuizCTA() : '') + sess + (d.id === 'yoga' ? _renderYogaGenerator() : '') + '</div>';
             }).join('');
             if (!cards) cards = '<p style="text-align:center;color:#94a3b8;padding:20px;">Aucune discipline disponible.</p>';
+            // v1228 : choisir son sport d'abord, la progression ensuite
             return '<div style="display:grid;gap:10px;">'
+                + '<div style="font-size:0.6em;color:#64748b;font-weight:900;letter-spacing:2px;margin-bottom:2px;">◈ CHOISIS TON SPORT</div>'
+                + chips + cards
                 + (typeof _renderMyVoies === 'function' ? _renderMyVoies() : '')
-                + '<div style="font-size:0.6em;color:#64748b;font-weight:900;letter-spacing:2px;margin-bottom:2px;">◈ CHOISIS TA VOIE</div>'
-                + chips + cards + '</div>';
+                + '</div>';
         }
 
         // Vue « Salle » — programmes gym existants. Chaque jour est un bouton
@@ -43722,10 +44171,19 @@
         // distinct par programme (cohérent avec le thème de l'app).
         function _renderSallePrograms() {
             const progs = [
-                { id: 'ppl',           name: 'Push / Pull / Legs', schema: '3 séances · à répéter sur 6 jours', accent: '#4ade80' },
-                { id: 'upper_lower',   name: 'Upper / Lower',      schema: '2 séances · à alterner sur 4 jours', accent: '#22d3ee' },
-                { id: 'full_body_gym', name: 'Full Body',          schema: '1 séance · corps entier, 3×/semaine', accent: '#fbbf24' }
+                // v1228 : noms en français (l'anglais en petit), niveau + jours + durée
+                { id: 'full_body_gym', name: 'Corps entier',             en: 'Full Body',          schema: '3 jours / semaine · ~45 min', niveau: 'Débutant', reco: true,  accent: '#fbbf24' },
+                { id: 'upper_lower',   name: 'Haut / Bas du corps',      en: 'Upper / Lower',      schema: '4 jours / semaine · ~50 min', niveau: 'Intermédiaire',            accent: '#22d3ee' },
+                { id: 'ppl',           name: 'Pousser / Tirer / Jambes', en: 'Push / Pull / Legs', schema: '6 jours / semaine · ~55 min', niveau: 'Avancé',                   accent: '#60a8f0' }
             ];
+            const _jourFr = function (n) {
+                return String(n || '').replace(/^[^A-Za-zÀ-ÿ]+/, '')
+                    .replace(/^Push Day/i, 'Pousser').replace(/^Pull Day/i, 'Tirer').replace(/^Leg Day/i, 'Jambes')
+                    .replace(/^Upper/i, 'Haut du corps').replace(/^Lower/i, 'Bas du corps')
+                    .replace(/Quad Focus/i, 'cuisses').replace(/^Full Body Gym/i, 'Corps entier');
+            };
+            const _y = window.AwakYouth;
+            const _ado = !!(_y && _y.isYoung && _y.isYoung() && !(_y.isChild && _y.isChild()));
             const cards = progs.map(function (p) {
                 const program = (typeof gymPrograms !== 'undefined') ? gymPrograms[p.id] : null;
                 const keys = program ? Object.keys(program) : [];
@@ -43735,7 +44193,7 @@
                     const nEx = (day.exercises || []).length;
                     return '<button onclick="startGymDay(\'' + p.id + '\',\'' + key + '\')" style="display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:12px;padding:11px 12px;margin-top:7px;cursor:pointer;">'
                         + '<span style="flex:1;min-width:0;">'
-                        + '<span style="display:block;font-size:0.82em;font-weight:800;color:#e2e8f0;">' + day.name + '</span>'
+                        + '<span style="display:block;font-size:0.82em;font-weight:800;color:#e2e8f0;">' + _jourFr(day.name) + '</span>'
                         + '<span style="display:block;font-size:0.64em;color:#94a3b8;margin-top:2px;">' + nEx + ' exercices · 3 séries</span>'
                         + '</span>'
                         + '<span style="flex-shrink:0;background:' + a + '1f;border:1px solid ' + a + '55;border-radius:99px;width:30px;height:30px;display:grid;place-items:center;color:' + a + ';font-size:0.75em;"><svg viewBox="0 0 24 24" width="15" height="15" style="display:inline-block;vertical-align:-0.15em;" fill="currentColor" aria-hidden="true"><path d="M6 3.5 L20 12 L6 20.5 Z"/></svg></span>'
@@ -43743,10 +44201,12 @@
                 }).join('');
                 return '<div class="card" style="background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.08);border-left:3px solid ' + a + ';border-radius:16px;padding:14px 15px;box-shadow:0 0 22px ' + a + '14;">'
                     + '<div style="display:flex;align-items:center;gap:11px;">'
-                    + '<span style="flex-shrink:0;width:38px;height:38px;border-radius:11px;background:' + a + '1a;border:1px solid ' + a + '44;display:grid;place-items:center;font-size:1.15em;">🏋️</span>'
+                    + '<span style="flex-shrink:0;width:38px;height:38px;border-radius:11px;background:' + a + '1a;border:1px solid ' + a + '44;display:grid;place-items:center;">' + (window.AwakIcon ? AwakIcon.get('halter', 20, a) : '') + '</span>'
                     + '<span style="flex:1;min-width:0;">'
-                    + '<span style="display:block;font-weight:900;color:#fff;font-size:1em;">' + p.name + '</span>'
-                    + '<span style="display:block;font-size:0.68em;color:' + a + ';font-weight:700;margin-top:2px;">' + p.schema + '</span>'
+                    + '<span style="display:block;font-weight:900;color:#fff;font-size:1em;">' + p.name
+                    +   (p.reco ? ' <span style="font-size:0.6em;font-weight:800;color:#0b1220;background:' + a + ';border-radius:99px;padding:2px 8px;vertical-align:2px;">Idéal pour commencer</span>' : '') + '</span>'
+                    + '<span style="display:block;font-size:0.62em;color:#64748b;font-weight:700;margin-top:1px;">' + p.en + '</span>'
+                    + '<span style="display:block;font-size:0.68em;color:' + a + ';font-weight:700;margin-top:3px;">' + p.niveau + ' · ' + p.schema + '</span>'
                     + '</span>'
                     + '</div>'
                     + dayBtns
@@ -43755,6 +44215,8 @@
             return '<div style="display:grid;gap:10px;">'
                 + '<div style="font-size:0.6em;color:#64748b;font-weight:900;letter-spacing:2px;margin-bottom:2px;">◈ PROGRAMMES EN SALLE</div>'
                 + '<div style="font-size:0.7em;color:#94a3b8;margin:-4px 0 4px;line-height:1.4;">Touche une séance pour la lancer directement.</div>'
+                + (_ado ? '<div style="font-size:0.76em;color:#fcd34d;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.3);border-radius:11px;padding:10px 12px;line-height:1.45;">'
+                    + 'Ces séances utilisent des charges : fais-les avec un adulte qui connaît les mouvements.</div>' : '')
                 + cards + '</div>';
         }
 
@@ -43874,17 +44336,6 @@
                 }
             } catch (e) {}
 
-            // 🧒 PROFIL ENFANT : on masque entièrement les programmes adultes
-            // (personnalités/célébrités, disciplines, salle) et on montre à la
-            // place des programmes enfants adaptés (poids du corps, ludiques).
-            try {
-                if (window.AwakYouth && window.AwakYouth.isChild && window.AwakYouth.isChild()
-                    && window.AwakKidsPrograms && typeof window.AwakKidsPrograms.renderTab === 'function') {
-                    container.innerHTML = window.AwakKidsPrograms.renderTab();
-                    return;
-                }
-            } catch (e) {}
-
             // 🌱 PROFIL SÉNIOR (65+) et ♿ MOBILITÉ RÉDUITE : on PROPOSE des
             // programmes adaptés EN PLUS, sans rien masquer. Ces sections sont
             // ajoutées en tête du contenu normal (préfixe injecté dans chaque
@@ -43938,7 +44389,7 @@
                         <div style="min-width:0;flex:1;">
                             <div style="font-size:0.6em;color:${celeb.color};font-weight:900;letter-spacing:3px;margin-bottom:4px;">PROGRAMME ACTIF</div>
                             <div style="display:flex;align-items:center;gap:10px;">
-                                <div style="font-size:2.5em;line-height:1;filter:drop-shadow(0 0 12px ${celeb.color}80);flex-shrink:0;">${celeb.emoji}</div>
+                                <div style="width:54px;height:54px;border-radius:15px;background:${celeb.color}22;border:1px solid ${celeb.color}55;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${awakMentorIco(celeb, 28)}</div>
                                 <div style="min-width:0;">
                                     <h2 style="margin:0;color:white;font-size:1.25em;font-weight:900;line-height:1.2;letter-spacing:-0.3px;">${celeb.nickname}</h2>
                                     <div style="font-size:0.75em;color:rgba(255,255,255,0.7);margin-top:2px;font-weight:600;">${celeb.name}</div>
@@ -44094,23 +44545,53 @@
         }
         window.renderProgramTab = renderProgramTab;
 
+        // 🧑 v1219 : ADO (13-15 ans) — pas de programme « Avancé » (charges lourdes,
+        // gros volumes). Les enfants (< 13) ont leurs propres programmes (kids-programs.js).
+        function awakProgrammeAdapte(p) {
+            try {
+                if (window.AwakYouth && AwakYouth.isYoung && AwakYouth.isYoung() && !(AwakYouth.isChild && AwakYouth.isChild())) {
+                    return !p || p.level !== 'Avancé';
+                }
+            } catch (e) {}
+            return true;
+        }
+        window.awakProgrammeAdapte = awakProgrammeAdapte;
+
+        // 🎨 v1219 : icône SVG d'un mentor (les gros emojis passaient le filtre).
+        function awakMentorIco(p, taille, couleur) {
+            const n = String((p && (p.nickname || p.name)) || '').toLowerCase();
+            const regles = [
+                [/colosse|big roy|powerbuild|titan/, 'halter'], [/foudroy|intense|requin|éclair|eclair/, 'eclair'],
+                [/loup|phénix|phenix|feu|flamme/, 'flamme'], [/reine|icône|icone|roi/, 'couronne'],
+                [/amazone|champion|invaincu|légende|legende/, 'trophee'], [/esthète|esthete|symétrie|symetrie|sculpt/, 'etoile'],
+                [/danseu|calme|yoga|zen/, 'soleil'], [/scientifique/, 'idee'], [/calisth|rue/, 'muscle'],
+                [/increvable|endurance/, 'sante'], [/abdos/, 'bouclier'], [/domicile/, 'maison'], [/intrépide|intrepide/, 'boussole'],
+                // v1228 : sports
+                [/^boxe/, 'cible'], [/course|marathon/, 'course'], [/^hiit/, 'flamme'], [/gainage/, 'bouclier'],
+                [/pilates/, 'etoile'], [/sérénité|serenite/, 'repos'], [/mobilit/, 'lien'], [/^barre$/, 'coeur'], [/musculation/, 'halter']
+            ];
+            let nom = 'cible';
+            for (const r of regles) { if (r[0].test(n)) { nom = r[1]; break; } }
+            return window.AwakIcon ? AwakIcon.get(nom, taille || 24, couleur || (p && p.color) || '#c4b5fd') : '';
+        }
+        window.awakMentorIco = awakMentorIco;
+
         function _renderProgramEmptyState() {
             // Affiche un picker élégant avec preview des programmes phares
-            const previews = (typeof CELEBRITY_PROGRAMS !== 'undefined' ? CELEBRITY_PROGRAMS : []).slice(0, 6);
+            const previews = (typeof CELEBRITY_PROGRAMS !== 'undefined' ? CELEBRITY_PROGRAMS : []).filter(awakProgrammeAdapte).slice(0, 6);
             return `
             <div class="card" style="text-align:center;padding:32px 20px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(168,85,247,0.25);">
-                <div style="font-size:3.5em;margin-bottom:12px;filter:drop-shadow(0 0 16px rgba(168,85,247,0.4));">📋</div>
-                <div style="font-size:0.62em;color:#c084fc;font-weight:900;letter-spacing:3px;margin-bottom:8px;">◇ AUCUN PROGRAMME ACTIF ◇</div>
+                <div style="font-size:0.62em;color:#c084fc;font-weight:900;letter-spacing:3px;margin-bottom:8px;">AUCUN PROGRAMME EN COURS</div>
                 <h2 style="margin:0 0 6px 0;color:white;font-size:1.2em;font-weight:900;">Choisis ton mentor</h2>
-                <p style="color:#94a3b8;font-size:0.85em;line-height:1.55;margin:0 0 20px 0;">Suis la méthode d'un coach légendaire — chaque profil incarne une approche d'entraînement éprouvée.</p>
+                <p style="color:#94a3b8;font-size:0.85em;line-height:1.55;margin:0 0 20px 0;">Un mentor te donne un plan de plusieurs semaines, séance par séance. Chacun a son style : force, cardio, souplesse…</p>
 
                 ${previews.length > 0 ? `
                 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px;">
                     ${previews.map(p => `
-                        <div onclick="setActiveCelebrity('${p.id}'); renderProgramTab();" style="background:linear-gradient(135deg,${p.color}25,${p.color}05);border:1px solid ${p.color}40;border-radius:10px;padding:11px 6px;cursor:pointer;text-align:center;">
-                            <div style="font-size:1.8em;line-height:1;margin-bottom:4px;filter:drop-shadow(0 0 6px ${p.color}80);">${p.emoji}</div>
+                        <div onclick="setActiveCelebrity('${p.id}'); renderProgramTab();" style="background:rgba(167,139,250,0.06);border:1px solid rgba(167,139,250,0.3);border-radius:12px;padding:11px 6px;cursor:pointer;text-align:center;">
+                            <div style="width:40px;height:40px;margin:0 auto 6px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(167,139,250,0.15);">${awakMentorIco(p, 21, '#c4b5fd')}</div>
                             <div style="font-size:0.65em;font-weight:900;color:white;line-height:1.2;">${p.nickname}</div>
-                            <div style="font-size:0.55em;color:${p.color};font-weight:700;margin-top:2px;">${p.level}</div>
+                            <div style="font-size:0.55em;color:${({ 'Débutant': '#60a8f0', 'Intermédiaire': '#a78bfa', 'Avancé': '#f59e0b' })[p.level] || '#94a3b8'};font-weight:800;margin-top:2px;">${p.level}</div>
                         </div>
                     `).join('')}
                 </div>` : ''}
@@ -45442,6 +45923,13 @@
                 const ic = AWAK_AVATARS[avatar];
                 return '<span style="display:inline-flex;align-items:center;justify-content:center;width:' + size + 'px;height:' + size + 'px;border-radius:50%;background:radial-gradient(circle at 30% 25%, ' + ic.c + '33, ' + ic.c + '11 70%, transparent);border:1.5px solid ' + ic.c + '66;vertical-align:middle;">'
                     + '<svg viewBox="0 0 24 24" width="' + Math.round(size * 0.6) + '" height="' + Math.round(size * 0.6) + '" fill="none" stroke="' + ic.c + '" stroke-width="1.7" style="filter:drop-shadow(0 0 4px ' + ic.c + '55);">' + ic.p + '</svg></span>';
+            }
+            // v1219 : avatar PAR DÉFAUT (aucun choisi) → silhouette SVG plutôt que
+            // l'emoji gris « 👤 », qui jurait avec le reste de l'interface.
+            if (!avatar || avatar === '👤' || avatar === '🙂' || avatar === '\u{1F464}') {
+                const c = '#c4b5fd';
+                return '<span style="display:inline-flex;align-items:center;justify-content:center;width:' + size + 'px;height:' + size + 'px;border-radius:50%;background:radial-gradient(circle at 30% 25%, ' + c + '33, ' + c + '11 70%, transparent);border:1.5px solid ' + c + '66;vertical-align:middle;">'
+                    + '<svg viewBox="0 0 24 24" width="' + Math.round(size * 0.58) + '" height="' + Math.round(size * 0.58) + '" fill="none" stroke="' + c + '" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg></span>';
             }
             // Repli emoji (profils existants) : on garde l'emoji tel quel.
             // data-emoji-keep protège cet emoji du filtre « interface sans emoji » :
@@ -47584,7 +48072,7 @@
 
             host.innerHTML =
                 '<div style="position:relative;width:110px;margin:0 auto 12px;">'
-              +   '<img src="images/body/body_face.webp?v=1201" alt="" '
+              +   '<img src="images/body/body_face.webp?v=1228" alt="" '
               +     'style="width:100%;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -47666,7 +48154,7 @@
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1201);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1228);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -48185,6 +48673,14 @@
             if (panel.style.display === 'block') {
                 const _mo = document.getElementById('muscuOnlyOpts');
                 if (_mo) _mo.style.display = (currentWorkout && currentWorkout._discipline) ? 'none' : '';
+                // 🧒 v1223 : techniques avancées masquées pour un enfant
+                const _av = document.getElementById('optsAvancees');
+                const _enf = !!(window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild());
+                if (_av) _av.style.display = _enf ? 'none' : '';
+                const _rE = document.getElementById('optsRpeEnfant'), _rA = document.getElementById('optsRpeAdulte'), _rH = document.getElementById('optsRpeAide');
+                if (_rE) _rE.style.display = _enf ? 'flex' : 'none';
+                if (_rA) _rA.style.display = _enf ? 'none' : 'flex';
+                if (_rH) _rH.style.display = _enf ? 'none' : '';
                 setTimeout(() => {
                     document.addEventListener('click', function closer(e) {
                         const menuBtn = document.getElementById('sessionMenuBtn');
@@ -48374,7 +48870,7 @@
                         ? (typeof window.buildLazyImg === 'function'
                             ? window.buildLazyImg(_imgSrc, ex.name, 'width:100%;height:100%;object-fit:cover;border-radius:8px;')
                             : `<img src="${encodeURI(_imgSrc)}" alt="${ex.name}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" loading="lazy" />`)
-                        : getExerciseVisual(ex.name, ex.muscle, 'start');
+                        : awakVisuelNeutre(ex.muscle, true);   // v1221 : repli neutre
                     s += `<div class="swap-card" onclick="confirmSwapExercise('${ex.name.replace(/'/g,"\\'")}')">
                         <div class="swap-card-img">${media}</div>
                         <div class="swap-card-info">
@@ -49135,7 +49631,7 @@
                         <h2 style="color:#fff;font-size:1.45em;font-weight:900;margin:0 0 6px;">Deux façons de vivre Awakened</h2>
                         <p style="color:#94a3b8;font-size:0.8em;margin:0 0 18px;">Tu pourras changer à tout moment dans les Réglages.</p>
                         ${modeCard('fitness','🏋️','Fitness pur',"Un tracker d'entraînement clair et complet. Séances, progression, analyses — sans couche de jeu.")}
-                        ${modeCard('aventure','🌌','Aventure',"Ton entraînement devient une quête : XP, rangs, Failles, boss et compagnons s'ajoutent au fitness.")}
+                        ${(parseInt(draft.age, 10) > 0 && parseInt(draft.age, 10) < 13) ? '' : modeCard('aventure','🌌','Aventure',"Ton entraînement devient une quête : XP, rangs, Failles, boss et compagnons s'ajoutent au fitness.")}
                         ${btnPrimary('Continuer', 'window._premOnbNext()')}`;
                 } else if (step === 6) {
                     // 🏋️ NOUVEAU : choix du matériel dès l'inscription, mémorisé.
@@ -49315,7 +49811,7 @@
                     }
                 } catch(e) {}
                 // Appliquer la voie choisie (Fitness pur / Aventure)
-                try { if (typeof toggleGameMode === 'function') toggleGameMode(draft.mode === 'aventure'); } catch(e) {}
+                try { if (typeof toggleGameMode === 'function') toggleGameMode(draft.mode === 'aventure' && !awakJeuBloqueAge()); } catch(e) {}
                 try { updateProfileDisplay(); } catch(e) {}
                 try { generateWeeklyPlan(); } catch(e) {}
                 try { haptic.medium(); } catch(e) {}
@@ -50051,7 +50547,7 @@
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1201");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1228");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
@@ -51517,7 +52013,7 @@
                 <button onclick="_selectCardioWarmup(${i})" data-cardio-idx="${i}" class="cardio-warmup-opt" style="
                     display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:12px 14px;margin-bottom:7px;
                     background:rgba(34,211,238,0.06);border:1.5px solid rgba(34,211,238,0.25);border-radius:10px;cursor:pointer;color:#e2e8f0;">
-                    <span style="font-size:1.5em;">${o.emoji}</span>
+                    <span style="display:inline-flex;width:34px;height:34px;border-radius:10px;align-items:center;justify-content:center;background:rgba(34,211,238,0.1);">${window.AwakIcon ? AwakIcon.get('course', 18, '#67e8f9') : ''}</span>
                     <span style="flex:1;font-size:0.88em;font-weight:700;">${o.name}</span>
                     <span class="cardio-check" style="font-size:1.1em;color:#22d3ee;opacity:0;">✓</span>
                 </button>`).join('');
@@ -51527,7 +52023,6 @@
             sheet.innerHTML = `
                 <div style="width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:99px;margin:0 auto 18px;"></div>
                 <div style="text-align:center;margin-bottom:18px;">
-                    <div style="font-size:2em;">🏃</div>
                     <h2 style="margin:6px 0 4px;color:white;font-size:1.15em;font-weight:900;">Cardio d'échauffement ?</h2>
                     <p style="margin:0;color:#94a3b8;font-size:0.78em;line-height:1.5;">Optionnel — élève ta température avant la séance. Choisis l'activité et la durée.</p>
                 </div>

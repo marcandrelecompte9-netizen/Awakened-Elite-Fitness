@@ -832,8 +832,12 @@
         '.awak-k-day{padding:12px 12px;}.awak-k-day.today{padding:14px 14px;}' +
         // Le titre occupe TOUTE la ligne ; l'horloge et le × passent dessous.
         // Avec l'horloge à côté, « CETTE SEMAINE » se faisait couper.
-        '.awak-k-head{flex-wrap:wrap;align-items:center;gap:8px 10px;margin-bottom:14px;}' +
-        '.awak-k-head > div:first-child{flex:1 1 100%;}' +
+        // ⚠️ !important : le style EN LIGNE (flex:1 ; align-items:flex-end)
+        // l'emportait sur ces règles — l'en-tête ne passait jamais à la ligne
+        // et « CETTE SEMAINE » restait coupé à côté de l'horloge.
+        '.awak-k-head{flex-wrap:wrap!important;align-items:center!important;gap:8px 10px!important;margin-bottom:14px!important;}' +
+        '.awak-k-head > div:first-child{flex:1 1 100%!important;}' +
+        '.awak-k-head > div:nth-child(2){flex:1 1 auto!important;text-align:left!important;}' +
         '.awak-k-title{font-size:1.5em!important;white-space:nowrap;}' +
         '.awak-k-clock{font-size:2.1em!important;}' +
         '.awak-k-date{font-size:0.68em!important;letter-spacing:0.4px!important;}}' +

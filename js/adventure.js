@@ -980,7 +980,7 @@ function renderFamilyTab() {
     // En-tête aligné sur le langage des autres onglets : surtitre discret,
     // titre en police d'affichage, pas de paragraphe explicatif.
     let html = '<div style="border-left:2px solid #ec4899;padding-left:11px;margin-bottom:14px;">'
-        + '<div style="font-size:0.56em;letter-spacing:2.5px;color:#ec4899;font-weight:900;">✦ LES TIENS</div>'
+        + '<div style="font-size:0.56em;letter-spacing:2.5px;color:#ec4899;font-weight:900;">LES TIENS</div>'
         + '<h2 style="font-size:1.15em;font-weight:900;color:#fff;margin:2px 0 0;'
         +   'font-family:var(--font-display),sans-serif;letter-spacing:0.5px;">Ma famille</h2>'
         + '</div>';
@@ -988,10 +988,10 @@ function renderFamilyTab() {
     // Cas : un seul profil → inviter à en créer un second
     if (profileCount < 2) {
         html += '<div style="background:linear-gradient(160deg,#1a1018,#0d0d12);border:1px solid rgba(236,72,153,0.2);border-radius:18px;padding:22px;text-align:center;">'
-            + '<div style="font-size:2.4em;margin-bottom:10px;">👨‍👩‍👧‍👦</div>'
+            + '<div style="width:58px;height:58px;margin:0 auto 10px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(236,72,153,0.14);">' + ((window.AwakIcon && AwakIcon.get('groupe', 30, '#f9a8d4')) || '') + '</div>'
             + '<div style="font-size:1.05em;font-weight:800;color:#fff;margin-bottom:6px;">La famille se construit à plusieurs</div>'
-            + '<p style="font-size:0.82em;color:#94a3b8;line-height:1.5;margin:0 0 16px;">Crée un deuxième profil (conjoint, enfant, frère, sœur…) pour lier vos comptes et préciser vos relations.</p>'
-            + '<button onclick="showProfileSelectionModal()" style="padding:12px 22px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#3b82f6,#1d5fa8);color:#fff;font-weight:800;font-size:0.9em;">➕ Gérer les profils</button>'
+            + '<p style="font-size:0.82em;color:#94a3b8;line-height:1.5;margin:0 0 16px;">Crée un profil pour chaque membre de ta famille. Vous pourrez vous encourager, relever des défis et allumer un ciel d\'étoiles ensemble.</p>'
+            + '<button onclick="showProfileSelectionModal()" style="padding:12px 22px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#ec4899,#be185d);color:#fff;font-weight:800;font-size:0.9em;">Ajouter un membre</button>'
             + '</div>';
         container.innerHTML = html;
         return;
@@ -1059,7 +1059,13 @@ function renderFamilyTab() {
     //   · encourager        → menu d'une étoile
     //   · encouragements reçus → bandeau du pied (si présents)
     //   · ma famille / journal → boutons du pied
+    // ✦ v1219 : nouveautés + message reçu AU-DESSUS du ciel ; constellation de
+    // la semaine + « en cours » EN DESSOUS (family-sky.js) — l'écran n'est plus
+    // à moitié vide, et ce qui se passe se voit sans ouvrir de fenêtre.
+    const _sky = window.AwakFamilySky || null;
+    if (_sky) { try { html += _sky.avant(); } catch (e) {} }
     html += constCard;
+    if (_sky) { try { html += _sky.apres(); } catch (e) {} }
 
     // Filet de sécurité
     if (!constCard && !familyCard && !nudgeCard && !challengeCard && !goalCard && !feedCard && !duoGamesCard && !coopCard) {

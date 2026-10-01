@@ -11,11 +11,11 @@
     <title>Awakened Elite Fitness</title>
 
     <!-- PWA -->
-    <link rel="manifest" href="manifest.json?v=1201">
-    <link rel="apple-touch-icon" href="icons/icon-192.png?v=1201">
-    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=1201">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=1201">
-    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=1201">
+    <link rel="manifest" href="manifest.json?v=1228">
+    <link rel="apple-touch-icon" href="icons/icon-192.png?v=1228">
+    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=1228">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=1228">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=1228">
 
     <!-- ⚠️ CAPTURE PRÉCOCE DE L'INVITE D'INSTALLATION.
          Chrome déclenche « beforeinstallprompt » très tôt, souvent AVANT la fin
@@ -44,7 +44,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=1201">
+    <link rel="stylesheet" href="css/style.css?v=1228">
 </head>
 <body>
 
@@ -61,7 +61,7 @@
             <circle cx="100" cy="100" r="88" stroke="rgba(255,255,255,0.08)" stroke-width="10"/>
             <!-- Arc progress -->
             <circle id="restRingArc" cx="100" cy="100" r="88"
-                stroke="#22c55e" stroke-width="10"
+                stroke="#3b82f6" stroke-width="10"
                 stroke-linecap="round"
                 stroke-dasharray="553"
                 stroke-dashoffset="0"
@@ -121,8 +121,8 @@
 
 <!-- ── Bandeau repos permanent (affiché seulement pendant le repos inter-séries) ── -->
 <div id="globalRestBanner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;
-     background:linear-gradient(135deg,#164e8a,#166534);color:white;
-     padding:0;box-shadow:0 2px 12px rgba(22,163,74,0.4);">
+     background:linear-gradient(135deg,#164e8a,#1e3a8a);color:white;
+     padding:0;box-shadow:0 2px 12px rgba(29,95,168,0.4);">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;">
         <div style="display:flex;align-items:center;gap:10px;">
             <span style="font-size:1.4em;">⏱️</span>
@@ -208,8 +208,8 @@
                  (ratio 1,55), donc plus haute et lisible.
                  <picture> laisse le navigateur choisir, sans JavaScript. -->
             <picture>
-                <source media="(min-width: 700px)" srcset="images/banner_v3.webp?v=1201">
-                <img src="images/banner_v3_mobile.webp?v=1201"
+                <source media="(min-width: 700px)" srcset="images/banner_v3.webp?v=1228">
+                <img src="images/banner_v3_mobile.webp?v=1228"
                      alt="Awakened Elite Fitness"
                      style="width:100%;height:auto;display:block;" />
             </picture>
@@ -502,8 +502,8 @@
                 <!-- 🔄 En-tête aligné sur le langage des autres onglets :
                      liseré coloré, surtitre espacé, titre en police d'affichage. -->
                 <div style="border-left:2px solid #60a8f0;padding-left:11px;margin-bottom:14px;">
-                    <div style="font-size:0.56em;letter-spacing:2.5px;color:#60a8f0;font-weight:900;">TES ROUTINES</div>
-                    <h2 style="margin:2px 0 0;color:#fff;font-size:1.15em;font-weight:900;font-family:var(--font-display),sans-serif;letter-spacing:0.5px;">Mes Routines</h2>
+                    <div style="font-size:0.56em;letter-spacing:2.5px;color:#60a8f0;font-weight:900;">TES SÉANCES À REFAIRE</div>
+                    <h2 style="margin:2px 0 0;color:#fff;font-size:1.15em;font-weight:900;font-family:var(--font-display),sans-serif;letter-spacing:0.5px;">Mes routines</h2>
                 </div>
 
                 <!-- Trois actions de même taille -->
@@ -512,7 +512,7 @@
                         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg><span>Nouvelle</span>
                     </button>
                     <button onclick="showTemplatesModal()" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;height:64px;min-height:auto;padding:0 4px;border-radius:12px;cursor:pointer;font-weight:800;font-size:0.74em;font-family:inherit;line-height:1.15;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.10);color:#cbd5e1;">
-                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M8 7h7"/></svg><span>Templates</span>
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M8 7h7"/></svg><span>Modèles</span>
                     </button>
                     <button onclick="openWeeklyPlanEditor()" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;height:64px;min-height:auto;padding:0 4px;border-radius:12px;cursor:pointer;font-weight:800;font-size:0.74em;font-family:inherit;line-height:1.15;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.10);color:#cbd5e1;">
                         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9.5h18M8 3v3M16 3v3"/></svg><span>Plan hebdo</span>
@@ -529,11 +529,11 @@
                 </div>
 
                 <div id="noRoutinesMessage" style="text-align: center; padding: 50px 16px; color: #94a3b8;">
-                    <div style="font-size: 2.2em; margin-bottom: 12px; opacity:0.5;">🔄</div>
+                    <div style="margin:0 auto 12px;width:52px;height:52px;border-radius:15px;display:flex;align-items:center;justify-content:center;background:rgba(96,168,240,0.12);color:#93c5fd;"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/></svg></div>
                     <div style="font-family:var(--font-display),sans-serif;font-size:1.02em;margin-bottom:7px;font-weight:800;color:#e2e8f0;">Aucune routine pour l'instant</div>
                     <div style="font-size: 0.82em; margin-bottom: 18px; line-height:1.5; max-width:280px; margin-left:auto; margin-right:auto;">Une routine, c'est une séance que tu réutilises. Pars d'un modèle ou compose la tienne.</div>
                     <button onclick="showTemplatesModal()" class="btn" style="background: linear-gradient(135deg, #60a8f0 0%, #1d5fa8 100%); padding: 12px 24px;">
-                        📚 Voir les templates
+                        Voir les modèles
                     </button>
                 </div>
             </div>
@@ -564,6 +564,10 @@
                 <div style="font-size:0.56em;letter-spacing:2.5px;color:#60a8f0;font-weight:900;">◈ TON PARCOURS</div>
                 <h2 style="margin:2px 0 0;color:#fff;font-size:1.15em;font-weight:900;font-family:var(--font-display),sans-serif;letter-spacing:0.5px;">Progression</h2>
             </div>
+
+            <!-- v1225 : vue d'ensemble (adulte) / « Ce que tu as accompli » (enfant).
+                 Rempli par AwakProg.rendre() — js/progress-tab.js -->
+            <div id="awakProgHaut"></div>
             
             <!-- 🎴 QUATRE ACCÈS EN CARTES.
                  ⚠️ Avant : 4 boutons en flex:1 sur UNE ligne — étroits et tronqués
@@ -572,26 +576,26 @@
             <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-bottom:18px;">
             <button onclick="showAwakeningTree()" style="text-align:left;display:flex;align-items:center;gap:10px;
                     padding:13px 12px;border-radius:14px;cursor:pointer;
-                    background:rgba(74,222,128,0.07);border:1px solid rgba(74,222,128,0.26);">
-                <span style="font-size:1.5em;flex-shrink:0;">🌳</span>
+                    background:rgba(167,139,250,0.07);border:1px solid rgba(167,139,250,0.26);">
+                <span style="flex-shrink:0;width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:#a78bfa1a;border:1px solid #a78bfa40;" data-awk-ico="arbre" data-awk-col="#a78bfa"></span>
                 <span style="flex:1;min-width:0;">
                     <span style="display:block;font-size:0.78em;font-weight:800;color:#f1f5f9;">Arbre de l'Éveil</span>
                     <span style="display:block;font-size:0.62em;color:#94a3b8;margin-top:2px;line-height:1.3;">Ce que tes séances font pousser</span>
                 </span>
             </button>
-            <button onclick="showSystemAnalysis()" style="text-align:left;display:flex;align-items:center;gap:10px;
+            <button id="awakTuileAnalyse" onclick="showSystemAnalysis()" style="text-align:left;display:flex;align-items:center;gap:10px;
                     padding:13px 12px;border-radius:14px;cursor:pointer;
                     background:rgba(96,168,240,0.07);border:1px solid rgba(96,168,240,0.26);">
-                <span style="font-size:1.5em;flex-shrink:0;">⚙️</span>
+                <span style="flex-shrink:0;width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:#60a8f01a;border:1px solid #60a8f040;" data-awk-ico="stats" data-awk-col="#60a8f0"></span>
                 <span style="flex:1;min-width:0;">
                     <span style="display:block;font-size:0.78em;font-weight:800;color:#f1f5f9;">Analyse &amp; coach</span>
                     <span style="display:block;font-size:0.62em;color:#94a3b8;margin-top:2px;line-height:1.3;">Ton état et quoi faire ensuite</span>
                 </span>
             </button>
-            <button onclick="awakOuvrirEquilibre()" style="text-align:left;display:flex;align-items:center;gap:10px;
+            <button id="awakTuileEquilibre" onclick="awakOuvrirEquilibre()" style="text-align:left;display:flex;align-items:center;gap:10px;
                     padding:13px 12px;border-radius:14px;cursor:pointer;
                     background:rgba(34,211,238,0.07);border:1px solid rgba(34,211,238,0.26);">
-                <span style="font-size:1.5em;flex-shrink:0;">⚖️</span>
+                <span style="flex-shrink:0;width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:#22d3ee1a;border:1px solid #22d3ee40;" data-awk-ico="bouclier" data-awk-col="#22d3ee"></span>
                 <span style="flex:1;min-width:0;">
                     <span style="display:block;font-size:0.78em;font-weight:800;color:#f1f5f9;">Équilibre</span>
                     <span style="display:block;font-size:0.62em;color:#94a3b8;margin-top:2px;line-height:1.3;">Quel muscle est en retard</span>
@@ -600,10 +604,10 @@
             <button onclick="awakHallOpen()" style="text-align:left;display:flex;align-items:center;gap:10px;
                     padding:13px 12px;border-radius:14px;cursor:pointer;
                     background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.26);">
-                <span style="font-size:1.5em;flex-shrink:0;">🏆</span>
+                <span style="flex-shrink:0;width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:#fbbf241a;border:1px solid #fbbf2440;" data-awk-ico="trophee" data-awk-col="#fbbf24"></span>
                 <span style="flex:1;min-width:0;">
-                    <span style="display:block;font-size:0.78em;font-weight:800;color:#f1f5f9;">Hall of Fame</span>
-                    <span style="display:block;font-size:0.62em;color:#94a3b8;margin-top:2px;line-height:1.3;">Tes records personnels</span>
+                    <span id="awakTuileHofTitre" style="display:block;font-size:0.78em;font-weight:800;color:#f1f5f9;">Hall of Fame</span>
+                    <span id="awakTuileHofSous" style="display:block;font-size:0.62em;color:#94a3b8;margin-top:2px;line-height:1.3;">Tes records personnels</span>
                 </span>
             </button>
             </div>
@@ -922,7 +926,7 @@
             <!-- 📸 SUIVI CORPOREL — hors accordéon (v1028).
                  ⚠️ Un accordéon oblige à ouvrir avant de voir : motif de RÉGLAGES,
                  pas de consultation. Aucun autre onglet n'en utilise. -->
-            <div style="border-left:2px solid #60a8f0;padding-left:11px;margin:18px 0 12px;">
+            <div id="awakCorpsTitre" style="border-left:2px solid #60a8f0;padding-left:11px;margin:18px 0 12px;">
                 <div style="font-size:0.54em;letter-spacing:2.5px;color:#60a8f0;font-weight:900;">◈ TON CORPS</div>
             </div>
                         <!-- 📸 CARTE UNIQUE « Ton corps » — photo centrale, bandeau, actions.
@@ -953,7 +957,7 @@
                         📸 Prendre une photo
                     </button>
                     <div style="margin-top: 10px; color: #94a3b8; font-size: 0.85em;">
-                        💡 Astuce : Prenez vos photos au même endroit, même heure, même éclairage
+                        💡 Astuce : prends tes photos au même endroit, à la même heure, avec la même lumière
                     </div>
                 </div>
 
@@ -964,17 +968,12 @@
             </div>
 
             <!-- Body Measurements Section -->
-            <div class="card">
-                <h2 style="color: #22d3ee; margin-bottom: 20px;">Mesures Corporelles</h2>
+            <!-- v1225 : rattachée à « Ton corps » (même bloc, juste sous la photo) -->
+            <div class="card" id="awakMesuresCard">
+                <h2 style="color: #93c5fd; margin-bottom: 20px;">Tes mesures</h2>
 
-                <div style="background: linear-gradient(135deg, #22d3ee15 0%, #22d3ee05 100%); padding: 20px; border-radius: 14px; margin-bottom: 20px; border-left: 4px solid #22d3ee;">
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <div style="font-size: 2.5em;">📐</div>
-                        <div>
-                            <div style="font-weight: 700; font-size: 1.1em; color: #e2e8f0; margin-bottom: 5px;">Suivez votre évolution corporelle</div>
-                            <div style="color: #94a3b8; font-size: 0.9em;">Poids, tours de taille, bras, cuisses - Voyez vos progrès au-delà de la balance</div>
-                        </div>
-                    </div>
+                <div style="font-size:0.8em;color:#94a3b8;line-height:1.5;margin-bottom:16px;">
+                    Poids, tour de taille, bras, cuisses : tes progrès vont plus loin que la balance.
                 </div>
 
                 <!-- Add Measurement Button -->
@@ -1021,7 +1020,7 @@
                     </div>
 
                     <div style="display: flex; gap: 10px;">
-                        <button onclick="saveMeasurement()" class="btn" style="flex: 1; background: linear-gradient(135deg, #22d3ee 0%, #059669 100%);">
+                        <button onclick="saveMeasurement()" class="btn" style="flex: 1; background: linear-gradient(135deg, #60a8f0 0%, #1d5fa8 100%);">
                             💾 Sauvegarder
                         </button>
                         <button onclick="cancelMeasurement()" class="btn btn-secondary" style="flex: 1;">
@@ -1042,7 +1041,7 @@
             <!-- ═══ ACCORDÉON : Historique ═══ -->
             <div class="accordion-section">
                 <div class="accordion-header" onclick="toggleSettingsAccordion(this)">
-                    <div class="accordion-title"><span>📅</span><span>Historique</span></div>
+                    <div class="accordion-title"><span>Historique</span></div>
                     <div class="accordion-icon">▼</div>
                 </div>
                 <div class="accordion-body open">
@@ -1052,7 +1051,7 @@
             <!-- Workout History List -->
             <div class="card">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-                    <h2 style="color: #22d3ee; margin: 0;">Historique des séances</h2>
+                    <h2 style="color: #93c5fd; margin: 0;font-size:1.05em;">Tes séances</h2>
                     <button onclick="exportHistoryPDF()"
                             style="background:linear-gradient(135deg,#3b82f6,#1d5fa8);color:white;border:none;border-radius:10px;padding:8px 14px;font-size:0.8em;font-weight:700;cursor:pointer;white-space:nowrap;">
                         📄 Exporter
@@ -1061,19 +1060,15 @@
 
                 <!-- Search + Filters -->
                 <div style="margin-bottom:14px;">
-                    <input type="text" id="historySearchInput" placeholder="🔍 Rechercher une séance..."
+                    <input type="text" id="historySearchInput" placeholder="Rechercher une séance ou un muscle"
                            oninput="filterWorkoutHistory(window._histFilter||'all')"
                            style="width:100%;padding:12px 14px;border:1px solid rgba(255,255,255,0.12);border-radius:14px;font-size:1em;margin-bottom:10px;"
                            onfocus="this.style.borderColor='#22d3ee'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'">
-                    <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                        <button onclick="filterWorkoutHistory('all')" id="filterAll" class="btn"
-                                style="flex:1;min-width:90px;background:linear-gradient(135deg,#3b82f6,#1d5fa8);">📋 Toutes</button>
-                        <button onclick="filterWorkoutHistory('favorites')" id="filterFavorites" class="btn btn-secondary"
-                                style="flex:1;min-width:90px;">⭐ Favorites</button>
-                        <button onclick="filterWorkoutHistory('week')" id="filterWeek" class="btn btn-secondary"
-                                style="flex:1;min-width:90px;">📅 7 jours</button>
-                        <button onclick="filterWorkoutHistory('month')" id="filterMonth" class="btn btn-secondary"
-                                style="flex:1;min-width:90px;">🗓️ Ce mois</button>
+                    <div style="display:flex;gap:6px;">
+                        <button onclick="filterWorkoutHistory('all')" id="filterAll" class="awk-hist-chip actif">Toutes</button>
+                        <button onclick="filterWorkoutHistory('favorites')" id="filterFavorites" class="awk-hist-chip">Favorites</button>
+                        <button onclick="filterWorkoutHistory('week')" id="filterWeek" class="awk-hist-chip">7 jours</button>
+                        <button onclick="filterWorkoutHistory('month')" id="filterMonth" class="awk-hist-chip">Ce mois</button>
                     </div>
                 </div>
 
@@ -1378,38 +1373,38 @@
 
                 <!-- Personnalité Connue Card — Déplacée vers l'onglet Programme -->
 
-                <!-- Cardio & Intensité (fusion : Séances Cardio + Supersets & Circuits) -->
-                <div class="card" style="background:linear-gradient(160deg,#0a0e18 0%,#0F1014 100%);border:1px solid rgba(56,189,248,0.22);">
-                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-                        <span style="font-size:1.15em;">⚡</span>
+                <!-- Cardio & Intensité — v1219 : icônes SVG, une seule couleur, mots simples -->
+                <div class="card" style="background:linear-gradient(160deg,#0a0e18 0%,#0F1014 100%);border:1px solid rgba(96,168,240,0.25);">
+                    <div style="display:flex;align-items:center;gap:9px;margin-bottom:4px;">
+                        <span style="display:inline-flex;color:#60a8f0;"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></span>
                         <h3 style="margin:0;color:#e2e8f0;font-size:1.02em;font-weight:900;">Cardio &amp; intensité</h3>
                     </div>
-                    <p style="color:#94a3b8;margin:0 0 16px;font-size:0.8em;">Chronomètres, HIIT et enchaînements — des formats courts et intenses.</p>
-                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;">
-                        <div onclick="startCardioTimer()" style="cursor:pointer;background:rgba(255,255,255,0.03);border:1.5px solid rgba(6,182,212,0.4);border-radius:13px;padding:14px 10px;text-align:center;transition:transform 0.15s;">
-                            <div style="font-size:2em;margin-bottom:6px;">⏱️</div>
-                            <div style="font-weight:900;color:#22d3ee;font-size:0.9em;margin-bottom:3px;">Timer Simple</div>
-                            <div style="color:#94a3b8;font-size:0.68em;line-height:1.35;">Course, vélo, marche, natation…</div>
+                    <p style="color:#94a3b8;margin:0 0 14px;font-size:0.8em;">Des formats courts qui font transpirer.</p>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;">
+                        <div onclick="if(window.AwakRun)AwakRun.ouvrir();else startCardioTimer()" style="cursor:pointer;background:rgba(96,168,240,0.05);border:1px solid rgba(96,168,240,0.28);border-radius:13px;padding:12px 10px;text-align:left;transition:transform 0.15s;">
+                            <div style="width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:rgba(96,168,240,0.14);color:#93c5fd;margin-bottom:8px;"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="14" cy="4.5" r="2"/><path d="M13 8l-3 4 3 3v5M13 8l4 2 2 3M10 12l-4 1"/></svg></div>
+                            <div style="font-weight:900;color:#e2e8f0;font-size:0.88em;margin-bottom:3px;">Course GPS</div>
+                            <div style="color:#94a3b8;font-size:0.68em;line-height:1.35;">Course, marche ou vélo, avec ta distance</div>
                         </div>
-                        <div onclick="startTabata()" style="cursor:pointer;background:rgba(255,255,255,0.03);border:1.5px solid rgba(245,158,11,0.4);border-radius:13px;padding:14px 10px;text-align:center;transition:transform 0.15s;">
-                            <div style="font-size:2em;margin-bottom:6px;">⚡</div>
-                            <div style="font-weight:900;color:#fbbf24;font-size:0.9em;margin-bottom:3px;">Tabata</div>
-                            <div style="color:#94a3b8;font-size:0.68em;line-height:1.35;">20s effort / 10s repos × 8</div>
+                        <div onclick="startTabata()" style="cursor:pointer;background:rgba(96,168,240,0.05);border:1px solid rgba(96,168,240,0.28);border-radius:13px;padding:12px 10px;text-align:left;transition:transform 0.15s;">
+                            <div style="width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:rgba(96,168,240,0.14);color:#93c5fd;margin-bottom:8px;"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg></div>
+                            <div style="font-weight:900;color:#e2e8f0;font-size:0.88em;margin-bottom:3px;">Tabata</div>
+                            <div style="color:#94a3b8;font-size:0.68em;line-height:1.35;">20 s à fond, 10 s de pause, 8 fois (4 min)</div>
                         </div>
-                        <div onclick="openSupersetBuilder()" style="cursor:pointer;background:rgba(255,255,255,0.03);border:1.5px solid rgba(34,197,94,0.4);border-radius:13px;padding:14px 10px;text-align:center;transition:transform 0.15s;">
-                            <div style="font-size:2em;margin-bottom:6px;">🔗</div>
-                            <div style="font-weight:900;color:#4ade80;font-size:0.9em;margin-bottom:3px;">Superset</div>
-                            <div style="color:#94a3b8;font-size:0.68em;line-height:1.35;">2-3 exercices enchaînés sans repos</div>
+                        <div onclick="openSupersetBuilder()" style="cursor:pointer;background:rgba(96,168,240,0.05);border:1px solid rgba(96,168,240,0.28);border-radius:13px;padding:12px 10px;text-align:left;transition:transform 0.15s;">
+                            <div style="width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:rgba(96,168,240,0.14);color:#93c5fd;margin-bottom:8px;"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></div>
+                            <div style="font-weight:900;color:#e2e8f0;font-size:0.88em;margin-bottom:3px;">Superset</div>
+                            <div style="color:#94a3b8;font-size:0.68em;line-height:1.35;">2 ou 3 exercices à la suite, sans pause entre eux</div>
                         </div>
-                        <div onclick="openCircuitBuilder()" style="cursor:pointer;background:rgba(255,255,255,0.03);border:1.5px solid rgba(16,185,129,0.4);border-radius:13px;padding:14px 10px;text-align:center;transition:transform 0.15s;">
-                            <div style="font-size:2em;margin-bottom:6px;">🔄</div>
-                            <div style="font-weight:900;color:#34d399;font-size:0.9em;margin-bottom:3px;">Circuit</div>
-                            <div style="color:#94a3b8;font-size:0.68em;line-height:1.35;">4-6 exercices en boucle</div>
+                        <div onclick="openCircuitBuilder()" style="cursor:pointer;background:rgba(96,168,240,0.05);border:1px solid rgba(96,168,240,0.28);border-radius:13px;padding:12px 10px;text-align:left;transition:transform 0.15s;">
+                            <div style="width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:rgba(96,168,240,0.14);color:#93c5fd;margin-bottom:8px;"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 0 1-14.3 4.9M4 12A8 8 0 0 1 18.3 7.1"/><path d="M18.5 3v4.3h-4.3M5.5 21v-4.3h4.3"/></svg></div>
+                            <div style="font-weight:900;color:#e2e8f0;font-size:0.88em;margin-bottom:3px;">Circuit</div>
+                            <div style="color:#94a3b8;font-size:0.68em;line-height:1.35;">4 à 6 exercices qu'on refait en boucle</div>
                         </div>
-                        <div onclick="openAMRAPBuilder()" style="cursor:pointer;background:rgba(255,255,255,0.03);border:1.5px solid rgba(236,72,153,0.4);border-radius:13px;padding:14px 10px;text-align:center;transition:transform 0.15s;">
-                            <div style="font-size:2em;margin-bottom:6px;">💥</div>
-                            <div style="font-weight:900;color:#f472b6;font-size:0.9em;margin-bottom:3px;">AMRAP</div>
-                            <div style="color:#94a3b8;font-size:0.68em;line-height:1.35;">Max de rounds en temps limité</div>
+                        <div onclick="openAMRAPBuilder()" style="cursor:pointer;background:rgba(96,168,240,0.05);border:1px solid rgba(96,168,240,0.28);border-radius:13px;padding:12px 10px;text-align:left;transition:transform 0.15s;">
+                            <div style="width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:rgba(96,168,240,0.14);color:#93c5fd;margin-bottom:8px;"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3s5 4.5 5 9a5 5 0 0 1-10 0c0-1.8 1-3.3 2-4.3 0 1.5.8 2.3 1.6 2.3.9 0 1.4-.8 1.4-2 0-2-1-4-1-5z"/></svg></div>
+                            <div style="font-weight:900;color:#e2e8f0;font-size:0.88em;margin-bottom:3px;">AMRAP</div>
+                            <div style="color:#94a3b8;font-size:0.68em;line-height:1.35;">Le plus de tours possible avant la fin du chrono</div>
                         </div>
                     </div>
                 </div>
@@ -1443,7 +1438,7 @@
                 <!-- ── Barre top sci-fi cyberpunk ── -->
                 <div id="workoutTopBar" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;background:linear-gradient(180deg,#020510 0%,#020510 100%);gap:6px;border-bottom:1px solid rgba(34,211,238,0.25);position:relative;box-shadow:0 4px 20px rgba(0,0,0,0.5),inset 0 -1px 0 rgba(34,211,238,0.15);flex-wrap:wrap;">
                     <!-- Glow accent line bottom -->
-                    <div style="position:absolute;bottom:-1px;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent 10%,#60a8f0 40%,#60a8f0 60%,transparent 90%);box-shadow:0 0 8px #4ade80;"></div>
+                    <div style="position:absolute;bottom:-1px;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent 10%,#60a8f0 40%,#60a8f0 60%,transparent 90%);box-shadow:0 0 8px #60a8f0;"></div>
                     <!-- Corner accents top -->
 
                     <!-- Groupe gauche : titre + chrono + volume -->
@@ -1512,8 +1507,8 @@
                         <!-- 🎯 Fourchette de répétitions, très visible pendant l'effort
                              (repris de la maquette). Rempli par _updateRepsChip(). -->
                         <div id="repsRangeChip" style="display:none;margin:7px auto 0;padding:5px 14px;
-                             border-radius:99px;background:rgba(74,222,128,0.12);
-                             border:1px solid rgba(74,222,128,0.35);color:#cbd5e1;
+                             border-radius:99px;background:rgba(96,168,240,0.12);
+                             border:1px solid rgba(96,168,240,0.35);color:#cbd5e1;
                              font-size:0.78em;font-weight:900;letter-spacing:0.5px;width:max-content;"></div>
                         <!-- (Timer déplacé dans le cadre image, coin haut-gauche) -->
 
@@ -1555,17 +1550,17 @@
 
                         <!-- Optional Tracking Inputs (visible only in REPS mode) -->
                         <div id="repsTrackingInputs" style="display: none; margin: 18px auto 0; max-width: 480px;">
-                            <div style="background:linear-gradient(160deg,#020510 0%,#020510 50%,#020510 100%);padding:20px 18px;border-radius:14px;border:1px solid rgba(74,222,128,0.3);box-shadow:0 8px 32px rgba(0,0,0,0.5),0 0 24px rgba(34,197,94,0.06),inset 0 0 40px rgba(34,197,94,0.02);position:relative;overflow:hidden;">
+                            <div style="background:linear-gradient(160deg,#020510 0%,#020510 50%,#020510 100%);padding:20px 18px;border-radius:14px;border:1px solid rgba(96,168,240,0.3);box-shadow:0 8px 32px rgba(0,0,0,0.5),0 0 24px rgba(59,130,246,0.06),inset 0 0 40px rgba(59,130,246,0.02);position:relative;overflow:hidden;">
 
                                 <!-- Coins décoratifs HUD cyberpunk -->
-                                <div style="position:absolute;top:-1px;left:-1px;width:18px;height:18px;border-top:2px solid #4ade80;border-left:2px solid #4ade80;border-top-left-radius:14px;box-shadow:0 0 8px rgba(74,222,128,0.4);"></div>
-                                <div style="position:absolute;top:-1px;right:-1px;width:18px;height:18px;border-top:2px solid #4ade80;border-right:2px solid #4ade80;border-top-right-radius:14px;box-shadow:0 0 8px rgba(74,222,128,0.4);"></div>
-                                <div style="position:absolute;bottom:-1px;left:-1px;width:18px;height:18px;border-bottom:2px solid #4ade80;border-left:2px solid #4ade80;border-bottom-left-radius:14px;box-shadow:0 0 8px rgba(74,222,128,0.4);"></div>
-                                <div style="position:absolute;bottom:-1px;right:-1px;width:18px;height:18px;border-bottom:2px solid #4ade80;border-right:2px solid #4ade80;border-bottom-right-radius:14px;box-shadow:0 0 8px rgba(74,222,128,0.4);"></div>
+                                <div style="position:absolute;top:-1px;left:-1px;width:18px;height:18px;border-top:2px solid #60a8f0;border-left:2px solid #60a8f0;border-top-left-radius:14px;box-shadow:0 0 8px rgba(96,168,240,0.4);"></div>
+                                <div style="position:absolute;top:-1px;right:-1px;width:18px;height:18px;border-top:2px solid #60a8f0;border-right:2px solid #60a8f0;border-top-right-radius:14px;box-shadow:0 0 8px rgba(96,168,240,0.4);"></div>
+                                <div style="position:absolute;bottom:-1px;left:-1px;width:18px;height:18px;border-bottom:2px solid #60a8f0;border-left:2px solid #60a8f0;border-bottom-left-radius:14px;box-shadow:0 0 8px rgba(96,168,240,0.4);"></div>
+                                <div style="position:absolute;bottom:-1px;right:-1px;width:18px;height:18px;border-bottom:2px solid #60a8f0;border-right:2px solid #60a8f0;border-bottom-right-radius:14px;box-shadow:0 0 8px rgba(96,168,240,0.4);"></div>
 
                                 <!-- Label "SÉRIE EN COURS" cyberpunk -->
                                 <div style="text-align:center;margin-bottom:14px;">
-                                    <div id="setIndicator" style="font-size:0.7em;font-weight:900;color:#cbd5e1;letter-spacing:3px;text-transform:uppercase;text-shadow:0 0 8px rgba(74,222,128,0.4);">SÉRIE 1 / 3</div>
+                                    <div id="setIndicator" style="font-size:0.7em;font-weight:900;color:#cbd5e1;letter-spacing:3px;text-transform:uppercase;text-shadow:0 0 8px rgba(96,168,240,0.4);">SÉRIE 1 / 3</div>
                                     <!-- 🏋️ Type de résistance (rempli dynamiquement par JS) -->
                                     <div id="resistanceTypeChip" style="display:none;margin-top:6px;font-size:0.58em;color:#94a3b8;font-weight:800;letter-spacing:2px;text-transform:uppercase;">
                                         <span style="background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.3);color:#c084fc;padding:3px 9px;border-radius:99px;">🏋️ <span id="resistanceTypeText">Poids du corps</span></span>
@@ -1579,7 +1574,7 @@
                                 <div id="completedSetsLog" style="margin-bottom:10px;display:none;"></div>
 
                                 <!-- 🚀 Surcharge progressive suggestion -->
-                                <div id="progressiveOverloadBanner" style="display:none;margin-bottom:10px;padding:10px 12px;background:linear-gradient(135deg,rgba(22,163,74,0.18),rgba(74,222,128,0.1));border:1px solid rgba(74,222,128,0.4);border-radius:10px;font-size:0.78em;color:#cbd5e1;font-weight:700;line-height:1.4;"></div>
+                                <div id="progressiveOverloadBanner" style="display:none;margin-bottom:10px;padding:10px 12px;background:linear-gradient(135deg,rgba(29,95,168,0.18),rgba(96,168,240,0.1));border:1px solid rgba(96,168,240,0.4);border-radius:10px;font-size:0.78em;color:#cbd5e1;font-weight:700;line-height:1.4;"></div>
 
                                 <!-- 💡 Suggestion de charge intelligente -->
                                 <div id="loadSuggestionContainer"></div>
@@ -1590,32 +1585,32 @@
                                 <!-- Inputs reps + poids GROS chiffres style screenshot -->
                                 <div class="reps-weight-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
                                     <!-- REPS - GROS CHIFFRES -->
-                                    <div style="background:linear-gradient(180deg,#020510,#020510);padding:14px 10px;border-radius:10px;border:1px solid rgba(74,222,128,0.3);position:relative;overflow:hidden;">
+                                    <div style="background:linear-gradient(180deg,#020510,#020510);padding:14px 10px;border-radius:10px;border:1px solid rgba(96,168,240,0.3);position:relative;overflow:hidden;">
                                         <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#60a8f0,transparent);opacity:0.5;"></div>
-                                        <span style="display:block;font-size:0.6em;font-weight:900;margin-bottom:8px;color:#cbd5e1;text-transform:uppercase;letter-spacing:2.5px;text-align:center;text-shadow:0 0 6px rgba(74,222,128,0.4);">RÉPÉTITIONS</span>
+                                        <span style="display:block;font-size:0.6em;font-weight:900;margin-bottom:8px;color:#cbd5e1;text-transform:uppercase;letter-spacing:2.5px;text-align:center;text-shadow:0 0 6px rgba(96,168,240,0.4);">RÉPÉTITIONS</span>
                                         <div style="display:flex;align-items:center;gap:6px;">
-                                            <button type="button" onclick="document.getElementById('quickRepsInput').stepDown();document.getElementById('quickRepsInput').dispatchEvent(new Event('input'));" style="width:38px;height:38px;border-radius:50%;background:rgba(74,222,128,0.12);border:1.5px solid rgba(74,222,128,0.5);color:#cbd5e1;font-size:1.2em;font-weight:900;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 0 8px rgba(74,222,128,0.2);transition:all 0.2s;">−</button>
+                                            <button type="button" onclick="document.getElementById('quickRepsInput').stepDown();document.getElementById('quickRepsInput').dispatchEvent(new Event('input'));" style="width:38px;height:38px;border-radius:50%;background:rgba(96,168,240,0.12);border:1.5px solid rgba(96,168,240,0.5);color:#cbd5e1;font-size:1.2em;font-weight:900;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 0 8px rgba(96,168,240,0.2);transition:all 0.2s;">−</button>
                                             <input type="number" id="quickRepsInput" min="1" max="200" placeholder="10"
-                                                   style="flex:1;min-width:0;box-sizing:border-box;padding:6px 2px;font-size:clamp(1.15rem,5vw,1.9em);font-weight:900;border:none;border-radius:10px;text-align:center;background:rgba(74,222,128,0.06);color:#ffffff;text-shadow:0 0 12px rgba(74,222,128,0.6);font-variant-numeric:tabular-nums;letter-spacing:-0.5px;outline:none;" />
-                                            <button type="button" onclick="document.getElementById('quickRepsInput').stepUp();document.getElementById('quickRepsInput').dispatchEvent(new Event('input'));" style="width:38px;height:38px;border-radius:50%;background:rgba(74,222,128,0.12);border:1.5px solid rgba(74,222,128,0.5);color:#cbd5e1;font-size:1.2em;font-weight:900;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 0 8px rgba(74,222,128,0.2);transition:all 0.2s;">+</button>
+                                                   style="flex:1;min-width:0;box-sizing:border-box;padding:6px 2px;font-size:clamp(1.15rem,5vw,1.9em);font-weight:900;border:none;border-radius:10px;text-align:center;background:rgba(96,168,240,0.06);color:#ffffff;text-shadow:0 0 12px rgba(96,168,240,0.6);font-variant-numeric:tabular-nums;letter-spacing:-0.5px;outline:none;" />
+                                            <button type="button" onclick="document.getElementById('quickRepsInput').stepUp();document.getElementById('quickRepsInput').dispatchEvent(new Event('input'));" style="width:38px;height:38px;border-radius:50%;background:rgba(96,168,240,0.12);border:1.5px solid rgba(96,168,240,0.5);color:#cbd5e1;font-size:1.2em;font-weight:900;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 0 8px rgba(96,168,240,0.2);transition:all 0.2s;">+</button>
                                         </div>
                                     </div>
                                     <!-- POIDS - GROS CHIFFRES -->
-                                    <div id="quickWeightCard" style="background:linear-gradient(180deg,#020510,#020510);padding:14px 10px;border-radius:10px;border:1px solid rgba(74,222,128,0.3);position:relative;overflow:hidden;">
+                                    <div id="quickWeightCard" style="background:linear-gradient(180deg,#020510,#020510);padding:14px 10px;border-radius:10px;border:1px solid rgba(96,168,240,0.3);position:relative;overflow:hidden;">
                                         <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#60a8f0,transparent);opacity:0.5;"></div>
-                                        <span style="display:block;font-size:0.6em;font-weight:900;margin-bottom:8px;color:#cbd5e1;text-transform:uppercase;letter-spacing:2.5px;text-align:center;text-shadow:0 0 6px rgba(74,222,128,0.4);"><span data-weight-unit>CHARGE (KG)</span></span>
+                                        <span style="display:block;font-size:0.6em;font-weight:900;margin-bottom:8px;color:#cbd5e1;text-transform:uppercase;letter-spacing:2.5px;text-align:center;text-shadow:0 0 6px rgba(96,168,240,0.4);"><span data-weight-unit>CHARGE (KG)</span></span>
                                         <div style="display:flex;align-items:center;gap:6px;">
-                                            <button type="button" onclick="(function(){var i=document.getElementById('quickWeightInput');i.value=Math.max(0,(parseFloat(i.value)||0)-2.5);i.dispatchEvent(new Event('input'));})()" style="width:38px;height:38px;border-radius:50%;background:rgba(74,222,128,0.12);border:1.5px solid rgba(74,222,128,0.5);color:#cbd5e1;font-size:1.2em;font-weight:900;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 0 8px rgba(74,222,128,0.2);transition:all 0.2s;">−</button>
+                                            <button type="button" onclick="(function(){var i=document.getElementById('quickWeightInput');i.value=Math.max(0,(parseFloat(i.value)||0)-2.5);i.dispatchEvent(new Event('input'));})()" style="width:38px;height:38px;border-radius:50%;background:rgba(96,168,240,0.12);border:1.5px solid rgba(96,168,240,0.5);color:#cbd5e1;font-size:1.2em;font-weight:900;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 0 8px rgba(96,168,240,0.2);transition:all 0.2s;">−</button>
                                             <input type="number" id="quickWeightInput" min="0" step="0.5" placeholder="0"
-                                                   style="flex:1;min-width:0;box-sizing:border-box;padding:6px 2px;font-size:clamp(1.15rem,5vw,1.9em);font-weight:900;border:none;border-radius:10px;text-align:center;background:rgba(74,222,128,0.06);color:#ffffff;text-shadow:0 0 12px rgba(74,222,128,0.6);font-variant-numeric:tabular-nums;letter-spacing:-0.5px;outline:none;" />
-                                            <button type="button" onclick="(function(){var i=document.getElementById('quickWeightInput');i.value=(parseFloat(i.value)||0)+2.5;i.dispatchEvent(new Event('input'));})()" style="width:38px;height:38px;border-radius:50%;background:rgba(74,222,128,0.12);border:1.5px solid rgba(74,222,128,0.5);color:#cbd5e1;font-size:1.2em;font-weight:900;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 0 8px rgba(74,222,128,0.2);transition:all 0.2s;">+</button>
+                                                   style="flex:1;min-width:0;box-sizing:border-box;padding:6px 2px;font-size:clamp(1.15rem,5vw,1.9em);font-weight:900;border:none;border-radius:10px;text-align:center;background:rgba(96,168,240,0.06);color:#ffffff;text-shadow:0 0 12px rgba(96,168,240,0.6);font-variant-numeric:tabular-nums;letter-spacing:-0.5px;outline:none;" />
+                                            <button type="button" onclick="(function(){var i=document.getElementById('quickWeightInput');i.value=(parseFloat(i.value)||0)+2.5;i.dispatchEvent(new Event('input'));})()" style="width:38px;height:38px;border-radius:50%;background:rgba(96,168,240,0.12);border:1.5px solid rgba(96,168,240,0.5);color:#cbd5e1;font-size:1.2em;font-weight:900;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 0 8px rgba(96,168,240,0.2);transition:all 0.2s;">+</button>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Bouton Compléter la série avec glow -->
                                 <button onclick="completeCurrentSet()" id="completeSetBtn"
-                                        style="width:100%;background:linear-gradient(135deg,#1d5fa8 0%,#60a8f0 50%,#60a8f0 100%);color:white;border:1.5px solid rgba(255,255,255,0.14);border-radius:10px;padding:16px;font-size:1em;font-weight:900;cursor:pointer;letter-spacing:3px;box-shadow:0 0 32px rgba(74,222,128,0.5),0 8px 24px rgba(34,197,94,0.4),inset 0 1px 0 rgba(255,255,255,0.25);transition:all 0.2s;text-transform:uppercase;position:relative;overflow:hidden;text-shadow:0 1px 2px rgba(0,0,0,0.3);">
+                                        style="width:100%;background:linear-gradient(135deg,#1d5fa8 0%,#60a8f0 50%,#60a8f0 100%);color:white;border:1.5px solid rgba(255,255,255,0.14);border-radius:10px;padding:16px;font-size:1em;font-weight:900;cursor:pointer;letter-spacing:3px;box-shadow:0 0 32px rgba(96,168,240,0.5),0 8px 24px rgba(59,130,246,0.4),inset 0 1px 0 rgba(255,255,255,0.25);transition:all 0.2s;text-transform:uppercase;position:relative;overflow:hidden;text-shadow:0 1px 2px rgba(0,0,0,0.3);">
                                     <svg viewBox="0 0 24 24" width="15" height="15" style="display:inline-block;vertical-align:-0.15em;" aria-hidden="true"><path d="M4 12.5 L9.5 18.5 L20 5.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="square" stroke-linejoin="miter" fill="none"/></svg> SÉRIE TERMINÉE
                                 </button>
 
@@ -1654,7 +1649,7 @@
                                         style="display:flex;align-items:center;justify-content:center;gap:6px;
                                                padding:11px 4px;border-radius:10px;cursor:pointer;transition:all 0.15s;
                                                background:linear-gradient(135deg,#1d5fa8,#60a8f0,#60a8f0);border:1px solid rgba(255,255,255,0.14);color:white;
-                                               box-shadow:0 0 20px rgba(74,222,128,0.4),0 4px 16px rgba(22,163,74,0.35);
+                                               box-shadow:0 0 20px rgba(96,168,240,0.4),0 4px 16px rgba(29,95,168,0.35);
                                                font-size:0.58em;font-weight:900;letter-spacing:0.5px;text-transform:uppercase;white-space:nowrap;
                                                position:relative;overflow:hidden;">
                                     <span>Suivant</span>
@@ -1683,13 +1678,13 @@
                         </div>
 
                         </div><!-- /timer zone -->                    <!-- Instructions (collapsibles sur mobile) -->
-                    <div class="exercise-description-box" id="exerciseDescriptionBox" style="background:linear-gradient(160deg,#020510,#020510 50%,#020510);border:1px solid rgba(74,222,128,0.2);border-radius:14px;padding:14px;position:relative;">
+                    <div class="exercise-description-box" id="exerciseDescriptionBox" style="background:linear-gradient(160deg,#020510,#020510 50%,#020510);border:1px solid rgba(96,168,240,0.2);border-radius:14px;padding:14px;position:relative;">
                         <!-- Coins HUD subtils -->
-                        <div style="position:absolute;top:-1px;left:-1px;width:14px;height:14px;border-top:1.5px solid rgba(74,222,128,0.5);border-left:1.5px solid rgba(74,222,128,0.5);border-top-left-radius:12px;pointer-events:none;"></div>
-                        <div style="position:absolute;bottom:-1px;right:-1px;width:14px;height:14px;border-bottom:1.5px solid rgba(74,222,128,0.5);border-right:1.5px solid rgba(74,222,128,0.5);border-bottom-right-radius:12px;pointer-events:none;"></div>
+                        <div style="position:absolute;top:-1px;left:-1px;width:14px;height:14px;border-top:1.5px solid rgba(96,168,240,0.5);border-left:1.5px solid rgba(96,168,240,0.5);border-top-left-radius:12px;pointer-events:none;"></div>
+                        <div style="position:absolute;bottom:-1px;right:-1px;width:14px;height:14px;border-bottom:1.5px solid rgba(96,168,240,0.5);border-right:1.5px solid rgba(96,168,240,0.5);border-bottom-right-radius:12px;pointer-events:none;"></div>
 
                         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-                            <h4 style="margin:0;font-size:0.7em;font-weight:900;color:#cbd5e1;letter-spacing:2.5px;text-transform:uppercase;text-shadow:0 0 6px rgba(74,222,128,0.4);">◈ INSTRUCTIONS</h4>
+                            <h4 style="margin:0;font-size:0.7em;font-weight:900;color:#cbd5e1;letter-spacing:2.5px;text-transform:uppercase;text-shadow:0 0 6px rgba(96,168,240,0.4);">◈ INSTRUCTIONS</h4>
                             <button id="workoutYoutubeBtn" onclick="openWorkoutYoutube()"
                                     style="display:none;background:linear-gradient(135deg,#ef4444,#dc2626);color:white;border:1px solid rgba(239,68,68,0.6);border-radius:6px;padding:5px 12px;font-size:0.72em;font-weight:900;cursor:pointer;letter-spacing:1px;text-transform:uppercase;box-shadow:0 0 12px rgba(239,68,68,0.3);">
                                 <svg viewBox="0 0 24 24" width="15" height="15" style="display:inline-block;vertical-align:-0.15em;" fill="currentColor" aria-hidden="true"><path d="M6 3.5 L20 12 L6 20.5 Z"/></svg> Vidéo
@@ -1704,7 +1699,7 @@
 
                 <!-- Panel options flottant -->
                 <div id="workoutOptionsPanel" style="display:none;position:fixed;left:50%;bottom:16px;transform:translateX(-50%);background:#1e293b;border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:12px;box-shadow:0 8px 32px rgba(0,0,0,0.6);z-index:201;width:calc(100% - 24px);max-width:340px;max-height:70vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
-                    <button onclick="toggleSessionFavorite();toggleWorkoutOptionsPanel();" id="sessionFavBtn" style="display:block;width:100%;padding:10px 14px;text-align:left;border:none;background:none;cursor:pointer;font-size:0.9em;border-radius:10px;color:#e2e8f0;">🤍 Favori</button>
+                    <button onclick="toggleSessionFavorite();toggleWorkoutOptionsPanel();" id="sessionFavBtn" style="display:block;width:100%;padding:10px 14px;text-align:left;border:none;background:none;cursor:pointer;font-size:0.9em;border-radius:10px;color:#e2e8f0;">Ajouter aux favoris</button>
                     <hr style="margin:6px 0;border:none;border-top:1px solid rgba(255,255,255,0.1);">
                     <button onclick="toggleMute();toggleWorkoutOptionsPanel();" style="display:block;width:100%;padding:10px 14px;text-align:left;border:none;background:none;cursor:pointer;font-size:0.9em;border-radius:10px;color:#e2e8f0;" id="optMuteBtn">🔊 Son</button>
                     <button onclick="toggleVib();toggleWorkoutOptionsPanel();" style="display:block;width:100%;padding:10px 14px;text-align:left;border:none;background:none;cursor:pointer;font-size:0.9em;border-radius:10px;color:#e2e8f0;" id="optVibBtn">📳 Vibreur</button>
@@ -1713,21 +1708,29 @@
                     <button onclick="showSwapExercise();toggleWorkoutOptionsPanel();" style="display:block;width:100%;padding:10px 14px;text-align:left;border:none;background:none;cursor:pointer;font-size:0.9em;border-radius:10px;color:#e2e8f0;">🔄 Remplacer</button>
                     <hr style="margin:6px 0;border:none;border-top:1px solid rgba(255,255,255,0.1);">
                     <div id="muscuOnlyOpts">
-                    <button onclick="triggerDropSet();toggleWorkoutOptionsPanel();" style="display:block;width:100%;padding:10px 14px;text-align:left;border:none;background:none;cursor:pointer;font-size:0.9em;border-radius:10px;color:#e2e8f0;">⬇️ Drop Set</button>
-                    <button onclick="triggerRestPause();toggleWorkoutOptionsPanel();" style="display:block;width:100%;padding:10px 14px;text-align:left;border:none;background:none;cursor:pointer;font-size:0.9em;border-radius:10px;color:#e2e8f0;"><svg viewBox="0 0 24 24" width="18" height="18" style="display:inline-block;vertical-align:-0.15em;" fill="currentColor" aria-hidden="true"><path d="M6 4 h4 v16 h-4 Z M14 4 h4 v16 h-4 Z"/></svg> Rest-Pause</button>
+                    <div id="optsAvancees">
+                    <div style="padding:4px 14px 2px;font-size:0.68em;color:#64748b;font-weight:800;letter-spacing:1px;text-transform:uppercase;">Pour aller plus loin</div>
+                    <button onclick="triggerDropSet();toggleWorkoutOptionsPanel();" style="display:block;width:100%;padding:10px 14px;text-align:left;border:none;background:none;cursor:pointer;font-size:0.9em;border-radius:10px;color:#e2e8f0;">Série dégressive <span style="font-size:0.78em;color:#94a3b8;">(baisse le poids et continue)</span></button>
+                    <button onclick="triggerRestPause();toggleWorkoutOptionsPanel();" style="display:block;width:100%;padding:10px 14px;text-align:left;border:none;background:none;cursor:pointer;font-size:0.9em;border-radius:10px;color:#e2e8f0;"><svg viewBox="0 0 24 24" width="18" height="18" style="display:inline-block;vertical-align:-0.15em;" fill="currentColor" aria-hidden="true"><path d="M6 4 h4 v16 h-4 Z M14 4 h4 v16 h-4 Z"/></svg> Mini-pause <span style="font-size:0.78em;color:#94a3b8;">(15 s puis encore quelques reps)</span></button>
                     <hr style="margin:6px 0;border:none;border-top:1px solid rgba(255,255,255,0.1);">
-                    <div style="padding:6px 14px 4px;font-size:0.75em;color:#94a3b8;font-weight:700;">😓 Difficulté (RPE)</div>
-                    <div style="display:flex;gap:4px;padding:0 10px 8px;">
+                    </div>
+                    <div style="padding:6px 14px 4px;font-size:0.75em;color:#94a3b8;font-weight:700;">C'était dur ? <span id="optsRpeAide" style="font-weight:600;color:#64748b;">(3 = facile, 10 = à fond)</span></div>
+                    <div id="optsRpeEnfant" style="display:none;gap:4px;padding:0 10px 8px;">
+                        <button onclick="setInlineRPE(3);toggleWorkoutOptionsPanel();" style="flex:1;padding:8px 0;border-radius:8px;border:1px solid rgba(96,168,240,0.5);background:rgba(96,168,240,0.12);color:#93c5fd;font-size:0.8em;font-weight:800;cursor:pointer;">Facile</button>
+                        <button onclick="setInlineRPE(6);toggleWorkoutOptionsPanel();" style="flex:1;padding:8px 0;border-radius:8px;border:1px solid rgba(251,191,36,0.5);background:rgba(251,191,36,0.12);color:#fbbf24;font-size:0.8em;font-weight:800;cursor:pointer;">Moyen</button>
+                        <button onclick="setInlineRPE(9);toggleWorkoutOptionsPanel();" style="flex:1;padding:8px 0;border-radius:8px;border:1px solid rgba(239,68,68,0.5);background:rgba(239,68,68,0.12);color:#f87171;font-size:0.8em;font-weight:800;cursor:pointer;">Dur</button>
+                    </div>
+                    <div id="optsRpeAdulte" style="display:flex;gap:4px;padding:0 10px 8px;">
                         <button onclick="setInlineRPE(3);toggleWorkoutOptionsPanel();" style="flex:1;padding:6px 0;border-radius:6px;border:1px solid #334155;background:#1e293b;color:#e2e8f0;font-size:0.8em;font-weight:700;cursor:pointer;">3</button>
                         <button onclick="setInlineRPE(5);toggleWorkoutOptionsPanel();" style="flex:1;padding:6px 0;border-radius:6px;border:1px solid #334155;background:#1e293b;color:#e2e8f0;font-size:0.8em;font-weight:700;cursor:pointer;">5</button>
                         <button onclick="setInlineRPE(7);toggleWorkoutOptionsPanel();" style="flex:1;padding:6px 0;border-radius:6px;border:1px solid #334155;background:#1e293b;color:#e2e8f0;font-size:0.8em;font-weight:700;cursor:pointer;">7</button>
                         <button onclick="setInlineRPE(8);toggleWorkoutOptionsPanel();" style="flex:1;padding:6px 0;border-radius:6px;border:1px solid #fbbf24;background:rgba(251,191,36,0.15);color:#fbbf24;font-size:0.8em;font-weight:700;cursor:pointer;">8</button>
                         <button onclick="setInlineRPE(10);toggleWorkoutOptionsPanel();" style="flex:1;padding:6px 0;border-radius:6px;border:1px solid #ef4444;background:rgba(239,68,68,0.15);color:#ef4444;font-size:0.8em;font-weight:700;cursor:pointer;">10</button>
                     </div>
-                    <div style="padding:0 14px 4px;font-size:0.75em;color:#94a3b8;font-weight:700;">⏱ Temps de repos</div>
+                    <div style="padding:0 14px 4px;font-size:0.75em;color:#94a3b8;font-weight:700;">Temps de repos</div>
                     <div style="display:flex;gap:4px;padding:0 10px 8px;flex-wrap:wrap;">
                         <button onclick="setInlineRest(60);toggleWorkoutOptionsPanel();" style="flex:1;padding:6px 0;border-radius:6px;border:1px solid #334155;background:#1e293b;color:#e2e8f0;font-size:0.78em;font-weight:700;cursor:pointer;min-width:44px;">1min</button>
-                        <button onclick="setInlineRest(90);toggleWorkoutOptionsPanel();" style="flex:1;padding:6px 0;border-radius:6px;border:1px solid rgba(255,255,255,0.14);background:rgba(22,163,74,0.15);color:#cbd5e1;font-size:0.78em;font-weight:700;cursor:pointer;min-width:44px;">1:30</button>
+                        <button onclick="setInlineRest(90);toggleWorkoutOptionsPanel();" style="flex:1;padding:6px 0;border-radius:6px;border:1px solid rgba(255,255,255,0.14);background:rgba(29,95,168,0.15);color:#cbd5e1;font-size:0.78em;font-weight:700;cursor:pointer;min-width:44px;">1:30</button>
                         <button onclick="setInlineRest(120);toggleWorkoutOptionsPanel();" style="flex:1;padding:6px 0;border-radius:6px;border:1px solid #334155;background:#1e293b;color:#e2e8f0;font-size:0.78em;font-weight:700;cursor:pointer;min-width:44px;">2min</button>
                         <button onclick="setInlineRest(180);toggleWorkoutOptionsPanel();" style="flex:1;padding:6px 0;border-radius:6px;border:1px solid #334155;background:#1e293b;color:#e2e8f0;font-size:0.78em;font-weight:700;cursor:pointer;min-width:44px;">3min</button>
                     </div>
@@ -1736,19 +1739,19 @@
                 </div>
 
                 <!-- Exercise Progress List -->
-                <div class="card exercise-progress-list" id="exerciseProgressListCard" style="background:linear-gradient(160deg,#020510,#020510 50%,#020510);border:1px solid rgba(74,222,128,0.2);border-radius:14px;position:relative;padding:14px;">
+                <div class="card exercise-progress-list" id="exerciseProgressListCard" style="background:linear-gradient(160deg,#020510,#020510 50%,#020510);border:1px solid rgba(96,168,240,0.2);border-radius:14px;position:relative;padding:14px;">
                     <!-- Coins HUD subtils -->
-                    <div style="position:absolute;top:-1px;left:-1px;width:14px;height:14px;border-top:1.5px solid rgba(74,222,128,0.5);border-left:1.5px solid rgba(74,222,128,0.5);border-top-left-radius:12px;pointer-events:none;"></div>
-                    <div style="position:absolute;bottom:-1px;right:-1px;width:14px;height:14px;border-bottom:1.5px solid rgba(74,222,128,0.5);border-right:1.5px solid rgba(74,222,128,0.5);border-bottom-right-radius:12px;pointer-events:none;"></div>
+                    <div style="position:absolute;top:-1px;left:-1px;width:14px;height:14px;border-top:1.5px solid rgba(96,168,240,0.5);border-left:1.5px solid rgba(96,168,240,0.5);border-top-left-radius:12px;pointer-events:none;"></div>
+                    <div style="position:absolute;bottom:-1px;right:-1px;width:14px;height:14px;border-bottom:1.5px solid rgba(96,168,240,0.5);border-right:1.5px solid rgba(96,168,240,0.5);border-bottom-right-radius:12px;pointer-events:none;"></div>
 
                     <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-bottom:10px;" onclick="toggleProgressList()">
-                        <h4 style="margin:0;font-size:0.7em;font-weight:900;color:#cbd5e1;letter-spacing:2.5px;text-transform:uppercase;text-shadow:0 0 6px rgba(74,222,128,0.4);">◈ PROGRAMME</h4>
-                        <span id="progressListToggleIcon" style="font-size:0.9em;color:#cbd5e1;transition:transform 0.2s;text-shadow:0 0 6px rgba(74,222,128,0.5);">▲</span>
+                        <h4 style="margin:0;font-size:0.7em;font-weight:900;color:#cbd5e1;letter-spacing:2.5px;text-transform:uppercase;text-shadow:0 0 6px rgba(96,168,240,0.4);">◈ PROGRAMME</h4>
+                        <span id="progressListToggleIcon" style="font-size:0.9em;color:#cbd5e1;transition:transform 0.2s;text-shadow:0 0 6px rgba(96,168,240,0.5);">▲</span>
                     </div>
                     <div id="progressListBody">
                     <div class="progress-stats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;">
-                        <div class="progress-stat" style="background:rgba(34,197,94,0.06);border:1px solid rgba(74,222,128,0.3);border-radius:10px;padding:10px 8px;text-align:center;">
-                            <div class="progress-stat-value" id="completedCount" style="font-size:1.4em;font-weight:900;color:#cbd5e1;font-variant-numeric:tabular-nums;text-shadow:0 0 10px rgba(74,222,128,0.4);">0</div>
+                        <div class="progress-stat" style="background:rgba(59,130,246,0.06);border:1px solid rgba(96,168,240,0.3);border-radius:10px;padding:10px 8px;text-align:center;">
+                            <div class="progress-stat-value" id="completedCount" style="font-size:1.4em;font-weight:900;color:#cbd5e1;font-variant-numeric:tabular-nums;text-shadow:0 0 10px rgba(96,168,240,0.4);">0</div>
                             <div class="progress-stat-label" style="font-size:0.55em;color:#94a3b8;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;margin-top:3px;">Complétés</div>
                         </div>
                         <div class="progress-stat" style="background:rgba(168,85,247,0.06);border:1px solid rgba(168,85,247,0.3);border-radius:10px;padding:10px 8px;text-align:center;">
@@ -1782,7 +1785,7 @@
                     </div>
 
                     <!-- Quick Check Instructions -->
-                    <div id="quickCheckInstructions" style="background: linear-gradient(135deg, #1d5fa815 0%, #1d5fa805 100%); padding: 25px; border-radius: 14px; margin-bottom: 25px; border-left: 4px solid #16a34a;">
+                    <div id="quickCheckInstructions" style="background: linear-gradient(135deg, #1d5fa815 0%, #1d5fa805 100%); padding: 25px; border-radius: 14px; margin-bottom: 25px; border-left: 4px solid #1d5fa8;">
                         <h3 style="color: #e2e8f0; margin-top: 0;">Quick Check (60 secondes)</h3>
                         <p style="margin-bottom: 15px; line-height: 1.6;">Je vais te faire faire 2 exercices rapides pour évaluer ta forme aujourd'hui :</p>
                         <div style="display: grid; gap: 12px;">
@@ -1855,8 +1858,8 @@
                     <div style="padding:22px 18px;position:relative;z-index:1;">
                         <!-- En-tête -->
                         <div style="text-align:center;margin-bottom:22px;">
-                            <div style="font-family:'Rajdhani',sans-serif;font-size:0.62em;color:#4ade80;font-weight:700;letter-spacing:2.5px;margin-bottom:7px;">◈ INITIALISATION SÉANCE</div>
-                            <h2 style="font-family:'Rajdhani',sans-serif;color:#fff;font-size:1.45em;font-weight:700;letter-spacing:1.5px;margin:0 0 9px;text-shadow:0 0 14px rgba(34,211,238,0.3);">PRÉPAREZ-VOUS</h2>
+                            <div style="font-family:'Rajdhani',sans-serif;font-size:0.62em;color:#60a8f0;font-weight:700;letter-spacing:2.5px;margin-bottom:7px;">Ta séance est prête</div>
+                            <h2 style="font-family:'Rajdhani',sans-serif;color:#fff;font-size:1.45em;font-weight:700;letter-spacing:1.5px;margin:0 0 9px;text-shadow:0 0 14px rgba(34,211,238,0.3);">PRÉPARE-TOI</h2>
                             <p id="prepWorkoutName" style="display:inline-block;font-size:0.68em;font-weight:800;color:#c084fc;margin:0;letter-spacing:1px;text-transform:uppercase;background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.3);border-radius:99px;padding:6px 14px;">
                                 Séance Intelligente
                             </p>
@@ -1864,13 +1867,13 @@
 
                         <!-- Stats rapides -->
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
-                            <div style="background:rgba(74,222,128,0.05);border:1px solid rgba(96,168,240,0.32);box-shadow:0 0 18px rgba(74,222,128,0.10);padding:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:14px;text-align:center;">
-                                <div id="prepExerciseCount" style="font-size:1.45em;font-weight:900;color:#4ade80;font-variant-numeric:tabular-nums;letter-spacing:-1px;">0</div>
+                            <div style="background:rgba(96,168,240,0.05);border:1px solid rgba(96,168,240,0.32);box-shadow:0 0 18px rgba(96,168,240,0.10);padding:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:14px;text-align:center;">
+                                <div id="prepExerciseCount" style="font-size:1.45em;font-weight:900;color:#60a8f0;font-variant-numeric:tabular-nums;letter-spacing:-1px;">0</div>
                                 <div style="font-size:0.6em;color:#94a3b8;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-top:4px;">Exercices</div>
                                 <div id="prepExerciseBreakdown" style="display:none;font-size:0.58em;font-weight:800;margin-top:5px;letter-spacing:0.3px;"></div>
                             </div>
-                            <div style="background:rgba(74,222,128,0.05);border:1px solid rgba(96,168,240,0.32);box-shadow:0 0 18px rgba(74,222,128,0.10);padding:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:14px;text-align:center;">
-                                <div id="prepDuration" style="font-size:1.45em;font-weight:900;color:#4ade80;font-variant-numeric:tabular-nums;letter-spacing:-1px;">0 min</div>
+                            <div style="background:rgba(96,168,240,0.05);border:1px solid rgba(96,168,240,0.32);box-shadow:0 0 18px rgba(96,168,240,0.10);padding:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:14px;text-align:center;">
+                                <div id="prepDuration" style="font-size:1.45em;font-weight:900;color:#60a8f0;font-variant-numeric:tabular-nums;letter-spacing:-1px;">0 min</div>
                                 <div style="font-size:0.62em;color:#94a3b8;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-top:4px;">Durée est.</div>
                             </div>
 
@@ -1896,7 +1899,7 @@
 
                         <!-- Équipements -->
                         <div style="background:rgba(255,255,255,0.025);padding:16px;border-radius:14px;margin-bottom:12px;border:1px solid rgba(255,255,255,0.08);">
-                            <div style="font-family:'Rajdhani',sans-serif;font-size:0.62em;color:#4ade80;font-weight:700;letter-spacing:2px;margin-bottom:11px;text-align:left;">◈ ÉQUIPEMENT REQUIS</div>
+                            <div style="font-family:'Rajdhani',sans-serif;font-size:0.62em;color:#60a8f0;font-weight:700;letter-spacing:2px;margin-bottom:11px;text-align:left;">Ton matériel</div>
                             <div id="prepEquipmentList" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;">
                             </div>
                             <!-- 🚫 Explication déplacée dans la fenêtre du bouton ⓘ (v1102) :
@@ -1905,7 +1908,7 @@
 
                         <!-- Liste des exercices -->
                         <div style="background:rgba(255,255,255,0.025);padding:16px;border-radius:14px;margin-bottom:18px;border:1px solid rgba(255,255,255,0.08);">
-                            <div style="font-family:'Rajdhani',sans-serif;font-size:0.62em;color:#4ade80;font-weight:700;letter-spacing:2px;margin-bottom:11px;text-align:left;">◈ PROGRAMME</div>
+                            <div style="font-family:'Rajdhani',sans-serif;font-size:0.62em;color:#60a8f0;font-weight:700;letter-spacing:2px;margin-bottom:11px;text-align:left;">Au menu</div>
                             <div id="prepExercisesList" style="max-height:300px;overflow-y:auto;">
                             </div>
                         </div>
@@ -1913,17 +1916,20 @@
                         <!-- ⏱️ Avertissement « trop de muscles pour la durée » (persistant) -->
                         <div id="prepMuscleWarning" style="display:none;display:none;"></div>
 
+                        <!-- v1223 : forme + cardio d'échauffement, réglés ici (plus de fenêtres) -->
+                        <div id="prepQuick"></div>
+
                         <div style="display:grid;gap:10px;">
                             <button class="btn" id="startPreparedBtn" onclick="startPreparedWorkout()" style="background:linear-gradient(160deg,#93c5fd 0%,#60a8f0 45%,#164e8a 100%);color:#032027;font-size:0.95em;padding:17px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;border:none;border-radius:14px;box-shadow:0 0 26px rgba(96,168,240,0.32),inset 0 1px 0 rgba(255,255,255,0.42),0 6px 24px rgba(34,211,238,0.3);">
                                 ▶ Démarrer la séance
                             </button>
-                            <button class="btn btn-secondary" onclick="cancelWorkoutPreparation()" style="background:rgba(255,255,255,0.03);color:#4ade80;border:1px solid rgba(96,168,240,0.32);font-weight:700;letter-spacing:1px;font-size:0.82em;border-radius:14px;">
+                            <button class="btn btn-secondary" onclick="cancelWorkoutPreparation()" style="background:rgba(255,255,255,0.03);color:#60a8f0;border:1px solid rgba(96,168,240,0.32);font-weight:700;letter-spacing:1px;font-size:0.82em;border-radius:14px;">
                                 Annuler
                             </button>
                         </div>
 
                         <div style="margin-top:14px;font-size:0.74em;color:#94a3b8;text-align:center;line-height:1.5;">
-                            💡 Prends le temps de préparer ton espace et ton matériel
+                            Prépare ton espace et ton matériel, puis lance-toi.
                         </div>
                     </div>
                 </div>
@@ -1931,25 +1937,25 @@
 
             <!-- Completion Screen -->
             <div id="completionView" class="hidden">
-                <div class="card" style="background: linear-gradient(160deg, #020510 0%, #050810 50%, #020510 100%); color: white; overflow: hidden; position: relative; border: 1px solid rgba(74,222,128,0.3); box-shadow: 0 0 32px rgba(34,197,94,0.1), 0 12px 40px rgba(0,0,0,0.5);">
+                <div class="card" style="background: linear-gradient(160deg, #020510 0%, #050810 50%, #020510 100%); color: white; overflow: hidden; position: relative; border: 1px solid rgba(96,168,240,0.3); box-shadow: 0 0 32px rgba(59,130,246,0.1), 0 12px 40px rgba(0,0,0,0.5);">
                     <!-- Coins HUD -->
-                    <div style="position:absolute;top:-1px;left:-1px;width:24px;height:24px;border-top:2px solid #4ade80;border-left:2px solid #4ade80;border-top-left-radius:14px;box-shadow:0 0 10px rgba(74,222,128,0.5);pointer-events:none;z-index:2;"></div>
-                    <div style="position:absolute;top:-1px;right:-1px;width:24px;height:24px;border-top:2px solid #4ade80;border-right:2px solid #4ade80;border-top-right-radius:14px;box-shadow:0 0 10px rgba(74,222,128,0.5);pointer-events:none;z-index:2;"></div>
-                    <div style="position:absolute;bottom:-1px;left:-1px;width:24px;height:24px;border-bottom:2px solid #4ade80;border-left:2px solid #4ade80;border-bottom-left-radius:14px;box-shadow:0 0 10px rgba(74,222,128,0.5);pointer-events:none;z-index:2;"></div>
-                    <div style="position:absolute;bottom:-1px;right:-1px;width:24px;height:24px;border-bottom:2px solid #4ade80;border-right:2px solid #4ade80;border-bottom-right-radius:14px;box-shadow:0 0 10px rgba(74,222,128,0.5);pointer-events:none;z-index:2;"></div>
+                    <div style="position:absolute;top:-1px;left:-1px;width:24px;height:24px;border-top:2px solid #60a8f0;border-left:2px solid #60a8f0;border-top-left-radius:14px;box-shadow:0 0 10px rgba(96,168,240,0.5);pointer-events:none;z-index:2;"></div>
+                    <div style="position:absolute;top:-1px;right:-1px;width:24px;height:24px;border-top:2px solid #60a8f0;border-right:2px solid #60a8f0;border-top-right-radius:14px;box-shadow:0 0 10px rgba(96,168,240,0.5);pointer-events:none;z-index:2;"></div>
+                    <div style="position:absolute;bottom:-1px;left:-1px;width:24px;height:24px;border-bottom:2px solid #60a8f0;border-left:2px solid #60a8f0;border-bottom-left-radius:14px;box-shadow:0 0 10px rgba(96,168,240,0.5);pointer-events:none;z-index:2;"></div>
+                    <div style="position:absolute;bottom:-1px;right:-1px;width:24px;height:24px;border-bottom:2px solid #60a8f0;border-right:2px solid #60a8f0;border-bottom-right-radius:14px;box-shadow:0 0 10px rgba(96,168,240,0.5);pointer-events:none;z-index:2;"></div>
 
                     <!-- Scan lines -->
-                    <div style="position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0,transparent 4px,rgba(74,222,128,0.015) 4px,rgba(74,222,128,0.015) 5px);pointer-events:none;z-index:0;"></div>
+                    <div style="position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0,transparent 4px,rgba(96,168,240,0.015) 4px,rgba(96,168,240,0.015) 5px);pointer-events:none;z-index:0;"></div>
 
                     <!-- Glow accent lines -->
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#60a8f0,transparent);opacity:0.6;pointer-events:none;z-index:2;"></div>
 
                     <div class="completion-screen" style="position:relative;z-index:1;">
                         <div style="text-align:center;margin-bottom:20px;">
-                            <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:4px;text-transform:uppercase;margin-top:8px;text-shadow:0 0 8px rgba(74,222,128,0.5);">◈ MISSION ACCOMPLIE ◈</div>
-                            <h2 style="color:white;font-size:2em;margin:10px 0 4px;letter-spacing:-0.5px;text-shadow:0 0 10px rgba(74,222,128,0.3);">BRAVO !</h2>
+                            <div style="font-size:0.6em;color:#60a8f0;font-weight:900;letter-spacing:4px;text-transform:uppercase;margin-top:8px;text-shadow:0 0 8px rgba(96,168,240,0.5);">Séance terminée</div>
+                            <h2 style="color:white;font-size:2em;margin:10px 0 4px;letter-spacing:-0.5px;text-shadow:0 0 10px rgba(96,168,240,0.3);">BRAVO !</h2>
                             <p id="completionWorkoutName" style="color:#c084fc;font-size:0.85em;margin:0 0 8px;font-weight:800;letter-spacing:1px;text-transform:uppercase;"></p>
-                            <div id="completionWeekStreak" style="display:none;margin:2px auto 0;font-size:0.78em;color:#4ade80;font-weight:800;letter-spacing:0.5px;"></div>
+                            <div id="completionWeekStreak" style="display:none;margin:2px auto 0;font-size:0.78em;color:#60a8f0;font-weight:800;letter-spacing:0.5px;"></div>
                         </div>
 
                         <!-- 🎉 Image de victoire Esen/Nyra (affichée si rencontre déjà faite) -->
@@ -1959,9 +1965,9 @@
 
                         <!-- Stats principales -->
                         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;">
-                            <div style="background:linear-gradient(160deg,rgba(34,197,94,0.08),rgba(34,197,94,0.02));border-radius:10px;padding:16px 8px;border:1px solid rgba(74,222,128,0.35);position:relative;">
-                                <div style="position:absolute;top:-1px;left:-1px;width:12px;height:12px;border-top:1.5px solid #4ade80;border-left:1.5px solid #4ade80;border-top-left-radius:10px;"></div>
-                                <div id="completionTime" style="font-size:1.9em;font-weight:900;color:#4ade80;letter-spacing:-1px;font-variant-numeric:tabular-nums;text-shadow:0 0 12px rgba(74,222,128,0.4);">30</div>
+                            <div style="background:linear-gradient(160deg,rgba(59,130,246,0.08),rgba(59,130,246,0.02));border-radius:10px;padding:16px 8px;border:1px solid rgba(96,168,240,0.35);position:relative;">
+                                <div style="position:absolute;top:-1px;left:-1px;width:12px;height:12px;border-top:1.5px solid #60a8f0;border-left:1.5px solid #60a8f0;border-top-left-radius:10px;"></div>
+                                <div id="completionTime" style="font-size:1.9em;font-weight:900;color:#60a8f0;letter-spacing:-1px;font-variant-numeric:tabular-nums;text-shadow:0 0 12px rgba(96,168,240,0.4);">30</div>
                                 <div style="font-size:0.55em;color:#94a3b8;margin-top:4px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;">⏱ MINUTES</div>
                             </div>
                             <div style="background:linear-gradient(160deg,rgba(168,85,247,0.08),rgba(168,85,247,0.02));border-radius:10px;padding:16px 8px;border:1px solid rgba(168,85,247,0.35);position:relative;">
@@ -1972,13 +1978,13 @@
                             <div style="background:linear-gradient(160deg,rgba(251,191,36,0.08),rgba(251,191,36,0.02));border-radius:10px;padding:16px 8px;border:1px solid rgba(251,191,36,0.35);position:relative;">
                                 <div style="position:absolute;top:-1px;left:-1px;width:12px;height:12px;border-top:1.5px solid #fbbf24;border-left:1.5px solid #fbbf24;border-top-left-radius:10px;"></div>
                                 <div id="completionCalories" style="font-size:1.9em;font-weight:900;color:#fbbf24;letter-spacing:-1px;font-variant-numeric:tabular-nums;text-shadow:0 0 12px rgba(251,191,36,0.4);">-</div>
-                                <div style="font-size:0.55em;color:#94a3b8;margin-top:4px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;">KCAL</div>
+                                <div style="font-size:0.55em;color:#94a3b8;margin-top:4px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;" id="completionCaloriesLabel">KCAL</div>
                             </div>
                         </div>
 
                         <!-- ── Graphe muscles travaillés ── -->
-                        <div id="completionMuscleChart" style="display:none;margin-bottom:14px;background:rgba(34,197,94,0.04);border:1px solid rgba(74,222,128,0.25);border-radius:10px;padding:12px 14px;">
-                            <div style="font-size:0.6em;color:#4ade80;font-weight:900;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;text-shadow:0 0 6px rgba(74,222,128,0.4);">◈ VOLUME PAR MUSCLE</div>
+                        <div id="completionMuscleChart" style="display:none;margin-bottom:14px;background:rgba(59,130,246,0.04);border:1px solid rgba(96,168,240,0.25);border-radius:10px;padding:12px 14px;">
+                            <div style="font-size:0.6em;color:#60a8f0;font-weight:900;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;text-shadow:0 0 6px rgba(96,168,240,0.4);">◈ VOLUME PAR MUSCLE</div>
                             <div id="completionMuscleChartBars" style="display:flex;flex-direction:column;gap:6px;"></div>
                         </div>
 
@@ -1999,14 +2005,14 @@
                         </div>
 
                         <!-- ── Arbre de l'Éveil : impact de la séance ── -->
-                        <div id="completionAwakTree" onclick="showAwakeningTree()" style="display:none;cursor:pointer;background:linear-gradient(160deg,rgba(34,197,94,0.08),rgba(34,197,94,0.02));border:1px solid rgba(74,222,128,0.35);border-radius:10px;padding:12px 14px;margin-bottom:14px;text-align:left;">
-                            <div style="font-size:0.6em;color:#4ade80;font-weight:900;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;text-shadow:0 0 6px rgba(74,222,128,0.4);">◈ ARBRE DE L'ÉVEIL</div>
+                        <div id="completionAwakTree" onclick="showAwakeningTree()" style="display:none;cursor:pointer;background:linear-gradient(160deg,rgba(59,130,246,0.08),rgba(59,130,246,0.02));border:1px solid rgba(96,168,240,0.35);border-radius:10px;padding:12px 14px;margin-bottom:14px;text-align:left;">
+                            <div style="font-size:0.6em;color:#60a8f0;font-weight:900;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;text-shadow:0 0 6px rgba(96,168,240,0.4);">◈ ARBRE DE L'ÉVEIL</div>
                             <div id="completionAwakTreeContent" style="font-size:0.88em;color:white;line-height:1.6;"></div>
                         </div>
 
                         <!-- Volume total -->
-                        <div id="completionVolume" style="background:linear-gradient(160deg,rgba(34,197,94,0.08),rgba(34,197,94,0.02));border-radius:10px;padding:12px 14px;margin-bottom:10px;border:1px solid rgba(74,222,128,0.3);display:none;">
-                            <div style="font-size:0.6em;color:#4ade80;font-weight:900;margin-bottom:4px;letter-spacing:2px;text-transform:uppercase;text-shadow:0 0 6px rgba(74,222,128,0.4);">◈ VOLUME TOTAL</div>
+                        <div id="completionVolume" style="background:linear-gradient(160deg,rgba(59,130,246,0.08),rgba(59,130,246,0.02));border-radius:10px;padding:12px 14px;margin-bottom:10px;border:1px solid rgba(96,168,240,0.3);display:none;">
+                            <div style="font-size:0.6em;color:#60a8f0;font-weight:900;margin-bottom:4px;letter-spacing:2px;text-transform:uppercase;text-shadow:0 0 6px rgba(96,168,240,0.4);">◈ VOLUME TOTAL</div>
                             <div id="completionVolumeValue" style="font-size:1.1em;font-weight:900;color:white;letter-spacing:-0.3px;"></div>
                         </div>
 
@@ -2046,7 +2052,7 @@
 
                         <!-- Boutons -->
                         <div style="display:grid;gap:10px;">
-                            <button class="btn" onclick="backToHome()" style="background:linear-gradient(135deg,#1d5fa8,#3b82f6,#60a8f0);font-size:1em;min-height:54px;letter-spacing:2px;text-transform:uppercase;font-weight:900;border:1px solid #4ade80;box-shadow:0 0 24px rgba(74,222,128,0.4);">
+                            <button class="btn" onclick="backToHome()" style="background:linear-gradient(135deg,#1d5fa8,#3b82f6,#60a8f0);font-size:1em;min-height:54px;letter-spacing:2px;text-transform:uppercase;font-weight:900;border:1px solid #60a8f0;box-shadow:0 0 24px rgba(96,168,240,0.4);">
                                 🏠 RETOUR À L'ACCUEIL
                             </button>
                             <button class="btn" onclick="exportSessionSummary()" style="background:rgba(168,85,247,0.1);color:#c084fc;border:1px solid rgba(168,85,247,0.4);min-height:48px;font-size:0.85em;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;">
@@ -2066,28 +2072,26 @@
             <!-- Barre de segments « Découvrir » -->
             <div style="display:flex;gap:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:5px;margin-bottom:8px;">
                 <button onclick="switchTab('exercises')" style="flex:1;min-width:0;border:none;border-radius:10px;padding:10px 2px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:linear-gradient(135deg,#3b82f6,#1d5fa8);color:white;">Exercices</button>
-                <button onclick="switchTab('calculators')" style="flex:1;min-width:0;border:none;border-radius:10px;padding:10px 2px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Calculs</button>
+                <button id="awakSegCalculs" onclick="switchTab('calculators')" style="flex:1;min-width:0;border:none;border-radius:10px;padding:10px 2px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Calculs</button>
             </div>
             <div style="font-size:0.72em;color:#94a3b8;margin:0 0 14px;padding:0 4px;line-height:1.4;">Cherche un exercice, filtre par muscle ou matériel.</div>
 
             <!-- Search Bar -->
             <div class="card">
-                <h3 style="color: #60a8f0; margin-bottom: 15px;">Recherche rapide</h3>
                 <input type="text" id="exerciseSearch"
-                       placeholder="🔎 Rechercher un exercice par nom, muscle ou équipement..."
+                       placeholder="Cherche un exercice, un muscle, un matériel"
                        style="width: 100%; padding: 15px; border: 2px solid rgba(255,255,255,0.12); border-radius: 10px; font-size: 1em; transition: all 0.3s;"
                        oninput="filterExercisesBySearch(); awakSyncSearch(this.value);"
                        onfocus="this.style.borderColor='#60a8f0'"
                        onblur="this.style.borderColor='rgba(255,255,255,0.12)'"
                        aria-label="Rechercher un exercice par nom, muscle ou équipement">
 
-                <div id="searchResults" style="margin-top: 15px;"></div>
+                <!-- v1226 : la recherche filtre directement la liste ci-dessous
+                     (l'ancienne liste de résultats faisait doublon) -->
+                <div id="searchResults" style="display:none;"></div>
+                <div id="searchStats" style="display:none;"></div>
 
-                <div id="searchStats" style="margin-top: 10px; font-size: 0.9em; color: #94a3b8; text-align: center;"></div>
-            </div>
-
-            <div class="card">
-                <div class="stats">
+                <div class="stats awk-cache" style="display:none;">
                     <div class="stat-box">
                         <div class="stat-value" id="totalExercises">0</div>
                         <div class="stat-label">Exercices</div>
@@ -2100,6 +2104,7 @@
                          figée à 12, jamais recalculée. -->
                 </div>
 
+            <div style="height:12px;"></div>
             <!-- 🔎 FILTRES EN PASTILLES (v908)
                  Le bloc .filters d'origine est CONSERVÉ mais masqué :
                  filterExercises() lit la .value de chaque <select>.
@@ -2203,27 +2208,19 @@
                 </div>
             </div>
 
-            <!-- Quick Actions -->
-            <div class="card" style="background: linear-gradient(135deg, #fbbf2410 0%, #fbbf2405 100%); border: 2px solid #fbbf2440;">
-                <h3 style="margin-bottom: 15px; color: #f59e0b;">Actions rapides</h3>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
-                    <button onclick="showOnlyFavorites()" class="btn" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); padding: 12px;">
-                        ⭐ Mes favoris
-                    </button>
-                    <button onclick="resetFilters()" class="btn btn-secondary" style="padding: 12px;">
-                        🔄 Tous les exercices
-                    </button>
-                </div>
-                <p style="margin: 10px 0 0 0; color: #78350f; font-size: 0.9em;">
-                    💡 Cliquez sur ⭐ sur n'importe quel exercice pour l'ajouter à vos favoris
-                </p>
+            <!-- v1226 : favoris + compteur sur une ligne (l'ancien bloc « Actions rapides »
+                 et sa phrase orange erronée sont retirés) -->
+            <div style="display:flex;align-items:center;gap:8px;margin:2px 2px 10px;">
+                <button onclick="showOnlyFavorites()" class="awk-hist-chip" style="flex:0 0 auto;padding:8px 14px;">Mes favoris</button>
+                <button onclick="resetFilters()" class="awk-hist-chip" style="flex:0 0 auto;padding:8px 14px;">Tout voir</button>
+                <span id="awakExoCompte" style="margin-left:auto;font-size:0.7em;color:#64748b;font-weight:700;"></span>
             </div>
 
-            <div class="card">
+            <div class="card" style="padding:10px !important;">
                 <div class="exercises-grid" id="exercisesGrid"></div>
 
-                <!-- Welcome Screen -->
-                <div class="exercises-welcome" id="exercisesWelcome" style="display: block;">
+                <!-- Welcome Screen (v1226 : masqué, la liste s'affiche directement) -->
+                <div class="exercises-welcome" id="exercisesWelcome" style="display: none;">
                     <h2>Bibliothèque d'Exercices</h2>
                     <p>Découvrez plus de <strong><span id="exWelcomeCount">…</span> exercices</strong> organisés par muscle et niveau !<br>
                     Utilisez les filtres ci-dessus pour explorer les exercices qui vous intéressent.</p>
@@ -2286,7 +2283,7 @@
 
                 <div class="no-results" id="noResults" style="display: none;">
                     <h3>Aucun exercice trouvé</h3>
-                    <p>Essayez de modifier vos filtres</p>
+                    <p>Essaie d'enlever un filtre</p>
                 </div>
             </div>
         </div>
@@ -2466,13 +2463,11 @@
                                     <div style="font-size: 1.8em;">🔄</div>
                                     <div>
                                         <h4 style="margin: 0; color: #92400e;">Réinitialiser la récupération</h4>
-                                        <p style="margin: 4px 0 0 0; color: #78350f; font-size: 0.85em;">Remet tous les muscles à l'état « prêt »</p>
                                     </div>
                                 </div>
                                 <button class="btn" onclick="resetMuscleRecovery()" style="width: 100%; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
                                     🔄 Réinitialiser la récupération
                                 </button>
-                                <p style="margin: 8px 0 0 0; color: #78350f; font-size: 0.82em; text-align: center;">⚠️ Remet tous les muscles à l'état "prêt" (✅)</p>
                             </div>
                         </div>
 
@@ -2567,23 +2562,6 @@
                             </div>
                         </div>
 
-                    </div>
-                </div>
-            </div>
-
-            <!-- ═══════════ AFFICHAGE DE L'ACCUEIL ═══════════ -->
-            <div class="accordion-section">
-                <div class="accordion-header" onclick="toggleSettingsAccordion(this)">
-                    <div class="accordion-title" style="display:block;"><span style="display:block;font-weight:800;">Affichage de l'accueil</span><span style="display:block;font-size:0.68em;color:#64748b;font-weight:600;margin-top:2px;letter-spacing:0;">Cartes visibles sur la page d'accueil</span></div>
-                    <div class="accordion-icon">▼</div>
-                </div>
-                <div class="accordion-body">
-                    <div class="accordion-content">
-                        <div class="settings-sub">
-                            <div class="settings-sub-title">Cartes de l'accueil</div>
-                            <p class="settings-sub-desc">Choisis les cartes à afficher sur l'accueil. Masquer une carte ne supprime rien — tu peux la réafficher ici à tout moment. Le profil et l'action du jour restent toujours visibles.</p>
-                            <div id="homeCardsPrefsList"></div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -2838,7 +2816,7 @@
                 <button onclick="switchTab('exercises')" style="flex:1;min-width:0;border:none;border-radius:10px;padding:10px 2px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Exercices</button>
                 <button onclick="switchTab('calculators')" style="flex:1;min-width:0;border:none;border-radius:10px;padding:10px 2px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:linear-gradient(135deg,#3b82f6,#1d5fa8);color:white;">Calculs</button>
             </div>
-            <div style="font-size:0.72em;color:#94a3b8;margin:0 0 14px;padding:0 4px;line-height:1.4;">Tes outils : 1RM, plaques, RPE, rang de force mondial.</div>
+            <div style="font-size:0.72em;color:#94a3b8;margin:0 0 14px;padding:0 4px;line-height:1.4;">Des outils pour calculer tes charges et suivre ta force.</div>
         <!-- ⚠️ CARTE RETIRÉE (v1043) : une carte entière pour un titre et le
              slogan « Outils professionnels pour optimiser votre entraînement ».
              Doublon de la ligne au-dessus, et rien d'utile à lire. -->
@@ -2855,16 +2833,12 @@
              deux résultats sans fermer et rouvrir. Les quatre calculateurs
              sont désormais à plat, directement lisibles. -->
         <!-- Contenu des calculateurs : caché, cloné dans la modale à l'ouverture -->
-        <div style="border-left:2px solid #a855f7;padding-left:10px;margin:20px 0 10px;">
-            <div style="font-size:0.54em;letter-spacing:2.5px;color:#a855f7;font-weight:900;">◈ FORCE RÉELLE</div>
-            <div style="font-size:0.68em;color:#64748b;margin-top:2px;">Ton rang face aux standards mondiaux</div>
-        </div>
         <div id="awakCalcSrc_frc" style="">
         <div class="card">
-            <h2 style="color: #22d3ee; margin-bottom: 20px;">Force Réelle — Ton Rang Mondial</h2>
+            <h2 data-ico="stats" data-col="#a78bfa" data-sous="Compare ta force à celle des autres" style="color: #93c5fd; margin-bottom: 20px;">Ton rang de force</h2>
             <div style="background: linear-gradient(135deg, #a855f715 0%, #a855f705 100%); padding: 16px; border-radius: 14px; margin-bottom: 20px; border-left: 4px solid #a855f7;">
                 <div style="font-size:0.9em;color:#9ca3af;line-height:1.5;">
-                    Le Système analyse ta puissance et la compare au reste du monde. Entre tes données et découvre ton percentile et ton niveau réel.
+                    Entre une charge que tu as soulevée : on la compare aux standards de force pour ton sexe et ton poids.
                 </div>
             </div>
 
@@ -2915,22 +2889,15 @@
         </div>
 
         </div>
-        <div style="border-left:2px solid #22d3ee;padding-left:10px;margin:20px 0 10px;">
-            <div style="font-size:0.54em;letter-spacing:2.5px;color:#22d3ee;font-weight:900;">◈ 1RM</div>
-            <div style="font-size:0.68em;color:#64748b;margin-top:2px;">Ta charge maximale estimée</div>
-        </div>
         <div id="awakCalcSrc_1rm" style="">
         <div class="card">
-            <h2 style="color: #22d3ee; margin-bottom: 20px;">Calculateur 1RM (One Rep Max)</h2>
+            <h2 data-ico="halter" data-col="#60a8f0" data-sous="La charge que tu pourrais soulever une seule fois" style="color: #93c5fd; margin-bottom: 20px;">Ta charge maximale (1RM)</h2>
 
-            <div style="background: linear-gradient(135deg, #ef444415 0%, #ef444405 100%); padding: 20px; border-radius: 14px; margin-bottom: 20px; border-left: 4px solid #ef4444;">
-                <div style="display: flex; align-items: center; gap: 15px;">
-
-                    <div>
-                        <div style="font-weight: 700; font-size: 1.1em; color: #e2e8f0; margin-bottom: 5px;">Calculez votre charge maximale</div>
-                        <div style="color: #94a3b8; font-size: 0.9em;">Trouvez le poids optimal pour chaque exercice basé sur votre force</div>
-                    </div>
-                </div>
+            <div style="font-size:0.84em;color:#94a3b8;line-height:1.5;margin-bottom:14px;">
+                Entre une série que tu as faite : on estime ta charge maximale, puis les charges conseillées selon ton but.
+            </div>
+            <div id="awak1rmAdo" style="display:none;font-size:0.8em;color:#fcd34d;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.3);border-radius:11px;padding:10px 12px;margin-bottom:14px;line-height:1.45;">
+                Ne teste jamais ton maximum : utilise ce chiffre seulement comme repère pour choisir tes charges.
             </div>
 
             <!-- Calculator Form -->
@@ -2978,7 +2945,7 @@
                         pas ta vraie charge maximale. Elle varie selon la fatigue, la technique et le jour.
                         <br><br>
                         <strong style="color:#e8f0f8;">Si tu veux tester ton maximum réel :</strong>
-                        fais-toi <strong style="color:#fbbf24;">parer par quelqu'un</strong> (spotter),
+                        fais-toi <strong style="color:#fbbf24;">parer par quelqu'un</strong> ,
                         utilise les sécurités d'un rack, échauffe-toi par paliers, et arrête-toi
                         dès que la technique se dégrade. Ne teste jamais un maximum seul,
                         ni sur un exercice que tu maîtrises mal.
@@ -2993,22 +2960,12 @@
         </div>
 
         </div>
-        <div style="border-left:2px solid #f59e0b;padding-left:10px;margin:20px 0 10px;">
-            <div style="font-size:0.54em;letter-spacing:2.5px;color:#f59e0b;font-weight:900;">◈ PLAQUES</div>
-            <div style="font-size:0.68em;color:#64748b;margin-top:2px;">Quoi charger sur la barre</div>
-        </div>
         <div id="awakCalcSrc_plaques" style="">
         <div class="card">
-            <h2 style="color: #f59e0b; margin-bottom: 20px;">Calculateur de Plaques</h2>
+            <h2 data-ico="grille" data-col="#fbbf24" data-sous="Quels disques mettre de chaque côté" style="color: #93c5fd; margin-bottom: 20px;">Quoi mettre sur la barre</h2>
 
-            <div style="background: linear-gradient(135deg, #f59e0b15 0%, #f59e0b05 100%); padding: 20px; border-radius: 14px; margin-bottom: 20px; border-left: 4px solid #f59e0b;">
-                <div style="display: flex; align-items: center; gap: 15px;">
-
-                    <div>
-                        <div style="font-weight: 700; font-size: 1.1em; color: #e2e8f0; margin-bottom: 5px;">Configuration de plaques optimale</div>
-                        <div style="color: #94a3b8; font-size: 0.9em;">Calculez instantanément quelles plaques mettre sur votre barre</div>
-                    </div>
-                </div>
+            <div style="font-size:0.84em;color:#94a3b8;line-height:1.5;margin-bottom:14px;">
+                Entre le poids total voulu : on te dit quels disques mettre de chaque côté.
             </div>
 
             <!-- Calculator Input -->
@@ -3042,65 +2999,54 @@
         </div>
 
         </div>
-        <div style="border-left:2px solid #4ade80;padding-left:10px;margin:20px 0 10px;">
-            <div style="font-size:0.54em;letter-spacing:2.5px;color:#4ade80;font-weight:900;">◈ RPE</div>
-            <div style="font-size:0.68em;color:#64748b;margin-top:2px;">Intensité ressentie et charge cible</div>
-        </div>
         <div id="awakCalcSrc_rpe" style="">
         <div class="card">
-            <h2 style="color: #22d3ee; margin-bottom: 20px;">Calculateur RPE (Rate of Perceived Exertion)</h2>
+            <h2 data-ico="eclair" data-col="#22d3ee" data-sous="Note de 1 à 10 de la difficulté d'une série" style="color: #93c5fd; margin-bottom: 20px;">Ton effort ressenti (RPE)</h2>
 
-            <div style="background: linear-gradient(135deg, #22d3ee15 0%, #0891b205 100%); padding: 20px; border-radius: 14px; margin-bottom: 20px; border-left: 4px solid #22d3ee;">
-                <div style="display: flex; align-items: center; gap: 15px;">
-
-                    <div>
-                        <div style="font-weight: 700; font-size: 1.1em; color: #e2e8f0; margin-bottom: 5px;">Mesurez l'intensité perçue de vos séries</div>
-                        <div style="color: #94a3b8; font-size: 0.9em;">Échelle de 1 à 10 pour optimiser votre entraînement et éviter le surmenage</div>
-                    </div>
-                </div>
+            <div style="font-size:0.84em;color:#94a3b8;line-height:1.5;margin-bottom:12px;">
+                Touche la note qui correspond à ta dernière série.
             </div>
 
-            <!-- RPE Explanation -->
-            <div style="background: rgba(255,255,255,0.04); padding: 20px; border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px;">
-                <h3 style="color: #22d3ee; margin-bottom: 15px;">Qu'est-ce que le RPE ?</h3>
-                <p style="line-height: 1.6; color: #94a3b8; margin-bottom: 15px;">
-                    Le <strong>RPE (Rate of Perceived Exertion)</strong> est une échelle subjective de 1 à 10 qui mesure
-                    l'intensité perçue de votre série. Elle permet d'optimiser votre entraînement en évitant le surmenage
-                    et en assurant une progression contrôlée.
+            <!-- RPE Explanation (v1227 : repliée) -->
+            <details style="background: rgba(255,255,255,0.03); padding: 12px 14px; border-radius: 12px; margin-bottom: 14px;border:1px solid rgba(255,255,255,0.07);">
+                <summary style="cursor:pointer;color:#93c5fd;font-weight:800;font-size:0.85em;">C'est quoi, le RPE ?</summary>
+                <p style="line-height: 1.6; color: #94a3b8; margin: 10px 0;font-size:0.85em;">
+                    Le RPE est une note de 1 à 10 qui dit à quel point une série était difficile pour toi.
+                    Elle t'aide à choisir tes charges sans te mettre à bout.
                 </p>
                 <ul style="line-height: 1.8; color: #94a3b8; margin-left: 20px;">
-                    <li><strong>RPE 6-7 :</strong>Entraînement de volume, hypertrophie</li>
-                    <li><strong>RPE 8-9 :</strong>Entraînement de force, proche du max</li>
-                    <li><strong>RPE 10 :</strong>Maximum absolu, rarement utilisé</li>
+                    <li><strong>6-7 :</strong> il t'en restait 3 ou 4 : bon pour prendre du muscle</li>
+                    <li><strong>8-9 :</strong> il t'en restait 1 ou 2 : travail de force</li>
+                    <li><strong>10 :</strong> impossible d'en faire une de plus, à garder rare</li>
                 </ul>
-            </div>
+            </details>
 
             <!-- RPE Scale -->
             <div style="background: rgba(255,255,255,0.04); padding: 25px; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 20px;">
-                <h3 style="color: #22d3ee; margin-bottom: 20px;">Échelle RPE</h3>
+                <h3 style="color: #93c5fd; margin-bottom: 12px;font-size:0.95em;">Ta note</h3>
 
                 <div id="rpeScale" style="display: grid; gap: 10px;">
                     <!-- RPE 1-3: Very Easy -->
                     <div class="rpe-button" onclick="selectRPECalculator(1)" data-rpe="1" style="padding: 15px; border: 3px solid rgba(255,255,255,0.12); border-radius: 14px; background: rgba(255,255,255,0.04); cursor: pointer; display: grid; grid-template-columns: 60px 1fr; align-items: center; gap: 15px; transition: all 0.3s;">
-                        <div style="font-size: 1.8em; font-weight: 800; text-align: center; color: #10b981;">1</div>
+                        <div style="font-size: 1.8em; font-weight: 800; text-align: center; color: #60a8f0;">1</div>
                         <div>
-                            <div style="font-weight: 700; font-size: 1em; color: #10b981;">Très Facile</div>
+                            <div style="font-weight: 700; font-size: 1em; color: #60a8f0;">Très Facile</div>
                             <div style="color: #94a3b8; font-size: 0.85em;">Échauffement léger, aucun effort</div>
                         </div>
                     </div>
 
                     <div class="rpe-button" onclick="selectRPECalculator(2)" data-rpe="2" style="padding: 15px; border: 3px solid rgba(255,255,255,0.12); border-radius: 14px; background: rgba(255,255,255,0.04); cursor: pointer; display: grid; grid-template-columns: 60px 1fr; align-items: center; gap: 15px; transition: all 0.3s;">
-                        <div style="font-size: 1.8em; font-weight: 800; text-align: center; color: #22c55e;">2</div>
+                        <div style="font-size: 1.8em; font-weight: 800; text-align: center; color: #3b82f6;">2</div>
                         <div>
-                            <div style="font-weight: 700; font-size: 1em; color: #22c55e;">Très Facile</div>
+                            <div style="font-weight: 700; font-size: 1em; color: #3b82f6;">Très Facile</div>
                             <div style="color: #94a3b8; font-size: 0.85em;">Facile, pourrais faire 10+ reps de plus</div>
                         </div>
                     </div>
 
                     <div class="rpe-button" onclick="selectRPECalculator(3)" data-rpe="3" style="padding: 15px; border: 3px solid rgba(255,255,255,0.12); border-radius: 14px; background: rgba(255,255,255,0.04); cursor: pointer; display: grid; grid-template-columns: 60px 1fr; align-items: center; gap: 15px; transition: all 0.3s;">
-                        <div style="font-size: 1.8em; font-weight: 800; text-align: center; color: #4ade80;">3</div>
+                        <div style="font-size: 1.8em; font-weight: 800; text-align: center; color: #60a8f0;">3</div>
                         <div>
-                            <div style="font-weight: 700; font-size: 1em; color: #4ade80;">Facile</div>
+                            <div style="font-weight: 700; font-size: 1em; color: #60a8f0;">Facile</div>
                             <div style="color: #94a3b8; font-size: 0.85em;">Pourrais faire 8-9 reps de plus</div>
                         </div>
                     </div>
@@ -3185,12 +3131,10 @@
                 <button onclick="switchTab('program')" style="flex:1;min-width:0;border:none;border-radius:10px;padding:10px 2px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Programme</button>
                 <button onclick="switchTab('challenges')" style="flex:1;min-width:0;border:none;border-radius:10px;padding:10px 2px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:linear-gradient(135deg,#60a8f0,#1d5fa8);color:white;">Défis</button>
             </div>
-            <div style="font-size:0.72em;color:#94a3b8;margin:0 0 14px;padding:0 4px;line-height:1.4;">Relève un défi sur 30 jours pour construire ta constance.</div>
+            <div style="font-size:0.72em;color:#94a3b8;margin:0 0 14px;padding:0 4px;line-height:1.4;">Choisis un défi, fais-le chaque jour et coche ta case. 30 jours et la médaille est à toi.</div>
         <div class="card">
-            <h2 style="text-align: center; margin-bottom: 10px; color: #4ade80; font-weight: 900;">Défis Fitness</h2>
-            <p style="text-align: center; color: #94a3b8; margin-bottom: 26px; font-size: 0.9em; line-height: 1.5;">
-                Relevez des défis sur 30 jours pour développer discipline et constance ! 💪
-            </p>
+            <!-- v1219 : titre « Défis Fitness » + phrase au « vous » retirés — la phrase
+                 au-dessus de la carte dit déjà la même chose, au « tu ». -->
 
             <!-- Active Challenge Display -->
             <div id="activeChallengeDisplay"></div>
@@ -3198,8 +3142,8 @@
             <!-- Available Challenges -->
             <div id="availableChallenges">
                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 18px;">
-                    <h3 style="margin: 0; color: #4ade80; font-weight: 900; font-size: 1.05em;">Défis Disponibles</h3>
-                    <div style="flex: 1; height: 1px; background: linear-gradient(90deg, rgba(74,222,128,0.4), transparent);"></div>
+                    <h3 style="margin: 0; color: #60a8f0; font-weight: 900; font-size: 1.05em;">Défis de 30 jours</h3>
+                    <div style="flex: 1; height: 1px; background: linear-gradient(90deg, rgba(96,168,240,0.4), transparent);"></div>
                 </div>
                 <div id="challengesList"></div>
             </div>
@@ -3739,6 +3683,7 @@
                 <h4>Conseils</h4>
                 <p id="modalTips"></p>
             </div>
+            <div id="modalActions" style="margin:4px 0 10px;"></div>
             <button class="btn btn-secondary" onclick="closeExerciseModal()">Fermer</button>
         </div>
     </div>
@@ -3877,34 +3822,35 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/exercises.js?v=1201"></script>
-    <script src="js/exercise-names.js?v=1201"></script>
-    <script src="data/items.js?v=1201"></script>
-    <script src="js/item-icons.js?v=1201"></script>
-    <script src="js/adventure.js?v=1201"></script>
-    <script src="js/economy.js?v=1201"></script>
-    <script src="js/challenges.js?v=1201"></script>
-    <script src="js/family-boss.js?v=1201"></script>
-    <script src="js/family-network.js?v=1201"></script>
-    <script src="js/family-challenge.js?v=1201"></script>
-    <script src="js/family-goal.js?v=1201"></script>
-    <script src="js/family-feed.js?v=1201"></script>
-    <script src="js/pre-workout-mood.js?v=1201"></script>
-    <script src="js/group-workout.js?v=1201"></script>
-    <script src="js/youth-safety.js?v=1201"></script>
-    <script src="js/kids-programs.js?v=1201"></script>
-    <script src="js/senior-programs.js?v=1201"></script>
-    <script src="js/adaptive.js?v=1201"></script>
-    <script src="js/pain-mode.js?v=1201"></script>
-    <script src="js/recovery-mode.js?v=1201"></script>
-    <script src="js/exercise-visuals.js?v=1201"></script>
-    <script src="js/strength-standards.js?v=1201"></script>
-    <script src="js/system-cards.js?v=1201"></script>
-    <script src="js/share-card.js?v=1201"></script>
-    <script src="js/story-events.js?v=1201"></script>
-    <script src="js/final-boss.js?v=1201"></script>
-    <script src="js/disciplines.js?v=1201"></script>
-    <script src="js/eveil.js?v=1201"></script>
+    <script src="js/native.js?v=1228"></script>
+    <script src="js/exercises.js?v=1228"></script>
+    <script src="js/exercise-names.js?v=1228"></script>
+    <script src="data/items.js?v=1228"></script>
+    <script src="js/item-icons.js?v=1228"></script>
+    <script src="js/adventure.js?v=1228"></script>
+    <script src="js/economy.js?v=1228"></script>
+    <script src="js/challenges.js?v=1228"></script>
+    <script src="js/family-boss.js?v=1228"></script>
+    <script src="js/family-network.js?v=1228"></script>
+    <script src="js/family-challenge.js?v=1228"></script>
+    <script src="js/family-goal.js?v=1228"></script>
+    <script src="js/family-feed.js?v=1228"></script>
+    <script src="js/pre-workout-mood.js?v=1228"></script>
+    <script src="js/group-workout.js?v=1228"></script>
+    <script src="js/youth-safety.js?v=1228"></script>
+    <script src="js/kids-programs.js?v=1228"></script>
+    <script src="js/senior-programs.js?v=1228"></script>
+    <script src="js/adaptive.js?v=1228"></script>
+    <script src="js/pain-mode.js?v=1228"></script>
+    <script src="js/recovery-mode.js?v=1228"></script>
+    <script src="js/exercise-visuals.js?v=1228"></script>
+    <script src="js/strength-standards.js?v=1228"></script>
+    <script src="js/system-cards.js?v=1228"></script>
+    <script src="js/share-card.js?v=1228"></script>
+    <script src="js/story-events.js?v=1228"></script>
+    <script src="js/final-boss.js?v=1228"></script>
+    <script src="js/disciplines.js?v=1228"></script>
+    <script src="js/eveil.js?v=1228"></script>
     <script>
     /* 🔄 DÉVERROUILLAGE DE L'ORIENTATION
        Sur Android, l'orientation d'une PWA installée est figée à l'installation
@@ -3926,25 +3872,30 @@
       });
     })();
     </script>
-    <script src="js/app.js?v=1201"></script>
-    <script src="js/calendar-tab.js?v=1201"></script>
-    <script src="js/routine-blocks.js?v=1201"></script>
-    <script src="js/routine-builder.js?v=1201"></script>
-    <script src="js/routine-print.js?v=1201"></script>
-    <script src="js/icons.js?v=1201"></script>
-    <script src="js/no-emoji.js?v=1201"></script>
-    <script src="js/strength-balance.js?v=1201"></script>
-    <script src="js/limitations.js?v=1201"></script>
-    <script src="js/custom-exercises.js?v=1201"></script>
-    <script src="js/awakening-tree.js?v=1201"></script>
-    <script src="js/ui-kit.js?v=1201"></script>
-    <script src="js/feature-map.js?v=1201"></script>
-    <script src="js/weekly-recap.js?v=1201"></script>
-    <script src="js/workout-games.js?v=1201"></script>
-    <script src="js/kids-games.js?v=1201"></script>
-    <script src="js/home-pro.js?v=1201"></script>
-    <script src="js/back-button.js?v=1201"></script>
-    <script src="js/gestures.js?v=1201"></script>
+    <script src="js/app.js?v=1228"></script>
+    <script src="js/calendar-tab.js?v=1228"></script>
+    <script src="js/routine-blocks.js?v=1228"></script>
+    <script src="js/routine-builder.js?v=1228"></script>
+    <script src="js/routine-print.js?v=1228"></script>
+    <script src="js/icons.js?v=1228"></script>
+    <script src="js/no-emoji.js?v=1228"></script>
+    <script src="js/strength-balance.js?v=1228"></script>
+    <script src="js/limitations.js?v=1228"></script>
+    <script src="js/custom-exercises.js?v=1228"></script>
+    <script src="js/awakening-tree.js?v=1228"></script>
+    <script src="js/ui-kit.js?v=1228"></script>
+    <script src="js/feature-map.js?v=1228"></script>
+    <script src="js/weekly-recap.js?v=1228"></script>
+    <script src="js/workout-games.js?v=1228"></script>
+    <script src="js/kids-games.js?v=1228"></script>
+    <script src="js/home-pro.js?v=1228"></script>
+    <script src="js/back-button.js?v=1228"></script>
+    <script src="js/gestures.js?v=1228"></script>
+    <script src="js/rift-visuals.js?v=1228"></script>
+    <script src="js/family-sky.js?v=1228"></script>
+    <script src="js/session-ux.js?v=1228"></script>
+    <script src="js/progress-tab.js?v=1228"></script>
+    <script src="js/run-gps.js?v=1228"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>

@@ -157,7 +157,10 @@
         try {
             if (typeof getEquippedItems === 'function' && typeof EQUIPMENT_DATABASE !== 'undefined') {
                 const eq = getEquippedItems();
-                (eq || []).forEach(it => {
+                // ⚠️ v1218 : getEquippedItems() renvoie un OBJET {slot: item} — l'ancien
+                // (eq || []).forEach plantait, l'erreur était avalée → bonus toujours 0
+                // (items ET compétence Prospecteur perdus).
+                Object.values(eq || {}).forEach(it => {
                     if (it && typeof it.mineralBonus === 'number') bonus += it.mineralBonus;
                 });
             }

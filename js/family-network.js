@@ -25,16 +25,21 @@
              return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }) + '</span>';
   }
 
+  function _ic(n, t, c) { return (window.AwakIcon && window.AwakIcon.get(n, t || 16, c || 'currentColor')) || ''; }
+
   var LINKS_KEY = 'awakFamilyLinks';   // GLOBALE : partagée entre tous les profils.
   var NUDGE_KEY = 'awakFamilyNudges';  // GLOBALE : boîte de réception des encouragements.
 
   // Types de relation. « directed:true » = le sens compte (parent→enfant).
   var REL_TYPES = {
-    couple:  { label: 'En couple',    emoji: '💞', directed: false, inverse: 'couple'  },
-    parent:  { label: 'Parent de',    emoji: '👪', directed: true,  inverse: 'enfant'  },
-    enfant:  { label: 'Enfant de',    emoji: '🧒', directed: true,  inverse: 'parent'  },
-    sibling: { label: 'Frère / Sœur', emoji: '🧑‍🤝‍🧑', directed: false, inverse: 'sibling' },
-    autre:   { label: 'Autre',        emoji: '🔗', directed: false, inverse: 'autre'   }
+    // `vue` (v1219) : ce que le MEMBRE est pour moi. « Parent de » / « Enfant de »
+    // étaient lus à l'envers (« Léo — Enfant de » voulait dire « je suis enfant
+    // de Léo ») : incompréhensible, surtout pour un enfant.
+    couple:  { label: 'En couple',    vue: 'Mon amoureux·se', ico: 'coeur',    emoji: '💞', directed: false, inverse: 'couple'  },
+    parent:  { label: 'Parent de',    vue: 'Mon enfant',      ico: 'personne', emoji: '👪', directed: true,  inverse: 'enfant'  },
+    enfant:  { label: 'Enfant de',    vue: 'Mon parent',      ico: 'maison',   emoji: '🧒', directed: true,  inverse: 'parent'  },
+    sibling: { label: 'Frère / Sœur', vue: 'Frère ou sœur',   ico: 'groupe',   emoji: '🧑‍🤝‍🧑', directed: false, inverse: 'sibling' },
+    autre:   { label: 'Autre',        vue: 'Un proche',       ico: 'lien',     emoji: '🔗', directed: false, inverse: 'autre'   }
   };
 
   // Types proposés à l'utilisateur au moment de créer un lien (enfant est
@@ -123,14 +128,14 @@
       var l = links[i];
       if (l.from === viewerId && l.to === otherId) {
         var t = REL_TYPES[l.type] || REL_TYPES.autre;
-        return { type: l.type, label: t.label, emoji: t.emoji };
+        return { type: l.type, label: t.vue || t.label, vue: t.vue, ico: t.ico, emoji: '' };
       }
       if (l.to === viewerId && l.from === otherId) {
         // sens inverse : traduire (parent → enfant, etc.)
         var base = REL_TYPES[l.type] || REL_TYPES.autre;
         var invKey = base.inverse;
         var inv = REL_TYPES[invKey] || base;
-        return { type: invKey, label: inv.label, emoji: inv.emoji };
+        return { type: invKey, label: inv.vue || inv.label, vue: inv.vue, ico: inv.ico, emoji: '' };
       }
     }
     return null;
@@ -378,29 +383,31 @@
     var html = '';
 
     // 1. Objectif commun
-    html += bloc('#4ade80', '◈ OBJECTIF COMMUN',
+    html += bloc('#f472b6', 'OBJECTIF COMMUN',
       goal && goal.def ? ((goal.def.emoji || '') + ' ' + esc(_dispLabelSafe(goal))) : 'Aucun objectif en cours',
       goal && goal.def
         ? 'Chaque séance de chacun fait avancer le compteur.'
-        : 'Fixez un but à atteindre ensemble — chaque séance de chacun fait avancer toute la famille.',
-      goal && goal.def ? barre(goal.pct, '#4ade80') : '',
+        : 'Un but pour toute la famille, sur 1 ou 2 semaines (ex. 20 séances à nous tous). Chaque séance compte.',
+      goal && goal.def ? barre(goal.pct, '#f472b6') : '',
       'document.getElementById(\'awakEnsembleModal\').remove();AwakFamilyGoalOpen()',
       goal && goal.def ? 'Voir l\'objectif' : 'Créer un objectif commun');
 
     // 2. Défi d'équipe (coopératif)
-    html += bloc('#22d3ee', '◈ DÉFI D\'ÉQUIPE',
-      coop ? ('🤝 ' + esc((coop.def && coop.def.label) || 'En cours')) : 'Aucun défi d\'équipe',
+    html += bloc('#60a8f0', 'DÉFI D\'ÉQUIPE',
+      coop ? esc((coop.def && coop.def.label) || 'En cours') : 'Aucun défi d\'équipe',
       coop
         ? coop.total + ' / ' + coop.cible + ' — vous jouez CONTRE l\'objectif, pas l\'un contre l\'autre.'
-        : 'Un effort commun sur une durée courte : tout le monde pousse dans le même sens.',
-      coop ? barre(coop.pct, '#22d3ee') : '',
+        : 'Une semaine pour réussir ensemble : on additionne nos séances ou nos minutes.',
+      coop ? barre(coop.pct, '#60a8f0') : '',
       'document.getElementById(\'awakEnsembleModal\').remove();AwakCoopOpen()',
       coop ? 'Voir le défi d\'équipe' : 'Lancer un défi d\'équipe');
 
-    // 3. Duel
-    html += bloc('#a855f7', '◈ DUEL',
-      '⚔ Défier un membre',
-      'Un face-à-face amical : celui qui en fait le plus l\'emporte.',
+    // 3. Duel — compétitif : jamais proposé à un profil enfant (comme le menu d'étoile)
+    var _enfD = false;
+    try { _enfD = !!(window.AwakYouth && window.AwakYouth.isChild && window.AwakYouth.isChild()); } catch (e) {}
+    if (!_enfD) html += bloc('#a78bfa', 'DUEL',
+      'Défier un membre',
+      'Toi contre un membre de la famille : celui qui en fait le plus cette semaine gagne.',
       '',
       'document.getElementById(\'awakEnsembleModal\').remove();AwakFamilyChallengeOpen()',
       'Défier un membre');
@@ -416,8 +423,8 @@
       + '<div style="padding:15px 18px 12px;flex-shrink:0;border-bottom:1px solid rgba(236,72,153,0.18);'
       +   'display:flex;align-items:center;gap:10px;">'
       +   '<div style="min-width:0;flex:1;">'
-      +     '<div style="font-size:0.56em;letter-spacing:2.5px;color:#ec4899;font-weight:900;">✦ À PLUSIEURS</div>'
-      +     '<div style="font-size:1em;font-weight:900;color:#fff;">Ensemble</div>'
+      +     '<div style="font-size:0.56em;letter-spacing:2.5px;color:#ec4899;font-weight:900;">EN FAMILLE</div>'
+      +     '<div style="font-size:1em;font-weight:900;color:#fff;">Défis & objectifs</div>'
       +   '</div>'
       +   '<button onclick="document.getElementById(\'awakEnsembleModal\').remove()" '
       +     'style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:#94a3b8;'
@@ -461,10 +468,17 @@
     { id: 'constellation', emoji: '✦', nom: 'Constellation',
       desc: 'Lier 3 membres à ta famille', seuil: 3, cle: 'membresLies' },
     { id: 'duo',          emoji: '🎮', nom: 'À deux c\'est mieux',
-      desc: 'Faire 10 séances à deux',   seuil: 10, cle: 'seancesDuo' }
+      desc: 'Faire 10 séances à deux',   seuil: 10, cle: 'seancesDuo' },
+    // v1219 : constellation de la semaine (family-sky.js)
+    { id: 'ciel',         emoji: '✦', nom: 'Premier ciel',
+      desc: 'Compléter une constellation de la semaine', seuil: 1, cle: 'cielsComplets' },
+    { id: 'astronomes',   emoji: '✦', nom: 'Astronomes',
+      desc: 'Compléter 5 constellations', seuil: 5, cle: 'cielsComplets' }
   ];
 
   var FB_KEY = 'awakFamBadgeStats';
+  var FB_ICO = { premier_duel: 'epee', duelliste: 'trophee', champion: 'couronne', equipe: 'groupe',
+                 objectif: 'cible', soutien: 'coeur', constellation: 'lien', duo: 'manette', ciel: 'constel', astronomes: 'etoile' };
 
   function _famStats() {
     try { return JSON.parse(localStorage.getItem(FB_KEY) || '{}'); }
@@ -486,7 +500,7 @@
       if (avant < b.seuil && st[cle] >= b.seuil) {
         try {
           if (typeof window.showToast === 'function') {
-            window.showToast(b.emoji + ' Badge débloqué : ' + b.nom + ' !', 'success', 4000);
+            window.showToast('Badge de famille débloqué : ' + b.nom + ' !', 'success', 4000);
           }
         } catch (e) {}
       }
@@ -517,26 +531,31 @@
       + 'backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;'
       + 'padding:16px;overflow-y:auto;';
     ov.innerHTML =
-      '<div style="width:100%;max-width:440px;margin:auto;background:linear-gradient(160deg,#0f1512,#0a0b0d);'
-    +   'border:1.5px solid rgba(74,222,128,0.40);border-radius:22px;padding:18px;'
-    +   'box-shadow:0 0 40px rgba(74,222,128,0.16);">'
+      '<div style="width:100%;max-width:440px;margin:auto;background:linear-gradient(160deg,#16101f,#0b0b10);'
+    +   'border:1.5px solid rgba(251,191,36,0.38);border-radius:22px;padding:18px;'
+    +   'box-shadow:0 0 40px rgba(251,191,36,0.12);">'
     +   '<div style="width:36px;height:4px;background:rgba(255,255,255,0.18);border-radius:99px;margin:0 auto 14px;"></div>'
-    +   '<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px;">'
-    +     '<span style="font-size:0.56em;letter-spacing:2.5px;color:#4ade80;font-weight:900;">🏅 BADGES DE FAMILLE</span>'
-    +     '<span style="font-size:0.72em;color:#94a3b8;font-weight:700;">' + n + ' / ' + b.length + '</span>'
+    +   '<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:4px;">'
+    +     '<span style="font-size:0.56em;letter-spacing:2.5px;color:#fbbf24;font-weight:900;">BADGES DE FAMILLE</span>'
+    +     '<span style="font-size:0.72em;color:#fde68a;font-weight:800;">' + n + ' / ' + b.length + '</span>'
     +   '</div>'
+    +   '<div style="font-size:0.68em;color:#94a3b8;margin-bottom:12px;">Ils se gagnent tous ensemble, pas les uns contre les autres.</div>'
     +   '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:9px;">'
     +   b.map(function (x) {
+          var p = Math.min(100, Math.round(Math.min(x.valeur, x.seuil) / x.seuil * 100));
+          var c = x.obtenu ? '#fbbf24' : '#64748b';
           return '<div style="padding:12px 10px;border-radius:13px;text-align:center;'
-            + 'background:' + (x.obtenu ? 'rgba(74,222,128,0.10)' : 'rgba(255,255,255,0.03)') + ';'
-            + 'border:1px solid ' + (x.obtenu ? 'rgba(74,222,128,0.35)' : 'rgba(255,255,255,0.07)') + ';">'
-            + '<div style="font-size:1.7em;line-height:1;margin-bottom:6px;'
-            +   (x.obtenu ? '' : 'filter:grayscale(1);opacity:0.35;') + '">' + x.emoji + '</div>'
-            + '<div style="font-size:0.66em;font-weight:800;color:'
-            +   (x.obtenu ? '#4ade80' : '#64748b') + ';">' + x.nom + '</div>'
-            + '<div style="font-size:0.56em;color:#475569;margin-top:3px;line-height:1.3;">' + x.desc + '</div>'
-            + '<div style="font-size:0.58em;color:' + (x.obtenu ? '#4ade80' : '#475569')
-            +   ';font-weight:800;margin-top:5px;">' + Math.min(x.valeur, x.seuil) + ' / ' + x.seuil + '</div>'
+            + 'background:' + (x.obtenu ? 'rgba(251,191,36,0.10)' : 'rgba(255,255,255,0.03)') + ';'
+            + 'border:1px solid ' + (x.obtenu ? 'rgba(251,191,36,0.45)' : 'rgba(255,255,255,0.08)') + ';">'
+            + '<div style="width:40px;height:40px;margin:0 auto 7px;border-radius:50%;display:flex;align-items:center;justify-content:center;'
+            +   'background:' + (x.obtenu ? 'rgba(251,191,36,0.18)' : 'rgba(255,255,255,0.04)') + ';'
+            +   (x.obtenu ? 'box-shadow:0 0 14px rgba(251,191,36,0.35);' : '') + '">' + _ic(FB_ICO[x.id] || 'etoile', 20, x.obtenu ? '#fbbf24' : '#64748b') + '</div>'
+            + '<div style="font-size:0.68em;font-weight:900;color:' + (x.obtenu ? '#fde68a' : '#cbd5e1') + ';">' + x.nom + '</div>'
+            + '<div style="font-size:0.56em;color:#94a3b8;margin-top:3px;line-height:1.3;min-height:2.6em;">' + x.desc + '</div>'
+            + '<div style="height:5px;background:rgba(255,255,255,0.07);border-radius:99px;overflow:hidden;margin-top:6px;">'
+            +   '<div style="height:100%;width:' + p + '%;background:' + c + ';border-radius:99px;"></div></div>'
+            + '<div style="font-size:0.56em;color:' + c + ';font-weight:800;margin-top:4px;">'
+            +   (x.obtenu ? 'Obtenu' : Math.min(x.valeur, x.seuil) + ' / ' + x.seuil) + '</div>'
             + '</div>';
         }).join('')
     +   '</div>'
@@ -638,8 +657,8 @@
         // distingue au premier coup d'œil, sans lire le texte.
         + '<div style="flex-shrink:0;width:42px;height:42px;border-radius:12px;'
         +   'background:' + couleur + '1c;border:1px solid ' + couleur + '40;'
-        +   'display:flex;align-items:center;justify-content:center;font-size:1.25em;">'
-        +   emoji + '</div>'
+        +   'display:flex;align-items:center;justify-content:center;">'
+        +   _ic(emoji, 21, couleur) + '</div>'
         + '<div style="flex:1;min-width:0;">'
         +   '<div style="font-size:0.86em;font-weight:800;color:#f1f5f9;">' + label + '</div>'
         +   '<div style="font-size:0.68em;color:#94a3b8;margin-top:2px;">' + sous + '</div>'
@@ -655,9 +674,9 @@
       // ✨ Bordure et halo VERTS (maquette) : la modale se détache du ciel
       // étoilé au lieu de s'y fondre. Coins uniformes — elle flotte au centre
       // depuis v890, elle n'est plus calée en bas d'écran.
-      '<div style="width:100%;max-width:440px;background:linear-gradient(160deg,#0f1512,#0a0b0d);'
-    +   'border:1.5px solid rgba(74,222,128,0.45);border-radius:22px;padding:18px;'
-    +   'box-shadow:0 0 40px rgba(74,222,128,0.18),0 12px 40px rgba(0,0,0,0.6);">'
+      '<div style="width:100%;max-width:440px;background:linear-gradient(160deg,#16101f,#0b0b10);'
+    +   'border:1.5px solid rgba(236,72,153,0.42);border-radius:22px;padding:18px;'
+    +   'box-shadow:0 0 40px rgba(236,72,153,0.16),0 12px 40px rgba(0,0,0,0.6);">'
     +   '<div style="width:36px;height:4px;background:rgba(255,255,255,0.18);border-radius:99px;margin:0 auto 16px;"></div>'
     +   '<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">'
     // ⚠️ _av() et non esc() : les avatars modernes sont des clés « av:… »
@@ -666,21 +685,21 @@
     +     '<div style="flex-shrink:0;">' + _av(lien.member.avatar, 40) + '</div>'
     +     '<div style="flex:1;min-width:0;">'
     +       '<div style="font-size:1.05em;font-weight:900;color:#fff;">' + esc(lien.member.name || 'Membre') + '</div>'
-    +       '<div style="font-size:0.7em;color:#ec4899;font-weight:700;">'
-    +         ((lien.relation && lien.relation.emoji) || '') + ' ' + esc((lien.relation && lien.relation.label) || '') + '</div>'
+    +       '<div style="font-size:0.7em;color:#ec4899;font-weight:700;display:flex;align-items:center;gap:5px;">'
+    +         _ic(lien.relation && lien.relation.ico, 13, '#ec4899') + esc((lien.relation && lien.relation.label) || '') + '</div>'
     +       '<div style="font-size:0.68em;color:#94a3b8;margin-top:2px;">' + etat + '</div>'
     +     '</div>'
     +   '</div>'
-    +   act('💜', 'Envoyer un encouragement', 'Un mot pour lui donner envie',
+    +   act('coeur', 'Envoyer un encouragement', 'Un petit mot gentil pour lui donner envie',
           "AwakConstAction('nudge','" + memberId + "')", '#ec4899')
-    +   act('🎮', 'Jouer à deux', 'Une séance à faire ensemble',
-          "AwakConstAction('games','" + memberId + "')", '#a855f7')
+    +   act('manette', 'Jouer à deux', 'Un jeu ou une séance à faire ensemble',
+          "AwakConstAction('games','" + memberId + "')", '#60a8f0')
     // ⚔️ Le défi 1 contre 1 est COMPÉTITIF : jamais proposé à un enfant.
-    +   (enf ? '' : act('⚔️', 'Lancer un défi', 'Qui en fera le plus cette semaine ?',
-          "AwakConstAction('challenge','" + memberId + "')", '#f59e0b'))
+    +   (enf ? '' : act('epee', 'Lancer un duel', 'Qui en fera le plus cette semaine ?',
+          "AwakConstAction('challenge','" + memberId + "')", '#a78bfa'))
     // ✏️ Modifier le lien : c'était impossible depuis la constellation, alors
     // que toucher le nom d'un membre est le geste naturel pour ça.
-    +   act('✏️', 'Modifier le lien', 'Changer la relation ou retirer ce membre',
+    +   act('crayon', 'Modifier le lien', 'Changer qui il est pour toi, ou le retirer',
           "AwakConstAction('edit','" + memberId + "')", '#94a3b8')
     +   '<button onclick="document.getElementById(\'awakConstMenu\').remove()" '
     +     'style="width:100%;padding:12px;margin-top:5px;border-radius:13px;cursor:pointer;'
@@ -760,7 +779,14 @@
         avatar: r.member.avatar || '🙂',
         relation: (r.relation && r.relation.label) || '',
         seances: st.seances,
-        jours: st.joursActifs
+        jours: st.joursActifs,
+        recent: (function () {   // séance dans les dernières 24 h → anneau animé
+          try {
+            var raw = localStorage.getItem('profile_' + r.member.id + '_workoutHistory');
+            var h = JSON.parse(raw || '[]') || [];
+            return h.some(function (w) { var t = w && w.date ? Date.parse(w.date) : (w && w.id ? +w.id : 0); return Date.now() - t < 86400000; });
+          } catch (e) { return false; }
+        })()
       };
     });
 
@@ -790,6 +816,9 @@
       etoiles += '<g style="cursor:pointer;" onclick="AwakConstMenu(\'' + m.id + '\')">'
         + '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="26" fill="transparent"/>'
         + '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + (e.r + 9) + '" fill="' + e.c + '" fill-opacity="0.10"/>'
+        + (m.recent ? '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + (e.r + 6) + '" fill="none" stroke="#fbbf24" stroke-width="1.4">'
+            + '<animate attributeName="r" values="' + (e.r + 6) + ';' + (e.r + 20) + '" dur="1.8s" repeatCount="indefinite"/>'
+            + '<animate attributeName="opacity" values="0.9;0" dur="1.8s" repeatCount="indefinite"/></circle>' : '')
         + '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + e.r + '" fill="' + e.c + '" '
         +   'opacity="' + e.o + '" filter="url(#constLueur)">'
         +   (m.seances ? '<animate attributeName="opacity" values="' + e.o + ';' + (e.o * 0.6) + ';' + e.o
@@ -801,8 +830,8 @@
         + '<text x="' + x.toFixed(1) + '" y="' + (y + e.r + 28).toFixed(1) + '" text-anchor="middle" '
         +   'fill="' + e.c + '" font-size="10" font-weight="800">'
         +   (estEnfant
-              ? (m.seances ? 'a bougé' : 'en sommeil')
-              : (m.seances ? m.seances + ' séance' + (m.seances > 1 ? 's' : '') : 'en sommeil')) + '</text>'
+              ? (m.recent ? 'vient de bouger' : (m.seances ? 'a bougé' : 'pas encore bougé'))
+              : (m.recent ? 'vient de bouger !' : (m.seances ? m.seances + ' séance' + (m.seances > 1 ? 's' : '') : 'pas encore bougé'))) + '</text>'
         + '</g>';
     });
 
@@ -840,7 +869,7 @@
       +     etoiles
       // étoile centrale : moi
       // ⌖ Mon étoile : ouvre le défi d'équipe (l'action collective).
-      +     '<g style="cursor:pointer;" onclick="AwakCoopOpen()">'
+      +     '<g style="cursor:pointer;" onclick="AwakConstMoi()">'
       +     '<circle cx="150" cy="150" r="30" fill="transparent"/>'
       +     '<circle cx="150" cy="150" r="' + (moiE.r + 12) + '" fill="' + moiE.c + '" fill-opacity="0.12"/>'
       +     '<circle cx="150" cy="150" r="' + (moiE.r + 2) + '" fill="' + moiE.c + '" filter="url(#constLueur)"/>'
@@ -849,48 +878,44 @@
       +         '" dur="4.2s" repeatCount="indefinite"/>'
       +       '<animate attributeName="opacity" values="0.4;0;0.4" dur="4.2s" repeatCount="indefinite"/>'
       +     '</circle>'
+      +     '<text x="150" y="' + (150 + moiE.r + 26) + '" text-anchor="middle" fill="#fff" font-size="12" font-weight="900">Toi</text>'
+      +     '<text x="150" y="' + (150 + moiE.r + 38) + '" text-anchor="middle" fill="' + moiE.c + '" font-size="10" font-weight="800">'
+      +       (estEnfant ? (moiSt.seances ? 'a bougé' : 'pas encore bougé') : (moiSt.seances ? moiSt.seances + ' séance' + (moiSt.seances > 1 ? 's' : '') : 'pas encore bougé')) + '</text>'
       +     '</g>'
       +   '</svg>'
       +   '<div style="position:absolute;top:0;left:0;right:0;padding:11px 13px 22px;'
       +     'background:linear-gradient(180deg,rgba(8,9,12,0.85),rgba(8,9,12,0));'
       +     'display:flex;align-items:baseline;justify-content:space-between;pointer-events:none;">'
-      +     '<div style="font-size:0.56em;letter-spacing:2.5px;color:#ec4899;font-weight:900;">✦ CONSTELLATION DES ANCRES</div>'
-      +     '<div style="font-size:0.52em;letter-spacing:1.5px;color:#64748b;font-weight:800;">'
-      +       (membres.length + 1) + ' ÉTOILES</div>'
+      +     '<div style="font-size:0.56em;letter-spacing:2.5px;color:#ec4899;font-weight:900;">NOTRE CIEL</div>'
+      +     '<div style="font-size:0.52em;letter-spacing:1.5px;color:#94a3b8;font-weight:800;">'
+      +       (membres.length + 1) + ' MEMBRES</div>'
 
+      +   '</div>'
+      // 🎨 Légende des couleurs (v1219) : jamais expliquées avant.
+      +   '<div style="display:flex;justify-content:center;flex-wrap:wrap;gap:10px;padding:8px 10px;background:rgba(8,9,12,0.55);'
+      +     'border-top:1px solid rgba(255,255,255,0.05);font-size:0.56em;color:#94a3b8;font-weight:700;">'
+      +     (estEnfant ? [['#64748b', 'pas bougé'], ['#38bdf8', 'a bougé'], ['#4ade80', 'très actif'], ['#fbbf24', 'super actif']]
+                         : [['#64748b', 'pas bougé'], ['#38bdf8', '1 séance'], ['#4ade80', '3 séances'], ['#fbbf24', '5 et +']]).map(function (l) {
+              return '<span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:50%;background:' + l[0] + ';box-shadow:0 0 6px ' + l[0] + ';"></span>' + l[1] + '</span>';
+            }).join('')
       +   '</div>'
       // ⚠️ EN FLUX, pas en position:absolute — les boutons du pied (v900)
       // passaient sous ce bandeau et le texte se chevauchait.
       +   '<div style="padding:10px 13px 9px;background:rgba(8,9,12,0.55);font-size:0.6em;'
       +     'border-top:1px solid rgba(255,255,255,0.05);">'
       +     (solo
-                ? '<span style="color:#64748b;">Ton étoile veille seule. Lie un proche pour agrandir la constellation.</span>'
+                ? '<span style="color:#94a3b8;">Ton étoile est seule. Ajoute un proche avec « Ma famille ».</span>'
                 : (estEnfant
                     ? (total
-                        ? '<span style="color:#4ade80;font-weight:800;">Votre ciel brille</span><span style="color:#475569;"> — touche une étoile pour envoyer un message</span>'
+                        ? '<span style="color:#fbbf24;font-weight:800;">Votre ciel brille</span><span style="color:#94a3b8;"> — touche une étoile pour envoyer un message</span>'
                         : '<span style="color:#64748b;">Le ciel dort. Bouge un peu et il s\'allume.</span>')
                     : (total
-                        ? ('<span style="color:#4ade80;font-weight:800;">' + total + ' séance' + (total > 1 ? 's' : '') + ' cette semaine</span><span style="color:#475569;"> — touche une étoile pour encourager</span>')
+                        ? ('<span style="color:#fbbf24;font-weight:800;">' + total + ' séance' + (total > 1 ? 's' : '') + ' en 7 jours</span><span style="color:#94a3b8;"> — touche une étoile pour encourager</span>')
                         : '<span style="color:#64748b;">Le ciel est calme. Une séance et il s\'allume.</span>')))
       +   '</div>'
       // 👨‍👩‍👧 Deux accès discrets, pour ce que la constellation ne peut pas
       // montrer : ajouter/retirer un membre, et l'historique familial.
-      // 💜 Encouragements REÇUS : la constellation permet d'en envoyer (menu
-      // d'étoile) mais pas de lire ceux qu'on reçoit. Bandeau affiché
-      // uniquement s'il y en a, pour ne pas ajouter une ligne vide.
-      +   (function () {
-            var n = 0;
-            try { n = pendingNudges().length; } catch (e) {}
-            if (!n) return '';
-            return '<div onclick="AwakFamilyNudgeOpenInbox()" style="cursor:pointer;'
-              + 'border-top:1px solid rgba(236,72,153,0.20);background:rgba(236,72,153,0.08);'
-              + 'padding:11px 14px;display:flex;align-items:center;gap:9px;">'
-              + '<span style="font-size:1.05em;">💜</span>'
-              + '<span style="flex:1;min-width:0;font-size:0.7em;color:#f9a8d4;font-weight:800;">'
-              +   n + ' encouragement' + (n > 1 ? 's' : '') + ' reçu' + (n > 1 ? 's' : '') + '</span>'
-              + '<span style="color:#ec4899;font-size:0.95em;">›</span>'
-              + '</div>';
-          })()
+      // 💜 Encouragements reçus : carte dédiée AU-DESSUS du ciel (family-sky.js, v1219).
       // 🧒 Jeux parent-enfant — visible seulement si un enfant est dans la
       // famille. Pour ceux qui préfèrent jouer plutôt que « s'entraîner ».
       +   (function () {
@@ -905,7 +930,7 @@
             return '<div onclick="AwakKidsOpen()" style="cursor:pointer;margin:0 12px 10px;'
               + 'padding:11px 13px;border-radius:13px;display:flex;align-items:center;gap:10px;'
               + 'background:rgba(96,168,240,0.08);border:1px solid rgba(96,168,240,0.26);">'
-              + '<span style="font-size:1.3em;flex-shrink:0;">🎲</span>'
+              + '<span style="flex-shrink:0;display:inline-flex;">' + _ic('manette', 20, '#60a8f0') + '</span>'
               + '<span style="flex:1;min-width:0;">'
               +   '<span style="display:block;font-size:0.7em;font-weight:800;color:#f1f5f9;">'
               +     'Jeux à faire ensemble</span>'
@@ -916,7 +941,7 @@
           })()
 
       // 📋 Rappel des défis et objectifs en cours (rien s'il n'y en a pas).
-      +   _enCoursBandeau()
+      // 📋 « En cours » : section dédiée SOUS le ciel (family-sky.js, v1219).
       +   '<div style="display:flex;border-top:1px solid rgba(255,255,255,0.06);">'
       // 🏅 Accès aux badges de famille, dans la barre du pied de carte.
 
@@ -925,18 +950,18 @@
       // vert — lequel n'est dessiné que si un objectif est DÉJÀ actif. Sans
       // objectif en cours, il n'y avait donc aucun moyen d'en créer un depuis
       // la Constellation, seul écran de l'onglet depuis v902.
-      +     '<button onclick="AwakEnsembleOpen()" style="flex:1;padding:11px;background:transparent;'
-      +       'border:none;border-right:1px solid rgba(255,255,255,0.06);color:#ec4899;'
-      +       'font-size:0.64em;font-weight:800;letter-spacing:1px;cursor:pointer;">✦ ENSEMBLE</button>'
-      +     '<button onclick="AwakFamBadgesOpen()" style="flex:1;padding:11px;background:transparent;'
-      +       'border:none;border-right:1px solid rgba(255,255,255,0.06);color:#4ade80;'
-      +       'font-size:0.64em;font-weight:800;letter-spacing:1px;cursor:pointer;">🏅 BADGES</button>'
-      +     '<button onclick="AwakFamilyManage()" style="flex:1;padding:11px;background:transparent;'
-      +       'border:none;border-right:1px solid rgba(255,255,255,0.06);color:#94a3b8;'
-      +       'font-size:0.64em;font-weight:800;letter-spacing:1px;cursor:pointer;">👨‍👩‍👧 MA FAMILLE</button>'
-      +     '<button onclick="AwakFamilyFeedOpen()" style="flex:1;padding:11px;background:transparent;'
-      +       'border:none;color:#94a3b8;font-size:0.64em;font-weight:800;letter-spacing:1px;cursor:pointer;">'
-      +       '📖 JOURNAL</button>'
+      +     (function () {
+              function bt(fn, icone, txt, c, der) {
+                return '<button onclick="' + fn + '" style="flex:1;padding:10px 2px;background:transparent;border:none;'
+                  + (der ? '' : 'border-right:1px solid rgba(255,255,255,0.06);') + 'color:' + c + ';font-size:0.6em;font-weight:800;'
+                  + 'cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0;">'
+                  + _ic(icone, 18, c) + '<span style="white-space:nowrap;">' + txt + '</span></button>';
+              }
+              return bt('AwakEnsembleOpen()', 'trophee', 'Défis', '#f472b6')
+                + bt('AwakFamBadgesOpen()', 'etoile', 'Badges', '#fbbf24')
+                + bt('AwakFamilyManage()', 'groupe', 'Ma famille', '#c4b5fd')
+                + bt('AwakFamilyFeedOpen()', 'liste', 'Journal', '#94a3b8', true);
+            })()
       +   '</div>'
       + '</div>';
   }
@@ -1072,7 +1097,7 @@
         + '<div style="flex-shrink:0;">' + _av(r.member.avatar, 32) + '</div>'
         + '<div style="flex:1;min-width:0;">'
         +   '<div style="font-size:0.92em;font-weight:800;color:#fff;">' + esc(r.member.name) + '</div>'
-        +   '<div style="font-size:0.74em;color:#ec4899;font-weight:600;">' + r.relation.emoji + ' ' + esc(r.relation.label) + '</div>'
+        +   '<div style="font-size:0.74em;color:#ec4899;font-weight:700;display:flex;align-items:center;gap:5px;">' + _ic(r.relation.ico, 13, '#ec4899') + esc(r.relation.label) + '</div>'
         +   (function () {
               // 📊 Trois chiffres pour donner une identité au membre — sans classement.
               var ws = memberWeekStats(r.member.id);
@@ -1155,7 +1180,7 @@
 
     return '<div style="background:linear-gradient(160deg,#1a1018,#0d0d12);border:1px solid rgba(236,72,153,0.25);border-radius:18px;padding:18px;margin-bottom:14px;box-shadow:0 4px 24px rgba(236,72,153,0.08);">'
       + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">'
-      +   '<span style="font-size:1.5em;">👨‍👩‍👧‍👦</span>'
+      +   '<span style="display:inline-flex;width:38px;height:38px;border-radius:11px;align-items:center;justify-content:center;background:rgba(236,72,153,0.14);">' + _ic('groupe', 20, '#f9a8d4') + '</span>'
       +   '<div><div style="font-size:0.62em;font-weight:800;letter-spacing:0.5px;color:#ec4899;">MA FAMILLE</div>'
       +   '<div style="font-size:1.02em;font-weight:900;color:#fff;">Membres liés</div></div>'
       + '</div>'
@@ -1176,13 +1201,13 @@
         + 'display:flex;align-items:center;gap:10px;width:100%;padding:13px;margin-bottom:8px;border-radius:12px;cursor:pointer;'
         + 'border:1.5px solid ' + (isCurrent ? '#ec4899' : 'rgba(255,255,255,0.1)') + ';'
         + 'background:' + (isCurrent ? 'rgba(236,72,153,0.12)' : 'rgba(255,255,255,0.03)') + ';color:#fff;font-size:0.9em;font-weight:700;text-align:left;">'
-        + '<span style="font-size:1.3em;">' + t.emoji + '</span> ' + t.label
+        + '<span style="display:inline-flex;width:30px;height:30px;border-radius:9px;align-items:center;justify-content:center;background:rgba(236,72,153,0.12);flex-shrink:0;">' + _ic(t.ico, 16, '#f9a8d4') + '</span> ' + t.vue
         + (isCurrent ? ' <span style="margin-left:auto;color:#ec4899;">✓</span>' : '')
         + '</button>';
     }).join('');
 
     var removeBtn = existing
-      ? '<button onclick="AwakFamilyRemove(\'' + otherId + '\')" style="width:100%;margin-top:6px;padding:11px;border:none;border-radius:10px;cursor:pointer;background:rgba(239,68,68,0.1);color:#f87171;font-size:0.8em;font-weight:700;">✕ Retirer ce lien</button>'
+      ? '<button onclick="AwakFamilyRemove(\'' + otherId + '\')" style="width:100%;margin-top:6px;padding:11px;border:none;border-radius:10px;cursor:pointer;background:rgba(239,68,68,0.1);color:#f87171;font-size:0.8em;font-weight:700;">Retirer ce lien</button>'
       : '';
 
     var overlay = document.createElement('div');
@@ -1194,7 +1219,7 @@
     overlay.innerHTML = '<div style="background:linear-gradient(160deg,#1a1018,#0d0d12);border:1px solid rgba(236,72,153,0.3);border-radius:20px;padding:22px;max-width:360px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,0.6);">'
       + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">'
       +   _av(m.avatar, 36)
-      +   '<div><div style="font-size:0.62em;color:#ec4899;font-weight:800;letter-spacing:0.5px;">QUELLE RELATION ?</div>'
+      +   '<div><div style="font-size:0.62em;color:#ec4899;font-weight:800;letter-spacing:0.5px;">POUR TOI, ' + esc(m.name).toUpperCase() + ' EST…</div>'
       +   '<div style="font-size:1.1em;font-weight:900;color:#fff;">' + esc(m.name) + '</div></div>'
       + '</div>'
       + buttons
@@ -1209,7 +1234,7 @@
     var el = document.getElementById('awakFamilyModal'); if (el) el.remove();
     var m = meta(otherId);
     var t = REL_TYPES[type];
-    if (typeof window.showToast === 'function') window.showToast(t.emoji + ' Lien défini : ' + m.name + ' — ' + t.label, 'success', 3000);
+    if (typeof window.showToast === 'function') window.showToast('Lien défini : ' + m.name + ' — ' + t.vue, 'success', 3000);
     if (typeof window.renderFamilyTab === 'function') window.renderFamilyTab();
   };
 
