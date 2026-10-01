@@ -112,6 +112,9 @@
     return true;
   }
 
+  // Exposé pour les gestes (glisser une fenêtre vers le bas pour la fermer)
+  window.awakFermerFenetre = function (el) { try { return fermer(el); } catch (e) { return false; } };
+
   function enSeance() {
     return document.body.classList.contains('in-session');
   }

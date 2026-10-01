@@ -215,7 +215,7 @@
       '</div>';
 
     return enTete +
-      '<div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);' + bordure +
+      '<div data-awak-ex="' + i + '" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);' + bordure +
         'border-radius:10px;padding:11px 12px;margin-bottom:' + (estGroupe && pos < members.length - 1 ? '4px' : '9px') + ';">' +
         '<div style="display:flex;align-items:center;gap:8px;">' +
           (estGroupe
@@ -261,7 +261,8 @@
       '💡 Règle chaque exercice en <strong style="color:#86efac;">reps</strong> ou en ' +
       '<strong style="color:#67e8f9;">durée</strong> (ex. 5 min de vélo). ' +
       '<strong style="color:#fb923c;">⚡ Lier au suivant</strong> crée un superset : ' +
-      'les exercices s\'enchaînent sans repos.</div>';
+      'les exercices s\'enchaînent sans repos. ' +
+      '<strong style="color:#cbd5e1;">Appui long</strong> sur le nom d\'un exercice pour le déplacer.</div>';
     return aide + exs.map(function (ex, i) { return rowHTML(ex, i, exs); }).join('');
   };
 
