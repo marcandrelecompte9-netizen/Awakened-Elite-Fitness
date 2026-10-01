@@ -415,7 +415,7 @@
     try {
       var g = _load();
       if (g) {
-        var a = new Date(g.startTs), b = new Date(g.endTs);
+        var a = new Date(g.startsAt || g.startTs), b = new Date(g.endsAt || g.endTs);
         var MO = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
         dDeb = a.getDate() + ' ' + MO[a.getMonth()];
         dFin = b.getDate() + ' ' + MO[b.getMonth()];
@@ -463,7 +463,7 @@
       +   '<span style="font-size:1.6em;flex-shrink:0;">' + def.emoji + '</span>'
       +   '<div style="min-width:0;flex:1;">'
       +     '<div style="font-size:0.56em;letter-spacing:2px;color:' + couleur + ';font-weight:900;">OBJECTIF COMMUN</div>'
-      +     '<div style="font-size:1em;font-weight:900;color:#fff;">' + esc(_dispLabel(st.type, def)) + '</div>'
+      +     '<div style="font-size:1em;font-weight:900;color:#fff;">' + _fmt(_dispVal(st.type, st.target)) + ' ' + esc(_dispLabel(st.type, def)) + ' ensemble</div>'
       +   '</div>'
       +   '<button onclick="document.getElementById(\'awakGoalInfoModal\').remove()" '
       +     'style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:#94a3b8;'
@@ -489,7 +489,7 @@
 
       + bloc('CE QUI COMPTE', esc(inf.desc || ''), couleur)
       + (inf.detail ? bloc('COMMENT C\'EST CALCULÉ', esc(inf.detail)) : '')
-      + bloc('PÉRIODE', (dDeb && dFin ? 'Du ' + esc(dDeb) + ' au ' + esc(dFin) + '. ' : '')
+      + bloc('PÉRIODE', (dDeb && dFin ? 'Du ' + esc(dDeb) + ' au ' + esc(dFin) + (/\.$/.test(dFin) ? ' ' : '. ') : '')
           + (st.expired ? 'La période est terminée.'
              : '<strong style="color:#e8f0f8;">' + st.daysLeft + ' jour' + (st.daysLeft > 1 ? 's' : '') + ' restant'
                + (st.daysLeft > 1 ? 's' : '') + '.</strong>'))
@@ -501,6 +501,15 @@
           : '')
       + '<div style="font-size:0.58em;letter-spacing:1.6px;font-weight:900;color:#64748b;margin-bottom:8px;">CONTRIBUTIONS</div>'
       + contrib
+      + '</div>'
+      // Actions : changer ou arrêter l'objectif
+      + '<div style="display:flex;gap:8px;padding:12px 18px 16px;flex-shrink:0;border-top:1px solid rgba(255,255,255,0.07);">'
+      +   '<button onclick="document.getElementById(\'awakGoalInfoModal\').remove();AwakFamilyGoalCancel()" '
+      +     'style="flex:1;min-height:auto;padding:11px 6px;border-radius:11px;cursor:pointer;background:rgba(239,68,68,0.07);'
+      +     'border:1px solid rgba(239,68,68,0.3);color:#fca5a5;font-weight:800;font-size:0.8em;">Arrêter</button>'
+      +   '<button onclick="document.getElementById(\'awakGoalInfoModal\').remove();AwakFamilyGoalOpen(\'nouveau\')" '
+      +     'style="flex:2;min-height:auto;padding:11px 6px;border-radius:11px;cursor:pointer;background:rgba(96,168,240,0.12);'
+      +     'border:1px solid rgba(96,168,240,0.4);color:#bfdbfe;font-weight:800;font-size:0.8em;">Changer d\'objectif</button>'
       + '</div>'
       + '</div>';
 
@@ -622,7 +631,19 @@
   window.AwakFamilyGoal.renderCard = renderCard;
 
   // Modale de création
-  window.AwakFamilyGoalOpen = function () {
+  window.AwakFamilyGoalOpen = function (mode) {
+    // 🎯 Un objectif est en cours → on montre SA fiche (progression,
+    // contributions). Le choix d'un autre objectif passe par le bouton
+    // « Changer d'objectif » de la fiche (mode 'nouveau').
+    if (mode !== 'nouveau') {
+      var _enCours = null;
+      try { _enCours = isActive() ? status() : null; } catch (e) {}
+      if (_enCours && _enCours.def) {
+        try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) {}
+        window.AwakFamilyGoalInfo();
+        return;
+      }
+    }
     var typeButtons = Object.keys(GOAL_TYPES).filter(function (k) {
       // Ne pas proposer « poids soulevé » si un enfant est dans la famille.
       return !(k === 'volume' && _familleAvecEnfant());

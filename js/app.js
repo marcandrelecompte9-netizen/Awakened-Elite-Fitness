@@ -15756,17 +15756,18 @@
             };
             return ''
             + '<div style="display:flex;gap:6px;justify-content:center;margin-bottom:12px;">'
-            +   '<button onclick="setMusclePickerView(\'face\')" id="mmpViewFace" style="flex:1;max-width:120px;padding:8px;border-radius:10px;cursor:pointer;font-weight:800;font-size:0.78em;border:1px solid ' + (_mmpView === 'face' ? '#22d3ee' : '#2E2F35') + ';background:' + (_mmpView === 'face' ? 'rgba(34,211,238,0.14)' : '#1a1b20') + ';color:' + (_mmpView === 'face' ? '#22d3ee' : '#94a3b8') + ';">Face</button>'
-            +   '<button onclick="setMusclePickerView(\'dos\')" id="mmpViewDos" style="flex:1;max-width:120px;padding:8px;border-radius:10px;cursor:pointer;font-weight:800;font-size:0.78em;border:1px solid ' + (_mmpView === 'dos' ? '#22d3ee' : '#2E2F35') + ';background:' + (_mmpView === 'dos' ? 'rgba(34,211,238,0.14)' : '#1a1b20') + ';color:' + (_mmpView === 'dos' ? '#22d3ee' : '#94a3b8') + ';">Dos</button>'
+            +   '<button onclick="awakMmpFlip(\'face\')" id="mmpViewFace" style="flex:1;max-width:120px;padding:8px;border-radius:10px;cursor:pointer;font-weight:800;font-size:0.78em;border:1px solid ' + (_mmpView === 'face' ? '#22d3ee' : '#2E2F35') + ';background:' + (_mmpView === 'face' ? 'rgba(34,211,238,0.14)' : '#1a1b20') + ';color:' + (_mmpView === 'face' ? '#22d3ee' : '#94a3b8') + ';">Face</button>'
+            +   '<button onclick="awakMmpFlip(\'dos\')" id="mmpViewDos" style="flex:1;max-width:120px;padding:8px;border-radius:10px;cursor:pointer;font-weight:800;font-size:0.78em;border:1px solid ' + (_mmpView === 'dos' ? '#22d3ee' : '#2E2F35') + ';background:' + (_mmpView === 'dos' ? 'rgba(34,211,238,0.14)' : '#1a1b20') + ';color:' + (_mmpView === 'dos' ? '#22d3ee' : '#94a3b8') + ';">Dos</button>'
             + '</div>'
             + '<div style="display:grid;grid-template-columns:1fr 1.35fr 1fr;gap:8px;align-items:center;margin-bottom:14px;">'
             +   col(L)
-            +   '<svg viewBox="0 0 200 298" preserveAspectRatio="xMidYMid meet" style="width:100%;aspect-ratio:200/298;height:auto;display:block;align-self:center;margin:0 auto;">'
+            +   '<svg data-awak-flip="mmp" viewBox="0 0 200 298" preserveAspectRatio="xMidYMid meet" style="width:100%;aspect-ratio:200/298;height:auto;display:block;align-self:center;margin:0 auto;touch-action:pan-y;">'
             +     _mmpSilhouette()
             +     (_mmpView === 'face' ? _mmpFrontShapes() : _mmpBackShapes())
             +   '</svg>'
             +   col(R)
             + '</div>'
+            + '<div style="text-align:center;font-size:0.62em;color:#64748b;font-weight:700;margin:-8px 0 10px;letter-spacing:0.3px;">Glisse sur le personnage pour le tourner</div>'
             + '<div style="display:flex;justify-content:center;margin-bottom:4px;">'
             +   '<div style="width:44%;">' + _mmpLabel('Cardio', '🫀 Cardio') + '</div>'
             + '</div>';
@@ -24396,7 +24397,7 @@
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1195);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1198);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -24440,7 +24441,7 @@
                 +       '<feGaussianBlur stdDeviation="2.4" result="b"/>'
                 +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>'
                 +     '</filter></defs>'
-                +     '<image href="' + img + '?v=1195" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1198" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -24972,18 +24973,101 @@
             poser(droite, 'd');
 
             return '<div class="awak-bodymap-host">'
-                + '<svg viewBox="-100 0 400 298" style="width:100%;height:auto;display:block;">'
+                + '<svg data-awak-flip="bodymap" viewBox="-100 0 400 298" style="width:100%;height:auto;display:block;touch-action:pan-y;">'
                 +   '<image href="' + img + '?v=858" x="0" y="0" width="200" height="298" '
                 +     'preserveAspectRatio="none" opacity="0.85"/>'
                 +   amorces + svgZones + textes
                 + '</svg>'
-                + '<button onclick="awakToggleBodyMapView()" style="width:100%;margin-top:8px;padding:9px;'
+                + '<div style="text-align:center;font-size:0.62em;color:#64748b;font-weight:700;margin-top:4px;letter-spacing:0.3px;">Glisse sur le personnage pour le tourner</div>'
+                + '<button onclick="awakBodyMapFlip(1)" style="width:100%;margin-top:8px;padding:9px;'
                 +   'border-radius:11px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);'
                 +   'color:#cbd5e1;font-size:0.7em;font-weight:800;cursor:pointer;">'
                 +   (estFace ? '🔄 VOIR LE DOS' : '🔄 VOIR LA FACE') + '</button>'
                 + '</div>';
         }
         window.awakRenderBodyMap = awakRenderBodyMap;
+
+        // ══════════════════════════════════════════════════════════════
+        // 🔄 PERSONNAGE QUI PIVOTE — glisser le doigt (ou toucher Face/Dos)
+        // fait tourner la silhouette : demi-tour vers la tranche, changement
+        // d'image, puis retour de face. Deux images seulement → effet « carte
+        // qui pivote », pas de vraie 3D.
+        // Gestes délégués au document : marche pour toutes les silhouettes
+        // portant data-awak-flip, même recréées (innerHTML).
+        // Un glissement doit être surtout HORIZONTAL et ≥ 40 px : un toucher
+        // sélectionne toujours un muscle, un défilement vertical reste un
+        // défilement (touch-action:pan-y sur le SVG).
+        // ══════════════════════════════════════════════════════════════
+        function _awakFlipAnim(cibles, swap, dir) {
+            const sens = dir < 0 ? -1 : 1;
+            const anciens = (cibles() || []).filter(Boolean);
+            if (window._awakFlipEnCours) return;
+            window._awakFlipEnCours = true;
+            anciens.forEach(el => {
+                el.style.transition = 'transform 0.17s ease-in, opacity 0.17s ease-in';
+                el.style.transformOrigin = '50% 50%';
+                el.style.transform = 'perspective(700px) rotateY(' + (sens * 88) + 'deg)';
+                el.style.opacity = '0.4';
+            });
+            setTimeout(() => {
+                try { swap(); } catch (e) {}
+                const nouveaux = (cibles() || []).filter(Boolean);
+                nouveaux.forEach(el => {
+                    el.style.transition = 'none';
+                    el.style.transformOrigin = '50% 50%';
+                    el.style.transform = 'perspective(700px) rotateY(' + (-sens * 88) + 'deg)';
+                    el.style.opacity = '0.4';
+                    void el.getBoundingClientRect();
+                    el.style.transition = 'transform 0.2s ease-out, opacity 0.2s ease-out';
+                    el.style.transform = 'perspective(700px) rotateY(0deg)';
+                    el.style.opacity = '1';
+                });
+                setTimeout(() => { window._awakFlipEnCours = false; }, 210);
+            }, anciens.length ? 170 : 0);
+        }
+
+        // Onglet Séance (et « Où as-tu mal ? ») : vue imposée ou bascule
+        window.awakMmpFlip = function (vue, dir) {
+            const actuelle = (typeof _mmpView !== 'undefined') ? _mmpView : 'face';
+            const cible = vue || (actuelle === 'face' ? 'dos' : 'face');
+            if (cible === actuelle) { setMusclePickerView(cible); return; }
+            _awakFlipAnim(() => Array.from(document.querySelectorAll('#mmpBodyHost svg[data-awak-flip="mmp"]')),
+                () => setMusclePickerView(cible), dir || (cible === 'dos' ? 1 : -1));
+        };
+        // Carte musculaire (onglet Jeu, statistiques détaillées)
+        window.awakBodyMapFlip = function (dir) {
+            _awakFlipAnim(() => Array.from(document.querySelectorAll('svg[data-awak-flip="bodymap"]')),
+                () => awakToggleBodyMapView(), dir || 1);
+        };
+
+        (function () {
+            let d = null;
+            document.addEventListener('pointerdown', function (e) {
+                const z = e.target && e.target.closest ? e.target.closest('[data-awak-flip]') : null;
+                d = z ? { x: e.clientX, y: e.clientY, z: z } : null;
+            }, true);
+            document.addEventListener('pointercancel', function () { d = null; }, true);
+            document.addEventListener('pointerup', function (e) {
+                if (!d) return;
+                const dx = e.clientX - d.x, dy = e.clientY - d.y, z = d.z;
+                d = null;
+                if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy) * 1.3) return;
+                window._awakFlipBloqueClic = Date.now();
+                const sens = dx < 0 ? 1 : -1;
+                const k = z.getAttribute('data-awak-flip');
+                if (k === 'mmp') window.awakMmpFlip(null, sens);
+                else if (k === 'bodymap') window.awakBodyMapFlip(sens);
+            }, true);
+            // Le relâchement d'un glissement ne doit pas cocher un muscle
+            document.addEventListener('click', function (e) {
+                if (window._awakFlipBloqueClic && Date.now() - window._awakFlipBloqueClic < 400) {
+                    window._awakFlipBloqueClic = 0;
+                    if (e.target && e.target.closest && e.target.closest('[data-awak-flip]')) {
+                        e.stopPropagation(); e.preventDefault();
+                    }
+                }
+            }, true);
+        })();
 
 
         // ══════════════════════════════════════════════════════════════
@@ -25187,9 +25271,29 @@
 
             let marques = '';
 
+            // 🚫 ZONES RÉSERVÉES : une Faille ne se pose jamais sur l'échoppe du
+            // Marchand (ni sur une autre Faille). Essai à la position habituelle,
+            // puis variantes déterministes jusqu'à trouver une place libre.
+            const _occupes = [];
+            try {
+                const _mv = !!window.AwakEconomy
+                    && ((typeof storyEventSeen === 'function') ? storyEventSeen('evt_n3_marchand') : true);
+                if (_mv) _occupes.push({ x: 200 - R * 0.55, y: 200 + R * 0.52, r: 40 });
+            } catch (e) {}
+            const _placer = (cle, i, rayon) => {
+                let p = pos(cle, i, rayon);
+                for (let k = 1; k <= 16; k++) {
+                    const libre = _occupes.every(o => Math.hypot(p.x - o.x, p.y - o.y) >= o.r);
+                    if (libre) break;
+                    p = pos(String(cle) + '~' + k, i, rayon);
+                }
+                _occupes.push({ x: p.x, y: p.y, r: 30 });
+                return p;
+            };
+
             // 🌀 FAILLES — brèches qui pulsent
             rifts.slice(0, 8).forEach((r, i) => {
-                const p = pos(r.id || r.themeId, i, R);
+                const p = _placer(r.id || r.themeId, i, R);
                 // ⚡ Les ASSAUTS se distinguent par leur couleur : ambre au lieu
                 // de violet. Le joueur voit d'un coup d'œil quel type de combat
                 // l'attend, avant même de toucher la brèche.
@@ -29806,7 +29910,7 @@
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1195");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1198");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -34213,7 +34317,7 @@
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1195);'
+                +     'url(images/combat_bg_v1.webp?v=1198);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -34468,7 +34572,7 @@
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1195);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1198);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -35723,7 +35827,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1195');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1198');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -36458,7 +36562,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1195);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1198);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -36629,7 +36733,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1195);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1198);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -37673,8 +37777,64 @@
         // ═══════════════════════════════════════════════════════════════
         let _merchantTab = 'sell'; // 'sell' | 'consumables' | 'equipment'
 
-        function awakOpenMerchant() {
+        // 📖 FENÊTRE EXPLICATIVE DU MARCHAND — affichée une fois, juste après la
+        // scène de rencontre (evt_n3_marchand), ou à la première ouverture de
+        // l'échoppe pour les joueurs qui avaient déjà vu la scène.
+        function _awakMerchantGuideKey(ecrire) {
+            try {
+                const f = ecrire ? window._cleProfil : window._cleProfilLecture;
+                return (typeof f === 'function') ? f('awakMerchantGuideSeen') : 'awakMerchantGuideSeen';
+            } catch (e) { return 'awakMerchantGuideSeen'; }
+        }
+        function awakMerchantGuideSeen() {
+            try { return localStorage.getItem(_awakMerchantGuideKey(false)) === '1'; } catch (e) { return true; }
+        }
+        function awakShowMerchantGuide(ensuite) {
             if (!window.AwakEconomy) return;
+            try { localStorage.setItem(_awakMerchantGuideKey(true), '1'); } catch (e) {}
+            document.getElementById('awakMerchantGuide')?.remove();
+            const T = window.AwakEconomy.MINERAL_TYPES || {};
+            const OR = '#fbbf24';
+            const ico = (n, c) => (window.AwakIcon ? window.AwakIcon.get(n, 20, c || OR) : '');
+            const mineraux = Object.keys(T).map(k => {
+                const m = T[k];
+                return '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-top:1px solid rgba(255,255,255,0.05);">'
+                    + '<span style="width:10px;height:10px;border-radius:3px;transform:rotate(45deg);background:' + m.color + ';box-shadow:0 0 6px ' + m.color + '88;flex-shrink:0;"></span>'
+                    + '<span style="flex:1;font-size:0.8em;color:#e2e8f0;font-weight:700;">' + m.name + '</span>'
+                    + '<span style="font-size:0.74em;color:' + OR + ';font-weight:800;">' + m.value + ' or</span></div>';
+            }).join('');
+            const bloc = (icone, titre, texte) => '<div style="display:flex;gap:11px;align-items:flex-start;margin-bottom:12px;">'
+                + '<span style="width:38px;height:38px;border-radius:11px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:rgba(251,191,36,0.10);border:1px solid rgba(251,191,36,0.3);">' + ico(icone) + '</span>'
+                + '<span style="flex:1;min-width:0;"><span style="display:block;font-size:0.86em;font-weight:900;color:#f8fafc;">' + titre + '</span>'
+                + '<span style="display:block;font-size:0.76em;color:#94a3b8;line-height:1.5;margin-top:2px;">' + texte + '</span></span></div>';
+            const ov = document.createElement('div');
+            ov.id = 'awakMerchantGuide';
+            ov.style.cssText = 'position:fixed;inset:0;z-index:99998;background:rgba(0,0,0,0.88);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:18px;';
+            ov.innerHTML = '<div style="width:100%;max-width:400px;max-height:88vh;overflow-y:auto;box-sizing:border-box;background:linear-gradient(165deg,rgba(251,191,36,0.10),#0b0d12 55%);border:1px solid rgba(251,191,36,0.4);border-radius:18px;padding:18px 16px;box-shadow:0 0 40px rgba(251,191,36,0.15);">'
+                + '<div style="font-size:0.6em;letter-spacing:2px;color:' + OR + ';font-weight:900;">NOUVEAU LIEU</div>'
+                + '<div style="font-size:1.12em;font-weight:900;color:#fff;margin:2px 0 14px;">L\'échoppe du Marchand</div>'
+                + bloc('faille', 'Les Failles donnent des minéraux', 'Chaque Faille fermée te rapporte des minéraux. Plus son rang est élevé, plus ils sont rares.')
+                + bloc('trophee', 'Le Marchand les rachète', 'Vends-lui tes minéraux contre de l\'or, un par un ou tous d\'un coup avec « Tout vendre ».')
+                + bloc('epee', 'Dépense ton or', 'Potions et objets utiles, et une sélection d\'équipement qui change chaque semaine.')
+                + bloc('boussole', 'Où le trouver', 'L\'échoppe au toit doré sur la carte de l\'onglet Jeu. Aucune Faille ne s\'y pose.')
+                + '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:8px 12px 4px;margin-bottom:14px;">'
+                +   '<div style="font-size:0.6em;letter-spacing:1.6px;color:#94a3b8;font-weight:900;margin-bottom:4px;">VALEUR DES MINÉRAUX</div>' + mineraux + '</div>'
+                + '<div style="display:flex;gap:8px;">'
+                +   '<button id="awakMGFermer" style="flex:1;min-height:auto;padding:12px 8px;border-radius:12px;cursor:pointer;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:#cbd5e1;font-weight:800;font-size:0.84em;">Compris</button>'
+                +   '<button id="awakMGOuvrir" style="flex:1.4;min-height:auto;padding:12px 8px;border-radius:12px;cursor:pointer;border:none;background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#1a1407;font-weight:900;font-size:0.84em;">Ouvrir l\'échoppe</button>'
+                + '</div></div>';
+            document.body.appendChild(ov);
+            const fermer = () => ov.remove();
+            document.getElementById('awakMGFermer').onclick = () => { fermer(); if (typeof ensuite === 'function') ensuite(false); };
+            document.getElementById('awakMGOuvrir').onclick = () => { fermer(); awakOpenMerchant(true); };
+        }
+        window.awakShowMerchantGuide = awakShowMerchantGuide;
+        window.awakMerchantGuideSeen = awakMerchantGuideSeen;
+
+        function awakOpenMerchant(_sansGuide) {
+            if (!window.AwakEconomy) return;
+            // Première visite sans avoir vu l'explication → on la montre d'abord
+            if (_sansGuide !== true && !awakMerchantGuideSeen()) { awakShowMerchantGuide(); return; }
             document.getElementById('awakMerchantModal')?.remove();
             const modal = document.createElement('div');
             modal.id = 'awakMerchantModal';
@@ -47395,7 +47555,7 @@
 
             host.innerHTML =
                 '<div style="position:relative;width:110px;margin:0 auto 12px;">'
-              +   '<img src="images/body/body_face.webp?v=1195" alt="" '
+              +   '<img src="images/body/body_face.webp?v=1198" alt="" '
               +     'style="width:100%;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -47477,7 +47637,7 @@
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1195);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1198);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -49862,7 +50022,7 @@
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1195");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1198");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.

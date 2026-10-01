@@ -1239,6 +1239,15 @@ function storyShowEvent(evt) {
     function close() {
         overlay.style.animation = 'awakFadeOut 0.35s forwards';
         setTimeout(() => overlay.remove(), 350);
+        // Après la rencontre du Marchand : fenêtre explicative (une seule fois)
+        if (evt.id === 'evt_n3_marchand') {
+            setTimeout(() => {
+                try {
+                    if (typeof window.awakShowMerchantGuide === 'function'
+                        && !(window.awakMerchantGuideSeen && window.awakMerchantGuideSeen())) window.awakShowMerchantGuide();
+                } catch (e) {}
+            }, 450);
+        }
     }
 
     // S'assurer que les keyframes existent (réutilise celles des cartes Système)
