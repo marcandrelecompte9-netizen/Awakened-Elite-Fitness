@@ -221,11 +221,15 @@
       workDays: days, quests: _buildQuests(answers), checks: {}, sessionsDone: {}
     });
     _toast('🌅 Parcours de l\'Éveil commencé — 4 semaines, on avance ensemble', 'success', 4500);
+    _majReglages();
     if (typeof global.updateHomeStats === 'function') global.updateHomeStats();
   }
   function eveilStop() {
-    var j = _get(); if (j) { j.active = false; _save(j); }
-    _toast('Parcours de l\'Éveil arrêté. Tu peux le relancer en recréant un profil.', 'info', 3500);
+    var j = _get(); var fini = !!(j && eveilDone(j));
+    if (j) { j.active = false; _save(j); }
+    _toast(fini ? 'Bravo ! Le plan hebdomadaire prend le relais.'
+                : 'Parcours de l\'Éveil arrêté. Tu peux le relancer dans Réglages.', fini ? 'success' : 'info', 3500);
+    _majReglages();
     if (typeof global.updateHomeStats === 'function') global.updateHomeStats();
   }
 
@@ -244,6 +248,7 @@
   // ── OFFRE À L'INSCRIPTION ──────────────────────────────────────────────
   function eveilMaybeOffer() {
     if (eveilActive()) return;
+    // (clé déjà propre à chaque profil : switchProfile l'échange via GAME_KEYS)
     if (localStorage.getItem('awakEveilOffered') === '1') return;
     localStorage.setItem('awakEveilOffered', '1');
     var ov = document.createElement('div');
@@ -317,6 +322,9 @@
 
   // ── SÉANCE DU JOUR ─────────────────────────────────────────────────────
   function _isWorkDay(j) {
+    // v1236 : le JOUR 1 est toujours un jour de séance. Commencer le parcours
+    // un jour « de repos » affichait « Jour de récupération » dès le départ.
+    if (eveilDayNum(j) === 1) return true;
     var iso = new Date().getDay(); iso = iso === 0 ? 7 : iso; // dim=7
     return j.workDays.indexOf(iso) >= 0;
   }
@@ -374,6 +382,22 @@
     return out;
   }
 
+  // Passages par exercice : 2 les 2 premières semaines, 3 ensuite.
+  // Fatigué aujourd'hui → un passage de moins (jamais moins de 1).
+  function _seriesSemaine(wk, j) {
+    var n = wk <= 2 ? 2 : 3;
+    if (_todayMood(j) === 'tired') n = Math.max(1, n - 1);
+    return n;
+  }
+  // Durée réelle estimée (min), même logique que l'écran de préparation.
+  function _dureeSeance(j) {
+    var w = _buildTodayWorkout(j), sec = 0;
+    w.exercises.forEach(function (ex) {
+      var n = ex.sets || 1;
+      sec += n * (ex.duration || 30) + (n - 1) * w.restBetweenSets + 10;
+    });
+    return Math.max(1, Math.round(sec / 60));
+  }
   function _buildTodayWorkout(j) {
     var wk = eveilWeek(j);
     var spec = SESSIONS[wk];
@@ -387,10 +411,19 @@
     // 🥱 Fatigué aujourd'hui → séance adoucie de 15 % (adhérence > perfection)
     if (_todayMood(j) === 'tired') expMult *= 0.85;
     var exercises = [];
-    items.forEach(function (it) {
+    var nSeries = _seriesSemaine(wk, j);
+    items.forEach(function (it, i) {
       var base = db.find(function (e) { return e.name === it[0]; });
       var ex = base ? JSON.parse(JSON.stringify(base)) : { name: it[0], muscle: 'Corps entier', type: 'exercise', instructions: [], equipment: ['Poids du corps'] };
       ex.duration = Math.round(it[1] * expMult / 5) * 5;
+      // v1236 : plusieurs passages par exercice. Avant, chaque exercice ne
+      // tournait qu'UNE fois (~4 min au total) alors que la carte annonçait
+      // ~15 min. Le 1er exercice (mise en route) reste à un seul passage.
+      ex.sets = i === 0 ? 1 : nSeries;
+      ex._seriesMinutees = true;
+      // Les variantes « légères » de la semaine 1 sont rangées en échauffement
+      // dans la base : ici ce SONT les exercices de la séance.
+      if (i > 0) { ex.type = 'exercise'; delete ex.isWarmup; }
       exercises.push(ex);
     });
     return {
@@ -414,6 +447,9 @@
       var base = db.find(function (e) { return e.name === it[0]; });
       var ex = base ? JSON.parse(JSON.stringify(base)) : { name: it[0], muscle: 'Corps entier', type: 'exercise', instructions: [], equipment: ['Poids du corps'] };
       ex.duration = it[1];
+      // v1237 : 3 tours (annoncé « 10 min » ; un seul passage durait ~3 min)
+      ex.sets = 3; ex._seriesMinutees = true;
+      if (ex.type === 'warmup') ex.type = 'exercise';
       return ex;
     });
     var w = {
@@ -534,7 +570,7 @@
     } else if (isWork) {
       var btnLabel = mood === 'tired'
         ? '▶ Séance douce du jour · ' + SESSIONS[wk].title + ' (version allégée)'
-        : '▶ Séance du jour · ' + SESSIONS[wk].title + ' (~' + (12 + wk * 3) + ' min)';
+        : '▶ Séance du jour · ' + SESSIONS[wk].title + ' (~' + _dureeSeance(j) + ' min)';
       sessionHTML = '<button onclick="awakEveilLaunchToday()" style="width:100%;background:linear-gradient(135deg,#a855f7,#7c3aed);border:none;color:#fff;border-radius:12px;padding:12px;font-size:0.88em;font-weight:800;cursor:pointer;">' + btnLabel + '</button>'
         + (_quietAuto(j)
             ? (_quietMode(j)
@@ -546,7 +582,7 @@
     } else {
       var kidsRest = '';
       if (j.answers.kids === 'enfants' || j.answers.kids === 'ados') {
-        kidsRest = '<button onclick="awakEveilLaunchFamily()" style="width:100%;margin-top:8px;background:linear-gradient(135deg,#f59e0b,#d97706);border:none;color:#fff;border-radius:11px;padding:10px;font-size:0.8em;font-weight:800;cursor:pointer;">🤸 Mini-séance en famille (10 min, tout le monde joue)</button>';
+        kidsRest = '<button onclick="awakEveilLaunchFamily()" style="width:100%;margin-top:8px;background:linear-gradient(135deg,#f59e0b,#d97706);border:none;color:#fff;border-radius:11px;padding:10px;font-size:0.8em;font-weight:800;cursor:pointer;">🤸 Mini-séance en famille (~12 min, tout le monde joue)</button>';
       } else if (j.answers.kids === 'bebe') {
         kidsRest = '<div style="margin-top:8px;font-size:0.7em;color:#94a3b8;text-align:center;">👶 Une marche en poussette, c\'est de l\'activité qui compte.</div>';
       }
@@ -640,6 +676,49 @@
     if (!open) { var j = _get(); if (j) { j['lessonSeen' + eveilWeek(j)] = true; _save(j); } }
   }
 
+  // ── RÉGLAGES (v1237) : lancer, relancer ou arrêter le parcours ─────────
+  function _ico(n, t, c) { return global.AwakIcon ? global.AwakIcon.get(n, t || 18, c || '#c4b5fd') : ''; }
+  function eveilRendreReglages() {
+    var hote = document.getElementById('awakEveilReglages');
+    if (!hote) return;
+    var j = _get();
+    var kid = false;
+    try { kid = !!(global.AwakYouth && global.AwakYouth.isChild && global.AwakYouth.isChild()); } catch (e) {}
+    var btn = function (action, txt, principal) {
+      return '<button onclick="' + action + '" style="width:100%;min-height:auto;padding:12px;border-radius:12px;cursor:pointer;font-size:0.86em;font-weight:800;margin-top:8px;'
+        + (principal ? 'background:linear-gradient(135deg,#a855f7,#7c3aed);border:none;color:#fff;'
+                     : 'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.13);color:#cbd5e1;') + '">' + txt + '</button>';
+    };
+    var html;
+    if (j && j.active) {
+      var fini = eveilDone(j);
+      html = '<div style="display:flex;align-items:center;gap:11px;padding:12px;border-radius:12px;background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.3);">'
+        + _ico('soleil', 20) + '<div style="flex:1;min-width:0;"><div style="font-size:0.88em;font-weight:800;color:#fff;">'
+        + (fini ? 'Parcours terminé' : 'En cours · semaine ' + eveilWeek(j) + ' / 4') + '</div>'
+        + '<div style="font-size:0.72em;color:#c4b5fd;margin-top:2px;">' + (fini ? '28 jours accomplis' : 'Jour ' + eveilDayNum(j) + ' / 28') + ' · ta carte est sur l\'Accueil</div></div></div>'
+        + btn('awakEveilConfirmRestart()', 'Recommencer depuis le début', false)
+        + btn('awakEveilConfirmStop()', 'Arrêter le parcours', false);
+    } else {
+      html = '<div style="font-size:0.8em;color:#cbd5e1;line-height:1.55;">'
+        + (kid
+            ? '4 semaines pour prendre de bonnes habitudes : de petites séances qui progressent, bien dormir, bouger chaque jour. À faire avec un adulte.'
+            : '4 semaines pour bien démarrer : séances courtes qui progressent, sommeil, repas et rythme de vie. Quelques questions sur ton quotidien, et tout est construit pour toi.')
+        + '</div>'
+        + (j && j.start ? '<div style="font-size:0.72em;color:#94a3b8;margin-top:6px;">Tu l\'as déjà commencé une fois : il repartira du jour 1.</div>' : '')
+        + btn('awakEveilStartQuestionnaire()', 'Commencer le Parcours de l\'Éveil', true);
+    }
+    hote.innerHTML = html;
+  }
+  function _majReglages() { try { eveilRendreReglages(); } catch (e) {} }
+  global.awakEveilConfirmRestart = function () {
+    var go = function () { var j = _get(); if (j) { j.active = false; _save(j); } eveilStartQuestionnaire(); };
+    if (typeof global.showConfirm === 'function') {
+      global.showConfirm('Tes réponses seront redemandées et le parcours repartira du jour 1.', go, null,
+        { title: 'Recommencer le Parcours ?', confirmLabel: 'Recommencer', cancelLabel: 'Annuler' });
+    } else go();
+  };
+  global.awakEveilRendreReglages = eveilRendreReglages;
+
   // ── EXPORTS ────────────────────────────────────────────────────────────
   global.awakEveilActive = eveilActive;
   global.awakEveilMaybeOffer = eveilMaybeOffer;
@@ -658,7 +737,7 @@
   // modale maison utilisée partout ailleurs.
   global.awakEveilConfirmStop = function () {
     var msg = 'Tu perdras ta progression dans le Parcours. '
-            + 'Tu pourras le recommencer depuis le début plus tard.';
+            + 'Tu pourras le recommencer depuis le début dans Réglages › Parcours de l\'Éveil.';
     if (typeof global.showConfirm === 'function') {
       global.showConfirm(msg, function () { eveilStop(); }, null, {
         title: "Arrêter le Parcours de l'Éveil ?",

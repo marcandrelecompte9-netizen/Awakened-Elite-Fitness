@@ -24576,7 +24576,7 @@
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1233);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1237);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -24620,7 +24620,7 @@
                 +       '<feGaussianBlur stdDeviation="2.4" result="b"/>'
                 +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>'
                 +     '</filter></defs>'
-                +     '<image href="' + img + '?v=1233" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1237" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -27163,10 +27163,14 @@
             const exerciseFromDB = exerciseDatabase.find(ex => ex.name === exerciseName);
             let exerciseNameHTML = exerciseName;
             
+            // v1236 : le type porté par la SÉANCE prime sur celui de la base
+            // (ex. Parcours de l'Éveil : variantes « légères » rangées en échauffement
+            // dans la base, mais qui sont le corps de la séance).
+            const _typeAff = (exerciseFromDB && (exercise.type || exerciseFromDB.type)) || '';
             if (exerciseFromDB) {
-                if (exerciseFromDB.type === 'warmup') {
+                if (_typeAff === 'warmup') {
                     exerciseNameHTML = `<span style="display:inline-block;background:#fbbf24;color:#0d0d0d;padding:2px 8px;border-radius:20px;font-size:0.52em;margin-right:7px;font-weight:900;letter-spacing:0.5px;vertical-align:middle;">🏃‍♂️ ÉCHAUFFEMENT</span>${exercise.name}`;
-                } else if (exerciseFromDB.type === 'stretch') {
+                } else if (_typeAff === 'stretch') {
                     exerciseNameHTML = `<span style="display:inline-block;background:#3b82f6;color:#0d0d0d;padding:2px 8px;border-radius:20px;font-size:0.52em;margin-right:7px;font-weight:900;letter-spacing:0.5px;vertical-align:middle;">ÉTIREMENT</span>${exercise.name}`;
                 }
             }
@@ -30133,7 +30137,7 @@
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1233");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1237");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -34622,7 +34626,7 @@
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1233);'
+                +     'url(images/combat_bg_v1.webp?v=1237);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -34877,7 +34881,7 @@
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1233);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1237);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -35136,7 +35140,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:540px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto;display:flex;flex-direction:column;">
                 <!-- Header : vague actuelle -->
-                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1233);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1237);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                         <span style="font-size:0.6em;color:${theme.color};font-weight:900;letter-spacing:2px;">⚔ VAGUE ${rift.currentWaveIdx + 1} / ${rift.waves.length}${currentWave.isBoss ? ' · BOSS' : ''}</span>
                         <button onclick="awakAbandonRift()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
@@ -36283,7 +36287,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1233');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1237');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -37020,7 +37024,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1233);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1237);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -37191,7 +37195,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1233);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1237);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -46150,6 +46154,34 @@
             } catch (e) { return cle; }
         }
         window._cleProfil = _cleProfil;
+
+        // 🌅 v1235 : propose le Parcours de l'Éveil dès qu'aucune fenêtre n'occupe
+        // l'écran (inscription, histoire, tutoriel du jeu…). Tant que l'offre est
+        // en attente, « Mes limitations » patiente (voir limitations.js).
+        function awakEveilQuandLibre() {
+            let essais = 0;
+            const tenter = () => {
+                try {
+                    const k = _cleProfil('awakEveilPlusTard');
+                    if (localStorage.getItem(k) !== '1') return;
+                    const up = getUserProfile();
+                    let occupe = !up || !up.setupComplete;
+                    if (!occupe) {
+                        const cand = document.querySelectorAll('[id$="Modal"], [id$="Overlay"], [id*="Onb"], [id*="onb"], [id*="story"], [id*="Story"], [id*="tuto"], [id*="Tuto"], [id*="Welcome"]');
+                        for (const c of cand) {
+                            const cs = getComputedStyle(c), r = c.getBoundingClientRect();
+                            if (cs.display !== 'none' && cs.visibility !== 'hidden' && +cs.opacity > 0 && r.width > 100 && r.height > 100) { occupe = true; break; }
+                        }
+                    }
+                    if (occupe) { if (++essais < 200) setTimeout(tenter, 1200); return; }
+                    localStorage.removeItem(k);
+                    if (window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()) return;
+                    if (typeof awakEveilMaybeOffer === 'function') awakEveilMaybeOffer();
+                } catch (e) {}
+            };
+            setTimeout(tenter, 1500);
+        }
+        window.awakEveilQuandLibre = awakEveilQuandLibre;
         window._cleProfilLecture = _cleProfilLecture;
 
         function getProfileData(profileId, key) {
@@ -46331,7 +46363,10 @@
             // s'afficherait jamais. On efface aussi les clés GLOBALES courantes.
             ['awakEveilJourney', 'awakEveilOffered', 'awakEveilLevel'].forEach(k => {
                 try { localStorage.removeItem('profile_' + newProfile.id + '_' + k); } catch (e) {}
-                try { localStorage.removeItem(k); } catch (e) {}
+                // v1236 : on n'efface PLUS la clé globale ici. C'est le jeu de travail
+                // du profil ACTUEL : répondre « Plus tard » à « Passer à ce profil ? »
+                // lui faisait perdre son Parcours en cours. switchProfile s'en charge
+                // (il retire la clé quand le profil cible ne l'a pas).
             });
             // ⚠️ TYPES : certaines clés sont des TABLEAUX, d'autres des OBJETS.
             // Bug v553 : tout était initialisé à '{}' — or exerciseBlacklist et
@@ -48130,7 +48165,7 @@
 
             host.innerHTML =
                 '<div style="position:relative;width:110px;margin:0 auto 12px;">'
-              +   '<img src="images/body/body_face.webp?v=1233" alt="" '
+              +   '<img src="images/body/body_face.webp?v=1237" alt="" '
               +     'style="width:100%;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -48212,7 +48247,7 @@
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1233);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1237);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -49694,7 +49729,12 @@
                     inner = _sur('TON CORPS')
                         + '<h2 style="color:#fff;font-size:1.4em;font-weight:900;margin:0 0 6px;">Pour ajuster tes charges</h2>'
                         + '<p style="color:#94a3b8;font-size:0.8em;margin:0 0 18px;">Modifiable plus tard dans ton profil.</p>'
-                        + '<div style="font-size:0.72em;color:#94a3b8;font-weight:800;margin-bottom:10px;">Ton poids</div>'
+                        + '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;">'
+                        +   '<span style="font-size:0.72em;color:#94a3b8;font-weight:800;">Ton poids</span>'
+                        +   '<span style="display:inline-flex;padding:3px;border-radius:11px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);">'
+                        +     ['lbs', 'kg'].map(u => '<button onclick="window._premOnbUnit(\'' + u + '\')" data-unit="' + u + '" style="min-height:auto;padding:6px 14px;border-radius:8px;border:none;cursor:pointer;font-size:0.78em;font-weight:900;'
+                        +       (_u === u ? 'background:linear-gradient(135deg,#3b82f6,#1d5fa8);color:#fff;' : 'background:transparent;color:#94a3b8;') + '">' + u + '</button>').join('')
+                        +   '</span></div>'
                         + AwakRegle.html('_premOnbPoidsR', _u === 'kg' ? { min: 30, max: 200, pas: 1, val: _wv, unite: 'kg' } : { min: 66, max: 440, pas: 1, val: _wv, unite: 'lbs' })
                         + `<div style="font-size:0.72em;color:#94a3b8;font-weight:800;margin:22px 0 8px;">Sexe — pour des suggestions adaptées</div>
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
@@ -49798,13 +49838,25 @@
                     else if (draft.age < 16 && draft.mode === 'aventure') { /* ado : garde le choix */ }
                 } else if (ecran === 'corps') {
                     const w = (window.AwakRegle && AwakRegle.valeur('_premOnbPoidsR'));
-                    if (w) draft.weight = useKg ? Math.round(w) : Math.round(w * 0.453592);   // stocké en kg
+                    // stocké en kg (au dixième : passer lbs → kg → lbs ne décale pas d'une livre)
+                    if (w && Math.round(fmtWeightVal(draft.weight)) !== w) draft.weight = useKg ? w : Math.round(w * 0.453592 * 10) / 10;
                 }
             }
             window._premOnbNext = function() {
                 _sauverEcran();
                 if (step >= _sequence().length - 1) return;
                 step++; render(); try { haptic.light(); } catch(e) {}
+            };
+            // v1236 : livres ou kilos. Le choix devient l'unité par défaut de
+            // l'app (Réglages › Unité de poids) : charges, historique, mesures.
+            window._premOnbUnit = function(u) {
+                const kg = (u === 'kg');
+                if (kg === useKg) return;
+                _sauverEcran();                     // poids courant mémorisé en kg
+                useKg = kg;
+                try { localStorage.setItem('fitproUseKg', kg ? 'true' : 'false'); } catch (e) {}
+                try { updateWeightUnitLabels(); } catch (e) {}
+                render(); try { haptic.light(); } catch(e) {}
             };
             window._premOnbPrev = function() {
                 if (step <= 0) return;
@@ -49940,7 +49992,9 @@
                 // 🌅 v1233 : le Parcours de l'Éveil n'est plus enchaîné (il suivait déjà
                 // l'histoire et le tutoriel du jeu) : il sera proposé à la prochaine
                 // ouverture de l'app. Jamais pour un enfant (repas, rythme de vie…).
-                try { if (!_kid) localStorage.setItem(_cleProfil('awakEveilPlusTard'), '1'); } catch (e) {}
+                // v1235 : proposé dès que l'écran est libre (après l'histoire et le
+                // tutoriel du jeu), AVANT « Mes limitations ».
+                try { if (!_kid) { localStorage.setItem(_cleProfil('awakEveilPlusTard'), '1'); awakEveilQuandLibre(); } } catch (e) {}
             };
 
             render();
@@ -50075,13 +50129,9 @@
                     setTimeout(() => { try { showPremiumOnboarding(); } catch (e) {} }, 700);
                 }
             } catch (e) {}
-            // 🌅 v1233 : Parcours de l'Éveil proposé à l'ouverture qui SUIT l'inscription
+            // 🌅 Parcours de l'Éveil en attente (app fermée avant qu'il s'affiche)
             try {
-                const _kE = _cleProfil('awakEveilPlusTard');
-                if (localStorage.getItem(_kE) === '1' && getUserProfile().setupComplete) {
-                    localStorage.removeItem(_kE);
-                    setTimeout(() => { if (typeof awakEveilMaybeOffer === 'function') awakEveilMaybeOffer(); }, 2500);
-                }
+                if (localStorage.getItem(_cleProfil('awakEveilPlusTard')) === '1' && getUserProfile().setupComplete) awakEveilQuandLibre();
             } catch (e) {}
 
             // 🔐 Mot de passe de sécurité : proposé à la première ouverture, une
@@ -50676,7 +50726,7 @@
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1233");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1237");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.

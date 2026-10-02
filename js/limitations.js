@@ -318,6 +318,12 @@
         try {
           var occupe = false;
           try { var up = (typeof getUserProfile === 'function') ? getUserProfile() : null; if (up && !up.setupComplete) occupe = true; } catch (e) {}
+          // v1234 : jamais pour un enfant (< 13 ans) — c'est à l'adulte de le
+          // régler au besoin (Réglages › Mes limitations), pas une question à
+          // poser à un enfant à la fin de son inscription.
+          // v1235 : l'offre du Parcours de l'Éveil passe avant
+          try { if (window._cleProfil && localStorage.getItem(window._cleProfil('awakEveilPlusTard')) === '1') occupe = true; } catch (e) {}
+          if (!occupe) { try { if (window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()) return; } catch (e) {} }
           var cand = document.querySelectorAll('[id$="Modal"], [id$="Overlay"], [id*="Onb"], [id*="onb"], [id*="story"], [id*="Story"], [id*="tuto"], [id*="Tuto"], [id*="Welcome"]');
           for (var j = 0; j < cand.length && !occupe; j++) {
             var c = cand[j], cs = getComputedStyle(c), r = c.getBoundingClientRect();
