@@ -310,26 +310,24 @@
       if (localStorage.getItem(k) !== '1') return;
       localStorage.removeItem(k);          // une seule fois
       // On laisse l'app finir de démarrer, et on n'écrase aucune autre fenêtre.
-      setTimeout(function () {
+      // v1233 : on attend que la fenêtre soit VRAIMENT libre (inscription
+      // terminée, histoire/tutoriel fermés). Les overlays fixes ont un
+      // offsetParent nul : on teste leur rectangle à l'écran.
+      var essais = 0;
+      var tenter = function () {
         try {
-          // ⚠️ Chercher '[id$="Modal"]' était inutilisable : 17 fenêtres
-          //    existent en permanence dans le HTML, simplement MASQUÉES.
-          //    Le garde-fou trouvait donc toujours quelque chose et la
-          //    fenêtre ne s'ouvrait jamais. On teste la visibilité RÉELLE.
-          var visible = false;
-          var noeuds = document.querySelectorAll('[id$="Modal"], [id$="Overlay"]');
-          for (var i = 0; i < noeuds.length; i++) {
-            var n = noeuds[i];
-            if (n.offsetParent !== null || (n.style && n.style.display === 'flex')) { visible = true; break; }
+          var occupe = false;
+          try { var up = (typeof getUserProfile === 'function') ? getUserProfile() : null; if (up && !up.setupComplete) occupe = true; } catch (e) {}
+          var cand = document.querySelectorAll('[id$="Modal"], [id$="Overlay"], [id*="Onb"], [id*="onb"], [id*="story"], [id*="Story"], [id*="tuto"], [id*="Tuto"], [id*="Welcome"]');
+          for (var j = 0; j < cand.length && !occupe; j++) {
+            var c = cand[j], cs = getComputedStyle(c), r = c.getBoundingClientRect();
+            if (cs.display !== 'none' && cs.visibility !== 'hidden' && +cs.opacity > 0 && r.width > 100 && r.height > 100) occupe = true;
           }
-          if (visible) {
-            // Une fenêtre occupe l'écran : on retente un peu plus tard.
-            setTimeout(function () { try { ouvrir(); } catch (e) {} }, 6000);
-            return;
-          }
+          if (occupe) { if (++essais < 40) setTimeout(tenter, 3000); return; }
           ouvrir();
         } catch (e) {}
-      }, 1600);
+      };
+      setTimeout(tenter, 1500);
     } catch (e) {}
   }
 

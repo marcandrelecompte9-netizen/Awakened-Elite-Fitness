@@ -12,6 +12,13 @@
       imprimer, supprimer…). Aussi via le bouton « ⋯ ».
    6. Éditeur de routine : appui long sur un exercice puis glisser pour
       le déplacer.
+   7. (v1233) Inscription : glisser à gauche = suivant, à droite = retour.
+   8. Séance : appui long sur − / + = défilement rapide ; double-toucher
+      l'image d'exercice = valider la série.
+   9. Repos : glisser vers le HAUT = passer le repos ; toucher l'anneau = pause.
+  10. Historique : glisser une séance vers la gauche → Rejouer / Favori / Supprimer.
+  11. Onglets principaux : glisser entre Accueil · Progression · Agenda · Famille
+      (l'Agenda garde son glisser de mois sur le calendrier lui-même).
 
    Garde-fous :
    • un glissement doit être nettement HORIZONTAL (|dx| > 1,6 × |dy|) ;
@@ -28,6 +35,11 @@
     ['workouts', 'routines', 'program', 'challenges'],
     ['exercises', 'calculators']
   ];
+  var PRINCIPAUX = ['home', 'history', 'calendar', 'family'];
+  function ongletVisible(id) {
+    var b = document.querySelector('#mobileNavBar [onclick="switchTab(\'' + id + '\')"]');
+    return !b || (b.style.display !== 'none' && getComputedStyle(b).display !== 'none');
+  }
   var JAMAIS = ['toastContainer', 'mobileNavBar', 'globalRestBanner', 'awakPauseOverlay', 'exerciseView', 'appHeader'];
 
   function enSeance() { return document.body.classList.contains('in-session'); }
@@ -209,6 +221,19 @@
       return;
     }
 
+    // ── 9. repos : glisser vers le haut = passer ──
+    if (dy < -90 && Math.abs(dy) > Math.abs(dx) * 1.5 && dt < 900) {
+      var repos = geste.cible.closest && geste.cible.closest('#restOverlay');
+      if (repos && !geste.cible.closest('button')) {
+        try {
+          repos.animate([{ transform: 'translateY(0)', opacity: 1 }, { transform: 'translateY(-60px)', opacity: 0.4 }], { duration: 180, easing: 'ease-in' });
+        } catch (er) {}
+        vibrer(12);
+        setTimeout(function () { try { if (typeof skipRestOverlay === 'function') skipRestOverlay(); } catch (er) {} }, 150);
+        return;
+      }
+    }
+
     // ── gestes horizontaux ──
     if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.6 || dt > 900) return;
     if (geste.x < BORD || geste.x > window.innerWidth - BORD) return;
@@ -228,6 +253,16 @@
       vibrer(12);
       return;
     }
+    // 7. Inscription
+    var onb = c.closest && c.closest('#_premOnbOverlay');
+    if (onb) {
+      if (dansDefilementH(c, onb)) return;
+      try {
+        if (sens > 0) { if (onb.querySelector('[onclick="window._premOnbNext()"]') && window._premOnbNext) window._premOnbNext(); }
+        else if (window._premOnbPrev) window._premOnbPrev();
+      } catch (er) {}
+      return;
+    }
     if (geste.fen) return;   // dans une fenêtre : seul le glisser vers le bas compte
     if (dansDefilementH(c, document.body)) return;
 
@@ -239,6 +274,17 @@
           { duration: 220, easing: 'ease-out' });
       } catch (er) {}
       window.awakRoutineActions(parseInt(carteR.getAttribute('data-awak-routine'), 10));
+      return;
+    }
+
+    // 10. Séance de l'historique → actions
+    var carteH = c.closest && c.closest('.awk-hist[data-hist]');
+    if (carteH && sens > 0) {
+      try {
+        carteH.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-18px)' }, { transform: 'translateX(0)' }],
+          { duration: 220, easing: 'ease-out' });
+      } catch (er) {}
+      window.awakHistActions(carteH.getAttribute('data-hist'));
       return;
     }
 
@@ -265,6 +311,17 @@
       var el = document.getElementById(suiv + 'Tab');
       if (el) glisserEntree(el, sens);
       return;
+    }
+    // 11. Onglets principaux
+    var pp = PRINCIPAUX.indexOf(actif);
+    if (pp >= 0) {
+      var j = pp + sens;
+      while (PRINCIPAUX[j] && !ongletVisible(PRINCIPAUX[j])) j += sens;
+      var dest = PRINCIPAUX[j];
+      if (!dest) return;
+      try { if (typeof switchTab === 'function') switchTab(dest); } catch (er) {}
+      var elp = document.getElementById(dest + 'Tab');
+      if (elp) glisserEntree(elp, sens);
     }
   }, { passive: true });
 
@@ -320,4 +377,113 @@
     vibrer(10);
   }
 
+
+  // ═══ 10. ACTIONS D'UNE SÉANCE DE L'HISTORIQUE (feuille du bas) ═══════
+  window.awakHistActions = function (idTxt) {
+    var e = null;
+    try { e = getWorkoutHistory().find(function (w) { return String(w.id) === String(idTxt); }); } catch (er) {}
+    if (!e) return;
+    var id = e.id;
+    var fav = false;
+    try { fav = getFavoriteWorkouts().indexOf(id) > -1; } catch (er) {}
+    var old = document.getElementById('awakHistActions'); if (old) old.remove();
+    var ico = function (d) {
+      return '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg>';
+    };
+    var ligne = function (action, icone, texte, coul) {
+      return '<button data-act="' + action + '" style="display:flex;align-items:center;gap:13px;width:100%;min-height:auto;padding:14px 12px;'
+        + 'border:none;border-radius:12px;background:transparent;color:' + (coul || '#e2e8f0') + ';font-family:inherit;'
+        + 'font-size:0.92em;font-weight:800;text-align:left;cursor:pointer;">' + ico(icone) + texte + '</button>';
+    };
+    var nom = String(e.name || 'Séance').replace(/[<>&"]/g, '');
+    var ov = document.createElement('div');
+    ov.id = 'awakHistActions';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:12000;background:rgba(0,0,0,0.7);display:flex;align-items:flex-end;justify-content:center;';
+    ov.onclick = function (ev) { if (ev.target === ov) ov.remove(); };
+    ov.innerHTML = '<div style="width:100%;max-width:480px;background:#12161c;border:1px solid rgba(255,255,255,0.08);border-radius:18px 18px 0 0;'
+      + 'padding:10px 10px calc(16px + env(safe-area-inset-bottom));box-sizing:border-box;">'
+      + '<div style="width:40px;height:4px;background:rgba(255,255,255,0.18);border-radius:99px;margin:2px auto 10px;"></div>'
+      + '<div style="font-size:0.95em;font-weight:900;color:#fff;padding:0 12px 8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + nom + '</div>'
+      + (e.workoutData ? ligne('replay', '<path d="M7 4v16l13-8z"/>', 'Rejouer', '#67e8f9') : '')
+      + ligne('fav', '<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>', fav ? 'Retirer des favoris' : 'Ajouter aux favoris', '#fbbf24')
+      + '<div style="height:1px;background:rgba(255,255,255,0.06);margin:4px 8px;"></div>'
+      + ligne('del', '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>', 'Supprimer', '#f87171')
+      + '</div>';
+    ov.querySelectorAll('[data-act]').forEach(function (b) {
+      b.onclick = function () {
+        var a = b.getAttribute('data-act');
+        ov.remove();
+        try {
+          if (a === 'replay' && window.replayWorkout) window.replayWorkout(id);
+          else if (a === 'fav' && window.toggleFavoriteWorkout) window.toggleFavoriteWorkout(id);
+          else if (a === 'del' && window.deleteHistoryWorkout) window.deleteHistoryWorkout(id);
+        } catch (er) {}
+      };
+    });
+    document.body.appendChild(ov);
+  };
+
+  // ═══ 8. SÉANCE : appui long sur − / + ═════════════════════════════════
+  function estPas(b) {
+    if (!b || b.classList.contains('awk-regle-btn')) return false;
+    var oc = b.getAttribute('onclick') || '';
+    if (/_gridStep\(|stepUp\(|stepDown\(/.test(oc)) return true;
+    var lab = b.getAttribute('aria-label') || '';
+    return (lab === 'Moins' || lab === 'Plus') && !!b.closest('#exerciseView');
+  }
+  var rep = null;
+  function stopRep() { if (rep) { clearTimeout(rep.t1); clearInterval(rep.t2); } }
+  document.addEventListener('pointerdown', function (e) {
+    var b = e.target.closest && e.target.closest('button');
+    if (!estPas(b)) return;
+    stopRep();
+    rep = { b: b, n: 0, long: false };
+    rep.t1 = setTimeout(function () {
+      rep.long = true;
+      var un = function () { try { b.click(); } catch (er) {} rep.n++; if (rep.n % 5 === 0) vibrer(5); };
+      un();
+      rep.t2 = setInterval(function () {
+        un();
+        if (rep.n === 10) { clearInterval(rep.t2); rep.t2 = setInterval(un, 45); }
+      }, 110);
+    }, 420);
+  }, true);
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (ev) {
+    document.addEventListener(ev, function () { stopRep(); }, true);
+  });
+  // Le « click » qui suit un appui long ne doit pas ajouter un pas de plus
+  document.addEventListener('click', function (e) {
+    if (rep && rep.long && e.isTrusted && e.target.closest && e.target.closest('button') === rep.b) {
+      e.stopPropagation(); e.preventDefault(); rep = null;
+    }
+  }, true);
+  document.addEventListener('contextmenu', function (e) {
+    var b = e.target.closest && e.target.closest('button');
+    if (estPas(b)) e.preventDefault();
+  }, true);
+
+  // ═══ 8b. double-toucher l'image = valider la série ═══════════════════
+  var dernierTap = 0;
+  document.addEventListener('touchend', function (e) {
+    var cadre = e.target.closest && e.target.closest('#exerciseVisualFrame');
+    if (!cadre || !enSeance() || e.target.closest('button') || e.changedTouches.length !== 1) { return; }
+    var now = Date.now();
+    if (now - dernierTap < 320) {
+      dernierTap = 0;
+      var v = document.querySelector('#exerciseView [onclick="completeCurrentSet()"]');
+      if (v && v.offsetParent !== null && !v.disabled) {
+        e.preventDefault();
+        try { cadre.animate([{ transform: 'scale(1)' }, { transform: 'scale(0.97)' }, { transform: 'scale(1)' }], { duration: 200 }); } catch (er) {}
+        vibrer(20);
+        v.click();
+      }
+    } else dernierTap = now;
+  }, { passive: false });
+
+  // ═══ 9b. repos : toucher l'anneau = pause / reprise ═══════════════════
+  document.addEventListener('click', function (e) {
+    if (e.target.closest && e.target.closest('#restRingWrap')) {
+      try { if (typeof toggleRestPause === 'function') { toggleRestPause(); vibrer(10); } } catch (er) {}
+    }
+  });
 })();

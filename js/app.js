@@ -195,7 +195,7 @@
             const accentColor = isDanger ? '#ef4444' : '#4ade80';
             const accentRgb = isDanger ? '239,68,68' : '74,222,128';
             const icon = opts.icon || (isDanger ? '⚠' : '◈');
-            const subtitle = opts.subtitle || (isDanger ? '◈ ACTION IRRÉVERSIBLE ◈' : '◈ VEUILLEZ CONFIRMER ◈');
+            const subtitle = opts.subtitle || (isDanger ? '◈ ACTION IRRÉVERSIBLE ◈' : '◈ À CONFIRMER ◈');
 
             const id = 'cyberconfirm_' + Date.now();
 
@@ -16523,6 +16523,25 @@
             renderWorkoutHistory(window._histFilter || 'all');
         }
         window.toggleFavoriteWorkout = toggleFavoriteWorkout;
+
+        // v1233 : supprimer une séance de l'historique (geste « glisser à gauche »)
+        function deleteHistoryWorkout(workoutId) {
+            showConfirm('Cette séance disparaîtra de ton historique. Tes stats déjà gagnées restent.', function () {
+                try {
+                    const profileId = getCurrentProfileId();
+                    const saved = profileId ? getProfileData(profileId, 'workoutHistory') : localStorage.getItem('workoutHistory');
+                    const raw = saved ? JSON.parse(saved) : [];
+                    const reste = raw.filter(w => String(w.id) !== String(workoutId));
+                    if (profileId) setProfileData(profileId, 'workoutHistory', JSON.stringify(reste));
+                    else lsSet('workoutHistory', JSON.stringify(reste));
+                    const fav = getFavoriteWorkouts(), k = fav.indexOf(workoutId);
+                    if (k > -1) { fav.splice(k, 1); saveFavoriteWorkouts(fav); }
+                    showToast('Séance supprimée');
+                } catch (e) {}
+                renderWorkoutHistory(window._histFilter || 'all');
+            }, null, { title: 'Supprimer la séance ?', danger: true, confirmLabel: 'Supprimer' });
+        }
+        window.deleteHistoryWorkout = deleteHistoryWorkout;
         
         function filterWorkoutHistory(filter) {
             // Keep track of current filter
@@ -23115,6 +23134,11 @@
         const TAB_ORDER = ['home','workouts','routines','history','exercises','calculators','challenges','settings','game'];
 
         function initSwipeGestures() {
+            // v1233 : désactivé. Son test « en séance » (style.display !== 'none')
+            // était toujours vrai : tout glisser horizontal, n'importe où, appelait
+            // skipExercise() — et en séance l'image sautait DEUX exercices (avec
+            // js/gestures.js). js/gestures.js gère maintenant tous les gestes.
+            return;
             let startX = 0, startY = 0, startTime = 0;
             const SWIPE_THRESHOLD  = 60;   // px min
             const SWIPE_MAX_Y      = 80;   // px max vertical drift
@@ -24552,7 +24576,7 @@
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1232);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1233);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -24596,7 +24620,7 @@
                 +       '<feGaussianBlur stdDeviation="2.4" result="b"/>'
                 +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>'
                 +     '</filter></defs>'
-                +     '<image href="' + img + '?v=1232" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1233" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -30109,7 +30133,7 @@
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1232");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1233");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -34598,7 +34622,7 @@
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1232);'
+                +     'url(images/combat_bg_v1.webp?v=1233);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -34853,7 +34877,7 @@
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1232);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1233);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -35112,7 +35136,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:540px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto;display:flex;flex-direction:column;">
                 <!-- Header : vague actuelle -->
-                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1232);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1233);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                         <span style="font-size:0.6em;color:${theme.color};font-weight:900;letter-spacing:2px;">⚔ VAGUE ${rift.currentWaveIdx + 1} / ${rift.waves.length}${currentWave.isBoss ? ' · BOSS' : ''}</span>
                         <button onclick="awakAbandonRift()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
@@ -36259,7 +36283,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1232');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1233');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -36996,7 +37020,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1232);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1233);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -37167,7 +37191,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1232);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1233);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -45913,13 +45937,13 @@
             const box = document.getElementById('reducedMobilityCheck');
             const wrap = document.getElementById('profileReducedMobility');
             if (box) {
-                box.style.background = selectedReducedMobility ? '#16a34a' : 'transparent';
-                box.style.borderColor = selectedReducedMobility ? '#16a34a' : 'rgba(255,255,255,0.25)';
+                box.style.background = selectedReducedMobility ? '#3b82f6' : 'transparent';
+                box.style.borderColor = selectedReducedMobility ? '#3b82f6' : 'rgba(255,255,255,0.25)';
                 box.textContent = selectedReducedMobility ? '✓' : '​';
             }
             if (wrap) {
-                wrap.style.borderColor = selectedReducedMobility ? '#16a34a' : 'rgba(255,255,255,0.12)';
-                wrap.style.background = selectedReducedMobility ? 'rgba(22,163,74,0.08)' : 'transparent';
+                wrap.style.borderColor = selectedReducedMobility ? '#60a8f0' : 'rgba(255,255,255,0.12)';
+                wrap.style.background = selectedReducedMobility ? 'rgba(96,168,240,0.08)' : 'transparent';
             }
         }
         window.toggleProfileReducedMobility = toggleProfileReducedMobility;
@@ -46403,11 +46427,14 @@
         function renderAvatarPicker(id) {
             const picker = document.getElementById(id || 'avatarPicker');
             if (!picker) return;
+            // v1233 : 5 colonnes qui tiennent dans l'écran (6 débordaient sur mobile)
+            picker.style.cssText += ';display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;';
             picker.innerHTML = Object.keys(AWAK_AVATARS).map(key => {
                 const sel = selectedAvatar === key;
-                return '<div data-av="' + key + '" class="avatar-option' + (sel ? ' selected' : '') + '" style="display:flex;align-items:center;justify-content:center;padding:6px;border-radius:12px;cursor:pointer;transition:all .15s;box-shadow:' + (sel ? '0 0 14px rgba(96,168,240,0.5)' : 'none') + ';background:' + (sel ? 'rgba(96,168,240,0.22)' : 'rgba(255,255,255,0.03)') + ';border:1.5px solid ' + (sel ? 'rgba(96,168,240,0.85)' : 'rgba(255,255,255,0.1)') + ';transition:all 0.15s;">'
+                return '<div data-av="' + key + '" class="avatar-option' + (sel ? ' selected' : '') + '" style="display:flex;align-items:center;justify-content:center;padding:4px;min-width:0;aspect-ratio:1;border-radius:12px;cursor:pointer;transition:all .15s;box-shadow:' + (sel ? '0 0 14px rgba(96,168,240,0.5)' : 'none') + ';background:' + (sel ? 'rgba(96,168,240,0.22)' : 'rgba(255,255,255,0.03)') + ';border:1.5px solid ' + (sel ? 'rgba(96,168,240,0.85)' : 'rgba(255,255,255,0.1)') + ';transition:all 0.15s;">'
                     + renderAvatar(key, 42) + '</div>';
             }).join('');
+            picker.querySelectorAll('[data-av] > *').forEach(c => { c.style.maxWidth = '100%'; c.style.maxHeight = '100%'; });
             picker.querySelectorAll('[data-av]').forEach(el => {
                 el.addEventListener('click', () => selectAvatar(el.getAttribute('data-av')));
             });
@@ -46432,13 +46459,13 @@
             const box = document.getElementById('reducedMobilityCheck');
             const wrap = document.getElementById('profileReducedMobility');
             if (box) {
-                box.style.background = selectedReducedMobility ? '#16a34a' : 'transparent';
-                box.style.borderColor = selectedReducedMobility ? '#16a34a' : 'rgba(255,255,255,0.25)';
+                box.style.background = selectedReducedMobility ? '#3b82f6' : 'transparent';
+                box.style.borderColor = selectedReducedMobility ? '#3b82f6' : 'rgba(255,255,255,0.25)';
                 box.textContent = selectedReducedMobility ? '✓' : '​';
             }
             if (wrap) {
-                wrap.style.borderColor = selectedReducedMobility ? '#16a34a' : 'rgba(255,255,255,0.12)';
-                wrap.style.background = selectedReducedMobility ? 'rgba(22,163,74,0.08)' : 'transparent';
+                wrap.style.borderColor = selectedReducedMobility ? '#60a8f0' : 'rgba(255,255,255,0.12)';
+                wrap.style.background = selectedReducedMobility ? 'rgba(96,168,240,0.08)' : 'transparent';
             }
         }
         
@@ -46498,9 +46525,9 @@
                         } catch(e) {}
                     }
                     // Ask if switch to new profile
-                    showConfirm(`Profil "${name}" créé ! Basculer vers ce profil maintenant ?`, function() {
+                    showConfirm(`Le profil « ${name} » est créé. On passe à ce profil maintenant ?`, function() {
                         switchProfile(newProfile.id);
-                    }, null, { title: 'Basculer ?', icon: '👤', confirmLabel: 'Basculer' });
+                    }, null, { title: 'Passer à ce profil ?', subtitle: '◈ NOUVEAU PROFIL ◈', confirmLabel: 'Oui, y aller', cancelLabel: 'Plus tard' });
                 }
             }
             
@@ -48103,7 +48130,7 @@
 
             host.innerHTML =
                 '<div style="position:relative;width:110px;margin:0 auto 12px;">'
-              +   '<img src="images/body/body_face.webp?v=1232" alt="" '
+              +   '<img src="images/body/body_face.webp?v=1233" alt="" '
               +     'style="width:100%;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -48185,7 +48212,7 @@
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1232);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1233);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -49562,175 +49589,228 @@
             ov.id = '_premOnbOverlay';
             ov.style.cssText = 'position:fixed;inset:0;z-index:100000;background:#050507;display:flex;align-items:center;justify-content:center;overflow:hidden;';
 
-            const goalCards = Object.entries(userGoals).map(([id, g]) =>
-                `<button onclick="window._premOnbPick('goal','${id}',this)" data-pick="goal" data-val="${id}" style="display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:13px 14px;margin-bottom:8px;background:rgba(255,255,255,0.03);border:1.5px solid ${id===draft.goal?'rgba(34,197,94,0.6)':'rgba(255,255,255,0.1)'};border-radius:14px;cursor:pointer;color:#e2e8f0;transition:border-color 0.2s;">
-                    <span style="font-size:1.5em;">${g.icon}</span>
-                    <span style="font-size:0.92em;font-weight:700;">${g.name}</span>
-                </button>`).join('');
-
-            const levelDescs = {
-                beginner: 'Je débute ou je reprends après une pause',
-                intermediate: 'Je m\'entraîne régulièrement depuis des mois',
-                advanced: 'L\'entraînement fait partie de ma vie'
+            // ═══ v1233 : parcours selon l'âge ═══════════════════════════════
+            // Adulte/ado : accueil › toi (prénom + âge) › objectif & niveau ›
+            //              corps (poids + sexe) › voie › matériel › préparation › fin
+            // Enfant (< 13) : accueil › toi › ce que tu aimes › matériel › fin
+            // L'âge est demandé EN PREMIER : il décide de la suite.
+            // Âge et poids se choisissent avec une règle glissante (js/regle.js).
+            const _BLEU = '#60a8f0', _BLEU_BORD = 'rgba(96,168,240,0.7)';
+            const _ico = (n, t, c) => (window.AwakIcon ? AwakIcon.get(n, t || 22, c || '#93c5fd') : '');
+            const _icoBox = (n, c) => '<span style="flex-shrink:0;width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:' + (c || _BLEU) + '1f;border:1px solid ' + (c || _BLEU) + '44;">' + _ico(n, 20, c || '#93c5fd') + '</span>';
+            const _sur = (t) => '<div style="font-size:0.74em;color:#93c5fd;font-weight:800;letter-spacing:1.5px;margin-bottom:8px;">' + t + '</div>';
+            const _carte = (field, id, ico, titre, desc, coul) => {
+                const on = draft[field] === id;
+                return '<button onclick="window._premOnbPick(\'' + field + '\',\'' + id + '\',this)" data-pick="' + field + '" data-val="' + id + '" '
+                    + 'style="display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 13px;margin-bottom:8px;background:rgba(255,255,255,0.03);'
+                    + 'border:1.5px solid ' + (on ? _BLEU_BORD : 'rgba(255,255,255,0.1)') + ';border-radius:14px;cursor:pointer;color:#e2e8f0;transition:border-color 0.2s;">'
+                    + _icoBox(ico, coul)
+                    + '<span style="flex:1;min-width:0;"><span style="display:block;font-size:0.92em;font-weight:800;">' + titre + '</span>'
+                    + (desc ? '<span style="display:block;color:#94a3b8;font-size:0.74em;line-height:1.4;margin-top:2px;">' + desc + '</span>' : '')
+                    + '</span></button>';
             };
-            const levelCards = Object.entries(userLevels).map(([id, l]) =>
-                `<button onclick="window._premOnbPick('level','${id}',this)" data-pick="level" data-val="${id}" style="display:block;width:100%;text-align:left;padding:14px;margin-bottom:8px;background:rgba(255,255,255,0.03);border:1.5px solid ${id===draft.level?'rgba(34,197,94,0.6)':'rgba(255,255,255,0.1)'};border-radius:14px;cursor:pointer;color:#e2e8f0;transition:border-color 0.2s;">
-                    <div style="font-size:0.95em;font-weight:800;margin-bottom:3px;">${l.name}</div>
-                    <div style="font-size:0.75em;color:#94a3b8;">${levelDescs[id]||''}</div>
-                </button>`).join('');
+            const _GOAL_ICO = { weight_loss: ['flamme', '#fb923c'], muscle_gain: ['muscle', '#60a8f0'], endurance: ['course', '#22d3ee'],
+                                strength: ['halter', '#a78bfa'], fitness: ['eclair', '#fbbf24'], flexibility: ['repos', '#5eead4'] };
+            const goalCards = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">' + Object.entries(userGoals).map(([id, g]) => {
+                const on = draft.goal === id, ic = _GOAL_ICO[id] || ['cible', _BLEU];
+                return '<button onclick="window._premOnbPick(\'goal\',\'' + id + '\',this)" data-pick="goal" data-val="' + id + '" '
+                    + 'style="display:flex;align-items:center;gap:8px;text-align:left;padding:10px;background:rgba(255,255,255,0.03);border:1.5px solid ' + (on ? _BLEU_BORD : 'rgba(255,255,255,0.1)') + ';'
+                    + 'border-radius:12px;cursor:pointer;color:#e2e8f0;min-width:0;">' + _ico(ic[0], 18, ic[1])
+                    + '<span style="font-size:0.8em;font-weight:800;min-width:0;">' + g.name + '</span></button>';
+            }).join('') + '</div>';
+            const levelDescs = {
+                beginner: 'Je débute ou je reprends',
+                intermediate: 'Régulier depuis des mois',
+                advanced: 'Ça fait partie de ma vie'
+            };
+            const levelCards = Object.entries(userLevels).map(([id, l]) => {
+                const on = draft.level === id;
+                return '<button onclick="window._premOnbPick(\'level\',\'' + id + '\',this)" data-pick="level" data-val="' + id + '" '
+                    + 'style="flex:1;min-width:0;text-align:center;padding:10px 4px;background:rgba(255,255,255,0.03);border:1.5px solid ' + (on ? _BLEU_BORD : 'rgba(255,255,255,0.1)') + ';border-radius:12px;cursor:pointer;color:#e2e8f0;">'
+                    + '<div style="font-size:0.84em;font-weight:800;">' + l.name + '</div>'
+                    + '<div style="font-size:0.62em;color:#94a3b8;margin-top:3px;line-height:1.3;">' + (levelDescs[id] || '') + '</div></button>';
+            }).join('');
+
+            // Prénom déjà saisi dans « Créer un profil » → on ne le redemande pas
+            let _nomConnu = '';
+            try {
+                const _pid = getCurrentProfileId();
+                const _pr = (typeof getAllProfiles === 'function') ? getAllProfiles().find(x => x.id === _pid) : null;
+                if (_pr && _pr.name && !/^mon profil$/i.test(_pr.name.trim())) _nomConnu = _pr.name.trim();
+            } catch (e) {}
+            if (_nomConnu) draft.name = _nomConnu;
+
+            const _enfant = () => (parseInt(draft.age, 10) || 99) < 13;
+            const _sequence = () => _enfant()
+                ? ['accueil', 'toi', 'aime', 'materielEnfant', 'finEnfant']
+                : ['accueil', 'toi', 'objectif', 'corps', 'voie', 'materiel', 'prep', 'fin'];
 
             const frame = (inner, pct) => `
                 <style>@keyframes awakFadeIn { from{opacity:0} to{opacity:1} }</style>
                 <div style="position:relative;width:100%;max-width:440px;height:100%;max-height:100dvh;display:flex;flex-direction:column;padding:max(24px,env(safe-area-inset-top)) 22px calc(24px + env(safe-area-inset-bottom));box-sizing:border-box;">
-                    <div style="position:absolute;inset:0;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(34,197,94,0.12),transparent 60%),radial-gradient(ellipse 60% 40% at 50% 110%,rgba(168,85,247,0.1),transparent 60%);pointer-events:none;"></div>
-                    <div style="position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0,transparent 3px,rgba(34,197,94,0.015) 3px,rgba(34,197,94,0.015) 4px);pointer-events:none;"></div>
-                    ${pct !== null ? `<div style="height:3px;background:rgba(255,255,255,0.08);border-radius:99px;margin-bottom:26px;position:relative;z-index:1;"><div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#3b82f6,#a855f7);border-radius:99px;transition:width 0.4s ease;"></div></div>` : ''}
-                    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:1;animation:awakFadeIn 0.45s ease;">${inner}</div>
+                    <div style="position:absolute;inset:0;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(96,168,240,0.13),transparent 60%),radial-gradient(ellipse 60% 40% at 50% 110%,rgba(168,85,247,0.1),transparent 60%);pointer-events:none;"></div>
+                    ${pct !== null ? `<div style="display:flex;align-items:center;gap:10px;margin-bottom:22px;position:relative;z-index:2;">
+                        ${step > 0 ? `<button onclick="window._premOnbPrev()" aria-label="Retour" style="flex-shrink:0;width:34px;height:34px;min-height:auto;padding:0;border-radius:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;cursor:pointer;display:flex;align-items:center;justify-content:center;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg></button>` : ''}
+                        <div style="flex:1;height:3px;background:rgba(255,255,255,0.08);border-radius:99px;"><div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#3b82f6,#a855f7);border-radius:99px;transition:width 0.4s ease;"></div></div>
+                    </div>` : ''}
+                    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:1;animation:awakFadeIn 0.45s ease;overflow-y:auto;">${inner}</div>
                 </div>`;
 
-            const btnPrimary = (label, action) => `<button onclick="${action}" style="width:100%;padding:16px;background:linear-gradient(135deg,#3b82f6,#1d5fa8);color:#050507;border:none;border-radius:14px;font-size:1em;font-weight:900;letter-spacing:0.5px;cursor:pointer;box-shadow:0 6px 24px rgba(34,197,94,0.25);">${label}</button>`;
+            const btnPrimary = (label, action) => `<button onclick="${action}" style="width:100%;padding:16px;background:linear-gradient(135deg,#3b82f6,#1d5fa8);color:#fff;border:none;border-radius:14px;font-size:1em;font-weight:900;letter-spacing:0.5px;cursor:pointer;box-shadow:0 6px 24px rgba(59,130,246,0.3);">${label}</button>`;
 
             function render() {
-                let inner = '', pct = null;
-                if (step === 0) {
+                const seq = _sequence();
+                if (step >= seq.length) step = seq.length - 1;
+                const ecran = seq[step];
+                let inner = '', pct = step === 0 ? null : Math.round(step / (seq.length - 1) * 100);
+                const regles = [];
+                if (ecran === 'accueil') {
                     inner = `
                         <div style="text-align:center;">
-                            <div style="font-family:'Rajdhani',sans-serif;font-size:clamp(2.4em,11vw,3.4em);font-weight:700;letter-spacing:0.18em;color:#fff;text-shadow:0 0 30px rgba(34,197,94,0.5),0 0 60px rgba(168,85,247,0.3);margin-bottom:10px;">AWAKENED</div>
-                            <div style="font-size:0.82em;color:#94a3b8;letter-spacing:3px;text-transform:uppercase;margin-bottom:14px;">Lève-toi, Chasseur</div>
-                            <p style="color:#cbd5e1;font-size:0.92em;line-height:1.7;margin:0 0 36px;">Ton entraînement devient une quête.<br>Quelques questions, et le Système te connaîtra.</p>
+                            <div style="font-family:'Rajdhani',sans-serif;font-size:clamp(2.4em,11vw,3.4em);font-weight:700;letter-spacing:0.18em;color:#fff;text-shadow:0 0 30px rgba(96,168,240,0.5),0 0 60px rgba(168,85,247,0.3);margin-bottom:10px;">AWAKENED</div>
+                            <p style="color:#cbd5e1;font-size:0.92em;line-height:1.7;margin:0 0 36px;">${draft.name ? 'Salut ' + draft.name.replace(/</g, '&lt;') + ' !<br>' : ''}Quelques questions, et l'app s'adapte à toi.</p>
                             ${btnPrimary('Commencer', 'window._premOnbNext()')}
                         </div>`;
-                } else if (step === 1) {
-                    pct = 25;
-                    inner = `
-                        <div style="font-family:'Rajdhani',sans-serif;font-size:0.78em;color:#22c55e;font-weight:700;letter-spacing:2.5px;margin-bottom:10px;">◈ IDENTIFICATION</div>
-                        <h2 style="color:#fff;font-size:1.45em;font-weight:900;margin:0 0 22px;">Comment dois-je t'appeler ?</h2>
-                        <input id="_premOnbName" type="text" maxlength="24" placeholder="Ton nom de Chasseur" value="${draft.name.replace(/"/g,'&quot;')}"
-                               style="width:100%;box-sizing:border-box;padding:15px;background:rgba(255,255,255,0.04);border:1.5px solid rgba(34,197,94,0.35);border-radius:14px;color:#fff;font-size:1.05em;font-weight:700;outline:none;margin-bottom:24px;">
-                        ${btnPrimary('Continuer', 'window._premOnbSaveName()')}`;
-                } else if (step === 2) {
-                    pct = 50;
-                    inner = `
-                        <div style="font-family:'Rajdhani',sans-serif;font-size:0.78em;color:#22c55e;font-weight:700;letter-spacing:2.5px;margin-bottom:10px;">◈ OBJECTIF</div>
-                        <h2 style="color:#fff;font-size:1.45em;font-weight:900;margin:0 0 18px;">Que cherches-tu ?</h2>
-                        <div style="overflow-y:auto;max-height:48dvh;margin-bottom:18px;">${goalCards}</div>
-                        ${btnPrimary('Continuer', 'window._premOnbNext()')}`;
-                } else if (step === 3) {
-                    pct = 75;
-                    inner = `
-                        <div style="font-family:'Rajdhani',sans-serif;font-size:0.78em;color:#22c55e;font-weight:700;letter-spacing:2.5px;margin-bottom:10px;">◈ NIVEAU</div>
-                        <h2 style="color:#fff;font-size:1.45em;font-weight:900;margin:0 0 18px;">Où en es-tu ?</h2>
-                        <div style="margin-bottom:18px;">${levelCards}</div>
-                        ${btnPrimary('Continuer', 'window._premOnbNext()')}`;
-                } else if (step === 4) {
-                    pct = 90;
-                    inner = `
-                        <div style="font-family:'Rajdhani',sans-serif;font-size:0.78em;color:#22c55e;font-weight:700;letter-spacing:2.5px;margin-bottom:10px;">◈ CALIBRAGE</div>
-                        <h2 style="color:#fff;font-size:1.45em;font-weight:900;margin:0 0 6px;">Derniers réglages</h2>
-                        <p style="color:#94a3b8;font-size:0.8em;margin:0 0 20px;">Pour ajuster les recommandations. Modifiable plus tard.</p>
-                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px;">
-                            <div>
-                                <div style="font-size:0.7em;color:#94a3b8;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:7px;">Âge</div>
-                                <input id="_premOnbAge" type="number" inputmode="numeric" min="13" max="99" value="${draft.age}" style="width:100%;box-sizing:border-box;padding:13px;background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.12);border-radius:12px;color:#fff;font-size:1.05em;font-weight:800;outline:none;text-align:center;">
-                            </div>
-                            <div>
-                                <div style="font-size:0.7em;color:#94a3b8;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:7px;">Poids (${weightUnit()})</div>
-                                <input id="_premOnbWeight" type="number" inputmode="numeric" min="30" max="600" value="${fmtWeightVal(draft.weight)}" style="width:100%;box-sizing:border-box;padding:13px;background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.12);border-radius:12px;color:#fff;font-size:1.05em;font-weight:800;outline:none;text-align:center;">
-                            </div>
+                } else if (ecran === 'toi') {
+                    inner = _sur('TOI')
+                        + `<h2 style="color:#fff;font-size:1.45em;font-weight:900;margin:0 0 18px;">${_nomConnu ? 'Quel âge as-tu, ' + _nomConnu.replace(/</g, '&lt;') + ' ?' : 'Faisons connaissance'}</h2>`
+                        + (_nomConnu ? '' : `<div style="font-size:0.72em;color:#94a3b8;font-weight:800;margin-bottom:7px;">Ton prénom</div>
+                        <input id="_premOnbName" type="text" maxlength="24" placeholder="Ton prénom" value="${draft.name.replace(/"/g,'&quot;')}"
+                               style="width:100%;box-sizing:border-box;padding:14px;background:rgba(255,255,255,0.04);border:1.5px solid rgba(96,168,240,0.35);border-radius:14px;color:#fff;font-size:1.05em;font-weight:700;outline:none;margin-bottom:22px;">
+                        <div style="font-size:0.72em;color:#94a3b8;font-weight:800;margin-bottom:10px;">Ton âge</div>`)
+                        + AwakRegle.html('_premOnbAgeR', { min: 5, max: 99, pas: 1, val: draft.age, unite: 'ans', aide: 'Glisse la règle ou touche − / +' })
+                        + '<div style="height:24px;"></div>' + btnPrimary('Continuer', 'window._premOnbNext()');
+                    regles.push('_premOnbAgeR');
+                } else if (ecran === 'objectif') {
+                    inner = _sur('OBJECTIF')
+                        + '<h2 style="color:#fff;font-size:1.4em;font-weight:900;margin:0 0 14px;">Que cherches-tu ?</h2>'
+                        + goalCards
+                        + '<div style="font-size:0.72em;color:#94a3b8;font-weight:800;margin:18px 0 8px;">Ton niveau</div>'
+                        + '<div style="display:flex;gap:6px;margin-bottom:20px;">' + levelCards + '</div>'
+                        + btnPrimary('Continuer', 'window._premOnbNext()');
+                } else if (ecran === 'corps') {
+                    const _u = weightUnit();
+                    const _wv = Math.round(fmtWeightVal(draft.weight));
+                    inner = _sur('TON CORPS')
+                        + '<h2 style="color:#fff;font-size:1.4em;font-weight:900;margin:0 0 6px;">Pour ajuster tes charges</h2>'
+                        + '<p style="color:#94a3b8;font-size:0.8em;margin:0 0 18px;">Modifiable plus tard dans ton profil.</p>'
+                        + '<div style="font-size:0.72em;color:#94a3b8;font-weight:800;margin-bottom:10px;">Ton poids</div>'
+                        + AwakRegle.html('_premOnbPoidsR', _u === 'kg' ? { min: 30, max: 200, pas: 1, val: _wv, unite: 'kg' } : { min: 66, max: 440, pas: 1, val: _wv, unite: 'lbs' })
+                        + `<div style="font-size:0.72em;color:#94a3b8;font-weight:800;margin:22px 0 8px;">Sexe — pour des suggestions adaptées</div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                            <button onclick="window._premOnbPick('sex','homme',this)" data-pick="sex" data-val="homme" style="padding:13px;background:rgba(255,255,255,0.04);border:1.5px solid ${draft.sex==='homme'?_BLEU_BORD:'rgba(255,255,255,0.12)'};border-radius:12px;color:#fff;font-size:0.9em;font-weight:800;cursor:pointer;">Homme</button>
+                            <button onclick="window._premOnbPick('sex','femme',this)" data-pick="sex" data-val="femme" style="padding:13px;background:rgba(255,255,255,0.04);border:1.5px solid ${draft.sex==='femme'?_BLEU_BORD:'rgba(255,255,255,0.12)'};border-radius:12px;color:#fff;font-size:0.9em;font-weight:800;cursor:pointer;">Femme</button>
                         </div>
-                        <div style="margin-bottom:24px;">
-                            <div style="font-size:0.7em;color:#94a3b8;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:7px;">Sexe — pour des suggestions adaptées</div>
-                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-                                <button onclick="window._premOnbPick('sex','homme',this)" data-pick="sex" data-val="homme" style="padding:13px;background:rgba(255,255,255,0.04);border:1.5px solid ${draft.sex==='homme'?'rgba(34,197,94,0.6)':'rgba(255,255,255,0.12)'};border-radius:12px;color:#fff;font-size:0.9em;font-weight:800;cursor:pointer;">♂ Homme</button>
-                                <button onclick="window._premOnbPick('sex','femme',this)" data-pick="sex" data-val="femme" style="padding:13px;background:rgba(255,255,255,0.04);border:1.5px solid ${draft.sex==='femme'?'rgba(34,197,94,0.6)':'rgba(255,255,255,0.12)'};border-radius:12px;color:#fff;font-size:0.9em;font-weight:800;cursor:pointer;">♀ Femme</button>
-                            </div>
-                            <button onclick="window._premOnbPick('sex','',this)" data-pick="sex" data-val="" style="width:100%;margin-top:8px;padding:10px;background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:#94a3b8;font-size:0.78em;font-weight:600;cursor:pointer;">Préfère ne pas préciser</button>
-                        </div>
-                        ${btnPrimary('Valider', 'window._premOnbSaveBody()')}`;
-                } else if (step === 5) {
-                    pct = 95;
-                    const modeCard = (id, icon, title, desc) => `
-                        <button onclick="window._premOnbPick('mode','${id}',this)" data-pick="mode" data-val="${id}" style="display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left;padding:15px 14px;margin-bottom:10px;background:rgba(255,255,255,0.03);border:1.5px solid ${draft.mode===id?'rgba(34,197,94,0.6)':'rgba(255,255,255,0.1)'};border-radius:14px;cursor:pointer;color:#e2e8f0;transition:border-color 0.2s;">
-                            <span style="font-size:1.5em;line-height:1;flex-shrink:0;">${icon}</span>
-                            <span style="flex:1;">
-                                <span style="display:block;font-weight:900;font-size:0.95em;">${title}</span>
-                                <span style="display:block;color:#94a3b8;font-size:0.76em;line-height:1.45;margin-top:3px;">${desc}</span>
-                            </span>
-                        </button>`;
-                    inner = `
-                        <div style="font-family:'Rajdhani',sans-serif;font-size:0.78em;color:#22c55e;font-weight:700;letter-spacing:2.5px;margin-bottom:10px;">◈ TA VOIE</div>
-                        <h2 style="color:#fff;font-size:1.45em;font-weight:900;margin:0 0 6px;">Deux façons de vivre Awakened</h2>
-                        <p style="color:#94a3b8;font-size:0.8em;margin:0 0 18px;">Tu pourras changer à tout moment dans les Réglages.</p>
-                        ${modeCard('fitness','🏋️','Fitness pur',"Un tracker d'entraînement clair et complet. Séances, progression, analyses — sans couche de jeu.")}
-                        ${(parseInt(draft.age, 10) > 0 && parseInt(draft.age, 10) < 13) ? '' : modeCard('aventure','🌌','Aventure',"Ton entraînement devient une quête : XP, rangs, Failles, boss et compagnons s'ajoutent au fitness.")}
-                        ${btnPrimary('Continuer', 'window._premOnbNext()')}`;
-                } else if (step === 6) {
-                    // 🏋️ NOUVEAU : choix du matériel dès l'inscription, mémorisé.
-                    // Sans ça, un nouveau démarrait en « poids du corps » uniquement
-                    // et ne découvrait le réglage que bien plus tard.
-                    pct = 97;
-                    // Sécurité : l'équipement peut ne pas encore être initialisé
+                        <button onclick="window._premOnbPick('sex','',this)" data-pick="sex" data-val="" style="width:100%;margin:8px 0 22px;padding:10px;background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:#94a3b8;font-size:0.78em;font-weight:600;cursor:pointer;">Je préfère ne pas préciser</button>`
+                        + btnPrimary('Continuer', 'window._premOnbNext()');
+                    regles.push('_premOnbPoidsR');
+                } else if (ecran === 'voie') {
+                    inner = _sur('TA FAÇON DE JOUER')
+                        + '<h2 style="color:#fff;font-size:1.4em;font-weight:900;margin:0 0 6px;">Deux façons de vivre Awakened</h2>'
+                        + '<p style="color:#94a3b8;font-size:0.8em;margin:0 0 16px;">Tu pourras changer à tout moment dans les Réglages.</p>'
+                        + _carte('mode', 'fitness', 'halter', 'Fitness pur', "Séances, progression et analyses, sans couche de jeu.", '#60a8f0')
+                        + _carte('mode', 'aventure', 'faille', 'Aventure', "XP, rangs, Failles, boss et compagnons s'ajoutent à tes séances.", '#a78bfa')
+                        + '<div style="height:12px;"></div>' + btnPrimary('Continuer', 'window._premOnbNext()');
+                } else if (ecran === 'materiel' || ecran === 'materielEnfant') {
                     try { if (!Array.isArray(selectedEquipment) || !selectedEquipment.length) { selectedEquipment = ['bodyweight']; } } catch (e) { selectedEquipment = ['bodyweight']; }
-                    const _eqPreset = (id, icon, title, desc) => `
-                        <button onclick="window._premOnbEquipPreset('${id}')" style="display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:13px 14px;margin-bottom:8px;background:rgba(255,255,255,0.03);border:1.5px solid rgba(255,255,255,0.1);border-radius:14px;cursor:pointer;color:#e2e8f0;">
-                            <span style="font-size:1.5em;line-height:1;flex-shrink:0;">${icon}</span>
-                            <span style="flex:1;">
-                                <span style="display:block;font-weight:900;font-size:0.95em;">${title}</span>
-                                <span style="display:block;color:#94a3b8;font-size:0.76em;line-height:1.45;margin-top:3px;">${desc}</span>
-                            </span>
-                        </button>`;
-                    const _eqCommon = ['bodyweight','dumbbells','barbell','resistance','kettlebell','bench','machine','trx','jumprope','swissball','abwheel','treadmill'];
-                    const _eqChips = _eqCommon.map(function (id) {
-                        const eq = availableEquipment.find(e => e.id === id);
-                        if (!eq) return '';
-                        const on = (typeof selectedEquipment !== 'undefined') && selectedEquipment.indexOf(id) !== -1;
-                        return '<button id="_onbEq_' + id + '" onclick="window._premOnbEquipToggle(\'' + id + '\')" style="padding:8px 10px;border-radius:11px;cursor:pointer;font-size:0.74em;font-weight:800;border:1.5px solid ' + (on ? '#22c55e' : 'rgba(255,255,255,0.12)') + ';background:' + (on ? 'rgba(34,197,94,0.14)' : 'rgba(255,255,255,0.03)') + ';color:' + (on ? '#4ade80' : '#94a3b8') + ';">' + eq.name + '</button>';
-                    }).join('');
-                    inner = `
-                        <div style="font-family:'Rajdhani',sans-serif;font-size:0.78em;color:#22c55e;font-weight:700;letter-spacing:2px;margin-bottom:6px;">◈ TON MATÉRIEL</div>
-                        <h2 style="color:#fff;font-size:1.45em;font-weight:900;margin:0 0 6px;">De quoi disposes-tu ?</h2>
-                        <p style="color:#94a3b8;font-size:0.8em;margin:0 0 16px;">Les séances s'adapteront à ton matériel. Modifiable à tout moment dans les Réglages.</p>
-                        ${_eqPreset('none','🏠','Rien de spécial','Poids du corps uniquement — parfait pour commencer à la maison.')}
-                        ${_eqPreset('home','🏋️','Maison équipée','Haltères, élastiques, banc, corde à sauter.')}
-                        ${_eqPreset('gym','🏢','Salle de gym','Accès complet : barres, machines, cardio.')}
-                        <div style="font-size:0.7em;color:#64748b;font-weight:800;letter-spacing:1px;margin:16px 0 8px;">OU AJUSTE PRÉCISÉMENT</div>
-                        <div id="_onbEqChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">${_eqChips}</div>
-                        ${btnPrimary('Continuer', 'window._premOnbNext()')}`;
-                } else if (step === 7) {
-                    pct = 98;
-                    inner = `
-                        <div style="font-family:'Rajdhani',sans-serif;font-size:0.78em;color:#22c55e;font-weight:700;letter-spacing:2.5px;margin-bottom:10px;">◈ PRÉPARATION</div>
-                        <h2 style="color:#fff;font-size:1.45em;font-weight:900;margin:0 0 6px;">Échauffement & étirements</h2>
-                        <p style="color:#94a3b8;font-size:0.82em;line-height:1.6;margin:0 0 18px;">Chaque séance peut inclure un <strong style="color:#e2e8f0;">échauffement</strong> et des <strong style="color:#e2e8f0;">étirements</strong> adaptés aux muscles que tu travailles. Tu pourras activer ou désactiver cette option à tout moment dans les <strong style="color:#e2e8f0;">Réglages</strong>.</p>
-                        <p style="color:#cbd5e1;font-size:0.92em;font-weight:800;margin:0 0 16px;">Veux-tu les inclure dans tes séances ?</p>
-                        <button onclick="window._premOnbWarmup(true)" style="width:100%;padding:15px;margin-bottom:10px;background:linear-gradient(135deg,#60a8f0,#3b82f6);border:none;border-radius:14px;color:#04140a;font-weight:900;font-size:0.95em;cursor:pointer;">Oui, prépare-moi</button>
+                    const _preset = (id, ico, titre, desc) => '<button onclick="window._premOnbEquipPreset(\'' + id + '\')" data-preset="' + id + '" style="display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 13px;margin-bottom:8px;background:rgba(255,255,255,0.03);border:1.5px solid ' + (draft._preset === id ? _BLEU_BORD : 'rgba(255,255,255,0.1)') + ';border-radius:14px;cursor:pointer;color:#e2e8f0;">'
+                        + _icoBox(ico) + '<span style="flex:1;"><span style="display:block;font-weight:800;font-size:0.92em;">' + titre + '</span><span style="display:block;color:#94a3b8;font-size:0.74em;line-height:1.4;margin-top:2px;">' + desc + '</span></span></button>';
+                    if (ecran === 'materielEnfant') {
+                        inner = _sur('TON MATÉRIEL')
+                            + '<h2 style="color:#fff;font-size:1.4em;font-weight:900;margin:0 0 16px;">Qu\'as-tu à la maison ?</h2>'
+                            + _preset('kidnone', 'personne', 'Rien de spécial', 'Juste toi : sauts, pompes, animaux…')
+                            + _preset('kidball', 'cible', 'Un ballon ou une corde', 'Pour des jeux encore plus variés.')
+                            + '<div style="height:12px;"></div>' + btnPrimary('Continuer', 'window._premOnbNext()');
+                    } else {
+                        const _eqCommon = ['bodyweight','dumbbells','barbell','resistance','kettlebell','bench','machine','trx','jumprope','swissball','abwheel','treadmill'];
+                        const _eqChips = _eqCommon.map(function (id) {
+                            const eq = availableEquipment.find(e => e.id === id);
+                            if (!eq) return '';
+                            const on = selectedEquipment.indexOf(id) !== -1;
+                            return '<button id="_onbEq_' + id + '" onclick="window._premOnbEquipToggle(\'' + id + '\')" style="padding:8px 10px;border-radius:11px;cursor:pointer;font-size:0.74em;font-weight:800;border:1.5px solid ' + (on ? _BLEU : 'rgba(255,255,255,0.12)') + ';background:' + (on ? 'rgba(96,168,240,0.14)' : 'rgba(255,255,255,0.03)') + ';color:' + (on ? '#93c5fd' : '#94a3b8') + ';">' + eq.name + '</button>';
+                        }).join('');
+                        inner = _sur('TON MATÉRIEL')
+                            + '<h2 style="color:#fff;font-size:1.4em;font-weight:900;margin:0 0 6px;">De quoi disposes-tu ?</h2>'
+                            + '<p style="color:#94a3b8;font-size:0.8em;margin:0 0 14px;">Les séances s\'adapteront. Modifiable dans les Réglages.</p>'
+                            + _preset('none', 'personne', 'Rien de spécial', 'Poids du corps uniquement, parfait à la maison.')
+                            + _preset('home', 'maison', 'Maison équipée', 'Haltères, élastiques, banc, corde à sauter.')
+                            + _preset('gym', 'immeuble', 'Salle de gym', 'Accès complet : barres, machines, cardio.')
+                            + '<div style="font-size:0.7em;color:#64748b;font-weight:800;letter-spacing:1px;margin:14px 0 8px;">OU AJUSTE PRÉCISÉMENT</div>'
+                            + '<div id="_onbEqChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">' + _eqChips + '</div>'
+                            + btnPrimary('Continuer', 'window._premOnbNext()');
+                    }
+                } else if (ecran === 'aime') {
+                    inner = _sur('CE QUE TU AIMES')
+                        + '<h2 style="color:#fff;font-size:1.4em;font-weight:900;margin:0 0 16px;">Qu\'est-ce que tu préfères ?</h2>'
+                        + _carte('goal', 'fitness', 'eclair', 'Bouger', 'Courir, danser, jouer', '#fbbf24')
+                        + _carte('goal', 'endurance', 'course', 'Sauter', 'Sauts, corde, cardio', '#22d3ee')
+                        + _carte('goal', 'strength', 'muscle', 'Être fort', 'Pompes, gainage, défis', '#60a8f0')
+                        + _carte('goal', 'flexibility', 'repos', 'Être souple', 'Étirements, yoga, équilibre', '#5eead4')
+                        + '<div style="height:12px;"></div>' + btnPrimary('Continuer', 'window._premOnbNext()');
+                } else if (ecran === 'prep') {
+                    inner = _sur('PRÉPARATION')
+                        + `<h2 style="color:#fff;font-size:1.4em;font-weight:900;margin:0 0 6px;">Échauffement & étirements</h2>
+                        <p style="color:#94a3b8;font-size:0.82em;line-height:1.6;margin:0 0 18px;">Chaque séance peut inclure un <strong style="color:#e2e8f0;">échauffement</strong> et des <strong style="color:#e2e8f0;">étirements</strong> adaptés aux muscles travaillés. Modifiable dans les Réglages.</p>
+                        <button onclick="window._premOnbWarmup(true)" style="width:100%;padding:15px;margin-bottom:10px;background:linear-gradient(135deg,#3b82f6,#1d5fa8);border:none;border-radius:14px;color:#fff;font-weight:900;font-size:0.95em;cursor:pointer;">Oui, prépare-moi</button>
                         <button onclick="window._premOnbWarmup(false)" style="width:100%;padding:14px;background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.12);border-radius:14px;color:#94a3b8;font-weight:800;font-size:0.9em;cursor:pointer;">Non merci, j'irai direct</button>`;
+                } else if (ecran === 'finEnfant') {
+                    const _l = (ico, c, t, d) => '<div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;">' + _icoBox(ico, c) + '<span style="color:#cbd5e1;font-size:0.84em;line-height:1.45;"><strong style="color:#fff;">' + t + '</strong> ' + d + '</span></div>';
+                    inner = _sur('C\'EST PRÊT')
+                        + '<h2 style="color:#fff;font-size:1.5em;font-weight:900;margin:0 0 20px;">Bienvenue ' + (draft.name || '').replace(/</g, '&lt;') + ' !</h2>'
+                        + _l('etoile', '#fbbf24', 'Des aventures', ': super-héros, zoo, ninja… des missions de 5 minutes.')
+                        + _l('trophee', '#a78bfa', 'Des étoiles', 'à chaque exercice terminé.')
+                        + _l('calendrier', '#60a8f0', 'Des défis', 'de 30 jours, à cocher chaque jour.')
+                        + '<p style="color:#94a3b8;font-size:0.76em;line-height:1.5;margin:6px 0 22px;">Demande à un adulte de rester près de toi pendant tes séances.</p>'
+                        + btnPrimary('C\'est parti !', 'window._premOnbFinish()');
                 } else {
-                    pct = 100;
                     const g = userGoals[draft.goal] || userGoals.fitness;
                     const l = userLevels[draft.level] || userLevels.beginner;
                     const adv = draft.mode === 'aventure';
-                    inner = `
-                        <div style="font-family:'Rajdhani',sans-serif;font-size:0.78em;color:#4ade80;font-weight:700;letter-spacing:2.5px;margin-bottom:10px;">◈ PROFIL ÉTABLI</div>
-                        <h2 style="color:#fff;font-size:1.45em;font-weight:900;margin:0 0 20px;">Bienvenue, ${draft.name || (adv ? 'Chasseur' : 'Athlète')}.</h2>
-                        <div style="background:rgba(34,197,94,0.05);border:1px solid rgba(34,197,94,0.2);border-radius:14px;padding:14px 16px;margin-bottom:20px;">
-                            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.06);"><span style="color:#94a3b8;font-size:0.82em;">Objectif</span><span style="color:#e2e8f0;font-size:0.86em;font-weight:800;">${g.icon} ${g.name}</span></div>
-                            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.06);"><span style="color:#94a3b8;font-size:0.82em;">Niveau</span><span style="color:#e2e8f0;font-size:0.86em;font-weight:800;">${l.name}</span></div>
-                            <div style="display:flex;justify-content:space-between;padding:6px 0;"><span style="color:#94a3b8;font-size:0.82em;">Voie</span><span style="color:#e2e8f0;font-size:0.86em;font-weight:800;">${adv ? '🌌 Aventure' : '🏋️ Fitness pur'}</span></div>
-                        </div>
-                        <div style="margin-bottom:24px;">
-                            <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:11px;"><span style="font-size:1.1em;">🏋️</span><span style="color:#cbd5e1;font-size:0.82em;line-height:1.5;"><strong style="color:#fff;">Entraîner</strong> — séance libre, tes routines et ton programme.</span></div>
-                            <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:11px;"><span style="font-size:1.1em;">📊</span><span style="color:#cbd5e1;font-size:0.82em;line-height:1.5;"><strong style="color:#fff;">Progression</strong> — historique, Arbre de l'Éveil et analyses.</span></div>
-                            <div style="display:flex;gap:10px;align-items:flex-start;${adv ? 'margin-bottom:11px;' : ''}"><span style="font-size:1.1em;">📚</span><span style="color:#cbd5e1;font-size:0.82em;line-height:1.5;"><strong style="color:#fff;">Découvrir</strong> — exercices, calculs et défis.</span></div>
-                            ${adv ? `<div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:1.1em;">🌌</span><span style="color:#cbd5e1;font-size:0.82em;line-height:1.5;"><strong style="color:#fff;">Failles</strong> — l'onglet Jeu ouvre ton aventure.</span></div>` : ''}
-                        </div>
-                        ${btnPrimary(adv ? 'Commencer l\'aventure' : 'Commencer', 'window._premOnbFinish()')}`;
+                    const _li = (ico, t, d) => '<div style="display:flex;gap:10px;align-items:center;margin-bottom:10px;">' + _ico(ico, 18) + '<span style="color:#cbd5e1;font-size:0.82em;line-height:1.45;"><strong style="color:#fff;">' + t + '</strong> — ' + d + '</span></div>';
+                    inner = _sur('PROFIL PRÊT')
+                        + '<h2 style="color:#fff;font-size:1.45em;font-weight:900;margin:0 0 18px;">Bienvenue, ' + (draft.name || (adv ? 'Chasseur' : 'Athlète')).replace(/</g, '&lt;') + '.</h2>'
+                        + '<div style="background:rgba(96,168,240,0.06);border:1px solid rgba(96,168,240,0.22);border-radius:14px;padding:12px 15px;margin-bottom:18px;">'
+                        +   '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.06);"><span style="color:#94a3b8;font-size:0.82em;">Objectif</span><span style="color:#e2e8f0;font-size:0.86em;font-weight:800;">' + g.name + '</span></div>'
+                        +   '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.06);"><span style="color:#94a3b8;font-size:0.82em;">Niveau</span><span style="color:#e2e8f0;font-size:0.86em;font-weight:800;">' + l.name + '</span></div>'
+                        +   '<div style="display:flex;justify-content:space-between;padding:6px 0;"><span style="color:#94a3b8;font-size:0.82em;">Façon de jouer</span><span style="color:#e2e8f0;font-size:0.86em;font-weight:800;">' + (adv ? 'Aventure' : 'Fitness pur') + '</span></div>'
+                        + '</div>'
+                        + '<div style="margin-bottom:22px;">'
+                        +   _li('halter', 'Séance', 'séance libre, tes routines et ton programme.')
+                        +   _li('stats', 'Progrès', 'historique, Arbre de l\'Éveil et records.')
+                        +   _li('grille', 'Exos', 'tous les exercices et les calculs.')
+                        +   (adv ? _li('faille', 'Jeu', 'les Failles ouvrent ton aventure.') : '')
+                        + '</div>'
+                        + btnPrimary(adv ? 'Commencer l\'aventure' : 'Commencer', 'window._premOnbFinish()');
                 }
                 ov.innerHTML = frame(inner, pct);
-                if (step === 1) setTimeout(() => document.getElementById('_premOnbName')?.focus(), 350);
+                regles.forEach(id => { try { AwakRegle.init(id); } catch (e) {} });
             }
 
-            window._premOnbNext = function() { step++; render(); try { haptic.light(); } catch(e) {} };
+            // Enregistre les réponses de l'écran courant avant de le quitter
+            function _sauverEcran() {
+                const ecran = _sequence()[step];
+                if (ecran === 'toi') {
+                    const n = document.getElementById('_premOnbName');
+                    if (n) draft.name = (n.value || '').trim();
+                    const a = (window.AwakRegle && AwakRegle.valeur('_premOnbAgeR'));
+                    if (a) draft.age = a;
+                    if (_enfant()) { draft.mode = 'fitness'; draft.level = 'beginner'; if (!['fitness','endurance','strength','flexibility'].includes(draft.goal)) draft.goal = 'fitness'; }
+                    else if (draft.age < 16 && draft.mode === 'aventure') { /* ado : garde le choix */ }
+                } else if (ecran === 'corps') {
+                    const w = (window.AwakRegle && AwakRegle.valeur('_premOnbPoidsR'));
+                    if (w) draft.weight = useKg ? Math.round(w) : Math.round(w * 0.453592);   // stocké en kg
+                }
+            }
+            window._premOnbNext = function() {
+                _sauverEcran();
+                if (step >= _sequence().length - 1) return;
+                step++; render(); try { haptic.light(); } catch(e) {}
+            };
+            window._premOnbPrev = function() {
+                if (step <= 0) return;
+                _sauverEcran();
+                step--; render(); try { haptic.light(); } catch(e) {}
+            };
 
             // 🏋️ Choix du matériel pendant l'inscription — enregistré tout de suite
             // (même stockage que les Réglages), donc conservé pour toutes les séances.
@@ -49738,15 +49818,17 @@
                 none: ['bodyweight'],
                 home: ['bodyweight', 'dumbbells', 'resistance', 'bench', 'jumprope'],
                 gym:  ['bodyweight', 'dumbbells', 'barbell', 'machine', 'bench', 'kettlebell',
-                       'trx', 'treadmill', 'bike', 'rower', 'swissball', 'abwheel']
+                       'trx', 'treadmill', 'bike', 'rower', 'swissball', 'abwheel'],
+                kidnone: ['bodyweight'],
+                kidball: ['bodyweight', 'jumprope', 'swissball', 'medicineball']
             };
             function _onbEqRefreshChips() {
                 document.querySelectorAll('[id^="_onbEq_"]').forEach(function (b) {
                     const id = b.id.replace('_onbEq_', '');
                     const on = selectedEquipment.indexOf(id) !== -1;
-                    b.style.borderColor = on ? '#22c55e' : 'rgba(255,255,255,0.12)';
-                    b.style.background  = on ? 'rgba(34,197,94,0.14)' : 'rgba(255,255,255,0.03)';
-                    b.style.color       = on ? '#4ade80' : '#94a3b8';
+                    b.style.borderColor = on ? '#60a8f0' : 'rgba(255,255,255,0.12)';
+                    b.style.background  = on ? 'rgba(96,168,240,0.14)' : 'rgba(255,255,255,0.03)';
+                    b.style.color       = on ? '#93c5fd' : '#94a3b8';
                 });
             }
             // 🔗 L'équipement appartient au LIEU d'entraînement : si on se contentait
@@ -49769,6 +49851,8 @@
                 } catch (e) {}
             }
             window._premOnbEquipPreset = function (kind) {
+                draft._preset = kind;
+                document.querySelectorAll('[data-preset]').forEach(b => { b.style.borderColor = b.dataset.preset === kind ? 'rgba(96,168,240,0.7)' : 'rgba(255,255,255,0.1)'; });
                 selectedEquipment = (_ONB_EQ_PRESETS[kind] || ['bodyweight']).slice();
                 try { saveEquipment(); } catch (e) {}
                 _onbPersistEquipToLocation();
@@ -49804,7 +49888,7 @@
             window._premOnbPick = function(field, val, btn) {
                 draft[field] = val;
                 document.querySelectorAll(`[data-pick="${field}"]`).forEach(b => b.style.borderColor = 'rgba(255,255,255,0.1)');
-                if (btn) btn.style.borderColor = 'rgba(34,197,94,0.6)';
+                if (btn) btn.style.borderColor = 'rgba(96,168,240,0.7)';
                 try { haptic.light(); } catch(e) {}
             };
             window._premOnbSaveName = function() {
@@ -49818,7 +49902,11 @@
                 window._premOnbNext();
             };
             window._premOnbFinish = function() {
-                userProfile = { name: draft.name || 'Athlète', goal: draft.goal, level: draft.level, age: draft.age, weight: draft.weight, sex: draft.sex || '', setupComplete: true };
+                _sauverEcran();
+                const _kid = _enfant();
+                userProfile = { name: draft.name || 'Athlète', goal: draft.goal, level: _kid ? 'beginner' : draft.level, age: draft.age, sex: draft.sex || '', setupComplete: true };
+                if (!_kid) userProfile.weight = draft.weight;   // 🧒 pas de poids demandé à un enfant
+                try { if (draft.name && typeof syncProfileNameToRegistry === 'function') syncProfileNameToRegistry(getCurrentProfileId(), draft.name); } catch (e) {}
                 const profileId = getCurrentProfileId();
                 if (profileId) { setProfileData(profileId, 'userProfile', JSON.stringify(userProfile)); }
                 else { localStorage.setItem('userProfile', JSON.stringify(userProfile)); }
@@ -49849,8 +49937,10 @@
                 ov.style.transition = 'opacity 0.4s ease';
                 ov.style.opacity = '0';
                 setTimeout(() => ov.remove(), 420);
-                // 🌅 Proposer le Parcours de l'Éveil au nouvel inscrit
-                setTimeout(() => { if (typeof awakEveilMaybeOffer === 'function') awakEveilMaybeOffer(); }, 900);
+                // 🌅 v1233 : le Parcours de l'Éveil n'est plus enchaîné (il suivait déjà
+                // l'histoire et le tutoriel du jeu) : il sera proposé à la prochaine
+                // ouverture de l'app. Jamais pour un enfant (repas, rythme de vie…).
+                try { if (!_kid) localStorage.setItem(_cleProfil('awakEveilPlusTard'), '1'); } catch (e) {}
             };
 
             render();
@@ -49983,6 +50073,14 @@
                 const _op = getUserProfile();
                 if (_op && !_op.setupComplete && typeof showPremiumOnboarding === 'function') {
                     setTimeout(() => { try { showPremiumOnboarding(); } catch (e) {} }, 700);
+                }
+            } catch (e) {}
+            // 🌅 v1233 : Parcours de l'Éveil proposé à l'ouverture qui SUIT l'inscription
+            try {
+                const _kE = _cleProfil('awakEveilPlusTard');
+                if (localStorage.getItem(_kE) === '1' && getUserProfile().setupComplete) {
+                    localStorage.removeItem(_kE);
+                    setTimeout(() => { if (typeof awakEveilMaybeOffer === 'function') awakEveilMaybeOffer(); }, 2500);
                 }
             } catch (e) {}
 
@@ -50578,7 +50676,7 @@
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1232");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1233");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
