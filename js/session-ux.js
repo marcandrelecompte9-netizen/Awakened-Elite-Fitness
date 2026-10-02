@@ -68,7 +68,9 @@
       + chip('humeur', 8, 'En forme', etat.humeur === 8, BLEU)
       + '</div>';
     if (etat.humeur === 2) {
-      h += '<div style="font-size:0.72em;color:#cbd5e1;line-height:1.45;margin:6px 2px 4px;">Va à ton rythme : les repos seront un peu plus longs.'
+      h += '<div style="font-size:0.72em;color:#cbd5e1;line-height:1.45;margin:6px 2px 4px;">'
+        + (etat.nuit ? 'Ta montre indique une nuit courte (' + AwakSante.hm(etat.nuit) + '). ' : '')
+        + 'Va à ton rythme : les repos seront un peu plus longs.'
         + (typeof window.startWorkout === 'function'
           ? ' <a href="#" onclick="AwakSessUX._douce();return false;" style="color:' + CLAIR + ';font-weight:800;">Faire plutôt une séance douce</a>'
           : '')
@@ -89,6 +91,11 @@
 
   function prep(workout) {
     etat = { humeur: null, cardio: 0 };
+    // ⌚ v1232 : nuit courte mesurée par la montre → « Fatigué » présélectionné
+    try {
+      var nc = window.AwakSante && AwakSante.nuitCourte && AwakSante.nuitCourte();
+      if (nc) { etat.humeur = 2; etat.nuit = nc; }
+    } catch (e) {}
     // Une routine ou une séance qui contient déjà son échauffement : pas de cardio proposé
     rendrePrep();
   }

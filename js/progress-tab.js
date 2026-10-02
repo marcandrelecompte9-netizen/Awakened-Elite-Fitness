@@ -181,6 +181,21 @@
     }).join('');
   }
 
+  // ⌚ v1232 : pas + sommeil de la montre (si connectée)
+  function _ligneMontre() {
+    try {
+      if (!(window.AwakSante && AwakSante.connecte())) return '';
+      var lire = function (k) { try { return JSON.parse(localStorage.getItem(window._cleProfilLecture ? _cleProfilLecture(k) : k) || 'null'); } catch (e) { return null; } };
+      var j = lire('awakSanteJour'), n = lire('awakSanteNuit');
+      var bouts = [];
+      if (j && j.pas != null) bouts.push('<b style="color:#fff;">' + j.pas.toLocaleString('fr-CA') + '</b> pas aujourd\'hui');
+      if (n && n.min) bouts.push('<b style="color:#fff;">' + AwakSante.hm(n.min) + '</b> de sommeil');
+      if (!bouts.length) return '';
+      return '<div style="display:flex;align-items:center;gap:8px;font-size:0.74em;color:#94a3b8;margin:-4px 0 12px;">'
+        + ico('sante', 15, CLAIR) + '<span>' + bouts.join(' · ') + '</span></div>';
+    } catch (e) { return ''; }
+  }
+
   function rendreHaut() {
     var hote = document.getElementById('awakProgHaut');
     if (!hote) return;
@@ -233,6 +248,7 @@
         + tuile(ceMois, 'ce mois-ci', VIOLET)
         + tuile(sa, sa > 1 ? 'semaines d\'affilée' : 'semaine active', OR)
         + '</div>'
+        + _ligneMontre()
         + '<div style="font-size:0.66em;color:#94a3b8;font-weight:800;margin-bottom:8px;">Séances par semaine</div>'
         + graphe8(hist));
       h += carteBloc('Tes derniers records', 'trophee', OR, blocRecords(false));
@@ -274,7 +290,9 @@
     var nb = nbExos(e);
     var infos = [];
     if (e.duration) infos.push(Math.round(e.duration) + ' min');
-    if (nb) infos.push(nb + ' exercice' + (nb > 1 ? 's' : ''));
+    if (e._santeId) { if (e.distance) infos.push((e.distance / 1000).toFixed(2) + ' km'); }
+    else if (nb) infos.push(nb + ' exercice' + (nb > 1 ? 's' : ''));
+    if (e.fcMoy) infos.push(e.fcMoy + ' bpm');
     if (e.calories && !kid) infos.push(e.calories + ' kcal');
     var id = e.id;
     return '<div class="awk-hist" data-hist="' + id + '" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);'

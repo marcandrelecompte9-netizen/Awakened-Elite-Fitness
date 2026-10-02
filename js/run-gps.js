@@ -4,7 +4,8 @@
    Course · Marche · Vélo avec le GPS du téléphone :
    • en direct : temps, distance, allure actuelle et moyenne, signal GPS ;
    • annonce vocale à chaque kilomètre ;
-   • tracé du parcours (SVG, sans fond de carte → marche hors ligne) ;
+   • carte du parcours (OpenStreetMap via Leaflet, chargés à la demande) ;
+     sans réseau, repli automatique sur le tracé SVG (marche hors ligne) ;
    • enregistrement : historique des sorties, records, séance dans
      l'historique général, XP en mode jeu.
 
@@ -32,6 +33,94 @@
 
   var R = null;          // course en cours
   var wake = null;
+
+  // ── 🗺️ CARTE (v1231) ──────────────────────────────────────────────
+  // Leaflet + tuiles OpenStreetMap, chargés SEULEMENT à l'ouverture d'une
+  // course (pas dans le cache de l'app). Tuiles assombries par filtre CSS.
+  // Sans réseau (ou si le chargement échoue en 8 s), on garde le tracé SVG.
+  var LEAFLET_JS = 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js';
+  var LEAFLET_CSS = 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css';
+  var _lfEtat = 0, _lfAttente = [];   // 0 = pas chargé, 1 = en cours, 2 = prêt, -1 = échec
+  function chargerCarte(cb) {
+    if (window.L && window.L.map) { _lfEtat = 2; cb(true); return; }
+    if (_lfEtat === -1 || !navigator.onLine) { cb(false); return; }
+    _lfAttente.push(cb);
+    if (_lfEtat === 1) return;
+    _lfEtat = 1;
+    var fini = function (ok) {
+      if (_lfEtat !== 1) return;
+      _lfEtat = ok ? 2 : -1;
+      var l = _lfAttente; _lfAttente = [];
+      l.forEach(function (f) { try { f(ok); } catch (e) {} });
+    };
+    try {
+      if (!document.getElementById('awkLeafletCss')) {
+        var c = document.createElement('link'); c.id = 'awkLeafletCss'; c.rel = 'stylesheet'; c.href = LEAFLET_CSS;
+        document.head.appendChild(c);
+        var st = document.createElement('style');
+        st.textContent = '.awk-tuile{filter:invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9) saturate(0.6);}'
+          + '.awk-carte{background:#0b0f16 !important;border-radius:14px;}'
+          + '.awk-carte .leaflet-control-attribution{background:rgba(5,7,11,0.7) !important;color:#64748b !important;font-size:9px !important;}'
+          + '.awk-carte .leaflet-control-attribution a{color:#94a3b8 !important;}'
+          + '@keyframes awkPouls{0%{transform:scale(1);opacity:.7}100%{transform:scale(2.6);opacity:0}}'
+          + '.awk-moi-wrap{background:none !important;border:none !important;}'
+          + '.awk-moi{position:relative;width:16px;height:16px;border-radius:50%;background:#22d3ee;border:3px solid #fff;box-shadow:0 0 10px rgba(34,211,238,.8);box-sizing:border-box;}'
+          + '.awk-moi::after{content:"";position:absolute;inset:-3px;border-radius:50%;background:#22d3ee;animation:awkPouls 1.6s ease-out infinite;}';
+        document.head.appendChild(st);
+      }
+      var sc = document.createElement('script'); sc.src = LEAFLET_JS; sc.async = true;
+      sc.onload = function () { fini(!!(window.L && window.L.map)); };
+      sc.onerror = function () { fini(false); };
+      document.head.appendChild(sc);
+      setTimeout(function () { fini(!!(window.L && window.L.map)); }, 8000);
+    } catch (e) { fini(false); }
+  }
+  // Crée une carte dans `hote`. Retourne { map, ligne, moi } ou null.
+  function creerCarte(hote, hauteur) {
+    if (!hote || !window.L) return null;
+    hote.innerHTML = '';
+    var div = document.createElement('div');
+    div.className = 'awk-carte';
+    div.style.cssText = 'height:' + hauteur + 'px;width:100%;';
+    hote.appendChild(div);
+    var map = L.map(div, { zoomControl: false, attributionControl: true });
+    try { map.attributionControl.setPrefix('<a href="https://leafletjs.com" target="_blank" rel="noopener">Leaflet</a>'); } catch (e) {}
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19, className: 'awk-tuile',
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'
+    }).addTo(map);
+    var ligne = L.polyline([], { color: ACCENT, weight: 5, opacity: 0.95, lineCap: 'round', lineJoin: 'round' }).addTo(map);
+    var moi = L.marker([0, 0], { icon: L.divIcon({ className: 'awk-moi-wrap', html: '<div class="awk-moi"></div>', iconSize: [16, 16], iconAnchor: [8, 8] }), interactive: false });
+    return { map: map, ligne: ligne, moi: moi };
+  }
+  // Points [lat, lon, rupture] → segments Leaflet (une rupture = nouveau segment)
+  function segments(points) {
+    var segs = [], cur = [];
+    (points || []).forEach(function (p) {
+      if (!p || !isFinite(p[0])) return;
+      if (p[2] && cur.length) { segs.push(cur); cur = []; }
+      cur.push([p[0], p[1]]);
+    });
+    if (cur.length) segs.push(cur);
+    return segs;
+  }
+  function majCarte() {
+    if (!R || !R._carte) return;
+    var c = R._carte;
+    try {
+      if (R._nbCarte !== R.points.length) { R._nbCarte = R.points.length; c.ligne.setLatLngs(segments(R.points)); }
+      if (R.pos) {
+        var ll = [R.pos.lat, R.pos.lon];
+        c.moi.setLatLng(ll);
+        if (!c.map.hasLayer(c.moi)) c.moi.addTo(c.map);
+        if (!R._centre) { c.map.setView(ll, 17); R._centre = true; }
+        else if (!c.map.getBounds().pad(-0.2).contains(ll)) c.map.panTo(ll, { animate: true });
+      }
+    } catch (e) {}
+  }
+  function retirerCarte() {
+    try { if (R && R._carte) { R._carte.map.remove(); R._carte = null; } } catch (e) {}
+  }
 
   // ── outils ──
   function rad(d) { return d * Math.PI / 180; }
@@ -219,6 +308,7 @@
     if (!R) return;
     var c = pos.coords, now = pos.timestamp || Date.now();
     R.precision = c.accuracy;
+    if (c.accuracy <= 100) R.pos = { lat: c.latitude, lon: c.longitude };   // position affichée sur la carte
     R.dernierFix = Date.now();
     if (R.etat === 'attente' && c.accuracy <= PRECISION_MAX) {
       // Premier point fiable : départ réel du chrono
@@ -292,7 +382,12 @@
     var la = pts.map(function (p) { return p[0]; }), lo = pts.map(function (p) { return p[1]; });
     var minLa = Math.min.apply(null, la), maxLa = Math.max.apply(null, la), minLo = Math.min.apply(null, lo), maxLo = Math.max.apply(null, lo);
     var kx = Math.cos(rad((minLa + maxLa) / 2));
-    var sx = (maxLo - minLo) * kx || 1e-6, sy = (maxLa - minLa) || 1e-6;
+    // v1231 : étendue minimale ≈ 60 m — sinon un tremblement GPS d'un mètre
+    // était agrandi jusqu'aux coins du cadre.
+    var MIN = 0.00055;
+    var sx = (maxLo - minLo) * kx, sy = (maxLa - minLa);
+    if (sx < MIN) { var cx = (minLo + maxLo) / 2; minLo = cx - MIN / kx / 2; maxLo = cx + MIN / kx / 2; sx = MIN; }
+    if (sy < MIN) { var cy = (minLa + maxLa) / 2; minLa = cy - MIN / 2; maxLa = cy + MIN / 2; sy = MIN; }
     var e = Math.min((w - 20) / sx, (h - 20) / sy);
     var ox = (w - sx * e) / 2, oy = (h - sy * e) / 2;
     var segs = [], cur = [];
@@ -340,6 +435,17 @@
       + '</div>';
     document.getElementById('awakRunPause').onclick = basculerPause;
     document.getElementById('awakRunStop').onclick = demanderFin;
+    R._carte = null; R._nbTrace = 0; R._nbCarte = -1; R._centre = false;
+    var tr0 = document.getElementById('awakRunTrace');
+    if (tr0) tr0.innerHTML = '<div style="height:240px;display:flex;align-items:center;justify-content:center;color:#475569;font-size:0.72em;">Chargement de la carte…</div>';
+    chargerCarte(function (ok) {
+      if (!R) return;
+      var hote = document.getElementById('awakRunTrace');
+      R._lfPret = !!(ok && hote);
+      if (R._lfPret && !R.pos && hote) hote.innerHTML = '<div style="height:240px;display:flex;align-items:center;justify-content:center;color:#475569;font-size:0.72em;">Recherche de ta position…</div>';
+      R._nbTrace = 0;
+      maj();
+    });
     maj();
   }
   function bloc(id, t) {
@@ -366,7 +472,13 @@
     var pb = document.getElementById('awakRunPause');
     if (pb) pb.textContent = R.etat === 'pause' ? 'REPRENDRE' : (R.etat === 'attente' ? 'EN ATTENTE DU GPS…' : 'PAUSE');
     var tr = document.getElementById('awakRunTrace');
-    if (tr && (!R._nbTrace || R._nbTrace !== R.points.length)) { R._nbTrace = R.points.length; tr.innerHTML = trace(R.points, 340, 170, ACCENT); }
+    // La carte n'est créée qu'une fois la 1re position connue (sinon fond vide)
+    if (!R._carte && R._lfPret && R.pos && tr) {
+      R._carte = creerCarte(tr, 240);
+      setTimeout(function () { try { R && R._carte && R._carte.map.invalidateSize(); } catch (e) {} }, 200);
+    }
+    if (R._carte) majCarte();
+    else if (tr && _lfEtat !== 1 && !R._lfPret && (!R._nbTrace || R._nbTrace !== R.points.length)) { R._nbTrace = R.points.length; tr.innerHTML = trace(R.points, 340, 240, ACCENT); }
     var sp = document.getElementById('awakRunSplits');
     if (sp) sp.innerHTML = R.splits.length ? R.splits.slice(-6).map(function (x, i, arr) {
       var n = R.splits.length - arr.length + i + 1;
@@ -400,7 +512,7 @@
     try { if (R && R.tick) clearInterval(R.tick); } catch (e) {}
   }
   function fermerEcran() { var el = document.getElementById('awakRunScreen'); if (el) el.remove(); }
-  function annuler() { arreterGPS(); R = null; libererEcran(); fermerEcran(); }
+  function annuler() { arreterGPS(); retirerCarte(); R = null; libererEcran(); fermerEcran(); }
 
   function terminer() {
     if (!R) return;
@@ -424,6 +536,7 @@
       if (!avant.longue || s.distance > avant.longue) nouveaux.push('Plus longue sortie');
     }
     enregistrerSeance(s);
+    retirerCarte();
     R = null;
     fermerEcran();
     detail(0, nouveaux);
@@ -521,7 +634,7 @@
             + '<div style="font-size:0.84em;font-weight:800;color:#fde68a;margin-top:2px;">' + esc(nouveaux.join(' · ')) + '</div></div>' : '')
       + '<div style="display:flex;gap:6px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:13px;padding:12px 6px;">'
       +   st(hms(s.duree), 'TEMPS') + st(allure(moy), 'ALLURE /KM') + st(moy ? (3600 / moy).toFixed(1) : '–', 'KM/H') + '</div>'
-      + '<div style="background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:14px;margin:10px 0;">' + trace(s.points, 340, 200, ACCENT) + '</div>'
+      + '<div id="awakRunDetailCarte" style="background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:14px;margin:10px 0;overflow:hidden;">' + trace(s.points, 340, 200, ACCENT) + '</div>'
       + (splits ? '<div style="font-size:0.6em;letter-spacing:1.6px;color:#94a3b8;font-weight:900;margin:12px 0 8px;">TEMPS PAR KILOMÈTRE</div>' + splits : '')
       + (s.coupures ? '<div style="font-size:0.7em;color:#fbbf24;margin-top:8px;">Signal GPS interrompu ' + s.coupures + ' fois : la distance peut être légèrement sous-estimée.</div>' : '')
       + '<div style="display:flex;gap:8px;margin-top:14px;">'
@@ -529,6 +642,20 @@
       +   '<button onclick="document.getElementById(\'awakRunDetail\').remove();AwakRun.ouvrir()" style="flex:2;min-height:auto;padding:12px;border-radius:12px;cursor:pointer;background:rgba(34,211,238,0.12);border:1px solid rgba(34,211,238,0.4);color:#a5f3fc;font-weight:800;font-size:0.8em;">Mes sorties</button>'
       + '</div></div>';
     document.body.appendChild(ov);
+    // 🗺️ v1231 : la carte remplace le tracé dès qu'elle est disponible
+    if ((s.points || []).length >= 2) chargerCarte(function (ok) {
+      var hote = document.getElementById('awakRunDetailCarte');
+      if (!ok || !hote) return;
+      var c = creerCarte(hote, 220); if (!c) return;
+      var segs = segments(s.points);
+      c.ligne.setLatLngs(segs);
+      try {
+        var tous = [].concat.apply([], segs);
+        L.circleMarker(tous[0], { radius: 6, color: '#0d1117', weight: 2, fillColor: '#4ade80', fillOpacity: 1 }).addTo(c.map);
+        L.circleMarker(tous[tous.length - 1], { radius: 7, color: '#fff', weight: 2, fillColor: ACCENT, fillOpacity: 1 }).addTo(c.map);
+        setTimeout(function () { c.map.invalidateSize(); c.map.fitBounds(c.ligne.getBounds(), { padding: [20, 20], maxZoom: 17 }); }, 150);
+      } catch (e) {}
+    });
   }
 
   function supprimer(i) {

@@ -18,6 +18,8 @@
      @capacitor/geolocation                      → GPS (repli sans arrière-plan)
      @capacitor-community/keep-awake             → écran allumé
      @capacitor-community/text-to-speech         → voix (baisse la musique proprement)
+     @capgo/capacitor-health                     → Health Connect (Galaxy Watch : pouls,
+                                                   pas, sommeil, séances) — js/health-sync.js
    ═══════════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
@@ -263,7 +265,7 @@
   }
 
   window.AwakNative = {
-    estNatif: estNatif, dispo: dispo,
+    estNatif: estNatif, dispo: dispo, plugin: plugin,
     geo: geo, ecran: ecran, voix: voix, vibrer: vibrer,
     retour: retour, partager: partager, sauvegarder: sauvegarder, exporterFichier: exporterFichier
   };
