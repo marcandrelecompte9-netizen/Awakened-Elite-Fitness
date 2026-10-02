@@ -11,11 +11,11 @@
     <title>Awakened Elite Fitness</title>
 
     <!-- PWA -->
-    <link rel="manifest" href="manifest.json?v=1241">
-    <link rel="apple-touch-icon" href="icons/icon-192.png?v=1241">
-    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=1241">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=1241">
-    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=1241">
+    <link rel="manifest" href="manifest.json?v=1246">
+    <link rel="apple-touch-icon" href="icons/icon-192.png?v=1246">
+    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=1246">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=1246">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=1246">
 
     <!-- ⚠️ CAPTURE PRÉCOCE DE L'INVITE D'INSTALLATION.
          Chrome déclenche « beforeinstallprompt » très tôt, souvent AVANT la fin
@@ -44,7 +44,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=1241">
+    <link rel="stylesheet" href="css/style.css?v=1246">
 </head>
 <body>
 
@@ -208,8 +208,8 @@
                  (ratio 1,55), donc plus haute et lisible.
                  <picture> laisse le navigateur choisir, sans JavaScript. -->
             <picture>
-                <source media="(min-width: 700px)" srcset="images/banner_v3.webp?v=1241">
-                <img src="images/banner_v3_mobile.webp?v=1241"
+                <source media="(min-width: 700px)" srcset="images/banner_v3.webp?v=1246">
+                <img src="images/banner_v3_mobile.webp?v=1246"
                      alt="Awakened Elite Fitness"
                      style="width:100%;height:auto;display:block;" />
             </picture>
@@ -925,6 +925,49 @@
                  avant de voir. C'est un motif de RÉGLAGES, pas de consultation —
                  aucun autre onglet n'en utilise. Le mécanisme reste en place :
                  on peut toujours replier si on veut. -->
+            <!-- v1245 : l'Historique (le plus consulté) passe AVANT « Ton corps » -->
+            <!-- ═══ ACCORDÉON : Historique ═══ -->
+            <div class="accordion-section">
+                <div class="accordion-header" onclick="toggleSettingsAccordion(this)">
+                    <div class="accordion-title"><span>Historique</span></div>
+                    <div class="accordion-icon">▼</div>
+                </div>
+                <div class="accordion-body open">
+                    <div class="accordion-content">
+            <!-- 📅 Le calendrier a été déplacé dans son propre onglet (js/calendar-tab.js). -->
+
+            <!-- Workout History List -->
+            <div class="card">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+                    <h2 style="color: #93c5fd; margin: 0;font-size:1.05em;">Tes séances</h2>
+                    <button onclick="exportHistoryPDF()"
+                            style="background:linear-gradient(135deg,#3b82f6,#1d5fa8);color:white;border:none;border-radius:10px;padding:8px 14px;font-size:0.8em;font-weight:700;cursor:pointer;white-space:nowrap;">
+                        📄 Exporter
+                    </button>
+                </div>
+
+                <!-- Search + Filters -->
+                <div style="margin-bottom:14px;">
+                    <input type="text" id="historySearchInput" placeholder="Rechercher une séance ou un muscle"
+                           oninput="filterWorkoutHistory(window._histFilter||'all')"
+                           style="width:100%;padding:12px 14px;border:1px solid rgba(255,255,255,0.12);border-radius:14px;font-size:1em;margin-bottom:10px;"
+                           onfocus="this.style.borderColor='#22d3ee'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'">
+                    <div style="display:flex;gap:6px;">
+                        <button onclick="filterWorkoutHistory('all')" id="filterAll" class="awk-hist-chip actif">Toutes</button>
+                        <button onclick="filterWorkoutHistory('favorites')" id="filterFavorites" class="awk-hist-chip">Favorites</button>
+                        <button onclick="filterWorkoutHistory('week')" id="filterWeek" class="awk-hist-chip">7 jours</button>
+                        <button onclick="filterWorkoutHistory('month')" id="filterMonth" class="awk-hist-chip">Ce mois</button>
+                    </div>
+                </div>
+
+                <div id="workoutHistoryList">
+                    <!-- History items will be rendered here -->
+                </div>
+            </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- 📸 SUIVI CORPOREL — hors accordéon (v1028).
                  ⚠️ Un accordéon oblige à ouvrir avant de voir : motif de RÉGLAGES,
                  pas de consultation. Aucun autre onglet n'en utilise. -->
@@ -1040,48 +1083,7 @@
 
             <!-- Calendar -->
 
-            <!-- ═══ ACCORDÉON : Historique ═══ -->
-            <div class="accordion-section">
-                <div class="accordion-header" onclick="toggleSettingsAccordion(this)">
-                    <div class="accordion-title"><span>Historique</span></div>
-                    <div class="accordion-icon">▼</div>
-                </div>
-                <div class="accordion-body open">
-                    <div class="accordion-content">
-            <!-- 📅 Le calendrier a été déplacé dans son propre onglet (js/calendar-tab.js). -->
-
-            <!-- Workout History List -->
-            <div class="card">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-                    <h2 style="color: #93c5fd; margin: 0;font-size:1.05em;">Tes séances</h2>
-                    <button onclick="exportHistoryPDF()"
-                            style="background:linear-gradient(135deg,#3b82f6,#1d5fa8);color:white;border:none;border-radius:10px;padding:8px 14px;font-size:0.8em;font-weight:700;cursor:pointer;white-space:nowrap;">
-                        📄 Exporter
-                    </button>
-                </div>
-
-                <!-- Search + Filters -->
-                <div style="margin-bottom:14px;">
-                    <input type="text" id="historySearchInput" placeholder="Rechercher une séance ou un muscle"
-                           oninput="filterWorkoutHistory(window._histFilter||'all')"
-                           style="width:100%;padding:12px 14px;border:1px solid rgba(255,255,255,0.12);border-radius:14px;font-size:1em;margin-bottom:10px;"
-                           onfocus="this.style.borderColor='#22d3ee'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'">
-                    <div style="display:flex;gap:6px;">
-                        <button onclick="filterWorkoutHistory('all')" id="filterAll" class="awk-hist-chip actif">Toutes</button>
-                        <button onclick="filterWorkoutHistory('favorites')" id="filterFavorites" class="awk-hist-chip">Favorites</button>
-                        <button onclick="filterWorkoutHistory('week')" id="filterWeek" class="awk-hist-chip">7 jours</button>
-                        <button onclick="filterWorkoutHistory('month')" id="filterMonth" class="awk-hist-chip">Ce mois</button>
-                    </div>
-                </div>
-
-                <div id="workoutHistoryList">
-                    <!-- History items will be rendered here -->
-                </div>
-            </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+</div>
 
         <!-- ══════════════════════ ONGLET CALENDRIER ══════════════════════ -->
         <div id="calendarTab" class="tab-content">
@@ -2748,16 +2750,11 @@
 
                         <!-- Gestion des données -->
                         <div class="settings-sub">
-                            <div class="settings-sub-title" style="color:#ef4444;">Gestion des données</div>
-                            <p class="settings-sub-desc">Toutes tes données sont sauvegardées automatiquement dans ton navigateur.</p>
+                            <div class="settings-sub-title">Sauvegarde</div>
+                            <p class="settings-sub-desc">Tes données sont enregistrées dans ce téléphone seulement. Envoie-toi une copie de temps en temps.</p>
+                            <div id="awakSauvegardeCarte"></div>
+                            <div class="settings-sub-title" style="color:#ef4444;margin-top:18px;">Supprimer</div>
                             <div style="display: grid; gap: 10px;">
-                                <button class="btn" onclick="exportAllData()" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); display: flex; align-items: center; justify-content: center; gap: 10px;">
-                                    <span>💾 Exporter toutes mes données</span>
-                                </button>
-                                <label class="btn btn-secondary" style="cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin: 0;">
-                                    <span>📥 Importer des données</span>
-                                    <input type="file" id="importDataFile" accept=".json" style="display: none;" onchange="importAllData(event)">
-                                </label>
                                 <button class="btn" onclick="deleteCurrentProfile()" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); display: flex; align-items: center; justify-content: center; gap: 10px;">
                                     <span>🗑️ Supprimer ce profil</span>
                                 </button>
@@ -2767,8 +2764,6 @@
                             </div>
                             <div style="margin-top: 14px; padding: 14px; background: #fef3c7; border-radius: 10px; border-left: 4px solid #f59e0b; font-size: 0.9em; color: #92400e;">
                                 <strong>⚠️ Attention :</strong><br>
-                                • <strong>Exporter</strong> : télécharge un fichier JSON avec toutes tes données<br>
-                                • <strong>Importer</strong> : restaure des données depuis un fichier JSON<br>
                                 • <strong>Supprimer profil</strong> : supprime UNIQUEMENT le profil actuel<br>
                                 • <strong>Réinitialiser</strong> : supprime TOUTES les données de TOUS les profils (irréversible !)
                             </div>
@@ -2796,7 +2791,7 @@
                                     <div style="font-weight:800;color:#e2e8f0;font-size:1em;">Awakened</div>
                                     <div onclick="awakVersionTap()" style="font-size:0.78em;color:#93c5fd;font-weight:700;margin-top:2px;cursor:pointer;user-select:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent;">v0.90 · awakened</div>
                                 </div>
-                                <button onclick="if(confirm('Forcer la mise à jour de l\\'app ?\\n\\nCela nettoiera complètement le cache et rechargera la dernière version.')) forceAppUpdate();" style="flex-shrink:0;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:#93c5fd;border-radius:10px;padding:8px 12px;font-size:0.72em;font-weight:800;cursor:pointer;">🔄 Mettre à jour</button>
+                                <button onclick="showConfirm('Le cache sera nettoyé et la dernière version de l\'app sera rechargée. Tes données ne sont pas touchées.', function(){ forceAppUpdate(); }, null, { title: 'Forcer la mise à jour ?', confirmLabel: 'Mettre à jour', cancelLabel: 'Annuler' })" style="flex-shrink:0;background:rgba(96,168,240,0.1);border:1px solid rgba(96,168,240,0.35);color:#93c5fd;border-radius:10px;padding:8px 12px;font-size:0.72em;font-weight:800;cursor:pointer;">🔄 Mettre à jour</button>
                             </div>
                         </div>
 
@@ -3860,35 +3855,35 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/native.js?v=1241"></script>
-    <script src="js/exercises.js?v=1241"></script>
-    <script src="js/exercise-names.js?v=1241"></script>
-    <script src="data/items.js?v=1241"></script>
-    <script src="js/item-icons.js?v=1241"></script>
-    <script src="js/adventure.js?v=1241"></script>
-    <script src="js/economy.js?v=1241"></script>
-    <script src="js/challenges.js?v=1241"></script>
-    <script src="js/family-boss.js?v=1241"></script>
-    <script src="js/family-network.js?v=1241"></script>
-    <script src="js/family-challenge.js?v=1241"></script>
-    <script src="js/family-goal.js?v=1241"></script>
-    <script src="js/family-feed.js?v=1241"></script>
-    <script src="js/pre-workout-mood.js?v=1241"></script>
-    <script src="js/group-workout.js?v=1241"></script>
-    <script src="js/youth-safety.js?v=1241"></script>
-    <script src="js/kids-programs.js?v=1241"></script>
-    <script src="js/senior-programs.js?v=1241"></script>
-    <script src="js/adaptive.js?v=1241"></script>
-    <script src="js/pain-mode.js?v=1241"></script>
-    <script src="js/recovery-mode.js?v=1241"></script>
-    <script src="js/exercise-visuals.js?v=1241"></script>
-    <script src="js/strength-standards.js?v=1241"></script>
-    <script src="js/system-cards.js?v=1241"></script>
-    <script src="js/share-card.js?v=1241"></script>
-    <script src="js/story-events.js?v=1241"></script>
-    <script src="js/final-boss.js?v=1241"></script>
-    <script src="js/disciplines.js?v=1241"></script>
-    <script src="js/eveil.js?v=1241"></script>
+    <script src="js/native.js?v=1246"></script>
+    <script src="js/exercises.js?v=1246"></script>
+    <script src="js/exercise-names.js?v=1246"></script>
+    <script src="data/items.js?v=1246"></script>
+    <script src="js/item-icons.js?v=1246"></script>
+    <script src="js/adventure.js?v=1246"></script>
+    <script src="js/economy.js?v=1246"></script>
+    <script src="js/challenges.js?v=1246"></script>
+    <script src="js/family-boss.js?v=1246"></script>
+    <script src="js/family-network.js?v=1246"></script>
+    <script src="js/family-challenge.js?v=1246"></script>
+    <script src="js/family-goal.js?v=1246"></script>
+    <script src="js/family-feed.js?v=1246"></script>
+    <script src="js/pre-workout-mood.js?v=1246"></script>
+    <script src="js/group-workout.js?v=1246"></script>
+    <script src="js/youth-safety.js?v=1246"></script>
+    <script src="js/kids-programs.js?v=1246"></script>
+    <script src="js/senior-programs.js?v=1246"></script>
+    <script src="js/adaptive.js?v=1246"></script>
+    <script src="js/pain-mode.js?v=1246"></script>
+    <script src="js/recovery-mode.js?v=1246"></script>
+    <script src="js/exercise-visuals.js?v=1246"></script>
+    <script src="js/strength-standards.js?v=1246"></script>
+    <script src="js/system-cards.js?v=1246"></script>
+    <script src="js/share-card.js?v=1246"></script>
+    <script src="js/story-events.js?v=1246"></script>
+    <script src="js/final-boss.js?v=1246"></script>
+    <script src="js/disciplines.js?v=1246"></script>
+    <script src="js/eveil.js?v=1246"></script>
     <script>
     /* 🔄 DÉVERROUILLAGE DE L'ORIENTATION
        Sur Android, l'orientation d'une PWA installée est figée à l'installation
@@ -3910,33 +3905,34 @@
       });
     })();
     </script>
-    <script src="js/app.js?v=1241"></script>
-    <script src="js/calendar-tab.js?v=1241"></script>
-    <script src="js/routine-blocks.js?v=1241"></script>
-    <script src="js/routine-builder.js?v=1241"></script>
-    <script src="js/routine-print.js?v=1241"></script>
-    <script src="js/icons.js?v=1241"></script>
-    <script src="js/no-emoji.js?v=1241"></script>
-    <script src="js/strength-balance.js?v=1241"></script>
-    <script src="js/limitations.js?v=1241"></script>
-    <script src="js/custom-exercises.js?v=1241"></script>
-    <script src="js/awakening-tree.js?v=1241"></script>
-    <script src="js/ui-kit.js?v=1241"></script>
-    <script src="js/feature-map.js?v=1241"></script>
-    <script src="js/weekly-recap.js?v=1241"></script>
-    <script src="js/workout-games.js?v=1241"></script>
-    <script src="js/kids-games.js?v=1241"></script>
-    <script src="js/home-pro.js?v=1241"></script>
-    <script src="js/back-button.js?v=1241"></script>
-    <script src="js/gestures.js?v=1241"></script>
-    <script src="js/rift-visuals.js?v=1241"></script>
-    <script src="js/family-sky.js?v=1241"></script>
-    <script src="js/session-ux.js?v=1241"></script>
-    <script src="js/progress-tab.js?v=1241"></script>
-    <script src="js/health-sync.js?v=1241"></script>
-    <script src="js/regle.js?v=1241"></script>
-    <script src="js/run-gps.js?v=1241"></script>
-    <script src="js/run-coach.js?v=1241"></script>
+    <script src="js/app.js?v=1246"></script>
+    <script src="js/calendar-tab.js?v=1246"></script>
+    <script src="js/routine-blocks.js?v=1246"></script>
+    <script src="js/routine-builder.js?v=1246"></script>
+    <script src="js/routine-print.js?v=1246"></script>
+    <script src="js/icons.js?v=1246"></script>
+    <script src="js/no-emoji.js?v=1246"></script>
+    <script src="js/strength-balance.js?v=1246"></script>
+    <script src="js/limitations.js?v=1246"></script>
+    <script src="js/custom-exercises.js?v=1246"></script>
+    <script src="js/awakening-tree.js?v=1246"></script>
+    <script src="js/ui-kit.js?v=1246"></script>
+    <script src="js/feature-map.js?v=1246"></script>
+    <script src="js/weekly-recap.js?v=1246"></script>
+    <script src="js/workout-games.js?v=1246"></script>
+    <script src="js/kids-games.js?v=1246"></script>
+    <script src="js/home-pro.js?v=1246"></script>
+    <script src="js/back-button.js?v=1246"></script>
+    <script src="js/gestures.js?v=1246"></script>
+    <script src="js/rift-visuals.js?v=1246"></script>
+    <script src="js/family-sky.js?v=1246"></script>
+    <script src="js/session-ux.js?v=1246"></script>
+    <script src="js/progress-tab.js?v=1246"></script>
+    <script src="js/health-sync.js?v=1246"></script>
+    <script src="js/regle.js?v=1246"></script>
+    <script src="js/run-gps.js?v=1246"></script>
+    <script src="js/run-coach.js?v=1246"></script>
+    <script src="js/backup.js?v=1246"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>

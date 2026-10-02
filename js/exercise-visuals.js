@@ -58,10 +58,6 @@ function lbl(t, s, c) {
     +'<text x="140" y="262" font-family="system-ui,sans-serif" font-size="9" fill="'+(c||P.hi)+'" text-anchor="middle" opacity="0.8">'+s+'</text>';
 }
 
-function muscle_badge(x, y, col, label) {
-  return '<rect x="'+(x-30)+'" y="'+(y-10)+'" width="60" height="20" rx="10" fill="'+col+'" opacity="0.18"/>'
-    +'<text x="'+x+'" y="'+(y+5)+'" font-family="system-ui,sans-serif" font-size="8" font-weight="700" fill="'+col+'" text-anchor="middle">'+label+'</text>';
-}
 
 function arrow_up(x, y) {
   return '<line x1="'+x+'" y1="'+(y+20)+'" x2="'+x+'" y2="'+(y+4)+'" stroke="'+P.hi+'" stroke-width="2" stroke-dasharray="4,2" opacity="0.55"/>'
@@ -1443,45 +1439,7 @@ function hasExerciseImage(name) {
 // + placeholder pendant le chargement
 var LAZY_OBSERVER = null;
 
-function _initLazyObserver() {
-  if (LAZY_OBSERVER || typeof IntersectionObserver === 'undefined') return;
-  LAZY_OBSERVER = new IntersectionObserver(function(entries) {
-    entries.forEach(function(entry) {
-      if (!entry.isIntersecting) return;
-      var img = entry.target;
-      var realSrc = img.dataset.lazySrc;
-      if (!realSrc) return;
-      // Charger la vraie image
-      var loader = new Image();
-      loader.onload = function() {
-        img.src = realSrc;
-        img.style.opacity = '1';
-        img.removeAttribute('data-lazy-src');
-      };
-      loader.onerror = function() {
-        img.style.opacity = '0.4';
-        img.removeAttribute('data-lazy-src');
-      };
-      loader.src = realSrc;
-      LAZY_OBSERVER.unobserve(img);
-    });
-  }, {
-    rootMargin: '200px', // Précharger 200px avant que l'image entre dans la vue
-    threshold: 0.01,
-  });
-}
 
-// Placeholder SVG très léger (skeleton animé)
-function _getPlaceholderSVG() {
-  return 'data:image/svg+xml;charset=UTF-8,'
-    + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">'
-    + '<rect width="100" height="100" fill="#0d1220"/>'
-    + '<rect x="20" y="35" width="60" height="2" fill="#1a2535"/>'
-    + '<rect x="20" y="42" width="60" height="2" fill="#1a2535"/>'
-    + '<rect x="20" y="49" width="60" height="2" fill="#1a2535"/>'
-    + '<text x="50" y="68" font-family="sans-serif" font-size="9" fill="#22c55e" text-anchor="middle" opacity="0.5">◈</text>'
-    + '</svg>');
-}
 
 // Crée un <img> en lazy loading
 function _buildLazyImg(src, name, extraStyle) {

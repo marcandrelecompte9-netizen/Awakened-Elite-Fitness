@@ -33,11 +33,6 @@
   }
   function isTimed(ex) { return ex && (ex.mode === 'timer' || ex.mode === 'duration'); }
 
-  // 45 → '0:45'  ·  300 → '5:00'
-  function fmtDur(sec) {
-    var s = Math.max(0, parseInt(sec, 10) || 0);
-    return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2);
-  }
   // Libellé court pour les listes : '5 min' / '45 s'
   function shortDur(sec) {
     var s = Math.max(0, parseInt(sec, 10) || 0);

@@ -1025,7 +1025,27 @@
                 const _listeDefis = challengesDatabase.filter(awakDefiVisible)
                     .map(c => Object.assign({}, c, { color: awakDefiCouleur(c.difficulty) }))
                     .sort((a, b) => (_estActif(b.id) ? 1 : 0) - (_estActif(a.id) ? 1 : 0));
-                challengesList.innerHTML = _cptBanner + _recoBanner + _listeDefis.map(challenge => `
+                // v1245 : seuls les défis EN COURS gardent la grande carte (progression,
+                // valider, abandonner). Les autres : liste compacte par niveau → fiche.
+                const _actifsL = _listeDefis.filter(c => _estActif(c.id));
+                const _autresL = _listeDefis.filter(c => !_estActif(c.id));
+                const _niveaux = ['Débutant', 'Intermédiaire', 'Avancé'];
+                const _ligneDefi = c => '<button onclick="awakDefiFiche(\'' + c.id + '\')" style="display:flex;align-items:center;gap:12px;width:100%;text-align:left;min-height:auto;padding:10px 12px;margin-bottom:7px;border-radius:13px;cursor:pointer;font-family:inherit;background:rgba(255,255,255,0.03);border:1px solid ' + c.color + '33;color:#e2e8f0;">'
+                    + '<span style="flex-shrink:0;width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:' + c.color + '1c;border:1px solid ' + c.color + '44;">' + (window.AwakIcon ? AwakIcon.get(c.ico || 'cible', 20, c.color) : '') + '</span>'
+                    + '<span style="flex:1;min-width:0;"><span style="display:block;font-size:0.9em;font-weight:900;color:#fff;">' + c.name + '</span>'
+                    + '<span style="display:block;font-size:0.7em;color:#94a3b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + c.description + '</span></span>'
+                    + (_termines[c.id] ? '<span title="Déjà réussi" style="flex-shrink:0;display:flex;align-items:center;gap:2px;font-size:0.66em;font-weight:900;color:#fbbf24;">' + (window.AwakIcon ? AwakIcon.get('trophee', 13, '#fbbf24') : '') + '×' + _termines[c.id] + '</span>' : '')
+                    + '<span style="flex-shrink:0;font-size:0.68em;font-weight:800;color:' + c.color + ';">' + c.duration + ' j</span>'
+                    + '<span style="flex-shrink:0;color:#475569;">›</span></button>';
+                const _listeCompacte = (_actifsL.length ? '<div style="font-size:0.66em;color:#94a3b8;font-weight:800;letter-spacing:1px;margin:18px 0 8px;">AUTRES DÉFIS</div>' : '')
+                    + _niveaux.concat(_autresL.map(c => c.difficulty).filter(d => _niveaux.indexOf(d) < 0))
+                        .filter((d, i, a) => a.indexOf(d) === i)
+                        .map(n => {
+                            const l = _autresL.filter(c => c.difficulty === n);
+                            if (!l.length) return '';
+                            return '<div style="font-size:0.62em;color:' + awakDefiCouleur(n) + ';font-weight:900;letter-spacing:1.4px;margin:12px 0 7px;">' + n.toUpperCase() + '</div>' + l.map(_ligneDefi).join('');
+                        }).join('');
+                challengesList.innerHTML = _cptBanner + _recoBanner + _actifsL.map(challenge => `
                     <div style="background: linear-gradient(160deg, #0a0e18 0%, #0F1014 100%); padding: 20px; border-radius: 14px; margin-bottom: 16px; border: 1.5px solid ${challenge.color}40; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 18px rgba(0,0,0,0.25), 0 0 0 1px ${challenge.color}10 inset;" onclick="showChallengeDetails('${challenge.id}')">
                         <div style="display: flex; gap: 16px; align-items: flex-start;">
                             <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:6px;">
@@ -1145,9 +1165,37 @@
                             </div>
                         </div>
                     </div>
-                `).join('');
+                `).join('') + _listeCompacte;
             }
         }
+
+        // v1245 : fiche d'un défi (depuis la liste compacte) — on ne lance pas
+        // un défi d'un simple toucher sur la ligne.
+        function awakDefiFiche(challengeId) {
+            const c = challengesDatabase.find(x => x.id === challengeId);
+            if (!c) return;
+            const col = awakDefiCouleur(c.difficulty), fait = awakDefisTermines()[c.id];
+            document.getElementById('awakDefiFicheModal')?.remove();
+            const ov = document.createElement('div');
+            ov.id = 'awakDefiFicheModal';
+            ov.style.cssText = 'position:fixed;inset:0;z-index:11000;background:rgba(0,0,0,0.75);display:flex;align-items:flex-end;justify-content:center;';
+            ov.onclick = (e) => { if (e.target === ov) ov.remove(); };
+            ov.innerHTML = '<div style="width:100%;max-width:480px;box-sizing:border-box;background:#0d1117;border:1px solid ' + col + '44;border-radius:20px 20px 0 0;padding:12px 18px calc(18px + env(safe-area-inset-bottom));">'
+                + '<div style="width:40px;height:4px;background:rgba(255,255,255,0.15);border-radius:99px;margin:0 auto 14px;"></div>'
+                + '<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">'
+                +   '<span style="flex-shrink:0;width:52px;height:52px;border-radius:15px;display:flex;align-items:center;justify-content:center;background:' + col + '1c;border:1px solid ' + col + '55;">' + (window.AwakIcon ? AwakIcon.get(c.ico || 'cible', 26, col) : '') + '</span>'
+                +   '<div style="flex:1;min-width:0;"><div style="font-size:1.1em;font-weight:900;color:#fff;">' + c.name + '</div>'
+                +   '<div style="font-size:0.72em;font-weight:800;color:' + col + ';">' + c.difficulty + ' · ' + c.duration + ' jours' + (fait ? ' · réussi ' + fait + ' fois' : '') + '</div></div></div>'
+                + '<div style="font-size:0.84em;color:#cbd5e1;line-height:1.5;margin-bottom:10px;">' + c.description + '</div>'
+                + '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;">' + (c.benefits || []).map(b => '<span style="background:rgba(255,255,255,0.04);padding:4px 10px;border-radius:99px;font-size:0.72em;color:#cbd5e1;border:1px solid rgba(255,255,255,0.08);font-weight:600;">' + b + '</span>').join('') + '</div>'
+                + (c.tips ? '<div style="padding:10px 12px;border-radius:11px;background:rgba(255,255,255,0.03);border-left:3px solid ' + col + ';font-size:0.76em;color:#cbd5e1;line-height:1.5;margin-bottom:14px;"><b style="color:' + col + ';">Conseil</b> · ' + c.tips + '</div>' : '')
+                + '<button id="awakDefiGo" style="width:100%;min-height:auto;padding:14px;border:none;border-radius:13px;cursor:pointer;font-weight:900;font-size:0.92em;background:linear-gradient(135deg,' + col + ',' + col + 'cc);color:#fff;">' + (fait ? 'Recommencer ce défi' : 'Commencer ce défi') + '</button>'
+                + '<button onclick="document.getElementById(\'awakDefiFicheModal\').remove()" style="width:100%;margin-top:8px;min-height:auto;padding:11px;border-radius:12px;cursor:pointer;font-weight:800;font-size:0.82em;background:transparent;border:1px solid rgba(255,255,255,0.12);color:#94a3b8;">Fermer</button>'
+                + '</div>';
+            document.body.appendChild(ov);
+            document.getElementById('awakDefiGo').onclick = () => { ov.remove(); startChallenge(c.id); };
+        }
+        window.awakDefiFiche = awakDefiFiche;
 
         function showChallengeDetails(challengeId) {
             // ⚠️ Cette fonction était VIDE (« For now, just start the
@@ -1760,10 +1808,6 @@
             }
         }
 
-        function startCardioChronometer() {
-            // Legacy function - redirects to new system
-            startCardioTimer();
-        }
 
         
         // ========== CARDIO STATISTICS & HISTORY ==========
@@ -2030,9 +2074,6 @@
             }).join('');
         }
         
-        function filterCardioSessions() {
-            renderCardioSessionsList();
-        }
         
         // ── Système UNDO ───────────────────────────────────────────
         const _undoStack = [];
@@ -2208,12 +2249,6 @@
             });
         }
         
-        function startHIIT() {
-            showConfirm('30s effort / 30s repos × 10 rounds — Durée : 10 min', function() {
-                cardioMode = 'hiit';
-                startIntervalTraining(30, 30, 10, 'HIIT');
-            }, null, { title: 'Démarrer HIIT 🔥', icon: '🔥', svg: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"> <rect x="8" y="8" width="10" height="84" rx="4" fill="#16a34a"/> <circle cx="13" cy="14" r="7" fill="#4ade80" stroke="#16a34a" stroke-width="2"/> <path d="M 18 14 Q 50 14 50 40" stroke="white" stroke-width="3" stroke-dasharray="4 3" fill="none"/> <rect x="35" y="55" width="55" height="12" rx="5" fill="#166534"/> <rect x="40" y="58" width="45" height="6" rx="3" fill="#4ade80" opacity="0.5"/> <rect x="40" y="30" width="14" height="26" rx="5" fill="#166534"/> <rect x="58" y="30" width="14" height="26" rx="5" fill="#166534"/> <rect x="76" y="30" width="14" height="26" rx="5" fill="#166534"/> <rect x="38" y="35" width="10" height="16" rx="3" fill="#4ade80" opacity="0.4"/> <rect x="56" y="35" width="10" height="16" rx="3" fill="#4ade80" opacity="0.4"/> <rect x="74" y="35" width="10" height="16" rx="3" fill="#4ade80" opacity="0.4"/> </svg>', confirmLabel: 'Démarrer' });
-        }
 
         function startTabata() {
             showConfirm('20s effort / 10s repos × 8 rounds — Durée : 4 min', function() {
@@ -3381,120 +3416,7 @@
 
         // ========== SUPERSETS, CIRCUITS & AMRAP ==========
 
-        function suggestIntelligentSuperset() {
-            const equipment = getSelectedEquipmentNames();
-            const blacklist = getExerciseBlacklist();
-            const allPerformances = JSON.parse(localStorage.getItem(_cleProfilLecture('exercisePerformance')) || '{}');
-            
-            // Find exercises where user performs well (success rate >60%)
-            const goodExercises = Object.entries(allPerformances)
-                .filter(([name, perf]) => {
-                    const successRate = perf.history ? 
-                        perf.history.filter(h => h.difficulty <= 3).length / perf.history.length : 0.5;
-                    return successRate > 0.6;
-                })
-                .map(([name]) => exerciseDatabase.find(ex => ex.name === name))
-                .filter(ex => ex && 
-                    !blacklist.includes(ex.name) &&
-                    (ex.equipment || []).every(eq => equipment.includes(eq) || eq === 'Poids du corps' || eq === 'Aucun')
-                );
-            
-            if (goodExercises.length < 2) {
-                showToast('💡 Faites plus d\'exercices pour obtenir des suggestions', 'info', 3000);
-                return null;
-            }
-            
-            // Try antagonist superset (push/pull)
-            const pushExercises = goodExercises.filter(ex => 
-                ['Pectoraux', 'Épaules', 'Triceps'].includes(ex.muscle)
-            );
-            const pullExercises = goodExercises.filter(ex => 
-                ['Dos', 'Biceps'].includes(ex.muscle)
-            );
-            
-            if (pushExercises.length > 0 && pullExercises.length > 0) {
-                const suggestion = {
-                    type: 'antagonist',
-                    name: '💪 Superset Push/Pull Recommandé',
-                    exercises: [
-                        { exercise: pushExercises[0], reps: 10 },
-                        { exercise: pullExercises[0], reps: 10 }
-                    ],
-                    sets: 3,
-                    restAfter: 90,
-                    reason: 'Superset antagoniste basé sur vos performances'
-                };
-                return suggestion;
-            }
-            
-            // Try agonist superset (same muscle group)
-            const legExercises = goodExercises.filter(ex => 
-                ['Quadriceps', 'Ischio-jambiers', 'Fessiers'].includes(ex.muscle)
-            );
-            
-            if (legExercises.length >= 2) {
-                const suggestion = {
-                    type: 'agonist',
-                    name: '🦵 Superset Jambes Recommandé',
-                    exercises: [
-                        { exercise: legExercises[0], reps: 12 },
-                        { exercise: legExercises[1], reps: 12 }
-                    ],
-                    sets: 3,
-                    restAfter: 120,
-                    reason: 'Superset jambes basé sur vos performances'
-                };
-                return suggestion;
-            }
-            
-            // Default: any 2 good exercises
-            if (goodExercises.length >= 2) {
-                const suggestion = {
-                    type: 'mixed',
-                    name: '⚡ Superset Personnalisé',
-                    exercises: [
-                        { exercise: goodExercises[0], reps: 10 },
-                        { exercise: goodExercises[1], reps: 10 }
-                    ],
-                    sets: 3,
-                    restAfter: 90,
-                    reason: 'Basé sur vos meilleurs exercices'
-                };
-                return suggestion;
-            }
-            
-            return null;
-        }
         
-        function showSupersetSuggestion() {
-            const suggestion = suggestIntelligentSuperset();
-            if (!suggestion) return;
-
-            showConfirm(
-                `${suggestion.name} — ${suggestion.exercises[0].exercise.name} + ${suggestion.exercises[1].exercise.name} · ${suggestion.sets} séries · ${suggestion.restAfter}s repos`,
-                function() {
-                    currentSupersetWorkout = {
-                        type: 'superset',
-                        name: suggestion.name,
-                        sets: suggestion.sets,
-                        restAfter: suggestion.restAfter,
-                        exercises: suggestion.exercises.map(item => ({
-                            ...item.exercise,
-                            reps: item.reps
-                        })),
-                        currentSet: 1,
-                        currentExerciseIndex: 0
-                    };
-                
-                switchTab('workouts');
-                document.getElementById('workoutSelection').style.display = 'none';
-                document.getElementById('exerciseView').classList.remove('hidden'); document.body.classList.add('in-session');
-                
-                speak('Démarrage superset suggéré');
-                showToast(`🔗 ${suggestion.name} démarré !`, 'success', 3000);
-                startSupersetExercise();
-            }, null, { title: 'Démarrer ce superset ?', icon: '🔗', confirmLabel: 'Démarrer' });
-        }
 
         const predefinedSupersets = {
             'push-pull': {
@@ -3536,41 +3458,6 @@
             }
         };
 
-        function startPredefinedSuperset(supersetId) {
-            const preset = predefinedSupersets[supersetId];
-            if (!preset) return;
-
-            showConfirm(`Démarrer le superset "${preset.name}" ? ${preset.sets} séries • ${preset.rest}s repos`, function() {
-                const exercises = preset.exercises.map(item => {
-                    const ex = exerciseDatabase.find(e => e.name === item.name);
-                    return ex ? { ...ex, reps: item.reps, sets: preset.sets } : null;
-                }).filter(ex => ex);
-
-                if (exercises.length !== preset.exercises.length) {
-                    showToast('⚠️ Certains exercices ne sont pas disponibles', 'error');
-                    return;
-                }
-
-                const workoutExercises = [];
-                for (let set = 1; set <= preset.sets; set++) {
-                    exercises.forEach((ex, idx) => {
-                        workoutExercises.push({ ...ex, duration: 60 });
-                        if (idx < exercises.length - 1 || set < preset.sets) {
-                            workoutExercises.push({ name: "Repos", duration: preset.rest, isRest: true, mode: 'timer' });
-                        }
-                    });
-                }
-
-                const workout = {
-                    type: 'superset',
-                    name: preset.name,
-                    exercises: workoutExercises,
-                    badgeHTML: `🔗 Superset : ${preset.name}`,
-                    badgeStyle: 'linear-gradient(135deg, #3b82f6 0%, #166534 100%)'
-                };
-                showWorkoutPreparation(workout);
-            }, null, { title: 'Démarrer le superset ?', icon: '🔗', confirmLabel: 'Démarrer' });
-        }
 
         let supersetExercisesList = [];
         let circuitExercisesList = [];
@@ -4433,85 +4320,7 @@
             }
         }
 
-        // Show plan details
-        function showPlanDetails(planId) {
-            const plan = predefinedPlans[planId];
-            if (!plan) return;
 
-            // 🧒 PROGRAMMES ADULTES : « Prise de masse 12 semaines »,
-            // « Hypertrophie », « Force pure »… sont des cadres pensés pour un
-            // corps adulte. isDiscouraged() filtrait les EXERCICES par matériel,
-            // mais rien ne filtrait les PROGRAMMES : un enfant pouvait en lancer
-            // un sans le moindre avertissement.
-            // On ne bloque pas — on prévient, et on laisse choisir.
-            try {
-                if (window.AwakYouth && typeof AwakYouth.isProgramDiscouraged === 'function'
-                    && AwakYouth.isProgramDiscouraged(plan)) {
-                    if (typeof showConfirm === 'function') {
-                        showConfirm(
-                            'Ce programme est conçu pour des adultes : charges lourdes et '
-                          + 'volume élevé. Avant 13 ans, le corps grandit encore — mieux vaut '
-                          + 'privilégier le jeu, la coordination et le poids du corps.',
-                            function () { _showPlanDetailsReal(planId); },
-                            null,
-                            { title: 'Programme pour adultes', icon: '🌱',
-                              confirmLabel: 'Voir quand même', cancelLabel: 'Choisir un autre' }
-                        );
-                        return;
-                    }
-                }
-            } catch (e) {}
-            _showPlanDetailsReal(planId);
-        }
-
-        function _showPlanDetailsReal(planId) {
-            const plan = predefinedPlans[planId];
-            if (!plan) return;
-            
-            const totalSessions = plan.weeks.reduce((sum, w) => sum + w.sessions.length, 0);
-            
-            document.getElementById('planModalTitle').innerHTML = `${plan.emoji} ${plan.name}`;
-            document.getElementById('planModalContent').innerHTML = `
-                <div style="background: linear-gradient(135deg, ${plan.color}18 0%, ${plan.color}06 100%); padding: 16px; border-radius: 14px; border-left: 3px solid ${plan.color}; margin-bottom: 18px;">
-                    <p style="font-size: 0.95em; color: #e2e8f0; margin: 0; line-height: 1.5;">${plan.description}</p>
-                </div>
-                
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 22px;">
-                    <div style="text-align: center; padding: 13px 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;">
-                        <div style="font-size: 1.7em; font-weight: 900; color: ${plan.color};">${plan.duration}</div>
-                        <div style="color: #94a3b8; font-size: 0.68em; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-top: 4px;">semaines</div>
-                    </div>
-                    <div style="text-align: center; padding: 13px 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;">
-                        <div style="font-size: 1.7em; font-weight: 900; color: ${plan.color};">${totalSessions}</div>
-                        <div style="color: #94a3b8; font-size: 0.68em; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-top: 4px;">séances</div>
-                    </div>
-                    <div style="text-align: center; padding: 13px 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;">
-                        <div style="font-size: 1.7em; font-weight: 900; color: ${plan.color};">${plan.frequency}</div>
-                        <div style="color: #94a3b8; font-size: 0.68em; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-top: 4px;">par semaine</div>
-                    </div>
-                </div>
-
-                <div style="background: rgba(74,222,128,0.06); border: 1px solid rgba(74,222,128,0.2); border-radius: 12px; padding: 12px 14px; margin-bottom: 22px;">
-                    <div style="font-size: 0.82em; color: #cbd5e1; line-height: 1.5;">📈 <strong style="color: #4ade80;">Surcharge progressive</strong> — l'effort augmente chaque semaine (jusqu'à +30%) et les repos se resserrent (60s → 40s). Ton corps n'a pas le temps de s'habituer.</div>
-                </div>
-                
-                <h3 style="color: ${plan.color}; margin-top: 24px; font-size: 1em;">Progression par semaine</h3>
-                <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px;">
-                    ${plan.weeks.map(week => `
-                        <div style="padding: 12px 14px; background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; border-left: 3px solid ${plan.color};">
-                            <div style="font-weight: 800; color: #e2e8f0; font-size: 0.88em; margin-bottom: 3px;">Semaine ${week.weekNumber} — ${week.title}</div>
-                            <div style="color: #94a3b8; font-size: 0.76em;">${week.description} • ${week.sessions.length} séances</div>
-                        </div>
-                    `).join('')}
-                </div>
-                
-                <button onclick="startPlan('${planId}')" class="btn" style="width: 100%; padding: 15px; font-size: 1.05em; background: linear-gradient(135deg, ${plan.color} 0%, ${plan.color}dd 100%);">
-                    🚀 Commencer ce plan
-                </button>
-            `;
-            
-            document.getElementById('planDetailsModal').classList.add('active');
-        }
 
         function closePlanDetailsModal() {
             document.getElementById('planDetailsModal').classList.remove('active');
@@ -4920,6 +4729,8 @@
         // SAUVEGARDE / RESTAURATION — Export JSON + Auto-backup IndexedDB
         // ═══════════════════════════════════════════════════════════════
         function exportAllUserData() {
+            // v1242 : copie COMPLÈTE (l'ancienne oubliait profile_<id>_*, sorties GPS, plans…)
+            if (window.AwakSauvegarde) return AwakSauvegarde.collecter();
             const data = {};
             for (let i = 0; i < localStorage.length; i++) {
                 const k = localStorage.key(i);
@@ -4936,6 +4747,7 @@
         }
 
         function downloadBackup() {
+            if (window.AwakSauvegarde) { AwakSauvegarde.envoyer(); return; }
             const backup = exportAllUserData();
             const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
@@ -4950,6 +4762,7 @@
         }
 
         function restoreFromFile(file) {
+            if (window.AwakSauvegarde) { AwakSauvegarde.depuisFichier(file); return; }
             const reader = new FileReader();
             reader.onload = (e) => {
                 try {
@@ -4989,6 +4802,7 @@
 
         // Auto-backup quotidien dans IndexedDB (max 7 backups conservés)
         function autoBackupIfNeeded() {
+            if (window.AwakSauvegarde) { AwakSauvegarde.copieAuto(); return; }
             try {
                 const last = parseInt(localStorage.getItem('fitproLastAutoBackup') || '0');
                 const oneDayMs = 24 * 60 * 60 * 1000;
@@ -5072,6 +4886,7 @@
         }
 
         function showBackupManagerModal() {
+            if (window.AwakSauvegarde) { AwakSauvegarde.copies(); return; }
             listAutoBackups((backups) => {
                 document.getElementById('backupManagerModal')?.remove();
                 const sorted = (backups || []).sort((a, b) => new Date(b.exportedAt) - new Date(a.exportedAt));
@@ -5430,9 +5245,6 @@
             localStorage.removeItem(_workoutStateKey());
         }
 
-        function hasActiveWorkoutInProgress() {
-            return !!loadActiveWorkoutState();
-        }
 
         // ═══════════════════════════════════════════════════════════════
         // SUGGESTION INTELLIGENTE DE SÉANCE — Que faire aujourd'hui ?
@@ -6952,11 +6764,6 @@
             else phase = 'luteale';
             return { phase, dayInCycle, cycleLength: len, info: AWAK_CYCLE_PHASES[phase] };
         }
-        // Modificateur d'intensité lié à la phase (1 si suivi désactivé).
-        function awakCycleIntensityMod() {
-            const p = awakCyclePhase();
-            return (p && p.info) ? p.info.intensity : 1;
-        }
         window.awakCyclePhase = awakCyclePhase;
 
         // ───────────────────────────────────────────────────────────────
@@ -7401,7 +7208,7 @@
             },
             { 
                 id: 'parallelbars', 
-                name: 'Barres parallèles', 
+                name: 'Barre de traction / dips', 
                 svgIcon: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="white"><rect x="28" y="20" width="10" height="60" rx="4"/><rect x="62" y="20" width="10" height="60" rx="4"/><rect x="22" y="75" width="10" height="15" rx="3"/><rect x="68" y="75" width="10" height="15" rx="3"/><rect x="16" y="20" width="12" height="22" rx="10"/><rect x="72" y="20" width="12" height="22" rx="10"/></svg>',
                 dbName: 'Barres parallèles' 
             },
@@ -7771,17 +7578,7 @@
             renderEquipmentGrid();
         }
 
-        function selectAllEquipment() {
-            selectedEquipment = availableEquipment.map(eq => eq.id);
-            saveEquipment();
-            renderEquipmentGrid();
-        }
 
-        function clearAllEquipment() {
-            selectedEquipment = [];
-            saveEquipment();
-            renderEquipmentGrid();
-        }
 
         function updateEquipmentCount() {
             const ec = document.getElementById('selectedEquipmentCount');
@@ -7804,33 +7601,6 @@
             return equipmentNames;
         }
         
-        // Check if an exercise is available with selected machine types
-        function isExerciseAvailableWithMachines(exercise) {
-            // If exercise doesn't use machines, it's always available
-            if (!exercise.equipment.includes('Machine')) {
-                return true;
-            }
-            
-            // If Machine equipment is not selected, exercise is not available
-            if (!selectedEquipment.includes('machine')) {
-                return false;
-            }
-            
-            // If no specific machines are selected, all machine exercises are available
-            if (selectedMachines.length === 0) {
-                return true;
-            }
-            
-            // Check if exercise is in any selected machine type (insensible à la casse)
-            const selectedMachineExercises = machineTypes
-                .filter(m => selectedMachines.includes(m.id))
-                .flatMap(m => m.exercises)
-                .map(n => n.toLowerCase().trim());
-
-            // Si aucune sous-catégorie sélectionnée, tout passe
-            if (selectedMachines.length === 0) return true;
-            return selectedMachineExercises.includes(exercise.name.toLowerCase().trim());
-        }
 
         // ========== MUSCLE GROUPS MANAGEMENT ==========
         
@@ -7912,19 +7682,7 @@
             updateHomeMuscleCount();
         }
 
-        function selectAllMuscles() {
-            selectedMuscles = availableMuscles.map(m => m.id);
-            saveMuscles();
-            renderMuscleGrid();
-            updateHomeMuscleCount();
-        }
 
-        function clearAllMuscles() {
-            selectedMuscles = [];
-            saveMuscles();
-            renderMuscleGrid();
-            updateHomeMuscleCount();
-        }
 
         // ========== WORKOUT PREPARATION SCREEN ==========
         
@@ -8895,24 +8653,7 @@
             return injuredMuscles;
         }
         
-        function saveInjuredMuscles() {
-            const profileId = getCurrentProfileId();
-            const key = profileId ? `profile_${profileId}_injuredMuscles` : 'injuredMuscles';
-            localStorage.setItem(key, JSON.stringify(injuredMuscles));
-        }
         
-        function toggleInjuredMuscle(muscleId) {
-            const index = injuredMuscles.indexOf(muscleId);
-            if (index > -1) {
-                injuredMuscles.splice(index, 1);
-                showToast(`✅ ${muscleId} retiré des blessures`, 'success', 2000);
-            } else {
-                injuredMuscles.push(muscleId);
-                showToast(`🤕 ${muscleId} marqué comme blessé`, 'info', 2000);
-            }
-            saveInjuredMuscles();
-            renderMuscleGrid();
-        }
         
         function getInjuredMuscleNames() {
             return injuredMuscles.map(id => {
@@ -8921,14 +8662,6 @@
             });
         }
         
-        function clearAllInjuries() {
-            showConfirm('Tous les muscles seront de nouveau disponibles pour les séances intelligentes.', function() {
-                injuredMuscles = [];
-                saveInjuredMuscles();
-                renderMuscleGrid();
-                showToast('✅ Toutes les blessures retirées', 'success', 2000);
-            }, null, { title: 'Retirer les blessures ?', icon: '🏥', confirmLabel: 'Confirmer' });
-        }
 
         // Reset muscle recovery state
         function resetMuscleRecovery() {
@@ -9033,20 +8766,7 @@
             }
         }
 
-        // ========== DARK MODE — MODE SOMBRE FORCÉ ==========
-        function toggleDarkMode() {
-            const isDark = document.body.classList.toggle('dark-mode');
-            isDarkMode = isDark;
-            localStorage.setItem('darkModePreference', isDark ? 'dark' : 'light');
-            showToast(isDark ? '🌙 Mode sombre' : '☀️ Mode clair', 'info', 1500);
-        }
 
-        function setThemeMode(mode) { // 'dark' | 'light' | 'auto'
-            localStorage.setItem('darkModePreference', mode);
-            checkAutoDarkMode();
-            const labels = { dark:'🌙 Mode sombre', light:'☀️ Mode clair', auto:'🔄 Automatique' };
-            showToast(labels[mode] + ' activé', 'info', 1500);
-        }
 
         function loadDarkMode() {
             const pref = localStorage.getItem('darkModePreference');
@@ -9163,29 +8883,7 @@
             }
         }
 
-        function toggleVoiceGuide() {
-            voiceGuideEnabled = !voiceGuideEnabled;
-            const element = document.getElementById('voiceGuideOption');
-            if (voiceGuideEnabled) {
-                element.classList.add('selected');
-                speak("Guidage vocal activé");
-            } else {
-                element.classList.remove('selected');
-            }
-            saveVoicePreferences();
-        }
 
-        function toggleCountdownVoice() {
-            countdownVoiceEnabled = !countdownVoiceEnabled;
-            const element = document.getElementById('countdownVoiceOption');
-            if (countdownVoiceEnabled) {
-                element.classList.add('selected');
-                speak("Compte à rebours vocal activé");
-            } else {
-                element.classList.remove('selected');
-            }
-            saveVoicePreferences();
-        }
 
         // 🤫 Mode sans distractions
         function toggleQuietMode() {
@@ -9812,21 +9510,6 @@
         }
         window.setFitnessIndex = setFitnessIndex;
 
-        function calculateFatigueLevel() {
-            const history = getWorkoutHistory();
-            const last7Days = history.filter(w => {
-                const daysDiff = (new Date() - new Date(w.date)) / (1000 * 60 * 60 * 24);
-                return daysDiff < 7;
-            });
-            
-            let fatigue = 0;
-            last7Days.forEach((workout, index) => {
-                const recentness = 1 - (index * 0.1);
-                fatigue += (workout.duration / 60) * recentness;
-            });
-            
-            return Math.min(fatigue / 3, 10);
-        }
 
         // ========== MUSCLE RECOVERY TRACKING ==========
         
@@ -10588,13 +10271,6 @@
         window._removeRitual = _removeRitual;
         // ====================== fin Brique 6 ======================
 
-        function regenerateWeeklyPlan() {
-            showConfirm("Régénérer votre plan hebdomadaire ? Cela créera un nouveau plan basé sur votre objectif actuel.", function() {
-                try { awakLogEvent('workout_regenerate', { kind: 'weekly_plan' }); } catch (e) {}
-                generateWeeklyPlan();
-                showToast('✅ Plan hebdomadaire régénéré', 'success', 2500);
-            }, null, { title: 'Régénérer le plan ?', icon: '🔄', confirmLabel: 'Régénérer' });
-        }
         
         // ========== MANUAL PLAN EDITOR ==========
         
@@ -12627,7 +12303,7 @@
             const machinesOnly = (sessionMode === 'gym' && !gymBodyweightMode);
 
             // Filter exercises ET blacklist
-            const availableExercises = exerciseDatabase.filter(ex => {
+            let availableExercises = exerciseDatabase.filter(ex => {
                 // Skip non-exercises
                 if (ex.type !== 'exercise') return false;
 
@@ -12664,6 +12340,19 @@
             if (availableExercises.length > 0) {
             }
             
+            // 🧒 v1244 : profil jeune → même filtre que generateIntelligentWorkoutWithDecisions
+            // (matériel lourd écarté ; niveau Avancé écarté avant 13 ans). Filtre SOUPLE :
+            // seulement s'il reste assez d'exercices. Sans lui, la « séance au hasard »
+            // d'un enfant pouvait contenir tractions, barre, machine…
+            try {
+                const Y = window.AwakYouth;
+                if (Y && Y.isYoung && Y.isYoung()) {
+                    const sur = availableExercises.filter(ex => !Y.isDiscouraged(ex)
+                        && !(Y.isChild && Y.isChild() && ex.difficulty === 'Avancé'));
+                    if (sur.length >= 3) availableExercises = sur;
+                }
+            } catch (e) {}
+
             // ✅ NEW: Separate fresh vs recent exercises
             const freshExercises = availableExercises.filter(ex => !recentExercises.has(ex.name));
             const exercisePool = freshExercises.length >= 5 ? freshExercises : availableExercises;
@@ -12986,466 +12675,18 @@
             return balanced.length > 0 ? balanced : selectedExercises;
         }
         
-        function getSmartRecommendations() {
-            const profile = getUserProfile();
-            const history = getWorkoutHistory();
-            const selectedMuscles = getSelectedMuscleNames();
-            const recovery = getRecoveryWarnings(selectedMuscles);
-            const time = new Date().getHours();
-            const day = new Date().getDay(); // 0 = Sunday, 6 = Saturday
-            
-            const recommendations = [];
-            
-            // Time-based recommendation
-            if (time >= 6 && time < 12) {
-                recommendations.push({
-                    type: 'time',
-                    icon: '🌅',
-                    title: 'Morning Boost',
-                    message: 'Parfait pour une séance énergisante !',
-                    suggestion: 'HIIT ou Full Body',
-                    action: 'start_hiit',
-                    priority: 'high'
-                });
-            } else if (time >= 12 && time < 18) {
-                recommendations.push({
-                    type: 'time',
-                    icon: '☀️',
-                    title: 'Après-midi',
-                    message: 'Idéal pour une séance de force',
-                    suggestion: 'Force ou Musculation',
-                    action: 'start_strength',
-                    priority: 'medium'
-                });
-            } else if (time >= 18 && time < 22) {
-                recommendations.push({
-                    type: 'time',
-                    icon: '🌆',
-                    title: 'After Work',
-                    message: 'Parfait pour évacuer le stress',
-                    suggestion: 'Cardio ou Endurance',
-                    action: 'start_cardio',
-                    priority: 'medium'
-                });
-            } else {
-                recommendations.push({
-                    type: 'time',
-                    icon: '🌙',
-                    title: 'Soirée tardive',
-                    message: 'Séance légère ou stretching conseillé',
-                    suggestion: 'Yoga ou Stretching',
-                    action: 'start_stretch',
-                    priority: 'low'
-                });
-            }
-            
-            // Frequency-based recommendation
-            if (history.length > 0) {
-                const lastWorkout = history[0];
-                const daysSince = (Date.now() - new Date(lastWorkout.date)) / (1000 * 60 * 60 * 24);
-                
-                if (daysSince > 3) {
-                    recommendations.push({
-                        type: 'frequency',
-                        icon: '⚠️',
-                        title: 'Reprise suggérée',
-                        message: `${Math.floor(daysSince)} jours depuis dernière séance`,
-                        suggestion: 'Séance légère de reprise',
-                        action: 'start_light',
-                        priority: 'high'
-                    });
-                } else if (daysSince < 1 && history.length > 1) {
-                    const beforeLast = history[1];
-                    const daysBetween = (new Date(lastWorkout.date) - new Date(beforeLast.date)) / (1000 * 60 * 60 * 24);
-                    if (daysBetween < 1) {
-                        recommendations.push({
-                            type: 'frequency',
-                            icon: '⚡',
-                            title: 'Rythme intense !',
-                            message: 'Attention à la récupération',
-                            suggestion: 'Repos ou séance légère',
-                            action: 'start_recovery',
-                            priority: 'medium'
-                        });
-                    }
-                }
-            } else {
-                recommendations.push({
-                    type: 'frequency',
-                    icon: '🎯',
-                    title: 'Première séance',
-                    message: 'Commencez en douceur',
-                    suggestion: 'Programme débutant',
-                    action: 'start_beginner',
-                    priority: 'high'
-                });
-            }
-            
-            // Recovery-based recommendation
-            const highFatigue = recovery.filter(r => r.level === 'high');
-            if (highFatigue.length > 0) {
-                recommendations.push({
-                    type: 'recovery',
-                    icon: '😴',
-                    title: 'Récupération nécessaire',
-                    message: `Muscles fatigués : ${highFatigue.map(r => r.muscle).join(', ')}`,
-                    suggestion: 'Stretching ou repos actif',
-                    action: 'start_recovery',
-                    priority: 'high'
-                });
-            } else if (recovery.length === 0) {
-                recommendations.push({
-                    type: 'recovery',
-                    icon: '💪',
-                    title: 'Prêt pour l\'action !',
-                    message: 'Tous vos muscles sont récupérés',
-                    suggestion: 'Séance intensive possible',
-                    action: 'start_intense',
-                    priority: 'medium'
-                });
-            }
-            
-            // Goal-based recommendation
-            if (profile.goal === 'weight_loss') {
-                recommendations.push({
-                    type: 'goal',
-                    icon: '🔥',
-                    title: 'Perte de poids',
-                    message: 'Circuit HIIT recommandé',
-                    suggestion: 'HIIT 30 min',
-                    action: 'start_hiit',
-                    priority: 'medium'
-                });
-            } else if (profile.goal === 'strength') {
-                recommendations.push({
-                    type: 'goal',
-                    icon: '🏋️',
-                    title: 'Force maximale',
-                    message: 'Exercices composés recommandés',
-                    suggestion: 'Programme Force',
-                    action: 'start_strength',
-                    priority: 'medium'
-                });
-            } else if (profile.goal === 'muscle_gain' || profile.goal === 'muscle') {
-                recommendations.push({
-                    type: 'goal',
-                    icon: '💪',
-                    title: 'Prise de masse',
-                    message: 'Volume et hypertrophie',
-                    suggestion: 'Séance hypertrophie',
-                    action: 'start_hypertrophy',
-                    priority: 'medium'
-                });
-            }
-            
-            // Weekend recommendation
-            if (day === 0 || day === 6) {
-                recommendations.push({
-                    type: 'schedule',
-                    icon: '🎊',
-                    title: 'Weekend',
-                    message: 'Temps pour une séance complète',
-                    suggestion: 'Séance longue 60 min',
-                    action: 'start_long',
-                    priority: 'medium'
-                });
-            }
-            
-            // Sort by priority
-            const priorityOrder = { high: 3, medium: 2, low: 1 };
-            return recommendations.sort((a, b) => 
-                priorityOrder[b.priority] - priorityOrder[a.priority]
-            );
-        }
         
-        function displayRecommendations() {
-            const recommendations = getSmartRecommendations();
-            const container = document.getElementById('recommendationsContainer');
-            if (!container) return;
-            
-            const topRecommendations = recommendations.slice(0, 3);
-            
-            container.innerHTML = topRecommendations.map(rec => `
-                <div class="card" style="background: linear-gradient(135deg, ${rec.priority === 'high' ? 'rgba(239,68,68,0.082)' : rec.priority === 'medium' ? 'rgba(245,158,11,0.082)' : 'rgba(16,185,129,0.082)'} 0%, transparent 100%); border-left: 4px solid ${rec.priority === 'high' ? '#ef4444' : rec.priority === 'medium' ? '#f59e0b' : '#10b981'}; margin-bottom: 10px; padding: 15px;">
-                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-                        <span style="font-size: 2em;">${rec.icon}</span>
-                        <div>
-                            <h4 style="margin: 0; color: #e2e8f0;">${rec.title}</h4>
-                            <p style="margin: 5px 0 0 0; color: #94a3b8; font-size: 0.9em;">${rec.message}</p>
-                        </div>
-                    </div>
-                    <div style="background: rgba(255,255,255,0.04); padding: 10px; border-radius: 10px; margin-top: 10px;">
-                        <strong>💡 Suggestion :</strong> ${rec.suggestion}
-                    </div>
-                </div>
-            `).join('');
-        }
 
         // ========== ADVANCED ANALYTICS & TRENDS ==========
         
-        function calculateTrends() {
-            const history = getWorkoutHistory();
-            const now = new Date();
-            
-            // Last 30 days
-            const last30Days = history.filter(w => {
-                const date = new Date(w.date);
-                const diff = (now - date) / (1000 * 60 * 60 * 24);
-                return diff <= 30;
-            });
-            
-            if (last30Days.length === 0) {
-                return {
-                    workoutsTrend: 0,
-                    minutesTrend: 0,
-                    interpretation: 'insufficient_data'
-                };
-            }
-            
-            // Divide into 2 periods of 15 days
-            const mid = Math.floor(last30Days.length / 2);
-            const period1 = last30Days.slice(0, mid); // Older
-            const period2 = last30Days.slice(mid);    // Recent
-            
-            const stats1 = {
-                workouts: period1.length,
-                minutes: period1.reduce((sum, w) => sum + (w.duration || 0), 0),
-                avgDuration: period1.length > 0 ? 
-                    period1.reduce((sum, w) => sum + (w.duration || 0), 0) / period1.length : 0
-            };
-            
-            const stats2 = {
-                workouts: period2.length,
-                minutes: period2.reduce((sum, w) => sum + (w.duration || 0), 0),
-                avgDuration: period2.length > 0 ? 
-                    period2.reduce((sum, w) => sum + (w.duration || 0), 0) / period2.length : 0
-            };
-            
-            return {
-                workoutsTrend: stats2.workouts - stats1.workouts,
-                minutesTrend: stats2.minutes - stats1.minutes,
-                durationTrend: Math.round(stats2.avgDuration - stats1.avgDuration),
-                interpretation: stats2.workouts > stats1.workouts ? 'positive' : 
-                               stats2.workouts < stats1.workouts ? 'negative' : 'stable',
-                period1: stats1,
-                period2: stats2
-            };
-        }
         
-        function setWeeklyGoal(type, target) {
-            const goals = JSON.parse(localStorage.getItem('weeklyGoals') || '{}');
-            goals[type] = target;
-            goals.setDate = new Date().toISOString();
-            localStorage.setItem('weeklyGoals', JSON.stringify(goals));
-            showToast(`🎯 Objectif ${type} défini : ${target}`, 'success', 3000);
-        }
         
-        function getWeeklyGoals() {
-            try { return JSON.parse(localStorage.getItem('weeklyGoals') || '{"workouts": 3, "minutes": 120}'); } catch(e) { return {"workouts": 3, "minutes": 120}; }
-        }
         
-        function checkGoalProgress() {
-            const goals = getWeeklyGoals();
-            const history = getWorkoutHistory();
-            
-            // This week (Sunday to Saturday)
-            const now = new Date();
-            const weekStart = new Date(now);
-            weekStart.setDate(now.getDate() - now.getDay());
-            weekStart.setHours(0, 0, 0, 0);
-            
-            const thisWeek = history.filter(w => {
-                const date = new Date(w.date);
-                return date >= weekStart;
-            });
-            
-            const progress = {
-                workouts: {
-                    current: thisWeek.length,
-                    target: goals.workouts || 3,
-                    percentage: goals.workouts ? 
-                        Math.min(100, Math.round((thisWeek.length / goals.workouts) * 100)) : 0,
-                    achieved: thisWeek.length >= (goals.workouts || 3)
-                },
-                minutes: {
-                    current: thisWeek.reduce((sum, w) => sum + (w.duration || 0), 0),
-                    target: goals.minutes || 120,
-                    percentage: goals.minutes ? 
-                        Math.min(100, Math.round((thisWeek.reduce((sum, w) => sum + (w.duration || 0), 0) / goals.minutes) * 100)) : 0,
-                    achieved: thisWeek.reduce((sum, w) => sum + (w.duration || 0), 0) >= (goals.minutes || 120)
-                }
-            };
-            
-            return progress;
-        }
         
-        function displayIntelligentDashboard() {
-            const trends = calculateTrends();
-            const goals = checkGoalProgress();
-            const recommendations = getSmartRecommendations().slice(0, 2);
-            
-            const container = document.getElementById('intelligentDashboard');
-            if (!container) return;
-            
-            container.innerHTML = `
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px;">
-                    <!-- Weekly Goals -->
-                    <div class="card" style="background: linear-gradient(135deg, rgba(29,95,168,0.125) 0%, rgba(22,78,138,0.125) 100%);">
-                        <h4 style="color: #16a34a; margin-top: 0;">Objectifs Semaine</h4>
-                        <div style="margin-bottom: 15px;">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                <span>Séances</span>
-                                <span style="font-weight: bold;">${goals.workouts.current}/${goals.workouts.target}</span>
-                            </div>
-                            <div style="background: rgba(255,255,255,0.12); border-radius: 10px; height: 20px; overflow: hidden;">
-                                <div style="background: ${goals.workouts.achieved ? '#10b981' : '#16a34a'}; height: 100%; width: ${goals.workouts.percentage}%; transition: width 0.5s;"></div>
-                            </div>
-                        </div>
-                        <div>
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                <span>Minutes</span>
-                                <span style="font-weight: bold;">${goals.minutes.current}/${goals.minutes.target} min</span>
-                            </div>
-                            <div style="background: rgba(255,255,255,0.12); border-radius: 10px; height: 20px; overflow: hidden;">
-                                <div style="background: ${goals.minutes.achieved ? '#10b981' : '#16a34a'}; height: 100%; width: ${goals.minutes.percentage}%; transition: width 0.5s;"></div>
-                            </div>
-                        </div>
-                        ${(goals.workouts.achieved && goals.minutes.achieved) ? 
-                            '<div style="margin-top: 10px; padding: 10px; background: rgba(16,185,129,0.125); border-radius: 10px; color: #10b981; font-weight: bold; text-align: center;">🏆 Objectifs Atteints !</div>' : 
-                            ''}
-                    </div>
-                    
-                    <!-- Trends -->
-                    <div class="card" style="background: linear-gradient(135deg, ${trends.interpretation === 'positive' ? 'rgba(16,185,129,0.125)' : trends.interpretation === 'negative' ? 'rgba(239,68,68,0.125)' : 'rgba(245,158,11,0.125)'} 0%, transparent 100%);">
-                        <h4 style="color: ${trends.interpretation === 'positive' ? '#10b981' : trends.interpretation === 'negative' ? '#ef4444' : '#f59e0b'}; margin-top: 0;">
-                            Tendances (30j)
-                        </h4>
-                        <div style="display: flex; flex-direction: column; gap: 10px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <span>Séances</span>
-                                <span style="font-weight: bold; color: ${trends.workoutsTrend >= 0 ? '#10b981' : '#ef4444'}; font-size: 1.2em;">
-                                    ${trends.workoutsTrend >= 0 ? '↗' : '↘'} ${Math.abs(trends.workoutsTrend)}
-                                </span>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <span>Minutes</span>
-                                <span style="font-weight: bold; color: ${trends.minutesTrend >= 0 ? '#10b981' : '#ef4444'}; font-size: 1.2em;">
-                                    ${trends.minutesTrend >= 0 ? '↗' : '↘'} ${Math.abs(trends.minutesTrend)}min
-                                </span>
-                            </div>
-                            <div style="margin-top: 5px; padding: 8px; background: rgba(255,255,255,0.04); border-radius: 6px; font-size: 0.9em; text-align: center;">
-                                ${trends.interpretation === 'positive' ? '✅ En progression' : 
-                                  trends.interpretation === 'negative' ? '⚠️ En baisse' : 
-                                  '➡️ Stable'}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Recommendations -->
-                ${recommendations.length > 0 ? `
-                    <h4 style="color: #16a34a; margin-bottom: 15px;">Recommandations</h4>
-                    <div style="display: flex; flex-direction: column; gap: 10px;">
-                        ${recommendations.map(rec => `
-                            <div class="card" style="background: ${rec.priority === 'high' ? 'rgba(239,68,68,0.082)' : 'rgba(245,158,11,0.082)'}; border-left: 4px solid ${rec.priority === 'high' ? '#ef4444' : '#f59e0b'};">
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <span style="font-size: 2em;">${rec.icon}</span>
-                                    <div style="flex: 1;">
-                                        <div style="font-weight: bold; color: #e2e8f0; margin-bottom: 3px;">${rec.title}</div>
-                                        <div style="font-size: 0.9em; color: #94a3b8;">${rec.message}</div>
-                                        <div style="font-size: 0.85em; color: #16a34a; margin-top: 5px;">💡 ${rec.suggestion}</div>
-                                    </div>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                ` : ''}
-            `;
-        }
         
         // ========== DATA MANAGEMENT SYSTEM ==========
         
-        function exportAllData() {
-            try {
-                const allData = {};
-                let totalBytes = 0;
-                for (let i = 0; i < localStorage.length; i++) {
-                    const key = localStorage.key(i);
-                    const val = localStorage.getItem(key);
-                    allData[key] = val;
-                    totalBytes += (key.length + val.length) * 2;
-                }
-
-                // Métadonnées de backup
-                allData['_backupMeta'] = JSON.stringify({
-                    version: '2.0',
-                    date: new Date().toISOString(),
-                    appName: 'Awakened',
-                    keys: Object.keys(allData).length,
-                    sizeMB: (totalBytes / 1024 / 1024).toFixed(2)
-                });
-
-                const dataStr  = JSON.stringify(allData, null, 2);
-                const nomFichier = `Awakened-Backup-${new Date().toISOString().split('T')[0]}.json`;
-                const sizeMB = (totalBytes / 1024 / 1024).toFixed(2);
-                const telecharger = () => {
-                    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-                    const url      = URL.createObjectURL(dataBlob);
-                    const link     = document.createElement('a');
-                    link.href      = url;
-                    link.download  = nomFichier;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(url);
-                    showToast(`💾 Export réussi — ${Object.keys(allData).length} clés, ${sizeMB} MB`, 'success', 4000);
-                };
-                // 📱 Sur téléphone (et dans l'app Play Store) : feuille de partage
-                // — Drive, courriel, Messages — au lieu d'un fichier perdu dans
-                // les téléchargements. Sert aussi au transfert vers l'app.
-                const essai = (window.AwakNative && window.AwakNative.exporterFichier)
-                    ? window.AwakNative.exporterFichier(nomFichier, dataStr) : Promise.resolve(false);
-                essai.then(ok => {
-                    if (ok) showToast('Sauvegarde prête à envoyer — garde-la dans Drive ou par courriel', 'success', 4000);
-                    else telecharger();
-                }).catch(telecharger);
-            } catch (error) {
-                showToast('❌ Erreur lors de l\'export', 'error', 3000);
-            }
-        }
         
-        function importAllData(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            showConfirm('Importer des données remplacera TOUTES vos données actuelles. Cette action est irréversible.', function() {
-                event.target.value = ''; // Reset file input
-                const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const importedData = JSON.parse(e.target.result);
-                    
-                    // Clear current localStorage
-                    localStorage.clear();
-                    
-                    // Import all data
-                    Object.keys(importedData).forEach(key => {
-                        localStorage.setItem(key, importedData[key]);
-                    });
-                    
-                    showToast('📥 Données importées avec succès ! Rechargement...', 'success', 2000);
-                    
-                    // Reload page to apply changes
-                    setTimeout(() => {
-                        location.reload();
-                    }, 2000);
-                } catch (error) {
-                    showToast('❌ Erreur : fichier invalide', 'error', 3000);
-                }
-            };
-            reader.readAsText(file);
-            }, null, { title: 'Importer des données ?', icon: '⚠️', confirmLabel: 'Importer', danger: true });
-        }
         
         // ========== AFFICHAGE : CARTES DE L'ACCUEIL (choisies par l'utilisateur) ==========
         // Permet à l'utilisateur de masquer/afficher les cartes secondaires de
@@ -13711,41 +12952,7 @@
             });
         }
         
-        function getAllDataKeys() {
-            return [
-                'allProfiles',
-                'currentProfileId',
-                'darkMode',
-                'advancedMode',
-                'voicePreferences',
-                'warmupStretchPrefs',
-                'selectedEquipment',
-                'selectedMuscles',
-                'exerciseBlacklist',
-                'weeklyGoals',
-                'workoutFeedbacks',
-                // Profile-specific keys are handled with profile_ prefix
-            ];
-        }
         
-        function showDataSummary() {
-            const allProfiles = getAllProfiles();
-            const currentProfileId = getCurrentProfileId();
-            const stats = loadStats();
-            
-            const summary = `
-📊 Résumé de vos données :
-
-👥 Profils : ${allProfiles.length}
-📅 Séances totales : ${stats.workouts}
-⏱️ Minutes totales : ${stats.minutes}
-🔥 Série actuelle : ${stats.streak} jour(s)
-
-💾 Données sauvegardées automatiquement dans le navigateur.
-            `.trim();
-            
-            showAlert(summary.replace(/\n/g, '<br>'), 'info', 'Résumé');
-        }
 
         // ========== WORKOUT FEEDBACK ==========
         
@@ -13824,30 +13031,6 @@
 
         // ========== MODE ADVANCED / SIMPLE ==========
         
-        function toggleAdvancedMode() {
-            isAdvancedMode = !isAdvancedMode;
-            document.body.classList.toggle('advanced-mode', isAdvancedMode);
-            
-            const text = document.getElementById('modeToggleText');
-            if (!text) return;
-            text.textContent = isAdvancedMode ? '🎯 Mode simple' : '🔧 Mode avancé';
-            
-            // Update mode description
-            const modeDesc = document.getElementById('modeDescription');
-            if (modeDesc) {
-                if (isAdvancedMode) {
-                    modeDesc.innerHTML = '✅ <strong>Mode avancé activé</strong> : Vous voyez maintenant les détails techniques (séries, tempo, respiration, erreurs fréquentes, muscles travaillés) pendant les exercices.';
-                    modeDesc.style.background = 'rgba(34,197,94,0.1)';
-                } else {
-                    modeDesc.innerHTML = '💡 <strong>Mode simple</strong> : Interface épurée, idéale pour se concentrer sur l\'entraînement.<br><strong>Mode avancé</strong> : Affiche séries, tempo, respiration, erreurs à éviter et muscles travaillés.';
-                    modeDesc.style.background = 'rgba(22,163,74,0.08)';
-                }
-            }
-            
-            localStorage.setItem('advancedMode', isAdvancedMode);
-            
-            showToast(isAdvancedMode ? '⚙️ Mode avancé activé' : '⚙️ Mode simple activé', 'info', 2000);
-        }
 
         function loadAdvancedMode() {
             const saved = localStorage.getItem('advancedMode');
@@ -14570,18 +13753,6 @@
             if (typeof renderSetsGrid === 'function') { try { renderSetsGrid(); } catch (e) {} }
         }
 
-        function addWarmupSet(n) {
-            warmupSetsCount = n;
-            currentSetNumber = 1;
-            // Highlight active button
-            [0,1,2].forEach(i => {
-                const b = document.getElementById('warmupBtn' + i);
-                if (!b) return;
-                if (i === n) { b.style.background = '#fbbf24'; b.style.color = 'white'; }
-                else { b.style.background = 'rgba(251,191,36,0.12)'; b.style.color = '#fbbf24'; }
-            });
-            updateSetIndicator();
-        }
 
         // ═══════════════════════════════════════════════════════════════
         // 🌀 RIFT/HUNT : Fonction dédiée pour terminer une série de combat
@@ -15159,47 +14330,7 @@
         }
         window.accumulateWeightedMuscles = accumulateWeightedMuscles;
 
-        // ── VOLUME HEBDOMADAIRE PAR MUSCLE ─────────────────────
-        function getWeeklyVolumeByMuscle() {
-            const history = getWorkoutHistory();
-            const weekAgo = new Date();
-            weekAgo.setDate(weekAgo.getDate() - 7);
-            const recent = history.filter(w => new Date(w.date) >= weekAgo);
-            const volume = {};
-            recent.forEach(w => {
-                // Priorité au format pondéré (muscles secondaires inclus).
-                if (w.musclesWeighted && typeof w.musclesWeighted === 'object') {
-                    Object.entries(w.musclesWeighted).forEach(([muscle, ratio]) => {
-                        volume[muscle] = (volume[muscle] || 0) + (ratio || 0);
-                    });
-                } else {
-                    // Repli : anciennes séances sans pondération → +1 par muscle principal.
-                    (w.musclesWorked || []).forEach(muscle => {
-                        volume[muscle] = (volume[muscle] || 0) + 1;
-                    });
-                }
-            });
-            return volume; // {muscle: count pondéré}
-        }
 
-        function renderWeeklyVolumeWidget() {
-            const vol = getWeeklyVolumeByMuscle();
-            const entries = Object.entries(vol).sort((a, b) => b[1] - a[1]);
-            if (entries.length === 0) return '';
-            const max = entries[0][1];
-            return `<div style="padding:14px;background:rgba(22,163,74,0.06);border-radius:14px;border:1px solid rgba(22,163,74,0.15);">
-                <div style="font-weight:700;color:#16a34a;margin-bottom:10px;font-size:0.9em;">📊 Volume 7 derniers jours</div>
-                ${entries.slice(0, 6).map(([muscle, count]) => `
-                    <div style="margin-bottom:6px;">
-                        <div style="display:flex;justify-content:space-between;font-size:0.8em;font-weight:600;color:#374151;margin-bottom:2px;">
-                            <span>${muscle}</span><span>${count} séance${count>1?'s':''}</span>
-                        </div>
-                        <div style="background:#e5e7eb;border-radius:99px;height:6px;">
-                            <div style="background:linear-gradient(90deg,#1d5fa8,#164e8a);height:6px;border-radius:99px;width:${Math.round(count/max*100)}%;transition:width 0.5s;"></div>
-                        </div>
-                    </div>`).join('')}
-            </div>`;
-        }
 
         // ── Poids disponibles ─────────────────────────────────────────
         function getAvailableWeights(equipType) {
@@ -15215,89 +14346,8 @@
                 localStorage.setItem('fitproAvailWeights', JSON.stringify(saved));
             } catch(e) {}
         }
-        // Retourne le poids disponible le plus proche (round down)
-        function getNearestAvailableWeight(targetWeight, equipType) {
-            const weights = getAvailableWeights(equipType);
-            if (!weights || weights.length === 0) return targetWeight;
-            const sorted = [...weights].sort((a,b) => a-b);
-            // Trouver le plus grand poids <= target
-            let best = sorted[0];
-            for (const w of sorted) {
-                if (w <= targetWeight) best = w;
-                else break;
-            }
-            return best;
-        }
 
-        // ── Suggestion poids progressifs améliorée ────────────────────
-        function getWeightSuggestion(exerciseName) {
-            const perf = getExercisePerformance(exerciseName);
-            if (!perf || !perf.history || perf.history.length === 0) return null;
-            const last = perf.history[perf.history.length - 1];
-            if (!last || !last.weight || last.weight <= 0) return null;
 
-            const lastWeightKg = last.weight;
-            const displayWeight = useKg ? lastWeightKg : Math.round(lastWeightKg * 2.20462 * 2) / 2;
-            const unit = useKg ? 'kg' : 'lbs';
-            const increment = useKg ? 2.5 : 5;
-
-            // Analyser la tendance sur les 3 dernières séances
-            const recent = perf.history.slice(-3);
-            const avgDiff = recent.length >= 2
-                ? recent.reduce((s,h) => s + (h.difficulty || 3), 0) / recent.length
-                : 3;
-            const lastReps = last.reps || 0;
-
-            let suggestion, reason, trend;
-            if (avgDiff <= 2 || lastReps >= 12) {
-                // Facile → augmenter
-                const raw = displayWeight + increment;
-                // Arrondir au poids disponible le plus proche
-                const eq = _guessEquipmentType(exerciseName);
-                const available = getNearestAvailableWeight(raw + 0.01, eq) || raw;
-                suggestion = Math.round(available * 2) / 2;
-                reason = '📈 Progresser';
-                trend = 'up';
-            } else if (avgDiff >= 5 || lastReps < 5) {
-                // Difficile → maintenir ou réduire légèrement
-                suggestion = displayWeight;
-                reason = '✅ Maintenir';
-                trend = 'hold';
-            } else {
-                // Normal → maintenir
-                suggestion = displayWeight;
-                reason = '✅ Maintenir';
-                trend = 'hold';
-            }
-
-            // Calcul volume tendance
-            const prevVolumes = recent.map(h => (h.reps || 0) * (h.weight || 0));
-            const volumeTrend = prevVolumes.length >= 2
-                ? prevVolumes[prevVolumes.length-1] - prevVolumes[0]
-                : 0;
-
-            return {
-                weight: suggestion,
-                lastWeight: displayWeight,
-                lastReps,
-                unit,
-                reason,
-                trend,
-                volumeTrend: volumeTrend > 0 ? '↑' : volumeTrend < 0 ? '↓' : '→',
-                sessionsTracked: perf.history.length
-            };
-        }
-
-        // Deviner le type d'équipement pour un exercice (pour poids disponibles)
-        function _guessEquipmentType(exerciseName) {
-            const n = exerciseName.toLowerCase();
-            if (n.includes('haltère') || n.includes('dumbell') || n.includes('curl') || n.includes('latéral')) return 'dumbbells';
-            if (n.includes('barre') || n.includes('bench') || n.includes('squat') || n.includes('deadlift') || n.includes('soulevé')) return 'barbell';
-            if (n.includes('kettlebell') || n.includes('swing')) return 'kettlebell';
-            if (n.includes('câble') || n.includes('cable') || n.includes('poulie')) return 'cable';
-            if (n.includes('machine') || n.includes('presse') || n.includes('leg press')) return 'machine';
-            return 'dumbbells'; // défaut
-        }
 
         // Stockage des sets de la séance en cours (pour historique séries)
         let _currentSessionSets = {}; // { exerciseName: [ {set, reps, weight, isWarmup} ] }
@@ -15309,12 +14359,6 @@
             _currentSessionSets[exerciseName].push(entry);
             // Persister immédiatement pour le calcul live volume/PR
             try { localStorage.setItem('fitproSessionSets', JSON.stringify(_currentSessionSets)); } catch(e) {}
-        }
-        function getLastSessionSets(exerciseName) {
-            try {
-                const key = 'fitproLastSets_' + btoa(encodeURIComponent(exerciseName)).slice(0,20);
-                return JSON.parse(localStorage.getItem(key) || 'null');
-            } catch(e) { return null; }
         }
         function saveSessionSets() {
             // Persister les sets de la séance terminée
@@ -15478,206 +14522,8 @@
             return 'timer'; // Default for hybrid exercises
         }
         
-        function hasWeight(exerciseName) {
-            const exercise = exerciseDatabase.find(ex => ex.name === exerciseName);
-            if (!exercise || !exercise.equipment) return false;
-            // equipment est un tableau — vérifier chaque entrée
-            const noWeightEquipment = ['Poids du corps', 'Aucun'];
-            return !exercise.equipment.every(eq => noWeightEquipment.includes(eq));
-        }
         
-        // Show interface for repetition-based exercises
-        function showRepsInterface(exercise) {
-            const lastPerf = exercise.lastPerformance || getLastPerformance(exercise.name);
-            const exerciseFromDB = exerciseDatabase.find(ex => ex.name === exercise.name);
-            const needsWeight = hasWeight(exercise.name);
-            
-            // Update progress
-            updateProgress();
-            renderExerciseProgressList();
-            
-            // Note : le muscle est déjà affiché via #muscleBadge (mis à jour dynamiquement),
-            // donc on n'ajoute pas de second badge ici pour éviter le doublon.
-            let muscleBadgeHTML = '';
-            
-            // Build interface
-            const container = document.getElementById('exerciseView');
-            if (!container) return;
-            container.classList.remove('hidden');
-            container.innerHTML = `
-                <div class="exercise-info">
-                    <div class="exercise-number" id="exerciseNumber">
-                        ${(()=>{ const p=getExerciseProgress(); return p.total>0?`Exercice ${p.current}/${p.total}`:`Repos`; })()}
-                    </div>
-                    <h2 id="exerciseName" style="margin-bottom: 10px;">
-                        <span style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #166534 100%); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8em; margin-right: 10px; font-weight: bold;">REPS</span>
-                        ${exercise.name}
-                    </h2>
-                    ${muscleBadgeHTML}
-                    
-                    ${lastPerf ? `
-                        <div style="background: linear-gradient(135deg, rgba(16,185,129,0.125) 0%, rgba(16,185,129,0.063) 100%); padding: 20px; border-radius: 14px; margin: 20px 0; border-left: 4px solid #10b981;">
-                            <div style="font-size: 0.9em; color: #047857; font-weight: 600; margin-bottom: 8px;">
-                                📊 Dernière performance
-                            </div>
-                            <div style="font-size: 1.5em; font-weight: 700; color: #059669;">
-                                ${lastPerf.reps} répétitions ${lastPerf.weight ? `× ${lastPerf.weight} kg` : ''}
-                            </div>
-                            <div style="font-size: 0.85em; color: #047857; margin-top: 5px;">
-                                ${new Date(lastPerf.date).toLocaleDateString('fr-FR')}
-                            </div>
-                        </div>
-                    ` : `
-                        <div style="background: #fef3c7; padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #f59e0b;">
-                            <div style="color: #92400e; font-weight: 600;">
-                                💡 Première fois pour cet exercice
-                            </div>
-                            <div style="color: #92400e; font-size: 0.9em; margin-top: 5px;">
-                                Enregistrez votre performance pour suivre vos progrès !
-                            </div>
-                        </div>
-                    `}
-                    
-                    ${exercise.instructions ? `
-                        <div style="margin-top: 20px;">
-                            <h4 style="color: #16a34a; margin-bottom: 10px;">Instructions</h4>
-                            <ul id="exerciseInstructions" style="list-style: none; padding: 0;">
-                                ${exercise.instructions.map(inst => 
-                                    `<li style="padding: 8px; margin: 5px 0; background: rgba(96,168,240,0.10); border-radius: 10px;">• ${inst}</li>`
-                                ).join('')}
-                            </ul>
-                        </div>
-                    ` : ''}
-                    
-                    <div style="background: rgba(255,255,255,0.04); padding: 25px; border-radius: 14px; margin-top: 25px; border: 1px solid #252830;">
-                        <h3 style="color: #16a34a; margin-bottom: 20px;">Enregistrez votre performance</h3>
-                        
-                        <div style="margin-bottom: 20px;">
-                            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #e2e8f0;">
-                                Répétitions effectuées *
-                            </label>
-                            <div style="display:flex;align-items:center;gap:10px;">
-                                <button onclick="(function(){ const inp=document.getElementById('repsInput'); const v=Math.max(1,(parseInt(inp.value)||0)-1); inp.value=v; playRepTick(); })()" 
-                                    style="width:52px;height:52px;border-radius:50%;border:2px solid #2E2F35;background:#222328;color:#e2e8f0;font-size:1.5em;cursor:pointer;flex-shrink:0;">−</button>
-                                <input type="number" id="repsInput" 
-                                       min="1" max="100" 
-                                       placeholder="${lastPerf ? lastPerf.reps : '10'}"
-                                       style="flex:1;padding:15px;font-size:1.4em;border:2px solid #2E2F35;background:#1A1B20;border-radius:10px;font-weight:700;text-align:center;color:#e2e8f0;"
-                                       autofocus />
-                                <button onclick="(function(){ const inp=document.getElementById('repsInput'); const v=Math.min(100,(parseInt(inp.value)||0)+1); inp.value=v; playRepTick(); })()" 
-                                    style="width:52px;height:52px;border-radius:50%;border:2px solid #16a34a;background:rgba(22,163,74,0.15);color:#16a34a;font-size:1.5em;cursor:pointer;flex-shrink:0;">+</button>
-                            </div>
-                        </div>
-                        
-                        ${needsWeight ? `
-                            <div style="margin-bottom: 20px;">
-                                <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #e2e8f0;">
-                                    Poids utilisé (${weightUnit()})
-                                </label>
-                                <div style="display:flex;align-items:center;gap:10px;">
-                                    <button onclick="(function(){ const inp=document.getElementById('weightInput'); const v=Math.max(0,((parseFloat(inp.value)||0)-2.5)); inp.value=v.toFixed(1); playRepTick(); })()"
-                                        style="width:52px;height:52px;border-radius:50%;border:2px solid #2E2F35;background:#222328;color:#e2e8f0;font-size:1.2em;cursor:pointer;flex-shrink:0;">−</button>
-                                    <input type="number" id="weightInput" 
-                                           min="0" step="0.5" 
-                                           placeholder="${lastPerf && lastPerf.weight ? fmtWeightVal(lastPerf.weight) : '0'}"
-                                           style="flex:1;padding:15px;font-size:1.4em;border:2px solid #2E2F35;background:#1A1B20;border-radius:10px;font-weight:700;text-align:center;color:#e2e8f0;" />
-                                    <button onclick="(function(){ const inp=document.getElementById('weightInput'); const v=((parseFloat(inp.value)||0)+2.5); inp.value=v.toFixed(1); playRepTick(); })()"
-                                        style="width:52px;height:52px;border-radius:50%;border:2px solid #16a34a;background:rgba(22,163,74,0.15);color:#16a34a;font-size:1.2em;cursor:pointer;flex-shrink:0;">+</button>
-                                </div>
-                            </div>
-                        ` : ''}
-                        
-                        <button onclick="completeRepsExercise()" class="btn" 
-                                style="width: 100%; background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 18px; font-size: 1.1em; margin-top: 10px;">
-                            ✅ Terminer l'exercice
-                        </button>
-                    </div>
-                    
-                    ${exercise.tips ? `
-                        <div style="background: linear-gradient(135deg, rgba(29,95,168,0.082) 0%, rgba(29,95,168,0.02) 100%); padding: 15px; border-radius: 10px; margin-top: 20px; border-left: 4px solid #16a34a;">
-                            <div style="font-weight: 600; color: #16a34a; margin-bottom: 5px;">💡 Conseil</div>
-                            <div style="color: #94a3b8;">${exercise.tips}</div>
-                        </div>
-                    ` : ''}
-
-                    ${(() => {
-                        // 🪶 VERSION PLUS FACILE — n'apparaît que si l'exercice
-                        // n'est pas déjà « Débutant ». Rendre l'alternative
-                        // visible évite qu'on abandonne un mouvement trop dur
-                        // au lieu de l'adapter.
-                        let _f = null;
-                        try { _f = (typeof awakVersionFacile === 'function') ? awakVersionFacile(exercise) : null; } catch (e) {}
-                        if (!_f) return '';
-                        return `
-                        <div style="background:rgba(56,189,248,0.07);padding:15px;border-radius:12px;
-                                    border:1px solid rgba(56,189,248,0.22);margin-top:10px;">
-                            <div style="font-weight:600;color:#38bdf8;margin-bottom:5px;">🪶 Trop dur ? Version plus facile</div>
-                            <div style="color:#94a3b8;line-height:1.5;">${_f}</div>
-                        </div>`;
-                    })()}
-
-                    ${(() => {
-                        // 🔁 SANS LE MATÉRIEL — ligne distincte de la version
-                        // facile : ici le mouvement convient, c'est l'équipement
-                        // qui manque. Rien pour les exercices au poids du corps.
-                        let _m = null;
-                        try { _m = (typeof awakSansMateriel === 'function') ? awakSansMateriel(exercise) : null; } catch (e) {}
-                        if (!_m) return '';
-                        return `
-                        <div style="background:rgba(251,191,36,0.07);padding:15px;border-radius:12px;
-                                    border:1px solid rgba(251,191,36,0.22);margin-top:10px;">
-                            <div style="font-weight:600;color:#fbbf24;margin-bottom:5px;">🔁 Pas le matériel ?</div>
-                            <div style="color:#94a3b8;line-height:1.5;">${_m}</div>
-                        </div>`;
-                    })()}
-                </div>
-            `;
-            
-            // Focus on reps input
-            setTimeout(() => {
-                const repsInput = document.getElementById('repsInput');
-                if (repsInput) repsInput.focus();
-            }, 100);
-        }
         
-        function completeRepsExercise() {
-            const exercise = currentWorkout.exercises[currentExerciseIndex];
-            initMobileWorkoutUI();
-            setTimeout(() => { initInlineRestSelect(); resetInlineRPE(); }, 100);
-            const repsInput = document.getElementById('repsInput');
-            const weightInput = document.getElementById('weightInput');
-            
-            if (!repsInput) {
-                showAlert('Champ de répétitions introuvable. Réessayez.', 'error', 'Erreur');
-                return;
-            }
-            
-            const reps = parseInt(repsInput.value);
-            const weight = weightInput ? parseFloat(weightInput.value) || null : null;
-            
-            if (!reps || reps < 1) {
-                showAlert('Veuillez entrer le nombre de répétitions effectuées.', 'warning', 'Répétitions requises');
-                repsInput.focus();
-                return;
-            }
-            
-            // Save performance
-            savePerformance(exercise.name, reps, weight);
-            playSetDone();
-
-            // 🎮 Gain XP RPG
-            const wKg = useKg ? (weight||0) : Math.round((weight||0) * 0.453592 * 10) / 10;
-            rpgGainXP(exercise._baseName || exercise.name, reps, wKg);
-
-            // Show toast confirmation
-            showToast(`✅ Performance enregistrée : ${reps} reps${weight ? ` × ${weight} kg` : ''}`);
-            
-            // Vibration success
-            vibrate(100);
-            
-            // ✅ NEW: Show RPE prompt before next exercise
-            showRPEPrompt(exercise.name, reps, weight);
-        }
 
         function startRandomWorkout() {
             // 🧒 v1223 : un enfant saute les 3 questions (muscles, mode, durée) :
@@ -18319,143 +17165,10 @@
         
         // ========== RPE TRACKING IN WORKOUTS ==========
         
-        function showRPEPrompt(exerciseName, reps, weight) {
-            // Create modal overlay
-            const overlay = document.createElement('div');
-            overlay.id = 'rpePromptOverlay';
-            overlay.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(0,0,0,0.85);
-                z-index: 10000;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                padding: 20px;
-                animation: fadeIn 0.3s;
-            `;
-            
-            const modal = document.createElement('div');
-            modal.style.cssText = `
-                background: rgba(255,255,255,0.04);
-                border-radius: 20px;
-                max-width: 500px;
-                width: 100%;
-                max-height: 90vh;
-                overflow-y: auto;
-                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-                animation: slideUp 0.3s;
-            `;
-            
-            modal.innerHTML = `
-                <div style="padding: 30px;">
-                    <h2 style="color: #16a34a; margin-bottom: 10px; text-align: center;">Comment s'est passée cette série ?</h2>
-                    <p style="text-align: center; color: #94a3b8; margin-bottom: 20px; font-size: 0.95em;">
-                        ${exerciseName} • ${reps} reps${weight ? ` × ${weight} kg` : ''}
-                    </p>
-                    
-                    <div style="background: linear-gradient(135deg, rgba(29,95,168,0.082) 0%, rgba(22,78,138,0.02) 100%); padding: 15px; border-radius: 14px; margin-bottom: 20px; border-left: 4px solid #16a34a;">
-                        <div style="font-weight: 600; color: #16a34a; margin-bottom: 5px;">📊 RPE (Rate of Perceived Exertion)</div>
-                        <div style="color: #94a3b8; font-size: 0.9em;">Notez l'intensité perçue de 1 (très facile) à 10 (maximum absolu)</div>
-                    </div>
-                    
-                    <div style="display: grid; gap: 8px;">
-                        ${[1,2,3,4,5,6,7,8,9,10].map(rpe => {
-                            const color = getRPEColor(rpe);
-                            let label = '';
-                            if (rpe <= 3) label = 'Très facile';
-                            else if (rpe <= 5) label = 'Modéré';
-                            else if (rpe <= 7) label = 'Difficile';
-                            else if (rpe <= 9) label = 'Très difficile';
-                            else label = 'Maximum';
-                            
-                            return `
-                                <button onclick="saveRPEAndContinue('${exerciseName}', ${rpe})" 
-                                        onmouseover="this.style.background='linear-gradient(135deg, ${color}15 0%, ${color}05 100%)'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)'"
-                                        onmouseout="this.style.background='rgba(255,255,255,0.04)'; this.style.transform='translateY(0)'; this.style.boxShadow='none'"
-                                        style="padding: 15px; border: 2px solid ${color}; border-radius: 14px; background: rgba(255,255,255,0.04); cursor: pointer; display: grid; grid-template-columns: 50px 1fr; align-items: center; gap: 12px; transition: all 0.2s;">
-                                    <div style="font-size: 1.5em; font-weight: 800; text-align: center; color: ${color};">${rpe}</div>
-                                    <div style="text-align: left;">
-                                        <div style="font-weight: 600; color: ${color};">${label}</div>
-                                    </div>
-                                </button>
-                            `;
-                        }).join('')}
-                    </div>
-                    
-                    <button onclick="skipRPEAndContinue()" 
-                            onmouseover="this.style.background='rgba(255,255,255,0.03)'"
-                            onmouseout="this.style.background='rgba(255,255,255,0.04)'"
-                            style="width: 100%; padding: 15px; margin-top: 20px; border: 1px solid rgba(255,255,255,0.12); border-radius: 14px; background: rgba(255,255,255,0.04); color: #94a3b8; cursor: pointer; font-weight: 600; transition: all 0.2s;">
-                        <svg viewBox="0 0 24 24" width="15" height="15" style="display:inline-block;vertical-align:-0.15em;" fill="currentColor" aria-hidden="true"><path d="M5 4 L16 12 L5 20 Z M18 4 h3 v16 h-3 Z"/></svg> Passer (pas de RPE)
-                    </button>
-                </div>
-            `;
-            
-            overlay.appendChild(modal);
-            document.body.appendChild(overlay);
-        }
         
-        function saveRPEAndContinue(exerciseName, rpe) {
-            // Save RPE
-            saveRPE(exerciseName, rpe);
-            
-            // Show confirmation
-            showToast(`📊 RPE ${rpe} enregistré pour ${exerciseName}`);
-            
-            // Update RPE analytics if on history tab
-            if (currentTab === 'history') {
-                renderRPEAnalytics();
-            }
-            
-            // Close modal
-            closeRPEPrompt();
-            
-            // Continue to next exercise
-            currentExerciseIndex++;
-            setTimeout(() => startExercise(), 500);
-        }
         
-        function skipRPEAndContinue() {
-            // Close modal
-            closeRPEPrompt();
-            
-            // Continue to next exercise
-            currentExerciseIndex++;
-            setTimeout(() => startExercise(), 500);
-        }
         
-        function closeRPEPrompt() {
-            const overlay = document.getElementById('rpePromptOverlay');
-            if (overlay) {
-                overlay.remove();
-            }
-        }
         
-        function saveRPE(exerciseName, rpe) {
-            const profileId = getCurrentProfileId();
-            const key = profileId ? `rpeData_${profileId}` : 'rpeData';
-            
-            let rpeData = localStorage.getItem(key);
-            rpeData = rpeData ? JSON.parse(rpeData) : [];
-            
-            rpeData.push({
-                exerciseName: exerciseName,
-                rpe: rpe,
-                date: new Date().toISOString(),
-                timestamp: Date.now()
-            });
-            
-            // Keep only last 200 entries
-            if (rpeData.length > 200) {
-                rpeData = rpeData.slice(-200);
-            }
-            
-            localStorage.setItem(key, JSON.stringify(rpeData));
-        }
         
         function getRPEData() {
             const profileId = getCurrentProfileId();
@@ -20522,24 +19235,6 @@
             }).filter(html => html).join('');
         }
         
-        function filterPRs(filterType) {
-            // Update button styles
-            ['all', 'weight', 'reps', 'volume'].forEach(type => {
-                const btn = document.getElementById(`prFilter-${type}`);
-                if (!btn) return;
-                
-                if (type === filterType) {
-                    btn.style.background = 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
-                    btn.classList.remove('btn-secondary');
-                } else {
-                    btn.style.background = '';
-                    btn.classList.add('btn-secondary');
-                }
-            });
-            
-            // For now, just show all (filtering can be enhanced later)
-            renderPRList();
-        }
         
         // ========== RPE ANALYTICS RENDERING ==========
         
@@ -21436,33 +20131,8 @@
             }, 100);
         }
         
-        function openAccordionByIndex(index) {
-            const sections = document.querySelectorAll('#historyTab .accordion-section');
-            if (sections[index]) {
-                const header = sections[index].querySelector('.accordion-header');
-                if (header) {
-                    toggleAccordion(header);
-                }
-            }
-        }
         
-        function openAllAccordions() {
-            const headers = document.querySelectorAll('#historyTab .accordion-header');
-            headers.forEach(header => {
-                header.classList.add('active');
-                const body = header.nextElementSibling;
-                if (body) body.classList.add('open');
-            });
-        }
         
-        function closeAllAccordions() {
-            const headers = document.querySelectorAll('#historyTab .accordion-header');
-            headers.forEach(header => {
-                header.classList.remove('active');
-                const body = header.nextElementSibling;
-                if (body) body.classList.remove('open');
-            });
-        }
         
         // Auto-convert remaining .card sections in historyTab to accordions
         function initializeHistoryAccordions() {
@@ -21760,129 +20430,10 @@
             });
         }
 
-        // ========== CALENDAR ==========
-        function renderCalendar() {
-            const container = document.getElementById('calendarGrid');
-            if (!container) return; // 📅 grille déplacée dans l'onglet Calendrier
-            const history = getWorkoutHistory();
-            
-            // Update month/year display
-            const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 
-                                'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
-            document.getElementById('calendarMonthYear').textContent = 
-                `${monthNames[currentCalendarMonth]} ${currentCalendarYear}`;
-            
-            container.innerHTML = '';
-            
-            // Add day headers
-            const dayHeaders = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
-            dayHeaders.forEach(day => {
-                const header = document.createElement('div');
-                header.className = 'calendar-header';
-                header.textContent = day;
-                container.appendChild(header);
-            });
-            
-            // Get first day of month and number of days
-            const firstDay = new Date(currentCalendarYear, currentCalendarMonth, 1);
-            const lastDay = new Date(currentCalendarYear, currentCalendarMonth + 1, 0);
-            const daysInMonth = lastDay.getDate();
-            const startingDayOfWeek = firstDay.getDay();
-            
-            // Add previous month days
-            const prevMonthLastDay = new Date(currentCalendarYear, currentCalendarMonth, 0).getDate();
-            for (let i = startingDayOfWeek - 1; i >= 0; i--) {
-                const day = prevMonthLastDay - i;
-                const dayElement = createCalendarDay(day, true, false);
-                container.appendChild(dayElement);
-            }
-            
-            // Add current month days
-            const today = new Date();
-            for (let day = 1; day <= daysInMonth; day++) {
-                const date = new Date(currentCalendarYear, currentCalendarMonth, day);
-                const isToday = date.toDateString() === today.toDateString();
-                const hasWorkout = history.some(entry => {
-                    const entryDate = new Date(entry.date);
-                    return entryDate.toDateString() === date.toDateString();
-                });
-                
-                const dayElement = createCalendarDay(day, false, isToday, hasWorkout);
-                container.appendChild(dayElement);
-            }
-            
-            // Add next month days
-            const remainingDays = 42 - (startingDayOfWeek + daysInMonth); // 6 rows * 7 days
-            for (let day = 1; day <= remainingDays; day++) {
-                const dayElement = createCalendarDay(day, true, false);
-                container.appendChild(dayElement);
-            }
-        }
 
-        function createCalendarDay(dayNumber, isOtherMonth, isToday, hasWorkout = false) {
-            const div = document.createElement('div');
-            div.className = 'calendar-day';
-            if (isOtherMonth) div.classList.add('other-month');
-            if (isToday) div.classList.add('today');
-            if (hasWorkout) div.classList.add('has-workout');
-            
-            div.innerHTML = `
-                <div class="calendar-day-number">${dayNumber}</div>
-                ${hasWorkout ? '<div class="calendar-day-dot"></div>' : ''}
-            `;
-            
-            return div;
-        }
 
-        function previousMonth() {
-            currentCalendarMonth--;
-            if (currentCalendarMonth < 0) {
-                currentCalendarMonth = 11;
-                currentCalendarYear--;
-            }
-            renderCalendar();
-        }
 
-        function nextMonth() {
-            currentCalendarMonth++;
-            if (currentCalendarMonth > 11) {
-                currentCalendarMonth = 0;
-                currentCalendarYear++;
-            }
-            renderCalendar();
-        }
 
-        // ========== FAVORITE WORKOUTS ==========
-        function saveToFavorites(workoutName, historyId) {
-            const history = getWorkoutHistory();
-            const workout = history.find(w => w.id === historyId);
-            
-            if (!workout) {
-                showToast('Séance non trouvée', 'error');
-                return;
-            }
-            
-            const favorites = getFavoriteWorkouts();
-            
-            // Check if already in favorites
-            if (favorites.some(f => f.name === workoutName)) {
-                showToast('Cette séance est déjà dans vos favoris !', 'info');
-                return;
-            }
-            
-            favorites.push({
-                id: Date.now(),
-                name: workoutName,
-                duration: workout.duration,
-                exercises: workout.exercises,
-                muscles: workout.muscles,
-                savedDate: new Date().toISOString()
-            });
-            
-            localStorage.setItem('favoriteWorkouts', JSON.stringify(favorites));
-            showToast('Séance ajoutée aux favoris !', 'success');
-            renderFavoriteWorkouts();
-        }
 
         function renderFavoriteWorkouts() {
             const container = document.getElementById('favoriteWorkoutsList');
@@ -21957,322 +20508,6 @@
             switchTab('workouts');
         }
 
-        // Generate random workout based on selected equipment and muscles
-        function generateRandomWorkout() {
-            // Utiliser les muscles choisis manuellement si disponibles
-            const _overrideMuscles = window._overrideSessionMuscles || null;
-            if (_overrideMuscles) {
-                window._overrideSessionMuscles = null; // consommer le override
-            }
-            const equipmentNames = getSelectedEquipmentNames();
-            const muscleNames = _overrideMuscles || getSelectedMuscleNames();
-            
-            if (equipmentNames.length === 0) {
-                showAlert('Aucun équipement sélectionné. Modifiez votre lieu d\'entraînement (✏️).', 'warning', 'Équipement requis');
-                switchTab('equipment');
-                return null;
-            }
-
-            if (muscleNames.length === 0) {
-                showAlert('Veuillez sélectionner au moins un groupe musculaire dans l\'onglet Équipements.', 'warning', 'Muscles requis');
-                switchTab('equipment');
-                return null;
-            }
-
-            // Filter MAIN exercises (type: "exercise") that match equipment AND muscles
-            const _machineEquip = new Set(['Machine','Barre','Tapis roulant','Rameur','Vélo stationnaire','Elliptique','StairMaster','Battle ropes']);
-            const _bwEquip      = new Set(['Poids du corps','Élastique','TRX','Corde à sauter','Roue abdominale','Swiss Ball','Medicine Ball','Ballon lesté']);
-            const isMachineEx    = ex => (ex.equipment || []).some(e => _machineEquip.has(e));
-            const isBodyweightEx = ex => !isMachineEx(ex) && (ex.equipment || []).some(e => _bwEquip.has(e));
-            let availableExercises = _dbMuscu().filter(exercise => {   // let : réassigné par le filtre de cohérence matérielle
-                if (exercise.type !== 'exercise') return false;
-                // Mode Maison : exclure machines et barres lourdes
-                if (sessionMode === 'home' && isMachineEx(exercise)) return false;
-                // Mode Gym machines seulement
-                if (sessionMode === 'gym' && !gymBodyweightMode && isBodyweightEx(exercise)) return false;
-                // Mode salle bondée : seulement l'équipement disponible maintenant
-                if (busyGymMode && busyGymEquipment.length > 0) {
-                    const hasAvail = (exercise.equipment||[]).some(e => {
-                        const eq = availableEquipment.find(ae => ae.dbName === e);
-                        return eq && busyGymEquipment.includes(eq.id);
-                    });
-                    if (!hasAvail) return false;
-                }
-                const hasEquipment = awakEquipmentOk(exercise, equipmentNames);
-                const hasMuscle = muscleNames.includes(exercise.muscle);
-                const isMainExercise = exercise.type === "exercise";
-                
-                // Allow "Corps entier" exercises as fallback for variety
-                const isFullBody = exercise.muscle === 'Corps entier';
-                
-                // Check machine availability
-                const isMachineAvailable = isExerciseAvailableWithMachines(exercise);
-                
-                // En gym machines seulement, exclure les "Corps entier" poids du corps
-                const allowFullBody = isFullBody &&
-                    !(sessionMode === 'gym' && !gymBodyweightMode && isBodyweightEx(exercise));
-                return ((hasEquipment && hasMuscle && isMainExercise) ||
-                       (hasEquipment && allowFullBody && isMainExercise)) &&
-                       isMachineAvailable;
-            });
-
-            if (availableExercises.length < 5) {
-                showAlert(`Seulement ${availableExercises.length} exercice(s) disponible(s). Sélectionnez plus d'équipements ou de muscles.`, 'warning', 'Pas assez d\'exercices');
-                return null;
-            }
-            
-            // Function to ensure variety (no duplicate exercises)
-            const ensureVariety = (exercises) => {
-                const result = [];
-                const used = new Set();
-                
-                exercises.forEach(ex => {
-                    if (!used.has(ex.name)) {
-                        result.push(ex);
-                        used.add(ex.name);
-                    }
-                });
-                
-                return result;
-            };
-
-            // Create workout structure
-            const workout = {
-                name: 'Séance Intelligente',
-                mode: selectedWorkoutMode, // 'timer', 'reps', 'hybrid'
-                exercises: []
-            };
-
-            // ========== WARMUP SECTION ==========
-            if (includeWarmup) {
-                // Add general warmup intro
-                workout.exercises.push({
-                    name: '🏃‍♂️ Échauffement général',
-                    duration: 120,
-                    instructions: ['Marche sur place', 'Mobilisations articulaires', 'Montée en température progressive', 'Préparez votre corps'],
-                    tips: 'Commencez doucement'
-                });
-
-                // Add 2-3 specific warmup exercises targeting the muscles to be worked
-                const warmupExercises = _dbMuscu().filter(ex => {
-                    if (ex.type !== "warmup") return false;
-                    if (!muscleNames.includes(ex.muscle)) return false;
-                    // En gym machines seulement : exclure warmups poids du corps
-                    if (sessionMode === 'gym' && !gymBodyweightMode) {
-                        const isBW = ex.equipment && ex.equipment.includes('Poids du corps');
-                        if (isBW) return false;
-                    }
-                    return true;
-                });
-                
-                // Select warmups, prioritizing variety
-                const selectedWarmups = [];
-                const targetWarmups = Math.min(3, warmupExercises.length);
-                
-                // Try to get one warmup per different muscle group
-                muscleNames.forEach(muscle => {
-                    if (selectedWarmups.length < targetWarmups) {
-                        const muscleWarmups = warmupExercises.filter(ex => ex.muscle === muscle);
-                        if (muscleWarmups.length > 0) {
-                            const randomWarmup = muscleWarmups[Math.floor(Math.random() * muscleWarmups.length)];
-                            if (!selectedWarmups.find(w => w.name === randomWarmup.name)) {
-                                selectedWarmups.push(randomWarmup);
-                            }
-                        }
-                    }
-                });
-
-                // Add warmup exercises to workout
-                selectedWarmups.forEach(warmup => {
-                    workout.exercises.push({
-                        name: warmup.name,
-                        duration: warmup.duration,
-                        instructions: warmup.instructions,
-                        tips: warmup.tips
-                    });
-                });
-            }
-
-            // ========== MAIN EXERCISES SECTION ==========
-            // Calculate number of exercises based on selected duration
-            // 15min = 4 exercises, 30min = 8, 45min = 12, 60min = 15
-            let targetExerciseCount;
-            if (selectedDuration <= 15) {
-                targetExerciseCount = 4;
-            } else if (selectedDuration <= 30) {
-                targetExerciseCount = 8;
-            } else if (selectedDuration <= 45) {
-                targetExerciseCount = 12;
-            } else {
-                targetExerciseCount = 15;
-            }
-            
-            // Select exercises from available filtered list
-            // 🧰 COHÉRENCE MATÉRIELLE — ce générateur ne l'appliquait PAS.
-            // Le message affiché au joueur (« le Système regroupe chaque séance
-            // autour de 2 ou 3 matériels ») était donc faux ici : on pouvait
-            // sortir 4 matériels différents dans une même séance.
-            // Même logique que l'autre générateur : 2-3 matériels dominants
-            // tirés au hasard pondéré, poids du corps toujours accepté.
-            try {
-                const _isBw = (e) => ['Poids du corps', 'Aucun'].includes(e);
-                const _eqOf = (ex) => (ex.equipment && ex.equipment.length) ? ex.equipment : ['Poids du corps'];
-                const _count = {};
-                availableExercises.forEach(ex => {
-                    _eqOf(ex).forEach(e => { if (!_isBw(e)) _count[e] = (_count[e] || 0) + 1; });
-                });
-                const _viables = Object.keys(_count).filter(e => _count[e] >= 3);
-                const _ranked = (_viables.length >= 2 ? _viables : Object.keys(_count));
-                if (_ranked.length > 1) {
-                    const _pick = function (list) {
-                        const t = list.reduce((s, e) => s + _count[e], 0);
-                        let r = Math.random() * t;
-                        for (const e of list) { r -= _count[e]; if (r <= 0) return e; }
-                        return list[list.length - 1];
-                    };
-                    // 🔢 2 à 3 matériels — aligné sur l'autre générateur (v1127).
-                    const _keep = [];
-                    let _pool2 = _ranked.slice();
-                    const _nbMat2 = (_pool2.length >= 3) ? 3 : 2;
-                    while (_keep.length < _nbMat2 && _pool2.length) {
-                        const _p = _pick(_pool2);
-                        _keep.push(_p);
-                        _pool2 = _pool2.filter(e => e !== _p);
-                    }
-                    const _coherent = availableExercises.filter(ex =>
-                        _eqOf(ex).every(e => _isBw(e) || _keep.includes(e)));
-                    // Garde-fou : marge de 1,5× pour que la séance reste remplissable
-                    if (_coherent.length >= Math.ceil(targetExerciseCount * 1.5)) {
-                        availableExercises = _coherent;
-                    }
-                }
-            } catch (e) {}
-
-            const targetCount = Math.min(targetExerciseCount, availableExercises.length);
-
-            // 🧠 Sélection intelligente : on passe par le cerveau de scoring partagé
-            // (récence, progression, ressenti RPE, fatigue, polyarticulaires d'abord, objectif)
-            // au lieu d'un tirage purement aléatoire. L'ordre compound→isolation→finisher est gardé.
-            let uniqueExercises = [];
-            try {
-                const _profile = (typeof getUserProfile === 'function')
-                    ? getUserProfile() : { level: 'intermediate', goal: 'fitness' };
-                uniqueExercises = generateStructuredWorkout(availableExercises, targetCount, _profile) || [];
-            } catch (e) { uniqueExercises = []; }
-
-            // Repli de sécurité : tirage varié si le scoring ne renvoie rien
-            if (!uniqueExercises.length) {
-                const sel = [];
-                muscleNames.forEach(muscle => {
-                    const grp = availableExercises.filter(ex => ex.muscle === muscle);
-                    if (grp.length && sel.length < targetCount) {
-                        const r = grp[Math.floor(Math.random() * grp.length)];
-                        if (!sel.find(e => e.name === r.name)) sel.push(r);
-                    }
-                });
-                let _g = 0;
-                while (sel.length < targetCount && _g++ < 300) {
-                    const r = availableExercises[Math.floor(Math.random() * availableExercises.length)];
-                    if (!sel.find(e => e.name === r.name)) sel.push(r);
-                }
-                uniqueExercises = sel;
-            }
-
-            uniqueExercises = ensureVariety(uniqueExercises).slice(0, targetCount);
-
-            uniqueExercises.forEach(exercise => {
-                // Determine mode for this exercise
-                const exerciseMode = determineExerciseMode(exercise.name, selectedWorkoutMode);
-                const lastPerf = getLastPerformance(exercise.name);
-                
-                const exerciseObj = {
-                    name: exercise.name,
-                    duration: 60,
-                    instructions: exercise.instructions,
-                    tips: exercise.tips,
-                    mode: exerciseMode, // 'timer' or 'reps'
-                    exerciseType: getExerciseType(exercise.name) // 'force', 'cardio', 'hybrid'
-                };
-                
-                // Add last performance data if in reps mode
-                if (exerciseMode === 'reps' && lastPerf) {
-                    exerciseObj.lastPerformance = lastPerf;
-                }
-                
-                workout.exercises.push(exerciseObj);
-
-                // Add rest between exercises
-                workout.exercises.push({
-                    name: 'Récupération',
-                    duration: 30,
-                    instructions: ['Respirez profondément', 'Hydratez-vous', 'Préparez-vous pour le prochain'],
-                    tips: 'Récupération active',
-                    isRest: true,
-                    mode: 'timer'
-                });
-            });
-
-            // ========== STRETCH SECTION ==========
-            if (includeStretch) {
-                // Add cool down intro
-                workout.exercises.push({
-                    name: '🧘 Retour au calme',
-                    duration: 120,
-                    instructions: ['Marche lente', 'Respirations profondes', 'Ralentissez le rythme cardiaque', 'Préparez les étirements'],
-                    tips: 'Transition vers étirements'
-                });
-
-                // Add 3-4 specific stretch exercises targeting the muscles that were worked
-                const stretchExercises = exerciseDatabase.filter(ex => 
-                    ex.type === "stretch" && muscleNames.includes(ex.muscle)
-                );
-                
-                // Select stretches
-                const selectedStretches = [];
-                const targetStretches = Math.min(4, stretchExercises.length);
-                
-                // Try to get one stretch per different muscle group worked
-                muscleNames.forEach(muscle => {
-                    if (selectedStretches.length < targetStretches) {
-                        const muscleStretches = stretchExercises.filter(ex => ex.muscle === muscle);
-                        if (muscleStretches.length > 0) {
-                            const randomStretch = muscleStretches[Math.floor(Math.random() * muscleStretches.length)];
-                            if (!selectedStretches.find(s => s.name === randomStretch.name)) {
-                                selectedStretches.push(randomStretch);
-                            }
-                        }
-                    }
-                });
-
-                // Add stretch exercises to workout
-                selectedStretches.forEach(stretch => {
-                    workout.exercises.push({
-                        name: stretch.name,
-                        duration: stretch.duration,
-                        instructions: stretch.instructions,
-                        tips: stretch.tips
-                    });
-                });
-
-                // Final relaxation
-                workout.exercises.push({
-                    name: '😌 Relaxation finale',
-                    duration: 60,
-                    instructions: ['Position confortable', 'Respirations profondes', 'Détendez tout le corps', 'Félicitez-vous !'],
-                    tips: 'Excellent travail !'
-                });
-            } else {
-                // If no stretch, just add simple cool down
-                workout.exercises.push({
-                    name: 'Retour au calme',
-                    duration: 180,
-                    instructions: ['Marche lente', 'Respirations profondes', 'Félicitez-vous !'],
-                    tips: 'Prenez le temps de récupérer'
-                });
-            }
-
-            return awakApplyPrescription(workout);
-        }
 
         // Exercise SVG — V45 Ultra Premium
         // 🖼️ v1221 : visuel NEUTRE pour un exercice sans image — plus de personnage
@@ -22306,827 +20541,6 @@
         }
         window.awakVisuelNeutre = awakVisuelNeutre;
 
-        function getExerciseVisual(exerciseName, muscle, position) {
-            var nm = (exerciseName||'').toLowerCase();
-            var S  = (position||'start') === 'start';
-            var id = 'g'+Math.random().toString(36).slice(2,7);
-
-            /* ══ PALETTE ══════════════════════════════════════════════ */
-            var C = {
-                bg0:'#060412', bg1:'#0e0a28', bg2:'#08061a',
-                fl:'#0d0b20',  flg:'rgba(255,255,255,0.05)',
-                sk:'#cf8050',  skd:'#8c4e28', skl:'#eaa870', skh:'#f5c898',
-                ha:'#1a0c04',  hah:'#252830',
-                sh:'#1e3d9e',  shd:'#102268', shl:'#3258c8',
-                pa:'#141e4a',  pad:'#0a1232', pal:'#1e2e70',
-                so:'#111122',  soh:'#22224a', sol:'#2a2a5a',
-                eq:'#888899',  eqd:'#2a2a3a', eql:'#ccccdd',
-                dk:'#cc2222',  dkl:'#ee4444',
-                ok:'#22c55e',  ng:'#ef4444',  ac:'#4ade80'
-            };
-
-            /* ══ SYSTÈME DE RIG ═══════════════════════════════════════
-               Toutes les coordonnées sont calculées depuis un point
-               racine (hips) — jamais de valeurs hardcodées isolées.
-            ══════════════════════════════════════════════════════════ */
-            function makeBody(pose) {
-                /* pose = { hips:[x,y], spine_len, shoulder_w, hip_w,
-                             head_tilt, la:[sh,el,wr], ra:[sh,el,wr],
-                             ll:[hip,knee,ank], rl:[hip,knee,ank],
-                             effort } */
-                var hx = pose.hips[0], hy = pose.hips[1];
-                var sl = pose.spine_len || 62;   /* longueur colonne */
-                var sw = pose.shoulder_w || 28;  /* demi-épaule */
-                var bw = pose.hip_w || 22;       /* demi-hanche */
-                var ht = pose.head_tilt || 0;    /* inclinaison tête */
-
-                /* Points du squelette calculés depuis les hanches */
-                var waist  = [hx, hy - sl*0.35];
-                var chest  = [hx, hy - sl*0.72];
-                var neck   = [hx, hy - sl];
-                var headCy = neck[1] - 16;       /* centre tête */
-
-                /* Épaules */
-                var lsh = [chest[0]-sw, chest[1]+4];
-                var rsh = [chest[0]+sw, chest[1]+4];
-
-                /* Bras depuis poses (angles en degrés depuis épaule) */
-                function armPoint(shoulder, angleDeg, len) {
-                    var r = angleDeg*Math.PI/180;
-                    return [shoulder[0]+Math.sin(r)*len, shoulder[1]+Math.cos(r)*len];
-                }
-
-                var la = pose.la || {sh:25, el:60, wr:90}; /* angle bras gauche */
-                var ra = pose.ra || {sh:-25, el:-60, wr:-90};
-
-                var lel = armPoint(lsh, la.sh, 28);
-                var lwr = armPoint(lel, la.el, 26);
-                var lhand = armPoint(lwr, la.wr, 10);
-
-                var rel = armPoint(rsh, ra.sh, 28);
-                var rwr = armPoint(rel, ra.el, 26);
-                var rhand = armPoint(rwr, ra.wr, 10);
-
-                /* Jambes */
-                var lhip = [hx-bw*0.7, hy];
-                var rhip = [hx+bw*0.7, hy];
-                var ll = pose.ll || {knee:[hx-bw*0.7+2, hy+42], ank:[hx-bw*0.3, hy+80]};
-                var rl = pose.rl || {knee:[hx+bw*0.7-2, hy+42], ank:[hx+bw*0.3+6, hy+80]};
-
-                return {
-                    hx,hy, hips:[hx,hy], waist,chest,neck,headCy,
-                    lsh,rsh, lel,lwr,lhand, rel,rwr,rhand,
-                    lhip,rhip, ll,rl,
-                    sw,bw,sl, effort:pose.effort||false, ht
-                };
-            }
-
-            /* ══ RENDU D'UN RIG ════════════════════════════════════════ */
-            function renderBody(b) {
-                var out = '';
-
-                /* ── Jambe G (dessinée en premier = derrière) ── */
-                out += limb(b.lhip, b.ll.knee, b.ll.ank, 14, C.pa, C.pad, C.pal);
-                out += shoe(b.ll.ank[0], b.ll.ank[1], -1);
-
-                /* ── Jambe D ── */
-                out += limb(b.rhip, b.rl.knee, b.rl.ank, 14, C.pa, C.pad, C.pal);
-                out += shoe(b.rl.ank[0], b.rl.ank[1], 1);
-
-                /* ── Torse ── */
-                out += torsoShape(b.chest, b.hips, b.waist, b.sw*2, b.bw*1.9);
-
-                /* ── Bras G ── */
-                out += limb(b.lsh, b.lel, b.lwr, 9, C.sk, C.skd, C.skl);
-                out += hand(b.lhand[0], b.lhand[1]);
-
-                /* ── Bras D ── */
-                out += limb(b.rsh, b.rel, b.rwr, 9, C.sk, C.skd, C.skl);
-                out += hand(b.rhand[0], b.rhand[1]);
-
-                /* ── Articulations ── */
-                out += jt(b.lsh[0],b.lsh[1],7,C.sh);
-                out += jt(b.rsh[0],b.rsh[1],7,C.sh);
-                out += jt(b.lel[0],b.lel[1],6,C.sk);
-                out += jt(b.rel[0],b.rel[1],6,C.sk);
-                out += jt(b.ll.knee[0],b.ll.knee[1],7,C.pa);
-                out += jt(b.rl.knee[0],b.rl.knee[1],7,C.pa);
-
-                /* ── Tête ── */
-                out += head(b.neck[0], b.headCy, 14);
-
-                return out;
-            }
-
-            /* ══ PRIMITIVES GRAPHIQUES ════════════════════════════════ */
-
-            /* Membre 3 segments avec bezier + volume */
-            function limb(a, b2, c, w, col, dk, lt) {
-                col=col||C.sk; dk=dk||C.skd; lt=lt||C.skl;
-                var w2=w*0.8, w3=w*0.65;
-                return seg(a,b2,w,w2,col,dk,lt) + seg(b2,c,w2,w3,col,dk,lt);
-            }
-
-            function seg(p1,p2,w1,w2, col,dk,lt) {
-                var dx=p2[1]-p1[1], dy=p1[0]-p2[0];
-                var len=Math.sqrt(dx*dx+dy*dy)||1;
-                var nx=dx/len, ny=dy/len;
-                var mx=(p1[0]+p2[0])/2, my=(p1[1]+p2[1])/2;
-                var bx=mx+nx*w1*0.08, by=my+ny*w1*0.08;
-                /* path principal */
-                var path='M '+(p1[0]+nx*w1)+','+(p1[1]+ny*w1)+
-                    ' Q '+bx+','+by+' '+(p2[0]+nx*w2)+','+(p2[1]+ny*w2)+
-                    ' L '+(p2[0]-nx*w2)+','+(p2[1]-ny*w2)+
-                    ' Q '+((p1[0]+p2[0])/2-nx*w1*0.08)+','+((p1[1]+p2[1])/2-ny*w1*0.08)+
-                    ' '+(p1[0]-nx*w1)+','+(p1[1]-ny*w1)+' Z';
-                /* reflet */
-                var rx1=p1[0]-nx*w1*0.45, ry1=p1[1]-ny*w1*0.45;
-                var rx2=p2[0]-nx*w2*0.45, ry2=p2[1]-ny*w2*0.45;
-                return '<path d="'+path+'" fill="'+dk+'" opacity="0.35" transform="translate(0.5,2.5)"/>'+
-                       '<path d="'+path+'" fill="'+col+'"/>'+
-                       '<line x1="'+rx1+'" y1="'+ry1+'" x2="'+rx2+'" y2="'+ry2+'" stroke="'+lt+'" stroke-width="'+(w1*0.3)+'" stroke-linecap="round" opacity="0.5"/>';
-            }
-
-            /* Torse V-taper */
-            function torsoShape(chest, hips, waist, sw, hw) {
-                var cx=chest[0], cy=chest[1];
-                var hx=hips[0], hy=hips[1];
-                var wx=waist[0], wy=waist[1];
-                var sh=sw/2, hh=hw/2;
-                var ww=(sw+hw)/2*0.38; /* demi-taille */
-                var d='M '+(cx-sh)+','+cy+
-                      ' C '+(cx-sh*0.9)+','+wy+' '+(wx-ww)+','+wy+' '+(hx-hh)+','+hy+
-                      ' L '+(hx+hh)+','+hy+
-                      ' C '+(wx+ww)+','+wy+' '+(cx+sh*0.9)+','+wy+' '+(cx+sh)+','+cy+' Z';
-                var shadow='M '+(cx-sh)+','+cy+
-                           ' C '+(cx-sh*0.9)+','+wy+' '+(wx-ww)+','+wy+' '+(hx-hh)+','+hy+
-                           ' L '+(hx-hh+9)+','+hy+
-                           ' C '+(wx-ww+8)+','+wy+' '+(cx-sh*0.85)+','+wy+' '+(cx-sh+8)+','+cy+' Z';
-                var rfl='M '+(cx-5)+','+cy+' Q '+cx+','+(cy+(hy-cy)*0.35)+' '+(cx-3)+','+hy+
-                        ' L '+(cx+5)+','+hy+' Q '+(cx+7)+','+(cy+(hy-cy)*0.35)+' '+(cx+7)+','+cy+' Z';
-                /* pec lines */
-                var pecL='M '+(cx-sh+6)+','+(cy+10)+' Q '+(cx-sh*0.2)+','+(cy+20)+' '+cx+','+(cy+12);
-                var pecR='M '+(cx+sh-6)+','+(cy+10)+' Q '+(cx+sh*0.2)+','+(cy+20)+' '+cx+','+(cy+12);
-                return '<path d="'+d+'" fill="'+C.shd+'" opacity="0.4" transform="translate(1,3)"/>'+
-                       '<path d="'+d+'" fill="'+C.sh+'"/>'+
-                       '<path d="'+shadow+'" fill="'+C.shd+'" opacity="0.28"/>'+
-                       '<path d="'+rfl+'" fill="'+C.shl+'" opacity="0.14"/>'+
-                       '<line x1="'+cx+'" y1="'+(cy+8)+'" x2="'+hx+'" y2="'+(hy-4)+'" stroke="'+C.shd+'" stroke-width="1.2" opacity="0.35"/>'+
-                       '<path d="'+pecL+'" fill="none" stroke="'+C.shd+'" stroke-width="1" opacity="0.28"/>'+
-                       '<path d="'+pecR+'" fill="none" stroke="'+C.shd+'" stroke-width="1" opacity="0.28"/>';
-            }
-
-            /* Tête + visage */
-            function head(cx,cy,r) {
-                return '<rect x="'+(cx-4)+'" y="'+(cy+r)+'" width="8" height="9" rx="3" fill="'+C.sk+'" stroke="'+C.skd+'" stroke-width="0.5"/>'+
-                    '<ellipse cx="'+cx+'" cy="'+cy+'" rx="'+r+'" ry="'+(r*1.08)+'" fill="'+C.skd+'" opacity="0.35" transform="translate(1,3)"/>'+
-                    '<ellipse cx="'+cx+'" cy="'+cy+'" rx="'+r+'" ry="'+(r*1.08)+'" fill="'+C.sk+'"/>'+
-                    '<ellipse cx="'+(cx-r*0.45)+'" cy="'+cy+'" rx="'+(r*0.22)+'" ry="'+(r*0.68)+'" fill="'+C.skd+'" opacity="0.14"/>'+
-                    '<ellipse cx="'+(cx+r*0.12)+'" cy="'+(cy-r*0.18)+'" rx="'+(r*0.2)+'" ry="'+(r*0.24)+'" fill="'+C.skh+'" opacity="0.28"/>';
-            }
-
-            /* Articulation */
-            function jt(cx,cy,r,col) {
-                return '<circle cx="'+cx+'" cy="'+cy+'" r="'+(r+2)+'" fill="'+C.skd+'" opacity="0.35"/>'+
-                       '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+col+'"/>'+
-                       '<circle cx="'+(cx-r*0.33)+'" cy="'+(cy-r*0.33)+'" r="'+(r*0.36)+'" fill="'+C.skh+'" opacity="0.55"/>';
-            }
-
-            /* Chaussure */
-            function shoe(x,y,d) {
-                return '<path d="M '+(x+d*14)+','+(y+8)+' Q '+(x+d*10)+','+(y+13)+' '+(x-d*4)+','+(y+13)+' Q '+(x-d*12)+','+(y+13)+' '+(x-d*14)+','+(y+8)+' L '+(x-d*14)+','+(y+4)+' Q '+(x-d*12)+','+(y+9)+' '+(x-d*4)+','+(y+9)+' Q '+(x+d*10)+','+(y+9)+' '+(x+d*14)+','+(y+5)+' Z" fill="'+C.sol+'"/>'+
-                       '<path d="M '+(x-d*14)+','+(y+4)+' C '+(x-d*12)+','+(y-4)+' '+(x+d*5)+','+(y-8)+' '+(x+d*14)+','+(y-2)+' L '+(x+d*14)+','+(y+4)+' C '+(x+d*6)+','+(y-2)+' '+(x-d*11)+','+(y)+' '+(x-d*14)+','+(y+5)+' Z" fill="'+C.so+'"/>'+
-                       '<path d="M '+(x-d*4)+','+(y-6)+' Q '+(x+d*4)+','+(y-7)+' '+(x+d*10)+','+(y-4)+'" fill="none" stroke="'+C.soh+'" stroke-width="2.2" stroke-linecap="round"/>'+
-                       '<line x1="'+(x-d*4)+'" y1="'+(y-3)+'" x2="'+(x+d*9)+'" y2="'+(y-1)+'" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>';
-            }
-
-            /* Main */
-            function hand(x,y) {
-                return '<ellipse cx="'+x+'" cy="'+y+'" rx="7" ry="5" fill="'+C.sk+'" transform="rotate(15 '+x+' '+y+')"/>';
-            }
-
-            /* Haltère */
-            function db(cx,cy,ang) {
-                ang=ang||0;
-                var r=ang*Math.PI/180, c=Math.cos(r), s=Math.sin(r);
-                var lx=cx-20*c, ly=cy-20*s, rx=cx+20*c, ry=cy+20*s;
-                return '<line x1="'+(lx+0.8)+'" y1="'+(ly+3.5)+'" x2="'+(rx+0.8)+'" y2="'+(ry+3.5)+'" stroke="rgba(0,0,0,0.55)" stroke-width="12" stroke-linecap="round"/>'+
-                       '<line x1="'+lx+'" y1="'+ly+'" x2="'+rx+'" y2="'+ry+'" stroke="'+C.eq+'" stroke-width="5" stroke-linecap="round"/>'+
-                       '<line x1="'+lx+'" y1="'+ly+'" x2="'+rx+'" y2="'+ry+'" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" stroke-linecap="round"/>'+
-                       hexWeight(lx,ly,ang)+hexWeight(rx,ry,ang);
-            }
-
-            function hexWeight(cx,cy,ang) {
-                var pts=[], r=10;
-                for(var i=0;i<6;i++){
-                    var a=(i*60+ang)*Math.PI/180;
-                    pts.push((cx+Math.cos(a)*r)+','+(cy+Math.sin(a)*r));
-                }
-                var pts2=[], r2=7.5;
-                for(var i=0;i<6;i++){
-                    var a=(i*60+ang)*Math.PI/180;
-                    pts2.push((cx+Math.cos(a)*r2)+','+(cy+Math.sin(a)*r2));
-                }
-                return '<polygon points="'+pts.join(' ')+'" fill="'+C.eqd+'"/>'+
-                       '<polygon points="'+pts2.join(' ')+'" fill="'+C.eq+'" opacity="0.6"/>'+
-                       '<polygon points="'+pts2.join(' ')+'" fill="none" stroke="'+C.eql+'" stroke-width="0.5" opacity="0.3"/>';
-            }
-
-            /* Barre olympique */
-            function bb(x1,y,x2) {
-                var cx=(x1+x2)/2;
-                return '<line x1="'+(x1-4)+'" y1="'+(y+5)+'" x2="'+(x2+4)+'" y2="'+(y+5)+'" stroke="rgba(0,0,0,0.65)" stroke-width="18" stroke-linecap="round"/>'+
-                       '<rect x="'+(x1-7)+'" y="'+(y-17)+'" width="16" height="34" rx="3" fill="#1a0808"/>'+
-                       '<rect x="'+(x1-5)+'" y="'+(y-14)+'" width="12" height="28" rx="2" fill="'+C.dk+'"/>'+
-                       '<rect x="'+(x1-3)+'" y="'+(y-10)+'" width="8" height="20" rx="2" fill="'+C.dkl+'" opacity="0.5"/>'+
-                       '<rect x="'+(x2-9)+'" y="'+(y-17)+'" width="16" height="34" rx="3" fill="#1a0808"/>'+
-                       '<rect x="'+(x2-7)+'" y="'+(y-14)+'" width="12" height="28" rx="2" fill="'+C.dk+'"/>'+
-                       '<rect x="'+(x2-5)+'" y="'+(y-10)+'" width="8" height="20" rx="2" fill="'+C.dkl+'" opacity="0.5"/>'+
-                       '<rect x="'+(x1+9)+'" y="'+(y-7)+'" width="8" height="14" rx="2" fill="'+C.eqd+'"/>'+
-                       '<rect x="'+(x2-17)+'" y="'+(y-7)+'" width="8" height="14" rx="2" fill="'+C.eqd+'"/>'+
-                       '<line x1="'+(x1+18)+'" y1="'+y+'" x2="'+(x2-18)+'" y2="'+y+'" stroke="'+C.eq+'" stroke-width="7" stroke-linecap="round"/>'+
-                       '<line x1="'+(x1+18)+'" y1="'+(y-2)+'" x2="'+(x2-18)+'" y2="'+(y-2)+'" stroke="rgba(255,255,255,0.25)" stroke-width="1.8" stroke-linecap="round"/>'+
-                       '<line x1="'+(cx-24)+'" y1="'+y+'" x2="'+(cx+24)+'" y2="'+y+'" stroke="rgba(0,0,0,0.4)" stroke-width="0.8" stroke-dasharray="1.5,2.5"/>';
-            }
-
-            /* Barre traction */
-            function pb(y) {
-                y=y||40;
-                return '<line x1="20" y1="18" x2="20" y2="'+y+'" stroke="'+C.eqd+'" stroke-width="6"/>'+
-                       '<line x1="200" y1="18" x2="200" y2="'+y+'" stroke="'+C.eqd+'" stroke-width="6"/>'+
-                       '<rect x="14" y="'+y+'" width="192" height="10" rx="5" fill="'+C.eqd+'"/>'+
-                       '<rect x="16" y="'+y+'" width="188" height="6" rx="4" fill="'+C.eq+'"/>'+
-                       '<rect x="16" y="'+(y+1)+'" width="188" height="3" rx="3" fill="rgba(255,255,255,0.2)"/>'+
-                       '<rect x="14" y="14" width="200" height="5" rx="2" fill="rgba(255,255,255,0.03)"/>'+
-                       '<circle cx="36" cy="'+(y+5)+'" r="2" fill="'+C.eqd+'"/>'+
-                       '<circle cx="184" cy="'+(y+5)+'" r="2" fill="'+C.eqd+'"/>'+
-                       '<circle cx="110" cy="'+(y+5)+'" r="2" fill="'+C.eqd+'"/>';
-            }
-
-            /* Banc */
-            function bench(x,y,w) {
-                w=w||155;
-                return '<rect x="'+(x+6)+'" y="'+(y+22)+'" width="10" height="44" rx="3" fill="'+C.eqd+'"/>'+
-                       '<rect x="'+(x+w-16)+'" y="'+(y+22)+'" width="10" height="44" rx="3" fill="'+C.eqd+'"/>'+
-                       '<line x1="'+(x+11)+'" y1="'+(y+44)+'" x2="'+(x+w-11)+'" y2="'+(y+44)+'" stroke="'+C.eqd+'" stroke-width="5"/>'+
-                       '<rect x="'+x+'" y="'+y+'" width="'+w+'" height="24" rx="7" fill="'+C.eqd+'"/>'+
-                       '<rect x="'+(x+2)+'" y="'+y+'" width="'+(w-4)+'" height="15" rx="6" fill="#253050"/>'+
-                       '<line x1="'+(x+10)+'" y1="'+(y+5)+'" x2="'+(x+w-10)+'" y2="'+(y+5)+'" stroke="rgba(255,255,255,0.09)" stroke-width="2" stroke-linecap="round"/>'+
-                       '<line x1="'+(x+w*0.33)+'" y1="'+(y+4)+'" x2="'+(x+w*0.33)+'" y2="'+(y+18)+'" stroke="rgba(0,0,0,0.3)" stroke-width="1"/>'+
-                       '<line x1="'+(x+w*0.66)+'" y1="'+(y+4)+'" x2="'+(x+w*0.66)+'" y2="'+(y+18)+'" stroke="rgba(0,0,0,0.3)" stroke-width="1"/>';
-            }
-
-            /* Halo muscle actif */
-            function mh(cx,cy,rx2,ry2,col,a,op) {
-                a=a||0; op=op||0.38;
-                return '<ellipse cx="'+cx+'" cy="'+cy+'" rx="'+rx2+'" ry="'+ry2+'" fill="'+col+'" opacity="'+op+'" transform="rotate('+a+' '+cx+' '+cy+')" filter="url(#gw'+id+')"/>';
-            }
-
-            /* Flèche */
-            function arr(x1,y1,x2,y2,col) {
-                col=col||C.ac;
-                var dx=x2-x1,dy=y2-y1,len=Math.sqrt(dx*dx+dy*dy)||1;
-                var nx=dx/len,ny=dy/len,ax=x2-nx*13,ay=y2-ny*13;
-                return '<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+col+'" stroke-width="2.5" stroke-dasharray="5,3" opacity="0.8"/>'+
-                       '<polygon points="'+x2+','+y2+' '+(ax+ny*6)+','+(ay-nx*6)+' '+(ax-ny*6)+','+(ay+nx*6)+'" fill="'+col+'" opacity="0.95"/>';
-            }
-
-            /* Tip */
-            function tip(t) {
-                return '<text x="110" y="233" fill="rgba(255,255,255,0.3)" font-size="8" text-anchor="middle" font-family="system-ui,sans-serif">'+t+'</text>';
-            }
-
-            /* ══ WRAPPER SVG fond gym ════════════════════════════════════ */
-            function W(body, lbl, lc, ac2) {
-                return '<svg viewBox="0 0 220 238" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:100%;">'+
-                '<defs>'+
-                '<linearGradient id="bg'+id+'" x1="0" y1="0" x2="0.1" y2="1">'+
-                  '<stop offset="0%" stop-color="'+C.bg0+'"/>'+
-                  '<stop offset="55%" stop-color="'+C.bg1+'"/>'+
-                  '<stop offset="100%" stop-color="'+C.bg2+'"/>'+
-                '</linearGradient>'+
-                '<radialGradient id="am'+id+'" cx="30%" cy="28%" r="65%">'+
-                  '<stop offset="0%" stop-color="'+ac2+'" stop-opacity="0.14"/>'+
-                  '<stop offset="100%" stop-color="'+ac2+'" stop-opacity="0"/>'+
-                '</radialGradient>'+
-                '<filter id="gw'+id+'" x="-60%" y="-60%" width="220%" height="220%">'+
-                  '<feGaussianBlur stdDeviation="6"/>'+
-                '</filter>'+
-                '</defs>'+
-                '<rect width="220" height="238" rx="16" fill="url(#bg'+id+')"/>'+
-                '<rect width="220" height="238" rx="16" fill="url(#am'+id+')"/>'+
-                /* rack bg */
-                '<rect x="4"  y="88" width="7"  height="114" rx="2" fill="rgba(255,255,255,0.025)"/>'+
-                '<rect x="209" y="88" width="7"  height="114" rx="2" fill="rgba(255,255,255,0.025)"/>'+
-                '<rect x="4"  y="88" width="212" height="5" rx="2" fill="rgba(255,255,255,0.03)"/>'+
-                '<rect x="4"  y="128" width="212" height="3" rx="2" fill="rgba(255,255,255,0.02)"/>'+
-                /* miroir */
-                '<rect x="12" y="42" width="196" height="158" rx="4" fill="rgba(255,255,255,0.015)" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>'+
-                /* sol caoutchouc */
-                '<rect x="0" y="200" width="220" height="38" fill="'+C.fl+'"/>'+
-                '<line x1="0" y1="200" x2="220" y2="200" stroke="rgba(255,255,255,0.1)" stroke-width="1.5"/>'+
-                '<line x1="0" y1="208" x2="220" y2="208" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>'+
-                '<line x1="0" y1="216" x2="220" y2="216" stroke="rgba(255,255,255,0.02)" stroke-width="1"/>'+
-                '<ellipse cx="110" cy="200" rx="85" ry="6" fill="rgba(255,255,255,0.04)"/>'+
-                /* label */
-                '<rect x="8" y="8" width="204" height="26" rx="12" fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>'+
-                '<text x="110" y="24" fill="'+lc+'" font-size="11" font-weight="800" text-anchor="middle" font-family="system-ui,sans-serif" letter-spacing="0.5">'+lbl+'</text>'+
-                body+
-                '</svg>';
-            }
-
-            /* ══════════════════════════════════════════════════════════
-               POSES — définies en angles et distances relatives
-               Coordonnées hips = point central du personnage
-               Tout le reste est calculé depuis ce point.
-            ══════════════════════════════════════════════════════════ */
-
-            /* ── POMPES ── */
-            if (nm.includes('pompe')||(nm.includes('push')&&!nm.includes('down')&&!nm.includes('press'))) {
-                if (S) {
-                    var b = makeBody({
-                        hips:[110,162], spine_len:52, shoulder_w:26, hip_w:20,
-                        la:{sh:25, el:30, wr:35}, ra:{sh:-25, el:-30, wr:-35},
-                        ll:{knee:[84,180], ank:[84,198]},
-                        rl:{knee:[136,180], ank:[136,198]},
-                        effort:false
-                    });
-                    return W(renderBody(b) +
-                        mh(110,b.chest[1]+8,30,10,'#16a34a',0,0.3)+
-                        arr(110,42,110,b.headCy-16,C.ok)+
-                        tip('Corps aligné · bras tendus · descendre lentement'),
-                    '⬆  POSITION HAUTE','#4ade80','#16a34a');
-                } else {
-                    var b = makeBody({
-                        hips:[110,186], spine_len:42, shoulder_w:26, hip_w:20,
-                        la:{sh:8, el:15, wr:22}, ra:{sh:-8, el:-15, wr:-22},
-                        ll:{knee:[84,196], ank:[84,200]},
-                        rl:{knee:[136,196], ank:[136,200]},
-                        effort:true
-                    });
-                    return W(renderBody(b) +
-                        mh(110,b.chest[1]+8,32,10,'#16a34a',0,0.44)+
-                        arr(110,b.headCy+20,110,b.chest[1]+4,C.ng)+
-                        tip('Poitrine près du sol · coudes à 45° · expirer'),
-                    '⬇  POSITION BASSE','#f87171','#16a34a');
-                }
-            }
-
-            /* ── SQUAT ── */
-            if (nm.includes('squat')&&!nm.includes('smith')&&!nm.includes('hack')) {
-                if (S) {
-                    var b = makeBody({
-                        hips:[110,140], spine_len:68, shoulder_w:28, hip_w:24,
-                        la:{sh:20, el:50, wr:80}, ra:{sh:-20, el:-50, wr:-80},
-                        ll:{knee:[96,172], ank:[88,198]},
-                        rl:{knee:[124,172], ank:[132,198]},
-                        effort:false
-                    });
-                    return W(renderBody(b) +
-                        arr(152,160,152,196,C.ac)+
-                        tip('Pieds largeur épaules · dos droit · talons au sol'),
-                    '⬆  DEBOUT','#4ade80','#4ade80');
-                } else {
-                    var b = makeBody({
-                        hips:[110,152], spine_len:56, shoulder_w:30, hip_w:30,
-                        la:{sh:55, el:90, wr:110}, ra:{sh:-55, el:-90, wr:-110},
-                        ll:{knee:[86,162], ank:[76,198]},
-                        rl:{knee:[134,162], ank:[144,198]},
-                        effort:true
-                    });
-                    return W(renderBody(b) +
-                        mh(96,162,24,16,'#f59e0b',38,0.42)+mh(124,162,24,16,'#f59e0b',-38,0.42)+
-                        mh(110,152,18,14,'#4ade80',0,0.38)+
-                        arr(110,b.headCy-20,110,b.headCy-50,C.ng)+
-                        tip('Cuisses parallèles · genoux dans l\'axe · talons au sol'),
-                    '⬇  EN BAS','#f87171','#f59e0b');
-                }
-            }
-
-            /* ── PLANCHE ── */
-            if (nm.includes('planche')||nm.includes('plank')||nm.includes('gainage')) {
-                if (S) {
-                    var b = makeBody({
-                        hips:[115,162], spine_len:44, shoulder_w:24, hip_w:20,
-                        la:{sh:-50, el:-38, wr:-20}, ra:{sh:-50, el:-38, wr:-20},
-                        ll:{knee:[148,170], ank:[164,198]},
-                        rl:{knee:[148,170], ank:[164,198]},
-                        effort:false
-                    });
-                    return W(renderBody(b) +
-                        '<line x1="40" y1="72" x2="172" y2="106" stroke="#4ade80" stroke-width="1.5" stroke-dasharray="9,5" opacity="0.45"/>'+
-                        mh(110,b.hips[1]-6,42,10,'#16a34a',0,0.35)+
-                        tip('Corps rigide · abdos serrés · fessiers contractés'),
-                    '✓  ALIGNEMENT PARFAIT','#4ade80','#16a34a');
-                } else {
-                    var b = makeBody({
-                        hips:[115,172], spine_len:40, shoulder_w:22, hip_w:20,
-                        la:{sh:-50, el:-38, wr:-20}, ra:{sh:-50, el:-38, wr:-20},
-                        ll:{knee:[148,182], ank:[164,200]},
-                        rl:{knee:[148,182], ank:[164,200]},
-                        effort:false
-                    });
-                    return W(renderBody(b) +
-                        '<line x1="40" y1="84" x2="172" y2="120" stroke="#f87171" stroke-width="1.5" stroke-dasharray="9,5" opacity="0.5"/>'+
-                        arr(110,b.hips[1]-8,110,b.hips[1]+12,C.ng)+
-                        tip('❌ Contracter les abdos — corps rigide'),
-                    '⚠  HANCHES QUI TOMBENT','#f87171','#ef4444');
-                }
-            }
-
-            /* ── CURL BICEPS ── */
-            if ((nm.includes('curl')&&!nm.includes('hair')&&!nm.includes('leg'))||muscle==='Biceps') {
-                if (S) {
-                    var b = makeBody({
-                        hips:[110,148], spine_len:70, shoulder_w:28, hip_w:22,
-                        la:{sh:8, el:6, wr:5}, ra:{sh:-8, el:-6, wr:-5},
-                        ll:{knee:[96,172], ank:[88,198]},
-                        rl:{knee:[124,172], ank:[132,198]},
-                        effort:false
-                    });
-                    return W(renderBody(b) +
-                        db(b.lhand[0]+4,b.lhand[1]+8,5)+db(b.rhand[0]-4,b.rhand[1]+8,-5)+
-                        arr(b.lel[0]+4,b.lel[1]+10,b.lel[0]+4,b.lel[1]-8,C.ac)+
-                        tip('Coudes collés · supination · dos droit'),
-                    '⬇  BRAS TENDUS','#4ade80','#4ade80');
-                } else {
-                    var b = makeBody({
-                        hips:[110,148], spine_len:70, shoulder_w:28, hip_w:22,
-                        la:{sh:0, el:-140, wr:-160}, ra:{sh:0, el:140, wr:160},
-                        ll:{knee:[96,172], ank:[88,198]},
-                        rl:{knee:[124,172], ank:[132,198]},
-                        effort:true
-                    });
-                    return W(renderBody(b) +
-                        db(b.lhand[0],b.lhand[1],30)+db(b.rhand[0],b.rhand[1],-30)+
-                        mh(b.lel[0],b.lel[1],10,18,C.ac,14,0.5)+mh(b.rel[0],b.rel[1],10,18,C.ac,-14,0.5)+
-                        arr(b.lel[0]+4,b.lel[1]+14,b.lel[0]-10,b.lel[1]-10,C.ac)+
-                        tip('Contraction max · pause 1s · descendre lentement'),
-                    '⬆  BICEPS CONTRACTÉS','#f87171','#4ade80');
-                }
-            }
-
-            /* ── TRACTION ── */
-            if (nm.includes('traction')||(nm.includes('pull')&&nm.includes('up'))) {
-                if (S) {
-                    var b = makeBody({
-                        hips:[110,175], spine_len:72, shoulder_w:26, hip_w:20,
-                        la:{sh:180, el:180, wr:180}, ra:{sh:180, el:180, wr:180},
-                        ll:{knee:[102,188], ank:[100,200]},
-                        rl:{knee:[118,188], ank:[120,200]},
-                        effort:false
-                    });
-                    return W(pb(42) + renderBody(b) +
-                        '<ellipse cx="'+b.lhand[0]+'" cy="'+(b.lhand[1]-2)+'" rx="8" ry="4" fill="'+C.sk+'" transform="rotate(-10 '+b.lhand[0]+' '+(b.lhand[1]-2)+')"/>'+
-                        '<ellipse cx="'+b.rhand[0]+'" cy="'+(b.rhand[1]-2)+'" rx="8" ry="4" fill="'+C.sk+'" transform="rotate(10 '+b.rhand[0]+' '+(b.rhand[1]-2)+')"/>'+
-                        arr(110,b.headCy+18,110,b.headCy-6,C.ac)+
-                        tip('Bras tendus · épaules basses · inspiration'),
-                    '⬇  SUSPENDU','#4ade80','#4ade80');
-                } else {
-                    var b = makeBody({
-                        hips:[110,140], spine_len:68, shoulder_w:26, hip_w:20,
-                        la:{sh:180, el:180, wr:180}, ra:{sh:180, el:180, wr:180},
-                        ll:{knee:[102,158], ank:[100,178]},
-                        rl:{knee:[118,158], ank:[120,178]},
-                        effort:true
-                    });
-                    return W(pb(42) + renderBody(b) +
-                        '<ellipse cx="'+b.lhand[0]+'" cy="'+(b.lhand[1]-2)+'" rx="8" ry="4" fill="'+C.sk+'" transform="rotate(-10 '+b.lhand[0]+' '+(b.lhand[1]-2)+')"/>'+
-                        '<ellipse cx="'+b.rhand[0]+'" cy="'+(b.rhand[1]-2)+'" rx="8" ry="4" fill="'+C.sk+'" transform="rotate(10 '+b.rhand[0]+' '+(b.rhand[1]-2)+')"/>'+
-                        mh(b.lel[0],b.lel[1],22,16,C.ac,14,0.46)+mh(b.rel[0],b.rel[1],22,16,C.ac,-14,0.46)+
-                        arr(164,b.chest[1]+10,164,b.headCy-2,C.ng)+
-                        tip('Menton au-dessus · dorsaux contractés · expirer'),
-                    '⬆  MENTON EN HAUT','#f87171','#4ade80');
-                }
-            }
-
-            /* ── CRUNCH ── */
-            if (muscle==='Abdominaux'||nm.includes('crunch')||nm.includes('abdo')||nm.includes('sit')) {
-                if (S) {
-                    var b = makeBody({
-                        hips:[112,148], spine_len:46, shoulder_w:22, hip_w:20,
-                        la:{sh:-28, el:-20, wr:-8}, ra:{sh:-28, el:-20, wr:-8},
-                        ll:{knee:[136,138], ank:[150,178]},
-                        rl:{knee:[150,128], ank:[156,170]},
-                        effort:false
-                    });
-                    return W(renderBody(b) +
-                        '<line x1="14" y1="182" x2="190" y2="182" stroke="rgba(255,255,255,0.08)" stroke-width="1.5"/>'+
-                        arr(b.chest[0]-20,b.headCy-12,b.chest[0]-20,b.headCy+6,C.ac)+
-                        tip('Lombaires au sol · genoux pliés · bras sur le torse'),
-                    '⬇  ALLONGÉ','#4ade80','#4ade80');
-                } else {
-                    var b = makeBody({
-                        hips:[112,150], spine_len:38, shoulder_w:22, hip_w:20,
-                        la:{sh:-28, el:-20, wr:-8}, ra:{sh:-28, el:-20, wr:-8},
-                        ll:{knee:[136,142], ank:[150,182]},
-                        rl:{knee:[150,132], ank:[156,174]},
-                        effort:true
-                    });
-                    return W(renderBody(b) +
-                        mh(b.chest[0],b.hips[1]-10,28,10,C.ac,16,0.44)+
-                        '<line x1="14" y1="185" x2="190" y2="185" stroke="rgba(255,255,255,0.08)" stroke-width="1.5"/>'+
-                        arr(b.chest[0]-20,b.headCy+10,b.chest[0]-20,b.headCy-8,C.ng)+
-                        tip('Expirer · abdos contractés · pas le cou'),
-                    '⬆  ABDOS CONTRACTÉS','#f87171','#4ade80');
-                }
-            }
-
-            /* ── FENTE ── */
-            if (nm.includes('fente')||nm.includes('lunge')) {
-                if (S) {
-                    var b = makeBody({
-                        hips:[110,140], spine_len:68, shoulder_w:28, hip_w:24,
-                        la:{sh:20, el:50, wr:80}, ra:{sh:-20, el:-50, wr:-80},
-                        ll:{knee:[96,172], ank:[88,198]},
-                        rl:{knee:[124,172], ank:[132,198]},
-                        effort:false
-                    });
-                    return W(renderBody(b) +
-                        arr(150,158,150,196,C.ac)+
-                        tip('Avancer un grand pas · dos vertical · regard devant'),
-                    '⬆  DEBOUT','#4ade80','#4ade80');
-                } else {
-                    var b = makeBody({
-                        hips:[108,145], spine_len:62, shoulder_w:26, hip_w:22,
-                        la:{sh:22, el:50, wr:75}, ra:{sh:-22, el:-50, wr:-75},
-                        ll:{knee:[72,148], ank:[58,196]},
-                        rl:{knee:[156,168], ank:[172,198]},
-                        effort:false
-                    });
-                    return W(renderBody(b) +
-                        mh(72,162,20,14,'#f59e0b',24,0.42)+
-                        arr(110,b.headCy-18,110,b.headCy-40,C.ng)+
-                        tip('Genou avant 90° · genou arrière vers le sol · dos droit'),
-                    '⬇  FENTE AVANT','#f87171','#f59e0b');
-                }
-            }
-
-            /* ── BENCH PRESS ── */
-            if ((nm.includes('bench')||nm.includes('développé')||(nm.includes('press')&&muscle==='Pectoraux'))&&!nm.includes('militaire')&&!nm.includes('shoulder')) {
-                if (S) {
-                    var b = makeBody({
-                        hips:[110,162], spine_len:55, shoulder_w:30, hip_w:30,
-                        la:{sh:-55, el:-68, wr:-72}, ra:{sh:55, el:68, wr:72},
-                        ll:{knee:[82,168], ank:[82,200]},
-                        rl:{knee:[138,168], ank:[138,200]},
-                        effort:false
-                    });
-                    return W(bench(28,158,162) + renderBody(b) +
-                        bb(28,b.lhand[1]-2,192)+
-                        mh(110,b.chest[1]+8,32,13,'#16a34a',0,0.28)+
-                        arr(110,b.lhand[1]-25,110,b.lhand[1]-45,C.ok)+
-                        tip('Bras tendus · descendre contrôlé · pieds au sol'),
-                    '⬆  BRAS TENDUS','#4ade80','#16a34a');
-                } else {
-                    var b = makeBody({
-                        hips:[110,162], spine_len:55, shoulder_w:30, hip_w:30,
-                        la:{sh:-22, el:-18, wr:-14}, ra:{sh:22, el:18, wr:14},
-                        ll:{knee:[82,168], ank:[82,200]},
-                        rl:{knee:[138,168], ank:[138,200]},
-                        effort:true
-                    });
-                    return W(bench(28,158,162) + renderBody(b) +
-                        bb(32,b.lhand[1]+2,188)+
-                        mh(110,b.chest[1]+8,32,13,'#16a34a',0,0.46)+
-                        arr(110,b.chest[1]+22,110,b.chest[1]+4,C.ng)+
-                        tip('Barre sur les pectoraux · coudes à 45° · expirer'),
-                    '⬇  BARRE SUR LA POITRINE','#f87171','#16a34a');
-                }
-            }
-
-            /* ── OVERHEAD PRESS ── */
-            if (muscle==='Épaules'||(nm.includes('press')&&(nm.includes('militaire')||nm.includes('shoulder')||nm.includes('overhead')))) {
-                if (S) {
-                    var b = makeBody({
-                        hips:[110,148], spine_len:70, shoulder_w:28, hip_w:22,
-                        la:{sh:180, el:180, wr:180}, ra:{sh:180, el:180, wr:180},
-                        ll:{knee:[96,172], ank:[88,198]},
-                        rl:{knee:[124,172], ank:[132,198]},
-                        effort:false
-                    });
-                    return W(renderBody(b) +
-                        bb(30,b.lhand[1],190)+
-                        mh(b.lsh[0],b.lsh[1],14,18,C.ac,-18,0.4)+mh(b.rsh[0],b.rsh[1],14,18,C.ac,18,0.4)+
-                        arr(110,b.lhand[1]-22,110,b.lhand[1]-42,C.ok)+
-                        tip('Bras tendus · core engagé · expirer en poussant'),
-                    '⬆  BARRE AU-DESSUS','#4ade80','#4ade80');
-                } else {
-                    var b = makeBody({
-                        hips:[110,148], spine_len:70, shoulder_w:28, hip_w:22,
-                        la:{sh:-20, el:-16, wr:-10}, ra:{sh:20, el:16, wr:10},
-                        ll:{knee:[96,172], ank:[88,198]},
-                        rl:{knee:[124,172], ank:[132,198]},
-                        effort:true
-                    });
-                    return W(renderBody(b) +
-                        bb(32,b.lhand[1]+2,188)+
-                        arr(110,b.chest[1]+20,110,b.headCy,C.ng)+
-                        tip('Barre aux clavicules · coudes devant · inspirer'),
-                    '⬇  BARRE AUX ÉPAULES','#f87171','#4ade80');
-                }
-            }
-
-            /* ── DEADLIFT ── */
-            if (nm.includes('soulevé')||nm.includes('deadlift')) {
-                if (S) {
-                    var b = makeBody({
-                        hips:[110,162], spine_len:50, shoulder_w:26, hip_w:24,
-                        la:{sh:38, el:30, wr:22}, ra:{sh:-38, el:-30, wr:-22},
-                        ll:{knee:[96,174], ank:[84,198]},
-                        rl:{knee:[124,174], ank:[136,198]},
-                        effort:false
-                    });
-                    return W(renderBody(b) +
-                        bb(28,b.lhand[1]+6,192)+
-                        '<line x1="'+b.lhand[0]+'" y1="'+(b.lhand[1]+6)+'" x2="32" y2="'+(b.lhand[1]+8)+'" stroke="'+C.eq+'" stroke-width="3" stroke-linecap="round" opacity="0.7"/>'+
-                        '<line x1="'+b.rhand[0]+'" y1="'+(b.rhand[1]+6)+'" x2="188" y2="'+(b.rhand[1]+8)+'" stroke="'+C.eq+'" stroke-width="3" stroke-linecap="round" opacity="0.7"/>'+
-                        arr(110,b.headCy-18,110,b.headCy-38,C.ok)+
-                        tip('Dos neutre · barre contre tibias · hanches basses'),
-                    '⬇  POSITION DÉPART','#4ade80','#4ade80');
-                } else {
-                    var b = makeBody({
-                        hips:[110,148], spine_len:70, shoulder_w:28, hip_w:22,
-                        la:{sh:10, el:8, wr:5}, ra:{sh:-10, el:-8, wr:-5},
-                        ll:{knee:[96,172], ank:[88,198]},
-                        rl:{knee:[124,172], ank:[132,198]},
-                        effort:true
-                    });
-                    return W(renderBody(b) +
-                        bb(28,b.lhand[1]+2,192)+
-                        '<line x1="'+b.lhand[0]+'" y1="'+(b.lhand[1]+2)+'" x2="32" y2="'+(b.lhand[1]+4)+'" stroke="'+C.eq+'" stroke-width="3" stroke-linecap="round" opacity="0.7"/>'+
-                        '<line x1="'+b.rhand[0]+'" y1="'+(b.rhand[1]+2)+'" x2="188" y2="'+(b.rhand[1]+4)+'" stroke="'+C.eq+'" stroke-width="3" stroke-linecap="round" opacity="0.7"/>'+
-                        mh(110,b.hips[1]-8,24,18,C.ac,0,0.35)+
-                        arr(110,b.hips[1]+8,110,b.headCy,C.ng)+
-                        tip('Hanches et épaules montent ensemble · expirer'),
-                    '⬆  DEBOUT CHARGE LEVÉE','#f87171','#4ade80');
-                }
-            }
-
-            /* ── ROWING / DOS ── */
-            if (muscle==='Dos'||nm.includes('tirage')||nm.includes('rowing')||nm.includes('row')) {
-                if (S) {
-                    var b = makeBody({
-                        hips:[108,162], spine_len:52, shoulder_w:26, hip_w:22,
-                        la:{sh:40, el:35, wr:28}, ra:{sh:-10, el:-8, wr:-5},
-                        ll:{knee:[96,175], ank:[88,198]},
-                        rl:{knee:[124,175], ank:[132,198]},
-                        effort:false
-                    });
-                    return W(renderBody(b) +
-                        arr(b.lsh[0]-8,b.lsh[1]-8,b.lsh[0]-8,b.lsh[1]-28,C.ac)+
-                        tip('Bras tendus · dos neutre · hanches derrière les pieds'),
-                    '⬆  BRAS TENDUS','#4ade80','#4ade80');
-                } else {
-                    var b = makeBody({
-                        hips:[108,162], spine_len:52, shoulder_w:26, hip_w:22,
-                        la:{sh:-40, el:-55, wr:-45}, ra:{sh:-40, el:-55, wr:-45},
-                        ll:{knee:[96,175], ank:[88,198]},
-                        rl:{knee:[124,175], ank:[132,198]},
-                        effort:true
-                    });
-                    return W(renderBody(b) +
-                        mh(b.chest[0]-8,b.chest[1]-4,26,18,C.ac,10,0.46)+
-                        arr(b.lel[0]+8,b.lel[1]+10,b.lel[0]+8,b.lel[1]-10,C.ng)+
-                        tip('Coudes derrière · omoplates serrées · expirer'),
-                    '⬆  COUDES EN ARRIÈRE','#f87171','#4ade80');
-                }
-            }
-
-            /* ── ÉLÉVATION LATÉRALE / ÉPAULES ── */
-            if (nm.includes('latéral')||nm.includes('elev')||nm.includes('lateral')) {
-                if (S) {
-                    var b = makeBody({
-                        hips:[110,148], spine_len:70, shoulder_w:28, hip_w:22,
-                        la:{sh:12, el:8, wr:5}, ra:{sh:-12, el:-8, wr:-5},
-                        ll:{knee:[96,172], ank:[88,198]},
-                        rl:{knee:[124,172], ank:[132,198]},
-                        effort:false
-                    });
-                    return W(renderBody(b) +
-                        db(b.lhand[0]+2,b.lhand[1]+8,5)+db(b.rhand[0]-2,b.rhand[1]+8,-5)+
-                        arr(b.lel[0]+4,b.lel[1]+8,b.lel[0]+4,b.lel[1]-6,C.ac)+
-                        tip('Légère flexion du coude · poignets neutres'),
-                    '⬇  BRAS LE LONG','#4ade80','#4ade80');
-                } else {
-                    var b = makeBody({
-                        hips:[110,148], spine_len:70, shoulder_w:28, hip_w:22,
-                        la:{sh:-78, el:-75, wr:-70}, ra:{sh:78, el:75, wr:70},
-                        ll:{knee:[96,172], ank:[88,198]},
-                        rl:{knee:[124,172], ank:[132,198]},
-                        effort:false
-                    });
-                    return W(renderBody(b) +
-                        db(b.lhand[0],b.lhand[1],-8)+db(b.rhand[0],b.rhand[1],8)+
-                        mh(b.lsh[0],b.lsh[1],20,14,C.ac,0,0.5)+mh(b.rsh[0],b.rsh[1],20,14,C.ac,0,0.5)+
-                        arr(b.lel[0]+12,b.lel[1]+6,b.lsh[0]+10,b.lsh[1]+2,C.ng)+
-                        tip('Jusqu\'à l\'horizontal · pas plus · contrôler'),
-                    '⬆  BRAS À L\'HORIZONTAL','#f87171','#4ade80');
-                }
-            }
-
-            /* ── TRICEPS ── */
-            if (muscle==='Triceps'||nm.includes('tricep')||nm.includes('dip')) {
-                if (S) {
-                    var b = makeBody({
-                        hips:[110,148], spine_len:70, shoulder_w:28, hip_w:22,
-                        la:{sh:10, el:8, wr:6}, ra:{sh:-10, el:-8, wr:-6},
-                        ll:{knee:[96,172], ank:[88,198]},
-                        rl:{knee:[124,172], ank:[132,198]},
-                        effort:false
-                    });
-                    return W(renderBody(b) +
-                        db(b.lhand[0]+2,b.lhand[1]+8,5)+db(b.rhand[0]-2,b.rhand[1]+8,-5)+
-                        tip('Coudes collés · prise pronation · dos droit'),
-                    '⬇  BRAS TENDUS','#4ade80','#4ade80');
-                } else {
-                    var b = makeBody({
-                        hips:[110,148], spine_len:70, shoulder_w:28, hip_w:22,
-                        la:{sh:8, el:160, wr:170}, ra:{sh:-8, el:-160, wr:-170},
-                        ll:{knee:[96,172], ank:[88,198]},
-                        rl:{knee:[124,172], ank:[132,198]},
-                        effort:true
-                    });
-                    return W(renderBody(b) +
-                        db(b.lhand[0],b.lhand[1],-22)+db(b.rhand[0],b.rhand[1],22)+
-                        mh(b.lel[0],b.lel[1],9,20,C.ac,12,0.52)+mh(b.rel[0],b.rel[1],9,20,C.ac,-12,0.52)+
-                        arr(b.lel[0]+4,b.lel[1]+12,b.lel[0]-6,b.lel[1]-10,C.ng)+
-                        tip('Extension complète · contraction 1 seconde'),
-                    '⬆  TRICEPS CONTRACTÉS','#f87171','#4ade80');
-                }
-            }
-
-            /* ── JAMBES (générique) ── */
-            if (muscle==='Quadriceps'||muscle==='Ischio-jambiers'||muscle==='Fessiers'||muscle==='Mollets'||muscle==='Adducteurs') {
-                var mc3=muscle==='Fessiers'?'#f59e0b':muscle==='Mollets'?'#10b981':C.ac;
-                if (S) {
-                    var b = makeBody({
-                        hips:[110,140], spine_len:68, shoulder_w:28, hip_w:24,
-                        la:{sh:20, el:50, wr:80}, ra:{sh:-20, el:-50, wr:-80},
-                        ll:{knee:[96,172], ank:[88,198]},
-                        rl:{knee:[124,172], ank:[132,198]},
-                        effort:false
-                    });
-                    return W(renderBody(b) + tip('Position initiale · dos neutre · poids réparti'), '⬆  DEBOUT','#4ade80',mc3);
-                } else {
-                    var b = makeBody({
-                        hips:[110,152], spine_len:56, shoulder_w:30, hip_w:30,
-                        la:{sh:55, el:90, wr:110}, ra:{sh:-55, el:-90, wr:-110},
-                        ll:{knee:[86,162], ank:[76,198]},
-                        rl:{knee:[134,162], ank:[144,198]},
-                        effort:true
-                    });
-                    return W(renderBody(b) +
-                        mh(96,162,24,16,mc3,38,0.42)+mh(124,162,24,16,mc3,-38,0.42)+
-                        arr(110,b.headCy-18,110,b.headCy-40,C.ng)+
-                        tip('Flexion contrôlée · axe genoux/orteils respecté'),
-                    '⬇  EN FLEXION','#f87171',mc3);
-                }
-            }
-
-            /* ── CARDIO ── */
-            if (muscle==='Cardio'||nm.includes('jump')||nm.includes('run')||nm.includes('cardio')||nm.includes('sprint')) {
-                if (S) {
-                    var b = makeBody({
-                        hips:[108,148], spine_len:65, shoulder_w:26, hip_w:22,
-                        la:{sh:45, el:80, wr:110}, ra:{sh:-20, el:-55, wr:-88},
-                        ll:{knee:[92,172], ank:[76,198]},
-                        rl:{knee:[128,162], ank:[148,192]},
-                        effort:false
-                    });
-                    return W(renderBody(b) +
-                        mh(110,b.hips[1]-4,24,30,'#f59e0b',0,0.26)+
-                        arr(128,b.headCy-14,140,b.headCy-36,'#4ade80')+
-                        tip('Rythme régulier · respiration abdominale'),
-                    '🏃  EN MOUVEMENT','#4ade80','#f59e0b');
-                } else {
-                    var b = makeBody({
-                        hips:[108,150], spine_len:62, shoulder_w:26, hip_w:22,
-                        la:{sh:-30, el:-65, wr:-95}, ra:{sh:50, el:82, wr:108},
-                        ll:{knee:[90,172], ank:[72,198]},
-                        rl:{knee:[132,158], ank:[155,195]},
-                        effort:true
-                    });
-                    return W(renderBody(b) +
-                        mh(110,b.hips[1]-4,24,32,'#f59e0b',0,0.36)+
-                        tip('Expirer à chaque foulée · maintenir l\'allure'),
-                    '💪  INTENSITÉ MAX','#f87171','#f59e0b');
-                }
-            }
-
-            /* ── DEFAULT ── */
-            var b = makeBody({
-                hips:[110,148], spine_len:70, shoulder_w:28, hip_w:22,
-                la:{sh:20, el:50, wr:78}, ra:{sh:-20, el:-50, wr:-78},
-                ll:{knee:[96,172], ank:[88,198]},
-                rl:{knee:[124,172], ank:[132,198]},
-                effort: !S
-            });
-            return W(renderBody(b) +
-                (S ? arr(150,160,150,196,C.ac) : arr(110,b.headCy-16,110,b.headCy-36,C.ng))+
-                tip('Focus · technique correcte · respiration'),
-            S?'⬆  DÉBUT':'⬇  EFFORT', S?C.ok:C.ng, C.ac);
-        }
 
 
         // Tab switching
@@ -23139,48 +20553,7 @@
             // skipExercise() — et en séance l'image sautait DEUX exercices (avec
             // js/gestures.js). js/gestures.js gère maintenant tous les gestes.
             return;
-            let startX = 0, startY = 0, startTime = 0;
-            const SWIPE_THRESHOLD  = 60;   // px min
-            const SWIPE_MAX_Y      = 80;   // px max vertical drift
-            const SWIPE_MAX_TIME   = 400;  // ms max
-
-            document.addEventListener('touchstart', e => {
-                // Ignorer si l'utilisateur touche un input, slider ou bouton
-                if (['INPUT','SELECT','TEXTAREA','BUTTON'].includes(e.target.tagName)) return;
-                startX    = e.touches[0].clientX;
-                startY    = e.touches[0].clientY;
-                startTime = Date.now();
-            }, { passive: true });
-
-            document.addEventListener('touchend', e => {
-                if (!startX) return;
-                const dx   = e.changedTouches[0].clientX - startX;
-                const dy   = e.changedTouches[0].clientY - startY;
-                const dt   = Date.now() - startTime;
-
-                // Seulement swipe horizontal rapide
-                if (Math.abs(dx) < SWIPE_THRESHOLD) return;
-                if (Math.abs(dy) > SWIPE_MAX_Y)     return;
-                if (dt > SWIPE_MAX_TIME)             return;
-                // Ignorer si l'utilisateur scrolle verticalement
-                if (Math.abs(dy) > Math.abs(dx) * 0.7) return;
-
-                // Swipe pendant une séance → exercice suivant/précédent
-                const inSession = document.getElementById('exerciseView')?.classList.contains('active')
-                               || document.getElementById('exerciseView')?.style.display !== 'none';
-                if (inSession) {
-                    if (dx < 0 && typeof skipExercise   === 'function') skipExercise();
-                    if (dx > 0 && typeof prevExercise   === 'function') prevExercise();
-                    return;
-                }
-
-                // Swipe dans les onglets
-                const idx = TAB_ORDER.indexOf(currentTab);
-                if (dx < 0 && idx < TAB_ORDER.length - 1) switchTab(TAB_ORDER[idx + 1]);
-                if (dx > 0 && idx > 0)                    switchTab(TAB_ORDER[idx - 1]);
-
-                startX = 0;
-            }, { passive: true });
+            // (ancien contenu retiré : fonction désactivée)
         }
 
         function switchTab(tabName) {
@@ -23517,122 +20890,14 @@
             }
         }
 
-        // ══════════════════════════════════════════════════════════════════
-        // 📊 DASHBOARD ACCUEIL
-        // ══════════════════════════════════════════════════════════════════
-        function updateHomeDashboard() {
-            const stats = loadStats();
-            const streak = stats?.streak || 0;
 
-            // Streak
-            const dashStreak = document.getElementById('dashStreak');
-            if (dashStreak) dashStreak.textContent = streak > 0 ? `${streak}🔥` : '0';
 
-            // Sessions this week
-            const dashWeek = document.getElementById('dashWeekSessions');
-            if (dashWeek) {
-                const weekCount = getSessionsThisWeek();
-                dashWeek.textContent = `${weekCount}/7`;
-                dashWeek.style.color = weekCount >= 4 ? '#4ade80' : weekCount >= 2 ? '#fbbf24' : '#f87171';
-            }
 
-            // Next recommended muscle
-            const dashMuscle = document.getElementById('dashNextMuscle');
-            if (dashMuscle) {
-                const next = getNextRecommendedMuscle();
-                dashMuscle.textContent = next ? next : '💪 Tout groupe';
-            }
-
-            // Last PR
-            const dashPR = document.getElementById('dashLastPR');
-            if (dashPR) {
-                const pr = getLastPRBroken();
-                dashPR.textContent = pr ? pr : 'Aucun encore';
-            }
-        }
-
-        function getSessionsThisWeek() {
-            try {
-                const history = getWorkoutHistory();
-                const now = new Date();
-                const startOfWeek = new Date(now);
-                startOfWeek.setHours(0,0,0,0);
-                startOfWeek.setDate(now.getDate() - ((now.getDay() + 6) % 7)); // Monday
-                return history.filter(w => {
-                    const d = new Date(w.date || w.completedAt || 0);
-                    return d >= startOfWeek;
-                }).length;
-            } catch(e) { return 0; }
-        }
-
-        function getNextRecommendedMuscle() {
-            try {
-                const allM = ['Pectoraux','Dos','Épaules','Biceps','Triceps','Quadriceps','Fessiers','Abdominaux','Mollets'];
-                const statuses = getAllMusclesRecoveryStatus();
-                // Find muscles that are fully recovered (status = 'recovered' or no data)
-                const ready = allM.filter(m => {
-                    const s = statuses[m];
-                    return !s || s === 'recovered' || s === 'ready';
-                });
-                if (ready.length === 0) return '😴 Tous en récup';
-                // Prioritize least-recently worked
-                const perfs = getExercisePerformances();
-                const lastWorked = {};
-                Object.entries(perfs).forEach(([exName, sessions]) => {
-                    if (!sessions.length) return;
-                    const ex = exerciseDatabase.find(e => e.name === exName);
-                    if (!ex || !ex.muscle) return;
-                    const lastDate = new Date(sessions[sessions.length - 1].date || 0);
-                    if (!lastWorked[ex.muscle] || lastDate > lastWorked[ex.muscle]) {
-                        lastWorked[ex.muscle] = lastDate;
-                    }
-                });
-                ready.sort((a, b) => (lastWorked[a] || 0) - (lastWorked[b] || 0));
-                const icons = {'Pectoraux':'💪','Dos':'🦸','Épaules':'🏋️','Biceps':'💪','Triceps':'🔱','Quadriceps':'🦵','Fessiers':'🍑','Abdominaux':'🔥','Mollets':'👟'};
-                return `${icons[ready[0]] || '💪'} ${ready[0]}`;
-            } catch(e) { return null; }
-        }
-
-        function getLastPRBroken() {
-            try {
-                const prs = getPRs();
-                let latest = null;
-                let latestDate = 0;
-                Object.entries(prs).forEach(([exName, data]) => {
-                    const checkEntry = (entry, label) => {
-                        if (entry && entry.date) {
-                            const d = new Date(entry.date).getTime();
-                            if (d > latestDate) {
-                                latestDate = d;
-                                const val = entry.weight ? `${entry.weight}${useKg ? 'kg' : 'lbs'} × ${entry.reps}` : `${entry.reps} reps`;
-                                latest = `${exName.split(' ').slice(0,2).join(' ')} — ${val}`;
-                            }
-                        }
-                    };
-                    if (data.maxWeight) checkEntry(data.maxWeight, 'poids');
-                    if (data.maxReps) checkEntry(data.maxReps, 'reps');
-                });
-                return latest;
-            } catch(e) { return null; }
-        }
 
         // ══════════════════════════════════════════════════════════════════
         // ⛶ MODE PLEIN ÉCRAN SÉANCE
         // ══════════════════════════════════════════════════════════════════
         let _sessionFullscreen = false;
-        function toggleSessionFullscreen() {
-            _sessionFullscreen = !_sessionFullscreen;
-            const btn = document.getElementById('fullscreenBtn');
-            if (_sessionFullscreen) {
-                document.body.classList.add('session-fullscreen');
-                if (btn) btn.textContent = '✕';
-                if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(()=>{});
-            } else {
-                document.body.classList.remove('session-fullscreen');
-                if (btn) btn.textContent = '⛶';
-                if (document.exitFullscreen && document.fullscreenElement) document.exitFullscreen().catch(()=>{});
-            }
-        }
         // Reset fullscreen when leaving session
         document.addEventListener('fullscreenchange', () => {
             if (!document.fullscreenElement && _sessionFullscreen) {
@@ -23934,21 +21199,6 @@
 
         // ── MENU ··· SÉANCE ────────────────────────────────────────────
         let _sessionMenuOpen = false;
-        function toggleSessionMenu() {
-            _sessionMenuOpen = !_sessionMenuOpen;
-            const menu = document.getElementById('sessionOverflowMenu');
-            const btn  = document.getElementById('sessionMenuBtn');
-            if (menu) menu.style.display = _sessionMenuOpen ? 'block' : 'none';
-            if (btn)  btn.style.background = _sessionMenuOpen ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.08)';
-        }
-        function updateMuteBtn() {
-            const btn = document.getElementById('muteBtn');
-            if (btn) btn.textContent = (typeof isMuted !== 'undefined' && isMuted) ? '🔇 Son (off)' : '🔊 Son (on)';
-        }
-        function updateVibBtn() {
-            const btn = document.getElementById('vibBtn');
-            if (btn) btn.textContent = (typeof vibDisabled !== 'undefined' && vibDisabled) ? '📵 Vib (off)' : '📳 Vib (on)';
-        }
         function syncContextualBtns() {
             const swapVisible    = document.getElementById('swapBtn')?.style.display !== 'none';
             const machineVisible = document.getElementById('machineOccupiedBtn')?.style.display !== 'none';
@@ -24076,276 +21326,15 @@
         let selectedDifficulty = 3;
         let currentFeedbackModal = null;
         
-        function initProgressionSystem() {
-            const saved = localStorage.getItem(_cleProfilLecture('exerciseProgression'));
-            if (saved) {
-                return JSON.parse(saved);
-            }
-            return {};
-        }
         
-        function saveProgressionData(data) {
-            localStorage.setItem(_cleProfil('exerciseProgression'), JSON.stringify(data));
-        }
         
-        function getExerciseRecommendation(exerciseName) {
-            const progressionData = initProgressionSystem();
-            const exerciseData = progressionData[exerciseName];
-            
-            if (!exerciseData) {
-                return {
-                    reps: 10,
-                    difficulty: "normal",
-                    isFirstTime: true
-                };
-            }
-            
-            return {
-                reps: exerciseData.currentReps || 10,
-                difficulty: exerciseData.difficulty || "normal",
-                progressionCount: exerciseData.progressionCount || 0,
-                isFirstTime: false
-            };
-        }
         
-        function recordExercisePerformance(exerciseName, performance) {
-            const progressionData = initProgressionSystem();
-            
-            if (!progressionData[exerciseName]) {
-                progressionData[exerciseName] = {
-                    currentReps: performance.reps || 10,
-                    difficulty: "normal",
-                    history: [],
-                    lastProgression: new Date().toISOString(),
-                    progressionCount: 0
-                };
-            }
-            
-            progressionData[exerciseName].history.push({
-                date: new Date().toISOString(),
-                reps: performance.reps,
-                difficulty: performance.difficulty,
-                feedback: performance.feedback
-            });
-            
-            if (progressionData[exerciseName].history.length > 10) {
-                progressionData[exerciseName].history = progressionData[exerciseName].history.slice(-10);
-            }
-            
-            saveProgressionData(progressionData);
-            
-            return applyAutoProgression(exerciseName, performance);
-        }
         
-        function applyAutoProgression(exerciseName, latestPerformance) {
-            const progressionData = initProgressionSystem();
-            const exerciseData = progressionData[exerciseName];
-            
-            if (!exerciseData || exerciseData.history.length < 2) {
-                return null;
-            }
-            
-            const recentPerformances = exerciseData.history.slice(-3);
-            const easyCount = recentPerformances.filter(p => p.difficulty <= 2).length;
-            const hardCount = recentPerformances.filter(p => p.difficulty >= 4).length;
-            
-            let progressionMessage = null;
-            
-            // FACILE : +2 reps
-            if (easyCount >= 2) {
-                const oldReps = exerciseData.currentReps;
-                exerciseData.currentReps += 2;
-                progressionMessage = {
-                    type: 'success',
-                    exercise: exerciseName,
-                    oldValue: oldReps,
-                    newValue: exerciseData.currentReps,
-                    message: `🎉 Progression ! ${exerciseName} : ${oldReps} → ${exerciseData.currentReps} reps`
-                };
-                exerciseData.progressionCount++;
-                exerciseData.lastProgression = new Date().toISOString();
-                exerciseData.difficulty = "easy";
-            }
-            
-            // DIFFICILE : -1 rep
-            else if (hardCount >= 2 && exerciseData.currentReps > 5) {
-                const oldReps = exerciseData.currentReps;
-                exerciseData.currentReps = Math.max(5, exerciseData.currentReps - 1);
-                progressionMessage = {
-                    type: 'adjustment',
-                    exercise: exerciseName,
-                    oldValue: oldReps,
-                    newValue: exerciseData.currentReps,
-                    message: `⚠️ Ajustement : ${exerciseName} : ${oldReps} → ${exerciseData.currentReps} reps`
-                };
-                exerciseData.difficulty = "hard";
-            }
-            
-            saveProgressionData(progressionData);
-            return progressionMessage;
-        }
         
-        function showExerciseFeedbackModal(exerciseName, exerciseDuration) {
-            const modal = document.createElement('div');
-            modal.className = 'modal active';
-            modal.innerHTML = `
-                <div class="modal-content" style="max-width: 500px;">
-                    <div class="modal-header">
-                        <h2>Comment c'était ?</h2>
-                    </div>
-                    <div class="modal-body">
-                        <h3 style="text-align: center; margin-bottom: 20px; color: #16a34a;">${exerciseName}</h3>
-                        
-                        <div style="margin: 25px 0;">
-                            <label style="display: block; font-weight: bold; margin-bottom: 10px; color: #e2e8f0;">
-                                🎯 Combien de répétitions avez-vous fait ?
-                            </label>
-                            <input type="number" id="perfReps" min="1" max="100" value="10" 
-                                   style="width: 100%; padding: 15px; font-size: 1.3em; border: 2px solid #16a34a; border-radius: 10px; text-align: center;">
-                            <small style="color: #94a3b8; display: block; margin-top: 8px;">Indiquez le nombre total de répétitions réalisées</small>
-                        </div>
-                        
-                        <div style="margin: 25px 0;">
-                            <label style="display: block; font-weight: bold; margin-bottom: 15px; color: #e2e8f0;">
-                                😓 Difficulté ressentie
-                            </label>
-                            <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;">
-                                <button class="difficulty-btn" data-difficulty="1" onclick="selectDifficulty(1)" 
-                                        style="padding: 15px 8px; border: 2px solid rgba(255,255,255,0.12); border-radius: 10px; background: rgba(255,255,255,0.04); cursor: pointer; transition: all 0.2s;">
-                                    <div style="font-size: 2em;">😊</div>
-                                    <div style="font-size: 0.75em; margin-top: 5px;">Facile</div>
-                                </button>
-                                <button class="difficulty-btn" data-difficulty="2" onclick="selectDifficulty(2)"
-                                        style="padding: 15px 8px; border: 2px solid rgba(255,255,255,0.12); border-radius: 10px; background: rgba(255,255,255,0.04); cursor: pointer; transition: all 0.2s;">
-                                    <div style="font-size: 2em;">🙂</div>
-                                    <div style="font-size: 0.75em; margin-top: 5px;">OK</div>
-                                </button>
-                                <button class="difficulty-btn" data-difficulty="3" onclick="selectDifficulty(3)"
-                                        style="padding: 15px 8px; border: 2px solid #16a34a; border-radius: 10px; background: linear-gradient(135deg, #FFF3E0 0%, #bbf7d0 100%); cursor: pointer; transition: all 0.2s;">
-                                    <div style="font-size: 2em;">😐</div>
-                                    <div style="font-size: 0.75em; margin-top: 5px;">Moyen</div>
-                                </button>
-                                <button class="difficulty-btn" data-difficulty="4" onclick="selectDifficulty(4)"
-                                        style="padding: 15px 8px; border: 2px solid rgba(255,255,255,0.12); border-radius: 10px; background: rgba(255,255,255,0.04); cursor: pointer; transition: all 0.2s;">
-                                    <div style="font-size: 2em;">😅</div>
-                                    <div style="font-size: 0.75em; margin-top: 5px;">Dur</div>
-                                </button>
-                                <button class="difficulty-btn" data-difficulty="5" onclick="selectDifficulty(5)"
-                                        style="padding: 15px 8px; border: 2px solid rgba(255,255,255,0.12); border-radius: 10px; background: rgba(255,255,255,0.04); cursor: pointer; transition: all 0.2s;">
-                                    <div style="font-size: 2em;">😰</div>
-                                    <div style="font-size: 0.75em; margin-top: 5px;">Très dur</div>
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <button class="btn" onclick="submitExerciseFeedback('${exerciseName.replace(/'/g, "\\'")}', ${exerciseDuration})"
-                                style="width: 100%; margin-top: 20px; padding: 15px; font-size: 1.1em; background: linear-gradient(135deg, #22d3ee 0%, #3b82f6 100%);">
-                            ✅ Valider et continuer
-                        </button>
-                        
-                        <button onclick="skipExerciseFeedback()" 
-                                style="width: 100%; margin-top: 10px; padding: 12px; background: transparent; border: none; color: #94a3b8; cursor: pointer; font-size: 0.9em;">
-                            Passer →
-                        </button>
-                    </div>
-                </div>
-            `;
-            
-            document.body.appendChild(modal);
-            currentFeedbackModal = modal;
-            selectedDifficulty = 3;
-            
-            document.getElementById('perfReps').focus();
-        }
         
-        function selectDifficulty(level) {
-            selectedDifficulty = level;
-            
-            document.querySelectorAll('.difficulty-btn').forEach(btn => {
-                btn.style.border = '2px solid rgba(255,255,255,0.12)';
-                btn.style.background = 'rgba(255,255,255,0.04)';
-                btn.style.color = '#e2e8f0';
-            });
-            
-            const selectedBtn = document.querySelector(`[data-difficulty="${level}"]`);
-            if (selectedBtn) {
-                selectedBtn.style.border = '3px solid #16a34a';
-                selectedBtn.style.background = 'linear-gradient(135deg, #FFF3E0 0%, #bbf7d0 100%)';
-            }
-        }
         
-        function submitExerciseFeedback(exerciseName, exerciseDuration) {
-            const reps = parseInt(document.getElementById('perfReps').value) || 10;
-            const difficulty = selectedDifficulty || 3;
-            
-            const performance = {
-                reps: reps,
-                difficulty: difficulty,
-                feedback: difficulty <= 2 ? "facile" : difficulty >= 4 ? "difficile" : "normal"
-            };
-            
-            const progressionMessage = recordExercisePerformance(exerciseName, performance);
-            
-            if (currentFeedbackModal) {
-                currentFeedbackModal.remove();
-                currentFeedbackModal = null;
-            }
-            
-            if (progressionMessage) {
-                showProgressionNotification(progressionMessage);
-            }
-        }
         
-        function skipExerciseFeedback() {
-            if (currentFeedbackModal) {
-                currentFeedbackModal.remove();
-                currentFeedbackModal = null;
-            }
-        }
         
-        function showProgressionNotification(progressionMsg) {
-            const notification = document.createElement('div');
-            notification.style.cssText = `
-                position: fixed;
-                top: 80px;
-                right: 20px;
-                background: ${progressionMsg.type === 'success' ? 'linear-gradient(135deg, #60a8f0 0%, #3b82f6 100%)' : 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)'};
-                color: white;
-                padding: 20px 25px;
-                border-radius: 14px;
-                box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-                z-index: 10000;
-                animation: slideInRight 0.5s ease-out;
-                max-width: 350px;
-                font-weight: bold;
-                font-size: 1.1em;
-            `;
-            
-            notification.innerHTML = progressionMsg.message;
-            
-            document.body.appendChild(notification);
-            
-            const style = document.createElement('style');
-            style.textContent = `
-                @keyframes slideInRight {
-                    from { transform: translateX(400px); opacity: 0; }
-                    to { transform: translateX(0); opacity: 1; }
-                }
-            `;
-            if (!document.getElementById('progression-animations')) {
-                style.id = 'progression-animations';
-                document.head.appendChild(style);
-            }
-            
-            if (progressionMsg.type === 'success' && 'vibrate' in navigator) {
-                navigator.haptic.pr();
-            }
-            
-            setTimeout(() => {
-                notification.style.animation = 'slideInRight 0.5s ease-out reverse';
-                setTimeout(() => notification.remove(), 500);
-            }, 5000);
-        }
 
         function updateStreak(stats) {
             const today = new Date().toDateString();
@@ -24578,7 +21567,7 @@
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1241);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1246);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -24622,7 +21611,7 @@
                 +       '<feGaussianBlur stdDeviation="2.4" result="b"/>'
                 +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>'
                 +     '</filter></defs>'
-                +     '<image href="' + img + '?v=1241" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1246" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -25970,10 +22959,6 @@
             filterExercises();
         }
         
-        function filterBlacklistedExercises(exercises) {
-            const blacklist = getExerciseBlacklist();
-            return exercises.filter(ex => !blacklist.includes(ex.name));
-        }
 
         function checkIfFiltersActive() {
             const searchTerm = document.getElementById('searchInput').value;
@@ -26322,7 +23307,7 @@
             { eq: 'Barre',             txt: 'Pas de barre ? Deux haltères, un kettlebell, ou un sac lesté font le même travail.' },
             { eq: 'Haltères',          txt: 'Pas d\'haltères ? Deux bouteilles d\'eau pleines, un sac à dos chargé, ou un élastique.' },
             { eq: 'Kettlebell',        txt: 'Pas de kettlebell ? Un sac à dos chargé tenu à deux mains, ou un haltère.' },
-            { eq: 'Barres parallèles', txt: 'Pas de barres ? Deux chaises solides côte à côte, ou le rebord d\'un banc.' },
+            { eq: 'Barres parallèles', txt: 'Pas de barre ? Pour les tractions, une barre de porte suffit ; pour les dips, deux chaises solides côte à côte.' },
             { eq: 'Banc',              txt: 'Pas de banc ? Le sol, un lit ferme, ou deux chaises alignées.' },
             { eq: 'TRX',               txt: 'Pas de TRX ? Une serviette solide passée autour d\'une poignée de porte fermée.' },
             { eq: 'Swiss Ball',        txt: 'Pas de Swiss Ball ? Fais-le au sol, ou pose les pieds sur une chaise.' },
@@ -26605,7 +23590,7 @@
             document.getElementById('modalDescription').textContent = exercise.description;
             document.getElementById('modalTips').textContent = exercise.tips;
             
-            const difficultyClass = `difficulty-${exercise.difficulty.toLowerCase().replace('é', 'e')}`;
+            const difficultyClass = `difficulty-${String(exercise.difficulty || 'Intermédiaire').toLowerCase().replace('é', 'e')}`;
             const _exKey2 = exercise._baseName || exercise.name;
             const _imgSrc2 = window.EXERCISE_IMAGES && (window.EXERCISE_IMAGES[_exKey2] || window.EXERCISE_IMAGES[exercise.name]);
             const _mediaHTML2 = _imgSrc2
@@ -26825,12 +23810,12 @@
                     if (exerciseFromDB.type === 'warmup') {
                         typeBadge = `<span style="display:inline-block;background:rgba(251,191,36,0.15);border:1px solid rgba(251,191,36,0.4);color:#fbbf24;padding:1px 5px;border-radius:6px;font-size:0.55em;font-weight:900;letter-spacing:1px;margin-right:5px;text-transform:uppercase;">🏃 ÉCHAUF.</span>`;
                     } else if (exerciseFromDB.type === 'stretch') {
-                        typeBadge = `<span style="display:inline-block;background:rgba(34,197,94,0.15);border:1px solid rgba(74,222,128,0.4);color:#4ade80;padding:1px 5px;border-radius:6px;font-size:0.55em;font-weight:900;letter-spacing:1px;margin-right:5px;text-transform:uppercase;">🧘 ÉTIR.</span>`;
+                        typeBadge = `<span style="display:inline-block;background:rgba(167,139,250,0.15);border:1px solid rgba(167,139,250,0.4);color:#c4b5fd;padding:1px 5px;border-radius:6px;font-size:0.55em;font-weight:900;letter-spacing:1px;margin-right:5px;text-transform:uppercase;">🧘 ÉTIR.</span>`;
                     }
                 }
 
                 const checkIcon = isCompleted ? '✓' : isCurrent ? '▶' : (index + 1);
-                const iconShadow = isCurrent ? 'box-shadow:0 0 12px rgba(74,222,128,0.5);' : '';
+                const iconShadow = isCurrent ? 'box-shadow:0 0 12px rgba(96,168,240,0.5);' : '';
 
                 item.innerHTML = `
                     <div class="progress-checkbox" style="width:32px;height:32px;border-radius:6px;background:${iconBg};color:${iconColor};display:flex;align-items:center;justify-content:center;font-size:0.85em;font-weight:900;flex-shrink:0;${iconShadow}border:1px solid ${border};">
@@ -28992,24 +25977,8 @@
             }
         }
 
-        function initInlineRestSelect() {
-            const sel = document.getElementById('inlineRestSelect');
-            if (!sel || !currentWorkout) return;
-            const exName = currentWorkout.exercises[currentExerciseIndex]?.name;
-            const override = exName ? exerciseRestOverrides[exName] : null;
-            const val = override || globalRestSeconds;
-            sel.value = [30,45,60,90,120,180,240,300].reduce((prev,curr) =>
-                Math.abs(curr-val) < Math.abs(prev-val) ? curr : prev, 90).toString();
-        }
 
         function getInlineRPE() { return _currentInlineRPE; }
-        function resetInlineRPE() {
-            _currentInlineRPE = null;
-            for (let i=1;i<=10;i++) {
-                const b = document.getElementById('rpeInlineBtn'+i);
-                if (b) { b.style.background='rgba(255,255,255,0.04)'; b.style.color='#94a3b8'; b.style.borderColor='rgba(255,255,255,0.12)'; }
-            }
-        }
 
         function setGlobalRest(seconds) {
             globalRestSeconds = seconds;
@@ -29701,18 +26670,6 @@
                 } catch(e) {}
             }
         }
-        function generateWorkoutSummaryText(workout, stats) {
-            const emojis = ['💪', '🔥', '⚡', '🏆', '💯', '🎯'];
-            const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
-            
-            const templates = [
-                `${randomEmoji} Séance terminée !\n⏱️ ${stats.duration} min | 💪 ${stats.exercises} exercices\n${workout.name}\n#CoachPro #Fitness`,
-                `Je viens de terminer ${stats.duration} min d\'entraînement ${randomEmoji}\n💪 ${stats.exercises} exercices\n#Workout #FitnessMotivation`,
-                `${randomEmoji} ${stats.duration} minutes dans la poche !\n${workout.name}\n🔥 ~${Math.round(stats.duration * 8)} kcal\n#CoachPro`
-            ];
-            
-            return templates[Math.floor(Math.random() * templates.length)];
-        }
 
 
         // ── BANDEAU REPOS GLOBAL ────────────────────────────────────────
@@ -29760,18 +26717,6 @@
             if (typeof finishSetRest === 'function') finishSetRest();
         }
 
-        // ── ANIMATION TRANSITION EXERCICE ──────────────────────────────
-        function animateExerciseTransition(callback) {
-            const card = document.querySelector('#exerciseView .card');
-            if (!card) { callback(); return; }
-            card.classList.add('exercise-transition-out');
-            setTimeout(() => {
-                card.classList.remove('exercise-transition-out');
-                callback();
-                card.classList.add('exercise-transition-in');
-                setTimeout(() => card.classList.remove('exercise-transition-in'), 400);
-            }, 250);
-        }
 
         // ── CONFETTIS ──────────────────────────────────────────────────
         function launchConfetti() {
@@ -29955,56 +26900,9 @@
         }
 
 
-        function doShareSummary() {
-            const text = window._shareText || '';
-            if (navigator.share) {
-                navigator.share({ title: currentWorkout?.name || 'Ma séance', text }).catch(()=>{});
-            } else {
-                doCopySummary();
-            }
-        }
-
-        function doCopySummary() {
-            const text = window._shareText || '';
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(text).then(() => showToast('📋 Résumé copié !', 'success', 2500));
-            } else {
-                showToast('📋 Copie non supportée', 'warning', 2000);
-            }
-        }
 
 
-        async function shareWorkout(workout, stats) {
-            const text = generateWorkoutSummaryText(workout, stats);
-            
-            // Try Web Share API
-            if (navigator.share) {
-                try {
-                    await navigator.share({
-                        title: 'Ma séance Coach Pro',
-                        text: text
-                    });
-                    showToast('✅ Séance partagée !', 'success', 2000);
-                    return;
-                } catch (err) {
-                }
-            }
-            
-            // Fallback: Copy to clipboard
-            try {
-                await navigator.clipboard.writeText(text);
-                showToast('Texte copié ! Collez-le sur vos réseaux sociaux 🚀', 'success', 4000);
-            } catch (err) {
-                // Copier dans le presse-papier comme fallback
-                if (navigator.clipboard) {
-                    navigator.clipboard.writeText(text).then(() => {
-                        showToast('📋 Texte copié dans le presse-papier !', 'success', 3000);
-                    }).catch(() => showToast('📱 ' + text.substring(0, 80) + '...', 'info', 5000));
-                } else {
-                    showToast('📱 Partage non supporté sur ce navigateur', 'info', 3000);
-                }
-            }
-        }
+
 
 
 // ════════════════════════════════════════════════════
@@ -30069,10 +26967,6 @@
                 if (lv >= 20) return 'linear-gradient(90deg,#fbbf24,#f59e0b)';
                 if (lv >= 10) return 'linear-gradient(90deg,#60a8f0,#166534)';
                 return 'linear-gradient(90deg,#60a5fa,#3b82f6)';
-            }
-            function rankBadge(lv) {
-                if (lv >= 50) return '💎'; if (lv >= 20) return '🟡';
-                if (lv >= 10) return '⚪'; if (lv >= 5)  return '🟤'; return '';
             }
             function medal(i) { return ['🥇','🥈','🥉'][i] || ''; }
 
@@ -30139,7 +27033,7 @@
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1241");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1246");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -30924,163 +27818,10 @@
             'SSS':     { title:'Au-delà des Limites',   text:'Tu as atteint ce que d\'autres pensaient impossible. Mais tu le sais : ce n\'est pas la fin. C\'est une renaissance.' },
             'National':{ title:'Le Monarque',            text:'Il n\'existe aucun mot pour décrire ce que tu es devenu. Le Système lui-même s\'incline. Tu es la limite absolue.' },
         };
-        function rpgGetLore(rankId) { return RPG_LORE[rankId] || RPG_LORE['E']; }
 
-        // ══════════════════════════════════════════════════════════════
-        // 🧬 AVATAR SVG ÉVOLUTIF
-        // ══════════════════════════════════════════════════════════════
-        function rpgGetAvatarSVG(rankId, playerClass) {
-            const rankColors = { E:'#6b7280', D:'#92400e', C:'#15803d', B:'#1d4ed8', A:'#166534', S:'#d97706', SS:'#ea580c', SSS:'#be185d' };
-            const color = rankColors[rankId] || '#6b7280';
-            const armor = ['SSS','SS','S'].includes(rankId);
-            const elite = ['A','B'].includes(rankId);
-            const classEmoji = playerClass ? playerClass.emoji : '';
-            // SVG simple mais expressif
-            return `<svg width="70" height="90" viewBox="0 0 70 90" xmlns="http://www.w3.org/2000/svg">
-                <!-- Aura selon rang -->
-                ${armor ? `<ellipse cx="35" cy="50" rx="30" ry="35" fill="${color}" opacity="0.12"/>` : ''}
-                <!-- Corps -->
-                <ellipse cx="35" cy="58" rx="${elite||armor?18:14}" ry="${elite||armor?22:18}" fill="${color}" opacity="0.9"/>
-                <!-- Tête -->
-                <circle cx="35" cy="28" r="${armor?13:11}" fill="${color}"/>
-                <circle cx="35" cy="26" r="${armor?10:8}" fill="${color}" opacity="0.7"/>
-                <!-- Casque/couronne selon rang -->
-                ${armor ? `<rect x="22" y="16" width="26" height="6" rx="3" fill="${color}"/>
-                    <rect x="27" y="11" width="4" height="8" rx="2" fill="${color}"/>
-                    <rect x="39" y="11" width="4" height="8" rx="2" fill="${color}"/>` :
-                    elite ? `<path d="M25 22 Q35 14 45 22" stroke="${color}" stroke-width="3" fill="none"/>` : ''}
-                <!-- Yeux -->
-                <circle cx="30" cy="27" r="2" fill="white" opacity="0.9"/>
-                <circle cx="40" cy="27" r="2" fill="white" opacity="0.9"/>
-                <!-- Bras -->
-                <rect x="${armor?8:11}" y="42" width="${armor?8:6}" height="${armor?20:16}" rx="3" fill="${color}" opacity="0.8"/>
-                <rect x="${armor?54:53}" y="42" width="${armor?8:6}" height="${armor?20:16}" rx="3" fill="${color}" opacity="0.8"/>
-                <!-- Jambes -->
-                <rect x="25" y="76" width="7" height="12" rx="3" fill="${color}" opacity="0.8"/>
-                <rect x="38" y="76" width="7" height="12" rx="3" fill="${color}" opacity="0.8"/>
-                <!-- Étoile prestige -->
-                ${rpgGetPrestigeLevel()>0 ? `<text x="56" y="14" font-size="14">⭐</text>` : ''}
-            </svg>`;
-        }
 
-        // ══════════════════════════════════════════════════════════════
-        // 📊 GRAPHIQUE XP
-        // ══════════════════════════════════════════════════════════════
-        function rpgGetXPHistory() {
-            try { return JSON.parse(localStorage.getItem('fitproRPGXPHistory') || '[]'); } catch(e) { return []; }
-        }
-        function rpgSaveXPSnapshot() {
-            if (!rpgEnabled()) return;
-            const data = rpgLoad();
-            const totalXP = Object.values(data.muscles).reduce((s,m)=>s+m.xp,0) + parseInt(localStorage.getItem('fitproRPGLifetimeXP')||'0');
-            const today = new Date().toISOString().slice(0,10);
-            try {
-                const hist = JSON.parse(localStorage.getItem('fitproRPGXPHistory') || '[]');
-                if (hist.length === 0 || hist[hist.length-1].date !== today) {
-                    hist.push({ date: today, xp: totalXP });
-                    if (hist.length > 30) hist.splice(0, hist.length - 30);
-                    localStorage.setItem('fitproRPGXPHistory', JSON.stringify(hist));
-                }
-            } catch(e) {}
-        }
-        function rpgDrawXPChart(history) {
-            const canvas = document.getElementById('rpgXPChart');
-            if (!canvas || !canvas.getContext) return;
-            const ctx = canvas.getContext('2d');
-            const w = canvas.parentElement?.clientWidth || canvas.offsetWidth || 300;
-            const h = 80;
-            canvas.width = w; canvas.height = h;
-            const xps = history.map(p=>p.xp);
-            const minXP = Math.min(...xps); const maxXP = Math.max(...xps);
-            const range = maxXP - minXP || 1;
-            const pad = 8;
-            ctx.clearRect(0,0,w,h);
-            // Gradient fill
-            const grad = ctx.createLinearGradient(0,0,0,h);
-            grad.addColorStop(0,'rgba(22,163,74,0.3)'); grad.addColorStop(1,'rgba(22,163,74,0)');
-            ctx.beginPath();
-            history.forEach((p,i) => {
-                const x = pad + (i/(history.length-1||1))*(w-2*pad);
-                const y = pad + (1-(p.xp-minXP)/range)*(h-2*pad);
-                i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
-            });
-            ctx.lineTo(w-pad,h); ctx.lineTo(pad,h); ctx.closePath();
-            ctx.fillStyle = grad; ctx.fill();
-            // Line
-            ctx.beginPath();
-            history.forEach((p,i) => {
-                const x = pad + (i/(history.length-1||1))*(w-2*pad);
-                const y = pad + (1-(p.xp-minXP)/range)*(h-2*pad);
-                i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
-            });
-            ctx.strokeStyle = '#16a34a'; ctx.lineWidth = 2.5; ctx.lineJoin = 'round'; ctx.stroke();
-            // Dots
-            history.forEach((p,i) => {
-                const x = pad + (i/(history.length-1||1))*(w-2*pad);
-                const y = pad + (1-(p.xp-minXP)/range)*(h-2*pad);
-                ctx.beginPath(); ctx.arc(x,y,3,0,Math.PI*2);
-                ctx.fillStyle = '#16a34a'; ctx.fill();
-            });
-        }
 
-        // ══════════════════════════════════════════════════════════════
-        // 🤖 OBJECTIF IA PERSONNALISÉ
-        // ══════════════════════════════════════════════════════════════
-        function rpgGetAIObjective(data, muscles) {
-            try {
-                const now = new Date();
-                const cacheKey = 'fitproRPGAIObj_' + now.toISOString().slice(0,10);
-                try {
-                    const cached = localStorage.getItem(cacheKey);
-                    if (cached) return JSON.parse(cached);
-                } catch(e) {}
-                let obj;
-                if (muscles.length === 0) {
-                    obj = { text:'Complète ta première séance pour commencer à accumuler de l\'XP !', xpBonus: 100 };
-                } else {
-                    const decaying = muscles.filter(([m,info]) => info.lastTrained && (now-new Date(info.lastTrained))/86400000 >= 5);
-                    if (decaying.length > 0) {
-                        const [m, info] = decaying[0];
-                        const days = Math.floor((now-new Date(info.lastTrained))/86400000);
-                        obj = { text:`Ton muscle ${m} n'a pas été entraîné depuis ${days} jours et commence à décliner. Entraîne-le aujourd'hui pour arrêter le decay et gagner un bonus XP.`, xpBonus: 80 };
-                    } else {
-                        const weakest = muscles[muscles.length-1];
-                        if (weakest) {
-                            const lv = rpgLevelFromXP(weakest[1].xp);
-                            obj = { text:`${weakest[0]} est ton muscle le plus faible (Niv.${lv}). Concentre une séance dessus pour réduire l'écart avec tes muscles forts.`, xpBonus: 60 };
-                        } else {
-                            obj = { text:'Continue ta progression — chaque série compte !', xpBonus: 30 };
-                        }
-                    }
-                }
-                try { localStorage.setItem(cacheKey, JSON.stringify(obj)); } catch(e) {}
-                return obj;
-            } catch(err) {
-                return { text:'Complète une séance pour obtenir un objectif personnalisé !', xpBonus: 30 };
-            }
-        }
 
-        // ══════════════════════════════════════════════════════════════
-        // ⚔️ DÉFI CONTRE SOI-MÊME
-        // ══════════════════════════════════════════════════════════════
-        function rpgGetSelfChallenge() {
-            const now = new Date();
-            const dayOfWeek = now.getDay()===0?6:now.getDay()-1;
-            const weekStart = new Date(now); weekStart.setDate(now.getDate()-dayOfWeek); weekStart.setHours(0,0,0,0);
-            const lastWeekStart = new Date(weekStart); lastWeekStart.setDate(weekStart.getDate()-7);
-            const hist = getWorkoutHistory();
-            function safeDate(w) { try { const d=new Date(w.date||w.timestamp||w.id); return isNaN(d)?new Date(0):d; } catch(e){return new Date(0);} }
-            const thisWeek = hist.filter(w=>safeDate(w)>=weekStart).length;
-            const lastWeek = hist.filter(w=>{const d=safeDate(w);return d>=lastWeekStart&&d<weekStart;}).length;
-            const winning = thisWeek >= lastWeek;
-            const diff = Math.abs(thisWeek - lastWeek);
-            let message;
-            if (thisWeek === 0 && lastWeek === 0) message = 'Lance-toi cette semaine !';
-            else if (winning && diff === 0) message = `Égalité ! Ajoute 1 séance pour dépasser ton passé.`;
-            else if (winning) message = `🏆 Tu bats ton ancien toi de ${diff} séance${diff>1?'s':''} !`;
-            else message = `😤 ${diff} séance${diff>1?'s':''} de retard — rattrape ton passé !`;
-            return { thisWeek, lastWeek, winning, message };
-        }
 
         // ══════════════════════════════════════════════════════════════
         // 🏆 SAISON
@@ -31094,20 +27835,6 @@
             { pts:350, emoji:'💎', label:'Cristal' },
             { pts:500, emoji:'👑', label:'Couronne'},
         ];
-        function rpgGetCurrentSeason() {
-            const now = new Date();
-            const yearStart = new Date(now.getFullYear(), 0, 1);
-            const weekOfYear = Math.ceil((now-yearStart)/604800000);
-            const seasonNum = Math.ceil(weekOfYear/4);
-            const seasonNames = ['Saison du Réveil','Saison de la Force','Saison de l\'Acier','Saison des Champions','Saison de la Légende','Saison du Phénix','Saison Éternelle','Saison de la Genèse','Saison de l\'Ombre','Saison de la Lumière','Saison du Titan','Saison des Dieux','Saison Ultime'];
-            const seasonStart = new Date(yearStart); seasonStart.setDate(1+(seasonNum-1)*28);
-            const seasonEnd = new Date(seasonStart); seasonEnd.setDate(seasonStart.getDate()+28);
-            const daysLeft = Math.max(0, Math.ceil((seasonEnd-now)/86400000));
-            // Points saison = nb séances × 5 cette saison
-            const hist = getWorkoutHistory();
-            const pts = hist.filter(w=>new Date(w.date||w.timestamp||w.id)>=seasonStart).length * 5;
-            return { number:seasonNum, name:seasonNames[(seasonNum-1)%seasonNames.length], daysLeft, currentPoints:pts, maxPoints:500, tiers:SEASON_TIERS };
-        }
         // Hook: snapshot XP à chaque séance complète
 
         function rpgGetWeeklyQuests(data) {
@@ -31650,9 +28377,6 @@
             }, 900);
         }
         window.rpgRafraichirPanneauDetails = rpgRafraichirPanneauDetails;
-        function rpgCanUnlockSkill(skill, profileLevel) {
-            return profileLevel >= skill.req.level && !rpgGetUnlockedSkills().includes(skill.id);
-        }
         function rpgGetActiveEffects() {
             const unlocked = rpgGetUnlockedSkills();
             const effects = {};
@@ -31859,15 +28583,6 @@
             return true;
         }
 
-        function statPointsReset() {
-            const sp = statPointsLoad();
-            const totalAllocated = Object.values(sp.allocated).reduce((a,b)=>a+b,0);
-            sp.available += totalAllocated;
-            sp.allocated = {STR:0,AGI:0,VIT:0,END:0,PER:0,SEN:0};
-            statPointsSave(sp);
-            _refreshStatPointsCard();
-            showToast('Points de stats réinitialisés.','info',2000);
-        }
 
         // ═══════════════════════════════════════════════════════════════
         // 🌌 AWAKENED CORE — Auto-distribution + Power Score + Rangs E→S
@@ -34628,7 +31343,7 @@
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1241);'
+                +     'url(images/combat_bg_v1.webp?v=1246);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -34883,7 +31598,7 @@
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1241);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1246);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -35142,7 +31857,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:540px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto;display:flex;flex-direction:column;">
                 <!-- Header : vague actuelle -->
-                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1241);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1246);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                         <span style="font-size:0.6em;color:${theme.color};font-weight:900;letter-spacing:2px;">⚔ VAGUE ${rift.currentWaveIdx + 1} / ${rift.waves.length}${currentWave.isBoss ? ' · BOSS' : ''}</span>
                         <button onclick="awakAbandonRift()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
@@ -36289,7 +33004,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1241');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1246');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -37026,7 +33741,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1241);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1246);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -37197,7 +33912,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1241);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1246);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -40707,44 +37422,6 @@
             vibrate([200,100,200,100,400]);
         }
 
-        function rpgStartDungeon(dungeonId) {
-            const dungeon = RPG_DUNGEONS.find(d=>d.id===dungeonId);
-            if (!dungeon) return;
-            const status = rpgGetDungeonStatus(dungeonId);
-            if (!status.available) {
-                const daysLeft = Math.ceil(dungeon.cooldownDays - status.daysSince);
-                showToast(`⏳ Donjon disponible dans ${daysLeft} jour(s)`, 'warning', 3000);
-                return;
-            }
-            // Construire une séance avec les exercices du donjon
-            const exs = dungeon.exercises.map(name => {
-                const db = exerciseDatabase.find(e=>e.name===name);
-                return db ? {...db, sets:5, mode:'reps'} : null;
-            }).filter(Boolean);
-            if (exs.length === 0) { showToast('Exercices non trouvés', 'error'); return; }
-            currentWorkout = {
-                name: dungeon.emoji + ' ' + dungeon.name,
-                exercises: exs,
-                mode: 'reps',
-                restBetweenSets: 90,
-                type: 'dungeon',
-                _dungeonId: dungeonId,
-                _dungeonXpMult: dungeon.xpMult
-            };
-            workoutStartTime = Date.now(); _workoutSkipCount = 0;
-            currentExerciseIndex = 0;
-            // Aller sur l'onglet Séances et lancer proprement
-            switchTab('workouts');
-            // S'assurer que tout est caché sauf exerciseView
-            const _wsel = document.getElementById('workoutSelection');
-            if (_wsel) _wsel.style.display = 'none';
-            document.getElementById('completionView')?.classList.add('hidden');
-            const ev = document.getElementById('exerciseView');
-            ev.classList.remove('hidden');
-            window.scrollTo(0,0);
-            initProgressList();
-            startExercise();
-        }
 
         const RPG_TITLES = [
             { min:1,  emoji:'🌱', title:'Recrue' },
@@ -41491,27 +38168,6 @@
             }
         }
 
-        function toggleHunterMode(enabled) {
-            if (typeof setAdventureEnabled === 'function') setAdventureEnabled(enabled);
-            else localStorage.setItem('fitpro_adventure_enabled', enabled ? 'true' : 'false');
-            const slider  = document.getElementById('hunterModeSlider');
-            const thumb   = document.getElementById('hunterModeThumb');
-            const preview = document.getElementById('hunterModePreview');
-            if (slider)  slider.style.background = enabled ? '#7c3aed' : '#ccc';
-            if (thumb)   thumb.style.transform   = enabled ? 'translateX(24px)' : 'translateX(0)';
-            if (preview) preview.style.display   = enabled ? 'block' : 'none';
-            if (enabled) {
-                const inv = typeof getInventory === 'function' ? getInventory() : [];
-                const countEl = document.getElementById('hunterInvCount');
-                if (countEl) countEl.textContent = inv.length + ' item' + (inv.length !== 1 ? 's' : '') + ' dans l\'inventaire';
-                if (typeof renderAdventureTab === 'function') setTimeout(renderAdventureTab, 100);
-                if (typeof renderGameTab === 'function') setTimeout(renderGameTab, 150);
-                showToast('⚔️ Mode Chasseur activé ! Entraîne-toi pour obtenir des équipements.', 'success', 3500);
-            } else {
-                if (typeof renderAdventureTab === 'function') setTimeout(renderAdventureTab, 100);
-                showToast('Mode Chasseur désactivé.', 'info', 2000);
-            }
-        }
 
         function initHunterMode() {
             const enabled = typeof getAdventureEnabled === 'function'
@@ -45051,23 +41707,7 @@
             return 'moderate';
         }
 
-        // ── 2. Exercices signature pendant la génération ──────────────
-        function getCelebritySignatureExercises(programId) {
-            const program = CELEBRITY_PROGRAMS.find(p => p.id === programId);
-            if (!program) return [];
-            return program.exercises.map(e => e.name);
-        }
 
-        // Prioriser les exercices signature dans le pool de génération
-        function prioritizeCelebrityExercises(exercisePool, programId) {
-            const signature = getCelebritySignatureExercises(programId);
-            if (!signature.length) return exercisePool;
-            return [...exercisePool].sort((a, b) => {
-                const aIsSig = signature.includes(a.name) ? 0 : 1;
-                const bIsSig = signature.includes(b.name) ? 0 : 1;
-                return aIsSig - bIsSig;
-            });
-        }
 
         // ── 3. Citation aléatoire pendant le repos ────────────────────
         function _showCelebrityQuoteInRest(programId) {
@@ -45278,18 +41918,7 @@
             haptic.restEnd();
         }
 
-        // Tick léger sur chaque répétition comptée
-        function playRepTick() {
-            _tone(440, 0.04, 0.12, 'square');
-            haptic.repTick();
-        }
 
-        // Son de fin de série
-        function playSetDone() {
-            _tone(520, 0.08, 0.2, 'sine', 0);
-            _tone(780, 0.15, 0.25, 'sine', 0.1);
-            haptic.setDone();
-        }
 
         // Fanfare Personal Record
         function playPRFanfare() {
@@ -46752,24 +43381,6 @@
         // Override existing save functions to use profile-specific storage
         const originalSetItem = localStorage.setItem.bind(localStorage);
         
-        // Intercept localStorage.setItem for profile-specific keys
-        function saveToCurrentProfile(key, data) {
-            const profileKeys = [
-                'workoutHistory', 'myPrograms', 'weeklyPlan', 'userProfile',
-                'exerciseBlacklist', 'userEquipment', 'selectedMuscles',
-                'fitnessIndex', 'muscleRecoveryTracking', 'manualWeeklyPlan'
-            ];
-            
-            if (profileKeys.includes(key)) {
-                const profileId = getCurrentProfileId();
-                if (profileId) {
-                    setProfileData(profileId, key, data);
-                    return;
-                }
-            }
-            
-            originalSetItem(key, data);
-        }
 
         // ==================== EASTER EGG: CREDITS ====================
         window.showCredits = function() {
@@ -46822,15 +43433,17 @@
                 if (!existing) {
                     const banner = document.createElement('div');
                     banner.id = 'deloadBanner';
-                    banner.style.cssText = 'margin-bottom:12px;padding:12px 14px;background:linear-gradient(135deg,#fef9c3,#fef08a);border:2px solid #eab308;border-radius:14px;';
-                    banner.innerHTML = `<div style="display:flex;align-items:flex-start;gap:10px;">
-                        <div style="font-size:1.6em;flex-shrink:0;">😴</div>
-                        <div style="flex:1;">
-                            <div style="font-weight:700;color:#713f12;font-size:0.9em;">Déload recommandé — ${deload.weeks} semaines intenses</div>
-                            <div style="font-size:0.78em;color:#92400e;margin-top:3px;">Réduis ton volume de 40-50% cette semaine pour optimiser la récupération et les gains.</div>
-                            <div style="display:flex;gap:8px;margin-top:8px;">
-                                <button onclick="startDeloadWeek()" style="background:#eab308;color:white;border:none;border-radius:10px;padding:6px 12px;font-size:0.8em;font-weight:700;cursor:pointer;">📋 Séance déload</button>
-                                <button onclick="localStorage.setItem('deloadDismissed_'+new Date().toISOString().slice(0,7),'1');document.getElementById('deloadBanner').remove();" style="background:white;color:#92400e;border:1px solid #eab308;border-radius:10px;padding:6px 12px;font-size:0.8em;cursor:pointer;">Ignorer</button>
+                    // v1245 : bannière sombre à bordure ambre (l'ancienne, jaune vif sur fond
+                    // clair, était le seul élément clair de l'app et écrasait « Fais ma séance »).
+                    banner.style.cssText = 'margin-bottom:12px;padding:12px 14px;background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.4);border-radius:14px;';
+                    banner.innerHTML = `<div style="display:flex;align-items:flex-start;gap:11px;">
+                        <span style="flex-shrink:0;width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:rgba(251,191,36,0.12);">${window.AwakIcon ? AwakIcon.get('repos', 18, '#fbbf24') : ''}</span>
+                        <div style="flex:1;min-width:0;">
+                            <div style="font-weight:900;color:#fde68a;font-size:0.86em;">Semaine plus légère conseillée</div>
+                            <div style="font-size:0.74em;color:#cbd5e1;margin-top:3px;line-height:1.45;">${deload.weeks} semaines intenses d'affilée : allège ton volume de 40 à 50 % pour récupérer et continuer à progresser.</div>
+                            <div style="display:flex;gap:8px;margin-top:9px;">
+                                <button onclick="startDeloadWeek()" style="min-height:auto;background:rgba(251,191,36,0.16);color:#fde68a;border:1px solid rgba(251,191,36,0.5);border-radius:10px;padding:7px 12px;font-size:0.76em;font-weight:800;cursor:pointer;">Séance allégée</button>
+                                <button onclick="localStorage.setItem('deloadDismissed_'+new Date().toISOString().slice(0,7),'1');document.getElementById('deloadBanner').remove();" style="min-height:auto;background:transparent;color:#94a3b8;border:1px solid rgba(255,255,255,0.14);border-radius:10px;padding:7px 12px;font-size:0.76em;font-weight:700;cursor:pointer;">Ignorer</button>
                             </div>
                         </div>
                     </div>`;
@@ -47059,21 +43672,7 @@
             if (!host) return;
             // v1229 : carte retirée de l'accueil (demande utilisateur)
             host.innerHTML = ''; host.style.display = 'none'; return;
-            const sx = (typeof awakUserSex === 'function') ? awakUserSex() : '';
-            if (sx !== 'homme' && sx !== 'femme') { host.innerHTML = ''; return; }
-            const cfg = (sx === 'femme')
-                ? { label: 'Fessiers & Jambes', emoji: '🍑', color: '#ec4899', note: 'Avec activation fessiers/abducteurs (stabilité du genou).' }
-                : { label: 'Buste & Bras', emoji: '💪', color: '#3b82f6', note: 'Avec un peu de mobilité (hanches/épaules).' };
-            host.innerHTML = '<div onclick="awakStartFocusSession(\'' + sx + '\')" '
-                + 'style="background:linear-gradient(135deg,' + cfg.color + '22,' + cfg.color + '0a);border:1px solid ' + cfg.color + '55;border-radius:16px;padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:14px;touch-action:manipulation;">'
-                + '<div style="font-size:1.9em;width:48px;height:48px;border-radius:14px;background:' + cfg.color + '22;display:flex;align-items:center;justify-content:center;flex-shrink:0;">' + cfg.emoji + '</div>'
-                + '<div style="flex:1;min-width:0;">'
-                + '<div style="font-size:0.6em;font-weight:800;letter-spacing:1px;color:' + cfg.color + ';text-transform:uppercase;">⭐ Recommandé pour toi</div>'
-                + '<div style="font-weight:900;color:white;font-size:1em;margin-top:1px;">' + cfg.emoji + ' Séance ' + cfg.label + '</div>'
-                + '<div style="font-size:0.68em;color:#94a3b8;line-height:1.35;margin-top:2px;">' + cfg.note + '</div>'
-                + '</div>'
-                + '<div style="color:' + cfg.color + ';font-size:1.2em;flex-shrink:0;align-self:center;">›</div>'
-                + '</div>';
+            // (ancien contenu retiré : fonction désactivée)
         }
         window.renderSexFocusCard = renderSexFocusCard;
 
@@ -47242,30 +43841,7 @@
             if (!host) return;
             // v1229 : carte retirée de l'accueil (le rang reste dans Exos › Calculs)
             host.innerHTML = ''; host.style.display = 'none'; return;
-            if ((typeof awakUserSex === 'function' ? awakUserSex() : '') !== 'homme') { host.innerHTML = ''; return; }
-            const overall = awakOverallRank();
-            if (!overall) {
-                host.innerHTML = '<div onclick="openStrengthStandards()" style="background:linear-gradient(135deg,rgba(34,211,238,0.14),rgba(34,211,238,0.05));border:1px dashed rgba(34,211,238,0.4);border-radius:16px;padding:13px 15px;cursor:pointer;display:flex;align-items:center;gap:12px;">'
-                    + '<div style="font-size:1.6em;">💪</div>'
-                    + '<div style="flex:1;min-width:0;"><div style="font-weight:800;color:#e2e8f0;font-size:0.9em;">Découvre ton rang de force</div><div style="font-size:0.68em;color:#94a3b8;margin-top:1px;line-height:1.35;">Logue tes gros lifts (couché, squat, soulevé) pour révéler ton rang.</div></div>'
-                    + '<div style="color:#22d3ee;font-size:1.2em;">›</div></div>';
-                return;
-            }
-            const col = AWAK_RANK_COLORS[overall.rank] || '#22d3ee';
-            // ⬆️ Notification de montée en rang (reconnaissance — fort levier de motivation).
-            try {
-                const seen = parseInt(localStorage.getItem('awakStrSeenLevel'));
-                if (!isNaN(seen) && overall.level > seen && typeof showToast === 'function') {
-                    setTimeout(function () { showToast('⬆️ Rang de force : tu passes ' + overall.rank + ' — ' + overall.levelName + ' !', 'success', 4500); }, 800);
-                }
-                localStorage.setItem('awakStrSeenLevel', String(overall.level));
-            } catch (e) {}
-            host.innerHTML = '<div onclick="openStrengthStandards()" style="background:linear-gradient(135deg,' + col + '22,' + col + '08);border:1px solid ' + col + '55;border-radius:16px;padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:14px;">'
-                + '<div style="width:50px;height:50px;border-radius:14px;background:' + col + '22;border:1.5px solid ' + col + '66;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="font-size:1.5em;font-weight:900;color:' + col + ';">' + overall.rank + '</span></div>'
-                + '<div style="flex:1;min-width:0;"><div style="font-size:0.6em;font-weight:800;letter-spacing:1px;color:' + col + ';text-transform:uppercase;">Rang de force</div>'
-                + '<div style="font-weight:900;color:white;font-size:1.02em;">Rang ' + overall.rank + ' · ' + overall.levelName + '</div>'
-                + '<div style="font-size:0.66em;color:#94a3b8;">Sur ' + overall.count + ' mouvement' + (overall.count > 1 ? 's' : '') + ' · tes objectifs ›</div></div>'
-                + '<div style="color:' + col + ';font-size:1.2em;flex-shrink:0;align-self:center;">›</div></div>';
+            // (ancien contenu retiré : fonction désactivée)
         }
         // ── 💪 Détail des standards de force (modal) ──
         function openStrengthStandards() {
@@ -47493,34 +44069,7 @@
             if (!host) return;
             // v1229 : carte retirée de l'accueil (le rang reste dans l'onglet Jeu)
             host.innerHTML = ''; host.style.display = 'none'; return;
-            if (typeof rpgEnabled !== 'function' || !rpgEnabled()) { host.innerHTML = ''; return; }
-
-            let p = null;
-            try { p = awakGetRankProgress(); } catch (e) { p = null; }
-            if (!p || !p.current) { host.innerHTML = ''; return; }
-
-            const c = p.current;
-            const sub = p.next
-                ? `Plus que <b style="color:${c.color};">${p.pointsNeeded} niveau${p.pointsNeeded > 1 ? 'x' : ''}</b> avant ${p.next.name}`
-                : 'Rang maximal atteint — légende 👑';
-
-            host.innerHTML =
-                `<div class="card" onclick="switchTab('game')" style="padding:16px;cursor:pointer;background:linear-gradient(160deg,#0F1014,#0d1117);border:1px solid ${c.color}44;position:relative;overflow:hidden;">
-                    <div style="position:absolute;top:-25px;right:-15px;width:120px;height:120px;background:radial-gradient(circle,${c.color}22 0%,transparent 70%);pointer-events:none;"></div>
-                    <div style="display:flex;align-items:center;gap:13px;position:relative;z-index:1;">
-                        <div style="font-size:1.5em;color:${c.color};flex-shrink:0;font-weight:900;letter-spacing:-1px;">${c.emoji}</div>
-                        <div style="flex:1;min-width:0;">
-                            <div style="font-size:0.58em;color:${c.color};font-weight:900;letter-spacing:2px;">◈ TON RANG</div>
-                            <div style="font-size:1.05em;font-weight:900;color:#fff;line-height:1.15;">${c.name}</div>
-                            <div style="font-size:0.7em;color:#94a3b8;margin-top:1px;">Niveau ${p.level} · ${c.desc}</div>
-                        </div>
-                        <div style="font-size:1.1em;color:#475569;flex-shrink:0;">›</div>
-                    </div>
-                    <div style="height:8px;background:rgba(255,255,255,0.06);border-radius:6px;overflow:hidden;margin-top:12px;position:relative;z-index:1;">
-                        <div style="height:100%;width:${p.percent}%;background:linear-gradient(90deg,${c.color},${c.color}aa);border-radius:6px;transition:width 0.6s cubic-bezier(0.16,1,0.3,1);"></div>
-                    </div>
-                    <div style="font-size:0.72em;color:#94a3b8;margin-top:6px;position:relative;z-index:1;">${sub}</div>
-                </div>`;
+            // (ancien contenu retiré : fonction désactivée)
         }
         window.renderHomeRpgCard = renderHomeRpgCard;
 
@@ -48167,7 +44716,7 @@
 
             host.innerHTML =
                 '<div style="position:relative;width:110px;margin:0 auto 12px;">'
-              +   '<img src="images/body/body_face.webp?v=1241" alt="" '
+              +   '<img src="images/body/body_face.webp?v=1246" alt="" '
               +     'style="width:100%;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -48249,7 +44798,7 @@
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1241);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1246);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -48308,12 +44857,31 @@
               +   _corpsBtn('awakOpenPhotoCompare()', 'Comparer', false)
               + '</div>';
 
+            // v1245 : aucune photo → carte COMPACTE (le grand miroir vide occupait
+            // un demi-écran). Le titre « Ton corps » n'est plus répété : la
+            // section au-dessus le porte déjà.
+            if (!derniere) {
+                host.innerHTML =
+                    '<div class="card" style="padding:12px 14px;">'
+                  +   '<div style="display:flex;align-items:center;gap:12px;">'
+                  +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1246);background-size:cover;background-position:center;'
+                  +       'border:1px solid rgba(96,168,240,0.3);"></div>'
+                  +     '<div style="flex:1;min-width:0;">'
+                  +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
+                  +       '<div style="font-size:0.7em;color:#94a3b8;line-height:1.4;margin-top:2px;">Ajoute ta 1re photo · Poids ' + poids + '<br>Elles restent sur ton téléphone.</div>'
+                  +     '</div>'
+                  +     '<button onclick="takeProgressPhoto()" style="flex-shrink:0;min-height:auto;padding:10px 13px;border-radius:11px;border:none;cursor:pointer;font-weight:900;font-size:0.76em;'
+                  +       'background:linear-gradient(160deg,#93c5fd,#60a8f0 45%,#164e8a);color:#04121f;">Photo</button>'
+                  +   '</div>'
+                  + '</div>';
+                return;
+            }
             host.innerHTML =
                 '<div class="card" style="padding:15px;">'
               +   '<div style="border-left:2px solid #60a8f0;padding-left:10px;margin-bottom:13px;">'
-              +     '<div style="font-size:0.54em;letter-spacing:2.5px;color:#60a8f0;font-weight:900;">◈ TON CORPS</div>'
               +     '<div style="font-family:var(--font-display),sans-serif;font-size:1.05em;'
-              +       'font-weight:800;color:#fff;margin-top:2px;">Suivi corporel</div>'
+              +       'font-weight:800;color:#fff;">Suivi corporel</div>'
               +   '</div>'
               +   centre + bandeau + actions
               + '</div>';
@@ -48789,27 +45357,8 @@
             }
         }
 
-        function toggleMobileInstructions() {
-            const box = document.getElementById('exerciseDescriptionBox');
-            if (!box) return;
-            const visible = box.style.display !== 'none' && box.style.display !== '';
-            box.style.display = visible ? 'none' : 'block';
-        }
 
-        function toggleMobileProgram() {
-            const card = document.getElementById('exerciseProgressListCard');
-            if (!card) return;
-            const visible = card.style.display !== 'none';
-            card.style.display = visible ? 'none' : 'block';
-            const btn = document.getElementById('showProgramBtn');
-            if (btn) btn.textContent = visible ? '📋 Programme de la séance' : '✖️ Fermer programme';
-        }
 
-        function initMobileWorkoutUI() {
-            const isMobile = window.innerWidth <= 640;
-            const progBtn  = document.getElementById('showProgramBtn');
-            if (progBtn) progBtn.style.display  = isMobile ? 'block' : 'none';
-        }
 
         function openWorkoutYoutube() {
             if (!currentWorkout) return;
@@ -49220,7 +45769,6 @@
 
         // ── localStorage sécurisé avec auto-purge ─────────────────
         const _lsOrig = { get: localStorage.getItem.bind(localStorage), set: localStorage.setItem.bind(localStorage), remove: localStorage.removeItem.bind(localStorage) };
-        function lsGet(key) { try { return _lsOrig.get(key); } catch(e) { return null; } }
 
         function _lsPurge() {
             // 1. Historique séances — garder 100 max, retirer workoutData des anciennes
@@ -49353,95 +45901,7 @@
             }
         }
 
-        // ── Helper: widget dernière performance ────────────────────
-        function _buildLastPerfWidget(lastPerf, exerciseName) {
-            if (!lastPerf) {
-                return `<div style="background:rgba(245,158,11,0.1);padding:13px 16px;border-radius:14px;margin:14px 0;border:1px solid rgba(245,158,11,0.3);display:flex;align-items:center;gap:12px;">
-                    <div style="font-size:1.5em;">✨</div>
-                    <div>
-                        <div style="color:#fbbf24;font-weight:700;font-size:0.9em;">Première fois pour cet exercice</div>
-                        <div style="color:#94a3b8;font-size:0.8em;margin-top:2px;">Enregistrez votre performance pour suivre vos progrès !</div>
-                    </div>
-                </div>`;
-            }
-            const allPerfs = (typeof getExerciseHistory === 'function') ? getExerciseHistory(exerciseName) : [];
-            const prev = allPerfs && allPerfs.length >= 2 ? allPerfs[allPerfs.length - 2] : null;
-            let trend = '';
-            if (prev && lastPerf.weight && prev.weight) {
-                trend = lastPerf.weight > prev.weight
-                    ? ' <span style="color:#4ade80;font-size:0.75em;">▲</span>'
-                    : lastPerf.weight < prev.weight
-                    ? ' <span style="color:#f87171;font-size:0.75em;">▼</span>' : '';
-            }
-            const reuseClick = [
-                "var ri=document.getElementById('repsInput');if(ri)ri.value='" + lastPerf.reps + "';",
-                lastPerf.weight ? "var wi=document.getElementById('weightInput');if(wi)wi.value='" + fmtWeightVal(lastPerf.weight) + "';" : '',
-                "if(typeof playRepTick==='function')playRepTick();"
-            ].join('');
-            return `<div style="background:rgba(34,197,94,0.1);padding:14px 16px;border-radius:14px;margin:14px 0;border:1px solid rgba(34,197,94,0.3);display:flex;align-items:center;gap:14px;">
-                <div style="font-size:1.8em;flex-shrink:0;">📊</div>
-                <div style="flex:1;">
-                    <div style="font-size:0.72em;color:#6b7280;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">Dernière fois</div>
-                    <div style="font-size:1.2em;font-weight:800;color:#4ade80;">${lastPerf.reps} reps${lastPerf.weight ? ' × ' + fmtWeightVal(lastPerf.weight) + ' ' + weightUnit() + trend : ''}</div>
-                    <div style="font-size:0.75em;color:#6b7280;margin-top:2px;">${new Date(lastPerf.date).toLocaleDateString('fr-FR',{day:'numeric',month:'short'})}</div>
-                </div>
-                <div style="font-size:0.72em;color:#34d399;background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);border-radius:10px;padding:5px 10px;font-weight:700;cursor:pointer;" onclick="${reuseClick}">↺ Réutiliser</div>
-            </div>`;
-        }
 
-        // ── Ajuster le repos pour un exercice précis ───────────────
-        function showRestTimeAdjuster() {
-            const ex = currentWorkout && currentWorkout.exercises[currentExerciseIndex];
-            if (!ex || ex.isRest) return;
-            const exName = ex._baseName || ex.name;
-            const current = (exerciseRestOverrides && exerciseRestOverrides[exName]) || globalRestSeconds || 90;
-            const opts = [30, 45, 60, 90, 120, 150, 180];
-
-            // Remove any existing overlay
-            document.getElementById('_restAdjOverlay')?.remove();
-
-            const ov = document.createElement('div');
-            ov.id = '_restAdjOverlay';
-            ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:10200;display:flex;align-items:flex-end;justify-content:center;';
-
-            const btnHTML = opts.map(s => {
-                const isActive = s === current;
-                return `<button
-                    data-secs="${s}"
-                    style="flex:1;min-width:60px;padding:12px 6px;border-radius:14px;
-                        border:2px solid ${isActive ? '#16a34a' : '#2E2F35'};
-                        background:${isActive ? 'rgba(22,163,74,0.2)' : '#222328'};
-                        color:${isActive ? '#4ade80' : '#e2e8f0'};
-                        font-weight:700;cursor:pointer;font-size:0.9em;"
-                    onclick="document.getElementById('_restAdjOverlay').__pickRest(${s})"
-                >${s}s</button>`;
-            }).join('');
-
-            ov.innerHTML = `
-                <div style="background:#1A1B20;border-radius:20px 20px 0 0;padding:22px 20px;width:100%;max-width:480px;border-top:1px solid #252830;">
-                    <div style="width:40px;height:4px;background:#2E2F35;border-radius:99px;margin:0 auto 16px;"></div>
-                    <h3 style="margin:0 0 4px;color:#e2e8f0;font-size:1.1em;">⏱️ Repos après cet exercice</h3>
-                    <p style="margin:0 0 14px;color:#94a3b8;font-size:0.82em;word-break:break-word;">${exName.replace(/'/g,'&#39;')}</p>
-                    <div style="display:flex;gap:5px;flex-wrap:nowrap;margin-bottom:18px;justify-content:center;">${btnHTML}</div>
-                    <button onclick="document.getElementById('_restAdjOverlay').remove()"
-                        style="width:100%;padding:12px;border-radius:14px;border:none;background:rgba(255,255,255,0.06);color:#94a3b8;cursor:pointer;font-size:0.9em;">
-                        Annuler
-                    </button>
-                </div>`;
-
-            // Attach the handler as a DOM property to avoid inline-string escaping issues
-            ov.__pickRest = function(secs) {
-                exerciseRestOverrides[exName] = secs;
-                lsSet('fitproExRestOverrides', JSON.stringify(exerciseRestOverrides));
-                ov.remove();
-                showToast('⏱️ Repos ' + secs + 's — ' + exName, 'success', 2500);
-            };
-
-            // Close on backdrop tap
-            ov.addEventListener('click', function(e) { if (e.target === ov) ov.remove(); });
-
-            document.body.appendChild(ov);
-        }
 
         // ══════════════════════════════════════════════════════════
         //  CONSEIL DU JOUR + COMPARAISON STATS CÉLÉBRITÉ
@@ -49764,7 +46224,7 @@
                             + _preset('kidball', 'cible', 'Un ballon ou une corde', 'Pour des jeux encore plus variés.')
                             + '<div style="height:12px;"></div>' + btnPrimary('Continuer', 'window._premOnbNext()');
                     } else {
-                        const _eqCommon = ['bodyweight','dumbbells','barbell','resistance','kettlebell','bench','machine','trx','jumprope','swissball','abwheel','treadmill'];
+                        const _eqCommon = ['bodyweight','dumbbells','barbell','resistance','kettlebell','bench','parallelbars','machine','trx','jumprope','swissball','abwheel','treadmill'];
                         const _eqChips = _eqCommon.map(function (id) {
                             const eq = availableEquipment.find(e => e.id === id);
                             if (!eq) return '';
@@ -49775,7 +46235,7 @@
                             + '<h2 style="color:#fff;font-size:1.4em;font-weight:900;margin:0 0 6px;">De quoi disposes-tu ?</h2>'
                             + '<p style="color:#94a3b8;font-size:0.8em;margin:0 0 14px;">Les séances s\'adapteront. Modifiable dans les Réglages.</p>'
                             + _preset('none', 'personne', 'Rien de spécial', 'Poids du corps uniquement, parfait à la maison.')
-                            + _preset('home', 'maison', 'Maison équipée', 'Haltères, élastiques, banc, corde à sauter.')
+                            + _preset('home', 'maison', 'Maison équipée', 'Haltères, élastiques, banc, corde à sauter, barre de traction.')
                             + _preset('gym', 'immeuble', 'Salle de gym', 'Accès complet : barres, machines, cardio.')
                             + '<div style="font-size:0.7em;color:#64748b;font-weight:800;letter-spacing:1px;margin:14px 0 8px;">OU AJUSTE PRÉCISÉMENT</div>'
                             + '<div id="_onbEqChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">' + _eqChips + '</div>'
@@ -49870,8 +46330,8 @@
             // (même stockage que les Réglages), donc conservé pour toutes les séances.
             const _ONB_EQ_PRESETS = {
                 none: ['bodyweight'],
-                home: ['bodyweight', 'dumbbells', 'resistance', 'bench', 'jumprope'],
-                gym:  ['bodyweight', 'dumbbells', 'barbell', 'machine', 'bench', 'kettlebell',
+                home: ['bodyweight', 'dumbbells', 'resistance', 'bench', 'jumprope', 'parallelbars'],
+                gym:  ['bodyweight', 'dumbbells', 'barbell', 'machine', 'bench', 'kettlebell', 'parallelbars',
                        'trx', 'treadmill', 'bike', 'rower', 'swissball', 'abwheel'],
                 kidnone: ['bodyweight'],
                 kidball: ['bodyweight', 'jumprope', 'swissball', 'medicineball']
@@ -50078,33 +46538,6 @@
             document.body.appendChild(ov);
         }
 
-        // Ajouter un sélecteur de thème dans les réglages (injecté dynamiquement)
-        function addThemeSelectorToSettings() {
-            const existing = document.getElementById('_themeSelector');
-            if (existing) return;
-            // Chercher la section apparence dans les réglages
-            const darkToggle = document.querySelector('[onclick*="toggleDarkMode"]');
-            if (!darkToggle) return;
-            const parent = darkToggle.closest('.card, div');
-            if (!parent) return;
-
-            const pref = localStorage.getItem('darkModePreference') || 'dark';
-            const sel  = document.createElement('div');
-            sel.id     = '_themeSelector';
-            sel.style.cssText = 'margin-top:10px;';
-            sel.innerHTML = `
-                <div style="font-size:0.78em;color:#94a3b8;margin-bottom:8px;font-weight:600;">Thème</div>
-                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
-                    ${[['dark','🌙','Sombre'],['light','☀️','Clair'],['auto','🔄','Auto']].map(([mode,icon,label]) =>
-                        `<button onclick="setThemeMode('${mode}');document.querySelectorAll('[data-theme-btn]').forEach(b=>b.style.background='rgba(255,255,255,0.05)');this.style.background='rgba(22,163,74,0.2)';this.style.borderColor='rgba(22,163,74,0.5)';"
-                         data-theme-btn="${mode}"
-                         style="padding:10px 6px;border-radius:10px;border:1px solid ${mode===pref?'rgba(22,163,74,0.5)':'rgba(255,255,255,0.12)'};background:${mode===pref?'rgba(22,163,74,0.2)':'rgba(255,255,255,0.05)'};color:#e2e8f0;font-size:0.82em;font-weight:700;cursor:pointer;">
-                             ${icon} ${label}
-                         </button>`
-                    ).join('')}
-                </div>`;
-            darkToggle.parentNode.insertBefore(sel, darkToggle.nextSibling);
-        }
 
         window.onload = function() {
             // ==================== DEVELOPER SIGNATURE ====================
@@ -50728,7 +47161,7 @@
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1241");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1246");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.

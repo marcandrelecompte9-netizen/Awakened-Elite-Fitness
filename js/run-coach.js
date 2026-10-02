@@ -215,7 +215,6 @@
     if (echauf !== false) ph.push({ type: 'calme', m: 't', v: 300, nom: 'Retour au calme' });
     return ph;
   }
-  function mesureTxt(m, v) { return m === 'd' ? (v >= 1000 ? kmTxt(v) + ' km' : v + ' m') : (v >= 60 ? (v % 60 ? hms(v) : (v / 60) + ' min') : v + ' s'); }
   function mesureVoix(m, v) { return m === 'd' ? (v >= 1000 ? voixKm(v) : v + ' mètres') : voixT(v); }
 
   // ═══ CHOIX AVANT LE DÉPART ══════════════════════════════════════════

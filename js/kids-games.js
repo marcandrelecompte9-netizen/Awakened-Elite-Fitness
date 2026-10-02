@@ -143,12 +143,6 @@
     try { return (typeof getCurrentProfileId === 'function') ? getCurrentProfileId() : null; }
     catch (e) { return null; }
   }
-  function _estEnfant() {
-    try {
-      return !!(global.AwakYouth && typeof global.AwakYouth.isChild === 'function'
-                && global.AwakYouth.isChild());
-    } catch (e) { return false; }
-  }
   function esc(t) {
     return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];

@@ -2800,6 +2800,5 @@ const EQUIPMENT_DATABASE = [
 
 // ── HELPERS ─────────────────────────────────────────────────────────
 function getItemById(id)          { return EQUIPMENT_DATABASE.find(i => i.id === id) || null; }
-function getItemsByMuscle(muscle) { return EQUIPMENT_DATABASE.filter(i => i.muscle === muscle || i.muscle === 'Corps entier'); }
 function getSetById(id)           { return EQUIPMENT_SETS[id] || null; }
 function getRarityInfo(rarityId)  { return RARITIES[rarityId] || RARITIES.common; }

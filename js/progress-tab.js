@@ -251,7 +251,8 @@
         + _ligneMontre()
         + '<div style="font-size:0.66em;color:#94a3b8;font-weight:800;margin-bottom:8px;">Séances par semaine</div>'
         + graphe8(hist));
-      h += carteBloc('Tes derniers records', 'trophee', OR, blocRecords(false));
+      // v1245 : carte masquée tant qu'il n'y a aucun record (elle ne disait que « bientôt »)
+      if (records().length) h += carteBloc('Tes derniers records', 'trophee', OR, blocRecords(false));
     }
     hote.innerHTML = h;
   }
@@ -342,7 +343,7 @@
   }
 
   // Liste complète, regroupée par semaine, avec « Voir plus ».
-  var PAS = 10;
+  var PAS = 6;   // v1245 : 6 séances d'abord (10 faisaient 2 écrans), « Voir plus » pour la suite
   function rendreListe(container, liste, favoris) {
     var max = window._awakHistMax || PAS;
     var h = '', semPrec = null;

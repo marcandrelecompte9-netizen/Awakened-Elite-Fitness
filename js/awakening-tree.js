@@ -106,7 +106,6 @@
   }
 
   function stageOf(c) { var s = 0; for (var i = 0; i < THRESHOLDS.length; i++) { if (c >= THRESHOLDS[i]) s = i; } return s; }
-  function nextThreshold(c) { for (var i = 0; i < THRESHOLDS.length; i++) { if (c < THRESHOLDS[i]) return THRESHOLDS[i]; } return null; }
 
   // ── Moteur d'archétype ──
   function setEq(a, b) { if (a.length !== b.length) return false; var s = a.slice().sort(), t = b.slice().sort(); return s.every(function (x, i) { return x === t[i]; }); }
