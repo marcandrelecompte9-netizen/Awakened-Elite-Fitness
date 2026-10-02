@@ -57,10 +57,13 @@
     for (var i = 0; i <= n; i++) {
       var v = min + i * pas;
       var r = Math.round(v / pas);
-      var dix = Math.abs(v % 10) < 1e-6, cinq = Math.abs(v % 5) < 1e-6;
+      // Graduations : chiffre tous les 10 (ou tous les 2 pour une règle au
+      // demi-pas, ex. kilomètres), trait moyen à mi-chemin.
+      var LAB = pas < 1 ? 2 : 10;
+      var dix = Math.abs(v % LAB) < 1e-6, cinq = Math.abs(v % (LAB / 2)) < 1e-6;
       var h = dix ? 28 : (cinq ? 19 : 11);
       ticks += '<div class="awk-regle-t" data-i="' + i + '"><i style="height:' + h + 'px;' + (dix ? 'background:rgba(203,213,225,0.75);' : '') + '"></i>'
-        + (dix ? '<b>' + fmt(v, pas) + '</b>' : '') + '</div>';
+        + (dix ? '<b>' + (v % 1 ? fmt(v, pas) : String(v)) + '</b>' : '') + '</div>';
     }
     return '<div class="awk-regle" id="' + id + '" data-min="' + min + '" data-max="' + max + '" data-pas="' + pas + '" data-val="' + val + '">'
       + '<div class="awk-regle-val"><span class="n">' + fmt(val, pas) + '</span><span class="u">' + (o.unite || '') + '</span></div>'
@@ -104,7 +107,7 @@
       if (String(v) !== el.dataset.val) {
         el.dataset.val = v;
         num.textContent = fmt(v, pas);
-        var d = Math.floor(v / 10);
+        var d = Math.floor(v / (pas < 1 ? 1 : 10));
         if (dernierDix !== null && d !== dernierDix) vibrer(8);
         dernierDix = d;
         if (typeof surChange === 'function') { try { surChange(v); } catch (e) {} }
@@ -134,8 +137,16 @@
       b.addEventListener('click', function (e) { e.preventDefault(); });
     });
 
+    // Fixer la valeur par code (sans déclencher surChange)
+    el._fixer = function (v) {
+      v = Math.min(max, Math.max(min, +v));
+      el.dataset.val = v; num.textContent = fmt(v, pas);
+      dernierDix = Math.floor(v / (pas < 1 ? 1 : 10));
+      versIdx(idxDe(v), false);
+    };
+
     placerEspaces();
-    requestAnimationFrame(function () { placerEspaces(); versIdx(idxDe(+el.dataset.val), false); dernierDix = Math.floor(+el.dataset.val / 10); });
+    requestAnimationFrame(function () { placerEspaces(); versIdx(idxDe(+el.dataset.val), false); dernierDix = Math.floor(+el.dataset.val / (pas < 1 ? 1 : 10)); });
     window.addEventListener('resize', placerEspaces);
   }
 
@@ -144,5 +155,10 @@
     return el ? +el.dataset.val : null;
   }
 
-  window.AwakRegle = { html: html, init: init, valeur: valeur };
+  function fixer(id, v) {
+    var el = document.getElementById(id);
+    if (el && el._fixer) el._fixer(v);
+  }
+
+  window.AwakRegle = { html: html, init: init, valeur: valeur, fixer: fixer };
 })();

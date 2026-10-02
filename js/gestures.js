@@ -6,7 +6,7 @@
       que le bouton Retour : jamais un « ✕ » de suppression).
    2. Séance : glisser l'image d'exercice → suivant (gauche) / précédent (droite).
    3. Agenda : glisser → semaine / mois suivant ou précédent.
-   4. Sous-onglets (Séance libre · Mes routines · Programme · Défis,
+   4. Sous-onglets (Séance libre · Mes routines · Programme · Course · Défis,
       Exercices · Calculateurs) : glisser le contenu pour changer.
    5. Routines : glisser une carte vers la gauche → actions (dupliquer,
       imprimer, supprimer…). Aussi via le bouton « ⋯ ».
@@ -32,7 +32,7 @@
 
   var BORD = 22;
   var GROUPES = [
-    ['workouts', 'routines', 'program', 'challenges'],
+    ['workouts', 'routines', 'program', 'course', 'challenges'],
     ['exercises', 'calculators']
   ];
   var PRINCIPAUX = ['home', 'history', 'calendar', 'family'];

@@ -118,6 +118,16 @@
     });
   }
 
+  // v1239 : échantillons de pouls bruts [{t, v}] (zones cardiaques d'une sortie)
+  function pouls(debut, fin) {
+    if (!connecte()) return Promise.resolve([]);
+    return echantillons('heartRate', debut, fin, 5000).then(function (l) {
+      return l.map(function (x) {
+        return { t: new Date(x.startDate || x.timestamp || x.date || x.endDate).getTime(), v: +x.value };
+      }).filter(function (x) { return isFinite(x.t) && x.v > 30 && x.v < 230; });
+    });
+  }
+
   function minuit(d) { var x = new Date(d || Date.now()); x.setHours(0, 0, 0, 0); return x.getTime(); }
 
   // Pas et calories d'aujourd'hui
@@ -346,6 +356,6 @@
   window.AwakSante = {
     natif: natif, connecte: connecte, connecter: connecter, connecterUI: connecterUI, deconnecter: deconnecter,
     seance: seance, journee: journee, sommeil: sommeil, importer: importer, synchroniser: synchroniser,
-    completerFinSeance: completerFinSeance, nuitCourte: nuitCourte, rendreReglages: rendreReglages, hm: hm
+    completerFinSeance: completerFinSeance, nuitCourte: nuitCourte, rendreReglages: rendreReglages, hm: hm, pouls: pouls
   };
 })();
