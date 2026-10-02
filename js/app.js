@@ -21567,7 +21567,7 @@
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1246);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1247);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -21611,7 +21611,7 @@
                 +       '<feGaussianBlur stdDeviation="2.4" result="b"/>'
                 +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>'
                 +     '</filter></defs>'
-                +     '<image href="' + img + '?v=1246" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1247" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -27033,7 +27033,7 @@
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1246");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1247");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -31343,7 +31343,7 @@
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1246);'
+                +     'url(images/combat_bg_v1.webp?v=1247);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -31598,7 +31598,7 @@
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1246);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1247);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -31857,7 +31857,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:540px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto;display:flex;flex-direction:column;">
                 <!-- Header : vague actuelle -->
-                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1246);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1247);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                         <span style="font-size:0.6em;color:${theme.color};font-weight:900;letter-spacing:2px;">⚔ VAGUE ${rift.currentWaveIdx + 1} / ${rift.waves.length}${currentWave.isBoss ? ' · BOSS' : ''}</span>
                         <button onclick="awakAbandonRift()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
@@ -33004,7 +33004,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1246');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1247');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -33741,7 +33741,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1246);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1247);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -33912,7 +33912,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1246);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1247);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -43922,56 +43922,6 @@
         }
         window.renderInsightsCard = renderInsightsCard;
 
-        // ── 📋 Corps du bilan Coach (analyse comportementale) ──
-        // Retourne le HTML interne (sans wrapper) — réutilisé dans l'onglet « Coach »
-        // de l'écran fusionné « Analyse du Système ».
-        function _coachBilanBodyHTML() {
-            try {
-                const b = awakAnalyzeBehavior();
-                const cons = awakConsistencyInfo();
-                const ccrTxt = (b.challengeCompletionRate === null) ? '—' : Math.round(b.challengeCompletionRate * 100) + '%';
-                const stat = function (label, val) { return '<div style="flex:1;text-align:center;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:10px 4px;"><div style="font-size:1.15em;font-weight:900;color:white;">' + val + '</div><div style="font-size:0.56em;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;line-height:1.2;">' + label + '</div></div>'; };
-                return ''
-                    // type d'athlète
-                    + '<div style="text-align:center;margin-bottom:16px;"><div style="font-size:2.6em;line-height:1;">' + b.type.emoji + '</div><div style="font-weight:900;color:white;font-size:1.15em;margin-top:4px;">' + b.type.label + '</div><div style="font-size:0.74em;color:#94a3b8;margin-top:2px;">' + b.type.desc + '</div></div>'
-                    // score d'assiduité
-                    + '<div style="background:rgba(255,255,255,0.03);border:1px solid ' + cons.color + '44;border-radius:14px;padding:13px 15px;margin-bottom:14px;">'
-                    + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;"><span style="font-size:0.72em;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Assiduité</span><span style="font-weight:900;color:' + cons.color + ';font-size:0.95em;">' + cons.score + '/100 · ' + cons.label + '</span></div>'
-                    + '<div style="height:9px;background:rgba(255,255,255,0.07);border-radius:6px;overflow:hidden;"><div style="height:100%;width:' + cons.score + '%;background:' + cons.color + ';border-radius:6px;"></div></div></div>'
-                    // courbe d'assiduité (6 dernières semaines)
-                    + (function () {
-                        const weeks = awakWeeklySessionCounts(6);
-                        if (!weeks.length) return '';
-                        const wmax = Math.max(3, Math.max.apply(null, weeks));
-                        const bars = weeks.map(function (c, i) {
-                            const isLast = (i === weeks.length - 1);
-                            const h = Math.max(6, Math.round((c / wmax) * 100));
-                            return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">'
-                                + '<div style="font-size:0.62em;color:' + (isLast ? '#22d3ee' : '#64748b') + ';font-weight:800;">' + c + '</div>'
-                                + '<div style="width:100%;max-width:20px;height:46px;display:flex;align-items:flex-end;"><div style="width:100%;height:' + h + '%;background:' + (isLast ? '#22d3ee' : 'rgba(34,211,238,0.4)') + ';border-radius:4px 4px 0 0;"></div></div></div>';
-                        }).join('');
-                        return '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:13px 15px;margin-bottom:14px;">'
-                            + '<div style="font-size:0.66em;color:#94a3b8;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:9px;">Séances · 6 dernières semaines</div>'
-                            + '<div style="display:flex;gap:6px;align-items:flex-end;">' + bars + '</div></div>';
-                    })()
-                    // stats
-                    + '<div style="display:flex;gap:8px;margin-bottom:16px;">'
-                    + stat('Séances/sem', b.perWeek ? b.perWeek.toFixed(1) : '0')
-                    + stat('Défis finis', ccrTxt)
-                    + stat('Programmes', b.progStart)
-                    + stat('Remplacements', b.totalSwaps)
-                    + '</div>'
-                    // 🧹 v691 : les « Conseils pour toi » (awakBehaviorInsights) ont
-                    // été retirés — ils recoupaient le raisonnement de l'onglet
-                    // « Système ». Le Coach se concentre désormais sur le profil LONG
-                    // TERME (type d'athlète, assiduité, régularité), distinct de
-                    // l'état du jour analysé côté Système.
-                    + '<div style="margin-top:4px;font-size:0.64em;color:#64748b;line-height:1.5;">Profil basé sur tes 90 derniers jours, calculé en local sur ton appareil.</div>';
-            } catch (e) {
-                return '<div style="text-align:center;padding:20px;color:#94a3b8;font-size:0.82em;line-height:1.5;">Analyse comportementale indisponible pour le moment. Fais quelques séances et reviens.</div>';
-            }
-        }
-        window._coachBilanBodyHTML = _coachBilanBodyHTML;
 
         // ── 📋 Bilan complet → ouvre l'écran fusionné sur l'onglet « Coach » ──
         function openCoachDetail() {
@@ -44716,7 +44666,7 @@
 
             host.innerHTML =
                 '<div style="position:relative;width:110px;margin:0 auto 12px;">'
-              +   '<img src="images/body/body_face.webp?v=1246" alt="" '
+              +   '<img src="images/body/body_face.webp?v=1247" alt="" '
               +     'style="width:100%;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -44798,7 +44748,7 @@
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1246);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1247);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -44865,7 +44815,7 @@
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1246);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1247);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -47161,7 +47111,7 @@
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1246");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1247");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
@@ -48286,311 +48236,8 @@
         // ═══════════════════════════════════════════════════════════════
         // ⚙️ ANALYSE DÉTAILLÉE DU SYSTÈME — conseils personnalisés
         // ═══════════════════════════════════════════════════════════════
-        // Le Système examine les données réelles du joueur (muscles, fréquence,
-        // équilibre) et donne des conseils concrets. Fonctionne même hors mode Jeu.
+        // v1247 : déplacée dans js/analyse.js (AwakAnalyse, showSystemAnalysis).
 
-        function awakAnalyzePlayer() {
-            const analysis = { neglected: [], imbalances: [], frequency: null, decaying: [], topMuscles: [], summary: '', priority: null };
-            try {
-                const data = (typeof rpgLoad === 'function') ? rpgLoad() : { muscles: {} };
-                const muscles = data.muscles || {};
-                const now = Date.now();
-                const allGroups = ['Pectoraux','Dos','Épaules','Biceps','Triceps','Abdominaux','Quadriceps','Ischio-jambiers','Fessiers','Mollets','Trapèzes','Obliques','Avant-bras'];
-
-                // Niveau par muscle (via XP)
-                const lvl = {};
-                const daysSince = {};
-                allGroups.forEach(m => {
-                    const info = muscles[m];
-                    lvl[m] = info && info.xp ? (typeof rpgLevelFromXP === 'function' ? rpgLevelFromXP(info.xp) : Math.floor(info.xp/100)) : 0;
-                    daysSince[m] = (info && info.lastTrained) ? Math.floor((now - new Date(info.lastTrained).getTime())/86400000) : null;
-                });
-
-                // 1️⃣ MUSCLES NÉGLIGÉS (jamais ou pas depuis 10+ jours)
-                allGroups.forEach(m => {
-                    if (daysSince[m] === null && lvl[m] === 0) {
-                        analysis.neglected.push({ muscle: m, days: null, never: true });
-                    } else if (daysSince[m] !== null && daysSince[m] >= 10) {
-                        analysis.neglected.push({ muscle: m, days: daysSince[m], never: false });
-                    }
-                });
-                analysis.neglected.sort((a,b) => (b.days||999) - (a.days||999));
-
-                // 2️⃣ DÉSÉQUILIBRES antagonistes (différence de niveau significative)
-                const pairs = [['Pectoraux','Dos'],['Quadriceps','Ischio-jambiers'],['Biceps','Triceps']];
-                pairs.forEach(([a,b]) => {
-                    const la = lvl[a], lb = lvl[b];
-                    const diff = Math.abs(la - lb);
-                    if (diff >= 3 && (la > 0 || lb > 0)) {
-                        const strong = la > lb ? a : b;
-                        const weak = la > lb ? b : a;
-                        analysis.imbalances.push({ strong, weak, diff, strongLvl: Math.max(la,lb), weakLvl: Math.min(la,lb) });
-                    }
-                });
-
-                // 3️⃣ MUSCLES EN DÉCLIN (entraînés mais inactifs 5-9 jours = zone de decay)
-                allGroups.forEach(m => {
-                    if (daysSince[m] !== null && daysSince[m] >= 5 && daysSince[m] < 10 && lvl[m] > 0) {
-                        analysis.decaying.push({ muscle: m, days: daysSince[m] });
-                    }
-                });
-
-                // 4️⃣ FRÉQUENCE d'entraînement (séances sur 7 et 30 jours)
-                const history = (typeof getWorkoutHistory === 'function') ? getWorkoutHistory() : [];
-                const week = history.filter(w => (now - new Date(w.date||w.completedAt||w.timestamp||0).getTime()) <= 7*86400000).length;
-                const month = history.filter(w => (now - new Date(w.date||w.completedAt||w.timestamp||0).getTime()) <= 30*86400000).length;
-                analysis.frequency = { week, month, perWeekAvg: Math.round(month/4.3*10)/10 };
-
-                // 5️⃣ TOP muscles (les plus développés)
-                analysis.topMuscles = allGroups
-                    .filter(m => lvl[m] > 0)
-                    .sort((a,b) => lvl[b]-lvl[a])
-                    .slice(0,3)
-                    .map(m => ({ muscle: m, level: lvl[m] }));
-
-                // PRIORITÉ : le conseil le plus important à donner
-                if (history.length === 0) {
-                    analysis.priority = { type:'start', text:"Commence ta première séance pour que je puisse analyser ta progression." };
-                } else if (week === 0) {
-                    analysis.priority = { type:'inactive', text:"Aucune séance cette semaine. Reprends pour maintenir tes acquis." };
-                } else if (analysis.imbalances.length > 0) {
-                    const im = analysis.imbalances[0];
-                    analysis.priority = { type:'imbalance', text:`Déséquilibre détecté : ton ${im.weak} (niv ${im.weakLvl}) est en retard sur ton ${im.strong} (niv ${im.strongLvl}). Priorise le ${im.weak}.` };
-                } else if (analysis.neglected.length > 0) {
-                    const n = analysis.neglected[0];
-                    analysis.priority = { type:'neglected', text: n.never ? `Tu n'as jamais travaillé ${n.muscle}. Pense à l'intégrer.` : `${n.muscle} négligé depuis ${n.days} jours. Il serait temps.` };
-                } else if (week < 2) {
-                    analysis.priority = { type:'frequency', text:`Seulement ${week} séance cette semaine. Vise 3+ pour progresser plus vite.` };
-                } else {
-                    analysis.priority = { type:'good', text:`Belle régularité (${week} séances cette semaine) et bon équilibre. Continue ainsi.` };
-                }
-
-                analysis.muscleLevels = lvl;
-                return analysis;
-            } catch(e) {
-                return analysis;
-            }
-        }
-        window.awakAnalyzePlayer = awakAnalyzePlayer;
-
-        function showSystemAnalysis(initialTab) {
-            document.getElementById('systemAnalysisOverlay')?.remove();
-            const _tab0 = (initialTab === 'coach') ? 'coach' : 'systeme';
-            const a = awakAnalyzePlayer();
-
-            // ── 📊 DASHBOARD : données radar musculaire + tendance séances (8 sem) ──
-            const _ml = a.muscleLevels || {};
-            const _radarKeys = ['Pectoraux','Dos','Épaules','Biceps','Triceps','Abdominaux','Quadriceps','Ischio-jambiers','Fessiers','Mollets','Trapèzes','Obliques','Avant-bras'];
-            const _radarLabels = ['Pecs','Dos','Épaules','Biceps','Triceps','Abdos','Quads','Ischios','Fessiers','Mollets','Trapèzes','Obliques','Avt-bras'];
-            const _radarData = _radarKeys.map(k => _ml[k] || 0);
-            const _anyLevel = _radarData.some(v => v > 0);
-            const _hist = (typeof getWorkoutHistory === 'function') ? getWorkoutHistory() : [];
-            const _nowTs = Date.now();
-            const _weeks = [], _weekLabels = [];
-            for (let w = 7; w >= 0; w--) {
-                const start = _nowTs - (w + 1) * 7 * 86400000;
-                const end = _nowTs - w * 7 * 86400000;
-                const c = _hist.filter(h => { const t = new Date(h.date || h.completedAt || h.timestamp || 0).getTime(); return t > start && t <= end; }).length;
-                _weeks.push(c);
-                _weekLabels.push(w === 0 ? ['Cette', 'sem.'] : '−' + w);
-            }
-            const _hasHist = _hist.length > 0;
-            const dashHtml = (_anyLevel || _hasHist) ? `
-                <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:18px;">
-                    ${_anyLevel ? `
-                    <div style="background:linear-gradient(160deg,rgba(34,211,238,0.07),rgba(168,85,247,0.04));border:1px solid rgba(34,211,238,0.18);border-radius:14px;padding:14px 14px 8px;">
-                        <div style="font-family:'Rajdhani',sans-serif;font-size:0.74em;color:#22d3ee;font-weight:700;letter-spacing:2px;margin-bottom:8px;">◈ ÉQUILIBRE MUSCULAIRE</div>
-                        <div style="position:relative;height:250px;"><canvas id="dashRadarChart"></canvas></div>
-                    </div>` : ''}
-                    ${_hasHist ? `
-                    <div style="background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px 14px 8px;">
-                        <div style="font-family:'Rajdhani',sans-serif;font-size:0.74em;color:#a855f7;font-weight:700;letter-spacing:2px;margin-bottom:8px;">◈ SÉANCES · 8 SEMAINES</div>
-                        <div style="position:relative;height:130px;"><canvas id="dashTrendChart"></canvas></div>
-                    </div>` : ''}
-                </div>` : '';
-
-            const overlay = document.createElement('div');
-            overlay.id = 'systemAnalysisOverlay';
-            overlay.style.cssText = 'position:fixed;inset:0;z-index:10700;background:rgba(0,0,0,0.85);backdrop-filter:blur(10px);display:flex;align-items:flex-end;justify-content:center;';
-            overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
-
-            const section = (title, color, icon, contentHtml) => `
-                <div style="margin-bottom:16px;">
-                    <div style="font-size:0.62em;color:${color};font-weight:900;letter-spacing:1.5px;margin-bottom:8px;">${icon} ${title}</div>
-                    ${contentHtml}
-                </div>`;
-
-            // Priorité (le conseil principal)
-            const prColors = { good:'#4ade80', start:'#22d3ee', inactive:'#f59e0b', imbalance:'#f59e0b', neglected:'#f59e0b', frequency:'#22d3ee' };
-            const prc = prColors[a.priority?.type] || '#22d3ee';
-            const priorityHtml = a.priority ? `
-                <div style="background:linear-gradient(135deg,${prc}1f,${prc}08);border:1px solid ${prc}55;border-left:3px solid ${prc};border-radius:14px;padding:14px 16px;margin-bottom:18px;">
-                    <div style="font-size:0.56em;color:${prc};font-weight:900;letter-spacing:2px;margin-bottom:6px;">CONSEIL PRIORITAIRE</div>
-                    <div style="font-size:0.88em;color:#e2e8f0;line-height:1.5;font-style:italic;">${a.priority.text}</div>
-                </div>` : '';
-
-            // Déséquilibres
-            const imbalHtml = a.imbalances.length ? section('Déséquilibres musculaires', '#f59e0b', '⚖️',
-                a.imbalances.map(im => `
-                    <div style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.25);border-radius:10px;padding:10px 12px;margin-bottom:6px;">
-                        <div style="font-size:0.8em;color:#e2e8f0;font-weight:700;">${im.strong} (niv ${im.strongLvl}) ↔ ${im.weak} (niv ${im.weakLvl})</div>
-                        <div style="font-size:0.68em;color:#fcd34d;margin-top:3px;">Écart de ${im.diff} niveaux — renforce ton ${im.weak}</div>
-                    </div>`).join('')
-            ) : '';
-
-            // Muscles négligés
-            const neglHtml = a.neglected.length ? section('Muscles négligés', '#ef4444', '🚨',
-                `<div style="display:flex;flex-wrap:wrap;gap:6px;">${a.neglected.slice(0,8).map(n =>
-                    `<span style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;padding:4px 10px;border-radius:99px;font-size:0.72em;font-weight:700;">${n.muscle}${n.never ? ' (jamais)' : ' · '+n.days+'j'}</span>`
-                ).join('')}</div>`
-            ) : '';
-
-            // En déclin
-            const decayHtml = a.decaying.length ? section('Bientôt en déclin', '#fb923c', '⏳',
-                `<div style="display:flex;flex-wrap:wrap;gap:6px;">${a.decaying.map(d =>
-                    `<span style="background:rgba(251,146,60,0.1);border:1px solid rgba(251,146,60,0.3);color:#fdba74;padding:4px 10px;border-radius:99px;font-size:0.72em;font-weight:700;">${d.muscle} · ${d.days}j</span>`
-                ).join('')}</div>
-                <div style="font-size:0.66em;color:#94a3b8;margin-top:6px;line-height:1.4;">Ces muscles approchent de la zone de régression. Un entraînement bientôt préservera tes gains.</div>`
-            ) : '';
-
-            // Fréquence
-            const f = a.frequency;
-            const freqColor = f && f.week >= 3 ? '#4ade80' : (f && f.week >= 1 ? '#f59e0b' : '#ef4444');
-            const freqHtml = f ? section('Fréquence d\'entraînement', '#22d3ee', '📊',
-                `<div style="display:flex;gap:10px;">
-                    <div style="flex:1;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:10px;text-align:center;">
-                        <div style="font-size:1.4em;font-weight:900;color:${freqColor};">${f.week}</div>
-                        <div style="font-size:0.6em;color:#94a3b8;font-weight:700;">CETTE SEMAINE</div>
-                    </div>
-                    <div style="flex:1;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:10px;text-align:center;">
-                        <div style="font-size:1.4em;font-weight:900;color:#e2e8f0;">${f.month}</div>
-                        <div style="font-size:0.6em;color:#94a3b8;font-weight:700;">30 JOURS</div>
-                    </div>
-                    <div style="flex:1;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:10px;text-align:center;">
-                        <div style="font-size:1.4em;font-weight:900;color:#e2e8f0;">${f.perWeekAvg}</div>
-                        <div style="font-size:0.6em;color:#94a3b8;font-weight:700;">MOY/SEM</div>
-                    </div>
-                </div>`
-            ) : '';
-
-            // Top muscles
-            const topHtml = a.topMuscles.length ? section('Tes points forts', '#a855f7', '🏆',
-                `<div style="display:flex;flex-wrap:wrap;gap:6px;">${a.topMuscles.map((t,i) =>
-                    `<span style="background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.3);color:#c084fc;padding:4px 10px;border-radius:99px;font-size:0.72em;font-weight:700;">${['🥇','🥈','🥉'][i]||''} ${t.muscle} · niv ${t.level}</span>`
-                ).join('')}</div>`
-            ) : '';
-
-            const hasContent = imbalHtml || neglHtml || decayHtml || topHtml;
-
-            const systemeInner = `
-                ${dashHtml}
-                ${priorityHtml}
-                ${freqHtml}
-                ${imbalHtml}
-                ${neglHtml}
-                ${decayHtml}
-                ${topHtml}
-                ${!hasContent && f && f.month === 0 ? `<div style="text-align:center;padding:20px;color:#94a3b8;font-size:0.82em;line-height:1.5;">Fais quelques séances et je pourrai analyser tes muscles, détecter les déséquilibres et te guider précisément.</div>` : ''}`;
-            const coachInner = (typeof _coachBilanBodyHTML === 'function') ? _coachBilanBodyHTML() : '';
-
-            const sheet = document.createElement('div');
-            sheet.style.cssText = 'background:#0D0D0D;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;height:88vh;box-sizing:border-box;overflow-y:auto;-webkit-overflow-scrolling:touch;';
-            sheet.innerHTML = `
-                <div style="width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:99px;margin:0 auto 18px;"></div>
-                <div style="text-align:center;margin-bottom:16px;">
-                    <div style="font-size:2em;">⚙️</div>
-                    <h2 style="margin:6px 0 4px;color:white;font-size:1.15em;font-weight:900;">Analyse du Système</h2>
-                    <p style="margin:0;color:rgba(255,255,255,0.4);font-size:0.78em;">Ta progression physique et ton profil de coach.</p>
-                </div>
-                <div style="display:flex;gap:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:4px;margin-bottom:16px;">
-                    <button id="awakTabSysteme" style="flex:1;border:none;border-radius:9px;padding:9px 6px;font-weight:800;font-size:0.78em;cursor:pointer;transition:all 0.18s;">⚙️ Système</button>
-                    <button id="awakTabCoach" style="flex:1;border:none;border-radius:9px;padding:9px 6px;font-weight:800;font-size:0.78em;cursor:pointer;transition:all 0.18s;">🧠 Coach</button>
-                </div>
-                <div id="awakPanelSysteme">${systemeInner}</div>
-                <div id="awakPanelCoach" style="display:none;">${coachInner}</div>
-                <button onclick="document.getElementById('systemAnalysisOverlay').remove()" style="margin-top:8px;width:100%;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:14px;color:rgba(255,255,255,0.6);font-weight:700;cursor:pointer;">Fermer</button>`;
-            overlay.appendChild(sheet);
-            document.body.appendChild(overlay);
-
-            // ── 📊 Instanciation paresseuse des graphiques (canvas doit être visible) ──
-            let _chartsDone = false;
-            function _instSysCharts() {
-                if (_chartsDone) return;
-                _chartsDone = true;
-                try {
-                    if (typeof Chart !== 'undefined') {
-                        const _rc = document.getElementById('dashRadarChart');
-                        if (_rc) {
-                            new Chart(_rc.getContext('2d'), {
-                                type: 'radar',
-                                data: { labels: _radarLabels, datasets: [{
-                                    data: _radarData,
-                                    backgroundColor: 'rgba(34,211,238,0.16)',
-                                    borderColor: '#22d3ee', borderWidth: 2,
-                                    pointBackgroundColor: '#a855f7', pointBorderColor: '#a855f7', pointRadius: 3, pointHoverRadius: 4
-                                }] },
-                                options: {
-                                    responsive: true, maintainAspectRatio: false,
-                                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => ' Niv ' + c.raw } } },
-                                    scales: { r: {
-                                        angleLines: { color: 'rgba(255,255,255,0.08)' },
-                                        grid: { color: 'rgba(255,255,255,0.08)' },
-                                        pointLabels: { color: '#cbd5e1', font: { size: 9, weight: '600' } },
-                                        ticks: { display: false, beginAtZero: true },
-                                        suggestedMin: 0
-                                    } }
-                                }
-                            });
-                        }
-                        const _tc = document.getElementById('dashTrendChart');
-                        if (_tc) {
-                            new Chart(_tc.getContext('2d'), {
-                                type: 'bar',
-                                data: { labels: _weekLabels, datasets: [{
-                                    data: _weeks,
-                                    backgroundColor: 'rgba(168,85,247,0.45)',
-                                    borderColor: '#a855f7', borderWidth: 1, borderRadius: 4
-                                }] },
-                                options: {
-                                    responsive: true, maintainAspectRatio: false,
-                                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => ' ' + c.raw + ' séance' + (c.raw > 1 ? 's' : '') } } },
-                                    scales: {
-                                        x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 9 } } },
-                                        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: '#94a3b8', font: { size: 9 }, precision: 0, stepSize: 1 } }
-                                    }
-                                }
-                            });
-                        }
-                    }
-                } catch (e) {}
-            }
-
-            // ── Bascule d'onglets ──
-            const _btnS = document.getElementById('awakTabSysteme');
-            const _btnC = document.getElementById('awakTabCoach');
-            const _panS = document.getElementById('awakPanelSysteme');
-            const _panC = document.getElementById('awakPanelCoach');
-            function _switchTab(tab) {
-                const isS = (tab !== 'coach');
-                if (_panS) _panS.style.display = isS ? '' : 'none';
-                if (_panC) _panC.style.display = isS ? 'none' : '';
-                if (_btnS) {
-                    _btnS.style.background = isS ? 'linear-gradient(135deg,#3b82f6,#1d5fa8)' : 'transparent';
-                    _btnS.style.color = isS ? '#ffffff' : '#94a3b8';
-                }
-                if (_btnC) {
-                    _btnC.style.background = !isS ? 'linear-gradient(135deg,#3b82f6,#1d5fa8)' : 'transparent';
-                    _btnC.style.color = !isS ? '#ffffff' : '#94a3b8';
-                }
-                // Même hauteur de fenêtre pour les deux onglets, et retour en haut
-                try { sheet.scrollTop = 0; } catch (e) {}
-                if (isS) _instSysCharts();
-            }
-            if (_btnS) _btnS.addEventListener('click', () => _switchTab('systeme'));
-            if (_btnC) _btnC.addEventListener('click', () => _switchTab('coach'));
-            _switchTab(_tab0);
-        }
-        window.showSystemAnalysis = showSystemAnalysis;
 
         // ═══════════════════════════════════════════════════════════════
         // 🏃 CARDIO D'ÉCHAUFFEMENT OPTIONNEL (avant la séance)
