@@ -7840,3 +7840,38 @@ body.dark-mode .progress-stats {
     background: rgba(96,168,240,0.06) !important;
     border-color: rgba(96,168,240,0.2) !important;
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   FENÊTRES CENTRÉES (v1252) — voir js/fenetres.js
+   Les feuilles du bas deviennent des fenêtres centrées. align-items en
+   haut + margin:auto (et non align-items:center) : une fenêtre plus haute
+   que l'écran reste entièrement atteignable en faisant défiler le calque.
+   ═══════════════════════════════════════════════════════════════════ */
+.awak-centre {
+    align-items: flex-start !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    padding: calc(14px + env(safe-area-inset-top, 0px)) 12px calc(14px + env(safe-area-inset-bottom, 0px)) !important;
+    box-sizing: border-box !important;
+}
+.awak-centre > * {
+    margin-top: auto !important;
+    margin-bottom: auto !important;
+    border-radius: 20px !important;
+    box-sizing: border-box;
+}
+/* Modales .modal (index.html) : centrées au lieu d'être collées en bas */
+.modal.active > .modal-content,
+.modal:not(#profileSelectionModal) > .modal-content {
+    margin-bottom: auto !important;
+}
+@media (max-width: 640px) {
+    .modal:not(#profileSelectionModal) { padding: 14px 10px !important; }
+    .modal:not(#profileSelectionModal) > .modal-content {
+        border-radius: 20px !important;
+        padding-bottom: calc(22px + env(safe-area-inset-bottom, 0px)) !important;
+    }
+}
+/* Fenêtre « Remplacer l'exercice » */
+#swapModal { align-items: flex-start !important; overflow-y: auto; padding: 14px 12px; box-sizing: border-box; }
+#swapModal > #swapModalBox { margin-top: auto !important; margin-bottom: auto !important; border-radius: 20px !important; }
