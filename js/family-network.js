@@ -327,12 +327,19 @@
     // 3. Duel — compétitif : jamais proposé à un profil enfant (comme le menu d'étoile)
     var _enfD = false;
     try { _enfD = !!(window.AwakYouth && window.AwakYouth.isChild && window.AwakYouth.isChild()); } catch (e) {}
+    // v1256 : pour un enfant, un défi d'assiduité (le plus de jours actifs).
     if (!_enfD) html += bloc('#a78bfa', 'DUEL',
       'Défier un membre',
       'Toi contre un membre de la famille : celui qui en fait le plus cette semaine gagne.',
       '',
       'document.getElementById(\'awakEnsembleModal\').remove();AwakFamilyChallengeOpen()',
       'Défier un membre');
+    else html += bloc('#a78bfa', 'DÉFI',
+      'Défier un membre',
+      'Qui bougera le plus de jours cette semaine ? Ce qui compte, c\'est de bouger souvent.',
+      '',
+      'document.getElementById(\'awakEnsembleModal\').remove();AwakFamilyChallengeOpen()',
+      'Lancer un défi');
 
     var ov = document.createElement('div');
     ov.id = 'awakEnsembleModal';
@@ -563,6 +570,8 @@
       enf = !!(window.AwakYouth && typeof window.AwakYouth.isChild === 'function'
                && window.AwakYouth.isChild());
     } catch (e) {}
+    var cibleEnf = false;
+    try { cibleEnf = !!(window.AwakYouth && typeof AwakYouth.isChildProfile === 'function' && AwakYouth.isChildProfile(memberId)); } catch (e) {}
 
     try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) {}
     document.getElementById('awakConstMenu')?.remove();
@@ -616,9 +625,15 @@
           "AwakConstAction('nudge','" + memberId + "')", '#ec4899')
     +   act('manette', 'Jouer à deux', 'Un jeu ou une séance à faire ensemble',
           "AwakConstAction('games','" + memberId + "')", '#60a8f0')
-    // ⚔️ Le défi 1 contre 1 est COMPÉTITIF : jamais proposé à un enfant.
-    +   (enf ? '' : act('epee', 'Lancer un duel', 'Qui en fera le plus cette semaine ?',
-          "AwakConstAction('challenge','" + memberId + "')", '#a78bfa'))
+    // ⚔️ v1256 : un enfant peut AUSSI lancer un défi (avant : bouton masqué).
+    // Avec un enfant (lui ou la cible), seuls les défis d'ASSIDUITÉ sont
+    // proposés (le plus régulier, la plus longue série) — le filtre est dans
+    // AwakChallengePickMember / create() (family-challenge.js).
+    +   ((enf || cibleEnf)
+          ? act('epee', 'Lancer un défi', 'Qui bougera le plus de jours cette semaine ?',
+              "AwakConstAction('challenge','" + memberId + "')", '#a78bfa')
+          : act('epee', 'Lancer un duel', 'Qui en fera le plus cette semaine ?',
+              "AwakConstAction('challenge','" + memberId + "')", '#a78bfa'))
     // ✏️ Modifier le lien : c'était impossible depuis la constellation, alors
     // que toucher le nom d'un membre est le geste naturel pour ça.
     +   act('crayon', 'Modifier le lien', 'Changer qui il est pour toi, ou le retirer',

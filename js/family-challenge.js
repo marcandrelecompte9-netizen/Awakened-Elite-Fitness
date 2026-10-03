@@ -765,7 +765,9 @@
     _modale("Défi d'équipe", renderCoopCard(), 'awakCoopModal');
   };
   window.AwakFamilyChallengeOpen = function () {
-    _modale('Duels', renderCard(), 'awakChallengeModal');
+    var enf = false;
+    try { enf = !!(window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()); } catch (e) {}
+    _modale(enf ? 'Défis' : 'Duels', renderCard(), 'awakChallengeModal');
   };
   window.AwakGamesOpen = function () {
     var html = '';
