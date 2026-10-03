@@ -26,6 +26,15 @@
     });
   }
 
+  // Icônes SVG (AwakIcon) : pas d'emoji dans l'interface (v1250).
+  var ICONES = { cartes: 'carte', des: 'de', deathby: 'chrono', emom: 'eclair', v21159: 'stats',
+    pyramide: 'pyramide', chipper: 'liste', yougo: 'lien', duel: 'epee', egalisateur: 'balance',
+    relais: 'groupe', miroir: 'personne', partage: 'grille', roi: 'couronne', planche: 'bouclier', bingo: 'cible' };
+  function ic(nom, taille, couleur) {
+    try { return window.AwakIcon ? window.AwakIcon.get(nom, taille || 18, couleur) : ''; } catch (e) { return ''; }
+  }
+  function icJeu(id, taille, couleur) { return ic(ICONES[id] || 'manette', taille, couleur); }
+
   // ── CATALOGUE ──────────────────────────────────────────────────────
   var GAMES = {
     cartes:  { name: 'Jeu de cartes', emoji: '🃏', mecanique: 'tirage', duo: false,
@@ -119,10 +128,18 @@
     try {
       if (typeof window.getSelectedEquipmentNames === 'function') {
         var dispo = window.getSelectedEquipmentNames() || [];
-        if (dispo.length) {
+        // 🐛 v1249 : même règle que les séances générées (awakEquipmentOk) —
+        // TOUT le matériel de l'exercice doit être coché, le poids du corps est
+        // toujours permis, et rien de coché = poids du corps seulement.
+        // Avant : rien de coché → aucun filtre (machines, piscine…) ; « un seul
+        // matériel suffit » → « Barre + Haltères » avec des haltères seulement ;
+        // et sans « Poids du corps » coché, plus aucun exercice au corps.
+        if (typeof window.awakEquipmentOk === 'function') {
+          base = base.filter(function (e) { return window.awakEquipmentOk(e, dispo); });
+        } else if (dispo.length) {
           base = base.filter(function (e) {
             if (!Array.isArray(e.equipment) || !e.equipment.length) return true;
-            return e.equipment.some(function (q) { return dispo.indexOf(q) !== -1; });
+            return e.equipment.every(function (q) { return q === 'Poids du corps' || dispo.indexOf(q) !== -1; });
           });
         }
       }
@@ -233,6 +250,20 @@
       var j = Math.floor(Math.random() * (i + 1));
       var t = base[i]; base[i] = base[j]; base[j] = t;
     }
+    // Le matériel coché doit SE VOIR dans la partie : les exercices au poids
+    // du corps sont deux fois plus nombreux que ceux aux haltères, donc un
+    // tirage au hasard en donnait rarement. On alterne matériel / corps.
+    var _bw = function (e) { return !Array.isArray(e.equipment) || !e.equipment.length
+      || e.equipment.every(function (q) { return q === 'Poids du corps' || q === 'Aucun'; }); };
+    var avecMat = base.filter(function (e) { return !_bw(e); });
+    var corps = base.filter(_bw);
+    if (avecMat.length && corps.length) {
+      base = [];
+      for (var k = 0; k < Math.max(avecMat.length, corps.length); k++) {
+        if (k < avecMat.length) base.push(avecMat[k]);
+        if (k < corps.length) base.push(corps[k]);
+      }
+    }
     return limit ? base.slice(0, limit) : base;
   }
 
@@ -248,10 +279,14 @@
 
   var RX_TENUE = /planche|plank|hollow|superman|wall ?sit|dead ?hang|l-?sit|gainage|chaise murale|posture/i;
   var RX_DYNAMIQUE = /dynamique|rotation|drag|balancement|swing|jump|saut/i;
+  // Déplacements et portés (marche, ours, fermier…) : ils se comptent en
+  // secondes, pas en répétitions — « 17 Marche rapide » n'avait aucun sens.
+  var RX_DUREE = /marche|walk|crawl|carry|fermier|farmer|\bours\b|course|jogging|shuffle|corde à sauter|jump rope/i;
   function estTenue(ex) {
     var n = (ex && ex.name) ? ex.name : '';
     return RX_TENUE.test(n) && !RX_DYNAMIQUE.test(n);
   }
+  function estDuree(ex) { return !!(ex && ex.name && RX_DUREE.test(ex.name)); }
   // Traduit un nombre de répétitions en effort adapté à l'exercice.
   function effortPour(ex, reps) {
     if (estTenue(ex)) {
@@ -259,13 +294,18 @@
       s = Math.max(15, Math.min(90, s));             // borné : ni trop court, ni interminable
       return { valeur: s, unite: 'secondes à tenir' };
     }
+    if (estDuree(ex)) {
+      var d = Math.round((reps * 3) / 5) * 5;
+      d = Math.max(20, Math.min(60, d));
+      return { valeur: d, unite: 'secondes' };
+    }
     return { valeur: reps, unite: 'reps' };
   }
 
   // ── REGISTRE DES MÉCANIQUES ────────────────────────────────────────
   var COULEURS = [
     { s: '♠', nom: 'Pique',   c: '#e2e8f0' }, { s: '♥', nom: 'Cœur',    c: '#f87171' },
-    { s: '♦', nom: 'Carreau', c: '#fbbf24' }, { s: '♣', nom: 'Trèfle',  c: '#4ade80' }
+    { s: '♦', nom: 'Carreau', c: '#fbbf24' }, { s: '♣', nom: 'Trèfle',  c: '#a78bfa' }
   ];
   var VALEURS = [
     { v: 'A', n: 14 }, { v: '2', n: 2 }, { v: '3', n: 3 }, { v: '4', n: 4 }, { v: '5', n: 5 },
@@ -296,19 +336,19 @@
         if (p.carte) {
           var co = COULEURS[p.carte.c], va = VALEURS[p.carte.v];
           var rouge = (p.carte.c === 1 || p.carte.c === 2);
-          return '<div class="awak-carte" style="border-radius:16px;padding:14px;margin-bottom:14px;">'
+          return '<div class="awak-carte" data-emoji-keep style="border-radius:16px;padding:14px;margin-bottom:14px;">'
             + '<div style="font-size:3.2em;font-weight:900;line-height:1;color:' + (rouge ? '#dc2626' : '#0f172a') + ';">' + va.v + ' ' + co.s + '</div></div>'
             + gros(p.exercices[p.carte.c], va.n, 'reps')
             + bouton('AwakGamesValider()', 'C\'est fait ✓');
         }
         var corr = COULEURS.map(function (c, i) {
           return '<div style="display:flex;align-items:center;gap:9px;font-size:0.76em;color:#cbd5e1;padding:4px 0;">'
-            + '<span style="font-size:1.15em;color:' + c.c + ';width:18px;flex-shrink:0;">' + c.s + '</span>'
+            + '<span data-emoji-keep style="font-size:1.15em;color:' + c.c + ';width:18px;flex-shrink:0;">' + c.s + '</span>'
             + pastilleImg(p.exercices[i])
             + '<span style="min-width:0;">' + esc(nomEx(p.exercices[i])) + '</span></div>';
         }).join('');
         return encart('CORRESPONDANCES', corr)
-          + bouton('AwakGamesTirer()', '🃏 Tirer une carte', true);
+          + bouton('AwakGamesTirer()', 'Tirer une carte', true);
       }
     },
 
@@ -324,25 +364,25 @@
       },
       corps: function (p) {
         if (p.lance) {
-          return '<div style="font-size:3em;letter-spacing:6px;margin-bottom:12px;">' + FACES[p.lance.a - 1] + FACES[p.lance.b - 1] + '</div>'
+          return '<div data-emoji-keep style="font-size:3em;letter-spacing:6px;margin-bottom:12px;color:#e2e8f0;">' + FACES[p.lance.a - 1] + FACES[p.lance.b - 1] + '</div>'
             + gros(p.exercices[p.lance.a - 1], p.lance.b * 3, 'reps')
             + bouton('AwakGamesValider()', 'C\'est fait ✓');
         }
         var liste = p.exercices.map(function (e, i) {
           return '<div style="display:flex;align-items:center;gap:9px;font-size:0.74em;color:#cbd5e1;padding:3px 0;">'
-            + '<span style="font-size:1.1em;width:20px;flex-shrink:0;">' + FACES[i] + '</span>'
+            + '<span data-emoji-keep style="font-size:1.3em;width:22px;flex-shrink:0;color:#e2e8f0;">' + FACES[i] + '</span>'
             + pastilleImg(e, 28)
             + '<span style="min-width:0;">' + esc(nomEx(e)) + '</span></div>';
         }).join('');
         return encart('DÉ 1 = EXERCICE · DÉ 2 = EFFORT (×3 REPS)', liste)
-          + bouton('AwakGamesTirer()', '🎲 Lancer les dés', true);
+          + bouton('AwakGamesTirer()', 'Lancer les dés', true);
       }
     },
 
     // ⏱️ Death by… : les reps montent d'une unité chaque minute
     minute: {
       exos: function () { return 1; },
-      chrono: 60,
+      chrono: 60, continu: true, echecFin: true,
       idx: function () { return 0; },
       prepare: function () {},
       total: function (p) { return p.reglage; },
@@ -351,14 +391,14 @@
         return sousTitre('MINUTE ' + (p.pas + 1))
           + blocChrono()
           + gros(p.exercices[0], p.pas + 1, 'répétition' + (p.pas ? 's' : '') + ' dans la minute')
-          + bouton('AwakGamesValider()', 'Minute réussie ✓');
+          + (p.fait ? attente() : bouton('AwakGamesValider()', 'Minute réussie ✓'));
       }
     },
 
     // ⏲️ EMOM : charge constante, les exercices tournent
     emom: {
       exos: function () { return 4; },
-      chrono: 60,
+      chrono: 60, continu: true,
       idx: function (p) { return p.pas % p.exercices.length; },
       prepare: function (p) { p.reps = 10; },
       total: function (p) { return p.reglage; },
@@ -370,7 +410,7 @@
         return sousTitre('MINUTE ' + (p.pas + 1) + ' / ' + p.reglage)
           + blocChrono()
           + gros(e, p.reps, 'reps puis récup')
-          + bouton('AwakGamesValider()', 'Minute réussie ✓');
+          + (p.fait ? attente() : bouton('AwakGamesValider()', 'Minute réussie ✓'));
       }
     },
 
@@ -397,7 +437,7 @@
         var nbEx = p.exercices.length;
         var tour = Math.floor(p.pas / nbEx), idx = p.pas % nbEx;
         var suite = p.rounds.map(function (r, i) {
-          return '<span style="color:' + (i === tour ? '#4ade80' : '#475569') + ';font-weight:' + (i === tour ? '900' : '700') + ';">' + r + '</span>';
+          return '<span style="color:' + (i === tour ? '#60a8f0' : '#475569') + ';font-weight:' + (i === tour ? '900' : '700') + ';">' + r + '</span>';
         }).join('<span style="color:#334155;"> · </span>');
         return sousTitre('TOUR ' + (tour + 1) + ' / ' + p.rounds.length)
           + '<div style="font-size:0.9em;margin-bottom:12px;">' + suite + '</div>'
@@ -422,35 +462,34 @@
       }
     },
 
-    // ⚖️ ÉGALISATEUR — duel équilibré : chacun ses reps selon son niveau
+    // ÉGALISATEUR — duel équilibré : chacun ses reps selon son niveau
     handicap: {
+      // 🐛 v1250 : départ ENSEMBLE, chacun ses répétitions, on désigne qui a fini
+      // le premier. Avant, chaque tour terminé donnait un point au joueur dont
+      // c'était le tour : le score finissait toujours à égalité.
       exos: function () { return 3; },
-      idx: function (p) { return Math.floor(p.pas / 2) % p.exercices.length; },
+      idx: function (p) { return p.pas % p.exercices.length; },
       prepare: function (p) { p.duo = duoJoueurs(); p.scores = [0, 0]; p.base = 12; },
-      total: function (p) { return p.reglage * 2; },
+      total: function (p) { return p.reglage; },
       etape: function (p) {
-        var q = p.pas % 2;
-        return { nom: nomEx(p.exercices[Math.floor(p.pas / 2) % p.exercices.length]),
-                 valeur: Math.max(3, Math.round(p.base * p.duo[q].coef)), unite: 'reps' };
+        return { nom: nomEx(p.exercices[p.pas % p.exercices.length]),
+                 valeur: Math.max(3, Math.round(p.base * p.duo[0].coef)), unite: 'reps' };
       },
       corps: function (p) {
-        var q = p.pas % 2, e = p.exercices[Math.floor(p.pas / 2) % p.exercices.length];
-        var reps = Math.max(3, Math.round(p.base * p.duo[q].coef));
+        var e = p.exercices[p.pas % p.exercices.length];
         var tableau = p.duo.map(function (j, i) {
-          var actif = i === q;
-          return '<div style="flex:1;padding:9px;border-radius:11px;background:' + (actif ? 'rgba(34,197,94,0.15)' : 'rgba(255,255,255,0.03)')
-            + ';border:1px solid ' + (actif ? 'rgba(34,197,94,0.45)' : 'rgba(255,255,255,0.08)') + ';">'
-            + '<div style="font-size:0.74em;font-weight:800;color:' + (actif ? '#4ade80' : '#94a3b8') + ';">' + esc(j.nom) + '</div>'
+          var r = effortPour(e, Math.max(3, Math.round(p.base * j.coef)));
+          return '<div style="flex:1;padding:9px;border-radius:11px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);">'
+            + '<div style="font-size:0.74em;font-weight:800;color:#93c5fd;">' + esc(j.nom) + '</div>'
             + '<div style="font-size:1.2em;font-weight:900;color:#fff;">' + p.scores[i] + '</div>'
-            + '<div style="font-size:0.58em;color:#64748b;">' + Math.max(3, Math.round(p.base * j.coef)) + ' reps/tour</div></div>';
+            + '<div style="font-size:0.62em;color:#94a3b8;">' + r.valeur + ' ' + esc(r.unite) + '</div></div>';
         }).join('');
         return '<div style="display:flex;gap:8px;margin-bottom:12px;">' + tableau + '</div>'
-          + '<div style="font-size:0.62em;color:#7dd3fc;background:rgba(56,189,248,0.08);border-radius:8px;padding:5px 9px;margin-bottom:12px;">⚖️ Les répétitions sont ajustées au niveau de chacun — la victoire reste ouverte.</div>'
-          + sousTitre('AU TOUR DE ' + esc(p.duo[q].nom).toUpperCase())
-          + gros(e, reps, 'reps')
-          + bouton('AwakGamesValider()', 'Tour terminé ✓');
-      },
-      apres: function (p) { p.scores[(p.pas - 1) % 2]++; }
+          + '<div style="font-size:0.66em;color:#93c5fd;background:rgba(96,168,240,0.08);border-radius:8px;padding:6px 9px;margin-bottom:12px;line-height:1.4;">Départ ensemble, chacun ses répétitions (ajustées au niveau). Le premier à finir gagne le tour.</div>'
+          + sousTitre('TOUR ' + (p.pas + 1) + ' / ' + p.reglage)
+          + gros(e, Math.max(3, Math.round(p.base * p.duo[0].coef)), 'reps pour ' + p.duo[0].nom)
+          + boutonsGagnant(p, estTenue(e));
+      }
     },
 
     // 🤝 RELAIS — un volume commun à écouler ensemble
@@ -461,23 +500,24 @@
       total: function (p) { return Math.ceil(p.reglage / p.parTour); },
       etape: function (p) {
         return { nom: nomEx(p.exercices[Math.floor(p.pas / 2) % p.exercices.length]),
-                 valeur: p.parTour, unite: 'reps' };
+                 valeur: Math.min(p.parTour, p.reglage - p.cumul), unite: 'reps' };
       },
       corps: function (p) {
         var q = p.pas % 2, e = p.exercices[Math.floor(p.pas / 2) % p.exercices.length];
         var pct = Math.min(100, Math.round((p.cumul / p.reglage) * 100));
         return '<div style="background:rgba(255,255,255,0.04);border-radius:12px;padding:11px;margin-bottom:12px;">'
           +   '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">'
-          +     '<span style="font-size:1.3em;font-weight:900;color:#4ade80;">' + p.cumul + '</span>'
+          +     '<span style="font-size:1.3em;font-weight:900;color:#60a8f0;">' + p.cumul + '</span>'
           +     '<span style="font-size:0.74em;color:#94a3b8;">/ ' + p.reglage + ' reps ensemble</span></div>'
           +   '<div style="height:8px;background:rgba(255,255,255,0.07);border-radius:5px;overflow:hidden;">'
           +     '<div style="height:100%;width:' + pct + '%;background:linear-gradient(90deg,#3b82f6,#1d5fa8);transition:width 0.3s;"></div></div>'
           + '</div>'
           + sousTitre('AU TOUR DE ' + esc(p.duo[q].nom).toUpperCase())
-          + gros(e, p.parTour, 'reps')
+          + gros(e, Math.min(p.parTour, p.reglage - p.cumul), 'reps')
           + bouton('AwakGamesValider()', 'Passé au suivant ✓');
       },
-      apres: function (p) { p.cumul += p.parTour; }
+      // Le dernier passage complète juste ce qui manque (avant : 210 / 200).
+      apres: function (p) { p.cumul = Math.min(p.reglage, p.cumul + p.parTour); }
     },
 
     // 🪞 MIROIR — même exercice, en même temps
@@ -491,13 +531,13 @@
         var e = p.exercices[p.pas % p.exercices.length];
         return '<div style="display:flex;gap:8px;margin-bottom:12px;">'
           + p.duo.map(function (j) {
-              return '<div style="flex:1;padding:8px;border-radius:11px;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.3);">'
-                + '<div style="font-size:0.76em;font-weight:800;color:#4ade80;">' + esc(j.nom) + '</div></div>';
+              return '<div style="flex:1;padding:8px;border-radius:11px;background:rgba(96,168,240,0.12);border:1px solid rgba(96,168,240,0.3);">'
+                + '<div style="font-size:0.76em;font-weight:800;color:#60a8f0;">' + esc(j.nom) + '</div></div>';
             }).join('')
           + '</div>'
           + sousTitre('TOUR ' + (p.pas + 1) + ' / ' + p.reglage + ' · ENSEMBLE')
           + gros(e, 12, 'reps chacun, en même temps')
-          + bouton('AwakGamesValider()', 'Tous les deux terminé ✓');
+          + bouton('AwakGamesValider()', 'Terminé tous les deux ✓');
       }
     },
 
@@ -531,40 +571,46 @@
       etape: function (p) { return { nom: nomEx(p.exercices[p.choix || 0]), valeur: 12, unite: 'reps' }; },
       corps: function (p) {
         var e = p.exercices[p.choix || 0];
+        // 🐛 v1250 : le gagnant CHOISIT vraiment l'exercice suivant (avant : tirage au hasard).
+        if (p.aChoisir && p.roi !== null) {
+          return sousTitre(esc(p.duo[p.roi].nom).toUpperCase() + ' CHOISIT LE PROCHAIN EXERCICE')
+            + '<div style="display:flex;flex-direction:column;gap:8px;">'
+            + p.exercices.map(function (x, k) {
+                return '<button onclick="AwakGamesRoiChoix(' + k + ')" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;cursor:pointer;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.3);color:#fde68a;font-weight:800;font-size:0.82em;text-align:left;">'
+                  + pastilleImg(x, 32) + '<span style="min-width:0;">' + esc(nomEx(x)) + '</span></button>';
+              }).join('')
+            + '</div>';
+        }
         var tableau = p.duo.map(function (j, i) {
           var estRoi = p.roi === i;
           return '<div style="flex:1;padding:9px;border-radius:11px;background:' + (estRoi ? 'rgba(251,191,36,0.15)' : 'rgba(255,255,255,0.03)')
             + ';border:1px solid ' + (estRoi ? 'rgba(251,191,36,0.45)' : 'rgba(255,255,255,0.08)') + ';">'
-            + '<div style="font-size:0.74em;font-weight:800;color:' + (estRoi ? '#fbbf24' : '#94a3b8') + ';">' + (estRoi ? '👑 ' : '') + esc(j.nom) + '</div>'
+            + '<div style="font-size:0.74em;font-weight:800;color:' + (estRoi ? '#fbbf24' : '#94a3b8') + ';">' + (estRoi ? ic('couronne', 13, '#fbbf24') + ' ' : '') + esc(j.nom) + '</div>'
             + '<div style="font-size:1.2em;font-weight:900;color:#fff;">' + p.scores[i] + '</div></div>';
         }).join('');
         // Le critère dépend de la nature de l'exercice : course à la répétition,
         // ou tenue la plus longue s'il s'agit d'un isométrique.
         var tenue = estTenue(e);
         var regle = tenue
-          ? '🏁 Départ ensemble — celui qui <b>tient le plus longtemps</b> remporte le tour.'
-          : '🏁 Départ ensemble — le <b>premier à boucler ses répétitions</b> remporte le tour.';
+          ? 'Départ ensemble — celui qui <b>tient le plus longtemps</b> remporte le tour.'
+          : 'Départ ensemble — le <b>premier à boucler ses répétitions</b> remporte le tour.';
         return '<div style="display:flex;gap:8px;margin-bottom:12px;">' + tableau + '</div>'
           + sousTitre('TOUR ' + (p.pas + 1) + ' / ' + p.reglage)
           + '<div style="font-size:0.7em;color:#fbbf24;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.22);border-radius:9px;padding:7px 10px;margin-bottom:12px;line-height:1.4;">' + regle + '</div>'
           + gros(e, 12, tenue ? 'reps' : 'reps chacun')
-          + '<div style="font-size:0.68em;color:#94a3b8;margin-bottom:8px;">Qui a remporté ce tour ?</div>'
-          + '<div style="display:flex;gap:8px;">'
-          +   p.duo.map(function (j, i) {
-                return '<button onclick="AwakGamesRoiGagnant(' + i + ')" style="flex:1;padding:12px 6px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#fbbf24,#d97706);color:#3b2606;font-weight:900;font-size:0.82em;">' + esc(j.nom) + '</button>';
-              }).join('')
-          + '</div>';
+          + boutonsGagnant(p, tenue, true);
       }
     },
 
     // 🧱 DUEL DE GAINAGE — l'un tient, l'autre enchaîne
     gainage: {
-      exos: function () { return 2; },
-      idx: function (p) { return 1; },
+      // L'exercice de celui qui bouge change à chaque échange (avant : le même toute la partie).
+      exos: function () { return 3; },
+      idx: function (p) { return p.pas % p.exercices.length; },
       chrono: 40,
       prepare: function (p) { p.duo = duoJoueurs(); },
       total: function (p) { return p.reglage * 2; },
-      etape: function (p) { return { nom: nomEx(p.exercices[1]), valeur: 15, unite: 'reps' }; },
+      etape: function (p) { return { nom: nomEx(p.exercices[p.pas % p.exercices.length]), valeur: 15, unite: 'reps' }; },
       corps: function (p) {
         var q = p.pas % 2;
         var tient = p.duo[q].nom, bouge = p.duo[1 - q].nom;
@@ -572,51 +618,78 @@
           +   '<div style="flex:1;padding:9px;border-radius:11px;background:rgba(168,85,247,0.14);border:1px solid rgba(168,85,247,0.35);">'
           +     '<div style="font-size:0.58em;color:#c4b5fd;font-weight:800;letter-spacing:1px;">TIENT LA PLANCHE</div>'
           +     '<div style="font-size:0.88em;font-weight:900;color:#fff;">' + esc(tient) + '</div></div>'
-          +   '<div style="flex:1;padding:9px;border-radius:11px;background:rgba(34,197,94,0.14);border:1px solid rgba(34,197,94,0.35);">'
-          +     '<div style="font-size:0.58em;color:#4ade80;font-weight:800;letter-spacing:1px;">ENCHAÎNE</div>'
+          +   '<div style="flex:1;padding:9px;border-radius:11px;background:rgba(96,168,240,0.14);border:1px solid rgba(96,168,240,0.35);">'
+          +     '<div style="font-size:0.58em;color:#60a8f0;font-weight:800;letter-spacing:1px;">ENCHAÎNE</div>'
           +     '<div style="font-size:0.88em;font-weight:900;color:#fff;">' + esc(bouge) + '</div></div>'
           + '</div>'
           + blocChrono()
-          + gros(p.exercices[1], 15, 'reps pendant que l\'autre tient')
+          + gros(p.exercices[p.pas % p.exercices.length], 15, 'reps pendant que l\'autre tient')
           + bouton('AwakGamesValider()', 'Échanger les rôles ✓');
       }
     },
 
-    // 🔄⚔️ Alternance à deux
+    // 🔄⚔️ À deux : You go I go (chacun son tour, sans score) ; Duel (départ
+    // ensemble, le premier fini gagne le tour).
     alternance: {
       exos: function () { return 3; },
-      idx: function (p) { return Math.floor(p.pas / 2) % p.exercices.length; },
+      idx: function (p) { return p.jeu.course ? p.pas % p.exercices.length : Math.floor(p.pas / 2) % p.exercices.length; },
       prepare: function (p) {
         p.joueurs = nomsJoueurs();
-        p.scores = [0, 0];
+        if (p.jeu.course) p.scores = [0, 0];
       },
-      total: function (p) { return p.jeu.course ? p.reglage * 2 : p.reglage; },
+      total: function (p) { return p.reglage; },
       etape: function (p) {
-        var e = p.exercices[Math.floor(p.pas / 2) % p.exercices.length];
-        return { nom: nomEx(e), valeur: 10, unite: 'reps' };
+        return { nom: nomEx(p.exercices[this.idx(p)]), valeur: 10, unite: 'reps' };
       },
       corps: function (p) {
+        var e = p.exercices[this.idx(p)];
+        if (p.jeu.course) {
+          var tab = p.joueurs.map(function (n, i) {
+            return '<div style="flex:1;padding:9px;border-radius:11px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);">'
+              + '<div style="font-size:0.74em;font-weight:800;color:#93c5fd;">' + esc(n) + '</div>'
+              + '<div style="font-size:1.2em;font-weight:900;color:#fff;">' + p.scores[i] + '</div></div>';
+          }).join('');
+          return '<div style="display:flex;gap:8px;margin-bottom:14px;">' + tab + '</div>'
+            + sousTitre('TOUR ' + (p.pas + 1) + ' / ' + p.reglage)
+            + gros(e, 10, 'reps chacun, départ ensemble')
+            + boutonsGagnant(p, estTenue(e));
+        }
         var qui = p.pas % 2;
-        var e = p.exercices[Math.floor(p.pas / 2) % p.exercices.length];
         var tableau = p.joueurs.map(function (n, i) {
           var actif = i === qui;
-          return '<div style="flex:1;padding:9px;border-radius:11px;background:' + (actif ? 'rgba(34,197,94,0.15)' : 'rgba(255,255,255,0.03)')
-            + ';border:1px solid ' + (actif ? 'rgba(34,197,94,0.45)' : 'rgba(255,255,255,0.08)') + ';">'
-            + '<div style="font-size:0.74em;font-weight:800;color:' + (actif ? '#4ade80' : '#94a3b8') + ';">' + esc(n) + '</div>'
-            + '<div style="font-size:1.2em;font-weight:900;color:#fff;">' + p.scores[i] + '</div></div>';
+          return '<div style="flex:1;padding:9px;border-radius:11px;background:' + (actif ? 'rgba(96,168,240,0.15)' : 'rgba(255,255,255,0.03)')
+            + ';border:1px solid ' + (actif ? 'rgba(96,168,240,0.45)' : 'rgba(255,255,255,0.08)') + ';">'
+            + '<div style="font-size:0.74em;font-weight:800;color:' + (actif ? '#93c5fd' : '#94a3b8') + ';">' + esc(n) + '</div>'
+            + '<div style="font-size:0.62em;color:#94a3b8;margin-top:2px;">' + (actif ? 'travaille' : 'récupère') + '</div></div>';
         }).join('');
         return '<div style="display:flex;gap:8px;margin-bottom:14px;">' + tableau + '</div>'
-          + sousTitre('AU TOUR DE ' + esc(p.joueurs[qui]).toUpperCase())
+          + sousTitre('TOUR ' + (p.pas + 1) + ' / ' + p.reglage + ' · ' + esc(p.joueurs[qui]).toUpperCase())
           + gros(e, 10, 'reps')
           + bouton('AwakGamesValider()', 'Tour terminé ✓');
-      },
-      apres: function (p) { p.scores[(p.pas - 1) % 2]++; }
+      }
     }
   };
 
   // ── PETITS ASSEMBLAGES D'AFFICHAGE ─────────────────────────────────
   function melange(a) {
     for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; }
+  }
+  // Jeux à la minute : une fois la tâche faite, le reste de la minute est la récup.
+  function attente() {
+    return '<div style="padding:14px;border-radius:12px;background:rgba(96,168,240,0.10);border:1px solid rgba(96,168,240,0.3);color:#93c5fd;font-weight:800;font-size:0.86em;">'
+      + 'Récup — la minute suivante démarre à 0:00</div>';
+  }
+  // « Qui a gagné ce tour ? » — un bouton par joueur (jeux à deux en duel).
+  function boutonsGagnant(p, tenue, or) {
+    var noms = p.duo ? p.duo.map(function (j) { return j.nom; }) : (p.joueurs || ['Joueur 1', 'Joueur 2']);
+    return '<div style="font-size:0.68em;color:#94a3b8;margin-bottom:8px;">' + (tenue ? 'Qui a tenu le plus longtemps ?' : 'Qui a fini le premier ?') + '</div>'
+      + '<div style="display:flex;gap:8px;">'
+      + noms.map(function (n, i) {
+          return '<button onclick="AwakGamesGagne(' + i + ')" style="flex:1;min-width:0;padding:13px 6px;border:none;border-radius:12px;cursor:pointer;'
+            + (or ? 'background:linear-gradient(135deg,#fbbf24,#d97706);color:#3b2606;' : 'background:linear-gradient(135deg,#3b82f6,#1d5fa8);color:#fff;')
+            + 'font-weight:900;font-size:0.84em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(n) + '</button>';
+        }).join('')
+      + '</div>';
   }
   function sousTitre(t) {
     return '<div style="font-size:0.62em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:5px;">' + t + '</div>';
@@ -662,7 +735,7 @@
     var nom = typeof ex === 'string' ? ex : nomEx(ex);
     var img = typeof ex === 'string' ? '' : visuel(ex);
     // Un exercice à tenir s'exprime en secondes : on adapte valeur ET libellé.
-    if (typeof ex !== 'string' && estTenue(ex) && /rep/i.test(unite || '')) {
+    if (typeof ex !== 'string' && (estTenue(ex) || estDuree(ex)) && /rep/i.test(unite || '')) {
       var ef = effortPour(ex, val);
       val = ef.valeur;
       unite = (unite || '').replace(/^\s*reps?/i, ef.unite).replace(/reps/i, ef.unite);
@@ -670,7 +743,7 @@
     }
     return img
       + '<div style="font-size:1.05em;font-weight:900;color:#fff;margin-bottom:3px;">' + esc(nom) + '</div>'
-      + '<div style="font-size:2.2em;font-weight:900;color:#4ade80;line-height:1;">' + val + '</div>'
+      + '<div style="font-size:2.2em;font-weight:900;color:#60a8f0;line-height:1;">' + val + '</div>'
       + '<div style="font-size:0.75em;color:#94a3b8;margin-bottom:16px;">' + esc(unite) + '</div>';
   }
   function bouton(fn, txt, cyan) {
@@ -775,38 +848,43 @@
   }
 
   // ── CHRONOMÈTRE (jeux à la minute) ─────────────────────────────────
+  // 🐛 v1250 : le décompte se calcule sur l'HEURE de fin (un téléphone en
+  // veille ralentit setInterval), et il n'est plus relancé quand l'écran se
+  // redessine (« Changer d'exercice », validation) : la minute continue.
   var chrono = null;
   function arreterChrono() {
     if (chrono && chrono.timer) clearInterval(chrono.timer);
     chrono = null;
   }
-  function lancerChrono(secondes) {
+  function lancerChrono(secondes, cle, surFin) {
+    if (chrono && chrono.cle === cle) { majAffichageChrono(); return; }
     arreterChrono();
-    chrono = { restant: secondes, timer: null };
+    chrono = { fin: Date.now() + secondes * 1000, restant: secondes, timer: null, cle: cle };
     majAffichageChrono();
     chrono.timer = setInterval(function () {
       if (!chrono) return;
-      chrono.restant--;
+      chrono.restant = Math.max(0, Math.ceil((chrono.fin - Date.now()) / 1000));
       majAffichageChrono();
       if (chrono.restant <= 0) {
         arreterChrono();
         try { if (navigator.vibrate) navigator.vibrate([120, 60, 120]); } catch (e) {}
         var el = document.getElementById('awakChrono');
         if (el) { el.textContent = 'Temps !'; el.style.color = '#f87171'; }
+        if (typeof surFin === 'function') surFin();
       }
-    }, 1000);
+    }, 250);
   }
   function majAffichageChrono() {
     var el = document.getElementById('awakChrono');
     if (!el || !chrono) return;
     var m = Math.floor(chrono.restant / 60), s = chrono.restant % 60;
     el.textContent = m + ':' + (s < 10 ? '0' : '') + s;
-    el.style.color = chrono.restant <= 10 ? '#fbbf24' : '#4ade80';
+    el.style.color = chrono.restant <= 10 ? '#fbbf24' : '#60a8f0';
   }
   function blocChrono() {
     return '<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.10);border-radius:12px;padding:9px;margin-bottom:14px;">'
       + '<div style="font-size:0.56em;color:#64748b;font-weight:800;letter-spacing:1.5px;">TEMPS RESTANT</div>'
-      + '<div id="awakChrono" style="font-size:1.7em;font-weight:900;color:#4ade80;line-height:1.1;">1:00</div></div>';
+      + '<div id="awakChrono" style="font-size:1.7em;font-weight:900;color:#60a8f0;line-height:1.1;">1:00</div></div>';
   }
 
   // ── PROFILS DES DEUX JOUEURS (avec coefficient d'effort) ───────────
@@ -902,8 +980,30 @@
     afficher();
   };
 
+  // Fin de la minute (jeux continus) : on passe à la suivante si la tâche est
+  // faite ; Death by s'arrête à la première minute ratée (c'est la règle).
+  function finMinute() {
+    if (!partie || partie.fini) return;
+    if (!partie.fait && partie.meca.echecFin) return terminer();
+    partie.fait = false;
+    partie.pas++;
+    if (partie.pas >= partie.meca.total(partie)) return terminer();
+    afficher();
+  }
+
   window.AwakGamesValider = function () {
     if (!partie) return;
+    if (partie.meca.continu) {
+      if (partie.fait) return;
+      var e0 = partie.meca.etape(partie);
+      var x0 = partie.exercices[partie.meca.idx(partie)];
+      var f0 = x0 ? effortPour(x0, e0.valeur) : { valeur: e0.valeur, unite: 'reps' };
+      partie.journal.push({ nom: e0.nom, reps: f0.valeur, unite: f0.unite });
+      partie.fait = true;
+      // Dernière minute faite : inutile d'attendre la fin du chrono.
+      if (partie.pas + 1 >= partie.meca.total(partie)) { partie.pas++; return terminer(); }
+      return afficher();
+    }
     var et = partie.meca.etape(partie);
     if (et) {
       // Le récapitulatif doit refléter l'effort réel : secondes pour une tenue.
@@ -928,16 +1028,24 @@
     if (!candidats.length) return;
     partie.exercices[i] = candidats[0];
     afficher();
-    if (typeof window.showToast === 'function') window.showToast('🔀 Exercice remplacé', 'info', 1600);
+    if (typeof window.showToast === 'function') window.showToast('Exercice remplacé', 'info', 1600);
   };
 
   // 👑 Roi de la colline : le vainqueur du tour choisit l'exercice suivant.
-  window.AwakGamesRoiGagnant = function (i) {
-    if (!partie || partie.jeu.mecanique !== 'roi') return;
+  // Un tour gagné (Duel, Égalisateur, Roi de la colline).
+  window.AwakGamesGagne = function (i) {
+    if (!partie || !partie.scores || partie.fini) return;
     partie.scores[i]++;
-    partie.roi = i;
-    partie.choix = Math.floor(Math.random() * partie.exercices.length);
+    var roi = partie.jeu.mecanique === 'roi';
+    if (roi) partie.roi = i;
     window.AwakGamesValider();
+    if (roi && partie && !partie.fini) { partie.aChoisir = true; afficher(); }
+  };
+  window.AwakGamesRoiGagnant = window.AwakGamesGagne;
+  window.AwakGamesRoiChoix = function (k) {
+    if (!partie || !partie.aChoisir) return;
+    partie.choix = k; partie.aChoisir = false;
+    afficher();
   };
 
   window.AwakGamesAbandonner = function () {
@@ -950,9 +1058,11 @@
     if (!partie || partie.fini) return;
     partie.fini = true;
     arreterChrono();
-    // Record = nombre d'étapes tenues (minutes pour les jeux au chrono).
-    partie.record = majRecord(partie.id, partie.pas);
+    // Record : seulement pour Death by (minutes tenues). Pour les autres jeux,
+    // le nombre d'étapes dépend du réglage choisi — « Nouveau record : 32
+    // étapes » s'affichait à chaque partie plus longue que la précédente.
     partie.score = partie.pas;
+    partie.record = (partie.id === 'deathby') ? majRecord(partie.id, partie.pas) : false;
 
     // 🏅 Badge « À deux c'est mieux » — seuls les jeux marqués duo comptent.
     // On se fie au drapeau du JEU (partie.jeu.duo), pas au nombre de joueurs
@@ -963,13 +1073,14 @@
       }
     } catch (e) {}
     var minutes = Math.max(1, Math.round((Date.now() - partie.debut) / 60000));
-    var totalReps = partie.journal.reduce(function (s, x) { return s + (x.reps || 0); }, 0);
+    // Les tenues et déplacements sont en secondes : ils ne comptent pas comme répétitions.
+    var totalReps = partie.journal.reduce(function (s, x) { return s + ((x.unite && /seconde/i.test(x.unite)) ? 0 : (x.reps || 0)); }, 0);
     try {
       if (typeof window.saveWorkoutToHistory === 'function') {
         var noms = {};
         partie.journal.forEach(function (x) { noms[x.nom] = true; });
         window.saveWorkoutToHistory({
-          name: partie.jeu.emoji + ' ' + partie.jeu.name,
+          name: partie.jeu.name,
           exercises: Object.keys(noms).map(function (n) { return { name: n }; }),
           muscles: []
         }, minutes);
@@ -985,27 +1096,27 @@
       var j = partie.joueurs, s = partie.scores;
       var gagnant = s[0] === s[1] ? 'Égalité !' : (s[0] > s[1] ? j[0] : j[1]) + ' l\'emporte';
       extra = '<div style="background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3);border-radius:12px;padding:11px;margin-bottom:14px;">'
-        + '<div style="font-size:0.9em;font-weight:900;color:#fbbf24;">🏆 ' + esc(gagnant) + '</div>'
+        + '<div style="font-size:0.9em;font-weight:900;color:#fbbf24;">' + esc(gagnant) + '</div>'
         + '<div style="font-size:0.76em;color:#cbd5e1;margin-top:3px;">' + esc(j[0]) + ' ' + s[0] + ' — ' + s[1] + ' ' + esc(j[1]) + '</div></div>';
     }
     var lignes = partie.journal.slice(-8).map(function (x) {
       var suffixe = (x.unite && /seconde/i.test(x.unite)) ? 's' : '';
       return '<div style="display:flex;justify-content:space-between;font-size:0.8em;color:#cbd5e1;padding:3px 0;">'
-        + '<span>' + esc(x.nom) + '</span><b style="color:#4ade80;">' + x.reps + suffixe + '</b></div>';
+        + '<span>' + esc(x.nom) + '</span><b style="color:#60a8f0;">' + x.reps + suffixe + '</b></div>';
     }).join('');
     host.innerHTML = panneau(
-      '<div style="font-size:2.6em;margin-bottom:6px;">🏁</div>'
+      '<div style="margin-bottom:8px;">' + ic('trophee', 40, '#fbbf24') + '</div>'
       + '<div style="font-size:1.2em;font-weight:900;color:#fff;margin-bottom:4px;">Partie terminée</div>'
       + '<div style="font-size:0.82em;color:#94a3b8;margin-bottom:14px;">' + esc(partie.jeu.name) + '</div>'
       + (partie.record
-          ? '<div style="background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.35);border-radius:12px;padding:10px;margin-bottom:14px;font-size:0.86em;font-weight:900;color:#fbbf24;">⭐ Nouveau record : ' + partie.score + ' étapes</div>'
-          : (records()[partie.id] ? '<div style="font-size:0.74em;color:#64748b;margin-bottom:14px;">Ton record : ' + records()[partie.id] + ' étapes</div>' : ''))
+          ? '<div style="background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.35);border-radius:12px;padding:10px;margin-bottom:14px;font-size:0.86em;font-weight:900;color:#fbbf24;">Nouveau record : ' + partie.score + ' minute' + (partie.score > 1 ? 's' : '') + '</div>'
+          : (partie.id === 'deathby' && records()[partie.id] ? '<div style="font-size:0.74em;color:#64748b;margin-bottom:14px;">Ton record : ' + records()[partie.id] + ' minutes</div>' : ''))
       + extra
       + '<div style="display:flex;gap:10px;margin-bottom:16px;">'
-      +   stat(totalReps, 'RÉPÉTITIONS', '#4ade80') + stat(minutes, 'MINUTES', '#fff')
+      +   stat(totalReps, 'RÉPÉTITIONS', '#60a8f0') + stat(minutes, 'MINUTES', '#fff')
       + '</div>'
       + (lignes ? '<div style="text-align:left;background:rgba(255,255,255,0.03);border-radius:12px;padding:11px 13px;margin-bottom:16px;max-height:160px;overflow-y:auto;">' + lignes + '</div>' : '')
-      + bouton('AwakGamesFermer()', 'Terminer 💪'));
+      + bouton('AwakGamesFermer()', 'Terminer'));
   }
 
   function stat(v, l, c) {
@@ -1045,21 +1156,22 @@
     var total = m.total(partie), pct = total ? Math.round((partie.pas / total) * 100) : 0;
     overlay().innerHTML = panneau(
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">'
-      +   '<div style="font-size:0.8em;font-weight:900;color:#fff;">' + g.emoji + ' ' + esc(g.name) + '</div>'
+      +   '<div style="font-size:0.8em;font-weight:900;color:#fff;display:flex;align-items:center;gap:7px;">' + icJeu(partie.id, 17, '#93c5fd') + esc(g.name) + '</div>'
       +   '<div style="font-size:0.72em;color:#94a3b8;">reste ' + Math.max(0, total - partie.pas) + '</div>'
       + '</div>'
       + '<div style="height:6px;background:rgba(255,255,255,0.07);border-radius:4px;overflow:hidden;margin-bottom:18px;">'
       +   '<div style="height:100%;width:' + pct + '%;background:linear-gradient(90deg,#3b82f6,#1d5fa8);transition:width 0.35s;"></div>'
       + '</div>'
       + m.corps(partie)
-      + (m.idx && m.idx(partie) >= 0
-          ? '<button onclick="AwakGamesEchanger()" style="width:100%;margin-top:8px;padding:10px;border:none;border-radius:11px;cursor:pointer;background:rgba(56,189,248,0.10);border:1px solid rgba(56,189,248,0.28);color:#7dd3fc;font-weight:800;font-size:0.78em;">🔀 Changer d\'exercice</button>'
+      + (m.idx && m.idx(partie) >= 0 && !partie.aChoisir
+          ? '<button onclick="AwakGamesEchanger()" style="width:100%;margin-top:8px;padding:10px;border:none;border-radius:11px;cursor:pointer;background:rgba(56,189,248,0.10);border:1px solid rgba(56,189,248,0.28);color:#7dd3fc;font-weight:800;font-size:0.78em;">Changer d\'exercice</button>'
           : '')
       + '<button onclick="AwakGamesAbandonner()" style="width:100%;margin-top:9px;padding:10px;border:none;border-radius:11px;cursor:pointer;background:rgba(255,255,255,0.05);color:#94a3b8;font-weight:700;font-size:0.78em;">'
       + (partie.journal.length ? 'Arrêter ici' : 'Annuler') + '</button>');
 
-    // Les jeux à la minute relancent un décompte à chaque étape.
-    if (m.chrono) lancerChrono(m.chrono); else arreterChrono();
+    // Un décompte par étape (pas relancé si l'écran se redessine).
+    if (m.chrono) lancerChrono(m.chrono, partie.debut + ':' + partie.pas, m.continu ? finMinute : null);
+    else arreterChrono();
   }
 
   // ── 🎯 BINGO : grille hebdomadaire (hors partie) ────────────────────
@@ -1104,13 +1216,13 @@
     var faits = g.cases.filter(function (c) { return c.fait; }).length;
     var cases = g.cases.map(function (c, i) {
       return '<button onclick="AwakGamesBingoCocher(' + i + ')" style="aspect-ratio:1;padding:8px 6px;border-radius:12px;cursor:pointer;'
-        + 'border:1px solid ' + (c.fait ? 'rgba(34,197,94,0.5)' : 'rgba(255,255,255,0.10)') + ';'
-        + 'background:' + (c.fait ? 'rgba(34,197,94,0.16)' : 'rgba(255,255,255,0.03)') + ';'
-        + 'color:' + (c.fait ? '#4ade80' : '#cbd5e1') + ';font-size:0.66em;font-weight:700;line-height:1.3;display:flex;align-items:center;justify-content:center;text-align:center;">'
+        + 'border:1px solid ' + (c.fait ? 'rgba(96,168,240,0.5)' : 'rgba(255,255,255,0.10)') + ';'
+        + 'background:' + (c.fait ? 'rgba(96,168,240,0.16)' : 'rgba(255,255,255,0.03)') + ';'
+        + 'color:' + (c.fait ? '#60a8f0' : '#cbd5e1') + ';font-size:0.66em;font-weight:700;line-height:1.3;display:flex;align-items:center;justify-content:center;text-align:center;">'
         + (c.fait ? '✓ ' : '') + esc(c.t) + '</button>';
     }).join('');
     overlay().innerHTML = panneau(
-      '<div style="font-size:2.2em;margin-bottom:4px;">🎯</div>'
+      '<div style="margin-bottom:6px;">' + ic('cible', 36, '#93c5fd') + '</div>'
       + '<div style="font-size:1.15em;font-weight:900;color:#fff;margin-bottom:3px;">Bingo de la semaine</div>'
       + '<div style="font-size:0.78em;color:#94a3b8;margin-bottom:14px;">' + faits + ' / 9 défis validés · la grille se renouvelle chaque lundi</div>'
       + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:16px;">' + cases + '</div>'
@@ -1124,13 +1236,13 @@
     if (!g) return;
     if (g.mecanique === 'grille') return ouvrirBingo();
     var opts = g.options.map(function (o) {
-      return '<button onclick="AwakGamesDemarrer(\'' + gameId + '\',' + o + ')" style="flex:1;padding:14px 6px;border-radius:12px;cursor:pointer;border:1px solid rgba(34,197,94,0.3);background:rgba(34,197,94,0.08);color:#4ade80;font-weight:900;font-size:0.95em;">' + o + '</button>';
+      return '<button onclick="AwakGamesDemarrer(\'' + gameId + '\',' + o + ')" style="flex:1;padding:14px 6px;border-radius:12px;cursor:pointer;border:1px solid rgba(96,168,240,0.3);background:rgba(96,168,240,0.08);color:#60a8f0;font-weight:900;font-size:0.95em;">' + o + '</button>';
     }).join('');
     overlay().innerHTML = panneau(
-      '<div style="font-size:2.4em;margin-bottom:6px;">' + g.emoji + '</div>'
+      '<div style="margin-bottom:8px;">' + icJeu(gameId, 38, '#93c5fd') + '</div>'
       + '<div style="font-size:1.15em;font-weight:900;color:#fff;margin-bottom:5px;">' + esc(g.name) + '</div>'
       + '<div style="font-size:0.82em;color:#94a3b8;line-height:1.5;margin-bottom:6px;">' + esc(g.desc) + '</div>'
-      + (g.duo ? '<div style="display:inline-block;background:rgba(168,85,247,0.14);border:1px solid rgba(168,85,247,0.35);color:#c4b5fd;border-radius:8px;padding:3px 9px;font-size:0.68em;font-weight:800;margin-bottom:14px;">👥 À deux</div>' : '')
+      + (g.duo ? '<div style="display:inline-block;background:rgba(168,85,247,0.14);border:1px solid rgba(168,85,247,0.35);color:#c4b5fd;border-radius:8px;padding:3px 9px;font-size:0.68em;font-weight:800;margin-bottom:14px;">À deux</div>' : '')
       + '<div style="font-size:0.62em;color:#64748b;font-weight:800;letter-spacing:1px;margin:12px 0 8px;">' + esc(g.reglage).toUpperCase() + '</div>'
       + '<div style="display:flex;gap:8px;margin-bottom:16px;">' + opts + '</div>'
       + '<button onclick="AwakGamesFermer()" style="width:100%;padding:11px;border:none;border-radius:11px;cursor:pointer;background:rgba(255,255,255,0.05);color:#94a3b8;font-weight:700;font-size:0.8em;">Annuler</button>');
@@ -1145,14 +1257,14 @@
     return Object.keys(GAMES).map(function (id) {
       var g = GAMES[id];
       var pastille = g.duo
-        ? '<div style="position:absolute;top:7px;right:7px;background:rgba(168,85,247,0.2);border:1px solid rgba(168,85,247,0.4);color:#c4b5fd;border-radius:6px;padding:1px 5px;font-size:0.56em;font-weight:800;">👥</div>'
+        ? '<div style="position:absolute;top:7px;right:7px;background:rgba(168,85,247,0.2);border:1px solid rgba(168,85,247,0.4);color:#c4b5fd;border-radius:6px;padding:1px 5px;font-size:0.56em;font-weight:800;">À 2</div>'
         : (g.hebdo ? '<div style="position:absolute;top:7px;right:7px;background:rgba(251,191,36,0.16);border:1px solid rgba(251,191,36,0.35);color:#fbbf24;border-radius:6px;padding:1px 5px;font-size:0.56em;font-weight:800;">7j</div>' : '');
       return '<button onclick="AwakGamesPick(\'' + id + '\')" style="position:relative;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.10);border-radius:14px;padding:15px 11px;cursor:pointer;text-align:center;">'
         + pastille
-        + '<div style="font-size:1.7em;margin-bottom:5px;">' + g.emoji + '</div>'
+        + '<div style="margin-bottom:6px;">' + icJeu(id, 26, g.duo ? '#c4b5fd' : '#93c5fd') + '</div>'
         + '<div style="font-size:0.83em;font-weight:900;color:#fff;margin-bottom:3px;">' + esc(g.name) + '</div>'
         + '<div style="font-size:0.66em;color:#94a3b8;line-height:1.35;">' + esc(g.desc) + '</div>'
-        + (rec[id] ? '<div style="margin-top:6px;font-size:0.62em;color:#fbbf24;font-weight:800;">⭐ ' + rec[id] + '</div>' : '')
+        + (rec[id] && id === 'deathby' ? '<div style="margin-top:6px;font-size:0.62em;color:#fbbf24;font-weight:800;">Record : ' + rec[id] + ' min</div>' : '')
         + '</button>';
     }).join('');
   }
@@ -1163,15 +1275,15 @@
     if (!host) return;
     var nb = Object.keys(GAMES).length;
     host.innerHTML =
-      '<div class="card" style="background:linear-gradient(135deg,rgba(34,197,94,0.06) 0%,rgba(34,197,94,0.02) 100%);border:1px solid rgba(34,197,94,0.22);">'
+      '<div class="card" style="background:linear-gradient(135deg,rgba(96,168,240,0.06) 0%,rgba(96,168,240,0.02) 100%);border:1px solid rgba(96,168,240,0.22);">'
       + '<div style="display:flex;align-items:center;gap:14px;">'
-      +   '<div style="font-size:2em;flex-shrink:0;line-height:1;">🎮</div>'
+      +   '<div style="flex-shrink:0;line-height:1;">' + ic('manette', 32, '#60a8f0') + '</div>'
       +   '<div style="flex:1;min-width:0;">'
-      +     '<h2 style="margin:0 0 3px;color:#4ade80;">Jeux d\'entraînement</h2>'
+      +     '<h2 style="margin:0 0 3px;color:#93c5fd;">Jeux d\'entraînement</h2>'
       +     '<p style="margin:0;color:#94a3b8;font-size:0.82em;">' + nb + ' formats ludiques, adaptés à ton matériel et ta forme.</p>'
       +   '</div>'
       + '</div>'
-      + '<button onclick="AwakGamesOpenPicker()" style="width:100%;margin-top:14px;padding:14px;background:linear-gradient(135deg,#3b82f6,#1d5fa8);border:none;border-radius:14px;color:#04140a;font-weight:900;font-size:0.95em;cursor:pointer;">Choisir un jeu ▸</button>'
+      + '<button onclick="AwakGamesOpenPicker()" style="width:100%;margin-top:14px;padding:14px;background:linear-gradient(135deg,#3b82f6,#1d5fa8);border:none;border-radius:14px;color:#fff;font-weight:900;font-size:0.95em;cursor:pointer;">Choisir un jeu ›</button>'
       + '</div>';
   }
 
@@ -1191,9 +1303,9 @@
       + 'background:rgba(0,0,0,0.86);backdrop-filter:blur(8px);';
     m.onclick = function (e) { if (e.target === m) m.remove(); };
     m.innerHTML =
-      '<div class="modal-content" style="max-width:560px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(34,197,94,0.25);">'
+      '<div class="modal-content" style="max-width:560px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(96,168,240,0.25);">'
       + '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px;">'
-      +   '<h2 style="margin:0;color:#4ade80;">🎮 Jeux d\'entraînement</h2>'
+      +   '<h2 style="margin:0;color:#93c5fd;display:flex;align-items:center;gap:8px;">' + ic('manette', 22, '#93c5fd') + 'Jeux d\'entraînement</h2>'
       +   '<button onclick="var p=document.getElementById(\'awakGamesPicker\');if(p)p.remove();" aria-label="Fermer" style="flex-shrink:0;background:rgba(255,255,255,0.06);border:none;border-radius:10px;width:40px;height:40px;color:#94a3b8;font-size:1.3em;cursor:pointer;line-height:1;">×</button>'
       + '</div>'
       + '<p style="margin:0 0 16px;color:#94a3b8;font-size:0.84em;">Des formats ludiques pour casser la routine. Ils s\'adaptent à ton matériel et à ta forme.</p>'
@@ -1218,7 +1330,7 @@
     if (!duos.length) return '';
     return '<div style="background:linear-gradient(160deg,#16121f,#0d0d12);border:1px solid rgba(168,85,247,0.25);border-radius:18px;padding:20px;margin-bottom:14px;">'
       + '<div style="display:flex;align-items:center;gap:12px;">'
-      +   '<div style="font-size:1.8em;flex-shrink:0;line-height:1;">🎮</div>'
+      +   '<div style="flex-shrink:0;line-height:1;">' + ic('manette', 30, '#c4b5fd') + '</div>'
       +   '<div style="flex:1;min-width:0;">'
       +     '<div style="font-size:1.05em;font-weight:900;color:#fff;margin-bottom:2px;">S\'entraîner à deux</div>'
       +     '<div style="font-size:0.78em;color:#94a3b8;">' + duos.length + ' formats pour se pousser mutuellement.</div>'
@@ -1235,10 +1347,10 @@
     return duos.map(function (id) {
       var g = GAMES[id];
       return '<button onclick="AwakGamesFamilyPick(\'' + id + '\')" style="background:rgba(255,255,255,0.03);border:1px solid rgba(168,85,247,0.28);border-radius:13px;padding:14px 10px;cursor:pointer;text-align:center;min-width:0;">'
-        + '<div style="font-size:1.6em;margin-bottom:4px;">' + g.emoji + '</div>'
+        + '<div style="margin-bottom:5px;">' + icJeu(id, 24, '#c4b5fd') + '</div>'
         + '<div style="font-size:0.82em;font-weight:900;color:#fff;">' + esc(g.name) + '</div>'
         + '<div style="font-size:0.64em;color:#94a3b8;line-height:1.3;margin-top:2px;">' + esc(g.desc) + '</div>'
-        + (rec[id] ? '<div style="margin-top:5px;font-size:0.6em;color:#fbbf24;font-weight:800;">⭐ ' + rec[id] + '</div>' : '')
+
         + '</button>';
     }).join('');
   }
@@ -1261,7 +1373,7 @@
     m.innerHTML =
       '<div class="modal-content" style="max-width:560px;background:linear-gradient(160deg,#12101a,#0d0d12);border:1px solid rgba(168,85,247,0.28);">'
       + '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px;">'
-      +   '<h2 style="margin:0;color:#c4b5fd;">🎮 S\'entraîner à deux</h2>'
+      +   '<h2 style="margin:0;color:#c4b5fd;display:flex;align-items:center;gap:8px;">' + ic('manette', 22, '#c4b5fd') + 'S\'entraîner à deux</h2>'
       +   '<button onclick="var p=document.getElementById(\'awakGamesFamilyPicker\');if(p)p.remove();" aria-label="Fermer" style="flex-shrink:0;background:rgba(255,255,255,0.06);border:none;border-radius:10px;width:40px;height:40px;color:#94a3b8;font-size:1.3em;cursor:pointer;line-height:1;">×</button>'
       + '</div>'
       + '<p style="margin:0 0 16px;color:#94a3b8;font-size:0.84em;">Deux formats pensés pour se pousser mutuellement.</p>'
@@ -1284,11 +1396,11 @@
     if (!c) return '';
     return '<div style="margin-top:14px;padding:12px 14px;border-radius:12px;background:rgba(56,189,248,0.07);border:1px solid rgba(56,189,248,0.22);">'
       + '<div style="font-size:0.76em;color:#7dd3fc;line-height:1.5;">'
-      +   '💡 <b>' + c.actuel + ' exercices</b> correspondent à ton niveau (' + esc(c.nomActuel) + '). '
+      +   '<b>' + c.actuel + ' exercices</b> correspondent à ton niveau (' + esc(c.nomActuel) + '). '
       +   'Les jeux piochent uniquement dedans, pour te proposer des mouvements que tu maîtrises.'
       + '</div>'
       + '<div style="font-size:0.74em;color:#94a3b8;line-height:1.5;margin-top:6px;">'
-      +   'En passant à <b style="color:#cbd5e1;">' + esc(c.nomSuivant) + '</b>, tu en débloquerais <b style="color:#4ade80;">' + c.gain + ' de plus</b> — à ne faire que si tu te sens à l\'aise avec les mouvements actuels.'
+      +   'En passant à <b style="color:#cbd5e1;">' + esc(c.nomSuivant) + '</b>, tu en débloquerais <b style="color:#60a8f0;">' + c.gain + ' de plus</b> — à ne faire que si tu te sens à l\'aise avec les mouvements actuels.'
       + '</div>'
       + '<button onclick="AwakGamesOuvrirNiveau()" style="margin-top:10px;background:rgba(56,189,248,0.12);border:1px solid rgba(56,189,248,0.3);color:#7dd3fc;border-radius:10px;padding:8px 13px;font-size:0.74em;font-weight:800;cursor:pointer;">Changer mon niveau ›</button>'
       + '</div>';

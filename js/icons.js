@@ -63,7 +63,11 @@
     lien:      '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
     constel:   '<circle cx="5" cy="6" r="1.4"/><circle cx="12" cy="4" r="1.4"/><circle cx="18" cy="9" r="1.4"/><circle cx="9" cy="14" r="1.4"/><circle cx="17" cy="19" r="1.4"/><path d="M6.3 5.7 10.6 4.4M13.2 4.8l3.7 3.4M17 10.2l-6.6 3.2M10.2 15l5.7 3.4"/>',
     personne:  '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/>',
-    course:    '<circle cx="14" cy="4.5" r="2"/><path d="M13 8l-3 4 3 3v5M13 8l4 2 2 3M10 12l-4 1"/>'
+    course:    '<circle cx="14" cy="4.5" r="2"/><path d="M13 8l-3 4 3 3v5M13 8l4 2 2 3M10 12l-4 1"/>',
+    carte:     '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M12 8.5c-1.2-1.6-3.5-.6-3 1.2.4 1.4 3 3.3 3 3.3s2.6-1.9 3-3.3c.5-1.8-1.8-2.8-3-1.2z"/><path d="M8 6.5h.01M16 17.5h.01"/>',
+    de:        '<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8.5 8.5h.01M15.5 8.5h.01M12 12h.01M8.5 15.5h.01M15.5 15.5h.01"/>',
+    pyramide:  '<path d="M12 4 3 20h18z"/><path d="M7.5 14h9M9.8 9.5h4.4"/>',
+    balance:   '<path d="M12 4v16M7 20h10M5 7h14"/><path d="M5 7l-2.5 6a2.5 2.5 0 0 0 5 0zM19 7l-2.5 6a2.5 2.5 0 0 0 5 0z"/>'
   };
 
   function get(nom, taille, couleur, epaisseur) {

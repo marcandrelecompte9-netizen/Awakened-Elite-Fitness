@@ -640,6 +640,47 @@
                 return JSON.parse(localStorage.getItem(k) || '{}') || {};
             } catch (e) { return {}; }
         }
+        // ⭐ v1251 : ÉTOILES — 1 par défi réussi (refaire un défi en redonne une).
+        // Total = somme des réussites (awakDefisTermines), donc rien de plus à stocker.
+        const DEFI_RANGS = [
+            { seuil: 0,  nom: 'Sans rang', couleur: '#94a3b8' },
+            { seuil: 5,  nom: 'Bronze',    couleur: '#d97706' },
+            { seuil: 15, nom: 'Argent',    couleur: '#cbd5e1' },
+            { seuil: 30, nom: 'Or',        couleur: '#fbbf24' },
+            { seuil: 50, nom: 'Platine',   couleur: '#a5f3fc' }
+        ];
+        function awakDefiEtoiles() {
+            const t = awakDefisTermines();
+            return Object.keys(t).reduce((s, k) => s + (parseInt(t[k], 10) || 0), 0);
+        }
+        function awakDefiRang(n) {
+            let r = DEFI_RANGS[0], suivant = null;
+            DEFI_RANGS.forEach((x, i) => { if (n >= x.seuil) { r = x; suivant = DEFI_RANGS[i + 1] || null; } });
+            return { rang: r, suivant: suivant };
+        }
+        function awakDefiBandeauEtoiles() {
+            const n = awakDefiEtoiles(), R = awakDefiRang(n), r = R.rang, sv = R.suivant;
+            const etoile = (t, c) => window.AwakIcon ? AwakIcon.get('etoile', t, c) : '';
+            const base = r.seuil, cible = sv ? sv.seuil : base;
+            const pct = sv ? Math.round((n - base) / (cible - base) * 100) : 100;
+            return '<div id="awakDefiEtoiles" style="display:flex;align-items:center;gap:12px;padding:12px 14px;margin-bottom:14px;border-radius:14px;'
+                + 'background:linear-gradient(135deg,rgba(251,191,36,0.10),rgba(251,191,36,0.03));border:1px solid rgba(251,191,36,0.3);">'
+                + '<span style="flex-shrink:0;width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(251,191,36,0.14);">' + etoile(24, '#fbbf24') + '</span>'
+                + '<span style="flex:1;min-width:0;">'
+                +   '<span style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;">'
+                +     '<b style="font-size:1.25em;color:#fff;">' + n + '</b>'
+                +     '<span style="font-size:0.74em;color:#fde68a;font-weight:800;">étoile' + (n > 1 ? 's' : '') + '</span>'
+                +     '<span style="font-size:0.7em;font-weight:900;color:' + r.couleur + ';margin-left:auto;">' + r.nom + '</span>'
+                +   '</span>'
+                +   '<span style="display:block;height:6px;background:rgba(255,255,255,0.08);border-radius:4px;overflow:hidden;margin:6px 0 4px;">'
+                +     '<span style="display:block;height:100%;width:' + pct + '%;background:#fbbf24;border-radius:4px;"></span></span>'
+                +   '<span style="display:block;font-size:0.64em;color:#94a3b8;">'
+                +     (sv ? (n === 0 ? 'Réussis un défi pour gagner ta première étoile. ' : '') + 'Encore ' + (cible - n) + ' pour le rang ' + sv.nom + '.' : 'Rang maximal atteint.')
+                +   '</span>'
+                + '</span></div>';
+        }
+        window.awakDefiEtoiles = awakDefiEtoiles;
+
         function awakDefiMarquerTermine(id) {
             try {
                 const t = awakDefisTermines(); t[id] = (t[id] || 0) + 1;
@@ -803,11 +844,17 @@
             // Confetti effect
             if (activeChallenge.completedDays.length === activeChallenge.duration) {
                 try { awakLogEvent('challenge_complete', { id: activeChallenge.id, name: activeChallenge.name, duration: activeChallenge.duration }); } catch (e) {}
-                showToast('Bravo ! Défi terminé : ' + activeChallenge.name + ' — médaille gagnée !', 'success', 6000);
                 speak('Défi terminé avec succès !');
                 // 🏅 v1219 : le défi fini quittait jamais la liste (bloqué sur 30/30).
                 // On le retire des défis en cours et on garde une médaille.
+                // ⭐ v1251 : la réussite rapporte une étoile ; un nouveau rang est annoncé.
+                const _rAvant = awakDefiRang(awakDefiEtoiles()).rang;
                 awakDefiMarquerTermine(activeChallenge.id);
+                const _nEt = awakDefiEtoiles(), _rApres = awakDefiRang(_nEt).rang;
+                showToast('Défi réussi : ' + activeChallenge.name + ' — +1 étoile (' + _nEt + ')', 'success', 6000);
+                if (_rApres.seuil > _rAvant.seuil) {
+                    setTimeout(() => { try { showToast('Nouveau rang de défis : ' + _rApres.nom + ' !', 'success', 5000); } catch (e) {} }, 2200);
+                }
                 try {
                     const _l2 = getActiveChallenges().filter(c => c && c.id !== activeChallenge.id);
                     saveActiveChallenges(_l2);
@@ -1034,7 +1081,7 @@
                     + '<span style="flex-shrink:0;width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:' + c.color + '1c;border:1px solid ' + c.color + '44;">' + (window.AwakIcon ? AwakIcon.get(c.ico || 'cible', 20, c.color) : '') + '</span>'
                     + '<span style="flex:1;min-width:0;"><span style="display:block;font-size:0.9em;font-weight:900;color:#fff;">' + c.name + '</span>'
                     + '<span style="display:block;font-size:0.7em;color:#94a3b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + c.description + '</span></span>'
-                    + (_termines[c.id] ? '<span title="Déjà réussi" style="flex-shrink:0;display:flex;align-items:center;gap:2px;font-size:0.66em;font-weight:900;color:#fbbf24;">' + (window.AwakIcon ? AwakIcon.get('trophee', 13, '#fbbf24') : '') + '×' + _termines[c.id] + '</span>' : '')
+                    + (_termines[c.id] ? '<span title="Étoiles gagnées sur ce défi" style="flex-shrink:0;display:flex;align-items:center;gap:2px;font-size:0.66em;font-weight:900;color:#fbbf24;">' + (window.AwakIcon ? AwakIcon.get('etoile', 13, '#fbbf24') : '') + '×' + _termines[c.id] + '</span>' : '')
                     + '<span style="flex-shrink:0;font-size:0.68em;font-weight:800;color:' + c.color + ';">' + c.duration + ' j</span>'
                     + '<span style="flex-shrink:0;color:#475569;">›</span></button>';
                 const _listeCompacte = (_actifsL.length ? '<div style="font-size:0.66em;color:#94a3b8;font-weight:800;letter-spacing:1px;margin:18px 0 8px;">AUTRES DÉFIS</div>' : '')
@@ -1045,12 +1092,12 @@
                             if (!l.length) return '';
                             return '<div style="font-size:0.62em;color:' + awakDefiCouleur(n) + ';font-weight:900;letter-spacing:1.4px;margin:12px 0 7px;">' + n.toUpperCase() + '</div>' + l.map(_ligneDefi).join('');
                         }).join('');
-                challengesList.innerHTML = _cptBanner + _recoBanner + _actifsL.map(challenge => `
+                challengesList.innerHTML = awakDefiBandeauEtoiles() + _cptBanner + _recoBanner + _actifsL.map(challenge => `
                     <div style="background: linear-gradient(160deg, #0a0e18 0%, #0F1014 100%); padding: 20px; border-radius: 14px; margin-bottom: 16px; border: 1.5px solid ${challenge.color}40; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 18px rgba(0,0,0,0.25), 0 0 0 1px ${challenge.color}10 inset;" onclick="showChallengeDetails('${challenge.id}')">
                         <div style="display: flex; gap: 16px; align-items: flex-start;">
                             <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:6px;">
                                 <div style="width:52px;height:52px;border-radius:15px;display:flex;align-items:center;justify-content:center;background:${challenge.color}1c;border:1px solid ${challenge.color}55;box-shadow:0 0 14px ${challenge.color}25;">${window.AwakIcon ? AwakIcon.get(challenge.ico || 'cible', 26, challenge.color) : ''}</div>
-                                ${_termines[challenge.id] ? `<div title="Défi terminé" style="display:flex;align-items:center;gap:3px;font-size:0.62em;font-weight:900;color:#fbbf24;">${window.AwakIcon ? AwakIcon.get('trophee', 13, '#fbbf24') : ''}×${_termines[challenge.id]}</div>` : ''}
+                                ${_termines[challenge.id] ? `<div title="Étoiles gagnées sur ce défi" style="display:flex;align-items:center;gap:3px;font-size:0.62em;font-weight:900;color:#fbbf24;">${window.AwakIcon ? AwakIcon.get('etoile', 13, '#fbbf24') : ''}×${_termines[challenge.id]}</div>` : ''}
                             </div>
                             <div style="flex: 1; min-width: 0;">
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 8px; flex-wrap: wrap;">
@@ -7892,7 +7939,15 @@
                         if (eq.length === 0) return true;
                         return eq.some(e => availSet.has(e));
                     };
-                    const filtered = workout.exercises.filter(isAvailable);
+                    // Un exercice retiré ne doit pas laisser son repos derrière lui :
+                    // pas de repos en tête, en fin, ni deux repos d'affilée.
+                    const filtered = workout.exercises.filter(isAvailable).filter((ex, i, arr) => {
+                        if (!ex || !ex.isRest) return true;
+                        const reels = (a) => a.some(x => x && !x.isRest && !x.isInfo);
+                        if (!reels(arr.slice(0, i)) || !reels(arr.slice(i + 1))) return false;
+                        const prec = arr[i - 1];
+                        return !(prec && prec.isRest);
+                    });
                     const retires = workout.exercises.filter(ex => !isAvailable(ex));
                     const realRemaining = filtered.filter(ex => !ex.isRest && !ex.isInfo).length;
                     if (retires.length > 0 && realRemaining >= 1) {
@@ -21567,7 +21622,7 @@
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1247);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1251);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -21611,7 +21666,7 @@
                 +       '<feGaussianBlur stdDeviation="2.4" result="b"/>'
                 +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>'
                 +     '</filter></defs>'
-                +     '<image href="' + img + '?v=1247" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1251" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -27033,7 +27088,7 @@
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1247");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1251");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -30779,13 +30834,28 @@
               besoin: /haltère|barre/i },
             { id: 'souffle',  name: 'La Course Sans Fin', emoji: '💨', color: '#38bdf8',
               desc: 'Elle ne frappe pas. Elle attend que tu ralentisses.',
-              filtre: (e) => /saut|jump|burpee|jack|knee|climber|corde|sprint|montée/i.test(e.name),
+              filtre: (e) => /saut|jump|burpee|jack|high knee|climber|corde à sauter|sprint|montée/i.test(e.name),
               besoin: null },
             { id: 'tension',  name: 'Les Liens', emoji: '🎗️', color: '#a855f7',
               desc: 'Quelque chose tire dans l\'autre sens. Résiste.',
               filtre: (e, eq) => eq.some(x => /élastique|kettlebell/i.test(x)),
               besoin: /élastique|kettlebell/i }
         ];
+
+        // 🐛 v1248 : même règle que le filtre de sécurité de showWorkoutPreparation.
+        // `isExerciseAvailable` n'existe pas : un Assaut tirait des exercices dont
+        // le matériel n'est pas coché (tapis, corde, roue…). La préparation les
+        // retirait ensuite, laissant deux « Repos » d'affilée : l'exercice
+        // semblait sauter directement au temps de repos.
+        function _assautMaterielOk(e) {
+            try {
+                if (typeof getSelectedEquipmentNames !== 'function') return true;
+                const dispo = new Set(getSelectedEquipmentNames());
+                dispo.add('Poids du corps'); dispo.add('Aucun');
+                const eq = e.equipment || [];
+                return eq.length === 0 || eq.some(x => dispo.has(x));
+            } catch (err) { return true; }
+        }
 
         // Thèmes réellement disponibles pour ce joueur (matériel du lieu actif)
         function _assautThemesDispo() {
@@ -30799,7 +30869,7 @@
                         // matériel réellement disponible ?
                         if (typeof awakExerciseBlockedByLocation === 'function'
                             && awakExerciseBlockedByLocation(e)) return false;
-                        if (typeof isExerciseAvailable === 'function' && !isExerciseAvailable(e)) return false;
+                        if (!_assautMaterielOk(e)) return false;
                         return t.filtre(e, eq);
                     }).length;
                     if (n >= 6) dispo.push(t);   // il faut de quoi varier
@@ -30820,7 +30890,7 @@
                     const eq = (e.equipment && e.equipment.length) ? e.equipment : ['Poids du corps'];
                     if (typeof awakExerciseBlockedByLocation === 'function'
                         && awakExerciseBlockedByLocation(e)) return false;
-                    if (typeof isExerciseAvailable === 'function' && !isExerciseAvailable(e)) return false;
+                    if (!_assautMaterielOk(e)) return false;
                     return theme.filtre(e, eq);
                 });
 
@@ -30850,6 +30920,8 @@
                 pool = (typeof _dbMuscu === 'function' ? _dbMuscu() : exerciseDatabase)
                     .filter(e => e.type === 'exercise')
                     .filter(e => {
+                        if (typeof awakExerciseBlockedByLocation === 'function'
+                            && awakExerciseBlockedByLocation(e)) return false;
                         const eq = (e.equipment && e.equipment.length) ? e.equipment : ['Poids du corps'];
                         return eq.every(x => ['Poids du corps', 'Aucun'].includes(x));
                     });
@@ -31343,7 +31415,7 @@
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1247);'
+                +     'url(images/combat_bg_v1.webp?v=1251);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -31598,7 +31670,7 @@
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1247);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1251);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -31857,7 +31929,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:540px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto;display:flex;flex-direction:column;">
                 <!-- Header : vague actuelle -->
-                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1247);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1251);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                         <span style="font-size:0.6em;color:${theme.color};font-weight:900;letter-spacing:2px;">⚔ VAGUE ${rift.currentWaveIdx + 1} / ${rift.waves.length}${currentWave.isBoss ? ' · BOSS' : ''}</span>
                         <button onclick="awakAbandonRift()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
@@ -33004,7 +33076,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1247');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1251');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -33741,7 +33813,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1247);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1251);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -33912,7 +33984,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1247);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1251);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -44666,7 +44738,7 @@
 
             host.innerHTML =
                 '<div style="position:relative;width:110px;margin:0 auto 12px;">'
-              +   '<img src="images/body/body_face.webp?v=1247" alt="" '
+              +   '<img src="images/body/body_face.webp?v=1251" alt="" '
               +     'style="width:100%;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -44748,7 +44820,7 @@
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1247);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1251);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -44815,7 +44887,7 @@
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1247);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1251);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -47111,7 +47183,7 @@
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1247");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1251");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
