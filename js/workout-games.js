@@ -91,7 +91,33 @@
   // `idsParticipants` : pour un jeu À DEUX, les identifiants des DEUX joueurs.
   // Les protections s'appliquent alors au plus fragile des deux, pas seulement
   // au profil actif.
-  function pool(limit, niveauForce, idsParticipants) {
+  // ── v1257 : exercices qui conviennent à un JEU ─────────────────────
+  // Un jeu change d'exercice toutes les 30 s : matériel qui se prend et se pose
+  // vite seulement (pas de machine, câble, barre ni banc à installer).
+  var MAT_JEU = ['Poids du corps', 'Aucun', 'Haltères', 'Kettlebell', 'Élastique', 'Medicine Ball', 'Swiss Ball', 'Corde à sauter', 'Tapis'];
+  // Exercices « poids du corps » qui cachent du matériel, demandent de
+  // l'espace ou une installation, ou n'ont pas leur place dans un jeu.
+  var RX_HORS_JEU = new RegExp([
+    'rice bucket', 'seau de riz', 'wrist roller', 'plate pinch', 'escalade', 'grimper', 'glute ham', 'nordic',
+    'dead hang', 'suspension', 'serviette', 'isométrique', 'stretch', 'box jump', 'saut sur (banc|box|caisse)',
+    'bounding', 'bondissement', 'broad jump', 'saut en longueur', 'marche rapide', 'power walk', 'handstand',
+    'sissy', 'pont scapulaire', 'shrugs en appui', 'y-t-w', 'dragon flag', 'rack pull', 'atlas',
+    'donkey calf', 'banc incliné', 'curl incliné', 'pupitre', 'wrist curl', 'curl poignet'
+  ].join('|'), 'i');
+  // Un seul côté à la fois : on affiche « par côté ».
+  var RX_UNILAT = /un bras|une jambe|unilat|single|pistol|bulgare|concentré|archer|fentes|lunge|step-?up|windmill|fire hydrant|donkey kick|kickback haltère|planche latérale|side crunch|crunch oblique|alterné/i;
+  function estUnilat(ex) { return !!(ex && ex.name && RX_UNILAT.test(ex.name)); }
+  function estPoidsCorps(e) {
+    return !Array.isArray(e.equipment) || !e.equipment.length
+      || e.equipment.every(function (q) { return q === 'Poids du corps' || q === 'Aucun' || q === 'Tapis'; });
+  }
+
+  // opts.simultane : jeu à deux EN MÊME TEMPS → poids du corps seulement
+  //                  (sinon il faudrait deux jeux d'haltères).
+  // opts.rapide    : Death by — mouvements rapides au poids du corps, qu'on
+  //                  enchaîne à 15+ reps/min (pas de tenue, de côté, d'Avancé).
+  function pool(limit, niveauForce, idsParticipants, opts) {
+    opts = opts || {};
     var base = [];
     try { base = (typeof exerciseDatabase !== 'undefined' && exerciseDatabase) ? exerciseDatabase.slice() : []; }
     catch (e) { base = []; }
@@ -115,6 +141,19 @@
     // l'échauffement ou de l'étirement. On les écarte par leur nom.
     var _exclus = /^(cat[- ]?cow|chat[- ]?vache|chat[- ]?dos|cobra|respiration|salutation|posture|étirement|etirement|assouplissement|mobilité|mobilite)/i;
     base = base.filter(function (e) { return !_exclus.test(e.name); });
+
+    // v1257 : matériel compatible avec un jeu + exercices qui y ont leur place
+    base = base.filter(function (e) {
+      var eq = (Array.isArray(e.equipment) && e.equipment.length) ? e.equipment : ['Poids du corps'];
+      if (!eq.every(function (q) { return MAT_JEU.indexOf(q) >= 0; })) return false;
+      if (RX_HORS_JEU.test(e.name || '')) return false;
+      if (/^(Cardio|Étirement)/.test(e.muscle || '')) return false;
+      return true;
+    });
+    if (opts.simultane) base = base.filter(estPoidsCorps);
+    if (opts.rapide) base = base.filter(function (e) {
+      return estPoidsCorps(e) && !estTenue(e) && !estDuree(e) && !estUnilat(e) && e.difficulty !== 'Avancé';
+    });
 
     // ⏱️ EXERCICES EN TEMPS EXCLUS.
     // ⚠️ Un jeu de dés annonce un NOMBRE de répétitions (« 8 burpees »).
@@ -744,7 +783,8 @@
     return img
       + '<div style="font-size:1.05em;font-weight:900;color:#fff;margin-bottom:3px;">' + esc(nom) + '</div>'
       + '<div style="font-size:2.2em;font-weight:900;color:#60a8f0;line-height:1;">' + val + '</div>'
-      + '<div style="font-size:0.75em;color:#94a3b8;margin-bottom:16px;">' + esc(unite) + '</div>';
+      + '<div style="font-size:0.75em;color:#94a3b8;margin-bottom:16px;">' + esc(unite)
+      + (typeof ex !== 'string' && estUnilat(ex) ? ' <b style="color:#93c5fd;">par côté</b>' : '') + '</div>';
   }
   function bouton(fn, txt, cyan) {
     var fond = cyan ? 'linear-gradient(135deg,#22d3ee,#0891b2);color:#032027' : 'linear-gradient(135deg,#3b82f6,#1d5fa8);color:#fff';
@@ -952,7 +992,12 @@
     if (g.duo) {
       try { _ids = duoJoueurs().map(function (j) { return j.id; }); } catch (e) { _ids = null; }
     }
-    var ex = pool(nb, null, _ids);
+    // Jeux à deux où les deux bougent EN MÊME TEMPS, et Death by (rapide).
+    var _opts = {
+      simultane: ['handicap', 'miroir', 'roi'].indexOf(g.mecanique) >= 0 || (g.mecanique === 'alternance' && !!g.course),
+      rapide: g.mecanique === 'minute'
+    };
+    var ex = pool(nb, null, _ids, _opts);
     if (!ex.length) {
       if (typeof window.showToast === 'function') window.showToast('Aucun exercice disponible avec tes réglages actuels', 'warning', 3000);
       return;
@@ -960,7 +1005,7 @@
     // XP : une partie a son propre plafond « par séance » (sinon elle partageait
     // celui de la dernière vraie séance). Le plafond du jour reste actif.
     try { if (typeof window.rpgResetWorkoutXpTracker === 'function') window.rpgResetWorkoutXpTracker(); } catch (e) {}
-    partie = { id: gameId, jeu: g, meca: m, reglage: reglage, exercices: ex,
+    partie = { id: gameId, jeu: g, meca: m, reglage: reglage, exercices: ex, poolOpts: _opts, ids: _ids,
                debut: Date.now(), pas: 0, fini: false, journal: [] };
     m.prepare(partie);
     // Normalisation : les mécaniques à deux stockent leurs joueurs soit dans
@@ -1029,7 +1074,7 @@
     var i = partie.meca.idx(partie);
     if (i < 0) return;
     var dejaLa = partie.exercices.map(function (e) { return e && e.name; });
-    var candidats = pool().filter(function (e) { return dejaLa.indexOf(e.name) === -1; });
+    var candidats = pool(null, null, partie.ids, partie.poolOpts).filter(function (e) { return dejaLa.indexOf(e.name) === -1; });
     if (!candidats.length) return;
     partie.exercices[i] = candidats[0];
     afficher();

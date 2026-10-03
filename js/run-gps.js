@@ -525,6 +525,7 @@
       + '</div>'
       + '<div id="awakRunCoach"></div>'
       + '<div id="awakRunTrace" style="background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:14px;margin-bottom:10px;"></div>'
+      + '<div id="awakRunAide"></div>'
       + '<div id="awakRunSplits" style="font-size:0.74em;color:#94a3b8;min-height:20px;"></div>'
       + '<div style="flex:1;"></div>'
       + '<div style="display:flex;gap:10px;margin-top:12px;">'
@@ -569,6 +570,7 @@
       }).join('');
       sig.innerHTML = '<span style="color:' + s.c + ';">' + s.t + '</span> <span style="display:inline-flex;align-items:flex-end;">' + barres + '</span>';
     }
+    aideGPS();
     var pb = document.getElementById('awakRunPause');
     if (pb) pb.textContent = R.etat === 'pause' ? 'REPRENDRE' : (R.etat === 'auto' ? 'PAUSE AUTO · REPRENDRE' : (R.etat === 'attente' ? 'EN ATTENTE DU GPS…' : 'PAUSE'));
     var tr = document.getElementById('awakRunTrace');
@@ -624,7 +626,54 @@
     else fin();
   }
 
+  // ── v1258 : AIDE quand le GPS tarde ────────────────────────────────
+  // Sur un ORDINATEUR il n'y a pas de puce GPS : la position vient du Wi-Fi ou
+  // de l'adresse IP, précise à 100 m… plusieurs km. Le départ exige ≤ 35 m :
+  // l'écran restait donc sur « Recherche du GPS » sans dire pourquoi.
+  function modeDemo() {
+    try { return /[?&]gpsdemo/.test(location.search) || localStorage.getItem('awakGpsDemo') === '1'; } catch (e) { return false; }
+  }
+  function aideGPS() {
+    var el = document.getElementById('awakRunAide'); if (!el || !R) return;
+    if (R.etat !== 'attente' || Date.now() - R.debut < 15000) { if (el.innerHTML) el.innerHTML = ''; return; }
+    var a = R.precision, tel = /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent || '');
+    var cle = (a == null ? 'x' : (a > 1000 ? 'k' : 'm')) + (modeDemo() ? 'd' : '');
+    if (el.dataset.cle === cle && el.innerHTML) {
+      var v = document.getElementById('awakRunAidePrec'); if (v && a != null) v.textContent = Math.round(a).toLocaleString('fr-CA') + ' m';
+      return;
+    }
+    el.dataset.cle = cle;
+    var txt = (a == null ? 'Aucune position reçue pour l\'instant.' : 'Précision actuelle : <b id="awakRunAidePrec" style="color:#fff;">' + Math.round(a).toLocaleString('fr-CA') + ' m</b>. Il faut moins de ' + PRECISION_MAX + ' m pour mesurer une course.')
+      + '<br>' + (tel
+        ? 'Sors dehors, loin des grands immeubles, et attends 30 secondes que le GPS se cale.'
+        : 'Sur un ordinateur, la position vient du Wi-Fi ou d\'Internet, pas d\'une vraie puce GPS : elle n\'est jamais assez précise. Teste la course sur ton téléphone, dehors.');
+    el.innerHTML = '<div style="margin:0 0 10px;padding:11px 13px;border-radius:12px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.3);font-size:0.74em;color:#fde68a;line-height:1.5;">'
+      + txt
+      + (modeDemo() ? '<button id="awakRunDemoBtn" style="display:block;width:100%;margin-top:9px;padding:10px;border-radius:10px;border:none;cursor:pointer;background:#fbbf24;color:#1f1300;font-weight:900;font-size:0.95em;">Simuler une course (test)</button>' : '')
+      + '</div>';
+    var b = document.getElementById('awakRunDemoBtn'); if (b) b.onclick = simuler;
+  }
+  // Mode test (…/?gpsdemo) : fausses positions, ~10 km/h, pour essayer l'écran
+  // de course sur un ordinateur. Jamais proposé sans le paramètre.
+  function simuler() {
+    if (!R) return;
+    try { if (R.watch != null) { if (N()) N().geo.arreter(R.watch); else navigator.geolocation.clearWatch(R.watch); } } catch (e) {}
+    R.watch = null; R.demo = true;
+    var lat = (R.pos && R.pos.lat) || 45.5017, lon = (R.pos && R.pos.lon) || -73.5673, cap = 0;
+    R.demoTimer = setInterval(function () {
+      if (!R || !R.demo) return;
+      if (R.etat === 'pause') return;
+      cap += (Math.random() - 0.5) * 0.25;
+      var m = 2.8 + Math.random() * 0.4;                      // ≈ 10 km/h
+      lat += (m * Math.cos(cap)) / 111111;
+      lon += (m * Math.sin(cap)) / (111111 * Math.cos(lat * Math.PI / 180));
+      surPosition({ coords: { latitude: lat, longitude: lon, accuracy: 5 + Math.random() * 3 }, timestamp: Date.now() });
+    }, 1000);
+    toast('Course simulée : positions fictives', 'info');
+  }
+
   function arreterGPS() {
+    try { if (R && R.demoTimer) clearInterval(R.demoTimer); } catch (e) {}
     try {
       if (R && R.watch != null) { if (N()) N().geo.arreter(R.watch); else navigator.geolocation.clearWatch(R.watch); }
     } catch (e) {}
