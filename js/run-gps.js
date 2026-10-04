@@ -26,7 +26,7 @@
   var ACTIVITES = {
     course: { nom: 'Course', vmax: 9,  exo: 'Course longue (Endurance Run)', ico: '<path d="M13 4a2 2 0 1 0 0-.01M7 21l3-6 3 2v4M10 15l2-6 4 3 3-1M9 9l3-1"/>' },
     marche: { nom: 'Marche', vmax: 3.5, exo: 'Marche rapide (Power Walk)',   ico: '<path d="M13 4a2 2 0 1 0 0-.01M10 21l2-7 3 3v4M9 11l3-3 3 3 2 1"/>' },
-    velo:   { nom: 'Vélo',   vmax: 22, exo: 'Vélo stationnaire',             ico: '<circle cx="6" cy="17" r="3.5"/><circle cx="18" cy="17" r="3.5"/><path d="M6 17l4-8h5l3 8M10 9l2 8"/>' }
+    velo:   { nom: 'Vélo',   vmax: 22, exo: 'Vélo stationnaire', nomExo: 'Vélo (extérieur)', ico: '<circle cx="6" cy="17" r="3.5"/><circle cx="18" cy="17" r="3.5"/><path d="M6 17l4-8h5l3 8M10 9l2 8"/>' }
   };
   var PRECISION_MAX = 35, COUPURE_S = 20;
   var ACCENT = '#22d3ee';
@@ -163,6 +163,60 @@
     try { var a = JSON.parse(localStorage.getItem(cleLecture()) || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; }
   }
   function sauver(a) { try { localStorage.setItem(cle(), JSON.stringify(a.slice(0, 100))); } catch (e) {} }
+
+  // ── v1276 : SORTIE EN COURS SAUVEGARDÉE ──
+  // Si le téléphone recharge l'appli (mémoire, mise à jour, fausse manœuvre),
+  // la sortie était PERDUE. On garde un instantané toutes les 10 s ; au
+  // redémarrage, on propose de la reprendre ou de l'enregistrer.
+  var CLE_EN_COURS = 'awakRunEnCours';
+  var CHAMPS = ['type', 'debut', 'cumul', 'distance', 'points', 'splits', 'prochainKm', 'tKmPrec', 'coupures',
+    't5', 't10', 't21', 't42', 'prof', 'prochain100', 'dAnn', 'tAnn', 'prochainAnn', 'prochainT', 'nbAuto', 'coachCfg'];
+  var _dernierInstant = 0;
+  function cleEnCours(ecr) {
+    try { return ecr ? (window._cleProfil ? window._cleProfil(CLE_EN_COURS) : CLE_EN_COURS)
+                     : (window._cleProfilLecture ? window._cleProfilLecture(CLE_EN_COURS) : CLE_EN_COURS); } catch (e) { return CLE_EN_COURS; }
+  }
+  function instantane(force) {
+    if (!R || R.demo || R.etat === 'attente') return;
+    if (!force && Date.now() - _dernierInstant < 10000) return;
+    _dernierInstant = Date.now();
+    try {
+      var o = { sauve: Date.now(), cumulVrai: duree() };
+      CHAMPS.forEach(function (k) { o[k] = R[k]; });
+      localStorage.setItem(cleEnCours(true), JSON.stringify(o));
+    } catch (e) {}
+  }
+  function oublierInstantane() { try { localStorage.removeItem(cleEnCours(true)); } catch (e) {} }
+  function brancherGPS() {
+    R.watch = N()
+      ? N().geo.suivre(surPosition, surErreur, { titre: 'Awakened · ' + R.a.nom, message: 'Sortie en cours : distance et allure suivies.' })
+      : navigator.geolocation.watchPosition(surPosition, surErreur, { enableHighAccuracy: true, maximumAge: 0, timeout: 20000 });
+    R.tick = setInterval(maj, 1000);
+  }
+  function restaurer(o) {
+    R = { etat: 'pause', repriseTs: 0, dernier: null, dernierFix: 0, precision: null, recent: [], brut: [], mouv: [],
+          dernierMouv: Date.now(), posFix: null };
+    CHAMPS.forEach(function (k) { if (o[k] !== undefined) R[k] = o[k]; });
+    R.cumul = o.cumulVrai || o.cumul || 0;
+    R.a = ACTIVITES[R.type] || ACTIVITES.course;
+    try { R.prefs = window.AwakCoachRun ? AwakCoachRun.prefs() : null; } catch (e) { R.prefs = null; }
+    R.pasAnn = (R.prefs && window.AwakCoachRun) ? AwakCoachRun.pasAnnonce(R.prefs) : { d: 1000 };
+    try { R.coach = (R.coachCfg && window.AwakCoachRun) ? AwakCoachRun.creer(R.coachCfg) : null; } catch (e) { R.coach = null; }
+  }
+  function verifierInterrompue() {
+    var o = null;
+    try { o = JSON.parse(localStorage.getItem(cleEnCours(false)) || 'null'); } catch (e) {}
+    if (!o || R) return;
+    if (!o.distance || o.distance < 50 || Date.now() - (o.sauve || 0) > 12 * 3600 * 1000) { oublierInstantane(); return; }
+    var nom = (ACTIVITES[o.type] || ACTIVITES.course).nom.toLowerCase();
+    var msg = 'Ta sortie de ' + nom + ' (' + km(o.distance) + ' km, ' + hms(o.cumulVrai || o.cumul) + ') a été interrompue : l\'appli s\'est rechargée. '
+      + 'Tu peux la reprendre là où tu étais, ou l\'enregistrer telle quelle.';
+    var reprendre = function () { oublierInstantane(); restaurer(o); garderEcran(); afficherCourse(); brancherGPS(); toast('Sortie reprise — touche REPRENDRE pour relancer le chrono', 'info'); };
+    var enregistrer = function () { oublierInstantane(); restaurer(o); terminer(); };
+    if (typeof showConfirm === 'function') showConfirm(msg, reprendre, enregistrer, { title: 'SORTIE INTERROMPUE', confirmLabel: 'Reprendre', cancelLabel: 'Enregistrer' });
+    else enregistrer();
+  }
+  window.addEventListener('pagehide', function () { instantane(true); });
 
   // Durée active (pauses exclues)
   function duree() {
@@ -352,18 +406,16 @@
     if (R.pasAnn.t) R.prochainT = R.pasAnn.t;
     // v1238 : coach (objectif, fractionné, contre moi, plan)
     try { R.coach = (cfg && window.AwakCoachRun) ? AwakCoachRun.creer(cfg) : null; } catch (e) { R.coach = null; }
+    R.coachCfg = cfg || null;
     garderEcran();
     afficherCourse();
-    R.watch = N()
-      ? N().geo.suivre(surPosition, surErreur, { titre: 'Awakened · ' + R.a.nom, message: 'Sortie en cours : distance et allure suivies.' })
-      : navigator.geolocation.watchPosition(surPosition, surErreur, { enableHighAccuracy: true, maximumAge: 0, timeout: 20000 });
-    R.tick = setInterval(maj, 1000);
+    brancherGPS();
   }
 
   function surErreur(err) {
     if (!R) return;
     if (err && err.code === 1) {
-      arreterGPS();
+      arreterGPS(); oublierInstantane();
       afficherMessage('Accès à la position refusé', 'Autorise la localisation pour Awakened dans les réglages du navigateur, puis réessaie. Tu peux aussi utiliser le chronomètre sans GPS.');
       R = null; libererEcran();
     } else {
@@ -387,28 +439,55 @@
     // v1239 : PAUSE AUTO — reprise dès qu'on s'éloigne vraiment du point d'arrêt
     if (R.etat === 'auto' && c.accuracy <= PRECISION_MAX) {
       var dA = R.ancre ? dist(R.ancre, { lat: c.latitude, lon: c.longitude }) : 999;
-      if (dA >= Math.max(10, c.accuracy * 0.6)) {
+      // 3 points d'affilée hors de la zone d'arrêt : un seul saut de bruit ne relance pas le chrono
+      R.horsAncre = dA >= Math.max(10, c.accuracy * 0.6) ? (R.horsAncre || 0) + 1 : 0;
+      if (R.horsAncre >= 3) {
+        R.horsAncre = 0;
         R.etat = 'run'; R.repriseTs = Date.now(); R.dernierMouv = Date.now();
         R.dernier = R.ancre ? { lat: R.ancre.lat, lon: R.ancre.lon, t: R.ancre.t || (now - 10000) } : null;
-        R.recent = [];
+        R.recent = []; R.brut = []; R.mouv = [];
         parler('On repart'); vibrer(40);
       } else { maj(); return; }
     }
     if (R.etat !== 'run' || c.accuracy > PRECISION_MAX) { maj(); return; }
 
-    var p = { lat: c.latitude, lon: c.longitude, t: now };
+    // v1276 : LISSAGE — moyenne pondérée (1/précision²) des 4 derniers points
+    // sur 6 s. Le bruit du GPS (± quelques mètres à chaque point) gonflait la
+    // distance : +28 % en marche lente, plus d'un kilomètre en 5 min à l'arrêt.
+    if (!R.dernier) R.brut = [];
+    R.brut = (R.brut || []).filter(function (q) { return now - q.t <= 6000; });
+    R.brut.push({ lat: c.latitude, lon: c.longitude, t: now, acc: Math.max(3, c.accuracy) });
+    if (R.brut.length > 4) R.brut.shift();
+    var sw = 0, sla = 0, slo = 0, accMin = 999;
+    R.brut.forEach(function (q) { var w = 1 / (q.acc * q.acc); sw += w; sla += q.lat * w; slo += q.lon * w; accMin = Math.min(accMin, q.acc); });
+    var p = { lat: sla / sw, lon: slo / sw, t: now };
+    // v1276 : MOUVEMENT réel = vitesse sur ~10 s (ou vitesse donnée par la puce).
+    // Avant, seul un point ACCEPTÉ comptait comme mouvement : en marchant
+    // lentement avec un GPS moyen, la pause auto se déclenchait en marchant.
+    R.mouv = (R.mouv || []).filter(function (q) { return now - q.t <= 15000; });
+    R.mouv.push(p);
+    // Début et fin de la fenêtre moyennés sur 3 points : le bruit s'annule,
+    // un vrai déplacement reste. Seuil relatif à la précision du GPS.
+    var moy3 = function (L) { var la = 0, lo = 0; L.forEach(function (q) { la += q.lat; lo += q.lon; }); return { lat: la / L.length, lon: lo / L.length }; };
+    var dtm = (now - R.mouv[0].t) / 1000;
+    if (c.speed != null && c.speed > 0.6) R.dernierMouv = Date.now();
+    else if (dtm >= 8 && R.mouv.length >= 6) {
+      var dm = dist(moy3(R.mouv.slice(0, 3)), moy3(R.mouv.slice(-3)));
+      if (dm > Math.max(0.35 * dtm, accMin * 0.25)) R.dernierMouv = Date.now();
+    }
+
     if (!R.dernier) { R.dernier = p; R.points.push([+p.lat.toFixed(6), +p.lon.toFixed(6), 1]); maj(); return; }
     var d = dist(R.dernier, p), dt = Math.max(0.5, (now - R.dernier.t) / 1000);
     if (dt > COUPURE_S) {
       // Longue coupure : on accepte si la vitesse est plausible, sinon on repart à neuf
       if (d / dt > R.a.vmax) { R.coupures++; R.dernier = p; R.points.push([+p.lat.toFixed(6), +p.lon.toFixed(6), 1]); maj(); return; }
     }
-    if (d < Math.max(3, c.accuracy * 0.4)) { maj(); return; }       // bruit à l'arrêt
+    if (d < Math.max(3, accMin * 0.5)) { maj(); return; }            // bruit à l'arrêt
     if (d / dt > R.a.vmax * 1.3) { maj(); return; }                  // saut impossible
     var avant = R.distance;
     R.distance += d;
-    R.dernierMouv = Date.now();
     R.dernier = p;
+    R.tAccepte = Date.now();
     R.points.push([+p.lat.toFixed(6), +p.lon.toFixed(6), 0]);
     R.recent.push({ d: R.distance, t: duree() });
     while (R.recent.length > 2 && R.recent[R.recent.length - 1].t - R.recent[0].t > 40) R.recent.shift();
@@ -584,8 +663,11 @@
     // (jamais en fractionné : on s'arrête souvent pendant les récupérations)
     if (R.etat === 'run' && R.prefs && R.prefs.autoPause && R.distance > 30
         && !(R.coach && R.coach.cfg && R.coach.cfg.mode === 'fractionne')
-        && Date.now() - R.dernierMouv > 10000 && R.dernierFix && Date.now() - R.dernierFix < 5000) {
-      R.cumul += Math.max(0, (R.dernierMouv - R.repriseTs) / 1000);
+        && Date.now() - R.dernierMouv > (R.type === 'marche' ? 15000 : 10000) && R.dernierFix && Date.now() - R.dernierFix < 5000) {
+      // Instant réel de l'arrêt : le dernier pas mesuré (la fenêtre de 15 s qui
+      // détecte le mouvement « traîne » encore quelques secondes après l'arrêt).
+      var arretTs = Math.min(R.dernierMouv, Math.max(R.tAccepte || 0, R.dernierMouv - 15000));
+      R.cumul += Math.max(0, (Math.max(arretTs, R.repriseTs) - R.repriseTs) / 1000);
       R.etat = 'auto'; R.ancre = R.posFix || R.dernier; R.nbAuto = (R.nbAuto || 0) + 1;
       parler('Pause automatique'); vibrer(60);
       t = duree();
@@ -598,6 +680,7 @@
     if (R.coach && window.AwakCoachRun) {
       try { AwakCoachRun.tick(R, { t: t, d: R.distance, a: R.etat === 'run' ? allureActuelle() : 0, run: R.etat === 'run' }); } catch (e) {}
     }
+    instantane(false);
     var sp = document.getElementById('awakRunSplits');
     if (sp) sp.innerHTML = R.splits.length ? R.splits.slice(-6).map(function (x, i, arr) {
       var n = R.splits.length - arr.length + i + 1;
@@ -608,7 +691,7 @@
   function basculerPause() {
     if (!R || R.etat === 'attente') return;
     if (R.etat === 'auto') { R.etat = 'run'; R.repriseTs = Date.now(); R.dernierMouv = Date.now(); R.dernier = null; parler('On repart'); maj(); return; }
-    if (R.etat === 'run') { R.cumul += (Date.now() - R.repriseTs) / 1000; R.etat = 'pause'; parler('Pause'); }
+    if (R.etat === 'run') { R.cumul += (Date.now() - R.repriseTs) / 1000; R.etat = 'pause'; parler('Pause'); instantane(true); }
     else { R.etat = 'run'; R.repriseTs = Date.now(); R.dernier = null; parler('On repart'); }
     maj();
   }
@@ -679,12 +762,12 @@
     try { if (R && R.tick) clearInterval(R.tick); } catch (e) {}
   }
   function fermerEcran() { var el = document.getElementById('awakRunScreen'); if (el) el.remove(); }
-  function annuler() { arreterGPS(); retirerCarte(); R = null; libererEcran(); fermerEcran(); }
+  function annuler() { arreterGPS(); retirerCarte(); R = null; libererEcran(); fermerEcran(); oublierInstantane(); }
 
   function terminer() {
     if (!R) return;
     if (R.etat === 'run') { R.cumul += (Date.now() - R.repriseTs) / 1000; R.etat = 'fin'; }
-    arreterGPS(); libererEcran();
+    arreterGPS(); libererEcran(); oublierInstantane();
     var s = {
       id: Date.now(), date: new Date(R.debut).toISOString(), type: R.type,
       distance: Math.round(R.distance), duree: Math.round(R.cumul),
@@ -698,7 +781,11 @@
     var avant = records(hist.filter(function (x) { return x.type === 'course'; }));
     hist.unshift(s); sauver(hist);
     var nouveaux = [];
-    if (s.type === 'course') {
+    // v1278 : à la toute première course, chaque mesure était annoncée comme « record » ;
+    // on attend d'avoir une sortie de référence.
+    var premiere = !hist.some(function (x) { return x && x.type === 'course' && x.id !== s.id; });
+    if (s.type === 'course' && premiere) nouveaux.push('__premiere');
+    else if (s.type === 'course') {
       var km1 = s.splits.length ? Math.min.apply(null, s.splits) : 0;
       if (km1 && (!avant.km1 || km1 < avant.km1)) nouveaux.push('Meilleur kilomètre');
       if (s.t5 && (!avant.km5 || s.t5 < avant.km5)) nouveaux.push('5 km');
@@ -730,7 +817,7 @@
     var a = ACTIVITES[s.type] || ACTIVITES.course;
     try {
       if (typeof saveWorkoutToHistory === 'function') {
-        saveWorkoutToHistory({ name: a.nom + ' ' + km(s.distance) + ' km (cardio)', exercises: [{ name: a.exo, muscle: 'Cardio', duration: s.duree }] }, s.duree);
+        saveWorkoutToHistory({ name: a.nom + ' ' + km(s.distance) + ' km (cardio)', exercises: [{ name: a.nomExo || a.exo, muscle: 'Cardio', duration: s.duree }] }, s.duree);
         // Compléter l'entrée : distance et calories réalistes (≈ 1 kcal / kg / km en course)
         var pid = (typeof getCurrentProfileId === 'function') ? getCurrentProfileId() : null;
         var hist = (typeof getWorkoutHistory === 'function') ? getWorkoutHistory() : [];
@@ -755,6 +842,7 @@
         for (var i = 0; i < n; i++) rpgGainXP(a.exo, 0, 0, parKm);
       }
     } catch (e) {}
+    try { if (typeof window.awakCompterSeance === 'function') window.awakCompterSeance(s.duree / 60); } catch (e) {}
     try { if (typeof updateHomeStats === 'function') updateHomeStats(); } catch (e) {}
   }
 
@@ -804,7 +892,11 @@
       +   '<div style="font-size:0.7em;color:#64748b;">' + new Date(s.date).toLocaleString('fr-CA', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }) + '</div></div>'
       +   '<button onclick="document.getElementById(\'awakRunDetail\').remove()" aria-label="Fermer" style="width:36px;height:36px;min-height:auto;padding:0;border-radius:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:#94a3b8;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;">' + ico('<path d="M6 6l12 12M18 6L6 18"/>', 16) + '</button>'
       + '</div>'
-      + (nouveaux && nouveaux.length
+      + (nouveaux && nouveaux[0] === '__premiere'
+          ? '<div style="background:rgba(34,211,238,0.08);border:1px solid rgba(34,211,238,0.35);border-radius:12px;padding:10px 12px;margin-bottom:12px;">'
+            + '<div style="font-size:0.6em;letter-spacing:1.6px;color:#22d3ee;font-weight:900;">PREMIÈRE SORTIE</div>'
+            + '<div style="font-size:0.84em;font-weight:800;color:#cffafe;margin-top:2px;">Tes repères sont posés. Les prochaines sorties se mesureront à celle-ci.</div></div>'
+        : nouveaux && nouveaux.length
           ? '<div style="background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.4);border-radius:12px;padding:10px 12px;margin-bottom:12px;">'
             + '<div style="font-size:0.6em;letter-spacing:1.6px;color:#fbbf24;font-weight:900;">NOUVEAU RECORD</div>'
             + '<div style="font-size:0.84em;font-weight:800;color:#fde68a;margin-top:2px;">' + esc(nouveaux.join(' · ')) + '</div></div>' : '')
@@ -851,12 +943,14 @@
     else alert(titre + '\n' + texte);
   }
 
+  setTimeout(verifierInterrompue, 2500);
+
   window.AwakRun = {
     ouvrir: ouvrir, rendreOnglet: rendreOnglet, detail: detail, supprimer: supprimer,
     toutes: toutes, formeDetail: formeDetail, autre: autre,
     lancer: function (type, cfg) { var h = document.getElementById('awakRunHome'); if (h) h.remove(); if (!R) demarrer(type, cfg); },
     _duree: function () { return duree(); },
     actif: function () { return !!R; },
-    _test: { surPosition: surPosition, demarrer: demarrer, terminer: terminer, etat: function () { return R; } }
+    _test: { surPosition: surPosition, demarrer: demarrer, terminer: terminer, etat: function () { return R; }, instantane: instantane, verifier: verifierInterrompue }
   };
 })();

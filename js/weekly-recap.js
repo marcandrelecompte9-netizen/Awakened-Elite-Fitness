@@ -1,3 +1,4 @@
+if (typeof window.awakJourLocal !== 'function') window.awakJourLocal = function (d) { var x = d ? new Date(d) : new Date(); if (isNaN(x)) x = new Date(); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); };
 /* ============================================================
    RÉCAP HEBDOMADAIRE — « Ta semaine »
    S'ouvre une fois par semaine (à partir du lundi) si la semaine
@@ -114,7 +115,7 @@
       if (localStorage.getItem('fitproOnboardingDone') !== '1') return;
       var lastMonday = _mondayOf(new Date());
       var prevMonday = new Date(lastMonday); prevMonday.setDate(prevMonday.getDate() - 7);
-      var key = prevMonday.toISOString().slice(0, 10);
+      var key = awakJourLocal(prevMonday);
       if (localStorage.getItem('awakRecapShown') === key) return;
       var hasSessions = _hist().some(function (w) {
         if (!w || !w.date) return false;

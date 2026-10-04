@@ -1,3 +1,4 @@
+if (typeof window.awakJourLocal !== 'function') window.awakJourLocal = function (d) { var x = d ? new Date(d) : new Date(); if (isNaN(x)) x = new Date(); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); };
 // ═══════════════════════════════════════════════════════════════════════
 // Awakened — Système d'Aventure v2
 // ═══════════════════════════════════════════════════════════════════════
@@ -65,10 +66,10 @@ function saveEquipped(eq) { localStorage.setItem(ADVENTURE_STORAGE.equipped, JSO
 function getDailyDrops() {
     try {
         const d = JSON.parse(localStorage.getItem(ADVENTURE_STORAGE.dailyDrops)||'{}');
-        const today = new Date().toISOString().slice(0,10);
+        const today = awakJourLocal();
         if (d.date !== today) return { date:today, count:0 };
         return d;
-    } catch(e) { return { date:new Date().toISOString().slice(0,10), count:0 }; }
+    } catch(e) { return { date:awakJourLocal(), count:0 }; }
 }
 function saveDailyDrops(d) { localStorage.setItem(ADVENTURE_STORAGE.dailyDrops, JSON.stringify(d)); }
 function getItemById(id) { return EQUIPMENT_DATABASE.find(i => i.id === id) || null; }

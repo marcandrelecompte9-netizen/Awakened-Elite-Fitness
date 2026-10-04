@@ -1,3 +1,6 @@
+// v1277 : clé de jour LOCALE (AAAA-MM-JJ). toISOString() donne la date UTC : au Québec,
+// après 19-20 h, « aujourd'hui » devenait demain (défi validé deux fois, heatmap décalée…).
+window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Date(d) : new Date(); if (isNaN(x)) x = new Date(); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); };
 // Awakened — Main Application
 
 // Exercise Database with 200+ exercises
@@ -378,7 +381,7 @@
             history.forEach(w => {
                 try {
                     const d = new Date(w.date);
-                    const key = d.toISOString().slice(0,10);
+                    const key = awakJourLocal(d);
                     dayCount[key] = (dayCount[key] || 0) + 1;
                 } catch(e) {}
             });
@@ -403,7 +406,7 @@
             for (let i = 0; i < totalDays; i++) {
                 const d = new Date(startDate);
                 d.setDate(startDate.getDate() + i);
-                const key = d.toISOString().slice(0,10);
+                const key = awakJourLocal(d);
                 const count = dayCount[key] || 0;
                 let level = 0;
                 if (count >= 4) level = 4;
@@ -834,7 +837,7 @@
                 : getActiveChallenge();
             if (!activeChallenge) return;
 
-            const today = new Date().toISOString().split('T')[0];
+            const today = awakJourLocal();
             
             if (activeChallenge.completedDays.includes(today)) {
                 showToast('Tu as déjà validé ce défi aujourd\'hui !', 'info');
@@ -846,7 +849,7 @@
             // Update streak — vérifier si hier était complété
             const yesterday = new Date();
             yesterday.setDate(yesterday.getDate() - 1);
-            const yesterdayStr = yesterday.toISOString().split('T')[0];
+            const yesterdayStr = awakJourLocal(yesterday);
             const yesterdayDone = activeChallenge.completedDays.includes(yesterdayStr);
             // Reset streak si un jour a été manqué (sauf 1er jour)
             if (!yesterdayDone && activeChallenge.completedDays.length > 1) {
@@ -933,7 +936,7 @@
             const tot = c.duration || 30;
             const faits = (c.completedDays || []).length;
             const pct = Math.round((faits / tot) * 100);
-            const today = new Date().toISOString().split('T')[0];
+            const today = awakJourLocal();
             const faitAujourdhui = (c.completedDays || []).indexOf(today) !== -1;
             const col = c.color || '#60a8f0';
 
@@ -1000,7 +1003,7 @@
                 const today = new Date();
                 const daysCompleted = activeChallenge.completedDays.length;
                 const progressPercent = Math.round((daysCompleted / activeChallenge.duration) * 100);
-                const todayCompleted = activeChallenge.completedDays.includes(today.toISOString().split('T')[0]);
+                const todayCompleted = activeChallenge.completedDays.includes(awakJourLocal(today));
 
                 activeDisplay.innerHTML = `
                     <div style="background: linear-gradient(160deg, #0a0e18 0%, #0F1014 100%); padding: 24px; border-radius: 20px; border: 1.5px solid ${activeChallenge.color}50; margin-bottom: 24px; box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 0 0 1px ${activeChallenge.color}10 inset;">
@@ -1209,7 +1212,7 @@
                                         // ⚠️ ABANDON PAR DÉFI : la zone du haut n'affiche
                                         // que le premier actif, donc les défis suivants
                                         // n'avaient aucun bouton pour être quittés.
-                                        const _today = new Date().toISOString().split('T')[0];
+                                        const _today = awakJourLocal();
                                         const _dejaFait = _actif
                                             && (_actif.completedDays || []).indexOf(_today) !== -1;
                                         const _valider = (_actif && !_dejaFait)
@@ -1789,6 +1792,9 @@
             
             // Save session
             saveCardioSession(currentCardioSession);
+            // v1276 : la séance n'allait QUE dans un stockage cardio dont l'affichage
+            // a été retiré — rien dans Progrès, pas d'XP, pas de série.
+            awakEnregistrerCardioSansGPS(currentCardioSession);
             
             // Show summary
             showCardioSummary(currentCardioSession);
@@ -1797,6 +1803,41 @@
             currentCardioSession = null;
         }
         
+        function awakEnregistrerCardioSansGPS(session) {
+            try {
+                if (!session || (session.duration || 0) < 60) return;   // moins d'une minute : rien à garder
+                const NOMS = { running: 'Course (tapis)', cycling: 'Vélo stationnaire', walking: 'Marche', swimming: 'Natation',
+                               rowing: 'Rameur', elliptical: 'Elliptique', stairs: 'Escaliers', other: 'Cardio' };
+                const EXOS = { running: 'Tapis roulant intervalles', cycling: 'Vélo stationnaire', walking: 'Tapis roulant marche rapide',
+                               swimming: 'Natation - Crawl', rowing: 'Rameur (rowing machine)', elliptical: 'Elliptique entraînement',
+                               stairs: 'StairMaster escaliers', other: 'Jumping jacks' };
+                const kmVal = session.unit === 'imperial' ? (session.distance || 0) * 1.609 : (session.distance || 0);
+                const nom = NOMS[session.activityType] || 'Cardio';
+                const exo = EXOS[session.activityType] || 'Jumping jacks';
+                if (typeof saveWorkoutToHistory === 'function') {
+                    saveWorkoutToHistory({ name: nom + (kmVal > 0 ? ' ' + kmVal.toFixed(2) + ' km' : '') + ' (cardio)',
+                        exercises: [{ name: exo, muscle: 'Cardio', duration: session.duration }] }, session.duration);
+                    const pid = getCurrentProfileId();
+                    const hist = getWorkoutHistory();
+                    if (hist[0]) {
+                        if (kmVal > 0) hist[0].distanceKm = +kmVal.toFixed(2);
+                        hist[0].calories = Math.round(session.calories || 0);
+                        if (session.heartRate) hist[0].fcMoy = session.heartRate;
+                        setProfileData(pid, 'workoutHistory', JSON.stringify(hist));
+                    }
+                }
+                // XP : comme une sortie GPS (par kilomètre si la distance est notée, sinon à la durée)
+                if (typeof rpgGainXP === 'function') {
+                    if (kmVal >= 1) {
+                        const n = Math.floor(kmVal), parKm = Math.max(60, Math.round(session.duration / kmVal));
+                        for (let i = 0; i < n; i++) rpgGainXP(exo, 0, 0, parKm);
+                    } else rpgGainXP(exo, 0, 0, session.duration);
+                }
+                awakCompterSeance(session.duration / 60);
+                try { if (typeof updateHomeStats === 'function') updateHomeStats(); } catch (e) {}
+            } catch (e) {}
+        }
+
         function saveCardioSession(session) {
             const profileId = getCurrentProfileId();
             const key = `cardio_sessions_${profileId}`;
@@ -2205,7 +2246,7 @@
                 const date = new Date(session.date);
                 const weekStart = new Date(date);
                 weekStart.setDate(date.getDate() - date.getDay());
-                const weekKey = weekStart.toISOString().split('T')[0];
+                const weekKey = awakJourLocal(weekStart);
                 
                 if (!weeklyData[weekKey]) {
                     weeklyData[weekKey] = {
@@ -3195,7 +3236,7 @@
                 const date = new Date(workout.date);
                 const weekStart = new Date(date);
                 weekStart.setDate(date.getDate() - date.getDay());
-                const weekKey = weekStart.toISOString().split('T')[0];
+                const weekKey = awakJourLocal(weekStart);
                 
                 weekCounts[weekKey] = (weekCounts[weekKey] || 0) + 1;
             });
@@ -5968,7 +6009,7 @@
                             <p style="margin:0;font-size:0.76em;color:#94a3b8;">Sélectionne tes exercices. ${current.length} choisi${current.length>1?'s':''}.</p>
                         </div>
                         <div style="margin-bottom:14px;">${poolHtml}</div>
-                        <button onclick="_saveCustomMorning()" style="width:100%;padding:14px;background:linear-gradient(135deg,#a855f7,#c084fc);border:none;border-radius:14px;color:white;font-weight:900;cursor:pointer;margin-bottom:8px;box-shadow:0 4px 16px rgba(168,85,247,0.4);">💾 Sauvegarder ma routine</button>
+                        <button onclick="_saveCustomMorning()" style="width:100%;padding:14px;background:linear-gradient(135deg,#22d3ee,#0891b2) !important;border:none;border-radius:14px;color:#04121f !important;font-weight:900;cursor:pointer;margin-bottom:8px;box-shadow:0 4px 16px rgba(34,211,238,0.3);">💾 Sauvegarder ma routine</button>
                         <button onclick="document.getElementById('customMorningEditor').remove();showMorningRoutineModal();" style="width:100%;padding:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:14px;color:#94a3b8;font-weight:700;cursor:pointer;">↩ Retour</button>
                     </div>`;
             }
@@ -7003,7 +7044,7 @@
         function _awakWeekKey(ts) {
             const d = new Date(ts); const day = (d.getDay() + 6) % 7;
             const monday = new Date(d); monday.setDate(d.getDate() - day); monday.setHours(0, 0, 0, 0);
-            return monday.toISOString().slice(0, 10);
+            return awakJourLocal(monday);
         }
 
         // Recommandation de durée de défi selon le taux de complétion (IA adaptative).
@@ -9296,7 +9337,7 @@
             try {
                 const trendKey = profileId ? `profile_${profileId}_fitnessIndexHistory` : 'fitnessIndexHistory';
                 const trend = JSON.parse(localStorage.getItem(trendKey) || '[]');
-                const todayKey = new Date().toISOString().slice(0,10);
+                const todayKey = awakJourLocal();
                 // Remplacer l'entrée d'aujourd'hui si elle existe, sinon push
                 const idx = trend.findIndex(t => t.day === todayKey);
                 if (idx >= 0) {
@@ -9540,7 +9581,7 @@
             const current = getFitnessIndex();
             const sugg = calculateSuggestedFitness();
             // Si l'utilisateur n'a pas mis à jour aujourd'hui ET diff >= 2
-            const todayKey = new Date().toISOString().slice(0,10);
+            const todayKey = awakJourLocal();
             const lastUpdate = localStorage.getItem('fitnessIndexLastUpdate');
             const updatedToday = lastUpdate === todayKey;
 
@@ -9568,7 +9609,7 @@
             }
             updateFitnessIndex(value);
             // Save today's update flag
-            const todayKey = new Date().toISOString().slice(0,10);
+            const todayKey = awakJourLocal();
             localStorage.setItem('fitnessIndexLastUpdate', todayKey);
             const badge = document.getElementById('fitnessAutoSuggestBadge');
             if (badge) badge.style.display = 'none';
@@ -15205,7 +15246,10 @@
                 name: workout.name,
                 duration: durationInMinutes,
                 exercises: workout.exercises.filter(ex => !ex.isRest && !ex.isInfo).length,
-                muscles: getSelectedMuscleNames(),
+                // v1279 : « muscles » recevait les muscles COCHÉS dans le générateur, pas ceux
+                // de la séance → une course ou une routine marquait tout le corps comme travaillé
+                // (récupération, suggestions, bilan de la semaine faussés).
+                muscles: musclesWorked.length ? musclesWorked : getSelectedMuscleNames(),
                 musclesWorked: musclesWorked, // For mini-chart
                 musclesWeighted: musclesWeighted, // {muscle: sommeRatios} pour stats pondérées
                 calories: calories,
@@ -19460,7 +19504,7 @@
             const byDay = {};
             recentData.forEach(entry => {
                 const date = new Date(entry.date);
-                const dayKey = date.toISOString().split('T')[0];
+                const dayKey = awakJourLocal(date);
                 if (!byDay[dayKey]) {
                     byDay[dayKey] = [];
                 }
@@ -21397,7 +21441,7 @@
                     const monday = new Date(d);
                     monday.setHours(0,0,0,0);
                     monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
-                    const wk = monday.toISOString().split('T')[0];
+                    const wk = awakJourLocal(monday);
                     weekSet[wk] = (weekSet[wk] || 0) + 1;
                 });
                 if (!firstDate) return false;
@@ -21446,6 +21490,26 @@
                 }
             }
         }
+
+        // 🏃 v1276 : une séance faite HORS du lecteur de séance (sortie GPS,
+        // cardio sans GPS) doit compter comme les autres : nombre de séances,
+        // minutes, série de jours, dernière séance. Avant, une sortie de course
+        // n'augmentait rien — la série se brisait et l'appli disait « tu es
+        // parti un moment » au coureur qui sortait de l'eau.
+        function awakCompterSeance(minutes) {
+            try {
+                const stats = loadStats();
+                stats.workouts = (stats.workouts || 0) + 1;
+                stats.minutes = (stats.minutes || 0) + Math.max(1, Math.round(minutes || 0));
+                stats.streak = updateStreak(stats) || 1;
+                if (!stats.bestStreak || stats.streak > stats.bestStreak) stats.bestStreak = stats.streak;
+                stats.lastWorkout = new Date().toISOString();
+                saveStats(stats);
+                try { if (typeof loadStats === 'function') loadStats(); } catch (e) {}
+                if (typeof storyCheckEvents === 'function') setTimeout(() => { try { storyCheckEvents({ delay: 600 }); } catch (e) {} }, 3500);
+            } catch (e) {}
+        }
+        window.awakCompterSeance = awakCompterSeance;
 
         // ========== MUSCLE RECOVERY TRACKING SYSTEM ==========
         
@@ -21677,7 +21741,7 @@
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1275);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1279);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -21726,7 +21790,7 @@
                 +       '<rect width="5" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.22"/>'
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1275" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1279" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -27167,7 +27231,7 @@
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1275");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1279");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -27998,7 +28062,7 @@
             ];
 
             // Accorder les XP des quêtes complétées (une seule fois par semaine)
-            const weekKey = `rpgQuests_${weekStart.toISOString().slice(0,10)}`;
+            const weekKey = `rpgQuests_${awakJourLocal(weekStart)}`;
             const awardedQuests = JSON.parse(localStorage.getItem(weekKey) || '[]');
             quests.forEach(q => {
                 if (q.done && !awardedQuests.includes(q.id)) {
@@ -31500,7 +31564,7 @@
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1275);'
+                +     'url(images/combat_bg_v1.webp?v=1279);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -31755,7 +31819,7 @@
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1275);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1279);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -32014,7 +32078,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:540px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto;display:flex;flex-direction:column;">
                 <!-- Header : vague actuelle -->
-                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1275);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1279);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                         <span style="font-size:0.6em;color:${theme.color};font-weight:900;letter-spacing:2px;">⚔ VAGUE ${rift.currentWaveIdx + 1} / ${rift.waves.length}${currentWave.isBoss ? ' · BOSS' : ''}</span>
                         <button onclick="awakAbandonRift()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
@@ -33166,7 +33230,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1275');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1279');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -33903,7 +33967,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1275);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1279);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -34074,7 +34138,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1275);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1279);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -43055,7 +43119,19 @@
             // supprime la clé si le profil cible ne l'a pas → l'offre réapparaît.
             const GAME_KEYS = ['fitproGameMode','fitproRPG','fitproRPGLifetimeXP','fitproRPGPrestige','fitproRPGClass','fitproRPGXPHistory','fitproRPGSkills','fitproRPGMilestones','fitproLevelUpLog','fitproAchievements','fitproStatPoints','awakLastRankSeen','awakRiftLastGen','awakEpicIntroSeen','awakGameGuideSeen','awakGameTabIntroSeen','awakFirstContactDone','awakEveilJourney','awakEveilOffered','awakEveilLevel','workoutStats','selectedEquipment','fitpro_inventory','fitpro_equipped','fitpro_daily_drops','fitpro_adventure_enabled'];
             // Préfixes de clés DYNAMIQUES propres au profil (journal narratif : awakStoryEvt_<id> ; indices quotidiens : awakRiftHint_<id>)
-            const GAME_KEY_PREFIXES = ['awakStoryEvt_', 'awakRiftHint_'];
+            // v1277 : d'autres données PERSONNELLES vivaient dans une clé commune à
+            // toute la famille (progression des boss, programme de mentor suivi,
+            // cycle, humeur, records, avatar Esen/Nyra…) : un enfant héritait de
+            // la progression du parent et l'écrasait. Elles suivent maintenant le profil.
+            GAME_KEYS.push('awakSubBossProgress', 'awakFinalBossDefeated', 'awakAbyssDepth', 'awakAbyssRecord', 'awakCombatLog',
+                'fitproWorkoutXpTracker', 'awakLastProcessedWorkout', 'awakAutoStats', 'fitproCelebSessions', 'fitproAvatarGender',
+                'fitpro_challenge_rewards', 'awakActiveConsumables', 'fitproLootBadges', 'fitproNextWorkoutBuff', 'fitpro_guaranteed_drop',
+                'fitpro_drop_bonus', 'awakRiftCapSeen', 'fitproWeeklyChallenge', 'awakWeeklyBossDoneWeek', 'awakCalisProgress',
+                'awakProgressTrees', 'awakMoodLog', 'awakMoodPreWorkoutTs', 'awakDeloadUntil', 'awakDeloadSnoozedUntil',
+                'fitproPeriodization', 'fitproPeriodizationStart', 'awakCycle', 'awakSwapCounts', 'awakHallCustom', 'awakHallHidden',
+                'awakMurmureJour', 'awakRetoursVus', 'awakAbsenceReactShown', 'fitproLastRank', 'awakRecapShown',
+                'awakWeeklyReviewSeen', 'fitproExRestOverrides');
+            const GAME_KEY_PREFIXES = ['awakStoryEvt_', 'awakRiftHint_', 'awakNarrativeDone_', 'fitproDungeon_', 'awakPlanSource_', 'fitproStorySeen_'];
 
             // 1) Sauver les données de jeu du profil COURANT avant de le quitter
             const prevProfileId = getCurrentProfileId();
@@ -43852,7 +43928,7 @@
         function openCycleSetup() {
             const c = awakGetCycle();
             const old = document.getElementById('cycleSetupModal'); if (old) old.remove();
-            const today = new Date().toISOString().slice(0, 10);
+            const today = awakJourLocal();
             const lastDate = (c.lastPeriodStart || today).slice(0, 10);
             const modal = document.createElement('div');
             modal.className = 'modal active';
@@ -43952,7 +44028,7 @@
             { v: 5, emoji: '😄', label: 'Super' }
         ];
         function awakGetMoodLog() { try { return JSON.parse(localStorage.getItem('awakMoodLog') || '[]'); } catch (e) { return []; } }
-        function _awakTodayKey() { return new Date().toISOString().slice(0, 10); }
+        function _awakTodayKey() { return awakJourLocal(); }
         function awakLoggedMoodToday() { const l = awakGetMoodLog(); return l.length > 0 && l[l.length - 1].date === _awakTodayKey(); }
         function awakLogMood(v) {
             let log = awakGetMoodLog();
@@ -44838,7 +44914,7 @@
 
             host.innerHTML =
                 '<div style="position:relative;width:110px;margin:0 auto 12px;">'
-              +   '<img src="images/body/body_face.webp?v=1275" alt="" '
+              +   '<img src="images/body/body_face.webp?v=1279" alt="" '
               +     'style="width:100%;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -44920,7 +44996,7 @@
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1275);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1279);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -44987,7 +45063,7 @@
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1275);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1279);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -47285,7 +47361,7 @@
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1275");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1279");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.

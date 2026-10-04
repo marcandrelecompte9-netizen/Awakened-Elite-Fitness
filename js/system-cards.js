@@ -1,3 +1,4 @@
+if (typeof window.awakJourLocal !== 'function') window.awakJourLocal = function (d) { var x = d ? new Date(d) : new Date(); if (isNaN(x)) x = new Date(); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); };
 // ═══════════════════════════════════════════════════════════════════
 // Awakened — Cartes du Système (tirage quotidien)
 // ═══════════════════════════════════════════════════════════════════
@@ -71,7 +72,7 @@ const SYSTEM_CARDS = [
 
 // Tirage déterministe basé sur la date (même carte toute la journée)
 function getDailySystemCard() {
-    const today = new Date().toISOString().split('T')[0]; // AAAA-MM-JJ
+    const today = awakJourLocal(); // AAAA-MM-JJ
     // Hash simple de la date → index stable
     let hash = 0;
     for (let i = 0; i < today.length; i++) {
