@@ -261,7 +261,7 @@
     var o = octets(), pct = Math.min(100, o / (5 * 1048576) * 100);
     var btn = function (on, txt, principal) {
       return '<button onclick="' + on + '" style="width:100%;min-height:auto;padding:13px;border-radius:12px;cursor:pointer;font-weight:900;font-size:0.86em;display:flex;align-items:center;justify-content:center;gap:8px;'
-        + (principal ? 'background:linear-gradient(135deg,#3b82f6,#1d5fa8);border:none;color:#fff;' : 'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.13);color:#cbd5e1;') + '">' + txt + '</button>';
+        + (principal ? 'background:linear-gradient(135deg,#22d3ee,#0891b2);border:none;color:#04121f;' : 'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.13);color:#cbd5e1;') + '">' + txt + '</button>';
     };
     h.innerHTML = '<div style="display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:12px;margin-bottom:10px;background:' + (vieux ? 'rgba(251,191,36,0.08)' : 'rgba(96,168,240,0.07)') + ';border:1px solid ' + (vieux ? 'rgba(251,191,36,0.35)' : 'rgba(96,168,240,0.25)') + ';">'
       + ico(vieux ? 'alerte' : 'valide', 20, vieux ? '#fbbf24' : CLAIR)

@@ -80,7 +80,7 @@
       + '</div>'
       + '<div id="mpwMsg" style="font-size:0.82em;color:#e2e8f0;line-height:1.5;padding:11px 13px;border-radius:10px;margin-bottom:14px;"></div>'
       + '<div id="mpwActions"></div>'
-      + '<button id="mpwStart" style="width:100%;padding:13px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#60a8f0,#1d5fa8);color:#fff;font-weight:800;font-size:0.9em;">C\'est parti</button>'
+      + '<button id="mpwStart" style="width:100%;padding:13px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;font-weight:800;font-size:0.9em;">C\'est parti</button>'
       + '<button id="mpwSkip" style="width:100%;margin-top:8px;padding:10px;border:none;border-radius:11px;cursor:pointer;background:rgba(255,255,255,0.05);color:#94a3b8;font-weight:700;font-size:0.8em;">Passer</button>'
       + '</div>';
 

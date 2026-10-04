@@ -262,7 +262,7 @@
     +     '<br><strong style="color:#cbd5e1;">Variante :</strong> ' + esc(j.variante) + '</div>'
     +   '<button onclick="AwakKidsStart(\'' + cle + '\')" '
     +     'style="width:100%;padding:15px;border-radius:14px;border:none;cursor:pointer;'
-    +     'background:linear-gradient(160deg,#93c5fd,#60a8f0 45%,#164e8a);'
+    +     'background:linear-gradient(160deg,#a5f3fc,#22d3ee 45%,#0e7490);'
     +     'color:#04162b;font-weight:900;font-size:0.86em;letter-spacing:1px;'
     +     'box-shadow:0 0 24px rgba(96,168,240,0.3);">'
     +     'COMMENCER · ' + (j.duree * j.manches) + ' MIN</button>'
@@ -358,7 +358,7 @@
     +     'color:#94a3b8;font-weight:800;font-size:0.74em;">QUITTER SANS ENREGISTRER</button>'
     +   '<button onclick="AwakKidsFinir()" '
     +     'style="width:100%;padding:14px;border-radius:14px;border:none;cursor:pointer;'
-    +     'background:linear-gradient(160deg,#93c5fd,#60a8f0 45%,#164e8a);'
+    +     'background:linear-gradient(160deg,#a5f3fc,#22d3ee 45%,#0e7490);'
     +     'color:#04162b;font-weight:900;font-size:0.82em;letter-spacing:1px;">'
     +     'TERMINER MAINTENANT</button>'
     + '</div>';
@@ -429,7 +429,7 @@
     +   '<button onclick="document.getElementById(\'awakKidsFin\').remove();'
     +     'if(window.updateHomeStats)updateHomeStats();" '
     +     'style="width:100%;padding:14px;border-radius:14px;border:none;cursor:pointer;'
-    +     'background:linear-gradient(160deg,#93c5fd,#60a8f0 45%,#164e8a);'
+    +     'background:linear-gradient(160deg,#a5f3fc,#22d3ee 45%,#0e7490);'
     +     'color:#04162b;font-weight:900;font-size:0.84em;letter-spacing:1px;">TERMINÉ</button>'
     + '</div>';
     document.body.appendChild(ov);

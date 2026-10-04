@@ -131,7 +131,7 @@
     h += '<div style="background:linear-gradient(135deg,' + col + '1f,' + col + '08);border:1px solid ' + col + '55;border-left:3px solid ' + col + ';border-radius:14px;padding:14px 16px;margin-bottom:12px;">'
       + '<div style="display:flex;align-items:center;gap:6px;font-size:0.56em;color:' + col + ';font-weight:900;letter-spacing:2px;margin-bottom:6px;">' + ic('cible', 12, col) + 'CONSEIL DU JOUR</div>'
       + '<div style="font-size:0.88em;color:#e2e8f0;line-height:1.5;">' + c.texte + '</div>'
-      + '<button id="awakAnaLancer" onclick="AwakAnalyse.lancer()" style="' + BTN + 'margin-top:11px;width:100%;background:linear-gradient(135deg,#3b82f6,#1d5fa8);color:#fff;display:flex;align-items:center;justify-content:center;gap:7px;">' + ic('eclair', 15, '#fff') + esc(c.bouton) + '</button>'
+      + '<button id="awakAnaLancer" onclick="AwakAnalyse.lancer()" style="' + BTN + 'margin-top:11px;width:100%;background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;display:flex;align-items:center;justify-content:center;gap:7px;">' + ic('eclair', 15, '#fff') + esc(c.bouton) + '</button>'
       + '</div>';
 
     // 2. Fréquence : une seule ligne (le détail est dans Progrès)
@@ -364,8 +364,8 @@
     function bascule(t) {
       var s = t !== 'coach';
       pS.style.display = s ? '' : 'none'; pC.style.display = s ? 'none' : '';
-      bS.style.background = s ? 'linear-gradient(135deg,#3b82f6,#1d5fa8)' : 'transparent'; bS.style.color = s ? '#fff' : C.gris;
-      bC.style.background = !s ? 'linear-gradient(135deg,#3b82f6,#1d5fa8)' : 'transparent'; bC.style.color = !s ? '#fff' : C.gris;
+      bS.style.background = s ? 'linear-gradient(135deg,#22d3ee,#0891b2)' : 'transparent'; bS.style.color = s ? '#fff' : C.gris;
+      bC.style.background = !s ? 'linear-gradient(135deg,#22d3ee,#0891b2)' : 'transparent'; bC.style.color = !s ? '#fff' : C.gris;
       try { sh.scrollTop = 0; } catch (e) {}
     }
     bS.addEventListener('click', function () { bascule('systeme'); });

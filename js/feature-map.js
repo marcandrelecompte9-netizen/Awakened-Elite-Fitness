@@ -108,7 +108,8 @@
 
       html += _section('Réglages', [
         _row('immeuble', G, "Mes lieux", "Salles, maison et équipement", 'showLocationPicker'),
-        _row('idee', G, "Réglages & sauvegarde", "Préférences, export et import", 'switchTab', 'settings')
+        _row('idee', G, "Réglages & sauvegarde", "Préférences, export et import", 'switchTab', 'settings'),
+        (window.AwakVisite ? _row('info', G, "Revoir les visites guidées", "Le mini tutoriel de chaque onglet", 'AwakVisite.reinitialiser') : '')
       ]);
 
       var s = uiBottomSheet({

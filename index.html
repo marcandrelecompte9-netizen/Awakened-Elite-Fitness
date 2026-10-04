@@ -11,11 +11,11 @@
     <title>Awakened Elite Fitness</title>
 
     <!-- PWA -->
-    <link rel="manifest" href="manifest.json?v=1271">
-    <link rel="apple-touch-icon" href="icons/icon-192.png?v=1271">
-    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=1271">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=1271">
-    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=1271">
+    <link rel="manifest" href="manifest.json?v=1273">
+    <link rel="apple-touch-icon" href="icons/icon-192.png?v=1273">
+    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=1273">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=1273">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=1273">
 
     <!-- ⚠️ CAPTURE PRÉCOCE DE L'INVITE D'INSTALLATION.
          Chrome déclenche « beforeinstallprompt » très tôt, souvent AVANT la fin
@@ -44,7 +44,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=1271">
+    <link rel="stylesheet" href="css/style.css?v=1273">
 </head>
 <body>
 
@@ -208,8 +208,8 @@
                  (ratio 1,55), donc plus haute et lisible.
                  <picture> laisse le navigateur choisir, sans JavaScript. -->
             <picture>
-                <source media="(min-width: 700px)" srcset="images/banner_v3.webp?v=1271">
-                <img src="images/banner_v3_mobile.webp?v=1271"
+                <source media="(min-width: 700px)" srcset="images/banner_v3.webp?v=1273">
+                <img src="images/banner_v3_mobile.webp?v=1273"
                      alt="Awakened Elite Fitness"
                      style="width:100%;height:auto;display:block;" />
             </picture>
@@ -358,7 +358,7 @@
             <div id="quickActionsCard" style="padding:0;margin-top:4px;">
                 <div style="font-size:0.6em;color:#94a3b8;font-weight:900;letter-spacing:2px;margin-bottom:10px;">ACTIONS RAPIDES</div>
                 <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
-                    <button onclick="switchTab('workouts'); window.scrollTo(0,0);" style="background:linear-gradient(135deg,#3b82f6,#1d5fa8);border:none;color:white;border-radius:14px;padding:13px 10px;font-weight:800;font-size:0.85em;cursor:pointer;box-shadow:0 3px 12px rgba(34,197,94,0.3);">🏋️ Démarrer séance</button>
+                    <button onclick="switchTab('workouts'); window.scrollTo(0,0);" style="background:linear-gradient(135deg,#22d3ee,#0891b2);border:none;color:#04121f;border-radius:14px;padding:13px 10px;font-weight:800;font-size:0.85em;cursor:pointer;box-shadow:0 3px 12px rgba(34,197,94,0.3);">🏋️ Démarrer séance</button>
                     <button onclick="switchTab('routines');" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#e2e8f0;border-radius:14px;padding:13px 10px;font-weight:800;font-size:0.85em;cursor:pointer;">🔄 Routines</button>
                     <button id="quickFailleBtn" onclick="switchTab('game');" style="display:none;background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.35);color:#c4b5fd;border-radius:14px;padding:13px 10px;font-weight:800;font-size:0.85em;cursor:pointer;">🌌 Failles</button>
                     <button onclick="switchTab('exercises');" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#e2e8f0;border-radius:14px;padding:13px 10px;font-weight:800;font-size:0.85em;cursor:pointer;">📚 Exercices</button>
@@ -489,12 +489,12 @@
             <!-- Barre de segments « Entraîner » -->
             <div style="display:flex;gap:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:5px;margin-bottom:8px;">
                 <button onclick="switchTab('workouts')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Libre</button>
-                <button onclick="switchTab('routines')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:linear-gradient(135deg,#60a8f0,#1d5fa8);color:white;">Routines</button>
+                <button onclick="switchTab('routines')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;">Routines</button>
                 <button onclick="switchTab('program')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Programme</button>
                 <button onclick="switchTab('course')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Course</button>
                             <button onclick="switchTab('challenges')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Défis</button>
             </div>
-            <div style="font-size:0.72em;color:#94a3b8;margin:0 0 14px;padding:0 4px;line-height:1.4;">Tes séances sauvegardées, prêtes à relancer.</div>
+            <div style="font-size:0.8em;color:#b4c0cf;margin:0 0 14px;padding:0 4px;line-height:1.4;">Tes séances sauvegardées, prêtes à relancer.</div>
             <!-- Plan hebdo en haut (rendu dynamiquement) -->
             <div id="weeklyPlanCard"></div>
 
@@ -509,7 +509,7 @@
 
                 <!-- Trois actions de même taille -->
                 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
-                    <button onclick="openCreateRoutineModal()" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;height:64px;min-height:auto;padding:0 4px;border-radius:12px;cursor:pointer;font-weight:800;font-size:0.74em;font-family:inherit;line-height:1.15;background:linear-gradient(135deg,#60a8f0,#1d5fa8);border:1px solid rgba(96,168,240,0.6);color:#fff;">
+                    <button onclick="openCreateRoutineModal()" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;height:64px;min-height:auto;padding:0 4px;border-radius:12px;cursor:pointer;font-weight:800;font-size:0.74em;font-family:inherit;line-height:1.15;background:linear-gradient(135deg,#22d3ee,#0891b2);border:1px solid rgba(96,168,240,0.6);color:#04121f;">
                         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg><span>Nouvelle</span>
                     </button>
                     <button onclick="showTemplatesModal()" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;height:64px;min-height:auto;padding:0 4px;border-radius:12px;cursor:pointer;font-weight:800;font-size:0.74em;font-family:inherit;line-height:1.15;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.10);color:#cbd5e1;">
@@ -533,7 +533,7 @@
                     <div style="margin:0 auto 12px;width:52px;height:52px;border-radius:15px;display:flex;align-items:center;justify-content:center;background:rgba(96,168,240,0.12);color:#93c5fd;"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/></svg></div>
                     <div style="font-family:var(--font-display),sans-serif;font-size:1.02em;margin-bottom:7px;font-weight:800;color:#e2e8f0;">Aucune routine pour l'instant</div>
                     <div style="font-size: 0.82em; margin-bottom: 18px; line-height:1.5; max-width:280px; margin-left:auto; margin-right:auto;">Une routine, c'est une séance que tu réutilises. Pars d'un modèle ou compose la tienne.</div>
-                    <button onclick="showTemplatesModal()" class="btn" style="background: linear-gradient(135deg, #60a8f0 0%, #1d5fa8 100%); padding: 12px 24px;">
+                    <button onclick="showTemplatesModal()" class="btn" style="background: linear-gradient(135deg,#22d3ee,#0891b2); padding: 12px 24px;">
                         Voir les modèles
                     </button>
                 </div>
@@ -546,11 +546,11 @@
             <div style="display:flex;gap:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:5px;margin-bottom:8px;">
                 <button onclick="switchTab('workouts')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Libre</button>
                 <button onclick="switchTab('routines')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Routines</button>
-                <button onclick="switchTab('program')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:linear-gradient(135deg,#3b82f6,#1d5fa8);color:white;">Programme</button>
+                <button onclick="switchTab('program')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;">Programme</button>
                 <button onclick="switchTab('course')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Course</button>
                 <button onclick="switchTab('challenges')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Défis</button>
             </div>
-            <div style="font-size:0.72em;color:#94a3b8;margin:0 0 14px;padding:0 4px;line-height:1.4;">Ton plan structuré sur plusieurs semaines.</div>
+            <div style="font-size:0.8em;color:#b4c0cf;margin:0 0 14px;padding:0 4px;line-height:1.4;">Ton plan structuré sur plusieurs semaines.</div>
             <div id="programTabContent">
                 <!-- Rendered dynamically by renderProgramTab() -->
             </div>
@@ -582,7 +582,7 @@
                 <span style="flex-shrink:0;width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:#a78bfa1a;border:1px solid #a78bfa40;" data-awk-ico="arbre" data-awk-col="#a78bfa"></span>
                 <span style="flex:1;min-width:0;">
                     <span style="display:block;font-size:0.78em;font-weight:800;color:#f1f5f9;">Arbre de l'Éveil</span>
-                    <span style="display:block;font-size:0.62em;color:#94a3b8;margin-top:2px;line-height:1.3;">Ce que tes séances font pousser</span>
+                    <span style="display:block;font-size:0.7em;color:#b4c0cf;margin-top:2px;line-height:1.3;">Ce que tes séances font pousser</span>
                 </span>
             </button>
             <button id="awakTuileAnalyse" onclick="showSystemAnalysis()" style="text-align:left;display:flex;align-items:center;gap:10px;
@@ -591,7 +591,7 @@
                 <span style="flex-shrink:0;width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:#60a8f01a;border:1px solid #60a8f040;" data-awk-ico="stats" data-awk-col="#60a8f0"></span>
                 <span style="flex:1;min-width:0;">
                     <span style="display:block;font-size:0.78em;font-weight:800;color:#f1f5f9;">Analyse &amp; coach</span>
-                    <span style="display:block;font-size:0.62em;color:#94a3b8;margin-top:2px;line-height:1.3;">Ton état et quoi faire ensuite</span>
+                    <span style="display:block;font-size:0.7em;color:#b4c0cf;margin-top:2px;line-height:1.3;">Ton état et quoi faire ensuite</span>
                 </span>
             </button>
             <button id="awakTuileEquilibre" onclick="awakOuvrirEquilibre()" style="text-align:left;display:flex;align-items:center;gap:10px;
@@ -600,7 +600,7 @@
                 <span style="flex-shrink:0;width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:#22d3ee1a;border:1px solid #22d3ee40;" data-awk-ico="bouclier" data-awk-col="#22d3ee"></span>
                 <span style="flex:1;min-width:0;">
                     <span style="display:block;font-size:0.78em;font-weight:800;color:#f1f5f9;">Équilibre</span>
-                    <span style="display:block;font-size:0.62em;color:#94a3b8;margin-top:2px;line-height:1.3;">Quel muscle est en retard</span>
+                    <span style="display:block;font-size:0.7em;color:#b4c0cf;margin-top:2px;line-height:1.3;">Quel muscle est en retard</span>
                 </span>
             </button>
             <button onclick="awakHallOpen()" style="text-align:left;display:flex;align-items:center;gap:10px;
@@ -609,7 +609,7 @@
                 <span style="flex-shrink:0;width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:#fbbf241a;border:1px solid #fbbf2440;" data-awk-ico="trophee" data-awk-col="#fbbf24"></span>
                 <span style="flex:1;min-width:0;">
                     <span id="awakTuileHofTitre" style="display:block;font-size:0.78em;font-weight:800;color:#f1f5f9;">Hall of Fame</span>
-                    <span id="awakTuileHofSous" style="display:block;font-size:0.62em;color:#94a3b8;margin-top:2px;line-height:1.3;">Tes records personnels</span>
+                    <span id="awakTuileHofSous" style="display:block;font-size:0.7em;color:#b4c0cf;margin-top:2px;line-height:1.3;">Tes records personnels</span>
                 </span>
             </button>
             </div>
@@ -702,7 +702,7 @@
                     <!-- Graph Type Tabs -->
                     <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;">
                         <button id="graphBtn-weight" class="btn" onclick="showExerciseGraph('weight')"
-                                style="background: linear-gradient(135deg, #1d5fa8 0%, #164e8a 100%); flex: 1; min-width: 140px; padding: 10px; font-size: 0.9em;">
+                                style="background: linear-gradient(135deg,#22d3ee,#0891b2); flex: 1; min-width: 140px; padding: 10px; font-size: 0.9em;">
                             ⚖️ Poids Moyen
                         </button>
                         <button id="graphBtn-reps" class="btn btn-secondary" onclick="showExerciseGraph('reps')"
@@ -941,7 +941,7 @@
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
                     <h2 style="color: #93c5fd; margin: 0;font-size:1.05em;">Tes séances</h2>
                     <button onclick="exportHistoryPDF()"
-                            style="background:linear-gradient(135deg,#3b82f6,#1d5fa8);color:white;border:none;border-radius:10px;padding:8px 14px;font-size:0.8em;font-weight:700;cursor:pointer;white-space:nowrap;">
+                            style="background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;border:none;border-radius:10px;padding:8px 14px;font-size:0.8em;font-weight:700;cursor:pointer;white-space:nowrap;">
                         📄 Exporter
                     </button>
                 </div>
@@ -1065,7 +1065,7 @@
                     </div>
 
                     <div style="display: flex; gap: 10px;">
-                        <button onclick="saveMeasurement()" class="btn" style="flex: 1; background: linear-gradient(135deg, #60a8f0 0%, #1d5fa8 100%);">
+                        <button onclick="saveMeasurement()" class="btn" style="flex: 1; background: linear-gradient(135deg,#22d3ee,#0891b2);">
                             💾 Sauvegarder
                         </button>
                         <button onclick="cancelMeasurement()" class="btn btn-secondary" style="flex: 1;">
@@ -1108,13 +1108,13 @@
         <div id="workoutsTab" class="tab-content">
             <!-- Barre de segments « Entraîner » -->
             <div style="display:flex;gap:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:5px;margin-bottom:8px;">
-                <button onclick="switchTab('workouts')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:linear-gradient(135deg,#60a8f0,#1d5fa8);color:white;">Libre</button>
+                <button onclick="switchTab('workouts')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;">Libre</button>
                 <button onclick="switchTab('routines')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Routines</button>
                 <button onclick="switchTab('program')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Programme</button>
                 <button onclick="switchTab('course')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Course</button>
                             <button onclick="switchTab('challenges')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Défis</button>
             </div>
-            <div style="font-size:0.72em;color:#94a3b8;margin:0 0 14px;padding:0 4px;line-height:1.4;">Compose ou lance une séance maintenant.</div>
+            <div style="font-size:0.8em;color:#b4c0cf;margin:0 0 14px;padding:0 4px;line-height:1.4;">Compose ou lance une séance maintenant.</div>
 
 
             <!-- Workout Mode Selection Modal -->
@@ -2055,7 +2055,7 @@
 
                         <!-- Boutons -->
                         <div style="display:grid;gap:10px;">
-                            <button class="btn" onclick="backToHome()" style="background:linear-gradient(135deg,#1d5fa8,#3b82f6,#60a8f0);font-size:1em;min-height:54px;letter-spacing:2px;text-transform:uppercase;font-weight:900;border:1px solid #60a8f0;box-shadow:0 0 24px rgba(96,168,240,0.4);">
+                            <button class="btn" onclick="backToHome()" style="background:linear-gradient(135deg,#22d3ee,#0891b2);font-size:1em;min-height:54px;letter-spacing:2px;text-transform:uppercase;font-weight:900;border:1px solid #60a8f0;box-shadow:0 0 24px rgba(96,168,240,0.4);">
                                 🏠 RETOUR À L'ACCUEIL
                             </button>
                             <button class="btn" onclick="exportSessionSummary()" style="background:rgba(168,85,247,0.1);color:#c084fc;border:1px solid rgba(168,85,247,0.4);min-height:48px;font-size:0.85em;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;">
@@ -2074,10 +2074,10 @@
         <div id="exercisesTab" class="tab-content">
             <!-- Barre de segments « Découvrir » -->
             <div style="display:flex;gap:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:5px;margin-bottom:8px;">
-                <button onclick="switchTab('exercises')" style="flex:1;min-width:0;border:none;border-radius:10px;padding:10px 2px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:linear-gradient(135deg,#3b82f6,#1d5fa8);color:white;">Exercices</button>
+                <button onclick="switchTab('exercises')" style="flex:1;min-width:0;border:none;border-radius:10px;padding:10px 2px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;">Exercices</button>
                 <button id="awakSegCalculs" onclick="switchTab('calculators')" style="flex:1;min-width:0;border:none;border-radius:10px;padding:10px 2px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Calculs</button>
             </div>
-            <div style="font-size:0.72em;color:#94a3b8;margin:0 0 14px;padding:0 4px;line-height:1.4;">Cherche un exercice, filtre par muscle ou matériel.</div>
+            <div style="font-size:0.8em;color:#b4c0cf;margin:0 0 14px;padding:0 4px;line-height:1.4;">Cherche un exercice, filtre par muscle ou matériel.</div>
 
             <!-- Search Bar -->
             <div class="card">
@@ -2314,7 +2314,7 @@
             <!-- ═══════════ GROUPE 1 · JEU & PROGRESSION ═══════════ -->
             <div class="accordion-section">
                 <div class="accordion-header" onclick="toggleSettingsAccordion(this)">
-                    <div class="accordion-title" style="display:block;"><span style="display:block;font-weight:800;">Jeu &amp; progression</span><span style="display:block;font-size:0.68em;color:#64748b;font-weight:600;margin-top:2px;letter-spacing:0;">Mode RPG, difficulté, Failles</span></div>
+                    <div class="accordion-title" style="display:block;"><span style="display:block;font-weight:800;">Jeu &amp; progression</span><span style="display:block;font-size:0.76em;color:#a3b1c2;font-weight:600;margin-top:3px;letter-spacing:0;">Mode RPG, difficulté, Failles</span></div>
                     <div class="accordion-icon">▼</div>
                 </div>
                 <div class="accordion-body">
@@ -2379,7 +2379,7 @@
             <!-- ═══════════ GROUPE 2 · ENTRAÎNEMENT ═══════════ -->
             <div class="accordion-section">
                 <div class="accordion-header" onclick="toggleSettingsAccordion(this)">
-                    <div class="accordion-title" style="display:block;"><span style="display:block;font-weight:800;">Entraînement</span><span style="display:block;font-size:0.68em;color:#64748b;font-weight:600;margin-top:2px;letter-spacing:0;">Lieux, matériel, récupération, séries</span></div>
+                    <div class="accordion-title" style="display:block;"><span style="display:block;font-weight:800;">Entraînement</span><span style="display:block;font-size:0.76em;color:#a3b1c2;font-weight:600;margin-top:3px;letter-spacing:0;">Lieux, matériel, récupération, séries</span></div>
                     <div class="accordion-icon">▼</div>
                 </div>
                 <div class="accordion-body">
@@ -2510,7 +2510,7 @@
                                         oninput="previewAvailWeights('cable', this.value)">
                                     <div id="cablePreview" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;min-height:28px;"></div>
                                 </div>
-                                <button onclick="saveAllAvailableWeights()" class="btn" style="background:linear-gradient(135deg,#1d5fa8,#164e8a);">
+                                <button onclick="saveAllAvailableWeights()" class="btn" style="background:linear-gradient(135deg,#22d3ee,#0891b2);">
                                     💾 Sauvegarder mes poids
                                 </button>
                             </div>
@@ -2572,7 +2572,7 @@
             <!-- ═══════════ v1237 · PARCOURS DE L'ÉVEIL (lancer / relancer / arrêter) ═══════════ -->
             <div class="accordion-section">
                 <div class="accordion-header" onclick="toggleSettingsAccordion(this);try{awakEveilRendreReglages()}catch(e){}">
-                    <div class="accordion-title" style="display:block;"><span style="display:block;font-weight:800;">Parcours de l'Éveil</span><span style="display:block;font-size:0.68em;color:#64748b;font-weight:600;margin-top:2px;letter-spacing:0;">4 semaines pas à pas pour débuter</span></div>
+                    <div class="accordion-title" style="display:block;"><span style="display:block;font-weight:800;">Parcours de l'Éveil</span><span style="display:block;font-size:0.76em;color:#a3b1c2;font-weight:600;margin-top:3px;letter-spacing:0;">4 semaines pas à pas pour débuter</span></div>
                     <div class="accordion-icon">▼</div>
                 </div>
                 <div class="accordion-body">
@@ -2585,7 +2585,7 @@
             <!-- ═══════════ v1232 · MONTRE & SANTÉ (Health Connect) ═══════════ -->
             <div class="accordion-section">
                 <div class="accordion-header" onclick="toggleSettingsAccordion(this);try{AwakSante.rendreReglages()}catch(e){}">
-                    <div class="accordion-title" style="display:block;"><span style="display:block;font-weight:800;">Montre &amp; santé</span><span style="display:block;font-size:0.68em;color:#64748b;font-weight:600;margin-top:2px;letter-spacing:0;">Galaxy Watch, pouls, pas, sommeil</span></div>
+                    <div class="accordion-title" style="display:block;"><span style="display:block;font-weight:800;">Montre &amp; santé</span><span style="display:block;font-size:0.76em;color:#a3b1c2;font-weight:600;margin-top:3px;letter-spacing:0;">Galaxy Watch, pouls, pas, sommeil</span></div>
                     <div class="accordion-icon">▼</div>
                 </div>
                 <div class="accordion-body">
@@ -2598,7 +2598,7 @@
             <!-- ═══════════ GROUPE 3 · AUDIO & NOTIFICATIONS ═══════════ -->
             <div class="accordion-section">
                 <div class="accordion-header" onclick="toggleSettingsAccordion(this)">
-                    <div class="accordion-title" style="display:block;"><span style="display:block;font-weight:800;">Audio &amp; notifications</span><span style="display:block;font-size:0.68em;color:#64748b;font-weight:600;margin-top:2px;letter-spacing:0;">Voix du coach, sons, rappels</span></div>
+                    <div class="accordion-title" style="display:block;"><span style="display:block;font-weight:800;">Audio &amp; notifications</span><span style="display:block;font-size:0.76em;color:#a3b1c2;font-weight:600;margin-top:3px;letter-spacing:0;">Voix du coach, sons, rappels</span></div>
                     <div class="accordion-icon">▼</div>
                 </div>
                 <div class="accordion-body">
@@ -2686,7 +2686,7 @@
             <!-- ═══════════ ♿ ADAPTATION PHYSIQUE ═══════════ -->
             <div class="accordion-section">
                 <div class="accordion-header" onclick="awakOuvrirLimitations()">
-                    <div class="accordion-title" style="display:block;"><span style="display:block;font-weight:800;">♿ Mes limitations</span><span style="display:block;font-size:0.68em;color:#64748b;font-weight:600;margin-top:2px;letter-spacing:0;">Adapter les séances à ton corps</span></div>
+                    <div class="accordion-title" style="display:block;"><span style="display:block;font-weight:800;">♿ Mes limitations</span><span style="display:block;font-size:0.76em;color:#a3b1c2;font-weight:600;margin-top:3px;letter-spacing:0;">Adapter les séances à ton corps</span></div>
                     <div class="accordion-icon">›</div>
                 </div>
             </div>
@@ -2694,7 +2694,7 @@
             <!-- ═══════════ GROUPE 4 · COMPTE & DONNÉES ═══════════ -->
             <div class="accordion-section">
                 <div class="accordion-header" onclick="toggleSettingsAccordion(this)">
-                    <div class="accordion-title" style="display:block;"><span style="display:block;font-weight:800;">Compte &amp; données</span><span style="display:block;font-size:0.68em;color:#64748b;font-weight:600;margin-top:2px;letter-spacing:0;">Profil, sauvegarde, réinitialisation</span></div>
+                    <div class="accordion-title" style="display:block;"><span style="display:block;font-weight:800;">Compte &amp; données</span><span style="display:block;font-size:0.76em;color:#a3b1c2;font-weight:600;margin-top:3px;letter-spacing:0;">Profil, sauvegarde, réinitialisation</span></div>
                     <div class="accordion-icon">▼</div>
                 </div>
                 <div class="accordion-body">
@@ -2709,8 +2709,8 @@
                             <div class="settings-sub-title">Gestion des profils</div>
                             <p class="settings-sub-desc">Gère tes profils d'utilisateurs pour un suivi personnalisé.</p>
                             <div style="display: grid; gap: 10px; margin-bottom: 14px;">
-                                <button class="btn" onclick="showProfileSetup()" style="background: linear-gradient(135deg, #1d5fa8 0%, #164e8a 100%);">⚙️ Modifier mon profil</button>
-                                <button class="btn" onclick="showProfileSelectionModal()" style="background: linear-gradient(135deg, #60a8f0 0%, #3b82f6 100%);">👥 Changer de profil</button>
+                                <button class="btn" onclick="showProfileSetup()" style="background: linear-gradient(135deg,#22d3ee,#0891b2);">⚙️ Modifier mon profil</button>
+                                <button class="btn" onclick="showProfileSelectionModal()" style="background: linear-gradient(135deg,#22d3ee,#0891b2);">👥 Changer de profil</button>
                                 <button class="btn btn-secondary" onclick="showCreateProfileModal()">➕ Créer un nouveau profil</button>
                             </div>
                             <div style="background: rgba(148,163,184,0.08); padding: 14px; border-radius: 10px; font-size: 0.9em; color: #94a3b8;">
@@ -2779,7 +2779,7 @@
             <!-- ═══════════ GROUPE 5 · À PROPOS ═══════════ -->
             <div class="accordion-section">
                 <div class="accordion-header" onclick="toggleSettingsAccordion(this)">
-                    <div class="accordion-title" style="display:block;"><span style="display:block;font-weight:800;">À propos</span><span style="display:block;font-size:0.68em;color:#64748b;font-weight:600;margin-top:2px;letter-spacing:0;">Version, licence, remerciements</span></div>
+                    <div class="accordion-title" style="display:block;"><span style="display:block;font-weight:800;">À propos</span><span style="display:block;font-size:0.76em;color:#a3b1c2;font-weight:600;margin-top:3px;letter-spacing:0;">Version, licence, remerciements</span></div>
                     <div class="accordion-icon">▼</div>
                 </div>
                 <div class="accordion-body">
@@ -2808,7 +2808,7 @@
                 <div class="settings-sub-title" style="color:#a855f7; margin-bottom:6px;">Mode développeur</div>
                 <p class="settings-sub-desc" style="margin-bottom:14px;">Outils de test pour visualiser l'histoire et la progression. Le mode jeu doit être activé.</p>
                 <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                    <button class="btn" onclick="awakAdminLevelUp(1)" style="flex:1; min-width:120px; background: linear-gradient(135deg,#a855f7,#7c3aed); display:flex; align-items:center; justify-content:center; gap:8px;">
+                    <button class="btn" onclick="awakAdminLevelUp(1)" style="flex:1; min-width:120px; background: linear-gradient(135deg,#22d3ee,#0891b2); display:flex; align-items:center; justify-content:center; gap:8px;">
                         <span>⬆️ +1 Niveau</span>
                     </button>
                     <button class="btn" onclick="awakAdminLevelUp(5)" style="flex:1; min-width:120px; background: linear-gradient(135deg,#7c3aed,#6d28d9); display:flex; align-items:center; justify-content:center; gap:8px;">
@@ -2836,9 +2836,9 @@
             <!-- Barre de segments « Découvrir » -->
             <div style="display:flex;gap:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:5px;margin-bottom:8px;">
                 <button onclick="switchTab('exercises')" style="flex:1;min-width:0;border:none;border-radius:10px;padding:10px 2px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Exercices</button>
-                <button onclick="switchTab('calculators')" style="flex:1;min-width:0;border:none;border-radius:10px;padding:10px 2px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:linear-gradient(135deg,#3b82f6,#1d5fa8);color:white;">Calculs</button>
+                <button onclick="switchTab('calculators')" style="flex:1;min-width:0;border:none;border-radius:10px;padding:10px 2px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;">Calculs</button>
             </div>
-            <div style="font-size:0.72em;color:#94a3b8;margin:0 0 14px;padding:0 4px;line-height:1.4;">Des outils pour calculer tes charges et suivre ta force.</div>
+            <div style="font-size:0.8em;color:#b4c0cf;margin:0 0 14px;padding:0 4px;line-height:1.4;">Des outils pour calculer tes charges et suivre ta force.</div>
         <!-- ⚠️ CARTE RETIRÉE (v1043) : une carte entière pour un titre et le
              slogan « Outils professionnels pour optimiser votre entraînement ».
              Doublon de la ligne au-dessus, et rien d'utile à lire. -->
@@ -2902,7 +2902,7 @@
                 </div>
                 <div style="font-size:0.75em;color:#6b7280;margin-top:-6px;">Pour les tractions, entre la charge ajoutée (0 si poids du corps seul).</div>
 
-                <button onclick="computeForceReelle()" style="width:100%;padding:14px;background:linear-gradient(135deg,#a855f7,#7c3aed);color:white;border:none;border-radius:14px;font-weight:800;cursor:pointer;font-size:1em;letter-spacing:0.5px;">
+                <button onclick="computeForceReelle()" style="width:100%;padding:14px;background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;border:none;border-radius:14px;font-weight:800;cursor:pointer;font-size:1em;letter-spacing:0.5px;">
                     ANALYSER MA FORCE
                 </button>
             </div>
@@ -3151,10 +3151,10 @@
                 <button onclick="switchTab('workouts')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Libre</button>
                 <button onclick="switchTab('routines')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Routines</button>
                 <button onclick="switchTab('program')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Programme</button>
-                <button onclick="switchTab('course')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:linear-gradient(135deg,#60a8f0,#1d5fa8);color:white;">Course</button>
+                <button onclick="switchTab('course')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;">Course</button>
                 <button onclick="switchTab('challenges')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Défis</button>
             </div>
-            <div style="font-size:0.72em;color:#94a3b8;margin:0 0 14px;padding:0 4px;line-height:1.4;">Course, marche ou vélo au GPS : objectifs, fractionné, plan et progression.</div>
+            <div style="font-size:0.8em;color:#b4c0cf;margin:0 0 14px;padding:0 4px;line-height:1.4;">Course, marche ou vélo au GPS : objectifs, fractionné, plan et progression.</div>
             <div id="awakRunOnglet"></div>
     </div>
 
@@ -3165,9 +3165,9 @@
                 <button onclick="switchTab('routines')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Routines</button>
                 <button onclick="switchTab('program')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Programme</button>
                 <button onclick="switchTab('course')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Course</button>
-                <button onclick="switchTab('challenges')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:linear-gradient(135deg,#60a8f0,#1d5fa8);color:white;">Défis</button>
+                <button onclick="switchTab('challenges')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;">Défis</button>
             </div>
-            <div style="font-size:0.72em;color:#94a3b8;margin:0 0 14px;padding:0 4px;line-height:1.4;">Choisis un défi, fais-le chaque jour et coche ta case. Chaque défi réussi te rapporte une étoile.</div>
+            <div style="font-size:0.8em;color:#b4c0cf;margin:0 0 14px;padding:0 4px;line-height:1.4;">Choisis un défi, fais-le chaque jour et coche ta case. Chaque défi réussi te rapporte une étoile.</div>
         <div class="card">
             <!-- v1219 : titre « Défis Fitness » + phrase au « vous » retirés — la phrase
                  au-dessus de la carte dit déjà la même chose, au « tu ». -->
@@ -3197,7 +3197,7 @@
             <div id="profileSelectionList" style="display: grid; gap: 12px; margin: 20px 0;">
                 <!-- Profiles will be rendered here -->
             </div>
-            <button onclick="showCreateProfileModal()" class="btn" style="width: 100%; background: linear-gradient(135deg, #60a8f0 0%, #3b82f6 100%); margin-bottom: 10px;">
+            <button onclick="showCreateProfileModal()" class="btn" style="width: 100%; background: linear-gradient(135deg,#22d3ee,#0891b2); margin-bottom: 10px;">
                 ➕ Créer un nouveau profil
             </button>
             <button onclick="closeProfileSelectionModal()" class="btn btn-secondary" style="width: 100%;">
@@ -3248,7 +3248,7 @@
                 </div>
 
                 <div style="display: flex; gap: 10px; margin-top: 30px;">
-                    <button onclick="saveProfileData()" class="btn" style="flex: 1; background: linear-gradient(135deg, #1d5fa8 0%, #164e8a 100%);">
+                    <button onclick="saveProfileData()" class="btn" style="flex: 1; background: linear-gradient(135deg,#22d3ee,#0891b2);">
                         Sauvegarder
                     </button>
                     <button onclick="closeProfileEditor()" class="btn btn-secondary" style="flex: 1;">
@@ -3752,7 +3752,7 @@
                 </div>
 
                 <div style="margin-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <button onclick="showExercisePicker()" class="btn" style="background: linear-gradient(135deg, #60a8f0 0%, #3b82f6 100%);">
+                    <button onclick="showExercisePicker()" class="btn" style="background: linear-gradient(135deg,#22d3ee,#0891b2);">
                         ➕ Ajouter des exercices
                     </button>
                     <button onclick="addRestToProgram()" class="btn" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
@@ -3761,7 +3761,7 @@
                 </div>
 
                 <div style="display: flex; gap: 10px;">
-                    <button class="btn" onclick="saveProgram()" style="flex: 1; background: linear-gradient(135deg, #1d5fa8 0%, #164e8a 100%);">
+                    <button class="btn" onclick="saveProgram()" style="flex: 1; background: linear-gradient(135deg,#22d3ee,#0891b2);">
                         ✅ Sauvegarder
                     </button>
                     <button class="btn btn-secondary" onclick="closeProgramEditor()" style="flex: 1;">
@@ -3844,7 +3844,7 @@
 
                 <div style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center;">
                     <span id="pickerSelectedCount" style="color: #16a34a; font-weight: bold;">0 exercice(s) sélectionné(s)</span>
-                    <button class="btn" onclick="confirmExerciseSelection()" style="background: linear-gradient(135deg, #1d5fa8 0%, #164e8a 100%);">
+                    <button class="btn" onclick="confirmExerciseSelection()" style="background: linear-gradient(135deg,#22d3ee,#0891b2);">
                         ✅ Confirmer la sélection
                     </button>
                 </div>
@@ -3858,35 +3858,35 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/native.js?v=1271"></script>
-    <script src="js/exercises.js?v=1271"></script>
-    <script src="js/exercise-names.js?v=1271"></script>
-    <script src="data/items.js?v=1271"></script>
-    <script src="js/item-icons.js?v=1271"></script>
-    <script src="js/adventure.js?v=1271"></script>
-    <script src="js/economy.js?v=1271"></script>
-    <script src="js/challenges.js?v=1271"></script>
-    <script src="js/family-boss.js?v=1271"></script>
-    <script src="js/family-network.js?v=1271"></script>
-    <script src="js/family-challenge.js?v=1271"></script>
-    <script src="js/family-goal.js?v=1271"></script>
-    <script src="js/family-feed.js?v=1271"></script>
-    <script src="js/pre-workout-mood.js?v=1271"></script>
-    <script src="js/group-workout.js?v=1271"></script>
-    <script src="js/youth-safety.js?v=1271"></script>
-    <script src="js/kids-programs.js?v=1271"></script>
-    <script src="js/senior-programs.js?v=1271"></script>
-    <script src="js/adaptive.js?v=1271"></script>
-    <script src="js/pain-mode.js?v=1271"></script>
-    <script src="js/recovery-mode.js?v=1271"></script>
-    <script src="js/exercise-visuals.js?v=1271"></script>
-    <script src="js/strength-standards.js?v=1271"></script>
-    <script src="js/system-cards.js?v=1271"></script>
-    <script src="js/share-card.js?v=1271"></script>
-    <script src="js/story-events.js?v=1271"></script>
-    <script src="js/final-boss.js?v=1271"></script>
-    <script src="js/disciplines.js?v=1271"></script>
-    <script src="js/eveil.js?v=1271"></script>
+    <script src="js/native.js?v=1273"></script>
+    <script src="js/exercises.js?v=1273"></script>
+    <script src="js/exercise-names.js?v=1273"></script>
+    <script src="data/items.js?v=1273"></script>
+    <script src="js/item-icons.js?v=1273"></script>
+    <script src="js/adventure.js?v=1273"></script>
+    <script src="js/economy.js?v=1273"></script>
+    <script src="js/challenges.js?v=1273"></script>
+    <script src="js/family-boss.js?v=1273"></script>
+    <script src="js/family-network.js?v=1273"></script>
+    <script src="js/family-challenge.js?v=1273"></script>
+    <script src="js/family-goal.js?v=1273"></script>
+    <script src="js/family-feed.js?v=1273"></script>
+    <script src="js/pre-workout-mood.js?v=1273"></script>
+    <script src="js/group-workout.js?v=1273"></script>
+    <script src="js/youth-safety.js?v=1273"></script>
+    <script src="js/kids-programs.js?v=1273"></script>
+    <script src="js/senior-programs.js?v=1273"></script>
+    <script src="js/adaptive.js?v=1273"></script>
+    <script src="js/pain-mode.js?v=1273"></script>
+    <script src="js/recovery-mode.js?v=1273"></script>
+    <script src="js/exercise-visuals.js?v=1273"></script>
+    <script src="js/strength-standards.js?v=1273"></script>
+    <script src="js/system-cards.js?v=1273"></script>
+    <script src="js/share-card.js?v=1273"></script>
+    <script src="js/story-events.js?v=1273"></script>
+    <script src="js/final-boss.js?v=1273"></script>
+    <script src="js/disciplines.js?v=1273"></script>
+    <script src="js/eveil.js?v=1273"></script>
     <script>
     /* 🔄 DÉVERROUILLAGE DE L'ORIENTATION
        Sur Android, l'orientation d'une PWA installée est figée à l'installation
@@ -3908,40 +3908,42 @@
       });
     })();
     </script>
-    <script src="js/app.js?v=1271"></script>
-    <script src="js/calendar-tab.js?v=1271"></script>
-    <script src="js/routine-blocks.js?v=1271"></script>
-    <script src="js/routine-builder.js?v=1271"></script>
-    <script src="js/routine-print.js?v=1271"></script>
-    <script src="js/icons.js?v=1271"></script>
-    <script src="js/no-emoji.js?v=1271"></script>
-    <script src="js/fenetres.js?v=1271"></script>
-    <script src="js/qrcode.js?v=1271"></script>
-    <script src="js/partage-seance.js?v=1271"></script>
-    <script src="js/salle.js?v=1271"></script>
-    <script src="js/sports.js?v=1271"></script>
-    <script src="js/strength-balance.js?v=1271"></script>
-    <script src="js/analyse.js?v=1271"></script>
-    <script src="js/limitations.js?v=1271"></script>
-    <script src="js/custom-exercises.js?v=1271"></script>
-    <script src="js/awakening-tree.js?v=1271"></script>
-    <script src="js/ui-kit.js?v=1271"></script>
-    <script src="js/feature-map.js?v=1271"></script>
-    <script src="js/weekly-recap.js?v=1271"></script>
-    <script src="js/workout-games.js?v=1271"></script>
-    <script src="js/kids-games.js?v=1271"></script>
-    <script src="js/home-pro.js?v=1271"></script>
-    <script src="js/back-button.js?v=1271"></script>
-    <script src="js/gestures.js?v=1271"></script>
-    <script src="js/rift-visuals.js?v=1271"></script>
-    <script src="js/family-sky.js?v=1271"></script>
-    <script src="js/session-ux.js?v=1271"></script>
-    <script src="js/progress-tab.js?v=1271"></script>
-    <script src="js/health-sync.js?v=1271"></script>
-    <script src="js/regle.js?v=1271"></script>
-    <script src="js/run-gps.js?v=1271"></script>
-    <script src="js/run-coach.js?v=1271"></script>
-    <script src="js/backup.js?v=1271"></script>
+    <script src="js/app.js?v=1273"></script>
+    <script src="js/calendar-tab.js?v=1273"></script>
+    <script src="js/routine-blocks.js?v=1273"></script>
+    <script src="js/routine-builder.js?v=1273"></script>
+    <script src="js/routine-print.js?v=1273"></script>
+    <script src="js/icons.js?v=1273"></script>
+    <script src="js/no-emoji.js?v=1273"></script>
+    <script src="js/stat-noms.js?v=1273"></script>
+    <script src="js/fenetres.js?v=1273"></script>
+    <script src="js/qrcode.js?v=1273"></script>
+    <script src="js/partage-seance.js?v=1273"></script>
+    <script src="js/salle.js?v=1273"></script>
+    <script src="js/sports.js?v=1273"></script>
+    <script src="js/strength-balance.js?v=1273"></script>
+    <script src="js/analyse.js?v=1273"></script>
+    <script src="js/limitations.js?v=1273"></script>
+    <script src="js/custom-exercises.js?v=1273"></script>
+    <script src="js/awakening-tree.js?v=1273"></script>
+    <script src="js/ui-kit.js?v=1273"></script>
+    <script src="js/feature-map.js?v=1273"></script>
+    <script src="js/visite.js?v=1273"></script>
+    <script src="js/weekly-recap.js?v=1273"></script>
+    <script src="js/workout-games.js?v=1273"></script>
+    <script src="js/kids-games.js?v=1273"></script>
+    <script src="js/home-pro.js?v=1273"></script>
+    <script src="js/back-button.js?v=1273"></script>
+    <script src="js/gestures.js?v=1273"></script>
+    <script src="js/rift-visuals.js?v=1273"></script>
+    <script src="js/family-sky.js?v=1273"></script>
+    <script src="js/session-ux.js?v=1273"></script>
+    <script src="js/progress-tab.js?v=1273"></script>
+    <script src="js/health-sync.js?v=1273"></script>
+    <script src="js/regle.js?v=1273"></script>
+    <script src="js/run-gps.js?v=1273"></script>
+    <script src="js/run-coach.js?v=1273"></script>
+    <script src="js/backup.js?v=1273"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>

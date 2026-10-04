@@ -375,7 +375,7 @@
           '<span class="ahp-ic">' + ico(icone, 18, couleur) + '</span>' +
           '<span style="flex:1;min-width:0;">' +
             '<span style="display:block;font-size:0.88em;font-weight:700;color:#e2e8f0;">' + titre + '</span>' +
-            '<span style="display:block;font-size:0.7em;color:#64748b;margin-top:1px;">' + detail + '</span>' +
+            '<span style="display:block;font-size:0.76em;color:#a3b1c2;margin-top:2px;">' + detail + '</span>' +
           '</span>' +
           '<span style="flex-shrink:0;color:#475569;font-size:1.2em;">›</span>' +
         '</button>';

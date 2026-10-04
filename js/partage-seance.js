@@ -125,7 +125,7 @@
         + '<div id="awakPartageQR" style="padding:4px;margin-bottom:12px;">' + qrSVG(lien) + '</div>'
         + '<div style="font-size:0.72em;color:#94a3b8;line-height:1.45;margin-bottom:14px;">Ton ami scanne ce code avec l\'appareil photo de son téléphone : la séance s\'ouvre dans son Awakened. Chacun garde ses propres charges.</div>'
         + '<div style="display:grid;gap:8px;">'
-        +   '<button onclick="AwakPartage.envoyer()" style="' + BTN + 'background:linear-gradient(135deg,#3b82f6,#1d5fa8);color:#fff;">' + ic('message', 17, '#fff') + 'Envoyer par message</button>'
+        +   '<button onclick="AwakPartage.envoyer()" style="' + BTN + 'background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;">' + ic('message', 17, '#fff') + 'Envoyer par message</button>'
         +   '<button onclick="AwakPartage.copier()" style="' + BTN2 + '">' + ic('lien', 15) + 'Copier le lien</button>'
         +   '<button onclick="AwakPartage.recevoir()" style="' + BTN2 + '">' + ic('personne', 15) + 'Recevoir la séance de mon ami</button>'
         +   '<button onclick="AwakPartage.fermer()" style="' + BTN2 + 'border:none;background:transparent;color:#94a3b8;">Fermer</button>'
@@ -157,7 +157,7 @@
       '<div style="font-size:1.08em;font-weight:900;color:#fff;margin-bottom:6px;">Recevoir une séance</div>'
       + '<div style="font-size:0.74em;color:#94a3b8;margin-bottom:14px;line-height:1.45;">' + (scanOk ? 'Scanne le code affiché sur le téléphone de ton ami, ou colle le lien qu\'il t\'a envoyé.' : 'Colle le lien que ton ami t\'a envoyé, ou scanne son code avec l\'appareil photo du téléphone.') + '</div>'
       + (scanOk ? '<video id="awakPartageVideo" playsinline muted style="width:100%;border-radius:12px;background:#000;display:none;margin-bottom:10px;"></video>'
-                + '<button id="awakPartageScan" onclick="AwakPartage.scanner()" style="' + BTN + 'background:linear-gradient(135deg,#3b82f6,#1d5fa8);color:#fff;margin-bottom:8px;">' + ic('cible', 17, '#fff') + 'Scanner le code</button>' : '')
+                + '<button id="awakPartageScan" onclick="AwakPartage.scanner()" style="' + BTN + 'background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;margin-bottom:8px;">' + ic('cible', 17, '#fff') + 'Scanner le code</button>' : '')
       + '<input id="awakPartageLien" type="url" placeholder="Colle le lien ici" style="width:100%;box-sizing:border-box;padding:12px;border-radius:11px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.04);color:#fff;margin-bottom:8px;">'
       + '<div style="display:grid;gap:8px;">'
       +   '<button onclick="AwakPartage.ouvrirLien(document.getElementById(\'awakPartageLien\').value)" style="' + BTN2 + '">Ouvrir la séance</button>'
@@ -205,7 +205,7 @@
         + (inconnus ? '<div style="font-size:0.68em;color:#fbbf24;margin-bottom:10px;">' + inconnus + ' exercice' + (inconnus > 1 ? 's' : '') + ' personnalisé' + (inconnus > 1 ? 's' : '') + ' de ton ami, sans image ni consignes chez toi.</div>' : '')
         + '<div style="font-size:0.68em;color:#64748b;margin-bottom:12px;">Tes charges et ton matériel sont utilisés, pas ceux de ton ami.</div>'
         + '<div style="display:grid;gap:8px;">'
-        +   '<button onclick="AwakPartage.commencer()" style="' + BTN + 'background:linear-gradient(135deg,#3b82f6,#1d5fa8);color:#fff;">' + ic('eclair', 17, '#fff') + 'Commencer maintenant</button>'
+        +   '<button onclick="AwakPartage.commencer()" style="' + BTN + 'background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;">' + ic('eclair', 17, '#fff') + 'Commencer maintenant</button>'
         +   '<button onclick="AwakPartage.garder()" style="' + BTN2 + '">' + ic('liste', 15) + 'Garder dans mes routines</button>'
         +   '<button onclick="AwakPartage.fermer()" style="' + BTN2 + 'border:none;background:transparent;color:#94a3b8;">Plus tard</button>'
         + '</div>');

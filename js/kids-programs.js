@@ -205,7 +205,7 @@
       });
     }
     var w = { type: 'kids', name: p.name + ' — ' + se.name, exercises: exos, _kidsProg: { id: id, idx: idx }, _cardioAsked: true, // la mission contient déjà son échauffement
-      badgeHTML: 'Mission : ' + esc(se.name), badgeStyle: 'linear-gradient(135deg,#3b82f6,#1d5fa8)' };
+      badgeHTML: 'Mission : ' + esc(se.name), badgeStyle: 'linear-gradient(135deg,#22d3ee,#0891b2)' };
     // L'écran de préparation vit dans l'onglet Séance : y aller d'abord.
     try { if (typeof window.switchTab === 'function') window.switchTab('workouts'); } catch (e) {}
     setTimeout(function () {
@@ -250,7 +250,7 @@
           +   '<span style="display:block;font-size:0.66em;color:#94a3b8;line-height:1.4;margin-top:2px;">' + s.exercises.map(esc).join(' · ') + '</span>'
           + '</span>'
           + '<button onclick="AwakKidsPrograms.lancer(\'' + p.id + '\',' + i + ')" style="flex-shrink:0;padding:9px 12px;border:none;border-radius:10px;cursor:pointer;'
-          +   'background:linear-gradient(135deg,#60a8f0,#1d5fa8);color:#fff;font-weight:900;font-size:0.72em;">' + (fait ? 'Refaire' : 'Go !') + '</button>'
+          +   'background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;font-weight:900;font-size:0.72em;">' + (fait ? 'Refaire' : 'Go !') + '</button>'
           + '</div>';
       }).join('');
       return '<div style="background:linear-gradient(160deg,#121826,#0d0d12);border:1px solid ' + (ouvert ? 'rgba(96,168,240,0.55)' : 'rgba(96,168,240,0.22)') + ';border-radius:18px;padding:14px;margin-bottom:12px;">'

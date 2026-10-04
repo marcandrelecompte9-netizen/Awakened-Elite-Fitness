@@ -178,7 +178,7 @@
       name: jourFr(day.name), mode: 'reps', isGym: true, type: 'salle',
       restBetweenSets: (progId === 'circuit') ? 30 : 90,
       exercises: exercices, _salleProg: progId, _salleJour: dayKey,
-      badgeHTML: 'Salle', badgeStyle: 'linear-gradient(135deg,#1d5fa8,#3b82f6)'
+      badgeHTML: 'Salle', badgeStyle: 'linear-gradient(135deg,#22d3ee,#0891b2)'
     };
     var rp = L.filter(function (x) { return x.remplace; });
     if (rp.length && typeof window.showToast === 'function') {

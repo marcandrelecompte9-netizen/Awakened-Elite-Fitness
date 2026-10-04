@@ -259,7 +259,7 @@
       + '<h3 style="margin:10px 0 8px;color:#fff;font-size:1.15em;">Le Parcours de l\'Éveil</h3>'
       + '<p style="margin:0 0 6px;color:#cbd5e1;font-size:0.85em;line-height:1.5;">Nouveau dans l\'entraînement ? Pendant <strong>4 semaines</strong>, je t\'accompagne de A à Z : séances toutes simples qui progressent, sommeil, repas, rythme de vie.</p>'
       + '<p style="margin:0 0 18px;color:#94a3b8;font-size:0.75em;line-height:1.45;">Quelques questions sur ton quotidien, et tout est construit pour TOI. Fondé sur des principes documentés, jamais imposé.</p>'
-      + '<button onclick="awakEveilStartQuestionnaire()" style="width:100%;background:linear-gradient(135deg,#a855f7,#7c3aed);border:none;color:#fff;border-radius:12px;padding:13px;font-size:0.92em;font-weight:800;cursor:pointer;margin-bottom:9px;">✨ Je commence l\'Éveil</button>'
+      + '<button onclick="awakEveilStartQuestionnaire()" style="width:100%;background:linear-gradient(135deg,#22d3ee,#0891b2);border:none;color:#04121f;border-radius:12px;padding:13px;font-size:0.92em;font-weight:800;cursor:pointer;margin-bottom:9px;">✨ Je commence l\'Éveil</button>'
       + '<button onclick="document.getElementById(\'eveilOfferModal\').remove()" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.13);color:#94a3b8;border-radius:12px;padding:11px;font-size:0.82em;font-weight:700;cursor:pointer;">Je connais déjà, non merci</button>'
       + '</div>';
     document.body.appendChild(ov);
@@ -432,7 +432,7 @@
       mode: 'timer', restBetweenSets: wk <= 2 ? 40 : 30,
       type: 'eveil', _eveil: true,
       badgeHTML: '🌅 Éveil — Semaine ' + wk, badgeColor: '#a855f7',
-      badgeStyle: 'linear-gradient(135deg,#a855f7,#7c3aed)'
+      badgeStyle: 'linear-gradient(135deg,#22d3ee,#0891b2)'
     };
   }
   // ── SÉANCE EN FAMILLE (bonus jour de repos — ne valide PAS le jour) ────
@@ -536,7 +536,7 @@
         + '<div style="font-weight:900;color:#fff;margin:6px 0 4px;">Le lancement est réussi</div>'
         + '<div style="font-size:0.78em;color:#cbd5e1;line-height:1.5;margin-bottom:14px;">4 semaines de constance — le plus dur est derrière toi. Une habitude s\'ancre vraiment vers ~66 jours : tu es à mi-chemin, et l\'app continue de t\'accompagner. Le plan hebdomadaire prend le relais avec la surcharge progressive.</div>'
         + '<div style="font-size:0.72em;color:#a855f7;font-weight:700;margin-bottom:10px;">Tu te sens prêt·e à voler de tes propres ailes ?</div>'
-        + '<button onclick="awakEveilStop()" style="background:linear-gradient(135deg,#a855f7,#7c3aed);border:none;color:#fff;border-radius:11px;padding:11px 18px;font-size:0.85em;font-weight:800;cursor:pointer;width:100%;margin-bottom:8px;">✨ Je suis prêt·e — passer au plan hebdo</button>'
+        + '<button onclick="awakEveilStop()" style="background:linear-gradient(135deg,#22d3ee,#0891b2);border:none;color:#04121f;border-radius:11px;padding:11px 18px;font-size:0.85em;font-weight:800;cursor:pointer;width:100%;margin-bottom:8px;">✨ Je suis prêt·e — passer au plan hebdo</button>'
         + '<button onclick="awakEveilExtend()" style="background:rgba(255,255,255,0.04);border:1px solid rgba(168,85,247,0.4);color:#e2e8f0;border-radius:11px;padding:10px 18px;font-size:0.8em;font-weight:700;cursor:pointer;width:100%;">🌱 Pas encore — 2 semaines de plus, à mon rythme</button>'
         + '<div style="font-size:0.66em;color:#64748b;line-height:1.45;margin-top:9px;">Aucune pression : prolonger est tout aussi valable. Certains ont besoin de plus de temps, et c\'est parfaitement normal.</div>'
         + '</div>';
@@ -571,7 +571,7 @@
       var btnLabel = mood === 'tired'
         ? '▶ Séance douce du jour · ' + SESSIONS[wk].title + ' (version allégée)'
         : '▶ Séance du jour · ' + SESSIONS[wk].title + ' (~' + _dureeSeance(j) + ' min)';
-      sessionHTML = '<button onclick="awakEveilLaunchToday()" style="width:100%;background:linear-gradient(135deg,#a855f7,#7c3aed);border:none;color:#fff;border-radius:12px;padding:12px;font-size:0.88em;font-weight:800;cursor:pointer;">' + btnLabel + '</button>'
+      sessionHTML = '<button onclick="awakEveilLaunchToday()" style="width:100%;background:linear-gradient(135deg,#22d3ee,#0891b2);border:none;color:#04121f;border-radius:12px;padding:12px;font-size:0.88em;font-weight:800;cursor:pointer;">' + btnLabel + '</button>'
         + (_quietAuto(j)
             ? (_quietMode(j)
                 ? '<div style="text-align:center;font-size:0.66em;color:#94a3b8;margin-top:5px;">🤫 Séance silencieuse — sans sauts ni impacts · <span onclick="awakEveilToggleQuiet()" style="color:#a855f7;font-weight:800;cursor:pointer;text-decoration:underline;">pas besoin ?</span></div>'
@@ -686,7 +686,7 @@
     try { kid = !!(global.AwakYouth && global.AwakYouth.isChild && global.AwakYouth.isChild()); } catch (e) {}
     var btn = function (action, txt, principal) {
       return '<button onclick="' + action + '" style="width:100%;min-height:auto;padding:12px;border-radius:12px;cursor:pointer;font-size:0.86em;font-weight:800;margin-top:8px;'
-        + (principal ? 'background:linear-gradient(135deg,#a855f7,#7c3aed);border:none;color:#fff;'
+        + (principal ? 'background:linear-gradient(135deg,#22d3ee,#0891b2);border:none;color:#04121f;'
                      : 'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.13);color:#cbd5e1;') + '">' + txt + '</button>';
     };
     var html;

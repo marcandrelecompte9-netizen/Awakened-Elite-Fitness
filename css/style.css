@@ -7887,3 +7887,43 @@ body.dark-mode .instructions-list li,
     line-height: 1.5 !important;
 }
 .instructions-list li::marker { color: #60a8f0; font-weight: 800; }
+
+/* ════════════════════════════════════════════════════════════════
+   v1273 — UNE SEULE COULEUR D'ACTION : le cyan
+   Avant : vert (barre du bas, boutons .btn), bleu (Fais ma séance,
+   Exporter…), violet (Programmes, Analyser), rose (Ajouter un membre).
+   L'œil n'apprenait pas quelle couleur veut dire « agir ».
+   Le vert reste réservé à « prêt / réussi ».
+   ════════════════════════════════════════════════════════════════ */
+:root {
+    --color-primary:      #0891b2;
+    --color-primary-dark: #0e7490;
+    --primary-color:      #0891b2;
+    --primary-dark:       #0e7490;
+}
+/* Bouton d'action : cyan vif, texte sombre (même rendu que « Démarrer » de l'accueil) */
+.btn:not(.btn-secondary):not(.btn-danger):not([style*="background"]),
+body.dark-mode .btn:not(.btn-secondary):not(.btn-danger):not([style*="background"]),
+button[style*="linear-gradient(135deg,#22d3ee,#0891b2)"],
+[onclick][style*="linear-gradient(135deg,#22d3ee,#0891b2)"] {
+    background: linear-gradient(135deg,#22d3ee,#0891b2) !important;
+    color: #04121f !important;
+    box-shadow: 0 6px 18px rgba(34,211,238,0.22) !important;
+}
+body.dark-mode .btn-secondary { color: #67e8f9 !important; }
+/* Onglet actif de la barre du bas */
+.nav-tab.active,
+body.dark-mode .nav-tab.active {
+    background: rgba(34,211,238,0.16) !important;
+    color: #67e8f9 !important;
+    box-shadow: inset 0 0 0 1px rgba(34,211,238,0.40) !important;
+}
+.nav-tab.active svg { filter: drop-shadow(0 0 4px rgba(34,211,238,0.55)) !important; }
+
+/* ════════════════════════════════════════════════════════════════
+   v1273 — SOUS-TITRES PLUS LISIBLES
+   Les gris #64748b / #475569 sur fond presque noir passaient sous le
+   seuil de lecture confortable : on les éclaircit partout.
+   ════════════════════════════════════════════════════════════════ */
+[style*="color:#64748b"], [style*="color: #64748b"] { color: #8d9cb1 !important; }
+[style*="color:#475569"], [style*="color: #475569"] { color: #74849a !important; }

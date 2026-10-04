@@ -131,7 +131,7 @@
                 'awakSystemCardOverlay','heroReactionOverlay','awakCompanionMeetingOverlay',
                 'awakEveilOverlay','awakRankUpOverlay','awakLevelUpOverlay',
                 'awakCharLevelUpOverlay','awakEpicIntroOverlay','missionStoryOverlay',
-                'awakFinalStoryOverlay','awakFinalVictoryOverlay'];
+                'awakFinalStoryOverlay','awakFinalVictoryOverlay','awakVisiteOverlay'];
             const queue = [];
             let poll = null;
             let running = false;   // true pendant qu'on relance une scène de la file
@@ -6236,7 +6236,7 @@
                 const isActive = btn.dataset.locationId === activeLocationId;
                 btn.classList.toggle('loc-active', isActive);
                 btn.style.background  = isActive
-                    ? 'linear-gradient(135deg,#1d5fa8,#164e8a)'
+                    ? 'linear-gradient(135deg,#22d3ee,#0891b2)'
                     : (dark ? '#1e293b' : 'white');
                 btn.style.borderColor = isActive ? '#16a34a' : (dark ? '#334155' : '#e5e7eb');
                 btn.style.boxShadow   = isActive ? '0 4px 16px rgba(22,163,74,0.3)' : '0 2px 6px rgba(0,0,0,0.06)';
@@ -7562,7 +7562,7 @@
                 </div>
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
-                    <button onclick="selectAllMachines()" class="btn" style="background: linear-gradient(135deg, #60a8f0 0%, #3b82f6 100%);">
+                    <button onclick="selectAllMachines()" class="btn" style="background: linear-gradient(135deg,#22d3ee,#0891b2);">
                         ✓ Tout sélectionner
                     </button>
                     <button onclick="clearAllMachines()" class="btn btn-secondary">
@@ -7837,7 +7837,7 @@
                 + '<div style="font-size:0.78em;color:#94a3b8;line-height:1.5;margin-bottom:18px;">'
                 +   'Tu dois la terminer ou l\'abandonner avant de commencer ' + esc(nomNouvelle) + '.'
                 + '</div>'
-                + '<button onclick="awakDejaEnCoursReprendre()" style="width:100%;padding:14px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#3b82f6,#1d5fa8);color:#fff;font-weight:900;font-size:0.92em;margin-bottom:9px;">▶ Reprendre la séance en cours</button>'
+                + '<button onclick="awakDejaEnCoursReprendre()" style="width:100%;padding:14px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;font-weight:900;font-size:0.92em;margin-bottom:9px;">▶ Reprendre la séance en cours</button>'
                 + '<button onclick="awakDejaEnCoursRemplacer()" style="width:100%;padding:12px;border:1px solid rgba(248,113,113,0.35);border-radius:12px;cursor:pointer;background:rgba(248,113,113,0.10);color:#f87171;font-weight:800;font-size:0.82em;margin-bottom:9px;">✕ Abandonner et démarrer la nouvelle</button>'
                 + '<button onclick="document.getElementById(\'awakDejaEnCoursModal\')?.remove()" style="width:100%;padding:11px;border:none;border-radius:11px;cursor:pointer;background:rgba(255,255,255,0.05);color:#94a3b8;font-weight:700;font-size:0.8em;">Annuler</button>'
                 + '</div>';
@@ -8330,7 +8330,7 @@
                     } else {
                         badge.style.display = 'block';
                         badge.innerHTML = pendingWorkout.badgeHTML;
-                        badge.style.background = pendingWorkout.badgeStyle || 'linear-gradient(135deg, #60a8f0 0%, #3b82f6 100%)';
+                        badge.style.background = pendingWorkout.badgeStyle || 'linear-gradient(135deg,#22d3ee,#0891b2)';
                         badge.style.color = '#fff';
                         badge.style.textShadow = '0 1px 3px rgba(0,0,0,0.45)';
                         badge.style.border = 'none';
@@ -10184,7 +10184,7 @@
             html += '<h3 style="margin: 0;">Plan de la semaine</h3>';
             html += '<div style="display: flex; gap: 10px; flex-wrap: wrap;">';
             html += '<button onclick="openAIPlanPicker()" class="btn" style="padding: 8px 15px; font-size: 0.9em; background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);">🤖 Plan IA</button>';
-            html += '<button onclick="showManualPlanEditor()" class="btn" style="padding: 8px 15px; font-size: 0.9em; background: linear-gradient(135deg, #60a8f0 0%, #3b82f6 100%);">✏️ Créer manuel</button>';
+            html += '<button onclick="showManualPlanEditor()" class="btn" style="padding: 8px 15px; font-size: 0.9em; background: linear-gradient(135deg,#22d3ee,#0891b2);">✏️ Créer manuel</button>';
             html += '<button onclick="showRitualsManager()" class="btn" style="padding: 8px 15px; font-size: 0.9em; background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);">✨ Rituels</button>';
             html += '</div>';
             html += '</div>';
@@ -10367,7 +10367,7 @@
                         </p>
                         <div id="manualPlanDays"></div>
                         <div style="display: flex; gap: 10px; margin-top: 25px;">
-                            <button class="btn" onclick="saveManualPlan()" style="flex: 1; background: linear-gradient(135deg, #60a8f0 0%, #3b82f6 100%);">
+                            <button class="btn" onclick="saveManualPlan()" style="flex: 1; background: linear-gradient(135deg,#22d3ee,#0891b2);">
                                 ✅ Sauvegarder mon plan
                             </button>
                             <button class="btn btn-secondary" onclick="closeManualPlanEditor()" style="flex: 1;">
@@ -11534,7 +11534,7 @@
                 if (badge) {
                     badge.style.display = 'block';
                     badge.innerHTML = '🧠 Séance Intelligente';
-                    badge.style.background = 'linear-gradient(135deg, #60a8f0 0%, #3b82f6 100%)';
+                    badge.style.background = 'linear-gradient(135deg,#22d3ee,#0891b2)';
                 }
                 
                 // BASCULER VERS EXERCICE VIEW
@@ -11583,7 +11583,7 @@
 
             // Store badge info for later
             workout.badgeHTML = '🧠 Séance Intelligente';
-            workout.badgeStyle = 'linear-gradient(135deg, #1d5fa8 0%, #164e8a 100%)';
+            workout.badgeStyle = 'linear-gradient(135deg,#22d3ee,#0891b2)';
 
             // ◈ Afficher l'écran d'analyse cyberpunk, puis lancer
             const decisions = _buildDecisionsFromWorkout(workout, realExercises);
@@ -12032,7 +12032,7 @@
                             <div style="font-size:0.75em;color:rgba(255,255,255,0.6);margin-top:4px;line-height:1.4;">La Séance Intelligente suivra automatiquement les muscles du jour.</div>
                         </div>
                     </div>
-                    <button onclick="openManualPlanEditor()" style="width:100%;background:linear-gradient(135deg,#a855f7,#7c3aed);border:none;color:white;border-radius:10px;padding:12px;font-weight:900;font-size:0.88em;cursor:pointer;letter-spacing:0.5px;box-shadow:0 4px 14px rgba(168,85,247,0.35);">CRÉER MON PLAN</button>
+                    <button onclick="openManualPlanEditor()" style="width:100%;background:linear-gradient(135deg,#22d3ee,#0891b2);border:none;color:#04121f;border-radius:10px;padding:12px;font-weight:900;font-size:0.88em;cursor:pointer;letter-spacing:0.5px;box-shadow:0 4px 14px rgba(168,85,247,0.35);">CRÉER MON PLAN</button>
                 </div>`;
                 return;
             }
@@ -14695,7 +14695,7 @@
                     <!-- Option IA -->
                     <button onclick="onMuscleChoiceAI()" style="
                         width:100%;padding:18px 16px;border-radius:14px;border:2px solid transparent;
-                        background:linear-gradient(135deg,#1d5fa8,#164e8a);color:white;
+                        background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;
                         cursor:pointer;text-align:left;margin-bottom:12px;position:relative;z-index:1;
                         box-shadow:0 4px 16px rgba(22,163,74,0.35);transition:transform 0.15s;"
                         onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">
@@ -15003,7 +15003,7 @@
                     </div>
 
                     <button onclick="confirmManualMuscles()" id="confirmMuscleBtn"
-                        style="width:100%;padding:15px;border-radius:14px;border:none;background:linear-gradient(135deg,#1d5fa8,#164e8a);color:white;font-size:1em;font-weight:700;cursor:pointer;margin-bottom:10px;opacity:0.4;pointer-events:none;">
+                        style="width:100%;padding:15px;border-radius:14px;border:none;background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;font-size:1em;font-weight:700;cursor:pointer;margin-bottom:10px;opacity:0.4;pointer-events:none;">
                         ✅ Confirmer et continuer
                     </button>
                     <button onclick="document.getElementById('manualMuscleOverlay').remove();showMuscleChoiceModal();"
@@ -15056,7 +15056,7 @@
             // Ancienne grille (conservée si présente ailleurs)
             const btn = document.getElementById('mmpBtn_' + safe);
             if (!btn) return;
-            btn.style.background  = active ? 'linear-gradient(135deg,#1d5fa8,#164e8a)' : '#222328';
+            btn.style.background  = active ? 'linear-gradient(135deg,#22d3ee,#0891b2)' : '#222328';
             btn.style.borderColor = active ? '#4ade80' : '#2E2F35';
             btn.style.transform   = active ? 'scale(1.04)' : '';
             btn.style.boxShadow   = active ? '0 0 14px rgba(74,222,128,0.4)' : '';
@@ -15524,7 +15524,7 @@
                 delete workoutToReplay._completed;
                 workoutToReplay._forceNew = true;
                 workoutToReplay.badgeHTML  = 'Rejouer';
-                workoutToReplay.badgeStyle = 'linear-gradient(135deg,#3b82f6,#1d5fa8)';
+                workoutToReplay.badgeStyle = 'linear-gradient(135deg,#22d3ee,#0891b2)';
                 switchTab('workouts');
                 showWorkoutPreparation(workoutToReplay);
             }, null, { title: 'Rejouer la séance ?', icon: '🔄', confirmLabel: 'Rejouer' });
@@ -17848,7 +17848,7 @@
                         </div>
                     </div>
                     <div style="font-size:0.75em;color:#94a3b8;line-height:1.5;margin-bottom:11px;">Choisis quelle routine faire chaque jour. Elle apparaîtra sur la carte "Aujourd'hui" à l'accueil.</div>
-                    <button onclick="openWeeklyPlanEditor()" style="width:100%;background:linear-gradient(135deg,#3b82f6,#1d5fa8);border:none;color:white;border-radius:10px;padding:11px;font-weight:900;font-size:0.85em;cursor:pointer;letter-spacing:0.5px;">CRÉER MON PLAN HEBDO</button>
+                    <button onclick="openWeeklyPlanEditor()" style="width:100%;background:linear-gradient(135deg,#22d3ee,#0891b2);border:none;color:#04121f;border-radius:10px;padding:11px;font-weight:900;font-size:0.85em;cursor:pointer;letter-spacing:0.5px;">CRÉER MON PLAN HEBDO</button>
                 </div>`;
                 return;
             }
@@ -18981,7 +18981,7 @@
                 + '<input id="hofTime" type="number" placeholder="Temps (s)" style="flex:1;min-width:0;padding:9px 10px;border-radius:9px;border:1px solid rgba(255,255,255,0.14);background:rgba(0,0,0,0.3);color:#e2e8f0;font-size:0.85em;">'
                 + '</div>'
                 + '<label style="display:flex;align-items:center;gap:8px;font-size:0.78em;color:#cbd5e1;cursor:pointer;margin-bottom:9px;"><input type="checkbox" id="hofIsGoal" style="width:17px;height:17px;"> 🎯 Objectif (affiché pendant la séance)</label>'
-                + '<button onclick="awakHallAddCustom()" style="width:100%;background:linear-gradient(135deg,#a855f7,#7c3aed);border:none;color:#fff;border-radius:10px;padding:10px;font-weight:800;font-size:0.85em;cursor:pointer;">Ajouter</button>'
+                + '<button onclick="awakHallAddCustom()" style="width:100%;background:linear-gradient(135deg,#22d3ee,#0891b2);border:none;color:#04121f;border-radius:10px;padding:10px;font-weight:800;font-size:0.85em;cursor:pointer;">Ajouter</button>'
                 + '</div>';
             panel.style.display = 'block';
         }
@@ -19616,7 +19616,7 @@
                 if (!btn) return;
                 
                 if (t === type) {
-                    btn.style.background = 'linear-gradient(135deg, #1d5fa8 0%, #164e8a 100%)';
+                    btn.style.background = 'linear-gradient(135deg,#22d3ee,#0891b2)';
                     btn.classList.remove('btn-secondary');
                 } else {
                     btn.style.background = '';
@@ -21677,7 +21677,7 @@
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1271);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1273);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -21726,7 +21726,7 @@
                 +       '<rect width="5" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.22"/>'
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1271" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1273" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -21786,8 +21786,8 @@
                 +     'ontouchend="this.style.transform=\'scale(1)\'" '
                 +     'style="position:relative;overflow:hidden;width:100%;margin-top:13px;padding:18px 16px;'
                 +     'border-radius:16px;border:none;cursor:pointer;transition:transform .12s ease;'
-                +     'background:linear-gradient(160deg,#93c5fd 0%,#60a8f0 42%,#164e8a 100%);'
-                +     'box-shadow:0 0 28px rgba(96,168,240,0.34), 0 8px 22px rgba(0,0,0,0.45),'
+                +     'background:linear-gradient(160deg,#a5f3fc 0%,#22d3ee 42%,#0e7490 100%);'
+                +     'box-shadow:0 0 28px rgba(34,211,238,0.30), 0 8px 22px rgba(0,0,0,0.45),'
                 +       'inset 0 1px 0 rgba(255,255,255,0.45);">'
                 //   reflet : bande claire en haut, comme sur une surface polie
                 +     '<span style="position:absolute;inset:0 0 55% 0;pointer-events:none;'
@@ -23805,7 +23805,7 @@
                     'cardio': '❤️ Cardio'
                 };
                 badge.innerHTML = programNames[type] || '🏋️ Programme';
-                badge.style.background = 'linear-gradient(135deg, #1d5fa8 0%, #164e8a 100%)';
+                badge.style.background = 'linear-gradient(135deg,#22d3ee,#0891b2)';
                 badge.style.display = 'block';
             }
             
@@ -23913,7 +23913,7 @@
                     bg = 'linear-gradient(90deg,rgba(96,168,240,0.16),rgba(96,168,240,0.04))';
                     border = 'rgba(96,168,240,0.75)';
                     iconColor = 'white';
-                    iconBg = 'linear-gradient(135deg,#1d5fa8,#3b82f6,#60a8f0)';
+                    iconBg = 'linear-gradient(135deg,#22d3ee,#0891b2)';
                     textColor = 'white';
                     glow = 'box-shadow:0 0 16px rgba(96,168,240,0.28);';
                 } else {
@@ -24316,7 +24316,7 @@
             // ✅ NEW: Display progression note if exists
             if (exercise.progressionNote && !exercise.isRest && !exercise.isInfo) {
                 const progressionBadge = document.createElement('div');
-                progressionBadge.style.cssText = 'display: inline-block; background: linear-gradient(135deg, #1d5fa8 0%, #164e8a 100%); color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.85em; margin-left: 10px; font-weight: bold; box-shadow: 0 2px 8px rgba(22,163,74,0.3);';
+                progressionBadge.style.cssText = 'display: inline-block; background: linear-gradient(135deg,#22d3ee,#0891b2); color:#04121f; padding: 6px 14px; border-radius: 20px; font-size: 0.85em; margin-left: 10px; font-weight: bold; box-shadow: 0 2px 8px rgba(22,163,74,0.3);';
                 progressionBadge.textContent = exercise.progressionNote;
                 document.getElementById('exerciseName').appendChild(progressionBadge);
             }
@@ -25473,7 +25473,7 @@
                     const sel = busyGymEquipment.includes(eq.id);
                     return `<button data-eqid="${eq.id}" onclick="toggleBusyEquip('${eq.id}',this)"
                         style="padding:8px 6px;border-radius:14px;border:2px solid ${sel?'#16a34a':'rgba(255,255,255,0.14)'};
-                        background:${sel?'linear-gradient(135deg,#1d5fa8,#164e8a)':'rgba(255,255,255,0.05)'};
+                        background:${sel?'linear-gradient(135deg,#22d3ee,#0891b2)':'rgba(255,255,255,0.05)'};
                         cursor:pointer;text-align:center;font-size:0.72em;font-weight:700;color:${sel?'white':'#e2e8f0'};min-height:60px;">
                         <div class="eq-icon" style="width:34px;height:34px;margin:0 auto 3px;display:flex;align-items:center;justify-content:center;filter:${sel?'brightness(10)':'brightness(0) invert(1)'};">${eq.svgIcon||'<span style="font-size:1.3em">'+eq.name[0]+'</span>'}</div>
                         <div style="line-height:1.2;">${eq.name}</div>
@@ -25490,7 +25490,7 @@
                 const sel = busyGymMachines.includes(mt.id);
                 return `<button data-mtid="${mt.id}" onclick="toggleBusyMachine('${mt.id}',this)"
                     style="padding:8px 6px;border-radius:14px;border:2px solid ${sel?'#16a34a':'rgba(255,255,255,0.14)'};
-                    background:${sel?'linear-gradient(135deg,#1d5fa8,#164e8a)':'rgba(255,255,255,0.05)'};
+                    background:${sel?'linear-gradient(135deg,#22d3ee,#0891b2)':'rgba(255,255,255,0.05)'};
                     cursor:pointer;text-align:center;font-size:0.72em;font-weight:700;color:${sel?'white':'#e2e8f0'};min-height:60px;">
                     <div style="width:34px;height:34px;margin:0 auto 3px;display:flex;align-items:center;justify-content:center;">${mt.svg?'<div class="eq-icon" style="width:34px;height:34px;filter:'+( sel?'brightness(10)':'brightness(0) invert(1)')+'">' + mt.svg + '</div>':mt.icon}</div>
                     <div style="line-height:1.2;">${mt.name.replace('Machines ','')}</div>
@@ -25528,7 +25528,7 @@
                 if (svgDiv) svgDiv.style.filter = 'brightness(0) invert(0.85)';
             } else {
                 busyGymMachines.push(id);
-                btn.style.background = 'linear-gradient(135deg,#3b82f6,#1d5fa8)'; btn.style.borderColor = '#22c55e'; btn.style.color = 'white';
+                btn.style.background = 'linear-gradient(135deg,#22d3ee,#0891b2)'; btn.style.borderColor = '#22c55e'; btn.style.color = 'white';
                 const svgDiv = btn.querySelector('div > div');
                 if (svgDiv) svgDiv.style.filter = 'brightness(10)';
             }
@@ -25540,7 +25540,7 @@
             if (!grid) return;
             grid.querySelectorAll('button').forEach(btn => {
                 if (select) {
-                    btn.style.background = 'linear-gradient(135deg,#3b82f6,#1d5fa8)'; btn.style.borderColor = '#22c55e'; btn.style.color = 'white';
+                    btn.style.background = 'linear-gradient(135deg,#22d3ee,#0891b2)'; btn.style.borderColor = '#22c55e'; btn.style.color = 'white';
                     const svgDiv = btn.querySelector('div > div');
                     if (svgDiv) svgDiv.style.filter = 'brightness(10)';
                 } else {
@@ -25559,7 +25559,7 @@
                 if (icon) icon.style.filter = 'brightness(0) invert(0.85)';
             } else {
                 busyGymEquipment.push(id);
-                btn.style.background = 'linear-gradient(135deg,#1d5fa8,#164e8a)'; btn.style.borderColor = '#16a34a'; btn.style.color = 'white';
+                btn.style.background = 'linear-gradient(135deg,#22d3ee,#0891b2)'; btn.style.borderColor = '#16a34a'; btn.style.color = 'white';
                 if (icon) icon.style.filter = 'brightness(10)';
             }
         }
@@ -26011,7 +26011,7 @@
                     <div style="width:40px;height:4px;background:#e5e7eb;border-radius:99px;margin:0 auto 18px;"></div>
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
                         <h3 style="margin:0;color:#0F1014;">Mes lieux</h3>
-                        <button onclick="showAddLocationModal()" style="background:linear-gradient(135deg,#1d5fa8,#164e8a);color:white;border:none;border-radius:10px;padding:7px 14px;font-size:0.85em;font-weight:700;cursor:pointer;">+ Ajouter</button>
+                        <button onclick="showAddLocationModal()" style="background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;border:none;border-radius:10px;padding:7px 14px;font-size:0.85em;font-weight:700;cursor:pointer;">+ Ajouter</button>
                     </div>
                     ${profiles.map(loc => `
                     <div style="display:flex;align-items:center;gap:12px;padding:12px;border:2px solid ${loc.id===activeLocationId?'#16a34a':'#e5e7eb'};border-radius:14px;margin-bottom:8px;background:${loc.id===activeLocationId?'#FFF3E0':'white'};">
@@ -26050,7 +26050,7 @@
             const home = document.getElementById('modeHomeBtn');
             const gym  = document.getElementById('modeGymBtn');
             const gymSection = document.getElementById('gymProgramsSection');
-            const active   = 'linear-gradient(135deg,#1d5fa8,#164e8a)';
+            const active   = 'linear-gradient(135deg,#22d3ee,#0891b2)';
 
             [home, gym].forEach(btn => {
                 if (!btn) return;
@@ -26116,7 +26116,7 @@
             // Update button states
             document.querySelectorAll('#globalRestBtns button').forEach(btn => {
                 const isActive = parseInt(btn.dataset.rest) === seconds;
-                btn.style.background = isActive ? 'linear-gradient(135deg,#1d5fa8,#164e8a)' : '';
+                btn.style.background = isActive ? 'linear-gradient(135deg,#22d3ee,#0891b2)' : '';
                 btn.style.color      = isActive ? 'white' : '';
                 btn.style.border     = isActive ? 'none' : '';
             });
@@ -26128,7 +26128,7 @@
         function initGlobalRestUI() {
             document.querySelectorAll('#globalRestBtns button').forEach(btn => {
                 const isActive = parseInt(btn.dataset.rest) === globalRestSeconds;
-                if (isActive) { btn.style.background='linear-gradient(135deg,#1d5fa8,#164e8a)'; btn.style.color='white'; btn.style.border='none'; }
+                if (isActive) { btn.style.background='linear-gradient(135deg,#22d3ee,#0891b2)'; btn.style.color='white'; btn.style.border='none'; }
             });
             const hint = document.getElementById('globalRestHint');
             const labels = {60:'1 min', 90:'1:30', 120:'2 min', 180:'3 min'};
@@ -26143,7 +26143,7 @@
         }
 
         function _updateGymSubBtns() {
-            const active = 'linear-gradient(135deg,#1d5fa8,#164e8a)';
+            const active = 'linear-gradient(135deg,#22d3ee,#0891b2)';
             const moBtn  = document.getElementById('gymMachineOnlyBtn');
             const mxBtn  = document.getElementById('gymMixedBtn');
             const sub    = document.getElementById('gymBtnSubtext');
@@ -26376,7 +26376,7 @@
 
         function updateWeightUnitLabels() {
             const unit = useKg ? 'kg' : 'lbs';
-            const active   = 'linear-gradient(135deg,#1d5fa8,#164e8a)';
+            const active   = 'linear-gradient(135deg,#22d3ee,#0891b2)';
             const inactive = 'rgba(255,255,255,0.03)';
             const activeTxt   = 'white';
             const inactiveTxt = '#374151';
@@ -26956,7 +26956,7 @@
             fmtBar.style.cssText = 'display:flex;gap:8px;';
             const mkFmtBtn = (label, fmt) => {
                 const active = fmt === format;
-                return `<button onclick="_openShareCardModal('${fmt}')" style="background:${active?'linear-gradient(135deg,#1d5fa8,#164e8a)':'rgba(255,255,255,0.08)'};color:${active?'#fff':'#94a3b8'};border:1px solid ${active?'#4ade80':'rgba(255,255,255,0.15)'};border-radius:10px;padding:9px 16px;font-weight:800;cursor:pointer;font-size:0.82em;letter-spacing:0.5px;">${label}</button>`;
+                return `<button onclick="_openShareCardModal('${fmt}')" style="background:${active?'linear-gradient(135deg,#22d3ee,#0891b2)':'rgba(255,255,255,0.08)'};color:${active?'#fff':'#94a3b8'};border:1px solid ${active?'#4ade80':'rgba(255,255,255,0.15)'};border-radius:10px;padding:9px 16px;font-weight:800;cursor:pointer;font-size:0.82em;letter-spacing:0.5px;">${label}</button>`;
             };
             fmtBar.innerHTML = mkFmtBtn('▭ Carré', 'square') + mkFmtBtn('▯ Story', 'story');
             overlay.appendChild(fmtBar);
@@ -26971,7 +26971,7 @@
             const actions = document.createElement('div');
             actions.style.cssText = 'display:flex;gap:8px;width:100%;max-width:340px;';
             actions.innerHTML = `
-                <button id="shareCardShareBtn" style="flex:1;background:linear-gradient(135deg,#1d5fa8,#164e8a);color:#fff;border:none;border-radius:14px;padding:14px;font-weight:800;cursor:pointer;font-size:0.92em;">📤 Partager</button>
+                <button id="shareCardShareBtn" style="flex:1;background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;border:none;border-radius:14px;padding:14px;font-weight:800;cursor:pointer;font-size:0.92em;">📤 Partager</button>
                 <button id="shareCardDlBtn" style="flex:1;background:rgba(168,85,247,0.15);color:#c084fc;border:1px solid rgba(168,85,247,0.4);border-radius:14px;padding:14px;font-weight:800;cursor:pointer;font-size:0.92em;">⬇ Enregistrer</button>
             `;
             overlay.appendChild(actions);
@@ -27165,7 +27165,7 @@
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1271");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1273");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -29195,7 +29195,7 @@
                     const on = awakIsInvincible();
                     btn.querySelector('span').textContent = `🛡️ Invincibilité : ${on ? 'ON' : 'OFF'}`;
                     btn.style.background = on
-                        ? 'linear-gradient(135deg,#1d5fa8,#164e8a)'
+                        ? 'linear-gradient(135deg,#22d3ee,#0891b2)'
                         : 'linear-gradient(135deg,#dc2626,#991b1b)';
                 }
             } catch(e) {}
@@ -31498,7 +31498,7 @@
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1271);'
+                +     'url(images/combat_bg_v1.webp?v=1273);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -31753,7 +31753,7 @@
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1271);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1273);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -32012,7 +32012,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:540px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto;display:flex;flex-direction:column;">
                 <!-- Header : vague actuelle -->
-                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1271);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1273);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                         <span style="font-size:0.6em;color:${theme.color};font-weight:900;letter-spacing:2px;">⚔ VAGUE ${rift.currentWaveIdx + 1} / ${rift.waves.length}${currentWave.isBoss ? ' · BOSS' : ''}</span>
                         <button onclick="awakAbandonRift()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
@@ -33164,7 +33164,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1271');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1273');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -33901,7 +33901,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1271);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1273);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -34072,7 +34072,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1271);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1273);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -35489,7 +35489,7 @@
                         <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.06);"><span style="color:#94a3b8;font-size:0.78em;">Bonus d'XP permanent</span><span style="color:#4ade80;font-size:0.84em;font-weight:800;">+${Math.round(eveil.xpBonus*100)}%</span></div>
                         <div style="display:flex;justify-content:space-between;padding:5px 0;"><span style="color:#94a3b8;font-size:0.78em;">Points de stats</span><span style="color:#4ade80;font-size:0.84em;font-weight:800;">+${eveil.statPoints}</span></div>
                     </div>
-                    <button onclick="awakAcceptEveil(${eveil.tier})" style="width:100%;padding:15px;background:linear-gradient(135deg,#3b82f6,#1d5fa8);color:#050507;border:none;border-radius:14px;font-size:0.98em;font-weight:900;letter-spacing:1px;cursor:pointer;">S'ÉVEILLER</button>
+                    <button onclick="awakAcceptEveil(${eveil.tier})" style="width:100%;padding:15px;background:linear-gradient(135deg,#22d3ee,#0891b2);color:#050507;border:none;border-radius:14px;font-size:0.98em;font-weight:900;letter-spacing:1px;cursor:pointer;">S'ÉVEILLER</button>
                 </div>`;
             document.body.appendChild(ov);
             try { if (typeof hapticTap === 'function') hapticTap([40, 60, 40, 60, 140]); } catch(e) {}
@@ -36919,7 +36919,7 @@
                             <div style="font-size:1.15em;font-weight:900;color:white;letter-spacing:-0.5px;">${title}</div>
                         </div>
                         <div style="margin-bottom:14px;">${sectionsHtml}</div>
-                        <button onclick="document.getElementById('awakInfoModal').remove()" style="width:100%;background:linear-gradient(135deg,#1d5fa8,#3b82f6);border:none;color:white;padding:13px;border-radius:10px;font-weight:900;font-size:0.9em;letter-spacing:1px;text-transform:uppercase;cursor:pointer;box-shadow:0 4px 16px rgba(34,197,94,0.3);">✓ Compris</button>
+                        <button onclick="document.getElementById('awakInfoModal').remove()" style="width:100%;background:linear-gradient(135deg,#22d3ee,#0891b2);border:none;color:#04121f;padding:13px;border-radius:10px;font-weight:900;font-size:0.9em;letter-spacing:1px;text-transform:uppercase;cursor:pointer;box-shadow:0 4px 16px rgba(34,197,94,0.3);">✓ Compris</button>
                     </div>
                 </div>
             `;
@@ -38089,7 +38089,7 @@
                 el.style.cssText = `position:fixed;right:16px;bottom:90px;z-index:20000;background:linear-gradient(135deg,#64748b,#475569);color:white;padding:6px 14px;border-radius:99px;font-size:0.78em;font-weight:800;pointer-events:none;animation:slideInRight 0.3s ease;`;
             } else {
                 el.textContent = `+${xp} XP 💪`;
-                el.style.cssText = `position:fixed;right:16px;bottom:90px;z-index:20000;background:linear-gradient(135deg,#1d5fa8,#164e8a);color:white;padding:6px 14px;border-radius:99px;font-size:0.82em;font-weight:800;pointer-events:none;animation:slideInRight 0.3s ease;`;
+                el.style.cssText = `position:fixed;right:16px;bottom:90px;z-index:20000;background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;padding:6px 14px;border-radius:99px;font-size:0.82em;font-weight:800;pointer-events:none;animation:slideInRight 0.3s ease;`;
             }
             document.body.appendChild(el);
             setTimeout(() => {
@@ -40509,7 +40509,7 @@
                     + 'style="flex:1;min-width:0;padding:9px 6px;border:none;border-radius:10px;cursor:pointer;'
                     + 'font-weight:800;font-size:0.78em;letter-spacing:0.3px;white-space:nowrap;'
                     + (active
-                        ? 'background:linear-gradient(135deg,#3b82f6,#1d5fa8);color:#fff;box-shadow:0 2px 10px rgba(59,130,246,0.35);'
+                        ? 'background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;box-shadow:0 2px 10px rgba(59,130,246,0.35);'
                         : 'background:rgba(255,255,255,0.05);color:#94a3b8;')
                     + '">' + s.label + '</button>';
             }).join('');
@@ -41477,7 +41477,7 @@
                     `).join('')}
                 </div>` : ''}
 
-                <button onclick="showCelebrityPrograms()" style="width:100%;background:linear-gradient(135deg,#a855f7,#7c3aed);border:none;color:white;border-radius:14px;padding:14px;font-weight:900;font-size:0.9em;letter-spacing:0.5px;cursor:pointer;box-shadow:0 4px 16px rgba(168,85,247,0.4);">VOIR TOUS LES PROGRAMMES</button>
+                <button onclick="showCelebrityPrograms()" style="width:100%;background:linear-gradient(135deg,#22d3ee,#0891b2);border:none;color:#04121f;border-radius:14px;padding:14px;font-weight:900;font-size:0.9em;letter-spacing:0.5px;cursor:pointer;box-shadow:0 4px 16px rgba(168,85,247,0.4);">VOIR TOUS LES PROGRAMMES</button>
             </div>
             `;
         }
@@ -42249,7 +42249,7 @@
                         <div style="display: flex; gap: 8px;">
                             <button onclick="event.stopPropagation(); editProgram(${index})" 
                                     class="btn" 
-                                    style="padding: 8px 12px; font-size: 0.9em; background: linear-gradient(135deg, #60a8f0 0%, #3b82f6 100%);"
+                                    style="padding: 8px 12px; font-size: 0.9em; background: linear-gradient(135deg,#22d3ee,#0891b2);"
                                     title="Modifier">
                                 ✏️
                             </button>
@@ -42285,7 +42285,7 @@
                     
                     <button onclick="startProgramWorkout(${index})" 
                             class="btn" 
-                            style="width: 100%; background: linear-gradient(135deg, #1d5fa8 0%, #164e8a 100%);">
+                            style="width: 100%; background: linear-gradient(135deg,#22d3ee,#0891b2);">
                         ▶️ Lancer le programme
                     </button>
                 </div>
@@ -44229,7 +44229,7 @@
                 const isFuture = d > now && !isToday;
                 if (isTrained) done++;
 
-                const bg = isTrained ? 'linear-gradient(160deg,#3b82f6,#1d5fa8)'
+                const bg = isTrained ? 'linear-gradient(135deg,#22d3ee,#0891b2)'
                          : isFuture  ? 'rgba(255,255,255,0.02)'
                                      : 'rgba(255,255,255,0.05)';
                 const col = isTrained ? '#fff' : isFuture ? '#475569' : '#64748b';
@@ -44744,7 +44744,7 @@
               +   '<select id="awakPickB" style="' + champ + '">' + opts + '</select>'
               +   '<button onclick="awakDoPhotoCompare()" '
               +     'style="width:100%;padding:13px;margin-top:6px;border-radius:13px;border:none;cursor:pointer;'
-              +     'background:linear-gradient(160deg,#93c5fd,#60a8f0 45%,#164e8a);'
+              +     'background:linear-gradient(160deg,#a5f3fc,#22d3ee 45%,#0e7490);'
               +     'color:#04162b;font-weight:900;font-size:0.8em;letter-spacing:1px;">COMPARER</button>'
               +   '<button onclick="document.getElementById(\'awakPhotoPick\').remove()" '
               +     'style="width:100%;padding:11px;margin-top:8px;border-radius:13px;cursor:pointer;'
@@ -44836,7 +44836,7 @@
 
             host.innerHTML =
                 '<div style="position:relative;width:110px;margin:0 auto 12px;">'
-              +   '<img src="images/body/body_face.webp?v=1271" alt="" '
+              +   '<img src="images/body/body_face.webp?v=1273" alt="" '
               +     'style="width:100%;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -44918,7 +44918,7 @@
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1271);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1273);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -44985,14 +44985,14 @@
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1271);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1273);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
                   +       '<div style="font-size:0.7em;color:#94a3b8;line-height:1.4;margin-top:2px;">Ajoute ta 1re photo · Poids ' + poids + '<br>Elles restent sur ton téléphone.</div>'
                   +     '</div>'
                   +     '<button onclick="takeProgressPhoto()" style="flex-shrink:0;min-height:auto;padding:10px 13px;border-radius:11px;border:none;cursor:pointer;font-weight:900;font-size:0.76em;'
-                  +       'background:linear-gradient(160deg,#93c5fd,#60a8f0 45%,#164e8a);color:#04121f;">Photo</button>'
+                  +       'background:linear-gradient(160deg,#a5f3fc,#22d3ee 45%,#0e7490);color:#04121f;">Photo</button>'
                   +   '</div>'
                   + '</div>';
                 return;
@@ -45022,7 +45022,7 @@
         function _corpsBtn(fn, txt, principal) {
             if (principal) {
                 return '<button onclick="' + fn + '" style="padding:13px 10px;border-radius:13px;'
-                     + 'border:none;cursor:pointer;background:linear-gradient(160deg,#93c5fd,#60a8f0 45%,#164e8a);'
+                     + 'border:none;cursor:pointer;background:linear-gradient(160deg,#a5f3fc,#22d3ee 45%,#0e7490);'
                      + 'color:#04162b;font-size:0.76em;font-weight:900;letter-spacing:0.5px;">'
                      + txt + '</button>';
             }
@@ -46273,7 +46273,7 @@
                     <div style="flex:1;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:1;animation:awakFadeIn 0.45s ease;overflow-y:auto;">${inner}</div>
                 </div>`;
 
-            const btnPrimary = (label, action) => `<button onclick="${action}" style="width:100%;padding:16px;background:linear-gradient(135deg,#3b82f6,#1d5fa8);color:#fff;border:none;border-radius:14px;font-size:1em;font-weight:900;letter-spacing:0.5px;cursor:pointer;box-shadow:0 6px 24px rgba(59,130,246,0.3);">${label}</button>`;
+            const btnPrimary = (label, action) => `<button onclick="${action}" style="width:100%;padding:16px;background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;border:none;border-radius:14px;font-size:1em;font-weight:900;letter-spacing:0.5px;cursor:pointer;box-shadow:0 6px 24px rgba(59,130,246,0.3);">${label}</button>`;
 
             function render() {
                 const seq = _sequence();
@@ -46315,7 +46315,7 @@
                         +   '<span style="font-size:0.72em;color:#94a3b8;font-weight:800;">Ton poids</span>'
                         +   '<span style="display:inline-flex;padding:3px;border-radius:11px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);">'
                         +     ['lbs', 'kg'].map(u => '<button onclick="window._premOnbUnit(\'' + u + '\')" data-unit="' + u + '" style="min-height:auto;padding:6px 14px;border-radius:8px;border:none;cursor:pointer;font-size:0.78em;font-weight:900;'
-                        +       (_u === u ? 'background:linear-gradient(135deg,#3b82f6,#1d5fa8);color:#fff;' : 'background:transparent;color:#94a3b8;') + '">' + u + '</button>').join('')
+                        +       (_u === u ? 'background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;' : 'background:transparent;color:#94a3b8;') + '">' + u + '</button>').join('')
                         +   '</span></div>'
                         + AwakRegle.html('_premOnbPoidsR', _u === 'kg' ? { min: 30, max: 200, pas: 1, val: _wv, unite: 'kg' } : { min: 66, max: 440, pas: 1, val: _wv, unite: 'lbs' })
                         + `<div style="font-size:0.72em;color:#94a3b8;font-weight:800;margin:22px 0 8px;">Sexe — pour des suggestions adaptées</div>
@@ -46373,7 +46373,7 @@
                     inner = _sur('PRÉPARATION')
                         + `<h2 style="color:#fff;font-size:1.4em;font-weight:900;margin:0 0 6px;">Échauffement & étirements</h2>
                         <p style="color:#94a3b8;font-size:0.82em;line-height:1.6;margin:0 0 18px;">Chaque séance peut inclure un <strong style="color:#e2e8f0;">échauffement</strong> et des <strong style="color:#e2e8f0;">étirements</strong> adaptés aux muscles travaillés. Modifiable dans les Réglages.</p>
-                        <button onclick="window._premOnbWarmup(true)" style="width:100%;padding:15px;margin-bottom:10px;background:linear-gradient(135deg,#3b82f6,#1d5fa8);border:none;border-radius:14px;color:#fff;font-weight:900;font-size:0.95em;cursor:pointer;">Oui, prépare-moi</button>
+                        <button onclick="window._premOnbWarmup(true)" style="width:100%;padding:15px;margin-bottom:10px;background:linear-gradient(135deg,#22d3ee,#0891b2);border:none;border-radius:14px;color:#04121f;font-weight:900;font-size:0.95em;cursor:pointer;">Oui, prépare-moi</button>
                         <button onclick="window._premOnbWarmup(false)" style="width:100%;padding:14px;background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.12);border-radius:14px;color:#94a3b8;font-weight:800;font-size:0.9em;cursor:pointer;">Non merci, j'irai direct</button>`;
                 } else if (ecran === 'finEnfant') {
                     const _l = (ico, c, t, d) => '<div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;">' + _icoBox(ico, c) + '<span style="color:#cbd5e1;font-size:0.84em;line-height:1.45;"><strong style="color:#fff;">' + t + '</strong> ' + d + '</span></div>';
@@ -46632,7 +46632,7 @@
                             <h2 style="color:white;font-size:1.3em;font-weight:900;margin:0 0 14px;">${s.title}</h2>
                             <p style="color:#94a3b8;font-size:0.9em;line-height:1.7;margin:0;">${s.text}</p>
                         </div>
-                        <button onclick="window._onboardNext()" style="width:100%;padding:16px;background:linear-gradient(135deg,#1d5fa8,#164e8a);color:white;border:none;border-radius:14px;font-size:1em;font-weight:900;cursor:pointer;margin-bottom:12px;">
+                        <button onclick="window._onboardNext()" style="width:100%;padding:16px;background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;border:none;border-radius:14px;font-size:1em;font-weight:900;cursor:pointer;margin-bottom:12px;">
                             ${s.btn}
                         </button>
                         ${!isLast ? `<button onclick="window._onboardSkip()" style="width:100%;padding:10px;background:transparent;border:none;color:rgba(255,255,255,0.3);font-size:0.85em;cursor:pointer;">Passer</button>` : ''}
@@ -47283,7 +47283,7 @@
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1271");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1273");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
@@ -48473,7 +48473,7 @@
                             color:${m===5?'#22d3ee':'#94a3b8'};">${m} min</button>`).join('')}
                 </div>
 
-                <button onclick="_confirmCardioWarmup()" id="cardioConfirmBtn" style="width:100%;padding:14px;background:linear-gradient(135deg,#3b82f6,#1d5fa8);border:none;border-radius:14px;color:white;font-weight:900;font-size:0.95em;cursor:pointer;margin-bottom:8px;box-shadow:0 4px 16px rgba(34,197,94,0.3);opacity:0.5;pointer-events:none;">▶ Ajouter le cardio</button>
+                <button onclick="_confirmCardioWarmup()" id="cardioConfirmBtn" style="width:100%;padding:14px;background:linear-gradient(135deg,#22d3ee,#0891b2);border:none;border-radius:14px;color:#04121f;font-weight:900;font-size:0.95em;cursor:pointer;margin-bottom:8px;box-shadow:0 4px 16px rgba(34,197,94,0.3);opacity:0.5;pointer-events:none;">▶ Ajouter le cardio</button>
                 <button onclick="_skipCardioWarmup()" style="width:100%;padding:13px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:14px;color:#94a3b8;font-weight:700;cursor:pointer;">Passer — démarrer directement</button>`;
             overlay.appendChild(sheet);
             document.body.appendChild(overlay);

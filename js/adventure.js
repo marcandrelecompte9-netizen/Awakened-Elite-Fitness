@@ -732,7 +732,7 @@ function renderFamilyTab() {
             + '<div style="width:58px;height:58px;margin:0 auto 10px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(236,72,153,0.14);">' + ((window.AwakIcon && AwakIcon.get('groupe', 30, '#f9a8d4')) || '') + '</div>'
             + '<div style="font-size:1.05em;font-weight:800;color:#fff;margin-bottom:6px;">La famille se construit à plusieurs</div>'
             + '<p style="font-size:0.82em;color:#94a3b8;line-height:1.5;margin:0 0 16px;">Crée un profil pour chaque membre de ta famille. Vous pourrez vous encourager, relever des défis et allumer un ciel d\'étoiles ensemble.</p>'
-            + '<button onclick="showProfileSelectionModal()" style="padding:12px 22px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#ec4899,#be185d);color:#fff;font-weight:800;font-size:0.9em;">Ajouter un membre</button>'
+            + '<button onclick="showProfileSelectionModal()" style="padding:12px 22px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;font-weight:800;font-size:0.9em;">Ajouter un membre</button>'
             + '</div>';
         container.innerHTML = html;
         return;

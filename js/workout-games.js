@@ -725,7 +725,7 @@
       + '<div style="display:flex;gap:8px;">'
       + noms.map(function (n, i) {
           return '<button onclick="AwakGamesGagne(' + i + ')" style="flex:1;min-width:0;padding:13px 6px;border:none;border-radius:12px;cursor:pointer;'
-            + (or ? 'background:linear-gradient(135deg,#fbbf24,#d97706);color:#3b2606;' : 'background:linear-gradient(135deg,#3b82f6,#1d5fa8);color:#fff;')
+            + (or ? 'background:linear-gradient(135deg,#fbbf24,#d97706);color:#3b2606;' : 'background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;')
             + 'font-weight:900;font-size:0.84em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(n) + '</button>';
         }).join('')
       + '</div>';
@@ -787,7 +787,7 @@
       + (typeof ex !== 'string' && estUnilat(ex) ? ' <b style="color:#93c5fd;">par côté</b>' : '') + '</div>';
   }
   function bouton(fn, txt, cyan) {
-    var fond = cyan ? 'linear-gradient(135deg,#22d3ee,#0891b2);color:#032027' : 'linear-gradient(135deg,#3b82f6,#1d5fa8);color:#fff';
+    var fond = cyan ? 'linear-gradient(135deg,#22d3ee,#0891b2);color:#032027' : 'linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f';
     return '<button onclick="' + fn + '" style="width:100%;padding:15px;border:none;border-radius:12px;cursor:pointer;background:' + fond + ';font-weight:900;font-size:0.95em;">' + txt + '</button>';
   }
   function encart(titre, contenu) {
@@ -1512,7 +1512,7 @@
       +     '<p style="margin:0;color:#94a3b8;font-size:0.82em;">' + nb + ' formats ludiques, adaptés à ton matériel et ta forme.</p>'
       +   '</div>'
       + '</div>'
-      + '<button onclick="AwakGamesOpenPicker()" style="width:100%;margin-top:14px;padding:14px;background:linear-gradient(135deg,#3b82f6,#1d5fa8);border:none;border-radius:14px;color:#fff;font-weight:900;font-size:0.95em;cursor:pointer;">Choisir un jeu ›</button>'
+      + '<button onclick="AwakGamesOpenPicker()" style="width:100%;margin-top:14px;padding:14px;background:linear-gradient(135deg,#22d3ee,#0891b2);border:none;border-radius:14px;color:#04121f;font-weight:900;font-size:0.95em;cursor:pointer;">Choisir un jeu ›</button>'
       + '</div>';
   }
 
@@ -1577,7 +1577,7 @@
       +     '<div style="font-size:0.78em;color:#94a3b8;">' + duos.length + ' formats pour se pousser mutuellement.</div>'
       +   '</div>'
       + '</div>'
-      + '<button onclick="AwakGamesOpenFamilyPicker()" style="width:100%;margin-top:14px;padding:13px;background:linear-gradient(135deg,#a855f7,#7c3aed);border:none;border-radius:13px;color:#fff;font-weight:900;font-size:0.92em;cursor:pointer;">Jouer à deux ▸</button>'
+      + '<button onclick="AwakGamesOpenFamilyPicker()" style="width:100%;margin-top:14px;padding:13px;background:linear-gradient(135deg,#22d3ee,#0891b2);border:none;border-radius:13px;color:#04121f;font-weight:900;font-size:0.92em;cursor:pointer;">Jouer à deux ▸</button>'
       + '</div>';
   }
 

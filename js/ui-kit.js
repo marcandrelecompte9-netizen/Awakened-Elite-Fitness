@@ -100,7 +100,7 @@
       + '<span style="font-size:1.4em;flex-shrink:0;line-height:1;">' + icon + '</span>'
       + '<span style="flex:1;min-width:0;">'
       + '<span style="display:block;font-size:0.86em;font-weight:800;color:' + T.txt + ';">' + title + '</span>'
-      + (desc ? '<span style="display:block;font-size:0.68em;color:' + T.mut + ';margin-top:1px;line-height:1.3;">' + desc + '</span>' : '')
+      + (desc ? '<span style="display:block;font-size:0.76em;color:#a3b1c2;margin-top:2px;line-height:1.35;">' + desc + '</span>' : '')
       + '</span><span style="color:' + T.dim + ';flex-shrink:0;font-size:1.1em;">›</span></button>';
   }
   window.uiActionRow = uiActionRow;

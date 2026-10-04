@@ -535,7 +535,7 @@
           })()
         + '</div>'
         + '<p style="font-size:0.82em;color:#94a3b8;line-height:1.5;margin:0 0 14px;">Fixez un but à atteindre <b style="color:#4ade80;">ensemble</b> — chaque séance de chacun fait avancer toute la famille.</p>'
-        + '<button onclick="AwakFamilyGoalOpen()" style="width:100%;padding:12px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#3b82f6,#1d5fa8);color:#fff;font-weight:800;font-size:0.9em;">🎯 Créer un objectif commun</button>'
+        + '<button onclick="AwakFamilyGoalOpen()" style="width:100%;padding:12px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;font-weight:800;font-size:0.9em;">🎯 Créer un objectif commun</button>'
         + '</div>';
     }
 

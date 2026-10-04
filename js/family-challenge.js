@@ -703,7 +703,7 @@
         +   'Vous y êtes arrivés ensemble. ' + st.total + ' / ' + st.cible + '.</div>'
         + '<button onclick="AwakCoopClore()" '
         +   'style="width:100%;margin-top:12px;padding:12px;border-radius:12px;border:none;'
-        +   'cursor:pointer;background:linear-gradient(160deg,#93c5fd,#60a8f0 45%,#164e8a);'
+        +   'cursor:pointer;background:linear-gradient(160deg,#a5f3fc,#22d3ee 45%,#0e7490);'
         +   'color:#04162b;font-weight:900;font-size:0.78em;letter-spacing:0.5px;">'
         +   'CLORE ET EN LANCER UN AUTRE</button>'
         + '</div>';
