@@ -237,6 +237,8 @@
   function updateButton() {
     var host = document.getElementById('painButtonContainer');
     if (host) host.innerHTML = renderButton();
+    // v1262 : le personnage de l'onglet Séance montre les zones douloureuses
+    try { if (typeof window.awakRafraichirCorps === 'function') window.awakRafraichirCorps(); } catch (e) {}
   }
 
   window.AwakPainOpen = function () {

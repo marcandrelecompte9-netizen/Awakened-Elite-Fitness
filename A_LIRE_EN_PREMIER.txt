@@ -2068,7 +2068,7 @@ IMAGES MANQUANTES — 14 exercices (10 Pilates livrés en v909) + 18 scènes nar
      boites identiques rgba(255,255,255,0.1). Rien qui evoque l univers de
      l app.
      DIRECTION : traiter la carte comme la FENETRE DE STATUT DU SYSTEME
-     (l element visuel iconique de Solo Leveling), ancre dans le sujet plutot
+     (element visuel iconique), ancre dans le sujet plutot
      que decoratif. Signature = equerres d angle.
      - 4 equerres d angle vertes (16px, insets 9px) = cadre HUD ;
      - texture holographique : repeating-linear-gradient 115deg tres faible

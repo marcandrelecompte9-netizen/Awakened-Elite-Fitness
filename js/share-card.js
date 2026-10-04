@@ -10,18 +10,18 @@
 (function() {
 'use strict';
 
-// Citations courtes pour la carte (ton Solo Leveling)
+// Citations courtes pour la carte
 const SHARE_QUOTES = [
     "Le Système enregistre chaque effort.",
     "Lève-toi, Joueur. Tu es plus fort qu'hier.",
-    "La discipline forge les Monarques.",
+    "La discipline forge les Ancres.",
     "Chaque répétition te rapproche du sommet.",
     "Les faibles cherchent le confort. Toi, la croissance.",
     "Aucune excuse. Seulement des actions.",
     "Tu as franchi la Faille. Encore.",
     "La force réelle ne ment pas.",
     "Ce qui ne progresse pas régresse.",
-    "Deviens le Monarque de ta propre vie."
+    "Deviens l'Ancre de ta propre vie."
 ];
 
 function pickQuote() {

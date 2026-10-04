@@ -255,3 +255,29 @@ awakApplyBossMechanic ignore ces ids custom (pas de conflit).
 - Flux dans awakCompleteRift : si rift.isCompanionRift → awakShowCompanionMeeting(...) puis onDone → awakCompanionsTriggerUnlockCheck (pop-up).
 - Anti-doublon : awakShowCompanionUnlocked bloque si overlay rencontre présent OU si déjà montrée (localStorage awakCompanionPopupShown).
 - Textes : Marcus (défi/respect), Kira (rare de la forcer à se montrer), Élise (veiller à ce que tu rentres entier), Yuna (déjà vu dans le Noyau), Chen (la constance que le Monde ne peut effacer).
+
+## CANON — VÉRIFICATION DE COHÉRENCE (v1265)
+- **Le joueur EST Esen (avatar homme) ou Nyra (avatar femme)** — jamais un 3e personnage (v1267).
+  L'autre héros est le partenaire. Jetons dans les textes : {partenaire}, {il}/{Il}, {pe}, {e} ;
+  variantes `pagesSi:{esen,nyra}` (ex. Élise parle du partenaire). Les réactions viennent du partenaire.
+- **Le Monarque du Déclin = le nom que les survivants donnent à Nabdano** (révélé dans « Le Nom »).
+  La jauge du Déclin, la carte « au bout de l'avenue » et le combat final parlent donc de lui.
+  Personne d'autre ne porte le titre de Monarque (classes → « Souverain », cartes → « Ancre »).
+- **Ordre de la fin** : Celui qui a Porté (55) → Presque Tendre (65) → Dernière Porte (80) →
+  Les Quatre Épreuves (gardiens = ses questions) → Il n'y a plus de Porte → combat final
+  (Nabdano reste assis, il prête sa fatigue) → scène « L'Ancre » → écran de victoire → Abysses.
+- **Déclencheurs en NIVEAU** (`trigger:{kind:'xp', level, frac}`), plus en XP brute : la courbe
+  d'XP a été rééquilibrée et les seuils XP faisaient arriver la moitié de l'histoire après le rang S.
+  Compagnons : Marcus 12, Kira 24, Élise 40, Yuna 58, Chen 72 (`levelRequired`).
+- Le Tisserand / l'Architecte appartiennent à l'ancienne histoire (STORY_CHAPTERS, non appelée).
+
+## ENRICHISSEMENTS (v1266)
+- **Jalons réels** (en tête du registre, jamais bloqués) : série 7 (Les Encoches), 100 séances,
+  série 30 (Confiance), 250 séances (Les Lacets).
+- **Murmure du Déclin** (`awakMurmureDeclin`) : à l'ouverture, si la jauge ≥ 40, Nabdano parle (1×/jour),
+  puis les héros réagissent. **Le Retour** (`awakSceneRetour`) : 1re séance après ≥ 10 jours, 3 variantes.
+- **Creux 56→80 comblé** : Marcus 59, Marchand 62 (son vieux client = Nabdano), Kira 63, Élise 67,
+  Yuna 69 (le Noyau), Chen 74 (méfiance envers le Système), Le Seuil 75, La Chanson 76 (Nabdano la fredonne),
+  Avant la Fin 79, Bilan 79. Scènes de compagnon : seulement si recruté, avant la Dernière Porte.
+- **Épilogue « Après »** : la photo d'Esen (sa sœur Ilia), la promesse du duo (« …Demain. »).
+- **Combat final personnalisé** : nombre de séances, plus longue série, compagnons présents.

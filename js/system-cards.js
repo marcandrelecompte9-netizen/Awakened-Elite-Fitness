@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════════════
 // Awakened — Cartes du Système (tirage quotidien)
 // ═══════════════════════════════════════════════════════════════════
-// 5 catégories, ton Solo Leveling intense — le Système s'adresse au Joueur.
+// 5 catégories, ton intense — le Système s'adresse au Joueur.
 // Tirage déterministe par jour (même carte toute la journée).
 // ═══════════════════════════════════════════════════════════════════
 (function() {
@@ -45,7 +45,7 @@ const SYSTEM_CARDS = [
     { cat: 'Focus', color: '#06b6d4', icon: '🎯', title: 'Le Calme du Prédateur', text: "Avant l'effort explosif, le calme absolu. Respire. Concentre. Puis libère tout. La maîtrise précède la puissance." },
 
     // ── SAGESSE ──────────────────────────────────────────────────
-    { cat: 'Sagesse', color: '#4ade80', icon: '📜', title: 'Le Repos est une Arme', text: "Même le Monarque dort. Le muscle ne grandit pas pendant l'effort, mais pendant la récupération. Respecte le repos comme tu respectes l'effort." },
+    { cat: 'Sagesse', color: '#4ade80', icon: '📜', title: 'Le Repos est une Arme', text: "Même une Ancre se repose. Le muscle ne grandit pas pendant l'effort, mais pendant la récupération. Respecte le repos comme tu respectes l'effort." },
     { cat: 'Sagesse', color: '#4ade80', icon: '📜', title: 'Patience du Chasseur', text: "Les niveaux ne se sautent pas. On les gravit. Méfie-toi de qui te promet la puissance sans le temps. Le Système ne triche pas." },
     { cat: 'Sagesse', color: '#4ade80', icon: '📜', title: 'Écoute ton Corps', text: "La douleur qui enseigne diffère de la douleur qui détruit. Apprends à distinguer. Un Chasseur blessé ne chasse plus." },
     { cat: 'Sagesse', color: '#4ade80', icon: '📜', title: 'Le Long Jeu', text: "Tu ne construis pas pour aujourd'hui. Tu construis pour la version de toi dans dix ans. Plante l'arbre dont tu n'as pas encore l'ombre." },
@@ -66,7 +66,7 @@ const SYSTEM_CARDS = [
     { cat: 'Courage', color: '#f59e0b', icon: '🔥', title: 'L\'Éveil', text: "Chaque Chasseur a connu un instant où il a décidé de ne plus être faible. Que ce jour soit le tien. Réveille-toi, Joueur." },
     { cat: 'Courage', color: '#f59e0b', icon: '🔥', title: 'Seul Face à la Faille', text: "Personne ne soulèvera le poids à ta place. Personne ne courra pour toi. Cette solitude n'est pas une malédiction — c'est ta preuve de force." },
     { cat: 'Courage', color: '#f59e0b', icon: '🔥', title: 'Brûler les Vaisseaux', text: "Engage-toi totalement. Le demi-effort produit le demi-résultat et le double-regret. Donne tout, ou ne commence pas." },
-    { cat: 'Courage', color: '#f59e0b', icon: '🔥', title: 'Devenir le Monarque', text: "Tu as commencé Rang E, comme tous. Mais le Système l'a vu : tu refuses de t'arrêter. C'est ainsi que naissent les Monarques." }
+    { cat: 'Courage', color: '#f59e0b', icon: '🔥', title: 'Devenir une Ancre', text: "Tu as commencé Rang E, comme tous. Mais le Système l'a vu : tu refuses de t'arrêter. C'est ainsi que naissent les Ancres." }
 ];
 
 // Tirage déterministe basé sur la date (même carte toute la journée)

@@ -18,7 +18,8 @@ const STORY_CHARS = {
     systeme: { name: 'Le Système', color: '#4ade80', image: null },
     esen:    { name: 'Esen',  color: '#4ade80', image: null },   // le silencieux (image à fournir)
     nyra:    { name: 'Nyra',  color: '#a855f7', image: null },   // la joueuse (image à fournir)
-    nabdano: { name: '???',   color: '#cbd5e1', image: null },   // jamais nommé tôt
+    // jamais nommé avant la scène « Le Nom »
+    nabdano: { get name() { return storyEventSeen('evt_n35_ambiance_nabdano_nom') ? 'Nabdano' : '???'; }, color: '#cbd5e1', image: null },
     // compagnons (images déjà en place)
     marcus:  { name: 'Marcus Ironfist', color: '#ef4444', image: 'images/companions/marcus.webp' },
     kira:    { name: 'Kira Shadowstep', color: '#a855f7', image: 'images/companions/kira.webp' },
@@ -83,11 +84,81 @@ const STORY_EVENTS = [
             ]
         }
     },
+    // ── 🎯 JALONS RÉELS : l'histoire réagit à ce que le joueur FAIT (série, séances).
+    // Placés en tête du registre pour n'être jamais bloqués par une porte narrative.
+    {
+        id: 'evt_serie_7',
+        type: 'fait',
+        trigger: { kind: 'streak', value: 7 },
+        condition: function () { return storyEventSeen('evt_rencontre'); },
+        once: true,
+        content: {
+            speaker: 'nyra',
+            title: "Les Encoches",
+            pages: [
+                "Nyra a commencé à faire des encoches sur un lampadaire. Une par jour d'entraînement. Il y en a sept.",
+                "« C'est pas pour nous, » dit-elle en gravant la dernière. « C'est pour lui. » Elle montre le blanc, au loin. « Qu'il les compte. »",
+                "Esen regarde le lampadaire sans rien dire. Le lendemain, il y a une huitième encoche, plus nette que les autres. Personne n'avoue."
+            ]
+        }
+    },
+    {
+        id: 'evt_seances_100',
+        type: 'ambiance',
+        trigger: { kind: 'workouts', value: 100 },
+        condition: function () { return storyEventSeen('evt_rencontre'); },
+        once: true,
+        content: {
+            speaker: 'systeme',
+            title: "Cent",
+            pages: [
+                "« Cent séances, » affiche le Système.",
+                "« Je les ai toutes gardées. Pas les chiffres : les moments. Le jour où tu as failli rester couché. Celui où tu as tout donné pour rien de spécial. »",
+                "« Quelqu'un, avant toi, en a fait des milliers. Personne ne les comptait avec lui. »",
+                "Un temps. « Toi, tu n'auras pas ce problème. »"
+            ]
+        }
+    },
+    {
+        id: 'evt_serie_30',
+        type: 'ambiance',
+        trigger: { kind: 'streak', value: 30 },
+        condition: function () { return storyEventSeen('evt_rencontre'); },
+        once: true,
+        content: {
+            speaker: 'systeme',
+            title: "Confiance",
+            pages: [
+                "« Trente jours, » affiche le Système.",
+                "« J'ai cessé de vérifier chaque matin si tu allais revenir. Je ne sais pas quand c'est arrivé. »",
+                "Un temps. « Je crois que c'est ce que vous appelez la confiance. »",
+                "Cette nuit-là, la voix ne vient pas te chercher. Elle sait qu'elle perdrait son temps."
+            ]
+        }
+    },
+    {
+        id: 'evt_seances_250',
+        type: 'dialogue',
+        trigger: { kind: 'workouts', value: 250 },
+        condition: function () { return storyEventSeen('evt_rencontre'); },
+        once: true,
+        content: {
+            speaker: 'esen',
+            title: "Les Lacets",
+            pages: [
+                "Esen lace ses chaussures. Encore. Nyra s'assoit à côté de lui et fait pareil.",
+                "« Deux cent cinquante, » annonce le Système. Nyra ne lève pas les yeux. « Il y a des jours où c'est facile, pour toi ? »",
+                "Esen réfléchit. « Non. »",
+                "« Moi non plus. » Elle serre son dernier nœud. « Tant mieux. Si c'était facile, ça ne voudrait rien dire. »",
+                "Vous vous levez en même temps."
+            ]
+        }
+    },
     {
         // ── Niveau ~3 : la dynamique du duo s'installe (suite directe de La Rencontre)
         id: 'evt_n3_regles_duo',
         type: 'dialogue',
-        trigger: { kind: 'xp', value: 230 },
+        trigger: { kind: 'xp', level: 3, frac: 0.15 },
         once: true,
         content: {
             speaker: 'nyra',
@@ -125,7 +196,7 @@ const STORY_EVENTS = [
         // ── Niveau ~4 : worldbuilding — apprendre à sentir les Failles
         id: 'evt_n4_sentir_failles',
         type: 'fait',
-        trigger: { kind: 'xp', value: 520 },
+        trigger: { kind: 'xp', level: 4, frac: 0.4 },
         once: true,
         content: {
             speaker: 'esen',
@@ -143,17 +214,17 @@ const STORY_EVENTS = [
         // ── Niveau ~5 : première vraie morsure de l'effacement (mélancolique)
         id: 'evt_n5_boulangerie',
         type: 'ambiance',
-        trigger: { kind: 'xp', value: 870 },
+        trigger: { kind: 'xp', level: 5, frac: 0.65 },
         once: true,
         content: {
             speaker: 'nyra',
             title: 'La Boulangerie',
             image: 'images/story/n5_boulangerie.webp',
             pages: [
-                "Nyra vous traîne dans une petite boulangerie. « Meilleurs croissants de la ville. La dame me connaît, vous allez voir. »",
+                "Nyra traîne Esen dans une petite boulangerie. « Meilleurs croissants de la ville. La dame me connaît, tu vas voir. »",
                 "La vendeuse lève les yeux. Sourire poli. « Bonjour. Qu'est-ce que je vous sers ? » Le sourire de Nyra se fige un quart de seconde.",
-                "« ...Trois croissants, » dit-elle d'une voix un peu plus basse. Dehors, elle hausse les épaules. « Elle a dû me confondre. Elle voit du monde. » Personne ne la contredit.",
-                "Esen attend qu'elle soit devant, hors de portée de voix. « Ça a commencé pour elle aussi. » Il croque dans son croissant. « C'est pour ça qu'on s'entraîne. »"
+                "« ...Deux croissants, » dit-elle d'une voix un peu plus basse. Dehors, elle hausse les épaules. « Elle a dû me confondre. Elle voit du monde. » Personne ne la contredit.",
+                "Esen attend qu'elle soit devant, hors de portée de voix, et murmure pour lui-même : « Ça a commencé pour elle aussi. » Il croque dans son croissant. « C'est pour ça qu'on s'entraîne. »"
             ]
         }
     },
@@ -161,87 +232,15 @@ const STORY_EVENTS = [
         id: 'evt_n6_cocasse',
         minor: true,  // exclu du Journal d'aventure (scène légère)
         type: 'fait',
-        trigger: { kind: 'xp', value: 1350 },
+        trigger: { kind: 'xp', level: 6, frac: 0.3 },
         once: true,
         content: { speaker: 'nyra', title: 'Concentration ?', image: 'images/story/cocasse_7.webp',
             pages: ["Nyra étire la joue d'Esen pendant qu'il frappe le sac. « Quoi ? Je teste ta concentration ! »"] }
     },
     {
-        id: 'evt_n8_cocasse',
-        minor: true,  // exclu du Journal d'aventure (scène légère)
-        type: 'fait',
-        trigger: { kind: 'xp', value: 3320 },
-        once: true,
-        content: { speaker: 'esen', title: 'Poids Supplémentaire', image: 'images/story/cocasse_6.webp',
-            pages: ["Esen s'est assis sur le dos de Nyra en pleine pompe, sirotant tranquillement. « Tranquille... t'es qu'une machine. »"] }
-    },
-    {
-        id: 'evt_n10_cocasse',
-        minor: true,  // exclu du Journal d'aventure (scène légère)
-        type: 'fait',
-        trigger: { kind: 'xp', value: 6180 },
-        once: true,
-        content: { speaker: 'nyra', title: 'Patatrac', image: 'images/story/cocasse_3.webp',
-            pages: ["Esen trébuche en plein combat. Nyra éclate de rire en finissant le monstre à sa place. « AHAHAHA ! »"] }
-    },
-    {
-        id: 'evt_n12_cocasse',
-        minor: true,  // exclu du Journal d'aventure (scène légère)
-        type: 'fait',
-        trigger: { kind: 'xp', value: 9220 },
-        once: true,
-        content: { speaker: 'nyra', title: 'Festin Mérité', image: 'images/story/cocasse_2.webp',
-            pages: ["Après la séance, ils s'effondrent devant une montagne de nourriture. « Mmmh, trop bon ! » Nyra ne mâche même plus."] }
-    },
-    {
-        id: 'evt_n14_cocasse',
-        minor: true,  // exclu du Journal d'aventure (scène légère)
-        type: 'fait',
-        trigger: { kind: 'xp', value: 14780 },
-        once: true,
-        content: { speaker: 'nyra', title: 'Attrape-moi', image: 'images/story/cocasse_1.webp',
-            pages: ["« Attrape-moi si tu peux ! » Esen file devant. Nyra le poursuit dans toute la ville. « ESEN, T'ES MORT !! »"] }
-    },
-    {
-        id: 'evt_n16_cocasse',
-        minor: true,  // exclu du Journal d'aventure (scène légère)
-        type: 'fait',
-        trigger: { kind: 'xp', value: 22020 },
-        once: true,
-        content: { speaker: 'esen', title: 'Petit Conseil', image: 'images/story/cocasse_4.webp',
-            pages: ["Assis dans l'herbe, Esen pointe le front de Nyra du doigt. « La prochaine fois, réfléchis avant de foncer. » Elle boude."] }
-    },
-    {
-        id: 'evt_n18_cocasse',
-        minor: true,  // exclu du Journal d'aventure (scène légère)
-        type: 'fait',
-        trigger: { kind: 'xp', value: 30290 },
-        once: true,
-        content: { speaker: 'nyra', title: 'Toute ta Puissance ?', image: 'images/story/cocasse_5.webp',
-            pages: ["Nyra nargue Esen après un combat. « Alors... c'est ça toute ta puissance ? » Esen, blasé : « ... »"] }
-    },
-    {
-        id: 'evt_n20_cocasse',
-        minor: true,  // exclu du Journal d'aventure (scène légère)
-        type: 'fait',
-        trigger: { kind: 'xp', value: 41210 },
-        once: true,
-        content: { speaker: 'systeme', title: 'Bivouac', image: 'images/story/repos_avant_faille.webp',
-            pages: ["La nuit, près du feu, face à une Faille lointaine. Personne ne parle. Pour une fois, le silence est doux."] }
-    },
-    {
-        id: 'evt_n22_cocasse',
-        minor: true,  // exclu du Journal d'aventure (scène légère)
-        type: 'fait',
-        trigger: { kind: 'xp', value: 54270 },
-        once: true,
-        content: { speaker: 'esen', title: 'Elle ne Ralentit Jamais', image: 'images/story/cocasse_8.webp',
-            pages: ["Nyra court sur le tapis, infatigable. Esen la regarde, les mains dans les poches. Il ne le dira jamais, mais il l'admire."] }
-    },
-    {
         id: 'evt_n7_fait_nyra',
         type: 'fait',
-        trigger: { kind: 'xp', value: 1860 },
+        trigger: { kind: 'xp', level: 7, frac: 0.3 },
         once: true,
         content: {
             speaker: 'nyra',
@@ -254,10 +253,45 @@ const STORY_EVENTS = [
             ]
         }
     },
+    // ════════════════════════════════════════════════════════════════
+    // FRAGMENTS D'OUBLI PERSONNEL
+    // L'Oubli reste abstrait tant qu'il n'efface que « le monde ».
+    // Ces scènes le rendent intime : une chanson, une chambre, un nom.
+    // Le joueur ne sauve plus « un monde » — il empêche des choses qui
+    // ont compté de devenir comme si elles n'avaient jamais existé.
+    // ════════════════════════════════════════════════════════════════
+    {
+        id: 'evt_oubli_chanson',
+        type: 'ambiance',
+        trigger: { kind: 'xp', level: 8, frac: 0.3 },
+        once: true,
+        content: {
+            speaker: 'nyra',
+            title: 'La Chanson',
+            pages: [
+                "Nyra fredonne en marchant. Un air simple, un peu triste, qu'elle connaît manifestement par cœur.",
+                "« C'est quoi ? » demande Esen.",
+                "Elle ouvre la bouche. La referme. S'arrête au milieu du trottoir.",
+                "« Je… connais chaque parole. » Sa voix est plus basse que d'habitude. « Mais je ne sais plus qui me l'a apprise. »",
+                "Elle demande à un passant. Puis à un deuxième. Puis à une femme qui attend le bus. Aucun des trois ne l'a jamais entendue.",
+                "« Alors soit je l'ai inventée… » Elle hausse les épaules, mais son sourire ne monte pas jusqu'aux yeux. « …soit je suis la dernière à la connaître. »",
+                "Elle recommence à fredonner. Plus fort qu'avant."
+            ]
+        }
+    },
+    {
+        id: 'evt_n8_cocasse',
+        minor: true,  // exclu du Journal d'aventure (scène légère)
+        type: 'fait',
+        trigger: { kind: 'xp', level: 8, frac: 0.55 },
+        once: true,
+        content: { speaker: 'esen', title: 'Poids Supplémentaire', image: 'images/story/cocasse_6.webp',
+            pages: ["Esen s'est assis sur le dos de Nyra en pleine pompe, sirotant tranquillement. « Tranquille... t'es qu'une machine. »"] }
+    },
     {
         id: 'evt_n9_ambiance_oubli',
         type: 'ambiance',
-        trigger: { kind: 'xp', value: 4190 },
+        trigger: { kind: 'xp', level: 9, frac: 0.55 },
         once: true,
         content: {
             speaker: 'systeme',
@@ -270,9 +304,18 @@ const STORY_EVENTS = [
         }
     },
     {
+        id: 'evt_n10_cocasse',
+        minor: true,  // exclu du Journal d'aventure (scène légère)
+        type: 'fait',
+        trigger: { kind: 'xp', level: 10, frac: 0.8 },
+        once: true,
+        content: { speaker: 'nyra', title: 'Patatrac', image: 'images/story/cocasse_3.webp',
+            pages: ["Esen trébuche en plein combat. Nyra éclate de rire en finissant le monstre à sa place. « AHAHAHA ! »"] }
+    },
+    {
         id: 'evt_n11_dialogue_duo',
         type: 'dialogue',
-        trigger: { kind: 'xp', value: 7790 },
+        trigger: { kind: 'xp', level: 11, frac: 0.8 },
         once: true,
         content: {
             speaker: 'esen',
@@ -287,9 +330,18 @@ const STORY_EVENTS = [
         }
     },
     {
+        id: 'evt_n12_cocasse',
+        minor: true,  // exclu du Journal d'aventure (scène légère)
+        type: 'fait',
+        trigger: { kind: 'xp', level: 12, frac: 0.2 },
+        once: true,
+        content: { speaker: 'nyra', title: 'Festin Mérité', image: 'images/story/cocasse_2.webp',
+            pages: ["Après la séance, ils s'effondrent devant une montagne de nourriture. « Mmmh, trop bon ! » Nyra ne mâche même plus."] }
+    },
+    {
         id: 'evt_n13_fait_systeme',
         type: 'fait',
-        trigger: { kind: 'xp', value: 12360 },
+        trigger: { kind: 'xp', level: 13, frac: 0.2 },
         once: true,
         content: {
             speaker: 'systeme',
@@ -297,14 +349,23 @@ const STORY_EVENTS = [
             pages: [
                 "Le Système affiche soudain : « Information : tu as soulevé, poussé ou déplacé l'équivalent du poids d'un petit immeuble depuis ton éveil. »",
                 "Un court silence. « Cette donnée n'a aucune utilité tactique. Je voulais juste que tu le saches. »",
-                "Tu jurerais presque que ce fragment de monde, accroché à toi, est... fier ?"
+                "Tu jurerais presque que le Système est... fier ?"
             ]
         }
     },
     {
+        id: 'evt_n14_cocasse',
+        minor: true,  // exclu du Journal d'aventure (scène légère)
+        type: 'fait',
+        trigger: { kind: 'xp', level: 14, frac: 0.45 },
+        once: true,
+        content: { speaker: 'nyra', title: 'Attrape-moi', image: 'images/story/cocasse_1.webp',
+            pages: ["« Attrape-moi si tu peux ! » Esen file devant. Nyra le poursuit dans toute la ville. « ESEN, T'ES MORT !! »"] }
+    },
+    {
         id: 'evt_n15_ambiance_traces',
         type: 'ambiance',
-        trigger: { kind: 'xp', value: 18900 },
+        trigger: { kind: 'xp', level: 15, frac: 0.45 },
         once: true,
         content: {
             speaker: 'systeme',
@@ -318,9 +379,39 @@ const STORY_EVENTS = [
         }
     },
     {
+        id: 'evt_oubli_chambre',
+        type: 'ambiance',
+        trigger: { kind: 'xp', level: 15, frac: 0.55 },
+        once: true,
+        content: {
+            image: 'images/story/monde_efface.webp',
+            speaker: 'esen',
+            title: 'La Chambre',
+            pages: [
+                "Une porte entrouverte, au premier étage. Esen s'arrête.",
+                "À l'intérieur : un lit fait au carré. Des livres alignés. Une tasse posée sur la table de nuit, propre, comme si on l'avait rincée le matin même.",
+                "La propriétaire monte les marches derrière eux. « Ah, celle-là ? Elle est libre. »",
+                "« Depuis quand ? » demande Nyra.",
+                "La femme réfléchit. Vraiment. « Depuis toujours, je crois. »",
+                "Elle entre, redresse un coussin qui n'en avait pas besoin, referme doucement.",
+                "« Vous l'entretenez pourtant, » remarque Esen.",
+                "Elle hésite. « Je ne sais pas pourquoi. » Un temps. « Ça me semblerait impoli de la laisser prendre la poussière. »"
+            ]
+        }
+    },
+    {
+        id: 'evt_n16_cocasse',
+        minor: true,  // exclu du Journal d'aventure (scène légère)
+        type: 'fait',
+        trigger: { kind: 'xp', level: 16, frac: 0.7 },
+        once: true,
+        content: { speaker: 'esen', title: 'Petit Conseil', image: 'images/story/cocasse_4.webp',
+            pages: ["Assis dans l'herbe, Esen pointe le front de Nyra du doigt. « La prochaine fois, réfléchis avant de foncer. » Elle boude."] }
+    },
+    {
         id: 'evt_n17_fait_nyra',
         type: 'fait',
-        trigger: { kind: 'xp', value: 27220 },
+        trigger: { kind: 'xp', level: 17, frac: 0.7 },
         once: true,
         content: {
             speaker: 'nyra',
@@ -333,9 +424,18 @@ const STORY_EVENTS = [
         }
     },
     {
+        id: 'evt_n18_cocasse',
+        minor: true,  // exclu du Journal d'aventure (scène légère)
+        type: 'fait',
+        trigger: { kind: 'xp', level: 18, frac: 0.15 },
+        once: true,
+        content: { speaker: 'nyra', title: 'Toute ta Puissance ?', image: 'images/story/cocasse_5.webp',
+            pages: ["Nyra nargue Esen après un combat. « Alors... c'est ça toute ta puissance ? » Esen, blasé : « ... »"] }
+    },
+    {
         id: 'evt_n19_ambiance_systeme',
         type: 'ambiance',
-        trigger: { kind: 'xp', value: 34410 },
+        trigger: { kind: 'xp', level: 19, frac: 0.15 },
         once: true,
         content: {
             speaker: 'systeme',
@@ -348,9 +448,18 @@ const STORY_EVENTS = [
         }
     },
     {
+        id: 'evt_n20_cocasse',
+        minor: true,  // exclu du Journal d'aventure (scène légère)
+        type: 'fait',
+        trigger: { kind: 'xp', level: 20, frac: 0.4 },
+        once: true,
+        content: { speaker: 'systeme', title: 'Bivouac', image: 'images/story/repos_avant_faille.webp',
+            pages: ["La nuit, près du feu, face à une Faille lointaine. Personne ne parle. Pour une fois, le silence est doux."] }
+    },
+    {
         id: 'evt_n21_dialogue_duo',
         type: 'dialogue',
-        trigger: { kind: 'xp', value: 46190 },
+        trigger: { kind: 'xp', level: 21, frac: 0.4 },
         once: true,
         content: {
             speaker: 'nyra',
@@ -365,9 +474,40 @@ const STORY_EVENTS = [
         }
     },
     {
+        id: 'evt_oubli_nom_mari',
+        type: 'ambiance',
+        trigger: { kind: 'xp', level: 21, frac: 0.8 },
+        once: true,
+        content: {
+            image: 'images/story/face_effacement.webp',
+            speaker: 'esen',
+            title: 'Cinquante-Trois Ans',
+            pages: [
+                "« Vous ! » Une vieille femme agrippe la manche d'Esen. « Vous m'aviez aidée avec mes courses, l'an dernier. Le sac s'était déchiré devant la pharmacie. »",
+                "Esen hoche la tête. Il s'en souvient.",
+                "Elle parle. De la pluie ce jour-là. De son immeuble sans ascenseur. De son mariage — cinquante-trois ans, tout de même.",
+                "« Il détestait les parapluies. Il disait que c'était pour les gens pressés. Il rentrait trempé, il riait, et moi je— »",
+                "Elle s'arrête au milieu de la phrase.",
+                "Elle cherche. On voit qu'elle cherche.",
+                "« Comment il s'appelait, déjà ? »",
+                "Un silence. Puis elle sourit, gênée, en tapotant la main d'Esen. « Vous devez me trouver bête. »",
+                "Esen ne répond pas. Il connaît ce silence-là."
+            ]
+        }
+    },
+    {
+        id: 'evt_n22_cocasse',
+        minor: true,  // exclu du Journal d'aventure (scène légère)
+        type: 'fait',
+        trigger: { kind: 'xp', level: 22, frac: 0.65 },
+        once: true,
+        content: { speaker: 'esen', title: 'Elle ne Ralentit Jamais', image: 'images/story/cocasse_8.webp',
+            pages: ["Nyra court sur le tapis, infatigable. Esen la regarde, les mains dans les poches. Il ne le dira jamais, mais il l'admire."] }
+    },
+    {
         id: 'evt_n23_fait_leger',
         type: 'fait',
-        trigger: { kind: 'xp', value: 58910 },
+        trigger: { kind: 'xp', level: 23, frac: 0.65 },
         once: true,
         content: {
             speaker: 'nyra',
@@ -383,7 +523,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n25_ambiance_oubli',
         type: 'ambiance',
-        trigger: { kind: 'xp', value: 75010 },
+        trigger: { kind: 'xp', level: 25, frac: 0.3 },
         once: true,
         content: {
             speaker: 'systeme',
@@ -395,10 +535,34 @@ const STORY_EVENTS = [
             ]
         }
     },
+    // ── ESEN & NYRA : ce qu'ils ne disent pas ────────────────────────
+    // Pas d'histoire d'origine. Juste ce qui explique leur manière d'être.
+    {
+        id: 'evt_esen_peur_souvenir',
+        type: 'dialogue',
+        trigger: { kind: 'xp', level: 25, frac: 0.2 },
+        once: true,
+        content: {
+            image: 'images/story/dos_a_dos.webp',
+            speaker: 'esen',
+            title: 'Ce Qu\'il Ne Veut Pas Retrouver',
+            pages: [
+                "« Tu ne parles jamais de ce que tu as oublié, » dit Nyra. Ce n'est pas une question.",
+                "Esen regarde ses mains un long moment.",
+                "« Tout le monde a peur d'oublier, » finit-il par dire.",
+                "« Et toi ? »",
+                "« Moi j'ai peur que ça revienne. »",
+                "Nyra ne plaisante pas. Pour une fois, elle attend.",
+                "« S'il y avait quelqu'un… » Il s'interrompt. « Tant que je ne me souviens pas, je ne l'ai pas perdu. Je l'ai juste… rangé quelque part. »",
+                "« C'est pas pareil, Esen. »",
+                "« Je sais. » Il se remet en marche. « C'est pour ça que je continue. Un jour il faudra bien que je sois assez solide pour me souvenir. »"
+            ]
+        }
+    },
     {
         id: 'evt_n27_dialogue_esen',
         type: 'dialogue',
-        trigger: { kind: 'xp', value: 93570 },
+        trigger: { kind: 'xp', level: 27, frac: 0.55 },
         once: true,
         content: {
             speaker: 'esen',
@@ -415,7 +579,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n29_ambiance_nabdano',
         type: 'ambiance',
-        trigger: { kind: 'xp', value: 108490 },
+        trigger: { kind: 'xp', level: 29, frac: 0.8 },
         once: true,
         content: {
             speaker: 'systeme',
@@ -429,9 +593,33 @@ const STORY_EVENTS = [
         }
     },
     {
+        id: 'evt_nyra_sans_blague',
+        type: 'dialogue',
+        trigger: { kind: 'xp', level: 30, frac: 0.45 },
+        once: true,
+        content: {
+            image: 'images/story/n11_deux_silences.webp',
+            speaker: 'nyra',
+            title: 'Le Jour Où Elle N\'a Pas Ri',
+            pages: [
+                "La Faille se referme. Nyra s'assoit sur une borne, essoufflée.",
+                "Esen attend la vanne. Il y en a toujours une. « Ça, c'est fait », ou « il était moche, celui-là », ou n'importe quoi.",
+                "Rien ne vient.",
+                "Elle fixe le trottoir. Une minute entière.",
+                "« Nyra. »",
+                "« Mmh. »",
+                "« Tu n'as rien dit. »",
+                "Elle relève la tête, et son visage est parfaitement calme. C'est ça qui inquiète.",
+                "« Si je commence à me taire, » dit-elle doucement, « c'est que j'ai commencé à trouver ça normal. »",
+                "Puis elle se lève, s'étire bruyamment, et lance : « Bon ! Le prochain qui s'efface, je lui envoie la facture. »",
+                "Esen ne rit pas non plus. Mais il est soulagé de l'entendre."
+            ]
+        }
+    },
+    {
         id: 'evt_n31_dialogue_duo',
         type: 'dialogue',
-        trigger: { kind: 'xp', value: 136470 },
+        trigger: { kind: 'xp', level: 31, frac: 0.2 },
         once: true,
         content: {
             speaker: 'nyra',
@@ -441,7 +629,7 @@ const STORY_EVENTS = [
                 "Nyra a vu l'inscription, elle aussi. Pour une fois, elle ne plaisante pas.",
                 "« Quelqu'un d'aussi fort que ça... qui a juste arrêté. » Elle frissonne. « Ça me fait plus peur que tous les monstres. »",
                 "Esen pose une main sur son épaule. Un geste rare. « C'est pour ça qu'on est deux. On se surveille. Si l'un de nous commence à vouloir s'asseoir... »",
-                "« ...l'autre le force à se relever, » termine Nyra. Vous le pensez tous les trois, le Système y compris."
+                "« ...l'autre le force à se relever, » termine Nyra. Vous le pensez tous les deux. Le Système aussi."
             ]
         }
     },
@@ -472,30 +660,56 @@ const STORY_EVENTS = [
             pages: [
                 "« Celui qui a écrit cette inscription... il était comme toi. La plus grande Ancre que ce monde ait connue. »",
                 "« Il a porté le monde seul, trop longtemps. Et un jour, la fatigue a gagné. Il s'est assis. Son propre fragment — son Système — s'est éteint, faute de quelqu'un pour le tenir. »",
-                "« Et l'effacement s'est répandu depuis lui, comme une fissure. Les survivants l'appellent par un nom, maintenant. »",
-                "« Nabdano. Retiens-le. Tôt ou tard, il voudra que tu t'assoies, toi aussi. »"
+                "« Et l'effacement s'est répandu depuis lui, comme une fissure. Ceux qui le sentent approcher l'appellent le Monarque du Déclin. »",
+                "« Mais il avait un nom, avant. Nabdano. Retiens-le. Tôt ou tard, il voudra que tu t'assoies, toi aussi. »"
             ]
         }
     },
     {
         id: 'evt_n37_fait_respiration',
         type: 'fait',
-        trigger: { kind: 'xp', value: 215370 },
+        trigger: { kind: 'xp', level: 37, frac: 0.45 },
         once: true,
         content: {
             speaker: 'nyra',
             title: 'Malgré Tout',
             pages: [
-                "Le nom de Nabdano pèse sur vous trois depuis des jours. Alors Nyra décrète : « Pause. Aujourd'hui on ne sauve pas le monde. »",
+                "Le nom de Nabdano pèse sur vous deux depuis des jours. Alors Nyra décrète : « Pause. Aujourd'hui on ne sauve pas le monde. »",
                 "Elle invente un jeu débile : nommer à voix haute une chose qui vaut encore la peine d'exister. Le café chaud. Le bruit de la pluie. Un certain silence partagé.",
                 "Esen, après un long moment, dit un seul mot, en regardant Nyra : « Ça. » Elle rougit et change vite de sujet. Mais elle l'a entendu."
+            ]
+        }
+    },
+    // ── FIL ROUGE « les choses qui reviennent » — clé de voûte ─────────
+    // Déclenché par un ACTE (Failles fermées), pas par un seuil d'XP :
+    // l'événement est vécu comme la conséquence de ce que le joueur a fait.
+    // Il redéfinit le mot « Ancre », qui donne son sens à toute l'histoire.
+    {
+        id: 'evt_ancre_definition',
+        type: 'fait',
+        trigger: { kind: 'riftsClosed', value: 12 },
+        condition: function () { return storyEventSeen('evt_n35_ambiance_nabdano_nom'); },
+        once: true,
+        content: {
+            image: 'images/story/traces.webp',
+            speaker: 'systeme',
+            title: 'Ce qu\'est une Ancre',
+            pages: [
+                "Une rue que tu avais vue pâlir a retrouvé ses couleurs. Personne ne l'a remarqué. Toi, si.",
+                "« Tu as fermé assez de Failles pour que je te dise ceci, » affiche le Système.",
+                "« Au début, je croyais qu'une Ancre servait à empêcher les choses de disparaître. Retenir. Résister. »",
+                "« C'était incomplet. »",
+                "Un temps.",
+                "« Une Ancre ne retient pas le monde. Elle lui donne quelque chose vers quoi revenir. »",
+                "« C'est pour ça que tu peux t'arrêter, te reposer, avoir mal — sans t'effacer. Tant qu'il y a un endroit où revenir, rien n'est vraiment perdu. »",
+                "« Nabdano l'a oublié. Il a cru qu'il devait tenir sans jamais poser. Alors il a posé pour toujours. »"
             ]
         }
     },
     {
         id: 'evt_n39_ambiance_voix',
         type: 'ambiance',
-        trigger: { kind: 'xp', value: 247080 },
+        trigger: { kind: 'xp', level: 39, frac: 0.7 },
         once: true,
         content: {
             speaker: 'nabdano',
@@ -511,7 +725,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n41_dialogue_duo',
         type: 'dialogue',
-        trigger: { kind: 'xp', value: 284760 },
+        trigger: { kind: 'xp', level: 41, frac: 0.15 },
         once: true,
         content: {
             speaker: 'nyra',
@@ -528,7 +742,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n43_ambiance_systeme_peur',
         type: 'ambiance',
-        trigger: { kind: 'xp', value: 313910 },
+        trigger: { kind: 'xp', level: 43, frac: 0.4 },
         once: true,
         content: {
             speaker: 'systeme',
@@ -548,13 +762,13 @@ const STORY_EVENTS = [
     {
         id: 'evt_n55_systeme_espoir',
         type: 'ambiance',
-        trigger: { kind: 'xp', value: 520000 },
+        trigger: { kind: 'xp', level: 44, frac: 0.65 },
         once: true,
         content: {
             speaker: 'systeme',
             title: 'Ce qu\'il y a Après',
             pages: [
-                "« J'ai été conçu pour une seule chose, » affiche le Système. « Durer. Tenir. Ne pas m'éteindre. »",
+                "« Je n'ai jamais voulu qu'une seule chose, » affiche le Système. « Durer. Tenir. Ne pas m'éteindre. »",
                 "« Depuis le début, je m'accroche à toi parce que tu me maintiens en vie. Je te l'ai avoué. Je ne le regrette pas. »",
                 "Un temps. Les lettres s'affichent plus lentement que d'habitude.",
                 "« Mais aujourd'hui, pour la première fois, je ne veux pas seulement survivre. »",
@@ -563,152 +777,10 @@ const STORY_EVENTS = [
             ]
         }
     },
-    // ── FIL ROUGE « les choses qui reviennent » — clé de voûte ─────────
-    // Déclenché par un ACTE (Failles fermées), pas par un seuil d'XP :
-    // l'événement est vécu comme la conséquence de ce que le joueur a fait.
-    // Il redéfinit le mot « Ancre », qui donne son sens à toute l'histoire.
-    {
-        id: 'evt_ancre_definition',
-        type: 'fait',
-        trigger: { kind: 'riftsClosed', value: 12 },
-        once: true,
-        content: {
-            image: 'images/story/traces.webp',
-            speaker: 'systeme',
-            title: 'Ce qu\'est une Ancre',
-            pages: [
-                "Une rue que tu avais vue pâlir a retrouvé ses couleurs. Personne ne l'a remarqué. Toi, si.",
-                "« Tu as fermé assez de Failles pour que je te dise ceci, » affiche le Système.",
-                "« Au début, je croyais qu'une Ancre servait à empêcher les choses de disparaître. Retenir. Résister. »",
-                "« C'était incomplet. »",
-                "Un temps.",
-                "« Une Ancre ne retient pas le monde. Elle lui donne quelque chose vers quoi revenir. »",
-                "« C'est pour ça que tu peux t'arrêter, te reposer, avoir mal — sans t'effacer. Tant qu'il y a un endroit où revenir, rien n'est vraiment perdu. »",
-                "« Nabdano l'a oublié. Il a cru qu'il devait tenir sans jamais poser. Alors il a posé pour toujours. »"
-            ]
-        }
-    },
-    // ════════════════════════════════════════════════════════════════
-    // FRAGMENTS D'OUBLI PERSONNEL
-    // L'Oubli reste abstrait tant qu'il n'efface que « le monde ».
-    // Ces scènes le rendent intime : une chanson, une chambre, un nom.
-    // Le joueur ne sauve plus « un monde » — il empêche des choses qui
-    // ont compté de devenir comme si elles n'avaient jamais existé.
-    // ════════════════════════════════════════════════════════════════
-    {
-        id: 'evt_oubli_chanson',
-        type: 'ambiance',
-        trigger: { kind: 'xp', value: 2400 },
-        once: true,
-        content: {
-            speaker: 'nyra',
-            title: 'La Chanson',
-            pages: [
-                "Nyra fredonne en marchant. Un air simple, un peu triste, qu'elle connaît manifestement par cœur.",
-                "« C'est quoi ? » demande Esen.",
-                "Elle ouvre la bouche. La referme. S'arrête au milieu du trottoir.",
-                "« Je… connais chaque parole. » Sa voix est plus basse que d'habitude. « Mais je ne sais plus qui me l'a apprise. »",
-                "Elle demande à un passant. Puis à un deuxième. Puis à une femme qui attend le bus. Aucun des trois ne l'a jamais entendue.",
-                "« Alors soit je l'ai inventée… » Elle hausse les épaules, mais son sourire ne monte pas jusqu'aux yeux. « …soit je suis la dernière à la connaître. »",
-                "Elle recommence à fredonner. Plus fort qu'avant."
-            ]
-        }
-    },
-    {
-        id: 'evt_oubli_chambre',
-        type: 'ambiance',
-        trigger: { kind: 'xp', value: 8500 },
-        once: true,
-        content: {
-            image: 'images/story/monde_efface.webp',
-            speaker: 'esen',
-            title: 'La Chambre',
-            pages: [
-                "Une porte entrouverte, au premier étage. Esen s'arrête.",
-                "À l'intérieur : un lit fait au carré. Des livres alignés. Une tasse posée sur la table de nuit, propre, comme si on l'avait rincée le matin même.",
-                "La propriétaire monte les marches derrière eux. « Ah, celle-là ? Elle est libre. »",
-                "« Depuis quand ? » demande Nyra.",
-                "La femme réfléchit. Vraiment. « Depuis toujours, je crois. »",
-                "Elle entre, redresse un coussin qui n'en avait pas besoin, referme doucement.",
-                "« Vous l'entretenez pourtant, » remarque Esen.",
-                "Elle hésite. « Je ne sais pas pourquoi. » Un temps. « Ça me semblerait impoli de la laisser prendre la poussière. »"
-            ]
-        }
-    },
-    {
-        id: 'evt_oubli_nom_mari',
-        type: 'ambiance',
-        trigger: { kind: 'xp', value: 16200 },
-        once: true,
-        content: {
-            image: 'images/story/face_effacement.webp',
-            speaker: 'esen',
-            title: 'Cinquante-Trois Ans',
-            pages: [
-                "« Vous ! » Une vieille femme agrippe la manche d'Esen. « Vous m'aviez aidée avec mes courses, l'an dernier. Le sac s'était déchiré devant la pharmacie. »",
-                "Esen hoche la tête. Il s'en souvient.",
-                "Elle parle. De la pluie ce jour-là. De son immeuble sans ascenseur. De son mariage — cinquante-trois ans, tout de même.",
-                "« Il détestait les parapluies. Il disait que c'était pour les gens pressés. Il rentrait trempé, il riait, et moi je— »",
-                "Elle s'arrête au milieu de la phrase.",
-                "Elle cherche. On voit qu'elle cherche.",
-                "« Comment il s'appelait, déjà ? »",
-                "Un silence. Puis elle sourit, gênée, en tapotant la main d'Esen. « Vous devez me trouver bête. »",
-                "Esen ne répond pas. Il connaît ce silence-là."
-            ]
-        }
-    },
-    // ── ESEN & NYRA : ce qu'ils ne disent pas ────────────────────────
-    // Pas d'histoire d'origine. Juste ce qui explique leur manière d'être.
-    {
-        id: 'evt_esen_peur_souvenir',
-        type: 'dialogue',
-        trigger: { kind: 'xp', value: 24500 },
-        once: true,
-        content: {
-            image: 'images/story/dos_a_dos.webp',
-            speaker: 'esen',
-            title: 'Ce Qu\'il Ne Veut Pas Retrouver',
-            pages: [
-                "« Tu ne parles jamais de ce que tu as oublié, » dit Nyra. Ce n'est pas une question.",
-                "Esen regarde ses mains un long moment.",
-                "« Tout le monde a peur d'oublier, » finit-il par dire.",
-                "« Et toi ? »",
-                "« Moi j'ai peur que ça revienne. »",
-                "Nyra ne plaisante pas. Pour une fois, elle attend.",
-                "« S'il y avait quelqu'un… » Il s'interrompt. « Tant que je ne me souviens pas, je ne l'ai pas perdu. Je l'ai juste… rangé quelque part. »",
-                "« C'est pas pareil, Esen. »",
-                "« Je sais. » Il se remet en marche. « C'est pour ça que je continue. Un jour il faudra bien que je sois assez solide pour me souvenir. »"
-            ]
-        }
-    },
-    {
-        id: 'evt_nyra_sans_blague',
-        type: 'dialogue',
-        trigger: { kind: 'xp', value: 38600 },
-        once: true,
-        content: {
-            image: 'images/story/n11_deux_silences.webp',
-            speaker: 'nyra',
-            title: 'Le Jour Où Elle N\'a Pas Ri',
-            pages: [
-                "La Faille se referme. Nyra s'assoit sur une borne, essoufflée.",
-                "Esen attend la vanne. Il y en a toujours une. « Ça, c'est fait », ou « il était moche, celui-là », ou n'importe quoi.",
-                "Rien ne vient.",
-                "Elle fixe le trottoir. Une minute entière.",
-                "« Nyra. »",
-                "« Mmh. »",
-                "« Tu n'as rien dit. »",
-                "Elle relève la tête, et son visage est parfaitement calme. C'est ça qui inquiète.",
-                "« Si je commence à me taire, » dit-elle doucement, « c'est que j'ai commencé à trouver ça normal. »",
-                "Puis elle se lève, s'étire bruyamment, et lance : « Bon ! Le prochain qui s'efface, je lui envoie la facture. »",
-                "Esen ne rit pas non plus. Mais il est soulagé de l'entendre."
-            ]
-        }
-    },
     {
         id: 'evt_n45_ambiance_approche',
         type: 'ambiance',
-        trigger: { kind: 'xp', value: 357440 },
+        trigger: { kind: 'xp', level: 45, frac: 0.7 },
         once: true,
         content: {
             speaker: 'systeme',
@@ -723,7 +795,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n47_ambiance_nabdano',
         type: 'ambiance',
-        trigger: { kind: 'xp', value: 400430 },
+        trigger: { kind: 'xp', level: 47, frac: 0.15 },
         once: true,
         content: {
             speaker: 'nabdano',
@@ -738,7 +810,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n49_dialogue_duo',
         type: 'dialogue',
-        trigger: { kind: 'xp', value: 450800 },
+        trigger: { kind: 'xp', level: 49, frac: 0.4 },
         once: true,
         content: {
             speaker: 'nyra',
@@ -748,14 +820,14 @@ const STORY_EVENTS = [
                 "La voix de Nabdano est partout maintenant. Difficile de penser. Difficile d'avancer.",
                 "Sans un mot, Nyra prend la main d'Esen. Il ne la retire pas. Personne n'a besoin de parler.",
                 "« Tant qu'on se touche, » dit Nyra, « il ne peut pas nous prendre un par un. »",
-                "Le Système, presque ému : « Trois signaux. Entrelacés. Je n'ai jamais rien vu d'aussi difficile à effacer. »"
+                "Le Système, presque ému : « Deux signaux. Entrelacés. Je n'ai jamais rien vu d'aussi difficile à effacer. »"
             ]
         }
     },
     {
         id: 'evt_n51_fait_souvenir',
         type: 'fait',
-        trigger: { kind: 'xp', value: 504880 },
+        trigger: { kind: 'xp', level: 51, frac: 0.65 },
         once: true,
         content: {
             speaker: 'systeme',
@@ -770,136 +842,16 @@ const STORY_EVENTS = [
     {
         id: 'evt_n53_ambiance_doute',
         type: 'ambiance',
-        trigger: { kind: 'xp', value: 562760 },
+        trigger: { kind: 'xp', level: 53, frac: 0.3 },
         once: true,
         content: {
             speaker: 'nabdano',
             title: 'Le Doute',
             pages: [
                 "« Regarde tout ce que tu ramènes, » murmure Nabdano. « Et regarde comme ça te coûte. Chaque jour. Encore. »",
-                "« Moi aussi, j'ai ramené des choses, autrefois. Pendant des siècles. Jusqu'à ce que je comprenne que ça ne finit jamais. »",
+                "« Moi aussi, j'ai ramené des choses, autrefois. Pendant des années. Des décennies. Jusqu'à ce que je comprenne que ça ne finit jamais. »",
                 "« Ce n'est pas de la faiblesse, de vouloir que ça s'arrête. C'est de la lucidité. »",
                 "Pour la première fois, une partie de toi comprend ce qu'il ressent. Et c'est ça, le plus effrayant."
-            ]
-        }
-    },
-    {
-        id: 'evt_n55_dialogue_esen',
-        type: 'dialogue',
-        trigger: { kind: 'xp', value: 606790 },
-        once: true,
-        content: {
-            speaker: 'esen',
-            title: 'Pourquoi Esen Tient',
-            image: 'images/story/n55_esen_tient.webp',
-            pages: [
-                "« Tu l'écoutes, » constate Esen. Nyra ne nie pas. Pas de reproche. Juste un fait.",
-                "« Moi aussi je l'entends. Et il a raison sur une chose : ça ne finit jamais. »",
-                "« Mais c'est exactement pour ça qu'il faut continuer. Pas parce que ça finira. Parce que les gens qu'on porte méritent qu'on tienne encore un jour. Et puis encore un. »",
-                "Il la regarde. « Toi aussi, tu mérites que quelqu'un tienne pour toi. C'est ce que je fais. »"
-            ]
-        }
-    },
-    {
-        id: 'evt_n57_fait_nyra',
-        type: 'fait',
-        trigger: { kind: 'xp', value: 665940 },
-        once: true,
-        content: {
-            speaker: 'nyra',
-            title: 'Le Caillou Rendu',
-            image: 'images/story/n57_caillou_rendu.webp',
-            pages: [
-                "Nyra fouille dans sa collection de cailloux. Elle en cherche un précis, le trouve, le tend à Esen.",
-                "« Le tout premier que j'ai ramassé. Avant de te connaître. J'étais seule, ce jour-là, et j'ai failli m'asseoir. »",
-                "« Garde-le. Comme ça, si un jour c'est moi qui flanche... tu auras une preuve que j'ai tenu une fois. Et tu me forceras à recommencer. »"
-            ]
-        }
-    },
-    {
-        id: 'evt_n61_ambiance_proche',
-        type: 'ambiance',
-        trigger: { kind: 'xp', value: 806990 },
-        once: true,
-        content: {
-            speaker: 'systeme',
-            title: 'Le Seuil',
-            pages: [
-                "Vous y êtes presque. Le vide blanc est si dense qu'il avale les sons. Chaque pas demande une volonté pure.",
-                "« Au-delà de ce seuil, je ne pourrai plus beaucoup t'aider, » dit le Système. « Là où il est, je suis trop faible. C'est son territoire. »",
-                "« Quoi qu'il te dise... souviens-toi que tu n'es pas venu seul. C'est la seule chose qu'il n'a jamais eue, lui. »"
-            ]
-        }
-    },
-    {
-        id: 'evt_n65_ambiance_nabdano',
-        type: 'ambiance',
-        trigger: { kind: 'levelAndNarrativeRift', value: 65, narrativeId: 'silent_one' },
-        once: true,
-        content: {
-            speaker: 'nabdano',
-            title: 'Presque Tendre',
-            image: 'images/story/nabdano.webp',
-            pages: [
-                "« Tu es plus proche que quiconque ne l'a jamais été, » dit Nabdano. Sa voix n'a plus rien de menaçant. Juste une infinie fatigue.",
-                "« Quand tu me verras, tu comprendras. Je ne suis pas un monstre. Je suis seulement... quelqu'un qui s'est arrêté. »",
-                "« Et une part de toi, déjà, se demande si j'ai eu tort. »"
-            ]
-        }
-    },
-    {
-        id: 'evt_n70_dialogue_duo',
-        type: 'dialogue',
-        trigger: { kind: 'xp', value: 1162610 },
-        once: true,
-        content: {
-            speaker: 'nyra',
-            title: 'Avant la Fin',
-            image: 'images/story/n70_avant_fin.webp',
-            pages: [
-                "La veille du seuil final, vous restez éveillés tous les deux, en silence.",
-                "« Si on en sort, » dit Nyra sans regarder personne, « il faudra qu'on se dise des choses. Des vraies. »",
-                "Esen hoche la tête, lentement. « Si on en sort. »",
-                "Personne ne finit la phrase. Mais quelque chose, entre vous, vient d'être promis."
-            ]
-        }
-    },
-    {
-        id: 'evt_n75_ambiance_porte',
-        type: 'ambiance',
-        // ⚠️ La Faille « last_door » exige le rang S = niveau 80. Un seuil à 75
-        // était trompeur : l'événement ne pouvait pas se déclencher avant 80.
-        trigger: { kind: 'levelAndNarrativeRift', value: 80, narrativeId: 'last_door' },
-        once: true,
-        content: {
-            speaker: 'systeme',
-            title: 'La Dernière Porte',
-            image: 'images/story/face_effacement.webp',
-            pages: [
-                "Devant vous, le centre de l'effacement. Une étendue blanche, infinie, silencieuse. Et au milieu, une silhouette assise.",
-                "Le Système, d'une voix presque éteinte : « C'est lui. Nabdano. »",
-                "« Va. Je reste avec toi autant que je le peux. Et n'oublie pas... tu n'es pas venu seul. »"
-            ]
-        }
-    },
-    // ⚠️ AVERTISSEMENT AVANT LA PORTE — le joueur peut encore aller chercher
-    // les autres. Le Système constate sans juger : c'est au joueur de comprendre.
-    {
-        id: 'evt_avant_porte_bilan',
-        type: 'ambiance',
-        trigger: { kind: 'xp', value: 610000 },
-        once: true,
-        content: {
-            image: 'images/story/moment_suspendu.webp',
-            speaker: 'systeme',
-            title: 'Avant de Frapper',
-            pages: [
-                "« Avant que tu passes cette porte, » affiche le Système, « je dois te dire une chose. »",
-                "« Il ne te demandera pas si tu es fort. Il sait déjà que tu l'es. »",
-                "« Il te demandera depuis combien de temps tu tiens. Et qui tient avec toi. »",
-                "Un temps.",
-                "« Moi je serai là. Eux aussi, s'ils sont venus. »",
-                "« Et si tu passes cette porte seul — tu ne l'auras quand même pas fait seul. Tu as mis des mois à arriver ici. »"
             ]
         }
     },
@@ -938,6 +890,264 @@ const STORY_EVENTS = [
             ]
         }
     },
+    {
+        id: 'evt_n55_dialogue_esen',
+        type: 'dialogue',
+        trigger: { kind: 'xp', level: 56, frac: 0.55 },
+        once: true,
+        content: {
+            speaker: 'esen',
+            title: 'Pourquoi Esen Tient',
+            image: 'images/story/n55_esen_tient.webp',
+            pages: [
+                "« Tu l'écoutes, » constate Esen. Nyra ne nie pas. Pas de reproche. Juste un fait.",
+                "« Moi aussi je l'entends. Et il a raison sur une chose : ça ne finit jamais. »",
+                "« Mais c'est exactement pour ça qu'il faut continuer. Pas parce que ça finira. Parce que les gens qu'on porte méritent qu'on tienne encore un jour. Et puis encore un. »",
+                "Il la regarde. « Toi aussi, tu mérites que quelqu'un tienne pour toi. C'est ce que je fais. »"
+            ]
+        }
+    },
+    {
+        id: 'evt_n57_fait_nyra',
+        type: 'fait',
+        trigger: { kind: 'xp', level: 57, frac: 0.8 },
+        once: true,
+        content: {
+            speaker: 'nyra',
+            title: 'Le Caillou Rendu',
+            image: 'images/story/n57_caillou_rendu.webp',
+            pages: [
+                "Nyra fouille dans sa collection de cailloux. Elle en cherche un précis, le trouve, le tend à Esen.",
+                "« Le tout premier que j'ai ramassé. Avant de te connaître. J'étais seule, ce jour-là, et j'ai failli m'asseoir. »",
+                "« Garde-le. Comme ça, si un jour c'est moi qui flanche... tu auras une preuve que j'ai tenu une fois. Et tu me forceras à recommencer. »"
+            ]
+        }
+    },
+    // ── 🤝 LES COMPAGNONS PARLENT (après leur rencontre, avant la Dernière Porte)
+    {
+        id: 'evt_marcus_quarante',
+        type: 'dialogue',
+        trigger: { kind: 'xp', level: 59, frac: 0.35 },
+        condition: function () { return awakAvecCompagnon('marcus'); },
+        once: true,
+        content: {
+            speaker: 'marcus',
+            title: "Quarante-Trois",
+            pages: [
+                "Marcus frappe le sac depuis une heure. Il ne compte pas. Il ne s'arrête pas non plus.",
+                "« La première fois qu'on s'est vus, je t'ai dit que j'avais arrêté de compter ceux qui ont lâché. » Il essuie son front. « J'ai menti. Je les compte tous. Quarante-trois. »",
+                "« Le premier, c'était mon frère. On s'entraînait ensemble. Un matin, il n'est pas venu. Le lendemain non plus. Une semaine après, je ne me souvenais plus de sa voix. »",
+                "{partenaire} ne dit rien. Tu poses une main sur le sac pour l'immobiliser. Marcus te laisse faire.",
+                "« Alors je frappe. Pas pour devenir fort. Pour ne pas en ajouter un quarante-quatrième. » Il vous regarde, toi et {partenaire}. « Avisez-vous pas d'être ceux-là. »"
+            ]
+        }
+    },
+    // ── 🏮 Le Marchand : « tant que quelqu'un achète, j'existe » — et son plus vieux client
+    {
+        id: 'evt_marchand_client',
+        type: 'fait',
+        trigger: { kind: 'xp', level: 62, frac: 0.3 },
+        once: true,
+        content: {
+            speaker: 'marchand',
+            title: "Le Client",
+            image: 'images/story/marchand.webp',
+            pages: [
+                "L'échoppe du Marchand est à moitié vide. Les étagères pâlissent par endroits, comme une photo oubliée au soleil.",
+                "« Les affaires ralentissent, » dit-il en souriant. Le sourire ne tient pas. « Plus on approche du centre, moins il y a de clients. Et moins il y a de clients… » Il regarde ses mains. Elles sont un peu transparentes.",
+                "« J'avais un habitué, autrefois. Il venait chaque matin acheter des bandes pour ses mains. Il les usait jusqu'à la corde. Il ne parlait jamais. Il payait toujours. »",
+                "« Pendant des années. Puis un matin, il n'est pas venu. » Il range une bande, très soigneusement. « J'ai encore sa commande du lendemain, quelque part. Je ne l'ai jamais vendue. »",
+                "{partenaire} demande, doucement : « Il s'appelait comment ? » Le Marchand ouvre la bouche. La referme. « Je suis désolé. Il ne m'achète plus rien. Alors je ne m'en souviens plus. »",
+                "Tu achètes quelque chose. N'importe quoi. Ses mains redeviennent un peu plus nettes. « Merci, » dit-il. Et cette fois, le sourire tient."
+            ]
+        }
+    },
+    {
+        id: 'evt_kira_traces',
+        type: 'dialogue',
+        trigger: { kind: 'xp', level: 63, frac: 0.6 },
+        condition: function () { return awakAvecCompagnon('kira'); },
+        once: true,
+        content: {
+            speaker: 'kira',
+            title: "Personne n'est Venu Voir",
+            image: 'images/story/traces.webp',
+            pages: [
+                "Kira t'entraîne à l'écart, sur une arête de Faille. Elle montre le sol : des traces de pas, profondes, sûres. Tu les reconnais.",
+                "« Je les suis depuis des années, » dit-elle. « Bien avant vous. Je voulais savoir s'il s'était vraiment assis. Ou s'il se cachait. »",
+                "« Il ne se cache pas. Il ne s'est jamais caché. » Elle s'accroupit, effleure la dernière empreinte. « C'est ça, le pire. Il était là, en plein milieu, tout ce temps. Et personne n'est venu voir. »",
+                "Elle se relève. « Je ne rate jamais rien. C'est mon talent. » Un temps. « Mais lui, on l'a tous raté. »"
+            ]
+        }
+    },
+    {
+        id: 'evt_n65_ambiance_nabdano',
+        type: 'ambiance',
+        trigger: { kind: 'levelAndNarrativeRift', value: 65, narrativeId: 'silent_one' },
+        once: true,
+        content: {
+            speaker: 'nabdano',
+            title: 'Presque Tendre',
+            image: 'images/story/nabdano.webp',
+            pages: [
+                "« Tu es plus proche que quiconque ne l'a jamais été, » dit Nabdano. Sa voix n'a plus rien de menaçant. Juste une infinie fatigue.",
+                "« Quand tu me verras, tu comprendras. Je ne suis pas un monstre. Je suis seulement... quelqu'un qui s'est arrêté. »",
+                "« Et une part de toi, déjà, se demande si j'ai eu tort. »"
+            ]
+        }
+    },
+    {
+        id: 'evt_elise_prescription',
+        type: 'dialogue',
+        trigger: { kind: 'xp', level: 67, frac: 0.4 },
+        condition: function () { return awakAvecCompagnon('elise'); },
+        once: true,
+        content: {
+            speaker: 'elise',
+            title: "Une Prescription",
+            pagesSi: { nyra: [
+                "Élise te prend à part pendant qu'Esen nettoie sa lame. Pour la troisième fois.",
+                "« Il ne dort plus. Trois heures par nuit, peut-être. Et moins il parle, plus il a peur. Tu l'avais remarqué ? »",
+                "« Je sais soigner une épaule. Une cheville. Pas ça. » Elle range ses bandages, un par un. « Ça, ça se soigne en restant à côté. »",
+                "« Alors reste à côté. C'est une prescription. »",
+                "Ce soir-là, quand Esen pose enfin sa lame, tu t'assois près de lui. Tu ne dis rien. Lui non plus. Il dort quatre heures. C'est un début."
+            ] },
+            pages: [
+                "Élise te prend à part pendant que Nyra raconte une blague à qui veut l'entendre. Beaucoup trop fort.",
+                "« Elle ne dort plus. Trois heures par nuit, peut-être. Et elle rit plus fort quand elle a peur. Tu l'avais remarqué ? »",
+                "« Je sais soigner une épaule. Une cheville. Pas ça. » Elle range ses bandages, un par un. « Ça, ça se soigne en restant à côté. »",
+                "« Alors reste à côté. C'est une prescription. »",
+                "Ce soir-là, quand Nyra se tait enfin, tu t'assois près d'elle. Tu ne dis rien. Elle non plus. Elle dort quatre heures. C'est un début."
+            ]
+        }
+    },
+    {
+        id: 'evt_yuna_noyau',
+        type: 'ambiance',
+        trigger: { kind: 'xp', level: 69, frac: 0.5 },
+        condition: function () { return awakAvecCompagnon('yuna'); },
+        once: true,
+        content: {
+            speaker: 'yuna',
+            title: "Le Noyau",
+            pages: [
+                "« Tu veux savoir ce qu'est le Noyau, » dit Yuna. Ce n'est pas une question. Elle ne pose jamais de questions.",
+                "« C'est l'endroit où le monde garde ce qu'il refuse d'oublier. Les noms qu'on a aimés. Les promesses tenues. Tout ce qui a compté assez fort. »",
+                "« Je l'ai touché, une fois. J'y ai vu le bout de la route. Un homme assis. Et devant lui, deux silhouettes debout, côte à côte. » Elle te regarde, puis {partenaire}. « Je ne savais pas qui elles étaient. Maintenant, si. »",
+                "{partenaire} fronce les sourcils. « Et ensuite ? Qu'est-ce qui se passe, ensuite ? »",
+                "Yuna sourit, pour la première fois. « Le Noyau ne montre pas ce qui va arriver. Il montre ce qui vaut la peine d'être gardé. Le reste, c'est à vous. »"
+            ]
+        }
+    },
+    {
+        id: 'evt_chen_mefiance',
+        type: 'dialogue',
+        trigger: { kind: 'xp', level: 74, frac: 0.3 },
+        condition: function () { return awakAvecCompagnon('chen'); },
+        once: true,
+        content: {
+            speaker: 'chen',
+            title: "Les Voix qui ont Besoin de Nous",
+            pages: [
+                "Maître Chen observe longtemps les lettres du Système avant de parler. « Je t'ai déjà vu, toi. Pas toi exactement. Un autre comme toi. »",
+                "Les lettres vacillent. Chen continue, calme : « Il y a longtemps, un fragment s'accrochait à un homme. Il lui parlait, comme il te parle. Il l'encourageait. Chaque jour. »",
+                "« Puis l'homme s'est assis. Et le fragment s'est éteint avec lui. » Chen se tourne vers toi. « Je me méfie des voix qui ont besoin de nous pour vivre. »",
+                "Un long silence. Puis le Système affiche, lentement : « Il a raison. J'ai besoin de toi. »",
+                "« Mais l'autre fragment ne lui a jamais dit qu'il avait le droit de se reposer. Moi, je te le dis. Repose-toi. Et reviens. C'est toute la différence. »",
+                "Chen hoche la tête, une seule fois. « …Bien. Alors je reste. »"
+            ]
+        }
+    },
+    {
+        id: 'evt_n61_ambiance_proche',
+        type: 'ambiance',
+        trigger: { kind: 'xp', level: 75, frac: 0.2 },
+        once: true,
+        content: {
+            speaker: 'systeme',
+            title: 'Le Seuil',
+            pages: [
+                "Vous y êtes presque. Le vide blanc est si dense qu'il avale les sons. Chaque pas demande une volonté pure.",
+                "« Au-delà de ce seuil, je ne pourrai plus beaucoup t'aider, » dit le Système. « Là où il est, je suis trop faible. C'est son territoire. »",
+                "« Quoi qu'il te dise... souviens-toi que tu n'es pas venu seul. C'est la seule chose qu'il n'a jamais eue, lui. »"
+            ]
+        }
+    },
+    // ── 🎵 Fil ouvert : la chanson de Nyra (voir evt_oubli_chanson)
+    {
+        id: 'evt_chanson_retrouvee',
+        type: 'ambiance',
+        trigger: { kind: 'xp', level: 76, frac: 0.5 },
+        once: true,
+        content: {
+            speaker: 'nyra',
+            title: "La Chanson, Encore",
+            pages: [
+                "Plus vous avancez dans le blanc, plus le silence est épais. Puis, au loin, quelque chose le traverse.",
+                "Un air. Simple, un peu triste. Nyra s'arrête net. C'est sa chanson. Celle que personne ne connaissait.",
+                "Quelqu'un la fredonne, très loin, là où la route finit. D'une voix usée, comme on chante à un enfant pour qu'il s'endorme.",
+                "« Il la connaît, » souffle Nyra. « Il la connaît… »",
+                "Le Système, à peine visible : « Ce n'est pas lui qui te l'a apprise, Nyra. Mais quelqu'un, autrefois, l'a apprise à quelqu'un qu'il tenait debout. Il s'en souvient encore. »",
+                "Nyra s'essuie les yeux d'un revers de manche. « Alors je ne suis pas la dernière. » Elle reprend la marche. Elle fredonne avec lui, sans s'en rendre compte, dans le même tempo."
+            ]
+        }
+    },
+    {
+        id: 'evt_n70_dialogue_duo',
+        type: 'dialogue',
+        trigger: { kind: 'xp', level: 79, frac: 0.2 },
+        once: true,
+        content: {
+            speaker: 'nyra',
+            title: 'Avant la Fin',
+            image: 'images/story/n70_avant_fin.webp',
+            pages: [
+                "La veille du seuil final, vous restez éveillés tous les deux, en silence.",
+                "« Si on en sort, » dit Nyra sans regarder personne, « il faudra qu'on se dise des choses. Des vraies. »",
+                "Esen hoche la tête, lentement. « Si on en sort. »",
+                "Personne ne finit la phrase. Mais quelque chose, entre vous, vient d'être promis."
+            ]
+        }
+    },
+    // ⚠️ AVERTISSEMENT AVANT LA PORTE — le joueur peut encore aller chercher
+    // les autres. Le Système constate sans juger : c'est au joueur de comprendre.
+    {
+        id: 'evt_avant_porte_bilan',
+        type: 'ambiance',
+        trigger: { kind: 'xp', level: 79, frac: 0.7 },
+        once: true,
+        content: {
+            image: 'images/story/moment_suspendu.webp',
+            speaker: 'systeme',
+            title: 'Avant de Frapper',
+            pages: [
+                "« Avant que tu passes cette porte, » affiche le Système, « je dois te dire une chose. »",
+                "« Il ne te demandera pas si tu es fort. Il sait déjà que tu l'es. »",
+                "« Il te demandera depuis combien de temps tu tiens. Et qui tient avec toi. »",
+                "Un temps.",
+                "« Moi je serai là. Eux aussi, s'ils sont venus. »",
+                "« Et si tu passes cette porte seul — tu ne l'auras quand même pas fait seul. Tu as mis des mois à arriver ici. »"
+            ]
+        }
+    },
+    {
+        id: 'evt_n75_ambiance_porte',
+        type: 'ambiance',
+        // ⚠️ La Faille « last_door » exige le rang S = niveau 80. Un seuil à 75
+        // était trompeur : l'événement ne pouvait pas se déclencher avant 80.
+        trigger: { kind: 'levelAndNarrativeRift', value: 80, narrativeId: 'last_door' },
+        once: true,
+        content: {
+            speaker: 'systeme',
+            title: 'La Dernière Porte',
+            image: 'images/story/face_effacement.webp',
+            pages: [
+                "Devant vous, le centre de l'effacement. Une étendue blanche, infinie, silencieuse. Et au milieu, une silhouette assise.",
+                "Le Système, d'une voix presque éteinte : « C'est lui. Nabdano. »",
+                "« Va. Je reste avec toi autant que je le peux. Et n'oublie pas... tu n'es pas venu seul. »"
+            ]
+        }
+    },
     // ══════════════════════════════════════════════════════════════
     // ⚔️ LES QUATRE ÉPREUVES — bascule avant les sous-boss
     // Le joueur vient de terminer l'histoire (les 5 Failles narratives).
@@ -950,7 +1160,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_quatre_epreuves',
         type: 'fait',
-        trigger: { kind: 'levelAndNarrativeRift', value: 55, narrativeId: 'the_one_who_carried' },
+        trigger: { kind: 'levelAndNarrativeRift', value: 80, narrativeId: 'last_door' },
         once: true,
         content: {
             speaker: 'systeme',
@@ -996,7 +1206,7 @@ const STORY_EVENTS = [
                 "« Elles ont eu leurs réponses, » affiche le Système.",
                 "Devant toi, la rue continue. Pas de Faille, pas de brèche, pas de seuil à franchir.",
                 "Juste une route droite, et quelque chose d'assis tout au bout.",
-                "« Il n'y a plus de porte. Il n'en a jamais mis. »",
+                "« Plus de porte. Plus de gardien. Il n'a jamais rien mis d'autre entre vous que sa fatigue. »",
                 "Un temps.",
                 "« Il a passé quarante et un ans à attendre que quelqu'un vienne jusqu'ici. Personne n'est venu. »",
                 "Nyra ne plaisante pas. Elle regarde la silhouette au loin, longtemps.",
@@ -1023,14 +1233,14 @@ const STORY_EVENTS = [
     {
         id: 'evt_fin_ancre',
         type: 'fait',
-        trigger: { kind: 'levelAndNarrativeRift', value: 80, narrativeId: 'last_door' },
+        trigger: { kind: 'finalBoss', value: 1 },
         once: true,
         content: {
             image: 'images/story/fin_ancre.webp',
             speaker: 'nabdano',
             title: 'L\'Ancre',
-            pages: [
-                "Il est assis. Il ne se lève pas quand tu entres.",
+            get pages() { return [
+                "Le combat est fini. Il est toujours assis. Il ne s'est pas levé une seule fois.",
                 "« Tu as gagné, » dit-il. Ce n'est pas de la résignation. C'est un constat.",
                 "Tu ne bouges pas.",
                 "« Pourquoi tu continues ? » Il lève enfin les yeux. « Tu es encore debout. C'est tout ce que tu as. »",
@@ -1044,7 +1254,9 @@ const STORY_EVENTS = [
                 "« Tu n'avais pas tort d'être fatigué. »",
                 "Il se fige.",
                 "« Tu avais tort de croire que tu devais porter le monde seul. »",
-                "Derrière toi, des pas. Esen. Nyra. Puis les autres — ceux que tu es allé chercher, un par un, dans des Failles où personne ne t'obligeait à entrer.",
+                (awakFinCompagnons() > 0
+                    ? "Derrière toi, des pas. {partenaire}. Puis les autres — ceux que tu es allé{e} chercher, un par un, dans des Failles où personne ne t'obligeait à entrer."
+                    : "Derrière toi, des pas. {partenaire}. {Il} t'a suivi{e} jusqu'ici sans que tu le demandes."),
                 "Nabdano les regarde. Longtemps. Ses mains tremblent.",
                 "« ...Voilà ce que je n'avais pas. »",
                 "Il ne sourit pas. Il ne demande pas pardon. Quelque chose se défait, simplement, après quarante et un ans.",
@@ -1052,10 +1264,71 @@ const STORY_EVENTS = [
                 "Il s'efface. Pas comme le monde s'efface — plus doucement. Comme quelqu'un qu'on laisse enfin dormir.",
                 "« Il est parti, » affiche le Système. « Pas effacé. Parti. Ce n'est pas la même chose. »",
                 "Dehors, une rue que tu croyais perdue a retrouvé son nom."
+            ]; }
+        }
+    },
+    // ── 🌅 ÉPILOGUE : les fils ouverts se referment (photo d'Esen, promesse du duo)
+    {
+        id: 'evt_epilogue_apres',
+        type: 'fait',
+        trigger: { kind: 'finalBoss', value: 1 },
+        condition: function () { return storyEventSeen('evt_fin_ancre'); },
+        once: true,
+        content: {
+            speaker: 'esen',
+            title: "Après",
+            image: 'images/story/n27_photo_esen.webp',
+            pages: [
+                "Quelques jours ont passé. Les rues reprennent leurs noms, une à une. Ce matin, la boulangère a salué Nyra par son prénom. Nyra a fait semblant de ne pas être émue.",
+                "Esen sort la vieille photo de sa poche. Le visage est revenu. Une jeune fille, un sourire de travers, les cheveux en bataille.",
+                "« Ma sœur, » dit-il. Il le dit lentement, comme un mot qu'on réapprend. « Elle s'appelait Ilia. Elle trichait aux cartes. »",
+                "« Tu avais peur que ça revienne, » dit Nyra doucement.",
+                "« Oui. » Il range la photo. « Ça fait mal. » Un temps. « Mais je suis assez solide, maintenant. »",
+                "Nyra s'assoit à côté de lui. « Bon. On avait dit que si on s'en sortait, on se dirait des choses. Des vraies. »",
+                "Esen la regarde. Longtemps. « …Demain. »",
+                "Nyra lève les yeux au ciel. Mais elle sourit, et elle ne lâche pas sa main.",
+                "Le Système affiche, pour lui-même : « Note : demain est une notion que je peux enfin envisager. »"
             ]
         }
     }
 ];
+
+// Un compagnon a-t-il rejoint le groupe ? (scènes de compagnon : avant la Dernière Porte)
+function awakAvecCompagnon(id) {
+    try {
+        var d = (typeof awakCompanionsLoad === 'function') ? awakCompanionsLoad() : null;
+        if (!(d && Array.isArray(d.unlocked) && d.unlocked.indexOf(id) >= 0)) return false;
+        return !awakNarrativeRiftDone('last_door');
+    } catch (e) { return false; }
+}
+
+// ── 👥 LE JOUEUR EST ESEN OU NYRA ───────────────────────────────────
+// Selon l'avatar choisi (fitproAvatarGender) : homme → Esen, femme → Nyra.
+// L'autre héros est le PARTENAIRE. Jetons utilisables dans les textes :
+//   {partenaire} Esen/Nyra · {il}/{Il} pronom du partenaire
+//   {pe} accord du partenaire ('' ou 'e') · {e} accord du joueur
+// content.pagesSi = { esen:[…], nyra:[…] } : variante selon le héros joué.
+function awakHerosJoue() {
+    try { return (localStorage.getItem('fitproAvatarGender') || 'homme') === 'femme' ? 'nyra' : 'esen'; }
+    catch (e) { return 'esen'; }
+}
+function awakHerosTexte(t) {
+    if (typeof t !== 'string' || t.indexOf('{') < 0) return t;
+    var moi = awakHerosJoue(), nyraPart = (moi === 'esen');
+    return t.replace(/\{partenaire\}/g, nyraPart ? 'Nyra' : 'Esen')
+            .replace(/\{il\}/g, nyraPart ? 'elle' : 'il').replace(/\{Il\}/g, nyraPart ? 'Elle' : 'Il')
+            .replace(/\{pe\}/g, nyraPart ? 'e' : '').replace(/\{e\}/g, moi === 'nyra' ? 'e' : '');
+}
+function awakHerosPages(c) {
+    var p = (c && c.pagesSi && c.pagesSi[awakHerosJoue()]) || (c && c.pages) || [];
+    return p.map(awakHerosTexte);
+}
+
+// Compagnons rejoints (pour la scène finale)
+function awakFinCompagnons() {
+    try { var d = (typeof awakCompanionsLoad === 'function') ? awakCompanionsLoad() : null;
+          return (d && Array.isArray(d.unlocked)) ? d.unlocked.length : 0; } catch (e) { return 0; }
+}
 
 // ── ÉTAT / ANTI-DOUBLON ────────────────────────────────────────────
 function _seenKey(id) { return 'awakStoryEvt_' + id; }
@@ -1078,7 +1351,18 @@ function storyEventEligible(evt, ctx) {
         case 'always':   return true;
         case 'workouts': return (ctx.workouts || 0) >= t.value;
         case 'level':    return (ctx.level || 0) >= t.value;
-        case 'xp':       return (ctx.xp || 0) >= t.value;
+        case 'xp': {
+            // Seuil exprimé en NIVEAU (+ fraction du niveau suivant, pour un
+            // rythme irrégulier) : reste juste si la courbe d'XP est rééquilibrée.
+            if (t.level != null) {
+                if (typeof rpgXPForLevel !== 'function') return (ctx.level || 0) > t.level;
+                var x0 = rpgXPForLevel(t.level), x1 = rpgXPForLevel(t.level + 1);
+                return (ctx.xp || 0) >= x0 + Math.round((x1 - x0) * (t.frac || 0));
+            }
+            return (ctx.xp || 0) >= t.value;
+        }
+        case 'finalBoss':     // le Monarque du Déclin a été affronté
+            try { return localStorage.getItem('awakFinalBossDefeated') === '1'; } catch (e) { return false; }
         case 'rifts':    return (ctx.rifts || 0) >= t.value;
         case 'rank': {
             const order = ['E','D','C','B','A','S','SS','SSS'];
@@ -1186,7 +1470,7 @@ function storyShowEvent(evt) {
     const char = STORY_CHARS[c.speaker] || STORY_CHARS.systeme;
     const color = char.color;
     const image = c.image || char.image; // override possible par event
-    const pages = c.pages || [];
+    const pages = awakHerosPages(c);
     let pageIdx = 0;
 
     const overlay = document.createElement('div');
@@ -1296,6 +1580,7 @@ const NARRATIVE_RIFT_NAMES = {
     first_breach: 'Le Premier Souvenir',
     whispering_tower: 'La Tour qui Murmure',
     silent_one: 'Le Silencieux',
+    the_one_who_carried: 'Celui qui a Porté',
     last_door: 'La Dernière Porte'
 };
 
@@ -1340,7 +1625,8 @@ function awakShowHeroReaction(reason) {
         if (typeof window.AwakCine !== 'undefined' && window.AwakCine.defer(function () { awakShowHeroReaction(reason); })) return false;
         if (document.getElementById('storyEventOverlay') || document.getElementById('heroReactionOverlay')) return false;
 
-        const hero = Math.random() < 0.5 ? 'esen' : 'nyra';
+        // Le PARTENAIRE réagit (le joueur incarne l'autre héros)
+        const hero = awakHerosJoue() === 'esen' ? 'nyra' : 'esen';
         const heroName = hero === 'esen' ? 'Esen' : 'Nyra';
         const color = hero === 'esen' ? '#4ade80' : '#a855f7';
         const img = 'images/story/' + hero + '_fache.webp';
@@ -1400,6 +1686,77 @@ function awakShowHeroReaction(reason) {
     } catch(e) { return false; }
 }
 
+// ── 🌫️ MURMURE DU DÉCLIN ───────────────────────────────────────────
+// Quand la jauge du Déclin monte (jours sans séance), Nabdano parle au
+// joueur à l'ouverture de l'appli. 1× par jour max, jamais avant la Rencontre.
+// Les héros répondent ensuite (réaction d'absence déjà en place).
+var MURMURES = {
+    bas: [
+        "« Tu vois ? Ce n'était pas si difficile, de t'arrêter. »",
+        "« Personne ne t'en veut. Reste assis encore un peu. Juste un peu. »",
+        "« Écoute comme le monde est calme, quand on ne bouge plus. »",
+        "« Demain. Tu reprendras demain. C'est ce que je me disais, moi aussi. »"
+    ],
+    haut: [
+        "« Ils vont arrêter de t'attendre. Ils finissent tous par arrêter. »",
+        "« Moi aussi, j'ai pris un jour de repos. Un seul. Il dure encore. »",
+        "« Tu n'as plus rien à porter. Pose tout. Je m'occupe du reste. »"
+    ]
+};
+function awakMurmureDeclin() {
+    try {
+        if (typeof rpgEnabled === 'function' && !rpgEnabled()) return false;
+        if (!storyEventSeen('evt_rencontre') || storyEventSeen('evt_fin_ancre')) return false;
+        var p = (typeof awakGetMonarchPower === 'function') ? awakGetMonarchPower() : 0;
+        if (p < 40) return false;
+        var jour = new Date().toDateString();
+        if (localStorage.getItem('awakMurmureJour') === jour) return false;
+        localStorage.setItem('awakMurmureJour', jour);
+        var pool = p >= 70 ? MURMURES.haut : MURMURES.bas;
+        var n = Math.floor(Date.now() / 86400000) % pool.length;
+        storyShowEvent({ id: 'murmure', content: { speaker: 'nabdano', title: 'Une Voix', pages: [
+            pool[n],
+            "Le Système n'affiche rien. Quelque part, au coin d'une rue, {partenaire} t'attend sur une borne. {Il} ne sait pas encore si tu vas venir."
+        ] } });
+        return true;
+    } catch (e) { return false; }
+}
+
+// ── 🚪 LE RETOUR — première séance après une longue absence ─────────
+// Joué À LA PLACE de l'événement normal : revenir est un acte de l'histoire.
+var RETOURS = [
+    [
+        "{partenaire} est assis{pe} sur une borne, au coin de la rue. Comme si {il} n'avait pas bougé depuis ton départ.",
+        "{Il} se lève sans un mot et te tend une bouteille d'eau. Pas de question. « Je t'ai gardé ta place. »",
+        "Le Système : « Signal retrouvé. Pendant ton absence, une rue a pâli. Elle reprend déjà ses couleurs. »",
+        "Très loin, une voix soupire. Déçue."
+    ],
+    [
+        "{partenaire} t'attend devant la Faille, les bras croisés. Un long silence.",
+        "« Il t'a parlé, pendant que tu n'étais pas là ? » Tu ne réponds pas. {partenaire} hoche la tête.",
+        "« À moi aussi, il parle. On lui répond pareil : en revenant. » Puis, plus bas : « Règle numéro quatre : on revient toujours. Je viens de l'inventer. »",
+        "Très loin, une voix soupire. Déçue."
+    ],
+    [
+        "« Tu es revenu{e}, » affiche le Système. Les lettres sont pâles, mais elles sont là.",
+        "« Je ne te demande pas pourquoi tu es parti{e}. Je te demande seulement de recommencer. »",
+        "Un temps. « C'est fait. »",
+        "{partenaire} te donne un coup d'épaule en passant. Venant de {partenaire}, c'est une fête.",
+        "Très loin, une voix soupire. Déçue."
+    ]
+];
+function awakSceneRetour(jours) {
+    try {
+        if (typeof rpgEnabled === 'function' && !rpgEnabled()) return false;
+        if (!storyEventSeen('evt_rencontre') || !(jours >= 10)) return false;
+        var n = parseInt(localStorage.getItem('awakRetoursVus') || '0', 10) || 0;
+        localStorage.setItem('awakRetoursVus', String(n + 1));
+        storyShowEvent({ id: 'retour', content: { speaker: 'systeme', title: 'Le Retour',
+            image: 'images/story/monde_efface.webp', pages: RETOURS[n % RETOURS.length] } });
+        return true;
+    } catch (e) { return false; }
+}
+
 // ── EXPORTS ────────────────────────────────────────────────────────
 window.STORY_EVENTS       = STORY_EVENTS;
 window.storyEventSeen     = storyEventSeen;
@@ -1409,6 +1766,10 @@ window.storyShowEvent     = storyShowEvent;
 window.storyPickEvent     = storyPickEvent;
 window.storyEventEligible = storyEventEligible;
 window.awakShowHeroReaction = awakShowHeroReaction;
+window.awakMurmureDeclin = awakMurmureDeclin;
+window.awakHerosPages = awakHerosPages;
+window.awakHerosJoue = awakHerosJoue;
+window.awakSceneRetour = awakSceneRetour;
 window.STORY_CHARS        = STORY_CHARS;
 window.storyCheckEvents   = storyCheckEvents;
 window.storyShowEvent     = storyShowEvent;

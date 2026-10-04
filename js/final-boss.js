@@ -108,18 +108,42 @@
     window.AWAK_ACT_STATS = ACT_STATS;
   } catch (e) {}
 
+  // 🧭 Le combat final parle du parcours RÉEL du joueur (séances, série, compagnons).
+  function parcours() {
+    var st = {}, noms = [];
+    try { st = JSON.parse(localStorage.getItem('workoutStats') || '{}') || {}; } catch (e) {}
+    try {
+      var COURTS = { marcus: 'Marcus', kira: 'Kira', elise: 'Élise', yuna: 'Yuna', chen: 'Chen' };
+      var d = (typeof awakCompanionsLoad === 'function') ? awakCompanionsLoad() : null;
+      (d && Array.isArray(d.unlocked) ? d.unlocked : []).forEach(function (id) { if (COURTS[id]) noms.push(COURTS[id]); });
+    } catch (e) {}
+    return { seances: st.workouts || 0, serie: Math.max(st.bestStreak || 0, st.streak || 0), noms: noms };
+  }
+  function partenaire() {
+    try { return (localStorage.getItem('fitproAvatarGender') || 'homme') === 'femme' ? 'Esen' : 'Nyra'; } catch (e) { return 'Nyra'; }
+  }
+  function listeNoms(noms) {
+    // Le joueur incarne Esen (avatar homme) ou Nyra (avatar femme) : c'est l'AUTRE qui arrive.
+    var l = [partenaire()].concat(noms);
+    if (l.length === 1) return l[0];
+    return l.slice(0, -1).join(', ') + ' et ' + l[l.length - 1];
+  }
+
   // Construit la liste complète des exercices + narration des 7 actes.
   function buildFinalWorkout() {
+    const P = parcours();
     const E = [];
 
     // ── PROLOGUE ──
     E.push(story('👑 La Faille Finale', [
-      "La Faille s'ouvre sans bruit. Pas de monstres, pas de vagues. Juste une silhouette assise sur un trône d'ombres, qui se lève lentement en te voyant entrer.",
-      "« Te voilà. Le seul qui n'a jamais cédé. » Sa voix est calme, presque triste. « Je suis né de tous les autres — ceux qui ont abandonné après le premier jour, après la première douleur. Je suis le Déclin. »",
-      "Le Système murmure dans ta tête : « C'est lui. Ne le laisse pas t'épuiser. Chaque chose que tu as construite t'a mené ici. »"
+      "Pas de monstres, pas de vagues. Au bout de la route, une silhouette assise au milieu du blanc. Il ne se lève pas en te voyant arriver.",
+      "« Te voilà. » Sa voix est calme, presque douce. « Tu as répondu à mes quatre questions. Il m'en reste une seule : combien de temps encore ? »",
+      "« " + P.seances + " séances. " + (P.serie > 1 ? "Ta plus longue série : " + P.serie + " jours. " : "") + "» Il connaît tes chiffres par cœur. « Moi aussi, je comptais. Au début. Puis j'ai arrêté de compter. Puis j'ai arrêté tout court. »",
+      "Le blanc s'épaissit autour de toi. Il ne t'attaque pas. Il te prête sa fatigue — quarante et un ans de fatigue. Chaque mouvement va peser le double.",
+      "Le Système, d'une voix à peine audible : « Je suis faible, ici. Mais je suis là. Ne t'assois pas. Chaque séance que tu as faite t'a mené jusqu'à lui. »"
     ], '#dc2626'));
     E.push(story('🔥 Échauffement — Prépare-toi', [
-      "« Montre-moi ce que valent toutes ces séances. »",
+      "« Vas-y. Montre-moi ce qui te fait tenir. »",
       "Échauffe-toi sérieusement : ce qui vient va tout exiger."
     ], '#f59e0b'));
     E.push(ex('Jumping jacks', 'Cardio', { timer: 60, instructions: ['Rythme soutenu', 'Amplitude complète', 'Respire'] }));
@@ -128,8 +152,8 @@
 
     // ── ACTE I — LA FORCE ──
     E.push(story('⚔️ Acte I — La Force', [
-      "Le Monarque avance d'un pas. « La force ? J'ai vu mille Chasseurs forts tomber. La force sans constance n'est rien. »",
-      "Il frappe le sol — l'onde de choc te traverse. « Prouve que la tienne est réelle. »"
+      "Nabdano ne bouge pas. « J'étais plus fort que toi. J'ai porté le monde à bout de bras. La force, ça s'use. »",
+      "Le poids du blanc s'abat sur tes épaules. « Prouve-moi que la tienne ne s'use pas. »"
     ], '#ef4444'));
     E.push(ex('Pompes', 'Pectoraux', { sets: 1, reps: 20, instructions: ['Corps gainé', 'Amplitude complète', 'Contrôle la descente'] , _act:'force'}));
     E.push(ex('Squats', 'Quadriceps', { sets: 1, reps: 25, instructions: ['Cuisses parallèles', 'Talons ancrés', 'Poitrine haute'] , _act:'force'}));
@@ -138,8 +162,8 @@
 
     // ── ACTE II — L'ENDURANCE ──
     E.push(story('🌊 Acte II — L\'Endurance', [
-      "« Tu tiens encore ? » Le Monarque sourit pour la première fois. « Alors voyons combien de temps. Le Déclin ne frappe pas fort — il use, lentement, jusqu'à ce que tu t'écroules de toi-même. »",
-      "L'air devient lourd. Chaque respiration coûte. « Abandonne maintenant, et la douleur s'arrête. C'est si facile d'arrêter. »"
+      "« Tu tiens encore ? » Pour la première fois, il lève la tête. « Moi aussi, je tenais. Un jour, puis un autre. Ce n'est pas la douleur qui m'a vaincu. C'est la durée. »",
+      "L'air devient lourd. Chaque respiration coûte. « Assieds-toi, et tout s'arrête. C'est si simple, d'arrêter. »"
     ], '#0ea5e9'));
     E.push(ex('Burpees', 'Cardio', { timer: 75, instructions: ['Enchaîne sans pause', 'Poitrine au sol', 'Saut explosif en haut'] , _act:'endurance'}));
     E.push(ex('Mountain climbers', 'Cardio', { timer: 60, instructions: ['Genoux rapides vers la poitrine', 'Hanches basses'] , _act:'endurance'}));
@@ -148,7 +172,7 @@
 
     // ── ACTE III — L'EXPLOSIVITÉ ──
     E.push(story('⚡ Acte III — L\'Explosivité', [
-      "Le Monarque se déplace soudain — il est partout et nulle part. « La régularité ne suffira pas. Peux-tu encore être vif quand tes jambes brûlent ? »",
+      "Autour de toi, les rues effacées défilent, de plus en plus vite. « Moi aussi, j'étais régulier. Peux-tu encore être vif quand tout en toi veut ralentir ? »",
       "« C'est dans l'épuisement que se révèle ce que tu es vraiment. »"
     ], '#a855f7'));
     E.push(ex('Burpees avec saut', 'Cardio', { sets: 1, reps: 15, instructions: ['Explosion maximale au saut', 'Enchaîne'] , _act:'explosivite'}));
@@ -158,9 +182,9 @@
 
     // ── ACTE IV — LA VOLONTÉ ──
     E.push(story('🛡️ Acte IV — La Volonté', [
-      "Le Monarque vacille. Pour la première fois, c'est lui qui semble fatigué. « Comment... ? Personne ne tient aussi longtemps. »",
-      "Il change de tactique — il s'attaque à ton mental. « Tu trembles. Tu veux t'arrêter. Je le sens. Pose un genou à terre, et tout cessera. »",
-      "Le Système gronde : « Ne bouge pas. Tiens. Sa dernière arme, c'est ton propre doute. Prouve-lui que ta volonté ne plie pas. »"
+      "Nabdano vacille. Ses mains tremblent. « Comment... ? Personne n'a tenu aussi longtemps. Pas même moi. »",
+      "Sa voix se fait tendre. « Tu trembles. Pose un genou à terre. Personne ne te le reprochera. Moi, je ne te le reprocherai jamais. »",
+      "Le Système rassemble ce qui lui reste : « Tiens. Sa dernière arme, c'est ton propre doute. Et souviens-toi : tu n'es pas venu seul. »"
     ], '#22d3ee'));
     E.push(ex('Gainage planche', 'Abdominaux', { timer: 60, instructions: ['Corps parfaitement aligné', 'Ne cède pas', 'Respire malgré tout'] , _act:'volonte'}));
     E.push(ex('Chaise contre le mur', 'Quadriceps', { timer: 60, instructions: ['Cuisses parallèles au sol', 'Dos plaqué', 'Tiens coûte que coûte'] , _act:'volonte'}));
@@ -170,8 +194,8 @@
 
     // ── CLIMAX ──
     E.push(story('💥 Climax — Tout donner', [
-      "Le Monarque tombe à genoux. « Impossible... tu n'es pas plus fort que moi. Tu as juste... refusé... d'arrêter. »",
-      "Le Système hurle presque : « MAINTENANT. Il est à découvert. Donne tout ce qu'il te reste — ne garde rien. »"
+      "Le blanc se fissure. Derrière toi, des pas : " + listeNoms(P.noms) + ". « Tu n'es pas plus fort que moi, » murmure Nabdano. « Tu as juste... refusé d'être seul. »",
+      "Le Système, presque un cri : « MAINTENANT. Donne tout ce qu'il te reste — pour toi, et pour lui aussi. »"
     ], '#fbbf24'));
     E.push(ex('Burpees finaux', 'Cardio', { timer: 60, instructions: ['Vide le réservoir', 'Chaque rep le fait reculer'] , _act:'climax'}));
     E.push(ex('Pompes maximum', 'Pectoraux', { sets: 1, reps: 25, instructions: ['Autant que possible', 'Forme avant tout'] , _act:'climax'}));
@@ -202,7 +226,7 @@
   function startFinalBoss() {
     if (!isFinalUnlocked()) {
       if (typeof showAlert === 'function') {
-        showAlert('👑 Le Monarque attend', 'Tu dois d\'abord triompher des Quatre Épreuves. Le Monarque ne se montrera qu\'à celui qui les a toutes surmontées.');
+        showAlert('Le Monarque attend', 'Quatre gardiens se dressent encore entre toi et lui. Il ne te parlera qu\'une fois leurs quatre questions résolues.');
       }
       return;
     }
@@ -276,6 +300,16 @@
 
   // Écran de victoire épique du combat final.
   function showFinalBossVictory() {
+    // L'épilogue (scène « L'Ancre ») se joue AVANT l'écran de victoire.
+    try {
+      var fin = (window.STORY_EVENTS || []).find(function (e) { return e.id === 'evt_fin_ancre'; });
+      if (fin && typeof window.storyEventSeen === 'function' && !window.storyEventSeen('evt_fin_ancre')
+          && typeof window.storyShowEvent === 'function') {
+        localStorage.setItem('awakStoryEvt_evt_fin_ancre', '1');
+        window.storyShowEvent(fin);
+        if (window.AwakCine && window.AwakCine.defer(showFinalBossVictory)) return;
+      }
+    } catch (e) {}
     document.getElementById('awakFinalVictoryOverlay')?.remove();
     const ov = document.createElement('div');
     ov.id = 'awakFinalVictoryOverlay';
@@ -285,11 +319,11 @@
       @keyframes fbGlow{0%,100%{opacity:0.5}50%{opacity:1}}</style>
       <div style="max-width:440px;width:100%;margin:auto 0;text-align:center;">
         <div style="font-size:5em;margin-bottom:10px;animation:fbCrown 2.6s ease infinite;">👑</div>
-        <div style="font-family:'Rajdhani',sans-serif;font-size:0.72em;letter-spacing:4px;color:#fbbf24;font-weight:700;animation:fbGlow 2s infinite;">LE MONARQUE DU DÉCLIN EST TOMBÉ</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:0.72em;letter-spacing:4px;color:#fbbf24;font-weight:700;animation:fbGlow 2s infinite;">LE MONARQUE DU DÉCLIN S'EST RETIRÉ</div>
         <h1 style="font-family:'Rajdhani',sans-serif;font-size:2.4em;font-weight:700;letter-spacing:3px;color:#fff;margin:10px 0 20px;text-shadow:0 0 40px rgba(251,191,36,0.5);">VICTOIRE</h1>
         <div style="background:linear-gradient(160deg,rgba(251,191,36,0.08),rgba(0,0,0,0.2));border:1px solid rgba(251,191,36,0.3);border-radius:16px;padding:22px 20px;margin-bottom:20px;text-align:left;">
-          <p style="color:#e2e8f0;font-size:0.92em;line-height:1.7;margin:0 0 14px;font-style:italic;">« Il n'existe plus aucun mot pour décrire ce que tu es devenu. Le Déclin est vaincu. La limite, c'est désormais toi qui la fixes. »</p>
-          <p style="color:#94a3b8;font-size:0.82em;line-height:1.6;margin:0;">Tu refermes la Faille derrière toi. Dehors, le monde est exactement le même — sauf qu'il ne s'efface plus.</p>
+          <p style="color:#e2e8f0;font-size:0.92em;line-height:1.7;margin:0 0 14px;font-style:italic;">« Tu peux te reposer, maintenant, » affiche le Système. « Ce n'est plus la même chose qu'abandonner. Tu le sais. »</p>
+          <p style="color:#94a3b8;font-size:0.82em;line-height:1.6;margin:0;">Tu reprends la route avec ${partenaire()}. Dehors, le monde est exactement le même — sauf qu'il ne s'efface plus.</p>
         </div>
         <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px;margin-bottom:20px;">
           <div style="font-size:0.7em;color:#fbbf24;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;">Titre obtenu</div>
@@ -307,7 +341,7 @@
               </div>
             </div>
             <p style="color:#cbd5e1;font-size:0.82em;line-height:1.65;margin:0 0 10px;">
-              Là où le Monarque est tombé, la Faille ne s'est jamais refermée. Elle descend.
+              Là où il s'est assis pendant quarante et un ans, la Faille ne s'est jamais refermée. Elle descend.
             </p>
             <p style="color:#94a3b8;font-size:0.78em;line-height:1.6;margin:0 0 10px;">
               Chaque palier est plus profond — et plus résistant — que le précédent. Il n'y a pas de dernier étage :

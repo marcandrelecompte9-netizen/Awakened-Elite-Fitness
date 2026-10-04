@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════════
-// Awakened — Système d'Équipement Solo Leveling
+// Awakened — Système d'Équipement
 // Stats : STR · AGI · VIT · END · PER · SEN
 // ═══════════════════════════════════════════════════════════════════════
 
@@ -25,13 +25,13 @@ const SLOTS = {
 // ── SETS ─────────────────────────────────────────────────────────────
 const EQUIPMENT_SETS = {
     shadow_monarch: {
-        id:'shadow_monarch', name:'Monarque des Ombres', icon:'🌑',
-        description:'L\'équipement du chasseur qui commande l\'obscurité elle-même.',
+        id:'shadow_monarch', name:'Souverain de l\'Aube', icon:'🌑',
+        description:'L\'équipement du chasseur qui se lève avant la lumière elle-même.',
         pieces:['shadow_crown','shadow_mantle','shadow_gauntlets','shadow_greaves','shadow_sabatons','shadow_dagger'],
         bonuses:{
             2:{ desc:'+20 STR · +15 AGI', stats:{ STR:20, AGI:15 } },
             4:{ desc:'+45 STR · +35 AGI · +20 VIT', stats:{ STR:45, AGI:35, VIT:20 } },
-            6:{ desc:'COMPLET : Aura du Monarque — tous les stats +30%, immunité à la Fatigue 🌑', special:true, allStatsPct:0.3 },
+            6:{ desc:'COMPLET : Aura du Souverain — tous les stats +30%, immunité à la Fatigue 🌑', special:true, allStatsPct:0.3 },
         },
     },
     iron_blood: {
@@ -218,7 +218,7 @@ const EQUIPMENT_DATABASE = [
     // ► RANG C — RARES
     // ══════════════════════════════════════════════
 
-    {   id:'shadow_helm', name:'Heaume des Ombres', icon:'🪖', slot:'head', rarity:'rare', set:'shadow_monarch',
+    {   id:'shadow_helm', name:'Heaume de l\'Aube', icon:'🪖', slot:'head', rarity:'rare', set:'shadow_monarch',
         muscle:'Dos',
         stats:{ STR:0, AGI:0, VIT:6, END:0, PER:24, SEN:10 },
         passive:'Vision nocturne : +15% PER dans les environnements à faible lumière.',
@@ -226,7 +226,7 @@ const EQUIPMENT_DATABASE = [
         lore:'"L\'ombre n\'est pas une prison. C\'est une armure."',
         ringEffect:{ type:'xpGain', value:0.05, label:'+5 % XP gagnée' } },
 
-    {   id:'shadow_mantle', name:'Manteau des Ombres', icon:'🧥', slot:'chest', rarity:'rare', set:'shadow_monarch',
+    {   id:'shadow_mantle', name:'Manteau de l\'Aube', icon:'🧥', slot:'chest', rarity:'rare', set:'shadow_monarch',
         muscle:'Pectoraux',
         stats:{ STR:6, AGI:0, VIT:28, END:12, PER:0, SEN:0 },
         passive:'Fluidité : -15% de fatigue lors des exercices explosifs.',
@@ -234,7 +234,7 @@ const EQUIPMENT_DATABASE = [
         lore:'"Porter l\'obscurité, c\'est en faire sa force."',
         ringEffect:{ type:'xpGain', value:0.05, label:'+5 % XP gagnée' } },
 
-    {   id:'shadow_gauntlets', name:'Gantelets des Ombres', icon:'🖤', slot:'hands', rarity:'rare', set:'shadow_monarch',
+    {   id:'shadow_gauntlets', name:'Gantelets de l\'Aube', icon:'🖤', slot:'hands', rarity:'rare', set:'shadow_monarch',
         muscle:'Avant-bras',
         stats:{ STR:11, AGI:0, VIT:7, END:0, PER:27, SEN:0 },
         passive:'Frappe silencieuse : +20% STR sur les exercices de tirage vertical.',
@@ -242,7 +242,7 @@ const EQUIPMENT_DATABASE = [
         lore:'"Chaque poing est une décision. Chaque décision, une ombre."',
         ringEffect:{ type:'bossDmg', value:0.05, label:'+5 % de dégâts sur les boss' } },
 
-    {   id:'shadow_greaves', name:'Jambières des Ombres', icon:'🦵', slot:'legs', rarity:'rare', set:'shadow_monarch',
+    {   id:'shadow_greaves', name:'Jambières de l\'Aube', icon:'🦵', slot:'legs', rarity:'rare', set:'shadow_monarch',
         muscle:'Ischio-jambiers',
         stats:{ STR:0, AGI:12, VIT:0, END:28, PER:6, SEN:0 },
         passive:'Pas fantôme : +20% AGI, réduction de bruit de déplacement.',
@@ -250,7 +250,7 @@ const EQUIPMENT_DATABASE = [
         lore:'"Se déplacer sans être vu. Frapper sans être entendu."',
         ringEffect:{ type:'xpGain', value:0.05, label:'+5 % XP gagnée' } },
 
-    {   id:'shadow_sabatons', name:'Sabatons des Ombres', icon:'🥾', slot:'feet', rarity:'rare', set:'shadow_monarch',
+    {   id:'shadow_sabatons', name:'Sabatons de l\'Aube', icon:'🥾', slot:'feet', rarity:'rare', set:'shadow_monarch',
         muscle:'Mollets',
         stats:{ STR:0, AGI:30, VIT:12, END:0, PER:0, SEN:8 },
         passive:'Foulée spectrale : +25% AGI sur les exercices d\'explosivité.',
@@ -258,11 +258,11 @@ const EQUIPMENT_DATABASE = [
         lore:'"La vitesse est la seule armure dont tu aies besoin."',
         ringEffect:{ type:'xpGain', value:0.05, label:'+5 % XP gagnée' } },
 
-    {   id:'shadow_dagger', name:'Dague de l\'Ombre', icon:'🗡️', slot:'weapon', rarity:'rare', set:'shadow_monarch',
+    {   id:'shadow_dagger', name:'Dague de l\'Aube', icon:'🗡️', slot:'weapon', rarity:'rare', set:'shadow_monarch',
         muscle:'Épaules',
         stats:{ STR:36, AGI:9, VIT:0, END:0, PER:15, SEN:0 },
         passive:'Lame traîtresse : +30% de dégâts sur les exercices unilatéraux.',
-        description:'Une lame courte forgée dans l\'essence même des ombres.',
+        description:'Une lame courte forgée dans la première lueur du jour.',
         lore:'"La dague frappe là où l\'épée ne peut pas atteindre."',
         ringEffect:{ type:'bossDmg', value:0.05, label:'+5 % de dégâts sur les boss' } },
 
@@ -511,20 +511,20 @@ const EQUIPMENT_DATABASE = [
     // ► RANG S — LÉGENDAIRES
     // ══════════════════════════════════════════════
 
-    {   id:'shadow_crown', name:'Couronne du Monarque des Ombres', icon:'🌑', slot:'head', rarity:'legendary', set:'shadow_monarch',
+    {   id:'shadow_crown', name:'Couronne du Souverain de l\'Aube', icon:'🌑', slot:'head', rarity:'legendary', set:'shadow_monarch',
         muscle:'Corps entier',
         stats:{ STR:0, AGI:32, VIT:0, END:0, PER:126, SEN:52 },
-        passive:'Domination absolue : STR et AGI +50% · immunité aux debuffs · les ombres obéissent.',
+        passive:'Domination absolue : STR et AGI +50% · immunité aux debuffs · l\'aube t\'obéit.',
         description:'La couronne du premier chasseur à avoir dominé seul un donjon de Rang National.',
-        lore:'"Je me lève seul. Je combats seul. Je vaincrai seul. Tel est l\'ordre du Système."',
+        lore:'"Chaque matin, je me lève avant le doute."',
         ringEffect:{ type:'bossDmg', value:0.12, label:'+12 % de dégâts sur les boss' } },
 
-    {   id:'arise_sword', name:'Épée de l\'Éveil — ARISE', icon:'🗡️', slot:'weapon', rarity:'legendary', set:'shadow_monarch',
+    {   id:'arise_sword', name:'Lame du Réveil', icon:'🗡️', slot:'weapon', rarity:'legendary', set:'shadow_monarch',
         muscle:'Pectoraux',
         stats:{ STR:120, AGI:-35, VIT:30, END:0, PER:50, SEN:0 },
-        passive:'ARISE : invoque une armée d\'ombres · +100% STR pendant 30 secondes 1×/séance.',
-        description:'L\'arme légendaire du Monarque des Ombres. Ceux qu\'elle frappe deviennent ses soldats.',
-        lore:'"ARISE. Le seul mot qui fait trembler les dieux."',
+        passive:'Réveil : la force endormie se libère · +100% STR pendant 30 secondes 1×/séance.',
+        description:'L\'arme légendaire du Souverain de l\'Aube. Elle réveille la force endormie de celui qui la porte.',
+        lore:'"Ce qui dort en toi n\'attendait qu\'un signal."',
         ringEffect:{ type:'bossDmg', value:0.12, label:'+12 % de dégâts sur les boss' } },
 
     {   id:'hunters_will', name:'Testament du Chasseur', icon:'📜', slot:'accessory', rarity:'legendary', set:null,

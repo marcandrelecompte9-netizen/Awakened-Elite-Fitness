@@ -6845,7 +6845,7 @@
         // 💪 STANDARDS DE FORCE (cadre performance). Surfacé pour les hommes,
         // mais les normes sont adaptées au sexe (fonctionne pour tout le monde).
         // Estime le 1RM (Epley) sur les gros lifts, le compare aux ratios de
-        // force/poids de corps, et en tire un rang (E→S, façon Solo Leveling).
+        // force/poids de corps, et en tire un rang (E→S).
         // ───────────────────────────────────────────────────────────────
         const AWAK_LIFTS = [
             { key: 'bench', label: 'Développé couché', emoji: '🏋️', names: ['Développé couché barre', 'Développé couché haltères'] },
@@ -21547,6 +21547,18 @@
             });
         }
         window.awakToggleCorpsVue = awakToggleCorpsVue;
+        // v1262 : repeint la carte du corps (ex. après avoir signalé une douleur)
+        window.awakRafraichirCorps = function () {
+            document.querySelectorAll('.awak-corps-host').forEach(function (h) {
+                if (h.parentNode) h.outerHTML = awakRenderCorps();
+            });
+        };
+        // 🩹 Muscles touchés par une douleur signalée (« Où as-tu mal ? »)
+        function _corpsDouleurs() {
+            try { return (window.AwakPain && typeof AwakPain.painfulMuscles === 'function') ? AwakPain.painfulMuscles() : []; }
+            catch (e) { return []; }
+        }
+        const COUL_DOULEUR = '#c084fc';
 
         // 🎨 Palette alignée sur le reste de l'app : vert = prêt, ambre =
         // bientôt, rouge = à laisser tranquille, gris = jamais travaillé.
@@ -21589,6 +21601,7 @@
             ];
 
             var svgZones = '', prets = 0, pretsNoms = [];
+            var _douleurs = _corpsDouleurs();
             // 🐛 Le compteur et la liste « PRÊTS » ne comptaient que la vue
             // affichée : de dos, aucun muscle de face n'apparaissait, la colonne
             // de droite disparaissait et l'en-tête disait « Tout récupère ».
@@ -21598,6 +21611,7 @@
              ['Trapèzes','Trapèzes'],['Dos','Dos'],['Triceps','Triceps'],['Fessiers','Fessiers'],['Ischios','Ischio-jambiers']]
             .forEach(function (m) {
                 try {
+                    if (_douleurs.indexOf(m[1]) >= 0) return;   // douloureux : jamais « prêt »
                     var st0 = (typeof getMuscleRecoveryStatus === 'function') ? getMuscleRecoveryStatus(m[1]) : null;
                     if (st0 && st0.status === 'ready') { prets++; pretsNoms.push(m[0]); }
                 } catch (e) {}
@@ -21608,13 +21622,14 @@
                     st = (typeof getMuscleRecoveryStatus === 'function')
                         ? getMuscleRecoveryStatus(z[1]) : null;
                 } catch (e) {}
-                var c = _corpsCouleur(st);
-                var pret = st && st.status === 'ready';
+                var mal = _douleurs.indexOf(z[1]) >= 0;
+                var c = mal ? COUL_DOULEUR : _corpsCouleur(st);
+                var pret = !mal && st && st.status === 'ready';
                 // ✨ Les muscles PRÊTS pulsent doucement et portent un halo :
                 // ils appellent le regard. Les autres restent mats.
                 const _id = z[1].replace(/'/g, "\\'");
-                svgZones += '<g style="cursor:pointer;fill:' + c + ';fill-opacity:' + (pret ? '0.55' : '0.28')
-                    + ';stroke:' + c + ';stroke-width:' + (pret ? '1.3' : '0.8') + ';" '
+                svgZones += '<g style="cursor:pointer;fill:' + (mal ? 'url(#corpsMal)' : c) + ';fill-opacity:' + (pret ? '0.55' : (mal ? '0.9' : '0.28'))
+                    + ';stroke:' + c + ';stroke-width:' + (pret ? '1.3' : (mal ? '1.4' : '0.8')) + ';' + (mal ? 'stroke-dasharray:3 2;' : '') + '" '
                     + (pret ? 'filter="url(#corpsGlow)" ' : '')
                     + 'onclick="awakCorpsToucher(\'' + _id + '\',\'' + z[0].replace(/'/g, "\\'") + '\')">'
                     + z[2]
@@ -21625,6 +21640,7 @@
 
             // Légende : 3 états, lisible sans savoir lire les chiffres
             var legende = [['#4ade80', 'Prêt'], ['#f59e0b', 'Récupère'], ['#ef4444', 'À reposer']]
+                .concat(_douleurs.length ? [[COUL_DOULEUR, 'Douleur']] : [])
                 .map(function (l) {
                     return '<span style="display:inline-flex;align-items:center;gap:5px;margin-right:12px;">'
                         + '<span style="width:9px;height:9px;border-radius:3px;background:' + l[0] + ';"></span>'
@@ -21679,7 +21695,7 @@
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1260);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1268);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -21722,8 +21738,13 @@
                 +     '<defs><filter id="corpsGlow" x="-40%" y="-40%" width="180%" height="180%">'
                 +       '<feGaussianBlur stdDeviation="2.4" result="b"/>'
                 +       '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>'
-                +     '</filter></defs>'
-                +     '<image href="' + img + '?v=1260" x="0" y="0" width="200" height="298" '
+                +     '</filter>'
+                // 🩹 hachures : une zone douloureuse se distingue d'un simple muscle fatigué
+                +     '<pattern id="corpsMal" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">'
+                +       '<rect width="5" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.22"/>'
+                +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
+                +     '</defs>'
+                +     '<image href="' + img + '?v=1268" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -21745,6 +21766,15 @@
                       : '')
                 +   '</div>'
                 +   '<div data-corps-legende style="font-size:0.6em;margin-top:8px;text-align:center;">' + legende + '</div>'
+                +   (_douleurs.length ? (function () {
+                        var zs = [];
+                        try { zs = AwakPain.activeZones().map(function (id) { var z = AwakPain.zoneById(id); return z ? z.label : ''; }).filter(Boolean); } catch (e) {}
+                        return '<button onclick="AwakPainOpen()" style="display:flex;align-items:center;gap:8px;width:100%;margin-top:9px;padding:8px 11px;border-radius:11px;cursor:pointer;text-align:left;'
+                          + 'background:rgba(192,132,252,0.10);border:1px solid rgba(192,132,252,0.35);color:#e9d5ff;font-size:0.66em;font-weight:700;">'
+                          + '<svg viewBox="0 0 24 24" width="15" height="15" style="flex-shrink:0;" aria-hidden="true"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z" fill="' + COUL_DOULEUR + '"/></svg>'
+                          + '<span style="flex:1;min-width:0;">Douleur : ' + zs.join(', ') + ' — évité dans tes séances</span>'
+                          + '<span style="color:#c084fc;font-weight:900;">Modifier</span></button>';
+                    })() : '')
                 +   '<div style="display:flex;gap:8px;margin-top:10px;align-items:center;">'
                 +     '<button onclick="awakCorpsFlip()" style="flex-shrink:0;padding:9px 12px;border-radius:11px;'
                 +       'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);'
@@ -21806,6 +21836,12 @@
         // en faisant défiler la page.
         var _corpsSelection = null;
         function awakCorpsToucher(muscle, label) {
+            // 🩹 Muscle douloureux : on n'y lance pas de séance, on propose de modifier
+            if (_corpsDouleurs().indexOf(muscle) >= 0) {
+                _corpsSelection = null;
+                if (typeof showToast === 'function') showToast(label + ' : douleur signalée. Les séances l\'évitent. Touche « Modifier » si ça va mieux.', 'info', 3500);
+                return;
+            }
             if (_corpsSelection === muscle) { _corpsSelection = null; awakCorpsLancer(muscle); return; }
             _corpsSelection = muscle;
             let st = null;
@@ -26427,7 +26463,7 @@
                     <img src="images/story/repos.webp" alt="Repos" style="width:100%;display:block;" onerror="this.style.display='none';" />
                 </div>
                 <div style="color:#fbbf24;font-weight:900;letter-spacing:3px;font-size:0.7em;margin-top:18px;text-transform:uppercase;">⏸ En Pause</div>
-                <div style="color:#94a3b8;font-size:0.85em;margin-top:6px;text-align:center;max-width:320px;">Reprends ton souffle. Esen et Nyra aussi font une pause.</div>
+                <div style="color:#94a3b8;font-size:0.85em;margin-top:6px;text-align:center;max-width:320px;">Reprends ton souffle. Même les Ancres font des pauses.</div>
                 <div style="display:flex;gap:10px;margin-top:20px;">
                     <button onclick="awakPauseToggleMinimize()" style="background:rgba(148,163,184,0.15);border:1px solid rgba(148,163,184,0.4);color:#cbd5e1;font-weight:800;padding:13px 20px;border-radius:14px;cursor:pointer;font-size:0.9em;">🗕 Réduire</button>
                     <button onclick="togglePause()" style="background:rgba(251,191,36,0.18);border:1px solid rgba(251,191,36,0.5);color:#fbbf24;font-weight:800;padding:13px 24px;border-radius:14px;cursor:pointer;font-size:0.95em;">▶️ Reprendre</button>
@@ -27147,7 +27183,7 @@
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1260");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1268");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -27930,7 +27966,7 @@
             'S':       { title:'La Voie du Chasseur',   text:'Les mortels ordinaires ne comprennent plus ton engagement. Tu vis dans une autre dimension de l\'effort humain.' },
             'SS':      { title:'Rang des Légendes',      text:'On raconte des histoires sur des gens comme toi. L\'effort n\'est plus une contrainte — c\'est ton état naturel.' },
             'SSS':     { title:'Au-delà des Limites',   text:'Tu as atteint ce que d\'autres pensaient impossible. Mais tu le sais : ce n\'est pas la fin. C\'est une renaissance.' },
-            'National':{ title:'Le Monarque',            text:'Il n\'existe aucun mot pour décrire ce que tu es devenu. Le Système lui-même s\'incline. Tu es la limite absolue.' },
+            'National':{ title:'Le Souverain',           text:'Il n\'existe aucun mot pour décrire ce que tu es devenu. Le Système lui-même s\'incline. Tu es la limite absolue.' },
         };
 
 
@@ -28049,7 +28085,7 @@
         const RPG_CLASSES = [
             {
                 id:'shadow_assassin',
-                name:'Assassin des Ombres',
+                name:'Assassin du Crépuscule',
                 emoji:'🗡️',
                 tagline:'Frappe rapide, frappe fatale.',
                 desc:'Spécialiste de l\'agilité et de la précision. Tu n\'attends pas. Tu agis avant que les autres ne te voient.',
@@ -28119,14 +28155,14 @@
             },
             {
                 id:'monarch_aspirant',
-                name:'Aspirant Monarque',
+                name:'Aspirant Souverain',
                 emoji:'🌑',
                 tagline:'Polyvalent. Inégal. Légendaire.',
                 desc:'Aucune spécialité. Tout est ton domaine. La voie la plus difficile, mais la plus libre.',
                 bonusMuscles:['Pectoraux','Dos','Quadriceps','Épaules','Abdominaux','Biceps'],
                 xpBonus:0.12,
                 statBonus:{ STR:1, AGI:1, VIT:1, END:1, PER:1, SEN:1 },
-                passive:'Voie du Monarque : 5% chance de drop deux items au lieu d\'un',
+                passive:'Voie du Souverain : 5% chance de drop deux items au lieu d\'un',
                 aiBoost:['varié','complet','équilibré'],
                 color:'#f59e0b',
                 bg:'rgba(245,158,11,0.10)',
@@ -28140,7 +28176,7 @@
                 { rank:'B', name:'Lame Spectrale', emoji:'⚜️', tagline:'Plus rapide que ton regard.',
                   passive:'Lame fantôme : +20% chance de drop épique · -10% pénalités stats',
                   statBonus:{ AGI:6, PER:4, STR:2 }, xpBonus:0.35 },
-                { rank:'S', name:'Tueur Royal des Ombres', emoji:'🌑', tagline:'L\'ombre du Monarque elle-même.',
+                { rank:'S', name:'Tueur Royal du Crépuscule', emoji:'🌑', tagline:'L\'ombre qui chasse le Déclin.',
                   passive:'Mort silencieuse : +35% chance de drop épique · +10% drop légendaire · attaque double 10%',
                   statBonus:{ AGI:12, PER:8, STR:5, SEN:4 }, xpBonus:0.50 },
             ],
@@ -28172,15 +28208,15 @@
                 { rank:'B', name:'Sorcier Cosmique', emoji:'✨', tagline:'Le corps n\'est qu\'illusion.',
                   passive:'Mana absolu : +50% XP exercices techniques · +1 point stat / niveau',
                   statBonus:{ SEN:7, PER:4, AGI:3 }, xpBonus:0.35 },
-                { rank:'S', name:'Architecte de la Réalité', emoji:'🌌', tagline:'Je façonne le monde par ma volonté.',
+                { rank:'S', name:'Tisserand de la Réalité', emoji:'🌌', tagline:'Je façonne le monde par ma volonté.',
                   passive:'Création pure : +75% XP techniques · +2 points stats / niveau · clear penalty 1×/30j',
                   statBonus:{ SEN:14, PER:8, AGI:6, VIT:3 }, xpBonus:0.50 },
             ],
             monarch_aspirant: [
-                { rank:'B', name:'Héritier du Monarque', emoji:'👑', tagline:'Je porte le sang du Souverain.',
+                { rank:'B', name:'Héritier du Souverain', emoji:'👑', tagline:'Je porte le sang du Souverain.',
                   passive:'Sang royal : 10% chance drop double · +2 toutes stats permanent',
                   statBonus:{ STR:3, AGI:3, VIT:3, END:3, PER:3, SEN:3 }, xpBonus:0.22 },
-                { rank:'S', name:'Monarque des Ombres', emoji:'🌑', tagline:'Le Système m\'obéit.',
+                { rank:'S', name:'Souverain de l\'Aube', emoji:'🌑', tagline:'Le Système m\'obéit.',
                   passive:'Autorité absolue : 20% chance drop double · +5 toutes stats · +15% drops Légendaires',
                   statBonus:{ STR:7, AGI:7, VIT:7, END:7, PER:7, SEN:7 }, xpBonus:0.35 },
             ],
@@ -28913,7 +28949,7 @@
 
         /**
          * RANG E → S basé sur Power Score
-         * Plus simple que les 9 rangs Solo Leveling, plus thématique
+         * Plus simple que les 9 rangs classiques, plus thématique
          */
         // 🌌 RANGS basés sur le NIVEAU du joueur (et non plus sur le Power Score)
         // Logique : plus tu prends des niveaux (= XP cumulé via séances), plus ton rang monte
@@ -29376,7 +29412,7 @@
 
                 const rows = [
                     ['🏋️','Tes séances = ta puissance','Chaque entraînement réel te rapporte de l\'XP et te fait progresser.'],
-                    ['🏅','Niveaux & Rangs','Tu montes en niveau et gravis les rangs de chasseur, de E jusqu\'à S.'],
+                    ['🏅','Niveaux & Rangs','Tu montes en niveau et gravis les rangs, de E jusqu\'à S.'],
                     ['📊','Attributs','À chaque niveau, tu répartis des points (Force, Agilité, Vitalité…) qui pèsent dans tes combats.'],
                     ['🌀','Failles & Combat','Des Failles s\'ouvrent. Tu les affrontes en t\'entraînant : tes répétitions infligent les dégâts, les monstres ripostent.'],
                     ['🤝','Compagnons','En progressant, tu débloques des alliés aux pouvoirs uniques.'],
@@ -29395,7 +29431,7 @@
                 card.style.cssText = `max-width:460px;width:100%;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(6,182,212,0.4);border-radius:20px;padding:26px 22px;box-shadow:0 24px 60px rgba(0,0,0,0.8),0 0 60px rgba(6,182,212,0.15);animation:slideUp 0.45s cubic-bezier(0.34,1.56,0.64,1);`;
                 card.innerHTML = `
                     <div style="text-align:center;margin-bottom:6px;font-size:0.62em;letter-spacing:3px;color:#06b6d4;text-transform:uppercase;font-family:'Courier New',monospace;">▸ Système d'éveil ◂</div>
-                    <div style="text-align:center;font-size:1.4em;font-weight:900;color:#fff;margin-bottom:6px;text-shadow:0 0 16px rgba(6,182,212,0.5);">Bienvenue, Chasseur</div>
+                    <div style="text-align:center;font-size:1.4em;font-weight:900;color:#fff;margin-bottom:6px;text-shadow:0 0 16px rgba(6,182,212,0.5);">Bienvenue, Ancre</div>
                     <div style="text-align:center;color:#94a3b8;font-size:0.88em;line-height:1.6;margin-bottom:18px;">Le Système relie tes entraînements réels à ta progression. Voici comment ça fonctionne.</div>
                     ${rowsHtml}
                     <div style="margin-top:16px;padding:12px 14px;background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.25);border-radius:14px;color:#cbd5e1;font-size:0.82em;line-height:1.6;text-align:center;font-style:italic;">Ta progression reflète tes efforts réels. Plus tu t'entraînes, plus tu deviens fort — pour de vrai.</div>
@@ -29666,8 +29702,11 @@
                 };
                 overlay.addEventListener('pointerdown', () => audio.ensure(), { passive: true });
 
+                // Le joueur EST Esen (avatar homme) ou Nyra (avatar femme) : accords au féminin si besoin
+                const _fem = (localStorage.getItem('fitproAvatarGender') || 'homme') === 'femme';
+                const _e = _fem ? 'e' : '';
                 const fmt = (txt) => String(txt)
-                    .replace(/\*\*([^*]+)\*\*/g, '<strong style="color:#22c55e;letter-spacing:2px;">$1</strong>')
+                    .replace(/\*\*([^*]+)\*\*/g, '<strong style="color:#22d3ee;letter-spacing:2px;">$1</strong>')
                     .replace(/\*([^*]+)\*/g, '<em style="color:#cbd5e1;font-style:italic;">$1</em>')
                     .replace(/\n/g, '<br>');
 
@@ -29740,9 +29779,9 @@
                         `<span style="display:inline-block;opacity:0;animation:awakLetterIn 0.55s cubic-bezier(0.2,0.9,0.2,1) ${(0.35 + k*0.07).toFixed(2)}s forwards;">${c}</span>`
                     ).join('');
                     stage.innerHTML = `
-                        <div style="font-size:0.6em;letter-spacing:6px;color:#06b6d4;text-transform:uppercase;margin-bottom:14px;font-family:'Courier New',monospace;opacity:0;animation:awakBeatIn 0.8s ease 1.15s forwards;">▸ tu es éveillé ◂</div>
+                        <div style="font-size:0.6em;letter-spacing:6px;color:#06b6d4;text-transform:uppercase;margin-bottom:14px;font-family:'Courier New',monospace;opacity:0;animation:awakBeatIn 0.8s ease 1.15s forwards;">▸ tu es éveillé${_e} ◂</div>
                         <div style="font-size:clamp(1.8em,11vw,3.4em);font-weight:900;letter-spacing:0.04em;white-space:nowrap;color:#fff;animation:awakTitleGlow 2.6s ease 1.3s infinite;">${letters}</div>
-                        <div style="margin-top:18px;font-size:0.95em;color:#94a3b8;font-style:italic;opacity:0;animation:awakBeatIn 0.9s ease 1.5s forwards;">Lève-toi, Chasseur.</div>
+                        <div style="margin-top:18px;font-size:0.95em;color:#94a3b8;font-style:italic;opacity:0;animation:awakBeatIn 0.9s ease 1.5s forwards;">Tiens bon. Tu es une Ancre, maintenant.</div>
                         <div style="margin-top:30px;font-size:0.62em;letter-spacing:2px;color:#475569;opacity:0;animation:awakBeatIn 0.9s ease 2s forwards;">— tape pour continuer —</div>`;
                     setTimeout(() => audio.impact(), 430);
                     if (typeof hapticTap === 'function') setTimeout(() => hapticTap([90,40,180]), 430);
@@ -29750,13 +29789,14 @@
 
                 // ── 4) Les Failles : de simples portails, partout sur la Terre ──
                 const failles = [
-                    { img: 'images/story/intro_faille1.webp', text: `*Là où le monde s'efface, des Failles s'ouvrent.*` },
-                    { img: 'images/story/intro_faille2.webp', text: `*De simples portails — mais il en surgit partout sur la Terre.*` },
-                    { img: 'images/story/intro_faille3.webp', text: `*Derrière chacun, ce qui reste se décide.*\n*Et c'est là que tu entres.*` }
+                    { img: 'images/story/intro_faille1.webp', text: `*Là où le monde s'efface, des Failles s'ouvrent.*\n*De simples portails — mais il en surgit partout sur la Terre.*` },
+                    { img: 'images/story/intro_faille3.webp', text: `*Derrière chacun, ce qui reste se décide.*\n*Et c'est là que tu entres.*` },
+                    // 🕯️ Premier indice de Nabdano : la toute fin de l'histoire, montrée dès la première minute
+                    { img: 'images/story/nabdano.webp', op: 0.35, text: `*Et tout au fond du blanc, quelqu'un est assis.*\n*Il ne bouge plus depuis très longtemps.*\n*Il t'attend.*` }
                 ];
                 failles.forEach(fa => {
                     beats.push({ hold: 7500, render: () => {
-                        setBeatBg(fa.img, 0.8);
+                        setBeatBg(fa.img, fa.op || 0.8);
                         if (titleArt && titleArt.parentNode) titleArt.style.opacity = '0';
                         stage.innerHTML = '';
                         epiCaption.style.opacity = '1';
@@ -29767,13 +29807,15 @@
 
                 // ── 5) Épilogue : d'autres tiennent aussi, séparés, dans un monde encore vivant ──
                 const epilogue = [
-                    { img: 'images/story/intro_duo_separes.webp', text: `*Tu n'es pas seul à tenir.*\n*Ailleurs, d'autres refusent de s'effacer — chacun de leur côté.*` },
-                    { img: 'images/story/intro_duo_entrainement.webp', text: `*Et comme toi, ils s'éveillent.*\n*Un entraînement, puis un autre. C'est ainsi qu'on résiste.*` },
-                    { img: 'images/story/intro_duo_entrainement.webp', text: `*Ceux que le Système choisit ne restent pas seuls.*\n*Ils rejoignent les AV — l'Association des Veilleurs : celles et ceux qui traquent les Failles et les referment.*\n*Le sigle sur ta tenue, c'est désormais le tien.*` }
+                    { img: 'images/story/intro_duo_separes.webp', text: `*Tu n'es pas seul${_e} à tenir.*\n*Quelque part dans la même ville, quelqu'un d'autre refuse de s'effacer.*\n*Vous ne vous connaissez pas encore.*` },
+                    { img: 'images/story/intro_duo_entrainement.webp', text: `*Ceux que le Système choisit rejoignent les AV — l'Association des Veilleurs.*\n*Ils traquent les Failles et les referment.*\n*Le sigle sur ta tenue, c'est désormais le tien.*` },
+                    // 🎯 Appel à l'action : le jeu commence par un geste RÉEL (→ scène « Première Trace »)
+                    { img: null, text: `*Ici, on ne devient pas fort en appuyant sur un bouton.*\n*Tout commence par un vrai geste.*\n**Ta première séance sera ton premier signal.**` }
                 ];
                 epilogue.forEach(ep => {
                     beats.push({ hold: 7500, render: () => {
                         setBeatBg(ep.img, 0.85);
+                        if (!ep.img) { stage.innerHTML = ''; epiCaption.style.opacity = '0'; stage.innerHTML = `<div style="font-size:1.12em;line-height:1.9;color:#e2e8f0;font-family:'Courier New',monospace;text-shadow:0 2px 14px rgba(0,0,0,0.9);animation:awakBeatIn 0.9s ease;">${fmt(ep.text)}</div><div style="margin-top:30px;font-size:0.62em;letter-spacing:2px;color:#475569;opacity:0;animation:awakBeatIn 0.9s ease 1.6s forwards;">— tape pour commencer —</div>`; audio.blip(); return; }
                         if (titleArt && titleArt.parentNode) titleArt.style.opacity = '0';
                         stage.innerHTML = '';
                         epiCaption.style.opacity = '1';
@@ -30009,7 +30051,7 @@
                         if (typeof awakCheckWeeklyBoss === 'function') awakCheckWeeklyBoss();
                         if (typeof awakCheckEveil === 'function') awakCheckEveil();
                     }, 6000); } catch(e) {}
-                    // 🌑 [GLITCH DE L'ARCHITECTE DÉSACTIVÉ — ancienne narration, remplacée par Nabdano]
+                    // 🌑 [GLITCH DU TISSERAND DÉSACTIVÉ — ancienne narration, remplacée par Nabdano]
                     // try { setTimeout(() => {
                     //     if (typeof awakArchitectMaybeGlitch === 'function') awakArchitectMaybeGlitch();
                     // }, 9000); } catch(e) {}
@@ -30572,7 +30614,7 @@
               desc:'Chaque vague vaincue explose et te brûle (10% de tes HP max). Termine vite.',
               hpMult:0.9, xpMult:2.0, hideHp:false, eruptPct:0.10 },
             { id:'anomaly',   name:'Anomalie',    emoji:'🌌', color:'#fbbf24', weight:2,
-              desc:'Une Faille corrompue par l\'Architecte. Extrêmement rare. Une récompense légendaire t\'attend si tu la fermes.',
+              desc:'Une Faille où l\'Oubli a mordu plus profond qu\'ailleurs. Extrêmement rare. Une récompense légendaire t\'attend si tu la fermes.',
               hpMult:1.4, xpMult:3.0, hideHp:false, isEvent:true, guaranteedLegendary:true },
             { id:'worldboss', name:'Boss Mondial', emoji:'👹', color:'#dc2626', weight:0,
               desc:'Une entité colossale, unique cette semaine. Tout le monde affronte le même monstre. Récompense légendaire garantie.',
@@ -31474,7 +31516,7 @@
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1260);'
+                +     'url(images/combat_bg_v1.webp?v=1268);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -31729,7 +31771,7 @@
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1260);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1268);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -31988,7 +32030,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:540px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto;display:flex;flex-direction:column;">
                 <!-- Header : vague actuelle -->
-                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1260);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1268);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                         <span style="font-size:0.6em;color:${theme.color};font-weight:900;letter-spacing:2px;">⚔ VAGUE ${rift.currentWaveIdx + 1} / ${rift.waves.length}${currentWave.isBoss ? ' · BOSS' : ''}</span>
                         <button onclick="awakAbandonRift()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
@@ -33135,7 +33177,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1260');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1268');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -33292,7 +33334,7 @@
             // 🕳️ Check si un palier d'Abysse doit apparaître (post-Monarque)
             try { setTimeout(() => { if (typeof awakCheckAbyss === 'function') awakCheckAbyss(); }, 5800); } catch(e) {}
 
-            // 🌑 [GLITCH DE L'ARCHITECTE DÉSACTIVÉ — ancienne narration]
+            // 🌑 [GLITCH DU TISSERAND DÉSACTIVÉ — ancienne narration]
             // try { setTimeout(() => awakArchitectMaybeGlitch(), 6000); } catch(e) {}
 
             // Reset la session
@@ -33872,7 +33914,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1260);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1268);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -34043,7 +34085,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1260);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1268);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -34544,7 +34586,7 @@
             kira: {
                 color: '#a855f7', emoji: '🗡️', image: 'images/story/rencontre_kira.webp',
                 pages: [
-                    "Tu n'as jamais vraiment vu ton adversaire. « Tu as senti ça aussi ? » murmure Esen, rare dans ses mots. Nyra scrute les ombres. « Quelqu'un nous observe depuis le début. »",
+                    "Tu n'as jamais vraiment vu ton adversaire. « Tu as senti ça aussi ? » murmure Esen à Nyra, rare dans ses mots. Nyra scrute les ombres. « Quelqu'un nous observe depuis le début. »",
                     "Une silhouette se révèle, assise sur une arête de la Faille. « Tu m'as forcée à me montrer. C'est rare. »",
                     "« Kira. Je marche avec ceux qui ne ratent pas. » Nyra sourit, intriguée. « Oh, je l'aime bien, elle. » Esen reste silencieux, mais ne la quitte pas des yeux."
                 ]
@@ -34552,7 +34594,7 @@
             elise: {
                 color: '#34d399', emoji: '💚', image: 'images/story/rencontre_elise.webp',
                 pages: [
-                    "Au milieu des ruines du refuge, une femme range des bandages. « Personne n'est blessé », constate Esen, presque surpris. Nyra pose une main sur ton épaule. « Tu vois ? On forme une bonne équipe. »",
+                    "Au milieu des ruines du refuge, une femme range des bandages. « Personne n'est blessé », constate Esen, presque surpris. Nyra pose une main sur l'épaule d'Esen. « Tu vois ? On forme une bonne équipe. »",
                     "La femme relève les yeux. « Tu es entier. Tu sais combien arrivent ici en morceaux ? Trop. »",
                     "« Élise. Quelqu'un doit veiller à ce que vous rentriez entiers. » Nyra rit doucement. « Enfin quelqu'un de raisonnable dans ce groupe. » Esen esquisse l'ombre d'un sourire."
                 ]
@@ -34561,7 +34603,7 @@
                 color: '#c084fc', emoji: '🌀', image: 'images/story/rencontre_yuna.webp',
                 pages: [
                     "Les échos se taisent. Nyra frissonne, pour une fois sans blague. « Cet endroit me donne la chair de poule. » Esen reste immobile : « ...Quelque chose nous attendait. »",
-                    "Une jeune femme te fixe, comme si elle te reconnaissait d'un futur que tu n'as pas vécu. « Je t'avais déjà vu. Le Noyau me l'a montré. Toi... et eux deux aussi. »",
+                    "Une jeune femme te fixe, comme si elle te reconnaissait d'un futur que tu n'as pas vécu. « Je vous avais déjà vus. Le Noyau me l'a montré. Toi... et toi. »",
                     "« Yuna. Je reste près de vous. Ce qui vient, je préfère le voir arriver à plusieurs. » Esen et Nyra échangent un regard — elle en sait plus qu'elle ne dit."
                 ]
             },
@@ -34570,7 +34612,7 @@
                 pages: [
                     "Au sommet, le silence est total. « Même moi je me tais ici », chuchote Nyra, impressionnée. Esen s'incline légèrement devant le vieil homme assis en méditation.",
                     "Le maître ouvre les yeux. « Beaucoup montent vite, et redescendent plus vite encore. Vous, vous êtes revenus. Encore. Et encore. »",
-                    "« Maître Chen. La constance est la seule force que le Monde ne peut pas effacer. Vous l'avez, tous les trois. Je vous accompagne. » Nyra, exceptionnellement, ne trouve rien à répondre."
+                    "« Maître Chen. La constance est la seule force que le Monde ne peut pas effacer. Vous l'avez, tous les deux. Je vous accompagne. » Nyra, exceptionnellement, ne trouve rien à répondre."
                 ]
             }
         };
@@ -34613,7 +34655,8 @@
         }
         window.awakShowCompanionMeeting = awakShowCompanionMeeting;
 
-        // Seuils XP ≈ aux anciens rangs (D≈6681, C≈43429, B≈191525, A≈628904, S≈1678531)
+        // Seuils en NIVEAU (rang D, C, B, A, puis juste avant la Dernière Porte au rang S)
+        // — un seuil en XP brute se décalait à chaque rééquilibrage de la courbe.
         const COMPANION_RIFTS = [
             {
                 id: 'rift_marcus', companionId: 'marcus', companionMech: 'mur_de_fer',
@@ -34621,7 +34664,7 @@
                 emoji: '💪', color: '#ef4444',
                 description: 'Une Faille saturée de rage pure. Une présence puissante t\'y attend — et te jauge.',
                 briefing: 'Quelqu\'un veut voir si tu tiens le choc. Frappe fort. Il n\'aime pas la faiblesse.',
-                xpRequired: 6681,
+                levelRequired: 12,
                 rank: 'D', waves: 3, hpMult: 1.6, primaryStat: 'STR', themeEmoji: '🥊',
                 exerciseFilter: ex => /pompe|push|squat|press|fente|burpee/.test((ex.name || '').toLowerCase())
             },
@@ -34631,7 +34674,7 @@
                 emoji: '🗡️', color: '#a855f7',
                 description: 'Un labyrinthe où les ombres bougent seules. Une silhouette te suit sans jamais se montrer.',
                 briefing: 'Reste vif. Elle teste tes réflexes. Si tu es trop lent, elle ne se montrera pas.',
-                xpRequired: 43429,
+                levelRequired: 24,
                 rank: 'C', waves: 3, hpMult: 2.2, primaryStat: 'AGI', themeEmoji: '🌑',
                 exerciseFilter: ex => /jumping|jump|mountain|burpee|sprint|fente|lunge/.test((ex.name || '').toLowerCase())
             },
@@ -34641,7 +34684,7 @@
                 emoji: '💚', color: '#34d399',
                 description: 'Les ruines d\'un ancien dispensaire de Faille. Quelqu\'un y soigne encore les blessés.',
                 briefing: 'Tiens bon jusqu\'au bout. Elle ne rejoint que ceux qui refusent d\'abandonner.',
-                xpRequired: 191525,
+                levelRequired: 40,
                 rank: 'B', waves: 3, hpMult: 2.8, primaryStat: 'SEN', themeEmoji: '🏥',
                 exerciseFilter: ex => /squat|fente|lunge|pompe|push|step|gainage|planche|pull/.test((ex.name || '').toLowerCase())
             },
@@ -34651,7 +34694,7 @@
                 emoji: '🌀', color: '#c084fc',
                 description: 'Une Faille qui ne devrait pas exister. Une voix y murmure des choses que tu n\'as pas encore vécues.',
                 briefing: 'Le Système se méfie de ce lieu. Quelqu\'un t\'y attend, qui entend ce que lui n\'entend pas.',
-                xpRequired: 360000,
+                levelRequired: 58,
                 rank: 'A', waves: 4, hpMult: 3.4, primaryStat: 'PER', themeEmoji: '🔮',
                 exerciseFilter: ex => /squat|press|pompe|push|pull|fente|burpee|jumping/.test((ex.name || '').toLowerCase())
             },
@@ -34661,7 +34704,7 @@
                 emoji: '🧘', color: '#06b6d4',
                 description: 'Au plus haut d\'une Faille interminable, un vieux maître observe ceux qui montent jusqu\'à lui.',
                 briefing: 'Peu arrivent jusqu\'ici. Il ne parle qu\'à ceux qui ont prouvé leur constance.',
-                xpRequired: 690000,
+                levelRequired: 72,
                 rank: 'S', waves: 4, hpMult: 4.0, primaryStat: 'PER', themeEmoji: '⛰️',
                 exerciseFilter: ex => /squat|press|pompe|push|pull|fente|burpee|gainage/.test((ex.name || '').toLowerCase())
             }
@@ -34702,7 +34745,7 @@
 
             const seen = awakCompanionRiftsSeenLoad();
             const compData = awakCompanionsLoad();
-            const totalXP = awakGetTotalXP();
+            const niveau = _awakGetCurrentLevel();
 
             for (const cr of COMPANION_RIFTS) {
                 // Compagnon déjà débloqué → rien à faire
@@ -34712,7 +34755,7 @@
                 }
                 // Une Faille pour ce compagnon existe déjà dans la liste → ne pas dupliquer
                 if (rifts.some(r => r.isCompanionRift && r.companionRiftId === cr.id)) continue;
-                if (totalXP >= cr.xpRequired) {
+                if (niveau >= (cr.levelRequired || 1)) {
                     const newRift = awakGenerateCompanionRift(cr);
                     rifts.push(newRift);
                     awakRiftsSave(rifts);
@@ -35790,7 +35833,7 @@
         //
         // - Failles narratives spéciales (uniques, lore propre)
         // - Items consommables (élixirs de préparation)
-        // - Événements Architecte du Silence (glitches UI rares)
+        // - Événements Tisserand du Silence (glitches UI rares)
         // - Boss mechanics actives (les phases changent vraiment le combat)
         //
 
@@ -35838,7 +35881,7 @@
                 emoji: '◯',
                 color: '#64748b',
                 description: 'Un fragment où il n\'y a plus rien. Plus de son. Plus de couleur. Plus de mémoire.',
-                briefing: 'L\'Architecte du Silence a touché ce lieu. Ne reste pas trop longtemps. Frappe vite.',
+                briefing: 'L\'Oubli est plus épais ici que partout ailleurs. Ne reste pas trop longtemps. Frappe vite.',
                 trigger: { type: 'rank', value: 'A', label: 'Atteindre le rang A' },
                 rewards: { xp: 5000, message: 'Tu l\'as vu, n\'est-ce pas ? Il t\'a regardé aussi.' },
                 rank: 'A',
@@ -35874,10 +35917,10 @@
                 name: 'La Dernière Porte',
                 emoji: '⛩️',
                 color: '#fbbf24',
-                description: 'Le Système ne te parle plus depuis ton entrée. Tu es seul. Pour la première fois.',
-                briefing: 'Pas de briefing cette fois. Tu vas comprendre par toi-même.',
+                description: 'Le centre de l\'effacement. Le Système y est si faible qu\'il ne peut presque plus te parler. Mais tu n\'y entres pas seul.',
+                briefing: 'Pas de briefing cette fois. Le Système n\'en a plus la force. Mais personne n\'y entre seul.',
                 trigger: { type: 'rank', value: 'S', label: 'Atteindre le rang S' },
-                rewards: { xp: 10000, message: 'Il était temps. Le Système est revenu. Mais quelque chose en lui a changé.' },
+                rewards: { xp: 10000, message: 'La porte est franchie. Au bout de la route, une silhouette assise t\'attend.' },
                 rank: 'S',
                 waves: 4,
                 hpMult: 5.0,
@@ -36292,10 +36335,10 @@
         window.awakConsumablesConsume = awakConsumablesConsume;
 
         // ═══════════════════════════════════════════════════════════════
-        // 🌑 ARCHITECTE DU SILENCE — Glitches UI subtils
+        // 🌑 TISSERAND DU SILENCE — Glitches UI subtils
         // ═══════════════════════════════════════════════════════════════
         // Apparitions très rares, selon le rang du joueur
-        // L'Architecte "efface" temporairement des éléments de l'UI
+        // Le Tisserand "efface" temporairement des éléments de l'UI
         const ARCHITECT_LAST_GLITCH_KEY = 'awakArchitectLastGlitch';
         const ARCHITECT_GLITCH_COOLDOWN_HOURS = 48;
 
@@ -38456,6 +38499,8 @@
             if (!stats.bestStreak || stats.streak > stats.bestStreak) {
                 stats.bestStreak = stats.streak;
             }
+            // 🚪 Écart avec la séance précédente (scène « Le Retour » après ≥ 10 jours)
+            const _ecartJours = stats.lastWorkout ? (Date.now() - new Date(stats.lastWorkout)) / 86400000 : 0;
             stats.lastWorkout = new Date().toISOString();
             saveStats(stats);
             
@@ -38566,7 +38611,10 @@
 
             // 📖 NARRATIF — Moteur d'événements (rencontres, faits amusants, dialogues) « Le Monde qui s'efface »
             try {
-                if (_streakBroken && typeof awakShowHeroReaction === 'function') {
+                if (_ecartJours >= 10 && typeof awakSceneRetour === 'function' && !(currentWorkout && currentWorkout._isFinalBoss)) {
+                    // Revenir après une longue absence est un moment de l'histoire
+                    setTimeout(() => { if (!awakSceneRetour(_ecartJours) && typeof storyCheckEvents === 'function') storyCheckEvents(); }, 4500);
+                } else if (_streakBroken && typeof awakShowHeroReaction === 'function') {
                     // Série brisée : un héros réagit (bienveillant), prioritaire sur l'événement normal
                     setTimeout(() => awakShowHeroReaction('streak'), 4500);
                 } else if (typeof storyCheckEvents === 'function') {
@@ -44801,7 +44849,7 @@
 
             host.innerHTML =
                 '<div style="position:relative;width:110px;margin:0 auto 12px;">'
-              +   '<img src="images/body/body_face.webp?v=1260" alt="" '
+              +   '<img src="images/body/body_face.webp?v=1268" alt="" '
               +     'style="width:100%;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -44883,7 +44931,7 @@
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1260);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1268);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -44950,7 +44998,7 @@
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1260);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1268);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -46705,6 +46753,8 @@
                 } catch(e) {}
             }, 2200);
 
+            // 🌫️ Murmure de Nabdano quand la jauge du Déclin monte (avant la réaction des héros)
+            setTimeout(() => { try { if (typeof awakMurmureDeclin === 'function') awakMurmureDeclin(); } catch (e) {} }, 2900);
             // 🖤 Réaction héros au RETOUR après une absence prolongée (≥ 4 jours)
             setTimeout(() => {
                 try {
@@ -47086,14 +47136,14 @@
             {
                 id: 'ch_SSS',
                 trigger: 'rank', rankId: 'SSS',
-                title: 'L\'Architecte',
+                title: 'Le Tisserand',
                 subtitle: '◈ CHAPITRE VII — RANG SSS ◈',
                 color: '#fbbf24',
                 pages: [
                     "Rang SSS. Au-delà des légendes. Au-delà de ce que le Système avait prévu.",
                     "Pour la première fois, la fenêtre familière tremble. Le Système hésite. Il a... peur ?",
                     "« Tu n'aurais pas dû aller si loin, » dit-il. « Personne ne va si loin. Tu vas Le réveiller. »",
-                    "Une présence immense s'éveille derrière le voile de la réalité. L'Architecte — celui qui a écrit les règles, creusé les Failles, inventé le Système lui-même.",
+                    "Une présence immense s'éveille derrière le voile de la réalité. Le Tisserand — celui qui a tissé les règles, creusé les Failles, inventé le Système lui-même.",
                     "« Intéressant, » résonne une voix qui n'est pas humaine. « Une variable a dépassé ses paramètres. Montre-moi jusqu'où tu peux aller. »",
                     "Le Système, ton vieux compagnon, te confie un dernier secret : « Je n'ai jamais été ton maître. J'étais ta laisse. Maintenant, elle est rompue. »",
                     "Tu n'as plus de rang à conquérir. Plus de Monarque à vaincre. Il ne reste que toi, ta discipline, et un horizon sans fin.",
@@ -47246,7 +47296,7 @@
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1260");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1268");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
@@ -47338,7 +47388,7 @@
             { id: 'frag_rifts10',  cond: s => (s.riftsCompleted||0) >= 10,
               text: "« Dix Failles, » dit le Système. « Tu ne les fermes plus par devoir. Tu les chasses. Quelque chose en toi a changé de nature. »" },
             { id: 'frag_epilogue', cond: s => localStorage.getItem('fitproStorySeen_ch_SSS') === '1',
-              text: "Le Système est silencieux depuis ta rencontre avec l'Architecte. Puis, un matin, un dernier message, presque tendre : « Tu n'as plus besoin de moi. Mais je resterai. Pour regarder jusqu'où va une volonté qui refuse de s'éteindre. Continue, Légende. »" }
+              text: "Le Système est silencieux depuis ta rencontre avec le Tisserand. Puis, un matin, un dernier message, presque tendre : « Tu n'as plus besoin de moi. Mais je resterai. Pour regarder jusqu'où va une volonté qui refuse de s'éteindre. Continue, Légende. »" }
         ];
 
         function _fragSeenKey(id) { return 'fitproFragSeen_' + id; }

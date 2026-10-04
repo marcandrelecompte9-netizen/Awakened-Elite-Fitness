@@ -7875,3 +7875,15 @@ body.dark-mode .progress-stats {
 /* Fenêtre « Remplacer l'exercice » */
 #swapModal { align-items: flex-start !important; overflow-y: auto; padding: 14px 12px; box-sizing: border-box; }
 #swapModal > #swapModalBox { margin-top: auto !important; margin-bottom: auto !important; border-radius: 20px !important; }
+
+/* v1263 : fiche d'exercice — les étapes des instructions étaient « surlignées »
+   (fond bleu foncé collé derrière le texte, sans marge). Texte simple, aéré. */
+body.dark-mode .instructions-list li,
+.instructions-list li {
+    background: transparent !important;
+    color: #cbd5e1 !important;
+    padding: 0 0 0 2px !important;
+    margin-bottom: 8px !important;
+    line-height: 1.5 !important;
+}
+.instructions-list li::marker { color: #60a8f0; font-weight: 800; }

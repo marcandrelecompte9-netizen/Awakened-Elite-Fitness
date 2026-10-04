@@ -827,6 +827,9 @@
         '.awak-k-vide{flex:1;display:flex;align-items:center;justify-content:center;}}' +
       // 📱 TÉLÉPHONE : l'en-tête se réorganise. Le titre en 2.1em ne tenait pas
       // à côté de l'horloge et se faisait couper (« CETTE SEMAIN »).
+      // v1261 : en colonne (téléphone debout), seule la VEILLE reste au-dessus
+      // d'aujourd'hui — sinon le samedi, il fallait défiler 5 jours passés.
+      '@media(max-width:760px){.awak-k-day.loin{display:none;}}' +
       '@media(max-width:760px){.awak-k-week{flex-direction:column;}' +
         '.awak-k-day,.awak-k-day.today{flex:none;}' +
         '.awak-k-day{padding:12px 12px;}.awak-k-day.today{padding:14px 14px;}' +
@@ -856,6 +859,8 @@
       var d = new Date(debut.getFullYear(), debut.getMonth(), debut.getDate() + i);
       var auj = memeJour(d, today);
       var passe = d < new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      // Jour passé AVANT la veille : masqué quand les jours s'empilent (téléphone)
+      var loin = d < new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
       var entries = entriesFor(list, plans, dones, d.getFullYear(), d.getMonth(), d.getDate());
 
       // ── En-tête de colonne ──
@@ -921,7 +926,7 @@
           'font-size:' + (auj ? '0.95em' : '0.68em') + ';">Repos</div>';
       }
 
-      cols += '<div class="awak-k-day' + (auj ? ' today' : '') + (passe && !auj ? ' past' : '') + '">' +
+      cols += '<div class="awak-k-day' + (auj ? ' today' : '') + (passe && !auj ? ' past' : '') + (loin ? ' loin' : '') + '">' +
           tete +
           '<div class="awak-k-corps" style="flex:1;min-width:0;">' + corps + '</div>' +
         '</div>';

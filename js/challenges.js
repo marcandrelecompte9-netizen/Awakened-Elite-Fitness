@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════════
-// Awakened — Système de Défis (Style Solo Leveling)
+// Awakened — Système de Défis
 // "Le Système" impose des défis. Échec = conséquences.
 // ═══════════════════════════════════════════════════════════════════════
 
@@ -465,7 +465,7 @@ const PENALTIES = [
     // ── NIVEAU 4 : PÉNALITÉS LÉGENDAIRES ────────────────────────────
     {
         id: 'monarch_wrath',
-        name: 'Colère du Monarque',
+        name: 'Emprise du Déclin',
         icon: '👹',
         severity: 4,
         desc: 'Tous les muscles perdent 10% d\'XP. Stats -60%. Drops bannis 72h. La sentence est totale.',
@@ -610,10 +610,10 @@ const SYSTEM_SUCCESS_MESSAGES = [
 const LEGENDARY_ISSUE_MESSAGES = [
     '⚠ ALERTE NIVEAU MAXIMUM — Le Système t\'a jugé digne d\'un défi légendaire. Refuse et tu seras pénalisé quand même.',
     '☠ DÉFI DE SANG — Le Système exige l\'impossible. Prouve que tu n\'es pas ordinaire.',
-    '🌑 ORDRE DU MONARQUE — Cette mission vient des plus hautes sphères du Système. L\'échec est interdit.',
+    '🌑 ORDRE SUPRÊME — Cette mission vient du cœur même du Système. L\'échec est interdit.',
     '💀 SENTENCE IMMINENTE — Le Système surveille chacun de tes mouvements. Déçois-le et tu le regretteras.',
     '🔱 JUGEMENT SUPRÊME — Sur un million de chasseurs, un seul reçoit ce défi. C\'est toi. Aujourd\'hui.',
-    '⛧ ÉPREUVE DES OMBRES — Le Monarque lui-même a signé cet ordre. Il n\'y a pas de fuite possible.',
+    '⛧ ÉPREUVE DES OMBRES — Le Système lui-même a signé cet ordre. Il n\'y a pas de fuite possible.',
     '🩸 CONTRAT DE SANG — Le Système t\'offre la gloire ou la ruine. À toi de choisir ce que tu mérites.',
     '💠 PROTOCOLE FINAL — Ce défi n\'arrive qu\'une fois dans une vie de chasseur. L\'éternité t\'observe.',
 ];
@@ -1612,8 +1612,8 @@ const SYSTEM_RANDOM_MESSAGES = [
     { text: 'Le Système se souvient de tout. Chaque série. Chaque abandon.', type: 'lore' },
     { text: 'Dans les archives du Système, ton nom existe. Pour l\'instant.', type: 'lore' },
     { text: 'Les portes des donjons supérieurs ne s\'ouvrent pas pour les faibles.', type: 'lore' },
-    { text: 'Le Monarque des Ombres a commencé exactement là où tu es. La différence : il n\'a jamais arrêté.', type: 'lore' },
-    { text: 'Le Système existe depuis avant ta première répétition. Il existera après ta dernière.', type: 'lore' },
+    { text: 'Le Souverain de l\'Aube a commencé exactement là où tu es. La différence : il n\'a jamais arrêté.', type: 'lore' },
+    { text: 'Le Système existait avant ta première répétition. Sans toi, il n\'existera pas après ta dernière.', type: 'lore' },
     { text: 'Quelque part dans les données du Système, il y a la version de toi qui n\'a pas abandonné.', type: 'lore' },
     { text: 'Le vide entre deux séances n\'est pas du repos. C\'est une épreuve silencieuse.', type: 'lore' },
     { text: 'Les équipements légendaires ne droppent pas pour ceux qui s\'en sentent indignes.', type: 'lore' },
