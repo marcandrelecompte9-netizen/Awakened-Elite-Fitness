@@ -45,18 +45,27 @@
   function barreSeance(tab) { var b = parTexte(tab, 'button', /^Libre$/); return b ? b.parentElement : null; }
 
   // ── Contenu : 2 à 4 étapes par onglet ────────────────────────
+  // v1275 : visites revues — chaque fonction importante de l'onglet est montrée
+  // (les jeux de Séance, le ciel de la famille, la carte du Jeu…). Les étapes
+  // dont l'élément n'existe pas chez cet utilisateur sont sautées : on prévoit
+  // donc les deux cas (ex. Famille seule / Famille à plusieurs).
+  function ligneAccueil(rx) { return parTexte('homeTab', 'button.ahp-row', rx); }
+  function enteteReglage(rx) { return parTexte('settingsTab', '.accordion-header', rx); }
+  function cielFamille() { var sv = $('#familyContainer svg[viewBox="0 0 300 300"]'); return sv ? sv.parentElement : null; }
   var VISITES = {
     home: [
       { c: function () { return $('#homeTab .ahp-btn-p'); }, t: 'Démarrer', d: 'Lance une séance adaptée à toi en un seul toucher.' },
-      { c: function () { return $('#homeTab .ahp-btn-s'); }, t: 'Ta semaine', d: 'Choisis tes jours d\'entraînement : l\'appli prépare la semaine pour toi.' },
-      { c: function () { return $('#ahpRaccourcis'); }, t: 'Raccourcis', d: 'Tes routines, la bibliothèque d\'exercices, les douleurs… et « Tout explorer » pour tout voir.' },
-      { c: function () { return $('#mobileNavBar'); }, t: 'Les onglets', d: 'Séance pour t\'entraîner, Progrès pour tes résultats, Agenda pour ta semaine.' }
+      { c: function () { return $('#homeTab .ahp-btn-s'); }, t: 'Ta semaine', d: 'Choisis tes jours d\'entraînement : l\'appli prépare la semaine et te rappelle la séance du jour.' },
+      { c: function () { return ligneAccueil(/Où as-tu mal/); }, t: 'Une douleur ?', d: 'Indique où tu as mal : les séances évitent cette zone jusqu\'à ce que ça aille mieux.' },
+      { c: function () { return ligneAccueil(/Tout explorer/); }, t: 'Tout explorer', d: 'Toutes les fonctions de l\'appli au même endroit, si tu cherches quelque chose.' },
+      { c: function () { return $('#mobileNavBar'); }, t: 'Les onglets', d: 'Séance pour t\'entraîner, Progrès pour tes résultats, Agenda pour ta semaine, Famille pour vous suivre ensemble.' }
     ],
     workouts: [
-      { c: function () { return barreSeance('workoutsTab'); }, t: 'Ta façon de t\'entraîner', d: 'Séance libre, routines, programme, course ou défis : tout part d\'ici.' },
+      { c: function () { return barreSeance('workoutsTab'); }, t: 'Ta façon de t\'entraîner', d: 'Séance libre, routines, programme sur plusieurs semaines, course ou défis : tout part d\'ici.' },
       { c: function () { var h = $('#awakCorpsHost'); return h ? h.querySelector('button') : null; }, t: 'Lieu et matériel', d: 'Dis où tu es et ce que tu as : les exercices proposés en dépendent.' },
-      { c: function () { var h = $('#awakCorpsHost'); return h ? h.querySelector('svg') : null; }, t: 'Choisis tes muscles', d: 'Touche les muscles à travailler. « Voir le dos » pour l\'arrière.' },
-      { c: function () { return parTexte('workoutsTab', 'button', /FAIS MA SÉANCE/i); }, t: 'Ou laisse faire', d: 'Le Système compose ta séance du jour selon ce que tu as déjà fait.' }
+      { c: function () { var h = $('#awakCorpsHost'); return h ? h.querySelector('svg') : null; }, t: 'Choisis tes muscles', d: 'Touche les muscles à travailler. Vert : prêt, orange : récupère, rouge : à reposer.' },
+      { c: function () { return parTexte('workoutsTab', 'button', /FAIS MA SÉANCE/i); }, t: 'Ou laisse faire', d: 'Le Système compose ta séance du jour selon ce que tu as déjà fait.' },
+      { c: function () { return $('#awakAutresToggle'); }, t: 'Cardio et jeux', d: 'Tabata, superset, circuit, AMRAP et 16 jeux d\'entraînement (dés, cartes, duel…) : touche pour les ouvrir.' }
     ],
     routines: [
       { c: function () { return parTexte('routinesTab', 'button', /^Nouvelle/); }, t: 'Tes routines', d: 'Crée une séance à toi et relance-la quand tu veux.' },
@@ -64,53 +73,71 @@
       { c: function () { return parTexte('routinesTab', 'button', /^Plan hebdo/); }, t: 'Plan de la semaine', d: 'Place tes routines sur les jours : elles t\'attendront à l\'accueil.' }
     ],
     program: [
-      { c: function () { var b = parTexte('programTab', 'button', /^Mentors$/); return b ? b.parentElement : null; }, t: 'Trois chemins', d: 'Un mentor qui te guide, un sport, ou la salle avec ses machines.' },
-      { c: function () { return parTexte('programTab', 'h2', /mentor/i); }, t: 'Un programme suivi', d: 'Plusieurs semaines planifiées selon ton niveau : tu n\'as plus qu\'à suivre.' },
+      { c: function () { var b = parTexte('programTab', 'button', /^Mentors$/); return b ? b.parentElement : null; }, t: 'Trois chemins', d: 'Mentors : un plan complet selon ton niveau. Sports : boxe, yoga, calisthénie… Salle : des programmes sur machines.' },
+      { c: function () { return parTexte('programTab', 'h2', /mentor/i); }, t: 'Un programme suivi', d: 'Plusieurs semaines planifiées, séance par séance : tu n\'as plus qu\'à suivre.' },
       { c: function () { return parTexte('programTab', 'button', /TOUS LES PROGRAMMES/i); }, t: 'Tout le catalogue', d: 'Force, perte de poids, mobilité… Choisis celui qui te ressemble.' }
     ],
     course: [
       { c: function () { var b = $('#courseTab .awak-run-act'); return b ? b.parentElement : null; }, t: 'Ton activité', d: 'Course, marche ou vélo.' },
       { c: function () { return $('#awakRunCoachChoix'); }, t: 'Le type de sortie', d: 'Libre, avec un objectif, en fractionné, ou contre ta meilleure sortie.' },
-      { c: function () { return $('#awakRunGo'); }, t: 'C\'est parti', d: 'Le GPS suit ta distance et ta vitesse ; la voix t\'annonce chaque kilomètre.' },
+      { c: function () { return parTexte('courseTab', 'button', /^Voix/); }, t: 'La voix', d: 'Choisis tous les combien la voix t\'annonce ta distance, et si la sortie se met en pause seule quand tu t\'arrêtes.' },
+      { c: function () { return $('#awakRunGo'); }, t: 'C\'est parti', d: 'Le GPS suit ta distance et ta vitesse. Garde l\'écran allumé : le GPS d\'une appli web s\'arrête quand l\'écran s\'éteint. Ta musique peut jouer en même temps.' },
+      { c: function () { return $('#awakRunPlanHote'); }, t: 'Un plan', d: 'Prépare un 5 km, un 10 km ou un demi-marathon, semaine après semaine.' },
       { c: function () { return parTexte('courseTab', 'button', /^Sans GPS/); }, t: 'Sans GPS', d: 'Tapis, vélo stationnaire ou piscine ? Passe par ici.' }
     ],
     challenges: [
-      { c: function () { return $('#awakDefiEtoiles'); }, t: 'Tes étoiles', d: 'Chaque défi réussi te donne une étoile ; les étoiles font monter ton rang.' },
-      { c: function () { var l = $('#challengesList'); return l ? l.querySelector(':scope > button, button') : null; }, t: 'Un défi de 30 jours', d: 'Choisis-en un : l\'appli compte tes jours et te le rappelle.' }
+      { c: function () { return $('#awakDefiEtoiles'); }, t: 'Tes étoiles', d: 'Chaque défi réussi te donne une étoile ; les jeux et le Bingo aussi. Les étoiles font monter ton rang.' },
+      { c: function () { var l = $('#challengesList'); return l ? l.querySelector('button') : null; }, t: 'Un défi de 30 jours', d: 'Choisis-en un : coche ta case chaque jour, l\'appli compte et te le rappelle.' }
     ],
     history: [
-      { c: function () { return $('#awakProgHaut'); }, t: 'Ton résumé', d: 'Tes séances, ton volume et ta régularité, d\'un coup d\'œil.' },
+      { c: function () { return $('#awakProgHaut'); }, t: 'Ton résumé', d: 'Tes séances, ton volume et ta régularité de la semaine.' },
+      { c: function () { return parTexte('historyTab', 'button', /Arbre de l.Éveil/); }, t: 'Arbre de l\'Éveil', d: 'Ce que tes séances développent : force, endurance, mobilité…' },
       { c: function () { return $('#awakTuileAnalyse'); }, t: 'Analyse et coach', d: 'Ce que tu devrais travailler ensuite, et pourquoi.' },
       { c: function () { return $('#awakTuileEquilibre'); }, t: 'Équilibre', d: 'Repère le muscle qui prend du retard sur les autres.' },
-      { c: function () { return $('#awakCorpsCard'); }, t: 'Ton corps', d: 'Photos et mesures pour voir le changement, semaine après semaine.' }
+      { c: function () { var t = $('#awakTuileHofTitre'); return t ? t.closest('button') : null; }, t: 'Hall of Fame', d: 'Tes records sur chaque exercice.' },
+      { c: function () { return parTexte('historyTab', '.accordion-header', /Historique/); }, t: 'Historique', d: 'Toutes tes séances : touche-en une pour la revoir ou la refaire.' },
+      { c: function () { return $('#awakCorpsCard'); }, t: 'Ton corps', d: 'Photos et mesures pour voir le changement. Elles restent sur ton téléphone.' }
     ],
     calendar: [
-      { c: function () { return $('#calendarTabContent .card'); }, t: 'Ton planning', d: 'Touche un jour pour voir ou planifier une séance.' },
+      { c: function () { return $('#calendarTabContent .card'); }, t: 'Ton planning', d: 'Touche un jour pour voir ou planifier une séance. Les séances faites sont cochées.' },
       { c: function () { var b = parTexte('calendarTab', 'button', /^Semaine$/); return b ? b.parentElement : null; }, t: 'Semaine ou mois', d: 'Change de vue selon ce que tu veux voir.' },
       { c: function () { return parTexte('calendarTab', 'button', /Mode salle/); }, t: 'Mode salle', d: 'Ta semaine en grand, lisible de loin : pose le téléphone au gym.' }
     ],
     exercises: [
-      { c: function () { return $('#exerciseSearch'); }, t: 'Chercher', d: 'Trouve un exercice par son nom.' },
-      { c: function () { return $('#awakFilterBar'); }, t: 'Filtrer', d: 'Par muscle et par matériel. Touche un exercice pour voir sa fiche et sa vidéo.' },
+      { c: function () { return $('#exerciseSearch'); }, t: 'Chercher', d: 'Trouve un exercice par son nom, un muscle ou un matériel.' },
+      { c: function () { return $('#awakFilterBar'); }, t: 'Filtrer', d: 'Par muscle et par matériel. Touche un exercice pour voir sa fiche, son image et sa vidéo.' },
+      { c: function () { return parTexte('exercisesTab', 'button', /^Mes favoris$/); }, t: 'Favoris', d: 'Touche l\'étoile d\'un exercice pour le retrouver ici.' },
       { c: function () { return $('#awakSegCalculs'); }, t: 'Calculs', d: 'Charge maximale, disques sur la barre, rang de force.' }
     ],
     calculators: [
       { c: function () { return $('#awakCalcSrc_frc'); }, t: 'Ton rang de force', d: 'Compare ta force à celle des gens de ton poids.' },
-      { c: function () { return $('#awakCalcSrc_1rm'); }, t: 'Ta charge maximale', d: 'Estime ton maximum sans le tester, à partir d\'une série.' }
+      { c: function () { return $('#awakCalcSrc_1rm'); }, t: 'Ta charge maximale', d: 'Estime ton maximum sans le tester, à partir d\'une série.' },
+      { c: function () { return $('#awakCalcSrc_plaques'); }, t: 'Les disques', d: 'Quels disques mettre de chaque côté de la barre pour une charge donnée.' }
     ],
     family: [
-      { c: function () { return parTexte('familyTab', 'h2', /famille/i); }, t: 'Ta famille', d: 'Chacun a son profil, ses séances et sa progression.' },
-      { c: function () { return parTexte('familyTab', 'button', /Ajouter un membre/); }, t: 'Ajouter quelqu\'un', d: 'Un enfant, un conjoint, un ami : vous vous suivez et vous lancez des défis.' }
+      // Famille à plusieurs
+      { c: cielFamille, t: 'Votre ciel', d: 'Chaque étoile est un membre de ta famille. Elle s\'allume et grossit quand il s\'entraîne. Toi, tu es au centre.' },
+      { c: function () { var c = cielFamille(); return c ? c.querySelector('svg') : null; }, t: 'Touche une étoile', d: 'Pour encourager, jouer ou lancer un défi à ce membre. Ton étoile au centre lance un défi d\'équipe.' },
+      { c: function () { var b = parTexte('familyContainer', 'button', /^Défis$/); return b ? b.parentElement : null; }, t: 'Ensemble', d: 'Défis et objectif commun, badges de famille, ajouter un membre, et le journal de ce que chacun a fait.' },
+      // Famille encore seule
+      { c: function () { var b = parTexte('familyContainer', 'button', /Ajouter un membre/); return b ? b.parentElement : null; }, t: 'La famille', d: 'Chaque membre a son profil, ses séances et sa progression. Ensemble, vous vous encouragez et vous vous lancez des défis.' },
+      { c: function () { return parTexte('familyContainer', 'button', /Ajouter un membre/); }, t: 'Ajouter quelqu\'un', d: 'Un enfant, un conjoint, un ami : crée son profil ici.' }
     ],
     game: [
+      { c: function () { var f = $('#gameTab') && $('#gameTab').firstElementChild; return (f && f.id !== 'awakHunterCard') ? f : null; }, t: 'La carte', d: 'Ta ville. Les Failles y apparaissent après tes vraies séances : touche-en une pour combattre.' },
       { c: function () { return $('#awakHunterCard'); }, t: 'Ta carte', d: 'Ton rang, ton niveau et ta puissance : tout monte avec tes vraies séances.' },
-      { c: function () { var s = $('#awakStatVal_STR'); return s ? parent(s, 2) : null; }, t: 'Tes attributs', d: 'À chaque niveau, tu répartis des points. Ils pèsent dans tes combats.' },
+      { c: function () { var s = $('#awakStatVal_STR'); return s ? parent(s, 2) : null; }, t: 'Tes attributs', d: 'À chaque niveau, tu répartis des points. Ils pèsent dans tes combats. « Aide » explique chacun.' },
       { c: function () { return $('#awakRowBtns'); }, t: 'Compétences et équipement', d: 'Débloque des compétences, équipe ce que tu trouves dans les Failles.' },
+      { c: function () { return $('#awakRowBtns2'); }, t: 'Journal et malus', d: 'Le journal garde ton histoire ; les malus montrent ce qui te pénalise en ce moment.' },
       { c: function () { return $('#adventureContainer'); }, t: 'L\'aventure', d: 'Les Failles et les compagnons : chaque séance y fait des dégâts.' }
     ],
     settings: [
-      { c: function () { return $('#settingsTab .accordion-header'); }, t: 'Réglages par thème', d: 'Touche un titre pour l\'ouvrir : jeu, entraînement, montre, audio…' },
-      { c: function () { return parTexte('settingsTab', '.accordion-header', /Compte/); }, t: 'Tes données', d: 'Sauvegarde ici : tout reste sur ton téléphone tant que tu ne l\'envoies pas.' }
+      { c: function () { return $('#settingsTab .accordion-header'); }, t: 'Réglages par thème', d: 'Touche un titre pour l\'ouvrir. Ici : le mode jeu et l\'onglet Famille.' },
+      { c: function () { return enteteReglage(/^\s*>?\s*Entraînement/); }, t: 'Entraînement', d: 'Tes lieux et ton matériel, le temps de repos, l\'échauffement, kg ou livres.' },
+      { c: function () { return enteteReglage(/Parcours de l.Éveil/); }, t: 'Parcours de l\'Éveil', d: '4 semaines guidées pour débuter : séances, sommeil, repas.' },
+      { c: function () { return enteteReglage(/Montre/); }, t: 'Montre et santé', d: 'Relie ta montre pour le pouls, les pas et le sommeil.' },
+      { c: function () { return enteteReglage(/limitations/); }, t: 'Mes limitations', d: 'Une blessure ou une contrainte ? Les séances s\'adaptent.' },
+      { c: function () { return enteteReglage(/Compte/); }, t: 'Tes données', d: 'Sauvegarde ici : tout reste sur ton téléphone tant que tu ne l\'envoies pas.' }
     ]
   };
 

@@ -208,7 +208,16 @@
 
   // ── A. Rendu ─────────────────────────────────────────────────────────
   var _ouvert = null;     // jour dont l'aperçu est déplié : 'prog/jour'
-  function basculer(cle) { _ouvert = (_ouvert === cle) ? null : cle; if (typeof window.renderProgramTab === 'function') window.renderProgramTab(); }
+  // v1275 : les programmes sont repliés (nom, niveau, fréquence) ; on en déplie UN à la fois.
+  // Avant : 7 programmes et 17 séances dépliés d'un coup, 2,5 écrans à faire défiler.
+  var _progOuvert = null;
+  function redessiner() { if (typeof window.renderProgramTab === 'function') window.renderProgramTab(); }
+  function basculer(cle) {
+    _ouvert = (_ouvert === cle) ? null : cle;
+    if (_ouvert) _progOuvert = _ouvert.split('/')[0];
+    redessiner();
+  }
+  function ouvrirProg(id) { _progOuvert = (_progOuvert === id) ? null : id; _ouvert = null; redessiner(); }
 
   function materiel(progId) {
     var g = GP(), p = g && g[progId]; if (!p) return '';
@@ -294,29 +303,31 @@
           + '</button>'
           + (ouvert ? apercu(p.id, k, a) : '');
       }).join('');
-      var mat = materiel(p.id);
-      return '<div class="card" style="background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.08);border-left:3px solid ' + a + ';border-radius:16px;padding:14px 15px;">'
-        + '<div style="display:flex;align-items:center;gap:11px;">'
+      var mat = materiel(p.id), deplie = _progOuvert === p.id;
+      return '<div class="card" style="background:rgba(255,255,255,0.025);border:1px solid ' + (deplie ? a + '55' : 'rgba(255,255,255,0.08)') + ';border-left:3px solid ' + a + ';border-radius:16px;padding:12px 14px;margin-bottom:0;">'
+        + '<button onclick="AwakSalle.ouvrirProg(\'' + p.id + '\')" aria-expanded="' + deplie + '" style="display:flex;align-items:center;gap:11px;width:100%;text-align:left;background:none !important;border:none;padding:0 !important;min-height:auto !important;cursor:pointer;font-family:inherit;">'
         +   '<span style="flex-shrink:0;width:38px;height:38px;border-radius:11px;background:' + a + '1a;border:1px solid ' + a + '44;display:grid;place-items:center;">' + ic('halter', 20, a) + '</span>'
         +   '<span style="flex:1;min-width:0;">'
-        +     '<span style="display:block;font-weight:900;color:#fff;font-size:1em;">' + esc(p.name)
+        +     '<span style="display:block;font-weight:900;color:#fff;font-size:0.98em;">' + esc(p.name)
         +       (p.reco ? ' <span style="font-size:0.6em;font-weight:800;color:#0b1220;background:' + a + ';border-radius:99px;padding:2px 8px;vertical-align:2px;">Idéal pour commencer</span>' : '') + '</span>'
-        +     '<span style="display:block;font-size:0.62em;color:#64748b;font-weight:700;margin-top:1px;">' + esc(p.en) + '</span>'
-        +     '<span style="display:block;font-size:0.68em;color:' + a + ';font-weight:700;margin-top:3px;">' + esc(p.niveau) + ' · ' + esc(p.schema) + '</span>'
+        +     '<span style="display:block;font-size:0.72em;color:' + a + ';font-weight:700;margin-top:3px;">' + esc(p.niveau) + ' · ' + esc(p.schema) + '</span>'
         +   '</span>'
-        + '</div>'
-        + (p.intro ? '<div style="font-size:0.7em;color:#94a3b8;margin-top:8px;line-height:1.4;">' + esc(p.intro) + '</div>' : '')
-        + (mat ? '<div style="display:flex;gap:6px;align-items:flex-start;font-size:0.64em;color:#cbd5e1;margin-top:8px;line-height:1.4;">' + ic('gym', 13, '#94a3b8') + '<span><b style="color:#94a3b8;">Matériel :</b> ' + esc(mat) + '</span></div>' : '')
-        + jours
+        +   '<span style="flex-shrink:0;color:#94a3b8;font-size:1.2em;transform:rotate(' + (deplie ? '90' : '0') + 'deg);transition:transform .2s;">›</span>'
+        + '</button>'
+        + (deplie
+          ? (p.intro ? '<div style="font-size:0.76em;color:#b4c0cf;margin-top:10px;line-height:1.45;">' + esc(p.intro) + '</div>' : '')
+            + (mat ? '<div style="display:flex;gap:6px;align-items:flex-start;font-size:0.7em;color:#cbd5e1;margin-top:8px;line-height:1.4;">' + ic('gym', 13, '#94a3b8') + '<span><b style="color:#a3b1c2;">Matériel :</b> ' + esc(mat) + '</span></div>' : '')
+            + jours
+          : '')
         + '</div>';
     }).join('');
     return '<div style="display:grid;gap:10px;">'
       + '<div style="font-size:0.6em;color:#64748b;font-weight:900;letter-spacing:2px;margin-bottom:2px;">PROGRAMMES EN SALLE</div>'
-      + '<div style="font-size:0.7em;color:#94a3b8;margin:-4px 0 4px;line-height:1.4;">Touche une séance pour voir ses exercices, puis lance-la.</div>'
+      + '<div style="font-size:0.76em;color:#b4c0cf;margin:-4px 0 4px;line-height:1.4;">Touche un programme pour voir ses séances.</div>'
       + (ado ? '<div style="font-size:0.76em;color:#fcd34d;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.3);border-radius:11px;padding:10px 12px;line-height:1.45;">Ces séances utilisent des charges : fais-les avec un adulte qui connaît les mouvements.</div>' : '')
       + bandeauLieu + prochHTML + cartes + '</div>';
   }
 
   completer();
-  window.AwakSalle = { rendre: rendre, lancer: lancer, basculer: basculer, composer: composer, prescription: prescription, prochaine: prochaine, PROGS: PROGS };
+  window.AwakSalle = { rendre: rendre, lancer: lancer, basculer: basculer, ouvrirProg: ouvrirProg, composer: composer, prescription: prescription, prochaine: prochaine, PROGS: PROGS };
 })();

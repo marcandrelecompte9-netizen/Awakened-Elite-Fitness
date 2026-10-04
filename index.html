@@ -11,11 +11,11 @@
     <title>Awakened Elite Fitness</title>
 
     <!-- PWA -->
-    <link rel="manifest" href="manifest.json?v=1273">
-    <link rel="apple-touch-icon" href="icons/icon-192.png?v=1273">
-    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=1273">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=1273">
-    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=1273">
+    <link rel="manifest" href="manifest.json?v=1275">
+    <link rel="apple-touch-icon" href="icons/icon-192.png?v=1275">
+    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=1275">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=1275">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=1275">
 
     <!-- ⚠️ CAPTURE PRÉCOCE DE L'INVITE D'INSTALLATION.
          Chrome déclenche « beforeinstallprompt » très tôt, souvent AVANT la fin
@@ -44,7 +44,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=1273">
+    <link rel="stylesheet" href="css/style.css?v=1275">
 </head>
 <body>
 
@@ -208,8 +208,8 @@
                  (ratio 1,55), donc plus haute et lisible.
                  <picture> laisse le navigateur choisir, sans JavaScript. -->
             <picture>
-                <source media="(min-width: 700px)" srcset="images/banner_v3.webp?v=1273">
-                <img src="images/banner_v3_mobile.webp?v=1273"
+                <source media="(min-width: 700px)" srcset="images/banner_v3.webp?v=1275">
+                <img src="images/banner_v3_mobile.webp?v=1275"
                      alt="Awakened Elite Fitness"
                      style="width:100%;height:auto;display:block;" />
             </picture>
@@ -1291,17 +1291,17 @@
                 <button id="modeGymBtn" onclick="setSessionMode('gym')" style="display:none;"><span id="gymBtnSubtext"></span></button>
 
                 <!-- Mode salle bondée -->
-                <div id="busyGymBanner" style="display:none;margin-bottom:8px;padding:10px 14px;background:linear-gradient(135deg,#fef3c7,#fde68a);border:2px solid #f59e0b;border-radius:14px;cursor:pointer;" onclick="showBusyGymModal()">
+                <div id="busyGymBanner" style="display:none;margin-bottom:8px;padding:10px 14px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.5);border-radius:14px;cursor:pointer;" onclick="showBusyGymModal()">
                     <div style="display:flex;align-items:center;gap:10px;">
                         <div style="font-size:1.6em;">🏃</div>
                         <div>
-                            <div style="font-weight:700;color:#92400e;font-size:0.9em;">Salle bondée — Mode adapté</div>
-                            <div style="font-size:0.75em;color:#78350f;" id="busyGymEquipCount">Tap pour choisir les équipements disponibles</div>
+                            <div style="font-weight:700;color:#fcd34d;font-size:0.9em;">Salle bondée — Mode adapté</div>
+                            <div style="font-size:0.75em;color:#fde68a;" id="busyGymEquipCount">Tap pour choisir les équipements disponibles</div>
                         </div>
                         <button onclick="event.stopPropagation();deactivateBusyGym();" style="margin-left:auto;background:#ef4444;color:white;border:none;border-radius:10px;padding:4px 10px;font-size:0.78em;cursor:pointer;">✕</button>
                     </div>
                 </div>
-                <button id="activateBusyGymBtn" onclick="showBusyGymModal()" style="display:none;width:100%;padding:10px;border-radius:14px;border:2px dashed #f59e0b;background:#fffbeb;color:#92400e;font-weight:600;font-size:0.85em;cursor:pointer;margin-bottom:8px;">
+                <button id="activateBusyGymBtn" onclick="showBusyGymModal()" style="display:none;width:100%;padding:10px;border-radius:14px;border:1px dashed rgba(251,191,36,0.55);background:rgba(251,191,36,0.06);color:#fcd34d;font-weight:600;font-size:0.85em;cursor:pointer;margin-bottom:8px;">
                     🏃 Salle bondée — choisir équipements disponibles
                 </button>
 
@@ -1312,13 +1312,13 @@
                         <button id="gymMachineOnlyBtn" onclick="setGymBodyweightMode(false)"
                             style="padding:10px 8px;border-radius:14px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.03);cursor:pointer;text-align:center;transition:all 0.2s;">
                             <div style="font-size:1.4em;margin-bottom:4px;">🤖</div>
-                            <div style="font-weight:700;font-size:0.82em;color:#334155;">Machines seulement</div>
+                            <div style="font-weight:700;font-size:0.82em;color:#e2e8f0;">Machines seulement</div>
                             <div style="font-size:0.7em;color:#94a3b8;margin-top:2px;">Câbles · Presses</div>
                         </button>
                         <button id="gymMixedBtn" onclick="setGymBodyweightMode(true)"
                             style="padding:10px 8px;border-radius:14px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.03);cursor:pointer;text-align:center;transition:all 0.2s;">
                             <div style="font-size:1.4em;margin-bottom:4px;">🤖💪</div>
-                            <div style="font-weight:700;font-size:0.82em;color:#334155;">Machines + Corps</div>
+                            <div style="font-weight:700;font-size:0.82em;color:#e2e8f0;">Machines + Corps</div>
                             <div style="font-size:0.7em;color:#94a3b8;margin-top:2px;">Tractions · Dips</div>
                         </button>
                     </div>
@@ -1378,6 +1378,19 @@
 
                 <!-- Personnalité Connue Card — Déplacée vers l'onglet Programme -->
 
+                <!-- v1275 : « Autres façons de s'entraîner » replié par défaut — à l'ouverture
+                     de l'onglet, seuls le personnage et « Fais ma séance » occupent l'écran. -->
+                <button id="awakAutresToggle" aria-expanded="false"
+                        onclick="var c=document.getElementById('awakAutresCorps');var o=c.style.display==='none';c.style.display=o?'':'none';this.setAttribute('aria-expanded',o?'true':'false');var v=this.querySelector('.awak-chev');if(v)v.style.transform=o?'rotate(180deg)':'none';"
+                        style="width:100%;display:flex;align-items:center;gap:12px;text-align:left;cursor:pointer;font-family:inherit;margin:4px 0 12px;padding:14px 16px !important;min-height:auto !important;border-radius:16px;background:rgba(255,255,255,0.03) !important;border:1px solid rgba(255,255,255,0.09);color:#e2e8f0;">
+                    <span style="flex-shrink:0;width:38px;height:38px;border-radius:11px;display:inline-flex;align-items:center;justify-content:center;background:rgba(34,211,238,0.10);color:#67e8f9;"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>
+                    <span style="flex:1;min-width:0;">
+                        <span style="display:block;font-size:0.95em;font-weight:800;color:#f1f5f9;">Autres façons de s'entraîner</span>
+                        <span style="display:block;font-size:0.76em;color:#a3b1c2;margin-top:2px;">Tabata, superset, circuit, AMRAP et 16 jeux d'entraînement</span>
+                    </span>
+                    <span class="awak-chev" style="flex-shrink:0;color:#94a3b8;display:inline-flex;transition:transform .25s ease;"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
+                </button>
+                <div id="awakAutresCorps" style="display:none;">
                 <!-- Cardio & Intensité — v1219 : icônes SVG, une seule couleur, mots simples -->
                 <div class="card" style="background:linear-gradient(160deg,#0a0e18 0%,#0F1014 100%);border:1px solid rgba(96,168,240,0.25);">
                     <div style="display:flex;align-items:center;gap:9px;margin-bottom:4px;">
@@ -1411,6 +1424,7 @@
 
                 <!-- 🎮 Jeux d'entraînement (workout-games.js) -->
                 <div id="workoutGamesSection"></div>
+                </div><!-- /awakAutresCorps -->
 
                 <!-- Plans d'Entraînement Structurés — Déplacés vers l'onglet Programme -->
 
@@ -3858,35 +3872,35 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- App scripts — order matters -->
-    <script src="js/native.js?v=1273"></script>
-    <script src="js/exercises.js?v=1273"></script>
-    <script src="js/exercise-names.js?v=1273"></script>
-    <script src="data/items.js?v=1273"></script>
-    <script src="js/item-icons.js?v=1273"></script>
-    <script src="js/adventure.js?v=1273"></script>
-    <script src="js/economy.js?v=1273"></script>
-    <script src="js/challenges.js?v=1273"></script>
-    <script src="js/family-boss.js?v=1273"></script>
-    <script src="js/family-network.js?v=1273"></script>
-    <script src="js/family-challenge.js?v=1273"></script>
-    <script src="js/family-goal.js?v=1273"></script>
-    <script src="js/family-feed.js?v=1273"></script>
-    <script src="js/pre-workout-mood.js?v=1273"></script>
-    <script src="js/group-workout.js?v=1273"></script>
-    <script src="js/youth-safety.js?v=1273"></script>
-    <script src="js/kids-programs.js?v=1273"></script>
-    <script src="js/senior-programs.js?v=1273"></script>
-    <script src="js/adaptive.js?v=1273"></script>
-    <script src="js/pain-mode.js?v=1273"></script>
-    <script src="js/recovery-mode.js?v=1273"></script>
-    <script src="js/exercise-visuals.js?v=1273"></script>
-    <script src="js/strength-standards.js?v=1273"></script>
-    <script src="js/system-cards.js?v=1273"></script>
-    <script src="js/share-card.js?v=1273"></script>
-    <script src="js/story-events.js?v=1273"></script>
-    <script src="js/final-boss.js?v=1273"></script>
-    <script src="js/disciplines.js?v=1273"></script>
-    <script src="js/eveil.js?v=1273"></script>
+    <script src="js/native.js?v=1275"></script>
+    <script src="js/exercises.js?v=1275"></script>
+    <script src="js/exercise-names.js?v=1275"></script>
+    <script src="data/items.js?v=1275"></script>
+    <script src="js/item-icons.js?v=1275"></script>
+    <script src="js/adventure.js?v=1275"></script>
+    <script src="js/economy.js?v=1275"></script>
+    <script src="js/challenges.js?v=1275"></script>
+    <script src="js/family-boss.js?v=1275"></script>
+    <script src="js/family-network.js?v=1275"></script>
+    <script src="js/family-challenge.js?v=1275"></script>
+    <script src="js/family-goal.js?v=1275"></script>
+    <script src="js/family-feed.js?v=1275"></script>
+    <script src="js/pre-workout-mood.js?v=1275"></script>
+    <script src="js/group-workout.js?v=1275"></script>
+    <script src="js/youth-safety.js?v=1275"></script>
+    <script src="js/kids-programs.js?v=1275"></script>
+    <script src="js/senior-programs.js?v=1275"></script>
+    <script src="js/adaptive.js?v=1275"></script>
+    <script src="js/pain-mode.js?v=1275"></script>
+    <script src="js/recovery-mode.js?v=1275"></script>
+    <script src="js/exercise-visuals.js?v=1275"></script>
+    <script src="js/strength-standards.js?v=1275"></script>
+    <script src="js/system-cards.js?v=1275"></script>
+    <script src="js/share-card.js?v=1275"></script>
+    <script src="js/story-events.js?v=1275"></script>
+    <script src="js/final-boss.js?v=1275"></script>
+    <script src="js/disciplines.js?v=1275"></script>
+    <script src="js/eveil.js?v=1275"></script>
     <script>
     /* 🔄 DÉVERROUILLAGE DE L'ORIENTATION
        Sur Android, l'orientation d'une PWA installée est figée à l'installation
@@ -3908,42 +3922,42 @@
       });
     })();
     </script>
-    <script src="js/app.js?v=1273"></script>
-    <script src="js/calendar-tab.js?v=1273"></script>
-    <script src="js/routine-blocks.js?v=1273"></script>
-    <script src="js/routine-builder.js?v=1273"></script>
-    <script src="js/routine-print.js?v=1273"></script>
-    <script src="js/icons.js?v=1273"></script>
-    <script src="js/no-emoji.js?v=1273"></script>
-    <script src="js/stat-noms.js?v=1273"></script>
-    <script src="js/fenetres.js?v=1273"></script>
-    <script src="js/qrcode.js?v=1273"></script>
-    <script src="js/partage-seance.js?v=1273"></script>
-    <script src="js/salle.js?v=1273"></script>
-    <script src="js/sports.js?v=1273"></script>
-    <script src="js/strength-balance.js?v=1273"></script>
-    <script src="js/analyse.js?v=1273"></script>
-    <script src="js/limitations.js?v=1273"></script>
-    <script src="js/custom-exercises.js?v=1273"></script>
-    <script src="js/awakening-tree.js?v=1273"></script>
-    <script src="js/ui-kit.js?v=1273"></script>
-    <script src="js/feature-map.js?v=1273"></script>
-    <script src="js/visite.js?v=1273"></script>
-    <script src="js/weekly-recap.js?v=1273"></script>
-    <script src="js/workout-games.js?v=1273"></script>
-    <script src="js/kids-games.js?v=1273"></script>
-    <script src="js/home-pro.js?v=1273"></script>
-    <script src="js/back-button.js?v=1273"></script>
-    <script src="js/gestures.js?v=1273"></script>
-    <script src="js/rift-visuals.js?v=1273"></script>
-    <script src="js/family-sky.js?v=1273"></script>
-    <script src="js/session-ux.js?v=1273"></script>
-    <script src="js/progress-tab.js?v=1273"></script>
-    <script src="js/health-sync.js?v=1273"></script>
-    <script src="js/regle.js?v=1273"></script>
-    <script src="js/run-gps.js?v=1273"></script>
-    <script src="js/run-coach.js?v=1273"></script>
-    <script src="js/backup.js?v=1273"></script>
+    <script src="js/app.js?v=1275"></script>
+    <script src="js/calendar-tab.js?v=1275"></script>
+    <script src="js/routine-blocks.js?v=1275"></script>
+    <script src="js/routine-builder.js?v=1275"></script>
+    <script src="js/routine-print.js?v=1275"></script>
+    <script src="js/icons.js?v=1275"></script>
+    <script src="js/no-emoji.js?v=1275"></script>
+    <script src="js/stat-noms.js?v=1275"></script>
+    <script src="js/fenetres.js?v=1275"></script>
+    <script src="js/qrcode.js?v=1275"></script>
+    <script src="js/partage-seance.js?v=1275"></script>
+    <script src="js/salle.js?v=1275"></script>
+    <script src="js/sports.js?v=1275"></script>
+    <script src="js/strength-balance.js?v=1275"></script>
+    <script src="js/analyse.js?v=1275"></script>
+    <script src="js/limitations.js?v=1275"></script>
+    <script src="js/custom-exercises.js?v=1275"></script>
+    <script src="js/awakening-tree.js?v=1275"></script>
+    <script src="js/ui-kit.js?v=1275"></script>
+    <script src="js/feature-map.js?v=1275"></script>
+    <script src="js/visite.js?v=1275"></script>
+    <script src="js/weekly-recap.js?v=1275"></script>
+    <script src="js/workout-games.js?v=1275"></script>
+    <script src="js/kids-games.js?v=1275"></script>
+    <script src="js/home-pro.js?v=1275"></script>
+    <script src="js/back-button.js?v=1275"></script>
+    <script src="js/gestures.js?v=1275"></script>
+    <script src="js/rift-visuals.js?v=1275"></script>
+    <script src="js/family-sky.js?v=1275"></script>
+    <script src="js/session-ux.js?v=1275"></script>
+    <script src="js/progress-tab.js?v=1275"></script>
+    <script src="js/health-sync.js?v=1275"></script>
+    <script src="js/regle.js?v=1275"></script>
+    <script src="js/run-gps.js?v=1275"></script>
+    <script src="js/run-coach.js?v=1275"></script>
+    <script src="js/backup.js?v=1275"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>

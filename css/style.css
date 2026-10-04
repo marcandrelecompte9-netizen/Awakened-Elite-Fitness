@@ -7905,7 +7905,8 @@ body.dark-mode .instructions-list li,
 .btn:not(.btn-secondary):not(.btn-danger):not([style*="background"]),
 body.dark-mode .btn:not(.btn-secondary):not(.btn-danger):not([style*="background"]),
 button[style*="linear-gradient(135deg,#22d3ee,#0891b2)"],
-[onclick][style*="linear-gradient(135deg,#22d3ee,#0891b2)"] {
+[onclick][style*="linear-gradient(135deg,#22d3ee,#0891b2)"],
+#routinesTab button[style*="linear-gradient(135deg,#22d3ee,#0891b2)"] {
     background: linear-gradient(135deg,#22d3ee,#0891b2) !important;
     color: #04121f !important;
     box-shadow: 0 6px 18px rgba(34,211,238,0.22) !important;

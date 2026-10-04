@@ -278,9 +278,8 @@
     var sec = function (t) { return '<div style="font-size:0.6em;letter-spacing:1.6px;color:#94a3b8;font-weight:900;margin:16px 0 8px;">' + t + '</div>'; };
     var noteGPS = (N() && N().geo.arrierePlan())
       ? '<div style="font-size:0.66em;color:#64748b;margin-top:8px;text-align:center;">Le GPS continue écran verrouillé.</div>'
-      : (hist.length < 3
-          ? '<div style="font-size:0.68em;color:#64748b;line-height:1.5;margin-top:10px;">L\'écran reste allumé pendant la sortie : le GPS d\'une application web s\'arrête quand l\'écran s\'éteint. Garde le téléphone en main ou au bras. Ta musique peut jouer en même temps.</div>'
-          : '<div style="font-size:0.66em;color:#64748b;margin-top:8px;text-align:center;">Écran allumé pendant la sortie · ta musique peut jouer</div>');
+      // v1275 : une seule ligne courte ; l'explication complète est dans la visite guidée
+      : '<div style="font-size:0.72em;color:#a3b1c2;margin-top:8px;text-align:center;">Écran allumé pendant la sortie · ta musique peut jouer</div>';
     var contenu = hero
       + '<div id="awakRunAutre"' + (hero ? ' style="display:none;"' : '') + '>'
       +   (hero ? sec('AUTRE SORTIE') : '')
