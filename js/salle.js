@@ -284,6 +284,16 @@
         + (gym ? '<button onclick="switchLocation(\'' + gym.id + '\'); renderProgramTab();" style="flex-shrink:0;padding:8px 10px;border-radius:10px;border:none;cursor:pointer;background:#fbbf24;color:#1f1300;font-weight:900;font-size:0.72em;">Passer à ' + esc(gym.name) + '</button>' : '')
         + '</div>'
       : '';
+    // v1281 : au gym, des machines remplacées = types de machines non cochés dans le lieu
+    if (!bandeauLieu && lieu && lieu.mode === 'gym') {
+      var nRemp = 0;
+      try { PROGS.forEach(function (p) { var pr = g[p.id]; if (pr) Object.keys(pr).forEach(function (k) { nRemp += composer(p.id, k).filter(function (x) { return x.remplace; }).length; }); }); } catch (e) {}
+      if (nRemp) bandeauLieu = '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.3);">'
+        + ic('alerte', 18, '#fbbf24')
+        + '<div style="flex:1;min-width:0;font-size:0.72em;color:#fde68a;line-height:1.4;">Certaines machines ne sont pas cochées dans <b>' + esc(lieu.name) + '</b> : elles sont remplacées.</div>'
+        + (typeof showAddLocationModal === 'function' ? '<button onclick="showAddLocationModal(\'' + lieu.id + '\')" style="flex-shrink:0;padding:8px 10px;border-radius:10px;border:none;cursor:pointer;background:#fbbf24;color:#1f1300;font-weight:900;font-size:0.72em;">Mes machines</button>' : '')
+        + '</div>';
+    }
     var nx = prochaine(), prochHTML = '';
     if (nx && g[nx.prog] && g[nx.prog][nx.jour]) {
       var P = PROGS.filter(function (p) { return p.id === nx.prog; })[0] || { name: nx.prog, accent: '#60a8f0' };
