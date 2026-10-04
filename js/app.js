@@ -1415,67 +1415,51 @@
                 animation: fadeIn 0.3s;
             `;
             
+            // v1271 : fenêtre opaque et SANS classes globales (.btn, h2, encadré
+            // « conseil ») — le thème sombre les repeignait en vert et le fond
+            // quasi transparent laissait voir l'onglet Course derrière.
             const modal = document.createElement('div');
-            modal.style.cssText = `
-                background: rgba(255,255,255,0.04);
-                border-radius: 20px;
-                max-width: 600px;
-                width: 100%;
-                max-height: 90vh;
-                overflow-y: auto;
-                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-                animation: slideUp 0.3s;
-            `;
-            
+            modal.style.cssText = 'background:linear-gradient(165deg,#0F1014,#141826) !important;'
+                + 'border:1px solid rgba(34,211,238,0.30);border-radius:20px;max-width:460px;width:100%;'
+                + 'max-height:90vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,0.7);animation:slideUp 0.3s;';
+            const _lbl = 'display:block;font-size:0.68em;font-weight:900;letter-spacing:2px;color:#94a3b8;margin-bottom:8px;text-transform:uppercase;';
             modal.innerHTML = `
-                <div style="padding: 30px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-                        <h2 style="color: #06b6d4; margin: 0;">Configuration Cardio</h2>
-                        <button onclick="closeCardioConfigModal()" style="background: none; border: none; font-size: 1.5em; cursor: pointer; color: #94a3b8;"><svg viewBox="0 0 24 24" width="16" height="16" style="display:inline-block;vertical-align:-0.15em;" aria-hidden="true"><path d="M5 5 L19 19 M19 5 L5 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" fill="none"/></svg></button>
+                <div style="padding:22px 20px;">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:18px;">
+                        <div>
+                            <div style="font-size:0.62em;font-weight:900;letter-spacing:3px;color:#22d3ee;margin-bottom:4px;">SANS GPS</div>
+                            <div style="font-family:var(--font-display),sans-serif;font-size:1.35em;font-weight:800;color:#f1f5f9;line-height:1.15;">Séance cardio au chrono</div>
+                        </div>
+                        <button onclick="closeCardioConfigModal()" aria-label="Fermer" style="flex-shrink:0;width:36px;height:36px;min-height:auto !important;padding:0 !important;border-radius:10px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.04) !important;cursor:pointer;color:#94a3b8;display:flex;align-items:center;justify-content:center;"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M5 5 L19 19 M19 5 L5 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" fill="none"/></svg></button>
                     </div>
-                    
-                    <!-- Activity Type -->
-                    <div style="margin-bottom: 25px;">
-                        <label style="display: block; font-weight: 600; margin-bottom: 10px; color: #e2e8f0;">Type d'activité :</label>
-                        <select id="cardioActivityType" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); font-size: 1em;">
-                            <option value="running">🏃 Course à pied</option>
-                            <option value="cycling">🚴 Vélo</option>
-                            <option value="walking">🚶 Marche</option>
-                            <option value="swimming">🏊 Natation</option>
-                            <option value="rowing">🚣 Rameur</option>
-                            <option value="elliptical">⚡ Elliptique</option>
-                            <option value="stairs">🪜 Escaliers</option>
-                            <option value="other">🏋️ Autre</option>
+
+                    <div style="margin-bottom:18px;">
+                        <label for="cardioActivityType" style="${_lbl}">Activité</label>
+                        <select id="cardioActivityType" style="width:100%;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.14);background:#0b0f17 !important;color:#e2e8f0 !important;font-size:1em;font-family:inherit;">
+                            <option value="running">Course à pied (tapis)</option>
+                            <option value="cycling">Vélo stationnaire</option>
+                            <option value="walking">Marche</option>
+                            <option value="swimming">Natation</option>
+                            <option value="rowing">Rameur</option>
+                            <option value="elliptical">Elliptique</option>
+                            <option value="stairs">Escaliers</option>
+                            <option value="other">Autre</option>
                         </select>
                     </div>
-                    
-                    <!-- Unit System -->
-                    <div style="margin-bottom: 25px;">
-                        <label style="display: block; font-weight: 600; margin-bottom: 10px; color: #e2e8f0;">Système d'unités :</label>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                            <button onclick="selectCardioUnit('metric')" id="metricBtn" 
-                                    style="padding: 12px; border-radius: 10px; border: 2px solid #06b6d4; background: #06b6d4; color: white; font-weight: 600; cursor: pointer;">
-                                Métrique (km)
-                            </button>
-                            <button onclick="selectCardioUnit('imperial')" id="imperialBtn"
-                                    style="padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); color: #e2e8f0; font-weight: 600; cursor: pointer;">
-                                Impérial (miles)
-                            </button>
+
+                    <div style="margin-bottom:18px;">
+                        <div style="${_lbl}">Unités</div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                            <button onclick="selectCardioUnit('metric')" id="metricBtn" style="min-height:auto !important;padding:11px !important;border-radius:12px;font-weight:800;cursor:pointer;font-family:inherit;"></button>
+                            <button onclick="selectCardioUnit('imperial')" id="imperialBtn" style="min-height:auto !important;padding:11px !important;border-radius:12px;font-weight:800;cursor:pointer;font-family:inherit;"></button>
                         </div>
                     </div>
-                    
-                    <!-- Info Box -->
-                    <div style="background: rgba(96,168,240,0.12); padding: 15px; border-radius: 10px; margin-bottom: 25px; border-left: 4px solid #06b6d4;">
-                        <p style="margin: 0; color: #0c4a6e; font-size: 0.9em;">
-                            💡 <strong>Conseil :</strong> Vous pourrez tracker la distance, la vitesse, les calories et la fréquence cardiaque pendant votre séance.
-                        </p>
+
+                    <div style="background:rgba(34,211,238,0.07) !important;border:1px solid rgba(34,211,238,0.20);border-radius:12px;padding:12px 14px;margin-bottom:18px;color:#cbd5e1;font-size:0.84em;line-height:1.5;">
+                        Tu notes toi-même la distance en cours de route ; le chrono, la vitesse et les calories se calculent tout seuls.
                     </div>
-                    
-                    <!-- Start Button -->
-                    <button onclick="startAdvancedCardioSession()" class="btn" 
-                            style="width: 100%; padding: 15px; font-size: 1.1em; background: linear-gradient(135deg, #06b6d4 0%, #0284c7 100%);">
-                        🏁 Démarrer la séance
-                    </button>
+
+                    <button onclick="startAdvancedCardioSession()" style="width:100%;min-height:auto !important;padding:15px !important;border:none;border-radius:14px;cursor:pointer;font-family:inherit;font-size:1em;font-weight:900;letter-spacing:1px;color:#04121f !important;background:linear-gradient(135deg,#22d3ee,#0891b2) !important;box-shadow:0 8px 24px rgba(34,211,238,0.25);">DÉMARRER LA SÉANCE</button>
                 </div>
             `;
             
@@ -1484,31 +1468,24 @@
             
             // Set default unit
             window.cardioUnit = 'metric';
+            try {
+                document.getElementById('metricBtn').textContent = 'Métrique (km)';
+                document.getElementById('imperialBtn').textContent = 'Impérial (miles)';
+                selectCardioUnit(localStorage.getItem('fitproUseKg') === 'false' ? 'imperial' : 'metric');
+            } catch (e) {}
         }
         
         function selectCardioUnit(unit) {
             window.cardioUnit = unit;
-            
-            const metricBtn = document.getElementById('metricBtn');
-            const imperialBtn = document.getElementById('imperialBtn');
-            
-            if (unit === 'metric') {
-                metricBtn.style.background = '#22c55e';
-                metricBtn.style.color = 'white';
-                metricBtn.style.borderColor = '#22c55e';
-                
-                imperialBtn.style.background = 'rgba(255,255,255,0.04)';
-                imperialBtn.style.color = '#94a3b8';
-                imperialBtn.style.borderColor = 'rgba(255,255,255,0.12)';
-            } else {
-                imperialBtn.style.background = '#22c55e';
-                imperialBtn.style.color = 'white';
-                imperialBtn.style.borderColor = '#22c55e';
-                
-                metricBtn.style.background = 'rgba(255,255,255,0.04)';
-                metricBtn.style.color = '#94a3b8';
-                metricBtn.style.borderColor = 'rgba(255,255,255,0.12)';
-            }
+            const on  = ['rgba(34,211,238,0.16)', '#67e8f9', 'rgba(34,211,238,0.55)'];
+            const off = ['rgba(255,255,255,0.04)', '#94a3b8', 'rgba(255,255,255,0.12)'];
+            [['metricBtn', unit === 'metric'], ['imperialBtn', unit !== 'metric']].forEach(function (b) {
+                const el = document.getElementById(b[0]); if (!el) return;
+                const c = b[1] ? on : off;
+                el.style.setProperty('background', c[0], 'important');
+                el.style.setProperty('color', c[1], 'important');
+                el.style.setProperty('border', '1px solid ' + c[2], 'important');
+            });
         }
         
         function closeCardioConfigModal() {
@@ -1633,17 +1610,17 @@
                 <div id="cardioStatsGrid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px;">
                     <!-- Stats will be inserted here -->
                 </div>
-                <div style="background: rgba(96,168,240,0.12); padding: 15px; border-radius: 10px; margin-top: 15px;">
-                    <h4 style="margin: 0 0 10px 0; color: #0c4a6e;">Inputs (optionnels)</h4>
+                <div style="background: rgba(34,211,238,0.06) !important; border: 1px solid rgba(34,211,238,0.18); padding: 14px; border-radius: 12px; margin-top: 15px;">
+                    <div style="margin: 0 0 10px 0; color: #cbd5e1; font-size: 0.8em; font-weight: 800;">À noter en route (facultatif)</div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                         <div>
-                            <label style="display: block; font-size: 0.85em; color: #0c4a6e; margin-bottom: 5px;">Distance (${currentCardioSession.unit === 'metric' ? 'km' : 'mi'})</label>
+                            <label style="display: block; font-size: 0.78em; color: #94a3b8; margin-bottom: 5px;">Distance (${currentCardioSession.unit === 'metric' ? 'km' : 'mi'})</label>
                             <input type="number" id="cardioDistanceInput" step="0.1" min="0" placeholder="0.0" 
                                    oninput="updateCardioDistance(this.value)"
                                    style="width: 100%; padding: 8px; border-radius: 6px; border: 2px solid #0ea5e9;">
                         </div>
                         <div>
-                            <label style="display: block; font-size: 0.85em; color: #0c4a6e; margin-bottom: 5px;">FC (bpm)</label>
+                            <label style="display: block; font-size: 0.78em; color: #94a3b8; margin-bottom: 5px;">Fréquence cardiaque (bpm)</label>
                             <input type="number" id="cardioHRInput" min="0" max="220" placeholder="--" 
                                    oninput="updateCardioHR(this.value)"
                                    style="width: 100%; padding: 8px; border-radius: 6px; border: 2px solid #0ea5e9;">
@@ -1654,6 +1631,11 @@
             
             const muscleBadge = document.getElementById('muscleBadge');
             if (muscleBadge) muscleBadge.style.display = 'none';
+            // Pas de vidéo ni d'exercice précédent pour une sortie cardio
+            const _yt = document.getElementById('workoutYoutubeBtn');
+            if (_yt) _yt.style.display = 'none';
+            const _pv = document.getElementById('prevBtn');
+            if (_pv) { _pv.style.opacity = '0.3'; _pv.style.pointerEvents = 'none'; }
             
             // Update timer display style
             const timerDisplay = document.getElementById('timerDisplay');
@@ -1703,34 +1685,34 @@
                 : '--';
             
             grid.innerHTML = `
-                <div style="background: rgba(255,255,255,0.04); padding: 15px; border-radius: 14px; border: 2px solid #0ea5e9; text-align: center;">
-                    <div style="font-size: 0.85em; color: #94a3b8; margin-bottom: 5px;">⏱️ Durée</div>
-                    <div style="font-size: 1.5em; font-weight: 700; color: #06b6d4;">${durationText}</div>
+                <div style="background: rgba(255,255,255,0.04); padding: 15px; border-radius: 14px; border: 1px solid rgba(34,211,238,0.30); text-align: center;">
+                    <div style="font-size: 0.85em; color: #94a3b8; margin-bottom: 5px;">Durée</div>
+                    <div style="font-size: 1.5em; font-weight: 700; color: #67e8f9 !important;">${durationText}</div>
                 </div>
                 
-                <div style="background: rgba(255,255,255,0.04); padding: 15px; border-radius: 14px; border: 2px solid #0ea5e9; text-align: center;">
-                    <div style="font-size: 0.85em; color: #94a3b8; margin-bottom: 5px;">📏 Distance</div>
-                    <div style="font-size: 1.5em; font-weight: 700; color: #06b6d4;">${currentCardioSession.distance.toFixed(2)} ${unitLabel}</div>
+                <div style="background: rgba(255,255,255,0.04); padding: 15px; border-radius: 14px; border: 1px solid rgba(34,211,238,0.30); text-align: center;">
+                    <div style="font-size: 0.85em; color: #94a3b8; margin-bottom: 5px;">Distance</div>
+                    <div style="font-size: 1.5em; font-weight: 700; color: #67e8f9 !important;">${currentCardioSession.distance.toFixed(2)} ${unitLabel}</div>
                 </div>
                 
-                <div style="background: rgba(255,255,255,0.04); padding: 15px; border-radius: 14px; border: 2px solid #0ea5e9; text-align: center;">
-                    <div style="font-size: 0.85em; color: #94a3b8; margin-bottom: 5px;">🚀 Vitesse</div>
-                    <div style="font-size: 1.5em; font-weight: 700; color: #06b6d4;">${currentCardioSession.speed.toFixed(1)} ${speedLabel}</div>
+                <div style="background: rgba(255,255,255,0.04); padding: 15px; border-radius: 14px; border: 1px solid rgba(34,211,238,0.30); text-align: center;">
+                    <div style="font-size: 0.85em; color: #94a3b8; margin-bottom: 5px;">Vitesse</div>
+                    <div style="font-size: 1.5em; font-weight: 700; color: #67e8f9 !important;">${currentCardioSession.speed.toFixed(1)} ${speedLabel}</div>
                 </div>
                 
-                <div style="background: rgba(255,255,255,0.04); padding: 15px; border-radius: 14px; border: 2px solid #0ea5e9; text-align: center;">
-                    <div style="font-size: 0.85em; color: #94a3b8; margin-bottom: 5px;">⏱️ Allure</div>
-                    <div style="font-size: 1.5em; font-weight: 700; color: #06b6d4;">${paceText} ${paceLabel}</div>
+                <div style="background: rgba(255,255,255,0.04); padding: 15px; border-radius: 14px; border: 1px solid rgba(34,211,238,0.30); text-align: center;">
+                    <div style="font-size: 0.85em; color: #94a3b8; margin-bottom: 5px;">Allure</div>
+                    <div style="font-size: 1.5em; font-weight: 700; color: #67e8f9 !important;">${paceText} ${paceLabel}</div>
                 </div>
                 
-                <div style="background: rgba(255,255,255,0.04); padding: 15px; border-radius: 14px; border: 2px solid #0ea5e9; text-align: center;">
-                    <div style="font-size: 0.85em; color: #94a3b8; margin-bottom: 5px;">🔥 Calories</div>
-                    <div style="font-size: 1.5em; font-weight: 700; color: #06b6d4;">${Math.round(currentCardioSession.calories)}</div>
+                <div style="background: rgba(255,255,255,0.04); padding: 15px; border-radius: 14px; border: 1px solid rgba(34,211,238,0.30); text-align: center;">
+                    <div style="font-size: 0.85em; color: #94a3b8; margin-bottom: 5px;">Calories</div>
+                    <div style="font-size: 1.5em; font-weight: 700; color: #67e8f9 !important;">${Math.round(currentCardioSession.calories)}</div>
                 </div>
                 
-                <div style="background: rgba(255,255,255,0.04); padding: 15px; border-radius: 14px; border: 2px solid #0ea5e9; text-align: center;">
-                    <div style="font-size: 0.85em; color: #94a3b8; margin-bottom: 5px;">❤️ FC</div>
-                    <div style="font-size: 1.5em; font-weight: 700; color: #06b6d4;">${currentCardioSession.heartRate || '--'} bpm</div>
+                <div style="background: rgba(255,255,255,0.04); padding: 15px; border-radius: 14px; border: 1px solid rgba(34,211,238,0.30); text-align: center;">
+                    <div style="font-size: 0.85em; color: #94a3b8; margin-bottom: 5px;">FC</div>
+                    <div style="font-size: 1.5em; font-weight: 700; color: #67e8f9 !important;">${currentCardioSession.heartRate || '--'} bpm</div>
                 </div>
             `;
         }
@@ -21695,7 +21677,7 @@
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1268);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1271);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -21744,7 +21726,7 @@
                 +       '<rect width="5" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.22"/>'
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1268" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1271" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -27183,7 +27165,7 @@
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1268");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1271");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -31516,7 +31498,7 @@
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1268);'
+                +     'url(images/combat_bg_v1.webp?v=1271);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -31771,7 +31753,7 @@
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1268);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1271);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -32030,7 +32012,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:540px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto;display:flex;flex-direction:column;">
                 <!-- Header : vague actuelle -->
-                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1268);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1271);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                         <span style="font-size:0.6em;color:${theme.color};font-weight:900;letter-spacing:2px;">⚔ VAGUE ${rift.currentWaveIdx + 1} / ${rift.waves.length}${currentWave.isBoss ? ' · BOSS' : ''}</span>
                         <button onclick="awakAbandonRift()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
@@ -32208,8 +32190,13 @@
                 const motsDuree = ['tapis roulant', 'treadmill', 'vélo', 'velo', 'bike', 'rameur', 'rowing sprint', 'rower',
                     'elliptique', 'elliptical', 'stairmaster', 'natation', 'swim', 'water running', 'piscine',
                     'course', 'jogging', 'running', 'sprint', 'marche', 'walk', 'intervalle', 'interval', 'hiit',
-                    'corde à sauter', 'jump rope', 'rounds', 'shadow', 'battle rope', 'traîneau', 'traineau', 'sled'];
+                    'corde à sauter', 'jump rope', 'rounds', 'shadow', 'battle rope', 'traîneau', 'traineau', 'sled',
+                    // v1270 : activités de plein air / de lieu (randonnée, escaliers, navette…)
+                    'randonn', 'hiking', 'navette', 'shuttle', 'escalier', 'stair', 'escalade', 'grimper',
+                    'trail', 'bounding', 'bondissement'];
                 if (motsDuree.some(k => n.replace('sprinter', '').includes(k))) return false;
+                // Exercice d'extérieur alors que le lieu actif ne l'est pas
+                try { if (typeof awakExerciseBlockedByLocation === 'function' && awakExerciseBlockedByLocation(ex)) return false; } catch (e) {}
                 if (/tapis roulant|vélo stationnaire|rameur|elliptique|stairmaster|piscine/.test(eq)) return false;
                 return true;
             };
@@ -33177,7 +33164,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1268');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1271');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -33914,7 +33901,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1268);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1271);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -34085,7 +34072,7 @@
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1268);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1271);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -35696,7 +35683,7 @@
                     const bgColor = isOnMission ? 'rgba(168,85,247,0.08)' : (c.active ? `${c.color}15` : 'rgba(255,255,255,0.02)');
                     return `<div onclick="awakOpenCompanionDetail('${c.id}')" style="cursor:pointer;background:${bgColor};border:1.5px solid ${borderColor};border-radius:10px;padding:11px 6px;text-align:center;${c.active && !isOnMission ? `box-shadow:0 0 12px ${c.color}30;` : ''}transition:all 0.2s;${isOnMission ? 'opacity:0.7;' : ''}">
                         ${c.image
-                            ? `<img src="${c.image}" alt="" style="width:46px;height:46px;border-radius:12px;object-fit:cover;object-position:center 15%;display:block;margin:0 auto;border:1.5px solid ${c.color}88;box-shadow:0 0 10px ${c.color}55;${isOnMission ? 'filter:grayscale(0.7);' : ''}${c.active && !isOnMission ? '' : 'opacity:0.85;'}" onerror="this.outerHTML='<div style=\'font-size:1.7em;\' data-emoji-keep>${c.emoji}</div>'">`
+                            ? `<img src="${c.image}" alt="" style="width:46px;height:46px;border-radius:12px;object-fit:cover;object-position:center 15%;display:block;margin:0 auto;border:1.5px solid ${c.color}88;box-shadow:0 0 10px ${c.color}55;${isOnMission ? 'filter:grayscale(0.7);' : ''}${c.active && !isOnMission ? '' : 'opacity:0.85;'}" onerror="this.outerHTML='<div style=\\'font-size:1.7em;\\' data-emoji-keep>${c.emoji}</div>'">`
                             : `<div data-emoji-keep style="font-size:1.7em;">${c.emoji}</div>`}
                         <div style="font-size:0.58em;color:${c.color};font-weight:800;margin-top:3px;letter-spacing:0.5px;line-height:1.2;">${c.name.split(' ')[0]}</div>
                         ${isOnMission
@@ -44849,7 +44836,7 @@
 
             host.innerHTML =
                 '<div style="position:relative;width:110px;margin:0 auto 12px;">'
-              +   '<img src="images/body/body_face.webp?v=1268" alt="" '
+              +   '<img src="images/body/body_face.webp?v=1271" alt="" '
               +     'style="width:100%;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -44931,7 +44918,7 @@
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1268);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1271);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -44998,7 +44985,7 @@
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1268);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1271);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -47296,7 +47283,7 @@
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1268");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1271");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.

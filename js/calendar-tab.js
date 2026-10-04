@@ -830,6 +830,11 @@
       // v1261 : en colonne (téléphone debout), seule la VEILLE reste au-dessus
       // d'aujourd'hui — sinon le samedi, il fallait défiler 5 jours passés.
       '@media(max-width:760px){.awak-k-day.loin{display:none;}}' +
+      // v1269 : en colonne, les jours de la semaine SUIVANTE s'ajoutent sous
+      // aujourd'hui (le dimanche, il n'y avait plus rien en dessous).
+      // En paysage, la grille reste lundi → dimanche.
+      '.awak-k-day.suite,.awak-k-sep{display:none;}' +
+      '@media(max-width:760px){.awak-k-day.suite{display:flex;}.awak-k-sep{display:block;}}' +
       '@media(max-width:760px){.awak-k-week{flex-direction:column;}' +
         '.awak-k-day,.awak-k-day.today{flex:none;}' +
         '.awak-k-day{padding:12px 12px;}.awak-k-day.today{padding:14px 14px;}' +
@@ -854,9 +859,15 @@
     var today = new Date();
     var debut = lundiDe(today);
     var cols = '';
+    // Toujours au moins 5 jours à venir sous aujourd'hui (téléphone debout)
+    var restants = 6 - Math.round((new Date(today.getFullYear(), today.getMonth(), today.getDate()) - debut) / 864e5);
+    var extra = Math.max(0, 5 - restants);
 
-    for (var i = 0; i < 7; i++) {
+    for (var i = 0; i < 7 + extra; i++) {
       var d = new Date(debut.getFullYear(), debut.getMonth(), debut.getDate() + i);
+      var suite = i >= 7;
+      if (i === 7) cols += '<div class="awak-k-sep" style="font-size:0.62em;font-weight:900;letter-spacing:3px;color:#64748b;' +
+        'text-align:center;padding:4px 0 0;">SEMAINE PROCHAINE</div>';
       var auj = memeJour(d, today);
       var passe = d < new Date(today.getFullYear(), today.getMonth(), today.getDate());
       // Jour passé AVANT la veille : masqué quand les jours s'empilent (téléphone)
@@ -868,7 +879,7 @@
         '<div style="text-align:center;padding-bottom:' + (auj ? '13px' : '10px') + ';margin-bottom:' + (auj ? '13px' : '10px') + ';' +
           'border-bottom:1px solid ' + (auj ? 'rgba(34,211,238,0.28)' : 'rgba(255,255,255,0.06)') + ';">' +
           '<div style="font-size:' + (auj ? '0.8em' : '0.66em') + ';font-weight:900;letter-spacing:3px;' +
-            'color:' + (auj ? '#67e8f9' : '#64748b') + ';">' + JOURS_ENT[i].toUpperCase() + '</div>' +
+            'color:' + (auj ? '#67e8f9' : '#64748b') + ';">' + JOURS_ENT[i % 7].toUpperCase() + '</div>' +
           '<div style="font-family:var(--font-display);font-weight:800;line-height:0.95;margin-top:' + (auj ? '6px' : '4px') + ';' +
             'font-size:' + (auj ? '3em' : '1.6em') + ';letter-spacing:-1px;' +
             (auj
@@ -926,7 +937,7 @@
           'font-size:' + (auj ? '0.95em' : '0.68em') + ';">Repos</div>';
       }
 
-      cols += '<div class="awak-k-day' + (auj ? ' today' : '') + (passe && !auj ? ' past' : '') + (loin ? ' loin' : '') + '">' +
+      cols += '<div class="awak-k-day' + (auj ? ' today' : '') + (passe && !auj ? ' past' : '') + (loin ? ' loin' : '') + (suite ? ' suite' : '') + '">' +
           tete +
           '<div class="awak-k-corps" style="flex:1;min-width:0;">' + corps + '</div>' +
         '</div>';
