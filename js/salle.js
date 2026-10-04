@@ -156,10 +156,21 @@
   }
 
   // ── Lancer une séance ────────────────────────────────────────────────
-  function lancer(progId, dayKey) {
+  function lancer(progId, dayKey, _lieuOk) {
     completer();
     var g = GP(), day = g && g[progId] && g[progId][dayKey];
     if (!day) return;
+    // v1280 : lancée depuis Maison ou Extérieur, une séance « Machines seulement »
+    // devenait une séance au poids du corps (machines remplacées). On demande d'abord.
+    var lieu = lieuActif(), gym = lieuGym();
+    if (!_lieuOk && lieu && lieu.mode !== 'gym' && gym && typeof window.showConfirm === 'function'
+        && (day.exercises || []).some(function (n) { var e = db(n); return e && (e.equipment || []).indexOf('Machine') >= 0; })) {
+      window.showConfirm('Tu es en mode ' + lieu.name + ' : les machines de cette séance seraient remplacées par ce que tu as à cet endroit. Passer à ' + gym.name + ' ?',
+        function () { try { window.switchLocation(gym.id); } catch (e) {} lancer(progId, dayKey, true); },
+        function () { lancer(progId, dayKey, true); },
+        { title: 'Tu es à la salle ?', confirmLabel: 'Passer à ' + gym.name, cancelLabel: 'Rester en mode ' + lieu.name });
+      return;
+    }
     var L = composer(progId, dayKey).filter(function (x) { return !x.manque; });
     if (!L.length) {
       if (typeof window.showToast === 'function') window.showToast('Aucun exercice possible avec le matériel de ce lieu', 'warning', 3500);
