@@ -8008,3 +8008,63 @@ body.dark-mode .nav-tab.active {
 #appHeader { border-color: var(--awk-bord) !important; box-shadow: 0 6px 24px rgba(0,0,0,0.45) !important; }
 #appHeader > div[style*="a855f7"] { display: none !important; }
 #historyTab .accordion-body, #historyTab .accordion-content { background: transparent !important; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   v1290 — FIN DE SÉANCE au même style que le reste de l'appli
+   (cartes neutres, chiffres blancs, bouton principal cyan plat).
+   ══════════════════════════════════════════════════════════════════════ */
+#completionView > .card {
+    background: var(--awk-carte) !important;
+    border: 1px solid var(--awk-bord) !important;
+    box-shadow: none !important;
+    border-radius: 18px !important;
+}
+/* coins « HUD », lignes de balayage, lignes lumineuses */
+#completionView > .card > div[style*="position:absolute"],
+#completionView .completion-screen div[style*="position:absolute;top:-1px"] { display: none !important; }
+/* en-tête */
+#completionView .completion-screen > div:first-child > div:first-child { color: var(--awk-accent) !important; text-shadow: none !important; letter-spacing: 2px !important; }
+#completionView .completion-screen h2 { text-shadow: none !important; letter-spacing: 0 !important; }
+#completionWorkoutName { color: var(--awk-texte-doux) !important; letter-spacing: 0.5px !important; }
+/* 3 tuiles chiffrées */
+#completionView div:has(> #completionTime),
+#completionView div:has(> #completionExercises),
+#completionView div:has(> #completionCalories) {
+    background: rgba(255,255,255,0.035) !important;
+    border: 1px solid var(--awk-bord-fort) !important;
+    border-radius: 14px !important;
+}
+#completionTime, #completionExercises, #completionCalories { color: #f8fafc !important; text-shadow: none !important; }
+/* blocs d'information */
+#completionMuscleChart, #completionComparison, #completionChallengeProgress, #completionAwakTree,
+#completionVolume, #completionHabits, #completionMuscles, #completionPRs, #completionStreak {
+    background: rgba(255,255,255,0.03) !important;
+    border: 1px solid var(--awk-bord) !important;
+    border-radius: 14px !important;
+    box-shadow: none !important;
+}
+#completionPRs { border-color: rgba(251,191,36,0.35) !important; }
+#completionMuscleChart > div:first-child, #completionComparison > div:first-child, #completionChallengeProgress > div:first-child,
+#completionAwakTree > div:first-child, #completionVolume > div:first-child, #completionHabits > div:first-child,
+#completionMuscles > div:first-child, #completionPRs > div:first-child {
+    color: #94a3b8 !important; text-shadow: none !important; letter-spacing: 1.5px !important;
+}
+#completionPRs > div:first-child { color: #fbbf24 !important; }
+#completionStreakText { text-transform: none !important; letter-spacing: 0 !important; }
+/* boutons : un principal cyan, deux secondaires gris */
+#completionView .completion-screen .btn {
+    background: rgba(255,255,255,0.05) !important;
+    color: #e2e8f0 !important;
+    border: 1px solid var(--awk-bord-fort) !important;
+    box-shadow: none !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+    font-weight: 800 !important;
+    border-radius: 14px !important;
+    min-height: 50px !important;
+}
+#completionView .completion-screen .btn:first-child {
+    background: var(--awk-accent) !important;
+    color: #04121f !important;
+    border: none !important;
+}
