@@ -105,7 +105,7 @@
       +   '<span style="font-size:1.2em;">🌱</span>'
       +   '<h2 style="font-size:1.15em;font-weight:900;color:#fff;margin:0;">Programmes adaptés</h2>'
       + '</div>'
-      + '<p style="font-size:0.78em;color:#94a3b8;margin:0 0 12px;line-height:1.4;">Des routines douces axées équilibre, mobilité et renforcement, pour rester actif en confiance. En cas de souci de santé, demandez l\'avis de votre médecin.</p>'
+      + '<p style="font-size:0.78em;color:#94a3b8;margin:0 0 12px;line-height:1.4;">Des routines douces axées équilibre, mobilité et renforcement, pour rester actif en confiance. En cas de souci de santé, demande l\'avis de ton médecin.</p>'
       + '</div>'
       + cards
       + '<div style="height:1px;background:rgba(255,255,255,0.08);margin:6px 0 18px;"></div>';

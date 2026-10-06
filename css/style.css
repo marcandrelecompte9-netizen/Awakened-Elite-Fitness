@@ -7928,3 +7928,83 @@ body.dark-mode .nav-tab.active {
    ════════════════════════════════════════════════════════════════ */
 [style*="color:#64748b"], [style*="color: #64748b"] { color: #8d9cb1 !important; }
 [style*="color:#475569"], [style*="color: #475569"] { color: #74849a !important; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   v1288 — APPARENCE UNIFIÉE (« appli pro »)
+   Une seule famille de cartes, de titres et de contrôles dans tous les
+   onglets, calquée sur l'Accueil : cartes #12161c, bord blanc à 6 %,
+   rayon 16 px, police Outfit embarquée (plus de dépendance à Google Fonts).
+   ══════════════════════════════════════════════════════════════════════ */
+@font-face { font-family: 'Outfit'; font-style: normal; font-weight: 400; font-display: swap; src: url('../fonts/outfit-latin-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Outfit'; font-style: normal; font-weight: 500; font-display: swap; src: url('../fonts/outfit-latin-500-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Outfit'; font-style: normal; font-weight: 600; font-display: swap; src: url('../fonts/outfit-latin-600-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Outfit'; font-style: normal; font-weight: 700; font-display: swap; src: url('../fonts/outfit-latin-700-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Outfit'; font-style: normal; font-weight: 800; font-display: swap; src: url('../fonts/outfit-latin-800-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Outfit'; font-style: normal; font-weight: 900; font-display: swap; src: url('../fonts/outfit-latin-900-normal.woff2') format('woff2'); }
+
+:root {
+    --awk-carte: #12161c;
+    --awk-bord: rgba(255,255,255,0.06);
+    --awk-bord-fort: rgba(255,255,255,0.10);
+    --awk-texte: #e2e8f0;
+    --awk-texte-doux: #a3b1c2;
+    --awk-accent: #22d3ee;
+}
+
+/* ── Réglages : fin de la « console » ── même langage que les autres onglets */
+#settingsTab { font-family: var(--font-main) !important; }
+#settingsTab .term-head { display: none !important; }
+#settingsTab .accordion-section {
+    background: var(--awk-carte) !important;
+    border: 1px solid var(--awk-bord) !important;
+    border-radius: 16px !important;
+    margin-bottom: 10px !important;
+}
+#settingsTab .accordion-header { padding: 14px 16px !important; background: transparent !important; }
+#settingsTab .accordion-title > span:first-child::before,
+#settingsTab .settings-sub-title::before { content: none !important; }
+#settingsTab .accordion-title > span:first-child { color: #f1f5f9 !important; letter-spacing: 0 !important; font-size: 1.02em; }
+#settingsTab .settings-sub-title { color: #f1f5f9 !important; font-weight: 700; letter-spacing: 0 !important; }
+#settingsTab .accordion-icon { color: #64748b !important; }
+#settingsTab .card,
+#settingsTab .settings-sub > div[style*="border-radius"] { border-radius: 12px !important; }
+/* Interrupteurs : pilule ronde standard, cyan quand actif */
+#settingsTab .aw-switch, #settingsTab .aw-slider { border-radius: 99px !important; }
+#settingsTab .aw-slider { background: #2a3140 !important; border: none !important; }
+#settingsTab .aw-slider:before { border-radius: 50% !important; background: #fff !important; box-shadow: none !important; }
+#settingsTab input:checked + .aw-slider { background: var(--awk-accent) !important; }
+#settingsTab input:checked + .aw-slider:before { background: #fff !important; box-shadow: none !important; }
+
+/* ── Progrès : l'accordéon « Historique » comme une carte ordinaire */
+#historyTab .accordion-section {
+    background: var(--awk-carte) !important;
+    border: 1px solid var(--awk-bord) !important;
+    border-radius: 16px !important;
+    box-shadow: none !important;
+    overflow: hidden;
+}
+#historyTab .accordion-header { background: transparent !important; border: none !important; }
+/* pas de carte dans la carte */
+#historyTab .accordion-content > .card {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 4px 2px !important;
+    margin: 0 !important;
+}
+
+/* ── Jeu : attributs lisibles d'un coup d'oeil (chiffres blancs, couleur sur le bord) */
+#gameTab [id^="awakStatVal_"] { color: #f8fafc !important; text-shadow: none !important; }
+
+/* ── Corps de l'onglet Séance : halo plus discret */
+#awakCorpsHost svg [filter] { filter: none !important; }
+
+/* ── Écrans vides : une ligne claire et centrée */
+.awk-vide { text-align: center; padding: 28px 16px; color: var(--awk-texte-doux); }
+.awk-vide b { display: block; color: var(--awk-texte); font-size: 1em; margin-bottom: 4px; }
+.awk-vide button { margin-top: 12px; padding: 10px 18px; border: none; border-radius: 12px; background: var(--awk-accent); color: #04121f; font-weight: 800; font-family: inherit; cursor: pointer; }
+
+/* Bannière : bord neutre, sans lignes lumineuses vert/violet */
+#appHeader { border-color: var(--awk-bord) !important; box-shadow: 0 6px 24px rgba(0,0,0,0.45) !important; }
+#appHeader > div[style*="a855f7"] { display: none !important; }
+#historyTab .accordion-body, #historyTab .accordion-content { background: transparent !important; }

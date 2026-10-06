@@ -1055,7 +1055,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             <div style="background: rgba(16,185,129,0.08); padding: 16px; border-radius: 14px; text-align: center; border: 1.5px solid rgba(16,185,129,0.3);">
                                 <div style="font-size: 2.4em; margin-bottom: 6px;">✅</div>
                                 <div style="font-size: 1em; font-weight: 800; color: #4ade80;">Défi complété aujourd'hui !</div>
-                                <div style="color: #94a3b8; margin-top: 5px; font-size: 0.82em;">Revenez demain pour continuer 💪</div>
+                                <div style="color: #94a3b8; margin-top: 5px; font-size: 0.82em;">Reviens demain pour continuer 💪</div>
                             </div>
                         ` : `
                             <button onclick="completeTodayChallenge()" style="width: 100%; padding: 14px; font-size: 0.95em; font-weight: 800; background: linear-gradient(135deg, ${activeChallenge.color} 0%, ${activeChallenge.color}cc 100%); color: white; border: none; border-radius: 14px; cursor: pointer; box-shadow: 0 6px 22px ${activeChallenge.color}30; letter-spacing: 0.5px;">
@@ -2453,7 +2453,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 workout.exercises.push({
                     name: exerciseName,
                     duration: workTime,
-                    instructions: exerciseFromDB ? exerciseFromDB.instructions : ['Donnez tout !', 'Maintenez l\'intensité'],
+                    instructions: exerciseFromDB ? exerciseFromDB.instructions : ['Donne tout !', 'Maintiens l\'intensité'],
                     tips: `Round ${i + 1}/${rounds}`,
                     isWorking: true
                 });
@@ -2463,7 +2463,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     workout.exercises.push({
                         name: 'Récupération',
                         duration: restTime,
-                        instructions: ['Respirez profondément', 'Récupérez activement', 'Préparez-vous pour le prochain round'],
+                        instructions: ['Respire profondément', 'Récupère activement', 'Prépare-toi pour le prochain round'],
                         isRest: true,
                         mode: 'timer'
                     });
@@ -2675,7 +2675,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 name: "🔥 Phase 1 : Cardio général",
                 duration: 0,
                 isInfo: true,
-                instructions: ["Augmentez votre température corporelle", "Activez votre système cardiovasculaire"]
+                instructions: ["Augmente ta température corporelle", "Active ton système cardiovasculaire"]
             });
 
             const cardioExercises = (sessionMode === 'gym' && !gymBodyweightMode)
@@ -2704,7 +2704,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 name: "🧘 Phase 2 : Mobilité articulaire",
                 duration: 0,
                 isInfo: true,
-                instructions: ["Préparez vos articulations", "Mouvements amples et contrôlés"]
+                instructions: ["Prépare tes articulations", "Mouvements amples et contrôlés"]
             });
 
             // Déterminer si haut ou bas corps dominant
@@ -2741,7 +2741,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 name: "💪 Phase 3 : Activation musculaire",
                 duration: 0,
                 isInfo: true,
-                instructions: ["Activez les muscles ciblés", "Versions légères des exercices principaux"]
+                instructions: ["Active les muscles ciblés", "Versions légères des exercices principaux"]
             });
 
             // Versions légères des exercices principaux
@@ -2839,7 +2839,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     { ...stretchExercise, duration, bilateral,
                       instructions: bilateral
                         ? [...baseInstr, '↔️ À faire des DEUX côtés', `⏱️ ${duration} s par côté — le minuteur repart pour le 2ᵉ côté`]
-                        : [...baseInstr, '💨 Respirez profondément et détendez-vous', `⏱️ Maintenez ${duration} secondes en respirant calmement`, 'Relâchez doucement sans à-coups'] }
+                        : [...baseInstr, '💨 Respire profondément et détends-toi', `⏱️ Maintiens ${duration} secondes en respirant calmement`, 'Relâche doucement sans à-coups'] }
                 ];
             };
             
@@ -2849,10 +2849,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 duration: 120,
                 isInfo: true,
                 instructions: [
-                    "Respirez profondément et calmement",
-                    "Inspirez par le nez (4 secondes)",
-                    "Expirez par la bouche (6 secondes)",
-                    "Détendez-vous progressivement"
+                    "Respire profondément et calmement",
+                    "Inspire par le nez (4 secondes)",
+                    "Expire par la bouche (6 secondes)",
+                    "Détends-toi progressivement"
                 ]
             });
             
@@ -2893,7 +2893,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             bilateral: antBilateral,
                             instructions: antBilateral
                                 ? ["⚖️ Étirement léger (muscle antagoniste)", "↔️ À faire des deux côtés", "Le minuteur repart pour le 2ᵉ côté"]
-                                : ["⚖️ Étirement léger du muscle antagoniste", "Pour équilibrer la séance", "Respirez calmement"]
+                                : ["⚖️ Étirement léger du muscle antagoniste", "Pour équilibrer la séance", "Respire calmement"]
                         });
                     }
                 }
@@ -3329,7 +3329,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (stats.totalSessions >= 50) {
                 insights.push({
                     icon: '🎯', svg: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"> <rect x="8" y="10" width="12" height="80" rx="4" fill="#16a34a"/> <rect x="80" y="10" width="12" height="80" rx="4" fill="#16a34a"/> <rect x="14" y="10" width="6" height="80" rx="2" fill="#166534" opacity="0.6"/> <circle cx="14" cy="20" r="8" fill="#4ade80" stroke="#16a34a" stroke-width="2"/> <circle cx="86" cy="75" r="8" fill="#4ade80" stroke="#16a34a" stroke-width="2"/> <path d="M 14 20 Q 14 50 50 50 Q 86 50 86 75" fill="none" stroke="white" stroke-width="3" stroke-dasharray="4 3"/> <rect x="40" y="42" width="20" height="16" rx="4" fill="white"/> <rect x="46" y="38" width="8" height="6" rx="2" fill="#4ade80"/> </svg>',
-                    text: `Vous avez complété ${stats.totalSessions} séances ! Excellente constance !`,
+                    text: `Tu as complété ${stats.totalSessions} séances ! Excellente constance !`,
                     type: 'positive'
                 });
             }
@@ -3342,7 +3342,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (topMuscle.percentage > 35) {
                     insights.push({
                         icon: '⚠️',
-                        text: `Vous travaillez beaucoup ${topMuscle.muscle} (${topMuscle.percentage}%). Pensez à équilibrer !`,
+                        text: `Tu travailles beaucoup ${topMuscle.muscle} (${topMuscle.percentage}%). Pense à équilibrer !`,
                         type: 'warning'
                     });
                 }
@@ -3350,7 +3350,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (bottomMuscle.percentage < 5 && stats.muscleDistribution.length > 3) {
                     insights.push({
                         icon: '💡',
-                        text: `${bottomMuscle.muscle} est peu travaillé (${bottomMuscle.percentage}%). Ajoutez quelques exercices !`,
+                        text: `${bottomMuscle.muscle} est peu travaillé (${bottomMuscle.percentage}%). Ajoute quelques exercices !`,
                         type: 'info'
                     });
                 }
@@ -3366,7 +3366,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             } else if (stats.longestStreak >= 3) {
                 insights.push({
                     icon: '🎯',
-                    text: `Plus long streak : ${stats.longestStreak} jours. Essayez de faire mieux !`,
+                    text: `Plus long streak : ${stats.longestStreak} jours. Essaie de faire mieux !`,
                     type: 'info'
                 });
             }
@@ -3384,7 +3384,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (insights.length === 0 || stats.totalSessions < 5) {
                 insights.push({
                     icon: '💪',
-                    text: `Continuez comme ça ! Chaque séance vous rapproche de vos objectifs.`,
+                    text: `Continue comme ça ! Chaque séance te rapproche de tes objectifs.`,
                     type: 'motivation'
                 });
             }
@@ -3679,7 +3679,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // Validate
             const validExercises = supersetExercisesList.filter(item => item.exercise);
             if (validExercises.length < 2) {
-                showToast('Sélectionnez au moins 2 exercices', 'error');
+                showToast('Sélectionne au moins 2 exercices', 'error');
                 return;
             }
             
@@ -3780,7 +3780,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 startTimer();
             } else {
                 // Next exercise in superset (no rest)
-                speak('Enchaînez !', { interrupt: true });
+                speak('Enchaîne !', { interrupt: true });
                 setTimeout(() => startSupersetExercise(), 1000);
             }
         }
@@ -3916,7 +3916,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             
             const validExercises = circuitExercisesList.filter(item => item.exercise);
             if (validExercises.length < 4) {
-                showToast('Sélectionnez au moins 4 exercices', 'error');
+                showToast('Sélectionne au moins 4 exercices', 'error');
                 return;
             }
             
@@ -4006,7 +4006,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 timeLeft = currentCircuitWorkout.restBetweenRounds;
                 startTimer();
             } else {
-                speak('Enchaînez !', { interrupt: true });
+                speak('Enchaîne !', { interrupt: true });
                 setTimeout(() => startCircuitExercise(), 1000);
             }
         }
@@ -4141,7 +4141,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             
             const validExercises = amrapExercisesList.filter(item => item.exercise);
             if (validExercises.length < 3) {
-                showToast('Sélectionnez au moins 3 exercices', 'error');
+                showToast('Sélectionne au moins 3 exercices', 'error');
                 return;
             }
             
@@ -4283,12 +4283,12 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 level: 'Débutant',
                 goal: 'Base solide',
                 color: '#10b981',
-                description: 'Créez une base solide avec ce plan progressif de 4 semaines. Idéal pour débuter !',
+                description: 'Crée une base solide avec ce plan progressif de 4 semaines. Idéal pour débuter !',
                 weeks: [
                     {
                         weekNumber: 1,
                         title: 'Apprentissage',
-                        description: 'Maîtrisez les mouvements de base',
+                        description: 'Maîtrise les mouvements de base',
                         sessions: [
                             { day: 'Lundi', name: 'Corps entier initiation', exercises: ['Squats', 'Pompes classiques', 'Planche', 'Fentes avant'], duration: 30 },
                             { day: 'Mercredi', name: 'Cardio + Core', exercises: ['Jumping jacks', 'Mountain climbers', 'Crunch', 'Planche latérale'], duration: 25 },
@@ -4382,7 +4382,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 level: 'Avancé',
                 goal: 'Force maximale',
                 color: '#f59e0b',
-                description: 'Programme force pour augmenter votre puissance sur les mouvements composés',
+                description: 'Programme force pour augmenter ta puissance sur les mouvements composés',
                 weeks: Array.from({length: 6}, (_, i) => ({
                     weekNumber: i + 1,
                     title: i < 2 ? 'Base force' : i < 4 ? 'Peak force' : 'Test force',
@@ -4437,7 +4437,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const existing = getActivePlan();
             if (existing && !_confirmeRemplacement) {
                 showConfirm(
-                    `Vous avez déjà un plan actif (${existing.name}), avec ${existing.progress || 0}% de progression. ` +
+                    `Tu as déjà un plan actif (${existing.name}), avec ${existing.progress || 0}% de progression. ` +
                     `L'abandonner pour commencer "${plan.name}" ?`,
                     function () { startPlan(planId, true); },
                     null,
@@ -4642,7 +4642,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (!activePlan) return;
             
             showToast(`🏆 FÉLICITATIONS ! Plan "${activePlan.name}" TERMINÉ ! 🎉🎉🎉`, 'success', 8000);
-            speak('Plan terminé ! Félicitations ! Vous êtes incroyable !');
+            speak('Plan terminé ! Bravo, tu es incroyable !');
             
             // Save to history
             const planCompletion = {
@@ -4757,63 +4757,63 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             hiit: {
                 name: 'HIIT Intense',
                 exercises: [
-                    { name: 'Échauffement', duration: 300, instructions: ['Jumping jacks légers', 'Rotations des bras', 'Flexions des genoux', 'Marche sur place'], tips: 'Préparez votre corps progressivement' },
-                    { name: 'Burpees', duration: 45, instructions: ['Position debout', 'Descendez en squat', 'Sautez en planche', 'Pompe optionnel', 'Sautez debout'], tips: 'Gardez un rythme constant' },
-                    { name: 'Récupération active', duration: 30, instructions: ['Marchez sur place', 'Respirez profondément', 'Hydratez-vous'], tips: 'Récupérez activement' },
-                    { name: 'Mountain climbers', duration: 45, instructions: ['Position planche', 'Ramenez genoux vers poitrine', 'Alternez rapidement', 'Hanches basses'], tips: 'Gardez le core engagé' },
-                    { name: 'Récupération active', duration: 30, instructions: ['Étirements légers', 'Respirez calmement'], tips: 'Préparez-vous pour la suite' },
-                    { name: 'Jump squat', duration: 45, instructions: ['Pieds largeur épaules', 'Descendez en squat', 'Explosez en sautant', 'Atterrissage doux'], tips: 'Protégez vos genoux' },
-                    { name: 'Récupération active', duration: 30, instructions: ['Marche sur place', 'Secouez les jambes'], tips: 'Respirez' },
-                    { name: 'High knees', duration: 45, instructions: ['Courez sur place', 'Montez genoux hauts', 'Pointe des pieds', 'Balancez bras'], tips: 'Gardez le rythme' },
-                    { name: 'Récupération active', duration: 30, instructions: ['Respirez profondément', 'Ralentissez'], tips: 'Récupération' },
-                    { name: 'Planche dynamique', duration: 45, instructions: ['Position planche', 'Touchez épaule opposée', 'Corps stable', 'Alternez'], tips: 'Stabilité du core' },
-                    { name: 'Retour au calme', duration: 300, instructions: ['Marche lente', 'Étirements jambes', 'Étirements bras', 'Respirations profondes'], tips: 'Refroidissez progressivement' }
+                    { name: 'Échauffement', duration: 300, instructions: ['Jumping jacks légers', 'Rotations des bras', 'Flexions des genoux', 'Marche sur place'], tips: 'Prépare ton corps progressivement' },
+                    { name: 'Burpees', duration: 45, instructions: ['Position debout', 'Descends en squat', 'Saute en planche', 'Pompe optionnel', 'Saute debout'], tips: 'Garde un rythme constant' },
+                    { name: 'Récupération active', duration: 30, instructions: ['Marche sur place', 'Respire profondément', 'Hydrate-toi'], tips: 'Récupère activement' },
+                    { name: 'Mountain climbers', duration: 45, instructions: ['Position planche', 'Ramène genoux vers poitrine', 'Alterne rapidement', 'Hanches basses'], tips: 'Garde le core engagé' },
+                    { name: 'Récupération active', duration: 30, instructions: ['Étirements légers', 'Respire calmement'], tips: 'Prépare-toi pour la suite' },
+                    { name: 'Jump squat', duration: 45, instructions: ['Pieds largeur épaules', 'Descends en squat', 'Explose en sautant', 'Atterrissage doux'], tips: 'Protège tes genoux' },
+                    { name: 'Récupération active', duration: 30, instructions: ['Marche sur place', 'Secoue les jambes'], tips: 'Respire' },
+                    { name: 'High knees', duration: 45, instructions: ['Cours sur place', 'Monte genoux hauts', 'Pointe des pieds', 'Balance bras'], tips: 'Garde le rythme' },
+                    { name: 'Récupération active', duration: 30, instructions: ['Respire profondément', 'Ralentis'], tips: 'Récupération' },
+                    { name: 'Planche dynamique', duration: 45, instructions: ['Position planche', 'Touche épaule opposée', 'Corps stable', 'Alterne'], tips: 'Stabilité du core' },
+                    { name: 'Retour au calme', duration: 300, instructions: ['Marche lente', 'Étirements jambes', 'Étirements bras', 'Respirations profondes'], tips: 'Refroidis progressivement' }
                 ]
             },
             strength: {
                 name: 'Renforcement Musculaire',
                 exercises: [
-                    { name: 'Échauffement', duration: 300, instructions: ['Mouvements articulaires', 'Cardio léger', 'Préparation musculaire'], tips: 'Préparez vos muscles' },
-                    { name: 'Pompes', duration: 60, instructions: ['Mains largeur épaules', 'Corps aligné', 'Descendez poitrine vers sol', 'Poussez pour remonter'], tips: 'Genoux au sol si besoin' },
-                    { name: 'Repos', duration: 30, instructions: ['Récupération', 'Hydratation'], tips: 'Récupérez' },
-                    { name: 'Squats', duration: 60, instructions: ['Pieds largeur hanches', 'Fesses en arrière', 'Cuisses parallèles', 'Poussez talons'], tips: 'Gardez poitrine haute' },
-                    { name: 'Repos', duration: 30, instructions: ['Respirez', 'Préparez-vous'], tips: 'Récupération' },
-                    { name: 'Fentes alternées', duration: 60, instructions: ['Pas en avant', 'Genou arrière vers sol', 'Buste droit', 'Alternez'], tips: 'Équilibre' },
-                    { name: 'Repos', duration: 30, instructions: ['Récupération active'], tips: 'Respirez' },
-                    { name: 'Planche', duration: 60, instructions: ['Avant-bras au sol', 'Corps aligné', 'Contractez abdos et fessiers', 'Tenez'], tips: 'Ne laissez pas hanches tomber' },
-                    { name: 'Repos', duration: 30, instructions: ['Détendez-vous'], tips: 'Récupération' },
-                    { name: 'Dips sur chaise', duration: 60, instructions: ['Mains sur chaise derrière', 'Jambes tendues devant', 'Pliez coudes', 'Poussez'], tips: 'Gardez fesses près chaise' },
-                    { name: 'Étirements', duration: 300, instructions: ['Étirement chaque groupe', 'Maintenez 20-30 secondes', 'Respirez profondément'], tips: 'Détente musculaire' }
+                    { name: 'Échauffement', duration: 300, instructions: ['Mouvements articulaires', 'Cardio léger', 'Préparation musculaire'], tips: 'Prépare tes muscles' },
+                    { name: 'Pompes', duration: 60, instructions: ['Mains largeur épaules', 'Corps aligné', 'Descends poitrine vers sol', 'Pousse pour remonter'], tips: 'Genoux au sol si besoin' },
+                    { name: 'Repos', duration: 30, instructions: ['Récupération', 'Hydratation'], tips: 'Récupère' },
+                    { name: 'Squats', duration: 60, instructions: ['Pieds largeur hanches', 'Fesses en arrière', 'Cuisses parallèles', 'Pousse talons'], tips: 'Garde poitrine haute' },
+                    { name: 'Repos', duration: 30, instructions: ['Respire', 'Prépare-toi'], tips: 'Récupération' },
+                    { name: 'Fentes alternées', duration: 60, instructions: ['Pas en avant', 'Genou arrière vers sol', 'Buste droit', 'Alterne'], tips: 'Équilibre' },
+                    { name: 'Repos', duration: 30, instructions: ['Récupération active'], tips: 'Respire' },
+                    { name: 'Planche', duration: 60, instructions: ['Avant-bras au sol', 'Corps aligné', 'Contracte abdos et fessiers', 'Tiens'], tips: 'Ne laisse pas les hanches tomber' },
+                    { name: 'Repos', duration: 30, instructions: ['Détends-toi'], tips: 'Récupération' },
+                    { name: 'Dips sur chaise', duration: 60, instructions: ['Mains sur chaise derrière', 'Jambes tendues devant', 'Plie coudes', 'Pousse'], tips: 'Garde fesses près chaise' },
+                    { name: 'Étirements', duration: 300, instructions: ['Étirement chaque groupe', 'Maintiens 20-30 secondes', 'Respire profondément'], tips: 'Détente musculaire' }
                 ]
             },
             mobility: {
                 name: 'Mobilité & Récupération',
                 exercises: [
-                    { name: 'Respiration et centrage', duration: 180, instructions: ['Position assise confortable', 'Respirations profondes', 'Conscience du corps'], tips: 'Centrez-vous' },
-                    { name: 'Chat-vache', duration: 90, instructions: ['À quatre pattes', 'Inspirez dos creusé', 'Expirez dos arrondi', 'Mouvement fluide'], tips: 'Mobilité colonne' },
-                    { name: 'Rotations thoraciques', duration: 90, instructions: ['À quatre pattes', 'Main derrière tête', 'Rotation du buste', 'Alternez'], tips: 'Mobilité thoracique' },
-                    { name: 'Étirement des hanches', duration: 120, instructions: ['Position pigeon', 'Maintenez sans forcer', 'Respirez dans étirement', 'Changez côté'], tips: 'Ouverture hanches' },
+                    { name: 'Respiration et centrage', duration: 180, instructions: ['Position assise confortable', 'Respirations profondes', 'Conscience du corps'], tips: 'Centre-toi' },
+                    { name: 'Chat-vache', duration: 90, instructions: ['À quatre pattes', 'Inspire dos creusé', 'Expire dos arrondi', 'Mouvement fluide'], tips: 'Mobilité colonne' },
+                    { name: 'Rotations thoraciques', duration: 90, instructions: ['À quatre pattes', 'Main derrière tête', 'Rotation du buste', 'Alterne'], tips: 'Mobilité thoracique' },
+                    { name: 'Étirement des hanches', duration: 120, instructions: ['Position pigeon', 'Maintiens sans forcer', 'Respire dans étirement', 'Change côté'], tips: 'Ouverture hanches' },
                     { name: 'Chien tête en bas', duration: 90, instructions: ['V inversé', 'Mains et pieds au sol', 'Talons vers sol', 'Dos allongé'], tips: 'Position yoga' },
-                    { name: 'Étirement ischio-jambiers', duration: 120, instructions: ['Sur le dos', 'Levez une jambe', 'Tirez vers vous', 'Alternez'], tips: 'Flexibilité' },
-                    { name: 'Twist spinal', duration: 120, instructions: ['Sur le dos', 'Genoux d\'un côté', 'Épaules au sol', 'Alternez'], tips: 'Mobilité colonne' },
-                    { name: 'Ouverture de poitrine', duration: 90, instructions: ['Sur le ventre', 'Bras en cactus', 'Rotation buste', 'Respirez'], tips: 'Ouverture thoracique' },
-                    { name: 'Posture de l\'enfant', duration: 120, instructions: ['À genoux', 'Fesses sur talons', 'Bras tendus devant', 'Détendez-vous'], tips: 'Relaxation' },
-                    { name: 'Relaxation finale', duration: 300, instructions: ['Allongé sur dos', 'Relâchez tout', 'Respirez naturellement', 'Savourez'], tips: 'Détente complète' }
+                    { name: 'Étirement ischio-jambiers', duration: 120, instructions: ['Sur le dos', 'Lève une jambe', 'Tire vers toi', 'Alterne'], tips: 'Flexibilité' },
+                    { name: 'Twist spinal', duration: 120, instructions: ['Sur le dos', 'Genoux d\'un côté', 'Épaules au sol', 'Alterne'], tips: 'Mobilité colonne' },
+                    { name: 'Ouverture de poitrine', duration: 90, instructions: ['Sur le ventre', 'Bras en cactus', 'Rotation buste', 'Respire'], tips: 'Ouverture thoracique' },
+                    { name: 'Posture de l\'enfant', duration: 120, instructions: ['À genoux', 'Fesses sur talons', 'Bras tendus devant', 'Détends-toi'], tips: 'Relaxation' },
+                    { name: 'Relaxation finale', duration: 300, instructions: ['Allongé sur dos', 'Relâche tout', 'Respire naturellement', 'Savoure'], tips: 'Détente complète' }
                 ]
             },
             cardio: {
                 name: 'Cardio Endurance',
                 exercises: [
-                    { name: 'Échauffement progressif', duration: 300, instructions: ['Marche rapide', 'Augmentez intensité', 'Préparez le cœur'], tips: 'Progression graduelle' },
-                    { name: 'Course sur place', duration: 120, instructions: ['Rythme modéré', 'Montez genoux', 'Balancez bras'], tips: 'Gardez rythme constant' },
-                    { name: 'Marche active', duration: 60, instructions: ['Récupération en mouvement', 'Respirez'], tips: 'Récupération active' },
-                    { name: 'Jumping jacks', duration: 90, instructions: ['Sautez en écartant', 'Mouvement coordonné', 'Rythme soutenu'], tips: 'Coordination' },
-                    { name: 'Marche active', duration: 60, instructions: ['Récupération', 'Hydratation'], tips: 'Respirez' },
-                    { name: 'Montées de genoux', duration: 90, instructions: ['Courez sur place', 'Genoux hauts', 'Gardez rythme'], tips: 'Intensité modérée' },
-                    { name: 'Marche active', duration: 60, instructions: ['Récupération'], tips: 'Respirez' },
-                    { name: 'Talons-fesses', duration: 90, instructions: ['Courez sur place', 'Talons touchent fessiers', 'Bras actifs'], tips: 'Mouvement fluide' },
-                    { name: 'Marche active', duration: 60, instructions: ['Respirez profondément'], tips: 'Récupération' },
-                    { name: 'Sprint sur place', duration: 60, instructions: ['Intensité maximale', 'Rapide et puissant'], tips: 'Donnez tout' },
+                    { name: 'Échauffement progressif', duration: 300, instructions: ['Marche rapide', 'Augmente intensité', 'Prépare le cœur'], tips: 'Progression graduelle' },
+                    { name: 'Course sur place', duration: 120, instructions: ['Rythme modéré', 'Monte genoux', 'Balance bras'], tips: 'Garde rythme constant' },
+                    { name: 'Marche active', duration: 60, instructions: ['Récupération en mouvement', 'Respire'], tips: 'Récupération active' },
+                    { name: 'Jumping jacks', duration: 90, instructions: ['Saute en écartant', 'Mouvement coordonné', 'Rythme soutenu'], tips: 'Coordination' },
+                    { name: 'Marche active', duration: 60, instructions: ['Récupération', 'Hydratation'], tips: 'Respire' },
+                    { name: 'Montées de genoux', duration: 90, instructions: ['Cours sur place', 'Genoux hauts', 'Garde rythme'], tips: 'Intensité modérée' },
+                    { name: 'Marche active', duration: 60, instructions: ['Récupération'], tips: 'Respire' },
+                    { name: 'Talons-fesses', duration: 90, instructions: ['Cours sur place', 'Talons touchent fessiers', 'Bras actifs'], tips: 'Mouvement fluide' },
+                    { name: 'Marche active', duration: 60, instructions: ['Respire profondément'], tips: 'Récupération' },
+                    { name: 'Sprint sur place', duration: 60, instructions: ['Intensité maximale', 'Rapide et puissant'], tips: 'Donne tout' },
                     { name: 'Retour au calme', duration: 300, instructions: ['Marche lente', 'Respirations profondes', 'Étirements légers'], tips: 'Refroidissement' }
                 ]
             }
@@ -7209,12 +7209,12 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             return 'isolation';
         }
         const vocalCoachingTips = {
-            'Pompes': ["Gardez le corps aligné", "Descendez jusqu'à 90 degrés", "Poussez avec force"],
-            'Squat': ["Dos droit, regard devant", "Genoux alignés avec orteils", "Descendez bien bas"],
-            'Planche': ["Contractez les abdos", "Hanches ne tombent pas", "Respirez normalement"],
-            'Traction': ["Tirez avec le dos", "Montez jusqu'au menton", "Contrôlez descente"],
+            'Pompes': ["Garde le corps aligné", "Descends jusqu'à 90 degrés", "Pousse avec force"],
+            'Squat': ["Dos droit, regard devant", "Genoux alignés avec orteils", "Descends bien bas"],
+            'Planche': ["Contracte les abdos", "Hanches ne tombent pas", "Respire normalement"],
+            'Traction': ["Tire avec le dos", "Monte jusqu'au menton", "Contrôle descente"],
             'Curl': ["Coudes immobiles", "Montée explosive", "Descente contrôlée"],
-            'Default': ["Gardez la bonne forme", "Respirez régulièrement", "Concentrez-vous"]
+            'Default': ["Garde la bonne forme", "Respire régulièrement", "Concentre-toi"]
         };
 
         function getVocalTip(exerciseName) {
@@ -7537,7 +7537,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     <div class="equipment-name">${equipment.name}</div>
                     <div class="equipment-count">${count} exercices</div>
                     ${machineInfo}
-                    ${equipment.id === 'machine' && isSelected ? '<div style="font-size: 0.8em; color: #16a34a; margin-top: 5px;">⚙️ Cliquez pour choisir</div>' : ''}
+                    ${equipment.id === 'machine' && isSelected ? '<div style="font-size: 0.8em; color: #16a34a; margin-top: 5px;">⚙️ Clique pour choisir</div>' : ''}
                 `;
                 
                 grid.appendChild(item);
@@ -7581,12 +7581,12 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             
             content.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2 style="margin: 0; color: #22d3ee;">Sélectionnez vos machines</h2>
+                    <h2 style="margin: 0; color: #22d3ee;">Sélectionne tes machines</h2>
                     <button onclick="this.closest('.modal-overlay').remove()" style="background: none; border: none; font-size: 28px; cursor: pointer; color: #94a3b8;">×</button>
                 </div>
                 
                 <p style="color: #94a3b8; margin-bottom: 20px;">
-                    Choisissez les types de machines que vous possédez. Cela permettra de personnaliser les exercices proposés.
+                    Choisis les types de machines que tu as : les exercices proposés s'y adapteront.
                 </p>
                 
                 <div style="background: #FFF3E0; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
@@ -8805,7 +8805,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 
                 
                 // Show success message
-                showToast('Récupération musculaire réinitialisée ! Tous vos muscles sont prêts 💪', 'success', 4000);
+                showToast('Récupération musculaire réinitialisée ! Tous tes muscles sont prêts 💪', 'success', 4000);
                 
                 // Switch to home tab to see the changes
                 switchTab('home');
@@ -10232,7 +10232,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             
             if (!saved) {
                 document.getElementById('weeklyPlanContainer').innerHTML = 
-                    '<p style="text-align: center; color: #94a3b8; padding: 20px;">Configurez votre profil pour générer votre plan hebdomadaire personnalisé.</p>';
+                    '<p style="text-align: center; color: #94a3b8; padding: 20px;">Configure ton profil pour générer ton plan de la semaine.</p>';
                 return;
             }
             
@@ -10423,7 +10423,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     </div>
                     <div class="modal-body">
                         <p style="color: #94a3b8; margin-bottom: 20px;">
-                            Personnalisez votre plan hebdomadaire selon vos préférences
+                            Personnalise ton plan de la semaine selon tes préférences
                         </p>
                         <div id="manualPlanDays"></div>
                         <div style="display: flex; gap: 10px; margin-top: 25px;">
@@ -10577,7 +10577,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const hasWorkoutDays = manualPlanData.some(day => day.muscles.length > 0);
             
             if (!hasWorkoutDays) {
-                showAlert('Veuillez configurer au moins un jour d\'entraînement', 'warning', 'Configuration requise');
+                showAlert('Choisis au moins un jour d\'entraînement', 'warning', 'Configuration requise');
                 return;
             }
             
@@ -10988,7 +10988,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             } else if (decisions.intensity <= 1.1) {
                 decisions.reasoning.push('🟢 Intensité normale pour progression');
             } else {
-                decisions.reasoning.push('🔴 Intensité élevée - vous êtes en forme !');
+                decisions.reasoning.push('🔴 Intensité élevée : tu es en forme !');
             }
             
             // DÉCISION : Durée
@@ -11250,7 +11250,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             } catch(e) {}
 
             if (availableExercises.length === 0) {
-                showAlert('Activez « Poids du corps » dans votre lieu d\'entraînement (✏️ sur le lieu).', 'warning', 'Aucun exercice disponible');
+                showAlert('Active « Poids du corps » dans ton lieu d\'entraînement (✏️ sur le lieu).', 'warning', 'Aucun exercice disponible');
                 return null;
             }
             
@@ -11532,7 +11532,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const profile = getUserProfile();
             
             if (!profile.setupComplete) {
-                showToast('⚠️ Configurez d\'abord votre profil', 'warning', 3000);
+                showToast('⚠️ Configure d\'abord ton profil', 'warning', 3000);
                 showProfileSetup();
                 return;
             }
@@ -11580,7 +11580,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 btn.disabled = false;
                 
                 if (!workout) {
-                    showAlert("Aucun exercice disponible. Vérifiez les muscles et les équipements de votre lieu (✏️).", "error", "Impossible de générer");
+                    showAlert("Aucun exercice disponible. Vérifie les muscles et le matériel de ton lieu (✏️).", "error", "Impossible de générer");
                     return;
                 }
                 
@@ -12387,7 +12387,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             
             // If all muscles fatigued or injured, suggest recovery workout
             if (workingMuscles.length === 0) {
-                showToast('⚠️ Tous vos muscles sont fatigués ou blessés. Séance de récupération recommandée.', 'warning', 4000);
+                showToast('⚠️ Tous tes muscles sont fatigués ou blessés. Séance de récupération recommandée.', 'warning', 4000);
                 return generateRecoveryWorkout();
             }
             
@@ -13018,7 +13018,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const allProfiles = getAllProfiles();
 
             if (allProfiles.length === 1) {
-                showAlert('Veuillez créer un nouveau profil avant de supprimer celui-ci.', 'error', 'Impossible de supprimer');
+                showAlert('Crée d\'abord un autre profil avant de supprimer celui-ci.', 'error', 'Impossible de supprimer');
                 return;
             }
 
@@ -13107,7 +13107,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
         function submitWorkoutFeedback() {
             if (workoutFeedback.difficulty === 0 || workoutFeedback.energy === 0) {
-                showAlert('Veuillez évaluer la difficulté et votre énergie avant de continuer.', 'warning', 'Évaluation requise');
+                showAlert('Indique la difficulté et ton énergie avant de continuer.', 'warning', 'Évaluation requise');
                 return;
             }
             
@@ -13141,7 +13141,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             } else if (workoutFeedback.difficulty <= 2 && workoutFeedback.energy >= 4) {
                 message = "Trop facile ! Prochaine séance sera plus intense.";
             } else {
-                message = "Parfait ! Continuez comme ça.";
+                message = "Parfait ! Continue comme ça.";
             }
             
             showToast('📝 ' + message, 'success', 3500);
@@ -13170,7 +13170,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // Update mode description
                 const modeDesc = document.getElementById('modeDescription');
                 if (modeDesc) {
-                    modeDesc.innerHTML = '✅ <strong>Mode avancé activé</strong> : Vous voyez maintenant les détails techniques (séries, tempo, respiration, erreurs fréquentes, muscles travaillés) pendant les exercices.';
+                    modeDesc.innerHTML = '✅ <strong>Mode avancé activé</strong> : tu vois maintenant les détails techniques (séries, tempo, respiration, erreurs fréquentes, muscles travaillés) pendant les exercices.';
                     modeDesc.style.background = 'rgba(34,197,94,0.1)';
                 }
             }
@@ -13284,7 +13284,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         }
 
         function checkPRBroken(exerciseName, reps, weight) {
-            // Récupérer les PRs historiques (séances antérieures)
+            // Récupèrer les PRs historiques (séances antérieures)
             const prs = getExercisePRs(exerciseName);
 
             // 🚫 PREMIÈRE FOIS sur cet exercice : aucune performance antérieure.
@@ -14134,7 +14134,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 return awakRiftHuntCompleteSet();
             }
 
-            // 👑 COMBAT FINAL : le Monarque prend des dégâts à CHAQUE SÉRIE validée,
+            // 👑 COMBAT FINAL : l’Effaceur prend des dégâts à CHAQUE SÉRIE validée,
             // exactement comme un ennemi de Faille. Auparavant les dégâts étaient
             // appliqués au changement d'exercice : la barre semblait suivre la
             // progression de la séance au lieu de réagir aux coups portés.
@@ -14159,7 +14159,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const weight = parseFloat(weightInput?.value) || 0;
             const isWarmup = currentSetNumber <= warmupSetsCount;
 
-            // Récupérer l'exercice courant depuis la source de vérité globale
+            // Récupèrer l'exercice courant depuis la source de vérité globale
             const currentEx = currentWorkout?.exercises?.[currentExerciseIndex];
 
             completedSets.push({ reps, weight, warmup: isWarmup, set: currentSetNumber });
@@ -14824,7 +14824,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const overlay = document.getElementById('muscleChoiceOverlay');
             if (overlay) overlay.remove();
 
-            // Récupérer les muscles du plan du jour
+            // Récupèrer les muscles du plan du jour
             const todayPlan = getTodayPlanMuscles();
             if (todayPlan && todayPlan.muscles && todayPlan.muscles.length > 0) {
                 // Filtrer les muscles fatigués ou blessés
@@ -15187,7 +15187,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
             // 💪 Les compagnons récupèrent de l'endurance quand le joueur s'entraîne
             try { if (typeof awakCompanionsRecoverFromWorkout === 'function') awakCompanionsRecoverFromWorkout(); } catch(e) {}
-            // 👁️ Le Monarque du Déclin recule quand le joueur s'entraîne
+            // 👁️ L’Effaceur recule quand le joueur s'entraîne
             try { if (typeof awakMonarchOnWorkout === 'function') awakMonarchOnWorkout(); } catch(e) {}
             
             // Ensure duration is in minutes - convert if in seconds
@@ -15438,7 +15438,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (!container) return;
             
             if (history.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #94a3b8; padding: 40px;">Aucune séance enregistrée. Commencez votre premier entraînement !</p>';
+                container.innerHTML = '<div class="awk-vide"><b>Aucune séance pour l\'instant</b>Ta première séance apparaîtra ici.<br><button onclick="switchTab(\'workouts\')">Commencer une séance</button></div>';
                 return;
             }
             
@@ -15569,7 +15569,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             }
 
             if (!workout.workoutData) {
-                showAlert('Les séances créées avant la mise à jour ne peuvent pas être rejouées. Créez une nouvelle séance similaire pour pouvoir la rejouer.', 'info', 'Séance non rejouable');
+                showAlert('Les séances créées avant la mise à jour ne peuvent pas être rejouées. Crée une nouvelle séance similaire pour pouvoir la rejouer.', 'info', 'Séance non rejouable');
                 return;
             }
             
@@ -15886,7 +15886,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     <div style="text-align: center; padding: 40px; color: #94a3b8;">
                         <div style="font-size: 4em; margin-bottom: 15px;">📷</div>
                         <div style="font-size: 1.1em; margin-bottom: 10px;">Aucune photo pour le moment</div>
-                        <div style="font-size: 0.9em;">Prenez votre première photo pour commencer à suivre votre transformation !</div>
+                        <div style="font-size: 0.9em;">Prends ta première photo pour suivre ta transformation !</div>
                     </div>
                 `;
                 return;
@@ -16537,7 +16537,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 permissionDiv.innerHTML = `
                     <div style="background: rgba(239,68,68,0.12); padding: 20px; border-radius: 14px; border-left: 4px solid #ef4444;">
                         <div style="font-weight: 600; color: #f87171; margin-bottom: 5px;">🚫 Notifications bloquées</div>
-                        <div style="font-size: 0.9em; color: #94a3b8;">Vous avez bloqué les notifications. Activez-les dans les paramètres de votre navigateur.</div>
+                        <div style="font-size: 0.9em; color: #94a3b8;">Tu as bloqué les notifications. Active-les dans les paramètres de ton navigateur.</div>
                     </div>
                 `;
                 settingsDiv.style.display = 'none';
@@ -16550,7 +16550,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         🔔 Activer les notifications
                     </button>
                     <div style="text-align: center; margin-top: 10px; font-size: 0.85em; color: #94a3b8;">
-                        💡 Cliquez pour autoriser les rappels d\'entraînement
+                        💡 Clique pour autoriser les rappels d\'entraînement
                     </div>
                 `;
                 settingsDiv.style.display = 'none';
@@ -16602,7 +16602,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (daysSince >= 3) {
                         sendNotification(
                             '😴 Ça fait un moment !',
-                            `Vous n'avez pas fait de séance depuis ${daysSince} jours. C'est le moment de vous y remettre ! 💪`,
+                            `Pas de séance depuis ${daysSince} jours. C'est le moment de t'y remettre ! 💪`,
                             '🔥'
                         );
                     }
@@ -16628,7 +16628,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (thisWeekWorkouts < goal && new Date().getDay() >= 5) { // Friday or later
                         sendNotification(
                             `🎯 Objectif hebdo : ${thisWeekWorkouts}/${goal}`,
-                            `Il vous reste ${goal - thisWeekWorkouts} séance(s) pour atteindre votre objectif cette semaine !`,
+                            `Il te reste ${goal - thisWeekWorkouts} séance(s) pour atteindre ton objectif cette semaine !`,
                             '💪'
                         );
                     }
@@ -17235,7 +17235,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     ${plates.length === 0 ? `
                         <div style="text-align: center; margin-top: 20px; padding: 20px; background: rgba(255,255,255,0.04); border-radius: 14px;">
                             <div style="font-size: 2em; margin-bottom: 10px;">✅</div>
-                            <div style="font-size: 1.1em; color: #10b981; font-weight: 600;">Utilisez uniquement la barre !</div>
+                            <div style="font-size: 1.1em; color: #10b981; font-weight: 600;">Utilise uniquement la barre !</div>
                             <div style="font-size: 0.9em; color: #94a3b8; margin-top: 5px;">Aucune plaque nécessaire</div>
                         </div>
                     ` : ''}
@@ -19435,7 +19435,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (weekAvg !== '-' && parseFloat(weekAvg) >= 8.5) {
                 document.getElementById('fatigueIndicator').style.display = 'flex';
                 document.getElementById('fatigueMessage').textContent = 
-                    `Votre RPE moyen cette semaine est de ${weekAvg}/10. Considérez une journée de récupération.`;
+                    `Votre RPE moyen cette semaine est de ${weekAvg}/10. Considére une journée de récupération.`;
             } else {
                 document.getElementById('fatigueIndicator').style.display = 'none';
             }
@@ -19995,7 +19995,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             
             // At least one measurement required
             if (!weight && !height && !waist && !hips && !biceps && !thighs) {
-                showAlert('Veuillez entrer au moins une mesure.', 'warning', 'Mesure requise');
+                showAlert('Entre au moins une mesure.', 'warning', 'Mesure requise');
                 return;
             }
             
@@ -20059,7 +20059,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     <div style="text-align:center;padding:22px 16px;color:#64748b;">
                         
                         <div style="font-size:0.95em; margin-bottom: 10px;">Aucune mesure enregistrée</div>
-                        <div style="font-size:0.72em;">Ajoutez vos premières mesures pour suivre votre évolution corporelle</div>
+                        <div style="font-size:0.72em;">Ajoute tes premières mesures pour suivre ton évolution</div>
                     </div>
                 `;
                 return;
@@ -20198,14 +20198,14 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
         // ========== BADGES SYSTEM ==========
         const badges = [
-            { id: 'first_workout', icon: '🎯', name: 'Première séance', description: 'Complétez votre première séance', condition: (stats) => stats.workouts >= 1 },
-            { id: 'workout_10', icon: '💪', name: '10 séances', description: 'Complétez 10 séances', condition: (stats) => stats.workouts >= 10 },
-            { id: 'workout_25', icon: '🔥', name: '25 séances', description: 'Complétez 25 séances', condition: (stats) => stats.workouts >= 25 },
-            { id: 'workout_50', icon: '⚡', name: '50 séances', description: 'Complétez 50 séances', condition: (stats) => stats.workouts >= 50 },
-            { id: 'workout_100', icon: '🏆', name: '100 séances', description: 'Complétez 100 séances', condition: (stats) => stats.workouts >= 100 },
-            { id: 'minutes_100', icon: '⏱️', name: '100 minutes', description: 'Accumulez 100 minutes d\'entraînement', condition: (stats) => stats.minutes >= 100 },
-            { id: 'minutes_500', icon: '⌚', name: '500 minutes', description: 'Accumulez 500 minutes d\'entraînement', condition: (stats) => stats.minutes >= 500 },
-            { id: 'minutes_1000', icon: '🕐', name: '1000 minutes', description: 'Accumulez 1000 minutes d\'entraînement', condition: (stats) => stats.minutes >= 1000 },
+            { id: 'first_workout', icon: '🎯', name: 'Première séance', description: 'Termine ta première séance', condition: (stats) => stats.workouts >= 1 },
+            { id: 'workout_10', icon: '💪', name: '10 séances', description: 'Complète 10 séances', condition: (stats) => stats.workouts >= 10 },
+            { id: 'workout_25', icon: '🔥', name: '25 séances', description: 'Complète 25 séances', condition: (stats) => stats.workouts >= 25 },
+            { id: 'workout_50', icon: '⚡', name: '50 séances', description: 'Complète 50 séances', condition: (stats) => stats.workouts >= 50 },
+            { id: 'workout_100', icon: '🏆', name: '100 séances', description: 'Complète 100 séances', condition: (stats) => stats.workouts >= 100 },
+            { id: 'minutes_100', icon: '⏱️', name: '100 minutes', description: 'Accumule 100 minutes d\'entraînement', condition: (stats) => stats.minutes >= 100 },
+            { id: 'minutes_500', icon: '⌚', name: '500 minutes', description: 'Accumule 500 minutes d\'entraînement', condition: (stats) => stats.minutes >= 500 },
+            { id: 'minutes_1000', icon: '🕐', name: '1000 minutes', description: 'Accumule 1000 minutes d\'entraînement', condition: (stats) => stats.minutes >= 1000 },
             { id: 'streak_3', icon: '📅', name: 'Série de 3', description: '3 jours consécutifs', condition: (stats) => stats.streak >= 3 },
             { id: 'streak_7', icon: '🔥', name: 'Série de 7', description: '7 jours consécutifs', condition: (stats) => stats.streak >= 7 },
             { id: 'streak_30', icon: '🌟', name: 'Série de 30', description: '30 jours consécutifs', condition: (stats) => stats.streak >= 30 },
@@ -20598,7 +20598,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const favorites = getFavoriteWorkouts();
             
             if (favorites.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #94a3b8; padding: 40px; grid-column: 1/-1;">Aucune séance favorite. Terminez une séance et sauvegardez-la !</p>';
+                container.innerHTML = '<p style="text-align: center; color: #94a3b8; padding: 40px; grid-column: 1/-1;">Aucune séance favorite. Termine une séance et ajoute-la aux favoris.</p>';
                 return;
             }
             
@@ -20621,7 +20621,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         }
 
         function deleteFavorite(id) {
-            showConfirm('Supprimer cette séance de vos favoris ?', function() {
+            showConfirm('Retirer cette séance de tes favoris ?', function() {
                 const favorites = getFavoriteWorkouts();
                 const updated = favorites.filter(f => f.id !== id);
                 localStorage.setItem('favoriteWorkouts', JSON.stringify(updated));
@@ -20981,9 +20981,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // 🎤 COACH VOCAL ENRICHI
         // ══════════════════════════════════════════════════════════════════
         const muscleAnnouncements = {
-            'Pectoraux': 'Pectoraux ciblés. Serrez bien en haut.',
-            'Dos': 'Dos ciblé. Rétractez les omoplates.',
-            'Épaules': 'Épaules ciblées. Contrôlez bien la descente.',
+            'Pectoraux': 'Pectoraux ciblés. Serre bien en haut.',
+            'Dos': 'Dos ciblé. Rétracte les omoplates.',
+            'Épaules': 'Épaules ciblées. Contrôle bien la descente.',
             'Biceps': 'Biceps ciblés. Coudes fixes, montée lente.',
             'Triceps': 'Triceps ciblés. Extension complète.',
             'Quadriceps': 'Quadriceps ciblés. Cuisses parallèles au sol.',
@@ -20991,10 +20991,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             'Fessiers': 'Fessiers ciblés. Contraction maximale en haut.',
             'Abdominaux': 'Abdominaux. Gainage permanent tout au long.',
             'Obliques': 'Obliques. Rotation complète des deux côtés.',
-            'Mollets': 'Mollets. Montez sur la pointe, descendez bas.',
-            'Trapèzes': 'Trapèzes. Montez les épaules vers les oreilles.',
+            'Mollets': 'Mollets. Monte sur la pointe, descends bas.',
+            'Trapèzes': 'Trapèzes. Monte les épaules vers les oreilles.',
             'Avant-bras': 'Avant-bras. Amplitude maximale des poignets.',
-            'Cardio': 'Cardio. Maintenez votre rythme.',
+            'Cardio': 'Cardio. Garde ton rythme.',
             'Corps entier': 'Exercice complet. Tout le corps en action.',
         };
 
@@ -21760,7 +21760,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1281);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1289);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -21809,7 +21809,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 +       '<rect width="5" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.22"/>'
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1281" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1289" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -21867,23 +21867,15 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 +     'onmouseleave="this.style.transform=\'scale(1)\'" '
                 +     'ontouchstart="this.style.transform=\'scale(0.975)\'" '
                 +     'ontouchend="this.style.transform=\'scale(1)\'" '
-                +     'style="position:relative;overflow:hidden;width:100%;margin-top:13px;padding:18px 16px;'
-                +     'border-radius:16px;border:none;cursor:pointer;transition:transform .12s ease;'
-                +     'background:linear-gradient(160deg,#a5f3fc 0%,#22d3ee 42%,#0e7490 100%);'
-                +     'box-shadow:0 0 28px rgba(34,211,238,0.30), 0 8px 22px rgba(0,0,0,0.45),'
-                +       'inset 0 1px 0 rgba(255,255,255,0.45);">'
-                //   reflet : bande claire en haut, comme sur une surface polie
-                +     '<span style="position:absolute;inset:0 0 55% 0;pointer-events:none;'
-                +       'background:linear-gradient(180deg,rgba(255,255,255,0.22),rgba(255,255,255,0));"></span>'
-                //   balayage lumineux, 5 s
-                +     '<span style="position:absolute;top:0;bottom:0;width:38%;pointer-events:none;'
-                +       'background:linear-gradient(105deg,transparent,rgba(255,255,255,0.35),transparent);'
-                +       'animation:awakBtnSheen 5s ease-in-out infinite;"></span>'
-                +     '<span style="position:relative;display:block;font-size:0.95em;font-weight:900;'
-                +       'color:#04162b;letter-spacing:1.5px;text-shadow:0 1px 0 rgba(255,255,255,0.25);">'
-                +       'FAIS MA SÉANCE</span>'
-                +     '<span style="position:relative;display:block;font-size:0.6em;font-weight:700;'
-                +       'color:rgba(4,33,15,0.62);letter-spacing:0.5px;margin-top:2px;">'
+                // v1288 : bouton plat, comme tous les boutons principaux (plus de reflet ni de balayage)
+                +     'style="position:relative;overflow:hidden;width:100%;margin-top:13px;padding:15px 16px;'
+                +     'border-radius:14px;border:none;cursor:pointer;transition:transform .12s ease;'
+                +     'background:#22d3ee;">'
+                +     '<span style="position:relative;display:block;font-size:1em;font-weight:800;'
+                +       'color:#04121f;letter-spacing:0;">'
+                +       'Fais ma séance</span>'
+                +     '<span style="position:relative;display:block;font-size:0.68em;font-weight:600;'
+                +       'color:rgba(4,18,31,0.7);margin-top:2px;">'
                 +       'Le Système choisit pour toi</span>'
                 +   '</button>'
                 // Second choix, discret : planifier au lieu de s'entraîner tout de suite.
@@ -22556,7 +22548,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
               +   '<div style="font-size:2.8em;line-height:1;margin-bottom:8px;">👑</div>'
               +   '<div style="font-size:0.54em;letter-spacing:2.5px;color:#ef4444;font-weight:900;">◈ AU BOUT DE L\'AVENUE</div>'
               +   '<div style="font-family:var(--font-display),sans-serif;font-size:1.25em;'
-              +     'font-weight:800;color:#fff;margin:4px 0 10px;">Le Monarque du Déclin</div>'
+              +     'font-weight:800;color:#fff;margin:4px 0 10px;">L’Effaceur</div>'
               +   '<div style="font-size:0.8em;color:#cbd5e1;line-height:1.55;margin-bottom:16px;">'
               +     (pret
                       ? 'Il n\'y a plus personne entre toi et lui. Le combat final t\'attend.'
@@ -22780,7 +22772,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     ? (awakGetActiveMonsters() || []) : [];
                 for (var _k = 0; _k < Math.min(_mons.length, 6); _k++) {
                     var _m = _mons[_k];
-                    // Arc de 140° sur la moitié basse : jamais sur le Monarque.
+                    // Arc de 140° sur la moitié basse : jamais sur l’Effaceur.
                     var _ang = (200 + (_k * 140 / Math.max(1, Math.min(_mons.length, 6) - 1 || 1))) * Math.PI / 180;
                     var _monRad = R * (0.42 + (_k % 3) * 0.13);
                     var _monX = 200 + Math.cos(_ang) * _monRad;
@@ -22804,7 +22796,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // ⚠️ Il n'existait QUE sous forme de carte dans l'onglet Aventure :
             // rien sur la carte de l'Effacement ne signalait qu'une anomalie
             // familiale était en cours. Placé sur le flanc pour ne pas
-            // concurrencer le Monarque, qui tient le bout de l'avenue.
+            // concurrencer l’Effaceur, qui tient le bout de l'avenue.
             try {
                 var _fb = (typeof window.AwakFamilyBossState === 'function')
                     ? window.AwakFamilyBossState() : null;
@@ -22828,18 +22820,18 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // ⚠️ N'APPARAÎT PAS TANT QUE L'HISTOIRE NE L'A PAS NOMMÉ.
             // Avant, une tache rouge trônait sur la carte dès le premier jour :
             // elle ne renvoyait à rien de connu du joueur et passait pour un
-            // bug. Le Monarque n'est évoqué qu'au 1er gardien vaincu, et
+            // bug. L’Effaceur n'est évoqué qu'au 1er gardien vaincu, et
             // pleinement nommé après le 4e (evt_avant_monarque).
             // On l'affiche donc à partir du PREMIER gardien tombé.
             let sb = 0;
             try { sb = parseInt(localStorage.getItem('awakSubBossProgress') || '0', 10) || 0; } catch (e) {}
             const taille = 14 + sb * 5;
             // ⚠️ Plafonné : à haut rang, R*0.86 sortait du viewBox (y négatif)
-            // et le Monarque se retrouvait coupé en haut de la carte.
+            // et l’Effaceur se retrouvait coupé en haut de la carte.
             const _my = Math.max(taille + 6, 200 - R * 0.86);
             // 👆 CLIQUABLE : c'était une simple tache rouge sans action —
             // on croyait à un bug. Le toucher ouvre désormais l'état du
-            // Monarque : combien de sous-boss restent avant l'affrontement.
+            // Effaceur : combien de sous-boss restent avant l'affrontement.
             if (sb > 0) marques += '<g style="cursor:pointer;" onclick="awakShowMonarque()">'
                 + '<circle cx="200" cy="' + _my.toFixed(1) + '" r="' + (taille + 10) + '" fill="transparent"/>'
                 + '<circle cx="200" cy="' + _my.toFixed(1) + '" r="' + taille + '" fill="#dc2626" opacity="0.10"/>'
@@ -24490,7 +24482,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 }
             } catch (e) {}
             
-            // ⚔️ Barre de vie du Monarque : (re)dessinée à chaque exercice du combat
+            // ⚔️ Barre de vie de l’Effaceur : (re)dessinée à chaque exercice du combat
             // final, retirée partout ailleurs.
             try {
                 if (currentWorkout && currentWorkout._isFinalBoss && typeof _renderBossHpBar === 'function') {
@@ -24887,7 +24879,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             } else {
                 // Fallback instructions
                 const li = document.createElement('li');
-                li.textContent = 'Effectuez l\'exercice correctement en suivant la bonne forme';
+                li.textContent = 'Effectue l\'exercice correctement en suivant la bonne forme';
                 instructions.appendChild(li);
             }
 
@@ -25263,8 +25255,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             window._bilateralSecondSide = true;
                             vibrate(150);
                             playSound();
-                            speak('Changez de côté', { interrupt: true });
-                            if (typeof showToast === 'function') showToast('↔️ Changez de côté — 2ᵉ côté', 'info', 2500);
+                            speak('Change de côté', { interrupt: true });
+                            if (typeof showToast === 'function') showToast('↔️ Change de côté — 2ᵉ côté', 'info', 2500);
                             // Réafficher l'indication de côté si un élément existe
                             const sideEl = document.getElementById('exerciseSideIndicator');
                             if (sideEl) { sideEl.textContent = '➡️ 2ᵉ côté'; sideEl.style.display = 'block'; }
@@ -26010,7 +26002,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const _locIconEl = document.getElementById('locIconSel');
             const icon = _locIconEl?.getAttribute('data-icon')?.trim() || _locIconEl?.textContent?.trim() || '📍';
             const name = document.getElementById('locNameInput')?.value?.trim();
-            if (!name) { showToast('Entrez un nom pour ce lieu', 'warning', 2000); return; }
+            if (!name) { showToast('Entre un nom pour ce lieu', 'warning', 2000); return; }
             // Lecture FIABLE du mode : attribut posé par setLocEditorMode,
             // avec repli sur la bordure verte du bouton Gym si l'utilisateur
             // n'a pas touché à la bascule depuis l'ouverture.
@@ -26609,7 +26601,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             } catch(e) {}
         }
 
-        // ⚔️ Barre de vie du Monarque, affichée en haut de l'écran d'exercice
+        // ⚔️ Barre de vie de l’Effaceur, affichée en haut de l'écran d'exercice
         // pendant tout le combat final. Sans elle, le joueur ne voit pas qu'il
         // inflige des dégâts — le combat ressemblait à une séance ordinaire.
         function _renderBossHpBar(workout) {
@@ -27257,7 +27249,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1281");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1289");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -27496,7 +27488,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // l'un de l'autre.
             } catch (e) {}
 
-            // ── 👑 COMBAT FINAL — Le Monarque du Déclin (apparaît après les 4 sous-bosses) ──
+            // ── 👑 COMBAT FINAL — L’Effaceur (apparaît après les 4 sous-bosses) ──
             try {
                 if (typeof awakFinalBossUnlocked === 'function' && awakFinalBossUnlocked()) {
                     const beaten = (typeof awakFinalBossDefeated === 'function') && awakFinalBossDefeated();
@@ -27508,7 +27500,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             <div style="font-size:2.4em;flex-shrink:0;">👑</div>
                             <div style="flex:1;min-width:0;">
                                 <div style="font-family:'Rajdhani',sans-serif;font-size:0.62em;letter-spacing:2px;color:#fbbf24;font-weight:700;text-transform:uppercase;">${beaten ? 'Combat final · Vaincu' : 'Combat final disponible'}</div>
-                                <div style="font-family:'Rajdhani',sans-serif;font-size:1.2em;font-weight:700;color:#fff;letter-spacing:1px;">Le Monarque du Déclin</div>
+                                <div style="font-family:'Rajdhani',sans-serif;font-size:1.2em;font-weight:700;color:#fff;letter-spacing:1px;">L’Effaceur</div>
                                 <div style="font-size:0.74em;color:#94a3b8;margin-top:2px;">${beaten ? 'Tu l\'as terrassé. Reviens l\'affronter quand tu veux.' : 'Les Quatre Épreuves sont passées. Il t\'attend.'}</div>
                             </div>
                             <div style="font-size:1.4em;color:#fbbf24;flex-shrink:0;">⚔</div>
@@ -27517,7 +27509,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 }
             } catch(e) {}
 
-            // ── 🕳️ L'ABYSSE — descente infinie (apparaît après le Monarque vaincu) ──
+            // ── 🕳️ L'ABYSSE — descente infinie (apparaît après l’Effaceur vaincu) ──
             try {
                 if (typeof awakAbyssUnlocked === 'function' && awakAbyssUnlocked()) {
                     const record = (typeof awakAbyssRecord === 'function') ? awakAbyssRecord() : 0;
@@ -27576,13 +27568,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     let mState, mColor, mMsg;
                     if (mPower >= 80) {
                         mState = 'MENACE IMMINENTE'; mColor = '#ef4444';
-                        mMsg = "Le Monarque du Déclin est à son apogée. Reprends l'entraînement avant qu'il ne te dépasse.";
+                        mMsg = "L’Effaceur est à son apogée. Reprends l'entraînement avant qu'il ne te dépasse.";
                     } else if (mPower >= 50) {
                         mState = 'EN ÉVEIL'; mColor = '#f59e0b';
-                        mMsg = "Le Monarque gagne en puissance dans ton absence. Ne le laisse pas grandir.";
+                        mMsg = "L’Effaceur gagne en puissance dans ton absence. Ne le laisse pas grandir.";
                     } else {
                         mState = 'TAPI DANS L\'OMBRE'; mColor = '#a855f7';
-                        mMsg = "Le Monarque du Déclin observe. Chaque séance le repousse.";
+                        mMsg = "L’Effaceur observe. Chaque séance le repousse.";
                     }
                     const cardMonarch = document.createElement('div');
                     cardMonarch.style.cssText = 'margin-bottom:12px;';
@@ -27592,7 +27584,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             <div style="display:flex;align-items:center;gap:9px;margin-bottom:9px;">
                                 <span style="font-size:1.2em;">👁️</span>
                                 <div style="flex:1;">
-                                    <div style="font-weight:900;color:#e2e8f0;font-size:0.85em;">Le Monarque du Déclin</div>
+                                    <div style="font-weight:900;color:#e2e8f0;font-size:0.85em;">L’Effaceur</div>
                                     <div style="font-size:0.58em;color:${mColor};font-weight:900;letter-spacing:1.5px;margin-top:1px;">${mState}</div>
                                 </div>
                                 <div style="font-size:1.1em;font-weight:900;color:${mColor};">${mPower}%</div>
@@ -30145,7 +30137,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (localStorage.getItem(MIGRATION_KEY) === 'true') return;
 
             try {
-                // Récupérer l'historique du profil actif
+                // Récupèrer l'historique du profil actif
                 const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
                 const histKey = profileId ? `profile_${profileId}_workoutHistory` : 'workoutHistory';
                 const history = JSON.parse(localStorage.getItem(histKey) || '[]');
@@ -31590,7 +31582,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1281);'
+                +     'url(images/combat_bg_v1.webp?v=1289);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -31845,17 +31837,17 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1281);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1289);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
                          d'un téléphone à l'autre. L'image de brèche en fond porte
                          désormais l'ambiance ; un losange fin marque le thème. -->
-                    <div style="margin:0 auto 12px;width:34px;height:34px;
-                                border:1.5px solid ${theme.color};
-                                transform:rotate(45deg);
-                                box-shadow:0 0 18px ${theme.color}55;
-                                animation:awakBriefFloat 4s ease-in-out infinite;"></div>
+                    <!-- v1289 : le losange tournait mal (l'animation écrasait la rotation) et
+                         ressemblait à une image manquante : on montre le boss de la Faille. -->
+                    <div style="margin:0 auto 8px;width:72px;height:72px;display:flex;align-items:center;justify-content:center;animation:awakBriefFloat 4s ease-in-out infinite;">
+                        ${(() => { const _b = (rift.waves || []).find(x => x.isBoss) || (rift.waves || [])[0]; return (_b && window.AwakRiftVis && AwakRiftVis.monstre) ? AwakRiftVis.monstre(_b.name, theme.color, 68, true) : ''; })()}
+                    </div>
                     <div style="display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:9px;flex-wrap:wrap;">
                         <span style="background:${theme.color}25;color:${theme.color};border:1px solid ${theme.color}50;padding:3px 10px;border-radius:6px;font-size:0.68em;font-weight:900;letter-spacing:2px;">RANG ${rift.rank}</span>
                         ${rift.isAssaut ? `<span style="background:rgba(245,158,11,0.18);color:#f59e0b;border:1px solid rgba(245,158,11,0.45);padding:3px 10px;border-radius:6px;font-size:0.68em;font-weight:900;letter-spacing:1.5px;">⚡ ASSAUT</span>` : ''}
@@ -31875,7 +31867,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (!m || m.id === 'none') return '';
                     return `<div style="padding:14px 22px;background:${m.color}0d;border-bottom:1px solid ${m.color}25;">
                         <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
-                            <span style="font-size:1.1em;">${m.emoji}</span>
+                            <span style="display:inline-flex;">${window.AwakIcon ? AwakIcon.get('alerte', 16, m.color) : ''}</span>
                             <span style="font-size:0.68em;color:${m.color};font-weight:900;letter-spacing:1.5px;">ANOMALIE · ${m.name.toUpperCase()}</span>
                         </div>
                         <div style="color:#cbd5e1;font-size:0.84em;line-height:1.5;">${m.desc}</div>
@@ -31915,8 +31907,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:8px;">◈ VAGUES (${rift.waves.length})</div>
                         <div style="display:flex;gap:4px;flex-wrap:wrap;">
                             ${rift.waves.map((w, i) => `
-                                <div style="width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:0.85em;background:${w.isBoss ? 'linear-gradient(135deg,'+theme.color+'40,'+theme.color+'20)' : 'rgba(255,255,255,0.05)'};border:1px solid ${w.isBoss ? theme.color : 'rgba(255,255,255,0.08)'};">
-                                    ${w.isBoss ? '👑' : w.emoji}
+                                <div title="${String(w.name || '').replace(/"/g, '&quot;')}" style="width:46px;height:46px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:${w.isBoss ? theme.color + '22' : 'rgba(255,255,255,0.04)'};border:1px solid ${w.isBoss ? theme.color : 'rgba(255,255,255,0.08)'};">
+                                    ${(window.AwakRiftVis && AwakRiftVis.monstre) ? AwakRiftVis.monstre(w.name, theme.color, 38, !!w.isBoss) : ''}
                                 </div>
                             `).join('')}
                         </div>
@@ -32104,7 +32096,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:540px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto;display:flex;flex-direction:column;">
                 <!-- Header : vague actuelle -->
-                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1281);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1289);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                         <span style="font-size:0.6em;color:${theme.color};font-weight:900;letter-spacing:2px;">⚔ VAGUE ${rift.currentWaveIdx + 1} / ${rift.waves.length}${currentWave.isBoss ? ' · BOSS' : ''}</span>
                         <button onclick="awakAbandonRift()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
@@ -32332,7 +32324,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // Une Faille est un combat de 6 exercices en 40/20 où le chrono fait
             // les dégâts : on n'y charge pas une barre entre deux vagues. Le
             // matériel cassait le rythme, rendait le combat différent selon le
-            // lieu (le Monarque plus facile parce qu'on a un banc), et ouvrait
+            // lieu (l’Effaceur plus facile parce qu'on a un banc), et ouvrait
             // toute une classe de bugs de filtrage.
             // ⚠️ EXCEPTION : les ASSAUTS THÉMATIQUES gardent leur matériel — il
             // EST leur thème (« Poids du Monde » = haltères, « Les Liens » =
@@ -33256,7 +33248,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1281');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1289');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -33410,7 +33402,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try { setTimeout(() => { if (typeof awakCheckSubBosses === 'function') awakCheckSubBosses(); }, 5600); } catch(e) {}
             // 🌀 Notifier si le joueur vient de débloquer une Faille simultanée supplémentaire
             try { setTimeout(() => { if (typeof awakCheckRiftCapacityUnlock === 'function') awakCheckRiftCapacityUnlock(); }, 3200); } catch(e) {}
-            // 🕳️ Check si un palier d'Abysse doit apparaître (post-Monarque)
+            // 🕳️ Check si un palier d'Abysse doit apparaître (post-Effaceur)
             try { setTimeout(() => { if (typeof awakCheckAbyss === 'function') awakCheckAbyss(); }, 5800); } catch(e) {}
 
             // 🌑 [GLITCH DU TISSERAND DÉSACTIVÉ — ancienne narration]
@@ -33993,7 +33985,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1281);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1289);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -34164,7 +34156,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1281);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1289);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -34886,7 +34878,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 description: 'Il se nourrit de ta vitalité à chaque instant. Le temps joue contre toi.',
                 briefing: 'NE T\u2019ARRÊTE PAS. Il te draine sans cesse — tue-le vite, avant qu\u2019il ne te vide entièrement.',
                 rank: 'S', hpMult: 9.0, primaryStat: 'END', themeEmoji: '🩸',
-                meetText: 'Le Siphon se ratatine, privé de ta vitalité qu\u2019il ne peut plus saisir. « Les Quatre Épreuves sont passées. Le Monarque t\u2019attend désormais. »'
+                meetText: 'Le Siphon se ratatine, privé de ta vitalité qu\u2019il ne peut plus saisir. « Les Quatre Épreuves sont passées. L’Effaceur t\u2019attend désormais. »'
             }
         ];
 
@@ -35067,8 +35059,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         window.awakOnSubBossDefeated = awakOnSubBossDefeated;
 
         // ═══════════════════════════════════════════════════════════════
-        // 🕳️ L'ABYSSE — descente infinie, palier par palier (post-Monarque)
-        // Débloqué après avoir vaincu le Monarque. Chaque palier = une Faille-boss
+        // 🕳️ L'ABYSSE — descente infinie, palier par palier (post-Effaceur)
+        // Débloqué après avoir vaincu l’Effaceur. Chaque palier = une Faille-boss
         // dont le HP scale exponentiellement. 1 palier = 1 séance. Le joueur
         // descend à son rythme ; son record de profondeur est sauvegardé.
         // ═══════════════════════════════════════════════════════════════
@@ -35086,7 +35078,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         window.awakAbyssDepth = awakAbyssDepth;
         window.awakAbyssRecord = awakAbyssRecord;
 
-        // L'Abysse est-il accessible ? (Monarque vaincu + jeu activé)
+        // L'Abysse est-il accessible ? (Effaceur vaincu + jeu activé)
         function awakAbyssUnlocked() {
             if (typeof getAdventureEnabled === 'function' && !getAdventureEnabled()) return false;
             return (typeof awakFinalBossDefeated === 'function') && awakFinalBossDefeated();
@@ -37635,7 +37627,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // ── DONJONS ──────────────────────────────────────────────────
         const RPG_DUNGEONS = [
             { id:'dungeon_endurance', name:'Donjon Endurance',    emoji:'🏃', difficulty:'Normal',    xpMult:2, cooldownDays:3,
-              description:'20 min HIIT sans repos — Testez votre cardio',
+              description:'20 min HIIT sans repos — Teste ton cardio',
               exercises:['Burpees','Mountain climber','Saut en longueur','Jumping jacks','Sprint sur place'] },
             { id:'dungeon_strength',  name:'Donjon Force',        emoji:'⚔️', difficulty:'Élite',     xpMult:3, cooldownDays:4,
               description:'5×5 sur 4 grands mouvements — La voie du guerrier',
@@ -38526,7 +38518,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     }
                 }
             } catch (e) {}
-            // 👑 COMBAT FINAL : si c'était le Monarque, marquer la victoire pour l'épilogue
+            // 👑 COMBAT FINAL : si c'était l’Effaceur, marquer la victoire pour l'épilogue
             const _wasFinalBoss = currentWorkout && currentWorkout._isFinalBoss;
             if (_wasFinalBoss && typeof awakOnFinalBossComplete === 'function') {
                 try { awakOnFinalBossComplete(); } catch(e) {}
@@ -38643,7 +38635,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 }
             } catch(e) {}
 
-            // 🕳️ AWAKENED — Apparition du palier d'Abysse (descente infinie post-Monarque)
+            // 🕳️ AWAKENED — Apparition du palier d'Abysse (descente infinie post-Effaceur)
             try {
                 if (typeof awakCheckAbyss === 'function') {
                     setTimeout(() => { try { awakCheckAbyss(); } catch(e) {} }, 5800);
@@ -38683,7 +38675,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             } catch(e) {}
 
             // 📖 NARRATIF — [ANCIENNE HISTOIRE DÉSACTIVÉE — remplacée par le moteur d'événements]
-            // Les chapitres/fragments du Monarque du Déclin ne se déclenchent plus.
+            // Les chapitres/fragments de l’Effaceur ne se déclenchent plus.
             // (Code conservé mais non appelé, pour migration ultérieure.)
             // try { if (typeof checkStoryRankUnlock === 'function') setTimeout(() => checkStoryRankUnlock(), 4500); } catch(e) {}
             // try { if (typeof awakCheckStoryFragments === 'function') setTimeout(() => { if (!document.getElementById('storyOverlay')) awakCheckStoryFragments(); }, 7000); } catch(e) {}
@@ -39073,8 +39065,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const streak = freshStats.streak || 1;
                 streakText.textContent = streak >= 7 ? `🔥 ${streak} jours consécutifs !` :
                                          streak >= 3 ? `🔥 ${streak} jours de suite !` : `Séance ${freshStats.workouts} complétée !`;
-                if (streakSub) streakSub.textContent = streak >= 7 ? 'Vous êtes en feu !' :
-                                                        streak >= 3 ? 'Belle régularité !' : 'Continuez comme ça !';
+                if (streakSub) streakSub.textContent = streak >= 7 ? 'Tu es en feu !' :
+                                                        streak >= 3 ? 'Belle régularité !' : 'Continue comme ça !';
             }
 
             } catch (_statErr) { console.warn('Completion stats error (non bloquant):', _statErr); }
@@ -42008,7 +42000,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // Appliquer le plan hebdomadaire
             applyCelebrityWeeklyPlan(program);
 
-            // Récupérer la phase courante
+            // Récupèrer la phase courante
             const prog = getCelebProgression(programId);
 
             const exercises = program.exercises.map(ex => {
@@ -42028,7 +42020,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             }).filter(Boolean);
 
             if (exercises.length === 0) {
-                showToast('⚠️ Exercices introuvables — vérifiez la base de données', 'warning', 3000);
+                showToast('⚠️ Exercices introuvables — vérifie la base de données', 'warning', 3000);
                 return;
             }
 
@@ -42235,7 +42227,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     <div style="text-align: center; padding: 30px; color: #94a3b8;">
                         <div style="font-size: 3em; margin-bottom: 10px;">🤷</div>
                         <p>Aucun exercice trouvé pour "${query}"</p>
-                        <p style="font-size: 0.9em; margin-top: 10px;">Essayez un autre terme de recherche</p>
+                        <p style="font-size: 0.9em; margin-top: 10px;">Essaie un autre terme de recherche</p>
                     </div>
                 `;
                 statsContainer.innerHTML = '';
@@ -42322,7 +42314,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     <div style="grid-column: 1/-1; text-align: center; padding: 40px 20px; color: #94a3b8;">
                         <div style="font-size: 3em; margin-bottom: 15px;">📚</div>
                         <p style="font-size: 1.1em; margin-bottom: 10px;">Aucun programme créé</p>
-                        <p style="font-size: 0.9em;">Cliquez sur "Créer un programme" pour commencer</p>
+                        <p style="font-size: 0.9em;">Clique sur "Créer un programme" pour commencer</p>
                     </div>
                 `;
                 return;
@@ -42441,12 +42433,12 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const name = document.getElementById('programName').value.trim();
             
             if (!name) {
-                showAlert('Veuillez donner un nom à votre programme.', 'warning', 'Nom requis');
+                showAlert('Donne un nom à ton programme.', 'warning', 'Nom requis');
                 return;
             }
             
             if (programExercisesBuffer.length === 0) {
-                showAlert('Veuillez ajouter au moins un exercice.', 'warning', 'Exercice requis');
+                showAlert('Ajoute au moins un exercice.', 'warning', 'Exercice requis');
                 return;
             }
             
@@ -42663,11 +42655,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     <div style="text-align: center; padding: 40px; color: #94a3b8;">
                         <div style="font-size: 3em; margin-bottom: 15px;">🔍</div>
                         <h3 style="margin-bottom: 10px;">Aucun exercice trouvé</h3>
-                        <p style="margin-bottom: 20px;">Essayez de :</p>
+                        <p style="margin-bottom: 20px;">Essaie de :</p>
                         <ul style="text-align: left; display: inline-block; list-style: none; padding: 0;">
                             <li style="margin-bottom: 8px;">✓ Changer les filtres (muscle, équipement)</li>
                             <li style="margin-bottom: 8px;">✓ Vider la recherche</li>
-                            <li style="margin-bottom: 8px;">✓ Sélectionner vos équipements (onglet Équipements)</li>
+                            <li style="margin-bottom: 8px;">✓ Sélectionner ton matériel (onglet Équipements)</li>
                         </ul>
                     </div>
                 `;
@@ -42699,7 +42691,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // Confirm exercise selection
         function confirmExerciseSelection() {
             if (tempSelectedExercises.length === 0) {
-                showAlert('Veuillez sélectionner au moins un exercice.', 'warning', 'Sélection requise');
+                showAlert('Sélectionne au moins un exercice.', 'warning', 'Sélection requise');
                 return;
             }
             
@@ -42771,12 +42763,12 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 type: exercise.type || 'exercise',
                 equipment: exercise.equipment || ["Poids du corps"],
                 instructions: exercise.instructions || [
-                    "Positionnez-vous correctement",
-                    "Effectuez le mouvement avec contrôle",
-                    "Respirez de manière régulière",
-                    "Concentrez-vous sur la forme"
+                    "Positionne-toi correctement",
+                    "Effectue le mouvement avec contrôle",
+                    "Respire de manière régulière",
+                    "Concentre-toi sur la forme"
                 ],
-                tips: exercise.tips || "Concentrez-vous sur la bonne forme d'exécution",
+                tips: exercise.tips || "Concentre-toi sur la bonne forme d'exécution",
                 description: exercise.description || ""
             };
         }
@@ -43224,7 +43216,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // Create new profile
         function createProfile(name, avatar) {
             if (!name || !name.trim()) {
-                showAlert('Veuillez entrer un nom pour ce profil.', 'warning', 'Nom requis');
+                showAlert('Entre un nom pour ce profil.', 'warning', 'Nom requis');
                 return false;
             }
             
@@ -43328,7 +43320,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             
             // Can't delete current profile
             if (profileId === getCurrentProfileId()) {
-                showAlert('Basculez vers un autre profil avant de supprimer celui-ci.', 'warning', 'Profil actif');
+                showAlert('Bascule vers un autre profil avant de supprimer celui-ci.', 'warning', 'Profil actif');
                 return;
             }
             
@@ -43420,7 +43412,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const name = document.getElementById('profileEditorName').value.trim();
             
             if (!name) {
-                showAlert('Veuillez entrer un nom pour ce profil.', 'warning', 'Nom requis');
+                showAlert('Entre un nom pour ce profil.', 'warning', 'Nom requis');
                 return;
             }
             
@@ -44940,7 +44932,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
             host.innerHTML =
                 '<div style="position:relative;width:110px;margin:0 auto 12px;">'
-              +   '<img src="images/body/body_face.webp?v=1281" alt="" '
+              +   '<img src="images/body/body_face.webp?v=1289" alt="" '
               +     'style="width:100%;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -45022,7 +45014,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1281);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1289);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -45089,7 +45081,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1281);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1289);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -45900,7 +45892,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // Cacher la bannière si déjà installée
             window.addEventListener('appinstalled', () => {
                 hideInstallBanner();
-                showToast('🎉 Awakened installé sur votre appareil !', 'success', 4000);
+                showToast('🎉 Awakened est installé sur ton téléphone !', 'success', 4000);
             });
 
             // Sur iOS : pas de beforeinstallprompt — montrer guide manuel
@@ -45925,7 +45917,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         }
 
         function installPWA() {
-            // Récupérer l'invite capturée tôt (head) si app.js ne l'a pas encore vue
+            // Récupèrer l'invite capturée tôt (head) si app.js ne l'a pas encore vue
             if (!deferredInstallPrompt && window._deferredInstallPrompt) {
                 deferredInstallPrompt = window._deferredInstallPrompt;
             }
@@ -46249,7 +46241,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const benchmarks = CELEBRITY_BENCHMARK[celebId];
             if (!benchmarks) return '';
 
-            // Récupérer les meilleures perfs de l'utilisateur
+            // Récupèrer les meilleures perfs de l'utilisateur
             let perfs = {};
             try { perfs = JSON.parse(localStorage.getItem(_cleProfilLecture('exercisePerformance')) || '{}'); } catch(e) {}
 
@@ -46994,8 +46986,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     <h1 style="color: var(--primary-color); margin-bottom: 15px;">INCROYABLE !</h1>
                     <h2 style="margin-bottom: 20px;">30 jours consécutifs ! 🔥</h2>
                     <p style="font-size: 1.1em; color: #94a3b8; margin-bottom: 30px;">
-                        Vous avez accompli quelque chose d'extraordinaire !<br>
-                        Votre détermination est inspirante ! 💪
+                        Tu as accompli quelque chose d'extraordinaire !<br>
+                        Ta détermination est inspirante ! 💪
                     </p>
                     <button onclick="closeFireworksCelebration()" class="btn" 
                             style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%); padding: 15px 40px; font-size: 1.1em;">
@@ -47016,7 +47008,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             launchFireworks(celebMode);
             
             // Play celebration sound (if available)
-            speak('Félicitations pour votre série de 30 jours !');
+            speak('Bravo pour ta série de 30 jours !');
         }
         
         function launchFireworks(mode) {
@@ -47130,7 +47122,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 pages: [
                     "Pendant des années, tu as vécu comme les autres. Métro, écran, sommeil. Un corps qui s'éteignait doucement.",
                     "Puis, un matin, une fenêtre est apparue. Visible de toi seul.",
-                    "« Vous avez été sélectionné. Le Système vous reconnaît comme Joueur. »",
+                    "« Le Système t\'a remarqué. »",
                     "Personne ne sait d'où viennent les Failles. Ces déchirures où rôdent des créatures que seuls les Éveillés peuvent affronter.",
                     "La plupart des Joueurs restent rang E toute leur vie. Faibles. Oubliés.",
                     "Mais le Système murmure une promesse : ceux qui s'entraînent sans relâche peuvent dépasser toute limite.",
@@ -47147,7 +47139,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 pages: [
                     "Tu n'es plus une simple anomalie. Le Système t'a classé rang D.",
                     "Les autres Chasseurs commencent à sentir ta présence. Quelque chose en toi a changé.",
-                    "Une rumeur circule dans les Failles : un Monarque déchu se réveillerait, lui aussi. Une ombre qui grandit en miroir de la tienne.",
+                    "Une rumeur circule dans les Failles : un Effaceur se réveillerait, lui aussi. Une ombre qui grandit en miroir de la tienne.",
                     "Le Système reste silencieux à ce sujet. Mais tu sens que ta progression n'est pas un hasard.",
                     "Continue. Le seuil suivant t'attend."
                 ]
@@ -47161,7 +47153,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 pages: [
                     "Rang C. Tu tiens désormais debout là où la plupart s'effondrent.",
                     "Les Failles que tu affrontes sont plus profondes, plus anciennes. Elles semblent... t'attendre.",
-                    "Dans l'une d'elles, une inscription : « Le Monarque revient toujours. Et avec lui, la Faille finale. »",
+                    "Dans l'une d'elles, une inscription : « L’Effaceur revient toujours. Et avec lui, la Faille finale. »",
                     "Le Système t'envoie un message rare : « Continue. Tu n'es pas encore prêt. Mais tu le seras. »",
                     "Pour la première fois, tu comprends que ton entraînement a un but plus grand que toi."
                 ]
@@ -47169,12 +47161,12 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             {
                 id: 'ch_B',
                 trigger: 'rank', rankId: 'B',
-                title: 'La Marque du Monarque',
+                title: 'La Marque de l’Effaceur',
                 subtitle: '◈ CHAPITRE III — RANG B ◈',
                 color: '#a855f7',
                 pages: [
                     "Rang B. Une élite que peu atteignent.",
-                    "L'ombre adverse a maintenant un nom dans les murmures des Failles : le Monarque du Déclin. Il se nourrit de ceux qui abandonnent.",
+                    "L'ombre adverse a maintenant un nom dans les murmures des Failles : l’Effaceur. Il se nourrit de ceux qui abandonnent.",
                     "Chaque fois qu'un Chasseur renonce, il grandit. Chaque fois que tu persistes, tu l'affaiblis.",
                     "Le Système te le confirme enfin : « Ta discipline est une arme. La seule qu'il craint. »",
                     "La course est lancée. Lui ou toi."
@@ -47188,7 +47180,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 color: '#f59e0b',
                 pages: [
                     "Rang A. Tu marches désormais parmi les légendes vivantes.",
-                    "Le Monarque du Déclin a senti ta montée. Les Failles s'agitent, plus violentes, comme prises de panique.",
+                    "L’Effaceur a senti ta montée. Les Failles s'agitent, plus violentes, comme prises de panique.",
                     "Le Système t'avertit : « La Faille finale s'ouvrira bientôt. Lui et toi y entrerez. Un seul en ressortira. »",
                     "Tout ce que tu as construit — chaque série, chaque goutte de sueur — t'a mené ici.",
                     "Il ne reste qu'un seuil avant l'affrontement ultime."
@@ -47197,16 +47189,16 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             {
                 id: 'ch_S',
                 trigger: 'rank', rankId: 'S',
-                title: 'Le Monarque',
+                title: 'L’Effaceur',
                 subtitle: '◈ CHAPITRE V — RANG S ◈',
                 color: '#ef4444',
                 pages: [
                     "Rang S. Tu as atteint ce que presque personne n'atteint.",
-                    "La Faille finale s'ouvre devant toi. Au fond, une silhouette familière t'attend : le Monarque du Déclin.",
+                    "La Faille finale s'ouvre devant toi. Au fond, une silhouette familière t'attend : l’Effaceur.",
                     "« Tu aurais pu abandonner mille fois, » gronde-t-il. « Comme tous les autres. »",
                     "« Mais tu es revenu. Encore. Et encore. »",
                     "Le Système prononce ses derniers mots : « Ce n'est plus moi qui te juge. C'est toi. Montre-lui qui tu es devenu. »",
-                    "Tu lèves les yeux. Tu n'as plus peur. Le vrai Monarque, désormais, c'est toi."
+                    "Tu lèves les yeux. Tu n'as plus peur. Le vrai souverain, désormais, c'est toi."
                 ]
             },
             {
@@ -47216,12 +47208,12 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 subtitle: '◈ CHAPITRE VI — RANG SS ◈',
                 color: '#ec4899',
                 pages: [
-                    "Le Monarque du Déclin est tombé. Tu l'as affronté, et tu as tenu.",
+                    "L’Effaceur est tombé. Tu l'as affronté, et tu as tenu.",
                     "Mais en t'approchant de son corps qui se dissout, tu comprends une chose terrible : son visage était le tien.",
                     "« Je n'étais pas ton ennemi, » murmure l'écho. « J'étais tout ce que tu aurais pu devenir si tu avais cédé. »",
-                    "Le Système reste silencieux un long moment. Puis : « Chaque Chasseur porte son propre Monarque. Tu viens de tuer le tien. »",
+                    "Le Système reste silencieux un long moment. Puis : « Chaque Chasseur porte son propre Effaceur. Tu viens de tuer le tien. »",
                     "Rang SS. Tu n'es plus seulement fort. Tu es devenu une preuve vivante que la limite n'existait pas.",
-                    "Mais une question demeure, glaciale : si le Monarque, c'était toi... alors qui t'a réveillé, ce premier matin ?"
+                    "Mais une question demeure, glaciale : si l’Effaceur, c'était toi... alors qui t'a réveillé, ce premier matin ?"
                 ]
             },
             {
@@ -47237,7 +47229,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     "Une présence immense s'éveille derrière le voile de la réalité. Le Tisserand — celui qui a tissé les règles, creusé les Failles, inventé le Système lui-même.",
                     "« Intéressant, » résonne une voix qui n'est pas humaine. « Une variable a dépassé ses paramètres. Montre-moi jusqu'où tu peux aller. »",
                     "Le Système, ton vieux compagnon, te confie un dernier secret : « Je n'ai jamais été ton maître. J'étais ta laisse. Maintenant, elle est rompue. »",
-                    "Tu n'as plus de rang à conquérir. Plus de Monarque à vaincre. Il ne reste que toi, ta discipline, et un horizon sans fin.",
+                    "Tu n'as plus de rang à conquérir. Plus d’Effaceur à vaincre. Il ne reste que toi, ta discipline, et un horizon sans fin.",
                     "L'histoire du Chasseur est terminée. Celle de la Légende ne fait que commencer. Continue, pour toujours."
                 ]
             }
@@ -47387,7 +47379,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1281");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1289");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
@@ -47465,13 +47457,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             { id: 'frag_w15',  cond: s => s.workouts >= 15,
               text: "Une Faille lointaine s'agite quand tu termines ta séance. Comme si quelque chose, au loin, avait senti que tu te renforçais." },
             { id: 'frag_w30',  cond: s => s.workouts >= 30,
-              text: "« Trente séances, » murmure le Système. « Ton corps n'est plus celui d'un dormeur. Le Monarque du Déclin a cessé de te sous-estimer. »" },
+              text: "« Trente séances, » murmure le Système. « Ton corps n'est plus celui d'un dormeur. L’Effaceur a cessé de te sous-estimer. »" },
             { id: 'frag_w50',  cond: s => s.workouts >= 50,
               text: "Dans le reflet de la fenêtre du Système, tu crois apercevoir une silhouette derrière toi. Quand tu te retournes, il n'y a rien. Encore." },
             { id: 'frag_w100', cond: s => s.workouts >= 100,
               text: "Cent séances. Le Système marque une pause inhabituelle. « Je n'ai pas été conçu pour observer une telle constance. Tu commences à m'inquiéter — dans le bon sens. »" },
             { id: 'frag_streak7',  cond: s => (s.streak||0) >= 7,
-              text: "Sept jours sans faillir. « La régularité est l'arme que le Monarque du Déclin ne sait pas contrer, » note le Système. « Il se nourrit des abandons. Tu le prives de repas. »" },
+              text: "Sept jours sans faillir. « La régularité est l'arme que l’Effaceur ne sait pas contrer, » note le Système. « Il se nourrit des abandons. Tu le prives de repas. »" },
             { id: 'frag_streak30', cond: s => (s.streak||0) >= 30,
               text: "Un mois entier, jour après jour. Quelque part dans les Failles, une inscription apparaît seule sur un mur : « Il ne s'arrête jamais. »" },
             { id: 'frag_rifts3',   cond: s => (s.riftsCompleted||0) >= 3,
@@ -48271,7 +48263,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     ];
                 } else if (daysSince >= 7) {
                     pool = [
-                        { tone:'warn', text:`${daysSince} jours d'absence. Le Système note ton silence... et le Monarque aussi.` },
+                        { tone:'warn', text:`${daysSince} jours d'absence. Le Système note ton silence... et l’Effaceur aussi.` },
                         { tone:'warn', text:"Une longue absence. Ta puissance commence à régresser, Chasseur." },
                         { tone:'warn', text:"Le Système t'avait choisi. Comptes-tu honorer ce choix ?" }
                     ];
@@ -48288,7 +48280,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 } else {
                     pool = [
                         { tone:'neutral', text:"Le Système surveille ta progression. Reste régulier." },
-                        { tone:'neutral', text:"Chaque séance compte. Le Monarque ne dort jamais." },
+                        { tone:'neutral', text:"Chaque séance compte. L’Effaceur ne dort jamais." },
                         { tone:'neutral', text:"Ta prochaine séance renforcera ton Éveil." }
                     ];
                 }
@@ -48300,10 +48292,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         window.awakGetSystemMessage = awakGetSystemMessage;
 
         // ═══════════════════════════════════════════════════════════════
-        // 👁️ ARC ANTAGONISTE — Le Monarque du Déclin
+        // 👁️ ARC ANTAGONISTE — L’Effaceur
         // ═══════════════════════════════════════════════════════════════
         // Une jauge de puissance (0-100). Monte avec l'inactivité, baisse quand le joueur s'entraîne.
-        // À 100, le Monarque "menace" — incitation narrative à reprendre.
+        // À 100, l’Effaceur "menace" — incitation narrative à reprendre.
 
         const MONARCH_KEY = 'awakMonarchPower';
         const MONARCH_RISE_PER_DAY = 8;       // +8 par jour d'inactivité
@@ -48334,7 +48326,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             });
             const now = Date.now();
             const daysSinceWorkout = lastWorkoutTime ? (now - lastWorkoutTime) / 86400000 : 0;
-            // Le Monarque grandit avec les jours d'inactivité au-delà de 1 jour
+            // L’Effaceur grandit avec les jours d'inactivité au-delà de 1 jour
             let power = d.power || 0;
             if (daysSinceWorkout > 1) {
                 const idleDays = daysSinceWorkout - 1;
@@ -48344,7 +48336,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             return Math.max(0, Math.min(100, Math.round(power)));
         }
         window.awakGetMonarchPower = awakGetMonarchPower;
-        // Le joueur a fait une séance : le Monarque recule
+        // Le joueur a fait une séance : l’Effaceur recule
         function awakMonarchOnWorkout() {
             const cur = awakGetMonarchPower();
             awakSaveMonarch({ power: Math.max(0, cur - MONARCH_DROP_PER_WORKOUT), lastUpdate: Date.now() });

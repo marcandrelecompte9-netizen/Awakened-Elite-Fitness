@@ -17,7 +17,7 @@
       isInfo: true,
       isFinalStory: true,
       _color: color || '#dc2626',
-      image: 'images/story/nabdano.webp',   // 🖼️ le Monarque est visible pendant tout le combat
+      image: 'images/story/nabdano.webp',   // 🖼️ l’Effaceur est visible pendant tout le combat
       instructions: lines
     };
   }
@@ -49,7 +49,7 @@
   // Avant : séance fixe. STR 80 ou STR 400 → strictement identique, et
   // toute la boucle « entraînement → stats → équipement → combat »
   // s'effondrait au moment où elle aurait dû culminer.
-  // Maintenant : le Monarque a des PV, et chaque ACTE interroge une
+  // Maintenant : l’Effaceur a des PV, et chaque ACTE interroge une
   // stat différente. Le Berserker écrase l'Acte Force et souffre en
   // Explosivité ; l'Assassin fait l'inverse ; le polyvalent devient
   // enfin intéressant.
@@ -69,13 +69,13 @@
     return { STR: 10, AGI: 10, VIT: 10, END: 10, PER: 5, SEN: 5 };
   }
 
-  // PV du Monarque : socle fixe, modulé par le Power Score.
+  // PV de l’Effaceur : socle fixe, modulé par le Power Score.
   // Fourchette VOLONTAIREMENT étroite (0,9 → 1,15) : un joueur puissant
   // doit rester avantagé. Une fourchette large donnerait l'impression
   // que les progrès sont annulés — le pire ressenti possible en RPG.
   function monarqueHP() {
     // 🎯 Calibré sur la séance narrative (21 exercices × ~3 séries).
-    // Le Monarque prend des dégâts à CHAQUE SÉRIE validée, comme un ennemi de
+    // L’Effaceur prend des dégâts à CHAQUE SÉRIE validée, comme un ennemi de
     // Faille : une séance complète inflige ~5 900 dgts (build faible) à
     // ~16 400 (build optimisé). À 12 500 PV, un build travaillé le fait tomber
     // avant la fin, un build faible n'y arrive pas encore — le build reste
@@ -226,7 +226,7 @@
   function startFinalBoss() {
     if (!isFinalUnlocked()) {
       if (typeof showAlert === 'function') {
-        showAlert('Le Monarque attend', 'Quatre gardiens se dressent encore entre toi et lui. Il ne te parlera qu\'une fois leurs quatre questions résolues.');
+        showAlert('L’Effaceur attend', 'Quatre gardiens se dressent encore entre toi et lui. Il ne te parlera qu\'une fois leurs quatre questions résolues.');
       }
       return;
     }
@@ -235,14 +235,14 @@
     // Chaque exercice terminé retire des dégâts calculés selon la stat de l'acte.
     const hpMax = monarqueHP();
     const workout = {
-      name: '👑 Le Monarque du Déclin',
+      name: '👑 L’Effaceur',
       type: 'finalboss',
       _isFinalBoss: true,
       _bossHpMax: hpMax,
       _bossHp: hpMax,
       _bossImage: 'images/story/nabdano.webp',
       exercises: exercises,
-      badgeHTML: '👑 COMBAT FINAL — Le Monarque du Déclin',
+      badgeHTML: '👑 COMBAT FINAL — L’Effaceur',
       badgeStyle: 'linear-gradient(135deg, #dc2626 0%, #7f1d1d 100%)'
     };
     // Utilise le pipeline de séance préparée existant
@@ -266,7 +266,7 @@
   }
   window.awakStartFinalBoss = startFinalBoss;
 
-  // ⚔️ Applique les dégâts d'un exercice terminé au Monarque.
+  // ⚔️ Applique les dégâts d'un exercice terminé à l’Effaceur.
   // Appelé par app.js à la fin de chaque exercice du combat final.
   // C'est ici que le BUILD du joueur compte : la stat de l'acte domine (70 %),
   // la polyvalence complète (30 %) — un spécialisé écrase son acte et rame

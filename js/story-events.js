@@ -660,7 +660,7 @@ const STORY_EVENTS = [
             pages: [
                 "« Celui qui a écrit cette inscription... il était comme toi. La plus grande Ancre que ce monde ait connue. »",
                 "« Il a porté le monde seul, trop longtemps. Et un jour, la fatigue a gagné. Il s'est assis. Son propre fragment — son Système — s'est éteint, faute de quelqu'un pour le tenir. »",
-                "« Et l'effacement s'est répandu depuis lui, comme une fissure. Ceux qui le sentent approcher l'appellent le Monarque du Déclin. »",
+                "« Et l'effacement s'est répandu depuis lui, comme une fissure. Ceux qui le sentent approcher l'appellent l’Effaceur. »",
                 "« Mais il avait un nom, avant. Nabdano. Retiens-le. Tôt ou tard, il voudra que tu t'assoies, toi aussi. »"
             ]
         }
@@ -1184,7 +1184,7 @@ const STORY_EVENTS = [
         }
     },
     // ══════════════════════════════════════════════════════════════
-    // 👑 IL N'Y A PLUS DE PORTE — juste avant le Monarque
+    // 👑 IL N'Y A PLUS DE PORTE — juste avant l’Effaceur
     // Les 4 sous-boss sont tombés : le combat final se débloque. Sans
     // transition, le joueur passait de la 4ᵉ épreuve à un bouton
     // « COMBAT FINAL DISPONIBLE » sans respiration narrative.
@@ -1361,7 +1361,7 @@ function storyEventEligible(evt, ctx) {
             }
             return (ctx.xp || 0) >= t.value;
         }
-        case 'finalBoss':     // le Monarque du Déclin a été affronté
+        case 'finalBoss':     // l’Effaceur a été affronté
             try { return localStorage.getItem('awakFinalBossDefeated') === '1'; } catch (e) { return false; }
         case 'rifts':    return (ctx.rifts || 0) >= t.value;
         case 'rank': {

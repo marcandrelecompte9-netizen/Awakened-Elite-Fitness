@@ -80,7 +80,7 @@
       if (a(/poing|fist/)) return 'poing';
       if (a(/cristal|eclat|noyau|coeur|essence|genese/)) return 'cristal';
       if (a(/breloque|insigne|sceau/)) return 'medaille';
-      if (a(/plaque|garde de monarque/)) return 'bouclier';
+      if (a(/plaque|garde de l.effaceur/)) return 'bouclier';
       return 'epee';
     }
     if (s === 'head') {

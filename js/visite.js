@@ -51,10 +51,13 @@
   // donc les deux cas (ex. Famille seule / Famille à plusieurs).
   function ligneAccueil(rx) { return parTexte('homeTab', 'button.ahp-row', rx); }
   function enteteReglage(rx) { return parTexte('settingsTab', '.accordion-header', rx); }
+  // v1287 : bouton de profil de l'Accueil (changer de profil / modifier le sien)
+  function boutonProfil() { return $('#ahpEntete button[onclick*="showProfileSelectionModal"]') || $('#profileSwitchBtn'); }
   function cielFamille() { var sv = $('#familyContainer svg[viewBox="0 0 300 300"]'); return sv ? sv.parentElement : null; }
   var VISITES = {
     home: [
       { c: function () { return $('#homeTab .ahp-btn-p'); }, t: 'Démarrer', d: 'Lance une séance adaptée à toi en un seul toucher.' },
+      { c: boutonProfil, t: 'Ton profil', d: 'Touche ton avatar pour passer au profil d\'un autre membre de la famille, en créer un, ou modifier le tien avec le crayon : nom, âge, poids, objectif.' },
       { c: function () { return $('#homeTab .ahp-btn-s'); }, t: 'Ta semaine', d: 'Choisis tes jours d\'entraînement : l\'appli prépare la semaine et te rappelle la séance du jour.' },
       { c: function () { return ligneAccueil(/Où as-tu mal/); }, t: 'Une douleur ?', d: 'Indique où tu as mal : les séances évitent cette zone jusqu\'à ce que ça aille mieux.' },
       { c: function () { return ligneAccueil(/Tout explorer/); }, t: 'Tout explorer', d: 'Toutes les fonctions de l\'appli au même endroit, si tu cherches quelque chose.' },
@@ -76,6 +79,20 @@
       { c: function () { var b = parTexte('programTab', 'button', /^Mentors$/); return b ? b.parentElement : null; }, t: 'Trois chemins', d: 'Mentors : un plan complet selon ton niveau. Sports : boxe, yoga, calisthénie… Salle : des programmes sur machines.' },
       { c: function () { return parTexte('programTab', 'h2', /mentor/i); }, t: 'Un programme suivi', d: 'Plusieurs semaines planifiées, séance par séance : tu n\'as plus qu\'à suivre.' },
       { c: function () { return parTexte('programTab', 'button', /TOUS LES PROGRAMMES/i); }, t: 'Tout le catalogue', d: 'Force, perte de poids, mobilité… Choisis celui qui te ressemble.' }
+    ],
+    // v1282 : Programme › Sports et Programme › Salle ont chacun leur visite
+    program_sports: [
+      { c: function () { var b = $('#programTab button[onclick^="selectDisciplineCard"]'); return b ? b.parentElement : null; }, t: 'Choisis ton sport', d: 'Boxe, calisthénie, yoga, HIIT… Chaque sport a ses propres séances, sans matériel pour la plupart.' },
+      { c: function () { var n = parTexte('programTab', 'span', /^NIVEAU/); return n ? parent(n, 2) : null; }, t: 'Ton niveau dans ce sport', d: 'Chaque séance faite te donne de l\'expérience dans ce sport. « Comment ça marche » explique la discipline.' },
+      { c: function () { return $('#programTab button[onclick^="startDisciplineSession"]'); }, t: 'Une séance', d: 'Touche-la pour la lancer. La durée, le nombre d\'exercices et le niveau sont indiqués.' },
+      { c: function () { return parTexte('programTab', 'button', /À DÉBLOQUER/); }, t: 'À débloquer', d: 'Les séances plus dures s\'ouvrent quand tu montes de niveau dans ce sport.' },
+      { c: function () { return parTexte('programTab', 'button', /Mon arbre de progression/); }, t: 'Ton arbre', d: 'Les mouvements à maîtriser étape par étape, et où tu en es.' }
+    ],
+    program_salle: [
+      { c: function () { var b = parTexte('programTab', 'button', /^(Passer à|Mes machines)/); return b ? b.parentElement : null; }, t: 'Ton lieu', d: 'Au gym, passe en mode salle : sinon les machines sont remplacées par le matériel que tu as.' },
+      { c: function () { var t = parTexte('programTab', 'div', /^PROCHAINE SÉANCE$/); return t ? t.parentElement : null; }, t: 'Ta prochaine séance', d: 'L\'appli retient où tu en es et te propose la suite.' },
+      { c: function () { var b = $('#programTab button[onclick^="AwakSalle.ouvrirProg"]'); return b ? b.closest('.card') : null; }, t: 'Un programme', d: 'Touche-le pour voir ses séances (A, B…). Chacune indique les séries, les répétitions et le repos.' },
+      { c: function () { return parTexte('programTab', 'span', /^(Débutant|Intermédiaire|Avancé|Tous niveaux) · /); }, t: 'Selon ton niveau', d: 'Débutant, intermédiaire ou avancé, et le nombre de jours par semaine : prends celui qui te va. « Machines seulement » est idéal pour commencer.' }
     ],
     course: [
       { c: function () { var b = $('#courseTab .awak-run-act'); return b ? b.parentElement : null; }, t: 'Ton activité', d: 'Course, marche ou vélo.' },
@@ -141,6 +158,67 @@
     ]
   };
 
+  // v1286 : version ENFANT (moins de 13 ans) — phrases courtes, mots simples,
+  // pas d'étapes réservées au parent (montre, sauvegarde, ajout de membre,
+  // calculs de charge). Un onglet absent ici n'a pas de visite pour l'enfant
+  // (l'onglet Jeu, lui, n'existe pas avant 13 ans). 13 à 15 ans : version adulte.
+  var VISITES_ENFANT = {
+    home: [
+      { c: function () { return $('#homeTab .ahp-btn-p'); }, t: 'C\'est parti !', d: 'Touche ici pour bouger : l\'appli choisit des exercices faits pour toi.' },
+      { c: boutonProfil, t: 'Ton profil', d: 'Touche ton image pour passer au profil de quelqu\'un d\'autre. Vérifie que c\'est bien toi avant de bouger ! Pour changer ton nom ou ton âge, demande à un adulte.' },
+      { c: function () { return $('#youthSafetyBanner'); }, t: 'Avec un adulte', d: 'Fais tes exercices avec un adulte pas loin. Si quelque chose fait mal, tu arrêtes et tu le dis.' },
+      { c: function () { return ligneAccueil(/Où as-tu mal/); }, t: 'Un bobo ?', d: 'Dis-le ici : l\'appli évitera cette partie du corps.' },
+      { c: function () { return $('#mobileNavBar'); }, t: 'Les onglets', d: 'Séance pour bouger, Progrès pour voir tout ce que tu as fait, Famille pour bouger avec les tiens.' }
+    ],
+    workouts: [
+      { c: function () { return barreSeance('workoutsTab'); }, t: 'Plein de façons de bouger', d: 'Séance libre, routines, aventures, course ou défis : choisis ce qui te tente.' },
+      { c: function () { return parTexte('workoutsTab', 'button', /FAIS MA SÉANCE/i); }, t: 'Le plus simple', d: 'Touche ici : l\'appli prépare ta séance toute seule.' },
+      { c: function () { var h = $('#awakCorpsHost'); return h ? h.querySelector('svg') : null; }, t: 'Ton corps', d: 'Touche une partie du corps pour la faire travailler.' },
+      { c: function () { return $('#awakAutresToggle'); }, t: 'Des jeux', d: 'Ouvre ici les jeux : dés, cartes, duel… On bouge en s\'amusant.' }
+    ],
+    routines: [
+      { c: function () { return parTexte('routinesTab', 'button', /^Nouvelle/); }, t: 'Ta séance à toi', d: 'Choisis tes exercices préférés et garde-les pour la prochaine fois.' },
+      { c: function () { return parTexte('routinesTab', 'button', /^Modèles/); }, t: 'Des séances toutes prêtes', d: 'Prends-en une et essaie-la.' }
+    ],
+    program: [
+      { c: function () { return parTexte('programTab', 'h2', /aventure/i); }, t: 'Choisis une aventure', d: 'Super-héros, ninja, pirates, dinosaures… Chaque aventure a ses missions.' },
+      { c: function () { return parTexte('programTab', 'div', /^(École des super-héros|Le zoo en mouvement|Académie ninja)/); }, t: 'Une aventure', d: 'Touche-la pour voir ses missions. Chaque mission réussie te rapproche de la fin !' }
+    ],
+    course: [
+      { c: function () { var b = $('#courseTab .awak-run-act'); return b ? b.parentElement : null; }, t: 'Dehors', d: 'Marche, course ou vélo : choisis ce que tu fais.' },
+      { c: function () { return $('#awakRunGo'); }, t: 'C\'est parti', d: 'Le téléphone compte la distance. Va dehors seulement avec un adulte.' }
+    ],
+    challenges: [
+      { c: function () { return $('#awakDefiEtoiles'); }, t: 'Tes étoiles', d: 'Chaque défi réussi te donne une étoile. Combien vas-tu en gagner ?' },
+      { c: function () { var l = $('#challengesList'); return l ? l.querySelector('button') : null; }, t: 'Un défi', d: 'Choisis un défi, fais-le un peu chaque jour et coche ta case.' }
+    ],
+    history: [
+      { c: function () { return $('#awakProgHaut'); }, t: 'Ce que tu as fait', d: 'Toutes tes séances s\'affichent ici.' },
+      { c: function () { return parTexte('historyTab', 'button', /Arbre de l.Éveil/); }, t: 'Ton arbre', d: 'Il pousse à chaque séance : force, souplesse, endurance…' },
+      { c: function () { var t = $('#awakTuileHofTitre'); return t ? t.closest('button') : null; }, t: 'Tes records', d: 'Ce que tu as fait de mieux. Essaie de battre ton record !' }
+    ],
+    calendar: [
+      { c: function () { return $('#calendarTabContent .card'); }, t: 'Ton calendrier', d: 'Les jours où tu as bougé sont cochés.' },
+      { c: function () { var b = parTexte('calendarTab', 'button', /^Semaine$/); return b ? b.parentElement : null; }, t: 'Semaine ou mois', d: 'Change la vue pour voir plus loin.' }
+    ],
+    exercises: [
+      { c: function () { return $('#exerciseSearch'); }, t: 'Chercher', d: 'Écris le nom d\'un exercice pour le trouver.' },
+      { c: function () { return $('#awakFilterBar'); }, t: 'Les fiches', d: 'Touche un exercice pour voir comment le faire, avec une image.' }
+    ],
+    family: [
+      { c: function () { var c = cielFamille(); return c ? c.querySelector('svg') : null; }, t: 'Le ciel de la famille', d: 'Chaque étoile, c\'est quelqu\'un de ta famille. Touche une étoile pour l\'encourager ou lui lancer un défi.' },
+      { c: function () { var b = parTexte('familyContainer', 'button', /^Défis$/); return b ? b.parentElement : null; }, t: 'Ensemble', d: 'Des défis à faire en famille et un but à atteindre tous ensemble.' },
+      // Encore seul dans la famille
+      { c: function () { var b = parTexte('familyContainer', 'button', /Ajouter un membre/); return b ? b.parentElement : null; }, t: 'Ta famille', d: 'Ici, toute ta famille bouge ensemble. Demande à un adulte d\'ajouter les autres.' }
+    ],
+    settings: [
+      { c: function () { return enteteReglage(/^\s*>?\s*Entraînement/); }, t: 'Les réglages', d: 'Ici, on règle le temps de repos et l\'échauffement. Demande à un adulte avant de changer quelque chose.' },
+      { c: function () { return enteteReglage(/Audio/); }, t: 'Les sons', d: 'La voix du coach et les sons de l\'appli.' }
+    ]
+  };
+  function enfant() { try { return !!(window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()); } catch (e) { return false; } }
+  function jeuVisites() { return enfant() ? VISITES_ENFANT : VISITES; }
+
   // ── Peut-on afficher maintenant ? ────────────────────────────
   function profilPret() {
     try {
@@ -192,17 +270,24 @@
     minuterie = setTimeout(function () { tenter(onglet); }, delai == null ? 700 : delai);
   }
 
+  function cleVisite(onglet) {
+    if (onglet !== 'program' || enfant()) return onglet;   // l'enfant a une seule vue : ses aventures
+    var v = ''; try { v = typeof window.getProgramTabView === 'function' ? window.getProgramTabView() : ''; } catch (e) {}
+    return v === 'discipline' ? 'program_sports' : (v === 'salle' ? 'program_salle' : 'program');
+  }
   function tenter(onglet) {
     if (window.__AWAK_SANS_VISITE) return;              // tests automatiques
-    if (enCours || !onglet || !VISITES[onglet] || vu(onglet)) return;
     if (ongletActif() !== onglet) return;              // l'utilisateur est déjà ailleurs
+    var cle = cleVisite(onglet);
+    var V = jeuVisites();
+    if (enCours || !onglet || !V[cle] || vu(cle)) return;
     if (onglet === 'game' && !jeuPret()) { if (essais++ < 40) planifier(onglet, 2500); return; }
     if (!profilPret() || !ecranLibre()) { if (essais++ < 40) planifier(onglet, 1500); return; }
     if (window.AwakCine && window.AwakCine.defer(function () { planifier(onglet, 400); })) return;
-    var etapes = VISITES[onglet].filter(function (e) { var el = null; try { el = e.c(); } catch (x) {} return visible(el); });
+    var etapes = V[cle].filter(function (e) { var el = null; try { el = e.c(); } catch (x) {} return visible(el); });
     if (!etapes.length) return;                         // rien à montrer : on réessaiera à la prochaine visite
     essais = 0;
-    montrer(onglet, etapes);
+    montrer(cle, etapes);
   }
 
   function styles() {
@@ -301,13 +386,18 @@
     document.querySelectorAll('.tab-content').forEach(function (t) {
       obs.observe(t, { attributes: true, attributeFilter: ['class'] });
     });
+    var spv = window.setProgramTabView;
+    if (typeof spv === 'function' && !spv._visite) {
+      window.setProgramTabView = function (v) { var r = spv.apply(this, arguments); essais = 0; planifier('program', 700); return r; };
+      window.setProgramTabView._visite = true;
+    }
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { setTimeout(surveiller, 300); });
   else setTimeout(surveiller, 300);
 
   window.AwakVisite = {
     VISITES: VISITES,
-    montrer: function (onglet) { var o = lire() || {}; delete o[onglet]; ecrire(o); essais = 0; tenter(onglet); },
+    montrer: function (onglet) { var o = lire() || {}; delete o[cleVisite(onglet)]; ecrire(o); essais = 0; tenter(onglet); },
     // Revoir toutes les visites (depuis « Tout explorer »)
     reinitialiser: function () {
       ecrire({});

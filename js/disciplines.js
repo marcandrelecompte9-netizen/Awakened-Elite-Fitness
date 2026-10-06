@@ -778,7 +778,7 @@
   YOGA_SESSIONS.push({ id: 'souplesse', name: '🤸 Souplesse & hanches', level: 'Tous niveaux', rest: 5, minLevel: 1, goal: true, exercises: YOGA_SOUPLESSE });
   YOGA_SESSIONS.push({ id: 'recup', name: '💪 Récup post-séance', level: 'Tous niveaux', rest: 5, minLevel: 1, goal: true, exercises: YOGA_RECUP });
 
-  // Postures par côté des paliers : prompt auto « Changez de côté » (moteur bilatéral déjà présent).
+  // Postures par côté des paliers : prompt auto « Change de côté » (moteur bilatéral déjà présent).
   (function () {
     var _perSide = ["Guerrier", "Guerrier 2 + triangle", "Guerrier 3", "Posture de l'arbre",
       "Torsion assise", "Chaise tournée", "Demi-lune", "Planche latérale yoga", "Posture du danseur"];

@@ -194,7 +194,7 @@ Image Nabdano lui-même : ✅ FAITE (nabdano.webp — assis, visage caché, qui 
 - ✅ v176 : moteur d'événements narratifs (fondation)
 - ✅ v177 : scène « La Rencontre » Esen/Nyra
 - ✅ v178 : bouton admin montée de niveau
-- ✅ v179 : ancienne histoire (Monarque) désactivée
+- ✅ v179 : ancienne histoire (Effaceur) désactivée
 - ✅ v180 : rencontre au niveau 5 + bouton reset histoire
 - ✅ v181 : réduction 8→5 compagnons + déblocage par rang (D/C/B/A/S) + nettoyage saves orphelines
 - ⬜ Système Failles d'Histoire jouables (texte → séance → texte, bloquant)
@@ -209,7 +209,7 @@ Image Nabdano lui-même : ✅ FAITE (nabdano.webp — assis, visage caché, qui 
 
 ## 10. RAPPELS ANTI-CASSE SPÉCIFIQUES À CE CHANTIER
 
-- L'ANCIENNE histoire (Monarque du Déclin, chapitres `STORY_CHAPTERS`) est
+- L'ANCIENNE histoire (Effaceur, chapitres `STORY_CHAPTERS`) est
   ENCORE en place. À remplacer proprement, pas à dupliquer.
 - Modifications chirurgicales. Une étape = un build testé.
 - Toujours vérifier les références avant de supprimer (compagnons retirés).
@@ -260,9 +260,9 @@ awakApplyBossMechanic ignore ces ids custom (pas de conflit).
 - **Le joueur EST Esen (avatar homme) ou Nyra (avatar femme)** — jamais un 3e personnage (v1267).
   L'autre héros est le partenaire. Jetons dans les textes : {partenaire}, {il}/{Il}, {pe}, {e} ;
   variantes `pagesSi:{esen,nyra}` (ex. Élise parle du partenaire). Les réactions viennent du partenaire.
-- **Le Monarque du Déclin = le nom que les survivants donnent à Nabdano** (révélé dans « Le Nom »).
+- **L’Effaceur = le nom que les survivants donnent à Nabdano** (révélé dans « Le Nom »).
   La jauge du Déclin, la carte « au bout de l'avenue » et le combat final parlent donc de lui.
-  Personne d'autre ne porte le titre de Monarque (classes → « Souverain », cartes → « Ancre »).
+  Personne d'autre ne porte le titre de l’Effaceur (classes → « Souverain », cartes → « Ancre »).
 - **Ordre de la fin** : Celui qui a Porté (55) → Presque Tendre (65) → Dernière Porte (80) →
   Les Quatre Épreuves (gardiens = ses questions) → Il n'y a plus de Porte → combat final
   (Nabdano reste assis, il prête sa fatigue) → scène « L'Ancre » → écran de victoire → Abysses.
