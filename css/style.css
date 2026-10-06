@@ -8068,3 +8068,16 @@ body.dark-mode .nav-tab.active {
     color: #04121f !important;
     border: none !important;
 }
+
+/* v1297 — barre du haut en séance : tout tient sur un téléphone de 360 px
+   (le volume et les étoiles étaient coupés). */
+@media (max-width: 480px) {
+  #workoutTopBar { gap: 6px !important; padding-left: 10px !important; padding-right: 10px !important; }
+  #workoutTopBar #workoutTopTitle { display: none !important; }
+  #workoutTopBar #quitBtn { padding: 6px 9px !important; letter-spacing: 0.5px !important; }
+  #workoutTopBar #liveVolumeChip { padding: 5px 7px !important; }
+  #workoutTopBar #sessionTimerChip { padding: 5px 6px !important; }
+}
+@media (max-width: 400px) {
+  #workoutTopBar #liveVolumeChip .awk-mini-barre { display: none !important; }
+}

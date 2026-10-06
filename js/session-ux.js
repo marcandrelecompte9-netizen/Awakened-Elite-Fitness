@@ -20,21 +20,32 @@
     try { return (window.AwakIcon && AwakIcon.get(nom, t, c)) || ''; } catch (e) { return ''; }
   }
 
-  // ── Cardio d'échauffement : activité choisie selon le matériel ──
+  // ── Cardio d'échauffement : au CHOIX parmi ce que le matériel permet ──
+  // v1298 : avant, une seule activité imposée (la 1re trouvée, souvent la
+  // corde à sauter). Maintenant on choisit ; le dernier choix est retenu.
   var CARDIO = [
-    { name: 'Tapis roulant',     equip: 'Tapis roulant' },
-    { name: 'Vélo stationnaire', equip: 'Vélo stationnaire' },
-    { name: 'Rameur',            equip: 'Rameur' },
-    { name: 'Corde à sauter',    equip: 'Corde à sauter' },
-    { name: 'Jumping jacks',     equip: null }
+    { name: 'Tapis roulant',               court: 'Tapis',        equip: 'Tapis roulant' },
+    { name: 'Vélo stationnaire',           court: 'Vélo',         equip: 'Vélo stationnaire' },
+    { name: 'Rameur',                      court: 'Rameur',       equip: 'Rameur' },
+    { name: 'Elliptique',                  court: 'Elliptique',   equip: 'Elliptique' },
+    { name: 'Corde à sauter',              court: 'Corde',        equip: 'Corde à sauter' },
+    { name: 'Jumping jacks',               court: 'Jumping jacks', equip: null },
+    { name: 'Montées de genoux sur place', court: 'Genoux',       equip: null },
+    { name: 'Shadow Boxing',               court: 'Boxe dans le vide', equip: null },
+    { name: 'Marche sur place',            court: 'Marche',       equip: null }
   ];
-  function activiteCardio() {
+  var CLE_CARDIO = 'awakCardioChoix';
+  function cleCardio() { try { return typeof window._cleProfil === 'function' ? window._cleProfil(CLE_CARDIO) : CLE_CARDIO; } catch (e) { return CLE_CARDIO; } }
+  function activitesDispo() {
     var eq = [];
     try { if (typeof getSelectedEquipmentNames === 'function') eq = getSelectedEquipmentNames() || []; } catch (e) {}
-    for (var i = 0; i < CARDIO.length; i++) {
-      if (!CARDIO[i].equip || eq.indexOf(CARDIO[i].equip) !== -1) return CARDIO[i];
-    }
-    return CARDIO[CARDIO.length - 1];
+    return CARDIO.filter(function (c) { return !c.equip || eq.indexOf(c.equip) !== -1; });
+  }
+  function activiteCardio() {
+    var dispo = activitesDispo(), voulu = null;
+    try { voulu = etat.activite || localStorage.getItem(cleCardio()); } catch (e) {}
+    for (var i = 0; i < dispo.length; i++) if (dispo[i].name === voulu) return dispo[i];
+    return dispo[0] || CARDIO[CARDIO.length - 1];
   }
 
   var etat = { humeur: null, cardio: 0 };
@@ -79,12 +90,25 @@
     // Cardio
     h += '<div style="display:flex;align-items:center;gap:7px;font-size:0.74em;font-weight:800;color:' + CLAIR + ';margin:12px 0 8px;">'
       + ico('course', 15, CLAIR) + '<span>Cardio pour te réchauffer</span>'
-      + '<span style="margin-left:auto;font-size:0.85em;color:#64748b;font-weight:700;">' + act.name + '</span></div>';
+      + '<span style="margin-left:auto;font-size:0.85em;color:#64748b;font-weight:700;">' + (etat.cardio > 0 ? 'choisis l\'activité' : 'facultatif') + '</span></div>';
     h += '<div style="display:flex;gap:6px;">'
       + chip('cardio', 0, 'Non merci', etat.cardio === 0)
       + chip('cardio', 3, '3 min', etat.cardio === 3)
       + chip('cardio', 5, '5 min', etat.cardio === 5)
       + '</div>';
+    if (etat.cardio > 0) {
+      var dispo = activitesDispo();
+      h += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">'
+        + dispo.map(function (c, i) {
+            var on = c.name === act.name;
+            return '<button type="button" onclick="AwakSessUX._activite(' + CARDIO.indexOf(c) + ')" '
+              + 'style="padding:8px 11px;border-radius:99px;cursor:pointer;font-weight:800;font-size:0.72em;white-space:nowrap;touch-action:manipulation;'
+              + (on ? 'background:' + BLEU + '26;border:1.5px solid ' + BLEU + ';color:#fff;'
+                    : 'background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;')
+              + '">' + c.court + '</button>';
+          }).join('')
+        + '</div>';
+    }
     h += '</div>';
     hote.innerHTML = h;
   }
@@ -103,6 +127,14 @@
   function choisir(groupe, val) {
     if (groupe === 'humeur') etat.humeur = (etat.humeur === val) ? null : val;
     else etat.cardio = val;
+    try { if (window.AwakNative) AwakNative.vibrer(8); } catch (e) {}
+    rendrePrep();
+  }
+
+  function choisirActivite(i) {
+    var c = CARDIO[i]; if (!c) return;
+    etat.activite = c.name;
+    try { localStorage.setItem(cleCardio(), c.name); } catch (e) {}
     try { if (window.AwakNative) AwakNative.vibrer(8); } catch (e) {}
     rendrePrep();
   }
@@ -174,9 +206,9 @@
       : 'Encore ' + reste + ' exercices';
     var html = '<span style="flex-shrink:0;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;'
       + 'background:radial-gradient(circle,rgba(251,191,36,0.35),rgba(251,191,36,0.08));border:1px solid rgba(251,191,36,0.6);'
-      + 'animation:awakEtoileTourne .5s cubic-bezier(.34,1.56,.64,1) both;">' + ico('etoile', 22, OR) + '</span>'
+      + 'animation:awakEtoileTourne .5s cubic-bezier(.34,1.56,.64,1) both;">' + (enfant() ? ico('etoile', 22, OR) : ico('valide', 22, OR)) + '</span>'
       + '<span style="display:flex;flex-direction:column;line-height:1.2;">'
-      + '<span style="font-weight:900;font-size:0.95em;">Exercice terminé' + (info.etoiles ? ' · ' + info.etoiles + ' étoile' + (info.etoiles > 1 ? 's' : '') : '') + '</span>'
+      + '<span style="font-weight:900;font-size:0.95em;">Exercice terminé' + (info.etoiles && enfant() ? ' · ' + info.etoiles + ' étoile' + (info.etoiles > 1 ? 's' : '') : '') + '</span>'
       + '<span style="font-size:0.75em;color:' + CLAIR + ';font-weight:700;">' + sous + '</span></span>';
     bulle(html, true);
     try { if (typeof vibrate === 'function') vibrate([40, 30, 80]); } catch (e) {}
@@ -254,6 +286,7 @@
     serieFaite: serieFaite,
     enfant: enfant,
     _choisir: choisir,
+    _activite: choisirActivite,
     _douce: douce
   };
 })();

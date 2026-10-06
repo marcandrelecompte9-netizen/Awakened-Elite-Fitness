@@ -1362,6 +1362,11 @@ var EXERCISE_IMAGES = {
   'Flexions de poignets':          'images/exercises/Flexions_de_poignets.webp',
   'Flexions extensions bras':      'images/exercises/Flexions_extensions_bras.webp',
   'Jump Rope Basic':               'images/exercises/Jump_Rope_Calf_Focus.webp',
+  // v1298 : noms du cardio d'échauffement (écran « Prépare-toi »)
+  'Corde à sauter':                'images/exercises/Jump_Rope_Calf_Focus.webp',
+  'Tapis roulant':                 'images/exercises/Tapis_roulant_intervalles.webp',
+  'Rameur':                        'images/exercises/Rameur_Rowing_Machine.webp',
+  'Elliptique':                    'images/exercises/Elliptique_entraînement.webp',
   'Inchworm':                      'images/exercises/Inchworm.webp',
   'Inchworm avec pompe':           'images/exercises/Inchworm_avec_pompe.webp',
   'Jumping Jacks légers':          'images/exercises/Jumping_jacks.webp',

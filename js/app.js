@@ -6836,8 +6836,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // Repère : guidance générale fondée sur la recherche — ça varie d'une personne à l'autre.
         // ───────────────────────────────────────────────────────────────
         const AWAK_CYCLE_PHASES = {
-            menstruelle:  { label: 'Menstruelle', emoji: '🌑', color: '#94a3b8', energy: 'Basse',      rpg: 'Repos du Veilleur', intensity: 0.85, advice: "Énergie souvent plus basse. Mobilité, yoga, marche — et repos sans culpabiliser si besoin." },
-            folliculaire: { label: 'Folliculaire', emoji: '🌒', color: '#4ade80', energy: 'Montante',  rpg: 'Éveil',             intensity: 1.05, advice: "L'énergie remonte : bon moment pour construire et progresser." },
+            menstruelle:  { label: 'Menstruelle', emoji: '🌑', color: '#f472b6', energy: 'Basse',      rpg: 'Repos du Veilleur', intensity: 0.85, advice: "Énergie souvent plus basse. Mobilité, yoga, marche — et repos sans culpabiliser si besoin." },
+            folliculaire: { label: 'Folliculaire', emoji: '🌒', color: '#60a8f0', energy: 'Montante',  rpg: 'Éveil',             intensity: 1.05, advice: "L'énergie remonte : bon moment pour construire et progresser." },
             ovulation:    { label: 'Ovulation', emoji: '🌕', color: '#fbbf24', energy: 'Maximale',    rpg: 'Apogée',            intensity: 1.10, advice: "Pic d'énergie — idéal pour viser un record. Soigne ton échauffement : genou/cheville un peu plus sensibles." },
             luteale:      { label: 'Lutéale', emoji: '🌘', color: '#a78bfa', energy: 'Déclinante',  rpg: 'Crépuscule',        intensity: 0.92, advice: "Énergie en baisse : intensité modérée et plus de récupération." }
         };
@@ -11560,7 +11560,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const _cp = (typeof awakCyclePhase === 'function') ? awakCyclePhase() : null;
                 if (_cp && _cp.info) {
                     decisions.intensity = Math.max(0.5, Math.min(1.3, (decisions.intensity || 1) * _cp.info.intensity));
-                    if (Array.isArray(decisions.reasoning)) decisions.reasoning.push(_cp.info.emoji + ' Phase ' + _cp.info.label.toLowerCase() + ' — énergie ' + _cp.info.energy.toLowerCase());
+                    if (Array.isArray(decisions.reasoning)) decisions.reasoning.push('Phase ' + _cp.info.label.toLowerCase() + ' — énergie ' + _cp.info.energy.toLowerCase());
                 }
             } catch (e) {}
             
@@ -13018,6 +13018,32 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         }
         window.awakSecMaybePromptSetup = awakSecMaybePromptSetup;
 
+        // v1296 : proposé DÈS LA FIN DE L'INSCRIPTION (avant, seulement à la
+        // prochaine ouverture de l'app), une fois l'écran libre : après l'histoire,
+        // le tutoriel et le Parcours de l'Éveil, sans jamais s'empiler dessus.
+        function awakSecQuandLibre() {
+            let essais = 0;
+            const tenter = () => {
+                try {
+                    if (awakSecIsSet() || document.getElementById('awakSecModal')) return;
+                    const up = getUserProfile();
+                    let occupe = !up || !up.setupComplete;
+                    try { if (localStorage.getItem(_cleProfil('awakEveilPlusTard')) === '1') occupe = true; } catch (e) {}
+                    if (!occupe) {
+                        const cand = document.querySelectorAll('[id$="Modal"], [id$="Overlay"], [id*="Onb"], [id*="onb"], [id*="story"], [id*="Story"], [id*="tuto"], [id*="Tuto"], [id*="Welcome"], [id*="Visite"], [id*="Eveil"]');
+                        for (const c of cand) {
+                            const cs = getComputedStyle(c), r = c.getBoundingClientRect();
+                            if (cs.display !== 'none' && cs.visibility !== 'hidden' && +cs.opacity > 0 && r.width > 100 && r.height > 100) { occupe = true; break; }
+                        }
+                    }
+                    if (occupe) { if (++essais < 300) setTimeout(tenter, 1000); return; }
+                    awakSecShowCreate(null);
+                } catch (e) {}
+            };
+            setTimeout(tenter, 1200);
+        }
+        window.awakSecQuandLibre = awakSecQuandLibre;
+
         function deleteCurrentProfile() {
             const currentProfileId = getCurrentProfileId();
             const allProfiles = getAllProfiles();
@@ -13413,14 +13439,16 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const _vol = (!_enfant && volume > 0)
                 ? '<span style="opacity:0.35;">·</span><span>' + (useKg ? (volume >= 1000 ? (volume/1000).toFixed(1)+' t' : Math.round(volume)+' kg') : (fmtWeightVal(volume) >= 10000 ? (fmtWeightVal(volume)/1000).toFixed(1)+'k lbs' : Math.round(fmtWeightVal(volume))+' lbs')) + '</span>'
                 : '';
-            const _et = currentWorkout._etoiles || 0;
+            // v1297 : les étoiles ne servent qu'aux profils ENFANT (récompense simple) ;
+            // chez l'adulte elles prenaient de la place et coupaient la barre du haut.
+            const _et = _enfant ? (currentWorkout._etoiles || 0) : 0;
             const _etHtml = _et > 0
                 ? '<span style="display:inline-flex;align-items:center;gap:2px;color:#fbbf24;font-weight:900;">' + (window.AwakIcon ? AwakIcon.get('etoile', 12, '#fbbf24') : '') + _et + '</span>'
                 : '';
             chip.innerHTML = '<div style="display:flex;align-items:center;gap:6px;font-size:0.72em;font-weight:800;color:#cbd5e1;white-space:nowrap;">'
-                + '<span style="width:38px;height:5px;border-radius:99px;background:rgba(255,255,255,0.12);overflow:hidden;display:inline-block;flex-shrink:0;">'
+                + '<span class="awk-mini-barre" style="width:30px;height:5px;border-radius:99px;background:rgba(255,255,255,0.12);overflow:hidden;display:inline-block;flex-shrink:0;">'
                 +   '<span style="display:block;height:100%;width:' + pct + '%;background:linear-gradient(90deg,#60a8f0,#a78bfa);border-radius:99px;"></span></span>'
-                + '<span><b style="color:#fff;">' + Math.max(1, _pg.current) + '</b> sur ' + _pg.total + '</span>'
+                + '<span><b style="color:#fff;">' + Math.max(1, _pg.current) + '</b>/' + _pg.total + '</span>'
                 + _etHtml + _vol
                 + '</div>';
         }
@@ -21765,7 +21793,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1295);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1300);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -21814,7 +21842,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 +       '<rect width="5" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.22"/>'
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1295" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1300" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -27254,7 +27282,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1295");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1300");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -31587,7 +31615,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1295);'
+                +     'url(images/combat_bg_v1.webp?v=1300);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -31842,7 +31870,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1295);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1300);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -32101,7 +32129,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:540px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto;display:flex;flex-direction:column;">
                 <!-- Header : vague actuelle -->
-                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1295);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1300);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                         <span style="font-size:0.6em;color:${theme.color};font-weight:900;letter-spacing:2px;">⚔ VAGUE ${rift.currentWaveIdx + 1} / ${rift.waves.length}${currentWave.isBoss ? ' · BOSS' : ''}</span>
                         <button onclick="awakAbandonRift()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
@@ -33253,7 +33281,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1295');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1300');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -33990,7 +34018,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1295);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1300);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -34161,7 +34189,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1295);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1300);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -43965,40 +43993,69 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         }
         window.renderSexFocusCard = renderSexFocusCard;
 
-        // ── 🌙 Réglage du cycle (modal) ──
+        // ── 🌙 Suivi du cycle — v1299 : même visuel que le reste de l'app
+        // (cartes sombres, tuile d'icône SVG, bouton cyan, aucun emoji, pas de vert).
+        // Lune dessinée selon la phase (nouvelle, croissante, pleine, décroissante).
+        function awakCycleLune(phase, t, c) {
+            t = t || 22; c = c || '#e2e8f0';
+            const fond = '<circle cx="12" cy="12" r="8.5" fill="none" stroke="' + c + '" stroke-width="1.6"/>';
+            let rempli = '';
+            if (phase === 'ovulation') rempli = '<circle cx="12" cy="12" r="8.5" fill="' + c + '"/>';
+            else if (phase === 'folliculaire') rempli = '<path d="M12 3.5a8.5 8.5 0 0 1 0 17a5 8.5 0 0 0 0-17z" fill="' + c + '"/>';
+            else if (phase === 'luteale') rempli = '<path d="M12 3.5a8.5 8.5 0 0 0 0 17a5 8.5 0 0 1 0-17z" fill="' + c + '"/>';
+            else if (phase === 'menstruelle') rempli = '<circle cx="12" cy="12" r="3" fill="' + c + '" opacity="0.55"/>';
+            else rempli = '<path d="M15.5 4.6A8 8 0 1 0 19.4 15a6.5 6.5 0 0 1-3.9-10.4z" fill="' + c + '" opacity="0.9"/>';
+            return '<svg width="' + t + '" height="' + t + '" viewBox="0 0 24 24" style="display:block;">' + (phase ? fond : '') + rempli + '</svg>';
+        }
+        window.awakCycleLune = awakCycleLune;
+        const _CY_CARTE = 'background:#12161c;border:1px solid rgba(255,255,255,0.07);border-radius:16px;';
+        const _CY_TUILE = 'flex-shrink:0;width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.06);';
+        const _CY_CHAMP = 'width:100%;box-sizing:border-box;padding:12px;background:#0b0e13;border:1px solid rgba(255,255,255,0.10);border-radius:12px;color:#fff;font-size:0.95em;font-family:inherit;';
+        const _CY_LBL = 'display:block;font-size:0.68em;color:#94a3b8;font-weight:800;letter-spacing:0.5px;margin-bottom:6px;';
+
+        // ── Réglage du cycle (fenêtre) ──
         function openCycleSetup() {
             const c = awakGetCycle();
             const old = document.getElementById('cycleSetupModal'); if (old) old.remove();
             const today = awakJourLocal();
             const lastDate = (c.lastPeriodStart || today).slice(0, 10);
-            const modal = document.createElement('div');
-            modal.className = 'modal active';
-            modal.id = 'cycleSetupModal';
-            modal.innerHTML = '<div class="modal-content" style="max-width:440px;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;border-top:3px solid #a78bfa;">'
-                + '<div class="modal-header"><h2 style="font-size:1em;">Suivi du cycle</h2><button onclick="document.getElementById(\'cycleSetupModal\').remove()" style="background:none;border:none;font-size:1.5em;cursor:pointer;color:#94a3b8;">×</button></div>'
-                + '<div class="modal-body">'
-                + '<div style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.25);border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:0.75em;color:#cbd5e1;line-height:1.5;">Adapte les suggestions à ta phase (énergie, intensité). <strong style="color:#c4b5fd;">Privé &amp; local</strong> — rien n\'est envoyé. Guidance générale fondée sur la recherche : ça varie d\'une personne à l\'autre, écoute ton corps.</div>'
-                + '<label style="display:block;font-size:0.72em;color:#94a3b8;font-weight:700;text-transform:uppercase;margin-bottom:6px;">Début des dernières règles</label>'
-                + '<input id="cycleLastDate" type="date" max="' + today + '" value="' + lastDate + '" style="width:100%;box-sizing:border-box;padding:11px;background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.12);border-radius:10px;color:#fff;font-size:0.95em;margin-bottom:14px;">'
-                + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;">'
-                + '<div><label style="display:block;font-size:0.7em;color:#94a3b8;font-weight:700;text-transform:uppercase;margin-bottom:6px;">Durée cycle (j)</label><input id="cycleLen" type="number" min="21" max="40" value="' + (c.cycleLength || 28) + '" style="width:100%;box-sizing:border-box;padding:11px;background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.12);border-radius:10px;color:#fff;text-align:center;font-weight:800;"></div>'
-                + '<div><label style="display:block;font-size:0.7em;color:#94a3b8;font-weight:700;text-transform:uppercase;margin-bottom:6px;">Durée règles (j)</label><input id="cyclePeriodLen" type="number" min="2" max="10" value="' + (c.periodLength || 5) + '" style="width:100%;box-sizing:border-box;padding:11px;background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.12);border-radius:10px;color:#fff;text-align:center;font-weight:800;"></div>'
+            const ov = document.createElement('div');
+            ov.id = 'cycleSetupModal';
+            ov.style.cssText = 'position:fixed;inset:0;z-index:10050;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:flex;align-items:flex-end;justify-content:center;';
+            ov.onclick = function (e) { if (e.target === ov) ov.remove(); };
+            ov.innerHTML = '<style>#cycleSetupModal input{border:1px solid rgba(255,255,255,0.10) !important;background:#0b0e13 !important;color:#fff !important;}#cycleSetupModal input:focus{border-color:#22d3ee !important;box-shadow:none !important;outline:none !important;}</style>'
+                + '<div style="width:100%;max-width:480px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;' + _CY_CARTE + 'border-radius:20px 20px 0 0;padding:18px 18px calc(env(safe-area-inset-bottom,0px) + 18px);box-sizing:border-box;">'
+                + '<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">'
+                +   '<span style="' + _CY_TUILE + '">' + awakCycleLune(null, 22, '#c4b5fd') + '</span>'
+                +   '<div style="flex:1;min-width:0;"><div style="font-weight:800;color:#fff;font-size:1em;">Suivi du cycle</div>'
+                +   '<div style="font-size:0.7em;color:#94a3b8;margin-top:2px;">Privé : tout reste sur ton téléphone</div></div>'
+                +   '<button aria-label="Fermer" onclick="document.getElementById(\'cycleSetupModal\').remove()" style="flex-shrink:0;width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#94a3b8;font-size:1.2em;cursor:pointer;line-height:1;">×</button>'
                 + '</div>'
-                + '<button onclick="saveCycleSetup()" class="btn" style="width:100%;background:linear-gradient(135deg,#a78bfa,#7c3aed);padding:13px;font-weight:800;margin-bottom:8px;">Activer le suivi</button>'
-                + (c.enabled ? '<button onclick="disableCycle()" style="width:100%;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.35);color:#f87171;border-radius:12px;padding:10px;font-weight:700;cursor:pointer;">Désactiver le suivi</button>' : '')
-                + '</div></div>';
-            document.body.appendChild(modal);
+                + '<div style="font-size:0.76em;color:#cbd5e1;line-height:1.5;margin-bottom:16px;">L\'app adapte l\'intensité et les suggestions à ta phase. Ce sont des repères généraux : chaque corps est différent, écoute le tien.</div>'
+                + '<label for="cycleLastDate" style="' + _CY_LBL + '">DÉBUT DES DERNIÈRES RÈGLES</label>'
+                + '<input id="cycleLastDate" type="date" max="' + today + '" value="' + lastDate + '" style="' + _CY_CHAMP + 'margin-bottom:14px;">'
+                + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;">'
+                +   '<div><label for="cycleLen" style="' + _CY_LBL + '">CYCLE (JOURS)</label><input id="cycleLen" type="number" inputmode="numeric" min="21" max="40" value="' + (c.cycleLength || 28) + '" style="' + _CY_CHAMP + 'text-align:center;font-weight:800;"></div>'
+                +   '<div><label for="cyclePeriodLen" style="' + _CY_LBL + '">RÈGLES (JOURS)</label><input id="cyclePeriodLen" type="number" inputmode="numeric" min="2" max="10" value="' + (c.periodLength || 5) + '" style="' + _CY_CHAMP + 'text-align:center;font-weight:800;"></div>'
+                + '</div>'
+                + '<button onclick="saveCycleSetup()" style="width:100%;padding:14px;border:none;border-radius:13px;background:#22d3ee;color:#04121f;font-weight:900;font-size:0.92em;cursor:pointer;font-family:inherit;margin-bottom:8px;">' + (c.enabled ? 'Enregistrer' : 'Activer le suivi') + '</button>'
+                + (c.enabled ? '<button onclick="disableCycle()" style="width:100%;padding:12px;border-radius:13px;background:transparent;border:1px solid rgba(239,68,68,0.35);color:#f87171;font-weight:800;font-size:0.84em;cursor:pointer;font-family:inherit;">Désactiver le suivi</button>' : '')
+                + '</div>';
+            document.body.appendChild(ov);
         }
         function saveCycleSetup() {
             const d = document.getElementById('cycleLastDate') ? document.getElementById('cycleLastDate').value : '';
             const len = parseInt(document.getElementById('cycleLen') ? document.getElementById('cycleLen').value : '28') || 28;
             const plen = parseInt(document.getElementById('cyclePeriodLen') ? document.getElementById('cyclePeriodLen').value : '5') || 5;
             if (!d) { if (typeof showToast === 'function') showToast('Indique la date des dernières règles', 'warning', 2500); return; }
+            const p0 = (function () { try { return awakCyclePhase(); } catch (e) { return null; } })();
             awakSaveCycle({ enabled: true, lastPeriodStart: d, cycleLength: len, periodLength: plen, _seenPhase: '' });
+            const p = awakCyclePhase();
+            // phase déjà annoncée ici : pas de 2e bulle « Tu entres en phase… »
+            if (p) { const c2 = awakGetCycle(); c2._seenPhase = p.phase; awakSaveCycle(c2); }
             const m = document.getElementById('cycleSetupModal'); if (m) m.remove();
             if (typeof renderCycleCard === 'function') renderCycleCard();
-            const p = awakCyclePhase();
-            if (typeof showToast === 'function') showToast('🌙 Suivi activé · phase ' + (p && p.info ? p.info.label : '—'), 'success', 3500);
+            if (typeof showToast === 'function') showToast((p0 ? 'Suivi mis à jour' : 'Suivi activé') + ' · phase ' + (p && p.info ? p.info.label.toLowerCase() : '—'), 'success', 3000);
         }
         function disableCycle() {
             const c = awakGetCycle(); c.enabled = false; awakSaveCycle(c);
@@ -44010,39 +44067,57 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         window.saveCycleSetup = saveCycleSetup;
         window.disableCycle = disableCycle;
 
-        // ── 🌙 Carte du cycle sur l'accueil (femmes) ──
+        // ── Carte du cycle sur l'accueil (femmes) ──
         function renderCycleCard() {
             const host = document.getElementById('cycleCard');
             if (!host) return;
             if ((typeof awakUserSex === 'function' ? awakUserSex() : '') !== 'femme') { host.innerHTML = ''; return; }
             const c = awakGetCycle();
+            const fleche = '<span style="flex-shrink:0;color:#64748b;font-size:1.2em;">›</span>';
             if (!c.enabled) {
-                host.innerHTML = '<div onclick="openCycleSetup()" style="background:linear-gradient(135deg,rgba(167,139,250,0.14),rgba(167,139,250,0.05));border:1px dashed rgba(167,139,250,0.4);border-radius:16px;padding:13px 15px;cursor:pointer;display:flex;align-items:center;gap:12px;">'
-                    + '<div style="font-size:1.6em;">🌙</div>'
-                    + '<div style="flex:1;min-width:0;"><div style="font-weight:800;color:#e2e8f0;font-size:0.9em;">Activer le suivi du cycle</div><div style="font-size:0.68em;color:#94a3b8;margin-top:1px;line-height:1.35;">Adapte l\'intensité et les suggestions à ta phase. Privé &amp; local.</div></div>'
-                    + '<div style="color:#a78bfa;font-size:1.2em;">›</div></div>';
+                host.innerHTML = '<div onclick="openCycleSetup()" style="' + _CY_CARTE + 'padding:13px 14px;cursor:pointer;display:flex;align-items:center;gap:12px;">'
+                    + '<span style="' + _CY_TUILE + '">' + awakCycleLune(null, 22, '#c4b5fd') + '</span>'
+                    + '<div style="flex:1;min-width:0;"><div style="font-weight:800;color:#f1f5f9;font-size:0.88em;">Suivi du cycle</div>'
+                    + '<div style="font-size:0.68em;color:#94a3b8;margin-top:2px;line-height:1.35;">Adapte l\'intensité à ta phase. Privé, sur ton téléphone.</div></div>'
+                    + fleche + '</div>';
                 return;
             }
             const p = awakCyclePhase();
             if (!p || !p.info) { host.innerHTML = ''; return; }
-            const i = p.info;
-            // 🔔 Notification quand on entre dans une nouvelle phase (une seule fois).
+            const i = p.info, col = i.color;
+            // Notification quand on entre dans une nouvelle phase (une seule fois).
             if (c._seenPhase !== p.phase) {
                 c._seenPhase = p.phase; awakSaveCycle(c);
-                if (typeof showToast === 'function') setTimeout(function () { showToast(i.emoji + ' Tu entres en phase ' + i.label + ' — énergie ' + i.energy.toLowerCase(), 'info', 4500); }, 700);
+                if (typeof showToast === 'function') setTimeout(function () { showToast('Tu entres en phase ' + i.label.toLowerCase() + ' : énergie ' + i.energy.toLowerCase(), 'info', 4500); }, 700);
             }
-            let action = '';
-            if (p.phase === 'menstruelle') action = '<button onclick="awakStartDisciplineFromCycle()" style="margin-top:10px;width:100%;background:rgba(148,163,184,0.15);border:1px solid rgba(148,163,184,0.35);color:#e2e8f0;border-radius:10px;padding:9px;font-size:0.78em;font-weight:700;cursor:pointer;">🧘 Séance douce / mobilité</button>';
-            else if (p.phase === 'ovulation') action = '<div style="margin-top:10px;background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.3);border-radius:10px;padding:8px 11px;font-size:0.72em;color:#fbbf24;font-weight:700;text-align:center;">💪 Bon jour pour viser un record !</div>';
-            host.innerHTML = '<div style="background:linear-gradient(135deg,' + i.color + '22,' + i.color + '08);border:1px solid ' + i.color + '55;border-radius:16px;padding:14px 16px;">'
-                + '<div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">'
-                + '<div style="font-size:1.9em;flex-shrink:0;">' + i.emoji + '</div>'
-                + '<div style="flex:1;min-width:0;"><div style="font-size:0.58em;font-weight:800;letter-spacing:1px;color:' + i.color + ';text-transform:uppercase;">Cycle · Jour ' + p.dayInCycle + '</div>'
-                + '<div style="font-weight:900;color:white;font-size:1em;line-height:1.2;">' + i.label + ' · ' + i.rpg + '</div>'
-                + '<div style="font-size:0.66em;color:#94a3b8;">Énergie : ' + i.energy + '</div></div>'
-                + '<button onclick="openCycleSetup()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#cbd5e1;border-radius:9px;padding:5px 9px;font-size:0.66em;font-weight:700;cursor:pointer;flex-shrink:0;">Régler</button>'
+            // Frise des 4 phases avec le jour courant
+            const len = p.cycleLength, plen = Math.max(2, Math.min(10, c.periodLength || 5)), mid = Math.round(len / 2);
+            const seg = [
+                ['menstruelle', plen],
+                ['folliculaire', Math.max(1, (mid - 2) - plen)],
+                ['ovulation', 3],
+                ['luteale', Math.max(1, len - (mid + 1))]
+            ];
+            const frise = '<div style="position:relative;display:flex;gap:3px;height:6px;margin:12px 0 5px;">'
+                + seg.map(function (s) { const on = s[0] === p.phase, cc = AWAK_CYCLE_PHASES[s[0]].color; return '<span style="flex:' + s[1] + ';border-radius:99px;background:' + cc + ';opacity:' + (on ? '1' : '0.28') + ';"></span>'; }).join('')
+                + '<span style="position:absolute;top:-4px;left:calc(' + (((p.dayInCycle - 0.5) / len) * 100).toFixed(1) + '% - 7px);width:14px;height:14px;border-radius:50%;background:#12161c;border:2.5px solid #fff;box-sizing:border-box;"></span>'
                 + '</div>'
-                + '<div style="font-size:0.73em;color:#cbd5e1;line-height:1.45;">' + i.advice + '</div>'
+                + '<div style="display:flex;justify-content:space-between;font-size:0.58em;color:#64748b;font-weight:700;"><span>Jour 1</span><span>Jour ' + len + '</span></div>';
+            const pct = Math.round((i.intensity - 1) * 100);
+            const intens = pct === 0 ? 'intensité normale' : 'intensité ' + (pct > 0 ? '+' : '') + pct + ' %';
+            let action = '';
+            if (p.phase === 'menstruelle') action = '<button onclick="awakStartDisciplineFromCycle()" style="margin-top:12px;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.10);color:#e2e8f0;border-radius:12px;padding:11px;font-size:0.8em;font-weight:800;cursor:pointer;font-family:inherit;">' + (window.AwakIcon ? AwakIcon.get('coeur', 16, col) : '') + 'Séance douce ou mobilité</button>';
+            else if (p.phase === 'ovulation') action = '<div style="margin-top:12px;display:flex;align-items:center;gap:8px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.25);border-radius:12px;padding:10px 12px;font-size:0.76em;color:#fcd34d;font-weight:800;">' + (window.AwakIcon ? AwakIcon.get('trophee', 16, '#fbbf24') : '') + 'Bon jour pour viser un record</div>';
+            host.innerHTML = '<div style="' + _CY_CARTE + 'padding:14px;">'
+                + '<div style="display:flex;align-items:center;gap:12px;">'
+                +   '<span style="' + _CY_TUILE + '">' + awakCycleLune(p.phase, 22, col) + '</span>'
+                +   '<div style="flex:1;min-width:0;"><div style="font-size:0.6em;font-weight:900;letter-spacing:1.5px;color:' + col + ';">CYCLE · JOUR ' + p.dayInCycle + ' SUR ' + len + '</div>'
+                +   '<div style="font-weight:800;color:#fff;font-size:0.98em;line-height:1.25;margin-top:1px;">Phase ' + i.label.toLowerCase() + '</div>'
+                +   '<div style="font-size:0.68em;color:#94a3b8;margin-top:1px;">Énergie ' + i.energy.toLowerCase() + ' · ' + intens + '</div></div>'
+                +   '<button onclick="openCycleSetup()" style="flex-shrink:0;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.10);color:#cbd5e1;border-radius:10px;padding:7px 11px;font-size:0.7em;font-weight:800;cursor:pointer;font-family:inherit;">Régler</button>'
+                + '</div>'
+                + frise
+                + '<div style="font-size:0.76em;color:#cbd5e1;line-height:1.5;margin-top:10px;">' + i.advice + '</div>'
                 + action
                 + '</div>';
         }
@@ -44955,7 +45030,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
             host.innerHTML =
                 '<div style="position:relative;width:110px;margin:0 auto 12px;">'
-              +   '<img src="images/body/body_face.webp?v=1295" alt="" '
+              +   '<img src="images/body/body_face.webp?v=1300" alt="" '
               +     'style="width:100%;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -45037,7 +45112,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1295);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1300);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -45104,7 +45179,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1295);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1300);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -46696,6 +46771,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // v1235 : proposé dès que l'écran est libre (après l'histoire et le
                 // tutoriel du jeu), AVANT « Mes limitations ».
                 try { if (!_kid) { localStorage.setItem(_cleProfil('awakEveilPlusTard'), '1'); awakEveilQuandLibre(); } } catch (e) {}
+                // 🔐 v1296 : mot de passe de suppression proposé dès que l'écran est libre
+                try { if (!awakSecIsSet()) awakSecQuandLibre(); } catch (e) {}
             };
 
             render();
@@ -46816,7 +46893,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try {
                 const _sp = getUserProfile();
                 if (_sp && _sp.setupComplete && typeof awakSecMaybePromptSetup === 'function' && !awakSecIsSet()) {
-                    setTimeout(() => { try { awakSecMaybePromptSetup(); } catch (e) {} }, 1600);
+                    try { awakSecQuandLibre(); } catch (e) {}
                 }
             } catch (e) {}
 
@@ -47402,7 +47479,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1295");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1300");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.

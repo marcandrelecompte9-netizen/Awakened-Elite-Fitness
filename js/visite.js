@@ -57,6 +57,7 @@
   var VISITES = {
     home: [
       { c: function () { return $('#homeTab .ahp-btn-p'); }, t: 'Démarrer', d: 'Lance une séance adaptée à toi en un seul toucher.' },
+      { c: function () { return $('#eveilJourneyCard'); }, t: 'Ton Parcours de l\'Éveil', d: 'Tes 4 semaines guidées : la séance du jour à lancer d\'un toucher, ton ressenti du jour (la séance s\'adapte si tu es fatigué) et tes petites habitudes de sommeil et de repas. Tu peux l\'arrêter avec la croix, ou le relancer dans Réglages.' },
       { c: boutonProfil, t: 'Ton profil', d: 'Touche ton avatar pour passer au profil d\'un autre membre de la famille, en créer un, ou modifier le tien avec le crayon : nom, âge, poids, objectif.' },
       { c: function () { return $('#homeTab .ahp-btn-s'); }, t: 'Ta semaine', d: 'Choisis tes jours d\'entraînement : l\'appli prépare la semaine et te rappelle la séance du jour.' },
       { c: function () { return $('#groupWorkoutBtnContainer button'); }, t: 'Séance à plusieurs', d: 'Entraînez-vous ensemble sur le même téléphone : choisis les membres de la famille ou ajoute des invités. Chacun note ses séries, et les membres de la famille retrouvent la séance dans leur propre historique.' },
@@ -233,6 +234,9 @@
   }
   function ecranLibre() {
     if (document.body.classList.contains('in-session')) return false;
+    // v1300 : le Parcours de l'Éveil va être proposé (fin d'inscription) : on attend
+    // qu'il soit proposé, accepté ou refusé, puis on montre l'accueil tel qu'il est.
+    try { if (localStorage.getItem(window._cleProfil ? window._cleProfil('awakEveilPlusTard') : 'awakEveilPlusTard') === '1') return false; } catch (e) {}
     if (document.querySelector('.modal.active')) return false;
     // Une fenêtre plein écran est ouverte (inscription, histoire, fiche…)
     var kids = document.body.children;
@@ -286,7 +290,9 @@
     var V = jeuVisites();
     if (enCours || !onglet || !V[cle] || vu(cle)) return;
     if (onglet === 'game' && !jeuPret()) { if (essais++ < 40) planifier(onglet, 2500); return; }
-    if (!profilPret() || !ecranLibre()) { if (essais++ < 40) planifier(onglet, 1500); return; }
+    // v1300 : avant, abandon après 60 s d'écran occupé (questionnaire de l'Éveil,
+    // limitations…) : la visite sautait, puis revenait au changement d'onglet.
+    if (!profilPret() || !ecranLibre()) { if (essais++ < 600) planifier(onglet, 1500); return; }
     if (window.AwakCine && window.AwakCine.defer(function () { planifier(onglet, 400); })) return;
     var etapes = V[cle].filter(function (e) { var el = null; try { el = e.c(); } catch (x) {} return visible(el); });
     if (!etapes.length) return;                         // rien à montrer : on réessaiera à la prochaine visite
