@@ -215,7 +215,8 @@
     var L = [];
     try {
       var g = window.AwakFamilyGoal && AwakFamilyGoal.status ? AwakFamilyGoal.status() : null;
-      if (g && g.def) L.push(ligne('cible', ROSE, 'Objectif commun : ' + esc(g.def.label || 'en cours'), (g.total || 0) + ' / ' + (g.target || '?') + ' · ' + (g.pct || 0) + ' %', g.pct || 0, 'AwakFamilyGoalOpen()'));
+      if (g && g.def) L.push(ligne('cible', ROSE, 'Objectif commun : ' + esc(g.def.label || 'en cours'), (g.total || 0) + ' / ' + (g.target || '?') + ' · ' + (g.pct || 0) + ' %'
+          + (g.reward ? '<br><span style="color:#fbbf24;font-weight:700;">' + (g.reached ? 'Gagné : ' : 'À la clé : ') + esc(g.reward) + '</span>' : ''), g.pct || 0, 'AwakFamilyGoalOpen()'));
     } catch (e) {}
     try {
       var c = window.AwakFamilyChallenge && AwakFamilyChallenge.coopStatus ? AwakFamilyChallenge.coopStatus() : null;

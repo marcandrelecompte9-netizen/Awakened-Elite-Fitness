@@ -141,8 +141,8 @@
     return null;
   }
 
-  // Tous les membres liés au profil actif, avec la relation traduite pour lui.
-  function myRelations() {
+  // Membres liés au profil actif (lien précisé), avec la relation traduite pour lui.
+  function linkedRelations() {
     var me = currentId();
     if (!me) return [];
     var links = loadLinks();
@@ -154,6 +154,23 @@
       if (!other) return;
       var rel = relationOf(me, other);
       if (rel) out.push({ member: meta(other), relation: rel });
+    });
+    return out;
+  }
+  // v1295 : TOUS les profils de l'appareil font partie de la famille. Avant, il
+  // fallait « lier » chaque profil un par un (étape que personne ne devinait) :
+  // un parent qui venait de créer le profil de son enfant voyait « Ton étoile est
+  // seule ». Le lien (parent, couple…) devient une étiquette facultative.
+  var REL_FAMILLE = { type: 'famille', label: 'Ma famille', vue: 'Ma famille', ico: 'groupe', emoji: '', implicite: true };
+  function myRelations() {
+    var me = currentId();
+    if (!me) return [];
+    var out = linkedRelations();
+    var vus = {};
+    out.forEach(function (r) { vus[r.member.id] = true; });
+    allProfiles().forEach(function (p) {
+      if (!p || p.id === me || vus[p.id]) return;
+      out.push({ member: meta(p.id), relation: REL_FAMILLE });
     });
     return out;
   }
@@ -1003,6 +1020,7 @@
     removeRelation: removeRelation,
     relationOf: relationOf,
     myRelations: myRelations,
+    linkedRelations: linkedRelations,
     memberStatus: memberStatus,
     memberWeekStats: memberWeekStats,
     membersNeedingNudge: membersNeedingNudge,
@@ -1111,7 +1129,7 @@
           + _av(p.avatar, 22) + ' ' + esc(p.name) + ' <span style="color:#ec4899;">+</span></button>';
       }).join('');
       addBlock = '<div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06);">'
-        + '<div style="font-size:0.72em;color:#94a3b8;font-weight:700;margin-bottom:9px;">➕ Lier un membre :</div>'
+        + '<div style="font-size:0.72em;color:#94a3b8;font-weight:700;margin-bottom:9px;">Préciser le lien (facultatif) :</div>'
         + '<div style="display:flex;gap:8px;flex-wrap:wrap;">' + chips + '</div></div>';
     }
 
@@ -1119,7 +1137,7 @@
       + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">'
       +   '<span style="display:inline-flex;width:38px;height:38px;border-radius:11px;align-items:center;justify-content:center;background:rgba(236,72,153,0.14);">' + _ic('groupe', 20, '#f9a8d4') + '</span>'
       +   '<div><div style="font-size:0.62em;font-weight:800;letter-spacing:0.5px;color:#ec4899;">MA FAMILLE</div>'
-      +   '<div style="font-size:1.02em;font-weight:900;color:#fff;">Membres liés</div></div>'
+      +   '<div style="font-size:1.02em;font-weight:900;color:#fff;">Ma famille</div></div>'
       + '</div>'
       + recap
       + rows

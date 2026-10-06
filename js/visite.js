@@ -59,6 +59,7 @@
       { c: function () { return $('#homeTab .ahp-btn-p'); }, t: 'Démarrer', d: 'Lance une séance adaptée à toi en un seul toucher.' },
       { c: boutonProfil, t: 'Ton profil', d: 'Touche ton avatar pour passer au profil d\'un autre membre de la famille, en créer un, ou modifier le tien avec le crayon : nom, âge, poids, objectif.' },
       { c: function () { return $('#homeTab .ahp-btn-s'); }, t: 'Ta semaine', d: 'Choisis tes jours d\'entraînement : l\'appli prépare la semaine et te rappelle la séance du jour.' },
+      { c: function () { return $('#groupWorkoutBtnContainer button'); }, t: 'Séance à plusieurs', d: 'Entraînez-vous ensemble sur le même téléphone : choisis les membres de la famille ou ajoute des invités. Chacun note ses séries, et les membres de la famille retrouvent la séance dans leur propre historique.' },
       { c: function () { return ligneAccueil(/Où as-tu mal/); }, t: 'Une douleur ?', d: 'Indique où tu as mal : les séances évitent cette zone jusqu\'à ce que ça aille mieux.' },
       { c: function () { return ligneAccueil(/Tout explorer/); }, t: 'Tout explorer', d: 'Toutes les fonctions de l\'appli au même endroit, si tu cherches quelque chose.' },
       { c: function () { return $('#mobileNavBar'); }, t: 'Les onglets', d: 'Séance pour t\'entraîner, Progrès pour tes résultats, Agenda pour ta semaine, Famille pour vous suivre ensemble.' }
@@ -133,6 +134,7 @@
     ],
     family: [
       // Famille à plusieurs
+      { c: function () { return $('#awakFamSemaine'); }, t: 'Notre semaine', d: 'Qui a bougé chaque jour. Touche un membre pour l\'encourager, ou lancez « Bouger ensemble » : 15 minutes pour toute la famille, au même rythme.' },
       { c: cielFamille, t: 'Votre ciel', d: 'Chaque étoile est un membre de ta famille. Elle s\'allume et grossit quand il s\'entraîne. Toi, tu es au centre.' },
       { c: function () { var c = cielFamille(); return c ? c.querySelector('svg') : null; }, t: 'Touche une étoile', d: 'Pour encourager, jouer ou lancer un défi à ce membre. Ton étoile au centre lance un défi d\'équipe.' },
       { c: function () { var b = parTexte('familyContainer', 'button', /^Défis$/); return b ? b.parentElement : null; }, t: 'Ensemble', d: 'Défis et objectif commun, badges de famille, ajouter un membre, et le journal de ce que chacun a fait.' },
@@ -167,6 +169,7 @@
       { c: function () { return $('#homeTab .ahp-btn-p'); }, t: 'C\'est parti !', d: 'Touche ici pour bouger : l\'appli choisit des exercices faits pour toi.' },
       { c: boutonProfil, t: 'Ton profil', d: 'Touche ton image pour passer au profil de quelqu\'un d\'autre. Vérifie que c\'est bien toi avant de bouger ! Pour changer ton nom ou ton âge, demande à un adulte.' },
       { c: function () { return $('#youthSafetyBanner'); }, t: 'Avec un adulte', d: 'Fais tes exercices avec un adulte pas loin. Si quelque chose fait mal, tu arrêtes et tu le dis.' },
+      { c: function () { return $('#groupWorkoutBtnContainer button'); }, t: 'À plusieurs', d: 'Bouge en même temps que ta famille ou tes amis, sur le même téléphone : chacun a ses séries.' },
       { c: function () { return ligneAccueil(/Où as-tu mal/); }, t: 'Un bobo ?', d: 'Dis-le ici : l\'appli évitera cette partie du corps.' },
       { c: function () { return $('#mobileNavBar'); }, t: 'Les onglets', d: 'Séance pour bouger, Progrès pour voir tout ce que tu as fait, Famille pour bouger avec les tiens.' }
     ],
@@ -206,6 +209,7 @@
       { c: function () { return $('#awakFilterBar'); }, t: 'Les fiches', d: 'Touche un exercice pour voir comment le faire, avec une image.' }
     ],
     family: [
+      { c: function () { return $('#awakFamSemaine'); }, t: 'Ta famille cette semaine', d: 'Les jours où chacun a bougé. « Bouger ensemble » : 15 minutes tous ensemble !' },
       { c: function () { var c = cielFamille(); return c ? c.querySelector('svg') : null; }, t: 'Le ciel de la famille', d: 'Chaque étoile, c\'est quelqu\'un de ta famille. Touche une étoile pour l\'encourager ou lui lancer un défi.' },
       { c: function () { var b = parTexte('familyContainer', 'button', /^Défis$/); return b ? b.parentElement : null; }, t: 'Ensemble', d: 'Des défis à faire en famille et un but à atteindre tous ensemble.' },
       // Encore seul dans la famille

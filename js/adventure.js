@@ -806,6 +806,8 @@ function renderFamilyTab() {
     // à moitié vide, et ce qui se passe se voit sans ouvrir de fenêtre.
     const _sky = window.AwakFamilySky || null;
     if (_sky) { try { html += _sky.avant(); } catch (e) {} }
+    // v1295 : « Notre semaine » — qui a bougé, jour par jour, avant le ciel
+    try { if (window.AwakFamilyWeek) html += window.AwakFamilyWeek.render(); } catch (e) {}
     html += constCard;
     if (_sky) { try { html += _sky.apres(); } catch (e) {} }
 

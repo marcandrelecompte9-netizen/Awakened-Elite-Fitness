@@ -167,7 +167,7 @@
   }
 
   // Créer un objectif commun. duration en jours (défaut 30).
-  function create(type, target, days) {
+  function create(type, target, days, reward) {
     if (!GOAL_TYPES[type] || !(target > 0)) return false;
     var now = Date.now();
     var span = (days && days > 0 ? days : 30) * 86400000;
@@ -177,10 +177,14 @@
       startsAt: now,
       endsAt: now + span,
       createdBy: _currentId() || null,
+      reward: _nettoyerRecompense(reward),
       celebrated: false
     });
     return true;
   }
+  // v1295 : récompense de la vraie vie liée à l'objectif (« une sortie au cinéma »)
+  function _nettoyerRecompense(t) { return String(t || '').replace(/\s+/g, ' ').trim().slice(0, 60); }
+  function setReward(t) { var g = _load(); if (!g) return false; g.reward = _nettoyerRecompense(t); _save(g); return true; }
 
   function cancel() { _save(null); }
 
@@ -302,6 +306,7 @@
       total: total, pct: pct, reached: reached,
       daysLeft: daysLeft, perMember: perMember,
       titre: familyTitle(),
+      reward: g.reward || '',          // v1295 : récompense de la vraie vie (facultative)
       expired: Date.now() > g.endsAt,
       // 🆕 Vrai si CE profil n'a pas encore vu l'annonce de réussite.
       nouveauPourMoi: reached && !_dejaVu(g.startsAt || 'g', _currentId())
@@ -309,6 +314,7 @@
   }
 
   window.AwakFamilyGoal = {
+    setReward: setReward,
     GOAL_TYPES: GOAL_TYPES,
     active: active,
     isActive: isActive,
@@ -487,6 +493,20 @@
       +   '</div>'
       + '</div>'
 
+      + (function () {
+          var ico = (window.AwakIcon ? AwakIcon.get('trophee', 18, '#fbbf24') : '');
+          var champ = '<div style="display:flex;gap:6px;margin-top:8px;">'
+            + '<input id="awakGoalRewardInput" maxlength="60" value="' + esc(st.reward || '') + '" placeholder="Ex. : une sortie au cinéma" '
+            +   'style="flex:1;min-width:0;padding:9px 11px;border-radius:10px;border:1px solid rgba(255,255,255,0.14);background:#0b0f17;color:#e2e8f0;font-family:inherit;font-size:0.82em;">'
+            + '<button onclick="AwakFamilyGoalSaveReward()" style="flex-shrink:0;min-height:auto;padding:9px 12px;border:none;border-radius:10px;cursor:pointer;background:#22d3ee;color:#04121f;font-weight:800;font-size:0.78em;">OK</button>'
+            + '</div>';
+          return '<div style="background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.3);border-radius:12px;padding:11px 13px;margin-bottom:14px;">'
+            + '<div style="display:flex;align-items:center;gap:8px;font-size:0.58em;letter-spacing:1.6px;font-weight:900;color:#fbbf24;">' + ico + (st.reached && st.reward ? 'RÉCOMPENSE GAGNÉE' : 'LA RÉCOMPENSE') + '</div>'
+            + (st.reward
+                ? '<div style="font-size:0.95em;font-weight:800;color:#fde68a;margin-top:5px;">' + esc(st.reward) + '</div>'
+                : '<div style="font-size:0.76em;color:#cbd5e1;margin-top:5px;line-height:1.45;">Donnez-vous une vraie récompense quand l\'objectif sera atteint.</div>')
+            + champ + '</div>';
+        })()
       + bloc('CE QUI COMPTE', esc(inf.desc || ''), couleur)
       + (inf.detail ? bloc('COMMENT C\'EST CALCULÉ', esc(inf.detail)) : '')
       + bloc('PÉRIODE', (dDeb && dFin ? 'Du ' + esc(dDeb) + ' au ' + esc(dFin) + (/\.$/.test(dFin) ? ' ' : '. ') : '')
@@ -579,6 +599,7 @@
         +   'font-weight:900;color:#fbbf24;">Objectif atteint</div>'
         + '<div style="font-size:0.74em;color:#cbd5e1;margin-top:5px;line-height:1.45;">'
         +   'Toute la famille y est arrivée. ' + st.total + ' / ' + st.target + '.</div>'
+        + (st.reward ? '<div style="font-size:0.9em;font-weight:900;color:#fde68a;margin-top:8px;">Vous avez gagné : ' + esc(st.reward) + '</div>' : '')
         + '<button onclick="event.stopPropagation();AwakFamilyGoalClore()" '
         +   'style="width:100%;margin-top:12px;padding:12px;border-radius:12px;border:none;'
         +   'cursor:pointer;background:linear-gradient(160deg,#fcd34d,#fbbf24 45%,#b45309);'
@@ -623,6 +644,8 @@
               : '<br><span style="color:#f87171;font-weight:700;">Dernier jour.</span>')
           + '</div>';
       })()
+      + (st.reward ? '<div style="background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.3);border-radius:10px;padding:9px 11px;margin-bottom:12px;font-size:0.78em;color:#fde68a;font-weight:800;">'
+          + (st.reached ? 'Récompense gagnée : ' : 'À la clé : ') + esc(st.reward) + '</div>' : '')
       + '<div style="font-size:0.72em;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Contributions</div>'
       + members
       + titreBloc
@@ -725,13 +748,27 @@
         + '<span style="font-size:0.66em;color:#94a3b8;font-weight:700;">👥 ~' + pr.m + ' membres</span>'
         + '</button>';
     }).join('');
-    zone.innerHTML = '<div style="font-size:0.72em;color:#64748b;font-weight:700;margin-bottom:6px;">OBJECTIF (' + esc(_dispLabel(type, d)) + ' en 30 jours)</div>'
+    var _rwAvant = (document.getElementById('goalRewardInput') || {}).value || '';
+    zone.innerHTML = '<div style="font-size:0.72em;color:#64748b;font-weight:700;margin-bottom:6px;">RÉCOMPENSE (facultatif)</div>'
+      + '<input id="goalRewardInput" maxlength="60" value="' + esc(_rwAvant) + '" placeholder="Ex. : une sortie au cinéma, une pizza en famille" '
+      +   'style="width:100%;box-sizing:border-box;padding:11px 12px;border-radius:11px;border:1px solid rgba(255,255,255,0.14);background:#0b0f17;color:#e2e8f0;font-family:inherit;font-size:0.84em;margin-bottom:14px;">'
+      + '<div style="font-size:0.72em;color:#64748b;font-weight:700;margin-bottom:6px;">OBJECTIF (' + esc(_dispLabel(type, d)) + ' en 30 jours) — touche pour lancer</div>'
       + '<div style="display:flex;gap:8px;">' + presetBtns + '</div>'
       + '<div style="font-size:0.66em;color:#64748b;margin-top:8px;line-height:1.4;">👥 Le nombre de membres indiqué est une estimation pour atteindre l\'objectif en 30 jours. Choisis selon la taille de ta famille.</div>';
   };
 
+  window.AwakFamilyGoalSaveReward = function () {
+    var el = document.getElementById('awakGoalRewardInput');
+    if (!el) return;
+    setReward(el.value);
+    try { window.AwakFamilyGoalInfo(); } catch (e) {}
+    _refresh();
+    if (typeof window.showToast === 'function') window.showToast(el.value.trim() ? 'Récompense enregistrée' : 'Récompense retirée', 'success', 2200);
+  };
+
   window.AwakFamilyGoalCreate = function (type, target) {
-    create(type, target, 30);
+    var _rw = document.getElementById('goalRewardInput');
+    create(type, target, 30, _rw ? _rw.value : '');
     var el = document.getElementById('awakGoalModal'); if (el) el.remove();
     _refresh();
     if (typeof window.showToast === 'function') window.showToast('🎯 Objectif commun lancé — au boulot en famille !', 'success', 3000);
