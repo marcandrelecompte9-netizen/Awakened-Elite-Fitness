@@ -151,7 +151,7 @@
       + '<div style="font-size:0.92em;color:#cbd5e1;line-height:1.55;margin-bottom:6px;">Débloque Awakened pour continuer : séances, histoire, Failles, course et profils de toute la famille.</div>'
       + '<div style="font-size:0.84em;color:#94a3b8;line-height:1.5;margin-bottom:22px;">' + esc(resume()) + '</div>'
       + '<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:20px;text-align:left;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:12px 14px;font-size:0.84em;color:#cbd5e1;">'
-      +   ['Un seul paiement, pas d\'abonnement', 'Pour tous les profils de l\'appareil', 'Toutes les mises à jour à venir'].map(function (t) {
+      +   ['Un seul paiement pour l\'application', 'Pour tous les profils de l\'appareil', 'Mises à jour du contenu de base incluses'].map(function (t) {
             return '<div style="display:flex;align-items:center;gap:9px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>' + t + '</div>';
           }).join('')
       + '</div>'

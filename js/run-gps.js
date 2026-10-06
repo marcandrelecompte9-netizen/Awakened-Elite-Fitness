@@ -38,8 +38,8 @@
   // Leaflet + tuiles OpenStreetMap, chargés SEULEMENT à l'ouverture d'une
   // course (pas dans le cache de l'app). Tuiles assombries par filtre CSS.
   // Sans réseau (ou si le chargement échoue en 8 s), on garde le tracé SVG.
-  var LEAFLET_JS = 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js';
-  var LEAFLET_CSS = 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css';
+  var LEAFLET_JS = 'js/vendor/leaflet.js';   // v1292 : embarqué (plus besoin d'Internet pour la carte elle-même)
+  var LEAFLET_CSS = 'css/leaflet.css';
   var _lfEtat = 0, _lfAttente = [];   // 0 = pas chargé, 1 = en cours, 2 = prêt, -1 = échec
   function chargerCarte(cb) {
     if (window.L && window.L.map) { _lfEtat = 2; cb(true); return; }

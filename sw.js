@@ -2,7 +2,7 @@
 // Enables full offline support and PWA installation
 // Strategy: network-first for code files (HTML/JS/CSS), cache-first for assets (images/fonts)
 
-const CACHE_NAME = 'awakened-v1290';
+const CACHE_NAME = 'awakened-v1293';
 const ASSETS = [
   './',
   './index.html',
@@ -77,18 +77,20 @@ const ASSETS = [
   './js/pain-mode.js',
   './js/recovery-mode.js',
   './data/items.js',
-  './manifest.json?v=1290',
-  './icons/icon-192.png?v=1290',
-  './icons/icon-512.png?v=1290',
-  './icons/icon-192-maskable.png?v=1290',
-  './icons/icon-512-maskable.png?v=1290',
+  './manifest.json?v=1293',
+  './icons/icon-192.png?v=1293',
+  './icons/icon-512.png?v=1293',
+  './icons/icon-192-maskable.png?v=1293',
+  './icons/icon-512-maskable.png?v=1293',
   // icon-1024.png : asset de soumission aux stores, volontairement hors du
   // précache (487 Ko). Reste dans manifest.json, récupérable à la demande.
   './images/banner_v3.webp',
   './images/banner_v3_mobile.webp',
   './images/avatars/avatar_homme.png',
   './images/avatars/avatar_femme.png',
-  'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
+  './js/vendor/chart.umd.min.js',
+  './js/vendor/leaflet.js',
+  './css/leaflet.css',
   './fonts/outfit-latin-400-normal.woff2',
   './fonts/outfit-latin-500-normal.woff2',
   './fonts/outfit-latin-600-normal.woff2',
