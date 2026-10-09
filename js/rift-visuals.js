@@ -260,7 +260,7 @@
     var pCol = pPct <= 25 ? '#f87171' : pPct <= 50 ? '#fbbf24' : '#60a8f0';
     var mPct = d.pvMax > 0 ? Math.max(0, Math.min(100, Math.round(d.pv / d.pvMax * 100))) : 0;
     var pips = '';
-    for (var i = 0; i < d.vagues; i++) {
+    for (var i = 0; d.vagues > 1 && i < d.vagues; i++) {
       var fait = i < d.vague - 1, ici = i === d.vague - 1, boss = i === d.vagues - 1;
       pips += '<span style="display:inline-block;width:' + (boss ? 9 : 7) + 'px;height:' + (boss ? 9 : 7) + 'px;transform:rotate(45deg);'
         + 'border:1px solid ' + (fait || ici ? col : 'rgba(148,163,184,0.4)') + ';'
@@ -301,7 +301,7 @@
       + '</div>'
       + '<div style="display:flex;flex-direction:column;gap:5px;">'
       +   _barre('ENNEMI', cache ? '???' : d.pv + ' / ' + d.pvMax, cache ? 100 : mPct, cache ? '#64748b' : '#f87171')
-      +   _barre('TOI', Math.round(d.joueur) + ' / ' + Math.round(d.joueurMax), pPct, pCol)
+      +   (d.joueurMax != null ? _barre('TOI', Math.round(d.joueur) + ' / ' + Math.round(d.joueurMax), pPct, pCol) : '')   // v1304 : Chasse = pas de PV joueur
       + '</div>'
       + (d.ouverture ? '<div style="margin-top:6px;padding:4px 7px;border-radius:7px;background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.5);'
           + 'font-size:0.6em;font-weight:900;color:#fbbf24;letter-spacing:0.4px;line-height:1.3;">LE BOSS SE DÉCOUVRE — ' + d.ouverture + ' reps ou plus = dégâts ×2,5</div>' : '');

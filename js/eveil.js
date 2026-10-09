@@ -64,6 +64,8 @@
   var QUESTIONS = [
     { id: 'exp',    q: 'As-tu déjà fait du sport régulièrement ?', opts: [['jamais', '🌱 Jamais vraiment'], ['longtemps', '⏳ Il y a longtemps'], ['recent', '💪 Un peu récemment']] },
     { id: 'days',   q: 'Combien de jours par semaine peux-tu bouger ?', opts: [['2', '2 jours'], ['3', '3 jours'], ['4', '4 jours']] },
+    // v1303 : pour tout le monde (articulations, voisins, poids, âge…) — jamais déduit en silence
+    { id: 'sauts',  q: 'Les sauts (jumping jacks, course sur place), ça te va ?', opts: [['oui', 'Oui, ça me va'], ['non', 'Plutôt sans sauts, plus doux pour les articulations']] },
     { id: 'moment', q: 'Quel moment de la journée te convient le mieux ?', opts: [['matin', '🌅 Le matin'], ['midi', '☀️ Le midi'], ['soir', '🌆 Le soir']] },
     { id: 'work',   q: 'Tes horaires de travail / d\'occupation ?', opts: [['jour', '🏢 De jour'], ['soir', '🌃 De soir'], ['nuit', '🌙 De nuit'], ['variable', '🔀 Variables']] },
     { id: 'kids',   q: 'Des enfants à la maison ?', opts: [['non', 'Non'], ['bebe', '👶 Oui, en bas âge (0-3 ans)'], ['enfants', '🧒 Oui, jeunes (4-12 ans)'], ['ados', '🧑 Oui, des ados']] },
@@ -210,7 +212,12 @@
   }
 
   function eveilActive() { var j = _get(); return !!(j && j.active); }
-  function eveilDayNum(j) { return Math.floor((Date.now() - j.start) / DAY) + 1; }        // 1-28+
+  // v1301 : jours du CALENDRIER (minuit local), pas des tranches de 24 h depuis
+  // l'heure de départ. Avant, commencé un soir à 20 h, le « jour 1 » durait
+  // jusqu'au lendemain 20 h : la séance du jour 1 (toujours un jour de séance)
+  // revenait le lendemain matin, et le jour affiché ne suivait pas la date.
+  function _minuit(t) { var d = new Date(t); d.setHours(0, 0, 0, 0); return d.getTime(); }
+  function eveilDayNum(j) { return Math.round((_minuit(Date.now()) - _minuit(j.start)) / DAY) + 1; }   // 1-28+
   function eveilWeek(j) { return Math.min(4, Math.floor((eveilDayNum(j) - 1) / 7) + 1); } // 1-4
   function eveilDone(j) { return eveilDayNum(j) > 28; }
 
@@ -377,7 +384,7 @@
       var name = QUIET_SWAPS[it[0]] || it[0];
       if (seen[name]) return; // dédupliquer si le remplacement crée un doublon
       seen[name] = 1;
-      out.push([name, it[1]]);
+      out.push(it[2] ? [name, it[1], it[2]] : [name, it[1]]);
     });
     return out;
   }
@@ -398,12 +405,132 @@
     });
     return Math.max(1, Math.round(sec / 60));
   }
+  // ── LIMITATIONS ET DOULEURS (v1302) ───────────────────────────────────
+  // Les séances de l'Éveil sont des listes fixes : elles ne passaient pas par
+  // « Mes limitations » ni par « Où as-tu mal ? ». Chaque exercice est
+  // maintenant vérifié ; s'il est écarté, il est remplacé par un exercice
+  // compatible (même muscle d'abord, poids du corps, débutant), sinon retiré.
+  // Les échauffements de la base n'ont pas de « position » : on la déduit du
+  // nom, sinon « Ne peut pas descendre au sol » laissait passer la planche.
+  function _positionDe(ex) {
+    if (ex.position) return ex.position;
+    var n = String(ex.name || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    if (/(planche|plank|pompe|push|mountain|grimpeur)/.test(n)) return 'planche';
+    if (/(bird|chien|quadruped|chat|cat)/.test(n)) return 'quadrupédie';
+    if (/(dead bug|bridge|pont|crunch|allonge|superman|couche|sol|enfant|cobra)/.test(n)) return 'allongé';
+    return 'debout';
+  }
+  function _impact(ex) {
+    try {
+      var L = global.AwakLimitations && global.AwakLimitations.liste;
+      for (var i = 0; L && i < L.length; i++) if (L[i].id === 'impact') return !!L[i].test(ex);
+    } catch (e) {}
+    return /(saut|jump|jumping|high knees|burpee|mountain)/i.test(ex.name || '');
+  }
+  var _optsAdapt = { sansSauts: false };
+  function _ecarte(ex) {
+    var t = Object.assign({}, ex, { position: _positionDe(ex) });
+    if (_optsAdapt.sansSauts && _impact(t)) return true;
+    try { if (global.AwakLimitations && global.AwakLimitations.bloque(t)) return true; } catch (e) {}
+    try { if (global.AwakPain && global.AwakPain.exerciseHitsPain && global.AwakPain.exerciseHitsPain(t)) return true; } catch (e) {}
+    return false;
+  }
+  // Exercices de remplacement : poids du corps, sans matériel caché dans le nom.
+  var _SANS_MATERIEL = /(hang|suspension|banc|bench|bucket|table|serviette|randonn|hiking|step|mur|wall|chaise|marche rapide|course|run\b|stair|escalier|sprint|velo|natation)/i;
+  var _GROUPES = { Quadriceps: 'jambes', Fessiers: 'jambes', 'Ischio-jambiers': 'jambes', Mollets: 'jambes', Adducteurs: 'jambes',
+    Pectoraux: 'haut', Dos: 'haut', 'Épaules': 'haut', Triceps: 'haut', Biceps: 'haut', 'Trapèzes': 'haut',
+    Abdominaux: 'centre', Obliques: 'centre', Lombaires: 'centre', Cardio: 'cardio' };
+  // 0 même muscle · 1 même région · 2 autre région · 3 cardio (dernier recours)
+  function _proximite(e, ex) {
+    if (e.muscle === ex.muscle) return 0;
+    var g = _GROUPES[e.muscle], g0 = _GROUPES[ex.muscle];
+    if (g && g === g0) return 1;
+    return g === 'cardio' ? 3 : 2;
+  }
+  function _remplacant(ex, dejaPris, ecarte) {
+    ecarte = ecarte || _ecarte;
+    var db = global.exerciseDatabase || [];
+    var NIV = { 'Débutant': 0, 'Intermédiaire': 1 };
+    var c = db.filter(function (e) {
+      return e && !e.discipline && (e.type === 'exercise' || e.type === 'warmup')
+        && (e.equipment || ['Poids du corps']).every(function (q) { return q === 'Poids du corps'; })
+        && NIV[e.difficulty] != null && !_SANS_MATERIEL.test(e.name)
+        && !dejaPris[e.name] && !ecarte(Object.assign({}, e, { position: _positionDe(e) }));
+    });
+    c.sort(function (a, b) {
+      var ma = _proximite(a, ex), mb = _proximite(b, ex);
+      if (ma !== mb) return ma - mb;
+      var ta = a.type === 'exercise' ? 0 : 1, tb = b.type === 'exercise' ? 0 : 1;
+      if (ta !== tb) return ta - tb;
+      return NIV[a.difficulty] - NIV[b.difficulty];
+    });
+    return c[0] || null;
+  }
+  // Retourne { exercises, adaptes, retires }
+  function _adapter(exercises, ecarte) {
+    ecarte = ecarte || _ecarte;
+    var pris = {}, out = [], adaptes = 0, retires = 0;
+    exercises.forEach(function (ex) { pris[ex.name] = 1; });
+    exercises.forEach(function (ex) {
+      if (!ecarte(Object.assign({}, ex, { position: _positionDe(ex) }))) { out.push(ex); return; }
+      var r = _remplacant(ex, pris, ecarte);
+      if (!r) { retires++; return; }
+      pris[r.name] = 1; adaptes++;
+      var n = JSON.parse(JSON.stringify(r));
+      ['duration', 'sets', 'mode', '_seriesMinutees'].forEach(function (k) { if (ex[k] != null) n[k] = ex[k]; });
+      n.type = ex.type === 'warmup' ? 'warmup' : 'exercise';
+      if (n.type === 'exercise') delete n.isWarmup;
+      n._adapteDe = ex.name;
+      out.push(n);
+    });
+    return { exercises: out, adaptes: adaptes, retires: retires };
+  }
+  // v1305 : partagé avec « Bouger ensemble » (family-week.js), qui fournit son
+  // propre test (limitations et douleurs de TOUS les participants).
+  global.AwakAdapterExercices = function (exercises, ecarte) { return _adapter(exercises, ecarte); };
+  global.AwakPositionExercice = _positionDe;
+  function _noteAdaptation(w) {
+    var a = w._eveilAdaptes || 0, r = w._eveilRetires || 0;
+    if (!a && !r) return '';
+    var t = [];
+    if (a) t.push(a + ' exercice' + (a > 1 ? 's' : '') + ' remplacé' + (a > 1 ? 's' : ''));
+    if (r) t.push(r + ' retiré' + (r > 1 ? 's' : ''));
+    return t.join(', ') + ' selon tes limitations et tes douleurs';
+  }
+
+  // ── OBJECTIF ET ÂGE (v1303) ──────────────────────────────────────────
+  // Les exercices de base restent ceux des 4 semaines de fondations ; c'est la
+  // FAÇON de les faire qui suit l'objectif du profil. 65 ans et plus (même seuil
+  // que le reste de l'appli) : un exercice d'équilibre et une mise en route
+  // plus longue. Profil enfant : inchangé (il a sa propre version).
+  var OBJ_LABELS = { weight_loss: 'perte de poids', endurance: 'endurance', muscle_gain: 'prise de muscle', strength: 'force', flexibility: 'souplesse' };
+  function _objectif() {
+    try {
+      if (global.AwakYouth && global.AwakYouth.isChild && global.AwakYouth.isChild()) return 'fitness';
+      var p = typeof global.getUserProfile === 'function' ? global.getUserProfile() : null;
+      return (p && p.goal) || 'fitness';
+    } catch (e) { return 'fitness'; }
+  }
+  function _senior() { try { return !!(global.AwakYouth && global.AwakYouth.isSenior && global.AwakYouth.isSenior()); } catch (e) { return false; } }
+  var EQUILIBRE = {
+    1: { name: 'Tenir sur une jambe (appui léger)', d: 30, muscle: 'Mollets', instructions: ['Debout près d\'un mur ou d\'une chaise, une main en appui léger', 'Lève un pied de quelques centimètres', 'Tiens en respirant calmement, puis change de jambe à mi-temps', 'Regarde un point fixe devant toi'] },
+    3: { name: 'Marche talon-pointe', d: 40, muscle: 'Mollets', instructions: ['Marche en ligne droite, le talon touche la pointe de l\'autre pied', 'Longe un mur pour pouvoir t\'y appuyer', 'Avance lentement, le regard devant', 'Fais demi-tour et reviens'] }
+  };
+
   function _buildTodayWorkout(j) {
     var wk = eveilWeek(j);
     var spec = SESSIONS[wk];
     var db = global.exerciseDatabase || [];
     var items = spec.items.slice();
-    if (j.answers.gout === 'cardio') items.splice(1, 0, CARDIO_OPENERS[wk]);
+    var obj = _objectif(), senior = _senior();
+    var cardioObj = (obj === 'weight_loss' || obj === 'endurance');
+    if (j.answers.gout === 'cardio' || cardioObj) items.splice(1, 0, CARDIO_OPENERS[wk]);
+    if (senior) {
+      var eq = EQUILIBRE[wk <= 2 ? 1 : 3];
+      items.splice(1, 0, [eq.name, eq.d, eq]);
+      items[0] = [items[0][0], Math.round(items[0][1] * 1.4)];   // mise en route plus longue
+    }
+    if (obj === 'flexibility') items.push(['Étirement quadriceps debout', 30], ['Étirement ischio debout', 30]);
     items = _applyQuiet(items, j);
     // 🎚️ Expérience : module l'intensité de départ (±15 % sur les durées).
     // « jamais » = plus doux, « un peu récemment » = un cran au-dessus.
@@ -412,24 +539,43 @@
     if (_todayMood(j) === 'tired') expMult *= 0.85;
     var exercises = [];
     var nSeries = _seriesSemaine(wk, j);
+    // Prise de muscle / force : 3 passages dès la semaine 2 (au lieu de la 3)
+    if ((obj === 'muscle_gain' || obj === 'strength') && wk === 2) nSeries = Math.max(nSeries, _todayMood(j) === 'tired' ? 2 : 3);
     items.forEach(function (it, i) {
       var base = db.find(function (e) { return e.name === it[0]; });
-      var ex = base ? JSON.parse(JSON.stringify(base)) : { name: it[0], muscle: 'Corps entier', type: 'exercise', instructions: [], equipment: ['Poids du corps'] };
+      var ex = base ? JSON.parse(JSON.stringify(base))
+        : (it[2] ? { name: it[0], muscle: it[2].muscle, type: 'exercise', position: 'debout', difficulty: 'Débutant', instructions: it[2].instructions.slice(), equipment: ['Poids du corps'] }
+                 : { name: it[0], muscle: 'Corps entier', type: 'exercise', instructions: [], equipment: ['Poids du corps'] });
       ex.duration = Math.round(it[1] * expMult / 5) * 5;
       // v1236 : plusieurs passages par exercice. Avant, chaque exercice ne
       // tournait qu'UNE fois (~4 min au total) alors que la carte annonçait
       // ~15 min. Le 1er exercice (mise en route) reste à un seul passage.
       ex.sets = i === 0 ? 1 : nSeries;
       ex._seriesMinutees = true;
+      ex.mode = 'timer';   // v1301 : sinon « 2×? » sur l'écran Prépare-toi
       // Les variantes « légères » de la semaine 1 sont rangées en échauffement
       // dans la base : ici ce SONT les exercices de la séance.
-      if (i > 0) { ex.type = 'exercise'; delete ex.isWarmup; }
+      if (i > 0 && ex.type !== 'stretch') { ex.type = 'exercise'; delete ex.isWarmup; }
+      if (ex.type === 'stretch') ex.sets = 1;
       exercises.push(ex);
     });
+    _optsAdapt.sansSauts = j.answers.sauts === 'non';
+    var _ad = _adapter(exercises);
+    _optsAdapt.sansSauts = false;
+    exercises = _ad.exercises;
+    var repos = wk <= 2 ? 40 : 30;
+    if (cardioObj) repos -= 10;
+    else if (obj === 'muscle_gain' || obj === 'strength') repos += 10;
+    if (senior) repos += 10;
+    var adapteA = [];
+    if (OBJ_LABELS[obj]) adapteA.push('ton objectif (' + OBJ_LABELS[obj] + ')');
+    if (senior) adapteA.push('ton âge (équilibre, mise en route plus longue)');
+    if (j.answers.sauts === 'non') adapteA.push('sans sauts');
     return {
+      _eveilAdaptes: _ad.adaptes, _eveilRetires: _ad.retires, _eveilAdapteA: adapteA,
       name: '🌅 Éveil S' + wk + ' · ' + spec.title + (_quietMode(j) ? ' 🤫' : ''),
       exercises: exercises,
-      mode: 'timer', restBetweenSets: wk <= 2 ? 40 : 30,
+      mode: 'timer', restBetweenSets: repos,
       type: 'eveil', _eveil: true,
       badgeHTML: '🌅 Éveil — Semaine ' + wk, badgeColor: '#a855f7',
       badgeStyle: 'linear-gradient(135deg,#22d3ee,#0891b2)'
@@ -448,10 +594,14 @@
       var ex = base ? JSON.parse(JSON.stringify(base)) : { name: it[0], muscle: 'Corps entier', type: 'exercise', instructions: [], equipment: ['Poids du corps'] };
       ex.duration = it[1];
       // v1237 : 3 tours (annoncé « 10 min » ; un seul passage durait ~3 min)
-      ex.sets = 3; ex._seriesMinutees = true;
-      if (ex.type === 'warmup') ex.type = 'exercise';
+      ex.sets = 3; ex._seriesMinutees = true; ex.mode = 'timer';
+      if (ex.type === 'warmup') { ex.type = 'exercise'; delete ex.isWarmup; }
       return ex;
     });
+    _optsAdapt.sansSauts = j.answers.sauts === 'non';
+    exercises = _adapter(exercises).exercises;
+    _optsAdapt.sansSauts = false;
+    if (!exercises.length) { _toast('Aucun exercice de cette séance ne convient à tes limitations.', 'warning', 3500); return; }
     var w = {
       name: '🤸 Séance en famille · Qui tient le plus longtemps ?',
       exercises: exercises, mode: 'timer', restBetweenSets: 20,
@@ -468,6 +618,7 @@
   function eveilLaunchToday() {
     var j = _get(); if (!j || !j.active) return;
     var w = _buildTodayWorkout(j);
+    if (!w.exercises.length) { _toast('Aucun exercice de cette séance ne convient à tes limitations.', 'warning', 3500); return; }
     global._awakEveilPending = _todayKey();
     if (typeof global.switchTab === 'function') global.switchTab('workouts');
     setTimeout(function () {
@@ -509,7 +660,7 @@
     var s = 0; var frozen = false;
     var freezeUsedWeeks = {};
     for (var i = 0; i < 60; i++) {
-      var d = new Date(Date.now() - i * DAY);
+      var d = new Date(); d.setHours(12, 0, 0, 0); d.setDate(d.getDate() - i);
       var k = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
       if (j.checks[k] && j.checks[k][qid]) { s++; continue; }
       if (i === 0) continue;               // aujourd'hui pas encore coché ne casse rien
@@ -566,12 +717,17 @@
     // 📌 Intention d'implémentation : rappel du plan « après X, je fais ma séance »
     var anchorTxt = ANCHOR_LABELS[j.answers.anchor] || '';
     if (doneToday) {
-      sessionHTML = '<div style="padding:11px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.3);border-radius:11px;text-align:center;font-size:0.8em;color:#4ade80;font-weight:700;">✅ Séance du jour accomplie — bravo !</div>';
+      sessionHTML = '<div style="padding:11px;background:rgba(34,211,238,0.08);border:1px solid rgba(34,211,238,0.3);border-radius:11px;text-align:center;font-size:0.8em;color:#67e8f9;font-weight:700;">✓ Séance du jour accomplie — bravo !</div>';
+    } else if (isWork && !_buildTodayWorkout(j).exercises.length) {
+      sessionHTML = '<div style="padding:11px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:11px;font-size:0.78em;color:#cbd5e1;line-height:1.5;">Aucun exercice de la séance du jour ne convient à tes limitations. Fais une marche douce, ou <span onclick="if(window.AwakLimitations)AwakLimitations.ouvrir()" style="color:#67e8f9;font-weight:800;cursor:pointer;text-decoration:underline;">revois tes limitations</span>.</div>';
     } else if (isWork) {
+      var _wJour = _buildTodayWorkout(j), _note = _noteAdaptation(_wJour);
+      if (_wJour._eveilAdapteA && _wJour._eveilAdapteA.length) _note = 'Adaptée à ' + _wJour._eveilAdapteA.join(', ') + (_note ? ' · ' + _note : '');
       var btnLabel = mood === 'tired'
         ? '▶ Séance douce du jour · ' + SESSIONS[wk].title + ' (version allégée)'
         : '▶ Séance du jour · ' + SESSIONS[wk].title + ' (~' + _dureeSeance(j) + ' min)';
-      sessionHTML = '<button onclick="awakEveilLaunchToday()" style="width:100%;background:linear-gradient(135deg,#22d3ee,#0891b2);border:none;color:#04121f;border-radius:12px;padding:12px;font-size:0.88em;font-weight:800;cursor:pointer;">' + btnLabel + '</button>'
+      sessionHTML = (_note ? '<div style="font-size:0.7em;color:#67e8f9;font-weight:700;margin-bottom:7px;">' + _note + '</div>' : '')
+        + '<button onclick="awakEveilLaunchToday()" style="width:100%;background:linear-gradient(135deg,#22d3ee,#0891b2);border:none;color:#04121f;border-radius:12px;padding:12px;font-size:0.88em;font-weight:800;cursor:pointer;">' + btnLabel + '</button>'
         + (_quietAuto(j)
             ? (_quietMode(j)
                 ? '<div style="text-align:center;font-size:0.66em;color:#94a3b8;margin-top:5px;">🤫 Séance silencieuse — sans sauts ni impacts · <span onclick="awakEveilToggleQuiet()" style="color:#a855f7;font-weight:800;cursor:pointer;text-decoration:underline;">pas besoin ?</span></div>'

@@ -88,7 +88,7 @@
       test: function (ex) {
         var n = norm(ex.name);
         // ⚠️ « run » nu matchait « cRUNch » : on borne les mots courts.
-        return /(saut|jump|burpee|corde a sauter|course|sprint|plyo|mountain climber|jumping|skater|\bbox\b|\brun\b)/.test(n);
+        return /(saut|jump|burpee|corde a sauter|course|sprint|plyo|mountain climber|jumping|skater|\bbox\b|\brun\b|high knees|talons[- ]fesses|butt kick|skipping)/.test(n);   // v1302 : high knees = course sur place
       }
     },
     {
