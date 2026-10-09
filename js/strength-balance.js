@@ -178,7 +178,8 @@
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
     });
   }
-  function nb(v) { return Math.round(v); }
+  // v1311 : tous les calculs sont en KG (séries et poids du corps) ; conversion à l'affichage seulement
+  function nb(v) { return Math.round(unite() === 'kg' ? v : v * 2.20462); }
   function unite() {
     try { return (typeof useKg !== 'undefined' && useKg) ? 'kg' : 'lbs'; } catch (e) { return 'kg'; }
   }
@@ -198,13 +199,14 @@
     return {};
   }
 
-  // Poids du corps dans l'unité d'affichage (le profil le stocke en kg)
+  // Poids du corps en KG (comme les séries enregistrées). v1311 : il était
+  // converti en lb ici, puis additionné à des charges en kg (tractions, dips).
   function poidsCorps() {
     try {
       var p = (typeof getUserProfile === 'function') ? getUserProfile() : null;
       var kg = p ? parseFloat(p.weight) : 0;
       if (!(kg > 0)) return 0;
-      return unite() === 'kg' ? kg : kg * 2.20462;
+      return kg;
     } catch (e) { return 0; }
   }
   function sexe() {

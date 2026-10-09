@@ -306,7 +306,8 @@
         var u = unite();
         h += '<div style="margin-bottom:14px;">' + titre('Records du mois', C.violet, 'trophee')
           + '<div style="' + CARTE + 'margin-bottom:0;">' + rc.map(function (t) {
-            var perf = t.charge ? (virg(Math.round(t.record.w * 10) / 10) + ' ' + u + ' × ' + t.record.r) : (t.record.r + ' répétitions');
+            var _wAff = u === 'kg' ? t.record.w : t.record.w * 2.20462;   // v1311 : record en kg → unité choisie
+            var perf = t.charge ? (virg(Math.round(_wAff * 10) / 10) + ' ' + u + ' × ' + t.record.r) : (t.record.r + ' répétitions');
             return '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 0;">'
               + '<span style="font-size:0.76em;color:#e2e8f0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(nom(t.nom)) + '</span>'
               + '<span style="font-size:0.72em;font-weight:800;color:#c084fc;white-space:nowrap;">' + perf + ' · +' + t.record.pct + ' %</span></div>';

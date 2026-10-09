@@ -166,6 +166,9 @@
   }
 
   function reset() { clear(); clearSets(); _promptedExercises = {}; }
+  // v1312 : nouvelle séance → on garde les participants, mais on oublie les séries
+  // d'une séance précédente abandonnée (elles se retrouvaient dans la suivante).
+  function nouvelleSeance() { clearSets(); _promptedExercises = {}; }
 
   // ── Panneau de saisie « autres participants » ──────────────────────
   // Affiché après que le meneur a validé SA série. Chaque autre participant
@@ -175,7 +178,9 @@
   // meneur). Réinitialisé à chaque nouvelle séance (reset).
   var _promptedExercises = {};
   function promptOthersForSet(exerciseName, setNum, isWarmup) {
-    var others = getParticipants().filter(function (p) { return !p.self; });
+    // v1312 : seuls les PROFILS saisissent leurs séries (celles des invités
+    // n'étaient enregistrées nulle part : on leur faisait remplir des cases pour rien)
+    var others = getParticipants().filter(function (p) { return !p.self && p.kind === 'profile'; });
     if (!others.length) return;   // solo malgré tout
     // déjà demandé pour cet exercice ? on ne redemande pas.
     if (_promptedExercises[exerciseName]) return;
@@ -199,14 +204,18 @@
 
     var overlay = document.createElement('div');
     overlay.id = 'awakGroupSetModal';
+    // champs : bordure neutre, cyan au focus (pas de vert)
+    if (!document.getElementById('awakGroupSetCss')) { var st = document.createElement('style'); st.id = 'awakGroupSetCss';
+      st.textContent = '#awakGroupSetModal input{border:1px solid rgba(255,255,255,0.14) !important;box-shadow:none !important;}#awakGroupSetModal input:focus{border-color:#22d3ee !important;outline:none !important;}';
+      document.head.appendChild(st); }
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:99998;display:flex;align-items:flex-end;justify-content:center;padding:0;';
     overlay.innerHTML = '<div style="background:linear-gradient(160deg,#16121f,#0d0d12);border-top:1px solid rgba(139,92,246,0.35);border-radius:22px 22px 0 0;padding:20px;max-width:460px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(0,0,0,0.6);">'
       + '<div style="display:flex;align-items:center;gap:9px;margin-bottom:5px;">'
-      +   '<span style="font-size:1.4em;">👥</span>'
+      +   '<span style="flex-shrink:0;width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:rgba(139,92,246,0.14);border:1px solid rgba(167,139,250,0.35);">' + _ico('groupe', 20, '#c4b5fd') + '</span>'
       +   '<div style="flex:1;"><div style="font-size:0.6em;color:#a78bfa;font-weight:800;letter-spacing:0.5px;">SÉANCE À PLUSIEURS' + (isWarmup ? ' · ÉCHAUFFEMENT' : '') + '</div>'
       +   '<div style="font-size:0.98em;font-weight:900;color:#fff;">' + esc(exerciseName) + '</div></div>'
       + '</div>'
-      + '<div style="font-size:0.72em;color:#94a3b8;margin-bottom:14px;">Saisis les séries de chacun (reps + poids en lb). « + série » pour en ajouter. Laisse vide pour passer.</div>'
+      + '<div style="font-size:0.72em;color:#94a3b8;margin-bottom:14px;">Saisis les séries de chacun (répétitions + poids en ' + ((typeof useKg !== 'undefined' && useKg) ? 'kg' : 'lb') + '). « + série » pour en ajouter. Laisse vide pour passer.</div>'
       + blocks
       + '<button onclick="AwakGroupSaveSet(\'' + encodeURIComponent(exerciseName) + '\',' + setNum + ',' + (isWarmup ? 'true' : 'false') + ')" style="width:100%;margin-top:8px;padding:13px;border:1px solid rgba(167,139,250,0.34);border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;font-weight:800;font-size:0.9em;">Valider et continuer</button>'
       + '<button onclick="AwakGroupSkipSet()" style="width:100%;margin-top:8px;padding:10px;border:none;border-radius:10px;cursor:pointer;background:transparent;color:#64748b;font-size:0.8em;">Passer</button>'
@@ -223,7 +232,7 @@
     return '<div style="display:flex;align-items:center;gap:7px;margin-bottom:6px;" data-grprow="' + pid + '">'
       + '<span style="font-size:0.7em;color:#64748b;width:38px;flex-shrink:0;">Série ' + rowIdx + '</span>'
       + '<input id="grpReps_' + pid + '_' + rowIdx + '" type="number" inputmode="numeric" placeholder="reps" style="flex:1;min-width:0;padding:8px 6px;border-radius:9px;border:1px solid rgba(255,255,255,0.14);background:rgba(255,255,255,0.05);color:#fff;font-size:0.82em;text-align:center;">'
-      + '<input id="grpWeight_' + pid + '_' + rowIdx + '" type="number" inputmode="decimal" placeholder="lb" style="flex:1;min-width:0;padding:8px 6px;border-radius:9px;border:1px solid rgba(255,255,255,0.14);background:rgba(255,255,255,0.05);color:#fff;font-size:0.82em;text-align:center;">'
+      + '<input id="grpWeight_' + pid + '_' + rowIdx + '" type="number" inputmode="decimal" placeholder="' + ((typeof useKg !== 'undefined' && useKg) ? 'kg' : 'lb') + '" style="flex:1;min-width:0;padding:8px 6px;border-radius:9px;border:1px solid rgba(255,255,255,0.14);background:rgba(255,255,255,0.05);color:#fff;font-size:0.82em;text-align:center;">'
       + '</div>';
   }
 
@@ -322,6 +331,7 @@
     isActive: isActive,
     count: count,
     reset: reset,
+    nouvelleSeance: nouvelleSeance,
     logSet: logSet,
     getParticipantSets: getParticipantSets,
     promptOthersForSet: promptOthersForSet,
@@ -347,13 +357,13 @@
       + 'border-radius:14px;padding:13px 16px;font-size:0.95em;font-weight:800;cursor:pointer;'
       + 'box-shadow:0 4px 18px rgba(139,92,246,0.3);position:relative;overflow:hidden;'
       + 'text-align:left;display:flex;align-items:center;gap:11px;">'
-      + '<div style="font-size:1.9em;flex-shrink:0;">👥</div>'
+      + '<div style="flex-shrink:0;width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(139,92,246,0.18);">' + _ico('groupe', 22, '#e9d5ff') + '</div>'
       + '<div style="flex:1;min-width:0;">'
       +   '<div style="font-size:0.6em;letter-spacing:2px;opacity:0.9;font-weight:700;">ENSEMBLE</div>'
       +   '<div style="font-size:0.95em;font-weight:900;line-height:1.2;margin-top:2px;">' + label + '</div>'
       +   '<div style="font-size:0.68em;opacity:0.85;margin-top:2px;">' + sub + '</div>'
       + '</div>'
-      + '<div style="font-size:1.3em;flex-shrink:0;">▶</div>'
+      + '<div style="flex-shrink:0;color:#c4b5fd;font-size:1.3em;">›</div>'
       + '</button>';
   }
 
@@ -415,7 +425,7 @@
       +   '<input id="awakGuestName" type="text" placeholder="Prénom de l\'invité" onkeydown="if(event.key===\'Enter\')AwakGroupAddGuest()" style="' + champ + '">'
       +   '<button onclick="AwakGroupAddGuest()" aria-label="Ajouter l\'invité" style="flex-shrink:0;width:44px;height:44px;min-height:auto;padding:0;display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(167,139,250,0.4);border-radius:11px;cursor:pointer;background:rgba(139,92,246,0.18);color:#e9d5ff;">' + _PLUS + '</button>'
       + '</div>'
-      + '<div style="font-size:0.68em;color:#64748b;margin-top:14px;line-height:1.45;">Chacun saisit ses propres répétitions. Les profils gardent la séance dans leur historique ; les invités sont suivis le temps de la séance.</div>'
+      + '<div style="font-size:0.68em;color:#64748b;margin-top:14px;line-height:1.45;">Chaque profil saisit ses propres séries et garde la séance dans son historique. Les invités s\'entraînent avec vous : rien n\'est enregistré pour eux.</div>'
       + '<div style="display:flex;gap:8px;margin-top:16px;">'
       +   (n > 1 ? '<button onclick="AwakGroupReset()" style="flex:1;min-height:auto;padding:12px 8px;border:1px solid rgba(255,255,255,0.1);border-radius:12px;cursor:pointer;background:rgba(255,255,255,0.04);color:#94a3b8;font-weight:800;font-size:0.82em;">Repasser en solo</button>' : '')
       +   '<button onclick="AwakGroupClose()" style="flex:2;min-height:auto;padding:12px 8px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;font-weight:900;font-size:0.9em;box-shadow:0 4px 16px rgba(139,92,246,0.35);">' + (n > 1 ? 'Valider · ' + n + ' participants' : 'Fermer') + '</button>'

@@ -162,7 +162,149 @@
   function lesSorties() {
     try { var a = JSON.parse(localStorage.getItem(cleLecture()) || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; }
   }
-  function sauver(a) { try { localStorage.setItem(cle(), JSON.stringify(a.slice(0, 100))); } catch (e) {} }
+  // v1307 : plus de limite de 100 sorties (les plus anciennes étaient effacées
+  // sans prévenir). Si la mémoire du téléphone est pleine, on ALLÈGE les tracés
+  // des sorties les plus anciennes (moins de points, puis sans tracé) : leurs
+  // chiffres (distance, temps, records) ne sont jamais supprimés.
+  function sauver(a) {
+    var ecrire = function () { localStorage.setItem(cle(), JSON.stringify(a)); };
+    try { ecrire(); return true; } catch (e) {}
+    var alleges = 0;
+    for (var pas = 0; pas < 2; pas++) {
+      for (var i = a.length - 1; i >= 1; i--) {      // de la plus ancienne vers la plus récente, jamais la dernière
+        var x = a[i]; if (!x || !x.points || !x.points.length) continue;
+        if (pas === 0 && x.points.length > 150) x.points = simplifier(x.points, 150);
+        else if (pas === 1) { x.points = []; x.traceRetire = true; }
+        else continue;
+        alleges++;
+        if (alleges % 10 === 0) { try { ecrire(); toastMemoire(); return true; } catch (e) {} }
+      }
+      try { ecrire(); if (alleges) toastMemoire(); return true; } catch (e) {}
+    }
+    toast('Mémoire du téléphone pleine : la sortie n\'a pas pu être enregistrée. Fais une sauvegarde puis libère de la place.', 'error');
+    return false;
+  }
+  // ═══ TRACÉS COMPLETS DANS INDEXEDDB (v1308) ═══
+  // localStorage est plafonné par le navigateur (≈ 5 à 10 Mo, impossible à
+  // augmenter). Les tracés complets vont dans IndexedDB (des centaines de Mo,
+  // comme les photos de progression) ; localStorage ne garde qu'un APERÇU de
+  // 80 points, qui suffit aux miniatures et à la comparaison de parcours.
+  // Tout est chargé en mémoire au démarrage : les lectures restent instantanées.
+  var TR = (function () {
+    var DB = 'awakRunsDB', ST = 'traces', db = null, cache = {}, pret = false, ok = typeof indexedDB !== 'undefined';
+    function k(x) { return cle() + '|' + x.id; }
+    function ouvrirDB(cb) {
+      if (db) return cb(db);
+      if (!ok) return cb(null);
+      try {
+        var r = indexedDB.open(DB, 1);
+        r.onupgradeneeded = function (e) { var d = e.target.result; if (!d.objectStoreNames.contains(ST)) d.createObjectStore(ST); };
+        r.onsuccess = function (e) { db = e.target.result; cb(db); };
+        r.onerror = function () { ok = false; cb(null); };
+      } catch (e) { ok = false; cb(null); }
+    }
+    function tx(mode, f, fin) {
+      ouvrirDB(function (d) {
+        if (!d) { fin && fin(false); return; }
+        try { var t = d.transaction(ST, mode); f(t.objectStore(ST)); t.oncomplete = function () { fin && fin(true); }; t.onerror = function () { fin && fin(false); }; }
+        catch (e) { fin && fin(false); }
+      });
+    }
+    function charger(cb) {
+      tx('readonly', function (st) {
+        var keys = st.getAllKeys(), vals = st.getAll();
+        vals.onsuccess = function () { (keys.result || []).forEach(function (key, i) { cache[key] = vals.result[i]; }); };
+      }, function (r) { pret = true; cb && cb(r); });
+    }
+    function apercu(pts) { return (pts || []).length > 80 ? simplifier(pts, 80) : (pts || []); }
+    function mettre(x, pts, fin) { cache[k(x)] = pts; tx('readwrite', function (st) { st.put(pts, k(x)); }, fin); }
+    function retirer(x) { delete cache[k(x)]; tx('readwrite', function (st) { st.delete(k(x)); }); }
+    function complets(x) { var c = x && cache[k(x)]; return (c && c.length) ? c : ((x && x.points) || []); }
+    // Sorties existantes : tracé complet → IndexedDB, aperçu dans localStorage
+    function migrer() {
+      if (!ok) return;
+      var h = lesSorties(), n = 0, attente = 0;
+      h.forEach(function (x) {
+        if (!x || x.idb || !x.points || x.points.length <= 80) return;
+        attente++;
+        var pts = x.points;
+        mettre(x, pts, function (r) {
+          if (r) { x.points = apercu(pts); x.idb = 1; n++; }
+          if (--attente === 0 && n) sauver(h);
+        });
+      });
+    }
+    function tout() { var o = {}, pre = cle() + '|'; Object.keys(cache).forEach(function (key) { o[key] = cache[key]; }); return o; }
+    function importer(o) {
+      if (!o || typeof o !== 'object') return;
+      Object.keys(o).forEach(function (key) { cache[key] = o[key]; });
+      tx('readwrite', function (st) { Object.keys(o).forEach(function (key) { st.put(o[key], key); }); });
+    }
+    return { dispo: function () { return ok; }, pret: function () { return pret; }, charger: charger, migrer: migrer, apercu: apercu,
+             mettre: mettre, retirer: retirer, complets: complets, tout: tout, importer: importer };
+  })();
+  window.AwakRunStore = TR;
+  try {
+    // Mémoire « persistante » : le navigateur ne peut plus l'effacer seul s'il manque de place
+    if (navigator.storage && navigator.storage.persist) navigator.storage.persisted().then(function (p) { if (!p) navigator.storage.persist(); }).catch(function () {});
+  } catch (e) {}
+  // Au chargement de la page (profil actif connu), puis migration des anciennes sorties
+  (function () {
+    var go = function () { setTimeout(function () { TR.charger(function () { TR.migrer(); }); }, 400); };
+    if (document.readyState === 'complete') go(); else window.addEventListener('load', go);
+  })();
+
+  function toastMemoire() { toast('Mémoire presque pleine : les tracés de tes plus anciennes sorties ont été allégés (leurs chiffres sont gardés).', 'info'); }
+  function _tPt(now) { try { return R && R.debut ? Math.max(0, Math.round((now - R.debut) / 1000)) : 0; } catch (e) { return 0; } }
+
+  // ═══ EXPORT GPX (Strava, Garmin Connect, etc.) — v1307 ═══
+  function _xml(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' }[c]; }); }
+  function gpx(s) {
+    var a = ACTIVITES[s.type] || ACTIVITES.course;
+    var pts = TR.complets(s);
+    var t0 = Date.parse(s.date) || s.id || Date.now();
+    // Sorties enregistrées avant v1307 : pas d'heure par point → temps répartis
+    // selon la distance parcourue (durée réelle de la sortie).
+    var cum = [0], tot = 0;
+    for (var i = 1; i < pts.length; i++) {
+      var d = pts[i][2] ? 0 : dist({ lat: pts[i - 1][0], lon: pts[i - 1][1] }, { lat: pts[i][0], lon: pts[i][1] });
+      tot += d; cum.push(tot);
+    }
+    var duree = s.dureeTotale || s.duree || 0;
+    var heure = function (i) {
+      var p = pts[i];
+      var sec = (p.length > 3 && p[3] != null) ? p[3] : (tot > 0 ? cum[i] / tot * duree : i);
+      return new Date(t0 + sec * 1000).toISOString();
+    };
+    var type = s.type === 'velo' ? 'cycling' : (s.type === 'marche' ? 'walking' : 'running');
+    var seg = '', out = '';
+    for (var k = 0; k < pts.length; k++) {
+      if (pts[k][2] && seg) { out += '<trkseg>' + seg + '</trkseg>'; seg = ''; }
+      seg += '<trkpt lat="' + pts[k][0] + '" lon="' + pts[k][1] + '"><time>' + heure(k) + '</time></trkpt>';
+    }
+    if (seg) out += '<trkseg>' + seg + '</trkseg>';
+    return '<?xml version="1.0" encoding="UTF-8"?>\n'
+      + '<gpx version="1.1" creator="Awakened" xmlns="http://www.topografix.com/GPX/1/1">'
+      + '<metadata><name>' + _xml(a.nom + ' ' + km(s.distance) + ' km') + '</name><time>' + new Date(t0).toISOString() + '</time></metadata>'
+      + '<trk><name>' + _xml(a.nom + ' ' + km(s.distance) + ' km') + '</name><type>' + type + '</type>' + out + '</trk></gpx>';
+  }
+  function exporterGPX(i) {
+    var s = lesSorties()[i]; if (!s) return;
+    if (TR.complets(s).length < 2) { toast('Cette sortie n\'a pas de tracé GPS à exporter.', 'warning'); return; }
+    var texte = gpx(s);
+    var d = new Date(Date.parse(s.date) || Date.now());
+    var nom = 'Awakened-' + (s.type || 'sortie') + '-' + d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0') + '.gpx';
+    var telecharger = function () {
+      try {
+        var url = URL.createObjectURL(new Blob([texte], { type: 'application/gpx+xml' }));
+        var l = document.createElement('a'); l.href = url; l.download = nom; document.body.appendChild(l); l.click();
+        setTimeout(function () { l.remove(); URL.revokeObjectURL(url); }, 200);
+        toast('Fichier GPX téléchargé : importe-le dans Strava ou Garmin Connect.', 'success');
+      } catch (e) { toast('Impossible de créer le fichier GPX', 'error'); }
+    };
+    var essai = (window.AwakNative && AwakNative.exporterFichier) ? AwakNative.exporterFichier(nom, texte, 'application/gpx+xml') : Promise.resolve(false);
+    Promise.resolve(essai).then(function (ok) { if (!ok) telecharger(); }).catch(telecharger);
+  }
 
   // ── v1276 : SORTIE EN COURS SAUVEGARDÉE ──
   // Si le téléphone recharge l'appli (mémoire, mise à jour, fausse manœuvre),
@@ -476,11 +618,11 @@
       if (dm > Math.max(0.35 * dtm, accMin * 0.25)) R.dernierMouv = Date.now();
     }
 
-    if (!R.dernier) { R.dernier = p; R.points.push([+p.lat.toFixed(6), +p.lon.toFixed(6), 1]); maj(); return; }
+    if (!R.dernier) { R.dernier = p; R.points.push([+p.lat.toFixed(6), +p.lon.toFixed(6), 1, _tPt(now)]); maj(); return; }
     var d = dist(R.dernier, p), dt = Math.max(0.5, (now - R.dernier.t) / 1000);
     if (dt > COUPURE_S) {
       // Longue coupure : on accepte si la vitesse est plausible, sinon on repart à neuf
-      if (d / dt > R.a.vmax) { R.coupures++; R.dernier = p; R.points.push([+p.lat.toFixed(6), +p.lon.toFixed(6), 1]); maj(); return; }
+      if (d / dt > R.a.vmax) { R.coupures++; R.dernier = p; R.points.push([+p.lat.toFixed(6), +p.lon.toFixed(6), 1, _tPt(now)]); maj(); return; }
     }
     if (d < Math.max(3, accMin * 0.5)) { maj(); return; }            // bruit à l'arrêt
     if (d / dt > R.a.vmax * 1.3) { maj(); return; }                  // saut impossible
@@ -488,7 +630,7 @@
     R.distance += d;
     R.dernier = p;
     R.tAccepte = Date.now();
-    R.points.push([+p.lat.toFixed(6), +p.lon.toFixed(6), 0]);
+    R.points.push([+p.lat.toFixed(6), +p.lon.toFixed(6), 0, _tPt(now)]);
     R.recent.push({ d: R.distance, t: duree() });
     while (R.recent.length > 2 && R.recent[R.recent.length - 1].t - R.recent[0].t > 40) R.recent.shift();
 
@@ -777,6 +919,7 @@
       prof: R.prof.length > 500 ? R.prof.filter(function (x, i) { return i % Math.ceil(R.prof.length / 500) === 0; }) : R.prof
     };
     try { if (R.coach && window.AwakCoachRun) { var b = AwakCoachRun.bilan(R); if (b) s.coach = b; } } catch (e) {}
+    if (TR.dispo() && s.points.length > 80) { var _pc = s.points; TR.mettre(s, _pc); s.points = TR.apercu(_pc); s.idb = 1; }
     var hist = lesSorties();
     var avant = records(hist.filter(function (x) { return x.type === 'course'; }));
     hist.unshift(s); sauver(hist);
@@ -904,20 +1047,27 @@
       +   st(hms(s.duree), 'TEMPS') + st(allure(moy), 'ALLURE /KM') + st(moy ? (3600 / moy).toFixed(1) : '–', 'KM/H') + '</div>'
       + (window.AwakCoachRun ? AwakCoachRun.rendreBilan(s) + AwakCoachRun.rendreAnalyse(s) : '')
       + (s.pausesAuto ? '<div style="font-size:0.66em;color:#64748b;margin-top:8px;">Pause auto ' + s.pausesAuto + ' fois · durée totale ' + hms(s.dureeTotale || s.duree) + '</div>' : '')
-      + '<div id="awakRunDetailCarte" style="background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:14px;margin:10px 0;overflow:hidden;">' + trace(s.points, 340, 200, ACCENT) + '</div>'
+      + '<div id="awakRunDetailCarte" style="background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:14px;margin:10px 0;overflow:hidden;">' + trace(TR.complets(s), 340, 200, ACCENT) + '</div>'
       + (splits ? '<div style="font-size:0.6em;letter-spacing:1.6px;color:#94a3b8;font-weight:900;margin:12px 0 8px;">TEMPS PAR KILOMÈTRE</div>' + splits : '')
       + (s.coupures ? '<div style="font-size:0.7em;color:#fbbf24;margin-top:8px;">Signal GPS interrompu ' + s.coupures + ' fois : la distance peut être légèrement sous-estimée.</div>' : '')
-      + '<div style="display:flex;gap:8px;margin-top:14px;">'
+      + (TR.complets(s).length >= 2 ? '<button onclick="AwakRun.exporterGPX(' + i + ')" style="width:100%;min-height:auto;margin-top:12px;padding:12px;border-radius:12px;cursor:pointer;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.14);color:#e2e8f0;font-weight:800;font-size:0.8em;display:flex;align-items:center;justify-content:center;gap:8px;">'
+          + ico('<path d="M12 3v12M7 10l5 5 5-5M5 21h14"/>', 16, ACCENT) + 'Exporter le trajet (GPX) · Strava, Garmin</button>'
+          // v1309 : où importer le fichier ensuite (pas d'envoi automatique)
+          + '<div style="font-size:0.66em;color:#94a3b8;line-height:1.5;margin-top:7px;">'
+          +   '<b style="color:#cbd5e1;">Strava :</b> sur strava.com, « + » puis Importer une activité › Fichier.<br>'
+          +   '<b style="color:#cbd5e1;">Garmin Connect :</b> sur connect.garmin.com, icône d\'import puis Importer des données.</div>'
+          : (s.traceRetire ? '<div style="font-size:0.66em;color:#64748b;margin-top:10px;">Tracé allégé pour libérer de la mémoire : les chiffres de cette sortie sont conservés.</div>' : ''))
+      + '<div style="display:flex;gap:8px;margin-top:10px;">'
       +   '<button onclick="AwakRun.supprimer(' + i + ')" style="flex:1;min-height:auto;padding:12px;border-radius:12px;cursor:pointer;background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;font-weight:800;font-size:0.8em;">Supprimer</button>'
       +   '<button onclick="document.getElementById(\'awakRunDetail\').remove();AwakRun.ouvrir()" style="flex:2;min-height:auto;padding:12px;border-radius:12px;cursor:pointer;background:rgba(34,211,238,0.12);border:1px solid rgba(34,211,238,0.4);color:#a5f3fc;font-weight:800;font-size:0.8em;">Mes sorties</button>'
       + '</div></div>';
     document.body.appendChild(ov);
     // 🗺️ v1231 : la carte remplace le tracé dès qu'elle est disponible
-    if ((s.points || []).length >= 2) chargerCarte(function (ok) {
+    if (TR.complets(s).length >= 2) chargerCarte(function (ok) {
       var hote = document.getElementById('awakRunDetailCarte');
       if (!ok || !hote) return;
       var c = creerCarte(hote, 220); if (!c) return;
-      var segs = segments(s.points);
+      var segs = segments(TR.complets(s));
       c.ligne.setLatLngs(segs);
       try {
         var tous = [].concat.apply([], segs);
@@ -930,7 +1080,7 @@
 
   function supprimer(i) {
     var go = function () {
-      var h = lesSorties(); h.splice(i, 1); sauver(h);
+      var h = lesSorties(); var x = h.splice(i, 1)[0]; if (x) TR.retirer(x); sauver(h);
       var d = document.getElementById('awakRunDetail'); if (d) d.remove();
       ouvrir();
     };
@@ -946,7 +1096,7 @@
   setTimeout(verifierInterrompue, 2500);
 
   window.AwakRun = {
-    ouvrir: ouvrir, rendreOnglet: rendreOnglet, detail: detail, supprimer: supprimer,
+    ouvrir: ouvrir, rendreOnglet: rendreOnglet, detail: detail, supprimer: supprimer, exporterGPX: exporterGPX, gpx: gpx,
     toutes: toutes, formeDetail: formeDetail, autre: autre,
     lancer: function (type, cfg) { var h = document.getElementById('awakRunHome'); if (h) h.remove(); if (!R) demarrer(type, cfg); },
     _duree: function () { return duree(); },

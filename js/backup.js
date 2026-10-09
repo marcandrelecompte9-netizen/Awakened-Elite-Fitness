@@ -26,6 +26,7 @@
   function ico(n, t, c) { return window.AwakIcon ? AwakIcon.get(n, t || 18, c || CLAIR) : ''; }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 
+  var CLE_TRACES = '__awakRunTraces';
   // ── collecte ──
   function collecter() {
     var data = {};
@@ -33,6 +34,8 @@
       var k = localStorage.key(i);
       if (k != null) data[k] = localStorage.getItem(k);
     }
+    // v1308 : tracés GPS complets (gardés dans IndexedDB, hors localStorage)
+    try { if (window.AwakRunStore) { var tr = AwakRunStore.tout(); if (Object.keys(tr).length) data[CLE_TRACES] = JSON.stringify(tr); } } catch (e) {}
     return { appName: 'Awakened', version: 3, exportedAt: new Date().toISOString(), data: data };
   }
   function octets() {
@@ -132,6 +135,12 @@
   // ── écriture sûre ──
   function ecrire(data) {
     var avant = collecter().data;
+    delete avant[CLE_TRACES];
+    // Les tracés GPS vont dans IndexedDB, jamais dans localStorage (trop gros)
+    if (data[CLE_TRACES]) {
+      try { if (window.AwakRunStore) AwakRunStore.importer(JSON.parse(data[CLE_TRACES])); } catch (e) {}
+      data = Object.assign({}, data); delete data[CLE_TRACES];
+    }
     try {
       localStorage.clear();
       Object.keys(data).forEach(function (k) { localStorage.setItem(k, data[k]); });
@@ -275,8 +284,20 @@
       +     '<input type="file" accept=".json,application/json" style="display:none;" onchange="AwakSauvegarde.depuisFichier(this.files[0]);this.value=\'\';"></label>'
       +   btn('AwakSauvegarde.copies()', ico('liste', 18, '#cbd5e1') + 'Copies sur ce téléphone', false)
       + '</div>'
-      + '<div style="font-size:0.66em;color:#64748b;margin-top:10px;">Espace utilisé : ' + mo(o) + ' sur environ 5 Mo</div>'
-      + '<div style="height:4px;border-radius:99px;background:rgba(255,255,255,0.07);margin-top:4px;overflow:hidden;"><div style="height:100%;width:' + pct.toFixed(0) + '%;background:' + (pct > 80 ? '#f87171' : BLEU) + ';"></div></div>';
+      + '<div style="font-size:0.66em;color:#64748b;margin-top:10px;">Données de l\'app : ' + mo(o) + ' sur environ 5 Mo</div>'
+      + '<div style="height:4px;border-radius:99px;background:rgba(255,255,255,0.07);margin-top:4px;overflow:hidden;"><div style="height:100%;width:' + pct.toFixed(0) + '%;background:' + (pct > 80 ? '#f87171' : BLEU) + ';"></div></div>'
+      + '<div id="awakEspaceGrand" style="font-size:0.66em;color:#64748b;margin-top:8px;"></div>';
+    // v1308 : la grande mémoire (tracés GPS complets, photos de progression)
+    try {
+      if (navigator.storage && navigator.storage.estimate) navigator.storage.estimate().then(function (e) {
+        var el = document.getElementById('awakEspaceGrand'); if (!el || !e || !e.quota) return;
+        var fin = function (pers) {
+          el.innerHTML = 'Tracés GPS et photos : ' + mo(e.usage || 0) + ' · encore ' + mo(Math.max(0, e.quota - (e.usage || 0))) + ' disponibles'
+            + (pers ? ' · <span style="color:#67e8f9;">mémoire protégée</span>' : '');
+        };
+        if (navigator.storage.persisted) navigator.storage.persisted().then(fin, function () { fin(false); }); else fin(false);
+      }).catch(function () {});
+    } catch (e) {}
   }
 
   // ── rappel ──

@@ -71,12 +71,14 @@
     },
     volume: {
       label: 'kg soulevés', emoji: '🏋️', unit: ' kg',
-      metric: function (e) { return (e && e.totalVolume) ? e.totalVolume : 0; },
+      // v1311 : les séances ont « volume » (pas « totalVolume ») → l'objectif restait à 0
+      metric: function (e) { return e ? (window.awakVolKg ? awakVolKg(e) : (e.volume || e.totalVolume || 0)) : 0; },
       presets: [50000, 120000, 250000]
     },
     duration: {
       label: 'minutes', emoji: '⏱️', unit: ' min',
-      metric: function (e) { return (e && e.duration) ? Math.round(e.duration / 60) : 0; },
+      // v1311 : la durée d'une séance est déjà en MINUTES (avant : divisée par 60 → des heures)
+      metric: function (e) { return (e && e.duration) ? Math.round(e.duration) : 0; },
       presets: [300, 600, 1200]
     },
     exercises: {

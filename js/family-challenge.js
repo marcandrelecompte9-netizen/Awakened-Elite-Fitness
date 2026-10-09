@@ -41,8 +41,12 @@
       label: 'Le plus gros volume',
       emoji: '🏋️',
       desc: 'Qui soulève le plus de poids au total en 7 jours ?',
-      unit: 'kg',
-      metric: function (e) { return Math.max(0, e.volume || 0); }
+      // v1311 : volume en kg (awakVolKg), affiché dans l'unité choisie
+      get unit() { try { return typeof weightUnit === 'function' ? weightUnit() : 'kg'; } catch (x) { return 'kg'; } },
+      metric: function (e) {
+        var kg = window.awakVolKg ? awakVolKg(e) : Math.max(0, e.volume || 0);
+        try { return Math.round(typeof fmtWeightVal === 'function' ? fmtWeightVal(kg) : kg); } catch (x) { return Math.round(kg); }
+      }
     },
     duration: {
       label: 'Le plus de temps',

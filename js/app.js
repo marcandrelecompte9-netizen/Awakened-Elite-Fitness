@@ -6929,7 +6929,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             let best = 0;
             lift.names.forEach(function (n) { const v = awakEstimate1RM(n); if (v > best) best = v; });
             if (best <= 0) return { level: -1, best1RM: 0, lift: lift, std: std };
-            const bestKg = _awakToKg(best);
+            const bestKg = best;   // v1310 : les séries sont enregistrées en kg (avant : reconvertie à tort pour les lb)
             const profile = (typeof getUserProfile === 'function') ? getUserProfile() : {};
             const bw = parseFloat(profile.weight) || 0;
             if (bw <= 0) return { level: -1, best1RM: bestKg, lift: lift, std: std };
@@ -6985,7 +6985,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const inDays = function (d) { return dates.filter(function (t) { return now - t < d * DAY; }).length; };
             const s7 = inDays(7), s14 = inDays(14), s28 = inDays(28);
             const perWeek = s28 / 4;
-            const volIn = function (a, b) { return hist.filter(function (h) { const t = Date.parse(h.date || h.completedAt); return !isNaN(t) && now - t >= a * DAY && now - t < b * DAY; }).reduce(function (s, h) { return s + (h.volume || 0); }, 0); };
+            const volIn = function (a, b) { return hist.filter(function (h) { const t = Date.parse(h.date || h.completedAt); return !isNaN(t) && now - t >= a * DAY && now - t < b * DAY; }).reduce(function (s, h) { return s + awakVolKg(h); }, 0); };
             const volRecent = volIn(0, 14), volPrev = volIn(14, 28);
             const volTrend = volPrev > 0 ? (volRecent - volPrev) / volPrev : null;
             const variety = totalSwaps + progStart * 2 + regen;
@@ -8362,6 +8362,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         
         function startPreparedWorkout() {
             if (!pendingWorkout) return;
+            try { if (window.AwakGroup && AwakGroup.nouvelleSeance) AwakGroup.nouvelleSeance(); } catch (e) {}
             window.showWorkoutPreparation = showWorkoutPreparation; window.startPreparedWorkout = startPreparedWorkout; window.setPendingWorkout = function(w){ pendingWorkout = w; };
             // v1223 : les choix « forme » et « cardio » sont faits sur l'écran Prépare-toi
             try { if (window.AwakSessUX) AwakSessUX.appliquerPrep(pendingWorkout); } catch (e) {}
@@ -13363,13 +13364,19 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const hasHistory = Array.isArray(prs.history) && prs.history.length > 0;
             if (!hasHistory) return [];
 
+            // v1311 : TOUT en kg. Les records (exercisePerformances) sont en kg, mais la
+            // série saisie et les séries de la séance sont dans l'unité affichée :
+            // en livres, presque chaque série passait pour un record (100 lb > 50 kg).
+            const _kgDe = (v) => { const n = parseFloat(v) || 0; return useKg ? n : Math.round(n * 0.453592 * 1000) / 1000; };
+            weight = _kgDe(weight);
             // Aussi vérifier contre les sets de la séance EN COURS pour éviter les doublons
+            // (sans la série qui vient d'être enregistrée : sinon aucun record n'était jamais battu)
             try {
                 const sessionSets = JSON.parse(localStorage.getItem('fitproSessionSets') || '{}');
-                const currSets = sessionSets[exerciseName] || [];
+                const currSets = (sessionSets[exerciseName] || []).slice(0, -1);
                 currSets.forEach(s => {
                     if (s.warmup) return;
-                    const w = parseFloat(s.weight) || 0;
+                    const w = _kgDe(s.weight);
                     const r = parseInt(s.reps) || 0;
                     if (w > prs.maxWeight) prs.maxWeight = w;
                     if (r > prs.maxReps) prs.maxReps = r;
@@ -13474,7 +13481,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const pct = _pg.total > 0 ? Math.round((_faits / _pg.total) * 100) : 0;
             const _enfant = !!(window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild());
             const _vol = (!_enfant && volume > 0)
-                ? '<span style="opacity:0.35;">·</span><span>' + (useKg ? (volume >= 1000 ? (volume/1000).toFixed(1)+' t' : Math.round(volume)+' kg') : (fmtWeightVal(volume) >= 10000 ? (fmtWeightVal(volume)/1000).toFixed(1)+'k lbs' : Math.round(fmtWeightVal(volume))+' lbs')) + '</span>'
+                ? '<span style="opacity:0.35;">·</span><span>' + (useKg ? (volume >= 1000 ? (volume/1000).toFixed(1)+' t' : Math.round(volume)+' kg') : (volume >= 10000 ? (volume/1000).toFixed(1)+'k lbs' : Math.round(volume)+' lbs')) + '</span>'   // v1311 : séries déjà en lb (avant : ×2,2 de trop)
                 : '';
             // v1297 : les étoiles ne servent qu'aux profils ENFANT (récompense simple) ;
             // chez l'adulte elles prenaient de la place et coupaient la barre du haut.
@@ -13536,14 +13543,16 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const lastRPE   = nonWarmup.find(s => s.rpe)?.rpe || null;
 
                 let suggestion;
+                // v1311 : séries dans l'unité affichée → pas de 5 lb (avant : +2,5 « lb »)
+                const _pas = useKg ? 2.5 : 5, _arr = (v) => Math.round(v / (_pas / 2)) * (_pas / 2);
                 if (lastRPE && lastRPE <= 7) {
-                    suggestion = { action:'increase', weight: Math.round((avgWeight + 2.5) * 2) / 2, reps: Math.round(avgReps),
+                    suggestion = { action:'increase', weight: _arr(avgWeight + _pas), reps: Math.round(avgReps),
                                    reason:'Dernière séance facile', color:'#22c55e' };
                 } else if (lastRPE && lastRPE >= 9) {
-                    suggestion = { action:'decrease', weight: Math.round((avgWeight * 0.9) * 2) / 2, reps: Math.round(avgReps),
+                    suggestion = { action:'decrease', weight: _arr(avgWeight * 0.9), reps: Math.round(avgReps),
                                    reason:'Dernière séance difficile', color:'#f59e0b' };
                 } else {
-                    suggestion = { action:'maintain', weight: Math.round(avgWeight * 2) / 2, reps: Math.round(avgReps),
+                    suggestion = { action:'maintain', weight: _arr(avgWeight), reps: Math.round(avgReps),
                                    reason:'Charge identique', color:'#3b82f6' };
                 }
                 return suggestion;
@@ -13634,7 +13643,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             let defW = '', defR = _awakRepsCible(exercise);
             try {
                 const lp = (typeof getLastPerformance === 'function') ? getLastPerformance(exKey) : null;
-                if (lp) { if (lp.weight) defW = lp.weight; if (lp.reps) defR = lp.reps; }
+                // v1310 : charge prescrite (« Mon défi ») prioritaire, déjà dans l'unité affichée
+                if (exercise._chargeAffichee > 0) { defW = exercise._chargeAffichee; defR = parseInt(exercise.reps, 10) || defR; }
+                // v1310 : la dernière charge est enregistrée en kg → convertie pour l'affichage (lb)
+                else if (lp) { if (lp.weight) defW = (typeof fmtWeightVal === 'function') ? fmtWeightVal(lp.weight) : lp.weight; if (lp.reps) defR = lp.reps; }
                 else if (exercise.weight) defW = exercise.weight;
             } catch (e) {}
             const total = totalSetsPlanned + warmupSetsCount;
@@ -14304,7 +14316,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
             // Save performance (work sets only)
             if (!isWarmup && currentEx) {
-                const wKg = useKg ? weight : Math.round(weight * 0.453592 * 10) / 10;
+                const wKg = useKg ? weight : Math.round(weight * 0.453592 * 1000) / 1000;
                 // Bloquer savePerformance et XP pendant Failles/Chasses
                 if (!currentWorkout._isRift && !currentWorkout._isHunt) {
                     if (reps > 0) savePerformance(currentEx._baseName || currentEx.name, reps, wKg || null);
@@ -15356,9 +15368,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 Object.values(sessionSets).forEach(exSets => {
                     (exSets || []).forEach(s => {
                         if (s.warmup) return;
-                        sessionVolume += (s.weight || 0) * (s.reps || 0);
+                        // v1311 : séries saisies dans l'unité affichée → volume enregistré en kg
+                        sessionVolume += (useKg ? (s.weight || 0) : (s.weight || 0) * 0.453592) * (s.reps || 0);
                     });
                 });
+                sessionVolume = Math.round(sessionVolume);
             } catch(e) {}
 
             const historyEntry = {
@@ -15374,7 +15388,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 musclesWorked: musclesWorked, // For mini-chart
                 musclesWeighted: musclesWeighted, // {muscle: sommeRatios} pour stats pondérées
                 calories: calories,
-                volume: sessionVolume,
+                volume: sessionVolume, _volKg: 1,
                 workoutData: workout // Save complete workout for replay
             };
             
@@ -15434,6 +15448,14 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // Écrit directement dans son espace profile_<id>_workoutHistory sans
         // changer de profil actif. Calcule le volume et les muscles à partir de
         // ses propres séries. Met aussi à jour ses stats de base (compteur).
+        // v1311 : volume d'une séance EN KG. Les séances enregistrées avant v1311
+        // gardaient le volume dans l'unité affichée (lb par défaut).
+        function awakVolKg(e) {
+            const v = (e && parseFloat(e.volume)) || 0;
+            return (e && e._volKg) || useKg ? v : v * 0.453592;
+        }
+        window.awakVolKg = awakVolKg;
+
         function saveGroupWorkoutForProfile(profileId, workout) {
             if (!profileId || !workout || !workout.exercises || !workout.exercises.length) return;
             try {
@@ -15458,7 +15480,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     exercises: workout.exercises.length,
                     muscles: Object.keys(muscleSet),
                     musclesWorked: Object.keys(muscleSet),
-                    volume: volume,
+                    volume: volume, _volKg: 1,
                     fromGroup: true,
                     workoutData: workout
                 };
@@ -15476,10 +15498,15 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
                 // Records du profil cible : on parcourt ses séries et on met à
                 // jour son PR store (profile_<id>_fitproPRs) sans notification.
+                // v1311 : écrit dans le MÊME stockage que les records du profil
+                // (personalRecords_<id>, lu par le Hall of Fame) et ses séries
+                // (exercisePerformances_<id> : charge max estimée, Mon défi…). Avant :
+                // une clé « fitproPRs » que rien ne lisait. Charges du groupe en kg.
                 try {
-                    let prs = {};
-                    const rawPr = getProfileData(profileId, 'fitproPRs');
-                    if (rawPr) { prs = JSON.parse(rawPr) || {}; }
+                    const kPr = 'personalRecords_' + profileId, kPerf = 'exercisePerformances_' + profileId;
+                    let prs = {}, perfs = {};
+                    try { prs = JSON.parse(localStorage.getItem(kPr) || '{}') || {}; } catch (e) {}
+                    try { perfs = JSON.parse(localStorage.getItem(kPerf) || '{}') || {}; } catch (e) {}
                     let changed = false;
                     workout.exercises.forEach(ex => {
                         const key = ex._baseName || ex.name;
@@ -15488,19 +15515,77 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             if (s.warmup) return;
                             const w = parseFloat(s.weight) || 0;
                             const r = parseInt(s.reps) || 0;
+                            if (r > 0) { (perfs[key] = perfs[key] || []).push({ date: entry.date, reps: r, weight: w || null }); if (perfs[key].length > 50) perfs[key] = perfs[key].slice(-50); changed = true; }
                             const vol = (w || 1) * r;
-                            if (!prs[key]) prs[key] = { weight: null, reps: null, volume: null };
+                            if (!prs[key]) prs[key] = {};
                             const p = prs[key];
-                            if (w > 0 && (!p.weight || w > p.weight.value)) { p.weight = { value: w, date: entry.date }; changed = true; }
-                            if (r > 0 && (!p.reps || r > p.reps.value))     { p.reps   = { value: r, date: entry.date }; changed = true; }
-                            if (vol > 0 && (!p.volume || vol > p.volume.value)) { p.volume = { value: vol, date: entry.date }; changed = true; }
+                            if (w > 0 && (!p.weight || w > p.weight.value)) { p.weight = { value: w, reps: r, date: entry.date }; changed = true; }
+                            if (r > 0 && (!p.reps || r > p.reps.value))     { p.reps   = { value: r, weight: w || null, date: entry.date }; changed = true; }
+                            if (vol > 0 && (!p.volume || vol > p.volume.value)) { p.volume = { value: vol, weight: w, reps: r, date: entry.date }; changed = true; }
                         });
                     });
-                    if (changed) setProfileData(profileId, 'fitproPRs', JSON.stringify(prs));
+                    if (changed) { localStorage.setItem(kPr, JSON.stringify(prs)); localStorage.setItem(kPerf, JSON.stringify(perfs)); }
                 } catch(e) {}
             } catch(e) {}
         }
         window.saveGroupWorkoutForProfile = saveGroupWorkoutForProfile;
+
+        // 🎮 v1313 : XP de jeu d'un PARTICIPANT (séance à plusieurs). Même calcul
+        // par série que le meneur (rpgXPForSet + plafonds par série, par séance et
+        // par jour), écrit directement dans les données de jeu de SON profil
+        // (profile_<id>_fitproRPG). Seulement si son mode jeu est actif et qu'il a
+        // 13 ans ou plus. Pas de fenêtre de montée de niveau sur l'écran du meneur :
+        // il la verra en ouvrant l'onglet Jeu avec son profil.
+        function awakXPParticipant(profileId, workout, template) {
+            try {
+                if (!profileId || !workout) return 0;
+                if (localStorage.getItem('profile_' + profileId + '_fitproGameMode') !== '1') return 0;
+                if (window.AwakYouth && AwakYouth.ageCategoryOf && AwakYouth.ageCategoryOf(profileId) === 'child') return 0;
+                const jour = awakJourLocal();
+                const kJour = 'profile_' + profileId + '_awakGroupXpJour';
+                let dj = {}; try { dj = JSON.parse(localStorage.getItem(kJour) || '{}') || {}; } catch (e) {}
+                if (dj.jour !== jour) dj = { jour: jour, xp: 0 };
+                const kRpg = 'profile_' + profileId + '_fitproRPG';
+                let data = null; try { data = JSON.parse(localStorage.getItem(kRpg) || 'null'); } catch (e) {}
+                if (!data || !data.muscles) data = { muscles: {}, profile: { xp: 0 } };
+                const tpl = (template && template.exercises) || [];
+                let total = 0;
+                (workout.exercises || []).forEach(function (ex) {
+                    const nom = ex._baseName || ex.name;
+                    const db = exerciseDatabase.find(e => e.name === nom);
+                    const t = tpl.find(e => (e._baseName || e.name) === nom) || {};
+                    const muscle = (db && db.muscle) || ex.muscle || t.muscle || 'Corps entier';
+                    (ex.completedSets || []).forEach(function (st) {
+                        if (st.warmup) return;
+                        const reps = parseInt(st.reps) || 0, w = parseFloat(st.weight) || 0;
+                        const minut = reps === 0 && w === 0;
+                        let xp = Math.min(XP_MAX_PER_SET, rpgXPForSet(nom, reps, w, minut, t.duration || (db && db.duration) || 30));
+                        xp = Math.min(xp, XP_MAX_PER_WORKOUT - total, XP_MAX_PER_DAY - dj.xp - total);
+                        if (xp <= 0) return;
+                        total += xp;
+                        if (!data.muscles[muscle]) data.muscles[muscle] = { xp: 0, lastTrained: null };
+                        data.muscles[muscle].xp += xp;
+                        data.muscles[muscle].lastTrained = new Date().toISOString();
+                        try {
+                            if (db && typeof getWeightedMuscles === 'function') getWeightedMuscles(db).forEach(function (o) {
+                                if (o.muscle === muscle || o.ratio >= 1) return;
+                                if (!data.muscles[o.muscle]) data.muscles[o.muscle] = { xp: 0, lastTrained: null };
+                                data.muscles[o.muscle].xp += Math.round(xp * o.ratio);
+                                data.muscles[o.muscle].lastTrained = new Date().toISOString();
+                            });
+                        } catch (e) {}
+                    });
+                });
+                if (total <= 0) return 0;
+                if (!data.profile) data.profile = { xp: 0 };
+                data.profile.xp = Object.values(data.muscles).reduce((a, m) => a + (m.xp || 0), 0);
+                data.profile.lastActivity = new Date().toISOString();
+                localStorage.setItem(kRpg, JSON.stringify(data));
+                dj.xp += total; localStorage.setItem(kJour, JSON.stringify(dj));
+                return total;
+            } catch (e) { return 0; }
+        }
+        window.awakXPParticipant = awakXPParticipant;
 
         function getWorkoutHistory() {
             try {
@@ -17114,7 +17199,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         <div style="font-size: 0.9em; color: #94a3b8; margin-bottom: 5px;">Votre 1RM estimé pour</div>
                         <div style="font-size: 1.3em; font-weight: 700; color: #ef4444; margin-bottom: 5px;">${exercise}</div>
                         <div style="font-size: 3.5em; font-weight: 800; color: #ef4444;">${oneRM} ${useKg ? 'kg' : 'lbs'}</div>
-                        <div style="font-size: 0.85em; color: #94a3b8; margin-top: 10px;">Basé sur ${reps} reps @ ${weight} lbs</div>
+                        <div style="font-size: 0.85em; color: #94a3b8; margin-top: 10px;">Basé sur ${reps} reps @ ${weight} ${useKg ? 'kg' : 'lbs'}</div>
                     </div>
                     
                     <div style="background: rgba(255,255,255,0.04); padding: 20px; border-radius: 14px; margin-bottom: 15px;">
@@ -17166,6 +17251,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 oneRM: oneRM,
                 weight: weight,
                 reps: reps,
+                unit: useKg ? 'kg' : 'lbs',   // v1311 : unité de saisie (pour convertir si le réglage change)
                 date: new Date().toISOString()
             };
             
@@ -17209,14 +17295,18 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 <div style="margin-top: 30px;">
                     <h3 style="color: #22d3ee; margin-bottom: 20px;">Vos Records 1RM</h3>
                     <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px;">
-                        ${entries.map(([exercise, record]) => {
-                            const date = new Date(record.date).toLocaleDateString('fr-FR');
+                        ${entries.map(([exercise, record0]) => {
+                            const date = new Date(record0.date).toLocaleDateString('fr-FR');
+                            // v1311 : affiché dans l'unité actuelle (enregistré dans l'unité de saisie)
+                            const _u0 = record0.unit || (useKg ? 'kg' : 'lbs'), _uA = useKg ? 'kg' : 'lbs';
+                            const _cv = (v) => _u0 === _uA ? v : Math.round(_u0 === 'kg' ? v * 2.20462 : v * 0.453592);
+                            const record = Object.assign({}, record0, { oneRM: _cv(record0.oneRM), weight: _cv(record0.weight) });
                             return `
                                 <div style="background: rgba(255,255,255,0.04); padding: 20px; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-left: 4px solid #ef4444;">
                                     <div style="font-weight: 700; color: #e2e8f0; margin-bottom: 10px; font-size: 1.1em;">${exercise}</div>
                                     <div style="font-size: 2.5em; font-weight: 800; color: #ef4444; margin-bottom: 5px;">${record.oneRM}</div>
                                     <div style="font-size: 0.85em; color: #94a3b8; margin-bottom: 15px;">${useKg ? 'kg' : 'lbs'} (1RM)</div>
-                                    <div style="font-size: 0.8em; color: #94a3b8; margin-bottom: 5px;">Basé sur ${record.reps} reps @ ${record.weight} lbs</div>
+                                    <div style="font-size: 0.8em; color: #94a3b8; margin-bottom: 5px;">Basé sur ${record.reps} reps @ ${record.weight} ${useKg ? 'kg' : 'lbs'}</div>
                                     <div style="font-size: 0.75em; color: #94a3b8; margin-bottom: 15px;">📅 ${date}</div>
                                     <button onclick="delete1RMRecord('${exercise}')" class="btn" style="width: 100%; background: #ef4444; padding: 8px; font-size: 0.85em;">
                                         🗑️ Supprimer
@@ -17231,9 +17321,22 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         
         // ========== PLATE CALCULATOR ==========
         
+        // v1311 : barres et disques selon l'unité (avant : tout en lb, même en kg)
+        const AWAK_BARRES = { '45': { lb: 45, kg: 20, nom: 'Olympique' }, '35': { lb: 35, kg: 15, nom: 'Standard' }, '15': { lb: 15, kg: 7.5, nom: 'Curl' } };
+        function awakMajBarresUnite() {
+            const sel = document.getElementById('plateBarType'); if (!sel) return;
+            Array.prototype.forEach.call(sel.options, function (o) {
+                const b = AWAK_BARRES[o.value]; if (b) o.textContent = b.nom + ' (' + (useKg ? b.kg + ' kg' : b.lb + ' lbs') + ')';
+            });
+        }
+        window.awakMajBarresUnite = awakMajBarresUnite;
+        window.addEventListener('load', function () { try { awakMajBarresUnite(); } catch (e) {} });
         function calculatePlates() {
+            awakMajBarresUnite();
+            const _u = useKg ? 'kg' : 'lbs';
             const targetWeight = parseFloat(document.getElementById('plateTargetWeight').value);
-            const barWeight = parseFloat(document.getElementById('plateBarType').value);
+            const _b = AWAK_BARRES[document.getElementById('plateBarType').value];
+            const barWeight = _b ? (useKg ? _b.kg : _b.lb) : 0;
             const resultsDiv = document.getElementById('plateResults');
             
             if (!targetWeight || targetWeight <= 0) {
@@ -17254,8 +17357,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 return;
             }
             
-            // Available plates (in lbs, from largest to smallest)
-            const availablePlates = [45, 35, 25, 10, 5, 2.5];
+            // Disques disponibles, du plus lourd au plus léger
+            const availablePlates = useKg ? [25, 20, 15, 10, 5, 2.5, 1.25] : [45, 35, 25, 10, 5, 2.5];
             
             // Calculate optimal plate combination
             let remaining = weightPerSide;
@@ -17293,8 +17396,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 <div style="background: linear-gradient(135deg, rgba(245,158,11,0.082) 0%, rgba(245,158,11,0.02) 100%); padding: 25px; border-radius: 14px; border-left: 4px solid #f59e0b; margin-top: 20px;">
                     <div style="text-align: center; margin-bottom: 25px;">
                         <div style="font-size: 1.2em; color: #94a3b8; margin-bottom: 10px;">🎯 Poids cible</div>
-                        <div style="font-size: 3em; font-weight: 800; color: #f59e0b;">${targetWeight} lbs</div>
-                        ${actualTotal !== targetWeight ? `<div style="font-size: 0.9em; color: #ef4444; margin-top: 5px;">Poids réel: ${actualTotal} lbs (différence: ${(actualTotal - targetWeight).toFixed(1)} lbs)</div>` : ''}
+                        <div style="font-size: 3em; font-weight: 800; color: #f59e0b;">${targetWeight} ${_u}</div>
+                        ${actualTotal !== targetWeight ? `<div style="font-size: 0.9em; color: #ef4444; margin-top: 5px;">Poids réel: ${actualTotal} ${_u} (différence: ${(actualTotal - targetWeight).toFixed(1)} ${_u})</div>` : ''}
                     </div>
                     
                     <div style="background: rgba(255,255,255,0.04); padding: 20px; border-radius: 14px; margin-bottom: 20px;">
@@ -17302,25 +17405,25 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 20px; align-items: center;">
                             <div style="text-align: right;">
                                 <div style="font-size: 1.1em; font-weight: 700; color: #e2e8f0; margin-bottom: 10px;">Côté gauche</div>
-                                ${Object.entries(plateCount).map(([weight, count]) => `
+                                ${Object.entries(plateCount).sort((a, b) => parseFloat(b[0]) - parseFloat(a[0])).map(([weight, count]) => `
                                     <div style="margin-bottom: 8px;">
                                         <span style="display: inline-block; min-width: 30px; text-align: right; font-weight: 600;">${count}×</span>
-                                        <span style="font-weight: 700; color: #f59e0b; font-size: 1.1em;">${weight} lbs</span>
+                                        <span style="font-weight: 700; color: #f59e0b; font-size: 1.1em;">${weight} ${_u}</span>
                                     </div>
                                 `).join('')}
                             </div>
                             
                             <div style="text-align: center;">
                                 <div style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: white; padding: 15px; border-radius: 10px; font-weight: 700; font-size: 1.1em;">
-                                    🏋️<br>BARRE<br>${barWeight} lbs
+                                    🏋️<br>BARRE<br>${barWeight} ${_u}
                                 </div>
                             </div>
                             
                             <div style="text-align: left;">
                                 <div style="font-size: 1.1em; font-weight: 700; color: #e2e8f0; margin-bottom: 10px;">Côté droit</div>
-                                ${Object.entries(plateCount).map(([weight, count]) => `
+                                ${Object.entries(plateCount).sort((a, b) => parseFloat(b[0]) - parseFloat(a[0])).map(([weight, count]) => `
                                     <div style="margin-bottom: 8px;">
-                                        <span style="font-weight: 700; color: #f59e0b; font-size: 1.1em;">${weight} lbs</span>
+                                        <span style="font-weight: 700; color: #f59e0b; font-size: 1.1em;">${weight} ${_u}</span>
                                         <span style="display: inline-block; min-width: 30px; text-align: left; font-weight: 600; margin-left: 5px;">×${count}</span>
                                     </div>
                                 `).join('')}
@@ -18875,6 +18978,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // meilleur poids/reps/temps de chaque profil, plus des entrées
         // libres (une personne hors profils, ou un OBJECTIF à atteindre).
         // Les objectifs s'affichent pendant la séance sur l'exercice visé.
+        // v1311 : poids des entrées libres. Nouvelles entrées en kg (kg:1) ; les
+        // anciennes étaient dans l'unité affichée au moment de la saisie.
+        function _hofKg(e) { const w = parseFloat(e && e.weight) || 0; if (!w) return null; return (e.kg || useKg) ? w : Math.round(w * 0.453592 * 1000) / 1000; }
+        function _hofAff(kgVal) { return Math.round(fmtWeightVal(kgVal) * 10) / 10; }
         function awakHallGetCustom() {
             try { return JSON.parse(localStorage.getItem('awakHallCustom') || '[]'); } catch (e) { return []; }
         }
@@ -18893,8 +19000,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         function awakHallEditCustom(id) {
             const list = awakHallGetCustom();
             const e = list.find(x => x.id === id); if (!e) return;
-            const w = prompt('Poids (' + ((typeof useKg !== 'undefined' && useKg) ? 'kg' : 'lbs') + ') — vide = garder, 0 = effacer', e.weight != null ? e.weight : '');
-            if (w !== null && w.trim() !== '') e.weight = parseFloat(w) > 0 ? parseFloat(w) : null;
+            const _k0 = _hofKg(e);
+            const w = prompt('Poids (' + weightUnit() + ') — vide = garder, 0 = effacer', _k0 ? _hofAff(_k0) : '');
+            if (w !== null && w.trim() !== '') { const v = parseFloat(w); e.weight = v > 0 ? (useKg ? v : Math.round(v * 0.453592 * 1000) / 1000) : null; e.kg = 1; }
+            else if (_k0) { e.weight = _k0; e.kg = 1; }
             const r = prompt('Répétitions — vide = garder, 0 = effacer', e.reps != null ? e.reps : '');
             if (r !== null && r.trim() !== '') e.reps = parseInt(r) > 0 ? parseInt(r) : null;
             const t = prompt('Temps (s) — vide = garder, 0 = effacer', e.time != null ? e.time : '');
@@ -18912,10 +19021,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try { prs = JSON.parse(localStorage.getItem(key) || '{}'); } catch (e) {}
             const r = prs[exercise]; if (!r) return;
             if (r.weight && r.weight.value) {
-                const w = prompt('Record de poids pour « ' + exercise + ' » — vide = garder, 0 = effacer', r.weight.value);
+                // v1311 : record enregistré en kg → affiché et saisi dans l'unité choisie
+                const w = prompt('Record de poids pour « ' + exercise + ' » (' + weightUnit() + ') — vide = garder, 0 = effacer', _hofAff(r.weight.value));
                 if (w !== null && w.trim() !== '') {
                     const v = parseFloat(w);
-                    if (v > 0) { r.weight.value = v; const wr = prompt('Reps réalisées à ce poids — vide = garder', r.weight.reps || ''); if (wr !== null && wr.trim() !== '' && parseInt(wr) > 0) r.weight.reps = parseInt(wr); }
+                    if (v > 0) { r.weight.value = useKg ? v : Math.round(v * 0.453592 * 1000) / 1000; const wr = prompt('Reps réalisées à ce poids — vide = garder', r.weight.reps || ''); if (wr !== null && wr.trim() !== '' && parseInt(wr) > 0) r.weight.reps = parseInt(wr); }
                     else r.weight = null;
                 }
             }
@@ -18928,7 +19038,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             }
             // Recalculer le 1RM estimé si possible, sinon l'effacer (cohérence)
             if (r.weight && r.weight.value && r.weight.reps) {
-                r.rm = { value: Math.round(r.weight.value * (1 + r.weight.reps / 30)), date: new Date().toISOString() };
+                r.rm = { value: Math.round(r.weight.value * (1 + r.weight.reps / 30) * 10) / 10, date: new Date().toISOString() };
             } else { r.rm = null; }
             if (!r.weight && !r.reps) delete prs[exercise];
             lsSet(key, JSON.stringify(prs));
@@ -18944,21 +19054,22 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         function awakHallAddCustom() {
             const exo = (document.getElementById('hofExo') || {}).value || '';
             const person = ((document.getElementById('hofPerson') || {}).value || '').trim();
-            const weight = parseFloat((document.getElementById('hofWeight') || {}).value) || null;
+            const _wSaisi = parseFloat((document.getElementById('hofWeight') || {}).value) || null;
+            const weight = _wSaisi ? (useKg ? _wSaisi : Math.round(_wSaisi * 0.453592 * 1000) / 1000) : null;   // v1311 : en kg
             const reps = parseInt((document.getElementById('hofReps') || {}).value) || null;
             const time = parseInt((document.getElementById('hofTime') || {}).value) || null;
             const isGoal = !!((document.getElementById('hofIsGoal') || {}).checked);
             if (!exo.trim()) { showToast('⚠️ Choisis un exercice', 'warning', 2500); return; }
             if (!weight && !reps && !time) { showToast('⚠️ Indique au moins un poids, des reps ou un temps', 'warning', 2800); return; }
             const list = awakHallGetCustom();
-            list.push({ id: 'hof_' + Date.now(), exercise: exo.trim(), person: person || (isGoal ? 'Objectif' : 'Invité'), weight, reps, time, isGoal });
+            list.push({ id: 'hof_' + Date.now(), exercise: exo.trim(), person: person || (isGoal ? 'Objectif' : 'Invité'), weight, reps, time, isGoal, kg: 1 });
             awakHallSaveCustom(list);
             showToast(isGoal ? '🎯 Objectif ajouté — il apparaîtra pendant tes séances' : '👤 Record invité ajouté au Hall of Fame', 'success', 3000);
             awakHallOpen();
         }
         function _hofFmt(entry) {
             const parts = [];
-            if (entry.weight) parts.push('🏋️ ' + entry.weight + (typeof useKg !== 'undefined' && useKg ? ' kg' : ' lbs') + (entry.reps ? ' × ' + entry.reps : ''));
+            if (entry.weight) parts.push('🏋️ ' + _hofAff(_hofKg(entry)) + ' ' + weightUnit() + (entry.reps ? ' × ' + entry.reps : ''));
             else if (entry.reps) parts.push('🔁 ' + entry.reps + ' reps');
             if (entry.time) parts.push('⏱️ ' + entry.time + ' s');
             return parts.join(' · ') || '—';
@@ -19000,7 +19111,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             custom.forEach(c => {
                 _meta(c.exercise);
                 const colKey = 'g:' + (c.isGoal ? '🎯 ' : '') + c.person;
-                (cell[c.exercise] = cell[c.exercise] || {})[colKey] = { weight: c.weight, weightReps: c.reps, reps: c.weight ? null : c.reps, time: c.time, isGoal: c.isGoal, cid: c.id };
+                (cell[c.exercise] = cell[c.exercise] || {})[colKey] = { weight: _hofKg(c), weightReps: c.reps, reps: c.weight ? null : c.reps, time: c.time, isGoal: c.isGoal, cid: c.id };   // v1311 : tout en kg
             });
 
             // Colonnes ordonnées : profils d'abord, puis invités/objectifs
@@ -19096,7 +19207,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             }
             function fmtVal(v) {
                 const parts = [];
-                if (v.weight) parts.push('<b style="color:#f1f5f9;font-size:1.08em;">' + v.weight + '</b><span style="color:#64748b;font-size:0.82em;"> ' + unit + '</span>' + (v.weightReps ? '<span style="color:#94a3b8;"> × ' + v.weightReps + '</span>' : ''));
+                if (v.weight) parts.push('<b style="color:#f1f5f9;font-size:1.08em;">' + _hofAff(v.weight) + '</b><span style="color:#64748b;font-size:0.82em;"> ' + unit + '</span>' + (v.weightReps ? '<span style="color:#94a3b8;"> × ' + v.weightReps + '</span>' : ''));
                 else if (v.reps) parts.push('<b style="color:#f1f5f9;font-size:1.08em;">' + v.reps + '</b><span style="color:#64748b;font-size:0.82em;"> reps</span>');
                 if (v.time) parts.push('<span style="color:#94a3b8;">' + v.time + ' s</span>');
                 return parts.join(' · ') || '<span style="color:#475569;">—</span>';
@@ -19170,7 +19281,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         function calculateEstimated1RM(reps, weight) {
             if (!weight || reps === 0) return null;
             // Epley formula: 1RM = weight × (1 + reps/30)
-            return Math.round(weight * (1 + reps / 30));
+            return Math.round(weight * (1 + reps / 30) * 10) / 10;   // v1311 : au dixième (en lb, des marches de 2,2 lb)
         }
         
         function checkAndSavePR(exerciseName, reps, weight) {
@@ -20087,6 +20198,15 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             });
         }
         
+        // v1311 : poids d'une mesure dans l'unité ACTUELLE (anciennes mesures : unité d'alors inconnue → telle quelle)
+        function awakMesurePoids(m) {
+            const w = m && parseFloat(m.weight); if (!w) return null;
+            const u = useKg ? 'kg' : 'lbs';
+            if (!m.unit || m.unit === u) return w;
+            return Math.round((m.unit === 'kg' ? w * 2.20462 : w * 0.453592) * 10) / 10;
+        }
+        window.awakMesurePoids = awakMesurePoids;
+
         function saveMeasurement() {
             const weight = parseFloat(document.getElementById('measureWeight').value);
             const height = parseFloat(document.getElementById('measureHeight').value);
@@ -20105,6 +20225,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 id: Date.now(),
                 date: new Date().toISOString(),
                 weight: weight || null,
+                unit: useKg ? 'kg' : 'lbs',   // v1311 : unité de saisie (affichage converti si le réglage change)
                 height: height || null,
                 waist: waist || null,
                 hips: hips || null,
@@ -20179,8 +20300,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             
             if (latest.weight) summaryHTML += `
                 <div style="background: rgba(255,255,255,0.04); padding:10px 8px;border-radius:10px;text-align:center;">
-                    <div style="font-size:1.15em;font-weight:800; color: #22d3ee;">${latest.weight}</div>
-                    <div style="font-size:0.7em; color: #94a3b8;">lbs</div>
+                    <div style="font-size:1.15em;font-weight:800; color: #22d3ee;">${awakMesurePoids(latest)}</div>
+                    <div style="font-size:0.7em; color: #94a3b8;">${weightUnit()}</div>
                 </div>
             `;
             
@@ -20266,7 +20387,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                                     <tr style="border-bottom: 1px solid rgba(255,255,255,0.12);">
                                         <td style="padding:8px 6px;">${mDate}</td>
                                         <td style="padding:8px 6px; text-align: center;">
-                                            ${m.weight ? `${m.weight} lbs${getDiff(m.weight, prevM?.weight)}` : '-'}
+                                            ${m.weight ? `${awakMesurePoids(m)} ${weightUnit()}${getDiff(awakMesurePoids(m), prevM ? awakMesurePoids(prevM) : null)}` : '-'}
                                         </td>
                                         <td style="padding:8px 6px; text-align: center;">${m.bmi || '-'}</td>
                                         <td style="padding:8px 6px; text-align: center;">
@@ -21046,9 +21167,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const currentKg   = last3[0].weight;
                 const inc         = currentKg < 10 ? 1 : currentKg < 30 ? 2.5 : 5;
                 const suggestedKg = Math.round((currentKg + inc) * 2) / 2;
+                // v1311 : en lb, palier de 5 lb (avant : 115,7 lbs, impossible à charger)
+                const _sugAff = useKg ? fmtWeightVal(suggestedKg) : Math.max(Math.round(fmtWeightVal(currentKg) / 5) * 5 + 5, Math.round(fmtWeightVal(suggestedKg) / 5) * 5);
                 return { type: 'weight',
-                         currentW:   fmtWeightVal(currentKg),
-                         suggestedW: fmtWeightVal(suggestedKg),
+                         currentW:   useKg ? fmtWeightVal(currentKg) : Math.round(fmtWeightVal(currentKg)),
+                         suggestedW: _sugAff,
                          currentKg, suggestedKg,
                          unit: useKg ? 'kg' : 'lbs', avgReps: Math.round(avgReps) };
             }
@@ -21862,7 +21985,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1306);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1313);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -21911,7 +22034,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 +       '<rect width="5" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.22"/>'
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1306" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1313" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -25040,7 +25163,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         if (repsInput) repsInput.placeholder = lastPerf.reps;
                         if (weightInput && lastPerf.weight) {
                             // Convert kg to lbs for placeholder
-                            const lbs = Math.round(lastPerf.weight * 2.20462);
+                            const lbs = Math.round(fmtWeightVal(lastPerf.weight));   // v1311 : kg ou lb selon le réglage
                             weightInput.placeholder = lbs;
                         }
                     } else {
@@ -25593,8 +25716,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (lastPerf) {
                     timerDisplay.textContent = `${lastPerf.reps} reps`;
                     if (lastPerf.weight) {
-                        const lbs = Math.round(lastPerf.weight * 2.20462);
-                        timerDisplay.textContent += ` × ${lbs} lbs`;
+                        timerDisplay.textContent += ` × ${Math.round(fmtWeightVal(lastPerf.weight))} ${weightUnit()}`;   // v1311
                     }
                     timerDisplay.style.fontSize = '2.5em';
                     timerDisplay.innerHTML = timerDisplay.textContent;
@@ -26559,6 +26681,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             useKg = kg;
             localStorage.setItem('fitproUseKg', kg ? 'true' : 'false');
             updateWeightUnitLabels();
+            try { awakMajBarresUnite(); } catch (e) {}
             showToast(kg ? '⚖️ Kilogrammes activés' : '⚖️ Livres activées', 'success', 1500);
         }
 
@@ -26850,7 +26973,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const weightLbs = weightInput && weightInput.value ? parseFloat(weightInput.value) : null;
                     
                     // Convert lbs to kg for storage (1 lb = 0.453592 kg)
-                    const weightKg = weightLbs ? Math.round(weightLbs * 0.453592 * 10) / 10 : null;
+                    const weightKg = weightLbs ? (useKg ? weightLbs : Math.round(weightLbs * 0.453592 * 1000) / 1000) : null;   // v1311 : en kg, ne pas reconvertir
                     
                     if (reps > 0) {
                         savePerformance(exercise.name, reps, weightKg);
@@ -27077,7 +27200,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const realEx = currentWorkout.exercises.filter(ex => !ex.isRest && !ex.isInfo);
             const profile = getUserProfile();
             let weightKg = (profile && profile.weight) ? profile.weight : 75;
-            if (!useKg) weightKg = Math.round(weightKg * 0.453592 * 10) / 10;
+            // v1311 : le poids du profil est DÉJÀ en kg (avant : reconverti → calories 55 % trop basses en lb)
             const wName = (currentWorkout.name || '').toLowerCase();
             const MET = wName.includes('hiit')?10:wName.includes('cardio')?8:
                         (wName.includes('étir')||wName.includes('stretch')||wName.includes('récup')||wName.includes('mobility'))?3:
@@ -27353,7 +27476,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1306");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1313");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -31702,7 +31825,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1306);'
+                +     'url(images/combat_bg_v1.webp?v=1313);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -31957,7 +32080,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1306);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1313);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -32222,7 +32345,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:540px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto;display:flex;flex-direction:column;">
                 <!-- Header : vague actuelle -->
-                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1306);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1313);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                         <span style="font-size:0.6em;color:${theme.color};font-weight:900;letter-spacing:2px;">⚔ VAGUE ${rift.currentWaveIdx + 1} / ${rift.waves.length}${currentWave.isBoss ? ' · BOSS' : ''}</span>
                         <button onclick="awakAbandonRift()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
@@ -33352,7 +33475,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1306');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1313');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -34089,7 +34212,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1306);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1313);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -34260,7 +34383,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1306);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1313);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -38645,12 +38768,16 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (window.AwakGroup && typeof window.AwakGroup.profiledContributors === 'function') {
                     // v1295 : séance « Bouger ensemble » (minuteur, tout le monde fait la même
                     // chose) : chaque membre présent reçoit les exercices faits, sans rien saisir.
-                    if (currentWorkout && currentWorkout._famille && typeof window.AwakGroup.getParticipants === 'function') {
+                    // v1312 : pareil pour les exercices AU MINUTEUR de toute séance à plusieurs
+                    // (gainage, cardio, HIIT…) : il n'y a rien à saisir, tout le monde les fait
+                    // ensemble. Avant, une séance au minuteur n'était enregistrée chez personne.
+                    if (currentWorkout && window.AwakGroup.isActive() && typeof window.AwakGroup.getParticipants === 'function') {
                         window.AwakGroup.getParticipants().forEach(function (p) {
                             if (p.self || p.kind !== 'profile') return;
                             const _deja = window.AwakGroup.getParticipantSets(p.id) || {};
                             (currentWorkout.exercises || []).forEach(function (ex) {
                                 if (!ex || ex.isRest || ex.isInfo) return;
+                                if (!currentWorkout._famille && ex.mode !== 'timer' && ex.mode !== 'duration') return;
                                 const _n = ex._baseName || ex.name;
                                 if (_deja[_n] && _deja[_n].length) return;
                                 window.AwakGroup.logSet(p.id, _n, 1, 0, 0, false);
@@ -38660,16 +38787,21 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     }
                     const _contribs = window.AwakGroup.profiledContributors();
                     const _dureeGroupe = (typeof workoutStartTime === 'number' && workoutStartTime > 0) ? Math.round((Date.now() - workoutStartTime) / 1000) : 0;
+                    const _xpGroupe = [];
                     _contribs.forEach(function (p) {
                         try {
                             const w = window.AwakGroup.buildWorkoutForParticipant(p.id, currentWorkout);
                             // v1295 : la durée réelle (avant : toujours 1 min chez les autres participants)
                             if (w && !w._durationSec && _dureeGroupe > 0) w._durationSec = _dureeGroupe;
-                            if (w) saveGroupWorkoutForProfile(p.id, w);
+                            if (w) {
+                                saveGroupWorkoutForProfile(p.id, w);
+                                const _xp = awakXPParticipant(p.id, w, currentWorkout);   // v1313
+                                if (_xp > 0) _xpGroupe.push(p.name + ' +' + _xp + ' XP');
+                            }
                         } catch(e) {}
                     });
                     if (_contribs.length && typeof showToast === 'function') {
-                        showToast('👥 Séance enregistrée pour ' + _contribs.map(function(c){return c.name;}).join(', '), 'success', 4000);
+                        showToast('Séance enregistrée pour ' + _contribs.map(function(c){return c.name;}).join(', ') + (_xpGroupe.length ? ' · ' + _xpGroupe.join(', ') : ''), 'success', 4500);
                     }
                 }
             } catch(e) {}
@@ -38944,7 +39076,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const profile = getUserProfile();
             // Convertir en kg si l'utilisateur utilise lbs
             let weightKg = (profile && profile.weight) ? profile.weight : 75;
-            if (!useKg) weightKg = Math.round(weightKg * 0.453592 * 10) / 10;
+            // v1311 : le poids du profil est DÉJÀ en kg (avant : reconverti → calories 55 % trop basses en lb)
             const wName = (currentWorkout.name || '').toLowerCase();
             const MET = wName.includes('hiit') ? 10 :
                         wName.includes('cardio') ? 8 :
@@ -39129,12 +39261,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const verdictEl = document.getElementById('completionVerdict');
             if (verdictEl && totalVolume > 0) {
                 try {
-                    // Comparer avec la moyenne des 5 dernières séances
+                    // Comparer avec la moyenne des 5 dernières séances (v1311 : tout en kg)
+                    const _totKg = useKg ? totalVolume : totalVolume * 0.453592;
                     const history = (typeof getWorkoutHistory === 'function') ? getWorkoutHistory().slice(0, 5) : [];
                     let avgVolume = 0;
                     let hasHistory = false;
                     if (history.length >= 2) {
-                        const volumes = history.slice(0, -1).map(w => w.volume || 0).filter(v => v > 0);
+                        const volumes = history.slice(0, -1).map(w => awakVolKg(w)).filter(v => v > 0);
                         if (volumes.length > 0) {
                             avgVolume = volumes.reduce((a,b)=>a+b,0) / volumes.length;
                             hasHistory = true;
@@ -39143,11 +39276,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     let verdict, emoji, color;
                     if (!hasHistory) {
                         verdict = 'Première séance enregistrée !'; emoji = '🎉'; color = '#4ade80';
-                    } else if (totalVolume > avgVolume * 1.15) {
+                    } else if (_totKg > avgVolume * 1.15) {
                         verdict = 'Séance exceptionnelle — bien au-dessus de ta moyenne'; emoji = '🔥'; color = '#fbbf24';
-                    } else if (totalVolume > avgVolume * 0.95) {
+                    } else if (_totKg > avgVolume * 0.95) {
                         verdict = 'Bonne séance, dans ta moyenne'; emoji = '💪'; color = '#4ade80';
-                    } else if (totalVolume > avgVolume * 0.75) {
+                    } else if (_totKg > avgVolume * 0.75) {
                         verdict = 'Séance plus légère que d\'habitude'; emoji = '😌'; color = '#06b6d4';
                     } else {
                         verdict = 'Séance courte — récupération possible ?'; emoji = '🌿'; color = '#94a3b8';
@@ -39160,9 +39293,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     try {
                         const hist2 = (typeof getWorkoutHistory === 'function') ? getWorkoutHistory() : [];
                         // hist2[0] = séance courante (déjà enregistrée) · hist2[1] = précédente
-                        const prevVol = (hist2[1] && hist2[1].volume) ? hist2[1].volume : 0;
-                        if (prevVol > 0 && totalVolume > 0) {
-                            const pct = Math.round((totalVolume - prevVol) / prevVol * 100);
+                        const prevVol = hist2[1] ? awakVolKg(hist2[1]) : 0;
+                        if (prevVol > 0 && _totKg > 0) {
+                            const pct = Math.round((_totKg - prevVol) / prevVol * 100);
                             const up = pct >= 0;
                             const arrow = (pct === 0) ? '➖' : (up ? '▲' : '▼');
                             const col = (pct === 0) ? '#94a3b8' : (up ? '#4ade80' : '#f59e0b');
@@ -44386,7 +44519,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const inRange = function (a, bb) { return hist.filter(function (h) { const t = Date.parse(h.date || h.completedAt || h.timestamp); return !isNaN(t) && now - t >= a * DAY && now - t < bb * DAY; }); };
                 const wk = inRange(0, 7), prev = inRange(7, 14);
                 const sN = wk.length, pN = prev.length;
-                const vol = Math.round(wk.reduce(function (s, h) { return s + (h.volume || 0); }, 0));
+                const vol = Math.round(fmtWeightVal(wk.reduce(function (s, h) { return s + awakVolKg(h); }, 0)));   // v1311 : kg → unité affichée
                 const dS = sN - pN;
                 const trend = dS > 0 ? '<span style="color:#4ade80;">▲ +' + dS + ' vs sem. précédente</span>' : (dS < 0 ? '<span style="color:#f87171;">▼ ' + dS + ' vs sem. précédente</span>' : '<span style="color:#94a3b8;">➖ stable</span>');
                 const ins = awakBehaviorInsights();
@@ -45109,7 +45242,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
             host.innerHTML =
                 '<div style="position:relative;width:110px;margin:0 auto 12px;">'
-              +   '<img src="images/body/body_face.webp?v=1306" alt="" '
+              +   '<img src="images/body/body_face.webp?v=1313" alt="" '
               +     'style="width:100%;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -45191,7 +45324,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1306);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1313);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -45227,10 +45360,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (_raw) _mes = JSON.parse(_raw) || [];
                 } catch (e) {}
                 if (_mes.length && _mes[0] && _mes[0].weight) {
-                    poids = _fmt(_mes[0].weight);
+                    poids = _fmt(awakMesurePoids(_mes[0]));
                 } else {
                     const p = (typeof getUserProfile === 'function') ? getUserProfile() : null;
-                    if (p && p.weight) poids = _fmt(p.weight);
+                    if (p && p.weight) poids = _fmt(fmtWeightVal(p.weight));   // v1311 : profil en kg
                 }
             } catch (e) {}
             const bandeau =
@@ -45258,7 +45391,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1306);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1313);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -46712,7 +46845,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 } else if (ecran === 'corps') {
                     const w = (window.AwakRegle && AwakRegle.valeur('_premOnbPoidsR'));
                     // stocké en kg (au dixième : passer lbs → kg → lbs ne décale pas d'une livre)
-                    if (w && Math.round(fmtWeightVal(draft.weight)) !== w) draft.weight = useKg ? w : Math.round(w * 0.453592 * 10) / 10;
+                    if (w && Math.round(fmtWeightVal(draft.weight)) !== w) draft.weight = useKg ? w : Math.round(w * 0.453592 * 1000) / 1000;
                 }
             }
             window._premOnbNext = function() {
@@ -47577,7 +47710,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1306");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1313");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.

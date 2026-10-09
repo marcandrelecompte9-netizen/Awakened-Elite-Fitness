@@ -53,7 +53,7 @@ if (typeof window.awakJourLocal !== 'function') window.awakJourLocal = function 
       var volume = 0, minutes = 0, muscles = {};
       var qual = { force: 0, endurance: 0, mental: 0, equilibre: 0, agilite: 0, cardio: 0 };
       entries.forEach(function (w) {
-        volume += w.volume || 0;
+        volume += window.awakVolKg ? awakVolKg(w) : (w.volume || 0);   // v1311 : en kg
         minutes += w.duration || 0;
         (w.muscles || []).forEach(function (m) { if (m && m !== 'Cardio') muscles[m] = (muscles[m] || 0) + 1; });
         if (typeof window.awakQualitiesOfExercises === 'function' && w.workoutData && w.workoutData.exercises) {
@@ -78,7 +78,10 @@ if (typeof window.awakJourLocal !== 'function') window.awakJourLocal = function 
       var html = '';
       html += '<div style="display:flex;gap:8px;margin-bottom:12px;">'
         + stat(nSessions, 'Séance' + (nSessions > 1 ? 's' : ''))
-        + stat(volume >= 1000 ? (volume / 1000).toFixed(1) + ' t' : Math.round(volume) + ' kg', 'Volume')
+        + stat((function () {   // v1311 : affiché dans l'unité choisie
+            var lb = typeof weightUnit === 'function' && weightUnit() === 'lbs', v = lb ? volume * 2.20462 : volume;
+            return lb ? (v >= 10000 ? (v / 1000).toFixed(1) + 'k lbs' : Math.round(v) + ' lbs') : (v >= 1000 ? (v / 1000).toFixed(1) + ' t' : Math.round(v) + ' kg');
+          })(), 'Volume')
         + stat(Math.round(minutes) + ' min', 'Durée')
         + '</div>';
       if (topQual.length) {

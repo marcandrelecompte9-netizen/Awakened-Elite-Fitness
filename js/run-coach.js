@@ -601,13 +601,17 @@
   var OBJ = {
     '5':  { nom: '5 km',          d: 5000,  longue: [4, 8],   facile: [25, 35], qual: ['minute', 'court400', 'seuil', 'k800', 'pyramide', 'k1000'], sem: [6, 8, 10] },
     '10': { nom: '10 km',         d: 10000, longue: [6, 14],  facile: [30, 45], qual: ['court400', 'seuil', 'k1000', 'tempo', 'k800', 'seuil2', 'pyramide'], sem: [8, 10, 12] },
-    '21': { nom: 'Demi-marathon', d: 21097, longue: [10, 19], facile: [35, 50], qual: ['seuil', 'k1000', 'tempo', 'seuil2', 'k800', 'tempo30'], sem: [10, 12] }
+    '21': { nom: 'Demi-marathon', d: 21097, longue: [10, 19], facile: [35, 50], qual: ['seuil', 'k1000', 'tempo', 'seuil2', 'k800', 'tempo30'], sem: [10, 12] },
+    // v1310 : marathon (sortie longue jusqu'à 32 km, 3 semaines d'affûtage incluses)
+    '42': { nom: 'Marathon', d: 42195, longue: [14, 32], facile: [40, 60], qual: ['seuil', 'k1000', 'tempo30', 'seuil2', 'k800', 'tempo'], sem: [14, 16, 18] }
   };
 
   function arr5(x) { return Math.round(x / 5) * 5; }
   function arrDemi(x) { return Math.round(x * 2) / 2; }
 
-  function creerPlan(objId, S, parSem) {
+  // cibleSec (v1310, « Mon défi ») : temps visé choisi par la personne. Sans lui,
+  // le Jour J vise le temps prédit à partir des sorties (comme avant).
+  function creerPlan(objId, S, parSem, cibleSec) {
     var O = OBJ[objId]; if (!O) return null;
     var p = predictions();
     var L = p ? p.longue / 1000 : 0;
@@ -624,7 +628,7 @@
       var l;
       if (w === S) {
         // Semaine de course : affûtage puis Jour J
-        var cible = p ? Math.round(riegel(p.p5, 5000, O.d) / 60) * 60 : 0;
+        var cible = cibleSec ? Math.round(cibleSec) : (p ? Math.round(riegel(p.p5, 5000, O.d) / 60) * 60 : 0);
         l = [
           { type: 'facile', cfg: { mode: 'objectif', kind: 'duree', s: arr5(O.facile[0] * 0.8) * 60 } },
           { type: 'qualite', cfg: { mode: 'fractionne', tpl: 'minute', echauf: true } },
@@ -640,7 +644,7 @@
       }
       sem.push({ allege: allege, seances: l });
     }
-    return { obj: objId, S: S, parSem: parSem, debut: lundi(Date.now()), sem: sem, faites: {} };
+    return { obj: objId, S: S, parSem: parSem, debut: lundi(Date.now()), sem: sem, faites: {}, cible: cibleSec || 0 };
   }
 
   function lePlan() { var p = lire('awakRunPlan', null); return (p && p.sem) ? p : null; }
@@ -652,7 +656,8 @@
     if (x.type === 'facile') return { t: 'Footing facile ' + Math.round(c.s / 60) + ' min', d: 'Tu dois pouvoir parler en courant.' + (vma() ? ' Vers ' + allure(allureVMA(0.7)) + ' /km.' : ''), c: ACC };
     if (x.type === 'qualite') { var T = TPL[c.tpl] || TPL.minute; return { t: 'Fractionné · ' + T.nom, d: T.desc, c: ROSE }; }
     if (x.type === 'longue') return { t: 'Sortie longue ' + kmTxt(c.m) + ' km', d: 'À allure facile : c\'est l\'endurance qui se construit.', c: VIO };
-    return { t: 'Jour J · ' + kmTxt(c.m) + ' km', d: c.t ? 'Objectif réaliste : ' + hms(c.t) + ' (' + allure(c.t / (c.m / 1000)) + ' /km).' : 'Ta course objectif !', c: OR };
+    var _P = lePlan(), _perso = _P && _P.cible && c.t === _P.cible;
+    return { t: 'Jour J · ' + kmTxt(c.m) + ' km', d: c.t ? (_perso ? 'Ton objectif : ' : 'Objectif réaliste : ') + hms(c.t) + ' (' + allure(c.t / (c.m / 1000)) + ' /km).' : 'Ta course objectif !', c: OR };
   }
 
   function prochaine(P) {
@@ -1164,6 +1169,9 @@
     prefs: prefs, pasAnnonce: pasAnnonce, texteAnnonce: texteAnnonce, reglagesUI: reglagesUI,
     rendreAnalyse: rendreAnalyse, poulsApres: poulsApres, contre: contre, fraicheur: fraicheur,
     rendreAujourdhui: rendreAujourdhui, rendreFormeCompacte: rendreFormeCompacte, feuille: feuille,
+    // v1310 : « Mon défi » (onglet Progrès) crée un plan avec un temps visé
+    creerPlanCible: function (obj, S, par, cible) { var P = creerPlan(obj, S, par, cible); if (P) { ecrire('awakRunPlan', P); try { rafraichirAccueil(); } catch (e) {} } return P; },
+    lePlan: lePlan, semaineCourante: semaineCourante, OBJ: OBJ, hms: hms, allure: allure,
     _test: { creerPlan: creerPlan, phasesDe: phasesDe, riegel: riegel, profilFantome: profilFantome, tempsA: tempsA, sel: sel }
   };
 })();
