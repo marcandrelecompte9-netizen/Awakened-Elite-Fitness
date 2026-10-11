@@ -145,6 +145,10 @@
       '@media(min-width:700px){.awak-bld{grid-template-columns:1fr 1fr;align-items:start;}' +
       ' .awak-bld-cat{position:sticky;top:0;max-height:70vh;overflow-y:auto;}}' +
       '.awak-cat-row{transition:background .12s ease,border-color .12s ease;}' +
+      // v1324 : onglets et listes du catalogue qui tiennent dans l'écran (les styles
+      // globaux des boutons et des listes déroulantes les faisaient déborder)
+      '.awak-bld-cat [data-ong]{flex:1 1 0!important;min-width:0!important;width:auto!important;min-height:34px!important;padding:7px 2px!important;display:flex!important;align-items:center;justify-content:center;}' +
+      '.awak-bld-cat select{flex:1 1 0!important;min-width:0!important;width:0!important;font-size:13px!important;padding:8px 6px!important;min-height:auto!important;height:auto!important;}' +
       '.awak-cat-row:active{background:rgba(34,211,238,0.12);}' +
       '.awak-drop-on{border-color:rgba(34,211,238,0.7)!important;background:rgba(34,211,238,0.07)!important;}' +
       '.awak-ghost{position:fixed;z-index:10500;pointer-events:none;opacity:0.92;' +
@@ -161,11 +165,11 @@
       : '';
     return '<div>' +
         '<div style="display:flex;align-items:center;gap:8px;margin-bottom:9px;">' +
-          '<span style="font-size:0.6em;letter-spacing:2px;color:#4ade80;font-weight:900;">◈ MA SÉANCE</span>' +
+          '<span style="font-size:0.6em;letter-spacing:2px;color:#93c5fd;font-weight:900;">◈ MA SÉANCE</span>' +
           '<span style="font-size:0.68em;color:#64748b;font-weight:700;">' + n + ' exercice' + (n > 1 ? 's' : '') +
             ((n && window.AwakRoutineEditor && window.AwakRoutineEditor.estimer)
               ? ' · ≈ ' + window.AwakRoutineEditor.estimer(routine.exercises) + ' min' : '') + '</span>' +
-          '<span style="flex:1;height:1px;background:linear-gradient(90deg,rgba(74,222,128,0.25),transparent);"></span>' +
+          '<span style="flex:1;height:1px;background:linear-gradient(90deg,rgba(147,197,253,0.25),transparent);"></span>' +
         '</div>' +
         '<div id="awakBldDrop" style="border:1.5px dashed rgba(255,255,255,0.10);border-radius:14px;padding:10px;min-height:90px;">' +
           corps +
@@ -215,7 +219,7 @@
             : '') +
           '<button onclick="AwakBuilder.add(\'' + attr(e.name).replace(/'/g, "\\'") + '\')" ' +
             'style="flex-shrink:0;width:32px;height:32px;min-height:auto;border-radius:9px;cursor:pointer;' +
-            'background:rgba(74,222,128,0.14);border:1px solid rgba(74,222,128,0.4);color:#4ade80;' +
+            'background:rgba(34,211,238,0.12);border:1px solid rgba(34,211,238,0.4);color:#67e8f9;' +
             'font-size:1em;font-weight:900;font-family:inherit;line-height:1;">+</button>' +
         '</div>';
     }).join('');
@@ -275,7 +279,10 @@
         '</div>' +
         '<div style="display:flex;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);' +
           'border-radius:9px;overflow:hidden;margin-bottom:8px;">' +
-          ong('tous', 'TOUS') + ong('persos', '✎ PERSOS') + ong('favoris', '⭐') + ong('recents', '🕐') +
+          // v1324 : icônes SVG au lieu des émojis (filtrés par l'interface)
+          ong('tous', 'TOUS') + ong('persos', 'PERSOS') +
+          ong('favoris', (window.AwakIcon ? AwakIcon.get('etoile', 15, 'currentColor') : 'FAV.')) +
+          ong('recents', (window.AwakIcon ? AwakIcon.get('chrono', 15, 'currentColor') : 'RÉC.')) +
         '</div>' +
         '<input type="text" id="awakBldSearch" value="' + attr(ETAT.q) + '" placeholder="Rechercher un exercice…" ' +
           'oninput="AwakBuilder.setQ(this.value)" autocomplete="off" ' +

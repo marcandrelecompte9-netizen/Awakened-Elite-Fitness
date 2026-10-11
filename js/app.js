@@ -17746,12 +17746,23 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 : ['Intermédiaire', 'Débutant', 'Avancé'];
             // Pour chaque muscle ciblé, choisir 1-2 exos
             const perMuscle = Math.max(1, Math.ceil(count / muscles.length));
+            // v1325 : matériel. « Sans matériel » → poids du corps seulement ; sinon on
+            // préfère le matériel coché du lieu actif (repli : tout, s'il manque de choix).
+            const _pdc = ex => (ex.equipment || []).every(q => q === 'Poids du corps' || q === 'Aucun');
+            let _dispo = null;
+            try { if (!opts.sansMateriel && typeof getSelectedEquipmentNames === 'function') { _dispo = new Set(getSelectedEquipmentNames()); _dispo.add('Poids du corps'); _dispo.add('Aucun'); } } catch (e) {}
+            const _matOk = ex => !_dispo || !(ex.equipment || []).length || (ex.equipment || []).every(q => _dispo.has(q));
             for (const muscle of muscles) {
                 let candidates = db.filter(ex =>
                     ex.muscle === muscle &&
                     !ex.isRest && !ex.isInfo &&
+                    (!ex.type || ex.type === 'exercise') &&
+                    (!opts.sansMateriel || _pdc(ex)) &&
                     !usedNames.has(ex.name)
                 );
+                const _avecMat = candidates.filter(_matOk);
+                if (_avecMat.length >= 2) candidates = _avecMat;
+                try { if (window.AwakPain && typeof AwakPain.filterExercises === 'function') { const _sd = AwakPain.filterExercises(candidates); if (_sd.length) candidates = _sd; } } catch (e) {}
                 // Trier par préférence de niveau
                 candidates.sort((a, b) => {
                     const ia = levelPreference.indexOf(a.difficulty);
@@ -17881,6 +17892,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             },
             {
                 id: 'home_bodyweight',
+                sansMateriel: true,
                 name: 'Maison · Poids du corps',
                 emoji: '🏠',
                 color: '#10b981',
@@ -17913,6 +17925,22 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             }
         ];
         window.WORKOUT_TEMPLATES = WORKOUT_TEMPLATES;
+        // v1325 : icônes SVG (plus d'émojis) — programme et séances
+        const _AWAK_TPL_ICONES = { ppl: 'muscle', upper_lower: 'balance', full_body_3x: 'etoile', arnold_split: 'trophee',
+            bro_split: 'flamme', minimalist: 'cible', home_bodyweight: 'maison', athlete_perf: 'eclair' };
+        function _awakIconeSeance(s) {
+            const m = (s && s.muscles) || [];
+            const a = x => m.indexOf(x) >= 0;
+            if (a('Cardio') || (a('Corps entier') && m.length <= 2)) return 'bolt';
+            if (a('Quadriceps') || a('Fessiers')) return (a('Pectoraux') || a('Dos')) ? 'dumbbell' : 'legs';
+            if ((a('Biceps') || a('Triceps')) && !a('Pectoraux') && !a('Dos')) return 'biceps';
+            if (a('Abdominaux') && m.length <= 3 && !a('Pectoraux') && !a('Dos')) return 'target';
+            return 'dumbbell';
+        }
+        function _awakTplIco(t, px, c) { return window.AwakIcon ? AwakIcon.get(_AWAK_TPL_ICONES[t.id] || 'halter', px || 22, c || t.color) : ''; }
+        const _AWAK_NIV = { 'Débutant': '#22d3ee', 'Intermédiaire': '#a78bfa', 'Avancé': '#fbbf24' };
+        // Description sans le « 6 jours/sem. » de tête (déjà affiché à côté)
+        function _awakTplDesc(t) { return String(t.description || '').replace(/^\s*\d+\s*jours\/sem\.?\s*/i, ''); }
 
         // ─── IMPORT d'un template (avec génération d'exercices) ────────
         /**
@@ -17925,18 +17953,22 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const routines = getRoutines();
             const createdIds = [];
 
+            const _parNom = {};   // v1325 : une séance répétée (Arnold : Pec/Dos ×2) = UNE routine
             t.sessions.forEach((s, i) => {
+                if (_parNom[s.name]) { createdIds.push(_parNom[s.name]); return; }
                 const exercises = generateExercisesForMuscles(s.muscles, {
                     count: 6,
-                    level: t.level
+                    level: t.level,
+                    sansMateriel: !!t.sansMateriel
                 });
                 const routineId = 'r_' + Date.now() + '_' + i + '_' + Math.floor(Math.random() * 1000);
                 routines.push({
                     id: routineId,
-                    name: `${t.emoji} ${s.name}`,
+                    name: s.name,                       // v1325 : plus d'émoji dans le nom
+                    icon: _awakIconeSeance(s),
                     emoji: s.emoji || t.emoji,
                     color: t.color,
-                    description: `${t.name} · Jour ${i+1}/${t.days}`,
+                    description: `${t.name} · ${s.muscles.slice(0, 3).join(', ')}`,
                     muscles: s.muscles,
                     exercises,
                     level: t.level,
@@ -17945,6 +17977,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     created: new Date().toISOString()
                 });
                 createdIds.push(routineId);
+                _parNom[s.name] = routineId;
             });
             saveRoutines(routines);
 
@@ -17960,7 +17993,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             document.getElementById('templatePreviewModal')?.remove();
             document.getElementById('templatesModal')?.remove();
             if (typeof showToast === 'function') {
-                showToast(`✅ ${t.name} importé · ${t.sessions.length} séances + plan hebdo`, 'success', 3500);
+                showToast(`${t.name} importé : ${new Set(t.sessions.map(x => x.name)).size} routines et ta semaine planifiée`, 'success', 3500);
             }
             renderRoutinesList();
             renderWeeklyPlanCard();
@@ -17977,26 +18010,28 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.style.cssText = 'position:fixed;inset:0;z-index:10200;background:rgba(0,0,0,0.95);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:14px;';
 
             // Génère un exemple d'exercices pour preview
-            const sampleSessionExercises = t.sessions.map(s => ({
+            // v1325 : une séance répétée (Arnold, PPL) n'est montrée qu'une fois
+            const _uniq = [], _idxU = t.sessions.map(s => { let k = _uniq.findIndex(u => u.name === s.name); if (k < 0) { _uniq.push(s); k = _uniq.length - 1; } return k; });
+            const sampleSessionExercises = _uniq.map(s => ({
                 session: s,
-                exs: generateExercisesForMuscles(s.muscles, { count: 6, level: t.level })
+                exs: generateExercisesForMuscles(s.muscles, { count: 6, level: t.level, sansMateriel: !!t.sansMateriel })
             }));
 
             modal.innerHTML = `
-                <div style="width:100%;max-width:480px;background:#0F1014;border:1.5px solid ${t.color}55;border-radius:20px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.6),0 0 40px ${t.color}30;">
+                <div style="width:100%;max-width:480px;background:#0F1014;border:1px solid rgba(255,255,255,0.1);border-radius:20px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.6);">
                     <!-- Header -->
-                    <div style="background:linear-gradient(135deg,${t.color}25,${t.color}05);padding:18px 20px;border-bottom:1px solid ${t.color}30;flex-shrink:0;">
+                    <div style="background:#12161c;padding:18px 20px;border-bottom:1px solid rgba(255,255,255,0.06);flex-shrink:0;">
                         <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;">
                             <div style="display:flex;align-items:center;gap:10px;min-width:0;">
-                                <div style="font-size:2em;line-height:1;filter:drop-shadow(0 0 10px ${t.color}80);flex-shrink:0;">${t.emoji}</div>
+                                <span style="flex-shrink:0;width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:${t.color}14;border:1px solid ${t.color}33;">${_awakTplIco(t, 24)}</span>
                                 <div style="min-width:0;">
                                     <div style="font-size:1.05em;font-weight:900;color:white;">${t.name}</div>
-                                    <div style="font-size:0.7em;color:${t.color};font-weight:700;">${t.days} jours/sem · ${t.level}</div>
+                                    <div style="font-size:0.74em;color:${_AWAK_NIV[t.level] || '#94a3b8'};font-weight:800;margin-top:2px;">${t.days} jours / sem. · ${t.level}${t.sansMateriel ? ' · Sans matériel' : ''}</div>
                                 </div>
                             </div>
                             <button onclick="document.getElementById('templatePreviewModal').remove()" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;width:32px;height:32px;border-radius:50%;font-size:0.9em;cursor:pointer;flex-shrink:0;"><svg viewBox="0 0 24 24" width="16" height="16" style="display:inline-block;vertical-align:-0.15em;" aria-hidden="true"><path d="M5 5 L19 19 M19 5 L5 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" fill="none"/></svg></button>
                         </div>
-                        <div style="font-size:0.78em;color:#cbd5e1;line-height:1.5;">${t.description}</div>
+                        <div style="font-size:0.8em;color:#cbd5e1;line-height:1.5;">${_awakTplDesc(t)}</div>
                     </div>
 
                     <!-- Sessions preview -->
@@ -18004,29 +18039,29 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         ${sampleSessionExercises.map((ses, i) => `
                             <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:11px 13px;margin-bottom:9px;">
                                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-                                    <div style="font-size:1.2em;line-height:1;">${ses.session.emoji}</div>
+                                    <span style="flex-shrink:0;width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.04);">${awakRoutineIcon({ icon: _awakIconeSeance(ses.session) }, 17, '#93c5fd')}</span>
                                     <div style="flex:1;min-width:0;">
-                                        <div style="font-weight:800;color:white;font-size:0.88em;">${ses.session.name}</div>
+                                        <div style="font-weight:800;color:white;font-size:0.88em;">Séance ${String.fromCharCode(65 + i)} · ${ses.session.name}</div>
                                         <div style="font-size:0.65em;color:#94a3b8;">${ses.session.muscles.join(' · ')}</div>
                                     </div>
                                 </div>
-                                <div style="font-size:0.72em;color:#64748b;line-height:1.5;background:rgba(0,0,0,0.25);padding:7px 9px;border-radius:6px;">
+                                <div style="font-size:0.76em;color:#a3b1c2;line-height:1.55;background:rgba(0,0,0,0.25);padding:8px 10px;border-radius:8px;">
                                     ${ses.exs.slice(0, 4).map(e => `• ${e.name}`).join('<br>')}
-                                    ${ses.exs.length > 4 ? `<br><span style="color:${t.color}cc;">+ ${ses.exs.length - 4} autres</span>` : ''}
+                                    ${ses.exs.length > 4 ? `<br><span style="color:#67e8f9;">+ ${ses.exs.length - 4} autres</span>` : ''}
                                 </div>
                             </div>
                         `).join('')}
 
                         ${t.weeklyPattern ? `
-                            <div style="margin-top:14px;background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.2);border-radius:10px;padding:10px 12px;">
-                                <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:1.5px;margin-bottom:6px;">PLAN HEBDO INCLUS</div>
+                            <div style="margin-top:14px;background:rgba(34,211,238,0.05);border:1px solid rgba(34,211,238,0.2);border-radius:10px;padding:10px 12px;">
+                                <div style="font-size:0.7em;color:#67e8f9;font-weight:900;letter-spacing:0.6px;margin-bottom:7px;">TA SEMAINE AVEC CE PROGRAMME</div>
                                 <div style="display:flex;gap:4px;flex-wrap:wrap;">
                                     ${ROUTINE_DAYS.map(d => {
                                         const sessionIdx = t.weeklyPattern[d];
                                         const has = typeof sessionIdx === 'number';
-                                        return `<div style="flex:1;min-width:34px;text-align:center;padding:6px 4px;border-radius:6px;background:${has?t.color+'25':'rgba(255,255,255,0.03)'};border:1px solid ${has?t.color+'50':'rgba(255,255,255,0.05)'};">
-                                            <div style="font-size:0.55em;color:${has?t.color:'#475569'};font-weight:800;">${ROUTINE_DAY_LABELS[d]}</div>
-                                            <div style="font-size:0.85em;color:white;line-height:1;margin-top:2px;">${has?t.sessions[sessionIdx].emoji:'·'}</div>
+                                        return `<div style="flex:1;min-width:34px;text-align:center;padding:6px 4px;border-radius:6px;background:${has?'rgba(34,211,238,0.12)':'rgba(255,255,255,0.03)'};border:1px solid ${has?'rgba(34,211,238,0.4)':'rgba(255,255,255,0.05)'};">
+                                            <div style="font-size:0.6em;color:${has?'#67e8f9':'#64748b'};font-weight:800;">${ROUTINE_DAY_LABELS[d]}</div>
+                                            <div style="font-size:0.8em;color:${has?'#f1f5f9':'#475569'};font-weight:900;line-height:1;margin-top:3px;">${has?String.fromCharCode(65 + _idxU[sessionIdx]):'—'}</div>
                                         </div>`;
                                     }).join('')}
                                 </div>
@@ -18035,7 +18070,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
                     <!-- Action -->
                     <div style="padding:14px 18px;border-top:1px solid rgba(255,255,255,0.05);flex-shrink:0;">
-                        <button onclick="importTemplate('${t.id}')" style="width:100%;background:linear-gradient(135deg,${t.color},${t.color}cc);border:none;color:white;border-radius:14px;padding:14px;font-weight:900;font-size:0.95em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${t.color}40;">IMPORTER CE PROGRAMME</button>
+                        ${(() => { try { const pl = getWeeklyPlan(); return Object.values(pl || {}).some(v => v) ? '<div style="font-size:0.72em;color:#fde68a;line-height:1.45;margin-bottom:9px;">Ton plan de la semaine actuel sera remplacé les jours de ce programme. Tes routines existantes sont gardées.</div>' : ''; } catch (e) { return ''; } })()}
+                        <button onclick="importTemplate('${t.id}')" style="width:100%;background:#22d3ee;border:none;color:#04121f;border-radius:14px;padding:14px;font-weight:900;font-size:0.92em;letter-spacing:0.6px;cursor:pointer;">IMPORTER CE PROGRAMME</button>
                     </div>
                 </div>
             `;
@@ -18045,37 +18081,90 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         window.previewTemplate = previewTemplate;
 
         // ─── MODAL liste des templates ─────────────────────────────────
+        // v1325 : fenêtre des modèles refaite — filtres (jours, niveau, matériel),
+        // modèle conseillé selon le profil en tête, icônes SVG, cartes uniformes.
+        let _awakTplFiltre = { jours: 'tous', mat: false };
+        function _awakTplConseil() {
+            try {
+                const up = (typeof getUserProfile === 'function') ? (getUserProfile() || {}) : {};
+                const niv = { beginner: 'Débutant', intermediate: 'Intermédiaire', advanced: 'Avancé' }[up.level] || 'Débutant';
+                const freq = parseInt(up.weeklyGoal, 10) || (niv === 'Débutant' ? 3 : 4);
+                let best = null, score = -1;
+                WORKOUT_TEMPLATES.forEach(t => {
+                    let sc = (t.level === niv ? 10 : 0) - Math.abs(t.days - freq) * 3;
+                    if (sc > score) { score = sc; best = t; }
+                });
+                return best ? best.id : null;
+            } catch (e) { return null; }
+        }
+        function _awakTplListe() {
+            const f = _awakTplFiltre, conseil = _awakTplConseil();
+            let liste = WORKOUT_TEMPLATES.filter(t => {
+                if (f.mat && !t.sansMateriel) return false;
+                if (f.jours === '2-3') return t.days <= 3;
+                if (f.jours === '4') return t.days === 4;
+                if (f.jours === '5-6') return t.days >= 5;
+                return true;
+            });
+            liste = liste.slice().sort((a, b) => (b.id === conseil) - (a.id === conseil));
+            if (!liste.length) return '<div style="text-align:center;color:#94a3b8;font-size:0.82em;padding:26px 10px;">Aucun modèle avec ces filtres.</div>';
+            return liste.map(t => {
+                const nc = _AWAK_NIV[t.level] || '#94a3b8';
+                const seances = [...new Set(t.sessions.map(x => x.name))].join(' · ');
+                return `<button onclick="previewTemplate('${t.id}')" style="display:flex;align-items:flex-start;gap:12px;width:100%;min-height:auto;text-align:left;font-family:inherit;color:inherit;
+                        background:#12161c;border:1px solid ${t.id === conseil ? 'rgba(34,211,238,0.55)' : 'rgba(255,255,255,0.08)'};border-radius:14px;padding:13px;margin-bottom:9px;cursor:pointer;">
+                    <span style="flex-shrink:0;width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:${t.color}14;border:1px solid ${t.color}33;">${_awakTplIco(t, 22)}</span>
+                    <span style="flex:1;min-width:0;">
+                        <span style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;">
+                            <span style="font-size:0.95em;font-weight:900;color:#f8fafc;">${t.name}</span>
+                            ${t.id === conseil ? '<span style="font-size:0.62em;font-weight:900;color:#04121f;background:#22d3ee;padding:2px 7px;border-radius:99px;">POUR TOI</span>' : ''}
+                        </span>
+                        <span style="display:flex;gap:6px;flex-wrap:wrap;margin:5px 0 6px;">
+                            <span style="font-size:0.68em;font-weight:800;color:#e2e8f0;background:rgba(255,255,255,0.06);padding:2px 8px;border-radius:99px;">${t.days} jours / sem.</span>
+                            <span style="font-size:0.68em;font-weight:800;color:${nc};background:${nc}1a;padding:2px 8px;border-radius:99px;">${t.level}</span>
+                            ${t.sansMateriel ? '<span style="font-size:0.68em;font-weight:800;color:#cbd5e1;background:rgba(255,255,255,0.06);padding:2px 8px;border-radius:99px;">Sans matériel</span>' : ''}
+                        </span>
+                        <span style="display:block;font-size:0.76em;color:#a3b1c2;line-height:1.45;">${_awakTplDesc(t)}</span>
+                        <span style="display:block;font-size:0.7em;color:#8a99ad;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${seances}</span>
+                    </span>
+                    <span style="color:#475569;font-size:1.2em;flex-shrink:0;align-self:center;">›</span>
+                </button>`;
+            }).join('');
+        }
+        function _awakTplChips() {
+            const f = _awakTplFiltre;
+            const c = (on, txt, act) => `<button onclick="${act}" style="flex-shrink:0;min-height:auto;padding:7px 12px;border-radius:99px;cursor:pointer;font-family:inherit;font-size:0.74em;font-weight:800;
+                background:${on ? '#22d3ee' : 'rgba(255,255,255,0.05)'};color:${on ? '#04121f' : '#cbd5e1'};border:1px solid ${on ? '#22d3ee' : 'rgba(255,255,255,0.1)'};">${txt}</button>`;
+            return [['tous', 'Tous'], ['2-3', '2-3 jours'], ['4', '4 jours'], ['5-6', '5-6 jours']]
+                .map(x => c(f.jours === x[0], x[1], `_awakTplSet('jours','${x[0]}')`)).join('')
+                + c(f.mat, 'Sans matériel', `_awakTplSet('mat',${!f.mat})`);
+        }
+        window._awakTplSet = function (k, v) {
+            _awakTplFiltre[k] = v;
+            const l = document.getElementById('awakTplListe'), ch = document.getElementById('awakTplChips');
+            if (l) l.innerHTML = _awakTplListe();
+            if (ch) ch.innerHTML = _awakTplChips();
+        };
         function showTemplatesModal() {
             document.getElementById('templatesModal')?.remove();
             const modal = document.createElement('div');
             modal.id = 'templatesModal';
-            modal.style.cssText = 'position:fixed;inset:0;z-index:10100;background:rgba(0,0,0,0.93);backdrop-filter:blur(8px);display:flex;align-items:flex-end;justify-content:center;padding:0;';
+            modal.style.cssText = 'position:fixed;inset:0;z-index:10100;background:rgba(0,0,0,0.88);backdrop-filter:blur(8px);display:flex;align-items:flex-end;justify-content:center;padding:0;';
             modal.innerHTML = `
-                <div style="width:100%;max-width:520px;background:#0F1014;border-radius:20px 20px 0 0;max-height:92vh;display:flex;flex-direction:column;border-top:2px solid rgba(168,85,247,0.3);">
-                    <div style="width:36px;height:3px;background:#334155;border-radius:99px;margin:10px auto 0;flex-shrink:0;"></div>
-                    <div style="padding:14px 18px 8px;flex-shrink:0;border-bottom:1px solid rgba(168,85,247,0.1);">
-                        <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div style="width:100%;max-width:520px;background:#0F1014;border-radius:20px 20px 0 0;max-height:92vh;display:flex;flex-direction:column;border-top:1px solid rgba(255,255,255,0.1);">
+                    <div style="width:40px;height:4px;background:rgba(255,255,255,0.14);border-radius:99px;margin:10px auto 0;flex-shrink:0;"></div>
+                    <div style="padding:12px 16px 10px;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,0.06);">
+                        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
                             <div>
-                                <div style="font-size:0.6em;color:#c084fc;font-weight:900;letter-spacing:2px;margin-bottom:3px;">TEMPLATES</div>
-                                <div style="font-size:1em;font-weight:900;color:white;">Choisir un programme</div>
+                                <div style="font-size:0.7em;color:#94a3b8;font-weight:800;letter-spacing:0.6px;">MODÈLES</div>
+                                <div style="font-size:1.05em;font-weight:900;color:#f8fafc;margin-top:2px;">Choisir un programme</div>
                             </div>
-                            <button onclick="document.getElementById('templatesModal').remove()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#f87171;width:32px;height:32px;border-radius:50%;font-size:0.9em;cursor:pointer;flex-shrink:0;"><svg viewBox="0 0 24 24" width="16" height="16" style="display:inline-block;vertical-align:-0.15em;" aria-hidden="true"><path d="M5 5 L19 19 M19 5 L5 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" fill="none"/></svg></button>
+                            <button onclick="document.getElementById('templatesModal').remove()" aria-label="Fermer" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;width:34px;height:34px;min-height:auto;border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" fill="none"/></svg></button>
                         </div>
-                        <div style="font-size:0.72em;color:#94a3b8;margin-top:6px;line-height:1.5;">${WORKOUT_TEMPLATES.length} programmes éprouvés. Tap pour les détails et l'import.</div>
+                        <div style="font-size:0.76em;color:#a3b1c2;margin-top:6px;line-height:1.45;">Touche un programme pour voir ses séances. L'importer crée tes routines et remplit ton plan de la semaine.</div>
+                        <div id="awakTplChips" style="display:flex;gap:6px;overflow-x:auto;margin-top:10px;padding-bottom:2px;-webkit-overflow-scrolling:touch;">${_awakTplChips()}</div>
                     </div>
-                    <div style="flex:1;overflow-y:auto;padding:10px 14px 18px;-webkit-overflow-scrolling:touch;">
-                        ${WORKOUT_TEMPLATES.map(t => `
-                            <div onclick="previewTemplate('${t.id}')" style="background:linear-gradient(160deg,${t.color}10,transparent);border:1.5px solid ${t.color}30;border-radius:14px;padding:13px;margin-bottom:10px;cursor:pointer;display:flex;align-items:flex-start;gap:12px;">
-                                <div style="font-size:1.8em;flex-shrink:0;filter:drop-shadow(0 0 8px ${t.color}60);">${t.emoji}</div>
-                                <div style="flex:1;min-width:0;">
-                                    <div style="font-size:0.95em;font-weight:900;color:white;margin-bottom:2px;">${t.name}</div>
-                                    <div style="font-size:0.7em;color:${t.color};font-weight:700;margin-bottom:4px;">${t.days} jours/sem · ${t.level}</div>
-                                    <div style="font-size:0.72em;color:#94a3b8;line-height:1.4;">${t.description}</div>
-                                </div>
-                                <div style="color:${t.color};font-size:1.2em;flex-shrink:0;align-self:center;">›</div>
-                            </div>
-                        `).join('')}
-                    </div>
+                    <div id="awakTplListe" style="flex:1;overflow-y:auto;padding:12px 14px 18px;-webkit-overflow-scrolling:touch;">${_awakTplListe()}</div>
                 </div>
             `;
             document.body.appendChild(modal);
@@ -18108,7 +18197,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 container.innerHTML = `
                 <div class="card" style="background:linear-gradient(160deg,#0a0e18,#0F1014);border:1.5px dashed rgba(34,211,238,0.4);padding:14px 16px;margin-bottom:14px;">
                     <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-                        <div style="font-size:1.6em;line-height:1;filter:drop-shadow(0 0 6px rgba(34,211,238,0.5));">📅</div>
+                        <div style="line-height:1;display:flex;">${window.AwakIcon ? AwakIcon.get('calendrier', 24, '#22d3ee') : ''}</div>
                         <div style="flex:1;min-width:0;">
                             <div style="font-size:0.58em;color:#22d3ee;font-weight:900;letter-spacing:2px;">PLAN HEBDO</div>
                             <div style="font-size:0.88em;font-weight:800;color:white;">Assigner mes routines aux jours</div>
@@ -18664,7 +18753,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.id = 'exercisePickerModal';
             modal.style.cssText = 'position:fixed;inset:0;z-index:10200;background:rgba(0,0,0,0.95);backdrop-filter:blur(8px);display:flex;align-items:flex-end;justify-content:center;padding:0;';
             modal.innerHTML = `
-                <div style="width:100%;max-width:480px;background:#0F1014;border-radius:20px 20px 0 0;max-height:88vh;display:flex;flex-direction:column;border-top:2px solid rgba(34,197,94,0.314);">
+                <div style="width:100%;max-width:480px;background:#0F1014;border-radius:20px 20px 0 0;max-height:88vh;display:flex;flex-direction:column;border-top:2px solid rgba(34,211,238,0.35);">
                     <div style="width:36px;height:3px;background:#334155;border-radius:99px;margin:10px auto 0;flex-shrink:0;"></div>
                     <div style="padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.05);flex-shrink:0;">
                         <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px;">
@@ -18673,7 +18762,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         </div>
                         <input id="exPickerSearch" oninput="_filterExPicker()" placeholder="🔍 Chercher un exercice..." style="width:100%;background:#0a0e18;border:1px solid rgba(255,255,255,0.08);color:white;border-radius:10px;padding:9px 12px;font-size:0.82em;outline:none;">
                         <div id="exPickerMuscleFilter" style="display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;">
-                            <button onclick="_setExPickerMuscle(null,this)" data-muscle="" style="background:#3b82f6;color:white;border:none;border-radius:99px;padding:5px 10px;font-size:0.68em;font-weight:800;cursor:pointer;">Tous</button>
+                            <button onclick="_setExPickerMuscle(null,this)" data-muscle="" style="background:#22d3ee;color:#04121f;border:none;border-radius:99px;padding:5px 10px;font-size:0.68em;font-weight:800;cursor:pointer;">Tous</button>
                             ${muscles.map(m => `<button onclick="_setExPickerMuscle('${m}',this)" data-muscle="${m}" style="background:rgba(255,255,255,0.05);color:#cbd5e1;border:1px solid rgba(255,255,255,0.08);border-radius:99px;padding:5px 10px;font-size:0.68em;font-weight:700;cursor:pointer;">${m}</button>`).join('')}
                         </div>
                     </div>
@@ -18694,7 +18783,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         <div style="font-weight:700;color:white;font-size:0.82em;">${ex.name}</div>
                         <div style="font-size:0.62em;color:#64748b;margin-top:1px;">${ex.muscle || 'Corps'} · ${ex.difficulty || ''}</div>
                     </div>
-                    <div style="color:#22c55e;font-size:1em;flex-shrink:0;">＋</div>
+                    <div style="color:#67e8f9;font-size:1em;flex-shrink:0;">＋</div>
                 </div>
             `).join('');
         }
@@ -18722,8 +18811,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 b.style.color = '#cbd5e1';
                 b.style.border = '1px solid rgba(255,255,255,0.08)';
             });
-            btn.style.background = '#22c55e';
-            btn.style.color = 'white';
+            btn.style.background = '#22d3ee';   // v1324 : cyan (plus de vert)
+            btn.style.color = '#04121f';
             btn.style.border = 'none';
             _filterExPicker();
         }
@@ -18780,7 +18869,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             clock:    '<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>'
         };
         const _AWAK_ROUTINE_ICON_IDS = ['dumbbell','biceps','flame','bolt','legs','target','yoga','run','boxing','shield','heart','clock'];
-        const _AWAK_ROUTINE_COLORS = ['#22c55e','#22d3ee','#a855f7','#fbbf24','#f472b6','#fb923c'];
+        const _AWAK_ROUTINE_COLORS = ['#22d3ee','#22c55e','#a855f7','#fbbf24','#f472b6','#fb923c'];
         let _awakNewRoutineIcon = 'dumbbell';
         let _awakNewRoutineColor = '#22c55e';
 
@@ -18803,7 +18892,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
         function openCreateRoutineModal() {
             _awakNewRoutineIcon = 'dumbbell';
-            _awakNewRoutineColor = '#22c55e';
+            _awakNewRoutineColor = '#22d3ee';   // v1324 : cyan par défaut (plus de vert)
             document.getElementById('awakNewRoutineModal')?.remove();
 
             const modal = document.createElement('div');
@@ -18816,8 +18905,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const on = (id === _awakNewRoutineIcon);
                 return `<button onclick="_awakPickRoutineIcon('${id}')" data-ic="${id}" class="awakNRIcon"
                     style="padding:9px;border-radius:10px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;
-                    background:${on ? 'rgba(34,197,94,0.2)' : 'rgba(255,255,255,0.04)'};
-                    border:1px solid ${on ? 'rgba(34,197,94,0.5)' : 'rgba(255,255,255,0.08)'};">${awakRoutineIcon({ icon: id }, 22, on ? '#4ade80' : '#94a3b8')}</button>`;
+                    background:${on ? 'rgba(34,211,238,0.2)' : 'rgba(255,255,255,0.04)'};
+                    border:1px solid ${on ? 'rgba(34,211,238,0.5)' : 'rgba(255,255,255,0.08)'};">${awakRoutineIcon({ icon: id }, 22, on ? '#67e8f9' : '#94a3b8')}</button>`;
             }).join('');
 
             const colors = _AWAK_ROUTINE_COLORS.map(c =>
@@ -18828,12 +18917,12 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
             modal.innerHTML = `
                 <div style="width:100%;max-width:520px;background:#0F1014;border-radius:20px 20px 0 0;max-height:90vh;
-                     display:flex;flex-direction:column;border-top:2px solid rgba(34,197,94,0.45);">
+                     display:flex;flex-direction:column;border-top:2px solid rgba(34,211,238,0.45);">
                     <div style="width:36px;height:3px;background:#334155;border-radius:99px;margin:10px auto 0;flex-shrink:0;"></div>
-                    <div style="padding:14px 20px 12px;flex-shrink:0;border-bottom:1px solid rgba(34,197,94,0.15);
+                    <div style="padding:14px 20px 12px;flex-shrink:0;border-bottom:1px solid rgba(34,211,238,0.15);
                          display:flex;align-items:center;justify-content:space-between;gap:10px;">
                         <div style="min-width:0;">
-                            <div style="font-size:0.58em;color:#4ade80;font-weight:900;letter-spacing:2px;margin-bottom:2px;">◈ NOUVELLE</div>
+                            <div style="font-size:0.58em;color:#67e8f9;font-weight:900;letter-spacing:2px;margin-bottom:2px;">◈ NOUVELLE</div>
                             <h2 style="margin:0;color:#fff;font-size:1.05em;font-weight:900;">Créer une routine</h2>
                         </div>
                         <button onclick="document.getElementById('awakNewRoutineModal').remove()"
@@ -18846,7 +18935,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         <input type="text" id="awakNewRoutineName" placeholder="Ex. Push lundi, Jambes, Full body…"
                             maxlength="40" autocomplete="off"
                             onkeydown="if(event.key==='Enter'){event.preventDefault();_awakConfirmNewRoutine();}"
-                            style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(34,197,94,0.3);
+                            style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(34,211,238,0.3);
                             color:#e8f0f8;border-radius:12px;padding:13px 14px;font-size:0.95em;font-weight:700;
                             font-family:inherit;box-sizing:border-box;">
                         <div id="awakNewRoutineErr" style="display:none;color:#f87171;font-size:0.74em;font-weight:700;margin-top:6px;"></div>
@@ -18859,7 +18948,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
                         <button onclick="_awakConfirmNewRoutine()"
                             style="width:100%;margin-top:22px;padding:15px;border-radius:14px;border:none;
-                            background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-weight:900;
+                            background:#22d3ee;color:#04121f;font-weight:900;
                             font-size:0.95em;cursor:pointer;font-family:inherit;">Créer la routine →</button>
                     </div>
                 </div>`;
@@ -18873,9 +18962,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             _awakNewRoutineIcon = id;
             document.querySelectorAll('.awakNRIcon').forEach(b => {
                 const on = b.dataset.ic === id;
-                b.style.background = on ? 'rgba(34,197,94,0.2)' : 'rgba(255,255,255,0.04)';
-                b.style.border = '1px solid ' + (on ? 'rgba(34,197,94,0.5)' : 'rgba(255,255,255,0.08)');
-                b.innerHTML = awakRoutineIcon({ icon: b.dataset.ic }, 22, on ? '#4ade80' : '#94a3b8');
+                b.style.background = on ? 'rgba(34,211,238,0.2)' : 'rgba(255,255,255,0.04)';
+                b.style.border = '1px solid ' + (on ? 'rgba(34,211,238,0.5)' : 'rgba(255,255,255,0.08)');
+                b.innerHTML = awakRoutineIcon({ icon: b.dataset.ic }, 22, on ? '#67e8f9' : '#94a3b8');
             });
         }
         window._awakPickRoutineIcon = _awakPickRoutineIcon;
@@ -22018,7 +22107,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1320);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1325);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -22070,7 +22159,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 +       '<rect width="5" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.22"/>'
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1320" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1325" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -27512,7 +27601,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1320");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1325");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -31911,7 +32000,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1320);'
+                +     'url(images/combat_bg_v1.webp?v=1325);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -32166,7 +32255,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1320);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1325);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -32438,7 +32527,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:540px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto;display:flex;flex-direction:column;">
                 <!-- Header : vague actuelle -->
-                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1320);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1325);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                         <span style="font-size:0.6em;color:${theme.color};font-weight:900;letter-spacing:2px;">⚔ VAGUE ${rift.currentWaveIdx + 1} / ${rift.waves.length}${currentWave.isBoss ? ' · BOSS' : ''}</span>
                         <button onclick="awakAbandonRift()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
@@ -33568,7 +33657,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1320');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1325');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -34305,7 +34394,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1320);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1325);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -34476,7 +34565,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1320);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1325);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -43327,6 +43416,18 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 showToast('⚠️ Impossible de sauvegarder le profil (stockage plein). Libère de l\'espace dans Réglages → Données.', 'error', 5000);
             }
             renderAllProfilesLists();
+            // v1321 : nouvel avatar / nom visible tout de suite (accueil, bouton
+            // profil, ciel de la famille…) sans recharger la page
+            clearTimeout(window.__awakProfRefresh);
+            window.__awakProfRefresh = setTimeout(function () {
+                try { if (typeof awakMajBoutonProfil === 'function') awakMajBoutonProfil(); } catch (e) {}
+                try { if (window.AwakHomePro && AwakHomePro.render) AwakHomePro.render(); } catch (e) {}
+                try {
+                    const t = (typeof currentTab !== 'undefined') ? currentTab : '';
+                    if (t === 'family' && window.AwakFamily && typeof window.renderFamilyTab === 'function') window.renderFamilyTab();
+                    else if (t === 'calendar' && typeof window.renderCalendarTab === 'function') window.renderCalendarTab();
+                } catch (e) {}
+            }, 0);
             return ok;
         }
         
@@ -45365,7 +45466,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
             host.innerHTML =
                 '<div style="position:relative;width:110px;margin:0 auto 12px;">'
-              +   '<img src="images/body/body_face.webp?v=1320" alt="" '
+              +   '<img src="images/body/body_face.webp?v=1325" alt="" '
               +     'style="width:100%;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -45447,7 +45548,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1320);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1325);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -45514,7 +45615,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1320);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1325);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -47833,7 +47934,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1320");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1325");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
