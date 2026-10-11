@@ -264,7 +264,10 @@
       if (!Array.isArray(arr)) return set;
       arr.forEach(function (w) {
         var d = new Date(w && (w.date || w.completedAt || w.timestamp) || 0);
-        if (!isNaN(d.getTime())) set[d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate()] = true;
+        // v1319 : on garde le NOM de la séance (toujours « vrai ») pour l'afficher
+        // les jours où elle a été faite hors planning
+        var k = d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate();
+        if (!isNaN(d.getTime())) set[k] = set[k] || String((w && w.name) || 'Séance').replace(/^[^A-Za-zÀ-ÿ0-9]+/, '') || 'Séance';
       });
     } catch (e) {}
     return set;
@@ -353,7 +356,13 @@
     list.forEach(function (p) {
       if (!cal.selected.has(p.id)) return;
       var s = (plans[p.id] || {})[dayKey];
-      if (!s || !s.muscles || !s.muscles.length) return;
+      if (!s || !s.muscles || !s.muscles.length) {
+        // v1319 : séance faite sans être prévue → elle apparaît quand même (au lieu de « Repos »)
+        var nm = dones[p.id] && dones[p.id][ymd];
+        if (nm) out.push({ profil: p, seance: { label: typeof nm === 'string' ? nm : 'Séance', muscles: [], source: 'faite' },
+                           heure: null, exception: false, faite: true, horsPlan: true });
+        return;
+      }
       out.push({
         profil: p,
         seance: s,
@@ -1121,6 +1130,16 @@
       var c = colorById[e.profil.id];
       var s = e.seance;
       var label = s.label || s.muscles.slice(0, 3).join(' · ');
+      if (e.horsPlan) {
+        return '<div style="background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.07);' +
+            'border-left:3px solid ' + c.base + ';border-radius:12px;padding:13px 14px;margin-bottom:9px;">' +
+            '<div style="display:flex;align-items:center;gap:9px;">' +
+              '<span style="display:inline-flex;flex-shrink:0;">' + av(e.profil.avatar, 30) + '</span>' +
+              '<span style="flex:1;min-width:0;"><span style="display:block;font-size:0.9em;font-weight:800;color:#e8f0f8;">' + esc(label) + '</span>' +
+              '<span style="display:block;font-size:0.72em;color:#94a3b8;margin-top:2px;">' + esc(e.profil.name || 'Membre') + ' · faite sans être prévue</span></span>' +
+              '<span style="background:' + c.base + ';color:#04121f;padding:2px 9px;border-radius:99px;font-size:0.62em;font-weight:900;">FAITE</span>' +
+            '</div></div>';
+      }
       var chips = s.muscles.map(function (mu) {
         return '<span style="background:' + c.soft + ';color:' + c.base + ';border:1px solid ' + c.line +
           ';padding:3px 9px;border-radius:99px;font-size:0.72em;font-weight:700;">' + esc(mu) + '</span>';

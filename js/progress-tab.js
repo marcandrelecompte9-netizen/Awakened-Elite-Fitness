@@ -132,8 +132,9 @@
         + '<div style="width:100%;height:64px;display:flex;align-items:flex-end;">'
         +   '<div style="width:100%;height:' + h + '%;border-radius:6px 6px 3px 3px;'
         +     'background:' + (s.n ? (courant ? 'linear-gradient(180deg,' + VIOLET + ',' + BLEU + ')' : 'rgba(96,168,240,0.55)') : 'rgba(255,255,255,0.07)') + ';"></div></div>'
-        + '<div style="font-size:0.55em;color:' + (courant ? CLAIR : '#64748b') + ';font-weight:' + (courant ? 900 : 700) + ';white-space:nowrap;">'
-        +   (courant ? 'Cette sem.' : d.getDate() + ' ' + MOIS[d.getMonth()].replace('.', '')) + '</div></div>';
+        // v1319 : taille fixe en px (le plancher de lisibilité faisait chevaucher les dates)
+        + '<div style="font-size:9.5px;color:' + (courant ? CLAIR : '#8a99ad') + ';font-weight:' + (courant ? 900 : 700) + ';white-space:nowrap;max-width:100%;overflow:hidden;">'
+        +   (courant ? 'En cours' : d.getDate() + ' ' + MOIS[d.getMonth()].replace('.', '')) + '</div></div>';
     }).join('');
     return '<div style="display:flex;gap:5px;align-items:flex-end;">' + barres + '</div>';
   }

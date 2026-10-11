@@ -762,11 +762,18 @@
       total += m.seances;
 
       // fil de lumière vers le centre — plus vif si le membre est actif
+      // (v1316) Fil bien visible sur la nébuleuse : avant, 0,6 px à 14 % d'opacité
+      // disparaissait dans le fond et les noms semblaient flotter sans lien.
+      var fc = m.seances ? e.c : '#a5b4c8';
       fils += '<line x1="150" y1="150" x2="' + x.toFixed(1) + '" y2="' + y.toFixed(1) + '" '
-        + 'stroke="' + e.c + '" stroke-width="' + (m.seances ? 1 : 0.6) + '" '
-        + 'opacity="' + (m.seances ? 0.32 : 0.14) + '"/>';
+        + 'stroke="' + fc + '" stroke-width="' + (m.seances ? 4 : 3) + '" stroke-linecap="round" opacity="0.18" filter="url(#constLueur)"/>'
+        + '<line x1="150" y1="150" x2="' + x.toFixed(1) + '" y2="' + y.toFixed(1) + '" '
+        + 'stroke="' + fc + '" stroke-width="' + (m.seances ? 1.8 : 1.3) + '" stroke-linecap="round" '
+        + (m.seances ? '' : 'stroke-dasharray="4 4" ')
+        + 'opacity="' + (m.seances ? 0.85 : 0.6) + '"/>';
 
       var dur = (3 + (i % 4) * 0.7).toFixed(1);
+      var haut = Math.sin(a) < -0.5;
       etoiles += '<g style="cursor:pointer;" onclick="AwakConstMenu(\'' + m.id + '\')">'
         + '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="26" fill="transparent"/>'
         + '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + (e.r + 9) + '" fill="' + e.c + '" fill-opacity="0.10"/>'
@@ -779,9 +786,10 @@
               + '" dur="' + dur + 's" repeatCount="indefinite"/>' : '')
         + '</circle>'
         // Police agrandie : sur mobile, 8,5 px SVG ne faisait que ~10 px réels.
-        + '<text x="' + x.toFixed(1) + '" y="' + (y + e.r + 16).toFixed(1) + '" text-anchor="middle" '
+        // Étoile du haut : le nom passe au-dessus, sinon il tombait sur le fil.
+        + '<text x="' + x.toFixed(1) + '" y="' + (haut ? y - e.r - 24 : y + e.r + 16).toFixed(1) + '" text-anchor="middle" '
         +   'fill="#f1f5f9" font-size="11" font-weight="800">' + esc(m.nom) + '</text>'
-        + '<text x="' + x.toFixed(1) + '" y="' + (y + e.r + 28).toFixed(1) + '" text-anchor="middle" '
+        + '<text x="' + x.toFixed(1) + '" y="' + (haut ? y - e.r - 12 : y + e.r + 28).toFixed(1) + '" text-anchor="middle" '
         +   'fill="' + e.c + '" font-size="10" font-weight="800">'
         +   (estEnfant
               ? (m.recent ? 'vient de bouger' : (m.seances ? 'a bougé' : 'pas encore bougé'))

@@ -8081,3 +8081,35 @@ body.dark-mode .nav-tab.active {
 @media (max-width: 400px) {
   #workoutTopBar #liveVolumeChip .awk-mini-barre { display: none !important; }
 }
+
+/* v1319 : barre du bas à 5 onglets (Accueil · Séance · Progrès · Famille · Plus).
+   Agenda, Exos, Jeu et Réglages s'ouvrent depuis « Plus ». */
+#mobileNavBar .nav-tab[onclick="switchTab('calendar')"],
+#mobileNavBar .nav-tab[onclick="switchTab('exercises')"],
+#mobileNavBar #settingsNavTab,
+#mobileNavBar #gameNavTab { display: none !important; }
+#mobileNavBar #moreNavTab { order: 100; }
+#mobileNavBar .nav-tab { font-size: 0.66em !important; }
+#mobileNavBar .nav-tab svg { width: 22px !important; height: 22px !important; }
+/* v1319 : barre Libre · Routines · Programme · Course · Défis — tient en entier
+   (les paddings/min-width globaux des boutons la faisaient déborder : « Défis » coupé) */
+.tab-content > div:has(> button[onclick="switchTab('challenges')"]):has(> button[onclick="switchTab('program')"]) {
+    max-width: 100% !important; box-sizing: border-box !important; gap: 3px !important; overflow: hidden !important;
+}
+.tab-content > div:has(> button[onclick="switchTab('challenges')"]):has(> button[onclick="switchTab('program')"]) > button {
+    flex: 1 1 0 !important; min-width: 0 !important; width: auto !important; min-height: 38px !important;
+    padding: 9px 1px !important; font-size: 0.7em !important; letter-spacing: -0.1px !important;
+}
+/* v1319 : LISIBILITÉ — les petits surtitres (0,5 à 0,62 em, souvent en majuscules
+   espacées) descendaient sous 10 px réels : illisibles au gym ou au soleil.
+   Plancher en px, sans changer les tailles déjà lisibles. */
+[style*="font-size:0.5em"],[style*="font-size: 0.5em"] { font-size: max(0.5em, 10.5px) !important; }
+[style*="font-size:0.52em"],[style*="font-size: 0.52em"] { font-size: max(0.52em, 10.5px) !important; }
+[style*="font-size:0.54em"],[style*="font-size: 0.54em"] { font-size: max(0.54em, 10.5px) !important; }
+[style*="font-size:0.55em"],[style*="font-size: 0.55em"] { font-size: max(0.55em, 10.5px) !important; }
+[style*="font-size:0.56em"],[style*="font-size: 0.56em"] { font-size: max(0.56em, 10.5px) !important; }
+[style*="font-size:0.58em"],[style*="font-size: 0.58em"] { font-size: max(0.58em, 11px) !important; }
+[style*="font-size:0.6em"],[style*="font-size: 0.6em"] { font-size: max(0.6em, 11px) !important; }
+[style*="font-size:0.62em"],[style*="font-size: 0.62em"] { font-size: max(0.62em, 11px) !important; }
+/* Gris d'information trop sombre sur fond noir (#64748b) → un cran plus clair */
+[style^="color:#64748b"],[style*=";color:#64748b"],[style*="; color:#64748b"],[style*="; color: #64748b"] { color: #8a99ad !important; }

@@ -66,21 +66,24 @@
   function levee(cleLevee) { return LEVEES.filter(function (l) { return l.cle === cleLevee; })[0] || null; }
 
   // Meilleure charge maximale estimée (Epley) sur un exercice, en kg
-  function e1rm(nom, depuis) {
-    var best = 0;
+  function e1rm(nom, depuis) { return meilleureSerie(nom, depuis).kg; }
+  // Série qui donne la meilleure estimation (charge en kg, répétitions plafonnées à 10)
+  function meilleureSerie(nom, depuis) {
+    var best = { kg: 0, w: 0, r: 0 };
     try {
       var perfs = typeof getExercisePerformances === 'function' ? getExercisePerformances() : {};
       (perfs[nom] || []).forEach(function (s) {
         if (!s || s.warmup) return;
         if (depuis && s.date && Date.parse(s.date) < depuis) return;
-        var w = parseFloat(s.weight) || 0, r = Math.min(parseInt(s.reps, 10) || 0, 12);
-        if (w > 0 && r > 0) best = Math.max(best, w * (1 + r / 30));
+        var w = parseFloat(s.weight) || 0, r = Math.min(parseInt(s.reps, 10) || 0, 10);
+        var est = r === 1 ? w : w * (1 + r / 30);
+        if (w > 0 && r > 0 && est > best.kg) best = { kg: est, w: w, r: parseInt(s.reps, 10) || r };
       });
     } catch (e) {}
     return best;
   }
   function actuelKg(d) {
-    var a = e1rm(d.exo, Date.now() - 60 * JOUR);
+    var a = e1rm(d.exo, Date.now() - 60 * JOUR) * (d.facteur || 1);
     return Math.max(a, d.departKg || 0);
   }
 
@@ -191,7 +194,8 @@
       + '<div style="font-size:0.68em;color:#94a3b8;margin-top:2px;">' + esc(d.exo) + ' · charge maximale estimée</div>'
       + barre(pct, BLEU)
       + '<div style="display:flex;justify-content:space-between;font-size:0.66em;font-weight:800;color:#94a3b8;">'
-      + '<span>Départ ' + esc(txtCharge(d.departKg)) + '</span><span style="color:#fff;">Aujourd\'hui ' + esc(txtCharge(act)) + '</span><span>But ' + esc(txtCharge(d.cibleKg)) + '</span></div>';
+      + '<span>Départ ' + esc(txtCharge(d.departKg)) + '</span><span style="color:#fff;">Aujourd\'hui ' + esc(txtCharge(act)) + '</span><span>But ' + esc(txtCharge(d.cibleKg)) + '</span></div>'
+      + '<div style="text-align:right;margin-top:3px;"><button onclick="AwakMonDefi.corrigerMax()" style="min-height:auto;padding:2px 0;background:none;border:none;color:#67e8f9;font-size:0.64em;font-weight:800;cursor:pointer;font-family:inherit;text-decoration:underline;">Corriger mon max</button></div>';
     if (E.atteint) {
       h += '<div style="margin-top:12px;padding:11px 12px;border-radius:12px;background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.4);">'
         + '<div style="font-size:0.6em;font-weight:900;letter-spacing:1.5px;color:' + OR + ';">DÉFI RÉUSSI</div>'
@@ -290,34 +294,56 @@
     var ov = feuille('awakDefiCharge', entete('Défi de charge', 'Une charge à soulever une fois, proprement')
       + '<label style="' + LBL + '">EXERCICE</label><select id="awakDefiExo">' + options + '</select>'
       + '<div id="awakDefiDepart"></div>'
+      + '<label style="' + LBL + '">TON MAX ACTUEL (' + unite().toUpperCase() + ')</label><input id="awakDefiMax" type="number" inputmode="decimal" min="1" placeholder="Charge soulevée une fois">'
+      + '<div id="awakDefiMaxInfo" style="font-size:0.64em;color:#64748b;line-height:1.45;margin-top:5px;"></div>'
       + '<label style="' + LBL + '">CHARGE VISÉE (' + unite().toUpperCase() + ')</label><input id="awakDefiCible" type="number" inputmode="decimal" min="1" placeholder="Par exemple ' + (kg() ? '70' : '150') + '">'
       + '<label style="' + LBL + '">POUR QUAND ? (FACULTATIF)</label><input id="awakDefiDate" type="date">'
+      + '<div id="awakDefiDuree" style="font-size:0.72em;color:#cbd5e1;margin-top:8px;"></div>'
       + '<div id="awakDefiAvis" style="margin-top:10px;"></div>'
       + '<button id="awakDefiGo" style="width:100%;margin-top:14px;padding:14px;border:none;border-radius:13px;background:#22d3ee;color:#04121f;font-weight:900;font-size:0.92em;cursor:pointer;font-family:inherit;">Créer mon défi</button>');
     var sel = ov.querySelector('#awakDefiExo');
+    var champMax = ov.querySelector('#awakDefiMax');
+    var lireMaxKg = function () { var v = parseFloat(champMax.value) || 0; return v > 0 ? versKg(v) : 0; };
+    var majDuree = function () {
+      var cAff = parseFloat(ov.querySelector('#awakDefiCible').value) || 0, m = lireMaxKg(), z = ov.querySelector('#awakDefiDuree');
+      if (!cAff || !m || versKg(cAff) <= m) { z.innerHTML = ''; return; }
+      var E = estimation({ cibleKg: versKg(cAff), departKg: m, debut: Date.now(), exo: '' });
+      z.innerHTML = 'Au rythme habituel : environ <b style="color:#fff;">' + E.semaines + ' semaine' + (E.semaines > 1 ? 's' : '') + '</b> (+' + Math.round(versAff(versKg(cAff) - m)) + ' ' + unite() + ').';
+    };
     var majDepart = function () {
-      var n = sel.value.split('|')[1], a = e1rm(n, Date.now() - 120 * JOUR);
+      var n = sel.value.split('|')[1], S = meilleureSerie(n, Date.now() - 120 * JOUR), a = S.kg;
+      champMax.value = a ? arrAff(versAff(a)) : '';
+      ov.querySelector('#awakDefiMaxInfo').innerHTML = a
+        ? 'Estimé d\'après ta meilleure série : ' + Math.round(versAff(S.w)) + ' ' + unite() + ' × ' + S.r + '. Si tu connais ton vrai max, corrige-le : c\'est le point de départ du calcul.'
+        : 'Si tu ne le connais pas, indique ta meilleure série ci-dessous : le max sera estimé.';
       ov.querySelector('#awakDefiDepart').innerHTML = a
-        ? '<div style="font-size:0.72em;color:#cbd5e1;margin-top:8px;">D\'après tes séances, ta charge maximale estimée est <b style="color:#fff;">' + txtCharge(a) + '</b>.</div>'
+        ? ''
         : '<label style="' + LBL + '">TA MEILLEURE SÉRIE RÉCENTE</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'
           + '<input id="awakDefiSerieW" type="number" inputmode="decimal" min="1" placeholder="Charge (' + unite() + ')"><input id="awakDefiSerieR" type="number" inputmode="numeric" min="1" max="15" placeholder="Répétitions"></div>'
           + '<div style="font-size:0.64em;color:#64748b;margin-top:5px;">Aucune série trouvée sur cet exercice : on part de celle-ci.</div>';
     };
-    sel.onchange = majDepart; majDepart();
+    var majSerie = function () {
+      var w = parseFloat((ov.querySelector('#awakDefiSerieW') || {}).value) || 0, r = Math.min(10, parseInt((ov.querySelector('#awakDefiSerieR') || {}).value, 10) || 0);
+      if (w && r) champMax.value = arrAff(r === 1 ? w : w * (1 + r / 30));
+      majDuree();
+    };
+    sel.onchange = function () { ov.removeAttribute('data-palier'); majDepart(); majDuree(); }; majDepart();
+    ov.querySelector('#awakDefiDepart').addEventListener('input', majSerie);
+    champMax.addEventListener('input', function () { ov.removeAttribute('data-palier'); majDuree(); });
+    ov.querySelector('#awakDefiCible').addEventListener('input', function () { ov.removeAttribute('data-palier'); majDuree(); });
     ov.querySelector('#awakDefiGo').onclick = function () {
       var p = sel.value.split('|'), n = p[1], cle = p[0];
-      var depart = e1rm(n, Date.now() - 120 * JOUR);
-      if (!depart) {
-        var w = parseFloat((ov.querySelector('#awakDefiSerieW') || {}).value) || 0, r = Math.min(15, parseInt((ov.querySelector('#awakDefiSerieR') || {}).value, 10) || 0);
-        if (!w || !r) { toast('Indique ta meilleure série récente (charge et répétitions).', 'warning'); return; }
-        depart = versKg(w) * (1 + r / 30);
-      }
+      var estime = e1rm(n, Date.now() - 120 * JOUR);
+      var depart = lireMaxKg();
+      if (!depart) { toast('Indique ton max actuel (ou ta meilleure série récente).', 'warning'); return; }
       var cAff = parseFloat(ov.querySelector('#awakDefiCible').value) || 0;
       if (!cAff) { toast('Indique la charge visée.', 'warning'); return; }
       var cible = versKg(cAff);
       if (cible <= depart) { toast('Tu es déjà à ' + txtCharge(depart) + ' : vise plus haut !', 'info'); return; }
       var dv = ov.querySelector('#awakDefiDate').value;
       var d = { type: 'charge', levee: cle, exo: n, cibleKg: cible, departKg: depart, debut: Date.now(), date: dv ? new Date(dv + 'T12:00').getTime() : 0 };
+      // Max corrigé à la main : les estimations futures suivent la même correction
+      if (estime > 0 && Math.abs(depart - estime) / estime > 0.02) d.facteur = Math.round(Math.min(1.3, Math.max(0.5, depart / estime)) * 1000) / 1000;
       // Objectif très lointain : un palier intermédiaire est proposé
       var E = estimation(d);
       if (!E.atteint && E.semaines > 40 && !ov.getAttribute('data-palier')) {
@@ -411,8 +437,26 @@
   function palierSuivant() {
     var d = lire(); if (!d || d.type !== 'charge') return;
     var act = actuelKg(d), but = d.butFinalKg && d.butFinalKg > act ? d.butFinalKg : act * 1.05;
-    ecrire({ type: 'charge', levee: d.levee, exo: d.exo, cibleKg: versKg(arrAff(versAff(but))), departKg: act, debut: Date.now(), date: 0 });
+    ecrire({ type: 'charge', levee: d.levee, exo: d.exo, cibleKg: versKg(arrAff(versAff(but))), departKg: act, debut: Date.now(), date: 0, facteur: d.facteur });
     rendre();
+  }
+  // Le max estimé ne correspond pas : l'utilisateur donne son vrai max, le défi repart de là
+  function corrigerMax() {
+    var d = lire(); if (!d || d.type !== 'charge') return;
+    var act = actuelKg(d);
+    var ov = feuille('awakDefiMaxFix', entete('Corriger mon max', esc(d.exo))
+      + '<div style="font-size:0.72em;color:#cbd5e1;line-height:1.5;margin-top:8px;">Estimation actuelle : <b style="color:#fff;">' + txtCharge(act) + '</b>. Elle vient de tes séries à plusieurs répétitions et peut être trop haute ou trop basse.</div>'
+      + '<label style="' + LBL + '">TON VRAI MAX (' + unite().toUpperCase() + ')</label><input id="awakDefiMaxFixV" type="number" inputmode="decimal" min="1" value="' + arrAff(versAff(act)) + '">'
+      + '<button id="awakDefiMaxFixGo" style="width:100%;margin-top:14px;padding:14px;border:none;border-radius:13px;background:#22d3ee;color:#04121f;font-weight:900;font-size:0.92em;cursor:pointer;font-family:inherit;">Enregistrer</button>');
+    ov.querySelector('#awakDefiMaxFixGo').onclick = function () {
+      var v = parseFloat(ov.querySelector('#awakDefiMaxFixV').value) || 0;
+      if (!v) { toast('Indique ton max.', 'warning'); return; }
+      var m = versKg(v), brut = e1rm(d.exo, Date.now() - 60 * JOUR);
+      if (m >= d.cibleKg) { toast('Ce max atteint déjà ton but : choisis « Changer » pour viser plus haut.', 'info'); return; }
+      d.departKg = m; d.debut = Date.now();
+      if (brut > 0) d.facteur = Math.round(Math.min(1.3, Math.max(0.5, m / brut)) * 1000) / 1000; else delete d.facteur;
+      ecrire(d); ov.remove(); rendre();
+    };
   }
   function voirCourse() { try { if (window.AwakRun && AwakRun.ouvrir) AwakRun.ouvrir(); else if (typeof switchTab === 'function') switchTab('course'); } catch (e) {} }
   function relancerPlan() {
@@ -433,6 +477,6 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { setTimeout(brancher, 200); });
   else setTimeout(brancher, 200);
 
-  window.AwakMonDefi = { rendre: rendre, creer: creer, lancer: lancer, changer: changer, palierSuivant: palierSuivant,
+  window.AwakMonDefi = { rendre: rendre, creer: creer, lancer: lancer, changer: changer, palierSuivant: palierSuivant, corrigerMax: corrigerMax,
     voirCourse: voirCourse, relancerPlan: relancerPlan, seanceDuJour: seanceDuJour, estimation: estimation, lire: lire, e1rm: e1rm };
 })();

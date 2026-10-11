@@ -3,10 +3,11 @@
    -----------------------------------------------------------------------
    Remplace l'empilement de cartes de l'accueil par 4 blocs, dans un seul
    style (cartes neutres, un accent cyan, aucun halo ni coin lumineux) :
-     1. En-tête    : salutation, nom, date, avatar (changer de profil)
-     2. Aujourd'hui: la séance prévue + UN bouton principal
-     3. Ta semaine : une seule bande de 7 jours + série + muscles à prévoir
-     4. Raccourcis : liste uniforme (Routines, Exercices, Réveil, Douleur…)
+     1. Carte héros : date, « Prêt pour aujourd'hui ? », portrait (changer de
+                     profil), objectif du jour (durée, exercices) + UN bouton
+     2. Deux tuiles : progression (XP en mode jeu, sinon le mois) · semaine
+     3. Une carte   : quête du jour (mode jeu) ou muscles à prévoir
+     4. Raccourcis  : liste uniforme (Routines, Exercices, Réveil, Douleur…)
 
    COMMENT
    • Les anciennes cartes ne sont PAS supprimées : d'autres fonctions y
@@ -117,34 +118,18 @@
         'display:flex;align-items:center;justify-content:center;}' +
       // Conteneurs conditionnels déplacés : vides → aucune marge
       '[data-ahp-extras] > :empty{display:none!important;}' +
-      '[data-ahp-extras] > *{margin-bottom:12px;}';
+      '[data-ahp-extras] > *{margin-bottom:12px;}' +
+      // v1318 : accueil « objectif du jour »
+      '.ahp-kick{font-size:0.7em;color:#94a3b8;font-weight:800;letter-spacing:0.6px;text-transform:uppercase;}' +
+      '.ahp-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;margin-top:8px;font-size:0.8em;color:#e2e8f0;}' +
+      '.ahp-m{display:inline-flex;align-items:center;gap:6px;}' +
+      '.ahp-cta{display:block;width:100%;min-height:auto;border:none;border-radius:12px;padding:15px 14px;font-family:inherit;' +
+        'font-size:0.92em;font-weight:900;letter-spacing:0.6px;cursor:pointer;background:' + ACCENT + ';color:#04121f;}' +
+      '.ahp-cta-s{background:rgba(255,255,255,0.06);color:#e2e8f0;border:1px solid rgba(255,255,255,0.1);}' +
+      '.ahp-tile{display:block;width:100%;min-width:0;min-height:auto;text-align:left;cursor:pointer;font-family:inherit;color:inherit;' +
+        'background:#12161c;border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:13px 13px 12px;box-sizing:border-box;}' +
+      '.ahp-quest{display:block;width:100%;text-align:left;cursor:pointer;font-family:inherit;color:inherit;box-sizing:border-box;}';
     document.head.appendChild(st);
-  }
-
-  // ═══ 1. EN-TÊTE ════════════════════════════════════════════════════
-  function enteteHTML(info) {
-    var p = info.profil || {};
-    var nom = p.name || (document.getElementById('userName') || {}).textContent || '';
-    if (/^\s*(Mon profil|Athlète)\s*$/i.test(nom)) nom = '';
-    var h = new Date().getHours();
-    var salut = h < 5 ? 'Bonne nuit' : h < 12 ? 'Bonjour' : h < 18 ? 'Bon après-midi' : 'Bonsoir';
-    var d = new Date();
-    var date = JOURS_LONG[wIdx(d)] + ' ' + d.getDate() + ' ' + MOIS[d.getMonth()];
-    var avatar = '';
-    try { avatar = (typeof renderAvatar === 'function') ? renderAvatar(p.avatar, 40) : ''; } catch (e) {}
-    if (!avatar) avatar = ico('groupe', 20, '#94a3b8');
-
-    return '<div style="display:flex;align-items:center;gap:12px;margin:2px 2px 14px;">' +
-        '<div style="flex:1;min-width:0;">' +
-          '<div class="ahp-lbl">' + esc(date) + '</div>' +
-          '<div style="font-family:var(--font-display);font-size:1.45em;font-weight:800;color:#f1f5f9;line-height:1.15;margin-top:2px;' +
-            'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(salut) + (nom ? ', ' + esc(nom) : '') + '</div>' +
-        '</div>' +
-        '<button onclick="if(typeof showProfileSelectionModal===\'function\')showProfileSelectionModal()" aria-label="Changer de profil" ' +
-          'data-emoji-keep="1" style="flex-shrink:0;width:44px;height:44px;border-radius:50%;cursor:pointer;padding:0;' +
-          'background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;overflow:hidden;">' +
-          avatar + '</button>' +
-      '</div>';
   }
 
   // ═══ 2. AUJOURD'HUI ════════════════════════════════════════════════
@@ -158,143 +143,7 @@
     return null;
   }
 
-  function conseilDuJour() {
-    try {
-      var dec = (typeof makeIntelligentDecisions === 'function') ? makeIntelligentDecisions() : null;
-      var r = dec && dec.reasoning && dec.reasoning[0];
-      if (!r) return '';
-      return String(r).replace(/<[^>]*>/g, '').trim();
-    } catch (e) { return ''; }
-  }
 
-  function aujourdhuiHTML(info, pl) {
-    var id = info.id;
-    var auj = seanceDu(pl, id, new Date());
-    var aPlan = Object.keys(pl.plan || {}).length > 0;
-    var titre, sous = '', boutons = '', etiquette;
-
-    if (auj) {
-      var s = auj.s;
-      etiquette = auj.faite ? 'Séance du jour · faite' : 'Séance du jour';
-      titre = s.label || s.muscles.slice(0, 3).join(' · ');
-      var bits = [];
-      if (s.label) bits.push(s.muscles.slice(0, 4).join(' · '));
-      if (auj.heure) bits.push(fmtH(auj.heure));
-      sous = bits.join('  ·  ');
-      // Le conseil vient du moteur intelligent : hors-sujet si on suit une routine ou un programme
-      var conseil = (s.source === 'routine' || s.source === 'programme') ? '' : conseilDuJour();
-      // Pas de redite : « Plan du jour : Tirage » sous le titre « Tirage »
-      if (conseil && (conseil.indexOf(titre) >= 0 || /^plan du jour/i.test(conseil))) conseil = '';
-      var go = s.routineId
-        ? 'if(typeof startRoutineById===\'function\')startRoutineById(\'' + esc(s.routineId) + '\')'
-        : (s.source === 'programme' && s.planWeek
-          ? 'if(typeof startPlanSession===\'function\')startPlanSession(' + (+s.planWeek) + ',' + (+s.planIdx) + ')'
-          : 'switchTab(\'workouts\');window.scrollTo(0,0)');
-      boutons = auj.faite
-        ? '<button class="ahp-btn ahp-btn-s" onclick="switchTab(\'history\')">Voir ma progression</button>'
-        : '<button class="ahp-btn ahp-btn-p" onclick="' + go + '">' + ico('halter', 18, '#04121f') + 'Démarrer la séance</button>';
-      if (conseil && !auj.faite) {
-        sous += '<div style="margin-top:8px;font-size:0.92em;color:#64748b;">' + esc(conseil) + '</div>';
-      }
-    } else if (aPlan) {
-      etiquette = 'Aujourd\'hui';
-      titre = 'Jour de repos';
-      var pr = prochaine(pl, id);
-      if (pr) {
-        var quand = pr.k === 1 ? 'demain' : JOURS_LONG[wIdx(pr.d)].toLowerCase();
-        sous = 'Prochaine séance ' + quand + ' : ' + esc(pr.e.s.label || pr.e.s.muscles.slice(0, 2).join(' · ')) +
-          (pr.e.heure ? ' à ' + esc(fmtH(pr.e.heure)) : '');
-      } else {
-        sous = 'La récupération fait partie de l\'entraînement.';
-      }
-      boutons =
-        '<div style="display:flex;gap:8px;">' +
-          '<button class="ahp-btn ahp-btn-s" style="flex:1;" onclick="if(typeof showMorningRoutineModal===\'function\')showMorningRoutineModal()">' +
-            ico('soleil', 17, '#fbbf24') + 'Mobilité douce</button>' +
-          '<button class="ahp-btn ahp-btn-s" style="flex:1;" onclick="switchTab(\'workouts\');window.scrollTo(0,0)">Séance libre</button>' +
-        '</div>';
-    } else {
-      etiquette = 'Aujourd\'hui';
-      titre = 'Aucune séance planifiée';
-      sous = 'Lance une séance maintenant, ou organise ta semaine.';
-      boutons =
-        '<button class="ahp-btn ahp-btn-p" onclick="switchTab(\'workouts\');window.scrollTo(0,0)">' + ico('halter', 18, '#04121f') + 'Démarrer une séance</button>' +
-        '<button class="ahp-btn ahp-btn-s" style="margin-top:8px;" onclick="if(typeof openManualPlanEditor===\'function\')openManualPlanEditor();else switchTab(\'calendar\')">' +
-          ico('calendrier', 17, '#94a3b8') + 'Planifier ma semaine</button>';
-    }
-
-    return '<div class="ahp-card">' +
-        '<div class="ahp-lbl" style="color:' + (auj && !auj.faite ? ACCENT : '#94a3b8') + ';">' + esc(etiquette) + '</div>' +
-        '<div style="font-family:var(--font-display);font-size:1.3em;font-weight:800;color:#f1f5f9;margin-top:4px;line-height:1.2;">' + esc(titre) + '</div>' +
-        (sous ? '<div style="font-size:0.8em;color:#94a3b8;margin-top:5px;line-height:1.45;">' + sous + '</div>' : '') +
-        '<div style="margin-top:14px;">' + boutons + '</div>' +
-      '</div>';
-  }
-
-  // ═══ 3. TA SEMAINE ═════════════════════════════════════════════════
-  function semaineHTML(info, pl, hist) {
-    var id = info.id;
-    var today = new Date();
-    var debut = lundiDe(today);
-    var prevues = 0, faites = 0, cases = '';
-    var faitesDates = {};
-    hist.forEach(function (w) { var d = dateSeance(w); if (!isNaN(d)) faitesDates[ymd(d)] = true; });
-
-    for (var i = 0; i < 7; i++) {
-      var d = new Date(debut.getFullYear(), debut.getMonth(), debut.getDate() + i);
-      var e = seanceDu(pl, id, d);
-      var fait = !!faitesDates[ymd(d)];
-      var estAuj = ymd(d) === ymd(today);
-      var passe = d < new Date(today.getFullYear(), today.getMonth(), today.getDate());
-      if (e) { prevues++; if (fait) faites++; }
-
-      // État de la pastille : faite (plein) · prévue (contour) · repos (discret)
-      var bg = 'transparent', bord = 'rgba(255,255,255,0.06)', col = '#475569', contenu = String(d.getDate());
-      if (fait) { bg = ACCENT; bord = ACCENT; col = '#04121f'; contenu = ico('valide', 15, '#04121f') || '✓'; }
-      else if (e) { bord = passe ? 'rgba(248,113,113,0.45)' : 'rgba(34,211,238,0.55)'; col = '#e2e8f0'; }
-      if (estAuj && !fait) { bord = ACCENT; col = ACCENT; }
-
-      cases += '<div style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:6px;">' +
-          '<span style="font-size:0.62em;font-weight:700;color:' + (estAuj ? ACCENT : '#64748b') + ';">' + LETTRES[i] + '</span>' +
-          '<span style="width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;' +
-            'background:' + bg + ';border:1.5px solid ' + bord + ';color:' + col + ';font-size:0.8em;font-weight:800;' +
-            'font-family:var(--font-display);">' + contenu + '</span>' +
-        '</div>';
-    }
-
-    // Séances faites cette semaine (même hors planning)
-    var total = 0;
-    hist.forEach(function (w) { var d = dateSeance(w); if (!isNaN(d) && d >= debut) total++; });
-    var sr = serie(hist);
-
-    // Muscles pas encore travaillés depuis lundi
-    var compte = {};
-    hist.forEach(function (w) {
-      if (dateSeance(w) < debut) return;
-      try {
-        if (typeof accumulateWeightedMuscles === 'function') accumulateWeightedMuscles(w, compte);
-        else (w.musclesWorked || w.muscles || []).forEach(function (m) { compte[m] = (compte[m] || 0) + 1; });
-      } catch (e) {}
-    });
-    var aPrevoir = MUSCLES_CLES.filter(function (m) { return !compte[m]; });
-
-    var chiffres = [];
-    chiffres.push('<b style="color:#f1f5f9;">' + (prevues ? faites + '/' + prevues : total) + '</b> ' + (prevues ? 'séances prévues' : 'séance' + (total > 1 ? 's' : '')));
-    if (sr > 0) chiffres.push('<b style="color:#f1f5f9;">' + sr + '</b> jour' + (sr > 1 ? 's' : '') + ' de suite');
-
-    return '<div class="ahp-card" onclick="switchTab(\'calendar\')" style="cursor:pointer;">' +
-        '<div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:12px;">' +
-          '<span style="font-size:0.95em;font-weight:800;color:#f1f5f9;">Ta semaine</span>' +
-          '<span style="font-size:0.72em;color:#94a3b8;">' + chiffres.join('  ·  ') + '</span>' +
-        '</div>' +
-        sourceChipHTML(id) +
-        '<div style="display:flex;gap:2px;">' + cases + '</div>' +
-        (aPrevoir.length && aPrevoir.length < MUSCLES_CLES.length
-          ? '<div style="margin-top:12px;font-size:0.72em;color:#64748b;line-height:1.45;">Pas encore travaillés : ' +
-              '<span style="color:#94a3b8;">' + esc(aPrevoir.slice(0, 5).join(', ')) + (aPrevoir.length > 5 ? '…' : '') + '</span></div>'
-          : '') +
-      '</div>';
-  }
 
   // ── Choix du planning suivi (routine / plan / programme / auto) ──
   var SRC_LIB = {
@@ -303,21 +152,6 @@
     ia:        { t: 'Plan de la semaine', d: 'Plan intelligent, manuel ou programme star',     ic: 'eclair' },
     programme: { t: 'Programme',         d: 'La semaine en cours de ton programme',           ic: 'trophee' }
   };
-  function sourceChipHTML(id) {
-    var P = window.AwakCalPlan;
-    if (!P || !P.sourcePref) return '';
-    var v = P.sourcePref(id), L = SRC_LIB[v] || SRC_LIB.auto;
-    var nom = L.t;
-    if (v === 'programme') { try { var dp = P.sourcesDispo(id); if (dp.nomProgramme) nom = dp.nomProgramme; } catch (e) {} }
-    return '<button onclick="event.stopPropagation();awakChoisirPlanning()" style="display:flex;align-items:center;gap:7px;width:100%;min-height:auto;' +
-        'margin:0 0 12px;padding:7px 10px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);' +
-        'color:#cbd5e1;font-family:inherit;font-size:0.74em;font-weight:700;cursor:pointer;text-align:left;">' +
-        ico(L.ic, 15, ACCENT) +
-        '<span style="color:#64748b;">Planning suivi :</span>' +
-        '<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#f1f5f9;">' + esc(nom) + '</span>' +
-        '<span style="color:' + ACCENT + ';">Changer</span></button>';
-  }
-
   window.awakChoisirPlanning = function () {
     var P = window.AwakCalPlan;
     if (!P || !P.sourcePref) return;
@@ -393,6 +227,260 @@
       '</div>';
   }
 
+  // ═══ v1318 : ACCUEIL « OBJECTIF DU JOUR » ══════════════════════════
+  //   Carte héros (en-tête + objectif du jour + UN bouton) · 2 tuiles
+  //   (progression, semaine) · 1 carte quête (mode jeu) ou muscles à prévoir.
+  function jeuActif() { try { return typeof window.rpgEnabled === 'function' && window.rpgEnabled(); } catch (e) { return false; } }
+  function niveauJeu() {
+    try {
+      if (!jeuActif() || typeof window.rpgLoad !== 'function') return null;
+      var xp = Math.max(0, Math.floor(((window.rpgLoad() || {}).profile || {}).xp || 0));
+      var n = window.rpgLevelFromXP(xp), a = window.rpgXPForLevel(n), b = window.rpgXPForLevel(n + 1);
+      return { n: n, dans: xp - a, pas: Math.max(1, b - a) };
+    } catch (e) { return null; }
+  }
+  function objectifHebdo() {
+    try { var up = (typeof getUserProfile === 'function') ? (getUserProfile() || {}) : {}; return Math.max(1, parseInt(up.weeklyGoal, 10) || 3); } catch (e) { return 3; }
+  }
+  function lireJSON(cle, def) { try { var v = JSON.parse(localStorage.getItem(cle) || 'null'); return v == null ? def : v; } catch (e) { return def; } }
+  function fourchette(min) {
+    var r5 = function (x) { return Math.max(5, Math.round(x / 5) * 5); };
+    var lo = r5(min * 0.85), hi = r5(min * 1.15);
+    if (hi <= lo) hi = lo + 5;
+    return lo + '–' + hi + ' min';
+  }
+  // Durée et nombre d'exercices d'une séance prévue (quand on peut le savoir)
+  function metaSeance(id, s) {
+    var exos = null;
+    try {
+      if (s.routineId) {
+        var r = (lireJSON('routines_' + id, []) || []).filter(function (x) { return x && x.id === s.routineId; })[0];
+        if (r) exos = (r.exercises || []).filter(function (e) { return e && !e.isRest; });
+      } else if (s.source === 'programme') {
+        var o = lireJSON('activePlan_' + id, null), sem = o && o.weeks && o.weeks[(+s.planWeek || 1) - 1];
+        var se = sem && sem.sessions && sem.sessions[+s.planIdx || 0];
+        if (se && se.exercises) exos = se.exercises.map(function (n) { return typeof n === 'string' ? { name: n } : n; });
+      }
+    } catch (e) {}
+    if (!exos || !exos.length) return { exos: 0, duree: '' };
+    var repos = parseInt(localStorage.getItem('fitproGlobalRest') || '90', 10) || 90, sec = 0;
+    exos.forEach(function (e) {
+      var series = parseInt(e.sets, 10) || 3;
+      var effort = e.mode === 'timer' ? (parseInt(e.duration, 10) || 40) : 40;
+      sec += series * (effort + repos);
+    });
+    return { exos: exos.length, duree: fourchette(sec / 60) };
+  }
+
+  function lienAutre() {
+    var P = window.AwakCalPlan, plan = '';
+    try {
+      if (P && P.sourcePref) {
+        var id = getCurrentProfileId(), v = P.sourcePref(id), nom = (SRC_LIB[v] || SRC_LIB.auto).t;
+        if (v === 'programme') { var dp = P.sourcesDispo(id); if (dp.nomProgramme) nom = dp.nomProgramme; }
+        plan = '<button onclick="awakChoisirPlanning()" style="min-height:auto;padding:4px 0;background:none;border:none;cursor:pointer;font-family:inherit;' +
+          'font-size:0.74em;color:#94a3b8;display:inline-flex;align-items:center;gap:5px;max-width:52%;">' +
+          '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Planning : <b style="color:#e2e8f0;">' + esc(nom) + '</b></span><span style="color:' + ACCENT + ';">›</span></button>';
+      }
+    } catch (e) {}
+    return '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:9px;">' +
+        '<button onclick="awakAutreActivite()" style="min-height:auto;padding:4px 0;background:none;border:none;cursor:pointer;font-family:inherit;' +
+          'font-size:0.76em;color:#cbd5e1;text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(203,213,225,0.35);">Ou choisir une autre activité</button>' +
+        plan +
+      '</div>';
+  }
+
+  function heroHTML(info, pl, hist) {
+    var p = info.profil || {}, id = info.id;
+    var nom = p.name || (document.getElementById('userName') || {}).textContent || '';
+    if (/^\s*(Mon profil|Athlète)\s*$/i.test(nom)) nom = '';
+    var d = new Date();
+    var date = JOURS_LONG[wIdx(d)] + ' ' + d.getDate() + ' ' + MOIS[d.getMonth()];
+    var faiteAuj = hist.some(function (w) { return ymd(dateSeance(w)) === ymd(d); });
+    var niv = niveauJeu();
+    var but = ((document.getElementById('userGoal') || {}).textContent || '').trim();
+    var sousTitre = [nom, niv ? 'Niveau ' + niv.n : (but && but !== '-' ? but : '')].filter(Boolean).join(' · ');
+
+    // Portrait : le chasseur en mode jeu, sinon l'avatar du profil
+    var portrait = '';
+    try { portrait = (typeof renderAvatar === 'function') ? renderAvatar(p.avatar, 50) : ''; } catch (e) {}
+    if (niv) {
+      var g = localStorage.getItem('fitproAvatarGender') === 'femme' ? 'femme' : 'homme';
+      // Image absente : on revient à l'avatar du profil
+      portrait = '<img src="images/avatars/avatar_' + g + '.png" alt="" data-fb="' + esc(portrait) + '" style="width:100%;height:100%;object-fit:cover;object-position:50% 12%;display:block;" ' +
+        'onerror="this.parentNode.innerHTML=this.getAttribute(\'data-fb\')">';
+    }
+
+    // Objectif du jour
+    var auj = seanceDu(pl, id, d), aPlan = Object.keys(pl.plan || {}).length > 0;
+    var etiq = 'TON OBJECTIF DU JOUR', titre, meta = '', bouton;
+    var go = 'switchTab(\'workouts\');window.scrollTo(0,0)';
+    if (auj) {
+      var s = auj.s;
+      titre = s.label || s.muscles.slice(0, 3).join(' · ');
+      var M = metaSeance(id, s), bits = [];
+      if (M.duree) bits.push('<span class="ahp-m">' + ico('chrono', 15, '#cbd5e1') + '<span>' + M.duree + '</span></span>');
+      if (M.exos) bits.push('<span class="ahp-m">' + ico('halter', 15, '#cbd5e1') + '<span>' + M.exos + ' exercice' + (M.exos > 1 ? 's' : '') + '</span></span>');
+      else if (s.label) bits.push('<span class="ahp-m">' + ico('muscle', 15, '#cbd5e1') + '<span>' + esc(s.muscles.slice(0, 3).join(' · ')) + '</span></span>');
+      if (auj.heure) bits.push('<span class="ahp-m">' + ico('calendrier', 15, '#cbd5e1') + '<span>' + esc(fmtH(auj.heure)) + '</span></span>');
+      meta = bits.join('');
+      if (s.routineId) go = 'if(typeof startRoutineById===\'function\')startRoutineById(\'' + esc(s.routineId) + '\')';
+      else if (s.source === 'programme' && s.planWeek) go = 'if(typeof startPlanSession===\'function\')startPlanSession(' + (+s.planWeek) + ',' + (+s.planIdx) + ')';
+      if (auj.faite) etiq = 'TON OBJECTIF DU JOUR · ACCOMPLI';
+      bouton = auj.faite
+        ? '<button class="ahp-cta ahp-cta-s" onclick="switchTab(\'history\')">VOIR MA PROGRESSION</button>'
+        : '<button class="ahp-cta" onclick="' + go + '">COMMENCER MA SÉANCE</button>';
+    } else if (aPlan) {
+      titre = 'Jour de repos';
+      var pr = prochaine(pl, id);
+      meta = '<span>' + (pr
+        ? 'Prochaine séance ' + (pr.k === 1 ? 'demain' : JOURS_LONG[wIdx(pr.d)].toLowerCase()) + ' : ' + esc(pr.e.s.label || pr.e.s.muscles.slice(0, 2).join(' · '))
+        : 'La récupération fait partie de l\'entraînement.') + '</span>';
+      bouton = '<button class="ahp-cta" onclick="if(typeof showMorningRoutineModal===\'function\')showMorningRoutineModal()">MOBILITÉ DOUCE</button>';
+    } else if (faiteAuj) {
+      etiq = 'TON OBJECTIF DU JOUR · ACCOMPLI';
+      titre = 'Séance faite';
+      meta = '<span>Bien joué. Le repos fait partie du progrès.</span>';
+      bouton = '<button class="ahp-cta ahp-cta-s" onclick="switchTab(\'history\')">VOIR MA PROGRESSION</button>';
+    } else {
+      titre = 'Séance du Système';
+      meta = '<span class="ahp-m">' + ico('eclair', 15, '#cbd5e1') + '<span>Choisie selon ta récupération</span></span>';
+      bouton = '<button class="ahp-cta" onclick="' + go + '">COMMENCER MA SÉANCE</button>';
+    }
+
+    return '<div class="ahp-card" style="padding:16px 16px 12px;">' +
+        '<div style="display:flex;align-items:flex-start;gap:12px;">' +
+          '<div style="flex:1;min-width:0;padding-top:2px;">' +
+            '<div class="ahp-kick">' + esc(date) + '</div>' +
+            '<div style="font-family:var(--font-display);font-size:1.38em;font-weight:800;color:#f8fafc;line-height:1.15;margin-top:5px;">' +
+              (faiteAuj ? 'Bien joué aujourd\'hui' : 'Prêt pour aujourd\'hui ?') + '</div>' +
+            (sousTitre ? '<div style="font-size:0.8em;color:#cbd5e1;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(sousTitre) + '</div>' : '') +
+          '</div>' +
+          '<button onclick="if(typeof showProfileSelectionModal===\'function\')showProfileSelectionModal()" aria-label="Changer de profil" data-emoji-keep="1" ' +
+            'style="flex-shrink:0;width:74px;height:74px;min-height:auto;padding:0;border-radius:16px;overflow:hidden;cursor:pointer;' +
+            'background:#0b0e13;border:1px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;">' + portrait + '</button>' +
+        '</div>' +
+        '<div style="height:1px;background:rgba(255,255,255,0.06);margin:14px -16px 14px;"></div>' +
+        '<div class="ahp-kick" style="color:' + (auj && !auj.faite ? ACCENT : '#94a3b8') + ';">' + etiq + '</div>' +
+        '<div style="font-family:var(--font-display);font-size:1.18em;font-weight:800;color:#f8fafc;margin-top:6px;line-height:1.2;">' + esc(titre) + '</div>' +
+        (meta ? '<div class="ahp-meta">' + meta + '</div>' : '') +
+        '<div style="margin-top:14px;">' + bouton + '</div>' +
+        lienAutre() +
+      '</div>';
+  }
+
+  // ── Tuiles : progression + semaine ──
+  function tuilesHTML(info, pl, hist) {
+    var id = info.id, today = new Date(), debut = lundiDe(today);
+    var niv = niveauJeu();
+    var t1;
+    if (niv) {
+      t1 = tuile('eclair', ACCENT, 'PROGRESSION', niv.dans + ' / ' + niv.pas + ' XP', barreHTML(niv.dans / niv.pas), 'Niveau ' + niv.n, 'switchTab(\'game\')');
+    } else {
+      var d1 = new Date(today.getFullYear(), today.getMonth(), 1), mois = 0;
+      hist.forEach(function (w) { if (dateSeance(w) >= d1) mois++; });
+      var visee = objectifHebdo() * 4, sr = serie(hist);
+      t1 = tuile('stats', ACCENT, 'CE MOIS-CI', mois + ' séance' + (mois > 1 ? 's' : ''), barreHTML(mois / visee),
+        sr > 0 ? sr + ' jour' + (sr > 1 ? 's' : '') + ' de suite' : 'Objectif : ' + visee + ' ce mois', 'switchTab(\'history\')');
+    }
+    // Semaine : séances faites / objectif (séances prévues, sinon objectif du profil)
+    var prevues = 0, prevuesFaites = 0, faites = {}, total = 0, points = '';
+    hist.forEach(function (w) { var d = dateSeance(w); if (!isNaN(d) && d >= debut) { total++; faites[ymd(d)] = true; } });
+    for (var i = 0; i < 7; i++) {
+      var d = new Date(debut.getFullYear(), debut.getMonth(), debut.getDate() + i);
+      var e = seanceDu(pl, id, d), f = !!faites[ymd(d)], estAuj = ymd(d) === ymd(today);
+      if (e) { prevues++; if (f) prevuesFaites++; }
+      points += '<span title="' + LETTRES[i] + '" style="width:9px;height:9px;border-radius:50%;box-sizing:border-box;' +
+        (f ? 'background:' + ACCENT + ';' : 'border:1.5px solid ' + (estAuj ? ACCENT : (e ? 'rgba(167,139,250,0.8)' : 'rgba(255,255,255,0.14)')) + ';') + '"></span>';
+    }
+    // Avec un planning : séances prévues faites / prévues. Sans : séances faites / objectif du profil.
+    var visee2 = prevues || objectifHebdo(), fait2 = prevues ? prevuesFaites : total, reste = visee2 - fait2;
+    var sous = reste <= 0 ? 'Objectif atteint' : (reste === 1 ? 'Plus qu\'une pour l\'objectif' : 'Encore ' + reste + ' pour l\'objectif');
+    var t2 = tuile('calendrier', '#a78bfa', 'CETTE SEMAINE', Math.min(fait2, 99) + ' / ' + visee2 + ' séance' + (visee2 > 1 ? 's' : ''),
+      '<div style="display:flex;justify-content:space-between;margin:9px 0 2px;">' + points + '</div>', sous, 'switchTab(\'calendar\')');
+    return '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">' + t1 + t2 + '</div>';
+  }
+  function barreHTML(r) {
+    var pct = Math.max(0, Math.min(100, Math.round((r || 0) * 100)));
+    return '<div style="height:6px;border-radius:99px;background:rgba(255,255,255,0.08);overflow:hidden;margin:9px 0 2px;">' +
+      '<div style="height:100%;width:' + pct + '%;background:' + ACCENT + ';border-radius:99px;"></div></div>';
+  }
+  function tuile(icone, couleur, lbl, valeur, milieu, sous, action) {
+    return '<button class="ahp-tile" onclick="' + action + '">' +
+        '<span style="display:flex;">' + ico(icone, 18, couleur) + '</span>' +
+        '<span class="ahp-kick" style="display:block;margin-top:9px;">' + lbl + '</span>' +
+        '<span style="display:block;font-family:var(--font-display);font-size:1.02em;font-weight:800;color:#f8fafc;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + valeur + '</span>' +
+        milieu +
+        '<span style="display:block;font-size:0.7em;color:#a3b1c2;margin-top:5px;">' + esc(sous) + '</span>' +
+      '</button>';
+  }
+
+  // ── Carte quête (mode jeu) ou muscles à prévoir ──
+  function queteHTML(info, hist) {
+    if (jeuActif() && typeof window.rpgGetDailyQuests === 'function') {
+      var q = [];
+      try { q = window.rpgGetDailyQuests() || []; } catch (e) {}
+      if (q.length) {
+        var a = q.filter(function (x) { return !x.done; })[0];
+        var reste = q._timeLeft || '';
+        var texte = a
+          ? esc(a.name) + ' <span style="color:#94a3b8;">(' + (a.progress || 0) + ' / ' + a.target + ')</span>'
+          : 'Les quêtes du jour sont accomplies. De nouvelles arrivent demain.';
+        var detail = a ? '+' + (a.xpReward || 0) + ' XP' + (reste ? ' · ' + esc(reste) : '') : (q.length + ' / ' + q.length + ' terminées');
+        return '<button class="ahp-card ahp-quest" onclick="switchTab(\'game\')">' +
+            '<span style="display:flex;align-items:center;gap:9px;">' + ico('bouclier', 19, '#a78bfa') +
+              '<span style="font-size:0.95em;font-weight:800;color:#f8fafc;">' + (a ? 'Une quête à accomplir' : 'Quêtes du jour accomplies') + '</span></span>' +
+            '<span style="display:block;font-size:0.82em;color:#e2e8f0;margin-top:8px;line-height:1.45;">' + texte + '</span>' +
+            '<span style="display:block;font-size:0.72em;color:#94a3b8;margin-top:5px;">' + detail + '</span>' +
+          '</button>';
+      }
+    }
+    // Hors jeu : les grands muscles pas encore travaillés depuis lundi
+    var debut = lundiDe(new Date()), compte = {};
+    hist.forEach(function (w) {
+      if (dateSeance(w) < debut) return;
+      try {
+        if (typeof accumulateWeightedMuscles === 'function') accumulateWeightedMuscles(w, compte);
+        else (w.musclesWorked || w.muscles || []).forEach(function (m) { compte[m] = (compte[m] || 0) + 1; });
+      } catch (e) {}
+    });
+    var aPrevoir = MUSCLES_CLES.filter(function (m) { return !compte[m]; });
+    if (!aPrevoir.length || aPrevoir.length === MUSCLES_CLES.length) return '';
+    return '<div class="ahp-card ahp-quest" style="cursor:default;">' +
+        '<span style="display:flex;align-items:center;gap:9px;">' + ico('cible', 19, '#a78bfa') +
+          '<span style="font-size:0.95em;font-weight:800;color:#f8fafc;">À prévoir cette semaine</span></span>' +
+        '<span style="display:block;font-size:0.82em;color:#e2e8f0;margin-top:8px;line-height:1.45;">Pas encore travaillés : ' +
+          esc(aPrevoir.slice(0, 5).join(', ')) + (aPrevoir.length > 5 ? '…' : '') + '</span>' +
+      '</div>';
+  }
+
+  // ── « Ou choisir une autre activité » ──
+  window.awakAutreActivite = function () {
+    var vieux = document.getElementById('awakAutreModal'); if (vieux) vieux.remove();
+    var ov = document.createElement('div');
+    ov.id = 'awakAutreModal';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:12000;background:rgba(0,0,0,0.75);display:flex;align-items:flex-end;justify-content:center;';
+    ov.onclick = function (e) { if (e.target === ov) ov.remove(); };
+    var f = 'document.getElementById(\'awakAutreModal\').remove();';
+    var L = [
+      ['halter', ACCENT, 'Séance libre', 'Compose-la, ou laisse le Système choisir', f + 'switchTab(\'workouts\');window.scrollTo(0,0)'],
+      ['liste', '#93c5fd', 'Mes routines', 'Tes séances enregistrées', f + 'switchTab(\'routines\')'],
+      ['course', '#93c5fd', 'Course, marche ou vélo', 'Sortie au GPS ou sur tapis', f + 'switchTab(\'course\')'],
+      ['soleil', '#fbbf24', 'Réveil du corps', 'Mobilité douce, sans matériel', f + 'if(typeof showMorningRoutineModal===\'function\')showMorningRoutineModal()'],
+      ['calendrier', '#a78bfa', 'Planifier ma semaine', 'Choisir quoi faire chaque jour', f + 'if(typeof openManualPlanEditor===\'function\')openManualPlanEditor();else switchTab(\'calendar\')']
+    ].map(function (x) {
+      return '<button class="ahp-row" onclick="' + x[4] + '">' +
+          '<span class="ahp-ic">' + ico(x[0], 18, x[1]) + '</span>' +
+          '<span style="flex:1;min-width:0;"><span style="display:block;font-size:0.9em;font-weight:700;color:#f1f5f9;">' + x[2] + '</span>' +
+          '<span style="display:block;font-size:0.76em;color:#a3b1c2;margin-top:2px;">' + x[3] + '</span></span>' +
+          '<span style="color:#475569;font-size:1.2em;">›</span></button>';
+    }).join('');
+    ov.innerHTML = '<div style="width:100%;max-width:480px;background:#12161c;border:1px solid rgba(255,255,255,0.08);border-radius:18px 18px 0 0;padding:16px 16px calc(env(safe-area-inset-bottom,0px) + 18px);box-sizing:border-box;">' +
+        '<div style="width:40px;height:4px;background:rgba(255,255,255,0.12);border-radius:99px;margin:0 auto 12px;"></div>' +
+        '<div style="font-size:1.02em;font-weight:800;color:#f1f5f9;margin-bottom:6px;">Une autre activité</div>' + L + '</div>';
+    document.body.appendChild(ov);
+  };
+
   // ═══ MONTAGE ═══════════════════════════════════════════════════════
   // Conteneurs conditionnels conservés (déplacés dans la nouvelle page).
   var AVANT = ['resumeSessionCard', 'recoveryBannerContainer', 'familyNudgeInbox', 'youthSafetyBanner'];
@@ -436,9 +524,10 @@
       var info = profilActif();
       var pl = planning(info.id);
       var hist = historique(info.id);
-      document.getElementById('ahpEntete').innerHTML = enteteHTML(info);
-      document.getElementById('ahpAujourdhui').innerHTML = aujourdhuiHTML(info, pl);
-      document.getElementById('ahpSemaine').innerHTML = semaineHTML(info, pl, hist);
+      // v1318 : carte héros · tuiles · quête
+      document.getElementById('ahpEntete').innerHTML = heroHTML(info, pl, hist);
+      document.getElementById('ahpAujourdhui').innerHTML = tuilesHTML(info, pl, hist);
+      document.getElementById('ahpSemaine').innerHTML = queteHTML(info, hist);
       document.getElementById('ahpRaccourcis').innerHTML = raccourcisHTML();
     } catch (e) { try { console.warn('AwakHomePro', e); } catch (x) {} }
   }
