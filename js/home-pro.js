@@ -304,7 +304,12 @@
     // Portrait : le chasseur en mode jeu, sinon l'avatar du profil
     var portrait = '';
     try { portrait = (typeof renderAvatar === 'function') ? renderAvatar(p.avatar, 50) : ''; } catch (e) {}
-    if (niv) {
+    var srcPortrait = (typeof window.awakPortraitSrc === 'function') ? window.awakPortraitSrc(p.avatar) : '';
+    if (srcPortrait) {
+      // v1320 : portrait choisi par le membre → plein cadre
+      portrait = '<img src="' + srcPortrait + '" alt="" data-fb="' + esc(portrait) + '" style="width:100%;height:100%;object-fit:cover;display:block;" ' +
+        'onerror="this.parentNode.innerHTML=this.getAttribute(\'data-fb\')">';
+    } else if (niv) {
       var g = localStorage.getItem('fitproAvatarGender') === 'femme' ? 'femme' : 'homme';
       // Image absente : on revient à l'avatar du profil
       portrait = '<img src="images/avatars/avatar_' + g + '.png" alt="" data-fb="' + esc(portrait) + '" style="width:100%;height:100%;object-fit:cover;object-position:50% 12%;display:block;" ' +

@@ -9,6 +9,8 @@
    ═══════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
+  // v1320 : avatars (icônes « av: » et portraits) rendus en image, pas en texte brut
+  function _avD(a, t) { try { if (typeof window.renderAvatar === 'function') return window.renderAvatar(a || '', t); } catch (e) {} return a || ''; }
 
   var DUO_KEY = 'awakDuo';   // GLOBALE : partagée entre les 2 profils liés.
 
@@ -268,7 +270,7 @@
       if (!cands.length) return '';
       var opts = cands.map(function (p) {
         return '<button onclick="AwakDuoLink(\'' + p.id + '\')" style="flex:1;min-width:110px;padding:11px 8px;border:1px solid rgba(236,72,153,0.3);border-radius:10px;cursor:pointer;background:rgba(236,72,153,0.08);color:#e2e8f0;font-size:0.78em;font-weight:700;">'
-          + (p.avatar || '🙂') + ' ' + esc(p.name) + '</button>';
+          + _avD(p.avatar, 20) + ' ' + esc(p.name) + '</button>';
       }).join('');
       return '<div style="background:linear-gradient(160deg,#1a1018,#0d0d12);border:1px solid rgba(236,72,153,0.25);border-radius:18px;padding:18px;margin-bottom:14px;">'
         + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;"><span style="font-size:1.6em;">💞</span><div><div style="font-size:0.62em;font-weight:800;letter-spacing:0.5px;color:#ec4899;">DÉFIS DE DUO</div><div style="font-size:1em;font-weight:900;color:#fff;">Formez un duo</div></div></div>'
@@ -297,7 +299,7 @@
     return '<div style="background:linear-gradient(160deg,#1a1018,#0d0d12);border:1px solid rgba(236,72,153,0.28);border-radius:18px;padding:18px;margin-bottom:14px;box-shadow:0 4px 24px rgba(236,72,153,0.1);">'
       // En-tête duo
       + '<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">'
-      +   '<div style="display:flex;align-items:center;font-size:1.5em;">' + (p.a.avatar || '🙂') + '<span style="font-size:0.7em;margin:0 2px;color:#ec4899;">💞</span>' + (p.b.avatar || '🙂') + '</div>'
+      +   '<div style="display:flex;align-items:center;font-size:1.5em;">' + _avD(p.a.avatar, 22) + '<span style="font-size:0.7em;margin:0 2px;color:#ec4899;">💞</span>' + _avD(p.b.avatar, 22) + '</div>'
       +   '<div style="flex:1;min-width:0;">'
       +     '<div style="font-size:0.62em;font-weight:800;letter-spacing:0.5px;color:#ec4899;">DUO ' + esc(p.a.name) + ' & ' + esc(p.b.name) + '</div>'
       +     '<div style="font-size:0.98em;font-weight:900;color:#fff;">' + p.title.emoji + ' ' + esc(p.title.title) + ' <span style="font-size:0.75em;color:#94a3b8;">· niv. ' + p.level + '</span></div>'
@@ -314,8 +316,8 @@
       + '</div>'
       // Détail des contributions
       + '<div style="display:flex;gap:8px;margin-bottom:12px;">'
-      +   '<div style="flex:1;text-align:center;padding:8px;background:rgba(255,255,255,0.03);border-radius:10px;"><div style="font-size:0.7em;color:#94a3b8;">' + (p.a.avatar || '🙂') + ' ' + esc(p.a.name) + '</div><div style="font-size:0.85em;font-weight:800;color:#fff;">' + p.stats.a.sessions + ' séance' + (p.stats.a.sessions > 1 ? 's' : '') + '</div></div>'
-      +   '<div style="flex:1;text-align:center;padding:8px;background:rgba(255,255,255,0.03);border-radius:10px;"><div style="font-size:0.7em;color:#94a3b8;">' + (p.b.avatar || '🙂') + ' ' + esc(p.b.name) + '</div><div style="font-size:0.85em;font-weight:800;color:#fff;">' + p.stats.b.sessions + ' séance' + (p.stats.b.sessions > 1 ? 's' : '') + '</div></div>'
+      +   '<div style="flex:1;text-align:center;padding:8px;background:rgba(255,255,255,0.03);border-radius:10px;"><div style="font-size:0.7em;color:#94a3b8;">' + _avD(p.a.avatar, 22) + ' ' + esc(p.a.name) + '</div><div style="font-size:0.85em;font-weight:800;color:#fff;">' + p.stats.a.sessions + ' séance' + (p.stats.a.sessions > 1 ? 's' : '') + '</div></div>'
+      +   '<div style="flex:1;text-align:center;padding:8px;background:rgba(255,255,255,0.03);border-radius:10px;"><div style="font-size:0.7em;color:#94a3b8;">' + _avD(p.b.avatar, 22) + ' ' + esc(p.b.name) + '</div><div style="font-size:0.85em;font-weight:800;color:#fff;">' + p.stats.b.sessions + ' séance' + (p.stats.b.sessions > 1 ? 's' : '') + '</div></div>'
       + '</div>'
       // Bonus boss + délier
       + '<div style="display:flex;justify-content:space-between;align-items:center;font-size:0.7em;color:#64748b;">'
