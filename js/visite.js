@@ -56,7 +56,7 @@
   function cielFamille() { var sv = $('#familyContainer svg[viewBox="0 0 300 300"]'); return sv ? sv.parentElement : null; }
   var VISITES = {
     home: [
-      { c: function () { return $('#ahpEntete .ahp-cta') || $('#homeTab .ahp-btn-p'); }, t: 'Ton objectif du jour', d: 'La séance prévue aujourd\'hui, avec sa durée et ses exercices. Lance-la en un seul toucher.' },
+      { c: function () { return $('#ahpEntete .ahp-cta') || $('#homeTab .ahp-btn-p'); }, t: 'Ton objectif du jour', d: 'La séance prévue aujourd\'hui, avec sa durée et ses exercices. Sans plan, l\'appli choisit le haut ou le bas du corps selon ta récupération. Lance-la en un seul toucher.' },
       { c: function () { return $('#ahpEntete button[onclick*="awakAutreActivite"]'); }, t: 'Autre chose en tête ?', d: 'Séance libre, routine, course, mobilité ou planifier ta semaine : tout est ici. À droite, « Planning » choisit ce que l\'appli te propose chaque jour.' },
       { c: function () { return $('#eveilJourneyCard'); }, t: 'Ton Parcours de l\'Éveil', d: 'Tes 4 semaines guidées : la séance du jour à lancer d\'un toucher, ton ressenti du jour (la séance s\'adapte si tu es fatigué) et tes petites habitudes de sommeil et de repas. Tu peux l\'arrêter avec la croix, ou le relancer dans Réglages.' },
       { c: boutonProfil, t: 'Ton profil', d: 'Touche ton avatar pour passer au profil d\'un autre membre de la famille, en créer un, ou modifier le tien avec le crayon : nom, portrait, âge, poids, objectif.' },
@@ -73,7 +73,7 @@
       { c: function () { var h = $('#awakCorpsHost'); return h ? h.querySelector('button[onclick^="showLocationPicker"]') : null; }, t: 'Ton lieu', d: 'Maison, salle, voyage… Touche pour changer d\'endroit : chaque lieu garde son propre matériel.' },
       { c: function () { var h = $('#awakCorpsHost'); return h ? h.querySelector('button[onclick^="showAddLocationModal"]') : null; }, t: 'Ton matériel', d: 'Coche ce que tu as sous la main à cet endroit : les exercices proposés en dépendent.' },
       { c: function () { var h = $('#awakCorpsHost'); return h ? h.querySelector('svg[data-awak-flip]') : null; }, t: 'Choisis tes muscles', d: 'Touche les muscles à travailler. Vert : prêt, orange : récupère, rouge : à reposer.' },
-      { c: function () { return parTexte('workoutsTab', 'button', /FAIS MA SÉANCE/i); }, t: 'Ou laisse faire', d: 'Le Système compose ta séance du jour selon ce que tu as déjà fait.' },
+      { c: function () { return parTexte('workoutsTab', 'button', /FAIS MA SÉANCE/i); }, t: 'Ou laisse faire', d: 'Le Système compose ta séance selon ta récupération : un jour le haut du corps, le suivant le bas, sans les muscles encore fatigués. Le type se change dans Réglages › Entraînement.' },
       { c: function () { return $('#awakAutresToggle'); }, t: 'Cardio et jeux', d: 'Tabata, superset, circuit, AMRAP et 16 jeux d\'entraînement (dés, cartes, duel…) : touche pour les ouvrir.' }
     ],
     routines: [
@@ -157,7 +157,7 @@
     ],
     settings: [
       { c: function () { return $('#settingsTab .accordion-header'); }, t: 'Réglages par thème', d: 'Touche un titre pour l\'ouvrir. Ici : le mode jeu et l\'onglet Famille.' },
-      { c: function () { return enteteReglage(/^\s*>?\s*Entraînement/); }, t: 'Entraînement', d: 'Tes lieux et ton matériel, le temps de repos, l\'échauffement, kg ou livres.' },
+      { c: function () { return enteteReglage(/^\s*>?\s*Entraînement/); }, t: 'Entraînement', d: 'Le type de séance automatique (corps entier, haut / bas, poussée / tirage / jambes), tes lieux et ton matériel, le temps de repos, l\'échauffement, kg ou livres.' },
       { c: function () { return enteteReglage(/Parcours de l.Éveil/); }, t: 'Parcours de l\'Éveil', d: '4 semaines guidées pour débuter : séances, sommeil, repas.' },
       { c: function () { return enteteReglage(/Montre/); }, t: 'Montre et santé', d: 'Relie ta montre pour le pouls, les pas et le sommeil.' },
       { c: function () { return enteteReglage(/limitations/); }, t: 'Mes limitations', d: 'Une blessure ou une contrainte ? Les séances s\'adaptent.' },
@@ -180,7 +180,7 @@
     ],
     workouts: [
       { c: function () { return barreSeance('workoutsTab'); }, t: 'Plein de façons de bouger', d: 'Séance libre, routines, aventures, course ou défis : choisis ce qui te tente.' },
-      { c: function () { return parTexte('workoutsTab', 'button', /FAIS MA SÉANCE/i); }, t: 'Le plus simple', d: 'Touche ici : l\'appli prépare ta séance toute seule.' },
+      { c: function () { return parTexte('workoutsTab', 'button', /FAIS MA SÉANCE/i); }, t: 'Le plus simple', d: 'Touche ici : l\'appli prépare ta séance toute seule. Un jour le haut du corps, un jour le bas.' },
       { c: function () { var h = $('#awakCorpsHost'); return h ? h.querySelector('svg[data-awak-flip]') : null; }, t: 'Ton corps', d: 'Touche une partie du corps pour la faire travailler.' },
       { c: function () { return $('#awakAutresToggle'); }, t: 'Des jeux', d: 'Ouvre ici les jeux : dés, cartes, duel… On bouge en s\'amusant.' }
     ],

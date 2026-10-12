@@ -2232,6 +2232,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         }
         
         function renderCardioChart(sessions) {
+            if (typeof Chart === 'undefined') { if (!document.getElementById('cardioProgressChart')) return; awakChargerChart(() => renderCardioChart(sessions)); return; }   // v1327 : Chart.js chargé au premier graphique
             const canvas = document.getElementById('cardioProgressChart');
             if (!canvas) return;
             
@@ -2938,7 +2939,24 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             }
         }
 
+        // v1327 : Chart.js (200 Ko) n'est plus chargé au démarrage — seulement au
+        // premier graphique affiché. Le service worker le garde en cache ensuite.
+        let _awakChartAttente = null;
+        function awakChargerChart(cb) {
+            if (typeof Chart !== 'undefined') { try { cb(); } catch (e) {} return; }
+            if (_awakChartAttente) { _awakChartAttente.push(cb); return; }
+            _awakChartAttente = [cb];
+            const sc = document.createElement('script');
+            // Sans ?v= : même adresse que le fichier mis en cache par le service worker
+            // à l'installation → le graphique s'affiche même hors ligne.
+            sc.src = 'js/vendor/chart.umd.min.js';
+            sc.onload = () => { const l = _awakChartAttente || []; _awakChartAttente = null; l.forEach(f => { try { f(); } catch (e) { console.warn('graphique', e); } }); };
+            sc.onerror = () => { _awakChartAttente = null; };   // hors ligne sans cache : pas de graphique, pas de plantage
+            document.head.appendChild(sc);
+        }
+        window.awakChargerChart = awakChargerChart;
         function renderSessionsChart() {
+            if (typeof Chart === 'undefined') { if (!document.getElementById('progressChart')) return; awakChargerChart(() => renderSessionsChart()); return; }   // v1327 : Chart.js chargé au premier graphique
             const history = getWorkoutHistory();
             const last8Weeks = [];
             const today = new Date();
@@ -3000,6 +3018,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         }
 
         function renderMusclesChart() {
+            if (typeof Chart === 'undefined') { if (!document.getElementById('progressChart')) return; awakChargerChart(() => renderMusclesChart()); return; }   // v1327 : Chart.js chargé au premier graphique
             const history = getWorkoutHistory();
             const muscleCount = {};
             
@@ -3068,6 +3087,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         }
 
         function renderVolumeChart() {
+            if (typeof Chart === 'undefined') { if (!document.getElementById('progressChart')) return; awakChargerChart(() => renderVolumeChart()); return; }   // v1327 : Chart.js chargé au premier graphique
             const history = getWorkoutHistory();
             const last8Weeks = [];
             const today = new Date();
@@ -7999,6 +8019,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (_st && _st.workout) { awakSeanceDejaEnCours(_st, workout); return; }
                 }
             } catch (e) {}
+            // v1329 : les tenues s'affichent en secondes dès la préparation
+            try { (workout && workout.exercises || []).forEach(awakNormaliserIsometrique); } catch (e) {}
             // 🛡️ FILTRE DE SÉCURITÉ ÉQUIPEMENT : quelle que soit l'origine de la séance,
             // on retire tout exercice nécessitant un équipement que le joueur n'a PAS coché
             // (ex. un exercice de piscine alors que "Piscine" n'est pas sélectionnée).
@@ -11744,7 +11766,14 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // (primaires + secondaires ≥ 0.3) — ce qui favorise naturellement les
         // exercices composés. Renvoie les exercices retenus + le reste du pool
         // (pour compléter par score une fois tous les muscles couverts).
-        function awakSelectForCoverage(pool, targetCount, chosenMuscles) {
+        // v1330 : COUVERTURE avec VARIÉTÉ. Avant : à égalité, le premier exercice de la
+        // base gagnait toujours, et les muscles couverts étaient toujours les mêmes
+        // (Pectoraux, Quadriceps…). Une simulation de 40 séances montrait un cycle
+        // exact de 4 séances identiques. Désormais :
+        //   • un muscle pas travaillé depuis longtemps pèse plus lourd ;
+        //   • parmi les meilleurs candidats, on tire au sort, en défavorisant ceux
+        //     faits dans les 8 dernières séances.
+        function awakSelectForCoverage(pool, targetCount, chosenMuscles, primaireSeul) {
             const covered = new Set();
             const selected = [];
             const remaining = pool.slice();
@@ -11755,27 +11784,56 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 (data.secondaryMuscles || []).forEach(sm => { if ((sm.ratio || 0) >= 0.3) s.add(sm.muscle); });
                 return s;
             };
+            // Poids d'un muscle : plus il est « oublié », plus il compte (1 à 4,5)
+            let _trk = {};
+            try { _trk = JSON.parse(localStorage.getItem(_cleProfilLecture('muscleRecoveryTracking')) || '{}') || {}; } catch (e) {}
+            // v1331 : + nombre de séances depuis que ce muscle a été le muscle PRINCIPAL d'un
+            // exercice (les secondaires des pompes ne « comptent » plus comme un vrai travail
+            // d'épaules ou de triceps).
+            const _primDepuis = {};
+            try {
+                getWorkoutHistory().slice(0, 10).forEach((w, i) => (w.exercises || []).forEach(e => {
+                    const n = typeof e === 'string' ? e : (e && e.name);
+                    const d = n && exerciseDatabase.find(x => x.name === n);
+                    if (d && d.muscle && _primDepuis[d.muscle] == null) _primDepuis[d.muscle] = i;
+                }));
+            } catch (e) {}
+            const _poidsM = function (m) {
+                const t = _trk[m] && _trk[m].lastWorked ? (Date.now() - Date.parse(_trk[m].lastWorked)) / 3600000 : 168;
+                const sp = _primDepuis[m] == null ? 6 : Math.min(6, _primDepuis[m]);
+                return 1 + Math.min(168, Math.max(0, t)) / 48 + sp * 0.6;
+            };
+            // Fréquence récente de chaque exercice (8 dernières séances)
+            const _recent = {};
+            try { getWorkoutHistory().slice(0, 8).forEach(w => (w.exercises || []).forEach(e => { const n = typeof e === 'string' ? e : (e && e.name); if (n) _recent[n] = (_recent[n] || 0) + 1; })); } catch (e) {}
             while (selected.length < targetCount && remaining.length) {
                 const stillNeeded = chosenMuscles.filter(m => !covered.has(m));
                 if (stillNeeded.length === 0) break;   // tout couvert → on s'arrête
-                let bestIdx = -1, bestGain = -1, bestPrimary = false, bestSize = -1;
+                const cands = [];
+                let best = 0;
                 for (let i = 0; i < remaining.length; i++) {
                     const ms = muscleSetOf(remaining[i]);
                     let gain = 0;
-                    stillNeeded.forEach(m => { if (ms.has(m)) gain++; });
+                    // Le muscle principal compte plein, un secondaire à 40 %
+                    stillNeeded.forEach(m => { if (ms.has(m)) gain += _poidsM(m) * (m === remaining[i].muscle ? 1 : 0.4); });
                     if (gain <= 0) continue;
                     const primaryHit = stillNeeded.indexOf(remaining[i].muscle) !== -1;
-                    const size = ms.size;
-                    if (gain > bestGain
-                        || (gain === bestGain && primaryHit && !bestPrimary)
-                        || (gain === bestGain && primaryHit === bestPrimary && size > bestSize)) {
-                        bestIdx = i; bestGain = gain; bestPrimary = primaryHit; bestSize = size;
-                    }
+                    cands.push({ i: i, gain: gain, primaryHit: primaryHit });
+                    if (gain > best) best = gain;
                 }
-                if (bestIdx === -1) break;   // plus aucun exercice ne couvre un muscle manquant
-                const chosen = remaining.splice(bestIdx, 1)[0];
+                if (!cands.length) break;   // plus aucun exercice ne couvre un muscle manquant
+                // Les meilleurs (à 15 % près), en préférant ceux dont le muscle principal manque
+                let top = cands.filter(c => c.gain >= best * 0.85);
+                if (top.some(c => c.primaryHit)) top = top.filter(c => c.primaryHit);
+                const poids = top.map(c => 1 / (1 + 2 * (_recent[remaining[c.i].name] || 0)));
+                let r = Math.random() * poids.reduce((a, b) => a + b, 0), k = 0;
+                while (k < top.length - 1 && (r -= poids[k]) > 0) k++;
+                const chosen = remaining.splice(top[k].i, 1)[0];
                 selected.push(chosen);
-                muscleSetOf(chosen).forEach(m => covered.add(m));
+                // v1331 : en séance haut/bas ou PPL, seul le muscle PRINCIPAL compte comme
+                // couvert : les pompes ne « valent » plus un exercice d'épaules et de triceps.
+                if (primaireSeul) covered.add(chosen.muscle);
+                else muscleSetOf(chosen).forEach(m => covered.add(m));
             }
             return { selected: selected, remaining: remaining };
         }
@@ -11887,7 +11945,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const topN = pool.filter(ex => !used.has(ex.name)).slice(0, Math.max(count * 2, 6));
                 // Shuffler légèrement le top pour variété sans perdre la pertinence
                 for (let i = topN.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * Math.min(i + 1, 3)); // ne shuffler que dans une fenêtre de 3
+                    // v1330 : vrai mélange du haut du classement (avant : l'élément i n'était
+                    // échangé qu'avec l'un des 3 premiers → presque toujours la même sélection)
+                    const j = Math.floor(Math.random() * (i + 1));
                     [topN[i], topN[j]] = [topN[j], topN[i]];
                 }
                 return topN.slice(0, count);
@@ -12348,6 +12408,56 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         }
         window.clearManualPlan = clearManualPlan;
 
+        // v1331 : TYPE DE SÉANCE quand rien n'est planifié (comme Fitbod) :
+        //   corps entier · haut / bas (défaut) · poussée / tirage / jambes.
+        // Le groupe du jour = celui dont les muscles sont les plus récupérés ;
+        // à égalité, on évite de refaire le même que la dernière fois. Les muscles
+        // du groupe encore en récupération sont écartés.
+        const AWAK_SPLITS = {
+            ul: [
+                { id: 'haut', nom: 'Haut du corps', muscles: ['Pectoraux', 'Dos', 'Épaules', 'Biceps', 'Triceps', 'Trapèzes', 'Avant-bras'] },
+                { id: 'bas', nom: 'Bas du corps et tronc', muscles: ['Quadriceps', 'Ischio-jambiers', 'Fessiers', 'Mollets', 'Abdominaux', 'Obliques'] }
+            ],
+            ppl: [
+                { id: 'pousser', nom: 'Poussée', muscles: ['Pectoraux', 'Épaules', 'Triceps', 'Obliques'] },
+                { id: 'tirer', nom: 'Tirage', muscles: ['Dos', 'Biceps', 'Trapèzes', 'Avant-bras', 'Abdominaux'] },
+                { id: 'jambes', nom: 'Jambes', muscles: ['Quadriceps', 'Ischio-jambiers', 'Fessiers', 'Mollets'] }
+            ]
+        };
+        function awakSplitPref() {
+            try { const v = localStorage.getItem(_cleProfilLecture('awakSplitAuto')); return (v === 'full' || v === 'ppl') ? v : 'ul'; } catch (e) { return 'ul'; }
+        }
+        function awakMajBoutonsSplit() {
+            const v = awakSplitPref();
+            try { document.querySelectorAll('[data-split]').forEach(b => { const on = b.getAttribute('data-split') === v; b.style.background = on ? '#22d3ee' : 'rgba(255,255,255,0.04)'; b.style.color = on ? '#04121f' : '#cbd5e1'; b.style.borderColor = on ? '#22d3ee' : 'rgba(255,255,255,0.12)'; }); } catch (e) {}
+        }
+        function awakSetSplitPref(v) {
+            try { localStorage.setItem(_cleProfil('awakSplitAuto'), v); } catch (e) {}
+            awakMajBoutonsSplit();
+            try { if (window.AwakHomePro) AwakHomePro.render(); } catch (e) {}
+        }
+        window.awakSetSplitPref = awakSetSplitPref;
+        window.awakSplitPref = awakSplitPref;
+        window.awakMajBoutonsSplit = awakMajBoutonsSplit;
+        // Groupe du jour (sans effet de bord) — null en « corps entier »
+        function awakSplitDuJour() {
+            const pref = awakSplitPref();
+            if (pref === 'full') return null;
+            const groupes = AWAK_SPLITS[pref];
+            let dernier = '';
+            try { dernier = localStorage.getItem(_cleProfilLecture('awakSplitDernier')) || ''; } catch (e) {}
+            const pret = m => { try { const st = getMuscleRecoveryStatus(m); return !st || st.status === 'ready' ? 100 : Math.max(0, Math.min(99, st.percentage || 0)); } catch (e) { return 100; } };
+            let best = null;
+            groupes.forEach(g => {
+                const score = g.muscles.reduce((a, m) => a + pret(m), 0) / g.muscles.length - (g.id === dernier ? 15 : 0);
+                if (!best || score > best.score) best = { g: g, score: score };
+            });
+            const g = best.g;
+            // Muscles du groupe encore en récupération : écartés (s'il en reste au moins 2)
+            const prets = g.muscles.filter(m => { try { const st = getMuscleRecoveryStatus(m); return !st || st.status === 'ready' || st.status === 'almost'; } catch (e) { return true; } });
+            return { id: g.id, nom: g.nom, muscles: prets.length >= 2 ? prets : g.muscles.slice() };
+        }
+        window.awakSplitDuJour = awakSplitDuJour;
         function generateIntelligentWorkout() {
             const profile = getUserProfile();
             const fitnessIndex = getFitnessIndex();
@@ -12368,7 +12478,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const _allCount = (typeof availableMuscles !== 'undefined') ? availableMuscles.length : 13;
             const _userChoseDeliberately = _userMuscles.length > 0 && _userMuscles.length < _allCount;
 
-            let selectedMuscles;
+            let selectedMuscles, _awakSplitNom = '';
             if (_overrideMuscles) {
                 selectedMuscles = _overrideMuscles;
             } else if (_userChoseDeliberately) {
@@ -12380,6 +12490,12 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 selectedMuscles = manualPlanToday.muscles;
             } else {
                 selectedMuscles = _userMuscles;
+                // v1331 : rien de planifié ni de choisi → type de séance (haut/bas, PPL…)
+                try {
+                    const _sp = awakSplitDuJour();
+                    if (_sp) { selectedMuscles = _sp.muscles.slice(); _awakSplitNom = _sp.nom;
+                        try { localStorage.setItem(_cleProfil('awakSplitDernier'), _sp.id); } catch (e) {} }
+                } catch (e) {}
             }
 
             // ✅ If no muscles selected, use ALL muscles
@@ -12594,7 +12710,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const _timeTight = _chosenForCover.length > targetCount;
             let selectedExercises;
             if (_timeTight) {
-                const _cov = awakSelectForCoverage(exercisePool, targetCount, _chosenForCover);
+                const _cov = awakSelectForCoverage(exercisePool, targetCount, _chosenForCover, !!_awakSplitNom);
                 selectedExercises = _cov.selected;
                 if (selectedExercises.length < targetCount) {
                     // Places restantes (tous muscles couverts) : complétées par score.
@@ -12712,7 +12828,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             
             // Build workout structure
             const workout = {
-                name: `Séance intelligente ${userGoals[profile.goal].icon}${(typeof getActiveCelebrity==='function' && getActiveCelebrity()) ? ' · ⭐ '+getActiveCelebrity().nickname : ''}`,
+                name: `${_awakSplitNom ? _awakSplitNom + ' ' : 'Séance intelligente '}${userGoals[profile.goal].icon}${(typeof getActiveCelebrity==='function' && getActiveCelebrity()) ? ' · ⭐ '+getActiveCelebrity().nickname : ''}`,
                 mode: selectedWorkoutMode, // 'timer', 'reps', 'hybrid'
                 exercises: []
             };
@@ -14750,7 +14866,34 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             };
         }
         
+        // v1329 : EXERCICES EN TENUE (chaise au mur, planche, hollow hold, dead hang…).
+        // Ils se font en SECONDES, jamais en répétitions : dans une séance « reps »,
+        // ils passent automatiquement au minuteur (chaque série = une tenue chronométrée).
+        const _AWAK_ISO = /(^|[\s(])(planche|plank)(\s|$|\))|hollow hold|wall sit|chaise|l-sit|dead hang|suspension|isom[ée]trique|\(tenue\)|\btenue\b|lever group[ée]|gainage/i;
+        const _AWAK_ISO_NON = /dynamique|rotation|drag|pompe|push|tirage|rowing|press|marche|jack|mont[ée]e|toucher|altern|shoulder tap|saut|jump/i;
+        function awakEstIsometrique(ex) {
+            const n = String((ex && (ex._baseName || ex.name)) || ex || '');
+            return _AWAK_ISO.test(n) && !_AWAK_ISO_NON.test(n);
+        }
+        function awakNormaliserIsometrique(ex) {
+            if (!ex || ex.isRest || ex.isInfo || ex.mode === 'timer' || ex.mode === 'duration') return ex;
+            if (!awakEstIsometrique(ex)) return ex;
+            let sec = parseInt(ex.duration, 10) || 0;
+            const r = String(ex.reps || '');
+            if (!sec && /s(ec)?\b|"/i.test(r)) sec = parseInt(r, 10) || 0;   // « 30 s » écrit dans les reps
+            if (!sec) {
+                const db = (typeof exerciseDatabase !== 'undefined') ? exerciseDatabase.find(e => e.name === (ex._baseName || ex.name)) : null;
+                sec = (db && parseInt(db.duration, 10)) || (db && db.difficulty === 'Avancé' ? 45 : 30);
+            }
+            ex.mode = 'timer';
+            ex.duration = Math.max(10, Math.min(300, sec));
+            ex._isoAuto = true;
+            return ex;
+        }
+        window.awakEstIsometrique = awakEstIsometrique;
+        window.awakNormaliserIsometrique = awakNormaliserIsometrique;
         function determineExerciseMode(exercise, workoutMode) {
+            if (awakEstIsometrique(exercise)) return 'timer';   // v1329 : une tenue se chronomètre
             if (workoutMode === 'timer') return 'timer';
             if (workoutMode === 'reps') return 'reps';
             
@@ -19801,6 +19944,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         }
         
         function renderRPETrendChart() {
+            if (typeof Chart === 'undefined') { if (!document.getElementById('rpeTrendChart')) return; awakChargerChart(() => renderRPETrendChart()); return; }   // v1327 : Chart.js chargé au premier graphique
             const canvas = document.getElementById('rpeTrendChart');
             if (!canvas) return;
             
@@ -19961,6 +20105,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         }
         
         function showExerciseGraph(type, exerciseName) {
+            if (typeof Chart === 'undefined') { if (!document.getElementById('exerciseProgressChart')) return; awakChargerChart(() => showExerciseGraph(type, exerciseName)); return; }   // v1327 : Chart.js chargé au premier graphique
             currentGraphType = type;
             
             if (!exerciseName) {
@@ -21040,7 +21185,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             ov.style.cssText = 'position:fixed;inset:0;z-index:11990;background:rgba(0,0,0,0.6);display:flex;align-items:flex-end;justify-content:center;';
             ov.onclick = (e) => { if (e.target === ov) ov.remove(); };
             ov.innerHTML = '<div style="width:100%;max-width:480px;background:#12161c;border:1px solid rgba(255,255,255,0.08);border-radius:18px 18px 0 0;'
-                + 'padding:14px 14px 16px;box-sizing:border-box;">'
+                + 'padding:14px 14px calc(env(safe-area-inset-bottom,0px) + 16px);box-sizing:border-box;">'
                 + '<div style="width:40px;height:4px;background:rgba(255,255,255,0.12);border-radius:99px;margin:0 auto 12px;"></div>'
                 + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;">'
                 + items.map(x => '<button onclick="switchTab(\'' + x[0] + '\');window.scrollTo(0,0)" style="display:flex;flex-direction:column;align-items:flex-start;gap:7px;min-height:auto;'
@@ -21080,6 +21225,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             } catch (e) {}
             if (tabName === 'history' && rpgEnabled()) setTimeout(renderRPGPanel, 50);
             if (tabName === 'settings') { try { if (typeof awakRenderTerminalHead === 'function') awakRenderTerminalHead(); } catch (e) {} }
+            if (tabName === 'settings') { try { awakMajBoutonsSplit(); } catch (e) {} }
             if (tabName === 'settings') { try { if (window.AwakSante) AwakSante.rendreReglages(); } catch (e) {} }
             if (tabName === 'settings') setTimeout(() => { if (typeof awakRefreshDevPanel === 'function') awakRefreshDevPanel(); }, 50);
             // ✨ Rattrapage des Failles narratives : la condition n'était
@@ -21887,6 +22033,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             workout.exercises.forEach(exercise => {
                 if (!exercise.isRest && !exercise.isInfo) {
                     const exerciseFromDB = exerciseDatabase.find(ex => ex.name === exercise.name);
+                    // v1330 : l'échauffement et les étirements ne « fatiguent » pas un muscle.
+                    // Avant, « Rotations épaules » remettait les épaules à zéro dans le suivi
+                    // de récupération, comme une vraie séance d'épaules.
+                    const _typ = (exercise.type || (exerciseFromDB && exerciseFromDB.type) || '');
+                    if (_typ === 'warmup' || _typ === 'stretch') return;
                     if (exerciseFromDB && exerciseFromDB.muscle) {
                         // Muscle principal + secondaires via le helper pondéré
                         const weighted = (typeof getWeightedMuscles === 'function')
@@ -21922,6 +22073,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (tracking[muscle]) {
                     tracking[muscle].lastWorked = now;
                     tracking[muscle].workoutCount++;
+                    // v1330 : le volume suit la DERNIÈRE séance (avant : figé sur la toute
+                    // première, d'où une récupération de 18 h ou de 60 h pour toujours)
+                    tracking[muscle].volume = musclesWorked[muscle].volume || 0;
                 } else {
                     tracking[muscle] = musclesWorked[muscle];
                 }
@@ -22010,7 +22164,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 ['Ischios',    'Ischio-jambiers', '<ellipse cx="81" cy="180" rx="10" ry="20"/><ellipse cx="119" cy="180" rx="10" ry="20"/>']
             ];
 
-            var svgZones = '', prets = 0, pretsNoms = [], recup = 0, aReposer = 0;
+            var svgZones = '', prets = 0, pretsNoms = [], recup = 0, aReposer = 0, recupNoms = [], reposNoms = [];
             var _douleurs = _corpsDouleurs();
             // 🐛 Le compteur et la liste « PRÊTS » ne comptaient que la vue
             // affichée : de dos, aucun muscle de face n'apparaissait, la colonne
@@ -22024,8 +22178,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (_douleurs.indexOf(m[1]) >= 0) return;   // douloureux : jamais « prêt »
                     var st0 = (typeof getMuscleRecoveryStatus === 'function') ? getMuscleRecoveryStatus(m[1]) : null;
                     if (st0 && st0.status === 'ready') { prets++; pretsNoms.push(m[0]); }
-                    else if (st0 && st0.status === 'fatigued') aReposer++;
-                    else if (st0) recup++;
+                    else if (st0 && st0.status === 'fatigued') { aReposer++; reposNoms.push(m[0]); }
+                    else if (st0) { recup++; recupNoms.push(m[0]); }
                 } catch (e) {}
             });
             zones.forEach(function (z) {
@@ -22107,7 +22261,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1325);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1333);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -22159,24 +22313,27 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 +       '<rect width="5" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.22"/>'
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1325" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1333" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
                 +   '</div>'
                 // 📋 Colonne de droite : les muscles disponibles, un par ligne
                 // avec sa pastille de couleur — plus lisible qu'une énumération.
-                +   (false   // v1319 : colonne « PRÊTS » retirée (doublon de la silhouette)
-                      ? ('<div style="flex:0 1 116px;min-width:104px;padding:9px 9px;border-radius:12px;'
-                         + 'background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.20);">'
-                         + '<div style="font-size:0.5em;letter-spacing:1.5px;color:#4ade80;'
-                         +   'font-weight:900;margin-bottom:7px;">PRÊTS</div>'
-                         + pretsNoms.map(function (n) {
-                             return '<div style="display:flex;align-items:center;gap:6px;'
-                               + 'font-size:0.66em;color:#cbd5e1;padding:2px 0;">'
-                               + '<span style="width:6px;height:6px;border-radius:99px;'
-                               +   'background:#4ade80;flex-shrink:0;"></span>' + n + '</div>';  // v1219 : vert = « Prêt » (comme la légende)
-                           }).join('')
+                // v1328 : colonne de droite rétablie : les muscles PRÊTS, puis ceux qui
+                // récupèrent (orange) et ceux à reposer (rouge), un par ligne.
+                +   ((pretsNoms.length || recupNoms.length || reposNoms.length)
+                      ? ('<div style="flex:0 1 120px;min-width:106px;padding:9px 9px;border-radius:12px;'
+                         + 'background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);">'
+                         + [['PRÊTS', '#4ade80', pretsNoms], ['RÉCUPÈRENT', '#f59e0b', recupNoms], ['À REPOSER', '#ef4444', reposNoms]]
+                             .filter(function (g) { return g[2].length; })
+                             .map(function (g, k) {
+                                 return '<div style="font-size:0.5em;letter-spacing:1.2px;color:' + g[1] + ';font-weight:900;margin:' + (k ? '9px' : '0') + ' 0 5px;">' + g[0] + '</div>'
+                                   + g[2].map(function (n) {
+                                       return '<div style="display:flex;align-items:center;gap:6px;font-size:0.66em;color:#cbd5e1;padding:2px 0;">'
+                                         + '<span style="width:6px;height:6px;border-radius:99px;background:' + g[1] + ';flex-shrink:0;"></span>' + n + '</div>';
+                                     }).join('');
+                             }).join('')
                          + '</div>')
                       : '')
                 +   '</div>'
@@ -24622,6 +24779,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 exercise.mode = 'timer';
                 exercise.isRest = true; // Ensure flag is set
             }
+            // v1329 : une tenue (chaise au mur, planche…) arrivée en mode reps → minuteur
+            try { awakNormaliserIsometrique(exercise); } catch (e) {}
             // ⏱️ NORMALISATION 'duration' → 'timer'. Les routines matinales (et les
             // circuits générés) produisent mode:'duration', alors que le reste du
             // flux ne connaît que 'timer' et 'reps'. Conséquence : updateTimerDisplay
@@ -27601,7 +27760,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1325");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1333");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -32000,7 +32159,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1325);'
+                +     'url(images/combat_bg_v1.webp?v=1333);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -32255,7 +32414,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1325);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1333);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -32527,7 +32686,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:540px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto;display:flex;flex-direction:column;">
                 <!-- Header : vague actuelle -->
-                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1325);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1333);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                         <span style="font-size:0.6em;color:${theme.color};font-weight:900;letter-spacing:2px;">⚔ VAGUE ${rift.currentWaveIdx + 1} / ${rift.waves.length}${currentWave.isBoss ? ' · BOSS' : ''}</span>
                         <button onclick="awakAbandonRift()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
@@ -33657,7 +33816,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1325');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1333');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -34394,7 +34553,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1325);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1333);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -34565,7 +34724,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1325);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1333);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -43307,7 +43466,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // v1320 : PORTRAITS en image (images/avatars/portrait_NN.webp). Clé « av:ptNN » :
         // garde le préfixe « av: », que plusieurs écrans testent déjà.
         // Pour en ajouter : déposer le fichier et ajouter son numéro ici.
-        const AWAK_PORTRAITS = ['01', '02', '03'];
+        const AWAK_PORTRAITS = ['01', '02', '03', '04', '05', '06'];
         function awakPortraitSrc(avatar) {
             const m = /^av:pt(\d{2})$/.exec(String(avatar || ''));
             return m ? 'images/avatars/portrait_' + m[1] + '.webp' : '';
@@ -45466,7 +45625,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
             host.innerHTML =
                 '<div style="position:relative;width:110px;margin:0 auto 12px;">'
-              +   '<img src="images/body/body_face.webp?v=1325" alt="" '
+              +   '<img src="images/body/body_face.webp?v=1333" alt="" '
               +     'style="width:100%;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -45548,7 +45707,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1325);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1333);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -45615,7 +45774,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1325);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1333);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -47934,7 +48093,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1325");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1333");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.

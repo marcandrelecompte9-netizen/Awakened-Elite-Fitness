@@ -8113,3 +8113,23 @@ body.dark-mode .nav-tab.active {
 [style*="font-size:0.62em"],[style*="font-size: 0.62em"] { font-size: max(0.62em, 11px) !important; }
 /* Gris d'information trop sombre sur fond noir (#64748b) → un cran plus clair */
 [style^="color:#64748b"],[style*=";color:#64748b"],[style*="; color:#64748b"],[style*="; color: #64748b"] { color: #8a99ad !important; }
+/* v1326 : ACCUEIL SUR ORDINATEUR — #ahpRoot (nouvel accueil) prend toute la largeur
+   de la grille, puis se découpe : carte « objectif du jour » à gauche, tuiles et
+   quête à droite, le reste (Éveil, raccourcis…) sur toute la largeur. */
+@media (min-width: 900px) and (orientation: landscape) {
+    #homeTab.active > #ahpRoot {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+        grid-template-rows: auto auto 1fr auto auto;   /* l'espace en trop va sous la quête */
+        column-gap: 18px;
+        align-items: start;
+    }
+    #ahpRoot > #ahpAvant      { grid-column: 1 / -1; grid-row: 1; }
+    #ahpRoot > #ahpEntete     { grid-column: 1; grid-row: 2 / span 2; }
+    #ahpRoot > #ahpAujourdhui { grid-column: 2; grid-row: 2; }
+    #ahpRoot > #ahpSemaine    { grid-column: 2; grid-row: 3; }
+    #ahpRoot > #ahpApres      { grid-column: 1 / -1; grid-row: 4; }
+    #ahpRoot > #ahpRaccourcis { grid-column: 1 / -1; grid-row: 5; }
+    #ahpRoot .ahp-card { margin-bottom: 14px; }
+}

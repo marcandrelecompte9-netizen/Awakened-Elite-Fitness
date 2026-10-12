@@ -349,6 +349,8 @@
       bouton = '<button class="ahp-cta ahp-cta-s" onclick="switchTab(\'history\')">VOIR MA PROGRESSION</button>';
     } else {
       titre = 'Séance du Système';
+      // v1331 : le type du jour (haut du corps, jambes…) quand il y en a un
+      try { var sp = window.awakSplitDuJour ? window.awakSplitDuJour() : null; if (sp) titre = sp.nom; } catch (e) {}
       meta = '<span class="ahp-m">' + ico('eclair', 15, '#cbd5e1') + '<span>Choisie selon ta récupération</span></span>';
       bouton = '<button class="ahp-cta" onclick="' + go + '">COMMENCER MA SÉANCE</button>';
     }
