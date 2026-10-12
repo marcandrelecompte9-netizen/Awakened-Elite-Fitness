@@ -166,7 +166,9 @@
     if (!Array.isArray(eq)) eq = [eq];
     // charge lourde → déconseillé pour un enfant ; pour un ado, seulement la barre/machine lourde
     var heavy = eq.some(function (e) { return HEAVY_EQUIPMENT.indexOf(e) !== -1; });
-    if (isChild()) return heavy;
+    // v1336 : moins de 13 ans → POIDS DU CORPS seulement (plus d'haltères ni
+    // d'élastiques dans ses séances : il s'entraîne au minuteur, sans charge à noter)
+    if (isChild()) return heavy || eq.some(function (e) { return !/^(Poids du corps|Aucun|Tapis de sol)$/i.test(String(e)); });
     // ado : on tolère haltères/kettlebell légers, on déconseille barre + machine
     return eq.some(function (e) { return e === 'Barre' || e === 'Machine'; });
   }

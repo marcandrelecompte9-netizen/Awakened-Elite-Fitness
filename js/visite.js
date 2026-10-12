@@ -242,6 +242,8 @@
     // qu'il soit proposé, accepté ou refusé, puis on montre l'accueil tel qu'il est.
     try { if (localStorage.getItem(window._cleProfil ? window._cleProfil('awakEveilPlusTard') : 'awakEveilPlusTard') === '1') return false; } catch (e) {}
     if (document.querySelector('.modal.active')) return false;
+    // v1335 : offre ou questionnaire de l'Éveil à l'écran → on attend
+    if (document.getElementById('eveilOfferModal') || document.getElementById('eveilQuizModal')) return false;
     // Une fenêtre plein écran est ouverte (inscription, histoire, fiche…)
     var kids = document.body.children;
     for (var i = 0; i < kids.length; i++) {

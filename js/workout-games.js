@@ -102,7 +102,7 @@
     'dead hang', 'suspension', 'serviette', 'isométrique', 'stretch', 'box jump', 'saut sur (banc|box|caisse)',
     'bounding', 'bondissement', 'broad jump', 'saut en longueur', 'marche rapide', 'power walk', 'handstand',
     'sissy', 'pont scapulaire', 'shrugs en appui', 'y-t-w', 'dragon flag', 'rack pull', 'atlas',
-    'donkey calf', 'banc incliné', 'curl incliné', 'pupitre', 'wrist curl', 'curl poignet'
+    'donkey calf', 'sur table', 'sous table', '\\(porte\\)', 'sac à dos', 'marche au mur', 'wall walk', 'banc incliné', 'curl incliné', 'pupitre', 'wrist curl', 'curl poignet'
   ].join('|'), 'i');
   // Un seul côté à la fois : on affiche « par côté ».
   var RX_UNILAT = /un bras|une jambe|unilat|single|pistol|bulgare|concentré|archer|fentes|lunge|step-?up|windmill|fire hydrant|donkey kick|kickback haltère|planche latérale|side crunch|crunch oblique|alterné/i;
