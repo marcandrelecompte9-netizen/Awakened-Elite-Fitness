@@ -8119,9 +8119,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (!_dejaEnfant && workout.exercises.filter(_principal).length >= 2) {
                         let _avant = [];
                         try { _avant = JSON.parse(localStorage.getItem(_cleProfilLecture('awakBlocJeuDernier')) || '[]'); } catch (e) {}
+                        try { ((getWorkoutHistory() || [])[0] || {}).exercises.forEach(e => _avant.push(typeof e === 'string' ? e : e.name)); } catch (e) {}   // v1339 : ni ceux de la dernière séance
                         const _choisir = cats => {
                             const tous = exerciseDatabase.filter(e => cats.indexOf(e.enfant) !== -1
-                                && !(window.AwakYouth.isDiscouraged && AwakYouth.isDiscouraged(e)));
+                                && (e.type || 'exercise') === 'exercise' && !awakRaisonRefus(e));
                             const frais = tous.filter(e => _avant.indexOf(e.name) === -1);
                             const pool = frais.length ? frais : tous;
                             return pool.length ? pool[Math.floor(Math.random() * pool.length)] : null;
@@ -8148,6 +8149,19 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             try { localStorage.setItem(_cleProfil('awakBlocJeuDernier'), JSON.stringify(_bloc.map(e => e.name))); } catch (e) {}
                             setTimeout(() => { try { showToast('Bloc jeu ajouté : ' + _bloc.map(e => e.name).join(' + '), 'info', 3500); } catch (e) {} }, _awakEnfantAdapte ? 4500 : 900);
                         }
+                    }
+                }
+            } catch (e) {}
+
+            // v1339 : CONTRÔLE FINAL des règles pour toute séance générée (pas les routines
+            // composées à la main, ni l'Éveil qui a sa propre adaptation).
+            try {
+                if (workout && Array.isArray(workout.exercises) && !workout.fromRoutine && !workout._eveil) {
+                    const _rg = awakAppliquerRegles(workout.exercises);
+                    if ((_rg.adaptes || _rg.retires) && _rg.exercises.some(x => x && !x.isRest && !x.isInfo)) {
+                        workout = { ...workout, exercises: _rg.exercises };
+                        const _n = _rg.adaptes + _rg.retires;
+                        setTimeout(() => { try { showToast(_n + ' exercice' + (_n > 1 ? 's' : '') + ' adapté' + (_n > 1 ? 's' : '') + ' (' + _rg.raisons.join(', ') + ')', 'info', 3500); } catch (e) {} }, _awakEnfantAdapte ? 4500 : 1600);
                     }
                 }
             } catch (e) {}
@@ -11900,6 +11914,20 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // Fréquence récente de chaque exercice (8 dernières séances)
             const _recent = {};
             try { getWorkoutHistory().slice(0, 8).forEach(w => (w.exercises || []).forEach(e => { const n = typeof e === 'string' ? e : (e && e.name); if (n) _recent[n] = (_recent[n] || 0) + 1; })); } catch (e) {}
+            // v1340 : le SCORE (popularité, favoris, progression, niveau, objectif) pèse
+            // aussi ici. Avant, ce chemin — celui des séances haut/bas et PPL — tirait au
+            // hasard parmi les exercices du muscle manquant : les populaires (8 % des
+            // exercices en salle) et les favoris ne ressortaient plus. La récence reste
+            // gérée plus bas (_recent), d'où un ensemble « récents » vide ici.
+            const _attrait = {};
+            try {
+                const _prof = getUserProfile() || {};
+                let _perf = {}; try { _perf = JSON.parse(localStorage.getItem(_cleProfilLecture('exercisePerformance')) || '{}'); } catch (e) {}
+                const _sc = {}; let _max = -Infinity;
+                pool.forEach(ex => { _sc[ex.name] = scoreExercise(ex, _prof, new Set(), _perf, []); if (_sc[ex.name] > _max) _max = _sc[ex.name]; });
+                // ×1,12 par point d'écart avec le meilleur : un populaire (+10) sort ~3× plus
+                pool.forEach(ex => { _attrait[ex.name] = Math.pow(1.12, Math.max(-60, _sc[ex.name] - _max)); });
+            } catch (e) {}
             while (selected.length < targetCount && remaining.length) {
                 const stillNeeded = chosenMuscles.filter(m => !covered.has(m));
                 if (stillNeeded.length === 0) break;   // tout couvert → on s'arrête
@@ -11919,7 +11947,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // Les meilleurs (à 15 % près), en préférant ceux dont le muscle principal manque
                 let top = cands.filter(c => c.gain >= best * 0.85);
                 if (top.some(c => c.primaryHit)) top = top.filter(c => c.primaryHit);
-                const poids = top.map(c => 1 / (1 + 2 * (_recent[remaining[c.i].name] || 0)));
+                const poids = top.map(c => (_attrait[remaining[c.i].name] || 1) / (1 + 2 * (_recent[remaining[c.i].name] || 0)));
                 let r = Math.random() * poids.reduce((a, b) => a + b, 0), k = 0;
                 while (k < top.length - 1 && (r -= poids[k]) > 0) k++;
                 const chosen = remaining.splice(top[k].i, 1)[0];
@@ -12734,9 +12762,25 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 }
             } catch (e) {}
 
+            // v1339 : règles du profil (limitations, douleurs, silencieux, niveau…).
+            // Repli : sans la règle de niveau s'il reste trop peu d'exercices.
+            try {
+                const _ok = availableExercises.filter(ex => !awakRaisonRefus(ex));
+                if (_ok.length >= 3) availableExercises = _ok;
+                else {
+                    const _ok2 = availableExercises.filter(ex => !awakRaisonRefus(ex, { sansNiveau: true }));
+                    if (_ok2.length) availableExercises = _ok2;
+                }
+            } catch (e) {}
+
             // ✅ NEW: Separate fresh vs recent exercises
             const freshExercises = availableExercises.filter(ex => !recentExercises.has(ex.name));
-            const exercisePool = freshExercises.length >= 5 ? freshExercises : availableExercises;
+            // v1339 : peu de choix (ex. 2 muscles choisis, à la maison) → au moins éviter
+            // ceux de la DERNIÈRE séance, sinon les mêmes revenaient à chaque fois.
+            let _derniere = new Set();
+            try { ((recentHistory[0] || {}).exercises || []).forEach(e => _derniere.add(typeof e === 'string' ? e : e.name)); } catch (e) {}
+            const _fresh1 = availableExercises.filter(ex => !_derniere.has(ex.name));
+            const exercisePool = freshExercises.length >= 5 ? freshExercises : (_fresh1.length >= 4 ? _fresh1 : availableExercises);
             
             // Calculate number of exercises based on duration and intensity
             // 🕒 v686 : le nombre d'exercices est calculé À PARTIR DU TEMPS RÉEL,
@@ -12817,7 +12861,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             }
             
             // ✅ NEW: Ensure muscle balance (no muscle >40%)
-            selectedExercises = ensureMuscleBalance(selectedExercises, availableExercises);
+            // v1339 : les échanges d'équilibrage piochent dans le même réservoir « frais »
+            const _poolEq = exercisePool.length >= 6 ? exercisePool : availableExercises;
+            selectedExercises = ensureMuscleBalance(selectedExercises, _poolEq);
             // 🐛 Garantir le nombre demandé (même correctif que l'autre générateur) :
             // les étapes de couverture/équilibrage pouvaient rendre moins d'exercices
             // que la cible, sans que rien ne complète ensuite.
@@ -12847,7 +12893,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // ⏱️ ... sauf en temps serré : ce rééquilibrage pourrait remplacer un
             // exercice choisi pour sa couverture. On préserve alors la couverture.
             if (!_timeTight) {
-                selectedExercises = balanceAgonistAntagonist(selectedExercises, availableExercises);
+                selectedExercises = balanceAgonistAntagonist(selectedExercises, _poolEq);
             }
 
             // ⚖️ Avertissement RIGOUREUX : parmi les muscles CHOISIS, lesquels ne
@@ -14987,6 +15033,106 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         }
         window.awakEstIsometrique = awakEstIsometrique;
         window.awakNormaliserIsometrique = awakNormaliserIsometrique;
+
+        // v1339 : PORTE UNIQUE DES RÈGLES. Avant, chaque générateur recopiait ses
+        // filtres et en oubliait : les limitations physiques et les douleurs n'étaient
+        // appliquées que dans un chemin que plus aucun bouton n'appelait, le mode
+        // silencieux ne connaissait que 8 noms, un débutant recevait des Handstand
+        // push-ups. Toute règle « cet exercice est-il permis pour CE profil ? » vit ici.
+        // Retourne null si permis, sinon la raison.
+        //   opts.sansNiveau : ignore la règle de niveau (modèles, repli)
+        function _awakDbDe(ex) {
+            return (typeof exerciseDatabase !== 'undefined') ? exerciseDatabase.find(e => e.name === (ex._baseName || ex.name)) : null;
+        }
+        function _awakImpact(ex) {
+            try {
+                const L = window.AwakLimitations && AwakLimitations.liste;
+                const imp = L && L.find(l => l.id === 'impact');
+                if (imp) return !!imp.test(ex);
+            } catch (e) {}
+            return /saut|jump|burpee|skater|plyo/i.test(ex.name || '');
+        }
+        function awakRaisonRefus(ex, opts) {
+            if (!ex || ex.isRest || ex.isInfo || !ex.name) return null;
+            opts = opts || {};
+            const d = _awakDbDe(ex) || {};
+            const t = Object.assign({}, d, ex);
+            if (!t.equipment || !t.equipment.length) t.equipment = d.equipment || [];
+            if (!t.position && typeof window.AwakPositionExercice === 'function') { try { t.position = AwakPositionExercice(t); } catch (e) {} }
+            try { if (window.AwakYouth && AwakYouth.isDiscouraged && AwakYouth.isDiscouraged(t)) return 'âge'; } catch (e) {}
+            try { if (window.AwakLimitations && AwakLimitations.bloque(t)) return 'limitations'; } catch (e) {}
+            try { if (window.AwakPain && AwakPain.exerciseHitsPain && AwakPain.exerciseHitsPain(t)) return 'douleurs'; } catch (e) {}
+            try { if (silentMode && _awakImpact(t)) return 'mode silencieux'; } catch (e) {}
+            try { if (getExerciseBlacklist().includes(t.name)) return 'exercices bannis'; } catch (e) {}
+            if (!opts.sansNiveau) {
+                try {
+                    const p = getUserProfile() || {};
+                    if (p.level === 'beginner' && t.difficulty === 'Avancé' && t.type !== 'warmup' && t.type !== 'stretch') return 'niveau';
+                } catch (e) {}
+            }
+            return null;
+        }
+        window.awakRaisonRefus = awakRaisonRefus;
+        window.awakExercicePermis = (ex, opts) => !awakRaisonRefus(ex, opts);
+
+        // Remplaçant permis : même type (échauffement / exercice / étirement), muscle
+        // le plus proche, matériel compris dans celui de l'original (+ poids du corps :
+        // une Assaut à un seul matériel le reste), absent de la séance et si possible
+        // de la séance précédente. null si aucun.
+        const _AWAK_REGION = { Quadriceps: 'j', Fessiers: 'j', 'Ischio-jambiers': 'j', Mollets: 'j', Adducteurs: 'j',
+            Pectoraux: 'h', Dos: 'h', 'Épaules': 'h', Triceps: 'h', Biceps: 'h', 'Trapèzes': 'h', 'Avant-bras': 'h',
+            Abdominaux: 'c', Obliques: 'c', Lombaires: 'c', Cardio: 'k', 'Corps entier': 'k' };
+        function awakRemplacantPermis(ex, pris) {
+            if (typeof exerciseDatabase === 'undefined') return null;
+            const d = _awakDbDe(ex) || {};
+            const type = ex.type || d.type || 'exercise';
+            const muscle = ex.muscle || d.muscle;
+            const eqOk = new Set(['Poids du corps', 'Aucun', 'Tapis', 'Tapis de sol'].concat((ex.equipment && ex.equipment.length ? ex.equipment : d.equipment) || []));
+            let recents = new Set();
+            try { ((getWorkoutHistory() || [])[0] || {}).exercises.forEach(e => recents.add(typeof e === 'string' ? e : e.name)); } catch (e) {}
+            const prox = e => e.muscle === muscle ? 0 : (_AWAK_REGION[e.muscle] && _AWAK_REGION[e.muscle] === _AWAK_REGION[muscle] ? 1 : 2);
+            const c = exerciseDatabase.filter(e => e && !e.discipline && (e.type || 'exercise') === type && !pris[e.name]
+                && (e.equipment || []).every(q => eqOk.has(q))
+                && !(typeof awakExerciseBlockedByLocation === 'function' && awakExerciseBlockedByLocation(e))
+                && !awakRaisonRefus(e))
+                .map(e => ({ e, s: prox(e) * 10 + (recents.has(e.name) ? 5 : 0) + Math.random() }));
+            if (!c.length) return null;
+            c.sort((a, b) => a.s - b.s);
+            if (type === 'exercise' && c[0].s >= 20) return null;   // rien dans la même région : on retire
+            return c[0].e;
+        }
+
+        // Contrôle final d'une séance générée : chaque exercice non permis est remplacé
+        // (ou retiré s'il n'a pas d'équivalent), puis les repos orphelins sont nettoyés.
+        // Retourne { exercises, adaptes, retires, raisons }.
+        function awakAppliquerRegles(exercises) {
+            const pris = {}; const raisons = {}; let adaptes = 0, retires = 0;
+            (exercises || []).forEach(e => { if (e && e.name) pris[e._baseName || e.name] = 1; });
+            const out = [];
+            (exercises || []).forEach(ex => {
+                const r = awakRaisonRefus(ex);
+                if (!r) { out.push(ex); return; }
+                raisons[r] = 1;
+                const rep = awakRemplacantPermis(ex, pris);
+                if (!rep) { retires++; return; }
+                pris[rep.name] = 1; adaptes++;
+                const n = JSON.parse(JSON.stringify(rep));
+                ['sets', 'reps', 'recoSets', 'recoReps', 'recoRest', 'repos', 'mode', 'duration', '_seriesMinutees', 'exerciseType', 'bilateral', '_blocJeu']
+                    .forEach(k => { if (ex[k] != null) n[k] = ex[k]; });
+                if (ex.type) n.type = ex.type;
+                n._adapteDe = ex.name;
+                awakNormaliserIsometrique(n);
+                out.push(n);
+            });
+            const reel = x => x && !x.isRest && !x.isInfo;
+            const propre = out.filter((x, i, a) => {
+                if (!x || !x.isRest) return true;
+                if (!a.slice(0, i).some(reel) || !a.slice(i + 1).some(reel)) return false;
+                return !(a[i - 1] && a[i - 1].isRest);
+            });
+            return { exercises: propre, adaptes, retires, raisons: Object.keys(raisons) };
+        }
+        window.awakAppliquerRegles = awakAppliquerRegles;
         function determineExerciseMode(exercise, workoutMode) {
             if (awakEstIsometrique(exercise)) return 'timer';   // v1329 : une tenue se chronomètre
             if (workoutMode === 'timer') return 'timer';
@@ -15044,29 +15190,29 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     <div style="position:absolute;top:-1px;left:-1px;width:20px;height:20px;border-top:2px solid #22d3ee;border-left:2px solid #22d3ee;border-top-left-radius:18px;"></div>
                     <div style="position:absolute;top:-1px;right:-1px;width:20px;height:20px;border-top:2px solid #22d3ee;border-right:2px solid #22d3ee;border-top-right-radius:18px;"></div>
                     <div style="text-align:center;margin-bottom:20px;">
-                        <div style="font-size:0.54em;color:#22d3ee;font-weight:900;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;">◈ RÉCUPÉRATION ◈</div>
+                        <div style="font-size:0.72em;color:#67e8f9;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:8px;">◈ RÉCUPÉRATION ◈</div>
                         <div style="margin-bottom:8px;display:flex;justify-content:center;filter:drop-shadow(0 0 14px rgba(6,182,212,0.4));">
                             <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>
                             </svg>
                         </div>
-                        <h2 style="margin:0 0 6px;color:#e2e8f0;font-size:1.3em;">Jour de repos prévu</h2>
-                        <div style="background:rgba(6,182,212,0.12);border:1px solid rgba(6,182,212,0.3);border-radius:10px;padding:10px 14px;margin:12px 0;font-size:0.85em;color:#22d3ee;">
-                            📅 Plan du jour : <strong>${aiPlan || 'Repos'}</strong>
+                        <h2 style="margin:0 0 6px;color:#f8fafc;font-size:1.4em;">Jour de repos prévu</h2>
+                        <div style="background:rgba(6,182,212,0.12);border:1px solid rgba(6,182,212,0.3);border-radius:10px;padding:10px 14px;margin:12px 0;font-size:0.9em;color:#cbd5e1;">
+                            Plan du jour : <strong style="color:#67e8f9;">${aiPlan || 'Repos'}</strong>
                         </div>
-                        <p style="margin:0;color:#94a3b8;font-size:0.88em;">La récupération est essentielle pour progresser. Tes muscles se reconstruisent pendant le repos.</p>
+                        <p style="margin:0;color:#cbd5e1;font-size:0.92em;line-height:1.45;">La récupération est essentielle pour progresser. Tes muscles se reconstruisent pendant le repos.</p>
                     </div>
                     <button onclick="document.getElementById('muscleChoiceOverlay').remove()" style="
                         width:100%;padding:14px;border-radius:14px;border:none;
-                        background:linear-gradient(135deg,#06b6d4,#0891b2);color:white;
-                        cursor:pointer;font-weight:700;font-size:1em;margin-bottom:10px;">
-                        😴 Respecter le repos
+                        background:linear-gradient(135deg,#06b6d4,#0891b2);color:#04121f !important;
+                        cursor:pointer;font-weight:800;font-size:1em;margin-bottom:10px;">
+                        Respecter le repos
                     </button>
                     <button onclick="document.getElementById('muscleChoiceOverlay').remove();showManualMusclePickerModal();" style="
                         width:100%;padding:12px;border-radius:14px;
                         border:1px solid #252830;background:rgba(255,255,255,0.05);
-                        cursor:pointer;color:#94a3b8;font-size:0.88em;">
-                        🏋️ S'entraîner quand même (choisir les muscles)
+                        cursor:pointer;color:#e2e8f0;font-size:0.92em;font-weight:600;">
+                        S'entraîner quand même (choisir les muscles)
                     </button>
                 </div>`;
                 document.body.appendChild(overlay);
@@ -15075,11 +15221,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
             // ── JOUR D'ENTRAÎNEMENT NORMAL ────────────────────────────
             const aiHint = aiPlan
-                ? `<div style="background:rgba(22,163,74,0.12);border:1px solid rgba(22,163,74,0.3);border-radius:10px;padding:10px 14px;margin-top:10px;font-size:0.82em;color:#22d3ee;">
-                       📅 Plan du jour : <strong>${aiPlan}</strong>
+                ? `<div style="background:rgba(2,6,23,0.6);border:1px solid rgba(34,211,238,0.35);border-radius:10px;padding:10px 12px;margin-top:12px;font-size:0.85em;color:#cbd5e1;line-height:1.35;">
+                       Plan du jour : <strong style="color:#67e8f9;">${aiPlan}</strong>
                    </div>`
-                : `<div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px 14px;margin-top:10px;font-size:0.82em;color:#94a3b8;">
-                       📊 Le Système se base sur tes muscles récents, ton niveau et ton objectif.
+                : `<div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px 12px;margin-top:12px;font-size:0.85em;color:#cbd5e1;line-height:1.35;">
+                       Le Système se base sur tes muscles récents, ton niveau et ton objectif.
                    </div>`;
 
             overlay.innerHTML = `
@@ -15091,7 +15237,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     <div style="position:absolute;bottom:-1px;left:-1px;width:20px;height:20px;border-bottom:2px solid #22d3ee;border-left:2px solid #22d3ee;border-bottom-left-radius:18px;"></div>
                     <div style="position:absolute;bottom:-1px;right:-1px;width:20px;height:20px;border-bottom:2px solid #22d3ee;border-right:2px solid #22d3ee;border-bottom-right-radius:18px;"></div>
                     <div style="text-align:center;margin-bottom:20px;position:relative;z-index:1;">
-                        <div style="font-size:0.54em;color:#22d3ee;font-weight:900;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;text-shadow:0 0 10px rgba(34,211,238,0.5);">◈ PROTOCOLE DE CIBLAGE ◈</div>
+                        <div style="font-size:0.72em;color:#67e8f9;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:8px;text-shadow:0 0 10px rgba(34,211,238,0.5);">◈ PROTOCOLE DE CIBLAGE ◈</div>
                         <div style="margin-bottom:8px;display:flex;justify-content:center;filter:drop-shadow(0 0 14px rgba(34,211,238,0.4));">
                             <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/>
@@ -15099,20 +15245,20 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                                 <line x1="1.5" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22.5" y2="12"/>
                             </svg>
                         </div>
-                        <h2 style="margin:0 0 6px;color:#e2e8f0;font-size:1.3em;">Choix des muscles</h2>
-                        <p style="margin:0;color:#94a3b8;font-size:0.88em;">Qui décide des muscles à travailler aujourd'hui ?</p>
+                        <h2 style="margin:0 0 6px;color:#f8fafc;font-size:1.4em;">Choix des muscles</h2>
+                        <p style="margin:0;color:#cbd5e1;font-size:0.95em;line-height:1.4;">Qui décide des muscles à travailler aujourd'hui&nbsp;?</p>
                     </div>
 
                     <!-- Option IA -->
                     <button onclick="onMuscleChoiceAI()" style="
-                        width:100%;padding:18px 16px;border-radius:14px;border:2px solid transparent;
-                        background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;
+                        width:100%;padding:18px 16px;border-radius:14px;border:2px solid #22d3ee;
+                        background:linear-gradient(135deg,rgba(34,211,238,0.20),rgba(8,145,178,0.10)) !important;color:#f8fafc;
                         cursor:pointer;text-align:left;margin-bottom:12px;position:relative;z-index:1;
-                        box-shadow:0 4px 16px rgba(22,163,74,0.35);transition:transform 0.15s;"
+                        box-shadow:0 0 22px rgba(34,211,238,0.28),inset 0 0 18px rgba(34,211,238,0.08);transition:transform 0.15s;"
                         onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">
                         <div style="display:flex;align-items:center;gap:14px;">
                             <div style="flex-shrink:0;display:flex;">
-                                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#67e8f9" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
                                     <rect x="6" y="6" width="12" height="12" rx="2"/><rect x="9" y="9" width="6" height="6" rx="1"/>
                                     <line x1="9" y1="3" x2="9" y2="6"/><line x1="15" y1="3" x2="15" y2="6"/>
                                     <line x1="9" y1="18" x2="9" y2="21"/><line x1="15" y1="18" x2="15" y2="21"/>
@@ -15121,8 +15267,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                                 </svg>
                             </div>
                             <div>
-                                <div style="font-weight:700;font-size:1em;margin-bottom:3px;">Laisser le Système choisir</div>
-                                <div style="font-size:0.82em;opacity:0.9;">Basé sur ton plan hebdomadaire, ta récupération et ton objectif</div>
+                                <div style="font-weight:800;font-size:1.05em;margin-bottom:4px;color:#f8fafc;">Laisser le Système choisir</div>
+                                <div style="font-size:0.88em;color:#cbd5e1;line-height:1.35;">Basé sur ton plan hebdomadaire, ta récupération et ton objectif</div>
                             </div>
                         </div>
                         ${aiHint}
@@ -15131,7 +15277,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     <!-- Option Manuel -->
                     <button onclick="onMuscleChoiceManual()" style="
                         width:100%;padding:18px 16px;border-radius:14px;position:relative;z-index:1;
-                        border:1.5px solid rgba(34,211,238,0.3);background:rgba(34,211,238,0.06);
+                        border:1.5px solid rgba(148,163,184,0.35);background:rgba(255,255,255,0.04) !important;
                         cursor:pointer;text-align:left;margin-bottom:16px;transition:all 0.15s;"
                         onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">
                         <div style="display:flex;align-items:center;gap:14px;">
@@ -15144,15 +15290,15 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                                 </svg>
                             </div>
                             <div>
-                                <div style="font-weight:700;font-size:1em;margin-bottom:3px;color:#e2e8f0;">Je choisis mes muscles</div>
-                                <div style="font-size:0.82em;color:#94a3b8;">Sélectionner manuellement les groupes à travailler</div>
+                                <div style="font-weight:800;font-size:1.05em;margin-bottom:4px;color:#f8fafc;">Je choisis mes muscles</div>
+                                <div style="font-size:0.88em;color:#cbd5e1;line-height:1.35;">Sélectionner manuellement les groupes à travailler</div>
                             </div>
                         </div>
                     </button>
 
                     <button onclick="document.getElementById('muscleChoiceOverlay').remove()" style="
                         width:100%;padding:11px;border-radius:14px;border:none;position:relative;z-index:1;
-                        background:rgba(255,255,255,0.06);color:#6b7280;cursor:pointer;font-size:0.9em;">
+                        background:rgba(255,255,255,0.06);color:#cbd5e1;cursor:pointer;font-size:0.95em;font-weight:600;">
                         Annuler
                     </button>
                 </div>`;
@@ -18001,6 +18147,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const _avecMat = candidates.filter(_matOk);
                 if (_avecMat.length >= 2) candidates = _avecMat;
                 try { if (window.AwakPain && typeof AwakPain.filterExercises === 'function') { const _sd = AwakPain.filterExercises(candidates); if (_sd.length) candidates = _sd; } } catch (e) {}
+                try { const _rg = candidates.filter(ex => !awakRaisonRefus(ex, { sansNiveau: true })); if (_rg.length) candidates = _rg; } catch (e) {}   // v1339
                 // Trier par préférence de niveau
                 candidates.sort((a, b) => {
                     const ia = levelPreference.indexOf(a.difficulty);
@@ -22356,7 +22503,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1337);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1340);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -22408,7 +22555,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 +       '<rect width="5" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.22"/>'
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1337" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1340" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -27855,7 +28002,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1337");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1340");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -32254,7 +32401,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1337);'
+                +     'url(images/combat_bg_v1.webp?v=1340);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -32509,7 +32656,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1337);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1340);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -32781,7 +32928,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:540px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto;display:flex;flex-direction:column;">
                 <!-- Header : vague actuelle -->
-                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1337);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1340);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                         <span style="font-size:0.6em;color:${theme.color};font-weight:900;letter-spacing:2px;">⚔ VAGUE ${rift.currentWaveIdx + 1} / ${rift.waves.length}${currentWave.isBoss ? ' · BOSS' : ''}</span>
                         <button onclick="awakAbandonRift()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
@@ -33911,7 +34058,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1337');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1340');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -34648,7 +34795,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1337);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1340);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -34819,7 +34966,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1337);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1340);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -45720,7 +45867,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
             host.innerHTML =
                 '<div style="position:relative;width:110px;margin:0 auto 12px;">'
-              +   '<img src="images/body/body_face.webp?v=1337" alt="" '
+              +   '<img src="images/body/body_face.webp?v=1340" alt="" '
               +     'style="width:100%;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -45802,7 +45949,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1337);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1340);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -45869,7 +46016,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1337);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1340);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -48188,7 +48335,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1337");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1340");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
