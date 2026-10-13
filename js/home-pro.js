@@ -359,8 +359,8 @@
         '<div style="display:flex;align-items:flex-start;gap:12px;">' +
           '<div style="flex:1;min-width:0;padding-top:2px;">' +
             '<div class="ahp-kick">' + esc(date) + '</div>' +
-            '<div style="font-family:var(--font-display);font-size:1.38em;font-weight:800;color:#f8fafc;line-height:1.15;margin-top:5px;">' +
-              (faiteAuj ? 'Bien joué aujourd\'hui' : 'Prêt pour aujourd\'hui ?') + '</div>' +
+            '<div style="font-family:var(--font-display);font-size:clamp(1em,4.6vw,1.38em);font-weight:800;color:#f8fafc;line-height:1.15;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' +
+              (faiteAuj ? 'Bien joué aujourd\'hui' : 'Prêt pour aujourd\'hui\u00a0?') + '</div>' +
             (sousTitre ? '<div style="font-size:0.8em;color:#cbd5e1;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(sousTitre) + '</div>' : '') +
           '</div>' +
           '<button onclick="if(typeof showProfileSelectionModal===\'function\')showProfileSelectionModal()" aria-label="Changer de profil" data-emoji-keep="1" ' +

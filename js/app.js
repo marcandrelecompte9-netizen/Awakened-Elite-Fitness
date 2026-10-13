@@ -5068,7 +5068,16 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         ];
 
         function getPeriodizationEnabled() {
-            return localStorage.getItem('fitproPeriodization') === '1';
+            const v = localStorage.getItem('fitproPeriodization');
+            if (v === '1') return true;
+            if (v === '0') return false;
+            // v1342 : jamais réglée → ACTIVE par défaut pour force et prise de muscle
+            // (un mois de 3×8-12 identiques n'est pas un programme). Pas pour un enfant.
+            try {
+                if (window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()) return false;
+                const g = (getUserProfile() || {}).goal;
+                return g === 'strength' || g === 'muscle_gain';
+            } catch (e) { return false; }
         }
 
         function setPeriodizationEnabled(on) {
@@ -5081,6 +5090,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
         function getCurrentPhase() {
             if (!getPeriodizationEnabled()) return null;
+            if (!localStorage.getItem('fitproPeriodizationStart')) { try { localStorage.setItem('fitproPeriodizationStart', String(Date.now())); } catch (e) {} }
             const start = parseInt(localStorage.getItem('fitproPeriodizationStart') || String(Date.now()));
             const weeksSince = Math.floor((Date.now() - start) / (7 * 24 * 60 * 60 * 1000));
             const weekInCycle = (weeksSince % 4) + 1;
@@ -5359,6 +5369,23 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             } catch(e) { return null; }
         }
 
+        // v1344 : temps ACTIF d'une séance sauvegardée = jusqu'à la dernière sauvegarde.
+        // Avant, l'app comptait l'heure actuelle − l'heure de début : une séance quittée
+        // hier soir affichait « 1268 min écoulées » et, reprise, s'enregistrait à 21 h.
+        function awakMinutesActives(state) {
+            if (!state || !state.startTime) return 0;
+            const fin = state.savedAt || Date.now();
+            return Math.max(0, Math.round((fin - state.startTime) / 60000));
+        }
+        function awakPauseDepuis(state) {
+            if (!state || !state.savedAt) return '';
+            const min = Math.round((Date.now() - state.savedAt) / 60000);
+            if (min < 30) return '';
+            if (min < 90) return 'en pause depuis ' + min + ' min';
+            return 'en pause depuis ' + Math.round(min / 60) + ' h';
+        }
+        window.awakMinutesActives = awakMinutesActives;
+
         function clearActiveWorkoutState() {
             localStorage.removeItem(_workoutStateKey());
             // v1291 : le bandeau « Reprendre » de l'Accueil restait affiché après un
@@ -5435,7 +5462,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
             if (active) {
                 // Séance en cours — bouton "Reprendre"
-                const minutes = Math.round((Date.now() - active.startTime) / 60000);
+                const minutes = awakMinutesActives(active);
+                const _pause = awakPauseDepuis(active);
                 const wkName = active.workout.name || 'Séance';
                 const progress = active.workout.exercises ? Math.round((active.exerciseIndex / active.workout.exercises.length) * 100) : 0;
                 return `<div style="margin-bottom:14px;">
@@ -5448,7 +5476,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         <div style="flex:1;min-width:0;">
                             <div style="font-size:0.62em;letter-spacing:2px;opacity:0.9;font-weight:700;">SÉANCE EN COURS</div>
                             <div style="font-size:1em;font-weight:900;line-height:1.2;margin-top:2px;">Reprendre ${wkName}</div>
-                            <div style="font-size:0.7em;opacity:0.85;margin-top:3px;">${minutes} min écoulées · ${progress}% complété</div>
+                            <div style="font-size:0.7em;opacity:0.85;margin-top:3px;">${minutes} min faites · ${progress}% complété${_pause ? ' · ' + _pause : ''}</div>
                         </div>
                         <div style="font-size:1.4em;flex-shrink:0;"><svg viewBox="0 0 24 24" width="15" height="15" style="display:inline-block;vertical-align:-0.15em;" fill="currentColor" aria-hidden="true"><path d="M6 3.5 L20 12 L6 20.5 Z"/></svg></div>
                     </button>
@@ -6070,7 +6098,16 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             currentWorkout = state.workout;
             if (typeof currentExerciseIndex !== 'undefined') currentExerciseIndex = state.exerciseIndex || 0;
             if (typeof currentSetNumber !== 'undefined')     currentSetNumber     = state.setIndex || 1;
-            if (typeof workoutStartTime !== 'undefined')     workoutStartTime     = state.startTime || Date.now();
+            // v1344 : le temps où l'app était fermée ne compte pas dans la durée de la séance
+            if (typeof workoutStartTime !== 'undefined') {
+                const _ancien = state.startTime || 0;
+                workoutStartTime = _ancien ? Date.now() - Math.max(0, (state.savedAt || Date.now()) - _ancien) : Date.now();
+                // le suivi d'XP de la séance est lié à l'heure de début : on le garde
+                try {
+                    const _xp = JSON.parse(localStorage.getItem(XP_WORKOUT_TRACKING_KEY) || 'null');
+                    if (_xp && _xp.startTime === _ancien) { _xp.startTime = workoutStartTime; localStorage.setItem(XP_WORKOUT_TRACKING_KEY, JSON.stringify(_xp)); }
+                } catch (e) {}
+            }
             // 💾 Recharger les séries déjà saisies (le _currentSessionSets en
             // mémoire est vide après un rechargement de l'app). Sinon la reprise
             // repartirait sans les séries validées avant d'avoir quitté.
@@ -6598,17 +6635,27 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try {
                 const ph = (typeof getCurrentPhase === 'function') ? getCurrentPhase() : null;
                 if (ph && ph.reps) {
-                    repsFinal = ph.reps;
                     if (ph.intensity >= 85) {                       // Force
-                        rest = Math.round(rest * 1.7);
-                        sets = Math.min(5, sets + 1);
+                        // v1342 : le lourd (3-6) pour les GROS mouvements seulement ; les
+                        // exercices d'isolation, le gainage et le cardio gardent leur schéma.
+                        // structureType absent = estimation du nombre d'exercices (≈ 1/3 de composés).
+                        if (structureType === 'compound') {
+                            repsFinal = ph.reps;
+                            rest = Math.round(rest * 1.7);
+                            sets = Math.min(5, sets + 1);
+                        } else if (structureType == null) {
+                            rest = Math.round(rest * 1.25);
+                        }
                     } else if (ph.intensity <= 60) {                // Décharge
+                        repsFinal = ph.reps;
                         rest = Math.round(rest * 1.15);
-                        // ne pas cumuler avec la décharge manuelle déjà appliquée
+                        // ne pas cumuler avec la décharge manuelle déjà appliquée ; et pas pour
+                        // l'estimation : une décharge garde autant d'exercices, avec moins de séries
                         const dejaDecharge = (typeof awakDeloadActive === 'function') && awakDeloadActive();
-                        if (!dejaDecharge) sets = Math.max(2, sets - 1);
-                    } else if (ph.phase === 'hypertrophy+') {       // Volume max
-                        rest = Math.round(rest * 0.85);
+                        if (!dejaDecharge && structureType != null) sets = Math.max(2, sets - 1);
+                    } else {
+                        repsFinal = ph.reps;
+                        if (ph.phase === 'hypertrophy+') rest = Math.round(rest * 0.85);   // Volume max
                     }
                 }
             } catch (e) {}
@@ -6644,7 +6691,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (_tp === 'warmup' || _tp === 'stretch') continue;
                 if (ex.mode === 'timer' || ex.mode === 'duration') continue;
                 const exType = (typeof getExerciseType === 'function') ? getExerciseType(ex.name) : 'force';
-                const p = awakPrescribe(goal, level, ex.structureType, exType);
+                // v1342 : les exercices choisis par couverture n'ont pas de structureType → on le déduit
+                let _st = ex.structureType; if (!_st) { try { _st = classifyExercise(ex); } catch (e) { _st = 'isolation'; } }
+                const p = awakPrescribe(goal, level, _st, exType);
                 const lastPerf = (typeof getLastPerformance === 'function') ? getLastPerformance(ex.name) : null;
                 ex.recoSets = p.sets;
                 // Le compteur de séries utilisait 3 par défaut alors que la
@@ -7121,6 +7170,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         }
         window.awakPopInfo = awakPopInfo;
 
+        function _awakEnSalle() {
+            try { const d = getSelectedEquipmentNames(); return d.includes('Barre') || d.includes('Machine'); } catch (e) { return false; }
+        }
         function scoreExercise(ex, profile, recentExercises, performanceHistory, fatiguedMuscles) {
             let score = 50; // base
 
@@ -7162,6 +7214,18 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
             // 🔥 Popularité mondiale (valeur sûre) + affinité avec le sexe du profil → ressort davantage.
             try { score += awakPopBoost(ex.name); } catch (e) {}
+            // v1342 : EN SALLE (barre ou machines cochées), les exercices « maison »
+            // (poids du corps ou élastique seul, objets de la maison) passent après les
+            // charges. Tractions, dips et gainage gardent leur place.
+            try {
+                if (_awakEnSalle()) {
+                    const eqx = (ex.equipment && ex.equipment.length) ? ex.equipment : ['Poids du corps'];
+                    const maison = eqx.every(q => q === 'Poids du corps' || q === 'Aucun' || q === 'Élastique' || q === 'Tapis')
+                        || /table|serviette|sac à dos|porte|chaise/i.test(ex.name || '');
+                    const garde = /traction|dips|pull-?up|chin|muscle-?up/i.test(ex.name || '') || ex.muscle === 'Abdominaux' || ex.muscle === 'Obliques' || awakPopInfo(ex.name);
+                    if (maison && !garde) score -= 25;
+                }
+            } catch (e) {}
 
             // 🆕 Exercice souvent remplacé → l'utilisateur ne l'aime pas, on le propose moins.
             try {
@@ -7907,7 +7971,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // recommandation et ça me ramène dans la Faille »).
         function awakSeanceDejaEnCours(etat, nouvelle) {
             const nomActuel = (etat && etat.workout && etat.workout.name) ? etat.workout.name : 'Séance en cours';
-            const minutes = (etat && etat.startTime) ? Math.max(1, Math.round((Date.now() - etat.startTime) / 60000)) : null;
+            const minutes = (etat && etat.startTime) ? Math.max(1, awakMinutesActives(etat)) : null;   // v1344 : temps actif
             const nomNouvelle = (nouvelle && nouvelle.name) ? nouvelle.name : 'la nouvelle séance';
             window._awakSeanceEnAttente = nouvelle;
 
@@ -12611,7 +12675,15 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (!pil) {
                     const duMuscle = pool.filter(e => e.muscle === m);
                     const comp = duMuscle.filter(e => { try { return classifyExercise(e) === 'compound'; } catch (x) { return false; } });
-                    const cands = comp.length ? comp : duMuscle;
+                    let cands = comp.length ? comp : duMuscle;
+                    // v1343 : pilier rejeté (remplacé 2 fois) → pas repris dans ce bloc
+                    const _excl = (st.exclus || {})[ctx + '|' + m] || [];
+                    if (_excl.length) { const c2 = cands.filter(e => _excl.indexOf(e.name) === -1); if (c2.length) cands = c2; }
+                    // v1342 : en salle, un pilier se charge (barre, haltères, machine…) — sauf tractions / dips
+                    if (_awakEnSalle()) {
+                        const charge = cands.filter(e => /traction|dips|pull-?up|chin/i.test(e.name) || (e.equipment || []).some(q => !['Poids du corps', 'Aucun', 'Élastique', 'Tapis'].includes(q)));
+                        if (charge.length) cands = charge;
+                    }
                     if (!cands.length) return;
                     let best = null;
                     cands.forEach(e => {
@@ -12624,13 +12696,184 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 }
                 const deja = out.findIndex(e => e && e.name === pil.name);
                 if (deja !== -1) { out[deja] = { ...out[deja], _pilier: true }; return; }
-                const j = out.findIndex(e => e && e.muscle === m && e.structureType === 'compound');
+                // v1342 : remplace d'abord la VARIANTE du même mouvement (squat barre bas → squat barre haut)
+                const fam = awakFamilleMouvement(pil.name);
+                const jf = fam ? out.findIndex(e => e && e.muscle === m && awakFamilleMouvement(e.name) === fam) : -1;
+                const j = jf !== -1 ? jf : out.findIndex(e => e && e.muscle === m && e.structureType === 'compound');
                 const k = j !== -1 ? j : idx;
                 out[k] = { ...pil, structureType: out[k].structureType || 'compound', _pilier: true };
             });
             if (change) { try { localStorage.setItem(_cleProfil('awakPiliers'), JSON.stringify(st)); } catch (e) {} }
             return out;
         }
+        // v1342 : FAMILLE DE MOUVEMENT — deux variantes d'un même geste (squat barre
+        // haut + bas, développé couché barre + haltères) ne vont pas dans la même séance.
+        function awakFamilleMouvement(nom) {
+            const n = String(nom || '').toLowerCase();
+            if (/sissy|jump|saut|wall sit|chaise|pistol|étirement|stretch/.test(n)) return null;
+            if (/(développé|press|bench).*(incliné|incline)|(incliné|incline).*(press|bench|développé)/.test(n)) return 'incline';
+            if (/développé couché|bench press|chest press|développé décliné|floor press/.test(n)) return 'couche';
+            if (/militaire|overhead press|shoulder press|arnold|presse épaules/.test(n)) return 'epaules';
+            if (/traction|pull-?up|chin-?up|lat pulldown|tirage vertical|tirage nuque/.test(n)) return 'vertical';
+            if (/rowing|\brow\b|seated row|t-bar/.test(n)) return 'rowing';
+            if (/soulev|deadlift/.test(n)) return 'sdt';
+            if (/hip thrust|glute bridge|pont fessier/.test(n)) return 'pont';
+            if (/fente|lunge|bulgare|split squat|step-?up/.test(n)) return 'fente';
+            if (/squat|presse à jambes|leg press|hack/.test(n)) return 'squat';
+            if (/good morning|kettlebell swing/.test(n)) return 'charniere';
+            return null;
+        }
+        window.awakFamilleMouvement = awakFamilleMouvement;
+
+        // v1342 : AFFINAGE de la sélection pour qu'elle ressemble à un programme :
+        //   1. une seule variante par mouvement et par muscle ;
+        //   2. bras : une isolation par muscle (biceps, triceps, avant-bras) quand la
+        //      séance vise aussi pectoraux / dos / épaules — la place va au gros muscle ;
+        //   3. bas du corps : au moins un mouvement genou (squat, fente) et un mouvement
+        //      hanche (soulevé, pont / hip thrust) quand ces muscles sont au programme.
+        // Les remplaçants viennent du réservoir déjà filtré (matériel, règles du profil).
+        function awakAffinerSelection(selected, pool, musclesSeance, profile) {
+            if (!Array.isArray(selected) || !Array.isArray(pool)) return selected;
+            const out = selected.slice();
+            let perf = {}; try { perf = JSON.parse(localStorage.getItem(_cleProfilLecture('exercisePerformance')) || '{}'); } catch (e) {}
+            const recents = new Set();
+            try { getWorkoutHistory().slice(0, 2).forEach(w => (w.exercises || []).forEach(e => recents.add(typeof e === 'string' ? e : e.name))); } catch (e) {}
+            const pris = () => new Set(out.map(e => e && e.name));
+            const piocher = (pred) => {
+                const deja = pris(); let best = null;
+                pool.forEach(e => {
+                    if (!e || deja.has(e.name) || !pred(e)) return;
+                    const sc = scoreExercise(e, profile || {}, recents, perf, []);
+                    if (!best || sc > best.s) best = { e, s: sc };
+                });
+                return best ? best.e : null;
+            };
+            const muscles = new Set(musclesSeance || []);
+            const BRAS = ['Biceps', 'Triceps', 'Avant-bras'];
+            // repli : un autre muscle de la séance (hors bras), sans doubler un mouvement
+            const ailleurs = () => piocher(e => muscles.has(e.muscle) && !BRAS.includes(e.muscle)
+                && !out.some(o => o && o.muscle === e.muscle && awakFamilleMouvement(o.name) && awakFamilleMouvement(o.name) === awakFamilleMouvement(e.name)));
+            const poser = (i, e) => { out[i] = { ...e, structureType: out[i].structureType || e.structureType }; };
+            // 1. variantes du même mouvement
+            for (let i = 0; i < out.length; i++) {
+                const a = out[i]; if (!a) continue;
+                const fam = awakFamilleMouvement(a.name); if (!fam) continue;
+                for (let j = i + 1; j < out.length; j++) {
+                    const b = out[j];
+                    if (!b || b.muscle !== a.muscle || awakFamilleMouvement(b.name) !== fam) continue;
+                    const garde = b._pilier && !a._pilier ? j : i, jette = garde === i ? j : i;
+                    const famsDuMuscle = new Set(out.filter(e => e && e.muscle === a.muscle).map(e => awakFamilleMouvement(e.name)));
+                    const r = piocher(e => e.muscle === a.muscle && !famsDuMuscle.has(awakFamilleMouvement(e.name))) || ailleurs();
+                    if (r) poser(jette, r);
+                    if (jette === i) break;
+                }
+            }
+            // 2. bras
+            const gros = ['Pectoraux', 'Dos', 'Épaules'].filter(m => muscles.has(m));
+            if (gros.length) {
+                ['Biceps', 'Triceps', 'Avant-bras'].forEach(m => {
+                    const idx = out.map((e, i) => (e && e.muscle === m && !e._pilier) ? i : -1).filter(i => i !== -1);
+                    idx.slice(1).forEach(i => {
+                        const compte = g => out.filter(e => e && e.muscle === g).length;
+                        const cible = gros.slice().sort((x, y) => compte(x) - compte(y))[0];
+                        const fams = new Set(out.filter(e => e && e.muscle === cible).map(e => awakFamilleMouvement(e.name)).filter(Boolean));
+                        const r = piocher(e => e.muscle === cible && !fams.has(awakFamilleMouvement(e.name))) || ailleurs();
+                        if (r) poser(i, r);
+                    });
+                });
+            }
+            // 3. bas du corps
+            const JAMBES = ['Quadriceps', 'Fessiers', 'Ischio-jambiers', 'Mollets', 'Adducteurs'];
+            const motif = (fams) => out.some(e => e && fams.includes(awakFamilleMouvement(e.name)));
+            const remplacable = () => {
+                // une jambe hors pilier, sans mouvement de base, de préférence un muscle en double
+                const c = out.map((e, i) => ({ e, i })).filter(x => x.e && JAMBES.includes(x.e.muscle) && !x.e._pilier && !awakFamilleMouvement(x.e.name));
+                c.sort((a, b) => out.filter(e => e && e.muscle === b.e.muscle).length - out.filter(e => e && e.muscle === a.e.muscle).length);
+                return c.length ? c[0].i : -1;
+            };
+            const nbJambes = out.filter(e => e && JAMBES.includes(e.muscle)).length;
+            if (nbJambes >= 2) {
+                if (muscles.has('Quadriceps') && !motif(['squat', 'fente'])) {
+                    const i = remplacable(), r = i !== -1 ? piocher(e => ['squat', 'fente'].includes(awakFamilleMouvement(e.name)) && (muscles.has(e.muscle))) : null;
+                    if (r) poser(i, r);
+                }
+                if ((muscles.has('Ischio-jambiers') || muscles.has('Fessiers')) && !motif(['sdt', 'pont', 'charniere'])) {
+                    const i = remplacable(), r = i !== -1 ? piocher(e => ['sdt', 'pont', 'charniere'].includes(awakFamilleMouvement(e.name)) && (muscles.has(e.muscle))) : null;
+                    if (r) poser(i, r);
+                }
+            }
+            return out;
+        }
+
+        // v1343 : la personne REMPLACE son pilier pendant la séance. 1re fois : rien (une
+        // journée sans envie). 2e fois dans le même bloc : le pilier change — pour
+        // l'exercice choisi s'il est un gros mouvement du même muscle, sinon le Système
+        // en choisit un autre (l'ancien est écarté jusqu'à la fin du bloc).
+        function awakPilierRemplace(oldName, newEx) {
+            try {
+                const st = _awakPiliersLire();
+                const ctx = _awakPilierCtx();
+                const piliers = st.ctx[ctx] = st.ctx[ctx] || {};
+                const m = Object.keys(piliers).find(k => piliers[k] === oldName);
+                if (!m) return null;
+                st.swaps = st.swaps || {};
+                const cle = ctx + '|' + m;
+                st.swaps[cle] = (st.swaps[cle] || 0) + 1;
+                let nouveau = null;
+                if (st.swaps[cle] >= 2) {
+                    st.swaps[cle] = 0;
+                    st.exclus = st.exclus || {};
+                    st.exclus[cle] = (st.exclus[cle] || []).concat([oldName]);
+                    let ok = false;
+                    try { ok = newEx && newEx.muscle === m && classifyExercise(newEx) === 'compound' && !awakRaisonRefus(newEx); } catch (e) {}
+                    if (ok) { piliers[m] = newEx.name; nouveau = newEx.name; }
+                    else delete piliers[m];
+                }
+                localStorage.setItem(_cleProfil('awakPiliers'), JSON.stringify(st));
+                if (st.swaps[cle] === 0) {
+                    setTimeout(() => { try { showToast(nouveau ? ('Nouveau pilier pour ' + m.toLowerCase() + ' : ' + nouveau) : ('Pilier ' + m.toLowerCase() + ' changé à ta prochaine séance'), 'info', 3500); } catch (e) {} }, 3800);
+                }
+                return { muscle: m, nouveau, change: st.swaps[cle] === 0 };
+            } catch (e) { return null; }
+        }
+        window.awakPilierRemplace = awakPilierRemplace;
+
+        // v1343 : choisir soi-même un pilier (Réglages › Variété des exercices)
+        function awakChangerPilier(m) {
+            const dispo = (() => { try { return getSelectedEquipmentNames(); } catch (e) { return ['Poids du corps']; } })();
+            const st = _awakPiliersLire(); const ctx = _awakPilierCtx();
+            const actuel = ((st.ctx[ctx] || {})[m]) || '';
+            const cands = exerciseDatabase.filter(e => e.type === 'exercise' && !e.discipline && e.muscle === m
+                && (typeof awakEquipmentOk !== 'function' || awakEquipmentOk(e, dispo)) && !awakRaisonRefus(e)
+                && (() => { try { return classifyExercise(e) === 'compound'; } catch (x) { return false; } })())
+                .sort((a, b) => (awakPopBoost(b.name) - awakPopBoost(a.name)) || a.name.localeCompare(b.name, 'fr'));
+            document.getElementById('awakPilierModal')?.remove();
+            const esc = t => String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+            const ov = document.createElement('div');
+            ov.id = 'awakPilierModal';
+            ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:10150;display:flex;align-items:center;justify-content:center;padding:18px;';
+            ov.onclick = e => { if (e.target === ov) ov.remove(); };
+            const ligne = (nom, sel) => '<button data-pil="' + esc(nom) + '" style="display:block;width:100%;text-align:left;min-height:auto;padding:11px 13px;margin-bottom:7px;border-radius:10px;cursor:pointer;font-family:inherit;font-size:0.9em;font-weight:700;'
+                + (sel ? 'background:rgba(34,211,238,0.16) !important;border:1.5px solid #22d3ee;color:#f8fafc;' : 'background:rgba(255,255,255,0.04) !important;border:1px solid rgba(148,163,184,0.3);color:#e2e8f0;') + '">' + esc(nom) + '</button>';
+            ov.innerHTML = '<div style="background:#0b1220;border:1.5px solid rgba(34,211,238,0.45);border-radius:16px;padding:20px 18px;max-width:400px;width:100%;max-height:85vh;overflow-y:auto;">'
+                + '<div style="font-size:0.72em;color:#67e8f9;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">Exercice pilier</div>'
+                + '<h3 style="margin:0 0 12px;color:#f8fafc;font-size:1.15em;">' + esc(m) + '</h3>'
+                + (cands.length ? cands.map(e => ligne(e.name, e.name === actuel)).join('') : '<p style="color:#cbd5e1;">Aucun gros mouvement possible avec ton matériel.</p>')
+                + '<button data-pil="" style="display:block;width:100%;min-height:auto;padding:11px;margin-top:6px;border-radius:10px;cursor:pointer;font-family:inherit;font-size:0.88em;font-weight:700;background:rgba(255,255,255,0.06) !important;border:none;color:#cbd5e1;">Laisser le Système choisir</button>'
+                + '</div>';
+            ov.querySelectorAll('[data-pil]').forEach(b => b.addEventListener('click', () => {
+                const nom = b.getAttribute('data-pil');
+                const s2 = _awakPiliersLire(); const p2 = s2.ctx[ctx] = s2.ctx[ctx] || {};
+                if (nom) p2[m] = nom; else delete p2[m];
+                if (s2.swaps) delete s2.swaps[ctx + '|' + m];
+                try { localStorage.setItem(_cleProfil('awakPiliers'), JSON.stringify(s2)); } catch (e) {}
+                ov.remove();
+                awakMajBoutonsVariete();
+            }));
+            document.body.appendChild(ov);
+        }
+        window.awakChangerPilier = awakChangerPilier;
+
         function awakMajBoutonsVariete() {
             const v = awakVarietePref();
             try { document.querySelectorAll('[data-variete]').forEach(b => { const on = b.getAttribute('data-variete') === v; b.style.background = on ? '#22d3ee' : 'rgba(255,255,255,0.04)'; b.style.color = on ? '#04121f' : '#cbd5e1'; b.style.borderColor = on ? '#22d3ee' : 'rgba(255,255,255,0.12)'; }); } catch (e) {}
@@ -12638,10 +12881,16 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (!info) return;
             if (!awakPiliersActifs()) { info.textContent = v === 'variete' ? 'Aucun exercice pilier : chaque séance varie.' : 'Pas d\'exercices piliers pour ton objectif : tes séances varient.'; return; }
             let st = {}; try { st = JSON.parse(localStorage.getItem(_cleProfilLecture('awakPiliers')) || '{}') || {}; } catch (e) {}
-            const noms = Object.values((st.ctx || {})[_awakPilierCtx()] || {});
-            if (!noms.length) { info.textContent = 'Tes exercices piliers seront choisis à ta prochaine séance.'; return; }
+            const pil = (st.ctx || {})[_awakPilierCtx()] || {};
+            const muscles = AWAK_PILIER_MUSCLES.filter(m => pil[m]);
+            if (!muscles.length) { info.textContent = 'Tes exercices piliers seront choisis à ta prochaine séance.'; return; }
             const fin = new Date(Date.parse(st.debut) + AWAK_PILIER_JOURS * 86400000);
-            info.textContent = 'Piliers actuels : ' + noms.join(', ') + '. Ils changent le ' + fin.toLocaleDateString('fr-CA', { day: 'numeric', month: 'long' }) + '.';
+            const esc = t => String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+            // v1343 : un bouton « Changer » par pilier
+            info.innerHTML = '<div style="margin-bottom:6px;">Piliers actuels — ils changent le ' + esc(fin.toLocaleDateString('fr-CA', { day: 'numeric', month: 'long' })) + ' :</div>'
+                + muscles.map(m => '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 0;border-top:1px solid rgba(148,163,184,0.15);">'
+                    + '<span style="color:#e2e8f0;"><span style="color:#94a3b8;">' + esc(m) + ' · </span>' + esc(pil[m]) + '</span>'
+                    + '<button onclick="awakChangerPilier(\'' + m.replace(/'/g, "\\'") + '\')" style="min-height:auto;flex-shrink:0;padding:6px 11px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:0.82em;font-weight:800;background:rgba(34,211,238,0.12) !important;border:1px solid rgba(34,211,238,0.5);color:#67e8f9;">Changer</button></div>').join('');
         }
         function awakSetVarietePref(v) {
             try { localStorage.setItem(_cleProfil('awakVariete'), v); } catch (e) {}
@@ -12991,6 +13240,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // v1341 : exercices piliers (force / prise de muscle) — pris dans le réservoir
             // complet, ils reviennent même s'ils ont été faits récemment.
             try { selectedExercises = awakPiliersAppliquer(selectedExercises, availableExercises, profile); } catch (e) {}
+            // v1342 : variantes en double, bras, mouvements de base du bas du corps
+            try { selectedExercises = awakAffinerSelection(selectedExercises, availableExercises, workingMuscles, profile); } catch (e) {}
 
             // ⚖️ Avertissement RIGOUREUX : parmi les muscles CHOISIS, lesquels ne
             // sont réellement PAS couverts par les exercices retenus — en tenant
@@ -15148,6 +15399,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             } catch (e) {}
             return /saut|jump|burpee|skater|plyo/i.test(ex.name || '');
         }
+        const _AWAK_MAT_CACHE = [
+            [/dead hang|suspension|towel pull|hanging|suspendu/i, ['Barres parallèles']],
+            [/rice bucket|seau de riz|wrist roller/i, ['__jamais__']],
+            [/curl incliné|curl pupitre|incline shrug|banc incliné/i, ['Banc', 'Machine']],
+            [/step-?up sur banc|box jump|wrist curl barre \(banc\)/i, ['Banc']]
+        ];
+        const _AWAK_EQUILIBRE_BASE = /^(Équilibre sur une jambe|Marche talon-pointe)$/;
         function awakRaisonRefus(ex, opts) {
             if (!ex || ex.isRest || ex.isInfo || !ex.name) return null;
             opts = opts || {};
@@ -15160,6 +15418,15 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try { if (window.AwakPain && AwakPain.exerciseHitsPain && AwakPain.exerciseHitsPain(t)) return 'douleurs'; } catch (e) {}
             try { if (silentMode && _awakImpact(t)) return 'mode silencieux'; } catch (e) {}
             try { if (getExerciseBlacklist().includes(t.name)) return 'exercices bannis'; } catch (e) {}
+            // v1342 : matériel CACHÉ (marqué « poids du corps » mais il faut une barre, un banc, du riz…)
+            try {
+                const dispo = getSelectedEquipmentNames();
+                for (const [rx, req] of _AWAK_MAT_CACHE) if (rx.test(t.name) && !req.some(q => dispo.includes(q))) return 'matériel';
+            } catch (e) {}
+            // v1342 : équilibre de base (pensé pour les enfants) → enfants et 65 ans et plus seulement
+            try {
+                if (_AWAK_EQUILIBRE_BASE.test(t.name) && !(window.AwakYouth && ((AwakYouth.isChild && AwakYouth.isChild()) || (AwakYouth.isSenior && AwakYouth.isSenior())))) return 'âge';
+            } catch (e) {}
             if (!opts.sansNiveau) {
                 try {
                     const p = getUserProfile() || {};
@@ -21563,7 +21830,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             } catch (e) {}
             if (tabName === 'history' && rpgEnabled()) setTimeout(renderRPGPanel, 50);
             if (tabName === 'settings') { try { if (typeof awakRenderTerminalHead === 'function') awakRenderTerminalHead(); } catch (e) {} }
-            if (tabName === 'settings') { try { awakMajBoutonsSplit(); awakMajBoutonsVariete(); } catch (e) {} }
+            if (tabName === 'settings') { try { awakMajBoutonsSplit(); awakMajBoutonsVariete(); const _pt = document.getElementById('periodizationToggle'); if (_pt) _pt.checked = getPeriodizationEnabled(); } catch (e) {} }
             if (tabName === 'settings') { try { if (window.AwakSante) AwakSante.rendreReglages(); } catch (e) {} }
             if (tabName === 'settings') setTimeout(() => { if (typeof awakRefreshDevPanel === 'function') awakRefreshDevPanel(); }, 50);
             // ✨ Rattrapage des Failles narratives : la condition n'était
@@ -22599,7 +22866,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1341);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1348);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -22651,7 +22918,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 +       '<rect width="5" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.22"/>'
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1341" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1348" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -28098,7 +28365,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1341");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1348");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -32497,7 +32764,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1341);'
+                +     'url(images/combat_bg_v1.webp?v=1348);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -32752,7 +33019,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1341);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1348);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -33024,7 +33291,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:540px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto;display:flex;flex-direction:column;">
                 <!-- Header : vague actuelle -->
-                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1341);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1348);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                         <span style="font-size:0.6em;color:${theme.color};font-weight:900;letter-spacing:2px;">⚔ VAGUE ${rift.currentWaveIdx + 1} / ${rift.waves.length}${currentWave.isBoss ? ' · BOSS' : ''}</span>
                         <button onclick="awakAbandonRift()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
@@ -34154,7 +34421,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1341');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1348');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -34891,7 +35158,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1341);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1348);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -35062,7 +35329,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1341);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1348);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -43804,7 +44071,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // v1320 : PORTRAITS en image (images/avatars/portrait_NN.webp). Clé « av:ptNN » :
         // garde le préfixe « av: », que plusieurs écrans testent déjà.
         // Pour en ajouter : déposer le fichier et ajouter son numéro ici.
-        const AWAK_PORTRAITS = ['01', '02', '03', '04', '05', '06'];
+        const AWAK_PORTRAITS = ['01', '02', '03', '04', '05', '06', '07', '08', '09'];
         function awakPortraitSrc(avatar) {
             const m = /^av:pt(\d{2})$/.exec(String(avatar || ''));
             return m ? 'images/avatars/portrait_' + m[1] + '.webp' : '';
@@ -45963,7 +46230,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
             host.innerHTML =
                 '<div style="position:relative;width:110px;margin:0 auto 12px;">'
-              +   '<img src="images/body/body_face.webp?v=1341" alt="" '
+              +   '<img src="images/body/body_face.webp?v=1348" alt="" '
               +     'style="width:100%;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -46045,7 +46312,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1341);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1348);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -46112,7 +46379,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1341);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1348);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -46818,6 +47085,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // 🆕 Mémoriser que cet exercice a été remplacé (pour le proposer moins à l'avenir),
             // sauf en séance de discipline (yoga, etc.) où le remplacement reste dans la discipline.
             if (!currentWorkout._discipline) awakRecordSwap(oldName);
+            // v1343 : pilier remplacé 2 fois dans le bloc → il change
+            try { if (oldEx && oldEx._pilier) awakPilierRemplace(oldEx._baseName || oldName, newEx); } catch (e) {}
 
             // Remplacer dans le tableau de la séance
             currentWorkout.exercises[currentExerciseIndex] = {
@@ -46834,6 +47103,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 _baseName:    newEx._baseName,
                 isRest:       false,
                 isInfo:       false,
+                _pilier:      false,
                 _swappedFrom: oldName
             };
 
@@ -48431,7 +48701,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1341");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1348");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.

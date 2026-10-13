@@ -805,11 +805,22 @@ function renderFamilyTab() {
     // la semaine + « en cours » EN DESSOUS (family-sky.js) — l'écran n'est plus
     // à moitié vide, et ce qui se passe se voit sans ouvrir de fenêtre.
     const _sky = window.AwakFamilySky || null;
+    let _enfant = false;
+    try { _enfant = !!(window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()); } catch (e) {}
     if (_sky) { try { html += _sky.avant(); } catch (e) {} }
-    // v1295 : « Notre semaine » — qui a bougé, jour par jour, avant le ciel
-    try { if (window.AwakFamilyWeek) html += window.AwakFamilyWeek.render(); } catch (e) {}
-    html += constCard;
-    if (_sky) { try { html += _sky.apres(); } catch (e) {} }
+    if (_enfant) {
+        // 🧒 v1346 : version ENFANT allégée (7 blocs → 4) : le ciel (qui montre déjà qui
+        // a bougé) avec ses jeux, « Bouger ensemble », puis la constellation de la semaine.
+        // Sans tableau « Notre semaine », barre Défis/Badges/Ma famille/Journal ni invitation à un défi.
+        html += constCard;
+        try { if (window.AwakFamilyWeek && AwakFamilyWeek.renderBouger) html += AwakFamilyWeek.renderBouger(); } catch (e) {}
+        if (_sky) { try { html += (_sky.apresEnfant || _sky.apres)(); } catch (e) {} }
+    } else {
+        // v1295 : « Notre semaine » — qui a bougé, jour par jour, avant le ciel
+        try { if (window.AwakFamilyWeek) html += window.AwakFamilyWeek.render(); } catch (e) {}
+        html += constCard;
+        if (_sky) { try { html += _sky.apres(); } catch (e) {} }
+    }
 
     // Filet de sécurité
     if (!constCard && !familyCard && !nudgeCard && !challengeCard && !goalCard && !feedCard && !duoGamesCard && !coopCard) {

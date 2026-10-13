@@ -106,14 +106,22 @@
       + '</div>'
       + lignes
       + (enf ? '' : '<div style="font-size:0.62em;color:#64748b;padding:6px 0 2px;">Touche un membre pour l\'encourager ou lui lancer un défi.</div>')
-      + '<button onclick="AwakFamilyMove()" style="display:flex;align-items:center;gap:10px;width:100%;margin:8px 0 8px;padding:11px 13px;border-radius:13px;cursor:pointer;font-family:inherit;text-align:left;'
+      + boutonBouger('8px 0 8px')
+      + '</div>';
+  }
+  function boutonBouger(marge) {
+    return '<button onclick="AwakFamilyMove()" style="display:flex;align-items:center;gap:10px;width:100%;margin:' + marge + ';padding:11px 13px;border-radius:13px;cursor:pointer;font-family:inherit;text-align:left;'
       +   'background:rgba(236,72,153,0.10);border:1px solid rgba(236,72,153,0.35);color:#fff;">'
       +   '<span style="flex-shrink:0;width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:rgba(236,72,153,0.18);">' + (window.AwakIcon ? AwakIcon.get('groupe', 18, '#f9a8d4') : '') + '</span>'
       +   '<span style="flex:1;min-width:0;"><span style="display:block;font-size:0.86em;font-weight:800;">Bouger ensemble · ' + esc(versionDuJour().nom) + ' · 15 min</span>'
       +   '<span style="display:block;font-size:0.66em;color:#f9a8d4;margin-top:2px;">' + esc(_sousTitre()) + '</span></span>'
       +   '<span style="flex-shrink:0;color:#f9a8d4;font-size:1.1em;">›</span>'
-      + '</button>'
-      + '</div>';
+      + '</button>';
+  }
+  // v1346 : version enfant de l'onglet — le bouton seul, sans le tableau (le ciel montre déjà qui a bougé)
+  function renderBouger() {
+    if (profils().length < 2) return '';
+    return '<div id="awakFamBouger" style="margin-bottom:12px;">' + boutonBouger('0') + '</div>';
   }
 
   // ── « Bouger ensemble · 15 min » ──────────────────────────────────
@@ -232,5 +240,5 @@
   window.AwakFamilyMoveWorkout = seanceFamille;
   window.AwakFamilyMoveVersions = VERSIONS;
 
-  window.AwakFamilyWeek = { render: render, semaine: semaine };
+  window.AwakFamilyWeek = { render: render, renderBouger: renderBouger, semaine: semaine };
 })();

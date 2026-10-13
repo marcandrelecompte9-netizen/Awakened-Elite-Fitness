@@ -214,9 +214,9 @@
       { c: function () { return $('#awakFilterBar'); }, t: 'Les fiches', d: 'Touche un exercice pour voir comment le faire, avec une image.' }
     ],
     family: [
-      { c: function () { return $('#awakFamSemaine'); }, t: 'Ta famille cette semaine', d: 'Les jours où chacun a bougé. « Bouger ensemble » : 15 minutes tous ensemble !' },
-      { c: function () { var c = cielFamille(); return c ? c.querySelector('svg') : null; }, t: 'Le ciel de la famille', d: 'Chaque étoile, c\'est quelqu\'un de ta famille. Touche une étoile pour l\'encourager ou lui lancer un défi.' },
-      { c: function () { var b = parTexte('familyContainer', 'button', /^Défis$/); return b ? b.parentElement : null; }, t: 'Ensemble', d: 'Des défis à faire en famille et un but à atteindre tous ensemble.' },
+      { c: function () { var c = cielFamille(); return c ? c.querySelector('svg') : null; }, t: 'Le ciel de la famille', d: 'Chaque étoile, c\'est quelqu\'un de ta famille. Elle brille quand il bouge. Touche une étoile pour l\'encourager !' },
+      { c: function () { return $('#familyContainer [onclick="AwakKidsOpen()"]'); }, t: 'Jeux à faire ensemble', d: 'Tag, statue, marche des animaux : des jeux pour bouger avec ta famille.' },
+      { c: function () { return $('#awakFamBouger'); }, t: 'Bouger ensemble', d: '15 minutes tous ensemble, au même rythme !' },
       // Encore seul dans la famille
       { c: function () { var b = parTexte('familyContainer', 'button', /Ajouter un membre/); return b ? b.parentElement : null; }, t: 'Ta famille', d: 'Ici, toute ta famille bouge ensemble. Demande à un adulte d\'ajouter les autres.' }
     ],

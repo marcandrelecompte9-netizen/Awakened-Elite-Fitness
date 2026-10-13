@@ -211,7 +211,7 @@
       + '</span>'
       + '<span style="flex-shrink:0;color:' + c + ';font-size:1.1em;">›</span></div>';
   }
-  function sectionEnCours() {
+  function sectionEnCours(enfant) {
     var L = [];
     try {
       var g = window.AwakFamilyGoal && AwakFamilyGoal.status ? AwakFamilyGoal.status() : null;
@@ -231,6 +231,7 @@
     } catch (e) {}
     var titre = '<div style="font-size:0.56em;letter-spacing:2px;color:#94a3b8;font-weight:900;margin:2px 2px 8px;">EN COURS</div>';
     if (L.length) return titre + L.join('');
+    if (enfant) return '';   // v1346 : onglet enfant allégé — pas d'invitation à lancer un défi
     return '<button onclick="AwakEnsembleOpen()" style="width:100%;display:flex;align-items:center;gap:13px;padding:16px;margin-bottom:12px;border-radius:16px;cursor:pointer;text-align:left;'
       + 'background:linear-gradient(135deg,rgba(236,72,153,0.20),rgba(167,139,250,0.14));border:1px solid rgba(236,72,153,0.5);">'
       + '<span style="flex-shrink:0;width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;background:rgba(236,72,153,0.2);">' + ic('trophee', 24, '#f9a8d4') + '</span>'
@@ -278,6 +279,7 @@
   window.AwakFamilySky = {
     avant: function () { styles(); return banniereNouveautes(nouveautes()) + carteEncouragements(); },
     apres: function () { styles(); return carteSemaine() + sectionEnCours(); },
+    apresEnfant: function () { styles(); return carteSemaine() + sectionEnCours(true); },
     etatSemaine: etatSemaine,
     seances: seances
   };

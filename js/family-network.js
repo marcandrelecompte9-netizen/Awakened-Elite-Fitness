@@ -811,8 +811,10 @@
             + '<circle cx="150" cy="150" r="132" fill="none" stroke="#22c55e" stroke-width="3" '
             + 'stroke-linecap="round" stroke-dasharray="' + (C * g.pct / 100).toFixed(1) + ' ' + C.toFixed(1) + '" '
             + 'transform="rotate(-90 150 150)" opacity="0.75"/>'
-            + '<text x="150" y="26" text-anchor="middle" fill="#22c55e" font-size="9" font-weight="900">'
-            + g.pct + ' %</text></g>';
+            // v1345 : le % était en haut du cercle, collé au nom du membre placé en haut.
+            // Il va dans le coin bas-droit, hors du cercle, toujours libre.
+            + '<text x="292" y="292" text-anchor="end" fill="#4ade80" font-size="10" font-weight="900">'
+            + 'Objectif ' + g.pct + ' %</text></g>';
         }
       }
     } catch (e) {}
@@ -904,7 +906,8 @@
 
       // 📋 Rappel des défis et objectifs en cours (rien s'il n'y en a pas).
       // 📋 « En cours » : section dédiée SOUS le ciel (family-sky.js, v1219).
-      +   '<div style="display:flex;border-top:1px solid rgba(255,255,255,0.06);">'
+      // v1346 : la barre Défis · Badges · Ma famille · Journal est réservée aux grands
+      +   ((window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()) ? '' : '<div style="display:flex;border-top:1px solid rgba(255,255,255,0.06);">'
       // 🏅 Accès aux badges de famille, dans la barre du pied de carte.
 
 
@@ -924,7 +927,7 @@
                 + bt('AwakFamilyManage()', 'groupe', 'Ma famille', '#c4b5fd')
                 + bt('AwakFamilyFeedOpen()', 'liste', 'Journal', '#94a3b8', true);
             })()
-      +   '</div>'
+      +   '</div>')
       + '</div>';
   }
 
