@@ -307,7 +307,7 @@
     var srcPortrait = (typeof window.awakPortraitSrc === 'function') ? window.awakPortraitSrc(p.avatar) : '';
     if (srcPortrait) {
       // v1320 : portrait choisi par le membre → plein cadre
-      portrait = '<img src="' + srcPortrait + '" alt="" data-fb="' + esc(portrait) + '" style="width:100%;height:100%;object-fit:cover;display:block;" ' +
+      portrait = '<img src="' + srcPortrait + '" alt="" data-fb="' + esc(portrait) + '" style="width:100%;height:100%;object-fit:cover;object-position:50% 22%;display:block;" ' +
         'onerror="this.parentNode.innerHTML=this.getAttribute(\'data-fb\')">';
     } else if (niv) {
       var g = localStorage.getItem('fitproAvatarGender') === 'femme' ? 'femme' : 'homme';
@@ -359,12 +359,12 @@
         '<div style="display:flex;align-items:flex-start;gap:12px;">' +
           '<div style="flex:1;min-width:0;padding-top:2px;">' +
             '<div class="ahp-kick">' + esc(date) + '</div>' +
-            '<div style="font-family:var(--font-display);font-size:clamp(1em,4.6vw,1.38em);font-weight:800;color:#f8fafc;line-height:1.15;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' +
+            '<div style="font-family:var(--font-display);font-size:clamp(0.98em,4.4vw,1.38em);font-weight:800;color:#f8fafc;line-height:1.15;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' +
               (faiteAuj ? 'Bien joué aujourd\'hui' : 'Prêt pour aujourd\'hui\u00a0?') + '</div>' +
             (sousTitre ? '<div style="font-size:0.8em;color:#cbd5e1;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(sousTitre) + '</div>' : '') +
           '</div>' +
           '<button onclick="if(typeof showProfileSelectionModal===\'function\')showProfileSelectionModal()" aria-label="Changer de profil" data-emoji-keep="1" ' +
-            'style="flex-shrink:0;width:74px;height:74px;min-height:auto;padding:0;border-radius:16px;overflow:hidden;cursor:pointer;' +
+            'style="flex-shrink:0;width:86px;height:86px;min-height:auto;padding:0 !important;border-radius:16px;overflow:hidden;cursor:pointer;' +
             'background:#0b0e13;border:1px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;">' + portrait + '</button>' +
         '</div>' +
         '<div style="height:1px;background:rgba(255,255,255,0.06);margin:14px -16px 14px;"></div>' +

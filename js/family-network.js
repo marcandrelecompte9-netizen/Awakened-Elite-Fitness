@@ -747,6 +747,16 @@
     // Moi au centre
     var moiSt = memberWeekStats(moi);
     var moiE = _constEclat(moiSt.seances);
+    // v1349 : mon portrait au centre
+    var moiSrc = '';
+    try {
+      var _pm = (window.getAllProfiles ? window.getAllProfiles() : []).find(function (p) { return p && p.id === moi; });
+      moiSrc = (_pm && typeof window.awakPortraitSrc === 'function') ? window.awakPortraitSrc(_pm.avatar) : '';
+    } catch (x) {}
+    var moiR = moiSrc ? Math.max(moiE.r, 19) : moiE.r;
+    var moiVisage = moiSrc ? '<clipPath id="cstPtMoi"><circle cx="150" cy="150" r="18"/></clipPath>'
+      + '<image href="' + moiSrc + '" x="125" y="130" width="50" height="50" clip-path="url(#cstPtMoi)" preserveAspectRatio="xMidYMid slice"/>'
+      + '<circle cx="150" cy="150" r="18.5" fill="none" stroke="' + moiE.c + '" stroke-width="2.2"/>' : '';
 
     // Étoiles réparties en cercle, la première en haut
     var n = membres.length;
@@ -774,6 +784,12 @@
 
       var dur = (3 + (i % 4) * 0.7).toFixed(1);
       var haut = Math.sin(a) < -0.5;
+      // v1349 : membre avec un PORTRAIT → son visage dans l'étoile (cerclé de la couleur d'activité)
+      var srcP = ''; try { srcP = (typeof window.awakPortraitSrc === 'function') ? window.awakPortraitSrc(m.avatar) : ''; } catch (x) {}
+      var rr = srcP ? Math.max(e.r, 16) : e.r;
+      var visage = srcP ? '<clipPath id="cstPt' + i + '"><circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="15"/></clipPath>'
+        + '<image href="' + srcP + '" x="' + (x - 21).toFixed(1) + '" y="' + (y - 17).toFixed(1) + '" width="42" height="42" clip-path="url(#cstPt' + i + ')" preserveAspectRatio="xMidYMid slice" opacity="' + (m.seances ? 1 : 0.6) + '"/>'
+        + '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="15.5" fill="none" stroke="' + e.c + '" stroke-width="2"/>' : '';
       etoiles += '<g style="cursor:pointer;" onclick="AwakConstMenu(\'' + m.id + '\')">'
         + '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="26" fill="transparent"/>'
         + '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + (e.r + 9) + '" fill="' + e.c + '" fill-opacity="0.10"/>'
@@ -785,11 +801,13 @@
         +   (m.seances ? '<animate attributeName="opacity" values="' + e.o + ';' + (e.o * 0.6) + ';' + e.o
               + '" dur="' + dur + 's" repeatCount="indefinite"/>' : '')
         + '</circle>'
+        + visage
         // Police agrandie : sur mobile, 8,5 px SVG ne faisait que ~10 px réels.
         // Étoile du haut : le nom passe au-dessus, sinon il tombait sur le fil.
-        + '<text x="' + x.toFixed(1) + '" y="' + (haut ? y - e.r - 24 : y + e.r + 16).toFixed(1) + '" text-anchor="middle" '
+        // v1349 : étoile du haut avec portrait → nom À DROITE (au-dessus, il passait sous l'en-tête « NOTRE CIEL »)
+        + '<text x="' + (haut && srcP ? x + rr + 7 : x).toFixed(1) + '" y="' + (haut ? (srcP ? y - 2 : y - rr - 24) : y + rr + 16).toFixed(1) + '" text-anchor="' + (haut && srcP ? 'start' : 'middle') + '" '
         +   'fill="#f1f5f9" font-size="11" font-weight="800">' + esc(m.nom) + '</text>'
-        + '<text x="' + x.toFixed(1) + '" y="' + (haut ? y - e.r - 12 : y + e.r + 28).toFixed(1) + '" text-anchor="middle" '
+        + '<text x="' + (haut && srcP ? x + rr + 7 : x).toFixed(1) + '" y="' + (haut ? (srcP ? y + 10 : y - rr - 12) : y + rr + 28).toFixed(1) + '" text-anchor="' + (haut && srcP ? 'start' : 'middle') + '" '
         +   'fill="' + e.c + '" font-size="10" font-weight="800">'
         +   (estEnfant
               ? (m.recent ? 'vient de bouger' : (m.seances ? 'a bougé' : 'pas encore bougé'))
@@ -842,8 +860,9 @@
       +         '" dur="4.2s" repeatCount="indefinite"/>'
       +       '<animate attributeName="opacity" values="0.4;0;0.4" dur="4.2s" repeatCount="indefinite"/>'
       +     '</circle>'
-      +     '<text x="150" y="' + (150 + moiE.r + 26) + '" text-anchor="middle" fill="#fff" font-size="12" font-weight="900">Toi</text>'
-      +     '<text x="150" y="' + (150 + moiE.r + 38) + '" text-anchor="middle" fill="' + moiE.c + '" font-size="10" font-weight="800">'
+      +     moiVisage
+      +     '<text x="150" y="' + (150 + moiR + 26) + '" text-anchor="middle" fill="#fff" font-size="12" font-weight="900">Toi</text>'
+      +     '<text x="150" y="' + (150 + moiR + 38) + '" text-anchor="middle" fill="' + moiE.c + '" font-size="10" font-weight="800">'
       +       (estEnfant ? (moiSt.seances ? 'a bougé' : 'pas encore bougé') : (moiSt.seances ? moiSt.seances + ' séance' + (moiSt.seances > 1 ? 's' : '') : 'pas encore bougé')) + '</text>'
       +     '</g>'
       +   '</svg>'

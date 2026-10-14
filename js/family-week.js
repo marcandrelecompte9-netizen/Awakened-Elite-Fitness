@@ -91,7 +91,7 @@
       }
       var clic = estMoi ? '' : ' onclick="if(window.AwakConstMenu)AwakConstMenu(\'' + String(p.id).replace(/'/g, '') + '\')"';
       return '<div' + clic + ' style="display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid rgba(255,255,255,0.05);' + (estMoi ? '' : 'cursor:pointer;') + '">'
-        + '<span style="flex-shrink:0;">' + avatar(p.avatar, 28) + '</span>'
+        + '<span style="flex-shrink:0;">' + avatar(p.avatar, 36) + '</span>'
         + '<span style="flex:1;min-width:0;font-size:0.84em;font-weight:800;color:#f1f5f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(nom) + '</span>'
         + droite
         + '</div>';
