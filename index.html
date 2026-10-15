@@ -11,11 +11,11 @@
     <title>Awakened Elite Fitness</title>
 
     <!-- PWA -->
-    <link rel="manifest" href="manifest.json?v=1368">
-    <link rel="apple-touch-icon" href="icons/icon-192.png?v=1368">
-    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=1368">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=1368">
-    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=1368">
+    <link rel="manifest" href="manifest.json?v=1372">
+    <link rel="apple-touch-icon" href="icons/icon-192.png?v=1372">
+    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=1372">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=1372">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=1372">
 
     <!-- ⚠️ CAPTURE PRÉCOCE DE L'INVITE D'INSTALLATION.
          Chrome déclenche « beforeinstallprompt » très tôt, souvent AVANT la fin
@@ -42,7 +42,7 @@
     <!-- v1288 : police Outfit embarquée (fonts/ + css/style.css) : plus besoin d'Internet -->
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=1368">
+    <link rel="stylesheet" href="css/style.css?v=1372">
 </head>
 <body>
 
@@ -118,27 +118,20 @@
 </div>
 
 <!-- ── Bandeau repos permanent (affiché seulement pendant le repos inter-séries) ── -->
-<div id="globalRestBanner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;
-     background:linear-gradient(135deg,#164e8a,#1e3a8a);color:white;
-     padding:0;box-shadow:0 2px 12px rgba(29,95,168,0.4);">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;">
-        <div style="display:flex;align-items:center;gap:10px;">
-            <span style="font-size:1.4em;">⏱️</span>
-            <div>
-                <div style="font-size:0.72em;font-weight:700;letter-spacing:0.5px;opacity:0.85;">REPOS</div>
-                <div id="globalRestCountdown" style="font-size:1.5em;font-weight:900;line-height:1;letter-spacing:-1px;">90</div>
-            </div>
+<!-- v1370 : bandeau de repos EN BAS, au-dessus de l'écran de séance (avant :
+     en haut, z-index 9999, donc caché sous la séance plein écran sur mobile). -->
+<div id="globalRestBanner" style="display:none;" role="timer" aria-live="polite">
+    <div class="awk-repos-ligne">
+        <button type="button" class="awk-repos-pas" onclick="awakRestAjuster(-15)" aria-label="Retirer 15 secondes">−15 s</button>
+        <div class="awk-repos-centre">
+            <div class="awk-repos-lbl">Repos</div>
+            <div id="globalRestCountdown" class="awk-repos-chiffre">90</div>
         </div>
-        <div style="flex:1;margin:0 14px;">
-            <div style="background:rgba(255,255,255,0.25);border-radius:99px;height:6px;overflow:hidden;">
-                <div id="globalRestFill" style="height:100%;background:white;border-radius:99px;width:100%;transition:width 1s linear;"></div>
-            </div>
-            <div id="globalRestNextName" style="font-size:0.72em;opacity:0.85;margin-top:4px;text-align:center;">Prochain : —</div>
-        </div>
-        <button onclick="skipGlobalRest()" style="background:rgba(255,255,255,0.22);border:1.5px solid rgba(255,255,255,0.5);color:white;border-radius:10px;padding:6px 14px;font-size:0.82em;font-weight:700;cursor:pointer;flex-shrink:0;">
-            ⏭️ Sauter
-        </button>
+        <button type="button" class="awk-repos-pas" onclick="awakRestAjuster(15)" aria-label="Ajouter 15 secondes">+15 s</button>
     </div>
+    <div class="awk-repos-barre"><div id="globalRestFill" style="width:100%;"></div></div>
+    <div id="globalRestNextName" class="awk-repos-ensuite">Prochain : —</div>
+    <button type="button" class="awk-repos-passer" onclick="skipGlobalRest()">Passer le repos</button>
 </div>
 
     <!-- ═══ BANNIÈRE INSTALLATION PWA (Android / Chrome) ════════ -->
@@ -206,8 +199,8 @@
                  (ratio 1,55), donc plus haute et lisible.
                  <picture> laisse le navigateur choisir, sans JavaScript. -->
             <picture>
-                <source media="(min-width: 700px)" srcset="images/banner_v3.webp?v=1368">
-                <img src="images/banner_v3_mobile.webp?v=1368"
+                <source media="(min-width: 700px)" srcset="images/banner_v3.webp?v=1372">
+                <img src="images/banner_v3_mobile.webp?v=1372"
                      alt="Awakened Elite Fitness"
                      onerror="var p=this.closest('picture');if(p&&p.parentElement)p.parentElement.style.display='none';"
                      style="width:100%;height:auto;display:block;" />
@@ -1639,8 +1632,8 @@
                         <!-- ── CONTRÔLES SÉANCE ───────────────────────────── -->
                         <div style="display:flex;flex-direction:column;gap:8px;padding:4px 0;">
 
-                            <!-- Rangée principale : PRÉCÉDENT | SUIVANT -->
-                            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;align-items:stretch;">
+                            <!-- Rangée principale : PRÉCÉDENT | SUIVANT (v1369 : barre fixe en bas) -->
+                            <div id="awakBarreActions" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;align-items:stretch;">
 
                                 <!-- ← Précédent -->
                                 <button id="prevBtn" onclick="goToPreviousExercise()" aria-label="Exercice précédent"
@@ -1664,7 +1657,7 @@
                                 </button>
 
                                 <!-- → SUIVANT (gros vert, style mockup) -->
-                                <button onclick="skipExercise()" aria-label="Suivant"
+                                <button id="awakSuivantBtn" onclick="skipExercise()" aria-label="Suivant"
                                         style="display:flex;align-items:center;justify-content:center;gap:6px;
                                                padding:11px 4px;border-radius:10px;cursor:pointer;transition:all 0.15s;
                                                background:linear-gradient(135deg,#1d5fa8,#60a8f0,#60a8f0);border:1px solid rgba(255,255,255,0.14);color:white;
@@ -1975,7 +1968,7 @@
                     <div class="completion-screen" style="position:relative;z-index:1;">
                         <div style="text-align:center;margin-bottom:20px;">
                             <div style="font-size:0.6em;color:#60a8f0;font-weight:900;letter-spacing:4px;text-transform:uppercase;margin-top:8px;text-shadow:0 0 8px rgba(96,168,240,0.5);">Séance terminée</div>
-                            <h2 style="color:white;font-size:2em;margin:10px 0 4px;letter-spacing:-0.5px;text-shadow:0 0 10px rgba(96,168,240,0.3);">BRAVO !</h2>
+                            <h2 style="color:white;font-size:2em;margin:10px 0 4px;letter-spacing:-0.5px;text-shadow:0 0 10px rgba(96,168,240,0.3);">Bravo !</h2>
                             <p id="completionWorkoutName" style="color:#c084fc;font-size:0.85em;margin:0 0 8px;font-weight:800;letter-spacing:1px;text-transform:uppercase;"></p>
                             <div id="completionWeekStreak" style="display:none;margin:2px auto 0;font-size:0.78em;color:#60a8f0;font-weight:800;letter-spacing:0.5px;"></div>
                         </div>
@@ -1990,35 +1983,35 @@
                             <div style="background:linear-gradient(160deg,rgba(59,130,246,0.08),rgba(59,130,246,0.02));border-radius:10px;padding:16px 8px;border:1px solid rgba(96,168,240,0.35);position:relative;">
                                 <div style="position:absolute;top:-1px;left:-1px;width:12px;height:12px;border-top:1.5px solid #60a8f0;border-left:1.5px solid #60a8f0;border-top-left-radius:10px;"></div>
                                 <div id="completionTime" style="font-size:1.9em;font-weight:900;color:#60a8f0;letter-spacing:-1px;font-variant-numeric:tabular-nums;text-shadow:0 0 12px rgba(96,168,240,0.4);">30</div>
-                                <div style="font-size:0.55em;color:#94a3b8;margin-top:4px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;">⏱ MINUTES</div>
+                                <div style="font-size:0.55em;color:#94a3b8;margin-top:4px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;">Minutes</div>
                             </div>
                             <div style="background:linear-gradient(160deg,rgba(168,85,247,0.08),rgba(168,85,247,0.02));border-radius:10px;padding:16px 8px;border:1px solid rgba(168,85,247,0.35);position:relative;">
                                 <div style="position:absolute;top:-1px;left:-1px;width:12px;height:12px;border-top:1.5px solid #c084fc;border-left:1.5px solid #c084fc;border-top-left-radius:10px;"></div>
                                 <div id="completionExercises" style="font-size:1.9em;font-weight:900;color:#c084fc;letter-spacing:-1px;font-variant-numeric:tabular-nums;text-shadow:0 0 12px rgba(168,85,247,0.4);">10</div>
-                                <div style="font-size:0.55em;color:#94a3b8;margin-top:4px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;">EXERCICES</div>
+                                <div style="font-size:0.55em;color:#94a3b8;margin-top:4px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;">Exercices</div>
                             </div>
                             <div style="background:linear-gradient(160deg,rgba(251,191,36,0.08),rgba(251,191,36,0.02));border-radius:10px;padding:16px 8px;border:1px solid rgba(251,191,36,0.35);position:relative;">
                                 <div style="position:absolute;top:-1px;left:-1px;width:12px;height:12px;border-top:1.5px solid #fbbf24;border-left:1.5px solid #fbbf24;border-top-left-radius:10px;"></div>
                                 <div id="completionCalories" style="font-size:1.9em;font-weight:900;color:#fbbf24;letter-spacing:-1px;font-variant-numeric:tabular-nums;text-shadow:0 0 12px rgba(251,191,36,0.4);">-</div>
-                                <div style="font-size:0.55em;color:#94a3b8;margin-top:4px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;" id="completionCaloriesLabel">KCAL</div>
+                                <div style="font-size:0.55em;color:#94a3b8;margin-top:4px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;" id="completionCaloriesLabel">kcal</div>
                             </div>
                         </div>
 
                         <!-- ── Graphe muscles travaillés ── -->
                         <div id="completionMuscleChart" style="display:none;margin-bottom:14px;background:rgba(59,130,246,0.04);border:1px solid rgba(96,168,240,0.25);border-radius:10px;padding:12px 14px;">
-                            <div style="font-size:0.6em;color:#60a8f0;font-weight:900;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;text-shadow:0 0 6px rgba(96,168,240,0.4);">◈ VOLUME PAR MUSCLE</div>
+                            <div style="font-size:0.6em;color:#60a8f0;font-weight:900;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;text-shadow:0 0 6px rgba(96,168,240,0.4);">Volume par muscle</div>
                             <div id="completionMuscleChartBars" style="display:flex;flex-direction:column;gap:6px;"></div>
                         </div>
 
                         <!-- ── Comparaison séance précédente ── -->
                         <div id="completionComparison" style="display:none;background:linear-gradient(160deg,rgba(168,85,247,0.08),rgba(168,85,247,0.02));border:1px solid rgba(168,85,247,0.35);border-radius:10px;padding:12px 14px;margin-bottom:14px;text-align:left;">
-                            <div style="font-size:0.6em;color:#c084fc;font-weight:900;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;text-shadow:0 0 6px rgba(168,85,247,0.4);">◈ VS SÉANCE PRÉCÉDENTE</div>
+                            <div style="font-size:0.6em;color:#c084fc;font-weight:900;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;text-shadow:0 0 6px rgba(168,85,247,0.4);">Par rapport à la dernière fois</div>
                             <div id="completionComparisonContent" style="font-size:0.85em;color:white;line-height:1.6;"></div>
                         </div>
 
                         <!-- ── Défi hebdo progress ── -->
                         <div id="completionChallengeProgress" style="display:none;background:linear-gradient(160deg,rgba(251,191,36,0.08),rgba(251,191,36,0.02));border:1px solid rgba(251,191,36,0.35);border-radius:10px;padding:12px 14px;margin-bottom:14px;text-align:left;">
-                            <div style="font-size:0.6em;color:#fbbf24;font-weight:900;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;text-shadow:0 0 6px rgba(251,191,36,0.4);">◈ DÉFI DE LA SEMAINE</div>
+                            <div style="font-size:0.6em;color:#fbbf24;font-weight:900;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;text-shadow:0 0 6px rgba(251,191,36,0.4);">Défi de la semaine</div>
                             <div id="completionChallengeText" style="font-size:0.88em;color:white;font-weight:700;margin-bottom:6px;"></div>
                             <div style="height:6px;background:rgba(0,0,0,0.5);border-radius:99px;overflow:hidden;border:1px solid rgba(251,191,36,0.2);">
                                 <div id="completionChallengeBar" style="height:100%;background:linear-gradient(90deg,#fbbf24,#f59e0b);border-radius:99px;transition:width 1s ease;box-shadow:0 0 12px rgba(251,191,36,0.5);"></div>
@@ -2028,32 +2021,32 @@
 
                         <!-- ── Arbre de l'Éveil : impact de la séance ── -->
                         <div id="completionAwakTree" onclick="showAwakeningTree()" style="display:none;cursor:pointer;background:linear-gradient(160deg,rgba(59,130,246,0.08),rgba(59,130,246,0.02));border:1px solid rgba(96,168,240,0.35);border-radius:10px;padding:12px 14px;margin-bottom:14px;text-align:left;">
-                            <div style="font-size:0.6em;color:#60a8f0;font-weight:900;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;text-shadow:0 0 6px rgba(96,168,240,0.4);">◈ ARBRE DE L'ÉVEIL</div>
+                            <div style="font-size:0.6em;color:#60a8f0;font-weight:900;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;text-shadow:0 0 6px rgba(96,168,240,0.4);">Arbre de l'Éveil</div>
                             <div id="completionAwakTreeContent" style="font-size:0.88em;color:white;line-height:1.6;"></div>
                         </div>
 
                         <!-- Volume total -->
                         <div id="completionVolume" style="background:linear-gradient(160deg,rgba(59,130,246,0.08),rgba(59,130,246,0.02));border-radius:10px;padding:12px 14px;margin-bottom:10px;border:1px solid rgba(96,168,240,0.3);display:none;">
-                            <div style="font-size:0.6em;color:#60a8f0;font-weight:900;margin-bottom:4px;letter-spacing:2px;text-transform:uppercase;text-shadow:0 0 6px rgba(96,168,240,0.4);">◈ VOLUME TOTAL</div>
+                            <div style="font-size:0.6em;color:#60a8f0;font-weight:900;margin-bottom:4px;letter-spacing:2px;text-transform:uppercase;text-shadow:0 0 6px rgba(96,168,240,0.4);">Volume total</div>
                             <div id="completionVolumeValue" style="font-size:1.1em;font-weight:900;color:white;letter-spacing:-0.3px;"></div>
                         </div>
 
                         <!-- 🌿 Bonnes habitudes post-séance : hydratation + cible calorique du jour -->
                         <div id="completionHabits" style="display:none;background:linear-gradient(160deg,rgba(6,182,212,0.08),rgba(6,182,212,0.02));border-radius:10px;padding:12px 14px;margin-bottom:10px;border:1px solid rgba(103,232,249,0.3);text-align:left;">
-                            <div style="font-size:0.6em;color:#67e8f9;font-weight:900;margin-bottom:6px;letter-spacing:2px;text-transform:uppercase;">◈ ET MAINTENANT ?</div>
+                            <div style="font-size:0.6em;color:#67e8f9;font-weight:900;margin-bottom:6px;letter-spacing:2px;text-transform:uppercase;">Et maintenant ?</div>
                             <div id="completionHydration" style="font-size:0.78em;color:#e2e8f0;line-height:1.5;margin-bottom:7px;"></div>
                             <div id="completionIntake" style="font-size:0.78em;color:#e2e8f0;line-height:1.5;"></div>
                         </div>
 
                         <!-- Muscles travaillés -->
                         <div id="completionMuscles" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:12px 14px;margin-bottom:14px;text-align:left;display:none;">
-                            <div style="font-size:0.6em;color:#94a3b8;margin-bottom:8px;text-transform:uppercase;letter-spacing:2px;font-weight:900;">◈ MUSCLES TRAVAILLÉS</div>
+                            <div style="font-size:0.6em;color:#94a3b8;margin-bottom:8px;text-transform:uppercase;letter-spacing:2px;font-weight:900;">Muscles travaillés</div>
                             <div id="completionMusclesList" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
                         </div>
 
                         <!-- PRs battus -->
                         <div id="completionPRs" style="background:linear-gradient(160deg,rgba(251,191,36,0.12),rgba(251,191,36,0.02));border-radius:10px;padding:12px 14px;margin-bottom:14px;border:1px solid rgba(251,191,36,0.45);text-align:left;display:none;box-shadow:0 0 16px rgba(251,191,36,0.08);">
-                            <div style="font-size:0.6em;color:#fbbf24;margin-bottom:8px;text-transform:uppercase;letter-spacing:2px;font-weight:900;text-shadow:0 0 6px rgba(251,191,36,0.5);">NOUVEAUX RECORDS</div>
+                            <div style="font-size:0.6em;color:#fbbf24;margin-bottom:8px;text-transform:uppercase;letter-spacing:2px;font-weight:900;text-shadow:0 0 6px rgba(251,191,36,0.5);">Nouveaux records</div>
                             <div id="completionPRsList" style="display:flex;flex-direction:column;gap:4px;"></div>
                         </div>
 
@@ -2067,7 +2060,7 @@
                         <div id="completionStreak" style="background:linear-gradient(160deg,rgba(239,68,68,0.12),rgba(251,191,36,0.04));border-radius:10px;padding:12px 14px;margin-bottom:20px;border:1px solid rgba(239,68,68,0.4);display:flex;align-items:center;gap:12px;box-shadow:0 0 16px rgba(239,68,68,0.08);">
                             <div style="flex-shrink:0;width:40px;height:40px;border-radius:12px;background:rgba(251,146,60,0.12);display:flex;align-items:center;justify-content:center;"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fb923c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22c4 0 7-3 7-7 0-3-2-5.5-3.5-7-.5 2-1.5 3-3 3.5C13 8 12 5 9 2c0 4-4 6.5-4 12 0 4.5 3 8 7 8z"/></svg></div>
                             <div style="text-align:left;">
-                                <div style="font-weight:900;color:white;font-size:0.95em;letter-spacing:0.3px;text-transform:uppercase;" id="completionStreakText">SÉRIE EN COURS</div>
+                                <div style="font-weight:900;color:white;font-size:0.95em;letter-spacing:0.3px;text-transform:uppercase;" id="completionStreakText">Série en cours</div>
                                 <div style="font-size:0.78em;color:#94a3b8;margin-top:2px;" id="completionStreakSub">Continue comme ça !</div>
                             </div>
                         </div>
@@ -3899,36 +3892,36 @@
     <!-- v1327 : Chart.js chargé à la demande (awakChargerChart dans app.js) -->
 
     <!-- App scripts — order matters -->
-    <script src="js/native.js?v=1368"></script>
-    <script src="js/essai.js?v=1368"></script>
-    <script src="js/exercises.js?v=1368"></script>
-    <script src="js/exercise-names.js?v=1368"></script>
-    <script src="data/items.js?v=1368"></script>
-    <script src="js/item-icons.js?v=1368"></script>
-    <script src="js/adventure.js?v=1368"></script>
-    <script src="js/economy.js?v=1368"></script>
-    <script src="js/challenges.js?v=1368"></script>
-    <script src="js/family-boss.js?v=1368"></script>
-    <script src="js/family-network.js?v=1368"></script>
-    <script src="js/family-challenge.js?v=1368"></script>
-    <script src="js/family-goal.js?v=1368"></script>
-    <script src="js/family-feed.js?v=1368"></script>
-    <script src="js/pre-workout-mood.js?v=1368"></script>
-    <script src="js/group-workout.js?v=1368"></script>
-    <script src="js/youth-safety.js?v=1368"></script>
-    <script src="js/kids-programs.js?v=1368"></script>
-    <script src="js/senior-programs.js?v=1368"></script>
-    <script src="js/adaptive.js?v=1368"></script>
-    <script src="js/pain-mode.js?v=1368"></script>
-    <script src="js/recovery-mode.js?v=1368"></script>
-    <script src="js/exercise-visuals.js?v=1368"></script>
-    <script src="js/strength-standards.js?v=1368"></script>
-    <script src="js/system-cards.js?v=1368"></script>
-    <script src="js/share-card.js?v=1368"></script>
-    <script src="js/story-events.js?v=1368"></script>
-    <script src="js/final-boss.js?v=1368"></script>
-    <script src="js/disciplines.js?v=1368"></script>
-    <script src="js/eveil.js?v=1368"></script>
+    <script src="js/native.js?v=1372"></script>
+    <script src="js/essai.js?v=1372"></script>
+    <script src="js/exercises.js?v=1372"></script>
+    <script src="js/exercise-names.js?v=1372"></script>
+    <script src="data/items.js?v=1372"></script>
+    <script src="js/item-icons.js?v=1372"></script>
+    <script src="js/adventure.js?v=1372"></script>
+    <script src="js/economy.js?v=1372"></script>
+    <script src="js/challenges.js?v=1372"></script>
+    <script src="js/family-boss.js?v=1372"></script>
+    <script src="js/family-network.js?v=1372"></script>
+    <script src="js/family-challenge.js?v=1372"></script>
+    <script src="js/family-goal.js?v=1372"></script>
+    <script src="js/family-feed.js?v=1372"></script>
+    <script src="js/pre-workout-mood.js?v=1372"></script>
+    <script src="js/group-workout.js?v=1372"></script>
+    <script src="js/youth-safety.js?v=1372"></script>
+    <script src="js/kids-programs.js?v=1372"></script>
+    <script src="js/senior-programs.js?v=1372"></script>
+    <script src="js/adaptive.js?v=1372"></script>
+    <script src="js/pain-mode.js?v=1372"></script>
+    <script src="js/recovery-mode.js?v=1372"></script>
+    <script src="js/exercise-visuals.js?v=1372"></script>
+    <script src="js/strength-standards.js?v=1372"></script>
+    <script src="js/system-cards.js?v=1372"></script>
+    <script src="js/share-card.js?v=1372"></script>
+    <script src="js/story-events.js?v=1372"></script>
+    <script src="js/final-boss.js?v=1372"></script>
+    <script src="js/disciplines.js?v=1372"></script>
+    <script src="js/eveil.js?v=1372"></script>
     <script>
     /* 🔄 DÉVERROUILLAGE DE L'ORIENTATION
        Sur Android, l'orientation d'une PWA installée est figée à l'installation
@@ -3950,45 +3943,46 @@
       });
     })();
     </script>
-    <script src="js/app.js?v=1368"></script>
-    <script src="js/calendar-tab.js?v=1368"></script>
-    <script src="js/routine-blocks.js?v=1368"></script>
-    <script src="js/routine-builder.js?v=1368"></script>
-    <script src="js/routine-print.js?v=1368"></script>
-    <script src="js/icons.js?v=1368"></script>
-    <script src="js/no-emoji.js?v=1368"></script>
-    <script src="js/stat-noms.js?v=1368"></script>
-    <script src="js/fenetres.js?v=1368"></script>
-    <script src="js/qrcode.js?v=1368"></script>
-    <script src="js/partage-seance.js?v=1368"></script>
-    <script src="js/salle.js?v=1368"></script>
-    <script src="js/sports.js?v=1368"></script>
-    <script src="js/strength-balance.js?v=1368"></script>
-    <script src="js/analyse.js?v=1368"></script>
-    <script src="js/limitations.js?v=1368"></script>
-    <script src="js/custom-exercises.js?v=1368"></script>
-    <script src="js/awakening-tree.js?v=1368"></script>
-    <script src="js/ui-kit.js?v=1368"></script>
-    <script src="js/feature-map.js?v=1368"></script>
-    <script src="js/visite.js?v=1368"></script>
-    <script src="js/weekly-recap.js?v=1368"></script>
-    <script src="js/workout-games.js?v=1368"></script>
-    <script src="js/kids-games.js?v=1368"></script>
-    <script src="js/home-pro.js?v=1368"></script>
-    <script src="js/echelle.js?v=1368"></script>
-    <script src="js/back-button.js?v=1368"></script>
-    <script src="js/gestures.js?v=1368"></script>
-    <script src="js/rift-visuals.js?v=1368"></script>
-    <script src="js/family-sky.js?v=1368"></script>
-    <script src="js/family-week.js?v=1368"></script>
-    <script src="js/session-ux.js?v=1368"></script>
-    <script src="js/progress-tab.js?v=1368"></script>
-    <script src="js/mon-defi.js?v=1368"></script>
-    <script src="js/health-sync.js?v=1368"></script>
-    <script src="js/regle.js?v=1368"></script>
-    <script src="js/run-gps.js?v=1368"></script>
-    <script src="js/run-coach.js?v=1368"></script>
-    <script src="js/backup.js?v=1368"></script>
+    <script src="js/app.js?v=1372"></script>
+    <script src="js/calendar-tab.js?v=1372"></script>
+    <script src="js/routine-blocks.js?v=1372"></script>
+    <script src="js/routine-builder.js?v=1372"></script>
+    <script src="js/routine-print.js?v=1372"></script>
+    <script src="js/icons.js?v=1372"></script>
+    <script src="js/no-emoji.js?v=1372"></script>
+    <script src="js/stat-noms.js?v=1372"></script>
+    <script src="js/fenetres.js?v=1372"></script>
+    <script src="js/qrcode.js?v=1372"></script>
+    <script src="js/partage-seance.js?v=1372"></script>
+    <script src="js/salle.js?v=1372"></script>
+    <script src="js/sports.js?v=1372"></script>
+    <script src="js/strength-balance.js?v=1372"></script>
+    <script src="js/analyse.js?v=1372"></script>
+    <script src="js/limitations.js?v=1372"></script>
+    <script src="js/custom-exercises.js?v=1372"></script>
+    <script src="js/awakening-tree.js?v=1372"></script>
+    <script src="js/ui-kit.js?v=1372"></script>
+    <script src="js/feature-map.js?v=1372"></script>
+    <script src="js/visite.js?v=1372"></script>
+    <script src="js/weekly-recap.js?v=1372"></script>
+    <script src="js/workout-games.js?v=1372"></script>
+    <script src="js/kids-games.js?v=1372"></script>
+    <script src="js/home-pro.js?v=1372"></script>
+    <script src="js/echelle.js?v=1372"></script>
+    <script src="js/seance-ecran.js?v=1372"></script>
+    <script src="js/back-button.js?v=1372"></script>
+    <script src="js/gestures.js?v=1372"></script>
+    <script src="js/rift-visuals.js?v=1372"></script>
+    <script src="js/family-sky.js?v=1372"></script>
+    <script src="js/family-week.js?v=1372"></script>
+    <script src="js/session-ux.js?v=1372"></script>
+    <script src="js/progress-tab.js?v=1372"></script>
+    <script src="js/mon-defi.js?v=1372"></script>
+    <script src="js/health-sync.js?v=1372"></script>
+    <script src="js/regle.js?v=1372"></script>
+    <script src="js/run-gps.js?v=1372"></script>
+    <script src="js/run-coach.js?v=1372"></script>
+    <script src="js/backup.js?v=1372"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>

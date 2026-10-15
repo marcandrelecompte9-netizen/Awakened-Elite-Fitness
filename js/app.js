@@ -14345,6 +14345,56 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             } catch (e) { return ''; }
         }
 
+        // v1371 : repères en une ligne — la dernière séance complète (toutes les
+        // séries, regroupées : « 3 × 10, 1 × 8 à 25 lbs ») + la suggestion du coach
+        // applicable d'un toucher à la grille.
+        function awakReperesCompacts(exKey) {
+            try {
+                const key = 'fitproLastSets_' + btoa(encodeURIComponent(exKey)).slice(0, 20);
+                let data = null; try { data = JSON.parse(localStorage.getItem(key) || 'null'); } catch (e) {}
+                const sets = data && Array.isArray(data.sets) ? data.sets.filter(s => !s.warmup && (s.reps > 0)) : [];
+                let txt = '';
+                if (sets.length) {
+                    const groupes = [];
+                    sets.forEach(s => { const g = groupes[groupes.length - 1]; if (g && g.r === s.reps) g.n++; else groupes.push({ r: s.reps, n: 1 }); });
+                    const ws = sets.map(s => parseFloat(s.weight) || 0);
+                    const wMax = Math.max.apply(null, ws), memeW = ws.every(w => w === ws[0]);
+                    txt = groupes.map(g => g.n + ' × ' + g.r).join(', ')
+                        + (wMax > 0 ? (memeW ? ' à ' : ' jusqu\'à ') + (Math.round(wMax * 10) / 10) + ' ' + weightUnit() : '');
+                    if (data.date) {
+                        const j = Math.floor((Date.now() - Date.parse(data.date)) / 86400000);
+                        txt += ' <span class="awk-rep-quand">· ' + (j <= 0 ? "aujourd'hui" : j === 1 ? 'hier' : 'il y a ' + j + ' j') + '</span>';
+                    }
+                } else {
+                    const lp = renderLastPerfChip(exKey);
+                    if (!lp) return '';
+                    const tmp = document.createElement('div'); tmp.innerHTML = lp;
+                    const l = tmp.querySelectorAll('div div'); txt = l.length ? l[l.length - 1].textContent : '';
+                    if (!txt) return '';
+                }
+                const sug = getLoadSuggestion(exKey);
+                let sugHtml = '';
+                if (sug && sug.action !== 'maintain' && sug.weight > 0) {
+                    sugHtml = '<button type="button" class="awk-rep-sug" onclick="awakAppliquerSuggestion(' + sug.weight + ',' + (sug.reps || 0) + ')">'
+                        + (sug.action === 'increase' ? '↑ ' : '↓ ') + 'Essaie ' + sug.weight + ' ' + weightUnit() + '</button>';
+                }
+                return '<div class="awk-reperes"><div class="awk-rep-txt"><span class="awk-rep-lbl">La dernière fois</span> ' + txt + '</div>' + sugHtml + '</div>';
+            } catch (e) { return ''; }
+        }
+        window.awakReperesCompacts = awakReperesCompacts;
+        // Suggestion appliquée aux séries restantes de la grille (avant : aux champs cachés)
+        window.awakAppliquerSuggestion = function (w, r) {
+            try {
+                for (let i = currentSetNumber - 1; i < _gridVals.length; i++) {
+                    if (!_gridVals[i]) continue;
+                    _gridVals[i].w = String(w);
+                    if (r > 0) _gridVals[i].r = r;
+                }
+                renderSetsGrid();
+                showToast('Charge appliquée : ' + w + ' ' + weightUnit(), 'info', 1500);
+            } catch (e) {}
+        };
+
         function renderLoadSuggestionChip(exerciseName) {
             const sug = getLoadSuggestion(exerciseName);
             if (!sug) return ''; // Premier essai — pas de suggestion
@@ -14516,33 +14566,28 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // ⏱ Repos manuel : l'utilisateur le déclenche à sa guise entre deux séries.
         // Même durée que le repos automatique d'avant (réglage perso > reco IA >
         // séance > global). Re-taper le bouton = arrêter. Survit aux re-renders.
-        let _gridRestRemaining = 0;
+        let _gridRestRemaining = 0;   // (v1370 : plus utilisé, le repos passe par le bandeau)
         window._gridManualRest = function () {
-            if (_gridRestRemaining > 0) {                    // déjà en cours → stop
-                _gridRestRemaining = 0;
-                if (setRestInterval) { clearInterval(setRestInterval); setRestInterval = null; }
-                renderSetsGrid();
-                return;
-            }
+            // v1370 : même bandeau que le repos automatique (visible, ±15 s, Passer)
+            const ban = document.getElementById('globalRestBanner');
+            if (ban && ban.style.display !== 'none') { skipGlobalRest(); return; }
             const ex = currentWorkout && currentWorkout.exercises ? currentWorkout.exercises[currentExerciseIndex] : null;
             const exName = ex && ex.name;
             const customRest = exName && exerciseRestOverrides[exName];
-            _gridRestRemaining = customRest || (ex && ex.repos) || (ex && ex.recoRest) || (currentWorkout && currentWorkout.restBetweenSets) || globalRestSeconds || 90;
-            if (setRestInterval) clearInterval(setRestInterval);
-            renderSetsGrid();
-            setRestInterval = setInterval(function () {
-                _gridRestRemaining--;
-                const b = document.getElementById('gridRestBtn');
-                if (_gridRestRemaining <= 0) {
-                    clearInterval(setRestInterval); setRestInterval = null;
-                    _gridRestRemaining = 0;
-                    try { vibrate([120, 60, 120]); } catch (e) {}
-                    try { showToast('⏱ Repos terminé — à toi !', 'success', 2200); } catch (e) {}
-                    renderSetsGrid();
-                    return;
-                }
-                if (b) b.innerHTML = '🧘 ' + _gridRestRemaining + ' s — toucher pour arrêter';
-            }, 1000);
+            startSetRest(customRest || (ex && ex.repos) || (ex && ex.recoRest) || (currentWorkout && currentWorkout.restBetweenSets) || globalRestSeconds || 90);
+        };
+
+        // v1370 : ✓ sur la série en cours = la valider SEULE (chemin « une série à
+        // la fois » de completeCurrentSet : records, superset, repos automatique,
+        // passage à l'exercice suivant après la dernière). « Suivant » continue de
+        // tout valider d'un coup (_gridBulkValidate).
+        window._gridValiderLigne = function (i) {
+            if (!_gridEnabled()) return;
+            if (i !== currentSetNumber - 1) return;          // seulement la série en cours
+            const v = _gridVals[i] || {};
+            if (!(parseInt(v.r, 10) > 0)) { try { showToast('Indique le nombre de répétitions', 'warning', 2000); } catch (e) {} return; }
+            _gridRestRemaining = 0;
+            _gridValidateRow(i);
         };
 
         function renderSetsGrid() {
@@ -14583,18 +14628,33 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         + '<span style="width:30px;font-size:0.72em;font-weight:900;color:' + accent + ';">' + label + '</span>'
                         + (_sansCharge ? '' : '<span style="flex:1;text-align:center;font-weight:800;color:#e2e8f0;font-variant-numeric:tabular-nums;">' + (done.weight || 0) + ' <span style="font-size:0.7em;color:#94a3b8;">' + weightUnit() + '</span></span>')
                         + '<span style="flex:1;text-align:center;font-weight:800;color:#e2e8f0;font-variant-numeric:tabular-nums;">' + (done.reps || 0) + ' <span style="font-size:0.7em;color:#94a3b8;">reps</span></span>'
-                        + '<span style="width:40px;text-align:center;color:#4ade80;font-weight:900;">\u2713</span>'
+                        + (function () {
+                            // v1371 : ▲ / ▼ par rapport à la même série de la dernière séance
+                            let fl = '';
+                            try {
+                                if (!isWu) {
+                                    const _k = _exG && (_exG._baseName || _exG.name);
+                                    const c = _k ? getComparisonIndicator(_k, setNum - warmupSetsCount, done.reps, done.weight) : null;
+                                    if (c && c.dir === 'up') fl = '<span title="Mieux que la dernière fois" style="color:#34d399;font-size:0.8em;margin-right:3px;">▲</span>';
+                                    else if (c && c.dir === 'down') fl = '<span title="Moins que la dernière fois" style="color:#f87171;font-size:0.8em;margin-right:3px;">▼</span>';
+                                }
+                            } catch (e) {}
+                            return '<span style="width:44px;text-align:center;color:#34d399;font-weight:900;white-space:nowrap;">' + fl + '\u2713</span>';
+                        })()
                         + '</div>';
                 } else {
                     const v = _gridVals[i] || { w: '', r: '' };
                     const rowStyle = 'background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.09);';
                     const inp = 'width:100%;box-sizing:border-box;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:#fff;font-weight:800;text-align:center;padding:7px 2px;font-size:0.95em;font-variant-numeric:tabular-nums;outline:none;';
-                    rows += '<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:11px;margin-bottom:6px;' + rowStyle + '">'
-                        + '<span style="width:30px;font-size:0.72em;font-weight:900;color:#94a3b8;">' + label + '</span>'
+                    rows += '<div class="awk-grid-ligne' + (isCur ? ' en-cours' : '') + '" style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:11px;margin-bottom:6px;' + rowStyle + '">'
+                        + '<span style="width:30px;font-size:0.72em;font-weight:900;color:' + (isCur ? '#67e8f9' : '#94a3b8') + ';">' + label + '</span>'
                         // ➖➕ Ajuster sans ouvrir le clavier (poids ± 2,5 kg / 5 lb, reps ± 1)
                         + (_sansCharge ? '' : '<span style="flex:1;min-width:0;display:flex;align-items:center;gap:3px;">' + _gridPas(i, 'w', -1) + '<input class="awak-grid-num" type="number" inputmode="decimal" step="0.5" min="0" value="' + (v.w === '' ? '' : v.w) + '" placeholder="' + weightUnit() + '" oninput="_gridSetVal(' + i + ',\'w\',this.value)" style="' + inp + 'min-width:0;">' + _gridPas(i, 'w', 1) + '</span>')
                         + '<span style="flex:1;min-width:0;display:flex;align-items:center;gap:3px;">' + _gridPas(i, 'r', -1) + '<input class="awak-grid-num" type="number" inputmode="numeric" step="1" min="0" value="' + (v.r === '' ? '' : v.r) + '" placeholder="reps" oninput="_gridSetVal(' + i + ',\'r\',this.value)" style="' + inp + 'min-width:0;">' + _gridPas(i, 'r', 1) + '</span>'
                         + (_sansCharge ? '<span style="flex-shrink:0;font-size:0.68em;color:#94a3b8;font-weight:700;width:34px;">reps</span>' : '')
+                        + (isCur
+                            ? '<button type="button" class="awk-grid-ok" onclick="_gridValiderLigne(' + i + ')" aria-label="Valider la série ' + label + '"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>'
+                            : '<span class="awk-grid-ok-vide"></span>')
                         + '</div>';
                 }
             }
@@ -14604,7 +14664,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 + (resting
                     ? 'background:linear-gradient(135deg,#f59e0b,#d97706);border:none;color:#fff;box-shadow:0 2px 12px rgba(245,158,11,0.4);'
                     : 'background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.4);color:#fbbf24;')
-                + '">' + (resting ? ('🧘 ' + _gridRestRemaining + ' s — toucher pour arrêter') : '⏱ Repos') + '</button>'
+                + '">' + (resting ? ('🧘 ' + _gridRestRemaining + ' s — toucher pour arrêter') : 'Repos') + '</button>'
                 + (_ssMode ? '' : '<button onclick="_gridAddSet()" style="flex:1;padding:11px 6px;background:none;border:1px dashed rgba(255,255,255,0.2);border-radius:11px;color:#94a3b8;font-weight:800;font-size:0.78em;cursor:pointer;">+ Série</button>')
                 + '</div>';
             if (_ssMode) {
@@ -14625,13 +14685,15 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     || /haltère|kettlebell|dumbbell/i.test(_nomEx);
                 if (_estHaltere) {
                     notePoids = '<div style="font-size:0.6em;color:#7dd3fc;background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.2);border-radius:8px;padding:5px 9px;margin-bottom:8px;line-height:1.4;">'
-                        + '⚖️ Indique le poids d\'<b>UN SEUL</b> haltère, pas le total des deux.</div>';
+                        + 'Poids d\'<b>un seul</b> haltère, pas des deux.</div>';
                 }
             } catch (e) {}
 
             // v1319 : la cible est déjà sous le titre et dans les cases : on ne la répète pas ici
-            panel.innerHTML = '<div style="font-size:0.72em;color:#cbd5e1;font-weight:700;line-height:1.45;margin-bottom:9px;text-align:center;">'
-                + 'Corrige les chiffres si besoin, puis appuie sur <b style="color:#93c5fd;">Suivant</b>.</div>' + notePoids + rows;
+            panel.innerHTML = '<div style="font-size:0.72em;color:#cbd5e1;font-weight:600;line-height:1.45;margin-bottom:9px;text-align:center;">'
+                + (_ssMode ? 'Fais ta série, puis touche <b style="color:#67e8f9;">✓</b>.'
+                           : '<b style="color:#67e8f9;">✓</b> après chaque série, le repos démarre seul <span style="color:#8d9cb1;">· ou <b>Suivant</b> pour tout valider</span>')
+                + '</div>' + notePoids + rows;
             panel.style.display = 'block';
             if (classicGrid) classicGrid.style.display = 'none';
             if (classicBtn) classicBtn.style.display = 'none';
@@ -14643,6 +14705,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             completedSets    = [];
             warmupSetsCount  = 0;
             if (setRestInterval) { clearInterval(setRestInterval); setRestInterval = null; }
+            // v1370 : un repos resté affiché d'un autre exercice (ex. « Remplacer »)
+            // ne doit pas déborder. Le superset relance son repos APRÈS ce point.
+            try { hideGlobalRestBanner(); window._awakRestAjuster = null; } catch (e) {}
             const bar = document.getElementById('setRestBar');
             if (bar) bar.style.display = 'none';
             const btn = document.getElementById('completeSetBtn');
@@ -14665,7 +14730,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (exKey) showProgressiveOverloadBanner(exKey);
             // 💡 Dernière perf + suggestion de charge dans la zone tracker
             const sugContainer = document.getElementById('loadSuggestionContainer');
-            if (sugContainer) sugContainer.innerHTML = exKey ? (renderLastPerfChip(exKey) + renderLoadSuggestionChip(exKey)) : '';
+            // v1371 : une seule ligne compacte (les deux cartes repoussaient la grille sous la barre d'actions)
+            if (sugContainer) sugContainer.innerHTML = exKey ? awakReperesCompacts(exKey) : '';
             // 📊 Init volume chip
             updateLiveVolumeChip();
 
@@ -15150,6 +15216,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         startTimer();
                     };
                     showGlobalRestBanner(s, ex ? ex.name : null);
+                    window._awakRestAjuster = function (d) {
+                        rem = Math.max(1, rem + d); _globalRestRemaining = rem;
+                        if (rem > _globalRestTotal) _globalRestTotal = rem;
+                        const _c = document.getElementById('globalRestCountdown'); if (_c) _c.textContent = rem;
+                    };
                     window.finishSetRest = fini;
                     if (window._awakSSRestInt) clearInterval(window._awakSSRestInt);
                     window._awakSSRestInt = setInterval(function () { rem--; if (rem <= 0) fini(); }, 1000);
@@ -15190,12 +15261,33 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const nextEx = currentWorkout?.exercises[currentExerciseIndex + 1];
             const nextExName = nextEx && !nextEx.isRest ? nextEx.name : null;
 
-            // Afficher bandeau repos permanent en haut
+            // Afficher le bandeau de repos (v1370 : en bas, au-dessus de la séance)
             showGlobalRestBanner(seconds, nextExName);
+            // v1370 : on annonce la SÉRIE suivante quand il en reste une
+            try {
+                const _tot = totalSetsPlanned + warmupSetsCount;
+                const _nn = document.getElementById('globalRestNextName');
+                if (_nn && currentSetNumber <= _tot) {
+                    const _v = (typeof _gridVals !== 'undefined' && _gridVals[currentSetNumber - 1]) || {};
+                    const _wu = currentSetNumber <= warmupSetsCount;
+                    const _num = _wu ? currentSetNumber : currentSetNumber - warmupSetsCount;
+                    const _r = parseInt(_v.r, 10), _w = parseFloat(_v.w);
+                    _nn.textContent = 'Prochaine : ' + (_wu ? 'échauffement ' + _num : 'série ' + _num + ' sur ' + totalSetsPlanned)
+                        + (_r > 0 ? ' · ' + _r + ' reps' : '') + (_w > 0 ? ' à ' + _w + ' ' + weightUnit() : '');
+                }
+            } catch (e) {}
+            window._awakRestAjuster = function (d) {
+                remaining = Math.max(1, remaining + d);
+                _globalRestRemaining = remaining;
+                if (remaining > _globalRestTotal) _globalRestTotal = remaining;
+                const _c = document.getElementById('globalRestCountdown'); if (_c) _c.textContent = remaining;
+                const _f = document.getElementById('globalRestFill'); if (_f) _f.style.width = Math.max(0, remaining / _globalRestTotal * 100) + '%';
+            };
 
             // Fonction pour terminer le repos et préparer la série suivante
             function finishRest() {
                 clearInterval(setRestInterval);
+                window._awakRestAjuster = null;
                 hideGlobalRestBanner();
                 const bar = document.getElementById('setRestBar');
                 if (bar) bar.style.display = 'none';
@@ -23097,7 +23189,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1368);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1372);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -23149,7 +23241,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 +       '<rect width="5" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.22"/>'
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1368" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1372" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -26229,6 +26321,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             updateProgress();
             updateTimerDisplay();
             updateExerciseProgressList();
+            // v1369 : mise en page de l'écran de séance (mode, « Ensuite », image)
+            try { if (window.AwakSeanceEcran) window.AwakSeanceEcran.maj(exercise, currentWorkout, currentExerciseIndex); } catch (e) {}
             
             // Show/hide tracking inputs and modify controls based on mode
             const repsTrackingDiv = document.getElementById('repsTrackingInputs');
@@ -28267,6 +28361,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             }, 1000);
         }
 
+        // v1370 : −15 s / +15 s sur le repos en cours
+        function awakRestAjuster(d) {
+            try { if (typeof window._awakRestAjuster === 'function') window._awakRestAjuster(d); } catch (e) {}
+            try { vibrate(10); } catch (e) {}
+        }
+        window.awakRestAjuster = awakRestAjuster;
+
         function hideGlobalRestBanner() {
             clearInterval(_globalRestTimer);
             const banner = document.getElementById('globalRestBanner');
@@ -28597,7 +28698,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1368");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1372");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -30183,9 +30284,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (!STAT_POINT_STATS.includes(stat)) return false;
             const sp = statPointsLoad();
             amount = amount || 1;
-            // Allow decrement: amount can be negative
-            if (amount > 0 && sp.available < amount) return false;
-            if (amount < 0 && (sp.allocated[stat] || 0) < Math.abs(amount)) return false;
+            // v1372 : les points CONFIRMÉS sont définitifs — plus de retrait.
+            // (La fenêtre garde un brouillon modifiable jusqu'à « Confirmer ».)
+            if (amount < 0) return false;
+            if (sp.available < amount) return false;
             sp.available -= amount;
             sp.allocated[stat] = (sp.allocated[stat] || 0) + amount;
             statPointsSave(sp);
@@ -33043,7 +33145,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1368);'
+                +     'url(images/combat_bg_v1.webp?v=1372);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -33298,7 +33400,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1368);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1372);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -33570,7 +33672,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:540px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto;display:flex;flex-direction:column;">
                 <!-- Header : vague actuelle -->
-                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1368);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1372);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                         <span style="font-size:0.6em;color:${theme.color};font-weight:900;letter-spacing:2px;">⚔ VAGUE ${rift.currentWaveIdx + 1} / ${rift.waves.length}${currentWave.isBoss ? ' · BOSS' : ''}</span>
                         <button onclick="awakAbandonRift()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
@@ -34700,7 +34802,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1368');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1372');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -35437,7 +35539,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1368);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1372);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -35608,7 +35710,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1368);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1372);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -38714,81 +38816,104 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // 🎯 MODAL — Allocation des points de stats (popup)
         // ═══════════════════════════════════════════════════════════════
         function awakOpenStatPointsModal() {
-            // v1362 : fenêtre refaite. Défilement INTERNE (corps seul, en-tête fixe)
-            // et mise à jour SUR PLACE après chaque point : avant, la fenêtre était
-            // recréée à chaque « + » et revenait en haut, ce qui empêchait d'atteindre
-            // les derniers attributs.
+            // v1372 : BROUILLON + CONFIRMATION. Les + / − modifient un brouillon
+            // (rien n'est enregistré) ; « Confirmer » l'applique après une
+            // validation, et les points confirmés deviennent définitifs.
+            // Effets affichés sur l'attribut TOTAL (base + séances + équipement +
+            // compagnons + points), avec le rendement décroissant au-delà de 80 et
+            // les plafonds, exactement comme awakComputeStatBonuses().
+            const deja = document.getElementById('awakStatPointsModal');
+            const brouillon = (deja && deja._brouillon) || { STR: 0, AGI: 0, VIT: 0, END: 0, PER: 0, SEN: 0 };
             const sp = statPointsLoad();
-            const totalAllocated = Object.values(sp.allocated).reduce((a, b) => a + b, 0);
+            const enAttente = Object.values(brouillon).reduce((a, b) => a + b, 0);
+            const dispo = Math.max(0, sp.available - enAttente);
+            const totalAlloue = Object.values(sp.allocated).reduce((a, b) => a + b, 0);
+            let totaux = {};
+            try { totaux = awakGetTotalStats() || {}; } catch (e) {}
             const COUL = { STR:'#f87171', AGI:'#fbbf24', VIT:'#60a5fa', END:'#34d399', PER:'#22d3ee', SEN:'#a78bfa' };
             const NOM  = { STR:'Force', AGI:'Agilité', VIT:'Vitalité', END:'Endurance', PER:'Perception', SEN:'Sens' };
             const ICO  = { STR:'epee', AGI:'eclair', VIT:'bouclier', END:'coeur', PER:'cible', SEN:'etoile' };
-            const fmt = n => String(Math.round(n * 10) / 10).replace('.', ',');
+            const SOFT = 80;
+            const dim = v => (v <= SOFT ? v : SOFT + Math.sqrt((v - SOFT) * SOFT));
+            const pc = v => String(Math.round(v * 10) / 10).replace('.', ',');
+            // [effet total, effet du prochain point]
             const EFFET = {
-                STR: v => '+' + fmt(v) + ' % de dégâts',
-                AGI: v => '+' + fmt(v * 0.5) + ' % de critique',
-                VIT: v => '+' + fmt(v) + ' % de double frappe',
-                END: v => '+' + fmt(v * 5) + ' PV max',
-                PER: v => '+' + fmt(v) + ' % contre les boss',
-                SEN: v => '+' + fmt(v) + ' % d\'XP'
+                STR: t => ['+' + pc(dim(t)) + ' % de dégâts', '+' + pc(dim(t + 1) - dim(t)) + ' %'],
+                AGI: t => { const c = Math.min(50, dim(t) * 0.5); return [pc(c) + ' % de critique' + (c >= 50 ? ' (max)' : ''), c >= 50 ? 'max atteint' : '+' + pc((dim(t + 1) - dim(t)) * 0.5) + ' %']; },
+                VIT: t => { const c = Math.min(35, dim(t)); return [pc(c) + ' % de double frappe' + (c >= 35 ? ' (max)' : ''), c >= 35 ? 'max atteint' : '+' + pc(dim(t + 1) - dim(t)) + ' %']; },
+                END: t => [(100 + t * 5) + ' PV max' + (t >= 12 ? ' · +' + Math.floor(t / 12) + ' PV par série' : ''), '+5 PV' + ((t + 1) % 12 === 0 ? ' et +1 PV par série' : '')],
+                PER: t => ['+' + pc(Math.min(150, dim(t))) + ' % contre les boss · ' + pc(Math.min(40, dim(t) * 0.3)) + ' % d\'esquive', '+' + pc(dim(t + 1) - dim(t)) + ' %'],
+                SEN: t => ['+' + pc(dim(t)) + ' % d\'XP · +' + pc(dim(t) * 0.5) + ' % de butin rare', '+' + pc(dim(t + 1) - dim(t)) + ' %']
             };
             const ico = (n, c) => { try { return (window.AwakIcon && AwakIcon.get(n, 18, c)) || ''; } catch (e) { return ''; } };
             const btn = (stat, d, actif, c) => `<button data-sp="${stat}" data-d="${d}" aria-label="${d > 0 ? 'Ajouter' : 'Retirer'} un point en ${NOM[stat]}" ${actif ? '' : 'disabled'}
                 style="width:40px;height:40px;min-height:0;padding:0;border-radius:12px;flex-shrink:0;cursor:${actif ? 'pointer' : 'default'};font-family:inherit;
                 display:flex;align-items:center;justify-content:center;touch-action:manipulation;
                 ${d > 0 ? `background:${actif ? c + '22' : 'rgba(255,255,255,0.03)'};border:1px solid ${actif ? c + '88' : 'rgba(255,255,255,0.06)'};color:${actif ? c : '#475569'};`
-                        : `background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);color:${actif ? '#cbd5e1' : '#475569'};`}">
+                        : `background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);color:${actif ? '#cbd5e1' : '#334155'};`}">
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round">${d > 0 ? '<path d="M12 5v14M5 12h14"/>' : '<path d="M5 12h14"/>'}</svg></button>`;
 
             const bandeau = sp.available > 0
                 ? `<div style="display:flex;align-items:center;gap:14px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.35);border-radius:16px;padding:12px 14px;">
-                       <div style="font-size:28px;font-weight:900;color:#fbbf24;line-height:1;font-variant-numeric:tabular-nums;">${sp.available}</div>
-                       <div style="min-width:0;"><div style="font-size:14px;font-weight:800;color:#fde68a;">point${sp.available > 1 ? 's' : ''} à distribuer</div>
-                       <div style="font-size:12.5px;color:#a3b1c2;margin-top:2px;">Touche + sur un attribut. Garde le doigt appuyé pour en ajouter plusieurs.</div></div>
+                       <div style="font-size:28px;font-weight:900;color:#fbbf24;line-height:1;font-variant-numeric:tabular-nums;">${dispo}</div>
+                       <div style="min-width:0;"><div style="font-size:14px;font-weight:800;color:#fde68a;">point${dispo > 1 ? 's' : ''} à distribuer${enAttente ? ' · ' + enAttente + ' en attente' : ''}</div>
+                       <div style="font-size:12.5px;color:#a3b1c2;margin-top:2px;">Prépare ta répartition, puis touche <b style="color:#e2e8f0;">Confirmer</b>. Les points confirmés sont définitifs.</div></div>
                    </div>`
                 : `<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:12px 14px;font-size:14px;color:#a3b1c2;line-height:1.45;">
                        Aucun point à distribuer pour l'instant. Tu en gagnes <b style="color:#e2e8f0;">4 à chaque niveau</b>.</div>`;
 
-            const maxVal = Math.max(5, ...STAT_POINT_STATS.map(s => sp.allocated[s] || 0));
             const lignes = STAT_POINT_STATS.map(stat => {
-                const v = sp.allocated[stat] || 0, c = COUL[stat];
-                return `<div style="display:flex;align-items:center;gap:12px;padding:12px;background:#12161c;border:1px solid rgba(255,255,255,0.07);border-radius:16px;">
+                const a = sp.allocated[stat] || 0, b = brouillon[stat] || 0, c = COUL[stat];
+                const t = (totaux[stat] || 0) + b;
+                const ef = EFFET[stat](t);
+                return `<div style="display:flex;align-items:center;gap:12px;padding:12px;background:#12161c;border:1px solid ${b ? c + '66' : 'rgba(255,255,255,0.07)'};border-radius:16px;">
                     <div style="width:38px;height:38px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${c}18;border:1px solid ${c}44;">${ico(ICO[stat], c)}</div>
                     <div style="flex:1;min-width:0;">
-                        <div style="font-size:14px;font-weight:800;color:#f1f5f9;">${NOM[stat]}</div>
-                        <div style="font-size:12.5px;color:${v ? c : '#8d9cb1'};font-weight:${v ? 700 : 500};margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${v ? EFFET[stat](v) : EFFET[stat](1) + ' / point'}</div>
-                        <div style="height:4px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden;margin-top:7px;">
-                            <div style="height:100%;width:${Math.round(v / maxVal * 100)}%;background:${c};border-radius:99px;transition:width .25s ease;"></div></div>
+                        <div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;">
+                            <span style="font-size:14px;font-weight:800;color:#f1f5f9;">${NOM[stat]}</span>
+                            <span style="font-size:14px;font-weight:900;color:${c};font-variant-numeric:tabular-nums;">${t}</span>
+                            ${a ? `<span style="font-size:11px;color:#8d9cb1;font-weight:700;">dont ${a} alloué${a > 1 ? 's' : ''}</span>` : ''}
+                        </div>
+                        <div style="font-size:12.5px;color:#cbd5e1;margin-top:2px;line-height:1.35;">${ef[0]}</div>
+                        <div style="font-size:11px;color:#8d9cb1;margin-top:1px;">Prochain point : ${ef[1]}</div>
                     </div>
                     <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
-                        ${btn(stat, -1, v > 0, c)}
-                        <div style="min-width:26px;text-align:center;font-size:16px;font-weight:900;color:${v ? '#f1f5f9' : '#64748b'};font-variant-numeric:tabular-nums;">${v}</div>
-                        ${btn(stat, 1, sp.available > 0, c)}
+                        ${btn(stat, -1, b > 0, c)}
+                        <div style="min-width:30px;text-align:center;font-size:16px;font-weight:900;color:${b ? c : '#475569'};font-variant-numeric:tabular-nums;">${b ? '+' + b : '0'}</div>
+                        ${btn(stat, 1, dispo > 0, c)}
                     </div>
                 </div>`;
             }).join('');
 
+            const resume = STAT_POINT_STATS.filter(k => brouillon[k] > 0).map(k => NOM[k] + ' +' + brouillon[k]).join(' · ');
+            const pied = enAttente > 0
+                ? `<div style="display:flex;gap:8px;">
+                       <button type="button" data-annuler style="flex:1;min-height:50px;border-radius:14px;cursor:pointer;font-family:inherit;font-size:14px;font-weight:800;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:#cbd5e1;">Annuler</button>
+                       <button type="button" data-confirmer style="flex:2;min-height:50px;border-radius:14px;cursor:pointer;font-family:inherit;font-size:15px;font-weight:800;background:linear-gradient(135deg,#22d3ee,#0891b2);border:none;color:#04121f;box-shadow:0 6px 18px rgba(34,211,238,0.25);">Confirmer ${enAttente} point${enAttente > 1 ? 's' : ''}</button>
+                   </div>
+                   <div style="font-size:11px;color:#8d9cb1;text-align:center;margin-top:6px;">${resume}</div>`
+                : `<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12.5px;color:#8d9cb1;">
+                       <span>${totalAlloue ? totalAlloue + ' point' + (totalAlloue > 1 ? 's' : '') + ' alloué' + (totalAlloue > 1 ? 's' : '') + ' · définitifs' : 'Aucun point alloué'}</span>
+                       <button onclick="awakShowAttributesInfo()" style="background:none;border:none;color:#67e8f9;font-weight:700;font-size:12.5px;cursor:pointer;padding:6px 0;min-height:0;font-family:inherit;white-space:nowrap;">À quoi ça sert ?</button>
+                   </div>`;
+
             const corpsHTML = `
                 <div style="padding:14px 16px 4px;">${bandeau}</div>
-                <div id="awakStatPointsList" style="display:grid;grid-template-columns:minmax(0,1fr);gap:8px;padding:12px 16px;">${lignes}</div>
-                <div style="padding:4px 16px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12.5px;color:#8d9cb1;">
-                    <span>${totalAllocated ? totalAllocated + ' point' + (totalAllocated > 1 ? 's' : '') + ' alloué' + (totalAllocated > 1 ? 's' : '') + ' · tu peux les redistribuer' : 'Aucun point alloué'}</span>
-                    <button onclick="awakShowAttributesInfo()" style="background:none;border:none;color:#67e8f9;font-weight:700;font-size:12.5px;cursor:pointer;padding:6px 0;min-height:0;font-family:inherit;white-space:nowrap;">À quoi ça sert ?</button>
-                </div>`;
+                <div id="awakStatPointsList" style="display:grid;grid-template-columns:minmax(0,1fr);gap:8px;padding:12px 16px 16px;">${lignes}</div>`;
 
-            // Fenêtre déjà ouverte → on remplace le CORPS seulement, sans bouger le défilement
-            const deja = document.getElementById('awakStatPointsModal');
             const corpsExistant = deja && deja.querySelector('#awakSpCorps');
             if (corpsExistant) {
                 const y = corpsExistant.scrollTop;
                 corpsExistant.innerHTML = corpsHTML;
                 corpsExistant.scrollTop = y;
+                const pe = deja.querySelector('#awakSpPied'); if (pe) pe.innerHTML = pied;
                 return;
             }
             if (deja) deja.remove();
 
             const modal = document.createElement('div');
             modal.id = 'awakStatPointsModal';
+            modal._brouillon = brouillon;
             // Pas de classe .modal : les règles mobiles génériques retirent le
             // défilement interne des .modal-content (max-height:none) — ici on le veut.
             modal.style.cssText = 'position:fixed;inset:0;z-index:10050;background:rgba(3,5,8,0.82);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);'
@@ -38803,21 +38928,52 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             <div style="font-size:11px;color:#67e8f9;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;">Chasseur</div>
                             <div style="font-size:19px;font-weight:800;color:#f1f5f9;line-height:1.2;">Points d'attribut</div>
                         </div>
-                        <button onclick="document.getElementById('awakStatPointsModal').remove()" aria-label="Fermer" style="width:38px;height:38px;min-height:0;padding:0;border-radius:50%;flex-shrink:0;cursor:pointer;
+                        <button data-fermer aria-label="Fermer" style="width:38px;height:38px;min-height:0;padding:0;border-radius:50%;flex-shrink:0;cursor:pointer;
                             background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);color:#cbd5e1;display:flex;align-items:center;justify-content:center;">
                             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
                     </div>
                 </div>
-                <div id="awakSpCorps" style="flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;padding-bottom:env(safe-area-inset-bottom,0px);">${corpsHTML}</div>
+                <div id="awakSpCorps" style="flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;">${corpsHTML}</div>
+                <div id="awakSpPied" style="flex-shrink:0;padding:12px 16px calc(14px + env(safe-area-inset-bottom,0px));border-top:1px solid rgba(255,255,255,0.07);background:#0b0d12;">${pied}</div>
             </div>`;
 
-            // + / − : un toucher = 1 point (au relâcher, pour qu'un doigt posé
-            // pour faire défiler n'ajoute rien) ; appui maintenu = répétition.
-            // Si le navigateur commence un défilement, il envoie pointercancel.
+            const reRendre = () => awakOpenStatPointsModal();
+            const ajuster = (stat, d) => {
+                const spx = statPointsLoad();
+                const att = Object.values(modal._brouillon).reduce((x, y) => x + y, 0);
+                if (d > 0 && att >= spx.available) return false;
+                if (d < 0 && !(modal._brouillon[stat] > 0)) return false;
+                modal._brouillon[stat] += d;
+                reRendre();
+                return true;
+            };
+            const fermer = () => {
+                const att = Object.values(modal._brouillon).reduce((x, y) => x + y, 0);
+                if (!att) { modal.remove(); return; }
+                showConfirm(att + ' point' + (att > 1 ? 's' : '') + ' en attente ne ' + (att > 1 ? 'seront pas enregistrés' : 'sera pas enregistré') + '.',
+                    () => modal.remove(), null, { title: 'Fermer sans confirmer ?', subtitle: 'Points non confirmés', confirmLabel: 'Fermer', cancelLabel: 'Rester' });
+            };
+            const confirmer = () => {
+                const br = modal._brouillon;
+                const att = Object.values(br).reduce((x, y) => x + y, 0);
+                if (!att) return;
+                const liste = STAT_POINT_STATS.filter(k => br[k] > 0).map(k => NOM[k] + ' +' + br[k]).join(', ');
+                showConfirm(liste + '. Une fois confirmés, ces points ne pourront plus être retirés.', () => {
+                    STAT_POINT_STATS.forEach(k => { if (br[k] > 0) statPointsAllocate(k, br[k]); });
+                    modal._brouillon = { STR: 0, AGI: 0, VIT: 0, END: 0, PER: 0, SEN: 0 };
+                    try { if (typeof window.awakEmit === 'function') window.awakEmit('rpg:statsChanged', { source: 'allocate' }); } catch (e) {}
+                    reRendre();
+                    try { if (typeof renderAdventureTab === 'function' && typeof window.awakEmit !== 'function') renderAdventureTab(); } catch (e) {}
+                    try { awakMajValeursAttributs(); } catch (e) {}
+                    try { showToast(att + ' point' + (att > 1 ? 's' : '') + ' confirmé' + (att > 1 ? 's' : ''), 'success', 2000); } catch (e) {}
+                }, null, { title: 'Confirmer tes points ?', subtitle: 'Choix définitif', confirmLabel: 'Confirmer', cancelLabel: 'Revoir' });
+            };
+            modal._ajuster = ajuster;
+
+            // + / − : un toucher = 1 point (au relâcher) ; appui maintenu = répétition.
             let rep = null, delai = null, appui = null;
             const stop = () => { clearTimeout(delai); clearInterval(rep); delai = rep = null; appui = null; };
-            const trouver = (stat, d) => modal.querySelector(`button[data-sp="${stat}"][data-d="${d}"]`);
-            const agir = (stat, d) => { const b = trouver(stat, d); if (!b || b.disabled) { clearInterval(rep); return; } awakStatPointsAllocate(stat, +d); };
+            const agir = (stat, d) => { if (!ajuster(stat, +d)) clearInterval(rep); };
             modal.addEventListener('pointerdown', e => {
                 const b = e.target.closest('button[data-sp]'); if (!b || b.disabled) return;
                 stop();
@@ -38828,7 +38984,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.addEventListener('pointermove', e => { if (appui && !appui.repete && (Math.abs(e.clientX - appui.x) > 10 || Math.abs(e.clientY - appui.y) > 10)) stop(); });
             modal.addEventListener('pointerup', () => { if (appui && !appui.repete) agir(appui.stat, appui.d); stop(); });
             modal.addEventListener('pointercancel', stop);
-            modal.addEventListener('click', e => { if (e.target === modal) { stop(); modal.remove(); } });
+            modal.addEventListener('click', e => {
+                if (e.target === modal || e.target.closest('[data-fermer]')) { stop(); fermer(); return; }
+                if (e.target.closest('[data-annuler]')) { modal._brouillon = { STR: 0, AGI: 0, VIT: 0, END: 0, PER: 0, SEN: 0 }; reRendre(); return; }
+                if (e.target.closest('[data-confirmer]')) { confirmer(); }
+            });
             document.body.appendChild(modal);
         }
         window.awakOpenStatPointsModal = awakOpenStatPointsModal;
@@ -46592,7 +46752,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
             host.innerHTML =
                 '<div style="position:relative;width:110px;margin:0 auto 12px;">'
-              +   '<img src="images/body/body_face.webp?v=1368" alt="" '
+              +   '<img src="images/body/body_face.webp?v=1372" alt="" '
               +     'style="width:100%;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -46674,7 +46834,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1368);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1372);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -46741,7 +46901,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1368);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1372);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -49063,7 +49223,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1368");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1372");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
