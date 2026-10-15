@@ -4644,9 +4644,9 @@ body.dark-mode .card:not(#awakHunterCard) {
 
         /* Texte accentué — violet doux au lieu de bleu clair */
         body.dark-mode .accent,
-        body.dark-mode [style*="color: #0891b2;"],
-        body.dark-mode [style*="color:#0891b2;"] {
-            color: #4ade80 !important;
+        body.dark-mode [style*="color: #16a34a;"],
+        body.dark-mode [style*="color:#16a34a;"] {
+            color: #67e8f9 !important;
         }
 
         /* Fond de page workout (timer) */
@@ -7233,7 +7233,7 @@ img[src*="images/exercises/"] {
 /* 🛡️ FILET : aucun vert ne doit subsister dans la console.
    Certaines couleurs sont posées en STYLE EN LIGNE dans le HTML, qui
    l'emporte sur toute règle CSS — sauf avec !important. */
-#settingsTab [style*="#0891b2"],
+#settingsTab [style*="#16a34a"],
 #settingsTab [style*="#4ade80"],
 #settingsTab [style*="#22c55e"] { color: #93c5fd !important; }
 
@@ -7316,7 +7316,7 @@ img[src*="images/exercises/"] {
     color: #94a3b8 !important;
 }
 /* 🛡️ Filet : aucun vert posé en style en ligne ne doit subsister. */
-#exercisesTab [style*="#0891b2"],
+#exercisesTab [style*="#16a34a"],
 #exercisesTab [style*="#4ade80"],
 #exercisesTab [style*="#22c55e"] { color: #93c5fd !important; }
 
@@ -7516,8 +7516,8 @@ body.dark-mode tr:nth-child(even) td {
     color: #e2e8f0 !important;
 }
 /* 🛡️ Filet : aucun vert ni couleur de thème clair ne doit subsister. */
-#profileSelectionModal [style*="#0891b2"],
-#profileSetupModal [style*="#0891b2"],
+#profileSelectionModal [style*="#16a34a"],
+#profileSetupModal [style*="#16a34a"],
 #profileSelectionModal [style*="#22c55e"],
 #profileSetupModal [style*="#22c55e"] { color: #93c5fd !important; }
 
@@ -7584,7 +7584,7 @@ body.dark-mode tr:nth-child(even) td {
 #profileEditorModal .modal-header h2::before { content: '> '; color: #60a8f0; }
 #profileEditorModal .modal-body { font-family: 'SFMono-Regular', 'Consolas', 'Liberation Mono', 'Menlo', monospace; }
 /* ⚠️ Libellés en #0891b2 (vert du thème d'origine) → bleu de la console. */
-#profileEditorModal [style*="#0891b2"] { color: #93c5fd !important; }
+#profileEditorModal [style*="#16a34a"] { color: #93c5fd !important; }
 #profileEditorModal .close-btn { color: #64748b !important; }
 
 /* 👆 Cibles tactiles de la recherche d'exercices.
@@ -7702,7 +7702,7 @@ body.dark-mode #homeTab .stat-label {
    « > Mes Routines », illisible pour un enfant et sans équivalent ailleurs). */
 
 /* 🛡️ Filet : aucun vert posé en style en ligne ne subsiste. */
-#routinesTab [style*="#0891b2"],
+#routinesTab [style*="#16a34a"],
 #routinesTab [style*="#4ade80"],
 #routinesTab [style*="#22c55e"],
 #routinesTab [style*="#22d3ee"] { color: #93c5fd !important; }
@@ -8259,3 +8259,67 @@ input:focus, select:focus, textarea:focus { border-color: rgba(34,211,238,0.55) 
 @media (prefers-reduced-motion: reduce) {
     .awk-barre, .tab-content, .tab-content .card { animation: none !important; }
 }
+/* v1362 : fenêtre des points d'attribut (sans classe .modal) — mêmes règles
+   que les autres fenêtres : pas de bandeau ni de barre du bas par-dessus. */
+body:has(#awakStatPointsModal) .toast-container,
+body:has(#awakStatPointsModal) #mobileNavBar { display: none !important; }
+
+/* ── v1367 · Fenêtre « Configuration du profil » ───────────────────────── */
+#profileSetupModal .modal-content.awk-pf {
+    font-family: var(--font-main, 'Outfit', sans-serif) !important;
+    background: #0b0d12 !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    border-radius: 20px 20px 0 0 !important;
+    max-width: 480px;
+    padding: 0 14px 0 !important;
+    color: var(--awk-txt);
+}
+@media (min-width: 641px) { #profileSetupModal .modal-content.awk-pf { border-radius: 20px !important; } }
+#profileSetupModal .awk-pf-tete {
+    position: sticky; top: 0; z-index: 3; margin: 0 -14px 12px; padding: 14px 16px 12px;
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    background: rgba(11,13,18,0.96); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+#profileSetupModal .awk-pf-kicker { font-size: 11px; color: #67e8f9; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; }
+#profileSetupModal h2.awk-pf-titre { margin: 0 !important; font-family: inherit !important; font-size: 19px !important; font-weight: 800 !important; color: #f1f5f9 !important; letter-spacing: 0 !important; line-height: 1.2; }
+#profileSetupModal .awk-pf-fermer {
+    width: 38px; height: 38px; min-height: 0 !important; padding: 0 !important; border-radius: 50% !important; flex-shrink: 0; cursor: pointer;
+    background: rgba(255,255,255,0.06) !important; border: 1px solid rgba(255,255,255,0.08) !important; color: #cbd5e1 !important;
+    display: flex; align-items: center; justify-content: center; box-shadow: none !important;
+}
+#profileSetupModal .awk-pf-carte { background: #12161c; border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; padding: 14px; margin-bottom: 10px; }
+#profileSetupModal .awk-pf-section { font-size: 11px; color: #67e8f9; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 4px; }
+#profileSetupModal .awk-pf-lbl { display: block; font-size: 12.5px; font-weight: 700; color: #cbd5e1; margin: 12px 0 6px; }
+#profileSetupModal .awk-pf-opt { font-weight: 500; color: #8d9cb1; }
+#profileSetupModal .awk-pf-champ {
+    width: 100%; box-sizing: border-box; min-height: 46px; padding: 11px 13px !important;
+    background: #0b0d12 !important; border: 1px solid rgba(255,255,255,0.12) !important; border-radius: 12px !important;
+    color: #f1f5f9 !important; font-family: inherit !important; font-size: 16px !important; margin: 0 !important;
+}
+#profileSetupModal .awk-pf-champ:focus { border-color: rgba(34,211,238,0.6) !important; box-shadow: 0 0 0 3px rgba(34,211,238,0.12) !important; outline: none !important; }
+#profileSetupModal .awk-pf-champ::placeholder { color: #64748b; }
+#profileSetupModal .awk-pf-duo { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+#profileSetupModal .awk-pf-cache { display: none !important; }
+#profileSetupModal .awk-pf-pastilles { display: flex; flex-wrap: wrap; gap: 6px; }
+#profileSetupModal .awk-pf-3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); }
+#profileSetupModal .awk-pf-grille { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 6px; }
+#profileSetupModal .awk-pf-pastille {
+    display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 8px 12px !important;
+    background: rgba(255,255,255,0.04) !important; border: 1px solid rgba(255,255,255,0.10) !important; border-radius: 12px !important;
+    color: #cbd5e1 !important; font-family: inherit !important; font-size: 14px !important; font-weight: 700 !important; cursor: pointer; text-align: center; line-height: 1.2; box-shadow: none !important;
+}
+#profileSetupModal .awk-pf-grille .awk-pf-pastille { justify-content: flex-start; text-align: left; }
+#profileSetupModal .awk-pf-pastille small { display: block; font-size: 11px; font-weight: 600; color: #8d9cb1; margin-top: 1px; }
+#profileSetupModal .awk-pf-pastille.on { background: linear-gradient(135deg, #22d3ee, #0891b2) !important; border-color: transparent !important; color: #04121f !important; }
+#profileSetupModal .awk-pf-pastille.on small { color: rgba(4,18,31,0.7); }
+#profileSetupModal .awk-pf-pico { display: flex; flex-shrink: 0; }
+#profileSetupModal .awk-pf-note { margin-top: 8px; font-size: 12.5px; color: #a3b1c2; line-height: 1.45; }
+#profileSetupModal .awk-pf-note strong { color: #e2e8f0; }
+#profileSetupModal .awk-pf-lien { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+#profileSetupModal .awk-pf-ico { width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: rgba(34,211,238,0.10); border: 1px solid rgba(34,211,238,0.3); }
+#profileSetupModal .awk-pf-pied {
+    position: sticky; bottom: 0; z-index: 3; margin: 6px -14px 0; padding: 12px 14px calc(14px + env(safe-area-inset-bottom, 0px));
+    background: linear-gradient(180deg, rgba(11,13,18,0) 0%, rgba(11,13,18,0.96) 30%);
+}
+#profileSetupModal .awk-pf-pied .awk-btn { min-height: 50px; font-size: 15px; border-radius: 14px; }

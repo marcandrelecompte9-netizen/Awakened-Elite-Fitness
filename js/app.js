@@ -9401,9 +9401,53 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const _heroEl = document.getElementById('profileHero');
             if (_heroEl) _heroEl.value = profile.hero || '';
             document.getElementById('profileWeight').value = profile.weight ? fmtWeightVal(profile.weight) : '';
-            
+            // v1367 : pastilles synchronisées avec les valeurs du profil
+            // (le texte du niveau restait sur « Débutant » quel que soit le niveau)
+            try { awakPfRendre(); updateLevelDescription(); } catch (e) {}
+
             modal.classList.add('active');
         }
+
+        // v1367 : pastilles de la fenêtre de profil. Les <select> cachés restent la
+        // source des valeurs (saveProfileSetup les lit) ; les pastilles les pilotent.
+        const AWAK_PF_CHOIX = {
+            profileGoal: [['weight_loss', 'Perte de poids', 'flamme'], ['muscle_gain', 'Prise de masse', 'muscle'], ['strength', 'Force', 'halter'],
+                          ['endurance', 'Endurance', 'course'], ['fitness', 'Forme générale', 'eclair'], ['flexibility', 'Souplesse', 'soleil']],
+            profileLevel: [['beginner', 'Débutant', '0-6 mois'], ['intermediate', 'Intermédiaire', '6-24 mois'], ['advanced', 'Avancé', '2 ans et +']],
+            profileSex: [['homme', 'Homme'], ['femme', 'Femme'], ['', 'Ne pas préciser']],
+            profileHero: [['', 'Le duo'], ['esen', 'Esen'], ['nyra', 'Nyra']]
+        };
+        const AWAK_PF_HEROS = { '': 'Esen et Nyra t\'accompagnent ensemble dans l\'histoire.', esen: 'Esen : silencieux, déterminé.', nyra: 'Nyra : taquine, énergique.' };
+        function awakPfRendre() {
+            Object.keys(AWAK_PF_CHOIX).forEach(function (id) {
+                const hote = document.querySelector('#profileSetupModal [data-pf="' + id + '"]');
+                const sel = document.getElementById(id);
+                if (!hote || !sel) return;
+                const val = sel.value;
+                hote.innerHTML = AWAK_PF_CHOIX[id].map(function (o) {
+                    const on = o[0] === val;
+                    let ico = '';
+                    if (id === 'profileGoal') { try { ico = (window.AwakIcon && AwakIcon.get(o[2], 18, on ? '#04121f' : '#67e8f9')) || ''; } catch (e) {} }
+                    return '<button type="button" class="awk-pf-pastille' + (on ? ' on' : '') + '" aria-pressed="' + on + '" onclick="awakPfChoisir(\'' + id + '\',\'' + o[0] + '\')">'
+                        + (ico ? '<span class="awk-pf-pico">' + ico + '</span>' : '')
+                        + '<span>' + o[1] + (id === 'profileLevel' ? '<small>' + o[2] + '</small>' : '') + '</span></button>';
+                }).join('');
+            });
+            const hn = document.getElementById('awakPfHeroNote');
+            const hs = document.getElementById('profileHero');
+            if (hn && hs) hn.textContent = AWAK_PF_HEROS[hs.value] || '';
+            const li = document.getElementById('awakPfLimIco');
+            if (li && !li.innerHTML) { try { li.innerHTML = (window.AwakIcon && AwakIcon.get('personne', 20, '#67e8f9')) || ''; } catch (e) {} }
+        }
+        function awakPfChoisir(id, val) {
+            const sel = document.getElementById(id);
+            if (!sel) return;
+            sel.value = val;
+            if (id === 'profileLevel') updateLevelDescription();
+            awakPfRendre();
+        }
+        window.awakPfRendre = awakPfRendre;
+        window.awakPfChoisir = awakPfChoisir;
 
         function closeProfileSetup() {
             const m = document.getElementById('profileSetupModal');
@@ -9419,9 +9463,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         function updateLevelDescription() {
             const level = document.getElementById('profileLevel').value;
             const descriptions = {
-                beginner: '💡 <strong>Débutant :</strong> Séances équilibrées avec 40% d\'exercices de base (squats, pompes), 50% d\'isolation et 10% de finition. Repos de 60s entre séries.',
-                intermediate: '💡 <strong>Intermédiaire :</strong> Structure optimale avec 35% d\'exercices de base, 45% d\'isolation et 20% de finition. Repos de 45s entre séries.',
-                advanced: '💡 <strong>Avancé :</strong> Séances intenses avec 30% d\'exercices de base, 40% d\'isolation et 30% de finition/brûlage. Repos de 30s entre séries.'
+                beginner: '<strong>Débutant :</strong> séances équilibrées, surtout des mouvements de base (squats, pompes), sans exercices avancés.',
+                intermediate: '<strong>Intermédiaire :</strong> plus de variété et de volume, quelques exercices plus techniques.',
+                advanced: '<strong>Avancé :</strong> séances intenses, exercices avancés et techniques de finition.'
             };
             const desc = document.getElementById('levelDescription');
             if (desc) {
@@ -13189,32 +13233,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             let _muscleTimeWarning = '';
             let targetExerciseCount;
             {
-                // Temps réel d'UN exercice : séries × (effort par série + repos).
-                const _p = awakPrescribe(profile.goal || 'fitness', profile.level || 'intermediate', null, 'force');
-                const _sets = _p.sets || 3;
-                const _rest = _p.rest || 60;
-                // Effort par série selon l'objectif : reps courtes en Force (~20 s),
-                // longues en Endurance (~50 s). Avant : 30 s figé pour tout.
-                const _workByGoal = { strength: 22, muscle_gain: 35, endurance: 50, weight_loss: 40, fitness: 30, flexibility: 40 };
-                const _workPerSet = _workByGoal[profile.goal] || 30;
-                const _perExerciseSec = _sets * (_workPerSet + _rest);
-                // Réserve = VRAIE durée d'échauffement + estimation étirements
-                // (~35 s par muscle travaillé, plafonné). + ~10 s de transition par
-                // exercice (installation, lecture) — les séances réelles ont ce coût.
+                // v1368 : même calcul que l'écran de préparation (awakEstimerSeance),
+                // via awakBudgetSeance — avant, deux formules différentes : « 30 min »
+                // et « 5 exercices ≈ 25 min » ne concordaient pas.
                 const _mCount = Math.max(1, Math.min(6, (workingMuscles && workingMuscles.length) || 3));
-                const _stretchSec = includeStretch ? _mCount * 35 : 0;
-                const _reserveSec = _warmupSec + _stretchSec;
-                // + le bloc « Repos » inséré APRÈS chaque exercice (oublié avant :
-                //   une séance de 30 min en durait ~35).
-                let _reposBloc = 60;
-                try {
-                    const _ld = userLevels[profile.level] || userLevels['intermediate'];
-                    _reposBloc = (_ld && _ld.rest) || 60;
-                    if (intensity >= 1.1) _reposBloc += 30; else if (intensity <= 0.7) _reposBloc += 20;
-                } catch (e) {}
-                const _perExWithTransition = _perExerciseSec + 10 + _reposBloc;
-                const _budgetSec = Math.max(60, selectedDuration * 60 - _reserveSec);
-                targetExerciseCount = Math.floor(_budgetSec / _perExWithTransition);
+                const _b = awakBudgetSeance(profile, _mCount, includeWarmup ? _warmupArr : [], includeStretch);
+                const _budgetSec = Math.max(60, selectedDuration * 60 - _b.reserve);
+                targetExerciseCount = Math.round(_budgetSec / _b.parExo);
                 // Garde-fous : au moins 2 exercices (séance cohérente), au plus 12.
                 if (typeof _forcedExerciseCount === 'number' && _forcedExerciseCount > 0) {
                     targetExerciseCount = _forcedExerciseCount;
@@ -13289,6 +13314,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try { selectedExercises = awakPiliersAppliquer(selectedExercises, availableExercises, profile); } catch (e) {}
             // v1342 : variantes en double, bras, mouvements de base du bas du corps
             try { selectedExercises = awakAffinerSelection(selectedExercises, availableExercises, workingMuscles, profile); } catch (e) {}
+            // v1368 : les étapes d'équilibrage (antagonistes, mouvements de base)
+            // pouvaient AJOUTER des exercices : 8 demandés en donnaient 10-11, et
+            // 60 min en duraient 70. On revient au nombre visé en retirant d'abord
+            // un exercice du muscle le plus représenté (jamais un pilier).
+            try { selectedExercises = _awakAjusterNombre(selectedExercises, targetCount); } catch (e) {}
 
             // ⚖️ Avertissement RIGOUREUX : parmi les muscles CHOISIS, lesquels ne
             // sont réellement PAS couverts par les exercices retenus — en tenant
@@ -13897,7 +13927,79 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         }
 
         // ========== DURATION SELECTION ==========
+        // v1368 : durée d'un exercice et réserve (échauffement + étirements), en
+        // secondes, calculées EXACTEMENT comme awakEstimerSeance le fera ensuite
+        // sur la séance prescrite : séries × (effort + repos) + 10 s de transition,
+        // effort = max(20 s, reps × 4 s), repos = celui de la prescription.
+        function awakBudgetSeance(profile, nbMuscles, warmupArr, avecEtirements) {
+            profile = profile || {};
+            const goal = profile.goal || 'fitness', level = profile.level || 'intermediate';
+            const parExo = (p) => {
+                const sets = Math.max(1, p.sets || 3);
+                const work = Math.max(20, (parseInt(p.reps, 10) || 10) * 4);
+                return sets * work + (sets - 1) * (p.rest || 60) + 10 + (p.rest || 60);   // + bloc de repos qui suit
+            };
+            let pc = { sets: 3, reps: 10, rest: 60 }, pi = pc;
+            try { pc = awakPrescribe(goal, level, 'compound', 'force'); pi = awakPrescribe(goal, level, 'isolation', 'force'); } catch (e) {}
+            const moyenne = Math.round((parExo(pc) + parExo(pi)) / 2);
+            let echauf = 0;
+            (warmupArr || []).forEach(w => { if (w && !w.isInfo) echauf += (parseInt(w.duration, 10) || 0) + (w.isRest ? 0 : 10); });
+            const etir = avecEtirements ? Math.max(1, Math.min(6, nbMuscles || 3)) * 40 : 0;
+            return { parExo: Math.max(60, moyenne), reserve: echauf + etir };
+        }
+        window.awakBudgetSeance = awakBudgetSeance;
+
+        // Minutes estimées pour N exercices avec le profil actuel (étiquettes)
+        function awakMinutesPourNombre(n) {
+            const prof = (typeof getUserProfile === 'function') ? (getUserProfile() || {}) : {};
+            let wu = [];
+            try { if (includeWarmup) wu = generateProgressiveWarmup(['Pectoraux', 'Dos', 'Quadriceps'], 1, Math.max(15, n * 6)) || []; } catch (e) {}
+            const b = awakBudgetSeance(prof, 3, wu, typeof includeStretch === 'undefined' ? true : includeStretch);
+            return Math.round((b.reserve + n * b.parExo) / 60);
+        }
+        window.awakMinutesPourNombre = awakMinutesPourNombre;
+
+        // Ramène une liste d'exercices à n en retirant du muscle le plus représenté
+        function _awakAjusterNombre(liste, n) {
+            if (!Array.isArray(liste) || !(n > 0) || liste.length <= n) return liste;
+            const out = liste.slice();
+            while (out.length > n) {
+                const cpt = {};
+                out.forEach(e => { const m = e.muscle || '?'; cpt[m] = (cpt[m] || 0) + 1; });
+                let idx = -1, best = -1;
+                for (let k = out.length - 1; k >= 0; k--) {
+                    const e = out[k];
+                    if (e._pilier) continue;
+                    const c = cpt[e.muscle || '?'];
+                    if (c > best) { best = c; idx = k; }
+                }
+                if (idx < 0) idx = out.length - 1;
+                out.splice(idx, 1);
+            }
+            return out;
+        }
+
+        function awakMajEtiquettesDuree() {
+            try {
+                const m = document.getElementById('durationModal');
+                if (!m) return;
+                m.querySelectorAll('button[onclick^="selectExerciseCount("]').forEach(b => {
+                    const n = parseInt((b.getAttribute('onclick').match(/\d+/) || [0])[0], 10);
+                    const lbl = b.querySelector('[data-duree-n]') || b.lastElementChild;
+                    if (n && lbl) { lbl.setAttribute('data-duree-n', n); lbl.textContent = '~' + (Math.round(awakMinutesPourNombre(n) / 5) * 5) + ' min'; }
+                });
+                const note = document.getElementById('awakDureeNote');
+                if (note) {
+                    const prof = (typeof getUserProfile === 'function') ? (getUserProfile() || {}) : {};
+                    const b = awakBudgetSeance(prof, 3, [], false);
+                    note.textContent = 'Pour ton objectif, compte environ ' + Math.round(b.parExo / 60) + ' min par exercice (séries et repos compris), plus l\'échauffement et les étirements.';
+                }
+            } catch (e) {}
+        }
+        window.awakMajEtiquettesDuree = awakMajEtiquettesDuree;
+
         function showDurationModal() {
+            try { awakMajEtiquettesDuree(); } catch (e) {}
             document.getElementById('durationModal').classList.add('active');
         }
 
@@ -13917,7 +14019,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // 0 = pas de contrainte, on repart sur la durée.
         function selectExerciseCount(n) {
             _forcedExerciseCount = n;
-            selectedDuration = Math.max(10, Math.round(n * 5));
+            // v1368 : durée cohérente avec l'étiquette du bouton (même calcul)
+            selectedDuration = Math.max(10, awakMinutesPourNombre(n));
             closeDurationModal();
             actuallyStartRandomWorkout();
         }
@@ -14681,7 +14784,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (_exXP && typeof rpgGainXP === 'function' && reps > 0) {
                     const _isTimer = _exXP.mode === 'timer' || _exXP.mode === 'duration';
                     if (_isTimer && !(parseInt(repsInput?.value) > 0)) rpgGainXP(_exXP._baseName || _exXP.name, 0, 0, _exXP.duration || 45);
-                    else rpgGainXP(_exXP._baseName || _exXP.name, reps, weight || 0);
+                    // v1365 : la charge saisie est dans l'unité affichée → l'XP se calcule en kg
+                    else rpgGainXP(_exXP._baseName || _exXP.name, reps, (useKg ? weight : weight * 0.453592) || 0);
                 }
             } catch (e) {}
 
@@ -16352,7 +16456,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         if (st.warmup) return;
                         const reps = parseInt(st.reps) || 0, w = parseFloat(st.weight) || 0;
                         const minut = reps === 0 && w === 0;
-                        let xp = Math.min(XP_MAX_PER_SET, rpgXPForSet(nom, reps, w, minut, t.duration || (db && db.duration) || 30));
+                        let xp = Math.min(XP_MAX_PER_SET, rpgXPForSet(nom, reps, w, minut, t.duration || (db && db.duration) || 30, profileId));
                         xp = Math.min(xp, XP_MAX_PER_WORKOUT - total, XP_MAX_PER_DAY - dj.xp - total);
                         if (xp <= 0) return;
                         total += xp;
@@ -22993,7 +23097,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1361);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1368);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -23045,7 +23149,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 +       '<rect width="5" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.22"/>'
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1361" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1368" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -23591,11 +23695,12 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 +     'preserveAspectRatio="none" opacity="0.85"/>'
                 +   amorces + svgZones + textes
                 + '</svg>'
-                + '<div style="text-align:center;font-size:0.62em;color:#64748b;font-weight:700;margin-top:4px;letter-spacing:0.3px;">Glisse sur le personnage pour le tourner</div>'
+                + '<div style="text-align:center;font-size:11px;color:#8d9cb1;font-weight:600;margin-top:4px;">Glisse sur le personnage pour le tourner</div>'
                 + '<button onclick="awakBodyMapFlip(1)" style="width:100%;margin-top:8px;padding:9px;'
                 +   'border-radius:11px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);'
-                +   'color:#cbd5e1;font-size:0.7em;font-weight:800;cursor:pointer;">'
-                +   (estFace ? '🔄 VOIR LE DOS' : '🔄 VOIR LA FACE') + '</button>'
+                +   'color:#e2e8f0;font-size:12.5px;font-weight:800;font-family:inherit;cursor:pointer;min-height:40px;">'
+                +   '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px;"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/></svg>'
+                +   (estFace ? 'Voir le dos' : 'Voir la face') + '</button>'
                 + '</div>';
         }
         window.awakRenderBodyMap = awakRenderBodyMap;
@@ -28492,7 +28597,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1361");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1368");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -29002,137 +29107,173 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // (Carte retirée volontairement — ne pas remettre.)
 
             // ── 6. CLASSEMENT MUSCLES ────────────────────────────────
+            // v1364 : habillage au goût du jour + résumé (niveau moyen, le plus
+            // fort, à travailler) et légende des couleurs de niveau.
             const cardMuscles = document.createElement('div');
             cardMuscles.className = 'card';
-            // 📋 « Classement détaillé » RETIRÉ (v858) : la carte affiche déjà chaque
-            // muscle avec son niveau, relié à sa zone par une amorce. La liste en
-            // dessous répétait la même information sur 15 lignes.
-            cardMuscles.innerHTML = `<h3 style="margin:0 0 12px;color:#e2e8f0;">Carte musculaire</h3>
-                <div id="awakBodyMapHost">${(typeof awakRenderBodyMap === 'function') ? awakRenderBodyMap() : ''}</div>`;
+            cardMuscles.style.cssText = 'background:#12161c !important;border:1px solid rgba(255,255,255,0.07) !important;border-radius:16px;padding:16px 14px !important;';
+            const _MUS14 = ['Pectoraux','Dos','Épaules','Biceps','Triceps','Avant-bras','Abdominaux','Obliques','Trapèzes','Quadriceps','Ischio-jambiers','Fessiers','Mollets','Adducteurs'];
+            const _musData = (rpgLoad().muscles) || {};
+            const _niv = m => (_musData[m] && _musData[m].xp) ? rpgLevelFromXP(_musData[m].xp) : 0;
+            const _lvls = _MUS14.map(m => ({ m, lv: _niv(m) }));
+            const _actifs = _lvls.filter(x => x.lv > 0);
+            const _moy = _actifs.length ? (_actifs.reduce((a, x) => a + x.lv, 0) / _actifs.length) : 0;
+            const _fort = _lvls.slice().sort((a, b) => b.lv - a.lv)[0];
+            const _faible = _lvls.slice().sort((a, b) => a.lv - b.lv)[0];
+            const _tuileM = (lbl, val, sous, c) => `<div style="flex:1;min-width:0;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:9px 5px;text-align:center;">
+                <div style="font-size:11px;color:#8d9cb1;font-weight:700;">${lbl}</div>
+                <div style="font-size:14px;font-weight:900;color:${c};line-height:1.25;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${val}</div>
+                <div style="font-size:11px;color:#a3b1c2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${sous}</div></div>`;
+            const _leg = [['Niv. 1-2', '#94a3b8'], ['3-4', '#22c55e'], ['5-6', '#3b82f6'], ['7-9', '#a855f7'], ['10+', '#fbbf24']]
+                .map(([t, c]) => `<span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:50%;background:${c};"></span>${t}</span>`).join('');
+            cardMuscles.innerHTML = `
+                <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:10px;">
+                    <div style="font-size:16px;font-weight:800;color:#f1f5f9;">Carte musculaire</div>
+                    <div style="font-size:12.5px;color:#a3b1c2;white-space:nowrap;"><b style="color:#67e8f9;">${_actifs.length}</b> / 14 travaillés</div>
+                </div>
+                <div style="display:flex;gap:6px;margin-bottom:12px;">
+                    ${_tuileM('Niveau moyen', _actifs.length ? String(Math.round(_moy * 10) / 10).replace('.', ',') : '—', _actifs.length ? 'sur ' + _actifs.length + ' muscles' : 'aucun encore', '#67e8f9')}
+                    ${_tuileM('Le plus fort', _fort && _fort.lv ? _fort.m : '—', _fort && _fort.lv ? 'niveau ' + _fort.lv : '', '#fbbf24')}
+                    ${_tuileM('À travailler', _faible ? _faible.m : '—', _faible ? (_faible.lv ? 'niveau ' + _faible.lv : 'jamais travaillé') : '', '#f87171')}
+                </div>
+                <div id="awakBodyMapHost">${(typeof awakRenderBodyMap === 'function') ? awakRenderBodyMap() : ''}</div>
+                <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:6px 12px;margin-top:10px;font-size:11px;color:#a3b1c2;font-weight:700;">${_leg}</div>`;
 
             // ── 7. CLASSE DE PERSONNAGE ──────────────────────────────
+            // v1363 : habillage au goût du jour (surfaces neutres, libellés en
+            // minuscules, icônes SVG — les emojis sont retirés par no-emoji.js).
             const cardClass = document.createElement('div');
             cardClass.className = 'card';
             const _classUnlocked = rpgIsClassUnlocked();
             const _evolved = _classUnlocked ? rpgGetEvolvedClass() : null;
             const _hasTome = typeof rpgHasTomeOfAwakening === 'function' && rpgHasTomeOfAwakening();
+            const _ic = (n, t, c) => { try { return (window.AwakIcon && AwakIcon.get(n, t, c)) || ''; } catch (e) { return ''; } };
+            const _cadenas = (c) => `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>`;
+            const _kicker = (txt, c) => `<div style="font-size:11px;color:${c};font-weight:800;letter-spacing:1.5px;text-transform:uppercase;">${txt}</div>`;
 
             if (!_classUnlocked) {
-                cardClass.style.cssText = 'background:linear-gradient(160deg,#0a0a0a,#0d0d0d);border:1.5px dashed rgba(168,85,247,0.2);';
+                cardClass.style.cssText = 'background:#12161c !important;border:1px solid rgba(167,139,250,0.22) !important;border-radius:16px;padding:16px !important;';
                 cardClass.innerHTML = `
-                    <div style="text-align:center;padding:14px 8px;">
-                        <div style="font-size:2.2em;margin-bottom:8px;opacity:0.4;">🔒</div>
-                        <div style="font-size:0.65em;color:rgba(168,85,247,0.5);font-weight:800;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;">◈ Awakening ◈</div>
-                        <div style="font-size:1em;font-weight:900;color:#475569;margin-bottom:4px;">Classe verrouillée</div>
-                        <div style="font-size:0.78em;color:#334155;line-height:1.5;margin-bottom:10px;">Atteins le <strong style="color:#a855f7">rang D (niveau 10)</strong> pour que le Système t'éveille à ta vraie voie.</div>
-                        <div style="display:inline-block;background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.2);border-radius:99px;padding:3px 12px;font-size:0.7em;color:#a855f7;font-weight:700;">Niv. ${profileLevel} / 10</div>
-                    </div>`;
-            } else if (_evolved) {
-                // Has class - show evolved version
-                const evoStage = _evolved.evolution; // 0, 1, 2
-                const evoLabels = ['Base','Évoluée','Suprême'];
-                const evoBadgeColor = evoStage === 2 ? '#f59e0b' : evoStage === 1 ? '#a855f7' : '#64748b';
-                const nextEvoText = evoStage === 0 ? '→ Évolution au rang B (niv. 16)'
-                                  : evoStage === 1 ? '→ Évolution suprême au rang S (niv. 26)'
-                                  : '✦ Forme suprême atteinte';
-
-                cardClass.style.cssText = `background:linear-gradient(160deg,#0a0a0a,#0d0d0d);border:1.5px solid ${_evolved.color}44;${evoStage>0?`box-shadow:0 0 24px ${_evolved.color}20;`:''}`;
-                cardClass.innerHTML = `
-                    <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:12px;">
-                        <div style="font-size:2.5em;flex-shrink:0;filter:drop-shadow(0 0 12px ${_evolved.color}60);">${_evolved.emoji}</div>
+                    <div style="display:flex;align-items:center;gap:12px;">
+                        <div style="width:44px;height:44px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:rgba(167,139,250,0.10);border:1px solid rgba(167,139,250,0.3);">${_cadenas('#a78bfa')}</div>
                         <div style="flex:1;min-width:0;">
-                            <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;flex-wrap:wrap;">
-                                <span style="font-size:0.55em;color:${_evolved.color};opacity:0.7;font-weight:800;text-transform:uppercase;letter-spacing:2px;">Ta voie</span>
-                                <span style="background:${evoBadgeColor}25;border:1px solid ${evoBadgeColor}50;color:${evoBadgeColor};font-size:0.5em;font-weight:900;padding:1px 7px;border-radius:99px;letter-spacing:1px;">${evoLabels[evoStage].toUpperCase()}</span>
-                            </div>
-                            <div style="font-size:1.05em;font-weight:900;color:white;line-height:1.15;">${_evolved.name}</div>
-                            <div style="font-size:0.68em;color:${_evolved.color};font-style:italic;opacity:0.85;margin-top:2px;">${_evolved.tagline}</div>
+                            ${_kicker('Ta classe', '#a78bfa')}
+                            <div style="font-size:16px;font-weight:800;color:#f1f5f9;margin-top:2px;">Classe verrouillée</div>
+                            <div style="font-size:12.5px;color:#a3b1c2;line-height:1.45;margin-top:2px;">Atteins le <b style="color:#c4b5fd;">rang D (niveau 10)</b> pour que le Système t'éveille à ta voie.</div>
                         </div>
                     </div>
-                    <div style="background:${_evolved.bg};border:1px solid ${_evolved.color}25;border-radius:10px;padding:8px 11px;margin-bottom:10px;">
-                        <div style="font-size:0.58em;color:${_evolved.color};font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">⚡ Passif</div>
-                        <div style="font-size:0.72em;color:#e2e8f0;line-height:1.4;">${_evolved.passive}</div>
+                    <div style="margin-top:12px;">
+                        <div style="display:flex;justify-content:space-between;font-size:12.5px;color:#a3b1c2;margin-bottom:5px;"><span>Niveau ${profileLevel}</span><span>10</span></div>
+                        <div style="height:6px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden;"><div style="height:100%;width:${Math.min(100, Math.round(profileLevel / 10 * 100))}%;background:#a78bfa;border-radius:99px;"></div></div>
+                    </div>`;
+            } else if (_evolved) {
+                const evoStage = _evolved.evolution; // 0, 1, 2
+                const evoLabels = ['Base','Évoluée','Suprême'];
+                const nextEvoText = evoStage === 0 ? 'Évolution au rang B (niveau 16)'
+                                  : evoStage === 1 ? 'Évolution suprême au rang S (niveau 26)'
+                                  : 'Forme suprême atteinte';
+                const c = _evolved.color;
+                cardClass.style.cssText = `background:#12161c !important;border:1px solid ${c}55 !important;border-radius:16px;padding:16px !important;${evoStage > 0 ? `box-shadow:0 0 24px ${c}1f;` : ''}`;
+                cardClass.innerHTML = `
+                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+                        <div style="width:48px;height:48px;border-radius:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${c}1a;border:1px solid ${c}55;">${_ic('epee', 24, c)}</div>
+                        <div style="flex:1;min-width:0;">
+                            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                                ${_kicker('Ta voie', c)}
+                                <span style="background:${c}22;border:1px solid ${c}55;color:${c};font-size:11px;font-weight:800;padding:0 7px;border-radius:99px;">${evoLabels[evoStage]}</span>
+                            </div>
+                            <div style="font-size:16px;font-weight:800;color:#f1f5f9;line-height:1.2;margin-top:2px;">${_evolved.name}</div>
+                            <div style="font-size:12.5px;color:#a3b1c2;font-style:italic;margin-top:1px;">${_evolved.tagline}</div>
+                        </div>
                     </div>
-                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:0.68em;">
-                        <span style="color:#475569;">${nextEvoText}</span>
+                    <div style="background:${c}10;border:1px solid ${c}33;border-radius:12px;padding:10px 12px;margin-bottom:10px;">
+                        <div style="font-size:11px;color:${c};font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;">Passif</div>
+                        <div style="font-size:14px;color:#e2e8f0;line-height:1.4;">${_evolved.passive}</div>
                     </div>
-                    <button onclick="showClassSelectionModal()" style="width:100%;padding:10px;border-radius:10px;border:1px solid ${_hasTome?'rgba(251,191,36,0.251)':_evolved.color+'20'};background:${_hasTome?'rgba(245,158,11,0.08)':_evolved.bg};color:${_hasTome?'#fbbf24':'#475569'};font-size:0.78em;font-weight:700;cursor:pointer;">
-                        ${_hasTome ? '📜 Utiliser le Tome de l\'Éveil' : '🔒 Changer de classe (Tome requis)'}
+                    <div style="font-size:12.5px;color:#a3b1c2;margin-bottom:12px;">${nextEvoText}</div>
+                    <button onclick="showClassSelectionModal()" style="width:100%;min-height:44px;padding:10px;border-radius:12px;font-family:inherit;font-size:14px;font-weight:800;cursor:pointer;
+                        ${_hasTome ? 'background:rgba(251,191,36,0.10);border:1px solid rgba(251,191,36,0.45);color:#fbbf24;' : 'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.10);color:#8d9cb1;'}">
+                        ${_hasTome ? 'Utiliser le Tome de l\'Éveil' : 'Changer de classe (Tome de l\'Éveil requis)'}
                     </button>`;
             } else {
-                // Unlocked but not chosen
-                cardClass.style.cssText = 'background:linear-gradient(160deg,#0a0a0a,#1a0a2e);border:2px solid rgba(168,85,247,0.5);box-shadow:0 0 24px rgba(168,85,247,0.15);';
+                cardClass.style.cssText = 'background:linear-gradient(160deg,#1a1230,#12161c) !important;border:1px solid rgba(167,139,250,0.5) !important;border-radius:16px;padding:18px 16px !important;box-shadow:0 0 24px rgba(167,139,250,0.12);';
                 cardClass.innerHTML = `
-                    <div style="text-align:center;padding:8px;">
-                        <div style="font-size:0.6em;color:#a855f7;font-weight:900;text-transform:uppercase;letter-spacing:3px;margin-bottom:4px;animation:pulse 2s ease-in-out infinite;">◈ AWAKENING DISPONIBLE ◈</div>
-                        <div style="font-size:2.5em;margin:8px 0;">🌑</div>
-                        <div style="font-size:1.1em;font-weight:900;color:white;margin-bottom:4px;">Le Système t'a éveillé</div>
-                        <div style="font-size:0.78em;color:#94a3b8;line-height:1.5;margin-bottom:14px;">Choisis ta classe. Le premier choix est gratuit — les suivants exigeront le <strong style="color:#fbbf24">Tome de l'Éveil</strong>.</div>
-                        <button onclick="showClassSelectionModal()" style="width:100%;padding:13px;border-radius:14px;border:none;background:linear-gradient(135deg,#7c3aed,#a855f7);color:white;font-size:0.92em;font-weight:800;cursor:pointer;box-shadow:0 4px 16px rgba(168,85,247,0.4);">
-                            ⚔️ Choisir ma voie
-                        </button>
+                    <div style="text-align:center;">
+                        ${_kicker('Éveil disponible', '#c4b5fd')}
+                        <div style="width:52px;height:52px;margin:12px auto 10px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:rgba(167,139,250,0.14);border:1px solid rgba(167,139,250,0.45);">${_ic('etoile', 26, '#c4b5fd')}</div>
+                        <div style="font-size:19px;font-weight:800;color:#f1f5f9;margin-bottom:4px;">Le Système t'a éveillé</div>
+                        <div style="font-size:14px;color:#a3b1c2;line-height:1.5;margin-bottom:14px;">Choisis ta classe. Le premier choix est gratuit, les suivants demandent le <b style="color:#fbbf24;">Tome de l'Éveil</b>.</div>
+                        <button onclick="showClassSelectionModal()" style="width:100%;min-height:48px;padding:12px;border-radius:12px;border:none;font-family:inherit;background:linear-gradient(135deg,#8b5cf6,#a78bfa);color:#fff;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 6px 18px rgba(139,92,246,0.35);">Choisir ma voie</button>
                     </div>`;
             }
 
             // ── 8. ARBRE DE COMPÉTENCES ──────────────────────────────
             const cardSkills = document.createElement('div');
             cardSkills.className = 'card';
+            cardSkills.style.cssText = 'background:#12161c !important;border:1px solid rgba(255,255,255,0.07) !important;border-radius:16px;padding:16px 14px !important;';
             const _skillTree = typeof rpgGetSkillTree === 'function' ? rpgGetSkillTree() : [];
             const _baseSkills  = _skillTree.filter(s => s.type === 'base' || !s.type);
             const _classSkills = _skillTree.filter(s => s.type === 'class');
             const _classInfo   = currentClass ? RPG_CLASSES.find(c => c.id === currentClass.id) : null;
+            const _actives = _skillTree.filter(s => unlockedSkills.includes(s.id)).length;
+            const _dispo = _skillTree.filter(s => !unlockedSkills.includes(s.id) && profileLevel >= s.req.level).length;
 
             function _renderSkill(sk) {
                 const done  = unlockedSkills.includes(sk.id);
                 const canDo = !done && profileLevel >= sk.req.level;
-                const accent = sk.type === 'class' && _classInfo ? _classInfo.color : '#22c55e';
-                // Badge de droite selon l'état
-                let rightBadge;
-                if (done) {
-                    rightBadge = `<div style="font-size:0.62em;font-weight:800;color:${accent};flex-shrink:0;text-transform:uppercase;letter-spacing:0.5px;">Active</div>`;
-                } else if (canDo) {
-                    // 🔓 Indicateur d'action clair : bouton "Débloquer" qui pulse
-                    rightBadge = `<div style="flex-shrink:0;background:${accent};color:#04162b;font-size:0.66em;font-weight:900;padding:6px 11px;border-radius:99px;text-transform:uppercase;letter-spacing:0.5px;box-shadow:0 0 12px ${accent}77;animation:skillPulse 1.8s ease-in-out infinite;white-space:nowrap;">👆 Débloquer</div>`;
-                } else {
-                    rightBadge = `<div style="font-size:0.7em;font-weight:700;color:#475569;flex-shrink:0;">🔒 Niv.${sk.req.level}</div>`;
-                }
-                return `<div onclick="${canDo?`rpgUnlockSkill('${sk.id}')`:''}" style="
-                    background:${done?accent+'15':canDo?accent+'10':'#0d1018'};
-                    border:1.5px solid ${done?accent+'66':canDo?accent:'rgba(255,255,255,0.05)'};
-                    border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:10px;
-                    ${canDo?'cursor:pointer;':''}opacity:${done||canDo?1:0.5};
-                    ${canDo?`box-shadow:0 0 0 1px ${accent}33;`:''}transition:transform 0.15s;"
-                    ${canDo?`onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'"`:''}>
-                    <span style="font-size:1.3em;flex-shrink:0;">${sk.emoji}</span>
+                const accent = sk.type === 'class' && _classInfo ? _classInfo.color : '#22d3ee';
+                const tuile = done
+                    ? `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="${accent}" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>`
+                    : canDo ? _ic('eclair', 18, accent)
+                    : `<div style="text-align:center;line-height:1.05;"><div style="font-size:11px;color:#8d9cb1;font-weight:700;">Niv.</div><div style="font-size:14px;color:#cbd5e1;font-weight:900;">${sk.req.level}</div></div>`;
+                const droite = done
+                    ? `<span style="flex-shrink:0;font-size:11px;font-weight:800;color:${accent};background:${accent}18;border:1px solid ${accent}44;padding:2px 9px;border-radius:99px;">Active</span>`
+                    : canDo
+                    ? `<span style="flex-shrink:0;font-size:12.5px;font-weight:800;color:#04121f;background:${accent};padding:7px 12px;border-radius:10px;white-space:nowrap;box-shadow:0 4px 12px ${accent}40;">Débloquer</span>`
+                    : `<span style="flex-shrink:0;font-size:11px;font-weight:700;color:#8d9cb1;white-space:nowrap;">encore ${sk.req.level - profileLevel} niv.</span>`;
+                return `<div ${canDo ? `onclick="rpgUnlockSkill('${sk.id}')" role="button"` : ''} style="
+                    background:${done ? accent + '0f' : canDo ? accent + '0d' : 'rgba(255,255,255,0.02)'};
+                    border:1px solid ${done ? accent + '44' : canDo ? accent + 'aa' : 'rgba(255,255,255,0.06)'};
+                    border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:12px;${canDo ? 'cursor:pointer;' : ''}">
+                    <div style="width:40px;height:40px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+                        background:${done || canDo ? accent + '18' : 'rgba(255,255,255,0.04)'};border:1px solid ${done || canDo ? accent + '44' : 'rgba(255,255,255,0.08)'};">${tuile}</div>
                     <div style="flex:1;min-width:0;">
-                        <div style="font-weight:700;font-size:0.83em;color:${done?accent:'#e2e8f0'};">${done?'✅ ':''}${sk.name}</div>
-                        <div style="font-size:0.68em;color:#94a3b8;line-height:1.4;">${sk.desc}</div>
+                        <div style="font-weight:800;font-size:14px;color:${done || canDo ? '#f1f5f9' : '#a3b1c2'};">${sk.name}</div>
+                        <div style="font-size:12.5px;color:${done || canDo ? '#a3b1c2' : '#8d9cb1'};line-height:1.4;margin-top:1px;">${sk.desc}</div>
                     </div>
-                    ${rightBadge}
+                    ${droite}
                 </div>`;
             }
+            const _titreGroupe = (txt, c) => `<div style="font-size:11px;color:${c};font-weight:800;text-transform:uppercase;letter-spacing:1.5px;margin:0 2px 8px;">${txt}</div>`;
 
             cardSkills.innerHTML = `
-                <h3 style="margin:0 0 4px;color:#e2e8f0;">Compétences <span style="font-size:0.7em;background:rgba(34,197,94,0.15);color:#4ade80;padding:2px 8px;border-radius:99px;font-weight:700;">${unlockedSkills.length}/${_skillTree.length}</span></h3>
-                <div style="font-size:0.68em;color:#94a3b8;margin-bottom:12px;line-height:1.4;">Atteins le niveau requis puis <strong style="color:#4ade80;">touche une compétence</strong> pour l'activer. Les bonus s'appliquent automatiquement.</div>
+                <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:6px;">
+                    <div style="font-size:16px;font-weight:800;color:#f1f5f9;">Arbre de compétences</div>
+                    <div style="font-size:12.5px;color:#a3b1c2;white-space:nowrap;"><b style="color:#67e8f9;">${_actives}</b> / ${_skillTree.length} actives</div>
+                </div>
+                <div style="height:6px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden;margin-bottom:10px;">
+                    <div style="height:100%;width:${_skillTree.length ? Math.round(_actives / _skillTree.length * 100) : 0}%;background:linear-gradient(90deg,#0891b2,#22d3ee);border-radius:99px;"></div>
+                </div>
+                <div style="font-size:12.5px;color:#a3b1c2;margin-bottom:14px;line-height:1.45;">
+                    ${_dispo ? `<b style="color:#67e8f9;">${_dispo} compétence${_dispo > 1 ? 's' : ''} à débloquer.</b> Touche-la pour l'activer : le bonus s'applique tout de suite.`
+                             : `Niveau ${profileLevel}. Chaque compétence se débloque au niveau indiqué, puis s'active d'un toucher.`}
+                </div>
 
-                <!-- Compétences de base -->
-                <div style="font-size:0.58em;color:rgba(255,255,255,0.4);font-weight:800;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;">◈ Compétences universelles</div>
-                <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
+                ${_titreGroupe('Compétences universelles', '#67e8f9')}
+                <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
                     ${_baseSkills.map(_renderSkill).join('')}
                 </div>
 
-                <!-- Compétences de classe -->
                 ${_classSkills.length > 0 ? `
-                    <div style="font-size:0.58em;color:${_classInfo?_classInfo.color:'#a855f7'};font-weight:800;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;">◈ Voie du ${_classInfo?_classInfo.name:'Chasseur'}</div>
+                    ${_titreGroupe('Voie du ' + (_classInfo ? _classInfo.name : 'Chasseur'), _classInfo ? _classInfo.color : '#a78bfa')}
                     <div style="display:flex;flex-direction:column;gap:8px;">
                         ${_classSkills.map(_renderSkill).join('')}
                     </div>
                 ` : `
-                    <div style="background:rgba(168,85,247,0.05);border:1px dashed rgba(168,85,247,0.2);border-radius:10px;padding:14px;text-align:center;">
-                        <div style="font-size:1.6em;margin-bottom:6px;opacity:0.4;">🔒</div>
-                        <div style="font-size:0.78em;color:#475569;font-weight:700;margin-bottom:2px;">Compétences de classe verrouillées</div>
-                        <div style="font-size:0.7em;color:#334155;">Choisis ta classe au rang D pour les débloquer.</div>
+                    <div style="display:flex;align-items:center;gap:12px;background:rgba(167,139,250,0.05);border:1px dashed rgba(167,139,250,0.3);border-radius:14px;padding:12px;">
+                        <div style="width:40px;height:40px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:rgba(167,139,250,0.08);">${_cadenas('#a78bfa')}</div>
+                        <div><div style="font-size:14px;color:#e2e8f0;font-weight:800;">Compétences de classe</div>
+                        <div style="font-size:12.5px;color:#a3b1c2;margin-top:1px;">Choisis ta classe au rang D pour les débloquer.</div></div>
                     </div>
                 `}`;
 
@@ -29141,13 +29282,16 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (lvLog.length > 0) {
                 cardLog = document.createElement('div');
                 cardLog.className = 'card';
-                cardLog.innerHTML = `<h3 style="margin:0 0 12px;color:#e2e8f0;">Journal des montées</h3>
+                cardLog.style.cssText = 'background:#12161c !important;border:1px solid rgba(255,255,255,0.07) !important;border-radius:16px;padding:16px 14px !important;';
+                cardLog.innerHTML = `<div style="font-size:16px;font-weight:800;color:#f1f5f9;margin-bottom:10px;">Dernières montées de niveau</div>
                     <div style="display:flex;flex-direction:column;gap:6px;">
                         ${lvLog.slice(-10).reverse().map(e => `
-                        <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#222328;border-radius:10px;border:1px solid #252830;">
-                            <span style="font-size:1.1em;">⬆️</span>
-                            <div style="flex:1;"><span style="font-weight:700;font-size:0.85em;color:#e2e8f0;">${e.muscle}</span> <span style="color:#4ade80;font-weight:800;font-size:0.85em;">→ Niv.${e.level}</span></div>
-                            <span style="font-size:0.7em;color:#6b7280;">${new Date(e.date).toLocaleDateString('fr-FR',{day:'numeric',month:'short'})}</span>
+                        <div style="display:flex;align-items:center;gap:12px;padding:8px 10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:12px;">
+                            <span style="width:32px;height:32px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${_bodyMapColor(e.level)}1f;border:1px solid ${_bodyMapColor(e.level)}55;">
+                                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="${_bodyMapColor(e.level)}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg></span>
+                            <div style="flex:1;min-width:0;font-size:14px;font-weight:800;color:#f1f5f9;">${e.muscle}</div>
+                            <span style="font-size:12.5px;font-weight:800;color:${_bodyMapColor(e.level)};white-space:nowrap;">Niveau ${e.level}</span>
+                            <span style="font-size:11px;color:#8d9cb1;white-space:nowrap;min-width:44px;text-align:right;">${new Date(e.date).toLocaleDateString('fr-FR',{day:'numeric',month:'short'})}</span>
                         </div>`).join('')}
                     </div>`;
             }
@@ -29362,7 +29506,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // ══════════════════════════════════════════════════════════════
 
         // ── Config ───────────────────────────────────────────────────
-        const RPG_GRACE_DAYS    = 7;      // jours sans decay
+        const RPG_GRACE_DAYS    = 14;     // jours sans perte d'XP (v1365 : 7 → 14)
         const RPG_DECAY_PCT     = 0.03;   // 3%/jour après grace
         const RPG_PROFILE_GRACE = 14;     // grace profil plus longue
         const RPG_PROFILE_DECAY = 0.01;   // 1%/jour profil
@@ -29709,7 +29853,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             { id:'compound_pro', name:'Maître Compound',    emoji:'🏋️', desc:'+25% XP sur exercices polyarticulaires', req:{level:8},  effect:{xpCompound:0.25}, type:'base' },
             { id:'streak_lord',  name:'Seigneur du Streak', emoji:'🔥', desc:'Streak bonus commence dès 2 jours',      req:{level:12}, effect:{streakStart:2}, type:'base' },
             { id:'prospector',   name:'Prospecteur',        emoji:'⛏️', desc:'+30% de minéraux trouvés dans les Failles', req:{level:15}, effect:{mineralBonus:0.30}, type:'base' },
-            { id:'no_decay',     name:'Corps d\'Acier',     emoji:'🛡️', desc:'Grace de 10 jours avant le decay',       req:{level:18}, effect:{graceExtend:3}, type:'base' },
+            { id:'no_decay',     name:'Corps d\'Acier',     emoji:'🛡️', desc:'Grâce de 17 jours avant la perte d\'XP',       req:{level:18}, effect:{graceExtend:3}, type:'base' },
             { id:'xp_surge',     name:'Sursaut d\'XP',      emoji:'⚡', desc:'+30% XP global permanent',               req:{level:30}, effect:{xpAll:0.30}, type:'base' },
             // ── ENDGAME : pouvoirs de palier (niv 40 → 120) ──
             { id:'second_wind',  name:'Second Souffle',     emoji:'🫀', desc:'Survis à un coup fatal à 1 HP (1× par Faille)', req:{level:40}, effect:{secondWind:true}, type:'base' },
@@ -29825,15 +29969,23 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // différé : d'où l'attente avant de recloner, sinon on copierait le
         // squelette au lieu du contenu.
         function rpgRafraichirPanneauDetails() {
-            if (!document.getElementById('rpgDetailsPanelOverlay')) return;
-            setTimeout(function () {
+            const ouvert0 = document.getElementById('rpgDetailsPanelOverlay');
+            if (!ouvert0) return;
+            // v1363 : rafraîchi SUR PLACE (même panneau, même défilement), dès que
+            // l'onglet a produit un NOUVEAU conteneur (pas le squelette, pas l'ancien).
+            const ancien = ouvert0._cont || null;
+            let essais = 0;
+            (function attendre() {
                 const ouvert = document.getElementById('rpgDetailsPanelOverlay');
                 if (!ouvert) return;                     // fermé entre-temps
-                const cont = document.getElementById('rpgDetailsContainer');
-                if (!cont || !cont.children.length) return;   // rendu pas encore prêt
-                ouvert.remove();
-                if (typeof rpgShowDetailsPanel === 'function') rpgShowDetailsPanel();
-            }, 900);
+                const cont = document.getElementById(ouvert.dataset.cible);
+                if (cont && cont !== ancien && cont.children.length) {
+                    if (rpgRemplirPanneauDetails(ouvert, false)) ouvert._cont = cont;
+                    return;
+                }
+                if (++essais < 30) setTimeout(attendre, 100);
+                else rpgRemplirPanneauDetails(ouvert, false);   // filet : au pire, on recopie l'état actuel
+            })();
         }
         window.rpgRafraichirPanneauDetails = rpgRafraichirPanneauDetails;
         function rpgGetActiveEffects() {
@@ -29925,7 +30077,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // inatteignable dans une liste est pire que pas d'objectif du tout.
             // Les joueurs qui l'ont déjà obtenu le conservent (stockage séparé).
             { id:'loot_epic',       name:'Chanceux',            emoji:'🎲', desc:'Ouvrir un coffre Épique',               check:()=>JSON.parse(localStorage.getItem('fitproLootBadges')||'[]').includes('chest_epic') },
-            { id:'no_decay_week',   name:'Régulier',            emoji:'📊', desc:'Aucun muscle en déclin pendant 1 semaine', check:(s,data)=>Object.values(data.muscles).length>0&&Object.values(data.muscles).every(m=>(new Date()-new Date(m.lastTrained||0))/86400000<7) },
+            { id:'no_decay_week',   name:'Régulier',            emoji:'📊', desc:'Aucun muscle en déclin pendant 1 semaine', check:(s,data)=>Object.values(data.muscles).length>0&&Object.values(data.muscles).every(m=>(new Date()-new Date(m.lastTrained||0))/86400000<RPG_GRACE_DAYS) },
         ];
 
         function rpgCheckAchievements() {
@@ -32891,7 +33043,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1361);'
+                +     'url(images/combat_bg_v1.webp?v=1368);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -33146,7 +33298,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1361);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1368);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -33418,7 +33570,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:540px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto;display:flex;flex-direction:column;">
                 <!-- Header : vague actuelle -->
-                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1361);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1368);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                         <span style="font-size:0.6em;color:${theme.color};font-weight:900;letter-spacing:2px;">⚔ VAGUE ${rift.currentWaveIdx + 1} / ${rift.waves.length}${currentWave.isBoss ? ' · BOSS' : ''}</span>
                         <button onclick="awakAbandonRift()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
@@ -34548,7 +34700,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1361');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1368');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -35285,7 +35437,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1361);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1368);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -35456,7 +35608,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1361);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1368);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -38562,72 +38714,122 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // 🎯 MODAL — Allocation des points de stats (popup)
         // ═══════════════════════════════════════════════════════════════
         function awakOpenStatPointsModal() {
+            // v1362 : fenêtre refaite. Défilement INTERNE (corps seul, en-tête fixe)
+            // et mise à jour SUR PLACE après chaque point : avant, la fenêtre était
+            // recréée à chaque « + » et revenait en haut, ce qui empêchait d'atteindre
+            // les derniers attributs.
             const sp = statPointsLoad();
-            const hasPoints = sp.available > 0;
-            const totalAllocated = Object.values(sp.allocated).reduce((a,b)=>a+b,0);
+            const totalAllocated = Object.values(sp.allocated).reduce((a, b) => a + b, 0);
+            const COUL = { STR:'#f87171', AGI:'#fbbf24', VIT:'#60a5fa', END:'#34d399', PER:'#22d3ee', SEN:'#a78bfa' };
+            const NOM  = { STR:'Force', AGI:'Agilité', VIT:'Vitalité', END:'Endurance', PER:'Perception', SEN:'Sens' };
+            const ICO  = { STR:'epee', AGI:'eclair', VIT:'bouclier', END:'coeur', PER:'cible', SEN:'etoile' };
+            const fmt = n => String(Math.round(n * 10) / 10).replace('.', ',');
+            const EFFET = {
+                STR: v => '+' + fmt(v) + ' % de dégâts',
+                AGI: v => '+' + fmt(v * 0.5) + ' % de critique',
+                VIT: v => '+' + fmt(v) + ' % de double frappe',
+                END: v => '+' + fmt(v * 5) + ' PV max',
+                PER: v => '+' + fmt(v) + ' % contre les boss',
+                SEN: v => '+' + fmt(v) + ' % d\'XP'
+            };
+            const ico = (n, c) => { try { return (window.AwakIcon && AwakIcon.get(n, 18, c)) || ''; } catch (e) { return ''; } };
+            const btn = (stat, d, actif, c) => `<button data-sp="${stat}" data-d="${d}" aria-label="${d > 0 ? 'Ajouter' : 'Retirer'} un point en ${NOM[stat]}" ${actif ? '' : 'disabled'}
+                style="width:40px;height:40px;min-height:0;padding:0;border-radius:12px;flex-shrink:0;cursor:${actif ? 'pointer' : 'default'};font-family:inherit;
+                display:flex;align-items:center;justify-content:center;touch-action:manipulation;
+                ${d > 0 ? `background:${actif ? c + '22' : 'rgba(255,255,255,0.03)'};border:1px solid ${actif ? c + '88' : 'rgba(255,255,255,0.06)'};color:${actif ? c : '#475569'};`
+                        : `background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);color:${actif ? '#cbd5e1' : '#475569'};`}">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round">${d > 0 ? '<path d="M12 5v14M5 12h14"/>' : '<path d="M5 12h14"/>'}</svg></button>`;
 
-            document.getElementById('awakStatPointsModal')?.remove();
+            const bandeau = sp.available > 0
+                ? `<div style="display:flex;align-items:center;gap:14px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.35);border-radius:16px;padding:12px 14px;">
+                       <div style="font-size:28px;font-weight:900;color:#fbbf24;line-height:1;font-variant-numeric:tabular-nums;">${sp.available}</div>
+                       <div style="min-width:0;"><div style="font-size:14px;font-weight:800;color:#fde68a;">point${sp.available > 1 ? 's' : ''} à distribuer</div>
+                       <div style="font-size:12.5px;color:#a3b1c2;margin-top:2px;">Touche + sur un attribut. Garde le doigt appuyé pour en ajouter plusieurs.</div></div>
+                   </div>`
+                : `<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:12px 14px;font-size:14px;color:#a3b1c2;line-height:1.45;">
+                       Aucun point à distribuer pour l'instant. Tu en gagnes <b style="color:#e2e8f0;">4 à chaque niveau</b>.</div>`;
+
+            const maxVal = Math.max(5, ...STAT_POINT_STATS.map(s => sp.allocated[s] || 0));
+            const lignes = STAT_POINT_STATS.map(stat => {
+                const v = sp.allocated[stat] || 0, c = COUL[stat];
+                return `<div style="display:flex;align-items:center;gap:12px;padding:12px;background:#12161c;border:1px solid rgba(255,255,255,0.07);border-radius:16px;">
+                    <div style="width:38px;height:38px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${c}18;border:1px solid ${c}44;">${ico(ICO[stat], c)}</div>
+                    <div style="flex:1;min-width:0;">
+                        <div style="font-size:14px;font-weight:800;color:#f1f5f9;">${NOM[stat]}</div>
+                        <div style="font-size:12.5px;color:${v ? c : '#8d9cb1'};font-weight:${v ? 700 : 500};margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${v ? EFFET[stat](v) : EFFET[stat](1) + ' / point'}</div>
+                        <div style="height:4px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden;margin-top:7px;">
+                            <div style="height:100%;width:${Math.round(v / maxVal * 100)}%;background:${c};border-radius:99px;transition:width .25s ease;"></div></div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+                        ${btn(stat, -1, v > 0, c)}
+                        <div style="min-width:26px;text-align:center;font-size:16px;font-weight:900;color:${v ? '#f1f5f9' : '#64748b'};font-variant-numeric:tabular-nums;">${v}</div>
+                        ${btn(stat, 1, sp.available > 0, c)}
+                    </div>
+                </div>`;
+            }).join('');
+
+            const corpsHTML = `
+                <div style="padding:14px 16px 4px;">${bandeau}</div>
+                <div id="awakStatPointsList" style="display:grid;grid-template-columns:minmax(0,1fr);gap:8px;padding:12px 16px;">${lignes}</div>
+                <div style="padding:4px 16px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12.5px;color:#8d9cb1;">
+                    <span>${totalAllocated ? totalAllocated + ' point' + (totalAllocated > 1 ? 's' : '') + ' alloué' + (totalAllocated > 1 ? 's' : '') + ' · tu peux les redistribuer' : 'Aucun point alloué'}</span>
+                    <button onclick="awakShowAttributesInfo()" style="background:none;border:none;color:#67e8f9;font-weight:700;font-size:12.5px;cursor:pointer;padding:6px 0;min-height:0;font-family:inherit;white-space:nowrap;">À quoi ça sert ?</button>
+                </div>`;
+
+            // Fenêtre déjà ouverte → on remplace le CORPS seulement, sans bouger le défilement
+            const deja = document.getElementById('awakStatPointsModal');
+            const corpsExistant = deja && deja.querySelector('#awakSpCorps');
+            if (corpsExistant) {
+                const y = corpsExistant.scrollTop;
+                corpsExistant.innerHTML = corpsHTML;
+                corpsExistant.scrollTop = y;
+                return;
+            }
+            if (deja) deja.remove();
+
             const modal = document.createElement('div');
             modal.id = 'awakStatPointsModal';
-            modal.className = 'modal active';
-            modal.style.cssText = 'background:rgba(0,0,0,0.92);backdrop-filter:blur(10px);';
-
+            // Pas de classe .modal : les règles mobiles génériques retirent le
+            // défilement interne des .modal-content (max-height:none) — ici on le veut.
+            modal.style.cssText = 'position:fixed;inset:0;z-index:10050;background:rgba(3,5,8,0.82);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);'
+                + 'display:flex;align-items:flex-end;justify-content:center;padding:0 !important;animation:awakFadeIn 0.2s ease;';
             modal.innerHTML = `
-            <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${hasPoints ? 'rgba(245,158,11,0.45)' : 'rgba(255,255,255,0.1)'};padding:0;border-radius:20px;overflow:hidden auto;-webkit-overflow-scrolling:touch;max-height:90vh;">
-                <!-- Header -->
-                <div style="background:linear-gradient(135deg,rgba(245,158,11,0.15),transparent);padding:18px 22px;border-bottom:1px solid rgba(255,255,255,0.06);">
-                    <div style="display:flex;align-items:center;justify-content:space-between;">
-                        <div>
-                            <div style="font-size:0.58em;color:rgba(245,158,11,0.7);font-weight:900;letter-spacing:2px;margin-bottom:3px;">◈ DISTRIBUTION DES STATS</div>
-                            <div style="font-size:1.05em;font-weight:900;color:white;">Points d'attribut</div>
+            <div id="awakSpFeuille" style="width:100%;max-width:480px;max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);display:flex;flex-direction:column;
+                 background:#0b0d12;border:1px solid rgba(255,255,255,0.08);border-bottom:none;border-radius:20px 20px 0 0;overflow:hidden;box-shadow:0 -12px 40px rgba(0,0,0,0.5);">
+                <div style="flex-shrink:0;padding:10px 16px 12px;border-bottom:1px solid rgba(255,255,255,0.07);">
+                    <div style="width:40px;height:4px;background:rgba(255,255,255,0.18);border-radius:99px;margin:0 auto 10px;"></div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                        <div style="min-width:0;">
+                            <div style="font-size:11px;color:#67e8f9;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;">Chasseur</div>
+                            <div style="font-size:19px;font-weight:800;color:#f1f5f9;line-height:1.2;">Points d'attribut</div>
                         </div>
-                        <button onclick="document.getElementById('awakStatPointsModal').remove()" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;width:32px;height:32px;border-radius:10px;cursor:pointer;font-size:1.1em;display:flex;align-items:center;justify-content:center;">×</button>
-                    </div>
-                    ${hasPoints
-                        ? `<div style="margin-top:10px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.35);border-radius:10px;padding:8px 12px;text-align:center;">
-                              <div style="font-size:1.3em;font-weight:900;color:#fbbf24;">${sp.available} pt${sp.available>1?'s':''} disponible${sp.available>1?'s':''}</div>
-                          </div>`
-                        : `<div style="margin-top:10px;font-size:0.72em;color:#475569;text-align:center;font-style:italic;">Aucun point à distribuer. Monte de niveau pour en gagner (+4 pts/niveau)</div>`
-                    }
-                </div>
-
-                <!-- Stats grid -->
-                <div style="padding:18px 22px;">
-                    <div id="awakStatPointsList" style="display:grid;grid-template-columns:1fr;gap:8px;">
-                        ${STAT_POINT_STATS.map(stat => {
-                            const val = sp.allocated[stat] || 0;
-                            const col = STAT_POINT_COLORS[stat];
-                            const label = STAT_POINT_LABELS[stat];
-                            return `<div style="background:#0a0e18;border:1px solid rgba(255,255,255,0.05);border-radius:14px;padding:11px 13px;">
-                                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;">
-                                    <span style="font-size:0.78em;font-weight:800;color:${col};letter-spacing:0.5px;">${label}</span>
-                                    <span style="font-size:1em;font-weight:900;color:${col};">+${val}</span>
-                                </div>
-                                <div style="display:flex;align-items:center;gap:8px;">
-                                    <button onclick="awakStatPointsAllocate('${stat}',-1)" style="width:32px;height:32px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);background:#111;color:#fff;font-size:1.1em;cursor:pointer;display:flex;align-items:center;justify-content:center;${val===0?'opacity:0.3;pointer-events:none;':''}">−</button>
-                                    <div style="flex:1;height:6px;background:rgba(255,255,255,0.05);border-radius:99px;overflow:hidden;">
-                                        <div style="height:100%;width:${Math.min(100,val*5)}%;background:${col};border-radius:99px;transition:width 0.3s;box-shadow:0 0 6px ${col}60;"></div>
-                                    </div>
-                                    <button onclick="awakStatPointsAllocate('${stat}',1)" style="width:32px;height:32px;border-radius:10px;border:1px solid ${col}40;background:${col}18;color:${col};font-size:1.1em;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;${sp.available===0?'opacity:0.3;pointer-events:none;':''}">+</button>
-                                </div>
-                            </div>`;
-                        }).join('')}
+                        <button onclick="document.getElementById('awakStatPointsModal').remove()" aria-label="Fermer" style="width:38px;height:38px;min-height:0;padding:0;border-radius:50%;flex-shrink:0;cursor:pointer;
+                            background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);color:#cbd5e1;display:flex;align-items:center;justify-content:center;">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
                     </div>
                 </div>
-
-                <!-- Footer informationnel -->
-                <div style="padding:14px 22px 18px;border-top:1px solid rgba(255,255,255,0.05);">
-                    <div style="font-size:0.7em;color:#334155;text-align:center;padding:4px 0;font-style:italic;">
-                        ${totalAllocated > 0
-                            ? `${totalAllocated} pts alloués · Les choix sont permanents`
-                            : 'Pas encore de points alloués'
-                        }
-                    </div>
-                </div>
+                <div id="awakSpCorps" style="flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;padding-bottom:env(safe-area-inset-bottom,0px);">${corpsHTML}</div>
             </div>`;
 
+            // + / − : un toucher = 1 point (au relâcher, pour qu'un doigt posé
+            // pour faire défiler n'ajoute rien) ; appui maintenu = répétition.
+            // Si le navigateur commence un défilement, il envoie pointercancel.
+            let rep = null, delai = null, appui = null;
+            const stop = () => { clearTimeout(delai); clearInterval(rep); delai = rep = null; appui = null; };
+            const trouver = (stat, d) => modal.querySelector(`button[data-sp="${stat}"][data-d="${d}"]`);
+            const agir = (stat, d) => { const b = trouver(stat, d); if (!b || b.disabled) { clearInterval(rep); return; } awakStatPointsAllocate(stat, +d); };
+            modal.addEventListener('pointerdown', e => {
+                const b = e.target.closest('button[data-sp]'); if (!b || b.disabled) return;
+                stop();
+                appui = { stat: b.dataset.sp, d: b.dataset.d, x: e.clientX, y: e.clientY, repete: false };
+                delai = setTimeout(() => { if (!appui) return; appui.repete = true; agir(appui.stat, appui.d);
+                    rep = setInterval(() => { if (appui) agir(appui.stat, appui.d); }, 110); }, 420);
+            });
+            modal.addEventListener('pointermove', e => { if (appui && !appui.repete && (Math.abs(e.clientX - appui.x) > 10 || Math.abs(e.clientY - appui.y) > 10)) stop(); });
+            modal.addEventListener('pointerup', () => { if (appui && !appui.repete) agir(appui.stat, appui.d); stop(); });
+            modal.addEventListener('pointercancel', stop);
+            modal.addEventListener('click', e => { if (e.target === modal) { stop(); modal.remove(); } });
             document.body.appendChild(modal);
-            dismissOnBackdrop(modal);
         }
         window.awakOpenStatPointsModal = awakOpenStatPointsModal;
 
@@ -39107,7 +39309,27 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         }
         window.rpgResetWorkoutXpTracker = rpgResetWorkoutXpTracker;
 
-        function rpgXPForSet(exerciseName, reps, weightKg, isTimer, timerSeconds) {
+        // v1365 : le poids du corps compte comme une charge. Avant, une série de
+        // pompes valait ~12 XP contre ~42 pour des haltères : un sportif à la
+        // maison mettait ~14 ans pour un muscle niveau 40 (objets mythiques).
+        // On ajoute 60 % du poids de corps du profil (70 kg par défaut) à la
+        // charge des exercices au poids du corps, en plus d'un lest éventuel.
+        const XP_PART_POIDS_CORPS = 0.6;
+        function _rpgPoidsCorpsKg(profileId) {
+            try {
+                let up = null;
+                if (profileId && typeof getProfileData === 'function') { try { up = JSON.parse(getProfileData(profileId, 'userProfile') || 'null'); } catch (e) {} }
+                if (!up && typeof getUserProfile === 'function') up = getUserProfile();
+                const w = parseFloat(up && up.weight);
+                return (w > 15 && w < 300) ? w : 70;
+            } catch (e) { return 70; }
+        }
+        function _rpgEstPoidsDuCorps(ex) {
+            const eq = ex && ex.equipment;
+            const liste = Array.isArray(eq) ? eq : (eq ? [eq] : []);
+            return liste.length > 0 && liste.every(e => /poids du corps|aucun|tapis/i.test(String(e)));
+        }
+        function rpgXPForSet(exerciseName, reps, weightKg, isTimer, timerSeconds, profileId) {
             const ex = exerciseDatabase.find(e => e.name === exerciseName);
             const diffMult = ex?.difficulty === 'Avancé' ? 1.8 : ex?.difficulty === 'Intermédiaire' ? 1.4 : 1.0;
             // Timer mode : utiliser la durée de l'exercice si timerSeconds est 0
@@ -39119,12 +39341,14 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // (45 s ≈ une série de 15 reps au poids du corps). Échauffements et
                 // étirements restent légers (1 XP / 12 s).
                 const _annexe = ex && (ex.type === 'warmup' || ex.type === 'stretch');
-                const _parXP = _annexe ? 12 : 3;
+                // v1365 : 1 XP / 1,5 s (au lieu de 3 s) — 45 s de gainage ≈ une série chargée
+                const _parXP = _annexe ? 12 : 1.5;
                 return Math.max(2, Math.min(XP_MAX_PER_SET, Math.floor(secs / _parXP * diffMult)));
             }
             // 🛡️ Cap les reps à un maximum raisonnable
             const cappedReps = Math.min(reps || 1, XP_MAX_REPS_PER_SET);
-            const vol = cappedReps * (1 + (weightKg || 0) / 20);
+            const _charge = (weightKg || 0) + (_rpgEstPoidsDuCorps(ex) ? _rpgPoidsCorpsKg(profileId) * XP_PART_POIDS_CORPS : 0);
+            const vol = cappedReps * (1 + _charge / 20);
             return Math.max(1, Math.min(XP_MAX_PER_SET, Math.floor(vol * diffMult)));
         }
 
@@ -39360,64 +39584,73 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const _cible = (typeof containerId === 'string' && containerId) ? containerId : 'rpgDetailsContainer';
             const container = document.getElementById(_cible);
             if (!container) { renderGameTab(); return; }
+            const _muscles = _cible === 'rpgMusclesContainer';
 
+            // v1363 : en-tête fixe + corps qui défile seul ; rafraîchi SUR PLACE
+            // (rpgRemplirPanneauDetails) au lieu d'être fermé puis rouvert.
             const overlay = document.createElement('div');
             overlay.id = 'rpgDetailsPanelOverlay';
-            overlay.style.cssText = 'position:fixed;inset:0;z-index:11000;background:rgba(0,0,0,0.7);display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);';
+            overlay.dataset.cible = _cible;
+            overlay.style.cssText = 'position:fixed;inset:0;z-index:11000;background:rgba(3,5,8,0.78);display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:awakFadeIn 0.2s ease;';
+            overlay.innerHTML = `
+                <div style="width:100%;max-width:480px;max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);display:flex;flex-direction:column;
+                     background:#0b0d12;border:1px solid rgba(255,255,255,0.08);border-bottom:none;border-radius:20px 20px 0 0;overflow:hidden;box-shadow:0 -12px 40px rgba(0,0,0,0.5);">
+                    <div style="flex-shrink:0;padding:10px 16px 12px;border-bottom:1px solid rgba(255,255,255,0.07);">
+                        <div style="width:40px;height:4px;background:rgba(255,255,255,0.18);border-radius:99px;margin:0 auto 10px;"></div>
+                        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                            <div style="min-width:0;">
+                                <div style="font-size:11px;color:#67e8f9;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;">Chasseur</div>
+                                <div style="font-size:19px;font-weight:800;color:#f1f5f9;line-height:1.2;">${_muscles ? 'Muscles' : 'Compétences'}</div>
+                            </div>
+                            <button data-fermer aria-label="Fermer" style="width:38px;height:38px;min-height:0;padding:0;border-radius:50%;flex-shrink:0;cursor:pointer;
+                                background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);color:#cbd5e1;display:flex;align-items:center;justify-content:center;">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+                        </div>
+                    </div>
+                    <div id="rpgDetailsCorps" style="flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;
+                         padding:12px 12px calc(16px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:10px;"></div>
+                </div>`;
+            overlay.querySelector('[data-fermer]').onclick = () => overlay.remove();
+            overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+            document.body.appendChild(overlay);
+            rpgRemplirPanneauDetails(overlay, true);
+            overlay._cont = container;
+        }
 
-            const sheet = document.createElement('div');
-            sheet.style.cssText = 'background:#0D0D0D;border-radius:20px 20px 0 0;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;padding:20px 0 calc(20px + env(safe-area-inset-bottom,0px));';
-
-            // Handle bar
-            const handle = document.createElement('div');
-            handle.style.cssText = 'width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:99px;margin:0 auto 16px;';
-            sheet.appendChild(handle);
-
-            // Title
-            const title = document.createElement('div');
-            title.style.cssText = 'padding:0 16px 12px;display:flex;align-items:center;justify-content:space-between;';
-            title.innerHTML = '<span style="font-weight:800;font-size:1.05em;color:white;">📊 Statistiques détaillées</span>';
-            const closeBtn = document.createElement('button');
-            closeBtn.textContent = '✕';
-            closeBtn.style.cssText = 'background:rgba(255,255,255,0.1);border:none;color:rgba(255,255,255,0.7);border-radius:10px;padding:6px 12px;cursor:pointer;font-weight:700;';
-            closeBtn.onclick = () => overlay.remove();
-            title.appendChild(closeBtn);
-            sheet.appendChild(title);
-
-            // Clone all child cards
-            const content = document.createElement('div');
-            content.style.cssText = 'padding:0 12px;display:flex;flex-direction:column;gap:10px;';
-            Array.from(container.children).forEach(card => {
+        // Copie le contenu du conteneur caché de l'onglet Jeu dans le panneau
+        // (les onclick inline restent actifs sur les clones).
+        function rpgRemplirPanneauDetails(overlay, animer) {
+            const corps = overlay && overlay.querySelector('#rpgDetailsCorps');
+            const cont = overlay && document.getElementById(overlay.dataset.cible);
+            if (!corps || !cont || !cont.children.length) return false;
+            const y = corps.scrollTop;
+            corps.innerHTML = '';
+            Array.from(cont.children).forEach(card => {
                 const clone = card.cloneNode(true);
-                // Re-attacher les event listeners inline (onclick) fonctionnent car cloneNode copie les attributs
-                content.appendChild(clone);
+                clone.style.margin = '0';
+                corps.appendChild(clone);
             });
-            sheet.appendChild(content);
             // 🔄 La carte musculaire est CLONÉE depuis l'onglet Jeu, rendu plus tôt :
             // on la redessine avec les niveaux actuels (sinon niveaux d'avant la séance).
             try {
                 if (typeof awakRenderBodyMap === 'function') {
-                    content.querySelectorAll('#awakBodyMapHost, .awak-bodymap-host').forEach(h => {
+                    corps.querySelectorAll('#awakBodyMapHost, .awak-bodymap-host').forEach(h => {
                         const hote = h.id === 'awakBodyMapHost' ? h : h.parentElement;
                         if (hote) hote.innerHTML = awakRenderBodyMap();
                     });
                 }
             } catch (e) {}
-
-            overlay.appendChild(sheet);
-            overlay.onclick = e => { if(e.target===overlay) overlay.remove(); };
-            document.body.appendChild(overlay);
-
-            // Ré-animer les barres XP dans le panel
-            setTimeout(() => {
-                overlay.querySelectorAll('.rpg-bar-anim').forEach((bar, i) => {
-                    setTimeout(() => {
-                        bar.style.transition = 'width 0.8s ease';
-                        bar.style.width = bar.dataset.pct + '%';
-                    }, i * 60);
-                });
-            }, 100);
+            corps.scrollTop = y;
+            // Barres XP : animées à l'ouverture, posées directement ensuite
+            const barres = corps.querySelectorAll('.rpg-bar-anim');
+            if (animer) {
+                setTimeout(() => barres.forEach((bar, i) => setTimeout(() => { bar.style.transition = 'width 0.8s ease'; bar.style.width = bar.dataset.pct + '%'; }, i * 60)), 100);
+            } else {
+                barres.forEach(bar => { bar.style.width = bar.dataset.pct + '%'; });
+            }
+            return true;
         }
+        window.rpgRemplirPanneauDetails = rpgRemplirPanneauDetails;
 
         function rpgShowRankUp(rank) {
             if (typeof window.AwakCine !== 'undefined' && window.AwakCine.defer(function () { rpgShowRankUp(rank); })) return;
@@ -46359,7 +46592,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
             host.innerHTML =
                 '<div style="position:relative;width:110px;margin:0 auto 12px;">'
-              +   '<img src="images/body/body_face.webp?v=1361" alt="" '
+              +   '<img src="images/body/body_face.webp?v=1368" alt="" '
               +     'style="width:100%;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -46441,7 +46674,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1361);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1368);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -46508,7 +46741,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1361);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1368);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -48830,7 +49063,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1361");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1368");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
@@ -49879,75 +50112,112 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
         function awakCountActiveMalus() {
             const m = awakCollectActiveMalus();
-            return m.curses.length + m.penalties.length + m.handicaps.length;
+            // v1366 : même compte que la fenêtre (un monstre = un malus)
+            let nMonstres = 0;
+            try { nMonstres = (typeof awakGetActiveMonsters === 'function') ? (awakGetActiveMonsters() || []).length : 0; } catch (e) {}
+            return m.curses.length + m.penalties.length + nMonstres;
         }
         window.awakCountActiveMalus = awakCountActiveMalus;
 
         function showActiveMalusScreen() {
+            // v1366 : fenêtre refaite — en-tête fixe, corps qui défile, et pour
+            // chaque malus : d'où il vient, ce qu'il fait, comment s'en débarrasser.
             document.getElementById('activeMalusOverlay')?.remove();
             const m = awakCollectActiveMalus();
-            const total = m.curses.length + m.penalties.length + m.handicaps.length;
+            const monstres = (typeof awakGetActiveMonsters === 'function') ? (awakGetActiveMonsters() || []) : [];
+            const total = m.curses.length + m.penalties.length + monstres.length;
+            const ic = (n, t, c) => { try { return (window.AwakIcon && AwakIcon.get(n, t, c)) || ''; } catch (e) { return ''; } };
+            const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+            const STAT_FR = { STR: 'Force', AGI: 'Agilité', VIT: 'Vitalité', END: 'Endurance', PER: 'Perception', SEN: 'Sens' };
+            const tuile = (svg, c) => `<div style="width:40px;height:40px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${c}18;border:1px solid ${c}44;">${svg}</div>`;
+            const puce = (txt, c) => `<span style="display:inline-block;font-size:11px;font-weight:800;color:${c};background:${c}14;border:1px solid ${c}40;padding:1px 8px;border-radius:99px;margin:4px 4px 0 0;white-space:nowrap;">${txt}</span>`;
+            const action = (txt, js, c) => `<button onclick="${js}" style="flex-shrink:0;min-height:36px;padding:7px 12px;border-radius:10px;font-family:inherit;font-size:12.5px;font-weight:800;cursor:pointer;white-space:nowrap;background:${c}1c;border:1px solid ${c}77;color:${c};">${txt}</button>`;
+            const ligne = (contenu) => `<div style="display:flex;align-items:flex-start;gap:12px;padding:12px;background:#12161c;border:1px solid rgba(255,255,255,0.07);border-radius:16px;">${contenu}</div>`;
+            const section = (titre, sous, c, items) => !items.length ? '' : `
+                <div style="margin-bottom:16px;">
+                    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:0 2px 8px;">
+                        <div style="font-size:11px;color:${c};font-weight:800;letter-spacing:1.5px;text-transform:uppercase;">${titre} · ${items.length}</div>
+                        <div style="font-size:11px;color:#8d9cb1;">${sous}</div>
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:8px;">${items.join('')}</div>
+                </div>`;
+
+            // 1) Monstres échappés (source des handicaps)
+            const ROUGE = '#f87171', VIOLET = '#c084fc', OR = '#fbbf24';
+            const lignesMonstres = monstres.map(mo => {
+                const type = (typeof ESCAPED_MONSTER_TYPES !== 'undefined') ? ESCAPED_MONSTER_TYPES.find(t => t.id === mo.typeId) : null;
+                const c = (type && type.color && !/^#(22c55e|16a34a|4ade80)$/i.test(type.color)) ? type.color : OR;
+                return ligne(`${tuile(ic('faille', 20, c), c)}
+                    <div style="flex:1;min-width:0;">
+                        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                            <span style="font-size:14px;font-weight:800;color:#f1f5f9;">${esc(type ? type.name : 'Monstre échappé')}</span>
+                            ${mo.isAlpha ? `<span style="font-size:11px;font-weight:800;color:${ROUGE};background:${ROUGE}18;border:1px solid ${ROUGE}55;padding:0 7px;border-radius:99px;">Alpha · effet ×2</span>` : ''}
+                        </div>
+                        <div style="font-size:12.5px;color:#a3b1c2;line-height:1.4;margin-top:2px;">${esc(type && type.handicap ? type.handicap.label : 'Handicap actif')}</div>
+                    </div>
+                    ${action('Chasser', `document.getElementById('activeMalusOverlay').remove();awakOpenMonsterDetail('${mo.id}')`, OR)}`);
+            });
+
+            // 2) Malédictions d'équipement
+            const lignesMaudits = m.curses.map(cu => ligne(`${tuile(ic('alerte', 20, VIOLET), VIOLET)}
+                <div style="flex:1;min-width:0;">
+                    <div style="font-size:14px;font-weight:800;color:#f1f5f9;">${esc(cu.name)}</div>
+                    ${cu.curseLabel ? `<div style="font-size:12.5px;color:#d8b4fe;line-height:1.4;margin-top:2px;">${esc(cu.curseLabel)}</div>` : ''}
+                    ${cu.negStats.length ? `<div>${cu.negStats.map(s => { const [k, v] = s.split(' '); return puce((STAT_FR[k] || k) + ' ' + v.replace('-', '−'), ROUGE); }).join('')}</div>` : ''}
+                </div>
+                ${action('Retirer', `document.getElementById('activeMalusOverlay').remove();showRPGEquipmentModal()`, VIOLET)}`));
+
+            // 3) Pénalités de défi (temporaires)
+            const lignesPenalites = m.penalties.map(p => ligne(`${tuile(ic('chrono', 20, ROUGE), ROUGE)}
+                <div style="flex:1;min-width:0;">
+                    <div style="font-size:14px;font-weight:800;color:#f1f5f9;">${esc(p.name)}</div>
+                    ${p.desc ? `<div style="font-size:12.5px;color:#a3b1c2;line-height:1.4;margin-top:2px;">${esc(p.desc)}</div>` : ''}
+                </div>
+                ${p.remaining ? `<span style="flex-shrink:0;font-size:12.5px;font-weight:800;color:${ROUGE};white-space:nowrap;">encore ${esc(p.remaining.replace('j ', ' j ').replace(/h$/, ' h'))}</span>` : ''}`));
+
+            // Résumé des effets cumulés des monstres
+            const effets = [];
+            if (m.handicaps.length) m.handicaps.forEach(h => effets.push(puce(esc(h.text), OR)));
+
+            const corps = total === 0 ? `
+                <div style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:34px 18px 26px;">
+                    <div style="width:56px;height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:rgba(52,211,153,0.10);border:1px solid rgba(52,211,153,0.35);margin-bottom:14px;">
+                        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#34d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+                    <div style="font-size:16px;font-weight:800;color:#f1f5f9;margin-bottom:5px;">Aucun malus actif</div>
+                    <div style="font-size:14px;color:#a3b1c2;line-height:1.5;max-width:300px;">Aucune malédiction, pénalité ou monstre échappé ne t'affecte. Tu es au sommet de ta forme, Chasseur.</div>
+                </div>` : `
+                <div style="font-size:14px;color:#a3b1c2;line-height:1.5;margin:2px 2px 14px;">Ce qui t'affaiblit en ce moment, et comment t'en débarrasser.</div>
+                ${effets.length ? `<div style="background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.28);border-radius:16px;padding:10px 12px 12px;margin-bottom:16px;">
+                    <div style="font-size:11px;color:${OR};font-weight:800;letter-spacing:1.5px;text-transform:uppercase;">Effets en cours sur tes séances</div>
+                    <div>${effets.join('')}</div></div>` : ''}
+                ${section('Monstres échappés', 'vaincs-les en chasse', OR, lignesMonstres)}
+                ${section('Malédictions', 'retire l\'objet maudit', VIOLET, lignesMaudits)}
+                ${section('Pénalités de défi', 'disparaissent seules', ROUGE, lignesPenalites)}`;
 
             const overlay = document.createElement('div');
             overlay.id = 'activeMalusOverlay';
-            overlay.style.cssText = 'position:fixed;inset:0;z-index:10800;background:rgba(0,0,0,0.85);backdrop-filter:blur(10px);display:flex;align-items:flex-end;justify-content:center;';
+            overlay.style.cssText = 'position:fixed;inset:0;z-index:10800;background:rgba(3,5,8,0.82);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:flex;align-items:flex-end;justify-content:center;animation:awakFadeIn 0.2s ease;';
             overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
-
-            const section = (title, color, icon, items) => {
-                if (!items.length) return '';
-                return `<div style="margin-bottom:16px;">
-                    <div style="font-size:0.62em;color:${color};font-weight:900;letter-spacing:1.5px;margin-bottom:8px;">${icon} ${title} (${items.length})</div>
-                    ${items.join('')}
-                </div>`;
-            };
-
-            const curseItems = m.curses.map(c => `
-                <div style="background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.3);border-radius:10px;padding:11px 13px;margin-bottom:8px;">
-                    <div style="display:flex;align-items:center;gap:9px;margin-bottom:${c.curseLabel || c.negStats.length ? '6px' : '0'};">
-                        <span style="font-size:1.1em;">${c.icon}</span>
-                        <span style="font-weight:800;color:#e2e8f0;font-size:0.85em;">${c.name}</span>
-                    </div>
-                    ${c.negStats.length ? `<div style="font-size:0.7em;color:#f87171;font-weight:700;margin-bottom:3px;">📉 ${c.negStats.join(' · ')}</div>` : ''}
-                    ${c.curseLabel ? `<div style="font-size:0.7em;color:#c084fc;font-weight:600;">⚠️ ${c.curseLabel}</div>` : ''}
-                </div>`);
-
-            const penItems = m.penalties.map(p => `
-                <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:11px 13px;margin-bottom:8px;">
-                    <div style="display:flex;align-items:center;gap:9px;">
-                        <span style="font-size:1.1em;">${p.icon}</span>
-                        <div style="flex:1;min-width:0;">
-                            <div style="font-weight:800;color:#e2e8f0;font-size:0.85em;">${p.name}</div>
-                            ${p.desc ? `<div style="font-size:0.68em;color:#fca5a5;margin-top:2px;line-height:1.35;">${p.desc}</div>` : ''}
+            overlay.innerHTML = `
+                <div style="width:100%;max-width:480px;max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);display:flex;flex-direction:column;
+                     background:#0b0d12;border:1px solid rgba(255,255,255,0.08);border-bottom:none;border-radius:20px 20px 0 0;overflow:hidden;box-shadow:0 -12px 40px rgba(0,0,0,0.5);">
+                    <div style="flex-shrink:0;padding:10px 16px 12px;border-bottom:1px solid rgba(255,255,255,0.07);">
+                        <div style="width:40px;height:4px;background:rgba(255,255,255,0.18);border-radius:99px;margin:0 auto 10px;"></div>
+                        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                            <div style="min-width:0;">
+                                <div style="font-size:11px;color:#67e8f9;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;">Chasseur</div>
+                                <div style="display:flex;align-items:center;gap:8px;">
+                                    <span style="font-size:19px;font-weight:800;color:#f1f5f9;line-height:1.2;">Malus actifs</span>
+                                    ${total ? `<span style="font-size:12.5px;font-weight:800;color:${ROUGE};background:${ROUGE}18;border:1px solid ${ROUGE}55;padding:0 9px;border-radius:99px;">${total}</span>` : ''}
+                                </div>
+                            </div>
+                            <button onclick="document.getElementById('activeMalusOverlay').remove()" aria-label="Fermer" style="width:38px;height:38px;min-height:0;padding:0;border-radius:50%;flex-shrink:0;cursor:pointer;
+                                background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);color:#cbd5e1;display:flex;align-items:center;justify-content:center;">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
                         </div>
-                        ${p.remaining ? `<span style="font-size:0.62em;color:#fca5a5;font-weight:700;white-space:nowrap;">${p.remaining}</span>` : ''}
                     </div>
-                </div>`);
-
-            const handItems = m.handicaps.map(h => `
-                <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.3);border-radius:10px;padding:10px 13px;margin-bottom:8px;display:flex;align-items:center;gap:9px;">
-                    <span style="font-size:1.05em;">${h.icon}</span>
-                    <span style="font-size:0.78em;color:#fcd34d;font-weight:600;">${h.text}</span>
-                </div>`);
-
-            const sheet = document.createElement('div');
-            sheet.style.cssText = 'background:#0D0D0D;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;-webkit-overflow-scrolling:touch;';
-            sheet.innerHTML = `
-                <div style="width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:99px;margin:0 auto 18px;"></div>
-                <h2 style="margin:0 0 4px;color:white;font-size:1.15em;font-weight:900;">Malus actifs ${total > 0 ? `<span style="font-size:0.7em;background:rgba(239,68,68,0.15);color:#f87171;padding:2px 9px;border-radius:99px;">${total}</span>` : ''}</h2>
-                <p style="margin:0 0 18px;color:rgba(255,255,255,0.4);font-size:0.8em;">Tout ce qui t'affaiblit actuellement, regroupé ici.</p>
-                ${total === 0 ? `
-                    <div style="text-align:center;padding:30px 20px;">
-                        <div style="font-size:2.5em;margin-bottom:10px;">✨</div>
-                        <div style="color:#4ade80;font-weight:800;font-size:0.95em;">Aucun malus actif</div>
-                        <div style="color:rgba(255,255,255,0.4);font-size:0.78em;margin-top:6px;line-height:1.5;">Tu es au sommet de ta forme, Chasseur. Aucune malédiction, pénalité ou handicap ne t'affecte.</div>
-                    </div>
-                ` : `
-                    ${section('Malédictions d\'équipement', '#c084fc', '☠️', curseItems)}
-                    ${section('Pénalités de défi', '#f87171', '⚔️', penItems)}
-                    ${section('Handicaps de monstres', '#fcd34d', '👹', handItems)}
-                `}
-                <button onclick="document.getElementById('activeMalusOverlay').remove()" style="margin-top:8px;width:100%;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:14px;color:rgba(255,255,255,0.5);font-weight:700;cursor:pointer;">Fermer</button>`;
-            overlay.appendChild(sheet);
+                    <div style="flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;padding:14px 16px calc(18px + env(safe-area-inset-bottom,0px));">${corps}</div>
+                </div>`;
             document.body.appendChild(overlay);
         }
         window.showActiveMalusScreen = showActiveMalusScreen;

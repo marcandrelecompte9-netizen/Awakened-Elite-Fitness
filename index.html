@@ -11,11 +11,11 @@
     <title>Awakened Elite Fitness</title>
 
     <!-- PWA -->
-    <link rel="manifest" href="manifest.json?v=1361">
-    <link rel="apple-touch-icon" href="icons/icon-192.png?v=1361">
-    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=1361">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=1361">
-    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=1361">
+    <link rel="manifest" href="manifest.json?v=1368">
+    <link rel="apple-touch-icon" href="icons/icon-192.png?v=1368">
+    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=1368">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=1368">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=1368">
 
     <!-- ⚠️ CAPTURE PRÉCOCE DE L'INVITE D'INSTALLATION.
          Chrome déclenche « beforeinstallprompt » très tôt, souvent AVANT la fin
@@ -42,7 +42,7 @@
     <!-- v1288 : police Outfit embarquée (fonts/ + css/style.css) : plus besoin d'Internet -->
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=1361">
+    <link rel="stylesheet" href="css/style.css?v=1368">
 </head>
 <body>
 
@@ -206,8 +206,8 @@
                  (ratio 1,55), donc plus haute et lisible.
                  <picture> laisse le navigateur choisir, sans JavaScript. -->
             <picture>
-                <source media="(min-width: 700px)" srcset="images/banner_v3.webp?v=1361">
-                <img src="images/banner_v3_mobile.webp?v=1361"
+                <source media="(min-width: 700px)" srcset="images/banner_v3.webp?v=1368">
+                <img src="images/banner_v3_mobile.webp?v=1368"
                      alt="Awakened Elite Fitness"
                      onerror="var p=this.closest('picture');if(p&&p.parentElement)p.parentElement.style.display='none';"
                      style="width:100%;height:auto;display:block;" />
@@ -1221,7 +1221,7 @@
                             <div style="font-size:0.55em;color:#64748b;margin-top:2px;">~60 min</div>
                         </button>
                     </div>
-                    <p style="font-size:0.66em;color:#64748b;margin:10px 0 0;line-height:1.45;">La durée est estimée à environ 5 min par exercice, échauffement et étirements compris.</p>
+                    <p id="awakDureeNote" style="font-size:0.66em;color:#64748b;margin:10px 0 0;line-height:1.45;">La durée dépend de ton objectif : séries et repos compris, plus l'échauffement et les étirements.</p>
 
                 </div>
             </div>
@@ -3305,105 +3305,102 @@
 
     <!-- Profile Setup Modal -->
     <div class="modal" id="profileSetupModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Configuration du profil</h2>
-                <button class="close-btn" onclick="closeProfileSetup()">×</button>
-            </div>
-            <input id="profileName" placeholder="Votre nom"
-                   aria-label="Votre nom ou surnom"
-                   style="width: 100%; padding: 12px; margin: 10px 0; border: 2px solid rgba(255,255,255,0.12); border-radius: 10px;">
-
-            <span style="display: block; margin: 15px 0 8px 0; font-weight: bold; color: #16a34a;">🎯 Objectif principal</span>
-            <select id="profileGoal"
-                    aria-label="Choisis ton objectif principal"
-                    style="width: 100%; padding: 12px; border: 2px solid rgba(255,255,255,0.12); border-radius: 10px;">
-                <option value="weight_loss">🔥 Perte de poids</option>
-                <option value="muscle_gain">💪 Prise de masse</option>
-                <option value="strength">🏋️ Force</option>
-                <option value="endurance">🏃 Endurance</option>
-                <option value="fitness" selected>⚡ Forme générale</option>
-                <option value="flexibility">🧘 Souplesse</option>
-            </select>
-
-            <span style="display: block; margin: 15px 0 8px 0; font-weight: bold; color: #16a34a;">📊 Niveau actuel</span>
-            <select id="profileLevel" style="width: 100%; padding: 12px; border: 2px solid rgba(255,255,255,0.12); border-radius: 10px;"
-                    onchange="updateLevelDescription()"
-                    aria-label="Choisis ton niveau en musculation">
-                <option value="beginner" selected>Débutant (0-6 mois)</option>
-                <option value="intermediate">Intermédiaire (6-24 mois)</option>
-                <option value="advanced">Avancé (2+ ans)</option>
-            </select>
-            <div id="levelDescription" style="margin-top: 10px; padding: 12px; background: #FFF3E0; border-radius: 10px; font-size: 0.9em; color: #555;">
-                💡 <strong>Débutant :</strong> Séances équilibrées avec 40% d'exercices de base (squats, pompes), 50% d'isolation et 10% de finition. Repos de 60s entre séries.
+        <!-- v1367 : fenêtre refaite. Les champs gardent leurs id (lus par
+             saveProfileSetup) ; objectif, niveau, sexe et héros restent des <select>
+             cachés, pilotés par des pastilles (awakPfRendre / awakPfChoisir). -->
+        <div class="modal-content awk-pf">
+            <div class="awk-pf-tete">
+                <div style="min-width:0;">
+                    <div class="awk-pf-kicker">Ton profil</div>
+                    <h2 class="awk-pf-titre">Configuration du profil</h2>
+                </div>
+                <button class="awk-pf-fermer" onclick="closeProfileSetup()" aria-label="Fermer">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                </button>
             </div>
 
-            <div style="margin-top: 15px;">
-                <span style="display: block; margin-bottom: 5px; font-weight: bold; color: #16a34a; font-size: 0.9em;">⚧ Sexe (pour des suggestions adaptées)</span>
-                <select id="profileSex" style="width: 100%; padding: 12px; border: 2px solid rgba(255,255,255,0.12); border-radius: 10px;">
+            <div class="awk-pf-carte">
+                <div class="awk-pf-section">Toi</div>
+                <label class="awk-pf-lbl" for="profileName">Nom ou surnom</label>
+                <input id="profileName" class="awk-pf-champ" placeholder="Ex. Marc" aria-label="Votre nom ou surnom" autocomplete="nickname">
+
+                <div class="awk-pf-lbl">Avatar</div>
+                <div id="avatarPickerEdit" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+
+                <div class="awk-pf-lbl">Sexe <span class="awk-pf-opt">pour des suggestions adaptées</span></div>
+                <div class="awk-pf-pastilles" data-pf="profileSex"></div>
+                <select id="profileSex" class="awk-pf-cache" aria-hidden="true" tabindex="-1">
                     <option value="">Préfère ne pas préciser</option>
                     <option value="homme">Homme</option>
                     <option value="femme">Femme</option>
                 </select>
+
+                <div class="awk-pf-duo">
+                    <div>
+                        <label class="awk-pf-lbl" for="profileAge">Âge <span class="awk-pf-opt">optionnel</span></label>
+                        <input id="profileAge" class="awk-pf-champ" type="number" inputmode="numeric" placeholder="Ex. 30" min="10" max="100">
+                    </div>
+                    <div>
+                        <label class="awk-pf-lbl" for="profileWeight" data-weight-unit>Poids (lbs)</label>
+                        <input id="profileWeight" class="awk-pf-champ" type="number" inputmode="decimal" placeholder="Ex. 70" min="30" max="200">
+                    </div>
+                </div>
+                <!-- 🎂 Date de naissance — OPTIONNELLE : recalcule l'âge réel chaque
+                     jour (un enfant de 12 ans restait « child ») et souhaite la fête. -->
+                <label class="awk-pf-lbl" for="profileBirthdate">Date de naissance <span class="awk-pf-opt">optionnel · recalcule ton âge et souhaite ta fête</span></label>
+                <input id="profileBirthdate" class="awk-pf-champ" type="date">
             </div>
 
-            <div style="margin-top: 15px;">
-                <span style="display: block; margin-bottom: 5px; font-weight: bold; color: #a78bfa; font-size: 0.9em;">🎭 Ton héros d'aventure</span>
-                <select id="profileHero" style="width: 100%; padding: 12px; border: 2px solid rgba(167,139,250,0.3); border-radius: 10px;">
-                    <option value="">Laisser le duo m'accompagner</option>
-                    <option value="esen">Esen — silencieux, déterminé</option>
-                    <option value="nyra">Nyra — taquine, énergique</option>
+            <div class="awk-pf-carte">
+                <div class="awk-pf-section">Entraînement</div>
+                <div class="awk-pf-lbl">Objectif principal</div>
+                <div class="awk-pf-grille" data-pf="profileGoal"></div>
+                <select id="profileGoal" class="awk-pf-cache" aria-hidden="true" tabindex="-1">
+                    <option value="weight_loss">Perte de poids</option>
+                    <option value="muscle_gain">Prise de masse</option>
+                    <option value="strength">Force</option>
+                    <option value="endurance">Endurance</option>
+                    <option value="fitness" selected>Forme générale</option>
+                    <option value="flexibility">Souplesse</option>
                 </select>
+
+                <div class="awk-pf-lbl">Niveau actuel</div>
+                <div class="awk-pf-pastilles awk-pf-3" data-pf="profileLevel"></div>
+                <select id="profileLevel" class="awk-pf-cache" aria-hidden="true" tabindex="-1" onchange="updateLevelDescription()">
+                    <option value="beginner" selected>Débutant (0-6 mois)</option>
+                    <option value="intermediate">Intermédiaire (6-24 mois)</option>
+                    <option value="advanced">Avancé (2+ ans)</option>
+                </select>
+                <div id="levelDescription" class="awk-pf-note"></div>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
-                <div>
-                    <span style="display: block; margin-bottom: 5px; font-weight: bold; color: #16a34a; font-size: 0.9em;">🎂 Âge (optionnel)</span>
-                    <input id="profileAge" type="number" placeholder="Ex: 30" min="10" max="100" style="padding: 12px; border: 2px solid rgba(255,255,255,0.12); border-radius: 10px; width: 100%;">
-                </div>
-                <div>
-                    <span data-weight-unit style="display: block; margin-bottom: 5px; font-weight: bold; color: #16a34a; font-size: 0.9em;">⚖️ Poids (lbs)</span>
-                    <input id="profileWeight" type="number" placeholder="Ex: 70" min="30" max="200" style="padding: 12px; border: 2px solid rgba(255,255,255,0.12); border-radius: 10px; width: 100%;">
-                </div>
-            </div>
-                    <!-- 🎂 Date de naissance — OPTIONNELLE. Permet deux choses que l'âge
-                         seul ne permet pas : recalculer l'âge réel chaque jour (un enfant
-                         de 12 ans restait « child » indéfiniment) et souhaiter la fête. -->
-                    <div style="margin-top:10px;">
-                        <span style="display:block;margin-bottom:5px;font-weight:bold;color:#16a34a;font-size:0.9em;">
-                            🎂 Date de naissance <span style="color:#94a3b8;font-weight:400;">(optionnel)</span></span>
-                        <input id="profileBirthdate" type="date" style="padding:12px;border-radius:10px;width:100%;">
-                    </div>
-                    <!-- 🎭 CHOIX D'AVATAR — réutilise renderAvatarPicker(), déjà écrit
-                         pour la création de profil. On ne duplique pas la grille. -->
-                    <div style="margin-top:12px;">
-                        <span style="display:block;margin-bottom:7px;font-weight:bold;color:#16a34a;font-size:0.9em;">
-                            🎭 Avatar</span>
-                        <div id="avatarPickerEdit" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
-                    </div>
-
-            <div style="margin-top: 10px; padding: 12px; background: #FFF3E0; border-radius: 10px; font-size: 0.85em; color: #555;">
-                💡 <strong>Informations optionnelles</strong> : Ces données permettent d'affiner les recommandations (durée de repos, intensité) mais ne sont pas obligatoires pour utiliser l'application.
+            <div class="awk-pf-carte">
+                <div class="awk-pf-section" style="color:#c4b5fd;">Aventure</div>
+                <div class="awk-pf-lbl">Ton héros</div>
+                <div class="awk-pf-pastilles awk-pf-3" data-pf="profileHero"></div>
+                <select id="profileHero" class="awk-pf-cache" aria-hidden="true" tabindex="-1">
+                    <option value="">Le duo</option>
+                    <option value="esen">Esen</option>
+                    <option value="nyra">Nyra</option>
+                </select>
+                <div class="awk-pf-note" id="awakPfHeroNote"></div>
             </div>
 
-            <!-- ♿ LIMITATIONS PHYSIQUES — proposé dès la création du profil.
-                 Les déclarer APRÈS coup obligeait à refaire son plan : autant
-                 poser la question avant de générer la première séance. -->
-            <span style="display:block; margin:18px 0 8px 0; font-weight:bold; color:#22d3ee;">♿ Adaptation physique</span>
-            <div onclick="awakOuvrirLimitations()"
-                 style="cursor:pointer; padding:13px 14px; border:1.5px dashed rgba(34,211,238,0.35);
-                        border-radius:12px; background:rgba(34,211,238,0.05); display:flex; align-items:center; gap:11px;">
-                <span style="font-size:1.3em; flex-shrink:0;">♿</span>
-                <div style="flex:1; min-width:0;">
-                    <div style="font-size:0.85em; font-weight:800; color:#e8f0f8;">Un mouvement t'est impossible ?</div>
-                    <div id="profileLimitResume" style="font-size:0.72em; color:#94a3b8; margin-top:2px; line-height:1.4;">
+            <!-- ♿ LIMITATIONS PHYSIQUES — proposé dès la création du profil. -->
+            <div class="awk-pf-carte awk-pf-lien" onclick="awakOuvrirLimitations()" role="button">
+                <div class="awk-pf-ico" id="awakPfLimIco"></div>
+                <div style="flex:1;min-width:0;">
+                    <div style="font-size:14px;font-weight:800;color:#f1f5f9;">Un mouvement t'est impossible ?</div>
+                    <div id="profileLimitResume" style="font-size:12.5px;color:#a3b1c2;margin-top:2px;line-height:1.4;">
                         Épaule, genou, dos, impossibilité de descendre au sol… Touche pour adapter tes séances.
                     </div>
                 </div>
-                <span style="color:#64748b; flex-shrink:0;">›</span>
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#8d9cb1" stroke-width="2.4" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>
             </div>
 
-            <button class="btn" onclick="saveProfileSetup()" style="width: 100%; margin-top: 20px;">✅ Sauvegarder et générer mon plan</button>
+            <div class="awk-pf-pied">
+                <button class="awk-btn" onclick="saveProfileSetup()" style="width:100%;">Sauvegarder et générer mon plan</button>
+            </div>
         </div>
     </div>
 
@@ -3902,36 +3899,36 @@
     <!-- v1327 : Chart.js chargé à la demande (awakChargerChart dans app.js) -->
 
     <!-- App scripts — order matters -->
-    <script src="js/native.js?v=1361"></script>
-    <script src="js/essai.js?v=1361"></script>
-    <script src="js/exercises.js?v=1361"></script>
-    <script src="js/exercise-names.js?v=1361"></script>
-    <script src="data/items.js?v=1361"></script>
-    <script src="js/item-icons.js?v=1361"></script>
-    <script src="js/adventure.js?v=1361"></script>
-    <script src="js/economy.js?v=1361"></script>
-    <script src="js/challenges.js?v=1361"></script>
-    <script src="js/family-boss.js?v=1361"></script>
-    <script src="js/family-network.js?v=1361"></script>
-    <script src="js/family-challenge.js?v=1361"></script>
-    <script src="js/family-goal.js?v=1361"></script>
-    <script src="js/family-feed.js?v=1361"></script>
-    <script src="js/pre-workout-mood.js?v=1361"></script>
-    <script src="js/group-workout.js?v=1361"></script>
-    <script src="js/youth-safety.js?v=1361"></script>
-    <script src="js/kids-programs.js?v=1361"></script>
-    <script src="js/senior-programs.js?v=1361"></script>
-    <script src="js/adaptive.js?v=1361"></script>
-    <script src="js/pain-mode.js?v=1361"></script>
-    <script src="js/recovery-mode.js?v=1361"></script>
-    <script src="js/exercise-visuals.js?v=1361"></script>
-    <script src="js/strength-standards.js?v=1361"></script>
-    <script src="js/system-cards.js?v=1361"></script>
-    <script src="js/share-card.js?v=1361"></script>
-    <script src="js/story-events.js?v=1361"></script>
-    <script src="js/final-boss.js?v=1361"></script>
-    <script src="js/disciplines.js?v=1361"></script>
-    <script src="js/eveil.js?v=1361"></script>
+    <script src="js/native.js?v=1368"></script>
+    <script src="js/essai.js?v=1368"></script>
+    <script src="js/exercises.js?v=1368"></script>
+    <script src="js/exercise-names.js?v=1368"></script>
+    <script src="data/items.js?v=1368"></script>
+    <script src="js/item-icons.js?v=1368"></script>
+    <script src="js/adventure.js?v=1368"></script>
+    <script src="js/economy.js?v=1368"></script>
+    <script src="js/challenges.js?v=1368"></script>
+    <script src="js/family-boss.js?v=1368"></script>
+    <script src="js/family-network.js?v=1368"></script>
+    <script src="js/family-challenge.js?v=1368"></script>
+    <script src="js/family-goal.js?v=1368"></script>
+    <script src="js/family-feed.js?v=1368"></script>
+    <script src="js/pre-workout-mood.js?v=1368"></script>
+    <script src="js/group-workout.js?v=1368"></script>
+    <script src="js/youth-safety.js?v=1368"></script>
+    <script src="js/kids-programs.js?v=1368"></script>
+    <script src="js/senior-programs.js?v=1368"></script>
+    <script src="js/adaptive.js?v=1368"></script>
+    <script src="js/pain-mode.js?v=1368"></script>
+    <script src="js/recovery-mode.js?v=1368"></script>
+    <script src="js/exercise-visuals.js?v=1368"></script>
+    <script src="js/strength-standards.js?v=1368"></script>
+    <script src="js/system-cards.js?v=1368"></script>
+    <script src="js/share-card.js?v=1368"></script>
+    <script src="js/story-events.js?v=1368"></script>
+    <script src="js/final-boss.js?v=1368"></script>
+    <script src="js/disciplines.js?v=1368"></script>
+    <script src="js/eveil.js?v=1368"></script>
     <script>
     /* 🔄 DÉVERROUILLAGE DE L'ORIENTATION
        Sur Android, l'orientation d'une PWA installée est figée à l'installation
@@ -3953,45 +3950,45 @@
       });
     })();
     </script>
-    <script src="js/app.js?v=1361"></script>
-    <script src="js/calendar-tab.js?v=1361"></script>
-    <script src="js/routine-blocks.js?v=1361"></script>
-    <script src="js/routine-builder.js?v=1361"></script>
-    <script src="js/routine-print.js?v=1361"></script>
-    <script src="js/icons.js?v=1361"></script>
-    <script src="js/no-emoji.js?v=1361"></script>
-    <script src="js/stat-noms.js?v=1361"></script>
-    <script src="js/fenetres.js?v=1361"></script>
-    <script src="js/qrcode.js?v=1361"></script>
-    <script src="js/partage-seance.js?v=1361"></script>
-    <script src="js/salle.js?v=1361"></script>
-    <script src="js/sports.js?v=1361"></script>
-    <script src="js/strength-balance.js?v=1361"></script>
-    <script src="js/analyse.js?v=1361"></script>
-    <script src="js/limitations.js?v=1361"></script>
-    <script src="js/custom-exercises.js?v=1361"></script>
-    <script src="js/awakening-tree.js?v=1361"></script>
-    <script src="js/ui-kit.js?v=1361"></script>
-    <script src="js/feature-map.js?v=1361"></script>
-    <script src="js/visite.js?v=1361"></script>
-    <script src="js/weekly-recap.js?v=1361"></script>
-    <script src="js/workout-games.js?v=1361"></script>
-    <script src="js/kids-games.js?v=1361"></script>
-    <script src="js/home-pro.js?v=1361"></script>
-    <script src="js/echelle.js?v=1361"></script>
-    <script src="js/back-button.js?v=1361"></script>
-    <script src="js/gestures.js?v=1361"></script>
-    <script src="js/rift-visuals.js?v=1361"></script>
-    <script src="js/family-sky.js?v=1361"></script>
-    <script src="js/family-week.js?v=1361"></script>
-    <script src="js/session-ux.js?v=1361"></script>
-    <script src="js/progress-tab.js?v=1361"></script>
-    <script src="js/mon-defi.js?v=1361"></script>
-    <script src="js/health-sync.js?v=1361"></script>
-    <script src="js/regle.js?v=1361"></script>
-    <script src="js/run-gps.js?v=1361"></script>
-    <script src="js/run-coach.js?v=1361"></script>
-    <script src="js/backup.js?v=1361"></script>
+    <script src="js/app.js?v=1368"></script>
+    <script src="js/calendar-tab.js?v=1368"></script>
+    <script src="js/routine-blocks.js?v=1368"></script>
+    <script src="js/routine-builder.js?v=1368"></script>
+    <script src="js/routine-print.js?v=1368"></script>
+    <script src="js/icons.js?v=1368"></script>
+    <script src="js/no-emoji.js?v=1368"></script>
+    <script src="js/stat-noms.js?v=1368"></script>
+    <script src="js/fenetres.js?v=1368"></script>
+    <script src="js/qrcode.js?v=1368"></script>
+    <script src="js/partage-seance.js?v=1368"></script>
+    <script src="js/salle.js?v=1368"></script>
+    <script src="js/sports.js?v=1368"></script>
+    <script src="js/strength-balance.js?v=1368"></script>
+    <script src="js/analyse.js?v=1368"></script>
+    <script src="js/limitations.js?v=1368"></script>
+    <script src="js/custom-exercises.js?v=1368"></script>
+    <script src="js/awakening-tree.js?v=1368"></script>
+    <script src="js/ui-kit.js?v=1368"></script>
+    <script src="js/feature-map.js?v=1368"></script>
+    <script src="js/visite.js?v=1368"></script>
+    <script src="js/weekly-recap.js?v=1368"></script>
+    <script src="js/workout-games.js?v=1368"></script>
+    <script src="js/kids-games.js?v=1368"></script>
+    <script src="js/home-pro.js?v=1368"></script>
+    <script src="js/echelle.js?v=1368"></script>
+    <script src="js/back-button.js?v=1368"></script>
+    <script src="js/gestures.js?v=1368"></script>
+    <script src="js/rift-visuals.js?v=1368"></script>
+    <script src="js/family-sky.js?v=1368"></script>
+    <script src="js/family-week.js?v=1368"></script>
+    <script src="js/session-ux.js?v=1368"></script>
+    <script src="js/progress-tab.js?v=1368"></script>
+    <script src="js/mon-defi.js?v=1368"></script>
+    <script src="js/health-sync.js?v=1368"></script>
+    <script src="js/regle.js?v=1368"></script>
+    <script src="js/run-gps.js?v=1368"></script>
+    <script src="js/run-coach.js?v=1368"></script>
+    <script src="js/backup.js?v=1368"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>
