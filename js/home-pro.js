@@ -124,7 +124,7 @@
       '.ahp-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;margin-top:8px;font-size:0.8em;color:#e2e8f0;}' +
       '.ahp-m{display:inline-flex;align-items:center;gap:6px;}' +
       '.ahp-cta{display:block;width:100%;min-height:auto;border:none;border-radius:12px;padding:15px 14px;font-family:inherit;' +
-        'font-size:0.92em;font-weight:900;letter-spacing:0.6px;cursor:pointer;background:' + ACCENT + ';color:#04121f;}' +
+        'font-size:0.98em;font-weight:800;letter-spacing:0.2px;cursor:pointer;background:' + ACCENT + ';color:#04121f;}' +
       '.ahp-cta-s{background:rgba(255,255,255,0.06);color:#e2e8f0;border:1px solid rgba(255,255,255,0.1);}' +
       '.ahp-tile{display:block;width:100%;min-width:0;min-height:auto;text-align:left;cursor:pointer;font-family:inherit;color:inherit;' +
         'background:#12161c;border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:13px 13px 12px;box-sizing:border-box;}' +
@@ -333,26 +333,26 @@
       else if (s.source === 'programme' && s.planWeek) go = 'if(typeof startPlanSession===\'function\')startPlanSession(' + (+s.planWeek) + ',' + (+s.planIdx) + ')';
       if (auj.faite) etiq = 'TON OBJECTIF DU JOUR · ACCOMPLI';
       bouton = auj.faite
-        ? '<button class="ahp-cta ahp-cta-s" onclick="switchTab(\'history\')">VOIR MA PROGRESSION</button>'
-        : '<button class="ahp-cta" onclick="' + go + '">COMMENCER MA SÉANCE</button>';
+        ? '<button class="ahp-cta ahp-cta-s" onclick="switchTab(\'history\')">Voir ma progression</button>'
+        : '<button class="ahp-cta" onclick="' + go + '">Commencer ma séance</button>';
     } else if (aPlan) {
       titre = 'Jour de repos';
       var pr = prochaine(pl, id);
       meta = '<span>' + (pr
         ? 'Prochaine séance ' + (pr.k === 1 ? 'demain' : JOURS_LONG[wIdx(pr.d)].toLowerCase()) + ' : ' + esc(pr.e.s.label || pr.e.s.muscles.slice(0, 2).join(' · '))
         : 'La récupération fait partie de l\'entraînement.') + '</span>';
-      bouton = '<button class="ahp-cta" onclick="if(typeof showMorningRoutineModal===\'function\')showMorningRoutineModal()">MOBILITÉ DOUCE</button>';
+      bouton = '<button class="ahp-cta" onclick="if(typeof showMorningRoutineModal===\'function\')showMorningRoutineModal()">Mobilité douce</button>';
     } else if (faiteAuj) {
       etiq = 'TON OBJECTIF DU JOUR · ACCOMPLI';
       titre = 'Séance faite';
       meta = '<span>Bien joué. Le repos fait partie du progrès.</span>';
-      bouton = '<button class="ahp-cta ahp-cta-s" onclick="switchTab(\'history\')">VOIR MA PROGRESSION</button>';
+      bouton = '<button class="ahp-cta ahp-cta-s" onclick="switchTab(\'history\')">Voir ma progression</button>';
     } else {
       titre = 'Séance du Système';
       // v1331 : le type du jour (haut du corps, jambes…) quand il y en a un
       try { var sp = window.awakSplitDuJour ? window.awakSplitDuJour() : null; if (sp) titre = sp.nom; } catch (e) {}
       meta = '<span class="ahp-m">' + ico('eclair', 15, '#cbd5e1') + '<span>Choisie selon ta récupération</span></span>';
-      bouton = '<button class="ahp-cta" onclick="' + go + '">COMMENCER MA SÉANCE</button>';
+      bouton = '<button class="ahp-cta" onclick="' + go + '">Commencer ma séance</button>';
     }
 
     return '<div class="ahp-card" style="padding:16px 16px 12px;">' +

@@ -519,7 +519,7 @@
         var tableau = p.duo.map(function (j, i) {
           var r = effortPour(e, Math.max(3, Math.round(p.base * j.coef)));
           return '<div style="flex:1;padding:9px;border-radius:11px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);">'
-            + '<div style="font-size:0.74em;font-weight:800;color:#93c5fd;">' + esc(j.nom) + '</div>'
+            + '<div style="font-size:0.74em;font-weight:800;color:#93c5fd;">' + tete(j.nom) + '</div>'
             + '<div style="font-size:1.2em;font-weight:900;color:#fff;">' + p.scores[i] + '</div>'
             + '<div style="font-size:0.62em;color:#94a3b8;">' + r.valeur + ' ' + esc(r.unite) + '</div></div>';
         }).join('');
@@ -571,7 +571,7 @@
         return '<div style="display:flex;gap:8px;margin-bottom:12px;">'
           + p.duo.map(function (j) {
               return '<div style="flex:1;padding:8px;border-radius:11px;background:rgba(96,168,240,0.12);border:1px solid rgba(96,168,240,0.3);">'
-                + '<div style="font-size:0.76em;font-weight:800;color:#60a8f0;">' + esc(j.nom) + '</div></div>';
+                + '<div style="font-size:0.76em;font-weight:800;color:#60a8f0;">' + tete(j.nom) + '</div></div>';
             }).join('')
           + '</div>'
           + sousTitre('TOUR ' + (p.pas + 1) + ' / ' + p.reglage + ' · ENSEMBLE')
@@ -624,7 +624,7 @@
           var estRoi = p.roi === i;
           return '<div style="flex:1;padding:9px;border-radius:11px;background:' + (estRoi ? 'rgba(251,191,36,0.15)' : 'rgba(255,255,255,0.03)')
             + ';border:1px solid ' + (estRoi ? 'rgba(251,191,36,0.45)' : 'rgba(255,255,255,0.08)') + ';">'
-            + '<div style="font-size:0.74em;font-weight:800;color:' + (estRoi ? '#fbbf24' : '#94a3b8') + ';">' + (estRoi ? ic('couronne', 13, '#fbbf24') + ' ' : '') + esc(j.nom) + '</div>'
+            + '<div style="font-size:0.74em;font-weight:800;color:' + (estRoi ? '#fbbf24' : '#94a3b8') + ';">' + (estRoi ? ic('couronne', 13, '#fbbf24') + ' ' : '') + tete(j.nom) + '</div>'
             + '<div style="font-size:1.2em;font-weight:900;color:#fff;">' + p.scores[i] + '</div></div>';
         }).join('');
         // Le critère dépend de la nature de l'exercice : course à la répétition,
@@ -685,7 +685,7 @@
         if (p.jeu.course) {
           var tab = p.joueurs.map(function (n, i) {
             return '<div style="flex:1;padding:9px;border-radius:11px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);">'
-              + '<div style="font-size:0.74em;font-weight:800;color:#93c5fd;">' + esc(n) + '</div>'
+              + '<div style="font-size:0.74em;font-weight:800;color:#93c5fd;">' + tete(n) + '</div>'
               + '<div style="font-size:1.2em;font-weight:900;color:#fff;">' + p.scores[i] + '</div></div>';
           }).join('');
           return '<div style="display:flex;gap:8px;margin-bottom:14px;">' + tab + '</div>'
@@ -698,7 +698,7 @@
           var actif = i === qui;
           return '<div style="flex:1;padding:9px;border-radius:11px;background:' + (actif ? 'rgba(96,168,240,0.15)' : 'rgba(255,255,255,0.03)')
             + ';border:1px solid ' + (actif ? 'rgba(96,168,240,0.45)' : 'rgba(255,255,255,0.08)') + ';">'
-            + '<div style="font-size:0.74em;font-weight:800;color:' + (actif ? '#93c5fd' : '#94a3b8') + ';">' + esc(n) + '</div>'
+            + '<div style="font-size:0.74em;font-weight:800;color:' + (actif ? '#93c5fd' : '#94a3b8') + ';">' + tete(n) + '</div>'
             + '<div style="font-size:0.62em;color:#94a3b8;margin-top:2px;">' + (actif ? 'travaille' : 'récupère') + '</div></div>';
         }).join('');
         return '<div style="display:flex;gap:8px;margin-bottom:14px;">' + tableau + '</div>'
@@ -726,9 +726,26 @@
       + noms.map(function (n, i) {
           return '<button onclick="AwakGamesGagne(' + i + ')" style="flex:1;min-width:0;padding:13px 6px;border:none;border-radius:12px;cursor:pointer;'
             + (or ? 'background:linear-gradient(135deg,#fbbf24,#d97706);color:#3b2606;' : 'background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;')
-            + 'font-weight:900;font-size:0.84em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(n) + '</button>';
+            + 'font-weight:900;font-size:0.84em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;justify-content:center;">' + tete(n, 26) + '</button>';
         }).join('')
       + '</div>';
+  }
+  // v1350 : la PHOTO DE PROFIL à côté du nom dans les jeux à deux. Les joueurs
+  // sont connus par leur nom : on retrouve le profil correspondant (invité → rien).
+  function avatarDe(nom, taille) {
+    try {
+      if (typeof window.renderAvatar !== 'function' || typeof window.getAllProfiles !== 'function') return '';
+      var ps = window.getAllProfiles() || [], pr = null;
+      for (var i = 0; i < ps.length; i++) if (ps[i] && ps[i].name === nom) { pr = ps[i]; break; }
+      if (!pr && (nom === 'Moi') && typeof window.getCurrentProfile === 'function') pr = window.getCurrentProfile();
+      return pr ? window.renderAvatar(pr.avatar, taille || 30) : '';
+    } catch (e) { return ''; }
+  }
+  function tete(nom, taille) {
+    var av = avatarDe(nom, taille);
+    return '<span style="display:flex;align-items:center;gap:7px;min-width:0;">'
+      + (av ? '<span style="flex-shrink:0;display:inline-flex;">' + av + '</span>' : '')
+      + '<span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(nom) + '</span></span>';
   }
   function sousTitre(t) {
     return '<div style="font-size:0.62em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:5px;">' + t + '</div>';
@@ -1217,7 +1234,10 @@
       var gagnant = s[0] === s[1] ? 'Égalité !' : (s[0] > s[1] ? j[0] : j[1]) + ' l\'emporte';
       extra = '<div style="background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3);border-radius:12px;padding:11px;margin-bottom:14px;">'
         + '<div style="font-size:0.9em;font-weight:900;color:#fbbf24;">' + esc(gagnant) + '</div>'
-        + '<div style="font-size:0.76em;color:#cbd5e1;margin-top:3px;">' + esc(j[0]) + ' ' + s[0] + ' — ' + s[1] + ' ' + esc(j[1]) + '</div>'
+        + '<div style="display:flex;align-items:center;justify-content:center;gap:10px;font-size:0.8em;color:#cbd5e1;margin-top:6px;">'
+        +   '<span style="display:inline-flex;align-items:center;gap:6px;">' + avatarDe(j[0], 34) + esc(j[0]) + '</span>'
+        +   '<b style="color:#fff;font-size:1.1em;">' + s[0] + ' — ' + s[1] + '</b>'
+        +   '<span style="display:inline-flex;align-items:center;gap:6px;">' + esc(j[1]) + avatarDe(j[1], 34) + '</span></div>'
         + (partie.bilanDuo ? '<div style="font-size:0.66em;color:#94a3b8;margin-top:5px;">Bilan contre ' + esc(partie.bilanDuo.adv) + ' : ' + partie.bilanDuo.v + ' victoire' + (partie.bilanDuo.v > 1 ? 's' : '') + ', ' + partie.bilanDuo.d + ' défaite' + (partie.bilanDuo.d > 1 ? 's' : '') + (partie.bilanDuo.n ? ', ' + partie.bilanDuo.n + ' nul' + (partie.bilanDuo.n > 1 ? 's' : '') : '') + '</div>' : '')
         + '</div>';
     }

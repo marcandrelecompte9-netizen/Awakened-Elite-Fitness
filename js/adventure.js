@@ -1005,7 +1005,7 @@ function showItemPopup(item, invId, equippedSlot) {
                 <div style="font-size:3em;line-height:1;margin-bottom:8px;filter:drop-shadow(0 0 14px ${r.glow});">${item.icon}</div>
                 <div style="font-weight:900;color:white;font-size:1.05em;line-height:1.3;margin-bottom:4px;">${item.name}</div>
                 <div style="display:inline-block;background:${r.color}25;color:${r.color};border:1px solid ${r.color}50;padding:2px 8px;border-radius:6px;font-size:0.6em;font-weight:900;letter-spacing:1.5px;">${(r.labelFull || r.label || '').toUpperCase()}</div>
-                ${isEquipped ? `<div style="margin-top:6px;display:inline-block;background:rgba(34,197,94,0.18);color:#4ade80;border:1px solid rgba(34,197,94,0.35);padding:2px 8px;border-radius:6px;font-size:0.62em;font-weight:800;letter-spacing:1px;">ÉQUIPÉ</div>` : ''}
+                ${isEquipped ? `<div style="margin-top:6px;display:inline-block;background:rgba(34,211,238,0.14);color:#67e8f9;border:1px solid rgba(34,211,238,0.4);padding:2px 9px;border-radius:99px;font-size:11px;font-weight:800;">Équipé</div>` : ''}
             </div>
 
             <!-- Corps -->
@@ -1015,9 +1015,9 @@ function showItemPopup(item, invId, equippedSlot) {
 
                 <!-- Passif / Malédiction -->
                 ${item.passive ? `
-                <div style="background:${item.cursed?'rgba(168,85,247,0.10)':'rgba(34,197,94,0.08)'};border:1px solid ${item.cursed?'rgba(168,85,247,0.35)':'rgba(34,197,94,0.25)'};border-radius:10px;padding:10px 12px;margin-bottom:12px;">
-                    <div style="font-size:0.58em;color:${item.cursed?'#c084fc':'#22c55e'};font-weight:900;letter-spacing:2px;margin-bottom:4px;">${item.cursed?'☠️ MALÉDICTION':'⚡ EFFET PASSIF'}</div>
-                    <div style="font-size:0.8em;color:${item.cursed?'#d8b4fe':'#4ade80'};line-height:1.4;font-weight:600;">${item.passive}</div>
+                <div style="background:${item.cursed?'rgba(168,85,247,0.10)':'rgba(34,211,238,0.07)'};border:1px solid ${item.cursed?'rgba(168,85,247,0.35)':'rgba(34,211,238,0.25)'};border-radius:12px;padding:10px 12px;margin-bottom:12px;">
+                    <div style="font-size:11px;color:${item.cursed?'#c084fc':'#67e8f9'};font-weight:800;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;">${item.cursed?'Malédiction':'Effet passif'}</div>
+                    <div style="font-size:14px;color:${item.cursed?'#d8b4fe':'#e2e8f0'};line-height:1.4;font-weight:600;">${item.passive}</div>
                     ${item.cursed && item.curse && item.curse.label ? `<div style="margin-top:7px;padding-top:7px;border-top:1px solid rgba(168,85,247,0.2);font-size:0.72em;color:#f0abfc;font-weight:700;display:flex;align-items:center;gap:5px;"><span>⚠️</span> ${item.curse.label}</div>` : ''}
                 </div>` : ''}
 
@@ -1054,7 +1054,7 @@ function showItemPopup(item, invId, equippedSlot) {
                             };
                             const effectText = effects[k] || '';
                             const statColor = neg ? '#f87171' : r.color;
-                            const effColor = neg ? '#f87171' : '#4ade80';
+                            const effColor = neg ? '#f87171' : '#67e8f9';
                             return `
                             <div style="background:#0a0e18;border:1px solid ${neg?'rgba(239,68,68,0.25)':'rgba(255,255,255,0.06)'};border-radius:10px;padding:6px 4px;text-align:center;">
                                 <div style="font-size:0.55em;color:#64748b;font-weight:800;letter-spacing:0.5px;">${k}</div>
@@ -1076,18 +1076,18 @@ function showItemPopup(item, invId, equippedSlot) {
                 <!-- Actions -->
                 <div style="display:flex;gap:8px;margin-top:14px;">
                     ${isEquipped ? `
-                        <button onclick="unequipSlot('${equippedSlot}');renderAdventureTab();document.getElementById('itemPopupModal').remove();if(typeof rebuild==='function')rebuild();" style="flex:1;padding:13px;border-radius:10px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;font-weight:800;cursor:pointer;font-size:0.85em;">✕ Déséquiper</button>
+                        <button onclick="unequipSlot('${equippedSlot}');renderAdventureTab();document.getElementById('itemPopupModal').remove();if(typeof window._rpgRefreshEquipView==='function')window._rpgRefreshEquipView();" style="flex:1;padding:13px;border-radius:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.13);color:#e2e8f0;font-weight:800;cursor:pointer;font-size:14px;font-family:inherit;">Déséquiper</button>
                     ` : (invId !== null && invId !== undefined ? (block ? `
                         <button disabled style="flex:1;padding:13px;border-radius:10px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);color:#f87171;font-weight:700;font-size:0.82em;">${block.reason === 'muscle_too_weak' ? '💪' : '🔒'} ${block.label}</button>
                     ` : `
-                        <button onclick="tryEquipWithFeedback(${invId},function(){document.getElementById('itemPopupModal')?.remove();});" style="flex:1;padding:13px;border-radius:10px;background:linear-gradient(135deg,${r.color},${r.color}cc);border:none;color:white;font-weight:900;cursor:pointer;font-size:0.88em;letter-spacing:0.5px;box-shadow:0 4px 14px ${r.glow};">ÉQUIPER</button>
+                        <button onclick="tryEquipWithFeedback(${invId},function(){document.getElementById('itemPopupModal')?.remove();});" style="flex:1;padding:13px;border-radius:12px;background:linear-gradient(135deg,#22d3ee,#0891b2);border:none;color:#04121f;font-weight:800;cursor:pointer;font-size:15px;font-family:inherit;box-shadow:0 6px 18px rgba(34,211,238,0.22);">Équiper</button>
                     `) : '')}
                 </div>
 
                 <!-- 🗑️ Bouton supprimer (seulement si non équipé et présent dans l'inventaire) -->
                 ${(!isEquipped && invId !== null && invId !== undefined) ? `
                 <button onclick="confirmDiscardItem(${invId}, '${(item.name || '').replace(/'/g, '\\\'')}', '${r.color}')" style="width:100%;margin-top:8px;padding:10px;border-radius:10px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.25);color:#f87171;font-weight:800;cursor:pointer;font-size:0.78em;letter-spacing:0.5px;display:flex;align-items:center;justify-content:center;gap:6px;">
-                    🗑️ Supprimer cet item
+                    Supprimer cet objet
                 </button>` : ''}
 
                 <button onclick="document.getElementById('itemPopupModal').remove()" style="width:100%;margin-top:8px;padding:10px;border-radius:10px;background:transparent;border:1px solid rgba(255,255,255,0.08);color:#94a3b8;font-weight:700;cursor:pointer;font-size:0.78em;">Fermer</button>
@@ -1383,137 +1383,112 @@ function showRPGEquipmentModal(defaultTab) {
     ];
 
 
-    // ─── Génère le panneau personnage central (REFONTE V2 : avatar FULL WIDTH + slots overlay) ───
+    // ─── v1361 : habillage au goût du jour (palette cyan/neutre, libellés
+    // en minuscules, grille d'inventaire compacte). Logique inchangée.
+    const EQ_C = '#22d3ee', EQ_CL = '#67e8f9', EQ_LIGNE = 'rgba(255,255,255,0.08)', EQ_TXT2 = '#a3b1c2';
+    const SLOT_NOMS = { head:'Tête', weapon:'Arme', hands:'Mains', legs:'Jambes', accessory:'Anneau', chest:'Torse', feet:'Pieds' };
+    const _svgCoche = '<svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="#04121f" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+    const _svgCadenas = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#cbd5e1" stroke-width="2.2" stroke-linecap="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+    const _svgPoubelle = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M10 11v6M14 11v6"/><path d="M6 7l1 13h10l1-13"/><path d="M9 7V4h6v3"/></svg>';
+    const _etiquette = (txt, bord) => `<div style="font-size:11px;color:#e2e8f0;font-weight:700;background:rgba(5,7,11,0.78);padding:1px 7px;border-radius:6px;border:1px solid ${bord || 'rgba(255,255,255,0.10)'};white-space:nowrap;">${txt}</div>`;
+
+    // ─── Panneau personnage (avatar pleine largeur + emplacements par-dessus) ───
     function renderCharacterPanel() {
         const gender = localStorage.getItem('fitproAvatarGender') || 'homme';
         const path = gender === 'femme' ? 'images/avatars/avatar_femme.png' : 'images/avatars/avatar_homme.png';
         const toggleIcon = gender === 'femme' ? GENDER_SVG.homme : GENDER_SVG.femme;
 
-        // Génère un slot positionné absolument sur l'avatar
         function renderFloatingSlot(slot, position) {
             const eqItems = getEquippedItems();
             const item = eqItems[slot.id];
             const r = item ? getRarityInfo(item.rarity) : null;
             const isCursed = item && item.cursed;
-            const bg = item ? (isCursed ? 'rgba(168,85,247,0.14)' : r.bg) : 'rgba(10,14,24,0.7)';
-            const border = item ? (isCursed ? '#a855f7' : r.color) : 'rgba(34,197,94,0.5)';
-            const glow = item ? (isCursed ? '' : `box-shadow:0 0 14px ${r.glow},inset 0 0 8px ${r.glow};`) : 'box-shadow:0 0 12px rgba(34,197,94,0.25),0 2px 8px rgba(0,0,0,0.5);';
-
-            // Récupérer le SVG depuis les définitions complètes (les objets inline n'ont pas le svg)
+            const coul = item ? (isCursed ? '#a855f7' : r.color) : null;
             const fullSlot = [...SLOT_LAYOUT_LEFT, ...SLOT_LAYOUT_RIGHT].find(s => s.id === slot.id);
-            const slotSvg = (slot.svg) || (fullSlot && fullSlot.svg) || `<span style="font-size:1.3em;">${slot.icon || ''}</span>`;
-
-            return `<div style="position:absolute;${position};z-index:5;display:flex;flex-direction:column;align-items:center;gap:3px;">
+            const slotSvg = (fullSlot && fullSlot.svg) || '';
+            return `<div style="position:absolute;${position};z-index:5;display:flex;flex-direction:column;align-items:center;gap:4px;">
                 <div onclick="window._rpgEqSelectSlot('${slot.id}')" class="${isCursed ? 'cursed-slot' : ''}" style="
-                    width:54px;height:54px;border-radius:10px;cursor:pointer;
-                    background:${bg};border:2px solid ${border};${glow}
-                    display:flex;align-items:center;justify-content:center;
-                    position:relative;transition:transform 0.15s;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);">
+                    width:56px;height:56px;border-radius:12px;cursor:pointer;position:relative;
+                    background:${item ? (isCursed ? 'rgba(168,85,247,0.16)' : r.bg) : 'rgba(8,10,14,0.72)'};
+                    border:${item ? '1.5px solid ' + coul : '1px solid rgba(255,255,255,0.16)'};
+                    ${item ? 'box-shadow:0 0 14px ' + (isCursed ? 'rgba(168,85,247,0.4)' : r.glow) + ';' : 'box-shadow:0 4px 12px rgba(0,0,0,0.45);'}
+                    display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);">
                     ${item
-                        ? `<span style="font-size:1.55em;line-height:1;filter:drop-shadow(0 0 4px rgba(0,0,0,0.8))${isCursed ? ' drop-shadow(0 0 6px rgba(168,85,247,0.9))' : ''};">${item.icon}</span>
-                           <span style="position:absolute;top:1px;right:2px;font-size:0.42em;font-weight:900;color:${isCursed ? '#c084fc' : r.color};">${isCursed ? '☠' : r.label}</span>`
-                        : `<span style="opacity:0.7;color:#4ade80;display:flex;filter:drop-shadow(0 0 4px rgba(0,0,0,0.8));">${slotSvg}</span>`
-                    }
+                        ? `<span style="font-size:1.55em;line-height:1;">${item.icon}</span>
+                           <span style="position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:${coul};box-shadow:0 0 6px ${coul};"></span>`
+                        : `<span style="color:#8d9cb1;display:flex;opacity:0.9;">${slotSvg}</span>`}
                 </div>
-                <div style="font-size:0.5em;color:rgba(255,255,255,0.85);font-weight:900;letter-spacing:1.5px;text-shadow:0 1px 3px rgba(0,0,0,0.95),0 0 6px rgba(0,0,0,0.8);background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:6px;border:1px solid ${isCursed ? 'rgba(168,85,247,0.5)' : 'rgba(74,222,128,0.3)'};">${slot.label}</div>
+                ${_etiquette(SLOT_NOMS[slot.id] || slot.label, item ? coul + '66' : null)}
             </div>`;
         }
 
+        const coin = (pos) => `<div style="position:absolute;${pos};width:22px;height:22px;pointer-events:none;z-index:4;border-color:rgba(34,211,238,0.55);border-style:solid;border-width:0;"></div>`;
         return `
-        <div style="position:relative;width:100%;aspect-ratio:1066/1476;min-height:490px;max-height:700px;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:14px;background:#000;">
-
-            <!-- AVATAR FULL SIZE (prend toute la largeur) -->
-            <img src="${path}"
-                 alt="Avatar ${gender}"
-                 style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;z-index:1;
-                        filter:drop-shadow(0 0 24px rgba(34,197,94,0.3));"
+        <div style="position:relative;width:100%;aspect-ratio:1066/1476;min-height:490px;max-height:700px;overflow:hidden;border-radius:16px;background:#05070b;">
+            <img src="${path}" alt="Avatar ${gender}"
+                 style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;z-index:1;"
                  onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+            <div style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;color:${EQ_TXT2};font-size:13px;text-align:center;">Avatar indisponible</div>
+            <!-- Voiles : côtés (lisibilité des emplacements) + bas -->
+            <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(5,7,11,0.55) 0%,transparent 22%,transparent 78%,rgba(5,7,11,0.55) 100%),linear-gradient(180deg,transparent 70%,rgba(5,7,11,0.6) 100%);pointer-events:none;z-index:2;"></div>
 
-            <!-- Fallback si image absente -->
-            <div style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;color:rgba(74,222,128,0.6);font-size:0.8em;text-align:center;">Avatar indisponible</div>
+            ${renderFloatingSlot({id:'head'}, 'top:14px;left:12px')}
+            ${renderFloatingSlot({id:'weapon'}, 'top:110px;left:12px')}
+            ${renderFloatingSlot({id:'hands'}, 'top:206px;left:12px')}
+            ${renderFloatingSlot({id:'legs'}, 'top:302px;left:12px')}
+            ${renderFloatingSlot({id:'accessory'}, 'top:398px;left:12px')}
+            ${renderFloatingSlot({id:'chest'}, 'top:14px;right:12px')}
+            ${renderFloatingSlot({id:'feet'}, 'top:110px;right:12px')}
 
-            <!-- Overlay subtil pour mieux voir les slots -->
-            <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,0.45) 0%,transparent 18%,transparent 82%,rgba(0,0,0,0.45) 100%);pointer-events:none;z-index:2;"></div>
+            <div style="position:absolute;top:206px;right:12px;z-index:5;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                <button onclick="window.toggleAvatarGender && window.toggleAvatarGender()" title="Changer d'avatar" aria-label="Changer d'avatar"
+                        style="width:56px;height:56px;border-radius:12px;cursor:pointer;padding:0;
+                               background:rgba(34,211,238,0.10);border:1px solid rgba(34,211,238,0.45);color:${EQ_CL};
+                               display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,0.45);
+                               backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);">
+                    <span style="display:flex;width:28px;height:28px;">${toggleIcon.replace('width="17" height="17"', 'width="28" height="28"')}</span>
+                </button>
+                ${_etiquette('Avatar', 'rgba(34,211,238,0.35)')}
+            </div>
 
-            <!-- Glow scan-lines -->
-            <div style="position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0,transparent 4px,rgba(74,222,128,0.02) 4px,rgba(74,222,128,0.02) 5px);pointer-events:none;z-index:3;"></div>
-
-            <!-- ═══ SLOTS ÉQUIPEMENT FLOTTANTS (par-dessus l'avatar) ═══ -->
-
-            <!-- COLONNE GAUCHE -->
-            ${renderFloatingSlot({id:'head',label:'TÊTE',icon:'⛑️'}, 'top:14px;left:10px')}
-            ${renderFloatingSlot({id:'weapon',label:'ARME',icon:'⚔️'}, 'top:110px;left:10px')}
-            ${renderFloatingSlot({id:'hands',label:'MAINS',icon:'🥊'}, 'top:206px;left:10px')}
-            ${renderFloatingSlot({id:'legs',label:'JAMBES',icon:'🦵'}, 'top:302px;left:10px')}
-            ${renderFloatingSlot({id:'accessory',label:'ANNEAU',icon:'💍'}, 'top:398px;left:10px')}
-
-            <!-- COLONNE DROITE -->
-            ${renderFloatingSlot({id:'chest',label:'TORSE',icon:'🛡️'}, 'top:14px;right:10px')}
-            ${renderFloatingSlot({id:'feet',label:'PIEDS',icon:'👟'}, 'top:110px;right:10px')}
-
-            <!-- Bouton toggle Homme/Femme (sous le slot PIEDS) -->
-            <button onclick="window.toggleAvatarGender && window.toggleAvatarGender()"
-                    title="Changer d'avatar"
-                    style="position:absolute;top:206px;right:10px;z-index:5;
-                           background:linear-gradient(135deg,rgba(34,197,94,0.3),rgba(168,85,247,0.25));
-                           border:2px solid rgba(74,222,128,0.6);
-                           color:#4ade80;width:54px;height:54px;border-radius:10px;
-                           cursor:pointer;font-size:1.5em;
-                           display:flex;align-items:center;justify-content:center;
-                           box-shadow:0 0 14px rgba(34,197,94,0.4),0 2px 8px rgba(0,0,0,0.5);
-                           backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);">
-                <span style="display:flex;width:30px;height:30px;">${toggleIcon.replace('width="17" height="17"', 'width="30" height="30"')}</span>
-            </button>
-            <div style="position:absolute;top:264px;right:10px;z-index:5;font-size:0.5em;color:rgba(255,255,255,0.85);font-weight:900;letter-spacing:1.5px;background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:6px;border:1px solid rgba(74,222,128,0.3);width:54px;text-align:center;box-sizing:border-box;text-shadow:0 1px 3px rgba(0,0,0,0.95);">SEXE</div>
-
-            <!-- Coins HUD décoratifs -->
-            <div style="position:absolute;top:0;left:0;width:24px;height:24px;border-top:2px solid #4ade80;border-left:2px solid #4ade80;border-top-left-radius:12px;box-shadow:0 0 10px rgba(74,222,128,0.5);pointer-events:none;z-index:4;"></div>
-            <div style="position:absolute;top:0;right:0;width:24px;height:24px;border-top:2px solid #4ade80;border-right:2px solid #4ade80;border-top-right-radius:12px;box-shadow:0 0 10px rgba(74,222,128,0.5);pointer-events:none;z-index:4;"></div>
-            <div style="position:absolute;bottom:0;left:0;width:24px;height:24px;border-bottom:2px solid #4ade80;border-left:2px solid #4ade80;border-bottom-left-radius:12px;box-shadow:0 0 10px rgba(74,222,128,0.5);pointer-events:none;z-index:4;"></div>
-            <div style="position:absolute;bottom:0;right:0;width:24px;height:24px;border-bottom:2px solid #4ade80;border-right:2px solid #4ade80;border-bottom-right-radius:12px;box-shadow:0 0 10px rgba(74,222,128,0.5);pointer-events:none;z-index:4;"></div>
-
-            <!-- Glow line top/bottom -->
-            <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#60a8f0,transparent);z-index:4;pointer-events:none;"></div>
-            <div style="position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#60a8f0,transparent);z-index:4;pointer-events:none;"></div>
+            ${coin('top:10px;left:10px;border-top-width:1.5px;border-left-width:1.5px;border-top-left-radius:10px')}
+            ${coin('top:10px;right:10px;border-top-width:1.5px;border-right-width:1.5px;border-top-right-radius:10px')}
+            ${coin('bottom:10px;left:10px;border-bottom-width:1.5px;border-left-width:1.5px;border-bottom-left-radius:10px')}
+            ${coin('bottom:10px;right:10px;border-bottom-width:1.5px;border-right-width:1.5px;border-bottom-right-radius:10px')}
         </div>`;
     }
 
-    // ─── Stat bar ────────────────────────────────────────────────────
+    // ─── Barre de statistique ────────────────────────────────────────
     function statRow(label, val, color, icon) {
         const pct = Math.min(100, val);
-        return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-            <span style="font-size:0.7em;width:18px;">${icon}</span>
-            <span style="font-size:0.62em;color:#94a3b8;font-weight:700;width:42px;letter-spacing:0.5px;">${label}</span>
-            <div style="flex:1;height:6px;background:rgba(255,255,255,0.05);border-radius:99px;overflow:hidden;">
-                <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,${color}88,${color});border-radius:99px;box-shadow:0 0 6px ${color};"></div>
+        return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <span style="font-size:12.5px;color:${EQ_TXT2};font-weight:700;width:78px;flex-shrink:0;">${label}</span>
+            <div style="flex:1;height:6px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden;">
+                <div style="height:100%;width:${pct}%;background:${color};border-radius:99px;"></div>
             </div>
-            <span style="font-size:0.72em;color:${color};font-weight:900;width:26px;text-align:right;">${val}</span>
+            <span style="font-size:14px;color:#e2e8f0;font-weight:800;width:28px;text-align:right;font-variant-numeric:tabular-nums;">${val}</span>
         </div>`;
     }
 
-    // ─── Panneau stats à droite ──────────────────────────────────────
     function renderStatsPanel() {
         const st = getPlayerEquipStats();
         const setBonuses = getSetBonuses();
         const baseSt = { STR:10, AGI:10, VIT:10, END:10, PER:5, SEN:5 };
         return `
-            ${statRow('STR', baseSt.STR + (st.STR||0), '#ef4444', '⚔️')}
-            ${statRow('AGI', baseSt.AGI + (st.AGI||0), '#f59e0b', '⚡')}
-            ${statRow('VIT', baseSt.VIT + (st.VIT||0), '#3b82f6', '💙')}
-            ${statRow('END', baseSt.END + (st.END||0), '#22c55e', '💚')}
-            ${statRow('PER', baseSt.PER + (st.PER||0), '#06b6d4', '👁️')}
-            ${statRow('SEN', baseSt.SEN + (st.SEN||0), '#a855f7', '🌀')}
+            ${statRow('Force',      baseSt.STR + (st.STR||0), '#f87171')}
+            ${statRow('Agilité',    baseSt.AGI + (st.AGI||0), '#fbbf24')}
+            ${statRow('Vitalité',   baseSt.VIT + (st.VIT||0), '#60a5fa')}
+            ${statRow('Endurance',  baseSt.END + (st.END||0), '#34d399')}
+            ${statRow('Perception', baseSt.PER + (st.PER||0), EQ_C)}
+            ${statRow('Sens',       baseSt.SEN + (st.SEN||0), '#a78bfa')}
             ${setBonuses.length > 0 ? `
-                <div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(34,197,94,0.15);">
+                <div style="margin-top:10px;padding-top:10px;border-top:1px solid ${EQ_LIGNE};">
                     ${setBonuses.map(sb => `
-                        <div style="font-size:0.62em;color:#fbbf24;font-weight:700;margin-bottom:2px;">
-                            ✦ ${sb.set.icon} ${sb.set.name} (${sb.count})
-                        </div>
-                        <div style="font-size:0.58em;color:#a78bfa;line-height:1.4;margin-bottom:4px;">${sb.bonus.desc}</div>
+                        <div style="font-size:12.5px;color:#fbbf24;font-weight:800;margin-bottom:2px;">Set ${sb.set.name} (${sb.count})</div>
+                        <div style="font-size:12.5px;color:#c4b5fd;line-height:1.4;margin-bottom:6px;">${sb.bonus.desc}</div>
                     `).join('')}
                 </div>` : ''}`;
     }
-
 
     // ─── Grille d'inventaire ─────────────────────────────────────────
     function renderInventoryGrid() {
@@ -1522,91 +1497,68 @@ function showRPGEquipmentModal(defaultTab) {
         const equippedIds = new Set(Object.values(eq).filter(Boolean));
         const allItems = inv.map(entry => ({ entry, item: getItemById(entry.itemId) })).filter(x => x.item);
 
-        // ─── Barre de filtres par rareté ───────────────────────────────
         const rarityOrder = ['common','uncommon','rare','superior','epic','legendary','mythic'];
-        // Items déjà filtrés par EMPLACEMENT (pour que les compteurs de rareté soient cohérents)
-        const bySlotForRarity = invSlotFilter === 'all'
-            ? allItems
-            : allItems.filter(({item}) => item.slot === invSlotFilter);
+        const bySlotForRarity = invSlotFilter === 'all' ? allItems : allItems.filter(({item}) => item.slot === invSlotFilter);
         const counts = {};
         bySlotForRarity.forEach(({item}) => { counts[item.rarity] = (counts[item.rarity] || 0) + 1; });
         const presentRarities = rarityOrder.filter(r => counts[r] > 0);
 
         const filterBtn = (onclick, id, activeId, label, color, count) => {
-            const isActive = activeId === id;
+            const on = activeId === id, c = color || EQ_C;
             return `<button onclick="${onclick}('${id}')" style="
-                background:${isActive ? (color||'#22c55e')+'30' : 'rgba(255,255,255,0.03)'};
-                border:1.5px solid ${isActive ? (color||'#22c55e') : 'rgba(255,255,255,0.1)'};
-                color:${isActive ? (color||'#22c55e') : '#94a3b8'};
-                border-radius:7px;padding:4px 9px;font-size:0.62em;font-weight:800;letter-spacing:0.5px;
-                cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all 0.15s;">
-                ${label}${count !== null ? ` <span style="opacity:0.7;">${count}</span>` : ''}
+                background:${on ? c + '22' : 'rgba(255,255,255,0.04)'};border:1px solid ${on ? c + 'aa' : EQ_LIGNE};
+                color:${on ? c : EQ_TXT2};border-radius:99px;padding:6px 11px;font-size:12.5px;font-weight:700;font-family:inherit;
+                cursor:pointer;white-space:nowrap;flex-shrink:0;min-height:0;">
+                ${label}${count !== null ? ` <span style="opacity:0.65;font-variant-numeric:tabular-nums;">${count}</span>` : ''}
             </button>`;
         };
+        const barre = (contenu) => `<div style="display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:0 2px 8px;scrollbar-width:none;">${contenu}</div>`;
 
-        let rarityBar = `<div style="display:flex;gap:5px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:0 6px 8px;">`;
-        rarityBar += filterBtn('window._rpgInvFilter', 'all', invRarityFilter, 'TOUT', '#22c55e', bySlotForRarity.length);
+        let rarityBar = filterBtn('window._rpgInvFilter', 'all', invRarityFilter, 'Toutes raretés', EQ_C, bySlotForRarity.length);
         presentRarities.forEach(r => {
             const info = getRarityInfo(r);
-            rarityBar += filterBtn('window._rpgInvFilter', r, invRarityFilter, (info.labelFull || r).toUpperCase(), info.color, counts[r]);
+            const nom = (info.labelFull || r); rarityBar += filterBtn('window._rpgInvFilter', r, invRarityFilter, nom.charAt(0) + nom.slice(1).toLowerCase(), info.color, counts[r]);
         });
-        rarityBar += `</div>`;
 
-        // ─── Barre de filtres par EMPLACEMENT ──────────────────────────
         const slotOrder = ['head','chest','hands','legs','feet','weapon','accessory'];
-        const slotLabels = { head:'⛑️ Tête', chest:'🛡️ Torse', hands:'🥊 Mains', legs:'🦵 Jambes', feet:'👟 Pieds', weapon:'⚔️ Arme', accessory:'💍 Accessoire' };
-        // Items déjà filtrés par RARETÉ (pour que les compteurs d'emplacement soient cohérents)
-        const byRarityForSlot = invRarityFilter === 'all'
-            ? allItems
-            : allItems.filter(({item}) => item.rarity === invRarityFilter);
+        const byRarityForSlot = invRarityFilter === 'all' ? allItems : allItems.filter(({item}) => item.rarity === invRarityFilter);
         const slotCounts = {};
         byRarityForSlot.forEach(({item}) => { slotCounts[item.slot] = (slotCounts[item.slot] || 0) + 1; });
         const presentSlots = slotOrder.filter(s => slotCounts[s] > 0);
+        let slotBar = filterBtn('window._rpgInvSlotFilter', 'all', invSlotFilter, 'Tous les emplacements', EQ_C, byRarityForSlot.length);
+        presentSlots.forEach(s => { slotBar += filterBtn('window._rpgInvSlotFilter', s, invSlotFilter, s === 'accessory' ? 'Accessoire' : (SLOT_NOMS[s] || s), EQ_C, slotCounts[s]); });
 
-        let slotBar = `<div style="display:flex;gap:5px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:0 6px 10px;">`;
-        slotBar += filterBtn('window._rpgInvSlotFilter', 'all', invSlotFilter, 'TOUS', '#38bdf8', byRarityForSlot.length);
-        presentSlots.forEach(s => {
-            slotBar += filterBtn('window._rpgInvSlotFilter', s, invSlotFilter, slotLabels[s] || s, '#38bdf8', slotCounts[s]);
-        });
-        slotBar += `</div>`;
-
-        const filterBar = rarityBar + slotBar;
-
-        // ─── Appliquer les DEUX filtres (combinés) ─────────────────────
         const itemsList = allItems.filter(({item}) =>
             (invRarityFilter === 'all' || item.rarity === invRarityFilter) &&
-            (invSlotFilter === 'all'   || item.slot   === invSlotFilter)
-        );
+            (invSlotFilter === 'all'   || item.slot   === invSlotFilter));
 
-        const SLOT_COUNT = 35; // 5 colonnes × 7 lignes
-        const emptySlots = Math.max(0, SLOT_COUNT - itemsList.length);
+        // Cases vides : seulement pour compléter la dernière rangée (2 rangées minimum)
+        const total = Math.max(10, Math.ceil(itemsList.length / 5) * 5);
+        const emptySlots = itemsList.length ? total - itemsList.length : 0;
 
-        const grid = `<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:6px;">
-            ${itemsList.length === 0 ? `<div style="grid-column:1/-1;text-align:center;color:#475569;font-size:0.72em;padding:24px 0;">Aucun objet de cette rareté</div>` : ''}
+        const grid = itemsList.length === 0
+            ? `<div style="text-align:center;color:${EQ_TXT2};font-size:14px;padding:26px 10px;">${allItems.length ? 'Aucun objet pour ce filtre.' : 'Ton inventaire est vide. Entraîne-toi pour gagner des objets (2 par jour au maximum).'}</div>`
+            : `<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding-top:2px;">
             ${itemsList.map(({entry, item}) => {
                 const isEq = equippedIds.has(entry.id);
                 const r2 = getRarityInfo(item.rarity);
                 const block = !isEq ? getEquipBlockReason(item) : null;
-                const locked = !!block;
-                const selected = selectedInvId === entry.id;
-                return `<div onclick="window._rpgEqInvSelect('${item.id}',${entry.id})" style="
-                    aspect-ratio:1;border-radius:6px;cursor:pointer;
-                    background:${selected ? r2.color+'22' : locked ? 'rgba(0,0,0,0.4)' : r2.bg};
-                    border:${selected ? 2 : 1.5}px solid ${selected ? r2.color : isEq ? r2.color : locked ? 'rgba(255,255,255,0.05)' : r2.color+'40'};
-                    box-shadow:${isEq ? `0 0 8px ${r2.glow}` : selected ? `0 0 12px ${r2.glow}` : 'none'};
-                    display:flex;align-items:center;justify-content:center;position:relative;
-                    opacity:${locked && !selected ? 0.5 : 1};">
-                    ${isEq ? `<div style="position:absolute;top:1px;right:2px;font-size:0.38em;color:${r2.color};font-weight:900;">●</div>` : ''}
-                    ${locked ? `<div style="position:absolute;top:0px;left:1px;font-size:0.5em;">${block.reason==='muscle_too_weak'?'💪':'🔒'}</div>` : ''}
-                    <span style="font-size:1.4em;${locked?'filter:grayscale(0.6);':''}">${item.icon}</span>
+                return `<div onclick="window._rpgEqInvSelect('${item.id}',${entry.id})" title="${(item.name || '').replace(/"/g, '&quot;')}" style="
+                    aspect-ratio:1;border-radius:12px;cursor:pointer;position:relative;
+                    background:${block ? 'rgba(255,255,255,0.02)' : r2.bg};
+                    border:${isEq ? '1.5px solid ' + r2.color : '1px solid ' + (block ? EQ_LIGNE : r2.color + '55')};
+                    box-shadow:${isEq ? '0 0 10px ' + r2.glow : 'none'};
+                    display:flex;align-items:center;justify-content:center;opacity:${block ? 0.5 : 1};">
+                    ${isEq ? `<span style="position:absolute;top:-4px;right:-4px;width:16px;height:16px;border-radius:50%;background:${EQ_C};display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #0b0d12;">${_svgCoche}</span>` : ''}
+                    ${block ? `<span style="position:absolute;top:4px;left:4px;display:flex;">${_svgCadenas}</span>` : ''}
+                    <span style="font-size:1.4em;line-height:1;${block ? 'filter:grayscale(0.7);' : ''}">${item.icon}</span>
+                    <span style="position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:14px;height:3px;border-radius:2px;background:${r2.color};opacity:0.85;"></span>
                 </div>`;
             }).join('')}
-            ${Array.from({length:emptySlots}, () => `
-                <div style="aspect-ratio:1;border-radius:6px;background:rgba(34,197,94,0.025);border:1px dashed rgba(34,197,94,0.15);"></div>
-            `).join('')}
+            ${Array.from({length: emptySlots}, () => `<div style="aspect-ratio:1;border-radius:12px;background:rgba(255,255,255,0.015);border:1px dashed rgba(255,255,255,0.07);"></div>`).join('')}
         </div>`;
 
-        return filterBar + grid;
+        return barre(rarityBar) + barre(slotBar) + grid;
     }
 
     function rebuild() {
@@ -1616,59 +1568,38 @@ function showRPGEquipmentModal(defaultTab) {
     }
 
     function renderFullLayout() {
-        // ─── Header sci-fi avec coins style "frame" ──────────────────
+        const nbObjets = getInventory().length;
+        const nbEq = Object.values(getEquipped()).filter(Boolean).length;
+        const titreSection = (txt) => `<div style="font-size:11px;color:${EQ_CL};font-weight:800;letter-spacing:1.5px;text-transform:uppercase;">${txt}</div>`;
+        const carte = 'background:#12161c;border:1px solid ' + EQ_LIGNE + ';border-radius:16px;';
         return `
-        <!-- Header avec corners -->
-        <div style="position:relative;padding:18px 18px 14px;border-bottom:1px solid rgba(34,197,94,0.15);">
-            <!-- Coins décoratifs -->
-            <div style="position:absolute;top:6px;left:6px;width:18px;height:18px;border-top:2px solid #22c55e;border-left:2px solid #22c55e;"></div>
-            <div style="position:absolute;top:6px;right:6px;width:18px;height:18px;border-top:2px solid #22c55e;border-right:2px solid #22c55e;"></div>
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-                <div>
-                    <div style="font-size:1.15em;font-weight:900;color:white;letter-spacing:1.5px;line-height:1;">
-                        INVENTAIRE <span style="color:#22c55e;">D'ÉQUIPEMENT</span>
-                    </div>
-                    <div style="font-size:0.55em;color:#475569;letter-spacing:2px;margin-top:4px;font-weight:700;">◈ MENU D'ÉQUIPEMENT</div>
-                </div>
-                <button onclick="document.getElementById('rpgEquipModal').remove()" style="
-                    width:32px;height:32px;border-radius:50%;background:rgba(239,68,68,0.08);
-                    border:1px solid rgba(239,68,68,0.25);color:#f87171;font-size:0.95em;font-weight:900;
-                    cursor:pointer;flex-shrink:0;">✕</button>
+        <div style="padding:16px 16px 14px;border-bottom:1px solid ${EQ_LIGNE};display:flex;align-items:center;justify-content:space-between;gap:10px;">
+            <div style="min-width:0;">
+                <div style="font-size:19px;font-weight:800;color:#f1f5f9;line-height:1.15;">Équipement</div>
+                <div style="font-size:12.5px;color:${EQ_TXT2};margin-top:3px;">${nbObjets} objet${nbObjets > 1 ? 's' : ''} · ${nbEq} équipé${nbEq > 1 ? 's' : ''} sur 7</div>
             </div>
+            <button onclick="document.getElementById('rpgEquipModal').remove()" aria-label="Fermer" style="
+                width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.06);border:1px solid ${EQ_LIGNE};color:#cbd5e1;
+                cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:0;min-height:0;">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+            </button>
         </div>
 
-        <!-- Body scrollable -->
         <div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px;">
+            <div style="${carte}overflow:hidden;margin-bottom:12px;">${renderCharacterPanel()}</div>
 
-            <!-- ━━━ PERSONNAGE ━━━ -->
-            <div style="background:#000;
-                       border:1px solid rgba(34,197,94,0.3);border-radius:14px;position:relative;
-                       padding:0;margin-bottom:14px;overflow:hidden;">
-                <div style="position:absolute;top:8px;left:50%;transform:translateX(-50%);font-size:0.5em;color:#4ade80;font-weight:900;letter-spacing:3px;z-index:10;text-shadow:0 0 8px rgba(74,222,128,0.6),0 1px 4px rgba(0,0,0,0.9);background:rgba(0,0,0,0.6);padding:3px 10px;border-radius:6px;border:1px solid rgba(74,222,128,0.3);">◈ PERSONNAGE ◈</div>
-                ${renderCharacterPanel()}
+            <div style="${carte}padding:14px 14px 8px;margin-bottom:12px;">
+                <div style="margin-bottom:12px;">${titreSection('Statistiques et effets')}</div>
+                ${renderStatsPanel()}
             </div>
 
-            <!-- ━━━ STATISTIQUES ━━━ -->
-            <div style="background:linear-gradient(160deg,rgba(34,197,94,0.04),transparent);
-                       border:1px solid rgba(34,197,94,0.18);border-radius:14px;position:relative;
-                       padding:14px 14px 10px;margin-bottom:14px;">
-                <div style="position:absolute;top:6px;left:10px;font-size:0.5em;color:#22c55e;font-weight:800;letter-spacing:2px;">◈ STATISTIQUES ET EFFETS</div>
-                <div style="margin-top:10px;">
-                    ${renderStatsPanel()}
+            <div style="${carte}padding:14px 12px 12px;margin-bottom:14px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;">
+                    ${titreSection('Inventaire')}
+                    ${nbObjets ? `<button onclick="openInventoryCleanupModal()" style="display:inline-flex;align-items:center;gap:5px;background:transparent;border:1px solid rgba(248,113,113,0.35);color:#f87171;border-radius:99px;padding:5px 11px;font-size:12.5px;font-weight:700;font-family:inherit;cursor:pointer;min-height:0;">${_svgPoubelle}Nettoyer</button>` : ''}
                 </div>
-            </div>
-
-            <!-- ━━━ INVENTAIRE ━━━ -->
-            <div style="background:linear-gradient(160deg,rgba(34,197,94,0.04),transparent);
-                       border:1px solid rgba(34,197,94,0.18);border-radius:14px;position:relative;
-                       padding:18px 6px 10px;margin-bottom:14px;">
-                <div style="position:absolute;top:6px;left:10px;font-size:0.5em;color:#22c55e;font-weight:800;letter-spacing:2px;">◈ INVENTAIRE</div>
-                <button onclick="openInventoryCleanupModal()" style="position:absolute;top:4px;right:6px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:6px;padding:3px 9px;font-size:0.55em;font-weight:900;letter-spacing:1.5px;cursor:pointer;text-transform:uppercase;display:flex;align-items:center;gap:4px;">
-                    🗑️ Nettoyer
-                </button>
                 <div id="rpgInvGridContainer">${renderInventoryGrid()}</div>
             </div>
-
         </div>`;
     }
 
@@ -1741,16 +1672,11 @@ function showRPGEquipmentModal(defaultTab) {
     modal.innerHTML = `
         <div id="rpgEqContent" style="
             width:100%;max-width:520px;height:100%;max-height:100vh;
-            background:linear-gradient(160deg,#040a0a 0%,#020608 50%,#040a06 100%);
+            background:#0b0d12;
             display:flex;flex-direction:column;overflow:hidden;
-            border:1px solid rgba(34,197,94,0.2);position:relative;">
+            border-left:1px solid rgba(255,255,255,0.06);border-right:1px solid rgba(255,255,255,0.06);position:relative;">
             ${renderFullLayout()}
         </div>`;
-
-    // Fond grille subtil
-    const gridBg = document.createElement('div');
-    gridBg.style.cssText = 'position:absolute;inset:0;pointer-events:none;opacity:0.08;background-image:linear-gradient(rgba(34,197,94,0.3) 1px,transparent 1px),linear-gradient(90deg,rgba(34,197,94,0.3) 1px,transparent 1px);background-size:24px 24px;';
-    modal.querySelector('#rpgEqContent').appendChild(gridBg);
 
     modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
     document.body.appendChild(modal);

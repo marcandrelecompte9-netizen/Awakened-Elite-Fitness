@@ -91,10 +91,10 @@
             .nav-tab svg { width: 18px; height: 18px; }
         }
         .nav-tab.active {
-            color: #16a34a;
-            background: rgba(22,163,74,0.08);
+            color: #0891b2;
+            background: rgba(34,211,238,0.08);
         }
-        .nav-tab.active svg { filter: drop-shadow(0 0 4px rgba(22,163,74,0.5)); }
+        .nav-tab.active svg { filter: drop-shadow(0 0 4px rgba(34,211,238,0.5)); }
         .nav-tab:active { transform: scale(0.93); }
 
         .tab-content {
@@ -115,7 +115,7 @@
         .workout-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 15px 40px rgba(0,0,0,0.3);
-            border-color: #16a34a;
+            border-color: #0891b2;
         }
 
         .workout-header {
@@ -130,7 +130,7 @@
         }
 
         .workout-info h3 {
-            color: #16a34a;
+            color: #0891b2;
             margin-bottom: 8px;
             font-size: 1.3em;
         }
@@ -143,7 +143,7 @@
         }
 
         .btn {
-            background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+            background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
             color: white;
             border: none;
             padding: 20px 35px;
@@ -162,7 +162,7 @@
 
         .btn:hover {
             transform: scale(1.05);
-            box-shadow: 0 5px 20px rgba(22, 163, 74, 0.4);
+            box-shadow: 0 5px 20px rgba(34,211,238, 0.4);
         }
 
         .btn-secondary {
@@ -178,7 +178,7 @@
         }
 
         .stat-box {
-            background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+            background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
             color: white;
             padding: 25px 20px;
             border-radius: 14px;
@@ -212,7 +212,7 @@
 
         .filter-group label {
             font-weight: bold;
-            color: #16a34a;
+            color: #0891b2;
             font-size: 0.9em;
         }
 
@@ -227,7 +227,7 @@
 
         select:focus, input:focus {
             outline: none;
-            border-color: #16a34a;
+            border-color: #0891b2;
         }
 
         .exercises-grid {
@@ -247,9 +247,9 @@
         }
 
         .exercise-card:hover {
-            border-color: #16a34a;
+            border-color: #0891b2;
             transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(22, 163, 74, 0.2);
+            box-shadow: 0 10px 25px rgba(34,211,238, 0.2);
         }
 
         .exercise-image {
@@ -415,7 +415,7 @@
         }
 
         .difficulty-debutant {
-            background: linear-gradient(135deg, #15803d 0%, #166534 100%);
+            background: linear-gradient(135deg, #0e7490 0%, #155e75 100%);
             color: #ffffff;
             border: 1px solid rgba(255,255,255,0.15);
             box-shadow: 0 2px 6px rgba(21,128,61,0.35);
@@ -493,13 +493,13 @@
             position: absolute;
             top: 15px;
             right: 15px;
-            background: rgba(22, 163, 74, 0.08);
+            background: rgba(34,211,238, 0.08);
             backdrop-filter: blur(10px);
             border-radius: 14px;
             padding: 12px 16px;
             max-width: 200px;
             text-align: left;
-            border: 1px solid rgba(22, 163, 74, 0.2);
+            border: 1px solid rgba(34,211,238, 0.2);
         }
 
         .next-exercise-label {
@@ -509,7 +509,7 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
             font-weight: 600;
-            color: #16a34a;
+            color: #0891b2;
         }
 
         .next-exercise-name {
@@ -598,7 +598,7 @@
         }
 
         .exercise-description-box h4 {
-            color: #16a34a;
+            color: #0891b2;
             margin-bottom: 15px;
             font-size: 1.2em;
         }
@@ -623,7 +623,7 @@
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #16a34a 0%, #15803d 100%);
+            background: linear-gradient(90deg, #0891b2 0%, #0e7490 100%);
             transition: width 0.3s;
         }
 
@@ -633,7 +633,7 @@
         }
 
         .completion-screen h2 {
-            color: #16a34a;
+            color: #0891b2;
             font-size: 2.5em;
             margin-bottom: 20px;
         }
@@ -655,7 +655,7 @@
         .exercise-result-item:hover {
             background: linear-gradient(135deg, #FFF3E0 0%, #bbf7d0 100%) !important;
             transform: translateX(8px);
-            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.2);
+            box-shadow: 0 4px 12px rgba(34,211,238, 0.2);
         }
 
         .exercise-result-item:active {
@@ -664,8 +664,8 @@
 
         #exerciseSearch:focus {
             outline: none;
-            border-color: #16a34a !important;
-            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+            border-color: #0891b2 !important;
+            box-shadow: 0 0 0 3px rgba(34,211,238, 0.1);
         }
 
         /* Dark Mode Styles */
@@ -725,7 +725,7 @@
         /* Équipement SÉLECTIONNÉ en mode sombre : fond opaque (sinon le dégradé
            quasi-transparent laissait voir à travers → illisible). */
         body.dark-mode .equipment-item.selected {
-            background: linear-gradient(135deg, rgba(22,163,74,0.22) 0%, rgba(21,128,61,0.18) 100%), #1c1c1c;
+            background: linear-gradient(135deg, rgba(34,211,238,0.22) 0%, rgba(21,128,61,0.18) 100%), #1c1c1c;
             border-color: #22c55e;
             color: #f1f5f9;
         }
@@ -797,8 +797,8 @@
         }
         input:focus, select:focus {
             outline: none;
-            border-color: #16a34a !important;
-            box-shadow: 0 0 0 3px rgba(22,163,74,0.12) !important;
+            border-color: #0891b2 !important;
+            box-shadow: 0 0 0 3px rgba(34,211,238,0.12) !important;
         }
 
         /* Separator between sections */
@@ -873,7 +873,7 @@
 
         .badge-progress {
             font-size: 0.9em;
-            color: #16a34a;
+            color: #0891b2;
             margin-top: 8px;
             font-weight: 600;
         }
@@ -900,12 +900,12 @@
         }
 
         .calendar-day.has-workout {
-            background: linear-gradient(135deg, #16a34a15 0%, #15803d15 100%);
-            border-color: #16a34a;
+            background: linear-gradient(135deg, #0891b215 0%, #0e749015 100%);
+            border-color: #0891b2;
         }
 
         .calendar-day.has-workout .calendar-day-number {
-            color: #16a34a;
+            color: #0891b2;
             font-weight: bold;
         }
 
@@ -927,7 +927,7 @@
         .calendar-day-dot {
             width: 8px;
             height: 8px;
-            background: #16a34a;
+            background: #0891b2;
             border-radius: 50%;
             margin-top: 5px;
         }
@@ -936,7 +936,7 @@
             font-weight: bold;
             padding: 10px;
             text-align: center;
-            color: #16a34a;
+            color: #0891b2;
         }
 
         /* History List Styles */
@@ -945,7 +945,7 @@
             border-radius: 14px;
             padding: 20px;
             margin-bottom: 15px;
-            border-left: 5px solid #16a34a;
+            border-left: 5px solid #0891b2;
             transition: all 0.3s;
         }
 
@@ -967,12 +967,12 @@
 
         .history-item-date {
             font-weight: bold;
-            color: #16a34a;
+            color: #0891b2;
             font-size: 1.1em;
         }
 
         .history-item-duration {
-            background: #16a34a;
+            background: #0891b2;
             color: white;
             padding: 5px 12px;
             border-radius: 20px;
@@ -1027,8 +1027,8 @@
 
         .favorite-workout-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(22, 163, 74, 0.3);
-            border-color: #16a34a;
+            box-shadow: 0 10px 25px rgba(34,211,238, 0.3);
+            border-color: #0891b2;
         }
 
         .favorite-workout-icon {
@@ -1071,7 +1071,7 @@
         /* Graph Styles */
         .graph-tab-btn {
             background: white !important;
-            color: #16a34a !important;
+            color: #0891b2 !important;
             border: 2px solid #e0e0e0 !important;
         }
 
@@ -1082,9 +1082,9 @@
         }
 
         .graph-tab-btn.active {
-            background: linear-gradient(135deg, #16a34a 0%, #15803d 100%) !important;
+            background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%) !important;
             color: white !important;
-            border-color: #16a34a !important;
+            border-color: #0891b2 !important;
         }
 
         body.dark-mode #graphContainer {
@@ -1102,7 +1102,7 @@
 
         .bar-chart-bar {
             flex: 1;
-            background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+            background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
             border-radius: 10px 10px 0 0;
             transition: all 0.3s;
             cursor: pointer;
@@ -1112,7 +1112,7 @@
 
         .bar-chart-bar:hover {
             transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(22, 163, 74, 0.4);
+            box-shadow: 0 5px 15px rgba(34,211,238, 0.4);
         }
 
         .bar-chart-label {
@@ -1132,7 +1132,7 @@
             left: 50%;
             transform: translateX(-50%);
             font-weight: bold;
-            color: #16a34a;
+            color: #0891b2;
             font-size: 0.9em;
         }
 
@@ -1188,7 +1188,7 @@
         }
 
         .feedback-btn:hover {
-            border-color: #16a34a;
+            border-color: #0891b2;
             background: #FFF3E0;
             transform: translateY(-2px);
         }
@@ -1198,10 +1198,10 @@
         }
 
         .feedback-btn.selected {
-            border-color: #16a34a;
-            background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+            border-color: #0891b2;
+            background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
             color: white;
-            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+            box-shadow: 0 4px 12px rgba(34,211,238, 0.3);
         }
 
         /* Advanced Mode Styles */
@@ -1222,7 +1222,7 @@
             padding: 15px;
             border-radius: 10px;
             margin: 10px 0;
-            border-left: 4px solid #16a34a;
+            border-left: 4px solid #0891b2;
         }
 
         body.dark-mode .exercise-detail-card {
@@ -1231,7 +1231,7 @@
 
         .exercise-detail-card h4 {
             margin: 0 0 10px 0;
-            color: #16a34a;
+            color: #0891b2;
             font-size: 1em;
         }
 
@@ -1272,7 +1272,7 @@
             background: white;
             cursor: pointer;
             box-shadow: 0 2px 8px rgba(0,0,0,0.4);
-            border: 3px solid #16a34a;
+            border: 3px solid #0891b2;
             transition: transform 0.15s, border-color 0.3s;
         }
         #fitnessIndexSlider::-webkit-slider-thumb:active {
@@ -1286,7 +1286,7 @@
             background: white;
             cursor: pointer;
             box-shadow: 0 2px 8px rgba(0,0,0,0.4);
-            border: 3px solid #16a34a;
+            border: 3px solid #0891b2;
         }
 
         /* Recovery Warning Styles */
@@ -1368,9 +1368,9 @@
         }
 
         .weekly-plan-day.today {
-            border-left-color: #16a34a;
+            border-left-color: #0891b2;
             background: #FFF3E0;
-            box-shadow: 0 2px 8px rgba(22, 163, 74, 0.2);
+            box-shadow: 0 2px 8px rgba(34,211,238, 0.2);
         }
 
         body.dark-mode .weekly-plan-day.today {
@@ -1450,7 +1450,7 @@
         }
 
         .exercise-progress-list h4 {
-            color: #16a34a;
+            color: #0891b2;
             margin-bottom: 15px;
             font-size: 1.1em;
         }
@@ -1474,11 +1474,11 @@
         }
 
         .progress-item.current {
-            background: linear-gradient(135deg, rgba(22,163,74,0.15) 0%, rgba(21,128,61,0.1) 100%);
-            border-left: 4px solid #16a34a;
-            border-color: rgba(22,163,74,0.4);
+            background: linear-gradient(135deg, rgba(34,211,238,0.15) 0%, rgba(21,128,61,0.1) 100%);
+            border-left: 4px solid #0891b2;
+            border-color: rgba(34,211,238,0.4);
             transform: scale(1.02);
-            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.2);
+            box-shadow: 0 4px 12px rgba(34,211,238, 0.2);
         }
 
         .progress-item.upcoming {
@@ -1507,15 +1507,15 @@
         }
 
         .progress-item.current .progress-checkbox {
-            background: #16a34a;
-            border-color: #16a34a;
+            background: #0891b2;
+            border-color: #0891b2;
             animation: pulse-ring 2s infinite;
         }
 
         @keyframes pulse-ring {
-            0%   { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7); }
-            50%  { box-shadow: 0 0 0 8px rgba(22, 163, 74, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
+            0%   { box-shadow: 0 0 0 0 rgba(34,211,238, 0.7); }
+            50%  { box-shadow: 0 0 0 8px rgba(34,211,238, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(34,211,238, 0); }
         }
 
         .progress-item-content { flex: 1; }
@@ -1549,8 +1549,8 @@
             display: flex;
             justify-content: space-between;
             padding: 15px;
-            background: rgba(22,163,74,0.08);
-            border: 1px solid rgba(22,163,74,0.2);
+            background: rgba(34,211,238,0.08);
+            border: 1px solid rgba(34,211,238,0.2);
             border-radius: 10px;
             margin-bottom: 15px;
         }
@@ -1560,7 +1560,7 @@
         .progress-stat-value {
             font-size: 1.5em;
             font-weight: bold;
-            color: #16a34a;
+            color: #0891b2;
         }
 
         .progress-stat-label {
@@ -1599,9 +1599,9 @@
         }
 
         .equipment-item.selected {
-            background: linear-gradient(135deg, #16a34a25 0%, #15803d20 100%), white;
-            border-color: #16a34a;
-            box-shadow: 0 8px 25px rgba(22, 163, 74, 0.3);
+            background: linear-gradient(135deg, #0891b225 0%, #0e749020 100%), white;
+            border-color: #0891b2;
+            box-shadow: 0 8px 25px rgba(34,211,238, 0.3);
         }
         
         .equipment-item.injured-muscle {
@@ -1637,7 +1637,7 @@
         }
 
         .equipment-item.selected .equipment-name {
-            color: #16a34a;
+            color: #0891b2;
         }
 
         .equipment-count {
@@ -1646,7 +1646,7 @@
         }
 
         .equipment-item.selected .equipment-count {
-            color: #16a34a;
+            color: #0891b2;
             font-weight: 600;
         }
 
@@ -1678,7 +1678,7 @@
         }
 
         .equipment-info h3 {
-            color: #16a34a;
+            color: #0891b2;
             margin-bottom: 10px;
         }
 
@@ -1902,7 +1902,7 @@
         }
 
         .close-btn:hover {
-            background: #16a34a;
+            background: #0891b2;
             color: white;
             transform: rotate(90deg);
         }
@@ -1915,7 +1915,7 @@
         }
 
         .instructions-list h4 {
-            color: #16a34a;
+            color: #0891b2;
             margin-bottom: 15px;
             font-size: 1.2em;
         }
@@ -1973,7 +1973,7 @@
         }
 
         .exercises-welcome h2 {
-            color: #16a34a;
+            color: #0891b2;
             font-size: 2em;
             margin-bottom: 20px;
         }
@@ -1995,8 +1995,8 @@
 
         .quick-filter-btn {
             background: white;
-            border: 2px solid #16a34a;
-            color: #16a34a;
+            border: 2px solid #0891b2;
+            color: #0891b2;
             padding: 15px 20px;
             border-radius: 14px;
             cursor: pointer;
@@ -2006,10 +2006,10 @@
         }
 
         .quick-filter-btn:hover {
-            background: #16a34a;
+            background: #0891b2;
             color: white;
             transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(22, 163, 74, 0.3);
+            box-shadow: 0 5px 15px rgba(34,211,238, 0.3);
         }
 
         .exercises-stats {
@@ -2027,7 +2027,7 @@
         .exercises-stat-value {
             font-size: 2.5em;
             font-weight: bold;
-            color: #16a34a;
+            color: #0891b2;
         }
 
         .exercises-stat-label {
@@ -2125,15 +2125,15 @@
         }
         
         .avatar-option:hover {
-            border-color: #16a34a;
+            border-color: #0891b2;
             transform: scale(1.1);
-            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.2);
+            box-shadow: 0 4px 12px rgba(34,211,238, 0.2);
         }
         
         .avatar-option.selected {
-            border-color: #16a34a;
+            border-color: #0891b2;
             background: linear-gradient(135deg, #FFF3E0 0%, #FFF3E0 100%);
-            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+            box-shadow: 0 4px 12px rgba(34,211,238, 0.3);
         }
         
         .profile-card {
@@ -2149,8 +2149,8 @@
         }
         
         .profile-card:hover {
-            border-color: #16a34a;
-            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.2);
+            border-color: #0891b2;
+            box-shadow: 0 4px 12px rgba(34,211,238, 0.2);
             transform: translateY(-2px);
         }
         
@@ -2167,7 +2167,7 @@
             align-items: center;
             justify-content: center;
             border-radius: 50%;
-            background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+            background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
         }
         
         .profile-info {
@@ -2210,8 +2210,8 @@
         /* Variables couleurs */
         :root {
             /* ═══ COULEURS PRIMAIRES — VERT AWAKENED ═══ */
-            --color-primary:        #16a34a;   /* Vert principal (boutons, accents) */
-            --color-primary-dark:   #15803d;   /* Vert foncé (hover, gradients) */
+            --color-primary:        #0891b2;   /* Vert principal (boutons, accents) */
+            --color-primary-dark:   #0e7490;   /* Vert foncé (hover, gradients) */
             --color-primary-light:  #22c55e;   /* Vert clair (highlights) */
             --color-primary-glow:   #4ade80;   /* Vert lumineux (texte sur fond sombre) */
 
@@ -2295,7 +2295,7 @@
             left: 0 !important;
             right: 0 !important;
             height: 100% !important;
-            background: linear-gradient(135deg, rgba(22, 163, 74, 0.03) 0%, rgba(34, 197, 94, 0.03) 100%) !important;
+            background: linear-gradient(135deg, rgba(34,211,238, 0.03) 0%, rgba(34, 197, 94, 0.03) 100%) !important;
             z-index: 0 !important;
         }
 
@@ -2358,7 +2358,7 @@
 
         .nav-tab.active {
             background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%) !important;
-            box-shadow: 0 4px 6px -1px rgba(22, 163, 74, 0.3) !important;
+            box-shadow: 0 4px 6px -1px rgba(34,211,238, 0.3) !important;
         }
 
         .nav-tab.active::after {
@@ -2382,11 +2382,11 @@
 
         .btn:not(.btn-secondary):not(.btn-danger) {
             background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%) !important;
-            box-shadow: 0 4px 6px -1px rgba(22, 163, 74, 0.3) !important;
+            box-shadow: 0 4px 6px -1px rgba(34,211,238, 0.3) !important;
         }
 
         .btn:hover:not(.btn-secondary) {
-            box-shadow: 0 10px 15px -3px rgba(22, 163, 74, 0.4), 0 4px 6px -2px rgba(22, 163, 74, 0.2) !important;
+            box-shadow: 0 10px 15px -3px rgba(34,211,238, 0.4), 0 4px 6px -2px rgba(34,211,238, 0.2) !important;
             transform: translateY(-2px) !important;
         }
 
@@ -2403,7 +2403,7 @@
         /* ========== PROFILE CARD ========== */
         #profileCard {
             background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%) !important;
-            box-shadow: 0 20px 25px -5px rgba(22, 163, 74, 0.3), 0 10px 10px -5px rgba(22, 163, 74, 0.2) !important;
+            box-shadow: 0 20px 25px -5px rgba(34,211,238, 0.3), 0 10px 10px -5px rgba(34,211,238, 0.2) !important;
         }
 
         /* ========== MODALS ========== */
@@ -2463,7 +2463,7 @@
         .exercise-card:hover {
             transform: translateY(-4px) !important;
             border-color: var(--color-primary) !important;
-            box-shadow: 0 10px 15px -3px rgba(22, 163, 74, 0.2), 0 4px 6px -2px rgba(22, 163, 74, 0.1) !important;
+            box-shadow: 0 10px 15px -3px rgba(34,211,238, 0.2), 0 4px 6px -2px rgba(34,211,238, 0.1) !important;
         }
 
         /* ========== PROGRESS BARS ========== */
@@ -2496,7 +2496,7 @@
         select:focus,
         textarea:focus {
             border-color: var(--color-primary) !important;
-            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1) !important;
+            box-shadow: 0 0 0 3px rgba(34,211,238, 0.1) !important;
         }
 
         /* ========== SCROLLBAR ========== */
@@ -2525,7 +2525,7 @@
         }
 
         .dark-mode .header {
-            background: linear-gradient(135deg, #166534 0%, #B33209 100%) !important;
+            background: linear-gradient(135deg, #155e75 0%, #B33209 100%) !important;
             box-shadow: 0 10px 40px rgba(91, 33, 182, 0.4), 0 2px 8px rgba(0, 0, 0, 0.3) !important;
         }
 
@@ -2762,18 +2762,18 @@
         .card {
             background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(22, 163, 74, 0.1);
+            border: 1px solid rgba(34,211,238, 0.1);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         .card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 12px 48px rgba(22, 163, 74, 0.15);
+            box-shadow: 0 12px 48px rgba(34,211,238, 0.15);
         }
         
         /* Boutons avec effet de brillance */
         .btn {
-            box-shadow: 0 4px 15px rgba(22, 163, 74, 0.3);
+            box-shadow: 0 4px 15px rgba(34,211,238, 0.3);
             position: relative;
             overflow: hidden;
         }
@@ -2795,24 +2795,24 @@
         
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(22, 163, 74, 0.4);
+            box-shadow: 0 6px 20px rgba(34,211,238, 0.4);
         }
         
         /* Timer avec pulsation lumineuse */
         .timer {
-            background: linear-gradient(135deg, #16a34a 0%, #15803d 50%, #f093fb 100%);
-            box-shadow: 0 8px 32px rgba(22, 163, 74, 0.3),
+            background: linear-gradient(135deg, #0891b2 0%, #0e7490 50%, #f093fb 100%);
+            box-shadow: 0 8px 32px rgba(34,211,238, 0.3),
                         inset 0 2px 8px rgba(255, 255, 255, 0.2);
             animation: pulse-glow 2s ease-in-out infinite;
         }
         
         @keyframes pulse-glow {
             0%, 100% {
-                box-shadow: 0 8px 32px rgba(22, 163, 74, 0.3),
+                box-shadow: 0 8px 32px rgba(34,211,238, 0.3),
                             inset 0 2px 8px rgba(255, 255, 255, 0.2);
             }
             50% {
-                box-shadow: 0 8px 40px rgba(22, 163, 74, 0.5),
+                box-shadow: 0 8px 40px rgba(34,211,238, 0.5),
                             inset 0 2px 12px rgba(255, 255, 255, 0.3);
             }
         }
@@ -2860,7 +2860,7 @@
         
         .exercise-item:hover {
             transform: translateX(8px);
-            box-shadow: 0 6px 20px rgba(22, 163, 74, 0.15);
+            box-shadow: 0 6px 20px rgba(34,211,238, 0.15);
             border-left-width: 6px;
         }
         
@@ -2908,7 +2908,7 @@
         
         .nav-btn:hover:not(.active) {
             transform: translateY(-2px);
-            background: rgba(22, 163, 74, 0.1);
+            background: rgba(34,211,238, 0.1);
         }
         
         /* Challenge cards avec scale */
@@ -2945,7 +2945,7 @@
         /* Preparation view ultra premium */
         #preparationView .card {
             background: linear-gradient(135deg, #fafafa 0%, #ffffff 50%, #f5f5f5 100%);
-            box-shadow: 0 12px 48px rgba(22, 163, 74, 0.15);
+            box-shadow: 0 12px 48px rgba(34,211,238, 0.15);
         }
         
         /* Exercise item states */
@@ -2971,8 +2971,8 @@
         
         /* Couleurs fixes — violet signature */
         :root {
-            --primary-color: #16a34a;
-            --primary-dark:  #15803d;
+            --primary-color: #0891b2;
+            --primary-dark:  #0e7490;
             --primary-light: #FFF3E0;
         }
         
@@ -3094,7 +3094,7 @@
         }
         
         .accordion-header.active {
-            background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+            background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
         }
         
         .accordion-header.active .accordion-title {
@@ -3147,7 +3147,7 @@
         .settings-sub:first-child { padding-top: 2px; }
         .settings-sub:last-child { border-bottom: none; padding-bottom: 2px; }
         .settings-sub-title {
-            margin: 0 0 6px; font-size: 1.04em; font-weight: 800; color: #16a34a;
+            margin: 0 0 6px; font-size: 1.04em; font-weight: 800; color: #0891b2;
             display: flex; align-items: center; gap: 9px;
         }
         .settings-sub-desc { margin: 0 0 14px; font-size: 0.82em; line-height: 1.45; color: #6b7280; }
@@ -3173,11 +3173,11 @@
             background: #fff; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.25);
             transition: transform .3s cubic-bezier(0.4,0,0.2,1);
         }
-        .aw-switch input:checked + .aw-slider { background: #16a34a; }
+        .aw-switch input:checked + .aw-slider { background: #0891b2; }
         .aw-switch input:checked + .aw-slider::before { transform: translateX(22px); }
-        .aw-switch input:focus-visible + .aw-slider { box-shadow: 0 0 0 3px rgba(22,163,74,0.35); }
+        .aw-switch input:focus-visible + .aw-slider { box-shadow: 0 0 0 3px rgba(34,211,238,0.35); }
         body.dark-mode .aw-switch .aw-slider { background: #334155; }
-        body.dark-mode .aw-switch input:checked + .aw-slider { background: #16a34a; }
+        body.dark-mode .aw-switch input:checked + .aw-slider { background: #0891b2; }
 
 
         
@@ -3198,8 +3198,8 @@
         :root {
             --font-main: 'Outfit', -apple-system, sans-serif;
 
-            --color-primary:      #16a34a;
-            --color-primary-dark: #15803d;
+            --color-primary:      #0891b2;
+            --color-primary-dark: #0e7490;
             --color-primary-light:#FFF3E0;
             --color-accent:       #4ade80;
             --color-success:      #10b981;
@@ -3210,10 +3210,10 @@
             --bg-card:   #ffffff;
             --bg-glass:  rgba(255,255,255,0.85);
 
-            --shadow-sm: 0 1px 3px rgba(22,163,74,0.08), 0 1px 2px rgba(0,0,0,0.06);
-            --shadow-md: 0 4px 16px rgba(22,163,74,0.12), 0 2px 6px rgba(0,0,0,0.06);
-            --shadow-lg: 0 12px 32px rgba(22,163,74,0.18), 0 4px 12px rgba(0,0,0,0.08);
-            --shadow-xl: 0 24px 48px rgba(22,163,74,0.22), 0 8px 20px rgba(0,0,0,0.1);
+            --shadow-sm: 0 1px 3px rgba(34,211,238,0.08), 0 1px 2px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 16px rgba(34,211,238,0.12), 0 2px 6px rgba(0,0,0,0.06);
+            --shadow-lg: 0 12px 32px rgba(34,211,238,0.18), 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-xl: 0 24px 48px rgba(34,211,238,0.22), 0 8px 20px rgba(0,0,0,0.1);
 
             --radius-sm:  8px;
             --radius-md:  14px;
@@ -3232,7 +3232,7 @@
         body {
             font-family: var(--font-main) !important;
             background:
-                radial-gradient(ellipse 80% 60% at 20% -10%, rgba(22,163,74,0.18) 0%, transparent 60%),
+                radial-gradient(ellipse 80% 60% at 20% -10%, rgba(34,211,238,0.18) 0%, transparent 60%),
                 radial-gradient(ellipse 60% 50% at 90% 110%, rgba(34,197,94,0.14) 0%, transparent 55%),
                 linear-gradient(160deg, #FFF8F5 0%, #FFF3E0 40%, #FFF3E0 100%) !important;
             min-height: 100vh;
@@ -3241,13 +3241,13 @@
         /* ── SCROLLBAR ───────────────────────────────────────────── */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(22,163,74,0.3); border-radius: 99px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(22,163,74,0.55); }
+        ::-webkit-scrollbar-thumb { background: rgba(34,211,238,0.3); border-radius: 99px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(34,211,238,0.55); }
 
         /* ── HEADER ──────────────────────────────────────────────── */
         .header {
             background:
-                linear-gradient(135deg, #16a34a 0%, #15803d 50%, #166534 100%) !important;
+                linear-gradient(135deg, #0891b2 0%, #0e7490 50%, #155e75 100%) !important;
             border-radius: var(--radius-xl) !important;
             box-shadow: var(--shadow-xl),
                         inset 0 1px 0 rgba(255,255,255,0.25) !important;
@@ -3273,7 +3273,7 @@
 
             border-radius: var(--radius-lg) !important;
             box-shadow: var(--shadow-md) !important;
-            border: 1px solid rgba(22,163,74,0.07) !important;
+            border: 1px solid rgba(34,211,238,0.07) !important;
             transition: box-shadow var(--transition), transform var(--transition) !important;
             margin-bottom: 18px !important;
         }
@@ -3312,14 +3312,14 @@
             position: relative !important;
         }
         .nav-tab:hover:not(.active) {
-            background: rgba(22,163,74,0.08) !important;
+            background: rgba(34,211,238,0.08) !important;
             color: var(--color-primary) !important;
             transform: translateY(-1px) !important;
         }
         .nav-tab.active {
             background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%) !important;
             color: white !important;
-            box-shadow: 0 4px 14px rgba(22,163,74,0.4) !important;
+            box-shadow: 0 4px 14px rgba(34,211,238,0.4) !important;
             transform: translateY(-1px) !important;
         }
 
@@ -3337,10 +3337,10 @@
         }
         .btn:not(.btn-secondary):not(.btn-danger) {
             background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%) !important;
-            box-shadow: 0 4px 14px rgba(22,163,74,0.35) !important;
+            box-shadow: 0 4px 14px rgba(34,211,238,0.35) !important;
         }
         .btn:not(.btn-secondary):not(.btn-danger):hover {
-            box-shadow: 0 8px 24px rgba(22,163,74,0.5) !important;
+            box-shadow: 0 8px 24px rgba(34,211,238,0.5) !important;
             transform: translateY(-2px) !important;
         }
         .btn:active {
@@ -3376,7 +3376,7 @@
         select:focus, input:focus, textarea:focus {
             border-color: var(--color-primary) !important;
             background: white !important;
-            box-shadow: 0 0 0 3px rgba(22,163,74,0.12) !important;
+            box-shadow: 0 0 0 3px rgba(34,211,238,0.12) !important;
             outline: none !important;
         }
 
@@ -3385,7 +3385,7 @@
             background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%) !important;
             border-radius: var(--radius-md) !important;
             padding: 22px 16px !important;
-            box-shadow: 0 6px 20px rgba(22,163,74,0.3) !important;
+            box-shadow: 0 6px 20px rgba(34,211,238,0.3) !important;
             position: relative !important;
             overflow: hidden !important;
         }
@@ -3414,7 +3414,7 @@
         /* ── WORKOUT CARDS ───────────────────────────────────────── */
         .workout-card {
             border-radius: var(--radius-lg) !important;
-            border: 1.5px solid rgba(22,163,74,0.1) !important;
+            border: 1.5px solid rgba(34,211,238,0.1) !important;
             transition: all var(--transition) !important;
         }
         .workout-card:hover {
@@ -3430,7 +3430,7 @@
         /* ── EXERCISE CARDS ──────────────────────────────────────── */
         .exercise-card {
             border-radius: var(--radius-md) !important;
-            border: 1.5px solid rgba(22,163,74,0.08) !important;
+            border: 1.5px solid rgba(34,211,238,0.08) !important;
             transition: all var(--transition) !important;
         }
         .exercise-card:hover {
@@ -3443,7 +3443,7 @@
         .accordion-section {
             border-radius: var(--radius-lg) !important;
             box-shadow: var(--shadow-sm) !important;
-            border: 1px solid rgba(22,163,74,0.08) !important;
+            border: 1px solid rgba(34,211,238,0.08) !important;
             margin-bottom: 12px !important;
             overflow: hidden !important;
             transition: box-shadow var(--transition) !important;
@@ -3454,7 +3454,7 @@
         .accordion-header {
             padding: 18px 22px !important;
             background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%) !important;
-            border-bottom: 1px solid rgba(22,163,74,0.06) !important;
+            border-bottom: 1px solid rgba(34,211,238,0.06) !important;
             transition: all var(--transition) !important;
         }
         .accordion-header:hover {
@@ -3463,7 +3463,7 @@
         .accordion-header.active {
             background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%) !important;
             border-bottom-color: transparent !important;
-            box-shadow: 0 4px 16px rgba(22,163,74,0.3) !important;
+            box-shadow: 0 4px 16px rgba(34,211,238,0.3) !important;
         }
         .accordion-title {
             font-size: 1.15em !important;
@@ -3523,14 +3523,14 @@
         .quick-filter-btn {
             border-radius: var(--radius-md) !important;
             font-weight: 600 !important;
-            border: 1.5px solid rgba(22,163,74,0.25) !important;
+            border: 1.5px solid rgba(34,211,238,0.25) !important;
             transition: all var(--transition) !important;
         }
         .quick-filter-btn:hover {
             background: var(--color-primary) !important;
             color: white !important;
             border-color: var(--color-primary) !important;
-            box-shadow: 0 4px 14px rgba(22,163,74,0.35) !important;
+            box-shadow: 0 4px 14px rgba(34,211,238,0.35) !important;
         }
 
         /* ── PROGRESS BARS ───────────────────────────────────────── */
@@ -3542,24 +3542,24 @@
         /* ── DARK MODE OVERRIDES ─────────────────────────────────── */
         body.dark-mode {
             background:
-                radial-gradient(ellipse 70% 50% at 10% 0%, rgba(22,163,74,0.12) 0%, transparent 60%),
+                radial-gradient(ellipse 70% 50% at 10% 0%, rgba(34,211,238,0.12) 0%, transparent 60%),
                 radial-gradient(ellipse 50% 40% at 95% 100%, rgba(124,58,237,0.1) 0%, transparent 55%),
                 linear-gradient(160deg, #0f0e1a 0%, #12101f 50%, #0d0f1c 100%) !important;
         }
         body.dark-mode .card:not(#awakHunterCard) {
             background: rgba(30,28,50,0.95) !important;
-            border-color: rgba(22,163,74,0.15) !important;
+            border-color: rgba(34,211,238,0.15) !important;
             box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
         }
         body.dark-mode .card.nav-tabs {
             background: rgba(20,20,24,0.95) !important;
-            border-color: rgba(22,163,74,0.2) !important;
+            border-color: rgba(34,211,238,0.2) !important;
         }
         body.dark-mode .nav-tab {
             color: #9ca3af !important;
         }
         body.dark-mode .nav-tab:hover:not(.active) {
-            background: rgba(22,163,74,0.12) !important;
+            background: rgba(34,211,238,0.12) !important;
             color: #e2e8f0 !important;
         }
         /* ── DARK MODE GLOBAL — couvre les éléments générés par JS ── */
@@ -3612,7 +3612,7 @@
 
         body.dark-mode #repsTrackingInputs > div {
             background: linear-gradient(135deg,#0F101430,#1A0A0040) !important;
-            border-color: #15803d40 !important;
+            border-color: #0e749040 !important;
         }
         body.dark-mode #repsTrackingInputs input {
             background: #181A1F !important;
@@ -3711,8 +3711,8 @@
         body.dark-mode .progress-item.current .progress-item-duration { color: #4ade80 !important; }
         body.dark-mode .progress-stat-label { color: #94a3b8 !important; }
         body.dark-mode .progress-stats {
-            background: rgba(22,163,74,0.08) !important;
-            border-color: rgba(22,163,74,0.2) !important;
+            background: rgba(34,211,238,0.08) !important;
+            border-color: rgba(34,211,238,0.2) !important;
         }
         body.dark-mode .quick-filter-btn {
             background: #1e293b !important;
@@ -3720,9 +3720,9 @@
             border-color: #1e293b !important;
         }
         body.dark-mode .quick-filter-btn.active {
-            background: #16a34a !important;
+            background: #0891b2 !important;
             color: white !important;
-            border-color: #16a34a !important;
+            border-color: #0891b2 !important;
         }
         body.dark-mode .exercise-description-box {
             background: #1e293b !important;
@@ -3734,7 +3734,7 @@
             border-color: #1e293b !important;
         }
         body.dark-mode .graph-tab-btn.active {
-            background: #16a34a !important;
+            background: #0891b2 !important;
             color: white !important;
         }
         body.dark-mode .exercise-detail-card,
@@ -3755,7 +3755,7 @@
 
         body.dark-mode .accordion-header {
             background: linear-gradient(135deg, #181A1F 0%, #1A1B20 100%) !important;
-            border-bottom-color: rgba(22,163,74,0.1) !important;
+            border-bottom-color: rgba(34,211,238,0.1) !important;
         }
         body.dark-mode .accordion-header:hover {
             background: linear-gradient(135deg, #2A2C32 0%, #1E2025 100%) !important;
@@ -3764,10 +3764,10 @@
             color: #e2e8f0 !important;
         }
         body.dark-mode .accordion-icon {
-            color: #16a34a !important;
+            color: #0891b2 !important;
         }
         body.dark-mode .accordion-section {
-            border-color: rgba(22,163,74,0.12) !important;
+            border-color: rgba(34,211,238,0.12) !important;
         }
         body.dark-mode select,
         body.dark-mode input[type="text"],
@@ -3775,12 +3775,12 @@
         body.dark-mode input[type="time"],
         body.dark-mode textarea {
             background: #181A1F !important;
-            border-color: rgba(22,163,74,0.2) !important;
+            border-color: rgba(34,211,238,0.2) !important;
             color: #e2e8f0 !important;
         }
         body.dark-mode .btn-secondary {
             background: #181A1F !important;
-            border-color: rgba(22,163,74,0.2) !important;
+            border-color: rgba(34,211,238,0.2) !important;
             color: #d1d5db !important;
         }
         body.dark-mode .btn-secondary:hover {
@@ -3790,13 +3790,13 @@
         }
         body.dark-mode .modal-content:not(.awak-bg-image) {
             background: #1A1B20 !important;
-            border-color: rgba(22,163,74,0.2) !important;
+            border-color: rgba(34,211,238,0.2) !important;
             color: #e2e8f0 !important;
         }
         body.dark-mode .workout-card,
         body.dark-mode .exercise-card {
             background: #181A1F !important;
-            border-color: rgba(22,163,74,0.15) !important;
+            border-color: rgba(34,211,238,0.15) !important;
             color: #e2e8f0 !important;
         }
 
@@ -3879,11 +3879,11 @@
             }
             body.dark-mode #navCollapseBtn {
                 background: rgba(20,20,24,0.97) !important;
-                border-color: rgba(22,163,74,0.2) !important;
+                border-color: rgba(34,211,238,0.2) !important;
             }
             body.dark-mode .card.nav-tabs {
                 background: rgba(20,20,24,0.97) !important;
-                border-top-color: rgba(22,163,74,0.2) !important;
+                border-top-color: rgba(34,211,238,0.2) !important;
             }
             /* 🐛 Largeur FIXE de 64 px : 7 onglets = 448 px pour un écran de ~390 px.
                La barre défilait à l'horizontale, et en allant chercher Réglages
@@ -4059,8 +4059,8 @@
             }
             #exerciseView #repsTrackingInputs > div {
                 padding: 10px 12px !important; border-radius: 14px !important;
-                background: rgba(22,163,74,0.08) !important;
-                border: 1.5px solid rgba(22,163,74,0.2) !important;
+                background: rgba(34,211,238,0.08) !important;
+                border: 1.5px solid rgba(34,211,238,0.2) !important;
             }
             #exerciseView #setIndicator { font-size: 0.85em !important; margin-bottom: 8px !important; }
             #exerciseView #lastSetsHistory { font-size: 0.72em !important; }
@@ -4251,8 +4251,8 @@
 
             /* Badge muscle */
             #muscleBadge {
-                background: rgba(22,163,74,0.15) !important;
-                border: 1px solid rgba(22,163,74,0.3) !important;
+                background: rgba(34,211,238,0.15) !important;
+                border: 1px solid rgba(34,211,238,0.3) !important;
                 color: #4ade80 !important; font-size: 0.82em !important;
                 padding: 5px 12px !important; margin-top: 6px !important;
             }
@@ -4319,10 +4319,10 @@
 
             /* ── NAV TABS — texte lisible dark mode ─────────────────── */
             .nav-tab { color: #6b7280 !important; }
-            .nav-tab.active { color: #16a34a !important; }
+            .nav-tab.active { color: #0891b2 !important; }
             body.dark-mode .card.nav-tabs { background: rgba(18,18,22,0.97) !important; }
             body.dark-mode .nav-tab { color: #6b7280 !important; }
-            body.dark-mode .nav-tab.active { color: #16a34a !important; }
+            body.dark-mode .nav-tab.active { color: #0891b2 !important; }
             body.dark-mode .nav-tab:hover:not(.active) { color: #e2e8f0 !important; }
         }
 
@@ -4429,13 +4429,13 @@ body.dark-mode .card:not(#awakHunterCard) {
             color: #4ade80 !important;
         }
         body.dark-mode .nav-tab.active {
-            background: linear-gradient(135deg, #15803d 0%, #166534 100%) !important;
+            background: linear-gradient(135deg, #0e7490 0%, #155e75 100%) !important;
             color: white !important;
         }
 
         /* Bouton primaire — violet profond, pas cyan agressif */
         body.dark-mode .btn:not(.btn-secondary) {
-            background: linear-gradient(135deg, #15803d 0%, #166534 100%) !important;
+            background: linear-gradient(135deg, #0e7490 0%, #155e75 100%) !important;
         }
 
         /* Bouton secondaire */
@@ -4511,8 +4511,8 @@ body.dark-mode .card:not(#awakHunterCard) {
         body.dark-mode [style*="border:2px solid #06b6d4;"],
         body.dark-mode [style*="border-left: 4px solid #06b6d4"],
         body.dark-mode [style*="border-color: #06b6d4;"] {
-            background: linear-gradient(135deg, #15803d 0%, #166534 100%) !important;
-            border-color: #16a34a !important;
+            background: linear-gradient(135deg, #0e7490 0%, #155e75 100%) !important;
+            border-color: #0891b2 !important;
         }
         /* Fonds clairs cyan → fonds sombres violets */
         body.dark-mode [style*="background: #e0f2fe"],
@@ -4539,13 +4539,13 @@ body.dark-mode .card:not(#awakHunterCard) {
         body.dark-mode [style*="background:#fff8dc"],
         body.dark-mode [style*="background: #FFF8F5"],
         body.dark-mode [style*="background:#FFF8F5"] {
-            background: rgba(22,163,74,0.1) !important;
+            background: rgba(34,211,238,0.1) !important;
             color: #e2e8f0 !important;
         }
         /* Gradient linéaire FFF3E0/FFF3E0 (peach solid) → warm dark */
         body.dark-mode [style*="background: linear-gradient(135deg, #FFF3E0 0%, #FFF3E0"],
         body.dark-mode [style*="background:linear-gradient(135deg,#FFF3E0"] {
-            background: rgba(22,163,74,0.08) !important;
+            background: rgba(34,211,238,0.08) !important;
         }
         /* Fonds blancs/gris clairs courants */
         body.dark-mode [style*="background: #f8fafc"],
@@ -4627,25 +4627,25 @@ body.dark-mode .card:not(#awakHunterCard) {
         }
         body.dark-mode .exercise-card:hover,
         body.dark-mode .workout-card:hover {
-            border-color: #16a34a !important;
-            box-shadow: 0 8px 24px rgba(22,163,74,0.3) !important;
+            border-color: #0891b2 !important;
+            box-shadow: 0 8px 24px rgba(34,211,238,0.3) !important;
         }
 
         /* Stat boxes */
         body.dark-mode .stat-box {
-            background: linear-gradient(135deg, #1A1B20 0%, #166534 100%) !important;
+            background: linear-gradient(135deg, #1A1B20 0%, #155e75 100%) !important;
         }
 
         /* History items */
         body.dark-mode .history-item {
             background: #1A1B20 !important;
-            border-left-color: #15803d !important;
+            border-left-color: #0e7490 !important;
         }
 
         /* Texte accentué — violet doux au lieu de bleu clair */
         body.dark-mode .accent,
-        body.dark-mode [style*="color: #16a34a;"],
-        body.dark-mode [style*="color:#16a34a;"] {
+        body.dark-mode [style*="color: #0891b2;"],
+        body.dark-mode [style*="color:#0891b2;"] {
             color: #4ade80 !important;
         }
 
@@ -4739,7 +4739,7 @@ body.dark-mode .card:not(#awakHunterCard) {
         body.dark-mode ::-webkit-scrollbar { width: 6px; height: 6px; }
         body.dark-mode ::-webkit-scrollbar-track { background: #0D0D0D; }
         body.dark-mode ::-webkit-scrollbar-thumb { background: #2E2F35; border-radius: 6px; }
-        body.dark-mode ::-webkit-scrollbar-thumb:hover { background: #15803d; }
+        body.dark-mode ::-webkit-scrollbar-thumb:hover { background: #0e7490; }
 
         /* ── TOUCH : zones cliquables agrandies ─────────────────────── */
         @media (pointer: coarse) {
@@ -4748,7 +4748,7 @@ body.dark-mode .card:not(#awakHunterCard) {
             .close-btn { width: 52px !important; height: 52px !important; font-size: 1.6em !important; }
             .accordion-header { min-height: 58px !important; cursor: pointer !important; }
             select, input { min-height: 50px !important; }
-            a, button { -webkit-tap-highlight-color: rgba(22,163,74,0.15); }
+            a, button { -webkit-tap-highlight-color: rgba(34,211,238,0.15); }
         }
     
 
@@ -4867,7 +4867,7 @@ body.dark-mode .card:not(#awakHunterCard) {
         body.dark-mode .swap-card:hover { background: #2A2C32; }
         body.dark-mode .swap-card-name { color: #e2e8f0; }
         body.dark-mode .swap-card-meta { color: #94a3b8; }
-        body.dark-mode .swap-section-title { color: #16a34a; }
+        body.dark-mode .swap-section-title { color: #0891b2; }
         body.dark-mode .swap-handle { background: #4b5563; }
     
 
@@ -4880,8 +4880,8 @@ body.dark-mode .card:not(#awakHunterCard) {
 
             /* Historique dernière séance */
             #exerciseView #lastSetsHistory {
-                background: rgba(22,163,74,0.15) !important;
-                border-color: rgba(22,163,74,0.3) !important;
+                background: rgba(34,211,238,0.15) !important;
+                border-color: rgba(34,211,238,0.3) !important;
                 color: #4ade80 !important;
             }
             #exerciseView #lastSetsHistory span {
@@ -5332,9 +5332,9 @@ body.dark-mode .card:not(#awakHunterCard) {
 
 
             body.dark-mode #appHeader {
-                background: linear-gradient(135deg, #031a0d 0%, #0d3320 50%, #031a0d 100%) !important;
-                border-color: rgba(74,222,128,0.15) !important;
-                box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 2px 8px rgba(22,163,74,0.1) !important;
+                background: linear-gradient(135deg, #0b1018 0%, #111827 50%, #0b1018 100%) !important;
+                border-color: rgba(255,255,255,0.06) !important;
+                box-shadow: 0 8px 32px rgba(0,0,0,0.4) !important;
             }
         
 
@@ -5372,14 +5372,14 @@ body.dark-mode .card:not(#awakHunterCard) {
 
 
                 body { font-family: Arial, sans-serif; padding: 24px; color: #1e293b; }
-                h1 { color: #16a34a; }
+                h1 { color: #0891b2; }
                 .meta { color: #64748b; font-size: 0.9em; margin-bottom: 20px; }
                 .stats { display: flex; gap: 20px; margin-bottom: 24px; }
                 .stat { background: #f0fdf4; border-radius: 10px; padding: 12px 18px; text-align: center; }
-                .stat-val { font-size: 1.6em; font-weight: 900; color: #16a34a; }
+                .stat-val { font-size: 1.6em; font-weight: 900; color: #0891b2; }
                 .stat-lbl { font-size: 0.75em; color: #64748b; }
                 table { width: 100%; border-collapse: collapse; font-size: 0.88em; }
-                th { background: #16a34a; color: white; padding: 10px 12px; text-align: left; }
+                th { background: #0891b2; color: white; padding: 10px 12px; text-align: left; }
                 td { padding: 9px 12px; border-bottom: 1px solid #e5e7eb; }
                 tr:nth-child(even) td { background: #f8fafc; }
                 @media print { body { padding: 10px; } }
@@ -5784,7 +5784,7 @@ input:active, select:active, textarea:active {
     transform: translateX(-50%);
     width: 28px;
     height: 3px;
-    background: linear-gradient(90deg, #16a34a, #4ade80);
+    background: linear-gradient(90deg, #0891b2, #4ade80);
     border-radius: 99px;
     box-shadow: 0 0 12px rgba(74,222,128,0.6);
     animation: navIndicatorAppear 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -6262,7 +6262,7 @@ html, body {
 
 /* Bouton cyberpunk principal (vert glow) */
 .cyber-btn-primary {
-    background: linear-gradient(135deg, #16a34a 0%, #22c55e 50%, #4ade80 100%) !important;
+    background: linear-gradient(135deg, #0891b2 0%, #22c55e 50%, #4ade80 100%) !important;
     color: white !important;
     border: 1px solid #4ade80 !important;
     box-shadow:
@@ -6327,7 +6327,7 @@ html, body {
     color: #4ade80;
 }
 .cyber-set-dot.current {
-    background: linear-gradient(135deg, #16a34a, #22c55e);
+    background: linear-gradient(135deg, #0891b2, #22c55e);
     border-color: #4ade80;
     color: white;
     box-shadow: 0 0 16px rgba(74,222,128,0.5);
@@ -6390,8 +6390,8 @@ html, body {
     color: #cbd5e1;
     font-size: 0.88em;
     line-height: 1.5;
-    border-left: 2px solid rgba(74,222,128,0.3);
-    background: rgba(34,197,94,0.03);
+    border-left: 2px solid rgba(34,211,238,0.35);
+    background: rgba(34,211,238,0.03);
     border-radius: 0 6px 6px 0;
     transition: all 0.2s;
 }
@@ -6401,15 +6401,15 @@ html, body {
     position: absolute;
     left: 10px;
     top: 8px;
-    color: #4ade80;
+    color: #67e8f9;
     font-weight: 900;
     font-size: 1em;
-    text-shadow: 0 0 6px rgba(74,222,128,0.5);
+    text-shadow: 0 0 6px rgba(34,211,238,0.45);
 }
 
 #exerciseInstructions li:hover {
-    background: rgba(34,197,94,0.06);
-    border-left-color: #4ade80;
+    background: rgba(34,211,238,0.06);
+    border-left-color: #22d3ee;
     transform: translateX(2px);
 }
 
@@ -6674,8 +6674,8 @@ body.dark-mode input:focus,
 body.dark-mode select:focus,
 body.dark-mode textarea:focus {
     outline: none;
-    border-color: rgba(74,222,128,0.55) !important;
-    box-shadow: 0 0 0 3px rgba(74,222,128,0.13);
+    border-color: rgba(34,211,238,0.55) !important;
+    box-shadow: 0 0 0 3px rgba(34,211,238,0.12);
 }
 .modal-content {
     animation: awakModalIn 0.28s cubic-bezier(0.34, 1.4, 0.64, 1);
@@ -6745,7 +6745,7 @@ body { font-variant-numeric: tabular-nums; }
     border: none; border-radius: 14px; padding: 13px 16px;
     font-weight: 800; font-size: 0.95em; color: white; cursor: pointer;
 }
-.awak-btn-primary { background: linear-gradient(135deg, #16a34a, #4ade80); }
+.awak-btn-primary { background: linear-gradient(135deg, #0891b2, #4ade80); }
 .awak-btn-rpg     { background: linear-gradient(135deg, #7c3aed, #a855f7); }
 .awak-btn-danger  { background: linear-gradient(135deg, #dc2626, #f87171); }
 
@@ -7233,7 +7233,7 @@ img[src*="images/exercises/"] {
 /* 🛡️ FILET : aucun vert ne doit subsister dans la console.
    Certaines couleurs sont posées en STYLE EN LIGNE dans le HTML, qui
    l'emporte sur toute règle CSS — sauf avec !important. */
-#settingsTab [style*="#16a34a"],
+#settingsTab [style*="#0891b2"],
 #settingsTab [style*="#4ade80"],
 #settingsTab [style*="#22c55e"] { color: #93c5fd !important; }
 
@@ -7316,12 +7316,12 @@ img[src*="images/exercises/"] {
     color: #94a3b8 !important;
 }
 /* 🛡️ Filet : aucun vert posé en style en ligne ne doit subsister. */
-#exercisesTab [style*="#16a34a"],
+#exercisesTab [style*="#0891b2"],
 #exercisesTab [style*="#4ade80"],
 #exercisesTab [style*="#22c55e"] { color: #93c5fd !important; }
 
 /* 📊 Tableau des mensurations — en-têtes et lignes.
-   ⚠️ La règle globale `th { background: #16a34a; color: white; }` n'a AUCUNE
+   ⚠️ La règle globale `th { background: #0891b2; color: white; }` n'a AUCUNE
    surcharge en mode sombre : les en-têtes du tableau d'historique restaient
    verts, et le blanc du texte tranchait sur les lignes. Le style en ligne
    posé dans le JS ne suffisait pas — `th` porte aussi un fond. */
@@ -7516,8 +7516,8 @@ body.dark-mode tr:nth-child(even) td {
     color: #e2e8f0 !important;
 }
 /* 🛡️ Filet : aucun vert ni couleur de thème clair ne doit subsister. */
-#profileSelectionModal [style*="#16a34a"],
-#profileSetupModal [style*="#16a34a"],
+#profileSelectionModal [style*="#0891b2"],
+#profileSetupModal [style*="#0891b2"],
 #profileSelectionModal [style*="#22c55e"],
 #profileSetupModal [style*="#22c55e"] { color: #93c5fd !important; }
 
@@ -7583,8 +7583,8 @@ body.dark-mode tr:nth-child(even) td {
 }
 #profileEditorModal .modal-header h2::before { content: '> '; color: #60a8f0; }
 #profileEditorModal .modal-body { font-family: 'SFMono-Regular', 'Consolas', 'Liberation Mono', 'Menlo', monospace; }
-/* ⚠️ Libellés en #16a34a (vert du thème d'origine) → bleu de la console. */
-#profileEditorModal [style*="#16a34a"] { color: #93c5fd !important; }
+/* ⚠️ Libellés en #0891b2 (vert du thème d'origine) → bleu de la console. */
+#profileEditorModal [style*="#0891b2"] { color: #93c5fd !important; }
 #profileEditorModal .close-btn { color: #64748b !important; }
 
 /* 👆 Cibles tactiles de la recherche d'exercices.
@@ -7702,7 +7702,7 @@ body.dark-mode #homeTab .stat-label {
    « > Mes Routines », illisible pour un enfant et sans équivalent ailleurs). */
 
 /* 🛡️ Filet : aucun vert posé en style en ligne ne subsiste. */
-#routinesTab [style*="#16a34a"],
+#routinesTab [style*="#0891b2"],
 #routinesTab [style*="#4ade80"],
 #routinesTab [style*="#22c55e"],
 #routinesTab [style*="#22d3ee"] { color: #93c5fd !important; }
@@ -8132,4 +8132,130 @@ body.dark-mode .nav-tab.active {
     #ahpRoot > #ahpApres      { grid-column: 1 / -1; grid-row: 4; }
     #ahpRoot > #ahpRaccourcis { grid-column: 1 / -1; grid-row: 5; }
     #ahpRoot .ahp-card { margin-bottom: 14px; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   v1357 — SYSTÈME VISUEL (lot 2)
+   Une seule source pour les couleurs, tailles, arrondis et boutons.
+   Nouveau code : utiliser ces variables et les classes .awk-btn*.
+   ═══════════════════════════════════════════════════════════════════════ */
+:root {
+    /* Couleurs */
+    --awk-fond: #0b0d12;
+    --awk-surface: #12161c;
+    --awk-surface-2: #181d25;
+    --awk-ligne: rgba(255,255,255,0.07);
+    --awk-ligne-forte: rgba(255,255,255,0.13);
+    --awk-txt: #e2e8f0;
+    --awk-txt-2: #a3b1c2;
+    --awk-txt-3: #8d9cb1;
+    --awk-cyan: #22d3ee;
+    --awk-cyan-fonce: #0891b2;
+    --awk-cyan-clair: #67e8f9;
+    --awk-violet: #a78bfa;
+    --awk-or: #fbbf24;
+    --awk-danger: #f87171;
+    --awk-ok: #34d399;            /* réussite / prêt — usage limité */
+    /* Texte (échelle) */
+    --awk-fs-xs: 11px;
+    --awk-fs-sm: 12.5px;
+    --awk-fs-md: 14px;
+    --awk-fs-lg: 16px;
+    --awk-fs-xl: 19px;
+    --awk-fs-2xl: 23px;
+    /* Arrondis */
+    --awk-r-sm: 8px;
+    --awk-r-md: 12px;
+    --awk-r-lg: 16px;
+    --awk-r-pill: 999px;
+    /* Espacements */
+    --awk-sp-1: 4px; --awk-sp-2: 8px; --awk-sp-3: 12px; --awk-sp-4: 16px; --awk-sp-5: 24px;
+
+    /* Anciennes variables vertes → palette actuelle */
+    --color-primary: #0891b2;
+    --color-primary-dark: #0e7490;
+    --color-primary-light: #22d3ee;
+    --color-primary-glow: #67e8f9;
+    --primary-color: #0891b2;
+    --primary-dark: #0e7490;
+    --color-success: #34d399;
+    --border-subtle: rgba(255,255,255,0.06);
+    --border-default: rgba(255,255,255,0.10);
+    --border-strong: rgba(34,211,238,0.40);
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.25);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.3);
+    --shadow-lg: 0 12px 32px rgba(0,0,0,0.38);
+    --shadow-xl: 0 24px 48px rgba(0,0,0,0.45);
+}
+
+/* ── Boutons : 3 styles ───────────────────────────────────────────────── */
+.awk-btn, .awk-btn-2, .awk-btn-ghost {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    min-height: 48px; padding: 12px 18px; box-sizing: border-box;
+    border-radius: var(--awk-r-md); font-family: inherit;
+    font-size: var(--awk-fs-md); font-weight: 800; letter-spacing: 0.2px;
+    text-transform: none; cursor: pointer; line-height: 1.2;
+}
+.awk-btn { background: linear-gradient(135deg, var(--awk-cyan), var(--awk-cyan-fonce)); color: #04121f; border: none; box-shadow: 0 6px 18px rgba(34,211,238,0.22); }
+.awk-btn-2 { background: rgba(255,255,255,0.05); color: var(--awk-txt); border: 1px solid var(--awk-ligne-forte); }
+.awk-btn-ghost { background: transparent; color: var(--awk-cyan-clair); border: 1px solid transparent; }
+.awk-btn:disabled, .awk-btn-2:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* Boutons existants alignés sur ces 3 styles :
+   même arrondi, plus de majuscules forcées, même graisse. */
+.btn, body.dark-mode .btn,
+.ahp-cta {
+    border-radius: var(--awk-r-md) !important;
+    text-transform: none !important;
+    letter-spacing: 0.2px !important;
+    font-weight: 800 !important;
+}
+.btn-secondary, body.dark-mode .btn-secondary {
+    background: rgba(255,255,255,0.05) !important;
+    color: var(--awk-txt) !important;
+    border: 1px solid var(--awk-ligne-forte) !important;
+    box-shadow: none !important;
+}
+.btn-secondary:hover, body.dark-mode .btn-secondary:hover {
+    background: rgba(255,255,255,0.08) !important;
+    border-color: rgba(34,211,238,0.35) !important;
+}
+/* Écran « Prépare-toi » : même bouton principal que l'accueil, et 2 secondaires */
+#startPreparedBtn {
+    background: linear-gradient(135deg, var(--awk-cyan), var(--awk-cyan-fonce)) !important;
+    color: #04121f !important;
+    box-shadow: 0 8px 22px rgba(34,211,238,0.25) !important;
+}
+#awakPartagerBtn {
+    background: rgba(255,255,255,0.05) !important; color: var(--awk-txt) !important;
+    border: 1px solid var(--awk-ligne-forte) !important; font-size: var(--awk-fs-md) !important;
+}
+
+/* ── Restes de vert visibles ─────────────────────────────────────────── */
+body.dark-mode #navCollapseBtn { border-color: var(--awk-ligne) !important; }
+body.dark-mode .card.nav-tabs { border-top-color: var(--awk-ligne) !important; }
+.equipment-item.selected, body.dark-mode .equipment-item.selected {
+    background: linear-gradient(135deg, rgba(34,211,238,0.14), rgba(8,145,178,0.10)), #141a22 !important;
+    border-color: rgba(34,211,238,0.6) !important;
+    box-shadow: 0 0 0 1px rgba(34,211,238,0.15) !important;
+}
+.equipment-item.selected .equipment-name,
+.equipment-item.selected .equipment-count { color: var(--awk-cyan-clair) !important; }
+.equipment-item.selected .equipment-checkmark { background: var(--awk-cyan) !important; color: #04121f !important; }
+input:focus, select:focus, textarea:focus { border-color: rgba(34,211,238,0.55) !important; box-shadow: 0 0 0 3px rgba(34,211,238,0.12) !important; outline: none; }
+.accordion-header.active { box-shadow: none !important; }
+
+/* ── v1360 · Lot 3 : finition ───────────────────────────────────────── */
+/* Écrans vides : même gabarit partout (awakVide dans app.js) */
+.awk-vide { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 34px 18px; color: var(--awk-txt-2); font-size: 14px; line-height: 1.45; grid-column: 1 / -1; }
+.awk-vide-ico { width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center; background: rgba(34,211,238,0.08); border: 1px solid rgba(34,211,238,0.25); margin-bottom: 14px; }
+.awk-vide b { display: block; color: var(--awk-txt); font-size: 16px; font-weight: 800; margin-bottom: 5px; }
+.awk-vide span { display: block; max-width: 300px; }
+.awk-vide button { margin-top: 16px; min-height: 44px; padding: 10px 20px; border: none; border-radius: var(--awk-r-md); background: linear-gradient(135deg, var(--awk-cyan), var(--awk-cyan-fonce)); color: #04121f; font-weight: 800; font-family: inherit; font-size: 14px; cursor: pointer; }
+
+/* Graphique « séances par semaine » : barres qui montent à l'affichage */
+.awk-barre { transform-origin: bottom; animation: awkBarIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
+@keyframes awkBarIn { from { transform: scaleY(0); } }
+@media (prefers-reduced-motion: reduce) {
+    .awk-barre, .tab-content, .tab-content .card { animation: none !important; }
 }

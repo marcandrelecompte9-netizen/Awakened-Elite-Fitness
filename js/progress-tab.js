@@ -115,6 +115,11 @@
       + '<div style="font-size:0.6em;color:#94a3b8;font-weight:800;margin-top:5px;line-height:1.25;">' + label + '</div></div>';
   }
 
+  // v1360 : objectif de la semaine (ligne pointillée), semaines atteintes en
+  // cyan, les autres en gris, semaine en cours mise en avant, résumé dessous.
+  function objectifSem() {
+    try { var up = (typeof getUserProfile === 'function') ? (getUserProfile() || {}) : {}; return Math.max(1, parseInt(up.weeklyGoal, 10) || 3); } catch (e) { return 3; }
+  }
   function graphe8(hist) {
     var ici = lundi(new Date()).getTime(), sem = [];
     for (var i = 7; i >= 0; i--) sem.push({ t: ici - i * 7 * 86400000, n: 0 });
@@ -122,21 +127,38 @@
       var l = lundi(e.date).getTime();
       for (var k = 0; k < sem.length; k++) if (sem[k].t === l) { sem[k].n++; break; }
     });
-    var max = Math.max(3, Math.max.apply(null, sem.map(function (s) { return s.n; })));
-    var barres = sem.map(function (s, k) {
-      var courant = k === sem.length - 1;
-      var h = s.n ? Math.max(10, Math.round(s.n / max * 100)) : 4;
-      var d = new Date(s.t);
-      return '<div style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:4px;">'
-        + '<div style="font-size:0.6em;font-weight:900;color:' + (s.n ? '#e2e8f0' : 'transparent') + ';">' + s.n + '</div>'
-        + '<div style="width:100%;height:64px;display:flex;align-items:flex-end;">'
-        +   '<div style="width:100%;height:' + h + '%;border-radius:6px 6px 3px 3px;'
-        +     'background:' + (s.n ? (courant ? 'linear-gradient(180deg,' + VIOLET + ',' + BLEU + ')' : 'rgba(96,168,240,0.55)') : 'rgba(255,255,255,0.07)') + ';"></div></div>'
-        // v1319 : taille fixe en px (le plancher de lisibilité faisait chevaucher les dates)
-        + '<div style="font-size:9.5px;color:' + (courant ? CLAIR : '#8a99ad') + ';font-weight:' + (courant ? 900 : 700) + ';white-space:nowrap;max-width:100%;overflow:hidden;">'
-        +   (courant ? 'En cours' : d.getDate() + ' ' + MOIS[d.getMonth()].replace('.', '')) + '</div></div>';
-    }).join('');
-    return '<div style="display:flex;gap:5px;align-items:flex-end;">' + barres + '</div>';
+    var but = objectifSem();
+    var max = Math.max(but + 1, Math.max.apply(null, sem.map(function (s) { return s.n; })));
+    var H = 76, moisPrec = -1;
+    var col = function (contenu) { return '<div style="flex:1;min-width:0;display:flex;justify-content:center;">' + contenu + '</div>'; };
+    var valeurs = '', barres = '', dates = '';
+    sem.forEach(function (s, k) {
+      var courant = k === sem.length - 1, ok = s.n >= but;
+      var d = new Date(s.t), m = d.getMonth();
+      var mois = m !== moisPrec ? MOIS[m].replace('.', '') : ''; moisPrec = m;
+      var fond = courant ? 'linear-gradient(180deg,#67e8f9,#0891b2)' : (ok ? 'rgba(34,211,238,0.55)' : 'rgba(148,163,184,0.32)');
+      valeurs += col('<span style="font-size:11px;font-weight:800;font-variant-numeric:tabular-nums;color:' + (s.n ? (courant ? '#e2e8f0' : '#a3b1c2') : 'transparent') + ';">' + s.n + '</span>');
+      barres += col('<div style="width:100%;max-width:24px;height:100%;display:flex;align-items:flex-end;">'
+        + (s.n ? '<div class="awk-barre" style="width:100%;height:' + Math.round(s.n / max * 100) + '%;border-radius:6px;background:' + fond + ';animation-delay:' + (k * 40) + 'ms;"></div>'
+               : '<div style="width:100%;height:3px;border-radius:2px;background:rgba(255,255,255,0.08);"></div>')
+        + '</div>');
+      dates += col('<span style="font-size:11px;line-height:1.2;text-align:center;white-space:nowrap;color:' + (courant ? '#67e8f9' : '#8a99ad') + ';font-weight:' + (courant ? 800 : 600) + ';">'
+        + (courant ? 'Cette<br>sem.' : d.getDate() + '<br><span style="color:#64748b;">' + (mois || '&nbsp;') + '</span>') + '</span>');
+    });
+    var basBut = Math.round(but / max * 100);
+    var faites = sem.filter(function (s) { return s.n >= but; }).length;
+    var moy = sem.reduce(function (a, s) { return a + s.n; }, 0) / sem.length;
+    return '<div>'
+      + '<div style="display:flex;gap:6px;margin-bottom:4px;">' + valeurs + '</div>'
+      + '<div style="position:relative;height:' + H + 'px;display:flex;gap:6px;">'
+      +   '<div style="position:absolute;left:0;right:0;bottom:' + basBut + '%;border-top:1px dashed rgba(251,191,36,0.55);pointer-events:none;"></div>'
+      +   barres
+      + '</div>'
+      + '<div style="display:flex;gap:6px;margin-top:6px;">' + dates + '</div>'
+      + '<div style="display:flex;justify-content:space-between;gap:8px;margin-top:10px;padding-top:9px;border-top:1px solid rgba(255,255,255,0.06);font-size:12.5px;color:#a3b1c2;">'
+      +   '<span>Moyenne <b style="color:#e2e8f0;">' + moy.toFixed(1).replace('.', ',') + '</b> / sem.</span>'
+      +   '<span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:14px;border-top:1px dashed #fbbf24;"></span><span>Objectif ' + but + ' · atteint <b style="color:#67e8f9;">' + faites + '</b>/8</span></span>'
+      + '</div></div>';
   }
 
   function semainesActives(hist) {
@@ -272,7 +294,9 @@
         return '<span style="display:inline-flex;align-items:center;gap:4px;white-space:nowrap;">'
           + '<span style="width:7px;height:7px;border-radius:50%;background:' + couleur(m) + ';"></span>' + esc(m) + '</span>';
       }).join('') + (cles.length > 3 ? '<span style="color:#64748b;">+' + (cles.length - 3) + '</span>' : '');
-      return '<div style="display:flex;height:6px;border-radius:99px;overflow:hidden;margin-top:9px;background:rgba(255,255,255,0.06);">' + seg + '</div>'
+      // Un seul muscle : une barre pleine d'une couleur n'apporte rien (et le
+      // rouge des pectoraux se lisait comme une erreur) → légende seule.
+      return (cles.length > 1 ? '<div style="display:flex;height:4px;border-radius:99px;overflow:hidden;margin-top:9px;background:rgba(255,255,255,0.06);">' + seg + '</div>' : '')
         + '<div style="display:flex;flex-wrap:wrap;gap:4px 11px;margin-top:6px;font-size:0.64em;color:#94a3b8;font-weight:700;">' + leg + '</div>';
     }
     var max = v[cles[0]];
@@ -282,6 +306,23 @@
         + '<div style="flex:1;height:8px;background:rgba(255,255,255,0.07);border-radius:99px;overflow:hidden;">'
         +   '<div style="height:100%;width:' + Math.round(v[m] / max * 100) + '%;background:' + couleur(m) + ';border-radius:99px;"></div></div></div>';
     }).join('');
+  }
+
+  // Aperçu « Pompes, Rowing… +3 » : distingue des séances au même nom
+  function apercuExos(e) {
+    var noms = [];
+    try {
+      var src = (Array.isArray(e.exercises) && e.exercises.length) ? e.exercises
+        : ((e.workoutData && Array.isArray(e.workoutData.exercises)) ? e.workoutData.exercises : []);
+      src.forEach(function (x) {
+        if (!x || x.isRest || x.isInfo || x.isWarmup || x.isStretch) return;
+        var n = typeof x === 'string' ? x : x.name;
+        if (n && !/^(repos|échauffement|retour au calme)/i.test(n) && noms.indexOf(n) === -1) noms.push(n);
+      });
+    } catch (er) {}
+    if (!noms.length) return '';
+    var txt = noms.slice(0, 2).join(', ') + (noms.length > 2 ? ' +' + (noms.length - 2) : '');
+    return '<div style="font-size:0.66em;color:#64748b;font-weight:600;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(txt) + '</div>';
   }
 
   function carte(e, fav) {
@@ -307,6 +348,7 @@
       +     '<div style="font-size:0.88em;font-weight:800;color:#f1f5f9;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'
       +       (fav ? '<span style="display:inline-flex;vertical-align:-2px;margin-right:4px;">' + ico('etoile', 13, OR) + '</span>' : '') + esc(e.name || 'Séance') + '</div>'
       +     '<div style="font-size:0.7em;color:#94a3b8;font-weight:600;margin-top:2px;">' + infos.join(' · ') + '</div>'
+      +     apercuExos(e)
       +   '</div>'
       +   '<span class="awk-hist-chev" style="flex-shrink:0;color:#64748b;transition:transform .2s;display:inline-flex;">'
       +     '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></span>'

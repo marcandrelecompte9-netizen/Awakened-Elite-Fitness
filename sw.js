@@ -2,7 +2,7 @@
 // Enables full offline support and PWA installation
 // Strategy: network-first for code files (HTML/JS/CSS), cache-first for assets (images/fonts)
 
-const CACHE_NAME = 'awakened-v1350';
+const CACHE_NAME = 'awakened-v1361';
 const ASSETS = [
   './',
   './index.html',
@@ -55,6 +55,7 @@ const ASSETS = [
   './js/workout-games.js',
   './js/kids-games.js',
   './js/home-pro.js',
+  './js/echelle.js',
   './js/back-button.js',
   './js/gestures.js',
   './js/rift-visuals.js',
@@ -79,11 +80,11 @@ const ASSETS = [
   './js/pain-mode.js',
   './js/recovery-mode.js',
   './data/items.js',
-  './manifest.json?v=1350',
-  './icons/icon-192.png?v=1350',
-  './icons/icon-512.png?v=1350',
-  './icons/icon-192-maskable.png?v=1350',
-  './icons/icon-512-maskable.png?v=1350',
+  './manifest.json?v=1361',
+  './icons/icon-192.png?v=1361',
+  './icons/icon-512.png?v=1361',
+  './icons/icon-192-maskable.png?v=1361',
+  './icons/icon-512-maskable.png?v=1361',
   // icon-1024.png : asset de soumission aux stores, volontairement hors du
   // précache (487 Ko). Reste dans manifest.json, récupérable à la demande.
   './images/banner_v3.webp',

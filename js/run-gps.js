@@ -482,7 +482,7 @@
       +   '<div style="display:flex;gap:4px;padding:3px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);">' + choix + '</div>'
       +   '<div id="awakRunCoachChoix"></div>'
       +   '<button id="awakRunGo" style="width:100%;margin-top:12px;min-height:auto;padding:16px;border:none;border-radius:14px;cursor:pointer;'
-      +     'background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;font-weight:900;font-size:1em;letter-spacing:1px;">DÉMARRER</button>'
+      +     'background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;font-weight:900;font-size:1em;letter-spacing:1px;">Démarrer</button>'
       +   noteGPS
       + '</div>'
       + (hero ? '' : '<div id="awakRunPlanHote">' + (C ? C.rendrePlan() : '') + '</div>')

@@ -355,7 +355,7 @@
     +   '<button onclick="AwakKidsQuitter()" '
     +     'style="width:100%;padding:12px;border-radius:14px;cursor:pointer;margin-bottom:8px;'
     +     'background:transparent;border:1px solid rgba(255,255,255,0.12);'
-    +     'color:#94a3b8;font-weight:800;font-size:0.74em;">QUITTER SANS ENREGISTRER</button>'
+    +     'color:#94a3b8;font-weight:800;font-size:0.74em;">Quitter sans enregistrer</button>'
     +   '<button onclick="AwakKidsFinir()" '
     +     'style="width:100%;padding:14px;border-radius:14px;border:none;cursor:pointer;'
     +     'background:linear-gradient(160deg,#a5f3fc,#22d3ee 45%,#0e7490);'

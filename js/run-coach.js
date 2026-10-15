@@ -726,7 +726,7 @@
       + '<div style="border-left:3px solid ' + D.c + ';padding-left:10px;">'
       +   '<div style="font-size:1.1em;font-weight:900;color:#fff;">' + D.t + '</div>'
       +   '<div style="font-size:0.74em;color:#cbd5e1;line-height:1.45;margin-top:2px;">' + D.d + '</div></div>'
-      + '<button onclick="AwakCoachRun.lancerPlan(' + nx.w + ',' + nx.i + ')" style="width:100%;margin-top:12px;min-height:auto;padding:15px;border:none;border-radius:13px;cursor:pointer;font-family:inherit;font-weight:900;font-size:0.98em;letter-spacing:0.5px;background:linear-gradient(135deg,#fbbf24,#d97706);color:#1a1205;">LANCER CETTE SORTIE</button>'
+      + '<button onclick="AwakCoachRun.lancerPlan(' + nx.w + ',' + nx.i + ')" style="width:100%;margin-top:12px;min-height:auto;padding:15px;border:none;border-radius:13px;cursor:pointer;font-family:inherit;font-weight:900;font-size:0.98em;letter-spacing:0.5px;background:linear-gradient(135deg,#fbbf24,#d97706);color:#1a1205;">Lancer cette sortie</button>'
       + '<div style="display:flex;justify-content:space-between;gap:6px;margin-top:6px;">'
       +   lien('AwakCoachRun.marquerFait(' + nx.w + ',' + nx.i + ')', 'Déjà faite') + lien('AwakCoachRun.voirPlan()', 'Voir le plan') + lien('AwakRun.autre()', 'Autre sortie', 'awakRunAutreLien')
       + '</div></div>';

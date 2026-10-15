@@ -183,6 +183,79 @@
   ];
 
   // Séances boxe curées (v1 : une séance shadow sans matériel).
+  // v1353 : séances de boxe supplémentaires (cardio court, défense, sac de frappe)
+  var BOXE_EX_PLUS = [
+    { name: "Sautillements en garde", muscle: "Cardio", difficulty: "Débutant", type: "exercise", equipment: ["Poids du corps"], mode: "timer", discipline: "boxe",
+      description: "Rester léger sur les appuis, mains hautes.",
+      instructions: ["Garde haute, menton rentré", "Petits sauts sur l'avant des pieds", "Change de garde toutes les 15 secondes", "Respire calmement"],
+      tips: "Les épaules restent relâchées.", duration: 60 },
+    { name: "Rafale de directs", muscle: "Épaules", difficulty: "Débutant", type: "exercise", equipment: ["Poids du corps"], mode: "timer", discipline: "boxe",
+      description: "Jab et cross le plus vite possible, sans perdre la garde.",
+      instructions: ["Enchaîne 1-2 en continu", "Reviens en garde après chaque coup", "Garde les pieds actifs", "Expire à chaque coup"],
+      tips: "Vitesse d'abord, puissance ensuite.", duration: 30 },
+    { name: "Crochets + esquive", muscle: "Obliques", difficulty: "Débutant", type: "exercise", equipment: ["Poids du corps"], mode: "timer", discipline: "boxe",
+      description: "Deux crochets puis une esquive latérale.",
+      instructions: ["Crochet bras avant, crochet bras arrière", "Esquive la tête à gauche, puis à droite", "Reprends la garde", "Recommence en rythme"],
+      tips: "Fléchis les jambes sur l'esquive.", duration: 45 },
+    { name: "Genoux hauts en garde", muscle: "Cardio", difficulty: "Débutant", type: "exercise", equipment: ["Poids du corps"], mode: "timer", discipline: "boxe",
+      description: "Course sur place, genoux hauts, mains en garde.",
+      instructions: ["Mains devant le visage", "Monte les genoux à hauteur de hanches", "Rythme rapide", "Reste gainé"],
+      tips: "Ne laisse pas tomber les mains.", duration: 30 },
+    { name: "Uppercuts rapides", muscle: "Épaules", difficulty: "Débutant", type: "exercise", equipment: ["Poids du corps"], mode: "timer", discipline: "boxe",
+      description: "Uppercuts alternés à rythme rapide.",
+      instructions: ["Genoux légèrement fléchis", "Uppercut gauche, uppercut droit", "Pousse avec les jambes", "L'autre main protège le menton"],
+      tips: "Petits coups rapides, pas de grands mouvements.", duration: 45 },
+    { name: "Shadow en mouvement", muscle: "Cardio", difficulty: "Débutant", type: "exercise", equipment: ["Poids du corps"], mode: "timer", discipline: "boxe",
+      description: "Shadow libre en te déplaçant dans toutes les directions.",
+      instructions: ["Avance, recule, tourne", "Place un combo à chaque arrêt", "Ne croise jamais les pieds", "Garde toujours la garde haute"],
+      tips: "Imagine un adversaire devant toi.", duration: 60 },
+    { name: "Garde et pas chassés", muscle: "Cardio", difficulty: "Débutant", type: "exercise", equipment: ["Poids du corps"], mode: "timer", discipline: "boxe",
+      description: "Déplacements en garde dans les quatre directions.",
+      instructions: ["Avance : le pied avant mène", "Recule : le pied arrière mène", "Pas chassés à gauche et à droite", "Les pieds ne se croisent jamais"],
+      tips: "Reste toujours en équilibre, prêt à frapper.", duration: 120 },
+    { name: "Rouler sous un crochet (bobbing)", muscle: "Quadriceps", difficulty: "Intermédiaire", type: "exercise", equipment: ["Poids du corps"], mode: "timer", discipline: "boxe",
+      description: "Passer sous un crochet imaginaire en fléchissant les jambes.",
+      instructions: ["Fléchis les genoux", "Trace un U avec la tête, de gauche à droite", "Remonte en garde de l'autre côté", "Garde le dos droit"],
+      tips: "Ce sont les jambes qui descendent, pas le dos qui se penche.", duration: 120 },
+    { name: "Parades (blocages)", muscle: "Épaules", difficulty: "Débutant", type: "exercise", equipment: ["Poids du corps"], mode: "timer", discipline: "boxe",
+      description: "Bloquer des coups imaginaires avec les avant-bras.",
+      instructions: ["Parade haute : avant-bras devant le front", "Parade de côté : coude collé contre la tempe", "Parade au corps : coudes serrés sur les côtes", "Enchaîne les trois en rythme"],
+      tips: "Ne ferme pas les yeux : regarde devant toi.", duration: 120 },
+    { name: "Pivots et angles", muscle: "Cardio", difficulty: "Intermédiaire", type: "exercise", equipment: ["Poids du corps"], mode: "timer", discipline: "boxe",
+      description: "Pivoter sur le pied avant pour changer d'angle.",
+      instructions: ["Pose ton poids sur le pied avant", "Pivote d'un quart de tour", "Place un 1-2 dans le nouvel angle", "Recommence de l'autre côté"],
+      tips: "Un bon angle : tu frappes sans être en face.", duration: 120 },
+    { name: "Esquive et riposte", muscle: "Obliques", difficulty: "Intermédiaire", type: "exercise", equipment: ["Poids du corps"], mode: "timer", discipline: "boxe",
+      description: "Esquiver puis répondre tout de suite.",
+      instructions: ["Esquive à droite, contre avec un cross", "Esquive à gauche, contre avec un crochet", "Reviens en garde", "Garde un rythme régulier"],
+      tips: "La riposte part pendant que l'adversaire revient.", duration: 120 },
+    { name: "Shadow défensif", muscle: "Cardio", difficulty: "Intermédiaire", type: "exercise", equipment: ["Poids du corps"], mode: "timer", discipline: "boxe",
+      description: "Shadow où chaque combo se termine par une défense.",
+      instructions: ["Combo de 2 ou 3 coups", "Termine par une esquive, une parade ou un pas de côté", "Ne reste jamais immobile", "Respire"],
+      tips: "Frapper puis sortir : ne reste pas devant.", duration: 180 },
+    { name: "Sac — directs (1-2)", muscle: "Épaules", difficulty: "Débutant", type: "exercise", equipment: ["Sac de frappe"], mode: "timer", discipline: "boxe",
+      description: "Jab et cross au sac, à distance de bras.",
+      instructions: ["Place-toi à une longueur de bras", "Jab puis cross, poings fermés", "Tourne la hanche sur le cross", "Tourne autour du sac entre les combos"],
+      tips: "Frappe avec les deux premières jointures.", duration: 180 },
+    { name: "Sac — crochets au corps", muscle: "Obliques", difficulty: "Intermédiaire", type: "exercise", equipment: ["Sac de frappe"], mode: "timer", discipline: "boxe",
+      description: "Crochets au niveau du ventre du sac.",
+      instructions: ["Fléchis les jambes pour descendre", "Crochets gauche-droite au corps", "Remonte avec un crochet en haut", "Garde le menton rentré"],
+      tips: "Le coup part des jambes et de la rotation.", duration: 180 },
+    { name: "Sac — combo 1-2-3-2", muscle: "Corps entier", difficulty: "Intermédiaire", type: "exercise", equipment: ["Sac de frappe"], mode: "timer", discipline: "boxe",
+      description: "Direct, direct, crochet, direct.",
+      instructions: ["Jab, cross", "Crochet du bras avant", "Cross pour finir", "Recule d'un pas, recommence"],
+      tips: "Précision avant puissance.", duration: 180 },
+    { name: "Sac — rafales 20/10", muscle: "Cardio", difficulty: "Intermédiaire", type: "exercise", equipment: ["Sac de frappe"], mode: "timer", discipline: "boxe",
+      description: "20 secondes de coups rapides, 10 secondes de récupération.",
+      instructions: ["Rafale de directs pendant 20 s", "10 s de récupération en garde", "Recommence jusqu'à la fin du round", "Garde la technique malgré la fatigue"],
+      tips: "Des petits coups rapides, pas des coups lourds.", duration: 180 },
+    { name: "Sac — mouvement et combos", muscle: "Cardio", difficulty: "Intermédiaire", type: "exercise", equipment: ["Sac de frappe"], mode: "timer", discipline: "boxe",
+      description: "Tourner autour du sac et placer des combos.",
+      instructions: ["Tourne autour du sac en pas chassés", "Arrête-toi et place un combo", "Sors de l'axe après chaque combo", "Change de sens régulièrement"],
+      tips: "Le sac ne bouge pas : toi, oui.", duration: 180 },
+  ];
+  // (⚠️ ne pas nommer _bx : ce nom existe déjà plus bas et les déclarations sont remontées)
+  function _bxTrouve(n) { return BOXE_EXERCISES.concat(BOXE_EX_PLUS).filter(function (e) { return e.name === n; })[0]; }
   var BOXE_SESSIONS = [
     {
       id: 'shadow',
@@ -190,7 +263,15 @@
       level: 'Débutant',
       rest: 60,                 // repos entre rounds (1 min, standard boxe)
       exercises: BOXE_EXERCISES
-    }
+    },
+    // v1353 : court, sans matériel — rounds de 30 à 60 s, repos 30 s
+    { id: 'cardio15', name: 'Cardio boxe express', level: 'Débutant', rest: 30,
+      exercises: ['Sautillements en garde', 'Rafale de directs', 'Crochets + esquive', 'Genoux hauts en garde', 'Uppercuts rapides', 'Rafale de directs', 'Shadow en mouvement', 'Finisher — Burpees boxe'].map(_bxTrouve) },
+    { id: 'defense', name: 'Défense et jeu de jambes', level: 'Intermédiaire', rest: 45, minLevel: 2,
+      exercises: ['Garde et pas chassés', 'Esquives (slips)', 'Rouler sous un crochet (bobbing)', 'Parades (blocages)', 'Pivots et angles', 'Esquive et riposte', 'Shadow défensif'].map(_bxTrouve) },
+    // proposée seulement si « Sac de frappe » est coché dans le matériel
+    { id: 'sac', name: 'Sac de frappe', level: 'Intermédiaire', rest: 60, materiel: 'Sac de frappe',
+      exercises: ['Échauffement & garde', 'Sac — directs (1-2)', 'Sac — crochets au corps', 'Sac — combo 1-2-3-2', 'Sac — rafales 20/10', 'Sac — mouvement et combos', 'Finisher — Burpees boxe'].map(_bxTrouve) }
   ];
 
   function getBoxeSession(id) {
@@ -909,7 +990,15 @@
     mobilite: MOBILITE_SESSIONS
   };
   function listDisciplineSessions(disciplineId) {
-    return DISCIPLINE_SESSIONS[disciplineId] || [];
+    var L = DISCIPLINE_SESSIONS[disciplineId] || [];
+    // v1353 : une séance qui demande un matériel n'apparaît que s'il est coché
+    try {
+      if (typeof global.getSelectedEquipmentNames === 'function') {
+        var dispo = global.getSelectedEquipmentNames() || [];
+        L = L.filter(function (s) { return !s.materiel || dispo.indexOf(s.materiel) !== -1; });
+      }
+    } catch (e) {}
+    return L;
   }
   function getDisciplineSession(disciplineId, sessionId) {
     if (sessionId === 'custom' && disciplineId === 'yoga' && YOGA_CUSTOM) { return YOGA_CUSTOM; }
@@ -921,7 +1010,7 @@
   var DISCIPLINE_GUIDES = {
     boxe: {
       about: "La boxe développe le cardio, la coordination et la puissance, sans aucun matériel : tu frappes dans le vide (shadow boxing) en soignant la technique.",
-      howItWorks: "Les séances s'enchaînent en rounds chronométrés, sur le modèle de la boxe : des phases d'effort entrecoupées d'environ une minute de récupération. Plus ta Voie de l'Arène monte en niveau, plus des séances avancées (combos, élite) se débloquent.",
+      howItWorks: "Les séances s'enchaînent en rounds chronométrés, sur le modèle de la boxe : des phases d'effort entrecoupées d'environ une minute de récupération. Plus ta Voie de l'Arène monte en niveau, plus des séances avancées (défense, combos, élite) se débloquent. Pas le temps ? « Cardio boxe express » tient en une dizaine de minutes. Tu as un sac de frappe ? Coche-le dans ton matériel : la séance « Sac de frappe » apparaît.",
       principles: ["Garde toujours les mains hautes et le menton rentré.", "La puissance vient des hanches et des appuis, pas des bras.", "Privilégie une technique nette plutôt que la vitesse au début.", "Reviens en garde après chaque coup."],
       frequency: "2 à 3 fois par semaine, en laissant des jours plus légers entre les séances intenses."
     },
