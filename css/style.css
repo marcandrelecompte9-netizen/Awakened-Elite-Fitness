@@ -8343,6 +8343,22 @@ body:has(#awakStatPointsModal) #mobileNavBar { display: none !important; }
 #exerciseView[data-mode="timer"] #exerciseVisualContent { min-height: 0 !important; max-height: 40vh; }
 #exerciseView[data-mode="timer"] #exerciseVisualContent img { max-height: 38vh !important; width: auto !important; max-width: 100%; object-fit: contain; }
 
+/* v1373 · Écrans > 640 px : mêmes allègements que sur téléphone
+   (bandeaux « Séance Intelligente » / muscles, barre vide, « Prochain »
+   en double avec « Ensuite », badge d'équipement caché sous le minuteur) */
+#exerciseView #workoutTypeBadge, #exerciseView #musclesOverviewBadge,
+#exerciseView .next-exercise-preview, #exerciseView #equipmentBadges,
+#exerciseView .workout-main-card > .progress-bar { display: none !important; }
+/* bloc d'origine de la barre d'actions : vide une fois la barre déplacée */
+#exerciseView .awk-ctrl-reste { padding: 0 !important; }
+#exerciseView #awakCombatLogPanel:empty { margin-top: 0 !important; }
+/* Grand écran, mode minuté : l'image peut prendre plus de place */
+@media (min-width: 641px) {
+    #exerciseView[data-mode="timer"] #exerciseVisualContent { max-height: none; }
+    #exerciseView[data-mode="timer"] #exerciseVisualContent.awak-vis-img > div { height: min(46vh, 440px) !important; }
+    #exerciseView[data-mode="timer"] #exerciseVisualContent.awak-vis-img img { max-height: 100% !important; height: 100% !important; }
+}
+
 /* « Ensuite : … » */
 #awakEnsuite { margin: 8px auto 0; font-size: 12.5px; color: var(--awk-txt-2); font-weight: 600; max-width: 92%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #awakEnsuite .awk-ens-lbl { color: #67e8f9; font-weight: 800; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; margin-right: 4px; }

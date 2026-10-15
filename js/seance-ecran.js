@@ -55,6 +55,7 @@
     var bloc = barre.parentElement;
     if (!bloc || !bloc.parentElement) return;
     bloc.parentElement.insertBefore(barre, bloc.nextSibling);
+    bloc.classList.add('awk-ctrl-reste');
     barre.setAttribute('data-placee', '1');
   }
 
