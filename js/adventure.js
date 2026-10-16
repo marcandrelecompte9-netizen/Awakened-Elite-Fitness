@@ -1000,7 +1000,7 @@ function showItemPopup(item, invId, equippedSlot) {
 
             <!-- Header rareté -->
             <div style="background:linear-gradient(135deg,${r.color}25,${r.color}05);padding:18px 20px;text-align:center;border-bottom:1px solid ${r.color}30;position:relative;">
-                <button onclick="document.getElementById('itemPopupModal').remove()" style="position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;cursor:pointer;font-size:0.9em;font-weight:700;display:flex;align-items:center;justify-content:center;">✕</button>
+                <button onclick="document.getElementById('itemPopupModal').remove()" aria-label="Fermer" style="position:absolute;top:10px;right:10px;z-index:3;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;cursor:pointer;font-size:0.9em;font-weight:700;display:flex;align-items:center;justify-content:center;">✕</button>
 
                 <div style="font-size:3em;line-height:1;margin-bottom:8px;filter:drop-shadow(0 0 14px ${r.glow});">${item.icon}</div>
                 <div style="font-weight:900;color:white;font-size:1.05em;line-height:1.3;margin-bottom:4px;">${item.name}</div>
@@ -1246,7 +1246,7 @@ function openInventoryCleanupModal() {
 
             <!-- Header -->
             <div style="background:linear-gradient(135deg,rgba(239,68,68,0.18),rgba(239,68,68,0.04));padding:16px 20px;border-bottom:1px solid rgba(239,68,68,0.3);position:relative;flex-shrink:0;">
-                <button onclick="document.getElementById('inventoryCleanupModal').remove()" style="position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;cursor:pointer;font-size:0.9em;font-weight:700;display:flex;align-items:center;justify-content:center;">✕</button>
+                <button onclick="document.getElementById('inventoryCleanupModal').remove()" aria-label="Fermer" style="position:absolute;top:10px;right:10px;z-index:3;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;cursor:pointer;font-size:0.9em;font-weight:700;display:flex;align-items:center;justify-content:center;">✕</button>
                 <div style="display:flex;align-items:center;gap:10px;">
                     <div style="font-size:2em;line-height:1;filter:drop-shadow(0 0 10px rgba(239,68,68,0.4));">🧹</div>
                     <div>
@@ -1496,6 +1496,7 @@ function showRPGEquipmentModal(defaultTab) {
         const eq = getEquipped();
         const equippedIds = new Set(Object.values(eq).filter(Boolean));
         const allItems = inv.map(entry => ({ entry, item: getItemById(entry.itemId) })).filter(x => x.item);
+        if (allItems.length < 6) { invRarityFilter = 'all'; invSlotFilter = 'all'; }   // filtres masqués
 
         const rarityOrder = ['common','uncommon','rare','superior','epic','legendary','mythic'];
         const bySlotForRarity = invSlotFilter === 'all' ? allItems : allItems.filter(({item}) => item.slot === invSlotFilter);
@@ -1532,33 +1533,50 @@ function showRPGEquipmentModal(defaultTab) {
             (invRarityFilter === 'all' || item.rarity === invRarityFilter) &&
             (invSlotFilter === 'all'   || item.slot   === invSlotFilter));
 
-        // Cases vides : seulement pour compléter la dernière rangée (2 rangées minimum)
-        const total = Math.max(10, Math.ceil(itemsList.length / 5) * 5);
-        const emptySlots = itemsList.length ? total - itemsList.length : 0;
-
+        // v1377 : LISTE (icône, nom, rareté · emplacement, stats) au lieu d'une
+        // grille de petites cases muettes ; objets équipés d'abord, puis par
+        // rareté décroissante. Filtres affichés seulement à partir de 6 objets.
+        const _rangR = r => rarityOrder.indexOf(r);
+        itemsList.sort((a, b) => (equippedIds.has(b.entry.id) - equippedIds.has(a.entry.id)) || (_rangR(b.item.rarity) - _rangR(a.item.rarity)));
+        const _statsTxt = (item) => Object.entries(item.stats || {}).filter(([, v]) => v).map(([k, v]) =>
+            `<span style="color:${v < 0 ? '#f87171' : '#cbd5e1'};">${v > 0 ? '+' : ''}${v} ${k}</span>`).join('<span style="color:#475569;"> · </span>');
         const grid = itemsList.length === 0
             ? `<div style="text-align:center;color:${EQ_TXT2};font-size:14px;padding:26px 10px;">${allItems.length ? 'Aucun objet pour ce filtre.' : 'Ton inventaire est vide. Entraîne-toi pour gagner des objets (2 par jour au maximum).'}</div>`
-            : `<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding-top:2px;">
+            : `<div style="display:flex;flex-direction:column;gap:6px;">
             ${itemsList.map(({entry, item}) => {
                 const isEq = equippedIds.has(entry.id);
                 const r2 = getRarityInfo(item.rarity);
                 const block = !isEq ? getEquipBlockReason(item) : null;
-                return `<div onclick="window._rpgEqInvSelect('${item.id}',${entry.id})" title="${(item.name || '').replace(/"/g, '&quot;')}" style="
-                    aspect-ratio:1;border-radius:12px;cursor:pointer;position:relative;
-                    background:${block ? 'rgba(255,255,255,0.02)' : r2.bg};
-                    border:${isEq ? '1.5px solid ' + r2.color : '1px solid ' + (block ? EQ_LIGNE : r2.color + '55')};
-                    box-shadow:${isEq ? '0 0 10px ' + r2.glow : 'none'};
-                    display:flex;align-items:center;justify-content:center;opacity:${block ? 0.5 : 1};">
-                    ${isEq ? `<span style="position:absolute;top:-4px;right:-4px;width:16px;height:16px;border-radius:50%;background:${EQ_C};display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #0b0d12;">${_svgCoche}</span>` : ''}
-                    ${block ? `<span style="position:absolute;top:4px;left:4px;display:flex;">${_svgCadenas}</span>` : ''}
-                    <span style="font-size:1.4em;line-height:1;${block ? 'filter:grayscale(0.7);' : ''}">${item.icon}</span>
-                    <span style="position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:14px;height:3px;border-radius:2px;background:${r2.color};opacity:0.85;"></span>
+                const nomR = (r2.labelFull || item.rarity); const rar = nomR.charAt(0) + nomR.slice(1).toLowerCase();
+                const emp = item.slot === 'accessory' ? 'Accessoire' : (SLOT_NOMS[item.slot] || item.slot);
+                const st = _statsTxt(item);
+                const etat = isEq
+                    ? `<span style="flex-shrink:0;font-size:11px;font-weight:800;color:#04121f;background:${EQ_C};border-radius:99px;padding:3px 8px;">Équipé</span>`
+                    : block
+                        ? `<span style="flex-shrink:0;display:flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:${EQ_TXT2};">${_svgCadenas}</span>`
+                        : `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#64748b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 6l6 6-6 6"/></svg>`;
+                return `<div onclick="window._rpgEqInvSelect('${item.id}',${entry.id})" class="awk-inv-ligne" style="
+                    display:flex;align-items:center;gap:11px;padding:9px 11px 9px 9px;border-radius:12px;cursor:pointer;
+                    background:${isEq ? 'rgba(34,211,238,0.06)' : 'rgba(255,255,255,0.025)'};
+                    border:1px solid ${isEq ? 'rgba(34,211,238,0.35)' : EQ_LIGNE};
+                    border-left:3px solid ${r2.color};opacity:${block ? 0.6 : 1};">
+                    <div style="width:42px;height:42px;border-radius:11px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+                        background:${r2.bg};border:1px solid ${r2.color}55;font-size:1.35em;line-height:1;${block ? 'filter:grayscale(0.7);' : ''}">${item.icon}</div>
+                    <div style="flex:1;min-width:0;">
+                        <div style="font-size:14px;font-weight:800;color:#f1f5f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.name}</div>
+                        <div style="font-size:12px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                            <span style="color:${r2.color};font-weight:700;">${rar}</span><span style="color:#64748b;"> · ${emp}</span>${item.cursed ? '<span style="color:#c084fc;font-weight:700;"> · Maudit</span>' : ''}
+                        </div>
+                        ${block ? `<div style="font-size:11px;margin-top:2px;color:${EQ_TXT2};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${block.label}</div>`
+                            : (st ? `<div style="font-size:11px;margin-top:2px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums;">${st}</div>` : '')}
+                    </div>
+                    ${etat}
                 </div>`;
             }).join('')}
-            ${Array.from({length: emptySlots}, () => `<div style="aspect-ratio:1;border-radius:12px;background:rgba(255,255,255,0.015);border:1px dashed rgba(255,255,255,0.07);"></div>`).join('')}
         </div>`;
 
-        return barre(rarityBar) + barre(slotBar) + grid;
+        const filtres = allItems.length >= 6 ? barre(rarityBar) + barre(slotBar) : '';
+        return filtres + grid;
     }
 
     function rebuild() {
