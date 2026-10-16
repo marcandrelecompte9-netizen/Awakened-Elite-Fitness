@@ -19280,7 +19280,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             <div style="font-size:0.6em;color:#22d3ee;font-weight:900;letter-spacing:2px;">PLAN HEBDO</div>
                             <div style="font-size:1em;font-weight:900;color:white;margin-top:2px;">Modifier la semaine</div>
                         </div>
-                        <button onclick="document.getElementById('weeklyPlanEditorModal').remove();renderWeeklyPlanCard();" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#f87171;width:32px;height:32px;border-radius:50%;font-size:0.9em;cursor:pointer;">✓</button>
+                        <button onclick="document.getElementById('weeklyPlanEditorModal').remove();renderWeeklyPlanCard();" aria-label="Terminé" style="background:linear-gradient(135deg,#22d3ee,#0891b2);border:none;color:#04121f;border-radius:99px;padding:8px 14px;font-family:inherit;font-size:13px;font-weight:800;cursor:pointer;min-height:0;">Terminé</button>
                     </div>
                     <div style="flex:1;overflow-y:auto;padding:14px 16px;-webkit-overflow-scrolling:touch;">
                         ${ROUTINE_DAYS.map(d => {
@@ -19312,10 +19312,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                                     <div style="background:rgba(148,163,184,0.06);border:1px dashed rgba(148,163,184,0.25);border-radius:10px;padding:8px 11px;margin-bottom:8px;text-align:center;font-size:0.78em;color:#64748b;font-weight:700;">🛌 Jour de repos</div>
                                 `}
 
-                                <select onchange="setWeeklyDay('${d}', this.value || null)" style="width:100%;background:#0a0e18;border:1px solid rgba(255,255,255,0.1);color:white;border-radius:10px;padding:10px 12px;font-size:0.82em;cursor:pointer;">
-                                    <option value="">— Choisir une routine ou Repos —</option>
-                                    ${routines.map(r => `<option value="${r.id}" ${r.id === currentRoutineId ? 'selected' : ''}>${r.emoji ? r.emoji + ' ' : ''}${r.name}</option>`).join('')}
-                                </select>
+                                <button type="button" class="awk-pl-choisir" onclick="awakPlanChoisirRoutine('${d}')">
+                                    <span>${currentRoutine ? 'Changer de routine' : 'Choisir une routine'}</span>
+                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+                                </button>
                             </div>`;
                         }).join('')}
                     </div>
@@ -19337,7 +19337,12 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
             // 🔄 Re-render le modal pour montrer le changement
             if (document.getElementById('weeklyPlanEditorModal')) {
+                // v1380 : garder la position de défilement (sinon retour en haut à chaque choix)
+                const _sc = document.querySelector('#weeklyPlanEditorModal [style*="overflow-y:auto"]');
+                const _top = _sc ? _sc.scrollTop : 0;
                 openWeeklyPlanEditor();
+                const _sc2 = document.querySelector('#weeklyPlanEditorModal [style*="overflow-y:auto"]');
+                if (_sc2) _sc2.scrollTop = _top;
             }
 
             // 🔄 Re-render aussi la carte principale (visible derrière le modal)
@@ -19356,6 +19361,71 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             }
         }
         window.setWeeklyDay = setWeeklyDay;
+
+        // v1380 : choix de la routine d'un jour — panneau du bas avec recherche
+        // (remplace la liste déroulante native, qui cassait le visuel et
+        // devenait ingérable avec une vingtaine de routines).
+        function awakPlanChoisirRoutine(day) {
+            const routines = getRoutines();
+            const plan = getWeeklyPlan();
+            const actuel = plan[day] || null;
+            const dayLabel = ({lun:'Lundi',mar:'Mardi',mer:'Mercredi',jeu:'Jeudi',ven:'Vendredi',sam:'Samedi',dim:'Dimanche'})[day] || day;
+            const esc = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+            const norm = t => String(t || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+            const muscles = r => {
+                const m = [];
+                (r.exercises || []).forEach(e => { const x = e && (e.muscle || (e.muscles && e.muscles[0])); if (x && m.indexOf(x) < 0) m.push(x); });
+                return m;
+            };
+            document.getElementById('awakPlanChoix')?.remove();
+            const fond = document.createElement('div');
+            fond.id = 'awakPlanChoix';
+            const avecRecherche = routines.length >= 6;
+            const ligne = r => {
+                const m = muscles(r);
+                const sous = (r.exercises || []).length + ' exo' + ((r.exercises || []).length > 1 ? 's' : '') + (m.length ? ' · ' + m.slice(0, 3).join(', ') + (m.length > 3 ? '…' : '') : '');
+                const on = r.id === actuel;
+                return '<button type="button" class="awk-pl-ligne' + (on ? ' on' : '') + '" data-id="' + esc(r.id) + '" data-cherche="' + esc(norm(r.name + ' ' + m.join(' '))) + '">'
+                    + '<span class="awk-pl-ico" style="border-color:' + esc(r.color || '#22d3ee') + '55;background:' + esc(r.color || '#22d3ee') + '14;">' + awakRoutineIcon(r, 20) + '</span>'
+                    + '<span class="awk-pl-txt"><b>' + esc(r.name) + '</b><small>' + esc(sous) + '</small></span>'
+                    + (on ? '<span class="awk-pl-coche"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#04121f" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>' : '')
+                    + '</button>';
+            };
+            fond.innerHTML = '<div class="awk-pl-feuille" role="dialog" aria-label="Routine du ' + dayLabel + '">'
+                + '<div class="awk-pl-poignee"></div>'
+                + '<div class="awk-pl-tete"><div><div class="awk-pl-sur">' + dayLabel + '</div><div class="awk-pl-titre">Choisir une routine</div></div>'
+                + '<button type="button" class="awk-pl-x" data-fermer aria-label="Fermer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>'
+                + (avecRecherche ? '<div class="awk-pl-cherche"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#64748b" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>'
+                    + '<input type="search" placeholder="Rechercher une routine ou un muscle" autocomplete="off" data-q></div>' : '')
+                + '<div class="awk-pl-liste">'
+                + '<button type="button" class="awk-pl-ligne awk-pl-repos' + (!actuel ? ' on' : '') + '" data-id="">'
+                + '<span class="awk-pl-ico" style="border-style:dashed;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 019.5 4a8 8 0 1010.5 10.5z"/></svg></span>'
+                + '<span class="awk-pl-txt"><b>Repos</b><small>Aucune routine ce jour-là</small></span>'
+                + (!actuel ? '<span class="awk-pl-coche"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#04121f" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>' : '')
+                + '</button>'
+                + routines.map(ligne).join('')
+                + '<div class="awk-pl-vide" style="display:none;">Aucune routine ne correspond.</div>'
+                + '</div></div>';
+            document.body.appendChild(fond);
+            const fermer = () => fond.remove();
+            fond.addEventListener('click', e => { if (e.target === fond) fermer(); });
+            fond.querySelector('[data-fermer]').onclick = fermer;
+            fond.querySelectorAll('.awk-pl-ligne').forEach(b => {
+                b.onclick = () => { const id = b.getAttribute('data-id') || null; fermer(); setWeeklyDay(day, id); };
+            });
+            const q = fond.querySelector('[data-q]');
+            if (q) q.addEventListener('input', () => {
+                const t = norm(q.value.trim());
+                let n = 0;
+                fond.querySelectorAll('.awk-pl-ligne[data-cherche]').forEach(b => { const ok = !t || b.getAttribute('data-cherche').indexOf(t) >= 0; b.style.display = ok ? '' : 'none'; if (ok) n++; });
+                const rep = fond.querySelector('.awk-pl-repos'); if (rep) rep.style.display = t ? 'none' : '';
+                fond.querySelector('.awk-pl-vide').style.display = n ? 'none' : '';
+            });
+            // la routine actuelle visible d'entrée
+            const on = fond.querySelector('.awk-pl-ligne.on[data-cherche]');
+            if (on) setTimeout(() => { try { on.scrollIntoView({ block: 'center' }); } catch (e) {} }, 0);
+        }
+        window.awakPlanChoisirRoutine = awakPlanChoisirRoutine;
 
         // ═══════════════════════════════════════════════════════════════
         // 📋 RENDER : Liste des routines
@@ -23214,7 +23284,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1377);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1381);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -23266,7 +23336,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 +       '<rect width="5" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.22"/>'
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1377" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1381" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -28723,7 +28793,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1377");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1381");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -29248,8 +29318,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const _faible = _lvls.slice().sort((a, b) => a.lv - b.lv)[0];
             const _tuileM = (lbl, val, sous, c) => `<div style="flex:1;min-width:0;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:9px 5px;text-align:center;">
                 <div style="font-size:11px;color:#8d9cb1;font-weight:700;">${lbl}</div>
-                <div style="font-size:14px;font-weight:900;color:${c};line-height:1.25;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${val}</div>
-                <div style="font-size:11px;color:#a3b1c2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${sous}</div></div>`;
+                <div style="font-size:${String(val).length > 11 ? 12 : String(val).length > 8 ? 13 : 14}px;font-weight:900;color:${c};line-height:1.2;margin:3px 0 1px;">${val}</div>
+                <div style="font-size:11px;color:#a3b1c2;line-height:1.3;overflow-wrap:anywhere;">${sous}</div></div>`;
             const _leg = [['Niv. 1-2', '#94a3b8'], ['3-4', '#22c55e'], ['5-6', '#3b82f6'], ['7-9', '#a855f7'], ['10+', '#fbbf24']]
                 .map(([t, c]) => `<span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:50%;background:${c};"></span>${t}</span>`).join('');
             cardMuscles.innerHTML = `
@@ -33170,7 +33240,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1377);'
+                +     'url(images/combat_bg_v1.webp?v=1381);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -33425,7 +33495,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1377);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1381);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -33697,7 +33767,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:540px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto;display:flex;flex-direction:column;">
                 <!-- Header : vague actuelle -->
-                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1377);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1381);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                         <span style="font-size:0.6em;color:${theme.color};font-weight:900;letter-spacing:2px;">⚔ VAGUE ${rift.currentWaveIdx + 1} / ${rift.waves.length}${currentWave.isBoss ? ' · BOSS' : ''}</span>
                         <button onclick="awakAbandonRift()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
@@ -34827,7 +34897,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1377');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1381');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -35564,7 +35634,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1377);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1381);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -35735,7 +35805,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1377);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1381);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -46777,7 +46847,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
             host.innerHTML =
                 '<div style="position:relative;width:110px;margin:0 auto 12px;">'
-              +   '<img src="images/body/body_face.webp?v=1377" alt="" '
+              +   '<img src="images/body/body_face.webp?v=1381" alt="" '
               +     'style="width:100%;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -46859,7 +46929,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1377);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1381);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -46926,7 +46996,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1377);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1381);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -49248,7 +49318,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1377");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1381");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
