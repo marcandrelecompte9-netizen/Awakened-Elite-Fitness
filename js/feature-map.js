@@ -80,7 +80,7 @@
         _row('trophee', O, "Hall of Fame", "Les records de chaque exercice", 'awakHallOpen'),
         _row('arbre', V, "Arbre de l'Éveil", "Ton archétype et ta progression", 'showAwakeningTree'),
         _row('epee', V, "Standards de force", "Situe ta force par rang E à S", 'openStrengthStandards'),
-        _row('chrono', G, "Historique", "Toutes tes séances passées", 'switchTab', 'history'),
+        _row('chrono', G, "Historique", "Toutes tes séances passées", 'awakProgSeances'),
         _row('valide', G, "Ta semaine", "Le récap de ta semaine en cours", 'showWeeklyRecap', 'current')
       ]);
 

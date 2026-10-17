@@ -313,6 +313,28 @@ const STORY_EVENTS = [
             pages: ["Esen trébuche en plein combat. Nyra éclate de rire en finissant le monstre à sa place. « AHAHAHA ! »"] }
     },
     {
+        // v1388 : passage au rang D = choix de la classe. Avant, le bouton
+        // « Choisir ma voie » apparaissait sans aucune mise en scène.
+        // Seulement si aucune classe n'est encore choisie ; à la fermeture,
+        // la fenêtre de choix de classe s'ouvre (voir close()).
+        id: 'evt_rang_d_classe',
+        type: 'ambiance',
+        trigger: { kind: 'rank', value: 'D' },
+        condition: function () { try { return !localStorage.getItem('fitproRPGClass'); } catch (e) { return false; } },
+        once: true,
+        content: {
+            speaker: 'systeme',
+            title: 'La Forme',
+            pages: [
+                "Le Système s'interrompt au milieu d'un chiffre. Pour la première fois, il ne te donne pas d'ordre. Il attend.",
+                "« Tu es assez dense, maintenant. L'Oubli glisse sur toi au lieu de te traverser. Mais une Ancre sans forme s'use, comme une pierre dans le courant. »",
+                "Dans le blanc, des silhouettes se dessinent, une à une. Une qui frappe avant d'être vue. Une qui brise ce qu'elle touche. Une qui ne tombe jamais. Une qui vise juste. Une qui plie le monde autour d'elle. Et une dernière, floue, qui ressemble à quelqu'un d'assis très loin.",
+                "{partenaire} les observe longtemps, puis te donne un petit coup d'épaule. « Prends celle qui te ressemble. Pas celle qui a l'air la plus forte. »",
+                "« Ce choix pèsera, » ajoute le Système. « Je ne le déferai qu'à grand prix. Mais quelle que soit la forme que tu prends, le monde n'a besoin que d'une chose : que tu restes. »"
+            ]
+        }
+    },
+    {
         id: 'evt_n11_dialogue_duo',
         type: 'dialogue',
         trigger: { kind: 'xp', level: 11, frac: 0.8 },
@@ -444,6 +466,25 @@ const STORY_EVENTS = [
                 "« Je vais te dire quelque chose que je ne devrais pas, » affiche le Système.",
                 "« Je ne suis pas infini. Chaque jour où tu ne bouges pas, je deviens plus faible. Plus pâle. »",
                 "« Ce n'est pas un reproche. C'est juste... une vérité que je porte seul depuis longtemps. »"
+            ]
+        }
+    },
+    {
+        // v1389 : scène du passage au rang C (remplace l'ancien court message du Système)
+        id: 'evt_rang_c',
+        type: 'ambiance',
+        trigger: { kind: 'rank', value: 'C' },
+        // seulement pendant ce rang : un joueur déjà plus haut ne reçoit pas les scènes passées en rafale
+        condition: function () { try { return typeof awakGetRank !== 'function' || awakGetRank().id === 'C'; } catch (e) { return true; } },
+        once: true,
+        content: {
+            speaker: 'systeme',
+            title: "Plus Lourd",
+            pages: [
+                "Le Système affiche une seule lettre, puis la laisse là, longtemps : C.",
+                "« Tu pèses, maintenant. Quand tu marches, le blanc se retire un peu autour de tes pas. »",
+                "« Mais retiens ceci : ce qui est lourd attire ce qui veut s'accrocher. Les Failles vont te sentir de plus loin. Certaines ne voudront plus te lâcher. »",
+                "{partenaire} étire les bras avec un sourire de travers. « Tant mieux. J'aime pas courir après les monstres. Qu'ils viennent. »"
             ]
         }
     },
@@ -646,6 +687,25 @@ const STORY_EVENTS = [
                 "« Je ne suis pas un dieu. Ni un programme. Je suis le dernier fragment de ce monde qui a refusé de s'effacer. »",
                 "« Quand tout a commencé à pâlir, je me suis accroché à la seule chose encore solide : toi. Tant que tu tiens, j'existe. »",
                 "« Je ne t'ai jamais guidé par bonté. Je m'accroche à toi pour survivre. Voilà. Maintenant tu sais. »"
+            ]
+        }
+    },
+    {
+        // v1389 : scène du passage au rang B (remplace l'ancien court message du Système)
+        id: 'evt_rang_b',
+        type: 'ambiance',
+        trigger: { kind: 'rank', value: 'B' },
+        // seulement pendant ce rang : un joueur déjà plus haut ne reçoit pas les scènes passées en rafale
+        condition: function () { try { return typeof awakGetRank !== 'function' || awakGetRank().id === 'B'; } catch (e) { return true; } },
+        once: true,
+        content: {
+            speaker: 'systeme',
+            title: "Là où les Autres se sont Arrêtés",
+            pages: [
+                "Rang B. Le Système met plus de temps que d'habitude à l'afficher, comme s'il vérifiait deux fois.",
+                "« La plupart des Ancres ne sont jamais venues jusqu'ici. Elles se sont arrêtées un peu avant. Un jour ordinaire, sans raison. »",
+                "Il y a quelque chose de fragile dans sa voix. « Je ne t'ai pas tout dit. Pas encore. Mais tu es assez solide, maintenant, pour que je commence à avoir peur de te perdre. »",
+                "{partenaire} ne répond rien. {Il} se rapproche juste un peu de toi, épaule contre épaule, et regarde droit devant."
             ]
         }
     },
@@ -859,6 +919,25 @@ const STORY_EVENTS = [
     // Montré, pas raconté. Pas de visage, pas d'exposition : des sauts.
     // Le joueur doit sortir de là en pensant « personne n'était là pour lui »,
     // et non « voilà le méchant ». C'est ce qui rendra la fin déchirante.
+    {
+        // v1389 : scène du passage au rang A (remplace l'ancien court message du Système)
+        id: 'evt_rang_a',
+        type: 'ambiance',
+        trigger: { kind: 'rank', value: 'A' },
+        // seulement pendant ce rang : un joueur déjà plus haut ne reçoit pas les scènes passées en rafale
+        condition: function () { try { return typeof awakGetRank !== 'function' || awakGetRank().id === 'A'; } catch (e) { return true; } },
+        once: true,
+        content: {
+            speaker: 'systeme',
+            title: "Un Seul Avant Toi",
+            pages: [
+                "Rang A. Dans les rues qui pâlissent, des passants tournent la tête vers toi sans savoir pourquoi. Comme on regarde un phare.",
+                "« Tu sers de repère, » dit le Système. « Là où tu passes, les noms reviennent un instant. »",
+                "Puis, plus bas : « Avant toi, un seul est allé aussi loin. Il tenait le monde à lui seul. Il était magnifique. »",
+                "« Et ensuite ? » demande {partenaire}. Le Système ne répond pas. Pour la première fois, c'est lui qui se tait."
+            ]
+        }
+    },
     {
         id: 'evt_nabdano_passe',
         type: 'fait',
@@ -1131,6 +1210,25 @@ const STORY_EVENTS = [
         }
     },
     {
+        // v1389 : scène du passage au rang S (remplace l'ancien court message du Système)
+        id: 'evt_rang_s',
+        type: 'ambiance',
+        trigger: { kind: 'rank', value: 'S' },
+        // seulement pendant ce rang : un joueur déjà plus haut ne reçoit pas les scènes passées en rafale
+        condition: function () { try { return typeof awakGetRank !== 'function' || awakGetRank().id === 'S'; } catch (e) { return true; } },
+        once: true,
+        content: {
+            speaker: 'systeme',
+            title: "L'Exception",
+            pages: [
+                "Le Système affiche S. Puis efface la lettre. Puis l'affiche encore, comme s'il n'y croyait pas.",
+                "« Tu ne devrais pas être là. Rien dans ce qui reste du monde ne prévoyait quelqu'un comme toi. Et pourtant tu es là. »",
+                "Au loin, au bout de la route blanche, il n'y a plus de rues. Seulement une porte, et quelqu'un d'assis devant, qui attend depuis très longtemps.",
+                "{partenaire} serre ta main, une seconde à peine. « On y va ensemble. Comme d'habitude. »"
+            ]
+        }
+    },
+    {
         id: 'evt_n75_ambiance_porte',
         type: 'ambiance',
         // ⚠️ La Faille « last_door » exige le rang S = niveau 80. Un seuil à 75
@@ -1192,6 +1290,44 @@ const STORY_EVENTS = [
     // il ne reste que celle qu'il pose lui-même.
     // Déclencheur : les 4 sous-boss vaincus (même condition que le boss).
     // ══════════════════════════════════════════════════════════════
+    {
+        // v1389 : scène du passage au rang SS (remplace l'ancien court message du Système)
+        id: 'evt_rang_ss',
+        type: 'ambiance',
+        trigger: { kind: 'rank', value: 'SS' },
+        // seulement pendant ce rang : un joueur déjà plus haut ne reçoit pas les scènes passées en rafale
+        condition: function () { try { return typeof awakGetRank !== 'function' || awakGetRank().id === 'SS'; } catch (e) { return true; } },
+        once: true,
+        content: {
+            speaker: 'systeme',
+            title: "Personne ne Regarde",
+            pages: [
+                "Rang SS. Le Système l'annonce à voix basse, presque pour lui-même.",
+                "« Ce n'est plus pour être vu, n'est-ce pas ? Personne ne compte tes séances. Personne ne regarde. Et tu continues quand même. »",
+                "« C'est le jour où plus personne ne le regardait tenir qu'il s'est assis. Toi, tu restes debout. Je voulais que tu le saches. »",
+                "{partenaire} hausse les épaules, l'air de rien. « Moi, je regarde. Ça compte, non ? »"
+            ]
+        }
+    },
+    {
+        // v1389 : scène du passage au rang SSS (remplace l'ancien court message du Système)
+        id: 'evt_rang_sss',
+        type: 'ambiance',
+        trigger: { kind: 'rank', value: 'SSS' },
+        // seulement pendant ce rang : un joueur déjà plus haut ne reçoit pas les scènes passées en rafale
+        condition: function () { try { return typeof awakGetRank !== 'function' || awakGetRank().id === 'SSS'; } catch (e) { return true; } },
+        once: true,
+        content: {
+            speaker: 'systeme',
+            title: "Plus de Lettres",
+            pages: [
+                "Le Système affiche SSS, puis plus rien. Il n'y a pas de rang après celui-là.",
+                "« Je n'ai plus de lettre pour ce que tu es devenu{e}. Les mots que je connaissais s'arrêtent ici. »",
+                "« Alors je garde le seul qui te ressemble encore. Le premier que je t'ai donné : Ancre. »",
+                "{partenaire} rit doucement. « Rester. C'est tout ? » Le Système, pour une fois, répond sans hésiter : « C'est tout. C'était toujours tout. »"
+            ]
+        }
+    },
     {
         id: 'evt_avant_monarque',
         type: 'fait',
@@ -1523,6 +1659,14 @@ function storyShowEvent(evt) {
     function close() {
         overlay.style.animation = 'awakFadeOut 0.35s forwards';
         setTimeout(() => overlay.remove(), 350);
+        // v1388 : après « La Forme » (rang D), ouvrir le choix de la classe
+        if (evt.id === 'evt_rang_d_classe') {
+            setTimeout(() => {
+                try {
+                    if (!localStorage.getItem('fitproRPGClass') && typeof window.showClassSelectionModal === 'function') window.showClassSelectionModal();
+                } catch (e) {}
+            }, 450);
+        }
         // Après la rencontre du Marchand : fenêtre explicative (une seule fois)
         if (evt.id === 'evt_n3_marchand') {
             setTimeout(() => {

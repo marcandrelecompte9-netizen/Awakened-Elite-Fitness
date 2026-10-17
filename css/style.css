@@ -8536,3 +8536,121 @@ body:has(#completionView:not(.hidden)) .toast-container { top: calc(12px + env(s
 .awk-reprise-point { width: 7px; height: 7px; border-radius: 50%; background: #fbbf24; flex-shrink: 0; animation: awkReprisePt 2s ease-in-out infinite; }
 @keyframes awkReprisePt { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
 @media (prefers-reduced-motion: reduce) { .awk-reprise-point { animation: none; } }
+
+/* ── v1390 · Photos + mensurations (js/photos-mesures.js) ── */
+.awk-pm-fond { position: fixed; inset: 0; z-index: 10060; background: rgba(3,5,8,0.78); display: flex; align-items: center; justify-content: center; padding: 16px; animation: awakFadeIn 0.18s ease; }
+.awk-pm-carte { width: 100%; max-width: 460px; max-height: 88vh; max-height: 88dvh; display: flex; flex-direction: column; background: #0b0d12; border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.55); overflow: hidden; }
+.awk-pm-tete { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 16px 16px 10px; flex-shrink: 0; }
+.awk-pm-sur { font-size: 11px; color: #67e8f9; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; }
+.awk-pm-titre { font-size: 19px; font-weight: 800; color: #f1f5f9; line-height: 1.2; }
+.awk-pm-x { width: 38px; height: 38px; min-height: 0; padding: 0; border-radius: 50%; flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); color: #cbd5e1; }
+.awk-pm-corps { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding: 0 16px 12px; }
+.awk-pm-pied { display: flex; gap: 10px; padding: 12px 16px 16px; border-top: 1px solid rgba(255,255,255,0.06); flex-shrink: 0; }
+.awk-pm-pied button { flex: 1; min-height: 48px; }
+.awk-pm-pied button[disabled] { opacity: 0.45; cursor: default; }
+.awk-pm-note { font-size: 12.5px; color: #a3b1c2; margin: 8px 0 10px; line-height: 1.4; }
+.awk-pm-apercu { border-radius: 14px; overflow: hidden; background: #05080e; border: 1px solid rgba(255,255,255,0.08); }
+.awk-pm-apercu img { display: block; width: 100%; max-height: 240px; object-fit: contain; }
+.awk-pm-lignes { display: flex; flex-direction: column; gap: 6px; }
+.awk-pm-ligne { display: flex; align-items: center; gap: 10px; padding: 6px 12px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); cursor: pointer; }
+.awk-pm-ligne span { flex: 1; font-size: 14px; font-weight: 700; color: #e2e8f0; }
+.awk-pm-ligne input { width: 84px; min-height: 0 !important; padding: 8px 6px !important; text-align: right; font-size: 15px !important; font-weight: 800; color: #f1f5f9; background: transparent !important; border: none !important; box-shadow: none !important; cursor: pointer; caret-color: transparent; }
+.awk-pm-ligne input::placeholder { color: #67e8f9; font-weight: 700; }
+.awk-pm-ligne small { width: 26px; font-size: 12px; color: #8d9cb1; }
+.awk-pm-grille { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.awk-pm-case { cursor: pointer; min-width: 0; }
+.awk-pm-img { position: relative; aspect-ratio: 3 / 4; border-radius: 12px; overflow: hidden; background: #05080e; border: 2px solid rgba(255,255,255,0.08); }
+.awk-pm-case.on .awk-pm-img { border-color: #22d3ee; box-shadow: 0 0 0 1px #22d3ee; }
+.awk-pm-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.awk-pm-coche { position: absolute; top: 6px; right: 6px; width: 22px; height: 22px; border-radius: 50%; display: none; align-items: center; justify-content: center; background: #22d3ee; }
+.awk-pm-case.on .awk-pm-coche { display: flex; }
+.awk-pm-date { font-size: 12px; font-weight: 700; color: #e2e8f0; margin-top: 5px; text-align: center; }
+.awk-pm-info { font-size: 11px; color: #8d9cb1; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.awk-pm-ajout { display: block; width: 100%; margin-top: 3px; min-height: 0; padding: 4px; border-radius: 8px; background: none; border: 1px dashed rgba(103,232,249,0.4); color: #67e8f9; font: inherit; font-size: 11px; font-weight: 800; cursor: pointer; }
+.awk-pm-cmp { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.awk-pm-cmp-lbl { font-size: 11px; font-weight: 800; color: #67e8f9; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 5px; text-align: center; }
+.awk-pm-cmp-img { aspect-ratio: 3 / 4; border-radius: 12px; overflow: hidden; background: #05080e; border: 1px solid rgba(255,255,255,0.08); }
+.awk-pm-cmp-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.awk-pm-cmp-tab { margin-top: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); overflow: hidden; }
+.awk-pm-cmp-l { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 6px; align-items: center; padding: 8px 10px; border-top: 1px solid rgba(255,255,255,0.06); font-variant-numeric: tabular-nums; }
+.awk-pm-cmp-l:first-child { border-top: none; }
+.awk-pm-cmp-l span { font-size: 12.5px; color: #a3b1c2; font-weight: 700; }
+.awk-pm-cmp-l b { font-size: 14px; color: #f1f5f9; text-align: right; }
+.awk-pm-cmp-l em { font-style: normal; font-size: 12.5px; font-weight: 800; color: #67e8f9; text-align: right; white-space: nowrap; }
+.awk-pm-cmp-h { background: rgba(255,255,255,0.03); }
+.awk-pm-cmp-h b, .awk-pm-cmp-h em { font-size: 11px; color: #8d9cb1; }
+
+/* ── v1392 · Séance photo (3 poses), caméra avec fantôme, rappel, discrétion ── */
+.awk-pm-flou { filter: blur(18px) saturate(0.6); transform: scale(1.06); cursor: pointer; }
+.awk-pm-case .awk-pm-flou { filter: blur(10px) saturate(0.6); }
+.awk-pm-centre { text-align: center; }
+.awk-pm-poses { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.awk-pm-pose { cursor: pointer; text-align: center; min-width: 0; }
+.awk-pm-pose-img { aspect-ratio: 3 / 4; border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.03); border: 1.5px dashed rgba(103,232,249,0.35); color: #67e8f9; }
+.awk-pm-pose.faite .awk-pm-pose-img { border: 2px solid #22d3ee; }
+.awk-pm-pose-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.awk-pm-pose-nom { font-size: 14px; font-weight: 800; color: #f1f5f9; margin-top: 6px; }
+.awk-pm-pose-act { font-size: 12px; font-weight: 700; color: #67e8f9; }
+.awk-pm-minis { display: flex; gap: 6px; }
+.awk-pm-mini { flex: 1; min-width: 0; max-width: 33%; position: relative; aspect-ratio: 3 / 4; border-radius: 10px; overflow: hidden; background: #05080e; }
+.awk-pm-mini img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.awk-pm-mini span { position: absolute; left: 0; right: 0; bottom: 0; padding: 3px; font-size: 11px; font-weight: 800; color: #fff; text-align: center; background: linear-gradient(0deg, rgba(0,0,0,0.7), transparent); }
+.awk-pm-barre { display: flex; align-items: center; gap: 6px; margin: 4px 0 10px; }
+.awk-pm-barre span { flex: 1; font-size: 12.5px; color: #a3b1c2; }
+.awk-pm-pill { min-height: 0; padding: 5px 11px; border-radius: 99px; cursor: pointer; font: inherit; font-size: 12.5px; font-weight: 700; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); color: #cbd5e1; white-space: nowrap; }
+.awk-pm-pill.on { background: rgba(34,211,238,0.14); border-color: rgba(34,211,238,0.5); color: #67e8f9; }
+.awk-pm-nb { position: absolute; left: 6px; bottom: 6px; padding: 2px 7px; border-radius: 99px; font-size: 11px; font-weight: 800; color: #04121f; background: rgba(103,232,249,0.9); }
+.awk-pm-onglets { display: flex; justify-content: center; gap: 6px; margin-bottom: 10px; }
+.awk-pm-rappel { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 10px 12px; margin-bottom: 12px; border-radius: 12px; background: rgba(251,191,36,0.07); border: 1px solid rgba(251,191,36,0.3); }
+.awk-pm-rappel-txt { flex: 1 1 160px; min-width: 0; display: flex; flex-direction: column; }
+.awk-pm-rappel-txt b { font-size: 14px; color: #fbbf24; }
+.awk-pm-rappel-txt span { font-size: 12.5px; color: #a3b1c2; }
+.awk-pm-rappel .awk-btn { min-height: 38px; padding: 6px 14px; font-size: 13px; }
+#awakCamera { position: fixed; inset: 0; z-index: 10090; background: #000; display: flex; flex-direction: column; color: #f1f5f9; }
+#awakCamera .awk-cam-haut { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: calc(10px + env(safe-area-inset-top, 0px)) 14px 10px; }
+#awakCamera .awk-cam-titre { font-size: 16px; font-weight: 800; }
+#awakCamera .awk-cam-bt { min-height: 0; min-width: 44px; height: 44px; padding: 0 12px; border-radius: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; font: inherit; font-size: 13px; font-weight: 700; background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.18); color: #f1f5f9; }
+#awakCamera .awk-cam-bt-vide { width: 72px; }
+#awakCamera .awk-cam-cadre { position: relative; flex: 0 1 auto; min-height: 0; margin: auto; width: calc(100% - 24px); max-width: calc((100dvh - 230px) * 0.75); aspect-ratio: 3 / 4; max-height: 100%; overflow: hidden; border-radius: 14px; background: #0b0d12; }
+#awakCamera video, #awakCamera .awk-cam-fantome, #awakCamera .awk-cam-apercu { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+#awakCamera video.miroir { transform: scaleX(-1); }
+#awakCamera .awk-cam-fantome { opacity: 0.35; pointer-events: none; }
+#awakCamera .awk-cam-apercu { z-index: 3; }
+#awakCamera .awk-cam-guide { position: absolute; inset: 6% 18%; border: 1.5px dashed rgba(255,255,255,0.25); border-radius: 40% 40% 12px 12px; pointer-events: none; z-index: 2; display: flex; align-items: center; justify-content: center; text-align: center; }
+#awakCamera.sans-camera .awk-cam-guide { inset: 0; border: none; border-radius: 0; padding: 20px; }
+#awakCamera .awk-cam-msg { font-size: 14px; color: #a3b1c2; }
+#awakCamera .awk-cam-decompte { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; font-size: 96px; font-weight: 900; color: #fff; text-shadow: 0 4px 24px rgba(0,0,0,0.6); z-index: 4; }
+#awakCamera .awk-cam-decompte.on { display: flex; }
+#awakCamera .awk-cam-bas { padding: 12px 16px calc(16px + env(safe-area-inset-bottom, 0px)); }
+#awakCamera .awk-cam-options { display: flex; justify-content: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+#awakCamera .awk-cam-opt { min-height: 0; padding: 6px 12px; border-radius: 99px; cursor: pointer; font: inherit; font-size: 12.5px; font-weight: 700; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18); color: #cbd5e1; }
+#awakCamera .awk-cam-opt.on { background: rgba(34,211,238,0.18); border-color: #22d3ee; color: #67e8f9; }
+#awakCamera .awk-cam-astuce { font-size: 12.5px; color: #a3b1c2; text-align: center; max-width: 280px; }
+#awakCamera .awk-cam-actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+#awakCamera .awk-cam-actions[data-valider] button { flex: 1; min-height: 50px; }
+#awakCamera .awk-cam-declic { width: 72px; height: 72px; min-height: 0; padding: 0; border-radius: 50%; cursor: pointer; background: #fff; border: 5px solid rgba(255,255,255,0.35); background-clip: padding-box; box-shadow: 0 0 0 2px #fff; }
+#awakCamera .awk-cam-declic:active { transform: scale(0.94); }
+#awakCamera [hidden] { display: none !important; }
+
+/* ── v1393 · Onglet Progrès : 3 sous-onglets (js/progres-onglets.js) ── */
+#awakPgBarre {
+    position: sticky; top: 0; z-index: 20; display: flex; gap: 4px;
+    margin: 0 0 16px; padding: 4px; border-radius: 14px;
+    background: rgba(13,17,26,0.94); border: 1px solid rgba(96,168,240,0.22);
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+}
+#awakPgBarre button {
+    flex: 1; min-width: 0; min-height: 40px !important; padding: 8px 4px !important; border-radius: 10px;
+    background: transparent; border: 1px solid transparent; cursor: pointer;
+    color: #94a3b8; font-family: inherit; font-weight: 800; font-size: 0.8em; letter-spacing: 0.3px; white-space: nowrap;
+}
+#awakPgBarre button.actif { background: rgba(96,168,240,0.18); border-color: rgba(96,168,240,0.55); color: #fff; }
+#awakPgBarre button[hidden] { display: none !important; }
+#historyTab[data-pg-actif="resume"] > [data-pg]:not([data-pg="resume"]),
+#historyTab[data-pg-actif="seances"] > [data-pg]:not([data-pg="seances"]),
+#historyTab[data-pg-actif="corps"] > [data-pg]:not([data-pg="corps"]) { display: none !important; }
+/* Séances : le sous-onglet fait office de titre, l'historique est ouvert d'office */
+#historyTab[data-pg-actif="seances"] > #awakHistSection > .accordion-header { display: none !important; }
+#historyTab[data-pg-actif="seances"] > #awakHistSection > .accordion-body { max-height: none !important; padding: 0 !important; overflow: visible !important; }
+/* Corps : le titre « Ton corps » est redondant avec le sous-onglet */
+#historyTab[data-pg-actif="corps"] > #awakCorpsTitre { display: none !important; }

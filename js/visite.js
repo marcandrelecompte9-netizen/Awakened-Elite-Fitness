@@ -26,6 +26,8 @@
 
   // ── Aides pour trouver les cibles ────────────────────────────
   function $(sel, racine) { try { return (racine || document).querySelector(sel); } catch (e) { return null; } }
+  // v1393 : onglet Progrès en sous-onglets — montrer le bon avant de pointer
+  function pg(g) { try { if (window.AwakProgOnglets) window.AwakProgOnglets.aller(g); } catch (e) {} }
   function parTexte(racine, sel, rx) {
     racine = typeof racine === 'string' ? document.getElementById(racine) : racine;
     if (!racine) return null;
@@ -113,13 +115,14 @@
       { c: function () { var l = $('#challengesList'); return l ? l.querySelector('button') : null; }, t: 'Un défi de 30 jours', d: 'Choisis-en un : coche ta case chaque jour, l\'appli compte et te le rappelle.' }
     ],
     history: [
-      { c: function () { return $('#awakProgHaut'); }, t: 'Ton résumé', d: 'Tes séances, ton volume et ta régularité de la semaine.' },
-      { c: function () { return parTexte('historyTab', 'button', /Arbre de l.Éveil/); }, t: 'Arbre de l\'Éveil', d: 'Ce que tes séances développent : force, endurance, mobilité…' },
-      { c: function () { return $('#awakTuileAnalyse'); }, t: 'Analyse et coach', d: 'Ce que tu devrais travailler ensuite, et pourquoi.' },
-      { c: function () { return $('#awakTuileEquilibre'); }, t: 'Équilibre', d: 'Repère le muscle qui prend du retard sur les autres.' },
-      { c: function () { var t = $('#awakTuileHofTitre'); return t ? t.closest('button') : null; }, t: 'Hall of Fame', d: 'Tes records sur chaque exercice.' },
-      { c: function () { return parTexte('historyTab', '.accordion-header', /Tes séances/); }, t: 'Tes séances', d: 'Toutes tes séances : touche-en une pour la revoir ou la refaire.' },
-      { c: function () { return $('#awakCorpsCard'); }, t: 'Ton corps', d: 'Photos et mesures pour voir le changement. Elles restent sur ton téléphone.' }
+      { c: function () { pg('resume'); return $('#awakPgBarre'); }, t: 'Trois sections', d: 'Résumé, Séances et Corps : touche une section pour y aller. L\'appli se souvient de la dernière.' },
+      { c: function () { pg('resume'); return $('#awakProgHaut'); }, t: 'Ton résumé', d: 'Tes séances, ton volume et ta régularité de la semaine.' },
+      { c: function () { pg('resume'); return parTexte('historyTab', 'button', /Arbre de l.Éveil/); }, t: 'Arbre de l\'Éveil', d: 'Ce que tes séances développent : force, endurance, mobilité…' },
+      { c: function () { pg('resume'); return $('#awakTuileAnalyse'); }, t: 'Analyse et coach', d: 'Ce que tu devrais travailler ensuite, et pourquoi.' },
+      { c: function () { pg('resume'); return $('#awakTuileEquilibre'); }, t: 'Équilibre', d: 'Repère le muscle qui prend du retard sur les autres.' },
+      { c: function () { pg('resume'); var t = $('#awakTuileHofTitre'); return t ? t.closest('button') : null; }, t: 'Hall of Fame', d: 'Tes records sur chaque exercice.' },
+      { c: function () { pg('seances'); return $('#awakHistSection'); }, t: 'Tes séances', d: 'Toutes tes séances : touche-en une pour la revoir ou la refaire.' },
+      { c: function () { pg('corps'); return $('#awakCorpsCard'); }, t: 'Ton corps', d: 'Photos et mesures pour voir le changement. Elles restent sur ton téléphone.' }
     ],
     calendar: [
       { c: function () { return $('#calendarTabContent .card'); }, t: 'Ton planning', d: 'Touche un jour pour voir ou planifier une séance. Les séances faites sont cochées.' },
@@ -201,9 +204,9 @@
       { c: function () { var l = $('#challengesList'); return l ? l.querySelector('button') : null; }, t: 'Un défi', d: 'Choisis un défi, fais-le un peu chaque jour et coche ta case.' }
     ],
     history: [
-      { c: function () { return $('#awakProgHaut'); }, t: 'Ce que tu as fait', d: 'Toutes tes séances s\'affichent ici.' },
-      { c: function () { return parTexte('historyTab', 'button', /Arbre de l.Éveil/); }, t: 'Ton arbre', d: 'Il pousse à chaque séance : force, souplesse, endurance…' },
-      { c: function () { var t = $('#awakTuileHofTitre'); return t ? t.closest('button') : null; }, t: 'Tes records', d: 'Ce que tu as fait de mieux. Essaie de battre ton record !' }
+      { c: function () { pg('resume'); return $('#awakProgHaut'); }, t: 'Ce que tu as fait', d: 'Toutes tes séances s\'affichent ici.' },
+      { c: function () { pg('resume'); return parTexte('historyTab', 'button', /Arbre de l.Éveil/); }, t: 'Ton arbre', d: 'Il pousse à chaque séance : force, souplesse, endurance…' },
+      { c: function () { pg('resume'); var t = $('#awakTuileHofTitre'); return t ? t.closest('button') : null; }, t: 'Tes records', d: 'Ce que tu as fait de mieux. Essaie de battre ton record !' }
     ],
     calendar: [
       { c: function () { return $('#calendarTabContent .card'); }, t: 'Ton calendrier', d: 'Les jours où tu as bougé sont cochés.' },

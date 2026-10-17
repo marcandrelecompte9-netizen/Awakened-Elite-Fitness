@@ -46,12 +46,16 @@
   var ICO_PLUS = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
 
   function fmt(v, pas) { return pas < 1 ? v.toFixed(1).replace('.', ',') : String(Math.round(v)); }
+  // v1391 : format d'affichage propre à une règle (ex. taille en pieds et pouces)
+  var FMTS = {};
 
   function html(id, o) {
     css();
     o = o || {};
     var min = +o.min || 0, max = +o.max || 100, pas = +o.pas || 1;
     var val = Math.min(max, Math.max(min, +o.val || min));
+    var F = typeof o.fmt === 'function' ? o.fmt : null;
+    if (F) FMTS[id] = F; else delete FMTS[id];
     var n = Math.round((max - min) / pas);
     var ticks = '';
     for (var i = 0; i <= n; i++) {
@@ -63,10 +67,10 @@
       var dix = Math.abs(v % LAB) < 1e-6, cinq = Math.abs(v % (LAB / 2)) < 1e-6;
       var h = dix ? 28 : (cinq ? 19 : 11);
       ticks += '<div class="awk-regle-t" data-i="' + i + '"><i style="height:' + h + 'px;' + (dix ? 'background:rgba(203,213,225,0.75);' : '') + '"></i>'
-        + (dix ? '<b>' + (v % 1 ? fmt(v, pas) : String(v)) + '</b>' : '') + '</div>';
+        + (dix ? '<b>' + (F ? F(v) : (v % 1 ? fmt(v, pas) : String(v))) + '</b>' : '') + '</div>';
     }
     return '<div class="awk-regle" id="' + id + '" data-min="' + min + '" data-max="' + max + '" data-pas="' + pas + '" data-val="' + val + '">'
-      + '<div class="awk-regle-val"><span class="n">' + fmt(val, pas) + '</span><span class="u">' + (o.unite || '') + '</span></div>'
+      + '<div class="awk-regle-val"><span class="n">' + (F ? F(val) : fmt(val, pas)) + '</span><span class="u">' + (o.unite || '') + '</span></div>'
       + '<div class="awk-regle-zone">'
       +   '<button type="button" class="awk-regle-btn" data-dir="-1" aria-label="Moins">' + ICO_MOINS + '</button>'
       +   '<div class="awk-regle-cadre">'
@@ -106,7 +110,7 @@
       var v = Math.min(max, Math.max(min, +(min + i * pas).toFixed(2)));
       if (String(v) !== el.dataset.val) {
         el.dataset.val = v;
-        num.textContent = fmt(v, pas);
+        num.textContent = FMTS[id] ? FMTS[id](v) : fmt(v, pas);
         var d = Math.floor(v / (pas < 1 ? 1 : 10));
         if (dernierDix !== null && d !== dernierDix) vibrer(8);
         dernierDix = d;
@@ -140,7 +144,7 @@
     // Fixer la valeur par code (sans déclencher surChange)
     el._fixer = function (v) {
       v = Math.min(max, Math.max(min, +v));
-      el.dataset.val = v; num.textContent = fmt(v, pas);
+      el.dataset.val = v; num.textContent = FMTS[id] ? FMTS[id](v) : fmt(v, pas);
       dernierDix = Math.floor(v / (pas < 1 ? 1 : 10));
       versIdx(idxDe(v), false);
     };

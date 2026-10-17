@@ -14762,7 +14762,34 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (classicBtn) classicBtn.style.display = 'none';
         }
 
+        // v1387 : « Précédent » puis « Suivant » refaisait l'exercice à zéro → les
+        // séries pré-remplies étaient revalidées (XP, volume et records comptés
+        // une 2e fois). On garde l'état des séries de chaque exercice quitté ;
+        // après un retour en arrière, il est rétabli (séries faites = ✓).
+        // Pas pour les supersets (le moteur AwakSS gère ses propres tours).
+        const _awakEtatsExo = { cle: null, idx: null, map: {} };
+        function _awakSeriesMemoriser() {
+            const cle = workoutStartTime || 0;
+            if (_awakEtatsExo.cle !== cle) { _awakEtatsExo.cle = cle; _awakEtatsExo.map = {}; _awakEtatsExo.idx = null; window._awakRetourArriere = 0; }
+            const i = _awakEtatsExo.idx;
+            const ex = i != null && currentWorkout && currentWorkout.exercises ? currentWorkout.exercises[i] : null;
+            if (!ex || !completedSets.length) return;
+            _awakEtatsExo.map[i] = { nom: ex.name, faites: completedSets.map(c => Object.assign({}, c)), num: currentSetNumber,
+                total: totalSetsPlanned, wu: warmupSetsCount, vals: _gridVals.map(v => Object.assign({}, v)) };
+        }
+        function _awakSeriesRetablir(exercise) {
+            const e = _awakEtatsExo.map[currentExerciseIndex];
+            if (!e || e.nom !== exercise.name || exercise.ss || window._awakRetourArriere !== (workoutStartTime || 0)) return false;
+            completedSets = e.faites.map(c => Object.assign({}, c));
+            currentSetNumber = e.num; totalSetsPlanned = e.total; warmupSetsCount = e.wu;
+            _gridVals = e.vals.map(v => Object.assign({}, v));
+            return true;
+        }
+        window._awakEtatsExo = _awakEtatsExo;
+
         function initSetsTracker(exercise) {
+            _awakSeriesMemoriser();
+            _awakEtatsExo.idx = currentExerciseIndex;
             currentSetNumber = 1;
             totalSetsPlanned = exercise.sets || exercise.plannedSets || 3;
             completedSets    = [];
@@ -14781,6 +14808,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 btn.innerHTML = `💪 <strong>Série 1/${totalSetsPlanned}</strong> — Entrer reps puis appuyer`;
             }
             _gridInit(exercise);
+            const _retabli = _awakSeriesRetablir(exercise);
             updateSetIndicator();
             renderCompletedSetsLog();
             document.querySelectorAll('[id^="warmupBtn"]').forEach(b => {
@@ -16882,7 +16910,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const tx = db.transaction(AWAK_PHOTO_STORE, 'readwrite');
                     tx.objectStore(AWAK_PHOTO_STORE).put({
                         key: profileId + ':' + photo.id, profileId: profileId,
-                        id: photo.id, date: photo.date, dataUrl: photo.dataUrl, note: photo.note || ''
+                        id: photo.id, date: photo.date, dataUrl: photo.dataUrl, note: photo.note || '',
+                        // v1392 : séance photo (face / profil / dos)
+                        pose: photo.pose || undefined, groupe: photo.groupe || undefined
                     });
                     tx.oncomplete = () => resolve(true);
                     tx.onerror = () => reject(tx.error);
@@ -16978,6 +17008,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         }
         
         function takeProgressPhoto() {
+            // v1392 : séance photo en 3 poses, caméra intégrée avec fantôme (js/photos-mesures.js)
+            if (window.AwakPhotoMesures && typeof window.AwakPhotoMesures.seance === 'function') { window.AwakPhotoMesures.seance(); return; }
             const input = document.getElementById('progressPhotoInput');
             input.onchange = function(event) {
                 const file = event.target.files[0];
@@ -17010,8 +17042,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         awakPhotoDBPut(pid, photo).then(function() {
                             _progressPhotosCache = [photo].concat(_progressPhotosCache || []);
                             _majApresPhotos();
-                            showToast('📸 Photo ajoutée avec succès !');
                             vibrate(100);
+                            // v1390 : enchaîner sur les mesures du jour, rangées avec la photo
+                            if (window.AwakPhotoMesures) window.AwakPhotoMesures.apresPhoto(photo);
+                            else showToast('📸 Photo ajoutée avec succès !');
                         }).catch(function() {
                             showToast('⚠️ Impossible d\'enregistrer la photo. Réessaie.', 'error', 5000);
                         });
@@ -17061,6 +17095,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         }
         
         function comparePhotos(photoId1, photoId2) {
+            if (window.AwakPhotoMesures) { window.AwakPhotoMesures.comparer(photoId1, photoId2); return; }   // v1390
             const photos = getProgressPhotos();
             const photo1 = photos.find(p => p.id === photoId1);
             const photo2 = photos.find(p => p.id === photoId2);
@@ -21503,7 +21538,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
         function saveMeasurement() {
             const weight = parseFloat(document.getElementById('measureWeight').value);
-            const height = parseFloat(document.getElementById('measureHeight').value);
+            // v1391 : taille saisie en pieds et pouces (« 5′ 8″ »), enregistrée en pouces
+            const _hTxt = document.getElementById('measureHeight').value;
+            const height = (typeof window.awakTaillePouces === 'function') ? (window.awakTaillePouces(_hTxt) || NaN) : parseFloat(_hTxt);
             const waist = parseFloat(document.getElementById('measureWaist').value);
             const hips = parseFloat(document.getElementById('measureHips').value);
             const biceps = parseFloat(document.getElementById('measureBiceps').value);
@@ -21617,7 +21654,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (latest.waist) summaryHTML += `
                 <div style="background: rgba(255,255,255,0.04); padding:10px 8px;border-radius:10px;text-align:center;">
                     <div style="font-size:1.15em;font-weight:800; color: #22d3ee;">${latest.waist}"</div>
-                    <div style="font-size:0.7em; color: #94a3b8;">Taille</div>
+                    <div style="font-size:0.7em; color: #94a3b8;">Tour de taille</div>
                 </div>
             `;
             
@@ -23322,7 +23359,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1386);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1393);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -23374,7 +23411,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 +       '<rect width="5" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.22"/>'
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1386" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1393" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -26942,7 +26979,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         if (rpgEnabled()) {
                             try {
                                 const _timerEx = currentWorkout?.exercises?.[currentExerciseIndex];
-                                if (_timerEx && !_timerEx.isRest && !_timerEx.isInfo) {
+                                if (_timerEx && !_timerEx.isRest && !_timerEx.isInfo && _awakXPChronoUneFois()) {
                                     rpgGainXP(_timerEx._baseName || _timerEx.name, 0, 0, _timerEx.duration || 0);
                                 }
                             } catch(e) {}
@@ -28358,7 +28395,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const _skipEx = currentWorkout?.exercises?.[currentExerciseIndex];
                     if (_skipEx && !_skipEx.isRest && !_skipEx.isInfo) {
                         const _isTimer = _skipEx.mode === 'timer' || (!_skipEx.mode && _skipEx.duration > 0);
-                        if (_isTimer) {
+                        if (_isTimer && _awakXPChronoUneFois()) {
                             // XP proportionnel au temps écoulé (min 30% de la durée totale)
                             const _totalDur = _skipEx.duration || 30;
                             const _elapsed = Math.max(_totalDur * 0.3, _totalDur - Math.max(0, timeRemaining));
@@ -28851,7 +28888,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1386");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1393");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -31016,10 +31053,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             ],
             rankUp: {
                 D: [`⚙ **SYSTÈME**`, `*Tu changes.*`, `*De plus en plus loin de ce que tu étais.*`, `*Tant mieux.*`],
-                C: [`⚙ **SYSTÈME**`, `*Tu deviens stable.*`, `*Plus difficile à effacer.*`],
-                B: [`⚙ **SYSTÈME**`, `*Tu es au-delà de ce que la plupart atteignent.*`, `*Continue.*`],
-                A: [`⚙ **SYSTÈME**`, `*Élite.*`, `*Tu n'es plus seulement humain.*`],
-                S: [`⚙ **SYSTÈME**`, `*...*`, `*Tu ne devrais pas être là.*`, `*Et pourtant tu es là.*`, `*Bien.*`]
+                // v1389 : C, B, A, S, SS et SSS ont maintenant une vraie scène
+                // (story-events.js, evt_rang_*) : plus de message court en double.
             },
             levelUp: [
                 `⚙ **SYSTÈME**`,
@@ -33298,7 +33333,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1386);'
+                +     'url(images/combat_bg_v1.webp?v=1393);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -33553,7 +33588,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1386);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1393);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -33825,7 +33860,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:540px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto;display:flex;flex-direction:column;">
                 <!-- Header : vague actuelle -->
-                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1386);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1393);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                         <span style="font-size:0.6em;color:${theme.color};font-weight:900;letter-spacing:2px;">⚔ VAGUE ${rift.currentWaveIdx + 1} / ${rift.waves.length}${currentWave.isBoss ? ' · BOSS' : ''}</span>
                         <button onclick="awakAbandonRift()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
@@ -34955,7 +34990,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1386');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1393');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -35692,7 +35727,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1386);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1393);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -35863,7 +35898,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1386);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1393);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -46779,6 +46814,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // Progression », masquée en v1023 : le bouton « Comparer » renvoyait
         // donc vers un élément invisible et ne produisait aucun effet.
         function awakOpenPhotoCompare() {
+            // v1390 : « Mes photos » (galerie + mesures + comparaison) remplace le choix par listes
+            if (window.AwakPhotoMesures) { window.AwakPhotoMesures.galerie(); return; }
             let photos = [];
             try { photos = (typeof getProgressPhotos === 'function') ? (getProgressPhotos() || []) : []; }
             catch (e) {}
@@ -46905,8 +46942,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
             host.innerHTML =
                 '<div style="position:relative;width:110px;margin:0 auto 12px;">'
-              +   '<img src="images/body/body_face.webp?v=1386" alt="" '
-              +     'style="width:100%;display:block;opacity:0.30;">'
+              // v1393 : hauteur réservée (aspect-ratio) — sinon l'image recréée
+              // n'a aucune hauteur le temps d'un décodage, le formulaire saute
+              // de ~160 px et le toucher sur le champ suivant tombe à côté.
+              +   '<img src="images/body/body_face.webp?v=1393" alt="" width="784" height="1168" '
+              +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
               +     'text-align:center;font-size:0.6em;color:#64748b;font-weight:700;'
@@ -46987,7 +47027,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1386);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1393);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -47043,7 +47083,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const actions =
                 '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:13px;">'
               +   _corpsBtn('takeProgressPhoto()', 'Prendre une photo', true)
-              +   _corpsBtn('awakOpenPhotoCompare()', 'Comparer', false)
+              +   _corpsBtn('awakOpenPhotoCompare()', photos.length > 1 ? 'Mes photos · comparer' : 'Mes photos', false)
               + '</div>';
 
             // v1245 : aucune photo → carte COMPACTE (le grand miroir vide occupait
@@ -47054,7 +47094,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1386);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1393);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -47074,6 +47114,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
               +   '</div>'
               +   centre + bandeau + actions
               + '</div>';
+            // v1392 : rappel « Photo du mois ? » + discrétion (photo floutée)
+            try { if (window.AwakPhotoMesures) window.AwakPhotoMesures.decorerCarte(host); } catch (e) {}
         }
         window.awakRenderCorpsCard = awakRenderCorpsCard;
 
@@ -47558,6 +47600,24 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             openYouTubeVideo(null, ex.name);
         }
 
+        // v1387 : XP d'un exercice minuté : une seule fois par exercice et par séance
+        // (Précédent puis Suivant la redonnait). Séries minutées : une fois par série.
+        const _awakXPChrono = { cle: null, vus: {} };
+        function _awakXPChronoUneFois() {
+            const cle = workoutStartTime || 0;
+            if (_awakXPChrono.cle !== cle) { _awakXPChrono.cle = cle; _awakXPChrono.vus = {}; }
+            // n° de passage : tour du superset, sinon série minutée de la routine, sinon 1
+            let n = 1;
+            try {
+                if (window.AwakSS && typeof window.AwakSS.inGroup === 'function' && window.AwakSS.inGroup()) n = 'ss' + currentSetNumber;
+                else if (window._awakTimerSet && window._awakTimerSet.idx === currentExerciseIndex) n = window._awakTimerSet.n;
+            } catch (e) {}
+            const k = currentExerciseIndex + ':' + n;
+            if (_awakXPChrono.vus[k]) return false;
+            _awakXPChrono.vus[k] = 1;
+            return true;
+        }
+
         function goToPreviousExercise() {
             if (setRestInterval) { clearInterval(setRestInterval); setRestInterval = null; }
             hideGlobalRestBanner();
@@ -47566,6 +47626,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 return;
             }
             clearInterval(timerInterval);
+            try { _awakSeriesMemoriser(); } catch (e) {}
+            window._awakRetourArriere = workoutStartTime || 0;
             currentExerciseIndex--;
 
             // Remonter en sautant les repos ET les panneaux d'info
@@ -49376,7 +49438,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1386");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1393");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
