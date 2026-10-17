@@ -5500,22 +5500,31 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const _pause = awakPauseDepuis(active);
                 const wkName = active.workout.name || 'Séance';
                 const progress = active.workout.exercises ? Math.round((active.exerciseIndex / active.workout.exercises.length) * 100) : 0;
+                // v1386 : carte sobre (avant : gros dégradé orange, halo et icône
+                // « pause » qui clignotait). L'orange ne sert plus qu'au petit
+                // repère « Séance en cours » ; l'action reprend le cyan habituel.
+                const _nomS = String(wkName).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
                 return `<div style="margin-bottom:14px;">
-                    <button onclick="resumeActiveWorkout()" style="
-                        width:100%;background:linear-gradient(135deg,#f59e0b,#d97706);color:white;border:none;
-                        border-radius:14px;padding:16px 20px;font-size:1.05em;font-weight:800;cursor:pointer;
-                        box-shadow:0 6px 24px rgba(245,158,11,0.4);position:relative;overflow:hidden;
-                        text-align:left;display:flex;align-items:center;gap:12px;">
-                        <div style="font-size:2em;flex-shrink:0;animation:pulse 1.5s infinite;"><svg viewBox="0 0 24 24" width="15" height="15" style="display:inline-block;vertical-align:-0.15em;" fill="currentColor" aria-hidden="true"><path d="M6 4 h4 v16 h-4 Z M14 4 h4 v16 h-4 Z"/></svg></div>
+                    <button onclick="resumeActiveWorkout()" class="awk-reprise" style="
+                        width:100%;background:#12161c;color:#f1f5f9;border:1px solid rgba(251,191,36,0.28);
+                        border-radius:16px;padding:14px 14px 14px 16px;cursor:pointer;font-family:inherit;
+                        text-align:left;display:flex;align-items:center;gap:12px;box-shadow:none;">
                         <div style="flex:1;min-width:0;">
-                            <div style="font-size:0.62em;letter-spacing:2px;opacity:0.9;font-weight:700;">SÉANCE EN COURS</div>
-                            <div style="font-size:1em;font-weight:900;line-height:1.2;margin-top:2px;">Reprendre ${wkName}</div>
-                            <div style="font-size:0.7em;opacity:0.85;margin-top:3px;">${minutes} min faites · ${progress}% complété${_pause ? ' · ' + _pause : ''}</div>
+                            <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:800;color:#fbbf24;letter-spacing:0.3px;">
+                                <span class="awk-reprise-point"></span>Séance en cours</div>
+                            <div style="font-size:16px;font-weight:800;line-height:1.25;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${_nomS}</div>
+                            <div style="font-size:12.5px;color:#a3b1c2;margin-top:2px;">${minutes} min faites · ${progress} %${_pause ? ' · ' + _pause : ''}</div>
+                            <div style="height:4px;border-radius:99px;background:rgba(255,255,255,0.08);margin-top:8px;overflow:hidden;">
+                                <div style="height:100%;width:${Math.max(3, Math.min(100, progress))}%;background:linear-gradient(90deg,#22d3ee,#0891b2);border-radius:99px;"></div></div>
                         </div>
-                        <div style="font-size:1.4em;flex-shrink:0;"><svg viewBox="0 0 24 24" width="15" height="15" style="display:inline-block;vertical-align:-0.15em;" fill="currentColor" aria-hidden="true"><path d="M6 3.5 L20 12 L6 20.5 Z"/></svg></div>
+                        <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                            <span style="width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;box-shadow:0 4px 14px rgba(34,211,238,0.25);">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true" style="margin-left:2px;"><path d="M7 4.5v15l13-7.5z"/></svg></span>
+                            <span style="font-size:11px;font-weight:800;color:#67e8f9;">Reprendre</span>
+                        </div>
                     </button>
-                    <button onclick="abandonActiveWorkout()" style="width:100%;margin-top:6px;background:transparent;color:#94a3b8;border:none;font-size:0.72em;cursor:pointer;padding:4px;">
-                        ✕ Abandonner cette séance
+                    <button onclick="abandonActiveWorkout()" style="width:100%;margin-top:6px;background:transparent;color:#8d9cb1;border:none;font-family:inherit;font-size:12.5px;cursor:pointer;padding:4px;min-height:0;">
+                        Abandonner cette séance
                     </button>
                 </div>`;
             }
@@ -6929,6 +6938,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         function awakUserHero() {
             try {
                 const p = (typeof getUserProfile === 'function') ? getUserProfile() : null;
+                if (window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()) return '';   // v1384 : pas de héros pour un enfant
                 return (p && p.hero) ? p.hero : '';
             } catch (e) { return ''; }
         }
@@ -9436,9 +9446,37 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const hn = document.getElementById('awakPfHeroNote');
             const hs = document.getElementById('profileHero');
             if (hn && hs) hn.textContent = AWAK_PF_HEROS[hs.value] || '';
+            // v1384 : un enfant (moins de 13 ans) ne choisit pas de héros (duo / Esen / Nyra)
+            const _carteHeros = document.querySelector('#profileSetupModal [data-pf="profileHero"]');
+            const _cH = _carteHeros && _carteHeros.closest('.awk-pf-carte');
+            const _enfant = _awakPfEnfant();
+            if (_cH) _cH.style.display = _enfant ? 'none' : '';
+            if (_enfant && hs) hs.value = '';
             const li = document.getElementById('awakPfLimIco');
             if (li && !li.innerHTML) { try { li.innerHTML = (window.AwakIcon && AwakIcon.get('personne', 20, '#67e8f9')) || ''; } catch (e) {} }
         }
+        // Âge saisi DANS la fenêtre (date de naissance d'abord, sinon le champ âge) ;
+        // sans rien de saisi : l'âge connu du profil actif.
+        function _awakPfEnfant() {
+            let age = null;
+            try {
+                const bd = document.getElementById('profileBirthdate');
+                if (bd && bd.value) {
+                    const d = new Date(bd.value + 'T12:00:00'), n = new Date();
+                    if (!isNaN(d)) { age = n.getFullYear() - d.getFullYear(); if (n < new Date(n.getFullYear(), d.getMonth(), d.getDate())) age--; }
+                }
+                if (age === null) { const a = parseInt((document.getElementById('profileAge') || {}).value, 10); if (a > 0) age = a; }
+                if (age === null) return !!(window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild());
+            } catch (e) { return false; }
+            return age < 13;
+        }
+        (function () {
+            const brancher = () => ['profileAge', 'profileBirthdate'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el && !el.dataset.pfHeros) { el.dataset.pfHeros = '1'; el.addEventListener('input', () => { try { awakPfRendre(); } catch (e) {} }); el.addEventListener('change', () => { try { awakPfRendre(); } catch (e) {} }); }
+            });
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', brancher); else brancher();
+        })();
         function awakPfChoisir(id, val) {
             const sel = document.getElementById(id);
             if (!sel) return;
@@ -9497,7 +9535,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // chaque jour et détecte les anniversaires.
                 birthdate: (document.getElementById('profileBirthdate') || {}).value || '',
                 sex: document.getElementById('profileSex') ? document.getElementById('profileSex').value : '',
-                hero: document.getElementById('profileHero') ? document.getElementById('profileHero').value : '',
+                hero: (document.getElementById('profileHero') && !_awakPfEnfant()) ? document.getElementById('profileHero').value : '',
                 weight: useKg ? Math.round(_wRaw) : Math.round(_wRaw * 0.453592), // stocké en kg
                 setupComplete: true
             };
@@ -23284,7 +23322,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1381);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1386);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -23336,7 +23374,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 +       '<rect width="5" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.22"/>'
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1381" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1386" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -27438,8 +27476,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 <div style="font-size:0.78em;font-weight:700;color:#f1f5f9;margin-bottom:6px;">🔧 Machines disponibles</div>
                 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:8px;" id="locMachineGrid">${machineGrid}</div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px;">
-                    <button onclick="selectAllLocMachines(true)" style="padding:6px;border:1px solid #60a8f0;border-radius:10px;background:rgba(96,168,240,0.12);color:#93c5fd;font-size:0.75em;font-weight:700;cursor:pointer;">✓ Toutes les machines</button>
-                    <button onclick="selectAllLocMachines(false)" style="padding:6px;border:1px solid rgba(255,255,255,0.12);border-radius:10px;background:rgba(255,255,255,0.03);color:#6b7280;font-size:0.75em;font-weight:700;cursor:pointer;">✗ Aucune machine</button>
+                    <button id="locMachTout" onclick="selectAllLocMachines(true)" style="padding:6px;border:1px solid rgba(255,255,255,0.12);border-radius:10px;background:rgba(255,255,255,0.03);color:#cbd5e1;font-size:0.75em;font-weight:700;cursor:pointer;">Toutes les machines</button>
+                    <button id="locMachAucune" onclick="selectAllLocMachines(false)" style="padding:6px;border:1px solid rgba(255,255,255,0.12);border-radius:10px;background:rgba(255,255,255,0.03);color:#cbd5e1;font-size:0.75em;font-weight:700;cursor:pointer;">Aucune machine</button>
                 </div>
 
                 <!-- Équipements généraux -->
@@ -27450,6 +27488,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 <button onclick="document.getElementById('addLocationOverlay').remove()" class="btn btn-secondary" style="width:100%;">Annuler</button>
             </div>`;
             document.body.appendChild(overlay);
+            try { awakLocMajBoutonsTout(); } catch (e) {}
         }
 
         window._locEquip = [];
@@ -27476,7 +27515,25 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 btn.style.background='linear-gradient(135deg,rgba(96,168,240,0.24),rgba(96,168,240,0.10))'; btn.style.borderColor='#60a8f0'; btn.style.color='white';
                 const d = btn.querySelector('div > div'); if (d) d.style.filter='brightness(10)';
             }
+            awakLocMajBoutonsTout();
         }
+
+        // v1385 : « Toutes les machines » / « Aucune machine » sont des ACTIONS.
+        // Avant, « Toutes » restait toujours allumé (style fixe), même sans
+        // aucune machine cochée. Maintenant il ne s'allume que si TOUTES le
+        // sont, « Aucune » seulement si aucune ; sinon les deux sont neutres.
+        function awakLocMajBoutonsTout() {
+            const l = [...document.querySelectorAll('#locMachineGrid button[data-mtid]')];
+            const n = l.filter(b => (b.style.background || '').includes('linear-gradient')).length;
+            const st = (b, on) => { if (!b) return;
+                b.style.background = on ? 'rgba(96,168,240,0.16)' : 'rgba(255,255,255,0.03)';
+                b.style.borderColor = on ? '#60a8f0' : 'rgba(255,255,255,0.12)';
+                b.style.color = on ? '#93c5fd' : '#cbd5e1';
+                b.setAttribute('aria-pressed', on ? 'true' : 'false'); };
+            st(document.getElementById('locMachTout'), l.length > 0 && n === l.length);
+            st(document.getElementById('locMachAucune'), l.length > 0 && n === 0);
+        }
+        window.awakLocMajBoutonsTout = awakLocMajBoutonsTout;
 
         function selectAllLocMachines(sel) {
             document.querySelectorAll('#locMachineGrid button[data-mtid]').forEach(btn => {
@@ -27488,6 +27545,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const d = btn.querySelector('div > div'); if (d) d.style.filter='brightness(0) invert(0.7)';
                 }
             });
+            awakLocMajBoutonsTout();
         }
 
         // Bascule le mode du lieu (maison/gym) dans l'éditeur + ajuste les machines
@@ -28793,7 +28851,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1381");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1386");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -33240,7 +33298,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1381);'
+                +     'url(images/combat_bg_v1.webp?v=1386);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -33495,7 +33553,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1381);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1386);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -33767,7 +33825,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:540px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto;display:flex;flex-direction:column;">
                 <!-- Header : vague actuelle -->
-                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1381);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1386);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                         <span style="font-size:0.6em;color:${theme.color};font-weight:900;letter-spacing:2px;">⚔ VAGUE ${rift.currentWaveIdx + 1} / ${rift.waves.length}${currentWave.isBoss ? ' · BOSS' : ''}</span>
                         <button onclick="awakAbandonRift()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
@@ -34897,7 +34955,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1381');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1386');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -35634,7 +35692,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1381);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1386);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -35805,7 +35863,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1381);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1386);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -46847,7 +46905,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
             host.innerHTML =
                 '<div style="position:relative;width:110px;margin:0 auto 12px;">'
-              +   '<img src="images/body/body_face.webp?v=1381" alt="" '
+              +   '<img src="images/body/body_face.webp?v=1386" alt="" '
               +     'style="width:100%;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -46929,7 +46987,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1381);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1386);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -46996,7 +47054,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1381);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1386);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -49318,7 +49376,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1381");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1386");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
