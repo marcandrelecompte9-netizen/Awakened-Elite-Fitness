@@ -8654,3 +8654,5 @@ body:has(#completionView:not(.hidden)) .toast-container { top: calc(12px + env(s
 #historyTab[data-pg-actif="seances"] > #awakHistSection > .accordion-body { max-height: none !important; padding: 0 !important; overflow: visible !important; }
 /* Corps : le titre « Ton corps » est redondant avec le sous-onglet */
 #historyTab[data-pg-actif="corps"] > #awakCorpsTitre { display: none !important; }
+/* v1394 · Comparaison : pose absente d'une des deux séances */
+.awk-pm-pill.off { opacity: 0.4; border-style: dashed; color: #94a3b8; }

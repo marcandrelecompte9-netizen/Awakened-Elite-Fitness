@@ -442,13 +442,27 @@
         + '<div class="awk-pm-cmp-img">' + imgFlou(p.dataUrl) + '</div>'
         + '<div class="awk-pm-date">' + esc(dateLongue(g.date)) + '</div></div>';
     };
-    var onglets = communes.length > 1 ? '<div class="awk-pm-onglets">' + communes.map(function (p) {
-      return '<button type="button" class="awk-pm-pill' + (p === pose ? ' on' : '') + '" data-pose="' + p + '">' + NOM_POSE[p] + '</button>';
+    // v1394 : les 3 poses sont toujours proposées dès qu'une des deux séances
+    // en a plus d'une ; une pose absente d'un côté est grisée, avec la raison
+    // (ex. ancienne séance prise de face seulement).
+    var plusieurs = Object.keys(a.poses).length > 1 || Object.keys(b.poses).length > 1;
+    var manque = '';
+    var onglets = plusieurs ? '<div class="awk-pm-onglets">' + POSES.map(function (pp) {
+      var p = pp[0], ok = communes.indexOf(p) >= 0;
+      return '<button type="button" class="awk-pm-pill' + (p === pose ? ' on' : '') + (ok ? '' : ' off') + '"' + (ok ? ' data-pose="' + p + '"' : ' data-manque="' + p + '" aria-disabled="true"') + '>' + NOM_POSE[p] + '</button>';
     }).join('') + '</div>' : '';
+    var raison = function (p) {
+      var g = !a.poses[p] ? a : b;
+      return 'Pas de photo de ' + NOM_POSE[p].toLowerCase() + ' le ' + dateLongue(g.date) + '. Elle sera comparable à ta prochaine séance photo.';
+    };
+    if (plusieurs) {
+      var abs = POSES.filter(function (pp) { return communes.indexOf(pp[0]) < 0; }).map(function (pp) { return pp[0]; });
+      if (abs.length && communes.length) manque = '<p class="awk-pm-note awk-pm-centre" data-raison>' + esc(raison(abs[0])) + '</p>';
+    }
     var f = fenetre('awakPhotoCompare',
       tete(jours + ' jour' + (jours > 1 ? 's' : '') + ' d\'écart', 'Comparer')
       + '<div class="awk-pm-corps">'
-      +   onglets
+      +   onglets + manque
       +   (!communes.length && (Object.keys(a.poses).length > 1 || Object.keys(b.poses).length > 1) ? '<p class="awk-pm-note">Ces deux séances n\'ont pas de pose en commun.</p>' : '')
       +   '<div class="awk-pm-cmp">' + col(pa, a, 'Avant') + col(pb, b, 'Après') + '</div>'
       +   (discret() ? '<p class="awk-pm-note awk-pm-centre">Touche une photo pour l\'afficher.</p>' : '')
@@ -459,6 +473,7 @@
     f.querySelector('[data-fermer]').onclick = function () { f.remove(); };
     f.querySelector('[data-retour]').onclick = function () { f.remove(); ouvrirGalerie(); };
     f.querySelectorAll('[data-pose]').forEach(function (bt) { bt.onclick = function () { comparerGroupes(a.cle, b.cle, bt.dataset.pose); }; });
+    f.querySelectorAll('[data-manque]').forEach(function (bt) { bt.onclick = function () { var r = f.querySelector('[data-raison]'); if (r) r.textContent = raison(bt.dataset.manque); }; });
   }
   // Ancienne API (ids de photos)
   function comparer(id1, id2) {
