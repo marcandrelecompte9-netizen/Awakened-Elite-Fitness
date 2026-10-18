@@ -258,6 +258,9 @@
     }
     return true;
   }
+  function nbSeances() {
+    try { return (typeof window.getWorkoutHistory === 'function' ? window.getWorkoutHistory() : []).length; } catch (e) { return 1; }
+  }
   function ongletActif() {
     var t = document.querySelector('.tab-content.active');
     return t ? t.id.replace(/Tab$/, '') : null;
@@ -297,7 +300,13 @@
     if (ongletActif() !== onglet) return;              // l'utilisateur est déjà ailleurs
     var cle = cleVisite(onglet);
     var V = jeuVisites();
+    // Visite retirée de l'écran par autre chose : elle n'est plus « en cours »
+    if (enCours && !document.getElementById('awakVisiteOverlay')) enCours = null;
     if (enCours || !onglet || !V[cle] || vu(cle)) return;
+    // v1399 : la visite de l'accueil attend la 1re séance (avant : 10 bulles
+    // juste après l'inscription, avant d'avoir bougé). Elle reviendra au retour
+    // sur l'accueil après la séance.
+    if (onglet === 'home' && nbSeances() === 0) return;
     if (onglet === 'game' && !jeuPret()) { if (essais++ < 40) planifier(onglet, 2500); return; }
     // v1300 : avant, abandon après 60 s d'écran occupé (questionnaire de l'Éveil,
     // limitations…) : la visite sautait, puis revenait au changement d'onglet.

@@ -320,7 +320,33 @@
     var auj = seanceDu(pl, id, d), aPlan = Object.keys(pl.plan || {}).length > 0;
     var etiq = 'TON OBJECTIF DU JOUR', titre, meta = '', bouton;
     var go = 'switchTab(\'workouts\');window.scrollTo(0,0)';
-    if (auj) {
+    // v1399 : Parcours de l'Éveil actif → SA séance est l'objectif du jour.
+    // Avant : « Jour de repos » (plan automatique) juste au-dessus de la carte
+    // Éveil qui proposait la séance du jour — deux messages contraires.
+    var ev = null; try { ev = window.awakEveilAujourdhui ? window.awakEveilAujourdhui() : null; } catch (e) {}
+    var runP = null; try { runP = (!ev && window.AwakCoachRun && AwakCoachRun.aujourdhui) ? AwakCoachRun.aujourdhui() : null; } catch (e) {}
+    if (ev) {
+      if (ev.seance && !ev.faite) {
+        titre = ev.titre;
+        meta = (ev.duree ? '<span class="ahp-m">' + ico('chrono', 15, '#cbd5e1') + '<span>~' + ev.duree + ' min</span></span>' : '')
+          + '<span class="ahp-m">' + ico('calendrier', 15, '#cbd5e1') + '<span>Parcours de l\'Éveil · jour ' + ev.jour + ' / 28</span></span>';
+        bouton = '<button class="ahp-cta" onclick="if(typeof awakEveilLaunchToday===\'function\')awakEveilLaunchToday()">Commencer ma séance</button>';
+      } else if (ev.faite || faiteAuj) {
+        etiq = 'TON OBJECTIF DU JOUR · ACCOMPLI';
+        titre = 'Séance de l\'Éveil faite';
+        meta = '<span>Bien joué. Le repos fait partie du progrès.</span>';
+        bouton = '<button class="ahp-cta ahp-cta-s" onclick="switchTab(\'history\')">Voir ma progression</button>';
+      } else {
+        titre = 'Jour de récupération';
+        meta = '<span>Parcours de l\'Éveil · jour ' + ev.jour + ' / 28. Une marche ou un peu de mobilité suffit.</span>';
+        bouton = '<button class="ahp-cta" onclick="if(typeof showMorningRoutineModal===\'function\')showMorningRoutineModal()">Mobilité douce</button>';
+      }
+    } else if (runP && runP.titre && !faiteAuj) {
+      // v1400 : plan de course en cours → sa prochaine sortie est l'objectif du jour
+      titre = runP.titre;
+      meta = '<span class="ahp-m">' + ico('calendrier', 15, '#cbd5e1') + '<span>Plan ' + esc(runP.plan) + ' · semaine ' + runP.semaine + ' / ' + runP.S + ' · ' + runP.faites + ' / ' + runP.total + ' sorties</span></span>';
+      bouton = '<button class="ahp-cta" onclick="switchTab(\'course\');setTimeout(function(){AwakCoachRun.lancerPlan(' + runP.w + ',' + runP.i + ')},150)">Lancer cette sortie</button>';
+    } else if (auj) {
       var s = auj.s;
       titre = s.label || s.muscles.slice(0, 3).join(' · ');
       var M = metaSeance(id, s), bits = [];
@@ -330,18 +356,25 @@
       if (auj.heure) bits.push('<span class="ahp-m">' + ico('calendrier', 15, '#cbd5e1') + '<span>' + esc(fmtH(auj.heure)) + '</span></span>');
       meta = bits.join('');
       if (s.routineId) go = 'if(typeof startRoutineById===\'function\')startRoutineById(\'' + esc(s.routineId) + '\')';
+      // v1400 : jour de yoga / pilates / mobilité du plan → la séance de la discipline
+      else if (s.discipline === 'course' && s.session !== 'renfo') go = 'switchTab(\'course\');window.scrollTo(0,0)';   // course : l'onglet GPS
+      else if (s.discipline) go = 'if(typeof startDisciplineSession===\'function\')startDisciplineSession(\'' + esc(s.discipline) + '\',\'' + esc(s.session || '') + '\')';
       else if (s.source === 'programme' && s.planWeek) go = 'if(typeof startPlanSession===\'function\')startPlanSession(' + (+s.planWeek) + ',' + (+s.planIdx) + ')';
       if (auj.faite) etiq = 'TON OBJECTIF DU JOUR · ACCOMPLI';
       bouton = auj.faite
         ? '<button class="ahp-cta ahp-cta-s" onclick="switchTab(\'history\')">Voir ma progression</button>'
         : '<button class="ahp-cta" onclick="' + go + '">Commencer ma séance</button>';
-    } else if (aPlan) {
+    } else if (aPlan && (typeof window.awakSeanceRecente !== 'function' || window.awakSeanceRecente(2))) {
+      // v1400 : « Jour de repos » seulement après une séance récente (sinon : la séance du Système)
       titre = 'Jour de repos';
       var pr = prochaine(pl, id);
       meta = '<span>' + (pr
         ? 'Prochaine séance ' + (pr.k === 1 ? 'demain' : JOURS_LONG[wIdx(pr.d)].toLowerCase()) + ' : ' + esc(pr.e.s.label || pr.e.s.muscles.slice(0, 2).join(' · '))
         : 'La récupération fait partie de l\'entraînement.') + '</span>';
       bouton = '<button class="ahp-cta" onclick="if(typeof showMorningRoutineModal===\'function\')showMorningRoutineModal()">Mobilité douce</button>';
+      // v1400 : quelqu'un qui aime le yoga se voit proposer un yoga doux
+      try { var _aimeH = ((typeof getUserProfile === 'function' ? getUserProfile() : {}) || {}).aime || [];
+        if (_aimeH.indexOf('yoga') >= 0) bouton = '<button class="ahp-cta" onclick="if(typeof startDisciplineSession===\'function\')startDisciplineSession(\'yoga\',\'soir\')">Yoga doux</button>'; } catch (e) {}
     } else if (faiteAuj) {
       etiq = 'TON OBJECTIF DU JOUR · ACCOMPLI';
       titre = 'Séance faite';
@@ -355,6 +388,12 @@
       bouton = '<button class="ahp-cta" onclick="' + go + '">Commencer ma séance</button>';
     }
 
+    // v1400 : aime la course, pas encore de plan → raccourci vers le plan (même sans courir encore)
+    try {
+      var _aimeC = ((typeof getUserProfile === 'function' ? getUserProfile() : {}) || {}).aime || [];
+      if (!ev && !runP && _aimeC.indexOf('course') >= 0 && window.AwakCoachRun && AwakCoachRun.creerPlanUI && !(AwakCoachRun.lePlan && AwakCoachRun.lePlan()))
+        bouton += '<button onclick="switchTab(\'course\');setTimeout(function(){AwakCoachRun.creerPlanUI()},200)" style="display:block;width:100%;margin-top:8px;min-height:auto;padding:9px;border-radius:11px;cursor:pointer;font-family:inherit;font-weight:800;font-size:0.8em;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.4);color:#fde68a;">Créer mon plan de course (5 km au marathon)</button>';
+    } catch (e) {}
     return '<div class="ahp-card" style="padding:16px 16px 12px;">' +
         '<div style="display:flex;align-items:flex-start;gap:12px;">' +
           '<div style="flex:1;min-width:0;padding-top:2px;">' +
@@ -400,8 +439,13 @@
       points += '<span title="' + LETTRES[i] + '" style="width:9px;height:9px;border-radius:50%;box-sizing:border-box;' +
         (f ? 'background:' + ACCENT + ';' : 'border:1.5px solid ' + (estAuj ? ACCENT : (e ? 'rgba(167,139,250,0.8)' : 'rgba(255,255,255,0.14)')) + ';') + '"></span>';
     }
-    // Avec un planning : séances prévues faites / prévues. Sans : séances faites / objectif du profil.
-    var visee2 = prevues || objectifHebdo(), fait2 = prevues ? prevuesFaites : total, reste = visee2 - fait2;
+    // v1399 : TOUTES les séances de la semaine comptent (avant, avec un planning,
+    // une séance faite un jour non prévu ne comptait pas : « 0 / 5 » après une
+    // séance). Objectif = séances prévues, sinon le rythme de l'Éveil, sinon le profil.
+    var evS = null; try { evS = window.awakEveilAujourdhui ? window.awakEveilAujourdhui() : null; } catch (e) {}
+    var runS = null; try { runS = (!evS && window.AwakCoachRun && AwakCoachRun.aujourdhui) ? AwakCoachRun.aujourdhui() : null; } catch (e) {}
+    // v1400 : plan de course → ses sorties de la semaine sont l'objectif
+    var visee2 = evS ? evS.parSemaine : (runS ? runS.total : (prevues || objectifHebdo())), fait2 = total, reste = visee2 - fait2;
     var sous = reste <= 0 ? 'Objectif atteint' : (reste === 1 ? 'Plus qu\'une pour l\'objectif' : 'Encore ' + reste + ' pour l\'objectif');
     var t2 = tuile('calendrier', '#a78bfa', 'CETTE SEMAINE', Math.min(fait2, 99) + ' / ' + visee2 + ' séance' + (visee2 > 1 ? 's' : ''),
       '<div style="display:flex;justify-content:space-between;margin:9px 0 2px;">' + points + '</div>', sous, 'switchTab(\'calendar\')');
@@ -462,6 +506,18 @@
   }
 
   // ── « Ou choisir une autre activité » ──
+  // Ouvre la discipline calme préférée (yoga par défaut) dans Programme › Sports
+  window.awakOuvrirCalme = function (disc) {
+    var up = {}; try { up = (typeof getUserProfile === 'function' ? getUserProfile() : {}) || {}; } catch (e) {}
+    var a = up.aime || [];
+    disc = disc || (a.indexOf('yoga') >= 0 ? 'yoga' : (a.indexOf('pilates') >= 0 ? 'pilates' : 'yoga'));
+    try {
+      try { localStorage.setItem('awakSelectedDiscipline', disc); } catch (e) {}
+      if (typeof window.setProgramTabView === 'function') window.setProgramTabView('discipline');
+      if (typeof window.switchTab === 'function') window.switchTab('program');
+      if (typeof window.selectDisciplineCard === 'function') window.selectDisciplineCard(disc);
+    } catch (e) {}
+  };
   window.awakAutreActivite = function () {
     var vieux = document.getElementById('awakAutreModal'); if (vieux) vieux.remove();
     var ov = document.createElement('div');
@@ -474,6 +530,8 @@
       ['liste', '#93c5fd', 'Mes routines', 'Tes séances enregistrées', f + 'switchTab(\'routines\')'],
       ['course', '#93c5fd', 'Course, marche ou vélo', 'Sortie au GPS ou sur tapis', f + 'switchTab(\'course\')'],
       ['soleil', '#fbbf24', 'Réveil du corps', 'Mobilité douce, sans matériel', f + 'if(typeof showMorningRoutineModal===\'function\')showMorningRoutineModal()'],
+      // v1400 : yoga, pilates, sérénité (avant : rangés dans Séance › Programme › Sports)
+      ['repos', '#a78bfa', 'Yoga, pilates, sérénité', 'Postures, respiration, cours de 5 à 45 min', f + 'awakOuvrirCalme()'],
       ['calendrier', '#a78bfa', 'Planifier ma semaine', 'Choisir quoi faire chaque jour', f + 'if(typeof openManualPlanEditor===\'function\')openManualPlanEditor();else switchTab(\'calendar\')']
     ].map(function (x) {
       return '<button class="ahp-row" onclick="' + x[4] + '">' +

@@ -11,11 +11,11 @@
     <title>Awakened Elite Fitness</title>
 
     <!-- PWA -->
-    <link rel="manifest" href="manifest.json?v=1398">
-    <link rel="apple-touch-icon" href="icons/icon-192.png?v=1398">
-    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=1398">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=1398">
-    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=1398">
+    <link rel="manifest" href="manifest.json?v=1401">
+    <link rel="apple-touch-icon" href="icons/icon-192.png?v=1401">
+    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=1401">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=1401">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=1401">
 
     <!-- ⚠️ CAPTURE PRÉCOCE DE L'INVITE D'INSTALLATION.
          Chrome déclenche « beforeinstallprompt » très tôt, souvent AVANT la fin
@@ -38,13 +38,13 @@
         });
     </script>
     <!-- v1398 : mode dev « Avancer le temps » — doit précéder tous les scripts -->
-    <script src="js/dev-temps.js?v=1398"></script>
+    <script src="js/dev-temps.js?v=1401"></script>
 
     <!-- Fonts -->
     <!-- v1288 : police Outfit embarquée (fonts/ + css/style.css) : plus besoin d'Internet -->
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=1398">
+    <link rel="stylesheet" href="css/style.css?v=1401">
 </head>
 <body>
 
@@ -201,8 +201,8 @@
                  (ratio 1,55), donc plus haute et lisible.
                  <picture> laisse le navigateur choisir, sans JavaScript. -->
             <picture>
-                <source media="(min-width: 700px)" srcset="images/banner_v3.webp?v=1398">
-                <img src="images/banner_v3_mobile.webp?v=1398"
+                <source media="(min-width: 700px)" srcset="images/banner_v3.webp?v=1401">
+                <img src="images/banner_v3_mobile.webp?v=1401"
                      alt="Awakened Elite Fitness"
                      onerror="var p=this.closest('picture');if(p&&p.parentElement)p.parentElement.style.display='none';"
                      style="width:100%;height:auto;display:block;" />
@@ -1310,13 +1310,13 @@
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
                         <button id="gymMachineOnlyBtn" onclick="setGymBodyweightMode(false)"
                             style="padding:10px 8px;border-radius:14px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.03);cursor:pointer;text-align:center;transition:all 0.2s;">
-                            <div style="font-size:1.4em;margin-bottom:4px;">🤖</div>
+                            <div style="display:flex;justify-content:center;margin-bottom:4px;"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#93c5fd" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0;vertical-align:-0.15em;display:inline-block;"><path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg></div>
                             <div style="font-weight:700;font-size:0.82em;color:#e2e8f0;">Machines seulement</div>
                             <div style="font-size:0.7em;color:#94a3b8;margin-top:2px;">Câbles · Presses</div>
                         </button>
                         <button id="gymMixedBtn" onclick="setGymBodyweightMode(true)"
                             style="padding:10px 8px;border-radius:14px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.03);cursor:pointer;text-align:center;transition:all 0.2s;">
-                            <div style="font-size:1.4em;margin-bottom:4px;">🤖💪</div>
+                            <div style="display:flex;justify-content:center;gap:4px;margin-bottom:4px;"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#93c5fd" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0;vertical-align:-0.15em;display:inline-block;"><path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#93c5fd" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0;vertical-align:-0.15em;display:inline-block;"><path d="M5 17v-4a4 4 0 0 1 4-4h4l3-3 3.5 3.5L16 13v2a4 4 0 0 1-4 4H7"/><path d="M10 13h3"/></svg></div>
                             <div style="font-weight:700;font-size:0.82em;color:#e2e8f0;">Machines + Corps</div>
                             <div style="font-size:0.7em;color:#94a3b8;margin-top:2px;">Tractions · Dips</div>
                         </button>
@@ -1593,6 +1593,16 @@
                                 <!-- 💡 Suggestion de charge intelligente -->
                                 <div id="loadSuggestionContainer"></div>
 
+                            <!-- v1400 : « Machine occupée » au-dessus des séries (avant : sous la barre Préc. / Suivant, invisible sans défiler) -->
+                            <div id="contextualBtns" style="display:none;gap:8px;margin-bottom:10px;">
+                                <button id="machineOccupiedBtn" onclick="showMachineOccupiedSwap()" aria-label="Machine occupée"
+                                        style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;
+                                               padding:10px;border-radius:10px;cursor:pointer;transition:all 0.15s;
+                                               background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.35);
+                                               color:#f87171;font-size:0.72em;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;">
+                                    Machine occupée
+                                </button>
+                            </div>
                                 <!-- 📋 Grille de séries (mode muscu) : toutes les séries visibles et éditables -->
                                 <div id="setsGridPanel" style="display:none;margin-bottom:14px;"></div>
 
@@ -1679,16 +1689,7 @@
 
                             <!-- (Pause déplacée sur l'image · Menu déplacé en haut) -->
 
-                            <!-- Rangée contextuelle : Machine occupée seulement -->
-                            <div id="contextualBtns" style="display:none;gap:8px;">
-                                <button id="machineOccupiedBtn" onclick="showMachineOccupiedSwap()" aria-label="Machine occupée"
-                                        style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;
-                                               padding:10px;border-radius:10px;cursor:pointer;transition:all 0.15s;
-                                               background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.35);
-                                               color:#f87171;font-size:0.72em;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;">
-                                    🚫 Machine occupée
-                                </button>
-                            </div>
+
                         </div>
 
                         </div><!-- /timer zone -->                    <!-- Instructions (collapsibles sur mobile) -->
@@ -1985,7 +1986,7 @@
                             <div style="background:linear-gradient(160deg,rgba(59,130,246,0.08),rgba(59,130,246,0.02));border-radius:10px;padding:16px 8px;border:1px solid rgba(96,168,240,0.35);position:relative;">
                                 <div style="position:absolute;top:-1px;left:-1px;width:12px;height:12px;border-top:1.5px solid #60a8f0;border-left:1.5px solid #60a8f0;border-top-left-radius:10px;"></div>
                                 <div id="completionTime" style="font-size:1.9em;font-weight:900;color:#60a8f0;letter-spacing:-1px;font-variant-numeric:tabular-nums;text-shadow:0 0 12px rgba(96,168,240,0.4);">30</div>
-                                <div style="font-size:0.55em;color:#94a3b8;margin-top:4px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;">Minutes</div>
+                                <div style="font-size:0.55em;color:#94a3b8;margin-top:4px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;" id="completionTimeLbl">Minutes</div>
                             </div>
                             <div style="background:linear-gradient(160deg,rgba(168,85,247,0.08),rgba(168,85,247,0.02));border-radius:10px;padding:16px 8px;border:1px solid rgba(168,85,247,0.35);position:relative;">
                                 <div style="position:absolute;top:-1px;left:-1px;width:12px;height:12px;border-top:1.5px solid #c084fc;border-left:1.5px solid #c084fc;border-top-left-radius:10px;"></div>
@@ -2795,6 +2796,13 @@
                             <div class="settings-sub-title">Sauvegarde</div>
                             <p class="settings-sub-desc">Tes données sont enregistrées dans ce téléphone seulement. Envoie-toi une copie de temps en temps.</p>
                             <div id="awakSauvegardeCarte"></div>
+                            <!-- v1399 : changer d'appli (js/import-csv.js) -->
+                            <div class="settings-sub-title" style="margin-top:18px;">Changer d'appli</div>
+                            <p class="settings-sub-desc">Reprends ton historique de Strong ou Hevy, ou emporte tes séances ailleurs.</p>
+                            <div id="awakCsvCarte" style="display:grid;gap:8px;">
+                                <button class="btn" onclick="AwakCSV.ouvrirImport()" style="width:100%;background:rgba(96,168,240,0.12);border:1px solid rgba(96,168,240,0.45);color:#e2e8f0;font-weight:800;">Importer depuis Strong ou Hevy (CSV)</button>
+                                <button class="btn" onclick="AwakCSV.exporter()" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:#cbd5e1;font-weight:700;">Exporter mes séances (CSV)</button>
+                            </div>
                             <div class="settings-sub-title" style="color:#ef4444;margin-top:18px;">Supprimer</div>
                             <div style="display: grid; gap: 10px;">
                                 <button class="btn" onclick="deleteCurrentProfile()" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); display: flex; align-items: center; justify-content: center; gap: 10px;">
@@ -3914,36 +3922,36 @@
     <!-- v1327 : Chart.js chargé à la demande (awakChargerChart dans app.js) -->
 
     <!-- App scripts — order matters -->
-    <script src="js/native.js?v=1398"></script>
-    <script src="js/essai.js?v=1398"></script>
-    <script src="js/exercises.js?v=1398"></script>
-    <script src="js/exercise-names.js?v=1398"></script>
-    <script src="data/items.js?v=1398"></script>
-    <script src="js/item-icons.js?v=1398"></script>
-    <script src="js/adventure.js?v=1398"></script>
-    <script src="js/economy.js?v=1398"></script>
-    <script src="js/challenges.js?v=1398"></script>
-    <script src="js/family-boss.js?v=1398"></script>
-    <script src="js/family-network.js?v=1398"></script>
-    <script src="js/family-challenge.js?v=1398"></script>
-    <script src="js/family-goal.js?v=1398"></script>
-    <script src="js/family-feed.js?v=1398"></script>
-    <script src="js/pre-workout-mood.js?v=1398"></script>
-    <script src="js/group-workout.js?v=1398"></script>
-    <script src="js/youth-safety.js?v=1398"></script>
-    <script src="js/kids-programs.js?v=1398"></script>
-    <script src="js/senior-programs.js?v=1398"></script>
-    <script src="js/adaptive.js?v=1398"></script>
-    <script src="js/pain-mode.js?v=1398"></script>
-    <script src="js/recovery-mode.js?v=1398"></script>
-    <script src="js/exercise-visuals.js?v=1398"></script>
-    <script src="js/strength-standards.js?v=1398"></script>
-    <script src="js/system-cards.js?v=1398"></script>
-    <script src="js/share-card.js?v=1398"></script>
-    <script src="js/story-events.js?v=1398"></script>
-    <script src="js/final-boss.js?v=1398"></script>
-    <script src="js/disciplines.js?v=1398"></script>
-    <script src="js/eveil.js?v=1398"></script>
+    <script src="js/native.js?v=1401"></script>
+    <script src="js/essai.js?v=1401"></script>
+    <script src="js/exercises.js?v=1401"></script>
+    <script src="js/exercise-names.js?v=1401"></script>
+    <script src="data/items.js?v=1401"></script>
+    <script src="js/item-icons.js?v=1401"></script>
+    <script src="js/adventure.js?v=1401"></script>
+    <script src="js/economy.js?v=1401"></script>
+    <script src="js/challenges.js?v=1401"></script>
+    <script src="js/family-boss.js?v=1401"></script>
+    <script src="js/family-network.js?v=1401"></script>
+    <script src="js/family-challenge.js?v=1401"></script>
+    <script src="js/family-goal.js?v=1401"></script>
+    <script src="js/family-feed.js?v=1401"></script>
+    <script src="js/pre-workout-mood.js?v=1401"></script>
+    <script src="js/group-workout.js?v=1401"></script>
+    <script src="js/youth-safety.js?v=1401"></script>
+    <script src="js/kids-programs.js?v=1401"></script>
+    <script src="js/senior-programs.js?v=1401"></script>
+    <script src="js/adaptive.js?v=1401"></script>
+    <script src="js/pain-mode.js?v=1401"></script>
+    <script src="js/recovery-mode.js?v=1401"></script>
+    <script src="js/exercise-visuals.js?v=1401"></script>
+    <script src="js/strength-standards.js?v=1401"></script>
+    <script src="js/system-cards.js?v=1401"></script>
+    <script src="js/share-card.js?v=1401"></script>
+    <script src="js/story-events.js?v=1401"></script>
+    <script src="js/final-boss.js?v=1401"></script>
+    <script src="js/disciplines.js?v=1401"></script>
+    <script src="js/eveil.js?v=1401"></script>
     <script>
     /* 🔄 DÉVERROUILLAGE DE L'ORIENTATION
        Sur Android, l'orientation d'une PWA installée est figée à l'installation
@@ -3965,50 +3973,53 @@
       });
     })();
     </script>
-    <script src="js/app.js?v=1398"></script>
-    <script src="js/calendar-tab.js?v=1398"></script>
-    <script src="js/routine-blocks.js?v=1398"></script>
-    <script src="js/routine-builder.js?v=1398"></script>
-    <script src="js/routine-print.js?v=1398"></script>
-    <script src="js/icons.js?v=1398"></script>
-    <script src="js/no-emoji.js?v=1398"></script>
-    <script src="js/stat-noms.js?v=1398"></script>
-    <script src="js/fenetres.js?v=1398"></script>
-    <script src="js/qrcode.js?v=1398"></script>
-    <script src="js/partage-seance.js?v=1398"></script>
-    <script src="js/salle.js?v=1398"></script>
-    <script src="js/sports.js?v=1398"></script>
-    <script src="js/strength-balance.js?v=1398"></script>
-    <script src="js/analyse.js?v=1398"></script>
-    <script src="js/limitations.js?v=1398"></script>
-    <script src="js/custom-exercises.js?v=1398"></script>
-    <script src="js/awakening-tree.js?v=1398"></script>
-    <script src="js/ui-kit.js?v=1398"></script>
-    <script src="js/feature-map.js?v=1398"></script>
-    <script src="js/visite.js?v=1398"></script>
-    <script src="js/weekly-recap.js?v=1398"></script>
-    <script src="js/workout-games.js?v=1398"></script>
-    <script src="js/kids-games.js?v=1398"></script>
-    <script src="js/home-pro.js?v=1398"></script>
-    <script src="js/echelle.js?v=1398"></script>
-    <script src="js/seance-ecran.js?v=1398"></script>
-    <script src="js/regle-mesures.js?v=1398"></script>
-    <script src="js/photos-mesures.js?v=1398"></script>
-    <script src="js/back-button.js?v=1398"></script>
-    <script src="js/gestures.js?v=1398"></script>
-    <script src="js/rift-visuals.js?v=1398"></script>
-    <script src="js/family-sky.js?v=1398"></script>
-    <script src="js/family-week.js?v=1398"></script>
-    <script src="js/session-ux.js?v=1398"></script>
-    <script src="js/progress-tab.js?v=1398"></script>
-    <script src="js/progres-onglets.js?v=1398"></script>
-    <script src="js/dev-outils.js?v=1398"></script>
-    <script src="js/mon-defi.js?v=1398"></script>
-    <script src="js/health-sync.js?v=1398"></script>
-    <script src="js/regle.js?v=1398"></script>
-    <script src="js/run-gps.js?v=1398"></script>
-    <script src="js/run-coach.js?v=1398"></script>
-    <script src="js/backup.js?v=1398"></script>
+    <script src="js/app.js?v=1401"></script>
+    <script src="js/calendar-tab.js?v=1401"></script>
+    <script src="js/routine-blocks.js?v=1401"></script>
+    <script src="js/routine-builder.js?v=1401"></script>
+    <script src="js/routine-print.js?v=1401"></script>
+    <script src="js/icons.js?v=1401"></script>
+    <script src="js/no-emoji.js?v=1401"></script>
+    <script src="js/stat-noms.js?v=1401"></script>
+    <script src="js/fenetres.js?v=1401"></script>
+    <script src="js/qrcode.js?v=1401"></script>
+    <script src="js/partage-seance.js?v=1401"></script>
+    <script src="js/salle.js?v=1401"></script>
+    <script src="js/sports.js?v=1401"></script>
+    <script src="js/strength-balance.js?v=1401"></script>
+    <script src="js/analyse.js?v=1401"></script>
+    <script src="js/limitations.js?v=1401"></script>
+    <script src="js/custom-exercises.js?v=1401"></script>
+    <script src="js/awakening-tree.js?v=1401"></script>
+    <script src="js/ui-kit.js?v=1401"></script>
+    <script src="js/feature-map.js?v=1401"></script>
+    <script src="js/visite.js?v=1401"></script>
+    <script src="js/weekly-recap.js?v=1401"></script>
+    <script src="js/workout-games.js?v=1401"></script>
+    <script src="js/kids-games.js?v=1401"></script>
+    <script src="js/home-pro.js?v=1401"></script>
+    <script src="js/echelle.js?v=1401"></script>
+    <script src="js/seance-ecran.js?v=1401"></script>
+    <script src="js/regle-mesures.js?v=1401"></script>
+    <script src="js/photos-mesures.js?v=1401"></script>
+    <script src="js/back-button.js?v=1401"></script>
+    <script src="js/gestures.js?v=1401"></script>
+    <script src="js/rift-visuals.js?v=1401"></script>
+    <script src="js/family-sky.js?v=1401"></script>
+    <script src="js/family-week.js?v=1401"></script>
+    <script src="js/session-ux.js?v=1401"></script>
+    <script src="js/progress-tab.js?v=1401"></script>
+    <script src="js/progres-onglets.js?v=1401"></script>
+    <script src="js/dev-outils.js?v=1401"></script>
+    <script src="js/ressenti.js?v=1401"></script>
+    <script src="js/import-csv.js?v=1401"></script>
+    <script src="js/reglage-machine.js?v=1401"></script>
+    <script src="js/mon-defi.js?v=1401"></script>
+    <script src="js/health-sync.js?v=1401"></script>
+    <script src="js/regle.js?v=1401"></script>
+    <script src="js/run-gps.js?v=1401"></script>
+    <script src="js/run-coach.js?v=1401"></script>
+    <script src="js/backup.js?v=1401"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>

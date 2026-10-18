@@ -222,7 +222,7 @@ function generateShareCard(data) {
             ctx.fillStyle = 'rgba(255,255,255,0.55)';
             ctx.font = '600 30px Arial';
             ctx.textAlign = 'center';
-            ctx.fillText('Volume total : ' + data.volume.toLocaleString() + ' ' + (data.unit || 'kg'), cx, y);
+            ctx.fillText('Volume total : ' + data.volume.toLocaleString('fr-CA') + ' ' + (data.unit || 'kg'), cx, y);
             y += isStory ? 90 : 60;
         }
 

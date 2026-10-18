@@ -87,7 +87,8 @@
           : '')
         + '</div>';
     }
-    // Cardio
+    // Cardio (pas avant une séance calme : yoga, pilates, sérénité)
+    if (!_calme) {
     h += '<div style="display:flex;align-items:center;gap:7px;font-size:0.74em;font-weight:800;color:' + CLAIR + ';margin:12px 0 8px;">'
       + ico('course', 15, CLAIR) + '<span>Cardio pour te réchauffer</span>'
       + '<span style="margin-left:auto;font-size:0.85em;color:#64748b;font-weight:700;">' + (etat.cardio > 0 ? 'choisis l\'activité' : 'facultatif') + '</span></div>';
@@ -109,12 +110,15 @@
           }).join('')
         + '</div>';
     }
+    }
     h += '</div>';
     hote.innerHTML = h;
   }
 
+  var _calme = false;   // v1400 : yoga, pilates, sérénité → pas de cardio d'échauffement proposé
   function prep(workout) {
     etat = { humeur: null, cardio: 0 };
+    _calme = !!(workout && /^(yoga|pilates|serenite|mobilite)$/.test(workout._discipline || ''));
     // ⌚ v1232 : nuit courte mesurée par la montre → « Fatigué » présélectionné
     try {
       var nc = window.AwakSante && AwakSante.nuitCourte && AwakSante.nuitCourte();

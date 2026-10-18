@@ -267,7 +267,7 @@ const exerciseDatabase = [
             { name: "Cercles chevilles", muscle: "Mollets", difficulty: "Débutant", type: "warmup", equipment: ["Poids du corps"], description: "Mobilité chevilles.", instructions: ["Debout ou assis", "Tourne chevilles", "10 sens horaire", "10 sens inverse", "Chaque cheville"], tips: "Prévient blessures.", duration: 60 },
 
             // CARDIO - Échauffement
-            { name: "Marche sur place", muscle: "Cardio", difficulty: "Débutant", type: "warmup", equipment: ["Poids du corps"], mode: "timer", description: "Montée en température.", instructions: ["Marche sur place", "Augmente rythme progressivement", "Balance bras", "2-3 minutes", "Respire régulièrement"], tips: "Élève fréquence cardiaque.", duration: 120 },
+            { name: "Marche sur place", muscle: "Cardio", difficulty: "Débutant", type: "warmup", equipment: ["Poids du corps"], mode: "timer", description: "Montée en température.", instructions: ["Marche sur place", "Augmente rythme progressivement", "Balance bras", "Respire calmement, sans t'essouffler", "Respire régulièrement"], tips: "Élève fréquence cardiaque.", duration: 120 },
             { name: "Jumping Jacks légers", muscle: "Cardio", difficulty: "Débutant", type: "warmup", equipment: ["Poids du corps"], mode: "timer", description: "Activation cardiovasculaire.", instructions: ["Sauts écartés légers", "15-20 répétitions", "Rythme modéré", "Coordination bras-jambes", "Respire"], tips: "Prépare système cardio.", duration: 60 },
 
             // CORPS ENTIER - Échauffement

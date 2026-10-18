@@ -258,6 +258,9 @@
     // (clé déjà propre à chaque profil : switchProfile l'échange via GAME_KEYS)
     if (localStorage.getItem('awakEveilOffered') === '1') return;
     localStorage.setItem('awakEveilOffered', '1');
+    // v1399/v1400 : proposé aux Débutants seulement (« Nouveau dans l'entraînement ? »).
+    // Il reste accessible dans les Réglages.
+    try { var up = typeof global.getUserProfile === 'function' ? (global.getUserProfile() || {}) : {}; if (up.level && up.level !== 'beginner') return; } catch (e) {}   // v1400 : Débutants seulement
     var ov = document.createElement('div');
     ov.id = 'eveilOfferModal';
     ov.style.cssText = 'position:fixed;inset:0;background:rgba(4,6,12,0.88);backdrop-filter:blur(6px);z-index:10050;display:flex;align-items:center;justify-content:center;padding:20px;';
@@ -357,7 +360,7 @@
   var QUIET_SWAPS = {
     'Jumping jacks': 'Marche sur place',
     'High knees': 'Mountain climbers',
-    'Montées de genoux sur place': 'Dead bug'
+    'Montées de genoux sur place': 'Pas chassés latéraux'   // v1399 : cardio doux (avant : Dead bug, en double avec « Dead bug lent »)
   };
   // Détection automatique (contexte enfants)…
   function _quietAuto(j) {
@@ -537,6 +540,8 @@
     var expMult = { jamais: 0.85, longtemps: 1.0, recent: 1.15 }[j.answers.exp] || 1.0;
     // 🥱 Fatigué aujourd'hui → séance adoucie de 15 % (adhérence > perfection)
     if (_todayMood(j) === 'tired') expMult *= 0.85;
+    // v1399 : ressenti de la dernière séance (« Comment c'était ? », ressenti.js)
+    try { var rs = global.AwakRessenti && global.AwakRessenti.recent(); if (rs === 'facile') expMult *= 1.1; else if (rs === 'dur') expMult *= 0.85; } catch (e) {}
     var exercises = [];
     var nSeries = _seriesSemaine(wk, j);
     // Prise de muscle / force : 3 passages dès la semaine 2 (au lieu de la 3)
@@ -573,7 +578,7 @@
     if (j.answers.sauts === 'non') adapteA.push('sans sauts');
     return {
       _eveilAdaptes: _ad.adaptes, _eveilRetires: _ad.retires, _eveilAdapteA: adapteA,
-      name: '🌅 Éveil S' + wk + ' · ' + spec.title + (_quietMode(j) ? ' 🤫' : ''),
+      name: 'Éveil S' + wk + ' · ' + spec.title + (_quietMode(j) ? ' · silencieuse' : ''),   // v1399 : sans emojis (ils s'affichaient dans l'historique)
       exercises: exercises,
       mode: 'timer', restBetweenSets: repos,
       type: 'eveil', _eveil: true,
@@ -877,6 +882,15 @@
 
   // ── EXPORTS ────────────────────────────────────────────────────────────
   global.awakEveilActive = eveilActive;
+  // v1399 : l'accueil prend la séance de l'Éveil comme objectif du jour,
+  // et son rythme (jours choisis) comme objectif de la semaine.
+  global.awakEveilAujourdhui = function () {
+    var j = _get(); if (!j || !j.active || eveilDone(j)) return null;
+    var wk = eveilWeek(j), spec = SESSIONS[wk] || {};
+    var d = 0; try { d = _dureeSeance(j); } catch (e) {}
+    return { seance: _isWorkDay(j), faite: !!(j.sessionsDone || {})[_todayKey()], jour: eveilDayNum(j), semaine: wk,
+      titre: 'Éveil · ' + (spec.title || 'Séance du jour'), duree: d, parSemaine: (j.workDays || []).length || 3 };
+  };
   global.awakEveilMaybeOffer = eveilMaybeOffer;
   global.awakEveilStartQuestionnaire = eveilStartQuestionnaire;
   global.awakEveilLaunchToday = eveilLaunchToday;

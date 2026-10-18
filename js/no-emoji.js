@@ -29,7 +29,8 @@
   //    ✓ ✔ (série validée, objectif atteint) et ✕ ✖ (fermer). Les retirer
   //    supprimerait l'information, pas la décoration. On saute donc
   //    2713-2716 dans la plage.
-  var RE_EMOJI = /[\u{1F000}-\u{1FAFF}\u{2600}-\u{2712}\u{2717}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}\u{20E3}\u{E0020}-\u{E007F}]/gu;
+  // v1399 : + ⌚⌛ et ⏩…⏺ (⏳ ⏭ ⏰ passaient dans les questions de l'Éveil)
+  var RE_EMOJI = /[\u{1F000}-\u{1FAFF}\u{231A}-\u{231B}\u{23E9}-\u{23FA}\u{2600}-\u{2712}\u{2717}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}\u{20E3}\u{E0020}-\u{E007F}]/gu;
 
   function cle() {
     try {

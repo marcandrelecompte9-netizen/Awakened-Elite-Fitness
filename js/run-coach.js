@@ -203,14 +203,22 @@
     tempo30:  { nom: 'Tempo 30 min',    desc: 'Allure semi-marathon en continu.',                                   pct: 0.8,  reps: 1,  eff: ['t', 1800], rec: null }
   };
   var ORDRE_TPL = ['minute', 'court400', 'pyramide', 'k800', 'k1000', 'seuil', 'seuil2', 'tempo', 'tempo30'];
+  // v1400 : MARCHE-COURSE (phase de base d'un plan pour qui ne court pas encore).
+  // Effort = trottiner, récup = marcher. 8 paliers jusqu'à 30 min sans s'arrêter.
+  var MC = [[1, 2, 8], [2, 2, 6], [3, 2, 5], [5, 2, 4], [6, 1.5, 4], [8, 1.5, 3], [12, 1, 2], [30, 0, 1]];
+  MC.forEach(function (m, i) {
+    TPL['mc' + (i + 1)] = { nom: m[2] > 1 ? m[2] + ' × ' + m[0] + ' min de course' : m[0] + ' min de course sans t\'arrêter',
+      desc: m[1] ? 'Trottine ' + m[0] + ' min, marche ' + String(m[1]).replace('.', ',') + ' min. Lentement : tu dois pouvoir parler.' : 'Le cap des 30 min : tout doucement, sans t\'arrêter.',
+      pct: 0.6, reps: m[2], eff: ['t', m[0] * 60], rec: m[1] ? ['t', m[1] * 60] : null, nomEff: 'Course', nomRec: 'Marche' };
+  });
 
   function phasesDe(tplId, echauf) {
     var T = TPL[tplId] || TPL.minute, ph = [];
     if (echauf !== false) ph.push({ type: 'echauf', m: 't', v: 600, nom: 'Échauffement' });
     var effs = T.liste ? T.liste.map(function (d) { return ['d', d]; }) : Array.apply(null, Array(T.reps)).map(function () { return T.eff; });
     effs.forEach(function (e, i) {
-      ph.push({ type: 'effort', m: e[0], v: e[1], n: i + 1, sur: effs.length, nom: 'Effort ' + (i + 1) + ' / ' + effs.length });
-      if (T.rec && i < effs.length - 1) ph.push({ type: 'recup', m: T.rec[0], v: T.rec[1], nom: 'Récupère' });
+      ph.push({ type: 'effort', m: e[0], v: e[1], n: i + 1, sur: effs.length, nom: (T.nomEff || 'Effort') + ' ' + (i + 1) + ' / ' + effs.length });
+      if (T.rec && i < effs.length - 1) ph.push({ type: 'recup', m: T.rec[0], v: T.rec[1], nom: T.nomRec || 'Récupère' });
     });
     if (echauf !== false) ph.push({ type: 'calme', m: 't', v: 300, nom: 'Retour au calme' });
     return ph;
@@ -611,12 +619,30 @@
 
   // cibleSec (v1310, « Mon défi ») : temps visé choisi par la personne. Sans lui,
   // le Jour J vise le temps prédit à partir des sorties (comme avant).
-  function creerPlan(objId, S, parSem, cibleSec) {
+  // v1400 : `niveau` = ce que la personne court aujourd'hui sans s'arrêter :
+  // 'zero' (pas encore), '10' (10 min), '30' (30 min), '60' (1 h et plus).
+  // Pas encore / 10 min → phase de base marche-course (8 / 5 semaines) avant le
+  // plan ; jusqu'à 30 min → sortie longue de départ plus courte et fractionné
+  // court (10 × 1 min) les 4 premières semaines au lieu du seuil.
+  // Avant : 14 km de sortie longue et du seuil dès la semaine 1 du marathon.
+  var BASE_SEM = { zero: 8, '10': 5, '30': 0, '60': 0 };
+  function creerPlan(objId, S, parSem, cibleSec, niveau) {
     var O = OBJ[objId]; if (!O) return null;
+    niveau = BASE_SEM.hasOwnProperty(niveau) ? niveau : '60';
     var p = predictions();
     var L = p ? p.longue / 1000 : 0;
-    var lg0 = Math.max(O.longue[0], Math.min(arrDemi(L * 0.9), O.longue[1] - 3));
+    var plafondDepart = { zero: 5, '10': 5, '30': 7, '60': 99 }[niveau];
+    var lg0 = Math.max(Math.min(O.longue[0], plafondDepart), Math.min(arrDemi(L * 0.9), O.longue[1] - 3));
+    var debutant = niveau !== '60';
     var sem = [];
+    // Phase de base : marche-course, parSem sorties identiques par semaine
+    var nb = BASE_SEM[niveau], mc0 = niveau === 'zero' ? 0 : 3;
+    for (var b = 0; b < nb; b++) {
+      var palier = Math.min(MC.length - 1, mc0 + Math.round(b * (MC.length - 1 - mc0) / Math.max(1, nb - 1)));
+      var lb = [];
+      for (var q = 0; q < parSem; q++) lb.push({ type: 'base', cfg: { mode: 'fractionne', tpl: 'mc' + (palier + 1), echauf: true } });
+      sem.push({ allege: false, base: true, seances: lb });
+    }
     for (var w = 1; w <= S; w++) {
       // Pic de volume 2 semaines avant la course, puis affûtage (−15 %) et Jour J.
       var f = S > 3 ? Math.min(1, (w - 1) / (S - 3)) : 1;
@@ -624,7 +650,7 @@
       var k = allege ? 0.8 : (w === S - 1 ? 0.85 : 1);
       var longue = arrDemi((lg0 + (O.longue[1] - lg0) * f) * k);
       var facile = arr5((O.facile[0] + (O.facile[1] - O.facile[0]) * f) * k);
-      var tpl = O.qual[(w - 1) % O.qual.length];
+      var tpl = (debutant && w <= 4) ? 'minute' : O.qual[(w - 1) % O.qual.length];
       var l;
       if (w === S) {
         // Semaine de course : affûtage puis Jour J
@@ -644,9 +670,21 @@
       }
       sem.push({ allege: allege, seances: l });
     }
-    return { obj: objId, S: S, parSem: parSem, debut: lundi(Date.now()), sem: sem, faites: {}, cible: cibleSec || 0 };
+    return { obj: objId, S: sem.length, base: nb, niveau: niveau, parSem: parSem, debut: lundi(Date.now()), sem: sem, faites: {}, cible: cibleSec || 0 };
   }
 
+  // v1400 : les mots du coureur, expliqués (avant : « seuil », « tempo » sans définition)
+  var MOTS = {
+    minute: 'Vite = tu ne peux dire que quelques mots ; lentement = tu reprends ton souffle.',
+    seuil: 'Seuil = allure soutenue que tu pourrais tenir environ une heure : tu ne dis que quelques mots.',
+    seuil2: 'Seuil = allure soutenue que tu pourrais tenir environ une heure : tu ne dis que quelques mots.',
+    tempo: 'Tempo = un peu plus lent que le seuil, régulier du début à la fin.',
+    tempo30: 'Tempo = un peu plus lent que le seuil, régulier du début à la fin.',
+    k800: 'VMA = ta vitesse maximale tenue quelques minutes : effort dur mais contrôlé.',
+    k1000: 'VMA = ta vitesse maximale tenue quelques minutes : effort dur mais contrôlé.',
+    court400: 'Vite, mais pas un sprint : garde la même vitesse sur chaque répétition.',
+    pyramide: 'Vite, mais pas un sprint : garde la même vitesse sur chaque répétition.'
+  };
   function lePlan() { var p = lire('awakRunPlan', null); return (p && p.sem) ? p : null; }
   function semaineCourante(P) { return Math.max(0, Math.min(P.S - 1, Math.floor((Date.now() - P.debut) / (7 * JOUR)))); }
   function planFini(P) { return Date.now() - P.debut >= P.S * 7 * JOUR; }
@@ -654,7 +692,8 @@
   function descSeance(x) {
     var c = x.cfg;
     if (x.type === 'facile') return { t: 'Footing facile ' + Math.round(c.s / 60) + ' min', d: 'Tu dois pouvoir parler en courant.' + (vma() ? ' Vers ' + allure(allureVMA(0.7)) + ' /km.' : ''), c: ACC };
-    if (x.type === 'qualite') { var T = TPL[c.tpl] || TPL.minute; return { t: 'Fractionné · ' + T.nom, d: T.desc, c: ROSE }; }
+    if (x.type === 'base') { var B = TPL[c.tpl] || TPL.mc1; return { t: 'Marche-course · ' + B.nom, d: B.desc, c: ACC }; }
+    if (x.type === 'qualite') { var T = TPL[c.tpl] || TPL.minute; return { t: 'Fractionné · ' + T.nom, d: T.desc + (MOTS[c.tpl] ? ' ' + MOTS[c.tpl] : '') + (vma() ? ' Vers ' + allure(allureVMA(T.pct)) + ' /km.' : ''), c: ROSE }; }
     if (x.type === 'longue') return { t: 'Sortie longue ' + kmTxt(c.m) + ' km', d: 'À allure facile : c\'est l\'endurance qui se construit.', c: VIO };
     var _P = lePlan(), _perso = _P && _P.cible && c.t === _P.cible;
     return { t: 'Jour J · ' + kmTxt(c.m) + ' km', d: c.t ? (_perso ? 'Ton objectif : ' : 'Objectif réaliste : ') + hms(c.t) + ' (' + allure(c.t / (c.m / 1000)) + ' /km).' : 'Ta course objectif !', c: OR };
@@ -673,7 +712,7 @@
       return '<div style="display:flex;align-items:center;gap:10px;margin-top:14px;padding:11px 12px;border-radius:13px;background:rgba(251,191,36,0.05);border:1px solid rgba(251,191,36,0.25);">'
         + '<span style="flex-shrink:0;">' + ico('calendrier', 20, OR) + '</span>'
         + '<span style="flex:1;min-width:0;"><span style="display:block;font-size:0.82em;font-weight:900;color:#fff;">Plan d\'entraînement</span>'
-        + '<span style="display:block;font-size:0.68em;color:#94a3b8;line-height:1.35;">Prépare un 5 km, un 10 km ou un demi, semaine après semaine.</span></span>'
+        + '<span style="display:block;font-size:0.68em;color:#94a3b8;line-height:1.35;">Prépare un 5 km, un 10 km, un demi ou un marathon, semaine après semaine. Même si tu ne cours pas encore.</span></span>'
         + '<button onclick="AwakCoachRun.creerPlanUI()" style="flex-shrink:0;min-height:auto;padding:9px 12px;border-radius:10px;border:none;cursor:pointer;font-family:inherit;font-weight:900;font-size:0.74em;background:linear-gradient(135deg,#fbbf24,#d97706);color:#1a1205;">Créer</button></div>';
     }
     var O = OBJ[P.obj], w = semaineCourante(P), fini = planFini(P);
@@ -700,7 +739,10 @@
         + '<div style="font-size:0.88em;font-weight:900;color:#fff;">' + D.t + '</div>'
         + '<div style="font-size:0.7em;color:#94a3b8;line-height:1.45;">' + D.d + '</div></div>'
         + '<div style="display:flex;gap:6px;">' + bouton('AwakCoachRun.lancerPlan(' + nx.w + ',' + nx.i + ')', 'Lancer cette sortie', true, OR)
-        + bouton('AwakCoachRun.marquerFait(' + nx.w + ',' + nx.i + ')', 'Déjà faite', false) + '</div>';
+        + bouton('AwakCoachRun.marquerFait(' + nx.w + ',' + nx.i + ')', 'Déjà faite', false) + '</div>'
+        // v1400 : renforcement du coureur, une fois par semaine (mollets, fessiers, gainage)
+        + '<button onclick="if(typeof startDisciplineSession===\'function\')startDisciplineSession(\'course\',\'renfo\')" style="display:flex;align-items:center;gap:8px;width:100%;margin-top:8px;min-height:auto;padding:9px 11px;border-radius:11px;cursor:pointer;font-family:inherit;text-align:left;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);color:#cbd5e1;">'
+        +   ico('muscle', 16, '#cbd5e1') + '<span style="flex:1;font-size:0.76em;font-weight:800;">Renfo du coureur · 15 min <span style="color:#64748b;font-weight:700;">mollets, fessiers, gainage — 1 fois par semaine</span></span><span style="color:#64748b;">›</span></button>';
     } else {
       corps += '<div style="font-size:0.78em;color:' + OR + ';font-weight:800;">Semaine complète. Repos ou footing libre jusqu\'à lundi.</div>';
     }
@@ -729,7 +771,11 @@
       + '<button onclick="AwakCoachRun.lancerPlan(' + nx.w + ',' + nx.i + ')" style="width:100%;margin-top:12px;min-height:auto;padding:15px;border:none;border-radius:13px;cursor:pointer;font-family:inherit;font-weight:900;font-size:0.98em;letter-spacing:0.5px;background:linear-gradient(135deg,#fbbf24,#d97706);color:#1a1205;">Lancer cette sortie</button>'
       + '<div style="display:flex;justify-content:space-between;gap:6px;margin-top:6px;">'
       +   lien('AwakCoachRun.marquerFait(' + nx.w + ',' + nx.i + ')', 'Déjà faite') + lien('AwakCoachRun.voirPlan()', 'Voir le plan') + lien('AwakRun.autre()', 'Autre sortie', 'awakRunAutreLien')
-      + '</div></div>';
+      + '</div>'
+      // v1400 : renforcement du coureur, une fois par semaine
+      + '<button onclick="if(typeof startDisciplineSession===\'function\')startDisciplineSession(\'course\',\'renfo\')" style="display:flex;align-items:center;gap:8px;width:100%;margin-top:6px;min-height:auto;padding:9px 11px;border-radius:11px;cursor:pointer;font-family:inherit;text-align:left;background:rgba(0,0,0,0.18);border:1px solid rgba(255,255,255,0.1);color:#cbd5e1;">'
+      +   ico('muscle', 16, '#cbd5e1') + '<span style="flex:1;font-size:0.74em;font-weight:800;">Renfo du coureur · 15 min <span style="color:#94a3b8;font-weight:700;">mollets, fessiers, gainage, 1 fois par semaine</span></span><span style="color:#94a3b8;">›</span></button>'
+      + '</div>';
   }
   // ═══ v1241 · E. FORME CONDENSÉE ═══════════════════════════════════
   function rendreFormeCompacte() {
@@ -764,8 +810,14 @@
     return ov;
   }
 
-  var cp = { obj: '10', S: 10, par: 3 };
+  var cp = { obj: '10', S: 10, par: 3, niv: null };
   function creerPlanUI() {
+    // v1400 : sorties par semaine = rythme du profil (3 ou 4) ; niveau demandé
+    if (!cp._init) {
+      cp._init = true;
+      try { var up = (typeof getUserProfile === 'function' ? getUserProfile() : {}) || {}; var f = parseInt(up.weeklyGoal, 10); if (f) cp.par = f >= 4 ? 4 : 3; } catch (e) {}
+      if (predictions()) cp.niv = '60';
+    }
     var O = OBJ[cp.obj];
     if (O.sem.indexOf(cp.S) < 0) cp.S = O.sem[Math.min(1, O.sem.length - 1)];
     var chip = function (attr, val, txt, on) {
@@ -775,19 +827,29 @@
     var p = predictions();
     var ov = feuille('awkPlanCreer',
       '<div style="font-size:1.1em;font-weight:900;color:#fff;margin-bottom:4px;">Créer mon plan</div>'
-      + '<div style="font-size:0.72em;color:#94a3b8;margin-bottom:6px;">' + (p ? 'Le plan part de ton niveau actuel (plus longue sortie : ' + kmTxt(p.longue) + ' km).' : 'Le plan démarre doucement. Il s\'ajustera dès tes premières sorties.') + '</div>'
+      + '<div style="font-size:0.72em;color:#94a3b8;margin-bottom:6px;">' + (p ? 'Le plan part de ton niveau actuel (plus longue sortie : ' + kmTxt(p.longue) + ' km).' : 'Le plan part de ce que tu cours aujourd\'hui.') + '</div>'
+      + titre('AUJOURD\'HUI, TU PEUX COURIR SANS T\'ARRÊTER') + '<div style="display:flex;gap:6px;">'
+      +   [['zero', 'Pas encore'], ['10', '10 min'], ['30', '30 min'], ['60', '1 h et +']].map(function (n) { return chip('n', n[0], n[1], cp.niv === n[0]); }).join('') + '</div>'
       + titre('OBJECTIF') + '<div style="display:flex;gap:6px;">' + Object.keys(OBJ).map(function (k) { return chip('o', k, OBJ[k].nom, cp.obj === k); }).join('') + '</div>'
       + titre('DURÉE') + '<div style="display:flex;gap:6px;">' + O.sem.map(function (s) { return chip('s', s, s + ' semaines', cp.S === s); }).join('') + '</div>'
       + titre('SORTIES PAR SEMAINE') + '<div style="display:flex;gap:6px;">' + chip('p', 3, '3 sorties', cp.par === 3) + chip('p', 4, '4 sorties', cp.par === 4) + '</div>'
-      + '<div style="font-size:0.68em;color:#64748b;line-height:1.5;margin:12px 0;">Chaque semaine : un footing facile, une séance de qualité (fractionné ou seuil) et une sortie longue' + (cp.par === 4 ? ', plus un 2e footing' : '') + '. Une semaine sur 4 est allégée pour assimiler.</div>'
+      + '<div style="font-size:0.68em;color:#64748b;line-height:1.5;margin:12px 0;">'
+      +   (cp.niv && BASE_SEM[cp.niv] ? '<b style="color:#e2e8f0;">D\'abord ' + BASE_SEM[cp.niv] + ' semaines de marche-course</b> pour arriver à 30 min sans t\'arrêter, puis le plan : ' + (BASE_SEM[cp.niv] + cp.S) + ' semaines en tout. ' : '')
+      +   (cp.niv && cp.niv !== '60' && (cp.obj === '42' || cp.obj === '21') ? '<b style="color:' + OR + ';">Conseil : vise d\'abord un 5 km ou un 10 km</b>, puis enchaîne sur le ' + OBJ[cp.obj].nom.toLowerCase() + '. ' : '')
+      +   'Chaque semaine : un footing facile, une séance de qualité (fractionné ou seuil) et une sortie longue' + (cp.par === 4 ? ', plus un 2e footing' : '') + '. Une semaine sur 4 est allégée pour assimiler.</div>'
       + '<div style="display:flex;gap:8px;">' + bouton("document.getElementById('awkPlanCreer').remove()", 'Annuler', false) + '<span style="flex:1;display:flex;"><button id="awkPlanGo" style="flex:1;min-height:auto;padding:12px;border-radius:12px;border:none;cursor:pointer;font-family:inherit;font-weight:900;font-size:0.85em;background:linear-gradient(135deg,#fbbf24,#d97706);color:#1a1205;">Créer le plan</button></span></div>');
     ov.querySelectorAll('[data-o]').forEach(function (b) { b.onclick = function () { cp.obj = b.getAttribute('data-o'); creerPlanUI(); }; });
     ov.querySelectorAll('[data-s]').forEach(function (b) { b.onclick = function () { cp.S = +b.getAttribute('data-s'); creerPlanUI(); }; });
     ov.querySelectorAll('[data-p]').forEach(function (b) { b.onclick = function () { cp.par = +b.getAttribute('data-p'); creerPlanUI(); }; });
-    document.getElementById('awkPlanGo').onclick = function () {
-      ecrire('awakRunPlan', creerPlan(cp.obj, cp.S, cp.par));
+    ov.querySelectorAll('[data-n]').forEach(function (b) { b.onclick = function () { cp.niv = b.getAttribute('data-n'); creerPlanUI(); }; });
+    var go = document.getElementById('awkPlanGo');
+    if (!cp.niv) { go.disabled = true; go.style.opacity = '0.45'; go.textContent = 'Choisis ton niveau'; }
+    go.onclick = function () {
+      if (!cp.niv) return;
+      ecrire('awakRunPlan', creerPlan(cp.obj, cp.S, cp.par, 0, cp.niv));
       ov.remove();
-      try { if (typeof showToast === 'function') showToast('Plan ' + OBJ[cp.obj].nom + ' créé : ' + cp.S + ' semaines', 'success', 2600); } catch (e) {}
+      try { var _tot = cp.S + (BASE_SEM[cp.niv] || 0); if (typeof showToast === 'function') showToast('Plan ' + OBJ[cp.obj].nom + ' créé : ' + _tot + ' semaines', 'success', 2600); } catch (e) {}
+      try { if (typeof window.generateWeeklyPlan === 'function') window.generateWeeklyPlan(); } catch (e) {}
       rafraichirAccueil();
     };
   }
@@ -800,7 +862,7 @@
       + P.sem.map(function (S, w) {
           var cur = w === w0;
           return '<div style="margin-top:10px;padding:10px 12px;border-radius:12px;background:' + (cur ? 'rgba(251,191,36,0.06)' : 'rgba(255,255,255,0.02)') + ';border:1px solid ' + (cur ? 'rgba(251,191,36,0.35)' : 'rgba(255,255,255,0.06)') + ';">'
-            + '<div style="font-size:0.66em;font-weight:900;letter-spacing:1.2px;color:' + (cur ? OR : '#64748b') + ';margin-bottom:5px;">SEMAINE ' + (w + 1) + (S.allege ? ' · ALLÉGÉE' : '') + (w === P.S - 1 ? ' · COURSE' : '') + (cur ? ' · EN COURS' : '') + '</div>'
+            + '<div style="font-size:0.66em;font-weight:900;letter-spacing:1.2px;color:' + (cur ? OR : '#64748b') + ';margin-bottom:5px;">SEMAINE ' + (w + 1) + (S.base ? ' · MARCHE-COURSE' : '') + (S.allege ? ' · ALLÉGÉE' : '') + (w === P.S - 1 ? ' · COURSE' : '') + (cur ? ' · EN COURS' : '') + '</div>'
             + S.seances.map(function (x, i) {
                 var D = descSeance(x), f = !!P.faites[w + '-' + i];
                 return '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:0.76em;">'
@@ -1172,6 +1234,15 @@
     // v1310 : « Mon défi » (onglet Progrès) crée un plan avec un temps visé
     creerPlanCible: function (obj, S, par, cible) { var P = creerPlan(obj, S, par, cible); if (P) { ecrire('awakRunPlan', P); try { rafraichirAccueil(); } catch (e) {} } return P; },
     lePlan: lePlan, semaineCourante: semaineCourante, OBJ: OBJ, hms: hms, allure: allure,
+    // v1400 : pour l'accueil (objectif du jour, « Cette semaine »)
+    aujourdhui: function () {
+      var P = lePlan(); if (!P || planFini(P)) return null;
+      var w = semaineCourante(P), nx = prochaine(P), L = P.sem[w].seances;
+      var faites = L.filter(function (x, i) { return P.faites[w + '-' + i]; }).length;
+      var D = nx ? descSeance(P.sem[nx.w].seances[nx.i]) : null;
+      return { plan: OBJ[P.obj].nom, semaine: w + 1, S: P.S, total: L.length, faites: faites,
+        titre: D ? D.t.replace(/<[^>]+>/g, '') : null, w: nx ? nx.w : null, i: nx ? nx.i : null };
+    },
     _test: { creerPlan: creerPlan, phasesDe: phasesDe, riegel: riegel, profilFantome: profilFantome, tempsA: tempsA, sel: sel }
   };
 })();

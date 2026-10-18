@@ -960,7 +960,7 @@
     var a = ACTIVITES[s.type] || ACTIVITES.course;
     try {
       if (typeof saveWorkoutToHistory === 'function') {
-        saveWorkoutToHistory({ name: a.nom + ' ' + km(s.distance) + ' km (cardio)', exercises: [{ name: a.nomExo || a.exo, muscle: 'Cardio', duration: s.duree }] }, s.duree);
+        saveWorkoutToHistory({ name: a.nom + ' ' + km(s.distance) + ' km (cardio)', exercises: [{ name: a.nomExo || a.exo, muscle: 'Cardio', duration: s.duree }] }, { secondes: s.duree });
         // Compléter l'entrée : distance et calories réalistes (≈ 1 kcal / kg / km en course)
         var pid = (typeof getCurrentProfileId === 'function') ? getCurrentProfileId() : null;
         var hist = (typeof getWorkoutHistory === 'function') ? getWorkoutHistory() : [];

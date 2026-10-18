@@ -330,6 +330,17 @@
     { id: 'footing', name: 'Footing facile', level: 'Débutant', rest: 0, exercises: COURSE_FOOTING },
     { id: 'fractionne', name: 'Fractionné 30/30', level: 'Intermédiaire', rest: 0, exercises: COURSE_FRACTIONNE }
   ];
+  // v1400 : renforcement du coureur (mollets, fessiers, gainage), 15 min, sans matériel.
+  // Repris de la base d'exercices au chargement ; un exercice absent est simplement sauté.
+  (function () {
+    var noms = [['Calf Raises debout', 45], ['Glute Bridge', 40], ['Fentes arrière', 40], ['Calf Raises une jambe', 40], ['Planche', 35], ['Planche latérale', 30], ['Squat classique', 40]];
+    var db = global.exerciseDatabase || [];
+    var ex = noms.map(function (n) {
+      var e = db.filter(function (x) { return x && x.name === n[0]; })[0];
+      return e ? Object.assign({}, e, { mode: 'timer', duration: n[1], sets: 2, discipline: 'course' }) : null;
+    }).filter(Boolean);
+    if (ex.length >= 4) COURSE_SESSIONS.push({ id: 'renfo', name: 'Renfo du coureur', level: 'Tous niveaux', rest: 20, exercises: ex });
+  })();
 
   /* ========================================================================
    *  CONTENU — MOBILITÉ (discipline complémentaire / rituel)
@@ -447,13 +458,13 @@
     _dx('core', "Hollow hold", "Abdominaux", "Sur le dos, corps en 'banane' creuse, épaules et jambes décollées.", ["Sur le dos, bas du dos PLAQUÉ au sol", "Décolle légèrement épaules et jambes", "Le corps forme une banane creuse", "Tiens la position"], "Plie les genoux pour réduire la difficulté.", 30)
   ];
   var YOGA_EXERCISES = [
-    _dx('yoga', "Respiration", "Cardio", "Assieds-toi et respire profondément pour te centrer.", ["Assis, dos droit, épaules relâchées", "Inspire 4 s par le nez, expire 6 s", "Sens le ventre se gonfler puis se vider", "Calme le mental"], "Une expiration plus longue que l'inspiration apaise le système nerveux.", 60),
+    _dx('yoga', "Respiration", "Corps entier", "Assieds-toi et respire profondément pour te centrer.", ["Assis, dos droit, épaules relâchées", "Inspire 4 s par le nez, expire 6 s", "Sens le ventre se gonfler puis se vider", "Calme le mental"], "Une expiration plus longue que l'inspiration apaise le système nerveux.", 60),
     _dx('yoga', "Salutation au soleil", "Corps entier", "Enchaînement fluide lié au souffle : du debout au sol, puis retour.", ["Bras au ciel, puis flexion avant (mains vers le sol)", "Recule en planche, puis chien tête en bas", "Reviens vers l'avant et remonte debout", "Un mouvement = une inspiration ou une expiration"], "Bouge lentement et en continu, sans à-coups.", 60),
     _dx('yoga', "Chien tête en bas", "Ischio-jambiers", "En appui mains et pieds, bassin poussé haut : le corps forme un V renversé.", ["Mains et pieds au sol, écartés largeur d'épaules/bassin", "Pousse les hanches vers le haut et l'arrière", "Cherche à poser les talons, dos long", "Respire calmement"], "Plie les genoux si l'arrière des jambes tire trop.", 45),
     _dx('yoga', "Guerrier", "Quadriceps", "Grande fente, genou avant plié, bras tendus à l'horizontale.", ["Grand pas en avant, genou avant fléchi au-dessus de la cheville", "Jambe arrière tendue, pied bien ancré au sol", "Bras tendus, regard devant", "Change de côté à mi-temps"], "Ancre fermement le pied arrière pour la stabilité.", 60),
     _dx('yoga', "Posture de l'arbre", "Corps entier", "Debout sur une jambe, l'autre pied posé contre la cheville ou la cuisse.", ["En appui sur une jambe, pose l'autre pied sur la cheville/cuisse opposée (jamais sur le genou)", "Mains jointes devant la poitrine ou au ciel", "Fixe un point immobile pour l'équilibre", "Change de côté"], "Engage la jambe d'appui et fixe ton regard.", 45),
     _dx('yoga', "Torsion assise", "Obliques", "Assis, tu tournes le buste d'un côté, colonne bien droite.", ["Assis, une jambe croisée par-dessus l'autre", "Grandis-toi puis tourne le buste vers la jambe croisée", "Garde le dos droit (ne t'affaisse pas)", "Change de côté à mi-temps"], "Grandis-toi AVANT de tourner pour protéger le dos.", 45),
-    _dx('yoga', "Savasana", "Cardio", "Allongé sur le dos, totalement relâché : la posture de repos finale.", ["Allongé sur le dos, bras le long du corps, paumes vers le haut", "Relâche chaque partie du corps", "Respire naturellement, sans rien forcer", "Reste immobile et présent"], "Laisse le corps fondre dans le sol, c'est un vrai temps de récupération.", 60)
+    _dx('yoga', "Savasana", "Corps entier", "Allongé sur le dos, totalement relâché : la posture de repos finale.", ["Allongé sur le dos, bras le long du corps, paumes vers le haut", "Relâche chaque partie du corps", "Respire naturellement, sans rien forcer", "Reste immobile et présent"], "Laisse le corps fondre dans le sol, c'est un vrai temps de récupération.", 60)
   ];
   var HIIT_SESSIONS = [ { id: 'total', name: 'HIIT total', level: 'Débutant', rest: 25, exercises: HIIT_EXERCISES } ];
   var CORE_SESSIONS = [ { id: 'acier', name: "Sangle d'acier", level: 'Débutant', rest: 15, exercises: CORE_EXERCISES } ];
@@ -519,14 +530,14 @@
 
   /* ---- SÉRÉNITÉ : respiration guidée & méditation anti-stress ---- */
   var SERENITE_EXERCISES = [
-    _dx('serenite', "Installation", "Cardio", "Trouve une position confortable et pose ton attention.", ["Assise ou allongée, confortablement installée", "Ferme les yeux ou pose le regard au sol", "Relâche les épaules, la mâchoire, le front", "Observe simplement ta respiration naturelle"], "Rien à réussir : il s'agit juste d'être présente.", 45),
-    _dx('serenite', "Cohérence cardiaque", "Cardio", "Respiration régulière 5 s / 5 s pour équilibrer le système nerveux.", ["Inspire doucement par le nez pendant 5 secondes", "Expire par la bouche pendant 5 secondes", "Garde un rythme fluide et régulier", "Environ 6 respirations par minute"], "C'est le rythme qui apaise le mieux le stress.", 90),
-    _dx('serenite', "Respiration 4-7-8", "Cardio", "Une expiration longue pour relâcher les tensions.", ["Inspire par le nez en comptant 4", "Retiens ton souffle en comptant 7", "Expire lentement par la bouche en comptant 8", "Répète tranquillement"], "L'expiration longue active la détente. Ralentis si tu as la tête qui tourne.", 80),
-    _dx('serenite', "Respiration carrée", "Cardio", "Box breathing : 4 temps égaux, comme un carré.", ["Inspire sur 4 temps", "Poumons pleins, retiens 4 temps", "Expire sur 4 temps", "Poumons vides, retiens 4 temps"], "Visualise les 4 côtés d'un carré que tu dessines.", 80),
-    _dx('serenite', "Scan corporel", "Cardio", "Promène ton attention dans le corps, des pieds à la tête.", ["Porte ton attention sur tes pieds, puis remonte lentement", "À chaque zone, relâche les tensions", "Jambes, bassin, ventre, dos, épaules, visage", "Respire dans chaque partie"], "Si l'esprit s'évade, ramène-le doucement, sans te juger.", 110),
-    _dx('serenite', "Ancrage 5 sens", "Cardio", "Reviens au présent en passant par tes sens.", ["Remarque 5 choses que tu pourrais voir", "4 sons que tu entends", "3 sensations de contact (pieds, mains...)", "2 odeurs, puis 1 respiration consciente"], "Un exercice express anti-anxiété, utilisable partout.", 90),
-    _dx('serenite', "Relâchement progressif", "Cardio", "Contracte puis relâche chaque groupe musculaire.", ["Contracte les pieds 5 s, puis relâche complètement", "Remonte : mollets, cuisses, ventre, mains, épaules, visage", "Ressens la différence entre tension et détente", "Termine par tout le corps relâché"], "Le relâchement après contraction est plus profond.", 100),
-    _dx('serenite', "Retour au calme", "Cardio", "Reviens doucement, en gardant le calme avec toi.", ["Respire naturellement, sans rien forcer", "Remarque comment tu te sens maintenant", "Bouge doucement les doigts, les orteils", "Ouvre les yeux quand tu es prête"], "Emporte ce calme avec toi dans ta journée.", 50)
+    _dx('serenite', "Installation", "Corps entier", "Trouve une position confortable et pose ton attention.", ["Assise ou allongée, confortablement installée", "Ferme les yeux ou pose le regard au sol", "Relâche les épaules, la mâchoire, le front", "Observe simplement ta respiration naturelle"], "Rien à réussir : il s'agit juste d'être présente.", 45),
+    _dx('serenite', "Cohérence cardiaque", "Corps entier", "Respiration régulière 5 s / 5 s pour équilibrer le système nerveux.", ["Inspire doucement par le nez pendant 5 secondes", "Expire par la bouche pendant 5 secondes", "Garde un rythme fluide et régulier", "Environ 6 respirations par minute"], "C'est le rythme qui apaise le mieux le stress.", 90),
+    _dx('serenite', "Respiration 4-7-8", "Corps entier", "Une expiration longue pour relâcher les tensions.", ["Inspire par le nez en comptant 4", "Retiens ton souffle en comptant 7", "Expire lentement par la bouche en comptant 8", "Répète tranquillement"], "L'expiration longue active la détente. Ralentis si tu as la tête qui tourne.", 80),
+    _dx('serenite', "Respiration carrée", "Corps entier", "Box breathing : 4 temps égaux, comme un carré.", ["Inspire sur 4 temps", "Poumons pleins, retiens 4 temps", "Expire sur 4 temps", "Poumons vides, retiens 4 temps"], "Visualise les 4 côtés d'un carré que tu dessines.", 80),
+    _dx('serenite', "Scan corporel", "Corps entier", "Promène ton attention dans le corps, des pieds à la tête.", ["Porte ton attention sur tes pieds, puis remonte lentement", "À chaque zone, relâche les tensions", "Jambes, bassin, ventre, dos, épaules, visage", "Respire dans chaque partie"], "Si l'esprit s'évade, ramène-le doucement, sans te juger.", 110),
+    _dx('serenite', "Ancrage 5 sens", "Corps entier", "Reviens au présent en passant par tes sens.", ["Remarque 5 choses que tu pourrais voir", "4 sons que tu entends", "3 sensations de contact (pieds, mains...)", "2 odeurs, puis 1 respiration consciente"], "Un exercice express anti-anxiété, utilisable partout.", 90),
+    _dx('serenite', "Relâchement progressif", "Corps entier", "Contracte puis relâche chaque groupe musculaire.", ["Contracte les pieds 5 s, puis relâche complètement", "Remonte : mollets, cuisses, ventre, mains, épaules, visage", "Ressens la différence entre tension et détente", "Termine par tout le corps relâché"], "Le relâchement après contraction est plus profond.", 100),
+    _dx('serenite', "Retour au calme", "Corps entier", "Reviens doucement, en gardant le calme avec toi.", ["Respire naturellement, sans rien forcer", "Remarque comment tu te sens maintenant", "Bouge doucement les doigts, les orteils", "Ouvre les yeux quand tu es prête"], "Emporte ce calme avec toi dans ta journée.", 50)
   ];
   var SERENITE_SESSIONS = [
     { id: 'pause', name: 'Pause Sérénité', level: 'Débutant', rest: 0, exercises: [SERENITE_EXERCISES[0], SERENITE_EXERCISES[1], SERENITE_EXERCISES[4], SERENITE_EXERCISES[7]] },
@@ -576,22 +587,22 @@
     _dx('core', "RKC plank", "Abdominaux", "Planche où tu contractes TOUT le corps au maximum (la version la plus dure).", ["Planche sur les avant-bras", "Contracte tout au maximum (abdos, fessiers, cuisses)", "Tire mentalement les coudes vers les pieds", "Tiens, c'est très court"], "Intensité maximale, sur une courte durée.", 30, "Avancé")
   ];
   var YOGA_FLOW = [
-    _dx('yoga', "Respiration", "Cardio", "Assieds-toi et respire pour te centrer avant le flow.", ["Assis, dos droit", "Souffle long et profond", "Relâche les épaules", "Sois présent à l'instant"], "Allonge l'expiration pour te calmer.", 45),
+    _dx('yoga', "Respiration", "Corps entier", "Assieds-toi et respire pour te centrer avant le flow.", ["Assis, dos droit", "Souffle long et profond", "Relâche les épaules", "Sois présent à l'instant"], "Allonge l'expiration pour te calmer.", 45),
     _dx('yoga', "Salutation au soleil B", "Corps entier", "Variante dynamique : la chaise et le guerrier s'ajoutent à l'enchaînement.", ["Depuis debout : chaise, puis flexion avant", "Recule en guerrier, planche, chien tête en bas", "Reviens debout, le tout lié au souffle", "Reste fluide d'une posture à l'autre"], "Garde le mouvement continu, sans t'arrêter.", 60),
     _dx('yoga', "Guerrier 2 + triangle", "Quadriceps", "Grande fente bras tendus (guerrier 2), puis bascule en triangle.", ["Guerrier 2 : fente latérale, bras tendus à l'horizontale", "Tends la jambe avant et bascule en triangle (main vers le pied)", "Ouvre la poitrine vers le haut", "Change de côté"], "Ancre bien les deux pieds au sol.", 60),
     _dx('yoga', "Chaise tournée", "Obliques", "Position chaise (accroupi bras levés), puis torsion coude contre genou opposé.", ["Pars en chaise : genoux fléchis, bras au ciel", "Mains jointes, tourne le buste, pose un coude sur le genou opposé", "Garde les genoux alignés l'un avec l'autre", "Change de côté"], "Grandis le dos avant de tourner.", 45, "Intermédiaire"),
     _dx('yoga', "Demi-lune", "Corps entier", "En équilibre sur une main et une jambe, l'autre jambe levée à l'horizontale.", ["Une main au sol (ou sur un bloc), jambe arrière levée à l'horizontale", "Ouvre le bassin vers le côté", "Bras du dessus tendu vers le ciel", "Change de côté"], "Fixe un point au sol pour l'équilibre.", 45, "Intermédiaire"),
     _dx('yoga', "Pince debout", "Ischio-jambiers", "Debout, plie le buste vers l'avant pour étirer l'arrière des jambes.", ["Debout, penche le buste vers l'avant depuis les hanches", "Relâche la nuque et la tête vers le bas", "Garde les genoux souples (légèrement pliés)", "Respire dans l'étirement"], "Ne force pas : laisse le poids du buste faire le travail.", 45),
-    _dx('yoga', "Savasana", "Cardio", "Allongé et immobile, relâchement total final.", ["Allongé sur le dos, immobile", "Relâche tout le corps", "Souffle naturel", "Laisse-toi fondre"], "Repos total : ne saute jamais cette posture.", 45)
+    _dx('yoga', "Savasana", "Corps entier", "Allongé et immobile, relâchement total final.", ["Allongé sur le dos, immobile", "Relâche tout le corps", "Souffle naturel", "Laisse-toi fondre"], "Repos total : ne saute jamais cette posture.", 45)
   ];
   var YOGA_MAITRISE = [
-    _dx('yoga', "Respiration profonde", "Cardio", "Respiration lente pour préparer le mental avant un flow exigeant.", ["Assis, dos droit", "Respiration longue et profonde", "Recentre-toi", "Présence totale"], "Ralentis le souffle au maximum.", 45),
+    _dx('yoga', "Respiration profonde", "Corps entier", "Respiration lente pour préparer le mental avant un flow exigeant.", ["Assis, dos droit", "Respiration longue et profonde", "Recentre-toi", "Présence totale"], "Ralentis le souffle au maximum.", 45),
     _dx('yoga', "Salutation avancée", "Corps entier", "Flow exigeant enchaînant chaturanga, chien et fentes.", ["Enchaîne chaturanga (pompe yoga), chien tête en bas, fentes", "Transitions lentes et contrôlées", "Synchronise chaque mouvement au souffle", "Reste fluide"], "Gaine le ventre sur chaque transition.", 60, "Avancé"),
     _dx('yoga', "Posture du corbeau", "Épaules", "Équilibre sur les mains, genoux posés sur l'arrière des bras.", ["Accroupi, mains au sol largeur d'épaules", "Pose les genoux sur l'arrière des bras (triceps)", "Bascule doucement le poids vers l'avant", "Décolle les pieds quand l'équilibre vient"], "Place un coussin devant toi. Prérequis : poignets et gainage solides. Stoppe si douleur de poignet.", 30, "Avancé"),
     _dx('yoga', "Planche latérale yoga", "Obliques", "Planche sur un seul bras tendu, corps de côté, bras libre vers le ciel (Vasisthasana).", ["Depuis la planche, bascule sur un bras tendu", "Empile les pieds, corps en ligne de côté", "Hanches hautes, bras libre vers le ciel", "Change de côté à mi-temps"], "Pose le genou du dessous au sol pour une version plus facile.", 40, "Avancé"),
     _dx('yoga', "Posture du danseur", "Quadriceps", "Debout sur une jambe, tu attrapes le pied arrière et pousses pour ouvrir le buste.", ["Debout sur une jambe, attrape l'autre pied derrière toi", "Pousse le pied dans ta main pour lever la jambe", "Penche le buste vers l'avant en équilibre", "Change de côté"], "Fixe un point stable devant toi.", 45, "Avancé"),
     _dx('yoga', "Pont / roue", "Dos", "Allongé, pieds près des fessiers, pousse le bassin vers le haut pour ouvrir la poitrine.", ["Allongé, pieds à plat près des fessiers", "Pousse le bassin vers le haut", "Ouvre la poitrine, serre les fessiers", "Respire"], "Échauffe bien la colonne et monte progressivement. À éviter en cas de souci lombaire ou d'épaule.", 40, "Intermédiaire"),
-    _dx('yoga', "Savasana", "Cardio", "Allongé et immobile, intégration finale de la séance.", ["Allongé sur le dos, immobile", "Relâche tout le corps", "Souffle naturel", "Repos profond"], "Laisse le calme s'installer.", 60)
+    _dx('yoga', "Savasana", "Corps entier", "Allongé et immobile, intégration finale de la séance.", ["Allongé sur le dos, immobile", "Relâche tout le corps", "Souffle naturel", "Repos profond"], "Laisse le calme s'installer.", 60)
   ];
 
   HIIT_SESSIONS.push({ id: 'tabata', name: 'Tabata — Forge', level: 'Avancé', rest: 0, minLevel: 3, exercises: HIIT_TABATA });
@@ -786,20 +797,20 @@
     _dx('core', "Mountain climbers lents", "Abdominaux", "Gainage dynamique contrôlé.", ["Position planche", "Ramène un genou lentement", "Bassin stable", "Alterne"], "Lenteur = intensité.", 40)
   ];
   var YOGA_INTER = [
-    _dx('yoga', "Respiration", "Cardio", "Assieds-toi et respire pour te centrer.", ["Assis, dos droit", "Souffle long et profond", "Relâche les épaules", "Sois présent"], "Allonge l'expiration.", 45),
+    _dx('yoga', "Respiration", "Corps entier", "Assieds-toi et respire pour te centrer.", ["Assis, dos droit", "Souffle long et profond", "Relâche les épaules", "Sois présent"], "Allonge l'expiration.", 45),
     _dx('yoga', "Salutation au soleil", "Corps entier", "Enchaînement fluide lié au souffle, du debout au sol et retour.", ["Bras au ciel, puis flexion avant", "Planche, puis chien tête en bas", "Reviens debout", "Synchronise au souffle"], "Mouvement lent et continu.", 60),
     _dx('yoga', "Posture de l'arbre", "Corps entier", "Debout sur une jambe, l'autre pied contre la cheville ou la cuisse.", ["Pose un pied sur la cheville/cuisse opposée (jamais le genou)", "Mains jointes devant la poitrine", "Fixe un point immobile", "Change de côté"], "Engage la jambe d'appui.", 45),
     _dx('yoga', "Chaise", "Quadriceps", "Comme assis sur une chaise invisible : genoux fléchis, bras levés.", ["Genoux fléchis comme pour t'asseoir", "Bras tendus vers le ciel", "Poids sur les talons, dos long", "Respire"], "Descends le bassin sans cambrer le dos.", 45),
     _dx('yoga', "Guerrier 3", "Corps entier", "En équilibre sur une jambe, buste et jambe arrière à l'horizontale (forme de T).", ["En appui sur une jambe, penche le buste vers l'avant", "Lève la jambe arrière jusqu'à l'horizontale", "Bras tendus devant ou le long du corps", "Change de côté"], "Garde le bassin droit (pas de bascule sur le côté).", 45, "Intermédiaire"),
-    _dx('yoga', "Savasana", "Cardio", "Allongé et immobile, relâchement total.", ["Allongé sur le dos, immobile", "Relâche tout", "Souffle naturel", "Repos"], "Laisse-toi fondre.", 45)
+    _dx('yoga', "Savasana", "Corps entier", "Allongé et immobile, relâchement total.", ["Allongé sur le dos, immobile", "Relâche tout", "Souffle naturel", "Repos"], "Laisse-toi fondre.", 45)
   ];
   var YOGA_CONF = [
-    _dx('yoga', "Respiration profonde", "Cardio", "Respiration lente pour te préparer.", ["Assis, dos droit", "Respiration longue", "Recentre-toi", "Présence"], "Ralentis le souffle.", 45),
+    _dx('yoga', "Respiration profonde", "Corps entier", "Respiration lente pour te préparer.", ["Assis, dos droit", "Respiration longue", "Recentre-toi", "Présence"], "Ralentis le souffle.", 45),
     _dx('yoga', "Salutation dynamique", "Corps entier", "Flow soutenu enchaînant fente, planche et chien.", ["Enchaîne fente, planche, chien tête en bas", "Transitions contrôlées", "Synchronise au souffle", "Reste fluide"], "Gaine le ventre sur les transitions.", 60, "Intermédiaire"),
     _dx('yoga', "Planche → chaturanga", "Pectoraux", "Depuis la planche, descends coudes au corps en restant droit (la pompe du yoga).", ["Pars en planche bras tendus", "Descends en gardant les coudes près du corps", "Garde le corps parfaitement droit", "Pousse pour remonter, ou pose les genoux"], "Coudes près du buste, pas écartés.", 40, "Intermédiaire"),
     _dx('yoga', "Guerrier 2 + triangle", "Quadriceps", "Grande fente bras tendus (guerrier 2), puis bascule en triangle.", ["Guerrier 2 : fente latérale, bras tendus à l'horizontale", "Tends la jambe avant et bascule en triangle (main vers le pied)", "Ouvre la poitrine", "Change de côté"], "Ancre bien les pieds.", 60, "Intermédiaire"),
     _dx('yoga', "Demi-lune", "Corps entier", "Équilibre sur une main et une jambe, l'autre jambe levée à l'horizontale.", ["Une main au sol, jambe arrière levée à l'horizontale", "Ouvre le bassin sur le côté", "Bras du dessus vers le ciel", "Change de côté"], "Fixe un point au sol.", 45, "Intermédiaire"),
-    _dx('yoga', "Savasana", "Cardio", "Allongé et immobile, intégration finale.", ["Allongé, immobile", "Relâche tout", "Souffle naturel", "Repos profond"], "Laisse le calme s'installer.", 45)
+    _dx('yoga', "Savasana", "Corps entier", "Allongé et immobile, intégration finale.", ["Allongé, immobile", "Relâche tout", "Souffle naturel", "Repos profond"], "Laisse le calme s'installer.", 45)
   ];
 
   BOXE_SESSIONS.push({ id: 'enchainements', name: 'Enchaînements', level: 'Intermédiaire', rest: 60, minLevel: 2, exercises: BOXE_INTER });
@@ -824,17 +835,17 @@
 
   /* ---- Yoga par objectif (intention plutôt que difficulté) ------------- */
   // Postures sous forme de fabriques : chaque appel renvoie un nouvel objet (pas de partage d'état).
-  function pResp(d) { return _dx('yoga', "Respiration", "Cardio", "Assieds-toi et respire profondément pour te centrer.", ["Assis, dos droit, épaules relâchées", "Inspire 4 s par le nez, expire 6 s", "Sens le ventre se gonfler puis se vider", "Pose ton attention sur le souffle"], "Une expiration plus longue que l'inspiration apaise le système nerveux.", d || 45); }
-  function pRespP(d) { return _dx('yoga', "Respiration profonde", "Cardio", "Respiration lente et longue pour calmer le mental.", ["Assis ou allongé, dos droit", "Inspire lentement par le nez", "Expire encore plus lentement", "Laisse les pensées passer sans t'y accrocher"], "Ralentis le souffle au maximum, sans forcer.", d || 60); }
+  function pResp(d) { return _dx('yoga', "Respiration", "Corps entier", "Assieds-toi et respire profondément pour te centrer.", ["Assis, dos droit, épaules relâchées", "Inspire 4 s par le nez, expire 6 s", "Sens le ventre se gonfler puis se vider", "Pose ton attention sur le souffle"], "Une expiration plus longue que l'inspiration apaise le système nerveux.", d || 45); }
+  function pRespP(d) { return _dx('yoga', "Respiration profonde", "Corps entier", "Respiration lente et longue pour calmer le mental.", ["Assis ou allongé, dos droit", "Inspire lentement par le nez", "Expire encore plus lentement", "Laisse les pensées passer sans t'y accrocher"], "Ralentis le souffle au maximum, sans forcer.", d || 60); }
   function pChatVache(d) { return _dx('yoga', "Chat-vache", "Dos", "À quatre pattes, alterne dos creux et dos rond au rythme du souffle.", ["À quatre pattes, mains sous les épaules", "Inspire en creusant le dos (regard vers le haut)", "Expire en arrondissant le dos (menton vers la poitrine)", "Mouvement lent et fluide"], "Synchronise chaque mouvement avec ta respiration.", d || 45); }
   function pEnfant(d) { return _dx('yoga', "Posture de l'enfant", "Dos", "Assis sur les talons, buste relâché vers l'avant, front au sol.", ["Assis sur les talons, genoux légèrement écartés", "Penche le buste vers l'avant, bras tendus devant", "Pose le front au sol", "Respire lentement dans le dos"], "Posture de repos : reviens-y dès que tu en as besoin.", d || 60); }
   function pTorsionAllongee(d) { var o = _dx('yoga', "Torsion allongée", "Obliques", "Allongé sur le dos, les genoux tombent d'un côté, bras en croix.", ["Allongé sur le dos, bras en croix", "Ramène les genoux vers la poitrine", "Laisse-les tomber doucement d'un côté", "Tourne la tête à l'opposé (l'app te dira de changer)"], "Garde les deux épaules au sol.", d || 40); o.bilateral = true; return o; }
-  function pJambesMur(d) { return _dx('yoga', "Jambes contre le mur", "Cardio", "Allongé, fessiers près du mur, jambes tendues à la verticale contre le mur.", ["Approche les fessiers près d'un mur", "Monte les jambes tendues contre le mur", "Bras relâchés, paumes vers le haut", "Respire calmement et reste immobile"], "Posture très reposante : idéale en fin de journée.", d || 90); }
+  function pJambesMur(d) { return _dx('yoga', "Jambes contre le mur", "Corps entier", "Allongé, fessiers près du mur, jambes tendues à la verticale contre le mur.", ["Approche les fessiers près d'un mur", "Monte les jambes tendues contre le mur", "Bras relâchés, paumes vers le haut", "Respire calmement et reste immobile"], "Posture très reposante : idéale en fin de journée.", d || 90); }
   function pCobra(d) { return _dx('yoga', "Posture du cobra", "Dos", "Allongé sur le ventre, mains sous les épaules, tu redresses doucement le buste.", ["Allongé sur le ventre, mains sous les épaules", "Pousse doucement pour soulever la poitrine", "Garde les coudes près du corps, épaules basses", "Ne force jamais : monte juste ce qui est confortable"], "Étire le ventre, ouvre la poitrine. Léger, sans à-coups.", d || 40); }
-  function pPapillon(d) { return _dx('yoga', "Papillon", "Quadriceps", "Assis, plantes de pieds jointes, genoux qui s'ouvrent vers le sol.", ["Assis, joins les plantes des pieds", "Laisse les genoux s'ouvrir vers le sol", "Dos droit, attrape tes pieds", "Penche-toi doucement vers l'avant si confortable"], "Ouvre les hanches : ne pousse jamais sur les genoux.", d || 60); }
+  function pPapillon(d) { return _dx('yoga', "Papillon", "Adducteurs", "Assis, plantes de pieds jointes, genoux qui s'ouvrent vers le sol.", ["Assis, joins les plantes des pieds", "Laisse les genoux s'ouvrir vers le sol", "Dos droit, attrape tes pieds", "Penche-toi doucement vers l'avant si confortable"], "Ouvre les hanches : ne pousse jamais sur les genoux.", d || 60); }
   function pPinceAssise(d) { return _dx('yoga', "Pince assise", "Ischio-jambiers", "Assis jambes tendues, tu plies le buste vers l'avant.", ["Assis, jambes tendues devant toi", "Penche le buste vers l'avant depuis les hanches", "Dos long, pas arrondi", "Attrape tes tibias, chevilles ou pieds"], "Plie un peu les genoux si l'arrière des jambes tire trop.", d || 60); }
   function pFenteHanches(d) { var o = _dx('yoga', "Fente des hanches", "Quadriceps", "Grande fente, genou arrière au sol, le bassin descend pour ouvrir la hanche.", ["Grand pas en avant, genou arrière au sol", "Laisse le bassin descendre vers l'avant", "Buste droit, mains sur le genou avant ou au sol", "Tiens ce côté (l'app te dira de changer)"], "Étire l'avant de la hanche arrière. Garde le buste droit.", d || 45); o.bilateral = true; return o; }
-  function pCouEpaules(d) { var o = _dx('yoga', "Étirement cou & épaules", "Cardio", "Assis, tu inclines doucement la tête et relâches les épaules.", ["Assis, dos droit", "Incline doucement la tête vers une épaule", "Relâche les épaules vers le bas", "Respire (l'app te dira de changer)"], "Parfait pour dénouer les tensions d'une journée assise.", d || 25); o.bilateral = true; return o; }
+  function pCouEpaules(d) { var o = _dx('yoga', "Étirement cou & épaules", "Trapèzes", "Assis, tu inclines doucement la tête et relâches les épaules.", ["Assis, dos droit", "Incline doucement la tête vers une épaule", "Relâche les épaules vers le bas", "Respire (l'app te dira de changer)"], "Parfait pour dénouer les tensions d'une journée assise.", d || 25); o.bilateral = true; return o; }
   function pPontDoux(d) { return _dx('yoga', "Pont doux", "Ischio-jambiers", "Allongé, pieds au sol, tu soulèves doucement le bassin.", ["Allongé, pieds à plat près des fessiers", "Soulève doucement le bassin", "Serre légèrement les fessiers", "Descends lentement, vertèbre par vertèbre"], "Mouvement doux : ne cambre pas le bas du dos.", d || 40); }
   function pSalut(d) { return _dx('yoga', "Salutation au soleil", "Corps entier", "Enchaînement fluide lié au souffle : du debout au sol, puis retour.", ["Bras au ciel, puis flexion avant (mains vers le sol)", "Recule en planche, puis chien tête en bas", "Reviens vers l'avant et remonte debout", "Un mouvement = une inspiration ou une expiration"], "Bouge lentement et en continu, sans à-coups.", d || 60); }
   function pChien(d) { return _dx('yoga', "Chien tête en bas", "Ischio-jambiers", "En appui mains et pieds, bassin poussé haut : le corps forme un V renversé.", ["Mains et pieds au sol, écartés largeur d'épaules/bassin", "Pousse les hanches vers le haut et l'arrière", "Cherche à poser les talons, dos long", "Respire calmement"], "Plie les genoux si l'arrière des jambes tire trop.", d || 45); }
@@ -842,7 +853,7 @@
   function pArbre(d) { var o = _dx('yoga', "Posture de l'arbre", "Corps entier", "Debout sur une jambe, l'autre pied posé contre la cheville ou la cuisse.", ["En appui sur une jambe, pose l'autre pied sur la cheville/cuisse (jamais le genou)", "Mains jointes devant la poitrine", "Fixe un point immobile", "Tiens (l'app te dira de changer)"], "Engage la jambe d'appui et fixe ton regard.", d || 25); o.bilateral = true; return o; }
   function pTorsionAssise(d) { var o = _dx('yoga', "Torsion assise", "Obliques", "Assis, tu tournes le buste d'un côté, colonne bien droite.", ["Assis, une jambe croisée par-dessus l'autre", "Grandis-toi puis tourne le buste", "Garde le dos droit", "Tiens (l'app te dira de changer)"], "Grandis-toi AVANT de tourner pour protéger le dos.", d || 25); o.bilateral = true; return o; }
   function pPinceDebout(d) { return _dx('yoga', "Pince debout", "Ischio-jambiers", "Debout, tu plies le buste vers l'avant pour étirer l'arrière des jambes.", ["Debout, penche le buste vers l'avant depuis les hanches", "Relâche la nuque et la tête", "Genoux souples", "Respire dans l'étirement"], "Laisse le poids du buste faire le travail.", d || 45); }
-  function pSavasana(d) { return _dx('yoga', "Savasana", "Cardio", "Allongé sur le dos, totalement relâché : la posture de repos finale.", ["Allongé sur le dos, bras le long du corps, paumes vers le haut", "Relâche chaque partie du corps", "Respire naturellement", "Reste immobile et présent"], "Ne saute jamais cette posture : c'est un vrai temps de récupération.", d || 60); }
+  function pSavasana(d) { return _dx('yoga', "Savasana", "Corps entier", "Allongé sur le dos, totalement relâché : la posture de repos finale.", ["Allongé sur le dos, bras le long du corps, paumes vers le haut", "Relâche chaque partie du corps", "Respire naturellement", "Reste immobile et présent"], "Ne saute jamais cette posture : c'est un vrai temps de récupération.", d || 60); }
 
   var YOGA_MATIN = [pResp(45), pChatVache(45), pSalut(60), pChien(45), pGuerrier(), pArbre(), pSavasana(40)];
   var YOGA_SOIR = [pRespP(60), pChatVache(45), pEnfant(60), pTorsionAllongee(), pPinceAssise(45), pJambesMur(120), pSavasana(90)];
@@ -889,7 +900,7 @@
   }
   function generateYogaSession(opts) {
     opts = opts || {};
-    var durationMin = Math.max(3, Math.min(30, opts.durationMin || 10));
+    var durationMin = Math.max(3, Math.min(60, opts.durationMin || 10));   // v1400 : jusqu'à 60 min (cours)
     var focus = opts.focus || 'complet';
     var intensity = opts.intensity || 'normal';
 
@@ -916,7 +927,7 @@
     };
     var recipe = RECIPE[focus] || RECIPE.complet;
 
-    var mainCount = Math.max(2, Math.min(14, Math.round(durationMin / 1.8)));
+    var mainCount = Math.max(2, Math.min(24, Math.round(durationMin / 1.8)));
     var roles = ['center', 'warm'];
     for (var i = 0; i < mainCount; i++) { roles.push(recipe[i % recipe.length]); }
     if (durationMin >= 8) { roles.push('calm'); }
@@ -975,6 +986,20 @@
     };
     return YOGA_CUSTOM;
   }
+
+  // v1400 : vrais cours de yoga (20, 30, 45 min) en plus des formats courts.
+  // Composés une fois au chargement avec le générateur (postures variées,
+  // maintiens plus longs en fin de cours) ; YOGA_CUSTOM (« Ma séance ») est préservé.
+  (function () {
+    var garde = YOGA_CUSTOM;
+    [[20, 'souplesse', 'normal', 'Cours souplesse'], [30, 'complet', 'normal', 'Cours complet'], [45, 'complet', 'doux', 'Cours long et doux']].forEach(function (c) {
+      try {
+        var g = generateYogaSession({ durationMin: c[0], focus: c[1], intensity: c[2] });
+        YOGA_SESSIONS.push({ id: 'cours' + c[0], name: c[3] + ' · ' + c[0] + ' min', level: 'Tous niveaux', rest: 5, minLevel: 1, goal: true, exercises: g.exercises });
+      } catch (e) {}
+    });
+    YOGA_CUSTOM = garde;
+  })();
 
   /* ---- Registre générique des séances par discipline ------------------- */
   var DISCIPLINE_SESSIONS = {

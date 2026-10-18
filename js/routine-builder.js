@@ -99,6 +99,29 @@
     return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   }
 
+  // Score de pertinence (plus petit = mieux, -1 = ne correspond pas) :
+  // 0 nom exact · 1 nom qui commence par la recherche · 2 tous les mots dans le
+  // nom, dans l'ordre · 3 tous les mots dans le nom · 4 tous les mots dans le
+  // nom ou ses autres noms (anglais…) · 5 le muscle. À égalité : nom le plus court.
+  function awakScoreRecherche(e, qn) {
+    var nom = norm(window.awakNom ? window.awakNom(e.name) : e.name), h = (window.awakExCherche ? norm(window.awakExCherche(e.name)) : '') + ' ' + norm(e.name) + ' ' + nom;
+    var mots = qn.split(/[\s()\-·,]+/).filter(Boolean);
+    if (!mots.length) return 0;
+    var court = Math.min(nom.length, 99) / 100;
+    var nomPropre = nom.replace(/[()]/g, ' ').replace(/\s+/g, ' ').trim(), qPropre = qn.replace(/[()]/g, ' ').replace(/\s+/g, ' ').trim();
+    if (nomPropre === qPropre) return 0;
+    if (nomPropre.indexOf(qPropre) === 0) return 1 + court;
+    var tous = function (txt) { return mots.every(function (m) { return txt.indexOf(m) >= 0; }); };
+    if (tous(nom)) {
+      var pos = -1, ordre = mots.every(function (m) { var i = nom.indexOf(m, pos + 1); if (i < 0) return false; pos = i; return true; });
+      return (ordre ? 2 : 3) + court;
+    }
+    if (tous(h)) return 4 + court;
+    if (norm(e.muscle).indexOf(qn) >= 0) return 5 + court;
+    return -1;
+  }
+  window.awakScoreRecherche = function (e, q) { return awakScoreRecherche(e, norm(q)); };
+
   function filtrer() {
     var q = norm(ETAT.q);
     var liste = db().filter(function (e) { return e && e.name && e.type !== 'rest' && e.type !== 'info'; });
@@ -117,9 +140,13 @@
     if (ETAT.equip) liste = liste.filter(function (e) { return (e.equipment || []).indexOf(ETAT.equip) >= 0; });
     // Recherche bilingue (clé + nom FR + nom EN) et doublons masqués
     liste = liste.filter(function (e) { return !(window.awakEstDoublon && window.awakEstDoublon(e.name)); });
+    // v1399 : recherche par MOTS (dans n'importe quel ordre) et classée :
+    // « couché barre » donnait d'abord « Barre au front ». Voir awakScoreRecherche.
+    var score = {};
     if (q) liste = liste.filter(function (e) {
-      var h = window.awakExCherche ? norm(window.awakExCherche(e.name)) : norm(e.name);
-      return h.indexOf(q) >= 0 || norm(e.muscle).indexOf(q) >= 0;
+      var sc = awakScoreRecherche(e, q);
+      if (sc < 0) return false;
+      score[e.name] = sc; return true;
     });
 
     // ⚠️ Les exercices personnalisés sont ajoutés en FIN de catalogue : au-delà
@@ -128,8 +155,11 @@
     //    on les remonte en tête (sauf dans l'onglet Récents, qui a son
     //    propre ordre chronologique).
     if (ETAT.onglet !== 'recents') {
+      var rang = {}; liste.forEach(function (e, i) { rang[e.name] = i; });
       liste = liste.slice().sort(function (a, b) {
-        return (b && b.custom ? 1 : 0) - (a && a.custom ? 1 : 0);
+        if (q && score[a.name] !== score[b.name]) return score[a.name] - score[b.name];
+        var c = (b && b.custom ? 1 : 0) - (a && a.custom ? 1 : 0);
+        return c || (rang[a.name] - rang[b.name]);
       });
     }
     return liste;

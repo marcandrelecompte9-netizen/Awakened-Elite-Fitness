@@ -1850,7 +1850,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const exo = EXOS[session.activityType] || 'Jumping jacks';
                 if (typeof saveWorkoutToHistory === 'function') {
                     saveWorkoutToHistory({ name: nom + (kmVal > 0 ? ' ' + kmVal.toFixed(2) + ' km' : '') + ' (cardio)',
-                        exercises: [{ name: exo, muscle: 'Cardio', duration: session.duration }] }, session.duration);
+                        exercises: [{ name: exo, muscle: 'Cardio', duration: session.duration }] }, { secondes: session.duration });
                     const pid = getCurrentProfileId();
                     const hist = getWorkoutHistory();
                     if (hist[0]) {
@@ -7494,6 +7494,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 svgIcon: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="62" r="24" fill="none" stroke="white" stroke-width="8"/><circle cx="50" cy="62" r="5" fill="white"/><rect x="14" y="58" width="72" height="8" rx="4" fill="white"/><rect x="20" y="30" width="8" height="30" rx="3" fill="white"/><rect x="72" y="30" width="8" height="30" rx="3" fill="white"/><rect x="16" y="27" width="16" height="6" rx="3" fill="white"/><rect x="68" y="27" width="16" height="6" rx="3" fill="white"/></svg>',
                 dbName: 'Roue abdominale' 
             },
+            // v1400 : matériel de yoga (avant : absent de la liste)
+            { id: 'yogamat', name: 'Tapis de yoga', dbName: 'Tapis de yoga',
+              svgIcon: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="white" stroke-width="6" stroke-linejoin="round"><path d="M18 30 H70 a12 12 0 0 1 0 24 H18 Z"/><path d="M18 54 V72 H82 V42"/></svg>' },
+            { id: 'yogablock', name: 'Bloc de yoga', dbName: 'Bloc de yoga',
+              svgIcon: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="white" stroke-width="6" stroke-linejoin="round"><path d="M20 40 L50 26 L80 40 L80 64 L50 78 L20 64 Z"/><path d="M20 40 L50 54 L80 40 M50 54 V78"/></svg>' },
+            { id: 'yogastrap', name: 'Sangle de yoga', dbName: 'Sangle de yoga',
+              svgIcon: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="white" stroke-width="6" stroke-linecap="round"><path d="M16 70 C30 20 70 20 84 70"/><rect x="40" y="30" width="20" height="10" rx="3"/></svg>' },
             { 
                 id: 'bench', 
                 name: 'Banc', 
@@ -9526,7 +9533,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             }
             if (!_nomFinal) _nomFinal = 'Athlète';
 
+            const _ancienProfil = userProfile || {};   // v1400 : garder rythme et activités aimées
             userProfile = {
+                weeklyGoal: _ancienProfil.weeklyGoal, aime: _ancienProfil.aime,
                 name: _nomFinal,
                 goal: document.getElementById('profileGoal').value,
                 level: document.getElementById('profileLevel').value,
@@ -10309,7 +10318,68 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 ]);
             }
             
-            // Sélectionner une variante ALÉATOIRE
+            // v1400 : la variante suit la FRÉQUENCE voulue (profil.weeklyGoal, demandée à
+            // l'inscription). Avant : tirage au hasard parmi des plans de 3 à 6 jours.
+            const _freq = Math.max(2, Math.min(6, parseInt(profile.weeklyGoal, 10) || 3));
+            const _JOURS = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+            // Même calcul que l'accueil : tout jour non « repos » avec des muscles compte
+            // (avant : les jours « low » étaient exclus ici mais comptés à l'accueil → 0 / 5 pour un rythme de 4)
+            const _actifs = pl => pl.filter(j => j.intensity !== 'rest' && j.muscles && j.muscles.length).length;
+            if (profile.goal === 'endurance') {
+                // v1400 : Endurance = course (avant : plan de musculation générique)
+                const _C = {
+                    3: ['facile', 'fractionne', 'longue'],
+                    4: ['facile', 'fractionne', 'renfo', 'longue'],
+                    5: ['facile', 'fractionne', 'renfo', 'facile', 'longue'],
+                    6: ['facile', 'fractionne', 'renfo', 'facile', 'mobilite', 'longue'],
+                    2: ['fractionne', 'longue']
+                }[_freq];
+                const _D = { facile: { focus: 'Footing facile', session: 'footing' }, fractionne: { focus: 'Fractionné', session: 'fractionne' },
+                    longue: { focus: 'Sortie longue', session: 'footing' }, renfo: { focus: 'Renfo du coureur', session: 'renfo' },
+                    mobilite: { focus: 'Mobilité', session: '', discipline: 'mobilite' } };
+                const _POS = { 2: [2, 5], 3: [1, 3, 5], 4: [0, 2, 3, 5], 5: [0, 1, 3, 4, 5], 6: [0, 1, 2, 3, 4, 5] }[_freq];
+                let k = 0;
+                plans = [_JOURS.map((d, i) => {
+                    if (_POS.indexOf(i) < 0) return { day: d, focus: 'Repos', intensity: 'rest', muscles: [] };
+                    const x = _D[_C[k++]];
+                    return { day: d, focus: x.focus, intensity: 'moderate', muscles: x.session === 'renfo' ? ['Mollets', 'Fessiers', 'Abdominaux'] : ['Cardio'], discipline: x.discipline || 'course', session: x.session };
+                })];
+            } else if (profile.goal === 'flexibility') {
+                // Souplesse : yoga, pilates et mobilité, sur les jours voulus
+                const _aime = profile.aime || [];
+                const _rot = [
+                    { focus: 'Yoga · souplesse', discipline: 'yoga', session: 'cours20' },
+                    _aime.indexOf('pilates') >= 0 || _aime.indexOf('yoga') < 0 ? { focus: 'Pilates', discipline: 'pilates', session: '' } : { focus: 'Yoga · dos & posture', discipline: 'yoga', session: 'dos' },
+                    { focus: 'Yoga · cours complet', discipline: 'yoga', session: 'cours30' },
+                    { focus: 'Renforcement doux', muscles: ['Abdominaux', 'Fessiers'] },
+                    { focus: 'Yoga · hanches', discipline: 'yoga', session: 'souplesse' },
+                    { focus: 'Mobilité', discipline: 'mobilite', session: '' }
+                ];
+                const _POS = { 2: [0, 3], 3: [0, 2, 4], 4: [0, 1, 3, 4], 5: [0, 1, 2, 4, 5], 6: [0, 1, 2, 3, 4, 5] }[_freq];
+                let k = 0;
+                plans = [_JOURS.map((d, i) => {
+                    if (_POS.indexOf(i) < 0) return { day: d, focus: 'Repos', intensity: 'rest', muscles: [] };
+                    const r = _rot[k++ % _rot.length];
+                    return { day: d, focus: r.focus, intensity: 'moderate', muscles: r.muscles || ['Corps entier'], discipline: r.discipline, session: r.session };
+                })];
+            } else {
+                const _ecart = pl => Math.abs(_actifs(pl) - _freq);
+                const _min = Math.min.apply(null, plans.map(_ecart));
+                plans = plans.filter(pl => _ecart(pl) === _min);
+                // Plus de jours que voulu : on retire les séances en trop (en partant de la fin)
+                plans = plans.map(pl => {
+                    pl = pl.map(j => Object.assign({}, j));
+                    for (let i = pl.length - 1; i >= 0 && _actifs(pl) > _freq; i--) {
+                        // on retire d'abord les jours légers, puis les séances, en partant de la fin
+                        if (pl[i].intensity === 'low' && pl[i].muscles && pl[i].muscles.length) pl[i] = { day: pl[i].day, focus: 'Repos', intensity: 'rest', muscles: [] };
+                    }
+                    for (let i = pl.length - 1; i >= 0 && _actifs(pl) > _freq; i--) {
+                        if (pl[i].intensity !== 'rest' && pl[i].muscles && pl[i].muscles.length) pl[i] = { day: pl[i].day, focus: 'Repos', intensity: 'rest', muscles: [] };
+                    }
+                    return pl;
+                });
+            }
+            // Sélectionner une variante parmi celles qui collent au rythme
             const randomPlan = plans[Math.floor(Math.random() * plans.length)];
             
             saveAutoWeeklyPlan(randomPlan);
@@ -13770,8 +13840,14 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // Au démarrage : si le mot de passe n'a jamais été choisi, on le propose
         // (fenêtre « Plus tard » possible pour ne jamais bloquer l'app). Appelé
         // hors onboarding pour ne pas percuter l'assistant de configuration.
+        // v1399 : proposé seulement après 3 séances (avant : juste après
+        // l'inscription, avant même la première séance), et quand l'écran est
+        // libre (plus d'empilement avec la carte du Système au démarrage).
+        function awakSecAssezDeSeances() {
+            try { return (getWorkoutHistory() || []).length >= 3; } catch (e) { return false; }
+        }
         function awakSecMaybePromptSetup() {
-            try { if (!awakSecIsSet() && !document.getElementById('awakSecModal')) awakSecShowCreate(null); } catch (e) {}
+            try { if (!awakSecIsSet() && !document.getElementById('awakSecModal') && awakSecAssezDeSeances()) awakSecQuandLibre(); } catch (e) {}
         }
         window.awakSecMaybePromptSetup = awakSecMaybePromptSetup;
 
@@ -13782,7 +13858,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             let essais = 0;
             const tenter = () => {
                 try {
-                    if (awakSecIsSet() || document.getElementById('awakSecModal')) return;
+                    if (awakSecIsSet() || document.getElementById('awakSecModal') || !awakSecAssezDeSeances()) return;
                     const up = getUserProfile();
                     let occupe = !up || !up.setupComplete;
                     try { if (localStorage.getItem(_cleProfil('awakEveilPlusTard')) === '1') occupe = true; } catch (e) {}
@@ -14038,7 +14114,16 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
         function showDurationModal() {
             try { awakMajEtiquettesDuree(); } catch (e) {}
-            document.getElementById('durationModal').classList.add('active');
+            const dm = document.getElementById('durationModal');
+            // v1400 : rappel du type choisi d'après l'objectif, avec « changer »
+            try {
+                let t = document.getElementById('awakTypeSeance');
+                const box = dm.querySelector('.modal-content') || dm.firstElementChild;
+                if (!t && box) { t = document.createElement('div'); t.id = 'awakTypeSeance'; box.insertBefore(t, box.firstChild); }
+                if (t) t.innerHTML = '<span>Type : <b>' + (_AWAK_MODE_NOM[selectedWorkoutMode] || 'Hybride') + '</b></span>'
+                    + '<button type="button" onclick="closeDurationModal();openWorkoutModeModal(true)">changer</button>';
+            } catch (e) {}
+            dm.classList.add('active');
         }
 
         function closeDurationModal() {
@@ -14067,7 +14152,22 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // ========== HYBRID WORKOUT SYSTEM ==========
         
         // Modal management
-        function openWorkoutModeModal() {
+        // v1400 : le type de séance se déduit de l'objectif (un écran de moins pour
+        // « Fais ma séance ») ; « changer » sur l'écran de durée rouvre le choix.
+        const _AWAK_MODE_OBJ = { muscle_gain: 'reps', strength: 'reps', weight_loss: 'hybrid', endurance: 'hybrid', flexibility: 'timer', fitness: 'hybrid' };
+        const _AWAK_MODE_NOM = { reps: 'Répétitions', timer: 'Minuteur', hybrid: 'Hybride' };
+        function openWorkoutModeModal(choisir) {
+            if (!choisir) {
+                let g = null; try { g = (getUserProfile() || {}).goal; } catch (e) {}
+                const md = _AWAK_MODE_OBJ[g];
+                if (md) {
+                    selectedWorkoutMode = md;
+                    const tab = document.getElementById('workoutsTab');
+                    if (tab && !tab.classList.contains('active') && typeof switchTab === 'function') { try { switchTab('workouts'); } catch (e) {} setTimeout(showDurationModal, 260); }
+                    else showDurationModal();
+                    return;
+                }
+            }
             const m = document.getElementById('workoutModeModal');
             if (!m) return;
             // ⚠️ Cette modale vit À L'INTÉRIEUR de #workoutsTab. Si l'onglet est
@@ -14500,6 +14600,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // calculateIntelligentReps() (c'est ce que montre le grand cadre).
         function _awakRepsFourchette(ex) {
             if (ex && ex.reps) return String(ex.reps);
+            // v1400 : la fourchette affichée à la préparation (3 × 8-12) prime ; avant, la
+            // grille partait de calculateIntelligentReps (6-10) → « 6 » proposé
+            if (ex && ex.recoReps) return String(ex.recoReps);
             try {
                 const ir = calculateIntelligentReps(ex && (ex._baseName || ex.name));
                 if (ir && ir.suggestion) return String(ir.suggestion).replace(/\s*reps?\s*$/i, '');
@@ -14649,6 +14752,15 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const v = _gridVals[i] || {};
             if (!(parseInt(v.r, 10) > 0)) { try { showToast('Indique le nombre de répétitions', 'warning', 2000); } catch (e) {} return; }
             _gridRestRemaining = 0;
+            // v1399 : la charge de cette série remplit les séries suivantes encore
+            // vides (avant : retaper 80 kg à chaque série). Pas depuis l'échauffement.
+            try {
+                if (i >= warmupSetsCount && v.w !== '' && v.w != null) {
+                    for (let k = i + 1; k < _gridVals.length; k++) {
+                        if (_gridVals[k] && (_gridVals[k].w === '' || _gridVals[k].w == null)) _gridVals[k].w = v.w;
+                    }
+                }
+            } catch (e) {}
             _gridValidateRow(i);
         };
 
@@ -15864,6 +15976,14 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         }
 
         // ── Étape 0 : fenêtre IA vs Manuel ──────────────────────────────
+        // Une séance dans les `jours` derniers jours (aujourd'hui compris) ?
+        function awakSeanceRecente(jours) {
+            try {
+                const lim = new Date(); lim.setHours(0, 0, 0, 0); lim.setDate(lim.getDate() - (jours - 1));
+                return (getWorkoutHistory() || []).some(w => new Date(w.date) >= lim);
+            } catch (e) { return true; }
+        }
+        window.awakSeanceRecente = awakSeanceRecente;
         function showMuscleChoiceModal() {
             const overlay = document.createElement('div');
             overlay.id = 'muscleChoiceOverlay';
@@ -15871,7 +15991,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
 
             const todayPlanData = getTodayPlanMuscles();
-            const isRestDay = todayPlanData && (
+            // v1400 : pas de « Jour de repos prévu » sans séance ces 2 derniers jours
+            // (avant : affiché dès la 1re ouverture, avant toute séance)
+            const isRestDay = awakSeanceRecente(2) && todayPlanData && (
                 todayPlanData.intensity === 'rest' ||
                 todayPlanData.intensity === 'low' ||
                 (todayPlanData.focus || '').toLowerCase().includes('repos') ||
@@ -16389,7 +16511,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             
             // Ensure duration is in minutes - convert if in seconds
             let durationInMinutes;
-            if (typeof duration === 'number') {
+            // v1399 : { secondes: n } = durée explicite en secondes. Avant, un nombre
+            // < 200 était pris pour des minutes : une séance de 85 s devenait « 85 min ».
+            if (duration && typeof duration === 'object' && typeof duration.secondes === 'number') {
+                durationInMinutes = duration.secondes > 0 ? Math.max(1, Math.round(duration.secondes / 60)) : 0;
+            } else if (typeof duration === 'number') {
                 durationInMinutes = duration > 200 ? Math.round(duration / 60) : Math.round(duration);
             } else {
                 durationInMinutes = Math.round((Date.now() - workoutStartTime) / 60000);
@@ -16397,8 +16523,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             
             // Calculate muscles worked (déduplication automatique)
             const musclesSet = new Set();
+            // v1400 : échauffements et étirements exclus (sauf séance faite que de ça)
+            const _tousAnnexes = workout.exercises.every(ex => ex.isRest || ex.isInfo || awakEstAnnexe(ex));
             workout.exercises.forEach(ex => {
                 if (ex.isRest || ex.isInfo) return;
+                if (!_tousAnnexes && awakEstAnnexe(ex)) return;
                 // 🆕 Exercice réalisé (gardé, non remplacé) → on décroît son compteur de remplacements
                 awakForgiveSwap(typeof ex === 'string' ? ex : (ex.name || ''));
                 // Source 1 : muscle déjà attaché à l'exercice
@@ -16423,6 +16552,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try {
                 workout.exercises.forEach(ex => {
                     if (!ex || ex.isRest || ex.isInfo) return;
+                    if (!_tousAnnexes && awakEstAnnexe(ex)) return;
                     const exName = typeof ex === 'string' ? ex : (ex._baseName || ex.name);
                     const exData = exerciseDatabase.find(e => e.name === exName);
                     if (!exData) return;
@@ -16463,7 +16593,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 date: new Date().toISOString(),
                 name: workout.name,
                 duration: durationInMinutes,
-                exercises: workout.exercises.filter(ex => !ex.isRest && !ex.isInfo).length,
+                exercises: workout.exercises.filter(ex => !ex.isRest && !ex.isInfo && (_tousAnnexes || !awakEstAnnexe(ex))).length,
                 // v1279 : « muscles » recevait les muscles COCHÉS dans le générateur, pas ceux
                 // de la séance → une course ou une routine marquait tout le corps comme travaillé
                 // (récupération, suggestions, bilan de la semaine faussés).
@@ -21377,7 +21507,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
                             <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 14px; border-radius: 12px;">
                                 <div style="color: #94a3b8; font-size: 0.68em; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px;">Volume Total</div>
-                                <div style="font-size: 1.5em; font-weight: 700; color: #10b981;">${total.toLocaleString()} ${weightUnit()}</div>
+                                <div style="font-size: 1.5em; font-weight: 700; color: #10b981;">${total.toLocaleString('fr-CA')} ${weightUnit()}</div>
                             </div>
                             <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 14px; border-radius: 12px;">
                                 <div style="color: #94a3b8; font-size: 0.68em; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px;">Volume Moyen/Séance</div>
@@ -22517,8 +22647,22 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         function getProgressiveSuggestion(exerciseName) {
             if (!exerciseName) return null;
             const perfs = getExercisePerformances();
-            const history = (perfs[exerciseName] || []).filter(p => !p.warmup && p.reps > 0);
+            const sets = (perfs[exerciseName] || []).filter(p => !p.warmup && p.reps > 0);
+            // v1399 : les performances sont enregistrées PAR SÉRIE. Avant, « 3 séances »
+            // = les 3 dernières séries — après une seule séance de 3 × 10, on proposait
+            // déjà +5 kg. On regroupe par jour : une séance = sa série la plus lourde
+            // (et ses reps les plus basses à cette charge).
+            const parJour = {};
+            sets.forEach(p => {
+                const k = new Date(p.date).toDateString();
+                const w = p.weight || 0, cur = parJour[k];
+                if (!cur || w > cur.weight) parJour[k] = { date: p.date, weight: w, reps: p.reps };
+                else if (w === cur.weight) cur.reps = Math.min(cur.reps, p.reps);
+            });
+            const history = Object.keys(parJour).map(k => parJour[k]).sort((x, y) => new Date(x.date) - new Date(y.date));
             if (history.length < 3) return null;
+            // Dernière séance jugée « trop dure » : on ne pousse pas plus lourd
+            try { const rs = JSON.parse(localStorage.getItem(window._cleProfilLecture ? window._cleProfilLecture('awakRessenti') : 'awakRessenti') || 'null'); if (rs && rs.val === 'dur' && Date.now() - rs.t < 10 * 86400000) return null; } catch (e) {}
 
             const last3 = history.slice(-3);
             const allSameWeight = last3.every(p => p.weight === last3[0].weight);
@@ -22761,9 +22905,20 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // ══════════════════════════════════════════════════════════════════
         // 📋 BILAN FIN DE SÉANCE ENRICHI
         // ══════════════════════════════════════════════════════════════════
+        // v1400 : échauffement / étirement ? (ils ne comptent ni comme muscles
+        // travaillés, ni dans le nombre d'exercices, ni dans le volume par muscle)
+        function awakEstAnnexe(ex) {
+            if (!ex || typeof ex === 'string') { const d0 = typeof ex === 'string' ? exerciseDatabase.find(e => e.name === ex) : null; return !!(d0 && (d0.type === 'warmup' || d0.type === 'stretch')); }
+            if (ex.isWarmup || ex.type === 'warmup' || ex.isStretch || ex.type === 'stretch') return true;
+            if (ex.type === 'exercise') return false;
+            const db = exerciseDatabase.find(e => e.name === (ex._baseName || ex.name));
+            return !!(db && (db.type === 'warmup' || db.type === 'stretch'));
+        }
+        window.awakEstAnnexe = awakEstAnnexe;
         function buildEnrichedCompletion(workout, totalMinutes) {
             // 1. Graphe muscles — volume par muscle
-            const realEx = workout.exercises.filter(e => !e.isRest && !e.isInfo);
+            let realEx = workout.exercises.filter(e => !e.isRest && !e.isInfo && !awakEstAnnexe(e));
+            if (!realEx.length) realEx = workout.exercises.filter(e => !e.isRest && !e.isInfo);
             const muscleCount = {};
             realEx.forEach(ex => {
                 const db = exerciseDatabase.find(e => e.name === ex.name);
@@ -23362,7 +23517,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1398);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1401);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -23414,7 +23569,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 +       '<rect width="5" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.22"/>'
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1398" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1401" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -26588,7 +26743,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (exercise.mode !== 'reps' && window.AwakSS && typeof window.AwakSS.sync === 'function') {
                 try { window.AwakSS.sync(); } catch (e) {}
             }
-            if ((isFirstEx || comingFromRest) && !exercise.isRest && !exercise.isInfo && !window._awakSSGoTo) {
+            // v1399 : aussi entre deux exercices minutés d'une séance ordinaire (avant :
+            // le minuteur du Dead bug partait avant qu'on soit au sol). Les formats
+            // enchaînés (HIIT, Tabata, circuit, AMRAP, EMOM) gardent leur rythme.
+            const _enchaine = !!(currentWorkout && (currentWorkout._readyGo || /hiit|tabata|circuit|amrap|emom/i.test(String(currentWorkout.type || '') + ' ' + String(currentWorkout.name || ''))
+                // v1400 : yoga, pilates, sérénité, mobilité = un flow : pas de 3-2-1 entre les postures
+                || /^(yoga|pilates|serenite|mobilite)$/.test(currentWorkout._discipline || '')));
+            if ((isFirstEx || comingFromRest || !_enchaine) && !exercise.isRest && !exercise.isInfo && !window._awakSSGoTo) {
                 showCountdown(exercise.name, () => startTimer());
             } else {
                 startTimer();
@@ -27151,7 +27312,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const categories = [
                 { label: '🏋️ Poids libres', ids: ['barbell','dumbbells','kettlebell','medicineball'] },
                 { label: '🤸 Cardio', ids: ['treadmill','bike','elliptical','stairmaster','rower','jumprope','battleropes'] },
-                { label: '📦 Accessoires', ids: ['bench','trx','parallelbars','abwheel','swissball','resistance'] },
+                { label: '📦 Accessoires', ids: ['bench','trx','parallelbars','abwheel','swissball','resistance','yogamat','yogablock','yogastrap'] },
                 { label: '🧍 Corps', ids: ['bodyweight'] },
             ];
 
@@ -27452,7 +27613,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const equipCats = [
                 { label:'🏋️ Poids libres', ids:['barbell','dumbbells','kettlebell','medicineball'] },
                 { label:'🤸 Cardio', ids:['treadmill','bike','elliptical','stairmaster','rower','jumprope','battleropes'] },
-                { label:'📦 Accessoires', ids:['bench','trx','parallelbars','abwheel','swissball','resistance'] },
+                { label:'📦 Accessoires', ids:['bench','trx','parallelbars','abwheel','swissball','resistance','yogamat','yogablock','yogastrap'] },
                 { label:'🌳 Plein air / Strongman', ids:['tire','sled','sandbag','pool'] },
                 { label:'🧍 Corps', ids:['bodyweight'] },
             ];
@@ -28891,7 +29052,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1398");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1401");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -28939,8 +29100,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     <div class="rpg-bar-anim" data-pct="${pct}" style="height:100%;background:${barColor(profileLevel)};border-radius:99px;width:0%;"></div>
                 </div>
                 <div style="display:flex;justify-content:space-between;font-size:0.65em;opacity:0.55;margin-bottom:14px;">
-                    <span>${(lifetimeXP-xpLow).toLocaleString()} XP</span>
-                    <span>→ niv. ${profileLevel+1} dans ${(xpHigh-lifetimeXP).toLocaleString()} XP</span>
+                    <span>${(lifetimeXP-xpLow).toLocaleString('fr-CA')} XP</span>
+                    <span>→ niv. ${profileLevel+1} dans ${(xpHigh-lifetimeXP).toLocaleString('fr-CA')} XP</span>
                 </div>
 
                 <!-- Barre rang AWAKENED vers prochain rang -->
@@ -31191,16 +31352,17 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 overlay.style.cssText = `position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.94);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;animation:awakFadeIn 0.5s forwards;`;
 
                 const rows = [
-                    ['🏋️','Tes séances = ta puissance','Chaque entraînement réel te rapporte de l\'XP et te fait progresser.'],
-                    ['🏅','Niveaux & Rangs','Tu montes en niveau et gravis les rangs, de E jusqu\'à S.'],
-                    ['📊','Attributs','À chaque niveau, tu répartis des points (Force, Agilité, Vitalité…) qui pèsent dans tes combats.'],
-                    ['🌀','Failles & Combat','Des Failles s\'ouvrent. Tu les affrontes en t\'entraînant : tes répétitions infligent les dégâts, les monstres ripostent.'],
-                    ['🤝','Compagnons','En progressant, tu débloques des alliés aux pouvoirs uniques.'],
-                    ['📖','Une histoire','Un récit se dévoile au fil de ton éveil.']
+                    // v1399 : icônes AwakIcon (les emojis étaient filtrés → colonne vide) ; rangs jusqu'à SSS
+                    ['halter','Tes séances = ta puissance','Chaque entraînement réel te rapporte de l\'XP et te fait progresser.'],
+                    ['couronne','Niveaux & Rangs','Tu montes en niveau et gravis les rangs, de E jusqu\'à SSS.'],
+                    ['stats','Attributs','À chaque niveau, tu répartis des points (Force, Agilité, Vitalité…) qui pèsent dans tes combats.'],
+                    ['faille','Failles & Combat','Des Failles s\'ouvrent. Tu les affrontes en t\'entraînant : tes répétitions infligent les dégâts, les monstres ripostent.'],
+                    ['groupe','Compagnons','En progressant, tu débloques des alliés aux pouvoirs uniques.'],
+                    ['etoile','Une histoire','Un récit se dévoile au fil de ton éveil.']
                 ];
                 const rowsHtml = rows.map(r => `
                     <div style="display:flex;gap:14px;align-items:flex-start;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.06);">
-                        <div style="font-size:1.55em;flex-shrink:0;width:34px;text-align:center;filter:drop-shadow(0 0 8px rgba(6,182,212,0.5));">${r[0]}</div>
+                        <div style="flex-shrink:0;width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:10px;background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.3);">${window.AwakIcon ? AwakIcon.get(r[0], 19, '#67e8f9') : ''}</div>
                         <div style="flex:1;min-width:0;">
                             <div style="font-weight:800;color:#e2e8f0;font-size:0.97em;margin-bottom:2px;">${r[1]}</div>
                             <div style="color:#94a3b8;font-size:0.84em;line-height:1.5;">${r[2]}</div>
@@ -31211,7 +31373,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 card.style.cssText = `max-width:460px;width:100%;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid rgba(6,182,212,0.4);border-radius:20px;padding:26px 22px;box-shadow:0 24px 60px rgba(0,0,0,0.8),0 0 60px rgba(6,182,212,0.15);animation:slideUp 0.45s cubic-bezier(0.34,1.56,0.64,1);`;
                 card.innerHTML = `
                     <div style="text-align:center;margin-bottom:6px;font-size:0.62em;letter-spacing:3px;color:#06b6d4;text-transform:uppercase;font-family:'Courier New',monospace;">▸ Système d'éveil ◂</div>
-                    <div style="text-align:center;font-size:1.4em;font-weight:900;color:#fff;margin-bottom:6px;text-shadow:0 0 16px rgba(6,182,212,0.5);">Bienvenue, Ancre</div>
+                    <div style="text-align:center;font-size:1.4em;font-weight:900;color:#fff;margin-bottom:6px;text-shadow:0 0 16px rgba(6,182,212,0.5);">${(function(){ try { const n = (getUserProfile() || {}).name; return n && !/^(Athlète|Mon profil)$/i.test(n) ? 'Bienvenue, ' + String(n).replace(/[<>&"]/g, '') : 'Bienvenue'; } catch (e) { return 'Bienvenue'; } })()}</div>
                     <div style="text-align:center;color:#94a3b8;font-size:0.88em;line-height:1.6;margin-bottom:18px;">Le Système relie tes entraînements réels à ta progression. Voici comment ça fonctionne.</div>
                     ${rowsHtml}
                     <div style="margin-top:16px;padding:12px 14px;background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.25);border-radius:14px;color:#cbd5e1;font-size:0.82em;line-height:1.6;text-align:center;font-style:italic;">Ta progression reflète tes efforts réels. Plus tu t'entraînes, plus tu deviens fort — pour de vrai.</div>
@@ -31407,8 +31569,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
                 // ⏭ Bouton Passer + ● points de progression
                 const skip = document.createElement('button');
-                skip.textContent = 'Passer ›';
-                skip.style.cssText = `position:absolute;top:16px;right:16px;z-index:6;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.55);padding:8px 14px;border-radius:20px;font-size:0.8em;font-weight:700;cursor:pointer;letter-spacing:1px;`;
+                // v1399 : bouton plus visible (l'intro dure ~70 s ; avant, gris pâle)
+                skip.textContent = 'Passer l\'intro ›';
+                skip.style.cssText = `position:absolute;top:calc(14px + env(safe-area-inset-top, 0px));right:14px;z-index:6;background:rgba(15,23,42,0.78);border:1px solid rgba(96,168,240,0.6);color:#e2e8f0;padding:10px 16px;border-radius:20px;font-size:0.86em;font-weight:800;cursor:pointer;letter-spacing:0.5px;min-height:0;`;
                 overlay.appendChild(skip);
 
                 const dotsBar = document.createElement('div');
@@ -31711,8 +31874,23 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // ═══════════════════════════════════════════════════════════════
         // 🃏 CARTE DU SYSTÈME — tirage quotidien
         // ═══════════════════════════════════════════════════════════════
+        // v1399 : une seule fenêtre à la fois au démarrage — la carte attend que
+        // l'écran soit libre (avant : carte + mot de passe + message empilés).
+        function awakEcranOccupe() {
+            try {
+                const cand = document.querySelectorAll('[id$="Modal"], [id$="Overlay"], [id*="Onb"], [id*="onb"], [id*="story"], [id*="Story"], [id*="tuto"], [id*="Tuto"], [id*="Welcome"], [id*="Visite"], [id*="Eveil"], #awakSecModal');
+                for (const c of cand) {
+                    const cs = getComputedStyle(c), r = c.getBoundingClientRect();
+                    if (cs.position === 'fixed' && cs.display !== 'none' && cs.visibility !== 'hidden' && +cs.opacity > 0 && r.width > 100 && r.height > 100) return true;
+                }
+            } catch (e) {}
+            return false;
+        }
+        window.awakEcranOccupe = awakEcranOccupe;
+        let _awakCarteEssais = 0;
         function awakShowSystemCard(force) {
             if (typeof getDailySystemCard !== 'function') return;
+            if (!force && awakEcranOccupe()) { if (++_awakCarteEssais < 120) setTimeout(() => awakShowSystemCard(), 1500); return; }
             const { card, dateKey } = getDailySystemCard();
 
             // Sauf si "force" (consultation manuelle), n'afficher qu'une fois par jour
@@ -33362,7 +33540,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1398);'
+                +     'url(images/combat_bg_v1.webp?v=1401);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -33617,7 +33795,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1398);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1401);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -33889,7 +34067,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:540px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto;display:flex;flex-direction:column;">
                 <!-- Header : vague actuelle -->
-                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1398);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1401);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                         <span style="font-size:0.6em;color:${theme.color};font-weight:900;letter-spacing:2px;">⚔ VAGUE ${rift.currentWaveIdx + 1} / ${rift.waves.length}${currentWave.isBoss ? ' · BOSS' : ''}</span>
                         <button onclick="awakAbandonRift()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
@@ -35019,7 +35197,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1398');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1401');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -35756,7 +35934,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1398);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1401);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -35927,7 +36105,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1398);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1401);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -39423,16 +39601,37 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             }
         }
 
+        function _awakCoffreSvg(c, ouvert) {
+            return '<svg viewBox="0 0 96 96" width="96" height="96" aria-hidden="true">'
+                + (ouvert
+                    ? '<path d="M16 40 L24 18 H72 L80 40 Z" fill="' + c + '33" stroke="' + c + '" stroke-width="3" stroke-linejoin="round"/>'
+                      + '<circle cx="48" cy="34" r="9" fill="' + c + '" opacity="0.9"/><path d="M48 12 V4 M30 18 L24 10 M66 18 L72 10" stroke="' + c + '" stroke-width="3" stroke-linecap="round"/>'
+                    : '<path d="M14 42 Q14 22 48 22 Q82 22 82 42 Z" fill="' + c + '33" stroke="' + c + '" stroke-width="3" stroke-linejoin="round"/>')
+                + '<rect x="14" y="42" width="68" height="38" rx="5" fill="' + c + '22" stroke="' + c + '" stroke-width="3"/>'
+                + '<path d="M14 54 H82" stroke="' + c + '" stroke-width="3"/><rect x="42" y="48" width="12" height="14" rx="3" fill="#0b0f16" stroke="' + c + '" stroke-width="3"/></svg>';
+        }
+        window._awakOuvrirCoffre = function (el) {
+            try {
+                const box = el.closest('[style*=fixed]');
+                const c = (box && box.dataset.couleur) || '#60a8f0';
+                el.style.animation = 'none';
+                el.innerHTML = _awakCoffreSvg(c, true);
+                const r = document.getElementById('lootReward'); if (r) r.style.display = 'block';
+                const h = document.getElementById('lootChestHint'); if (h) h.style.display = 'none';
+            } catch (e) {}
+        };
         function rpgShowLootChest(loot) {
             const overlay = document.createElement('div');
             overlay.style.cssText = 'position:fixed;inset:0;z-index:30001;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);';
+            overlay.dataset.couleur = loot.tier.color;
             overlay.innerHTML = `
                 <div style="background:linear-gradient(160deg,#0D0D0D,#0F1014);border:2px solid ${loot.tier.color};border-radius:20px;
                             padding:32px 28px;max-width:300px;width:90%;text-align:center;
                             box-shadow:0 0 40px ${loot.tier.color}55;animation:slideUp 0.35s cubic-bezier(0.34,1.56,0.64,1);">
                     <div style="font-size:0.72em;letter-spacing:2px;color:${loot.tier.color};font-weight:800;text-transform:uppercase;margin-bottom:8px;">Coffre ${loot.tier.label}</div>
-                    <div id="lootChestIcon" style="font-size:4em;margin:10px 0;cursor:pointer;animation:pulse-warning 0.8s infinite;" onclick="this.style.animation='none';this.textContent='${loot.tier.emoji}';document.getElementById('lootReward').style.display='block';this.style.fontSize='3em';">📦</div>
-                    <div style="font-size:0.88em;color:rgba(255,255,255,0.6);margin-bottom:16px;">Tape pour ouvrir !</div>
+                    <!-- v1399 : coffre en SVG (avant : emoji carton 📦, hors style), s'ouvre au toucher ou avec « Ouvrir » -->
+                    <div id="lootChestIcon" style="margin:10px auto;width:96px;height:96px;cursor:pointer;animation:pulse-warning 0.8s infinite;" onclick="window._awakOuvrirCoffre && window._awakOuvrirCoffre(this)">${_awakCoffreSvg(loot.tier.color, false)}</div>
+                    <div id="lootChestHint" style="font-size:0.88em;color:rgba(255,255,255,0.6);margin-bottom:16px;">Touche le coffre pour l'ouvrir</div>
                     <div id="lootReward" style="display:none;">
                         <div style="font-size:1.6em;font-weight:900;color:${loot.tier.color};margin:8px 0;">${loot.reward.label}</div>
                         <div style="font-size:0.8em;color:rgba(255,255,255,0.5);margin-bottom:16px;">${loot.reward._newBadge ? 'Nouveau badge débloqué !' : (loot.reward._fromDuplicate ? 'Badge déjà obtenu — converti en XP !' : (loot.reward.type === 'voie_xp' ? 'XP de Voie ajoutée !' : (loot.reward.type === 'buff' ? '🎁 Bonus actif à ta prochaine séance !' : 'Récompense ajoutée !')))}</div>
@@ -39448,20 +39647,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // ── QUÊTES QUOTIDIENNES ───────────────────────────────────────
         function rpgGetDailyQuests() {
             const today = new Date().toDateString();
-            const key = 'fitproDailyQuests_' + today;
-            try {
-                const saved = localStorage.getItem(key);
-                if (saved) {
-                    const parsed = JSON.parse(saved);
-                    // Recalculer le temps restant (pas stocké dans le cache)
-                    const endOfDay = new Date(); endOfDay.setHours(23,59,59,0);
-                    const msLeft = endOfDay - new Date();
-                    const hLeft = Math.floor(msLeft/3600000);
-                    const mLeft = Math.floor((msLeft%3600000)/60000);
-                    parsed._timeLeft = hLeft + 'h ' + mLeft + 'm restantes';
-                    return parsed;
-                }
-            } catch(e) {}
+            // v1399 : plus de copie du matin — la progression était figée au premier
+            // affichage (« Compléter 1 séance » restait à 0 / 1 après la séance).
+            // Les 3 quêtes sont fixes : on recalcule à chaque lecture, depuis
+            // l'historique du profil.
             // Générer 3 quêtes pour aujourd'hui
             const history = getWorkoutHistory();
             const todayWorkouts = history.filter(w => {
@@ -39488,13 +39677,12 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const hLeft = Math.floor(msLeft/3600000);
             const mLeft = Math.floor((msLeft%3600000)/60000);
             quests._timeLeft = `${hLeft}h ${mLeft}m restantes`;
-            localStorage.setItem(key, JSON.stringify(quests));
             return quests;
         }
 
         function rpgAwardDailyQuest(questId, xpReward) {
             const today = new Date().toDateString();
-            const awardKey = 'fitproDQAwarded_' + today;
+            const awardKey = _cleProfil('fitproDQAwarded_' + today);   // v1399 : par profil
             const awarded = JSON.parse(localStorage.getItem(awardKey)||'[]');
             if (awarded.includes(questId)) return;
             awarded.push(questId);
@@ -40129,11 +40317,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             document.getElementById('rpgTitleEmoji').textContent = title.emoji;
             document.getElementById('rpgProfileTitle').textContent = title.title;
             document.getElementById('rpgProfileLevel').textContent = profileLevel;
-            document.getElementById('rpgProfileXPTotal').textContent = profileXP.toLocaleString();
+            document.getElementById('rpgProfileXPTotal').textContent = profileXP.toLocaleString('fr-CA');
             const bar = document.getElementById('rpgProfileBar');
             if (bar) bar.style.width = pct + '%';
             const nextEl = document.getElementById('rpgProfileNext');
-            if (nextEl) nextEl.textContent = `${(profileXP - xpThis).toLocaleString()} / ${(xpNext - xpThis).toLocaleString()} XP vers niv.${profileLevel + 1}`;
+            if (nextEl) nextEl.textContent = `${(profileXP - xpThis).toLocaleString('fr-CA')} / ${(xpNext - xpThis).toLocaleString('fr-CA')} XP vers niv.${profileLevel + 1}`;
 
             // Mise à jour settings preview
             const gEmoji = document.getElementById('gameTitleEmoji');
@@ -40143,7 +40331,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (gEmoji) gEmoji.textContent = title.emoji;
             if (gTitle) gTitle.textContent = typeof awakGetRank === 'function' ? awakGetRank().name : title.title;
             if (gLevel) gLevel.textContent = profileLevel;
-            if (gXP)    gXP.textContent    = profileXP.toLocaleString();
+            if (gXP)    gXP.textContent    = profileXP.toLocaleString('fr-CA');
 
             // Muscles — trier par niveau décroissant
             const muscles = Object.entries(data.muscles).sort((a, b) => b[1].xp - a[1].xp);
@@ -40177,7 +40365,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             <div style="height:100%;background:${barColor};border-radius:99px;width:${pct}%;transition:width 0.8s ease;"></div>
                         </div>
                         <div style="font-size:0.72em;color:#6b7280;display:flex;justify-content:space-between;">
-                            <span>${info.xp.toLocaleString()} XP</span>
+                            <span>${info.xp.toLocaleString('fr-CA')} XP</span>
                             <span>${decaying ? '⚠️ En déclin' : warning ? '⚡ Entraîne-toi demain' : `${Math.floor(daysSince)}j`}</span>
                         </div>
                     </div>`;
@@ -40328,7 +40516,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (gEmoji) gEmoji.textContent = t.emoji;
                 if (gTitle) gTitle.textContent = typeof awakGetRank === 'function' ? awakGetRank().name : t.title;
                 if (gLevel) gLevel.textContent = profileLevel;
-                if (gXP)    gXP.textContent    = profileXP.toLocaleString();
+                if (gXP)    gXP.textContent    = profileXP.toLocaleString('fr-CA');
                 // Sync inventaire chasseur
                 const inv = typeof getInventory === 'function' ? getInventory() : [];
                 const countEl = document.getElementById('hunterInvCount');
@@ -40526,7 +40714,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             saveStats(stats);
             
             // Save to history
-            saveWorkoutToHistory(currentWorkout, (Date.now() - workoutStartTime) / 1000);
+            saveWorkoutToHistory(currentWorkout, { secondes: (Date.now() - workoutStartTime) / 1000 });
 
             // 🛡️ FILET DE SÉCURITÉ : tout le calcul de stats/RPG/bilan qui suit est
             // non-critique pour la FIN de séance. S'il plante (séance légère type
@@ -40757,8 +40945,12 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 setTimeout(() => countUpTo(el, val, { duration: 1200 }), 300);
             };
             _countUp('completionTime', totalMinutes);
-            const realExercises = currentWorkout.exercises.filter(ex => !ex.isRest && !ex.isInfo);
+            let realExercises = currentWorkout.exercises.filter(ex => !ex.isRest && !ex.isInfo && !awakEstAnnexe(ex));   // v1400 : sans échauffements ni étirements
+            if (!realExercises.length) realExercises = currentWorkout.exercises.filter(ex => !ex.isRest && !ex.isInfo);
             _countUp('completionExercises', realExercises.length);
+            // v1399 : accord (« 1 Minutes », « 1 Exercices »)
+            _setText('completionTimeLbl', totalMinutes > 1 ? 'Minutes' : 'Minute');
+            try { const _le = document.getElementById('completionExercises'); const _ll = _le && _le.nextElementSibling; if (_ll) _ll.textContent = realExercises.length > 1 ? 'Exercices' : 'Exercice'; } catch (e) {}
 
             // Calories précises : formule MET × poids_kg × heures
             const profile = getUserProfile();
@@ -40802,6 +40994,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     let goalTxt = '';
                     if (goal === 'muscle_gain' || goal === 'strength') { base += 300; goalTxt = 'prendre du muscle'; }
                     else if (goal === 'weight_loss') { base -= 400; goalTxt = 'perdre du poids'; }
+                    else if (goal === 'flexibility') { goalTxt = 'gagner en souplesse'; }   // v1400
+                    else if (goal === 'endurance') { goalTxt = 'gagner en endurance'; }
                     else { goalTxt = 'maintenir la forme'; }
                     let target = base + kcal; // la dépense du jour s'ajoute à la cible
                     target = Math.max(target, 1500); // plancher de sécurité
@@ -40830,7 +41024,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             } catch(e) {}
             if (totalVolume > 0 && volDiv && volVal) {
                 const unit = useKg ? 'kg' : 'lbs';
-                volVal.textContent = totalVolume.toLocaleString() + ' ' + unit + ' (' + totalSets + ' séries)';
+                volVal.textContent = Math.round(totalVolume).toLocaleString('fr-CA') + ' ' + unit + ' (' + totalSets + ' séries)';
                 volDiv.style.display = 'block';
             }
 
@@ -44058,8 +44252,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             loadStats();
             renderMuscleRecoveryStatus();  // Rafraîchir état récupération
             
-            // Switch to workouts tab
-            switchTab('workouts');
+            // v1399 : « Retour à l'accueil » ouvre bien l'accueil (avant : l'onglet Séance)
+            switchTab('home');
             updateHomeStats();
         }
 
@@ -44165,13 +44359,19 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // appeler .toLowerCase() dessus levait une exception et faisait planter
             // TOUT le filtre → la recherche ne renvoyait jamais rien.
             const _eqText = (eq) => Array.isArray(eq) ? eq.join(' ').toLowerCase() : String(eq || '').toLowerCase();
-            const matches = exerciseDatabase.filter(ex => {
+            let matches = exerciseDatabase.filter(ex => {
                 try {
                     return (window.awakExCherche ? window.awakExCherche(String(ex.name || '')) : String(ex.name || '').toLowerCase()).includes(query) ||
                            String(ex.muscle || '').toLowerCase().includes(query) ||
-                           _eqText(ex.equipment).includes(query);
+                           _eqText(ex.equipment).includes(query) ||
+                           (window.awakScoreRecherche && window.awakScoreRecherche(ex, query) >= 0);
                 } catch (e) { return false; }
             });
+            // v1399 : mots dans n'importe quel ordre, meilleurs résultats d'abord (routine-builder.js)
+            if (window.awakScoreRecherche) {
+                const sc = new Map(matches.map(ex => { const v = window.awakScoreRecherche(ex, query); return [ex, v < 0 ? 9 : v]; }));
+                matches = matches.slice().sort((a, b) => sc.get(a) - sc.get(b));
+            }
             
             if (matches.length === 0) {
                 resultsContainer.innerHTML = awakVide('muscle', 'Aucun exercice trouvé', 'Rien pour « ' + String(query).replace(/[<>&"]/g, '') + ' ». Essaie un autre mot, un muscle ou un matériel.');
@@ -46974,7 +47174,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
               // v1393 : hauteur réservée (aspect-ratio) — sinon l'image recréée
               // n'a aucune hauteur le temps d'un décodage, le formulaire saute
               // de ~160 px et le toucher sur le champ suivant tombe à côté.
-              +   '<img src="images/body/body_face.webp?v=1398" alt="" width="784" height="1168" '
+              +   '<img src="images/body/body_face.webp?v=1401" alt="" width="784" height="1168" '
               +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -47056,7 +47256,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1398);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1401);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -47123,7 +47323,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1398);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1401);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -48362,7 +48562,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // ── ONBOARDING PREMIUM — cinématique de 1er lancement (construit le profil) ──
         function showPremiumOnboarding() {
             document.getElementById('_premOnbOverlay')?.remove();
-            const draft = { name: '', goal: 'fitness', level: 'beginner', age: 30, weight: 70, sex: '', mode: 'aventure' };
+            const draft = { name: '', goal: 'fitness', level: 'beginner', age: 30, weight: 70, sex: '', mode: 'aventure', freq: 3, aime: [] };
             let step = 0;
 
             const ov = document.createElement('div');
@@ -48404,7 +48604,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 weight_loss: 'Plus de cardio et de circuits en fin de séance. Séries de 12 à 15 répétitions, repos courts (environ 35 s) pour garder le rythme.',
                 muscle_gain: 'Les gros mouvements d\'abord (squat, développé, tirage), puis du travail ciblé par muscle. 3 à 4 séries de 8 à 12 répétitions, environ 1 min 20 de repos.',
                 strength: 'Priorité aux gros mouvements qui font travailler plusieurs muscles. Peu de répétitions (4 à 6), plus de séries et des repos longs (environ 2 min 30).',
-                endurance: 'Cardio et exercices qui mélangent force et souffle. Séries longues (15 à 20 répétitions), repos courts (environ 40 s).',
+                endurance: 'Course et cardio : footing, fractionné, sortie longue, avec un peu de renforcement. Un plan de course (5 km au marathon) part de ton niveau, même si tu ne cours pas encore.',
                 fitness: 'Un peu de tout : force, cardio et gainage, en équilibre. Séries de 10 à 12 répétitions, environ 1 min de repos.',
                 flexibility: 'Plus d\'étirements, de mobilité et de yoga, avec un renforcement léger. Idéal pour bouger mieux et avec moins de raideurs.'
             };
@@ -48440,7 +48640,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const _enfant = () => (parseInt(draft.age, 10) || 99) < 13;
             const _sequence = () => _enfant()
                 ? ['accueil', 'toi', 'aime', 'materielEnfant', 'finEnfant']
-                : ['accueil', 'toi', 'objectif', 'corps', 'voie', 'materiel', 'prep', 'fin'];
+                : ['accueil', 'toi', 'objectif', 'rythme', 'corps', 'voie', 'materiel', 'prep', 'fin'];   // v1400 : + rythme (fréquence, activités aimées)
 
             const frame = (inner, pct) => `
                 <style>@keyframes awakFadeIn { from{opacity:0} to{opacity:1} }</style>
@@ -48525,7 +48725,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             + _preset('kidball', 'cible', 'Un ballon ou une corde', 'Pour des jeux encore plus variés.')
                             + '<div style="height:12px;"></div>' + btnPrimary('Continuer', 'window._premOnbNext()');
                     } else {
-                        const _eqCommon = ['bodyweight','dumbbells','barbell','resistance','kettlebell','bench','parallelbars','machine','trx','jumprope','swissball','abwheel','treadmill'];
+                        const _eqCommon = ['bodyweight','dumbbells','barbell','resistance','kettlebell','bench','parallelbars','machine','trx','jumprope','swissball','abwheel','treadmill','yogamat','yogablock','yogastrap'];
                         const _eqChips = _eqCommon.map(function (id) {
                             const eq = availableEquipment.find(e => e.id === id);
                             if (!eq) return '';
@@ -48542,6 +48742,19 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             + '<div id="_onbEqChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">' + _eqChips + '</div>'
                             + btnPrimary('Continuer', 'window._premOnbNext()');
                     }
+                } else if (ecran === 'rythme') {
+                    // v1400 : le plan de la semaine suit la fréquence voulue (avant : tiré au hasard,
+                    // 3 à 6 jours) et l'appli sait ce que la personne aime faire.
+                    const _fq = [2, 3, 4, 5, 6].map(n => '<button onclick="window._premOnbFreq(' + n + ')" data-freq="' + n + '" style="flex:1;min-width:0;min-height:48px;padding:10px 0;border-radius:12px;cursor:pointer;font-weight:900;font-size:1.05em;background:rgba(255,255,255,0.04);color:#e2e8f0;border:1.5px solid ' + (draft.freq === n ? _BLEU_BORD : 'rgba(255,255,255,0.1)') + ';">' + n + '</button>').join('');
+                    const _AIME = [['muscu', 'Musculation'], ['machines', 'Machines'], ['yoga', 'Yoga'], ['pilates', 'Pilates'], ['course', 'Course'], ['cardio', 'Cardio, HIIT'], ['mobilite', 'Mobilité'], ['boxe', 'Boxe']];
+                    const _ai = _AIME.map(a => '<button onclick="window._premOnbAime(\'' + a[0] + '\')" data-aime="' + a[0] + '" style="min-height:auto;padding:9px 13px;border-radius:99px;cursor:pointer;font-weight:800;font-size:0.8em;background:' + (draft.aime.indexOf(a[0]) >= 0 ? 'rgba(96,168,240,0.18)' : 'rgba(255,255,255,0.04)') + ';color:#e2e8f0;border:1.5px solid ' + (draft.aime.indexOf(a[0]) >= 0 ? _BLEU_BORD : 'rgba(255,255,255,0.1)') + ';">' + a[1] + '</button>').join('');
+                    inner = _sur('TON RYTHME')
+                        + '<h2 style="color:#fff;font-size:1.4em;font-weight:900;margin:0 0 6px;">Combien de séances par semaine\u00a0?</h2>'
+                        + '<p style="color:#94a3b8;font-size:0.8em;margin:0 0 14px;">Ton plan de la semaine suivra ce rythme. Tu pourras choisir tes jours dans « Planifier ma semaine ».</p>'
+                        + '<div style="display:flex;gap:6px;margin-bottom:22px;">' + _fq + '</div>'
+                        + '<div style="font-size:0.72em;color:#94a3b8;font-weight:800;margin-bottom:8px;">Ce que tu aimes faire <span style="font-weight:700;color:#64748b;">(plusieurs choix)</span></div>'
+                        + '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:22px;">' + _ai + '</div>'
+                        + btnPrimary('Continuer', 'window._premOnbNext()');
                 } else if (ecran === 'aime') {
                     inner = _sur('CE QUE TU AIMES')
                         + '<h2 style="color:#fff;font-size:1.4em;font-weight:900;margin:0 0 16px;">Qu\'est-ce que tu préfères ?</h2>'
@@ -48668,6 +48881,17 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             window._premOnbEquipPreset = function (kind) {
                 draft._preset = kind;
                 document.querySelectorAll('[data-preset]').forEach(b => { b.style.borderColor = b.dataset.preset === kind ? 'rgba(96,168,240,0.7)' : 'rgba(255,255,255,0.1)'; });
+                // v1399 : « Salle de gym » active le lieu Gym (avant : l'équipement de
+                // la salle était rangé dans le lieu « Maison », affiché tel quel).
+                try {
+                    const _locs = getLocationProfiles() || [];
+                    const _cible = kind === 'gym' ? _locs.find(l => l.mode === 'gym') : _locs.find(l => l.id === 'home');
+                    if (_cible) {
+                        activeLocationId = _cible.id;
+                        localStorage.setItem('fitproActiveLocation', _cible.id);
+                        try { setSessionMode(_cible.mode, true); } catch (e) {}
+                    }
+                } catch (e) {}
                 selectedEquipment = (_ONB_EQ_PRESETS[kind] || ['bodyweight']).slice();
                 try { saveEquipment(); } catch (e) {}
                 _onbPersistEquipToLocation();
@@ -48707,6 +48931,18 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (btn) btn.style.borderColor = 'rgba(96,168,240,0.7)';
                 try { haptic.light(); } catch(e) {}
             };
+            window._premOnbFreq = function (n) {
+                draft.freq = n;
+                document.querySelectorAll('[data-freq]').forEach(b => { b.style.borderColor = +b.dataset.freq === n ? 'rgba(96,168,240,0.7)' : 'rgba(255,255,255,0.1)'; });
+                try { haptic.light(); } catch (e) {}
+            };
+            window._premOnbAime = function (k) {
+                const i = draft.aime.indexOf(k);
+                if (i >= 0) draft.aime.splice(i, 1); else draft.aime.push(k);
+                const b = document.querySelector('[data-aime="' + k + '"]'), on = draft.aime.indexOf(k) >= 0;
+                if (b) { b.style.borderColor = on ? 'rgba(96,168,240,0.7)' : 'rgba(255,255,255,0.1)'; b.style.background = on ? 'rgba(96,168,240,0.18)' : 'rgba(255,255,255,0.04)'; }
+                try { haptic.light(); } catch (e) {}
+            };
             window._premOnbSaveName = function() {
                 draft.name = (document.getElementById('_premOnbName')?.value || '').trim();
                 window._premOnbNext();
@@ -48721,6 +48957,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 _sauverEcran();
                 const _kid = _enfant();
                 userProfile = { name: draft.name || 'Athlète', goal: draft.goal, level: _kid ? 'beginner' : draft.level, age: draft.age, sex: draft.sex || '', setupComplete: true };
+                if (!_kid) { userProfile.weeklyGoal = draft.freq || 3; userProfile.aime = (draft.aime || []).slice(); }   // v1400
+                // Sport présélectionné dans Programme › Sports : l'activité aimée (avant : la boxe)
+                try { const _d = ['yoga', 'pilates', 'boxe', 'course'].find(x => (draft.aime || []).indexOf(x) >= 0) || (draft.goal === 'flexibility' ? 'yoga' : null); if (_d && !_kid) localStorage.setItem('awakSelectedDiscipline', _d); } catch (e) {}
                 if (!_kid) userProfile.weight = draft.weight;   // 🧒 pas de poids demandé à un enfant
                 try { if (draft.name && typeof syncProfileNameToRegistry === 'function') syncProfileNameToRegistry(getCurrentProfileId(), draft.name); } catch (e) {}
                 const profileId = getCurrentProfileId();
@@ -49467,7 +49706,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1398");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1401");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
