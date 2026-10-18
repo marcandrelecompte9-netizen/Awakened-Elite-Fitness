@@ -138,8 +138,9 @@
   }
 
   // ── Enregistrement d'une photo (IndexedDB d'app.js) ──────────────
-  function sauverPhoto(dataUrl, pose, groupe) {
-    var photo = { id: Date.now(), date: new Date().toISOString(), dataUrl: dataUrl, note: '', pose: pose, groupe: groupe };
+  function sauverPhoto(dataUrl, pose, groupe, date) {
+    // v1395 : `date` = date de la séance complétée après coup (sinon maintenant)
+    var photo = { id: Date.now(), date: date || new Date().toISOString(), dataUrl: dataUrl, note: '', pose: pose, groupe: groupe };
     if (typeof window.awakPhotoDBPut !== 'function') return Promise.reject(new Error('stockage'));
     return window.awakPhotoDBPut(pid(), photo)
       .then(function () { return typeof window.awakLoadProgressPhotos === 'function' ? window.awakLoadProgressPhotos() : null; })
@@ -172,7 +173,17 @@
 
   // ── 1. Séance photo (3 poses) ─────────────────────────────────────
   var seanceCourante = null;   // { groupe, prises: { pose: photo } }
-  function seance() {
+  // v1395 : seance(cle) rouvre une séance existante pour ajouter la pose
+  // qui manque (ex. le dos). La photo ajoutée prend la clé et la date de la
+  // séance : une ancienne photo sans `groupe` a pour clé « p<id> », la
+  // nouvelle reçoit groupe « p<id> » et se range donc avec elle.
+  function seance(cle) {
+    if (cle) {
+      var g = groupes().find(function (x) { return x.cle === cle; });
+      if (!g) return;
+      var pr = {}; Object.keys(g.poses).forEach(function (k) { pr[k] = g.poses[k]; });
+      seanceCourante = { groupe: g.cle, prises: pr, existante: true, date: g.date };
+    }
     if (!seanceCourante) seanceCourante = { groupe: 'g' + Date.now(), prises: {} };
     var s = seanceCourante;
     var cases = POSES.map(function (p) {
@@ -183,6 +194,20 @@
         + '<div class="awk-pm-pose-act">' + (ph ? 'Reprendre' : 'Prendre') + '</div></div>';
     }).join('');
     var n = Object.keys(s.prises).length;
+    if (s.existante) {
+      var fe = fenetre('awakSeancePhoto',
+        tete('Compléter · ' + esc(dateLongue(s.date)), 'Séance photo')
+        + '<div class="awk-pm-corps">'
+        +   '<p class="awk-pm-note">Touche la pose qui manque pour l\'ajouter à cette séance.' + (n < 3 ? '' : ' Les trois poses sont prises.') + '</p>'
+        +   '<div class="awk-pm-poses">' + cases + '</div>'
+        + '</div>'
+        + '<div class="awk-pm-pied"><button type="button" class="awk-btn" data-terminer>Terminé (' + n + '/3)</button></div>');
+      var finir = function () { fe.remove(); seanceCourante = null; ouvrirGalerie(); };
+      fe.querySelector('[data-fermer]').onclick = finir;
+      fe.querySelector('[data-terminer]').onclick = finir;
+      fe.querySelectorAll('[data-pose]').forEach(function (c) { c.onclick = function () { camera(c.dataset.pose); }; });
+      return;
+    }
     var f = fenetre('awakSeancePhoto',
       tete('Séance photo', 'Face, profil, dos')
       + '<div class="awk-pm-corps">'
@@ -312,8 +337,12 @@
       if (!capture || !seanceCourante) return;
       var b = this; b.disabled = true;
       var ancienne = seanceCourante.prises[pose];
-      sauverPhoto(capture, pose, seanceCourante.groupe).then(function (ph) {
-        if (ancienne) supprimerPhoto(ancienne);
+      sauverPhoto(capture, pose, seanceCourante.groupe, seanceCourante.existante ? seanceCourante.date : null).then(function (ph) {
+        if (ancienne) {
+          // v1395 : les mesures liées à la photo remplacée suivent la nouvelle
+          try { var ml = mesures(), chg = false; ml.forEach(function (m) { if (m && m.photoId === ancienne.id) { m.photoId = ph.id; chg = true; } }); if (chg) window.saveBodyMeasurements(ml); } catch (e) {}
+          supprimerPhoto(ancienne);
+        }
         if (seanceCourante) seanceCourante.prises[pose] = ph;
         fermer();
         if (seanceCourante) seance();
@@ -383,6 +412,7 @@
         + '<div class="awk-pm-date">' + esc(dateCourte(g.date)) + '</div>'
         + (info ? '<div class="awk-pm-info">' + esc(info) + '</div>'
                 : '<button type="button" class="awk-pm-ajout" data-mes="' + esc(g.cle) + '">+ Mesures</button>')
+        + (n < 3 ? '<button type="button" class="awk-pm-ajout" data-completer="' + esc(g.cle) + '">+ Poses (' + n + '/3)</button>' : '')
         + '</div>';
     }).join('');
     var f = fenetre('awakMesPhotos',
@@ -406,6 +436,9 @@
     if (cmp) cmp.onclick = function () { if (choix.length === 2) comparerGroupes(choix[0], choix[1]); };
     f.querySelectorAll('[data-mes]').forEach(function (b) {
       b.onclick = function (e) { e.stopPropagation(); var g = l.find(function (x) { return x.cle === b.dataset.mes; }); if (g) saisir(g.principale, false); };
+    });
+    f.querySelectorAll('[data-completer]').forEach(function (b) {
+      b.onclick = function (e) { e.stopPropagation(); montrer = false; f.remove(); seance(b.dataset.completer); };
     });
     f.querySelectorAll('.awk-pm-case').forEach(function (c) {
       c.onclick = function () {
