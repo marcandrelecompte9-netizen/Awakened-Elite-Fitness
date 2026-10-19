@@ -251,6 +251,7 @@
   }
   // Durée et nombre d'exercices d'une séance prévue (quand on peut le savoir)
   function metaSeance(id, s) {
+    if (s && s.famille) return { exos: 0, duree: '~15 min' };   // v1407 : Bouger ensemble
     var exos = null;
     try {
       if (s.routineId) {
@@ -299,6 +300,8 @@
     var faiteAuj = hist.some(function (w) { return ymd(dateSeance(w)) === ymd(d); });
     var niv = niveauJeu();
     var but = ((document.getElementById('userGoal') || {}).textContent || '').trim();
+    // v1407 : pas de « Non défini » (enfant, objectif pas encore choisi)
+    if (/^non d[ée]fini$/i.test(but)) but = '';
     var sousTitre = [nom, niv ? 'Niveau ' + niv.n : (but && but !== '-' ? but : '')].filter(Boolean).join(' · ');
 
     // Portrait : le chasseur en mode jeu, sinon l'avatar du profil
@@ -355,7 +358,8 @@
       else if (s.label) bits.push('<span class="ahp-m">' + ico('muscle', 15, '#cbd5e1') + '<span>' + esc(s.muscles.slice(0, 3).join(' · ')) + '</span></span>');
       if (auj.heure) bits.push('<span class="ahp-m">' + ico('calendrier', 15, '#cbd5e1') + '<span>' + esc(fmtH(auj.heure)) + '</span></span>');
       meta = bits.join('');
-      if (s.routineId) go = 'if(typeof startRoutineById===\'function\')startRoutineById(\'' + esc(s.routineId) + '\')';
+      if (s.famille) go = 'if(window.AwakFamilyMove)AwakFamilyMove()';   // v1407 : jour en famille
+      else if (s.routineId) go = 'if(typeof startRoutineById===\'function\')startRoutineById(\'' + esc(s.routineId) + '\')';
       // v1400 : jour de yoga / pilates / mobilité du plan → la séance de la discipline
       else if (s.discipline === 'course' && s.session !== 'renfo') go = 'switchTab(\'course\');window.scrollTo(0,0)';   // course : l'onglet GPS
       else if (s.discipline) go = 'if(typeof startDisciplineSession===\'function\')startDisciplineSession(\'' + esc(s.discipline) + '\',\'' + esc(s.session || '') + '\')';
@@ -385,6 +389,17 @@
       // v1331 : le type du jour (haut du corps, jambes…) quand il y en a un
       try { var sp = window.awakSplitDuJour ? window.awakSplitDuJour() : null; if (sp) titre = sp.nom; } catch (e) {}
       meta = '<span class="ahp-m">' + ico('eclair', 15, '#cbd5e1') + '<span>Choisie selon ta récupération</span></span>';
+      // v1403 : « Boxe » cochée → une séance de boxe plutôt qu'une séance de muscu
+      try {
+        var _aimeB = ((typeof getUserProfile === 'function' ? getUserProfile() : {}) || {}).aime || [];
+        if (_aimeB.indexOf('boxe') >= 0 && typeof window.startDisciplineSession === 'function') {
+          var _lvB = 1; try { _lvB = window.getDisciplineLevel('boxe').level || 1; } catch (e) {}
+          var _sB = _lvB >= 2 ? ['enchainements', 'Boxe · enchaînements'] : ['shadow', 'Boxe · shadow'];
+          titre = _sB[1];
+          meta = '<span class="ahp-m">' + ico('chrono', 15, '#cbd5e1') + '<span>Rounds avec récupération</span></span>';
+          go = 'startDisciplineSession(\'boxe\',\'' + _sB[0] + '\')';
+        }
+      } catch (e) {}
       bouton = '<button class="ahp-cta" onclick="' + go + '">Commencer ma séance</button>';
     }
 
@@ -399,7 +414,7 @@
           '<div style="flex:1;min-width:0;padding-top:2px;">' +
             '<div class="ahp-kick">' + esc(date) + '</div>' +
             '<div style="font-family:var(--font-display);font-size:clamp(0.98em,4.4vw,1.38em);font-weight:800;color:#f8fafc;line-height:1.15;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' +
-              (faiteAuj ? 'Bien joué aujourd\'hui' : 'Prêt pour aujourd\'hui\u00a0?') + '</div>' +
+              (faiteAuj ? 'Bien joué aujourd\'hui' : (window.awakFem && awakFem() ? 'Prête' : 'Prêt') + ' pour aujourd\'hui\u00a0?') + '</div>' +
             (sousTitre ? '<div style="font-size:0.8em;color:#cbd5e1;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(sousTitre) + '</div>' : '') +
           '</div>' +
           '<button onclick="if(typeof showProfileSelectionModal===\'function\')showProfileSelectionModal()" aria-label="Changer de profil" data-emoji-keep="1" ' +
@@ -487,6 +502,8 @@
       }
     }
     // Hors jeu : les grands muscles pas encore travaillés depuis lundi
+    // v1407 : pas pour un enfant (liste de muscles d'adulte : biceps, triceps…)
+    try { if (window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()) return ''; } catch (e) {}
     var debut = lundiDe(new Date()), compte = {};
     hist.forEach(function (w) {
       if (dateSeance(w) < debut) return;
@@ -532,6 +549,8 @@
       ['soleil', '#fbbf24', 'Réveil du corps', 'Mobilité douce, sans matériel', f + 'if(typeof showMorningRoutineModal===\'function\')showMorningRoutineModal()'],
       // v1400 : yoga, pilates, sérénité (avant : rangés dans Séance › Programme › Sports)
       ['repos', '#a78bfa', 'Yoga, pilates, sérénité', 'Postures, respiration, cours de 5 à 45 min', f + 'awakOuvrirCalme()'],
+      // v1403 : les sports (boxe en tête) — avant : seulement dans Séance › Programme › Sports
+      ['cible', '#f87171', 'Boxe, calisthénie, HIIT', 'Séances en rounds, guide pour débuter', f + 'awakOuvrirCalme(\'' + (function () { try { var a = ((typeof getUserProfile === 'function' ? getUserProfile() : {}) || {}).aime || []; return a.indexOf('boxe') >= 0 || a.indexOf('hiit') < 0 ? 'boxe' : 'hiit'; } catch (e) { return 'boxe'; } })() + '\')'],
       ['calendrier', '#a78bfa', 'Planifier ma semaine', 'Choisir quoi faire chaque jour', f + 'if(typeof openManualPlanEditor===\'function\')openManualPlanEditor();else switchTab(\'calendar\')']
     ].map(function (x) {
       return '<button class="ahp-row" onclick="' + x[4] + '">' +

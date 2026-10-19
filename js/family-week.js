@@ -13,7 +13,60 @@
   'use strict';
 
   var JOURS = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
+  var JOURS_LONG = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
   var ROSE = '#ec4899';
+
+  // v1407 : NOS JOURS EN FAMILLE — réglage commun à l'appareil (tous les profils) :
+  // { jours: [0..6] (0 = lundi), heure: 'HH:MM' }. Ces jours deviennent « Bouger
+  // ensemble » dans le plan de chaque membre (calendar-tab.js planFor), donc à
+  // l'accueil (objectif du jour) et dans l'agenda.
+  var CLE_JOURS = 'awakFamJours';
+  window.AwakFamJours = {
+    get: function () {
+      try {
+        if (profils().length < 2) return null;
+        var o = JSON.parse(localStorage.getItem(CLE_JOURS) || 'null');
+        if (!o || !Array.isArray(o.jours) || !o.jours.length) return null;
+        return { jours: o.jours.filter(function (j) { return j >= 0 && j <= 6; }), heure: o.heure || '' };
+      } catch (e) { return null; }
+    },
+    lire: function () { try { return JSON.parse(localStorage.getItem(CLE_JOURS) || 'null') || { jours: [], heure: '18:00' }; } catch (e) { return { jours: [], heure: '18:00' }; } },
+    ecrire: function (o) { try { localStorage.setItem(CLE_JOURS, JSON.stringify(o)); } catch (e) {} },
+    basculer: function (i) {
+      var o = this.lire(); o.jours = o.jours || [];
+      var k = o.jours.indexOf(i); if (k >= 0) o.jours.splice(k, 1); else o.jours.push(i);
+      o.jours.sort(); if (!o.heure) o.heure = '18:00';
+      this.ecrire(o); this.rafraichir();
+    },
+    heure: function (h) { var o = this.lire(); o.heure = h || ''; this.ecrire(o); this.rafraichir(); },
+    rafraichir: function () {
+      var el = document.getElementById('awakFamJours'); if (el) el.outerHTML = carteJours();
+      try { if (typeof window.updateHomeStats === 'function') window.updateHomeStats(); } catch (e) {}
+    }
+  };
+  function fmtHeure(h) { if (!h) return ''; var m = /^(\d{1,2}):(\d{2})$/.exec(h); return m ? (+m[1]) + ' h' + (m[2] !== '00' ? ' ' + m[2] : '') : h; }
+  function carteJours() {
+    if (profils().length < 2) return '';
+    var o = window.AwakFamJours.lire(), J = o.jours || [];
+    if (enfantRegarde()) {
+      if (!J.length) return '<div id="awakFamJours"></div>';
+      return '<div id="awakFamJours" style="background:#12161c;border:1px solid rgba(236,72,153,0.25);border-radius:16px;padding:12px 14px;margin-bottom:12px;font-size:0.8em;color:#f1f5f9;">'
+        + '<span style="font-size:0.75em;font-weight:900;letter-spacing:2px;color:' + ROSE + ';display:block;margin-bottom:4px;">NOS JOURS EN FAMILLE</span>'
+        + esc(J.map(function (j) { return JOURS_LONG[j]; }).join(', ')) + (o.heure ? ' · ' + esc(fmtHeure(o.heure)) : '') + '</div>';
+    }
+    var puces = JOURS_LONG.map(function (n, i) {
+      var on = J.indexOf(i) >= 0;
+      return '<button type="button" onclick="AwakFamJours.basculer(' + i + ')" aria-pressed="' + on + '" style="flex:1;min-width:0;min-height:38px;padding:0;border-radius:10px;cursor:pointer;font-family:inherit;font-weight:900;font-size:0.78em;'
+        + (on ? 'background:' + ROSE + ';color:#fff;border:1px solid ' + ROSE + ';' : 'background:rgba(255,255,255,0.04);color:#cbd5e1;border:1px solid rgba(255,255,255,0.12);') + '">' + n.charAt(0).toUpperCase() + n.slice(1, 3) + '</button>';
+    }).join('');
+    return '<div id="awakFamJours" style="background:#12161c;border:1px solid rgba(236,72,153,0.25);border-radius:16px;padding:12px 14px;margin-bottom:12px;">'
+      + '<div style="font-size:0.6em;font-weight:900;letter-spacing:2px;color:' + ROSE + ';margin-bottom:4px;">NOS JOURS EN FAMILLE</div>'
+      + '<div style="font-size:0.72em;color:#cbd5e1;margin-bottom:9px;line-height:1.45;">' + (J.length ? '« Bouger ensemble » est prévu ces jours-là pour tout le monde : à l\'accueil et dans l\'agenda de chacun.' : 'Choisis vos jours : « Bouger ensemble » s\'ajoutera au plan de chaque membre.') + '</div>'
+      + '<div style="display:flex;gap:5px;">' + puces + '</div>'
+      + '<label style="display:flex;align-items:center;gap:9px;margin-top:10px;font-size:0.74em;color:#cbd5e1;font-weight:700;">À quelle heure ?'
+      +   '<input type="time" value="' + esc(o.heure || '18:00') + '" onchange="AwakFamJours.heure(this.value)" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:9px;color:#fff;padding:6px 9px;font-family:inherit;font-size:1em;"></label>'
+      + '</div>';
+  }
 
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function moi() { try { return typeof window.getCurrentProfileId === 'function' ? window.getCurrentProfileId() : null; } catch (e) { return null; } }
@@ -107,7 +160,8 @@
       + lignes
       + (enf ? '' : '<div style="font-size:0.62em;color:#64748b;padding:6px 0 2px;">Touche un membre pour l\'encourager ou lui lancer un défi.</div>')
       + boutonBouger('8px 0 8px')
-      + '</div>';
+      + '</div>'
+      + carteJours();
   }
   function boutonBouger(marge) {
     return '<button onclick="AwakFamilyMove()" style="display:flex;align-items:center;gap:10px;width:100%;margin:' + marge + ';padding:11px 13px;border-radius:13px;cursor:pointer;font-family:inherit;text-align:left;'
@@ -121,7 +175,7 @@
   // v1346 : version enfant de l'onglet — le bouton seul, sans le tableau (le ciel montre déjà qui a bougé)
   function renderBouger() {
     if (profils().length < 2) return '';
-    return '<div id="awakFamBouger" style="margin-bottom:12px;">' + boutonBouger('0') + '</div>';
+    return '<div id="awakFamBouger" style="margin-bottom:12px;">' + boutonBouger('0') + '</div>' + carteJours();
   }
 
   // ── « Bouger ensemble · 15 min » ──────────────────────────────────
@@ -189,9 +243,9 @@
     };
   }
 
-  function seanceFamille(d) {
+  function seanceFamille(d, idsChoisis) {
     var db = window.exerciseDatabase || [];
-    var v = versionDuJour(d), ids = participants(), senior = seniorPresent(ids);
+    var v = versionDuJour(d), ids = (idsChoisis && idsChoisis.length) ? idsChoisis : participants(), senior = seniorPresent(ids);
     function ex(p, extra) {
       var e = db.filter(function (x) { return x && x.name === p.n; })[0];
       if (!e) return null;
@@ -219,15 +273,51 @@
       badgeHTML: 'En famille · ' + v.nom, badgeStyle: 'linear-gradient(135deg,#ec4899,#be185d)'
     };
   }
+  // v1407 : « Qui est là ? » — avant, tous les profils de l'appareil étaient crédités,
+  // même un absent (le ciel et les défis étaient faussés). Tous cochés par défaut.
   window.AwakFamilyMove = function () {
-    var w = seanceFamille();
+    var tous = profils(), me = moi();
+    if (tous.length < 2) return lancerFamille(participants());
+    var vieux = document.getElementById('awakFamQui'); if (vieux) vieux.remove();
+    var choisis = {}; tous.forEach(function (p) { choisis[p.id] = true; });
+    var ov = document.createElement('div');
+    ov.id = 'awakFamQui';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:12500;background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;padding:18px;';
+    function dessiner() {
+      var n = tous.filter(function (p) { return choisis[p.id]; }).length;
+      ov.innerHTML = '<div style="width:100%;max-width:420px;background:#12161c;border:1px solid rgba(236,72,153,0.35);border-radius:18px;padding:18px 16px 14px;box-sizing:border-box;">'
+        + '<div style="font-size:0.6em;font-weight:900;letter-spacing:2px;color:' + ROSE + ';">BOUGER ENSEMBLE</div>'
+        + '<div style="font-size:1.08em;font-weight:900;color:#fff;margin:4px 0 4px;">Qui est là ?</div>'
+        + '<div style="font-size:0.74em;color:#a3b1c2;margin-bottom:12px;">La séance sera enregistrée chez chaque membre coché.</div>'
+        + '<div style="display:flex;flex-direction:column;gap:7px;">' + tous.map(function (p) {
+            var on = !!choisis[p.id], estMoi = p.id === me;
+            return '<button type="button" data-qui="' + esc(p.id) + '" style="display:flex;align-items:center;gap:10px;width:100%;padding:8px 10px;border-radius:12px;cursor:' + (estMoi ? 'default' : 'pointer') + ';font-family:inherit;text-align:left;min-height:auto;'
+              + (on ? 'background:rgba(236,72,153,0.12);border:1.5px solid ' + ROSE + ';' : 'background:rgba(255,255,255,0.03);border:1.5px solid rgba(255,255,255,0.1);opacity:0.7;') + '">'
+              + avatar(p.avatar, 32) + '<span style="flex:1;font-size:0.88em;font-weight:800;color:#f1f5f9;">' + esc(estMoi ? (p.name || 'Toi') + ' (toi)' : (p.name || 'Membre')) + '</span>'
+              + '<span style="width:22px;height:22px;border-radius:7px;display:flex;align-items:center;justify-content:center;' + (on ? 'background:' + ROSE + ';' : 'border:1.5px solid rgba(255,255,255,0.25);') + '">' + (on && window.AwakIcon ? AwakIcon.get('valide', 14, '#fff') : '') + '</span></button>';
+          }).join('') + '</div>'
+        + '<button type="button" data-go style="width:100%;margin-top:14px;padding:13px;border:none;border-radius:13px;cursor:pointer;font-family:inherit;font-weight:900;font-size:0.92em;color:#fff;background:linear-gradient(135deg,#ec4899,#be185d);">C\'est parti · ' + n + ' membre' + (n > 1 ? 's' : '') + '</button>'
+        + '<button type="button" data-annuler style="width:100%;margin-top:8px;padding:10px;border-radius:12px;cursor:pointer;font-family:inherit;font-weight:700;font-size:0.8em;color:#94a3b8;background:transparent;border:1px solid rgba(255,255,255,0.1);min-height:auto;">Annuler</button>'
+        + '</div>';
+      ov.querySelectorAll('[data-qui]').forEach(function (b) {
+        b.onclick = function () { var id = b.getAttribute('data-qui'); if (id === me) return; choisis[id] = !choisis[id]; dessiner(); };
+      });
+      ov.querySelector('[data-go]').onclick = function () { ov.remove(); lancerFamille(tous.filter(function (p) { return choisis[p.id]; }).map(function (p) { return p.id; })); };
+      ov.querySelector('[data-annuler]').onclick = function () { ov.remove(); };
+    }
+    ov.onclick = function (e) { if (e.target === ov) ov.remove(); };
+    dessiner();
+    document.body.appendChild(ov);
+  };
+  function lancerFamille(ids) {
+    var w = seanceFamille(null, ids);
     if (!w.exercises.length) return;
-    // Toute la famille de l'appareil participe (le profil actif mène la séance)
+    // Les membres présents participent (le profil actif mène la séance)
     try {
       if (window.AwakGroup && typeof AwakGroup.setParticipants === 'function') {
         if (typeof AwakGroup.reset === 'function') AwakGroup.reset();
         var me = moi();
-        AwakGroup.setParticipants(profils().filter(function (p) { return p.id !== me; }).map(function (p) {
+        AwakGroup.setParticipants(profils().filter(function (p) { return p.id !== me && ids.indexOf(p.id) >= 0; }).map(function (p) {
           return { kind: 'profile', id: p.id, name: p.name || 'Membre', avatar: p.avatar || '' };
         }));
       }

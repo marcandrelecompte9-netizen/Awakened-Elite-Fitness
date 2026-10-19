@@ -820,6 +820,12 @@ function renderFamilyTab() {
         try { if (window.AwakFamilyWeek) html += window.AwakFamilyWeek.render(); } catch (e) {}
         html += constCard;
         if (_sky) { try { html += _sky.apres(); } catch (e) {} }
+        // v1407 : « Ajouter un membre » reste visible (avant : seulement avec 1 profil —
+        // pour ajouter un 3e ou un 4e membre, il fallait passer par le portrait de l'accueil)
+        if (profileCount < (window.AWAK_MAX_PROFILS || 8)) {
+            html += '<button onclick="if(typeof showCreateProfileModal===\'function\')showCreateProfileModal();else showProfileSelectionModal()" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin:4px 0 12px;padding:11px;border-radius:13px;cursor:pointer;font-family:inherit;font-weight:800;font-size:0.84em;color:#f9a8d4;background:rgba(236,72,153,0.06);border:1px dashed rgba(236,72,153,0.45);min-height:auto;">'
+                + ((window.AwakIcon && AwakIcon.get('groupe', 16, '#f9a8d4')) || '') + 'Ajouter un membre (' + profileCount + ' / ' + (window.AWAK_MAX_PROFILS || 8) + ')</button>';
+        }
     }
 
     // Filet de sécurité

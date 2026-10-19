@@ -116,7 +116,7 @@
       h += dispo.map(function (s) {
         var n = (s.exercises || []).length;
         return ligne({ onclick: "startDisciplineSession('" + d.id + "','" + s.id + "')", ico: s.goal ? 'cible' : 'eclair', couleur: c,
-          nom: propre(s.name), meta: '~' + minutes(s) + ' min · ' + n + ' exercice' + (n > 1 ? 's' : '') + (s.level ? ' · ' + s.level : ''), droite: jouer(c) });
+          nom: propre(s.name), meta: '~' + ((window.awakMinutesDiscipline && awakMinutesDiscipline(d.id, s)) || minutes(s)) + ' min · ' + n + ' exercice' + (n > 1 ? 's' : '') + (s.level ? ' · ' + s.level : ''), droite: jouer(c) });
       }).join('');
       if (verrou.length) {
         var cleL = d.id + ':lock', ouvL = !!_ouvert[cleL];

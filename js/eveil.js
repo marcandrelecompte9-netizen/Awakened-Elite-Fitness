@@ -30,6 +30,17 @@
   'use strict';
 
   var LS_KEY = 'awakEveilJourney';
+  // v1402 : version jeune (questionnaire, quêtes, leçons) pour tout profil de
+  // moins de 18 ans, pas seulement < 13 : un ado de 14 ans ne doit pas se faire
+  // demander s'il a des enfants à la maison ni ses horaires de travail.
+  function _mineur() {
+    try {
+      var Y = window.AwakYouth; if (!Y) return false;
+      if (Y.isChild && Y.isChild()) return true;
+      var a = Y._age ? Y._age() : null;
+      return a !== null && a !== undefined && a < 18;
+    } catch (e) { return false; }
+  }
   var DAY = 24 * 60 * 60 * 1000;
 
   function _get() {
@@ -121,8 +132,7 @@
   function _buildQuests(a) {
     // 🧒 Aiguillage : un profil enfant reçoit ses propres quêtes.
     try {
-      if (window.AwakYouth && typeof window.AwakYouth.isChild === 'function'
-          && window.AwakYouth.isChild()) {
+      if (_mineur()) {
         return _buildQuestsChild();
       }
     } catch (e) {}
@@ -204,7 +214,7 @@
   // 🧒 Renvoie le jeu de leçons adapté à l'âge du profil actif.
   function _lessons() {
     try {
-      if (window.AwakYouth && typeof window.AwakYouth.isChild === 'function' && window.AwakYouth.isChild()) {
+      if (_mineur()) {
         return LESSONS_CHILD;
       }
     } catch (e) {}
@@ -230,6 +240,15 @@
     _toast('🌅 Parcours de l\'Éveil commencé — 4 semaines, on avance ensemble', 'success', 4500);
     _majReglages();
     if (typeof global.updateHomeStats === 'function') global.updateHomeStats();
+  }
+  function eveilAffinerFin(answers) {
+    var j = _get(); if (!j) return;
+    j.answers = answers; j.profilComplet = true;
+    j.quests = _buildQuests(answers);
+    _save(j);
+    _toast('Parcours ajusté à ton quotidien', 'success', 3000);
+    var el = document.getElementById('eveilJourneyCard');
+    if (el) el.innerHTML = eveilRenderHomeCard();
   }
   function eveilStop() {
     var j = _get(); var fini = !!(j && eveilDone(j));
@@ -260,7 +279,7 @@
     localStorage.setItem('awakEveilOffered', '1');
     // v1399/v1400 : proposé aux Débutants seulement (« Nouveau dans l'entraînement ? »).
     // Il reste accessible dans les Réglages.
-    try { var up = typeof global.getUserProfile === 'function' ? (global.getUserProfile() || {}) : {}; if (up.level && up.level !== 'beginner') return; } catch (e) {}   // v1400 : Débutants seulement
+    try { var up = typeof global.getUserProfile === 'function' ? (global.getUserProfile() || {}) : {}; if (up.level && up.level !== 'beginner') return; if ((up.aime || []).indexOf('boxe') >= 0) return; } catch (e) {}   // v1400 : Débutants seulement · v1403 : pas si Boxe cochée (sa semaine de boxe a son propre plan)
     var ov = document.createElement('div');
     ov.id = 'eveilOfferModal';
     ov.style.cssText = 'position:fixed;inset:0;background:rgba(4,6,12,0.88);backdrop-filter:blur(6px);z-index:10050;display:flex;align-items:center;justify-content:center;padding:20px;';
@@ -277,37 +296,46 @@
 
   // ── QUESTIONNAIRE (assistant plein écran, une question à la fois) ──────
   // 🧒 Renvoie le questionnaire adapté à l'âge du profil actif.
-  function _questions() {
+  // v1404 : 4 questions essentielles pour démarrer ; les autres (horaires, enfants,
+  // sommeil, goûts, repas, déclencheur) plus tard, depuis la carte (« Affiner mon parcours »).
+  var ESSENTIELLES = ['exp', 'days', 'sauts', 'moment'];
+  function _questions(mode) {
     try {
-      if (window.AwakYouth && typeof window.AwakYouth.isChild === 'function'
-          && window.AwakYouth.isChild()) {
+      if (_mineur()) {
         return QUESTIONS_CHILD;
       }
     } catch (e) {}
-    return QUESTIONS;
+    if (mode === 'suite') return QUESTIONS.filter(function (q) { return ESSENTIELLES.indexOf(q.id) < 0; });
+    return QUESTIONS.filter(function (q) { return ESSENTIELLES.indexOf(q.id) >= 0; });
+  }
+  function _aAffiner(j) {
+    try { return !!(j && j.active && !_mineur() && !j.profilComplet && !j.answers.kids); } catch (e) { return false; }
   }
 
-  function eveilStartQuestionnaire() {
+  function eveilStartQuestionnaire(mode) {
     var old = document.getElementById('eveilOfferModal'); if (old) old.remove();
     var oldQ = document.getElementById('eveilQuizModal'); if (oldQ) oldQ.remove();
-    var answers = {}; var idx = 0;
+    mode = mode === 'suite' ? 'suite' : '';
+    var j0 = mode ? _get() : null;
+    var answers = mode && j0 ? Object.assign({}, j0.answers || {}) : {}; var idx = 0;
+    var _qs = _questions(mode);
     var ov = document.createElement('div');
     ov.id = 'eveilQuizModal';
     ov.style.cssText = 'position:fixed;inset:0;background:rgba(4,6,12,0.92);backdrop-filter:blur(6px);z-index:10050;display:flex;align-items:center;justify-content:center;padding:20px;';
     document.body.appendChild(ov);
 
     function render() {
-      var Q = _questions()[idx];
+      var Q = _qs[idx];
       var opts = Q.opts.slice();
       // 👨‍👧 Parents de jeunes enfants : le coucher des enfants est souvent
       // LE créneau réaliste — on l'ajoute comme ancre possible.
       if (Q.id === 'anchor' && (answers.kids === 'bebe' || answers.kids === 'enfants')) {
         opts.push(['dodo-enfants', '🌙 Le coucher des enfants']);
       }
-      var pct = Math.round(idx / _questions().length * 100);
+      var pct = Math.round(idx / _qs.length * 100);
       ov.innerHTML = '<div style="max-width:400px;width:100%;background:linear-gradient(165deg,#0F1014,#141826);border:1px solid rgba(168,85,247,0.3);border-radius:20px;padding:24px 22px;">'
         + '<div style="height:5px;background:rgba(255,255,255,0.07);border-radius:4px;overflow:hidden;margin-bottom:18px;"><div style="height:100%;width:' + pct + '%;background:linear-gradient(90deg,#a855f7,#7c3aed);border-radius:4px;transition:width 0.3s;"></div></div>'
-        + '<div style="font-size:0.68em;color:#a855f7;font-weight:800;letter-spacing:1px;margin-bottom:6px;">QUESTION ' + (idx + 1) + ' / ' + _questions().length + '</div>'
+        + '<div style="font-size:0.68em;color:#a855f7;font-weight:800;letter-spacing:1px;margin-bottom:6px;">QUESTION ' + (idx + 1) + ' / ' + _qs.length + '</div>'
         + '<h3 style="margin:0 0 16px;color:#fff;font-size:1.02em;line-height:1.35;">' + Q.q + '</h3>'
         + '<div style="display:grid;gap:9px;">'
         + opts.map(function (o) {
@@ -320,7 +348,10 @@
         b.onclick = function () {
           answers[Q.id] = b.getAttribute('data-val');
           idx++;
-          if (idx >= _questions().length) { ov.remove(); eveilStart(answers); }
+          if (idx >= _qs.length) {
+            ov.remove();
+            if (mode === 'suite') eveilAffinerFin(answers); else eveilStart(answers);
+          }
           else render();
         };
       });
@@ -760,12 +791,13 @@
       + (!mood
           ? '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:9px 11px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.09);border-radius:11px;">'
             + '<span style="flex:1;font-size:0.76em;color:#cbd5e1;font-weight:700;">Comment tu te sens aujourd\'hui ?</span>'
-            + '<button onclick="awakEveilSetMood(\'good\')" style="background:none;border:1px solid rgba(255,255,255,0.14);border-radius:9px;font-size:1.15em;padding:4px 8px;cursor:pointer;">😊</button>'
-            + '<button onclick="awakEveilSetMood(\'mid\')" style="background:none;border:1px solid rgba(255,255,255,0.14);border-radius:9px;font-size:1.15em;padding:4px 8px;cursor:pointer;">😐</button>'
-            + '<button onclick="awakEveilSetMood(\'tired\')" style="background:none;border:1px solid rgba(255,255,255,0.14);border-radius:9px;font-size:1.15em;padding:4px 8px;cursor:pointer;">🥱</button>'
+            + '<button onclick="awakEveilSetMood(\'good\')" aria-label="Bien" title="Bien" style="background:none;border:1px solid rgba(255,255,255,0.14);border-radius:9px;padding:5px 7px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:44px;color:#cbd5e1;font-size:0.62em;font-weight:700;">' + _ico('soleil', 18) + 'Bien</button>'
+            + '<button onclick="awakEveilSetMood(\'mid\')" aria-label="Moyen" title="Moyen" style="background:none;border:1px solid rgba(255,255,255,0.14);border-radius:9px;padding:5px 7px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:44px;color:#cbd5e1;font-size:0.62em;font-weight:700;">' + _ico('valide', 18) + 'Moyen</button>'
+            + '<button onclick="awakEveilSetMood(\'tired\')" aria-label="Fatigué" title="Fatigué" style="background:none;border:1px solid rgba(255,255,255,0.14);border-radius:9px;padding:5px 7px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:44px;color:#cbd5e1;font-size:0.62em;font-weight:700;">' + _ico('repos', 18) + 'Fatigué</button>'
             + '</div>'
           : '')
       + sessionHTML
+      + (_aAffiner(j) ? '<button onclick="awakEveilStartQuestionnaire(\'suite\')" style="display:flex;align-items:center;gap:9px;width:100%;margin-top:10px;padding:10px 12px;border-radius:11px;cursor:pointer;background:rgba(168,85,247,0.07);border:1px solid rgba(168,85,247,0.3);color:#e9d5ff;font-size:0.78em;font-weight:800;text-align:left;font-family:inherit;min-height:auto;">' + _ico('crayon', 16) + '<span style="flex:1;">Affiner mon parcours<span style="display:block;font-weight:600;color:#c4b5fd;font-size:0.9em;margin-top:2px;">7 questions sur ton quotidien : horaires, sommeil, repas</span></span><span>›</span></button>' : '')
       + '<div style="font-size:0.66em;color:#94a3b8;font-weight:800;letter-spacing:1px;margin:13px 0 8px;">📋 MES HABITUDES DU JOUR</div>'
       + questHTML
       + '<div onclick="awakEveilToggleLesson()" style="margin-top:11px;padding:10px 12px;background:rgba(251,191,36,0.05);border:1px solid rgba(251,191,36,0.22);border-radius:11px;cursor:pointer;">'

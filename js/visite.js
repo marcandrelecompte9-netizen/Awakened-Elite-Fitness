@@ -174,7 +174,7 @@
   // (l'onglet Jeu, lui, n'existe pas avant 13 ans). 13 à 15 ans : version adulte.
   var VISITES_ENFANT = {
     home: [
-      { c: function () { return $('#ahpEntete .ahp-cta') || $('#homeTab .ahp-btn-p'); }, t: 'C\'est parti !', d: 'Touche ici pour bouger : l\'appli choisit des exercices faits pour toi.' },
+      { c: function () { return $('#ahpEntete .ahp-cta:not(.ahp-cta-s)') || $('#homeTab .ahp-btn-p'); }, t: 'C\'est parti !', d: 'Touche ici pour bouger : l\'appli choisit des exercices faits pour toi.' },
       { c: boutonProfil, t: 'Ton profil', d: 'Touche ton image pour passer au profil de quelqu\'un d\'autre. Vérifie que c\'est bien toi avant de bouger ! Pour changer ton nom ou ton âge, demande à un adulte.' },
       { c: function () { return $('#youthSafetyBanner'); }, t: 'Avec un adulte', d: 'Fais tes exercices avec un adulte pas loin. Si quelque chose fait mal, tu arrêtes et tu le dis.' },
       { c: function () { return $('#groupWorkoutBtnContainer button'); }, t: 'À plusieurs', d: 'Bouge en même temps que ta famille ou tes amis, sur le même téléphone : chacun a ses séries.' },
@@ -239,8 +239,19 @@
       return !!(p && p.setupComplete);
     } catch (e) { return false; }
   }
+  function affiche(id) {
+    try {
+      var el = document.getElementById(id); if (!el || el.classList.contains('hidden')) return false;
+      var cs = getComputedStyle(el), r = el.getBoundingClientRect();
+      return cs.display !== 'none' && cs.visibility !== 'hidden' && r.height > 0 && r.width > 0;
+    } catch (e) { return false; }
+  }
   function ecranLibre() {
     if (document.body.classList.contains('in-session')) return false;
+    // v1404 : écran « Prépare-toi » d'une séance lancée (ex. depuis l'accueil) → pas de visite par-dessus
+    // v1407 : test d'affichage réel (offsetParent vaut null pour un élément en position fixe :
+    // l'écran de fin passait pour caché et la visite s'ouvrait par-dessus)
+    if (affiche('preparationView') || affiche('completionView')) return false;
     // v1300 : le Parcours de l'Éveil va être proposé (fin d'inscription) : on attend
     // qu'il soit proposé, accepté ou refusé, puis on montre l'accueil tel qu'il est.
     try { if (localStorage.getItem(window._cleProfil ? window._cleProfil('awakEveilPlusTard') : 'awakEveilPlusTard') === '1') return false; } catch (e) {}
@@ -347,7 +358,17 @@
     enCours = { onglet: onglet, ov: ov };
     var spot = ov.querySelector('#awakVisiteSpot'), bulle = ov.querySelector('#awakVisiteBulle');
 
+    // v1407 : une fenêtre s'ouvre pendant la visite (liste des profils, écran de fin…) →
+    // la visite se met en retrait et revient quand l'écran est de nouveau libre
+    var garde = setInterval(function () {
+      if (!document.body.contains(ov)) { clearInterval(garde); return; }
+      var libre = ecranLibre();
+      ov.style.visibility = libre ? '' : 'hidden';
+      ov.style.pointerEvents = libre ? '' : 'none';
+      if (libre) placer();
+    }, 400);
     function fin() {
+      clearInterval(garde);
       marquer(onglet);
       window.removeEventListener('resize', placer);
       window.removeEventListener('scroll', placer, true);

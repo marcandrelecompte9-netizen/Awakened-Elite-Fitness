@@ -119,6 +119,8 @@
   function prep(workout) {
     etat = { humeur: null, cardio: 0 };
     _calme = !!(workout && /^(yoga|pilates|serenite|mobilite)$/.test(workout._discipline || ''));
+    // v1403 : la séance commence déjà par un échauffement (ex. boxe « Échauffement & garde ») → pas de cardio en plus
+    try { var _e0 = workout && workout.exercises && workout.exercises[0]; if (_e0 && (/chauffement|mise en route/i.test(_e0.name || '') || _e0.isWarmup || _e0.type === 'warmup')) _calme = true; } catch (e) {}   // v1407 : + échauffements étiquetés (Bouger ensemble)
     // ⌚ v1232 : nuit courte mesurée par la montre → « Fatigué » présélectionné
     try {
       var nc = window.AwakSante && AwakSante.nuitCourte && AwakSante.nuitCourte();

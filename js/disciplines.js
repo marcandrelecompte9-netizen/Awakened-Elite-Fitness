@@ -121,7 +121,7 @@
       name: "Échauffement & garde", muscle: "Cardio", difficulty: "Débutant",
       type: "exercise", equipment: ["Poids du corps"], mode: "timer", discipline: "boxe",
       description: "Mise en route articulaire et mise en garde.",
-      instructions: ["Rotations épaules et poignets", "Pieds largeur d'épaules, pied avant en avant", "Mains hautes, coudes serrés, menton rentré", "Petits sautillements pour rester léger"],
+      instructions: ["Rotations épaules et poignets", "Pieds largeur d'épaules : pied gauche devant si tu es droitier, pied droit devant si tu es gaucher", "Mains hautes, coudes serrés, menton rentré", "Petits sautillements pour rester léger"],
       tips: "La garde haute protège le menton dès le départ.", duration: 180
     },
     {
@@ -146,14 +146,14 @@
       tips: "Garde le rythme : 1-2-3 puis remise en garde.", duration: 120
     },
     {
-      name: "Crochets gauche-droite", muscle: "Épaules", difficulty: "Intermédiaire",
+      name: "Crochets gauche-droite", muscle: "Épaules", difficulty: "Débutant",
       type: "exercise", equipment: ["Poids du corps"], mode: "timer", discipline: "boxe",
       description: "Alternance de crochets en pivotant le buste.",
       instructions: ["Crochet bras avant, coude à hauteur d'épaule", "Crochet bras arrière en pivotant la hanche", "Reste compact, ne télégraphie pas le coup", "Souffle sur chaque impact"],
       tips: "Le mouvement part des jambes et des hanches.", duration: 90
     },
     {
-      name: "Uppercuts", muscle: "Épaules", difficulty: "Intermédiaire",
+      name: "Uppercuts", muscle: "Épaules", difficulty: "Débutant",
       type: "exercise", equipment: ["Poids du corps"], mode: "timer", discipline: "boxe",
       description: "Coups remontants, alternés.",
       instructions: ["Fléchis légèrement les genoux", "Remonte le poing du bas vers le haut", "Pousse sur la jambe du même côté", "Garde l'autre main en protection"],
@@ -262,7 +262,9 @@
       name: 'Shadow — Sans matériel',
       level: 'Débutant',
       rest: 60,                 // repos entre rounds (1 min, standard boxe)
-      exercises: BOXE_EXERCISES
+      // v1403 : premier cours = coups de base seulement (garde, appuis, 1-2, crochets,
+      // uppercuts, shadow). Les combos 1-2-3, esquives et burpees vont aux séances suivantes.
+      exercises: ['Échauffement & garde', 'Déplacements (footwork)', 'Jab – Cross (1-2)', 'Crochets gauche-droite', 'Uppercuts', 'Shadow Boxing'].map(function (n) { return BOXE_EXERCISES.filter(function (e) { return e.name === n; })[0]; })
     },
     // v1353 : court, sans matériel — rounds de 30 à 60 s, repos 30 s
     { id: 'cardio15', name: 'Cardio boxe express', level: 'Débutant', rest: 30,
@@ -615,7 +617,7 @@
   /* ---- Paliers intermédiaires (Niv. 2 « Intermédiaire » et Niv. 5 « Confirmé ») ---- */
   // Lissent la progression entre débutant (1), avancé (3) et élite (6).
   var BOXE_INTER = [
-    _dx('boxe', "Échauffement & garde", "Cardio", "Mets-toi en garde et bouge pour t'échauffer.", ["Pieds largeur d'épaules, pied avant devant", "Poings près du menton (la garde)", "Sautille légèrement, reste mobile", "Rotations d'épaules, respire"], "Reste léger sur les appuis.", 90),
+    _dx('boxe', "Échauffement & garde", "Cardio", "Mets-toi en garde et bouge pour t'échauffer.", ["Pieds largeur d'épaules : pied gauche devant (droitier), pied droit devant (gaucher)", "Poings près du menton (la garde)", "Sautille légèrement, reste mobile", "Rotations d'épaules, respire"], "Reste léger sur les appuis.", 90),
     _dx('boxe', "Jab – Cross – Jab (1-2-1)", "Épaules", "Trois directs : jab, cross, jab.", ["1 = jab (bras avant), 2 = cross (bras arrière), 1 = jab", "Pivote les hanches sur le cross", "Reviens en garde", "Rythme régulier"], "Garde l'équilibre entre chaque coup.", 90, "Intermédiaire"),
     _dx('boxe', "Jab – Crochet (1-3)", "Épaules", "Un direct avant puis un crochet avant.", ["1 = jab (direct bras avant)", "3 = crochet avant (coude à hauteur d'épaule)", "Pivote le buste sur le crochet", "Remets-toi en garde"], "Le crochet part de la hanche.", 90, "Intermédiaire"),
     _dx('boxe', "Esquive + Jab-Cross", "Corps entier", "Esquive un coup, puis riposte jab-cross.", ["Slip = incline le buste pour éviter le coup", "Riposte jab (1) - cross (2)", "Replace-toi en garde", "Yeux devant"], "Esquive puis frappe sans délai.", 90, "Intermédiaire"),
@@ -1036,7 +1038,7 @@
     boxe: {
       about: "La boxe développe le cardio, la coordination et la puissance, sans aucun matériel : tu frappes dans le vide (shadow boxing) en soignant la technique.",
       howItWorks: "Les séances s'enchaînent en rounds chronométrés, sur le modèle de la boxe : des phases d'effort entrecoupées d'environ une minute de récupération. Plus ta Voie de l'Arène monte en niveau, plus des séances avancées (défense, combos, élite) se débloquent. Pas le temps ? « Cardio boxe express » tient en une dizaine de minutes. Tu as un sac de frappe ? Coche-le dans ton matériel : la séance « Sac de frappe » apparaît.",
-      principles: ["Garde toujours les mains hautes et le menton rentré.", "La puissance vient des hanches et des appuis, pas des bras.", "Privilégie une technique nette plutôt que la vitesse au début.", "Reviens en garde après chaque coup."],
+      principles: ["Les chiffres des coups : 1 jab (direct bras avant), 2 cross (direct bras arrière), 3 crochet avant, 4 crochet arrière, 5 uppercut avant, 6 uppercut arrière.", "Droitier : pied gauche et poing gauche devant. Gaucher : l'inverse, pied droit devant.", "Garde toujours les mains hautes et le menton rentré.", "La puissance vient des hanches et des appuis, pas des bras.", "Privilégie une technique nette plutôt que la vitesse au début.", "Reviens en garde après chaque coup."],
       frequency: "2 à 3 fois par semaine, en laissant des jours plus légers entre les séances intenses."
     },
     calisthenie: {

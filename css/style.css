@@ -8089,6 +8089,8 @@ body.dark-mode .nav-tab.active {
 #mobileNavBar #settingsNavTab,
 #mobileNavBar #gameNavTab { display: none !important; }
 #mobileNavBar #moreNavTab { order: 100; }
+/* v1404 : mode Aventure → Jeu devient le 6e onglet (avant Plus) */
+body.awk-jeu-on #mobileNavBar #gameNavTab { display: flex !important; order: 99; }
 #mobileNavBar .nav-tab { font-size: 0.66em !important; }
 #mobileNavBar .nav-tab svg { width: 22px !important; height: 22px !important; }
 /* v1319 : barre Libre · Routines · Programme · Course · Défis — tient en entier

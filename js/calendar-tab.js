@@ -180,7 +180,13 @@
     var routines = routinesFor(id);
     var actif = pref === 'routine' ? null : activePlanFor(id);
 
+    // v1407 : jours « en famille » (onglet Famille) → « Bouger ensemble » chez chaque membre
+    var _fam = null; try { _fam = window.AwakFamJours ? window.AwakFamJours.get() : null; } catch (e) {}
     JOURS.forEach(function (d, i) {
+      if (_fam && _fam.jours.indexOf(i) >= 0) {
+        out[d] = { muscles: ['Corps entier'], label: 'Bouger ensemble', heure: _fam.heure || null, source: 'famille', famille: true };
+        return;
+      }
       // ① routine assignée à ce jour
       var rid = assign && assign[d];
       if (rid) {
@@ -234,7 +240,8 @@
     routine: { txt: 'ROUTINE', col: '#22d3ee' },
     manuel:  { txt: 'MANUEL',  col: '#60a8f0' },
     plan:    { txt: 'PLAN',    col: '#c084fc' },
-    programme: { txt: 'PROGRAMME', col: '#fbbf24' }
+    programme: { txt: 'PROGRAMME', col: '#fbbf24' },
+    famille: { txt: 'FAMILLE', col: '#ec4899' }
   };
   function sourceChip(src) {
     var m = SOURCES[src];

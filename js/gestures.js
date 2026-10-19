@@ -258,7 +258,7 @@
     if (onb) {
       if (dansDefilementH(c, onb)) return;
       try {
-        if (sens > 0) { if (onb.querySelector('[onclick="window._premOnbNext()"]') && window._premOnbNext) window._premOnbNext(); }
+        if (sens > 0) { if ((onb.querySelector('[onclick="window._premOnbNext()"]') || onb.querySelector('[onclick^="window._premOnbVient"]')) && window._premOnbNext) window._premOnbNext(); }
         else if (window._premOnbPrev) window._premOnbPrev();
       } catch (er) {}
       return;
