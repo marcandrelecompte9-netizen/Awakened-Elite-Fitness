@@ -971,6 +971,28 @@
           hist[0].distanceKm = +(s.distance / 1000).toFixed(2);
           hist[0].calories = Math.round(kg * (s.distance / 1000) * f);
           hist[0].gpsRunId = s.id;
+          // v1409 : une course fatigue les JAMBES (avant : « Cardio » seulement → après 28 km,
+          // les jambes passaient pour reposées et une grosse séance de jambes tombait le lendemain)
+          try {
+            var dk = s.distance / 1000;
+            var vol = s.type === 'course' ? (dk < 6 ? 2 : dk < 15 ? 4 : dk < 25 ? 8 : 10) : (s.type === 'velo' ? (dk < 20 ? 2 : 4) : (dk < 8 ? 0 : 2));
+            if (vol) {
+              var J = s.type === 'velo' ? { 'Quadriceps': 1, 'Fessiers': 0.6, 'Mollets': 0.4 } : { 'Quadriceps': 1, 'Mollets': 1, 'Ischio-jambiers': 0.7, 'Fessiers': 0.6 };
+              hist[0].musclesWeighted = Object.assign({ 'Cardio': 1 }, J);
+              hist[0].musclesWorked = ['Cardio'].concat(Object.keys(J));
+              var cleT = 'muscleRecoveryTracking';
+              var tr = {}; try { tr = JSON.parse((pid && typeof getProfileData === 'function' ? getProfileData(pid, cleT) : localStorage.getItem(cleT)) || '{}') || {}; } catch (e2) {}
+              var maint = new Date().toISOString();
+              Object.keys(J).forEach(function (m) {
+                var v = Math.round(vol * J[m] * 10) / 10;
+                var o = tr[m] || { muscle: m, workoutCount: 0 };
+                o.lastWorked = maint; o.workoutCount = (o.workoutCount || 0) + 1; o.volume = v;
+                tr[m] = o;
+              });
+              if (pid && typeof setProfileData === 'function') setProfileData(pid, cleT, JSON.stringify(tr));
+              else localStorage.setItem(cleT, JSON.stringify(tr));
+            }
+          } catch (e1) {}
           var json = JSON.stringify(hist);
           if (pid && typeof setProfileData === 'function') setProfileData(pid, 'workoutHistory', json);
           else localStorage.setItem('workoutHistory', json);
@@ -1101,6 +1123,6 @@
     lancer: function (type, cfg) { var h = document.getElementById('awakRunHome'); if (h) h.remove(); if (!R) demarrer(type, cfg); },
     _duree: function () { return duree(); },
     actif: function () { return !!R; },
-    _test: { surPosition: surPosition, demarrer: demarrer, terminer: terminer, etat: function () { return R; }, instantane: instantane, verifier: verifierInterrompue }
+    _test: { enregistrer: enregistrerSeance, surPosition: surPosition, demarrer: demarrer, terminer: terminer, etat: function () { return R; }, instantane: instantane, verifier: verifierInterrompue }
   };
 })();

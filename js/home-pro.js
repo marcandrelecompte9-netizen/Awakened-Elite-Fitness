@@ -328,6 +328,11 @@
     // Éveil qui proposait la séance du jour — deux messages contraires.
     var ev = null; try { ev = window.awakEveilAujourdhui ? window.awakEveilAujourdhui() : null; } catch (e) {}
     var runP = null; try { runP = (!ev && window.AwakCoachRun && AwakCoachRun.aujourdhui) ? AwakCoachRun.aujourdhui() : null; } catch (e) {}
+    // v1409 : semaine HYBRIDE (course + muscu) → c'est le jour du plan qui décide. La sortie
+    // du plan de course n'est l'objectif que les jours de course (avant : tous les jours,
+    // et les jours de muscu disparaissaient de l'accueil).
+    var _hyb = false; try { _hyb = Object.keys(pl.plan || {}).some(function (k) { return pl.plan[k] && pl.plan[k].hybride; }); } catch (e) {}
+    if (runP && _hyb && !(auj && auj.s && auj.s.discipline === 'course')) runP = null;
     if (ev) {
       if (ev.seance && !ev.faite) {
         titre = ev.titre;
@@ -406,7 +411,7 @@
     // v1400 : aime la course, pas encore de plan → raccourci vers le plan (même sans courir encore)
     try {
       var _aimeC = ((typeof getUserProfile === 'function' ? getUserProfile() : {}) || {}).aime || [];
-      if (!ev && !runP && _aimeC.indexOf('course') >= 0 && window.AwakCoachRun && AwakCoachRun.creerPlanUI && !(AwakCoachRun.lePlan && AwakCoachRun.lePlan()))
+      if (!ev && !runP && (_aimeC.indexOf('course') >= 0 || ((typeof getUserProfile === 'function' ? getUserProfile() : {}) || {}).goal === 'hybride') && window.AwakCoachRun && AwakCoachRun.creerPlanUI && !(AwakCoachRun.lePlan && AwakCoachRun.lePlan()))
         bouton += '<button onclick="switchTab(\'course\');setTimeout(function(){AwakCoachRun.creerPlanUI()},200)" style="display:block;width:100%;margin-top:8px;min-height:auto;padding:9px;border-radius:11px;cursor:pointer;font-family:inherit;font-weight:800;font-size:0.8em;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.4);color:#fde68a;">Créer mon plan de course (5 km au marathon)</button>';
     } catch (e) {}
     return '<div class="ahp-card" style="padding:16px 16px 12px;">' +
@@ -460,7 +465,9 @@
     var evS = null; try { evS = window.awakEveilAujourdhui ? window.awakEveilAujourdhui() : null; } catch (e) {}
     var runS = null; try { runS = (!evS && window.AwakCoachRun && AwakCoachRun.aujourdhui) ? AwakCoachRun.aujourdhui() : null; } catch (e) {}
     // v1400 : plan de course → ses sorties de la semaine sont l'objectif
-    var visee2 = evS ? evS.parSemaine : (runS ? runS.total : (prevues || objectifHebdo())), fait2 = total, reste = visee2 - fait2;
+    // v1409 : semaine hybride → toutes les séances prévues (courses + muscu), pas seulement les sorties
+    var _hybS = false; try { var _plS = planning((typeof getCurrentProfileId === 'function') ? getCurrentProfileId() : null); _hybS = Object.keys(_plS.plan || {}).some(function (k) { return _plS.plan[k] && _plS.plan[k].hybride; }); } catch (e) {}
+    var visee2 = evS ? evS.parSemaine : ((runS && !_hybS) ? runS.total : (prevues || objectifHebdo())), fait2 = total, reste = visee2 - fait2;
     var sous = reste <= 0 ? 'Objectif atteint' : (reste === 1 ? 'Plus qu\'une pour l\'objectif' : 'Encore ' + reste + ' pour l\'objectif');
     var t2 = tuile('calendrier', '#a78bfa', 'CETTE SEMAINE', Math.min(fait2, 99) + ' / ' + visee2 + ' séance' + (visee2 > 1 ? 's' : ''),
       '<div style="display:flex;justify-content:space-between;margin:9px 0 2px;">' + points + '</div>', sous, 'switchTab(\'calendar\')');

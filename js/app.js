@@ -6462,7 +6462,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             endurance: { name: "Endurance", icon: "🏃", restDays: 1, intensity: "moderate" },
             strength: { name: "Force", icon: "🏋️", restDays: 2, intensity: "high" },
             fitness: { name: "Forme générale", icon: "⚡", restDays: 1, intensity: "moderate" },
-            flexibility: { name: "Souplesse", icon: "🧘", restDays: 1, intensity: "low" }
+            flexibility: { name: "Souplesse", icon: "🧘", restDays: 1, intensity: "low" },
+            hybride: { name: "Course + muscle", icon: "🏃", restDays: 1, intensity: "high" }   // v1409 : marathon ET muscle
         };
         
         const userLevels = {
@@ -6644,6 +6645,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 endurance:   { sets:[2,3], reps:'15-20', rest:40  },
                 weight_loss: { sets:[3,3], reps:'12-15', rest:35  },
                 fitness:     { sets:[3,3], reps:'10-12', rest:60  },
+                hybride:     { sets:[3,4], reps:'6-10',  rest:90  },   // v1409 : force-hypertrophie compatible avec la course
             };
             const base = S[goal] || S.fitness;
             let sets = base.sets[level === 'advanced' ? 1 : 0];
@@ -8279,9 +8281,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // v1339 : CONTRÔLE FINAL des règles pour toute séance générée (pas les routines
             // composées à la main, ni l'Éveil qui a sa propre adaptation).
             try {
-                if (workout && Array.isArray(workout.exercises) && !workout.fromRoutine && !workout._eveil) {
-                    const _rg = awakAppliquerRegles(workout.exercises);
-                    if ((_rg.adaptes || _rg.retires) && _rg.exercises.some(x => x && !x.isRest && !x.isInfo)) {
+                // v1408 : les routines aussi, pour ce que le corps interdit (une routine faite
+                // avant une nouvelle limitation gardait le développé militaire)
+                if (workout && Array.isArray(workout.exercises) && !workout._eveil) {
+                    const _rg = awakAppliquerRegles(workout.exercises, { corps: !!workout.fromRoutine });
+                    if (_rg.adaptes || _rg.retires) {
                         workout = { ...workout, exercises: _rg.exercises };
                         const _n = _rg.adaptes + _rg.retires;
                         setTimeout(() => { try { showToast(_n + ' exercice' + (_n > 1 ? 's' : '') + ' adapté' + (_n > 1 ? 's' : '') + ' (' + _rg.raisons.join(', ') + ')', 'info', 3500); } catch (e) {} }, _awakEnfantAdapte ? 4500 : 1600);
@@ -10327,7 +10331,38 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // Même calcul que l'accueil : tout jour non « repos » avec des muscles compte
             // (avant : les jours « low » étaient exclus ici mais comptés à l'accueil → 0 / 5 pour un rythme de 4)
             const _actifs = pl => pl.filter(j => j.intensity !== 'rest' && j.muscles && j.muscles.length).length;
-            if (profile.goal === 'endurance') {
+            const _aimeH = profile.aime || [];
+            const _hybride = profile.goal === 'hybride'
+                || (_aimeH.indexOf('course') >= 0 && (_aimeH.indexOf('muscu') >= 0 || _aimeH.indexOf('machines') >= 0) && ['flexibility'].indexOf(profile.goal) < 0);
+            if (_hybride) {
+                // v1409 : SEMAINE HYBRIDE course + muscu (avant : Prise de masse = zéro course,
+                // Endurance = un seul renfo). Règles : jamais de jambes lourdes la veille de la
+                // qualité ni de la sortie longue ; le haut du corps les jours voisins des courses ;
+                // un vrai jour de repos.
+                const T = {
+                    MB: { focus: 'Muscu · bas du corps', muscles: ['Quadriceps', 'Ischio-jambiers', 'Fessiers', 'Mollets', 'Abdominaux'] },
+                    MH: { focus: 'Muscu · haut du corps', muscles: ['Pectoraux', 'Dos', 'Épaules', 'Biceps', 'Triceps'] },
+                    MH2: { focus: 'Muscu · haut du corps et gainage', muscles: ['Dos', 'Épaules', 'Pectoraux', 'Abdominaux', 'Obliques'] },
+                    MC: { focus: 'Muscu · corps entier', muscles: ['Pectoraux', 'Dos', 'Quadriceps', 'Épaules', 'Abdominaux'] },
+                    RQ: { focus: 'Course · qualité', discipline: 'course', session: 'fractionne', muscles: ['Cardio'] },
+                    RF: { focus: 'Course · footing facile', discipline: 'course', session: 'footing', muscles: ['Cardio'] },
+                    RL: { focus: 'Course · sortie longue', discipline: 'course', session: 'footing', muscles: ['Cardio'] }
+                };
+                const _S = {
+                    2: [null, null, 'MC', null, null, 'RL', null],
+                    // jambes le MERCREDI : 24 h après la qualité (mardi), 72 h avant la sortie longue (samedi)
+                    3: [null, 'RQ', 'MC', null, null, 'RL', null],
+                    4: [null, 'RQ', 'MC', 'RF', null, 'RL', null],
+                    5: ['MH', 'RQ', 'MB', 'RF', null, 'RL', null],
+                    6: ['MH', 'RQ', 'MB', 'RF', 'MH2', 'RL', null]
+                }[_freq];
+                plans = [_JOURS.map((d, i) => {
+                    const k = _S[i];
+                    if (!k) return { day: d, focus: 'Repos', intensity: 'rest', muscles: [] };
+                    const t = T[k];
+                    return { day: d, focus: t.focus, intensity: k === 'RL' || k === 'RQ' ? 'high' : 'moderate', muscles: t.muscles.slice(), discipline: t.discipline, session: t.session, hybride: true };
+                })];
+            } else if (profile.goal === 'endurance') {
                 // v1400 : Endurance = course (avant : plan de musculation générique)
                 const _C = {
                     3: ['facile', 'fractionne', 'longue'],
@@ -13332,8 +13367,21 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const _ok = availableExercises.filter(ex => !awakRaisonRefus(ex));
                 if (_ok.length >= 3) availableExercises = _ok;
                 else {
+                    // v1408 : on n'ignore JAMAIS les limitations (avant : s'il ne restait rien,
+                    // la liste d'origine, interdits compris, était gardée). Peu de choix pour ces
+                    // muscles → on élargit aux autres exercices PERMIS avec le matériel disponible.
                     const _ok2 = availableExercises.filter(ex => !awakRaisonRefus(ex, { sansNiveau: true }));
-                    if (_ok2.length) availableExercises = _ok2;
+                    let _plus = [];
+                    if (_ok2.length < 3) {
+                        try {
+                            const _dispo = getSelectedEquipmentNames();
+                            const _vus = new Set(_ok2.map(e => e.name));
+                            _plus = exerciseDatabase.filter(e => e && !e.discipline && (e.type || 'exercise') === 'exercise' && !_vus.has(e.name)
+                                && (typeof awakEquipmentOk !== 'function' || awakEquipmentOk(e, _dispo)) && !awakRaisonRefus(e, { sansNiveau: true }))
+                                .sort(() => Math.random() - 0.5).slice(0, 12);   // tirage : pas toujours les mêmes
+                        } catch (e) {}
+                    }
+                    availableExercises = _ok2.concat(_plus);
                 }
             } catch (e) {}
 
@@ -13485,7 +13533,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 
                 // ✅ ENHANCED: Auto-adjust difficulty based on performance
                 // If consistently easy (3+ times), increase difficulty
-                if (performance.level === 'easy' && performance.history && 
+                if (performance.level === 'easy' && performance.history && !(window.AwakLimitations && AwakLimitations.maintien && AwakLimitations.maintien()) &&   // v1408 : pas en mode « garder mes capacités »
                     performance.history.slice(-3).every(h => h.difficulty <= 2)) {
                     
                     // Check if there's a harder variant available
@@ -16000,12 +16048,16 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // Contrôle final d'une séance générée : chaque exercice non permis est remplacé
         // (ou retiré s'il n'a pas d'équivalent), puis les repos orphelins sont nettoyés.
         // Retourne { exercises, adaptes, retires, raisons }.
-        function awakAppliquerRegles(exercises) {
+        // opts.corps : routines composées à la main → seulement ce que le CORPS interdit
+        // (limitations, douleurs, âge), pas les préférences (niveau, exercices bannis…).
+        function awakAppliquerRegles(exercises, opts) {
+            opts = opts || {};
             const pris = {}; const raisons = {}; let adaptes = 0, retires = 0;
             (exercises || []).forEach(e => { if (e && e.name) pris[e._baseName || e.name] = 1; });
             const out = [];
             (exercises || []).forEach(ex => {
-                const r = awakRaisonRefus(ex);
+                let r = awakRaisonRefus(ex);
+                if (r && opts.corps && ['limitations', 'douleurs', 'âge'].indexOf(r) < 0) r = null;
                 if (!r) { out.push(ex); return; }
                 raisons[r] = 1;
                 const rep = awakRemplacantPermis(ex, pris);
@@ -16020,6 +16072,18 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 out.push(n);
             });
             const reel = x => x && !x.isRest && !x.isInfo;
+            // v1408 : tout a été retiré → des exercices PERMIS, toutes régions confondues
+            // (avant : la séance d'origine, interdits compris, était gardée)
+            if (retires && !out.some(reel)) {
+                try {
+                    const _dispo = getSelectedEquipmentNames();
+                    const c = exerciseDatabase.filter(e => e && !e.discipline && (e.type || 'exercise') === 'exercise' && !pris[e.name]
+                        && (typeof awakEquipmentOk !== 'function' || awakEquipmentOk(e, _dispo)) && !awakRaisonRefus(e, { sansNiveau: true }))
+                        .sort(() => Math.random() - 0.5).slice(0, 3);
+                    const modele = (exercises || []).find(reel) || {};
+                    c.forEach(e => { const n = JSON.parse(JSON.stringify(e)); ['sets', 'reps', 'mode', 'duration', 'repos'].forEach(k => { if (modele[k] != null) n[k] = modele[k]; }); n._adapteDe = modele.name; out.push(n); adaptes++; });
+                } catch (e) {}
+            }
             const propre = out.filter((x, i, a) => {
                 if (!x || !x.isRest) return true;
                 if (!a.slice(0, i).some(reel) || !a.slice(i + 1).some(reel)) return false;
@@ -22747,6 +22811,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             });
             const history = Object.keys(parJour).map(k => parJour[k]).sort((x, y) => new Date(x.date) - new Date(y.date));
             if (history.length < 3) return null;
+            // v1408 : mode « garder mes capacités » (condition qui évolue) → jamais plus lourd
+            try { if (window.AwakLimitations && AwakLimitations.maintien && AwakLimitations.maintien()) return null; } catch (e) {}
             // Dernière séance jugée « trop dure » : on ne pousse pas plus lourd
             try { const rs = JSON.parse(localStorage.getItem(window._cleProfilLecture ? window._cleProfilLecture('awakRessenti') : 'awakRessenti') || 'null'); if (rs && rs.val === 'dur' && Date.now() - rs.t < 10 * 86400000) return null; } catch (e) {}
 
@@ -23603,7 +23669,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1407);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1409);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -23655,7 +23721,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 +       '<rect width="5" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.22"/>'
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1407" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1409" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -29138,7 +29204,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1407");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1409");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -33626,7 +33692,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1407);'
+                +     'url(images/combat_bg_v1.webp?v=1409);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -33924,7 +33990,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1407);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1409);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -34196,7 +34262,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:540px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto;display:flex;flex-direction:column;">
                 <!-- Header : vague actuelle -->
-                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1407);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1409);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                         <span style="font-size:0.6em;color:${theme.color};font-weight:900;letter-spacing:2px;">⚔ VAGUE ${rift.currentWaveIdx + 1} / ${rift.waves.length}${currentWave.isBoss ? ' · BOSS' : ''}</span>
                         <button onclick="awakAbandonRift()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
@@ -35326,7 +35392,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1407');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1409');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -36063,7 +36129,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1407);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1409);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -36234,7 +36300,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1407);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1409);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -47346,7 +47412,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
               // v1393 : hauteur réservée (aspect-ratio) — sinon l'image recréée
               // n'a aucune hauteur le temps d'un décodage, le formulaire saute
               // de ~160 px et le toucher sur le champ suivant tombe à côté.
-              +   '<img src="images/body/body_face.webp?v=1407" alt="" width="784" height="1168" '
+              +   '<img src="images/body/body_face.webp?v=1409" alt="" width="784" height="1168" '
               +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -47428,7 +47494,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1407);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1409);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -47495,7 +47561,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1407);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1409);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -48762,7 +48828,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     + '</span></button>';
             };
             const _GOAL_ICO = { weight_loss: ['flamme', '#fb923c'], muscle_gain: ['muscle', '#60a8f0'], endurance: ['course', '#22d3ee'],
-                                strength: ['halter', '#a78bfa'], fitness: ['eclair', '#fbbf24'], flexibility: ['repos', '#5eead4'] };
+                                strength: ['halter', '#a78bfa'], fitness: ['eclair', '#fbbf24'], flexibility: ['repos', '#5eead4'], hybride: ['course', '#f472b6'] };
             const goalCards = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">' + Object.entries(userGoals).map(([id, g]) => {
                 const on = draft.goal === id, ic = _GOAL_ICO[id] || ['cible', _BLEU];
                 return '<button onclick="window._premOnbPick(\'goal\',\'' + id + '\',this)" data-pick="goal" data-val="' + id + '" '
@@ -48778,7 +48844,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 strength: 'Priorité aux gros mouvements qui font travailler plusieurs muscles. Peu de répétitions (4 à 6), plus de séries et des repos longs (environ 2 min 30).',
                 endurance: 'Course et cardio : footing, fractionné, sortie longue, avec un peu de renforcement. Un plan de course (5 km au marathon) part de ton niveau, même si tu ne cours pas encore.',
                 fitness: 'Un peu de tout : force, cardio et gainage, en équilibre. Séries de 10 à 12 répétitions, environ 1 min de repos.',
-                flexibility: 'Plus d\'étirements, de mobilité et de yoga, avec un renforcement léger. Idéal pour bouger mieux et avec moins de raideurs.'
+                flexibility: 'Plus d\'étirements, de mobilité et de yoga, avec un renforcement léger. Idéal pour bouger mieux et avec moins de raideurs.',
+                hybride: 'Les deux à la fois : un plan de course (5 km au marathon) et de la musculation haut / bas du corps, placés pour ne pas se nuire. Pas de jambes lourdes la veille de la sortie longue.'
             };
             const _infoObjectif = function (id) {
                 const t = _OBJ_INFO[id];
@@ -49896,7 +49963,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1407");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1409");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.

@@ -40,8 +40,12 @@
         var n = norm(ex.name);
         // Inclut les formulations FRANÇAISES simples : les exercices créés par
         // l'utilisateur ne suivent pas la nomenclature du catalogue officiel.
-        return /(militaire|overhead|thruster|snatch|arrach|epaule[- ]?jete|jerk|handstand|pike push|au[- ]?dessus de la tete|au[- ]?dessus tete|bras tendus en haut)/.test(n)
-            || /(developpe|presse|press|shoulder press)/.test(n) && /(epaule|militaire|arnold)/.test(n)
+        // v1408 : + nuque, shoulder press, push press, clean & press, devil press, wall ball,
+        // slams, tirage nuque, pullover, pompes pique, marche au mur (15 exercices passaient).
+        if (/^etirement/.test(n)) return false;   // étirements sans charge (trapèzes nuque…)
+        return /(militaire|overhead|thruster|snatch|arrach|epaule[- ]?jete|jerk|handstand|pike push|pompes? pique|marche au mur|wall walk|au[- ]?dessus de la tete|au[- ]?dessus tete|bras tendus en haut)/.test(n)
+            || /(developpe|presse|press|shoulder press)/.test(n) && /(epaule|militaire|arnold|shoulder)/.test(n)
+            || /(nuque|push press|clean (and|&) press|devil press|wall ball|slam|pullover|halo)/.test(n)
             || /^(developpe arnold|halo kb)$/.test(n);
       }
     },
@@ -78,6 +82,19 @@
         //    que l'épaulé-jeté (clean), via « clean » et « epaule jete ».
         return /(souleve de terre|deadlift|good morning|hyperextension|rowing penche|bent over|clean|epaule[- ]?jete)/.test(n)
             || (ex.muscle === 'Lombaires');
+      }
+    },
+    {
+      // v1408 : « se pencher » n'existait pas (Dos fragile en ratait 27 : rowings un bras,
+      // swings, burpees, salutation au soleil, chien tête en bas, pinces, étirement ischio debout…)
+      id: 'penche',
+      emoji: '🙇',
+      titre: 'Ne peut pas se pencher',
+      detail: 'Écarte les flexions du tronc vers l\'avant : rowings penchés et à un bras, soulevés de terre, swings, burpees, salutation au soleil, pinces, étirements des ischios debout.',
+      test: function (ex) {
+        var n = norm(ex.name);
+        return /(pench|bent[- ]?over|good morning|souleve|deadlift|rdl|rack pull|swing|burpee|orteils|toe touch|inchworm|chenille|wood ?chop|bucheron|windmill|high pull|salutation au soleil|chien tete en bas|downward dog|\bpince\b|forward fold|flexion avant|jefferson|ischio debout|ischios? debout|renegade)/.test(n)
+            || /rowing.*(un bras|haltere|kb|sac a dos|t-bar)/.test(n);
       }
     },
     {
@@ -128,7 +145,13 @@
       titre: 'Position assise uniquement',
       detail: 'Ne garde que les exercices réalisables assis. Filtre très restrictif : à utiliser seul.',
       test: function (ex) {
-        return ex.position !== 'assis';
+        if (ex.position === 'assis') return false;
+        // v1408 : exercices qui se font très bien ASSIS sur une chaise, même s'ils sont
+        // classés « debout » (curls, élévations, élastiques…). Avant : à la maison, il ne
+        // restait qu'1 exercice et les séances n'en contenaient qu'un seul.
+        var n = norm(ex.name);
+        if (/(debout|marche|walk|course|saut|squat|fente|pompe|planche|traction|souleve|swing|burpee|step|jump|kickback fessier|fessiers?.*elastique|quadrup)/.test(n)) return true;
+        return !/(\bcurl|elevations? (laterales|frontales|des bras)|pull[- ]?apart|ecartes?.*elastique|elastique|band |tirage.*(elastique|serviette)|rotations? (externe|interne)|serrage|omoplates|extension (de )?(la )?jambe|leg extension|mollets assis|seated|assise?\b|\(assis\)|poignet|wrist|shrug|haussement|face pull|torsion|rotation du buste|respiration|cou\b|nuque)/.test(n);
       }
     }
   ];
@@ -149,6 +172,21 @@
 
   function set(ids) {
     try { localStorage.setItem(cle(), JSON.stringify(ids || [])); } catch (e) {}
+    // v1408 : date de début de chaque limitation (« depuis »), et date de dernière revue
+    try {
+      var d = dates(); var auj = new Date().toISOString().slice(0, 10);
+      (ids || []).forEach(function (id) { if (!d[id]) d[id] = auj; });
+      Object.keys(d).forEach(function (id) { if ((ids || []).indexOf(id) < 0) delete d[id]; });
+      localStorage.setItem(cle() + '_dates', JSON.stringify(d));
+      localStorage.setItem(cle() + '_revue', String(Date.now()));
+    } catch (e) {}
+  }
+  function dates() { try { return JSON.parse(localStorage.getItem(cle() + '_dates') || '{}') || {}; } catch (e) { return {}; } }
+  // v1408 : mode « garder mes capacités » (condition qui évolue) : pas de charge plus lourde suggérée
+  function maintien() { try { return localStorage.getItem(cle() + '_maintien') === '1'; } catch (e) { return false; } }
+  function setMaintien(v) { try { localStorage.setItem(cle() + '_maintien', v ? '1' : '0'); } catch (e) {} }
+  function moisFr(iso) {
+    try { var M = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.']; var d = new Date(iso + 'T12:00:00'); return M[d.getMonth()] + ' ' + d.getFullYear(); } catch (e) { return ''; }
   }
 
   function actives() {
@@ -179,10 +217,10 @@
     });
     // 🛟 Filet : ne jamais rendre une séance impossible.
     var reels = gardes.filter(function (e) { return e && !e.isRest && !e.isInfo; });
-    if (reels.length < mini) {
-      return { gardes: liste, ecartes: [], ignore: true, manque: reels.length };
-    }
-    return { gardes: gardes, ecartes: ecartes, ignore: false };
+    // v1408 : on n'ignore JAMAIS une limitation (avant : moins de « mini » exercices
+    // permis → on rendait la liste complète, interdits compris). La séance sera
+    // plus courte ; « manque » permet de le dire.
+    return { gardes: gardes, ecartes: ecartes, ignore: false, manque: reels.length < mini ? reels.length : 0 };
   }
 
   // ── Interface de réglage ──
@@ -197,20 +235,24 @@
     var old = document.getElementById('awakLimitModal');
     if (old) old.remove();
 
+    var ICO = { overhead: 'halter', epaule: 'bouclier', genou: 'course', dos: 'sante', penche: 'personne', impact: 'eclair', sol: 'repos', prehension: 'lien', poignet: 'bouclier', assis: 'personne' };
+    var ic = function (n, c) { return window.AwakIcon ? window.AwakIcon.get(n, 20, c || '#67e8f9') : ''; };
+    var D = dates();
     var lignes = LIMITATIONS.map(function (l) {
       var on = ids.indexOf(l.id) >= 0;
       return '<div onclick="AwakLimitations.toggle(\'' + l.id + '\')" ' +
           'style="cursor:pointer;display:flex;align-items:flex-start;gap:11px;padding:12px 13px;margin-bottom:8px;' +
           'background:' + (on ? 'rgba(34,211,238,0.10)' : 'rgba(255,255,255,0.025)') + ';' +
           'border:1.5px solid ' + (on ? 'rgba(34,211,238,0.45)' : 'rgba(255,255,255,0.07)') + ';border-radius:13px;">' +
-          '<span style="font-size:1.2em;flex-shrink:0;line-height:1.2;">' + l.emoji + '</span>' +
+          '<span style="flex-shrink:0;line-height:1;margin-top:1px;">' + ic(ICO[l.id] || 'sante', on ? '#22d3ee' : '#94a3b8') + '</span>' +
           '<div style="flex:1;min-width:0;">' +
-            '<div style="font-size:0.84em;font-weight:800;color:#e8f0f8;margin-bottom:3px;">' + esc(l.titre) + '</div>' +
+            '<div style="font-size:0.84em;font-weight:800;color:#e8f0f8;margin-bottom:3px;">' + esc(l.titre) +
+              (on && D[l.id] ? ' <span style="font-size:0.82em;font-weight:700;color:#67e8f9;">· depuis ' + esc(moisFr(D[l.id])) + '</span>' : '') + '</div>' +
             '<div style="font-size:0.7em;color:#94a3b8;line-height:1.45;">' + esc(l.detail) + '</div>' +
           '</div>' +
           '<span style="flex-shrink:0;width:22px;height:22px;border-radius:50%;display:inline-flex;' +
             'align-items:center;justify-content:center;font-size:0.7em;font-weight:900;' +
-            (on ? 'background:#22d3ee;color:#04121f;">✓' : 'border:1.5px dashed rgba(148,163,184,0.5);color:#64748b;">+') +
+            (on ? 'background:#22d3ee;color:#04121f;">' + (window.AwakIcon ? window.AwakIcon.get('valide', 13, '#04121f') : '') : 'border:1.5px dashed rgba(148,163,184,0.5);color:#64748b;">+') +
           '</span>' +
         '</div>';
     }).join('');
@@ -227,7 +269,7 @@
         'border-top:2px solid #22d3ee;box-shadow:0 24px 60px rgba(0,0,0,0.7);overflow:hidden;">' +
         '<div style="padding:15px 18px 12px;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,0.07);' +
           'display:flex;align-items:center;gap:11px;">' +
-          '<span style="font-size:1.5em;flex-shrink:0;">♿</span>' +
+          '<span style="flex-shrink:0;">' + ic('sante', '#22d3ee') + '</span>' +
           '<div style="min-width:0;flex:1;">' +
             '<div style="font-size:0.56em;letter-spacing:2px;color:#22d3ee;font-weight:900;">ADAPTATION</div>' +
             '<div style="font-size:1em;font-weight:900;color:#fff;">Mes limitations</div>' +
@@ -243,10 +285,19 @@
             'ni dans les séances générées ni dans les suggestions.' +
           '</div>' +
           '<div id="awakLimitList">' + lignes + '</div>' +
+          // v1408 : mode « garder mes capacités » — pour une condition qui évolue
+          '<div onclick="AwakLimitations.basculerMaintien()" style="cursor:pointer;display:flex;align-items:flex-start;gap:11px;padding:12px 13px;margin:6px 0 8px;' +
+            'background:' + (maintien() ? 'rgba(167,139,250,0.12)' : 'rgba(255,255,255,0.025)') + ';border:1.5px solid ' + (maintien() ? 'rgba(167,139,250,0.5)' : 'rgba(255,255,255,0.07)') + ';border-radius:13px;">' +
+            '<span style="flex-shrink:0;margin-top:1px;">' + ic('coeur', maintien() ? '#c4b5fd' : '#94a3b8') + '</span>' +
+            '<div style="flex:1;min-width:0;"><div style="font-size:0.84em;font-weight:800;color:#e8f0f8;margin-bottom:3px;">Garder mes capacités</div>' +
+            '<div style="font-size:0.7em;color:#94a3b8;line-height:1.45;">Pour une condition qui évolue : l\'app ne propose plus de charge plus lourde. Tenir sa charge, c\'est réussir.</div></div>' +
+            '<span style="flex-shrink:0;width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:0.7em;font-weight:900;' +
+              (maintien() ? 'background:#a78bfa;color:#04121f;">' + (window.AwakIcon ? window.AwakIcon.get('valide', 13, '#04121f') : '') : 'border:1.5px dashed rgba(148,163,184,0.5);color:#64748b;">+') + '</span>' +
+          '</div>' +
           '<div id="awakLimitImpact" style="margin-top:6px;"></div>' +
           '<div style="margin-top:14px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.25);' +
             'border-radius:11px;padding:10px 12px;font-size:0.72em;color:#fcd34d;line-height:1.5;">' +
-            (window.AwakIcon ? window.AwakIcon.get('alerte', 13, '#fcd34d') + ' ' : '⚠️ ') +
+            (window.AwakIcon ? window.AwakIcon.get('alerte', 13, '#fcd34d') + ' ' : '') +
             'Ces réglages ne remplacent pas un avis médical. En cas de blessure ou de douleur, ' +
             'demande l\'avis d\'un professionnel de santé.' +
           '</div>' +
@@ -277,7 +328,7 @@
         'border:1px solid ' + (critique ? 'rgba(239,68,68,0.35)' : 'rgba(34,211,238,0.25)') + ';' +
         'border-radius:11px;padding:10px 12px;font-size:0.75em;line-height:1.5;' +
         'color:' + (critique ? '#fca5a5' : '#94a3b8') + ';">' +
-        (critique ? '⚠️ ' : '📊 ') + ecartes + ' exercice' + (ecartes > 1 ? 's' : '') + ' écarté' + (ecartes > 1 ? 's' : '') +
+        ecartes + ' exercice' + (ecartes > 1 ? 's' : '') + ' écarté' + (ecartes > 1 ? 's' : '') +
         ' · <strong style="color:#e8f0f8;">' + restants + ' restant' + (restants > 1 ? 's' : '') + '</strong>' +
         (critique ? '<br>Le choix devient très restreint : les séances risquent d\'être courtes et répétitives.' : '') +
       '</div>';
@@ -337,10 +388,46 @@
     } catch (e) {}
   }
 
+  // v1408 : « Tes limitations ont-elles changé ? » — tous les 3 mois quand il y en a.
+  // Une condition qui évolue (maladie dégénérative, âge) change avec le temps ; avant,
+  // rien ne le rappelait. Attend que l'écran soit libre ; « Plus tard » repousse d'un mois.
+  var TROIS_MOIS = 91 * 86400000, UN_MOIS = 30 * 86400000;
+  function revoir(force) {
+    try {
+      if (!get().length) return false;
+      var r = parseInt(localStorage.getItem(cle() + '_revue') || '0', 10);
+      if (!r) { localStorage.setItem(cle() + '_revue', String(Date.now())); if (!force) return false; }
+      if (!force && Date.now() - r < TROIS_MOIS) return false;
+      if (typeof window.showConfirm !== 'function') return false;
+      var act = actives().map(function (l) { return l.titre; }).join(', ');
+      window.showConfirm('Tes limitations actuelles : ' + act + '. Quelque chose a changé ? Mets-les à jour pour que tes séances restent sûres.', function () {
+        try { localStorage.setItem(cle() + '_revue', String(Date.now())); } catch (e) {}
+        ouvrir();
+      }, function () {
+        try { localStorage.setItem(cle() + '_revue', String(Date.now() - TROIS_MOIS + UN_MOIS)); } catch (e) {}
+      }, { title: 'Tes limitations ont-elles changé ?', subtitle: '◈ TOUS LES 3 MOIS ◈', confirmLabel: 'Revoir mes limitations', cancelLabel: 'Plus tard' });
+      return true;
+    } catch (e) { return false; }
+  }
+  function revoirQuandLibre() {
+    var essais = 0;
+    (function tenter() {
+      try {
+        var up = (typeof getUserProfile === 'function') ? getUserProfile() : null;
+        var occupe = !up || !up.setupComplete || document.body.classList.contains('in-session') || !!document.querySelector('.modal.active')
+          || [].some.call(document.body.children, function (el) { var cs = getComputedStyle(el); return cs.position === 'fixed' && (parseInt(cs.zIndex, 10) || 0) >= 9000 && cs.display !== 'none' && el.getBoundingClientRect().height > window.innerHeight * 0.5; });
+        if (occupe) { if (++essais < 60) setTimeout(tenter, 3000); return; }
+        revoir(false);
+      } catch (e) {}
+    })();
+  }
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', proposerSiNouveau);
+    document.addEventListener('DOMContentLoaded', function () { setTimeout(revoirQuandLibre, 6000); });
   } else {
     proposerSiNouveau();
+    setTimeout(revoirQuandLibre, 6000);
   }
 
   window.AwakLimitations = {
@@ -350,6 +437,14 @@
     bloque: bloque,
     filtrer: filtrer,
     ouvrir: ouvrir,
+    dates: dates,
+    maintien: maintien,
+    basculerMaintien: function () {
+      setMaintien(!maintien());
+      var modal = document.getElementById('awakLimitModal');
+      if (modal) { modal.remove(); ouvrir(); }
+    },
+    revoir: revoir,
     toggle: function (id) {
       var ids = get();
       var i = ids.indexOf(id);

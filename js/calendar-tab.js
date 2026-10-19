@@ -227,7 +227,8 @@
             label: j.focus || '',
             heure: (manual[d] && manual[d].heure) || null,
             source: 'plan',
-            discipline: j.discipline || null, session: j.session || null   // v1400 : jour de yoga, pilates…
+            discipline: j.discipline || null, session: j.session || null,   // v1400 : jour de yoga, pilates…
+            hybride: j.hybride || null   // v1409 : semaine course + muscu
           };
         }
       }

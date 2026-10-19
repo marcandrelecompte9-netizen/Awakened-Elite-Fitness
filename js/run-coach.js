@@ -200,7 +200,10 @@
     seuil:    { nom: '3 × 8 min seuil', desc: 'Confortablement difficile. Récupération 2 min.',                     pct: 0.85, reps: 3,  eff: ['t', 480], rec: ['t', 120] },
     seuil2:   { nom: '2 × 12 min seuil', desc: 'Allure seuil tenue longtemps. Récupération 3 min.',                 pct: 0.85, reps: 2,  eff: ['t', 720], rec: ['t', 180] },
     tempo:    { nom: 'Tempo 20 min',    desc: 'Allure soutenue en continu, sans pause.',                            pct: 0.82, reps: 1,  eff: ['t', 1200], rec: null },
-    tempo30:  { nom: 'Tempo 30 min',    desc: 'Allure semi-marathon en continu.',                                   pct: 0.8,  reps: 1,  eff: ['t', 1800], rec: null }
+    tempo30:  { nom: 'Tempo 30 min',    desc: 'Allure semi-marathon en continu.',                                   pct: 0.8,  reps: 1,  eff: ['t', 1800], rec: null },
+    // v1409 : travail SPÉCIFIQUE marathon (avant : seuil, tempo et 800 m seulement)
+    am3x5:    { nom: '3 × 5 km allure marathon', desc: 'À ton allure marathon. Récupération 3 min en trottinant.',    pct: 0.78, reps: 3,  eff: ['d', 5000], rec: ['t', 180], am: true },
+    am2x8:    { nom: '2 × 8 km allure marathon', desc: 'À ton allure marathon. Récupération 4 min en trottinant.',    pct: 0.78, reps: 2,  eff: ['d', 8000], rec: ['t', 240], am: true }
   };
   var ORDRE_TPL = ['minute', 'court400', 'pyramide', 'k800', 'k1000', 'seuil', 'seuil2', 'tempo', 'tempo30'];
   // v1400 : MARCHE-COURSE (phase de base d'un plan pour qui ne court pas encore).
@@ -661,12 +664,19 @@
           { type: 'jourj', cfg: { mode: 'objectif', kind: 'distance', m: O.d, t: cible } }
         ];
       } else {
+        // v1409 : marathon — 6 dernières semaines avant l'affûtage : blocs à allure marathon
+        // et sortie longue qui finit à allure de course
+        var _spe = objId === '42' && !debutant && w >= S - 7 && w <= S - 2 && !allege;
+        if (_spe) tpl = (w % 2 === 0) ? 'am3x5' : 'am2x8';
         l = [
           { type: 'facile', cfg: { mode: 'objectif', kind: 'duree', s: facile * 60 } },
           { type: 'qualite', cfg: { mode: 'fractionne', tpl: tpl, echauf: true } }
         ];
         if (parSem >= 4) l.push({ type: 'facile', cfg: { mode: 'objectif', kind: 'duree', s: arr5(facile * 0.8) * 60 } });
-        l.push({ type: 'longue', cfg: { mode: 'objectif', kind: 'distance', m: Math.round(longue * 1000), t: 0 } });
+        // v1409 : 5 et 6 sorties (coureurs avancés) — footings de récupération en plus
+        if (parSem >= 5) l.push({ type: 'facile', cfg: { mode: 'objectif', kind: 'duree', s: arr5(facile * 0.7) * 60 } });
+        if (parSem >= 6) l.push({ type: 'facile', cfg: { mode: 'objectif', kind: 'duree', s: arr5(Math.max(30, facile * 0.6)) * 60 } });
+        l.push({ type: 'longue', cfg: { mode: 'objectif', kind: 'distance', m: Math.round(longue * 1000), t: 0, finAM: (_spe && w % 2 === 1) ? (w >= S - 3 ? 8 : 6) : 0 } });
       }
       sem.push({ allege: allege, seances: l });
     }
@@ -693,8 +703,12 @@
     var c = x.cfg;
     if (x.type === 'facile') return { t: 'Footing facile ' + Math.round(c.s / 60) + ' min', d: 'Tu dois pouvoir parler en courant.' + (vma() ? ' Vers ' + allure(allureVMA(0.7)) + ' /km.' : ''), c: ACC };
     if (x.type === 'base') { var B = TPL[c.tpl] || TPL.mc1; return { t: 'Marche-course · ' + B.nom, d: B.desc, c: ACC }; }
-    if (x.type === 'qualite') { var T = TPL[c.tpl] || TPL.minute; return { t: 'Fractionné · ' + T.nom, d: T.desc + (MOTS[c.tpl] ? ' ' + MOTS[c.tpl] : '') + (vma() ? ' Vers ' + allure(allureVMA(T.pct)) + ' /km.' : ''), c: ROSE }; }
-    if (x.type === 'longue') return { t: 'Sortie longue ' + kmTxt(c.m) + ' km', d: 'À allure facile : c\'est l\'endurance qui se construit.', c: VIO };
+    var _am = function () { var P0 = lePlan(); if (P0 && P0.cible && P0.obj === '42') return allure(P0.cible / 42.195); return vma() ? allure(allureVMA(0.78)) : ''; };
+    if (x.type === 'qualite') { var T = TPL[c.tpl] || TPL.minute; var _pa = T.am ? _am() : (vma() ? allure(allureVMA(T.pct)) : ''); return { t: (T.am ? 'Allure marathon · ' : 'Fractionné · ') + T.nom, d: T.desc + (MOTS[c.tpl] ? ' ' + MOTS[c.tpl] : '') + (_pa ? ' Vers ' + _pa + ' /km.' : ''), c: ROSE }; }
+    if (x.type === 'longue') {
+      if (c.finAM) { var _pa2 = _am(); return { t: 'Sortie longue ' + kmTxt(c.m) + ' km · fin à allure marathon', d: 'Facile, puis les ' + c.finAM + ' derniers km à allure marathon' + (_pa2 ? ' (vers ' + _pa2 + ' /km)' : '') + '.', c: VIO }; }
+      return { t: 'Sortie longue ' + kmTxt(c.m) + ' km', d: 'À allure facile : c\'est l\'endurance qui se construit.', c: VIO };
+    }
     var _P = lePlan(), _perso = _P && _P.cible && c.t === _P.cible;
     return { t: 'Jour J · ' + kmTxt(c.m) + ' km', d: c.t ? (_perso ? 'Ton objectif : ' : 'Objectif réaliste : ') + hms(c.t) + ' (' + allure(c.t / (c.m / 1000)) + ' /km).' : 'Ta course objectif !', c: OR };
   }
@@ -815,7 +829,12 @@
     // v1400 : sorties par semaine = rythme du profil (3 ou 4) ; niveau demandé
     if (!cp._init) {
       cp._init = true;
-      try { var up = (typeof getUserProfile === 'function' ? getUserProfile() : {}) || {}; var f = parseInt(up.weeklyGoal, 10); if (f) cp.par = f >= 4 ? 4 : 3; } catch (e) {}
+      try { var up = (typeof getUserProfile === 'function' ? getUserProfile() : {}) || {}; var f = parseInt(up.weeklyGoal, 10); if (f) cp.par = f >= 4 ? 4 : 3;
+        // v1409 : semaine hybride (course + muscu) → autant de sorties que de jours de course du plan
+        var wp = JSON.parse((typeof getProfileData === 'function' && getCurrentProfileId() ? getProfileData(getCurrentProfileId(), 'weeklyPlan') : null) || 'null');
+        var nR = wp && wp.plan ? wp.plan.filter(function (j) { return j.hybride && j.discipline === 'course'; }).length : 0;
+        if (nR) cp.par = Math.max(3, nR);
+      } catch (e) {}
       if (predictions()) cp.niv = '60';
     }
     var O = OBJ[cp.obj];
@@ -832,16 +851,18 @@
       +   [['zero', 'Pas encore'], ['10', '10 min'], ['30', '30 min'], ['60', '1 h et +']].map(function (n) { return chip('n', n[0], n[1], cp.niv === n[0]); }).join('') + '</div>'
       + titre('OBJECTIF') + '<div style="display:flex;gap:6px;">' + Object.keys(OBJ).map(function (k) { return chip('o', k, OBJ[k].nom, cp.obj === k); }).join('') + '</div>'
       + titre('DURÉE') + '<div style="display:flex;gap:6px;">' + O.sem.map(function (s) { return chip('s', s, s + ' semaines', cp.S === s); }).join('') + '</div>'
-      + titre('SORTIES PAR SEMAINE') + '<div style="display:flex;gap:6px;">' + chip('p', 3, '3 sorties', cp.par === 3) + chip('p', 4, '4 sorties', cp.par === 4) + '</div>'
+      + titre('SORTIES PAR SEMAINE') + '<div style="display:flex;gap:6px;">' + chip('p', 3, '3', cp.par === 3) + chip('p', 4, '4', cp.par === 4)
+      // v1409 : 5 et 6 sorties pour qui court déjà 30 min ou plus
+      +   ((cp.niv === '30' || cp.niv === '60') ? chip('p', 5, '5', cp.par === 5) + chip('p', 6, '6', cp.par === 6) : '') + '</div>'
       + '<div style="font-size:0.68em;color:#64748b;line-height:1.5;margin:12px 0;">'
       +   (cp.niv && BASE_SEM[cp.niv] ? '<b style="color:#e2e8f0;">D\'abord ' + BASE_SEM[cp.niv] + ' semaines de marche-course</b> pour arriver à 30 min sans t\'arrêter, puis le plan : ' + (BASE_SEM[cp.niv] + cp.S) + ' semaines en tout. ' : '')
       +   (cp.niv && cp.niv !== '60' && (cp.obj === '42' || cp.obj === '21') ? '<b style="color:' + OR + ';">Conseil : vise d\'abord un 5 km ou un 10 km</b>, puis enchaîne sur le ' + OBJ[cp.obj].nom.toLowerCase() + '. ' : '')
-      +   'Chaque semaine : un footing facile, une séance de qualité (fractionné ou seuil) et une sortie longue' + (cp.par === 4 ? ', plus un 2e footing' : '') + '. Une semaine sur 4 est allégée pour assimiler.</div>'
+      +   'Chaque semaine : un footing facile, une séance de qualité (fractionné ou seuil) et une sortie longue' + (cp.par >= 4 ? ', plus ' + (cp.par - 3) + ' footing' + (cp.par > 4 ? 's' : '') + ' de plus' : '') + (cp.obj === '42' ? '. Les dernières semaines : blocs à allure marathon et sortie longue qui finit à allure de course' : '') + '. Une semaine sur 4 est allégée pour assimiler.</div>'
       + '<div style="display:flex;gap:8px;">' + bouton("document.getElementById('awkPlanCreer').remove()", 'Annuler', false) + '<span style="flex:1;display:flex;"><button id="awkPlanGo" style="flex:1;min-height:auto;padding:12px;border-radius:12px;border:none;cursor:pointer;font-family:inherit;font-weight:900;font-size:0.85em;background:linear-gradient(135deg,#fbbf24,#d97706);color:#1a1205;">Créer le plan</button></span></div>');
     ov.querySelectorAll('[data-o]').forEach(function (b) { b.onclick = function () { cp.obj = b.getAttribute('data-o'); creerPlanUI(); }; });
     ov.querySelectorAll('[data-s]').forEach(function (b) { b.onclick = function () { cp.S = +b.getAttribute('data-s'); creerPlanUI(); }; });
     ov.querySelectorAll('[data-p]').forEach(function (b) { b.onclick = function () { cp.par = +b.getAttribute('data-p'); creerPlanUI(); }; });
-    ov.querySelectorAll('[data-n]').forEach(function (b) { b.onclick = function () { cp.niv = b.getAttribute('data-n'); creerPlanUI(); }; });
+    ov.querySelectorAll('[data-n]').forEach(function (b) { b.onclick = function () { cp.niv = b.getAttribute('data-n'); if (cp.par > 4 && cp.niv !== '30' && cp.niv !== '60') cp.par = 4; creerPlanUI(); }; });
     var go = document.getElementById('awkPlanGo');
     if (!cp.niv) { go.disabled = true; go.style.opacity = '0.45'; go.textContent = 'Choisis ton niveau'; }
     go.onclick = function () {
