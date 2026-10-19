@@ -1611,6 +1611,7 @@ function storyShowEvent(evt) {
 
     const overlay = document.createElement('div');
     overlay.id = 'storyEventOverlay';
+    try { overlay.setAttribute('data-evt', evt.id || ''); } catch (e) {}   // v1410 : repère pour le mode dev
     overlay.style.cssText = `
         position:fixed; inset:0; z-index:99997;
         background:rgba(0,0,0,0.93); backdrop-filter:blur(9px);

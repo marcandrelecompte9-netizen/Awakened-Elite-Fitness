@@ -8,7 +8,13 @@
 
   function actif() { try { return typeof window.rpgEnabled === 'function' && window.rpgEnabled(); } catch (e) { return false; } }
   function xpProfil() {
-    try { return Math.max(0, Math.floor(((window.rpgLoad() || {}).profile || {}).xp || 0)); } catch (e) { return null; }
+    // v1410 : XP TOTALE (muscles + XP de personnage), comme le niveau de la carte.
+    // Avant : seulement profile.xp → niveau affiché faux après une Faille ou un prestige.
+    try {
+      var d = window.rpgLoad() || {}, m = 0;
+      Object.keys(d.muscles || {}).forEach(function (k) { m += (d.muscles[k] && d.muscles[k].xp) || 0; });
+      return Math.max(0, Math.floor(m + (parseInt(localStorage.getItem('fitproRPGLifetimeXP') || '0', 10) || 0)));
+    } catch (e) { return null; }
   }
   var depart = null;
 
@@ -16,6 +22,7 @@
     var v = document.getElementById('completionView');
     if (!v || v.classList.contains('hidden') || !actif()) return;
     var vieux = document.getElementById('awakXpFin'); if (vieux) vieux.remove();
+    try { if (window.AwakMission) AwakMission.verser(); } catch (e) {}   // v1410 : mission de la semaine
     var xp = xpProfil(); if (xp === null || depart === null) return;
     var gain = xp - depart;
     if (gain <= 0) return;
@@ -29,7 +36,8 @@
       + '<span style="font-size:1.35em;font-weight:900;color:#67e8f9;">+' + gain + ' XP</span>'
       + '<span style="font-size:0.74em;font-weight:800;color:#cbd5e1;">Niveau ' + n + '</span></div>'
       + '<div style="height:7px;border-radius:99px;background:rgba(255,255,255,0.08);margin:8px 0 6px;overflow:hidden;"><div style="height:100%;width:' + pc + '%;background:linear-gradient(90deg,#22d3ee,#0891b2);border-radius:99px;"></div></div>'
-      + '<div style="font-size:0.74em;color:#a3b1c2;">Encore ' + reste + ' XP pour le niveau ' + (n + 1) + '</div>';
+      + '<div style="font-size:0.74em;color:#a3b1c2;">Encore ' + reste + ' XP pour le niveau ' + (n + 1) + '</div>'
+      + (function () { try { return window.AwakMission ? AwakMission.ligneFin() : ''; } catch (e) { return ''; } })();
     var hote = document.getElementById('completionMuscleChart') || document.getElementById('completionAwakTree') || document.getElementById('completionVolume');
     if (hote && hote.parentNode) hote.parentNode.insertBefore(c, hote);
   }
@@ -53,6 +61,6 @@
     }).observe(v, { attributes: true, attributeFilter: ['class'] });
   }
 
-  window.AwakXpFin = { carte: carte, _depart: function (x) { depart = x; } };
+  window.AwakXpFin = { carte: carte, _depart: function (x) { depart = x; }, _xp: xpProfil };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', brancher); else brancher();
 })();

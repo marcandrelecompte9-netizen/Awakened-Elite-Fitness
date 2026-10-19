@@ -24,7 +24,17 @@
     try { localStorage.setItem(GATE_KEY, String(Date.now())); } catch (e) {}
   }
 
-  function shouldAsk() { return (Date.now() - _lastTs()) > COOLDOWN_MS; }
+  // v1410 : demandé UNE fois par jour (avant : toutes les 90 min). La réponse
+  // est gardée pour la journée et reste modifiable sur l'écran de préparation.
+  function _jour(ts) { try { return window.awakJourLocal(ts ? new Date(ts) : undefined); } catch (e) { return new Date(ts || Date.now()).toDateString(); } }
+  function formeDuJour() {
+    try { return typeof window.awakFormeDuJour === 'function' ? window.awakFormeDuJour() : null; } catch (e) { return null; }
+  }
+  function shouldAsk() {
+    if (formeDuJour() != null) return false;
+    var t = _lastTs();
+    return !t || (_jour(t) !== _jour() && (Date.now() - t) > COOLDOWN_MS);
+  }
 
   function gate(proceed) {
     if (typeof proceed !== 'function') return;
@@ -95,6 +105,7 @@
     function finish() { try { overlay.remove(); } catch (e) {} proceed(); }
 
     function _save(v) {
+      try { if (typeof window.awakNoterForme === 'function') window.awakNoterForme(v); } catch (e) {}
       try {
         if (typeof window.setFitnessIndex === 'function') window.setFitnessIndex(v);
         else if (typeof window.updateFitnessIndex === 'function') window.updateFitnessIndex(v);
@@ -148,5 +159,5 @@
     render(startVal);
   }
 
-  window.AwakMoodPreWorkout = { shouldAsk: shouldAsk, gate: gate };
+  window.AwakMoodPreWorkout = { shouldAsk: shouldAsk, gate: gate, formeDuJour: formeDuJour };
 })();

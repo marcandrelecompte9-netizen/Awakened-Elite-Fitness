@@ -72,7 +72,7 @@
     // Forme
     h += '<div style="display:flex;align-items:center;gap:7px;font-size:0.74em;font-weight:800;color:' + CLAIR + ';margin-bottom:8px;">'
       + ico('eclair', 15, CLAIR) + '<span>Comment te sens-tu ?</span>'
-      + '<span style="margin-left:auto;font-size:0.85em;color:#64748b;font-weight:700;">facultatif</span></div>';
+      + '<span style="margin-left:auto;font-size:0.85em;color:#64748b;font-weight:700;">' + (etat.dejaNote ? 'noté aujourd\'hui · modifiable' : 'facultatif') + '</span></div>';
     h += '<div style="display:flex;gap:6px;margin-bottom:6px;">'
       + chip('humeur', 2, 'Fatigué', etat.humeur === 2, '#f87171')
       + chip('humeur', 5, 'Correct', etat.humeur === 5, OR)
@@ -126,12 +126,17 @@
       var nc = window.AwakSante && AwakSante.nuitCourte && AwakSante.nuitCourte();
       if (nc) { etat.humeur = 2; etat.nuit = nc; }
     } catch (e) {}
+    // v1410 : forme déjà notée aujourd'hui → reprise (modifiable), on ne redemande pas
+    try {
+      var fj = window.awakFormeDuJour && window.awakFormeDuJour();
+      if (fj != null && etat.humeur == null) { etat.humeur = fj <= 3 ? 2 : fj <= 6 ? 5 : 8; etat.dejaNote = true; etat.formeVal = fj; }
+    } catch (e) {}
     // Une routine ou une séance qui contient déjà son échauffement : pas de cardio proposé
     rendrePrep();
   }
 
   function choisir(groupe, val) {
-    if (groupe === 'humeur') etat.humeur = (etat.humeur === val) ? null : val;
+    if (groupe === 'humeur') { etat.humeur = (etat.humeur === val) ? null : val; etat.dejaNote = false; }
     else etat.cardio = val;
     try { if (window.AwakNative) AwakNative.vibrer(8); } catch (e) {}
     rendrePrep();
@@ -147,6 +152,7 @@
 
   function douce() {
     try { localStorage.setItem(CLE_HUMEUR, String(Date.now())); } catch (e) {}
+    try { if (window.awakNoterForme) window.awakNoterForme(2); } catch (e) {}
     try { if (typeof window.setFitnessIndex === 'function') window.setFitnessIndex(2); } catch (e) {}
     try { if (typeof window.cancelWorkoutPreparation === 'function') window.cancelWorkoutPreparation(); } catch (e) {}
     setTimeout(function () { try { window.startWorkout('mobility'); } catch (e) {} }, 80);
@@ -160,9 +166,10 @@
     workout._cardioAsked = true;   // plus de fenêtre « Cardio d'échauffement ? »
     try { localStorage.setItem(CLE_HUMEUR, String(Date.now())); } catch (e) {}   // plus de fenêtre « Quelle est ta forme ? »
     if (etat.humeur != null) {
+      try { if (!etat.dejaNote && window.awakNoterForme) window.awakNoterForme(etat.humeur); } catch (e) {}
       try {
-        if (typeof window.setFitnessIndex === 'function') window.setFitnessIndex(etat.humeur);
-        else if (typeof window.updateFitnessIndex === 'function') window.updateFitnessIndex(etat.humeur);
+        if (typeof window.setFitnessIndex === 'function') window.setFitnessIndex(etat.dejaNote && etat.formeVal != null ? etat.formeVal : etat.humeur);
+        else if (typeof window.updateFitnessIndex === 'function') window.updateFitnessIndex(etat.dejaNote && etat.formeVal != null ? etat.formeVal : etat.humeur);
       } catch (e) {}
     }
     if (etat.cardio > 0 && Array.isArray(workout.exercises) && !enfant()) {

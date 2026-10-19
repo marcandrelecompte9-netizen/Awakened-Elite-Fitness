@@ -468,6 +468,7 @@
     // v1409 : semaine hybride → toutes les séances prévues (courses + muscu), pas seulement les sorties
     var _hybS = false; try { var _plS = planning((typeof getCurrentProfileId === 'function') ? getCurrentProfileId() : null); _hybS = Object.keys(_plS.plan || {}).some(function (k) { return _plS.plan[k] && _plS.plan[k].hybride; }); } catch (e) {}
     var visee2 = evS ? evS.parSemaine : ((runS && !_hybS) ? runS.total : (prevues || objectifHebdo())), fait2 = total, reste = visee2 - fait2;
+    _semaine = { fait: fait2, visee: visee2 };   // v1410 : lu par la mission de la semaine
     var sous = reste <= 0 ? 'Objectif atteint' : (reste === 1 ? 'Plus qu\'une pour l\'objectif' : 'Encore ' + reste + ' pour l\'objectif');
     var t2 = tuile('calendrier', '#a78bfa', 'CETTE SEMAINE', Math.min(fait2, 99) + ' / ' + visee2 + ' séance' + (visee2 > 1 ? 's' : ''),
       '<div style="display:flex;justify-content:space-between;margin:9px 0 2px;">' + points + '</div>', sous, 'switchTab(\'calendar\')');
@@ -620,10 +621,18 @@
       document.getElementById('ahpAujourdhui').innerHTML = tuilesHTML(info, pl, hist);
       document.getElementById('ahpSemaine').innerHTML = queteHTML(info, hist);
       document.getElementById('ahpRaccourcis').innerHTML = raccourcisHTML();
+      // v1410 : bilan des 4 semaines (une fois par cycle de 28 jours)
+      try { if (window.AwakBilan4) AwakBilan4.monter(document.getElementById('ahpAvant')); } catch (e) {}
     } catch (e) { try { console.warn('AwakHomePro', e); } catch (x) {} }
   }
 
-  window.AwakHomePro = { render: render };
+  var _semaine = null;
+  // v1410 : séances faites / objectif de la semaine (même calcul que la tuile « Cette semaine »)
+  function semaine() {
+    try { var info = profilActif(); tuilesHTML(info, planning(info.id), historique(info.id)); } catch (e) {}
+    return _semaine;
+  }
+  window.AwakHomePro = { render: render, semaine: semaine };
 
   function init() { render(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
