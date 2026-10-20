@@ -234,7 +234,8 @@
   function niveauJeu() {
     try {
       if (!jeuActif() || typeof window.rpgLoad !== 'function') return null;
-      var xp = Math.max(0, Math.floor(((window.rpgLoad() || {}).profile || {}).xp || 0));
+      // v1411 : même XP que la Carte de Chasseur (avant : profile.xp seul → niveau plus bas que dans le Jeu)
+      var xp = typeof window.awakXPTotale === 'function' ? window.awakXPTotale() : Math.max(0, Math.floor(((window.rpgLoad() || {}).profile || {}).xp || 0));
       var n = window.rpgLevelFromXP(xp), a = window.rpgXPForLevel(n), b = window.rpgXPForLevel(n + 1);
       return { n: n, dans: xp - a, pas: Math.max(1, b - a) };
     } catch (e) { return null; }
@@ -322,7 +323,7 @@
     // Objectif du jour
     var auj = seanceDu(pl, id, d), aPlan = Object.keys(pl.plan || {}).length > 0;
     var etiq = 'TON OBJECTIF DU JOUR', titre, meta = '', bouton;
-    var go = 'switchTab(\'workouts\');window.scrollTo(0,0)';
+    var go = 'if(window.awakLancerSeanceSysteme)awakLancerSeanceSysteme();else{switchTab(\'workouts\');window.scrollTo(0,0)}';   // v1411 : directement
     // v1399 : Parcours de l'Éveil actif → SA séance est l'objectif du jour.
     // Avant : « Jour de repos » (plan automatique) juste au-dessus de la carte
     // Éveil qui proposait la séance du jour — deux messages contraires.
@@ -408,6 +409,15 @@
       bouton = '<button class="ahp-cta" onclick="' + go + '">Commencer ma séance</button>';
     }
 
+    // v1413 : séance du Système → dernière durée reprise, « Autre durée » pour la changer
+    try {
+      var _dd = window.awakDerniereDuree && /awakLancerSeanceSysteme/.test(bouton) && /Commencer ma séance/.test(bouton) ? window.awakDerniereDuree() : null;
+      if (_dd && !(window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild())) {
+        var _txtD = _dd.n ? _dd.n + ' exercices' : _dd.min + ' min';
+        if (!/\d\s*min</.test(meta)) meta += '<span class="ahp-m">' + ico('chrono', 15, '#cbd5e1') + '<span>' + esc(_txtD) + '</span></span>';
+        bouton += '<button onclick="awakLancerSeanceSysteme(true)" style="display:block;margin:7px auto 0;min-height:auto;padding:4px 8px;background:none;border:none;cursor:pointer;font-family:inherit;font-size:0.76em;color:#cbd5e1;text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(203,213,225,0.35);">Autre durée</button>';
+      }
+    } catch (e) {}
     // v1400 : aime la course, pas encore de plan → raccourci vers le plan (même sans courir encore)
     try {
       var _aimeC = ((typeof getUserProfile === 'function' ? getUserProfile() : {}) || {}).aime || [];
@@ -632,7 +642,17 @@
     try { var info = profilActif(); tuilesHTML(info, planning(info.id), historique(info.id)); } catch (e) {}
     return _semaine;
   }
-  window.AwakHomePro = { render: render, semaine: semaine };
+  // v1413 : « demain : Haut du corps » — pour le Prochain objectif de l'écran de fin
+  function prochaineTexte() {
+    try {
+      var info = profilActif(), pr = prochaine(planning(info.id), info.id);
+      if (!pr) return '';
+      var quand = pr.k === 1 ? 'demain' : JOURS_LONG[wIdx(pr.d)].toLowerCase();
+      var quoi = (pr.e.s && (pr.e.s.label || (pr.e.s.muscles || []).slice(0, 2).join(' · '))) || '';
+      return quand + (quoi ? ' : ' + quoi : '');
+    } catch (e) { return ''; }
+  }
+  window.AwakHomePro = { render: render, semaine: semaine, prochaineTexte: prochaineTexte };
 
   function init() { render(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

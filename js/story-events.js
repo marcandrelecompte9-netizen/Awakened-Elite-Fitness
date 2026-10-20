@@ -1573,11 +1573,28 @@ function storyBuildContext() {
 }
 
 // ── SÉLECTION : trouve le prochain événement à jouer ───────────────
+// v1413 : une scène choisie n'est marquée « vue » qu'au moment où elle s'affiche
+// (avant : dès qu'elle était mise en file — si l'app était fermée pendant
+// l'attente, par exemple sur l'écran de fin de séance, la scène était perdue).
+const _storyEnFile = {};
+// v1414 : UNE scène par séance. Avant, la 1re séance (XP → niveau 3) en lançait
+// 3 ou 4 à la suite (Première Trace, La Rencontre, Les Règles du Duo…) : les
+// suivantes attendent maintenant les séances d'après. Les actes (Faille
+// narrative, sous-boss, boss final, Failles fermées) passent toujours.
+// Clé préfixée awakStoryEvt_ : suit le profil et la réinitialisation de l'histoire.
+const _STORY_K_SEANCE = 'awakStoryEvt__seance';
+const _STORY_ACTES = { levelAndNarrativeRift: 1, subBosses: 1, finalBoss: 1, riftsClosed: 1 };
+function _storyDejaCetteSeance(ctx) {
+    try { const v = localStorage.getItem(_STORY_K_SEANCE); return v !== null && parseInt(v, 10) === (ctx.workouts || 0); } catch (e) { return false; }
+}
 function storyPickEvent() {
     const ctx = storyBuildContext();
+    const _dejaVu = _storyDejaCetteSeance(ctx);
     for (const evt of STORY_EVENTS) {
         // Si déjà vu, passer au suivant
-        if ((evt.once !== false) && storyEventSeen(evt.id)) continue;
+        if ((evt.once !== false) && (storyEventSeen(evt.id) || _storyEnFile[evt.id])) continue;
+        // Déjà une scène pour cette séance : la suite attend la prochaine (sauf les actes)
+        if (_dejaVu && !(evt.trigger && _STORY_ACTES[evt.trigger.kind])) continue;
 
         // 🚧 PORTE NARRATIVE : événement-clé qui exige une Faille narrative.
         // Si le niveau est atteint mais la Faille pas encore faite, on BLOQUE
@@ -1602,6 +1619,10 @@ function storyPickEvent() {
 function storyShowEvent(evt) {
     if (!evt || !evt.content) return;
     if (typeof window.AwakCine !== 'undefined' && window.AwakCine.defer(function () { storyShowEvent(evt); })) return;
+    if (evt.id && _storyEnFile[evt.id]) {
+        delete _storyEnFile[evt.id]; storyEventMarkSeen(evt.id);
+        try { localStorage.setItem(_STORY_K_SEANCE, String(storyBuildContext().workouts || 0)); } catch (e) {}
+    }
     const c = evt.content;
     const char = STORY_CHARS[c.speaker] || STORY_CHARS.systeme;
     const color = char.color;
@@ -1713,7 +1734,9 @@ function storyCheckEvents(opts) {
             storyMaybeHintNarrativeRift(opts);
             return false;
         }
-        if (evt.once !== false) storyEventMarkSeen(evt.id);
+        if (evt.once !== false) _storyEnFile[evt.id] = 1;
+        // une seule scène en file à la fois pour la même séance
+        try { localStorage.setItem(_STORY_K_SEANCE, String(storyBuildContext().workouts || 0)); } catch (e) {}
         const delay = (opts && opts.delay) || 0;
         setTimeout(() => storyShowEvent(evt), delay);
         return true;

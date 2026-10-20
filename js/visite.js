@@ -318,6 +318,9 @@
     // juste après l'inscription, avant d'avoir bougé). Elle reviendra au retour
     // sur l'accueil après la séance.
     if (onglet === 'home' && nbSeances() === 0) return;
+    // v1413 : pas juste après une séance (la visite de l'Accueil, 10 étapes, tombait
+    // sur le retour de la 1re séance) : elle attend la prochaine ouverture de l'app
+    if (onglet === 'home' && window._awakSeanceFinieIci) return;
     if (onglet === 'game' && !jeuPret()) { if (essais++ < 40) planifier(onglet, 2500); return; }
     // v1300 : avant, abandon après 60 s d'écran occupé (questionnaire de l'Éveil,
     // limitations…) : la visite sautait, puis revenait au changement d'onglet.

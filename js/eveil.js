@@ -272,10 +272,17 @@
   }
 
   // ── OFFRE À L'INSCRIPTION ──────────────────────────────────────────────
+  var _offreEssais = 0;
   function eveilMaybeOffer() {
     if (eveilActive()) return;
     // (clé déjà propre à chaque profil : switchProfile l'échange via GAME_KEYS)
     if (localStorage.getItem('awakEveilOffered') === '1') return;
+    // v1413 : attend que le guide du jeu / l'intro soient fermés (avant : les deux fenêtres en même temps)
+    try {
+      var occupe = ['awakGameGuideOverlay', 'awakEpicIntroOverlay', '_premOnbOverlay', 'storyOverlay'].some(function (i) { return !!document.getElementById(i); })
+        || (global.AwakCine && global.AwakCine.anyOpen && global.AwakCine.anyOpen());
+      if (occupe && _offreEssais++ < 240) { setTimeout(eveilMaybeOffer, 700); return; }
+    } catch (e) {}
     localStorage.setItem('awakEveilOffered', '1');
     // v1399/v1400 : proposé aux Débutants seulement (« Nouveau dans l'entraînement ? »).
     // Il reste accessible dans les Réglages.

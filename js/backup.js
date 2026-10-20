@@ -303,6 +303,9 @@
   // ── rappel ──
   function ecranLibre() {
     if (document.body.classList.contains('in-session')) return false;
+    // v1411 : pas sur l'écran de fin de séance (c'est le moment de la récompense)
+    var cv = document.getElementById('completionView');
+    if (cv && !cv.classList.contains('hidden') && getComputedStyle(cv).display !== 'none') return false;
     var c = document.querySelectorAll('[id$="Modal"], [id$="Overlay"], [id*="Onb"], [id*="story"], [id*="Story"], [id*="tuto"], [id*="Welcome"], #awakRunScreen');
     for (var i = 0; i < c.length; i++) {
       var cs = getComputedStyle(c[i]), r = c[i].getBoundingClientRect();

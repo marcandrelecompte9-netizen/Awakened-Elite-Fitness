@@ -38,7 +38,8 @@
       + '<div style="height:7px;border-radius:99px;background:rgba(255,255,255,0.08);margin:8px 0 6px;overflow:hidden;"><div style="height:100%;width:' + pc + '%;background:linear-gradient(90deg,#22d3ee,#0891b2);border-radius:99px;"></div></div>'
       + '<div style="font-size:0.74em;color:#a3b1c2;">Encore ' + reste + ' XP pour le niveau ' + (n + 1) + '</div>'
       + (function () { try { return window.AwakMission ? AwakMission.ligneFin() : ''; } catch (e) { return ''; } })();
-    var hote = document.getElementById('completionMuscleChart') || document.getElementById('completionAwakTree') || document.getElementById('completionVolume');
+    // v1413 : juste sous les chiffres, avant le butin / les records (les autres blocs sont dans « Détails »)
+    var hote = document.getElementById('awakButinFin') || document.getElementById('completionPRs') || document.getElementById('completionMuscleChart') || document.getElementById('completionAwakTree') || document.getElementById('completionVolume');
     if (hote && hote.parentNode) hote.parentNode.insertBefore(c, hote);
   }
 

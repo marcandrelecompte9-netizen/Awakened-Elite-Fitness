@@ -935,6 +935,8 @@ function showItemDetail(itemId, context, invId) {
 
 function showDropModal(item, rarityInfo, qualityScore) {
     if (!item) return;
+    // v1413 : sur l'écran de fin, l'équipement va dans « Butin de la séance » (« Voir » rouvre cette fenêtre)
+    try { if (!window._awakFinVoir && window.AwakFin && window.AwakFin.objet(item, rarityInfo, qualityScore)) return; } catch (e) {}
     document.getElementById('dropModal')?.remove();
 
     const qScore = Math.round((qualityScore || 0.5) * 100);
