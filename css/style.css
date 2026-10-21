@@ -8721,3 +8721,53 @@ body:has(#completionView:not(.hidden)) .toast-container { top: calc(12px + env(s
 #awakReglageEdit { display: flex; gap: 6px; margin-bottom: 10px; }
 #awakReglageEdit input { flex: 1; min-width: 0; padding: 10px 12px; border-radius: 11px; border: 1px solid rgba(96,168,240,0.5); background: #0b0f16; color: #fff; font: inherit; font-size: 0.85em; }
 #awakReglageEdit button { min-height: 0 !important; padding: 8px 14px !important; border-radius: 11px; border: none; background: #60a8f0; color: #04121f; font-weight: 900; cursor: pointer; }
+
+/* 🖼️ v1415 : images d'exercice CARRÉES mises en valeur pendant la séance —
+   cadre carré pleine largeur (hauteur constante pour un même écran : le bouton
+   de validation ne bouge pas), image entière, sans voile ni filigrane.
+   Les anciennes images non carrées gardent leurs bandes floues. */
+#exerciseVisualContent.awak-vis-img > div.awak-vis-carre {
+    height: auto !important;
+    aspect-ratio: 1 / 1;
+    max-height: 64vh;
+    margin: 0 auto;
+}
+#exerciseVisualContent.awak-vis-img > div.awak-vis-carre img { object-fit: contain !important; }
+#exerciseVisualFrame:has(.awak-vis-carre) { border-color: rgba(34,211,238,0.22) !important; min-height: 0 !important; }
+#exerciseVisualFrame:has(.awak-vis-carre) > div[style*="repeating-linear-gradient"] { display: none; }
+@media (min-width: 768px) and (orientation: landscape) {
+    #exerciseVisualContent.awak-vis-img > div.awak-vis-carre { max-width: min(560px, 60vh) !important; max-height: 60vh; }
+    #exerciseVisualContent.awak-vis-img > div.awak-vis-carre img { max-height: none !important; }
+}
+/* Plein écran (toucher l'image) */
+#awakZoomImg { position: fixed; inset: 0; z-index: 100002; background: rgba(2,5,16,0.96); display: flex; align-items: center; justify-content: center; padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom)); cursor: zoom-out; animation: awakFadeIn 0.2s; }
+#awakZoomImg img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.6); }
+#awakZoomImg .awak-zoom-x { position: absolute; top: max(14px, env(safe-area-inset-top)); right: 14px; width: 42px; height: 42px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); color: #e2e8f0; font-size: 20px; line-height: 1; cursor: pointer; }
+/* v1415 : en répétitions comme en minuté, l'image carrée reste en grand
+   (la 1re série reste visible au-dessus de la barre d'actions sur un téléphone
+   ordinaire ; sur les petits écrans, la règle « max-height: 700px » la réduit). */
+#exerciseView #exerciseVisualContent.awak-vis-img:has(> .awak-vis-carre) { height: auto !important; max-height: none !important; padding: 0 !important; }
+#exerciseView #exerciseVisualContent.awak-vis-img > div.awak-vis-carre { height: auto !important; max-height: 50vh; }
+#exerciseView #exerciseVisualContent.awak-vis-img > div.awak-vis-carre > div:not([style*="absolute"]) { height: 100% !important; }
+#exerciseView #exerciseVisualContent.awak-vis-img > div.awak-vis-carre img { width: 100% !important; height: 100% !important; max-height: none !important; max-width: 100% !important; object-fit: contain !important; }
+@media (max-height: 700px) {
+    #exerciseView[data-mode="reps"] #exerciseVisualContent.awak-vis-img > div.awak-vis-carre { max-height: 34vh; }
+}
+/* v1415 : boutons posés sur une image claire (décor de jour) : bien lisibles */
+#exerciseVisualFrame:has(.awak-vis-carre) #pauseBtn { background: rgba(2,5,16,0.82) !important; color: #fff !important; opacity: 1 !important; }
+#exerciseVisualFrame:has(.awak-vis-carre) #timerDisplay { background: rgba(2,5,16,0.82) !important; }
+
+/* 🎞️ v1416 : nouvelle image animée pendant la séance — début puis fin, en grand */
+#exerciseVisualContent .awak-anim .awak-ph { position: absolute; inset: 0; height: auto !important; background-repeat: no-repeat; background-size: 200% auto; }
+#exerciseVisualContent .awak-anim .awak-ph-a { background-position: 0% 55%; }
+#exerciseVisualContent .awak-anim .awak-ph-b { background-position: 100% 55%; animation: awakPhB 3.2s ease-in-out infinite; }
+#exerciseVisualContent .awak-anim.awak-anim-hb { aspect-ratio: 4 / 3 !important; }
+#exerciseVisualContent .awak-anim.awak-anim-hb .awak-ph { background-size: auto 200%; }
+#exerciseVisualContent .awak-anim.awak-anim-hb .awak-ph-a { background-position: 45% 0%; }
+#exerciseVisualContent .awak-anim.awak-anim-hb .awak-ph-b { background-position: 45% 100%; }
+@keyframes awakPhB { 0%, 40% { opacity: 0; } 50%, 90% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes awakPhA { 0%, 40% { opacity: 1; } 50%, 90% { opacity: 0; } 100% { opacity: 1; } }
+#exerciseVisualContent .awak-anim .awak-ph-lbl { position: absolute; left: 10px; bottom: 10px; z-index: 3; height: auto !important; }
+#exerciseVisualContent .awak-anim .awak-ph-lbl span { position: absolute; left: 0; bottom: 0; white-space: nowrap; padding: 4px 10px; border-radius: 99px; background: rgba(2,5,16,0.82); color: #e2e8f0; font-size: 12px; font-weight: 800; letter-spacing: 0.5px; }
+#exerciseVisualContent .awak-anim .awak-ph-lbl .a { animation: awakPhA 3.2s ease-in-out infinite; }
+#exerciseVisualContent .awak-anim .awak-ph-lbl .b { animation: awakPhB 3.2s ease-in-out infinite; color: #67e8f9; }

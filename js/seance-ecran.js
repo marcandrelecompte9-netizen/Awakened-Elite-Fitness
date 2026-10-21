@@ -70,6 +70,7 @@
       var vue = document.getElementById('exerciseView');
       if (!vue || vue.getAttribute('data-mode') !== 'reps') return;
       if (e.target.closest('button')) return;
+      if (e.target.closest('.awak-vis-carre')) return;   // v1415 : image carrée déjà en grand, toucher = plein écran
       vue.classList.toggle('awk-img-grande');
     });
   }

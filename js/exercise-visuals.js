@@ -1647,4 +1647,52 @@ window.hasExerciseImage   = hasExerciseImage;
 window.EXERCISE_IMAGES    = EXERCISE_IMAGES;
 window.buildLazyImg       = _buildLazyImg;
 
+// v1415 — NOUVELLES IMAGES (décor de jour, carrées, sans nom gravé en bas).
+// Les anciennes portent le nom de l'exercice dans un bandeau en bas, rogné par
+// le CSS (clip-path 15 %, v660). Les nouvelles n'en ont pas : on ne les rogne
+// pas. ▸ Ajouter ici le nom de fichier de chaque nouvelle image reçue.
+var EXERCISE_IMAGES_V2 = [
+  'Crab_Walk.webp',
+  'Side_Plank_Leg_Raise.webp',
+  'Close_Grip_Push_Up.webp'
+];
+window.EXERCISE_IMAGES_V2 = EXERCISE_IMAGES_V2;
+// v1416 : images dont les deux positions sont l'une SOUS l'autre (et non côte à côte)
+var EXERCISE_IMAGES_V2_HAUT_BAS = ['Crab_Walk.webp'];
+window.EXERCISE_IMAGES_V2_HAUT_BAS = EXERCISE_IMAGES_V2_HAUT_BAS;
+// Séance : la nouvelle image s'anime — on voit la position de DÉBUT en grand,
+// puis celle de FIN, en boucle (fondu). Toucher = image entière en plein écran.
+// Mouvement réduit demandé par le téléphone → image fixe entière (null).
+window.awakAnimHTML = function (src, srcEnc) {
+  try {
+    if (!window.awakImageV2(src)) return null;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return null;
+    if (localStorage.getItem('awakImgFixe') === '1') return null;
+  } catch (e) { return null; }
+  var f = String(src).split('/').pop();
+  var hb = EXERCISE_IMAGES_V2_HAUT_BAS.indexOf(f) >= 0;
+  var u = String(srcEnc || src).replace(/"/g, '&quot;').replace(/'/g, '%27');
+  var fond = 'background-image:url(\'' + u + '\');';
+  return '<div class="awak-vis-carre awak-anim' + (hb ? ' awak-anim-hb' : '') + '" onclick="window.awakZoomImage && awakZoomImage(this)" data-src="' + u + '" style="position:relative;width:100%;overflow:hidden;cursor:zoom-in;">'
+    + '<div class="awak-ph awak-ph-a" style="' + fond + '"></div>'
+    + '<div class="awak-ph awak-ph-b" style="' + fond + '"></div>'
+    + '<div class="awak-ph-lbl" aria-hidden="true"><span class="a">Début</span><span class="b">Fin</span></div>'
+    + '</div>';
+};
+window.awakImageV2 = function (src) {
+  var f = String(src || '').split('/').pop().split('?')[0];
+  try { f = decodeURIComponent(f); } catch (e) {}
+  return EXERCISE_IMAGES_V2.indexOf(f) >= 0;
+};
+(function () {
+  try {
+    var css = EXERCISE_IMAGES_V2.map(function (f) {
+      var e = encodeURIComponent(f).replace(/'/g, '%27');
+      return 'img[src*="images/exercises/' + f + '"],img[src*="images/exercises/' + e + '"]';
+    }).join(',') + '{-webkit-clip-path:none!important;clip-path:none!important;}';
+    var st = document.createElement('style'); st.id = 'awakImagesV2'; st.textContent = css;
+    (document.head || document.documentElement).appendChild(st);
+  } catch (e) {}
+})();
+
 })();
