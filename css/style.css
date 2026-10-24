@@ -8820,3 +8820,10 @@ img[src*="images/exercises/"] { filter: saturate(0.82) brightness(1.06); }
 #exercisePreviewModal .awak-anim .awak-ph-lbl .a { animation: awakPhA 3.2s ease-in-out infinite; }
 #exercisePreviewModal .awak-anim .awak-ph-lbl .b { animation: awakPhB 3.2s ease-in-out infinite; color: #67e8f9; }
 @media (prefers-reduced-motion: reduce) { #exercisePreviewModal .awak-anim * { animation: none !important; } }
+
+/* ═══ v1428 — images 3:2 (deux positions en portrait 3:4) : cadre animé en 3:4 ═══ */
+#exerciseVisualContent .awak-anim.awak-anim-34,
+#exercisePreviewModal .awak-anim.awak-anim-34 { aspect-ratio: 3 / 4 !important; width: min(100%, 37.5vh) !important; max-height: none !important; margin: 0 auto !important; }
+#exerciseVisualContent .awak-anim.awak-anim-34 .awak-ph,
+#exercisePreviewModal .awak-anim.awak-anim-34 .awak-ph { background-size: 200% 100% !important; }
+#exercisePreviewModal .awak-anim.awak-anim-34 { width: min(100%, 45vh) !important; }

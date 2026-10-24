@@ -26,15 +26,16 @@
   // Les couleurs de DONNÉES (qualités, disciplines, rangs, graphiques) ne
   // passent pas par ces jetons et restent polychromes.
   var T = {
-    bg:        '#0D0D0D',
-    cardBg:    'rgba(255,255,255,0.03)',
-    cardBorder:'1px solid rgba(255,255,255,0.08)',
-    radius:    '13px',
+    // v1429 : alignés sur le système visuel (claude/systeme-visuel.md) — cyan, surfaces #12161c
+    bg:        '#0f1218',
+    cardBg:    '#12161c',
+    cardBorder:'1px solid rgba(255,255,255,0.07)',
+    radius:    '16px',
     txt:       '#e2e8f0',
     mut:       '#94a3b8',
     dim:       '#64748b',
-    brand:     '#22c55e',
-    brandDark: '#16a34a',
+    brand:     '#22d3ee',
+    brandDark: '#0891b2',
     brandFlash:'#39FF14',
     adventure: '#a855f7',
     danger:    '#ef4444',
@@ -113,8 +114,8 @@
 
   // ── Boutons standards ────────────────────────────────────────
   function uiPrimaryButton(label, onclick, accent) {
-    var a = accent || '#22c55e';
-    return '<button onclick="' + onclick + '" style="width:100%;padding:14px;background:linear-gradient(135deg,' + a + ',' + a + 'cc);color:white;border:none;border-radius:14px;font-size:0.95em;font-weight:900;cursor:pointer;">' + label + '</button>';
+    var a = accent || T.brand;
+    return '<button onclick="' + onclick + '" style="width:100%;padding:14px;background:linear-gradient(135deg,' + a + ',' + (accent ? a + 'cc' : T.brandDark) + ');color:' + (accent ? 'white' : '#04121f') + ';border:none;border-radius:14px;font-size:0.95em;font-weight:900;cursor:pointer;">' + label + '</button>';
   }
   window.uiPrimaryButton = uiPrimaryButton;
 
@@ -126,7 +127,7 @@
   // ── Barre de segments (pattern Entraîner / Découvrir) ────────
   // items: [{label, onclick, active}] ; accent = couleur du segment actif
   function uiSegmentBar(items, accent) {
-    var a = accent || '#22c55e';
+    var a = accent || T.brand;
     var btns = items.map(function (it) {
       var st = it.active
         ? 'background:linear-gradient(135deg,' + a + ',' + a + 'cc);color:white;'

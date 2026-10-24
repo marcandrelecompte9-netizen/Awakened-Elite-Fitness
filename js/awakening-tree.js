@@ -480,7 +480,7 @@
         + '@media(min-width:820px){'
         +   '#awakeningTreeOverlay{align-items:center!important;}'
         +   '#awkSheet{max-width:940px!important;border-radius:20px!important;'
-        +     'border:1px solid rgba(34,197,94,0.3)!important;}'
+        +     'border:1px solid rgba(34,211,238,0.3)!important;}'
         +   '#awkSheet .awk-two{display:grid;grid-template-columns:1.15fr 1fr;gap:20px;align-items:start;}'
         + '}';
         document.head.appendChild(stl);
@@ -493,7 +493,7 @@
 
       var sheet = document.createElement('div');
       sheet.id = 'awkSheet';
-      sheet.style.cssText = 'background:#0D0D0D;border-radius:20px 20px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;border-top:2px solid rgba(34,197,94,0.35);';
+      sheet.style.cssText = 'background:#0f1218;border-radius:20px 20px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;border-top:2px solid rgba(34,211,238,0.35);';
       sheet.innerHTML =
         '<div style="width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:99px;margin:0 auto 14px;"></div>'
         + '<div style="text-align:center;font-size:0.6em;letter-spacing:3px;text-transform:uppercase;color:#94a3b8;font-weight:800;">Awakened · Arbre de l\'Éveil</div>'
@@ -520,7 +520,7 @@
         +   '<div style="font-size:0.62em;color:#64748b;text-align:center;line-height:1.5;margin-bottom:12px;">Ton arbre grandit avec tes séances réelles — chaque entraînement nourrit les qualités qu\'il travaille. Aucune branche ne rétrécit jamais.</div>'
         + '</div>'
         + '</div>'
-        + '<button id="awkShareBtn" style="width:100%;padding:13px;margin-bottom:8px;background:linear-gradient(135deg,#22c55e,#16a34a);border:none;border-radius:14px;color:#fff;font-weight:900;cursor:pointer;">📤 Partager mon arbre</button>'
+        + '<button id="awkShareBtn" style="width:100%;padding:13px;margin-bottom:8px;background:linear-gradient(135deg,#22d3ee,#0891b2);border:none;border-radius:14px;color:#04121f;font-weight:800;font-size:15px;cursor:pointer;">Partager mon arbre</button>'
         + '<button id="awkCloseBtn" style="width:100%;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:14px;color:rgba(255,255,255,0.6);font-weight:700;cursor:pointer;">Fermer</button>';
       overlay.appendChild(sheet);
       document.body.appendChild(overlay);

@@ -69,11 +69,13 @@ if (typeof window.awakJourLocal !== 'function') window.awakJourLocal = function 
       var arch = (typeof window.awakArchetype === 'function' && typeof window.awakComputeQualities === 'function')
         ? window.awakArchetype(window.awakComputeQualities()) : null;
 
+      // v1429 : couleurs du système visuel (cyan, surfaces #12161c), plus de vert
       var stat = function (val, lbl) {
-        return '<div style="flex:1;text-align:center;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 4px;">'
-          + '<div style="font-size:1.3em;font-weight:900;color:white;">' + val + '</div>'
-          + '<div style="font-size:0.56em;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;">' + lbl + '</div></div>';
+        return '<div style="flex:1;min-width:0;text-align:center;background:#12161c;border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:12px 4px;">'
+          + '<div style="font-size:19px;font-weight:900;color:#67e8f9;font-variant-numeric:tabular-nums;white-space:nowrap;">' + val + '</div>'
+          + '<div style="font-size:11px;color:#8d9cb1;font-weight:700;margin-top:3px;">' + lbl + '</div></div>';
       };
+      var titre = function (t) { return '<div style="font-size:11px;color:#8d9cb1;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;">' + t + '</div>'; };
 
       var html = '';
       html += '<div style="display:flex;gap:8px;margin-bottom:12px;">'
@@ -86,26 +88,26 @@ if (typeof window.awakJourLocal !== 'function') window.awakJourLocal = function 
         + '</div>';
       if (topQual.length) {
         html += uiCard(
-          '<div style="font-size:0.62em;color:#94a3b8;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;">Qualités nourries cette semaine</div>'
-          + '<div style="font-size:0.95em;font-weight:800;color:#e2e8f0;">'
-          + topQual.map(function (x) { return x.q.ic + ' <span style="color:' + x.q.col + ';">' + x.q.nm + '</span>'; }).join('  ·  ')
+          titre('Qualités nourries cette semaine')
+          + '<div style="display:flex;flex-wrap:wrap;gap:6px;">'
+          + topQual.map(function (x) { return '<span style="padding:5px 11px;border-radius:99px;font-size:13px;font-weight:800;color:' + x.q.col + ';background:' + x.q.col + '1a;border:1px solid ' + x.q.col + '55;">' + x.q.nm + '</span>'; }).join('')
           + '</div>');
       }
       if (topMuscles.length) {
         html += uiCard(
-          '<div style="font-size:0.62em;color:#94a3b8;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;">Muscles les plus travaillés</div>'
-          + '<div style="font-size:0.88em;font-weight:700;color:#e2e8f0;">' + topMuscles.join(' · ') + '</div>');
+          titre('Muscles les plus travaillés')
+          + '<div style="font-size:14px;font-weight:700;color:#e2e8f0;">' + topMuscles.join(' · ') + '</div>');
       }
       if (arch) {
         html += uiCard(
-          '<div style="font-size:0.62em;color:#94a3b8;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;">Ton archétype</div>'
-          + '<div style="font-size:1.05em;font-weight:900;color:#eafff0;">' + arch.name + '</div>'
-          + '<div style="font-size:0.66em;color:#94a3b8;margin-top:2px;">' + arch.sub + '</div>',
+          titre('Ton archétype')
+          + '<div style="font-size:16px;font-weight:900;color:#f1f5f9;">' + arch.name + '</div>'
+          + '<div style="font-size:12.5px;color:#a3b1c2;margin-top:2px;">' + arch.sub + '</div>',
           'cursor:pointer;', '');
       }
-      html += '<button onclick="document.getElementById(\'weeklyRecapOverlay\').remove(); if (typeof showAwakeningTree===\'function\') setTimeout(showAwakeningTree, 120);" style="width:100%;padding:13px;margin-top:6px;background:linear-gradient(135deg,#22c55e,#16a34a);border:none;border-radius:14px;color:#fff;font-weight:900;cursor:pointer;">🌳 Voir mon arbre</button>';
+      html += '<button onclick="document.getElementById(\'weeklyRecapOverlay\').remove(); if (typeof showAwakeningTree===\'function\') setTimeout(showAwakeningTree, 120);" style="width:100%;padding:13px;margin-top:6px;background:linear-gradient(135deg,#22d3ee,#0891b2);border:none;border-radius:14px;color:#04121f;font-weight:800;font-size:15px;cursor:pointer;box-shadow:0 6px 18px rgba(34,211,238,0.25);">Voir mon arbre</button>';
 
-      var s = uiBottomSheet({ id: 'weeklyRecapOverlay', icon: '📅', title: label, subtitle: 'Ce que ton effort a construit.', accent: '#22c55e', center: true });
+      var s = uiBottomSheet({ id: 'weeklyRecapOverlay', icon: (window.AwakIcon && AwakIcon.get('calendrier', 28, '#22d3ee')) || '', title: label, subtitle: 'Ce que ton effort a construit.', accent: '#22d3ee', center: true });
       s.body.innerHTML = html + uiCloseButton('weeklyRecapOverlay');
       s.mount();
     } catch (e) {}

@@ -708,7 +708,7 @@ var EXERCISE_IMAGES = {
   "Planche épaule-touch": 'images/exercises/Planche.webp',
   "Planche longue": 'images/exercises/Planche.webp',
   "Pont fessier": 'images/exercises/Glute_bridge_léger.webp',
-  "Bird-dog": 'images/exercises/Superman.webp',
+  "Bird-dog": 'images/exercises/Bird_Dog.webp',   // v1428 (avant : Superman)
   "Crunchs": 'images/exercises/Crunch_classique.webp',
   "Planche dynamique": 'images/exercises/Planche.webp',
   "Squats sautés + maintien": 'images/exercises/Jump_squat.webp',
@@ -1004,7 +1004,7 @@ var EXERCISE_IMAGES = {
   'Pompes inclinées légères': 'images/exercises/Pompes_genoux_lentes.webp',
   'Étirement pectoral dynamique': 'images/exercises/Ouvertures_dynamiques_pectoraux.webp',
   'Tractions à vide / Cat-Cow': 'images/exercises/Chat_dos_rond.webp',
-  'Bird Dog': 'images/exercises/Superman.webp',
+  'Bird Dog': 'images/exercises/Bird_Dog.webp',   // v1428 (avant : Superman)
   'Y-T-W au sol': 'images/exercises/Superman.webp',
   'Élévations latérales sans poids': 'images/exercises/Élévations_latérales.webp',
   'Biceps curl à vide': 'images/exercises/Curl_biceps_haltères.webp',
@@ -1652,12 +1652,19 @@ window.buildLazyImg       = _buildLazyImg;
 var EXERCISE_IMAGES_V2 = [
   'Crab_Walk.webp',
   'Side_Plank_Leg_Raise.webp',
-  'Close_Grip_Push_Up.webp'
+  'Close_Grip_Push_Up.webp',
+  'Heel_To_Toe_Walk.webp',      // v1428
+  'Bird_Dog.webp',
+  'Airplane_Balance.webp'
 ];
 window.EXERCISE_IMAGES_V2 = EXERCISE_IMAGES_V2;
 // v1416 : images dont les deux positions sont l'une SOUS l'autre (et non côte à côte)
 var EXERCISE_IMAGES_V2_HAUT_BAS = ['Crab_Walk.webp'];
 window.EXERCISE_IMAGES_V2_HAUT_BAS = EXERCISE_IMAGES_V2_HAUT_BAS;
+// v1428 : images 3:2 (deux cases en portrait 3:4 côte à côte) — le cadre animé
+// passe en 3:4 pour montrer chaque position en entier, sans déformer.
+var EXERCISE_IMAGES_V2_34 = ['Heel_To_Toe_Walk.webp', 'Bird_Dog.webp', 'Airplane_Balance.webp'];
+window.EXERCISE_IMAGES_V2_34 = EXERCISE_IMAGES_V2_34;
 // Séance : la nouvelle image s'anime — on voit la position de DÉBUT en grand,
 // puis celle de FIN, en boucle (fondu). Toucher = image entière en plein écran.
 // Mouvement réduit demandé par le téléphone → image fixe entière (null).
@@ -1669,9 +1676,10 @@ window.awakAnimHTML = function (src, srcEnc) {
   } catch (e) { return null; }
   var f = String(src).split('/').pop();
   var hb = EXERCISE_IMAGES_V2_HAUT_BAS.indexOf(f) >= 0;
+  var p34 = EXERCISE_IMAGES_V2_34.indexOf(f) >= 0;
   var u = String(srcEnc || src).replace(/"/g, '&quot;').replace(/'/g, '%27');
   var fond = 'background-image:url(\'' + u + '\');';
-  return '<div class="awak-vis-carre awak-anim' + (hb ? ' awak-anim-hb' : '') + '" onclick="window.awakZoomImage && awakZoomImage(this)" data-src="' + u + '" style="position:relative;width:100%;overflow:hidden;cursor:zoom-in;">'
+  return '<div class="awak-vis-carre awak-anim' + (hb ? ' awak-anim-hb' : '') + (p34 ? ' awak-anim-34' : '') + '" onclick="window.awakZoomImage && awakZoomImage(this)" data-src="' + u + '" style="position:relative;width:100%;overflow:hidden;cursor:zoom-in;">'
     + '<div class="awak-ph awak-ph-a" style="' + fond + '"></div>'
     + '<div class="awak-ph awak-ph-b" style="' + fond + '"></div>'
     + '<div class="awak-ph-lbl" aria-hidden="true"><span class="a">Début</span><span class="b">Fin</span></div>'

@@ -1105,6 +1105,16 @@
       membersHTML(list, colorById) +
       (showCTA ? ctaHTML() : '') +
       todayHTML(list, colorById, plans, dones) +
+      // v1432 : avant, dès qu'un planning existait (même les seuls jours en famille),
+      // plus aucun bouton ne permettait de le modifier.
+      (!showCTA && cur && cal.selected.has(cur)
+        ? '<button onclick="if(typeof openManualPlanEditor===\'function\')openManualPlanEditor()" style="display:flex;align-items:center;gap:11px;width:100%;margin:0 0 12px;padding:12px 14px;border-radius:14px;cursor:pointer;font-family:inherit;text-align:left;min-height:auto;' +
+            'background:#12161c;border:1px solid rgba(34,211,238,0.3);">' +
+            '<span style="flex-shrink:0;width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:rgba(34,211,238,0.12);">' + (window.AwakIcon ? AwakIcon.get('calendrier', 18, '#22d3ee') : '') + '</span>' +
+            '<span style="flex:1;min-width:0;"><span style="display:block;font-size:0.86em;font-weight:800;color:#f1f5f9;">Modifier mon planning</span>' +
+            '<span style="display:block;font-size:0.7em;color:#a3b1c2;margin-top:2px;">Les muscles de chaque jour de la semaine</span></span>' +
+            '<span style="color:#67e8f9;flex-shrink:0;">›</span></button>'
+        : '') +
       resumeHTML(list, colorById, plans, dones) +
       (cal.vue === 'semaine' ? weekHTML(list, colorById, plans, dones) : gridHTML(list, colorById, plans, dones));
   }
