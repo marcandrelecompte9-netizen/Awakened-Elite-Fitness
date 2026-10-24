@@ -721,7 +721,7 @@ function renderFamilyTab() {
     // (encouragements, objectif commun, défis, jeux à deux).
     // En-tête aligné sur le langage des autres onglets : surtitre discret,
     // titre en police d'affichage, pas de paragraphe explicatif.
-    let html = '<div style="border-left:2px solid #ec4899;padding-left:11px;margin-bottom:14px;">'
+    let html = '<div class="awk-entete" data-echelle-garder style="border-left:2px solid #ec4899;padding-left:11px;margin-bottom:14px;">'
         + '<div style="font-size:0.56em;letter-spacing:2.5px;color:#ec4899;font-weight:900;">LES TIENS</div>'
         + '<h2 style="font-size:1.15em;font-weight:900;color:#fff;margin:2px 0 0;'
         +   'font-family:var(--font-display),sans-serif;letter-spacing:0.5px;">Ma famille</h2>'

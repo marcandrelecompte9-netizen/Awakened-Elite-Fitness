@@ -495,6 +495,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // mais on laisse passer les erreurs et avertissements — sinon un bouton
             // qui échoue resterait silencieux et l'app paraîtrait cassée.
             if (quietMode && (type === 'success' || type === 'info')) return;
+            // v1421 : les notifications ordinaires restent moins longtemps (3,2 s max) ;
+            // une durée voulue longue (≥ 5 s, message important) est gardée.
+            if ((type === 'success' || type === 'info') && duration < 5000) duration = Math.min(duration, 3200);
             // v1413 : sur l'écran de fin, les récompenses vont dans « Butin de la séance »
             try { if (window.AwakFin && window.AwakFin.toast(message, type)) return; } catch (e) {}
             const container = document.getElementById('toastContainer');
@@ -16385,28 +16388,28 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // Zones de la vue de FACE
         function _mmpFrontShapes() {
             return ''
-            + _mmpZone('Trapèzes',   '<path d="M87,49 L100,43 L113,49 L110,58 L100,53 L90,58 Z"/>')
-            + _mmpZone('Épaules',    '<ellipse cx="70" cy="70" rx="9.5" ry="9.5"/><ellipse cx="130" cy="70" rx="9.5" ry="9.5"/>')
-            + _mmpZone('Pectoraux',  '<path d="M82,64 C89,61 97,63 99,70 L99,90 C89,92 82,86 81,76 Z"/><path d="M118,64 C111,61 103,63 101,70 L101,90 C111,92 118,86 119,76 Z"/>')
-            + _mmpZone('Biceps',     '<path d="M49,97 L62,97 L45,116 L33,116 Z"/><path d="M151,97 L138,97 L155,116 L167,116 Z"/>')
-            + _mmpZone('Avant-bras', '<path d="M27,124 L36,124 L25,140 L18,140 Z"/><path d="M173,124 L164,124 L175,140 L182,140 Z"/>')
-            + _mmpZone('Abdominaux', '<path d="M85,97 h30 a3,3 0 0 1 3,3 v27 a3,3 0 0 1 -3,3 h-30 a3,3 0 0 1 -3,-3 v-27 a3,3 0 0 1 3,-3 Z"/>')
-            + _mmpZone('Obliques',   '<path d="M76,99 L82,96 L82,128 L78,122 Z"/><path d="M124,99 L118,96 L118,128 L122,122 Z"/>')
-            + _mmpZone('Quadriceps', '<ellipse cx="80" cy="177" rx="10" ry="21"/><ellipse cx="120" cy="177" rx="10" ry="21"/>')
-            + _mmpZone('Adducteurs', '<path d="M94,167 L86,167 L72,195 L80,195 Z"/><path d="M106,167 L114,167 L128,195 L120,195 Z"/>')
-            + _mmpZone('Mollets',    '<ellipse cx="67" cy="231" rx="7" ry="16"/><ellipse cx="133" cy="231" rx="7" ry="16"/>');
+            + _mmpZone('Trapèzes',   '<path d="M88,50 C84,55 78,58 72,61 L84,62 C90,60 95,57 100,57 C105,57 110,60 116,62 L128,61 C122,58 116,55 112,50 C108,53 104,54 100,54 C96,54 92,53 88,50 Z"/>')
+            + _mmpZone('Épaules',    '<path d="M72,62 C67,60 61,62 58,67 C55,72 55,79 57,85 C61,83 65,79 68,74 C70,70 72,66 72,62 Z"/><path d="M128,62 C133,60 139,62 142,67 C145,72 145,79 143,85 C139,83 135,79 132,74 C130,70 128,66 128,62 Z"/>')
+            + _mmpZone('Pectoraux',  '<path d="M99,65 C92,62 81,62 74,66 C71,72 72,80 76,85 C82,90 92,90 99,87 Z"/><path d="M101,65 C108,62 119,62 126,66 C129,72 128,80 124,85 C118,90 108,90 101,87 Z"/>')
+            + _mmpZone('Biceps',     '<path d="M66,84 C62,90 57,97 53,103 C50,104 47,103 46,101 C49,94 54,87 59,82 C62,81 65,82 66,84 Z"/><path d="M134,84 C138,90 143,97 147,103 C150,104 153,103 154,101 C151,94 146,87 141,82 C138,81 135,82 134,84 Z"/>')
+            + _mmpZone('Avant-bras', '<path d="M50,106 C46,114 39,122 33,130 C31,131 28,130 27,128 C31,119 37,110 43,103 C46,102 49,103 50,106 Z"/><path d="M150,106 C154,114 161,122 167,130 C169,131 172,130 173,128 C169,119 163,110 157,103 C154,102 151,103 150,106 Z"/>')
+            + _mmpZone('Abdominaux', '<path d="M90,91 C95,89 105,89 110,91 L111,108 C111,118 107,126 100,129 C93,126 89,118 89,108 Z"/><path d="M100,91 V127 M90.5,100 H109.5 M90,109.5 H110 M91.5,118.5 H108.5" style="fill:none;stroke-width:0.6;opacity:0.8"/>')
+            + _mmpZone('Obliques',   '<path d="M79,90 C83,92 87,94 88,98 L88,117 C86,122 83,124 81,123 C78,114 77,102 79,90 Z"/><path d="M121,90 C117,92 113,94 112,98 L112,117 C114,122 117,124 119,123 C122,114 123,102 121,90 Z"/>')
+            + _mmpZone('Quadriceps', '<path d="M72,135 C78,128 90,135 94,152 C93,165 89,178 84,190 C80,194 74,193 71,188 C68,175 67,160 68,148 C69,142 70,138 72,135 Z"/><path d="M128,135 C122,128 110,135 106,152 C107,165 111,178 116,190 C120,194 126,193 129,188 C132,175 133,160 132,148 C131,142 130,138 128,135 Z"/>')
+            + _mmpZone('Adducteurs', '<path d="M99,146 C98,155 96,165 92,176 C90,170 89,160 92,150 C94,147 97,145 99,146 Z"/><path d="M101,146 C102,155 104,165 108,176 C110,170 111,160 108,150 C106,147 103,145 101,146 Z"/>')
+            + _mmpZone('Mollets',    '<path d="M70,203 C64,211 61,224 62,236 C63,244 65,248 67,250 C70,244 73,233 76,222 C78,214 77,206 74,201 Z"/><path d="M130,203 C136,211 139,224 138,236 C137,244 135,248 133,250 C130,244 127,233 124,222 C122,214 123,206 126,201 Z"/>');
         }
         // Zones de la vue de DOS
         function _mmpBackShapes() {
             return ''
-            + _mmpZone('Trapèzes',   '<path d="M86,47 L100,41 L114,47 L111,70 L100,64 L89,70 Z"/>')
-            + _mmpZone('Épaules',    '<ellipse cx="70" cy="68" rx="9.5" ry="9.5"/><ellipse cx="130" cy="68" rx="9.5" ry="9.5"/>')
-            + _mmpZone('Dos',        '<path d="M83,75 L98,81 L98,120 L87,110 Z"/><path d="M117,75 L102,81 L102,120 L113,110 Z"/>')
-            + _mmpZone('Triceps',    '<path d="M51,93 L64,93 L46,113 L34,113 Z"/><path d="M149,93 L136,93 L154,113 L166,113 Z"/>')
-            + _mmpZone('Avant-bras', '<path d="M29,124 L38,124 L24,140 L17,140 Z"/><path d="M171,124 L162,124 L176,140 L183,140 Z"/>')
-            + _mmpZone('Fessiers',   '<path d="M82,131 C82,123 99,123 99,131 L99,149 C99,157 82,157 82,149 Z"/><path d="M118,131 C118,123 101,123 101,131 L101,149 C101,157 118,157 118,149 Z"/>')
-            + _mmpZone('Ischio-jambiers', '<ellipse cx="81" cy="180" rx="10" ry="20"/><ellipse cx="119" cy="180" rx="10" ry="20"/>')
-            + _mmpZone('Mollets',    '<ellipse cx="70" cy="233" rx="7" ry="16"/><ellipse cx="130" cy="233" rx="7" ry="16"/>');
+            + _mmpZone('Trapèzes',   '<path d="M100,42 C104,46 110,50 120,53 C114,58 108,64 104,80 L100,98 L96,80 C92,64 86,58 80,53 C90,50 96,46 100,42 Z"/>')
+            + _mmpZone('Épaules',    '<path d="M72,60 C66,58 60,61 58,67 C56,73 57,79 59,83 C63,80 67,76 70,71 C72,67 73,63 72,60 Z"/><path d="M128,60 C134,58 140,61 142,67 C144,73 143,79 141,83 C137,80 133,76 130,71 C128,67 127,63 128,60 Z"/>')
+            + _mmpZone('Dos',        '<path d="M74,70 C80,76 90,82 97,88 L98,110 C93,114 87,118 82,119 C79,104 76,88 74,70 Z"/><path d="M126,70 C120,76 110,82 103,88 L102,110 C107,114 113,118 118,119 C121,104 124,88 126,70 Z"/>')
+            + _mmpZone('Triceps',    '<path d="M63,79 C60,86 56,93 52,101 C49,102 46,101 46,99 C49,91 53,84 57,77 C59,76 62,77 63,79 Z"/><path d="M137,79 C140,86 144,93 148,101 C151,102 154,101 154,99 C151,91 147,84 143,77 C141,76 138,77 137,79 Z"/>')
+            + _mmpZone('Avant-bras', '<path d="M51,104 C47,112 40,121 33,131 C31,132 28,131 27,129 C31,119 37,110 44,101 C47,100 50,101 51,104 Z"/><path d="M149,104 C153,112 160,121 167,131 C169,132 172,131 173,129 C169,119 163,110 156,101 C153,100 150,101 149,104 Z"/>')
+            + _mmpZone('Fessiers',   '<path d="M99,118 C92,116 82,119 79,128 C77,138 80,148 88,151 C94,152 99,149 99,144 Z"/><path d="M101,118 C108,116 118,119 121,128 C123,138 120,148 112,151 C106,152 101,149 101,144 Z"/>')
+            + _mmpZone('Ischio-jambiers', '<path d="M74,158 C80,154 92,155 96,160 C95,172 92,184 88,195 C84,198 78,197 76,192 C72,180 72,168 74,158 Z"/><path d="M126,158 C120,154 108,155 104,160 C105,172 108,184 112,195 C116,198 122,197 124,192 C128,180 128,168 126,158 Z"/>')
+            + _mmpZone('Mollets',    '<path d="M70,200 C64,206 62,216 63,226 C64,233 67,238 71,238 C75,236 78,228 79,218 C80,210 77,203 73,200 Z"/><path d="M130,200 C136,206 138,216 137,226 C136,233 133,238 129,238 C125,236 122,228 121,218 C120,210 123,203 127,200 Z"/>');
         }
         // Une zone cliquable (peut contenir plusieurs formes : gauche + droite)
         function _mmpZone(id, shapes) {
@@ -23597,29 +23600,25 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             var img = estFace ? 'images/body/body_face.webp' : 'images/body/body_dos.webp';
 
             // [nom affiché, muscle réel, tracés]
+            // v1418 : tracés ANATOMIQUES (forme réelle de chaque muscle, calée sur la
+            // silhouette 200×298) — avant : cercles, ovales et quadrilatères.
+            // Avant-bras et Mollets restent sur la vue de face seulement (un seul
+            // muscle dans la base, voir l'historique de ce bloc).
             var zones = estFace ? [
-                ['Épaules',    'Épaules',     '<ellipse cx="70" cy="70" rx="9.5" ry="9.5"/><ellipse cx="130" cy="70" rx="9.5" ry="9.5"/>'],
-                ['Pectoraux',  'Pectoraux',   '<path d="M82,64 C89,61 97,63 99,70 L99,90 C89,92 82,86 81,76 Z"/><path d="M118,64 C111,61 103,63 101,70 L101,90 C111,92 118,86 119,76 Z"/>'],
-                ['Biceps',     'Biceps',      '<path d="M49,97 L62,97 L45,116 L33,116 Z"/><path d="M151,97 L138,97 L155,116 L167,116 Z"/>'],
-                ['Avant-bras', 'Avant-bras',  '<path d="M27,124 L36,124 L25,140 L18,140 Z"/><path d="M173,124 L164,124 L175,140 L182,140 Z"/>'],
-                ['Abdos',      'Abdominaux',  '<path d="M85,97 h30 a3,3 0 0 1 3,3 v27 a3,3 0 0 1 -3,3 h-30 a3,3 0 0 1 -3,-3 v-27 a3,3 0 0 1 3,-3 Z"/>'],
-                // Obliques : suivis par getAllMusclesRecoveryStatus mais absents
-                // de la silhouette — le muscle n'était donc jamais consultable.
-                ['Obliques',   'Obliques',    '<path d="M76,99 L82,96 L82,128 L78,122 Z"/><path d="M124,99 L118,96 L118,128 L122,122 Z"/>'],
-                ['Quadriceps', 'Quadriceps',  '<ellipse cx="80" cy="177" rx="10" ry="21"/><ellipse cx="120" cy="177" rx="10" ry="21"/>'],
-                ['Mollets',    'Mollets',     '<ellipse cx="67" cy="231" rx="7" ry="16"/><ellipse cx="133" cy="231" rx="7" ry="16"/>']
+                ['Épaules', 'Épaules', '<path d="M72,62 C67,60 61,62 58,67 C55,72 55,79 57,85 C61,83 65,79 68,74 C70,70 72,66 72,62 Z"/><path d="M128,62 C133,60 139,62 142,67 C145,72 145,79 143,85 C139,83 135,79 132,74 C130,70 128,66 128,62 Z"/>'],
+                ['Pectoraux', 'Pectoraux', '<path d="M99,65 C92,62 81,62 74,66 C71,72 72,80 76,85 C82,90 92,90 99,87 Z"/><path d="M101,65 C108,62 119,62 126,66 C129,72 128,80 124,85 C118,90 108,90 101,87 Z"/>'],
+                ['Biceps', 'Biceps', '<path d="M66,84 C62,90 57,97 53,103 C50,104 47,103 46,101 C49,94 54,87 59,82 C62,81 65,82 66,84 Z"/><path d="M134,84 C138,90 143,97 147,103 C150,104 153,103 154,101 C151,94 146,87 141,82 C138,81 135,82 134,84 Z"/>'],
+                ['Avant-bras', 'Avant-bras', '<path d="M50,106 C46,114 39,122 33,130 C31,131 28,130 27,128 C31,119 37,110 43,103 C46,102 49,103 50,106 Z"/><path d="M150,106 C154,114 161,122 167,130 C169,131 172,130 173,128 C169,119 163,110 157,103 C154,102 151,103 150,106 Z"/>'],
+                ['Abdos', 'Abdominaux', '<path d="M90,91 C95,89 105,89 110,91 L111,108 C111,118 107,126 100,129 C93,126 89,118 89,108 Z"/><path d="M100,91 V127 M90.5,100 H109.5 M90,109.5 H110 M91.5,118.5 H108.5" style="fill:none;stroke-width:0.6;opacity:0.8"/>'],
+                ['Obliques', 'Obliques', '<path d="M79,90 C83,92 87,94 88,98 L88,117 C86,122 83,124 81,123 C78,114 77,102 79,90 Z"/><path d="M121,90 C117,92 113,94 112,98 L112,117 C114,122 117,124 119,123 C122,114 123,102 121,90 Z"/>'],
+                ['Quadriceps', 'Quadriceps', '<path d="M72,135 C78,128 90,135 94,152 C93,165 89,178 84,190 C80,194 74,193 71,188 C68,175 67,160 68,148 C69,142 70,138 72,135 Z"/><path d="M128,135 C122,128 110,135 106,152 C107,165 111,178 116,190 C120,194 126,193 129,188 C132,175 133,160 132,148 C131,142 130,138 128,135 Z"/>'],
+                ['Mollets', 'Mollets', '<path d="M70,203 C64,211 61,224 62,236 C63,244 65,248 67,250 C70,244 73,233 76,222 C78,214 77,206 74,201 Z"/><path d="M130,203 C136,211 139,224 138,236 C137,244 135,248 133,250 C130,244 127,233 124,222 C122,214 123,206 126,201 Z"/>']
             ] : [
-                ['Trapèzes',   'Trapèzes',    '<path d="M86,47 L100,41 L114,47 L111,70 L100,64 L89,70 Z"/>'],
-                ['Dos',        'Dos',         '<path d="M83,75 L98,81 L98,120 L87,110 Z"/><path d="M117,75 L102,81 L102,120 L113,110 Z"/>'],
-                ['Triceps',    'Triceps',     '<path d="M51,93 L64,93 L46,113 L34,113 Z"/><path d="M149,93 L136,93 L154,113 L166,113 Z"/>'],
-                // ⚠️ Avant-bras et Mollets NE SONT PLUS ici : ce sont des membres,
-                // visibles des deux côtés, mais la base ne connaît qu'UN muscle
-                // « Avant-bras » et UN muscle « Mollets ». Les afficher dans les
-                // deux vues montrait deux fois la même donnée — même état, même
-                // séance lancée — sans que rien ne l'explique.
-                // Ils restent sur la vue de FACE, qui est celle par défaut.
-                ['Fessiers',   'Fessiers',    '<path d="M82,131 C82,123 99,123 99,131 L99,149 C99,157 82,157 82,149 Z"/><path d="M118,131 C118,123 101,123 101,131 L101,149 C101,157 118,157 118,149 Z"/>'],
-                ['Ischios',    'Ischio-jambiers', '<ellipse cx="81" cy="180" rx="10" ry="20"/><ellipse cx="119" cy="180" rx="10" ry="20"/>']
+                ['Trapèzes', 'Trapèzes', '<path d="M100,42 C104,46 110,50 120,53 C114,58 108,64 104,80 L100,98 L96,80 C92,64 86,58 80,53 C90,50 96,46 100,42 Z"/>'],
+                ['Dos', 'Dos', '<path d="M74,70 C80,76 90,82 97,88 L98,110 C93,114 87,118 82,119 C79,104 76,88 74,70 Z"/><path d="M126,70 C120,76 110,82 103,88 L102,110 C107,114 113,118 118,119 C121,104 124,88 126,70 Z"/>'],
+                ['Triceps', 'Triceps', '<path d="M63,79 C60,86 56,93 52,101 C49,102 46,101 46,99 C49,91 53,84 57,77 C59,76 62,77 63,79 Z"/><path d="M137,79 C140,86 144,93 148,101 C151,102 154,101 154,99 C151,91 147,84 143,77 C141,76 138,77 137,79 Z"/>'],
+                ['Fessiers', 'Fessiers', '<path d="M99,118 C92,116 82,119 79,128 C77,138 80,148 88,151 C94,152 99,149 99,144 Z"/><path d="M101,118 C108,116 118,119 121,128 C123,138 120,148 112,151 C106,152 101,149 101,144 Z"/>'],
+                ['Ischios', 'Ischio-jambiers', '<path d="M74,158 C80,154 92,155 96,160 C95,172 92,184 88,195 C84,198 78,197 76,192 C72,180 72,168 74,158 Z"/><path d="M126,158 C120,154 108,155 104,160 C105,172 108,184 112,195 C116,198 122,197 124,192 C128,180 128,168 126,158 Z"/>']
             ];
 
             var svgZones = '', prets = 0, pretsNoms = [], recup = 0, aReposer = 0, recupNoms = [], reposNoms = [];
@@ -23653,7 +23652,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // ils appellent le regard. Les autres restent mats.
                 const _id = z[1].replace(/'/g, "\\'");
                 svgZones += '<g style="cursor:pointer;fill:' + (mal ? 'url(#corpsMal)' : c) + ';fill-opacity:' + (pret ? '0.55' : (mal ? '0.9' : '0.28'))
-                    + ';stroke:' + c + ';stroke-width:' + (pret ? '1.3' : (mal ? '1.4' : '0.8')) + ';' + (mal ? 'stroke-dasharray:3 2;' : '') + '" '
+                    + ';stroke:' + c + ';stroke-width:' + (pret ? '1.1' : (mal ? '1.4' : '0.8')) + ';stroke-linejoin:round;' + (mal ? 'stroke-dasharray:3 2;' : '') + '" '
                     + (pret ? 'filter="url(#corpsGlow)" ' : '')
                     + 'onclick="awakCorpsToucher(\'' + _id + '\',\'' + z[0].replace(/'/g, "\\'") + '\')">'
                     + z[2]
@@ -23719,7 +23718,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1416);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1421);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -23771,7 +23770,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 +       '<rect width="5" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.22"/>'
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1416" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1421" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -24253,25 +24252,25 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
             // [nom, tracés, point d'ancrage x/y sur le corps, côté]
             const zones = estFace ? [
-                ['Trapèzes',   '<path d="M87,49 L100,43 L113,49 L110,58 L100,53 L90,58 Z"/>', 100, 50, 'g'],
-                ['Épaules',    '<ellipse cx="70" cy="70" rx="9.5" ry="9.5"/><ellipse cx="130" cy="70" rx="9.5" ry="9.5"/>', 70, 70, 'g'],
-                ['Pectoraux',  '<path d="M82,64 C89,61 97,63 99,70 L99,90 C89,92 82,86 81,76 Z"/><path d="M118,64 C111,61 103,63 101,70 L101,90 C111,92 118,86 119,76 Z"/>', 82, 77, 'g'],
-                ['Biceps',     '<path d="M49,97 L62,97 L45,116 L33,116 Z"/><path d="M151,97 L138,97 L155,116 L167,116 Z"/>', 47, 107, 'g'],
-                ['Avant-bras', '<path d="M27,124 L36,124 L25,140 L18,140 Z"/><path d="M173,124 L164,124 L175,140 L182,140 Z"/>', 27, 132, 'g'],
-                ['Abdominaux', '<path d="M85,97 h30 a3,3 0 0 1 3,3 v27 a3,3 0 0 1 -3,3 h-30 a3,3 0 0 1 -3,-3 v-27 a3,3 0 0 1 3,-3 Z"/>', 118, 113, 'd'],
-                ['Obliques',   '<path d="M76,99 L82,96 L82,128 L78,122 Z"/><path d="M124,99 L118,96 L118,128 L122,122 Z"/>', 124, 112, 'd'],
-                ['Quadriceps', '<ellipse cx="80" cy="177" rx="10" ry="21"/><ellipse cx="120" cy="177" rx="10" ry="21"/>', 130, 177, 'd'],
-                ['Adducteurs', '<path d="M94,167 L86,167 L72,195 L80,195 Z"/><path d="M106,167 L114,167 L128,195 L120,195 Z"/>', 100, 185, 'g'],
-                ['Mollets',    '<ellipse cx="67" cy="231" rx="7" ry="16"/><ellipse cx="133" cy="231" rx="7" ry="16"/>', 133, 231, 'd']
+                ['Trapèzes',   '<path d="M88,50 C84,55 78,58 72,61 L84,62 C90,60 95,57 100,57 C105,57 110,60 116,62 L128,61 C122,58 116,55 112,50 C108,53 104,54 100,54 C96,54 92,53 88,50 Z"/>', 100, 50, 'g'],
+                ['Épaules',    '<path d="M72,62 C67,60 61,62 58,67 C55,72 55,79 57,85 C61,83 65,79 68,74 C70,70 72,66 72,62 Z"/><path d="M128,62 C133,60 139,62 142,67 C145,72 145,79 143,85 C139,83 135,79 132,74 C130,70 128,66 128,62 Z"/>', 70, 70, 'g'],
+                ['Pectoraux',  '<path d="M99,65 C92,62 81,62 74,66 C71,72 72,80 76,85 C82,90 92,90 99,87 Z"/><path d="M101,65 C108,62 119,62 126,66 C129,72 128,80 124,85 C118,90 108,90 101,87 Z"/>', 82, 77, 'g'],
+                ['Biceps',     '<path d="M66,84 C62,90 57,97 53,103 C50,104 47,103 46,101 C49,94 54,87 59,82 C62,81 65,82 66,84 Z"/><path d="M134,84 C138,90 143,97 147,103 C150,104 153,103 154,101 C151,94 146,87 141,82 C138,81 135,82 134,84 Z"/>', 47, 107, 'g'],
+                ['Avant-bras', '<path d="M50,106 C46,114 39,122 33,130 C31,131 28,130 27,128 C31,119 37,110 43,103 C46,102 49,103 50,106 Z"/><path d="M150,106 C154,114 161,122 167,130 C169,131 172,130 173,128 C169,119 163,110 157,103 C154,102 151,103 150,106 Z"/>', 27, 132, 'g'],
+                ['Abdominaux', '<path d="M90,91 C95,89 105,89 110,91 L111,108 C111,118 107,126 100,129 C93,126 89,118 89,108 Z"/><path d="M100,91 V127 M90.5,100 H109.5 M90,109.5 H110 M91.5,118.5 H108.5" style="fill:none;stroke-width:0.6;opacity:0.8"/>', 118, 113, 'd'],
+                ['Obliques',   '<path d="M79,90 C83,92 87,94 88,98 L88,117 C86,122 83,124 81,123 C78,114 77,102 79,90 Z"/><path d="M121,90 C117,92 113,94 112,98 L112,117 C114,122 117,124 119,123 C122,114 123,102 121,90 Z"/>', 124, 112, 'd'],
+                ['Quadriceps', '<path d="M72,135 C78,128 90,135 94,152 C93,165 89,178 84,190 C80,194 74,193 71,188 C68,175 67,160 68,148 C69,142 70,138 72,135 Z"/><path d="M128,135 C122,128 110,135 106,152 C107,165 111,178 116,190 C120,194 126,193 129,188 C132,175 133,160 132,148 C131,142 130,138 128,135 Z"/>', 130, 177, 'd'],
+                ['Adducteurs', '<path d="M99,146 C98,155 96,165 92,176 C90,170 89,160 92,150 C94,147 97,145 99,146 Z"/><path d="M101,146 C102,155 104,165 108,176 C110,170 111,160 108,150 C106,147 103,145 101,146 Z"/>', 100, 185, 'g'],
+                ['Mollets',    '<path d="M70,203 C64,211 61,224 62,236 C63,244 65,248 67,250 C70,244 73,233 76,222 C78,214 77,206 74,201 Z"/><path d="M130,203 C136,211 139,224 138,236 C137,244 135,248 133,250 C130,244 127,233 124,222 C122,214 123,206 126,201 Z"/>', 133, 231, 'd']
             ] : [
-                ['Trapèzes',   '<path d="M86,47 L100,41 L114,47 L111,70 L100,64 L89,70 Z"/>', 100, 52, 'g'],
-                ['Épaules',    '<ellipse cx="70" cy="68" rx="9.5" ry="9.5"/><ellipse cx="130" cy="68" rx="9.5" ry="9.5"/>', 70, 68, 'g'],
-                ['Dos',        '<path d="M83,75 L98,81 L98,120 L87,110 Z"/><path d="M117,75 L102,81 L102,120 L113,110 Z"/>', 117, 95, 'd'],
-                ['Triceps',    '<path d="M51,93 L64,93 L46,113 L34,113 Z"/><path d="M149,93 L136,93 L154,113 L166,113 Z"/>', 48, 103, 'g'],
-                ['Avant-bras', '<path d="M29,124 L38,124 L24,140 L17,140 Z"/><path d="M171,124 L162,124 L176,140 L183,140 Z"/>', 28, 132, 'g'],
-                ['Fessiers',   '<path d="M82,131 C82,123 99,123 99,131 L99,149 C99,157 82,157 82,149 Z"/><path d="M118,131 C118,123 101,123 101,131 L101,149 C101,157 118,157 118,149 Z"/>', 120, 140, 'd'],
-                ['Ischio-jambiers', '<ellipse cx="81" cy="180" rx="10" ry="20"/><ellipse cx="119" cy="180" rx="10" ry="20"/>', 119, 180, 'd'],
-                ['Mollets',    '<ellipse cx="70" cy="233" rx="7" ry="16"/><ellipse cx="130" cy="233" rx="7" ry="16"/>', 70, 233, 'g']
+                ['Trapèzes',   '<path d="M100,42 C104,46 110,50 120,53 C114,58 108,64 104,80 L100,98 L96,80 C92,64 86,58 80,53 C90,50 96,46 100,42 Z"/>', 100, 52, 'g'],
+                ['Épaules',    '<path d="M72,60 C66,58 60,61 58,67 C56,73 57,79 59,83 C63,80 67,76 70,71 C72,67 73,63 72,60 Z"/><path d="M128,60 C134,58 140,61 142,67 C144,73 143,79 141,83 C137,80 133,76 130,71 C128,67 127,63 128,60 Z"/>', 70, 68, 'g'],
+                ['Dos',        '<path d="M74,70 C80,76 90,82 97,88 L98,110 C93,114 87,118 82,119 C79,104 76,88 74,70 Z"/><path d="M126,70 C120,76 110,82 103,88 L102,110 C107,114 113,118 118,119 C121,104 124,88 126,70 Z"/>', 117, 95, 'd'],
+                ['Triceps',    '<path d="M63,79 C60,86 56,93 52,101 C49,102 46,101 46,99 C49,91 53,84 57,77 C59,76 62,77 63,79 Z"/><path d="M137,79 C140,86 144,93 148,101 C151,102 154,101 154,99 C151,91 147,84 143,77 C141,76 138,77 137,79 Z"/>', 48, 103, 'g'],
+                ['Avant-bras', '<path d="M51,104 C47,112 40,121 33,131 C31,132 28,131 27,129 C31,119 37,110 44,101 C47,100 50,101 51,104 Z"/><path d="M149,104 C153,112 160,121 167,131 C169,132 172,131 173,129 C169,119 163,110 156,101 C153,100 150,101 149,104 Z"/>', 28, 132, 'g'],
+                ['Fessiers',   '<path d="M99,118 C92,116 82,119 79,128 C77,138 80,148 88,151 C94,152 99,149 99,144 Z"/><path d="M101,118 C108,116 118,119 121,128 C123,138 120,148 112,151 C106,152 101,149 101,144 Z"/>', 120, 140, 'd'],
+                ['Ischio-jambiers', '<path d="M74,158 C80,154 92,155 96,160 C95,172 92,184 88,195 C84,198 78,197 76,192 C72,180 72,168 74,158 Z"/><path d="M126,158 C120,154 108,155 104,160 C105,172 108,184 112,195 C116,198 122,197 124,192 C128,180 128,168 126,158 Z"/>', 119, 180, 'd'],
+                ['Mollets',    '<path d="M70,200 C64,206 62,216 63,226 C64,233 67,238 71,238 C75,236 78,228 79,218 C80,210 77,203 73,200 Z"/><path d="M130,200 C136,206 138,216 137,226 C136,233 133,238 129,238 C125,236 122,228 121,218 C120,210 123,203 127,200 Z"/>', 70, 233, 'g']
             ];
 
             // Le viewBox est ÉLARGI (−90 → 290) pour loger les étiquettes
@@ -24809,8 +24808,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // découpée par le clip : seule la zone reconquise est visible.
             // Le quadrillage dessiné qui servait de repli a été retiré.
 
+            // v1421 : sans brèche ouverte, la carte se réduit à une bande (avant : ~340 px
+            // pour « Aucune brèche ») ; la Carte de Chasseur et la mission remontent.
+            const _compacte = !rifts.length;
             return ''
-            + '<div style="position:relative;border-radius:18px;overflow:hidden;background:#08090c;'
+            + '<div class="awak-carte' + (_compacte ? ' awak-carte-compacte' : '') + '" style="position:relative;border-radius:18px;overflow:hidden;background:#08090c;'
             +   'border:1px solid ' + rangCol + '33;margin-bottom:14px;">'
             +   '<svg viewBox="0 0 400 400" style="width:100%;height:auto;display:block;">'
             +     '<defs>'
@@ -29259,7 +29261,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1416");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1421");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -30021,6 +30023,14 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 .forEach(card => musclesPanel.appendChild(card));
             tab.appendChild(musclesPanel);
 
+            // v1421 : en-tête commun aux onglets (même langage que Progrès, Famille…)
+            try {
+                const _ent = document.createElement('div');
+                _ent.className = 'awk-entete'; _ent.id = 'awakGameEntete';
+                _ent.setAttribute('data-echelle-garder', '');
+                _ent.innerHTML = '<div>◈ Le Système</div><h2>Ton aventure</h2>';
+                tab.insertBefore(_ent, tab.firstChild);
+            } catch (e) {}
 
             // ── Animer les barres XP ─────────────────────────────────
             setTimeout(() => {
@@ -33814,7 +33824,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1416);'
+                +     'url(images/combat_bg_v1.webp?v=1421);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -34112,7 +34122,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1416);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1421);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -34384,7 +34394,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:540px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto;display:flex;flex-direction:column;">
                 <!-- Header : vague actuelle -->
-                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1416);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1421);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                         <span style="font-size:0.6em;color:${theme.color};font-weight:900;letter-spacing:2px;">⚔ VAGUE ${rift.currentWaveIdx + 1} / ${rift.waves.length}${currentWave.isBoss ? ' · BOSS' : ''}</span>
                         <button onclick="awakAbandonRift()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
@@ -34570,6 +34580,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // Exercice d'extérieur alors que le lieu actif ne l'est pas
                 try { if (typeof awakExerciseBlockedByLocation === 'function' && awakExerciseBlockedByLocation(ex)) return false; } catch (e) {}
                 if (/tapis roulant|vélo stationnaire|rameur|elliptique|stairmaster|piscine/.test(eq)) return false;
+                if (/\bpool\b|aqua|water/.test(n)) return false;   // v1417 : filet (exercices de piscine nommés en anglais)
                 return true;
             };
 
@@ -35514,7 +35525,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1416');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1421');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -36097,6 +36108,14 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const t = ex.type || 'exercise';
                 if (t !== 'exercise') return false; // pas d'échauffement/étirement/info
                 const n = (ex.name || '').toLowerCase();
+                // v1417 : une Chasse se fait où on est, sans matériel (comme une Faille
+                // ordinaire). Avant : aucun filtre d'équipement → « Pool Push-Up »,
+                // « Water Running Sprint » (piscine), squats à la barre…
+                const eq = ex.equipment || [];
+                const eqTxt = eq.join(' ').toLowerCase();
+                if (/piscine|pool|aqua|water|natation|swim/.test(n + ' ' + eqTxt)) return false;
+                if (!(eq.length === 0 || eq.every(e => e === 'Poids du corps' || e === 'Aucun'))) return false;
+                try { if (typeof awakExerciseBlockedByLocation === 'function' && awakExerciseBlockedByLocation(ex)) return false; } catch (e) {}
                 return /burpee|jump|plyo|sprint|hiit|squat|push|pompe|jack|climber/.test(n);
             });
 
@@ -36251,7 +36270,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1416);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1421);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -36422,7 +36441,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1416);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1421);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -47563,7 +47582,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
               // v1393 : hauteur réservée (aspect-ratio) — sinon l'image recréée
               // n'a aucune hauteur le temps d'un décodage, le formulaire saute
               // de ~160 px et le toucher sur le champ suivant tombe à côté.
-              +   '<img src="images/body/body_face.webp?v=1416" alt="" width="784" height="1168" '
+              +   '<img src="images/body/body_face.webp?v=1421" alt="" width="784" height="1168" '
               +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -47645,7 +47664,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1416);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1421);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -47712,7 +47731,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1416);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1421);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -50114,7 +50133,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1416");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1421");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.

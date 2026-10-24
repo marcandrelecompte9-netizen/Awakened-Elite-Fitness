@@ -114,6 +114,13 @@
       '.ahp-row{display:flex;align-items:center;gap:12px;width:100%;padding:12px 2px;background:none;border:none;' +
         'border-top:1px solid rgba(255,255,255,0.05);cursor:pointer;font-family:inherit;text-align:left;color:#e2e8f0;}' +
       '.ahp-row:first-child{border-top:none;}' +
+      // v1421 : raccourcis en tuiles 2 colonnes
+      '.ahp-raccs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}' +
+      '.ahp-row.ahp-tq{flex-direction:column;align-items:flex-start;gap:9px;padding:12px;min-height:96px;border:1px solid rgba(255,255,255,0.07);' +
+        'border-radius:14px;background:linear-gradient(160deg,rgba(255,255,255,0.035),rgba(255,255,255,0.01));transition:transform .15s,border-color .2s;}' +
+      '.ahp-row.ahp-tq:active{transform:scale(.97);border-color:rgba(34,211,238,0.35);}' +
+      '.ahp-row.ahp-tq .ahp-tq-d{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}' +
+      '.ahp-raccs > .ahp-tq:last-child:nth-child(odd){grid-column:1/-1;min-height:0;flex-direction:row;align-items:center;}' +
       '.ahp-ic{flex-shrink:0;width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,0.04);' +
         'display:flex;align-items:center;justify-content:center;}' +
       // Conteneurs conditionnels déplacés : vides → aucune marge
@@ -204,18 +211,18 @@
     var faille = document.getElementById('quickFailleBtn');
     var jeu = faille && faille.style.display !== 'none';
 
+    // v1421 : tuiles (2 colonnes) au lieu d'une liste de lignes
     function ligne(icone, couleur, titre, detail, action) {
-      return '<button class="ahp-row" onclick="' + action + '">' +
-          '<span class="ahp-ic">' + ico(icone, 18, couleur) + '</span>' +
-          '<span style="flex:1;min-width:0;">' +
-            '<span style="display:block;font-size:0.88em;font-weight:700;color:#e2e8f0;">' + titre + '</span>' +
-            '<span style="display:block;font-size:0.76em;color:#a3b1c2;margin-top:2px;">' + detail + '</span>' +
+      return '<button class="ahp-row ahp-tq" onclick="' + action + '">' +
+          '<span class="ahp-ic" style="background:' + couleur + '1f;">' + ico(icone, 18, couleur) + '</span>' +
+          '<span style="display:block;min-width:0;">' +
+            '<span style="display:block;font-size:0.86em;font-weight:800;color:#e2e8f0;">' + titre + '</span>' +
+            '<span class="ahp-tq-d" style="font-size:0.72em;color:#a3b1c2;margin-top:2px;line-height:1.35;">' + detail + '</span>' +
           '</span>' +
-          '<span style="flex-shrink:0;color:#475569;font-size:1.2em;">›</span>' +
         '</button>';
     }
 
-    return '<div class="ahp-card" style="padding:4px 14px;">' +
+    return '<div class="ahp-raccs">' +
         ligne('liste', '#93c5fd', 'Mes routines', 'Tes séances enregistrées', 'switchTab(\'routines\')') +
         ligne('grille', '#93c5fd', 'Exercices', 'Bibliothèque et fiches', 'switchTab(\'exercises\')') +
         ligne('soleil', '#fbbf24', 'Réveil du corps', 'Mobilité douce, sans matériel', 'if(typeof showMorningRoutineModal===\'function\')showMorningRoutineModal()') +

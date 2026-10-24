@@ -1435,7 +1435,6 @@ var EXERCISE_IMAGES = {
   'Teaser complet': 'images/exercises/Teaser_complet.webp',
 
   // v1334 : nouveaux exercices au poids du corps (images à venir)
-  "Rowing inversé sous table": 'images/exercises/Inverted_Table_Row.webp',
   "Rowing à la serviette (porte)": 'images/exercises/Towel_Door_Row.webp',
   "Snow angels inversés": 'images/exercises/Reverse_Snow_Angels.webp',
   "Nageur au sol": 'images/exercises/Prone_Swimmers.webp',
@@ -1449,7 +1448,6 @@ var EXERCISE_IMAGES = {
   "Shoulder taps en planche": 'images/exercises/Plank_Shoulder_Taps.webp',
   "Marche au mur (wall walk)": 'images/exercises/Wall_Walk.webp',
   "Curl au sac à dos": 'images/exercises/Backpack_Curl.webp',
-  "Rowing supination sous table": 'images/exercises/Underhand_Table_Row.webp',
   "Élévations de jambe en appui latéral": 'images/exercises/Side_Plank_Leg_Raise.webp',
   "Essuie-glaces": 'images/exercises/Windshield_Wipers.webp',
   "Crunch latéral debout": 'images/exercises/Standing_Side_Crunch.webp',
@@ -1689,7 +1687,7 @@ window.awakImageV2 = function (src) {
     var css = EXERCISE_IMAGES_V2.map(function (f) {
       var e = encodeURIComponent(f).replace(/'/g, '%27');
       return 'img[src*="images/exercises/' + f + '"],img[src*="images/exercises/' + e + '"]';
-    }).join(',') + '{-webkit-clip-path:none!important;clip-path:none!important;}';
+    }).join(',') + '{-webkit-clip-path:none!important;clip-path:none!important;filter:none!important;}';
     var st = document.createElement('style'); st.id = 'awakImagesV2'; st.textContent = css;
     (document.head || document.documentElement).appendChild(st);
   } catch (e) {}

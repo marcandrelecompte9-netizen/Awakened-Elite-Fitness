@@ -8771,3 +8771,37 @@ body:has(#completionView:not(.hidden)) .toast-container { top: calc(12px + env(s
 #exerciseVisualContent .awak-anim .awak-ph-lbl span { position: absolute; left: 0; bottom: 0; white-space: nowrap; padding: 4px 10px; border-radius: 99px; background: rgba(2,5,16,0.82); color: #e2e8f0; font-size: 12px; font-weight: 800; letter-spacing: 0.5px; }
 #exerciseVisualContent .awak-anim .awak-ph-lbl .a { animation: awakPhA 3.2s ease-in-out infinite; }
 #exerciseVisualContent .awak-anim .awak-ph-lbl .b { animation: awakPhB 3.2s ease-in-out infinite; color: #67e8f9; }
+
+/* ═══ v1421 — FINITIONS VISUELLES ═══════════════════════════════════════ */
+/* 1. En-tête commun à tous les onglets (Progrès, Famille, Routines, Paramètres, Jeu) */
+.awk-entete { border-left: 3px solid var(--awk-cyan, #22d3ee) !important; padding: 2px 0 2px 12px !important; margin: 2px 0 14px !important; }
+.awk-entete > div:first-child { font-size: 11px !important; letter-spacing: 2px !important; color: var(--awk-cyan-clair, #67e8f9) !important; font-weight: 900 !important; text-transform: uppercase; }
+.awk-entete > h2 { font-size: 21px !important; line-height: 1.15 !important; color: #fff !important; margin: 3px 0 0 !important; font-weight: 900 !important; font-family: var(--font-display), sans-serif !important; letter-spacing: 0.3px !important; }
+
+/* 2. Carte de l'effacement sans brèche : une bande au lieu d'un grand disque vide */
+.awak-carte-compacte { height: 132px; }
+.awak-carte-compacte > svg { position: absolute; left: 0; top: 50%; transform: translateY(-50%); }
+
+/* 3. Cartes un peu plus vivantes : reflet en haut, ombre douce, retour au toucher */
+.ahp-card, .ahp-tile, #gameTab .card, #historyTab .card, #familyTab .card, #routinesTab .card {
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 8px 24px rgba(0,0,0,0.22) !important;
+}
+.ahp-tile, .ahp-card.ahp-quest { transition: transform .15s ease, border-color .2s ease; }
+.ahp-tile:active, .ahp-card.ahp-quest:active { transform: scale(.975); border-color: rgba(34,211,238,0.35) !important; }
+.ahp-tile { background: linear-gradient(160deg, rgba(255,255,255,0.035), rgba(255,255,255,0.008)), #12161c !important; }
+@media (prefers-reduced-motion: reduce) { .ahp-tile, .ahp-card.ahp-quest, .ahp-row.ahp-tq { transition: none; } }
+
+/* 4. Notifications : petite bulle centrée au-dessus de la barre du bas */
+@media (max-width: 768px) {
+    .toast-container { left: 12px !important; right: 12px !important; bottom: calc(84px + env(safe-area-inset-bottom, 0px)) !important; align-items: center; }
+    .toast { min-width: 0 !important; max-width: 100% !important; width: auto !important; padding: 9px 14px !important; border-radius: 99px !important; font-size: 13px !important; gap: 8px !important; box-shadow: 0 8px 24px rgba(0,0,0,0.45) !important; }
+    .toast .toast-icon { font-size: 1.05em !important; }
+    .toast .toast-close { padding: 0 2px !important; font-size: 14px !important; }
+}
+
+/* 6. Anciennes images d'exercices (décor néon sombre) adoucies, en attendant les
+      nouvelles (décor de jour, listées dans EXERCISE_IMAGES_V2 : filtre retiré) */
+img[src*="images/exercises/"] { filter: saturate(0.82) brightness(1.06); }
+@media (max-width: 768px) { .toast { border-left-width: 0 !important; border: 1px solid rgba(255,255,255,0.1) !important; } }
+#routinesTab .awk-entete > h2, #historyTab .awk-entete > h2, #familyTab .awk-entete > h2, #settingsTab .awk-entete > h2, #gameTab .awk-entete > h2 { font-size: 21px !important; }
+#routinesTab .awk-entete > div:first-child, #historyTab .awk-entete > div:first-child, #familyTab .awk-entete > div:first-child, #settingsTab .awk-entete > div:first-child, #gameTab .awk-entete > div:first-child { font-size: 11px !important; color: var(--awk-cyan-clair, #67e8f9) !important; }
