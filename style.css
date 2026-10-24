@@ -9031,3 +9031,87 @@ img[src*="images/exercises/"] { filter: saturate(0.82) brightness(1.06); }
         font-size: 48px !important;
     }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   v1444 · Phase 1A suite — séries terminées, Ensuite, barre actions
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Séries terminées (classe .faite) ───────────────────────────── */
+#setsGridPanel .awk-grid-ligne.faite {
+    background: rgba(74, 222, 128, 0.08) !important;
+    border: 1.5px solid rgba(74, 222, 128, 0.28) !important;
+    opacity: 0.88 !important;
+    box-shadow: none !important;
+}
+#setsGridPanel .awk-grid-ligne.faite::before {
+    content: none !important; /* pas de barre cyan sur les faites */
+}
+#setsGridPanel .awk-grid-ligne.faite > span:first-child {
+    color: #4ade80 !important;
+}
+
+/* ── Chip « Ensuite » plus lisible ──────────────────────────────── */
+#awakEnsuite {
+    margin: 10px auto 4px !important;
+    padding: 6px 12px !important;
+    font-size: 13px !important;
+    color: #cbd5e1 !important;
+    font-weight: 700 !important;
+    max-width: 94% !important;
+    background: rgba(34, 211, 238, 0.06);
+    border: 1px solid rgba(34, 211, 238, 0.18);
+    border-radius: 99px;
+    text-align: center;
+}
+#awakEnsuite .awk-ens-lbl {
+    color: #22d3ee !important;
+    font-weight: 900 !important;
+    font-size: 11px !important;
+    letter-spacing: 1.2px !important;
+    margin-right: 6px !important;
+}
+
+/* ── Barre d’actions bas : boutons plus confortables ─────────────── */
+#awakBarreActions {
+    padding: 14px 14px calc(14px + env(safe-area-inset-bottom, 0px)) !important;
+}
+#awakBarreActions > button {
+    min-height: 54px !important;
+    border-radius: 16px !important;
+    font-size: 15px !important;
+}
+#awakBarreActions #awakSuivantBtn {
+    box-shadow: 0 8px 22px rgba(34, 211, 238, 0.32) !important;
+}
+#awakBarreActions #prevBtn:active,
+#awakBarreActions #swapBtn:active {
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+#awakBarreActions #awakSuivantBtn:active {
+    transform: scale(0.97);
+}
+
+/* ── Panneau grille : un peu plus d’air ─────────────────────────── */
+#setsGridPanel {
+    margin-top: 6px !important;
+    margin-bottom: 8px !important;
+}
+
+/* ── Hint sous la grille ────────────────────────────────────────── */
+#setsGridPanel .awk-grid-hint,
+#setsGridPanel > div[style*="font-size:0.68em"] {
+    font-size: 0.72em !important;
+    color: #94a3b8 !important;
+    margin-bottom: 8px !important;
+    line-height: 1.35 !important;
+}
+
+/* ── Top bar séance : un peu plus lisible ───────────────────────── */
+#workoutTopBar {
+    padding: 12px 14px 10px !important;
+}
+#workoutTopBar #sessionTimerChip,
+#workoutTopBar #liveVolumeChip {
+    font-size: 0.7em !important;
+    padding: 6px 10px !important;
+}

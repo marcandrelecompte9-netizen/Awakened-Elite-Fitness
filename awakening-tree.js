@@ -1,0 +1,714 @@
+/* ============================================================
+   ARBRE DE L'ÉVEIL — agrégateur visuel de la progression
+   Branches = qualités (Force, Endurance, Mental, Équilibre, Agilité, Cardio).
+   Se nourrit de l'ACTIVITÉ RÉELLE (workoutHistory), jamais des stats RPG.
+   Un nom d'archétype est calculé selon les qualités dominantes.
+   ============================================================ */
+(function () {
+  "use strict";
+
+  // ── Métadonnées des 6 qualités ──
+  var Q = [
+    { id: 'force',     ic: '⚔️', nm: 'Force',     col: '#ef4444', base: "Le Colosse",   adj: "de Fer",  mat: "de Fer",      angle: 158, anchor: [156, 247], len: 96 },
+    { id: 'endurance', ic: '💚', nm: 'Endurance', col: '#22c55e', base: "L'Increvable", adj: "Tenace",  mat: "de Ténacité", angle: 130, anchor: [158, 223], len: 94 },
+    { id: 'mental',    ic: '🌀', nm: 'Mental',    col: '#a855f7', base: "Le Moine",     adj: "Serein",  mat: "de Sérénité", angle: 103, anchor: [160, 199], len: 84 },
+    { id: 'equilibre', ic: '🪶', nm: 'Équilibre', col: '#06b6d4', base: "Le Funambule", adj: "Stable",  mat: "d'Équilibre", angle: 77,  anchor: [160, 199], len: 84 },
+    { id: 'agilite',   ic: '⚡', nm: 'Agilité',   col: '#eab308', base: "Le Félin",     adj: "Vif",     mat: "de Vivacité", angle: 50,  anchor: [162, 223], len: 94 },
+    { id: 'cardio',    ic: '🔥', nm: 'Cardio',    col: '#f97316', base: "Le Brasier",   adj: "Ardent",  mat: "de Feu",      angle: 22,  anchor: [164, 247], len: 96 }
+  ];
+  var LEGENDARY = [
+    { keys: ['mental', 'cardio'],    name: "Le Guerrier Serein" },
+    { keys: ['mental', 'agilite'],   name: "Le Danseur de l'Ombre" },
+    { keys: ['force', 'mental'],     name: "Le Sage de Fer" },
+    { keys: ['force', 'endurance'],  name: "Le Titan" },
+    { keys: ['agilite', 'cardio'],   name: "Le Fauve" },
+    { keys: ['equilibre', 'mental'], name: "Le Maître Zen" },
+    { keys: ['force', 'agilite'],    name: "Le Berserker" }
+  ];
+  var STAGE_NAMES = ['Graine', 'Bourgeon', 'Pousse', 'Jeune', 'Mûr', 'En fleur'];
+  var THRESHOLDS = [0, 1, 5, 12, 22, 35];       // ⚙️ AJUSTABLE : cumul (≈ séances-équivalent) → palier
+  var RANKS = ['E', 'D', 'C', 'B', 'A', 'S'];
+  var RANK_COL = ['#64748b', '#22c55e', '#22d3ee', '#a855f7', '#f97316', '#fbbf24'];
+
+  // ── Mapping ACTIVITÉ → qualités (poids relatifs, normalisés à l'usage) ──
+  // ⚙️ AJUSTABLE : profil de qualités par discipline.
+  var DISCIPLINE_QUALITIES = {
+    yoga:        { mental: 3, equilibre: 2, endurance: 1 },
+    serenite:    { mental: 4, equilibre: 1 },
+    pilates:     { equilibre: 3, mental: 2, force: 2 },
+    barre:       { equilibre: 3, force: 2, endurance: 2 },
+    mobilite:    { equilibre: 3, mental: 1, endurance: 2 },
+    boxe:        { cardio: 3, agilite: 3, force: 1 },
+    course:      { cardio: 4, endurance: 3 },
+    hiit:        { cardio: 3, endurance: 2, agilite: 1 },
+    core:        { equilibre: 3, force: 2 },
+    calisthenie: { force: 3, equilibre: 1, agilite: 1 }
+  };
+  // ⚙️ AJUSTABLE : profil de qualités par muscle (muscu classique + fallback).
+  var MUSCLE_QUALITIES = {
+    'Cardio':          { cardio: 3, endurance: 1 },
+    'Corps entier':    { force: 2, endurance: 1, cardio: 1 },
+    'Pectoraux':       { force: 3 },
+    'Dos':             { force: 3 },
+    'Épaules':         { force: 3 },
+    'Biceps':          { force: 3 },
+    'Triceps':         { force: 3 },
+    'Avant-bras':      { force: 2, equilibre: 1 },
+    'Trapèzes':        { force: 3 },
+    'Quadriceps':      { force: 3 },
+    'Ischio-jambiers': { force: 3 },
+    'Fessiers':        { force: 3 },
+    'Mollets':         { force: 2, equilibre: 1 },
+    'Adducteurs':      { force: 2, equilibre: 1 },
+    'Abdominaux':      { equilibre: 2, force: 1 },
+    'Obliques':        { equilibre: 2, force: 1 }
+  };
+
+  // ── Lecture de l'historique réel ──
+  function _history() {
+    try {
+      var pid = (typeof getCurrentProfileId === 'function') ? getCurrentProfileId() : null;
+      var saved = (pid && typeof getProfileData === 'function') ? getProfileData(pid, 'workoutHistory') : localStorage.getItem('workoutHistory');
+      var h = JSON.parse(saved || '[]');
+      return Array.isArray(h) ? h : [];
+    } catch (e) { return []; }
+  }
+
+  function _addProfile(acc, prof, w) {
+    var sum = 0, k;
+    for (k in prof) sum += prof[k];
+    if (sum <= 0) return;
+    for (k in prof) acc[k] = (acc[k] || 0) + (prof[k] / sum) * w;
+  }
+
+  // ── Cumul des qualités à partir de l'activité réelle ──
+  // Chaque séance verse 1.0 point au total, réparti selon ce qu'elle a entraîné.
+  function awakComputeQualities() {
+    var total = { force: 0, endurance: 0, mental: 0, equilibre: 0, agilite: 0, cardio: 0 };
+    var hist = _history();
+    hist.forEach(function (entry) {
+      if (!entry) return;
+      var acc = { force: 0, endurance: 0, mental: 0, equilibre: 0, agilite: 0, cardio: 0 }, n = 0;
+      var exs = (entry.workoutData && Array.isArray(entry.workoutData.exercises))
+        ? entry.workoutData.exercises.filter(function (e) { return e && !e.isRest && !e.isInfo; }) : [];
+      if (exs.length) {
+        exs.forEach(function (ex) {
+          var prof = (ex.discipline && DISCIPLINE_QUALITIES[ex.discipline]) ? DISCIPLINE_QUALITIES[ex.discipline]
+            : (ex.muscle && MUSCLE_QUALITIES[ex.muscle]) ? MUSCLE_QUALITIES[ex.muscle] : null;
+          if (prof) { _addProfile(acc, prof, 1); n++; }
+        });
+      } else if (entry.muscles && entry.muscles.length) {
+        entry.muscles.forEach(function (m) { var prof = MUSCLE_QUALITIES[m]; if (prof) { _addProfile(acc, prof, 1); n++; } });
+      }
+      if (n > 0) { for (var k in acc) total[k] += acc[k] / n; }
+    });
+    return total;
+  }
+
+  function stageOf(c) { var s = 0; for (var i = 0; i < THRESHOLDS.length; i++) { if (c >= THRESHOLDS[i]) s = i; } return s; }
+
+  // ── Moteur d'archétype ──
+  function setEq(a, b) { if (a.length !== b.length) return false; var s = a.slice().sort(), t = b.slice().sort(); return s.every(function (x, i) { return x === t[i]; }); }
+  function awakArchetype(counts) {
+    var total = 0; Q.forEach(function (q) { total += counts[q.id]; });
+    if (total < 0.5) return { name: "Éveil en sommeil", sub: "ton arbre attend tes premières séances" };
+    var arr = Q.map(function (q) { return { q: q, c: counts[q.id], s: counts[q.id] / total }; })
+      .filter(function (x) { return x.c > 0; }).sort(function (a, b) { return b.c - a.c; });
+    var p1 = arr[0].s, p2 = arr[1] ? arr[1].s : 0, p3 = arr[2] ? arr[2].s : 0;
+    var strong = arr.filter(function (x) { return x.s >= p1 * 0.62; });
+    if (strong.length >= 5) return { name: "L'Éveillé", sub: "toutes les voies en équilibre" };
+    if (strong.length === 1 || p1 >= 0.5 || (p1 - p2) >= 0.25) return { name: arr[0].q.base, sub: "voie de " + arr[0].q.nm.toLowerCase() };
+    var top2 = [arr[0].q.id, arr[1].q.id];
+    var leg = LEGENDARY.find(function (L) { return setEq(L.keys, top2); });
+    var name = leg ? leg.name : (arr[0].q.base + " " + arr[1].q.adj);
+    var sub = arr[0].q.nm + " + " + arr[1].q.nm;
+    if (strong.length >= 3) {
+      var third = arr[2];
+      if (p3 >= p2 * 0.85) { name = leg ? (name + ", marqué " + third.q.mat) : (arr[0].q.base + " " + arr[1].q.adj + " et " + third.q.adj); sub += " + " + third.q.nm; }
+      else { name = name + ", teinté " + third.q.mat; sub += " · " + third.q.nm + " en nuance"; }
+    }
+    return { name: name, sub: sub };
+  }
+
+  // ── Dessin SVG (lumière haut-gauche, avec relief) ──
+  function shade(hex, amt) { var n = parseInt(hex.slice(1), 16), r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255; if (amt >= 0) { r += (255 - r) * amt; g += (255 - g) * amt; b += (255 - b) * amt; } else { r *= (1 + amt); g *= (1 + amt); b *= (1 + amt); } var h = function (v) { return ('0' + Math.round(v).toString(16)).slice(-2); }; return '#' + h(r) + h(g) + h(b); }
+  function bez(p0, cp, p1, t) { var u = 1 - t; return [u * u * p0[0] + 2 * u * t * cp[0] + t * t * p1[0], u * u * p0[1] + 2 * u * t * cp[1] + t * t * p1[1]]; }
+  function bezTan(p0, cp, p1, t) { var u = 1 - t, dx = 2 * u * (cp[0] - p0[0]) + 2 * t * (p1[0] - cp[0]), dy = 2 * u * (cp[1] - p0[1]) + 2 * t * (p1[1] - cp[1]), m = Math.hypot(dx, dy) || 1; return [dx / m, dy / m]; }
+  function lerp(a, b, t) { return a + (b - a) * t; }
+  function taperedBranch(p0, cp, p1, w0, w1, fill) { var N = 12, L = [], R = [], i; for (i = 0; i <= N; i++) { var t = i / N, pt = bez(p0, cp, p1, t), tan = bezTan(p0, cp, p1, t), nx = -tan[1], ny = tan[0], w = lerp(w0, w1, t) / 2; L.push([pt[0] + nx * w, pt[1] + ny * w]); R.push([pt[0] - nx * w, pt[1] - ny * w]); } var d = 'M' + L[0][0].toFixed(1) + ' ' + L[0][1].toFixed(1); for (i = 1; i <= N; i++) d += ' L' + L[i][0].toFixed(1) + ' ' + L[i][1].toFixed(1); for (i = N; i >= 0; i--) d += ' L' + R[i][0].toFixed(1) + ' ' + R[i][1].toFixed(1); return '<path d="' + d + ' Z" fill="' + fill + '"/>'; }
+  // variation déterministe (l'arbre ne change pas entre deux ouvertures)
+  function wob(n) { var x = Math.sin(n * 127.1) * 43758.5453; return (x - Math.floor(x)) - 0.5; }
+
+  // 🌸 Fleurs — un liseré sombre les détache du ciel clair du décor.
+  // ⚠️ Sans lui, le crème #fff7e6 sur fond pâle ne laisse que 12 % de
+  //    contraste : les fleurs du stade 5 devenaient invisibles.
+  function flower(cx, cy, r) {
+    // v1445 : pétale en goutte + cœur plus riche (meilleur contraste)
+    var s = '', k;
+    for (k = 0; k < 6; k++) {
+      var a = k / 6 * Math.PI * 2 - 0.35;
+      var px = cx + Math.cos(a) * r * 1.05, py = cy + Math.sin(a) * r * 1.05;
+      var rx = r * 0.72, ry = r * 0.38;
+      var rot = (a * 180 / Math.PI);
+      s += '<ellipse cx="' + px.toFixed(1) + '" cy="' + py.toFixed(1) + '" rx="' + rx.toFixed(1) + '" ry="' + ry.toFixed(1) + '" '
+         + 'transform="rotate(' + rot.toFixed(0) + ' ' + px.toFixed(1) + ' ' + py.toFixed(1) + ')" '
+         + 'fill="#fff7ef" opacity="0.96" stroke="#6b4f2a" stroke-width="0.45" stroke-opacity="0.4"/>';
+    }
+    s += '<circle cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" r="' + (r * 0.55).toFixed(1) + '" '
+       + 'fill="#fbbf24" stroke="#b45309" stroke-width="0.6" stroke-opacity="0.55" filter="url(#awkGlow)"/>';
+    s += '<circle cx="' + (cx - r * 0.12).toFixed(1) + '" cy="' + (cy - r * 0.14).toFixed(1) + '" r="' + (r * 0.18).toFixed(1) + '" fill="#fff7e6" opacity="0.7"/>';
+    return s;
+  }
+
+  function foliage(cx, cy, r, col, wf) {
+    var d2 = shade(col, -0.62), mid = shade(col, 0.20), light = shade(col, 0.58), s = '';
+    var _texDebut = -1;
+    var seed = cx * 0.37 + cy * 0.61;
+    // ombre portée + halo doux (gradient, visible partout)
+    s += '<ellipse cx="' + (cx + r * 0.16).toFixed(1) + '" cy="' + (cy + r * 0.30).toFixed(1) + '" rx="' + (r * 0.96).toFixed(1) + '" ry="' + (r * 0.80).toFixed(1) + '" fill="#070a07" opacity="0.30"/>';
+    s += '<circle cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" r="' + (r * 1.3).toFixed(1) + '" fill="url(#awkHalo)" opacity="0.5" style="color:' + col + '"/>';
+    s += '<circle cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" r="' + (r * 1.16).toFixed(1) + '" fill="' + col + '" opacity="0.10" filter="url(#awkGlow)"/>';
+    // masses (rayons perturbés → silhouette irrégulière)
+    s += '<g filter="url(#awkLeafTex)">'; _texDebut = 1;   // v1438 : feuillage moucheté
+    var blobs = [[0, 0, 1.0], [-0.55, 0.12, 0.62], [0.55, 0.16, 0.6], [-0.32, -0.46, 0.6], [0.34, -0.42, 0.58], [0, 0.5, 0.55], [0, -0.56, 0.5], [0.6, -0.2, 0.42], [-0.6, -0.16, 0.42], [0.24, -0.6, 0.34], [-0.5, -0.42, 0.34]];
+    blobs.forEach(function (b, i) {
+      var rr = r * b[2] * (0.92 + wob(seed + i) * 0.22);
+      s += '<circle cx="' + (cx + b[0] * r + r * 0.05).toFixed(1) + '" cy="' + (cy + b[1] * r + r * 0.16).toFixed(1) + '" r="' + (rr * 1.02).toFixed(1) + '" fill="' + d2 + '"/>';
+    });
+    blobs.forEach(function (b, i) {
+      var rr = r * b[2] * (0.9 + wob(seed + i) * 0.22);
+      s += '<circle cx="' + (cx + b[0] * r).toFixed(1) + '" cy="' + (cy + b[1] * r).toFixed(1) + '" r="' + rr.toFixed(1) + '" fill="' + col + '"/>';
+    });
+    [[-0.20, -0.34, 0.55], [0.18, -0.36, 0.48], [-0.04, -0.10, 0.58]].forEach(function (b) { s += '<circle cx="' + (cx + b[0] * r).toFixed(1) + '" cy="' + (cy + b[1] * r).toFixed(1) + '" r="' + (r * b[2]).toFixed(1) + '" fill="' + mid + '" opacity="0.7"/>'; });
+    [[-0.30, -0.48, 0.40], [-0.50, -0.20, 0.30], [0.02, -0.52, 0.26]].forEach(function (b) { s += '<circle cx="' + (cx + b[0] * r).toFixed(1) + '" cy="' + (cy + b[1] * r).toFixed(1) + '" r="' + (r * b[2]).toFixed(1) + '" fill="' + light + '" opacity="0.82"/>'; });
+    // frange : petites feuilles au pourtour (haut) — casse le contour circulaire
+    var i;
+    for (i = 0; i < 9; i++) {
+      var fa = (-0.15 + i / 8 * 1.3) * Math.PI + wob(seed + 20 + i) * 0.35;   // arc supérieur
+      var fr = r * (1.0 + wob(seed + 30 + i) * 0.16);
+      var lx = cx + Math.cos(fa) * fr, ly = cy - Math.sin(fa) * fr * 0.92;
+      var rot = (-fa * 180 / Math.PI) + 90 + wob(seed + 40 + i) * 30;
+      var leafCol = (i % 3 === 0) ? light : col;
+      s += '<ellipse cx="' + lx.toFixed(1) + '" cy="' + ly.toFixed(1) + '" rx="' + (r * 0.19).toFixed(1) + '" ry="' + (r * 0.10).toFixed(1) + '" transform="rotate(' + rot.toFixed(0) + ' ' + lx.toFixed(1) + ' ' + ly.toFixed(1) + ')" fill="' + leafCol + '" opacity="0.9"/>';
+    }
+    // v1438 : petites feuilles dans la masse (ombre en bas, lumière en haut)
+    if (r >= 6) {
+      for (i = 0; i < 12; i++) {
+        var la = wob(seed + 50 + i) * Math.PI * 2, ld = Math.sqrt(Math.abs(wob(seed + 60 + i)) * 2) * r * 0.62;
+        var qx = cx + Math.cos(la) * ld, qy = cy + Math.sin(la) * ld * 0.9;
+        var haut = qy < cy - r * 0.1;
+        var qc = haut ? light : (qy > cy + r * 0.25 ? d2 : mid);
+        var qrot = wob(seed + 70 + i) * 160;
+        s += '<path d="M' + (qx - r * 0.13).toFixed(1) + ' ' + qy.toFixed(1) + ' Q' + qx.toFixed(1) + ' ' + (qy - r * 0.1).toFixed(1) + ' ' + (qx + r * 0.13).toFixed(1) + ' ' + qy.toFixed(1) + ' Q' + qx.toFixed(1) + ' ' + (qy + r * 0.1).toFixed(1) + ' ' + (qx - r * 0.13).toFixed(1) + ' ' + qy.toFixed(1) + 'Z" transform="rotate(' + qrot.toFixed(0) + ' ' + qx.toFixed(1) + ' ' + qy.toFixed(1) + ')" fill="' + qc + '" opacity="' + (haut ? 0.75 : 0.6) + '"/>';
+      }
+    }
+    if (_texDebut > 0) s += '</g>';
+    // spéculaire (lumière haut-gauche)
+    s += '<circle cx="' + (cx - r * 0.34).toFixed(1) + '" cy="' + (cy - r * 0.46).toFixed(1) + '" r="' + (r * 0.13).toFixed(1) + '" fill="#ffffff" opacity="0.55"/>';
+    // v1445 : plus de fleurs, tailles variées
+    if (wf) {
+      [[-0.34, -0.22, 2.1], [0.38, 0.04, 1.85], [0.06, -0.52, 2.0], [-0.12, 0.28, 1.6], [0.42, -0.32, 1.7], [-0.48, -0.08, 1.55]].forEach(function (f) {
+        s += flower(cx + f[0] * r, cy + f[1] * r, f[2]);
+      });
+    }
+    return s;
+  }
+
+  function branchSVG(p, stage) {
+    if (stage === 0) return '';
+    var a = p.angle * Math.PI / 180, grow = 0.34 + 0.66 * (stage / 5), len = p.len * grow;
+    var ax = p.anchor[0], ay = p.anchor[1];
+    // affaissement naturel : la pointe retombe un peu avec la longueur
+    var droop = len * 0.10;
+    var ex = ax + Math.cos(a) * len, ey = ay - Math.sin(a) * len + droop;
+    var mx = (ax + ex) / 2 + Math.cos(a + 0.55) * len * 0.16, my = (ay + ey) / 2 - len * 0.20;
+    var p0 = [ax, ay], cp = [mx, my], p1 = [ex, ey], wood = '#473a2c', light = shade(p.col, 0.55);
+    // v1438 : branche maîtresse en dégradé (dessus éclairé) + texture d'écorce
+    var w0 = 2.6 + stage * 1.5, w1 = 1.0 + stage * 0.35, s = taperedBranch(p0, cp, p1, w0, w1, 'url(#awkWood)').replace('<path ', '<path filter="url(#awkBarkTex)" ');
+    s += '<path d="M' + ax.toFixed(1) + ' ' + (ay - w0 * 0.25).toFixed(1) + ' Q' + mx.toFixed(1) + ' ' + (my - w0 * 0.3).toFixed(1) + ' ' + ex.toFixed(1) + ' ' + (ey - w1 * 0.3).toFixed(1) + '" stroke="#8a7458" stroke-opacity="0.45" stroke-width="' + Math.max(0.6, w0 * 0.18).toFixed(1) + '" fill="none" stroke-linecap="round"/>';
+    if (stage === 1) { s += '<circle cx="' + ex.toFixed(1) + '" cy="' + ey.toFixed(1) + '" r="3.4" fill="' + p.col + '"/>'; s += '<circle cx="' + (ex - 0.8).toFixed(1) + '" cy="' + (ey - 0.9).toFixed(1) + '" r="1.5" fill="' + light + '"/>'; return s; }
+    var bl2 = []; if (stage === 2) bl2.push({ t: 0.62, side: 1, f: 0.30 }); if (stage >= 3) bl2.push({ t: 0.58, side: 1, f: 0.42 }); if (stage >= 4) bl2.push({ t: 0.76, side: -1, f: 0.36 }); if (stage >= 5) bl2.push({ t: 0.48, side: -1, f: 0.32 });
+    var tips = [{ x: ex, y: ey, r: (stage >= 5 ? 17.5 : stage >= 4 ? 14.5 : stage >= 3 ? 12 : 9) }];
+    bl2.forEach(function (bl) { var bp = bez(p0, cp, p1, bl.t), tan = bezTan(p0, cp, p1, bl.t), nrm = [-tan[1], tan[0]], blen = len * bl.f; var bex = bp[0] + (tan[0] * 0.55 + nrm[0] * bl.side) * blen, bey = bp[1] + (tan[1] * 0.55 + nrm[1] * bl.side) * blen + blen * 0.08; var bcp = [(bp[0] + bex) / 2 + nrm[0] * bl.side * blen * 0.2, (bp[1] + bey) / 2 - blen * 0.15]; s += taperedBranch(bp, bcp, [bex, bey], w1 + 1.3, 0.8, wood); tips.push({ x: bex, y: bey, r: (stage >= 5 ? 11.5 : stage >= 4 ? 9.8 : stage >= 3 ? 8.2 : 6.5) }); });
+    // rameaux nus très fins (respiration du bois, dès Mûr)
+    if (stage >= 4) {
+      [{ t: 0.32, side: -1 }, { t: 0.68, side: 1 }].forEach(function (tw, ti) {
+        var tp2 = bez(p0, cp, p1, tw.t), tan2 = bezTan(p0, cp, p1, tw.t), nrm2 = [-tan2[1], tan2[0]];
+        var tl = len * (0.14 + wob(ax + ti) * 0.05);
+        var tx = tp2[0] + (tan2[0] * 0.4 + nrm2[0] * tw.side) * tl, ty = tp2[1] + (tan2[1] * 0.4 + nrm2[1] * tw.side) * tl - tl * 0.25;
+        s += '<path d="M' + tp2[0].toFixed(1) + ' ' + tp2[1].toFixed(1) + ' Q' + ((tp2[0] + tx) / 2).toFixed(1) + ' ' + ((tp2[1] + ty) / 2 - 2).toFixed(1) + ' ' + tx.toFixed(1) + ' ' + ty.toFixed(1) + '" stroke="' + wood + '" stroke-width="1.1" fill="none" stroke-linecap="round"/>';
+      });
+    }
+    tips.forEach(function (tp) { s += foliage(tp.x, tp.y, tp.r, p.col, stage >= 5); });
+    return s;
+  }
+
+  function trunkSVG(gl) {
+    var g = gl / 30, cx = 160, baseY = 330, topY = 182, wb = 11 + g * 8, wt = 4 + g * 2.8;
+    var p0 = [cx, baseY], cp = [cx - (2 + g * 3), (baseY + topY) / 2], p1 = [cx, topY];
+    var s = '';
+    // évasement racinaire : deux contreforts pleins à la base
+    s += '<path d="M' + (cx - wb * 0.7) + ' ' + (baseY - 14) + ' Q' + (cx - wb * 1.5) + ' ' + (baseY + 2) + ' ' + (cx - wb * 2.4) + ' ' + (baseY + 8) + ' L' + (cx - wb * 0.2) + ' ' + (baseY + 8) + ' Z" fill="#2e251b"/>';
+    s += '<path d="M' + (cx + wb * 0.7) + ' ' + (baseY - 14) + ' Q' + (cx + wb * 1.5) + ' ' + (baseY + 2) + ' ' + (cx + wb * 2.4) + ' ' + (baseY + 8) + ' L' + (cx + wb * 0.2) + ' ' + (baseY + 8) + ' Z" fill="#1c150e"/>';
+    s += '<g filter="url(#awkBarkTex)">';   // v1438 : écorce texturée
+    s += taperedBranch(p0, cp, p1, wb * 2, wt * 2, 'url(#awkBark)');
+    s += taperedBranch([cx - wb * 0.55, baseY], [cx - (2 + g * 3) - wb * 0.42, (baseY + topY) / 2], [cx - wt * 0.5, topY], wb * 0.5, wt * 0.5, '#6d5c47');
+    s += taperedBranch([cx + wb * 0.62, baseY], [cx - (2 + g * 3) + wb * 0.7, (baseY + topY) / 2], [cx + wt * 0.55, topY], wb * 0.42, wt * 0.4, '#160f09');
+    s += '</g>';
+    s += '<path d="M' + (cx - wb * 0.9) + ' ' + baseY + ' q-15 3 -28 11" stroke="#3a2f24" stroke-width="4.5" fill="none" stroke-linecap="round"/>';
+    s += '<path d="M' + (cx + wb * 0.9) + ' ' + baseY + ' q15 3 28 11" stroke="#241b13" stroke-width="4.5" fill="none" stroke-linecap="round"/>';
+    // écorce : quelques veines verticales + un nœud (texture sans toucher la silhouette)
+    [[-0.32, 0.9], [0.05, 0.75], [0.36, 0.85]].forEach(function (v, i) {
+      var x0 = cx + v[0] * wb * 1.4, y0 = baseY - 6, y1 = baseY - (baseY - topY) * v[1];
+      s += '<path d="M' + x0.toFixed(1) + ' ' + y0 + ' Q' + (x0 + wob(i * 2.1) * 6).toFixed(1) + ' ' + ((y0 + y1) / 2).toFixed(1) + ' ' + (cx + v[0] * wt * 1.2 - 1).toFixed(1) + ' ' + y1.toFixed(1) + '" stroke="#1a130c" stroke-opacity="0.45" stroke-width="0.9" fill="none" stroke-linecap="round"/>';
+    });
+    s += '<ellipse cx="' + (cx - wb * 0.25).toFixed(1) + '" cy="' + (baseY - 58) + '" rx="' + (2 + g * 1.5).toFixed(1) + '" ry="' + (3 + g * 2).toFixed(1) + '" fill="#1a130c" opacity="0.55"/>';
+    // v1446 : veines néon cyber sur le tronc
+    s += '<path d="M' + (cx - wb * 0.35).toFixed(1) + ' ' + (baseY - 8) + ' Q' + (cx - wb * 0.5).toFixed(1) + ' ' + ((baseY + topY) / 2).toFixed(1) + ' ' + (cx - wt * 0.3).toFixed(1) + ' ' + (topY + 12) + '" stroke="#22d3ee" stroke-width="0.7" fill="none" opacity="' + (0.25 + g * 0.4).toFixed(2) + '" filter="url(#awkGlow)"/>';
+    s += '<path d="M' + (cx + wb * 0.3).toFixed(1) + ' ' + (baseY - 10) + ' Q' + (cx + wb * 0.45).toFixed(1) + ' ' + ((baseY + topY) / 2 + 8).toFixed(1) + ' ' + (cx + wt * 0.25).toFixed(1) + ' ' + (topY + 18) + '" stroke="#c084fc" stroke-width="0.6" fill="none" opacity="' + (0.2 + g * 0.35).toFixed(2) + '" filter="url(#awkGlow)"/>';
+    return s;
+  }
+
+  // brins d'herbe déterministes autour de la base (version cyber : touches néon)
+  function grassSVG() {
+    var s = '', i;
+    for (i = 0; i < 14; i++) {
+      var gx = 160 + (i - 6.5) * 16 + wob(i * 3.7) * 8;
+      var gh = 5 + Math.abs(wob(i * 5.3)) * 7;
+      var lean = wob(i * 7.9) * 5;
+      var gc = (i % 3 === 0) ? '#1a3a2a' : (i % 3 === 1 ? '#0f2920' : '#164032');
+      [-1, 0, 1].forEach(function (k) {
+        var bx = gx + k * 1.1, bh = gh * (k === 0 ? 1 : 0.65), bl = lean + k * 3;
+        s += '<path d="M' + bx.toFixed(1) + ' 337 Q' + (bx + bl * 0.2).toFixed(1) + ' ' + (337 - bh * 0.65).toFixed(1) + ' ' + (bx + bl).toFixed(1) + ' ' + (337 - bh).toFixed(1) + '" stroke="' + gc + '" stroke-width="' + (k === 0 ? 1.2 : 0.9) + '" fill="none" stroke-linecap="round"/>';
+      });
+    }
+    return s;
+  }
+
+  // v1446 : racines cyberpunk — veines organiques + circuits néon cyan/magenta
+  function rootsSVG(gl) {
+    var g = Math.min(1, (gl || 0) / 24);
+    var s = '<g class="awk-roots">';
+    var roots = [
+      // [side, spread, depth, thickness, neon?]
+      { sx: -1, spread: 52, depth: 22, w: 3.2, neon: true },
+      { sx: 1,  spread: 48, depth: 20, w: 3.0, neon: true },
+      { sx: -1, spread: 78, depth: 16, w: 2.2, neon: false },
+      { sx: 1,  spread: 72, depth: 15, w: 2.0, neon: false },
+      { sx: -1, spread: 34, depth: 28, w: 2.6, neon: true },
+      { sx: 1,  spread: 38, depth: 26, w: 2.4, neon: false },
+      { sx: -1, spread: 95, depth: 10, w: 1.5, neon: true },
+      { sx: 1,  spread: 90, depth: 11, w: 1.4, neon: true }
+    ];
+    roots.forEach(function (r, i) {
+      var scale = 0.55 + g * 0.55;
+      var x0 = 160 + r.sx * 8;
+      var y0 = 330;
+      var x1 = 160 + r.sx * r.spread * scale + wob(i * 2.3) * 6;
+      var y1 = 330 + r.depth * scale + Math.abs(wob(i * 4.1)) * 4;
+      var mx = (x0 + x1) / 2 + r.sx * (8 + wob(i * 1.7) * 5);
+      var my = y0 + (y1 - y0) * 0.35;
+      var woodCol = r.neon ? '#1a1520' : '#141018';
+      // corps de racine
+      s += '<path d="M' + x0.toFixed(1) + ' ' + y0.toFixed(1)
+         + ' Q' + mx.toFixed(1) + ' ' + my.toFixed(1)
+         + ' ' + x1.toFixed(1) + ' ' + y1.toFixed(1) + '"'
+         + ' stroke="' + woodCol + '" stroke-width="' + (r.w * (0.9 + g * 0.4)).toFixed(1)
+         + '" fill="none" stroke-linecap="round"/>';
+      // liseré néon (cyan ou magenta selon index)
+      if (r.neon) {
+        var neon = (i % 2 === 0) ? '#22d3ee' : '#c084fc';
+        s += '<path d="M' + x0.toFixed(1) + ' ' + y0.toFixed(1)
+           + ' Q' + mx.toFixed(1) + ' ' + my.toFixed(1)
+           + ' ' + x1.toFixed(1) + ' ' + y1.toFixed(1) + '"'
+           + ' stroke="' + neon + '" stroke-width="' + Math.max(0.6, r.w * 0.35).toFixed(1)
+           + '" fill="none" stroke-linecap="round" opacity="' + (0.35 + g * 0.45).toFixed(2)
+           + '" filter="url(#awkGlow)"/>';
+        // nœud lumineux au bout
+        s += '<circle cx="' + x1.toFixed(1) + '" cy="' + y1.toFixed(1) + '" r="' + (1.2 + g).toFixed(1)
+           + '" fill="' + neon + '" opacity="' + (0.5 + g * 0.4).toFixed(2) + '" filter="url(#awkGlow)"/>';
+      }
+      // ramification secondaire
+      if (g > 0.25 && i < 5) {
+        var bx = (x0 + x1) / 2 + r.sx * 4;
+        var by = (y0 + y1) / 2 + 2;
+        var bx2 = bx + r.sx * (12 + g * 10) + wob(i * 5.5) * 4;
+        var by2 = by + 6 + g * 5;
+        var n2 = (i % 2 === 0) ? '#67e8f9' : '#e879f9';
+        s += '<path d="M' + bx.toFixed(1) + ' ' + by.toFixed(1)
+           + ' Q' + ((bx + bx2) / 2).toFixed(1) + ' ' + (by + 4).toFixed(1)
+           + ' ' + bx2.toFixed(1) + ' ' + by2.toFixed(1) + '"'
+           + ' stroke="' + n2 + '" stroke-width="0.9" fill="none" stroke-linecap="round" opacity="'
+           + (0.25 + g * 0.4).toFixed(2) + '"/>';
+      }
+    });
+    // plateforme / anneau énergétique au sol
+    s += '<ellipse cx="160" cy="334" rx="' + (42 + g * 28).toFixed(0) + '" ry="' + (6 + g * 3).toFixed(0)
+       + '" fill="none" stroke="#22d3ee" stroke-width="0.8" opacity="' + (0.2 + g * 0.35).toFixed(2) + '"/>';
+    s += '<ellipse cx="160" cy="334" rx="' + (28 + g * 18).toFixed(0) + '" ry="' + (4 + g * 2).toFixed(0)
+       + '" fill="none" stroke="#a855f7" stroke-width="0.6" opacity="' + (0.15 + g * 0.3).toFixed(2) + '"/>';
+    return s + '</g>';
+  }
+
+  function seedSVG() {
+    // v1446 : graine cyber — noyau cyan, anneaux énergétiques
+    return '<g>'
+         + '<ellipse cx="160" cy="328" rx="16" ry="5" fill="#0a0e17" opacity="0.5"/>'
+         + '<circle cx="160" cy="320" r="12" fill="none" stroke="#22d3ee" stroke-width="0.7" opacity="0.35"/>'
+         + '<circle cx="160" cy="320" r="9" fill="none" stroke="#a855f7" stroke-width="0.5" opacity="0.3"/>'
+         + '<circle cx="160" cy="320" r="7" fill="#22d3ee" opacity="0.15" filter="url(#awkGlow)"/>'
+         + '<circle cx="160" cy="320" r="5.5" fill="#0f172a" stroke="#22d3ee" stroke-width="1.1" filter="url(#awkGlow)"/>'
+         + '<circle cx="160" cy="320" r="2.4" fill="#67e8f9" opacity="0.95"/>'
+         + '<circle cx="158.8" cy="318.8" r="0.9" fill="#ecfeff"/>'
+         + '<path d="M160 314 Q157.5 305 160 298 Q162.5 305 160 314Z" fill="#22d3ee" opacity="0.85" filter="url(#awkGlow)"/>'
+         + '<text x="160" y="290" text-anchor="middle" fill="#67e8f9" font-size="9" font-weight="700">graine d\'éveil</text>'
+         + '</g>';
+  }
+
+  // ═══ ATMOSPHÈRE ═══════════════════════════════════════════════════
+  // Couches AJOUTÉES autour de l'arbre. Elles ne touchent jamais à la
+  // génération des branches (trunkSVG / branchSVG / foliage), qui reste
+  // la partie fragile du module.
+
+  // 🌅 Ciel selon l'heure réelle : l'arbre vit au fil de la journée.
+  // Ciel de REPLI (si l'image de fond n'est pas disponible) + teinte des rais.
+  // Tons d'aube clairs, accordés au décor peint : plus de ciel de nuit.
+  function skyOfHour(h) {
+    return { id: 'aube', haut: '#c9c3e4', bas: '#f3e2c8', astre: '#fff1d6',
+             lueur: 'rgba(255,236,200,0.25)', etoiles: 0 };
+  }
+
+  // Rais de lumière obliques descendant du haut.
+  function raisSVG(sky) {
+    var s = '<g opacity="0.5">';
+    [[96, 0.10], [158, 0.14], [214, 0.08]].forEach(function (r, i) {
+      s += '<polygon points="' + r[0] + ',0 ' + (r[0] + 26) + ',0 ' + (r[0] + 66) + ',300 ' + (r[0] + 14) + ',300" '
+         + 'fill="url(#awkRai)" opacity="' + r[1] + '">'
+         + '<animate attributeName="opacity" values="' + r[1] + ';' + (r[1] * 0.45).toFixed(3) + ';' + r[1] + '" '
+         + 'dur="' + (7 + i * 2.5) + 's" repeatCount="indefinite"/></polygon>';
+    });
+    return s + '</g>';
+  }
+
+  // Lucioles qui dérivent (uniquement quand l'arbre a poussé).
+  // v1445 : halo plus doux + traînée légère + pulse plus organique
+  function luciolesSVG(n) {
+    var s = '', i;
+    for (i = 0; i < n; i++) {
+      var x = 44 + Math.abs(wob(i * 1.7)) * 232;
+      var y = 110 + Math.abs(wob(i * 3.3)) * 180;
+      var d = (4.5 + Math.abs(wob(i * 5.1)) * 6).toFixed(1);
+      var dx = (wob(i * 7.3) * 30).toFixed(1);
+      var dy = (-14 - Math.abs(wob(i * 9.1)) * 22).toFixed(1);
+      var col = (i % 3 === 0) ? '#fde68a' : (i % 3 === 1 ? '#fbbf24' : '#67e8f9');
+      s += '<g transform="translate(' + x.toFixed(1) + ',' + y.toFixed(1) + ')">'
+         + '<circle r="4.2" fill="' + col + '" opacity="0.12"/>'
+         + '<circle r="2.4" fill="' + col + '" opacity="0.28"/>'
+         + '<circle r="1.2" fill="#fffbeb" opacity="0.95">'
+         +   '<animate attributeName="opacity" values="0.25;1;0.25" dur="' + d + 's" repeatCount="indefinite"/>'
+         +   '<animate attributeName="r" values="0.9;1.35;0.9" dur="' + d + 's" repeatCount="indefinite"/>'
+         + '</circle>'
+         + '<animateTransform attributeName="transform" type="translate" additive="sum" '
+         +   'values="0 0; ' + dx + ' ' + dy + '; 0 0" dur="' + (parseFloat(d) * 2.6).toFixed(1) + 's" repeatCount="indefinite"/>'
+         + '</g>';
+    }
+    return s;
+  }
+
+  function treeSVG(counts) {
+    var stages = Q.map(function (q) { return stageOf(counts[q.id]); });
+    var gl = stages.reduce(function (a, b) { return a + b; }, 0);
+    var any = stages.some(function (s) { return s > 0; });
+    var maxStage = Math.max.apply(null, stages);
+    var sky = skyOfHour();
+    var defs = '<defs>'
+      + '<linearGradient id="awkBark" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#5d4f3e"/><stop offset="42%" stop-color="#3c3024"/><stop offset="100%" stop-color="#1b140d"/></linearGradient>'
+      + '<radialGradient id="awkGround" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#6b4f2a" stop-opacity="0.45"/><stop offset="70%" stop-color="#6b4f2a" stop-opacity="0.22"/><stop offset="100%" stop-color="#6b4f2a" stop-opacity="0"/></radialGradient>'
+      + '<radialGradient id="awkHalo" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="currentColor" stop-opacity="0.20"/><stop offset="100%" stop-color="currentColor" stop-opacity="0"/></radialGradient>'
+      + '<linearGradient id="awkCiel" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="' + sky.haut + '"/><stop offset="100%" stop-color="' + sky.bas + '"/></linearGradient>'
+      + '<radialGradient id="awkAstre" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="' + sky.astre + '" stop-opacity="0.9"/><stop offset="55%" stop-color="' + sky.astre + '" stop-opacity="0.18"/><stop offset="100%" stop-color="' + sky.astre + '" stop-opacity="0"/></radialGradient>'
+      + '<linearGradient id="awkRai" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="' + sky.astre + '" stop-opacity="0.55"/><stop offset="100%" stop-color="' + sky.astre + '" stop-opacity="0"/></linearGradient>'
+      + '<radialGradient id="awkSky" cx="50%" cy="38%" r="60%"><stop offset="0%" stop-color="' + sky.lueur + '"/><stop offset="100%" stop-color="' + sky.haut + '" stop-opacity="0"/></radialGradient>'
+      + '<radialGradient id="awkCrown" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#fffaf0" stop-opacity="0.55"/><stop offset="60%" stop-color="#fff3dc" stop-opacity="0.18"/><stop offset="100%" stop-color="#fff3dc" stop-opacity="0"/></radialGradient>'
+      + '<radialGradient id="awkCrownCyber" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#22d3ee" stop-opacity="0.35"/><stop offset="40%" stop-color="#a855f7" stop-opacity="0.18"/><stop offset="100%" stop-color="#0a0e17" stop-opacity="0"/></radialGradient>'
+      + '<linearGradient id="awkBarkNeon" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#22d3ee" stop-opacity="0.35"/><stop offset="50%" stop-color="#1a1520" stop-opacity="0"/><stop offset="100%" stop-color="#c084fc" stop-opacity="0.3"/></linearGradient>'
+      + '<filter id="awkGlow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="2.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>'
+      // v1438 : TEXTURES. Écorce = stries verticales sombres + reflets clairs (bruit
+      // étiré) ; feuillage = moucheture d'ombre et de lumière (bruit fin). Le bruit
+      // est découpé à la forme (operator="in") : la silhouette ne change pas.
+      + '<filter id="awkBarkTex" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">'
+      +   '<feTurbulence type="fractalNoise" baseFrequency="0.55 0.045" numOctaves="3" seed="7" result="n"/>'
+      +   '<feColorMatrix in="n" type="matrix" values="0 0 0 0 0.06  0 0 0 0 0.04  0 0 0 0 0.02  2.6 0 0 0 -1.25" result="sombre"/>'
+      +   '<feColorMatrix in="n" type="matrix" values="0 0 0 0 0.85  0 0 0 0 0.74  0 0 0 0 0.6  0 0 2.2 0 -1.55" result="clair"/>'
+      +   '<feComposite in="sombre" in2="SourceGraphic" operator="in" result="s1"/>'
+      +   '<feComposite in="clair" in2="SourceGraphic" operator="in" result="s2"/>'
+      +   '<feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="s1"/><feMergeNode in="s2"/></feMerge></filter>'
+      + '<filter id="awkLeafTex" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">'
+      +   '<feTurbulence type="fractalNoise" baseFrequency="0.24" numOctaves="3" seed="11" result="n"/>'
+      +   '<feColorMatrix in="n" type="matrix" values="0 0 0 0 0.02  0 0 0 0 0.06  0 0 0 0 0.02  1.5 0 0 0 -0.78" result="ombre"/>'
+      +   '<feColorMatrix in="n" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 0.92  0 1.4 0 0 -0.76" result="lum"/>'
+      +   '<feComposite in="ombre" in2="SourceGraphic" operator="in" result="o"/>'
+      +   '<feComposite in="lum" in2="SourceGraphic" operator="in" result="l"/>'
+      +   '<feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="l"/></feMerge></filter>'
+      + '<linearGradient id="awkWood" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#6a5844"/><stop offset="55%" stop-color="#473a2c"/><stop offset="100%" stop-color="#2a2118"/></linearGradient>'
+      + '</defs>';
+    var body = defs;
+    // ── Fond : IMAGE peinte (aube brumeuse), au ratio exact du viewBox ──
+    // ⚠️ Elle REMPLACE les couches procédurales (ciel horaire, étoiles, astre,
+    //    collines) qui feraient doublon ou seraient absurdes sur un ciel de jour.
+    //    Si le fichier manque, le dégradé de repli dessous assure la continuité.
+    body += '<rect x="0" y="0" width="320" height="360" fill="url(#awkCiel)"/>';
+    body += '<image href="images/tree_bg.webp" x="0" y="0" width="320" height="360" '
+          + 'preserveAspectRatio="xMidYMid slice"/>';
+    body += raisSVG(sky);   // rais conservés : ils se superposent bien à l'image
+    // Ombre portée au sol : douce et chaude, adaptée au sol clair de l'image.
+    body += '<ellipse cx="160" cy="336" rx="118" ry="13" fill="url(#awkGround)"/>';
+    // v1446 : racines toujours visibles (même graine) — style cyber
+    body += rootsSVG(any ? gl : 0);
+    if (!any) { body += seedSVG(); body += grassSVG(); }
+    else {
+      // halo de couronne cyber : cyan/violet néon
+      var gk = Math.min(1, gl / 30);
+      body += '<ellipse cx="160" cy="' + (215 - gk * 30).toFixed(0) + '" rx="' + (70 + gk * 70).toFixed(0) + '" ry="' + (55 + gk * 55).toFixed(0) + '" fill="url(#awkCrownCyber)" opacity="' + (0.45 + gk * 0.35).toFixed(2) + '"/>';
+      body += '<ellipse cx="160" cy="333" rx="' + (34 + gk * 40).toFixed(0) + '" ry="7" fill="#0a1620" opacity="0.5"/>';
+      body += '<g transform="translate(160 336) scale(1.22) translate(-160 -336)">';
+      body += trunkSVG(gl);
+      // feuillage central teinté cyber (vert + cyan)
+      body += foliage(160, 180, 5 + gk * 9, '#3d8b6e', false);
+      // 🌱 Chaque branche pousse à son tour
+      [0, 5, 1, 4, 2, 3].forEach(function (i, ordre) {
+        var b = branchSVG(Q[i], stages[i]);
+        if (!b) return;
+        body += '<g class="awk-grow" style="transform-origin:160px 300px;animation-delay:'
+              + (0.18 + ordre * 0.13).toFixed(2) + 's;">' + b + '</g>';
+      });
+      body += '</g>';
+      body += grassSVG();
+      body += luciolesSVG(maxStage >= 4 ? 9 : maxStage >= 2 ? 5 : 3);
+      // pétales flottants si au moins une branche en fleur
+      if (maxStage >= 5) {
+        // v1445 : pétales flottants animés
+        [[196, 130, 0], [110, 152, 1], [232, 178, 2], [140, 118, 3], [210, 160, 4]].forEach(function (pt) {
+          var rot = 20 + pt[2] * 42;
+          var dur = (6 + pt[2] * 1.4).toFixed(1);
+          body += '<g>'
+                + '<ellipse cx="' + pt[0] + '" cy="' + pt[1] + '" rx="3.4" ry="1.7" transform="rotate(' + rot + ' ' + pt[0] + ' ' + pt[1] + ')" '
+                + 'fill="#fff7e6" opacity="0.92" stroke="#6b4f2a" stroke-width="0.55" stroke-opacity="0.45">'
+                + '<animateTransform attributeName="transform" type="translate" additive="sum" '
+                + 'values="0 0; ' + (3 + pt[2]) + ' ' + (-8 - pt[2] * 2) + '; 0 0" dur="' + dur + 's" repeatCount="indefinite"/>'
+                + '</ellipse></g>';
+        });
+      }
+    }
+    return { svg: '<svg viewBox="0 0 320 360" preserveAspectRatio="xMidYMid meet" style="display:block;width:100%;height:auto;" aria-hidden="true">' + body + '</svg>', stages: stages, gl: gl, any: any };
+  }
+
+  // ── Qualités brutes d'une liste d'exercices (réutilisé par le récap hebdo) ──
+  function awakQualitiesOfExercises(exs) {
+    var v = { force: 0, endurance: 0, mental: 0, equilibre: 0, agilite: 0, cardio: 0 }, n = 0;
+    (exs || []).forEach(function (ex) {
+      if (!ex || ex.isRest || ex.isInfo) return;
+      var prof = (ex.discipline && DISCIPLINE_QUALITIES[ex.discipline]) ? DISCIPLINE_QUALITIES[ex.discipline]
+        : (ex.muscle && MUSCLE_QUALITIES[ex.muscle]) ? MUSCLE_QUALITIES[ex.muscle] : null;
+      if (prof) { _addProfile(v, prof, 1); n++; }
+    });
+    if (n > 0) { for (var k in v) v[k] /= n; }
+    return v;
+  }
+  window.awakQualitiesOfExercises = awakQualitiesOfExercises;
+  window.AWAK_QUALITIES_META = Q.map(function (q) { return { id: q.id, ic: q.ic, nm: q.nm, col: q.col }; });
+
+  // ── Share card : « Je suis [Archétype] » avec l'arbre dessiné ──
+  function awakShareTree() {
+    try {
+      var counts = awakComputeQualities();
+      var t = treeSVG(counts);
+      var A = awakArchetype(counts);
+      var ri = Math.min(5, Math.floor(t.gl / 5));
+      var W = 1080, H = 1350;
+      var canvas = document.createElement('canvas');
+      canvas.width = W; canvas.height = H;
+      var ctx = canvas.getContext('2d');
+      // fond + halo
+      ctx.fillStyle = '#0D0D0D'; ctx.fillRect(0, 0, W, H);
+      var g = ctx.createRadialGradient(W / 2, H * 0.42, 60, W / 2, H * 0.42, 620);
+      g.addColorStop(0, 'rgba(34,197,94,0.10)'); g.addColorStop(1, 'rgba(34,197,94,0)');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+      // entête
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#94a3b8'; ctx.font = '800 26px sans-serif';
+      ctx.fillText('◈  A R B R E   D E   L \u2019 É V E I L  ◈', W / 2, 96);
+      var nameSize = A.name.length > 24 ? 52 : (A.name.length > 16 ? 62 : 74);
+      ctx.fillStyle = '#eafff0'; ctx.font = '900 ' + nameSize + 'px sans-serif';
+      ctx.fillText(A.name, W / 2, 178);
+      ctx.fillStyle = RANK_COL[ri]; ctx.font = '800 30px sans-serif';
+      ctx.fillText('RANG ' + RANKS[ri] + '  ·  ' + A.sub.toUpperCase(), W / 2, 228);
+      // arbre (SVG → image)
+      var svgStr = t.svg.replace('<svg ', '<svg width="840" height="945" ');
+      var img = new Image();
+      img.onload = function () {
+        ctx.drawImage(img, (W - 840) / 2, 268, 840, 945);
+        // footer
+        ctx.fillStyle = '#64748b'; ctx.font = '800 24px sans-serif';
+        ctx.fillText('A W A K E N E D', W / 2, H - 56);
+        canvas.toBlob(function (blob) {
+          if (!blob) return;
+          var file = new File([blob], 'mon-arbre-awakened.png', { type: 'image/png' });
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            navigator.share({ files: [file], title: 'Mon Arbre de l\u2019Éveil' }).catch(function () {});
+          } else {
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'mon-arbre-awakened.png';
+            a.click();
+            setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+          }
+        }, 'image/png');
+      };
+      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgStr);
+    } catch (e) {}
+  }
+  window.awakShareTree = awakShareTree;
+
+  // ── Overlay ──
+  function showAwakeningTree() {
+    try {
+      var old = document.getElementById('awakeningTreeOverlay'); if (old) old.remove();
+      var counts = awakComputeQualities();
+      var t = treeSVG(counts);
+      var A = awakArchetype(counts);
+      var ri = Math.min(5, Math.floor(t.gl / 5));
+
+      // Célébration : une branche vient de passer un palier (posé par l'écran de fin)
+      var celebrate = window._awakCelebrate || null;
+      window._awakCelebrate = null;
+      var beforeSVG = null;
+      if (celebrate && celebrate.length) {
+        try {
+          var hist = _history();
+          var last = hist[0];
+          var exs = (last && last.workoutData && last.workoutData.exercises) ? last.workoutData.exercises : [];
+          var session = awakQualitiesOfExercises(exs);
+          var before = {};
+          Q.forEach(function (q) { before[q.id] = Math.max(0, counts[q.id] - session[q.id]); });
+          beforeSVG = treeSVG(before).svg;
+        } catch (e) { beforeSVG = null; }
+      }
+
+      var legend = Q.map(function (p, i) {
+        var st = t.stages[i], pct = Math.round(st / 5 * 100);
+        return '<div style="display:flex;align-items:center;gap:7px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.08);border-radius:11px;padding:7px 9px;">'
+          + '<span style="font-size:0.95em;">' + p.ic + '</span>'
+          + '<span style="font-size:0.7em;font-weight:700;flex:1;color:#e2e8f0;">' + p.nm + '</span>'
+          + '<span style="font-size:0.56em;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:' + p.col + ';">' + STAGE_NAMES[st] + '</span>'
+          + '</div>';
+      }).join('');
+
+      // 🎨 Styles de la scène : croissance animée + 2 colonnes sur tablette.
+      // (Les animations et media queries n'existent pas en style inline.)
+      if (!document.getElementById('awkTreeStyles')) {
+        var stl = document.createElement('style');
+        stl.id = 'awkTreeStyles';
+        stl.textContent =
+          '@keyframes awkGrow{from{transform:scale(0.04) translateY(26px);opacity:0;}'
+        +   '60%{opacity:1;}to{transform:scale(1) translateY(0);opacity:1;}}'
+        + '.awk-grow{animation:awkGrow 1.15s cubic-bezier(.22,.9,.28,1.12) both;}'
+        + '@media(prefers-reduced-motion:reduce){.awk-grow{animation:none!important;}}'
+        + '@media(min-width:820px){'
+        +   '#awakeningTreeOverlay{align-items:center!important;}'
+        +   '#awkSheet{max-width:940px!important;border-radius:20px!important;'
+        +     'border:1px solid rgba(34,211,238,0.3)!important;}'
+        +   '#awkSheet .awk-two{display:grid;grid-template-columns:1.15fr 1fr;gap:20px;align-items:start;}'
+        + '}';
+        document.head.appendChild(stl);
+      }
+
+      var overlay = document.createElement('div');
+      overlay.id = 'awakeningTreeOverlay';
+      overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.72);display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(3px);';
+      overlay.addEventListener('click', function (e) { if (e.target === overlay) overlay.remove(); });
+
+      var sheet = document.createElement('div');
+      sheet.id = 'awkSheet';
+      sheet.style.cssText = 'background:#0f1218;border-radius:20px 20px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;border-top:2px solid rgba(34,211,238,0.35);';
+      sheet.innerHTML =
+        '<div style="width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:99px;margin:0 auto 14px;"></div>'
+        + '<div style="text-align:center;font-size:0.6em;letter-spacing:3px;text-transform:uppercase;color:#94a3b8;font-weight:800;">Awakened · Arbre de l\'Éveil</div>'
+        + '<div style="text-align:center;margin:6px 0 4px;">'
+        + '<div style="font-size:1.6em;line-height:1.1;font-weight:900;background:linear-gradient(180deg,#eafff0,#8fe0ff);-webkit-background-clip:text;background-clip:text;color:transparent;">' + A.name + '</div>'
+        + '<div style="font-size:0.62em;color:#94a3b8;margin-top:3px;text-transform:uppercase;letter-spacing:1.5px;font-weight:700;">' + A.sub + '</div>'
+        + '</div>'
+        + '<div style="display:flex;align-items:center;justify-content:center;gap:10px;margin:8px 0 2px;">'
+        + '<div style="width:32px;height:32px;border-radius:10px;display:grid;place-items:center;font-size:1em;font-weight:900;border:1px solid ' + RANK_COL[ri] + '66;background:rgba(255,255,255,0.03);color:' + RANK_COL[ri] + ';box-shadow:0 0 14px ' + RANK_COL[ri] + '33;">' + RANKS[ri] + '</div>'
+        + '<div style="width:150px;height:7px;border-radius:6px;background:rgba(255,255,255,0.07);overflow:hidden;"><div style="height:100%;width:' + Math.round(t.gl / 30 * 100) + '%;background:linear-gradient(90deg,#22c55e,#22d3ee,#fbbf24);"></div></div>'
+        + '<small style="font-size:0.58em;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;font-weight:700;">Rang ' + RANKS[ri] + '</small>'
+        + '</div>'
+        + '<div class="awk-two">'
+        + '<div id="awkScene" style="position:relative;margin:4px 0;border-radius:18px;overflow:hidden;background:radial-gradient(80% 55% at 50% 34%,rgba(34,197,94,0.05),transparent 70%);">'
+        + (beforeSVG
+            ? '<div id="awkTreeBefore" style="transition:opacity 1.1s ease;">' + beforeSVG + '</div>'
+              + '<div id="awkTreeAfter" style="position:absolute;inset:0;opacity:0;transition:opacity 1.1s ease;">' + t.svg + '</div>'
+              + '<div id="awkCelebBanner" style="position:absolute;top:10px;left:50%;transform:translateX(-50%) scale(0.85);opacity:0;transition:all .5s cubic-bezier(.2,.9,.3,1.3);background:rgba(13,13,13,0.85);border:1px solid rgba(34,197,94,0.5);border-radius:99px;padding:8px 16px;font-size:0.72em;font-weight:900;color:#4ade80;white-space:nowrap;box-shadow:0 0 24px rgba(34,197,94,0.35);">'
+              + celebrate.map(function (l) { return l.ic + ' ' + l.nm + ' → ' + l.stage; }).join('  ·  ') + '</div>'
+            : t.svg)
+        + '</div>'
+        + '<div>'
+        +   '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:6px 0 10px;">' + legend + '</div>'
+        +   '<div style="font-size:0.62em;color:#64748b;text-align:center;line-height:1.5;margin-bottom:12px;">Ton arbre grandit avec tes séances réelles — chaque entraînement nourrit les qualités qu\'il travaille. Aucune branche ne rétrécit jamais.</div>'
+        + '</div>'
+        + '</div>'
+        + '<button id="awkShareBtn" style="width:100%;padding:13px;margin-bottom:8px;background:linear-gradient(135deg,#22d3ee,#0891b2);border:none;border-radius:14px;color:#04121f;font-weight:800;font-size:15px;cursor:pointer;">Partager mon arbre</button>'
+        + '<button id="awkCloseBtn" style="width:100%;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:14px;color:rgba(255,255,255,0.6);font-weight:700;cursor:pointer;">Fermer</button>';
+      overlay.appendChild(sheet);
+      document.body.appendChild(overlay);
+      var btn = document.getElementById('awkCloseBtn');
+      if (btn) btn.addEventListener('click', function () { overlay.remove(); });
+      var shareBtn = document.getElementById('awkShareBtn');
+      if (shareBtn) shareBtn.addEventListener('click', function () { awakShareTree(); });
+      // Célébration : la séance fait littéralement pousser l'arbre sous les yeux
+      if (beforeSVG) {
+        setTimeout(function () {
+          var b = document.getElementById('awkTreeBefore'), a = document.getElementById('awkTreeAfter'), ba = document.getElementById('awkCelebBanner');
+          if (a) a.style.opacity = '1';
+          if (b) b.style.opacity = '0';
+          if (ba) { ba.style.opacity = '1'; ba.style.transform = 'translateX(-50%) scale(1)'; }
+        }, 700);
+      }
+    } catch (e) {
+      if (typeof showNotification === 'function') showNotification("Arbre de l'Éveil indisponible pour le moment.", 'error');
+    }
+  }
+
+  // ── Impact d'une séance sur l'arbre (pour l'écran de fin) ──
+  // exs = liste d'exercices ({discipline, muscle}). Suppose la séance DÉJÀ
+  // sauvegardée dans l'historique. Retourne { top:[{ic,nm,col}], levelUps:[{ic,nm,stage}] }.
+  function awakSessionImpact(exs) {
+    var session = { force: 0, endurance: 0, mental: 0, equilibre: 0, agilite: 0, cardio: 0 }, n = 0;
+    (exs || []).forEach(function (ex) {
+      if (!ex || ex.isRest || ex.isInfo) return;
+      var prof = (ex.discipline && DISCIPLINE_QUALITIES[ex.discipline]) ? DISCIPLINE_QUALITIES[ex.discipline]
+        : (ex.muscle && MUSCLE_QUALITIES[ex.muscle]) ? MUSCLE_QUALITIES[ex.muscle] : null;
+      if (prof) { _addProfile(session, prof, 1); n++; }
+    });
+    if (n > 0) { for (var k in session) session[k] /= n; }
+    var totals = awakComputeQualities();
+    var top = Q.map(function (q) { return { q: q, s: session[q.id] }; })
+      .filter(function (x) { return x.s > 0.05; })
+      .sort(function (a, b) { return b.s - a.s; })
+      .slice(0, 2)
+      .map(function (x) { return { ic: x.q.ic, nm: x.q.nm, col: x.q.col }; });
+    var levelUps = [];
+    Q.forEach(function (q) {
+      var after = totals[q.id], before = Math.max(0, after - session[q.id]);
+      var sa = stageOf(after), sb = stageOf(before);
+      if (sa > sb) levelUps.push({ ic: q.ic, nm: q.nm, col: q.col, stage: STAGE_NAMES[sa] });
+    });
+    return { top: top, levelUps: levelUps };
+  }
+  window.awakSessionImpact = awakSessionImpact;
+
+  // Exports
+  window.showAwakeningTree = showAwakeningTree;
+  window.awakComputeQualities = awakComputeQualities;
+  window.awakArchetype = awakArchetype;
+})();
