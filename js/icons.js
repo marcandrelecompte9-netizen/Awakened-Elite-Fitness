@@ -24,6 +24,7 @@
     cible:     '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1"/>',
     repos:     '<path d="M3 18v-5a2 2 0 0 1 2-2h10a4 4 0 0 1 4 4v3"/><path d="M3 18h18"/><circle cx="7.5" cy="8.5" r="2"/>',
     chrono:    '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/>',
+    image:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/>',   // v1425
     calendrier:'<rect x="3" y="4.5" width="18" height="17" rx="2"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/>',
 
     // — États —

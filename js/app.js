@@ -134,7 +134,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 'awakSystemCardOverlay','heroReactionOverlay','awakCompanionMeetingOverlay',
                 'awakEveilOverlay','awakRankUpOverlay','awakLevelUpOverlay',
                 'awakCharLevelUpOverlay','awakEpicIntroOverlay','missionStoryOverlay',
-                'awakFinalStoryOverlay','awakFinalVictoryOverlay','awakVisiteOverlay','awakLootChestOverlay','awakCompanionRiftOverlay','awakStatPointsModal','dropModal'];
+                'awakFinalStoryOverlay','awakFinalVictoryOverlay','awakVisiteOverlay','awakLootChestOverlay','awakCompanionRiftOverlay','awakNarrativeRiftOverlay','awakStatPointsModal','dropModal'];
             const queue = [];
             let poll = null;
             let running = false;   // true pendant qu'on relance une scène de la file
@@ -7993,7 +7993,12 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const equip = (exData && exData.equipment && exData.equipment.length) ? exData.equipment.join(', ') : 'Poids du corps';
 
                 let mediaHTML;
-                if (imgSrc) {
+                // v1425 : nouvelle image (carrée) → animation début / fin, comme en séance
+                let _anim = null;
+                try { if (imgSrc && window.awakAnimHTML) _anim = window.awakAnimHTML(imgSrc, String(imgSrc).split('/').map((seg, k) => k === 0 ? seg : encodeURIComponent(seg)).join('/')); } catch (e) {}
+                if (_anim) {
+                    mediaHTML = '<div style="border-radius:14px;overflow:hidden;">' + _anim + '</div>';
+                } else if (imgSrc) {
                     // ⚠️ Passer par buildLazyImg : il ENCODE l'URL (accents é/è/à des noms
                     // de fichiers comme « Squats_poids_corps_légers.webp »). Une insertion
                     // brute de imgSrc cassait l'image pour tous les noms accentués.
@@ -8012,18 +8017,22 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
                 const modal = document.createElement('div');
                 modal.id = 'exercisePreviewModal';
-                modal.style.cssText = 'position:fixed;inset:0;z-index:10050;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);display:flex;align-items:flex-start;justify-content:center;padding:16px 16px 40px;overflow-y:auto;-webkit-overflow-scrolling:touch;';
+                // v1425 : au-dessus de l'éditeur de routine (10100), centrée
+                modal.style.cssText = 'position:fixed;inset:0;z-index:10600;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:16px;overflow-y:auto;-webkit-overflow-scrolling:touch;';
                 modal.onclick = function(e){ if (e.target === modal) modal.remove(); };
                 modal.innerHTML = `
                     <div style="max-width:440px;width:100%;background:linear-gradient(160deg,#0f1620,#0a0e14);border:1px solid rgba(34,211,238,0.3);border-radius:18px;padding:16px;margin:0 auto;">
                         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
                             <div style="min-width:0;flex:1;">
                                 <div style="font-weight:800;color:#fff;font-size:1.05em;line-height:1.2;">${exerciseName}</div>
-                                <div style="font-size:0.76em;color:#94a3b8;margin-top:3px;">💪 ${muscle} · 🎒 ${equip}</div>
+                                <div style="font-size:0.76em;color:#94a3b8;margin-top:3px;">${muscle} · ${equip}</div>
                             </div>
                             <button onclick="document.getElementById('exercisePreviewModal').remove()" style="flex-shrink:0;width:32px;height:32px;border-radius:50%;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;font-weight:900;cursor:pointer;margin-left:10px;"><svg viewBox="0 0 24 24" width="16" height="16" style="display:inline-block;vertical-align:-0.15em;" aria-hidden="true"><path d="M5 5 L19 19 M19 5 L5 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" fill="none"/></svg></button>
                         </div>
                         ${mediaHTML}
+                        ${(() => { const ins = (exData && exData.instructions || []).slice(0, 4); if (!ins.length) return '';
+                            const tu = (t) => (window.AwakSessUX && AwakSessUX.tutoyer) ? AwakSessUX.tutoyer(String(t || '')) : String(t || '');
+                            return '<ol style="margin:12px 0 0;padding-left:20px;font-size:0.82em;color:#cbd5e1;line-height:1.5;">' + ins.map(x => '<li>' + tu(x).replace(/</g, '&lt;') + '</li>').join('') + '</ol>'; })()}
                     </div>`;
                 document.body.appendChild(modal);
             } catch(e) {}
@@ -23718,7 +23727,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1421);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1426);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -23770,7 +23779,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 +       '<rect width="5" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.22"/>'
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1421" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1426" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     svgZones
                 +   '</svg>'
@@ -29261,7 +29270,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1421");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1426");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -31261,8 +31270,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // v1410 : explique comment la scène se déclenche en vrai (mode dev)
         function _awakDevDeclencheur(e) {
             const t = e.trigger || {}, v = t.value;
-            const failles = { first_breach: 'Le Premier Souvenir', whispering_tower: 'La Tour qui Murmure', silent_one: 'Le Silencieux',
-                the_one_who_carried: 'Celui qui a Porté', last_door: 'La Dernière Porte' };
+            const failles = new Proxy({}, { get: function (o, id) { return window.awakNarrativeNom ? window.awakNarrativeNom(id) : id; } });   // v1422
             const titre = function (id) { const x = (window.STORY_EVENTS || []).find(function (s) { return s.id === id; }); return (x && x.content && x.content.title) || id; };
             let txt;
             switch (t.kind) {
@@ -33560,6 +33568,18 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // indéfiniment. Sans ça, une Faille-clé pourrait disparaître et bloquer
                 // définitivement la progression de l'histoire (porte narrative).
                 if (r.isNarrative) {
+                    // v1422 : seule exception, une Faille d'histoire à durée limitée
+                    // (« La Boulangerie qui s'efface ») : expirée = souvenir perdu, l'histoire continue.
+                    if (r.narrativeId && r.narrativeData && r.narrativeData.expireDays && now > r.expiresAt) {
+                        r.completed = true; r.completedAt = now; r.echec = true; changed = true;
+                        try {
+                            localStorage.setItem('awakNarrativeDone_' + r.narrativeId, '1');
+                            localStorage.setItem('awakStoryEvt__echec_' + r.narrativeId, '1');
+                        } catch (e) {}
+                        try { if (typeof showToast === 'function') setTimeout(() => showToast('« ' + r.name + ' » s\'est refermée sans toi. Ce souvenir est perdu.', 'warning', 5000), 1500); } catch (e) {}
+                        try { if (typeof storyCheckEvents === 'function') setTimeout(() => storyCheckEvents({ delay: 400 }), 2500); } catch (e) {}
+                        continue;
+                    }
                     if (r.state !== 'stable') { r.state = 'stable'; changed = true; }
                     continue;
                 }
@@ -33824,7 +33844,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1421);'
+                +     'url(images/combat_bg_v1.webp?v=1426);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -34122,7 +34142,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1421);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1426);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -34360,6 +34380,43 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         }
         window.awakExoIconBox = awakExoIconBox;
 
+        // v1422 — choix de la voix (Faille « Le Faux Système »)
+        const AWAK_VOIX = [
+            ['Respire. La vague ne partira pas sans toi.', 'Ne respire pas. Chaque seconde de repos te rapproche de l\'effacement.'],
+            ['Tu as le droit d\'avoir mal. Ralentis si tu dois. Mais reviens.', 'Une Ancre ne ralentit jamais. Ralentir, c\'est déjà commencer à s\'asseoir.'],
+            ['Je ne sais pas si on va gagner. Je sais que je préfère le faire avec toi.', 'Victoire assurée. Tu n\'as besoin de personne. Tu n\'en as jamais eu besoin.']
+        ];
+        function awakFauxSystemeChoix(rift, idx) {
+            if (document.getElementById('awakVoixOverlay')) return;
+            const wave = rift.waves[idx]; if (!wave || wave._voix) return;
+            const paire = AWAK_VOIX[Math.min(idx, AWAK_VOIX.length - 1)];
+            const vraiEnHaut = Math.random() < 0.5;
+            const msgs = vraiEnHaut ? [[paire[0], 'vrai'], [paire[1], 'faux']] : [[paire[1], 'faux'], [paire[0], 'vrai']];
+            const o = document.createElement('div');
+            o.id = 'awakVoixOverlay';
+            o.style.cssText = 'position:fixed;inset:0;z-index:100002;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.88);backdrop-filter:blur(8px);padding:20px;';
+            o.innerHTML = '<div style="max-width:420px;width:100%;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid #c084fc55;border-radius:18px;padding:22px 18px;text-align:center;">'
+                + '<div style="font-size:0.6em;letter-spacing:2.5px;color:#c084fc;font-weight:900;margin-bottom:6px;">VAGUE ' + (idx + 1) + ' / ' + rift.waves.length + '</div>'
+                + '<div style="color:#e2e8f0;font-weight:800;font-size:1em;margin-bottom:14px;">Deux voix. Laquelle est le Système ?</div>'
+                + msgs.map(m => '<button data-voix="' + m[1] + '" style="display:block;width:100%;text-align:left;margin-bottom:10px;background:rgba(192,132,252,0.07);border:1px solid rgba(192,132,252,0.35);border-left:3px solid #c084fc;border-radius:12px;padding:12px 14px;cursor:pointer;">'
+                    + '<div style="font-size:0.58em;letter-spacing:2px;color:#c084fc;font-weight:900;margin-bottom:4px;">SYSTÈME</div>'
+                    + '<div style="color:#cbd5e1;font-size:0.86em;font-style:italic;line-height:1.5;">« ' + m[0] + ' »</div></button>').join('')
+                + '</div>';
+            document.body.appendChild(o);
+            o.querySelectorAll('[data-voix]').forEach(b => b.onclick = () => {
+                const vrai = b.getAttribute('data-voix') === 'vrai';
+                wave._voix = vrai ? 'vrai' : 'faux';
+                const f = vrai ? 0.8 : 1.25;
+                wave.hpMax = Math.max(1, Math.round(wave.hpMax * f)); wave.hpCurrent = wave.hpMax;
+                if (!vrai) rift._fauxCount = (rift._fauxCount || 0) + 1;
+                try { const all = awakRiftsLoad(); const i = all.findIndex(r => r.id === rift.id); if (i >= 0) { all[i] = rift; awakRiftsSave(all); } } catch (e) {}
+                o.remove();
+                try { showToast(vrai ? 'C\'était bien moi. La vague faiblit (−20 % PV).' : 'Ce n\'était pas moi. La vague se renforce (+25 % PV).', vrai ? 'success' : 'warning', 3500); } catch (e) {}
+                try { if (document.getElementById('awakRiftCombatModal')) awakShowRiftCombatScreen(); } catch (e) {}
+            });
+        }
+        window.awakFauxSystemeChoix = awakFauxSystemeChoix;
+
         function awakShowRiftCombatScreen() {
             const session = awakActiveRiftSession;
             if (!session) return;
@@ -34369,6 +34426,12 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // Toutes les vagues vaincues → victoire
                 awakCompleteRift();
                 return;
+            }
+
+            // v1422 — LE FAUX SYSTÈME : avant chaque vague, deux messages « SYSTÈME ».
+            // Le vrai n'interdit jamais le repos (« Ce qu'est une Ancre ») ; le faux parle comme Nabdano.
+            if (rift.narrativeId === 'false_system' && !currentWave._voix && currentWave.hpCurrent >= currentWave.hpMax) {
+                setTimeout(() => { try { awakFauxSystemeChoix(rift, rift.currentWaveIdx); } catch (e) {} }, 350);
             }
 
             // Modal full screen pour le combat
@@ -34394,7 +34457,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:540px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto;display:flex;flex-direction:column;">
                 <!-- Header : vague actuelle -->
-                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1421);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1426);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                         <span style="font-size:0.6em;color:${theme.color};font-weight:900;letter-spacing:2px;">⚔ VAGUE ${rift.currentWaveIdx + 1} / ${rift.waves.length}${currentWave.isBoss ? ' · BOSS' : ''}</span>
                         <button onclick="awakAbandonRift()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
@@ -35378,6 +35441,18 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // awakRepairNarrativeRifts recréerait une Faille déjà faite.
                 if (!_wasCompleted && r.narrativeId) {
                     try { localStorage.setItem('awakNarrativeDone_' + r.narrativeId, '1'); } catch (e) {}
+                    // v1422 : issue des Failles à choix / à mécanique (variantes de scène)
+                    try {
+                        if (r._echoPerdu || (r._fauxCount || 0) >= 2) {
+                            r.echec = true;
+                            localStorage.setItem('awakStoryEvt__echec_' + r.narrativeId, '1');
+                            if (r.narrativeId === 'the_echo') localStorage.setItem('awakStoryEvt__echoOubli', String((loadStats().workouts || 0)));
+                        }
+                        if (r.narrativeId === 'merchant_fading' && typeof awakConsumablesAdd === 'function') {
+                            awakConsumablesAdd('larme_systeme', 1);
+                            setTimeout(() => { try { showToast('Le Marchand t\'offre une Larme du Système.', 'success', 4000); } catch (e) {} }, 2200);
+                        }
+                    } catch (e) {}
                     // 🎬 DIALOGUE APRÈS UNE FAILLE D'HISTOIRE.
                     // ⚠️ La complétion était bien ENREGISTRÉE, mais le module
                     // narratif n'était jamais consulté : les événements dont le
@@ -35525,7 +35600,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1421');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1426');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -36270,7 +36345,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1421);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1426);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -36441,7 +36516,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1421);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1426);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -37185,8 +37260,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // (Les épreuves finales ne s'ouvrent qu'à celui qui a vécu tout l'arc.)
                 if (typeof NARRATIVE_RIFTS !== 'undefined') {
                     const allRifts = awakRiftsLoad();
-                    const narrativeDone = (defId) => allRifts.some(r => r.narrativeId === defId && r.completed);
-                    const allNarrativeComplete = NARRATIVE_RIFTS.every(n => narrativeDone(n.id));
+                    const narrativeDone = (defId) => allRifts.some(r => r.narrativeId === defId && r.completed)
+                        || localStorage.getItem('awakNarrativeDone_' + defId) === '1';   // v1422 : trace durable
+                    const allNarrativeComplete = NARRATIVE_RIFTS.every(n => n.arc === 'ss' || narrativeDone(n.id));
                     if (!allNarrativeComplete) return null; // histoire pas terminée → pas de sous-boss
                 }
 
@@ -37244,6 +37320,31 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (wave._gauge === undefined) wave._gauge = 50; // jauge neutre 0..100
 
             switch (mech) {
+                case 'echo': {
+                    // v1422 — L'ÉCHO : la jauge = proximité du partenaire. Un long repos
+                    // entre deux séries (> 2 min 30) l'éloigne ; enchaîner le rapproche.
+                    // À 0 : il ne t'entend plus (variante de la scène, souvenir 2 séances plus tard).
+                    const tx = (t) => (typeof awakHerosTexte === 'function') ? awakHerosTexte(t) : t;
+                    const now = Date.now();
+                    const gap = wave._lastHit ? (now - wave._lastHit) / 1000 : 0;
+                    wave._lastHit = now;
+                    if (wave._gauge === 50 && !wave._echoInit) { wave._gauge = 60; wave._echoInit = true; }
+                    if (gap > 150 && gap < 1800) {
+                        wave._gauge = Math.max(0, wave._gauge - 25);
+                        damage = Math.round(damage * 0.6);
+                        toasts.push({ msg: tx('Trop long. {partenaire} s\'éloigne d\'une salle (' + Math.round(wave._gauge) + ' %).'), type: 'warning' });
+                    } else {
+                        wave._gauge = Math.min(100, wave._gauge + 15);
+                        if (wave._gauge >= 100) { damage = Math.round(damage * 1.3); toasts.push({ msg: tx('Tu l\'as rattrapé{pe} : {il} se bat avec toi. Dégâts ×1,3'), type: 'success' }); }
+                        else toasts.push({ msg: tx('Tu te rapproches de {partenaire} : ' + Math.round(wave._gauge) + ' %'), type: 'info' });
+                    }
+                    if (wave._gauge <= 0 && !rift._echoPerdu) {
+                        rift._echoPerdu = true;
+                        wave._gauge = 30;
+                        toasts.push({ msg: tx('{Il} ne t\'entend plus. Termine quand même : {il} reviendra, mais pas tout de suite.'), type: 'error' });
+                    }
+                    break;
+                }
                 case 'traque': {
                     // 🐺 Cardio fait monter l'avance ; sinon elle chute. À 0 → charge = dégâts au joueur.
                     if (effortType === 'cardio' || effortType === 'explosif') {
@@ -37571,7 +37672,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             <div class="modal-content" style="max-width:480px;width:100%;background:linear-gradient(160deg,#1a1407,#0F1014);border:1px solid rgba(251,191,36,0.4);padding:0;border-radius:20px;margin:0 auto;">
                 <div style="position:relative;border-bottom:1px solid rgba(251,191,36,0.25);overflow:hidden;border-radius:20px 20px 0 0;">
                     <img src="images/story/marchand.webp" alt="Le Marchand"
-                         style="width:100%;height:190px;object-fit:cover;object-position:center 8%;display:block;"
+                         style="width:100%;height:190px;object-fit:cover;object-position:center 8%;display:block;${(window.awakMarchandPalit && window.awakMarchandPalit()) ? 'opacity:0.45;filter:grayscale(0.6);' : ''}"
                          onerror="this.onerror=null;this.style.display='none';this.parentNode.style.background='linear-gradient(135deg,rgba(251,191,36,0.18),rgba(251,191,36,0.04))';this.parentNode.querySelector('.merchant-fallback-emoji').style.display='block';" />
                     <div class="merchant-fallback-emoji" style="display:none;font-size:3em;line-height:1;padding:24px 0 0;text-align:center;">🛒</div>
                     <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(15,16,20,0) 40%,rgba(15,16,20,0.85) 100%);"></div>
@@ -37581,6 +37682,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     </div>
                     <button onclick="document.getElementById('awakMerchantModal').remove()" style="position:absolute;top:12px;right:12px;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,0.5);border:1px solid rgba(239,68,68,0.5);color:#f87171;font-weight:900;cursor:pointer;z-index:2;"><svg viewBox="0 0 24 24" width="16" height="16" style="display:inline-block;vertical-align:-0.15em;" aria-hidden="true"><path d="M5 5 L19 19 M19 5 L5 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" fill="none"/></svg></button>
                 </div>
+                ${(window.awakMarchandPalit && window.awakMarchandPalit()) ? '<div style="margin:12px 14px 0;padding:10px 12px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.35);border-radius:10px;font-size:0.76em;color:#fde68a;line-height:1.45;">On voit le comptoir à travers lui. « Désolé… tout coûte un peu plus cher, en ce moment. » <span style="color:#94a3b8;">Prix +25 % tant que la Faille « Le Marchand pâlit » est ouverte.</span></div>' : ''}
                 <div style="display:flex;gap:5px;padding:12px 14px;flex-wrap:wrap;">
                     ${tabBtn('sell','VENDRE','💎')}
                     ${tabBtn('consumables','POTIONS','🧪')}
@@ -38203,13 +38305,32 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
         const NARRATIVE_RIFTS = [
             {
+                // v1422 : la boulangerie de Nyra (scène du niveau 5) s'efface.
+                // SEULE Faille narrative qui expire : 5 jours, sinon le souvenir est perdu.
+                id: 'bakery_fading',
+                name: 'La Boulangerie qui s\'efface',
+                emoji: '◇',
+                color: '#f472b6',
+                description: 'La petite boulangerie de Nyra. La vitrine pâlit d\'heure en heure. Dans cinq jours, il n\'en restera rien.',
+                briefing: 'Celle-ci n\'attendra pas. Si tu ne la fermes pas dans les cinq jours, ce souvenir sera perdu. Pour de bon.',
+                trigger: { type: 'level', value: 27, label: 'Atteindre le niveau 27' },
+                expireDays: 5,
+                rewards: { xp: 1200, message: 'La vitrine a retrouvé ses couleurs.' },
+                rank: 'C',
+                waves: 3,
+                hpMult: 1.7,
+                primaryStat: 'END',
+                themeEmoji: '🥐',
+                exerciseFilter: ex => /squat|fente|lunge|pompe|push|gainage|planche/.test((ex.name || '').toLowerCase())
+            },
+            {
                 id: 'first_breach',
                 name: 'Le Premier Souvenir',
                 emoji: '◇',
                 color: '#a855f7',
                 description: 'Une Faille qui ressemble à un lieu de ton enfance. Mais quelque chose ne va pas.',
                 briefing: 'Tu reconnais cet endroit. Mais ce n\'est pas tout à fait ça. Avance prudemment.',
-                trigger: { type: 'rank', value: 'D', label: 'Atteindre le rang D' },
+                trigger: { type: 'level', value: 31, label: 'Atteindre le niveau 31' },   // v1422 : près de sa scène (33)
                 rewards: { xp: 1500, message: 'Tu as vu quelque chose que tu ne devrais pas voir. Le Système le sait.' },
                 rank: 'C',
                 waves: 3,
@@ -38225,7 +38346,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 color: '#06b6d4',
                 description: 'Une tour qui n\'existe pas dans la réalité, mais que tout le monde voit parfois en rêve.',
                 briefing: 'Ne réponds pas aux voix. Continue à monter. Le Système te guidera.',
-                trigger: { type: 'rifts_completed', value: 5, label: 'Fermer 5 Failles' },
+                trigger: { type: 'level', value: 34, label: 'Atteindre le niveau 34' },   // v1422 : près de « Le Nom » (35)
                 rewards: { xp: 2500, message: 'Les voix se sont tues. Quelque chose les a fait taire. Pas toi.' },
                 rank: 'B',
                 waves: 3,
@@ -38235,20 +38356,57 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 exerciseFilter: ex => /fente|lunge|squat|pompe|push|step|unilatéral|jumping|mountain/.test((ex.name || '').toLowerCase())
             },
             {
-                id: 'silent_one',
-                name: 'Le Silencieux',
-                emoji: '◯',
-                color: '#64748b',
-                description: 'Un fragment où il n\'y a plus rien. Plus de son. Plus de couleur. Plus de mémoire.',
-                briefing: 'L\'Oubli est plus épais ici que partout ailleurs. Ne reste pas trop longtemps. Frappe vite.',
-                trigger: { type: 'rank', value: 'A', label: 'Atteindre le rang A' },
-                rewards: { xp: 5000, message: 'Tu l\'as vu, n\'est-ce pas ? Il t\'a regardé aussi.' },
-                rank: 'A',
-                waves: 4,
-                hpMult: 3.5,
-                primaryStat: 'VIT',
-                themeEmoji: '🌑',
-                exerciseFilter: ex => /burpee|hiit|sprint|jumping|jump|circuit|tabata/.test((ex.name || '').toLowerCase())
+                // v1422 : tient la Promesse du niveau 41 — le partenaire écoute la voix
+                id: 'the_echo',
+                name: 'L\'Écho',
+                emoji: '◇',
+                color: '#38bdf8',
+                description: '{partenaire} n\'est pas venu{pe} s\'entraîner ce matin. Sa trace mène à une Faille qui parle avec ta voix.',
+                briefing: 'Va le chercher. Ne t\'arrête pas trop longtemps entre tes séries : chaque long silence l\'éloigne d\'une salle.',
+                trigger: { type: 'level', value: 44, label: 'Atteindre le niveau 44' },
+                mech: 'echo',
+                rewards: { xp: 4000, message: 'Tu es venu. Comme promis.' },
+                rank: 'B',
+                waves: 3,
+                hpMult: 2.6,
+                primaryStat: 'SEN',
+                themeEmoji: '🔊',
+                exerciseFilter: ex => /squat|fente|lunge|pompe|push|burpee|jump|mountain|gainage/.test((ex.name || '').toLowerCase())
+            },
+            {
+                // v1422 : une voix imite le Système — le joueur choisit qui croire
+                id: 'false_system',
+                name: 'Le Faux Système',
+                emoji: '◇',
+                color: '#c084fc',
+                description: 'Depuis ce matin, deux voix s\'affichent. Les deux disent être le Système.',
+                briefing: 'Avant chaque vague, deux messages. Un seul vient de moi. Choisis bien : l\'autre te fera payer ta confiance.',
+                trigger: { type: 'level', value: 48, label: 'Atteindre le niveau 48' },
+                choixVoix: true,
+                rewards: { xp: 4500, message: 'La seconde voix s\'est tue.' },
+                rank: 'B',
+                waves: 3,
+                hpMult: 2.8,
+                primaryStat: 'PER',
+                themeEmoji: '💬',
+                exerciseFilter: ex => /squat|press|push|pompe|pull|rowing|fente|gainage/.test((ex.name || '').toLowerCase())
+            },
+            {
+                // v1422 : le Marchand s'efface — ses prix montent tant que la Faille est ouverte
+                id: 'merchant_fading',
+                name: 'Le Marchand pâlit',
+                emoji: '◇',
+                color: '#fbbf24',
+                description: 'L\'échoppe est toujours là. Le Marchand aussi, mais on voit le comptoir à travers lui. Et ses prix grimpent.',
+                briefing: 'Tant que cette Faille reste ouverte, il s\'efface — et tout coûte 25 % plus cher chez lui. Ferme-la.',
+                trigger: { type: 'level', value: 52, label: 'Atteindre le niveau 52' },
+                rewards: { xp: 5000, message: 'Le Marchand est redevenu net.' },
+                rank: 'B',
+                waves: 3,
+                hpMult: 3.0,
+                primaryStat: 'STR',
+                themeEmoji: '🏮',
+                exerciseFilter: ex => /squat|deadlift|soulevé|press|développé|rowing|pull|fente/.test((ex.name || '').toLowerCase())
             },
             {
                 // 🕯️ LE PASSÉ DE NABDANO — montré, jamais raconté.
@@ -38272,6 +38430,22 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 exerciseFilter: ex => /squat|press|push|pompe|pull|fente|gainage|planche/.test((ex.name || '').toLowerCase())
             },
             {
+                id: 'silent_one',
+                name: 'Celui qui ne parle plus',   // v1422 : « le silencieux » = surnom d'Esen
+                emoji: '◯',
+                color: '#64748b',
+                description: 'Un fragment où il n\'y a plus rien. Plus de son. Plus de couleur. Plus de mémoire.',
+                briefing: 'L\'Oubli est plus épais ici que partout ailleurs. Ne reste pas trop longtemps. Frappe vite.',
+                trigger: { type: 'level', value: 63, label: 'Atteindre le niveau 63' },   // v1422 : APRÈS « Celui qui a Porté »
+                rewards: { xp: 5000, message: 'Tu l\'as vu, n\'est-ce pas ? Il t\'a regardé aussi.' },
+                rank: 'A',
+                waves: 4,
+                hpMult: 3.5,
+                primaryStat: 'VIT',
+                themeEmoji: '🌑',
+                exerciseFilter: ex => /burpee|hiit|sprint|jumping|jump|circuit|tabata/.test((ex.name || '').toLowerCase())
+            },
+            {
                 id: 'last_door',
                 name: 'La Dernière Porte',
                 emoji: '⛩️',
@@ -38286,6 +38460,24 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 primaryStat: 'STR',
                 themeEmoji: '🌟',
                 exerciseFilter: ex => /deadlift|squat|press|bench|développé|soulevé/.test((ex.name || '').toLowerCase())
+            },
+            {
+                // v1422 : ouvre l'arc SS/SSS (après l'Effaceur). Hors prérequis des sous-boss.
+                id: 'what_remains',
+                name: 'Ce qui reste',
+                emoji: '◇',
+                color: '#e2e8f0',
+                description: 'L\'Effaceur est parti. Mais ce qu\'il a effacé n\'a pas disparu. Ça s\'entasse, quelque part.',
+                briefing: 'Je détecte des souvenirs. Beaucoup. Aucun n\'est à toi. Aucun n\'est à moi non plus.',
+                trigger: { type: 'level', value: 100, apresBoss: true, label: 'Niveau 100, après l\'Effaceur' },
+                arc: 'ss',
+                rewards: { xp: 15000, message: 'Quelqu\'un a rangé ce qui a été effacé.' },
+                rank: 'SS',
+                waves: 4,
+                hpMult: 5.5,
+                primaryStat: 'SEN',
+                themeEmoji: '📦',
+                exerciseFilter: ex => /deadlift|squat|press|bench|développé|soulevé|pull|traction/.test((ex.name || '').toLowerCase())
             }
         ];
 
@@ -38434,7 +38626,41 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         }
         window.awakRepairNarrativeRifts = awakRepairNarrativeRifts;
 
+        // v1422 : les Failles d'histoire ajoutées en cours de route (boulangerie, Écho,
+        // Faux Système, Marchand) ne doivent pas ramener un joueur déjà bien plus loin
+        // en arrière : une seule fois par profil, celles largement dépassées sont
+        // comptées comme passées (Faille + scène), sans bloquer l'histoire.
+        const AWAK_NARR_AJOUTS_1422 = ['bakery_fading', 'the_echo', 'false_system', 'merchant_fading'];
+        function awakNarrativeMigration1422() {
+            try {
+                const k = 'awakStoryEvt__migr1422';
+                if (localStorage.getItem(k) === '1') return;
+                localStorage.setItem(k, '1');
+                const lvl = (typeof _awakGetCurrentLevel === 'function') ? _awakGetCurrentLevel() : 0;
+                const seen = awakNarrativeRiftsSeenLoad();
+                AWAK_NARR_AJOUTS_1422.forEach(id => {
+                    const def = NARRATIVE_RIFTS.find(n => n.id === id);
+                    if (!def || seen.includes(id) || lvl <= def.trigger.value + 2) return;
+                    awakNarrativeRiftsMarkSeen(id);
+                    localStorage.setItem('awakNarrativeDone_' + id, '1');
+                    localStorage.setItem('awakStoryEvt__saute_' + id, '1');
+                    (window.STORY_EVENTS || []).forEach(e => {
+                        if (e.trigger && e.trigger.narrativeId === id) localStorage.setItem('awakStoryEvt_' + e.id, '1');
+                    });
+                });
+            } catch (e) {}
+        }
+        window.awakNarrativeMigration1422 = awakNarrativeMigration1422;
+        // v1422 : la Faille « Le Marchand pâlit » est-elle ouverte ?
+        function awakMarchandPalit() {
+            try { return awakRiftsLoad().some(r => r.narrativeId === 'merchant_fading' && !r.completed); } catch (e) { return false; }
+        }
+        window.awakMarchandPalit = awakMarchandPalit;
+        // Nom lisible d'une Faille narrative (journal, mode dev, invitations)
+        window.awakNarrativeNom = function (id) { const d = NARRATIVE_RIFTS.find(n => n.id === id); return d ? d.name : id; };
+
         function awakCheckNarrativeRifts() {
+            try { awakNarrativeMigration1422(); } catch (e) {}
             // Réparer AVANT de décider : une Faille perdue doit revenir plutôt
             // que de bloquer la suite.
             try { awakRepairNarrativeRifts(); } catch (e) {}
@@ -38469,6 +38695,12 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         break;
                     }
                     case 'rifts_completed': triggered = completedRifts >= t.value; break;
+                    case 'level': {   // v1422
+                        const lv = (typeof _awakGetCurrentLevel === 'function') ? _awakGetCurrentLevel() : 0;
+                        triggered = lv >= t.value;
+                        if (triggered && t.apresBoss) { try { triggered = localStorage.getItem('awakFinalBossDefeated') === '1'; } catch (e) { triggered = false; } }
+                        break;
+                    }
                 }
 
                 if (triggered) {
@@ -38510,12 +38742,20 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 });
             }
 
+            // v1422 : mécanique propre (L'Écho) + textes avec le partenaire résolus
+            const _tx = (t) => (typeof awakHerosTexte === 'function') ? awakHerosTexte(t) : t;
+            if (narrative.mech && waves.length) {
+                waves[waves.length - 1].bossMech = narrative.mech === 'echo'
+                    ? { id: 'echo', name: 'L\'Écho', desc: _tx('chaque long repos éloigne {partenaire}. Enchaîne tes séries.') }
+                    : waves[waves.length - 1].bossMech;
+            }
             return {
                 id: 'narrative_' + narrative.id + '_' + Date.now(),
                 isNarrative: true,
                 narrativeId: narrative.id,
+                subBossMech: narrative.mech || undefined,
                 createdAt: Date.now(),
-                expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000, // 30 jours (longue durée)
+                expiresAt: Date.now() + (narrative.expireDays || 30) * 24 * 60 * 60 * 1000, // 30 jours, sauf Faille à durée limitée
                 rank: narrative.rank,
                 themeId: 'narrative_' + narrative.id,
                 name: narrative.name,
@@ -38529,7 +38769,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 attempts: 0,
                 completed: false,
                 // Données narratives
-                narrativeData: narrative
+                narrativeData: Object.assign({}, narrative, { description: _tx(narrative.description), briefing: _tx(narrative.briefing) })
             };
         }
 
@@ -38537,10 +38777,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
          * Cinématique d'apparition d'une Faille narrative
          */
         function awakShowNarrativeRiftAppearance(narrative) {
+            if (window.AwakCine && window.AwakCine.defer(function () { awakShowNarrativeRiftAppearance(narrative); })) return;
+            try { if (typeof awakHerosTexte === 'function') narrative = Object.assign({}, narrative, { description: awakHerosTexte(narrative.description), briefing: awakHerosTexte(narrative.briefing) }); } catch (e) {}
             // Vibration plus intense
             if (typeof vibrate === 'function') vibrate([100, 50, 100, 50, 200]);
 
             const overlay = document.createElement('div');
+            overlay.id = 'awakNarrativeRiftOverlay';
             overlay.style.cssText = 'position:fixed;inset:0;z-index:99997;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);animation:awakFadeIn 0.6s;padding:20px;';
 
             overlay.innerHTML = `
@@ -39600,21 +39843,24 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const a = sp.allocated[stat] || 0, b = brouillon[stat] || 0, c = COUL[stat];
                 const t = (totaux[stat] || 0) + b;
                 const ef = EFFET[stat](t);
-                return `<div style="display:flex;align-items:center;gap:12px;padding:12px;background:#12161c;border:1px solid ${b ? c + '66' : 'rgba(255,255,255,0.07)'};border-radius:16px;">
-                    <div style="width:38px;height:38px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${c}18;border:1px solid ${c}44;">${ico(ICO[stat], c)}</div>
-                    <div style="flex:1;min-width:0;">
-                        <div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;">
-                            <span style="font-size:14px;font-weight:800;color:#f1f5f9;">${NOM[stat]}</span>
-                            <span style="font-size:14px;font-weight:900;color:${c};font-variant-numeric:tabular-nums;">${t}</span>
-                            ${a ? `<span style="font-size:11px;color:#8d9cb1;font-weight:700;">dont ${a} alloué${a > 1 ? 's' : ''}</span>` : ''}
-                        </div>
-                        <div style="font-size:12.5px;color:#cbd5e1;margin-top:2px;line-height:1.35;">${ef[0]}</div>
-                        <div style="font-size:11px;color:#8d9cb1;margin-top:1px;">Prochain point : ${ef[1]}</div>
+                // v1425 : même disposition pour chaque attribut — nom à gauche, total à
+                // droite sur la même ligne ; effet dessous ; boutons sur la dernière ligne
+                // (avant : selon la largeur du nom, le total passait sous le nom).
+                return `<div style="padding:12px;background:#12161c;border:1px solid ${b ? c + '66' : 'rgba(255,255,255,0.07)'};border-radius:16px;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div style="width:34px;height:34px;border-radius:11px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${c}18;border:1px solid ${c}44;">${ico(ICO[stat], c)}</div>
+                        <span style="flex:1;min-width:0;font-size:15px;font-weight:800;color:#f1f5f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${NOM[stat]}</span>
+                        <span style="flex-shrink:0;font-size:18px;font-weight:900;color:${c};font-variant-numeric:tabular-nums;">${t}</span>
                     </div>
-                    <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
-                        ${btn(stat, -1, b > 0, c)}
-                        <div style="min-width:30px;text-align:center;font-size:16px;font-weight:900;color:${b ? c : '#475569'};font-variant-numeric:tabular-nums;">${b ? '+' + b : '0'}</div>
-                        ${btn(stat, 1, dispo > 0, c)}
+                    <div style="margin-top:6px;font-size:12px;color:#8d9cb1;font-weight:700;">${a ? `dont ${a} alloué${a > 1 ? 's' : ''}` : 'aucun alloué'}</div>
+                    <div style="font-size:13px;color:#cbd5e1;margin-top:2px;line-height:1.35;">${ef[0]}</div>
+                    <div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
+                        <div style="flex:1;min-width:0;font-size:11.5px;color:#8d9cb1;">Prochain point : ${ef[1]}</div>
+                        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+                            ${btn(stat, -1, b > 0, c)}
+                            <div style="min-width:30px;text-align:center;font-size:16px;font-weight:900;color:${b ? c : '#475569'};font-variant-numeric:tabular-nums;">${b ? '+' + b : '0'}</div>
+                            ${btn(stat, 1, dispo > 0, c)}
+                        </div>
                     </div>
                 </div>`;
             }).join('');
@@ -41136,6 +41382,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try {
                 if (typeof awakCheckCompanionRifts === 'function') {
                     setTimeout(() => { try { awakCheckCompanionRifts(); } catch(e) {} }, 5000);
+                }
+                // v1422 : Failles d'histoire déclenchées par le niveau
+                if (typeof awakCheckNarrativeRifts === 'function') {
+                    setTimeout(() => { try { awakCheckNarrativeRifts(); } catch(e) {} }, 5600);
                 }
             } catch(e) {}
 
@@ -47582,7 +47832,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
               // v1393 : hauteur réservée (aspect-ratio) — sinon l'image recréée
               // n'a aucune hauteur le temps d'un décodage, le formulaire saute
               // de ~160 px et le toucher sur le champ suivant tombe à côté.
-              +   '<img src="images/body/body_face.webp?v=1421" alt="" width="784" height="1168" '
+              +   '<img src="images/body/body_face.webp?v=1426" alt="" width="784" height="1168" '
               +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -47664,7 +47914,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1421);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1426);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -47731,7 +47981,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1421);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1426);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -50133,7 +50383,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1421");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1426");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
@@ -50142,18 +50392,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const _seen = (typeof storyEventSeen === 'function') ? storyEventSeen : null;
                 const _lvl = (typeof _awakGetCurrentLevel === 'function') ? _awakGetCurrentLevel() : 0;
                 const _rifts = (typeof awakRiftsLoad === 'function') ? awakRiftsLoad() : [];
-                const _faite = (nid) => _rifts.some(r => r.narrativeId === nid && r.completed);
-                const _noms = {
-                    first_breach: 'Le Premier Souvenir',
-                    whispering_tower: 'La Tour qui Murmure',
-                    silent_one: 'Le Silencieux',
-                    the_one_who_carried: 'Celui qui a Porté',
-                    last_door: 'La Dernière Porte'
-                };
+                const _faite = (nid) => (typeof awakNarrativeRiftDone === 'function') ? awakNarrativeRiftDone(nid) : _rifts.some(r => r.narrativeId === nid && r.completed);
+                const _noms = new Proxy({}, { get: function (o, id) { return window.awakNarrativeNom ? window.awakNarrativeNom(id) : id; } });   // v1422
                 for (const ev of allEvents) {
                     if (_seen && _seen(ev.id)) continue;
                     const t = ev.trigger || {};
                     if (t.kind !== 'levelAndNarrativeRift') continue;
+                    if (typeof ev.condition === 'function') { try { if (!ev.condition()) continue; } catch (e) { continue; } }
                     if (_lvl < t.value) continue;
                     if (_faite(t.narrativeId)) continue;
                     _porteBloquee = '<div style="background:rgba(168,85,247,0.10);border:1px solid rgba(168,85,247,0.35);'

@@ -39,6 +39,22 @@
       this.ecrire(o); this.rafraichir();
     },
     heure: function (h) { var o = this.lire(); o.heure = h || ''; this.ecrire(o); this.rafraichir(); },
+    // v1423 : résumé pour le bouton de l'onglet (le réglage vit dans une fenêtre)
+    resume: function () {
+      var o = this.lire(), J = o.jours || [];
+      if (!J.length) return 'À choisir';
+      return J.map(function (j) { return JOURS_LONG[j].slice(0, 3); }).join(', ') + (o.heure ? ' · ' + fmtHeure(o.heure) : '');
+    },
+    ouvrir: function () {
+      document.getElementById('awakFamJoursModal')?.remove();
+      var ov = document.createElement('div');
+      ov.id = 'awakFamJoursModal';
+      ov.style.cssText = 'position:fixed;inset:0;z-index:11000;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:16px;';
+      ov.onclick = function (x) { if (x.target === ov) ov.remove(); };
+      ov.innerHTML = '<div style="width:100%;max-width:420px;">' + carteJours()
+        + '<button onclick="document.getElementById(\'awakFamJoursModal\').remove();if(window.renderFamilyTab)renderFamilyTab();" style="width:100%;padding:12px;border-radius:13px;cursor:pointer;font-family:inherit;font-weight:800;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:#e2e8f0;">Fermer</button></div>';
+      document.body.appendChild(ov);
+    },
     rafraichir: function () {
       var el = document.getElementById('awakFamJours'); if (el) el.outerHTML = carteJours();
       try { if (typeof window.updateHomeStats === 'function') window.updateHomeStats(); } catch (e) {}
@@ -152,6 +168,29 @@
     var resume = enf
       ? (actifs > 1 ? 'Toute la famille bouge cette semaine !' : 'Bouge avec ta famille cette semaine.')
       : (total + ' séance' + (total > 1 ? 's' : '') + ' · ' + actifs + ' sur ' + ordre.length + ' ont bougé');
+    if (!enf) {
+      // v1423 : version ADULTE allégée — une ligne de membres (séances de la semaine),
+      // le détail jour par jour se déplie. Les jours en famille passent dans une fenêtre.
+      var puces = ordre.map(function (p) {
+        var estMoi = p.id === me, n = semaine(p.id, estMoi).seances;
+        var clic = estMoi ? '' : ' onclick="if(window.AwakConstMenu)AwakConstMenu(\'' + String(p.id).replace(/'/g, '') + '\')"';
+        return '<span' + clic + ' style="display:inline-flex;align-items:center;gap:6px;padding:3px 9px 3px 3px;border-radius:99px;'
+          + 'background:rgba(255,255,255,0.04);border:1px solid ' + (n ? 'rgba(236,72,153,0.45)' : 'rgba(255,255,255,0.08)') + ';' + (estMoi ? '' : 'cursor:pointer;') + '">'
+          + avatar(p.avatar, 24)
+          + '<span style="font-size:0.74em;font-weight:800;color:#f1f5f9;max-width:84px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(estMoi ? 'Toi' : (p.name || 'Membre')) + '</span>'
+          + '<span style="font-size:0.66em;font-weight:900;color:' + (n ? '#f9a8d4' : '#64748b') + ';">' + n + '</span></span>';
+      }).join('');
+      return '<div id="awakFamSemaine" style="background:#12161c;border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:12px 14px 4px;margin-bottom:12px;">'
+        + '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px;">'
+        +   '<span style="font-size:0.6em;font-weight:900;letter-spacing:2px;color:' + ROSE + ';">NOTRE SEMAINE</span>'
+        +   '<button type="button" onclick="var d=document.getElementById(\'awakFamSemDetail\');var o=d.style.display===\'none\';d.style.display=o?\'block\':\'none\';this.lastChild.textContent=o?\' ▴\':\' ▾\';" style="background:none;border:none;padding:0;min-height:auto;cursor:pointer;font-family:inherit;font-size:0.66em;color:#94a3b8;">'
+        +     esc(resume) + '<span> ▾</span></button>'
+        + '</div>'
+        + '<div style="display:flex;flex-wrap:wrap;gap:6px;">' + puces + '</div>'
+        + '<div id="awakFamSemDetail" style="display:none;margin-top:6px;">' + lignes + '</div>'
+        + boutonBouger('10px 0 10px')
+        + '</div>';
+    }
     return '<div id="awakFamSemaine" style="background:#12161c;border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:12px 14px 6px;margin-bottom:12px;">'
       + '<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:6px;">'
       +   '<span style="font-size:0.6em;font-weight:900;letter-spacing:2px;color:' + ROSE + ';">NOTRE SEMAINE</span>'

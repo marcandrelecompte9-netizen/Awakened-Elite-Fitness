@@ -8805,3 +8805,18 @@ img[src*="images/exercises/"] { filter: saturate(0.82) brightness(1.06); }
 @media (max-width: 768px) { .toast { border-left-width: 0 !important; border: 1px solid rgba(255,255,255,0.1) !important; } }
 #routinesTab .awk-entete > h2, #historyTab .awk-entete > h2, #familyTab .awk-entete > h2, #settingsTab .awk-entete > h2, #gameTab .awk-entete > h2 { font-size: 21px !important; }
 #routinesTab .awk-entete > div:first-child, #historyTab .awk-entete > div:first-child, #familyTab .awk-entete > div:first-child, #settingsTab .awk-entete > div:first-child, #gameTab .awk-entete > div:first-child { font-size: 11px !important; color: var(--awk-cyan-clair, #67e8f9) !important; }
+
+/* ═══ v1425 — aperçu d'exercice (éditeur de routine) : image animée début / fin ═══ */
+#exercisePreviewModal .awak-vis-carre { position: relative; width: 100%; aspect-ratio: 1 / 1; max-height: 60vh; margin: 0 auto; }
+#exercisePreviewModal .awak-anim .awak-ph { position: absolute; inset: 0; background-repeat: no-repeat; background-size: 200% auto; }
+#exercisePreviewModal .awak-anim .awak-ph-a { background-position: 0% 55%; }
+#exercisePreviewModal .awak-anim .awak-ph-b { background-position: 100% 55%; animation: awakPhB 3.2s ease-in-out infinite; }
+#exercisePreviewModal .awak-anim.awak-anim-hb { aspect-ratio: 4 / 3; }
+#exercisePreviewModal .awak-anim.awak-anim-hb .awak-ph { background-size: auto 200%; }
+#exercisePreviewModal .awak-anim.awak-anim-hb .awak-ph-a { background-position: 45% 0%; }
+#exercisePreviewModal .awak-anim.awak-anim-hb .awak-ph-b { background-position: 45% 100%; }
+#exercisePreviewModal .awak-anim .awak-ph-lbl { position: absolute; left: 10px; bottom: 10px; z-index: 3; }
+#exercisePreviewModal .awak-anim .awak-ph-lbl span { position: absolute; left: 0; bottom: 0; white-space: nowrap; padding: 4px 10px; border-radius: 99px; background: rgba(2,5,16,0.82); color: #e2e8f0; font-size: 12px; font-weight: 800; letter-spacing: 0.5px; }
+#exercisePreviewModal .awak-anim .awak-ph-lbl .a { animation: awakPhA 3.2s ease-in-out infinite; }
+#exercisePreviewModal .awak-anim .awak-ph-lbl .b { animation: awakPhB 3.2s ease-in-out infinite; color: #67e8f9; }
+@media (prefers-reduced-motion: reduce) { #exercisePreviewModal .awak-anim * { animation: none !important; } }

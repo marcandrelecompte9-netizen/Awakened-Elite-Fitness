@@ -171,8 +171,10 @@
     var st = document.createElement('style');
     st.id = 'awakBuilderStyles';
     st.textContent =
-      '.awak-bld{display:grid;grid-template-columns:1fr;gap:14px;}' +
-      '@media(min-width:700px){.awak-bld{grid-template-columns:1fr 1fr;align-items:start;}' +
+      '.awak-bld{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;}' +
+      // v1425 : rien ne dépasse en largeur (avant : la page glissait de côté, « atalogue » coupé)
+      '.awak-bld>*{min-width:0;}#routineEditorExercises{overflow-x:hidden;}' +
+      '@media(min-width:700px){.awak-bld{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start;}' +
       ' .awak-bld-cat{position:sticky;top:0;max-height:70vh;overflow-y:auto;}}' +
       '.awak-cat-row{transition:background .12s ease,border-color .12s ease;}' +
       // v1324 : onglets et listes du catalogue qui tiennent dans l'écran (les styles
@@ -324,6 +326,7 @@
           'style="width:100%;margin-bottom:9px;padding:9px;border-radius:10px;cursor:pointer;' +
           'background:rgba(34,211,238,0.08);border:1.5px dashed rgba(34,211,238,0.4);color:#67e8f9;' +
           'font-size:0.76em;font-weight:800;font-family:inherit;">✎ Créer un exercice</button>' +
+        '<div style="font-size:0.64em;color:#64748b;margin:-2px 2px 7px;">Touche un exercice pour voir son image, ou + pour l\'ajouter.</div>' +
         '<div id="awakBldList">' + lignes + '</div>' +
       '</div>';
   }
@@ -481,8 +484,11 @@
       }
     }
     var nom = drag.nom;
+    // v1425 : simple toucher (sans glisser) sur une ligne du catalogue = voir l'image
+    var toucher = !drag.actif && ev.type === 'pointerup' && Math.abs(ev.clientX - drag.x0) < 10 && Math.abs(ev.clientY - drag.y0) < 10;
     nettoyer();
     if (depose && nom) API.add(nom);
+    else if (toucher && nom && window.awakShowExercisePreview) window.awakShowExercisePreview(nom);
   }
 
   function nettoyer() {

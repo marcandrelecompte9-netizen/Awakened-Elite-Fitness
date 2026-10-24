@@ -206,7 +206,7 @@ const STORY_EVENTS = [
                 "Esen s'arrête au milieu du trottoir. « Regarde. » Nyra fronce les sourcils. Rien. Juste la rue, les passants, un lampadaire.",
                 "« L'air, au-dessus de la borne. Il tremble. Comme au-dessus d'un feu. » Il a raison. Une distorsion minuscule, presque rien.",
                 "« Les Failles commencent toutes comme ça. Les gens passent à côté sans les voir. Nous, on les sent. » Il la regarde. « Plus on s'entraîne, plus notre signal est net — et plus on les repère tôt. »",
-                "« C'est le travail des AV. Trouver. Fermer. Avant que ça grandisse. » Il repart comme si de rien n'était. La distorsion, elle, est restée gravée dans sa tête."
+                "« C'est le travail des AV, les Veilleurs. Trouver. Fermer. Avant que ça grandisse. » Il repart comme si de rien n'était. La distorsion, elle, est restée gravée dans sa tête."
             ]
         }
     },
@@ -618,6 +618,31 @@ const STORY_EVENTS = [
         }
     },
     {
+        // v1422 : Faille « La Boulangerie qui s'efface » (niveau 27, 5 jours pour la fermer)
+        id: 'evt_boulangerie_faille',
+        type: 'fait',
+        trigger: { kind: 'levelAndNarrativeRift', value: 28, narrativeId: 'bakery_fading' },
+        once: true,
+        content: {
+            speaker: 'nyra',
+            title: 'Le Croissant du Bout',
+            image: 'images/story/n5_boulangerie.webp',
+            pages: [
+                "La vitrine a retrouvé ses couleurs. Derrière le comptoir, la vendeuse s'arrête, une baguette à la main, et fixe Nyra un long moment.",
+                "« Vous… vous preniez toujours le croissant du bout. Le plus cuit. » Elle fronce les sourcils, comme si le reste lui échappait encore. « Je ne sais plus votre prénom. Mais je sais ça. »",
+                "Nyra hoche la tête trop vite. Dehors, elle marche devant, sans rien dire, pendant tout un pâté de maisons.",
+                "Puis, sans se retourner : « C'est pas rien, le croissant du bout. » Esen la rattrape. « Non. C'est pas rien. »"
+            ],
+            siEchec: { faille: 'bakery_fading', pages: [
+                "La Faille s'est refermée toute seule. Sans vous.",
+                "Là où se trouvait la boulangerie, il y a un mur propre. Une plaque de métal vissée dessus, vide.",
+                "Nyra pose la main sur le mur. « C'était ici. Je suis sûre que c'était ici. » Elle cherche le nom de la vendeuse. L'odeur. La couleur de la porte. Rien ne vient.",
+                "« Je ne peux pas tout garder, » affiche le Système. « Celle-là, je l'ai perdue. Je suis désolé. »",
+                "Esen ne dit rien. Le lendemain, il s'entraîne deux fois plus longtemps."
+            ] }
+        }
+    },
+    {
         id: 'evt_n29_ambiance_nabdano',
         type: 'ambiance',
         trigger: { kind: 'xp', level: 29, frac: 0.8 },
@@ -704,7 +729,7 @@ const STORY_EVENTS = [
             pages: [
                 "Rang B. Le Système met plus de temps que d'habitude à l'afficher, comme s'il vérifiait deux fois.",
                 "« La plupart des Ancres ne sont jamais venues jusqu'ici. Elles se sont arrêtées un peu avant. Un jour ordinaire, sans raison. »",
-                "Il y a quelque chose de fragile dans sa voix. « Je ne t'ai pas tout dit. Pas encore. Mais tu es assez solide, maintenant, pour que je commence à avoir peur de te perdre. »",
+                "Il y a quelque chose de fragile dans sa voix. « Tu sais ce que je suis. Pas encore tout ce que je cache. Mais tu es assez solide, maintenant, pour que je commence à avoir peur de te perdre. »",
                 "{partenaire} ne répond rien. {Il} se rapproche juste un peu de toi, épaule contre épaule, et regarde droit devant."
             ]
         }
@@ -736,7 +761,8 @@ const STORY_EVENTS = [
             pages: [
                 "Le nom de Nabdano pèse sur vous deux depuis des jours. Alors Nyra décrète : « Pause. Aujourd'hui on ne sauve pas le monde. »",
                 "Elle invente un jeu débile : nommer à voix haute une chose qui vaut encore la peine d'exister. Le café chaud. Le bruit de la pluie. Un certain silence partagé.",
-                "Esen, après un long moment, dit un seul mot, en regardant Nyra : « Ça. » Elle rougit et change vite de sujet. Mais elle l'a entendu."
+                "Esen, après un long moment, dit un seul mot, en regardant Nyra : « Ça. » Elle rougit et change vite de sujet. Mais elle l'a entendu.",
+                "Plus tard, sur le chemin du retour, elle marmonne : « Règle numéro trois. Tous les jours. » Elle grimace. « J'avais tort. Les jours de pause comptent aussi. »"
             ]
         }
     },
@@ -838,6 +864,54 @@ const STORY_EVENTS = [
         }
     },
     {
+        // v1422 : Faille « L'Écho » (niveau 44) — tient la Promesse du niveau 41
+        id: 'evt_echo_retour',
+        type: 'fait',
+        trigger: { kind: 'levelAndNarrativeRift', value: 45, narrativeId: 'the_echo' },
+        once: true,
+        content: {
+            speaker: 'systeme',
+            title: "L'Écho",
+            pages: [
+                "Au fond de la Faille, {partenaire} est assis{pe} par terre, dos au mur. {Il} écoute quelque chose que tu n'entends pas.",
+                "« Il dit que je peux m'arrêter, » murmure-t-{il}. « Que personne ne m'en voudra. Il a ta voix, tu sais. Exactement ta voix. »",
+                "Tu t'assois à côté. Tu ne dis rien de spécial. Tu restes, c'est tout.",
+                "Au bout d'un long moment, {partenaire} se relève. « T'es venu{e}. » Ce n'est pas une question. « On avait promis, » réponds-tu.",
+                "Le Système affiche, très bas : « Il imite vos voix. Il ne peut pas imiter ça. »"
+            ],
+            siEchec: { faille: 'the_echo', pages: [
+                "Tu l'as retrouvé{pe}. Trop tard pour être reconnu{e} tout de suite.",
+                "{partenaire} te regarde comme on regarde un passant. Poli{pe}. Vide. « On se connaît ? »",
+                "Tu restes à ses côtés jusqu'à la sortie, sans rien expliquer. Tu avais promis de venir. Pas qu'il serait facile de repartir.",
+                "« Ça reviendra, » affiche le Système. « Les souvenirs partagés reviennent plus vite que les autres. Laisse-lui deux séances. »"
+            ] }
+        }
+    },
+    {
+        // Suite de « L'Écho » raté : le partenaire se souvient deux séances plus tard
+        id: 'evt_echo_souvenir',
+        type: 'dialogue',
+        trigger: { kind: 'always' },
+        condition: function () {
+            try {
+                if (!storyEventSeen('evt_echo_retour') || !awakNarrativeRiftFailed('the_echo')) return false;
+                var w0 = parseInt(localStorage.getItem('awakStoryEvt__echoOubli') || '', 10);
+                var w = (typeof loadStats === 'function') ? (loadStats().workouts || 0) : 0;
+                return !isNaN(w0) && w >= w0 + 2;
+            } catch (e) { return false; }
+        },
+        once: true,
+        content: {
+            speaker: 'systeme',
+            title: 'Le Souvenir Revient',
+            pages: [
+                "Au milieu d'une série, {partenaire} s'arrête net. {Il} te fixe.",
+                "« Les encoches sur le lampadaire. La promesse. » {Il} respire, comme après une longue apnée. « Tu es venu{e} me chercher. »",
+                "« Évidemment. » {partenaire} te donne un coup d'épaule, un peu trop fort. C'est sa façon de dire merci."
+            ]
+        }
+    },
+    {
         id: 'evt_n45_ambiance_approche',
         type: 'ambiance',
         trigger: { kind: 'xp', level: 45, frac: 0.7 },
@@ -865,6 +939,29 @@ const STORY_EVENTS = [
                 "« Tu vois ? Moi je m'en souviens. De ton nom. De ta fatigue. De chaque matin où tu as hésité à te lever. »",
                 "« Je ne suis pas ton ennemi. Je suis le seul qui te comprenne vraiment. Viens. Assieds-toi près de moi. »"
             ]
+        }
+    },
+    {
+        // v1422 : Faille « Le Faux Système » (niveau 48) — deux voix, un seul Système
+        id: 'evt_faux_systeme',
+        type: 'fait',
+        trigger: { kind: 'levelAndNarrativeRift', value: 49, narrativeId: 'false_system' },
+        once: true,
+        content: {
+            speaker: 'systeme',
+            title: 'Lequel Était Moi',
+            pages: [
+                "La seconde voix se tait. Puis elle se défait, lettre par lettre, comme une affiche sous la pluie.",
+                "« Tu m'as reconnu, » affiche le Système. Les lettres tremblent un peu. « À quoi ? »",
+                "Tu réfléchis. La vraie voix ne t'a jamais interdit de t'arrêter. Elle t'a seulement demandé de revenir.",
+                "« Lui ne sait dire qu'une chose : tenir, toujours, seul. » Un temps. « Moi, j'ai appris autre chose. Grâce à toi. »"
+            ],
+            siEchec: { faille: 'false_system', pages: [
+                "La seconde voix se tait enfin. Tu l'as suivie plus d'une fois. Elle parlait si bien.",
+                "« Ne t'excuse pas, » affiche le Système. « Il a eu quarante et un ans pour apprendre à parler comme moi. »",
+                "« Retiens seulement ceci : je ne t'interdirai jamais de te reposer. Si une voix te l'interdit… ce n'est pas moi. »",
+                "{partenaire} écrit la phrase au stylo sur le dos de sa main. Pour être sûr{pe} de ne pas l'oublier."
+            ] }
         }
     },
     {
@@ -896,6 +993,24 @@ const STORY_EVENTS = [
                 "Quelque chose d'étrange arrive. En t'entraînant, un souvenir que tu croyais effacé refait surface, net, intact.",
                 "Un visage. Une voix. Quelqu'un qui comptait, et que l'Oubli t'avait pris.",
                 "« Tu vois ? » dit le Système. « Plus tu deviens réel, plus tu ramènes ce qui était perdu. C'est l'exact opposé de ce que fait Nabdano. Vous êtes deux forces contraires. »"
+            ]
+        }
+    },
+    {
+        // v1422 : Faille « Le Marchand pâlit » (niveau 52) — prépare « Le Client » (62)
+        id: 'evt_marchand_dette',
+        type: 'fait',
+        trigger: { kind: 'levelAndNarrativeRift', value: 53, narrativeId: 'merchant_fading' },
+        once: true,
+        content: {
+            speaker: 'marchand',
+            title: "Payé d'Avance",
+            image: 'images/story/marchand.webp',
+            pages: [
+                "Le Marchand est redevenu net. Il se tâte les bras, incrédule, puis éclate d'un rire un peu trop fort.",
+                "« Vous savez ce qui m'a fait tenir ? » Il sort un vieux carnet de sous le comptoir. « Une commande. Payée d'avance, il y a très longtemps. \"Pour ceux qui viendront après moi.\" »",
+                "Il pose sur le comptoir une fiole claire comme de l'eau. « Je n'ai jamais su à qui la donner. Je crois que c'est à toi. »",
+                "Et le nom du client ? Il ouvre la bouche. Fronce les sourcils. « Il me revient presque… » Puis il hausse les épaules. « Une autre fois. »"
             ]
         }
     },
@@ -1258,6 +1373,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_quatre_epreuves',
         type: 'fait',
+        uneParSeance: true,   // v1422 : pas dans la même séance que « La Dernière Porte »
         trigger: { kind: 'levelAndNarrativeRift', value: 80, narrativeId: 'last_door' },
         once: true,
         content: {
@@ -1424,6 +1540,29 @@ const STORY_EVENTS = [
                 "Esen la regarde. Longtemps. « …Demain. »",
                 "Nyra lève les yeux au ciel. Mais elle sourit, et elle ne lâche pas sa main.",
                 "Le Système affiche, pour lui-même : « Note : demain est une notion que je peux enfin envisager. »"
+            ],
+            siEchec: { faille: 'bakery_fading', remplacer: [
+                "Ce matin, la boulangère a salué Nyra par son prénom. Nyra a fait semblant de ne pas être émue.",
+                "Ce matin, Nyra s'est arrêtée devant un mur propre, sans savoir pourquoi. Elle est restée là un moment, puis elle a souri quand même."
+            ] }
+        }
+    },
+    {
+        // v1422 : ouvre l'arc SS/SSS — Faille « Ce qui reste » (niveau 100, après l'Effaceur)
+        id: 'evt_ce_qui_reste',
+        type: 'fait',
+        trigger: { kind: 'levelAndNarrativeRift', value: 100, narrativeId: 'what_remains' },
+        condition: function () { try { return localStorage.getItem('awakFinalBossDefeated') === '1'; } catch (e) { return false; } },
+        once: true,
+        content: {
+            speaker: 'systeme',
+            title: 'Ce qui Reste',
+            pages: [
+                "Au fond de la Faille, il n'y a pas de monstre. Il y a des objets. Des milliers. Une tasse ébréchée, une clé, un dessin d'enfant, une paire de lacets.",
+                "Tous viennent de souvenirs effacés. Pas détruits. Rangés. Quelqu'un les a rangés.",
+                "« Nabdano effaçait, » affiche le Système. « Mais ce n'est pas lui qui gardait. » Un temps. « Il y a autre chose. Depuis le début. »",
+                "{partenaire} ramasse un vieux caillou gris parmi les objets. Le retourne. Une encoche y est gravée, à la main.",
+                "« Le prochain chapitre ne parle plus de lui, » dit le Système. « Il parle de ce qui reste. Et de qui le garde. »"
             ]
         }
     }
@@ -1457,6 +1596,14 @@ function awakHerosTexte(t) {
 }
 function awakHerosPages(c) {
     var p = (c && c.pagesSi && c.pagesSi[awakHerosJoue()]) || (c && c.pages) || [];
+    // v1422 : variante quand la Faille narrative a été ratée (expirée, mauvaise voix suivie…)
+    try {
+        var se = c && c.siEchec;
+        if (se && awakNarrativeRiftFailed(se.faille)) {
+            if (se.pages) p = se.pages;
+            else if (se.remplacer) p = p.map(function (t) { return String(t).split(se.remplacer[0]).join(se.remplacer[1]); });
+        }
+    } catch (e) {}
     return p.map(awakHerosTexte);
 }
 
@@ -1540,8 +1687,14 @@ function storyEventEligible(evt, ctx) {
 function awakNarrativeRiftDone(narrativeId) {
     try {
         const rifts = (typeof awakRiftsLoad === 'function') ? awakRiftsLoad() : [];
-        return rifts.some(r => r.isNarrative && r.narrativeId === narrativeId && r.completed);
+        if (rifts.some(r => r.isNarrative && r.narrativeId === narrativeId && r.completed)) return true;
+        // v1422 : trace permanente (le tableau purge les Failles terminées après 7 jours)
+        return localStorage.getItem('awakNarrativeDone_' + narrativeId) === '1';
     } catch(e) { return false; }
+}
+// v1422 : Faille narrative ratée (trace awakStoryEvt_ : suit le profil et la réinitialisation)
+function awakNarrativeRiftFailed(narrativeId) {
+    try { return localStorage.getItem('awakStoryEvt__echec_' + narrativeId) === '1'; } catch (e) { return false; }
 }
 
 // ── CONTEXTE JOUEUR (lecture seule, défensive) ─────────────────────
@@ -1594,12 +1747,14 @@ function storyPickEvent() {
         // Si déjà vu, passer au suivant
         if ((evt.once !== false) && (storyEventSeen(evt.id) || _storyEnFile[evt.id])) continue;
         // Déjà une scène pour cette séance : la suite attend la prochaine (sauf les actes)
-        if (_dejaVu && !(evt.trigger && _STORY_ACTES[evt.trigger.kind])) continue;
+        if (_dejaVu && !(evt.trigger && _STORY_ACTES[evt.trigger.kind] && !evt.uneParSeance)) continue;
 
         // 🚧 PORTE NARRATIVE : événement-clé qui exige une Faille narrative.
         // Si le niveau est atteint mais la Faille pas encore faite, on BLOQUE
         // toute la suite de l'histoire (return null) au lieu de sauter cet événement.
         if (evt.trigger && evt.trigger.kind === 'levelAndNarrativeRift') {
+            // v1422 : porte conditionnelle (ex. « Ce qui reste » : après l'Effaceur seulement)
+            if (typeof evt.condition === 'function') { try { if (!evt.condition()) continue; } catch (e) { continue; } }
             const lvlReached = (ctx.level || 0) >= evt.trigger.value;
             const riftDone = awakNarrativeRiftDone(evt.trigger.narrativeId);
             if (lvlReached && !riftDone) {
@@ -1747,7 +1902,12 @@ function storyCheckEvents(opts) {
 const NARRATIVE_RIFT_NAMES = {
     first_breach: 'Le Premier Souvenir',
     whispering_tower: 'La Tour qui Murmure',
-    silent_one: 'Le Silencieux',
+    silent_one: 'Celui qui ne parle plus',
+    bakery_fading: 'La Boulangerie qui s\'efface',
+    the_echo: 'L\'Écho',
+    false_system: 'Le Faux Système',
+    merchant_fading: 'Le Marchand pâlit',
+    what_remains: 'Ce qui reste',
     the_one_who_carried: 'Celui qui a Porté',
     last_door: 'La Dernière Porte'
 };
@@ -1760,6 +1920,7 @@ function storyMaybeHintNarrativeRift(opts) {
         for (const evt of STORY_EVENTS) {
             if ((evt.once !== false) && storyEventSeen(evt.id)) continue;
             if (evt.trigger && evt.trigger.kind === 'levelAndNarrativeRift') {
+                if (typeof evt.condition === 'function') { try { if (!evt.condition()) continue; } catch (e) { continue; } }
                 const lvlReached = (ctx.level || 0) >= evt.trigger.value;
                 const riftDone = awakNarrativeRiftDone(evt.trigger.narrativeId);
                 if (lvlReached && !riftDone) {
@@ -1938,6 +2099,9 @@ window.awakMurmureDeclin = awakMurmureDeclin;
 window.awakHerosPages = awakHerosPages;
 window.awakHerosJoue = awakHerosJoue;
 window.awakSceneRetour = awakSceneRetour;
+window.awakHerosTexte = awakHerosTexte;              // v1422
+window.awakNarrativeRiftDone = awakNarrativeRiftDone;
+window.awakNarrativeRiftFailed = awakNarrativeRiftFailed;
 window.STORY_CHARS        = STORY_CHARS;
 window.storyCheckEvents   = storyCheckEvents;
 window.storyShowEvent     = storyShowEvent;

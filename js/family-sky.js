@@ -211,7 +211,7 @@
       + '</span>'
       + '<span style="flex-shrink:0;color:' + c + ';font-size:1.1em;">›</span></div>';
   }
-  function sectionEnCours(enfant) {
+  function sectionEnCours(enfant, sansInvite) {
     var L = [];
     try {
       var g = window.AwakFamilyGoal && AwakFamilyGoal.status ? AwakFamilyGoal.status() : null;
@@ -231,7 +231,7 @@
     } catch (e) {}
     var titre = '<div style="font-size:0.56em;letter-spacing:2px;color:#94a3b8;font-weight:900;margin:2px 2px 8px;">EN COURS</div>';
     if (L.length) return titre + L.join('');
-    if (enfant) return '';   // v1346 : onglet enfant allégé — pas d'invitation à lancer un défi
+    if (enfant || sansInvite) return '';   // v1346 enfant ; v1423 adulte : « Défis » est déjà dans la barre du ciel
     return '<button onclick="AwakEnsembleOpen()" style="width:100%;display:flex;align-items:center;gap:13px;padding:16px;margin-bottom:12px;border-radius:16px;cursor:pointer;text-align:left;'
       + 'background:linear-gradient(135deg,rgba(236,72,153,0.20),rgba(167,139,250,0.14));border:1px solid rgba(236,72,153,0.5);">'
       + '<span style="flex-shrink:0;width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;background:rgba(236,72,153,0.2);">' + ic('trophee', 24, '#f9a8d4') + '</span>'
@@ -275,10 +275,39 @@
     document.head.appendChild(st);
   }
 
+  // v1423 : la constellation de la semaine passe dans une fenêtre (bouton sous le ciel)
+  window.AwakFamConstOuvrir = function () {
+    document.getElementById('awakFamConstModal')?.remove();
+    var ov = document.createElement('div');
+    ov.id = 'awakFamConstModal';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:11000;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:16px;';
+    ov.onclick = function (x) { if (x.target === ov) ov.remove(); };
+    ov.innerHTML = '<div style="width:100%;max-width:420px;">' + carteSemaine()
+      + '<button onclick="document.getElementById(\'awakFamConstModal\').remove()" style="width:100%;padding:12px;border-radius:13px;cursor:pointer;font-family:inherit;font-weight:800;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:#e2e8f0;">Fermer</button></div>';
+    document.body.appendChild(ov);
+  };
+  // v1423 : rangée sous le ciel (adulte) — Nos jours en famille · Constellation de la semaine
+  function rangee() {
+    var e = etatSemaine(); verifierCompletion(e);
+    var jours = (window.AwakFamJours && AwakFamJours.resume) ? AwakFamJours.resume() : '';
+    function bt(fn, icone, c, titre, detail) {
+      return '<button onclick="' + fn + '" style="flex:1;min-width:0;display:flex;align-items:center;gap:9px;padding:10px 11px;border-radius:13px;cursor:pointer;font-family:inherit;text-align:left;'
+        + 'background:#12161c;border:1px solid rgba(255,255,255,0.07);">'
+        + '<span style="flex-shrink:0;display:inline-flex;">' + ic(icone, 18, c) + '</span>'
+        + '<span style="min-width:0;"><span style="display:block;font-size:0.72em;font-weight:800;color:#f1f5f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + titre + '</span>'
+        + '<span style="display:block;font-size:0.62em;color:#94a3b8;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(detail) + '</span></span></button>';
+    }
+    return '<div style="display:flex;gap:8px;margin:0 0 12px;">'
+      + bt('AwakFamJours.ouvrir()', 'calendrier', ROSE, 'Nos jours en famille', jours)
+      + bt('AwakFamConstOuvrir()', 'etoile', OR, e.fig.nom, e.complete ? 'Complétée !' : e.allumees + ' / 12 étoiles')
+      + '</div>';
+  }
+
   // Avant le ciel : nouveautés + encouragements ; après : semaine + en cours
   window.AwakFamilySky = {
     avant: function () { styles(); return banniereNouveautes(nouveautes()) + carteEncouragements(); },
-    apres: function () { styles(); return carteSemaine() + sectionEnCours(); },
+    // v1423 adulte : rangée compacte + « en cours » seulement s'il y a quelque chose
+    apres: function () { styles(); return rangee() + sectionEnCours(false, true); },
     apresEnfant: function () { styles(); return carteSemaine() + sectionEnCours(true); },
     etatSemaine: etatSemaine,
     seances: seances

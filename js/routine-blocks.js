@@ -136,50 +136,46 @@
 
     var bordure = estGroupe ? 'border-left:3px solid #fb923c;' : 'border-left:3px solid rgba(255,255,255,0.06);';
 
-    // Réglages : séries + (reps | durée)
-    var reglages =
-      '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:8px;">' +
-        '<span style="font-size:0.6em;color:#64748b;font-weight:900;letter-spacing:1px;">SÉRIES</span>' +
-        '<input type="number" class="awak-num" min="1" max="20" value="' + (parseInt(ex.sets, 10) || 3) + '" ' +
-          'onchange="AwakRoutineEditor.setField(' + i + ',\'sets\',this.value)" ' +
-          'style="width:52px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);color:#e8f0f8;' +
-          'border-radius:7px;padding:5px 6px;font-size:0.8em;font-weight:800;text-align:center;font-family:inherit;">' +
-        '<span style="color:#475569;font-weight:900;">×</span>' +
+    // v1425 : réglages sur DEUX lignes fixes, mêmes colonnes pour chaque exercice
+    // (avant : une ligne qui passait à la ligne n'importe où — « REPOS » à droite,
+    // « auto s » en dessous, la bascule encore dessous).
+    //   SÉRIES [3] × [10] reps
+    //   REPOS  [auto] s          [Reps|Durée]
+    var lbl = function (t) { return '<span class="awak-rb-lbl">' + t + '</span>'; };
+    var champ = function (champ, val, min, max, step, ph, coul) {
+      return '<input type="number" class="awak-num" min="' + min + '" max="' + max + '"' + (step ? ' step="' + step + '"' : '') +
+        (ph ? ' placeholder="' + ph + '"' : '') + ' value="' + val + '" ' +
+        'onchange="AwakRoutineEditor.setField(' + i + ',\'' + champ + '\',this.value)" style="width:58px;flex-shrink:0;' + (coul || '') + '">';
+    };
+    var unite = function (t, c) { return '<span style="font-size:0.66em;color:' + c + ';font-weight:800;white-space:nowrap;">' + t + '</span>'; };
+    var ligneSeries =
+      '<div class="awak-rb-ligne">' + lbl('SÉRIES') +
+        champ('sets', parseInt(ex.sets, 10) || 3, 1, 20) +
+        '<span style="color:#475569;font-weight:900;flex-shrink:0;">×</span>' +
         (timed
-          ? '<input type="number" class="awak-num" min="5" max="3600" step="5" value="' + (parseInt(ex.duration, 10) || 45) + '" ' +
-              'onchange="AwakRoutineEditor.setField(' + i + ',\'duration\',this.value)" ' +
-              'style="width:68px;background:rgba(34,211,238,0.08);border:1px solid rgba(34,211,238,0.3);color:#67e8f9;' +
-              'border-radius:7px;padding:5px 6px;font-size:0.8em;font-weight:800;text-align:center;font-family:inherit;">' +
-            '<span style="font-size:0.66em;color:#67e8f9;font-weight:800;">sec (' + esc(shortDur(ex.duration || 45)) + ')</span>'
-          : '<input type="number" class="awak-num" min="1" max="100" value="' + (parseInt(ex.reps, 10) || 10) + '" ' +
-              'onchange="AwakRoutineEditor.setField(' + i + ',\'reps\',this.value)" ' +
-              'style="width:58px;background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.3);color:#86efac;' +
-              'border-radius:7px;padding:5px 6px;font-size:0.8em;font-weight:800;text-align:center;font-family:inherit;">' +
-            '<span style="font-size:0.66em;color:#86efac;font-weight:800;">reps</span>') +
-        // ⏱ Repos après la série (vide = réglage global). En superset, c'est
-        // le repos de FIN DE TOUR (réglé sur le 1er exercice du groupe).
-        ((!estGroupe || pos === 0)
-          ? '<span style="flex:1;"></span>' +
-            '<span style="font-size:0.6em;color:#64748b;font-weight:900;letter-spacing:1px;">' + (estGroupe ? 'REPOS TOUR' : 'REPOS') + '</span>' +
-            '<input type="number" class="awak-num" min="0" max="600" step="5" placeholder="auto" value="' + (ex.repos ? parseInt(ex.repos, 10) : '') + '" ' +
-              'onchange="AwakRoutineEditor.setField(' + i + ',\'repos\',this.value)" ' +
-              'style="width:58px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);color:#e8f0f8;' +
-              'border-radius:7px;padding:5px 6px;font-size:0.8em;font-weight:800;text-align:center;font-family:inherit;">' +
-            '<span style="font-size:0.66em;color:#94a3b8;font-weight:800;">s</span>'
-          : '') +
+          ? champ('duration', parseInt(ex.duration, 10) || 45, 5, 3600, 5, '', 'width:66px;') + unite('s (' + esc(shortDur(ex.duration || 45)) + ')', '#67e8f9')
+          : champ('reps', parseInt(ex.reps, 10) || 10, 1, 100) + unite('reps', '#86efac')) +
       '</div>';
-
-    // Bascule reps / durée
     var bascule =
-      '<div style="display:inline-flex;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);' +
-        'border-radius:8px;overflow:hidden;margin-top:8px;">' +
+      '<div style="display:inline-flex;flex-shrink:0;margin-left:auto;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);' +
+        'border-radius:8px;overflow:hidden;">' +
         '<button onclick="AwakRoutineEditor.setMode(' + i + ',\'reps\')" ' +
-          'style="border:none;cursor:pointer;padding:5px 11px;font-size:0.68em;font-weight:800;font-family:inherit;' +
+          'style="border:none;cursor:pointer;padding:6px 11px;min-height:0;font-size:0.68em;font-weight:800;font-family:inherit;' +
           'background:' + (timed ? 'transparent' : 'rgba(74,222,128,0.2)') + ';color:' + (timed ? '#64748b' : '#86efac') + ';">Reps</button>' +
         '<button onclick="AwakRoutineEditor.setMode(' + i + ',\'timer\')" ' +
-          'style="border:none;cursor:pointer;padding:5px 11px;font-size:0.68em;font-weight:800;font-family:inherit;' +
-          'background:' + (timed ? 'rgba(34,211,238,0.2)' : 'transparent') + ';color:' + (timed ? '#67e8f9' : '#64748b') + ';">⏱ Durée</button>' +
+          'style="border:none;cursor:pointer;padding:6px 11px;min-height:0;font-size:0.68em;font-weight:800;font-family:inherit;' +
+          'background:' + (timed ? 'rgba(34,211,238,0.2)' : 'transparent') + ';color:' + (timed ? '#67e8f9' : '#64748b') + ';">Durée</button>' +
       '</div>';
+    // ⏱ Repos après la série (vide = réglage global). En superset, c'est
+    // le repos de FIN DE TOUR (réglé sur le 1er exercice du groupe).
+    var ligneRepos =
+      '<div class="awak-rb-ligne">' +
+        ((!estGroupe || pos === 0)
+          ? lbl(estGroupe ? 'TOUR' : 'REPOS') + champ('repos', ex.repos ? parseInt(ex.repos, 10) : '', 0, 600, 5, 'auto') + unite('s', '#94a3b8')
+          : '') +
+        bascule +
+      '</div>';
+    var reglages = ligneSeries + ligneRepos;
 
     // Actions : ordre, superset, suppression
     var btn = 'background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:#94a3b8;' +
@@ -217,13 +213,15 @@
             ? '<span style="flex-shrink:0;width:21px;height:21px;border-radius:6px;background:#fb923c;color:#1a0f04;' +
               'font-size:0.68em;font-weight:900;display:inline-flex;align-items:center;justify-content:center;">' + lettre + '</span>'
             : '<span style="flex-shrink:0;color:#475569;font-size:0.72em;font-weight:900;min-width:16px;">' + (i + 1) + '</span>') +
-          '<div style="flex:1;min-width:0;">' +
+          '<div style="flex:1;min-width:0;cursor:pointer;" onclick="window.awakShowExercisePreview&&awakShowExercisePreview(this.getAttribute(\'data-n\'))" data-n="' + esc(ex.name) + '">' +
             '<div style="font-weight:800;color:#e8f0f8;font-size:0.86em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(ex.name) + '</div>' +
             '<div style="font-size:0.64em;color:#64748b;margin-top:1px;">' + esc(ex.muscle || 'Corps') + '</div>' +
           '</div>' +
+          // v1425 : voir l'image de l'exercice
+          '<button type="button" class="awak-rb-voir" aria-label="Voir l\'image" onclick="event.stopPropagation();window.awakShowExercisePreview&&awakShowExercisePreview(this.getAttribute(\'data-n\'))" data-n="' + esc(ex.name) + '">' +
+            (window.AwakIcon ? window.AwakIcon.get('image', 18, '#94a3b8') : 'i') + '</button>' +
         '</div>' +
         reglages +
-        bascule +
         actions +
       '</div>';
   }
@@ -240,7 +238,11 @@
       'padding:2px 4px!important;font-size:16px!important;border-radius:8px!important;' +
       'border:1px solid rgba(255,255,255,0.14)!important;background:rgba(255,255,255,0.05)!important;' +
       'color:#e8f0f8!important;text-align:center!important;box-sizing:border-box!important;}' +
-      'input.awak-num::placeholder{color:#64748b;font-size:13px;}';
+      'input.awak-num::placeholder{color:#64748b;font-size:13px;}' +
+      // v1425 : lignes de réglage alignées (libellé de largeur fixe)
+      '.awak-rb-ligne{display:flex;align-items:center;gap:6px;margin-top:8px;min-width:0;}' +
+      '.awak-rb-lbl{width:52px;flex-shrink:0;font-size:0.6em;color:#64748b;font-weight:900;letter-spacing:1px;}' +
+      '.awak-rb-voir{flex-shrink:0;width:34px;height:34px;min-height:0!important;padding:0!important;border-radius:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);}';
     document.head.appendChild(st);
   }
 
@@ -257,7 +259,7 @@
       '<strong style="color:#67e8f9;">durée</strong> (ex. 5 min de vélo). ' +
       '<strong style="color:#fb923c;">⚡ Lier au suivant</strong> crée un superset : ' +
       'les exercices s\'enchaînent sans repos. ' +
-      '<strong style="color:#cbd5e1;">Appui long</strong> sur le nom d\'un exercice pour le déplacer.</div>';
+      '<strong style="color:#cbd5e1;">Appui long</strong> sur une carte pour la déplacer, l\'icône image pour voir l\'exercice.</div>';
     return aide + exs.map(function (ex, i) { return rowHTML(ex, i, exs); }).join('');
   };
 

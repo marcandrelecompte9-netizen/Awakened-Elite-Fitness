@@ -218,13 +218,18 @@
         larme_systeme:  300,   // revive
     };
 
+    // v1422 : Faille « Le Marchand pâlit » ouverte → +25 % sur ses prix
+    function _palit() {
+        try { return (typeof window.awakMarchandPalit === 'function' && window.awakMarchandPalit()) ? 1.25 : 1; } catch (e) { return 1; }
+    }
+
     function getConsumableShop() {
         const out = [];
         try {
             const list = (typeof window.CONSUMABLES_PUBLIC !== 'undefined') ? window.CONSUMABLES_PUBLIC
                        : (typeof CONSUMABLES !== 'undefined' ? CONSUMABLES : []);
             (list || []).forEach(c => {
-                const price = CONSUMABLE_PRICES[c.id];
+                const price = CONSUMABLE_PRICES[c.id] ? Math.round(CONSUMABLE_PRICES[c.id] * _palit()) : 0;
                 if (price) out.push({ id:c.id, name:c.name, icon:(c.icon || c.emoji || '🧪'), description:c.description, price });
             });
         } catch(e) {}
@@ -232,7 +237,7 @@
     }
 
     function buyConsumable(itemId) {
-        const price = CONSUMABLE_PRICES[itemId];
+        const price = CONSUMABLE_PRICES[itemId] ? Math.round(CONSUMABLE_PRICES[itemId] * _palit()) : 0;
         if (!price) return { ok:false, reason:'Objet indisponible' };
         if (getGold() < price) return { ok:false, reason:'Or insuffisant' };
         if (typeof window.awakConsumablesAdd !== 'function') return { ok:false, reason:'Erreur système' };
@@ -319,22 +324,27 @@
         return shop;
     }
 
-    function getEquipmentShop() { return refreshEquipmentShopIfNeeded(); }
+    function getEquipmentShop() {
+        const shop = refreshEquipmentShopIfNeeded();
+        const m = _palit();
+        return m === 1 ? shop : Object.assign({}, shop, { items: shop.items.map(it => Object.assign({}, it, { price: Math.round(it.price * m) })) });
+    }
 
     function buyEquipment(itemId) {
         const shop = refreshEquipmentShopIfNeeded();
         const entry = shop.items.find(it => it.id === itemId);
         if (!entry) return { ok:false, reason:'Indisponible' };
         if (shop.purchased.includes(itemId)) return { ok:false, reason:'Déjà acheté cette semaine' };
-        if (getGold() < entry.price) return { ok:false, reason:'Or insuffisant' };
+        const _prix = Math.round(entry.price * _palit());
+        if (getGold() < _prix) return { ok:false, reason:'Or insuffisant' };
         if (typeof getInventory !== 'function' || typeof saveInventory !== 'function') return { ok:false, reason:'Erreur système' };
-        spendGold(entry.price);
+        spendGold(_prix);
         const inv = getInventory();
         inv.unshift({ itemId: itemId, obtainedAt: new Date().toISOString(), id: Date.now() });
         saveInventory(inv);
         shop.purchased.push(itemId);
         try { localStorage.setItem(EQUIP_SHOP_KEY + _profileSuffix(), JSON.stringify(shop)); } catch(e) {}
-        return { ok:true, price: entry.price };
+        return { ok:true, price: _prix };
     }
 
     // ═══════════════════════════════════════════════════════════════
