@@ -1679,11 +1679,44 @@ window.awakAnimHTML = function (src, srcEnc) {
   var p34 = EXERCISE_IMAGES_V2_34.indexOf(f) >= 0;
   var u = String(srcEnc || src).replace(/"/g, '&quot;').replace(/'/g, '%27');
   var fond = 'background-image:url(\'' + u + '\');';
-  return '<div class="awak-vis-carre awak-anim' + (hb ? ' awak-anim-hb' : '') + (p34 ? ' awak-anim-34' : '') + '" onclick="window.awakZoomImage && awakZoomImage(this)" data-src="' + u + '" style="position:relative;width:100%;overflow:hidden;cursor:zoom-in;">'
+  return '<div class="awak-vis-carre awak-anim' + (hb ? ' awak-anim-hb' : '') + (p34 ? ' awak-anim-34' : '') + '" onclick="window.awakZoomImage && awakZoomImage(this)" data-raw="' + String(src).replace(/"/g, '&quot;') + '" data-src="' + u + '" style="position:relative;width:100%;overflow:hidden;cursor:zoom-in;">'
     + '<div class="awak-ph awak-ph-a" style="' + fond + '"></div>'
     + '<div class="awak-ph awak-ph-b" style="' + fond + '"></div>'
     + '<div class="awak-ph-lbl" aria-hidden="true"><span class="a">Début</span><span class="b">Fin</span></div>'
+    + window.awakAnimBouton(true)
     + '</div>';
+};
+// v1437 : bouton « Animation » (bas à droite de l'image) — arrête ou relance
+// l'enchaînement début / fin. Le choix est mémorisé (awakImgFixe), comme
+// l'interrupteur de Réglages › Entraînement.
+window.awakAnimBouton = function (anime) {
+  var ico = anime
+    ? '<svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>'
+    : '<svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M7 4l13 8-13 8z"/></svg>';
+  return '<button type="button" class="awak-anim-btn" aria-label="' + (anime ? 'Arrêter l\'animation' : 'Animer l\'image') + '" onclick="event.stopPropagation();window.awakBasculerAnim(this)">' + ico + '<span>Animation</span></button>';
+};
+window.awakSetImgAnim = function (on) {
+  try { if (on) localStorage.removeItem('awakImgFixe'); else localStorage.setItem('awakImgFixe', '1'); } catch (e) {}
+};
+window.awakBasculerAnim = function (btn) {
+  try {
+    var box = btn.closest('.awak-vis-carre'); if (!box) return;
+    var raw = box.getAttribute('data-raw') || '', u = box.getAttribute('data-src') || '';
+    var anime = box.classList.contains('awak-anim');
+    window.awakSetImgAnim(!anime);
+    var html;
+    if (anime) {
+      // image fixe entière (les deux positions côte à côte)
+      html = '<div class="awak-vis-carre" onclick="window.awakZoomImage && awakZoomImage(this)" data-raw="' + raw.replace(/"/g, '&quot;') + '" data-src="' + u + '" style="position:relative;width:100%;overflow:hidden;cursor:zoom-in;">'
+        + '<div style="position:relative;z-index:1;width:100%;height:100%;display:flex;align-items:center;justify-content:center;">'
+        + '<img src="' + u + '" alt="" style="width:100%;height:100%;object-fit:contain;display:block;"></div>'
+        + window.awakAnimBouton(false) + '</div>';
+    } else {
+      html = window.awakAnimHTML(raw, u);
+      if (!html) { try { if (window.showToast) showToast('Animation coupée : le téléphone demande moins de mouvement.', 'info', 3000); } catch (e) {} return; }
+    }
+    box.outerHTML = html;
+  } catch (e) {}
 };
 window.awakImageV2 = function (src) {
   var f = String(src || '').split('/').pop().split('?')[0];

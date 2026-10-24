@@ -156,12 +156,14 @@
 
   function foliage(cx, cy, r, col, wf) {
     var d2 = shade(col, -0.62), mid = shade(col, 0.20), light = shade(col, 0.58), s = '';
+    var _texDebut = -1;
     var seed = cx * 0.37 + cy * 0.61;
     // ombre portée + halo doux (gradient, visible partout)
     s += '<ellipse cx="' + (cx + r * 0.16).toFixed(1) + '" cy="' + (cy + r * 0.30).toFixed(1) + '" rx="' + (r * 0.96).toFixed(1) + '" ry="' + (r * 0.80).toFixed(1) + '" fill="#070a07" opacity="0.30"/>';
     s += '<circle cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" r="' + (r * 1.3).toFixed(1) + '" fill="url(#awkHalo)" opacity="0.5" style="color:' + col + '"/>';
     s += '<circle cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" r="' + (r * 1.16).toFixed(1) + '" fill="' + col + '" opacity="0.10" filter="url(#awkGlow)"/>';
     // masses (rayons perturbés → silhouette irrégulière)
+    s += '<g filter="url(#awkLeafTex)">'; _texDebut = 1;   // v1438 : feuillage moucheté
     var blobs = [[0, 0, 1.0], [-0.55, 0.12, 0.62], [0.55, 0.16, 0.6], [-0.32, -0.46, 0.6], [0.34, -0.42, 0.58], [0, 0.5, 0.55], [0, -0.56, 0.5], [0.6, -0.2, 0.42], [-0.6, -0.16, 0.42], [0.24, -0.6, 0.34], [-0.5, -0.42, 0.34]];
     blobs.forEach(function (b, i) {
       var rr = r * b[2] * (0.92 + wob(seed + i) * 0.22);
@@ -183,6 +185,18 @@
       var leafCol = (i % 3 === 0) ? light : col;
       s += '<ellipse cx="' + lx.toFixed(1) + '" cy="' + ly.toFixed(1) + '" rx="' + (r * 0.19).toFixed(1) + '" ry="' + (r * 0.10).toFixed(1) + '" transform="rotate(' + rot.toFixed(0) + ' ' + lx.toFixed(1) + ' ' + ly.toFixed(1) + ')" fill="' + leafCol + '" opacity="0.9"/>';
     }
+    // v1438 : petites feuilles dans la masse (ombre en bas, lumière en haut)
+    if (r >= 6) {
+      for (i = 0; i < 12; i++) {
+        var la = wob(seed + 50 + i) * Math.PI * 2, ld = Math.sqrt(Math.abs(wob(seed + 60 + i)) * 2) * r * 0.62;
+        var qx = cx + Math.cos(la) * ld, qy = cy + Math.sin(la) * ld * 0.9;
+        var haut = qy < cy - r * 0.1;
+        var qc = haut ? light : (qy > cy + r * 0.25 ? d2 : mid);
+        var qrot = wob(seed + 70 + i) * 160;
+        s += '<path d="M' + (qx - r * 0.13).toFixed(1) + ' ' + qy.toFixed(1) + ' Q' + qx.toFixed(1) + ' ' + (qy - r * 0.1).toFixed(1) + ' ' + (qx + r * 0.13).toFixed(1) + ' ' + qy.toFixed(1) + ' Q' + qx.toFixed(1) + ' ' + (qy + r * 0.1).toFixed(1) + ' ' + (qx - r * 0.13).toFixed(1) + ' ' + qy.toFixed(1) + 'Z" transform="rotate(' + qrot.toFixed(0) + ' ' + qx.toFixed(1) + ' ' + qy.toFixed(1) + ')" fill="' + qc + '" opacity="' + (haut ? 0.75 : 0.6) + '"/>';
+      }
+    }
+    if (_texDebut > 0) s += '</g>';
     // spéculaire (lumière haut-gauche)
     s += '<circle cx="' + (cx - r * 0.34).toFixed(1) + '" cy="' + (cy - r * 0.46).toFixed(1) + '" r="' + (r * 0.13).toFixed(1) + '" fill="#ffffff" opacity="0.55"/>';
     if (wf) { [[-0.34, -0.22], [0.38, 0.04], [0.06, -0.52]].forEach(function (f) { s += flower(cx + f[0] * r, cy + f[1] * r, 1.9); }); }
@@ -198,7 +212,9 @@
     var ex = ax + Math.cos(a) * len, ey = ay - Math.sin(a) * len + droop;
     var mx = (ax + ex) / 2 + Math.cos(a + 0.55) * len * 0.16, my = (ay + ey) / 2 - len * 0.20;
     var p0 = [ax, ay], cp = [mx, my], p1 = [ex, ey], wood = '#473a2c', light = shade(p.col, 0.55);
-    var w0 = 2.6 + stage * 1.5, w1 = 1.0 + stage * 0.35, s = taperedBranch(p0, cp, p1, w0, w1, wood);
+    // v1438 : branche maîtresse en dégradé (dessus éclairé) + texture d'écorce
+    var w0 = 2.6 + stage * 1.5, w1 = 1.0 + stage * 0.35, s = taperedBranch(p0, cp, p1, w0, w1, 'url(#awkWood)').replace('<path ', '<path filter="url(#awkBarkTex)" ');
+    s += '<path d="M' + ax.toFixed(1) + ' ' + (ay - w0 * 0.25).toFixed(1) + ' Q' + mx.toFixed(1) + ' ' + (my - w0 * 0.3).toFixed(1) + ' ' + ex.toFixed(1) + ' ' + (ey - w1 * 0.3).toFixed(1) + '" stroke="#8a7458" stroke-opacity="0.45" stroke-width="' + Math.max(0.6, w0 * 0.18).toFixed(1) + '" fill="none" stroke-linecap="round"/>';
     if (stage === 1) { s += '<circle cx="' + ex.toFixed(1) + '" cy="' + ey.toFixed(1) + '" r="3.4" fill="' + p.col + '"/>'; s += '<circle cx="' + (ex - 0.8).toFixed(1) + '" cy="' + (ey - 0.9).toFixed(1) + '" r="1.5" fill="' + light + '"/>'; return s; }
     var bl2 = []; if (stage === 2) bl2.push({ t: 0.62, side: 1, f: 0.30 }); if (stage >= 3) bl2.push({ t: 0.58, side: 1, f: 0.42 }); if (stage >= 4) bl2.push({ t: 0.76, side: -1, f: 0.36 }); if (stage >= 5) bl2.push({ t: 0.48, side: -1, f: 0.32 });
     var tips = [{ x: ex, y: ey, r: (stage >= 5 ? 16 : stage >= 4 ? 13.5 : stage >= 3 ? 11 : 8.5) }];
@@ -223,9 +239,11 @@
     // évasement racinaire : deux contreforts pleins à la base
     s += '<path d="M' + (cx - wb * 0.7) + ' ' + (baseY - 14) + ' Q' + (cx - wb * 1.5) + ' ' + (baseY + 2) + ' ' + (cx - wb * 2.4) + ' ' + (baseY + 8) + ' L' + (cx - wb * 0.2) + ' ' + (baseY + 8) + ' Z" fill="#2e251b"/>';
     s += '<path d="M' + (cx + wb * 0.7) + ' ' + (baseY - 14) + ' Q' + (cx + wb * 1.5) + ' ' + (baseY + 2) + ' ' + (cx + wb * 2.4) + ' ' + (baseY + 8) + ' L' + (cx + wb * 0.2) + ' ' + (baseY + 8) + ' Z" fill="#1c150e"/>';
+    s += '<g filter="url(#awkBarkTex)">';   // v1438 : écorce texturée
     s += taperedBranch(p0, cp, p1, wb * 2, wt * 2, 'url(#awkBark)');
     s += taperedBranch([cx - wb * 0.55, baseY], [cx - (2 + g * 3) - wb * 0.42, (baseY + topY) / 2], [cx - wt * 0.5, topY], wb * 0.5, wt * 0.5, '#6d5c47');
     s += taperedBranch([cx + wb * 0.62, baseY], [cx - (2 + g * 3) + wb * 0.7, (baseY + topY) / 2], [cx + wt * 0.55, topY], wb * 0.42, wt * 0.4, '#160f09');
+    s += '</g>';
     s += '<path d="M' + (cx - wb * 0.9) + ' ' + baseY + ' q-15 3 -28 11" stroke="#3a2f24" stroke-width="4.5" fill="none" stroke-linecap="round"/>';
     s += '<path d="M' + (cx + wb * 0.9) + ' ' + baseY + ' q15 3 28 11" stroke="#241b13" stroke-width="4.5" fill="none" stroke-linecap="round"/>';
     // écorce : quelques veines verticales + un nœud (texture sans toucher la silhouette)
@@ -323,6 +341,24 @@
       + '<radialGradient id="awkSky" cx="50%" cy="38%" r="60%"><stop offset="0%" stop-color="' + sky.lueur + '"/><stop offset="100%" stop-color="' + sky.haut + '" stop-opacity="0"/></radialGradient>'
       + '<radialGradient id="awkCrown" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#fffaf0" stop-opacity="0.55"/><stop offset="60%" stop-color="#fff3dc" stop-opacity="0.18"/><stop offset="100%" stop-color="#fff3dc" stop-opacity="0"/></radialGradient>'
       + '<filter id="awkGlow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="2.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>'
+      // v1438 : TEXTURES. Écorce = stries verticales sombres + reflets clairs (bruit
+      // étiré) ; feuillage = moucheture d'ombre et de lumière (bruit fin). Le bruit
+      // est découpé à la forme (operator="in") : la silhouette ne change pas.
+      + '<filter id="awkBarkTex" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">'
+      +   '<feTurbulence type="fractalNoise" baseFrequency="0.55 0.045" numOctaves="3" seed="7" result="n"/>'
+      +   '<feColorMatrix in="n" type="matrix" values="0 0 0 0 0.06  0 0 0 0 0.04  0 0 0 0 0.02  2.6 0 0 0 -1.25" result="sombre"/>'
+      +   '<feColorMatrix in="n" type="matrix" values="0 0 0 0 0.85  0 0 0 0 0.74  0 0 0 0 0.6  0 0 2.2 0 -1.55" result="clair"/>'
+      +   '<feComposite in="sombre" in2="SourceGraphic" operator="in" result="s1"/>'
+      +   '<feComposite in="clair" in2="SourceGraphic" operator="in" result="s2"/>'
+      +   '<feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="s1"/><feMergeNode in="s2"/></feMerge></filter>'
+      + '<filter id="awkLeafTex" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">'
+      +   '<feTurbulence type="fractalNoise" baseFrequency="0.24" numOctaves="3" seed="11" result="n"/>'
+      +   '<feColorMatrix in="n" type="matrix" values="0 0 0 0 0.02  0 0 0 0 0.06  0 0 0 0 0.02  1.5 0 0 0 -0.78" result="ombre"/>'
+      +   '<feColorMatrix in="n" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 0.92  0 1.4 0 0 -0.76" result="lum"/>'
+      +   '<feComposite in="ombre" in2="SourceGraphic" operator="in" result="o"/>'
+      +   '<feComposite in="lum" in2="SourceGraphic" operator="in" result="l"/>'
+      +   '<feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="l"/></feMerge></filter>'
+      + '<linearGradient id="awkWood" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#6a5844"/><stop offset="55%" stop-color="#473a2c"/><stop offset="100%" stop-color="#2a2118"/></linearGradient>'
       + '</defs>';
     var body = defs;
     // ── Fond : IMAGE peinte (aube brumeuse), au ratio exact du viewBox ──

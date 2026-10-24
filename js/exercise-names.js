@@ -37,7 +37,14 @@
   }
   function awakExCherche(cle) {
     var n = NOMS[cle] || {};
-    var t = [cle, n.fr || '', n.en || ''].join(' ').toLowerCase();
+    // v1435 : sans nom anglais saisi, le nom du fichier image (souvent anglais :
+    // Heel_To_Toe_Walk, Airplane_Balance…) sert aussi à la recherche.
+    var img = '';
+    try {
+      var src = window.EXERCISE_IMAGES && window.EXERCISE_IMAGES[cle];
+      if (src && !n.en) img = String(src).split('/').pop().replace(/\.[a-z0-9]+$/i, '').replace(/[_\-]+/g, ' ');
+    } catch (e) {}
+    var t = [cle, n.fr || '', n.en || '', img].join(' ').toLowerCase();
     return t + ' ' + sansAccents(t);
   }
   function awakEstDoublon(cle) { return !!(NOMS[cle] && NOMS[cle].doublonDe); }

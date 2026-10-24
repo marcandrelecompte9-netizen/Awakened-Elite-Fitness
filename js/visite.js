@@ -132,8 +132,7 @@
     exercises: [
       { c: function () { return $('#exerciseSearch'); }, t: 'Chercher', d: 'Trouve un exercice par son nom, un muscle ou un matériel.' },
       { c: function () { return $('#awakFilterBar'); }, t: 'Filtrer', d: 'Par muscle et par matériel. Touche un exercice pour voir sa fiche, son image et sa vidéo.' },
-      { c: function () { return parTexte('exercisesTab', 'button', /^Mes favoris$/); }, t: 'Favoris', d: 'Touche l\'étoile d\'un exercice pour le retrouver ici.' },
-      { c: function () { return $('#awakSegCalculs'); }, t: 'Calculs', d: 'Charge maximale, disques sur la barre, rang de force.' }
+      { c: function () { return parTexte('exercisesTab', 'button', /^Mes favoris$/); }, t: 'Favoris', d: 'Touche l\'étoile d\'un exercice pour le retrouver ici.' }
     ],
     calculators: [
       { c: function () { return $('#awakCalcSrc_frc'); }, t: 'Ton rang de force', d: 'Compare ta force à celle des gens de ton poids.' },

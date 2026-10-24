@@ -22705,6 +22705,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             } catch (e) {}
             if (tabName === 'history' && rpgEnabled()) setTimeout(renderRPGPanel, 50);
             if (tabName === 'settings') { try { if (typeof awakRenderTerminalHead === 'function') awakRenderTerminalHead(); } catch (e) {} }
+            if (tabName === 'settings') { try { const _ia = document.getElementById('imgAnimToggle'); if (_ia) _ia.checked = localStorage.getItem('awakImgFixe') !== '1'; } catch (e) {} }   // v1437
             if (tabName === 'settings') { try { awakMajBoutonsSplit(); awakMajBoutonsVariete(); const _pt = document.getElementById('periodizationToggle'); if (_pt) _pt.checked = getPeriodizationEnabled(); } catch (e) {} }
             if (tabName === 'settings') { try { if (window.AwakSante) AwakSante.rendreReglages(); } catch (e) {} }
             if (tabName === 'settings') setTimeout(() => { if (typeof awakRefreshDevPanel === 'function') awakRefreshDevPanel(); }, 50);
@@ -23764,7 +23765,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1432);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1441);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -23817,7 +23818,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     window._awakMasqueCorps(img).defs
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1432" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1441" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     '<g mask="url(#' + window._awakMasqueCorps(img).id + ')">' + svgZones + '</g>'
                 +   '</svg>'
@@ -25351,6 +25352,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (!words.length) return true;
                 const haystack = [
                     ex.name,
+                    // v1435 : noms anglais / affichés aussi (avant : la liste ne cherchait que la clé française)
+                    (window.awakExCherche ? window.awakExCherche(ex.name) : ''),
                     ex.description || '',
                     ex.muscle || '',
                     ex.equipment || '',
@@ -26856,7 +26859,12 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             : '<img src="' + _src3 + '" alt="" style="width:100%;height:100%;object-fit:contain;display:block;" loading="lazy"/>')
                         + '</div></div>';
                     // v1416 : nouvelle image → les deux positions s'enchaînent (début ↔ fin) en grand
-                    try { const _an = window.awakAnimHTML && window.awakAnimHTML(_imgSrc3, _src3); if (_an) visualContent.innerHTML = _an; } catch (e) {}
+                    try { const _an = window.awakAnimHTML && window.awakAnimHTML(_imgSrc3, _src3); if (_an) visualContent.innerHTML = _an;
+                        // v1437 : animation arrêtée par l'utilisateur → bouton pour la relancer
+                        else if (window.awakImageV2 && window.awakImageV2(_imgSrc3) && localStorage.getItem('awakImgFixe') === '1' && window.awakAnimBouton) {
+                            const _bx = visualContent.querySelector('.awak-vis-carre');
+                            if (_bx) { _bx.setAttribute('data-raw', _imgSrc3); _bx.insertAdjacentHTML('beforeend', window.awakAnimBouton(false)); }
+                        } } catch (e) {}
                 } else {
                     // v1221 : repli NEUTRE — plus de personnage dessiné (début / fin)
                     visualContent.style.padding = '0';
@@ -29309,7 +29317,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1432");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1441");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -33883,7 +33891,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1432);'
+                +     'url(images/combat_bg_v1.webp?v=1441);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -34181,7 +34189,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1432);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1441);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -34496,7 +34504,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:540px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto;display:flex;flex-direction:column;">
                 <!-- Header : vague actuelle -->
-                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1432);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1441);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                         <span style="font-size:0.6em;color:${theme.color};font-weight:900;letter-spacing:2px;">⚔ VAGUE ${rift.currentWaveIdx + 1} / ${rift.waves.length}${currentWave.isBoss ? ' · BOSS' : ''}</span>
                         <button onclick="awakAbandonRift()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
@@ -35639,7 +35647,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1432');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1441');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -36384,7 +36392,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1432);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1441);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -36555,7 +36563,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1432);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1441);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -38385,7 +38393,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 color: '#06b6d4',
                 description: 'Une tour qui n\'existe pas dans la réalité, mais que tout le monde voit parfois en rêve.',
                 briefing: 'Ne réponds pas aux voix. Continue à monter. Le Système te guidera.',
-                trigger: { type: 'level', value: 34, label: 'Atteindre le niveau 34' },   // v1422 : près de « Le Nom » (35)
+                trigger: { type: 'level', value: 35, label: 'Atteindre le niveau 35' },   // v1440 : au rang B (Faille de rang B : à 34, ripostes ×1,35 → 65 % de défaites)
                 rewards: { xp: 2500, message: 'Les voix se sont tues. Quelque chose les a fait taire. Pas toi.' },
                 rank: 'B',
                 waves: 3,
@@ -39356,12 +39364,18 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // 💀 Pénalités de mort : perte d'XP + réinitialisation COMPLÈTE des vagues de la Faille
         function awakApplyDeathPenalty(session) {
             let lostXP = 0;
+            // v1441 : Faille d'HISTOIRE (elle bloque la suite du récit) → pénalité adoucie :
+            // XP perdue divisée par deux, vagues déjà gagnées conservées (seule la vague
+            // en cours repart à pleins PV). La simulation montrait 75 à 100 % de défaites
+            // pour un joueur peu équipé, qui restait alors coincé dans l'histoire.
+            const _histoire = !!(session && session.rift && session.rift.narrativeId);
+            window._awakMortHistoire = _histoire;
             // 1) Perte d'XP — 30 % du palier du niveau en cours, prélevée sur le pool ajustable
             //    (ne touche jamais aux XP musculaires réelles ; bornée à 0).
             try {
                 const lvl = (typeof _awakGetCurrentLevel === 'function') ? _awakGetCurrentLevel() : 1;
                 const band = (typeof rpgXPThisLevel === 'function') ? rpgXPThisLevel(lvl) : 0;
-                const penalty = Math.round(band * 0.30);
+                const penalty = Math.round(band * (_histoire ? 0.15 : 0.30));
                 const cur = parseInt(localStorage.getItem('fitproRPGLifetimeXP') || '0');
                 const next = Math.max(0, cur - penalty);
                 lostXP = cur - next;
@@ -39373,7 +39387,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const rifts = awakRiftsLoad();
                     const r = rifts.find(x => x.id === session.rift.id);
                     if (r && Array.isArray(r.waves)) {
-                        r.waves.forEach(w => {
+                        r.waves.forEach((w, wi) => {
+                            if (_histoire && wi < (r.currentWaveIdx || 0)) return;   // v1441 : vague gagnée gardée
                             w.hpCurrent = w.hpMax;
                             w._phaseTriggered = false;
                             w._weaknessRevealed = false;
@@ -39382,7 +39397,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             w._ouverture = null;
                             w._hitCount = 0;
                         });
-                        r.currentWaveIdx = 0;
+                        if (!_histoire) r.currentWaveIdx = 0;
                         if (typeof awakRiftsSave === 'function') awakRiftsSave(rifts);
                     }
                 }
@@ -39445,7 +39460,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.35);border-radius:14px;padding:13px 14px;margin-bottom:22px;text-align:left;">
                             <div style="font-size:0.6em;color:#ef4444;font-weight:900;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;text-align:center;">⚠ Conséquences</div>
                             ${(lostXP && lostXP > 0) ? `<div style="font-size:0.82em;color:#fca5a5;margin-bottom:5px;">💀 −${lostXP.toLocaleString('fr-FR')} XP perdus</div>` : ''}
-                            <div style="font-size:0.82em;color:#fca5a5;">🌀 Toutes les vagues de la Faille ont été réinitialisées</div>
+                            <div style="font-size:0.82em;color:#fca5a5;">${window._awakMortHistoire ? 'Faille d\'histoire : tes vagues gagnées sont gardées, seule la vague en cours repart à zéro' : '🌀 Toutes les vagues de la Faille ont été réinitialisées'}</div>
                         </div>
 
                         <button onclick="document.getElementById('gameOverModal').remove();if(typeof switchTab==='function')switchTab('game');" style="
@@ -47579,25 +47594,32 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (!b.length) { host.innerHTML = ''; return; }
             const n = b.filter(x => x.obtenu).length;
 
+            // v1433 : couleurs du système visuel (or = badge obtenu, cyan = en-tête) et
+            // icônes SVG (les émojis sont retirés par le filtre de l'interface).
+            const OR = '#fbbf24';
+            const ICO = { varietes: 'boussole', semaine: 'calendrier', duo: 'groupe', matin: 'soleil', semaines: 'arbre' };
+            const ic = (n, t, c) => (window.AwakIcon && AwakIcon.get(n, t, c)) || '';
             host.innerHTML =
                 '<div class="card" style="padding:14px 16px;margin-bottom:14px;">'
-              +   '<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:11px;">'
-              +     '<span style="font-size:0.56em;letter-spacing:2px;color:#4ade80;font-weight:900;">🏅 MES BADGES</span>'
-              +     '<span style="font-size:0.68em;color:#94a3b8;font-weight:700;">' + n + ' / ' + b.length + '</span>'
+              +   '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;">'
+              +     '<span style="display:inline-flex;align-items:center;gap:6px;font-size:11px;letter-spacing:2px;color:#67e8f9;font-weight:900;">' + ic('trophee', 14, '#67e8f9') + 'MES BADGES</span>'
+              +     '<span style="font-size:12px;color:#a3b1c2;font-weight:800;">' + n + ' / ' + b.length + '</span>'
               +   '</div>'
-              +   '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">'
-              +   b.map(x =>
-                    '<div style="text-align:center;padding:10px 6px;border-radius:12px;'
-                  +   'background:' + (x.obtenu ? 'rgba(74,222,128,0.10)' : 'rgba(255,255,255,0.03)') + ';'
-                  +   'border:1px solid ' + (x.obtenu ? 'rgba(74,222,128,0.35)' : 'rgba(255,255,255,0.07)') + ';">'
-                  +   '<div style="font-size:1.5em;line-height:1;margin-bottom:5px;'
-                  +     (x.obtenu ? '' : 'filter:grayscale(1);opacity:0.4;') + '">' + x.emoji + '</div>'
-                  +   '<div style="font-size:0.58em;font-weight:800;color:'
-                  +     (x.obtenu ? '#4ade80' : '#64748b') + ';line-height:1.25;">' + x.nom + '</div>'
-                  +   '<div style="font-size:0.52em;color:#475569;margin-top:3px;">'
-                  +     Math.min(x.valeur, x.seuil) + '/' + x.seuil + '</div>'
-                  + '</div>'
-                  ).join('')
+              +   '<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;">'
+              +   b.map(x => {
+                    const pct = Math.round(Math.min(x.valeur, x.seuil) / x.seuil * 100);
+                    return '<div style="text-align:center;padding:11px 6px 10px;border-radius:14px;'
+                  +   'background:' + (x.obtenu ? 'rgba(251,191,36,0.10)' : '#12161c') + ';'
+                  +   'border:1px solid ' + (x.obtenu ? 'rgba(251,191,36,0.45)' : 'rgba(255,255,255,0.07)') + ';">'
+                  +   '<div style="width:36px;height:36px;margin:0 auto 6px;border-radius:50%;display:flex;align-items:center;justify-content:center;'
+                  +     'background:' + (x.obtenu ? 'rgba(251,191,36,0.16)' : 'rgba(255,255,255,0.04)') + ';">' + ic(ICO[x.type] || 'etoile', 18, x.obtenu ? OR : '#64748b') + '</div>'
+                  +   '<div style="font-size:12px;font-weight:800;color:' + (x.obtenu ? '#fde68a' : '#a3b1c2') + ';line-height:1.25;">' + x.nom + '</div>'
+                  +   (x.obtenu
+                        ? '<div style="font-size:11px;color:' + OR + ';font-weight:800;margin-top:4px;">Obtenu</div>'
+                        : '<div style="height:4px;background:rgba(255,255,255,0.07);border-radius:99px;overflow:hidden;margin:6px 6px 0;"><div style="height:100%;width:' + pct + '%;background:#22d3ee;border-radius:99px;"></div></div>'
+                        + '<div style="font-size:11px;color:#8d9cb1;margin-top:3px;">' + Math.min(x.valeur, x.seuil) + ' / ' + x.seuil + '</div>')
+                  + '</div>';
+                  }).join('')
               +   '</div>'
               + '</div>';
         }
@@ -47871,7 +47893,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
               // v1393 : hauteur réservée (aspect-ratio) — sinon l'image recréée
               // n'a aucune hauteur le temps d'un décodage, le formulaire saute
               // de ~160 px et le toucher sur le champ suivant tombe à côté.
-              +   '<img src="images/body/body_face.webp?v=1432" alt="" width="784" height="1168" '
+              +   '<img src="images/body/body_face.webp?v=1441" alt="" width="784" height="1168" '
               +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -47953,7 +47975,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1432);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1441);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -48020,7 +48042,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1432);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1441);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -50422,7 +50444,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1432");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1441");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.

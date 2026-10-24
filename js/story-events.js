@@ -1119,6 +1119,24 @@ const STORY_EVENTS = [
     },
     // ── 🤝 LES COMPAGNONS PARLENT (après leur rencontre, avant la Dernière Porte)
     {
+        // v1441 : scène ajoutée pour garder le rythme entre les grands chapitres
+        id: 'evt_n58_dispute',
+        type: 'dialogue',
+        trigger: { kind: 'xp', level: 58, frac: 0.2 },
+        once: true,
+        content: {
+            speaker: 'nyra',
+            title: "La Dispute",
+            pages: [
+                "Nyra s'arrête au milieu de l'échauffement. « Pas aujourd'hui. J'ai mal partout, je dors mal. On fait une pause. »",
+                "Esen ne s'arrête pas. « Il n'attend que ça. Une pause, puis deux, puis on s'assoit comme lui. »",
+                "« Tu entends ce que tu dis ? » Nyra a haussé le ton. « C'est LUI qui pense comme ça. Tenir sans jamais poser. Tu te rappelles ce que le Système a dit sur les Ancres ? »",
+                "Un long silence. Esen pose ses poids, très lentement. « …Tu as raison. Je suis désolé. »",
+                "Le lendemain, ils reviennent tous les deux. Reposés. C'est la meilleure séance de la semaine."
+            ]
+        }
+    },
+    {
         id: 'evt_marcus_quarante',
         type: 'dialogue',
         trigger: { kind: 'xp', level: 59, frac: 0.35 },
@@ -1138,6 +1156,41 @@ const STORY_EVENTS = [
     },
     // ── 🏮 Le Marchand : « tant que quelqu'un achète, j'existe » — et son plus vieux client
     {
+        // v1441 : scène ajoutée pour garder le rythme entre les grands chapitres
+        id: 'evt_n60_glitch',
+        type: 'ambiance',
+        trigger: { kind: 'xp', level: 60, frac: 0.4 },
+        once: true,
+        content: {
+            speaker: 'systeme',
+            title: "Une Ligne de Trop",
+            pages: [
+                "En pleine série, une ligne apparaît dans l'interface. Elle ne ressemble à aucun message du Système.",
+                "« Assieds-toi. »",
+                "Elle disparaît aussitôt. Puis, en lettres tremblantes : « Ce n'était pas moi. Il a trouvé un passage. Petit. Je l'ai refermé. »",
+                "« Si tu revois cette ligne… continue ta série. Juste ta série. C'est tout ce qu'il faut. »"
+            ]
+        }
+    },
+    {
+        // v1441 : scène ajoutée pour garder le rythme entre les grands chapitres
+        id: 'evt_n61_carnet',
+        type: 'fait',
+        trigger: { kind: 'xp', level: 61, frac: 0.3 },
+        once: true,
+        content: {
+            speaker: 'marchand',
+            title: "Le Carnet",
+            image: 'images/story/marchand.webp',
+            pages: [
+                "Le Marchand feuillette son carnet de commandes. Des pages entières sont barrées, proprement, au crayon.",
+                "« Des clients qui ne reviennent plus, » explique-t-il. « Je raye. Sinon je les attends. »",
+                "Il s'arrête sur une page plus jaunie que les autres. Une seule ligne, répétée chaque jour pendant des années : « bandes pour les mains ». Le nom, à côté, est effacé.",
+                "« Celui-là, je n'arrive pas à le rayer. » Il referme le carnet. « Allez, achetez quelque chose. Ça m'aide à me souvenir de vous. »"
+            ]
+        }
+    },
+    {
         id: 'evt_marchand_client',
         type: 'fait',
         trigger: { kind: 'xp', level: 62, frac: 0.3 },
@@ -1153,6 +1206,24 @@ const STORY_EVENTS = [
                 "« Pendant des années. Puis un matin, il n'est pas venu. » Il range une bande, très soigneusement. « J'ai encore sa commande du lendemain, quelque part. Je ne l'ai jamais vendue. »",
                 "{partenaire} demande, doucement : « Il s'appelait comment ? » Le Marchand ouvre la bouche. La referme. « Je suis désolé. Il ne m'achète plus rien. Alors je ne m'en souviens plus. »",
                 "Tu achètes quelque chose. N'importe quoi. Ses mains redeviennent un peu plus nettes. « Merci, » dit-il. Et cette fois, le sourire tient."
+            ]
+        }
+    },
+    {
+        // v1441 : scène ajoutée pour garder le rythme entre les grands chapitres
+        id: 'evt_n62_photo',
+        type: 'fait',
+        trigger: { kind: 'xp', level: 62, frac: 0.8 },
+        once: true,
+        content: {
+            speaker: 'esen',
+            title: "Le Coin de la Photo",
+            image: 'images/story/n27_photo_esen.webp',
+            pages: [
+                "Esen sort la vieille photo, comme chaque soir. Il la regarde à peine, d'habitude. Ce soir, il s'arrête.",
+                "Dans un coin, là où le visage était effacé, il y a une mèche de cheveux. En bataille.",
+                "« Ça revient, » dit-il. Sa voix est étrange. Ni contente, ni triste. « Un petit bout. »",
+                "Nyra ne pose pas de question. Elle s'assoit à côté de lui et regarde la mèche avec lui, longtemps."
             ]
         }
     },
@@ -1175,6 +1246,23 @@ const STORY_EVENTS = [
         }
     },
     {
+        // v1441 : scène ajoutée pour garder le rythme entre les grands chapitres
+        id: 'evt_n64_enfant',
+        type: 'fait',
+        trigger: { kind: 'xp', level: 64, frac: 0.2 },
+        once: true,
+        content: {
+            speaker: 'nyra',
+            title: "Le Garçon du Parc",
+            pages: [
+                "Au parc, un petit garçon court vers Nyra et s'arrête net devant elle. « Toi, tu fais les encoches sur le lampadaire ! »",
+                "Nyra cligne des yeux. « Tu… tu te souviens de moi ? »",
+                "« Ben oui. Tu viens tous les jours. Même quand il pleut. » Il repart en courant, comme si c'était la chose la plus normale du monde.",
+                "Nyra reste plantée là. Puis elle rit, un vrai rire, pas celui qu'elle fait quand elle a peur. « Il se souvient de moi parce que je reviens. C'est tout. C'est aussi simple que ça. »"
+            ]
+        }
+    },
+    {
         id: 'evt_n65_ambiance_nabdano',
         type: 'ambiance',
         trigger: { kind: 'levelAndNarrativeRift', value: 65, narrativeId: 'silent_one' },
@@ -1187,6 +1275,23 @@ const STORY_EVENTS = [
                 "« Tu es plus proche que quiconque ne l'a jamais été, » dit Nabdano. Sa voix n'a plus rien de menaçant. Juste une infinie fatigue.",
                 "« Quand tu me verras, tu comprendras. Je ne suis pas un monstre. Je suis seulement... quelqu'un qui s'est arrêté. »",
                 "« Et une part de toi, déjà, se demande si j'ai eu tort. »"
+            ]
+        }
+    },
+    {
+        // v1441 : scène ajoutée pour garder le rythme entre les grands chapitres
+        id: 'evt_n66_carte',
+        type: 'ambiance',
+        trigger: { kind: 'xp', level: 66, frac: 0.3 },
+        once: true,
+        content: {
+            speaker: 'systeme',
+            title: "Ce que Tu as Rallumé",
+            pages: [
+                "Le Système affiche une carte de la ville. La moitié est blanche. Mais au milieu du blanc, il y a des points de couleur.",
+                "« Chaque point, c'est une rue que tu as tenue visible. Pas toutes en même temps. Une par séance. »",
+                "Tu regardes de plus près. Les points dessinent un chemin. Le tien. De l'appartement au parc, du parc à la boulangerie, de la boulangerie jusqu'ici.",
+                "« Il voit toute la ville s'effacer, » dit le Système. « Moi, je vois ce chemin. On ne regarde pas la même carte. »"
             ]
         }
     },
@@ -1216,6 +1321,40 @@ const STORY_EVENTS = [
         }
     },
     {
+        // v1441 : scène ajoutée pour garder le rythme entre les grands chapitres
+        id: 'evt_n67_rire',
+        type: 'fait',
+        trigger: { kind: 'xp', level: 67, frac: 0.9 },
+        once: true,
+        content: {
+            speaker: 'nyra',
+            title: "Esen Rit",
+            pages: [
+                "Nyra raconte, pour la troisième fois, l'histoire du monstre qui s'était coincé dans une porte tournante.",
+                "Et Esen rit. Pas un sourire. Un vrai rire, bref, surpris, comme s'il lui avait échappé.",
+                "Nyra se fige. « …Refais-le. »",
+                "« Non. » Mais il sourit encore. Elle passera la semaine à essayer de recommencer. Elle n'y arrivera qu'une fois. Ça lui suffira."
+            ]
+        }
+    },
+    {
+        // v1441 : scène ajoutée pour garder le rythme entre les grands chapitres
+        id: 'evt_n68_offre',
+        type: 'ambiance',
+        trigger: { kind: 'xp', level: 68, frac: 0.8 },
+        once: true,
+        content: {
+            speaker: 'nabdano',
+            title: "L'Offre",
+            pages: [
+                "La voix revient, douce, raisonnable. « Je te propose un échange. »",
+                "« Un seul jour. Tu t'assois un seul jour, sans te relever pour personne. Et je te rends quelque chose. Une rue. Un nom. Le visage sur sa photo. »",
+                "« Un jour, contre tout ça. Avoue que c'est un bon prix. »",
+                "Le Système, très vite : « Il ne rend jamais rien. Il n'a jamais rien rendu. Ce que tu récupères, c'est TOI qui le ramènes. » Un temps. « Mais je comprends que tu aies hésité. Moi aussi, j'aurais hésité. »"
+            ]
+        }
+    },
+    {
         id: 'evt_yuna_noyau',
         type: 'ambiance',
         trigger: { kind: 'xp', level: 69, frac: 0.5 },
@@ -1230,6 +1369,57 @@ const STORY_EVENTS = [
                 "« Je l'ai touché, une fois. J'y ai vu le bout de la route. Un homme assis. Et devant lui, deux silhouettes debout, côte à côte. » Elle te regarde, puis {partenaire}. « Je ne savais pas qui elles étaient. Maintenant, si. »",
                 "{partenaire} fronce les sourcils. « Et ensuite ? Qu'est-ce qui se passe, ensuite ? »",
                 "Yuna sourit, pour la première fois. « Le Noyau ne montre pas ce qui va arriver. Il montre ce qui vaut la peine d'être gardé. Le reste, c'est à vous. »"
+            ]
+        }
+    },
+    {
+        // v1441 : scène ajoutée pour garder le rythme entre les grands chapitres
+        id: 'evt_n70_autres',
+        type: 'fait',
+        trigger: { kind: 'xp', level: 70, frac: 0.5 },
+        once: true,
+        content: {
+            speaker: 'systeme',
+            title: "Les Autres Signaux",
+            pages: [
+                "Pour la première fois, le Système capte autre chose que vous deux. Des signaux. Faibles. Loin.",
+                "« D'autres Ancres. Dans d'autres villes. Je ne les connais pas. Je ne peux pas leur parler. »",
+                "Pendant que tu regardes, l'un des signaux clignote… et s'éteint. Puis un autre, ailleurs, s'allume.",
+                "« Certains s'assoient, » dit le Système. « D'autres se lèvent. Chaque fois que tu t'entraînes, je me dis que quelqu'un, quelque part, se lève peut-être en même temps que toi. »"
+            ]
+        }
+    },
+    {
+        // v1441 : scène ajoutée pour garder le rythme entre les grands chapitres
+        id: 'evt_n71_epaule',
+        type: 'dialogue',
+        trigger: { kind: 'xp', level: 71, frac: 0.7 },
+        once: true,
+        content: {
+            speaker: 'esen',
+            title: "Sur l'Épaule",
+            pages: [
+                "Après une longue séance, Nyra s'assoit sur le banc à côté d'Esen. Trente secondes plus tard, elle dort, la tête sur son épaule.",
+                "Esen ne bouge pas. Pas d'un millimètre. Pendant une heure.",
+                "Quand elle se réveille, gênée, il dit seulement : « Tu en avais besoin. »",
+                "« Tu aurais pu me réveiller. » « Non. » Il se lève en se massant l'épaule, l'air de rien. « C'était mon tour de tenir. »"
+            ]
+        }
+    },
+    {
+        // v1441 : scène ajoutée pour garder le rythme entre les grands chapitres
+        id: 'evt_n72_economie',
+        type: 'ambiance',
+        trigger: { kind: 'xp', level: 72, frac: 0.8 },
+        once: true,
+        content: {
+            speaker: 'systeme',
+            title: "Économie d'Énergie",
+            pages: [
+                "Les messages du Système sont plus courts, ces jours-ci. Quelques mots. Parfois un seul.",
+                "« Plus on approche du centre, moins j'ai de force. Je garde ce qui me reste pour la fin. »",
+                "« Alors je te demande une chose. Si un jour je ne dis plus rien… souviens-toi de ce que je t'ai déjà dit. Tu as le droit de te reposer. Et tu reviens. »",
+                "« C'est tout. C'est tout ce que je sais. »"
             ]
         }
     },
@@ -1283,6 +1473,41 @@ const STORY_EVENTS = [
                 "« Il la connaît, » souffle Nyra. « Il la connaît… »",
                 "Le Système, à peine visible : « Ce n'est pas lui qui te l'a apprise, Nyra. Mais quelqu'un, autrefois, l'a apprise à quelqu'un qu'il tenait debout. Il s'en souvient encore. »",
                 "Nyra s'essuie les yeux d'un revers de manche. « Alors je ne suis pas la dernière. » Elle reprend la marche. Elle fredonne avec lui, sans s'en rendre compte, dans le même tempo."
+            ]
+        }
+    },
+    {
+        // v1441 : scène ajoutée pour garder le rythme entre les grands chapitres
+        id: 'evt_n77_question',
+        type: 'ambiance',
+        trigger: { kind: 'xp', level: 77, frac: 0.4 },
+        once: true,
+        content: {
+            speaker: 'nabdano',
+            title: "Une Seule Question",
+            pages: [
+                "La voix de Nabdano n'essaie plus de te convaincre. Elle pose une question. Une seule.",
+                "« Quand tu étais seul, au début… qui tenait pour toi ? »",
+                "Tu cherches. Tu penses à {partenaire}, au Système, aux séances du matin où personne ne te voyait.",
+                "« Moi, personne, » dit Nabdano. « Pendant quarante et un ans. Je voulais savoir si c'était pareil pour toi. » Un temps. « Ce n'est pas pareil. Je l'entends dans ton silence. »"
+            ]
+        }
+    },
+    {
+        // v1441 : scène ajoutée pour garder le rythme entre les grands chapitres
+        id: 'evt_n78_stock',
+        type: 'fait',
+        trigger: { kind: 'xp', level: 78, frac: 0.3 },
+        once: true,
+        content: {
+            speaker: 'marchand',
+            title: "Le Dernier Stock",
+            image: 'images/story/marchand.webp',
+            pages: [
+                "Le Marchand vide ses étagères sur le comptoir. Tout. Les bandes, les fioles, une vieille lame.",
+                "« Prenez. Je ne vends plus, je donne. » Il sourit. « Si vous ne revenez pas, je n'aurai plus de clients, de toute façon. »",
+                "Nyra secoue la tête. « On revient. Et tu nous feras payer le double. »",
+                "Le Marchand rit, et pour la première fois depuis longtemps ses mains sont parfaitement nettes. « Marché conclu. »"
             ]
         }
     },
@@ -1406,6 +1631,74 @@ const STORY_EVENTS = [
     // il ne reste que celle qu'il pose lui-même.
     // Déclencheur : les 4 sous-boss vaincus (même condition que le boss).
     // ══════════════════════════════════════════════════════════════
+    {
+        // v1441 : scène ajoutée pour garder le rythme entre les grands chapitres
+        id: 'evt_n84_mardi',
+        type: 'ambiance',
+        trigger: { kind: 'xp', level: 84, frac: 0.4 },
+        once: true,
+        content: {
+            speaker: 'systeme',
+            title: "Un Mardi Matin",
+            pages: [
+                "« Je vais te dire ce qui compte vraiment, » affiche le Système. « Ce n'est pas la porte. Ce ne sont pas les épreuves. »",
+                "« Ce sont les mardis matin. Les séances où il pleut, où personne ne regarde, où tu n'as aucune raison spéciale. »",
+                "« C'est là que tout se joue. Lui, il s'est arrêté un mardi matin. Un jour ordinaire. »",
+                "« Toi, tu es venu. Un mardi. Encore. »"
+            ]
+        }
+    },
+    {
+        // v1441 : scène ajoutée pour garder le rythme entre les grands chapitres
+        id: 'evt_n88_lampadaire',
+        type: 'fait',
+        trigger: { kind: 'xp', level: 88, frac: 0.5 },
+        once: true,
+        content: {
+            speaker: 'nyra',
+            title: "Un Deuxième Lampadaire",
+            pages: [
+                "Il n'y a plus de place sur le lampadaire. Les encoches couvrent tout, du bas jusqu'à hauteur d'yeux.",
+                "Nyra recule, les mains sur les hanches. « Bon. » Elle se tourne vers le lampadaire d'à côté. « Celui-là. »",
+                "Elle grave la première encoche. Esen la regarde faire, puis tend la main. « À mon tour. »",
+                "Deux encoches sur un lampadaire neuf. Le quartier, ce matin-là, est un peu plus net que la veille."
+            ]
+        }
+    },
+    {
+        // v1441 : scène ajoutée pour garder le rythme entre les grands chapitres
+        id: 'evt_n92_bandes',
+        type: 'fait',
+        trigger: { kind: 'xp', level: 92, frac: 0.3 },
+        once: true,
+        content: {
+            speaker: 'esen',
+            title: "Les Bandes",
+            pages: [
+                "Esen enroule des bandes autour de ses mains avant une séance. Il s'arrête à mi-chemin.",
+                "« Il faisait ça. Chaque matin. Le Marchand l'a dit. » Il regarde ses mains. « Je fais pareil que lui. »",
+                "Nyra hausse les épaules. « Il faisait ça tout seul. Toi, regarde. » Elle prend l'autre bande et l'enroule elle-même autour de sa main à lui.",
+                "Ce n'est pas plus solide. C'est juste différent. Et Esen comprend que c'est exactement ça, la différence."
+            ]
+        }
+    },
+    {
+        // v1441 : scène ajoutée pour garder le rythme entre les grands chapitres
+        id: 'evt_n96_lettres',
+        type: 'ambiance',
+        trigger: { kind: 'xp', level: 96, frac: 0.6 },
+        once: true,
+        content: {
+            speaker: 'systeme',
+            title: "Bientôt à Court de Lettres",
+            pages: [
+                "« Il me reste peu de lettres de rang, » affiche le Système. « SS. Puis SSS. Après, je n'ai plus rien prévu. »",
+                "« Quand on m'a créé, personne n'imaginait qu'une Ancre irait si loin. Personne n'a écrit la suite. »",
+                "Un temps. « Alors on l'écrira ensemble, je suppose. Une séance à la fois. »",
+                "{partenaire}, derrière toi : « Il a l'air presque content, ton Système. » « Je ne suis pas content, » corrige le Système. « Je suis… curieux. C'est nouveau. »"
+            ]
+        }
+    },
     {
         // v1389 : scène du passage au rang SS (remplace l'ancien court message du Système)
         id: 'evt_rang_ss',

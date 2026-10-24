@@ -8827,3 +8827,24 @@ img[src*="images/exercises/"] { filter: saturate(0.82) brightness(1.06); }
 #exerciseVisualContent .awak-anim.awak-anim-34 .awak-ph,
 #exercisePreviewModal .awak-anim.awak-anim-34 .awak-ph { background-size: 200% 100% !important; }
 #exercisePreviewModal .awak-anim.awak-anim-34 { width: min(100%, 45vh) !important; }
+
+/* ═══ v1436 — animation début / fin : on rogne le trait blanc qui sépare les deux
+   cases (au centre de chaque nouvelle image). Avant (200 %), il apparaissait
+   comme une bande blanche sur un côté de l'image pendant la séance. 206 % montre
+   0–48,5 % puis 51,5–100 % de l'image : le trait n'est jamais visible. ═══ */
+#exerciseVisualContent .awak-anim .awak-ph,
+#exercisePreviewModal .awak-anim .awak-ph { background-size: 206% auto !important; }
+#exerciseVisualContent .awak-anim.awak-anim-hb .awak-ph,
+#exercisePreviewModal .awak-anim.awak-anim-hb .awak-ph { background-size: auto 206% !important; }
+#exerciseVisualContent .awak-anim.awak-anim-34 .awak-ph,
+#exercisePreviewModal .awak-anim.awak-anim-34 .awak-ph { background-size: 206% 103% !important; }
+#exerciseVisualContent .awak-anim.awak-anim-34 .awak-ph-a,
+#exercisePreviewModal .awak-anim.awak-anim-34 .awak-ph-a { background-position: 0% 50% !important; }
+#exerciseVisualContent .awak-anim.awak-anim-34 .awak-ph-b,
+#exercisePreviewModal .awak-anim.awak-anim-34 .awak-ph-b { background-position: 100% 50% !important; }
+
+/* ═══ v1437 — bouton « Animation » (bas à droite de l'image d'exercice) ═══ */
+.awak-vis-carre .awak-anim-btn { position: absolute; right: 10px; bottom: 10px; z-index: 5; display: inline-flex; align-items: center; gap: 5px;
+  min-height: 0 !important; padding: 5px 10px !important; border-radius: 99px; cursor: pointer; font-family: inherit;
+  background: rgba(2,5,16,0.82); border: 1px solid rgba(255,255,255,0.18); color: #e2e8f0; font-size: 11px; font-weight: 800; letter-spacing: 0.3px; }
+.awak-vis-carre .awak-anim-btn:active { transform: scale(0.95); }

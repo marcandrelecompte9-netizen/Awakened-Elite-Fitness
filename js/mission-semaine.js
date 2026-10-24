@@ -14,6 +14,38 @@
     { t: 'Rallumer les lampadaires', d: 'La lumière du quartier faiblit. Chaque séance rallume un lampadaire.' },
     { t: 'Tenir la ligne', d: 'Esen garde le pont, Nyra le carrefour. Chaque séance leur donne une nuit de plus.' }
   ];
+  // v1439 : missions d'HISTOIRE — débloquées par une scène vue (vu), retirées
+  // après une autre (avant). Elles passent avant les missions de base.
+  var ECHEC = function (id) { try { return !!(window.awakNarrativeRiftFailed && window.awakNarrativeRiftFailed(id)); } catch (e) { return false; } };
+  var HISTOIRE = [
+    { id: 'encoches', vu: 'evt_serie_7', t: 'Les encoches', d: 'Nyra grave une encoche par jour d\'entraînement sur le lampadaire. Aide-la à remplir la semaine.' },
+    { id: 'croissant', vu: 'evt_n5_boulangerie', si: function () { return !ECHEC('bakery_fading'); }, t: 'Le croissant du bout', d: 'Nyra repasse chaque matin devant la boulangerie. Chaque séance garde la vitrine allumée.' },
+    { id: 'chanson', vu: 'evt_oubli_chanson', avant: 'evt_chanson_retrouvee', t: 'Garder la chanson', d: 'Une chanson que plus personne ne connaît. Chaque séance en garde un couplet.' },
+    { id: 'traces', vu: 'evt_n15_ambiance_traces', avant: 'evt_n35_ambiance_nabdano_nom', t: 'Les pas anciens', d: 'Des pas anciens dans la poussière blanche. Chaque séance les suit un peu plus loin.' },
+    { id: 'cailloux', vu: 'evt_n17_fait_nyra', t: 'Collection de cailloux', d: 'Nyra cherche un caillou parfait pour chaque séance. Rapporte-lui de quoi remplir la semaine.' },
+    { id: 'mur', vu: 'evt_boulangerie_faille', si: function () { return ECHEC('bakery_fading'); }, t: 'Un mur propre', d: 'Là où était la boulangerie, il n\'y a plus qu\'un mur. Chaque séance aide Nyra à se souvenir qu\'il y avait quelque chose.' },
+    { id: 'inscription', vu: 'evt_n31_dialogue_duo', avant: 'evt_n35_ambiance_nabdano_nom', t: 'L\'inscription', d: 'Sur le mur, l\'inscription s\'efface lettre par lettre. Chaque séance en sauve une.' },
+    { id: 'nom', vu: 'evt_n35_ambiance_nabdano_nom', avant: 'evt_fin_ancre', t: 'Le nom qu\'on n\'oublie pas', d: 'Le Système répète un nom pour ne pas le perdre. Chaque séance le grave un peu plus profond.' },
+    { id: 'voix', vu: 'evt_n39_ambiance_voix', avant: 'evt_echo_retour', t: 'Faire taire la voix', d: 'La voix revient la nuit, et elle a la tienne. Chaque séance la fait reculer d\'une rue.' },
+    { id: 'portee', vu: 'evt_echo_retour', t: 'Rester à portée', d: 'Depuis l\'Écho, Esen et Nyra ne s\'éloignent plus d\'une salle. Chaque séance les garde à portée de voix.' },
+    { id: 'vraievoix', vu: 'evt_faux_systeme', avant: 'evt_fin_ancre', t: 'La vraie voix', d: 'Deux voix s\'affichent encore, parfois. Chaque séance t\'apprend à reconnaître la bonne.' },
+    { id: 'clients', vu: 'evt_marchand_dette', t: 'Clients fidèles', d: 'Le Marchand tient tant qu\'on lui rend visite. Chaque séance compte comme une visite.' },
+    { id: 'ville', vu: 'evt_nabdano_passe', avant: 'evt_fin_ancre', t: 'La ville figée', d: 'La ville que Nabdano a portée commence à bouger. Chaque séance remet une rue en mouvement.' },
+    { id: 'porte', vu: 'evt_avant_porte_bilan', avant: 'evt_fin_ancre', t: 'Avant la porte', d: 'La Dernière Porte attend. Chaque séance te rend plus solide pour la franchir.' },
+    { id: 'questions', vu: 'evt_quatre_epreuves', avant: 'evt_fin_ancre', t: 'Quatre questions', d: 'Les quatre gardiens observent. Chaque séance est une réponse.' },
+    { id: 'noms', vu: 'evt_fin_ancre', t: 'Les rues retrouvent leurs noms', d: 'Après l\'Effaceur, les rues reprennent leurs noms une à une. Chaque séance en rend un.' },
+    { id: 'reste', vu: 'evt_ce_qui_reste', t: 'Ce qui reste', d: 'Des milliers d\'objets rangés attendent quelqu\'un. Chaque séance en rend un à son propriétaire.' }
+  ];
+  function vue(id) { try { return !!(window.storyEventSeen && window.storyEventSeen(id)); } catch (e) { return false; } }
+  function disponibles() {
+    return HISTOIRE.filter(function (m) {
+      if (!vue(m.vu)) return false;
+      if (m.avant && vue(m.avant)) return false;
+      if (m.si) { try { if (!m.si()) return false; } catch (e) { return false; } }
+      return true;
+    });
+  }
+  function cleChoix() { try { return window._cleProfil('awakMissionSemChoix'); } catch (e) { return 'awakMissionSemChoix'; } }
 
   function actif() { try { return typeof window.rpgEnabled === 'function' && window.rpgEnabled(); } catch (e) { return false; } }
   function lundi(d) { d = d || new Date(); var x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x; }
@@ -21,9 +53,23 @@
   function clePaye() { try { return window._cleProfil('awakMissionSemPayee'); } catch (e) { return 'awakMissionSemPayee'; } }
   function ico(n, t, c) { try { return (window.AwakIcon && AwakIcon.get(n, t, c)) || ''; } catch (e) { return ''; } }
 
-  function mission() {
+  function missionDeBase() {
     var l = lundi(), n = Math.floor(l.getTime() / (7 * 86400000));
     return MISSIONS[((n % MISSIONS.length) + MISSIONS.length) % MISSIONS.length];
+  }
+  // v1439 : la mission est CHOISIE une fois par semaine (puis gardée jusqu'à lundi,
+  // même si une scène débloque autre chose entre-temps). Priorité aux missions
+  // d'histoire les plus récentes, sans reprendre une des 3 dernières semaines.
+  function mission() {
+    var sem = cleSemaine(), o = null;
+    try { o = JSON.parse(localStorage.getItem(cleChoix()) || 'null'); } catch (e) {}
+    if (o && o.sem === sem && o.t) return { t: o.t, d: o.d };
+    var recentes = (o && Array.isArray(o.hist)) ? o.hist : [];
+    var dispo = disponibles().filter(function (m) { return recentes.indexOf(m.id) < 0; });
+    var m = dispo.length ? dispo[dispo.length - 1] : null;
+    var choix = m ? { id: m.id, t: m.t, d: m.d } : (function () { var b = missionDeBase(); return { id: 'base:' + b.t, t: b.t, d: b.d }; })();
+    try { localStorage.setItem(cleChoix(), JSON.stringify({ sem: sem, id: choix.id, t: choix.t, d: choix.d, hist: [choix.id].concat(recentes).slice(0, 3) })); } catch (e) {}
+    return { t: choix.t, d: choix.d };
   }
   function recompense(visee) { return 100 + 60 * Math.max(1, Math.min(7, visee || 3)); }
 
@@ -87,5 +133,5 @@
       + ico('bouclier', 14, '#c4b5fd') + '<span>' + t + '</span></div>';
   }
 
-  window.AwakMission = { etat: etat, verser: verser, carte: carte, ligneFin: ligneFin, _mission: mission };
+  window.AwakMission = { etat: etat, verser: verser, carte: carte, ligneFin: ligneFin, _mission: mission, _histoire: HISTOIRE, _disponibles: disponibles };
 })();
