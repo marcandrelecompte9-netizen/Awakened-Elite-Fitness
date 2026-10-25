@@ -8880,3 +8880,11 @@ img[src*="images/exercises/"] { filter: saturate(0.82) brightness(1.06); }
 :is(#swapModalBox,#occupiedBox) .swap-big { aspect-ratio: auto; min-height: 120px; }
 :is(#swapModalBox,#occupiedBox) .swap-big img { height: auto !important; max-height: 46dvh; }
 :is(#swapModalBox,#occupiedBox) .swap-big:has(svg) { aspect-ratio: 3 / 2; }
+/* v1443 — fermer la fenêtre Remplacer plus facilement */
+#swapModalBox { padding-bottom: 0 !important; }
+#swapModalBox .swap-header { z-index: 3 !important; }
+#swapModalBox .swap-header > div > div:first-child { min-width: 0; padding-right: 10px; }
+#swapModalBox .swap-x { min-width: 44px !important; min-height: 44px !important; padding: 0 !important; }
+#swapModalBox .swap-foot { position: sticky; bottom: 0; z-index: 3; padding: 10px 12px 12px; background: linear-gradient(to top, #0f1218 75%, rgba(15,18,24,0)); }
+#swapModalBox .swap-foot button { width: 100%; min-height: 46px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.15); background: #1a2029; color: #e2e8f0; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
+#swapModalBox { scroll-padding-bottom: 80px; scroll-padding-top: 90px; }

@@ -407,8 +407,10 @@
       } else {
         SS.st.members = mem;
       }
-      // Réinjecte le numéro de tour (initSetsTracker vient de le remettre à 1)
-      if (SS.st.round > 1) {
+      // Réinjecte le numéro de tour (initSetsTracker vient de le remettre à 1).
+      // v1445 : aussi au tour 1 — en minuteur, rien ne remettait le compteur à 1 et le
+      // 1er exercice d'un superset affichait la série du groupe précédent (« 3/4 »).
+      if (SS.st.round >= 1 && parseInt(b.getSetNum(), 10) !== SS.st.round) {
         b.setSetNum(SS.st.round);
         b.updateSetIndicator();
       }
