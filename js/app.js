@@ -24045,7 +24045,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1463);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1471);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -24098,7 +24098,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     window._awakMasqueCorps(img).defs
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1463" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1471" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     '<g mask="url(#' + window._awakMasqueCorps(img).id + ')">' + svgZones + '</g>'
                 +   '</svg>'
@@ -29110,9 +29110,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const pct = Math.round((hp / max) * 100);
             bar.innerHTML =
                 '<div style="display:flex;align-items:center;gap:9px;margin-bottom:7px;">'
-              +   '<span style="font-size:1.3em;">👑</span>'
+              +   '<img src="images/Monstres/boss_final.webp" alt="" draggable="false" width="46" height="46" style="width:46px;height:46px;object-fit:contain;flex-shrink:0;filter:drop-shadow(0 0 8px rgba(220,38,38,0.55));" onerror="this.style.display=\'none\'">'
               +   '<div style="flex:1;min-width:0;">'
-              +     '<div style="font-size:0.6em;color:#f87171;font-weight:900;letter-spacing:1.5px;">LE MONARQUE DU DÉCLIN</div>'
+              +     '<div style="font-size:0.6em;color:#f87171;font-weight:900;letter-spacing:1.5px;">L’EFFACEUR</div>'
               +     '<div style="font-size:0.72em;color:#e2e8f0;font-weight:800;">' + hp.toLocaleString('fr-FR') + ' / ' + max.toLocaleString('fr-FR') + ' PV</div>'
               +   '</div>'
               +   '<div style="font-size:0.9em;font-weight:900;color:#f87171;">' + pct + ' %</div>'
@@ -29744,7 +29744,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1463");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1471");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -29782,7 +29782,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         <div style="font-family:var(--font-display);font-size:1.75em;font-weight:700;line-height:1.1;color:white;letter-spacing:0;" id="awakPowerScoreDisplay">${awakProgress ? awakProgress.power.toLocaleString('fr-FR') : profileXP.toLocaleString('fr-FR')}</div>
                         ${availablePoints > 0
                             ? `<button onclick="awakOpenStatPointsModal()" style="margin-top:7px;background:linear-gradient(135deg,#f59e0b,#d97706);border:none;color:white;padding:5px 11px;border-radius:99px;font-size:0.68em;font-weight:900;cursor:pointer;letter-spacing:0.5px;box-shadow:0 2px 8px rgba(245,158,11,0.4);">⬆ ${availablePoints} pt${availablePoints>1?'s':''}</button>`
-                            : `<button onclick="awakOpenStatPointsModal()" style="margin-top:7px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;padding:5px 11px;border-radius:99px;font-size:0.66em;font-weight:700;cursor:pointer;">⚙ Stats</button>`
+                            : ''
                         }
                     </div>
                 </div>
@@ -29814,28 +29814,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                      streak comme le compte de muscles relèvent du suivi
                      (onglet Progression), pas de la fiche de chasseur. -->
 
-                <!-- Attributs AWAKENED (6 stats : STR/AGI/VIT/END/PER/SEN) -->
-                ${awakStats ? `
-                    <!-- v1463 : attributs repliables (fermés par défaut, choix retenu) -->
-                    <details class="awk-attr-det" ${(() => { try { return localStorage.getItem('awakAttrOuverts') === '1' ? 'open' : ''; } catch (e) { return ''; } })()} ontoggle="try{localStorage.setItem('awakAttrOuverts', this.open ? '1' : '0')}catch(e){}" style="margin-bottom:14px;">
-                        <summary style="list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;padding:4px 0;">
-                            <span style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;">ATTRIBUTS</span>
-                            <span style="font-size:0.6em;color:#64748b;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1;">${awakStatRows.map(s => String(s.key).slice(0, 3).toUpperCase() + ' ' + (awakStats[s.key] || 0)).join(' · ')}</span>
-                        </summary>
-                        <div style="display:flex;align-items:center;margin:6px 0 7px;gap:8px;">
-                            <button onclick="awakShowAttributesInfo()" style="background:rgba(34,211,238,0.1);border:1px solid rgba(34,211,238,0.4);color:#67e8f9;border-radius:99px;padding:2px 8px;font-size:0.6em;font-weight:800;cursor:pointer;white-space:nowrap;line-height:1.2;">ⓘ Aide</button>
-                        </div>
-                        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
-                            ${awakStatRows.map(s => `
-                                <div style="background:rgba(2,6,16,0.55);border:1px solid ${s.color}40;border-radius:10px;padding:8px 6px;text-align:center;">
-                                    <div style="font-size:1em;line-height:1;margin-bottom:3px;">${s.icon}</div>
-                                    <div style="font-size:0.58em;color:#94a3b8;font-weight:700;letter-spacing:0.5px;">${s.key}</div>
-                                    <div id="awakStatVal_${s.key}" style="font-family:var(--font-display);font-size:1.05em;font-weight:700;color:${s.color};line-height:1.2;">${awakStats[s.key] || 0}</div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </details>
-                ` : ''}
+                <!-- v1465 : attributs déplacés dans la fenêtre Statistiques (bouton de la grille) -->
 
                 <!-- Bouton Détails — accès Compétences, Classe, Muscles -->
                 ${(() => {
@@ -29967,9 +29946,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (typeof showActiveMalusScreen === 'function') showActiveMalusScreen();
                 }, '#94a3b8', _bMalus));
                 // 💪 Classement musculaire : séparé des Compétences (v842)
-                row2.appendChild(_mkBtn('💪', 'MUSCLES', function () {
+                const _bStats = _mkBtn('', 'STATISTIQUES', function () {
                     if (typeof rpgShowMusclesPanel === 'function') rpgShowMusclesPanel();
-                }, '#94a3b8', 0));
+                }, '#94a3b8', 0);
+                _bStats.id = 'awakBtnStats';
+                row2.appendChild(_bStats);
                 // (bouton CARTE retiré en v864 : la carte est toujours affichée)
                 // 📊 « DÉTAILS » RETIRÉ (v841) : ce bouton appelait exactement la
                 // même fonction que « Compétences » (rpgShowDetailsPanel) — deux
@@ -29992,7 +29973,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     cardFinal.onclick = function(){ if (typeof awakStartFinalBoss === 'function') awakStartFinalBoss(); };
                     cardFinal.innerHTML = `
                         <div style="display:flex;align-items:center;gap:13px;">
-                            <div style="font-size:2.4em;flex-shrink:0;">👑</div>
+                            <img src="images/Monstres/boss_final.webp" alt="" draggable="false" width="72" height="72" style="width:72px;height:72px;object-fit:contain;flex-shrink:0;filter:drop-shadow(0 0 8px rgba(220,38,38,0.55));" onerror="this.style.display='none'">
                             <div style="flex:1;min-width:0;">
                                 <div style="font-family:'Rajdhani',sans-serif;font-size:0.62em;letter-spacing:2px;color:#fbbf24;font-weight:700;text-transform:uppercase;">${beaten ? 'Combat final · Vaincu' : 'Combat final disponible'}</div>
                                 <div style="font-family:'Rajdhani',sans-serif;font-size:1.2em;font-weight:700;color:#fff;letter-spacing:1px;">L’Effaceur</div>
@@ -30497,10 +30478,36 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 .forEach(card => detailsPanel.appendChild(card));
             tab.appendChild(detailsPanel);
 
+            // v1465 : fenêtre STATISTIQUES = attributs + niveaux des muscles
+            let cardAttr = null;
+            try {
+                const _st = (typeof awakGetTotalStats === 'function') ? awakGetTotalStats() : null;
+                if (_st) {
+                    const _pts = (typeof statPointsLoad === 'function') ? ((statPointsLoad() || {}).available || 0) : 0;
+                    const _rows = [
+                        { key: 'STR', color: '#ef4444', label: 'Force' }, { key: 'AGI', color: '#f59e0b', label: 'Agilité' },
+                        { key: 'VIT', color: '#7dd3fc', label: 'Vitalité' }, { key: 'END', color: '#f472b6', label: 'Endurance' },
+                        { key: 'PER', color: '#c084fc', label: 'Perception' }, { key: 'SEN', color: '#a855f7', label: 'Sens' }
+                    ];
+                    cardAttr = document.createElement('div');
+                    cardAttr.className = 'card';
+                    cardAttr.style.cssText = 'background:#12161c !important;border:1px solid rgba(255,255,255,0.07) !important;border-radius:16px;padding:16px 14px !important;';
+                    cardAttr.innerHTML = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">'
+                        + '<div style="font-size:12px;color:#94a3b8;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;">Attributs</div>'
+                        + '<button onclick="awakShowAttributesInfo()" style="min-height:0;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:#cbd5e1;border-radius:99px;padding:3px 10px;font-size:11px;font-weight:800;cursor:pointer;">Aide</button>'
+                        + '<button onclick="awakOpenStatPointsModal()" style="min-height:0;margin-left:auto;background:' + (_pts > 0 ? 'linear-gradient(135deg,#f59e0b,#d97706);border:none;color:#fff;' : 'rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:#cbd5e1;') + 'border-radius:99px;padding:4px 12px;font-size:11px;font-weight:900;cursor:pointer;">' + (_pts > 0 ? 'Répartir ' + _pts + ' pts' : 'Répartir') + '</button></div>'
+                        + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px;">'
+                        + _rows.map(s => '<div style="background:rgba(2,6,16,0.55);border:1px solid ' + s.color + '40;border-radius:10px;padding:9px 6px;text-align:center;">'
+                            + '<div style="font-size:11px;color:#94a3b8;font-weight:700;">' + s.label + '</div>'
+                            + '<div data-stat="' + s.key + '" style="font-family:var(--font-display);font-size:20px;font-weight:700;color:' + s.color + ';line-height:1.2;">' + (_st[s.key] || 0) + '</div></div>').join('')
+                        + '</div>';
+                }
+            } catch (e) { cardAttr = null; }
+
             const musclesPanel = document.createElement('div');
             musclesPanel.id = 'rpgMusclesContainer';
             musclesPanel.style.display = 'none';
-            [cardRank, cardMuscles, cardLog].filter(Boolean)
+            [cardAttr, cardRank, cardMuscles, cardLog].filter(Boolean)
                 .forEach(card => musclesPanel.appendChild(card));
             tab.appendChild(musclesPanel);
 
@@ -32362,11 +32369,58 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
                 document.body.appendChild(overlay);
 
+                // v1471 : MUSIQUE de l'intro (audio/awakened_intro.mp3). Si elle joue, le son
+                // synthétisé ci-dessous se tait. Si le navigateur bloque la lecture automatique,
+                // un bouton « Activer le son » apparaît (le toucher n'avance pas l'intro).
+                let _musOn = false, _musAbsente = false, _musFondu = null;
+                const musique = new Audio('audio/awakened_intro.mp3?v=1');
+                musique.preload = 'auto'; musique.volume = 0;
+                try { musique.setAttribute('playsinline', ''); } catch (e) {}
+                const _fonduMus = (cible, ms, apres) => {
+                    if (_musFondu) clearInterval(_musFondu);
+                    const de = musique.volume, t0 = Date.now();
+                    _musFondu = setInterval(() => {
+                        const k = Math.min(1, (Date.now() - t0) / ms);
+                        try { musique.volume = Math.max(0, Math.min(1, de + (cible - de) * k)); } catch (e) {}
+                        if (k >= 1) { clearInterval(_musFondu); _musFondu = null; if (apres) apres(); }
+                    }, 50);
+                };
+                const sonBtn = document.createElement('button');
+                sonBtn.textContent = 'Activer le son';
+                sonBtn.setAttribute('aria-label', 'Activer la musique');
+                sonBtn.style.cssText = 'position:absolute;top:calc(14px + env(safe-area-inset-top, 0px));left:14px;z-index:6;display:none;background:rgba(15,23,42,0.78);border:1px solid rgba(255,255,255,0.35);color:#e2e8f0;border-radius:99px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;min-height:0;';
+                overlay.appendChild(sonBtn);
+                const lancerMusique = () => {
+                    if (_musOn || _musAbsente) return;
+                    try {
+                        const p = musique.play();
+                        const ok = () => {
+                            _musOn = true; sonBtn.style.display = 'none';
+                            try { audio.stop(); } catch (e) {}
+                            _fonduMus(0.85, 1800);
+                        };
+                        if (p && typeof p.then === 'function') p.then(ok).catch(() => { if (!_musAbsente) sonBtn.style.display = 'block'; });
+                        else ok();
+                    } catch (e) { sonBtn.style.display = 'block'; }
+                };
+                musique.addEventListener('error', () => { _musAbsente = true; sonBtn.style.display = 'none'; });
+                sonBtn.addEventListener('click', (e) => { e.stopPropagation(); lancerMusique(); });
+                sonBtn.addEventListener('pointerdown', (e) => e.stopPropagation());
+                const _visMus = () => { try { if (document.hidden) musique.pause(); else if (_musOn && document.body.contains(overlay)) musique.play().catch(() => {}); } catch (e) {} };
+                document.addEventListener('visibilitychange', _visMus);
+                const arreterMusique = () => {
+                    document.removeEventListener('visibilitychange', _visMus);
+                    if (!_musOn) { try { musique.pause(); } catch (e) {} return; }
+                    _fonduMus(0, 1200, () => { try { musique.pause(); musique.src = ''; } catch (e) {} });
+                };
+
                 // 🔊 Son synthétisé (Web Audio, aucun fichier) — activé au premier toucher
+                //    (v1471 : seulement si la musique ne joue pas)
                 let AC = null, masterGain = null, droneOsc = [];
                 const audio = {
                     ensure() {
                         try {
+                            if (_musOn) return;
                             if (AC) { if (AC.state === 'suspended') AC.resume(); return; }
                             const Ctx = window.AudioContext || window.webkitAudioContext;
                             if (!Ctx) return;
@@ -32385,7 +32439,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     },
                     blip() {
                         try {
-                            if (!AC) return;
+                            if (!AC || _musOn) return;
                             const o = AC.createOscillator(); o.type = 'sine'; o.frequency.value = 740;
                             const g = AC.createGain();
                             g.gain.setValueAtTime(0.0001, AC.currentTime);
@@ -32397,7 +32451,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     },
                     impact() {
                         try {
-                            if (!AC) return;
+                            if (!AC || _musOn) return;
                             const o = AC.createOscillator(); o.type = 'sine';
                             o.frequency.setValueAtTime(140, AC.currentTime);
                             o.frequency.exponentialRampToValueAtTime(36, AC.currentTime + 0.5);
@@ -32425,7 +32479,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         } catch(e) {}
                     }
                 };
-                overlay.addEventListener('pointerdown', () => audio.ensure(), { passive: true });
+                overlay.addEventListener('pointerdown', () => { lancerMusique(); if (!_musOn && _musAbsente) audio.ensure(); }, { passive: true });
+                lancerMusique();   // lancée tout de suite si le navigateur l'autorise
 
                 // Le joueur EST Esen (avatar homme) ou Nyra (avatar femme) : accords au féminin si besoin
                 const _fem = (localStorage.getItem('fitproAvatarGender') || 'homme') === 'femme';
@@ -32568,6 +32623,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (raf) { cancelAnimationFrame(raf); raf = null; }
                     window.removeEventListener('resize', onResize);
                     audio.stop();
+                    arreterMusique();
                     try { localStorage.setItem(AWAKENED_EPIC_INTRO_KEY, 'true'); } catch(e) {}
                     try { localStorage.setItem(AWAKENED_GAMETAB_INTRO_KEY, 'true'); } catch(e) {} // prologue absorbé
                     _awakEpicIntroActive = false;
@@ -34030,6 +34086,264 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         /**
          * Mécaniques de Boss
          */
+        // ═══════════════════════════════════════════════════════════════
+        // v1470 : MÉCANIQUES PROPRES À CHAQUE BOSS DE FAILLE
+        // Surtout des RÉCOMPENSES (bien jouer = gros bonus) ; quelques boss
+        // punissent (spores, foudre, froid, soins) pour garder de la tension.
+        // Appliquées à chaque série dans awakDealDamageToWave.
+        // ═══════════════════════════════════════════════════════════════
+        const AWAK_BOSS_MECH = {
+            'sentinelle figée':      { id: 'bm_glace',     name: 'Garde de glace', desc: 'La 1re série d\'un exercice est amortie ; la 2e du même exercice passe ×1,5.' },
+            'léviathan organique':   { id: 'bm_sable',     name: 'Sous le sable',  desc: '1 coup sur 3, il s\'enfouit : seul un exercice explosif l\'en sort (×2).' },
+            'léviathan des abysses': { id: 'bm_pression',  name: 'Pression',       desc: 'Il encaisse de mieux en mieux ; une série au-dessus de l\'objectif remet la pression à zéro (×1,3).' },
+            'anti-soi':              { id: 'bm_inversion', name: 'Inversion',      desc: 'Moins de reps qu\'à ta série d\'avant : il récupère des PV. Plus de reps : ×1,3.' },
+            'cœur battant des murs': { id: 'bm_battement', name: 'Battements',     desc: 'Toutes les 3 séries il se soigne, sauf si tu as fait du cardio ou de l\'explosif entre-temps.' },
+            'locomotive vivante':    { id: 'bm_wagons',    name: 'Wagons',         desc: '3 wagons-armures : chacun cède à un type d\'effort différent (force, cardio, explosif).' },
+            'le livre interdit':     { id: 'bm_pages',     name: 'Pages',          desc: 'Un exercice déjà utilisé contre lui frappe moins ; un nouvel exercice ×1,25.' },
+            'enclume stellaire':     { id: 'bm_forge',     name: 'Forge',          desc: 'Chaque série de force chauffe l\'enclume (jusqu\'à ×2) ; un autre effort la refroidit.' },
+            'fleur-mère carnivore':  { id: 'bm_spores',    name: 'Spores',         desc: 'Toutes les 4 séries, ses spores te blessent, sauf si cette série est du cardio.' },
+            'cloche du jugement':    { id: 'bm_glas',      name: 'Le glas',        desc: 'Toutes les 3 séries elle sonne : atteins l\'objectif (×2) ou elle se soigne.' },
+            'phénix éteint':         { id: 'bm_phenix',    name: 'Renaissance',    desc: 'La première fois qu\'il tombe, il renaît à 30 % de ses PV.' },
+            'grande mécanique':      { id: 'bm_cadence',   name: 'Cadence',        desc: 'Garde des repos réguliers d\'une série à l\'autre : ×1,4.' },
+            'roi des profondeurs':   { id: 'bm_maree',     name: 'Marée',          desc: 'La marée alterne toutes les 2 séries : bas du corps puis haut du corps (×1,4).' },
+            'le vrai toi':           { id: 'bm_reflet',    name: 'Reflet',         desc: 'Égale ou bats tes reps de la série d\'avant, sinon −50 %.' },
+            'titan ressuscité':      { id: 'bm_os',        name: 'Os brisés',      desc: '4 pièces d\'armure : jambes, poussée, tirage, tronc. Chaque partie nouvelle en brise une (×1,5).' },
+            'seigneur de la tempête':{ id: 'bm_foudre',    name: 'Foudre',         desc: 'Toutes les 3 séries il charge : une série explosive détourne l\'éclair (×2), sinon il te frappe.' },
+            'cœur du marais':        { id: 'bm_marais',    name: 'Enlisement',     desc: 'Chaque série sous l\'objectif t\'enlise (−15 %) ; une série au-dessus te libère.' },
+            'ia souveraine':         { id: 'bm_adapt',     name: 'Adaptation',     desc: 'Ton type d\'effort le plus utilisé contre elle frappe moins ; change pour la surprendre (×1,3).' },
+            'colosse de l\'arène':   { id: 'bm_foule',     name: 'La foule',       desc: '3 séries au-dessus de l\'objectif : la foule rugit, coup de grâce ×3.' },
+            'reine de l\'aurore':    { id: 'bm_froid',     name: 'Froid',          desc: 'Chaque minute sans série te coûte des PV. Bouge sans t\'arrêter.' },
+            'le dormeur éternel':    { id: 'bm_berceuse',  name: 'Berceuse',       desc: 'Une série de plus de 15 reps l\'endort : le coup suivant ×2.' },
+            'le vide lumineux':      { id: 'bm_eclipse',   name: 'Éclipse',        desc: 'Il exige un type d\'effort qui change à chaque coup : ×2 si tu le donnes, sinon ×0,6.' }
+        };
+        const _AWAK_MECH_GENERIQUES = ['phases', 'weakness', 'enrage', 'adds'];
+        const _AWAK_ECLIPSE = ['force', 'cardio', 'explosif', 'abdos'];
+        const _AWAK_EFFORT_NOM = { force: 'force', cardio: 'cardio', explosif: 'explosif', abdos: 'abdos', autre: 'autre' };
+        function _awakNomBossCle(n) {
+            return String(n || '').toLowerCase().replace(/’/g, '\'').replace(/\s*\((boss|élite|elite)\)\s*$/i, '').replace(/^[^a-zàâäéèêëîïôöùûüçœ]+/i, '').trim();
+        }
+        function awakBossMechPourNom(n) { const m = AWAK_BOSS_MECH[_awakNomBossCle(n)]; return m ? Object.assign({}, m) : null; }
+        window.awakBossMechPourNom = awakBossMechPourNom;
+        // Un boss déjà généré avec une mécanique générique reçoit la sienne.
+        function awakAssurerMechBoss(rift, wave) {
+            try {
+                if (!wave || !wave.isBoss || wave.companionMech || (rift && rift.subBossMech)) return;
+                if (wave.bossMech && _AWAK_MECH_GENERIQUES.indexOf(wave.bossMech.id) < 0) return;
+                const m = awakBossMechPourNom(wave.name);
+                if (m) { wave.bossMech = m; wave._enraged = false; wave.weaknessStat = null; }
+            } catch (e) {}
+        }
+        window.awakAssurerMechBoss = awakAssurerMechBoss;
+
+        function _awakPartieCorps(ex, effort) {
+            const t = ((ex && ex.muscle) || '') + ' ' + ((ex && ex.name) || '');
+            const s = t.toLowerCase();
+            if (effort === 'abdos' || /abdo|oblique|lombaire|gainage|planche|plank|tronc/.test(s)) return 'tronc';
+            if (/quadri|ischio|fessier|mollet|adduct|jambe|squat|fente|lunge|hip thrust|glute|step|calf/.test(s)) return 'jambes';
+            if (/dos|biceps|trap|row|tirage|traction|pull|curl|face pull/.test(s)) return 'tirage';
+            if (/pector|épaule|epaule|triceps|pompe|push|dip|développé|developpe|press/.test(s)) return 'poussee';
+            return null;
+        }
+
+        // Applique la mécanique du boss au coup courant. Retourne { damage, toasts }.
+        function awakApplyBossUnique(rift, wave, c) {
+            const m = wave && wave.bossMech;
+            const out = { damage: c.damage, toasts: [] };
+            if (!m || !/^bm_/.test(m.id)) return out;
+            const S = wave._bm || (wave._bm = {});
+            const t = (msg, type) => out.toasts.push({ msg: msg, type: type || 'info' });
+            const maxPV = (typeof awakGetPlayerMaxHP === 'function') ? awakGetPlayerMaxHP() : 100;
+            const blesse = (pct, src) => { try { if (typeof awakDamagePlayer === 'function') awakDamagePlayer(Math.max(1, Math.round(maxPV * pct)), src); } catch (e) {} };
+            const soigneBoss = pct => { const h = Math.round(wave.hpMax * pct); wave.hpCurrent = Math.min(wave.hpMax, wave.hpCurrent + h); return h; };
+            const au = c.ratio >= 1.05, sous = c.ratio < 0.9, ok = c.ratio >= 0.95;
+            const exNom = (c.ex && c.ex.name) || '';
+            S.n = (S.n || 0) + 1;
+            let d = c.damage;
+            switch (m.id) {
+                case 'bm_glace': {
+                    S.ex = S.ex || {};
+                    S.ex[exNom] = (S.ex[exNom] || 0) + 1;
+                    if (S.ex[exNom] === 1) { d *= 0.6; t('Garde de glace : 1re série amortie. Refais le même exercice.'); }
+                    else { d *= 1.5; t('La glace cède : ×1,5', 'success'); }
+                    break;
+                }
+                case 'bm_sable': {
+                    if (S.n % 3 === 0) {
+                        if (c.effort === 'explosif') { d *= 2; t('Tu le sors du sable : ×2', 'success'); }
+                        else { d *= 0.3; t('Il s\'enfouit : un exercice explosif l\'en sortirait.', 'warning'); }
+                    }
+                    break;
+                }
+                case 'bm_pression': {
+                    if (au) { S.p = 0; d *= 1.3; t('Pression relâchée : ×1,3', 'success'); }
+                    else { S.p = Math.min(5, (S.p || 0) + 1); d *= (1 - 0.08 * S.p); if (S.p >= 2) t('La pression monte : −' + (8 * S.p) + ' %. Dépasse l\'objectif.', 'warning'); }
+                    break;
+                }
+                case 'bm_inversion': {
+                    if (typeof S.prev === 'number') {
+                        if (c.reps < S.prev) { const h = soigneBoss(0.04); t('Inversion : tu ralentis, il récupère ' + h + ' PV.', 'warning'); }
+                        else if (c.reps > S.prev) { d *= 1.3; t('Tu le dépasses : ×1,3', 'success'); }
+                    }
+                    S.prev = c.reps;
+                    break;
+                }
+                case 'bm_battement': {
+                    if (c.effort === 'cardio' || c.effort === 'explosif') { S.emballe = true; }
+                    if (S.n % 3 === 0) {
+                        if (S.emballe) t('Le cœur s\'emballe : pas de soin.', 'success');
+                        else { const h = soigneBoss(0.05); t('Battement : il se soigne de ' + h + ' PV. Du cardio l\'en empêche.', 'warning'); }
+                        S.emballe = false;
+                    }
+                    break;
+                }
+                case 'bm_wagons': {
+                    S.w = S.w || {};
+                    const cle = c.effort === 'abdos' || c.effort === 'autre' ? null : c.effort;
+                    if (cle && !S.w[cle]) { S.w[cle] = true; d *= 1.4; t('Wagon ' + _AWAK_EFFORT_NOM[cle] + ' arraché (' + Object.keys(S.w).length + '/3) : ×1,4', 'success'); }
+                    else if (Object.keys(S.w).length < 3) { d *= 0.7; }
+                    break;
+                }
+                case 'bm_pages': {
+                    S.vu = S.vu || {};
+                    if (S.vu[exNom]) { d *= 0.7; t('Page déjà lue : change d\'exercice.', 'warning'); }
+                    else { S.vu[exNom] = 1; d *= 1.25; t('Nouvelle page : ×1,25', 'success'); }
+                    break;
+                }
+                case 'bm_forge': {
+                    if (c.effort === 'force') { S.h = Math.min(5, (S.h || 0) + 1); }
+                    else if (S.h) { S.h = 0; t('L\'enclume refroidit.', 'warning'); }
+                    const mult = 1 + 0.2 * (S.h || 0);
+                    d *= mult;
+                    if (S.h) t('Forge chauffée : ×' + mult.toFixed(1).replace('.', ','), 'success');
+                    break;
+                }
+                case 'bm_spores': {
+                    if (S.n % 4 === 0) {
+                        if (c.effort === 'cardio') t('Tu cours hors du nuage de spores.', 'success');
+                        else { blesse(0.08, '(spores)'); t('Spores : tu es touché. Une série cardio les évite.', 'warning'); }
+                    }
+                    break;
+                }
+                case 'bm_glas': {
+                    if (S.n % 3 === 0) {
+                        if (ok) { d *= 2; t('Le glas résonne pour toi : ×2', 'success'); }
+                        else { const h = soigneBoss(0.08); t('Le glas : objectif manqué, elle récupère ' + h + ' PV.', 'warning'); }
+                    } else if (S.n % 3 === 2) t('La cloche va sonner : atteins l\'objectif à la prochaine série.');
+                    break;
+                }
+                case 'bm_cadence': {
+                    if (S.lastT) {
+                        const gap = (c.now - S.lastT) / 1000;
+                        if (S.gap && Math.abs(gap - S.gap) <= 25) { d *= 1.4; t('Cadence tenue : ×1,4', 'success'); }
+                        S.gap = gap;
+                    }
+                    S.lastT = c.now;
+                    break;
+                }
+                case 'bm_maree': {
+                    const haute = Math.floor((S.n - 1) / 2) % 2 === 0;   // haute : bas du corps
+                    const p = _awakPartieCorps(c.ex, c.effort);
+                    const bon = haute ? p === 'jambes' : (p === 'poussee' || p === 'tirage');
+                    if (bon) { d *= 1.4; t('La marée te porte : ×1,4', 'success'); }
+                    break;
+                }
+                case 'bm_reflet': {
+                    if (typeof S.prev === 'number') {
+                        if (c.reps >= S.prev) t('Tu dépasses ton reflet.', 'success');
+                        else { d *= 0.5; t('Ton reflet fait mieux (' + S.prev + ' reps) : −50 %.', 'warning'); }
+                    }
+                    S.prev = c.reps;
+                    break;
+                }
+                case 'bm_os': {
+                    S.os = S.os || {};
+                    const p = _awakPartieCorps(c.ex, c.effort);
+                    if (p && !S.os[p]) { S.os[p] = 1; d *= 1.5; t('Armure brisée : ' + ({ jambes: 'jambes', poussee: 'poussée', tirage: 'tirage', tronc: 'tronc' })[p] + ' (' + Object.keys(S.os).length + '/4) : ×1,5', 'success'); }
+                    else if (Object.keys(S.os).length < 4) d *= 0.8;
+                    break;
+                }
+                case 'bm_foudre': {
+                    if (S.n % 3 === 0) {
+                        if (c.effort === 'explosif') { d *= 2; t('Éclair détourné : ×2', 'success'); }
+                        else { blesse(0.1, '(foudre)'); t('La foudre te frappe. Une série explosive la détourne.', 'warning'); }
+                    } else if (S.n % 3 === 2) t('Il charge la foudre : série explosive à la prochaine.');
+                    break;
+                }
+                case 'bm_marais': {
+                    if (au) { if (S.e) t('Tu te libères du marais.', 'success'); S.e = 0; }
+                    else if (sous) { S.e = Math.min(4, (S.e || 0) + 1); t('Tu t\'enlises : −' + (15 * S.e) + ' %.', 'warning'); }
+                    d *= (1 - 0.15 * (S.e || 0));
+                    break;
+                }
+                case 'bm_adapt': {
+                    S.u = S.u || {};
+                    const k = c.effort || 'autre';
+                    const max = Math.max(0, ...Object.values(S.u));
+                    if (max >= 2 && (S.u[k] || 0) === max) { d *= 0.6; t('Elle a appris ce mouvement : −40 %. Change de type d\'effort.', 'warning'); }
+                    else if (max >= 2) { d *= 1.3; t('Elle ne l\'avait pas prévu : ×1,3', 'success'); }
+                    S.u[k] = (S.u[k] || 0) + 1;
+                    break;
+                }
+                case 'bm_foule': {
+                    if (au) S.f = (S.f || 0) + 1;
+                    if (S.f >= 3) { S.f = 0; d *= 3; t('LA FOULE RUGIT : coup de grâce ×3', 'success'); }
+                    else if (au) t('La foule s\'échauffe (' + S.f + '/3).', 'success');
+                    break;
+                }
+                case 'bm_froid': {
+                    if (S.lastT) {
+                        const min = Math.floor((c.now - S.lastT) / 60000) - 1;   // 1re minute gratuite (repos)
+                        if (min > 0) { blesse(Math.min(0.12, 0.04 * min), '(froid)'); t('Le froid t\'a saisi pendant l\'arrêt.', 'warning'); }
+                    }
+                    S.lastT = c.now;
+                    break;
+                }
+                case 'bm_berceuse': {
+                    if (S.dort) { S.dort = false; d *= 2; t('Il dormait : ×2', 'success'); }
+                    if (c.reps > 15) { S.dort = true; t('Berceuse : il s\'endort. Prochain coup ×2.', 'success'); }
+                    break;
+                }
+                case 'bm_eclipse': {
+                    const voulu = S.voulu || _AWAK_ECLIPSE[0];
+                    if (c.effort === voulu) { d *= 2; t('Éclipse servie (' + voulu + ') : ×2', 'success'); }
+                    else { d *= 0.6; t('L\'éclipse voulait : ' + voulu + '. ×0,6', 'warning'); }
+                    S.voulu = _AWAK_ECLIPSE[(Math.floor(Math.random() * 3) + 1 + _AWAK_ECLIPSE.indexOf(voulu)) % 4];
+                    break;
+                }
+            }
+            out.damage = Math.max(1, Math.round(d));
+            return out;
+        }
+        window.awakApplyBossUnique = awakApplyBossUnique;
+
+        // État court affiché sur l'écran de combat et le bandeau de séance.
+        function awakBossMechEtat(wave) {
+            try {
+                const m = wave && wave.bossMech; if (!m || !/^bm_/.test(m.id)) return '';
+                const S = wave._bm || {}; const n = S.n || 0;
+                switch (m.id) {
+                    case 'bm_sable': return (n % 3 === 2) ? 'Il va s\'enfouir : prépare un explosif' : '';
+                    case 'bm_pression': return S.p ? 'Pression −' + (8 * S.p) + ' %' : '';
+                    case 'bm_inversion': case 'bm_reflet': return typeof S.prev === 'number' ? 'À battre : ' + S.prev + ' reps' : '';
+                    case 'bm_battement': return 'Soin dans ' + (3 - n % 3) + ' série' + (3 - n % 3 > 1 ? 's' : '');
+                    case 'bm_wagons': { const w = Object.keys(S.w || {}); return 'Wagons : ' + (3 - w.length) + '/3' + (w.length < 3 ? ' (reste : ' + ['force', 'cardio', 'explosif'].filter(x => w.indexOf(x) < 0).join(', ') + ')' : ''); }
+                    case 'bm_forge': return S.h ? 'Chaleur ×' + (1 + 0.2 * S.h).toFixed(1).replace('.', ',') : 'Enclume froide';
+                    case 'bm_spores': return 'Spores dans ' + (4 - n % 4) + ' série' + (4 - n % 4 > 1 ? 's' : '');
+                    case 'bm_glas': return 'Glas dans ' + (3 - n % 3) + ' série' + (3 - n % 3 > 1 ? 's' : '');
+                    case 'bm_phenix': return wave._renait ? 'Il est déjà revenu une fois' : 'Renaîtra une fois';
+                    case 'bm_maree': return Math.floor(n / 2) % 2 === 0 ? 'Marée haute : bas du corps' : 'Marée basse : haut du corps';
+                    case 'bm_os': { const o = Object.keys(S.os || {}); return 'Armure : ' + (4 - o.length) + '/4'; }
+                    case 'bm_foudre': return (n % 3 === 2) ? 'Foudre chargée : série explosive !' : 'Foudre dans ' + (3 - n % 3) + ' série' + (3 - n % 3 > 1 ? 's' : '');
+                    case 'bm_marais': return S.e ? 'Enlisé −' + (15 * S.e) + ' %' : '';
+                    case 'bm_foule': return 'Foule ' + (S.f || 0) + '/3';
+                    case 'bm_berceuse': return S.dort ? 'Il dort : prochain coup ×2' : '';
+                    case 'bm_eclipse': return 'Exige : ' + (S.voulu || _AWAK_ECLIPSE[0]);
+                }
+            } catch (e) {}
+            return '';
+        }
+        window.awakBossMechEtat = awakBossMechEtat;
+
         function awakPickBossMechanic() {
             const mechanics = [
                 { id: 'phases',   name: 'Phases', desc: 'Le boss change de pattern à 50% HP' },
@@ -34208,6 +34522,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         joueur: Math.max(0, _jCur), joueurMax: _jMax,
                         vague: (_s.rift.currentWaveIdx || 0) + 1, vagues: _s.rift.waves.length,
                         ouverture: (_w._ouverture && typeof _w._ouverture === 'object') ? _w._ouverture.cible : null,
+                        mecanique: (_w.isBoss && typeof awakBossMechEtat === 'function') ? (function () { try { awakAssurerMechBoss(_s.rift, _w); const m = _w.bossMech; if (!m || !/^bm_/.test(m.id)) return null; const e = awakBossMechEtat(_w); return m.name + (e ? ' · ' + e : ''); } catch (e) { return null; } })() : null,
                         coup: (_der && (_der.type === 'hit' || _der.type === 'crit')) ? { t: _der.t, dmg: _der.dmg || 0, crit: _der.type === 'crit' } : null
                     });
                     _hudActif = true;
@@ -34334,7 +34649,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1463);'
+                +     'url(images/combat_bg_v1.webp?v=1471);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -34648,7 +34963,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1463);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1471);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -34962,6 +35277,18 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 setTimeout(() => { try { awakFauxSystemeChoix(rift, rift.currentWaveIdx); } catch (e) {} }, 350);
             }
 
+            try { awakAssurerMechBoss(rift, currentWave); } catch (e) {}
+            // v1468 : un boss se présente (nom + image) avant son combat, une fois par vague.
+            try {
+                const _cle = rift.id + ':' + rift.currentWaveIdx;
+                if (currentWave.isBoss && session._bossIntro !== _cle && window.AwakRiftVis && AwakRiftVis.bossIntro) {
+                    session._bossIntro = _cle;
+                    setTimeout(() => {
+                        try { AwakRiftVis.bossIntro({ nom: currentWave.name, couleur: theme.color, sousTitre: rift.isSubBoss ? 'ÉPREUVE' : 'BOSS', ligne: currentWave.bossMech && /^bm_/.test(currentWave.bossMech.id) ? (currentWave.bossMech.name + ' — ' + currentWave.bossMech.desc) : '' }); } catch (e) {}
+                    }, 250);
+                }
+            } catch (e) {}
+
             // Modal full screen pour le combat
             document.getElementById('awakRiftCombatModal')?.remove();
             const modal = document.createElement('div');
@@ -34985,7 +35312,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:540px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto;display:flex;flex-direction:column;">
                 <!-- Header : vague actuelle -->
-                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1463);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1471);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                         <span style="font-size:0.6em;color:${theme.color};font-weight:900;letter-spacing:2px;">⚔ VAGUE ${rift.currentWaveIdx + 1} / ${rift.waves.length}${currentWave.isBoss ? ' · BOSS' : ''}</span>
                         <button onclick="awakAbandonRift()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
@@ -35001,7 +35328,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                                 <div style="width:${hpBarWidth}%;height:100%;background:linear-gradient(90deg,${hpBarColor},${hpBarColor}cc);transition:width 0.5s cubic-bezier(0.16,1,0.3,1);box-shadow:0 0 8px ${hpBarColor}80;${_hideHp ? 'opacity:0.5;' : ''}"></div>
                                 <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:0.65em;font-weight:900;color:white;text-shadow:0 0 4px black;letter-spacing:1px;">${hpText}</div>
                             </div>
-                            ${currentWave.isBoss && currentWave.bossMech ? `<div style="margin-top:6px;font-size:0.68em;color:${theme.color};font-weight:700;">⚠ Mécanique : ${currentWave.bossMech.name} — ${currentWave.bossMech.desc}</div>` : ''}
+                            ${currentWave.isBoss && currentWave.bossMech ? `<div style="margin-top:6px;font-size:0.68em;color:${theme.color};font-weight:700;">⚠ Mécanique : ${currentWave.bossMech.name} — ${currentWave.bossMech.desc}</div>${(() => { const _e = awakBossMechEtat(currentWave); return _e ? `<div style="margin-top:4px;display:inline-block;font-size:0.66em;font-weight:900;color:#fde68a;background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.4);border-radius:7px;padding:2px 8px;">${_e}</div>` : ''; })()}` : ''}
                         </div>
                     </div>
                 </div>
@@ -35689,7 +36016,23 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (sb.toasts) sb.toasts.forEach(t => procToasts.push(t));
             }
 
+            // v1470 : mécanique propre au boss
+            if (currentWave.isBoss && typeof awakApplyBossUnique === 'function') {
+                try {
+                    awakAssurerMechBoss(rift, currentWave);
+                    const bu = awakApplyBossUnique(rift, currentWave, { damage: finalDamage, effort: effortType, reps: cappedReps, ratio: _eff.ratio || 1, ex: _curEx, now: Date.now() });
+                    finalDamage = bu.damage;
+                    bu.toasts.forEach(t => procToasts.push(t));
+                } catch (e) {}
+            }
+
             currentWave.hpCurrent = Math.max(0, currentWave.hpCurrent - finalDamage);
+            // v1470 : Phénix Éteint — renaît une fois à 30 %
+            if (currentWave.hpCurrent <= 0 && currentWave.bossMech && currentWave.bossMech.id === 'bm_phenix' && !currentWave._renait) {
+                currentWave._renait = true;
+                currentWave.hpCurrent = Math.round(currentWave.hpMax * 0.3);
+                procToasts.push({ msg: 'RENAISSANCE : le Phénix renaît de ses cendres (30 % PV).', type: 'warning' });
+            }
             // 💾 Même sauvegarde que pour l'Assaut : sans elle, les dégâts d'un
             // combat abandonné disparaissaient à la fermeture de l'app.
             try {
@@ -36128,7 +36471,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1463');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1471');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -36883,7 +37226,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1463);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1471);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -37054,7 +37397,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1463);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1471);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -40578,6 +40921,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             Object.keys(stats).forEach(function (cle) {
                 const el = document.getElementById('awakStatVal_' + cle);
                 if (el) el.textContent = stats[cle];
+                document.querySelectorAll('[data-stat="' + cle + '"]').forEach(function (e) { e.textContent = stats[cle]; });
             });
         }
         window.awakMajValeursAttributs = awakMajValeursAttributs;
@@ -41409,7 +41753,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
                             <div style="min-width:0;">
                                 <div style="font-size:11px;color:#67e8f9;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;">Chasseur</div>
-                                <div style="font-size:19px;font-weight:800;color:#f1f5f9;line-height:1.2;">${_muscles ? 'Muscles' : 'Compétences'}</div>
+                                <div style="font-size:19px;font-weight:800;color:#f1f5f9;line-height:1.2;">${_muscles ? 'Statistiques' : 'Compétences'}</div>
                             </div>
                             <button data-fermer aria-label="Fermer" style="width:38px;height:38px;min-height:0;padding:0;border-radius:50%;flex-shrink:0;cursor:pointer;
                                 background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);color:#cbd5e1;display:flex;align-items:center;justify-content:center;">
@@ -48488,7 +48832,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
               // v1393 : hauteur réservée (aspect-ratio) — sinon l'image recréée
               // n'a aucune hauteur le temps d'un décodage, le formulaire saute
               // de ~160 px et le toucher sur le champ suivant tombe à côté.
-              +   '<img src="images/body/body_face.webp?v=1463" alt="" width="784" height="1168" '
+              +   '<img src="images/body/body_face.webp?v=1471" alt="" width="784" height="1168" '
               +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -48570,7 +48914,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1463);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1471);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -48637,7 +48981,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1463);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1471);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -51090,7 +51434,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1463");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1471");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.

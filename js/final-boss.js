@@ -245,6 +245,8 @@
       badgeHTML: '👑 COMBAT FINAL — L’Effaceur',
       badgeStyle: 'linear-gradient(135deg, #dc2626 0%, #7f1d1d 100%)'
     };
+    // v1468 : L'Effaceur se présente avant le combat
+    try { if (window.AwakRiftVis && AwakRiftVis.bossIntro) AwakRiftVis.bossIntro({ nom: 'L’Effaceur', couleur: '#dc2626', sousTitre: 'COMBAT FINAL' }); } catch (e) {}
     // Utilise le pipeline de séance préparée existant
     if (typeof window.setPendingWorkout === 'function') {
       window.setPendingWorkout(workout);

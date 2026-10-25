@@ -617,6 +617,10 @@ const LEGENDARY_ISSUE_MESSAGES = [
     '🩸 CONTRAT DE SANG — Le Système t\'offre la gloire ou la ruine. À toi de choisir ce que tu mérites.',
     '💠 PROTOCOLE FINAL — Ce défi n\'arrive qu\'une fois dans une vie de chasseur. L\'éternité t\'observe.',
 ];
+// v1464 : plus d'emoji dans les défis (icônes SVG du jeu)
+function _awkDefiIco(nom, px, col) {
+    try { return window.AwakIcon ? '<span style="display:inline-flex;vertical-align:middle;">' + AwakIcon.get(nom, px, col) + '</span>' : ''; } catch (e) { return ''; }
+}
 function getActiveSystemChallenge() {
     try { return JSON.parse(localStorage.getItem(CHALLENGE_STORAGE.active) || 'null'); }
     catch(e) { return null; }
@@ -1136,7 +1140,7 @@ function showChallengeIssuedModal(challenge) {
                 ☠ MISSION DE RANG NATIONAL ☠
             </div>` : ''}
 
-            <div style="font-size:${isLeg?'4':'3.5'}em;margin-bottom:14px;animation:pulseIcon 1.5s ease-in-out infinite;">${challenge.icon}</div>
+            <div style="font-size:${isLeg?'4':'3.5'}em;margin-bottom:14px;animation:pulseIcon 1.5s ease-in-out infinite;">${_awkDefiIco('cible', 60, '#c084fc')}</div>
 
             <div style="font-size:0.82em;color:${accentColor};font-style:italic;margin-bottom:16px;line-height:1.5;">
                 "${challenge.issueMessage}"
@@ -1151,7 +1155,7 @@ function showChallengeIssuedModal(challenge) {
 
             <div style="background:rgba(239,68,68,${isLeg?'0.12':'0.08'});border:${isLeg?'2':'1'}px solid rgba(239,68,68,${isLeg?'0.4':'0.2'});border-radius:14px;padding:12px;margin-bottom:20px;">
                 <div style="font-size:0.65em;color:#ef4444;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">⛓️ En cas d'échec</div>
-                <div style="font-size:0.85em;font-weight:700;color:#f87171;">${challenge.penaltyIcon} ${challenge.penaltyName}</div>
+                <div style="font-size:0.85em;font-weight:700;color:#f87171;">${_awkDefiIco('alerte', 15, '#f87171')} ${challenge.penaltyName}</div>
                 <div style="font-size:0.72em;color:rgba(255,255,255,0.4);margin-top:4px;">${challenge.penaltyDesc}</div>
             </div>
 
@@ -1234,7 +1238,7 @@ function showChallengeResultModal(challenge, success, message, penaltyData, rewa
             ${!success ? `
             <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);border-radius:14px;padding:14px;margin-bottom:20px;">
                 <div style="font-size:0.7em;color:#ef4444;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Pénalité appliquée</div>
-                <div style="font-size:0.9em;font-weight:800;color:#f87171;">${challenge.penaltyIcon} ${challenge.penaltyName}</div>
+                <div style="font-size:0.9em;font-weight:800;color:#f87171;">${_awkDefiIco('alerte', 15, '#f87171')} ${challenge.penaltyName}</div>
                 <div style="font-size:0.75em;color:rgba(255,255,255,0.4);margin-top:4px;">${challenge.penaltyDesc}</div>
                 ${instantDetail}
             </div>` : `
@@ -1242,7 +1246,7 @@ function showChallengeResultModal(challenge, success, message, penaltyData, rewa
                 <div style="font-size:0.65em;color:#22c55e;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">🏆 Récompenses obtenues</div>
                 ${(rewardApplied||[]).map(r => `
                 <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(34,197,94,0.1);">
-                    <span style="font-size:1em;">${r.icon}</span>
+                    ${_awkDefiIco('trophee', 15, '#fbbf24')}
                     <span style="font-size:0.78em;color:#4ade80;font-weight:600;">${r.label}</span>
                 </div>`).join('')}
                 ${(!rewardApplied||!rewardApplied.length) ? '<div style="font-size:0.78em;color:#4ade80;">+10% de chance de drop ✨</div>' : ''}
@@ -1348,7 +1352,7 @@ function renderChallengeSection() {
                 <!-- Header -->
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
                     <div style="font-size:0.62em;color:${urgentColor};font-weight:700;text-transform:uppercase;letter-spacing:2px;">
-                        ${isUrgent ? '⚠️ URGENT' : '📜 DÉFI ACTIF'}
+                        ${isUrgent ? 'URGENT' : 'DÉFI ACTIF'}
                     </div>
                     <div style="font-size:0.72em;font-weight:700;color:${isUrgent ? '#ef4444' : 'rgba(255,255,255,0.4)'};">
                         ${hoursLeft}h ${minsLeft}m restantes
@@ -1357,7 +1361,7 @@ function renderChallengeSection() {
 
                 <!-- Mission -->
                 <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;">
-                    <span style="font-size:1.8em;flex-shrink:0;">${challenge.icon}</span>
+                    <span style="flex-shrink:0;display:inline-flex;width:40px;height:40px;align-items:center;justify-content:center;border-radius:10px;background:${urgentColor}18;border:1px solid ${urgentColor}44;">${_awkDefiIco('cible', 22, urgentColor)}</span>
                     <div style="flex:1;min-width:0;">
                         <div style="font-size:0.95em;font-weight:800;color:white;line-height:1.4;">${challenge.label}</div>
                         <div style="font-size:0.72em;color:rgba(255,255,255,0.4);margin-top:4px;">
@@ -1374,7 +1378,7 @@ function renderChallengeSection() {
 
                 <!-- Conséquence en cas d'échec -->
                 <div style="background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.15);border-radius:10px;padding:8px 12px;display:flex;align-items:center;gap:8px;">
-                    <span style="font-size:1em;">${challenge.penaltyIcon}</span>
+                    ${_awkDefiIco('alerte', 15, '#f87171')}
                     <div>
                         <span style="font-size:0.72em;color:#f87171;font-weight:600;">Échec → </span>
                         <span style="font-size:0.72em;color:rgba(255,255,255,0.5);">${challenge.penaltyName}</span>
@@ -1535,7 +1539,7 @@ function showActiveChallengeDetails() {
                 ${isLeg ? '✦ DÉFI LÉGENDAIRE ✦' : '📜 DÉFI ACTIF'}
             </div>
 
-            <div style="font-size:${isLeg?'4':'3.5'}em;margin-bottom:14px;">${challenge.icon}</div>
+            <div style="margin-bottom:14px;">${_awkDefiIco('cible', 60, '#c084fc')}</div>
 
             ${challenge.issueMessage ? `<div style="font-size:0.78em;color:${accentColor};font-style:italic;margin-bottom:16px;line-height:1.5;opacity:0.85;">"${challenge.issueMessage}"</div>` : ''}
 
@@ -1555,7 +1559,7 @@ function showActiveChallengeDetails() {
             <!-- Pénalité en cas d'échec -->
             <div style="background:rgba(239,68,68,${isLeg?'0.12':'0.08'});border:${isLeg?'2':'1'}px solid rgba(239,68,68,${isLeg?'0.4':'0.2'});border-radius:14px;padding:12px;margin-bottom:20px;text-align:left;">
                 <div style="font-size:0.62em;color:#ef4444;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">⛓️ Pénalité en cas d'échec</div>
-                <div style="font-size:0.88em;font-weight:800;color:#f87171;margin-bottom:4px;">${challenge.penaltyIcon} ${challenge.penaltyName}</div>
+                <div style="font-size:0.88em;font-weight:800;color:#f87171;margin-bottom:4px;">${_awkDefiIco('alerte', 15, '#f87171')} ${challenge.penaltyName}</div>
                 <div style="font-size:0.72em;color:rgba(255,255,255,0.5);line-height:1.5;">${challenge.penaltyDesc}</div>
             </div>
 

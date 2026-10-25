@@ -213,10 +213,14 @@
     'l\u2019ombre dansante': 'sousboss_ombre', "l'ombre dansante": 'sousboss_ombre', 'le siphon affamé': 'sousboss_siphon',
     // monstres échappés des Failles (chasses)
     'gobelin rebelle': 'echappe_gobelin', "loup d'ombre": 'echappe_loup', 'loup d\u2019ombre': 'echappe_loup', 'chevalier brisé': 'echappe_chevalier',
-    'spectre médical': 'echappe_spectre', 'parasite croissant': 'echappe_parasite', 'ombre fragmentée': 'echappe_ombre'
+    'spectre médical': 'echappe_spectre', 'parasite croissant': 'echappe_parasite', 'ombre fragmentée': 'echappe_ombre',
+    // boss des Failles (v1466-1467) + boss final
+    "reine de l'aurore": 'boss_frozen_aurora', 'reine de l\u2019aurore': 'boss_frozen_aurora', 'le dormeur éternel': 'boss_dream_engine', 'le vide lumineux': 'boss_hollow_sun',
+    "l'effaceur": 'boss_final', 'l\u2019effaceur': 'boss_final',
+    "sentinelle figée": 'boss_frozen_city', "léviathan organique": 'boss_organic_desert', "léviathan des abysses": 'boss_underground_ocean', "anti-soi": 'boss_inverted_reality', "cœur battant des murs": 'boss_living_hospital', "locomotive vivante": 'boss_dimensional_train', "le livre interdit": 'boss_infinite_library', "enclume stellaire": 'boss_celestial_forge', "fleur-mère carnivore": 'boss_carnivore_garden', "cloche du jugement": 'boss_glass_cathedral', "phénix éteint": 'boss_ash_wasteland', "grande mécanique": 'boss_clockwork_void', "roi des profondeurs": 'boss_drowned_palace', "le vrai toi": 'boss_mirror_labyrinth', "titan ressuscité": 'boss_titan_graveyard', "seigneur de la tempête": 'boss_storm_peak', "cœur du marais": 'boss_whisper_marsh', "ia souveraine": 'boss_neon_megacity', "colosse de l'arène": 'boss_bone_colosseum', "colosse de l\u2019arène": 'boss_bone_colosseum'
   };
   function _fichier(nom) {
-    var k = String(nom || '').toLowerCase().trim();
+    var k = String(nom || '').toLowerCase().replace(/\s*\((boss|élite|elite|alpha)\)\s*$/i, '').replace(/^[^a-zàâäéèêëîïôöùûüç0-9]+/i, '').trim();
     return IMG_NOM[k] || ('monstre_' + _dessin(nom, _type(nom)));
   }
   window.__awkMonRepli = function (id) { var s = _repli[id] || ''; delete _repli[id]; return s; };
@@ -332,7 +336,8 @@
       +   (d.joueurMax != null ? _barre('TOI', Math.round(d.joueur) + ' / ' + Math.round(d.joueurMax), pPct, pCol) : '')   // v1304 : Chasse = pas de PV joueur
       + '</div>'
       + (d.ouverture ? '<div style="margin-top:6px;padding:4px 7px;border-radius:7px;background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.5);'
-          + 'font-size:0.6em;font-weight:900;color:#fbbf24;letter-spacing:0.4px;line-height:1.3;">LE BOSS SE DÉCOUVRE — ' + d.ouverture + ' reps ou plus = dégâts ×2,5</div>' : '');
+          + 'font-size:0.6em;font-weight:900;color:#fbbf24;letter-spacing:0.4px;line-height:1.3;">LE BOSS SE DÉCOUVRE — ' + d.ouverture + ' reps ou plus = dégâts ×2,5</div>' : '')
+      + (d.mecanique ? '<div style="margin-top:5px;font-size:0.58em;font-weight:800;color:#e2e8f0;letter-spacing:0.3px;line-height:1.3;opacity:0.9;">' + d.mecanique + '</div>' : '');
 
     // Coup reçu : tremblement + dégâts flottants (une seule fois par coup)
     var c = d.coup;
@@ -394,6 +399,102 @@
       + (window.AwakIcon ? AwakIcon.get(e.icone, petit ? 10 : 12, '#fbbf24') : '') + (petit ? '' : 'POINT FAIBLE : ') + e.nom.toUpperCase() + '</span>';
   }
 
-  window.AwakRiftVis = { monstre: monstre, hud: hud, journal: journal, type: _type, dessin: function (n) { return _dessin(n, _type(n)); },
+  // ── v1469 : présentation du boss, version « cinéma » (~3,6 s, se ferme seule) ──
+  // Bandes noires, éclair, rayons tournants, onde de choc, nom qui s'écrase,
+  // braises, bandeaux « AVERTISSEMENT » qui défilent, vibration du téléphone.
+  function bossIntro(o) {
+    o = o || {};
+    _styles();
+    var vieux = document.getElementById('awkBossIntro'); if (vieux) vieux.remove();
+    var col = o.couleur || '#a855f7';
+    var calme = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var duree = o.duree || 3600;
+    if (!document.getElementById('awkBossIntroCss2')) {
+      var st = document.createElement('style'); st.id = 'awkBossIntroCss2';
+      st.textContent =
+          '#awkBossIntro{position:fixed;inset:0;z-index:30500;overflow:hidden;cursor:pointer;background:#030306;display:flex;align-items:center;justify-content:center;}'
+        + '#awkBossIntro .bi-scene{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:24px;text-align:center;animation:biSecousse .5s .55s both;}'
+        + '#awkBossIntro .bi-flash{position:absolute;inset:0;background:#fff;opacity:0;animation:biFlash .5s ease-out;pointer-events:none;z-index:5;}'
+        + '#awkBossIntro .bi-rayons{position:absolute;left:50%;top:44%;width:180vmax;height:180vmax;margin:-90vmax 0 0 -90vmax;opacity:.55;animation:biTourne 9s linear infinite,biApparait .8s ease-out both;}'
+        + '#awkBossIntro .bi-halo{position:absolute;left:50%;top:44%;width:min(110vw,560px);height:min(110vw,560px);transform:translate(-50%,-50%);border-radius:50%;animation:biPulse 1.6s ease-in-out infinite;}'
+        + '#awkBossIntro .bi-onde{position:absolute;left:50%;top:44%;width:60px;height:60px;margin:-30px 0 0 -30px;border-radius:50%;opacity:0;animation:biOnde .9s .55s ease-out;}'
+        + '#awkBossIntro .bi-bande{position:absolute;left:0;right:0;height:13vh;max-height:120px;background:#000;z-index:4;display:flex;align-items:center;overflow:hidden;}'
+        + '#awkBossIntro .bi-bande.h{top:0;animation:biBandeH .45s cubic-bezier(.2,.9,.2,1) both;}'
+        + '#awkBossIntro .bi-bande.b{bottom:0;animation:biBandeB .45s cubic-bezier(.2,.9,.2,1) both;}'
+        + '#awkBossIntro .bi-defile{white-space:nowrap;font-family:var(--font-display),sans-serif;font-weight:700;font-size:13px;letter-spacing:5px;opacity:.9;animation:biDefile 6s linear infinite;}'
+        + '#awkBossIntro .bi-bande.b .bi-defile{animation-direction:reverse;}'
+        + '#awkBossIntro .bi-ligne{position:absolute;left:0;right:0;height:2px;z-index:4;}'
+        + '#awkBossIntro .bi-sous{font-family:var(--font-display),sans-serif;font-size:14px;font-weight:700;letter-spacing:9px;padding-left:9px;animation:biSous .6s .2s both;}'
+        + '#awkBossIntro .bi-mon{position:relative;z-index:2;animation:biChute .6s cubic-bezier(.3,1.5,.5,1) both;}'
+        + '#awkBossIntro .bi-nom{position:relative;z-index:3;font-family:var(--font-display),sans-serif;font-weight:700;line-height:1.05;color:#fff !important;max-width:92vw;text-wrap:balance;animation:biEcrase .45s .75s cubic-bezier(.2,1.6,.4,1) both;}'
+        + '#awkBossIntro .bi-braise{position:absolute;bottom:-10px;width:4px;height:4px;border-radius:50%;opacity:0;animation:biBraise linear infinite;}'
+        + '#awkBossIntro .bi-temps{width:140px;height:3px;border-radius:99px;background:rgba(255,255,255,0.1);overflow:hidden;margin-top:14px;z-index:3;}'
+        + '#awkBossIntro.sort{animation:biSort .45s ease-in forwards;}'
+        + '@keyframes biFlash{0%{opacity:.95}100%{opacity:0}}'
+        + '@keyframes biTourne{to{transform:rotate(360deg)}}'
+        + '@keyframes biApparait{from{opacity:0}}'
+        + '@keyframes biPulse{0%,100%{opacity:.75;transform:translate(-50%,-50%) scale(1)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.07)}}'
+        + '@keyframes biOnde{0%{opacity:.9;transform:scale(1)}100%{opacity:0;transform:scale(14)}}'
+        + '@keyframes biBandeH{from{transform:translateY(-100%)}}'
+        + '@keyframes biBandeB{from{transform:translateY(100%)}}'
+        + '@keyframes biDefile{from{transform:translateX(0)}to{transform:translateX(-50%)}}'
+        + '@keyframes biSous{0%{opacity:0;letter-spacing:22px}100%{opacity:1}}'
+        + '@keyframes biChute{0%{opacity:0;transform:translateY(-60px) scale(1.5);filter:brightness(0) blur(6px)}60%{opacity:1;filter:brightness(2.2)}100%{transform:none;filter:none}}'
+        + '@keyframes biEcrase{0%{opacity:0;transform:scale(2.6);filter:blur(8px)}100%{opacity:1;transform:none;filter:none}}'
+        + '@keyframes biSecousse{0%,100%{transform:none}15%{transform:translate(-9px,5px)}30%{transform:translate(8px,-6px)}45%{transform:translate(-6px,-3px)}60%{transform:translate(5px,4px)}80%{transform:translate(-2px,1px)}}'
+        + '@keyframes biBraise{0%{opacity:0;transform:translateY(0)}15%{opacity:1}100%{opacity:0;transform:translateY(-105vh)}}'
+        + '@keyframes biBarre{from{transform:scaleX(1)}to{transform:scaleX(0)}}'
+        + '@keyframes biSort{to{opacity:0;transform:scale(1.12);filter:blur(4px)}}'
+        + '@media(prefers-reduced-motion:reduce){#awkBossIntro *,#awkBossIntro{animation:none!important}#awkBossIntro .bi-rayons{opacity:.35}}';
+      document.head.appendChild(st);
+    }
+    var el = document.createElement('div');
+    el.id = 'awkBossIntro';
+    el.setAttribute('data-emoji-keep', '');
+    el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Boss : ' + (o.nom || ''));
+    // couleur via variable : le thème sombre remplace certains « color:#… » exacts
+    el.style.setProperty('--bic', col);
+    var nom = String(o.nom || '').replace(/\s*\(boss\)\s*$/i, '');
+    var sous = o.sousTitre || 'BOSS';
+    var px = Math.min(300, Math.round(Math.min(window.innerWidth, window.innerHeight * 0.6) * 0.72));
+    var texteBande = ('AVERTISSEMENT · ' + sous + ' · ').repeat(8);
+    var braises = '';
+    for (var i = 0; i < (calme ? 0 : 22); i++) {
+      braises += '<span class="bi-braise" style="left:' + (Math.random() * 100).toFixed(1) + '%;background:' + col + ';box-shadow:0 0 8px ' + col + ';'
+        + 'animation-duration:' + (2.2 + Math.random() * 2.2).toFixed(2) + 's;animation-delay:' + (Math.random() * 1.6).toFixed(2) + 's;'
+        + 'transform:scale(' + (0.6 + Math.random() * 1.2).toFixed(2) + ');"></span>';
+    }
+    el.innerHTML =
+        '<div class="bi-rayons" style="background:repeating-conic-gradient(from 0deg,' + col + '26 0deg 7deg,transparent 7deg 22deg);'
+      +   '-webkit-mask:radial-gradient(circle,#000 0%,transparent 55%);mask:radial-gradient(circle,#000 0%,transparent 55%);"></div>'
+      + '<div class="bi-halo" style="background:radial-gradient(circle,' + col + '55 0%,' + col + '14 40%,transparent 68%);"></div>'
+      + '<div class="bi-onde" style="border:3px solid ' + col + ';box-shadow:0 0 30px ' + col + ';"></div>'
+      + braises
+      + '<div class="bi-scene">'
+      +   '<div class="bi-sous" style="color:var(--bic);text-shadow:0 0 14px ' + col + ';">' + sous + '</div>'
+      +   '<div class="bi-mon" style="filter:drop-shadow(0 0 28px ' + col + 'aa);">' + monstre(o.nom, col, px, false) + '</div>'
+      +   '<div class="bi-nom" style="font-size:clamp(30px,9.5vw,46px);text-shadow:0 0 28px ' + col + ',3px 0 0 ' + col + 'aa,-3px 0 0 rgba(255,255,255,0.25);">' + nom + '</div>'
+      +   (o.ligne ? '<div style="font-size:14px;color:#cbd5e1;font-style:italic;max-width:320px;margin-top:6px;z-index:3;">' + o.ligne + '</div>' : '')
+      +   '<div class="bi-temps"><div style="height:100%;background:' + col + ';box-shadow:0 0 8px ' + col + ';transform-origin:left;animation:biBarre ' + duree + 'ms linear forwards;"></div></div>'
+      + '</div>'
+      + '<div class="bi-bande h"><div class="bi-defile" style="color:var(--bic);">' + texteBande + texteBande + '</div></div>'
+      + '<div class="bi-bande b"><div class="bi-defile" style="color:var(--bic);">' + texteBande + texteBande + '</div></div>'
+      + '<div class="bi-ligne" style="top:min(13vh,120px);background:linear-gradient(90deg,transparent,' + col + ',transparent);"></div>'
+      + '<div class="bi-ligne" style="bottom:min(13vh,120px);background:linear-gradient(90deg,transparent,' + col + ',transparent);"></div>'
+      + (calme ? '' : '<div class="bi-flash"></div>');
+    var fini = false;
+    function fermer() {
+      if (fini) return; fini = true;
+      el.classList.add('sort');
+      setTimeout(function () { el.remove(); try { if (typeof o.apres === 'function') o.apres(); } catch (e) {} }, 450);
+    }
+    el.addEventListener('click', fermer);
+    document.body.appendChild(el);
+    try { if (!calme && navigator.vibrate) setTimeout(function () { navigator.vibrate([70, 50, 140]); }, 550); } catch (e) {}
+    setTimeout(fermer, duree);
+    return el;
+  }
+
+  window.AwakRiftVis = { bossIntro: bossIntro, monstre: monstre, hud: hud, journal: journal, type: _type, dessin: function (n) { return _dessin(n, _type(n)); },
     faiblesse: faiblesse, effortInfo: effortInfo, puceFaiblesse: puceFaiblesse, BONUS_FAIBLESSE: BONUS_FAIBLESSE };
 })();

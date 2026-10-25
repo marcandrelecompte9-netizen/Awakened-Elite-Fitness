@@ -156,7 +156,7 @@
     game: [
       { c: function () { var f = $('#gameTab') && $('#gameTab').firstElementChild; return (f && f.id !== 'awakHunterCard') ? f : null; }, t: 'La carte', d: 'Ta ville. Les Failles y apparaissent après tes vraies séances : touche-en une pour combattre.' },
       { c: function () { return $('#awakHunterCard'); }, t: 'Ta carte', d: 'Ton rang, ton niveau et ta puissance : tout monte avec tes vraies séances.' },
-      { c: function () { var s = $('#awakStatVal_STR'); return s ? parent(s, 2) : null; }, t: 'Tes attributs', d: 'À chaque niveau, tu répartis des points. Ils pèsent dans tes combats. « Aide » explique chacun.' },
+      { c: function () { return $('#awakBtnStats'); }, t: 'Tes statistiques', d: 'Tes attributs (à chaque niveau, tu répartis des points) et le niveau de chaque muscle.' },
       { c: function () { return $('#awakRowBtns'); }, t: 'Compétences et équipement', d: 'Débloque des compétences, équipe ce que tu trouves dans les Failles.' },
       { c: function () { return $('#awakRowBtns2'); }, t: 'Journal et malus', d: 'Le journal garde ton histoire ; les malus montrent ce qui te pénalise en ce moment.' },
       { c: function () { return $('#adventureContainer'); }, t: 'L\'aventure', d: 'Les Failles et les compagnons : chaque séance y fait des dégâts.' }
