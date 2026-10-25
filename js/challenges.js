@@ -1317,8 +1317,9 @@ function renderChallengeSection() {
     // ── Défi actif ───────────────────────────────────────────────────
     let challengeHtml = '';
     if (!challenge || challenge.status !== 'active') {
-        // Pas de défi actif — afficher option d'en générer un
-        challengeHtml = `
+        // v1463 : pas de défi actif → rien (carte purement informative retirée de l'onglet Jeu)
+        challengeHtml = '';
+        if (false) challengeHtml = `
             <div style="background:linear-gradient(160deg,#0a0e18,#0F1014);border:1.5px dashed rgba(168,85,247,0.3);border-radius:14px;padding:20px;text-align:center;margin-bottom:14px;">
                 <div style="font-size:2em;margin-bottom:10px;opacity:0.5;">📜</div>
                 <div style="font-weight:800;color:#c084fc;margin-bottom:6px;font-size:0.95em;letter-spacing:0.5px;">Aucun défi actif</div>

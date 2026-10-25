@@ -8893,3 +8893,7 @@ img[src*="images/exercises/"] { filter: saturate(0.82) brightness(1.06); }
 .awk-brief-det > summary::-webkit-details-marker { display: none; }
 .awk-brief-det > summary::after { content: ''; display: inline-block; width: 7px; height: 7px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg); margin-left: 8px; vertical-align: 3px; transition: transform .2s; }
 .awk-brief-det[open] > summary::after { transform: rotate(-135deg); vertical-align: -1px; }
+/* v1463 : attributs repliables (onglet Jeu) */
+.awk-attr-det > summary::-webkit-details-marker { display: none; }
+.awk-attr-det > summary::after { content: ''; width: 6px; height: 6px; border-right: 2px solid #94a3b8; border-bottom: 2px solid #94a3b8; transform: rotate(45deg); margin-left: auto; margin-right: 4px; transition: transform .2s; }
+.awk-attr-det[open] > summary::after { transform: rotate(-135deg); }

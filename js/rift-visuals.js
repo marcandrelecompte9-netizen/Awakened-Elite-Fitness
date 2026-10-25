@@ -210,7 +210,10 @@
   // Monstres nommés qui ont leur propre image (sous-boss ; les boss viendront ici).
   var IMG_NOM = {
     'le cavalier des cendres': 'sousboss_cavalier', 'le colosse de fer': 'sousboss_colosse',
-    'l\u2019ombre dansante': 'sousboss_ombre', "l'ombre dansante": 'sousboss_ombre', 'le siphon affamé': 'sousboss_siphon'
+    'l\u2019ombre dansante': 'sousboss_ombre', "l'ombre dansante": 'sousboss_ombre', 'le siphon affamé': 'sousboss_siphon',
+    // monstres échappés des Failles (chasses)
+    'gobelin rebelle': 'echappe_gobelin', "loup d'ombre": 'echappe_loup', 'loup d\u2019ombre': 'echappe_loup', 'chevalier brisé': 'echappe_chevalier',
+    'spectre médical': 'echappe_spectre', 'parasite croissant': 'echappe_parasite', 'ombre fragmentée': 'echappe_ombre'
   };
   function _fichier(nom) {
     var k = String(nom || '').toLowerCase().trim();

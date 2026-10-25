@@ -117,8 +117,7 @@
       + '<div style="font-size:1em;font-weight:900;color:#f8fafc;margin-top:6px;">' + e.titre + '</div>'
       + '<div style="font-size:0.78em;color:#cbd5e1;line-height:1.45;margin-top:3px;">' + e.texte + '</div>'
       + pastilles(e)
-      + '<div style="font-size:0.76em;color:#e2e8f0;">' + bas + '</div>'
-      + '<div style="font-size:0.68em;color:#8b98aa;margin-top:6px;">Objectif tiré de ta semaine (tuile « Cette semaine » de l\'Accueil). Semaine manquée : aucune perte, une nouvelle mission commence lundi.</div>';
+      + '<div style="font-size:0.76em;color:#e2e8f0;">' + bas + '</div>';
     return c;
   }
 
