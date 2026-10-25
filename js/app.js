@@ -24045,7 +24045,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1456);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1458);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -24098,7 +24098,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     window._awakMasqueCorps(img).defs
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1456" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1458" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     '<g mask="url(#' + window._awakMasqueCorps(img).id + ')">' + svgZones + '</g>'
                 +   '</svg>'
@@ -29744,7 +29744,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1456");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1458");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -30685,7 +30685,12 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // Effet sur les profils avancés : négligeable (ajout fixe total de ~270 XP
         // aux seuils élevés) → AUCUNE régression de niveau pour les joueurs existants.
         // index = niveau que l'on quitte (1→2 : +80, 2→3 : +65, … puis 0 dès le niveau 7)
-        const RPG_EARLY_SLOWDOWN = [0, 80, 65, 50, 38, 25, 12];
+        const RPG_EARLY_SLOWDOWN = [0, 80, 65, 50, 38, 25, 12];   // ancienne courbe (gardée pour la migration v1457)
+        // v1457 : début encore trop rapide (≈ 830 XP par séance → niveau 5 dès la 1re séance,
+        // rang D en 4 séances). Plancher qui monte doucement jusqu'au niveau 15, où il rejoint
+        // la courbe de base : 1re séance → niveau 2, rang D (niv. 10) vers la 7e séance.
+        // Au-delà, tout est décalé d'environ 4 séances seulement.
+        const RPG_EARLY_FLOOR = n => (n >= 1 && n < 15) ? 450 + 50 * (n - 1) : 0;
 
         // ══════════════════════════════════════════════════════════════
         // 🎮 SYSTÈMES AVANCÉS — Boss, Classe, Compétences, Prestige, Exploits
@@ -34331,7 +34336,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1456);'
+                +     'url(images/combat_bg_v1.webp?v=1458);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -34584,6 +34589,22 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // ═══════════════════════════════════════════════════════════════
         // 🎬 ÉCRAN D'ENTRÉE / BRIEFING D'UNE FAILLE
         // ═══════════════════════════════════════════════════════════════
+        // v1458 : « l'Ouverture de Hôpital Vivant » → « L'Ouverture de l'Hôpital Vivant »
+        function awakNomFailleAffiche(nom) {
+            let s = String(nom || '');
+            // article selon le thème : « de la Ville », « du Train », « des Terres », « de l'Océan »
+            const ART = { 'Ville Figée': 'de la', 'Train Dimensionnel': 'du', 'Bibliothèque Infinie': 'de la', 'Forge Céleste': 'de la',
+                'Jardin Carnivore': 'du', 'Cathédrale de Verre': 'de la', 'Terres de Cendre': 'des', 'Néant Mécanique': 'du',
+                'Palais Englouti': 'du', 'Labyrinthe de Miroirs': 'du', 'Cimetière de Titans': 'du', 'Pic de la Tempête': 'du',
+                'Marais des Murmures': 'du', 'Mégapole Néon': 'de la', 'Colisée d\'Os': 'du', 'Machine à Rêves': 'de la', 'Soleil Creux': 'du' };
+            const m = s.match(/^(la Faille|la Brèche|la Déchirure|l'Ouverture|l'Antre|la Cicatrice|le Couloir|le Seuil) de (.+)$/);
+            if (m) {
+                const art = ART[m[2]] || (/^[AEIOUÉÈÊÂÎÔH]/.test(m[2]) ? "de l'" : 'de');
+                s = m[1] + ' ' + art + (art.endsWith("'") ? '' : ' ') + m[2];
+            }
+            return s.charAt(0).toUpperCase() + s.slice(1);
+        }
+        window.awakNomFailleAffiche = awakNomFailleAffiche;
         function awakOpenRiftBriefing(riftId) {
             const rift = awakGetRiftById(riftId);
             if (!rift) return;
@@ -34629,7 +34650,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1456);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1458);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -34637,82 +34658,39 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                          désormais l'ambiance ; un losange fin marque le thème. -->
                     <!-- v1289 : le losange tournait mal (l'animation écrasait la rotation) et
                          ressemblait à une image manquante : on montre le boss de la Faille. -->
-                    <div style="margin:0 auto 8px;width:72px;height:72px;display:flex;align-items:center;justify-content:center;animation:awakBriefFloat 4s ease-in-out infinite;">
-                        ${(() => { const _b = (rift.waves || []).find(x => x.isBoss) || (rift.waves || [])[0]; return (_b && window.AwakRiftVis && AwakRiftVis.monstre) ? AwakRiftVis.monstre(_b.name, theme.color, 68, true) : ''; })()}
+                    <!-- v1458 : boss en grand, nom, ambiance, puis UNE ligne de puces -->
+                    <div style="margin:4px auto 12px;width:128px;height:128px;display:flex;align-items:center;justify-content:center;animation:awakBriefFloat 4s ease-in-out infinite;filter:drop-shadow(0 0 18px ${theme.color}55);">
+                        ${(() => { const _b = (rift.waves || []).find(x => x.isBoss) || (rift.waves || [])[0]; return (_b && window.AwakRiftVis && AwakRiftVis.monstre) ? AwakRiftVis.monstre(_b.name, theme.color, 124, true) : ''; })()}
                     </div>
-                    <div style="display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:9px;flex-wrap:wrap;">
-                        <span style="background:${theme.color}25;color:${theme.color};border:1px solid ${theme.color}50;padding:3px 10px;border-radius:6px;font-size:0.68em;font-weight:900;letter-spacing:2px;">RANG ${rift.rank}</span>
-                        ${rift.isAssaut ? `<span style="background:rgba(245,158,11,0.18);color:#f59e0b;border:1px solid rgba(245,158,11,0.45);padding:3px 10px;border-radius:6px;font-size:0.68em;font-weight:900;letter-spacing:1.5px;">⚡ ASSAUT</span>` : ''}
+                    <h2 style="margin:0;color:#fff !important;font-size:1.42em;font-weight:900;letter-spacing:0.5px;line-height:1.2;font-family:var(--font-display),sans-serif;text-wrap:balance;">${awakNomFailleAffiche(rift.name)}</h2>
+                    <div style="margin-top:8px;color:#cbd5e1;font-size:0.82em;line-height:1.55;font-style:italic;max-width:340px;margin-left:auto;margin-right:auto;">${theme.description}</div>
+                    <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:14px;flex-wrap:wrap;">
+                        ${(() => {
+                            const puce = (txt, col, ic) => `<span style="display:inline-flex;align-items:center;gap:5px;background:${col}1f;color:${col};border:1px solid ${col}55;padding:4px 10px;border-radius:99px;font-size:0.7em;font-weight:900;letter-spacing:1px;white-space:nowrap;">${ic && window.AwakIcon ? AwakIcon.get(ic, 12, col) : ''}${txt}</span>`;
+                            let h = puce('RANG ' + rift.rank, theme.color);
+                            if (rift.isAssaut) h += puce('ASSAUT', '#f59e0b', 'eclair');
+                            if (!time.permanent) h += puce(time.expired ? 'Expirée' : time.label, time.expired ? '#ef4444' : '#cbd5e1', 'chrono');
+                            h += puce(diff.label, diff.color);
+                            return h;
+                        })()}
                     </div>
-                    <h2 style="margin:0;color:white;font-size:1.28em;font-weight:900;letter-spacing:0.5px;font-family:var(--font-display),sans-serif;">${rift.name}</h2>
-                    <div style="margin-top:9px;color:#cbd5e1;font-size:0.8em;line-height:1.55;font-style:italic;max-width:340px;margin-left:auto;margin-right:auto;">${theme.description}</div>
                 </div>
 
-                <!-- Briefing du Système -->
-                <div style="padding:18px 22px;background:rgba(0,0,0,0.3);border-bottom:1px solid rgba(255,255,255,0.06);">
-                    <div style="font-size:0.6em;color:#4ade80;font-weight:900;letter-spacing:2px;margin-bottom:6px;">SYSTÈME</div>
+                <!-- v1458 : Système et anomalie dans un seul bloc court -->
+                <div style="padding:16px 22px;background:rgba(0,0,0,0.3);border-bottom:1px solid rgba(255,255,255,0.06);">
+                    <div style="font-size:0.6em;color:${theme.color};font-weight:900;letter-spacing:2px;margin-bottom:6px;">SYSTÈME</div>
                     <div style="color:#cbd5e1;font-size:0.88em;line-height:1.5;font-style:italic;">${theme.briefing}</div>
+                    ${(() => {
+                        const m = (typeof awakGetRiftModifier === 'function') ? awakGetRiftModifier(rift.modifierId) : null;
+                        if (!m || m.id === 'none') return '';
+                        return `<div style="display:flex;gap:8px;align-items:flex-start;margin-top:11px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06);">
+                            <span style="display:inline-flex;flex-shrink:0;margin-top:1px;">${window.AwakIcon ? AwakIcon.get('alerte', 15, m.color) : ''}</span>
+                            <div style="font-size:0.8em;line-height:1.45;color:#cbd5e1;"><b style="color:${m.color};letter-spacing:1px;">${m.name}</b> · ${m.desc}</div>
+                        </div>`;
+                    })()}
                 </div>
 
-                ${(() => {
-                    const m = (typeof awakGetRiftModifier === 'function') ? awakGetRiftModifier(rift.modifierId) : null;
-                    if (!m || m.id === 'none') return '';
-                    return `<div style="padding:14px 22px;background:${m.color}0d;border-bottom:1px solid ${m.color}25;">
-                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
-                            <span style="display:inline-flex;">${window.AwakIcon ? AwakIcon.get('alerte', 16, m.color) : ''}</span>
-                            <span style="font-size:0.68em;color:${m.color};font-weight:900;letter-spacing:1.5px;">ANOMALIE · ${m.name.toUpperCase()}</span>
-                        </div>
-                        <div style="color:#cbd5e1;font-size:0.84em;line-height:1.5;">${m.desc}</div>
-                    </div>`;
-                })()}
-
-                <!-- Stats critiques -->
                 <div style="padding:18px 22px;">
-                    ${rift.isAssaut ? (() => { const A = awakAssautApercu(rift); return `<div style="display:flex;align-items:center;gap:12px;background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.35);border-radius:10px;padding:11px 13px;margin-bottom:10px;">
-                        <div style="flex:1;min-width:0;"><div style="font-size:0.6em;color:#f59e0b;font-weight:900;letter-spacing:1.5px;margin-bottom:3px;">DURÉE DE L'ASSAUT</div>
-                        <div style="font-size:1.1em;font-weight:900;color:white;">${A.label}</div>
-                        <div style="font-size:0.62em;color:#94a3b8;margin-top:2px;">${A.n} exercices de 40 s · 20 s de repos entre chacun</div></div>
-                        <div style="text-align:right;min-width:0;"><div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:3px;">MATÉRIEL</div>
-                        <div style="font-size:0.82em;font-weight:900;color:#fde68a;">${String(A.arme).replace(/[<>&"]/g, '')}</div></div>
-                    </div>`; })() : ''}
-                    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px;">
-                        <!-- Temps -->
-                        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:11px;">
-                            <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:4px;">${rift.isAssaut ? 'SE FERME DANS' : '⏱ TEMPS'}</div>
-                            <div style="font-size:1.1em;font-weight:900;color:white;">${time.label}</div>
-                        </div>
-                        <!-- Difficulté -->
-                        <div style="background:rgba(255,255,255,0.03);border:1px solid ${diff.color}40;border-radius:10px;padding:11px;">
-                            <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:4px;">◈ DIFFICULTÉ</div>
-                            <div style="font-size:0.9em;font-weight:900;color:${diff.color};">${diff.emoji}</div>
-                            <div style="font-size:0.65em;color:${diff.color};font-weight:700;margin-top:2px;">${diff.label}</div>
-                        </div>
-                        <!-- Power Score -->
-                        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:11px;">
-                            <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:4px;">TON POWER</div>
-                            <div style="font-size:1.1em;font-weight:900;color:white;">${playerPower.toLocaleString('fr-FR')}</div>
-                            <div style="font-size:0.62em;color:#64748b;margin-top:2px;">recommandé : ${rift.recommendedPower.toLocaleString('fr-FR')}</div>
-                        </div>
-                        <!-- Stat dominante -->
-                        <div style="background:rgba(255,255,255,0.03);border:1px solid ${theme.color}40;border-radius:10px;padding:11px;">
-                            <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:4px;">ATTRIBUT</div>
-                            <div style="font-size:1.1em;font-weight:900;color:${theme.color};">${rift.primaryStat}</div>
-                            <div style="font-size:0.62em;color:#64748b;margin-top:2px;">${playerStats[rift.primaryStat] || 0} pts actuels</div>
-                        </div>
-                    </div>
-
-                    <!-- Vagues prévues -->
-                    <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);border-radius:10px;padding:11px;margin-bottom:14px;">
-                        <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:8px;">◈ VAGUES (${rift.waves.length})</div>
-                        <div style="display:flex;gap:4px;flex-wrap:wrap;">
-                            ${rift.waves.map((w, i) => `
-                                <div title="${String(w.name || '').replace(/"/g, '&quot;')}" style="width:46px;height:46px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:${w.isBoss ? theme.color + '22' : 'rgba(255,255,255,0.04)'};border:1px solid ${w.isBoss ? theme.color : 'rgba(255,255,255,0.08)'};">
-                                    ${(window.AwakRiftVis && AwakRiftVis.monstre) ? AwakRiftVis.monstre(w.name, theme.color, 38, !!w.isBoss) : ''}
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-
                     <!-- 🧪 Consommables actifs (Phase 5) -->
                     ${(() => {
                         const activeConsum = JSON.parse(localStorage.getItem('awakActiveConsumables') || '[]');
@@ -34735,6 +34713,42 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         <button onclick="document.getElementById('awakRiftBriefingModal').remove()" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;border-radius:10px;padding:14px;font-weight:800;font-size:0.85em;cursor:pointer;">↩ Plus tard</button>
                         <button onclick="awakEntrerFaille('${rift.id}')" style="flex:2;background:linear-gradient(135deg,${theme.color},${theme.color}dd);border:none;color:white;border-radius:10px;padding:14px;font-weight:900;font-size:0.9em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${theme.color}40;">ENTRER</button>
                     </div>
+
+                    <!-- v1458 : le reste, repliable -->
+                    <details class="awk-brief-det" style="margin-top:12px;">
+                        <summary style="list-style:none;cursor:pointer;text-align:center;color:#94a3b8;font-size:0.8em;font-weight:700;padding:8px;">Détails</summary>
+                        <div style="padding-top:8px;">
+                    ${rift.isAssaut ? (() => { const A = awakAssautApercu(rift); return `<div style="display:flex;align-items:center;gap:12px;background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.35);border-radius:10px;padding:11px 13px;margin-bottom:10px;">
+                        <div style="flex:1;min-width:0;"><div style="font-size:0.6em;color:#f59e0b;font-weight:900;letter-spacing:1.5px;margin-bottom:3px;">DURÉE DE L'ASSAUT</div>
+                        <div style="font-size:1.1em;font-weight:900;color:white;">${A.label}</div>
+                        <div style="font-size:0.62em;color:#94a3b8;margin-top:2px;">${A.n} exercices de 40 s · 20 s de repos entre chacun</div></div>
+                        <div style="text-align:right;min-width:0;"><div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:3px;">MATÉRIEL</div>
+                        <div style="font-size:0.82em;font-weight:900;color:#fde68a;">${String(A.arme).replace(/[<>&"]/g, '')}</div></div>
+                    </div>`; })() : ''}
+                    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:10px;">
+                        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:11px;">
+                            <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:4px;">TON POWER</div>
+                            <div style="font-size:1.1em;font-weight:900;color:white;">${playerPower.toLocaleString('fr-FR')}</div>
+                            ${rift.recommendedPower > 0 ? `<div style="font-size:0.62em;color:#64748b;margin-top:2px;">recommandé : ${rift.recommendedPower.toLocaleString('fr-FR')}</div>` : ''}
+                        </div>
+                        <div style="background:rgba(255,255,255,0.03);border:1px solid ${theme.color}40;border-radius:10px;padding:11px;">
+                            <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:4px;">ATTRIBUT</div>
+                            <div style="font-size:1.1em;font-weight:900;color:${theme.color};">${rift.primaryStat}</div>
+                            <div style="font-size:0.62em;color:#64748b;margin-top:2px;">${playerStats[rift.primaryStat] || 0} pts actuels</div>
+                        </div>
+                    </div>
+                    <!-- Vagues prévues -->
+                    <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);border-radius:10px;padding:11px;margin-bottom:10px;">
+                        <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:8px;">VAGUES (${rift.waves.length})</div>
+                        <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                            ${rift.waves.map((w, i) => `
+                                <div title="${String(w.name || '').replace(/"/g, '&quot;')}" style="width:46px;height:46px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:${w.isBoss ? theme.color + '22' : 'rgba(255,255,255,0.04)'};border:1px solid ${w.isBoss ? theme.color : 'rgba(255,255,255,0.08)'};">
+                                    ${(window.AwakRiftVis && AwakRiftVis.monstre) ? AwakRiftVis.monstre(w.name, theme.color, 38, !!w.isBoss) : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
                     ${(() => {
                         const check = typeof awakCanDelegateRift === 'function' ? awakCanDelegateRift(rift) : {ok:false};
                         const dur = typeof awakCompanionMissionDuration === 'function' ? awakCompanionMissionDuration(rift.rank) : 0;
@@ -34743,14 +34757,16 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         if (check.ok) {
                             // 🎭 Le bouton ouvre maintenant le CHOIX des compagnons
                             const nDispo = typeof awakCompanionsDisponibles === 'function' ? awakCompanionsDisponibles().length : 0;
-                            return `<button onclick="awakOpenDelegatePicker('${rift.id}')" style="width:100%;margin-top:8px;background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.4);color:#c084fc;border-radius:10px;padding:13px;font-weight:800;font-size:0.82em;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                            return `<button onclick="awakOpenDelegatePicker('${rift.id}')" style="width:100%;margin-top:4px;background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.4);color:#c084fc;border-radius:10px;padding:13px;font-weight:800;font-size:0.82em;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;">
                                 <span>Envoyer des compagnons <span style="opacity:0.7;font-weight:600;">(sans loot)</span></span>
                                 <span style="font-size:0.85em;color:#94a3b8;font-weight:700;">Choisir qui envoyer · ${nDispo} disponible${nDispo>1?'s':''}</span>
                             </button>`;
                         } else {
-                            return `<div style="width:100%;margin-top:8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);color:#64748b;border-radius:10px;padding:11px;font-size:0.72em;text-align:center;">🎭 Délégation indisponible — ${check.reason}</div>`;
+                            return `<div style="width:100%;margin-top:8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);color:#64748b;border-radius:10px;padding:11px;font-size:0.72em;text-align:center;">Délégation indisponible — ${check.reason}</div>`;
                         }
                     })()}
+                        </div>
+                    </details>
                 </div>
             </div>`;
 
@@ -34971,7 +34987,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:540px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto;display:flex;flex-direction:column;">
                 <!-- Header : vague actuelle -->
-                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1456);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1458);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                         <span style="font-size:0.6em;color:${theme.color};font-weight:900;letter-spacing:2px;">⚔ VAGUE ${rift.currentWaveIdx + 1} / ${rift.waves.length}${currentWave.isBoss ? ' · BOSS' : ''}</span>
                         <button onclick="awakAbandonRift()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
@@ -36114,7 +36130,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1456');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1458');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -36859,7 +36875,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1456);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1458);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -37030,7 +37046,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1456);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1458);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -40957,9 +40973,33 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // ── Helpers level/XP ────────────────────────────────────────
         // XP pour passer du niveau n au n+1 (courbe de base + ralentissement précoce)
         function _rpgXPStep(n) {
+            return Math.max(Math.floor(RPG_LEVEL_BASE * Math.pow(n, RPG_LEVEL_EXP)), RPG_EARLY_FLOOR(n));
+        }
+        function _rpgXPStepV1456(n) {
             const early = (n >= 1 && n < RPG_EARLY_SLOWDOWN.length) ? RPG_EARLY_SLOWDOWN[n] : 0;
             return Math.floor(RPG_LEVEL_BASE * Math.pow(n, RPG_LEVEL_EXP)) + early;
         }
+        // v1457 : un profil existant GARDE son niveau (et sa progression dans le niveau) :
+        // l'écart entre l'ancienne et la nouvelle courbe est ajouté à son XP à vie, une fois.
+        function awakMigrationCourbe1457() {
+            try {
+                const cle = 'awakStoryEvt__courbe1457';
+                if (localStorage.getItem(cle)) return;
+                localStorage.setItem(cle, '1');
+                const data = rpgLoad();
+                const profilXP = Object.values(data.muscles || {}).reduce((s, m) => s + (m.xp || 0), 0);
+                const vie = parseInt(localStorage.getItem('fitproRPGLifetimeXP') || '0', 10) || 0;
+                const total = profilXP + vie;
+                if (total <= 0) return;
+                let L = 1, c = 0;
+                while (c + _rpgXPStepV1456(L) <= total && L < 500) { c += _rpgXPStepV1456(L); L++; }
+                const frac = (total - c) / _rpgXPStepV1456(L);
+                const cible = rpgXPForLevel(L) + Math.floor(frac * _rpgXPStep(L));
+                const delta = cible - total;
+                if (delta > 0) localStorage.setItem('fitproRPGLifetimeXP', String(vie + delta));
+            } catch (e) {}
+        }
+        window.awakMigrationCourbe1457 = awakMigrationCourbe1457;
         function rpgXPForLevel(n) {
             // XP cumulatif pour atteindre le niveau n
             if (n <= 1) return 0;
@@ -40984,6 +41024,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
         // ── Storage ─────────────────────────────────────────────────
         function rpgLoad() {
+            try { if (!localStorage.getItem('awakStoryEvt__courbe1457')) awakMigrationCourbe1457(); } catch (e) {}
             try { return JSON.parse(localStorage.getItem('fitproRPG') || 'null') || { muscles:{}, profile:{xp:0, lastActivity: new Date().toISOString()} }; }
             catch(e) { return { muscles:{}, profile:{xp:0, lastActivity: new Date().toISOString()} }; }
         }
@@ -48437,7 +48478,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
               // v1393 : hauteur réservée (aspect-ratio) — sinon l'image recréée
               // n'a aucune hauteur le temps d'un décodage, le formulaire saute
               // de ~160 px et le toucher sur le champ suivant tombe à côté.
-              +   '<img src="images/body/body_face.webp?v=1456" alt="" width="784" height="1168" '
+              +   '<img src="images/body/body_face.webp?v=1458" alt="" width="784" height="1168" '
               +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -48519,7 +48560,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1456);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1458);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -48586,7 +48627,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1456);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1458);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -51039,7 +51080,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1456");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1458");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.

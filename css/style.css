@@ -8888,3 +8888,8 @@ img[src*="images/exercises/"] { filter: saturate(0.82) brightness(1.06); }
 #swapModalBox .swap-foot { position: sticky; bottom: 0; z-index: 3; padding: 10px 12px 12px; background: linear-gradient(to top, #0f1218 75%, rgba(15,18,24,0)); }
 #swapModalBox .swap-foot button { width: 100%; min-height: 46px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.15); background: #1a2029; color: #e2e8f0; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
 #swapModalBox { scroll-padding-bottom: 80px; scroll-padding-top: 90px; }
+
+/* v1458 : fiche de Faille — « Détails » repliable */
+.awk-brief-det > summary::-webkit-details-marker { display: none; }
+.awk-brief-det > summary::after { content: ''; display: inline-block; width: 7px; height: 7px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg); margin-left: 8px; vertical-align: 3px; transition: transform .2s; }
+.awk-brief-det[open] > summary::after { transform: rotate(-135deg); vertical-align: -1px; }
