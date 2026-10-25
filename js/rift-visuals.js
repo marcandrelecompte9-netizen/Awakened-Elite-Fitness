@@ -204,8 +204,33 @@
     return DESSINS[_dessin(nom, _type(nom))];
   }
 
+  // v1459 : image illustrée par silhouette (images/Monstres/monstre_<dessin>.webp),
+  // le dessin SVG reste en repli si l'image ne charge pas.
+  var _repli = {};
+  // Monstres nommés qui ont leur propre image (sous-boss ; les boss viendront ici).
+  var IMG_NOM = {
+    'le cavalier des cendres': 'sousboss_cavalier', 'le colosse de fer': 'sousboss_colosse',
+    'l\u2019ombre dansante': 'sousboss_ombre', "l'ombre dansante": 'sousboss_ombre', 'le siphon affamé': 'sousboss_siphon'
+  };
+  function _fichier(nom) {
+    var k = String(nom || '').toLowerCase().trim();
+    return IMG_NOM[k] || ('monstre_' + _dessin(nom, _type(nom)));
+  }
+  window.__awkMonRepli = function (id) { var s = _repli[id] || ''; delete _repli[id]; return s; };
   function monstre(nom, col, taille, boss) {
     _styles();
+    col = col || '#a855f7';
+    var px = taille || 96, fic = _fichier(nom), id = 'awkMi' + (++_uid);
+    _repli[id] = _monstreSvg(nom, col, taille, boss);
+    return '<div class="awk-mon-img" data-emoji-keep style="position:relative;width:' + px + 'px;height:' + px + 'px;display:block;">'
+      + '<div class="awk-mon-aura" style="position:absolute;inset:' + (boss ? '-6%' : '4%') + ';border-radius:50%;background:radial-gradient(circle,' + col + '55 0%,' + col + '00 68%);"></div>'
+      + (boss ? '<div class="awk-mon-anneau" style="position:absolute;inset:-4%;border-radius:50%;border:1px dashed ' + col + '88;"></div>' : '')
+      + '<img class="awk-mon-corps" src="images/Monstres/' + fic + '.webp" alt="" draggable="false" width="' + px + '" height="' + px + '"'
+      +   ' style="position:relative;width:100%;height:100%;object-fit:contain;display:block;filter:drop-shadow(0 4px 10px rgba(0,0,0,0.7)) drop-shadow(0 0 6px ' + col + '66);"'
+      +   ' onerror="this.parentNode.outerHTML=window.__awkMonRepli(\'' + id + '\')">'
+      + '</div>';
+  }
+  function _monstreSvg(nom, col, taille, boss) {
     col = col || '#a855f7';
     var id = 'awkM' + (++_uid), f = _forme(nom, col), px = taille || 96;
     function _jetons(t) { return t.replace(/__F/g, id + 'f').replace(/__G/g, id + 'g').replace(/__C/g, col); }
@@ -310,7 +335,7 @@
     var c = d.coup;
     if (c && c.t && String(c.t) !== el.getAttribute('data-coup') && Date.now() - c.t < 3000 && c.dmg > 0) {
       el.setAttribute('data-coup', String(c.t));
-      var svg = mon.querySelector('svg');
+      var svg = mon.querySelector('.awk-mon-img') || mon.querySelector('svg');
       if (svg) { svg.classList.remove('awk-mon-touche'); void svg.getBoundingClientRect(); svg.classList.add('awk-mon-touche'); }
       var dg = document.createElement('span');
       dg.className = 'awk-dgt';
