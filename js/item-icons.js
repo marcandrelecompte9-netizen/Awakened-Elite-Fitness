@@ -135,6 +135,11 @@
         if (!it || it._svgIcon) return;
         it.iconEmoji = it.icon;
         it.icon = svg(it);
+        // v1451 : objets uniques illustrés (images/objets/) — le SVG reste en repli
+        if (it.id === 'tome_of_awakening') {
+          it.icon = '<img src="images/objets/tome_eveil.webp" alt="" draggable="false" style="width:1.15em;height:1.15em;object-fit:contain;vertical-align:middle;display:inline-block;" onerror="this.outerHTML=window.__awkTomeSvg||\'\'">';
+          window.__awkTomeSvg = svg(it);
+        }
         it._svgIcon = true;
       });
     }

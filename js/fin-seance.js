@@ -130,7 +130,7 @@
         + '<span style="min-width:0;"><span style="display:block;font-size:0.7em;font-weight:800;letter-spacing:1px;color:' + col + ';text-transform:uppercase;">Coffre ' + esc(tier.label || '') + '</span>'
         + '<span style="display:block;font-size:0.86em;font-weight:800;color:#f8fafc;margin-top:2px;">' + (k.ouvert ? esc(k.equipSeul ? 'Équipement trouvé' : (nettoyer(r.label) || 'Récompense ajoutée')) : 'Touche pour l\'ouvrir') + '</span>'
         + (!k.ouvert && dedans.length ? '<span style="display:block;font-size:0.7em;color:#94a3b8;">Quelque chose brille à l\'intérieur…</span>' : '')
-        + (k.ouvert && r._newBadge ? '<span style="display:block;font-size:0.7em;color:#94a3b8;">Nouvel insigne pour ta collection</span>' : '')
+        + (k.ouvert && r._newBadge ? '<span style="display:flex;align-items:center;gap:6px;font-size:0.7em;color:#94a3b8;">' + (window.awakInsigneImg ? window.awakInsigneImg(r.id, 26).replace('display:block;margin:0 auto;', 'display:inline-block;') : '') + 'Nouvel insigne pour ta collection</span>' : '')
         + (k.ouvert && r.type === 'buff' ? '<span style="display:block;font-size:0.7em;color:#94a3b8;">Bonus actif à ta prochaine séance</span>' : '')
         + '</span></button>';
       // objets sortis du coffre (visibles une fois ouvert)
