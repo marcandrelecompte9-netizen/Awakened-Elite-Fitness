@@ -43,10 +43,10 @@
         diamond:   { id:'diamond',   name:'Diamant',          icon:'💎', value:57,   color:'#e0f2fe' },
         ethercore: { id:'ethercore', name:'Cœur d\u2019Éther', icon:'🌟', value:130,  color:'#22d3ee' },
     };
-    // v1452 : vraies illustrations (images/objets/). `icon` devient une image de 1 em (même
+    // v1452 : vraies illustrations (images/Objets/). `icon` devient une image de 1 em (même
     // taille que l'emoji d'avant) ; l'emoji reste dans `emoji` pour les notifications.
     const _MIN_IMG = { quartz:'mineral_quartz', amethyst:'mineral_amethyste', emerald:'mineral_emeraude', sapphire:'mineral_saphir', ruby:'mineral_rubis', diamond:'mineral_diamant', ethercore:'mineral_coeur_ether' };
-    const _img = (f, e) => '<img src="images/objets/' + f + '.webp" alt="" draggable="false" style="width:1.2em;height:1.2em;object-fit:contain;vertical-align:middle;display:inline-block;" onerror="this.outerHTML=\'<span data-emoji-keep>' + e + '</span>\'">';
+    const _img = (f, e) => '<img src="images/Objets/' + f + '.webp" alt="" draggable="false" style="width:1.2em;height:1.2em;object-fit:contain;vertical-align:middle;display:inline-block;" onerror="this.outerHTML=\'<span data-emoji-keep>' + e + '</span>\'">';
     Object.keys(MINERAL_TYPES).forEach(k => { const m = MINERAL_TYPES[k]; m.emoji = m.icon; if (_MIN_IMG[k]) m.icon = _img(_MIN_IMG[k], m.emoji); });
     // Icône de l'or (pièces), pour les écrans en HTML
     window.awakOrIcon = function () { return _img('or', '💰'); };
