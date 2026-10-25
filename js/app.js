@@ -24045,7 +24045,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1447);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1450);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -24098,7 +24098,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     window._awakMasqueCorps(img).defs
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1447" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1450" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     '<g mask="url(#' + window._awakMasqueCorps(img).id + ')">' + svgZones + '</g>'
                 +   '</svg>'
@@ -29744,7 +29744,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1447");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1450");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -30902,6 +30902,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 localStorage.setItem('fitproRPGClass', classId);
                 showToast(`${cls.emoji} Classe ${cls.name} choisie ! Tu es éveillé.`, 'success', 3500);
                 if (typeof renderGameTab === 'function') renderGameTab();
+                // v1448 : le panneau « Compétences » est une copie figée de l'onglet → on le reconstruit
+                try { if (typeof rpgRafraichirPanneauDetails === 'function') rpgRafraichirPanneauDetails(); } catch (e) {}
                 return;
             }
 
@@ -30927,6 +30929,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     localStorage.setItem('fitproRPGClass', classId);
                     showToast(`📜 Tome consommé ! Tu es maintenant ${cls.emoji} ${cls.name}.`, 'success', 4000);
                     if (typeof renderGameTab === 'function') renderGameTab();
+                    try { if (typeof rpgRafraichirPanneauDetails === 'function') rpgRafraichirPanneauDetails(); } catch (e) {}
                 }
             );
         }
@@ -34318,7 +34321,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1447);'
+                +     'url(images/combat_bg_v1.webp?v=1450);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -34616,7 +34619,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1447);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1450);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -34958,7 +34961,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:540px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto;display:flex;flex-direction:column;">
                 <!-- Header : vague actuelle -->
-                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1447);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1450);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                         <span style="font-size:0.6em;color:${theme.color};font-weight:900;letter-spacing:2px;">⚔ VAGUE ${rift.currentWaveIdx + 1} / ${rift.waves.length}${currentWave.isBoss ? ' · BOSS' : ''}</span>
                         <button onclick="awakAbandonRift()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
@@ -36101,7 +36104,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1447');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1450');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -36846,7 +36849,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1447);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1450);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -37017,7 +37020,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1447);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1450);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -40624,7 +40627,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
               rewards:[ {type:'xp',amount:30,label:'+30 XP'}, {type:'xp',amount:50,label:'+50 XP'}, {type:'xp',amount:70,label:'+70 XP'},
                         {type:'voie_xp',amount:60,label:'+60 XP de Voie'},
                         {type:'badge',id:'chest_common',label:'Insigne de bronze'} ] },
-            { tier:'rare',    label:'Rare',     emoji:'💜', color:'#166534', weight:28,
+            { tier:'rare',    label:'Rare',     emoji:'💜', color:'#a855f7', weight:28,   // v1449 : améthyste (avant : vert #166534)
               rewards:[ {type:'xp',amount:120,label:'+120 XP'}, {type:'xp',amount:160,label:'+160 XP'}, {type:'xp',amount:200,label:'+200 XP'},
                         {type:'voie_xp',amount:120,label:'+120 XP de Voie'},
                         {type:'buff',mult:1.25,label:'Prochaine séance : +25% XP'},
@@ -40711,7 +40714,19 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             }
         }
 
+        // v1449 : vrais coffres illustrés (images/coffres/), choisis d'après la couleur du palier ;
+        // le dessin SVG reste en repli (image absente, couleur inconnue).
+        const _AWAK_COFFRE_IMG = { '#6b7280': 'commun', '#a855f7': 'rare', '#166534': 'rare', '#d97706': 'epique' };
         function _awakCoffreSvg(c, ouvert) {
+            const _t = _AWAK_COFFRE_IMG[String(c || '').toLowerCase()];
+            if (_t) {
+                const src = 'images/coffres/coffre_' + _t + (ouvert ? '_ouvert' : '') + '.webp';
+                return '<img src="' + src + '" alt="" width="96" height="96" draggable="false" style="width:100%;height:100%;object-fit:contain;display:block;filter:drop-shadow(0 6px 18px ' + c + '55);"'
+                    + ' onerror="this.outerHTML=window._awakCoffreDessin(\'' + c + '\',' + (ouvert ? 'true' : 'false') + ')">';
+            }
+            return _awakCoffreDessin(c, ouvert);
+        }
+        function _awakCoffreDessin(c, ouvert) {
             return '<svg viewBox="0 0 96 96" width="96" height="96" aria-hidden="true">'
                 + (ouvert
                     ? '<path d="M16 40 L24 18 H72 L80 40 Z" fill="' + c + '33" stroke="' + c + '" stroke-width="3" stroke-linejoin="round"/>'
@@ -40721,6 +40736,38 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 + '<path d="M14 54 H82" stroke="' + c + '" stroke-width="3"/><rect x="42" y="48" width="12" height="14" rx="3" fill="#0b0f16" stroke="' + c + '" stroke-width="3"/></svg>';
         }
         window._awakCoffreSvg = _awakCoffreSvg;
+        window._awakCoffreDessin = _awakCoffreDessin;
+        window.awakLootTiers = function () { return LOOT_TIERS; };
+        // v1450 : hors écran de fin (Faille terminée, légendaire garanti…), l'équipement
+        // arrive lui aussi dans un coffre : on le touche, il s'ouvre, « Voir l'objet ».
+        window.awakCoffreEquipement = function (item, rar, q) {
+            try {
+                const j = ({ common: 0, uncommon: 0, rare: 1, superior: 1, epic: 2, legendary: 2, mythic: 2 })[(rar || {}).id] || 0;
+                const tier = LOOT_TIERS[j] || LOOT_TIERS[0];
+                if (window.AwakCine && AwakCine.defer(function () { window.awakCoffreEquipement(item, rar, q); })) return true;
+                const ov = document.createElement('div');
+                ov.id = 'awakLootChestOverlay';
+                ov.style.cssText = 'position:fixed;inset:0;z-index:30001;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);';
+                ov.dataset.couleur = tier.color;
+                const nom = String(item.name || '').replace(/</g, '&lt;');
+                ov.innerHTML = '<div style="background:linear-gradient(160deg,#0D0D0D,#0F1014);border:2px solid ' + tier.color + ';border-radius:20px;padding:28px 24px;max-width:300px;width:90%;text-align:center;box-shadow:0 0 40px ' + tier.color + '55;animation:slideUp 0.35s cubic-bezier(0.34,1.56,0.64,1);">'
+                    + '<div style="font-size:0.72em;letter-spacing:2px;color:' + tier.color + ';font-weight:800;text-transform:uppercase;margin-bottom:8px;">Coffre ' + tier.label + '</div>'
+                    + '<div id="lootChestIcon" style="margin:6px auto;width:150px;height:150px;cursor:pointer;animation:pulse-warning 0.8s infinite;">' + _awakCoffreSvg(tier.color, false) + '</div>'
+                    + '<div id="lootChestHint" style="font-size:0.88em;color:rgba(255,255,255,0.6);margin-bottom:16px;">Touche le coffre pour l\'ouvrir</div>'
+                    + '<div id="lootReward" style="display:none;">'
+                    + '<div style="font-size:0.66em;letter-spacing:1.5px;font-weight:800;color:' + ((rar && rar.color) || tier.color) + ';text-transform:uppercase;">Équipement · ' + ((rar && rar.labelFull) || '') + '</div>'
+                    + '<div style="font-size:1.25em;font-weight:900;color:#f8fafc;margin:6px 0 14px;">' + nom + '</div>'
+                    + '<button type="button" data-voir style="width:100%;padding:12px;border-radius:14px;border:none;cursor:pointer;font-weight:800;color:#04121f;background:linear-gradient(135deg,#22d3ee,#0891b2);margin-bottom:8px;">Voir l\'objet</button></div>'
+                    + '<button type="button" data-fermer style="width:100%;padding:12px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:14px;color:white;font-weight:700;cursor:pointer;">Continuer</button></div>';
+                document.body.appendChild(ov);
+                const ouvrir = () => { const el = ov.querySelector('#lootChestIcon'); if (el && !el._ouvert) { el._ouvert = true; window._awakOuvrirCoffre(el); try { if (navigator.vibrate) navigator.vibrate([40, 30, 80]); } catch (e) {} } };
+                ov.querySelector('#lootChestIcon').onclick = ouvrir;
+                ov.querySelector('[data-voir]').onclick = () => { ov.remove(); window._awakFinVoir = true; try { showDropModal(item, rar, q); } finally { window._awakFinVoir = false; } };
+                ov.querySelector('[data-fermer]').onclick = () => { ov.remove(); try { if (typeof renderAdventureTab === 'function') renderAdventureTab(); } catch (e) {} };
+                ov.onclick = e => { if (e.target === ov) ov.remove(); };
+                return true;
+            } catch (e) { return false; }
+        };
         window._awakOuvrirCoffre = function (el) {
             try {
                 const box = el.closest('[style*=fixed]');
@@ -40746,7 +40793,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             box-shadow:0 0 40px ${loot.tier.color}55;animation:slideUp 0.35s cubic-bezier(0.34,1.56,0.64,1);">
                     <div style="font-size:0.72em;letter-spacing:2px;color:${loot.tier.color};font-weight:800;text-transform:uppercase;margin-bottom:8px;">Coffre ${loot.tier.label}</div>
                     <!-- v1399 : coffre en SVG (avant : emoji carton 📦, hors style), s'ouvre au toucher ou avec « Ouvrir » -->
-                    <div id="lootChestIcon" style="margin:10px auto;width:96px;height:96px;cursor:pointer;animation:pulse-warning 0.8s infinite;" onclick="window._awakOuvrirCoffre && window._awakOuvrirCoffre(this)">${_awakCoffreSvg(loot.tier.color, false)}</div>
+                    <div id="lootChestIcon" style="margin:6px auto;width:150px;height:150px;cursor:pointer;animation:pulse-warning 0.8s infinite;" onclick="window._awakOuvrirCoffre && window._awakOuvrirCoffre(this)">${_awakCoffreSvg(loot.tier.color, false)}</div>
                     <div id="lootChestHint" style="font-size:0.88em;color:rgba(255,255,255,0.6);margin-bottom:16px;">Touche le coffre pour l'ouvrir</div>
                     <div id="lootReward" style="display:none;">
                         <div style="font-size:1.6em;font-weight:900;color:${loot.tier.color};margin:8px 0;">${loot.reward.label}</div>
@@ -48364,7 +48411,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
               // v1393 : hauteur réservée (aspect-ratio) — sinon l'image recréée
               // n'a aucune hauteur le temps d'un décodage, le formulaire saute
               // de ~160 px et le toucher sur le champ suivant tombe à côté.
-              +   '<img src="images/body/body_face.webp?v=1447" alt="" width="784" height="1168" '
+              +   '<img src="images/body/body_face.webp?v=1450" alt="" width="784" height="1168" '
               +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -48446,7 +48493,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1447);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1450);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -48513,7 +48560,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1447);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1450);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -50966,7 +51013,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1447");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1450");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.

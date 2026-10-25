@@ -28,16 +28,41 @@
   function neuf() { return { t0: Date.now(), coffres: [], objets: [], niveau: null, lignes: [], clic: 0 }; }
 
   // ── Interceptions (appelées en tête des fonctions d'affichage) ──
+  // v1450 : l'équipement gagné SORT DU COFFRE. Il est rangé dans le coffre de la séance
+  // (s'il n'est pas encore ouvert) ; sans coffre, il arrive dans son propre coffre,
+  // dont le palier suit la rareté de l'objet.
+  var TIER_RARETE = { common: 0, uncommon: 0, rare: 1, superior: 1, epic: 2, legendary: 2, mythic: 2 };
+  function tiers() { return (typeof window.awakLootTiers === 'function' && window.awakLootTiers()) || []; }
+  function rangTier(t) { var l = tiers(); for (var i = 0; i < l.length; i++) if (l[i].tier === (t && t.tier)) return i; return 0; }
+  function ranger() {
+    etat.objets.forEach(function (o) {
+      if (o.coffre != null) return;
+      for (var i = 0; i < etat.coffres.length; i++) if (!etat.coffres[i].ouvert) { o.coffre = i; return; }
+    });
+  }
   function coffre(loot) {
     if (!actif() || !loot || !loot.tier) return false;
     etat = etat || neuf();
     etat.coffres.push({ loot: loot, ouvert: false });
-    rendre(); return true;
+    ranger(); rendre(); return true;
   }
   function objet(item, rarity, q) {
     if (!actif() || !item) return false;
     etat = etat || neuf();
-    etat.objets.push({ item: item, rarity: rarity || {}, q: q });
+    var o = { item: item, rarity: rarity || {}, q: q, coffre: null };
+    etat.objets.push(o);
+    ranger();
+    // Le coffre de séance arrive juste après (≈ 0,2 s) : on l'attend un peu avant d'en créer un
+    if (o.coffre == null) setTimeout(function () {
+      if (!etat || o.coffre != null) return;
+      ranger();
+      if (o.coffre == null) {
+        var l = tiers(), t = l[TIER_RARETE[(rarity || {}).id] || 0] || { tier: 'common', label: 'Commun', color: '#6b7280' };
+        etat.coffres.push({ loot: { tier: t, reward: null }, ouvert: false, equipSeul: true });
+        o.coffre = etat.coffres.length - 1;
+      }
+      rendre();
+    }, 900);
     rendre(); return true;
   }
   function niveau(n, pts) {
@@ -94,24 +119,37 @@
         + '</div>';
     }
     etat.coffres.forEach(function (k, i) {
-      var col = k.loot.tier.color || '#a78bfa', r = k.loot.reward || {};
+      // un objet plus rare que le coffre le fait monter de palier (visuel)
+      var dedans = etat.objets.filter(function (o) { return o.coffre === i; });
+      var tier = k.loot.tier, l = tiers();
+      dedans.forEach(function (o) { var j = TIER_RARETE[(o.rarity || {}).id] || 0; if (l[j] && j > rangTier(tier)) tier = l[j]; });
+      var col = tier.color || '#a78bfa', r = k.loot.reward || {};
       var svg = typeof window._awakCoffreSvg === 'function' ? window._awakCoffreSvg(col, k.ouvert) : '';
       h += '<button type="button" data-fin-coffre="' + i + '" style="display:flex;align-items:center;gap:11px;width:100%;min-height:auto;padding:8px 10px;margin-bottom:8px;border-radius:11px;cursor:pointer;text-align:left;font-family:inherit;background:rgba(255,255,255,0.03);border:1px solid ' + col + '66;">'
-        + '<span style="width:46px;height:46px;flex-shrink:0;display:block;' + (k.ouvert ? '' : 'animation:pulse-warning 0.9s infinite;') + '">' + svg.replace('width="96" height="96"', 'width="46" height="46"') + '</span>'
-        + '<span style="min-width:0;"><span style="display:block;font-size:0.7em;font-weight:800;letter-spacing:1px;color:' + col + ';text-transform:uppercase;">Coffre ' + esc(k.loot.tier.label || '') + '</span>'
-        + '<span style="display:block;font-size:0.86em;font-weight:800;color:#f8fafc;margin-top:2px;">' + (k.ouvert ? esc(nettoyer(r.label) || 'Récompense ajoutée') : 'Touche pour l\'ouvrir') + '</span>'
+        + '<span style="width:60px;height:60px;flex-shrink:0;display:block;' + (k.ouvert ? '' : 'animation:pulse-warning 0.9s infinite;') + '">' + svg.replace('width="96" height="96"', 'width="60" height="60"') + '</span>'
+        + '<span style="min-width:0;"><span style="display:block;font-size:0.7em;font-weight:800;letter-spacing:1px;color:' + col + ';text-transform:uppercase;">Coffre ' + esc(tier.label || '') + '</span>'
+        + '<span style="display:block;font-size:0.86em;font-weight:800;color:#f8fafc;margin-top:2px;">' + (k.ouvert ? esc(k.equipSeul ? 'Équipement trouvé' : (nettoyer(r.label) || 'Récompense ajoutée')) : 'Touche pour l\'ouvrir') + '</span>'
+        + (!k.ouvert && dedans.length ? '<span style="display:block;font-size:0.7em;color:#94a3b8;">Quelque chose brille à l\'intérieur…</span>' : '')
         + (k.ouvert && r._newBadge ? '<span style="display:block;font-size:0.7em;color:#94a3b8;">Nouvel insigne pour ta collection</span>' : '')
         + (k.ouvert && r.type === 'buff' ? '<span style="display:block;font-size:0.7em;color:#94a3b8;">Bonus actif à ta prochaine séance</span>' : '')
         + '</span></button>';
+      // objets sortis du coffre (visibles une fois ouvert)
+      if (k.ouvert) dedans.forEach(function (o) { h += ligneObjet(o, etat.objets.indexOf(o), true); });
     });
     etat.objets.forEach(function (o, i) {
-      var col = o.rarity.color || '#94a3b8';
+      if (o.coffre != null) return;
+      h += ligneObjet(o, i, false);
+    });
+    function ligneObjet(o, i, sorti) {
+      var col = o.rarity.color || '#94a3b8', h = '';
       h += '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;margin-bottom:8px;border-radius:11px;background:rgba(255,255,255,0.03);border:1px solid ' + col + '55;">'
         + '<div style="display:flex;align-items:center;gap:9px;min-width:0;">' + ico('bouclier', 18, col)
         + '<div style="min-width:0;"><div style="font-size:0.66em;font-weight:800;letter-spacing:1px;color:' + col + ';text-transform:uppercase;">Équipement · ' + esc(o.rarity.labelFull || o.rarity.label || '') + '</div>'
         + '<div style="font-size:0.86em;font-weight:800;color:#f8fafc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(nettoyer(o.item.name)) + '</div></div></div>'
         + '<button type="button" data-fin-objet="' + i + '" style="flex-shrink:0;min-height:auto;padding:6px 11px;border-radius:9px;cursor:pointer;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:#e2e8f0;font-weight:800;font-size:0.74em;">Voir</button></div>';
-    });
+      if (sorti) h = h.replace('margin-bottom:8px;border-radius:11px;', 'margin:-4px 0 8px 22px;border-radius:11px;animation:awakFadeIn .5s;');
+      return h;
+    }
     if (etat.lignes.length) {
       h += '<div style="display:flex;flex-direction:column;gap:4px;">' + etat.lignes.map(function (t) {
         return '<div style="display:flex;align-items:flex-start;gap:7px;font-size:0.76em;color:#e2e8f0;line-height:1.35;">' + ico('valide', 13, '#c4b5fd') + '<span>' + esc(t) + '</span></div>';
