@@ -472,7 +472,7 @@
       + braises
       + '<div class="bi-scene">'
       +   '<div class="bi-sous" style="color:var(--bic);text-shadow:0 0 14px ' + col + ';">' + sous + '</div>'
-      +   '<div class="bi-mon" style="filter:drop-shadow(0 0 28px ' + col + 'aa);">' + monstre(o.nom, col, px, false) + '</div>'
+      +   '<div class="bi-mon" style="filter:drop-shadow(0 0 28px ' + col + 'aa);">' + monstre(o.monstreNom || o.nom, col, px, false) + '</div>'
       +   '<div class="bi-nom" style="font-size:clamp(30px,9.5vw,46px);text-shadow:0 0 28px ' + col + ',3px 0 0 ' + col + 'aa,-3px 0 0 rgba(255,255,255,0.25);">' + nom + '</div>'
       +   (o.ligne ? '<div style="font-size:14px;color:#cbd5e1;font-style:italic;max-width:320px;margin-top:6px;z-index:3;">' + o.ligne + '</div>' : '')
       +   '<div class="bi-temps"><div style="height:100%;background:' + col + ';box-shadow:0 0 8px ' + col + ';transform-origin:left;animation:biBarre ' + duree + 'ms linear forwards;"></div></div>'
