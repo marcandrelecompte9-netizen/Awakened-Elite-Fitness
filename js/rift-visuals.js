@@ -217,6 +217,8 @@
     // boss des Failles (v1466-1467) + boss final
     "reine de l'aurore": 'boss_frozen_aurora', 'reine de l\u2019aurore': 'boss_frozen_aurora', 'le dormeur éternel': 'boss_dream_engine', 'le vide lumineux': 'boss_hollow_sun',
     "l'effaceur": 'boss_final', 'l\u2019effaceur': 'boss_final',
+    // v1495 : boss familiaux
+    'colosse de pierre': 'famille_colosse', 'hydre des abysses': 'famille_hydre', 'golem runique': 'famille_golem', 'léviathan éternel': 'famille_leviathan',
     // v1489 : ses formes selon la phase du combat final (repli : boss_final)
     'l\u2019effaceur assis': 'boss_final_assis', 'l\u2019effaceur rouge': 'boss_final_rouge', 'l\u2019effaceur ultime': 'boss_final_ultime',
     "sentinelle figée": 'boss_frozen_city', "léviathan organique": 'boss_organic_desert', "léviathan des abysses": 'boss_underground_ocean', "anti-soi": 'boss_inverted_reality', "cœur battant des murs": 'boss_living_hospital', "locomotive vivante": 'boss_dimensional_train', "le livre interdit": 'boss_infinite_library', "enclume stellaire": 'boss_celestial_forge', "fleur-mère carnivore": 'boss_carnivore_garden', "cloche du jugement": 'boss_glass_cathedral', "phénix éteint": 'boss_ash_wasteland', "grande mécanique": 'boss_clockwork_void', "roi des profondeurs": 'boss_drowned_palace', "le vrai toi": 'boss_mirror_labyrinth', "titan ressuscité": 'boss_titan_graveyard', "seigneur de la tempête": 'boss_storm_peak', "cœur du marais": 'boss_whisper_marsh', "ia souveraine": 'boss_neon_megacity', "colosse de l'arène": 'boss_bone_colosseum', "colosse de l\u2019arène": 'boss_bone_colosseum'

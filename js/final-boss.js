@@ -19,6 +19,8 @@
       isFinalStory: true,
       _color: color || '#dc2626',
       image: 'images/story/nabdano.webp',   // 🖼️ l’Effaceur est visible pendant tout le combat
+      // v1500 : décor derrière la conversation (repli : nabdano.webp)
+      _fond: 'images/story/' + ({ 'ACTE I': 'fb_acte1', 'ACTE II': 'fb_acte2', 'ACTE III': 'fb_acte3', 'ACTE IV': 'fb_acte4', 'CLIMAX': 'fb_climax' }[acte && acte.num] || 'fb_prologue') + '.webp',
       instructions: lines
     };
   }
@@ -594,14 +596,18 @@
     let i = 0;
     const ov = document.createElement('div');
     ov.id = 'awakFinalStoryOverlay';
-    ov.style.cssText = 'position:fixed;inset:0;z-index:99997;display:flex;align-items:flex-start;justify-content:center;background:radial-gradient(ellipse at 50% 25%,' + color + '18,#050507 70%);backdrop-filter:blur(8px);animation:awakFadeIn 0.5s;padding:20px;overflow-y:auto;-webkit-overflow-scrolling:touch;';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:99997;display:flex;align-items:flex-start;justify-content:center;background-color:#050507;'
+      + 'background-image:linear-gradient(180deg,rgba(5,5,7,0.15) 0%,rgba(5,5,7,0.45) 38%,rgba(5,5,7,0.9) 62%,#050507 100%),radial-gradient(ellipse at 50% 25%,' + color + '22,transparent 70%),'
+      + 'url(' + (beat._fond || 'images/story/nabdano.webp') + '),url(images/story/nabdano.webp);'
+      + 'background-size:cover,cover,cover,cover;background-position:center top,center,center top,center top;background-repeat:no-repeat;'
+      + 'animation:awakFadeIn 0.5s;padding:20px 20px calc(24px + env(safe-area-inset-bottom));overflow-y:auto;-webkit-overflow-scrolling:touch;';
 
     function render() {
       const isLast = i >= lines.length - 1;
       ov.innerHTML = `
-        <div style="max-width:440px;width:100%;margin:auto 0;text-align:center;">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:1.5em;font-weight:700;letter-spacing:2px;color:${color};margin-bottom:24px;text-shadow:0 0 30px ${color}66;">${beat.name}</div>
-          <p style="color:#e2e8f0;font-size:1em;line-height:1.75;margin:0 0 28px;min-height:120px;animation:awakFadeIn 0.4s;">${lines[i] || ''}</p>
+        <div style="max-width:440px;width:100%;margin:auto 0 0;text-align:center;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:1.5em;font-weight:700;letter-spacing:2px;color:${color};margin-bottom:18px;text-shadow:0 0 30px ${color}66,0 2px 8px #000;">${beat.name}</div>
+          <p style="color:#f1f5f9;font-size:1em;line-height:1.75;margin:0 0 24px;min-height:120px;animation:awakFadeIn 0.4s;text-shadow:0 1px 6px rgba(0,0,0,0.9);">${lines[i] || ''}</p>
           <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:20px;">
             ${lines.map((_, k) => `<div style="width:7px;height:7px;border-radius:50%;background:${k === i ? color : 'rgba(255,255,255,0.2)'};"></div>`).join('')}
           </div>

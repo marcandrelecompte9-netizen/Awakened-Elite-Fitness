@@ -44,6 +44,12 @@
       desc: 'Le boss ultime. Une légende que seule une famille soudée peut terrasser.' }
   ];
 
+  // v1495 : illustration du boss (images/Monstres/famille_<id>.webp, dessin en repli)
+  function _bossImg(b, px) {
+    try { if (window.AwakRiftVis && window.AwakRiftVis.monstre) return window.AwakRiftVis.monstre(b.name, b.color, px, true); } catch (e) {}
+    return b.emoji;
+  }
+  window.AwakFamilyBossImg = function (nom, couleur, px) { return _bossImg({ name: nom, color: couleur || '#fbbf24', emoji: '' }, px || 120); };
   function _bossById(id) {
     for (var i = 0; i < FAMILY_BOSSES.length; i++) if (FAMILY_BOSSES[i].id === id) return FAMILY_BOSSES[i];
     return null;
@@ -509,7 +515,7 @@ window.AwakFamilyBoss = {
       var RANK_LABEL = { colosse: 'butin rang C', hydre: 'butin rang B', golem: 'butin rang A', leviathan: 'butin rang S' };
       var opts = FAMILY_BOSSES.map(function (b) {
         return '<button onclick="AwakFamilyBossSpawn(\'' + b.id + '\')" style="flex:1;min-width:120px;padding:10px 8px;border:1px solid ' + b.color + '44;border-radius:10px;cursor:pointer;background:' + b.color + '11;color:#e2e8f0;font-size:0.72em;font-weight:700;">'
-          + b.emoji + ' ' + esc(b.name) + '<br><span style="font-size:0.85em;color:#94a3b8;">' + b.hp.toLocaleString('fr-FR') + ' PV · ' + (RANK_LABEL[b.id] || '') + '</span></button>';
+          + '<span style="display:flex;justify-content:center;margin-bottom:4px;">' + _bossImg(b, 44) + '</span>' + esc(b.name) + '<br><span style="font-size:0.85em;color:#94a3b8;">' + b.hp.toLocaleString('fr-FR') + ' PV · ' + (RANK_LABEL[b.id] || '') + '</span></button>';
       }).join('');
       actionBlock += '<div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06);">'
         + '<div style="font-size:0.74em;color:#94a3b8;font-weight:700;margin-bottom:8px;">⚔️ Invoquer le prochain boss :</div>'
@@ -526,7 +532,7 @@ window.AwakFamilyBoss = {
 
     return '<div style="background:linear-gradient(160deg,#12101a,#0d0d12);border:1px solid ' + boss.color + '33;border-radius:18px;padding:18px;margin-bottom:14px;box-shadow:0 4px 24px ' + boss.color + '18;">'
       + '<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">'
-      +   '<div style="width:52px;height:52px;border-radius:14px;flex-shrink:0;background:' + boss.color + '18;border:1.5px solid ' + boss.color + '44;display:flex;align-items:center;justify-content:center;font-size:2em;">' + boss.emoji + '</div>'
+      +   '<div style="width:72px;height:72px;border-radius:14px;flex-shrink:0;background:' + boss.color + '18;border:1.5px solid ' + boss.color + '44;display:flex;align-items:center;justify-content:center;font-size:2em;overflow:visible;">' + _bossImg(boss, 66) + '</div>'
       +   '<div style="flex:1;min-width:0;">'
       +     '<div style="display:flex;align-items:center;gap:8px;margin-bottom:2px;"><span style="font-size:0.62em;font-weight:800;letter-spacing:0.5px;color:' + boss.color + ';">BOSS FAMILIAL</span>' + defeatedBadge + '</div>'
       +     '<div style="font-size:1.02em;font-weight:900;color:#fff;">' + esc(boss.name) + '</div>'
