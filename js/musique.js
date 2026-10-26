@@ -20,17 +20,22 @@
     // v1483 : types de combat — joués SEULEMENT dans leur contexte
     { fichier: 'je_n_abandonne_pas.mp3', titre: 'Je n\'abandonne pas', type: 'finalboss' },   // combat final
     { fichier: 'combat.mp3', titre: 'Combat', type: 'combat' },                              // Faille ordinaire
+    { fichier: 'bataille_1.mp3', titre: 'Bataille I', type: 'combat' },
+    { fichier: 'bataille_2.mp3', titre: 'Bataille II', type: 'combat' },
     { fichier: 'game_over.mp3', titre: 'Game Over. Non, pas moi', type: 'gameover' },        // Faille ordinaire, 15 % de chance
     { fichier: 'level_up.mp3', titre: 'Level Up', type: 'jeu' },
     { fichier: 'rien_ne_m_arrete.mp3', titre: 'Rien ne m\'arrête', type: 'entrainement' },
     { fichier: 'le_reel_nous_lache_pas.mp3', titre: 'Le Réel nous lâche pas', type: 'entrainement' },
     { fichier: 'la_route_t_appartient.mp3', titre: 'La route t\'appartient', type: 'entrainement' },
     { fichier: 'sul_gym.mp3', titre: 'Sul gym', type: 'entrainement' },
-    { fichier: 'jusqu_a_l_aurore.mp3', titre: 'Jusqu\'à l\'Aurore', type: 'entrainement' }
+    { fichier: 'jusqu_a_l_aurore.mp3', titre: 'Jusqu\'à l\'Aurore', type: 'entrainement' },
+    { fichier: 'ma_meilleure_version.mp3', titre: 'Ma meilleure version', type: 'entrainement' },
+    { fichier: 'on_brule_le_sol.mp3', titre: 'On brûle le sol', type: 'entrainement' },
+    { fichier: 'reine_de_sueur.mp3', titre: 'Reine de sueur', type: 'entrainement' }
   ];
 
   var CLE = 'awakMusique';
-  var DEF = { auto: true, jeu: true, entrainement: true, perso: true, externe: false, volume: 0.6 };
+  var DEF = { auto: true, jeu: true, entrainement: true, perso: true, externe: false, volume: 0.6, exclus: [] };
 
   // ── v1476 : MES MUSIQUES — fichiers audio importés depuis le téléphone,
   // gardés dans le navigateur (IndexedDB, sur cet appareil seulement).
@@ -114,11 +119,26 @@
     if (type === 'gameover') return ctx === 'faille+gameover';
     return false;
   }
+  // v1493 : morceaux que le joueur a retirés de sa liste
+  function exclus() { var e = reglages().exclus; return Array.isArray(e) ? e : []; }
+  // Morceaux proposés par les interrupteurs (hors combat, sans les retraits) : liste des Réglages
+  function candidats() {
+    var r = reglages(); if (r.externe) return [];
+    var jeu = r.jeu && modeJeu();
+    return AWAK_MUSIQUES.filter(function (m) { return SPECIAUX.indexOf(m.type) < 0 && (m.type === 'jeu' ? jeu : !!r.entrainement); })
+      .concat(r.perso ? PERSO : []);
+  }
   function liste() {
     var r = reglages(); if (r.externe) return [];   // « J'écoute ma musique dans une autre app »
-    var jeu = r.jeu && modeJeu(), ctx = jeu ? contexte() : null;
-    return AWAK_MUSIQUES.filter(function (m) { return SPECIAUX.indexOf(m.type) >= 0 ? permisCombat(m.type, ctx) : m.type === 'jeu' ? jeu : !!r.entrainement; })
-      .concat(r.perso ? PERSO : []);
+    var jeu = r.jeu && modeJeu(), ctx = modeJeu() ? contexte() : null, ex = exclus();
+    // v1493 : en combat (Faille, Faille unique, combat final), pas de musique d'entraînement
+    return AWAK_MUSIQUES.filter(function (m) {
+        if (SPECIAUX.indexOf(m.type) >= 0) return jeu && permisCombat(m.type, ctx);
+        if (m.type === 'jeu') return jeu;
+        return !!r.entrainement && !ctx;
+      })
+      .concat(r.perso ? PERSO : [])
+      .filter(function (m) { return SPECIAUX.indexOf(m.type) >= 0 || ex.indexOf(m.fichier) < 0; });
   }
 
   var audio = null, file = [], pos = -1, fondu = null, actif = false;
@@ -139,7 +159,8 @@
   var ORDRE = { finalboss: 0, gameover: 1, faille: 2, combat: 3 };
   function preparerFile() {
     var l = liste();
-    var sp = l.filter(function (m) { return SPECIAUX.indexOf(m.type) >= 0; }).sort(function (a, b) { return ORDRE[a.type] - ORDRE[b.type]; });
+    var sp = melanger(l.filter(function (m) { return SPECIAUX.indexOf(m.type) >= 0; })).sort(   // v1494 : plusieurs musiques de combat → ordre au hasard
+      function (a, b) { return ORDRE[a.type] - ORDRE[b.type]; });
     file = sp.concat(melanger(l.filter(function (m) { return SPECIAUX.indexOf(m.type) < 0; })));
     pos = -1;
   }
@@ -319,7 +340,7 @@
         + '<span style="flex-shrink:0;width:44px;height:26px;border-radius:99px;position:relative;transition:background .2s;background:' + (on ? '#a855f7' : 'rgba(255,255,255,0.15)') + ';">'
         + '<span style="position:absolute;top:3px;left:' + (on ? '21px' : '3px') + ';width:20px;height:20px;border-radius:50%;background-color:rgb(248,250,252);transition:left .2s;"></span></span></button>';
     };
-    var l = liste(), cur = courant();
+    var l = candidats(), ex = exclus(), cur = courant();
     h.innerHTML = '<div style="display:grid;grid-template-columns:1fr;gap:7px;">'
       + interr('auto', r.auto, 'Démarrer seule en séance', r.auto ? 'Au début de chaque séance' : 'Je lance moi-même')
       + interr('jeu', r.jeu && jeuOk, 'Musiques du jeu', jeuOk ? nJeu + ' morceau' + (nJeu > 1 ? 'x' : '') : 'Mode jeu désactivé', !jeuOk)
@@ -349,17 +370,18 @@
         + '<div style="display:flex;flex-direction:column;gap:6px;margin-top:6px;">'
         + l.map(function (m) {
             var ici = cur && cur.fichier === m.fichier && audio && !audio.paused;
-            return '<button data-piste="' + m.fichier + '" style="min-height:0;display:flex;align-items:center;gap:10px;text-align:left;padding:10px 12px;border-radius:12px;cursor:pointer;'
-              + 'background:' + (ici ? 'rgba(168,85,247,0.14)' : 'rgba(255,255,255,0.03)') + ';border:1px solid ' + (ici ? 'rgba(168,85,247,0.5)' : 'rgba(255,255,255,0.08)') + ';color:#e2e8f0;">'
+            var hors = ex.indexOf(m.fichier) >= 0, t = String(m.titre).replace(/[<>&"]/g, '');
+            return '<div style="display:flex;align-items:center;gap:6px;">'
+              + '<button data-piste="' + m.fichier + '"' + (hors ? ' disabled' : '') + ' style="min-height:0;flex:1;min-width:0;display:flex;align-items:center;gap:10px;text-align:left;padding:10px 12px;border-radius:12px;cursor:' + (hors ? 'default' : 'pointer') + ';'
+              + 'background:' + (ici ? 'rgba(168,85,247,0.14)' : 'rgba(255,255,255,0.03)') + ';border:1px solid ' + (ici ? 'rgba(168,85,247,0.5)' : 'rgba(255,255,255,0.08)') + ';color:#e2e8f0;' + (hors ? 'opacity:0.4;' : '') + '">'
               + '<span style="display:inline-flex;color:' + (ici ? '#c084fc' : '#94a3b8') + ';">' + (ici ? IC.paus : IC.lect) + '</span>'
-              + '<span style="flex:1;min-width:0;font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + m.titre + '</span>'
-              + '<span style="font-size:11px;color:#94a3b8;font-weight:700;">' + (m.type === 'perso' ? 'À moi' : m.type === 'jeu' ? 'Jeu' : 'Entraînement') + '</span></button>';
+              + '<span style="flex:1;min-width:0;font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;' + (hors ? 'text-decoration:line-through;' : '') + '">' + t + '</span>'
+              + '<span style="font-size:11px;color:#94a3b8;font-weight:700;">' + (hors ? 'Retiré' : m.type === 'perso' ? 'À moi' : m.type === 'jeu' ? 'Jeu' : 'Entraînement') + '</span></button>'
+              + '<button data-exclure="' + m.fichier + '" aria-label="' + (hors ? 'Remettre ' : 'Retirer de la liste ') + t + '" title="' + (hors ? 'Remettre dans la liste' : 'Retirer de la liste') + '" style="min-height:0;flex-shrink:0;width:38px;height:38px;padding:0;border-radius:12px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);color:' + (hors ? '#c084fc' : '#94a3b8') + ';cursor:pointer;display:flex;align-items:center;justify-content:center;">'
+              + '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">' + (hors ? '<path d="M12 5v14M5 12h14"/>' : '<path d="M5 12h14"/>') + '</svg></button></div>';
           }).join('') + '</div>'
-        : '<p class="settings-sub-desc" style="margin-top:8px;">' + (r.externe ? 'La musique de l\'app est coupée : celle de ton autre app continue pendant la séance.' : 'Aucun morceau avec ces filtres.') + '</p>')
-      + (jeuOk && r.jeu ? '<p class="settings-sub-desc" style="margin-top:10px;">Musiques de combat, jouées seulement dans leur combat : '
-          + AWAK_MUSIQUES.filter(function (m) { return SPECIAUX.indexOf(m.type) >= 0; }).map(function (m) {
-              return '« ' + m.titre + ' » (' + ({ finalboss: 'combat final', faille: 'Failles uniques', combat: 'Failles', gameover: 'Failles, parfois' })[m.type] + ')';
-            }).join(', ') + '.</p>' : '');
+        : '<p class="settings-sub-desc" style="margin-top:8px;">' + (r.externe ? 'La musique de l\'app est coupée : celle de ton autre app continue pendant la séance.' : 'Aucun morceau avec ces filtres.') + '</p>');
+      // v1493 : les musiques de combat restent une surprise, rien n'en est dit ici
   }
   function brancherReglages() {
     var h = document.getElementById('awakMusReglages'); if (!h || h._ok) return;
@@ -376,6 +398,16 @@
     h.addEventListener('click', function (e) {
       var imp = e.target.closest && e.target.closest('[data-mus="importer"]');
       if (imp) { var inp = h.querySelector('input[data-mus="fichier"]'); if (inp) inp.click(); return; }
+      var exc = e.target.closest && e.target.closest('[data-exclure]');
+      if (exc) {
+        var f2 = exc.getAttribute('data-exclure'), r2 = reglages(), lx = exclus().slice(), k2 = lx.indexOf(f2);
+        if (k2 >= 0) lx.splice(k2, 1); else lx.push(f2);
+        r2.exclus = lx; sauver(r2);
+        var c2 = courant(); preparerFile();
+        if (c2 && c2.fichier === f2 && k2 < 0) { if (liste().length) suivante(); else arreter(); }
+        rendreReglages(); majBarre();
+        return;
+      }
       var ret = e.target.closest && e.target.closest('[data-retirer]');
       if (ret) { retirerPerso(ret.getAttribute('data-retirer')); return; }
       var p = e.target.closest && e.target.closest('[data-piste]');

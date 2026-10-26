@@ -110,7 +110,7 @@
   // v1480 : l'Effaceur suit TA puissance. Ses PV sont calés sur les dégâts que ton
   // build inflige réellement sur CETTE séance (exercices et séries une fois la séance
   // préparée) : il faut environ 90 % des coups pour le faire tomber, quel que soit
-  // ton niveau. Les phases (×0,9 sous 50 %, ×1,3 sous 25 %) sont simulées.
+  // ton niveau. Les phases (×0,9 sous 50 %) sont simulées.
   function _unites(e) {
     if (e.mode === 'timer' && e.duration) return Math.max(1, e.duration / 30);
     var r = e.targetReps || e.reps;
@@ -130,7 +130,7 @@
   function _coupsPourTomber(coups, hp) {
     var pv = hp, ph = 0;
     for (var i = 0; i < coups.length; i++) {
-      var d = coups[i]; if (ph >= 3) d = Math.round(d * 1.3); else if (ph >= 2) d = Math.round(d * 0.9);
+      var d = coups[i]; if (ph >= 2) d = Math.round(d * 0.9);
       pv -= d; var pct = pv / hp * 100;
       if (pct <= 25) ph = 3; else if (pct <= 50) ph = Math.max(ph, 2); else if (pct <= 75) ph = Math.max(ph, 1);
       if (pv <= 0) return i + 1;
@@ -211,16 +211,18 @@
       "Le Système, d'une voix à peine audible : « Je suis faible, ici. Mais je suis là. Ne t'assois pas. Chaque séance que tu as faite t'a mené jusqu'à lui. »"
     ], '#dc2626'));
     // v1479 : plus d'échauffement — le combat commence directement à l'Acte I.
+    // v1486 : exercices à répétitions en plusieurs séries (3 à l'acte Force, 2 ailleurs) :
+    // chaque série est un coup ; une série ratée pèse moins sur l'issue du combat.
 
     // ── ACTE I — LA FORCE ──
     E.push(story('⚔️ Acte I — La Force', [
       "Nabdano ne bouge pas. « J'étais plus fort que toi. J'ai porté le monde à bout de bras. La force, ça s'use. »",
       "Le poids du blanc s'abat sur tes épaules. « Prouve-moi que la tienne ne s'use pas. »"
     ], '#ef4444', { num: 'ACTE I', titre: 'La Force', ligne: '« La force, ça s\'use. Prouve-moi que la tienne ne s\'use pas. »' }));
-    E.push(ex('Pompes', 'Pectoraux', { sets: 1, reps: 20, instructions: ['Corps gainé', 'Amplitude complète', 'Contrôle la descente'] , _act:'force'}));
-    E.push(ex('Squats', 'Quadriceps', { sets: 1, reps: 25, instructions: ['Cuisses parallèles', 'Talons ancrés', 'Poitrine haute'] , _act:'force'}));
-    E.push(ex('Fentes dynamiques', 'Quadriceps', { sets: 1, reps: 20, instructions: ['Genou arrière vers le sol', 'Alterne les jambes'] , _act:'force'}));
-    E.push(ex('Pompes diamant', 'Triceps', { sets: 1, reps: 15, instructions: ['Mains rapprochées', 'Coudes près du corps'] , _act:'force'}));
+    E.push(ex('Pompes', 'Pectoraux', { sets: 3, reps: 20, instructions: ['Corps gainé', 'Amplitude complète', 'Contrôle la descente'] , _act:'force'}));
+    E.push(ex('Squats', 'Quadriceps', { sets: 3, reps: 25, instructions: ['Cuisses parallèles', 'Talons ancrés', 'Poitrine haute'] , _act:'force'}));
+    E.push(ex('Fentes dynamiques', 'Quadriceps', { sets: 3, reps: 20, instructions: ['Genou arrière vers le sol', 'Alterne les jambes'] , _act:'force'}));
+    E.push(ex('Pompes diamant', 'Triceps', { sets: 3, reps: 15, instructions: ['Mains rapprochées', 'Coudes près du corps'] , _act:'force'}));
 
     // ── ACTE II — L'ENDURANCE ──
     E.push(story('🌊 Acte II — L\'Endurance', [
@@ -237,10 +239,10 @@
       "Autour de toi, les rues effacées défilent, de plus en plus vite. « Moi aussi, j'étais régulier. Peux-tu encore être vif quand tout en toi veut ralentir ? »",
       "« C'est dans l'épuisement que se révèle ce que tu es vraiment. »"
     ], '#a855f7', { num: 'ACTE III', titre: 'L\'Explosivité', ligne: '« Peux-tu encore être vif quand tout en toi veut ralentir ? »' }));
-    E.push(ex('Burpees avec saut', 'Cardio', { sets: 1, reps: 15, instructions: ['Explosion maximale au saut', 'Enchaîne'] , _act:'explosivite'}));
-    E.push(ex('Fentes sautées alternées', 'Quadriceps', { sets: 1, reps: 20, instructions: ['Change de jambe en l\'air', 'Réception contrôlée'] , _act:'explosivite'}));
-    E.push(ex('Pompes claquées', 'Pectoraux', { sets: 1, reps: 10, instructions: ['Pousse fort', 'Décolle les mains', 'Si trop dur : pompes explosives'] , _act:'explosivite'}));
-    E.push(ex('Sauts groupés (tuck jumps)', 'Quadriceps', { sets: 1, reps: 15, instructions: ['Genoux vers la poitrine', 'Réception amortie'] , _act:'explosivite'}));
+    E.push(ex('Burpees avec saut', 'Cardio', { sets: 2, reps: 15, instructions: ['Explosion maximale au saut', 'Enchaîne'] , _act:'explosivite'}));
+    E.push(ex('Fentes sautées alternées', 'Quadriceps', { sets: 2, reps: 20, instructions: ['Change de jambe en l\'air', 'Réception contrôlée'] , _act:'explosivite'}));
+    E.push(ex('Pompes claquées', 'Pectoraux', { sets: 2, reps: 10, instructions: ['Pousse fort', 'Décolle les mains', 'Si trop dur : pompes explosives'] , _act:'explosivite'}));
+    E.push(ex('Sauts groupés (tuck jumps)', 'Quadriceps', { sets: 2, reps: 15, instructions: ['Genoux vers la poitrine', 'Réception amortie'] , _act:'explosivite'}));
 
     // ── ACTE IV — LA VOLONTÉ ──
     E.push(story('🛡️ Acte IV — La Volonté', [
@@ -260,8 +262,8 @@
       "Le Système, presque un cri : « MAINTENANT. Donne tout ce qu'il te reste — pour toi, et pour lui aussi. »"
     ], '#fbbf24', { num: 'CLIMAX', titre: 'Tout donner', ligne: '« Tu as juste... refusé d\'être seul. »', climax: true }));
     E.push(ex('Burpees finaux', 'Cardio', { timer: 60, instructions: ['Vide le réservoir', 'Chaque rep le fait reculer'] , _act:'climax'}));
-    E.push(ex('Pompes maximum', 'Pectoraux', { sets: 1, reps: 25, instructions: ['Autant que possible', 'Forme avant tout'] , _act:'climax'}));
-    E.push(ex('Squats maximum', 'Quadriceps', { sets: 1, reps: 30, instructions: ['Profonds', 'Sans t\'arrêter'] , _act:'climax'}));
+    E.push(ex('Pompes maximum', 'Pectoraux', { sets: 2, reps: 25, instructions: ['Autant que possible', 'Forme avant tout'] , _act:'climax'}));
+    E.push(ex('Squats maximum', 'Quadriceps', { sets: 2, reps: 30, instructions: ['Profonds', 'Sans t\'arrêter'] , _act:'climax'}));
     E.push(ex('Gainage final', 'Abdominaux', { timer: 60, instructions: ['Le dernier effort', 'Tiens jusqu\'au bout'] , _act:'climax'}));
 
     // L'épilogue est joué par l'écran de victoire (awakShowFinalBossVictory) à la fin de la séance.
@@ -308,11 +310,13 @@
       _bossImage: 'images/story/nabdano.webp',
       exercises: exercises,
       _essaiDev: essai || undefined,
+      _cardioAsked: true,   // v1485 : pas de proposition de cardio d'échauffement
       badgeHTML: '👑 COMBAT FINAL — L’Effaceur' + (essai ? ' (essai)' : ''),
       badgeStyle: 'linear-gradient(135deg, #dc2626 0%, #7f1d1d 100%)'
     };
     // v1468 : L'Effaceur se présente avant le combat
-    try { if (window.AwakRiftVis && AwakRiftVis.bossIntro) AwakRiftVis.bossIntro({ nom: 'L’Effaceur', couleur: '#dc2626', sousTitre: 'COMBAT FINAL' }); } catch (e) {}
+    // (v1485 : au-dessus du prologue — la séance démarre derrière, sans écran « Prépare-toi »)
+    try { if (window.AwakRiftVis && AwakRiftVis.bossIntro) AwakRiftVis.bossIntro({ nom: 'L’Effaceur', monstreNom: 'L’Effaceur assis', couleur: '#dc2626', sousTitre: 'COMBAT FINAL', zIndex: 99998 }); } catch (e) {}
     // Utilise le pipeline de séance préparée existant
     if (typeof window.setPendingWorkout === 'function') {
       window.setPendingWorkout(workout);
@@ -326,7 +330,13 @@
     try { if (typeof switchTab === 'function') switchTab('workouts'); } catch (e) {}
 
     if (typeof window.showWorkoutPreparation === 'function') {
+      // v1485 : pas d'écran « Prépare-toi » pour le combat final. La préparation
+      // applique ses règles (corps, équipement) puis la séance démarre aussitôt.
+      // Si une autre séance est en cours, la préparation s'arrête sur sa question :
+      // on ne démarre alors rien.
+      window._fbHasPrep = false;
       window.showWorkoutPreparation(workout);
+      if (window._fbHasPrep && typeof window.startPreparedWorkout === 'function') window.startPreparedWorkout();
     } else if (typeof window.startPreparedWorkout === 'function') {
       window.pendingWorkout = workout;
       window.startPreparedWorkout();
@@ -350,13 +360,12 @@
     var effort = 1, obj = exercice.targetReps || exercice.reps;
     if (exercice.mode !== 'timer' && obj && repsFaites > 0) effort = Math.max(0.5, Math.min(1.5, repsFaites / obj));
     var degats = Math.round(actDamage(acte, unites) * effort);
-    // v1479 : PHASES de l'Effaceur. Sous 50 % il durcit (×0,9) ; sous 25 % il se
-    // fissure (×1,3) : la fin du combat s'accélère, comme la musique.
+    // v1479 : PHASES de l'Effaceur. Sous 50 % il durcit (×0,9) jusqu'à la fin ;
+    // sous 25 % ce sont ses ripostes qui montent (×1,45).
     var max = workout._bossHpMax || 1;
     var avant = (workout._bossHp || 0) / max * 100;
     var ph = workout._phase || 0;
-    if (ph >= 3) degats = Math.round(degats * 1.3);
-    else if (ph >= 2) degats = Math.round(degats * 0.9);
+    if (ph >= 2) degats = Math.round(degats * 0.9);   // v1491 : plus de bonus +30 % en dernière phase
     workout._bossHp = Math.max(0, (workout._bossHp || 0) - degats);
     var apres = workout._bossHp / max * 100;
     var palier = null;
@@ -364,7 +373,10 @@
       if (avant > s[0] && apres <= s[0] && workout._bossHp > 0 && (workout._phase || 0) < s[1]) { workout._phase = s[1]; palier = s[1]; }
     });
     workout._dernierCoup = { dmg: degats, t: Date.now() };
+    if (workout._bossHp <= 0) workout._bossVaincu = true;   // v1487 : seule preuve de victoire
+    var riposte = workout._bossHp > 0 ? riposteEffaceur(workout) : null;
     return {
+      riposte: riposte,
       palier: palier,
       degats: degats,
       hp: workout._bossHp,
@@ -377,21 +389,112 @@
   }
   window.awakFrapperMonarque = frapperMonarque;
 
+  // v1487 : PV DU JOUEUR. L'Effaceur riposte après chaque coup. Sa force suit ton
+  // NIVEAU (le chasseur de référence), pas ta défense : c'est ton END (PV), ta VIT
+  // (blocage), ta PER (esquive) et ta régénération qui décident si tu tiens.
+  // À 0 PV : le Système te relève UNE fois à 30 % (deux avec une Larme du Système).
+  // Deuxième chute → défaite, tout est à refaire.
+  function _pvMaxJoueur() {
+    try { return typeof window.awakGetPlayerMaxHP === 'function' ? window.awakGetPlayerMaxHP() : 100; } catch (e) { return 100; }
+  }
+  function joueurInit(workout) {
+    if (!workout || !workout._isFinalBoss) return;
+    if (typeof workout._joueurPV === 'number' && typeof workout._joueurPVMax === 'number') return;
+    workout._joueurPVMax = _pvMaxJoueur();
+    workout._joueurPV = workout._joueurPVMax;
+    var larme = false;
+    try { larme = !workout._essaiDev && typeof window.awakConsumablesGetActiveEffects === 'function' && !!window.awakConsumablesGetActiveEffects().revive; } catch (e) {}
+    workout._releves = larme ? 2 : 1;
+    workout._larme = larme;
+  }
+  window.awakFinalJoueurInit = joueurInit;
+  function _coupRiposte(workout) {
+    if (workout._riposteBase) return workout._riposteBase;
+    var niv = niveauJoueur();
+    var refPV = 100 + statsReference(niv).END * 5;
+    var n = Math.max(8, _coups(workout).length || 0);
+    // Sur tout le combat, le chasseur de référence encaisse ≈ 1,6 × ses PV (avant
+    // blocage, esquive et régénération) : il finit à la limite, un chasseur équipé tient.
+    workout._riposteBase = Math.max(4, Math.round(1.6 * refPV / (n * 1.2)));
+    return workout._riposteBase;
+  }
+  function riposteEffaceur(workout) {
+    joueurInit(workout);
+    if (workout._joueurMort) return null;
+    var b = {};
+    try { b = typeof window.awakComputeStatBonuses === 'function' ? window.awakComputeStatBonuses() : {}; } catch (e) {}
+    var res = { dmg: 0, esquive: false, bloque: 0, soin: 0, releve: false, mort: false };
+    // Régénération END après ta série (avant le coup)
+    var regen = Math.round((b.hpRegen || 0) * (b.hpRegenMult || 1));
+    if (regen > 0 && workout._joueurPV < workout._joueurPVMax) {
+      var av = workout._joueurPV;
+      workout._joueurPV = Math.min(workout._joueurPVMax, workout._joueurPV + regen);
+      res.soin = workout._joueurPV - av;
+    }
+    try { if (typeof window.awakIsInvincible === 'function' && window.awakIsInvincible()) return res; } catch (e) {}
+    if (Math.random() < (b.dodgeChance || 0)) { res.esquive = true; workout._derniereRiposte = { esquive: true, t: Date.now() }; return res; }
+    var ph = workout._phase || 0;
+    var mult = [1, 1.1, 1.25, 1.45][ph] || 1;
+    var brut = _coupRiposte(workout) * mult * (0.85 + Math.random() * 0.3);
+    var vit = 0;
+    try { vit = (window.awakGetTotalStats ? window.awakGetTotalStats() : {}).VIT || 0; } catch (e) {}
+    var red = Math.min(0.40, vit / (vit + 300));
+    var dmg = Math.max(1, Math.round(brut * (1 - red)));
+    res.bloque = Math.max(0, Math.round(brut) - dmg);
+    res.dmg = dmg;
+    workout._joueurPV = Math.max(0, workout._joueurPV - dmg);
+    if (workout._joueurPV <= 0) {
+      if ((workout._releves || 0) > 0) {
+        workout._releves--;
+        workout._joueurPV = Math.max(1, Math.round(workout._joueurPVMax * 0.3));
+        res.releve = true;
+      } else {
+        workout._joueurMort = true;
+        res.mort = true;
+      }
+    }
+    workout._derniereRiposte = { dmg: dmg, t: Date.now() };
+    return res;
+  }
+  window.awakFinalRiposte = riposteEffaceur;
+
+  // « Le Système te relève » : courte carte plein écran
+  function releveFinale(restants, apres) {
+    var vieux = document.getElementById('awakFinalReleve'); if (vieux) vieux.remove();
+    var ov = document.createElement('div');
+    ov.id = 'awakFinalReleve';
+    ov.setAttribute('data-emoji-keep', '');
+    ov.style.cssText = 'position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:24px;background:radial-gradient(ellipse at 50% 40%,rgba(30,27,75,.96),#050507 72%);animation:awakFadeIn .4s;';
+    ov.innerHTML = '<div style="max-width:400px;width:100%;text-align:center;">'
+      + '<div style="font-family:var(--font-display),sans-serif;font-size:12px;letter-spacing:6px;color:#a5b4fc;font-weight:700;">[ SYSTÈME ]</div>'
+      + '<h2 style="font-family:var(--font-display),sans-serif;font-size:2em;color:#fff !important;margin:8px 0 12px;">Relève-toi</h2>'
+      + '<p style="color:#cbd5e1;font-size:.95em;line-height:1.65;margin:0 0 8px;">Tes PV sont tombés à zéro. Le Système te relève à 30 %.</p>'
+      + '<p style="color:#fca5a5;font-size:.85em;font-weight:700;line-height:1.5;margin:0 0 20px;">' + (restants > 0 ? 'Il te reste encore une chance.' : 'C\'est ta dernière chance. Si tu tombes encore, tout est à refaire.') + '</p>'
+      + '<button style="width:100%;padding:14px;border:none;border-radius:14px;background:linear-gradient(135deg,#3730a3,#6366f1);color:#fff;font-family:var(--font-display),sans-serif;font-weight:700;font-size:1em;letter-spacing:1px;cursor:pointer;">Continuer le combat</button>'
+      + '</div>';
+    var fini = false;
+    function fermer() { if (fini) return; fini = true; ov.remove(); if (typeof apres === 'function') apres(); }
+    ov.querySelector('button').onclick = fermer;
+    document.body.appendChild(ov);
+    try { if (navigator.vibrate) navigator.vibrate([80, 60, 160]); } catch (e) {}
+  }
+  window.awakFinalReleve = releveFinale;
+
 
   // v1480 : séance finie, l'Effaceur n'est pas tombé → défaite, tout est à refaire
-  function defaiteFinale(pct, plancher) {
+  function defaiteFinale(pct, plancher, mort) {
     document.getElementById('awakFinalDefaite')?.remove();
     var ov = document.createElement('div');
     ov.id = 'awakFinalDefaite';
     ov.setAttribute('data-emoji-keep', '');
     ov.style.cssText = 'position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:24px;background:radial-gradient(ellipse at 50% 35%,#1a0d10,#050507 70%);animation:awakFadeIn .6s;';
-    var img = (window.AwakRiftVis && AwakRiftVis.monstre) ? AwakRiftVis.monstre('L’Effaceur', '#94a3b8', 170, false) : '';
+    var img = (window.AwakRiftVis && AwakRiftVis.monstre) ? AwakRiftVis.monstre('L’Effaceur assis', '#94a3b8', 170, false) : '';
     ov.innerHTML = '<div style="max-width:420px;width:100%;text-align:center;">'
       + '<div style="display:flex;justify-content:center;opacity:.85;filter:grayscale(.4);">' + img + '</div>'
-      + '<div style="font-family:var(--font-display),sans-serif;font-size:13px;letter-spacing:6px;color:#f87171;font-weight:700;margin-top:10px;">IL TIENT ENCORE</div>'
+      + '<div style="font-family:var(--font-display),sans-serif;font-size:13px;letter-spacing:6px;color:#f87171;font-weight:700;margin-top:10px;">' + (mort ? 'TU ES TOMBÉ' : 'IL TIENT ENCORE') + '</div>'
       + '<h2 style="font-family:var(--font-display),sans-serif;font-size:2em;color:#fff !important;margin:6px 0 14px;">Il se rassoit</h2>'
-      + '<p style="color:#cbd5e1;font-size:.95em;line-height:1.65;margin:0 0 10px;font-style:italic;">« Tu vois ? Même toi. » Il lui restait ' + pct + ' % de ses forces. Le blanc se referme doucement.</p>'
-      + '<p style="color:#94a3b8;font-size:.85em;line-height:1.6;margin:0 0 20px;">' + (plancher ? 'Le Système : « Tu es arrivé trop faible pour lui. Répartis tes points, équipe-toi, entraîne-toi, puis reviens. Il t\'attendra — entier. »' : 'Le Système : « Ce n\'est pas fini. Chaque série au bout, chaque rep comptée : c\'est comme ça qu\'il tombe. Il t\'attendra — entier. »') + '</p>'
+      + '<p style="color:#cbd5e1;font-size:.95em;line-height:1.65;margin:0 0 10px;font-style:italic;">« Tu vois ? Même toi. » ' + (mort ? 'Tu es tombé deux fois. ' : '') + 'Il lui restait ' + pct + ' % de ses forces. Le blanc se referme doucement.</p>'
+      + '<p style="color:#94a3b8;font-size:.85em;line-height:1.6;margin:0 0 20px;">' + (mort ? 'Le Système : « Tes PV n\'ont pas tenu. Monte ton END et ta VIT, équipe-toi, prends une Larme du Système, puis reviens. Il t\'attendra — entier. »' : plancher ? 'Le Système : « Tu es arrivé trop faible pour lui. Répartis tes points, équipe-toi, entraîne-toi, puis reviens. Il t\'attendra — entier. »' : 'Le Système : « Ce n\'est pas fini. Chaque série au bout, chaque rep comptée : c\'est comme ça qu\'il tombe. Il t\'attendra — entier. »') + '</p>'
       + '<button style="width:100%;padding:15px;border:none;border-radius:14px;background:linear-gradient(135deg,#7f1d1d,#dc2626);color:#fff;font-family:var(--font-display),sans-serif;font-weight:700;font-size:1.05em;letter-spacing:1px;cursor:pointer;">Revenir plus fort</button>'
       + '</div>';
     ov.querySelector('button').onclick = function () { ov.remove(); try { if (typeof switchTab === 'function') switchTab('game'); } catch (e) {} };
@@ -519,12 +622,12 @@
   var PALIERS = {
     1: { sous: 'PHASE 2', nom: 'Il se lève', ligne: 'Pour la première fois depuis quarante et un ans, Nabdano se lève.', couleur: '#a855f7' },
     2: { sous: 'PHASE 3', nom: 'Le blanc s\'épaissit', ligne: 'Son aura vire au rouge. Il durcit : tes coups portent un peu moins.', couleur: '#dc2626' },
-    3: { sous: 'DERNIÈRE PHASE', nom: 'Il se fissure', ligne: 'Des fissures de lumière le traversent. Tes coups font +30 %. Finis-le.', couleur: '#fbbf24' }
+    3: { sous: 'DERNIÈRE PHASE', nom: 'Sa vraie forme', ligne: 'Il libère tout ce qu\'il retenait depuis quarante et un ans. Ses ripostes n\'ont jamais été aussi fortes. Tiens bon.', couleur: '#fbbf24' }
   };
   function palierFinal(n) {
     var P = PALIERS[n]; if (!P || !window.AwakRiftVis || !AwakRiftVis.bossIntro) return;
     try { if (n === 3 && window.AwakMusique && AwakMusique.intensifier) AwakMusique.intensifier(); } catch (e) {}
-    AwakRiftVis.bossIntro({ nom: P.nom, sousTitre: P.sous, couleur: P.couleur, ligne: P.ligne, monstreNom: 'L’Effaceur', duree: 3200 });
+    AwakRiftVis.bossIntro({ nom: P.nom, sousTitre: P.sous, couleur: P.couleur, ligne: P.ligne, monstreNom: ['', 'L’Effaceur', 'L’Effaceur rouge', 'L’Effaceur ultime'][n] || 'L’Effaceur', duree: 3200 });
   }
   window.awakFinalPalier = palierFinal;
   window.awakFinalPhaseCouleur = function (ph) { return ['#e2e8f0', '#a855f7', '#dc2626', '#fbbf24'][ph || 0] || '#dc2626'; };
@@ -552,7 +655,7 @@
         + '--dx:' + Math.round(Math.cos(a) * d) + 'px;--dy:' + Math.round(Math.sin(a) * d - 60) + 'px;--r:' + Math.round(Math.random() * 720 - 360) + 'deg;'
         + 'animation:fcFrag ' + (1.6 + Math.random() * 1.4).toFixed(2) + 's ' + (1.1 + Math.random() * 0.8).toFixed(2) + 's ease-out both;"></span>';
     }
-    var img = (window.AwakRiftVis && AwakRiftVis.monstre) ? AwakRiftVis.monstre('L’Effaceur', '#f8fafc', Math.min(300, Math.round(window.innerWidth * 0.7)), false) : '';
+    var img = (window.AwakRiftVis && AwakRiftVis.monstre) ? AwakRiftVis.monstre('L’Effaceur ultime', '#f8fafc', Math.min(300, Math.round(window.innerWidth * 0.7)), false) : '';
     ov.style.cssText = 'position:fixed;inset:0;z-index:100001;overflow:hidden;background:#030306;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:24px;';
     ov.innerHTML = '<div style="position:relative;animation:fcTremble .9s ease-in-out .2s both;">'
       +   '<div style="animation:fcEfface 2.4s 1s ease-in both;">' + img + '</div></div>'

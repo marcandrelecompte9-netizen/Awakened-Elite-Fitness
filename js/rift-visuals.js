@@ -217,6 +217,8 @@
     // boss des Failles (v1466-1467) + boss final
     "reine de l'aurore": 'boss_frozen_aurora', 'reine de l\u2019aurore': 'boss_frozen_aurora', 'le dormeur éternel': 'boss_dream_engine', 'le vide lumineux': 'boss_hollow_sun',
     "l'effaceur": 'boss_final', 'l\u2019effaceur': 'boss_final',
+    // v1489 : ses formes selon la phase du combat final (repli : boss_final)
+    'l\u2019effaceur assis': 'boss_final_assis', 'l\u2019effaceur rouge': 'boss_final_rouge', 'l\u2019effaceur ultime': 'boss_final_ultime',
     "sentinelle figée": 'boss_frozen_city', "léviathan organique": 'boss_organic_desert', "léviathan des abysses": 'boss_underground_ocean', "anti-soi": 'boss_inverted_reality', "cœur battant des murs": 'boss_living_hospital', "locomotive vivante": 'boss_dimensional_train', "le livre interdit": 'boss_infinite_library', "enclume stellaire": 'boss_celestial_forge', "fleur-mère carnivore": 'boss_carnivore_garden', "cloche du jugement": 'boss_glass_cathedral', "phénix éteint": 'boss_ash_wasteland', "grande mécanique": 'boss_clockwork_void', "roi des profondeurs": 'boss_drowned_palace', "le vrai toi": 'boss_mirror_labyrinth', "titan ressuscité": 'boss_titan_graveyard', "seigneur de la tempête": 'boss_storm_peak', "cœur du marais": 'boss_whisper_marsh', "ia souveraine": 'boss_neon_megacity', "colosse de l'arène": 'boss_bone_colosseum', "colosse de l\u2019arène": 'boss_bone_colosseum'
   };
   function _fichier(nom) {
@@ -224,6 +226,11 @@
     return IMG_NOM[k] || ('monstre_' + _dessin(nom, _type(nom)));
   }
   window.__awkMonRepli = function (id) { var s = _repli[id] || ''; delete _repli[id]; return s; };
+  window.__awkMonErr = function (img, id) {
+    var r = img.getAttribute('data-r2');
+    if (r) { img.removeAttribute('data-r2'); img.src = r; return; }
+    img.parentNode.outerHTML = window.__awkMonRepli(id);
+  };
   function monstre(nom, col, taille, boss) {
     _styles();
     col = col || '#a855f7';
@@ -234,7 +241,8 @@
       + (boss ? '<div class="awk-mon-anneau" style="position:absolute;inset:-4%;border-radius:50%;border:1px dashed ' + col + '88;"></div>' : '')
       + '<img class="awk-mon-corps" src="images/Monstres/' + fic + '.webp" alt="" draggable="false" width="' + px + '" height="' + px + '"'
       +   ' style="position:relative;width:100%;height:100%;object-fit:contain;display:block;filter:drop-shadow(0 4px 10px rgba(0,0,0,0.7)) drop-shadow(0 0 6px ' + col + '66);"'
-      +   ' onerror="this.parentNode.outerHTML=window.__awkMonRepli(\'' + id + '\')">'
+      +   (fic.indexOf('boss_final_') === 0 ? ' data-r2="images/Monstres/boss_final.webp"' : '')
+      +   ' onerror="window.__awkMonErr(this,\'' + id + '\')">'
       + '</div>';
   }
   function _monstreSvg(nom, col, taille, boss) {
@@ -451,6 +459,7 @@
     var el = document.createElement('div');
     el.id = 'awkBossIntro';
     el.setAttribute('data-emoji-keep', '');
+    if (o.zIndex) el.style.zIndex = String(o.zIndex);
     el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Boss : ' + (o.nom || ''));
     // couleur via variable : le thème sombre remplace certains « color:#… » exacts
     el.style.setProperty('--bic', col);

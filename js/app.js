@@ -15738,6 +15738,26 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             if (typeof _renderBossHpBar === 'function') _renderBossHpBar(currentWorkout);
                             // v1479 : changement de phase (75 / 50 / 25 %)
                             if (_r.palier && typeof window.awakFinalPalier === 'function') setTimeout(() => { try { window.awakFinalPalier(_r.palier); } catch (e) {} }, 700);
+                            // v1487 : RIPOSTE de l'Effaceur sur tes PV
+                            const _rp = _r.riposte;
+                            if (_rp) {
+                                setTimeout(() => {
+                                    try {
+                                        if (_rp.esquive) showToast('ESQUIVE : tu as lu son geste (PER)', 'info', 2000);
+                                        else if (_rp.dmg > 0) showToast('L’Effaceur riposte : −' + _rp.dmg + ' PV' + (_rp.bloque > 0 ? ' (' + _rp.bloque + ' bloqués)' : ''), 'error', 2200);
+                                        if (currentWorkout && typeof _renderBossHpBar === 'function') _renderBossHpBar(currentWorkout);
+                                    } catch (e) {}
+                                }, 1100);
+                                if (_rp.releve && typeof window.awakFinalReleve === 'function') {
+                                    const _rest = currentWorkout._releves || 0;
+                                    setTimeout(() => { try { window.awakFinalReleve(_rest); } catch (e) {} }, 1500);
+                                }
+                                if (_rp.mort) {
+                                    // Deuxième chute : le combat s'arrête, défaite (la séance est gardée)
+                                    setTimeout(() => { try { if (currentWorkout && currentWorkout._isFinalBoss && !currentWorkout._completed) completeWorkout(); } catch (e) {} }, 1600);
+                                    return 'mort';
+                                }
+                            }
                         }
                     }
                 }
@@ -15763,7 +15783,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // exactement comme un ennemi de Faille. Auparavant les dégâts étaient
             // appliqués au changement d'exercice : la barre semblait suivre la
             // progression de la séance au lieu de réagir aux coups portés.
-            _awakFrapperFinal();
+            if (_awakFrapperFinal() === 'mort') { clearInterval(timerInterval); return; }
 
             const repsInput   = document.getElementById('quickRepsInput');
             const weightInput = document.getElementById('quickWeightInput');
@@ -24068,7 +24088,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1484);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1494);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -24121,7 +24141,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     window._awakMasqueCorps(img).defs
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1484" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1494" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     '<g mask="url(#' + window._awakMasqueCorps(img).id + ')">' + svgZones + '</g>'
                 +   '</svg>'
@@ -27786,7 +27806,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         // v1479 : combat final — un exercice au chrono frappe aussi l'Effaceur
                         // (avant : seules les séries validées comptaient, les actes Endurance
                         // et Volonté, presque tout au chrono, ne lui faisaient rien).
-                        if (currentWorkout && currentWorkout._isFinalBoss) _awakFrapperFinal();
+                        if (currentWorkout && currentWorkout._isFinalBoss && _awakFrapperFinal() === 'mort') { clearInterval(timerInterval); return; }
                         
                         if (currentWorkout && (currentWorkout._isRift || currentWorkout._isHunt)) {
                             window._riftEndingFlow = true; // 🔒 lock
@@ -29136,12 +29156,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // v1479 : bandeau « cinéma » — l'Effaceur, sa phase, une barre découpée en
             // quatre phases (75 / 50 / 25 %), dégâts flottants et secousse à chaque coup.
             try { if (typeof window.awakFinalCalibrer === 'function') window.awakFinalCalibrer(workout); } catch (e) {}
+            try { if (typeof window.awakFinalJoueurInit === 'function') window.awakFinalJoueurInit(workout); } catch (e) {}
             const hp = Math.max(0, workout._bossHp || 0);
             const max = workout._bossHpMax || 1;
             const pct = Math.max(0, Math.min(100, Math.round((hp / max) * 100)));
             const ph = workout._phase || 0;
             const col = (typeof window.awakFinalPhaseCouleur === 'function') ? window.awakFinalPhaseCouleur(ph) : '#dc2626';
-            const NOMS = ['Assis dans le blanc', 'Debout', 'Le blanc s’épaissit', 'Fissuré'];
+            const NOMS = ['Assis dans le blanc', 'Debout', 'Le blanc s’épaissit', 'Sa vraie forme'];
             bar.setAttribute('data-emoji-keep', '');
             bar.style.cssText = 'position:relative;margin:0 0 12px;padding:12px 14px;border-radius:16px;overflow:hidden;'
                 + 'background-color:#07070b;background-image:radial-gradient(120% 140% at 0% 50%,' + col + '33 0%,rgba(7,7,11,0.92) 55%),url(images/faille_ouverte.webp);background-size:cover;background-position:center;'
@@ -29154,7 +29175,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     + '@media(prefers-reduced-motion:reduce){#awakBossHpBar *{animation:none!important}}';
                 document.head.appendChild(st);
             }
-            const img = (window.AwakRiftVis && AwakRiftVis.monstre) ? AwakRiftVis.monstre('L’Effaceur', col, 74, true) : '';
+            const img = (window.AwakRiftVis && AwakRiftVis.monstre) ? AwakRiftVis.monstre(['L’Effaceur assis', 'L’Effaceur', 'L’Effaceur rouge', 'L’Effaceur ultime'][ph] || 'L’Effaceur', col, 74, true) : '';
             const ticks = [75, 50, 25].map(v => '<div style="position:absolute;top:-2px;bottom:-2px;left:' + v + '%;width:2px;background:rgba(0,0,0,0.75);box-shadow:0 0 0 1px ' + col + '55;"></div>').join('');
             bar.innerHTML =
                 '<div style="display:flex;align-items:center;gap:12px;">'
@@ -29173,7 +29194,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
               +     '<div style="font-size:0.62em;color:#cbd5e1;font-weight:700;margin-top:5px;font-variant-numeric:tabular-nums;">' + hp.toLocaleString('fr-FR') + ' / ' + max.toLocaleString('fr-FR') + ' PV</div>'
               +     (workout._bossPlancher ? '<div style="font-size:0.6em;color:#fca5a5;font-weight:800;margin-top:3px;">Tu es sous le niveau attendu : dépasse tes objectifs pour le tomber.</div>' : '')
               +   '</div>'
-              + '</div>';
+              + '</div>'
+              + _awakFbBarreJoueur(workout);
             bar.style.setProperty('--fbc', col);
             // Coup reçu : secousse + dégâts flottants (une fois par coup)
             const c = workout._dernierCoup;
@@ -29187,6 +29209,25 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 bar.appendChild(d);
                 try { if (navigator.vibrate) navigator.vibrate(35); } catch (e) {}
             }
+        }
+
+        // v1487 : tes PV dans le combat final (sous la barre de l'Effaceur)
+        function _awakFbBarreJoueur(w) {
+            if (typeof w._joueurPV !== 'number') return '';
+            const max = w._joueurPVMax || 1, pv = Math.max(0, w._joueurPV);
+            const p = Math.max(0, Math.min(100, Math.round(pv / max * 100)));
+            const c = p > 50 ? '#60a5fa' : p > 25 ? '#f59e0b' : '#ef4444';
+            const rel = w._releves || 0;
+            const r = w._derniereRiposte;
+            const frais = r && r.t && Date.now() - r.t < 2500;
+            return '<div style="margin-top:10px;padding-top:9px;border-top:1px solid rgba(255,255,255,0.08);">'
+                + '<div style="display:flex;align-items:baseline;gap:8px;font-size:0.66em;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;">'
+                +   '<span style="color:#e2e8f0;">Tes PV</span>'
+                +   '<span style="color:#94a3b8;font-weight:700;letter-spacing:0.5px;text-transform:none;">' + (rel > 0 ? 'Le Système peut te relever' + (rel > 1 ? ' ×' + rel : '') : 'Dernière chance utilisée') + '</span>'
+                +   '<span style="margin-left:auto;color:' + c + ';font-variant-numeric:tabular-nums;' + (frais && !r.esquive ? 'animation:fbHudCoup .5s ease-out;display:inline-block;' : '') + '">' + pv + ' / ' + max + '</span></div>'
+                + '<div style="height:8px;margin-top:5px;border-radius:99px;background:rgba(0,0,0,0.55);border:1px solid rgba(255,255,255,0.1);overflow:hidden;">'
+                +   '<div style="height:100%;width:' + p + '%;border-radius:99px;background:' + c + ';box-shadow:0 0 8px ' + c + ';transition:width .6s cubic-bezier(.16,1,.3,1);"></div></div>'
+                + '</div>';
         }
 
         // ⭐ v1223 : fête un exercice terminé (séries enregistrées, ou chrono
@@ -29811,7 +29852,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1484");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1494");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -34730,7 +34771,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1484);'
+                +     'url(images/combat_bg_v1.webp?v=1494);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -35078,7 +35119,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1484);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1494);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -35427,7 +35468,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:540px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto;display:flex;flex-direction:column;">
                 <!-- Header : vague actuelle -->
-                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1484);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1494);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                         <span style="font-size:0.6em;color:${theme.color};font-weight:900;letter-spacing:2px;">⚔ VAGUE ${rift.currentWaveIdx + 1} / ${rift.waves.length}${currentWave.isBoss ? ' · BOSS' : ''}</span>
                         <button onclick="awakAbandonRift()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
@@ -36606,7 +36647,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1484');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1494');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -37363,7 +37404,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1484);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1494);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -37534,7 +37575,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1484);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1494);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -42381,11 +42422,17 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             window._awakFinSansFile = !!_wasFinalBoss;   // v1413 : la victoire finale ne fait pas la file
             window._awakSeanceFinieIci = true;            // v1413 : visite de l'Accueil remise à la prochaine ouverture
             // v1480 : victoire SEULEMENT s'il est tombé ; sinon défaite, tout est à refaire
-            const _fbReste = _wasFinalBoss ? Math.max(0, currentWorkout._bossHp || 0) : 0;
-            if (_wasFinalBoss && _fbReste > 0 && typeof window.awakFinalDefaite === 'function') {
+            // v1487 : la victoire exige la PREUVE qu'il est tombé (_bossVaincu, posé au coup
+            // fatal). Avant : « PV manquants » valait 0 → victoire même après une défaite.
+            if (_wasFinalBoss) { try { if (typeof window.awakFinalCalibrer === 'function') window.awakFinalCalibrer(currentWorkout); } catch (e) {} }
+            const _fbTombe = _wasFinalBoss && currentWorkout._bossVaincu === true && currentWorkout._bossHp === 0 && !currentWorkout._joueurMort;
+            if (_wasFinalBoss && currentWorkout._larme) { try { awakConsumablesConsume(); } catch (e) {} }
+            if (_wasFinalBoss && !_fbTombe && typeof window.awakFinalDefaite === 'function') {
+                const _fbReste = typeof currentWorkout._bossHp === 'number' ? Math.max(0, currentWorkout._bossHp) : (currentWorkout._bossHpMax || 1);
                 const _pctR = Math.max(1, Math.round(_fbReste / (currentWorkout._bossHpMax || 1) * 100));
                 const _plch = !!currentWorkout._bossPlancher;
-                try { setTimeout(() => window.awakFinalDefaite(_pctR, _plch), 2500); } catch (e) {}
+                const _mort = !!currentWorkout._joueurMort;
+                try { setTimeout(() => window.awakFinalDefaite(_pctR, _plch, _mort), 2500); } catch (e) {}
             } else if (_wasFinalBoss && currentWorkout._essaiDev) {
                 // v1482 : essai du mode développeur → visuels de victoire, rien d'enregistré
                 window._awakFinEssai = true;
@@ -42800,7 +42847,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try {
                 const heroImg = document.getElementById('completionHeroImage');
                 if (heroImg) {
-                    const jeuActif = (typeof rpgEnabled === 'function') && rpgEnabled();
+                    // v1488 : combat final perdu → pas d'image de victoire
+                    const _fbPerdu = currentWorkout && currentWorkout._isFinalBoss && !(currentWorkout._bossVaincu === true && currentWorkout._bossHp === 0 && !currentWorkout._joueurMort);
+                    const jeuActif = (typeof rpgEnabled === 'function') && rpgEnabled() && !_fbPerdu;
+                    const _h2 = document.querySelector('#completionView h2');
+                    if (_h2) _h2.textContent = _fbPerdu ? 'Il tient encore' : 'Bravo !';
                     if (jeuActif) {
                         const _chosen = (typeof awakUserHero === 'function') ? awakUserHero() : '';
                         const hero = _chosen || (Math.random() < 0.5 ? 'esen' : 'nyra');
@@ -48983,7 +49034,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
               // v1393 : hauteur réservée (aspect-ratio) — sinon l'image recréée
               // n'a aucune hauteur le temps d'un décodage, le formulaire saute
               // de ~160 px et le toucher sur le champ suivant tombe à côté.
-              +   '<img src="images/body/body_face.webp?v=1484" alt="" width="784" height="1168" '
+              +   '<img src="images/body/body_face.webp?v=1494" alt="" width="784" height="1168" '
               +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -49065,7 +49116,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1484);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1494);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -49132,7 +49183,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1484);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1494);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -51585,7 +51636,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1484");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1494");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
