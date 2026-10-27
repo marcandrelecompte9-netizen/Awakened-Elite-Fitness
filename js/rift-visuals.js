@@ -241,9 +241,11 @@
     return '<div class="awk-mon-img" data-emoji-keep style="position:relative;width:' + px + 'px;height:' + px + 'px;display:block;">'
       + '<div class="awk-mon-aura" style="position:absolute;inset:' + (boss ? '-6%' : '4%') + ';border-radius:50%;background:radial-gradient(circle,' + col + '55 0%,' + col + '00 68%);"></div>'
       + (boss ? '<div class="awk-mon-anneau" style="position:absolute;inset:-4%;border-radius:50%;border:1px dashed ' + col + '88;"></div>' : '')
-      + '<img class="awk-mon-corps" src="images/Monstres/' + fic + '.webp" alt="" draggable="false" width="' + px + '" height="' + px + '"'
+      // v1510 : les images de Nabdano ont été refaites sous le MÊME nom (boss_final.webp) :
+      // un numéro de version force le téléphone à recharger la nouvelle au lieu du cache.
+      + '<img class="awk-mon-corps" src="images/Monstres/' + fic + '.webp' + (fic.indexOf('boss_final') === 0 ? '?v=2' : '') + '" alt=""" draggable="false" width="' + px + '" height="' + px + '"'
       +   ' style="position:relative;width:100%;height:100%;object-fit:contain;display:block;filter:drop-shadow(0 4px 10px rgba(0,0,0,0.7)) drop-shadow(0 0 6px ' + col + '66);"'
-      +   (fic.indexOf('boss_final_') === 0 ? ' data-r2="images/Monstres/boss_final.webp"' : '')
+      +   (fic.indexOf('boss_final_') === 0 ? ' data-r2="images/Monstres/boss_final.webp?v=2"' : '')
       +   ' onerror="window.__awkMonErr(this,\'' + id + '\')">'
       + '</div>';
   }

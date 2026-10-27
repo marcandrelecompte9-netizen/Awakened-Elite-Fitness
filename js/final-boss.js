@@ -161,7 +161,7 @@
     var DURETE = 1.25;
     var pvToi = Math.round(_pvPour(coups) * DURETE);
     var pvMin = Math.round(_pvPour(_coups(workout, statsReference(niv))) * DURETE);
-    var pv = Math.max(pvToi, pvMin);
+    var pv = Math.round(Math.max(pvToi, pvMin) * facteurPVEquipe(workout));   // v1511 : l'équipe aide → il encaisse plus
     workout._bossHpMax = pv;
     workout._bossHp = pv;
     workout._hpCalibre = true;
@@ -303,6 +303,7 @@
     }
     const exercises = buildFinalWorkout();
     imagesCombat(true);   // v1506 : images du champ de bataille dès le 1er exercice
+    try { document.body.classList.add('awk-fb'); } catch (e) {}
     // ⚔️ PV DU MONARQUE : le combat final utilise enfin le build du joueur.
     // Chaque exercice terminé retire des dégâts calculés selon la stat de l'acte.
     const hpMax = monarqueHP();
@@ -368,7 +369,17 @@
   }
   window.awakFinalImages = imagesCombat;
   setInterval(function () {
-    try { imagesCombat(typeof window.awakSeanceContexte === 'function' && window.awakSeanceContexte() === 'final'); } catch (e) {}
+    try {
+      var fb = typeof window.awakSeanceContexte === 'function' && window.awakSeanceContexte() === 'final';
+      imagesCombat(fb);
+      // v1508 : pas de « Préc. » ni de « Remplacer » pendant le combat final
+      document.body.classList.toggle('awk-fb', !!fb);
+      if (!document.getElementById('awkFbCss')) {
+        var st = document.createElement('style'); st.id = 'awkFbCss';
+        st.textContent = 'body.awk-fb #prevBtn,body.awk-fb #swapBtn{display:none!important}body.awk-fb #awakBarreActions #awakSuivantBtn{grid-column:1/-1}';
+        document.head.appendChild(st);
+      }
+    } catch (e) {}
   }, 1000);
 
   // ⚔️ Applique les dégâts d'un exercice terminé à l’Effaceur.
@@ -395,16 +406,25 @@
     var avant = (workout._bossHp || 0) / max * 100;
     var ph = workout._phase || 0;
     if (ph >= 2) degats = Math.round(degats * 0.9);   // v1491 : plus de bonus +30 % en dernière phase
-    workout._bossHp = Math.max(0, (workout._bossHp || 0) - degats);
+    var aides = aidesCoup(workout, degats);            // v1511 : les alliés frappent aussi
+    workout._bossHp = Math.max(0, (workout._bossHp || 0) - degats - aides.extra);
     var apres = workout._bossHp / max * 100;
     var palier = null;
     [[75, 1], [50, 2], [25, 3]].forEach(function (s) {
       if (avant > s[0] && apres <= s[0] && workout._bossHp > 0 && (workout._phase || 0) < s[1]) { workout._phase = s[1]; palier = s[1]; }
     });
-    workout._dernierCoup = { dmg: degats, t: Date.now() };
+    // v1511 : Yuna — le Noyau répond à chaque changement de phase
+    if (palier && aUn(workout, 'Yuna') && workout._bossHp > 0) {
+      var dy = Math.max(1, Math.round(max * 0.03));
+      workout._bossHp = Math.max(1, workout._bossHp - dy);
+      aides.liste.push({ nom: 'Yuna', dmg: dy, txt: 'le Noyau répond : −' + dy + ' PV' });
+    }
+    if (palier) workout._chenBloc = 1;   // Chen relit son geste à chaque phase
+    workout._dernierCoup = { dmg: degats + aides.extra, t: Date.now() };
     if (workout._bossHp <= 0) workout._bossVaincu = true;   // v1487 : seule preuve de victoire
     var riposte = workout._bossHp > 0 ? riposteEffaceur(workout, f) : null;
     return {
+      aides: aides.liste,
       riposte: riposte,
       palier: palier,
       degats: degats,
@@ -417,6 +437,163 @@
     };
   }
   window.awakFrapperMonarque = frapperMonarque;
+
+  // v1511 : LES ALLIÉS AGISSENT, chacun selon sa Loi (ses statistiques) :
+  //  · partenaire (Esen/Nyra) : frappe avec toi, 1 coup sur 6 (+30 % de ce coup)
+  //  · Marcus (Force)        : 1 coup sur 4, il frappe aussi (+40 % de ce coup)
+  //  · Kira (Agilité)        : 1 coup sur 5, frappe le point faible (+50 %)
+  //  · Yuna (Noyau)          : à chaque changement de phase, −3 % de ses PV max
+  //  · Chen (Perception)     : lit son geste — annule 1 riposte par phase
+  //  · Élise (Récupération)  : sous 40 % de tes PV, te soigne de 15 % (1 fois par phase)
+  // En échange, l'Effaceur est plus solide (PV et ripostes calibrés sur l'équipe).
+  function equipe(workout) {
+    if (workout._equipe) return workout._equipe;
+    var P = parcours();
+    workout._equipe = { part: partenaire(), noms: P.noms.slice() };
+    return workout._equipe;
+  }
+  function aUn(workout, nom) { return equipe(workout).noms.indexOf(nom) >= 0; }
+  function facteurPVEquipe(workout) {
+    var s = 0.05 + (aUn(workout, 'Marcus') ? 0.10 : 0) + (aUn(workout, 'Kira') ? 0.10 : 0);
+    var y = aUn(workout, 'Yuna') ? 0.09 : 0;
+    return 1.05 * (1 + s) / (1 - y);   // +5 % de base (« légèrement plus fort »)
+  }
+  function facteurRiposteEquipe(workout) {
+    return 1.05 + (aUn(workout, 'Élise') ? 0.08 : 0) + (aUn(workout, 'Chen') ? 0.08 : 0);
+  }
+  function aidesCoup(workout, degats) {
+    var A = [], n = workout._nCoup = (workout._nCoup || 0) + 1, E = equipe(workout);
+    function frappe(nom, part, txt) { var d = Math.max(1, Math.round(degats * part)); A.push({ nom: nom, dmg: d, txt: txt.replace('{d}', d) }); return d; }
+    var extra = 0;
+    if (n % 6 === 0) extra += frappe(E.part, 0.30, 'frappe avec toi : −{d} PV');
+    if (aUn(workout, 'Marcus') && n % 4 === 0) extra += frappe('Marcus', 0.40, 'cogne de toute sa force : −{d} PV');
+    if (aUn(workout, 'Kira') && n % 5 === 0) extra += frappe('Kira', 0.50, 'frappe le point faible : −{d} PV');
+    return { liste: A, extra: extra };
+  }
+
+  // v1507 : NABDANO NARGUE le joueur pendant le combat (bulle dans le bandeau,
+  // copiée dans le journal). Il ne crie pas : il est las, calme, il invite à s'asseoir.
+  var NARGUES = {
+    general: [
+      "Tu crois être le premier à essayer ?",
+      "Encore une série. Et après ? Encore une. Ça ne finit jamais.",
+      "Moi aussi, je comptais mes séries. Au début.",
+      "Tes bras tremblent déjà. Je le vois d'ici.",
+      "Pourquoi tu te donnes tout ce mal ? Personne ne s'en souviendra.",
+      "Le monde s'efface quand même. Tu ralentis juste la chute."
+    ],
+    faible: [
+      "Moins que prévu. C'est comme ça que ça commence.",
+      "Tu vois ? Tu ralentis déjà.",
+      "Personne ne te regarde. Tu peux arrêter, tu sais.",
+      "La prochaine, tu en feras encore moins."
+    ],
+    fort: [
+      "…Plus que prévu. Pour combien de temps ?",
+      "Garde-en un peu. Tu en auras besoin.",
+      "J'étais comme toi. Regarde où ça m'a mené."
+    ],
+    blesse: [
+      "Assieds-toi. Ça ne fait plus mal, assis.",
+      "Tu tiens à peine debout.",
+      "Un genou à terre. Juste un. Ce n'est pas abandonner.",
+      "Écoute ton corps. Il te supplie d'arrêter."
+    ],
+    esquive: [
+      "Tu esquives. Moi aussi, j'esquivais. Au début.",
+      "Rapide. Mais la fatigue, on ne l'esquive pas."
+    ],
+    chrono: [
+      "Les secondes sont plus longues, ici. Tu l'as remarqué ?",
+      "Compte avec moi. Il en reste trop.",
+      "Le temps, c'est moi. Et j'ai tout mon temps."
+    ],
+    releve: [
+      "Le Système te relève. Il me relevait, moi aussi. Jusqu'au jour où il n'a plus pu.",
+      "Debout, encore. Combien de fois, avant de comprendre ?"
+    ],
+    phase1: ["Ça faisait quarante et un ans que je n'avais pas eu à me lever."],
+    phase2: ["Assez joué. Sens le poids du blanc."],
+    phase3: ["Regarde ce que quarante et un ans de fatigue peuvent faire."]
+  };
+  function nargue(workout, ctx, force) {
+    if (!workout || !workout._isFinalBoss || workout._joueurMort || workout._bossHp <= 0) return null;
+    var now = Date.now(), der = workout._nargueT || 0;
+    if (!force && (now - der < 22000 || Math.random() > 0.6)) return null;
+    var L = NARGUES[ctx] || NARGUES.general, vus = workout._nargueVus || (workout._nargueVus = []);
+    var dispo = L.filter(function (x) { return vus.indexOf(x) < 0; });
+    if (!dispo.length) { dispo = L.slice(); workout._nargueVus = vus = vus.filter(function (x) { return L.indexOf(x) < 0; }); }
+    var txt = dispo[Math.floor(Math.random() * dispo.length)];
+    vus.push(txt);
+    workout._nargueT = now;
+    workout._nargue = { txt: txt, t: now };
+    try { var J = workout._journal || (workout._journal = []); J.push({ t: now, ton: 'nab', txt: 'Nabdano : « ' + txt + ' »' }); } catch (e) {}
+    return txt;
+  }
+  window.awakNabdanoNargue = nargue;
+
+  // v1509 : LES ALLIÉS ENCOURAGENT (partenaire + compagnons débloqués). Ils répondent
+  // souvent aux piques de Nabdano, et réagissent quand tu te dépasses ou que tu flanches.
+  var ALLIES = {
+    Esen: { couleur: '#86efac', l: {
+      general: ["Respire. Une à la fois.", "Je suis là.", "On ne s'assoit pas. Pas aujourd'hui."],
+      replique: ["Ne l'écoute pas.", "Il parle. Toi, tu bouges.", "Il ment. Continue."],
+      fort: ["…Bien.", "Comme ça. Exactement comme ça."],
+      blesse: ["Lève-toi. Je ne te laisse pas.", "Encore un peu. Je tiens avec toi."],
+      phase: ["Il se lève parce qu'il a peur.", "Il plie. Ne lâche rien."] } },
+    Nyra: { couleur: '#f0abfc', l: {
+      general: ["Hé ! Tu vas pas me laisser gagner toute seule ?", "Allez, montre-lui ce que t'as dans le ventre !", "T'es plus têtu{e} que lui. Ça se voit."],
+      replique: ["Blablabla. Il parle beaucoup pour quelqu'un qui est resté assis quarante ans.", "Il essaie de te faire douter. Raté.", "Ignore-le, je fais assez de bruit pour deux !"],
+      fort: ["Ouh là ! T'as vu ça ?!", "C'est ça ! Encore !"],
+      blesse: ["Non non non, tu restes debout, compris ?", "Appuie-toi sur moi. Une de plus."],
+      phase: ["Il commence à transpirer, le grand.", "On l'a fait lever. On l'a fait LEVER !"] } },
+    Marcus: { couleur: '#f87171', l: {
+      general: ["Cogne, champion. Cogne encore.", "La douleur, c'est l'entraînement qui entre."],
+      replique: ["Il cause trop. Frappe-le dans le silence.", "J'ai entendu pire sur un ring. Avance."],
+      fort: ["ÇA, c'est une série !", "Costaud. Presque autant que moi."],
+      blesse: ["Garde haute ! Tu tombes pas tant que je regarde."] } },
+    Kira: { couleur: '#c4b5fd', l: {
+      general: ["Je ne marche qu'avec ceux qui ne ratent pas. Ne rate pas.", "Reste précis{e}. Le reste suit."],
+      replique: ["Ses mots, c'est une feinte. Ne mords pas.", "Il cherche une ouverture. Ne lui en donne pas."],
+      fort: ["Propre.", "Là. Tu l'as vu vaciller."] } },
+    'Élise': { couleur: '#7dd3fc', l: {
+      general: ["Ton souffle d'abord. Le reste ensuite.", "Je surveille tes PV. Toi, surveille ta forme."],
+      replique: ["Il veut que tu t'arrêtes. Ton corps peut encore.", "Ce n'est pas de la sagesse, c'est de la fatigue. Ne confonds pas."],
+      blesse: ["Je suis là. Encore une, je te rattrape.", "Tu saignes de fatigue, pas de faiblesse. Tiens."] } },
+    Yuna: { couleur: '#d8b4fe', l: {
+      general: ["Le Noyau t'écoute. Il bat plus fort quand tu bouges.", "Je vois la fin. Tu y es, debout."],
+      replique: ["Il a déjà perdu. Il ne le sait pas encore.", "Sa voix est vide. La tienne, non."] } },
+    Chen: { couleur: '#fcd34d', l: {
+      general: ["Le corps cède quand l'esprit le lui permet.", "Une respiration. Un mouvement. Rien d'autre."],
+      replique: ["Les mots d'un homme fatigué ne sont pas des vérités.", "Il te tend sa fatigue. Refuse le cadeau."],
+      fort: ["Bien. Tu as cessé de penser."] } }
+  };
+  function _alliesDispo() {
+    var P = parcours(), liste = [partenaire()].concat(P.noms);
+    return liste.filter(function (n) { return ALLIES[n]; });
+  }
+  function encourage(workout, ctx, force) {
+    if (!workout || !workout._isFinalBoss || workout._joueurMort || workout._bossHp <= 0) return null;
+    var now = Date.now();
+    if (!force && (now - (workout._encT || 0) < 18000)) return null;
+    var noms = _alliesDispo().filter(function (n) { return ALLIES[n].l[ctx]; });
+    if (!noms.length) { if (ctx === 'general') return null; noms = _alliesDispo().filter(function (n) { return ALLIES[n].l.general; }); ctx = 'general'; }
+    if (!noms.length) return null;
+    // pas deux fois de suite le même allié si possible
+    var autres = noms.filter(function (n) { return n !== workout._encDernier; });
+    var nom = (autres.length ? autres : noms)[Math.floor(Math.random() * (autres.length || noms.length))];
+    var L = ALLIES[nom].l[ctx], vus = workout._encVus || (workout._encVus = []);
+    var dispo = L.filter(function (x) { return vus.indexOf(nom + x) < 0; }); if (!dispo.length) dispo = L;
+    var txt = dispo[Math.floor(Math.random() * dispo.length)];
+    var fem = false; try { fem = (localStorage.getItem('fitproAvatarGender') || 'homme') === 'femme'; } catch (e) {}
+    txt = txt.replace(/\{e\}/g, fem ? 'e' : '');
+    vus.push(nom + txt);
+    workout._encT = now; workout._encDernier = nom;
+    workout._encourage = { nom: nom, couleur: ALLIES[nom].couleur, txt: txt, t: now };
+    try { (workout._journal || (workout._journal = [])).push({ t: now, ton: 'allie', txt: nom + ' : « ' + txt + ' »' }); } catch (e) {}
+    return workout._encourage;
+  }
+  window.awakAllieEncourage = encourage;
 
   // v1487 : PV DU JOUEUR. L'Effaceur riposte après chaque coup. Sa force suit ton
   // NIVEAU (le chasseur de référence), pas ta défense : c'est ton END (PV), ta VIT
@@ -444,7 +621,7 @@
     var n = Math.max(8, _coups(workout).length || 0);
     // Sur tout le combat, le chasseur de référence encaisse ≈ 2 × ses PV (avant
     // blocage, esquive et régénération) : il finit à la limite, un chasseur équipé tient.
-    workout._riposteBase = Math.max(4, Math.round(2.0 * refPV / (n * 1.2)));   // v1501 : 1,6 → 2,0
+    workout._riposteBase = Math.max(4, Math.round(2.0 * refPV / (n * 1.2) * facteurRiposteEquipe(workout)));   // v1501 : 1,6 → 2,0
     return workout._riposteBase;
   }
   function riposteEffaceur(workout, part) {
@@ -463,6 +640,13 @@
     }
     try { if (typeof window.awakIsInvincible === 'function' && window.awakIsInvincible()) return res; } catch (e) {}
     if (Math.random() < (b.dodgeChance || 0)) { res.esquive = true; workout._derniereRiposte = { esquive: true, t: Date.now() }; return res; }
+    // v1511 : Chen a lu son geste → riposte annulée (1 par phase ; la 1re dès le début)
+    if (aUn(workout, 'Chen')) {
+      if (workout._chenBloc == null) workout._chenBloc = 1;
+      if (workout._chenBloc > 0 && (workout._joueurPV / (workout._joueurPVMax || 1)) < 0.75) {
+        workout._chenBloc = 0; res.chen = true; workout._derniereRiposte = { esquive: true, t: Date.now() }; return res;
+      }
+    }
     var ph = workout._phase || 0;
     var mult = [1, 1.1, 1.25, 1.45][ph] || 1;
     var brut = _coupRiposte(workout) * mult * f * (0.85 + Math.random() * 0.3);
@@ -473,6 +657,11 @@
     res.bloque = Math.max(0, Math.round(brut) - dmg);
     res.dmg = dmg;
     workout._joueurPV = Math.max(0, workout._joueurPV - dmg);
+    // v1511 : Élise soigne de 15 % sous 40 % de PV (1 fois par phase)
+    if (workout._joueurPV > 0 && aUn(workout, 'Élise') && workout._joueurPV / (workout._joueurPVMax || 1) < 0.4) {
+      var fe = workout._eliseFaite || (workout._eliseFaite = {});
+      if (!fe[ph]) { fe[ph] = 1; var se = Math.round(workout._joueurPVMax * 0.15); workout._joueurPV = Math.min(workout._joueurPVMax, workout._joueurPV + se); res.elise = se; }
+    }
     if (workout._joueurPV <= 0) {
       if ((workout._releves || 0) > 0) {
         workout._releves--;
