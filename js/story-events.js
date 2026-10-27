@@ -1785,7 +1785,7 @@ const STORY_EVENTS = [
             speaker: 'nabdano',
             title: 'L\'Ancre',
             get pages() { return [
-                "Le combat est fini. Il est toujours assis. Il ne s'est pas levé une seule fois.",
+                "Le combat est fini. Il s'est rassis au milieu du blanc, là où il t'attendait.",
                 "« Tu as gagné, » dit-il. Ce n'est pas de la résignation. C'est un constat.",
                 "Tu ne bouges pas.",
                 "« Pourquoi tu continues ? » Il lève enfin les yeux. « Tu es encore debout. C'est tout ce que tu as. »",

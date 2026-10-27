@@ -157,8 +157,10 @@
     var coups = _coups(workout);
     if (coups.length < 4) return;
     var niv = niveauJoueur();
-    var pvToi = _pvPour(coups);
-    var pvMin = _pvPour(_coups(workout, statsReference(niv)));
+    // v1501 : DURETÉ — il faut dépasser ses objectifs (≈ +12 % en moyenne) pour le tomber
+    var DURETE = 1.25;
+    var pvToi = Math.round(_pvPour(coups) * DURETE);
+    var pvMin = Math.round(_pvPour(_coups(workout, statsReference(niv))) * DURETE);
     var pv = Math.max(pvToi, pvMin);
     workout._bossHpMax = pv;
     workout._bossHp = pv;
@@ -300,6 +302,7 @@
       return;
     }
     const exercises = buildFinalWorkout();
+    imagesCombat(true);   // v1506 : images du champ de bataille dès le 1er exercice
     // ⚔️ PV DU MONARQUE : le combat final utilise enfin le build du joueur.
     // Chaque exercice terminé retire des dégâts calculés selon la stat de l'acte.
     const hpMax = monarqueHP();
@@ -346,22 +349,46 @@
   }
   window.awakStartFinalBoss = startFinalBoss;
 
+  // v1506 : IMAGES D'EXERCICES DU COMBAT FINAL (champ de bataille, Nabdano).
+  // Pendant ce combat seulement, elles remplacent les images normales (mêmes clés
+  // de EXERCISE_IMAGES, modifiées puis rétablies). N'ajouter ici que les fichiers livrés.
+  var FB_IMAGES = {
+    'Pompes': 'FB_Pompes', 'Pompes maximum': 'FB_Pompes'
+  };
+  var _imgSauve = null;
+  function imagesCombat(actif) {
+    var T = window.EXERCISE_IMAGES; if (!T) return;
+    if (actif && !_imgSauve) {
+      _imgSauve = {};
+      Object.keys(FB_IMAGES).forEach(function (k) { _imgSauve[k] = T.hasOwnProperty(k) ? T[k] : undefined; T[k] = 'images/exercises/' + FB_IMAGES[k] + '.webp'; });
+    } else if (!actif && _imgSauve) {
+      Object.keys(_imgSauve).forEach(function (k) { if (_imgSauve[k] === undefined) delete T[k]; else T[k] = _imgSauve[k]; });
+      _imgSauve = null;
+    }
+  }
+  window.awakFinalImages = imagesCombat;
+  setInterval(function () {
+    try { imagesCombat(typeof window.awakSeanceContexte === 'function' && window.awakSeanceContexte() === 'final'); } catch (e) {}
+  }, 1000);
+
   // ⚔️ Applique les dégâts d'un exercice terminé à l’Effaceur.
   // Appelé par app.js à la fin de chaque exercice du combat final.
   // C'est ici que le BUILD du joueur compte : la stat de l'acte domine (70 %),
   // la polyvalence complète (30 %) — un spécialisé écrase son acte et rame
   // ailleurs, un polyvalent avance régulièrement.
-  function frapperMonarque(workout, exercice, repsFaites) {
+  function frapperMonarque(workout, exercice, repsFaites, part) {
     if (!workout || !workout._isFinalBoss || !exercice) return null;
     calibrer(workout);
     var acte = exercice._act || 'force';
     var unites = 1;
     if (exercice.mode === 'timer' && exercice.duration) unites = Math.max(1, exercice.duration / 30);
     else if (exercice.targetReps || exercice.reps) unites = Math.max(1, (exercice.targetReps || exercice.reps) / 12);
-    // v1480 : l'EFFORT compte — reps faites / objectif (×0,5 à ×1,5)
+    // v1480 : l'EFFORT compte — reps faites / objectif (×0,5 à ×1,35)
     var effort = 1, obj = exercice.targetReps || exercice.reps;
-    if (exercice.mode !== 'timer' && obj && repsFaites > 0) effort = Math.max(0.5, Math.min(1.5, repsFaites / obj));
-    var degats = Math.round(actDamage(acte, unites) * effort);
+    if (exercice.mode !== 'timer' && obj && repsFaites > 0) effort = Math.max(0.5, Math.min(1.35, repsFaites / obj));   // v1501 : plafond ×1,35
+    // v1503 : part = fraction du coup (tranches de 15 s des exercices au temps)
+    var f = (typeof part === 'number' && part > 0) ? Math.min(1, part) : 1;
+    var degats = Math.max(1, Math.round(actDamage(acte, unites) * effort * f));
     // v1479 : PHASES de l'Effaceur. Sous 50 % il durcit (×0,9) jusqu'à la fin ;
     // sous 25 % ce sont ses ripostes qui montent (×1,45).
     var max = workout._bossHpMax || 1;
@@ -376,7 +403,7 @@
     });
     workout._dernierCoup = { dmg: degats, t: Date.now() };
     if (workout._bossHp <= 0) workout._bossVaincu = true;   // v1487 : seule preuve de victoire
-    var riposte = workout._bossHp > 0 ? riposteEffaceur(workout) : null;
+    var riposte = workout._bossHp > 0 ? riposteEffaceur(workout, f) : null;
     return {
       riposte: riposte,
       palier: palier,
@@ -415,19 +442,20 @@
     var niv = niveauJoueur();
     var refPV = 100 + statsReference(niv).END * 5;
     var n = Math.max(8, _coups(workout).length || 0);
-    // Sur tout le combat, le chasseur de référence encaisse ≈ 1,6 × ses PV (avant
+    // Sur tout le combat, le chasseur de référence encaisse ≈ 2 × ses PV (avant
     // blocage, esquive et régénération) : il finit à la limite, un chasseur équipé tient.
-    workout._riposteBase = Math.max(4, Math.round(1.6 * refPV / (n * 1.2)));
+    workout._riposteBase = Math.max(4, Math.round(2.0 * refPV / (n * 1.2)));   // v1501 : 1,6 → 2,0
     return workout._riposteBase;
   }
-  function riposteEffaceur(workout) {
+  function riposteEffaceur(workout, part) {
+    var f = (typeof part === 'number' && part > 0) ? Math.min(1, part) : 1;
     joueurInit(workout);
     if (workout._joueurMort) return null;
     var b = {};
     try { b = typeof window.awakComputeStatBonuses === 'function' ? window.awakComputeStatBonuses() : {}; } catch (e) {}
     var res = { dmg: 0, esquive: false, bloque: 0, soin: 0, releve: false, mort: false };
     // Régénération END après ta série (avant le coup)
-    var regen = Math.round((b.hpRegen || 0) * (b.hpRegenMult || 1));
+    var regen = Math.round((b.hpRegen || 0) * (b.hpRegenMult || 1) * f);
     if (regen > 0 && workout._joueurPV < workout._joueurPVMax) {
       var av = workout._joueurPV;
       workout._joueurPV = Math.min(workout._joueurPVMax, workout._joueurPV + regen);
@@ -437,7 +465,7 @@
     if (Math.random() < (b.dodgeChance || 0)) { res.esquive = true; workout._derniereRiposte = { esquive: true, t: Date.now() }; return res; }
     var ph = workout._phase || 0;
     var mult = [1, 1.1, 1.25, 1.45][ph] || 1;
-    var brut = _coupRiposte(workout) * mult * (0.85 + Math.random() * 0.3);
+    var brut = _coupRiposte(workout) * mult * f * (0.85 + Math.random() * 0.3);
     var vit = 0;
     try { vit = (window.awakGetTotalStats ? window.awakGetTotalStats() : {}).VIT || 0; } catch (e) {}
     var red = Math.min(0.40, vit / (vit + 300));
@@ -514,17 +542,14 @@
   function showFinalBossVictory() {
     // v1479 : d'abord la CHUTE de l'Effaceur, puis l'épilogue, puis la victoire
     if (!window._awakChuteFaite) { window._awakChuteFaite = true; chuteEffaceur(showFinalBossVictory); return; }
-    // L'épilogue (scène « L'Ancre ») se joue AVANT l'écran de victoire.
-    // (v1482 : pas pendant un essai du mode développeur — la scène resterait « vue »)
-    if (!window._awakFinEssai) try {
-      var fin = (window.STORY_EVENTS || []).find(function (e) { return e.id === 'evt_fin_ancre'; });
-      if (fin && typeof window.storyEventSeen === 'function' && !window.storyEventSeen('evt_fin_ancre')
-          && typeof window.storyShowEvent === 'function') {
-        localStorage.setItem('awakStoryEvt_evt_fin_ancre', '1');
-        window.storyShowEvent(fin);
-        if (window.AwakCine && window.AwakCine.defer(showFinalBossVictory)) return;
-      }
-    } catch (e) {}
+    // v1504 : LA FIN se joue en cinématique (7 scènes + ton parcours) AVANT l'écran de
+    // victoire. La scène « L'Ancre » est marquée vue (journal), sans être réaffichée.
+    if (!window._awakFinaleFaite) {
+      window._awakFinaleFaite = true;
+      if (!window._awakFinEssai) { try { localStorage.setItem('awakStoryEvt_evt_fin_ancre', '1'); } catch (e) {} }
+      finaleCinematique(showFinalBossVictory);
+      return;
+    }
     document.getElementById('awakFinalVictoryOverlay')?.remove();
     const ov = document.createElement('div');
     ov.id = 'awakFinalVictoryOverlay';
@@ -537,7 +562,6 @@
         <div style="font-family:'Rajdhani',sans-serif;font-size:0.72em;letter-spacing:4px;color:#fbbf24;font-weight:700;animation:fbGlow 2s infinite;">L'EFFACEUR S'EST ÉTEINT</div>
         <h1 style="font-family:'Rajdhani',sans-serif;font-size:2.4em;font-weight:700;letter-spacing:3px;color:#fff;margin:10px 0 20px;text-shadow:0 0 40px rgba(251,191,36,0.5);">VICTOIRE</h1>
         <div style="background:linear-gradient(160deg,rgba(251,191,36,0.08),rgba(0,0,0,0.2));border:1px solid rgba(251,191,36,0.3);border-radius:16px;padding:22px 20px;margin-bottom:20px;text-align:left;">
-          <p style="color:#e2e8f0;font-size:0.92em;line-height:1.7;margin:0 0 14px;font-style:italic;">« Tu peux te reposer, maintenant, » affiche le Système. « Ce n'est plus la même chose qu'abandonner. Tu le sais. »</p>
           <p style="color:#94a3b8;font-size:0.82em;line-height:1.6;margin:0;">Tu reprends la route avec ${partenaire()}. Dehors, le monde est exactement le même — sauf qu'il ne s'efface plus.</p>
         </div>
         <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px;margin-bottom:20px;">
@@ -573,11 +597,147 @@
       </div>`;
     document.body.appendChild(ov);
     window._awakChuteFaite = false;   // prochaine victoire : la chute rejouera
+    window._awakFinaleFaite = false;
     window._awakFinEssai = false;
     try { if (typeof hapticTap === 'function') hapticTap([60,40,60,40,60,40,200]); } catch(e) {}
     try { if (typeof launchConfetti === 'function') launchConfetti(); } catch(e) {}
   }
   window.awakShowFinalBossVictory = showFinalBossVictory;
+
+  // ═══════════════════════════════════════════════════════════════
+  // v1504 : LA FIN — cinématique en 7 scènes (image plein écran + texte),
+  // puis « Ton parcours » avec les vrais chiffres du joueur. Remplace
+  // l'affichage de la scène « L'Ancre » (toujours marquée vue pour le journal).
+  // ═══════════════════════════════════════════════════════════════
+  function _scenesFin() {
+    var P = parcours(), part = partenaire();
+    var avec = P.noms.length
+      ? "Derrière toi, des pas. " + listeNoms(P.noms) + ". Tous ceux qui ont marché avec toi jusqu'ici."
+      : "Derrière toi, des pas. " + part + ". Personne ne lui a demandé de venir.";
+    return [
+      { img: 'fin_chute', titre: 'Il tombe', couleur: '#fbbf24', lignes: [
+        "Le tourbillon d'or se tait d'un coup. Pour la première fois depuis quarante et un ans, Nabdano pose un genou à terre.",
+        "Sa vraie forme se défait en flocons de lumière. Ce qui reste, c'est un homme. Seulement un homme, très fatigué."] },
+      { img: 'fin_assis', titre: 'Il se rassoit', couleur: '#cbd5e1', lignes: [
+        "Il se rassoit au milieu du blanc, là où il t'attendait. « Tu as gagné. » Ce n'est pas de la résignation. C'est un constat.",
+        "Autour de lui, des visages apparaissent et s'effacent. Des rues. Une boulangerie. Une chanson que personne ne connaît plus.",
+        "« Regarde tout ce que j'ai perdu en tenant. Combien de temps avant que toi aussi tu sois fatigué ? Assieds-toi. »"] },
+      { img: 'fin_main', titre: 'La main', couleur: '#a5b4fc', lignes: [
+        "Pour la première fois, le Système n'affiche aucune commande. Aucune attaque. Rien.",
+        "Tu tends la main. Il la regarde sans comprendre. « Qu'est-ce que tu fais. »",
+        "« Tu n'avais pas tort d'être fatigué. Tu avais tort de croire que tu devais porter le monde seul. »"] },
+      { img: 'fin_compagnons', titre: 'Ceux qui sont venus', couleur: '#c084fc', lignes: [
+        avec,
+        "Nabdano les regarde. Longtemps. Ses mains tremblent. « …Voilà ce que je n'avais pas. »"] },
+      { img: 'fin_depart', titre: 'Parti', couleur: '#e2e8f0', lignes: [
+        "Il ne sourit pas. Il ne demande pas pardon. Quelque chose se défait, simplement. « Alors… vous pouvez continuer sans moi. »",
+        "Il s'efface. Pas comme le monde s'efface : plus doucement. Comme quelqu'un qu'on laisse enfin dormir.",
+        "« Il est parti, » affiche le Système. « Pas effacé. Parti. Ce n'est pas la même chose. »"] },
+      { img: 'fin_monde', titre: 'Le monde revient', couleur: '#fbbf24', lignes: [
+        "Le blanc recule. Les couleurs reviennent sur les façades, rue après rue. Les noms reviennent sur les plaques.",
+        "Une boulangerie rallume sa lumière. Quelque part, quelqu'un fredonne une chanson qu'on croyait perdue."] },
+      { img: 'fin_aube', titre: 'L’aube', couleur: '#fdba74', lignes: [
+        "Sur un toit, au lever du jour, vous regardez la ville respirer. " + part + " te donne un coup d'épaule. « On a réussi. »",
+        "« Tu peux te reposer, maintenant, » affiche le Système. « Ce n'est plus la même chose qu'abandonner. Tu le sais. »"] }
+    ];
+  }
+  function _chiffresFin() {
+    var P = parcours(), jours = 0, niv = niveauJoueur(), failles = 0;
+    try {
+      var h = typeof window.getWorkoutHistory === 'function' ? (window.getWorkoutHistory() || []) : [];
+      var t = h.map(function (s) { return s && s.date ? new Date(s.date).getTime() : NaN; }).filter(function (x) { return !isNaN(x); });
+      if (t.length) jours = Math.max(1, Math.round((Date.now() - Math.min.apply(null, t)) / 86400000) + 1);
+    } catch (e) {}
+    try { failles = typeof window.awakGetRiftsCompletedTotal === 'function' ? (window.awakGetRiftsCompletedTotal() || 0) : 0; } catch (e) {}
+    var l = [];
+    if (P.seances) l.push([P.seances, 'séances']);
+    if (jours) l.push([jours, 'jours depuis le premier']);
+    if (P.serie > 1) l.push([P.serie, 'jours de suite, au mieux']);
+    if (failles) l.push([failles, 'Failles fermées']);
+    l.push([niv, 'niveau atteint']);
+    l.push([P.noms.length, 'compagnon' + (P.noms.length > 1 ? 's' : '') + ' à tes côtés']);
+    return l;
+  }
+  function finaleCinematique(apres) {
+    var scenes = _scenesFin(), si = 0, li = 0;
+    var dejaVue = false;
+    try { dejaVue = localStorage.getItem('awakFinaleVue') === '1'; } catch (e) {}
+    if (!document.getElementById('awakFinaleCss')) {
+      var st = document.createElement('style'); st.id = 'awakFinaleCss';
+      st.textContent = '@keyframes afKen{0%{transform:scale(1)}100%{transform:scale(1.09)}}'
+        + '@keyframes afTxt{0%{opacity:0;transform:translateY(8px)}100%{opacity:1;transform:none}}'
+        + '@keyframes afTitre{0%{opacity:0;letter-spacing:.5em}100%{opacity:1;letter-spacing:.18em}}'
+        + '#awakFinale .af-img{position:absolute;inset:0;background-size:cover;background-position:center top;transition:opacity 1.1s ease;animation:afKen 14s ease-out forwards;}'
+        + '@media(prefers-reduced-motion:reduce){#awakFinale *{animation:none!important;transition:none!important}}';
+      document.head.appendChild(st);
+    }
+    var ov = document.createElement('div');
+    ov.id = 'awakFinale';
+    ov.setAttribute('data-emoji-keep', '');
+    ov.style.cssText = 'position:fixed;inset:0;z-index:100000;background:#030306;overflow:hidden;color:#f1f5f9;';
+    ov.innerHTML = '<div class="af-fond" style="position:absolute;inset:0;"></div>'
+      + '<div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(3,3,6,0.1) 0%,rgba(3,3,6,0.35) 40%,rgba(3,3,6,0.88) 64%,#030306 100%);pointer-events:none;"></div>'
+      + (dejaVue ? '<button class="af-passer" style="position:absolute;top:calc(14px + env(safe-area-inset-top));right:14px;z-index:3;min-height:0;padding:7px 13px;border-radius:99px;border:1px solid rgba(255,255,255,0.25);background:rgba(0,0,0,0.45);color:#e2e8f0;font-size:12px;font-weight:700;cursor:pointer;">Passer</button>' : '')
+      + '<div class="af-bas" style="position:absolute;left:0;right:0;bottom:0;z-index:2;padding:20px 22px calc(26px + env(safe-area-inset-bottom));display:flex;justify-content:center;"></div>';
+    document.body.appendChild(ov);
+    var fond = ov.querySelector('.af-fond'), bas = ov.querySelector('.af-bas');
+    function poserImage(nom) {
+      var d = document.createElement('div'); d.className = 'af-img'; d.style.opacity = '0';
+      d.style.backgroundImage = 'url(images/story/' + nom + '.webp),url(images/story/fin_ancre.webp)';
+      fond.appendChild(d);
+      requestAnimationFrame(function () { requestAnimationFrame(function () { d.style.opacity = '1'; }); });
+      var vieux = fond.querySelectorAll('.af-img');
+      if (vieux.length > 1) setTimeout(function () { for (var k = 0; k < vieux.length - 1; k++) vieux[k].remove(); }, 1200);
+    }
+    function rendreTexte() {
+      var s = scenes[si], dern = li >= s.lignes.length - 1, fin = dern && si >= scenes.length - 1;
+      bas.innerHTML = '<div style="max-width:440px;width:100%;text-align:center;">'
+        + (li === 0 ? '<div style="font-family:var(--font-display),sans-serif;font-size:12px;font-weight:700;color:' + s.couleur + ';text-transform:uppercase;margin-bottom:10px;text-shadow:0 2px 8px #000;animation:afTitre 1.2s ease-out both;">' + s.titre + '</div>' : '<div style="height:24px;"></div>')
+        + '<p style="font-size:1.02em;line-height:1.75;margin:0 0 22px;min-height:110px;text-shadow:0 1px 6px rgba(0,0,0,0.95);animation:afTxt .6s ease-out both;">' + s.lignes[li] + '</p>'
+        + '<div style="display:flex;justify-content:center;gap:5px;margin-bottom:16px;">' + scenes.map(function (_, k) { return '<span style="width:' + (k === si ? 18 : 6) + 'px;height:6px;border-radius:99px;background:' + (k <= si ? s.couleur : 'rgba(255,255,255,0.2)') + ';transition:width .3s;"></span>'; }).join('') + '</div>'
+        + '<button class="af-suivant" style="width:100%;padding:15px;border:none;border-radius:14px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.22);color:#fff;font-family:var(--font-display),sans-serif;font-weight:700;font-size:1em;letter-spacing:1px;cursor:pointer;">' + (fin ? 'Ton parcours' : 'Continuer') + '</button>'
+        + '</div>';
+      bas.querySelector('.af-suivant').onclick = avancer;
+    }
+    function avancer() {
+      var s = scenes[si];
+      if (li < s.lignes.length - 1) { li++; rendreTexte(); return; }
+      if (si < scenes.length - 1) { si++; li = 0; poserImage(scenes[si].img); rendreTexte(); return; }
+      parcoursFinal();
+    }
+    function parcoursFinal() {
+      var ch = _chiffresFin();
+      fond.innerHTML = ''; poserImage('fin_aube'); fond.style.transition = 'opacity 1s'; fond.style.opacity = '0.4';
+      bas.parentNode.querySelector('.af-passer') && bas.parentNode.querySelector('.af-passer').remove();
+      bas.style.top = '0'; bas.style.alignItems = 'center'; bas.style.overflowY = 'auto';
+      bas.innerHTML = '<div style="max-width:420px;width:100%;text-align:center;margin:auto 0;">'
+        + '<div style="font-family:var(--font-display),sans-serif;font-size:12px;font-weight:700;color:#fbbf24;animation:afTitre 1.4s ease-out both;">FIN</div>'
+        + '<h1 style="font-family:var(--font-display),sans-serif;font-size:clamp(34px,10vw,52px);color:#fff !important;margin:6px 0 4px;letter-spacing:4px;text-shadow:0 0 30px rgba(251,191,36,0.55);animation:afTxt 1s .3s ease-out both;">AWAKENED</h1>'
+        + '<p style="color:#e2e8f0;font-size:.95em;margin:0 0 20px;font-style:italic;animation:afTxt 1s .6s ease-out both;">Tu as tenu. Chaque séance a compté.</p>'
+        + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;">'
+        + ch.map(function (c, k) { return '<div style="padding:12px 8px;border-radius:12px;background:rgba(3,3,6,0.6);border:1px solid rgba(251,191,36,0.28);animation:afTxt .6s ' + (0.9 + k * 0.15).toFixed(2) + 's ease-out both;">'
+          + '<div style="font-family:var(--font-display),sans-serif;font-size:1.6em;font-weight:700;color:#fbbf24;font-variant-numeric:tabular-nums;">' + Number(c[0]).toLocaleString('fr-FR') + '</div>'
+          + '<div style="font-size:.72em;color:#cbd5e1;font-weight:700;">' + c[1] + '</div></div>'; }).join('')
+        + '</div>'
+        + '<p style="color:#94a3b8;font-size:.82em;line-height:1.6;margin:0 0 20px;">Le monde ne s\'efface plus. Ce n\'est pas un pouvoir qui l\'a sauvé : c\'est toi, une séance à la fois.</p>'
+        + '<button class="af-fin" style="width:100%;padding:16px;border:none;border-radius:14px;background:linear-gradient(135deg,#fbbf24,#dc2626);color:#1a0e0e;font-family:var(--font-display),sans-serif;font-weight:700;font-size:1.05em;letter-spacing:1px;cursor:pointer;">Continuer</button>'
+        + '</div>';
+      bas.querySelector('.af-fin').onclick = terminer;
+      try { if (typeof launchConfetti === 'function') launchConfetti(); } catch (e) {}
+    }
+    var fini = false;
+    function terminer() {
+      if (fini) return; fini = true;
+      try { if (!window._awakFinEssai) localStorage.setItem('awakFinaleVue', '1'); } catch (e) {}
+      ov.style.transition = 'opacity .7s'; ov.style.opacity = '0';
+      setTimeout(function () { ov.remove(); if (typeof apres === 'function') apres(); }, 700);
+    }
+    var bp = ov.querySelector('.af-passer'); if (bp) bp.onclick = function () { parcoursFinal(); };
+    poserImage(scenes[0].img);
+    rendreTexte();
+    try { if (navigator.vibrate) navigator.vibrate(40); } catch (e) {}
+  }
+  window.awakFinaleCinematique = finaleCinematique;
 
   // Affiche un beat narratif du combat final en plein écran (lignes paginées),
   // puis appelle onDone() quand le joueur a tout lu.

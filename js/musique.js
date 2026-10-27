@@ -18,7 +18,8 @@
     // type 'faille' : seulement dans les Failles UNIQUES (histoire, sous-boss, compagnon, combat final)
     { fichier: 'brise_la_faille.mp3', titre: 'Brise la faille', type: 'faille' },
     // v1483 : types de combat — joués SEULEMENT dans leur contexte
-    { fichier: 'je_n_abandonne_pas.mp3', titre: 'Je n\'abandonne pas', type: 'finalboss' },   // combat final
+    { fichier: 'je_n_abandonne_pas.mp3', titre: 'Je n\'abandonne pas', type: 'finalboss', voix: 'esen' },     // combat final (voix d'homme)
+    { fichier: 'je_n_abandonne_pas_f.mp3', titre: 'Je n\'abandonne pas', type: 'finalboss', voix: 'nyra' },   // v1505 : joueur = Nyra (voix de femme)
     { fichier: 'combat.mp3', titre: 'Combat', type: 'combat' },                              // Faille ordinaire
     { fichier: 'bataille_1.mp3', titre: 'Bataille I', type: 'combat' },
     { fichier: 'bataille_2.mp3', titre: 'Bataille II', type: 'combat' },
@@ -112,8 +113,10 @@
     } catch (e) { return null; }
   }
   function unique() { return contexte() === 'unique'; }
-  function permisCombat(type, ctx) {
-    if (type === 'finalboss') return ctx === 'final';
+  // v1505 : héros incarné (avatar femme = Nyra) → la version chantée par sa voix
+  function heros() { try { return typeof window.awakHerosJoue === 'function' ? window.awakHerosJoue() : ((localStorage.getItem('fitproAvatarGender') || 'homme') === 'femme' ? 'nyra' : 'esen'); } catch (e) { return 'esen'; } }
+  function permisCombat(type, ctx, m) {
+    if (type === 'finalboss') return ctx === 'final' && (!m || !m.voix || m.voix === heros());
     if (type === 'faille') return ctx === 'unique';
     if (type === 'combat') return ctx === 'faille' || ctx === 'faille+gameover';
     if (type === 'gameover') return ctx === 'faille+gameover';
@@ -133,7 +136,7 @@
     var jeu = r.jeu && modeJeu(), ctx = modeJeu() ? contexte() : null, ex = exclus();
     // v1493 : en combat (Faille, Faille unique, combat final), pas de musique d'entraînement
     return AWAK_MUSIQUES.filter(function (m) {
-        if (SPECIAUX.indexOf(m.type) >= 0) return jeu && permisCombat(m.type, ctx);
+        if (SPECIAUX.indexOf(m.type) >= 0) return jeu && permisCombat(m.type, ctx, m);
         if (m.type === 'jeu') return jeu;
         return !!r.entrainement && !ctx;
       })
