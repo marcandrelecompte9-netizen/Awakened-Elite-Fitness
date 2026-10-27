@@ -152,6 +152,21 @@
     var v = Math.round(10 + 0.55 * Math.max(0, niv - 1) + 10);
     return { STR: v, AGI: v, VIT: v, END: v, PER: v, SEN: v };
   }
+
+  // v1512 : COMPÉTENCES et BONUS d'attaque dans le combat final : critique (×2),
+  // double coup (+50 %), bonus contre boss (PER), Marcus, compétences de l'arbre.
+  // Ses PV intègrent la MOYENNE de ces bonus : ils rendent le combat plus vivant
+  // (gros coups, surprises) sans le raccourcir. Seul l'effort le fait tomber.
+  function offensif() {
+    var b = {}, fx = {}, cb = {};
+    try { b = typeof window.awakComputeStatBonuses === 'function' ? window.awakComputeStatBonuses(null, true) : {}; } catch (e) {}
+    try { fx = typeof window.rpgGetActiveEffects === 'function' ? (window.rpgGetActiveEffects() || {}) : {}; } catch (e) {}
+    try { cb = typeof window.awakCompanionsGetActiveBonuses === 'function' ? (window.awakCompanionsGetActiveBonuses() || {}) : {}; } catch (e) {}
+    var crit = Math.min(0.6, 0.05 + (b.critChance || 0) + (cb.critChance || 0) + (fx.critChance || 0));
+    var dbl = Math.min(0.5, b.doubleChance || 0);
+    var fixe = (1 + (b.bossBonus || 0)) * (1 + (cb.dmgBoss || 0));
+    return { crit: crit, dbl: dbl, fixe: fixe, moyenne: fixe * (1 + crit) * (1 + 0.5 * dbl), vol: fx.riftLifesteal || 0, souffle: !!fx.secondWind };
+  }
   function calibrer(workout) {
     if (!workout || !workout._isFinalBoss || workout._hpCalibre) return;
     var coups = _coups(workout);
@@ -161,7 +176,7 @@
     var DURETE = 1.25;
     var pvToi = Math.round(_pvPour(coups) * DURETE);
     var pvMin = Math.round(_pvPour(_coups(workout, statsReference(niv))) * DURETE);
-    var pv = Math.round(Math.max(pvToi, pvMin) * facteurPVEquipe(workout));   // v1511 : l'équipe aide → il encaisse plus
+    var pv = Math.round(Math.max(pvToi, pvMin) * facteurPVEquipe(workout) * offensif().moyenne);   // v1511 équipe · v1512 compétences
     workout._bossHpMax = pv;
     workout._bossHp = pv;
     workout._hpCalibre = true;
@@ -400,6 +415,9 @@
     // v1503 : part = fraction du coup (tranches de 15 s des exercices au temps)
     var f = (typeof part === 'number' && part > 0) ? Math.min(1, part) : 1;
     var degats = Math.max(1, Math.round(actDamage(acte, unites) * effort * f));
+    // v1512 : critique, double coup, bonus contre boss (compétences, PER, Marcus)
+    var O = offensif(), crit = Math.random() < O.crit, dbl = Math.random() < O.dbl;
+    degats = Math.round(degats * O.fixe * (crit ? 2 : 1) * (dbl ? 1.5 : 1));
     // v1479 : PHASES de l'Effaceur. Sous 50 % il durcit (×0,9) jusqu'à la fin ;
     // sous 25 % ce sont ses ripostes qui montent (×1,45).
     var max = workout._bossHpMax || 1;
@@ -420,10 +438,17 @@
       aides.liste.push({ nom: 'Yuna', dmg: dy, txt: 'le Noyau répond : −' + dy + ' PV' });
     }
     if (palier) workout._chenBloc = 1;   // Chen relit son geste à chaque phase
-    workout._dernierCoup = { dmg: degats + aides.extra, t: Date.now() };
+    workout._dernierCoup = { dmg: degats + aides.extra, t: Date.now(), crit: crit };
+    // v1512 : Drain Vital (compétence) — récupère une part des dégâts infligés
+    if (O.vol > 0 && typeof workout._joueurPV === 'number' && workout._joueurPV > 0) {
+      var vl = Math.min(Math.round((workout._joueurPVMax || 100) * 0.05), Math.round(degats * O.vol));
+      if (vl > 0) workout._joueurPV = Math.min(workout._joueurPVMax, workout._joueurPV + vl);
+      workout._volDernier = vl;
+    } else workout._volDernier = 0;
     if (workout._bossHp <= 0) workout._bossVaincu = true;   // v1487 : seule preuve de victoire
     var riposte = workout._bossHp > 0 ? riposteEffaceur(workout, f) : null;
     return {
+      crit: crit, double: dbl, vol: workout._volDernier || 0,
       aides: aides.liste,
       riposte: riposte,
       palier: palier,
@@ -618,6 +643,8 @@
     if (workout._riposteBase) return workout._riposteBase;
     var niv = niveauJoueur();
     var refPV = 100 + statsReference(niv).END * 5;
+    // v1512 : un chasseur très équipé est frappé selon SES PV (90 %) : il tient mieux, mais doit veiller
+    refPV = Math.max(refPV, 0.9 * _pvMaxJoueur());
     var n = Math.max(8, _coups(workout).length || 0);
     // Sur tout le combat, le chasseur de référence encaisse ≈ 2 × ses PV (avant
     // blocage, esquive et régénération) : il finit à la limite, un chasseur équipé tient.
@@ -663,7 +690,10 @@
       if (!fe[ph]) { fe[ph] = 1; var se = Math.round(workout._joueurPVMax * 0.15); workout._joueurPV = Math.min(workout._joueurPVMax, workout._joueurPV + se); res.elise = se; }
     }
     if (workout._joueurPV <= 0) {
-      if ((workout._releves || 0) > 0) {
+      if (offensif().souffle && !workout._souffleUtilise) {
+        // v1512 : Second Souffle (compétence) — survit à 1 PV, une fois, avant la relève
+        workout._souffleUtilise = true; workout._joueurPV = 1; res.souffle = true;
+      } else if ((workout._releves || 0) > 0) {
         workout._releves--;
         workout._joueurPV = Math.max(1, Math.round(workout._joueurPVMax * 0.3));
         res.releve = true;
