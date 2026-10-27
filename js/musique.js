@@ -145,12 +145,42 @@
   }
 
   var audio = null, file = [], pos = -1, fondu = null, actif = false;
+  // v1517 : COMBAT FINAL — « Je n'abandonne pas » d'abord, puis « milieu » en boucle,
+  // puis « climax » en boucle dès la dernière phase (sa vraie forme). Titres cachés.
+  var BOUCLES = { milieu: 'boss_final_milieu', climax: 'boss_final_climax' };
+  var etapeFinale = null;   // null | 'milieu' | 'climax'
+  function enFinal() { try { return enSeance && modeJeu() && typeof window.awakSeanceContexte === 'function' && window.awakSeanceContexte() === 'final'; } catch (e) { return false; } }
+  function extBoucle() { try { var t = document.createElement('audio'); return t.canPlayType && t.canPlayType('audio/ogg; codecs="vorbis"') ? '.ogg' : '.mp3'; } catch (e) { return '.mp3'; } }
+  function phaseFinale() { try { var w = window.AwakSSBridge && window.AwakSSBridge.getWorkout(); return (w && w._phase) || 0; } catch (e) { return 0; } }
+  function jouerBoucle(etape, fonduMs) {
+    var a = el();
+    etapeFinale = etape;
+    var go = function () {
+      a.src = 'audio/' + BOUCLES[etape] + extBoucle();
+      a.loop = true; a.volume = 0; actif = true;
+      var p = null; try { p = a.play(); } catch (e) {}
+      var ok = function () { fonduVers(volCible(), 1500); majMedia(); majBarre(); };
+      if (p && p.then) p.then(ok).catch(function () { actif = false; majBarre(); }); else ok();
+    };
+    if (!a.paused && fonduMs) fonduVers(0, fonduMs, go); else go();
+  }
+  function climaxFinal() {
+    if (!enFinal() || etapeFinale === 'climax') return;
+    if (etapeFinale === 'milieu' || (audio && !audio.paused)) {
+      // « Je n'abandonne pas » encore en cours : on laisse finir et 'ended' choisira le climax
+      if (etapeFinale === 'milieu') jouerBoucle('climax', 1500);
+    }
+  }
   function el() {
     if (audio) return audio;
     audio = new Audio();
     audio.preload = 'auto';
     try { audio.setAttribute('playsinline', ''); } catch (e) {}
-    audio.addEventListener('ended', function () { suivante(); });
+    audio.addEventListener('ended', function () {
+      // v1517 : combat final — après « Je n'abandonne pas », la boucle de l'étape en cours
+      if (enFinal()) { jouerBoucle(phaseFinale() >= 3 ? 'climax' : 'milieu', 0); return; }
+      suivante();
+    });
     audio.addEventListener('error', function () { if (actif && file.length > 1) setTimeout(suivante, 400); else majBarre(); });
     audio.addEventListener('play', majBarre);
     audio.addEventListener('pause', majBarre);
@@ -185,6 +215,7 @@
     if (!file.length) { majBarre(); return; }
     pos = ((i % file.length) + file.length) % file.length;
     var m = file[pos], a = el();
+    a.loop = false; etapeFinale = null;
     a.src = m.url || ('audio/' + m.fichier);
     a.volume = 0;
     actif = true;
@@ -207,8 +238,9 @@
   }
   function pause() { if (!audio) return; actif = false; fonduVers(0, 400, function () { try { audio.pause(); } catch (e) {} }); }
   function basculer() { if (audio && !audio.paused) pause(); else lecture(); }
-  function suivante() { jouerIndex(pos + 1); }
+  function suivante() { if (enFinal()) return; jouerIndex(pos + 1); }
   function precedente() {
+    if (enFinal()) return;
     if (audio && audio.currentTime > 4) { audio.currentTime = 0; return; }
     jouerIndex(pos - 1);
   }
@@ -223,7 +255,9 @@
     try {
       if (!('mediaSession' in navigator)) return;
       var m = courant(); if (!m) return;
-      navigator.mediaSession.metadata = new MediaMetadata({ title: m.titre, artist: 'Awakened', album: m.type === 'perso' ? 'Mes musiques' : m.type === 'entrainement' ? 'Entraînement' : 'Musiques du jeu' });
+      var fin = enFinal();
+      navigator.mediaSession.metadata = new MediaMetadata(fin ? { title: 'Combat final', artist: 'Awakened' }
+        : { title: m.titre, artist: 'Awakened', album: m.type === 'perso' ? 'Mes musiques' : m.type === 'entrainement' ? 'Entraînement' : 'Musiques du jeu' });
       navigator.mediaSession.setActionHandler('play', lecture);
       navigator.mediaSession.setActionHandler('pause', pause);
       navigator.mediaSession.setActionHandler('nexttrack', suivante);
@@ -274,7 +308,12 @@
     if (!b) return;
     b.style.display = 'flex';
     var m = courant(), joue = audio && !audio.paused;
-    b.querySelector('.awk-mus-titre').textContent = m ? m.titre : 'Musique';
+    // v1517 : combat final — aucun titre, seulement lecture / pause
+    var fin = enFinal();
+    b.querySelector('.awk-mus-titre').textContent = fin ? '' : (m ? m.titre : 'Musique');
+    b.querySelectorAll('button[data-a="prec"],button[data-a="suiv"]').forEach(function (x) { x.style.display = fin ? 'none' : 'flex'; });
+    var note = b.firstElementChild; if (note) note.style.visibility = fin ? 'hidden' : 'visible';
+    b.style.justifyContent = fin ? 'flex-end' : '';
     var l = b.querySelector('button[data-a="lect"]'); l.innerHTML = joue ? IC.paus : IC.lect;
     l.setAttribute('aria-label', joue ? 'Pause' : 'Lecture');
     var r = document.getElementById('awakMusReglages'); if (r && r._maj) r._maj();
@@ -447,9 +486,10 @@
 
   // v1479 : moment épique (climax du combat final) → la musique monte
   function intensifier() {
+    if (enFinal()) return;   // v1517 : le combat final a ses propres boucles
     if (!audio || audio.paused) return;
     fonduVers(Math.min(1, volCible() + 0.3), 2500);
   }
 
-  window.AwakMusique = { intensifier: intensifier, ajouterPerso: ajouterPerso, retirerPerso: retirerPerso, perso: function () { return PERSO.slice(); }, liste: liste, tous: function () { return AWAK_MUSIQUES.slice(); }, lecture: lecture, pause: pause, suivante: suivante, precedente: precedente, arreter: arreter, reglages: reglages, rendreReglages: rendreReglages, joue: function () { return !!(audio && !audio.paused); }, courant: courant };
+  window.AwakMusique = { intensifier: intensifier, climaxFinal: climaxFinal, _audio: function () { return audio; }, ajouterPerso: ajouterPerso, retirerPerso: retirerPerso, perso: function () { return PERSO.slice(); }, liste: liste, tous: function () { return AWAK_MUSIQUES.slice(); }, lecture: lecture, pause: pause, suivante: suivante, precedente: precedente, arreter: arreter, reglages: reglages, rendreReglages: rendreReglages, joue: function () { return !!(audio && !audio.paused); }, courant: courant };
 })();

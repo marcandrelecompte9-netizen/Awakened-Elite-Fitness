@@ -202,7 +202,9 @@
     try {
       var COURTS = { marcus: 'Marcus', kira: 'Kira', elise: 'Élise', yuna: 'Yuna', chen: 'Chen' };
       var d = (typeof awakCompanionsLoad === 'function') ? awakCompanionsLoad() : null;
-      (d && Array.isArray(d.unlocked) ? d.unlocked : []).forEach(function (id) { if (COURTS[id]) noms.push(COURTS[id]); });
+      // v1515 : essai du mode développeur → tous les compagnons sont là (sans rien enregistrer)
+      var ids = window._awakFbEssaiTous ? Object.keys(COURTS) : (d && Array.isArray(d.unlocked) ? d.unlocked : []);
+      ids.forEach(function (id) { if (COURTS[id]) noms.push(COURTS[id]); });
     } catch (e) {}
     return { seances: st.workouts || 0, serie: Math.max(st.bestStreak || 0, st.streak || 0), noms: noms };
   }
@@ -310,6 +312,7 @@
     // v1482 : opts.essai (mode développeur) — combat lancé sans les 4 sous-boss ;
     // une victoire d'essai ne compte pas (histoire et Abysses inchangées).
     var essai = !!(opts && opts.essai);
+    window._awakFbEssaiTous = essai;
     if (!essai && !isFinalUnlocked()) {
       if (typeof showAlert === 'function') {
         showAlert('L’Effaceur attend', 'Quatre gardiens se dressent encore entre toi et lui. Il ne te parlera qu\'une fois leurs quatre questions résolues.');
@@ -498,48 +501,53 @@
 
   // v1507 : NABDANO NARGUE le joueur pendant le combat (bulle dans le bandeau,
   // copiée dans le journal). Il ne crie pas : il est las, calme, il invite à s'asseoir.
+  // v1516 : piques DURES — méprisantes, froides, personnelles. Jetons : {part} (partenaire),
+  // {seances} (tes séances), {e} (accord au féminin si le joueur incarne Nyra).
   var NARGUES = {
     general: [
-      "Tu crois être le premier à essayer ?",
-      "Encore une série. Et après ? Encore une. Ça ne finit jamais.",
-      "Moi aussi, je comptais mes séries. Au début.",
-      "Tes bras tremblent déjà. Je le vois d'ici.",
-      "Pourquoi tu te donnes tout ce mal ? Personne ne s'en souviendra.",
-      "Le monde s'efface quand même. Tu ralentis juste la chute."
+      "Tu n'es rien. Une Ancre de plus que j'effacerai, comme toutes les autres.",
+      "{seances} séances. Et c'est tout ce que tu as à m'offrir ?",
+      "Regarde-toi. Pathétique. Tu trembles avant même d'avoir commencé.",
+      "Plus forts que toi se sont assis à ma place. Ils ne se sont jamais relevés.",
+      "Je vais effacer ton nom. Personne ne saura que tu as existé.",
+      "Tu te crois spécial{e} ? Le Système t'a choisi{e} parce que tu étais facile à remplacer.",
+      "Chaque goutte de sueur, je la boirai. Chaque effort, je l'effacerai."
     ],
     faible: [
-      "Moins que prévu. C'est comme ça que ça commence.",
-      "Tu vois ? Tu ralentis déjà.",
-      "Personne ne te regarde. Tu peux arrêter, tu sais.",
-      "La prochaine, tu en feras encore moins."
+      "Déjà ? Pitoyable. J'espérais mieux, même de toi.",
+      "Tu ralentis. Je le sens. Ton corps te trahit déjà.",
+      "Moins que prévu. Tu as toujours été moins que prévu.",
+      "C'est ça, ta force ? J'ai effacé des villes entières plus coriaces que toi.",
+      "Encore une série ratée. Tu collectionnes les échecs."
     ],
     fort: [
-      "…Plus que prévu. Pour combien de temps ?",
-      "Garde-en un peu. Tu en auras besoin.",
-      "J'étais comme toi. Regarde où ça m'a mené."
+      "Tu gaspilles tes forces. Je n'en ai besoin d'aucune pour t'achever.",
+      "Plus fort, oui. Et tu tomberas de plus haut.",
+      "Fanfaronne tant que tu peux. Dans une minute, tu rampes."
     ],
     blesse: [
-      "Assieds-toi. Ça ne fait plus mal, assis.",
-      "Tu tiens à peine debout.",
-      "Un genou à terre. Juste un. Ce n'est pas abandonner.",
-      "Écoute ton corps. Il te supplie d'arrêter."
+      "À genoux. C'est la seule posture qui te va.",
+      "Tu saignes de fatigue. Encore un peu et il ne restera rien de toi.",
+      "Tombe. Je veux te voir tomber.",
+      "Tu es fini{e}. Tu ne le sais simplement pas encore.",
+      "{part} va te regarder t'effacer. Et ne pourra rien faire."
     ],
     esquive: [
-      "Tu esquives. Moi aussi, j'esquivais. Au début.",
-      "Rapide. Mais la fatigue, on ne l'esquive pas."
+      "Cours, petite chose. Le blanc finit toujours par rattraper.",
+      "Esquive tant que tu peux. Tu ne pourras pas esquiver la fatigue."
     ],
     chrono: [
-      "Les secondes sont plus longues, ici. Tu l'as remarqué ?",
-      "Compte avec moi. Il en reste trop.",
-      "Le temps, c'est moi. Et j'ai tout mon temps."
+      "Chaque seconde t'use. Moi, j'ai l'éternité.",
+      "Compte. Compte encore. Tu n'arriveras jamais au bout.",
+      "Le temps est à moi. Tu n'en es que l'otage."
     ],
     releve: [
-      "Le Système te relève. Il me relevait, moi aussi. Jusqu'au jour où il n'a plus pu.",
-      "Debout, encore. Combien de fois, avant de comprendre ?"
+      "Le Système te ramasse comme un jouet cassé. Combien de fois encore ?",
+      "Relevé{e}. Pour retomber. Je ne me lasse pas de ce spectacle."
     ],
-    phase1: ["Ça faisait quarante et un ans que je n'avais pas eu à me lever."],
-    phase2: ["Assez joué. Sens le poids du blanc."],
-    phase3: ["Regarde ce que quarante et un ans de fatigue peuvent faire."]
+    phase1: ["Tu m'as forcé à me lever. Tu vas le regretter jusqu'à ton dernier souffle."],
+    phase2: ["Assez joué. Je vais t'effacer morceau par morceau."],
+    phase3: ["Regarde ma vraie forme, insecte. Puis disparais."]
   };
   function nargue(workout, ctx, force) {
     if (!workout || !workout._isFinalBoss || workout._joueurMort || workout._bossHp <= 0) return null;
@@ -550,6 +558,9 @@
     if (!dispo.length) { dispo = L.slice(); workout._nargueVus = vus = vus.filter(function (x) { return L.indexOf(x) < 0; }); }
     var txt = dispo[Math.floor(Math.random() * dispo.length)];
     vus.push(txt);
+    // v1516 : jetons personnels
+    var fem = false; try { fem = (localStorage.getItem('fitproAvatarGender') || 'homme') === 'femme'; } catch (e) {}
+    txt = txt.replace(/\{part\}/g, partenaire()).replace(/\{seances\}/g, String(parcours().seances || 0)).replace(/\{e\}/g, fem ? 'e' : '');
     workout._nargueT = now;
     workout._nargue = { txt: txt, t: now };
     try { var J = workout._journal || (workout._journal = []); J.push({ t: now, ton: 'nab', txt: 'Nabdano : « ' + txt + ' »' }); } catch (e) {}
@@ -1011,7 +1022,7 @@
   };
   function palierFinal(n) {
     var P = PALIERS[n]; if (!P || !window.AwakRiftVis || !AwakRiftVis.bossIntro) return;
-    try { if (n === 3 && window.AwakMusique && AwakMusique.intensifier) AwakMusique.intensifier(); } catch (e) {}
+    try { if (n === 3 && window.AwakMusique && AwakMusique.climaxFinal) AwakMusique.climaxFinal(); } catch (e) {}   // v1517 : boucle du climax
     AwakRiftVis.bossIntro({ nom: P.nom, sousTitre: P.sous, couleur: P.couleur, ligne: P.ligne, monstreNom: ['', 'L’Effaceur', 'L’Effaceur rouge', 'L’Effaceur ultime'][n] || 'L’Effaceur', duree: 3200 });
   }
   window.awakFinalPalier = palierFinal;
