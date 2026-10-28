@@ -129,12 +129,27 @@
       '</svg>';
   }
 
+  // v1523 : ILLUSTRATIONS par type (images/Objets/equip_<type>.webp, métal neutre) ;
+  // la rareté reste visible par un halo coloré. Le SVG reste en repli (image absente).
+  // N'ajouter ici que les types livrés.
+  var IMG = { masse: 1, poing: 1, cristal: 1, bouclier: 1, casque: 1, epee: 1, dague: 1, hache: 1, faux: 1, lance: 1, arc: 1, baton: 1 };
+  window.__awkEqSvg = window.__awkEqSvg || {};
+  function illustration(it) {
+    var ty = typeDe(it);
+    if (!IMG[ty]) return null;
+    var c = COULEUR[it.rarity] || COULEUR.common, h = HALO[it.rarity] || 0;
+    var f = 'drop-shadow(0 0 ' + (1 + h * 0.6).toFixed(1) + 'px ' + c + ')' + (h ? ' drop-shadow(0 0 ' + (h * 1.4).toFixed(1) + 'px ' + c + ')' : '');
+    window.__awkEqSvg[it.id] = svg(it);
+    return '<img src="images/Objets/equip_' + ty + '.webp" alt="" draggable="false" style="width:1.2em;height:1.2em;object-fit:contain;vertical-align:middle;display:inline-block;filter:' + f + ';"'
+      + ' onerror="this.outerHTML=(window.__awkEqSvg||{})[\'' + String(it.id).replace(/'/g, '') + '\']||\'\'">';
+  }
+
   try {
     if (typeof EQUIPMENT_DATABASE !== 'undefined' && Array.isArray(EQUIPMENT_DATABASE)) {
       EQUIPMENT_DATABASE.forEach(function (it) {
         if (!it || it._svgIcon) return;
         it.iconEmoji = it.icon;
-        it.icon = svg(it);
+        it.icon = illustration(it) || svg(it);
         // v1451 : objets uniques illustrés (images/Objets/) — le SVG reste en repli
         if (it.id === 'tome_of_awakening') {
           it.icon = '<img src="images/Objets/tome_eveil.webp" alt="" draggable="false" style="width:1.15em;height:1.15em;object-fit:contain;vertical-align:middle;display:inline-block;" onerror="this.outerHTML=window.__awkTomeSvg||\'\'">';
@@ -145,5 +160,5 @@
     }
   } catch (e) {}
 
-  window.AwakItemIcon = { svg: svg, type: typeDe, types: Object.keys(P) };
+  window.AwakItemIcon = { svg: svg, type: typeDe, types: Object.keys(P), illustration: illustration };
 })();
