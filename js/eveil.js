@@ -610,6 +610,16 @@
     if (cardioObj) repos -= 10;
     else if (obj === 'muscle_gain' || obj === 'strength') repos += 10;
     if (senior) repos += 10;
+    // v1525 : un vrai repos ENTRE deux exercices (avant : seulement entre les séries
+    // d'un même exercice — on enchaînait directement sur le suivant)
+    var avecRepos = [];
+    exercises.forEach(function (ex, i) {
+      avecRepos.push(ex);
+      if (i < exercises.length - 1 && !ex.isRest && !(exercises[i + 1] && exercises[i + 1].isRest))
+        avecRepos.push({ name: 'Repos', duration: repos, isRest: true, mode: 'timer', type: 'rest',
+          instructions: ['Respire profondément', 'Bois une gorgée d\'eau', 'Prépare le prochain exercice'] });
+    });
+    exercises = avecRepos;
     var adapteA = [];
     if (OBJ_LABELS[obj]) adapteA.push('ton objectif (' + OBJ_LABELS[obj] + ')');
     if (senior) adapteA.push('ton âge (équilibre, mise en route plus longue)');

@@ -164,8 +164,11 @@
     try { cb = typeof window.awakCompanionsGetActiveBonuses === 'function' ? (window.awakCompanionsGetActiveBonuses() || {}) : {}; } catch (e) {}
     var crit = Math.min(0.6, 0.05 + (b.critChance || 0) + (cb.critChance || 0) + (fx.critChance || 0));
     var dbl = Math.min(0.5, b.doubleChance || 0);
-    var fixe = (1 + (b.bossBonus || 0)) * (1 + (cb.dmgBoss || 0));
-    return { crit: crit, dbl: dbl, fixe: fixe, moyenne: fixe * (1 + crit) * (1 + 0.5 * dbl), vol: fx.riftLifesteal || 0, souffle: !!fx.secondWind };
+    // v1528 : compétences de dégâts (Tir Perçant, Œil de la Tempête, Point Faible) — comptées dans la calibration
+    var fixe = (1 + (b.bossBonus || 0)) * (1 + (cb.dmgBoss || 0)) * (1 + (fx.riftDmg || 0)) * (1 + (fx.bossDmg || 0));
+    var critM = 2 + (fx.critDmg || 0);
+    return { crit: crit, dbl: dbl, fixe: fixe, critM: critM, minuteur: fx.timerDmg || 0,
+      moyenne: fixe * (1 + crit * (critM - 1)) * (1 + 0.5 * dbl), vol: fx.riftLifesteal || 0, souffle: !!fx.secondWind };
   }
   function calibrer(workout) {
     if (!workout || !workout._isFinalBoss || workout._hpCalibre) return;
@@ -176,7 +179,9 @@
     var DURETE = 1.25;
     var pvToi = Math.round(_pvPour(coups) * DURETE);
     var pvMin = Math.round(_pvPour(_coups(workout, statsReference(niv))) * DURETE);
-    var pv = Math.round(Math.max(pvToi, pvMin) * facteurPVEquipe(workout) * offensif().moyenne);   // v1511 équipe · v1512 compétences
+    var _O = offensif(), _ex = (workout.exercises || []).filter(function (e) { return e && !e.isRest && e.type !== 'info'; });
+    var _partMin = _ex.length ? _ex.filter(function (e) { return e.mode === 'timer'; }).length / _ex.length : 0;
+    var pv = Math.round(Math.max(pvToi, pvMin) * facteurPVEquipe(workout) * _O.moyenne * (1 + _O.minuteur * _partMin));   // v1528 : Souffle Long   // v1511 équipe · v1512 compétences
     workout._bossHpMax = pv;
     workout._bossHp = pv;
     workout._hpCalibre = true;
@@ -420,7 +425,7 @@
     var degats = Math.max(1, Math.round(actDamage(acte, unites) * effort * f));
     // v1512 : critique, double coup, bonus contre boss (compétences, PER, Marcus)
     var O = offensif(), crit = Math.random() < O.crit, dbl = Math.random() < O.dbl;
-    degats = Math.round(degats * O.fixe * (crit ? 2 : 1) * (dbl ? 1.5 : 1));
+    degats = Math.round(degats * O.fixe * (crit ? O.critM : 1) * (dbl ? 1.5 : 1) * (exercice.mode === 'timer' ? 1 + O.minuteur : 1));   // v1528 : Souffle Long
     // v1479 : PHASES de l'Effaceur. Sous 50 % il durcit (×0,9) jusqu'à la fin ;
     // sous 25 % ce sont ses ripostes qui montent (×1,45).
     var max = workout._bossHpMax || 1;

@@ -540,7 +540,7 @@ const STORY_EVENTS = [
         id: 'evt_n22_cocasse',
         minor: true,  // exclu du Journal d'aventure (scène légère)
         type: 'fait',
-        trigger: { kind: 'xp', level: 22, frac: 0.65 },
+        trigger: { kind: 'xp', level: 21, frac: 0.65 },
         once: true,
         content: { speaker: 'esen', title: 'Elle ne Ralentit Jamais', image: 'images/story/cocasse_8.webp',
             pages: ["Nyra court sur le tapis, infatigable. Esen la regarde, les mains dans les poches. Il ne le dira jamais, mais il l'admire."] }
@@ -548,7 +548,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n23_fait_leger',
         type: 'fait',
-        trigger: { kind: 'xp', level: 23, frac: 0.65 },
+        trigger: { kind: 'xp', level: 22, frac: 0.65 },
         once: true,
         content: {
             speaker: 'nyra',
@@ -564,7 +564,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n25_ambiance_oubli',
         type: 'ambiance',
-        trigger: { kind: 'xp', level: 25, frac: 0.3 },
+        trigger: { kind: 'xp', level: 23, frac: 0.3 },
         once: true,
         content: {
             speaker: 'systeme',
@@ -581,7 +581,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_esen_peur_souvenir',
         type: 'dialogue',
-        trigger: { kind: 'xp', level: 25, frac: 0.2 },
+        trigger: { kind: 'xp', level: 23, frac: 0.2 },
         once: true,
         content: {
             image: 'images/story/dos_a_dos.webp',
@@ -603,7 +603,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n27_dialogue_esen',
         type: 'dialogue',
-        trigger: { kind: 'xp', level: 27, frac: 0.55 },
+        trigger: { kind: 'xp', level: 24, frac: 0.55 },
         once: true,
         content: {
             speaker: 'esen',
@@ -621,7 +621,7 @@ const STORY_EVENTS = [
         // v1422 : Faille « La Boulangerie qui s'efface » (niveau 27, 5 jours pour la fermer)
         id: 'evt_boulangerie_faille',
         type: 'fait',
-        trigger: { kind: 'levelAndNarrativeRift', value: 28, narrativeId: 'bakery_fading' },
+        trigger: { kind: 'levelAndNarrativeRift', value: 25, narrativeId: 'bakery_fading' },
         once: true,
         content: {
             speaker: 'nyra',
@@ -645,7 +645,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n29_ambiance_nabdano',
         type: 'ambiance',
-        trigger: { kind: 'xp', level: 29, frac: 0.8 },
+        trigger: { kind: 'xp', level: 25, frac: 0.8 },
         once: true,
         content: {
             speaker: 'systeme',
@@ -661,7 +661,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_nyra_sans_blague',
         type: 'dialogue',
-        trigger: { kind: 'xp', level: 30, frac: 0.45 },
+        trigger: { kind: 'xp', level: 26, frac: 0.45 },
         once: true,
         content: {
             image: 'images/story/n11_deux_silences.webp',
@@ -685,7 +685,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n31_dialogue_duo',
         type: 'dialogue',
-        trigger: { kind: 'xp', level: 31, frac: 0.2 },
+        trigger: { kind: 'xp', level: 26, frac: 0.2 },
         once: true,
         content: {
             speaker: 'nyra',
@@ -702,7 +702,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n33_ambiance_systeme_revelation',
         type: 'ambiance',
-        trigger: { kind: 'levelAndNarrativeRift', value: 33, narrativeId: 'first_breach' },
+        trigger: { kind: 'levelAndNarrativeRift', value: 28, narrativeId: 'first_breach' },
         once: true,
         content: {
             speaker: 'systeme',
@@ -737,7 +737,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n35_ambiance_nabdano_nom',
         type: 'ambiance',
-        trigger: { kind: 'levelAndNarrativeRift', value: 35, narrativeId: 'whispering_tower' },
+        trigger: { kind: 'levelAndNarrativeRift', value: 29, narrativeId: 'whispering_tower' },
         once: true,
         content: {
             speaker: 'systeme',
@@ -753,7 +753,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n37_fait_respiration',
         type: 'fait',
-        trigger: { kind: 'xp', level: 37, frac: 0.45 },
+        trigger: { kind: 'xp', level: 30, frac: 0.45 },
         once: true,
         content: {
             speaker: 'nyra',
@@ -795,7 +795,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n39_ambiance_voix',
         type: 'ambiance',
-        trigger: { kind: 'xp', level: 39, frac: 0.7 },
+        trigger: { kind: 'xp', level: 31, frac: 0.7 },
         once: true,
         content: {
             speaker: 'nabdano',
@@ -811,7 +811,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n41_dialogue_duo',
         type: 'dialogue',
-        trigger: { kind: 'xp', level: 41, frac: 0.15 },
+        trigger: { kind: 'xp', level: 32, frac: 0.15 },
         once: true,
         content: {
             speaker: 'nyra',
@@ -828,7 +828,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n43_ambiance_systeme_peur',
         type: 'ambiance',
-        trigger: { kind: 'xp', level: 43, frac: 0.4 },
+        trigger: { kind: 'xp', level: 33, frac: 0.4 },
         once: true,
         content: {
             speaker: 'systeme',
@@ -848,7 +848,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n55_systeme_espoir',
         type: 'ambiance',
-        trigger: { kind: 'xp', level: 44, frac: 0.65 },
+        trigger: { kind: 'xp', level: 34, frac: 0.65 },
         once: true,
         content: {
             speaker: 'systeme',
@@ -867,7 +867,7 @@ const STORY_EVENTS = [
         // v1422 : Faille « L'Écho » (niveau 44) — tient la Promesse du niveau 41
         id: 'evt_echo_retour',
         type: 'fait',
-        trigger: { kind: 'levelAndNarrativeRift', value: 45, narrativeId: 'the_echo' },
+        trigger: { kind: 'levelAndNarrativeRift', value: 35, narrativeId: 'the_echo' },
         once: true,
         content: {
             speaker: 'systeme',
@@ -914,7 +914,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n45_ambiance_approche',
         type: 'ambiance',
-        trigger: { kind: 'xp', level: 45, frac: 0.7 },
+        trigger: { kind: 'xp', level: 35, frac: 0.7 },
         once: true,
         content: {
             speaker: 'systeme',
@@ -929,7 +929,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n47_ambiance_nabdano',
         type: 'ambiance',
-        trigger: { kind: 'xp', level: 47, frac: 0.15 },
+        trigger: { kind: 'xp', level: 36, frac: 0.15 },
         once: true,
         content: {
             speaker: 'nabdano',
@@ -945,7 +945,7 @@ const STORY_EVENTS = [
         // v1422 : Faille « Le Faux Système » (niveau 48) — deux voix, un seul Système
         id: 'evt_faux_systeme',
         type: 'fait',
-        trigger: { kind: 'levelAndNarrativeRift', value: 49, narrativeId: 'false_system' },
+        trigger: { kind: 'levelAndNarrativeRift', value: 37, narrativeId: 'false_system' },
         once: true,
         content: {
             speaker: 'systeme',
@@ -967,7 +967,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n49_dialogue_duo',
         type: 'dialogue',
-        trigger: { kind: 'xp', level: 49, frac: 0.4 },
+        trigger: { kind: 'xp', level: 37, frac: 0.4 },
         once: true,
         content: {
             speaker: 'nyra',
@@ -984,7 +984,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n51_fait_souvenir',
         type: 'fait',
-        trigger: { kind: 'xp', level: 51, frac: 0.65 },
+        trigger: { kind: 'xp', level: 38, frac: 0.65 },
         once: true,
         content: {
             speaker: 'systeme',
@@ -1000,7 +1000,7 @@ const STORY_EVENTS = [
         // v1422 : Faille « Le Marchand pâlit » (niveau 52) — prépare « Le Client » (62)
         id: 'evt_marchand_dette',
         type: 'fait',
-        trigger: { kind: 'levelAndNarrativeRift', value: 53, narrativeId: 'merchant_fading' },
+        trigger: { kind: 'levelAndNarrativeRift', value: 39, narrativeId: 'merchant_fading' },
         once: true,
         content: {
             speaker: 'marchand',
@@ -1017,7 +1017,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n53_ambiance_doute',
         type: 'ambiance',
-        trigger: { kind: 'xp', level: 53, frac: 0.3 },
+        trigger: { kind: 'xp', level: 39, frac: 0.3 },
         once: true,
         content: {
             speaker: 'nabdano',
@@ -1056,7 +1056,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_nabdano_passe',
         type: 'fait',
-        trigger: { kind: 'levelAndNarrativeRift', value: 55, narrativeId: 'the_one_who_carried' },
+        trigger: { kind: 'levelAndNarrativeRift', value: 40, narrativeId: 'the_one_who_carried' },
         once: true,
         content: {
             image: 'images/story/inscription_nabdano.webp',
@@ -1087,7 +1087,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n55_dialogue_esen',
         type: 'dialogue',
-        trigger: { kind: 'xp', level: 56, frac: 0.55 },
+        trigger: { kind: 'xp', level: 41, frac: 0.55 },
         once: true,
         content: {
             speaker: 'esen',
@@ -1104,7 +1104,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n57_fait_nyra',
         type: 'fait',
-        trigger: { kind: 'xp', level: 57, frac: 0.8 },
+        trigger: { kind: 'xp', level: 42, frac: 0.8 },
         once: true,
         content: {
             speaker: 'nyra',
@@ -1122,7 +1122,7 @@ const STORY_EVENTS = [
         // v1441 : scène ajoutée pour garder le rythme entre les grands chapitres
         id: 'evt_n58_dispute',
         type: 'dialogue',
-        trigger: { kind: 'xp', level: 58, frac: 0.2 },
+        trigger: { kind: 'xp', level: 42, frac: 0.2 },
         once: true,
         content: {
             speaker: 'nyra',
@@ -1139,7 +1139,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_marcus_quarante',
         type: 'dialogue',
-        trigger: { kind: 'xp', level: 59, frac: 0.35 },
+        trigger: { kind: 'xp', level: 43, frac: 0.35 },
         condition: function () { return awakAvecCompagnon('marcus'); },
         once: true,
         content: {
@@ -1159,7 +1159,7 @@ const STORY_EVENTS = [
         // v1441 : scène ajoutée pour garder le rythme entre les grands chapitres
         id: 'evt_n60_glitch',
         type: 'ambiance',
-        trigger: { kind: 'xp', level: 60, frac: 0.4 },
+        trigger: { kind: 'xp', level: 43, frac: 0.4 },
         once: true,
         content: {
             speaker: 'systeme',
@@ -1176,7 +1176,7 @@ const STORY_EVENTS = [
         // v1441 : scène ajoutée pour garder le rythme entre les grands chapitres
         id: 'evt_n61_carnet',
         type: 'fait',
-        trigger: { kind: 'xp', level: 61, frac: 0.3 },
+        trigger: { kind: 'xp', level: 44, frac: 0.3 },
         once: true,
         content: {
             speaker: 'marchand',
@@ -1193,7 +1193,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_marchand_client',
         type: 'fait',
-        trigger: { kind: 'xp', level: 62, frac: 0.3 },
+        trigger: { kind: 'xp', level: 44, frac: 0.3 },
         once: true,
         content: {
             speaker: 'marchand',
@@ -1213,7 +1213,7 @@ const STORY_EVENTS = [
         // v1441 : scène ajoutée pour garder le rythme entre les grands chapitres
         id: 'evt_n62_photo',
         type: 'fait',
-        trigger: { kind: 'xp', level: 62, frac: 0.8 },
+        trigger: { kind: 'xp', level: 44, frac: 0.8 },
         once: true,
         content: {
             speaker: 'esen',
@@ -1230,7 +1230,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_kira_traces',
         type: 'dialogue',
-        trigger: { kind: 'xp', level: 63, frac: 0.6 },
+        trigger: { kind: 'xp', level: 45, frac: 0.6 },
         condition: function () { return awakAvecCompagnon('kira'); },
         once: true,
         content: {
@@ -1249,7 +1249,7 @@ const STORY_EVENTS = [
         // v1441 : scène ajoutée pour garder le rythme entre les grands chapitres
         id: 'evt_n64_enfant',
         type: 'fait',
-        trigger: { kind: 'xp', level: 64, frac: 0.2 },
+        trigger: { kind: 'xp', level: 46, frac: 0.2 },
         once: true,
         content: {
             speaker: 'nyra',
@@ -1265,7 +1265,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n65_ambiance_nabdano',
         type: 'ambiance',
-        trigger: { kind: 'levelAndNarrativeRift', value: 65, narrativeId: 'silent_one' },
+        trigger: { kind: 'levelAndNarrativeRift', value: 46, narrativeId: 'silent_one' },
         once: true,
         content: {
             speaker: 'nabdano',
@@ -1282,7 +1282,7 @@ const STORY_EVENTS = [
         // v1441 : scène ajoutée pour garder le rythme entre les grands chapitres
         id: 'evt_n66_carte',
         type: 'ambiance',
-        trigger: { kind: 'xp', level: 66, frac: 0.3 },
+        trigger: { kind: 'xp', level: 47, frac: 0.3 },
         once: true,
         content: {
             speaker: 'systeme',
@@ -1298,7 +1298,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_elise_prescription',
         type: 'dialogue',
-        trigger: { kind: 'xp', level: 67, frac: 0.4 },
+        trigger: { kind: 'xp', level: 47, frac: 0.4 },
         condition: function () { return awakAvecCompagnon('elise'); },
         once: true,
         content: {
@@ -1324,7 +1324,7 @@ const STORY_EVENTS = [
         // v1441 : scène ajoutée pour garder le rythme entre les grands chapitres
         id: 'evt_n67_rire',
         type: 'fait',
-        trigger: { kind: 'xp', level: 67, frac: 0.9 },
+        trigger: { kind: 'xp', level: 47, frac: 0.9 },
         once: true,
         content: {
             speaker: 'nyra',
@@ -1341,7 +1341,7 @@ const STORY_EVENTS = [
         // v1441 : scène ajoutée pour garder le rythme entre les grands chapitres
         id: 'evt_n68_offre',
         type: 'ambiance',
-        trigger: { kind: 'xp', level: 68, frac: 0.8 },
+        trigger: { kind: 'xp', level: 48, frac: 0.8 },
         once: true,
         content: {
             speaker: 'nabdano',
@@ -1357,7 +1357,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_yuna_noyau',
         type: 'ambiance',
-        trigger: { kind: 'xp', level: 69, frac: 0.5 },
+        trigger: { kind: 'xp', level: 49, frac: 0.5 },
         condition: function () { return awakAvecCompagnon('yuna'); },
         once: true,
         content: {
@@ -1376,7 +1376,7 @@ const STORY_EVENTS = [
         // v1441 : scène ajoutée pour garder le rythme entre les grands chapitres
         id: 'evt_n70_autres',
         type: 'fait',
-        trigger: { kind: 'xp', level: 70, frac: 0.5 },
+        trigger: { kind: 'xp', level: 49, frac: 0.5 },
         once: true,
         content: {
             speaker: 'systeme',
@@ -1393,7 +1393,7 @@ const STORY_EVENTS = [
         // v1441 : scène ajoutée pour garder le rythme entre les grands chapitres
         id: 'evt_n71_epaule',
         type: 'dialogue',
-        trigger: { kind: 'xp', level: 71, frac: 0.7 },
+        trigger: { kind: 'xp', level: 50, frac: 0.7 },
         once: true,
         content: {
             speaker: 'esen',
@@ -1410,7 +1410,7 @@ const STORY_EVENTS = [
         // v1441 : scène ajoutée pour garder le rythme entre les grands chapitres
         id: 'evt_n72_economie',
         type: 'ambiance',
-        trigger: { kind: 'xp', level: 72, frac: 0.8 },
+        trigger: { kind: 'xp', level: 50, frac: 0.8 },
         once: true,
         content: {
             speaker: 'systeme',
@@ -1426,7 +1426,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_chen_mefiance',
         type: 'dialogue',
-        trigger: { kind: 'xp', level: 74, frac: 0.3 },
+        trigger: { kind: 'xp', level: 52, frac: 0.3 },
         condition: function () { return awakAvecCompagnon('chen'); },
         once: true,
         content: {
@@ -1445,7 +1445,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n61_ambiance_proche',
         type: 'ambiance',
-        trigger: { kind: 'xp', level: 75, frac: 0.2 },
+        trigger: { kind: 'xp', level: 52, frac: 0.2 },
         once: true,
         content: {
             speaker: 'systeme',
@@ -1461,7 +1461,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_chanson_retrouvee',
         type: 'ambiance',
-        trigger: { kind: 'xp', level: 76, frac: 0.5 },
+        trigger: { kind: 'xp', level: 53, frac: 0.5 },
         once: true,
         content: {
             speaker: 'nyra',
@@ -1480,7 +1480,7 @@ const STORY_EVENTS = [
         // v1441 : scène ajoutée pour garder le rythme entre les grands chapitres
         id: 'evt_n77_question',
         type: 'ambiance',
-        trigger: { kind: 'xp', level: 77, frac: 0.4 },
+        trigger: { kind: 'xp', level: 53, frac: 0.4 },
         once: true,
         content: {
             speaker: 'nabdano',
@@ -1497,7 +1497,7 @@ const STORY_EVENTS = [
         // v1441 : scène ajoutée pour garder le rythme entre les grands chapitres
         id: 'evt_n78_stock',
         type: 'fait',
-        trigger: { kind: 'xp', level: 78, frac: 0.3 },
+        trigger: { kind: 'xp', level: 54, frac: 0.3 },
         once: true,
         content: {
             speaker: 'marchand',
@@ -1514,7 +1514,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_n70_dialogue_duo',
         type: 'dialogue',
-        trigger: { kind: 'xp', level: 79, frac: 0.2 },
+        trigger: { kind: 'xp', level: 54, frac: 0.2 },
         once: true,
         content: {
             speaker: 'nyra',
@@ -1533,7 +1533,7 @@ const STORY_EVENTS = [
     {
         id: 'evt_avant_porte_bilan',
         type: 'ambiance',
-        trigger: { kind: 'xp', level: 79, frac: 0.7 },
+        trigger: { kind: 'xp', level: 54, frac: 0.7 },
         once: true,
         content: {
             image: 'images/story/moment_suspendu.webp',
@@ -1553,15 +1553,14 @@ const STORY_EVENTS = [
         // v1389 : scène du passage au rang S (remplace l'ancien court message du Système)
         id: 'evt_rang_s',
         type: 'ambiance',
-        trigger: { kind: 'rank', value: 'S' },
-        // seulement pendant ce rang : un joueur déjà plus haut ne reçoit pas les scènes passées en rafale
-        condition: function () { try { return typeof awakGetRank !== 'function' || awakGetRank().id === 'S'; } catch (e) { return true; } },
+        // v1524 : l'histoire se termine au rang A → « L'Exception » arrive juste après le rang A
+        trigger: { kind: 'xp', level: 56, frac: 0.2 },
         once: true,
         content: {
             speaker: 'systeme',
             title: "L'Exception",
             pages: [
-                "Le Système affiche S. Puis efface la lettre. Puis l'affiche encore, comme s'il n'y croyait pas.",
+                "Le Système affiche A. Puis efface la lettre. Puis l'affiche encore, comme s'il n'y croyait pas.",
                 "« Tu ne devrais pas être là. Rien dans ce qui reste du monde ne prévoyait quelqu'un comme toi. Et pourtant tu es là. »",
                 "Au loin, au bout de la route blanche, il n'y a plus de rues. Seulement une porte, et quelqu'un d'assis devant, qui attend depuis très longtemps.",
                 "{partenaire} serre ta main, une seconde à peine. « On y va ensemble. Comme d'habitude. »"
@@ -1571,9 +1570,9 @@ const STORY_EVENTS = [
     {
         id: 'evt_n75_ambiance_porte',
         type: 'ambiance',
-        // ⚠️ La Faille « last_door » exige le rang S = niveau 80. Un seuil à 75
+        // ⚠️ v1524 : la Faille « last_door » exige le rang A = niveau 55 (avant : rang S = 80). Un seuil à 75
         // était trompeur : l'événement ne pouvait pas se déclencher avant 80.
-        trigger: { kind: 'levelAndNarrativeRift', value: 80, narrativeId: 'last_door' },
+        trigger: { kind: 'levelAndNarrativeRift', value: 55, narrativeId: 'last_door' },
         once: true,
         content: {
             speaker: 'systeme',
@@ -1599,7 +1598,7 @@ const STORY_EVENTS = [
         id: 'evt_quatre_epreuves',
         type: 'fait',
         uneParSeance: true,   // v1422 : pas dans la même séance que « La Dernière Porte »
-        trigger: { kind: 'levelAndNarrativeRift', value: 80, narrativeId: 'last_door' },
+        trigger: { kind: 'levelAndNarrativeRift', value: 55, narrativeId: 'last_door' },
         once: true,
         content: {
             speaker: 'systeme',
@@ -1635,7 +1634,7 @@ const STORY_EVENTS = [
         // v1441 : scène ajoutée pour garder le rythme entre les grands chapitres
         id: 'evt_n84_mardi',
         type: 'ambiance',
-        trigger: { kind: 'xp', level: 84, frac: 0.4 },
+        trigger: { kind: 'xp', level: 57, frac: 0.4 },
         once: true,
         content: {
             speaker: 'systeme',
@@ -1652,7 +1651,7 @@ const STORY_EVENTS = [
         // v1441 : scène ajoutée pour garder le rythme entre les grands chapitres
         id: 'evt_n88_lampadaire',
         type: 'fait',
-        trigger: { kind: 'xp', level: 88, frac: 0.5 },
+        trigger: { kind: 'xp', level: 60, frac: 0.5 },
         once: true,
         content: {
             speaker: 'nyra',
@@ -1669,7 +1668,7 @@ const STORY_EVENTS = [
         // v1441 : scène ajoutée pour garder le rythme entre les grands chapitres
         id: 'evt_n92_bandes',
         type: 'fait',
-        trigger: { kind: 'xp', level: 92, frac: 0.3 },
+        trigger: { kind: 'xp', level: 62, frac: 0.3 },
         once: true,
         content: {
             speaker: 'esen',
@@ -1686,7 +1685,7 @@ const STORY_EVENTS = [
         // v1441 : scène ajoutée pour garder le rythme entre les grands chapitres
         id: 'evt_n96_lettres',
         type: 'ambiance',
-        trigger: { kind: 'xp', level: 96, frac: 0.6 },
+        trigger: { kind: 'xp', level: 64, frac: 0.6 },
         once: true,
         content: {
             speaker: 'systeme',

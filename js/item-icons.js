@@ -132,7 +132,10 @@
   // v1523 : ILLUSTRATIONS par type (images/Objets/equip_<type>.webp, métal neutre) ;
   // la rareté reste visible par un halo coloré. Le SVG reste en repli (image absente).
   // N'ajouter ici que les types livrés.
-  var IMG = { masse: 1, poing: 1, cristal: 1, bouclier: 1, casque: 1, epee: 1, dague: 1, hache: 1, faux: 1, lance: 1, arc: 1, baton: 1 };
+  var IMG = { masse: 1, poing: 1, cristal: 1, bouclier: 1, casque: 1, epee: 1, dague: 1, hache: 1, faux: 1, lance: 1, arc: 1, baton: 1,
+    // v1526 : 18 autres types livrés
+    couronne: 1, capuche: 1, bandeau: 1, masque: 1, manteau: 1, cuirasse: 1, gantelet: 1, jambiere: 1, chaussure: 1, botte: 1,
+    anneau: 1, orbe: 1, parchemin: 1, medaille: 1, fiole: 1, boussole: 1, chaine: 1, amulette: 1 };
   window.__awkEqSvg = window.__awkEqSvg || {};
   function illustration(it) {
     var ty = typeDe(it);

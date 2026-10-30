@@ -340,7 +340,8 @@ function getPlayerEquipStats() {
             const tree = rpgGetSkillTree();
             tree.filter(s => unlocked.includes(s.id)).forEach(s => {
                 if (s.effect && s.effect.statBonus) {
-                    for (const [k,v] of Object.entries(s.effect.statBonus)) stats[k] = (stats[k]||0)+(v||0);
+                    const _f = (window.AwakArbre && AwakArbre.facteur) ? AwakArbre.facteur(s.id) : 1;   // v1528 : rang
+                    for (const [k,v] of Object.entries(s.effect.statBonus)) stats[k] = (stats[k]||0)+Math.round((v||0)*_f);
                 }
             });
         }

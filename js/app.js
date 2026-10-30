@@ -15918,6 +15918,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (!isWarmup && currentEx && currentEx.name) {
                 const exKey = currentEx._baseName || currentEx.name;
                 const prsBeaten = checkPRBroken(exKey, reps, weight);
+                if (prsBeaten.length > 0) window._awakRecordAt = Date.now();   // v1528 : Briseur de Records (lu par rpgGainXP)
                 if (prsBeaten.length > 0) {
                     setTimeout(() => showPRBanner(prsBeaten, exKey), 200);
                 }
@@ -24192,7 +24193,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1523);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1529);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -24245,7 +24246,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     window._awakMasqueCorps(img).defs
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1523" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1529" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     '<g mask="url(#' + window._awakMasqueCorps(img).id + ')">' + svgZones + '</g>'
                 +   '</svg>'
@@ -30118,7 +30119,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1523");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1529");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -30193,7 +30194,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 <!-- Bouton Détails — accès Compétences, Classe, Muscles -->
                 ${(() => {
                     const _tree = typeof rpgGetSkillTree === 'function' ? rpgGetSkillTree() : [];
-                    const _unlockable = _tree.filter(sk => !unlockedSkills.includes(sk.id) && profileLevel >= (sk.req ? sk.req.level : 999)).length;
+                    const _unlockable = window.AwakArbre ? AwakArbre.dispo(profileLevel, unlockedSkills) : _tree.filter(sk => !unlockedSkills.includes(sk.id) && profileLevel >= (sk.req ? sk.req.level : 999)).length;
                     const _badge = _unlockable > 0
                         ? `<span style="background:#60a8f0;color:#04162b;font-size:0.6em;font-weight:900;padding:3px 8px;border-radius:99px;box-shadow:0 0 12px rgba(74,222,128,0.6);animation:skillPulse 1.8s ease-in-out infinite;white-space:nowrap;">${_unlockable} à débloquer !</span>`
                         : '';
@@ -30748,7 +30749,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             }
             const _titreGroupe = (txt, c) => `<div style="font-size:11px;color:${c};font-weight:800;text-transform:uppercase;letter-spacing:1.5px;margin:0 2px 8px;">${txt}</div>`;
 
-            cardSkills.innerHTML = `
+            if (window.AwakArbre) cardSkills.innerHTML = AwakArbre.html({ niveau: profileLevel, debloques: unlockedSkills, classe: _classInfo });
+            else cardSkills.innerHTML = `
                 <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:6px;">
                     <div style="font-size:16px;font-weight:800;color:#f1f5f9;">Arbre de compétences</div>
                     <div style="font-size:12.5px;color:#a3b1c2;white-space:nowrap;"><b style="color:#67e8f9;">${_actives}</b> / ${_skillTree.length} actives</div>
@@ -31403,13 +31405,17 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             { id:'streak_lord',  name:'Seigneur du Streak', emoji:'🔥', desc:'Streak bonus commence dès 2 jours',      req:{level:12}, effect:{streakStart:2}, type:'base' },
             { id:'prospector',   name:'Prospecteur',        emoji:'⛏️', desc:'+30% de minéraux trouvés dans les Failles', req:{level:15}, effect:{mineralBonus:0.30}, type:'base' },
             { id:'no_decay',     name:'Corps d\'Acier',     emoji:'🛡️', desc:'Grâce de 17 jours avant la perte d\'XP',       req:{level:18}, effect:{graceExtend:3}, type:'base' },
-            { id:'xp_surge',     name:'Sursaut d\'XP',      emoji:'⚡', desc:'+30% XP global permanent',               req:{level:30}, effect:{xpAll:0.30}, type:'base' },
+            { id:'xp_surge',     name:'Sursaut d\'XP',      emoji:'⚡', desc:'+15% XP global permanent',               req:{level:30}, effect:{xpAll:0.15}, type:'base' },
             // ── ENDGAME : pouvoirs de palier (niv 40 → 120) ──
             { id:'second_wind',  name:'Second Souffle',     emoji:'🫀', desc:'Survis à un coup fatal à 1 HP (1× par Faille)', req:{level:40}, effect:{secondWind:true}, type:'base' },
             { id:'vital_drain',  name:'Drain Vital',        emoji:'🩸', desc:'Récupère 6% des dégâts infligés en HP (Failles)', req:{level:55}, effect:{riftLifesteal:0.06}, type:'base' },
-            { id:'transcendence',name:'Transcendance',      emoji:'🌌', desc:'+25% XP global · +1 point de stat par niveau', req:{level:70}, effect:{xpAll:0.25, extraStatPoint:1}, type:'base' },
+            { id:'transcendence',name:'Transcendance',      emoji:'🌌', desc:'+15% XP global · +1 point de stat par niveau', req:{level:70}, effect:{xpAll:0.15, extraStatPoint:1}, type:'base' },
             { id:'apex_predator',name:'Apex Prédateur',     emoji:'🐺', desc:'+10% critique · +10% double drop', req:{level:90}, effect:{critChance:0.10, doubleDropChance:0.10}, type:'base' },
-            { id:'limit_break',  name:'Brise-Limites',      emoji:'💥', desc:'+40% XP · +5 toutes stats · 10% double XP', req:{level:120}, effect:{xpAll:0.40, statBonus:{STR:5,AGI:5,VIT:5,END:5,PER:5,SEN:5}, doubleXPChance:0.10}, type:'base' },
+            { id:'limit_break',  name:'Brise-Limites',      emoji:'💥', desc:'+20% XP · +5 toutes stats · 10% double XP', req:{level:120}, effect:{xpAll:0.20, statBonus:{STR:5,AGI:5,VIT:5,END:5,PER:5,SEN:5}, doubleXPChance:0.10}, type:'base' },
+            // ── v1528 : DISCIPLINE — récompenser la façon de s'entraîner ──
+            { id:'full_sets',     name:'Série Complète',     emoji:'✅', desc:'+15% XP sur chaque série qui atteint l\'objectif de reps', req:{level:14}, effect:{fullSets:0.15}, type:'base' },
+            { id:'record_breaker',name:'Briseur de Records', emoji:'🏆', desc:'+50% XP sur une série qui bat un record personnel', req:{level:24}, effect:{recordXP:0.50}, type:'base' },
+            { id:'long_breath',   name:'Souffle Long',       emoji:'⏱️', desc:'+20% dégâts en Faille sur les exercices au minuteur', req:{level:35}, effect:{timerDmg:0.20}, type:'base' },
         ];
 
         // ── COMPÉTENCES SPÉCIFIQUES PAR CLASSE ─────────────────────────
@@ -31435,20 +31441,20 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             titan_guardian: [
                 { id:'tg_unbreakable', name:'Inébranlable',            emoji:'🏔️', desc:'+5 VIT permanent',                                      req:{level:7},  effect:{statBonus:{VIT:5}}, type:'class' },
                 { id:'tg_endurance',   name:'Endurance Légendaire',    emoji:'💚', desc:'+15% XP global (endurance)', req:{level:11}, effect:{xpAll:0.15}, type:'class' },
-                { id:'tg_fortress',    name:'Forteresse Vivante',      emoji:'🏰', desc:'-35% pénalités de défi échoué',                         req:{level:15}, effect:{penaltyReduction:0.35}, type:'class' },
+                { id:'tg_fortress',    name:'Forteresse Vivante',      emoji:'🏰', desc:'-25% pénalités de défi échoué',                         req:{level:15}, effect:{penaltyReduction:0.25}, type:'class' },
                 { id:'tg_regen',       name:'Régénération',            emoji:'💖', desc:'+6 VIT · +2 jours avant le déclin', req:{level:20}, effect:{statBonus:{VIT:6},graceExtend:2}, type:'class' },
-                { id:'tg_aegis',       name:'Égide du Titan',          emoji:'🛡️', desc:'Immunité totale à muscle_decay',                        req:{level:25}, effect:{immuneMuscleDecay:true}, type:'class' },
-                { id:'tg_atlas',       name:'Force d\'Atlas',          emoji:'🪨', desc:'+10 VIT · +6 END · -50% toutes pénalités',             req:{level:32}, effect:{statBonus:{VIT:10,END:6},penaltyReduction:0.50}, type:'class' },
+                { id:'tg_aegis',       name:'Égide du Titan',          emoji:'🛡️', desc:'Perte d\'XP par inactivité réduite de moitié',          req:{level:25}, effect:{decayReduction:0.5}, type:'class' },
+                { id:'tg_atlas',       name:'Force d\'Atlas',          emoji:'🪨', desc:'+10 VIT · +6 END · -30% toutes pénalités',             req:{level:32}, effect:{statBonus:{VIT:10,END:6},penaltyReduction:0.30}, type:'class' },
                 { id:'tg_bulwark',     name:'Rempart Éternel',         emoji:'🧱', desc:'+8 VIT · +8 END · -25% pénalités de défi',             req:{level:45}, effect:{statBonus:{VIT:8,END:8}, penaltyReduction:0.25}, type:'class' },
             ],
             storm_archer: [
                 { id:'as_eagle_eye',   name:'Œil d\'Aigle',            emoji:'👁️', desc:'+5 PER permanent',                                      req:{level:7},  effect:{statBonus:{PER:5}}, type:'class' },
                 { id:'as_precision',   name:'Précision Mortelle',      emoji:'🎯', desc:'+25% XP sur les exercices d\'isolation',                req:{level:11}, effect:{xpIsolation:0.25}, type:'class' },
-                { id:'as_far_sight',   name:'Vision Lointaine',        emoji:'🔭', desc:'+12% chance de loot rare ou mieux', req:{level:15}, effect:{epicDropBonus:0.12}, type:'class' },
+                { id:'as_far_sight',   name:'Tir Perçant',             emoji:'🏹', desc:'+10% dégâts en Faille',                                  req:{level:15}, effect:{riftDmg:0.10}, type:'class' },
                 { id:'as_wind_walker', name:'Marcheur du Vent',        emoji:'💨', desc:'+15% chance de drop épique',                            req:{level:20}, effect:{epicDropBonus:0.15}, type:'class' },
-                { id:'as_omniscient',  name:'Omniscience',             emoji:'👁️\u200d🗨️', desc:'+15% chance de loot épique', req:{level:25}, effect:{epicDropBonus:0.15}, type:'class' },
+                { id:'as_omniscient',  name:'Point Faible',            emoji:'🎯', desc:'+50% dégâts des coups critiques',                       req:{level:25}, effect:{critDmg:0.50}, type:'class' },
                 { id:'as_system_eye',  name:'Œil du Système',          emoji:'🌀', desc:'+10 PER · +6 AGI · +20% loot épique', req:{level:32}, effect:{statBonus:{PER:10,AGI:6},epicDropBonus:0.20}, type:'class' },
-                { id:'as_tempest',     name:'Œil de la Tempête',       emoji:'🌪️', desc:'+20% drop épique · +8 PER · +8 AGI',                 req:{level:45}, effect:{epicDropBonus:0.20, statBonus:{PER:8,AGI:8}}, type:'class' },
+                { id:'as_tempest',     name:'Œil de la Tempête',       emoji:'🌪️', desc:'+15% dégâts contre les boss · +8 PER · +8 AGI',        req:{level:45}, effect:{bossDmg:0.15, statBonus:{PER:8,AGI:8}}, type:'class' },
             ],
             arcane_mage: [
                 { id:'am_meditation',  name:'Méditation',              emoji:'🧘', desc:'+5 SEN permanent',                                      req:{level:7},  effect:{statBonus:{SEN:5}}, type:'class' },
@@ -31456,8 +31462,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 { id:'am_arcane_pact', name:'Pacte Arcanique',         emoji:'🔮', desc:'+1 point de stat bonus à chaque niveau',                req:{level:15}, effect:{extraStatPoint:1}, type:'class' },
                 { id:'am_dispel',      name:'Dissipation',             emoji:'✨', desc:'20% chance d\'esquiver une pénalité de défi', req:{level:20}, effect:{penaltyDodge:0.20}, type:'class' },
                 { id:'am_telepathy',   name:'Télépathie Musculaire',   emoji:'🌌', desc:'+15% XP global (mobilité)', req:{level:25}, effect:{xpAll:0.15}, type:'class' },
-                { id:'am_reality_warp',name:'Faille de Réalité',       emoji:'🌠', desc:'+10 SEN · +6 PER · +2 stat points / niveau',           req:{level:32}, effect:{statBonus:{SEN:10,PER:6},extraStatPoint:2}, type:'class' },
-                { id:'am_ascension',   name:'Ascension Arcanique',     emoji:'🔯', desc:'+1 point de stat par niveau · +8 SEN · +8 PER',        req:{level:45}, effect:{extraStatPoint:1, statBonus:{SEN:8,PER:8}}, type:'class' },
+                { id:'am_reality_warp',name:'Faille de Réalité',       emoji:'🌠', desc:'+10 SEN · +6 PER · +4 VIT',                             req:{level:32}, effect:{statBonus:{SEN:10,PER:6,VIT:4}}, type:'class' },
+                { id:'am_ascension',   name:'Ascension Arcanique',     emoji:'🔯', desc:'+12 SEN · +10 PER',                                     req:{level:45}, effect:{statBonus:{SEN:12,PER:10}}, type:'class' },
             ],
             monarch_aspirant: [
                 { id:'ma_balanced',    name:'Équilibre Parfait',       emoji:'⚖️', desc:'+3 dans toutes les stats',                              req:{level:7},  effect:{statBonus:{STR:3,AGI:3,VIT:3,END:3,PER:3,SEN:3}}, type:'class' },
@@ -31465,7 +31471,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 { id:'ma_royal_blood', name:'Sang Royal',              emoji:'👑', desc:'10% chance de drop double item',                        req:{level:15}, effect:{doubleDropChance:0.10}, type:'class' },
                 { id:'ma_command',     name:'Commandement',            emoji:'⚔️', desc:'+20% XP sur compounds + isolations',                    req:{level:20}, effect:{xpCompound:0.20,xpIsolation:0.20}, type:'class' },
                 { id:'ma_throne',      name:'Le Trône',                emoji:'🪑', desc:'+25% chance de drop légendaire',                        req:{level:25}, effect:{legendaryDropBonus:0.25}, type:'class' },
-                { id:'ma_sovereign',   name:'Souveraineté Absolue',    emoji:'🌑', desc:'+8 toutes stats · 20% double drop · +50% XP',           req:{level:32}, effect:{statBonus:{STR:8,AGI:8,VIT:8,END:8,PER:8,SEN:8},doubleDropChance:0.20,xpAll:0.50}, type:'class' },
+                { id:'ma_sovereign',   name:'Souveraineté Absolue',    emoji:'🌑', desc:'+8 toutes stats · 20% double drop · +20% XP',           req:{level:32}, effect:{statBonus:{STR:8,AGI:8,VIT:8,END:8,PER:8,SEN:8},doubleDropChance:0.20,xpAll:0.20}, type:'class' },
                 { id:'ma_dominion',    name:'Dominion',                emoji:'🌍', desc:'+20% XP global · +4 toutes stats',                      req:{level:45}, effect:{xpAll:0.20, statBonus:{STR:4,AGI:4,VIT:4,END:4,PER:4,SEN:4}}, type:'class' },
             ],
         };
@@ -31494,13 +31500,15 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // 💎 Bonus prospecteur issu de la compétence (lu par economy.js).
         function awakGetProspectorSkillBonus() {
             try {
-                return rpgGetUnlockedSkills().includes('prospector') ? 0.30 : 0;
+                return rpgGetUnlockedSkills().includes('prospector') ? 0.30 * ((window.AwakArbre && AwakArbre.facteur) ? AwakArbre.facteur('prospector') : 1) : 0;
             } catch(e) { return 0; }
         }
         window.awakGetProspectorSkillBonus = awakGetProspectorSkillBonus;
         function rpgUnlockSkill(skillId) {
             const skills = rpgGetUnlockedSkills();
             if (skills.includes(skillId)) return;
+            // v1526 : arbre à choix — prérequis, niveau et points vérifiés
+            if (window.AwakArbre && !AwakArbre.peut(skillId)) { try { AwakArbre.choisir(skillId); } catch (e) {} return; }
             skills.push(skillId); localStorage.setItem('fitproRPGSkills', JSON.stringify(skills));
             const skill = SKILL_TREE.find(s=>s.id===skillId);
             showToast(`${skill.emoji} Compétence débloquée : ${skill.name} !`, 'success', 3500);
@@ -31541,22 +31549,29 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const unlocked = rpgGetUnlockedSkills();
             const effects = {};
             SKILL_TREE.filter(s=>unlocked.includes(s.id)).forEach(s => {
+                // v1528 : rang de la compétence (1 / 1,5 / 2) — appliqué UNE fois, ici
+                const _f = (window.AwakArbre && AwakArbre.facteur) ? AwakArbre.facteur(s.id) : 1;
                 for (const [key, val] of Object.entries(s.effect || {})) {
                     if (key === 'statBonus' && typeof val === 'object') {
                         // Additionner les bonus de stats (ne pas écraser)
                         effects.statBonus = effects.statBonus || {};
                         for (const [stat, amt] of Object.entries(val)) {
-                            effects.statBonus[stat] = (effects.statBonus[stat] || 0) + amt;
+                            effects.statBonus[stat] = (effects.statBonus[stat] || 0) + Math.round(amt * _f);
                         }
                     } else if (typeof val === 'number') {
                         // Additionner les effets numériques (xpAll, critChance, etc.)
-                        effects[key] = (effects[key] || 0) + val;
+                        effects[key] = (effects[key] || 0) + val * _f;
                     } else {
                         // Booléens et autres : prendre la valeur
                         effects[key] = val;
                     }
                 }
             });
+            // v1528 : plafonds (les rangs ne doivent pas casser le rythme ni les combats)
+            const _CAP = { xpAll:0.60, xpCompound:0.60, xpIsolation:0.60, critChance:0.25, doubleDropChance:0.40,
+                           epicDropBonus:0.50, legendaryDropBonus:0.40, epicToLegendary:0.30, doubleXPChance:0.25, rampageChance:0.15,
+                           penaltyDodge:0.40, riftLifesteal:0.12 };
+            for (const k in _CAP) if (typeof effects[k] === 'number') effects[k] = Math.min(_CAP[k], effects[k]);
             return effects;
         }
         window.rpgGetActiveEffects = rpgGetActiveEffects;
@@ -31587,6 +31602,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             rpgSave(newData);
             localStorage.setItem('fitproLastRank','E');
             localStorage.removeItem('fitproRPGSkills');
+            localStorage.removeItem('awakSkillRangs');
             launchConfetti();
             const overlay = document.createElement('div');
             overlay.style.cssText = 'position:fixed;inset:0;z-index:30004;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.9);backdrop-filter:blur(10px);';
@@ -35037,7 +35053,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1523);'
+                +     'url(images/combat_bg_v1.webp?v=1529);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -35385,7 +35401,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1523);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1529);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -35737,7 +35753,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:540px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto;display:flex;flex-direction:column;">
                 <!-- Header : vague actuelle -->
-                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1523);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1529);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                         <span style="font-size:0.6em;color:${theme.color};font-weight:900;letter-spacing:2px;">⚔ VAGUE ${rift.currentWaveIdx + 1} / ${rift.waves.length}${currentWave.isBoss ? ' · BOSS' : ''}</span>
                         <button onclick="awakAbandonRift()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
@@ -36420,9 +36436,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // ⚡ AGI : chance critique (×2 dégâts)
             // critique = bonus AGI + base 5% + compagnons + consommables + COMPÉTENCE
             const _skillEff = (typeof rpgGetActiveEffects === 'function') ? rpgGetActiveEffects() : {};
+            // v1528 : compétences de dégâts (Tir Perçant, Œil de la Tempête, Souffle Long)
+            if (_skillEff.riftDmg) finalDamage *= (1 + _skillEff.riftDmg);
+            if (currentWave.isBoss && _skillEff.bossDmg) finalDamage *= (1 + _skillEff.bossDmg);
+            if (_skillEff.timerDmg && _curEx && (_curEx.mode === 'timer' || _curEx.mode === 'duration')) finalDamage *= (1 + _skillEff.timerDmg);
             const critChance = 0.05 + bonuses.critChance + (compBonus.critChance || 0) + (consumEffects.critBonus || 0) + (_skillEff.critChance || 0);
             const isCrit = _eff.record || Math.random() < critChance;
-            if (isCrit) finalDamage *= 2;
+            if (isCrit) finalDamage *= 2 + (_skillEff.critDmg || 0);   // v1528 : Point Faible
 
             // 💨 VIT : chance double attaque (×1.5 dégâts au total)
             const isDouble = Math.random() < bonuses.doubleChance;
@@ -36961,7 +36981,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1523');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1529');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -37718,7 +37738,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1523);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1529);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -37889,7 +37909,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1523);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1529);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -38459,7 +38479,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         }
         window.awakShowCompanionMeeting = awakShowCompanionMeeting;
 
-        // Seuils en NIVEAU (rang D, C, B, A, puis juste avant la Dernière Porte au rang S)
+        // Seuils en NIVEAU (v1524 : histoire sur ~1 an, fin au rang A)
         // — un seuil en XP brute se décalait à chaque rééquilibrage de la courbe.
         const COMPANION_RIFTS = [
             {
@@ -38478,7 +38498,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 emoji: '🗡️', color: '#a855f7',
                 description: 'Un labyrinthe où les ombres bougent seules. Une silhouette te suit sans jamais se montrer.',
                 briefing: 'Reste vif. Elle teste tes réflexes. Si tu es trop lent, elle ne se montrera pas.',
-                levelRequired: 24,
+                levelRequired: 22,
                 rank: 'C', waves: 3, hpMult: 2.2, primaryStat: 'AGI', themeEmoji: '🌑',
                 exerciseFilter: ex => /jumping|jump|mountain|burpee|sprint|fente|lunge/.test((ex.name || '').toLowerCase())
             },
@@ -38488,8 +38508,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 emoji: '💚', color: '#34d399',
                 description: 'Les ruines d\'un ancien dispensaire de Faille. Quelqu\'un y soigne encore les blessés.',
                 briefing: 'Tiens bon jusqu\'au bout. Elle ne rejoint que ceux qui refusent d\'abandonner.',
-                levelRequired: 40,
-                rank: 'B', waves: 3, hpMult: 2.8, primaryStat: 'SEN', themeEmoji: '🏥',
+                levelRequired: 32,
+                rank: 'C', waves: 3, hpMult: 2.8, primaryStat: 'SEN', themeEmoji: '🏥',
                 exerciseFilter: ex => /squat|fente|lunge|pompe|push|step|gainage|planche|pull/.test((ex.name || '').toLowerCase())
             },
             {
@@ -38498,8 +38518,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 emoji: '🌀', color: '#c084fc',
                 description: 'Une Faille qui ne devrait pas exister. Une voix y murmure des choses que tu n\'as pas encore vécues.',
                 briefing: 'Le Système se méfie de ce lieu. Quelqu\'un t\'y attend, qui entend ce que lui n\'entend pas.',
-                levelRequired: 58,
-                rank: 'A', waves: 4, hpMult: 3.4, primaryStat: 'PER', themeEmoji: '🔮',
+                levelRequired: 42,
+                rank: 'B', waves: 4, hpMult: 3.4, primaryStat: 'PER', themeEmoji: '🔮',
                 exerciseFilter: ex => /squat|press|pompe|push|pull|fente|burpee|jumping/.test((ex.name || '').toLowerCase())
             },
             {
@@ -38508,8 +38528,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 emoji: '🧘', color: '#06b6d4',
                 description: 'Au plus haut d\'une Faille interminable, un vieux maître observe ceux qui montent jusqu\'à lui.',
                 briefing: 'Peu arrivent jusqu\'ici. Il ne parle qu\'à ceux qui ont prouvé leur constance.',
-                levelRequired: 72,
-                rank: 'S', waves: 4, hpMult: 4.0, primaryStat: 'PER', themeEmoji: '⛰️',
+                levelRequired: 50,
+                rank: 'B', waves: 4, hpMult: 4.0, primaryStat: 'PER', themeEmoji: '⛰️',
                 exerciseFilter: ex => /squat|press|pompe|push|pull|fente|burpee|gainage/.test((ex.name || '').toLowerCase())
             }
         ];
@@ -38602,7 +38622,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 name: 'L\u2019Ombre Dansante', emoji: '🌀', color: '#a855f7',
                 description: 'Jamais là où tu frappes. Seuls les coups les plus explosifs l\u2019atteignent.',
                 briefing: 'Sois EXPLOSIF. Burpees, sauts, sprints — les mouvements balistiques sont les seuls qui touchent.',
-                rank: 'S', hpMult: 11.0, primaryStat: 'AGI', themeEmoji: '⚡',
+                rank: 'A', hpMult: 11.0, primaryStat: 'AGI', themeEmoji: '⚡',
                 meetText: 'Pour une fois, l\u2019ombre ne s\u2019est pas dérobée. « Impressionnant. Tu frappes comme l\u2019éclair. Plus qu\u2019une épreuve avant Lui. »'
             },
             {
@@ -38610,7 +38630,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 name: 'Le Siphon Affamé', emoji: '⏳', color: '#dc2626',
                 description: 'Il se nourrit de ta vitalité à chaque instant. Le temps joue contre toi.',
                 briefing: 'NE T\u2019ARRÊTE PAS. Il te draine sans cesse — tue-le vite, avant qu\u2019il ne te vide entièrement.',
-                rank: 'S', hpMult: 9.0, primaryStat: 'END', themeEmoji: '🩸',
+                rank: 'A', hpMult: 9.0, primaryStat: 'END', themeEmoji: '🩸',
                 meetText: 'Le Siphon se ratatine, privé de ta vitalité qu\u2019il ne peut plus saisir. « Les Quatre Épreuves sont passées. L’Effaceur t\u2019attend désormais. »'
             }
         ];
@@ -39688,7 +39708,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 color: '#f472b6',
                 description: 'La petite boulangerie de Nyra. La vitrine pâlit d\'heure en heure. Dans cinq jours, il n\'en restera rien.',
                 briefing: 'Celle-ci n\'attendra pas. Si tu ne la fermes pas dans les cinq jours, ce souvenir sera perdu. Pour de bon.',
-                trigger: { type: 'level', value: 27, label: 'Atteindre le niveau 27' },
+                trigger: { type: 'level', value: 24, label: 'Atteindre le niveau 24' },
                 expireDays: 5,
                 rewards: { xp: 1200, message: 'La vitrine a retrouvé ses couleurs.' },
                 rank: 'C',
@@ -39705,7 +39725,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 color: '#a855f7',
                 description: 'Une Faille qui ressemble à un lieu de ton enfance. Mais quelque chose ne va pas.',
                 briefing: 'Tu reconnais cet endroit. Mais ce n\'est pas tout à fait ça. Avance prudemment.',
-                trigger: { type: 'level', value: 31, label: 'Atteindre le niveau 31' },   // v1422 : près de sa scène (33)
+                trigger: { type: 'level', value: 26, label: 'Atteindre le niveau 26' },   // v1422 : près de sa scène (33)
                 rewards: { xp: 1500, message: 'Tu as vu quelque chose que tu ne devrais pas voir. Le Système le sait.' },
                 rank: 'C',
                 waves: 3,
@@ -39721,9 +39741,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 color: '#06b6d4',
                 description: 'Une tour qui n\'existe pas dans la réalité, mais que tout le monde voit parfois en rêve.',
                 briefing: 'Ne réponds pas aux voix. Continue à monter. Le Système te guidera.',
-                trigger: { type: 'level', value: 35, label: 'Atteindre le niveau 35' },   // v1440 : au rang B (Faille de rang B : à 34, ripostes ×1,35 → 65 % de défaites)
+                trigger: { type: 'level', value: 29, label: 'Atteindre le niveau 29' },   // v1440 : au rang B (Faille de rang B : à 34, ripostes ×1,35 → 65 % de défaites)
                 rewards: { xp: 2500, message: 'Les voix se sont tues. Quelque chose les a fait taire. Pas toi.' },
-                rank: 'B',
+                rank: 'C',
                 waves: 3,
                 hpMult: 2.4,
                 primaryStat: 'SEN',
@@ -39738,7 +39758,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 color: '#38bdf8',
                 description: '{partenaire} n\'est pas venu{pe} s\'entraîner ce matin. Sa trace mène à une Faille qui parle avec ta voix.',
                 briefing: 'Va le chercher. Ne t\'arrête pas trop longtemps entre tes séries : chaque long silence l\'éloigne d\'une salle.',
-                trigger: { type: 'level', value: 44, label: 'Atteindre le niveau 44' },
+                trigger: { type: 'level', value: 34, label: 'Atteindre le niveau 34' },
                 mech: 'echo',
                 rewards: { xp: 4000, message: 'Tu es venu. Comme promis.' },
                 rank: 'B',
@@ -39756,7 +39776,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 color: '#c084fc',
                 description: 'Depuis ce matin, deux voix s\'affichent. Les deux disent être le Système.',
                 briefing: 'Avant chaque vague, deux messages. Un seul vient de moi. Choisis bien : l\'autre te fera payer ta confiance.',
-                trigger: { type: 'level', value: 48, label: 'Atteindre le niveau 48' },
+                trigger: { type: 'level', value: 36, label: 'Atteindre le niveau 36' },
                 choixVoix: true,
                 rewards: { xp: 4500, message: 'La seconde voix s\'est tue.' },
                 rank: 'B',
@@ -39774,7 +39794,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 color: '#fbbf24',
                 description: 'L\'échoppe est toujours là. Le Marchand aussi, mais on voit le comptoir à travers lui. Et ses prix grimpent.',
                 briefing: 'Tant que cette Faille reste ouverte, il s\'efface — et tout coûte 25 % plus cher chez lui. Ferme-la.',
-                trigger: { type: 'level', value: 52, label: 'Atteindre le niveau 52' },
+                trigger: { type: 'level', value: 39, label: 'Atteindre le niveau 39' },
                 rewards: { xp: 5000, message: 'Le Marchand est redevenu net.' },
                 rank: 'B',
                 waves: 3,
@@ -39795,9 +39815,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 color: '#f59e0b',
                 description: 'Une ville intacte, figée. Des gens y remercient quelqu\'un que tu ne vois pas encore.',
                 briefing: 'Cette Faille ne t\'attaque pas. Elle te montre. Le Système te déconseille d\'y entrer. Tu y vas quand même.',
-                trigger: { type: 'rank', value: 'A', label: 'Atteindre le rang A' },
+                trigger: { type: 'level', value: 40, label: 'Atteindre le niveau 40' },
                 rewards: { xp: 9000, message: 'Tu sais maintenant ce qu\'il a porté. Et combien de temps il a attendu.' },
-                rank: 'A',
+                rank: 'B',
                 waves: 3,
                 hpMult: 3.0,
                 primaryStat: 'END',
@@ -39811,9 +39831,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 color: '#64748b',
                 description: 'Un fragment où il n\'y a plus rien. Plus de son. Plus de couleur. Plus de mémoire.',
                 briefing: 'L\'Oubli est plus épais ici que partout ailleurs. Ne reste pas trop longtemps. Frappe vite.',
-                trigger: { type: 'level', value: 63, label: 'Atteindre le niveau 63' },   // v1422 : APRÈS « Celui qui a Porté »
+                trigger: { type: 'level', value: 45, label: 'Atteindre le niveau 45' },   // v1422 : APRÈS « Celui qui a Porté »
                 rewards: { xp: 5000, message: 'Tu l\'as vu, n\'est-ce pas ? Il t\'a regardé aussi.' },
-                rank: 'A',
+                rank: 'B',
                 waves: 4,
                 hpMult: 3.5,
                 primaryStat: 'VIT',
@@ -39827,9 +39847,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 color: '#fbbf24',
                 description: 'Le centre de l\'effacement. Le Système y est si faible qu\'il ne peut presque plus te parler. Mais tu n\'y entres pas seul.',
                 briefing: 'Pas de briefing cette fois. Le Système n\'en a plus la force. Mais personne n\'y entre seul.',
-                trigger: { type: 'rank', value: 'S', label: 'Atteindre le rang S' },
+                trigger: { type: 'rank', value: 'A', label: 'Atteindre le rang A' },
                 rewards: { xp: 10000, message: 'La porte est franchie. Au bout de la route, une silhouette assise t\'attend.' },
-                rank: 'S',
+                rank: 'A',
                 waves: 4,
                 hpMult: 5.0,
                 primaryStat: 'STR',
@@ -42042,6 +42062,21 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const _baseXP = Math.round(rpgXPForSet(exerciseName, reps, weightKg, isTimerMode, _dur) * _bonus);
                 const _exType = (typeof classifyExercise === 'function') ? classifyExercise({name:exerciseName}) : 'isolation';
                 let xpGained = rpgApplyXPMultipliers(_baseXP, muscle, _exType);
+                // v1528 : compétences Discipline — Série Complète / Briseur de Records
+                try {
+                    const _skD = rpgGetActiveEffects();
+                    if (_skD.fullSets) {
+                        let _cible = 0;
+                        const _exS = (typeof currentWorkout !== 'undefined' && currentWorkout && Array.isArray(currentWorkout.exercises))
+                            ? currentWorkout.exercises.find(e => (e._baseName || e.name) === exerciseName) : null;
+                        if (_exS) _cible = parseInt(_exS.targetReps || _exS.reps) || 0;
+                        if (isTimerMode || (_cible > 0 && reps >= _cible)) xpGained = Math.round(xpGained * (1 + _skD.fullSets));
+                    }
+                    if (_skD.recordXP && window._awakRecordAt && Date.now() - window._awakRecordAt < 4000) {
+                        xpGained = Math.round(xpGained * (1 + _skD.recordXP));
+                        window._awakRecordAt = 0;
+                    }
+                } catch (e) {}
 
                 // 🎁 Bonus temporaire de coffre : booste l'XP de la séance.
                 const _buff = (typeof rpgGetWorkoutBuff === 'function') ? rpgGetWorkoutBuff() : 1;
@@ -42184,7 +42219,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const depuis = Math.max(graceEnd, info.decayAt || 0);
                     const jours = (now.getTime() - depuis) / 86400000;
                     if (jours > 0) {
-                        const loss = Math.ceil(info.xp * RPG_DECAY_PCT * jours);
+                        const loss = Math.ceil(info.xp * RPG_DECAY_PCT * jours * (1 - Math.min(0.9, _sk.decayReduction || 0)));   // v1528 : Égide du Titan
                         info.xp = Math.max(0, info.xp - loss);
                         info.decayAt = now.getTime();
                         changed = true;
@@ -47467,7 +47502,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // (b) awakEveilOffered='1' posé par le 1er profil empêchait DÉFINITIVEMENT
             // l'offre de l'Éveil sur tout nouveau profil. Isolées ici : switchProfile
             // supprime la clé si le profil cible ne l'a pas → l'offre réapparaît.
-            const GAME_KEYS = ['fitproGameMode','fitproRPG','fitproRPGLifetimeXP','fitproRPGPrestige','fitproRPGClass','fitproRPGXPHistory','fitproRPGSkills','fitproRPGMilestones','fitproLevelUpLog','fitproAchievements','fitproStatPoints','awakLastRankSeen','awakRiftLastGen','awakEpicIntroSeen','awakGameGuideSeen','awakGameTabIntroSeen','awakFirstContactDone','awakEveilJourney','awakEveilOffered','awakEveilLevel','workoutStats','selectedEquipment','fitpro_inventory','fitpro_equipped','fitpro_daily_drops','fitpro_adventure_enabled'];
+            const GAME_KEYS = ['fitproGameMode','fitproRPG','fitproRPGLifetimeXP','fitproRPGPrestige','fitproRPGClass','fitproRPGXPHistory','fitproRPGSkills','awakSkillRespec','awakSkillRangs','awakSkillRefonte','fitproRPGMilestones','fitproLevelUpLog','fitproAchievements','fitproStatPoints','awakLastRankSeen','awakRiftLastGen','awakEpicIntroSeen','awakGameGuideSeen','awakGameTabIntroSeen','awakFirstContactDone','awakEveilJourney','awakEveilOffered','awakEveilLevel','workoutStats','selectedEquipment','fitpro_inventory','fitpro_equipped','fitpro_daily_drops','fitpro_adventure_enabled'];
             // Préfixes de clés DYNAMIQUES propres au profil (journal narratif : awakStoryEvt_<id> ; indices quotidiens : awakRiftHint_<id>)
             // v1277 : d'autres données PERSONNELLES vivaient dans une clé commune à
             // toute la famille (progression des boss, programme de mentor suivi,
@@ -49371,7 +49406,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
               // v1393 : hauteur réservée (aspect-ratio) — sinon l'image recréée
               // n'a aucune hauteur le temps d'un décodage, le formulaire saute
               // de ~160 px et le toucher sur le champ suivant tombe à côté.
-              +   '<img src="images/body/body_face.webp?v=1523" alt="" width="784" height="1168" '
+              +   '<img src="images/body/body_face.webp?v=1529" alt="" width="784" height="1168" '
               +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -49453,7 +49488,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1523);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1529);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -49520,7 +49555,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1523);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1529);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -51978,7 +52013,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1523");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1529");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
