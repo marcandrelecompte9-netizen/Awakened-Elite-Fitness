@@ -989,6 +989,93 @@ function initAdventureSystem() { /* Adventure is separate from RPG */ }
 // ═══════════════════════════════════════════════════════════════════════
 // 🎯 POPUP DÉTAIL ITEM — par-dessus le modal d'équipement
 // ═══════════════════════════════════════════════════════════════════════
+// v1530 : COMPARAISON avec l'objet équipé au même emplacement
+// Total de TOUT l'équipement avant / après l'échange (stats des objets + bonus
+// de set à paliers), plus les deux objets côte à côte.
+function awkTotauxEquip(parSlot) {
+    const T = { STR:0, AGI:0, VIT:0, END:0, PER:0, SEN:0 }, sets = {}, actifs = [];
+    Object.values(parSlot).forEach(it => {
+        if (!it) return;
+        for (const [k, v] of Object.entries(it.stats || {})) if (k in T) T[k] += v || 0;
+        if (it.set) sets[it.set] = (sets[it.set] || 0) + 1;
+    });
+    for (const [sid, n] of Object.entries(sets)) {
+        const s = getSetById(sid); if (!s || !s.bonuses) continue;
+        for (const [seuil, b] of Object.entries(s.bonuses)) {
+            if (n < parseInt(seuil)) continue;
+            actifs.push(s.name + ' (' + seuil + ') : ' + String(b.desc || '').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, '').trim());
+            for (const [k, v] of Object.entries(b.stats || {})) if (k in T) T[k] += v || 0;
+        }
+    }
+    return { T, actifs };
+}
+function awkDeltaEquip(item, invId) {
+    if (!item || !item.slot) return null;
+    const eq = getEquipped();
+    if (eq[item.slot] === invId) return null;
+    const avantSlots = getEquippedItems(), apresSlots = Object.assign({}, avantSlots, { [item.slot]: item });
+    const a = awkTotauxEquip(avantSlots), b = awkTotauxEquip(apresSlots);
+    const d = {}; let total = 0;
+    Object.keys(a.T).forEach(k => { d[k] = b.T[k] - a.T[k]; total += d[k]; });
+    return { actuel: avantSlots[item.slot] || null, a, b, d, total };
+}
+window.awkDeltaEquip = awkDeltaEquip;
+function awkComparaisonHTML(item, invId) {
+    const D = awkDeltaEquip(item, invId);
+    if (!D) return '';
+    const HAUT = '#60a5fa', BAS = '#f87171', EGAL = '#64748b';
+    const fl = (v) => v > 0
+        ? `<svg viewBox="0 0 24 24" width="11" height="11" fill="${HAUT}" style="vertical-align:-1px;"><path d="M12 5l7 9H5z"/></svg>`
+        : v < 0 ? `<svg viewBox="0 0 24 24" width="11" height="11" fill="${BAS}" style="vertical-align:-1px;"><path d="M12 19l7-9H5z"/></svg>` : '';
+    const effet = { STR:v=>`${v>0?'+':''}${v}% dégâts`, AGI:v=>`${v>0?'+':''}${(v*0.5).toFixed(1).replace('.',',')}% critique`, VIT:v=>`${v>0?'+':''}${v}% double coup · défense`,
+        END:v=>`${v>0?'+':''}${v*5} PV max`, PER:v=>`${v>0?'+':''}${v}% vs boss`, SEN:v=>`${v>0?'+':''}${v}% XP` };
+    const carteObj = (it, titre, accent) => {
+        if (!it) return `<div style="flex:1;min-width:0;border-radius:12px;padding:10px 8px;text-align:center;background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.14);">
+            <div style="font-size:10.5px;color:#94a3b8;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">${titre}</div>
+            <div style="font-size:13px;color:#94a3b8;font-weight:700;padding:14px 0;">Emplacement libre</div></div>`;
+        const ri = getRarityInfo(it.rarity);
+        const st = Object.entries(it.stats || {}).filter(([, v]) => v).map(([k, v]) => `<span style="color:${v < 0 ? BAS : '#e2e8f0'};">${v > 0 ? '+' : ''}${v} ${k}</span>`).join(' · ');
+        return `<div style="flex:1;min-width:0;border-radius:12px;padding:10px 8px;text-align:center;background:${ri.color}10;border:1.5px solid ${accent ? ri.color : ri.color + '55'};">
+            <div style="font-size:10.5px;color:${accent ? ri.color : '#94a3b8'};font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">${titre}</div>
+            <div style="font-size:2em;line-height:1;">${it.icon}</div>
+            <div style="font-size:12.5px;font-weight:800;color:#f1f5f9;margin-top:6px;line-height:1.2;">${it.name}</div>
+            <div style="font-size:11px;color:${ri.color};font-weight:700;margin-top:2px;">${(ri.labelFull || '').charAt(0) + (ri.labelFull || '').slice(1).toLowerCase()}</div>
+            <div style="font-size:11px;margin-top:5px;line-height:1.35;font-weight:700;">${st || '<span style="color:#64748b;">Aucune stat</span>'}</div>
+            ${it.passive ? `<div style="font-size:10.5px;color:${it.cursed ? '#d8b4fe' : '#a3b1c2'};margin-top:5px;line-height:1.3;">${it.cursed ? 'Malédiction' : 'Passif'} : ${it.passive}</div>` : ''}
+        </div>`;
+    };
+    const lignes = Object.keys(D.d).filter(k => D.a.T[k] || D.b.T[k]).map(k => {
+        const v = D.d[k], c = v > 0 ? HAUT : v < 0 ? BAS : EGAL;
+        return `<div style="display:grid;grid-template-columns:minmax(70px,auto) 1fr auto auto;gap:8px;align-items:center;padding:6px 0;border-top:1px solid rgba(255,255,255,0.05);font-variant-numeric:tabular-nums;">
+            <span style="font-size:12px;font-weight:800;color:#94a3b8;">${k}</span>
+            <span style="font-size:13px;color:#cbd5e1;font-weight:700;">${D.a.T[k]} <span style="color:#475569;">→</span> <b style="color:#f1f5f9;">${D.b.T[k]}</b></span>
+            <span style="font-size:11px;color:${v ? c : EGAL};text-align:right;">${v ? effet[k](v) : ''}</span>
+            <span style="min-width:44px;text-align:right;font-size:13.5px;font-weight:900;color:${c};">${fl(v)} ${v > 0 ? '+' : ''}${v}</span>
+        </div>`;
+    }).join('');
+    const tc = D.total > 0 ? HAUT : D.total < 0 ? BAS : EGAL;
+    const perdus = D.a.actifs.filter(x => D.b.actifs.indexOf(x) < 0), gagnes = D.b.actifs.filter(x => D.a.actifs.indexOf(x) < 0);
+    const sets = (gagnes.length || perdus.length) ? `<div style="margin-top:8px;font-size:11.5px;line-height:1.45;">
+        ${gagnes.map(x => `<div style="color:${HAUT};font-weight:700;">Bonus de set gagné · ${x}</div>`).join('')}
+        ${perdus.map(x => `<div style="color:${BAS};font-weight:700;">Bonus de set perdu · ${x}</div>`).join('')}</div>` : '';
+    return `<div style="margin-bottom:14px;">
+        <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:8px;">◈ COMPARAISON</div>
+        <div style="display:flex;gap:8px;align-items:stretch;">
+            ${carteObj(D.actuel, 'Équipé', false)}
+            <div style="flex-shrink:0;display:flex;align-items:center;color:#475569;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+            ${carteObj(item, 'Celui-ci', true)}
+        </div>
+        <div style="margin-top:10px;background:#0a0e18;border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:8px 12px 4px;">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;padding-bottom:4px;">
+                <span style="font-size:11px;color:#94a3b8;font-weight:800;letter-spacing:1px;text-transform:uppercase;">Ton équipement complet</span>
+                <span style="font-size:13px;font-weight:900;color:${tc};">${D.total > 0 ? '+' : ''}${D.total} au total</span>
+            </div>
+            ${lignes || '<div style="font-size:12px;color:#64748b;padding:6px 0;">Aucune différence de stats.</div>'}
+        </div>
+        ${sets}
+    </div>`;
+}
+
 function showItemPopup(item, invId, equippedSlot) {
     if (!item) return;
     document.getElementById('itemPopupModal')?.remove();
@@ -1007,7 +1094,7 @@ function showItemPopup(item, invId, equippedSlot) {
     const stats = Object.entries(item.stats || {}).filter(([_,v]) => v !== 0);
 
     modal.innerHTML = `
-        <div style="max-width:380px;width:100%;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1.5px solid ${r.color}55;border-radius:20px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.6),0 0 40px ${r.glow};animation:slideUp 0.35s cubic-bezier(0.34,1.56,0.64,1);">
+        <div style="max-width:380px;width:100%;max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px);overflow-y:auto;-webkit-overflow-scrolling:touch;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1.5px solid ${r.color}55;border-radius:20px;box-shadow:0 24px 60px rgba(0,0,0,0.6),0 0 40px ${r.glow};animation:slideUp 0.35s cubic-bezier(0.34,1.56,0.64,1);">
 
             <!-- Header rareté -->
             <div style="background:linear-gradient(135deg,${r.color}25,${r.color}05);padding:18px 20px;text-align:center;border-bottom:1px solid ${r.color}30;position:relative;">
@@ -1021,6 +1108,7 @@ function showItemPopup(item, invId, equippedSlot) {
 
             <!-- Corps -->
             <div style="padding:16px 20px;">
+                ${(!isEquipped && invId !== null && invId !== undefined) ? awkComparaisonHTML(item, invId) : ''}
                 <!-- Description -->
                 <div style="font-size:0.78em;color:#cbd5e1;line-height:1.55;font-style:italic;margin-bottom:14px;text-align:center;">${item.description || ''}</div>
 
@@ -1058,7 +1146,7 @@ function showItemPopup(item, invId, equippedSlot) {
                             const effects = {
                                 STR: `${neg?'-':'+'}${av}% dgts`,
                                 AGI: `${neg?'-':'+'}${(av*0.5).toFixed(1)}% crit`,
-                                VIT: `${neg?'-':'+'}${av}% × 2`,
+                                VIT: `${neg?'-':'+'}${av}% × 2 · défense`,
                                 END: `${neg?'-':'+'}${av*5} HP max`,
                                 PER: `${neg?'-':'+'}${av}% vs boss`,
                                 SEN: `${neg?'-':'+'}${av}% XP`
@@ -1561,6 +1649,11 @@ function showRPGEquipmentModal(defaultTab) {
                 const nomR = (r2.labelFull || item.rarity); const rar = nomR.charAt(0) + nomR.slice(1).toLowerCase();
                 const emp = item.slot === 'accessory' ? 'Accessoire' : (SLOT_NOMS[item.slot] || item.slot);
                 const st = _statsTxt(item);
+                // v1530 : gain / perte de stats si on l'équipe à la place de l'actuel
+                const _dq = (!isEq && typeof awkDeltaEquip === 'function') ? awkDeltaEquip(item, entry.id) : null;
+                const _cmp = !_dq ? '' : !_dq.actuel
+                    ? `<span style="flex-shrink:0;font-size:11px;font-weight:800;color:#60a5fa;border:1px solid rgba(96,165,250,0.4);border-radius:99px;padding:2px 7px;">Libre</span>`
+                    : _dq.total ? `<span style="flex-shrink:0;font-size:12px;font-weight:900;color:${_dq.total > 0 ? '#60a5fa' : '#f87171'};font-variant-numeric:tabular-nums;">${_dq.total > 0 ? '▴ +' : '▾ '}${_dq.total}</span>` : '<span style="flex-shrink:0;font-size:12px;font-weight:800;color:#64748b;">=</span>';
                 const etat = isEq
                     ? `<span style="flex-shrink:0;font-size:11px;font-weight:800;color:#04121f;background:${EQ_C};border-radius:99px;padding:3px 8px;">Équipé</span>`
                     : block
@@ -1581,7 +1674,7 @@ function showRPGEquipmentModal(defaultTab) {
                         ${block ? `<div style="font-size:11px;margin-top:2px;color:${EQ_TXT2};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${block.label}</div>`
                             : (st ? `<div style="font-size:11px;margin-top:2px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums;">${st}</div>` : '')}
                     </div>
-                    ${etat}
+                    ${_cmp}${etat}
                 </div>`;
             }).join('')}
         </div>`;
