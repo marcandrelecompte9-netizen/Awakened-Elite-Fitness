@@ -377,7 +377,13 @@
   // Pendant ce combat seulement, elles remplacent les images normales (mêmes clés
   // de EXERCISE_IMAGES, modifiées puis rétablies). N'ajouter ici que les fichiers livrés.
   var FB_IMAGES = {
-    'Pompes': 'FB_Pompes', 'Pompes maximum': 'FB_Pompes'
+    'Pompes': 'FB_Pompes', 'Pompes maximum': 'FB_Pompes',
+    // v1535 : 11 images de plus
+    'Burpees': 'FB_Burpees', 'Burpees finaux': 'FB_Burpees', 'Burpees avec saut': 'FB_Burpees_saut',
+    'Squats': 'FB_Squats', 'Squats maximum': 'FB_Squats', 'Squats sautés': 'FB_Squats_sautes',
+    'Fentes sautées alternées': 'FB_Fentes_sautees', 'Pompes diamant': 'FB_Pompes_diamant', 'Pompes claquées': 'FB_Pompes_claquees',
+    'Mountain climbers': 'FB_Mountain_climbers', 'Talons-fesses rapides': 'FB_Talons_fesses',
+    'Sauts groupés (tuck jumps)': 'FB_Sauts_groupes', 'Gainage planche': 'FB_Gainage_planche', 'Gainage final': 'FB_Gainage_planche'
   };
   var _imgSauve = null;
   function imagesCombat(actif) {
